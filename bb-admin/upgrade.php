@@ -1,5 +1,5 @@
 <?php
-require('bb-config.php');
+require('../bb-config.php');
 header ('content-type: text/plain');
 set_time_limit(600);
 // Uncomment to use. Best to run one at a time

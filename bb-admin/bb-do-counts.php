@@ -1,6 +1,6 @@
 <?php
 
-require('bb-config.php');
+require('../bb-config.php');
 header('Content-type: text/plain');
 
 $topics = $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS t_count FROM $bbdb->posts GROUP BY topic_id");
