@@ -56,7 +56,7 @@ function decodeit($text) {
 	$text = strtr($text, $trans_table);;
 	$text = str_replace('<br />', '', $text);
 	$text = str_replace('&#38;', '&', $text);
-	$text = str_replace('&#39;', '"', $text);
+	$text = str_replace('&#39;', "'", $text);
 	return $text;
 }
 

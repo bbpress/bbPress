@@ -26,4 +26,5 @@ if ($post_id)
 	header('Location: ' . get_post_link($post_id) );
 else
 	header('Location: ' . bb_get_option('uri') );
+exit;
 ?>
