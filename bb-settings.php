@@ -31,6 +31,15 @@ $bbdb->users   = $table_prefix . 'users';
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
 
+define('BBHASH', md5($table_prefix) );
+
+if ( !isset( $bb->usercookie ) )
+	$bb->usercookie = 'bb_user_' . BBHASH;
+if ( !isset( $bb->passcookie ) )
+	$bb->passcookie = 'bb_pass_' . BBHASH;
+if ( !isset( $bb->cookiepath ) )
+	$bb->cookiepath = bb_get_option('path');
+
 $static_title = '';
 
 $_GET    = bb_global_sanitize($_GET   );
@@ -42,8 +51,6 @@ function bb_shutdown_action_hook() {
 	bb_do_action('bb_shutdown', '');
 }
 register_shutdown_function('bb_shutdown_action_hook');
-
-define('BBHASH', md5($table_prefix) );
 
 $current_user = bb_current_user();
 

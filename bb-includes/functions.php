@@ -275,13 +275,13 @@ function bb_current_time( $type = 'timestamp' ) {
 }
 
 function bb_current_user() {
-	global $bbdb, $user_cache;
-	if ( !isset($_COOKIE['bb_user_' . BBHASH]) )
+	global $bbdb, $user_cache, $bb;
+	if ( !isset($_COOKIE[ $bb->usercookie ]) )
 		return false;
-	if ( !isset($_COOKIE['bb_pass_' . BBHASH]) )
+	if ( !isset($_COOKIE[ $bb->passcookie ]) )
 		return false;
-	$user = user_sanitize( $_COOKIE['bb_user_' . BBHASH] );
-	$pass = user_sanitize( $_COOKIE['bb_pass_' . BBHASH] );
+	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
+	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
 	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND MD5( user_password ) = '$pass'");
 	$user_cache[$current_user->user_id] = $current_user;
 	return $current_user;
@@ -513,6 +513,16 @@ function bb_offset_time($time) {
 	} else {
 		return ($time + ($bb->gmt_offset * 3600));
 	}
+}
+
+function bb_cookie( $name, $value, $expires = 0 ) {
+	global $bb;
+	if ( !$expires )
+		$expires = time() + 604800;
+	if ( isset( $bb->cookiedomain ) )
+		setcookie( $name, $value, $expires, $bb->cookiepath, $bb->cookiedomain );
+	else
+		setcookie( $name, $value, $expires, $bb->cookiepath );
 }
 
 ?>

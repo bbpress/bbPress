@@ -11,7 +11,7 @@ function get_footer() {
 }
 
 function login_form() {
-	global $current_user;
+	global $current_user, $bb;
 	if ($current_user) {
 		echo "<p>Welcome, $current_user->username! <a href='" . user_profile_link( $current_user->user_id) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
@@ -25,7 +25,7 @@ function search_form( $q = '' ) {
 }
 
 function post_form() {
-	global $current_user;
+	global $current_user, $bb;
 	if ($current_user) {
 		require( BBPATH . '/bb-templates/post-form.php');
 	} else {

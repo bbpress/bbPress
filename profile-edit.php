@@ -26,7 +26,7 @@ if ($_POST) :
 	
 	if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] ) :
 		bb_update_user_password ( $current_user->user_id, $_POST['pass1'] );
-		setcookie('bb_pass_'. BBHASH, md5( md5( $_POST['pass1'] ) ), time() + 604800, bb_get_option('path') ); // One week
+		bb_cookie( $bb->passcookie, md5( md5( $_POST['pass1'] ) ) ); // One week
 	endif;
 	$sendto = bb_add_query_arg( 'updated', 'true', user_profile_link( $current_user->user_id ) );
 	header("Location: $sendto");

@@ -13,15 +13,15 @@ header('Cache-Control: no-cache, must-revalidate');
 header('Pragma: no-cache');
 
 if ( isset( $_REQUEST['logout'] ) ) {
-	setcookie('bb_pass_'. BBHASH, $user->user_password, time() - 31536000, bb_get_option('path') );
+	setcookie( $bb->passcookie , $user->user_password, time() - 31536000, bb_get_option('path') );
 	header('Location: ' . $re);
 	bb_do_action('bb_user_logout', '');
 	return;
 }
 
 if ( $user = bb_check_login( $_POST['username'], $_POST['password'] ) ) {
-	setcookie('bb_user_'. BBHASH, $user->username, time() + 6048000, bb_get_option('path') );
-	setcookie('bb_pass_'. BBHASH, md5( $user->user_password ) , time() + 604800, bb_get_option('path') ); // One week
+	bb_cookie( $bb->usercookie, $user->username, time() + 6048000 );
+	bb_cookie( $bb->passcookie, md5( $user->user_password ) );
 	bb_do_action('bb_user_login', '');
 }
 
