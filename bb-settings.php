@@ -1,5 +1,4 @@
 <?php
-error_reporting(E_ALL);
 
 if ( !(phpversion() >= '4.1') )
 	die( 'Your server is running PHP version ' . phpversion() . ' but bbPress requires at least 4.1' );
