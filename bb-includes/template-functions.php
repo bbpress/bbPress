@@ -246,7 +246,7 @@ function topic_pages() {
 	} else {
 		if ( $page && ($page * bb_get_option('page_topics')) < $topic->topic_posts )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-		if ( bb_get_option('page_topics') < $topic->topic_posts )
+		if ( ( ($page + 1) * bb_get_option('page_topics')) < $topic->topic_posts )
 			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
 	}
 	echo bb_apply_filters('forum_pages', $r);
