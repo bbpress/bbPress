@@ -6,7 +6,7 @@ $topic_id = $page = 0;
 $topic_id = (int) $_GET['id'];
 
 if ( isset( $_GET['page'] ) )
-	$page = (int) $_GET['page'];
+	$page = (int) abs( $_GET['page'] );
 
 $topic = get_topic ( $topic_id );
 if ( !$topic )
