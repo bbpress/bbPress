@@ -34,7 +34,6 @@ function bb_new_user( $username, $email, $website, $location, $interests ) {
 }
 
 function bb_random_pass( $length = 6) {
-	mt_srand( microtime() );
 	$number = mt_rand(1, 15);
 	$string = md5( uniqid( microtime() ) );
  	$password = substr( $string, $number, $length );
