@@ -403,6 +403,9 @@ function get_user_type ( $id) {
 			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id");
 			$type = $user_cache[$id]->user_type;
 		}
+		if ( !empty( $user_cache[$id]->user_title ) )
+			return $user_cache[$id]->user_title;
+
 		switch ($type) :
 			case 0 :
 				return 'Member';

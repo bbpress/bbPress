@@ -55,6 +55,7 @@ CREATE TABLE $bbdb->users (
   user_sorttopics tinyint(1) NOT NULL default '1',
   user_newpwdkey varchar(32)  NOT NULL default '',
   user_newpasswd varchar(32)  NOT NULL default '',
+  user_title varchar(64) NOT NULL default '',
   user_type int(11) NOT NULL default '0',
   PRIMARY KEY  (user_id),
   UNIQUE KEY username (username)
