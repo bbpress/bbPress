@@ -61,6 +61,7 @@ function encode_bad( $text) {
 	$text = preg_replace('|&lt;(/?ul.*?)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?li.*?)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?blockquote.*?)&gt;|', '<$1>', $text);
+	$text = preg_replace('|&lt;(/?code.*?)&gt;|', '<$1>', $text);
 	return $text;
 }
 

@@ -20,7 +20,7 @@
 		
 		<div class="threadpost">
 			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">Posted: <?php post_time(); ?> {$viewIP} {$allowed} <a href="#post-<?php post_id(); ?>">#</a></div>
+			<div class="poststuff">Posted: <?php post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a></div>
 		</div>
 	</li>
 <?php endforeach; ?>

@@ -21,6 +21,38 @@ function alt_class( $key ) {
 	if ( $bb_alt[$key] % 2 ) echo ' class="alt"';
 }
 
+function is_front() {
+	if ( '/index.php' == $_SERVER['PHP_SELF'] )
+		return true;
+	else
+		return false;
+}
+
+function is_forum() {
+	if ( '/forum.php' == $_SERVER['PHP_SELF'] )
+		return true;
+	else
+		return false;
+}
+
+function is_topic() {
+	if ( '/topic.php' == $_SERVER['PHP_SELF'] )
+		return true;
+	else
+		return false;
+}
+
+function bb_title() {
+	global $topic, $forum;
+	$title = '';
+	if ( is_topic() )
+		$title = get_topic_title(). ' &laquo; ';
+	if ( is_forum() )
+		$title = get_forum_name() . ' &laquo; ';
+	$title .= get_option('name');
+	echo $title;
+}
+
 // FORUMS
 
 function forum_link() {
@@ -86,7 +118,12 @@ function topic_link() {
 
 function topic_title() {
 	global $topic;
-	echo apply_filters('topic_title', $topic->topic_title);
+	echo apply_filters('topic_title', get_topic_title() );
+}
+
+function get_topic_title() {
+	global $topic;
+	return $topic->topic_title;
 }
 
 function topic_posts() {
