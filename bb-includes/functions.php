@@ -26,7 +26,7 @@ function get_thread( $topic, $page = 0, $reverse = 0 ) {
 		$limit = ($limit * $page) . ", $limit";
 	$order = ($reverse) ? 'DESC' : 'ASC';
 
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic ORDER BY post_time $order LIMIT $limit");
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
 }
 
 function get_post( $post_id ) {
@@ -38,17 +38,17 @@ function get_post( $post_id ) {
 function get_latest_topics( $forum = 0, $page = 0 ) {
 	global $bbdb, $bb;
 	if ( $forum )
-		$where = "WHERE forum_id = $forum";
+		$where = "AND forum_id = $forum";
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	return $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit");
+	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit");
 }
 
 function get_latest_posts( $num ) {
 	global $bbdb;
 	$num = (int) $num;
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts ORDER BY post_time DESC LIMIT $num");
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status = 0 ORDER BY post_time DESC LIMIT $num");
 }
 
 function bb_apply_filters($tag, $string, $filter = true) {
@@ -367,6 +367,27 @@ function bb_new_post( $topic_id, $post ) {
 	}
 }
 
+function bb_delete_post( $post_id ) {
+	global $bbdb;
+	$post_id = (int) $post_id;
+	$post    = get_post ( $post_id );
+	$topic   = get_topic( $post->topic_id );
+
+	if ( $post ) {
+		$bbdb->query("UPDATE $bbdb->posts SET post_status = 1 WHERE post_id = $post_id");
+		$bbdb->query("UPDATE $bbdb->forums SET posts = posts - 1 WHERE forum_id = $topic->forum_id");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = topic_posts - 1 WHERE topic_id = $post->topic_id");
+		
+		if ( 0 == $bbdb->get_var("SELECT topic_posts FROM $bbdb->topics WHERE topic_id = $post->topic_id") )
+			$bbdb->query("UPDATE $bbdb->topics SET topic_status = 1 WHERE topic_id = $post->topic_id");
+
+		bb_do_action('bb_delete_post', $post_id);
+		return $post_id;
+	} else {
+		return false;
+	}
+}
+
 function bb_update_post( $post, $post_id ) {
 	global $bbdb, $current_user;
 	$post  = bb_apply_filters('pre_post', $post);
@@ -434,7 +455,7 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 	if ( !$user_id )
 		$user_id = $current_user->user_id;
 	$user = bb_get_user( $user_id );
-	$post = bb_get_post( $post_id );
+	$post = get_post( $post_id );
 	$post_author = bb_get_user ( $post->poster_id );
 
 	if ( $user->user_type > $post_author->user_type )
