@@ -14,7 +14,7 @@ function get_topic( $id ) {
 	global $topic_cache, $bbdb;
 	$id = (int) $id;
 	if ( !isset( $topic_cache[$id] ) )
-		$topic_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id");
+		$topic_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id AND topic_status = 0");
 	return $topic_cache[$id];
 }
 
