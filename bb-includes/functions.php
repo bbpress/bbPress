@@ -11,8 +11,11 @@ function get_forum( $id ) {
 }
 
 function get_topic( $id ) {
-	global $bbdb;
-	return $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id");
+	global $topic_cache, $bbdb;
+	$id = (int) $id;
+	if ( !isset( $topic_cache[$id] ) )
+		$topic_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id");
+	return $topic_cache[$id];
 }
 
 function get_thread ( $topic, $page = 0 ) {

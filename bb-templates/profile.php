@@ -33,41 +33,30 @@ echo $USERINFO;
 <h2>User Activity</h2>
 
 <div id="user-replies" class="user-recent"><h3>Recent Replies</h3>
-<?php
-$recent = $bbdb->get_results("SELECT DISTINCT $bbdb->posts.topic_id, $bbdb->posts.forum_id, topic_title, MAX(post_time) AS m, UNIX_TIMESTAMP(MAX(post_time))
-AS posted FROM $bbdb->posts, $bbdb->topics WHERE $bbdb->posts.poster_id=$user->user_id AND
-$bbdb->posts.topic_id=$bbdb->topics.topic_id GROUP BY $bbdb->posts.topic_id ORDER BY m desc LIMIT 25");
-
-if (!$recent) :
-        $USERINFO = '<p>No replies yet.</p>';
-else :
-        $USERINFO = '<ol>';
-        foreach ($recent as $r) :
-                $when = since($r->posted);
-                $USERINFO .= "<li><a href='/support/$r->forum_id/$r->topic_id'>$r->topic_title</a> $when ago</li>";
-        endforeach;
-        $USERINFO .= '</ol>';
-endif;
-$USERINFO .= '</div>';
-
-$USERINFO .= '<div id="user-threads" class="user-recent"><h3>Recent Threads</h3>';
-
-$threads = $bbdb->get_results("SELECT topic_id, forum_id, topic_title, UNIX_TIMESTAMP(topic_time) AS posted FROM $bbdb->topics WHERE
-topic_poster=$user->user_id ORDER BY topic_time DESC LIMIT 25");
-
-
-if (!$threads) :
-        $USERINFO .= '<p>No topics posted yet.</p>';
-else :
-        $USERINFO .= '<ol>';
-        foreach ($threads as $r) :
-                $when = since($r->posted);
-                $USERINFO .= "<li><a href='/support/$r->forum_id/$r->topic_id'>$r->topic_title</a> $when ago</li>";
-        endforeach;
-        $USERINFO .= '</ol>';
-endif;
-$USERINFO .= '</div><br style="clear: both;" />';
-echo $USERINFO;
+<?php 
+if ( $posts ) :
 ?>
+<ol>
+<?php foreach ($posts as $post) : ?>
+<li><a href="<?php topic_link( $post->topic_id ); ?>"><?php topic_title( $post->topic_id ); ?></a> <?php post_time(); ?> ago</li>
+<?php endforeach; ?>
+</ol>
+<?php else : ?>
+<p>No replies yet.</p>
+<?php endif; ?>
+</div>
+
+<div id="user-threads" class="user-recent">
+<h3>Threads Started</h3>
+<?php if ( $threads ) : ?>
+<ol>
+<?php foreach ($threads as $topic) : ?>
+<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> <?php topic_time(); ?> ago</li>
+<?php endforeach; ?>
+</ol>
+<?php else : ?>
+<p>No topics posted yet.</p>
+<?php endif; ?>
+</div><br style="clear: both;" />
 
 <?php get_footer(); ?>

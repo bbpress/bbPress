@@ -143,12 +143,15 @@ function topic_id() {
 	echo apply_filters('topic_id', get_topic_id() );
 }
 
-function topic_link() {
-	echo apply_filters('topic_link', get_topic_link() );
+function topic_link( $id = 0 ) {
+	echo apply_filters('topic_link', get_topic_link($d) );
 }
 
-function get_topic_link() {
+function get_topic_link( $id = 0 ) {
 	global $topic, $bb;
+
+	if ( $id )
+		$topic = get_topic( $id );
 
 	if ( get_option('mod_rewrite') )
 		$link = get_option('path') . $topic->topic_id;
@@ -158,13 +161,14 @@ function get_topic_link() {
 	return apply_filters('get_topic_link', $link);
 }
 
-function topic_title() {
-	global $topic;
-	echo apply_filters('topic_title', get_topic_title() );
+function topic_title( $id = 0 ) {
+	echo apply_filters('topic_title', get_topic_title( $id ) );
 }
 
-function get_topic_title() {
+function get_topic_title( $id = 0 ) {
 	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
 	return $topic->topic_title;
 }
 
@@ -178,9 +182,15 @@ function topic_last_poster() {
 	echo apply_filters('topic_last_poster', $topic->topic_last_poster_name);
 }
 
-function topic_time() {
+function topic_time( $id = 0 ) {
+	echo apply_filters('topic_time', get_topic_time($id) );
+}
+
+function get_topic_time( $id = 0 ) {
 	global $topic;
-	echo apply_filters('topic_time', $topic->topic_time);
+	if ( $id )
+		$topic = get_topic( $id );
+	return $topic->topic_time;
 }
 
 function topic_pages() {
