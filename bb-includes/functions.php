@@ -98,7 +98,8 @@ function bb_remove_filter($tag, $function_to_remove, $priority = 10) {
 				$new_function_list[] = $function;
 			}
 		}
-		$wp_filter[$tag]["$priority"] = $new_function_list;
+		if ( isset( $new_function_list ) )
+			$wp_filter[$tag]["$priority"] = $new_function_list;
 	}
 	//die(var_dump($wp_filter));
 	return true;
@@ -281,8 +282,7 @@ function bb_current_user() {
 		return false;
 	$user = user_sanitize( $_COOKIE['bb_user_' . BBHASH] );
 	$pass = user_sanitize( $_COOKIE['bb_pass_' . BBHASH] );
-	
-	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
+	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND MD5( user_password ) = '$pass'");
 	$user_cache[$current_user->user_id] = $current_user;
 	return $current_user;
 }
@@ -425,7 +425,7 @@ function post_link() {
 function can_edit( $user_id, $admin_id = 0) {
 	global $bbdb, $current_user;
 	if ( !$admin_id )
-		$admin_id = $current_user->user_id;
+		$admin_id = (int) $current_user->user_id;
 	$admin = bb_get_user( $admin_id );
 	$user  = bb_get_user( $user_id  );
 

@@ -8,6 +8,11 @@ $user = bb_get_user( $user_id );
 if ( !$user )
 	die('User not found.');
 
+if ( !isset( $_GET['updated'] ) )
+	$updated = false;
+else
+	$updated = true;
+
 $ts = strtotime( $user->user_regdate );
 
 $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT 25");

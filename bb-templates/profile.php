@@ -2,10 +2,20 @@
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
 <h2><?php echo $user->username; ?></h2>
+
+<?php if ( $updated ) : ?>
+<div class="notice">
+<p>Profile updated. <a href="profile-edit.php">Edit again &raquo;</a></p>
+</div>
+<?php elseif ( can_edit( $user_id ) ) : ?>
+<p>This is how your profile appears to a fellow logged in member, you may <a href="profile-edit.php">edit this information</a>.</p>
+<?php endif; ?>
+
 <dl id="userinfo">
 <dt>Member Since</dt>
 <dd><?php echo gmdate('F j, Y', $ts); ?> (<?php echo bb_since($ts); ?>)</dd>
 <?php
+$USERINFO = '';
 if ($user->user_website) :
         $USERINFO .= "<dt>Web address</dt>
 <dd><a href='$user->user_website'>$user->user_website</a></dd>

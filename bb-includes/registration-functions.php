@@ -33,6 +33,33 @@ function bb_new_user( $username, $email, $website, $location, $interests ) {
 	return $user_id;
 }
 
+function bb_update_user( $user_id, $website, $location, $interests ) {
+	global $bbdb;
+
+	$bbdb->query("UPDATE $bbdb->users SET
+	user_website  = '$website',
+	user_from     = '$location',
+	user_interest = '$interests'
+	WHERE user_id = '$user_id'
+	");
+
+	bb_do_action('bb_update_user', $user_id);
+	return $user_id;
+}
+
+function bb_update_user_password( $user_id, $password ) {
+	global $bbdb;
+	$passhash = md5( $password );
+
+	$bbdb->query("UPDATE $bbdb->users SET
+	user_password = '$passhash'
+	WHERE user_id = '$user_id'
+	");
+
+	bb_do_action('bb_update_user_password', $user_id);
+	return $user_id;
+}
+
 function bb_random_pass( $length = 6) {
 	$number = mt_rand(1, 15);
 	$string = md5( uniqid( microtime() ) );

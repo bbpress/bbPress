@@ -21,7 +21,7 @@ if ( isset( $_REQUEST['logout'] ) ) {
 
 if ( $user = bb_check_login( $_POST['username'], $_POST['password'] ) ) {
 	setcookie('bb_user_'. BBHASH, $user->username, time() + 6048000, bb_get_option('path') );
-	setcookie('bb_pass_'. BBHASH, $user->user_password, time() + 604800, bb_get_option('path') ); // One week
+	setcookie('bb_pass_'. BBHASH, md5( $user->user_password ) , time() + 604800, bb_get_option('path') ); // One week
 	bb_do_action('bb_user_login', '');
 }
 
