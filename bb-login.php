@@ -15,7 +15,7 @@ header('Cache-Control: no-cache, must-revalidate');
 header('Pragma: no-cache');
 
 if ( isset( $_REQUEST['logout'] ) ) {
-	setcookie( $bb->passcookie , $user->user_password, time() - 31536000, bb_get_option('path') );
+	bb_cookie( $bb->passcookie , $user->user_password, time() - 31536000 );
 	header('Location: ' . $re);
 	bb_do_action('bb_user_logout', '');
 	exit;
