@@ -59,6 +59,6 @@ There was a problem with your email, please check it.</td>
 </p>
 </form>
 <?php else : ?>
-<p>You're alreday logged in, why do you need to register?</p>
+<p>You're already logged in, why do you need to register?</p>
 <?php endif; ?>
 <?php get_footer(); ?>
