@@ -13,6 +13,14 @@ if ( !$post )
 
 bb_delete_post( $post_id );
 
-header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
+$topic = get_topic( $post->topic_id );
+
+if ( $topic->topic_posts == 1 )
+	$sendto = get_forum_link( $topic->forum_id );
+else
+	$sendto = $_SERVER['HTTP_REFERER'];
+
+header( "Location: $sendto" );
+exit;
 
 ?>

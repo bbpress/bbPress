@@ -82,13 +82,20 @@ function bb_title() {
 // FORUMS
 
 function forum_link() {
+	global $forum;
+	echo bb_apply_filters('forum_link', get_forum_link() );
+}
+
+function get_forum_link( $id = 0 ) {
 	global $forum, $bb;
+	if ( $id )
+		$forum = get_forum( $id );
 	if ( $bb->mod_rewrite )
 		$link = $bb->path . $forum->nice_name;
 	else
 		$link = $bb->path . "forum.php?id=$forum->forum_id";
 
-	echo bb_apply_filters('forum_link', $link);
+	return bb_apply_filters('get_forum_link', $link);
 }
 
 function forum_name() {
