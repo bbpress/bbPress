@@ -438,7 +438,7 @@ function can_edit( $user_id, $admin_id = 0) {
 	$admin = bb_get_user( $admin_id );
 	$user  = bb_get_user( $user_id  );
 
-	if ( $admin_id === $user_id )
+	if ( $admin_id == $user_id )
 		return true;
 
 	if ( $user->user_type < $admin->user_type && $admin->user_type != 0 )
