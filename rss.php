@@ -15,6 +15,7 @@ if ( $topic_id ) {
 }
 
 bb_add_filter('post_text', 'htmlspecialchars');
+bb_remove_filter('topic_title', 'topic_noreply');
 
 require( BBPATH . 'bb-templates/rss2.php');
 

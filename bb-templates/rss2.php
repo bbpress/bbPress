@@ -16,7 +16,7 @@
 
 <?php foreach ($posts as $post) : ?>
 <item>
-<title><?php post_author(); ?> on "<?php topic_title(); ?>"</title>
+<title><?php post_author(); ?> on "<?php topic_title( $post->topic_id ); ?>"</title>
 <link><?php post_link(); ?></link>
 <pubDate><?php post_date('D, d M Y H:i:s +0000'); ?></pubDate>
 <dc:creator><?php post_author(); ?></dc:creator>
