@@ -188,6 +188,9 @@ function bb_get_option( $option ) {
 	case 'admin_email' : 
 		return $bb->admin_email;
 		break;
+	case 'edit_lock' :
+		return $bb->edit_lock;
+		break;
 	endswitch;
 }
 
@@ -257,7 +260,7 @@ function post_author_cache($posts) {
 	}
 }
 
-function bb_current_time($type) {
+function bb_current_time( $type = 'timestamp' ) {
 	switch ($type) {
 		case 'mysql':
 			$d = gmdate('Y-m-d H:i:s');
@@ -411,6 +414,39 @@ function can_edit( $user_id, $admin_id = 0) {
 		return true;
 	else
 		return false;
+}
+
+function can_delete( $user_id, $admin_id = 0) {
+	global $bbdb, $current_user;
+	if ( !$admin_id )
+		$admin_id = $current_user->user_id;
+	$admin = bb_get_user( $admin_id );
+	$user  = bb_get_user( $user_id  );
+
+	if ( $user->user_type < $admin->user_type && $admin->user_type != 0 )
+		return true;
+	else
+		return false;
+}
+
+function can_edit_post( $post_id, $user_id = 0 ) {
+	global $bbdb, $current_user;
+	if ( !$user_id )
+		$user_id = $current_user->user_id;
+	$user = bb_get_user( $user_id );
+	$post = bb_get_post( $post_id );
+	$post_author = bb_get_user ( $post->poster_id );
+
+	if ( $user->user_type > $post_author->user_type )
+		return true;
+
+	$post_time  = strtotime( $post->post_time );
+	$curr_time  = time();
+	$time_limit = bb_get_option('edit_lock') * 60;
+	if ( ($curr_time - $post_time) > $time_limit )
+		return false;
+	else
+		return true;
 }
 
 function bb_is_first( $post_id ) { // First post in thread
