@@ -7,16 +7,16 @@
 <h2>Search for &#8220;<?php echo bb_specialchars($q); ?>&#8221;</h2>
 <?php endif; ?>
 
-<?php if ( $topics ) : ?>
+<?php if ( $titles ) : ?>
 <h2>Thread title matches</h2>
 
 <ol>
 <?php 
-foreach ( $topics as $topic ) : 
+foreach ( $titles as $topic ) : 
 $count = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $topic->topic_id"); // TODO
 ?>
 <li><h4><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></h4>
-<small><?php echo $count; ?> replies &#8212; Last reply <?php echo gmdate('F j, Y', $topic->posttime); ?> </small>
+<small><?php echo $count; ?> replies &#8212; Last reply <?php echo topic_date('F j, Y', $topic->topic_id); ?> </small>
 </li>
 <?php endforeach; ?>
 
@@ -29,7 +29,7 @@ $count = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $top
 <?php foreach ( $recent as $post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($post->topic_id); ?></a></h4>
 <p><?php echo show_context($q, $post->post_text); ?></p>
-<p><small>Posted <?php post_date('F j, Y, h:i A', $post->topic_id); ?></small></p>
+<p><small>Posted <?php topic_date('F j, Y, h:i A', $post->topic_id); ?></small></p>
 </li>
 <?php endforeach; ?>
 </ol>
@@ -41,7 +41,7 @@ $count = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $top
 <?php foreach ( $relevant as $post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($post->topic_id); ?></a></h4>
 <p><?php echo show_context($q, $post->post_text); ?></p>
-<p><small>Posted <?php post_date('F j, Y, h:i A', $post->topic_id); ?></small></p>
+<p><small>Posted <?php topic_date('F j, Y, h:i A', $post->topic_id); ?></small></p>
 </li>
 <?php endforeach; ?>
 </ol>
