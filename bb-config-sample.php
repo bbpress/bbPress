@@ -6,7 +6,7 @@ define('DB_PASSWORD', 'password'); // ...and password
 define('DB_HOST', 'localhost');     // 99% chance you won't need to change this value
 
 // Change the prefix if you want to have multiple forums in a single database.
-$table_prefix  = 'minibb_';
+$table_prefix  = 'bb_';
 
 $bb->domain = 'http://bbpress.example.com';
 $bb->path   = '/support/';
