@@ -377,8 +377,11 @@ function bb_delete_post( $post_id ) {
 	if ( $post ) {
 		$bbdb->query("UPDATE $bbdb->posts SET post_status = 1 WHERE post_id = $post_id");
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts - 1 WHERE forum_id = $topic->forum_id");
-		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = topic_posts - 1 WHERE topic_id = $post->topic_id");
-		
+
+		$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $post->topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
+		$old_name = $bbdb->get_var("SELECT username FROM $bbdb->users WHERE user_id = $old_post->poster_id");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id, topic_posts = topic_posts - 1 WHERE topic_id = $post->topic_id");
+
 		if ( 0 == $bbdb->get_var("SELECT topic_posts FROM $bbdb->topics WHERE topic_id = $post->topic_id") )
 			$bbdb->query("UPDATE $bbdb->topics SET topic_status = 1 WHERE topic_id = $post->topic_id");
 
