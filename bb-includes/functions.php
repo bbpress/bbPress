@@ -352,7 +352,7 @@ function bb_new_post( $topic_id, $post ) {
 		('$tid',   '$uid',    '$post',   '$now',    '$ip'    )");
 		$post_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
-		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = $uid, topic_last_poster_name = '$uname',
+		$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = $uid, topic_last_poster_name = '$uname',
 		topic_last_post_id = $post_id, topic_posts = topic_posts + 1 WHERE topic_id = $tid");
 		bb_do_action('bb_new_post', $post_id);
 		return $post_id;
@@ -420,6 +420,20 @@ function bb_is_first( $post_id ) { // First post in thread
 		return true;
 	else
 		return false;
+}
+
+function bb_global_sanitize( $array ) {
+	foreach ($array as $k => $v) {
+		if ( is_array($v) ) {
+			$array[$k] = bb_global_sanitize($v);
+		} else {
+			if ( get_magic_quotes_gpc() )
+				$array[$k] = trim($v);
+			else
+				$array[$k] = addslashes( trim($v) );
+		}
+	}
+	return $array;
 }
 
 ?>
