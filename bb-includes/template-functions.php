@@ -20,6 +20,10 @@ function login_form() {
 	}
 }
 
+function search_form( $q = '' ) {
+	require( ABSPATH . '/bb-templates/search-form.php');
+}
+
 function post_form() {
 	global $current_user;
 	if ($current_user) {
@@ -144,7 +148,7 @@ function topic_id() {
 }
 
 function topic_link( $id = 0 ) {
-	echo apply_filters('topic_link', get_topic_link($d) );
+	echo apply_filters('topic_link', get_topic_link($id) );
 }
 
 function get_topic_link( $id = 0 ) {
@@ -191,6 +195,17 @@ function get_topic_time( $id = 0 ) {
 	if ( $id )
 		$topic = get_topic( $id );
 	return $topic->topic_time;
+}
+
+function topic_date( $format = '', $id = 0 ) {
+	echo date( $format, get_topic_timestamp( $id ) );
+}
+
+function get_topic_timestamp( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	return strtotime( $topic->topic_time );
 }
 
 function topic_pages() {
@@ -261,6 +276,15 @@ function get_post_text() {
 function post_time() {
 	global $post;
 	echo apply_filters('post_time', $post->post_time);
+}
+
+function post_date( $format ) {
+	echo date( $format, get_post_timestamp() );
+}
+
+function get_post_timestamp() {
+	global $post;
+	return strtotime( $post->post_time );
 }
 
 function get_post_ip() {

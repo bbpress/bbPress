@@ -360,14 +360,22 @@ function bb_update_post( $post, $post_id ) {
 }
 
 function get_post_link( $id ) {
-	global $bbdb, $topic;
+	global $bbdb, $topic, $post;
 	$id = (int) $id;
-	$topic_id = $bbdb->get_var("SELECT topic_id FROM $bbdb->posts WHERE post_id = $id");
+	if ( isset( $post->topic_id ) )
+		$topic_id = $post->topic_id;
+	else
+		$topic_id = $bbdb->get_var("SELECT topic_id FROM $bbdb->posts WHERE post_id = $id");
 	if ( !$topic_id )
 		return false;
-	$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $topic_id"); 
+	$topic = get_topic($topic_id); 
 
 	return get_topic_link() . "#post-$id";
+}
+
+function post_link() {
+	global $post;
+	echo get_post_link( $post->post_id );
 }
 
 function can_edit( $user_id, $admin_id = 0) {

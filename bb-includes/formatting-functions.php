@@ -115,4 +115,13 @@ function user_sanitize( $text ) {
     $text = preg_replace('/[^a-z0-9_-]/i', '', $text);
 	return $text;
 }
+
+function show_context( $term, $text ) {
+	$text = strip_tags($text);
+	$term = preg_quote($term);
+	$text = preg_replace("|.*?(.{0,80})$term(.{0,80}).*|is", "... $1<strong>$term</strong>$2 ...", $text, 1);
+	$text = substr($text, 0, 210);
+	return $text;
+}
+
 ?>
