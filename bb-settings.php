@@ -28,6 +28,9 @@ $bbdb->posts   = $table_prefix . 'posts';
 $bbdb->topics  = $table_prefix . 'topics';
 $bbdb->users   = $table_prefix . 'users';
 
+if ( defined('CUSTOM_USER_TABLE') )
+	$bbdb->users = CUSTOM_USER_TABLE;
+
 $static_title = '';
 
 $_GET    = bb_global_sanitize($_GET   );
