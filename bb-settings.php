@@ -3,7 +3,7 @@
 if ( !(phpversion() >= '4.2') )
 	die( 'Your server is running PHP version ' . phpversion() . ' but bbPress requires at least 4.2' );
 
-if ( !extension_loaded('mysql') )
+if ( !extension_loaded('mysql') && !extension_loaded('mysqli') )
 	die( 'Your PHP installation appears to be missing the MySQL which is required for bbPress.' );
 
 function bb_timer_start() {
