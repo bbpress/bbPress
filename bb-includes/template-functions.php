@@ -151,16 +151,34 @@ function topic_link( $id = 0 ) {
 	echo bb_apply_filters('topic_link', get_topic_link($id) );
 }
 
-function get_topic_link( $id = 0 ) {
-	global $topic, $bb;
+function topic_rss_link( $id = 0 ) {
+	echo bb_apply_filters('topic_link', get_topic_rss_link($id) );
+}
+
+function get_topic_rss_link( $id = 0 ) {
+	global $topic;
 
 	if ( $id )
 		$topic = get_topic( $id );
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('path') . $topic->topic_id;
+		$link = bb_get_option('uri') . $topic->topic_id . '/rss/';
 	else
-		$link = bb_get_option('path') . "topic.php?id=$topic->topic_id";
+		$link = bb_get_option('uri') . "rss.php?topic=$topic->topic_id";
+
+	return bb_apply_filters('get_topic_rss_link', $link);
+}
+
+function get_topic_link( $id = 0 ) {
+	global $topic;
+
+	if ( $id )
+		$topic = get_topic( $id );
+
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . $topic->topic_id;
+	else
+		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id";
 
 	return bb_apply_filters('get_topic_link', $link);
 }
@@ -198,7 +216,7 @@ function get_topic_time( $id = 0 ) {
 }
 
 function topic_date( $format = '', $id = 0 ) {
-	echo date( $format, get_topic_timestamp( $id ) );
+	echo gmdate( $format, get_topic_timestamp( $id ) );
 }
 
 function get_topic_timestamp( $id = 0 ) {
@@ -279,7 +297,7 @@ function post_time() {
 }
 
 function post_date( $format ) {
-	echo date( $format, get_post_timestamp() );
+	echo gmdate( $format, get_post_timestamp() );
 }
 
 function get_post_timestamp() {

@@ -2,8 +2,8 @@
 
 <?php login_form(); ?>
 
-<h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h2>
-<h3><?php topic_title(); ?></h3>
+<h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
+<h2><?php topic_title(); ?></h2>
 <?php if ($posts) : ?>
 <div class="nav">
 <?php topic_pages(); ?>
@@ -27,6 +27,7 @@
 
 </ol>
 <div class="clearit"><br style=" clear: both;" /></div>
+<p><a href="<?php topic_rss_link(); ?>">RSS feed for this thread</a></p>
 <div class="nav">
 <?php topic_pages(); ?>
 </div>

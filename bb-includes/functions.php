@@ -18,13 +18,15 @@ function get_topic( $id ) {
 	return $topic_cache[$id];
 }
 
-function get_thread( $topic, $page = 0 ) {
-	global $bbdb, $bb;
+function get_thread( $topic, $page = 0, $reverse = 0 ) {
+	global $bbdb;
 
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic ORDER BY post_time ASC LIMIT $limit");
+	$order = ($reverse) ? 'DESC' : 'ASC';
+
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic ORDER BY post_time $order LIMIT $limit");
 }
 
 function get_post( $post_id ) {
@@ -41,6 +43,12 @@ function get_latest_topics( $forum = 0, $page = 0 ) {
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	return $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit");
+}
+
+function get_latest_posts( $num ) {
+	global $bbdb;
+	$num = (int) $num;
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts ORDER BY post_time DESC LIMIT $num");
 }
 
 function bb_apply_filters($tag, $string, $filter = true) {
