@@ -242,7 +242,7 @@ function current_time($type) {
 }
 
 function bb_current_user() {
-	global $bbdb;
+	global $bbdb, $user_cache;
 	if ( !isset($_COOKIE['bb_user_' . BBHASH]) )
 		return false;
 	if ( !isset($_COOKIE['bb_pass_' . BBHASH]) )
@@ -250,7 +250,21 @@ function bb_current_user() {
 	$user = user_sanitize( $_COOKIE['bb_user_' . BBHASH] );
 	$pass = user_sanitize( $_COOKIE['bb_pass_' . BBHASH] );
 	
-	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
+	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
+	$user_cache[$current_user->user_id] = $current_user;
+	return $current_user;
+}
+
+function bb_get_user( $id ) {
+	global $bbdb, $user_cache;
+	$id = (int) $id;
+	if ( isset( $user_cache[$id] ) ) {
+		return $user_cache[$id];
+	} else {
+		$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id;");
+		$user_cache[$id] = $user;
+		return $user;
+	}
 }
 
 function bb_check_login($user, $pass) {
@@ -273,6 +287,7 @@ function bb_new_topic( $title, $forum ) {
 		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum)");
 		$topic_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
+		do_action('bb_new_topic', $topic_id);
 		return $topic_id;
 	} else {
 		return false;
@@ -299,6 +314,7 @@ function bb_new_post( $topic_id, $post ) {
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = $uid, topic_last_poster_name = '$uname',
 		topic_last_post_id = $post_id, topic_posts = topic_posts + 1 WHERE topic_id = $tid");
+		do_action('bb_new_post', $post_id);
 		return $post_id;
 	} else {
 		return false;
@@ -314,6 +330,22 @@ function get_post_link( $id ) {
 	$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $topic_id"); 
 
 	return get_topic_link() . "#post-$id";
+}
+
+function can_edit( $user_id, $admin_id = 0) {
+	global $bbdb, $current_user;
+	if ( !$admin_id )
+		$admin_id = $current_user->user_id;
+	$admin = bb_get_user( $admin_id );
+	$user  = bb_get_user( $user_id  );
+
+	if ( $admin_id === $user_id )
+		return true;
+
+	if ( $user->user_type < $admin->user_type )
+		return true;
+	else
+		return false;
 }
 
 ?>

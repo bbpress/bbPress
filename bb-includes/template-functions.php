@@ -239,6 +239,16 @@ function post_time() {
 	echo apply_filters('post_time', $post->post_time);
 }
 
+function get_post_ip() {
+	global $post;
+	return $post->poster_ip;
+}
+
+function post_ip() {
+	if ( can_edit( get_post_author_id() ) )
+		echo apply_filters('post_ip', get_post_ip() );
+}
+
 function post_author_id() {
 	echo apply_filters('post_author_id', get_post_author_id() );
 }
