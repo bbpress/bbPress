@@ -16,4 +16,7 @@ add_filter('pre_post', 'bb_filter_kses', 50);
 add_filter('pre_post', 'addslashes', 55);
 add_filter('pre_post', 'bb_autop', 60);
 
+add_filter('total_posts', 'number_format');
+add_filter('total_users', 'number_format');
+
 ?>

@@ -59,12 +59,14 @@ function is_topic() {
 }
 
 function bb_title() {
-	global $topic, $forum;
+	global $topic, $forum, $static_title;
 	$title = '';
 	if ( is_topic() )
 		$title = get_topic_title(). ' &laquo; ';
 	if ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
+	if ( !empty($static_title) )
+		$title = $static_title . ' &laquo; ';
 	$title .= get_option('name');
 	echo $title;
 }
