@@ -306,6 +306,12 @@ function bb_check_login($user, $pass) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
 }
 
+function bb_user_exists( $user ) {
+	global $bbdb;
+	$user = user_sanitize( $user );
+	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user'");
+}
+
 function bb_new_topic( $title, $forum ) {
 	global $bbdb, $current_user;
 	$title = bb_apply_filters('pre_topic_title', $title);

@@ -14,7 +14,7 @@ if ($_POST) :
 	$location  = bb_specialchars( $_POST['location']  , 1);
 	$interests = bb_specialchars( $_POST['interests'] , 1);
 	
-	if ( empty($username) || $bbdb->get_var("SELECT username FROM $bbdb->users WHERE username = '$username'") )
+	if ( empty($username) || bb_user_exists($username) )
 		$user_safe = false;
 	
 	if ( $username && $user_safe && $email ) {
@@ -23,6 +23,11 @@ if ($_POST) :
 		exit();	
 	}
 endif;
+
+if ( isset( $_GET['user'] ) )
+	$username = user_sanitize( $_GET['user'] ) ;
+else
+	$username = '';
 
 require( BBPATH . 'bb-templates/register.php');
 ?>
