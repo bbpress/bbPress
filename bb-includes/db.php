@@ -10,7 +10,8 @@ if (!defined('SAVEQUERIES'))
 class bbdb {
 
 	var $show_errors = true;
-	var $num_queries = 0;	
+	var $num_queries = 0;
+	var $retries = 0;
 	var $last_query;
 	var $col_info;
 	var $queries;
@@ -27,7 +28,9 @@ class bbdb {
 	function bbdb($dbuser, $dbpassword, $dbname, $dbhost) {
 		$this->dbh = @mysql_connect($dbhost, $dbuser, $dbpassword);
 		if (!$this->dbh) {
-			$this->bail("
+			sleep( 1 );
+				if ( $this->retries > 3 ) {
+					$this->bail("
 <h1>Error establishing a database connection</h1>
 <p>This either means that the username and password information in your <code>wp-config.php</code> file is incorrect or we can't contact the database server at <code>$dbhost</code>.</p>
 <ul>
@@ -36,6 +39,10 @@ class bbdb {
 	<li>Are you sure that the database server is running?</li>
 </ul>
 ");
+				} else {
+					$this->retries++;
+					return $this->bbdb($dbuser, $dbpassword, $dbname, $dbhost);
+				}
 		}
 
 		$this->select($dbname);
