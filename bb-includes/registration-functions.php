@@ -18,15 +18,17 @@ function bb_verify_email( $email ) {
 
 function bb_new_user( $username, $email, $website, $location, $interests ) {
 	global $bbdb;
-	$now      = current_time('mysql');
-	$password = bb_random_pass();
+	$now       = bb_current_time('mysql');
+	$password  = bb_random_pass();
+	$passcrypt = md5( $password );
 
 	$bbdb->query("INSERT INTO $bbdb->users
 	(username,    user_regdate, user_password, user_email, user_website, user_from,  user_interest)
 	VALUES
-	('$username', '$now',       '$password',   '$email',   '$website',  '$location', '$interests')");
+	('$username', '$now',       '$passcrypt',  '$email',   '$website',  '$location', '$interests')");
 	
 	$user_id = $bbdb->insert_id;
+	bb_send_pass( $user_id, $password );
 	bb_do_action('bb_new_user', $user_id);
 	return $user_id;
 }
@@ -37,5 +39,19 @@ function bb_random_pass( $length = 6) {
 	$string = md5( uniqid( microtime() ) );
  	$password = substr( $string, $number, $length );
 	return $password;
+}
+
+function bb_send_pass( $user, $pass ) {
+	global $bbdb;
+	$user = (int) $user;
+	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $user");
+
+	if ( $user ) :
+		mail( $user->user_email, bb_get_option('name') . ': Password', "Your password is: $pass
+You can now login: " . bb_get_option('uri') . "
+
+Enjoy!", 'From: ' . bb_get_option('admin_email') );
+
+	endif;
 }
 ?>

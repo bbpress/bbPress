@@ -12,6 +12,7 @@ $bb->domain = 'http://bbpress.example.com';
 $bb->path   = '/support/';
 $bb->name   = 'New bbPress Site';
 
+$bb->admin_email = 'you@example.com';
 $bb->mod_rewrite = false;
 $bb->page_topics = 30;
 

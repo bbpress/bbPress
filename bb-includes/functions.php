@@ -185,6 +185,9 @@ function bb_get_option( $option ) {
 	case 'domain' :
 		return $bb->domain;
 		break;
+	case 'admin_email' : 
+		return $bb->admin_email;
+		break;
 	endswitch;
 }
 
