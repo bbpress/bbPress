@@ -19,19 +19,32 @@ WHERE MATCH(post_text) AGAINST ('$q') LIMIT 5");
 bb_do_action('do_search', $q);
 
 // Cache topics
-foreach ($topics as $topic)
-	$topic_ids[] = $topic->topic_id;
-foreach ($recent as $post)
-	$topic_ids[] = $post->topic_id;
-foreach ($relevant as $post)
-	$topic_ids[] = $post->topic_id;
-$topic_ids = join(',', $topic_ids);
-$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
-foreach ($topics as $topic) :
-	$topic_cache[$topic->topic_id] = $topic;
-endforeach;
+if ( $topics ) :
+	foreach ($topics as $topic)
+		$topic_ids[] = $topic->topic_id;
+endif;
+
+if ( $recent) :
+	foreach ($recent as $post)
+		$topic_ids[] = $post->topic_id;
+endif;
+
+if ( $relevant ) :
+	foreach ($relevant as $post)
+		$topic_ids[] = $post->topic_id;
+endif;
+
+if ( $topics || $recent || $relevant ) :
+	$topic_ids = join(',', $topic_ids);
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
+	foreach ($topics as $topic) :
+		$topic_cache[$topic->topic_id] = $topic;
+	endforeach;
+endif;
 
 endif;
+
+$q = stripslashes( $q );
 
 require('bb-templates/search.php');
 
