@@ -3,7 +3,7 @@
 require('../bb-config.php');
 header('Content-type: text/plain');
 
-$topics = $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS t_count FROM $bbdb->posts GROUP BY topic_id");
+$topics = $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS t_count FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id");
 
 foreach ($topics as $topic) :
 	$bbdb->query("UPDATE $bbdb->topics SET topic_posts = $topic->t_count WHERE topic_id = $topic->topic_id");
