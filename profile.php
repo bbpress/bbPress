@@ -27,10 +27,13 @@ foreach ($threads as $thread) :
 	$topics[] = $thread->topic_id;
 endforeach;
 $topic_ids = join(',', $topics);
-$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
-foreach ($topics as $topic) :
-	$topic_cache[$topic->topic_id] = $topic;
-endforeach;
+
+if ( $posts || $threads ) :
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
+	foreach ($topics as $topic) :
+		$topic_cache[$topic->topic_id] = $topic;
+	endforeach;
+endif;
 
 bb_add_filter('post_time', 'strtotime');
 bb_add_filter('post_time', 'bb_since');
