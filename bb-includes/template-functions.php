@@ -30,6 +30,10 @@ function post_form() {
 	}
 }
 
+function edit_form( $post = '', $topic_title = '' ) {
+	require( ABSPATH . '/bb-templates/edit-form.php');
+}
+
 function alt_class( $key ) {
 	global $bb_alt;
 	if ( !isset( $bb_alt[$key] ) ) $bb_alt[$key] = -1;
@@ -202,6 +206,11 @@ function post_id() {
 	echo $post->post_id;
 }
 
+function get_post_id() {
+	global $post;
+	return $post->post_id;
+}
+
 function post_author() {
 	echo apply_filters('post_author', get_post_author() );
 }
@@ -231,7 +240,12 @@ function post_author_link() {
 
 function post_text() {
 	global $post;
-	echo apply_filters('post_text', $post->post_text);
+	echo apply_filters('post_text', get_post_text() );
+}
+
+function get_post_text() {
+	global $post;
+	return $post->post_text;
 }
 
 function post_time() {
@@ -247,6 +261,11 @@ function get_post_ip() {
 function post_ip() {
 	if ( can_edit( get_post_author_id() ) )
 		echo apply_filters('post_ip', get_post_ip() );
+}
+
+function post_edit_link() {
+	if ( can_edit( get_post_author_id() ) )
+		echo "<a href='" . get_option('uri') . 'edit.php?id=' . get_post_id() . "'>Edit</a>";
 }
 
 function post_author_id() {

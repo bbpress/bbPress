@@ -25,7 +25,7 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = preg_replace('!(</(?:ul|ol|li|pre|blockquote|p|h[1-6])>)!', "$1\n", $pee);
 	$pee = str_replace(array("\r\n", "\r"), "\n", $pee); // cross-platform newlines 
 	$pee = preg_replace("/\n\n+/", "\n\n", $pee); // take care of duplicates
-	$pee = preg_replace('/\n?(.+?)(?:\n\s*\n|\z)/s', "\t<p>$1</p>\n", $pee); // make paragraphs, including one at the end 
+	$pee = preg_replace('/\n?(.+?)(?:\n\s*\n|\z)/s', "<p>$1</p>\n", $pee); // make paragraphs, including one at the end 
 	$pee = preg_replace('|<p>\s*?</p>|', '', $pee); // under certain strange conditions it could create a P of entirely whitespace 
     $pee = preg_replace('!<p>\s*(</?(?:ul|ol|li|pre|blockquote|p|h[1-6])[^>]*>)\s*</p>!', "$1", $pee); // don't pee all over a tag
 	$pee = preg_replace("|<p>(<li.+?)</p>|", "$1", $pee); // problem with nested lists
@@ -61,6 +61,8 @@ function encode_bad( $text) {
 	$text = preg_replace('|&lt;(/?em)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?a.*?)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?ol)&gt;|', '<$1>', $text);
+	$text = preg_replace('|&lt;(/?p)&gt;|', '<$1>', $text);
+	$text = preg_replace('|&lt;br /&gt;|', '<br />', $text);
 	$text = preg_replace('|&lt;(/?ul)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?li)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?blockquote.*?)&gt;|', '<$1>', $text);

@@ -24,6 +24,12 @@ function get_thread ( $topic, $page = 0 ) {
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic ORDER BY post_time ASC LIMIT $limit");
 }
 
+function get_post ( $post_id ) {
+	global $bbdb;
+	$post_id = (int) $post_id;
+	return $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
+}
+
 function get_latest_topics( $forum = 0, $page = 0 ) {
 	global $bbdb, $bb;
 	if ( $forum )
@@ -294,6 +300,21 @@ function bb_new_topic( $title, $forum ) {
 	}
 }
 
+function bb_update_topic( $title, $topic_id ) {
+	global $bbdb;
+	$title = apply_filters('pre_topic_title', $title);
+	$topic_id = (int) $topic_id;
+	$forum_id = (int) $forum_id;
+
+	if ( $topic_id && $title ) {
+		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$title' WHERE topic_id = $topic_id");
+		do_action('bb_update_topic', $topic_id);
+		return $topic_id;
+	} else {
+		return false;
+	}
+}
+
 function bb_new_post( $topic_id, $post ) {
 	global $bbdb, $current_user;
 	$post  = apply_filters('pre_post', $post);
@@ -321,6 +342,20 @@ function bb_new_post( $topic_id, $post ) {
 	}
 }
 
+function bb_update_post( $post, $post_id ) {
+	global $bbdb, $current_user;
+	$post  = apply_filters('pre_post', $post);
+	$post_id   = (int) $post_id;
+
+	if ( $post_id && $post ) {
+		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post' WHERE post_id = $post_id");
+		do_action('bb_update_post', $post_id);
+		return $post_id;
+	} else {
+		return false;
+	}
+}
+
 function get_post_link( $id ) {
 	global $bbdb, $topic;
 	$id = (int) $id;
@@ -342,7 +377,19 @@ function can_edit( $user_id, $admin_id = 0) {
 	if ( $admin_id === $user_id )
 		return true;
 
-	if ( $user->user_type < $admin->user_type )
+	if ( $user->user_type < $admin->user_type && $admin->user_type != 0 )
+		return true;
+	else
+		return false;
+}
+
+function bb_is_first( $post_id ) { // First post in thread
+	global $bbdb;
+
+	$post = $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
+	$first_post = $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $post->topic_id ORDER BY post_id ASC LIMIT 1");
+
+	if ( $post_id == $first_post )
 		return true;
 	else
 		return false;
