@@ -8,6 +8,7 @@ bb_add_filter('topic_time', 'bb_since');
 
 bb_add_filter('pre_topic_title', 'bb_specialchars');
 bb_add_filter('get_forum_name', 'bb_specialchars');
+bb_add_filter('topic_title', 'topic_noreply');
 
 bb_add_filter('pre_post', 'trim');
 bb_add_filter('pre_post', 'encode_bad');

@@ -195,8 +195,18 @@ function get_topic_title( $id = 0 ) {
 }
 
 function topic_posts() {
+	echo bb_apply_filters('topic_posts', get_topic_posts() );
+}
+
+function get_topic_posts() {
 	global $topic;
-	echo bb_apply_filters('topic_posts', $topic->topic_posts);
+	return bb_apply_filters('get_topic_posts', $topic->topic_posts);
+}
+
+function topic_noreply( $title ) {
+	if ( 1 == get_topic_posts() )
+		$title = "<strong>$title</strong>";
+	return $title;
 }
 
 function topic_last_poster() {
