@@ -136,7 +136,7 @@ function bb_make_clickable($ret) {
 function bb_fix_link( $link ) {
 	if ( !strstr( $link, 'http' ) )
 		$link = 'http://' . $link;
-	if ( !strstr( $link, '.' ) )
+	if ( !strstr( $link, '.' ) ) // these are usually random words
 		$link = '';
 	return $link;
 }
