@@ -14,7 +14,10 @@ function bb_timer_start() {
 }
 bb_timer_start();
 
-require( BBPATH . '/bb-includes/db.php');
+if ( extension_loaded('mysqli') )
+	require( BBPATH . '/bb-includes/db-mysqli.php');
+else
+	require( BBPATH . '/bb-includes/db.php');
 require( BBPATH . '/bb-includes/functions.php');
 require( BBPATH . '/bb-includes/formatting-functions.php');
 require( BBPATH . '/bb-includes/template-functions.php');
