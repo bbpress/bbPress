@@ -125,7 +125,7 @@ function bb_do_action($tag, $string) {
 	return $string;
 }
 
-function add_action($tag, $function_to_add, $priority = 10) {
+function bb_add_action($tag, $function_to_add, $priority = 10) {
 	bb_add_filter($tag, $function_to_add, $priority);
 }
 
