@@ -351,6 +351,13 @@ function post_delete_link() {
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "'>Delete</a>";
 }
 
+function topic_delete_link() {
+	global $current_user;
+
+	if ( $current_user->user_type > 1 )
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "'>Delete entire topic</a>";
+}
+
 function post_author_id() {
 	echo bb_apply_filters('post_author_id', get_post_author_id() );
 }

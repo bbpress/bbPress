@@ -34,4 +34,7 @@
 <?php endif; ?>
 <h2>Reply</h2>
 <?php post_form(); ?>
+<div class="admin">
+<?php topic_delete_link(); ?>
+</div>
 <?php get_footer(); ?>

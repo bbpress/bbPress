@@ -29,6 +29,11 @@ function get_thread( $topic, $page = 0, $reverse = 0 ) {
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
 }
 
+function get_thread_post_ids ( $topic ) {
+	global $bbdb;
+	return $bbdb->get_col("SELECT post_id FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time");
+}
+
 function get_post( $post_id ) {
 	global $bbdb;
 	$post_id = (int) $post_id;
