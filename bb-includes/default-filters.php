@@ -19,4 +19,7 @@ add_filter('pre_post', 'bb_autop', 60);
 add_filter('total_posts', 'number_format');
 add_filter('total_users', 'number_format');
 
+add_filter('edit_text', 'code_trick_reverse');
+add_filter('edit_text', 'htmlspecialchars');
+
 ?>

@@ -50,8 +50,25 @@ function encodeit($text) {
 	return $text;
 }
 
+function decodeit($text) {
+	$text = stripslashes($text); // because it's a regex callback
+	$trans_table = array_flip(get_html_translation_table(HTML_ENTITIES));
+	$text = strtr($text, $trans_table);;
+	$text = str_replace('<br />', '', $text);
+	$text = str_replace('&#38;', '&', $text);
+	$text = str_replace('&#39;', '"', $text);
+	return $text;
+}
+
 function code_trick( $text ) {
 	$text = preg_replace("|`(.*?)`|se", "'<code>' . encodeit('$1') . '</code>'", $text);
+	return $text;
+}
+
+function code_trick_reverse( $text ) {
+	$text = preg_replace("|<code>(.*?)</code>|se", "'`' . decodeit('$1') . '`'", $text);
+	$text = str_replace('<p>', '', $text);
+	$text = str_replace('</p>', "\n", $text);
 	return $text;
 }
 
