@@ -37,6 +37,7 @@ function get_post( $post_id ) {
 
 function get_latest_topics( $forum = 0, $page = 0 ) {
 	global $bbdb, $bb;
+	$where = $limit = '';
 	if ( $forum )
 		$where = "AND forum_id = $forum";
 	$limit = bb_get_option('page_topics');
