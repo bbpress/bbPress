@@ -10,8 +10,8 @@ if ( !$user )
 
 $ts = strtotime( $user->user_regdate );
 
-$posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_id = $user_id GROUP BY topic_id ORDER BY post_time DESC LIMIT 25");
-$threads = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id ORDER BY topic_time DESC LIMIT 25");
+$posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT 25");
+$threads = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_time DESC LIMIT 25");
 
 // Cache topic names
 if ( $posts ) :
