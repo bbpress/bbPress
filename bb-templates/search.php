@@ -60,5 +60,5 @@ $count = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $top
 <?php if ( !$topics && !$recent && !$relevant ) : ?>
 <p>No results found.</p>
 <?php endif; ?>
-<p>You may also try your <a href="http://google.com/search?q=<?php echo urlencode($q); ?>">search at Google.</a></p>
+<p>You may also try your <a href="http://google.com/search?q=site:<?php option('uri'); ?> <?php echo urlencode($q); ?>">search at Google.</a></p>
 <?php get_footer(); ?>
