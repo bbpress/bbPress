@@ -45,6 +45,8 @@ function encodeit($text) {
 	$text = htmlspecialchars($text, ENT_QUOTES);
 	$text = preg_replace("|\n+|", "\n", $text);
 	$text = nl2br($text);
+	$text = str_replace('&amp;lt;', '&lt;', $text);
+	$text = str_replace('&amp;gt;', '&gt;', $text);
 	return $text;
 }
 
