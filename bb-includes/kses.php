@@ -1,8 +1,6 @@
 <?php
 # Web page:    http://sourceforge.net/projects/kses
 # [kses strips evil scripts!]
-if (!defined('CUSTOM_TAGS'))
-	define('CUSTOM_TAGS', false);
 	
 function wp_kses($string, $allowed_html, $allowed_protocols =
                array('http', 'https', 'ftp', 'news', 'nntp', 'telnet',

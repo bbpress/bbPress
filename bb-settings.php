@@ -38,6 +38,8 @@ function bb_shutdown_action_hook() {
 }
 register_shutdown_function('bb_shutdown_action_hook');
 
-$current_user = get_current_user();
+define('BBHASH', md5($table_prefix) );
+
+$current_user = bb_current_user();
 
 ?>

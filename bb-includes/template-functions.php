@@ -11,7 +11,23 @@ function get_footer() {
 }
 
 function login_form() {
-	return;
+	global $current_user;
+	if ($current_user) {
+		echo "Welcome, $current_user->username! <a href='/user/$current_user->user_id'>View your profile &raquo;</a> 
+		<small>(<a href='" . get_option('uri') . "bb-login.php?logout'>Logout</a>)</small>";
+	} else {
+		require( ABSPATH . '/bb-templates/login-form.php');
+	}
+}
+
+function post_form() {
+	global $current_user;
+	if ($current_user) {
+		require( ABSPATH . '/bb-templates/post-form.php');
+	} else {
+		echo "<p>You must login to post.";
+		require( ABSPATH . '/bb-templates/login-form.php');
+	}
 }
 
 function alt_class( $key ) {
@@ -68,7 +84,13 @@ function forum_link() {
 function forum_name() {
 	echo apply_filters('forum_name', get_forum_name() );
 }
-
+function get_forum_id() {
+	global $forum;
+	return $forum->forum_id;
+}
+function forum_id() {
+	echo apply_filters('forum_id', get_forum_id() );
+}
 function get_forum_name() {
 	global $forum;
 	return apply_filters('get_forum_name', $forum->forum_name);
@@ -106,14 +128,28 @@ function forum_pages() {
 }
 
 // TOPICS
-function topic_link() {
-	global $topic, $bb;
-	if ( $bb->mod_rewrite )
-		$link = $bb->path . $topic->topic_id;
-	else
-		$link = $bb->path . "topic.php?id=$topic->topic_id";
+function get_topic_id() {
+	global $topic;
+	return $topic->topic_id;
+}
 
-	echo apply_filters('topic_link', $link);
+function topic_id() {
+	echo apply_filters('topic_id', get_topic_id() );
+}
+
+function topic_link() {
+	echo apply_filters('topic_link', get_topic_link() );
+}
+
+function get_topic_link() {
+	global $topic, $bb;
+
+	if ( get_option('mod_rewrite') )
+		$link = get_option('path') . $topic->topic_id;
+	else
+		$link = get_option('path') . "topic.php?id=$topic->topic_id";
+
+	return apply_filters('get_topic_link', $link);
 }
 
 function topic_title() {
@@ -169,8 +205,18 @@ function post_author() {
 }
 
 function get_post_author() {
-	global $post;
-	return apply_filters('post_author', $post->poster_name);
+	global $bbdb, $user_cache;
+	$id = get_post_author_id();
+	if ( $id ) :
+		if ( isset( $user_cache[$id] ) ) {
+			return $user_cache[$id]->username;
+		} else {
+			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id");
+			return $user_cache[$id]->username;
+		}
+	else : 
+		return 'Anonymous';
+	endif;
 }
 
 function post_author_link() {

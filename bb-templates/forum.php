@@ -32,5 +32,7 @@
 <?php forum_pages(); ?>
 </div>
 <?php endif; ?>
+<h2>New Topic in this Forum</h2>
+<?php post_form(); ?>
 
 <?php get_footer(); ?>

@@ -1,7 +1,9 @@
 <?php
 require('bb-config.php');
 header ('content-type: text/plain');
+set_time_limit(300);
 
+/* // uncomment to deslash old junk
 $topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
 if ($topics) {
 	foreach($topics as $topic) {
@@ -11,7 +13,29 @@ if ($topics) {
 	}
 }
 
-/* // uncomment to deslash old junk
+
+*/
+
+$posts = $bbdb->get_results("SELECT post_id, post_text FROM $bbdb->posts");
+if ($posts) {
+	foreach($posts as $post) {
+		echo $post->post_id . ' ';
+		$post_text = addslashes(deslash($post->post_text));
+		$post_text = apply_filters('pre_post', $post_text);
+		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$post->post_id'");
+	}
+}
+
+/*
+$topics = $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics");
+if ($topics) {
+	foreach($topics as $topic) {
+		$topic_title = bb_specialchars(addslashes(deslash($topic->topic_title)));
+		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$topic_title' WHERE topic_id = '$topic->topic_id'");
+	}
+}
+*/
+
 function deslash($content) {
     // Note: \\\ inside a regex denotes a single backslash.
 
@@ -28,23 +52,5 @@ function deslash($content) {
 
     return $content;
 }
-
-$posts = $bbdb->get_results("SELECT post_id, post_text FROM $bbdb->posts");
-if ($posts) {
-	foreach($posts as $post) {
-		echo $post->post_id . ' ';
-		$post_text = addslashes(deslash($post->post_text));
-		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$post->post_id'");
-	}
-}
-
-$topics = $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics");
-if ($topics) {
-	foreach($topics as $topic) {
-		$topic_title = addslashes(deslash($topic->topic_title));
-		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$topic_title' WHERE topic_id = '$topic->topic_id'");
-	}
-}
-*/
 
 ?>

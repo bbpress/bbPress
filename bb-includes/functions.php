@@ -154,6 +154,12 @@ function get_option( $option ) {
 	case 'mod_rewrite' : 
 		return $bb->mod_rewrite;
 		break;
+	case 'path' : 
+		return $bb->path;
+		break;
+	case 'domain' :
+		return $bb->domain;
+		break;
 	endswitch;
 }
 
@@ -222,4 +228,92 @@ function post_author_cache($posts) {
 		endforeach;
 	}
 }
+
+function current_time($type) {
+	switch ($type) {
+		case 'mysql':
+			$d = gmdate('Y-m-d H:i:s');
+			break;
+		case 'timestamp':
+			$d = time();
+			break;
+	}
+	return $d;
+}
+
+function bb_current_user() {
+	global $bbdb;
+	if ( !isset($_COOKIE['bb_user_' . BBHASH]) )
+		return false;
+	if ( !isset($_COOKIE['bb_pass_' . BBHASH]) )
+		return false;
+	$user = user_sanitize( $_COOKIE['bb_user_' . BBHASH] );
+	$pass = user_sanitize( $_COOKIE['bb_pass_' . BBHASH] );
+	
+	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
+}
+
+function bb_check_login($user, $pass) {
+	global $bbdb;
+	$user = user_sanitize( $user );
+	$pass = user_sanitize( md5( $pass ) );
+	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
+}
+
+function bb_new_topic( $title, $forum ) {
+	global $bbdb, $current_user;
+	$title = apply_filters('pre_topic_title', $title);
+	$forum = (int) $forum;
+	$now   = current_time('mysql');
+
+	if ( $forum && $title ) {
+		$bbdb->query("INSERT INTO $bbdb->topics 
+		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_time, forum_id)
+		VALUES
+		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum)");
+		$topic_id = $bbdb->insert_id;
+		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
+		return $topic_id;
+	} else {
+		return false;
+	}
+}
+
+function bb_new_post( $topic_id, $post ) {
+	global $bbdb, $current_user;
+	$post  = apply_filters('pre_post', $post);
+	$tid   = (int) $topic_id;
+	$now   = current_time('mysql');
+	$uid   = $current_user->user_id;
+	$uname = $current_user->username;
+	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
+
+	$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $tid");
+
+	if ( $post && $topic ) {
+		$bbdb->query("INSERT INTO $bbdb->posts 
+		(topic_id, poster_id, post_text, post_time, poster_ip)
+		VALUES
+		('$tid',   '$uid',    '$post',   '$now',    '$ip'    )");
+		$post_id = $bbdb->insert_id;
+		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = $uid, topic_last_poster_name = '$uname',
+		topic_last_post_id = $post_id, topic_posts = topic_posts + 1 WHERE topic_id = $tid");
+		return $post_id;
+	} else {
+		return false;
+	}
+}
+
+function get_post_link( $id ) {
+	global $bbdb, $topic;
+	$id = (int) $id;
+	$topic_id = $bbdb->get_var("SELECT topic_id FROM $bbdb->posts WHERE post_id = $id");
+	if ( !$topic_id )
+		return false;
+	$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $topic_id"); 
+
+	return get_topic_link() . "#post-$id";
+}
+
 ?>

@@ -31,4 +31,6 @@
 <?php topic_pages(); ?>
 </div>
 <?php endif; ?>
+<h2>Reply</h2>
+<?php post_form(); ?>
 <?php get_footer(); ?>
