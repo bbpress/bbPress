@@ -13,7 +13,7 @@ function get_footer() {
 function login_form() {
 	global $current_user;
 	if ($current_user) {
-		echo "Welcome, $current_user->username! <a href='/user/$current_user->user_id'>View your profile &raquo;</a> 
+		echo "Welcome, $current_user->username! <a href='" . user_profile_link( $current_user->user_id) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . get_option('uri') . "bb-login.php?logout'>Logout</a>)</small>";
 	} else {
 		require( ABSPATH . '/bb-templates/login-form.php');
