@@ -36,7 +36,7 @@ if ( !get_magic_quotes_gpc() ) {
 }
 
 function bb_shutdown_action_hook() {
-	do_action('bb_shutdown', '');
+	bb_do_action('bb_shutdown', '');
 }
 register_shutdown_function('bb_shutdown_action_hook');
 

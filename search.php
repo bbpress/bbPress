@@ -16,7 +16,7 @@ $relevant = $bbdb->get_results("SELECT $bbdb->posts.forum_id, $bbdb->posts.topic
 AS posttime, post_id FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON topic_last_post_id = post_id
 WHERE MATCH(post_text) AGAINST ('$q') LIMIT 5");
 
-do_action('do_search', $q);
+bb_do_action('do_search', $q);
 
 // Cache topics
 foreach ($topics as $topic)

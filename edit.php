@@ -6,7 +6,7 @@ $post_id = (int) $_GET['id'];
 $post  = get_post( $post_id );
 
 if ( !$post || !can_edit( $post->poster_id ) ) {
-	header('Location: ' . get_option('uri') );
+	header('Location: ' . bb_get_option('uri') );
 	die();
 }
 

@@ -4,7 +4,7 @@
 <h2><?php echo $user->username; ?></h2>
 <dl id="userinfo">
 <dt>Member Since</dt>
-<dd><?php echo date('F j, Y', $ts); ?> (<?php echo since($ts); ?>)</dd>
+<dd><?php echo date('F j, Y', $ts); ?> (<?php echo bb_since($ts); ?>)</dd>
 <?php
 if ($user->user_website) :
         $USERINFO .= "<dt>Web address</dt>

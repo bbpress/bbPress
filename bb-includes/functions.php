@@ -18,16 +18,16 @@ function get_topic( $id ) {
 	return $topic_cache[$id];
 }
 
-function get_thread ( $topic, $page = 0 ) {
+function get_thread( $topic, $page = 0 ) {
 	global $bbdb, $bb;
 
-	$limit = get_option('page_topics');
+	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic ORDER BY post_time ASC LIMIT $limit");
 }
 
-function get_post ( $post_id ) {
+function get_post( $post_id ) {
 	global $bbdb;
 	$post_id = (int) $post_id;
 	return $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
@@ -37,13 +37,13 @@ function get_latest_topics( $forum = 0, $page = 0 ) {
 	global $bbdb, $bb;
 	if ( $forum )
 		$where = "WHERE forum_id = $forum";
-	$limit = get_option('page_topics');
+	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	return $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit");
 }
 
-function apply_filters($tag, $string, $filter = true) {
+function bb_apply_filters($tag, $string, $filter = true) {
 	global $wp_filter;
 	if (isset($wp_filter['all'])) {
 		foreach ($wp_filter['all'] as $priority => $functions) {
@@ -72,7 +72,7 @@ function apply_filters($tag, $string, $filter = true) {
 	return $string;
 }
 
-function add_filter($tag, $function_to_add, $priority = 10) {
+function bb_add_filter($tag, $function_to_add, $priority = 10) {
 	global $wp_filter;
 	// So the format is wp_filter['tag']['array of priorities']['array of functions']
 	if (!@in_array($function_to_add, $wp_filter[$tag]["$priority"])) {
@@ -81,7 +81,7 @@ function add_filter($tag, $function_to_add, $priority = 10) {
 	return true;
 }
 
-function remove_filter($tag, $function_to_remove, $priority = 10) {
+function bb_remove_filter($tag, $function_to_remove, $priority = 10) {
 	global $wp_filter;
 	if (@in_array($function_to_remove, $wp_filter[$tag]["$priority"])) {
 		foreach ($wp_filter[$tag]["$priority"] as $function) {
@@ -97,20 +97,20 @@ function remove_filter($tag, $function_to_remove, $priority = 10) {
 
 // The *_action functions are just aliases for the *_filter functions, they take special strings instead of generic content
 
-function do_action($tag, $string) {
-	apply_filters($tag, $string, false);
+function bb_do_action($tag, $string) {
+	bb_apply_filters($tag, $string, false);
 	return $string;
 }
 
 function add_action($tag, $function_to_add, $priority = 10) {
-	add_filter($tag, $function_to_add, $priority);
+	bb_add_filter($tag, $function_to_add, $priority);
 }
 
 function remove_action($tag, $function_to_remove, $priority = 10) {
-	remove_filter($tag, $function_to_remove, $priority);
+	bb_remove_filter($tag, $function_to_remove, $priority);
 }
 
-function timer_stop($display = 0, $precision = 3) { //if called like timer_stop(1), will echo $timetotal
+function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer_stop(1), will echo $timetotal
 	global $bb_timestart, $timeend;
 	$mtime = explode(' ', microtime());
 	$timeend = $mtime[1] + $mtime[0];
@@ -120,34 +120,42 @@ function timer_stop($display = 0, $precision = 3) { //if called like timer_stop(
 	return $timetotal;
 }
 
-function since($stamp) {
-	$post = $stamp;                                                                         /* get a timestamp */
-	$now = time();                                                                  /* get the current timestamp */
-	$diff = ($now - $post);
-	if ($diff <= 3600) {                                                                    /* is it less than an hour? */
-	$mins = round($diff / 60);
-	$since = "$mins mins";
-	} else if (($diff <= 86400) && ($diff > 3600)) {                /* is it less than a day? */
-	$hours = round($diff / 3600);
-	if ($hours <= 1) {                                                              /* is it under two hours? */
-	$since = "1 hour";
-	} else {
-	$since = "$hours hours";
-	}
-	} else if ($diff >= 86400) {                                                    /* is it more than a day? */
-	$days = round($diff / 86400);
-	if ($days <= 1) {
-	$since = "1 day";
-	} else {
-	$since = "$days days";
-	}
+function bb_since( $original, $do_more = 0 ) {
+	// array of time period chunks
+	$chunks = array(
+		array(60 * 60 * 24 * 365 , 'year'),
+		array(60 * 60 * 24 * 30 , 'month'),
+		array(60 * 60 * 24 * 7, 'week'),
+		array(60 * 60 * 24 , 'day'),
+		array(60 * 60 , 'hour'),
+		array(60 , 'minute'),
+	);
+	
+	$today = time();
+	$since = $today - $original;
+	
+	for ($i = 0, $j = count($chunks); $i < $j; $i++) {
+		$seconds = $chunks[$i][0];
+		$name = $chunks[$i][1];
+		
+		if (($count = floor($since / $seconds)) != 0)
+			break;
 	}
 	
-	// $since = "Posted ".$since." ago";
-	return $since;
+	$print = ($count == 1) ? '1 '.$name : "$count {$name}s";
+	
+	if ($i + 1 < $j) {
+		$seconds2 = $chunks[$i + 1][0];
+		$name2 = $chunks[$i + 1][1];
+		
+		// add second item if it's greater than 0
+		if ( (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) && $do_more )
+			$print .= ($count2 == 1) ? ', 1 '.$name2 : ", $count2 {$name2}s";
+	}
+	return $print;
 }
 
-function get_option( $option ) {
+function bb_get_option( $option ) {
 	global $bb;
 
 	switch ( $option ) :
@@ -173,10 +181,10 @@ function get_option( $option ) {
 }
 
 function option( $option ) {
-	echo get_option( $option ) ;
+	echo bb_get_option( $option ) ;
 }
 
-function add_query_arg() {
+function bb_add_query_arg() {
 	$ret = '';
 	if( is_array( func_get_arg(0) ) ) {
 		$uri = @func_get_arg(1);
@@ -219,8 +227,8 @@ function add_query_arg() {
 	return trim($ret, '?');
 }
 
-function remove_query_arg($key, $query) {
-	add_query_arg($key, '', $query);
+function bb_remove_query_arg($key, $query) {
+	bb_add_query_arg($key, '', $query);
 }
 
 function post_author_cache($posts) {
@@ -238,7 +246,7 @@ function post_author_cache($posts) {
 	}
 }
 
-function current_time($type) {
+function bb_current_time($type) {
 	switch ($type) {
 		case 'mysql':
 			$d = gmdate('Y-m-d H:i:s');
@@ -285,9 +293,9 @@ function bb_check_login($user, $pass) {
 
 function bb_new_topic( $title, $forum ) {
 	global $bbdb, $current_user;
-	$title = apply_filters('pre_topic_title', $title);
+	$title = bb_apply_filters('pre_topic_title', $title);
 	$forum = (int) $forum;
-	$now   = current_time('mysql');
+	$now   = bb_current_time('mysql');
 
 	if ( $forum && $title ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
@@ -296,7 +304,7 @@ function bb_new_topic( $title, $forum ) {
 		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum)");
 		$topic_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
-		do_action('bb_new_topic', $topic_id);
+		bb_do_action('bb_new_topic', $topic_id);
 		return $topic_id;
 	} else {
 		return false;
@@ -305,13 +313,13 @@ function bb_new_topic( $title, $forum ) {
 
 function bb_update_topic( $title, $topic_id ) {
 	global $bbdb;
-	$title = apply_filters('pre_topic_title', $title);
+	$title = bb_apply_filters('pre_topic_title', $title);
 	$topic_id = (int) $topic_id;
 	$forum_id = (int) $forum_id;
 
 	if ( $topic_id && $title ) {
 		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$title' WHERE topic_id = $topic_id");
-		do_action('bb_update_topic', $topic_id);
+		bb_do_action('bb_update_topic', $topic_id);
 		return $topic_id;
 	} else {
 		return false;
@@ -320,9 +328,9 @@ function bb_update_topic( $title, $topic_id ) {
 
 function bb_new_post( $topic_id, $post ) {
 	global $bbdb, $current_user;
-	$post  = apply_filters('pre_post', $post);
+	$post  = bb_apply_filters('pre_post', $post);
 	$tid   = (int) $topic_id;
-	$now   = current_time('mysql');
+	$now   = bb_current_time('mysql');
 	$uid   = $current_user->user_id;
 	$uname = $current_user->username;
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
@@ -338,7 +346,7 @@ function bb_new_post( $topic_id, $post ) {
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = $uid, topic_last_poster_name = '$uname',
 		topic_last_post_id = $post_id, topic_posts = topic_posts + 1 WHERE topic_id = $tid");
-		do_action('bb_new_post', $post_id);
+		bb_do_action('bb_new_post', $post_id);
 		return $post_id;
 	} else {
 		return false;
@@ -347,12 +355,12 @@ function bb_new_post( $topic_id, $post ) {
 
 function bb_update_post( $post, $post_id ) {
 	global $bbdb, $current_user;
-	$post  = apply_filters('pre_post', $post);
+	$post  = bb_apply_filters('pre_post', $post);
 	$post_id   = (int) $post_id;
 
 	if ( $post_id && $post ) {
 		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post' WHERE post_id = $post_id");
-		do_action('bb_update_post', $post_id);
+		bb_do_action('bb_update_post', $post_id);
 		return $post_id;
 	} else {
 		return false;

@@ -127,7 +127,7 @@ class bbdb {
 		++$this->num_queries;
 
 		if (SAVEQUERIES)
-			$this->queries[] = array( $query, $this->timer_stop() );
+			$this->queries[] = array( $query, $this->bb_timer_stop() );
 
 		// If there is an error then take note of it..
 		if ( mysql_error() ) {
@@ -274,7 +274,7 @@ class bbdb {
 		return true;
 	}
 	
-	function timer_stop($precision = 3) {
+	function bb_timer_stop($precision = 3) {
 		$mtime = microtime();
 		$mtime = explode(' ', $mtime);
 		$time_end = $mtime[1] + $mtime[0];

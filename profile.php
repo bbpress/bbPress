@@ -32,8 +32,8 @@ foreach ($topics as $topic) :
 	$topic_cache[$topic->topic_id] = $topic;
 endforeach;
 
-add_filter('post_time', 'strtotime');
-add_filter('post_time', 'since');
+bb_add_filter('post_time', 'strtotime');
+bb_add_filter('post_time', 'bb_since');
 
 require('bb-templates/profile.php');
 

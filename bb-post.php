@@ -25,5 +25,5 @@ $post_id = bb_new_post( $topic_id, $_POST['post_content'] );
 if ($post_id)
 	header('Location: ' . get_post_link($post_id) );
 else
-	header('Location: ' . get_option('uri') );
+	header('Location: ' . bb_get_option('uri') );
 ?>

@@ -17,5 +17,5 @@ foreach ($forums as $forum) :
 	$bbdb->query("UPDATE $bbdb->forums SET topics = $forum->topic_count, posts = $forum->post_count WHERE forum_id = $forum->forum_id");
 endforeach;
 
-echo "$wpdb->num_queries queries. " . timer_stop() . 'seconds'; ?>
+echo "$bbdb->num_queries queries. " . bb_timer_stop() . 'seconds'; ?>
 ?>

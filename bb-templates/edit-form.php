@@ -8,7 +8,7 @@
 </p>
 <?php endif; ?>
 <p><label>Post:<br />
-  <textarea name="post_content" cols="50" rows="8" id="post_content"><?php echo apply_filters('edit_text', get_post_text() ); ?></textarea>
+  <textarea name="post_content" cols="50" rows="8" id="post_content"><?php echo bb_apply_filters('edit_text', get_post_text() ); ?></textarea>
   </label>
 </p>
 <p class="submit">

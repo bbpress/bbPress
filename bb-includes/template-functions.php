@@ -14,7 +14,7 @@ function login_form() {
 	global $current_user;
 	if ($current_user) {
 		echo "Welcome, $current_user->username! <a href='" . user_profile_link( $current_user->user_id) . "'>View your profile &raquo;</a> 
-		<small>(<a href='" . get_option('uri') . "bb-login.php?logout'>Logout</a>)</small>";
+		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small>";
 	} else {
 		require( BBPATH . '/bb-templates/login-form.php');
 	}
@@ -75,7 +75,7 @@ function bb_title() {
 		$title = get_forum_name() . ' &laquo; ';
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
-	$title .= get_option('name');
+	$title .= bb_get_option('name');
 	echo $title;
 }
 
@@ -88,37 +88,37 @@ function forum_link() {
 	else
 		$link = $bb->path . "forum.php?id=$forum->forum_id";
 
-	echo apply_filters('forum_link', $link);
+	echo bb_apply_filters('forum_link', $link);
 }
 
 function forum_name() {
-	echo apply_filters('forum_name', get_forum_name() );
+	echo bb_apply_filters('forum_name', get_forum_name() );
 }
 function get_forum_id() {
 	global $forum;
 	return $forum->forum_id;
 }
 function forum_id() {
-	echo apply_filters('forum_id', get_forum_id() );
+	echo bb_apply_filters('forum_id', get_forum_id() );
 }
 function get_forum_name() {
 	global $forum;
-	return apply_filters('get_forum_name', $forum->forum_name);
+	return bb_apply_filters('get_forum_name', $forum->forum_name);
 }
 
 function forum_description() {
 	global $forum;
-	echo apply_filters('forum_description', $forum->forum_desc);
+	echo bb_apply_filters('forum_description', $forum->forum_desc);
 }
 
 function forum_topics() {
 	global $forum;
-	echo apply_filters('forum_topics', $forum->topics);
+	echo bb_apply_filters('forum_topics', $forum->topics);
 }
 
 function forum_posts() {
 	global $forum;
-	echo apply_filters('forum_posts', $forum->posts);
+	echo bb_apply_filters('forum_posts', $forum->posts);
 }
 
 function forum_pages() {
@@ -126,15 +126,15 @@ function forum_pages() {
 	if ( 0 == $forum->posts )
 		$forum->posts = 1;
 	$r = '';
-	if ( get_option('mod_rewrite') ) {
+	if ( bb_get_option('mod_rewrite') ) {
 		
 	} else {
-		if ( $page && ($page * get_option('page_topics')) < $forum->posts )
-			$r .=  '<a class="prev" href="' . bb_specialchars( add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-		if ( get_option('page_topics') < $forum->posts )
-			$r .=  ' <a class="next" href="' . bb_specialchars( add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
+		if ( $page && ($page * bb_get_option('page_topics')) < $forum->posts )
+			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
+		if ( bb_get_option('page_topics') < $forum->posts )
+			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
 	}
-	echo apply_filters('forum_pages', $r);
+	echo bb_apply_filters('forum_pages', $r);
 }
 
 // TOPICS
@@ -144,11 +144,11 @@ function get_topic_id() {
 }
 
 function topic_id() {
-	echo apply_filters('topic_id', get_topic_id() );
+	echo bb_apply_filters('topic_id', get_topic_id() );
 }
 
 function topic_link( $id = 0 ) {
-	echo apply_filters('topic_link', get_topic_link($id) );
+	echo bb_apply_filters('topic_link', get_topic_link($id) );
 }
 
 function get_topic_link( $id = 0 ) {
@@ -157,16 +157,16 @@ function get_topic_link( $id = 0 ) {
 	if ( $id )
 		$topic = get_topic( $id );
 
-	if ( get_option('mod_rewrite') )
-		$link = get_option('path') . $topic->topic_id;
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('path') . $topic->topic_id;
 	else
-		$link = get_option('path') . "topic.php?id=$topic->topic_id";
+		$link = bb_get_option('path') . "topic.php?id=$topic->topic_id";
 
-	return apply_filters('get_topic_link', $link);
+	return bb_apply_filters('get_topic_link', $link);
 }
 
 function topic_title( $id = 0 ) {
-	echo apply_filters('topic_title', get_topic_title( $id ) );
+	echo bb_apply_filters('topic_title', get_topic_title( $id ) );
 }
 
 function get_topic_title( $id = 0 ) {
@@ -178,16 +178,16 @@ function get_topic_title( $id = 0 ) {
 
 function topic_posts() {
 	global $topic;
-	echo apply_filters('topic_posts', $topic->topic_posts);
+	echo bb_apply_filters('topic_posts', $topic->topic_posts);
 }
 
 function topic_last_poster() {
 	global $topic;
-	echo apply_filters('topic_last_poster', $topic->topic_last_poster_name);
+	echo bb_apply_filters('topic_last_poster', $topic->topic_last_poster_name);
 }
 
 function topic_time( $id = 0 ) {
-	echo apply_filters('topic_time', get_topic_time($id) );
+	echo bb_apply_filters('topic_time', get_topic_time($id) );
 }
 
 function get_topic_time( $id = 0 ) {
@@ -213,15 +213,15 @@ function topic_pages() {
 	if ( 0 == $topic->topic_posts )
 		$topic->topic_posts = 1;
 	$r = '';
-	if ( get_option('mod_rewrite') ) {
+	if ( bb_get_option('mod_rewrite') ) {
 		
 	} else {
-		if ( $page && ($page * get_option('page_topics')) < $topic->topic_posts )
-			$r .=  '<a class="prev" href="' . bb_specialchars( add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-		if ( get_option('page_topics') < $topic->topic_posts )
-			$r .=  ' <a class="next" href="' . bb_specialchars( add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
+		if ( $page && ($page * bb_get_option('page_topics')) < $topic->topic_posts )
+			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
+		if ( bb_get_option('page_topics') < $topic->topic_posts )
+			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
 	}
-	echo apply_filters('forum_pages', $r);
+	echo bb_apply_filters('forum_pages', $r);
 }
 
 // POSTS
@@ -237,7 +237,7 @@ function get_post_id() {
 }
 
 function post_author() {
-	echo apply_filters('post_author', get_post_author() );
+	echo bb_apply_filters('post_author', get_post_author() );
 }
 
 function get_post_author() {
@@ -265,7 +265,7 @@ function post_author_link() {
 
 function post_text() {
 	global $post;
-	echo apply_filters('post_text', get_post_text() );
+	echo bb_apply_filters('post_text', get_post_text() );
 }
 
 function get_post_text() {
@@ -275,7 +275,7 @@ function get_post_text() {
 
 function post_time() {
 	global $post;
-	echo apply_filters('post_time', $post->post_time);
+	echo bb_apply_filters('post_time', $post->post_time);
 }
 
 function post_date( $format ) {
@@ -294,16 +294,16 @@ function get_post_ip() {
 
 function post_ip() {
 	if ( can_edit( get_post_author_id() ) )
-		echo apply_filters('post_ip', get_post_ip() );
+		echo bb_apply_filters('post_ip', get_post_ip() );
 }
 
 function post_edit_link() {
 	if ( can_edit( get_post_author_id() ) )
-		echo "<a href='" . get_option('uri') . 'edit.php?id=' . get_post_id() . "'>Edit</a>";
+		echo "<a href='" . bb_get_option('uri') . 'edit.php?id=' . get_post_id() . "'>Edit</a>";
 }
 
 function post_author_id() {
-	echo apply_filters('post_author_id', get_post_author_id() );
+	echo bb_apply_filters('post_author_id', get_post_author_id() );
 }
 function get_post_author_id() {
 	global $post;
@@ -321,10 +321,10 @@ function post_author_type() {
 
 // USERS
 function user_profile_link( $id ) {
-	if ( get_option('mod_rewrite') ) {
-		$r = get_option('domain') . get_option('path') . 'user/' . $id;
+	if ( bb_get_option('mod_rewrite') ) {
+		$r = bb_get_option('domain') . bb_get_option('path') . 'user/' . $id;
 	} else {
-		$r =  get_option('domain') . get_option('path') . 'profile.php?id=' . $id;
+		$r =  bb_get_option('domain') . bb_get_option('path') . 'profile.php?id=' . $id;
 	}
 	return $r;
 }
@@ -342,7 +342,7 @@ function get_user_link( $id ) {
 }
 
 function user_link( $id ) {
-	echo apply_filters('user_link', get_user_link($id) );
+	echo bb_apply_filters('user_link', get_user_link($id) );
 }
 
 function get_user_type ( $id) {
@@ -374,7 +374,7 @@ function get_user_type ( $id) {
 }
 
 function user_type( $id ) {
-	echo apply_filters('user_type', get_user_type($id) );
+	echo bb_apply_filters('user_type', get_user_type($id) );
 }
 
 

@@ -12,7 +12,7 @@ $post_id = (int) $_POST['post_id'];
 $post  = get_post( $post_id );
 
 if ( !$post || !can_edit( $post->poster_id ) ) {
-	header('Location: ' . get_option('uri') );
+	header('Location: ' . bb_get_option('uri') );
 	die();
 }
 
@@ -24,5 +24,5 @@ bb_update_post( $_POST['post_content'], $post_id);
 if ($post_id)
 	header('Location: ' . get_post_link($post_id) );
 else
-	header('Location: ' . get_option('uri') );
+	header('Location: ' . bb_get_option('uri') );
 ?>

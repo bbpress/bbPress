@@ -23,7 +23,7 @@ if ($posts) {
 	foreach($posts as $post) {
 		echo '.'; flush();
 		$post_text = addslashes(deslash($post->post_text));
-		$post_text = apply_filters('pre_post', $post_text);
+		$post_text = bb_apply_filters('pre_post', $post_text);
 		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$post->post_id'");
 	}
 }

@@ -6,7 +6,7 @@ function get_total_users() {
 }
 
 function total_users() {
-	echo apply_filters('total_users', get_total_users() );
+	echo bb_apply_filters('total_users', get_total_users() );
 }
 
 function get_total_posts() {
@@ -15,7 +15,7 @@ function get_total_posts() {
 }
 
 function total_posts() {
-	echo apply_filters('total_posts', get_total_posts() );
+	echo bb_apply_filters('total_posts', get_total_posts() );
 }
 
 function get_popular_topics( $num = 5 ) {

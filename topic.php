@@ -14,7 +14,7 @@ if ( !$topic )
 $posts = get_thread( $topic_id, $page );
 $forum = get_forum ( $topic->forum_id );
 
-$list_start = $page * get_option('page_topics');
+$list_start = $page * bb_get_option('page_topics');
 if ( !$list_start ) $list_start = 1;
 
 post_author_cache($posts);
