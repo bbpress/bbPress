@@ -6,6 +6,8 @@ $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :
 
+$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE username LIKE ('%$likeit%')");
+
 $titles = $bbdb->get_results("SELECT * FROM $bbdb->topics JOIN $bbdb->posts ON topic_last_post_id = post_id WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY post_time DESC LIMIT 5");
 
 $recent = $bbdb->get_results("SELECT * FROM $bbdb->posts JOIN $bbdb->topics ON

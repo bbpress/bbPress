@@ -7,6 +7,16 @@
 <h2>Search for &#8220;<?php echo bb_specialchars($q); ?>&#8221;</h2>
 <?php endif; ?>
 
+<?php if ( $users ) : ?>
+<h2>Users</h2>
+<ul>
+<?php foreach ( $users as $user ) : ?>
+	<li><a href="<?php echo user_profile_link($user->user_id); ?>"><?php echo $user->username; ?></a></li>
+
+<?php endforeach; ?>
+</ul>
+<?php endif; ?>
+
 <?php if ( $titles ) : ?>
 <h2>Thread title matches</h2>
 
