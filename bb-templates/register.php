@@ -25,12 +25,12 @@ Your username was not valid, please try again</td>
 <?php if ( $email ) : ?>
 <tr>
 <th scope="row">Email:</th>
-<td><input name="email" type="text" id="email" size="30" maxlength="30" value="<?php if (1 != $email) echo $email; ?>" /></td>
+<td><input name="email" type="text" id="email" size="30" maxlength="140" value="<?php if (1 != $email) echo $email; ?>" /></td>
 </tr>
 <?php else : ?>
 <tr>
 <th scope="row">Email:</th>
-<td><input name="email" type="text" id="email" size="30" maxlength="30" /> <br />
+<td><input name="email" type="text" id="email" size="30" maxlength="140" /> <br />
 There was a problem with your email, please check it.</td>
 </tr>
 <?php endif; ?>

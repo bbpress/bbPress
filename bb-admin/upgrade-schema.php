@@ -47,7 +47,7 @@ CREATE TABLE $bbdb->users (
   username varchar(40)  NOT NULL default '',
   user_regdate datetime NOT NULL default '0000-00-00 00:00:00',
   user_password varchar(32)  NOT NULL default '',
-  user_email varchar(50)  NOT NULL default '',
+  user_email varchar(150)  NOT NULL default '',
   user_icq varchar(15)  NOT NULL default '',
   user_website varchar(100)  NOT NULL default '',
   user_occ varchar(100)  NOT NULL default '',
