@@ -20,6 +20,6 @@ $bb->edit_lock = 60;
 
 /* Stop editing */
 
-define('ABSPATH', dirname(__FILE__).'/');
-require_once(ABSPATH . 'bb-settings.php');
+define('BBPATH', dirname(__FILE__) . '/' );
+require_once( BBPATH . 'bb-settings.php' );
 ?>

@@ -15,11 +15,11 @@ function bb_timer_start() {
 }
 bb_timer_start();
 
-require( ABSPATH . '/bb-includes/db.php');
-require( ABSPATH . '/bb-includes/functions.php');
-require( ABSPATH . '/bb-includes/formatting-functions.php');
-require( ABSPATH . '/bb-includes/template-functions.php');
-require( ABSPATH . '/bb-includes/default-filters.php');
+require( BBPATH . '/bb-includes/db.php');
+require( BBPATH . '/bb-includes/functions.php');
+require( BBPATH . '/bb-includes/formatting-functions.php');
+require( BBPATH . '/bb-includes/template-functions.php');
+require( BBPATH . '/bb-includes/default-filters.php');
 
 $bbdb->forums  = $table_prefix . 'forums';
 $bbdb->posts   = $table_prefix . 'posts';

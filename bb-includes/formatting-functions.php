@@ -107,7 +107,7 @@ function bb_filter_kses($data) {
 	);
 
 	if ( !function_exists('wp_kses') )
-		require_once( ABSPATH . '/bb-includes/kses.php');
+		require_once( BBPATH . '/bb-includes/kses.php');
 	return wp_kses($data, $allowedtags);
 }
 

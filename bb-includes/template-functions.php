@@ -2,12 +2,12 @@
 
 function get_header() {
 	global $bb;
-	include( ABSPATH . '/bb-templates/header.php');
+	include( BBPATH . '/bb-templates/header.php');
 }
 
 function get_footer() {
 	global $bbdb;
-	include( ABSPATH . '/bb-templates/footer.php');
+	include( BBPATH . '/bb-templates/footer.php');
 }
 
 function login_form() {
@@ -16,26 +16,26 @@ function login_form() {
 		echo "Welcome, $current_user->username! <a href='" . user_profile_link( $current_user->user_id) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . get_option('uri') . "bb-login.php?logout'>Logout</a>)</small>";
 	} else {
-		require( ABSPATH . '/bb-templates/login-form.php');
+		require( BBPATH . '/bb-templates/login-form.php');
 	}
 }
 
 function search_form( $q = '' ) {
-	require( ABSPATH . '/bb-templates/search-form.php');
+	require( BBPATH . '/bb-templates/search-form.php');
 }
 
 function post_form() {
 	global $current_user;
 	if ($current_user) {
-		require( ABSPATH . '/bb-templates/post-form.php');
+		require( BBPATH . '/bb-templates/post-form.php');
 	} else {
 		echo "<p>You must login to post.";
-		require( ABSPATH . '/bb-templates/login-form.php');
+		require( BBPATH . '/bb-templates/login-form.php');
 	}
 }
 
 function edit_form( $post = '', $topic_title = '' ) {
-	require( ABSPATH . '/bb-templates/edit-form.php');
+	require( BBPATH . '/bb-templates/edit-form.php');
 }
 
 function alt_class( $key ) {
