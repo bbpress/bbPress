@@ -406,6 +406,18 @@ function bb_delete_post( $post_id ) {
 	}
 }
 
+function bb_close_topic ( $topic_id ) {
+	global $bbdb;
+	bb_do_action('close_topic', $topic_id);
+	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '0' WHERE topic_id = $topic_id");
+}
+
+function bb_open_topic ( $topic_id ) {
+	global $bbdb;
+	bb_do_action('opentopic', $topic_id);
+	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '1' WHERE topic_id = $topic_id");
+}
+
 function bb_update_post( $post, $post_id ) {
 	global $bbdb, $current_user;
 	$post  = bb_apply_filters('pre_post', $post);
@@ -478,6 +490,9 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 
 	if ( $user->user_type > $post_author->user_type )
 		return true;
+	
+	if ( ! topic_is_open( $post->topic_id ) )
+		return false;
 
 	$post_time  = strtotime( $post->post_time );
 	$curr_time  = time();
@@ -486,6 +501,14 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 		return false;
 	else
 		return true;
+}
+
+function topic_is_open ( $topic_id ) {
+	$topic = get_topic( $topic_id );
+	if ( 1 == $topic->topic_open )
+		return true;
+	else
+		return false;
 }
 
 function bb_is_first( $post_id ) { // First post in thread

@@ -20,6 +20,9 @@ if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	$topic_id = (int) $_POST['topic_id'];
 }
 
+if ( !topic_is_open( $topic_id ) )
+	die('This topic has been closed');
+
 $post_id = bb_new_post( $topic_id, $_POST['post_content'] );
 
 if ($post_id)

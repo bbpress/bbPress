@@ -358,6 +358,17 @@ function topic_delete_link() {
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "'>Delete entire topic</a>";
 }
 
+function topic_close_link() {
+	global $current_user;
+	if ( $current_user->user_type > 1 ) {
+		if ( topic_is_open( get_topic_id() ) )
+			$text = 'Close topic';
+		else
+			$text = 'Open topic';
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id() . "'>$text</a>";
+	}
+}
+
 function post_author_id() {
 	echo bb_apply_filters('post_author_id', get_post_author_id() );
 }

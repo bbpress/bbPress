@@ -32,9 +32,14 @@
 <?php topic_pages(); ?>
 </div>
 <?php endif; ?>
+<?php if ( topic_is_open( $post->topic_id ) ) : ?>
 <h2>Reply</h2>
 <?php post_form(); ?>
+<?php else : ?>
+<h2>Topic Closed</h2>
+<p>This topic has been closed to new replies.</p>
+<?php endif; ?>
 <div class="admin">
-<?php topic_delete_link(); ?>
+<?php topic_delete_link(); ?> <?php topic_close_link(); ?>
 </div>
 <?php get_footer(); ?>
