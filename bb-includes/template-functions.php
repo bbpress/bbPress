@@ -46,21 +46,21 @@ function alt_class( $key ) {
 }
 
 function is_front() {
-	if ( '/index.php' == $_SERVER['PHP_SELF'] )
+	if ( 'index.php' == basename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
 }
 
 function is_forum() {
-	if ( '/forum.php' == $_SERVER['PHP_SELF'] )
+	if ( 'forum.php' == basename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
 }
 
 function is_topic() {
-	if ( '/topic.php' == $_SERVER['PHP_SELF'] )
+	if ( 'topic.php' == basename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
