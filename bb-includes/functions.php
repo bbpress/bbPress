@@ -142,7 +142,7 @@ function bb_since( $original, $do_more = 0 ) {
 	);
 	
 	$today = time();
-	$since = $today - $original;
+	$since = $today - bb_offset_time($original);
 	
 	for ($i = 0, $j = count($chunks); $i < $j; $i++) {
 		$seconds = $chunks[$i][0];
@@ -498,6 +498,21 @@ function bb_global_sanitize( $array ) {
 		}
 	}
 	return $array;
+}
+
+function bb_offset_time($time) {
+	// in future versions this could eaily become a user option.
+	global $bb;
+	if ( !is_numeric($time) ) {
+		if ( !(strtotime($time) === -1)) {
+			$time = strtotime($time);
+			return date('Y-m-d H:i:s', ($time + ($bb->gmt_offset * 3600)));
+		} else {
+			return $time;
+		}
+	} else {
+		return ($time + ($bb->gmt_offset * 3600));
+	}
 }
 
 ?>
