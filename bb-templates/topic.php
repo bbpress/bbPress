@@ -4,6 +4,7 @@
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
 <h2><?php topic_title(); ?></h2>
+<?php bb_do_action('under_title', ''); ?>
 <?php if ($posts) : ?>
 <div class="nav">
 <?php topic_pages(); ?>
@@ -40,6 +41,6 @@
 <p>This topic has been closed to new replies.</p>
 <?php endif; ?>
 <div class="admin">
-<?php topic_delete_link(); ?> <?php topic_close_link(); ?>
+<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?>
 </div>
 <?php get_footer(); ?>

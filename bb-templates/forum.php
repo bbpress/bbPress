@@ -18,6 +18,14 @@
 	<th>Freshness</th>
 </tr>
 
+<?php if ( $stickies) : foreach ( $stickies as $topic ) : ?>
+<tr<?php alt_class('topic'); ?>>
+	<td>Sticky: <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
+	<td class="num"><?php topic_posts(); ?></td>
+	<td class="num"><?php topic_last_poster(); ?></td>
+	<td class="num"><small><?php topic_time(); ?></small></td>
+</tr>
+<?php endforeach; endif; ?>
 
 <?php foreach ( $topics as $topic ) : ?>
 <tr<?php alt_class('topic'); ?>>

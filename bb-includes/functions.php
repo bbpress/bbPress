@@ -51,6 +51,14 @@ function get_latest_topics( $forum = 0, $page = 0 ) {
 	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit");
 }
 
+function get_sticky_topics( $forum = 0, $page = 0 ) {
+	global $bbdb, $bb;
+	$where = '';
+	if ( $forum )
+		$where = "AND forum_id = $forum";
+	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC");
+}
+
 function get_latest_posts( $num ) {
 	global $bbdb;
 	$num = (int) $num;
@@ -418,6 +426,18 @@ function bb_open_topic ( $topic_id ) {
 	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '1' WHERE topic_id = $topic_id");
 }
 
+function bb_stick_topic ( $topic_id ) {
+	global $bbdb;
+	bb_do_action('stick_topic', $topic_id);
+	return $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '1' WHERE topic_id = $topic_id");
+}
+
+function bb_unstick_topic ( $topic_id ) {
+	global $bbdb;
+	bb_do_action('unstick_topic', $topic_id);
+	return $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '0' WHERE topic_id = $topic_id");
+}
+
 function bb_update_post( $post, $post_id ) {
 	global $bbdb, $current_user;
 	$post  = bb_apply_filters('pre_post', $post);
@@ -506,6 +526,14 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 function topic_is_open ( $topic_id ) {
 	$topic = get_topic( $topic_id );
 	if ( 1 == $topic->topic_open )
+		return true;
+	else
+		return false;
+}
+
+function topic_is_sticky ( $topic_id ) {
+	$topic = get_topic( $topic_id );
+	if ( 1 == $topic->topic_sticky )
 		return true;
 	else
 		return false;

@@ -37,6 +37,7 @@ CREATE TABLE $bbdb->topics (
   topic_status tinyint(1) NOT NULL default '0',
   topic_open tinyint(1) NOT NULL default '1',
   topic_last_post_id bigint(20) NOT NULL default '1',
+  topic_sticky tinyint(1) NOT NULL default '0',
   topic_posts bigint(20) NOT NULL default '0',
   PRIMARY KEY  (topic_id),
   KEY forum_id (forum_id)

@@ -369,6 +369,18 @@ function topic_close_link() {
 	}
 }
 
+function topic_sticky_link() {
+	global $current_user;
+	if ( $current_user->user_type > 1 ) {
+		if ( topic_is_sticky( get_topic_id() ) )
+			$text = 'Unstick topic';
+		else
+			$text = 'Stick topic';
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>$text</a>";
+	}
+}
+
+
 function post_author_id() {
 	echo bb_apply_filters('post_author_id', get_post_author_id() );
 }

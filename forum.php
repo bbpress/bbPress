@@ -14,7 +14,8 @@ $forum = get_forum( $forum_id );
 if ( !$forum )
 	die('Forum not found.');
 
-$topics = get_latest_topics( $forum_id, $page );
+$topics   = get_latest_topics( $forum_id, $page );
+$stickies = get_sticky_topics( $forum_id );
 
 include('bb-templates/forum.php');
 
