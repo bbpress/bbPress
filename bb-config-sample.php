@@ -19,6 +19,8 @@ $bb->page_topics = 30;
 // Number of minutes after posting a user can edit their post
 $bb->edit_lock = 60;
 
+$bb->gmt_offset = 0;
+
 /* Stop editing */
 
 define('BBPATH', dirname(__FILE__) . '/' );
