@@ -16,7 +16,8 @@ $updated = false;
 
 if ($_POST) :
 	
-	$website   = bb_specialchars( $_POST['website']   , 1);
+	$website   = bb_fix_link( $_POST['website'] );
+	$website   = bb_specialchars( $website            , 1);
 	$location  = bb_specialchars( $_POST['location']  , 1);
 	$interests = bb_specialchars( $_POST['interests'] , 1);
 	$updated   = true;

@@ -25,4 +25,6 @@ bb_add_filter('total_users', 'number_format');
 bb_add_filter('edit_text', 'code_trick_reverse');
 bb_add_filter('edit_text', 'htmlspecialchars');
 
+bb_add_filter('get_user_link', 'bb_fix_link');
+
 ?>

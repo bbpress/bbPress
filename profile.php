@@ -8,6 +8,8 @@ $user = bb_get_user( $user_id );
 if ( !$user )
 	die('User not found.');
 
+$user->user_website = get_user_link( $user_id );
+
 if ( !isset( $_GET['updated'] ) )
 	$updated = false;
 else

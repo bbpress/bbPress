@@ -375,10 +375,10 @@ function get_user_link( $id ) {
 	global $user_cache, $bbdb;
 	if ( $id ) :
 		if ( isset( $user_cache[$id] ) ) {
-			return $user_cache[$id]->user_website;
+			return bb_apply_filters('get_user_link', $user_cache[$id]->user_website);
 		} else {
 			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id");
-			return $user_cache[$id]->user_website;
+			return bb_apply_filters('get_user_link', $user_cache[$id]->user_website);
 		}
 	endif;
 }

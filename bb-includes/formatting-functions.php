@@ -133,4 +133,12 @@ function bb_make_clickable($ret) {
 	return $ret;
 }
 
+function bb_fix_link( $link ) {
+	if ( !strstr( $link, 'http' ) )
+		$link = 'http://' . $link;
+	if ( !strstr( $link, '.' ) )
+		$link = '';
+	return $link;
+}
+
 ?>
