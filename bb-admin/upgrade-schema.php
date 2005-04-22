@@ -61,7 +61,24 @@ CREATE TABLE $bbdb->users (
   user_type int(11) NOT NULL default '0',
   PRIMARY KEY  (user_id),
   UNIQUE KEY username (username)
-);";
+);
+CREATE TABLE $bbdb->tags (
+  tag_id bigint(20) unsigned NOT NULL auto_increment,
+  tag varchar(30) NOT NULL default '',
+  raw_tag varchar(50) NOT NULL default '',
+  PRIMARY KEY  (id)
+);
+CREATE TABLE $bbdb->tagged (
+  tag_id bigint(20) unsigned NOT NULL default '0',
+  user_id bigint(20) unsigned NOT NULL default '0',
+  topic_id bigint(20) unsigned NOT NULL default '0',
+  tagged_on datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY (`tag_id`,`user_id`,`topic_id`),
+  KEY `tag_id_index` (`tag_id`),
+  KEY `user_id_index` (`user_id`),
+  KEY `topic_id_index` (`topic_id`)
+);
+";
 
 function dbDelta($queries, $execute = true) {
 	global $bbdb;

@@ -18,6 +18,12 @@ if ( extension_loaded('mysqli') )
 	require( BBPATH . '/bb-includes/db-mysqli.php');
 else
 	require( BBPATH . '/bb-includes/db.php');
+
+$plugins = glob( BBPATH . '/bb-plugins/*.php');
+if ( $plugins ) : foreach ( $plugins as $plugin ) :
+	echo $plugin;
+endforeach; endif;
+
 require( BBPATH . '/bb-includes/functions.php');
 require( BBPATH . '/bb-includes/formatting-functions.php');
 require( BBPATH . '/bb-includes/template-functions.php');
@@ -27,6 +33,8 @@ $bbdb->forums  = $table_prefix . 'forums';
 $bbdb->posts   = $table_prefix . 'posts';
 $bbdb->topics  = $table_prefix . 'topics';
 $bbdb->users   = $table_prefix . 'users';
+$bbdb->tags    = $table_prefix . 'tags';
+$bbdb->tagged  = $table_prefix . 'tagged';
 
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
