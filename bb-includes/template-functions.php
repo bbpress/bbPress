@@ -467,7 +467,7 @@ function user_type( $id ) {
 
 function topic_tags () {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user;
-	if ( is_array( $tags ) )
+	if ( is_array( $tags ) || $current_user )
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
 

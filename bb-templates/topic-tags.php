@@ -22,6 +22,9 @@
 </div>
 <?php endif; ?>
 
+<?php if ( !$tags ) : ?>
+<p>No <a href="<?php option('uri'); ?>tags/">tags</a> yet.</p>
+<?php endif; ?>
 <?php tag_form(); ?>
 
 </div>
