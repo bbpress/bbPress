@@ -134,7 +134,10 @@ function forum_pages() {
 		$forum->posts = 1;
 	$r = '';
 	if ( bb_get_option('mod_rewrite') ) {
-		
+		if ( $page && ($page * bb_get_option('page_topics')) < $forum->posts )
+			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
+		if ( bb_get_option('page_topics') < $forum->posts )
+			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';		
 	} else {
 		if ( $page && ($page * bb_get_option('page_topics')) < $forum->posts )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
