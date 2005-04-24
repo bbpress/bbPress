@@ -590,4 +590,9 @@ function bb_cookie( $name, $value, $expires = 0 ) {
 		setcookie( $name, $value, $expires, $bb->cookiepath );
 }
 
+function get_path( $level = 1 ) {
+	$url = explode('/',$_SERVER['PATH_INFO']);
+	return $url[$level];
+}
+
 ?>

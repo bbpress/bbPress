@@ -2,6 +2,8 @@
 require_once('bb-config.php');
 
 $user_id = (int) $_GET['id'];
+if ( !$user_id )
+	$user_id = get_path();
 
 $user = bb_get_user( $user_id );
 

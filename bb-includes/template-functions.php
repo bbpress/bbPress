@@ -91,7 +91,7 @@ function get_forum_link( $id = 0 ) {
 	if ( $id )
 		$forum = get_forum( $id );
 	if ( $bb->mod_rewrite )
-		$link = $bb->path . $forum->nice_name;
+		$link = $bb->path . 'forum/' . $forum->forum_id;
 	else
 		$link = $bb->path . "forum.php?id=$forum->forum_id";
 
@@ -169,7 +169,7 @@ function get_topic_rss_link( $id = 0 ) {
 		$topic = get_topic( $id );
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . $topic->topic_id . '/rss/';
+		$link = get_topic_link() . '/rss/';
 	else
 		$link = bb_get_option('uri') . "rss.php?topic=$topic->topic_id";
 
@@ -183,7 +183,7 @@ function get_topic_link( $id = 0 ) {
 		$topic = get_topic( $id );
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . $topic->topic_id;
+		$link = bb_get_option('uri') . 'topic/' . $topic->topic_id;
 	else
 		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id";
 
@@ -249,7 +249,10 @@ function topic_pages() {
 		$topic->topic_posts = 1;
 	$r = '';
 	if ( bb_get_option('mod_rewrite') ) {
-		
+		if ( $page && ($page * bb_get_option('page_topics')) < $topic->topic_posts )
+			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
+		if ( ( ($page + 1) * bb_get_option('page_topics')) < $topic->topic_posts )
+			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';		
 	} else {
 		if ( $page && ($page * bb_get_option('page_topics')) < $topic->topic_posts )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
@@ -401,7 +404,7 @@ function post_author_type() {
 // USERS
 function user_profile_link( $id ) {
 	if ( bb_get_option('mod_rewrite') ) {
-		$r = bb_get_option('domain') . bb_get_option('path') . 'user/' . $id;
+		$r = bb_get_option('domain') . bb_get_option('path') . 'profile/' . $id;
 	} else {
 		$r =  bb_get_option('domain') . bb_get_option('path') . 'profile.php?id=' . $id;
 	}

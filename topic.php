@@ -4,6 +4,8 @@ require_once('bb-config.php');
 $topic_id = $page = 0;
 
 $topic_id = (int) $_GET['id'];
+if ( !$topic_id )
+	$topic_id = get_path();
 
 if ( isset( $_GET['page'] ) )
 	$page = (int) abs( $_GET['page'] );
