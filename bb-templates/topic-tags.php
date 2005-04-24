@@ -22,4 +22,6 @@
 </div>
 <?php endif; ?>
 
+<?php tag_form(); ?>
+
 </div>
