@@ -602,4 +602,68 @@ function nocache_headers() {
 	header('Pragma: no-cache');
 }
 
+function add_topic_tag( $topic_id, $tag ) {
+	global $bbdb, $current_user;
+	$tag_id = create_tag( $tag );
+	$now    = bb_current_time('mysql');
+	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id'") )
+		return true;
+	$bbdb->query("INSERT INTO $bbdb->tagged 
+	( tag_id, user_id, topic_id, tagged_on )
+	VALUES
+	( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
+	return true;
+}
+
+function create_tag( $tag ) {
+	global $bbdb;
+	$raw_tag = $tag;
+	$tag     = strtolower   ( $tag );
+	$tag     = preg_replace ( '/\s/', '', $tag );
+	$tag     = user_sanitize( $tag );
+
+	if ( $exists = $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
+		return $exists;
+
+	$bbdb->query("INSERT INTO $bbdb->tags ( tag, raw_tag ) VALUES ( '$tag', '$raw_tag' )");
+	return $bbdb->insert_id;
+}
+
+function get_topic_tags ( $topic_id ) {
+	global $topic_tag_cache, $bbdb;
+	
+	if ( isset ($topic_tag_cache[$topic_id] ) )
+		return $topic_tag_cache[$topic_id];
+
+	$topic_tag_cache[$topic_id] = $bbdb->get_results("SELECT * FROM $bbdb->tagged JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE topic_id = '$topic_id'");
+	
+	return $topic_tag_cache[$topic_id];
+}
+
+function get_user_tags ( $topic_id, $user_id ) {
+	$tags = get_topic_tags ( $topic_id );
+	if ( !is_array( $tags ) )
+		return;
+	$user_tags = array();
+
+	foreach ( $tags as $tag ) :
+		if ( $tag->user_id == $user_id )
+			$user_tags[] = $tag;
+	endforeach;
+	return $user_tags;
+}
+
+function get_other_tags ( $topic_id, $user_id ) {
+	$tags = get_topic_tags ( $topic_id );
+	if ( !is_array( $tags ) )
+		return;
+	$other_tags = array();
+
+	foreach ( $tags as $tag ) :
+		if ( $tag->user_id != $user_id )
+			$other_tags[] = $tag;
+	endforeach;
+	return $other_tags;
+}
+
 ?>

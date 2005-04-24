@@ -16,7 +16,7 @@ function login_form() {
 		echo "<p>Welcome, $current_user->username! <a href='" . user_profile_link( $current_user->user_id) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
-		require( BBPATH . '/bb-templates/login-form.php');
+		include( BBPATH . '/bb-templates/login-form.php');
 	}
 }
 
@@ -27,10 +27,10 @@ function search_form( $q = '' ) {
 function post_form() {
 	global $current_user, $bb;
 	if ($current_user) {
-		require( BBPATH . '/bb-templates/post-form.php');
+		include( BBPATH . '/bb-templates/post-form.php');
 	} else {
 		echo "<p>You must login to post.</p>";
-		require( BBPATH . '/bb-templates/login-form.php');
+		include( BBPATH . '/bb-templates/login-form.php');
 	}
 }
 
@@ -462,5 +462,31 @@ function user_type( $id ) {
 	echo bb_apply_filters('user_type', get_user_type($id) );
 }
 
+function topic_tags () {
+	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags;
+	if ( is_array( $tags ) )
+		include( BBPATH . '/bb-templates/topic-tags.php');
+}
+
+function get_tag_link( $id = 0 ) {
+	global $tag, $bb;
+	if ( bb_get_option('mod_rewrite') )
+		return $bb->path . 'tags/' . $tag->tag;
+	else
+		return $bb->path . 'tags.php?tag=' . $tag->tag;
+}
+
+function tag_link( $id = 0 ) {
+	echo get_tag_link( $id );
+}
+
+function get_tag_name( $id = 0 ) {
+	global $tag;
+	return $tag->raw_tag;
+}
+
+function tag_name( $id = 0 ) {
+	echo get_tag_name( $id );
+}
 
 ?>

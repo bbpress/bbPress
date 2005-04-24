@@ -5,10 +5,10 @@
 
 <?php if ( $updated ) : ?>
 <div class="notice">
-<p>Profile updated. <a href="profile-edit.php">Edit again &raquo;</a></p>
+<p>Profile updated. <a href="<?php option('uri'); ?>profile-edit.php">Edit again &raquo;</a></p>
 </div>
 <?php elseif ( can_edit( $user_id ) ) : ?>
-<p>This is how your profile appears to a fellow logged in member, you may <a href="profile-edit.php">edit this information</a>.</p>
+<p>This is how your profile appears to a fellow logged in member, you may <a href="<?php option('uri'); ?>profile-edit.php">edit this information</a>.</p>
 <?php endif; ?>
 
 <dl id="userinfo">
