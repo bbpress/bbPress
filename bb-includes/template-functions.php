@@ -46,21 +46,21 @@ function alt_class( $key ) {
 }
 
 function is_front() {
-	if ( 'index.php' == basename($_SERVER['SCRIPT_NAME']) )
+	if ( 'index.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
 		return true;
 	else
 		return false;
 }
 
 function is_forum() {
-	if ( 'forum.php' == basename($_SERVER['SCRIPT_NAME']) )
+	if ( 'forum.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
 		return true;
 	else
 		return false;
 }
 
 function is_topic() {
-	if ( 'topic.php' == basename($_SERVER['SCRIPT_NAME']) )
+	if ( 'topic.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
 		return true;
 	else
 		return false;

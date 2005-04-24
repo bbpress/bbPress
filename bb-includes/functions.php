@@ -666,4 +666,9 @@ function get_other_tags ( $topic_id, $user_id ) {
 	return $other_tags;
 }
 
+function bb_find_filename( $text ) { 
+	$text = preg_replace('|.*?/([a-z]+\.php)/?.*|', '$1', $text);
+	return $text;
+}
+
 ?>
