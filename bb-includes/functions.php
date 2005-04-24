@@ -675,6 +675,22 @@ function get_other_tags ( $topic_id, $user_id ) {
 	return $other_tags;
 }
 
+function get_public_tags ( $topic_id ) {
+	$tags = get_topic_tags ( $topic_id );
+	if ( !is_array( $tags ) )
+		return;
+	$used_tags   = array();
+	$public_tags = array();
+
+	foreach ( $tags as $tag ) :
+		if ( !in_array($tag->tag_id, $used_tags) ) :
+			$public_tags[] = $tag;
+			$used_tags[]   = $tag->tag_id;
+		endif;
+	endforeach;
+	return $public_tags;
+}
+
 function bb_find_filename( $text ) { 
 	$text = preg_replace('|.*?/([a-z]+\.php)/?.*|', '$1', $text);
 	return $text;

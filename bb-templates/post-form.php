@@ -1,5 +1,5 @@
 
-<form name="post" id="post" method="post" action="<?php option('uri'); ?>bb-post.php">
+<form class="postform" method="post" action="<?php option('uri'); ?>bb-post.php">
 <?php if ( is_forum() ) : ?>
 <p>Before posting a new topic, <a href="<?php option('uri'); ?>search.php">be sure to search</a> to see if one has been started already.</p>
 <p>

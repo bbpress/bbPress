@@ -20,6 +20,9 @@ $tags  = get_topic_tags ( $topic_id );
 if ( $current_user && $tags ) {
 	$user_tags  = get_user_tags  ( $topic_id, $current_user->user_id );
 	$other_tags = get_other_tags ( $topic_id, $current_user->user_id );
+} elseif ( is_array($tags) ) {
+	$user_tags  = false;
+	$other_tags = get_public_tags( $topic_id );
 } else {
 	$user_tags  = false;
 	$other_tags = false;

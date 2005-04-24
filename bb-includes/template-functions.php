@@ -492,4 +492,10 @@ function tag_name( $id = 0 ) {
 	echo get_tag_name( $id );
 }
 
+function tag_form() {
+	global $current_user;
+	if ($current_user) 
+		include( BBPATH . '/bb-templates/tap-form.php');
+}
+
 ?>

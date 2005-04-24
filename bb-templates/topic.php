@@ -4,13 +4,6 @@
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
 <h2><?php topic_title(); ?></h2>
-<form name="post" id="post" method="post" action="<?php option('uri'); ?>tag-add.php">
-<fieldset id="addtag">
-Add tag: <input name="tag" type="text" id="tag" size="10" maxlength="30" /> 
-<input type="hidden" name="id" value="<?php topic_id(); ?>" />
-<input type="submit" name="Submit" value="Add">
-</fieldset>
-</form>
 
 <?php topic_tags(); ?>
 
