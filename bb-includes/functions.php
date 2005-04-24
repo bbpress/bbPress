@@ -606,7 +606,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	global $bbdb, $current_user;
 	$tag_id = create_tag( $tag );
 	$now    = bb_current_time('mysql');
-	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id'") )
+	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id' AND topic_id='$topic_id'") )
 		return true;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )
