@@ -604,7 +604,8 @@ function nocache_headers() {
 
 function add_topic_tag( $topic_id, $tag ) {
 	global $bbdb, $current_user;
-	$tag_id = create_tag( $tag );
+	if ( !$tag_id = create_tag( $tag ))
+		return false;
 	$now    = bb_current_time('mysql');
 	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id' AND topic_id='$topic_id'") )
 		return true;
@@ -618,10 +619,12 @@ function add_topic_tag( $topic_id, $tag ) {
 function create_tag( $tag ) {
 	global $bbdb;
 	$raw_tag = $tag;
+	$tag     = trim         ( $tag );
 	$tag     = strtolower   ( $tag );
 	$tag     = preg_replace ( '/\s/', '', $tag );
 	$tag     = user_sanitize( $tag );
-
+	if ( empty( $tag ) )
+		return false;
 	if ( $exists = $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
 		return $exists;
 

@@ -6,6 +6,7 @@
 <h2><?php topic_title(); ?></h2>
 
 <?php topic_tags(); ?>
+<?php tag_form(); ?>
 
 <?php bb_do_action('under_title', ''); ?>
 <?php if ($posts) : ?>

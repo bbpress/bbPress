@@ -35,7 +35,7 @@ There was a problem with your email, please check it.</td>
 </tr>
 <?php endif; ?>
 </table>
-<p>A password will be mailed to the email address you provide. Make sure to whitelist this domain so the confirmation email doesn't get caught by any  filters. </p>
+<p>A password will be mailed to the email address you provide. Make sure to whitelist our domain (<?php echo $bb->domain; ?>) so the confirmation email doesn't get caught by any  filters. </p>
 </fieldset>
 <fieldset>
 <legend>Optional Profile Info</legend>

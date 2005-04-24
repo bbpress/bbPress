@@ -27,6 +27,7 @@ if ( $current_user && $tags ) {
 	$user_tags  = false;
 	$other_tags = false;
 }
+
 $list_start = $page * bb_get_option('page_topics');
 if ( !$list_start ) $list_start = 1;
 

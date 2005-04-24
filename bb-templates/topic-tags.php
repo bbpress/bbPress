@@ -23,5 +23,3 @@
 <?php endif; ?>
 
 </div>
-
-<?php tag_form(); ?>

@@ -466,7 +466,7 @@ function user_type( $id ) {
 }
 
 function topic_tags () {
-	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags;
+	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user;
 	if ( is_array( $tags ) )
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
@@ -494,8 +494,8 @@ function tag_name( $id = 0 ) {
 
 function tag_form() {
 	global $current_user;
-	if ($current_user) 
-		include( BBPATH . '/bb-templates/tap-form.php');
+	if ( $current_user ) 
+		include( BBPATH . '/bb-templates/tag-form.php');
 }
 
 ?>
