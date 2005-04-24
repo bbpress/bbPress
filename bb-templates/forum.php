@@ -6,10 +6,6 @@
 
 <?php if ( $topics ) : ?>
 
-<div class="nav">
-<?php forum_pages(); ?>
-</div>
-
 <table id="latest">
 <tr>
 	<th>Topic</th>
