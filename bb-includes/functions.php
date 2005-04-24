@@ -629,6 +629,15 @@ function create_tag( $tag ) {
 	return $bbdb->insert_id;
 }
 
+function get_tag_id( $tag ) {
+	global $bbdb;
+	$tag     = strtolower   ( $tag );
+	$tag     = preg_replace ( '/\s/', '', $tag );
+	$tag     = user_sanitize( $tag );
+
+	return $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
+}
+
 function get_topic_tags ( $topic_id ) {
 	global $topic_tag_cache, $bbdb;
 	
