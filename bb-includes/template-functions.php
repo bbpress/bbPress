@@ -214,7 +214,7 @@ function get_topic_posts() {
 }
 
 function topic_noreply( $title ) {
-	if ( 1 == get_topic_posts() )
+	if ( 1 == get_topic_posts() && ( is_front() || is_forum() ) )
 		$title = "<strong>$title</strong>";
 	return $title;
 }
