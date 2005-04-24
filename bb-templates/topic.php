@@ -3,6 +3,7 @@
 <?php login_form(); ?>
 
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
+<div class="infobox">
 <h2 class="topictitle"><?php topic_title(); ?></h2>
 
 <?php topic_tags(); ?>
@@ -12,6 +13,7 @@
 	<li><?php topic_posts(); ?> posts so far</li>
 	<li>Latest reply from <?php topic_last_poster(); ?></li>
 </ul>
+</div>
 <?php bb_do_action('under_title', ''); ?>
 <?php if ($posts) : ?>
 <div class="nav">
