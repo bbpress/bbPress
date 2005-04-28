@@ -16,7 +16,7 @@
 <p>Tags:</p>
 <ul>
 <?php foreach ( $other_tags as $tag ) : ?>
-	<li><a href="<?php tag_link(); ?>"><?php tag_name(); ?></a></li> 
+	<li><a href="<?php tag_link(); ?>" rel="tag"><?php tag_name(); ?></a></li> 
 <?php endforeach; ?>
 </ul>
 </div>
