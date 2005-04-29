@@ -2,6 +2,8 @@
 
 <?php login_form(); ?>
 
+<?php tag_heat_map(); ?>
+
 <?php if ( $forums ) : ?>
 <table id="forumlist">
 

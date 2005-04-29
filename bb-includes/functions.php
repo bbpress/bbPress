@@ -700,4 +700,10 @@ function bb_find_filename( $text ) {
 	return $text;
 }
 
+function get_top_tags( $recent = true, $limit = 30 ) {
+	global $bbdb;
+	$tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit");
+	return $tags;
+}
+
 ?>
