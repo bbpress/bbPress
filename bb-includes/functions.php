@@ -613,6 +613,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES
 	( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
+	$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1");
 	return true;
 }
 

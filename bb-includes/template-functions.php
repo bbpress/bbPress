@@ -498,4 +498,31 @@ function tag_form() {
 		include( BBPATH . '/bb-templates/tag-form.php');
 }
 
+function tag_heat_map($smallest=10, $largest=48, $unit="pt") {
+	$cats = list_cats(1, 'all', 'name', 'asc', '', 0, 0, 1, 1, 0, 1, 1, 0, 1, '', '', $exclude, 0);
+
+	$cats = explode("\n", $cats);
+	foreach ($cats as $cat)
+	{
+		eregi("a href=\"(.+)\" ", $cat, $regs);
+		$catlink = $regs[1];
+		$cat = trim(strip_tags($cat));
+		eregi("(.*) \(([0-9]+)\)$", $cat, $regs);
+		$catname = $regs[1]; $count = $regs[2];
+		$counts{$catname} = $count;
+		$catlinks{$catname} = $catlink;
+	}
+	$spread = max($counts) - min($counts); 
+	if ($spread <= 0) { $spread = 1; };
+	$fontspread = $largest - $smallest;
+	$fontstep = $spread / $fontspread;
+	if ($fontspread <= 0) { $fontspread = 1; }
+	foreach ($counts as $catname => $count)
+	{
+		$catlink = $catlinks{$catname};
+		print "<a href=\"$catlink\" title=\"$count entries\" style=\"font-size: ".
+		($smallest + ($count/$fontstep))."$unit;\">$catname</a> \n";
+	}
+}
+
 ?>
