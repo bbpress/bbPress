@@ -617,6 +617,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	VALUES
 	( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
 	$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
+	bb_do_action('bb_tag_added', $topic_id);
 	return true;
 }
 
@@ -630,16 +631,7 @@ function add_topic_tags( $topic_id, $tags ) {
 		return false;
 
 	foreach ( $words as $tag ) :
-		if ( !$tag_id = create_tag( $tag ))
-			continue;
-		$now = bb_current_time('mysql');
-		if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id' AND topic_id='$topic_id'") )
-			continue;
-		$bbdb->query("INSERT INTO $bbdb->tagged 
-		( tag_id, user_id, topic_id, tagged_on )
-		VALUES
-		( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
-		$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1");
+		add_topic_tag( $topic_id, $tag );
 	endforeach;
 	return true;
 }
@@ -657,6 +649,7 @@ function create_tag( $tag ) {
 		return $exists;
 
 	$bbdb->query("INSERT INTO $bbdb->tags ( tag, raw_tag ) VALUES ( '$tag', '$raw_tag' )");
+	bb_do_action('bb_tag_created', $bbdb->insert_id);
 	return $bbdb->insert_id;
 }
 
