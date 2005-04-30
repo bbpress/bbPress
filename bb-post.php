@@ -22,11 +22,11 @@ if ( !topic_is_open( $topic_id ) )
 	die('This topic has been closed');
 
 $post_id = bb_new_post( $topic_id, $_POST['post_content'] );
-/*
+
 if ($post_id)
 	header('Location: ' . get_post_link($post_id) );
 else
 	header('Location: ' . bb_get_option('uri') );
 exit;
-*/
+
 ?>
