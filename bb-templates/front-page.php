@@ -2,6 +2,8 @@
 
 <?php login_form(); ?>
 
+<h2>Hot Tags</h2>
+
 <?php tag_heat_map(); ?>
 
 <?php if ( $topics ) : ?>
