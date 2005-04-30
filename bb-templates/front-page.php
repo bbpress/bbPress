@@ -2,7 +2,7 @@
 
 <?php login_form(); ?>
 
-<h2>Hot Tags</h2>
+<h2>Hot Tags <small>(<a href="#latest">skip to latest topics</a>)</small></h2>
 
 <p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
 
