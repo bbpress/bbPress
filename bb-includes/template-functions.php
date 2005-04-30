@@ -519,10 +519,10 @@ function tag_form() {
 		include( BBPATH . '/bb-templates/tag-form.php');
 }
 
-function tag_heat_map( $smallest = 8, $largest = 24, $unit = 'pt', $limit = 35 ) {
+function tag_heat_map( $smallest = 8, $largest = 24, $unit = 'pt', $limit = 40 ) {
 	global $tag;
 
-	$tags = get_top_tags( $limit );
+	$tags = get_top_tags( false, $limit );
 	foreach ( $tags as $tag ) {
 		$counts{$tag->tag} = $tag->tag_count;
 		$taglinks{$tag->tag} = get_tag_link();
