@@ -5,18 +5,19 @@ require_once('bb-config.php');
 
 $tag = 0;
 
-$tag = $_GET['tag'];
-if ( !$tag )
-	$tag = get_path();
+$url_tag = $_GET['tag'];
 
-$tag_id = get_tag_id( $tag );
+if ( !$url_tag )
+	$url_tag = get_path();
 
-if ( !$tag_id )
+$tag = get_tag_by_name( $url_tag );
+
+if ( !$tag && $url_tag )
 	die('Tag not found');
 
-if ( $tag ) :
+if ( $url_tag && $tag ) :
 
-$topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' ORDER BY tagged_on DESC LIMIT 30");
+$topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag->tag_id' ORDER BY tagged_on DESC LIMIT 30");
 $topic_ids = join( $topic_ids, ',' );
 $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) ORDER BY topic_time DESC");
 
@@ -24,7 +25,7 @@ include('bb-templates/tag-single.php');
 
 else :
 
-$tags = $bbdb->get_results("SELECT DISTINCT tag_id, * FROM $bbdb->tagged JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) ORDER BY tagged_on DESC");
+include('bb-templates/tags.php');
 
 endif;
 ?>

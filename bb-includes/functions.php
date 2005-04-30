@@ -325,7 +325,7 @@ function bb_user_exists( $user ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user'");
 }
 
-function bb_new_topic( $title, $forum ) {
+function bb_new_topic( $title, $forum, $tags = '' ) {
 	global $bbdb, $current_user;
 	$title = bb_apply_filters('pre_topic_title', $title);
 	$forum = (int) $forum;
@@ -337,6 +337,8 @@ function bb_new_topic( $title, $forum ) {
 		VALUES
 		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum)");
 		$topic_id = $bbdb->insert_id;
+		if ( !empty( $tags ) )
+			add_topic_tags( $topic_id, $tags );
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
 		bb_do_action('bb_new_topic', $topic_id);
 		return $topic_id;
@@ -401,6 +403,7 @@ function bb_delete_post( $post_id ) {
 
 		if ( 0 == $posts ) {
 			$bbdb->query("UPDATE $bbdb->topics SET topic_status = 1 WHERE topic_id = $post->topic_id");
+			$bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = $post->topic_id");
 		} else {
 			$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $post->topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
 			$old_name = $bbdb->get_var("SELECT username FROM $bbdb->users WHERE user_id = $old_post->poster_id");
@@ -613,7 +616,31 @@ function add_topic_tag( $topic_id, $tag ) {
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES
 	( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
-	$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1");
+	$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
+	return true;
+}
+
+function add_topic_tags( $topic_id, $tags ) {
+	global $bbdb, $current_user;
+
+	$tags = trim( $tags );
+	$words = preg_split("/[\s,]+/", $tags);
+
+	if ( !is_array( $words ) )
+		return false;
+
+	foreach ( $words as $tag ) :
+		if ( !$tag_id = create_tag( $tag ))
+			continue;
+		$now = bb_current_time('mysql');
+		if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id' AND topic_id='$topic_id'") )
+			continue;
+		$bbdb->query("INSERT INTO $bbdb->tagged 
+		( tag_id, user_id, topic_id, tagged_on )
+		VALUES
+		( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
+		$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1");
+	endforeach;
 	return true;
 }
 
@@ -640,6 +667,21 @@ function get_tag_id( $tag ) {
 	$tag     = user_sanitize( $tag );
 
 	return $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
+}
+
+function get_tag( $id ) {
+	global $bbdb;
+	$id = (int) $id;
+	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag_id = '$id'");
+}
+
+function get_tag_by_name( $tag ) {
+	global $bbdb;
+	$tag     = strtolower   ( $tag );
+	$tag     = preg_replace ( '/\s/', '', $tag );
+	$tag     = user_sanitize( $tag );
+
+	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
 function get_topic_tags ( $topic_id ) {
@@ -700,7 +742,7 @@ function bb_find_filename( $text ) {
 	return $text;
 }
 
-function get_top_tags( $recent = true, $limit = 30 ) {
+function get_top_tags( $recent = true, $limit = 40 ) {
 	global $bbdb;
 	$tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit");
 	return $tags;

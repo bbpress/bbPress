@@ -1,19 +1,28 @@
 
 <form class="postform" method="post" action="<?php option('uri'); ?>bb-post.php">
-<?php if ( is_forum() ) : ?>
+<?php if ( is_forum() || is_tag() ) : ?>
 <p>Before posting a new topic, <a href="<?php option('uri'); ?>search.php">be sure to search</a> to see if one has been started already.</p>
 <p>
-  <label>Topic:<br />
-  <input name="topic" type="text" id="topic" size="50" maxlength="80" />
+  <label>Topic title: (be brief and descriptive)<br />
+  <input name="topic" type="text" id="topic" size="50" maxlength="80" tabindex="1" />
 </label>
 </p>
 <?php endif; ?>
 <p><label>Post:<br />
-  <textarea name="post_content" cols="50" rows="8" id="post_content"></textarea>
+  <textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="2"></textarea>
   </label>
 </p>
+<?php if ( is_forum() || is_tag() ) : ?>
+<p>Enter a few words (called <a href="<?php tag_page_link(); ?>">tags</a>) separated by spaces to help someone find your topic:<br />
+<input name="tags" type="text" size="50" maxlength="100" value="<?php tag_name(); ?> " tabindex="3" />
+</p>
+<?php endif; ?>
+<?php if ( is_tag() ) : ?>
+<p>Pick a section:<br />
+<?php forum_dropdown(); ?></p>
+<?php endif; ?>
 <p class="submit">
-  <input type="submit" name="Submit" value="Send Post &raquo;" />
+  <input type="submit" name="Submit" value="Send Post &raquo;" tabindex="6" />
 <?php if ( is_forum() ) : ?>
 <input type="hidden" name="forum_id" value="<?php forum_id(); ?>" />
 <?php else : ?>

@@ -47,6 +47,8 @@ if ( !isset( $bb->passcookie ) )
 	$bb->passcookie = 'bb_pass_' . BBHASH;
 if ( !isset( $bb->cookiepath ) )
 	$bb->cookiepath = bb_get_option('path');
+if ( !isset( $bb->tagpath ) )
+	$bb->tagpath = $bb->path;
 
 $static_title = '';
 

@@ -2,7 +2,7 @@
 
 <?php login_form(); ?>
 
-<h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Tags &raquo; </h2>
+<h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h2>
 
 <?php if ( $topics ) : ?>
 
@@ -28,5 +28,8 @@
 </div>
 <?php endif; ?>
 
+<h2>Add New Topic</h2>
+
+<?php post_form(); ?>
 
 <?php get_footer(); ?>

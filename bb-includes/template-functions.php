@@ -59,6 +59,13 @@ function is_forum() {
 		return false;
 }
 
+function is_tag() {
+	if ( 'tags.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
+		return true;
+	else
+		return false;
+}
+
 function is_topic() {
 	if ( 'topic.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
 		return true;
@@ -67,12 +74,14 @@ function is_topic() {
 }
 
 function bb_title() {
-	global $topic, $forum, $static_title;
+	global $topic, $forum, $static_title, $tag;
 	$title = '';
 	if ( is_topic() )
 		$title = get_topic_title(). ' &laquo; ';
 	if ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
+	if ( is_tag() )
+		$title = get_tag_name() . ' &laquo; Tags ';
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
 	$title .= bb_get_option('name');
@@ -471,12 +480,24 @@ function topic_tags () {
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
 
+function get_tag_page_link() {
+	global $bb;
+	if ( bb_get_option('mod_rewrite') )
+		return $bb->tagpath . 'tags/';
+	else
+		return $bb->tagpath . 'tags.php';
+}
+
+function tag_page_link() {
+	echo get_tag_page_link();
+}
+
 function get_tag_link( $id = 0 ) {
 	global $tag, $bb;
 	if ( bb_get_option('mod_rewrite') )
-		return $bb->path . 'tags/' . $tag->tag;
+		return $bb->tagpath . 'tags/' . $tag->tag;
 	else
-		return $bb->path . 'tags.php?tag=' . $tag->tag;
+		return $bb->tagpath . 'tags.php?tag=' . $tag->tag;
 }
 
 function tag_link( $id = 0 ) {
@@ -498,15 +519,18 @@ function tag_form() {
 		include( BBPATH . '/bb-templates/tag-form.php');
 }
 
-function tag_heat_map($smallest=8, $largest=26, $unit="pt") {
-	$tags = get_top_tags();
+function tag_heat_map( $smallest = 8, $largest = 24, $unit = 'pt', $limit = 35 ) {
+	global $tag;
 
+	$tags = get_top_tags( $limit );
 	foreach ( $tags as $tag ) {
 		$counts{$tag->tag} = $tag->tag_count;
 		$taglinks{$tag->tag} = get_tag_link();
 	}
+
 	$spread = max($counts) - min($counts); 
-	if ($spread <= 0) { $spread = 1; };
+	if ( $spread <= 0 )
+		$spread = 1;
 	$fontspread = $largest - $smallest;
 	$fontstep = $spread / $fontspread;
 	if ($fontspread <= 0) { $fontspread = 1; }
@@ -516,6 +540,16 @@ function tag_heat_map($smallest=8, $largest=26, $unit="pt") {
 		print "<a href='$taglink' title='$count topics' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}
+}
+
+function forum_dropdown() {
+	$forums = get_forums();
+	echo '<select name="forum_id" tabindex="4">';
+    
+	foreach ( $forums as $forum ) :
+		echo "<option value='$forum->forum_id'>$forum->forum_name</option>";
+	endforeach;
+	echo '</select>';
 }
 
 ?>
