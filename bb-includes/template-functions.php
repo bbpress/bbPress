@@ -524,8 +524,8 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 
 	$tags = get_top_tags( false, $limit );
 	foreach ( $tags as $tag ) {
-		$counts{$tag->tag} = $tag->tag_count;
-		$taglinks{$tag->tag} = get_tag_link();
+		$counts{$tag->raw_tag} = $tag->tag_count;
+		$taglinks{$tag->raw_tag} = get_tag_link();
 	}
 
 	$spread = max($counts) - min($counts); 
@@ -534,7 +534,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 	$fontspread = $largest - $smallest;
 	$fontstep = $spread / $fontspread;
 	if ($fontspread <= 0) { $fontspread = 1; }
-	ksort($counts);
+	uksort($counts, 'strnatcasecmp');
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
 		print "<a href='$taglink' title='$count topics' style='font-size: ".
