@@ -4,7 +4,7 @@
 
 <h2>Hot Tags</h2>
 
-<p class="frontpageheatmap"<?php tag_heat_map(); ?></p>
+<p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
 
 <?php if ( $topics ) : ?>
 
