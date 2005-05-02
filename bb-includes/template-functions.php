@@ -363,14 +363,14 @@ function post_delete_link() {
 	global $current_user;
 
 	if ( $current_user->user_type > 1 )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "'>Delete</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
 }
 
 function topic_delete_link() {
 	global $current_user;
 
 	if ( $current_user->user_type > 1 )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "'>Delete entire topic</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
 }
 
 function topic_close_link() {
