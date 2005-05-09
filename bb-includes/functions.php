@@ -511,6 +511,9 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 	$post = get_post( $post_id );
 	$post_author = bb_get_user ( $post->poster_id );
 
+	if ( $user->user_type > 1 )
+		return true;
+
 	if ( $user->user_type > $post_author->user_type )
 		return true;
 	

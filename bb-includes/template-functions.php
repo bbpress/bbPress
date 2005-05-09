@@ -348,14 +348,9 @@ function post_ip() {
 }
 
 function post_edit_link() {
-	global $current_user;
-	$how_old = bb_current_time() - get_post_timestamp();
-	$limit   = bb_get_option('edit_lock') * 60;
+	global $current_user, $post;
 
-	if ( ( $current_user->user_type < 1 ) && ( $how_old > $limit ) )
-		return false;
-
-	if ( can_edit( get_post_author_id() ) )
+	if ( can_edit_post( $post->post_id ) )
 		echo "<a href='" . bb_get_option('uri') . 'edit.php?id=' . get_post_id() . "'>Edit</a>";
 }
 
