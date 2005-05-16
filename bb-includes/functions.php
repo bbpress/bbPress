@@ -7,6 +7,7 @@ function get_forums() {
 
 function get_forum( $id ) {
 	global $bbdb;
+	$id = (int) $id;
 	return $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $id");
 }
 
