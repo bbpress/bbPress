@@ -4,6 +4,8 @@
 
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h2>
 
+<?php bb_do_action('tag_above_table', ''); ?>
+
 <?php if ( $topics ) : ?>
 
 <table id="latest">
@@ -31,5 +33,7 @@
 <h2>Add New Topic</h2>
 
 <?php post_form(); ?>
+
+<?php bb_do_action('tag_below_table', ''); ?>
 
 <?php get_footer(); ?>
