@@ -43,7 +43,7 @@ function get_post( $post_id ) {
 
 function get_latest_topics( $forum = 0, $page = 0, $exclude = '' ) {
 	global $bbdb, $bb;
-	$where = $limit = '';S
+	$where = $limit = '';
 	if ( $forum )
 		$where = "AND forum_id = $forum";
 	if ( !empty( $exclude ) )
