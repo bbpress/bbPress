@@ -41,11 +41,13 @@ function get_post( $post_id ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
 }
 
-function get_latest_topics( $forum = 0, $page = 0 ) {
+function get_latest_topics( $forum = 0, $page = 0, $exclude = '' ) {
 	global $bbdb, $bb;
-	$where = $limit = '';
+	$where = $limit = '';S
 	if ( $forum )
 		$where = "AND forum_id = $forum";
+	if ( !empty( $exclude ) )
+		$where .= " AND forum_id NOT IN ('$exclude') ";
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
@@ -57,8 +59,6 @@ function get_sticky_topics( $forum = 0, $page = 0, $exclude = '' ) {
 	$where = '';
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
-	if ( !empty( $exclude ) )
-		$where .= " AND forum_id NOT IN ('$exclude') ";
 	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC");
 }
 
