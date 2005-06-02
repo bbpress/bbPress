@@ -20,14 +20,17 @@ function get_topic( $id ) {
 }
 
 function get_thread( $topic, $page = 0, $reverse = 0 ) {
-	global $bbdb;
+	global $post_cache, $bbdb;
 
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	$order = ($reverse) ? 'DESC' : 'ASC';
 
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
+	$thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
+	foreach ($thread as $post)
+		$post_cache[$post->post_id] = $post;
+	return $thread;
 }
 
 function get_thread_post_ids ( $topic ) {
@@ -36,9 +39,11 @@ function get_thread_post_ids ( $topic ) {
 }
 
 function get_post( $post_id ) {
-	global $bbdb;
+	global $post_cache, $bbdb;
 	$post_id = (int) $post_id;
-	return $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
+	if ( !isset( $post_cache[$post_id] ) )
+		$post_cache[$post_id] = $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
+	return $post_cache[$post_id];
 }
 
 function get_latest_topics( $forum = 0, $page = 0, $exclude = '' ) {
