@@ -484,6 +484,8 @@ function post_link() {
 
 function can_edit( $user_id, $admin_id = 0) {
 	global $bbdb, $current_user;
+	if ( empty($current_user) )
+		return false;
 	if ( !$admin_id )
 		$admin_id = (int) $current_user->user_id;
 	$admin = bb_get_user( $admin_id );
@@ -513,6 +515,8 @@ function can_delete( $user_id, $admin_id = 0) {
 
 function can_edit_post( $post_id, $user_id = 0 ) {
 	global $bbdb, $current_user;
+	if ( empty($current_user) )
+		return false;
 	if ( !$user_id )
 		$user_id = $current_user->user_id;
 	$user = bb_get_user( $user_id );
