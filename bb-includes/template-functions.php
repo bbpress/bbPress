@@ -469,6 +469,7 @@ function user_type( $id ) {
 	echo bb_apply_filters('user_type', get_user_type($id) );
 }
 
+//TAGS
 function topic_tags () {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user;
 	if ( is_array( $tags ) || $current_user )
@@ -512,6 +513,35 @@ function tag_form() {
 	global $current_user;
 	if ( $current_user ) 
 		include( BBPATH . '/bb-templates/tag-form.php');
+}
+
+function tag_rename_form() {
+	global $tag, $current_user;
+	if ( $current_user->user_type < 2 )
+		return false;
+	$tag_rename_form  = '<form id="tag-rename" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-rename.php">' . "\n";
+	$tag_rename_form .= "<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
+	$tag_rename_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
+	$tag_rename_form .= '<input type="submit" name="Submit" value="Rename" />' . "\n</p>\n</form>";
+	echo $tag_rename_form;
+}
+
+function tag_destroy_form() {
+	global $tag, $current_user;
+	if ( $current_user->user_type < 2 )
+		return false;
+	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php">' . "\n";
+	$tag_destroy_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
+	$tag_destroy_form .= '<input type="submit" name="Submit" value="Destroy" ';
+	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . $tag->raw_tag . '\\\' tag?\')" />' . "\n</form>";
+	echo $tag_destroy_form;
+}
+
+function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
+	global $tag, $current_user;
+	if ( $user->user_id != $user_id && $current_user->user_type < 1 )
+		return false;
+	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . $tag->raw_tag . '\\\' tag?\')" title="Remove this tag">x</a>]';
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {

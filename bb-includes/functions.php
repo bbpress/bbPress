@@ -671,6 +671,59 @@ function create_tag( $tag ) {
 	return $bbdb->insert_id;
 }
 
+function rename_tag( $tag_id, $tag ) {
+	global $bbdb, $current_user;
+	if ( $current_user->user_type < 2 )
+		return false;
+	$raw_tag = $tag;
+	$tag     = trim         ( $tag );
+	$tag     = strtolower   ( $tag );
+	$tag     = preg_replace ( '/\s/', '', $tag );
+	$tag     = user_sanitize( $tag );
+
+	if ( empty( $tag ) )
+		return false;
+	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
+		return false;
+
+	bb_do_action('bb_tag_renamed', $tag_id );
+
+	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") )
+		return $tag;
+	return false;
+}
+
+function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
+	global $bbdb, $current_user;
+	$tagged = serialize( array('tag_id' => $tag_id, 'user_id' => $user_id, 'topic_id' => $topic_id) );
+
+	$user = bb_get_user($user_id);
+
+	if ( $user->user_id != $user_id && $current_user->user_type < 1 )
+		return false;
+	
+	bb_do_action('bb_tag_removed', $tagged);
+
+	if ( $removed = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") );
+		$removed += $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
+	$removed *= 10;
+	if ( !$bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' LIMIT 1") ) // don't trust tag_count?
+		$removed += destroy_tag( $tag_id );
+	return $removed; // debugging: 2_ normally, 1_ if didn't update count, 0_ if didn't delete from tagged
+}
+
+function destroy_tag( $tag_id ) {
+	global $bbdb, $current_user;
+	if ( $current_user->user_type < 2 ) // hmm... 1 can remove, but need 2 to destroy?
+		return false;
+
+	bb_do_action('bb_tag_destroyed', $tag_id);
+
+	if ( $destroyed = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") )
+		$destroyed += $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
+	return $destroyed; // debugging: 2 normally, 1 if didn't delete from tagged, 0 if didn't delete from tags
+}
+
 function get_tag_id( $tag ) {
 	global $bbdb;
 	$tag     = strtolower   ( $tag );

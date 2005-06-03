@@ -2,6 +2,10 @@
 
 <?php login_form(); ?>
 
+<?php tag_rename_form(); ?>
+
+<?php tag_destroy_form(); ?>
+
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h2>
 
 <?php bb_do_action('tag_above_table', ''); ?>
