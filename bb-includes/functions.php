@@ -529,6 +529,9 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 	if ( $user->user_type > $post_author->user_type )
 		return true;
 	
+	if ( $user->user_id != $post_author->user_id )
+		return false;
+
 	if ( ! topic_is_open( $post->topic_id ) )
 		return false;
 
