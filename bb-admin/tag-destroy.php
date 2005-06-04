@@ -12,8 +12,14 @@ $old_tag = get_tag( $tag_id );
 if ( !$old_tag )
 	die('Tag not found.');
 
-if ( $destroyed = destroy_tag( $tag_id ) )
-	header('Location: ' . $bb->path );
-else
-	die("Something odd happened when attempting to destroy that tag.  Error code: $destroyed.  <a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again</a>');
+if ( $destroyed = destroy_tag( $tag_id ) ) {
+	echo 'Rows deleted from tags table: ' . $destroyed['tags'] . "<br />\n";
+	echo 'Rows deleted from tagged table: ' . $destroyed['tagged'] . "<br />\n";
+	echo 'Destruction Successful? ' . ($destroyed['destroyed']) ? "TRUE\n" : "FALSE<br />\n
+		\t NOTE: destruction of a tag that is not associated with any posts will give a false negative.<br />\n";
+	echo '<a href="'. $bb->path . '">Home</a>';
+} else {
+	var_dump($destroyed);
+	die("<br />Something odd happened when attempting to destroy that tag.  See the above Error codes.<br />\n<a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again?</a>');
+}
 ?>

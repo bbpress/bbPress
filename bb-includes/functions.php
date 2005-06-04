@@ -657,10 +657,7 @@ function add_topic_tags( $topic_id, $tags ) {
 function create_tag( $tag ) {
 	global $bbdb;
 	$raw_tag = $tag;
-	$tag     = trim         ( $tag );
-	$tag     = strtolower   ( $tag );
-	$tag     = preg_replace ( '/\s/', '', $tag );
-	$tag     = user_sanitize( $tag );
+	$tag     = tag_sanitize( $tag );
 	if ( empty( $tag ) )
 		return false;
 	if ( $exists = $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
@@ -676,10 +673,7 @@ function rename_tag( $tag_id, $tag ) {
 	if ( $current_user->user_type < 2 )
 		return false;
 	$raw_tag = $tag;
-	$tag     = trim         ( $tag );
-	$tag     = strtolower   ( $tag );
-	$tag     = preg_replace ( '/\s/', '', $tag );
-	$tag     = user_sanitize( $tag );
+	$tag     = tag_sanitize( $tag ); 
 
 	if ( empty( $tag ) )
 		return false;
@@ -704,12 +698,40 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	
 	bb_do_action('bb_tag_removed', $tagged);
 
-	if ( $removed = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") );
-		$removed += $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
-	$removed *= 10;
+	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") );
+		$tagged = $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
 	if ( !$bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' LIMIT 1") ) // don't trust tag_count?
-		$removed += destroy_tag( $tag_id );
-	return $removed; // debugging: 2_ normally, 1_ if didn't update count, 0_ if didn't delete from tagged
+		$destroyed = destroy_tag( $tag_id );
+	return array( 'removed' => ($tags && $tagged), 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
+}
+
+// merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
+function merge_tags( $old_id, $new_id ) {
+	global $bbdb, $current_user;
+	if ( $current_user->user_type < 2)
+		return false;
+	if ( $old_id == $new_id )
+		return false;
+
+	$merged_tags = serialize( array( 'old_id' => $old_id, 'new_id' => $new_id ) );
+
+	bb_do_action('bb_tag_merged', $merged_tags);
+
+	$tagged_del = 0;
+	if ( $old_topic_ids = $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
+		$old_topic_ids = join(',', $old_topic_ids);
+		$shared_query = "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)";
+	$shared_topics = $bbdb->get_results( $shared_query );
+	$shared_count = count($shared_topics);
+	foreach ( $shared_topics as $shared_topic )
+		$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '$shared_topic->user_id' AND topic_id = '$shared_topic->topic_id'" );
+	}
+
+	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) )
+		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = tag_count + $diff_count WHERE tag_id = '$new_id'" );
+
+	// return values and destroy the old tag
+	return array( 'destroyed' => destroy_tag( $old_id ), 'old_count' => $diff_count + $shared_count, 'diff_count' => $diff_count );
 }
 
 function destroy_tag( $tag_id ) {
@@ -719,16 +741,14 @@ function destroy_tag( $tag_id ) {
 
 	bb_do_action('bb_tag_destroyed', $tag_id);
 
-	if ( $destroyed = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") )
-		$destroyed += $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
-	return $destroyed; // debugging: 2 normally, 1 if didn't delete from tagged, 0 if didn't delete from tags
+	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") )
+		$tagged = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
+	return array( 'destroyed' => ($tags && $tagged), 'tags' => $tags, 'tagged' => $tagged );
 }
 
 function get_tag_id( $tag ) {
 	global $bbdb;
-	$tag     = strtolower   ( $tag );
-	$tag     = preg_replace ( '/\s/', '', $tag );
-	$tag     = user_sanitize( $tag );
+	$tag     = tag_sanitize( $tag );
 
 	return $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
 }
@@ -741,9 +761,7 @@ function get_tag( $id ) {
 
 function get_tag_by_name( $tag ) {
 	global $bbdb;
-	$tag     = strtolower   ( $tag );
-	$tag     = preg_replace ( '/\s/', '', $tag );
-	$tag     = user_sanitize( $tag );
+	$tag     = tag_sanitize( $tag );
 
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag = '$tag'");
 }

@@ -548,6 +548,17 @@ function tag_rename_form() {
 	echo $tag_rename_form;
 }
 
+function tag_merge_form() {
+	global $tag, $current_user;
+	if ( $current_user->user_type < 2 )
+		return false;
+	$tag_merge_form  = '<form id="tag-merge" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-merge.php">' . "\n";
+	$tag_merge_form .= "<p>Merge this tag into the tag specified</p>\n<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
+	$tag_merge_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
+	$tag_merge_form .= '<input type="submit" name="Submit" value="Merge" />' . "\n</p>\n</form>";
+	echo $tag_merge_form;
+}
+
 function tag_destroy_form() {
 	global $tag, $current_user;
 	if ( $current_user->user_type < 2 )
