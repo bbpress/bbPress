@@ -32,6 +32,7 @@ CREATE TABLE $bbdb->topics (
   topic_poster_name varchar(40) NOT NULL default 'Anonymous',
   topic_last_poster bigint(20) NOT NULL default '0',
   topic_last_poster_name varchar(40) NOT NULL default '',
+  topic_start_time datetime NOT NULL default '0000-00-00 00:00:00',
   topic_time datetime NOT NULL default '0000-00-00 00:00:00',
   forum_id int(10) NOT NULL default '1',
   topic_status tinyint(1) NOT NULL default '0',

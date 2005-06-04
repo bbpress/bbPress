@@ -4,6 +4,21 @@ header ('content-type: text/plain');
 set_time_limit(600);
 // Uncomment to use. Best to run one at a time
 
+/* Populate _topics.topic_start_time: June 3rd, 2005
+$topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
+if ($topics) {
+	foreach($topics as $topic) {
+		$start_time = $bbdb->get_var("SELECT post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON ( $bbdb->posts.topic_id = $bbdb->topics.topic_id )
+ WHERE $bbdb->topics.topic_id = '$topic->topic_id' ORDER BY post_time ASC LIMIT 1");
+		echo '.';
+		$bbdb->query("UPDATE $bbdb->topics SET topic_start_time = '$start_time' WHERE topic_id = '$topic->topic_id'");
+	}
+}
+unset($topics);
+echo "Done with adding topic_start_time...\n";
+flush();
+*/
+
 /*
 $topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
 if ($topics) {

@@ -255,6 +255,28 @@ function get_topic_timestamp( $id = 0 ) {
 	return strtotime( $topic->topic_time );
 }
 
+function topic_start_time( $id = 0 ) {
+	echo bb_apply_filters('topic_start_time', get_topic_start_time($id) );
+}
+
+function get_topic_start_time( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	return $topic->topic_start_time;
+}
+
+function topic_start_date( $format = '', $id = 0 ) {
+	echo gmdate( $format, get_topic_start_timestamp( $id ) );
+}
+
+function get_topic_start_timestamp( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	return strtotime( $topic->topic_start_time );
+}
+
 function topic_pages() {
 	global $topic, $page;
 	if ( 0 == $topic->topic_posts )

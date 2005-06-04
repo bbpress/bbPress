@@ -5,6 +5,8 @@ bb_add_filter('forum_posts', 'number_format');
 
 bb_add_filter('topic_time', 'strtotime');
 bb_add_filter('topic_time', 'bb_since');
+bb_add_filter('topic_start_time', 'strtotime');
+bb_add_filter('topic_start_time', 'bb_since');
 
 bb_add_filter('pre_topic_title', 'bb_specialchars');
 bb_add_filter('get_forum_name', 'bb_specialchars');

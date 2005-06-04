@@ -9,7 +9,7 @@
 <?php topic_tags(); ?>
 
 <ul class="topicmeta">
-	<li>Topic started <?php topic_time(); ?> ago</li>
+	<li>Topic started <?php topic_start_time(); ?> ago</li>
 	<li><?php topic_posts(); ?> posts so far</li>
 	<li>Latest reply from <?php topic_last_poster(); ?></li>
 </ul>
