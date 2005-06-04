@@ -683,7 +683,7 @@ function rename_tag( $tag_id, $tag ) {
 
 	if ( empty( $tag ) )
 		return false;
-	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
+	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag' AND tag_id <> '$tag_id'") )
 		return false;
 
 	bb_do_action('bb_tag_renamed', $tag_id );
@@ -699,7 +699,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	$user = bb_get_user($user_id);
 
-	if ( $user->user_id != $user_id && $current_user->user_type < 1 )
+	if ( $current_user->user_id != $user_id && $current_user->user_type < 1 )
 		return false;
 	
 	bb_do_action('bb_tag_removed', $tagged);

@@ -561,7 +561,7 @@ function tag_destroy_form() {
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	global $tag, $current_user;
-	if ( $user->user_id != $user_id && $current_user->user_type < 1 )
+	if ( $current_user->user_id != $tag->user_id && $current_user->user_type < 1 )
 		return false;
 	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . $tag->raw_tag . '\\\' tag?\')" title="Remove this tag">x</a>]';
 }
