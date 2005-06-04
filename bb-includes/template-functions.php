@@ -46,28 +46,28 @@ function alt_class( $key ) {
 }
 
 function is_front() {
-	if ( 'index.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
+	if ( 'index.php' == bb_find_filename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
 }
 
 function is_forum() {
-	if ( 'forum.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
+	if ( 'forum.php' == bb_find_filename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
 }
 
 function is_tag() {
-	if ( 'tags.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
+	if ( 'tags.php' == bb_find_filename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
 }
 
 function is_topic() {
-	if ( 'topic.php' == bb_find_filename($_SERVER['REDIRECT_URL']) )
+	if ( 'topic.php' == bb_find_filename($_SERVER['PHP_SELF']) )
 		return true;
 	else
 		return false;
