@@ -15,8 +15,6 @@ if ( !$old_tag )
 if ( $destroyed = destroy_tag( $tag_id ) ) {
 	echo 'Rows deleted from tags table: ' . $destroyed['tags'] . "<br />\n";
 	echo 'Rows deleted from tagged table: ' . $destroyed['tagged'] . "<br />\n";
-	echo 'Destruction Successful? ' . ($destroyed['destroyed']) ? "TRUE\n" : "FALSE<br />\n
-		\t NOTE: destruction of a tag that is not associated with any posts will give a false negative.<br />\n";
 	echo '<a href="'. $bb->path . '">Home</a>';
 } else {
 	var_dump($destroyed);

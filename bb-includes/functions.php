@@ -702,7 +702,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 		$tagged = $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
 	if ( !$bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' LIMIT 1") ) // don't trust tag_count?
 		$destroyed = destroy_tag( $tag_id );
-	return array( 'removed' => ($tags && $tagged), 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
+	return array( 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
 }
 
 // merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
@@ -743,7 +743,7 @@ function destroy_tag( $tag_id ) {
 
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") )
 		$tagged = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
-	return array( 'destroyed' => ($tags && $tagged), 'tags' => $tags, 'tagged' => $tagged );
+	return array( 'tags' => $tags, 'tagged' => $tagged );
 }
 
 function get_tag_id( $tag ) {

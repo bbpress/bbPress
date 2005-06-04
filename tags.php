@@ -17,9 +17,10 @@ if ( !$tag && $url_tag )
 
 if ( $url_tag && $tag ) :
 
-$topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag->tag_id' ORDER BY tagged_on DESC LIMIT 30");
-$topic_ids = join( $topic_ids, ',' );
-$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) ORDER BY topic_time DESC");
+if ($topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag->tag_id' ORDER BY tagged_on DESC LIMIT 30")) {
+	$topic_ids = join( $topic_ids, ',' );
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) ORDER BY topic_time DESC");
+}
 
 include('bb-templates/tag-single.php');
 
