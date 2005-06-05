@@ -20,7 +20,6 @@ if ( $merged = merge_tags( $old_id, $new_tag->tag_id ) ) {
 	echo 'Number of rows deleted from tags table: ' . $merged['destroyed']['tags'] ."<br />\n";
 	echo '<a href="' . $bb->tagpath . "tags/$new_tag->raw_tag" . '">New Tag</a>';
 } else {
-	var_dump($merged);
-	die("<br />Something odd happened when attempting to merge those tags.  See above Error code.<br />\n<a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again?</a>');
+	die("Something odd happened when attempting to merge those tags.<br />\n<a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again?</a>');
 }
 ?>

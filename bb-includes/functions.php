@@ -720,18 +720,16 @@ function merge_tags( $old_id, $new_id ) {
 	$tagged_del = 0;
 	if ( $old_topic_ids = $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
 		$old_topic_ids = join(',', $old_topic_ids);
-		$shared_query = "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)";
-	$shared_topics = $bbdb->get_results( $shared_query );
-	$shared_count = count($shared_topics);
-	foreach ( $shared_topics as $shared_topic )
-		$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '$shared_topic->user_id' AND topic_id = '$shared_topic->topic_id'" );
+		$shared_topics = $bbdb->get_results( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
+		foreach ( $shared_topics as $shared_topic )
+			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '$shared_topic->user_id' AND topic_id = '$shared_topic->topic_id'" );
 	}
 
 	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) )
 		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = tag_count + $diff_count WHERE tag_id = '$new_id'" );
 
 	// return values and destroy the old tag
-	return array( 'destroyed' => destroy_tag( $old_id ), 'old_count' => $diff_count + $shared_count, 'diff_count' => $diff_count );
+	return array( 'destroyed' => destroy_tag( $old_id ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
 }
 
 function destroy_tag( $tag_id ) {

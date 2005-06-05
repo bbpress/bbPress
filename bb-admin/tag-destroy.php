@@ -17,7 +17,6 @@ if ( $destroyed = destroy_tag( $tag_id ) ) {
 	echo 'Rows deleted from tagged table: ' . $destroyed['tagged'] . "<br />\n";
 	echo '<a href="'. $bb->path . '">Home</a>';
 } else {
-	var_dump($destroyed);
-	die("<br />Something odd happened when attempting to destroy that tag.  See the above Error codes.<br />\n<a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again?</a>');
+	die("Something odd happened when attempting to destroy that tag.<br />\n<a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again?</a>');
 }
 ?>

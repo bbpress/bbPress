@@ -555,7 +555,8 @@ function tag_merge_form() {
 	$tag_merge_form  = '<form id="tag-merge" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-merge.php">' . "\n";
 	$tag_merge_form .= "<p>Merge this tag into the tag specified</p>\n<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
 	$tag_merge_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
-	$tag_merge_form .= '<input type="submit" name="Submit" value="Merge" />' . "\n</p>\n</form>";
+	$tag_merge_form .= '<input type="submit" name="Submit" value="Merge" ';
+	$tag_merge_form .= 'onclick="return confirm(\'Are you sure you want to merge the \\\'' . $tag->raw_tag . '\\\' tag into the tag you specified? This is permanent and cannot be undone.\')" />' . "\n</p>\n</form>";
 	echo $tag_merge_form;
 }
 
@@ -566,7 +567,7 @@ function tag_destroy_form() {
 	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php">' . "\n";
 	$tag_destroy_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
 	$tag_destroy_form .= '<input type="submit" name="Submit" value="Destroy" ';
-	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . $tag->raw_tag . '\\\' tag?\')" />' . "\n</form>";
+	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . $tag->raw_tag . '\\\' tag? This is permanent and cannot be undone.\')" />' . "\n</form>";
 	echo $tag_destroy_form;
 }
 
