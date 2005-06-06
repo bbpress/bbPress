@@ -3,6 +3,10 @@ require('bb-config.php');
 
 $topic_id = (int) $_GET['topic'];
 
+if ( !$topic_id )
+	if ( 'topic' == get_path() )
+		$topic_id = get_path(2);
+
 if ( $topic_id ) {
 	$topic = get_topic ( $topic_id );
 	if ( !$topic )
