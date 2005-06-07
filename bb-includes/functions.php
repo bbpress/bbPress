@@ -683,7 +683,7 @@ function rename_tag( $tag_id, $tag ) {
 	bb_do_action('bb_tag_renamed', $tag_id );
 
 	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") )
-		return $tag;
+		return get_tag_by_name( $tag );
 	return false;
 }
 
