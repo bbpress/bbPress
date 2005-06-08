@@ -341,9 +341,9 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 
 	if ( $forum && $title ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
-		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_time, forum_id)
+		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_time, forum_id, topic_start_time)
 		VALUES
-		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum)");
+		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum, '$now')");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
