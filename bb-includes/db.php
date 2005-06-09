@@ -84,7 +84,7 @@ class bbdb {
 		if ( $this->show_errors ) {
 			// If there is an error then take note of it
 			print "<div id='error'>
-			<p class='bbdberror'><strong>WordPress database error:</strong> [$str]<br />
+			<p class='bbdberror'><strong>bbPress database error:</strong> [$str]<br />
 			<code>$this->last_query</code></p>
 			</div>";
 		} else {
@@ -296,7 +296,7 @@ class bbdb {
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>WordPress &rsaquo; Error</title>
+		<title>bbPress &rsaquo; Error</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<style media="screen" type="text/css">
 		<!--
@@ -337,7 +337,7 @@ class bbdb {
 		</style>
 	</head>
 	<body>
-	<h1 id="logo"><img alt="WordPress" src="http://static.wordpress.org/logo.png" /></h1>
+	<h1 id="logo"><img alt="bbPress" src="http://bbpress.org/bbpress.png" /></h1>
 HEAD;
 	echo $message;
 	echo "</body></html>";
