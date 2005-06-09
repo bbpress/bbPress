@@ -46,20 +46,23 @@ function get_post( $post_id ) {
 	return $post_cache[$post_id];
 }
 
-function get_latest_topics( $forum = 0, $page = 0, $exclude = '' ) {
+function get_latest_topics( $forum = 0, $page = 0, $exclude = '', $with_stick = '' ) {
+	// with_stick defaults:  get stickies on everything but forum page.  with_stick accepts: boolean
 	global $bbdb, $bb;
 	$where = $limit = '';
 	if ( $forum )
 		$where = "AND forum_id = $forum";
 	if ( !empty( $exclude ) )
 		$where .= " AND forum_id NOT IN ('$exclude') ";
+	if ( false === $with_stick || ( is_forum() && $with_stick !== true ) )
+		$where .= " AND topic_sticky <> '1' ";
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit");
 }
 
-function get_sticky_topics( $forum = 0, $page = 0, $exclude = '' ) {
+function get_sticky_topics( $forum = 0, $page = 0 ) {
 	global $bbdb, $bb;
 	$where = '';
 	if ( $forum )
