@@ -13,6 +13,7 @@ bb_add_filter('get_forum_name', 'bb_specialchars');
 
 bb_add_filter('pre_post', 'trim');
 bb_add_filter('pre_post', 'encode_bad');
+bb_add_filter('pre_post', 'balanceTags');
 bb_add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
 bb_add_filter('pre_post', 'bb_filter_kses', 50);
 bb_add_filter('pre_post', 'addslashes', 55);
