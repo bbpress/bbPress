@@ -28,8 +28,7 @@ if ( $current_user && $tags ) {
 	$other_tags = false;
 }
 
-$list_start = $page * bb_get_option('page_topics');
-if ( !$list_start ) $list_start = 1;
+$list_start = $page * bb_get_option('page_topics') + 1;
 
 post_author_cache($posts);
 

@@ -153,18 +153,16 @@ function forum_posts() {
 
 function forum_pages() {
 	global $forum, $page;
-	if ( 0 == $forum->posts )
-		$forum->posts = 1;
 	$r = '';
 	if ( bb_get_option('mod_rewrite') ) {
-		if ( $page && ($page * bb_get_option('page_topics')) < $forum->posts )
+		if ( $page )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-		if ( bb_get_option('page_topics') < $forum->posts )
+		if ( ($page + 1) * bb_get_option('page_topics') < $forum->topics )
 			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';		
 	} else {
-		if ( $page && ($page * bb_get_option('page_topics')) < $forum->posts )
+		if ( $page )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-		if ( bb_get_option('page_topics') < $forum->posts )
+		if ( (page + 1) * bb_get_option('page_topics') < $forum->topics )
 			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
 	}
 	echo bb_apply_filters('forum_pages', $r);
@@ -293,16 +291,14 @@ function get_topic_start_timestamp( $id = 0 ) {
 
 function topic_pages() {
 	global $topic, $page;
-	if ( 0 == $topic->topic_posts )
-		$topic->topic_posts = 1;
 	$r = '';
 	if ( bb_get_option('mod_rewrite') ) {
-		if ( $page && ($page * bb_get_option('page_topics')) < $topic->topic_posts )
+		if ( $page )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
 		if ( ( ($page + 1) * bb_get_option('page_topics')) < $topic->topic_posts )
 			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';		
 	} else {
-		if ( $page && ($page * bb_get_option('page_topics')) < $topic->topic_posts )
+		if ( $page )
 			$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
 		if ( ( ($page + 1) * bb_get_option('page_topics')) < $topic->topic_posts )
 			$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
