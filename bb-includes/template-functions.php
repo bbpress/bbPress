@@ -181,7 +181,7 @@ function get_topic_rss_link( $id = 0 ) {
 		$topic = get_topic( $id );
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . "/rss/topic/$topic->topic_id";
+		$link = bb_get_option('uri') . "rss/topic/$topic->topic_id";
 	else
 		$link = bb_get_option('uri') . "rss.php?topic=$topic->topic_id";
 
