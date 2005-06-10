@@ -13,6 +13,7 @@
 	<li><?php topic_posts(); ?> posts so far</li>
 	<li>Latest reply from <?php topic_last_poster(); ?></li>
 </ul>
+<br clear="all" />
 </div>
 <?php bb_do_action('under_title', ''); ?>
 <?php if ($posts) : ?>
