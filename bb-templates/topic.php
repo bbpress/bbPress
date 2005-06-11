@@ -12,6 +12,7 @@
 	<li>Topic started <?php topic_start_time(); ?> ago</li>
 	<li><?php topic_posts(); ?> posts so far</li>
 	<li>Latest reply from <?php topic_last_poster(); ?></li>
+	<li>This topic is <?php topic_resolved(); ?></li>
 </ul>
 <br clear="all" />
 </div>

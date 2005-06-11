@@ -289,6 +289,39 @@ function get_topic_start_timestamp( $id = 0 ) {
 	return strtotime( $topic->topic_start_time );
 }
 
+function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
+	global $current_user, $topic;
+	if ( can_edit_topic( $topic->topic_id ) ) :
+		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php">' . "\n";
+		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
+		$resolved_form .= '<select name="resolved" tabindex="2">' . "\n";
+
+		$cases = array( 'yes', 'no', 'mu' );
+		$resolved = get_topic_resolved( $id );
+		foreach ( $cases as $case ) {
+			$selected = ( $case == $resolved ) ? ' selected="selected"' : '';
+			$resolved_form .= "<option value=\"$case\"$selected>${$case}</option>\n";
+		}
+
+		$resolved_form .= "</select>\n";
+		$resolved_form .= '<input type="submit" name="submit" value="Change" />' . "\n</form>";
+		echo $resolved_form;
+	else:
+		switch ( get_topic_resolved( $id ) ) {
+			case 'yes' : echo $yes; break;
+			case 'no'  : echo $no;  break;
+			case 'mu'  : echo $mu;  break;
+		}
+	endif;
+}	
+
+function get_topic_resolved( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	return $topic->topic_resolved;
+}
+
 function topic_pages() {
 	global $topic, $page;
 	$r = '';
@@ -542,8 +575,10 @@ function tag_name( $id = 0 ) {
 }
 
 function tag_form() {
-	global $current_user;
-	if ( $current_user ) 
+	global $topic, $current_user;
+	if ( !$current_user || $current_user->user_type < 1 && !topic_is_open($topic->topic_id) )
+		return false;
+	else
 		include( BBPATH . '/bb-templates/tag-form.php');
 }
 
@@ -583,7 +618,7 @@ function tag_destroy_form() {
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	global $tag, $current_user;
-	if ( $current_user->user_id != $tag->user_id && $current_user->user_type < 1 )
+	if ( $current_user->user_type < 1 && ( !topic_is_open($tag->topic_id) || $current_user->user_id != $tag->user_id ) )
 		return false;
 	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . $tag->raw_tag . '\\\' tag?\')" title="Remove this tag">x</a>]';
 }

@@ -4,6 +4,12 @@ header ('content-type: text/plain');
 set_time_limit(600);
 // Uncomment to use. Best to run one at a time
 
+/* Add _topics.topic_resolved column
+$bbdb->query("ALTER TABLE $bbdb->topics ADD topic_resolved VARCHAR(15) DEFAULT 'no' NOT NULL AFTER topic_status");
+echo "Done with adding topic_resolved column\n";
+flush();
+*/
+
 /* Populate _topics.topic_start_time: June 3rd, 2005
 $topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
 if ($topics) {
@@ -16,6 +22,12 @@ if ($topics) {
 }
 unset($topics);
 echo "Done with adding topic_start_time...\n";
+flush();
+*/
+
+/* Add _topics.topic_start_time column
+$bbdb->query("ALTER TABLE $bbdb->topics ADD topic_start_time DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER topic_last_poster_name");
+echo "Done with adding topic_start_time column\n";
 flush();
 */
 

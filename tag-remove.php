@@ -16,6 +16,6 @@ if ( !$tag || !$topic || !$user )
 if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) )
 	header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
 else
-	die('The tag was not fully removed.');
+	die('The tag was not removed.  You cannot remove a tag from a closed topic.');
 exit;
 ?>

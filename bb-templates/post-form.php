@@ -6,15 +6,16 @@
   <label>Topic title: (be brief and descriptive)<br />
   <input name="topic" type="text" id="topic" size="50" maxlength="80" tabindex="1" />
 </label>
+<label><input name="support" type="checkbox" id="support" checked="checked" value="1" tabindex="2"/>This is a support question.</label>
 </p>
 <?php endif; ?>
 <p><label>Post:<br />
-  <textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="2"></textarea>
+  <textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="3"></textarea>
   </label>
 </p>
 <?php if ( is_forum() || is_tag() ) : ?>
 <p>Enter a few words (called <a href="<?php tag_page_link(); ?>">tags</a>) separated by spaces to help someone find your topic:<br />
-<input name="tags" type="text" size="50" maxlength="100" value="<?php tag_name(); ?> " tabindex="3" />
+<input name="tags" type="text" size="50" maxlength="100" value="<?php tag_name(); ?> " tabindex="4" />
 </p>
 <?php endif; ?>
 <?php if ( is_tag() ) : ?>

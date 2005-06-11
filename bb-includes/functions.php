@@ -343,9 +343,9 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 
 	if ( $forum && $title ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
-		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_time, forum_id, topic_start_time)
+		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
 		VALUES
-		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', $forum, '$now')");
+		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', '$now', $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
@@ -425,6 +425,14 @@ function bb_delete_post( $post_id ) {
 	} else {
 		return false;
 	}
+}
+
+function bb_resolve_topic ( $topic_id, $resolved = 'yes' ) {
+	global $bbdb;
+	if ( ! in_array($resolved, array('yes', 'no', 'mu')) )
+		return false;
+	bb_do_action('resolve_topic', $topic_id);
+	return $bbdb->query("UPDATE $bbdb->topics SET topic_resolved = '$resolved' WHERE topic_id = '$topic_id'");
 }
 
 function bb_close_topic ( $topic_id ) {
@@ -546,6 +554,31 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 		return true;
 }
 
+function can_edit_topic( $topic_id, $user_id = 0 ) {
+	global $current_user;
+	if ( empty($current_user) )
+		return false;
+	if ( ! $user_id )
+		$user_id = $current_user->user_id;
+	$user = bb_get_user( $user_id );
+	$topic = get_topic( $topic_id );
+	$topic_poster = bb_get_user( $topic->topic_poster );
+
+	if ( $user->user_type > 1)
+		return true;
+
+	if ( $user->user_type > $topic_poster->user_type )
+		return true;
+
+	if ( $user->user_id != $topic_poster->user_id )
+		return false;
+	
+	if ( ! topic_is_open( $topic_id ) )
+		return false;
+
+	return true;
+}
+
 function topic_is_open ( $topic_id ) {
 	$topic = get_topic( $topic_id );
 	if ( 1 == $topic->topic_open )
@@ -627,7 +660,9 @@ function nocache_headers() {
 
 function add_topic_tag( $topic_id, $tag ) {
 	global $bbdb, $current_user;
-	if ( !$tag_id = create_tag( $tag ))
+	if ( !topic_is_open($topic_id) && $current_user->user_type < 1 )
+		return false;
+	if ( !$tag_id = create_tag( $tag ) )
 		return false;
 	$now    = bb_current_time('mysql');
 	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id' AND topic_id='$topic_id'") )
@@ -695,7 +730,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	$user = bb_get_user($user_id);
 
-	if ( $current_user->user_id != $user_id && $current_user->user_type < 1 )
+	if ( $current_user->user_type < 1 && ( !topic_is_open($topic_id) || $current_user->user_id != $user_id ) )
 		return false;
 	
 	bb_do_action('bb_tag_removed', $tagged);
