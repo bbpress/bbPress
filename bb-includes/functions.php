@@ -807,7 +807,7 @@ function get_topic_tags ( $topic_id ) {
 	if ( isset ($topic_tag_cache[$topic_id] ) )
 		return $topic_tag_cache[$topic_id];
 
-	$topic_tag_cache[$topic_id] = $bbdb->get_results("SELECT * FROM $bbdb->tagged JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE topic_id = '$topic_id'");
+	$topic_tag_cache[$topic_id] = $bbdb->get_results("SELECT * FROM $bbdb->tagged RIGHT JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE topic_id = '$topic_id'");
 	
 	return $topic_tag_cache[$topic_id];
 }
