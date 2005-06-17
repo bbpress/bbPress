@@ -1,12 +1,12 @@
 <?php
 
 function get_header() {
-	global $bb, $bbdb, $forum, $forum_id, $topic;
+	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
 	include( BBPATH . '/bb-templates/header.php');
 }
 
 function get_footer() {
-	global $bb, $bbdb, $forum, $forum_id, $topic;
+	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
 	include( BBPATH . '/bb-templates/footer.php');
 }
 
