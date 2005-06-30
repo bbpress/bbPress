@@ -1,9 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-$user_id = (int) $_GET['id'];
-if ( !$user_id )
-	$user_id = intval( get_path() );
+bb_repermalink();
 
 $user = bb_get_user( $user_id );
 

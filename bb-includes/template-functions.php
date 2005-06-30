@@ -553,8 +553,10 @@ function tag_page_link() {
 	echo get_tag_page_link();
 }
 
-function get_tag_link( $id = 0 ) {
+function get_tag_link( $tag_name = 0 ) {
 	global $tag, $bb;
+	if ( $tag_name )
+		$tag = get_tag_by_name( $tag_name );
 	if ( bb_get_option('mod_rewrite') )
 		return $bb->tagpath . 'tags/' . $tag->tag;
 	else

@@ -865,4 +865,47 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 	return $tags;
 }
 
+// Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
+function bb_repermalink() {
+	$uri = $_SERVER['REQUEST_URI'];
+	$permalink = (int) $_GET['id'];
+	if ( !$permalink )
+		$permalink = intval( get_path() );
+
+	if ( is_forum() ) {
+		global $forum_id;
+		$forum_id = $permalink;
+		$permalink = get_forum_link( $permalink );
+	} elseif ( is_topic() ) {
+		global $topic_id;
+		$topic_id = $permalink;
+		$permalink = get_topic_link( $permalink );
+	} elseif ( is_bb_profile() ) {
+		global $user_id;
+		$user_id = $permalink;
+		$permalink = user_profile_link( $permalink );
+	} elseif ( is_tag() ) {  //  This is the only tricky one.  It's not an integer and tags.php pulls double duty.
+		$permalink = $_GET['tag'];
+		if ( !$permalink )
+			$permalink = get_path();
+		if ( !$permalink )
+			$permalink = get_tag_page_link();
+		else {
+			global $tag_name;
+			$tag_name = $permalink;
+			$permalink = get_tag_link( $permalink );
+		}
+	}
+
+	$parsed = parse_url( $permalink );
+	$check = $parsed['path'];
+	if ( ! bb_get_option('mod_rewrite') && $parsed['query'] ) // query is empty on tag_page_link
+		$check .= '?' . $parsed['query'];
+
+	if ( $check != $uri ) {
+		header('HTTP/1.1 301 Moved Permanently');
+		header("Location: $permalink");
+		exit;
+	}
+}
 ?>

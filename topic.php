@@ -3,14 +3,11 @@ require_once('bb-config.php');
 
 $topic_id = $page = 0;
 
-$topic_id = (int) $_GET['id'];
-if ( !$topic_id )
-	$topic_id = intval( get_path() );
+bb_repermalink();
 
 if ( isset( $_GET['page'] ) )
 	$page = (int) abs( $_GET['page'] );
 
-$topic = get_topic ( $topic_id );
 if ( !$topic )
 	die('Topic not found.');
 $posts = get_thread( $topic_id, $page );
