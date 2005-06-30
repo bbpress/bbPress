@@ -902,6 +902,18 @@ function bb_repermalink() {
 	if ( ! bb_get_option('mod_rewrite') && $parsed['query'] ) // query is empty on tag_page_link
 		$check .= '?' . $parsed['query'];
 
+	parse_str($_SERVER['QUERY_STRING'], $args);
+	if ( $args['page'] ) {
+		if ( false === strpos($check, '?') )
+			$check .= '?page=' . $args['page'];
+		else
+			$check .= '&page=' . $args['page'];
+		if ( false === strpos($permalink, '?') )
+			$permalink .= '?page=' . $args['page'];
+		else
+			$permalink .= '&page=' . $args['page'];
+	}
+
 	if ( $check != $uri ) {
 		header('HTTP/1.1 301 Moved Permanently');
 		header("Location: $permalink");
