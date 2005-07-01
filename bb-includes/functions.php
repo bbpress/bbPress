@@ -19,7 +19,7 @@ function get_topic( $id ) {
 	return $topic_cache[$id];
 }
 
-function get_thread( $topic, $page = 0, $reverse = 0 ) {
+function get_thread( $topic_id, $page = 0, $reverse = 0 ) {
 	global $post_cache, $bbdb;
 
 	$limit = bb_get_option('page_topics');
@@ -27,15 +27,17 @@ function get_thread( $topic, $page = 0, $reverse = 0 ) {
 		$limit = ($limit * $page) . ", $limit";
 	$order = ($reverse) ? 'DESC' : 'ASC';
 
-	$thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
+	$thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
 	foreach ($thread as $post)
 		$post_cache[$post->post_id] = $post;
 	return $thread;
 }
 
-function get_thread_post_ids ( $topic ) {
-	global $bbdb;
-	return $bbdb->get_col("SELECT post_id FROM $bbdb->posts WHERE topic_id = $topic AND post_status = 0 ORDER BY post_time");
+function get_thread_post_ids ( $topic_id ) {
+	global $bbdb, $thread_ids_cache;
+	if ( !isset( $thread_ids_cache[$topic_id] ) )
+		$thread_ids_cache[$topic_id] =  $bbdb->get_col("SELECT post_id FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0 ORDER BY post_time");
+	return $thread_ids_cache[$topic_id];
 }
 
 function get_post( $post_id ) {
@@ -73,6 +75,13 @@ function get_latest_posts( $num ) {
 	global $bbdb;
 	$num = (int) $num;
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status = 0 ORDER BY post_time DESC LIMIT $num");
+}
+
+//expects $item = 1 to be the first, not 0
+function get_page_number( $item, $total, $per_page = 0 ) {
+	if ( !$per_page )
+		$per_page = bb_get_option('page_topics');
+	return intval( ceil( $item / $per_page ) - 1 ); // page 0 is the first page
 }
 
 function bb_apply_filters($tag, $string, $filter = true) {
@@ -483,8 +492,18 @@ function get_post_link( $id ) {
 	if ( !$topic_id )
 		return false;
 	$topic = get_topic($topic_id); 
-
-	return get_topic_link() . "#post-$id";
+	$thread_ids = array_flip( get_thread_post_ids( $topic_id ) );
+	$count = count( $thread_id );
+	$pos = $thread_ids[$id] + 1;
+	$page = get_page_number( $pos, $count );
+	$topic_link = get_topic_link();
+	if ( $page )
+		if ( false === strpos($topic_link, '?') )
+			return get_topic_link() . "?page=$page#post-$id";
+		else
+			return get_topic_link() . "&page=$page#post-$id";
+	else
+		return get_topic_link() . "#post-$id";
 }
 
 function post_link() {
