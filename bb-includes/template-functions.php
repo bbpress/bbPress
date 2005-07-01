@@ -320,13 +320,15 @@ function topic_pages() {
 	$r = '';
 	if ( $page )
 		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-	while ( $page_num < ceil( $topic->topic_posts / bb_get_option('page_topics') ) )
-		if ( $page == $page_num )
-			$r .= ' ' . ++$page_num;
-		else
-			$r .= ' <a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ++$page_num . '</a>';
+	if ( ( $total_pages = ceil( $topic->topic_posts /bb_get_option('page_topics') ) ) > 1 ) {
+		while ( $page_num < $total_pages )
+			if ( $page == $page_num )
+				$r .= ' ' . ++$page_num;
+			else
+				$r .= ' <a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ++$page_num . '</a>';
+	}
 	if ( ( $page + 1 ) * bb_get_option('page_topics') < $topic->topic_posts )
-		$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';		
+		$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
 	echo bb_apply_filters('forum_pages', $r);
 }
 
