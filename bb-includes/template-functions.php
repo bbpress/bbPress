@@ -38,11 +38,15 @@ function edit_form( $post = '', $topic_title = '' ) {
 	require( BBPATH . '/bb-templates/edit-form.php');
 }
 
-function alt_class( $key ) {
+function alt_class( $key, $others = '' ) {
 	global $bb_alt;
 	if ( !isset( $bb_alt[$key] ) ) $bb_alt[$key] = -1;
 	++$bb_alt[$key];
-	if ( $bb_alt[$key] % 2 ) echo ' class="alt"';
+	if ( $others xor $bb_alt[$key] % 2 )
+		$class = ' class="' . ( ($others) ? $others : 'alt' ) . '"';
+	elseif ( $others && $bb_alt[$key] % 2 )
+		$class = ' class="' . $others . ' alt"';
+	echo $class;
 }
 
 function is_front() {
