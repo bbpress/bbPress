@@ -11,7 +11,7 @@
 <h2>Users</h2>
 <ul>
 <?php foreach ( $users as $user ) : ?>
-	<li><a href="<?php echo user_profile_link($user->user_id); ?>"><?php echo $user->username; ?></a></li>
+	<li><a href="<?php echo user_profile_link($user->ID); ?>"><?php echo $user->user_login; ?></a></li>
 
 <?php endforeach; ?>
 </ul>

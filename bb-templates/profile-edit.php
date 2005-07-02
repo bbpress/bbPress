@@ -1,22 +1,22 @@
 <?php get_header(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Edit Profile</h3>
-<h2><?php echo $user->username; ?></h2>
+<h2><?php echo $user->user_login; ?></h2>
 <form method="post" action="<?php option('uri'); ?>profile-edit.php">
 <fieldset>
 <legend>Optional Profile Info</legend>
 <table width="100%">
 <tr>
   <th width="33%" scope="row">Website:</th>
-  <td><input name="website" type="text" id="website" size="30" maxlength="100" value="<?php echo $current_user->user_website; ?>" /></td>
+  <td><input name="url" type="text" id="url" size="30" maxlength="100" value="<?php echo $current_user->user_url; ?>" /></td>
 </tr>
 <tr>
   <th scope="row">Location:</th>
-  <td><input name="location" type="text" id="location" size="30" maxlength="100" value="<?php echo $current_user->user_from; ?>" /></td>
+  <td><input name="location" type="text" id="location" size="30" maxlength="100" value="<?php echo $current_user->from; ?>" /></td>
 </tr>
 <tr>
   <th scope="row">Interests</th>
-  <td><input name="interests" type="text" id="interests" size="30" maxlength="100" value="<?php echo $current_user->user_interest; ?>" /></td>
+  <td><input name="interests" type="text" id="interests" size="30" maxlength="100" value="<?php echo $current_user->interest; ?>" /></td>
 </tr>
 </table>
 </fieldset>

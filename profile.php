@@ -8,14 +8,12 @@ $user = bb_get_user( $user_id );
 if ( !$user )
 	die('User not found.');
 
-$user->user_website = get_user_link( $user_id );
+$user->user_url = get_user_link( $user_id );
 
 if ( !isset( $_GET['updated'] ) )
 	$updated = false;
 else
 	$updated = true;
-
-$ts = strtotime( $user->user_regdate );
 
 $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT 25");
 $threads = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_time DESC LIMIT 25");

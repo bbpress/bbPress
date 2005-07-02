@@ -29,15 +29,19 @@ require( BBPATH . '/bb-includes/formatting-functions.php');
 require( BBPATH . '/bb-includes/template-functions.php');
 require( BBPATH . '/bb-includes/default-filters.php');
 
-$bbdb->forums  = $table_prefix . 'forums';
-$bbdb->posts   = $table_prefix . 'posts';
-$bbdb->topics  = $table_prefix . 'topics';
-$bbdb->users   = $table_prefix . 'users';
-$bbdb->tags    = $table_prefix . 'tags';
-$bbdb->tagged  = $table_prefix . 'tagged';
+$bbdb->forums   = $table_prefix . 'forums';
+$bbdb->posts    = $table_prefix . 'posts';
+$bbdb->topics   = $table_prefix . 'topics';
+$bbdb->users    = $table_prefix . 'users';
+$bbdb->usermeta = $table_prefix . 'usermeta';
+$bbdb->tags     = $table_prefix . 'tags';
+$bbdb->tagged   = $table_prefix . 'tagged';
 
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
+if ( defined('CUSTOM_USER_META_TABLE') )
+	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
+
 
 define('BBHASH', md5($table_prefix) );
 

@@ -2,11 +2,53 @@
 require('../bb-config.php');
 header ('content-type: text/plain');
 set_time_limit(600);
-// Uncomment to use. Best to run one at a time
+// Uncomment to use. Best to run one at a time FROM TOP TO BOTTOM (BEGINNING TO END)
 
-/* Add _topics.topic_resolved column
-$bbdb->query("ALTER TABLE $bbdb->topics ADD topic_resolved VARCHAR(15) DEFAULT 'no' NOT NULL AFTER topic_status");
-echo "Done with adding topic_resolved column\n";
+/*
+$topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
+if ($topics) {
+	foreach($topics as $topic) {
+		$poster = $bbdb->get_row("SELECT poster_id, poster_name FROM $bbdb->posts WHERE topic_id = $topic->topic_id ORDER BY post_time DESC LIMIT 1");
+		echo '.';
+		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = '$poster->poster_id', topic_last_poster_name = '$poster->poster_name' WHERE topic_id = '$topic->topic_id'");
+	}
+}
+unset($topics);
+echo "Done with adding people...";
+flush();
+*/
+
+/*
+$posts = $bbdb->get_results("SELECT post_id, post_text FROM $bbdb->posts");
+if ($posts) {
+	foreach($posts as $post) {
+		echo '.'; flush();
+		$post_text = addslashes(deslash($post->post_text));
+		$post_text = bb_apply_filters('pre_post', $post_text);
+		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$post->post_id'");
+	}
+}
+
+unset($posts);
+echo "Done with preformatting posts...";
+*/
+
+/*
+$topics = $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics");
+if ($topics) {
+	foreach($topics as $topic) {
+		$topic_title = bb_specialchars(addslashes(deslash($topic->topic_title)));
+		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$topic_title' WHERE topic_id = '$topic->topic_id'");
+		echo '.';
+	}
+}
+echo "Done with preformatting topics!";
+flush();
+*/
+
+/* Add _topics.topic_start_time column
+$bbdb->query("ALTER TABLE $bbdb->topics ADD topic_start_time DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER topic_last_poster_name");
+echo "Done with adding topic_start_time column\n";
 flush();
 */
 
@@ -25,51 +67,66 @@ echo "Done with adding topic_start_time...\n";
 flush();
 */
 
-/* Add _topics.topic_start_time column
-$bbdb->query("ALTER TABLE $bbdb->topics ADD topic_start_time DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER topic_last_poster_name");
-echo "Done with adding topic_start_time column\n";
+/* Add _topics.topic_resolved column
+$bbdb->query("ALTER TABLE $bbdb->topics ADD topic_resolved VARCHAR(15) DEFAULT 'no' NOT NULL AFTER topic_status");
+echo "Done with adding topic_resolved column\n";
 flush();
 */
 
+// Make user table column names parallel WP's
 /*
-$topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
-if ($topics) {
-	foreach($topics as $topic) {
-		$poster = $bbdb->get_row("SELECT poster_id, poster_name FROM $bbdb->posts WHERE topic_id = $topic->topic_id ORDER BY post_time DESC LIMIT 1");
-		echo '.';
-		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = '$poster->poster_id', topic_last_poster_name = '$poster->poster_name' WHERE topic_id = '$topic->topic_id'");
-	}
-}
-unset($topics);
-echo "Done with adding people...";
-flush();
+upgrade_100();
 */
+
+// Move user meta info into usermeta and drop from users.  Will generate some index key errors from running upgrade-schema.php
 /*
-$posts = $bbdb->get_results("SELECT post_id, post_text FROM $bbdb->posts");
-if ($posts) {
-	foreach($posts as $post) {
-		echo '.'; flush();
-		$post_text = addslashes(deslash($post->post_text));
-		$post_text = bb_apply_filters('pre_post', $post_text);
-		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$post->post_id'");
-	}
+require_once('upgrade-schema.php');
+upgrade_110();
+*/
+
+//alter user table column names
+function upgrade_100() {
+	global $bbdb, $table_prefix;
+	$fields = $bbdb->get_col("SHOW COLUMNS FROM $bbdb->users");
+	if ( in_array( 'user_id', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_id` `ID` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT");
+	if ( in_array( 'username', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `username` `user_login` varchar(60) NOT NULL default ''");
+	if ( in_array( 'user_password', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_password` `user_pass` varchar(64) NOT NULL default ''");
+	if ( in_array( 'user_email', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_email` `user_email` varchar(100) NOT NULL default ''");
+	if ( in_array( 'user_website', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_website` `user_url` varchar(100) NOT NULL default ''");
+	if ( !in_array( 'user_status', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` ADD `user_status` int(11) NOT NULL default '0'");
 }
 
-unset($posts);
-echo "Done with preformatting posts...";
-*/
-/*
-$topics = $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics");
-if ($topics) {
-	foreach($topics as $topic) {
-		$topic_title = bb_specialchars(addslashes(deslash($topic->topic_title)));
-		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$topic_title' WHERE topic_id = '$topic->topic_id'");
-		echo '.';
+//users -> populate usermeta.  drop old users columns
+function upgrade_110() {
+	global $bbdb, $table_prefix;
+	$users = $bbdb->get_results("SELECT * FROM $bbdb->users");
+	$old_user_fields = array( 'type', 'regdate', 'icq', 'occ', 'from', 'interest', 'viewemail', 'sorttopics', 'newpwdkey', 'newpasswd', 'title' );
+	foreach ( $users as $user ) :
+		foreach ( $old_user_fields as $field )
+			if ( isset( $user->{'user_' . $field} ) && $user->{'user_' . $field} !== '' )
+				if ( 'type' == $field )
+					update_usermeta( $user->ID, 'user_type', $user->user_type );
+				elseif ( 'regdate' == $field )
+					update_usermeta( $user->ID, 'regdate', strtotime($user->user_regdate . ' +0000' );
+				else
+					update_usermeta( $user->ID, $field, $user->{'user_' . $field} );
+	endforeach;
+
+	$bbdb->hide_errors();
+	foreach ( $old_user_fields as $old ) {
+		$old = 'user_' . $old;
+		
+		$bbdb->query("ALTER TABLE $bbdb->users DROP $old");
 	}
+	$bbdb->show_errors();
 }
-echo "Done with preformatting topics!";
-flush();
-*/
+
 function deslash($content) {
     // Note: \\\ inside a regex denotes a single backslash.
 

@@ -1,7 +1,7 @@
 <?php get_header(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
-<h2><?php echo $user->username; ?></h2>
+<h2><?php echo $user->user_login; ?></h2>
 
 <?php if ( $updated ) : ?>
 <div class="notice">
@@ -13,27 +13,27 @@
 
 <dl id="userinfo">
 <dt>Member Since</dt>
-<dd><?php echo gmdate('F j, Y', $ts); ?> (<?php echo bb_since($ts); ?>)</dd>
+<dd><?php echo gmdate('F j, Y', $user->regdate); ?> (<?php echo bb_since($user->regdate); ?>)</dd>
 <?php
 $USERINFO = '';
-if ($user->user_website) :
+if ($user->user_url) :
         $USERINFO .= "<dt>Web address</dt>
-<dd><a href='$user->user_website'>$user->user_website</a></dd>
+<dd><a href='$user->user_url'>$user->user_url</a></dd>
 ";
 endif;
-if ($user->user_from) :
+if ($user->from) :
         $USERINFO .= "<dt>Where in the world?</dt>
-<dd>$user->user_from</dd>
+<dd>$user->from</dd>
 ";
 endif;
-if ($user->user_occ) :
+if ($user->occ) :
         $USERINFO .= "<dt>Occupation</dt>
-<dd>$user->user_occ</dd>
+<dd>$user->occ</dd>
 ";
 endif;
-if ($user->user_interest) :
+if ($user->interest) :
         $USERINFO .= "<dt>Interests</dt>
-<dd>$user->user_interest</dd>
+<dd>$user->interest</dd>
 ";
 endif;
 echo $USERINFO;

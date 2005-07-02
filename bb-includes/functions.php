@@ -281,31 +281,31 @@ function bb_remove_query_arg($key, $query) {
 
 function post_author_cache($posts) {
 	global $bbdb, $user_cache;
-	foreach ($posts as $post) :
+	foreach ($posts as $post)
 		if ( 0 != $post->poster_id )
 			$ids[] = $post->poster_id;
-	endforeach;
 	if ( isset($ids) ) {
 		$ids = join(',', $ids);
-		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE user_id IN ($ids)");
-		foreach ($users as $user) :
-			$user_cache[$user->user_id] = $user;
-		endforeach;
+		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids)");
+		foreach ($users as $user)
+			$user_cache[$user->ID] = bb_append_user_meta( $user );
 	}
 }
 
 function bb_current_time( $type = 'timestamp' ) {
+	global $bb;
 	switch ($type) {
 		case 'mysql':
 			$d = gmdate('Y-m-d H:i:s');
 			break;
 		case 'timestamp':
-			$d = time();
+			$d = time() - $bb->gmt_offset * 3600; //make this GMT
 			break;
 	}
 	return $d;
 }
 
+//This is only used at initialization.  Use global $current_user to grab user info.
 function bb_current_user() {
 	global $bbdb, $user_cache, $bb;
 	if ( !isset($_COOKIE[ $bb->usercookie ]) )
@@ -314,34 +314,59 @@ function bb_current_user() {
 		return false;
 	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
 	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
-	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND MD5( user_password ) = '$pass'");
-	$user_cache[$current_user->user_id] = $current_user;
+	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
+	$current_user = $user_cache[$current_user->ID] = bb_append_user_meta( $current_user );
 	return $current_user;
 }
 
-function bb_get_user( $id ) {
+function bb_get_user( $user_id ) {
 	global $bbdb, $user_cache;
-	$id = (int) $id;
-	if ( isset( $user_cache[$id] ) ) {
-		return $user_cache[$id];
+	$user_id = (int) $user_id;
+	if ( isset( $user_cache[$user_id] ) ) {
+		return $user_cache[$user_id];
 	} else {
-		$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id;");
-		$user_cache[$id] = $user;
+		$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;");
+		bb_append_user_meta( $user );
+		$user_cache[$user_id] = $user;
 		return $user;
 	}
+}
+
+function bb_append_user_meta( $user ) {
+	global $bbdb;
+	if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $bbdb->usermeta WHERE user_id = '$user->ID'") )
+		foreach ( $metas as $meta )
+			$user->{$meta->meta_key} = $meta->meta_value;
+	return $user;
 }
 
 function bb_check_login($user, $pass) {
 	global $bbdb;
 	$user = user_sanitize( $user );
 	$pass = user_sanitize( md5( $pass ) );
-	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user' AND user_password = '$pass'");
+	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND user_pass = '$pass'");
 }
 
 function bb_user_exists( $user ) {
 	global $bbdb;
 	$user = user_sanitize( $user );
-	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$user'");
+	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
+}
+
+function update_usermeta( $user_id, $meta_key, $meta_value ) {
+	global $bbdb;
+	$user_id = (int) $user_id;
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	$meta_value = $bbdb->escape( $meta_value );
+	$cur = $bbdb->get_row("SELECT * FROM $bbdb->usermeta WHERE user_id = '$user_id' AND meta_key = '$meta_key'");
+	if ( !$cur ) {
+		$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value )
+		VALUES
+		( '$user_id', '$meta_key', '$meta_value' )");
+		return true;
+	}
+	if ( $cur->meta_value != $meta_value )
+		$bbdb->query("UPDATE $bbdb->usermeta SET meta_value = '$meta_value' WHERE user_id = '$user_id' AND meta_key = '$meta_key'");
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
@@ -354,7 +379,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
 		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
 		VALUES
-		('$title', $current_user->user_id, '$current_user->username', $current_user->user_id, '$current_user->username', '$now', '$now', $forum)");
+		('$title', $current_user->ID, '$current_user->user_login', $current_user->ID, '$current_user->user_login', '$now', '$now', $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
@@ -386,8 +411,8 @@ function bb_new_post( $topic_id, $post ) {
 	$post  = bb_apply_filters('pre_post', $post);
 	$tid   = (int) $topic_id;
 	$now   = bb_current_time('mysql');
-	$uid   = $current_user->user_id;
-	$uname = $current_user->username;
+	$uid   = $current_user->ID;
+	$uname = $current_user->user_login;
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
 	$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $tid");
@@ -425,7 +450,7 @@ function bb_delete_post( $post_id ) {
 			$bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = $post->topic_id");
 		} else {
 			$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $post->topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
-			$old_name = $bbdb->get_var("SELECT username FROM $bbdb->users WHERE user_id = $old_post->poster_id");
+			$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = $old_post->poster_id");
 			$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $post->topic_id");
 		}
 
@@ -516,7 +541,7 @@ function can_edit( $user_id, $admin_id = 0) {
 	if ( empty($current_user) )
 		return false;
 	if ( !$admin_id )
-		$admin_id = (int) $current_user->user_id;
+		$admin_id = (int) $current_user->ID;
 	$admin = bb_get_user( $admin_id );
 	$user  = bb_get_user( $user_id  );
 
@@ -532,7 +557,7 @@ function can_edit( $user_id, $admin_id = 0) {
 function can_delete( $user_id, $admin_id = 0) {
 	global $bbdb, $current_user;
 	if ( !$admin_id )
-		$admin_id = $current_user->user_id;
+		$admin_id = $current_user->ID;
 	$admin = bb_get_user( $admin_id );
 	$user  = bb_get_user( $user_id  );
 
@@ -547,7 +572,7 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 	if ( empty($current_user) )
 		return false;
 	if ( !$user_id )
-		$user_id = $current_user->user_id;
+		$user_id = $current_user->ID;
 	$user = bb_get_user( $user_id );
 	$post = get_post( $post_id );
 	$post_author = bb_get_user ( $post->poster_id );
@@ -558,7 +583,7 @@ function can_edit_post( $post_id, $user_id = 0 ) {
 	if ( $user->user_type > $post_author->user_type )
 		return true;
 	
-	if ( $user->user_id != $post_author->user_id )
+	if ( $user->ID != $post_author->ID )
 		return false;
 
 	if ( ! topic_is_open( $post->topic_id ) )
@@ -578,7 +603,7 @@ function can_edit_topic( $topic_id, $user_id = 0 ) {
 	if ( empty($current_user) )
 		return false;
 	if ( ! $user_id )
-		$user_id = $current_user->user_id;
+		$user_id = $current_user->ID;
 	$user = bb_get_user( $user_id );
 	$topic = get_topic( $topic_id );
 	$topic_poster = bb_get_user( $topic->topic_poster );
@@ -589,7 +614,7 @@ function can_edit_topic( $topic_id, $user_id = 0 ) {
 	if ( $user->user_type > $topic_poster->user_type )
 		return true;
 
-	if ( $user->user_id != $topic_poster->user_id )
+	if ( $user->ID != $topic_poster->ID )
 		return false;
 	
 	if ( ! topic_is_open( $topic_id ) )
@@ -684,12 +709,12 @@ function add_topic_tag( $topic_id, $tag ) {
 	if ( !$tag_id = create_tag( $tag ) )
 		return false;
 	$now    = bb_current_time('mysql');
-	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->user_id' AND topic_id='$topic_id'") )
+	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->ID' AND topic_id='$topic_id'") )
 		return true;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES
-	( '$tag_id', '$current_user->user_id', '$topic_id', '$now')");
+	( '$tag_id', '$current_user->ID', '$topic_id', '$now')");
 	$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
 	bb_do_action('bb_tag_added', $topic_id);
 	return true;
@@ -749,7 +774,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	$user = bb_get_user($user_id);
 
-	if ( $current_user->user_type < 1 && ( !topic_is_open($topic_id) || $current_user->user_id != $user_id ) )
+	if ( $current_user->user_type < 1 && ( !topic_is_open($topic_id) || $current_user->ID != $user_id ) )
 		return false;
 	
 	bb_do_action('bb_tag_removed', $tagged);

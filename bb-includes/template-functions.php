@@ -13,7 +13,7 @@ function get_footer() {
 function login_form() {
 	global $current_user, $bb;
 	if ($current_user) {
-		echo "<p>Welcome, $current_user->username! <a href='" . user_profile_link( $current_user->user_id) . "'>View your profile &raquo;</a> 
+		echo "<p>Welcome, $current_user->user_login! <a href='" . user_profile_link( $current_user->ID) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
@@ -357,10 +357,10 @@ function get_post_author() {
 	$id = get_post_author_id();
 	if ( $id ) :
 		if ( isset( $user_cache[$id] ) ) {
-			return $user_cache[$id]->username;
+			return $user_cache[$id]->user_login;
 		} else {
-			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id");
-			return $user_cache[$id]->username;
+			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $id");
+			return $user_cache[$id]->user_login;
 		}
 	else : 
 		return 'Anonymous';
@@ -484,10 +484,10 @@ function get_user_link( $id ) {
 	global $user_cache, $bbdb;
 	if ( $id ) :
 		if ( isset( $user_cache[$id] ) ) {
-			return bb_apply_filters('get_user_link', $user_cache[$id]->user_website);
+			return bb_apply_filters('get_user_link', $user_cache[$id]->user_url);
 		} else {
-			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id");
-			return bb_apply_filters('get_user_link', $user_cache[$id]->user_website);
+			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $id");
+			return bb_apply_filters('get_user_link', $user_cache[$id]->user_url);
 		}
 	endif;
 }
@@ -496,19 +496,14 @@ function user_link( $id ) {
 	echo bb_apply_filters('user_link', get_user_link($id) );
 }
 
-function get_user_type ( $id) {
-	global $user_cache, $bbdb;
+function get_user_type ( $id ) {
+	global $bbdb;
 	if ( $id ) :
-		if ( isset( $user_cache[$id] ) ) {
-			$type = $user_cache[$id]->user_type;
-		} else {
-			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $id");
-			$type = $user_cache[$id]->user_type;
-		}
-		if ( !empty( $user_cache[$id]->user_title ) )
-			return $user_cache[$id]->user_title;
+		$user = bb_get_user( $id );
+		if ( !empty( $user->title ) )
+			return $user->title;
 
-		switch ($type) :
+		switch ($user->user_type) :
 			case 0 :
 				return 'Member';
 				break;
@@ -617,7 +612,7 @@ function tag_destroy_form() {
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	global $tag, $current_user;
-	if ( $current_user->user_type < 1 && ( !topic_is_open($tag->topic_id) || $current_user->user_id != $tag->user_id ) )
+	if ( $current_user->user_type < 1 && ( !topic_is_open($tag->topic_id) || $current_user->ID != $tag->user_id ) )
 		return false;
 	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . $tag->raw_tag . '\\\' tag?\')" title="Remove this tag">x</a>]';
 }

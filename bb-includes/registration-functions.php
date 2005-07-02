@@ -16,44 +16,49 @@ function bb_verify_email( $email ) {
 	return false;
 }
 
-function bb_new_user( $username, $email, $website, $location, $interests ) {
+function bb_new_user( $user_login, $email, $url, $location, $interests ) {
 	global $bbdb;
-	$now       = bb_current_time('mysql');
+	$now       = bb_current_time();
 	$password  = bb_random_pass();
 	$passcrypt = md5( $password );
 
 	$bbdb->query("INSERT INTO $bbdb->users
-	(username,    user_regdate, user_password, user_email, user_website, user_from,  user_interest)
+	(user_login,     user_pass,    user_email, user_url)
 	VALUES
-	('$username', '$now',       '$passcrypt',  '$email',   '$website',  '$location', '$interests')");
+	('$user_login', '$passcrypt', '$email',   '$url')");
 	
 	$user_id = $bbdb->insert_id;
+
+	update_usermeta( $user_id, 'regdate', $now );
+	update_usermeta( $user_id, 'from', $location );
+	update_usermeta( $user_id, 'interest', $interests );
+
 	bb_send_pass( $user_id, $password );
 	bb_do_action('bb_new_user', $user_id);
 	return $user_id;
 }
 
-function bb_update_user( $user_id, $website, $location, $interests ) {
+function bb_update_user( $user_id, $url, $location, $interests ) {
 	global $bbdb;
 
 	$bbdb->query("UPDATE $bbdb->users SET
-	user_website  = '$website',
-	user_from     = '$location',
-	user_interest = '$interests'
-	WHERE user_id = '$user_id'
+	user_url  = '$url'
+	WHERE ID = '$user_id'
 	");
+
+	update_usermeta( $user_id, 'from', $location );
+	update_usermeta( $user_id, 'interest', $interests );
 
 	bb_do_action('bb_update_user', $user_id);
 	return $user_id;
 }
 
-function bb_reset_email( $username ) {
+function bb_reset_email( $user_login ) {
 	global $bbdb;
-	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE username = '$username'");
+	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'");
 
 	$resetkey = bb_random_pass( 15 );
-	$bbdb->query("UPDATE $bbdb->users SET user_newpwdkey = '$resetkey' WHERE username = '$username'");
-
+	update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 	if ( $user ) :
 		mail( $user->user_email, bb_get_option('name') . ': Password Reset', "If you wanted to reset your password, you may do so by visiting the following address:
 
@@ -67,12 +72,12 @@ If you don't want to reset your password, just ignore this email. Thanks!", 'Fro
 function bb_reset_password( $key ) {
 	global $bbdb;
 	$key = user_sanitize( $key );
-	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_newpwdkey = '$key'");
-	if ( $user ) :
+	$user_id = $bbdb->get_row("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'");
+	if ( $user = bb_get_user( $user_id ) ) :
 		$newpass = bb_random_pass( 6 );
-		bb_update_user_password( $user->user_id, $newpass );
-		bb_send_pass           ( $user->user_id, $newpass );
-		$bbdb->query("UPDATE $bbdb->users SET user_newpwdkey = '' WHERE user_id = $user->user_id");
+		bb_update_user_password( $user->ID, $newpass );
+		bb_send_pass           ( $user->ID, $newpass );
+		update_usermeta( $user->ID, 'newpwdkey', '' );
 	else :
 		die('Key not found.');
 	endif;
@@ -83,8 +88,8 @@ function bb_update_user_password( $user_id, $password ) {
 	$passhash = md5( $password );
 
 	$bbdb->query("UPDATE $bbdb->users SET
-	user_password = '$passhash'
-	WHERE user_id = '$user_id'
+	user_pass = '$passhash'
+	WHERE ID = '$user_id'
 	");
 
 	bb_do_action('bb_update_user_password', $user_id);
@@ -101,7 +106,7 @@ function bb_random_pass( $length = 6) {
 function bb_send_pass( $user, $pass ) {
 	global $bbdb;
 	$user = (int) $user;
-	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_id = $user");
+	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user");
 
 	if ( $user ) :
 		mail( $user->user_email, bb_get_option('name') . ': Password', "Your password is: $pass

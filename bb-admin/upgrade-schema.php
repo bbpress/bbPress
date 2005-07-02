@@ -1,5 +1,5 @@
 <?php
-require('../bb-config.php');
+require_once('../bb-config.php');
 set_time_limit(600);
 
 $bb_queries = "CREATE TABLE $bbdb->forums (
@@ -45,24 +45,23 @@ CREATE TABLE $bbdb->topics (
   KEY forum_id (forum_id)
 );
 CREATE TABLE $bbdb->users (
-  user_id bigint(20) NOT NULL auto_increment,
-  username varchar(40)  NOT NULL default '',
-  user_regdate datetime NOT NULL default '0000-00-00 00:00:00',
-  user_password varchar(32)  NOT NULL default '',
-  user_email varchar(150)  NOT NULL default '',
-  user_icq varchar(15)  NOT NULL default '',
-  user_website varchar(100)  NOT NULL default '',
-  user_occ varchar(100)  NOT NULL default '',
-  user_from varchar(100)  NOT NULL default '',
-  user_interest varchar(150)  NOT NULL default '',
-  user_viewemail tinyint(1) NOT NULL default '0',
-  user_sorttopics tinyint(1) NOT NULL default '1',
-  user_newpwdkey varchar(32)  NOT NULL default '',
-  user_newpasswd varchar(32)  NOT NULL default '',
-  user_title varchar(64) NOT NULL default '',
-  user_type int(11) NOT NULL default '0',
-  PRIMARY KEY  (user_id),
-  UNIQUE KEY username (username)
+  ID bigint(20) unsigned NOT NULL auto_increment,
+  user_login varchar(60) NOT NULL default '',
+  user_pass varchar(64) NOT NULL default '',
+  user_email varchar(100) NOT NULL default '',
+  user_url varchar(100) NOT NULL default '',
+  user_status int(11) NOT NULL default '0',
+  PRIMARY KEY  (ID),
+  UNIQUE KEY user_login (user_login)
+);
+CREATE TABLE $bbdb->usermeta (
+  umeta_id bigint(20) NOT NULL auto_increment,
+  user_id bigint(20) NOT NULL default '0',
+  meta_key varchar(255) default NULL,
+  meta_value longtext,
+  PRIMARY KEY  (umeta_id),
+  KEY user_id (user_id),
+  KEY meta_key (meta_key)
 );
 CREATE TABLE $bbdb->tags (
   tag_id bigint(20) unsigned NOT NULL auto_increment,

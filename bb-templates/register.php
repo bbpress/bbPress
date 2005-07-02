@@ -12,12 +12,12 @@
 <?php if ( $user_safe ) : ?>
 <tr>
 <th width="33%" scope="row">Username:</th>
-<td><input name="username" type="text" id="username" size="30" maxlength="30" value="<?php if (1 != $username) echo $username; ?>" /></td>
+<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (1 != $user_login) echo $user_login; ?>" /></td>
 </tr>
 <?php else : ?>
 <tr class="error">
 <th width="33%" scope="row">Username:</th>
-<td><input name="username" type="text" id="username" size="30" maxlength="30" /><br />
+<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" /><br />
 Your username was not valid, please try again</td>
 </tr>
 <?php endif; ?>
@@ -42,7 +42,7 @@ There was a problem with your email, please check it.</td>
 <table width="100%">
 <tr>
   <th width="33%" scope="row">Website:</th>
-  <td><input name="website" type="text" id="website" size="30" maxlength="100" value="<?php if (1 != $website) echo $website; ?>" /></td>
+  <td><input name="url" type="text" id="url" size="30" maxlength="100" value="<?php if (1 != $url) echo $url; ?>" /></td>
 </tr>
 <tr>
   <th scope="row">Location:</th>
