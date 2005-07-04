@@ -15,8 +15,8 @@ if ( !isset( $_GET['updated'] ) )
 else
 	$updated = true;
 
-$posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT 25");
-$threads = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_time DESC LIMIT 25");
+$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT 25");
+$threads = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_start_time DESC LIMIT 25");
 
 // Cache topic names
 if ( $posts ) :
@@ -35,6 +35,7 @@ if ( $posts || $threads ) :
 		$topic_cache[$topic->topic_id] = $topic;
 endif;
 
+bb_remove_filter('post_time', 'bb_offset_time');
 bb_add_filter('post_time', 'strtotime');
 bb_add_filter('post_time', 'bb_since');
 
