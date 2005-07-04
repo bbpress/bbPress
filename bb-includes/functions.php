@@ -292,10 +292,11 @@ function bb_remove_query_arg($key, $query) {
 }
 
 function post_author_cache($posts) {
-	global $bbdb;
+	global $bbdb, $user_cache;
 	foreach ($posts as $post)
 		if ( 0 != $post->poster_id )
-			$ids[] = $post->poster_id;
+			if ( !isset($user_cache[$post->poster_id]) ) // Don't cache what we already have
+				$ids[] = $post->poster_id;
 	if ( isset($ids) ) {
 		$ids = join(',', $ids);
 		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids)");
@@ -319,7 +320,7 @@ function bb_current_time( $type = 'timestamp' ) {
 
 //This is only used at initialization.  Use global $current_user to grab user info.
 function bb_current_user() {
-	global $bbdb, $user_cache, $bb;
+	global $bbdb, $bb;
 	if ( !isset($_COOKIE[ $bb->usercookie ]) )
 		return false;
 	if ( !isset($_COOKIE[ $bb->passcookie ]) )
@@ -341,9 +342,12 @@ function bb_get_user( $user_id ) {
 	}
 }
 
+// This is the only function that should add to $user_cache
 function bb_append_user_meta( $user ) {
 	global $bbdb, $user_cache;
 	if ( $user ) {
+		if ( isset( $user_cache[$user->ID] ) )
+			return $user_cache[$user->ID];
 		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $bbdb->usermeta WHERE user_id = '$user->ID'") )
 			foreach ( $metas as $meta )
 				$user->{$meta->meta_key} = $meta->meta_value;
@@ -653,8 +657,7 @@ function topic_is_sticky ( $topic_id ) {
 
 function bb_is_first( $post_id ) { // First post in thread
 	global $bbdb;
-
-	$post = $bbdb->get_row("SELECT * FROM $bbdb->posts WHERE post_id = $post_id");
+	$post = get_post( $post_id );
 	$first_post = $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $post->topic_id ORDER BY post_id ASC LIMIT 1");
 
 	if ( $post_id == $first_post )
@@ -940,7 +943,7 @@ function bb_repermalink() {
 	} elseif ( is_bb_profile() ) {
 		global $user_id;
 		$user_id = $permalink;
-		$permalink = user_profile_link( $permalink );
+		$permalink = get_user_profile_link( $permalink );
 	} elseif ( is_bb_favorites() ) {
 		$permalink = get_favorites_link();
 	} elseif ( is_tag() ) {  //  This is the only tricky one.  It's not an integer and tags.php pulls double duty.

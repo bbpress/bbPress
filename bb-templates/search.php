@@ -11,7 +11,7 @@
 <h2>Users</h2>
 <ul>
 <?php foreach ( $users as $user ) : ?>
-	<li><a href="<?php echo user_profile_link($user->ID); ?>"><?php echo $user->user_login; ?></a></li>
+	<li><a href="<?php user_profile_link($user->ID); ?>"><?php echo $user->user_login; ?></a></li>
 
 <?php endforeach; ?>
 </ul>
@@ -23,7 +23,7 @@
 <ol>
 <?php 
 foreach ( $titles as $topic ) : 
-$count = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $topic->topic_id"); // TODO
+$count = $topic->topic_posts;
 ?>
 <li><h4><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></h4>
 <small><?php echo $count; ?> replies &#8212; Last reply <?php echo topic_date('F j, Y', $topic->topic_id); ?> </small>

@@ -6,8 +6,12 @@ $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :
 
-if ( strlen( preg_replace('/[^a-z0-9]/i', '', $q) ) > 2 )
+if ( strlen( preg_replace('/[^a-z0-9]/i', '', $q) ) > 2 ) {
 	$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE user_login LIKE ('%$likeit%')");
+	if ( $users )
+		foreach ( $users as $user )
+			bb_append_user_meta( $user );
+}
 
 $titles = $bbdb->get_results("SELECT * FROM $bbdb->topics JOIN $bbdb->posts ON topic_last_post_id = post_id WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY post_time DESC LIMIT 5");
 

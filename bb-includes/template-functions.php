@@ -13,7 +13,7 @@ function get_footer() {
 function login_form() {
 	global $current_user, $bb;
 	if ($current_user) {
-		echo "<p>Welcome, $current_user->user_login! <a href='" . user_profile_link( $current_user->ID) . "'>View your profile &raquo;</a> 
+		echo "<p>Welcome, $current_user->user_login! <a href='" . get_user_profile_link( $current_user->ID) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
@@ -116,7 +116,6 @@ function bb_title() {
 // FORUMS
 
 function forum_link() {
-	global $forum;
 	echo bb_apply_filters('forum_link', get_forum_link() );
 }
 
@@ -360,18 +359,13 @@ function post_author() {
 }
 
 function get_post_author() {
-	global $bbdb, $user_cache;
+	global $bbdb;
 	$id = get_post_author_id();
-	if ( $id ) :
-		if ( isset( $user_cache[$id] ) ) {
-			return $user_cache[$id]->user_login;
-		} else {
-			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $id");
-			return $user_cache[$id]->user_login;
-		}
-	else : 
+	if ( $id )
+		if ( $user = bb_get_user( $id ) )
+			return $user->user_login;
+	else
 		return 'Anonymous';
-	endif;
 }
 
 function post_author_link() {
@@ -473,30 +467,29 @@ function post_author_type() {
 	if ('Unregistered' == $type) {
 		echo $type;
 	} else {
-		echo '<a href="' . user_profile_link( get_post_author_id() ) . '">' . $type . '</a>';
+		echo '<a href="' . get_user_profile_link( get_post_author_id() ) . '">' . $type . '</a>';
 	}
 }
 
 // USERS
 function user_profile_link( $id ) {
+	echo bb_apply_filters('user_profile_link', get_user_profile_link( $id ));
+}
+
+function get_user_profile_link( $id ) {
 	if ( bb_get_option('mod_rewrite') ) {
 		$r = bb_get_option('domain') . bb_get_option('path') . 'profile/' . $id;
 	} else {
 		$r =  bb_get_option('domain') . bb_get_option('path') . 'profile.php?id=' . $id;
 	}
-	return $r;
+	return bb_apply_filters('get_user_profile_link', $r);
 }
 
-function get_user_link( $id ) {
-	global $user_cache, $bbdb;
-	if ( $id ) :
-		if ( isset( $user_cache[$id] ) ) {
-			return bb_apply_filters('get_user_link', $user_cache[$id]->user_url);
-		} else {
-			$user_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $id");
-			return bb_apply_filters('get_user_link', $user_cache[$id]->user_url);
-		}
-	endif;
+function get_user_link( $user_id ) {
+	global $bbdb;
+	if ( $user_id )
+		if ( $user = bb_get_user( $user_id ) )
+			return bb_apply_filters('get_user_link', $user->user_url);
 }
 
 function user_link( $id ) {
