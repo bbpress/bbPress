@@ -2,10 +2,14 @@
 require('bb-config.php');
 
 $topic_id = (int) $_GET['topic'];
+$user_id  = (int) $_GET['profile'];
 
 if ( !$topic_id )
 	if ( 'topic' == get_path() )
 		$topic_id = get_path(2);
+if ( !$user_id )
+	if ( 'profile' == get_path() )
+		$user_id = get_path(2);
 
 if ( $topic_id ) {
 	$topic = get_topic ( $topic_id );
@@ -13,10 +17,22 @@ if ( $topic_id ) {
 		die();
 	$posts = get_thread( $topic_id, 0, 1 );
 	$title = bb_get_option('name') . ' Thread: ' . get_topic_title();
+} elseif ( $user_id ) {
+	$user = bb_get_user( $user_id );
+	if ( !$user )
+		die();
+	$posts = get_user_favorites( $user->ID );
+	if ( !$posts )
+		die();
+	$title = bb_get_option('name') . ' User Favorites: ' . $user->user_login;
 } else {
 	$posts = get_latest_posts( 35 );
 	$title = bb_get_option('name') . ': Last 35 Posts';
 }
+
+require_once( BBPATH . 'bb-includes/feed-functions.php');
+
+bb_send_304( $posts[0]->post_time );
 
 bb_add_filter('post_text', 'htmlspecialchars');
 

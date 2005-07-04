@@ -8,7 +8,8 @@
 <p>Profile updated. <a href="<?php option('uri'); ?>profile-edit.php">Edit again &raquo;</a></p>
 </div>
 <?php elseif ( can_edit( $user_id ) ) : ?>
-<p>This is how your profile appears to a fellow logged in member, you may <a href="<?php option('uri'); ?>profile-edit.php">edit this information</a>.</p>
+<p>This is how your profile appears to a fellow logged in member, you may <a href="<?php option('uri'); ?>profile-edit.php">edit this information</a>.
+You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and subscribe to your favorites' <a href="<?php favorites_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
 <?php endif; ?>
 
 <dl id="userinfo">

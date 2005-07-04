@@ -13,6 +13,9 @@
 	<li><?php topic_posts(); ?> posts so far</li>
 	<li>Latest reply from <?php topic_last_poster(); ?></li>
 	<li>This topic is <?php topic_resolved(); ?></li>
+<?php if ( $current_user ) : ?>
+	<li><?php user_favorites_link() ?> (<a href="<?php favorites_link(); ?>">?</a>)</li>
+<?php endif; ?>
 </ul>
 <br clear="all" />
 </div>

@@ -91,6 +91,13 @@ function is_bb_profile() {
 		return false;
 }
 
+function is_bb_favorites() {
+	if ( 'favorites.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+		return true;
+	else
+		return false;
+}
+
 function bb_title() {
 	global $topic, $forum, $static_title, $tag;
 	$title = '';
@@ -652,4 +659,43 @@ function forum_dropdown() {
 	echo '</select>';
 }
 
+//FAVORITES
+function favorites_link() {
+	echo bb_apply_filters('favorites_link', get_favorites_link());
+}
+
+function get_favorites_link() {
+	if ( bb_get_option('mod_rewrite') ) {
+		$r = bb_get_option('uri') . 'favorites/';
+	} else {
+		$r = bb_get_option('uri') . 'favorites.php';
+	}
+	return bb_apply_filters('get_favorites_link', $r);
+}
+
+function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites') {
+	global $topic, $current_user;
+	if ( $fav_array = explode(',', $current_user->favorites) )
+		if ( in_array($topic->topic_id, $fav_array) )
+			echo '<a href="' . get_favorites_link() . "?fav=0&topic_id=$topic->topic_id" . '">' . $rem . '</a>';
+		else
+			echo '<a href="' . get_favorites_link() . "?fav=1&topic_id=$topic->topic_id" . '">' . $add . '</a>';
+}
+
+function favorites_rss_link( $id = 0 ) {
+	echo bb_apply_filters('favorites_rss_link', get_favorites_rss_link( $id ));
+}
+
+function get_favorites_rss_link( $id = 0 ) {
+	global $user;
+	if ( $id )
+		$user = bb_get_user( $id );
+
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . "rss/profile/$user->ID";
+	else
+		$link = bb_get_option('uri') . "rss.php?profile=$user->ID";
+
+	return bb_apply_filters('get_favorites_rss_link', $link);
+}
 ?>

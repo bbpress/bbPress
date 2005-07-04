@@ -77,6 +77,20 @@ function get_latest_posts( $num ) {
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status = 0 ORDER BY post_time DESC LIMIT $num");
 }
 
+function get_user_favorites( $user_id, $list = false ) {
+	global $bbdb;
+	$user = bb_get_user( $user_id );
+	if ( $user->favorites )
+		if ( $list )
+			return $bbdb->get_results("
+				SELECT topic_id, topic_title, topic_time, topic_posts FROM $bbdb->topics
+				WHERE topic_status = 0 AND topic_id IN ($user->favorites) ORDER BY topic_time");
+		else
+			return $bbdb->get_results("
+				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
+				ORDER BY post_time DESC LIMIT 20");
+}
+
 //expects $item = 1 to be the first, not 0
 function get_page_number( $item, $total, $per_page = 0 ) {
 	if ( !$per_page )
@@ -130,10 +144,8 @@ function bb_remove_filter($tag, $function_to_remove, $priority = 10) {
 				$new_function_list[] = $function;
 			}
 		}
-		if ( isset( $new_function_list ) )
-			$wp_filter[$tag]["$priority"] = $new_function_list;
+		$wp_filter[$tag]["$priority"] = $new_function_list;
 	}
-	//die(var_dump($wp_filter));
 	return true;
 }
 
@@ -280,7 +292,7 @@ function bb_remove_query_arg($key, $query) {
 }
 
 function post_author_cache($posts) {
-	global $bbdb, $user_cache;
+	global $bbdb;
 	foreach ($posts as $post)
 		if ( 0 != $post->poster_id )
 			$ids[] = $post->poster_id;
@@ -288,7 +300,7 @@ function post_author_cache($posts) {
 		$ids = join(',', $ids);
 		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids)");
 		foreach ($users as $user)
-			$user_cache[$user->ID] = bb_append_user_meta( $user );
+			bb_append_user_meta( $user );
 	}
 }
 
@@ -315,8 +327,7 @@ function bb_current_user() {
 	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
 	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
 	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
-	$current_user = $user_cache[$current_user->ID] = bb_append_user_meta( $current_user );
-	return $current_user;
+	return bb_append_user_meta( $current_user );
 }
 
 function bb_get_user( $user_id ) {
@@ -326,18 +337,19 @@ function bb_get_user( $user_id ) {
 		return $user_cache[$user_id];
 	} else {
 		$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;");
-		bb_append_user_meta( $user );
-		$user_cache[$user_id] = $user;
-		return $user;
+		return bb_append_user_meta( $user );
 	}
 }
 
 function bb_append_user_meta( $user ) {
-	global $bbdb;
-	if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $bbdb->usermeta WHERE user_id = '$user->ID'") )
-		foreach ( $metas as $meta )
-			$user->{$meta->meta_key} = $meta->meta_value;
-	return $user;
+	global $bbdb, $user_cache;
+	if ( $user ) {
+		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $bbdb->usermeta WHERE user_id = '$user->ID'") )
+			foreach ( $metas as $meta )
+				$user->{$meta->meta_key} = $meta->meta_value;
+		$user_cache[$user->ID] = $user;
+		return $user;
+	}
 }
 
 function bb_check_login($user, $pass) {
@@ -665,6 +677,7 @@ function bb_global_sanitize( $array ) {
 	return $array;
 }
 
+// GMT -> Local
 function bb_offset_time($time) {
 	// in future versions this could eaily become a user option.
 	global $bb;
@@ -928,6 +941,8 @@ function bb_repermalink() {
 		global $user_id;
 		$user_id = $permalink;
 		$permalink = user_profile_link( $permalink );
+	} elseif ( is_bb_favorites() ) {
+		$permalink = get_favorites_link();
 	} elseif ( is_tag() ) {  //  This is the only tricky one.  It's not an integer and tags.php pulls double duty.
 		$permalink = $_GET['tag'];
 		if ( !$permalink )
@@ -959,9 +974,33 @@ function bb_repermalink() {
 	}
 
 	if ( $check != $uri ) {
-		header('HTTP/1.1 301 Moved Permanently');
+		status_header( 301 );
 		header("Location: $permalink");
 		exit;
+	}
+}
+
+function status_header( $header ) {
+	if ( 200 == $header ) {
+		$text = 'OK';
+	} elseif ( 301 == $header ) {
+		$text = 'Moved Permanently';
+	} elseif ( 302 == $header ) {
+		$text = 'Moved Temporarily';
+	} elseif ( 304 == $header ) {
+		$text = 'Not Modified';
+	} elseif ( 404 == $header ) {
+		$text = 'Not Found';
+	} elseif ( 410 == $header ) {
+		$text = 'Gone';
+	}
+	if ( preg_match('/cgi/',php_sapi_name()) ) {
+		@header("Status: $header $text");
+	} else {
+		if ( version_compare(phpversion(), '4.3.0', '>=') )
+			@header($text, TRUE, $header);
+		else
+			@header("HTTP/1.x $header $text");
 	}
 }
 ?>
