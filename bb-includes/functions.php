@@ -425,6 +425,20 @@ function bb_update_topic( $title, $topic_id ) {
 	}
 }
 
+function bb_delete_topic( $topic_id ) {
+	global $bbdb;
+	$topic_id = (int) $topic_id;
+	if ( $topic = get_topic( $topic_id ) ) {
+		$post_ids = get_thread_post_ids( $topic_id );
+		foreach ( $post_ids as $post_id )
+			bb_delete_post( $post_id );
+		$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1 WHERE forum_id = $topic->forum_id");
+		bb_do_action('delete_topic', $topic_id);
+		return $topic_id;
+	} else {
+		return false;
+	}
+}
 function bb_new_post( $topic_id, $post ) {
 	global $bbdb, $current_user;
 	$post  = bb_apply_filters('pre_post', $post);

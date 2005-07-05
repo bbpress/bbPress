@@ -11,9 +11,7 @@ if ( $current_user->user_type < 2 ) {
 if ( !$topic )
 	die('There is a problem with that topic, pardner.');
 
-$post_ids = get_thread_post_ids( $topic_id );
-foreach ( $post_ids as $post_id )
-	bb_delete_post( $post_id );
+bb_delete_topic( $topic->topic_id );
 
 $sendto = get_forum_link( $topic->forum_id );
 
