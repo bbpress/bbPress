@@ -13,24 +13,22 @@ if ( strlen( preg_replace('/[^a-z0-9]/i', '', $q) ) > 2 ) {
 			bb_append_user_meta( $user );
 }
 
-$titles = $bbdb->get_results("SELECT * FROM $bbdb->topics JOIN $bbdb->posts ON topic_last_post_id = post_id WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY post_time DESC LIMIT 5");
+$titles = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY topic_time DESC LIMIT 5");
+foreach ( $titles as $topic )
+	$topic_cache[$topic->topic_id] = $topic;
 
-$recent = $bbdb->get_results("SELECT * FROM $bbdb->posts JOIN $bbdb->topics ON
-topic_last_post_id = post_id WHERE LOWER(post_text) LIKE ('%$likeit%') AND post_status = 0 ORDER BY post_time DESC LIMIT 5");
+$recent = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
+				WHERE LOWER(post_text) LIKE ('%$likeit%') AND post_status = 0 AND topic_status = 0
+				GROUP BY $bbdb->topics.topic_id ORDER BY post_time DESC LIMIT 5");
 
-$relevant = $bbdb->get_results("SELECT $bbdb->posts.forum_id, $bbdb->posts.topic_id, post_text, topic_title, UNIX_TIMESTAMP(post_time)
-AS posttime, post_id FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->posts.topic_id = $bbdb->topics.topic_id
-WHERE MATCH(post_text) AGAINST ('$q') AND post_status = 0 LIMIT 5");
+$relevant = $bbdb->get_results("SELECT $bbdb->posts.forum_id, $bbdb->posts.topic_id, post_text, topic_title, UNIX_TIMESTAMP(post_time) AS posttime, post_id
+				FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->posts.topic_id = $bbdb->topics.topic_id
+				WHERE MATCH(post_text) AGAINST ('$q') AND post_status = 0 AND topic_status = 0 LIMIT 5");
 
 bb_do_action('do_search', $q);
 
 // Cache topics
-if ( $titles ) :
-	foreach ($titles as $topic)
-		$topic_ids[] = $topic->topic_id;
-endif;
-
-if ( $recent) :
+if ( $recent ) :
 	foreach ($recent as $post)
 		$topic_ids[] = $post->topic_id;
 endif;
@@ -40,7 +38,7 @@ if ( $relevant ) :
 		$topic_ids[] = $post->topic_id;
 endif;
 
-if ( $titles || $recent || $relevant ) :
+if ( $recent || $relevant ) :
 	$topic_ids = join(',', $topic_ids);
 	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
 	foreach ($topics as $topic) :
