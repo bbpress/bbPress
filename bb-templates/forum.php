@@ -4,7 +4,7 @@
 
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php forum_name(); ?></h2>
 
-<?php if ( $topics ) : ?>
+<?php if ( $topics || $stickies ) : ?>
 
 <table id="latest">
 <tr>
@@ -14,7 +14,7 @@
 	<th>Freshness</th>
 </tr>
 
-<?php if ( $stickies) : foreach ( $stickies as $topic ) : ?>
+<?php if ( $stickies ) : foreach ( $stickies as $topic ) : ?>
 <tr<?php alt_class('topic', 'sticky'); ?>>
 	<td>Sticky: <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
 	<td class="num"><?php topic_posts(); ?></td>
