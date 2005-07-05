@@ -113,7 +113,7 @@ function upgrade_110() {
 				if ( 'type' == $field )
 					update_usermeta( $user->ID, 'user_type', $user->user_type );
 				elseif ( 'regdate' == $field )
-					update_usermeta( $user->ID, 'regdate', strtotime($user->user_regdate . ' +0000' );
+					update_usermeta( $user->ID, 'regdate', strtotime($user->user_regdate . ' +0000') );
 				else
 					update_usermeta( $user->ID, $field, $user->{'user_' . $field} );
 	endforeach;
