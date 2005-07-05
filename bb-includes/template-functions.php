@@ -478,9 +478,9 @@ function user_profile_link( $id ) {
 
 function get_user_profile_link( $id ) {
 	if ( bb_get_option('mod_rewrite') ) {
-		$r = bb_get_option('domain') . bb_get_option('path') . 'profile/' . $id;
+		$r = bb_get_option('uri') . 'profile/' . $id;
 	} else {
-		$r =  bb_get_option('domain') . bb_get_option('path') . 'profile.php?id=' . $id;
+		$r = bb_get_option('uri') . 'profile.php?id=' . $id;
 	}
 	return bb_apply_filters('get_user_profile_link', $r);
 }
@@ -550,9 +550,9 @@ function get_tag_link( $tag_name = 0 ) {
 	if ( $tag_name )
 		$tag = get_tag_by_name( $tag_name );
 	if ( bb_get_option('mod_rewrite') )
-		return $bb->tagpath . 'tags/' . $tag->tag;
+		return bb_get_option('domain') . $bb->tagpath . 'tags/' . $tag->tag;
 	else
-		return $bb->tagpath . 'tags.php?tag=' . $tag->tag;
+		return bb_get_option('domain') . $bb->tagpath . 'tags.php?tag=' . $tag->tag;
 }
 
 function tag_link( $id = 0 ) {

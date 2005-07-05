@@ -256,7 +256,10 @@ function bb_add_query_arg() {
 		}
 	}
 
-	if ( strstr($uri, '?') ) {
+	if ( $frag = strstr($uri, '#') )
+		$uri = substr($uri, 0, -strlen($frag));
+
+	if ( false !== strpos($uri, '?') ) {
 		$parts = explode('?', $uri, 2);
 		if (1 == count($parts)) {
 			$base = '?';
@@ -284,11 +287,11 @@ function bb_add_query_arg() {
         }
     }
 	$ret = $base . $ret;   
-	return trim($ret, '?');
+	return trim($ret, '?') . ($frag ? $frag : '');
 }
 
 function bb_remove_query_arg($key, $query) {
-	bb_add_query_arg($key, '', $query);
+	return bb_add_query_arg($key, '', $query);
 }
 
 function post_author_cache($posts) {
@@ -539,10 +542,7 @@ function get_post_link( $id ) {
 	$page = get_page_number( $pos, $count );
 	$topic_link = get_topic_link();
 	if ( $page )
-		if ( false === strpos($topic_link, '?') )
-			return get_topic_link() . "?page=$page#post-$id";
-		else
-			return get_topic_link() . "&page=$page#post-$id";
+		return bb_add_query_arg( 'page', $page, get_topic_link() . "#post-$id");
 	else
 		return get_topic_link() . "#post-$id";
 }
@@ -959,23 +959,17 @@ function bb_repermalink() {
 		}
 	}
 
-	$parsed = parse_url( $permalink );
-	$check = $parsed['path'];
-	if ( ! bb_get_option('mod_rewrite') && $parsed['query'] ) // query is empty on tag_page_link
-		$check .= '?' . $parsed['query'];
-
 	parse_str($_SERVER['QUERY_STRING'], $args);
-	if ( $args['page'] ) {
-		if ( false === strpos($check, '?') )
-			$check .= '?page=' . $args['page'];
-		else
-			$check .= '&page=' . $args['page'];
-		if ( false === strpos($permalink, '?') )
-			$permalink .= '?page=' . $args['page'];
-		else
-			$permalink .= '&page=' . $args['page'];
+	if ( $args ) {
+		$permalink = bb_add_query_arg($args, $permalink);
+			if ( bb_get_option('mod_rewrite') ) {
+				$pretty_args = array('id', 'tag'); // these are already specified in the path
+				foreach( $pretty_args as $arg )
+					$permalink = bb_remove_query_arg($arg, $permalink);
+			}
 	}
 
+	$check = preg_replace( '|' . trim( bb_get_option('domain'), ' /' ) . '|', '', $permalink, 1 );
 	if ( $check != $uri ) {
 		status_header( 301 );
 		header("Location: $permalink");
