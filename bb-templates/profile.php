@@ -48,8 +48,18 @@ echo $USERINFO;
 if ( $posts ) :
 ?>
 <ol>
-<?php foreach ($posts as $post) : ?>
-<li><a href="<?php topic_link( $post->topic_id ); ?>"><?php topic_title( $post->topic_id ); ?></a> <?php post_time(); ?> ago</li>
+<?php foreach ($posts as $post) : $topic = get_topic( $post->topic_id ) ?>
+<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php post_time(); ?> ago.
+<?php
+if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
+	echo ' <span class=freshness">Most recent reply: ';
+	topic_time();
+	echo ' ago.</span>';
+} else {
+	echo ' <span class="freshness">No replies since.</span>';
+}
+?>	
+</li>
 <?php endforeach; ?>
 </ol>
 <?php else : ?>
@@ -62,7 +72,17 @@ if ( $posts ) :
 <?php if ( $threads ) : ?>
 <ol>
 <?php foreach ($threads as $topic) : ?>
-<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> <?php topic_time(); ?> ago</li>
+<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> Started: <?php topic_start_time(); ?> ago.
+<?php
+if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
+	echo ' <span class=freshness">Most recent reply: ';
+	topic_time();
+	echo ' ago.</span>';
+} else {
+	echo ' <span class="freshness">No replies.</span>';
+}
+?>	
+</li>
 <?php endforeach; ?>
 </ol>
 <?php else : ?>

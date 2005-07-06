@@ -377,7 +377,6 @@ function post_author_link() {
 }
 
 function post_text() {
-	global $post;
 	echo bb_apply_filters('post_text', get_post_text() );
 }
 
@@ -387,8 +386,12 @@ function get_post_text() {
 }
 
 function post_time() {
+	echo bb_apply_filters('post_time', get_post_time() );
+}
+
+function get_post_time() {
 	global $post;
-	echo bb_apply_filters('post_time', $post->post_time);
+	return bb_apply_filters('get_post_time', $post->post_time);
 }
 
 function post_date( $format ) {
