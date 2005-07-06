@@ -275,4 +275,12 @@ function bb_make_feed( $link ) {
 	else
 		return $link;
 }
+
+function closed_title( $title ) {
+	global $topic;
+	if ( '0' === $topic->topic_open )
+		return '[closed] <span class="closed">' . $title . '</span>';
+	else
+		return $title;
+}
 ?>

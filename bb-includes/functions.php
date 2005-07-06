@@ -83,7 +83,7 @@ function get_user_favorites( $user_id, $list = false ) {
 	if ( $user->favorites )
 		if ( $list )
 			return $bbdb->get_results("
-				SELECT topic_id, topic_title, topic_time, topic_posts FROM $bbdb->topics
+				SELECT topic_id, topic_title, topic_time, topic_open, topic_posts FROM $bbdb->topics
 				WHERE topic_status = 0 AND topic_id IN ($user->favorites) ORDER BY topic_time");
 		else
 			return $bbdb->get_results("
