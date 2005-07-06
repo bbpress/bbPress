@@ -84,6 +84,13 @@ require_once('upgrade-schema.php');
 upgrade_110();
 */
 
+//Put user_registered back in users.
+/*
+require_once('upgrade-schema.php');
+upgrade_110();
+upgrade_120();
+*/
+
 //alter user table column names
 function upgrade_100() {
 	global $bbdb, $table_prefix;
@@ -98,6 +105,8 @@ function upgrade_100() {
 		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_email` `user_email` varchar(100) NOT NULL default ''");
 	if ( in_array( 'user_website', $fields ) )
 		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_website` `user_url` varchar(100) NOT NULL default ''");
+	if ( in_array( 'user_regdate', $fields ) )
+		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_regdate` `user_registered` datetime NOT NULL default '0000-00-00 00:00:00'");
 	if ( !in_array( 'user_status', $fields ) )
 		$bbdb->query("ALTER TABLE `$bbdb->users` ADD `user_status` int(11) NOT NULL default '0'");
 }
@@ -106,14 +115,12 @@ function upgrade_100() {
 function upgrade_110() {
 	global $bbdb, $table_prefix;
 	$users = $bbdb->get_results("SELECT * FROM $bbdb->users");
-	$old_user_fields = array( 'type', 'regdate', 'icq', 'occ', 'from', 'interest', 'viewemail', 'sorttopics', 'newpwdkey', 'newpasswd', 'title' );
+	$old_user_fields = array( 'type', 'icq', 'occ', 'from', 'interest', 'viewemail', 'sorttopics', 'newpwdkey', 'newpasswd', 'title' );
 	foreach ( $users as $user ) :
 		foreach ( $old_user_fields as $field )
 			if ( isset( $user->{'user_' . $field} ) && $user->{'user_' . $field} !== '' )
 				if ( 'type' == $field )
 					update_usermeta( $user->ID, 'user_type', $user->user_type );
-				elseif ( 'regdate' == $field )
-					update_usermeta( $user->ID, 'regdate', strtotime($user->user_regdate . ' +0000') );
 				else
 					update_usermeta( $user->ID, $field, $user->{'user_' . $field} );
 	endforeach;
@@ -125,6 +132,19 @@ function upgrade_110() {
 		$bbdb->query("ALTER TABLE $bbdb->users DROP $old");
 	}
 	$bbdb->show_errors();
+}
+
+//put registration date back in.  RERUN upgrade_100() and upgrade-schema!!!!!!
+function upgrade_120() {
+	global $bbdb;
+	if ( $usermetas = $bbdb->get_results("SELECT * FROM $bbdb->usermeta where meta_key = 'regdate'") ) {
+		foreach ( $usermetas as $usermeta ) {
+			$reg_date = gmdate('Y-m-d H:i:s', $usermeta->meta_value);
+			$bbdb->query("UPDATE $bbdb->users SET user_registered = '$reg_date' WHERE ID = '$usermeta->user_id'");
+		}
+
+		$bbdb->query("DELETE FROM $bbdb->usermeta WHERE meta_key = 'regdate'");
+	}
 }
 
 function deslash($content) {

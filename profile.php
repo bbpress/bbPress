@@ -8,7 +8,7 @@ $user = bb_get_user( $user_id );
 if ( !$user )
 	die('User not found.');
 
-$user->user_url = get_user_link( $user_id );
+$reg_time = strtotime( $user->user_registered );
 
 if ( !isset( $_GET['updated'] ) )
 	$updated = false;

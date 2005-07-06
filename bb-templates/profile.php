@@ -14,12 +14,12 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 
 <dl id="userinfo">
 <dt>Member Since</dt>
-<dd><?php echo gmdate('F j, Y', $user->regdate); ?> (<?php echo bb_since($user->regdate); ?>)</dd>
+<dd><?php echo gmdate('F j, Y', $reg_time); ?> (<?php echo bb_since($reg_time); ?>)</dd>
 <?php
 $USERINFO = '';
-if ($user->user_url) :
+if ( $url = get_user_link( $user->ID ) ) :
         $USERINFO .= "<dt>Web address</dt>
-<dd><a href='$user->user_url'>$user->user_url</a></dd>
+<dd><a href='$url'>$url</a></dd>
 ";
 endif;
 if ($user->from) :

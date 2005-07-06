@@ -10,7 +10,7 @@ bb_add_filter('topic_start_time', 'bb_since');
 
 bb_add_filter('pre_topic_title', 'bb_specialchars');
 bb_add_filter('get_forum_name', 'bb_specialchars');
-bb_add_filter('topic_title', 'closed_title');
+bb_add_filter('topic_title', 'closed_title', 30);
 
 bb_add_filter('pre_post', 'trim');
 bb_add_filter('pre_post', 'encode_bad');
