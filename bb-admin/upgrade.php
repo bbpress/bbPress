@@ -136,10 +136,10 @@ function upgrade_110() {
 
 //put registration date back in.  RERUN upgrade_100() and upgrade-schema!!!!!!
 function upgrade_120() {
-	global $bbdb;
+	global $bbdb, $bb;
 	if ( $usermetas = $bbdb->get_results("SELECT * FROM $bbdb->usermeta where meta_key = 'regdate'") ) {
 		foreach ( $usermetas as $usermeta ) {
-			$reg_date = gmdate('Y-m-d H:i:s', $usermeta->meta_value);
+			$reg_date = gmdate('Y-m-d H:i:s', $usermeta->meta_value + $bb->gmt_offset * 3600);
 			$bbdb->query("UPDATE $bbdb->users SET user_registered = '$reg_date' WHERE ID = '$usermeta->user_id'");
 		}
 
