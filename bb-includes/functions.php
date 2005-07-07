@@ -336,6 +336,8 @@ function bb_current_user() {
 
 function bb_get_user( $user_id ) {
 	global $bbdb, $user_cache;
+	if ( !is_numeric( $user_id ) )
+		die('bb_get_user needs a numeric ID');
 	$user_id = (int) $user_id;
 	if ( isset( $user_cache[$user_id] ) ) {
 		return $user_cache[$user_id];
