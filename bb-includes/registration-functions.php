@@ -23,13 +23,12 @@ function bb_new_user( $user_login, $email, $url, $location, $interests ) {
 	$passcrypt = md5( $password );
 
 	$bbdb->query("INSERT INTO $bbdb->users
-	(user_login,     user_pass,    user_email, user_url)
+	(user_login,     user_pass,    user_email, user_url, user_registered)
 	VALUES
-	('$user_login', '$passcrypt', '$email',   '$url')");
+	('$user_login', '$passcrypt', '$email',   '$url', '$now')");
 	
 	$user_id = $bbdb->insert_id;
 
-	update_usermeta( $user_id, 'regdate', $now );
 	update_usermeta( $user_id, 'user_type', 0 );
 	update_usermeta( $user_id, 'from', $location );
 	update_usermeta( $user_id, 'interest', $interests );
