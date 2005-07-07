@@ -18,7 +18,7 @@ function bb_verify_email( $email ) {
 
 function bb_new_user( $user_login, $email, $url, $location, $interests ) {
 	global $bbdb;
-	$now       = bb_current_time();
+	$now       = bb_current_time('mysql');
 	$password  = bb_random_pass();
 	$passcrypt = md5( $password );
 
