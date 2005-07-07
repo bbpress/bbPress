@@ -30,6 +30,7 @@ function bb_new_user( $user_login, $email, $url, $location, $interests ) {
 	$user_id = $bbdb->insert_id;
 
 	update_usermeta( $user_id, 'regdate', $now );
+	update_usermeta( $user_id, 'user_type', 0 );
 	update_usermeta( $user_id, 'from', $location );
 	update_usermeta( $user_id, 'interest', $interests );
 
