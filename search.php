@@ -17,25 +17,28 @@ $titles = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE LOWER(topic_titl
 foreach ( $titles as $topic )
 	$topic_cache[$topic->topic_id] = $topic;
 
-$recent = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
+$recent = $bbdb->get_results("SELECT $bbdb->posts.*, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
 				WHERE LOWER(post_text) LIKE ('%$likeit%') AND post_status = 0 AND topic_status = 0
 				GROUP BY $bbdb->topics.topic_id ORDER BY post_time DESC LIMIT 5");
 
-$relevant = $bbdb->get_results("SELECT $bbdb->posts.forum_id, $bbdb->posts.topic_id, post_text, topic_title, UNIX_TIMESTAMP(post_time) AS posttime, post_id
-				FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->posts.topic_id = $bbdb->topics.topic_id
+$relevant = $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->posts.topic_id = $bbdb->topics.topic_id
 				WHERE MATCH(post_text) AGAINST ('$q') AND post_status = 0 AND topic_status = 0 LIMIT 5");
 
 bb_do_action('do_search', $q);
 
 // Cache topics
 if ( $recent ) :
-	foreach ($recent as $post)
+	foreach ($recent as $post) {
 		$topic_ids[] = $post->topic_id;
+		$post_cache[$post->post_id] = $post;
+	}
 endif;
 
 if ( $relevant ) :
-	foreach ($relevant as $post)
+	foreach ($relevant as $post) {
 		$topic_ids[] = $post->topic_id;
+		$post_cache[$post->post_id] = $post;
+	}
 endif;
 
 if ( $recent || $relevant ) :
@@ -50,6 +53,8 @@ endif;
 
 $q = stripslashes( $q );
 
+bb_add_filter('get_post_time', 'strtotime');
+bb_add_filter('get_post_time', 'bb_offset_time');
 require('bb-templates/search.php');
 
 ?>

@@ -39,7 +39,7 @@ $count = $topic->topic_posts;
 <?php foreach ( $recent as $post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($post->topic_id); ?></a></h4>
 <p><?php echo show_context($q, $post->post_text); ?></p>
-<p><small>Posted <?php topic_date('F j, Y, h:i A', $post->topic_id); ?></small></p>
+<p><small>Posted <?php echo date('F j, Y, h:i A', get_post_time()); ?></small></p>
 </li>
 <?php endforeach; ?>
 </ol>
@@ -51,7 +51,7 @@ $count = $topic->topic_posts;
 <?php foreach ( $relevant as $post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($post->topic_id); ?></a></h4>
 <p><?php echo show_context($q, $post->post_text); ?></p>
-<p><small>Posted <?php topic_date('F j, Y, h:i A', $post->topic_id); ?></small></p>
+<p><small>Posted <?php echo date('F j, Y, h:i A', get_post_time()); ?></small></p>
 </li>
 <?php endforeach; ?>
 </ol>
