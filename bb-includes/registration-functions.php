@@ -29,13 +29,21 @@ function bb_new_user( $user_login, $email, $url, $location, $interests ) {
 	
 	$user_id = $bbdb->insert_id;
 
-	update_usermeta( $user_id, 'user_type', 0 );
-	update_usermeta( $user_id, 'from', $location );
-	update_usermeta( $user_id, 'interest', $interests );
+	if ( isset( $location ) )
+		update_usermeta( $user_id, 'from', $location );
+	if ( isset( $interests ) )
+		update_usermeta( $user_id, 'interest', $interests );
 
-	bb_send_pass( $user_id, $password );
-	bb_do_action('bb_new_user', $user_id);
-	return $user_id;
+	if ( defined( 'BB_INSTALLING' ) ) {
+		update_usermeta( $user_id, 'user_type', 5 );
+		bb_do_action('bb_new_user', $user_id);
+		return $password;
+	} else {		
+		update_usermeta( $user_id, 'user_type', 0 );
+		bb_send_pass( $user_id, $password );
+		bb_do_action('bb_new_user', $user_id);
+		return $user_id;
+	}
 }
 
 function bb_update_user( $user_id, $url, $location, $interests ) {

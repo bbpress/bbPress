@@ -1,8 +1,9 @@
 <?php
 require('../bb-config.php');
-header ('content-type: text/plain');
 set_time_limit(600);
-// Uncomment to use. Best to run one at a time FROM TOP TO BOTTOM (BEGINNING TO END)
+
+// Use the following only if you have a May, 2005 or earlier version of bbPress
+// Uncomment them to use. Best to run one at a time FROM TOP TO BOTTOM (BEGINNING TO END)
 
 /*
 $topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
@@ -46,13 +47,13 @@ echo "Done with preformatting topics!";
 flush();
 */
 
-/* Add _topics.topic_start_time column
+/* Add _topics.topic_start_time column: June 4th, 2005
 $bbdb->query("ALTER TABLE $bbdb->topics ADD topic_start_time DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER topic_last_poster_name");
 echo "Done with adding topic_start_time column\n";
 flush();
 */
 
-/* Populate _topics.topic_start_time: June 3rd, 2005
+/* Populate _topics.topic_start_time: June 4th, 2005
 $topics = $bbdb->get_results("SELECT topic_id FROM $bbdb->topics");
 if ($topics) {
 	foreach($topics as $topic) {
@@ -67,28 +68,34 @@ echo "Done with adding topic_start_time...\n";
 flush();
 */
 
-/* Add _topics.topic_resolved column
+/* Add _topics.topic_resolved column: June 11th, 2005
 $bbdb->query("ALTER TABLE $bbdb->topics ADD topic_resolved VARCHAR(15) DEFAULT 'no' NOT NULL AFTER topic_status");
 echo "Done with adding topic_resolved column\n";
 flush();
 */
 
-// Make user table column names parallel WP's
+// Make user table column names parallel WP's: July 2nd, 2005
 /*
 upgrade_100();
 */
 
-// Move user meta info into usermeta and drop from users.  Will generate some index key errors from running upgrade-schema.php
+// Move user meta info into usermeta and drop from users.  May generate some index key errors from running upgrade-schema.php: July 2nd, 2005
 /*
 require_once('upgrade-schema.php');
 upgrade_110();
 */
 
-//Put user_registered back in users.
+//Put user_registered back in users: July 5th, 2005
 /*
 require_once('upgrade-schema.php');
 upgrade_110();
 upgrade_120();
+*/
+
+//Add posts.post_position.  Populate: July 14th, 2005
+/*
+require_once('upgrade-schema.php');
+upgrade_130();
 */
 
 //alter user table column names
@@ -145,6 +152,14 @@ function upgrade_120() {
 
 		$bbdb->query("DELETE FROM $bbdb->usermeta WHERE meta_key = 'regdate'");
 	}
+}
+
+//populate posts.post_position
+function upgrade_130() {
+	global $bbdb;
+	if ( $topics = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics") )
+		foreach ( $topics as $topic_id )
+			update_post_positions( $topic_id );
 }
 
 function deslash($content) {

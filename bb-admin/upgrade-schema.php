@@ -9,7 +9,7 @@ $bb_queries = "CREATE TABLE $bbdb->forums (
   forum_order int(10) NOT NULL default '0',
   topics bigint(20) NOT NULL default '0',
   posts bigint(20) NOT NULL default '0',
-  PRIMARY KEY (forum_id)
+  PRIMARY KEY  (forum_id)
 );
 CREATE TABLE $bbdb->posts (
   post_id bigint(20) NOT NULL auto_increment,
@@ -20,6 +20,7 @@ CREATE TABLE $bbdb->posts (
   post_time datetime NOT NULL default '0000-00-00 00:00:00',
   poster_ip varchar(15) NOT NULL default '',
   post_status tinyint(1) NOT NULL default '0',
+  post_position bigint(20) NOT NULL default '0',
   PRIMARY KEY  (post_id),
   KEY topic_id (topic_id),
   KEY poster_id (poster_id),
@@ -71,17 +72,17 @@ CREATE TABLE $bbdb->tags (
   tag varchar(30) NOT NULL default '',
   raw_tag varchar(50) NOT NULL default '',
   tag_count bigint(20) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`tag_id`)
+  PRIMARY KEY  (tag_id)
 );
 CREATE TABLE $bbdb->tagged (
   tag_id bigint(20) unsigned NOT NULL default '0',
   user_id bigint(20) unsigned NOT NULL default '0',
   topic_id bigint(20) unsigned NOT NULL default '0',
   tagged_on datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY (`tag_id`,`user_id`,`topic_id`),
-  KEY `tag_id_index` (`tag_id`),
-  KEY `user_id_index` (`user_id`),
-  KEY `topic_id_index` (`topic_id`)
+  PRIMARY KEY  (tag_id,user_id,topic_id),
+  KEY tag_id_index (tag_id),
+  KEY user_id_index (user_id),
+  KEY topic_id_index (topic_id)
 );
 ";
 
@@ -223,6 +224,10 @@ function dbDelta($queries, $execute = true) {
 						$keyname = $tableindex->Key_name;
 						$index_ary[$keyname]['columns'][] = array('fieldname' => $tableindex->Column_name, 'subpart' => $tableindex->Sub_part);
 						$index_ary[$keyname]['unique'] = ($tableindex->Non_unique == 0)?true:false;
+						$index_ary[$keyname]['type'] = ('BTREE' == $tableindex->Index_type)?false:$tableindex->Index_type;
+						if(!$index_ary[$keyname]['type']) {
+							$index_ary[$keyname]['type'] = (strpos($tableindex->Comment, 'FULLTEXT') === false)?false:'FULLTEXT';
+						}
 					}
 
 					// For each actual index in the index array
@@ -234,6 +239,9 @@ function dbDelta($queries, $execute = true) {
 						}
 						else if($index_data['unique']) {
 							$index_string .= 'UNIQUE ';
+						}
+						if($index_data['type']) {
+							$index_string .= $index_data['type'] . ' ';
 						}
 						$index_string .= 'KEY ';
 						if($index_name != 'PRIMARY') {

@@ -92,7 +92,7 @@ function get_user_favorites( $user_id, $list = false ) {
 }
 
 //expects $item = 1 to be the first, not 0
-function get_page_number( $item, $total, $per_page = 0 ) {
+function get_page_number( $item, $per_page = 0 ) {
 	if ( !$per_page )
 		$per_page = bb_get_option('page_topics');
 	return intval( ceil( $item / $per_page ) - 1 ); // page 0 is the first page
@@ -323,6 +323,9 @@ function bb_current_time( $type = 'timestamp' ) {
 
 //This is only used at initialization.  Use global $current_user to grab user info.
 function bb_current_user() {
+	if ( defined( 'BB_INSTALLING' ) )
+		return false;
+
 	global $bbdb, $bb;
 	if ( !isset($_COOKIE[ $bb->usercookie ]) )
 		return false;
@@ -450,13 +453,13 @@ function bb_new_post( $topic_id, $post ) {
 	$uname = $current_user->user_login;
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
-	$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $tid");
+	$topic = get_topic( $topic_id );
 
 	if ( $post && $topic ) {
 		$bbdb->query("INSERT INTO $bbdb->posts 
-		(topic_id, poster_id, post_text, post_time, poster_ip)
+		(topic_id, poster_id, post_text, post_time, poster_ip, post_position)
 		VALUES
-		('$tid',   '$uid',    '$post',   '$now',    '$ip'    )");
+		('$tid',   '$uid',    '$post',   '$now',    '$ip',     $topic->topic_posts + 1)");
 		$post_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = $uid, topic_last_poster_name = '$uname',
@@ -487,6 +490,8 @@ function bb_delete_post( $post_id ) {
 			$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $post->topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
 			$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = $old_post->poster_id");
 			$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $post->topic_id");
+			if ( $topic->topic_posts != $post->post_position )
+				update_post_positions( $topic->topic_id );
 		}
 
 		bb_do_action('bb_delete_post', $post_id);
@@ -542,30 +547,35 @@ function bb_update_post( $post, $post_id ) {
 	}
 }
 
-function get_post_link( $id ) {
-	global $bbdb, $topic, $post;
-	$id = (int) $id;
-	if ( isset( $post->topic_id ) )
-		$topic_id = $post->topic_id;
-	else
-		$topic_id = $bbdb->get_var("SELECT topic_id FROM $bbdb->posts WHERE post_id = $id");
-	if ( !$topic_id )
-		return false;
-	$topic = get_topic($topic_id); 
-	$thread_ids = array_flip( get_thread_post_ids( $topic_id ) );
-	$count = count( $thread_id );
-	$pos = $thread_ids[$id] + 1;
-	$page = get_page_number( $pos, $count );
-	$topic_link = get_topic_link();
+function get_post_link( $post_id ) {
+	global $bbdb, $post;
+	$post_id = (int) $post_id;
+	if ( $post_id )
+		$post = get_post( $post_id );
+	$page = get_page_number( $post->post_position );
 	if ( $page )
-		return bb_add_query_arg( 'page', $page, get_topic_link() . "#post-$id");
+		return bb_add_query_arg( 'page', $page, get_topic_link( $post->topic_id ) . "#post-$post->post_id");
 	else
-		return get_topic_link() . "#post-$id";
+		return get_topic_link( $post->topic_id ) . "#post-$post->post_id";
 }
 
 function post_link() {
 	global $post;
 	echo get_post_link( $post->post_id );
+}
+
+function update_post_positions( $topic_id ) {
+	global $bbdb;
+	$topic_id = (int) $topic_id;
+	$posts = get_thread_post_ids( $topic_id );
+	if ( $posts ) {
+		reset($posts);
+		while ( list($i, $post_id) = each($posts) )
+			$bbdb->query("UPDATE $bbdb->posts SET post_position = $i + 1 WHERE post_id = $post_id");
+		return true;
+	} else {
+		return false;
+	}
 }
 
 function can_edit( $user_id, $admin_id = 0) {
@@ -1015,5 +1025,14 @@ function status_header( $header ) {
 		else
 			@header("HTTP/1.x $header $text");
 	}
+}
+
+// Placeholders
+function _e($e) {
+	echo $e;
+}
+
+function __($e) {
+	return $e;
 }
 ?>
