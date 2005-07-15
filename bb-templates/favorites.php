@@ -1,11 +1,10 @@
 <?php get_header(); ?>
-
-<?php login_form(); ?>
+<?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Your Favorites</h3>
 
-<p>Your favorites allow you to creat a custom <abbr title="Really Simple Syndication">RSS</abbr> feed which pulls recent replies to the topics you specify.
-To add topics to your favorites, just click the "Add to Favorites" link found on that topic's page.</p>
+<p>Your Favorites allow you to create a custom <abbr title="Really Simple Syndication">RSS</abbr> feed which pulls recent replies to the topics you specify.
+To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic's page.</p>
 
 <?php if ( $current_user ) : ?>
 

@@ -1,12 +1,19 @@
 <?php
 require('bb-config.php');
 
+if ( !$current_user ) {
+	$sendto = bb_get_option('uri');
+	header("Location: $sendto");
+}
+
+if ( !is_bb_profile() ) {
+	$sendto = get_profile_tab_link( $current_user->ID, 'edit' );
+	header("Location: $sendto");
+}
+
 require_once( BBPATH . 'bb-includes/registration-functions.php');
 
 nocache_headers();
-
-if ( !$current_user )
-	die('You need to be logged in to edit your profile.');
 
 $updated = false;
 

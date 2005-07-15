@@ -1,12 +1,20 @@
 <?php
 require_once('bb-config.php');
 
-bb_repermalink();
+bb_repermalink(); // The magic happens here.
 
 $user = bb_get_user( $user_id );
 
 if ( !$user )
 	die('User not found.');
+
+if ( $self ) {
+	if ( strpos($self, 'bb-plugins') === false )
+		require($self);
+	else
+		require('bb-templates/profile-base.php');
+	return;
+}
 
 $reg_time = strtotime( $user->user_registered );
 

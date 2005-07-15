@@ -2,12 +2,38 @@
 
 function get_header() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
-	include( BBPATH . '/bb-templates/header.php');
+	include( BBPATH . 'bb-templates/header.php');
 }
 
 function get_footer() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
-	include( BBPATH . '/bb-templates/footer.php');
+	include( BBPATH . 'bb-templates/footer.php');
+}
+
+function profile_menu() {
+	global $bb, $bbdb, $current_user, $user_id, $profile_menu, $self, $profile_page_title;
+	
+	$list  = "<ul id='profile-menu'>";
+	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . get_user_profile_link( $user_id ) . '">' . __('Profile') . '</a></li>';
+	foreach ($profile_menu as $item) {
+		// 0 = name, 1 = user_type, 2 = others, 3 = file
+		$class = '';
+		if ( $item[3] == $self ) {
+			$class = ' class="current"';
+			$profile_page_title = $item[0];
+		}
+		if ( can_access_tab( $item, $current_user->ID, $user_id ) )
+			if ( file_exists($item[3]) )
+				$list .= "\n\t<li$class><a href='" . get_profile_tab_link($user_id, $item[0]) . "'>{$item[0]}</a></li>";
+	}
+	if ( $current_user ) :
+		$list .= "\n\t<li class='last'><a href='" . bb_get_option('uri') . 'bb-login.php?logout' . "' title='" . __('Log out of this account') . "'>";
+		$list .= 	__('Logout') . ' (' . $current_user->user_login . ')</a></li>';
+	else:
+		$list .=  "\n\t<li class='last'><a href='" . bb_get_option('uri') . "bb-login.php'>" . __('Login') . '</a></li>';
+	endif;
+	$list .= "\n</ul>";
+	echo $list;
 }
 
 function login_form() {
@@ -488,6 +514,19 @@ function get_user_profile_link( $id ) {
 	return bb_apply_filters('get_user_profile_link', $r);
 }
 
+function profile_tab_link( $id, $tab ) {
+	echo bb_apply_filters('profile_tab_link', get_profile_tab_link( $id, $tab ));
+}
+
+function get_profile_tab_link( $id, $tab ) {
+	$tab = tag_sanitize($tab);
+	if ( bb_get_option('mod_rewrite') )
+		$r = get_user_profile_link( $id ) . "/$tab";
+	else
+		$r = bb_add_query_arg('tab', $tab, get_user_profile_link( $id ));
+	return bb_apply_filters('get_profile_tab_link', $r);
+}
+
 function get_user_link( $user_id ) {
 	global $bbdb;
 	if ( $user_id )
@@ -528,6 +567,8 @@ function get_user_type ( $id ) {
 function user_type( $id ) {
 	echo bb_apply_filters('user_type', get_user_type($id) );
 }
+
+
 
 //TAGS
 function topic_tags () {
@@ -661,12 +702,8 @@ function favorites_link() {
 }
 
 function get_favorites_link() {
-	if ( bb_get_option('mod_rewrite') ) {
-		$r = bb_get_option('uri') . 'favorites/';
-	} else {
-		$r = bb_get_option('uri') . 'favorites.php';
-	}
-	return bb_apply_filters('get_favorites_link', $r);
+	global $current_user;
+	return bb_apply_filters('get_favorites_link', get_profile_tab_link($current_user->ID, 'favorites'));
 }
 
 function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites') {

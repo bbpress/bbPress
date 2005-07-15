@@ -1,14 +1,15 @@
 <?php get_header(); ?>
+<?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
 <h2><?php echo $user->user_login; ?></h2>
 
 <?php if ( $updated ) : ?>
 <div class="notice">
-<p>Profile updated. <a href="<?php option('uri'); ?>profile-edit.php">Edit again &raquo;</a></p>
+<p>Profile updated. <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>">Edit again &raquo;</a></p>
 </div>
 <?php elseif ( can_edit( $user_id ) ) : ?>
-<p>This is how your profile appears to a fellow logged in member, you may <a href="<?php option('uri'); ?>profile-edit.php">edit this information</a>.
+<p>This is how your profile appears to a fellow logged in member, you may <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>">edit this information</a>.
 You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and subscribe to your favorites' <a href="<?php favorites_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
 <?php endif; ?>
 

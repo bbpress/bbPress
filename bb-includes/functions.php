@@ -966,13 +966,26 @@ function bb_repermalink() {
 		global $topic_id;
 		$topic_id = $permalink;
 		$permalink = get_topic_link( $permalink );
-	} elseif ( is_bb_profile() ) {
-		global $user_id;
+	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
+		global $user_id, $profile_hooks, $self, $tab;
 		$user_id = $permalink;
-		$permalink = get_user_profile_link( $permalink );
+		global_profile_menu_structure();
+		$valid = false;
+		if ( $tab = $_GET['tab'] ? $_GET['tab'] : get_path(2) )
+			foreach ( $profile_hooks as $valid_file => $valid_tab )
+				if ( $tab == $valid_tab ) {
+					$valid = true;
+					$self = $valid_file;
+				}
+		if ( $valid ) :
+			$permalink = get_profile_tab_link( $permalink, $tab );
+		else :
+			$permalink = get_user_profile_link( $permalink );
+			unset($self, $tab);
+		endif;
 	} elseif ( is_bb_favorites() ) {
 		$permalink = get_favorites_link();
-	} elseif ( is_tag() ) {  //  This is the only tricky one.  It's not an integer and tags.php pulls double duty.
+	} elseif ( is_tag() ) {  // It's not an integer and tags.php pulls double duty.
 		$permalink = $_GET['tag'];
 		if ( !$permalink )
 			$permalink = get_path();
@@ -983,13 +996,13 @@ function bb_repermalink() {
 			$tag_name = $permalink;
 			$permalink = get_tag_link( $permalink );
 		}
-	}
+	} else { return; }
 
 	parse_str($_SERVER['QUERY_STRING'], $args);
 	if ( $args ) {
 		$permalink = bb_add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
-				$pretty_args = array('id', 'tag'); // these are already specified in the path
+				$pretty_args = array('id', 'tag', 'tab'); // these are already specified in the path
 				foreach( $pretty_args as $arg )
 					$permalink = bb_remove_query_arg($arg, $permalink);
 			}
@@ -1034,5 +1047,47 @@ function _e($e) {
 
 function __($e) {
 	return $e;
+}
+
+// Profile/Admin
+function global_profile_menu_structure() {
+	global $current_user, $user_id, $profile_menu, $profile_hooks;
+	// Menu item name
+	// The minimum type the user needs to access the item (-1 to allow non logged in access)
+	// What other users can see this users tab
+	// The URL of the item's file
+	$profile_menu[0] = array(__('Edit'), 0, 5, 'profile-edit.php');
+	$profile_menu[5] = array(__('Favorites'), 0, 2, 'favorites.php');
+	$profile_menu[10] = array(__('Plugins'), 5, 5, 'bb-admin/plugins.php');
+
+	// Create list of page plugin hook names the current user can access
+	foreach ($profile_menu as $profile_tab)
+		if ( can_access_tab( $profile_tab, $current_user->ID, $user_id ) )
+			$profile_hooks[$profile_tab[3]] = tag_sanitize($profile_tab[0]);
+
+	bb_do_action('bb_profile_menu','');
+	ksort($profile_menu);
+}
+
+function add_profile_tab($tab_title, $access_level, $other_level, $file) {
+	global $profile_menu, $profile_hooks, $current_user, $user_id;
+
+	$profile_tab = array($tab_title, $access_level, $other_level, $file);
+	$profile_menu[] = $profile_tab;
+	if ( can_access_tab( $profile_tab, $current_user->ID, $user_id ) )
+		$profile_hooks[$file] = tag_sanitize($tab_title);
+}
+
+function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
+	$viewer_id = (int) $viewer_id;
+	$owner_id = (int) $owner_id;
+	$viewer = bb_get_user( $viewer_id );
+	$owner = bb_get_user( $owner_id );
+	// Is your user_type high enough?
+	$can_access = ( ( $profile_tab[1] <= (int) $viewer->user_type && isset($viewer->user_type) ) || $profile_tab[1] < 0 );
+	// But does it let your kind in?
+	if ( $viewer_id != $owner_id )
+		$can_access = $can_access && ( ( $profile_tab[2] <= (int) $viewer->user_type && isset($viewer->user_type) ) || $profile_tab[2] < 0 );
+	return $can_access;
 }
 ?>

@@ -238,7 +238,6 @@ function user_sanitize( $text ) {
 function tag_sanitize( $tag ) {
 	$tag	= trim         ( $tag );
 	$tag	= strtolower   ( $tag );
-	$tag	= preg_replace ( '/\s/', '', $tag );
 	$tag	= user_sanitize( $tag );
 	return $tag;
 }

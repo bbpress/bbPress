@@ -1,5 +1,5 @@
 <?php
-require('bb-config.php');
+require_once('bb-config.php');
 
 if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) && $current_user ) :
 	nocache_headers();
@@ -33,7 +33,15 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) && $current_user ) :
 	exit;
 endif;
 
-bb_repermalink();
+if( !$current_user ) {
+	$sendto = bb_get_option('uri');
+	header("Location: $sendto");
+}
+
+if ( !is_bb_profile() ) {
+	$sendto = get_profile_tab_link( $current_user->ID, 'favorites' );
+	header("Location: $sendto");
+}
 
 $topics = get_user_favorites( $current_user->ID, true );
 
