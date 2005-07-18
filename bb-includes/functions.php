@@ -1010,8 +1010,12 @@ function bb_repermalink() {
 
 	$check = preg_replace( '|' . trim( bb_get_option('domain'), ' /' ) . '|', '', $permalink, 1 );
 	if ( $check != $uri ) {
-		status_header( 301 );
-		header("Location: $permalink");
+		if ( version_compare(phpversion(), '4.3.0', '>=') ) {
+			header("Location: $permalink", true, 301);
+		} else {
+			header("Location: $permalink");
+			status_header( 301 );
+		}
 		exit;
 	}
 }

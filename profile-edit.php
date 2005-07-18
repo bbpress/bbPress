@@ -1,5 +1,5 @@
 <?php
-require('bb-config.php');
+require_once('bb-config.php');
 
 if ( !$current_user ) {
 	$sendto = bb_get_option('uri');
