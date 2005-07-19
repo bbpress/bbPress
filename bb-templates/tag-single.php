@@ -10,7 +10,7 @@
 
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h2>
 
-<p><a href="<?php tag_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> link for this tag.</a>
+<p><a href="<?php tag_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> link for this tag.</a></p>
 
 <?php bb_do_action('tag_above_table', ''); ?>
 
