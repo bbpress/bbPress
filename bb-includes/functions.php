@@ -396,8 +396,13 @@ function bb_append_user_meta( $user ) {
 		if ( isset( $user_cache[$user->ID] ) )
 			return $user_cache[$user->ID];
 		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $bbdb->usermeta WHERE user_id = '$user->ID'") )
-			foreach ( $metas as $meta )
-				$user->{$meta->meta_key} = $meta->meta_value;
+			foreach ( $metas as $meta ) {
+				$meta->meta_value = stripslashes($meta->meta_value);
+				@ $value = unserialize($meta->meta_value);
+				if ( false === $value )
+					$value = $meta->meta_value;
+				$user->{$meta->meta_key} = $value;
+			}
 		$user_cache[$user->ID] = $user;
 		return $user;
 	}
@@ -416,11 +421,21 @@ function bb_user_exists( $user ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
 }
 
+
 function update_usermeta( $user_id, $meta_key, $meta_value ) {
 	global $bbdb;
-	$user_id = (int) $user_id;
+	if ( !is_numeric( $user_id ) )
+		return false;
 	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+
+	$meta_triple = compact('user_id', 'meta_key', 'meta_value');
+	$meta_triple = bb_apply_filters('update_usermeta', $meta_triple);
+	extract($meta_triple, EXTR_OVERWRITE);
+
+	if ( is_array($meta_value) || is_object($meta_value) )
+		$meta_value = serialize($meta_value);
 	$meta_value = $bbdb->escape( $meta_value );
+
 	$cur = $bbdb->get_row("SELECT * FROM $bbdb->usermeta WHERE user_id = '$user_id' AND meta_key = '$meta_key'");
 	if ( !$cur ) {
 		$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value )
