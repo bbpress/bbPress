@@ -3,6 +3,7 @@ require('bb-config.php');
 
 $topic_id = (int) $_GET['topic'];
 $user_id  = (int) $_GET['profile'];
+$tag      = $_GET['tag'];
 
 if ( !$topic_id )
 	if ( 'topic' == get_path() )
@@ -10,6 +11,9 @@ if ( !$topic_id )
 if ( !$user_id )
 	if ( 'profile' == get_path() )
 		$user_id = get_path(2);
+if ( !$tag )
+	if ( 'tags' == get_path() )
+		$tag = get_path(2);
 
 if ( $topic_id ) {
 	$topic = get_topic ( $topic_id );
@@ -25,6 +29,12 @@ if ( $topic_id ) {
 	if ( !$posts )
 		die();
 	$title = bb_get_option('name') . ' User Favorites: ' . $user->user_login;
+} elseif ( $tag ) {
+	$tag = get_tag_by_name($tag);
+	if ( !$tag )
+		die();
+	$posts = get_tagged_topic_posts( $tag->tag_id, 0, 1 );
+	$title = bb_get_option('name') . ' Tag: ' . get_tag_name();
 } else {
 	$posts = get_latest_posts( 35 );
 	$title = bb_get_option('name') . ': Last 35 Posts';

@@ -10,6 +10,8 @@
 
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h2>
 
+<p><a href="<?php tag_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> link for this tag.</a>
+
 <?php bb_do_action('tag_above_table', ''); ?>
 
 <?php if ( $topics ) : ?>
@@ -32,7 +34,7 @@
 <?php endforeach; ?>
 </table>
 <div class="nav">
-<?php forum_pages(); ?>
+<?php tag_pages(); ?>
 </div>
 <?php endif; ?>
 

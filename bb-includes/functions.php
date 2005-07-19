@@ -49,7 +49,7 @@ function get_post( $post_id ) {
 }
 
 function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
-	global $bbdb, $bb;
+	global $bbdb, $bb, $topic_cache;
 	$where = $limit = '';
 	if ( $forum )
 		$where = "AND forum_id = $forum";
@@ -60,15 +60,21 @@ function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit");
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit");
+	foreach ( $topics as $topic )
+		$topic_cache[$topic->topic_id] = $topic;
+	return $topics;
 }
 
 function get_sticky_topics( $forum = 0, $page = 0 ) {
-	global $bbdb, $bb;
+	global $bbdb, $bb, $topic_cache;
 	$where = '';
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
-	return $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC");
+	$stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC");
+	foreach ( $stickies as $topic )
+		$topic_cache[$topic->topic_id] = $topic;
+	return $stickies;
 }
 
 function get_latest_posts( $num ) {
@@ -89,6 +95,39 @@ function get_user_favorites( $user_id, $list = false ) {
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
 				ORDER BY post_time DESC LIMIT 20");
+}
+
+function get_recent_user_replies( $user_id ) {
+	global $bbdb, $topic_cache, $post_cache, $page;
+	$limit = bb_get_option('page_topics');
+	if ( $page )
+		$limit = ($limit * $page) . ", $limit";
+	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT $limit");
+	if ( $posts ) :
+		foreach ($posts as $post) {
+			$post_cache[$post->post_id] = $post;
+			$topics[] = $post->topic_id;
+		}
+		$topic_ids = join(',', $topics);
+		$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
+		foreach ($topics as $topic)
+			$topic_cache[$topic->topic_id] = $topic;
+		return $posts;
+	else :
+		return false;
+	endif;
+}
+
+function get_recent_user_threads( $user_id ) {
+	global $bbdb, $topic_cache, $page;
+	$limit = bb_get_option('page_topics');
+	if ( $page )
+		$limit = ($limit * $page) . ", $limit";
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_start_time DESC LIMIT $limit");
+	if ( $topics )
+		foreach ( $topics as $topic )
+			$topic_cache[$topic->topic_id] = $topic;
+	return $topics;
 }
 
 //expects $item = 1 to be the first, not 0
@@ -938,6 +977,50 @@ function get_public_tags ( $topic_id ) {
 		endif;
 	endforeach;
 	return $public_tags;
+}
+
+function get_tagged_topic_ids( $tag_id ) {
+	global $bbdb, $tagged_topic_count;
+	$tag_id = (int) $tag_id;
+	if ( $topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' ORDER BY tagged_on DESC") ) {
+		$tagged_topic_count = count($topic_ids);
+		return bb_apply_filters('get_tagged_topic_ids', $topic_ids);
+	} else {
+		$tagged_topic_count = 0;
+		return false;
+	}
+}
+
+function get_tagged_topics( $tag_id, $page = 0, $reverse = 0 ) {
+	global $bbdb, $topic_cache;
+	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
+		return false;
+	$topic_ids = join($topic_ids, ',');
+	$limit = bb_get_option('page_topics');
+	if ( $page )
+		$limit = ($limit * $page) . ", $limit";
+	$order = ($reverse) ? 'DESC' : 'ASC';
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time $order LIMIT $limit") ) {
+		foreach ( $topics as $topic )
+			$topic_cache[$topic->topic_id] = $topic;
+		return $topics;
+	} else { return false; }
+}
+
+function get_tagged_topic_posts( $tag_id, $page = 0, $reverse =0 ) {
+	global $bbdb, $post_cache;
+	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
+		return false;
+	$topic_ids = join($topic_ids, ',');
+	$limit = bb_get_option('page_topics');
+	if ( $page )
+		$limit = ($limit * $page) . ", $limit";
+	$order = ($reverse) ? 'DESC' : 'ASC';
+	if ( $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time $order LIMIT $limit") ) {
+		foreach ( $posts as $post )
+			$post_cache[$post->post_id] = $post;
+		return $posts;
+	} else { return false; }
 }
 
 function bb_find_filename( $text ) { 

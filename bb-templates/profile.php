@@ -45,9 +45,7 @@ echo $USERINFO;
 <h2>User Activity</h2>
 
 <div id="user-replies" class="user-recent"><h3>Recent Replies</h3>
-<?php 
-if ( $posts ) :
-?>
+<?php if ( $posts ) : $another_page = true; ?>
 <ol>
 <?php foreach ($posts as $post) : $topic = get_topic( $post->topic_id ) ?>
 <li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php post_time(); ?> ago.
@@ -63,14 +61,16 @@ if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
 </li>
 <?php endforeach; ?>
 </ol>
+<?php else : $another_page = false; if ( $page ) : ?>
+<p>No more replies.</p>
 <?php else : ?>
 <p>No replies yet.</p>
-<?php endif; ?>
+<?php endif; endif; ?>
 </div>
 
 <div id="user-threads" class="user-recent">
 <h3>Threads Started</h3>
-<?php if ( $threads ) : ?>
+<?php if ( $threads ) : $another_page = true; ?>
 <ol>
 <?php foreach ($threads as $topic) : ?>
 <li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> Started: <?php topic_start_time(); ?> ago.
@@ -86,9 +86,16 @@ if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
 </li>
 <?php endforeach; ?>
 </ol>
+<?php else : $another_page = $another_page || false; if ( $page ) : ?>
+<p>No more topics posted.</p>
 <?php else : ?>
 <p>No topics posted yet.</p>
-<?php endif; ?>
+<?php endif; endif;?>
 </div><br style="clear: both;" />
 
+<?php if ( $page > 0 ) : ?>
+<a class="prev" href="<?php echo bb_specialchars(bb_add_query_arg('page', $page - 1)); ?>">&laquo; Previous Page</a>
+<?php endif; if ( $another_page ) :?>
+<a class="next" href="<?php echo bb_specialchars(bb_add_query_arg('page', $page + 1)); ?>">Next Page &raquo;</a>
+<?php endif; ?>
 <?php get_footer(); ?>

@@ -1,6 +1,8 @@
 <?php
 require_once('bb-config.php');
 
+$page = (int) $_GET['page'];
+
 bb_repermalink();
 
 // Temporary, refactor this!
@@ -10,10 +12,7 @@ if ( !$tag && $tag_name )
 
 if ( $tag_name && $tag ) :
 
-if ($topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag->tag_id' ORDER BY tagged_on DESC LIMIT 30")) {
-	$topic_ids = join( $topic_ids, ',' );
-	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC");
-}
+$topics = get_tagged_topics($tag->tag_id, $page);
 
 include('bb-templates/tag-single.php');
 

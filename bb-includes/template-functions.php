@@ -212,7 +212,7 @@ function topic_link( $id = 0 ) {
 }
 
 function topic_rss_link( $id = 0 ) {
-	echo bb_apply_filters('topic_link', get_topic_rss_link($id) );
+	echo bb_apply_filters('topic_rss_link', get_topic_rss_link($id) );
 }
 
 function get_topic_rss_link( $id = 0 ) {
@@ -353,19 +353,23 @@ function get_topic_resolved( $id = 0 ) {
 
 function topic_pages() {
 	global $topic, $page;
+	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts ) );
+}
+
+function get_page_number_links($page, $total) {
 	$r = '';
 	if ( $page )
 		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-	if ( ( $total_pages = ceil( $topic->topic_posts /bb_get_option('page_topics') ) ) > 1 ) {
+	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
 		while ( $page_num < $total_pages )
 			if ( $page == $page_num )
 				$r .= ' ' . ++$page_num;
 			else
 				$r .= ' <a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ++$page_num . '</a>';
 	}
-	if ( ( $page + 1 ) * bb_get_option('page_topics') < $topic->topic_posts )
+	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total )
 		$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
-	echo bb_apply_filters('forum_pages', $r);
+	return $r;
 }
 
 // POSTS
@@ -568,8 +572,6 @@ function user_type( $id ) {
 	echo bb_apply_filters('user_type', get_user_type($id) );
 }
 
-
-
 //TAGS
 function topic_tags () {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user;
@@ -610,6 +612,23 @@ function get_tag_name( $id = 0 ) {
 
 function tag_name( $id = 0 ) {
 	echo get_tag_name( $id );
+}
+
+function tag_rss_link( $id = 0 ) {
+	echo bb_apply_filters('tag_rss_link', get_tag_rss_link($id) );
+}
+
+function get_tag_rss_link( $tag_id = 0 ) {
+	global $tag;
+	if ( $tag_id )
+		$tag = get_tag( $tag_id );
+
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . "rss/tags/$tag->tag";
+	else
+		$link = bb_get_option('uri') . "rss.php?tag=$tag->tag";
+
+	return bb_apply_filters('get_tag_rss_link', $link);
 }
 
 function tag_form() {
@@ -684,6 +703,11 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 		print "<a href='$taglink' title='$count topics' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}
+}
+
+function tag_pages() {
+	global $page, $tagged_topic_count;
+	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $tagged_topic_count ) );
 }
 
 function forum_dropdown() {
