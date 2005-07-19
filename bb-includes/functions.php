@@ -60,21 +60,23 @@ function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit");
-	foreach ( $topics as $topic )
-		$topic_cache[$topic->topic_id] = $topic;
-	return $topics;
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit") ) {
+		foreach ( $topics as $topic )
+			$topic_cache[$topic->topic_id] = $topic;
+		return $topics;
+	} else { return false; }
 }
 
-function get_sticky_topics( $forum = 0, $page = 0 ) {
+function get_sticky_topics( $forum = 0 ) {
 	global $bbdb, $bb, $topic_cache;
 	$where = '';
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
-	$stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC");
-	foreach ( $stickies as $topic )
-		$topic_cache[$topic->topic_id] = $topic;
-	return $stickies;
+	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC") ) {
+		foreach ( $stickies as $topic )
+			$topic_cache[$topic->topic_id] = $topic;
+		return $stickies;
+	} else { return false; }
 }
 
 function get_latest_posts( $num ) {
