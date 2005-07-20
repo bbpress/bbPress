@@ -33,7 +33,7 @@ if ( $topic_id ) {
 	$tag = get_tag_by_name($tag);
 	if ( !$tag )
 		die();
-	$posts = get_tagged_topic_posts( $tag->tag_id, 0, 1 );
+	$posts = get_tagged_topic_posts( $tag->tag_id, 0 );
 	$title = bb_get_option('name') . ' Tag: ' . get_tag_name();
 } else {
 	$posts = get_latest_posts( 35 );

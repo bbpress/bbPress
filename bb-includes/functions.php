@@ -1008,7 +1008,7 @@ function get_tagged_topic_ids( $tag_id ) {
 	}
 }
 
-function get_tagged_topics( $tag_id, $page = 0, $reverse = 0 ) {
+function get_tagged_topics( $tag_id, $page = 0 ) {
 	global $bbdb, $topic_cache;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
@@ -1016,15 +1016,14 @@ function get_tagged_topics( $tag_id, $page = 0, $reverse = 0 ) {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	$order = ($reverse) ? 'DESC' : 'ASC';
-	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time $order LIMIT $limit") ) {
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit") ) {
 		foreach ( $topics as $topic )
 			$topic_cache[$topic->topic_id] = $topic;
 		return $topics;
 	} else { return false; }
 }
 
-function get_tagged_topic_posts( $tag_id, $page = 0, $reverse =0 ) {
+function get_tagged_topic_posts( $tag_id, $page = 0 ) {
 	global $bbdb, $post_cache;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
@@ -1032,8 +1031,7 @@ function get_tagged_topic_posts( $tag_id, $page = 0, $reverse =0 ) {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	$order = ($reverse) ? 'DESC' : 'ASC';
-	if ( $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time $order LIMIT $limit") ) {
+	if ( $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time DESC LIMIT $limit") ) {
 		foreach ( $posts as $post )
 			$post_cache[$post->post_id] = $post;
 		return $posts;
