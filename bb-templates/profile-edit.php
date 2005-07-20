@@ -3,25 +3,23 @@
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Edit Profile</h3>
 <h2><?php echo $user->user_login; ?></h2>
-<form method="post" action="<?php option('uri'); ?>profile-edit.php">
+<form method="post" action="<?php profile_tab_link($user->ID, 'edit');  ?>">
 <fieldset>
-<legend>Optional Profile Info</legend>
+<legend>Profile Info</legend>
 <table width="100%">
-<tr>
-  <th width="33%" scope="row">Website:</th>
-  <td><input name="url" type="text" id="url" size="30" maxlength="100" value="<?php echo $current_user->user_url; ?>" /></td>
+<?php foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $current_user->ID == $user_id ) : ?>
+<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
+  <th scope="row"><?php echo $label[1]; ?>:</th>
+  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /></td>
 </tr>
-<tr>
-  <th scope="row">Location:</th>
-  <td><input name="location" type="text" id="location" size="30" maxlength="100" value="<?php echo $current_user->from; ?>" /></td>
-</tr>
-<tr>
-  <th scope="row">Interests</th>
-  <td><input name="interests" type="text" id="interests" size="30" maxlength="100" value="<?php echo $current_user->interest; ?>" /></td>
-</tr>
+<?php endif; endforeach; ?>
 </table>
+<?php if ( $required ) : ?>
+<p><sup>*</sup>These items are <span class="required">required</span>.</p>
+<?php endif; ?>
 </fieldset>
 
+<?php if ( $current_user->ID == $user->ID ) : ?>
 <fieldset>
 <legend>Password</legend>
 <p>If you wish to update your password, you may enter a new password twice below:</p>
@@ -36,6 +34,7 @@
 </tr>
 </table>
 </fieldset>
+<?php endif; ?>
 <p class="submit">
   <input type="submit" name="Submit" value="Update Profile &raquo;" />
 </p>

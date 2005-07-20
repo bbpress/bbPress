@@ -7,53 +7,31 @@
 <?php if ( !$current_user ) : ?>
 <form method="post" action="<?php option('uri'); ?>register.php">
 <fieldset>
-<legend>Required</legend>
+<legend>Profile Information</legend>
+<p>A password will be mailed to the email address you provide. Make sure to whitelist our domain (<?php echo $bb->domain; ?>) so the confirmation email doesn't get caught by any  filters. </p>
 <table width="100%">
-<?php if ( $user_safe ) : ?>
-<tr>
-<th width="33%" scope="row">Username:</th>
-<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (1 != $user_login) echo $user_login; ?>" /></td>
-</tr>
-<?php else : ?>
+<?php if ( $user_safe === false ) : ?>
 <tr class="error">
-<th width="33%" scope="row">Username:</th>
+<th scope="row">Username:</th>
 <td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" /><br />
 Your username was not valid, please try again</td>
 </tr>
-<?php endif; ?>
-
-<?php if ( $email ) : ?>
-<tr>
-<th scope="row">Email:</th>
-<td><input name="email" type="text" id="email" size="30" maxlength="140" value="<?php if (1 != $email) echo $email; ?>" /></td>
-</tr>
 <?php else : ?>
-<tr>
-<th scope="row">Email:</th>
-<td><input name="email" type="text" id="email" size="30" maxlength="140" /> <br />
-There was a problem with your email, please check it.</td>
+<tr class="required">
+<th scope="row">Username<sup>*</sup>:</th>
+<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (1 != $user_login) echo $user_login; ?>" /></td>
 </tr>
 <?php endif; ?>
+<?php foreach ( $profile_info_keys as $key => $label ) : ?>
+<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; } ?>>
+  <th scope="row"><?php echo $label[1]; ?>:</th>
+  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" /><?php if ( $key == 'user_email' && $user_email === false ) _e('<br />There was a problem with your email; please check it.'); ?></td>
+</tr>
+<?php endforeach; ?>
 </table>
-<p>A password will be mailed to the email address you provide. Make sure to whitelist our domain (<?php echo $bb->domain; ?>) so the confirmation email doesn't get caught by any  filters. </p>
+<p><sup>*</sup>These items are <span class="required">required</span>.</p>
 </fieldset>
-<fieldset>
-<legend>Optional Profile Info</legend>
-<table width="100%">
-<tr>
-  <th width="33%" scope="row">Website:</th>
-  <td><input name="url" type="text" id="url" size="30" maxlength="100" value="<?php if (1 != $url) echo $url; ?>" /></td>
-</tr>
-<tr>
-  <th scope="row">Location:</th>
-  <td><input name="location" type="text" id="location" size="30" maxlength="100" value="<?php if (1 != $location) echo $location; ?>" /></td>
-</tr>
-<tr>
-  <th scope="row">Interests</th>
-  <td><input name="interests" type="text" id="interests" size="30" maxlength="100" value="<?php if (1 != $interests) echo $interests; ?>" /></td>
-</tr>
-</table>
-</fieldset>
+
 <p class="submit">
   <input type="submit" name="Submit" value="Register &raquo;" />
 </p>

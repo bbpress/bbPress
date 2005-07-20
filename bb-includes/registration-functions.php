@@ -16,23 +16,18 @@ function bb_verify_email( $email ) {
 	return false;
 }
 
-function bb_new_user( $user_login, $email, $url, $location, $interests ) {
+function bb_new_user( $user_login, $email, $url ) {
 	global $bbdb;
 	$now       = bb_current_time('mysql');
 	$password  = bb_random_pass();
 	$passcrypt = md5( $password );
 
 	$bbdb->query("INSERT INTO $bbdb->users
-	(user_login,     user_pass,    user_email, user_url, user_registered)
+	(user_login,     user_pass, user_email,  user_url, user_registered)
 	VALUES
-	('$user_login', '$passcrypt', '$email',   '$url', '$now')");
+	('$user_login', '$passcrypt', '$email', '$url',   '$now')");
 	
 	$user_id = $bbdb->insert_id;
-
-	if ( isset( $location ) )
-		update_usermeta( $user_id, 'from', $location );
-	if ( isset( $interests ) )
-		update_usermeta( $user_id, 'interest', $interests );
 
 	if ( defined( 'BB_INSTALLING' ) ) {
 		update_usermeta( $user_id, 'user_type', 5 );
@@ -46,16 +41,14 @@ function bb_new_user( $user_login, $email, $url, $location, $interests ) {
 	}
 }
 
-function bb_update_user( $user_id, $url, $location, $interests ) {
+function bb_update_user( $user_id, $email, $url ) {
 	global $bbdb;
 
 	$bbdb->query("UPDATE $bbdb->users SET
-	user_url  = '$url'
-	WHERE ID = '$user_id'
+	user_email = '$email',
+	user_url   = '$url'
+	WHERE ID   = '$user_id'
 	");
-
-	update_usermeta( $user_id, 'from', $location );
-	update_usermeta( $user_id, 'interest', $interests );
 
 	bb_do_action('bb_update_user', $user_id);
 	return $user_id;

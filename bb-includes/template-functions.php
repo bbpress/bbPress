@@ -439,7 +439,7 @@ function get_post_ip() {
 }
 
 function post_ip() {
-	if ( can_edit( get_post_author_id() ) )
+	if ( can_moderate( get_post_author_id() ) )
 		echo bb_apply_filters('post_ip', get_post_ip() );
 }
 

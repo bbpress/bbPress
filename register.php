@@ -3,22 +3,31 @@ require('bb-config.php');
 
 require_once( BBPATH . 'bb-includes/registration-functions.php');
 
-$user_login = $user_safe = $email = $url = $location = $interests = true;
+$profile_info_keys = get_profile_info_keys();
+
+$user_login = $user_safe = true;
 
 if ($_POST) :
 	$user_login = user_sanitize  ( $_POST['user_login'] );
-	$email    = bb_verify_email( $_POST['email']    );
-	
-	$url       = bb_fix_link( $_POST['url'] );
-	$url       = bb_specialchars( $url                , 1);
-	$location  = bb_specialchars( $_POST['location']  , 1);
-	$interests = bb_specialchars( $_POST['interests'] , 1);
-	
+	$user_email = bb_verify_email( $_POST['user_email'] );
+	$user_url   = bb_fix_link( $_POST['user_url'] );
+
+	foreach ( $profile_info_keys as $key => $label ) :
+		if ( is_string($$key) ) :
+			$$key = bb_specialchars( $$key, 1 );
+		elseif ( is_null($$key) ) :
+			$$key = bb_specialchars( $_POST[$key], 1 );
+		endif;
+	endforeach;
+
 	if ( empty($user_login) || bb_user_exists($user_login) )
 		$user_safe = false;
 	
-	if ( $user_login && $user_safe && $email ) {
-		bb_new_user( $user_login, $email, $url, $location, $interests );
+	if ( $user_login && $user_safe && $user_email ) {
+		$user_id = bb_new_user( $user_login, $user_email, $user_url );
+		foreach( $profile_info_keys as $key => $label )
+			if ( strpos($key, 'user_') !== 0 && $$key != '' )
+				update_usermeta( $user_id, $key, $$key );
 		require( BBPATH . 'bb-templates/register-success.php');
 		exit();	
 	}
@@ -26,7 +35,7 @@ endif;
 
 if ( isset( $_GET['user'] ) )
 	$user_login = user_sanitize( $_GET['user'] ) ;
-else
+elseif ( isset( $_POST['user_login'] ) && !is_string($user_login) )
 	$user_login = '';
 
 require( BBPATH . 'bb-templates/register.php');

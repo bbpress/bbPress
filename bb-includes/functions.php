@@ -383,12 +383,16 @@ function bb_get_user( $user_id ) {
 	if ( !is_numeric( $user_id ) )
 		die('bb_get_user needs a numeric ID');
 	$user_id = (int) $user_id;
-	if ( isset( $user_cache[$user_id] ) ) {
+	if ( isset( $user_cache[$user_id] ) ) :
 		return $user_cache[$user_id];
-	} else {
-		$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;");
-		return bb_append_user_meta( $user );
-	}
+	else :
+		if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;") ) :
+			return bb_append_user_meta( $user );
+		else :
+			$user_cache[$user_id] = false;
+			return false;
+		endif;
+	endif;
 }
 
 // This is the only function that should add to $user_cache
@@ -634,14 +638,17 @@ function update_post_positions( $topic_id ) {
 	}
 }
 
-function can_edit( $user_id, $admin_id = 0) {
-	global $bbdb, $current_user;
-	if ( empty($current_user) )
+function can_moderate( $user_id, $admin_id = 0) {
+	global $current_user;
+	if ( !$admin_id ) :
+		if ( $current_user ) : $admin_id = (int) $current_user->ID;
+		else : return false;
+		endif;
+	endif;
+	if ( !$admin = bb_get_user( $admin_id ) )
 		return false;
-	if ( !$admin_id )
-		$admin_id = (int) $current_user->ID;
-	$admin = bb_get_user( $admin_id );
-	$user  = bb_get_user( $user_id  );
+	if ( !$user  = bb_get_user( $user_id  ) )
+		return false;
 
 	if ( $admin_id == $user_id )
 		return true;
@@ -650,6 +657,24 @@ function can_edit( $user_id, $admin_id = 0) {
 		return true;
 	else
 		return false;
+}
+
+function can_admin( $user_id, $admin_id = 0 ) {
+	global $current_user;
+	if ( !$admin_id ) :
+		if ( $current_user ) : $admin_id = (int) $current_user->ID;
+		else : return false;
+		endif;
+	endif;
+	if ( !$admin = bb_get_user( $admin_id ) )
+		return false;
+	if ( !$user  = bb_get_user( $user_id  ) )
+		return false;
+
+	if ( 5 == $admin->user_type || $admin_id == $user_id )
+		return true;
+
+	return false;
 }
 
 function can_delete( $user_id, $admin_id = 0) {
@@ -1191,5 +1216,13 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	if ( $viewer_id != $owner_id )
 		$can_access = $can_access && ( ( $profile_tab[2] <= (int) $viewer->user_type && isset($viewer->user_type) ) || $profile_tab[2] < 0 );
 	return $can_access;
+}
+
+//meta_key => (required?, Label).  Don't use user_{anything} as the name of your meta_key.
+function get_profile_info_keys() {
+	return bb_apply_filters(
+		'get_profile_info_keys',
+		array('user_email' => array(1, __('Email')), 'user_url' => array(0, __('Website')), 'from' => array(0, __('Location')), 'interest' => array(0, __('Interests')))
+	);
 }
 ?>
