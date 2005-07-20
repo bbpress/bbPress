@@ -150,9 +150,9 @@ function get_forum_link( $id = 0 ) {
 	if ( $id )
 		$forum = get_forum( $id );
 	if ( $bb->mod_rewrite )
-		$link = $bb->path . 'forum/' . $forum->forum_id;
+		$link = bb_get_option('uri') . 'forum/' . $forum->forum_id;
 	else
-		$link = $bb->path . "forum.php?id=$forum->forum_id";
+		$link = bb_get_option('uri') . "forum.php?id=$forum->forum_id";
 
 	return bb_apply_filters('get_forum_link', $link);
 }
