@@ -8,8 +8,8 @@ define('DB_HOST', 'localhost');     // 99% chance you won't need to change this 
 // Change the prefix if you want to have multiple forums in a single database.
 $table_prefix  = 'bb_';
 
-$bb->domain = 'http://bbpress.example.com';
-$bb->path   = '/support/';
+$bb->domain = 'http://bbpress.example.com';	// There should be no trailing slash here.
+$bb->path   = '/support/';			// There should be both a leading and trailing slash here. '/' is fine.
 $bb->name   = 'New bbPress Site';
 
 $bb->admin_email = 'you@example.com';
