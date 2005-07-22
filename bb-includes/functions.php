@@ -1229,7 +1229,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 function get_profile_info_keys() {
 	return bb_apply_filters(
 		'get_profile_info_keys',
-		array('user_email' => array(1, __('Email')), 'user_url' => array(0, __('Website')), 'from' => array(0, __('Location')), 'interest' => array(0, __('Interests')))
+		array('user_email' => array(1, __('Email')), 'user_url' => array(0, __('Website')), 'from' => array(0, __('Location')), 'occ' => array(0, __('Occupation')), 'interest' => array(0, __('Interests')))
 	);
 }
 ?>
