@@ -395,6 +395,13 @@ function bb_get_user( $user_id ) {
 	endif;
 }
 
+function bb_get_user_by_name( $name ) {
+	global $bbdb;
+	$name    = user_sanitize( $name );
+	$user_id =  $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_login = '$name'");
+	return bb_get_user( $user_id );
+}
+
 // This is the only function that should add to $user_cache
 function bb_append_user_meta( $user ) {
 	global $bbdb, $user_cache;
