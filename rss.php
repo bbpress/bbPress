@@ -18,6 +18,7 @@ if ( !$tag )
 $rss_override = false;
 bb_do_action( 'bb_rss.php', '' );
 
+if ( !$rss_override ) :
 if ( $topic_id ) {
 	$topic = get_topic ( $topic_id );
 	if ( !$topic )
@@ -38,10 +39,11 @@ if ( $topic_id ) {
 		die();
 	$posts = get_tagged_topic_posts( $tag->tag_id, 0 );
 	$title = bb_get_option('name') . ' Tag: ' . get_tag_name();
-} elseif ( !$rss_override ) {
+} else {
 	$posts = get_latest_posts( 35 );
 	$title = bb_get_option('name') . ': Last 35 Posts';
 }
+endif;
 
 require_once( BBPATH . 'bb-includes/feed-functions.php');
 
