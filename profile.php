@@ -9,7 +9,7 @@ if ( isset($_GET['username']) ) :
 	exit;
 endif;
 
-$page = (int) $_GET['page'];
+$page = (int) abs( $_GET['page'] );
 
 bb_repermalink(); // The magic happens here.
 

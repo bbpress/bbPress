@@ -1,7 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-$page = (int) $_GET['page'];
+$page = (int) abs( $_GET['page'] );
 
 bb_repermalink();
 

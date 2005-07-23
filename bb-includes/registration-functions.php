@@ -17,7 +17,7 @@ function bb_verify_email( $email ) {
 }
 
 function bb_new_user( $user_login, $email, $url ) {
-	global $bbdb;
+	global $bbdb, $table_prefix;
 	$now       = bb_current_time('mysql');
 	$password  = bb_random_pass();
 	$passcrypt = md5( $password );
@@ -30,11 +30,11 @@ function bb_new_user( $user_login, $email, $url ) {
 	$user_id = $bbdb->insert_id;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		update_usermeta( $user_id, 'user_type', 5 );
+		update_usermeta( $user_id, $table_prefix . 'user_type', 5 );
 		bb_do_action('bb_new_user', $user_id);
 		return $password;
 	} else {		
-		update_usermeta( $user_id, 'user_type', 0 );
+		update_usermeta( $user_id, $table_prefix . 'user_type', 0 );
 		bb_send_pass( $user_id, $password );
 		bb_do_action('bb_new_user', $user_id);
 		return $user_id;

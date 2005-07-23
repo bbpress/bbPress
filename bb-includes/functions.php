@@ -402,7 +402,7 @@ function bb_get_user_by_name( $name ) {
 
 // This is the only function that should add to ${user|topic}_cache
 function bb_append_meta( $object, $type ) {
-	global $bbdb, ${$type . '_cache'};
+	global $bbdb, $table_prefix, ${$type . '_cache'};
 	switch ( $type ) :
 	case 'user' :
 		$table = $bbdb->usermeta;
@@ -421,13 +421,19 @@ function bb_append_meta( $object, $type ) {
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
 			foreach( $metas as $meta )
 				$trans[$meta->$field]->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
-		foreach ( array_keys($trans) as $i )
-				${$type . '_cache'}[$i] = $trans[$i];
+		foreach ( array_keys($trans) as $i ) {
+			if ( isset($trans[$i]->{$table_prefix . 'user_type'}) ) :
+				$trans[$i]->user_type = $trans[$i]->{$table_prefix . 'user_type'};
+			endif;
+			${$type . '_cache'}[$i] = $trans[$i];
+		}
 		return $object;
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $table WHERE $field = '{$object->$id}'") )
 			foreach ( $metas as $meta )
 				$object->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+		if ( isset($object->{$table_prefix . 'user_type'}) )
+			$object->user_type = $object->{$table_prefix . 'user_type'};
 		${$type . '_cache'}[$object->$id] = $object;
 		return $object;
 	endif;

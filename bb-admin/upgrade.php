@@ -98,6 +98,11 @@ require_once('upgrade-schema.php');
 upgrade_130();
 */
 
+//'user_type' -> $table_prefix . 'user_type': July23rd, 2005
+/*
+upgrade_140();
+*/
+
 //alter user table column names
 function upgrade_100() {
 	global $bbdb, $table_prefix;
@@ -127,7 +132,7 @@ function upgrade_110() {
 		foreach ( $old_user_fields as $field )
 			if ( isset( $user->{'user_' . $field} ) && $user->{'user_' . $field} !== '' )
 				if ( 'type' == $field )
-					update_usermeta( $user->ID, 'user_type', $user->user_type );
+					update_usermeta( $user->ID, $table_prefix . 'user_type', $user->user_type );
 				else
 					update_usermeta( $user->ID, $field, $user->{'user_' . $field} );
 	endforeach;
@@ -160,6 +165,13 @@ function upgrade_130() {
 	if ( $topics = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics") )
 		foreach ( $topics as $topic_id )
 			update_post_positions( $topic_id );
+}
+
+//user_type conversion
+function upgrade_140() {
+	global $bbdb, $table_prefix;
+	$newkey = $table_prefix . 'user_type';
+	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'user_type'");
 }
 
 function deslash($content) {
