@@ -679,14 +679,14 @@ function get_post_link( $post_id ) {
 		$post = get_post( $post_id );
 	$page = get_page_number( $post->post_position );
 	if ( $page )
-		return bb_add_query_arg( 'page', $page, get_topic_link( $post->topic_id ) . "#post-$post->post_id");
+		return bb_apply_filters( 'get_post_link', bb_add_query_arg( 'page', $page, get_topic_link( $post->topic_id ) . "#post-$post->post_id") );
 	else
-		return get_topic_link( $post->topic_id ) . "#post-$post->post_id";
+		return bb_apply_filters( 'get_post_link', get_topic_link( $post->topic_id ) . "#post-$post->post_id" );
 }
 
 function post_link() {
 	global $post;
-	echo get_post_link( $post->post_id );
+	echo bb_apply_filters( 'post_link', get_post_link( $post->post_id ) );
 }
 
 function update_post_positions( $topic_id ) {
