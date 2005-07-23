@@ -471,17 +471,16 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 	case 'user' :
 		$table = $bbdb->usermeta;
 		$field = 'user_id';
-		$id = 'ID';
 		break;
 	case 'topic' :
 		$table = $bbdb->topicmeta;
-		$field = $id = 'topic_id';
+		$field = 'topic_id';
 		break;
 	endswitch;
 
 	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
 
-	$meta_tuple = compact('user_id', 'meta_key', 'meta_value', 'type');
+	$meta_tuple = compact('type_id', 'meta_key', 'meta_value', 'type');
 	$meta_tuple = bb_apply_filters('bb_update_meta', $meta_tuple);
 	extract($meta_tuple, EXTR_OVERWRITE);
 
