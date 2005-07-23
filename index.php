@@ -7,6 +7,8 @@ $forums = get_forums();
 
 $topics = get_latest_topics();
 
+bb_do_action( 'bb_index.php', '' );
+
 include('bb-templates/front-page.php');
 
 ?>

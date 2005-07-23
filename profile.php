@@ -40,6 +40,8 @@ bb_remove_filter('post_time', 'bb_offset_time');
 bb_add_filter('post_time', 'strtotime');
 bb_add_filter('post_time', 'bb_since');
 
+bb_do_action( 'bb_profile.php', $user_id );
+
 require('bb-templates/profile.php');
 
 ?>

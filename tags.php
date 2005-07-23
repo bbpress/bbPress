@@ -12,13 +12,14 @@ if ( !$tag && $tag_name )
 
 if ( $tag_name && $tag ) :
 
-$topics = get_tagged_topics($tag->tag_id, $page);
-
-include('bb-templates/tag-single.php');
+	$topics = get_tagged_topics($tag->tag_id, $page);
+	bb_do_action( 'bb_tag-single.php', $tag->tag_id );
+	include('bb-templates/tag-single.php');
 
 else :
 
-include('bb-templates/tags.php');
+	bb_do_action( 'bb_tags.php', '' );
+	include('bb-templates/tags.php');
 
 endif;
 ?>

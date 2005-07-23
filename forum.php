@@ -15,6 +15,8 @@ if ( !$forum )
 $topics   = get_latest_topics( $forum_id, $page );
 $stickies = get_sticky_topics( $forum_id );
 
+bb_do_action( 'bb_forum.php', $forum_id );
+
 include('bb-templates/forum.php');
 
 ?>

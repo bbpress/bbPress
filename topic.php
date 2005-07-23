@@ -29,6 +29,8 @@ $list_start = $page * bb_get_option('page_topics') + 1;
 
 post_author_cache($posts);
 
+bb_do_action( 'bb_topic.php', $topic_id );
+
 include('bb-templates/topic.php');
 
 ?>
