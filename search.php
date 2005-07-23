@@ -9,13 +9,11 @@ if ( !empty( $q ) ) :
 if ( strlen( preg_replace('/[^a-z0-9]/i', '', $q) ) > 2 ) {
 	$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE user_login LIKE ('%$likeit%')");
 	if ( $users )
-		foreach ( $users as $user )
-			bb_append_user_meta( $user );
+		bb_append_meta( $users, 'user' );
 }
 
+//Not appending topicmeta to titles at the moment!
 $titles = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY topic_time DESC LIMIT 5");
-foreach ( $titles as $topic )
-	$topic_cache[$topic->topic_id] = $topic;
 
 $recent = $bbdb->get_results("SELECT $bbdb->posts.*, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
 				WHERE LOWER(post_text) LIKE ('%$likeit%') AND post_status = 0 AND topic_status = 0
@@ -43,10 +41,8 @@ endif;
 
 if ( $recent || $relevant ) :
 	$topic_ids = join(',', $topic_ids);
-	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
-	foreach ($topics as $topic) :
-		$topic_cache[$topic->topic_id] = $topic;
-	endforeach;
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)") )
+		$topics = bb_append_meta( $topics, 'topic' );
 endif;
 
 endif;

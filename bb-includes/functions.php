@@ -14,9 +14,12 @@ function get_forum( $id ) {
 function get_topic( $id ) {
 	global $topic_cache, $bbdb;
 	$id = (int) $id;
-	if ( !isset( $topic_cache[$id] ) )
-		$topic_cache[$id] = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id AND topic_status = 0");
-	return $topic_cache[$id];
+	if ( isset( $topic_cache[$id] ) ) :
+		return $topic_cache[$id];
+	else :
+		$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id AND topic_status = 0");
+		return bb_append_meta( $topic, 'topic' );
+	endif;
 }
 
 function get_thread( $topic_id, $page = 0, $reverse = 0 ) {
@@ -51,7 +54,7 @@ function get_post( $post_id ) {
 }
 
 function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
-	global $bbdb, $bb, $topic_cache;
+	global $bbdb, $bb;
 	$where = $limit = '';
 	if ( $forum )
 		$where = "AND forum_id = $forum";
@@ -62,23 +65,19 @@ function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit") ) {
-		foreach ( $topics as $topic )
-			$topic_cache[$topic->topic_id] = $topic;
-		return $topics;
-	} else { return false; }
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit") )
+		return bb_append_meta( $topics, 'topic' );
+	else	return false;
 }
 
 function get_sticky_topics( $forum = 0 ) {
-	global $bbdb, $bb, $topic_cache;
+	global $bbdb, $bb;
 	$where = '';
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
-	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC") ) {
-		foreach ( $stickies as $topic )
-			$topic_cache[$topic->topic_id] = $topic;
-		return $stickies;
-	} else { return false; }
+	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC") )
+		return bb_append_meta( $stickies, 'topic' );	
+	else	return false;
 }
 
 function get_latest_posts( $num ) {
@@ -102,7 +101,7 @@ function get_user_favorites( $user_id, $list = false ) {
 }
 
 function get_recent_user_replies( $user_id ) {
-	global $bbdb, $topic_cache, $post_cache, $page;
+	global $bbdb, $post_cache, $page;
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
@@ -114,8 +113,7 @@ function get_recent_user_replies( $user_id ) {
 		}
 		$topic_ids = join(',', $topics);
 		$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
-		foreach ($topics as $topic)
-			$topic_cache[$topic->topic_id] = $topic;
+		bb_append_meta( $topics, 'topic' );
 		return $posts;
 	else :
 		return false;
@@ -123,14 +121,13 @@ function get_recent_user_replies( $user_id ) {
 }
 
 function get_recent_user_threads( $user_id ) {
-	global $bbdb, $topic_cache, $page;
+	global $bbdb, $page;
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_start_time DESC LIMIT $limit");
 	if ( $topics )
-		foreach ( $topics as $topic )
-			$topic_cache[$topic->topic_id] = $topic;
+		$topic = bb_append_meta( $topics, 'topic' );
 	return $topics;
 }
 
@@ -346,8 +343,7 @@ function post_author_cache($posts) {
 	if ( isset($ids) ) {
 		$ids = join(',', $ids);
 		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids)");
-		foreach ($users as $user)
-			bb_append_user_meta( $user );
+		bb_append_meta( $users, 'user' );
 	}
 }
 
@@ -377,7 +373,7 @@ function bb_current_user() {
 	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
 	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
 	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
-	return bb_append_user_meta( $current_user );
+	return bb_append_meta( $current_user, 'user' );
 }
 
 function bb_get_user( $user_id ) {
@@ -389,7 +385,7 @@ function bb_get_user( $user_id ) {
 		return $user_cache[$user_id];
 	else :
 		if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;") ) :
-			return bb_append_user_meta( $user );
+			return bb_append_meta( $user, 'user' );
 		else :
 			$user_cache[$user_id] = false;
 			return false;
@@ -404,23 +400,45 @@ function bb_get_user_by_name( $name ) {
 	return bb_get_user( $user_id );
 }
 
-// This is the only function that should add to $user_cache
-function bb_append_user_meta( $user ) {
-	global $bbdb, $user_cache;
-	if ( $user ) {
-		if ( isset( $user_cache[$user->ID] ) )
-			return $user_cache[$user->ID];
-		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $bbdb->usermeta WHERE user_id = '$user->ID'") )
-			foreach ( $metas as $meta ) {
-				$meta->meta_value = stripslashes($meta->meta_value);
-				@ $value = unserialize($meta->meta_value);
-				if ( false === $value )
-					$value = $meta->meta_value;
-				$user->{$meta->meta_key} = $value;
-			}
-		$user_cache[$user->ID] = $user;
-		return $user;
-	}
+// This is the only function that should add to ${user|topic}_cache
+function bb_append_meta( $object, $type ) {
+	global $bbdb, ${$type . '_cache'};
+	switch ( $type ) :
+	case 'user' :
+		$table = $bbdb->usermeta;
+		$field = 'user_id';
+		$id = 'ID';
+		break;
+	case 'topic' :
+		$table = $bbdb->topicmeta;
+		$field = $id = 'topic_id';
+		break;
+	endswitch;
+	if ( is_array($object) ) :
+		foreach ( array_keys($object) as $i )
+			$trans[$object[$i]->$id] =& $object[$i];
+		$ids = join(',', array_keys($trans));
+		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
+			foreach( $metas as $meta )
+				$trans[$meta->$field]->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+		foreach ( array_keys($trans) as $i )
+				${$type . '_cache'}[$i] = $trans[$i];
+		return $object;
+	elseif ( $object ) :
+		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $table WHERE $field = '{$object->$id}'") )
+			foreach ( $metas as $meta )
+				$object->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+		${$type . '_cache'}[$object->$id] = $object;
+		return $object;
+	endif;
+}
+
+function cast_meta_value( $value ) {
+	$value = stripslashes($value);
+	@ $r = unserialize($value);
+	if ( false === $r )
+		$r = $value;
+	return $r;
 }
 
 function bb_check_login($user, $pass) {
@@ -438,28 +456,48 @@ function bb_user_exists( $user ) {
 
 
 function update_usermeta( $user_id, $meta_key, $meta_value ) {
+	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );
+}
+
+function update_topicmeta( $topic_id, $meta_key, $meta_value ) {
+	return bb_update_meta( $topic_id, $meta_key, $meta_value, 'topic' );
+}
+
+function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 	global $bbdb;
-	if ( !is_numeric( $user_id ) )
+	if ( !is_numeric( $type_id ) )
 		return false;
+	switch ( $type ) :
+	case 'user' :
+		$table = $bbdb->usermeta;
+		$field = 'user_id';
+		$id = 'ID';
+		break;
+	case 'topic' :
+		$table = $bbdb->topicmeta;
+		$field = $id = 'topic_id';
+		break;
+	endswitch;
+
 	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
 
-	$meta_triple = compact('user_id', 'meta_key', 'meta_value');
-	$meta_triple = bb_apply_filters('update_usermeta', $meta_triple);
-	extract($meta_triple, EXTR_OVERWRITE);
+	$meta_tuple = compact('user_id', 'meta_key', 'meta_value', 'type');
+	$meta_tuple = bb_apply_filters('bb_update_meta', $meta_tuple);
+	extract($meta_tuple, EXTR_OVERWRITE);
 
 	if ( is_array($meta_value) || is_object($meta_value) )
 		$meta_value = serialize($meta_value);
 	$meta_value = $bbdb->escape( $meta_value );
 
-	$cur = $bbdb->get_row("SELECT * FROM $bbdb->usermeta WHERE user_id = '$user_id' AND meta_key = '$meta_key'");
+	$cur = $bbdb->get_row("SELECT * FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 	if ( !$cur ) {
-		$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value )
+		$bbdb->query("INSERT INTO $table ( $field, meta_key, meta_value )
 		VALUES
-		( '$user_id', '$meta_key', '$meta_value' )");
+		( '$type_id', '$meta_key', '$meta_value' )");
 		return true;
 	}
 	if ( $cur->meta_value != $meta_value )
-		$bbdb->query("UPDATE $bbdb->usermeta SET meta_value = '$meta_value' WHERE user_id = '$user_id' AND meta_key = '$meta_key'");
+		$bbdb->query("UPDATE $table SET meta_value = '$meta_value' WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
@@ -1061,18 +1099,16 @@ function get_tagged_topic_ids( $tag_id ) {
 }
 
 function get_tagged_topics( $tag_id, $page = 0 ) {
-	global $bbdb, $topic_cache;
+	global $bbdb;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
 	$topic_ids = join($topic_ids, ',');
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit") ) {
-		foreach ( $topics as $topic )
-			$topic_cache[$topic->topic_id] = $topic;
-		return $topics;
-	} else { return false; }
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit") )
+		return bb_append_meta( $topics, 'topic' );
+	else	return false;
 }
 
 function get_tagged_topic_posts( $tag_id, $page = 0 ) {

@@ -24,13 +24,14 @@ require( BBPATH . 'bb-includes/formatting-functions.php');
 require( BBPATH . 'bb-includes/template-functions.php');
 require( BBPATH . 'bb-includes/default-filters.php');
 
-$bbdb->forums   = $table_prefix . 'forums';
-$bbdb->posts    = $table_prefix . 'posts';
-$bbdb->topics   = $table_prefix . 'topics';
-$bbdb->users    = $table_prefix . 'users';
-$bbdb->usermeta = $table_prefix . 'usermeta';
-$bbdb->tags     = $table_prefix . 'tags';
-$bbdb->tagged   = $table_prefix . 'tagged';
+$bbdb->forums    = $table_prefix . 'forums';
+$bbdb->posts     = $table_prefix . 'posts';
+$bbdb->topics    = $table_prefix . 'topics';
+$bbdb->topicmeta = $table_prefix . 'topicmeta';
+$bbdb->users     = $table_prefix . 'users';
+$bbdb->usermeta  = $table_prefix . 'usermeta';
+$bbdb->tags      = $table_prefix . 'tags';
+$bbdb->tagged    = $table_prefix . 'tagged';
 
 $plugins = glob( BBPATH . 'bb-plugins/*.php');
 if ( $plugins ) : foreach ( $plugins as $plugin ) :

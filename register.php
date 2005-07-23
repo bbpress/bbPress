@@ -30,7 +30,7 @@ if ($_POST) :
 	if ( $user_login && $user_safe && $user_email && !$bad_input) :
 		$user_id = bb_new_user( $user_login, $user_email, $user_url );
 		foreach( $profile_info_keys as $key => $label )
-			if ( strpos($key, 'user_') !== 0 && $$key !== '' && $$key !== false)
+			if ( strpos($key, 'user_') !== 0 && $$key !== '' )
 				update_usermeta( $user_id, $key, $$key );
 		require( BBPATH . 'bb-templates/register-success.php');
 		exit();	

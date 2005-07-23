@@ -45,6 +45,15 @@ CREATE TABLE $bbdb->topics (
   PRIMARY KEY  (topic_id),
   KEY forum_id (forum_id)
 );
+CREATE TABLE $bbdb->topicmeta (
+  meta_id bigint(20) NOT NULL auto_increment,
+  topic_id bigint(20) NOT NULL default '0',
+  meta_key varchar(255) default NULL,
+  meta_value longtext,
+  PRIMARY KEY  (meta_id),
+  KEY user_id (topic_id),
+  KEY meta_key (meta_key)
+);
 CREATE TABLE $bbdb->users (
   ID bigint(20) unsigned NOT NULL auto_increment,
   user_login varchar(60) NOT NULL default '',
