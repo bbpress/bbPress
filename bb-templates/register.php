@@ -25,7 +25,14 @@ Your username was not valid, please try again</td>
 <?php foreach ( $profile_info_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" /><?php if ( $key == 'user_email' && $user_email === false ) _e('<br />There was a problem with your email; please check it.'); ?></td>
+  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" /><?php
+if ( $$key === false ) :
+	if ( $key == 'user_email' )
+		_e('<br />There was a problem with your email; please check it.');
+	else
+		_e('<br />The above field is required.');
+endif;
+?></td>
 </tr>
 <?php endforeach; ?>
 </table>

@@ -572,6 +572,11 @@ function user_type( $id ) {
 	echo bb_apply_filters('user_type', get_user_type($id) );
 }
 
+function profile_pages() {
+	global $user, $page;
+	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $user->topics_replied ) );
+}
+
 //TAGS
 function topic_tags () {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user;

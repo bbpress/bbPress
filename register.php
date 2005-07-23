@@ -18,19 +18,23 @@ if ($_POST) :
 		elseif ( is_null($$key) ) :
 			$$key = bb_specialchars( $_POST[$key], 1 );
 		endif;
+		if ( !$$key && $label[0] == 1 ) :
+			$bad_input = true;
+			$$key = false;
+		endif;
 	endforeach;
 
 	if ( empty($user_login) || bb_user_exists($user_login) )
 		$user_safe = false;
 	
-	if ( $user_login && $user_safe && $user_email ) {
+	if ( $user_login && $user_safe && $user_email && !$bad_input) :
 		$user_id = bb_new_user( $user_login, $user_email, $user_url );
 		foreach( $profile_info_keys as $key => $label )
-			if ( strpos($key, 'user_') !== 0 && $$key != '' )
+			if ( strpos($key, 'user_') !== 0 && $$key !== '' && $$key !== false)
 				update_usermeta( $user_id, $key, $$key );
 		require( BBPATH . 'bb-templates/register-success.php');
 		exit();	
-	}
+	endif;
 endif;
 
 if ( isset( $_GET['user'] ) )

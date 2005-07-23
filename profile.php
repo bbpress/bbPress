@@ -27,6 +27,7 @@ if ( $self ) {
 }
 
 $reg_time = strtotime( $user->user_registered );
+$profile_info_keys = get_profile_info_keys();
 
 if ( !isset( $_GET['updated'] ) )
 	$updated = false;

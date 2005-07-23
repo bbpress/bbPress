@@ -10,7 +10,14 @@
 <?php foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $current_user->ID == $user_id ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /></td>
+  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php
+if ( $$key === false ) :
+	if ( $key == 'user_email' )
+		_e('<br />There was a problem with your email; please check it.');
+	else
+		_e('<br />The above field is required.');
+endif;
+?></td>
 </tr>
 <?php endif; endforeach; ?>
 </table>

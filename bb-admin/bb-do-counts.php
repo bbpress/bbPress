@@ -26,5 +26,23 @@ if ( $all_forums = $bbdb->get_col("SELECT forum_id FROM $bbdb->forums") ) :
 	unset($all_forums);
 	unset($forums);
 endif;
+
+if ( $users = $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
+	foreach ( $users as $user ) :
+		$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = $user");
+		update_usermeta( $user, 'topics_replied', $topics_replied );
+	endforeach;
+	unset($users, $topics_started, $topics_replied);
+endif;
+
+if ( $tags = $bbdb->get_results("SELECT tag_id, COUNT(topic_id) AS tag_count FROM $bbdb->tagged GROUP BY tag_id") ) :
+	foreach ( $tags as $tag ) :
+		$bbdb->query("UPDATE $bbdb->tags SET tag_count = $tag->tag_count WHERE tag_id = $tag->tag_id");
+	endforeach;
+	unset($tags);
+else :
+	$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0");
+endif;
+
 echo "$bbdb->num_queries queries. " . bb_timer_stop(0) . ' seconds';
 ?>

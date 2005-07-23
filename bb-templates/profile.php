@@ -16,42 +16,22 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 <dl id="userinfo">
 <dt>Member Since</dt>
 <dd><?php echo gmdate('F j, Y', $reg_time); ?> (<?php echo bb_since($reg_time); ?>)</dd>
-<?php
-$USERINFO = '';
-if ( $url = get_user_link( $user->ID ) ) :
-        $USERINFO .= "<dt>Web address</dt>
-<dd><a href='$url'>$url</a></dd>
-";
-endif;
-if ($user->from) :
-        $USERINFO .= "<dt>Where in the world?</dt>
-<dd>$user->from</dd>
-";
-endif;
-if ($user->occ) :
-        $USERINFO .= "<dt>Occupation</dt>
-<dd>$user->occ</dd>
-";
-endif;
-if ($user->interest) :
-        $USERINFO .= "<dt>Interests</dt>
-<dd>$user->interest</dd>
-";
-endif;
-echo $USERINFO;
-?>
+<?php foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key && isset($user->$key) ) : ?>
+<dt><?php echo $label[1]; ?></dt>
+<dd><?php echo bb_make_clickable($user->$key); ?></dd>
+<?php endif; endforeach; ?>
 </dl>
 
 <h2>User Activity</h2>
 
 <div id="user-replies" class="user-recent"><h3>Recent Replies</h3>
-<?php if ( $posts ) : $another_page = true; ?>
+<?php if ( $posts ) : ?>
 <ol>
 <?php foreach ($posts as $post) : $topic = get_topic( $post->topic_id ) ?>
 <li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php post_time(); ?> ago.
 <?php
 if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
-	echo ' <span class=freshness">Most recent reply: ';
+	echo ' <span class="freshness">Most recent reply: ';
 	topic_time();
 	echo ' ago.</span>';
 } else {
@@ -61,7 +41,7 @@ if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
 </li>
 <?php endforeach; ?>
 </ol>
-<?php else : $another_page = false; if ( $page ) : ?>
+<?php else : if ( $page ) : ?>
 <p>No more replies.</p>
 <?php else : ?>
 <p>No replies yet.</p>
@@ -70,13 +50,13 @@ if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
 
 <div id="user-threads" class="user-recent">
 <h3>Threads Started</h3>
-<?php if ( $threads ) : $another_page = true; ?>
+<?php if ( $threads ) : ?>
 <ol>
 <?php foreach ($threads as $topic) : ?>
 <li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> Started: <?php topic_start_time(); ?> ago.
 <?php
 if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
-	echo ' <span class=freshness">Most recent reply: ';
+	echo ' <span class="freshness">Most recent reply: ';
 	topic_time();
 	echo ' ago.</span>';
 } else {
@@ -86,16 +66,12 @@ if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
 </li>
 <?php endforeach; ?>
 </ol>
-<?php else : $another_page = $another_page || false; if ( $page ) : ?>
+<?php else : if ( $page ) : ?>
 <p>No more topics posted.</p>
 <?php else : ?>
 <p>No topics posted yet.</p>
 <?php endif; endif;?>
 </div><br style="clear: both;" />
 
-<?php if ( $page > 0 ) : ?>
-<a class="prev" href="<?php echo bb_specialchars(bb_add_query_arg('page', $page - 1)); ?>">&laquo; Previous Page</a>
-<?php endif; if ( $another_page ) :?>
-<a class="next" href="<?php echo bb_specialchars(bb_add_query_arg('page', $page + 1)); ?>">Next Page &raquo;</a>
-<?php endif; ?>
+<?php profile_pages(); ?>
 <?php get_footer(); ?>
