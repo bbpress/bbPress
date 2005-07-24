@@ -470,7 +470,7 @@ function update_topicmeta( $topic_id, $meta_key, $meta_value ) {
 }
 
 function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
-	global $bbdb;
+	global $bbdb, $table_prefix;
 	if ( !is_numeric( $type_id ) )
 		return false;
 	switch ( $type ) :
@@ -485,6 +485,8 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 	endswitch;
 
 	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( 'user' == $type && 'user_type' == $meta_key )
+		$meta_key = $table_prefix . 'user_type';
 
 	$meta_tuple = compact('type_id', 'meta_key', 'meta_value', 'type');
 	$meta_tuple = bb_apply_filters('bb_update_meta', $meta_tuple);
@@ -1291,6 +1293,13 @@ function get_profile_info_keys() {
 	return bb_apply_filters(
 		'get_profile_info_keys',
 		array('user_email' => array(1, __('Email')), 'user_url' => array(0, __('Website')), 'from' => array(0, __('Location')), 'occ' => array(0, __('Occupation')), 'interest' => array(0, __('Interests')))
+	);
+}
+
+function get_profile_admin_keys() {
+	return bb_apply_filters(
+		'get_profile_admin_keys',
+		array('title' => array(0, __('Custom Title')))
 	);
 }
 ?>

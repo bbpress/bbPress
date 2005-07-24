@@ -542,27 +542,38 @@ function user_link( $id ) {
 	echo bb_apply_filters('user_link', get_user_link($id) );
 }
 
+function bb_label_user_type( $type ) {
+	switch ($type) :
+		case 0 :
+			return __('Member');
+			break;
+		case 1 :
+			return __('Moderator');
+			break;
+		case 2 :
+			return __('Developer');
+			break;
+		case 5 :
+			return __('Admin');
+			break;
+	endswitch;
+}
+
+function get_user_type_label( $type ) {
+	return bb_apply_filters('get_user_type_label', $type );
+}
+
+function user_type_label( $type ) {
+	echo bb_apply_filters( 'user_type_label', get_user_type_label( $type ) );
+}
+
 function get_user_type ( $id ) {
 	global $bbdb;
 	if ( $id ) :
 		$user = bb_get_user( $id );
 		if ( !empty( $user->title ) )
 			return $user->title;
-
-		switch ($user->user_type) :
-			case 0 :
-				return 'Member';
-				break;
-			case 1 :
-				return 'Moderator';
-				break;
-			case 2 :
-				return 'Developer';
-				break;
-			case 5 :
-				return 'Admin';
-				break;
-		endswitch;
+		return get_user_type_label( $user->user_type );
 	else :
 		return 'Unregistered';
 	endif;

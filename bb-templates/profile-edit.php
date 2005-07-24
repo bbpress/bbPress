@@ -26,6 +26,36 @@ endif;
 <?php endif; ?>
 </fieldset>
 
+<?php if ( $current_user->user_type >= 5 ) : $required = false; ?>
+<fieldset>
+<legend>Administration</legend>
+<table width="100%">
+<tr>
+  <th scope="row">User Type:</th>
+  <td><select name="user_type">
+<?php $t = 0; while ( $t < 6 ) : if ( '' != get_user_type_label($t) ) : ?>
+       <option value="<?php echo $t; ?>"<?php if ( $t == $user->user_type ) echo ' selected="selected"'; ?>><?php user_type_label($t); ?></option>
+<?php endif; $t++; endwhile; ?>
+      </select>
+  </td>
+</tr>
+<?php foreach ( $profile_admin_keys as $key => $label ) : ?>
+<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
+  <th scope="row"><?php echo $label[1]; ?>:</th>
+  <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php
+if ( $$key === false ) :
+	_e('<br />The above field is required.');
+endif;
+?></td>
+</tr>
+<?php endforeach;?>
+</table>
+<?php if ( $required ) : ?>
+<p><sup>*</sup>These items are <span class="required">required</span>.</p>
+<?php endif; ?>
+</fieldset>
+<?php endif; ?>
+
 <?php if ( $current_user->ID == $user->ID ) : ?>
 <fieldset>
 <legend>Password</legend>
