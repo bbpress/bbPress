@@ -23,7 +23,7 @@ $user_email = true;
 
 if ($_POST) :
 	$user_url = bb_fix_link( $_POST['user_url'] );
-	if ( isset($_POST['user_email']) )
+	if ( isset($_POST['user_email']) && $current_user->ID == $user->ID )
 		$user_email = bb_verify_email( $_POST['user_email'] );
 
 	foreach ( $profile_info_keys as $key => $label ) :
@@ -55,6 +55,7 @@ if ($_POST) :
 		if ( can_admin( $user->ID ) ) :
 			if ( is_string($user_email) ) 
 				bb_update_user( $user->ID, $user_email, $user_url );
+			else	bb_update_user( $user->ID, $user->user_email, $user_url );
 			foreach( $profile_info_keys as $key => $label )
 				if ( strpos($key, 'user_') !== 0 )
 					if ( $$key != ''  || isset($user->$key) )
@@ -69,7 +70,7 @@ if ($_POST) :
 					update_usermeta( $user->ID, $key, $$key );
 		endif;
 
-		if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] ) :
+		if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $current_user->ID == $user->ID ) :
 			bb_update_user_password ( $current_user->ID, $_POST['pass1'] );
 			bb_cookie( $bb->passcookie, md5( md5( $_POST['pass1'] ) ) ); // One week
 		endif;
