@@ -23,7 +23,7 @@ function profile_menu() {
 			$profile_page_title = $item[0];
 		}
 		if ( can_access_tab( $item, $current_user->ID, $user_id ) )
-			if ( file_exists($item[3]) )
+			if ( file_exists($item[3]) || function_exists($item[3]) )
 				$list .= "\n\t<li$class><a href='" . get_profile_tab_link($user_id, $item[0]) . "'>{$item[0]}</a></li>";
 	}
 	if ( $current_user ) :

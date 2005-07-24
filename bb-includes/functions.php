@@ -1160,7 +1160,7 @@ function bb_repermalink() {
 		$topic_id = $permalink;
 		$permalink = get_topic_link( $permalink );
 	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
-		global $user_id, $profile_hooks, $self, $tab;
+		global $user_id, $profile_hooks, $self;
 		$user_id = $permalink;
 		global_profile_menu_structure();
 		$valid = false;

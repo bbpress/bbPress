@@ -19,10 +19,10 @@ if ( !$user )
 	die('User not found.');
 
 if ( $self ) {
-	if ( strpos($self, 'bb-plugins') === false )
+	if ( strpos($self, '.php') !== false )
 		require($self);
 	else
-		require('bb-templates/profile-base.php');
+		require('profile-base.php');
 	return;
 }
 
