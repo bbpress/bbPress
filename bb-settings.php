@@ -14,6 +14,8 @@ function bb_timer_start() {
 }
 bb_timer_start();
 
+error_reporting(E_ALL ^ E_NOTICE);
+
 if ( extension_loaded('mysqli') )
 	require( BBPATH . 'bb-includes/db-mysqli.php');
 else
