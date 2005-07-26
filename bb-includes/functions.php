@@ -1282,10 +1282,10 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	$viewer = bb_get_user( $viewer_id );
 	$owner = bb_get_user( $owner_id );
 	// Is your user_type high enough?
-	$can_access = ( ( $profile_tab[1] <= (int) $viewer->user_type && isset($viewer->user_type) ) || $profile_tab[1] < 0 );
+	$can_access = ( ( $viewer && $profile_tab[1] <= (int) $viewer->user_type ) || $profile_tab[1] < 0 );
 	// But does it let your kind in?
 	if ( $viewer_id != $owner_id )
-		$can_access = $can_access && ( ( $profile_tab[2] <= (int) $viewer->user_type && isset($viewer->user_type) ) || $profile_tab[2] < 0 );
+		$can_access = $can_access && ( ( $viewer && $profile_tab[2] <= (int) $viewer->user_type ) || $profile_tab[2] < 0 );
 	return $can_access;
 }
 
