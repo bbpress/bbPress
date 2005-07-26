@@ -21,7 +21,6 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) && $current_user ) :
 		if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
 			array_splice($fav, $pos, 1);
 			$fav = implode(',', $fav);
-			$fav = trim(substr($fav, -255),','); // limit to size of meta_value.
 			update_usermeta( $current_user->ID, 'favorites', $fav);
 		}
 	}

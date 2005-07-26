@@ -748,11 +748,15 @@ function get_favorites_link() {
 
 function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites') {
 	global $topic, $current_user;
-	if ( $fav_array = explode(',', $current_user->favorites) )
-		if ( in_array($topic->topic_id, $fav_array) )
-			echo '<a href="' . get_favorites_link() . "?fav=0&topic_id=$topic->topic_id" . '">' . $rem . '</a>';
-		else
-			echo '<a href="' . get_favorites_link() . "?fav=1&topic_id=$topic->topic_id" . '">' . $add . '</a>';
+	if ( $favs = explode(',', $current_user->favorites) )
+		if ( in_array($topic->topic_id, $favs) ) :
+			$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
+			$text = $rem;
+		else :
+			$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
+			$text = $add;
+		endif;
+		echo '<a href="' . bb_add_query_arg( $favs, get_favorites_link() ) . '">' . $text . '</a>';
 }
 
 function favorites_rss_link( $id = 0 ) {

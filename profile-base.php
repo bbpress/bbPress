@@ -6,7 +6,7 @@ if ( !is_bb_profile() ) {
 	header("Location: $sendto");
 }
 
-$self_template = call_user_func($self);
+$self_template = $self();
 
 if ( function_exists($self_template) )
 	require('bb-templates/profile-base.php');

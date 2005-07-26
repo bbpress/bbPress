@@ -11,10 +11,10 @@ function get_forum( $id ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $id");
 }
 
-function get_topic( $id ) {
+function get_topic( $id, $cache = true ) {
 	global $topic_cache, $bbdb;
 	$id = (int) $id;
-	if ( isset( $topic_cache[$id] ) ) :
+	if ( isset( $topic_cache[$id] ) && $cache ) :
 		return $topic_cache[$id];
 	else :
 		$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id AND topic_status = 0");
