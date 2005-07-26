@@ -81,5 +81,7 @@ if ($_POST) :
 	endif;
 endif;
 
-require( BBPATH . 'bb-templates/profile-edit.php');
+if (file_exists( BBPATH . 'my-templates/profile-edit.php' ))
+	require( BBPATH . 'my-templates/profile-edit.php' );
+else	require( BBPATH . 'bb-templates/profile-edit.php' );
 ?>

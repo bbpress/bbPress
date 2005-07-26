@@ -17,7 +17,8 @@ if ( bb_is_first( $post->post_id ) )
 else 
 	$topic_title = false;
 
-
-require('bb-templates/edit-post.php');
+if (file_exists( BBPATH . 'my-templates/edit-post.php' ))
+	require( BBPATH . 'my-templates/edit-post.php' );
+else	require( BBPATH . 'bb-templates/edit-post.php' );
 
 ?>

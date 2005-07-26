@@ -22,7 +22,7 @@ if ( $self ) {
 	if ( strpos($self, '.php') !== false )
 		require($self);
 	else
-		require('profile-base.php');
+		require( BBPATH . 'profile-base.php' );
 	return;
 }
 
@@ -42,6 +42,7 @@ bb_add_filter('post_time', 'bb_since');
 
 bb_do_action( 'bb_profile.php', $user_id );
 
-require('bb-templates/profile.php');
-
+if (file_exists( BBPATH . 'my-templates/profile.php' ))
+	require( BBPATH . 'my-templates/profile.php' );
+else	require( BBPATH . 'bb-templates/profile.php' );
 ?>

@@ -8,6 +8,8 @@ $popular = get_popular_topics();
 
 $static_title = 'Statistics';
 
-include('bb-templates/stats.php');
+if (file_exists( BBPATH . 'my-templates/stats.php' ))
+	require( BBPATH . 'my-templates/stats.php' );
+else	require( BBPATH . 'bb-templates/stats.php');
 
 ?>

@@ -31,6 +31,7 @@ post_author_cache($posts);
 
 bb_do_action( 'bb_topic.php', $topic_id );
 
-include('bb-templates/topic.php');
-
+if (file_exists( BBPATH . 'my-templates/topic.php' ))
+	require( BBPATH . 'my-templates/topic.php' );
+else	require( BBPATH . 'bb-templates/topic.php' );
 ?>

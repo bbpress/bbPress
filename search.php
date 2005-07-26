@@ -51,6 +51,9 @@ $q = stripslashes( $q );
 
 bb_add_filter('get_post_time', 'strtotime');
 bb_add_filter('get_post_time', 'bb_offset_time');
-require('bb-templates/search.php');
+
+if (file_exists( BBPATH . 'my-templates/search.php' ))
+	require( BBPATH . 'my-templates/search.php' );
+else	require( BBPATH . 'bb-templates/search.php' );
 
 ?>

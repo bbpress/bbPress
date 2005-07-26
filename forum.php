@@ -17,6 +17,8 @@ $stickies = get_sticky_topics( $forum_id );
 
 bb_do_action( 'bb_forum.php', $forum_id );
 
-include('bb-templates/forum.php');
+if (file_exists( BBPATH . 'my-templates/forum.php' ))
+	require( BBPATH . 'my-templates/forum.php' );
+else	require( BBPATH . 'bb-templates/forum.php' );
 
 ?>

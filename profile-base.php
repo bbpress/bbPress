@@ -9,6 +9,8 @@ if ( !is_bb_profile() ) {
 $self_template = $self();
 
 if ( function_exists($self_template) )
-	require('bb-templates/profile-base.php');
+	if (file_exists( BBPATH . 'my-templates/profile-base.php' ))
+		require( BBPATH . 'my-templates/profile-base.php' );
+	else	require( BBPATH . 'bb-templates/profile-base.php' );
 exit();
 ?>

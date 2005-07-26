@@ -52,6 +52,7 @@ bb_send_304( $posts[0]->post_time );
 bb_add_filter('post_link', 'bb_specialchars');
 bb_add_filter('post_text', 'htmlspecialchars');
 
-require( BBPATH . 'bb-templates/rss2.php');
-
+if (file_exists( BBPATH . 'my-templates/rss2.php'))
+	require( BBPATH . 'my-templates/rss2.php' );
+else	require( BBPATH . 'bb-templates/rss2.php' );
 ?>

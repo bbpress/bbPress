@@ -44,6 +44,8 @@ if ( !is_bb_profile() ) {
 
 $topics = get_user_favorites( $current_user->ID, true );
 
-include('bb-templates/favorites.php');
+if (file_exists( BBPATH . 'my-templates/favorites.php' ))
+	require( BBPATH . 'my-templates/favorites.php' );
+else	require( BBPTAH . 'bb-templates/favorites.php' );
 
 ?>

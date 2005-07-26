@@ -42,5 +42,7 @@ if ( isset( $_GET['user'] ) )
 elseif ( isset( $_POST['user_login'] ) && !is_string($user_login) )
 	$user_login = '';
 
-require( BBPATH . 'bb-templates/register.php');
+if (file_exists( BBPATH . 'my-templates/register.php' ))
+	require( BBPATH . 'my-templates/register.php' );
+else	require( BBPATH . 'bb-templates/register.php' );
 ?>
