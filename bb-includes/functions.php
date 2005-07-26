@@ -376,12 +376,12 @@ function bb_current_user() {
 	return bb_append_meta( $current_user, 'user' );
 }
 
-function bb_get_user( $user_id ) {
+function bb_get_user( $user_id, $cache = true ) {
 	global $bbdb, $user_cache;
 	if ( !is_numeric( $user_id ) )
 		die('bb_get_user needs a numeric ID');
 	$user_id = (int) $user_id;
-	if ( isset( $user_cache[$user_id] ) ) :
+	if ( isset( $user_cache[$user_id] ) && $cache ) :
 		return $user_cache[$user_id];
 	else :
 		if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;") ) :
