@@ -189,12 +189,7 @@ function forum_posts() {
 
 function forum_pages() {
 	global $forum, $page;
-	$r = '';
-	if ( $page )
-		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
-	if ( ( $page + 1 ) * bb_get_option('page_topics') < $forum->topics )
-		$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';		
-	echo bb_apply_filters('forum_pages', $r);
+	echo bb_apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ) );
 }
 
 // TOPICS
@@ -361,11 +356,20 @@ function get_page_number_links($page, $total) {
 	if ( $page )
 		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
-		while ( $page_num < $total_pages )
-			if ( $page == $page_num )
-				$r .= ' ' . ++$page_num;
-			else
-				$r .= ' <a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ++$page_num . '</a>';
+		for ( $page_num = 0; $page_num < $total_pages; $page_num++ ) :
+			if ( $page == $page_num ) :
+				$r .= ' ' . ( $page_num + 1 );
+			else :
+				$p = false;
+				if ( $page_num < 2 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
+					$r .= ' <a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ( $page_num + 1 ) . '</a>';
+					$in = true;
+				elseif ( $in == true ) :
+					$r .= ' ...';
+					$in = false;
+				endif;
+			endif;
+		endfor;
 	}
 	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total )
 		$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
