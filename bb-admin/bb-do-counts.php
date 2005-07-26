@@ -32,7 +32,7 @@ endif;
 if ( $users = $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
 	foreach ( $users as $user ) :
 		$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = $user");
-		update_usermeta( $user, 'topics_replied', $topics_replied );
+		update_usermeta( $user, $table_prefix. 'topics_replied', $topics_replied );
 	endforeach;
 	unset($users, $topics_started, $topics_replied);
 endif;

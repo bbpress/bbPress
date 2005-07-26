@@ -98,7 +98,7 @@ require_once('upgrade-schema.php');
 upgrade_130();
 */
 
-//'user_type' -> $table_prefix . 'user_type': July23rd, 2005
+//meta_value -> $table_prefix . meta_value: July23rd, 2005
 /*
 upgrade_140();
 */
@@ -167,11 +167,17 @@ function upgrade_130() {
 			update_post_positions( $topic_id );
 }
 
-//user_type conversion
+//meta conversion
 function upgrade_140() {
 	global $bbdb, $table_prefix;
 	$newkey = $table_prefix . 'user_type';
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'user_type'");
+	$newkey = $table_prefix . 'title';
+	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'title'");
+	$newkey = $table_prefix . 'favorites';
+	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'favorites'");
+	$newkey = $table_prefix . 'topics_replied';
+	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'topics_replied'");
 }
 
 function deslash($content) {
