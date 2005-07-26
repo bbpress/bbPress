@@ -1256,7 +1256,6 @@ function global_profile_menu_structure() {
 	// The URL of the item's file
 	$profile_menu[0] = array(__('Edit'), 0, 5, 'profile-edit.php');
 	$profile_menu[5] = array(__('Favorites'), 0, 2, 'favorites.php');
-	$profile_menu[10] = array(__('Plugins'), 5, 5, 'bb-admin/plugins.php');
 
 	// Create list of page plugin hook names the current user can access
 	foreach ($profile_menu as $profile_tab)

@@ -46,6 +46,6 @@ $topics = get_user_favorites( $current_user->ID, true );
 
 if (file_exists( BBPATH . 'my-templates/favorites.php' ))
 	require( BBPATH . 'my-templates/favorites.php' );
-else	require( BBPTAH . 'bb-templates/favorites.php' );
+else	require( BBPATH . 'bb-templates/favorites.php' );
 
 ?>

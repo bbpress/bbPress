@@ -354,25 +354,25 @@ function topic_pages() {
 function get_page_number_links($page, $total) {
 	$r = '';
 	if ( $page )
-		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>';
+		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>' . "\n";
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
 		for ( $page_num = 0; $page_num < $total_pages; $page_num++ ) :
 			if ( $page == $page_num ) :
-				$r .= ' ' . ( $page_num + 1 );
+				$r .= ( $page_num + 1 ) . "\n";
 			else :
 				$p = false;
 				if ( $page_num < 2 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
-					$r .= ' <a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ( $page_num + 1 ) . '</a>';
+					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ( $page_num + 1 ) . "</a>\n";
 					$in = true;
 				elseif ( $in == true ) :
-					$r .= ' ...';
+					$r .= "...\n";
 					$in = false;
 				endif;
 			endif;
 		endfor;
 	}
 	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total )
-		$r .=  ' <a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>';
+		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>' . "\n";
 	return $r;
 }
 
