@@ -573,8 +573,8 @@ function user_type_label( $type ) {
 
 function get_user_type ( $id ) {
 	global $bbdb;
-	if ( $id ) :
-		$user = bb_get_user( $id );
+	$user = bb_get_user( $id );
+	if ( $id && false !== $user ) :
 		if ( !empty( $user->title ) )
 			return $user->title;
 		return get_user_type_label( $user->user_type );
