@@ -365,7 +365,7 @@ function bb_current_user() {
 	if ( defined( 'BB_INSTALLING' ) )
 		return false;
 
-	global $bbdb, $bb;
+	global $bbdb, $bb, $user_cache;
 	if ( !isset($_COOKIE[ $bb->usercookie ]) )
 		return false;
 	if ( !isset($_COOKIE[ $bb->passcookie ]) )
@@ -373,7 +373,13 @@ function bb_current_user() {
 	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
 	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
 	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
-	return bb_append_meta( $current_user, 'user' );
+	if ( $current_user->user_status === '0' )
+		return bb_append_meta( $current_user, 'user' );
+	elseif ( $current_user && $current_user->user_status % 2 === 0 )
+		bb_append_meta( $current_user, 'user' );
+	else
+		$user_cache[$current_user->ID] = false;
+	return false;
 }
 
 function bb_get_user( $user_id, $cache = true ) {
@@ -384,7 +390,7 @@ function bb_get_user( $user_id, $cache = true ) {
 	if ( isset( $user_cache[$user_id] ) && $cache ) :
 		return $user_cache[$user_id];
 	else :
-		if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id;") ) :
+		if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id AND user_status % 2 = 0") ) :
 			return bb_append_meta( $user, 'user' );
 		else :
 			$user_cache[$user_id] = false;
@@ -426,6 +432,8 @@ function bb_append_meta( $object, $type ) {
 			endforeach;
 		foreach ( array_keys($trans) as $i ) {
 			${$type . '_cache'}[$i] = $trans[$i];
+			if ( ${$type . '_cache'}[$i]->user_status % 2 === 1 )
+				${$type . '_cache'}[$i] = false;
 		}
 		return $object;
 	elseif ( $object ) :
@@ -461,6 +469,14 @@ function bb_user_exists( $user ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
 }
 
+// delete_user
+function update_user_status( $user_id, $status = 0 ) {
+	global $bbdb, $current_user;
+	$user = bb_get_user( $user_id );
+	if ( $user->ID != $current_user->ID && can_admin( $user->ID ) )
+		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
+	return;
+}
 
 function update_usermeta( $user_id, $meta_key, $meta_value ) {
 	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );

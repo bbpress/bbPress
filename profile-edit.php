@@ -47,6 +47,7 @@ if ($_POST) :
 				$$key = false;
 			endif;
 		endforeach;
+		$user_status = bb_specialchars( $_POST['user_status'], 1 );
 	endif;
 
 	$updated = true;
@@ -65,6 +66,8 @@ if ($_POST) :
 		if ( $current_user->user_type >= 5 ) :
 			if ( $user_type != $user->user_type && $user_type < 6 )
 				update_usermeta( $user->ID, 'user_type', $user_type );
+			if ( $user_stats != $user->user_status && $user_status < 3 )
+				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )
 				if ( $$key != ''  || isset($user->$key) )
 					update_usermeta( $user->ID, $key, $$key );

@@ -39,6 +39,15 @@ endif;
       </select>
   </td>
 </tr>
+<tr>
+  <th scope="row">User Status<sup>**</sup>:</th>
+  <td><select name="user_status">
+<?php $stati = array(0 => __('Normal'), 1 => __('Deleted'), 2 => __('Deactivated')); foreach ( $stati as $s => $l ) : ?>
+       <option value="<?php echo $s; ?>"<?php if ( $user->user_status == $s ) echo ' selected="selected"'; ?>><?php echo $l; ?></option>
+<?php endforeach; ?>
+      </select>
+  </td>
+</tr>
 <?php foreach ( $profile_admin_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
@@ -53,6 +62,7 @@ endif;
 <?php if ( $required ) : ?>
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
 <?php endif; ?>
+<p><sup>**</sup>Deletion attributes all content to Anonymous and cannot be easily undone.  Deactivation maintains proper attribution and can be easily changed.</p>
 </fieldset>
 <?php endif; ?>
 

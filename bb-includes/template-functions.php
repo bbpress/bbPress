@@ -574,12 +574,14 @@ function user_type_label( $type ) {
 function get_user_type ( $id ) {
 	global $bbdb;
 	$user = bb_get_user( $id );
+	if ( $user->user_status == 2 )
+		return __('Inactive');
 	if ( $id && false !== $user ) :
 		if ( !empty( $user->title ) )
 			return $user->title;
 		return get_user_type_label( $user->user_type );
 	else :
-		return 'Unregistered';
+		return __('Unregistered');
 	endif;
 }
 
