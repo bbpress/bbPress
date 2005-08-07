@@ -375,7 +375,7 @@ function bb_current_user() {
 	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
 	if ( $current_user->user_status === '0' )
 		return bb_append_meta( $current_user, 'user' );
-	elseif ( $current_user && $current_user->user_status % 2 === 0 )
+	elseif ( $current_user && $current_user->user_status % 2 == 0 )
 		bb_append_meta( $current_user, 'user' );
 	else
 		$user_cache[$current_user->ID] = false;
@@ -432,7 +432,7 @@ function bb_append_meta( $object, $type ) {
 			endforeach;
 		foreach ( array_keys($trans) as $i ) {
 			${$type . '_cache'}[$i] = $trans[$i];
-			if ( ${$type . '_cache'}[$i]->user_status % 2 === 1 )
+			if ( ${$type . '_cache'}[$i]->user_status % 2 == 1 )
 				${$type . '_cache'}[$i] = false;
 		}
 		return $object;
