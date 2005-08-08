@@ -152,6 +152,7 @@ function bb_feed_head() {
 }
 
 function get_recent_rss_link() {
+	global $bb;
 	if ( $bb->mod_rewrite )
 		$link = bb_get_option('uri') . 'rss/';
 	else
