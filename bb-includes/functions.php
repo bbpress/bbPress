@@ -473,6 +473,7 @@ function bb_user_exists( $user ) {
 function update_user_status( $user_id, $status = 0 ) {
 	global $bbdb, $current_user;
 	$user = bb_get_user( $user_id );
+	$status = (int) $status;
 	if ( $user->ID != $current_user->ID && can_admin( $user->ID ) )
 		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
 	return;

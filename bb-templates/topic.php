@@ -11,7 +11,7 @@
 <ul class="topicmeta">
 	<li>Topic started <?php topic_start_time(); ?> ago</li>
 	<li><?php topic_posts(); ?> posts so far</li>
-	<li>Latest reply from <?php topic_last_poster(); ?></li>
+	<li><a href="<?php topic_last_post_link(); ?>">Latest reply</a> from <?php topic_last_poster(); ?></li>
 	<li>This topic is <?php topic_resolved(); ?></li>
 <?php if ( $current_user ) : ?>
 	<li><?php user_favorites_link() ?> (<a href="<?php favorites_link(); ?>">?</a>)</li>

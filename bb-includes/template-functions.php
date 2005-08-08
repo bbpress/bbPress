@@ -367,6 +367,13 @@ function get_topic_resolved( $id = 0 ) {
 	return $topic->topic_resolved;
 }
 
+function topic_last_post_link( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	echo get_post_link( $topic->topic_last_post_id );
+}
+
 function topic_pages() {
 	global $topic, $page;
 	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts ) );
