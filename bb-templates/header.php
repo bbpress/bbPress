@@ -3,6 +3,8 @@
 <head>
 	<title><?php bb_title() ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<?php bb_feed_head(); ?>
+
 </head>
 
 <body>

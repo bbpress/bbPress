@@ -139,6 +139,26 @@ function bb_title() {
 	echo $title;
 }
 
+function bb_feed_head() {
+	global $tag;
+	$feed_link = '';
+	if ( is_topic() )
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Thread: ' . bb_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
+	elseif ( is_tag() && $tag )
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Tag: ' . bb_specialchars( get_tag_name(), 1 ) . '" href="' . get_tag_rss_link() . '" />';
+	elseif ( is_front() )
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Recent Posts" href="' . get_recent_rss_link() . '" />';
+	echo bb_apply_filters('bb_feed_head', $feed_link);
+}
+
+function get_recent_rss_link() {
+	if ( $bb->mod_rewrite )
+		$link = bb_get_option('uri') . 'rss/';
+	else
+		$link = bb_get_option('uri') . "rss.php";
+	return bb_apply_filters('get_recent_rss_link', $link);
+}
+
 // FORUMS
 
 function forum_link() {
