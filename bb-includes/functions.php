@@ -1179,6 +1179,7 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
 function bb_repermalink() {
+	global $bb;
 	$uri = $_SERVER['REQUEST_URI'];
 	$permalink = (int) $_GET['id'];
 	if ( !$permalink )
@@ -1235,15 +1236,28 @@ function bb_repermalink() {
 	}
 
 	$check = preg_replace( '|' . trim( bb_get_option('domain'), ' /' ) . '|', '', $permalink, 1 );
-	if ( $check != $uri ) {
-		if ( version_compare(phpversion(), '4.3.0', '>=') ) {
-			header("Location: $permalink", true, 301);
-		} else {
-			header("Location: $permalink");
-			status_header( 301 );
+
+	if ( 1 === $bb->debug ) :
+		echo "<table>\n<tr><td>REQUEST_URI:</td><td>";
+		var_dump($uri);
+		echo "</td></tr>\n<tr><td>should be:</td><td>";
+		var_dump($check);
+		echo "</td></tr>\n<tr><td>full permalink:</td><td>";
+		var_dump($permalink);
+		echo "</td></tr>\n<tr><td>PATH_INFO:</td><td>";
+		var_dump($_SERVER['PATH_INFO']);
+		echo "</td></tr>\n</table>";
+	else :
+		if ( $check != $uri ) {
+			if ( version_compare(phpversion(), '4.3.0', '>=') ) {
+				header("Location: $permalink", true, 301);
+			} else {
+				header("Location: $permalink");
+				status_header( 301 );
+			}
+			exit;
 		}
-		exit;
-	}
+	endif;
 }
 
 function status_header( $header ) {
