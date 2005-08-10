@@ -10,24 +10,30 @@ if ( isset( $_GET['page'] ) )
 
 if ( !$topic )
 	die('Topic not found.');
-$posts = get_thread( $topic_id, $page );
-$forum = get_forum ( $topic->forum_id );
 
-$tags  = get_topic_tags ( $topic_id );
-if ( $current_user && $tags ) {
-	$user_tags  = get_user_tags  ( $topic_id, $current_user->ID );
-	$other_tags = get_other_tags ( $topic_id, $current_user->ID );
-} elseif ( is_array($tags) ) {
-	$user_tags  = false;
-	$other_tags = get_public_tags( $topic_id );
-} else {
-	$user_tags  = false;
-	$other_tags = false;
-}
+$bb_db_override = false;
+bb_do_action( 'bb_topic.php_pre_db', $topic_id );
 
-$list_start = $page * bb_get_option('page_topics') + 1;
+if ( !$bb_db_override ) :
+	$posts = get_thread( $topic_id, $page );
+	$forum = get_forum ( $topic->forum_id );
 
-post_author_cache($posts);
+	$tags  = get_topic_tags ( $topic_id );
+	if ( $current_user && $tags ) {
+		$user_tags  = get_user_tags  ( $topic_id, $current_user->ID );
+		$other_tags = get_other_tags ( $topic_id, $current_user->ID );
+	} elseif ( is_array($tags) ) {
+		$user_tags  = false;
+		$other_tags = get_public_tags( $topic_id );
+	} else {
+		$user_tags  = false;
+		$other_tags = false;
+	}
+
+	$list_start = $page * bb_get_option('page_topics') + 1;
+
+	post_author_cache($posts);
+endif;
 
 bb_do_action( 'bb_topic.php', $topic_id );
 

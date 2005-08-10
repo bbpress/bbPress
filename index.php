@@ -2,10 +2,13 @@
 
 require_once('bb-config.php');
 
-// Comment to hide forums
-$forums = get_forums();
+$bb_db_override = false;
+bb_do_action( 'bb_index.php_pre_db', '' );
 
-$topics = get_latest_topics();
+if ( !$bb_db_override ) :
+	$forums = get_forums(); // Comment to hide forums
+	$topics = get_latest_topics();
+endif;
 
 bb_do_action( 'bb_index.php', '' );
 

@@ -15,10 +15,10 @@ if ( !$tag )
 	if ( 'tags' == get_path() )
 		$tag = get_path(2);
 
-$rss_override = false;
-bb_do_action( 'bb_rss.php', '' );
+$bb_db_override = false;
+bb_do_action( 'bb_rss.php_pre_db', '' );
 
-if ( !$rss_override ) :
+if ( !$bb_db_override ) :
 if ( $topic_id ) {
 	if ( !$topic = get_topic ( $topic_id ) )
 		die();
@@ -40,6 +40,8 @@ if ( $topic_id ) {
 	$title = bb_get_option('name') . ': Last 35 Posts';
 }
 endif;
+
+bb_do_action( 'bb_rss.php', '' );
 
 require_once( BBPATH . 'bb-includes/feed-functions.php');
 

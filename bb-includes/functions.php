@@ -63,6 +63,7 @@ function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 	if ( is_forum() )
 		$where .= " AND topic_sticky <> '1' ";
 	$limit = bb_get_option('page_topics');
+	$where = bb_apply_filters('get_latest_topics_where', $where);
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit") )
@@ -75,6 +76,7 @@ function get_sticky_topics( $forum = 0 ) {
 	$where = '';
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
+	$where = bb_apply_filters('get_sticky_topics_where', $where);
 	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC") )
 		return bb_append_meta( $stickies, 'topic' );	
 	else	return false;

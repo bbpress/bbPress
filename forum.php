@@ -12,8 +12,13 @@ if ( isset( $_GET['page'] ) )
 if ( !$forum )
 	die('Forum not found.');
 
-$topics   = get_latest_topics( $forum_id, $page );
-$stickies = get_sticky_topics( $forum_id );
+$bb_db_override = false;
+bb_do_action( 'bb_forum.php_pre_db', $forum_id );
+
+if ( !$bb_db_override ) :
+	$topics   = get_latest_topics( $forum_id, $page );
+	$stickies = get_sticky_topics( $forum_id );
+endif;
 
 bb_do_action( 'bb_forum.php', $forum_id );
 
