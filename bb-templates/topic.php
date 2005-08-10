@@ -56,6 +56,7 @@
 <p>This topic has been closed to new replies.</p>
 <?php endif; ?>
 <div class="admin">
-<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?>
+<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?><br />
+<?php topic_move_dropdown(); ?>
 </div>
 <?php get_footer(); ?>

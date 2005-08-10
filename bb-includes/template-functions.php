@@ -404,6 +404,48 @@ function get_page_number_links($page, $total) {
 	return $r;
 }
 
+function topic_delete_link() {
+	global $current_user;
+
+	if ( $current_user->user_type > 1 )
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
+}
+
+function topic_close_link() {
+	global $current_user;
+	if ( $current_user->user_type > 1 ) {
+		if ( topic_is_open( get_topic_id() ) )
+			$text = 'Close topic';
+		else
+			$text = 'Open topic';
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id() . "'>$text</a>";
+	}
+}
+
+function topic_sticky_link() {
+	global $current_user;
+	if ( $current_user->user_type > 1 ) {
+		if ( topic_is_sticky( get_topic_id() ) )
+			$text = 'Unstick topic';
+		else
+			$text = 'Stick topic';
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>$text</a>";
+	}
+}
+
+function topic_move_dropdown() {
+	global $current_user, $forum_id, $topic;
+	if ( $current_user->user_type > 1 ) :
+		$forum_id = $topic->forum_id;
+		echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
+		echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
+		echo '<label for="forum_id">Move this topic to the selected forum: ';
+		forum_dropdown();
+		echo "</label>\n\t";
+		echo "<input type='submit' name='Submit' value='Move' />\n</div></form>";
+	endif;
+}
+
 // POSTS
 
 function post_id() {
@@ -489,39 +531,10 @@ function post_delete_link() {
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
 }
 
-function topic_delete_link() {
-	global $current_user;
-
-	if ( $current_user->user_type > 1 )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
-}
-
-function topic_close_link() {
-	global $current_user;
-	if ( $current_user->user_type > 1 ) {
-		if ( topic_is_open( get_topic_id() ) )
-			$text = 'Close topic';
-		else
-			$text = 'Open topic';
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id() . "'>$text</a>";
-	}
-}
-
-function topic_sticky_link() {
-	global $current_user;
-	if ( $current_user->user_type > 1 ) {
-		if ( topic_is_sticky( get_topic_id() ) )
-			$text = 'Unstick topic';
-		else
-			$text = 'Stick topic';
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>$text</a>";
-	}
-}
-
-
 function post_author_id() {
 	echo bb_apply_filters('post_author_id', get_post_author_id() );
 }
+
 function get_post_author_id() {
 	global $post;
 	return $post->poster_id;
@@ -761,11 +774,13 @@ function tag_pages() {
 }
 
 function forum_dropdown() {
+	global $forum_id;
 	$forums = get_forums();
-	echo '<select name="forum_id" tabindex="4">';
-    
+	echo '<select name="forum_id" id="forum_id" tabindex="4">';
+
 	foreach ( $forums as $forum ) :
-		echo "<option value='$forum->forum_id'>$forum->forum_name</option>";
+		$selected = ( $forum_id == $forum->forum_id ) ? " selected='selected'" : '';
+		echo "<option value='$forum->forum_id'$selected>$forum->forum_name</option>";
 	endforeach;
 	echo '</select>';
 }
