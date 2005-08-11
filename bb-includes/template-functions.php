@@ -124,6 +124,13 @@ function is_bb_favorites() {
 		return false;
 }
 
+function is_view() {
+	if ( 'view.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+		return true;
+	else
+		return false;
+}
+
 function bb_title() {
 	global $topic, $forum, $static_title, $tag;
 	$title = '';
@@ -227,6 +234,20 @@ function topic_link( $id = 0 ) {
 	echo bb_apply_filters('topic_link', get_topic_link($id) );
 }
 
+function get_topic_link( $id = 0 ) {
+	global $topic;
+
+	if ( $id )
+		$topic = get_topic( $id );
+
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . 'topic/' . $topic->topic_id;
+	else
+		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id";
+
+	return bb_apply_filters('get_topic_link', $link);
+}
+
 function topic_rss_link( $id = 0 ) {
 	echo bb_apply_filters('topic_rss_link', get_topic_rss_link($id) );
 }
@@ -243,20 +264,6 @@ function get_topic_rss_link( $id = 0 ) {
 		$link = bb_get_option('uri') . "rss.php?topic=$topic->topic_id";
 
 	return bb_apply_filters('get_topic_rss_link', $link);
-}
-
-function get_topic_link( $id = 0 ) {
-	global $topic;
-
-	if ( $id )
-		$topic = get_topic( $id );
-
-	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . 'topic/' . $topic->topic_id;
-	else
-		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id";
-
-	return bb_apply_filters('get_topic_link', $link);
 }
 
 function topic_title( $id = 0 ) {
@@ -399,7 +406,7 @@ function get_page_number_links($page, $total) {
 			endif;
 		endfor;
 	}
-	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total )
+	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total || -1 == $total )
 		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>' . "\n";
 	return $r;
 }
@@ -823,5 +830,29 @@ function get_favorites_rss_link( $id = 0 ) {
 		$link = bb_get_option('uri') . "rss.php?profile=$user->ID";
 
 	return bb_apply_filters('get_favorites_rss_link', $link);
+}
+
+//VIEWS
+function view_name() {
+	global $view;
+	$views = get_views();
+	echo $views[$view];
+}
+
+function view_pages() {
+	global $page;
+	echo bb_apply_filters( 'view_pages', get_page_number_links( $page, -1 ) );
+}
+
+function get_view_link( $view ) {
+	$views = get_views();
+	if ( !array_key_exists($view, $views) )
+		return bb_get_option('uri');
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . 'view/' . $view;
+	else
+		$link = bb_get_option('uri') . "view.php?view=$view";
+
+	return bb_apply_filters('get_view_link', $link);
 }
 ?>

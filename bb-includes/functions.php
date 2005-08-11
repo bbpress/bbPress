@@ -82,6 +82,18 @@ function get_sticky_topics( $forum = 0 ) {
 	else	return false;
 }
 
+function no_replies( $where ) {
+	return $where . ' AND topic_posts = 1 ';
+}
+
+function untagged( $where ) {
+	return $where . ' AND tag_count = 0 ';
+}
+
+function unresolved( $where ) {
+	return $where . " AND topic_resolved = 'no' ";
+}
+
 function get_latest_posts( $num ) {
 	global $bbdb;
 	$num = (int) $num;
@@ -939,13 +951,17 @@ function add_topic_tag( $topic_id, $tag ) {
 	if ( !$tag_id = create_tag( $tag ) )
 		return false;
 	$now    = bb_current_time('mysql');
-	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$current_user->ID' AND topic_id='$topic_id'") )
-		return true;
+	if ( $user_already = $bbdb->get_var("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") )
+		if ( $user_already == $current_user->ID )
+			return true;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES
 	( '$tag_id', '$current_user->ID', '$topic_id', '$now')");
-	$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
+	if ( !$user_already ) {
+		$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
+		$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id = '$topic_id'");
+	}
 	bb_do_action('bb_tag_added', $topic_id);
 	return true;
 }
@@ -1009,10 +1025,16 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	
 	bb_do_action('bb_tag_removed', $tagged);
 
-	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") );
-		$tagged = $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
-	if ( !$bbdb->get_var("SELECT tag_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' LIMIT 1") ) // don't trust tag_count?
-		$destroyed = destroy_tag( $tag_id );
+	$topics = array_flip($bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id"));
+	$counts = $bbdb->get_col('', 1);
+	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") ) :
+		if ( 1 == $counts[$topics[$topic_id]] ) :
+			$tagged = $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
+			$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id = '$topic_id'");
+			if ( 1 == count($counts) )
+				$destroyed = destroy_tag( $tag_id );
+		endif;
+	endif;
 	return array( 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
 }
 
@@ -1031,13 +1053,19 @@ function merge_tags( $old_id, $new_id ) {
 	$tagged_del = 0;
 	if ( $old_topic_ids = $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
 		$old_topic_ids = join(',', $old_topic_ids);
-		$shared_topics = $bbdb->get_results( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
-		foreach ( $shared_topics as $shared_topic )
-			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '$shared_topic->user_id' AND topic_id = '$shared_topic->topic_id'" );
+		$shared_topics_u = $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
+		$shared_topics_i = $bbdb->get_col( '', 1 );
+		foreach ( $shared_topics_i as $t => $i ) {
+			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$i'" );
+			$count = $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
+			$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
+		}
 	}
 
-	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) )
-		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = tag_count + $diff_count WHERE tag_id = '$new_id'" );
+	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) ) {
+		$count = $bbdb->get_var( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = '$new_id' GROUP BY tag_id" );
+		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
+	}
 
 	// return values and destroy the old tag
 	return array( 'destroyed' => destroy_tag( $old_id ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
@@ -1050,8 +1078,13 @@ function destroy_tag( $tag_id ) {
 
 	bb_do_action('bb_tag_destroyed', $tag_id);
 
-	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") )
+	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") ) {
+		if ( $topics = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
+			$topics = join(',', $topics);
+			$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id IN ($topics)");
+		}	
 		$tagged = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
+	}
 	return array( 'tags' => $tags, 'tagged' => $tagged );
 }
 
@@ -1225,6 +1258,13 @@ function bb_repermalink() {
 			$tag_name = $permalink;
 			$permalink = get_tag_link( $permalink );
 		}
+	} elseif ( is_view() ) { // Not an integer
+		$permalink = $_GET['view'];
+		if ( !$permalink )
+			$permalink = get_path();
+		global $view;
+		$view = $permalink;
+		$permalink = get_view_link( $permalink );
 	} else { return; }
 
 	parse_str($_SERVER['QUERY_STRING'], $args);
@@ -1350,5 +1390,15 @@ function get_profile_admin_keys() {
 		'get_profile_admin_keys',
 		array($table_prefix . 'title' => array(0, __('Custom Title')))
 	);
+}
+
+function get_views( $cache = true ) {
+	global $views;
+	if ( !isset($views) || !$cache )
+		$views = bb_apply_filters(
+				'bb_views',
+				array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'))
+			 );
+	return $views;
 }
 ?>

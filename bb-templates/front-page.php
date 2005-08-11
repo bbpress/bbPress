@@ -6,6 +6,13 @@
 
 <p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
 
+<h2>Views</h2>
+<ul id="views">
+<?php foreach ( get_views() as $view => $title ) : ?>
+<li class="view"><a href="<?php echo get_view_link($view); ?>"><?php echo $view; ?></a></li>
+<?php endforeach; ?>
+</ul>
+
 <?php if ( $topics ) : ?>
 
 <h2>Latest Discussions</h2>
