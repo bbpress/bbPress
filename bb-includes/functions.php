@@ -17,7 +17,8 @@ function get_topic( $id, $cache = true ) {
 	if ( isset( $topic_cache[$id] ) && $cache ) :
 		return $topic_cache[$id];
 	else :
-		$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id AND topic_status = 0");
+		$where = bb_apply_filters('get_topic_where', 'AND topic_status = 0');
+		$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id $where");
 		return bb_append_meta( $topic, 'topic' );
 	endif;
 }
@@ -25,12 +26,13 @@ function get_topic( $id, $cache = true ) {
 function get_thread( $topic_id, $page = 0, $reverse = 0 ) {
 	global $post_cache, $bbdb;
 
+	$where = bb_apply_filters('get_thread_where', 'AND post_status = 0');
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
 	$order = ($reverse) ? 'DESC' : 'ASC';
 
-	$thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0 ORDER BY post_time $order LIMIT $limit");
+	$thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time $order LIMIT $limit");
 	foreach ($thread as $post)
 		$post_cache[$post->post_id] = $post;
 	return $thread;
@@ -39,7 +41,8 @@ function get_thread( $topic_id, $page = 0, $reverse = 0 ) {
 function get_thread_post_ids ( $topic_id ) {
 	global $bbdb, $thread_ids_cache;
 	if ( !isset( $thread_ids_cache[$topic_id] ) ) {
-		$thread_ids_cache[$topic_id]['post'] = $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0 ORDER BY post_time");
+		$where = bb_apply_filters('get_thread_post_ids_where', 'AND post_status = 0');
+		$thread_ids_cache[$topic_id]['post'] = $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
 		$thread_ids_cache[$topic_id]['poster'] = $bbdb->get_col('', 1);
 	}	
 	return $thread_ids_cache[$topic_id];
@@ -55,9 +58,9 @@ function get_post( $post_id ) {
 
 function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 	global $bbdb, $bb;
-	$where = $limit = '';
+	$where = 'WHERE topic_status = 0';
 	if ( $forum )
-		$where = "AND forum_id = $forum";
+		$where .= " AND forum_id = $forum ";
 	if ( !empty( $exclude ) )
 		$where .= " AND forum_id NOT IN ('$exclude') ";
 	if ( is_forum() )
@@ -66,18 +69,18 @@ function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 	$where = bb_apply_filters('get_latest_topics_where', $where);
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 $where ORDER BY topic_time DESC LIMIT $limit") )
+	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit") )
 		return bb_append_meta( $topics, 'topic' );
 	else	return false;
 }
 
 function get_sticky_topics( $forum = 0 ) {
 	global $bbdb, $bb;
-	$where = '';
+	$where = 'AND topic_status = 0';
 	if ( $forum )
-		$where .= " AND forum_id = $forum ";
+		$where = "AND forum_id = $forum ";
 	$where = bb_apply_filters('get_sticky_topics_where', $where);
-	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_sticky = '1' $where ORDER BY topic_time DESC") )
+	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_sticky = 1 $where ORDER BY topic_time DESC") )
 		return bb_append_meta( $stickies, 'topic' );	
 	else	return false;
 }
@@ -94,10 +97,19 @@ function unresolved( $where ) {
 	return $where . " AND topic_resolved = 'no' ";
 }
 
+function deleted_topics( $where ) {
+	return str_replace('topic_status = 0', 'topic_status = 1', $where);
+}
+
+function no_where( $where ) {
+	return;
+}
+
 function get_latest_posts( $num ) {
 	global $bbdb;
 	$num = (int) $num;
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status = 0 ORDER BY post_time DESC LIMIT $num");
+	$where = bb_apply_filters('get_latest_posts_where', 'WHERE post_status = 0');
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $num");
 }
 
 function get_user_favorites( $user_id, $list = false ) {
@@ -119,7 +131,8 @@ function get_recent_user_replies( $user_id ) {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id AND post_status = 0 GROUP BY topic_id ORDER BY post_time DESC LIMIT $limit");
+	$where = bb_apply_filters('get_recent_user_replies', 'AND post_status = 0');
+	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY post_time DESC LIMIT $limit");
 	if ( $posts ) :
 		foreach ($posts as $post) {
 			$post_cache[$post->post_id] = $post;
@@ -139,7 +152,8 @@ function get_recent_user_threads( $user_id ) {
 	$limit = bb_get_option('page_topics');
 	if ( $page )
 		$limit = ($limit * $page) . ", $limit";
-	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id AND topic_status = 0 ORDER BY topic_start_time DESC LIMIT $limit");
+	$where = bb_apply_filters('get_recent_user_threads_where', 'AND topic_status = 0');
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id $where ORDER BY topic_start_time DESC LIMIT $limit");
 	if ( $topics )
 		$topic = bb_append_meta( $topics, 'topic' );
 	return $topics;
@@ -300,15 +314,12 @@ function option( $option ) {
 
 function bb_add_query_arg() {
 	$ret = '';
-	if( is_array( func_get_arg(0) ) ) {
+	if( is_array( func_get_arg(0) ) )
 		$uri = @func_get_arg(1);
-	} else {
-		if ( @func_num_args() < 3 ) {
-			$uri = $_SERVER['REQUEST_URI'];
-		} else {
-			$uri = @func_get_arg(2);
-		}
-	}
+	else
+		$uri = @func_get_arg(2);
+	if ( false === $uri )
+		$uri = $_SERVER['REQUEST_URI'];
 
 	if ( $frag = strstr($uri, '#') )
 		$uri = substr($uri, 0, -strlen($frag));
@@ -581,9 +592,17 @@ function bb_delete_topic( $topic_id ) {
 	$topic_id = (int) $topic_id;
 	if ( $topic = get_topic( $topic_id ) ) {
 		$post_ids = get_thread_post_ids( $topic_id );
-		$post_ids = array_reverse($post_ids['post']);
-		foreach ( $post_ids as $post_id )
+		$post_ids['post'] = array_reverse($post_ids['post']);
+		foreach ( $post_ids['post'] as $post_id )
 			bb_delete_post( $post_id );
+		if ( $topic->topic_status ) {
+			global $table_prefix;
+			$ids = array_unique($post_ids['poster']);
+			foreach ( $ids as $id )
+				if ( $user = bb_get_user( $id ) )
+					update_usermeta( $user->ID, $table_prefix . 'topics_replied', $user->topics_replied + 1 );
+			bb_do_action( 'bb_undelete_topic', $topic_id );
+		}
 		return $topic_id;
 	} else {
 		return false;
@@ -645,8 +664,10 @@ function bb_delete_post( $post_id ) {
 	$topic   = get_topic( $post->topic_id );
 
 	if ( $post ) {
-		$bbdb->query("UPDATE $bbdb->posts SET post_status = 1 WHERE post_id = $post_id");
-		$bbdb->query("UPDATE $bbdb->forums SET posts = posts - 1 WHERE forum_id = $topic->forum_id");
+		$new_status = ( $post->post_status + 1 ) % 2;
+		$sign = ( $new_status ) ? '-' : '+';
+		$bbdb->query("UPDATE $bbdb->posts SET post_status = $new_status WHERE post_id = $post_id");
+		$bbdb->query("UPDATE $bbdb->forums SET posts = posts $sign 1 WHERE forum_id = $topic->forum_id");
 		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $post->topic_id AND post_status = 0");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $post->topic_id");
 
@@ -662,23 +683,39 @@ function bb_delete_post( $post_id ) {
 		} else {
 			$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $post->topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
 			$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = $old_post->poster_id");
-			$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $post->topic_id");
+			if ( $topic->topic_status ) {
+				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0, topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $post->topic_id");
+				$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $topic->forum_id");
+			} else
+				$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $post->topic_id");
 			if ( $topic->topic_posts != $post->post_position )
 				update_post_positions( $topic->topic_id );
 		}
-		if ( isset($thread_ids_cache[$topic->topic_id]) ) {
+		//Only happens if we're deleting an entire topic
+		if ( $new_status && isset($thread_ids_cache[$topic->topic_id]) ) {
 			array_pop($thread_ids_cache[$topic->topic_id]['post']);
 			array_pop($thread_ids_cache[$topic->topic_id]['poster']);
 		}
 		$post_ids = get_thread_post_ids( $post->topic_id );
 		$user = bb_get_user( $post->poster_id );
-		if ( !is_array($post_ids['poster']) || !in_array($user->ID, $post_ids['poster']) )
+		if ( $new_status && ( !is_array($post_ids['poster']) || !in_array($user->ID, $post_ids['poster']) ) )
 			update_usermeta( $user->ID, $table_prefix . 'topics_replied', $user->topics_replied - 1 );
 		bb_do_action('bb_delete_post', $post_id);
 		return $post_id;
 	} else {
 		return false;
 	}
+}
+
+function topics_replied_on_undelete_post( $post_id ) {
+	global $table_prefix;
+	$post = get_post( $post_id );
+	$topic = get_topic( $post->topic_id );
+	$post_ids = get_thread_post_ids( $topic->topic_id );
+	$times = array_count_values( $post_ids['poster'] );
+	if ( 1 == $times[$post->poster_id] )
+		if ( $user = bb_get_user( $post->poster_id ) )
+			update_usermeta( $user->ID, $table_prefix . 'topics_replied', $user->topics_replied + 1 );
 }
 
 function bb_resolve_topic ( $topic_id, $resolved = 'yes' ) {
@@ -884,7 +921,8 @@ function topic_is_sticky ( $topic_id ) {
 function bb_is_first( $post_id ) { // First post in thread
 	global $bbdb;
 	$post = get_post( $post_id );
-	$first_post = $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $post->topic_id ORDER BY post_id ASC LIMIT 1");
+	$where = bb_apply_filters('bb_is_first_where', 'AND post_status = 0');
+	$first_post = $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $post->topic_id $where ORDER BY post_id ASC LIMIT 1");
 
 	if ( $post_id == $first_post )
 		return true;
@@ -1393,12 +1431,11 @@ function get_profile_admin_keys() {
 }
 
 function get_views( $cache = true ) {
-	global $views;
+	global $current_user, $views;
 	if ( !isset($views) || !$cache )
-		$views = bb_apply_filters(
-				'bb_views',
-				array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'))
-			 );
-	return $views;
+		$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
+	if ( 0 < $current_user->user_type )
+		$views['deleted'] = __('Deleted Topics');
+	return bb_apply_filters('bb_views', $views);
 }
 ?>

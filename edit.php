@@ -1,6 +1,10 @@
 <?php
 require('bb-config.php');
 
+if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+	bb_add_filter('bb_is_first_where', 'no_where');
+}
+
 $post_id = (int) $_GET['id'];
 
 $post  = get_post( $post_id );

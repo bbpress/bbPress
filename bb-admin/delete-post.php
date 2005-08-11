@@ -1,6 +1,11 @@
 <?php
 require('admin-header.php');
 
+if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+	bb_add_filter('get_topic_where', 'no_where');
+	bb_add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
+}
+
 $post_id = (int) $_GET['id'];
 $post    =  get_post ( $post_id );
 

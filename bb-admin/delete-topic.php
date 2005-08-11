@@ -1,6 +1,11 @@
 <?php
 require('admin-header.php');
 
+if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+	bb_add_filter('get_topic_where', 'no_where');
+	bb_add_filter('get_thread_post_ids_where', 'no_where');
+}
+
 $topic_id = (int) $_GET['id'];
 $topic    =  get_topic ( $topic_id );
 
@@ -9,8 +14,11 @@ if ( !$topic )
 
 bb_delete_topic( $topic->topic_id );
 
-$sendto = get_forum_link( $topic->forum_id );
-
+if ( 0 == $topic->topic_status )
+	$sendto = get_forum_link( $topic->forum_id );
+else
+	$sendto = get_topic_link( $topic_id );
+	
 header( "Location: $sendto" );
 exit;
 

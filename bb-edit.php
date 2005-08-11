@@ -3,6 +3,10 @@ require('bb-config.php');
 
 nocache_headers();
 
+if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+	bb_add_filter('bb_is_first_where', 'no_where');
+}
+
 $post_id = (int) $_POST['post_id'];
 
 $post  = get_post( $post_id );

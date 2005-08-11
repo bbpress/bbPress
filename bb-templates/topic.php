@@ -4,7 +4,7 @@
 
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
 <div class="infobox">
-<h2 class="topictitle"><?php topic_title(); ?></h2>
+<h2 class="topictitle<?php if ( $topic->topic_status ) echo ' deleted'; ?>"><?php topic_title(); ?></h2>
 
 <?php topic_tags(); ?>
 
@@ -26,8 +26,8 @@
 </div>
 <ol id="thread" start="<?php echo $list_start; ?>">
 
-<?php foreach ($posts as $post) : ?>
-	<li id="post-<?php post_id(); ?>" <?php alt_class('post'); ?>>
+<?php foreach ($posts as $post) : $del_class = ( $post->post_status ) ? 'deleted' : ''; ?>
+	<li id="post-<?php post_id(); ?>" <?php alt_class('post', $del_class); ?>>
 	
 		<div class="threadauthor">
 			<p><strong><?php post_author_link(); ?></strong><br />
@@ -56,7 +56,7 @@
 <p>This topic has been closed to new replies.</p>
 <?php endif; ?>
 <div class="admin">
-<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?><br />
+<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?> <?php topic_show_all_link(); ?><br />
 <?php topic_move_dropdown(); ?>
 </div>
 <?php get_footer(); ?>

@@ -388,8 +388,13 @@ function topic_pages() {
 
 function get_page_number_links($page, $total) {
 	$r = '';
-	if ( $page )
-		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg('page', $page - 1) ) . '">&laquo; Previous Page</a>' . "\n";
+	$args = array();
+	if ( in_array($_GET['view'], get_views()) )
+		$args['view'] = $_GET['view'];
+	if ( $page ) {
+		$args['page'] = $page - 1;
+		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg( $args ) ) . '">&laquo; Previous Page</a>' . "\n";
+	}
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
 		for ( $page_num = 0; $page_num < $total_pages; $page_num++ ) :
 			if ( $page == $page_num ) :
@@ -397,7 +402,8 @@ function get_page_number_links($page, $total) {
 			else :
 				$p = false;
 				if ( $page_num < 2 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
-					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg('page', $page_num) ) . '">' . ( $page_num + 1 ) . "</a>\n";
+					$args['page'] = $page_num;
+					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">' . ( $page_num + 1 ) . "</a>\n";
 					$in = true;
 				elseif ( $in == true ) :
 					$r .= "...\n";
@@ -406,21 +412,27 @@ function get_page_number_links($page, $total) {
 			endif;
 		endfor;
 	}
-	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total || -1 == $total )
-		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg('page', $page + 1) ) . '">Next Page &raquo;</a>' . "\n";
+	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total || -1 == $total ) {
+		$args['page'] = $page + 1;
+		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">Next Page &raquo;</a>' . "\n";
+	}
 	return $r;
 }
 
 function topic_delete_link() {
-	global $current_user;
+	global $current_user, $topic;
 
-	if ( $current_user->user_type > 1 )
+	if ( 1 > $current_user->user_type )
+		return;
+	if ( 0 == $topic->topic_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
+	else
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete entire topic</a>";
 }
 
 function topic_close_link() {
 	global $current_user;
-	if ( $current_user->user_type > 1 ) {
+	if ( 0 < $current_user->user_type ) {
 		if ( topic_is_open( get_topic_id() ) )
 			$text = 'Close topic';
 		else
@@ -431,7 +443,7 @@ function topic_close_link() {
 
 function topic_sticky_link() {
 	global $current_user;
-	if ( $current_user->user_type > 1 ) {
+	if ( 0 < $current_user->user_type ) {
 		if ( topic_is_sticky( get_topic_id() ) )
 			$text = 'Unstick topic';
 		else
@@ -440,9 +452,19 @@ function topic_sticky_link() {
 	}
 }
 
+function topic_show_all_link() {
+	global $current_user;
+	if ( 1 > $current_user->user_type )
+		return;
+	if ( 'deleted' == $_GET['view'] )
+		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
+	else
+		echo "<a href='" . bb_add_query_arg( 'view', 'deleted', get_topic_link() ) . "'>View deleted posts</a>";
+}
+
 function topic_move_dropdown() {
 	global $current_user, $forum_id, $topic;
-	if ( $current_user->user_type > 1 ) :
+	if ( 0 < $current_user->user_type ) :
 		$forum_id = $topic->forum_id;
 		echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
 		echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
@@ -528,14 +550,18 @@ function post_edit_link() {
 	global $current_user, $post;
 
 	if ( can_edit_post( $post->post_id ) )
-		echo "<a href='" . bb_get_option('uri') . 'edit.php?id=' . get_post_id() . "'>Edit</a>";
+		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>Edit</a>";
 }
 
 function post_delete_link() {
-	global $current_user;
+	global $current_user, $post;
 
-	if ( $current_user->user_type > 1 )
+	if ( 1 > $current_user->user_type )
+		return;
+	if ( 0 == $post->post_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
+	else
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete</a>";
 }
 
 function post_author_id() {

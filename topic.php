@@ -3,6 +3,13 @@ require_once('bb-config.php');
 
 $topic_id = $page = 0;
 
+if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+	bb_add_filter('get_topic_where', 'no_where');
+	bb_add_filter('get_thread_where', 'no_where');
+	bb_add_filter('get_thread_post_ids', 'no_where');
+	bb_add_filter('post_edit_uri', 'make_link_deleted');
+}
+
 bb_repermalink();
 
 if ( isset( $_GET['page'] ) )
