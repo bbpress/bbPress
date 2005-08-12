@@ -284,6 +284,6 @@ function closed_title( $title ) {
 }
 
 function make_link_deleted( $link ) {
-	return bb_add_query_arg( 'view', 'deleted', $link );
+	return bb_specialchars( bb_add_query_arg( 'view', 'deleted', $link ) );
 }
 ?>

@@ -378,7 +378,7 @@ function topic_last_post_link( $id = 0 ) {
 	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
-	echo get_post_link( $topic->topic_last_post_id );
+	post_link( $topic->topic_last_post_id );
 }
 
 function topic_pages() {
@@ -427,7 +427,7 @@ function topic_delete_link() {
 	if ( 0 == $topic->topic_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete entire topic</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&#038;view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete entire topic</a>";
 }
 
 function topic_close_link() {
@@ -459,7 +459,7 @@ function topic_show_all_link() {
 	if ( 'deleted' == $_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
 	else
-		echo "<a href='" . bb_add_query_arg( 'view', 'deleted', get_topic_link() ) . "'>View deleted posts</a>";
+		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'deleted', get_topic_link() ) ) . "'>View deleted posts</a>";
 }
 
 function topic_move_dropdown() {
@@ -561,7 +561,7 @@ function post_delete_link() {
 	if ( 0 == $post->post_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete</a>";
 }
 
 function post_author_id() {
@@ -605,7 +605,7 @@ function get_profile_tab_link( $id, $tab ) {
 	if ( bb_get_option('mod_rewrite') )
 		$r = get_user_profile_link( $id ) . "/$tab";
 	else
-		$r = bb_add_query_arg('tab', $tab, get_user_profile_link( $id ));
+		$r = bb_add_query_arg( 'tab', $tab, get_user_profile_link( $id ) );
 	return bb_apply_filters('get_profile_tab_link', $r);
 }
 
@@ -707,7 +707,7 @@ function get_tag_name( $id = 0 ) {
 }
 
 function tag_name( $id = 0 ) {
-	echo get_tag_name( $id );
+	echo bb_specialchars( get_tag_name( $id ) );
 }
 
 function tag_rss_link( $id = 0 ) {
@@ -754,7 +754,7 @@ function tag_merge_form() {
 	$tag_merge_form .= "<p>Merge this tag into the tag specified</p>\n<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
 	$tag_merge_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
 	$tag_merge_form .= '<input type="submit" name="Submit" value="Merge" ';
-	$tag_merge_form .= 'onclick="return confirm(\'Are you sure you want to merge the \\\'' . $tag->raw_tag . '\\\' tag into the tag you specified? This is permanent and cannot be undone.\')" />' . "\n</p>\n</form>";
+	$tag_merge_form .= 'onclick="return confirm(\'Are you sure you want to merge the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag into the tag you specified? This is permanent and cannot be undone.\')" />' . "\n</p>\n</form>";
 	echo $tag_merge_form;
 }
 
@@ -765,7 +765,7 @@ function tag_destroy_form() {
 	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php">' . "\n";
 	$tag_destroy_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
 	$tag_destroy_form .= '<input type="submit" name="Submit" value="Destroy" ';
-	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . $tag->raw_tag . '\\\' tag? This is permanent and cannot be undone.\')" />' . "\n</form>";
+	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag? This is permanent and cannot be undone.\')" />' . "\n</form>";
 	echo $tag_destroy_form;
 }
 
@@ -773,7 +773,7 @@ function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	global $tag, $current_user;
 	if ( $current_user->user_type < 1 && ( !topic_is_open($tag->topic_id) || $current_user->ID != $tag->user_id ) )
 		return false;
-	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . $tag->raw_tag . '\\\' tag?\')" title="Remove this tag">x</a>]';
+	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag?\')" title="Remove this tag">x</a>]';
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {
@@ -796,6 +796,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 	uksort($counts, 'strnatcasecmp');
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
+		$tag = bb_specialchars( $tag );
 		print "<a href='$taglink' title='$count topics' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}
@@ -838,7 +839,7 @@ function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favo
 			$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
 			$text = $add;
 		endif;
-		echo '<a href="' . bb_add_query_arg( $favs, get_favorites_link() ) . '">' . $text . '</a>';
+		echo '<a href="' . bb_specialchars( bb_add_query_arg( $favs, get_favorites_link() ) ) . '">' . $text . '</a>';
 }
 
 function favorites_rss_link( $id = 0 ) {
