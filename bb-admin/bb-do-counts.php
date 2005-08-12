@@ -1,9 +1,9 @@
-<?php
+<?php // ?zap_tags=1 to delete tags with 0 tag_count
 
 require('../bb-config.php');
 header('Content-type: text/plain');
 
-if( $current_user->user_type >= 5 ) :
+if( current_user_can('recount') ) :
 
 if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :
 	$counts = $bbdb->get_col('', 1);
@@ -18,7 +18,10 @@ if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(DISTINCT tag_id) FROM $bbd
 	foreach ($topics as $t => $i) :
 		$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = $i");
 	endforeach;
-	unset($topics, $t, $i, $counts);
+	$not_tagged = array_diff($bbdb->get_col("SELECT topic_id FROM $bbdb->topics"), $tags);
+	foreach ( $not_tagged as $i )
+		$bbdb->query("UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = $i");
+	unset($topics, $t, $i, $counts, $not_tagged);
 endif;
 
 if ( $all_forums = $bbdb->get_col("SELECT forum_id FROM $bbdb->forums") ) :
@@ -49,11 +52,16 @@ if ( $tags = $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb-
 	foreach ( $tags as $t => $i ) :
 		$bbdb->query("UPDATE $bbdb->tags SET tag_count = '{$counts[$t]}' WHERE tag_id = $i");
 	endforeach;
-	unset($tags, $t, $i, $counts);
+	$not_tagged = array_diff($bbdb->get_col("SELECT tag_id FROM $bbdb->tags"), $tags);
+	foreach ( $not_tagged as $i )
+		$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0 WHERE tag_id = $i");
+	unset($tags, $t, $i, $counts, $not_tagged);
 else :
 	$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0");
 endif;
 
+if ( 1 == $_GET['zap_tags'] )
+	$bbdb->query("DELETE FROM $bbdb->tags WHERE tag_count = 0")
 endif;
 
 echo "$bbdb->num_queries queries. " . bb_timer_stop(0) . ' seconds';

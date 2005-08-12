@@ -12,6 +12,8 @@ endif;
 
 bb_do_action( 'bb_index.php', '' );
 
+var_dump($current_user);
+
 if (file_exists( BBPATH . 'my-templates/front-page.php' ))
 	require( BBPATH . 'my-templates/front-page.php' );
 else	require( BBPATH . 'bb-templates/front-page.php' );

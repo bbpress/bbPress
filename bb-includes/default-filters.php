@@ -30,7 +30,6 @@ bb_add_filter('edit_text', 'htmlspecialchars');
 bb_add_filter('edit_text', 'trim', 15);
 
 bb_add_filter('get_user_link', 'bb_fix_link');
-bb_add_filter('get_user_type_label', 'bb_label_user_type');
 
 bb_add_filter('post_time', 'bb_offset_time');
 

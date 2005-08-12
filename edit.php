@@ -1,7 +1,7 @@
 <?php
 require('bb-config.php');
 
-if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+if ( current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('bb_is_first_where', 'no_where');
 }
 

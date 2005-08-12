@@ -25,17 +25,16 @@ endif;
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
 <?php endif; ?>
 </fieldset>
-
-<?php if ( $current_user->user_type >= 5 ) : $required = false; ?>
+<?php if ( current_user_can('edit_users') ) : $required = false; ?>
 <fieldset>
 <legend>Administration</legend>
 <table width="100%">
 <tr>
   <th scope="row">User Type:</th>
-  <td><select name="user_type">
-<?php $t = 0; while ( $t < 6 ) : if ( '' != get_user_type_label($t) ) : ?>
-       <option value="<?php echo $t; ?>"<?php if ( $t == $user->user_type ) echo ' selected="selected"'; ?>><?php user_type_label($t); ?></option>
-<?php endif; $t++; endwhile; ?>
+  <td><select name="role">
+<?php foreach( $bb_roles->role_names as $r => $n ) : if ( 'keymaster' != $r || current_user_can('keep_gate') ) : ?>
+       <option value="<?php echo $r; ?>"<?php if ( array_key_exists($r, $user->capabilities) ) echo ' selected="selected"'; ?>><?php echo $n; ?></option>
+<?php endif; endforeach; ?>
       </select>
   </td>
 </tr>
@@ -63,6 +62,7 @@ endif;
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
 <?php endif; ?>
 <p><sup>**</sup>Deletion attributes all content to Anonymous and cannot be easily undone.  Deactivation maintains proper attribution and can be easily changed.</p>
+<p>User types Inactive and Blocked have no practical difference at the moment.  Both can log in and view content.</p>
 </fieldset>
 <?php endif; ?>
 

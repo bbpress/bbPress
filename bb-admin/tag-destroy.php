@@ -3,8 +3,8 @@ require('../bb-config.php');
 
 nocache_headers();
 
-if ( $current_user->user_type < 2 )
-	die('You need to be logged in as a developer to destroy a tag.');
+if ( !current_user_can('manage_tags') )
+	die('You are not allowed to manage tags.');
 
 $tag_id = (int) $_POST['id' ];
 

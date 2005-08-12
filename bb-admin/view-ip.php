@@ -1,6 +1,11 @@
 <?php
 require('admin-header.php');
 
+if ( !current_user_can('view_by_ip') ) {
+	header('Location: ' . bb_get_option('uri') );
+	exit();
+}
+
 $ip = preg_replace('/[^0-9\.]/', '', $_GET['ip']);
 
 $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_ip = '$ip' ORDER BY post_time DESC LIMIT 30");

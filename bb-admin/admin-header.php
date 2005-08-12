@@ -1,7 +1,7 @@
 <?php
 require('../bb-config.php');
 
-if ( $current_user->user_type < 2 ) {
+if ( !$current_user ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

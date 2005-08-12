@@ -3,6 +3,11 @@ require('admin-header.php');
 
 header('Content-type: text/plain');
 
+if ( !current_user_can('manage_options') ) {
+	header('Location: ' . bb_get_option('uri') );
+	exit();
+}
+
 ?>
 
 <IfModule mod_rewrite.c>

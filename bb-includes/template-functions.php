@@ -16,7 +16,7 @@ function profile_menu() {
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . get_user_profile_link( $user_id ) . '">' . __('Profile') . '</a></li>';
 	foreach ($profile_menu as $item) {
-		// 0 = name, 1 = user_type, 2 = others, 3 = file
+		// 0 = name, 1 = users cap, 2 = others cap, 3 = file
 		$class = '';
 		if ( $item[3] == $self ) {
 			$class = ' class="current"';
@@ -28,7 +28,7 @@ function profile_menu() {
 	}
 	if ( $current_user ) :
 		$list .= "\n\t<li class='last'><a href='" . bb_get_option('uri') . 'bb-login.php?logout' . "' title='" . __('Log out of this account') . "'>";
-		$list .= 	__('Logout') . ' (' . $current_user->user_login . ')</a></li>';
+		$list .= 	__('Logout') . ' (' . get_user_name( $current_user->ID ) . ')</a></li>';
 	else:
 		$list .=  "\n\t<li class='last'><a href='" . bb_get_option('uri') . "bb-login.php'>" . __('Login') . '</a></li>';
 	endif;
@@ -39,7 +39,7 @@ function profile_menu() {
 function login_form() {
 	global $current_user, $bb;
 	if ($current_user) {
-		echo "<p>Welcome, $current_user->user_login! <a href='" . get_user_profile_link( $current_user->ID) . "'>View your profile &raquo;</a> 
+		echo '<p>Welcome, ' . get_user_name( $current_user->ID ) . "! <a href='" . get_user_profile_link( $current_user->ID ) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
@@ -421,9 +421,11 @@ function get_page_number_links($page, $total) {
 
 function topic_delete_link() {
 	global $current_user, $topic;
-
-	if ( 1 > $current_user->user_type )
+	if ( !current_user_can('edit_topics') )
 		return;
+	if ( $topic->poster != $current_user->ID && !current_user_can('edit_others_topics') )
+		return;
+
 	if ( 0 == $topic->topic_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
 	else
@@ -431,30 +433,36 @@ function topic_delete_link() {
 }
 
 function topic_close_link() {
-	global $current_user;
-	if ( 0 < $current_user->user_type ) {
-		if ( topic_is_open( get_topic_id() ) )
-			$text = 'Close topic';
-		else
-			$text = 'Open topic';
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id() . "'>$text</a>";
-	}
+	global $current_user, $topic;
+	if ( !current_user_can('edit_topics') )
+		return;
+	if ( $topic->poster != $current_user->ID && !current_user_can('edit_others_topics') )
+		return;
+
+	if ( topic_is_open( get_topic_id() ) )
+		$text = 'Close topic';
+	else
+		$text = 'Open topic';
+	echo "<a href='" . bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id() . "'>$text</a>";
 }
 
 function topic_sticky_link() {
-	global $current_user;
-	if ( 0 < $current_user->user_type ) {
-		if ( topic_is_sticky( get_topic_id() ) )
-			$text = 'Unstick topic';
-		else
-			$text = 'Stick topic';
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>$text</a>";
-	}
+	global $current_user, $topic;
+	if ( !current_user_can('edit_topics') )
+		return;
+	if ( $topic->poster != $current_user->ID && !current_user_can('edit_others_topics') )
+		return;
+
+	if ( topic_is_sticky( get_topic_id() ) )
+		$text = 'Unstick topic';
+	else
+		$text = 'Stick topic';
+	echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>$text</a>";
 }
 
 function topic_show_all_link() {
 	global $current_user;
-	if ( 1 > $current_user->user_type )
+	if ( !current_user_can('browse_deleted') )
 		return;
 	if ( 'deleted' == $_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
@@ -464,15 +472,17 @@ function topic_show_all_link() {
 
 function topic_move_dropdown() {
 	global $current_user, $forum_id, $topic;
-	if ( 0 < $current_user->user_type ) :
-		$forum_id = $topic->forum_id;
-		echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
-		echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
-		echo '<label for="forum_id">Move this topic to the selected forum: ';
-		forum_dropdown();
-		echo "</label>\n\t";
-		echo "<input type='submit' name='Submit' value='Move' />\n</div></form>";
-	endif;
+	if ( !current_user_can('edit_topics') )
+		return;
+	if ( $topic->poster != $current_user->ID && !current_user_can('edit_others_topics') )
+		return;
+	$forum_id = $topic->forum_id;
+	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
+	echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
+	echo '<label for="forum_id">Move this topic to the selected forum: ';
+	forum_dropdown();
+	echo "</label>\n\t";
+	echo "<input type='submit' name='Submit' value='Move' />\n</div></form>";
 }
 
 // POSTS
@@ -547,7 +557,7 @@ function post_ip() {
 }
 
 function post_edit_link() {
-	global $current_user, $post;
+	global $post;
 
 	if ( can_edit_post( $post->post_id ) )
 		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>Edit</a>";
@@ -555,9 +565,11 @@ function post_edit_link() {
 
 function post_delete_link() {
 	global $current_user, $post;
-
-	if ( 1 > $current_user->user_type )
+	if ( !current_user_can('edit_posts') )
 		return;
+	if ( $post->poster_id != $current_user->ID && !current_user_can('edit_others_posts') )
+		return;
+
 	if ( 0 == $post->post_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
 	else
@@ -620,25 +632,10 @@ function user_link( $id ) {
 	echo bb_apply_filters('user_link', get_user_link($id) );
 }
 
-function bb_label_user_type( $type ) {
-	switch ($type) :
-		case 0 :
-			return __('Member');
-			break;
-		case 1 :
-			return __('Moderator');
-			break;
-		case 2 :
-			return __('Developer');
-			break;
-		case 5 :
-			return __('Admin');
-			break;
-	endswitch;
-}
-
 function get_user_type_label( $type ) {
-	return bb_apply_filters('get_user_type_label', $type );
+	global $bb_roles;
+	if ( $bb_roles->is_role( $type ) )
+		return $bb_roles->role_names[$type];
 }
 
 function user_type_label( $type ) {
@@ -646,14 +643,16 @@ function user_type_label( $type ) {
 }
 
 function get_user_type ( $id ) {
-	global $bbdb;
+	global $bbdb, $current_user;
 	$user = bb_get_user( $id );
+
 	if ( $user->user_status == 2 )
 		return __('Inactive');
 	if ( $id && false !== $user ) :
 		if ( !empty( $user->title ) )
 			return $user->title;
-		return get_user_type_label( $user->user_type );
+		$caps = array_keys($user->capabilities);
+		return get_user_type_label( $caps[0] ); //Just support one role for now.
 	else :
 		return __('Unregistered');
 	endif;
@@ -661,6 +660,11 @@ function get_user_type ( $id ) {
 
 function user_type( $id ) {
 	echo bb_apply_filters('user_type', get_user_type($id) );
+}
+
+function get_user_name( $id ) {
+	$user = bb_get_user( $id );
+	return $user->user_login;
 }
 
 function profile_pages() {
@@ -671,7 +675,7 @@ function profile_pages() {
 //TAGS
 function topic_tags () {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user;
-	if ( is_array( $tags ) || $current_user )
+	if ( is_array( $tags ) || current_user_can('edit_tags') )
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
 
@@ -729,15 +733,18 @@ function get_tag_rss_link( $tag_id = 0 ) {
 
 function tag_form() {
 	global $topic, $current_user;
-	if ( !$current_user || $current_user->user_type < 1 && !topic_is_open($topic->topic_id) )
+	if ( !current_user_can('edit_tags') )
 		return false;
-	else
-		include( BBPATH . '/bb-templates/tag-form.php');
+	if ( !topic_is_open($topic->topic_id) )
+		if ( !current_user_can('edit_topics') || ( $topic->poster != $current_user->ID && !current_user_can('edit_others_topics') ) )
+			return false;
+
+	include( BBPATH . '/bb-templates/tag-form.php');
 }
 
 function tag_rename_form() {
 	global $tag, $current_user;
-	if ( $current_user->user_type < 2 )
+	if ( !current_user_can('manage_tags') )
 		return false;
 	$tag_rename_form  = '<form id="tag-rename" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-rename.php">' . "\n";
 	$tag_rename_form .= "<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
@@ -748,7 +755,7 @@ function tag_rename_form() {
 
 function tag_merge_form() {
 	global $tag, $current_user;
-	if ( $current_user->user_type < 2 )
+	if ( !current_user_can('manage_tags') )
 		return false;
 	$tag_merge_form  = '<form id="tag-merge" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-merge.php">' . "\n";
 	$tag_merge_form .= "<p>Merge this tag into the tag specified</p>\n<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
@@ -760,7 +767,7 @@ function tag_merge_form() {
 
 function tag_destroy_form() {
 	global $tag, $current_user;
-	if ( $current_user->user_type < 2 )
+	if ( !current_user_can('manage_tags') )
 		return false;
 	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php">' . "\n";
 	$tag_destroy_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
@@ -770,9 +777,15 @@ function tag_destroy_form() {
 }
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
-	global $tag, $current_user;
-	if ( $current_user->user_type < 1 && ( !topic_is_open($tag->topic_id) || $current_user->ID != $tag->user_id ) )
+	global $tag, $current_user, $topic;
+	if ( !current_user_can('edit_tags') )
 		return false;
+	if ( !topic_is_open($topic->topic_id) )
+		if ( !current_user_can('edit_topics') || ( $topic->poster != $current_user->ID && !current_user_can('edit_others_topics') ) )
+			return false;
+	if ( $tag->user_id != $current_user->ID && !current_user_can('edit_others_tags') )
+		return false;
+
 	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag?\')" title="Remove this tag">x</a>]';
 }
 
@@ -831,7 +844,7 @@ function get_favorites_link() {
 
 function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites') {
 	global $topic, $current_user;
-	if ( $favs = explode(',', $current_user->favorites) )
+	if ( $favs = explode(',', $current_user->data->favorites) )
 		if ( in_array($topic->topic_id, $favs) ) :
 			$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
 			$text = $rem;

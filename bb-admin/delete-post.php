@@ -1,7 +1,12 @@
 <?php
 require('admin-header.php');
 
-if ( 0 < $current_user->user_type && 'deleted' == $_GET['view'] ) {
+if ( !current_user_can('edit_posts') {
+	header('Location: ' . bb_get_option('uri') );
+	exit();
+}
+
+if ( current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
 	bb_add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
 }
@@ -11,6 +16,11 @@ $post    =  get_post ( $post_id );
 
 if ( !$post )
 	die('There is a problem with that post, pardner.');
+
+if ( $post->poster_id != $current_user->ID && !current_user_can('edit_others_posts') {
+	header('Location: ' . bb_get_option('uri') );
+	exit();
+}
 
 bb_delete_post( $post_id );
 

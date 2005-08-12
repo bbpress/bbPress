@@ -10,14 +10,14 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) && $current_user ) :
 		die;
 
 	if ( $fav ) {
-		$fav = $current_user->favorites ? explode(',', $current_user->favorites) : array();
+		$fav = $current_user->data->favorites ? explode(',', $current_user->data->favorites) : array();
 		if ( ! in_array( $topic_id, $fav ) ) {
 			$fav[] = $topic_id;
 			$fav = implode(',', $fav);
 			update_usermeta( $current_user->ID, $table_prefix . 'favorites', $fav);
 		}
 	} else {
-		$fav = explode(',', $current_user->favorites);
+		$fav = explode(',', $current_user->data->favorites);
 		if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
 			array_splice($fav, $pos, 1);
 			$fav = implode(',', $fav);

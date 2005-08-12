@@ -38,6 +38,7 @@ else
 require( BBPATH . 'bb-includes/functions.php');
 require( BBPATH . 'bb-includes/formatting-functions.php');
 require( BBPATH . 'bb-includes/template-functions.php');
+require( BBPATH . 'bb-includes/capabilities.php');
 require( BBPATH . 'bb-includes/default-filters.php');
 
 $bbdb->forums    = $table_prefix . 'forums';
@@ -49,16 +50,10 @@ $bbdb->usermeta  = $table_prefix . 'usermeta';
 $bbdb->tags      = $table_prefix . 'tags';
 $bbdb->tagged    = $table_prefix . 'tagged';
 
-$plugins = glob( BBPATH . 'bb-plugins/*.php');
-if ( $plugins ) : foreach ( $plugins as $plugin ) :
-	require($plugin);
-endforeach; endif;
-
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
 if ( defined('CUSTOM_USER_META_TABLE') )
 	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
-
 
 define('BBHASH', md5($table_prefix) );
 
@@ -77,6 +72,15 @@ $_GET    = bb_global_sanitize($_GET   );
 $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE);
 $_SERVER = bb_global_sanitize($_SERVER);
+
+$plugins = glob( BBPATH . 'bb-plugins/*.php');
+if ( $plugins ) : foreach ( $plugins as $plugin ) :
+	require($plugin);
+endforeach; endif;
+bb_do_action('bb_plugins_loaded', '');
+
+$bb_roles = new BB_Roles();
+bb_do_action('bb_got_roles', '');
 
 function bb_shutdown_action_hook() {
 	bb_do_action('bb_shutdown', '');

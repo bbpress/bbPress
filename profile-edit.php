@@ -16,7 +16,7 @@ require_once( BBPATH . 'bb-includes/registration-functions.php');
 nocache_headers();
 
 $profile_info_keys = get_profile_info_keys();
-if ( $current_user->user_type >= 5 )
+if ( current_user_can('edit_users') )
 	$profile_admin_keys = get_profile_admin_keys();
 $updated = false;
 $user_email = true;
@@ -38,8 +38,8 @@ if ($_POST) :
 		endif;
 	endforeach;
 
-	if ( $current_user->user_type >=5 ):
-		$user_type = bb_specialchars( $_POST['user_type'], 1 );
+	if ( current_user_can('edit_users') ):
+		$role = bb_specialchars( $_POST['role'], 1 );
 		foreach ( $profile_admin_keys as $key => $label ) :
 			$$key = bb_specialchars( $_POST[$key], 1 );
 			if ( !$$key && $label[0] == 1 ) :
@@ -63,9 +63,11 @@ if ($_POST) :
 						update_usermeta( $user->ID, $key, $$key );
 		endif;
 
-		if ( $current_user->user_type >= 5 ) :
-			if ( $user_type != $user->user_type && $user_type < 6 )
-				update_usermeta( $user->ID, 'user_type', $user_type );
+		if ( current_user_can('edit_users') ) :
+			if ( !in_array($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
+				$user_obj = new BB_User( $user->ID );
+				$user_obj->set_role($role); // Only support one role for now
+			}
 			if ( $user_status != $user->user_status && $user_status < 3 )
 				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )
