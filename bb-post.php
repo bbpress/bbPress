@@ -8,7 +8,7 @@ if ( !current_user_can('write_posts') )
 
 if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	if ( !current_user_can('write_topics') )
-		die('You are not allowed to write new topics.')
+		die('You are not allowed to write new topics.');
 
 	$topic = trim( $_POST['topic'] );
 	$tags  = trim( $_POST['tags']  );

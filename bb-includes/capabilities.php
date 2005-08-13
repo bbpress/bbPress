@@ -306,7 +306,7 @@ function map_meta_cap($cap, $user_id) {
 		if ( $post->post_status == '1' )
 			$caps[] = 'edit_deleted';
 		if ( !topic_is_open( $post->topic_id ) )
-			$caps[] = map_meta_cap( 'edit_topic', $user_id, $post->topic_id );
+			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $post->topic_id ));
 		$post_time = strtotime($post->post_time);
 		$curr_time = time();
                 if ( $curr_time - $post_time > bb_get_option( 'edit_lock' ) * 60 )
@@ -326,8 +326,8 @@ function map_meta_cap($cap, $user_id) {
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
-		if ( !topic_is_open( $post->topic_id ) )
-			$caps[] = map_meta_cap( 'edit_topic', $user_id, $post->topic_id );
+		if ( !topic_is_open( $topic->topic_id ) )
+			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $topic->topic_id ));
 		$caps[] = 'edit_tags';
 		break;
 	case 'edit_tag_by_on': // edit_topic, edit_tags, edit_others_tags
@@ -335,8 +335,8 @@ function map_meta_cap($cap, $user_id) {
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
-		if ( !topic_is_open( $post->topic_id ) )
-			$caps[] = map_meta_cap( 'edit_topic', $user_id, $post->topic_id );
+		if ( !topic_is_open( $topic_id->topic_id ) )
+			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $topic->topic_id ));
 		if ( $user_id == $args[0] )
 			$caps[] = 'edit_tags';
 		else	$caps[] = 'edit_others_tags';

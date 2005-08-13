@@ -444,7 +444,7 @@ function topic_close_link() {
 
 function topic_sticky_link() {
 	global $current_user, $topic;
-	if ( !current_user_can( 'edit_topic', $topic->topic_ic ) )
+	if ( !current_user_can( 'edit_topic', $topic->topic_id ) )
 		return;
 
 	if ( topic_is_sticky( get_topic_id() ) )
