@@ -103,6 +103,11 @@ upgrade_130();
 upgrade_140();
 */
 
+//Translate user_type to capabilities Aug 13th, 2005
+/*
+upgrade_150();
+*/
+
 //alter user table column names
 function upgrade_100() {
 	global $bbdb, $table_prefix;
@@ -178,6 +183,37 @@ function upgrade_140() {
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'favorites'");
 	$newkey = $table_prefix . 'topics_replied';
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'topics_replied'");
+}
+
+//user_type -> capabilities
+function upgrade_150() {
+	global $bbdb, $table_prefix;
+	$old_key = $table_prefix . 'user_type';
+	$new_key = $table_prefix . 'capabilities';
+	$member = serialize(array('member' => true));
+	$role['2'] = $role['1'] = serialize(array('moderator' => true));
+	$role['4'] = $role['3'] = serialize(array('administrator' => true));
+	$role['5'] = serialize(array('keymaster' => true));
+	$inactive = serialize(array('inactive' => true));
+	$mods = $bbdb->get_col("SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = '$old_key' AND meta_value > 0");
+	$mod_type = $bbdb->get_col('', 1);
+	foreach ( $mods as $i => $u ) :
+		if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") )
+			$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '{$role[$mod_type[$i]]}' )");
+	endforeach;
+	$user_ids = $bbdb->get_col("SELECT ID, user_status FROM $bbdb->users");
+	$user_stati = $bbdb->get_col('' , 1);
+	foreach ( $user_ids as $i => $u ) :
+		if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") ) :
+			if ( $user_stati[$i] == 2 )
+				$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '$inactive' )");
+			else
+				$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '$member' )");
+		endif;
+	endforeach;
+	echo "Done translating from user_type to role<br />\n";
+	$bbdb->query("DELETE FROM $bbdb->usermeta WHERE meta_key = '$old_key'");
+	echo "Done deleting user_type<br />\n";
 }
 
 function deslash($content) {
