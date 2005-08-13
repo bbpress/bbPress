@@ -11,12 +11,12 @@ $post_id = (int) $_POST['post_id'];
 
 $post  = get_post( $post_id );
 
-if ( !$post || !can_moderate( $post->poster_id ) ) {
+if ( !$post ) {
 	header('Location: ' . bb_get_option('uri') );
 	die();
 }
 
-if ( !can_edit_post( $post_id ) )
+if ( !current_user_can( 'edit_post', $post_id ) )
 	die('Sorry, post is too old.');
 
 if ( bb_is_first( $post->post_id ) )

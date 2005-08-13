@@ -8,7 +8,7 @@
 <div class="notice">
 <p>Profile updated. <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>">Edit again &raquo;</a></p>
 </div>
-<?php elseif ( can_admin( $user_id ) ) : ?>
+<?php elseif ( current_user_can( 'edit_user', $user_id ) ) : ?>
 <p>This is how your profile appears to a fellow logged in member, you may <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>">edit this information</a>.
 You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and subscribe to your favorites' <a href="<?php favorites_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
 <?php endif; ?>

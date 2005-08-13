@@ -397,14 +397,10 @@ function bb_current_user() {
 		return false;
 	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
 	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
-	$current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
-	if ( $current_user->user_status === '0' ) {
+	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass' AND user_status % 2 = 0") ) {
 		bb_append_meta( $current_user, 'user' );
 		return new BB_User($current_user->ID);
-	} elseif ( $current_user && $current_user->user_status % 2 == 0 )
-		bb_append_meta( $current_user, 'user' );
-	else
-		$user_cache[$current_user->ID] = false;
+	} else 	$user_cache[$current_user->ID] = false;
 	return false;
 }
 
@@ -452,22 +448,19 @@ function bb_append_meta( $object, $type ) {
 		$ids = join(',', array_keys($trans));
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
 			foreach ( $metas as $meta ) :
-				if ( strpos($meta->meta_key, $table_prefix) === 0 )
-					$meta->meta_key = substr($meta->meta_key, strlen($table_prefix));
 				$trans[$meta->$field]->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+				if ( strpos($meta->meta_key, $table_prefix) === 0 )
+					$trans[$meta->$field]->{substr($meta->meta_key, strlen($table_prefix))} = cast_meta_value( $meta->meta_value );
 			endforeach;
-		foreach ( array_keys($trans) as $i ) {
+		foreach ( array_keys($trans) as $i )
 			${$type . '_cache'}[$i] = $trans[$i];
-			if ( ${$type . '_cache'}[$i]->user_status % 2 == 1 )
-				${$type . '_cache'}[$i] = false;
-		}
 		return $object;
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $table WHERE $field = '{$object->$id}'") )
 			foreach ( $metas as $meta ) :
-				if ( strpos($meta->meta_key, $table_prefix) === 0 )
-					$meta->meta_key = substr($meta->meta_key, strlen($table_prefix));
 				$object->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+				if ( strpos($meta->meta_key, $table_prefix) === 0 )
+					$object->{substr($meta->meta_key, strlen($table_prefix))} = cast_meta_value( $meta->meta_value );
 			endforeach;
 		${$type . '_cache'}[$object->$id] = $object;
 		return $object;
@@ -498,22 +491,10 @@ function bb_user_exists( $user ) {
 // delete_user
 function update_user_status( $user_id, $status = 0 ) {
 	global $bbdb, $current_user;
-	$user = new BB_User( $user_id );
+	$user = bb_get_user( $user_id );
 	$status = (int) $status;
-	if ( $user->ID != $current_user->ID && current_user_can('edit_users') ) {
+	if ( $user->ID != $current_user->ID && current_user_can('edit_users') )
 		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
-		switch ( $status ) :
-		case 0 :
-			$user->set_role('member');
-			break;
-		case 1 :
-			$user->set_role('blocked');
-			break;
-		case 2 :
-			$user->set_role('inactive');
-			break;
-		endswitch;
-	}
 	return;
 }
 
@@ -807,105 +788,6 @@ function update_post_positions( $topic_id ) {
 	}
 }
 
-function can_moderate( $user_id, $admin_id = 0) {
-	global $current_user;
-	if ( !$admin_id ) :
-		if ( $current_user ) : $admin =& $current_user;
-		else : return false;
-		endif;
-	else :
-		$admin = new BB_User( $admin_id );
-	endif;
-	if ( !$admin )
-		return false;
-	if ( !$user  = bb_get_user( $user_id  ) )
-		return false;
-
-	if ( $admin_id == $user_id )
-		return true;
-
-	if ( $admin->has_cap('edit_others_posts') )
-		return true;
-
-	return false;
-}
-
-function can_admin( $user_id, $admin_id = 0 ) {
-	global $current_user;
-	if ( !$admin_id ) :
-		if ( $current_user ) : $admin =& $current_user;
-		else : return false;
-		endif;
-	else :
-		$admin = new BB_User( $admin_id );
-	endif;
-	if ( !$admin )
-		return false;
-	if ( !$user  = bb_get_user( $user_id  ) )
-		return false;
-
-	if ( $admin_id == $user_id )
-		return true;
-
-	if ( $admin->has_cap('edit_users') )
-		return true;
-
-	return false;
-}
-
-function can_edit_post( $post_id, $user_id = 0 ) {
-	global $bbdb, $current_user;
-	if ( !$user_id )
-		$user =& $current_user;
-	else
-		$user = new BB_User( $user_id );
-	$post = get_post( $post_id );
-	$topic = get_topic( $post->topic_id );
-
-	if ( !$user )
-		return false;
-
-	if ( !topic_is_open( $post->topic_id ) )
-		if ( !$user->has_cap('edit_topics') || ( $topic->poster != $user->ID && !$user->has_cap('edit_others_topics') ) )
-			return false;
-
-	if ( !$user->has_cap('edit_posts') )
-		return false;
-
-	if ( !$user->has_cap('ignore_edit_lock') ) :
-		$post_time  = strtotime( $post->post_time );
-		$curr_time  = time();
-		$time_limit = bb_get_option('edit_lock') * 60;
-		if ( ($curr_time - $post_time) > $time_limit )
-			return false;
-	endif;
-
-	if ( $post->poster_id != $user->ID && !$user->has_cap('edit_others_posts') )
-		return false;
-
-	return true;
-}
-
-function can_edit_topic( $topic_id, $user_id = 0 ) {
-	global $current_user;
-	if ( !$user_id )
-		$user =& $current_user;
-	else
-		$user = new BB_User( $user_id );
-	$topic = get_topic( $topic_id );
-
-	if ( !$user )
-		return false;
-
-	if ( !$user->has_cap('edit_topics') )
-		return false;
-
-	if ( $topic->poster != $user->ID && $user->has_cap('edit_others_topics') )
-		return false;
-
-	return true;
-}
-
 function topic_is_open ( $topic_id ) {
 	$topic = get_topic( $topic_id );
 	if ( 1 == $topic->topic_open )
@@ -991,10 +873,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
-	if ( !topic_is_open( $topic_id ) )
-		if ( !current_user_can('edit_topics') || ( $topic->poster != $user->ID && !current_user_can('edit_others_topics') ) )
-			return false;
-	if ( !current_user_can('edit_tags') )
+	if ( !current_user_can( 'add_tag_to', $topic_id ) )
 		return false;
 	if ( !$tag_id = create_tag( $tag ) )
 		return false;
@@ -1071,12 +950,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	$tagged = serialize( array('tag_id' => $tag_id, 'user_id' => $user_id, 'topic_id' => $topic_id) );
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
-	if ( !topic_is_open( $post->topic_id ) )
-		if ( !current_user_can('edit_topics') || ( $topic->poster != $user->ID && !current_user_can('edit_others_topics') ) )
-			return false;
-	if ( !current_user_can('edit_tags') )
-		return false;
-	if ( $user_id != $current_user->ID && !current_user_can('edit_others_tags') )
+	if ( !current_user_can( 'edit_tag_by_on', $user_id, $topic_id ) )
 		return false;
 
 	bb_do_action('bb_tag_removed', $tagged);

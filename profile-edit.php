@@ -53,7 +53,7 @@ if ($_POST) :
 	$updated = true;
 
 	if ( $user_email && !$bad_input ) :
-		if ( can_admin( $user->ID ) ) :
+		if ( current_user_can( 'edit_user', $user->ID ) ) :
 			if ( is_string($user_email) ) 
 				bb_update_user( $user->ID, $user_email, $user_url );
 			else	bb_update_user( $user->ID, $user->user_email, $user_url );
@@ -68,7 +68,7 @@ if ($_POST) :
 				$user_obj = new BB_User( $user->ID );
 				$user_obj->set_role($role); // Only support one role for now
 			}
-			if ( $user_status != $user->user_status && $user_status < 3 )
+			if ( $user_status != $user->user_status )
 				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )
 				if ( $$key != ''  || isset($user->$key) )

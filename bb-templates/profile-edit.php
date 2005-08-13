@@ -41,7 +41,7 @@ endif;
 <tr>
   <th scope="row">User Status<sup>**</sup>:</th>
   <td><select name="user_status">
-<?php $stati = array(0 => __('Normal'), 1 => __('Deleted'), 2 => __('Deactivated')); foreach ( $stati as $s => $l ) : ?>
+<?php $stati = array(0 => __('Normal'), 1 => __('Deleted')); foreach ( $stati as $s => $l ) : ?>
        <option value="<?php echo $s; ?>"<?php if ( $user->user_status == $s ) echo ' selected="selected"'; ?>><?php echo $l; ?></option>
 <?php endforeach; ?>
       </select>
@@ -61,7 +61,7 @@ endif;
 <?php if ( $required ) : ?>
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
 <?php endif; ?>
-<p><sup>**</sup>Deletion attributes all content to Anonymous and cannot be easily undone.  Deactivation maintains proper attribution and can be easily changed.</p>
+<p><sup>**</sup>Deletion attributes all content to Anonymous and cannot be easily undone.  To keep proper attribution but still keep a user from logging in, consider changing their user type to "Inactive".</p>
 <p>User types Inactive and Blocked have no practical difference at the moment.  Both can log in and view content.</p>
 </fieldset>
 <?php endif; ?>

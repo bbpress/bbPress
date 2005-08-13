@@ -26,9 +26,9 @@ class BB_Roles {
 		return array(	'keymaster' => array(
 					'name' => __('Key Master'),
 					'capabilities' => array(
-						'keep_gate' => true,		// Make new Key Masters
-						'recount' => true,		// bb-do-counts.php
-						'manage_options' => true,	// backend
+						'keep_gate' => true,		// Make new Key Masters		//+
+						'recount' => true,		// bb-do-counts.php		//+
+						'manage_options' => true,	// backend			//+
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,
@@ -52,9 +52,9 @@ class BB_Roles {
 				'administrator' => array(
 					'name' => __('Administrator'),
 					'capabilities' => array(
-						'edit_users' => true,
-						'manage_tags' => true,
-						'edit_others_favorites' => true,
+						'edit_users' => true,			//+
+						'manage_tags' => true,			//+
+						'edit_others_favorites' => true,	//+
 						'edit_deleted' => true,
 						'browse_deleted' => true,
 						'view_by_ip' => true,
@@ -75,13 +75,13 @@ class BB_Roles {
 				'moderator' => array(
 					'name' => __('Moderator'),
 					'capabilities' => array(
-						'edit_deleted' => true,
-						'browse_deleted' => true,
-						'view_by_ip' => true,
-						'edit_others_tags' => true,
-						'edit_others_topics' => true,
-						'ignore_edit_lock' => true,
-						'edit_others_posts' => true,
+						'edit_deleted' => true,		//+
+						'browse_deleted' => true,	//+
+						'view_by_ip' => true,		//+
+						'edit_others_tags' => true,	//+
+						'edit_others_topics' => true,	//+
+						'ignore_edit_lock' => true,	//+
+						'edit_others_posts' => true,	//+
 						'edit_favorites' => true,
 						'edit_tags' => true,
 						'edit_topics' => true,
@@ -193,13 +193,8 @@ class BB_Role {
 class BB_User {
 	var $data;
 	var $id = 0;
+	var $ID = 0;
 	var $caps = array();
-	var $user_type; //Temporary
-	var $ID; //Temporary
-	var $user_status; //Temporary
-	var $favorites; //Temporary
-	var $user_login; //Temporary
-	var $topics_replied; //Temporary
 	var $cap_key;
 	var $roles = array();
 	var $allcaps = array();
@@ -216,15 +211,9 @@ class BB_User {
 		if ( empty($this->data->ID) )
 			return;
 
-		$this->id = $this->data->ID;
+		$this->id = $this->ID = $this->data->ID;
 		$this->cap_key = $table_prefix . 'capabilities';
-		$this->caps = &$this->data->capabilities; // prefix it?
-		$this->user_type = &$this->data->user_type; //
-		$this->favorites = &$this->data->favorites; //
-		$this->topics_replied = &$this->data->topics_replied; //
-		$this->ID = $this->data->ID; //
-		$this->user_status = $this->data->user_status; //
-		$this->user_login = $this->data->user_login; //
+		$this->caps = &$this->data->capabilities;
 		if ( ! is_array($this->caps) )
 
 			$this->caps = array();
@@ -306,28 +295,61 @@ function map_meta_cap($cap, $user_id) {
 	$caps = array();
 
 	switch ($cap) {
-		// edit_post breaks down to edit_posts, edit_published_posts, or
-		// edit_others_posts
-	case 'edit_post':
-		$author_data = bb_get_user($user_id);
-		//echo "post ID: {$args[0]}<br/>";
-		$post = get_post($args[0]);
-		$post_author_data = bb_get_user($post->poster_id);
-		//echo "current user id : $user_id, post author id: " . $post_author_data->ID . "<br/>";
-		// If the user is the author...
-		if ($user_id == $post_author_data->ID) {
-			// If the post is published...
+	case 'edit_post': // edit_posts, edit_others_posts, edit_deleted, edit_topic, ignore_edit_lock
+		if ( !$post = get_post( $args[0] ) ) :
+			$caps[] = 'magically_provide_data_given_bad_input';
+			return $caps;
+		endif;
+		if ( $user_id == $post->poster_id )
 			$caps[] = 'edit_posts';
-			if ($post->post_status == '1')
-				// If the post is deleted...
-				$caps[] = 'edit_deleted';
-		} else {
-			// The user is trying to edit someone else's post.
-			$caps[] = 'edit_others_posts';
-			// The post is deleted, extra cap required.
-			if ($post->post_status == '1')
-				$caps[] = 'edit_deleted';
-		}
+		else	$caps[] = 'edit_others_posts';
+		if ( $post->post_status == '1' )
+			$caps[] = 'edit_deleted';
+		if ( !topic_is_open( $post->topic_id ) )
+			$caps[] = map_meta_cap( 'edit_topic', $user_id, $post->topic_id );
+		$post_time = strtotime($post->post_time);
+		$curr_time = time();
+                if ( $curr_time - $post_time > bb_get_option( 'edit_lock' ) * 60 )
+			$caps[] = 'ignore_edit_lock';
+		break;
+	case 'edit_topic': // edit_topics, edit_others_topics
+		if ( !$topic = get_topic( $args[0] ) ) :
+			$caps[] = 'magically_provide_data_given_bad_input';
+			return $caps;
+		endif;
+		if ( $user_id == $topic->poster )
+			$caps[] = 'edit_topics';
+		else	$caps[] = 'edit_others_topics';
+		break;
+	case 'add_tag_to': // edit_topic, edit_tags;
+		if ( !$topic = get_topic( $args[0] ) ) :
+			$caps[] = 'magically_provide_data_given_bad_input';
+			return $caps;
+		endif;
+		if ( !topic_is_open( $post->topic_id ) )
+			$caps[] = map_meta_cap( 'edit_topic', $user_id, $post->topic_id );
+		$caps[] = 'edit_tags';
+		break;
+	case 'edit_tag_by_on': // edit_topic, edit_tags, edit_others_tags
+		if ( !$topic = get_topic( $args[1] ) ) :
+			$caps[] = 'magically_provide_data_given_bad_input';
+			return $caps;
+		endif;
+		if ( !topic_is_open( $post->topic_id ) )
+			$caps[] = map_meta_cap( 'edit_topic', $user_id, $post->topic_id );
+		if ( $user_id == $args[0] )
+			$caps[] = 'edit_tags';
+		else	$caps[] = 'edit_others_tags';
+		break;
+	case 'edit_user': // edit_profile, edit_users;
+		if ( $user_id == $args[0] )
+			$caps[] = 'edit_profile';
+		else	$caps[] = 'edit_users';
+		break;
+	case 'edit_favorites_of': // edit_favorites, edit_others_favorites;
+		if ( $user_id == $args[0] )
+			$caps[] = 'edit_favorites';
+		else	$caps[] = 'edit_others_favorites';
 		break;
 	default:
 		// If no meta caps match, return the original cap.

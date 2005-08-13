@@ -1,15 +1,8 @@
 <?php
 require_once('bb-config.php');
 
-if ( $user_id == $current_user->ID ) :
-	if ( !current_user_can('edit_favorites') ) :
-		die('You cannot edit your favorites.  How did you get here?');
-	endif;
-else :
-	if ( !current_user_can('edit_others_favorites') ) :
-		die("You cannot edit others' favorites.  How did you get here?");
-	endif;
-endif;
+if ( !current_user_can( 'edit_favorites_of', $user_id ) )
+	die('You cannot edit those favorites.  How did you get here?');
 
 if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 	nocache_headers();
