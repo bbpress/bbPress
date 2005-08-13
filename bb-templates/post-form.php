@@ -1,3 +1,10 @@
+<?php if ( is_topic() ) : ?>
+<h2>Reply</h2>
+<?php elseif ( is_forum() ) : ?>
+<h2>New Topic in this Forum</h2>
+<?php elseif ( is_tag() ) : ?>
+<h2>Add New Topic</h2>
+<?php endif; ?>
 
 <form class="postform" method="post" action="<?php option('uri'); ?>bb-post.php">
 <?php if ( is_forum() || is_tag() ) : ?>

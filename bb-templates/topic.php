@@ -36,7 +36,7 @@
 		
 		<div class="threadpost">
 			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">Posted: <?php post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip(); ?> <?php post_edit_link(); ?> <?php post_delete_link(); ?></div>
+			<div class="poststuff">Posted: <?php post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link(); ?></div>
 		</div>
 	</li>
 <?php endforeach; ?>
@@ -49,7 +49,6 @@
 </div>
 <?php endif; ?>
 <?php if ( topic_is_open( $post->topic_id ) ) : ?>
-<h2>Reply</h2>
 <?php post_form(); ?>
 <?php else : ?>
 <h2>Topic Closed</h2>

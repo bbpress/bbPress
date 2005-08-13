@@ -1003,7 +1003,7 @@ function merge_tags( $old_id, $new_id ) {
 
 function destroy_tag( $tag_id ) {
 	global $bbdb, $current_user;
-	if ( current_user_can('manage_tags') ) 
+	if ( !current_user_can('manage_tags') ) 
 		return false;
 
 	bb_do_action('bb_tag_destroyed', $tag_id);

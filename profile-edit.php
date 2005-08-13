@@ -64,7 +64,7 @@ if ($_POST) :
 		endif;
 
 		if ( current_user_can('edit_users') ) :
-			if ( !in_array($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
+			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
 				$user_obj = new BB_User( $user->ID );
 				$user_obj->set_role($role); // Only support one role for now
 			}

@@ -317,7 +317,7 @@ function map_meta_cap($cap, $user_id) {
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
-		if ( $user_id == $topic->poster )
+		if ( $user_id == $topic->topic_poster )
 			$caps[] = 'edit_topics';
 		else	$caps[] = 'edit_others_topics';
 		break;

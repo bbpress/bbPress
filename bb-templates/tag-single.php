@@ -38,8 +38,6 @@
 </div>
 <?php endif; ?>
 
-<h2>Add New Topic</h2>
-
 <?php post_form(); ?>
 
 <?php bb_do_action('tag_below_table', ''); ?>

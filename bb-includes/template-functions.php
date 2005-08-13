@@ -52,9 +52,9 @@ function search_form( $q = '' ) {
 
 function post_form() {
 	global $current_user, $bb;
-	if ($current_user) {
+	if ( ( is_topic() && current_user_can('write_posts') ) || ( !is_topic() && current_user_can('write_topics') ) ) {
 		include( BBPATH . '/bb-templates/post-form.php');
-	} else {
+	} elseif( !$current_user ) {
 		echo "<p>You must login to post.</p>";
 		include( BBPATH . '/bb-templates/login-form.php');
 	}
@@ -343,6 +343,7 @@ function get_topic_start_timestamp( $id = 0 ) {
 
 function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
 	global $current_user, $topic;
+var_dump(current_user_can( 'edit_topic', $topic->topic_id ));
 	if ( current_user_can( 'edit_topic', $topic->topic_id ) ) :
 		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php">' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
@@ -547,6 +548,13 @@ function get_post_ip() {
 function post_ip() {
 	if ( current_user_can( 'view_by_ip' ) )
 		echo bb_apply_filters('post_ip', get_post_ip() );
+}
+
+function post_ip_link() {
+	if ( !current_user_can( 'view_by_ip' ) )
+		return;
+	$link = '<a href="' . bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip() . '">' . get_post_ip() . '</a>';
+	echo bb_apply_filters('post_ip_link', $link );
 }
 
 function post_edit_link() {
