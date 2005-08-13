@@ -1427,6 +1427,8 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 		$viewer =& $current_user;
 	else
 		$viewer = new BB_User( $viewer_id );
+	if ( !$viewer )
+		return false;
 
 	if ( $owner_id == $viewer_id ) {
 		if ( '' === $profile_tab[1] )

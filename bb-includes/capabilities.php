@@ -29,13 +29,12 @@ class BB_Roles {
 						'keep_gate' => true,		// Make new Key Masters
 						'recount' => true,		// bb-do-counts.php
 						'manage_options' => true,	// backend
-						'activate_plugins' => true,
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
+						'edit_others_favorites' => true,
 						'edit_deleted' => true,		// Edit deleted topics/posts
 						'browse_deleted' => true,	// Use 'deleted' View
 						'view_by_ip' => true,		// view-ip.php
-						'edit_others_favorites' => true,
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
 						'ignore_edit_lock' => true,
@@ -45,8 +44,8 @@ class BB_Roles {
 						'edit_topics' => true,
 						'edit_posts' => true,
 						'edit_profile' => true,
-						'write_topics' => true,		// Not implemented
-						'write_posts' => true,		// Not implemented
+						'write_topics' => true,
+						'write_posts' => true,
 						'read' => true			// Not implemented
 				)),
 
@@ -55,10 +54,10 @@ class BB_Roles {
 					'capabilities' => array(
 						'edit_users' => true,
 						'manage_tags' => true,
+						'edit_others_favorites' => true,
 						'edit_deleted' => true,
 						'browse_deleted' => true,
 						'view_by_ip' => true,
-						'edit_others_favorites' => true,
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
 						'ignore_edit_lock' => true,
@@ -79,7 +78,6 @@ class BB_Roles {
 						'edit_deleted' => true,
 						'browse_deleted' => true,
 						'view_by_ip' => true,
-						'edit_others_favorites' => true,
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
 						'ignore_edit_lock' => true,

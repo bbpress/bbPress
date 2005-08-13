@@ -833,18 +833,28 @@ function forum_dropdown() {
 }
 
 //FAVORITES
-function favorites_link() {
-	echo bb_apply_filters('favorites_link', get_favorites_link());
+function favorites_link( $user_id = 0 ) {
+	echo bb_apply_filters('favorites_link', get_favorites_link( $user_id ));
 }
 
-function get_favorites_link() {
+function get_favorites_link( $user_id = 0 ) {
 	global $current_user;
-	return bb_apply_filters('get_favorites_link', get_profile_tab_link($current_user->ID, 'favorites'));
+	if ( !$user_id )
+		$user_id = $current_user->ID;
+	return bb_apply_filters('get_favorites_link', get_profile_tab_link($user_id, 'favorites'));
 }
 
-function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites') {
+function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites', $user_id = 0) {
 	global $topic, $current_user;
-	if ( $favs = explode(',', $current_user->data->favorites) )
+	if ( $user_id ) :
+		if ( !$user = bb_get_user( $user_id ) ) :
+			return false;
+		endif;
+		$favs = $user->favorites;
+	else :
+	 	$favs = $current_user->data->favorites;
+	endif;
+	if ( $favs = explode(',', $favs) )
 		if ( in_array($topic->topic_id, $favs) ) :
 			$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
 			$text = $rem;
@@ -852,7 +862,7 @@ function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favo
 			$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
 			$text = $add;
 		endif;
-		echo '<a href="' . bb_specialchars( bb_add_query_arg( $favs, get_favorites_link() ) ) . '">' . $text . '</a>';
+		echo '<a href="' . bb_specialchars( bb_add_query_arg( $favs, get_favorites_link( $user_id ) ) ) . '">' . $text . '</a>';
 }
 
 function favorites_rss_link( $id = 0 ) {

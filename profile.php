@@ -13,7 +13,7 @@ $page = (int) abs( $_GET['page'] );
 
 bb_repermalink(); // The magic happens here.
 $user = bb_get_user( $user_id );
-var_dump($user);
+
 if ( !$user )
 	die('User not found.');
 

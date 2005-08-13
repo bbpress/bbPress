@@ -3,10 +3,13 @@ require('bb-config.php');
 
 nocache_headers();
 
-if ( !$current_user )
-	die('You need to be logged in to post.');
+if ( !current_user_can('write_posts') )
+	die('You are not allowed to post.  Are you logged in?');
 
 if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
+	if ( !current_user_can('write_topics') )
+		die('You are not allowed to write new topics.')
+
 	$topic = trim( $_POST['topic'] );
 	$tags  = trim( $_POST['tags']  );
 	$support = (int) $_POST['support'];
