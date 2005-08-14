@@ -6,8 +6,8 @@ nocache_headers();
 if ( !$current_user )
 	die('You need to be logged in to add a tag.');
 
-$topic_id = (int) $_POST['id' ];
-$resolved =       $_POST['resolved'];
+$topic_id = (int) @$_POST['id' ];
+$resolved =       @$_POST['resolved'];
 
 $topic = get_topic ( $topic_id );
 if ( !$topic )

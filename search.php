@@ -1,7 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-$q = trim( $_GET['q'] );
+$q = trim( @$_GET['q'] );
 $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :

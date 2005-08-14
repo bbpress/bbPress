@@ -66,6 +66,7 @@ function edit_form( $post = '', $topic_title = '' ) {
 
 function alt_class( $key, $others = '' ) {
 	global $bb_alt;
+	$class = '';
 	if ( !isset( $bb_alt[$key] ) ) $bb_alt[$key] = -1;
 	++$bb_alt[$key];
 	if ( $others xor $bb_alt[$key] % 2 )
@@ -389,7 +390,7 @@ function topic_pages() {
 function get_page_number_links($page, $total) {
 	$r = '';
 	$args = array();
-	if ( in_array($_GET['view'], get_views()) )
+	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
 		$args['view'] = $_GET['view'];
 	if ( $page ) {
 		$args['page'] = $page - 1;
@@ -458,7 +459,7 @@ function topic_show_all_link() {
 	global $current_user;
 	if ( !current_user_can('browse_deleted') )
 		return;
-	if ( 'deleted' == $_GET['view'] )
+	if ( 'deleted' == @$_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
 	else
 		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'deleted', get_topic_link() ) ) . "'>View deleted posts</a>";

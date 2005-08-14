@@ -212,7 +212,9 @@ function bb_remove_filter($tag, $function_to_remove, $priority = 10) {
 				$new_function_list[] = $function;
 			}
 		}
-		$wp_filter[$tag]["$priority"] = $new_function_list;
+		if ( isset($new_function_list) )
+			$wp_filter[$tag]["$priority"] = $new_function_list;
+		else	unset($wp_filter[$tag]["$priority"]);
 	}
 	return true;
 }
@@ -857,8 +859,11 @@ function bb_cookie( $name, $value, $expires = 0 ) {
 }
 
 function get_path( $level = 1 ) {
-	$url = explode('/',$_SERVER['PATH_INFO']);
-	return $url[$level];
+	if ( isset($_SERVER['PATH_INFO']) ) :
+		$url = explode('/',$_SERVER['PATH_INFO']);
+		return $url[$level];
+	else:	return;
+	endif;
 }
 
 function nocache_headers() {
@@ -1146,7 +1151,7 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 function bb_repermalink() {
 	global $bb;
 	$uri = $_SERVER['REQUEST_URI'];
-	$permalink = (int) $_GET['id'];
+	$permalink = (int) @$_GET['id'];
 	if ( !$permalink )
 		$permalink = intval( get_path() );
 
@@ -1163,7 +1168,7 @@ function bb_repermalink() {
 		$user_id = $permalink;
 		global_profile_menu_structure();
 		$valid = false;
-		if ( $tab = $_GET['tab'] ? $_GET['tab'] : get_path(2) )
+		if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
 			foreach ( $profile_hooks as $valid_file => $valid_tab )
 				if ( $tab == $valid_tab ) {
 					$valid = true;
@@ -1209,7 +1214,7 @@ function bb_repermalink() {
 
 	$check = preg_replace( '|' . trim( bb_get_option('domain'), ' /' ) . '|', '', $permalink, 1 );
 
-	if ( 1 === $bb->debug ) :
+	if ( isset($bb->debug) && 1 === $bb->debug ) :
 		echo "<table>\n<tr><td>REQUEST_URI:</td><td>";
 		var_dump($uri);
 		echo "</td></tr>\n<tr><td>should be:</td><td>";
@@ -1276,6 +1281,7 @@ function global_profile_menu_structure() {
 	$profile_menu[5] = array(__('Favorites'), 'edit_favorites', 'edit_others_favorites', 'favorites.php');
 
 	// Create list of page plugin hook names the current user can access
+	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
 		if ( can_access_tab( $profile_tab, $current_user->ID, $user_id ) )
 			$profile_hooks[$profile_tab[3]] = tag_sanitize($profile_tab[0]);

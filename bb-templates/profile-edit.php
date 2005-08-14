@@ -11,7 +11,7 @@
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php
-if ( $$key === false ) :
+if ( isset($$key) && false === $$key) :
 	if ( $key == 'user_email' )
 		_e('<br />There was a problem with your email; please check it.');
 	else
@@ -51,7 +51,7 @@ endif;
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php
-if ( $$key === false ) :
+if ( isset($$key) && false === $$key ) :
 	_e('<br />The above field is required.');
 endif;
 ?></td>
