@@ -12,7 +12,7 @@ $topic    =  get_topic ( $topic_id );
 if ( !$topic )
 	die('There is a problem with that topic, pardner.');
 
-if ( !current_user_can( 'edit_topic', $topic_id ) ) {
+if ( !current_user_can('manage_topics') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

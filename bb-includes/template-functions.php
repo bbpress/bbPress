@@ -422,7 +422,7 @@ function get_page_number_links($page, $total) {
 
 function topic_delete_link() {
 	global $current_user, $topic;
-	if ( !current_user_can( 'edit_topic', $topic->topic_id ) )
+	if ( !current_user_can('manage_topics') )
 		return;
 
 	if ( 0 == $topic->topic_status )
@@ -433,7 +433,7 @@ function topic_delete_link() {
 
 function topic_close_link() {
 	global $current_user, $topic;
-	if ( !current_user_can( 'edit_topic', $topic->topic_id ) )
+	if ( !current_user_can('manage_topic') )
 		return;
 
 	if ( topic_is_open( get_topic_id() ) )
@@ -445,7 +445,7 @@ function topic_close_link() {
 
 function topic_sticky_link() {
 	global $current_user, $topic;
-	if ( !current_user_can( 'edit_topic', $topic->topic_id ) )
+	if ( !current_user_can('manage_topic') )
 		return;
 
 	if ( topic_is_sticky( get_topic_id() ) )
@@ -467,7 +467,7 @@ function topic_show_all_link() {
 
 function topic_move_dropdown() {
 	global $current_user, $forum_id, $topic;
-	if ( !current_user_can( 'edit_topic', $topic->topic_id ) )
+	if ( !current_user_can('manage_topic') )
 		return;
 	$forum_id = $topic->forum_id;
 
@@ -566,7 +566,7 @@ function post_edit_link() {
 
 function post_delete_link() {
 	global $current_user, $post;
-	if ( !current_user_can( 'edit_post', $post->post_id ) )
+	if ( !current_user_can('manage_posts') )
 		return;
 
 	if ( 0 == $post->post_status )

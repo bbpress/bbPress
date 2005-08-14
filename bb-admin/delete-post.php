@@ -12,7 +12,7 @@ $post    =  get_post ( $post_id );
 if ( !$post )
 	die('There is a problem with that post, pardner.');
 
-if ( !current_user_can( 'edit_post', $post_id ) ) {
+if ( !current_user_can('manage_posts') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

@@ -35,8 +35,10 @@ class BB_Roles {
 						'edit_deleted' => true,		// Edit deleted topics/posts
 						'browse_deleted' => true,	// Use 'deleted' View
 						'view_by_ip' => true,		// view-ip.php
+						'manage_topics' => true,	// Delete/Close/Stick
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
+						'manage_posts' => true,
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
 						'edit_favorites' => true,
@@ -58,8 +60,10 @@ class BB_Roles {
 						'edit_deleted' => true,
 						'browse_deleted' => true,
 						'view_by_ip' => true,
+						'manage_topics' => true,
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
+						'manage_posts' => true,
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
 						'edit_favorites' => true,
@@ -78,8 +82,10 @@ class BB_Roles {
 						'edit_deleted' => true,		//+
 						'browse_deleted' => true,	//+
 						'view_by_ip' => true,		//+
+						'manage_topics' => true,	//+
 						'edit_others_tags' => true,	//+
 						'edit_others_topics' => true,	//+
+						'manage_posts' => true,		//+
 						'ignore_edit_lock' => true,	//+
 						'edit_others_posts' => true,	//+
 						'edit_favorites' => true,
@@ -269,8 +275,6 @@ class BB_User {
 		update_usermeta($this->id, $this->cap_key, $this->caps);
 	}
 	
-	//has_cap(capability_or_role_name) or
-	//has_cap('edit_post', post_id)
 	function has_cap($cap) {
 		global $bb_roles;
 
@@ -307,7 +311,7 @@ function map_meta_cap($cap, $user_id) {
 			$caps[] = 'edit_deleted';
 		if ( !topic_is_open( $post->topic_id ) )
 			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $post->topic_id ));
-		$post_time = strtotime($post->post_time);
+		$post_time = strtotime($post->post_time . '+0000');
 		$curr_time = time();
                 if ( $curr_time - $post_time > bb_get_option( 'edit_lock' ) * 60 )
 			$caps[] = 'ignore_edit_lock';
