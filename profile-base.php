@@ -6,9 +6,9 @@ if ( !is_bb_profile() ) {
 	header("Location: $sendto");
 }
 
-$self_template = $self();
+bb_do_action($self . '_pre_head', '');
 
-if ( function_exists($self_template) )
+if ( function_exists($self) )
 	if (file_exists( BBPATH . 'my-templates/profile-base.php' ))
 		require( BBPATH . 'my-templates/profile-base.php' );
 	else	require( BBPATH . 'bb-templates/profile-base.php' );

@@ -12,7 +12,6 @@ function get_footer() {
 
 function profile_menu() {
 	global $bb, $bbdb, $current_user, $user_id, $profile_menu, $self, $profile_page_title;
-	
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . get_user_profile_link( $user_id ) . '">' . __('Profile') . '</a></li>';
 	foreach ($profile_menu as $item) {
