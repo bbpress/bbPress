@@ -32,18 +32,19 @@ class BB_Roles {
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,
-						'edit_deleted' => true,		// Edit deleted topics/posts
-						'browse_deleted' => true,	// Use 'deleted' View
-						'view_by_ip' => true,		// view-ip.php
 						'manage_topics' => true,	// Delete/Close/Stick
+						'view_by_ip' => true,		// view-ip.php
+						'edit_closed' => true,		// Edit closed topics
+						'edit_deleted' => true,		// Edit deleted topics
+						'browse_deleted' => true,	// Use 'deleted' view
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
-						'manage_posts' => true,
+						'manage_posts' => true,		// Delete
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
 						'edit_favorites' => true,
 						'edit_tags' => true,
-						'edit_topics' => true,
+						'edit_topics' => true,		// Edit title, resolution status
 						'edit_posts' => true,
 						'edit_profile' => true,
 						'write_topics' => true,
@@ -57,10 +58,11 @@ class BB_Roles {
 						'edit_users' => true,			//+
 						'manage_tags' => true,			//+
 						'edit_others_favorites' => true,	//+
+						'manage_topics' => true,
+						'view_by_ip' => true,
+						'edit_closed' => true,
 						'edit_deleted' => true,
 						'browse_deleted' => true,
-						'view_by_ip' => true,
-						'manage_topics' => true,
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
 						'manage_posts' => true,
@@ -79,10 +81,11 @@ class BB_Roles {
 				'moderator' => array(
 					'name' => __('Moderator'),
 					'capabilities' => array(
+						'manage_topics' => true,	//+
+						'view_by_ip' => true,		//+
+						'edit_closed' => true,		//+
 						'edit_deleted' => true,		//+
 						'browse_deleted' => true,	//+
-						'view_by_ip' => true,		//+
-						'manage_topics' => true,	//+
 						'edit_others_tags' => true,	//+
 						'edit_others_topics' => true,	//+
 						'manage_posts' => true,		//+
@@ -299,7 +302,7 @@ function map_meta_cap($cap, $user_id) {
 	$caps = array();
 
 	switch ($cap) {
-	case 'edit_post': // edit_posts, edit_others_posts, edit_deleted, edit_topic, ignore_edit_lock
+	case 'edit_post': // edit_posts, edit_others_posts, edit_deleted, edit_closed, ignore_edit_lock
 		if ( !$post = get_post( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
@@ -310,37 +313,45 @@ function map_meta_cap($cap, $user_id) {
 		if ( $post->post_status == '1' )
 			$caps[] = 'edit_deleted';
 		if ( !topic_is_open( $post->topic_id ) )
-			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $post->topic_id ));
+			$caps[] = 'edit_closed';
 		$post_time = strtotime($post->post_time . '+0000');
 		$curr_time = time();
                 if ( $curr_time - $post_time > bb_get_option( 'edit_lock' ) * 60 )
 			$caps[] = 'ignore_edit_lock';
 		break;
-	case 'edit_topic': // edit_topics, edit_others_topics
+	case 'edit_topic': // edit_closed, edit_deleted, edit_topics, edit_others_topics
 		if ( !$topic = get_topic( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
+		if ( !topic_is_open( $args[0]) )
+			$caps[] = 'edit_closed';
+		if ( '1' == $topic->topic_status )
+			$caps[] = 'edit_deleted';
 		if ( $user_id == $topic->topic_poster )
 			$caps[] = 'edit_topics';
 		else	$caps[] = 'edit_others_topics';
 		break;
-	case 'add_tag_to': // edit_topic, edit_tags;
+	case 'add_tag_to': // edit_closed, edit_deleted, edit_tags;
 		if ( !$topic = get_topic( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
 		if ( !topic_is_open( $topic->topic_id ) )
-			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $topic->topic_id ));
+			$caps = 'edit_closed';
+		if ( '1' == $topic->topic_status )
+			$caps[] = 'edit_deleted';
 		$caps[] = 'edit_tags';
 		break;
-	case 'edit_tag_by_on': // edit_topic, edit_tags, edit_others_tags
+	case 'edit_tag_by_on': // edit_closed, edit_deleted, edit_tags, edit_others_tags
 		if ( !$topic = get_topic( $args[1] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
 		if ( !topic_is_open( $topic->topic_id ) )
-			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $topic->topic_id ));
+			$caps = 'edit_closed';
+		if ( '1' == $topic->topic_status )
+			$caps[] = 'edit_deleted';
 		if ( $user_id == $args[0] )
 			$caps[] = 'edit_tags';
 		else	$caps[] = 'edit_others_tags';

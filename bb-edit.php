@@ -19,7 +19,7 @@ if ( !$post ) {
 if ( !current_user_can( 'edit_post', $post_id ) )
 	die('Sorry, post is too old.');
 
-if ( bb_is_first( $post->post_id ) )
+if ( bb_is_first( $post->post_id ) && current_user_can( 'edit_topic', $post->topic_id ) )
 	bb_update_topic( $_POST['topic'], $post->topic_id);
 
 bb_update_post( $_POST['post_content'], $post_id);

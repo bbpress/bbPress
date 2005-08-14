@@ -16,7 +16,7 @@ if ( !$post || !current_user_can( 'edit_post', $post_id ) ) {
 
 $topic = get_topic( $post->topic_id );
 
-if ( bb_is_first( $post->post_id ) ) 
+if ( bb_is_first( $post->post_id ) && current_user_can( 'edit_topic', $topic->topic_id ) ) 
 	$topic_title = $topic->topic_title;
 else 
 	$topic_title = false;
