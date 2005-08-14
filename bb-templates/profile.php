@@ -28,7 +28,7 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 <?php if ( $posts ) : ?>
 <ol>
 <?php foreach ($posts as $post) : $topic = get_topic( $post->topic_id ) ?>
-<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php post_time(); ?> ago.
+<li<?php alt_class('replies'); ?>><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php post_time(); ?> ago.
 <?php
 if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
 	echo ' <span class="freshness">Most recent reply: ';
@@ -53,7 +53,7 @@ if ( strtotime(get_post_time()) < strtotime(get_topic_time()) ) {
 <?php if ( $threads ) : ?>
 <ol>
 <?php foreach ($threads as $topic) : ?>
-<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> Started: <?php topic_start_time(); ?> ago.
+<li<?php alt_class('threads'); ?>><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> Started: <?php topic_start_time(); ?> ago.
 <?php
 if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
 	echo ' <span class="freshness">Most recent reply: ';

@@ -339,7 +339,7 @@ function map_meta_cap($cap, $user_id) {
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
-		if ( !topic_is_open( $topic_id->topic_id ) )
+		if ( !topic_is_open( $topic->topic_id ) )
 			$caps = array_merge($caps, map_meta_cap( 'edit_topic', $user_id, $topic->topic_id ));
 		if ( $user_id == $args[0] )
 			$caps[] = 'edit_tags';

@@ -2,16 +2,19 @@
 
 <?php login_form(); ?>
 
+<div id="hottags">
 <h2>Hot Tags <small>(<a href="#latest">skip to latest topics</a>)</small></h2>
-
 <p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
+</div>
 
+<div id="viewdiv">
 <h2>Views</h2>
 <ul id="views">
 <?php foreach ( get_views() as $view => $title ) : ?>
 <li class="view"><a href="<?php echo get_view_link($view); ?>"><?php echo $view; ?></a></li>
 <?php endforeach; ?>
 </ul>
+</div>
 
 <?php if ( $topics ) : ?>
 

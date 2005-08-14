@@ -39,7 +39,7 @@ function profile_menu() {
 function login_form() {
 	global $current_user, $bb;
 	if ($current_user) {
-		echo '<p>Welcome, ' . get_user_name( $current_user->ID ) . "! <a href='" . get_user_profile_link( $current_user->ID ) . "'>View your profile &raquo;</a> 
+		echo '<p class="login">Welcome, ' . get_user_name( $current_user->ID ) . "! <a href='" . get_user_profile_link( $current_user->ID ) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
@@ -343,7 +343,6 @@ function get_topic_start_timestamp( $id = 0 ) {
 
 function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
 	global $current_user, $topic;
-var_dump(current_user_can( 'edit_topic', $topic->topic_id ));
 	if ( current_user_can( 'edit_topic', $topic->topic_id ) ) :
 		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php">' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
@@ -433,7 +432,7 @@ function topic_delete_link() {
 
 function topic_close_link() {
 	global $current_user, $topic;
-	if ( !current_user_can('manage_topic') )
+	if ( !current_user_can('manage_topics') )
 		return;
 
 	if ( topic_is_open( get_topic_id() ) )
@@ -445,7 +444,7 @@ function topic_close_link() {
 
 function topic_sticky_link() {
 	global $current_user, $topic;
-	if ( !current_user_can('manage_topic') )
+	if ( !current_user_can('manage_topics') )
 		return;
 
 	if ( topic_is_sticky( get_topic_id() ) )
@@ -467,7 +466,7 @@ function topic_show_all_link() {
 
 function topic_move_dropdown() {
 	global $current_user, $forum_id, $topic;
-	if ( !current_user_can('manage_topic') )
+	if ( !current_user_can('manage_topics') )
 		return;
 	$forum_id = $topic->forum_id;
 
@@ -798,7 +797,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 	uksort($counts, 'strnatcasecmp');
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
-		$tag = bb_specialchars( $tag );
+		$tag = str_replace(' ', '&nbsp;', bb_specialchars( $tag ));
 		print "<a href='$taglink' title='$count topics' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}
