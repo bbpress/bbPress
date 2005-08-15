@@ -34,7 +34,7 @@ function bb_new_user( $user_login, $email, $url ) {
 		bb_do_action('bb_new_user', $user_id);
 		return $password;
 	} else {		
-		update_usermeta( $user_id, $table_prefix . 'capabilities', array('memeber' => true) );
+		update_usermeta( $user_id, $table_prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user_id, $password );
 		bb_do_action('bb_new_user', $user_id);
 		return $user_id;
