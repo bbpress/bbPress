@@ -7,7 +7,7 @@
 <fieldset>
 <legend>Profile Info</legend>
 <table width="100%">
-<?php foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $current_user->ID == $user_id ) : ?>
+<?php if ( is_array($profile_info_keys) ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $current_user->ID == $user_id ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php
@@ -19,7 +19,7 @@ if ( isset($$key) && false === $$key) :
 endif;
 ?></td>
 </tr>
-<?php endif; endforeach; ?>
+<?php endif; endforeach; endif; ?>
 </table>
 <?php if ( $required ) : ?>
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
@@ -47,7 +47,7 @@ endif;
       </select>
   </td>
 </tr>
-<?php foreach ( $profile_admin_keys as $key => $label ) : ?>
+<?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php
@@ -56,7 +56,7 @@ if ( isset($$key) && false === $$key ) :
 endif;
 ?></td>
 </tr>
-<?php endforeach;?>
+<?php endforeach; endif; ?>
 </table>
 <?php if ( $required ) : ?>
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>

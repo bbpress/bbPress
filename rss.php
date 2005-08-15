@@ -23,7 +23,8 @@ if ( !$bb_db_override ) :
 if ( isset($topic_id) ) {
 	if ( !$topic = get_topic ( $topic_id ) )
 		die();
-	$posts = get_thread( $topic_id, 0, 1 );
+	if ( !$posts = get_thread( $topic_id, 0, 1 ) )
+		die();
 	$title = bb_specialchars(bb_get_option('name') . ' Thread: ' . get_topic_title());
 } elseif ( isset($user_id) ) {
 	if ( !$user = bb_get_user( $user_id ) )
@@ -34,10 +35,12 @@ if ( isset($topic_id) ) {
 } elseif ( isset($tag) ) {
 	if ( !$tag = get_tag_by_name($tag) )
 		die();
-	$posts = get_tagged_topic_posts( $tag->tag_id, 0 );
+	if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
+		die();
 	$title = bb_specialchars(bb_get_option('name') . ' Tag: ' . get_tag_name());
 } else {
-	$posts = get_latest_posts( 35 );
+	if ( !$posts = get_latest_posts( 35 ) )
+		die();
 	$title = bb_specialchars(bb_get_option('name') . ': Last 35 Posts');
 }
 endif;

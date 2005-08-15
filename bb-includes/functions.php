@@ -1160,9 +1160,9 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 function bb_repermalink() {
 	global $bb, $page;
 	$uri = $_SERVER['REQUEST_URI'];
-	$permalink = (int) @$_GET['id'];
-	if ( !$permalink )
-		$permalink = intval( get_path() );
+	if ( isset($_GET['id']) )
+		$permalink = (int) $_GET['id'];
+	else	$permalink = intval( get_path() );
 	$page = bb_get_uri_page();
 
 	if ( is_forum() ) {
@@ -1193,9 +1193,9 @@ function bb_repermalink() {
 	} elseif ( is_bb_favorites() ) {
 		$permalink = get_favorites_link();
 	} elseif ( is_tag() ) {  // It's not an integer and tags.php pulls double duty.
-		$permalink = $_GET['tag'];
-		if ( !$permalink )
-			$permalink = get_path();
+		if ( isset($_GET['tag']) )
+			$permalink = $_GET['tag'];
+		else	$permalink = get_path();
 		if ( !$permalink )
 			$permalink = get_tag_page_link();
 		else {
@@ -1204,9 +1204,9 @@ function bb_repermalink() {
 			$permalink = get_tag_link( $permalink, $page );
 		}
 	} elseif ( is_view() ) { // Not an integer
-		$permalink = $_GET['view'];
-		if ( !$permalink )
-			$permalink = get_path();
+		if ( isset($_GET['view']) )
+			$permalink = $_GET['view'];
+		else	$permalink = get_path();
 		global $view;
 		$view = $permalink;
 		$permalink = get_view_link( $permalink, $page );

@@ -16,10 +16,10 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 <dl id="userinfo">
 <dt>Member Since</dt>
 <dd><?php echo gmdate('F j, Y', $reg_time); ?> (<?php echo bb_since($reg_time); ?>)</dd>
-<?php foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key && isset($user->$key) ) : ?>
+<?php if ( is_array( $profile_info_keys ) ) : foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key && isset($user->$key) ) : ?>
 <dt><?php echo $label[1]; ?></dt>
 <dd><?php echo bb_make_clickable($user->$key); ?></dd>
-<?php endif; endforeach; ?>
+<?php endif; endforeach; endif;?>
 </dl>
 
 <h2>User Activity</h2>
