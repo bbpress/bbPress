@@ -345,14 +345,14 @@ function bb_add_query_arg() {
 		$qs = array_merge($qs, $kayvees);
 	} else {
 		$qs[func_get_arg(0)] = func_get_arg(1);
-    }
+	}
 
 	foreach($qs as $k => $v) {
 		if($v != '') {
 			if($ret != '') $ret .= '&';
 			$ret .= "$k=$v";
-        }
-    }
+		}
+	}
 	$ret = $base . $ret;   
 	return trim($ret, '?') . ($frag ? $frag : '');
 }
@@ -364,12 +364,12 @@ function bb_remove_query_arg($key, $query) {
 function bb_get_uri_page() {
 	if ( isset($_GET['page']) && is_numeric($_GET['page']) && 1 < (int) $_GET['page'] )
 		return (int) $_GET['page'];
-	if ( isset($_SERVER['PATH_INFO']) ) :
-		$url = explode('/',$_SERVER['PATH_INFO']);
-		$pos = array_search('page', $url);
-		if ( false !== $pos && @ is_numeric($url[$pos + 1]) && 1 < (int) $url[$pos + 1] )
-			return (int) $url[$pos + 1];
-	endif;
+	if ( isset($_SERVER['PATH_INFO']) )
+		if ( $page = strstr($_SERVER['PATH_INFO'], '/page/') ):
+			$page = (int) substr($page, 6);
+			if ( 1 < $page )
+				return $page;
+		endif;
 	return 1;
 }	
 

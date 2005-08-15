@@ -27,7 +27,7 @@
 <ol id="thread" start="<?php echo $list_start; ?>">
 
 <?php foreach ($posts as $post) : $del_class = ( $post->post_status ) ? 'deleted' : ''; ?>
-	<li id="post-<?php post_id(); ?>" <?php alt_class('post', $del_class); ?>>
+	<li id="post-<?php post_id(); ?>"<?php alt_class('post', $del_class); ?>>
 	
 		<div class="threadauthor">
 			<p><strong><?php post_author_link(); ?></strong><br />

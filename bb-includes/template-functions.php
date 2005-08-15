@@ -389,11 +389,21 @@ function topic_pages() {
 function get_page_number_links($page, $total) {
 	$r = '';
 	$args = array();
+	$uri = $_SERVER['REQUEST_URI'];
+	if ( 1 == $page ) :
+		if ( false === $pos = strpos($uri, '?') )
+			$uri = $uri . '/page/1';
+		else	$uri = substr_replace($uri, '/page/1', $pos, 0);
+	endif;
 	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
 		$args['view'] = $_GET['view'];
 	if ( 1 < $page ) {
-		$args['page'] = ( 1 == $page - 1 ) ? '' : $page - 1;
-		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg( $args ) ) . '">&laquo; Previous Page</a>' . "\n";
+		if ( !bb_get_option('mod_rewrite') )
+			$args['page'] = ( 1 == $page - 1 ) ? '' : $page - 1;
+		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg(
+								$args,
+								str_replace("/page/$page", ( 2 == $page ? '' : '/page/' . ($page - 1) ), $uri)
+								) ) . '">&laquo; Previous Page</a>' . "\n";
 	}
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
 		for ( $page_num = 1; $page_num <= $total_pages; $page_num++ ) :
@@ -402,8 +412,12 @@ function get_page_number_links($page, $total) {
 			else :
 				$p = false;
 				if ( $page_num < 3 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
-					$args['page'] = ( 1 == $page_num ) ? '' : $page_num;
-					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">' . ( $page_num ) . "</a>\n";
+					if ( !bb_get_option('mod_rewrite') )
+						$args['page'] = ( 1 == $page_num ) ? '' : $page_num;
+					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg(
+								$args,
+								str_replace("/page/$page", ( 1 == $page_num ? '' : '/page/' . $page_num ), $uri)
+								) ) . '">' . ( $page_num ) . "</a>\n";
 					$in = true;
 				elseif ( $in == true ) :
 					$r .= "...\n";
@@ -413,8 +427,12 @@ function get_page_number_links($page, $total) {
 		endfor;
 	}
 	if ( ( $page ) * bb_get_option('page_topics') < $total || -1 == $total ) {
-		$args['page'] = $page + 1;
-		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">Next Page &raquo;</a>' . "\n";
+		if ( !bb_get_option('mod_rewrite') )
+			$args['page'] = $page + 1;
+		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg(
+								$args,
+								str_replace("/page/$page", '/page/' . ($page + 1), $uri)
+								) ) . '">Next Page &raquo;</a>' . "\n";
 	}
 	return $r;
 }
