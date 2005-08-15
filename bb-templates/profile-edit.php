@@ -7,7 +7,7 @@
 <fieldset>
 <legend>Profile Info</legend>
 <table width="100%">
-<?php if ( is_array($profile_info_keys) ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $current_user->ID == $user_id ) : ?>
+<?php if ( is_array($profile_info_keys) ) : foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $current_user->ID == $user_id ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $user->$key; ?>" /><?php

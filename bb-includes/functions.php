@@ -381,7 +381,7 @@ function post_author_cache($posts) {
 				$ids[] = $post->poster_id;
 	if ( isset($ids) ) {
 		$ids = join(',', $ids);
-		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids)");
+		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids) AND user_status % 2 = 0");
 		bb_append_meta( $users, 'user' );
 	}
 }

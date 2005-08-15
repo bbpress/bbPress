@@ -1,7 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-if ( !$current_user ) {
+if ( !current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_option('uri');
 	header("Location: $sendto");
 }

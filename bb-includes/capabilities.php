@@ -338,7 +338,7 @@ function map_meta_cap($cap, $user_id) {
 			return $caps;
 		endif;
 		if ( !topic_is_open( $topic->topic_id ) )
-			$caps = 'edit_closed';
+			$caps[] = 'edit_closed';
 		if ( '1' == $topic->topic_status )
 			$caps[] = 'edit_deleted';
 		$caps[] = 'edit_tags';
@@ -349,7 +349,7 @@ function map_meta_cap($cap, $user_id) {
 			return $caps;
 		endif;
 		if ( !topic_is_open( $topic->topic_id ) )
-			$caps = 'edit_closed';
+			$caps[] = 'edit_closed';
 		if ( '1' == $topic->topic_status )
 			$caps[] = 'edit_deleted';
 		if ( $user_id == $args[0] )
