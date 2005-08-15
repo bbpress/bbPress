@@ -277,10 +277,13 @@ function bb_make_feed( $link ) {
 
 function closed_title( $title ) {
 	global $topic;
-	if ( '0' === $topic->topic_open )
-		return '[closed] <span class="closed">' . $title . '</span>';
-	else
-		return $title;
+	if ( '0' === $topic->topic_open ) {
+		if ( is_bb_feed() )
+			return "[closed] $title";
+		else
+			return "[closed] <span class='closed'>$title</span>";
+	}
+	return $title;
 }
 
 function make_link_deleted( $link ) {

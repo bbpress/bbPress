@@ -103,6 +103,13 @@ function is_topic() {
 		return false;
 }
 
+function is_bb_feed() {
+	if ( 'rss.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+		return true;
+	else
+		return false;
+}
+
 function is_bb_search() {
 	if ( 'search.php' == bb_find_filename($_SERVER['PHP_SELF']) )
 		return true;
