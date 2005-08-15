@@ -16,7 +16,7 @@
 </ul>
 </div>
 
-<?php if ( $topics ) : ?>
+<?php if ( $topics || $super_stickies ) : ?>
 
 <h2>Latest Discussions</h2>
 
@@ -28,15 +28,23 @@
 	<th>Freshness</th>
 </tr>
 
+<?php if ( $super_stickies ) : foreach ( $super_stickies as $topic ) : ?>
+<tr<?php alt_class('topic', 'sticky'); ?>>
+	<td>Sticky: <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
+	<td class="num"><?php topic_posts(); ?></td>
+	<td class="num"><?php topic_last_poster(); ?></td>
+	<td class="num"><small><?php topic_time(); ?></small></td>
+</tr>
+<?php endforeach; endif; ?>
 
-<?php foreach ( $topics as $topic ) : ?>
+<?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
 <tr<?php alt_class('topic'); ?>>
 	<td><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
 </tr>
-<?php endforeach; ?>
+<?php endforeach; endif; ?>
 </table>
 <?php endif; ?>
 

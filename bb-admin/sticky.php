@@ -3,6 +3,7 @@ require('admin-header.php');
 
 $topic_id = (int) $_GET['id'];
 $topic    =  get_topic ( $topic_id );
+$super = ( isset($_GET['super']) && 1 == (int) $_GET['super'] ) ? 1 : 0;
 
 if ( !$topic )
 	die('There is a problem with that topic, pardner.');
@@ -15,7 +16,7 @@ if ( !current_user_can('manage_topics') ) {
 if ( topic_is_sticky( $topic_id ) )
 	bb_unstick_topic ( $topic_id );
 else
-	bb_stick_topic   ( $topic_id );
+	bb_stick_topic   ( $topic_id, $super );
 
 header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
 exit;

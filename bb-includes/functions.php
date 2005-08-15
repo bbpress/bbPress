@@ -58,13 +58,17 @@ function get_post( $post_id ) {
 
 function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 	global $bbdb, $bb;
+	$forum = (int) $forum;
+	$page = (int) $page;
 	$where = 'WHERE topic_status = 0';
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
 	if ( !empty( $exclude ) )
 		$where .= " AND forum_id NOT IN ('$exclude') ";
-	if ( is_forum() )
-		$where .= " AND topic_sticky <> '1' ";
+	if ( is_front() )
+		$where .= " AND topic_sticky <> 2 ";
+	elseif ( is_forum() )
+		$where .= " AND topic_sticky = 0 ";
 	$limit = bb_get_option('page_topics');
 	$where = bb_apply_filters('get_latest_topics_where', $where);
 	if ( 1 < $page )
@@ -76,11 +80,14 @@ function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 
 function get_sticky_topics( $forum = 0 ) {
 	global $bbdb, $bb;
-	$where = 'AND topic_status = 0';
+	$forum = (int) $forum;
+	if ( is_front() )
+		$where = 'WHERE topic_sticky = 2  AND topic_status = 0';
+	else	$where = 'WHERE topic_sticky <> 0 AND topic_status = 0';
 	if ( $forum )
-		$where = "AND forum_id = $forum ";
+		$where .= " AND forum_id = $forum ";
 	$where = bb_apply_filters('get_sticky_topics_where', $where);
-	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_sticky = 1 $where ORDER BY topic_time DESC") )
+	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC") )
 		return bb_append_meta( $stickies, 'topic' );	
 	else	return false;
 }
@@ -746,10 +753,11 @@ function bb_open_topic ( $topic_id ) {
 	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '1' WHERE topic_id = $topic_id");
 }
 
-function bb_stick_topic ( $topic_id ) {
+function bb_stick_topic ( $topic_id, $super = 0 ) {
 	global $bbdb;
+	$stick = 1 + abs((int) $super);
 	bb_do_action('stick_topic', $topic_id);
-	return $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '1' WHERE topic_id = $topic_id");
+	return $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '$stick' WHERE topic_id = $topic_id");
 }
 
 function bb_unstick_topic ( $topic_id ) {

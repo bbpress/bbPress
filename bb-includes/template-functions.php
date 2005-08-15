@@ -466,10 +466,9 @@ function topic_sticky_link() {
 		return;
 
 	if ( topic_is_sticky( get_topic_id() ) )
-		$text = 'Unstick topic';
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>Unstick topic</a>";
 	else
-		$text = 'Stick topic';
-	echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>$text</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>Stick topic</a> (<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "&#038;super=1'>to front</a>)";
 }
 
 function topic_show_all_link() {
