@@ -72,7 +72,7 @@ endif;
 <p>If you wish to update your password, you may enter a new password twice below:</p>
 <table width="100%">
 <tr>
-  <th width="33%" scope="row">New password:</th>
+  <th scope="row">New password:</th>
   <td><input name="pass1" type="password" id="pass1" size="15" maxlength="100" /></td>
 </tr>
 <tr>

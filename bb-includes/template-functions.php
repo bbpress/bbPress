@@ -139,7 +139,7 @@ function bb_title() {
 	if ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
 	if ( is_tag() )
-		$title = get_tag_name() . ' &laquo; Tags ';
+		$title = bb_specialchars( get_tag_name() ). ' &laquo; Tags ';
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
 	$title .= bb_get_option('name');
@@ -344,7 +344,7 @@ function get_topic_start_timestamp( $id = 0 ) {
 function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
 	global $current_user, $topic;
 	if ( current_user_can( 'edit_topic', $topic->topic_id ) ) :
-		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php">' . "\n";
+		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php"><div>' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
 		$resolved_form .= '<select name="resolved" tabindex="2">' . "\n";
 
@@ -356,7 +356,7 @@ function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a s
 		}
 
 		$resolved_form .= "</select>\n";
-		$resolved_form .= '<input type="submit" name="submit" value="Change" />' . "\n</form>";
+		$resolved_form .= '<input type="submit" name="submit" value="Change" />' . "\n</div></form>";
 		echo $resolved_form;
 	else:
 		switch ( get_topic_resolved( $id ) ) {
@@ -761,10 +761,10 @@ function tag_rename_form() {
 	global $tag, $current_user;
 	if ( !current_user_can('manage_tags') )
 		return false;
-	$tag_rename_form  = '<form id="tag-rename" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-rename.php">' . "\n";
+	$tag_rename_form  = '<form id="tag-rename" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-rename.php"><div>' . "\n";
 	$tag_rename_form .= "<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
 	$tag_rename_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
-	$tag_rename_form .= '<input type="submit" name="Submit" value="Rename" />' . "\n</p>\n</form>";
+	$tag_rename_form .= '<input type="submit" name="Submit" value="Rename" />' . "\n</p>\n</div></form>";
 	echo $tag_rename_form;
 }
 
@@ -772,11 +772,11 @@ function tag_merge_form() {
 	global $tag, $current_user;
 	if ( !current_user_can('manage_tags') )
 		return false;
-	$tag_merge_form  = '<form id="tag-merge" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-merge.php">' . "\n";
+	$tag_merge_form  = '<form id="tag-merge" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-merge.php"><div>' . "\n";
 	$tag_merge_form .= "<p>Merge this tag into the tag specified</p>\n<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
 	$tag_merge_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
 	$tag_merge_form .= '<input type="submit" name="Submit" value="Merge" ';
-	$tag_merge_form .= 'onclick="return confirm(\'Are you sure you want to merge the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag into the tag you specified? This is permanent and cannot be undone.\')" />' . "\n</p>\n</form>";
+	$tag_merge_form .= 'onclick="return confirm(\'Are you sure you want to merge the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag into the tag you specified? This is permanent and cannot be undone.\')" />' . "\n</p>\n</div></form>";
 	echo $tag_merge_form;
 }
 
@@ -784,10 +784,10 @@ function tag_destroy_form() {
 	global $tag, $current_user;
 	if ( !current_user_can('manage_tags') )
 		return false;
-	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php">' . "\n";
+	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php"><div>' . "\n";
 	$tag_destroy_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
 	$tag_destroy_form .= '<input type="submit" name="Submit" value="Destroy" ';
-	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag? This is permanent and cannot be undone.\')" />' . "\n</form>";
+	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag? This is permanent and cannot be undone.\')" />' . "\n</div></form>";
 	echo $tag_destroy_form;
 }
 

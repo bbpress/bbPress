@@ -37,5 +37,6 @@ bb_add_filter('get_favorites_rss_link', 'bb_make_feed');
 if ( !$bb->mod_rewrite ) {
 	bb_add_filter('profile_tab_link', 'bb_specialchars');
 	bb_add_filter('post_link', 'bb_specialchars');
+	bb_add_filter('favorites_link', 'bb_specialchars');
 }
 ?>
