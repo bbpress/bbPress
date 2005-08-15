@@ -1,12 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-$page = 0;
-
 bb_repermalink();
-
-if ( isset($_GET['page']) )
-	$page = (int) abs( $_GET['page'] );
 
 switch ( $view ) :
 case 'no-replies' :

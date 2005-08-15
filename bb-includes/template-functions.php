@@ -173,14 +173,14 @@ function forum_link() {
 	echo bb_apply_filters('forum_link', get_forum_link() );
 }
 
-function get_forum_link( $id = 0 ) {
+function get_forum_link( $id = 0, $page = 1 ) {
 	global $forum, $bb;
 	if ( $id )
 		$forum = get_forum( $id );
 	if ( $bb->mod_rewrite )
-		$link = bb_get_option('uri') . 'forum/' . $forum->forum_id;
+		$link = bb_get_option('uri') . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
 	else
-		$link = bb_get_option('uri') . "forum.php?id=$forum->forum_id";
+		$link = bb_get_option('uri') . "forum.php?id=$forum->forum_id" . ( 1 < $page ? "&page=$page" : '' );
 
 	return bb_apply_filters('get_forum_link', $link);
 }
@@ -230,20 +230,20 @@ function topic_id() {
 	echo bb_apply_filters('topic_id', get_topic_id() );
 }
 
-function topic_link( $id = 0 ) {
+function topic_link( $id = 0, $page = 1 ) {
 	echo bb_apply_filters('topic_link', get_topic_link($id) );
 }
 
-function get_topic_link( $id = 0 ) {
+function get_topic_link( $id = 0, $page = 1 ) {
 	global $topic;
 
 	if ( $id )
 		$topic = get_topic( $id );
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . 'topic/' . $topic->topic_id;
+		$link = bb_get_option('uri') . "topic/$topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
 	else
-		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id";
+		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id" . ( 1 < $page ? "&page=$page" : '' );
 
 	return bb_apply_filters('get_topic_link', $link);
 }
@@ -391,19 +391,19 @@ function get_page_number_links($page, $total) {
 	$args = array();
 	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
 		$args['view'] = $_GET['view'];
-	if ( $page ) {
-		$args['page'] = $page - 1;
+	if ( 1 < $page ) {
+		$args['page'] = ( 1 == $page - 1 ) ? '' : $page - 1;
 		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg( $args ) ) . '">&laquo; Previous Page</a>' . "\n";
 	}
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
-		for ( $page_num = 0; $page_num < $total_pages; $page_num++ ) :
+		for ( $page_num = 1; $page_num <= $total_pages; $page_num++ ) :
 			if ( $page == $page_num ) :
-				$r .= ( $page_num + 1 ) . "\n";
+				$r .= ( $page_num ) . "\n";
 			else :
 				$p = false;
-				if ( $page_num < 2 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
-					$args['page'] = $page_num;
-					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">' . ( $page_num + 1 ) . "</a>\n";
+				if ( $page_num < 3 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
+					$args['page'] = ( 1 == $page_num ) ? '' : $page_num;
+					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">' . ( $page_num ) . "</a>\n";
 					$in = true;
 				elseif ( $in == true ) :
 					$r .= "...\n";
@@ -412,7 +412,7 @@ function get_page_number_links($page, $total) {
 			endif;
 		endfor;
 	}
-	if ( ( $page + 1 ) * bb_get_option('page_topics') < $total || -1 == $total ) {
+	if ( ( $page ) * bb_get_option('page_topics') < $total || -1 == $total ) {
 		$args['page'] = $page + 1;
 		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg($args) ) . '">Next Page &raquo;</a>' . "\n";
 	}
@@ -593,29 +593,33 @@ function post_author_type() {
 }
 
 // USERS
-function user_profile_link( $id ) {
+function user_profile_link( $id, $page = 1 ) {
 	echo bb_apply_filters('user_profile_link', get_user_profile_link( $id ));
 }
 
-function get_user_profile_link( $id ) {
+function get_user_profile_link( $id, $page = 1 ) {
 	if ( bb_get_option('mod_rewrite') ) {
-		$r = bb_get_option('uri') . 'profile/' . $id;
+		$r = bb_get_option('uri') . "profile/$id" . ( 1 < $page ? "/page/$page" : '' );
 	} else {
-		$r = bb_get_option('uri') . 'profile.php?id=' . $id;
+		$r = bb_get_option('uri') . "profile.php?id=$id" . ( 1 < $page ? "&page=$page" : '' );
 	}
 	return bb_apply_filters('get_user_profile_link', $r);
 }
 
-function profile_tab_link( $id, $tab ) {
+function profile_tab_link( $id, $tab, $page = 1 ) {
 	echo bb_apply_filters('profile_tab_link', get_profile_tab_link( $id, $tab ));
 }
 
-function get_profile_tab_link( $id, $tab ) {
+function get_profile_tab_link( $id, $tab, $page = 1 ) {
 	$tab = tag_sanitize($tab);
 	if ( bb_get_option('mod_rewrite') )
-		$r = get_user_profile_link( $id ) . "/$tab";
-	else
-		$r = bb_add_query_arg( 'tab', $tab, get_user_profile_link( $id ) );
+		$r = get_user_profile_link( $id ) . "/$tab" . ( 1 < $page ? "/page/$page" : '' );
+	else {
+		$args = array('tab' => $tab);
+		if ( 1 < $page )
+			$args['page'] = $page;
+		$r = bb_add_query_arg( $args, get_user_profile_link( $id ) );
+	}
 	return bb_apply_filters('get_profile_tab_link', $r);
 }
 
@@ -687,18 +691,18 @@ function tag_page_link() {
 	echo get_tag_page_link();
 }
 
-function get_tag_link( $tag_name = 0 ) {
+function tag_link( $id = 0, $page = 1 ) {
+	echo get_tag_link( $id );
+}
+
+function get_tag_link( $tag_name = 0, $page = 1 ) {
 	global $tag, $bb;
 	if ( $tag_name )
 		$tag = get_tag_by_name( $tag_name );
 	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . $bb->tagpath . 'tags/' . $tag->tag;
+		return bb_get_option('domain') . $bb->tagpath . "tags/$tag->tag" . ( 1 < $page ? "/page/$page" : '' );
 	else
-		return bb_get_option('domain') . $bb->tagpath . 'tags.php?tag=' . $tag->tag;
-}
-
-function tag_link( $id = 0 ) {
-	echo get_tag_link( $id );
+		return bb_get_option('domain') . $bb->tagpath . "tags.php?tag=$tag->tag" . ( 1 < $page ? "&page=$page" : '' );
 }
 
 function get_tag_name( $id = 0 ) {
@@ -886,14 +890,14 @@ function view_pages() {
 	echo bb_apply_filters( 'view_pages', get_page_number_links( $page, -1 ) );
 }
 
-function get_view_link( $view ) {
+function get_view_link( $view, $page = 1 ) {
 	$views = get_views();
 	if ( !array_key_exists($view, $views) )
 		return bb_get_option('uri');
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . 'view/' . $view;
+		$link = bb_get_option('uri') . 'view/' . $view . ( 1 < $page ? "/page/$page" : '' );
 	else
-		$link = bb_get_option('uri') . "view.php?view=$view";
+		$link = bb_get_option('uri') . "view.php?view=$view" . ( 1 < $page ? "&page=$page" : '');
 
 	return bb_apply_filters('get_view_link', $link);
 }

@@ -1,7 +1,6 @@
 <?php
 require_once('bb-config.php');
-
-$topic_id = $page = 0;
+$topic_id = 0;
 
 if ( current_user_can('browse_deleted') && 'deleted' == @$_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
@@ -11,9 +10,6 @@ if ( current_user_can('browse_deleted') && 'deleted' == @$_GET['view'] ) {
 }
 
 bb_repermalink();
-
-if ( isset( $_GET['page'] ) )
-	$page = (int) abs( $_GET['page'] );
 
 if ( !$topic )
 	die('Topic not found.');
@@ -37,7 +33,7 @@ if ( !$bb_db_override ) :
 		$other_tags = false;
 	}
 
-	$list_start = $page * bb_get_option('page_topics') + 1;
+	$list_start = ($page - 1) * bb_get_option('page_topics') + 1;
 
 	post_author_cache($posts);
 endif;

@@ -23,13 +23,13 @@ function get_topic( $id, $cache = true ) {
 	endif;
 }
 
-function get_thread( $topic_id, $page = 0, $reverse = 0 ) {
+function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
 	global $post_cache, $bbdb;
 
 	$where = bb_apply_filters('get_thread_where', 'AND post_status = 0');
 	$limit = bb_get_option('page_topics');
-	if ( $page )
-		$limit = ($limit * $page) . ", $limit";
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	$order = ($reverse) ? 'DESC' : 'ASC';
 
 	$thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time $order LIMIT $limit");
@@ -56,7 +56,7 @@ function get_post( $post_id ) {
 	return $post_cache[$post_id];
 }
 
-function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
+function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 	global $bbdb, $bb;
 	$where = 'WHERE topic_status = 0';
 	if ( $forum )
@@ -67,8 +67,8 @@ function get_latest_topics( $forum = 0, $page = 0, $exclude = '') {
 		$where .= " AND topic_sticky <> '1' ";
 	$limit = bb_get_option('page_topics');
 	$where = bb_apply_filters('get_latest_topics_where', $where);
-	if ( $page )
-		$limit = ($limit * $page) . ", $limit";
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit") )
 		return bb_append_meta( $topics, 'topic' );
 	else	return false;
@@ -129,8 +129,8 @@ function get_user_favorites( $user_id, $list = false ) {
 function get_recent_user_replies( $user_id ) {
 	global $bbdb, $post_cache, $page;
 	$limit = bb_get_option('page_topics');
-	if ( $page )
-		$limit = ($limit * $page) . ", $limit";
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = bb_apply_filters('get_recent_user_replies', 'AND post_status = 0');
 	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY post_time DESC LIMIT $limit");
 	if ( $posts ) :
@@ -150,8 +150,8 @@ function get_recent_user_replies( $user_id ) {
 function get_recent_user_threads( $user_id ) {
 	global $bbdb, $page;
 	$limit = bb_get_option('page_topics');
-	if ( $page )
-		$limit = ($limit * $page) . ", $limit";
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = bb_apply_filters('get_recent_user_threads_where', 'AND topic_status = 0');
 	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id $where ORDER BY topic_start_time DESC LIMIT $limit");
 	if ( $topics )
@@ -163,7 +163,7 @@ function get_recent_user_threads( $user_id ) {
 function get_page_number( $item, $per_page = 0 ) {
 	if ( !$per_page )
 		$per_page = bb_get_option('page_topics');
-	return intval( ceil( $item / $per_page ) - 1 ); // page 0 is the first page
+	return intval( ceil( $item / $per_page ) ); // page 1 is the first page
 }
 
 function bb_apply_filters($tag, $string, $filter = true) {
@@ -360,6 +360,18 @@ function bb_add_query_arg() {
 function bb_remove_query_arg($key, $query) {
 	return bb_add_query_arg($key, '', $query);
 }
+
+function bb_get_uri_page() {
+	if ( isset($_GET['page']) && is_numeric($_GET['page']) && 1 < (int) $_GET['page'] )
+		return (int) $_GET['page'];
+	if ( isset($_SERVER['PATH_INFO']) ) :
+		$url = explode('/',$_SERVER['PATH_INFO']);
+		$pos = array_search('page', $url);
+		if ( false !== $pos && @ is_numeric($url[$pos + 1]) && 1 < (int) $url[$pos + 1] )
+			return (int) $url[$pos + 1];
+	endif;
+	return 1;
+}	
 
 function post_author_cache($posts) {
 	global $bbdb, $user_cache;
@@ -766,10 +778,7 @@ function get_post_link( $post_id ) {
 	if ( $post_id )
 		$post = get_post( $post_id );
 	$page = get_page_number( $post->post_position );
-	if ( $page )
-		return bb_apply_filters( 'get_post_link', bb_add_query_arg( 'page', $page, get_topic_link( $post->topic_id ) . "#post-$post->post_id") );
-	else
-		return bb_apply_filters( 'get_post_link', get_topic_link( $post->topic_id ) . "#post-$post->post_id" );
+	return bb_apply_filters( 'get_post_link', get_topic_link( $post->topic_id, $page ) . "#post-$post->post_id" );
 }
 
 function post_link() {
@@ -1108,27 +1117,27 @@ function get_tagged_topic_ids( $tag_id ) {
 	}
 }
 
-function get_tagged_topics( $tag_id, $page = 0 ) {
+function get_tagged_topics( $tag_id, $page = 1 ) {
 	global $bbdb;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
 	$topic_ids = join($topic_ids, ',');
 	$limit = bb_get_option('page_topics');
-	if ( $page )
-		$limit = ($limit * $page) . ", $limit";
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit") )
 		return bb_append_meta( $topics, 'topic' );
 	else	return false;
 }
 
-function get_tagged_topic_posts( $tag_id, $page = 0 ) {
+function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 	global $bbdb, $post_cache;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
 	$topic_ids = join($topic_ids, ',');
 	$limit = bb_get_option('page_topics');
-	if ( $page )
-		$limit = ($limit * $page) . ", $limit";
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	if ( $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time DESC LIMIT $limit") ) {
 		foreach ( $posts as $post )
 			$post_cache[$post->post_id] = $post;
@@ -1149,20 +1158,21 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
 function bb_repermalink() {
-	global $bb;
+	global $bb, $page;
 	$uri = $_SERVER['REQUEST_URI'];
 	$permalink = (int) @$_GET['id'];
 	if ( !$permalink )
 		$permalink = intval( get_path() );
+	$page = bb_get_uri_page();
 
 	if ( is_forum() ) {
 		global $forum_id;
 		$forum_id = $permalink;
-		$permalink = get_forum_link( $permalink );
+		$permalink = get_forum_link( $permalink, $page );
 	} elseif ( is_topic() ) {
 		global $topic_id;
 		$topic_id = $permalink;
-		$permalink = get_topic_link( $permalink );
+		$permalink = get_topic_link( $permalink, $page );
 	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
 		global $user_id, $profile_hooks, $self;
 		$user_id = $permalink;
@@ -1175,9 +1185,9 @@ function bb_repermalink() {
 					$self = $valid_file;
 				}
 		if ( $valid ) :
-			$permalink = get_profile_tab_link( $permalink, $tab );
+			$permalink = get_profile_tab_link( $permalink, $tab, $page );
 		else :
-			$permalink = get_user_profile_link( $permalink );
+			$permalink = get_user_profile_link( $permalink, $page );
 			unset($self, $tab);
 		endif;
 	} elseif ( is_bb_favorites() ) {
@@ -1191,7 +1201,7 @@ function bb_repermalink() {
 		else {
 			global $tag_name;
 			$tag_name = $permalink;
-			$permalink = get_tag_link( $permalink );
+			$permalink = get_tag_link( $permalink, $page );
 		}
 	} elseif ( is_view() ) { // Not an integer
 		$permalink = $_GET['view'];
@@ -1199,14 +1209,14 @@ function bb_repermalink() {
 			$permalink = get_path();
 		global $view;
 		$view = $permalink;
-		$permalink = get_view_link( $permalink );
+		$permalink = get_view_link( $permalink, $page );
 	} else { return; }
 
 	parse_str($_SERVER['QUERY_STRING'], $args);
 	if ( $args ) {
 		$permalink = bb_add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
-				$pretty_args = array('id', 'tag', 'tab'); // these are already specified in the path
+				$pretty_args = array('id', 'page', 'tag', 'tab', 'view'); // these are already specified in the path
 				foreach( $pretty_args as $arg )
 					$permalink = bb_remove_query_arg($arg, $permalink);
 			}

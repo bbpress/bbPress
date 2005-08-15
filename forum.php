@@ -2,12 +2,9 @@
 
 require_once('bb-config.php');
 
-$forum_id = $page = 0;
+$forum_id = 0;
 
 bb_repermalink();
-
-if ( isset( $_GET['page'] ) )
-	$page = (int) abs( $_GET['page'] );
 
 if ( !$forum )
 	die('Forum not found.');

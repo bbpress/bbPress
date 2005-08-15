@@ -9,11 +9,6 @@ if ( isset($_GET['username']) ) :
 	exit;
 endif;
 
-$page = 0;
-
-if( isset($_GET['page']) )
-	$page = (int) abs( $_GET['page'] );
-
 bb_repermalink(); // The magic happens here.
 $user = bb_get_user( $user_id );
 
