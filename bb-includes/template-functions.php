@@ -390,7 +390,7 @@ function get_page_number_links($page, $total) {
 	$r = '';
 	$args = array();
 	$uri = $_SERVER['REQUEST_URI'];
-	if ( 1 == $page ) :
+	if ( 1 == $page && bb_get_option('mod_rewrite') ) :
 		if ( false === $pos = strpos($uri, '?') )
 			$uri = $uri . '/page/1';
 		else	$uri = substr_replace($uri, '/page/1', $pos, 0);
