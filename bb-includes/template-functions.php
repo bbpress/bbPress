@@ -389,7 +389,8 @@ function topic_last_post_link( $id = 0 ) {
 	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
-	post_link( $topic->topic_last_post_id );
+	$page = get_page_number( $topic->topic_posts );
+	echo bb_apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id" );
 }
 
 function topic_pages() {

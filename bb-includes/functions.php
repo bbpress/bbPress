@@ -812,9 +812,8 @@ function get_post_link( $post_id ) {
 	return bb_apply_filters( 'get_post_link', get_topic_link( $post->topic_id, $page ) . "#post-$post->post_id" );
 }
 
-function post_link() {
-	global $post;
-	echo bb_apply_filters( 'post_link', get_post_link( $post->post_id ) );
+function post_link( $post_id = 0 ) {
+	echo bb_apply_filters( 'post_link', get_post_link( $post_id ) );
 }
 
 function update_post_positions( $topic_id ) {
