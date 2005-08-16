@@ -1,4 +1,12 @@
 <?php
+if ( !ini_get('safe_mode') )
+	die("You're running in safe mode which does not allow this upgrade
+	script to set a running time limit.  Depending on the size of your
+	database and on which parts of the script you are running, the script
+	can take quite some time to run (or it could take just a few seconds).
+	To throw caution to the wind and run the script in safe mode anyway,
+	remove the first two lines of code in this file.  Backups are always a
+	good idea.");
 require('../bb-config.php');
 set_time_limit(600);
 
