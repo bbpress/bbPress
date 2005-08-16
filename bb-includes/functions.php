@@ -78,8 +78,10 @@ function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 	else	return false;
 }
 
-function get_sticky_topics( $forum = 0 ) {
+function get_sticky_topics( $forum = 0, $display = 1 ) {
 	global $bbdb, $bb;
+	if ( 1 != $display )
+		return false;
 	$forum = (int) $forum;
 	if ( is_front() )
 		$where = 'WHERE topic_sticky = 2  AND topic_status = 0';

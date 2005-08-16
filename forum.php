@@ -14,7 +14,7 @@ bb_do_action( 'bb_forum.php_pre_db', $forum_id );
 
 if ( !$bb_db_override ) :
 	$topics   = get_latest_topics( $forum_id, $page );
-	$stickies = get_sticky_topics( $forum_id );
+	$stickies = get_sticky_topics( $forum_id, $page );
 endif;
 
 bb_do_action( 'bb_forum.php', $forum_id );
