@@ -1,5 +1,5 @@
 <?php
-if ( !ini_get('safe_mode') )
+if ( ini_get('safe_mode') )
 	die("You're running in safe mode which does not allow this upgrade
 	script to set a running time limit.  Depending on the size of your
 	database and on which parts of the script you are running, the script
