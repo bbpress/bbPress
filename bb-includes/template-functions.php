@@ -208,8 +208,12 @@ function get_forum_name() {
 }
 
 function forum_description() {
+	echo bb_apply_filters('forum_description', get_forum_description());
+}
+
+function get_forum_description() {
 	global $forum;
-	echo bb_apply_filters('forum_description', $forum->forum_desc);
+	return bb_apply_filters('get_forum_description', $forum->forum_desc);
 }
 
 function forum_topics() {

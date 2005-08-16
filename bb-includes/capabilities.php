@@ -32,6 +32,7 @@ class BB_Roles {
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,
+						'manage_forums' => true,	// Add forum
 						'manage_topics' => true,	// Delete/Close/Stick
 						'view_by_ip' => true,		// view-ip.php
 						'edit_closed' => true,		// Edit closed topics
@@ -58,6 +59,7 @@ class BB_Roles {
 						'edit_users' => true,			//+
 						'manage_tags' => true,			//+
 						'edit_others_favorites' => true,	//+
+						'manage_forums' => true,		//+
 						'manage_topics' => true,
 						'view_by_ip' => true,
 						'edit_closed' => true,

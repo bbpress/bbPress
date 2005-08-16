@@ -565,6 +565,29 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 		$bbdb->query("UPDATE $table SET meta_value = '$meta_value' WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 }
 
+function bb_new_forum( $name, $desc, $order = 0 ) {
+	global $bbdb, $current_user;
+	if ( !current_user_can('manage_forums') )
+		return false;
+	if ( strlen($name) < 1 )
+		return false;
+	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_desc, forum_order) VALUES ('$name', '$desc', '$order')");
+	return $bbdb->insert_id;
+}
+
+function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
+	global $bbdb, $current_user;
+	if ( !current_user_can('manage_forums') )
+		return false;
+	if ( !$forum_id = (int) $forum_id )
+		return false;
+	$order = (int) $order;
+	if ( strlen($name) < 1 )
+		return false;
+	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$name', forum_desc = '$desc', forum_order = '$order' WHERE forum_id = $forum_id");
+	return;
+}
+
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	global $bbdb, $current_user;
 	$title = bb_apply_filters('pre_topic_title', $title);
