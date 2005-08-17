@@ -2,12 +2,6 @@
 
 <?php login_form(); ?>
 
-<?php tag_rename_form(); ?>
-
-<?php tag_destroy_form(); ?>
-
-<?php tag_merge_form(); ?>
-
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h2>
 
 <p><a href="<?php tag_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> link for this tag.</a></p>
@@ -41,5 +35,7 @@
 <?php post_form(); ?>
 
 <?php bb_do_action('tag_below_table', ''); ?>
+
+<?php manage_tags_forms(); ?>
 
 <?php get_footer(); ?>

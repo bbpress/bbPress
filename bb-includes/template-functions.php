@@ -774,38 +774,28 @@ function tag_form() {
 	include( BBPATH . '/bb-templates/tag-form.php');
 }
 
-function tag_rename_form() {
+function manage_tags_forms() {
 	global $tag, $current_user;
 	if ( !current_user_can('manage_tags') )
 		return false;
-	$tag_rename_form  = '<form id="tag-rename" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-rename.php"><div>' . "\n";
-	$tag_rename_form .= "<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
-	$tag_rename_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
-	$tag_rename_form .= '<input type="submit" name="Submit" value="Rename" />' . "\n</p>\n</div></form>";
-	echo $tag_rename_form;
-}
-
-function tag_merge_form() {
-	global $tag, $current_user;
-	if ( !current_user_can('manage_tags') )
-		return false;
-	$tag_merge_form  = '<form id="tag-merge" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-merge.php"><div>' . "\n";
-	$tag_merge_form .= "<p>Merge this tag into the tag specified</p>\n<p>\n" . '<input type="text"   name="tag" size="10" maxlength="30" />' . "\n";
-	$tag_merge_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
-	$tag_merge_form .= '<input type="submit" name="Submit" value="Merge" ';
-	$tag_merge_form .= 'onclick="return confirm(\'Are you sure you want to merge the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag into the tag you specified? This is permanent and cannot be undone.\')" />' . "\n</p>\n</div></form>";
-	echo $tag_merge_form;
-}
-
-function tag_destroy_form() {
-	global $tag, $current_user;
-	if ( !current_user_can('manage_tags') )
-		return false;
-	$tag_destroy_form  = '<form id="tag-destroy" method="post" action="' . bb_get_option('uri') . 'bb-admin/tag-destroy.php"><div>' . "\n";
-	$tag_destroy_form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n";
-	$tag_destroy_form .= '<input type="submit" name="Submit" value="Destroy" ';
-	$tag_destroy_form .= 'onclick="return confirm(\'Are you sure you want to destroy the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag? This is permanent and cannot be undone.\')" />' . "\n</div></form>";
-	echo $tag_destroy_form;
+	$form  = "<ul id='manage-tags'>\n ";
+	$form .= "<li id='tag-rename'>Rename tag:\n\t";
+	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-rename.php'><div>\n\t";
+	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
+	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
+	$form .= "<input type='submit' name='Submit' value='Rename' />\n\t</div></form>\n  </li>\n ";
+	$form .= "<li id='tag-merge'>Merge this tag into:\n\t";
+	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-merge.php'><div>\n\t";
+	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
+	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
+	$form .= "<input type='submit' name='Submit' value='Merge' ";
+	$form .= "onclick='return confirm(\"Are you sure you want to merge the &#039;" . bb_specialchars( $tag->raw_tag ) . "&#039; tag into the tag you specified? This is permanent and cannot be undone.\")' />\n\t</div></form>\n  </li>\n ";
+	$form .= "<li id='tag-destroy'>Destroy tag:\n\t";
+	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-destroy.php'><div>\n\t";
+	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
+	$form .= "<input type='submit' name='Submit' value='Destroy' ";
+	$form .= "onclick='return confirm(\"Are you sure you want to destroy the &#039;" . bb_specialchars( $tag->raw_tag ) . "&#039; tag? This is permanent and cannot be undone.\")' />\n\t</div></form>\n  </li>\n</ul>";
+	echo $form;
 }
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
