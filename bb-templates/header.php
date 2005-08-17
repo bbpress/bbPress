@@ -4,7 +4,9 @@
 	<title><?php bb_title() ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<?php bb_feed_head(); ?>
-
+	<style type="text/css">
+	 @import url(<?php bb_stylesheet_uri(); ?>);
+	</style>
 </head>
 
 <body>

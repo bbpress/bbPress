@@ -5,6 +5,12 @@ function get_header() {
 	include( BBPATH . 'bb-templates/header.php');
 }
 
+function bb_stylesheet_uri() {
+	if ( file_exists( BBPATH . 'my-templates/style.css') )
+		echo bb_get_option('uri') . 'my-templates/style.css';
+	else	echo bb_get_option('uri') . 'bb-templates/style.css';
+}
+
 function get_footer() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
 	include( BBPATH . 'bb-templates/footer.php');
