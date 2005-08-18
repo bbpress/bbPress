@@ -38,15 +38,6 @@ endif;
       </select>
   </td>
 </tr>
-<tr>
-  <th scope="row">User Status<sup>**</sup>:</th>
-  <td><select name="user_status">
-<?php $stati = array(0 => __('Normal'), 1 => __('Deleted')); foreach ( $stati as $s => $l ) : ?>
-       <option value="<?php echo $s; ?>"<?php if ( $user->user_status == $s ) echo ' selected="selected"'; ?>><?php echo $l; ?></option>
-<?php endforeach; ?>
-      </select>
-  </td>
-</tr>
 <?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
@@ -57,6 +48,11 @@ endif;
 ?></td>
 </tr>
 <?php endforeach; endif; ?>
+<tr>
+  <th scope="row">Delete user<sup>**</sup>:</th>
+  <td><label for="user_status"><input type="checkbox" name="user_status" id="user_status" value="1" /> Check to delete user.  This cannote be easily undone.</label>
+  </td>
+</tr>
 </table>
 <?php if ( $required ) : ?>
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>

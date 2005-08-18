@@ -47,7 +47,8 @@ if ($_POST) :
 				$$key = false;
 			endif;
 		endforeach;
-		$user_status = bb_specialchars( $_POST['user_status'], 1 );
+		if ( isset($_POST['user_status']) && '1' == $_POST['user_status'] )
+			$user_status = 1;
 	endif;
 
 	$updated = true;
@@ -68,7 +69,7 @@ if ($_POST) :
 				$user_obj = new BB_User( $user->ID );
 				$user_obj->set_role($role); // Only support one role for now
 			}
-			if ( $user_status != $user->user_status )
+			if ( isset($user_status) && $user_status != $user->user_status )
 				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )
 				if ( $$key != ''  || isset($user->$key) )
