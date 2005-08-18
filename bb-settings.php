@@ -7,18 +7,23 @@ if ( !extension_loaded('mysql') && !extension_loaded('mysqli') )
 	die( 'Your PHP installation appears to be missing the MySQL which is required for bbPress.' );
 
 // Turn register globals off
-if ( ini_get('register_globals') ) {
-	$superglobals = array($_SERVER, $_ENV, $_FILES, $_COOKIE, $_POST, $_GET);
-	if ( isset($_SESSION) )
-		array_unshift($superglobals, $_SESSION);
+function unregister_GLOBALS() {
+	if ( !ini_get('register_globals') )
+		return;
 
-	foreach ( $superglobals as $superglobal ) {
-		unset($superglobal['table_prefix'], $superglobal['bb']);
-		foreach ( $superglobal as $global => $value )
-			unset($GLOBALS[$global]);
-	}
-	unset($value, $global, $superglobal, $superglobals);
+	if ( isset($_REQUEST['GLOBALS']) )
+		die('GLOBALS overwrite attempt detected');
+
+	// Variables that shouldn't be unset
+	$noUnset = array('GLOBALS', '_GET', '_POST', '_COOKIE', '_REQUEST', '_SERVER', '_ENV', '_FILES', 'table_prefix', 'bb');
+
+	$input = array_merge($_GET, $_POST, $_COOKIE, $_SERVER, $_ENV, $_FILES, isset($_SESSION) && is_array($_SESSION) ? $_SESSION : array$
+	foreach ( $input as $k => $v )
+		if ( !in_array($k, $noUnset) && isset($GLOBALS[$k]) )
+			unset($GLOBALS[$k]);
 }
+
+unregister_GLOBALS();
 
 function bb_timer_start() {
 	global $bb_timestart;
