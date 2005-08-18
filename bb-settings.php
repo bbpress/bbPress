@@ -33,6 +33,16 @@ function bb_timer_start() {
 }
 bb_timer_start();
 
+// Fix for IIS, which doesn't set REQUEST_URI
+if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+	$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME']; // Does this work under CGI?
+
+	// Append the query string if it exists and isn't null
+	if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING']))
+		$_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
+}
+
+
 error_reporting(E_ALL ^ E_NOTICE);
 
 if ( extension_loaded('mysqli') )
