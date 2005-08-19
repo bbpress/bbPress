@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <?php login_form(); ?>
 
@@ -58,4 +58,4 @@
 <?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?> <?php topic_show_all_link(); ?><br />
 <?php topic_move_dropdown(); ?>
 </div>
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

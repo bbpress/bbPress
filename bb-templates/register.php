@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Register</h3>
 
@@ -46,4 +46,4 @@ endif;
 <?php else : ?>
 <p>You're already logged in, why do you need to register?</p>
 <?php endif; ?>
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

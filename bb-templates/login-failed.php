@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Login</h3>
 
@@ -45,4 +45,4 @@
 </form>
 <?php endif; ?>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

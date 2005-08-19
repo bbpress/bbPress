@@ -1,6 +1,6 @@
 <?php
 
-function get_header() {
+function bb_get_header() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
 	include( BBPATH . 'bb-templates/header.php');
 }
@@ -11,7 +11,7 @@ function bb_stylesheet_uri() {
 	else	echo bb_get_option('uri') . 'bb-templates/style.css';
 }
 
-function get_footer() {
+function bb_get_footer() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
 	include( BBPATH . 'bb-templates/footer.php');
 }

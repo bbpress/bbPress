@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Statistics</h2>
 
@@ -18,4 +18,4 @@
 
 <?php endif; ?>
 </ol>
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

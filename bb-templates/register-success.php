@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Register</h3>
 
@@ -6,4 +6,4 @@
 
 <p>Your registration as <strong><?php echo $user_login; ?></strong> was successful. Within a few minutes you should receive an email with your password.</p>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

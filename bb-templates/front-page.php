@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <?php login_form(); ?>
 
@@ -68,4 +68,4 @@
 </table>
 <?php endif; ?>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

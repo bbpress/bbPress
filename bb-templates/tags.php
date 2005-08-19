@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <?php login_form(); ?>
 
@@ -8,4 +8,4 @@
 
 <?php tag_heat_map( 9, 38, 'pt', 80 ); ?>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

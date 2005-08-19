@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 <?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Favorites</h3>
@@ -41,4 +41,4 @@ To add topics to your list of favorites, just click the "Add to Favorites" link 
 
 <?php endif; endif; ?>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

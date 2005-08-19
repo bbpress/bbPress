@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Search</h3>
 <?php search_form( $q ); ?>
@@ -61,4 +61,4 @@ $count = $topic->topic_posts;
 <p>No results found.</p>
 <?php endif; ?>
 <p>You may also try your <a href="http://google.com/search?q=site:<?php option('uri'); ?> <?php echo urlencode($q); ?>">search at Google.</a></p>
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

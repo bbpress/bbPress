@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 <?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
@@ -74,4 +74,4 @@ if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
 </div><br style="clear: both;" />
 
 <?php profile_pages(); ?>
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

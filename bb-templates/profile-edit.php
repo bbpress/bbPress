@@ -1,4 +1,4 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 <?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Edit Profile</h3>
@@ -83,4 +83,4 @@ endif;
 </p>
 </form>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>
