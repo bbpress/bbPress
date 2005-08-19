@@ -516,7 +516,7 @@ function update_user_status( $user_id, $status = 0 ) {
 	global $bbdb, $bb_current_user;
 	$user = bb_get_user( $user_id );
 	$status = (int) $status;
-	if ( $user->ID != $bb_current_user->ID &&bb_current_user_can('edit_users') )
+	if ( $user->ID != $bb_current_user->ID && bb_current_user_can('edit_users') )
 		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
 	return;
 }
@@ -1398,7 +1398,7 @@ function get_views( $cache = true ) {
 	global $bb_current_user, $views;
 	if ( !isset($views) || !$cache )
 		$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
-	if (bb_current_user_can('browse_deleted') )
+	if ( bb_current_user_can('browse_deleted') )
 		$views['deleted'] = __('Deleted Topics');
 	return bb_apply_filters('bb_views', $views);
 }

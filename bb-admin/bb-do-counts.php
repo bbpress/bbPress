@@ -2,7 +2,7 @@
 require('../bb-config.php');
 header('Content-type: text/plain');
 
-if (bb_current_user_can('recount') ) :
+if ( bb_current_user_can('recount') ) :
 
 if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
 	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :

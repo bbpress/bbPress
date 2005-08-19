@@ -57,7 +57,7 @@ function search_form( $q = '' ) {
 
 function post_form() {
 	global $bb_current_user, $bb;
-	if ( ( is_topic() &&bb_current_user_can('write_posts') ) || ( !is_topic() &&bb_current_user_can('write_topics') ) ) {
+	if ( ( is_topic() && bb_current_user_can('write_posts') ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
 		include( BBPATH . '/bb-templates/post-form.php');
 	} elseif( !$bb_current_user ) {
 		echo "<p>You must login to post.</p>";
@@ -360,7 +360,7 @@ function get_topic_start_timestamp( $id = 0 ) {
 
 function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
 	global $bb_current_user, $topic;
-	if (bb_current_user_can( 'edit_topic', $topic->topic_id ) ) :
+	if ( bb_current_user_can( 'edit_topic', $topic->topic_id ) ) :
 		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php"><div>' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
 		$resolved_form .= '<select name="resolved" tabindex="2">' . "\n";
@@ -580,7 +580,7 @@ function get_post_ip() {
 }
 
 function post_ip() {
-	if (bb_current_user_can( 'view_by_ip' ) )
+	if ( bb_current_user_can( 'view_by_ip' ) )
 		echo bb_apply_filters('post_ip', get_post_ip() );
 }
 
@@ -594,7 +594,7 @@ function post_ip_link() {
 function post_edit_link() {
 	global $bb_post;
 
-	if (bb_current_user_can( 'edit_post', $bb_post->post_id ) )
+	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) )
 		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>Edit</a>";
 }
 
@@ -710,7 +710,7 @@ function profile_pages() {
 //TAGS
 function topic_tags() {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $bb_current_user, $topic;
-	if ( is_array( $tags ) ||bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
+	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
 

@@ -1,7 +1,7 @@
 <?php
 require('admin-header.php');
 
-if (bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
+if ( bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
 	bb_add_filter('get_thread_post_ids_where', 'no_where');
 }
