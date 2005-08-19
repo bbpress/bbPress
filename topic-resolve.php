@@ -3,7 +3,7 @@ require('bb-config.php');
 
 nocache_headers();
 
-if ( !$current_user )
+if ( !$bb_current_user )
 	die('You need to be logged in to add a tag.');
 
 $topic_id = (int) @$_POST['id' ];

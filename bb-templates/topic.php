@@ -13,7 +13,7 @@
 	<li><?php topic_posts(); ?> posts so far</li>
 	<li><a href="<?php topic_last_post_link(); ?>">Latest reply</a> from <?php topic_last_poster(); ?></li>
 	<li>This topic is <?php topic_resolved(); ?></li>
-<?php if ( $current_user ) : ?>
+<?php if ( $bb_current_user ) : ?>
 	<li><?php user_favorites_link() ?> (<a href="<?php favorites_link(); ?>">?</a>)</li>
 <?php endif; ?>
 </ul>
@@ -26,7 +26,7 @@
 </div>
 <ol id="thread" start="<?php echo $list_start; ?>">
 
-<?php foreach ($posts as $post) : $del_class = ( $post->post_status ) ? 'deleted' : ''; ?>
+<?php foreach ($posts as $bb_post) : $del_class = ( $bb_post->post_status ) ? 'deleted' : ''; ?>
 	<li id="post-<?php post_id(); ?>"<?php alt_class('post', $del_class); ?>>
 	
 		<div class="threadauthor">
@@ -48,7 +48,7 @@
 <?php topic_pages(); ?>
 </div>
 <?php endif; ?>
-<?php if ( topic_is_open( $post->topic_id ) ) : ?>
+<?php if ( topic_is_open( $bb_post->topic_id ) ) : ?>
 <?php post_form(); ?>
 <?php else : ?>
 <h2>Topic Closed</h2>

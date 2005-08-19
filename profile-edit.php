@@ -7,7 +7,7 @@ if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 }
 
 if ( !is_bb_profile() ) {
-	$sendto = get_profile_tab_link( $current_user->ID, 'edit' );
+	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );
 	header("Location: $sendto");
 }
 
@@ -23,7 +23,7 @@ $user_email = true;
 
 if ($_POST) :
 	$user_url = bb_fix_link( $_POST['user_url'] );
-	if ( isset($_POST['user_email']) && $current_user->ID == $user->ID )
+	if ( isset($_POST['user_email']) && $bb_current_user->ID == $user->ID )
 		$user_email = bb_verify_email( $_POST['user_email'] );
 
 	foreach ( $profile_info_keys as $key => $label ) :
@@ -76,8 +76,8 @@ if ($_POST) :
 					bb_update_usermeta( $user->ID, $key, $$key );
 		endif;
 
-		if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $current_user->ID == $user->ID ) :
-			bb_update_user_password ( $current_user->ID, $_POST['pass1'] );
+		if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $bb_current_user->ID == $user->ID ) :
+			bb_update_user_password ( $bb_current_user->ID, $_POST['pass1'] );
 			bb_cookie( $bb->passcookie, md5( md5( $_POST['pass1'] ) ) ); // One week
 		endif;
 

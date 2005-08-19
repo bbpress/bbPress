@@ -36,9 +36,9 @@ $count = $topic->topic_posts;
 <?php if ( $recent ) : ?>
 <h2>Recent Posts</h2>
 <ol class="results">
-<?php foreach ( $recent as $post ) : ?>
-<li><h4><a href="<?php post_link(); ?>"><?php topic_title($post->topic_id); ?></a></h4>
-<p><?php echo show_context($q, $post->post_text); ?></p>
+<?php foreach ( $recent as $bb_post ) : ?>
+<li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
+<p><?php echo show_context($q, $bb_post->post_text); ?></p>
 <p><small>Posted <?php echo date('F j, Y, h:i A', bb_get_post_time()); ?></small></p>
 </li>
 <?php endforeach; ?>
@@ -48,9 +48,9 @@ $count = $topic->topic_posts;
 <?php if ( $relevant ) : ?>
 <h2>Relevant posts</h2>
 <ol class="results">
-<?php foreach ( $relevant as $post ) : ?>
-<li><h4><a href="<?php post_link(); ?>"><?php topic_title($post->topic_id); ?></a></h4>
-<p><?php echo show_context($q, $post->post_text); ?></p>
+<?php foreach ( $relevant as $bb_post ) : ?>
+<li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
+<p><?php echo show_context($q, $bb_post->post_text); ?></p>
 <p><small>Posted <?php echo date('F j, Y, h:i A', bb_get_post_time()); ?></small></p>
 </li>
 <?php endforeach; ?>

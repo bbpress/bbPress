@@ -8,7 +8,7 @@
 <div class="notice">
 <p>Profile updated. <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>">Edit again &raquo;</a></p>
 </div>
-<?php elseif ( $user_id == $current_user->ID ) : ?>
+<?php elseif ( $user_id == $bb_current_user->ID ) : ?>
 <p>This is how your profile appears to a fellow logged in member, you may <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>">edit this information</a>.
 You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and subscribe to your favorites' <a href="<?php favorites_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
 <?php endif; ?>
@@ -27,7 +27,7 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 <div id="user-replies" class="user-recent"><h3>Recent Replies</h3>
 <?php if ( $posts ) : ?>
 <ol>
-<?php foreach ($posts as $post) : $topic = get_topic( $post->topic_id ) ?>
+<?php foreach ($posts as $bb_post) : $topic = get_topic( $bb_post->topic_id ) ?>
 <li<?php alt_class('replies'); ?>><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php bb_post_time(); ?> ago.
 <?php
 if ( strtotime(bb_get_post_time()) < strtotime(get_topic_time()) ) {

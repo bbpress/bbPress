@@ -1,7 +1,7 @@
 <?php
 
 function bb_get_header() {
-	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
+	global $bb, $bbdb, $forum, $forum_id, $topic, $bb_current_user;
 	include( BBPATH . 'bb-templates/header.php');
 }
 
@@ -12,12 +12,12 @@ function bb_stylesheet_uri() {
 }
 
 function bb_get_footer() {
-	global $bb, $bbdb, $forum, $forum_id, $topic, $current_user;
+	global $bb, $bbdb, $forum, $forum_id, $topic, $bb_current_user;
 	include( BBPATH . 'bb-templates/footer.php');
 }
 
 function profile_menu() {
-	global $bb, $bbdb, $current_user, $user_id, $profile_menu, $self, $profile_page_title;
+	global $bb, $bbdb, $bb_current_user, $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . get_user_profile_link( $user_id ) . '">' . __('Profile') . '</a></li>';
 	foreach ($profile_menu as $item) {
@@ -27,13 +27,13 @@ function profile_menu() {
 			$class = ' class="current"';
 			$profile_page_title = $item[0];
 		}
-		if ( can_access_tab( $item, $current_user->ID, $user_id ) )
+		if ( can_access_tab( $item, $bb_current_user->ID, $user_id ) )
 			if ( file_exists($item[3]) || function_exists($item[3]) )
 				$list .= "\n\t<li$class><a href='" . bb_specialchars( get_profile_tab_link($user_id, $item[0]) ) . "'>{$item[0]}</a></li>";
 	}
-	if ( $current_user ) :
+	if ( $bb_current_user ) :
 		$list .= "\n\t<li class='last'><a href='" . bb_get_option('uri') . 'bb-login.php?logout' . "' title='" . __('Log out of this account') . "'>";
-		$list .= 	__('Logout') . ' (' . get_user_name( $current_user->ID ) . ')</a></li>';
+		$list .= 	__('Logout') . ' (' . get_user_name( $bb_current_user->ID ) . ')</a></li>';
 	else:
 		$list .=  "\n\t<li class='last'><a href='" . bb_get_option('uri') . "bb-login.php'>" . __('Login') . '</a></li>';
 	endif;
@@ -42,9 +42,9 @@ function profile_menu() {
 }
 
 function login_form() {
-	global $current_user, $bb;
-	if ($current_user) {
-		echo '<p class="login">Welcome, ' . get_user_name( $current_user->ID ) . "! <a href='" . get_user_profile_link( $current_user->ID ) . "'>View your profile &raquo;</a> 
+	global $bb_current_user, $bb;
+	if ($bb_current_user) {
+		echo '<p class="login">Welcome, ' . get_user_name( $bb_current_user->ID ) . "! <a href='" . get_user_profile_link( $bb_current_user->ID ) . "'>View your profile &raquo;</a> 
 		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
@@ -56,16 +56,16 @@ function search_form( $q = '' ) {
 }
 
 function post_form() {
-	global $current_user, $bb;
+	global $bb_current_user, $bb;
 	if ( ( is_topic() &&bb_current_user_can('write_posts') ) || ( !is_topic() &&bb_current_user_can('write_topics') ) ) {
 		include( BBPATH . '/bb-templates/post-form.php');
-	} elseif( !$current_user ) {
+	} elseif( !$bb_current_user ) {
 		echo "<p>You must login to post.</p>";
 		include( BBPATH . '/bb-templates/login-form.php');
 	}
 }
 
-function edit_form( $post = '', $topic_title = '' ) {
+function edit_form( $bb_post = '', $topic_title = '' ) {
 	require( BBPATH . '/bb-templates/edit-form.php');
 }
 
@@ -359,7 +359,7 @@ function get_topic_start_timestamp( $id = 0 ) {
 }
 
 function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
-	global $current_user, $topic;
+	global $bb_current_user, $topic;
 	if (bb_current_user_can( 'edit_topic', $topic->topic_id ) ) :
 		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php"><div>' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
@@ -456,7 +456,7 @@ function get_page_number_links($page, $total) {
 }
 
 function topic_delete_link() {
-	global $current_user, $topic;
+	global $bb_current_user, $topic;
 	if ( bb_current_user_can('manage_topics') )
 		return;
 
@@ -467,7 +467,7 @@ function topic_delete_link() {
 }
 
 function topic_close_link() {
-	global $current_user, $topic;
+	global $bb_current_user, $topic;
 	if ( bb_current_user_can('manage_topics') )
 		return;
 
@@ -479,7 +479,7 @@ function topic_close_link() {
 }
 
 function topic_sticky_link() {
-	global $current_user, $topic;
+	global $bb_current_user, $topic;
 	if ( bb_current_user_can('manage_topics') )
 		return;
 
@@ -490,7 +490,7 @@ function topic_sticky_link() {
 }
 
 function topic_show_all_link() {
-	global $current_user;
+	global $bb_current_user;
 	if ( bb_current_user_can('browse_deleted') )
 		return;
 	if ( 'deleted' == @$_GET['view'] )
@@ -500,7 +500,7 @@ function topic_show_all_link() {
 }
 
 function topic_move_dropdown() {
-	global $current_user, $forum_id, $topic;
+	global $bb_current_user, $forum_id, $topic;
 	if ( bb_current_user_can('manage_topics') )
 		return;
 	$forum_id = $topic->forum_id;
@@ -516,13 +516,13 @@ function topic_move_dropdown() {
 // POSTS
 
 function post_id() {
-	global $post;
-	echo $post->post_id;
+	global $bb_post;
+	echo $bb_post->post_id;
 }
 
 function get_post_id() {
-	global $post;
-	return $post->post_id;
+	global $bb_post;
+	return $bb_post->post_id;
 }
 
 function post_author() {
@@ -552,8 +552,8 @@ function post_text() {
 }
 
 function get_post_text() {
-	global $post;
-	return $post->post_text;
+	global $bb_post;
+	return $bb_post->post_text;
 }
 
 function bb_post_time() {
@@ -561,8 +561,8 @@ function bb_post_time() {
 }
 
 function bb_get_post_time() {
-	global $post;
-	return bb_apply_filters('bb_get_post_time', $post->post_time);
+	global $bb_post;
+	return bb_apply_filters('bb_get_post_time', $bb_post->post_time);
 }
 
 function post_date( $format ) {
@@ -570,13 +570,13 @@ function post_date( $format ) {
 }
 
 function get_post_timestamp() {
-	global $post;
-	return strtotime( $post->post_time );
+	global $bb_post;
+	return strtotime( $bb_post->post_time );
 }
 
 function get_post_ip() {
-	global $post;
-	return $post->poster_ip;
+	global $bb_post;
+	return $bb_post->poster_ip;
 }
 
 function post_ip() {
@@ -592,18 +592,18 @@ function post_ip_link() {
 }
 
 function post_edit_link() {
-	global $post;
+	global $bb_post;
 
-	if (bb_current_user_can( 'edit_post', $post->post_id ) )
+	if (bb_current_user_can( 'edit_post', $bb_post->post_id ) )
 		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>Edit</a>";
 }
 
 function post_delete_link() {
-	global $current_user, $post;
+	global $bb_current_user, $bb_post;
 	if ( bb_current_user_can('manage_posts') )
 		return;
 
-	if ( 0 == $post->post_status )
+	if ( 0 == $bb_post->post_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
 	else
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete</a>";
@@ -614,8 +614,8 @@ function post_author_id() {
 }
 
 function get_post_author_id() {
-	global $post;
-	return $post->poster_id;
+	global $bb_post;
+	return $bb_post->poster_id;
 }
 
 function post_author_type() {
@@ -680,7 +680,7 @@ function user_type_label( $type ) {
 }
 
 function get_user_type ( $id ) {
-	global $bbdb, $current_user;
+	global $bbdb, $bb_current_user;
 	$user = bb_get_user( $id );
 
 	if ( $id && false !== $user ) :
@@ -709,8 +709,8 @@ function profile_pages() {
 
 //TAGS
 function topic_tags() {
-	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $current_user, $topic;
-	if ( is_array( $tags ) ||bb_current_user_can( 'edit_tag_by_on', $current_user->ID, $topic->topic_id ) )
+	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $bb_current_user, $topic;
+	if ( is_array( $tags ) ||bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
 
@@ -767,15 +767,15 @@ function get_tag_rss_link( $tag_id = 0 ) {
 }
 
 function tag_form() {
-	global $topic, $current_user;
-	if ( bb_current_user_can( 'edit_tag_by_on', $current_user->ID, $topic->topic_id ) )
+	global $topic, $bb_current_user;
+	if ( bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
 		return false;
 
 	include( BBPATH . '/bb-templates/tag-form.php');
 }
 
 function manage_tags_forms() {
-	global $tag, $current_user;
+	global $tag, $bb_current_user;
 	if ( bb_current_user_can('manage_tags') )
 		return false;
 	$form  = "<ul id='manage-tags'>\n ";
@@ -799,7 +799,7 @@ function manage_tags_forms() {
 }
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
-	global $tag, $current_user, $topic;
+	global $tag, $bb_current_user, $topic;
 	if ( bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 
@@ -855,14 +855,14 @@ function favorites_link( $user_id = 0 ) {
 }
 
 function get_favorites_link( $user_id = 0 ) {
-	global $current_user;
+	global $bb_current_user;
 	if ( !$user_id )
-		$user_id = $current_user->ID;
+		$user_id = $bb_current_user->ID;
 	return bb_apply_filters('get_favorites_link', get_profile_tab_link($user_id, 'favorites'));
 }
 
 function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites', $user_id = 0) {
-	global $topic, $current_user;
+	global $topic, $bb_current_user;
 	if ( $user_id ) :
 		if ( bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
 			return false;
@@ -873,7 +873,7 @@ function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favo
 	else :
 		if ( bb_current_user_can('edit_favorites') )
 			return false;
-	 	$favs = $current_user->data->favorites;
+	 	$favs = $bb_current_user->data->favorites;
 	endif;
 	if ( $favs = explode(',', $favs) )
 		if ( in_array($topic->topic_id, $favs) ) :

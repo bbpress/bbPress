@@ -14,9 +14,9 @@
 <language>en</language>
 <pubDate><?php echo gmdate('D, d M Y H:i:s +0000'); ?></pubDate>
 
-<?php foreach ($posts as $post) : ?>
+<?php foreach ($posts as $bb_post) : ?>
 <item>
-<title><?php post_author(); ?> on "<?php topic_title( $post->topic_id ); ?>"</title>
+<title><?php post_author(); ?> on "<?php topic_title( $bb_post->topic_id ); ?>"</title>
 <link><?php post_link(); ?></link>
 <pubDate><?php post_date('D, d M Y H:i:s +0000'); ?></pubDate>
 <dc:creator><?php post_author(); ?></dc:creator>

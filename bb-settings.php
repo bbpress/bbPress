@@ -102,6 +102,6 @@ function bb_shutdown_action_hook() {
 }
 register_shutdown_function('bb_shutdown_action_hook');
 
-$current_user = bb_current_user();
+$bb_current_user = bb_current_user();
 
 ?>

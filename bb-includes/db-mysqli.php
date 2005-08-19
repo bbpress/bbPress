@@ -338,5 +338,5 @@ HEAD;
 	}
 }
 
-$bbdb = new bbdb(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
+$bbdb = new bbdb(BBDB_USER, BBDB_PASSWORD, BBDB_NAME, BBDB_HOST);
 ?>

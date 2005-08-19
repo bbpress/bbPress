@@ -305,18 +305,18 @@ function bb_map_meta_cap($cap, $user_id) {
 
 	switch ($cap) {
 	case 'edit_post': // edit_posts, edit_others_posts, edit_deleted, edit_closed, ignore_edit_lock
-		if ( !$post = bb_get_post( $args[0] ) ) :
+		if ( !$bb_post = bb_get_post( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
-		if ( $user_id == $post->poster_id )
+		if ( $user_id == $bb_post->poster_id )
 			$caps[] = 'edit_posts';
 		else	$caps[] = 'edit_others_posts';
-		if ( $post->post_status == '1' )
+		if ( $bb_post->post_status == '1' )
 			$caps[] = 'edit_deleted';
-		if ( !topic_is_open( $post->topic_id ) )
+		if ( !topic_is_open( $bb_post->topic_id ) )
 			$caps[] = 'edit_closed';
-		$post_time = strtotime($post->post_time . '+0000');
+		$post_time = strtotime($bb_post->post_time . '+0000');
 		$curr_time = time();
                 if ( $curr_time - $post_time > bb_get_option( 'edit_lock' ) * 60 )
 			$caps[] = 'ignore_edit_lock';
@@ -376,16 +376,16 @@ function bb_map_meta_cap($cap, $user_id) {
 	return $caps;
 }
 
-// Capability checking wrapper around the global $current_user object.
+// Capability checking wrapper around the global $bb_current_user object.
 function bb_current_user_can($capability) {
-	global $current_user;
+	global $bb_current_user;
 
 	$args = array_slice(func_get_args(), 1);
 	$args = array_merge(array($capability), $args);
 
-	if ( empty($current_user) )
+	if ( empty($bb_current_user) )
 		return false;
 
-	return call_user_func_array(array(&$current_user, 'has_cap'), $args);
+	return call_user_func_array(array(&$bb_current_user, 'has_cap'), $args);
 }
 ?>

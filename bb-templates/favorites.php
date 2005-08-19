@@ -7,8 +7,8 @@
 To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic's page.</p>
 
 <h2>Current Favorites<?php if ( $topics ) echo ' (' . count($topics) . ')'; ?></h2>
-<?php if ( $user_id == $current_user->ID ) : ?>
-<p>Subscribe to your favorites' <a href="<?php favorites_rss_link( $current_user->ID ) ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
+<?php if ( $user_id == $bb_current_user->ID ) : ?>
+<p>Subscribe to your favorites' <a href="<?php favorites_rss_link( $bb_current_user->ID ) ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
 <?php endif; ?>
 
 <?php if ( $topics ) : ?>
@@ -31,7 +31,7 @@ To add topics to your list of favorites, just click the "Add to Favorites" link 
 <?php endforeach; ?>
 </table>
 
-<?php else: if ( $user_id == $current_user->ID ) : ?>
+<?php else: if ( $user_id == $bb_current_user->ID ) : ?>
 
 <p>You currently have no favorites.</p>
 

@@ -20,7 +20,7 @@ require('head.php');
 </div>
 <ol id="thread">
 
-<?php foreach ($posts as $post) : ?>
+<?php foreach ($posts as $bb_post) : ?>
 	<li id="post-<?php post_id(); ?>" <?php alt_class('post'); ?>>
 	
 		<div class="threadauthor">

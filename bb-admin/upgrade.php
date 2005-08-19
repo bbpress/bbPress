@@ -30,11 +30,11 @@ flush();
 /*
 $posts = $bbdb->get_results("SELECT post_id, post_text FROM $bbdb->posts");
 if ($posts) {
-	foreach($posts as $post) {
+	foreach($posts as $bb_post) {
 		echo '.'; flush();
-		$post_text = addslashes(deslash($post->post_text));
+		$post_text = addslashes(deslash($bb_post->post_text));
 		$post_text = bb_apply_filters('pre_post', $post_text);
-		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$post->post_id'");
+		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$post_text' WHERE post_id = '$bb_post->post_id'");
 	}
 }
 

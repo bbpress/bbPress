@@ -7,9 +7,9 @@ if (bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 }
 
 $post_id = (int) $_GET['id'];
-$post    =  bb_get_post ( $post_id );
+$bb_post    =  bb_get_post ( $post_id );
 
-if ( !$post )
+if ( !$bb_post )
 	die('There is a problem with that post, pardner.');
 
 if ( bb_current_user_can('manage_posts') ) {
@@ -19,7 +19,7 @@ if ( bb_current_user_can('manage_posts') ) {
 
 bb_delete_post( $post_id );
 
-$topic = get_topic( $post->topic_id );
+$topic = get_topic( $bb_post->topic_id );
 
 if ( $topic->topic_posts == 1 )
 	$sendto = get_forum_link( $topic->forum_id );

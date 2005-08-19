@@ -4,7 +4,7 @@
 
 <h2>Registration</h2>
 
-<?php if ( !$current_user ) : ?>
+<?php if ( !$bb_current_user ) : ?>
 <form method="post" action="<?php option('uri'); ?>register.php">
 <fieldset>
 <legend>Profile Information</legend>

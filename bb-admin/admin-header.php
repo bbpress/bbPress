@@ -1,7 +1,7 @@
 <?php
 require('../bb-config.php');
 
-if ( !$current_user ) {
+if ( !$bb_current_user ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

@@ -7,16 +7,16 @@ if ( bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 
 $post_id = (int) $_GET['id'];
 
-$post  = bb_get_post( $post_id );
+$bb_post  = bb_get_post( $post_id );
 
-if ( !$post || !bb_current_user_can( 'edit_post', $post_id ) ) {
+if ( !$bb_post || !bb_current_user_can( 'edit_post', $post_id ) ) {
 	header('Location: ' . bb_get_option('uri') );
 	die();
 }
 
-$topic = get_topic( $post->topic_id );
+$topic = get_topic( $bb_post->topic_id );
 
-if ( bb_is_first( $post->post_id ) && bb_current_user_can( 'edit_topic', $topic->topic_id ) ) 
+if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $topic->topic_id ) ) 
 	$topic_title = $topic->topic_title;
 else 
 	$topic_title = false;

@@ -2,7 +2,7 @@
 require_once('bb-config.php');
 
 if ( !is_bb_profile() ) {
-	$sendto = get_profile_tab_link( $current_user->ID, 'edit' );
+	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );
 	header("Location: $sendto");
 }
 

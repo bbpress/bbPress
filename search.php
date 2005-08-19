@@ -26,16 +26,16 @@ bb_do_action('do_search', $q);
 
 // Cache topics
 if ( $recent ) :
-	foreach ($recent as $post) {
-		$topic_ids[] = $post->topic_id;
-		$bb_post_cache[$post->post_id] = $post;
+	foreach ($recent as $bb_post) {
+		$topic_ids[] = $bb_post->topic_id;
+		$bb_post_cache[$bb_post->post_id] = $bb_post;
 	}
 endif;
 
 if ( $relevant ) :
-	foreach ($relevant as $post) {
-		$topic_ids[] = $post->topic_id;
-		$bb_post_cache[$post->post_id] = $post;
+	foreach ($relevant as $bb_post) {
+		$topic_ids[] = $bb_post->topic_id;
+		$bb_post_cache[$bb_post->post_id] = $bb_post;
 	}
 endif;
 
