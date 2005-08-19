@@ -1,7 +1,7 @@
 <?php
 require('admin-header.php');
 
-if ( current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
+if (bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
 	bb_add_filter('get_thread_post_ids_where', 'no_where');
 }
@@ -12,7 +12,7 @@ $topic    =  get_topic ( $topic_id );
 if ( !$topic )
 	die('There is a problem with that topic, pardner.');
 
-if ( !current_user_can('manage_topics') ) {
+if ( bb_current_user_can('manage_topics') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

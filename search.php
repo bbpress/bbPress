@@ -28,14 +28,14 @@ bb_do_action('do_search', $q);
 if ( $recent ) :
 	foreach ($recent as $post) {
 		$topic_ids[] = $post->topic_id;
-		$post_cache[$post->post_id] = $post;
+		$bb_post_cache[$post->post_id] = $post;
 	}
 endif;
 
 if ( $relevant ) :
 	foreach ($relevant as $post) {
 		$topic_ids[] = $post->topic_id;
-		$post_cache[$post->post_id] = $post;
+		$bb_post_cache[$post->post_id] = $post;
 	}
 endif;
 
@@ -49,8 +49,8 @@ endif;
 
 $q = stripslashes( $q );
 
-bb_add_filter('get_post_time', 'strtotime');
-bb_add_filter('get_post_time', 'bb_offset_time');
+bb_add_filter('bb_get_post_time', 'strtotime');
+bb_add_filter('bb_get_post_time', 'bb_offset_time');
 
 if (file_exists( BBPATH . 'my-templates/search.php' ))
 	require( BBPATH . 'my-templates/search.php' );

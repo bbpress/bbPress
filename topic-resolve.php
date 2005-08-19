@@ -13,7 +13,7 @@ $topic = get_topic ( $topic_id );
 if ( !$topic )
 	die('Topic not found.');
 
-if ( !current_user_can( 'edit_topic', $topic_id ) )
+if ( !bb_current_user_can( 'edit_topic', $topic_id ) )
 	die('You must be either the original poster or a moderator to change a topic\'s resolution status.');
 
 if ( bb_resolve_topic( $topic_id, $resolved ) )

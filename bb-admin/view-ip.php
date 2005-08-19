@@ -1,7 +1,7 @@
 <?php
 require('admin-header.php');
 
-if ( !current_user_can('view_by_ip') ) {
+if ( bb_current_user_can('view_by_ip') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }
@@ -30,7 +30,7 @@ require('head.php');
 		
 		<div class="threadpost">
 			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">Posted: <?php post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip(); ?></div>
+			<div class="poststuff">Posted: <?php bb_post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip(); ?></div>
 		</div>
 	</li>
 <?php endforeach; ?>

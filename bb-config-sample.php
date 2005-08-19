@@ -1,12 +1,12 @@
 <?php
 // ** MySQL settings ** //
-define('DB_NAME', 'bbpress');     // The name of the database
-define('DB_USER', 'username');     // Your MySQL username
-define('DB_PASSWORD', 'password'); // ...and password
-define('DB_HOST', 'localhost');     // 99% chance you won't need to change this value
+define('BBDB_NAME', 'bbpress');     // The name of the database
+define('BBDB_USER', 'username');     // Your MySQL username
+define('BBDB_PASSWORD', 'password'); // ...and password
+define('BBDB_HOST', 'localhost');     // 99% chance you won't need to change this value
 
 // Change the prefix if you want to have multiple forums in a single database.
-$table_prefix  = 'bb_';
+$bb_table_prefix  = 'bb_';
 
 $bb->domain = 'http://bbpress.example.com';	// There should be no trailing slash here.
 $bb->path   = '/support/';			// There should be both a leading and trailing slash here. '/' is fine.

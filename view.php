@@ -19,7 +19,7 @@ case 'unresolved' :
 	$topics = get_latest_topics( 0, $page );
 	break;
 case 'deleted' :
-	if ( !current_user_can('browse_deleted') )
+	if ( !bb_current_user_can('browse_deleted') )
 		die("Now how'd you get here?  And what did you think you'd being doing?"); //This should never happen.
 	bb_add_filter( 'get_latest_topics_where', 'deleted_topics' );
 	bb_add_filter( 'topic_link', 'make_link_deleted' );

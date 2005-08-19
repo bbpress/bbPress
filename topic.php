@@ -2,7 +2,7 @@
 require_once('bb-config.php');
 $topic_id = 0;
 
-if ( current_user_can('browse_deleted') && 'deleted' == @$_GET['view'] ) {
+if ( bb_current_user_can('browse_deleted') && 'deleted' == @$_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
 	bb_add_filter('get_thread_where', 'no_where');
 	bb_add_filter('get_thread_post_ids', 'no_where');

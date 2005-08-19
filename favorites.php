@@ -1,7 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-if ( !current_user_can( 'edit_favorites_of', $user_id ) )
+if ( !bb_current_user_can( 'edit_favorites_of', $user_id ) )
 	die('You cannot edit those favorites.  How did you get here?');
 
 if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
@@ -17,14 +17,14 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 		if ( ! in_array( $topic_id, $fav ) ) {
 			$fav[] = $topic_id;
 			$fav = implode(',', $fav);
-			update_usermeta( $user->ID, $table_prefix . 'favorites', $fav);
+			bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
 		}
 	} else {
 		$fav = explode(',', $user->favorites);
 		if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
 			array_splice($fav, $pos, 1);
 			$fav = implode(',', $fav);
-			update_usermeta( $user->ID, $table_prefix . 'favorites', $fav);
+			bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
 		}
 	}
 

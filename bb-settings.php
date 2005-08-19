@@ -7,7 +7,7 @@ if ( !extension_loaded('mysql') && !extension_loaded('mysqli') )
 	die( 'Your PHP installation appears to be missing the MySQL which is required for bbPress.' );
 
 // Turn register globals off
-function unregister_GLOBALS() {
+function bb_unregister_GLOBALS() {
 	if ( !ini_get('register_globals') )
 		return;
 
@@ -15,7 +15,7 @@ function unregister_GLOBALS() {
 		die('GLOBALS overwrite attempt detected');
 
 	// Variables that shouldn't be unset
-	$noUnset = array('GLOBALS', '_GET', '_POST', '_COOKIE', '_REQUEST', '_SERVER', '_ENV', '_FILES', 'table_prefix', 'bb');
+	$noUnset = array('GLOBALS', '_GET', '_POST', '_COOKIE', '_REQUEST', '_SERVER', '_ENV', '_FILES', 'bb_table_prefix', 'bb');
 
 	$input = array_merge($_GET, $_POST, $_COOKIE, $_SERVER, $_ENV, $_FILES, isset($_SESSION) && is_array($_SESSION) ? $_SESSION : array());
 	foreach ( $input as $k => $v )
@@ -23,7 +23,7 @@ function unregister_GLOBALS() {
 			unset($GLOBALS[$k]);
 }
 
-unregister_GLOBALS();
+bb_unregister_GLOBALS();
 
 function bb_timer_start() {
 	global $bb_timestart;
@@ -56,30 +56,14 @@ require( BBPATH . 'bb-includes/template-functions.php');
 require( BBPATH . 'bb-includes/capabilities.php');
 require( BBPATH . 'bb-includes/default-filters.php');
 
-$bbdb->forums    = $table_prefix . 'forums';
-$bbdb->posts     = $table_prefix . 'posts';
-$bbdb->topics    = $table_prefix . 'topics';
-$bbdb->topicmeta = $table_prefix . 'topicmeta';
-$bbdb->users     = $table_prefix . 'users';
-$bbdb->usermeta  = $table_prefix . 'usermeta';
-$bbdb->tags      = $table_prefix . 'tags';
-$bbdb->tagged    = $table_prefix . 'tagged';
-
-if ( defined('CUSTOM_USER_TABLE') )
-	$bbdb->users = CUSTOM_USER_TABLE;
-if ( defined('CUSTOM_USER_META_TABLE') )
-	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
-
-define('BBHASH', md5($table_prefix) );
-
-if ( !isset( $bb->usercookie ) )
-	$bb->usercookie = 'bb_user_' . BBHASH;
-if ( !isset( $bb->passcookie ) )
-	$bb->passcookie = 'bb_pass_' . BBHASH;
-if ( !isset( $bb->cookiepath ) )
-	$bb->cookiepath = bb_get_option('path');
-if ( !isset( $bb->tagpath ) )
-	$bb->tagpath = $bb->path;
+$bbdb->forums    = $bb_table_prefix . 'forums';
+$bbdb->posts     = $bb_table_prefix . 'posts';
+$bbdb->topics    = $bb_table_prefix . 'topics';
+$bbdb->topicmeta = $bb_table_prefix . 'topicmeta';
+$bbdb->users     = $bb_table_prefix . 'users';
+$bbdb->usermeta  = $bb_table_prefix . 'usermeta';
+$bbdb->tags      = $bb_table_prefix . 'tags';
+$bbdb->tagged    = $bb_table_prefix . 'tagged';
 
 $static_title = '';
 
@@ -93,6 +77,22 @@ if ( $plugins ) : foreach ( $plugins as $plugin ) :
 	require($plugin);
 endforeach; endif;
 bb_do_action('bb_plugins_loaded', '');
+
+if ( defined('CUSTOM_USER_TABLE') )
+	$bbdb->users = CUSTOM_USER_TABLE;
+if ( defined('CUSTOM_USER_META_TABLE') )
+	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
+
+define('BBHASH', md5($bb_table_prefix) );
+
+if ( !isset( $bb->usercookie ) )
+	$bb->usercookie = 'bb_user_' . BBHASH;
+if ( !isset( $bb->passcookie ) )
+	$bb->passcookie = 'bb_pass_' . BBHASH;
+if ( !isset( $bb->cookiepath ) )
+	$bb->cookiepath = bb_get_option('path');
+if ( !isset( $bb->tagpath ) )
+	$bb->tagpath = $bb->path;
 
 $bb_roles = new BB_Roles();
 bb_do_action('bb_got_roles', '');

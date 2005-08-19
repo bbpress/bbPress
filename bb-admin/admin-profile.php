@@ -1,9 +1,9 @@
-<?php get_header(); ?>
+<?php bb_get_header(); ?>
 <?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Forums Administration</h3>
 
-<?php if ( current_user_can('manage_forums' ) ) : ?>
+<?php if ( bb_current_user_can('manage_forums' ) ) : ?>
 <div id="manage-forums">
 <h2>Forum Management</h2>
 <form method="post" id="add-forum" action="<?php option('uri'); ?>bb-admin/bb-forum.php">
@@ -46,7 +46,7 @@
 </div>
 <?php endif; ?>
 
-<?php if ( current_user_can('recount') ) : ?>
+<?php if ( bb_current_user_can('recount') ) : ?>
 <div id="recount">
 <h2>Recount</h2>
 <p>The following checkboxes allow you to recalculate various numbers stored in
@@ -70,4 +70,4 @@ pagination oddities.</p>
 </div>
 <?php endif; ?>
 
-<?php get_footer(); ?>
+<?php bb_get_footer(); ?>

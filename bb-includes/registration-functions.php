@@ -17,7 +17,7 @@ function bb_verify_email( $email ) {
 }
 
 function bb_new_user( $user_login, $email, $url ) {
-	global $bbdb, $table_prefix;
+	global $bbdb, $bb_table_prefix;
 	$now       = bb_current_time('mysql');
 	$password  = bb_random_pass();
 	$passcrypt = md5( $password );
@@ -30,11 +30,11 @@ function bb_new_user( $user_login, $email, $url ) {
 	$user_id = $bbdb->insert_id;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		update_usermeta( $user_id, $table_prefix . 'capabilities', array('administrator' => true) );
+		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('administrator' => true) );
 		bb_do_action('bb_new_user', $user_id);
 		return $password;
 	} else {		
-		update_usermeta( $user_id, $table_prefix . 'capabilities', array('member' => true) );
+		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user_id, $password );
 		bb_do_action('bb_new_user', $user_id);
 		return $user_id;
@@ -59,7 +59,7 @@ function bb_reset_email( $user_login ) {
 	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'");
 
 	$resetkey = bb_random_pass( 15 );
-	update_usermeta( $user->ID, 'newpwdkey', $resetkey );
+	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 	if ( $user ) :
 		mail( $user->user_email, bb_get_option('name') . ': Password Reset', "If you wanted to reset your password, you may do so by visiting the following address:
 
@@ -80,7 +80,7 @@ function bb_reset_password( $key ) {
 		$newpass = bb_random_pass( 6 );
 		bb_update_user_password( $user->ID, $newpass );
 		bb_send_pass           ( $user->ID, $newpass );
-		update_usermeta( $user->ID, 'newpwdkey', '' );
+		bb_update_usermeta( $user->ID, 'newpwdkey', '' );
 	else :
 		die('Key not found.');
 	endif;

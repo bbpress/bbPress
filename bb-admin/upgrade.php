@@ -106,7 +106,7 @@ require_once('upgrade-schema.php');
 upgrade_130();
 */
 
-//meta_value -> $table_prefix . meta_value: July23rd, 2005
+//meta_value -> $bb_table_prefix . meta_value: July23rd, 2005
 /*
 upgrade_140();
 */
@@ -118,7 +118,7 @@ upgrade_150();
 
 //alter user table column names
 function upgrade_100() {
-	global $bbdb, $table_prefix;
+	global $bbdb, $bb_table_prefix;
 	$fields = $bbdb->get_col("SHOW COLUMNS FROM $bbdb->users");
 	if ( in_array( 'user_id', $fields ) )
 		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_id` `ID` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT");
@@ -138,16 +138,16 @@ function upgrade_100() {
 
 //users -> populate usermeta.  drop old users columns
 function upgrade_110() {
-	global $bbdb, $table_prefix;
+	global $bbdb, $bb_table_prefix;
 	$users = $bbdb->get_results("SELECT * FROM $bbdb->users");
 	$old_user_fields = array( 'type', 'icq', 'occ', 'from', 'interest', 'viewemail', 'sorttopics', 'newpwdkey', 'newpasswd', 'title' );
 	foreach ( $users as $user ) :
 		foreach ( $old_user_fields as $field )
 			if ( isset( $user->{'user_' . $field} ) && $user->{'user_' . $field} !== '' )
 				if ( 'type' == $field )
-					update_usermeta( $user->ID, $table_prefix . 'user_type', $user->user_type );
+					bb_update_usermeta( $user->ID, $bb_table_prefix . 'user_type', $user->user_type );
 				else
-					update_usermeta( $user->ID, $field, $user->{'user_' . $field} );
+					bb_update_usermeta( $user->ID, $field, $user->{'user_' . $field} );
 	endforeach;
 
 	$bbdb->hide_errors();
@@ -182,22 +182,22 @@ function upgrade_130() {
 
 //meta conversion
 function upgrade_140() {
-	global $bbdb, $table_prefix;
-	$newkey = $table_prefix . 'user_type';
+	global $bbdb, $bb_table_prefix;
+	$newkey = $bb_table_prefix . 'user_type';
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'user_type'");
-	$newkey = $table_prefix . 'title';
+	$newkey = $bb_table_prefix . 'title';
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'title'");
-	$newkey = $table_prefix . 'favorites';
+	$newkey = $bb_table_prefix . 'favorites';
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'favorites'");
-	$newkey = $table_prefix . 'topics_replied';
+	$newkey = $bb_table_prefix . 'topics_replied';
 	$bbdb->query("UPDATE $bbdb->usermeta SET meta_key = '$newkey' WHERE meta_key = 'topics_replied'");
 }
 
 //user_type -> capabilities
 function upgrade_150() {
-	global $bbdb, $table_prefix;
-	$old_key = $table_prefix . 'user_type';
-	$new_key = $table_prefix . 'capabilities';
+	global $bbdb, $bb_table_prefix;
+	$old_key = $bb_table_prefix . 'user_type';
+	$new_key = $bb_table_prefix . 'capabilities';
 	$member = serialize(array('member' => true));
 	$role['2'] = $role['1'] = serialize(array('moderator' => true));
 	$role['4'] = $role['3'] = serialize(array('administrator' => true));

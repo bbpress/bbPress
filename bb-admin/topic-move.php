@@ -13,7 +13,7 @@ $forum = get_forum( $forum_id );
 if ( !$topic || !$forum )
 	die('Your topic or forum caused all manner of confusion');
 
-if ( !current_user_can('manage_topics') ) {
+if ( bb_current_user_can('manage_topics') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

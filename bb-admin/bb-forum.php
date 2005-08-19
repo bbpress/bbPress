@@ -1,7 +1,7 @@
 <?php
 require_once('../bb-config.php');
 
-if ( !current_user_can('manage_forums') )
+if ( bb_current_user_can('manage_forums') )
 	die("You don't have the authority to mess with the forums.");
 
 if ( !isset($_POST['action']) )

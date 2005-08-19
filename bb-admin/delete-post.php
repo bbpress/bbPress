@@ -1,18 +1,18 @@
 <?php
 require('admin-header.php');
 
-if ( current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
+if (bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
 	bb_add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
 }
 
 $post_id = (int) $_GET['id'];
-$post    =  get_post ( $post_id );
+$post    =  bb_get_post ( $post_id );
 
 if ( !$post )
 	die('There is a problem with that post, pardner.');
 
-if ( !current_user_can('manage_posts') ) {
+if ( bb_current_user_can('manage_posts') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }

@@ -1,7 +1,7 @@
 <?php
 require_once('bb-config.php');
 
-if ( !current_user_can( 'edit_user', $user_id ) ) {
+if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_option('uri');
 	header("Location: $sendto");
 }
@@ -16,7 +16,7 @@ require_once( BBPATH . 'bb-includes/registration-functions.php');
 nocache_headers();
 
 $profile_info_keys = get_profile_info_keys();
-if ( current_user_can('edit_users') )
+if ( bb_current_user_can('edit_users') )
 	$profile_admin_keys = get_profile_admin_keys();
 $updated = false;
 $user_email = true;
@@ -38,7 +38,7 @@ if ($_POST) :
 		endif;
 	endforeach;
 
-	if ( current_user_can('edit_users') ):
+	if ( bb_current_user_can('edit_users') ):
 		$role = bb_specialchars( $_POST['role'], 1 );
 		foreach ( $profile_admin_keys as $key => $label ) :
 			$$key = bb_specialchars( $_POST[$key], 1 );
@@ -54,17 +54,17 @@ if ($_POST) :
 	$updated = true;
 
 	if ( $user_email && !$bad_input ) :
-		if ( current_user_can( 'edit_user', $user->ID ) ) :
+		if ( bb_current_user_can( 'edit_user', $user->ID ) ) :
 			if ( is_string($user_email) ) 
 				bb_update_user( $user->ID, $user_email, $user_url );
 			else	bb_update_user( $user->ID, $user->user_email, $user_url );
 			foreach( $profile_info_keys as $key => $label )
 				if ( strpos($key, 'user_') !== 0 )
 					if ( $$key != ''  || isset($user->$key) )
-						update_usermeta( $user->ID, $key, $$key );
+						bb_update_usermeta( $user->ID, $key, $$key );
 		endif;
 
-		if ( current_user_can('edit_users') ) :
+		if ( bb_current_user_can('edit_users') ) :
 			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
 				$user_obj = new BB_User( $user->ID );
 				$user_obj->set_role($role); // Only support one role for now
@@ -73,7 +73,7 @@ if ($_POST) :
 				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )
 				if ( $$key != ''  || isset($user->$key) )
-					update_usermeta( $user->ID, $key, $$key );
+					bb_update_usermeta( $user->ID, $key, $$key );
 		endif;
 
 		if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $current_user->ID == $user->ID ) :

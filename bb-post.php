@@ -3,11 +3,11 @@ require('bb-config.php');
 
 nocache_headers();
 
-if ( !current_user_can('write_posts') )
+if ( !bb_current_user_can('write_posts') )
 	die('You are not allowed to post.  Are you logged in?');
 
 if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
-	if ( !current_user_can('write_topics') )
+	if ( !bb_current_user_can('write_topics') )
 		die('You are not allowed to write new topics.');
 
 	$topic = trim( $_POST['topic'] );

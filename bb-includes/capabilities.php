@@ -8,8 +8,8 @@ class BB_Roles {
 	var $role_key;
 
 	function BB_Roles() {
-		global $table_prefix;
-		$this->role_key = $table_prefix . 'user_roles';
+		global $bb_table_prefix;
+		$this->role_key = $bb_table_prefix . 'user_roles';
 
 		$this->roles = $this->get_roles($this->role_key);
 
@@ -211,7 +211,7 @@ class BB_User {
 	var $allcaps = array();
 
 	function BB_User($id) {
-		global $bb_roles, $table_prefix;
+		global $bb_roles, $bb_table_prefix;
 
 		if ( is_numeric($id) ) {
 			$this->data = bb_get_user($id);
@@ -223,7 +223,7 @@ class BB_User {
 			return;
 
 		$this->id = $this->ID = $this->data->ID;
-		$this->cap_key = $table_prefix . 'capabilities';
+		$this->cap_key = $bb_table_prefix . 'capabilities';
 		$this->caps = &$this->data->capabilities;
 		if ( ! is_array($this->caps) )
 
@@ -248,7 +248,7 @@ class BB_User {
 	
 	function add_role($role) {
 		$this->caps[$role] = true;
-		update_usermeta($this->id, $this->cap_key, $this->caps);
+		bb_update_usermeta($this->id, $this->cap_key, $this->caps);
 		$this->get_role_caps();
 	}
 	
@@ -256,7 +256,7 @@ class BB_User {
 		if ( empty($this->roles[$role]) || (count($this->roles) <= 1) )
 			return;
 		unset($this->caps[$role]);
-		update_usermeta($this->id, $this->cap_key, $this->caps);
+		bb_update_usermeta($this->id, $this->cap_key, $this->caps);
 		$this->get_role_caps();
 	}
 	
@@ -265,19 +265,19 @@ class BB_User {
 			unset($this->caps[$oldrole]);
 		$this->caps[$role] = true;
 		$this->roles = array($role => true);
-		update_usermeta($this->id, $this->cap_key, $this->caps);
+		bb_update_usermeta($this->id, $this->cap_key, $this->caps);
 		$this->get_role_caps();
 	}
 
 	function add_cap($cap, $grant = true) {
 		$this->caps[$cap] = $grant;
-		update_usermeta($this->id, $this->cap_key, $this->caps);
+		bb_update_usermeta($this->id, $this->cap_key, $this->caps);
 	}
 
 	function remove_cap($cap) {
 		if ( empty($this->roles[$cap]) ) return;
 		unset($this->caps[$cap]);
-		update_usermeta($this->id, $this->cap_key, $this->caps);
+		bb_update_usermeta($this->id, $this->cap_key, $this->caps);
 	}
 	
 	function has_cap($cap) {
@@ -285,7 +285,7 @@ class BB_User {
 
 		$args = array_slice(func_get_args(), 1);
 		$args = array_merge(array($cap, $this->id), $args);
-		$caps = call_user_func_array('map_meta_cap', $args);
+		$caps = call_user_func_array('bb_map_meta_cap', $args);
 		// Must have ALL requested caps
 		foreach ($caps as $cap) {
 			//echo "Checking cap $cap<br/>";
@@ -299,13 +299,13 @@ class BB_User {
 }
 
 // Map meta capabilities to primitive capabilities.
-function map_meta_cap($cap, $user_id) {
+function bb_map_meta_cap($cap, $user_id) {
 	$args = array_slice(func_get_args(), 2);
 	$caps = array();
 
 	switch ($cap) {
 	case 'edit_post': // edit_posts, edit_others_posts, edit_deleted, edit_closed, ignore_edit_lock
-		if ( !$post = get_post( $args[0] ) ) :
+		if ( !$post = bb_get_post( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
 			return $caps;
 		endif;
@@ -377,7 +377,7 @@ function map_meta_cap($cap, $user_id) {
 }
 
 // Capability checking wrapper around the global $current_user object.
-function current_user_can($capability) {
+function bb_current_user_can($capability) {
 	global $current_user;
 
 	$args = array_slice(func_get_args(), 1);
