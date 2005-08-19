@@ -457,7 +457,7 @@ function get_page_number_links($page, $total) {
 
 function topic_delete_link() {
 	global $bb_current_user, $topic;
-	if ( bb_current_user_can('manage_topics') )
+	if ( !bb_current_user_can('manage_topics') )
 		return;
 
 	if ( 0 == $topic->topic_status )
@@ -468,7 +468,7 @@ function topic_delete_link() {
 
 function topic_close_link() {
 	global $bb_current_user, $topic;
-	if ( bb_current_user_can('manage_topics') )
+	if ( !bb_current_user_can('manage_topics') )
 		return;
 
 	if ( topic_is_open( get_topic_id() ) )
@@ -480,7 +480,7 @@ function topic_close_link() {
 
 function topic_sticky_link() {
 	global $bb_current_user, $topic;
-	if ( bb_current_user_can('manage_topics') )
+	if ( !bb_current_user_can('manage_topics') )
 		return;
 
 	if ( topic_is_sticky( get_topic_id() ) )
@@ -491,7 +491,7 @@ function topic_sticky_link() {
 
 function topic_show_all_link() {
 	global $bb_current_user;
-	if ( bb_current_user_can('browse_deleted') )
+	if ( !bb_current_user_can('browse_deleted') )
 		return;
 	if ( 'deleted' == @$_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
@@ -501,7 +501,7 @@ function topic_show_all_link() {
 
 function topic_move_dropdown() {
 	global $bb_current_user, $forum_id, $topic;
-	if ( bb_current_user_can('manage_topics') )
+	if ( !bb_current_user_can('manage_topics') )
 		return;
 	$forum_id = $topic->forum_id;
 
@@ -585,7 +585,7 @@ function post_ip() {
 }
 
 function post_ip_link() {
-	if ( bb_current_user_can( 'view_by_ip' ) )
+	if ( !bb_current_user_can( 'view_by_ip' ) )
 		return;
 	$link = '<a href="' . bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip() . '">' . get_post_ip() . '</a>';
 	echo bb_apply_filters('post_ip_link', $link );
@@ -600,7 +600,7 @@ function post_edit_link() {
 
 function post_delete_link() {
 	global $bb_current_user, $bb_post;
-	if ( bb_current_user_can('manage_posts') )
+	if ( !bb_current_user_can('manage_posts') )
 		return;
 
 	if ( 0 == $bb_post->post_status )
@@ -768,7 +768,7 @@ function get_tag_rss_link( $tag_id = 0 ) {
 
 function tag_form() {
 	global $topic, $bb_current_user;
-	if ( bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
+	if ( !bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
 		return false;
 
 	include( BBPATH . '/bb-templates/tag-form.php');
@@ -776,7 +776,7 @@ function tag_form() {
 
 function manage_tags_forms() {
 	global $tag, $bb_current_user;
-	if ( bb_current_user_can('manage_tags') )
+	if ( !bb_current_user_can('manage_tags') )
 		return false;
 	$form  = "<ul id='manage-tags'>\n ";
 	$form .= "<li id='tag-rename'>Rename tag:\n\t";
@@ -800,7 +800,7 @@ function manage_tags_forms() {
 
 function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	global $tag, $bb_current_user, $topic;
-	if ( bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
+	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 
 	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag?\')" title="Remove this tag">x</a>]';
@@ -864,14 +864,14 @@ function get_favorites_link( $user_id = 0 ) {
 function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites', $user_id = 0) {
 	global $topic, $bb_current_user;
 	if ( $user_id ) :
-		if ( bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
+		if ( !bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
 			return false;
 		if ( !$user = bb_get_user( $user_id ) ) :
 			return false;
 		endif;
 		$favs = $user->favorites;
 	else :
-		if ( bb_current_user_can('edit_favorites') )
+		if ( !bb_current_user_can('edit_favorites') )
 			return false;
 	 	$favs = $bb_current_user->data->favorites;
 	endif;

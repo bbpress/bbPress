@@ -6,16 +6,16 @@ if ( bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('get_thread_post_ids_where', 'no_where');
 }
 
+if ( !bb_current_user_can('manage_topics') ) {
+	header('Location: ' . bb_get_option('uri') );
+	exit();
+}
+
 $topic_id = (int) $_GET['id'];
 $topic    =  get_topic ( $topic_id );
 
 if ( !$topic )
 	die('There is a problem with that topic, pardner.');
-
-if ( bb_current_user_can('manage_topics') ) {
-	header('Location: ' . bb_get_option('uri') );
-	exit();
-}
 
 bb_delete_topic( $topic->topic_id );
 

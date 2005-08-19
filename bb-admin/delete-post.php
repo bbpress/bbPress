@@ -6,16 +6,16 @@ if ( bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
 }
 
+if ( !bb_current_user_can('manage_posts') ) {
+	header('Location: ' . bb_get_option('uri') );
+	exit();
+}
+
 $post_id = (int) $_GET['id'];
 $bb_post    =  bb_get_post ( $post_id );
 
 if ( !$bb_post )
 	die('There is a problem with that post, pardner.');
-
-if ( bb_current_user_can('manage_posts') ) {
-	header('Location: ' . bb_get_option('uri') );
-	exit();
-}
 
 bb_delete_post( $post_id );
 

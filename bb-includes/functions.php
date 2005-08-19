@@ -569,7 +569,7 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 
 function bb_new_forum( $name, $desc, $order = 0 ) {
 	global $bbdb, $bb_current_user;
-	if ( bb_current_user_can('manage_forums') )
+	if ( !bb_current_user_can('manage_forums') )
 		return false;
 	if ( strlen($name) < 1 )
 		return false;
@@ -579,7 +579,7 @@ function bb_new_forum( $name, $desc, $order = 0 ) {
 
 function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
 	global $bbdb, $bb_current_user;
-	if ( bb_current_user_can('manage_forums') )
+	if ( !bb_current_user_can('manage_forums') )
 		return false;
 	if ( !$forum_id = (int) $forum_id )
 		return false;
@@ -922,7 +922,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
-	if ( bb_current_user_can( 'add_tag_to', $topic_id ) )
+	if ( !bb_current_user_can( 'add_tag_to', $topic_id ) )
 		return false;
 	if ( !$tag_id = create_tag( $tag ) )
 		return false;
@@ -974,7 +974,7 @@ function create_tag( $tag ) {
 
 function rename_tag( $tag_id, $tag ) {
 	global $bbdb, $bb_current_user;
-	if ( bb_current_user_can('manage_tags') )
+	if ( !bb_current_user_can('manage_tags') )
 		return false;
 	$raw_tag = $tag;
 	$tag     = tag_sanitize( $tag ); 
@@ -999,7 +999,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	$tagged = serialize( array('tag_id' => $tag_id, 'user_id' => $user_id, 'topic_id' => $topic_id) );
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
-	if ( bb_current_user_can( 'edit_tag_by_on', $user_id, $topic_id ) )
+	if ( !bb_current_user_can( 'edit_tag_by_on', $user_id, $topic_id ) )
 		return false;
 
 	bb_do_action('bb_tag_removed', $tagged);
@@ -1020,7 +1020,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 // merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
 function merge_tags( $old_id, $new_id ) {
 	global $bbdb, $bb_current_user;
-	if ( bb_current_user_can('manage_tags') )
+	if ( !bb_current_user_can('manage_tags') )
 		return false;
 	if ( $old_id == $new_id )
 		return false;
@@ -1052,7 +1052,7 @@ function merge_tags( $old_id, $new_id ) {
 
 function destroy_tag( $tag_id ) {
 	global $bbdb, $bb_current_user;
-	if ( bb_current_user_can('manage_tags') ) 
+	if ( !bb_current_user_can('manage_tags') ) 
 		return false;
 
 	bb_do_action('bb_tag_destroyed', $tag_id);

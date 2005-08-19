@@ -3,7 +3,7 @@ require('../bb-config.php');
 
 nocache_headers();
 
-if ( bb_current_user_can('manage_tags') )
+if ( !bb_current_user_can('manage_tags') )
 	die('You are not allowed to manage tags.');
 
 $tag_id = (int) $_POST['id' ];

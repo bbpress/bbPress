@@ -8,7 +8,7 @@ $super = ( isset($_GET['super']) && 1 == (int) $_GET['super'] ) ? 1 : 0;
 if ( !$topic )
 	die('There is a problem with that topic, pardner.');
 
-if ( bb_current_user_can('manage_topics') ) {
+if ( !bb_current_user_can('manage_topics') ) {
 	header('Location: ' . bb_get_option('uri') );
 	exit();
 }
