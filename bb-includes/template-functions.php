@@ -868,7 +868,7 @@ function get_favorites_link( $user_id = 0 ) {
 	return bb_apply_filters('get_favorites_link', get_profile_tab_link($user_id, 'favorites'));
 }
 
-function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favorites', $user_id = 0) {
+function user_favorites_link($add = array('mid' => 'Add this topic to your favorites', 'post' => ' (%?%)'), $rem = array( 'pre' => 'This topic is one of your %favorites% [', 'mid' => 'x', 'post' => ']'), $user_id = 0) {
 	global $topic, $bb_current_user;
 	if ( $user_id ) :
 		if ( !bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
@@ -876,21 +876,27 @@ function user_favorites_link($add = 'Add to Favorites', $rem = 'Remove from Favo
 		if ( !$user = bb_get_user( $user_id ) ) :
 			return false;
 		endif;
-		$favs = $user->favorites;
 	else :
 		if ( !bb_current_user_can('edit_favorites') )
 			return false;
-	 	$favs = $bb_current_user->data->favorites;
+		$user =& $bb_current_user->data;
 	endif;
-	if ( $favs = explode(',', $favs) )
-		if ( in_array($topic->topic_id, $favs) ) :
-			$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
-			$text = $rem;
-		else :
-			$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
-			$text = $add;
-		endif;
-		echo '<a href="' . bb_specialchars( bb_add_query_arg( $favs, get_favorites_link( $user_id ) ) ) . '">' . $text . '</a>';
+
+	if ( 1 == $is_fav = is_user_favorite( $user->ID, $topic->topic_id ) ) :
+		$rem = preg_replace('|%(.+)%|', "<a href='" . get_favorites_link( $user_id ) . "'>$1</a>", $rem);
+		$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
+		$pre  = ( is_array($rem) && isset($rem['pre'])  ) ? $rem['pre']  : '';
+		$mid  = ( is_array($rem) && isset($rem['mid'])  ) ? $rem['mid']  : ( is_string($rem) ? $rem : '' );
+		$post = ( is_array($rem) && isset($rem['post']) ) ? $rem['post'] : '';
+	elseif ( 0 === $is_fav ) :
+		$add = preg_replace('|%(.+)%|', "<a href='" . get_favorites_link( $user_id ) . "'>$1</a>", $add);
+		$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
+		$pre  = ( is_array($add) && isset($add['pre'])  ) ? $add['pre']  : '';
+		$mid  = ( is_array($add) && isset($add['mid'])  ) ? $add['mid']  : ( is_string($add) ? $add : '' );
+		$post = ( is_array($add) && isset($add['post']) ) ? $add['post'] : '';
+	endif;
+	if ( false !== $is_fav )
+		echo "$pre<a href='" . bb_specialchars( bb_add_query_arg( $favs, get_favorites_link( $user_id ) ) ) . "'>$mid</a>$post";
 }
 
 function favorites_rss_link( $id = 0 ) {

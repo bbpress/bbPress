@@ -135,6 +135,56 @@ function get_user_favorites( $user_id, $list = false ) {
 				ORDER BY post_time DESC LIMIT 20");
 }
 
+function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
+	if ( $user_id )
+		$user = bb_get_user( $user_id );
+	else 	global $user;
+	if ( $topic_id )
+		$topic = get_topic( $topic_id );
+	else	global $topic;
+	if ( !$user || !$topic )
+		return false;
+
+	if ( in_array($topic->topic_id, explode(',', $user->favorites)) )
+		return 1;
+	else	return 0;
+}
+
+function bb_add_user_favorite( $user_id, $topic_id ) {
+	$user_id = (int) $user_id;
+	$topic_id = (int) $topic_id;
+	$user = bb_get_user( $user_id );
+	$topic = get_topic( $topic_id );
+	if ( !$user || !$topic )
+		return false;
+
+	$fav = $user->favorites ? explode(',', $user->favorites) : array();
+	if ( ! in_array( $topic_id, $fav ) ) {
+		$fav[] = $topic_id;
+		$fav = implode(',', $fav);
+		bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
+	}
+	bb_do_action('bb_add_user_favorite', serialize(array('user_id' => $user_id, 'topic_id' => $topic_id)));
+	return true;
+}
+
+function bb_remove_user_favorite( $user_id, $topic_id ) {
+	$user_id = (int) $user_id;
+	$topic_id = (int) $topic_id;
+	$user = bb_get_user( $user_id );
+	if ( !$user )
+		return false;
+
+	$fav = explode(',', $user->favorites);
+	if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
+		array_splice($fav, $pos, 1);
+		$fav = implode(',', $fav);
+		bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
+	}
+	bb_do_action('bb_remove_user_favorite', serialize(array('user_id' => $user_id, 'topic_id' => $topic_id)));
+	return true;
+}
+
 function get_recent_user_replies( $user_id ) {
 	global $bbdb, $bb_post_cache, $page;
 	$limit = bb_get_option('page_topics');

@@ -12,21 +12,10 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 	if ( !$topic || 0 != $topic->topic_status )
 		die;
 
-	if ( $fav ) {
-		$fav = $user->favorites ? explode(',', $user->favorites) : array();
-		if ( ! in_array( $topic_id, $fav ) ) {
-			$fav[] = $topic_id;
-			$fav = implode(',', $fav);
-			bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
-		}
-	} else {
-		$fav = explode(',', $user->favorites);
-		if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
-			array_splice($fav, $pos, 1);
-			$fav = implode(',', $fav);
-			bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
-		}
-	}
+	if ( $fav )
+		bb_add_user_favorite( $user_id, $topic_id );
+	else
+		bb_remove_user_favorite( $user_id, $topic_id );
 
 	if ( false !== strpos( $_SERVER['HTTP_REFERER'], bb_get_option('uri') ) )
 		@header('Location: ' . $_SERVER['HTTP_REFERER'] );

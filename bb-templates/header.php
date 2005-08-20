@@ -8,7 +8,7 @@
 	 @import url(<?php bb_stylesheet_uri(); ?>);
 	</style>
 
-<?php if ( is_topic() ) : ?>
+<?php if ( is_topic() && $bb_current_user ) : ?>
 	<script type="text/javascript">
 		function addLoadEvent(func) {
 			var oldonload = window.onload;
@@ -22,9 +22,12 @@
 			}
 		}
 
+		var currentUserId = <?php echo $bb_current_user->ID; ?>;
 		var topicId = <?php topic_id(); ?>;
 		var uriBase = '<?php option('uri'); ?>';
 		var tagLinkBase = '<?php tag_link_base(); ?>';
+		var favoritesLink = '<?php favorites_link(); ?>'; 
+		var isFav = <?php if ( false === $is_fav = is_user_favorite( $bb_current_user->ID ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>
 	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/fat.js" />
 	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/tw-sack.js" />

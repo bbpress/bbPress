@@ -14,7 +14,7 @@
 	<li><a href="<?php topic_last_post_link(); ?>">Latest reply</a> from <?php topic_last_poster(); ?></li>
 	<li>This topic is <?php topic_resolved(); ?></li>
 <?php if ( $bb_current_user ) : ?>
-	<li><?php user_favorites_link() ?> (<a href="<?php favorites_link(); ?>">?</a>)</li>
+	<li id="favoritestoggle"><?php user_favorites_link() ?></li>
 <?php endif; ?>
 </ul>
 <br clear="all" />

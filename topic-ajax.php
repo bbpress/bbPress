@@ -18,8 +18,10 @@ bb_add_action('bb_shutdown', 'get_out_now', -1);
 switch ( $_POST['action'] ) :
 case 'tag-add' :
 	bb_add_action('bb_tag_added', 'grab_results');
-	$topic_id = (int) @$_POST['id' ];
+	$topic_id = (int) @$_POST['id'];
 	$tag      =       @$_POST['tag'];
+	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_user->ID, $topic_id) )
+		die('-1');
 
 	$topic = get_topic ( $topic_id );
 	if ( !$topic )
@@ -40,7 +42,10 @@ case 'tag-remove' :
 	bb_add_action('bb_tag_removed', 'grab_results');
 	$tag_id   = (int) @$_POST['tag'];
 	$user_id  = (int) @$_POST['user'];
-	$topic_id = (int) @$_POST['topic' ];
+	$topic_id = (int) @$_POST['topic'];
+
+	if ( !bb_current_user_can('edit_tag_by_on', $user_id, $topic_id) )
+		die('-1');
 
 	$tag   = get_tag( $tag_id );
 	$user  = bb_get_user( $user_id );
@@ -53,6 +58,39 @@ case 'tag-remove' :
 	} else {
 		die('0');
 	}
+	break;
+case 'favorite-add' :
+	$topic_id = (int) @$_POST['topic_id'];
+	$user_id  = (int) @$_POST['user_id'];
+
+	if ( !bb_current_user_can('edit_favorites') )
+		die('-1');
+
+	$topic = get_topic( $topic_id );
+	$user = bb_get_user( $user_id );
+	if ( !$topic || !$user )
+		die('0');
+
+	if ( bb_add_user_favorite( $user_id, $topic_id ) )
+		die('1');
+	else	die('0');
+	break;
+
+case 'favorite-remove' :
+	$topic_id = (int) @$_POST['topic_id'];
+	$user_id  = (int) @$_POST['user_id'];
+
+	if ( !bb_current_user_can('edit_favorites') )
+		die('-1');
+
+	$topic = get_topic( $topic_id );
+	$user = bb_get_user( $user_id );
+	if ( !$topic || !$user )
+		die('0');
+
+	if ( bb_remove_user_favorite( $user_id, $topic_id ) )
+		die('1');
+	else	die('0');
 	break;
 endswitch;
 ?>

@@ -27,7 +27,20 @@ function newTagAddIn() {
 	document.getElementById('tags').appendChild(ajaxtag);
 }
 
+function favoritesAddIn() {
+	var favoritesToggle = document.getElementById('favoritestoggle');
+	if ( 'no' == isFav ) {
+		return;
+	}
+	if ( 1 == isFav ) {
+		favoritesToggle.innerHTML = 'This topic is one of your <a href="' + favoritesLink + '">favorites</a> [<a href="#" onclick="FavIt(topicId, 0); return false;">x</a>]';
+	} else {
+		favoritesToggle.innerHTML = '<a href="#" onclick="FavIt(topicId, 1); return false;">Add this topic to your favorites</a> (<a href="' + favoritesLink + '">?</a>)';
+	}
+}
+
 addLoadEvent(newTagAddIn);
+addLoadEvent(favoritesAddIn);
 
 function getResponseElement() {
 	var p = document.getElementById('ajaxtagresponse');
@@ -78,15 +91,17 @@ function newTagCompletion() {
 		yourTagsP = document.createElement('p');
 		yourTagsP.innerHTML = 'Your tags:';
 		yourTagsUl = document.createElement('ul');
+		yourTagsUl.id = 'yourtaglist';
 		yourTags.appendChild(yourTagsP);
 		yourTags.appendChild(yourTagsUl);
 		tags.insertBefore(yourTags, tags.firstChild);
 	}
 	var newLi = document.createElement('li');
+	var yourTagList = document.getElementById('yourtaglist');
 	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' + raw + '&quot; tag?\') ) { ajaxDelTag(' + tagId + ', ' + userId + '); } return false;">x</a>]';
 	newLi.id = 'tag-' + tagId + '-' + userId;
 	newLi.setAttribute('class','fade');
-	yourTags.getElementsByTagName('ul')[0].appendChild(newLi);
+	yourTagList.appendChild(newLi);
 	Fat.fade_all();
 	newLi.setAttribute('class', '');
 	newtag.value = '';
@@ -127,10 +142,6 @@ function delTagCompletion() {
 	setTimeout('oldTag.parentNode.removeChild(oldTag)', 705);
 }
 
-function dropElement(e) {
-	e.parentNode.removeChild(e);
-}
-
 function ajaxNewTag() {
 	var newtag = document.getElementById('newtag');
 	var tagString = 'tag=' + encodeURIComponent(newtag.value) + '&id=' + topicId + '&action=tag-add';
@@ -164,4 +175,52 @@ function ajaxDelTag(tag, user, event) {
 	event.returnValue = false;
 	event.cancelBubble = true;
 	return false;
+}
+
+function FavLoading() {
+	document.getElementById('favoritestoggle').innerHTML = 'Sending Data...';
+}
+
+function FavLoaded() {
+	document.getElementById('favoritestoggle').innerHTML = 'Data Sent...';
+}
+
+function FavInteractive() {
+	document.getElementById('favoritestoggle').innerHTML = 'Processing Data...';
+}
+
+function removeFavCompletion() {
+	var id = parseInt(ajaxTag.response, 10);
+	if ( 1 == id ) {
+		isFav = 0;
+		favoritesAddIn();
+		Fat.fade_element('favoritestoggle');
+	}
+}
+
+function addFavCompletion() {
+	var id = parseInt(ajaxTag.response, 10);
+	if ( 1 == id ) {
+		isFav = 1;
+		favoritesAddIn();
+		Fat.fade_element('favoritestoggle');
+	}
+}
+
+function FavIt(id, addFav) {
+	var newtag = document.getElementById('newtag');
+	var string = 'topic_id=' + id + '&user_id=' + currentUserId + '&action=';
+	if ( addFav ) {
+		string = string + 'favorite-add';
+		ajaxTag.onCompletion = addFavCompletion;
+	} else {
+		string = string + 'favorite-remove';
+		ajaxTag.onCompletion = removeFavCompletion;
+	}
+	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
+	ajaxTag.onLoading = FavLoading;
+	ajaxTag.onLoaded = FavLoaded;
+	ajaxTag.onInteractive = FavInteractive;
+	ajaxTag.method = 'POST';
+	ajaxTag.runAJAX(string);
 }
