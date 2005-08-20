@@ -740,6 +740,13 @@ function get_tag_link( $tag_name = 0, $page = 1 ) {
 		return bb_get_option('domain') . $bb->tagpath . "tags.php?tag=$tag->tag" . ( 1 < $page ? "&page=$page" : '' );
 }
 
+function tag_link_base() {
+	global $bb;
+	if ( bb_get_option('mod_rewrite') )
+		echo bb_get_option('domain') . $bb->tagpath . 'tags/';
+	else	echo bb_get_option('domain') . $bb->tagpath . 'tags.php?tag=';
+}
+
 function get_tag_name( $id = 0 ) {
 	global $tag;
 	return $tag->raw_tag;
@@ -803,7 +810,7 @@ function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 
-	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return confirm(\'Are you sure you want to remove the \\\'' . bb_specialchars( $tag->raw_tag ) . '\\\' tag?\')" title="Remove this tag">x</a>]';
+	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' . bb_specialchars( $tag->raw_tag ) . '&quot; tag?\') ) { ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . '); } return false;" title="Remove this tag">x</a>]';
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {

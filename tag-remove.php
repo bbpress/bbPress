@@ -10,7 +10,7 @@ $tag    =  get_tag ( $tag_id );
 $topic	=  get_topic ( $topic_id );
 $user	=  bb_get_user( $user_id );
 
-if ( !$tag || !$topic || !$user )
+if ( !$tag || !$topic )
 	die('The dude does not abide.');
 
 if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) )

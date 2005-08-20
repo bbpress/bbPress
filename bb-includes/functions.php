@@ -939,7 +939,7 @@ function add_topic_tag( $topic_id, $tag ) {
 		$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
 		$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id = '$topic_id'");
 	}
-	bb_do_action('bb_tag_added', $topic_id);
+	bb_do_action('bb_tag_added', serialize(array('tag_id' => $tag_id, 'user_id' => $bb_current_user->ID, 'topic_id' => $topic_id)));
 	return true;
 }
 

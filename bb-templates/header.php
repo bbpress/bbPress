@@ -7,6 +7,28 @@
 	<style type="text/css">
 	 @import url(<?php bb_stylesheet_uri(); ?>);
 	</style>
+
+<?php if ( is_topic() ) : ?>
+	<script type="text/javascript">
+		function addLoadEvent(func) {
+			var oldonload = window.onload;
+			if (typeof window.onload != 'function') {
+				window.onload = func;
+			} else {
+				window.onload = function() {
+					oldonload();
+					func();
+				}
+			}
+		}
+
+		var topicId = <?php topic_id(); ?>;
+		var tagLinkBase = '<?php tag_link_base(); ?>';
+	</script>
+	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/fat.js" />
+	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/tw-sack.js" />
+	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/topic.js" />
+<?php endif; ?>
 </head>
 
 <body>
