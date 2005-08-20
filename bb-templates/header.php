@@ -23,6 +23,7 @@
 		}
 
 		var topicId = <?php topic_id(); ?>;
+		var uriBase = '<?php option('uri'); ?>';
 		var tagLinkBase = '<?php tag_link_base(); ?>';
 	</script>
 	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/fat.js" />

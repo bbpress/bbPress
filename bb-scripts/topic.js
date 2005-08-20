@@ -56,7 +56,6 @@ function newTagInteractive() {
 
 function newTagCompletion() {
 	var p = getResponseElement();
-alert(ajaxTag.response);
 	var id = parseInt(ajaxTag.response, 10);
 	var tagId = ajaxTag.responseXML.getElementsByTagName('id')[0].firstChild.nodeValue;
 	var userId = ajaxTag.responseXML.getElementsByTagName('user')[0].firstChild.nodeValue;
@@ -135,7 +134,7 @@ function dropElement(e) {
 function ajaxNewTag() {
 	var newtag = document.getElementById('newtag');
 	var tagString = 'tag=' + encodeURIComponent(newtag.value) + '&id=' + topicId + '&action=tag-add';
-	ajaxTag.requestFile = 'topic-ajax.php';
+	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
 	ajaxTag.method = 'POST';
 	ajaxTag.onLoading = newTagLoading;
 	ajaxTag.onLoaded = newTagLoaded;
@@ -148,7 +147,7 @@ function ajaxDelTag(tag, user, event) {
 	tagId = tag;
 	userId = user;
 	var tagString = 'tag=' + tagId + '&user=' + userId + '&topic=' + topicId + '&action=tag-remove';
-	ajaxTag.requestFile = 'topic-ajax.php';
+	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
 	ajaxTag.method = 'POST';
 	ajaxTag.onLoading = newTagLoading;
 	ajaxTag.onLoaded = newTagLoaded;
