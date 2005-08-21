@@ -30,7 +30,7 @@ function bb_new_user( $user_login, $email, $url ) {
 	$user_id = $bbdb->insert_id;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('administrator' => true) );
+		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('keymaster' => true) );
 		bb_do_action('bb_new_user', $user_id);
 		return $password;
 	} else {		
