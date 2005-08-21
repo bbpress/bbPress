@@ -26,6 +26,11 @@ class BB_Roles {
 		return array(	'keymaster' => array(
 					'name' => __('Key Master'),
 					'capabilities' => array(
+						'use_keys' => true,		// Verb forms of roles - keymaster
+						'administrate' => true,		// administrator
+						'moderate' => true, 		// moderator
+						'participate' => true,		// member
+
 						'keep_gate' => true,		// Make new Key Masters		//+
 						'recount' => true,		// bb-do-counts.php		//+
 						'manage_options' => true,	// backend			//+
@@ -56,6 +61,10 @@ class BB_Roles {
 				'administrator' => array(
 					'name' => __('Administrator'),
 					'capabilities' => array(
+						'administrate' => true,
+						'moderate' => true,
+						'participate' => true,
+
 						'edit_users' => true,			//+
 						'manage_tags' => true,			//+
 						'edit_others_favorites' => true,	//+
@@ -83,6 +92,9 @@ class BB_Roles {
 				'moderator' => array(
 					'name' => __('Moderator'),
 					'capabilities' => array(
+						'moderate' => true,
+						'participate' => true,
+
 						'manage_topics' => true,	//+
 						'view_by_ip' => true,		//+
 						'edit_closed' => true,		//+
@@ -106,6 +118,8 @@ class BB_Roles {
 				'member' => array(
 					'name' => __('Member'),
 					'capabilities' => array(
+						'participate' => true,
+
 						'edit_favorites' => true,
 						'edit_tags' => true,
 						'edit_topics' => true,
