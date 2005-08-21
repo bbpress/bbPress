@@ -14,13 +14,13 @@ function newTagAddIn() {
 	newtag.size = '10';
 	newtag.setAttribute('maxlength', '30');
 	newtag.setAttribute('autocomplete', 'off');
-	newtag.setAttribute('onkeypress', 'return ajaxNewTagKeyPress(event);');
+	newtag.onkeypress = ajaxNewTagKeyPress;
 
 	var newtagSub = document.createElement('input');
 	newtagSub.type = 'button';
 	newtagSub.name = 'Button';
 	newtagSub.value = '+';
-	newtagSub.setAttribute('onclick', 'ajaxNewTag();');
+	newtagSub.onclick = ajaxNewTag;
 
 	ajaxtag.appendChild(newtag);
 	ajaxtag.appendChild(newtagSub);
@@ -100,10 +100,10 @@ function newTagCompletion() {
 	var yourTagList = document.getElementById('yourtaglist');
 	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' + raw + '&quot; tag?\') ) { ajaxDelTag(' + tagId + ', ' + userId + '); } return false;">x</a>]';
 	newLi.id = 'tag-' + tagId + '-' + userId;
-	newLi.setAttribute('class','fade');
+	newLi.className = 'fade';
 	yourTagList.appendChild(newLi);
 	Fat.fade_all();
-	newLi.setAttribute('class', '');
+	newLi.className = '';
 	newtag.value = '';
 }
 

@@ -29,9 +29,9 @@
 		var favoritesLink = '<?php favorites_link(); ?>'; 
 		var isFav = <?php if ( false === $is_fav = is_user_favorite( $bb_current_user->ID ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>
-	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/fat.js" />
-	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/tw-sack.js" />
-	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/topic.js" />
+	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/fat.js"></script>
+	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/tw-sack.js"></script>
+	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/topic.js"></script>
 <?php endif; ?>
 </head>
 
