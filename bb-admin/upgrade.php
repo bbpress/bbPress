@@ -203,23 +203,26 @@ function upgrade_150() {
 	$role['4'] = $role['3'] = serialize(array('administrator' => true));
 	$role['5'] = serialize(array('keymaster' => true));
 	$inactive = serialize(array('inactive' => true));
-	$mods = $bbdb->get_col("SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = '$old_key' AND meta_value > 0");
-	$mod_type = $bbdb->get_col('', 1);
-	foreach ( $mods as $i => $u ) :
-		if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") )
-			$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '{$role[$mod_type[$i]]}' )");
-	endforeach;
-	$user_ids = $bbdb->get_col("SELECT ID, user_status FROM $bbdb->users");
-	$user_stati = $bbdb->get_col('' , 1);
-	foreach ( $user_ids as $i => $u ) :
-		if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") ) :
-			if ( $user_stati[$i] == 2 )
-				$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '$inactive' )");
-			else
-				$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '$member' )");
-		endif;
-	endforeach;
-	echo "Done translating from user_type to role<br />\n";
+	if ( $mods = $bbdb->get_col("SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = '$old_key' AND meta_value > 0") ) :
+		$mod_type = $bbdb->get_col('', 1);
+		foreach ( $mods as $i => $u ) :
+			if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") )
+				$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '{$role[$mod_type[$i]]}' )");
+		endforeach;
+		echo "Done translating from moderators' user_types to roles<br />\n";
+	endif;
+	if ( $user_ids = $bbdb->get_col("SELECT ID, user_status FROM $bbdb->users") ) :
+		$user_stati = $bbdb->get_col('' , 1);
+		foreach ( $user_ids as $i => $u ) :
+			if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") ) :
+				if ( $user_stati[$i] == 2 )
+					$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '$inactive' )");
+				else
+					$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '$member' )");
+			endif;
+		endforeach;
+		echo "Done translating all users' user_types to role<br />\n";
+	endif;
 	$bbdb->query("DELETE FROM $bbdb->usermeta WHERE meta_key = '$old_key'");
 	echo "Done deleting user_type<br />\n";
 }
