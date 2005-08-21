@@ -83,7 +83,7 @@ header( 'Content-Type: text/html; charset=utf-8' );
 // Let's check to make sure bb isn't already installed.
 $bbdb->hide_errors();
 $installed = $bbdb->get_results("SELECT * FROM $bbdb->users");
-if ($installed) die(__('<h1>Already Installed</h1><p>You appear to have already bbPress WordPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+if ($installed) die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
 $bbdb->show_errors();
 
 switch ($step):
@@ -209,7 +209,7 @@ We hope you enjoy your new forums. Thanks!
 http://bbpress.org/
 "), $bb->domain . $bb->path, $admin_login, $password);
 
-@mail($bb->admin_email, __('New WordPress Blog'), $message, $message_headers);?>
+@mail($bb->admin_email, __('New bbPress installation'), $message, $message_headers);?>
 
 <p><em><?php _e('Finished!'); ?></em></p>
 
