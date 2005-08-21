@@ -979,8 +979,10 @@ function add_topic_tag( $topic_id, $tag ) {
 
 	$now    = bb_current_time('mysql');
 	if ( $user_already = $bbdb->get_var("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") )
-		if ( $user_already == $bb_current_user->ID )
+		if ( $user_already == $bb_current_user->ID ) :
+			bb_do_action('bb_already_tagged', serialize(array('tag_id' => $tag_id, 'user_id' => $bb_current_user->ID, 'topic_id' => $topic_id)));
 			return true;
+		endif;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES

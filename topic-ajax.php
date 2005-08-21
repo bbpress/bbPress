@@ -18,6 +18,7 @@ bb_add_action('bb_shutdown', 'get_out_now', -1);
 switch ( $_POST['action'] ) :
 case 'tag-add' :
 	bb_add_action('bb_tag_added', 'grab_results');
+	bb_add_action('bb_already_tagged', 'grab_results');
 	$topic_id = (int) @$_POST['id'];
 	$tag      =       @$_POST['tag'];
 	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_user->ID, $topic_id) )
@@ -89,6 +90,22 @@ case 'favorite-remove' :
 		die('0');
 
 	if ( bb_remove_user_favorite( $user_id, $topic_id ) )
+		die('1');
+	else	die('0');
+	break;
+
+case 'topic-resolve' :
+	$topic_id = (int) @$_POST['id'];
+	$resolved = @$_POST['resolved'];
+
+	if ( !bb_current_user_can( 'edit_topic', $topic_id ) )
+		die('-1');
+
+	$topic = get_topic( $topic_id );
+	if ( !$topic )
+		die('0');
+
+	if ( bb_resolve_topic( $topic_id, $resolved ) )
 		die('1');
 	else	die('0');
 	break;

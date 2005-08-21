@@ -4,27 +4,13 @@ var tagId;
 var userId;
  
 function newTagAddIn() {
-	var ajaxtag = document.createElement('p');
-	ajaxtag.id = 'ajaxtag';
-
-	newtag = document.createElement('input');
-	newtag.type = 'text';
-	newtag.name = 'newtag';
-	newtag.id = 'newtag';
-	newtag.size = '10';
-	newtag.setAttribute('maxlength', '30');
+	newtag = document.getElementById('tag');
 	newtag.setAttribute('autocomplete', 'off');
 	newtag.onkeypress = ajaxNewTagKeyPress;
 
-	var newtagSub = document.createElement('input');
+	var newtagSub = document.getElementById('tagformsub');
 	newtagSub.type = 'button';
-	newtagSub.name = 'Button';
-	newtagSub.value = '+';
 	newtagSub.onclick = ajaxNewTag;
-
-	ajaxtag.appendChild(newtag);
-	ajaxtag.appendChild(newtagSub);
-	document.getElementById('tags').appendChild(ajaxtag);
 }
 
 function favoritesAddIn() {
@@ -39,8 +25,15 @@ function favoritesAddIn() {
 	}
 }
 
+function resolutionAddIn() {
+	var resolvedSub = document.getElementById('resolvedformsub');
+	resolvedSub.type = 'button';
+	resolvedSub.onclick = resolveTopic;
+}
+
 addLoadEvent(newTagAddIn);
 addLoadEvent(favoritesAddIn);
+addLoadEvent(resolutionAddIn);
 
 function getResponseElement() {
 	var p = document.getElementById('ajaxtagresponse');
@@ -96,6 +89,12 @@ function newTagCompletion() {
 		yourTags.appendChild(yourTagsUl);
 		tags.insertBefore(yourTags, tags.firstChild);
 	}
+	var exists = document.getElementById('tag-' + tagId + '-' + userId);
+	if ( exists ) {
+		Fat.fade_element(exists.id);
+		newtag.value = '';
+		return;
+	}
 	var newLi = document.createElement('li');
 	var yourTagList = document.getElementById('yourtaglist');
 	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' + raw + '&quot; tag?\') ) { ajaxDelTag(' + tagId + ', ' + userId + '); } return false;">x</a>]';
@@ -143,7 +142,6 @@ function delTagCompletion() {
 }
 
 function ajaxNewTag() {
-	var newtag = document.getElementById('newtag');
 	var tagString = 'tag=' + encodeURIComponent(newtag.value) + '&id=' + topicId + '&action=tag-add';
 	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
 	ajaxTag.method = 'POST';
@@ -165,16 +163,6 @@ function ajaxDelTag(tag, user, event) {
 	ajaxTag.onInteractive = newTagInteractive;
 	ajaxTag.onCompletion = delTagCompletion;
 	ajaxTag.runAJAX(tagString);
-	if (!event) {
-		if (window.event) {
-			event = window.event;
-		} else {
-			return;
-		}
-	}
-	event.returnValue = false;
-	event.cancelBubble = true;
-	return false;
 }
 
 function FavLoading() {
@@ -208,7 +196,6 @@ function addFavCompletion() {
 }
 
 function FavIt(id, addFav) {
-	var newtag = document.getElementById('newtag');
 	var string = 'topic_id=' + id + '&user_id=' + currentUserId + '&action=';
 	if ( addFav ) {
 		string = string + 'favorite-add';
@@ -223,4 +210,32 @@ function FavIt(id, addFav) {
 	ajaxTag.onInteractive = FavInteractive;
 	ajaxTag.method = 'POST';
 	ajaxTag.runAJAX(string);
+}
+
+function resolveTopic(event) {
+	var resolvedSel = document.getElementById('resolvedformsel');
+	var string = 'id=' + topicId + '&resolved=' + resolvedSel.value + '&action=topic-resolve';
+	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
+	ajaxTag.onLoading = function() {};
+	ajaxTag.onLoaded = function() {};
+	ajaxTag.onInteractive = function() {};
+	ajaxTag.onCompletion = function() {
+		var id = parseInt(ajaxTag.response, 10);
+		if ( 1 == id ) {
+			Fat.fade_element('resolutionflipper');
+			Fat.fade_element('resolvedformsel');
+		}
+	}
+	ajaxTag.method = 'POST';
+	ajaxTag.runAJAX(string);
+	if (!event) {
+		if (window.event) {
+			event = window.event;
+		} else {
+			return;
+		}
+	}
+	event.returnValue = false;
+	event.cancelBubble = true;
+	return false;
 }

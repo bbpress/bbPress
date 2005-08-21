@@ -363,7 +363,7 @@ function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a s
 	if ( bb_current_user_can( 'edit_topic', $topic->topic_id ) ) :
 		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php"><div>' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
-		$resolved_form .= '<select name="resolved" tabindex="2">' . "\n";
+		$resolved_form .= '<select name="resolved" id="resolvedformsel" tabindex="2">' . "\n";
 
 		$cases = array( 'yes', 'no', 'mu' );
 		$resolved = get_topic_resolved( $id );
@@ -373,7 +373,7 @@ function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a s
 		}
 
 		$resolved_form .= "</select>\n";
-		$resolved_form .= '<input type="submit" name="submit" value="Change" />' . "\n</div></form>";
+		$resolved_form .= '<input type="submit" name="submit" id="resolvedformsub" value="Change" />' . "\n</div></form>";
 		echo $resolved_form;
 	else:
 		switch ( get_topic_resolved( $id ) ) {
