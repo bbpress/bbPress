@@ -12,10 +12,10 @@ function get_forum( $id ) {
 }
 
 function get_topic( $id, $cache = true ) {
-	global $topic_cache, $bbdb;
+	global $bb_topic_cache, $bbdb;
 	$id = (int) $id;
-	if ( isset( $topic_cache[$id] ) && $cache ) :
-		return $topic_cache[$id];
+	if ( isset( $bb_topic_cache[$id] ) && $cache ) :
+		return $bb_topic_cache[$id];
 	else :
 		$where = bb_apply_filters('get_topic_where', 'AND topic_status = 0');
 		$topic = $bbdb->get_row("SELECT * FROM $bbdb->topics WHERE topic_id = $id $where");
@@ -501,16 +501,20 @@ function bb_get_user_by_name( $name ) {
 	return bb_get_user( $user_id );
 }
 
-// This is the only function that should add to ${user|topic}_cache
+// This is the only function that should add to $bb_(user||topic)_cache
 function bb_append_meta( $object, $type ) {
-	global $bbdb, $bb_table_prefix, ${$type . '_cache'};
+	global $bbdb, $bb_table_prefix;
 	switch ( $type ) :
 	case 'user' :
+		global $bb_user_cache;
+		$cache =& $bb_user_cache;
 		$table = $bbdb->usermeta;
 		$field = 'user_id';
 		$id = 'ID';
 		break;
 	case 'topic' :
+		global $bb_topic_cache;
+		$cache =& $bb_topic_cache;
 		$table = $bbdb->topicmeta;
 		$field = $id = 'topic_id';
 		break;
@@ -526,7 +530,7 @@ function bb_append_meta( $object, $type ) {
 					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bb_table_prefix))} = cast_meta_value( $meta->meta_value );
 			endforeach;
 		foreach ( array_keys($trans) as $i )
-			${$type . '_cache'}[$i] = $trans[$i];
+			$cache[$i] = $trans[$i];
 		return $object;
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $table WHERE $field = '{$object->$id}'") )
@@ -535,7 +539,7 @@ function bb_append_meta( $object, $type ) {
 				if ( strpos($meta->meta_key, $bb_table_prefix) === 0 )
 					$object->{substr($meta->meta_key, strlen($bb_table_prefix))} = cast_meta_value( $meta->meta_value );
 			endforeach;
-		${$type . '_cache'}[$object->$id] = $object;
+		$cache[$object->$id] = $object;
 		return $object;
 	endif;
 }
