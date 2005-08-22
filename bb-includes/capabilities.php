@@ -55,7 +55,7 @@ class BB_Roles {
 						'edit_profile' => true,
 						'write_topics' => true,
 						'write_posts' => true,
-						'read' => true			// Not implemented
+						'read' => true
 				)),
 
 				'administrator' => array(
