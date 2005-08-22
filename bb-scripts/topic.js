@@ -97,7 +97,7 @@ function newTagCompletion() {
 	}
 	var newLi = document.createElement('li');
 	var yourTagList = document.getElementById('yourtaglist');
-	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' + raw + '&quot; tag?\') ) { ajaxDelTag(' + tagId + ', ' + userId + '); } return false;">x</a>]';
+	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' + raw.replace("'", "\\'").replace('"', '&quot;') + '&quot; tag?\') ) { ajaxDelTag(' + tagId + ', ' + userId + '); } return false;">x</a>]';
 	newLi.id = 'tag-' + tagId + '-' + userId;
 	newLi.className = 'fade';
 	yourTagList.appendChild(newLi);
