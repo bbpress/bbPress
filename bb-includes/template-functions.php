@@ -2,7 +2,9 @@
 
 function bb_get_header() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $bb_current_user;
-	include( BBPATH . 'bb-templates/header.php');
+	if (file_exists( BBPATH . 'my-templates/header.php') )
+		include( BBPATH . 'my-templates/header.php');
+	else	include( BBPATH . 'bb-templates/header.php');
 }
 
 function bb_stylesheet_uri() {
@@ -13,7 +15,9 @@ function bb_stylesheet_uri() {
 
 function bb_get_footer() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $bb_current_user;
-	include( BBPATH . 'bb-templates/footer.php');
+	if (file_exists( BBPATH . 'my-templates/footer.php') )
+		include( BBPATH . 'my-templates/footer.php');
+	else	include( BBPATH . 'bb-templates/footer.php');
 }
 
 function profile_menu() {
