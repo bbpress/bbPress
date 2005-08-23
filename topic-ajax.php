@@ -109,5 +109,21 @@ case 'topic-resolve' :
 		die('1');
 	else	die('0');
 	break;
+
+case 'post-delete' :
+	$post_id = (int) $_POST['id'];
+	if ( !bb_current_user_can('manage_posts') )
+		die('-1');
+
+	$bb_post = bb_get_post ( $post_id );
+
+	if ( !$bb_post )
+		die('0');
+
+	if ( bb_delete_post( $post_id ) )
+		die('1');
+	else	die('0');
+	break;
+
 endswitch;
 ?>

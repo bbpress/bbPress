@@ -26,20 +26,12 @@
 </div>
 <ol id="thread" start="<?php echo $list_start; ?>">
 
-<?php foreach ($posts as $bb_post) : $del_class = ( $bb_post->post_status ) ? 'deleted' : ''; ?>
-	<li id="post-<?php post_id(); ?>"<?php alt_class('post', $del_class); ?>>
-	
-		<div class="threadauthor">
-			<p><strong><?php post_author_link(); ?></strong><br />
-			  <small><?php post_author_type(); ?></small></p>
-		</div>
-		
-		<div class="threadpost">
-			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">Posted: <?php bb_post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link(); ?></div>
-		</div>
-	</li>
-<?php endforeach; ?>
+<?php
+foreach ($posts as $bb_post) :
+$del_class = ( $bb_post->post_status ) ? 'deleted' : '';
+bb_post_template();
+endforeach;
+?>
 
 </ol>
 <div class="clearit"><br style=" clear: both;" /></div>

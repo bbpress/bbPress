@@ -239,3 +239,57 @@ function resolveTopic(event) {
 	event.cancelBubble = true;
 	return false;
 }
+
+function ajaxPostDelete(postId) {
+	var string = 'id=' + postId + '&action=post-delete';
+	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
+	ajaxTag.onLoading = function() {};
+	ajaxTag.onLoaded = function() {};
+	ajaxTag.onInteractive = function() {};
+	ajaxTag.onCompletion = function() {
+		var id = parseInt(ajaxTag.response, 10);
+		if ( 1 == id ) {
+			post = document.getElementById('post-' + postId);
+			Fat.fade_element(post.id,null,700,'#FF0000');
+			thread = post.parentNode;
+			setTimeout('recolorPosts(thread,post)', 705);
+		}
+	}
+	ajaxTag.method = 'POST';
+	ajaxTag.runAJAX(string);
+}
+
+function recolorPosts(thread,post) {
+	var posts = thread.getElementsByTagName('li');
+	var reg_color = false;
+	var alt_color = false;
+	var post_pos = 0;
+	for (var i = 0; i < posts.length; i++) {
+		if ( post.id == posts[i].id ) {
+			post_pos = i;
+		}
+		if (!posts[i].id.match('post-')) {
+			posts.splice(i--,1);
+		} else {
+			if (posts[i].className.match('alt')) {
+				if (!alt_color) {
+					alt_color = Fat.get_bgcolor(posts[i].id);
+				}
+			} else {
+				if (!reg_color) {
+					reg_color = Fat.get_bgcolor(posts[i].id);
+				}
+			}
+		}
+	}
+
+	thread.removeChild(post);
+
+	for (var i = post_pos; i < posts.length; i++) {
+		if ( i % 2 == 0 ) {
+			Fat.fade_element(posts[i].id,null,1000,alt_color,reg_color);
+		} else {
+			Fat.fade_element(posts[i].id,null,1000,reg_color,alt_color);
+		}
+	}
+}

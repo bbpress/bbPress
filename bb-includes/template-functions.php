@@ -55,6 +55,13 @@ function search_form( $q = '' ) {
 	require( BBPATH . '/bb-templates/search-form.php');
 }
 
+function bb_post_template() {
+	global $bb_current_user, $topic, $bb_post, $del_class;
+	if (file_exists( BBPATH . 'my-templates/post.php' ))
+		include( BBPATH . 'my-templates/post.php' );
+	else	include( BBPATH . 'bb-templates/post.php' );
+}
+
 function post_form() {
 	global $bb_current_user, $bb;
 	if ( ( is_topic() && bb_current_user_can('write_posts') ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
@@ -604,9 +611,9 @@ function post_delete_link() {
 		return;
 
 	if ( 0 == $bb_post->post_status )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick='if ( confirm(\"Are you sure you wanna delete that?\") ) { ajaxPostDelete(" . get_post_id() . "); } return false;'>Delete</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;view=deleted' onclick='return confirm(\"Are you sure you wanna undelete that?\")'>Undelete</a>";
 }
 
 function post_author_id() {
