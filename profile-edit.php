@@ -16,8 +16,10 @@ require_once( BBPATH . 'bb-includes/registration-functions.php');
 nocache_headers();
 
 $profile_info_keys = get_profile_info_keys();
-if ( bb_current_user_can('edit_users') )
+if ( bb_current_user_can('edit_users') ) {
 	$profile_admin_keys = get_profile_admin_keys();
+	$assignable_caps = get_assignable_caps();
+}
 $updated = false;
 $user_email = true;
 
@@ -47,6 +49,8 @@ if ($_POST) :
 				$$key = false;
 			endif;
 		endforeach;
+		foreach ( $assignable_caps as $cap => $label )
+			$$cap = ( isset($_POST[$cap]) && $_POST[$cap] ) ? 1 : 0;
 		if ( isset($_POST['user_status']) && '1' == $_POST['user_status'] )
 			$user_status = 1;
 	endif;
@@ -65,15 +69,20 @@ if ($_POST) :
 		endif;
 
 		if ( bb_current_user_can('edit_users') ) :
-			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
-				$user_obj = new BB_User( $user->ID );
+			$user_obj = new BB_User( $user->ID );
+			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) )
 				$user_obj->set_role($role); // Only support one role for now
-			}
 			if ( isset($user_status) && $user_status != $user->user_status )
 				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )
 				if ( $$key != ''  || isset($user->$key) )
 					bb_update_usermeta( $user->ID, $key, $$key );
+			foreach( $assignable_caps as $cap => $label ) :
+				if ( ( !$already = array_key_exists($cap, $user->capabilities) ) && $$cap)
+					$user_obj->add_cap($cap);
+				elseif ( !$$cap && $already )
+					$user_obj->remove_cap($cap);
+			endforeach;
 		endif;
 
 		if ( !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $bb_current_user->ID == $user->ID ) :

@@ -6,6 +6,9 @@ nocache_headers();
 if ( !bb_current_user_can('write_posts') )
 	die('You are not allowed to post.  Are you logged in?');
 
+if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
+	die('Slow down; you move to fast.');
+
 if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	if ( !bb_current_user_can('write_topics') )
 		die('You are not allowed to write new topics.');

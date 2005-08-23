@@ -744,6 +744,8 @@ function bb_new_post( $topic_id, $bb_post ) {
 		$post_ids = get_thread_post_ids( $tid );
 		if ( !in_array($uid, array_slice($post_ids['poster'], 0, -1)) )
 			bb_update_usermeta( $uid, $bb_table_prefix . 'topics_replied', $bb_current_user->data->topics_replied + 1 );
+		if ( !bb_current_user_can('throttle') )
+			bb_update_usermeta( $uid, 'last_posted', time() );
 		bb_do_action('bb_new_post', $post_id);
 		return $post_id;
 	} else {
@@ -1447,6 +1449,13 @@ function get_profile_admin_keys() {
 	return bb_apply_filters(
 		'get_profile_admin_keys',
 		array($bb_table_prefix . 'title' => array(0, __('Custom Title')))
+	);
+}
+
+function get_assignable_caps() {
+	return bb_apply_filters(
+		'get_assignable_caps',
+		array('throttle' => __('Ignore the 30 second post throttling limit'))
 	);
 }
 

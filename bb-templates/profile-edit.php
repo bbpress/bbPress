@@ -38,6 +38,14 @@ endif;
       </select>
   </td>
 </tr>
+<tr class="extra-caps-row">
+  <th scope="row">Allow this user to:</th>
+  <td>
+<?php foreach( $assignable_caps as $cap => $label ) : ?>
+      <label><input name="<?php echo $cap; ?>" value="1" type="checkbox"<?php if ( array_key_exists($cap, $user->capabilities) ) echo ' checked="checked"'; ?> /> <?php echo $label; ?></label><br />
+<?php endforeach; ?>
+  </td>
+</tr>
 <?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
@@ -49,7 +57,7 @@ endif;
 </tr>
 <?php endforeach; endif; ?>
 <tr>
-  <th scope="row">Delete user<sup>**</sup>:</th>
+  <th scope="row">Delete user:</th>
   <td><label for="user_status"><input type="checkbox" name="user_status" id="user_status" value="1" /> Check to delete user.  This cannote be easily undone.</label>
   </td>
 </tr>
@@ -57,8 +65,10 @@ endif;
 <?php if ( $required ) : ?>
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
 <?php endif; ?>
-<p><sup>**</sup>Deletion attributes all content to Anonymous and cannot be easily undone.  To keep proper attribution but still keep a user from logging in, consider changing their user type to "Inactive".</p>
-<p>User types Inactive and Blocked have no practical difference at the moment.  Both can log in and view content.</p>
+<p>Deletion attributes all content to Anonymous and cannot be easily undone.  A Deleted user can do anything any non-logged in person can do.
+A more useful solution to user problems is to change a user's User Type to Inactive or Blocked.
+Inactive users can login and look around but not do anything.  Blocked users just see a simple error message when they visit the site.</p>
+<p><strong>Note</strong>: Blocking a user does <em>not</em> block any IP addresses.</p>
 </fieldset>
 <?php endif; ?>
 

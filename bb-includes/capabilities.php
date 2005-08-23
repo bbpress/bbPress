@@ -46,6 +46,7 @@ class BB_Roles {
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
 						'manage_posts' => true,		// Delete
+						'throttle' => true,		// Post back to back arbitrarily quickly
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
 						'edit_favorites' => true,
@@ -77,6 +78,7 @@ class BB_Roles {
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
 						'manage_posts' => true,
+						'throttle' => true,
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
 						'edit_favorites' => true,
@@ -103,6 +105,7 @@ class BB_Roles {
 						'edit_others_tags' => true,	//+
 						'edit_others_topics' => true,	//+
 						'manage_posts' => true,		//+
+						'throttle' => true,		//+
 						'ignore_edit_lock' => true,	//+
 						'edit_others_posts' => true,	//+
 						'edit_favorites' => true,
@@ -289,7 +292,7 @@ class BB_User {
 	}
 
 	function remove_cap($cap) {
-		if ( empty($this->roles[$cap]) ) return;
+		if ( empty($this->caps[$cap]) ) return;
 		unset($this->caps[$cap]);
 		bb_update_usermeta($this->id, $this->cap_key, $this->caps);
 	}
