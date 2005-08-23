@@ -897,7 +897,7 @@ function topic_is_open ( $topic_id ) {
 
 function topic_is_sticky ( $topic_id ) {
 	$topic = get_topic( $topic_id );
-	if ( 1 == $topic->topic_sticky )
+	if ( '0' !== $topic->topic_sticky )
 		return true;
 	else
 		return false;
