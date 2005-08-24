@@ -27,6 +27,7 @@ function getPostsAndColors() {
 
 function newTagAddIn() {
 	newtag = document.getElementById('tag');
+	if (!newtag) return;
 	newtag.setAttribute('autocomplete', 'off');
 	newtag.onkeypress = ajaxNewTagKeyPress;
 
@@ -44,6 +45,7 @@ function favoritesAddIn() {
 
 function resolutionAddIn() {
 	var resolvedSub = document.getElementById('resolvedformsub');
+	if (!resolvedSub) return;
 	resolvedSub.type = 'button';
 	resolvedSub.onclick = resolveTopic;
 }
