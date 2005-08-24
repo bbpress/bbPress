@@ -1,7 +1,11 @@
-var ajaxTag = new sack();
+var ajaxTag;
+var ajaxFav;
+var ajaxRes;
 var newtag;
 var tagId;
 var userId;
+
+var ajaxPost;
 var thread;
 var posts = new Array();
 var postContent = false;
@@ -10,6 +14,7 @@ var alt_color = false;
 var postsToBeDeleted = new Array();
  
 function getPostsAndColors() {
+	if (thread) return;
 	thread = document.getElementById('thread');
 	var liList = thread.getElementsByTagName('li');
 	for (var i = 0; i < liList.length; i++ ) {
@@ -55,50 +60,67 @@ function newPostAddIn() {
 addLoadEvent(newTagAddIn);
 addLoadEvent(favoritesAddIn);
 addLoadEvent(resolutionAddIn);
-addLoadEvent(getPostsAndColors);
 addLoadEvent(newPostAddIn);
 
-function getResponseElement() {
-	var p = document.getElementById('ajaxtagresponse');
-	if (!p) {
-		p = document.createElement('p');
-		document.getElementById('tags').appendChild(p);
-		p.id = 'ajaxtagresponse';
+function getResponseElement(type) {
+	switch (type) {
+	case 'post-add':
+		var s = document.getElementById('ajaxpostresponse');
+		if (!s) {
+			s = document.createElement('span');
+			document.getElementById('postformsub').parentNode.appendChild(s);
+			s.id = 'ajaxpostresponse';
+		}
+		return s;
+		break;
+	case 'tag':
+		var p = document.getElementById('ajaxtagresponse');
+		if (!p) {
+			p = document.createElement('p');
+			document.getElementById('tags').appendChild(p);
+			p.id = 'ajaxtagresponse';
+		}
+		return p;
+		break;
+	case 'fav':
+		return document.getElementById('favoritestoggle');
+		break;
+	case 'res':
+		var s = document.getElementById('ajaxresresponse');
+		if (!s) {
+			var s = document.createElement('span');
+			document.getElementById('resolutionflipper').appendChild(s);
+			s.id = 'ajaxtagresponse';
+		}
+		return s;
+		break;
+	case 'post-del':
+		var l = document.getElementById('ajaxpostdelresponse');
+		if (!s) {
+			l = document.createElement('li');
+			document.getElementById('favoritestoggle').parentNode.appendChild(l);
+			l.id = 'ajaxpostdelresponse';
+		}
+		return l;
+		break;
 	}
-	return p;
-}
-
-function newTagLoading() {
-	var p = getResponseElement();
-	p.innerHTML = 'Sending Data...';
-}
-
-function newTagLoaded() {
-	var p = getResponseElement();
-	p.innerHTML = 'Data Sent...';
-}
-
-function newTagInteractive() {
-	var p = getResponseElement();
-	p.innerHTML = 'Processing Data...';
 }
 
 function newTagCompletion() {
-	var p = getResponseElement();
 	var id = parseInt(ajaxTag.response, 10);
 	var tagId = ajaxTag.responseXML.getElementsByTagName('id')[0].firstChild.nodeValue;
 	var userId = ajaxTag.responseXML.getElementsByTagName('user')[0].firstChild.nodeValue;
 	var raw = ajaxTag.responseXML.getElementsByTagName('raw')[0].firstChild.nodeValue;
 	var cooked = ajaxTag.responseXML.getElementsByTagName('cooked')[0].firstChild.nodeValue;
 	if (id == '-1') {
-		p.innerHTML = "You don't have permission to do that.";
+		ajaxTagmyResponseElement.innerHTML = "You don't have permission to do that.";
 		return;
 	}
 	if (id == '0') {
-		p.innerHTML = "Tag not added. Try something else.";
+		ajaxTag.myResponseElement.innerHTML = "Tag not added. Try something else.";
 		return;
 	}
-	p.parentNode.removeChild(p);
+	ajaxTag.myResponseElement.parentNode.removeChild(ajaxTag.myResponseElement);
 	var yourTags = document.getElementById('yourtags');
 	if (!yourTags) {
 		var tags = document.getElementById('tags');
@@ -143,118 +165,90 @@ function ajaxNewTagKeyPress(e) {
 }
 
 function delTagCompletion() {
-	var p = getResponseElement();
 	var id = parseInt(ajaxTag.response, 10);
 	var tagId = ajaxTag.responseXML.getElementsByTagName('id')[0].firstChild.nodeValue;
 	var userId = ajaxTag.responseXML.getElementsByTagName('user')[0].firstChild.nodeValue;
 	if (id == '-1') {
-		p.innerHTML = "You don't have permission to do that.";
+		ajaxTag.myResponseElement.innerHTML = "You don't have permission to do that.";
 		return;
 	}
 	if (id == '0') {
-		p.innerHTML = "Tag not removed. Try something else.";
+		ajaxTag.myResponseElement.innerHTML = "Tag not removed. Try something else.";
 		return;
 	}
-	p.parentNode.removeChild(p);
+	ajaxTag.myResponseElement.parentNode.removeChild(ajaxTag.myResponseElement);
 	oldTag = document.getElementById('tag-' + tagId + '-' + userId);
 	Fat.fade_element(oldTag.id,null,700,'#FF3333');
 	setTimeout('oldTag.parentNode.removeChild(oldTag)', 705);
 }
 
 function ajaxNewTag() {
-	var tagString = 'tag=' + encodeURIComponent(newtag.value) + '&id=' + topicId + '&action=tag-add';
-	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
+	ajaxTag = new sack(uriBase + 'topic-ajax.php');
+	ajaxTag.myResponseElement = getResponseElement('tag');
+	ajaxTag.encodeURIString = false;
 	ajaxTag.method = 'POST';
-	ajaxTag.onLoading = newTagLoading;
-	ajaxTag.onLoaded = newTagLoaded;
-	ajaxTag.onInteractive = newTagInteractive;
+	ajaxTag.onLoading = function() { ajaxTag.myResponseElement.innerHTML = 'Sending Data...'; };
+	ajaxTag.onLoaded = function() { ajaxTag.myResponseElement.innerHTML = 'Data Sent...'; };
+	ajaxTag.onInteractive = function() { ajaxTag.myResponseElement.innerHTML = 'Processing Data...'; };
 	ajaxTag.onCompletion = newTagCompletion;
-	ajaxTag.runAJAX(tagString);
+	ajaxTag.runAJAX('tag=' + encodeURIComponent(newtag.value) + '&id=' + topicId + '&action=tag-add');
 }
 
-function ajaxDelTag(tag, user, event) {
+function ajaxDelTag(tag, user) {
+	ajaxTag = new sack(uriBase + 'topic-ajax.php');
+	ajaxTag.myResponseElement = getResponseElement('tag');
 	tagId = tag;
 	userId = user;
-	var tagString = 'tag=' + tagId + '&user=' + userId + '&topic=' + topicId + '&action=tag-remove';
-	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
 	ajaxTag.method = 'POST';
-	ajaxTag.onLoading = newTagLoading;
-	ajaxTag.onLoaded = newTagLoaded;
-	ajaxTag.onInteractive = newTagInteractive;
+	ajaxTag.onLoading = function() { ajaxTag.myResponseElement.innerHTML = 'Sending Data...'; };
+	ajaxTag.onLoaded = function() { ajaxTag.myResponseElement.innerHTML = 'Data Sent...'; };
+	ajaxTag.onInteractive = function() { ajaxTag.myResponseElement.innerHTML = 'Processing Data...'; };
 	ajaxTag.onCompletion = delTagCompletion;
-	ajaxTag.runAJAX(tagString);
-}
-
-function FavLoading() {
-	document.getElementById('favoritestoggle').innerHTML = 'Sending Data...';
-}
-
-function FavLoaded() {
-	document.getElementById('favoritestoggle').innerHTML = 'Data Sent...';
-}
-
-function FavInteractive() {
-	document.getElementById('favoritestoggle').innerHTML = 'Processing Data...';
-}
-
-function removeFavCompletion() {
-	var id = parseInt(ajaxTag.response, 10);
-	if (1 == id) {
-		isFav = 0;
-		favoritesAddIn();
-		Fat.fade_element('favoritestoggle');
-	}
-}
-
-function addFavCompletion() {
-	var id = parseInt(ajaxTag.response, 10);
-	if (1 == id) {
-		isFav = 1;
-		favoritesAddIn();
-		Fat.fade_element('favoritestoggle');
-	}
+	ajaxTag.runAJAX('tag=' + tagId + '&user=' + userId + '&topic=' + topicId + '&action=tag-remove');
 }
 
 function FavIt(id, addFav) {
-	var string = 'topic_id=' + id + '&user_id=' + currentUserId + '&action=';
-	if (addFav) {
-		string = string + 'favorite-add';
-		ajaxTag.onCompletion = addFavCompletion;
-	} else {
-		string = string + 'favorite-remove';
-		ajaxTag.onCompletion = removeFavCompletion;
+	ajaxFav = new sack(uriBase + 'topic-ajax.php');
+	ajaxFav.myResponseElement = getResponseElement('fav');
+	if (addFav) string = 'favorite-add';
+	else string = 'favorite-remove';
+	ajaxFav.onLoading = function() { ajaxFav.myResponseElement.innerHTML = 'Sending Data...'; };
+	ajaxFav.onLoaded = function() { ajaxFav.myResponseElement.innerHTML = 'Data Sent...'; };
+	ajaxFav.onInteractive = function() { ajaxFav.myResponseElement.innerHTML = 'Processing Data...'; };
+	ajaxFav.onCompletion = function() {
+		var id = parseInt(ajaxFav.response, 10);
+		if (1 == id) {
+			if (addFav) isFav = 1;
+			else isFav = 0;
+			favoritesAddIn();
+			Fat.fade_element('favoritestoggle');
+		} else {
+			ajaxFav.myResponseElement.innerHTML = 'Something odd happened.';
+		}
 	}
-	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
-	ajaxTag.onLoading = FavLoading;
-	ajaxTag.onLoaded = FavLoaded;
-	ajaxTag.onInteractive = FavInteractive;
-	ajaxTag.method = 'POST';
-	ajaxTag.runAJAX(string);
+	ajaxFav.method = 'POST';
+	ajaxFav.runAJAX('topic_id=' + id + '&user_id=' + currentUserId + '&action=' + string);
 }
 
 function resolveTopic(event) {
+	ajaxRes = new sack(uriBase + 'topic-ajax.php');
+	ajaxRes.myResponseElement = getResponseElement('res');
 	var resolvedSel = document.getElementById('resolvedformsel');
-	var string = 'id=' + topicId + '&resolved=' + resolvedSel.value + '&action=topic-resolve';
-	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
-	ajaxTag.onLoading = function() {};
-	ajaxTag.onLoaded = function() {};
-	ajaxTag.onInteractive = function() {};
-	ajaxTag.onCompletion = function() {
-		var id = parseInt(ajaxTag.response, 10);
+	ajaxRes.onLoading = function() { ajaxRes.myResponseElement.innerHTML = '<br />Sending Data...'; };
+	ajaxRes.onLoaded = function() { ajaxRes.myResponseElement.innerHTML = '<br />Data Sent...'; };
+	ajaxRes.onInteractive = function() { ajaxRes.myResponseElement.innerHTML = '<br />Processing Data...'; };
+	ajaxRes.onCompletion = function() {
+		var id = parseInt(ajaxRes.response, 10);
 		if (1 == id) {
+			ajaxRes.myResponseElement.parentNode.removeChild(ajaxRes.myResponseElement);
 			Fat.fade_element('resolutionflipper');
 			Fat.fade_element('resolvedformsel');
+		} else {
+			ajaxRes.myResponseElement.innerHTML = '<br />Something odd happened.';
 		}
 	}
-	ajaxTag.method = 'POST';
-	ajaxTag.runAJAX(string);
-//	if (!event) {
-//		if (window.event) event = window.event;
-//		else return;
-//	}
-//	event.returnValue = false;
-//	event.cancelBubble = true;
-//	return false;
+	ajaxRes.method = 'POST';
+	ajaxRes.runAJAX('id=' + topicId + '&resolved=' + resolvedSel.value + '&action=topic-resolve');
 }
 
 function recolorPosts(post_pos,dur,from) {
@@ -285,34 +279,42 @@ function getPostPos(id) {
 }	
 
 function ajaxPostDelete(postId) {
-	var string = 'id=' + postId + '&page=' + page + '&last_mod=' + lastMod + '&action=post-delete';
-	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
-	ajaxTag.onLoading = function() {};
-	ajaxTag.onLoaded = function() {};
-	ajaxTag.onInteractive = function() {};
-	ajaxTag.onCompletion = function() {
-		var id = parseInt(ajaxTag.response, 10);
+	getPostsAndColors();
+	ajaxPost = new sack(uriBase + 'topic-ajax.php');
+	ajaxPost.myResponseElement = getResponseElement('post-del');
+	ajaxPost.onLoading = function() { ajaxPost.myResponseElement.innerHTML = 'Sending Data...'; };
+	ajaxPost.onLoaded = function() { ajaxPost.myResponseElement.innerHTML = 'Data Sent...'; };
+	ajaxPost.onInteractive = function() { ajaxPost.myResponseElement.innerHTML = 'Processing Data...'; };
+	ajaxPost.onCompletion = function() {
+		var id = parseInt(ajaxPost.response, 10);
 		if (1 == id) deletePost('post-' +postId);
-		else if (ajaxTag.responseXML) mergeThread();
+		else if (ajaxPost.responseXML) mergeThread();
+		else { ajaxPost.myResponseElement.innerHTML = 'Something odd happened.'; return; }
+		ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement);
 	}
-	ajaxTag.method = 'POST';
-	ajaxTag.runAJAX(string);
+	ajaxPost.method = 'POST';
+	ajaxPost.runAJAX('id=' + postId + '&page=' + page + '&last_mod=' + lastMod + '&action=post-delete');
 }
 
 function ajaxNewPost() {
+	getPostsAndColors();
+	ajaxPost = new sack(uriBase + 'topic-ajax.php');
+	ajaxPost.myResponseElement = getResponseElement('post-add');
 	var string = 'topic_id=' + topicId + '&post_content=' + encodeURIComponent(postContent.value) + '&page=' + page + '&last_mod=' + lastMod + '&action=post-add';
-	ajaxTag.requestFile = uriBase + 'topic-ajax.php';
-	ajaxTag.onLoading = function() {};
-	ajaxTag.onLoaded = function() {};
-	ajaxTag.onInteractive = function() {};
-	ajaxTag.onCompletion = function() {
-		var id = parseInt(ajaxTag.response, 10);
-		if ( 0 == id ||  -1 == id || -2 == id || -3 == id ) alert(id);
-		if ( ajaxTag.responseXML.getElementsByTagName('thread')[0] ) mergeThread();
+	ajaxPost.encodeURIString = false;
+	ajaxPost.onLoading = function() { ajaxPost.myResponseElement.innerHTML = 'Sending Data...'; };
+	ajaxPost.onLoaded = function() { ajaxPost.myResponseElement.innerHTML = 'Data Sent...'; };
+	ajaxPost.onInteractive = function() { ajaxPost.myResponseElement.innerHTML = 'Processing Data...'; };
+	ajaxPost.onCompletion = function() {
+		var id = parseInt(ajaxPost.response, 10);
+		if ( 0 == id ||  -1 == id || -2 == id || -3 == id ) { ajaxPost.myResponseElement.innerHTML = 'Something odd (#' + id + ') happened.'; return; }
+		if ( ajaxPost.responseXML.getElementsByTagName('thread')[0] ) mergeThread();
 		else appendPost();
+		ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement);
+		postContent.value = '';
 	}
-	ajaxTag.method = 'POST';
-	ajaxTag.runAJAX(string);
+	ajaxPost.method = 'POST';
+	ajaxPost.runAJAX(string);
 }
 
 function deletePost(id,norecolor) {
@@ -329,16 +331,16 @@ function deletePost(id,norecolor) {
 function appendPost() {
 	var thread = document.getElementById('thread');
 	var newPost = document.createElement('li');
-	postId = ajaxTag.responseXML.getElementsByTagName('id')[0].firstChild.data;
+	postId = ajaxPost.responseXML.getElementsByTagName('id')[0].firstChild.data;
 	newPost.id = 'post-' + postId;
-	newPost.innerHTML = ajaxTag.responseXML.getElementsByTagName('templated')[0].firstChild.data;
+	newPost.innerHTML = ajaxPost.responseXML.getElementsByTagName('templated')[0].firstChild.data;
 	thread.appendChild(newPost);
 	posts.push(newPost.id);
 	recolorPosts(posts.length - 1,null,'#FFFF33');
 }
 
 function mergeThread() {
-	newThread = ajaxTag.responseXML.getElementsByTagName('thread')[0];
+	newThread = ajaxPost.responseXML.getElementsByTagName('thread')[0];
 	newPosts = newThread.getElementsByTagName('post');
 	newPostList = new Array();
 	for (var i = 0; i < newPosts.length; i++) {
