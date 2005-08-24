@@ -3,6 +3,7 @@ require('bb-config.php');
 
 if ( !$bb_current_user )
 	die('-1');
+define('DOING_AJAX', true);
 
 function grab_results() {
 	global $ajax_results;
@@ -33,7 +34,7 @@ case 'tag-add' :
 		$new_tag = get_tag( $ajax_results['tag_id'] );
 		header('Content-type: text/xml');
 		$new_tag->raw_tag = bb_specialchars($new_tag->raw_tag);
-		die("<tag><id>$new_tag->tag_id</id><user>{$ajax_results['user_id']}</user><raw>$new_tag->raw_tag</raw><cooked>$new_tag->tag</cooked></tag>");
+		die("<?xml version='1.0' standalone='yes'?><tag><id>$new_tag->tag_id</id><user>{$ajax_results['user_id']}</user><raw>$new_tag->raw_tag</raw><cooked>$new_tag->tag</cooked></tag>");
 	} else {
 		die('0');
 	}
@@ -55,7 +56,7 @@ case 'tag-remove' :
 		die('0');
 	if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) ) {
 		header('Content-type: text/xml');
-		die("<tag><id>{$ajax_results['tag_id']}</id><user>{$ajax_results['user_id']}</user></tag>");
+		die("<?xml version='1.0' standalone='yes'?><tag><id>{$ajax_results['tag_id']}</id><user>{$ajax_results['user_id']}</user></tag>");
 	} else {
 		die('0');
 	}
@@ -112,6 +113,8 @@ case 'topic-resolve' :
 
 case 'post-delete' :
 	$post_id = (int) $_POST['id'];
+	$page = (int) $_POST['page'];
+	$last_mod = (int) $_POST['last_mod'];
 	if ( !bb_current_user_can('manage_posts') )
 		die('-1');
 
@@ -120,10 +123,71 @@ case 'post-delete' :
 	if ( !$bb_post )
 		die('0');
 
-	if ( bb_delete_post( $post_id ) )
-		die('1');
-	else	die('0');
+	$topic = get_topic( $bb_post->topic_id );
+
+	if ( bb_delete_post( $post_id ) ) :
+		if ( $last_mod < strtotime($topic->topic_time . ' +0000') ) :
+			bb_ajax_thread( $topic->topic_id, $page );
+		else :
+			die('1');
+		endif;
+	else :	die('0');
+	endif;
+	break;
+
+case 'post-add' :
+	$topic_id = (int) $_POST['topic_id'];
+	$page = (int) $_POST['page'];
+	$last_mod = (int) $_POST['last_mod'];
+	$need_thread = false;
+	if ( !bb_current_user_can('write_posts') )
+		die('-1');
+	if ( !$topic = get_topic( $topic_id ) )
+		die('0');
+	if ( !topic_is_open( $topic_id ) )
+		die('-2');
+	if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
+		die('-3');
+
+	if ( $last_mod < strtotime($topic->topic_time . ' +0000') )
+		$need_thread = true;
+
+	if ( !$post_id = bb_new_post( $topic_id, rawurldecode($_POST['post_content']) ) )
+		die('0');
+
+	$bb_post = bb_get_post( $post_id );
+
+	if ( !$need_thread ) :
+		header('Content-type: text/xml');
+		echo "<?xml version='1.0' standalone='yes'?><post><id>$post_id</id><templated><![CDATA[";
+		bb_post_template();
+		echo ']]></templated></post>';
+		exit;
+	else :
+		bb_ajax_thread( $bb_post->topic_id, $page );
+	endif;
 	break;
 
 endswitch;
+
+function bb_ajax_thread( $topic_id, $page ) {
+	global $bb_post;
+	$topic_id = (int) $topic_id;
+	$page = (int) $page;
+
+	if ( !$thread = get_thread( $topic_id, $page ) )
+		die('0');
+
+	header('Content-type: text/xml');
+	echo "<?xml version='1.0' standalone='yes'?><thread><id>$topic_id</id><page>$page</page>";
+
+	foreach ( $thread as $bb_post ) :
+		echo "<post><id>$bb_post->post_id</id><templated><![CDATA[";
+		bb_post_template();
+		echo ']]></templated></post>';
+	endforeach;
+
+	echo '</thread>';
+	exit;
+}
 ?>

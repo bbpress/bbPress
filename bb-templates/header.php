@@ -22,6 +22,8 @@
 			}
 		}
 
+		var lastMod = <?php echo strtotime($topic->topic_time . ' +0000'); ?>;
+		var page = <?php global $page; echo $page; ?>;
 		var currentUserId = <?php echo $bb_current_user->ID; ?>;
 		var topicId = <?php topic_id(); ?>;
 		var uriBase = '<?php option('uri'); ?>';

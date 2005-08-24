@@ -91,20 +91,23 @@ function encode_bad( $text) {
 }
 
 function bb_filter_kses($data) {
-	$allowedtags = array(
-		'a' => array(
-			'href' => array(),
-			'title' => array(),
-			'rel' => array()),
-		'blockquote' => array('cite' => array()),
-		'br' => array(),
-		'code' => array(),
-		'em' => array(),
-		'strong' => array(),
-		'ul' => array(),
-		'ol' => array(),
-		'li' => array()
-	);
+	global $allowedtags;
+	if ( !isset($allowedtags) || !is_array($allowedtags) ) :	
+		$allowedtags = array(
+			'a' => array(
+				'href' => array(),
+				'title' => array(),
+				'rel' => array()),
+			'blockquote' => array('cite' => array()),
+			'br' => array(),
+			'code' => array(),
+			'em' => array(),
+			'strong' => array(),
+			'ul' => array(),
+			'ol' => array(),
+			'li' => array()
+		);
+	endif;
 
 	if ( !function_exists('wp_kses') )
 		require_once( BBPATH . '/bb-includes/kses.php');

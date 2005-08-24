@@ -862,7 +862,7 @@ function bb_update_post( $bb_post, $post_id ) {
 }
 
 function get_post_link( $post_id ) {
-	global $bbdb, $bb_post;
+	global $bb_post;
 	$post_id = (int) $post_id;
 	if ( $post_id )
 		$bb_post = bb_get_post( $post_id );

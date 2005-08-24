@@ -60,15 +60,15 @@ function search_form( $q = '' ) {
 }
 
 function bb_post_template() {
-	global $bb_current_user, $topic, $bb_post, $del_class;
+	global $bb_current_user, $topic, $bb_post;
 	if (file_exists( BBPATH . 'my-templates/post.php' ))
 		include( BBPATH . 'my-templates/post.php' );
 	else	include( BBPATH . 'bb-templates/post.php' );
 }
 
 function post_form() {
-	global $bb_current_user, $bb;
-	if ( ( is_topic() && bb_current_user_can('write_posts') ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
+	global $bb_current_user, $bb, $page, $topic;
+	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
 		include( BBPATH . '/bb-templates/post-form.php');
 	} elseif( !$bb_current_user ) {
 		echo "<p>You must login to post.</p>";
@@ -535,6 +535,13 @@ function get_post_id() {
 	global $bb_post;
 	return $bb_post->post_id;
 }
+
+function post_anchor_link( $force_full = false ) {
+	if ( defined('DOING_AJAX') || $force_full )
+		post_link();
+	else	echo '#post-'; post_id();
+}
+
 
 function post_author() {
 	echo bb_apply_filters('post_author', get_post_author() );

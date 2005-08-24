@@ -26,12 +26,11 @@
 </div>
 <ol id="thread" start="<?php echo $list_start; ?>">
 
-<?php
-foreach ($posts as $bb_post) :
-$del_class = ( $bb_post->post_status ) ? 'deleted' : '';
-bb_post_template();
-endforeach;
-?>
+<?php foreach ($posts as $bb_post) : $del_class = ( $bb_post->post_status ) ? 'deleted' : ''; ?>
+	<li id="post-<?php post_id(); ?>"<?php alt_class('post', $del_class); ?>>
+<?php bb_post_template(); ?>
+	</li>
+<?php endforeach; ?>
 
 </ol>
 <div class="clearit"><br style=" clear: both;" /></div>
