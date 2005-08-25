@@ -18,20 +18,6 @@
 <?php if ( $bb_posts = get_recently_moderated_posts() ) : foreach ( $bb_posts as $bb_post ) : ?>
  <li><a href="<?php echo bb_add_query_arg('view', 'deleted', get_post_link( $bb_post->post_id )); ?>">Post</a> on <a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a> by <a href="<?php user_profile_link( $bb_post->poster_id ); ?>"><?php post_author(); ?></a>.</li>
 <?php endforeach; endif; ?>
-
-<h3>Flagged</h3>
-<h4>Posts</h4>
-<ul class="posts">
-<?php if ( false && $flagged = get_recently_flagged_posts() ) : foreach ( $flagged as $bb_post ) : ?>
- <li>Some stuff</li>
-<?php endforeach; endif; ?>
-</ul>
-
-<h4>Users</h4>
-<ul class="users">
-<?php if ( false && $flagged = get_recently_flagged_users() ) : foreach ( $flagged as $bb_post ) : ?>
- <li>Some stuff</li>
-<?php endforeach; endif; ?>
 </ul>
 </div>
 

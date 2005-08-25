@@ -436,16 +436,13 @@ function bb_get_uri_page() {
 }	
 
 function post_author_cache($posts) {
-	global $bbdb, $bb_user_cache;
+	global $bb_user_cache;
 	foreach ($posts as $bb_post)
 		if ( 0 != $bb_post->poster_id )
 			if ( !isset($bb_user_cache[$bb_post->poster_id]) ) // Don't cache what we already have
 				$ids[] = $bb_post->poster_id;
-	if ( isset($ids) ) {
-		$ids = join(',', $ids);
-		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids) AND user_status % 2 = 0");
-		bb_append_meta( $users, 'user' );
-	}
+	if ( isset($ids) )
+		bb_get_users($ids, false); // false since we've already checked for cached data.
 }
 
 function bb_current_time( $type = 'timestamp' ) {
@@ -494,6 +491,19 @@ function bb_get_user( $user_id, $cache = true ) {
 			$bb_user_cache[$user_id] = false;
 			return false;
 		endif;
+	endif;
+}
+
+function bb_get_users( $ids, $cache = true ) {
+	global $bbdb;
+	if ( $cache )
+		foreach( $ids as $i => $d )
+			if ( isset($bb_user_cache[$d]) )
+				unset($ids[i]); // Don't cache what we already have
+	if ( 0 < count($ids) ) :
+		$ids = join(',', $ids);
+		$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($ids) AND user_status % 2 = 0");
+		return bb_append_meta( $users, 'user' );
 	endif;
 }
 
@@ -576,6 +586,43 @@ function update_user_status( $user_id, $status = 0 ) {
 	if ( $user->ID != $bb_current_user->ID && bb_current_user_can('edit_users') )
 		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
 	return;
+}
+
+function bb_flag_user( $user_id, $flag = 'spam' ) {
+	global $bbdb, $bb_current_user;
+	$user_id = (int) $user_id;
+	if ( !$flag = tag_sanitize($flag) )
+		return false;
+	if ( !bb_current_user_can('flag_users') )
+		return false;
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+
+	if ( isset($user->{'flagged_' . $flag}[$bb_current_user->ID]) )
+		return true;
+	$user->{'flagged_' . $flag}[$bb_current_user->ID] = true;
+
+	bb_update_meta( $user_id, 'flagged_' . $flag, $user->{'flagged_' . $flag}, 'user' );
+	bb_update_meta( $user_id, 'flagged_count_' . $flag, count($user->{'flagged_' . $flag}), 'user' );
+	bb_do_action( 'bb_flag_user', array($user_id, $flag) );
+}
+
+function bb_unflag_user( $user_id, $flag = 'spam' ) {
+	global $bbdb, $bb_current_user;
+	$user_id = (int) $user_id;
+	if ( !$flag = tag_sanitize($flag) )
+		return false;
+	if ( !bb_current_user_can('flag_users') )
+		return false;
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+
+	unset($user->{'flagged_' . $flag}[$bb_current_user->ID]);
+
+	bb_update_meta( $user_id, 'flagged_' . $flag, $user->{'flagged_' . $flag}, 'user' );
+	bb_update_meta( $user_id, 'flagged_count_' . $flag, count($user->{'flagged_' . $flag}), 'user' );
+	bb_do_action( 'bb_flag_user', array($user_id,$flag) );
+	return true;
 }
 
 function bb_update_usermeta( $user_id, $meta_key, $meta_value ) {
@@ -1242,7 +1289,7 @@ function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 }
 
 function bb_find_filename( $text ) { 
-	$text = preg_replace('|.*?/([a-z]+\.php)/?.*|', '$1', $text);
+	$text = preg_replace('|.*?/([a-z\-]+\.php)/?.*|', '$1', $text);
 	return $text;
 }
 
@@ -1259,7 +1306,6 @@ function bb_repermalink() {
 	if ( isset($_GET['id']) )
 		$permalink = (int) $_GET['id'];
 	else	$permalink = intval( get_path() );
-	$page = bb_get_uri_page();
 
 	if ( is_forum() ) {
 		global $forum_id;

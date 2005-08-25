@@ -720,6 +720,19 @@ function get_user_name( $id ) {
 	return $user->user_login;
 }
 
+function user_flag_link( $user_id, $flag = 'spam', $pre = '[', $mid0 = '!', $mid1 = '&#161;', $post = ']') {
+	global $bb_current_user;
+	$user_id = (int) $user_id;
+	if ( !bb_current_user_can('flag_users') )
+		return false;
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+
+	if ( isset($user->{'flagged_' . $flag}[$bb_current_user->ID]) )
+		echo "$pre<a class='unflag $flag' href='" . bb_get_option('uri') . "bb-flag.php?user=$user_id&#038;unflag=$flag' title='Unflag this post as $flag'>$mid1</a>$post";
+	else	echo "$pre<a class='flag $flag' href='" . bb_get_option('uri') . "bb-flag.php?user=$user_id&#038;flag=$flag' title='Flag this post as $flag'>$mid0</a>$post";
+}
+
 function profile_pages() {
 	global $user, $page;
 	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $user->topics_replied ) );

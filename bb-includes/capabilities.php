@@ -49,6 +49,8 @@ class BB_Roles {
 						'throttle' => true,		// Post back to back arbitrarily quickly
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
+						'flag_users' => true,
+						'flag_posts' => true,
 						'edit_favorites' => true,
 						'edit_tags' => true,
 						'edit_topics' => true,		// Edit title, resolution status
@@ -81,6 +83,8 @@ class BB_Roles {
 						'throttle' => true,
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
+						'flag_users' => true,
+						'flag_posts' => true,
 						'edit_favorites' => true,
 						'edit_tags' => true,
 						'edit_topics' => true,
@@ -108,6 +112,8 @@ class BB_Roles {
 						'throttle' => true,		//+
 						'ignore_edit_lock' => true,	//+
 						'edit_others_posts' => true,	//+
+						'flag_users' => true,
+						'flag_posts' => true,
 						'edit_favorites' => true,
 						'edit_tags' => true,
 						'edit_topics' => true,
@@ -123,6 +129,8 @@ class BB_Roles {
 					'capabilities' => array(
 						'participate' => true,
 
+						'flag_users' => true,
+						'flag_posts' => true,
 						'edit_favorites' => true,
 						'edit_tags' => true,
 						'edit_topics' => true,
