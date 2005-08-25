@@ -102,22 +102,4 @@ function get_recently_moderated_posts( $num = 10 ) {
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status <> 0 ORDER BY post_time DESC LIMIT $num"); // post_time != moderation_time;
 }
 
-function count_flagged_users( $flag = 'spam' ) {
-	global $bbdb;
-	$key = 'flagged_count_' . tag_sanitize($flag);
-	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value > 0");
-}
-function get_most_flagged_users( $flag = 'spam', $page = 1, $num = 10 ) {
-	global $bbdb;
-	$key = 'flagged_count_' . tag_sanitize($flag);
-	if ( 1 < $page )
-		$num = ($num * ($page - 1)) . ", $num";
-	if ( $users = $bbdb->get_results("SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value > 0 ORDER BY meta_value DESC LIMIT $num") ) :
-		$ids = $bbdb->get_col('');
-		bb_get_users($ids);
-		return $users;
-	else : return false; endif;
-}
-
-
 ?>

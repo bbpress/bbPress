@@ -106,7 +106,4 @@ $bb_current_user = bb_current_user();
 
 if ( $bb_current_user && !bb_current_user_can('read') )
 	die("You've been blocked.  If you think a mistake has been made, contact this site's administrator.");
-
-$page = bb_get_uri_page();
-
 ?>
