@@ -588,43 +588,6 @@ function update_user_status( $user_id, $status = 0 ) {
 	return;
 }
 
-function bb_flag_user( $user_id, $flag = 'spam' ) {
-	global $bbdb, $bb_current_user;
-	$user_id = (int) $user_id;
-	if ( !$flag = tag_sanitize($flag) )
-		return false;
-	if ( !bb_current_user_can('flag_users') )
-		return false;
-	if ( !$user = bb_get_user( $user_id ) )
-		return false;
-
-	if ( isset($user->{'flagged_' . $flag}[$bb_current_user->ID]) )
-		return true;
-	$user->{'flagged_' . $flag}[$bb_current_user->ID] = true;
-
-	bb_update_meta( $user_id, 'flagged_' . $flag, $user->{'flagged_' . $flag}, 'user' );
-	bb_update_meta( $user_id, 'flagged_count_' . $flag, count($user->{'flagged_' . $flag}), 'user' );
-	bb_do_action( 'bb_flag_user', array($user_id, $flag) );
-}
-
-function bb_unflag_user( $user_id, $flag = 'spam' ) {
-	global $bbdb, $bb_current_user;
-	$user_id = (int) $user_id;
-	if ( !$flag = tag_sanitize($flag) )
-		return false;
-	if ( !bb_current_user_can('flag_users') )
-		return false;
-	if ( !$user = bb_get_user( $user_id ) )
-		return false;
-
-	unset($user->{'flagged_' . $flag}[$bb_current_user->ID]);
-
-	bb_update_meta( $user_id, 'flagged_' . $flag, $user->{'flagged_' . $flag}, 'user' );
-	bb_update_meta( $user_id, 'flagged_count_' . $flag, count($user->{'flagged_' . $flag}), 'user' );
-	bb_do_action( 'bb_flag_user', array($user_id,$flag) );
-	return true;
-}
-
 function bb_update_usermeta( $user_id, $meta_key, $meta_value ) {
 	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
