@@ -366,6 +366,9 @@ function bb_get_option( $option ) {
 	case 'edit_lock' :
 		return $bb->edit_lock;
 		break;
+	case 'version' :
+		return 'Version e<sup>i&#960;</sup>+1... and a half&#8212;&#945;';
+		break; 
 	endswitch;
 }
 

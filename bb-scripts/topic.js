@@ -254,6 +254,8 @@ function resolveTopic(event) {
 }
 
 function recolorPosts(post_pos,dur,from) {
+alert(reg_color);
+alert(alt_color);
 	if (!post_pos) post_pos = 0;
 
 	if (!from) {
@@ -263,7 +265,6 @@ function recolorPosts(post_pos,dur,from) {
 		reg_from = from;
 		alt_from = from;
 	}
-
 	for (var i = post_pos; i < posts.length; i++) {
 		if (i % 2 == 0) Fat.fade_element(posts[i],null,dur,reg_from,reg_color);
 		else Fat.fade_element(posts[i],null,dur,alt_from,alt_color);
