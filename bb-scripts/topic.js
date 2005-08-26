@@ -254,8 +254,6 @@ function resolveTopic(event) {
 }
 
 function recolorPosts(post_pos,dur,from) {
-alert(reg_color);
-alert(alt_color);
 	if (!post_pos) post_pos = 0;
 
 	if (!from) {
