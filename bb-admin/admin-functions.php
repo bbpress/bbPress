@@ -24,12 +24,10 @@ function bb_admin_menu_generator() {
 	$bb_submenu['users.php'][10] = array(__('Staff'), 'moderate', 'users-staff.php');
 	$bb_submenu['users.php'][15] = array(__('Blocked'), 'moderate', 'users-blocked.php');
 	$bb_submenu['users.php'][20] = array(__('Bozos'), 'moderate', 'users-bozoes.php');
-	$bb_submenu['users.php'][25] = array(__('Flagged'), 'moderate', 'users-flagged.php'); // Need little (#) here and elsewhere
 
-	$bb_submenu['content.php'][5] = array(__('Flagged'), 'moderate', 'content.php');
+	$bb_submenu['content.php'][5] = array(__('Topics'), 'moderate', 'content.php');
 	$bb_submenu['content.php'][10] = array(__('Posts'), 'moderate', 'content-posts.php');
-	$bb_submenu['content.php'][15] = array(__('Topics'), 'moderate', 'content-topics.php');
-	$bb_submenu['content.php'][20] = array(__('Forums'), 'moderate', 'content-forums.php');
+	$bb_submenu['content.php'][15] = array(__('Forums'), 'moderate', 'content-forums.php');
 
 	$bb_submenu['site.php'][5] = array(__('Recount'), 'recount', 'site.php');
 
