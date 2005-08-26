@@ -54,6 +54,7 @@ require( BBPATH . 'bb-includes/functions.php');
 require( BBPATH . 'bb-includes/formatting-functions.php');
 require( BBPATH . 'bb-includes/template-functions.php');
 require( BBPATH . 'bb-includes/capabilities.php');
+require( BBPATH . 'bb-includes/cache.php');
 require( BBPATH . 'bb-includes/default-filters.php');
 
 $bbdb->forums    = $bb_table_prefix . 'forums';
@@ -93,6 +94,8 @@ if ( !isset( $bb->cookiepath ) )
 	$bb->cookiepath = bb_get_option('path');
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
+
+$bb_cache = new BB_Cache();
 
 $bb_roles = new BB_Roles();
 bb_do_action('bb_got_roles', '');

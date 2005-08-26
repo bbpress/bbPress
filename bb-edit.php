@@ -22,7 +22,7 @@ if ( !bb_current_user_can( 'edit_post', $post_id ) )
 if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_post->topic_id ) )
 	bb_update_topic( $_POST['topic'], $bb_post->topic_id);
 
-bb_update_post( $_POST['post_content'], $post_id);
+bb_update_post( $_POST['post_content'], $post_id, $bb_post->topic_id );
 
 if ($post_id)
 	header('Location: ' . get_post_link($post_id) );

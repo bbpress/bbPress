@@ -42,13 +42,14 @@ function bb_new_user( $user_login, $email, $url ) {
 }
 
 function bb_update_user( $user_id, $email, $url ) {
-	global $bbdb;
+	global $bbdb, $bb_cache;
 
 	$bbdb->query("UPDATE $bbdb->users SET
 	user_email = '$email',
 	user_url   = '$url'
 	WHERE ID   = '$user_id'
 	");
+	$bb_cache->flush_one( 'user', $user_id );
 
 	bb_do_action('bb_update_user', $user_id);
 	return $user_id;
@@ -87,13 +88,14 @@ function bb_reset_password( $key ) {
 }
 
 function bb_update_user_password( $user_id, $password ) {
-	global $bbdb;
+	global $bbdb, $bb_cache;
 	$passhash = md5( $password );
 
 	$bbdb->query("UPDATE $bbdb->users SET
 	user_pass = '$passhash'
 	WHERE ID = '$user_id'
 	");
+	$bb_cache->flush_one( 'user', $user_id );
 
 	bb_do_action('bb_update_user_password', $user_id);
 	return $user_id;
