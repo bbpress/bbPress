@@ -1,14 +1,13 @@
 <?php
 
 function get_forums() {
-	global $bbdb;
-	return $bbdb->get_results("SELECT * FROM $bbdb->forums ORDER BY forum_order");
+	global $bb_cache;
+	return $bb_cache->get_forums();
 }
 
 function get_forum( $id ) {
-	global $bbdb;
-	$id = (int) $id;
-	return $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $id");
+	global $bb_cache;
+	return $bb_cache->get_forum( $id );
 }
 
 function get_topic( $id, $cache = true ) {
@@ -623,11 +622,12 @@ function bb_new_forum( $name, $desc, $order = 0 ) {
 	if ( strlen($name) < 1 )
 		return false;
 	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_desc, forum_order) VALUES ('$name', '$desc', '$order')");
+	$bb_cache->flush_one( 'forums' );
 	return $bbdb->insert_id;
 }
 
 function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
-	global $bbdb, $bb_current_user;
+	global $bbdb, $bb_cache, $bb_current_user;
 	if ( !bb_current_user_can('manage_forums') )
 		return false;
 	if ( !$forum_id = (int) $forum_id )
@@ -635,8 +635,8 @@ function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
 	$order = (int) $order;
 	if ( strlen($name) < 1 )
 		return false;
+	$bb_cache->flush_many( 'forum', $forum_id );
 	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$name', forum_desc = '$desc', forum_order = '$order' WHERE forum_id = $forum_id");
-	return;
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
@@ -654,6 +654,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
+		$bb_cache->flush_many( 'forum', $forum_id );
 		bb_do_action('bb_new_topic', $topic_id);
 		return $topic_id;
 	} else {
@@ -709,6 +710,7 @@ function bb_move_topic( $topic_id, $forum_id ) {
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + $topic->topic_posts WHERE forum_id = $forum_id");
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - $topic->topic_posts WHERE forum_id = $topic->forum_id");
 		$bb_cache->flush_one( 'topic', $topic_id );
+		$bb_cache->flush_many( 'forum', $forum_id );
 		return $forum_id;
 	}
 	return false;
@@ -745,6 +747,7 @@ function bb_new_post( $topic_id, $bb_post ) {
 			bb_update_usermeta( $uid, 'last_posted', time() );
 		$bb_cache->flush_one( 'topic', $tid );
 		$bb_cache->flush_many( 'thread', $tid );
+		$bb_cache->flush_many( 'forum', $forum_id );
 		bb_do_action('bb_new_post', $post_id);
 		return $post_id;
 	} else {
@@ -797,6 +800,7 @@ function bb_delete_post( $post_id ) {
 			bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', $user->topics_replied - 1 );
 		$bb_cache->flush_one( 'topic', $bb_post->topic_id );
 		$bb_cache->flush_many( 'thread', $bb_post->topic_id );
+		$bb_cache->flush_many( 'forum', $forum_id );
 		bb_do_action('bb_delete_post', $post_id);
 		return $post_id;
 	} else {

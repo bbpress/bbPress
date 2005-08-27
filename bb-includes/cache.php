@@ -14,6 +14,7 @@ class BB_Cache {
 
 	function get_user( $user_id, $use_cache = true ) {
 		global $bbdb, $bb_user_cache;
+		$user_id = (int) $user_id;
 
 		if ( $use_cache && $this->use_cache && file_exists(BBPATH . 'bb-cache/bb_user-' . $user_id) ) :
 			$bb_user_cache[$user_id] = $this->read_cache(BBPATH . 'bb-cache/bb_user-' . $user_id);
@@ -74,6 +75,8 @@ class BB_Cache {
 
 	function get_topic( $topic_id, $use_cache = true ) {
 		global $bbdb, $bb_topic_cache;
+		$topic_id = (int) $topic_id;
+
 		$normal = true;
 		if ( 'AND topic_status = 0' != $where = bb_apply_filters('get_topic_where', 'AND topic_status = 0') )
 			$normal = false;
@@ -96,6 +99,7 @@ class BB_Cache {
 
 	function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
 		global $bbdb, $bb_post_cache;
+		$topic_id = (int) $topic_id;
 		$page = (int) $page;
 		$reverse = $reverse ? 1 : 0;
 		$normal = true;
@@ -124,6 +128,31 @@ class BB_Cache {
 		return $thread;
 	}
 
+	function get_forums() {
+		global $bbdb;
+
+		if ( $this->use_cache && file_exists(BBPATH . 'bb-cache/bb_forums') )
+			return $this->read_cache(BBPATH . 'bb-cache/bb_forums');
+
+		$forums = $bbdb->get_results("SELECT * FROM $bbdb->forums ORDER BY forum_order");
+		if ( $this->use_cache && $forums )
+			$this->write_cache(BBPATH . 'bb-cache/bb_forums', $forums);
+		return $forums;
+	}
+
+	function get_forum( $forum_id ) {
+		global $bbdb;
+		$forum_id = (int) $forum_id;
+
+		if ( $this->use_cache && file_exists(BBPATH . 'bb-cache/bb_forum-' . $forum_id) )
+			return $this->read_cache(BBPATH . 'bb-cache/bb_forum-' . $forum_id);
+
+		$forum = $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $forum_id");
+		if ( $this->use_cache && $forum )
+			$this->write_cache(BBPATH . 'bb-cache/bb_forum-' . $forum_id, $forum);
+		return $forum;
+	}
+
 	function read_cache($file) {
 		return unserialize(file_get_contents($file));
 	}
@@ -137,7 +166,7 @@ class BB_Cache {
 		fclose($f);
 	}
 
-	function flush_one( $type, $id, $page = 0 ) {
+	function flush_one( $type, $id = 0, $page = 0 ) {
 		if ( !$this->use_cache )
 			return;
 		switch ( $type ) :
@@ -146,6 +175,9 @@ class BB_Cache {
 			break;
 		case 'topic' :
 			$file = BBPATH . 'bb-cache/bb_topic-' . $id;
+			break;
+		case 'forums' :
+			$file = BBPATH . 'bb-cache/bb_forums';
 			break;
 		endswitch;
 
@@ -159,6 +191,9 @@ class BB_Cache {
 		switch ( $type ) :
 		case 'thread' :
 			$files = glob( BBPATH . 'bb-cache/bb_thread-' . $id . '-*');
+			break;
+		case 'forum' :
+			$files = array(BBPATH . 'bb-cache/bb_forum-' . $id, BBPATH . 'bb-cache/bb_forums');
 			break;
 		endswitch;
 
