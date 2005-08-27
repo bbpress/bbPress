@@ -95,7 +95,7 @@ function bb_get_admin_tab_link( $m ) {
 		return 'admin-base.php?plugin=' . $m[2];
 }
 
-function get_recently_moderated_posts( $num = 10 ) {
+function get_recently_moderated_posts( $num = 5 ) {
 	global $bbdb;
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status <> 0 ORDER BY post_time DESC LIMIT $num"); // post_time != moderation_time;
 }

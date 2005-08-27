@@ -28,7 +28,7 @@ function get_total_topics() {
 	global $bbdb, $bb_total_topics;
 	if ( isset($bb_total_topics) )
 		return $bb_total_topics;
-	$bb_total_topics = $bbdb->get_var("SELECT COUNT(topics) FROM $bbdb->forums");
+	$bb_total_topics = $bbdb->get_var("SELECT SUM(topics) FROM $bbdb->forums");
 	return $bb_total_topics;
 }
 
