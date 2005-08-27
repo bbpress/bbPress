@@ -91,6 +91,7 @@ img, #footer a {
 }
 
 #footer {
+	clear: both;
 	text-align: center;
 }
 
@@ -301,7 +302,7 @@ table .vers, table .name {
 #zeitgeist {
 	background: #eee;
 	border: 1px solid #6c9;
-	float: left;
+	float: right;
 	font-size: 90%;
 	margin: .5em 1em .5em 0;
 	padding: 1em;

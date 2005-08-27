@@ -687,6 +687,14 @@ function user_link( $id ) {
 	echo bb_apply_filters('user_link', get_user_link($id) );
 }
 
+function full_user_link( $id ) {
+	if ( get_user_link( $id ) ) {
+		echo '<a href="' . get_user_link( get_post_author_id() ) . '">' . get_user_name( $id ) . '</a>';
+	} else {
+		echo get_user_name( $id );
+	}
+}
+
 function get_user_type_label( $type ) {
 	global $bb_roles;
 	if ( $bb_roles->is_role( $type ) )

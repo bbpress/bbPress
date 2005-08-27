@@ -21,7 +21,7 @@ function bb_admin_menu_generator() {
 
 	$bb_submenu = array();
 	$bb_submenu['users.php'][5] = array(__('Find'), 'moderate', 'users.php');
-	$bb_submenu['users.php'][10] = array(__('Staff'), 'moderate', 'users-staff.php');
+	$bb_submenu['users.php'][10] = array(__('Moderators'), 'moderate', 'users-moderators.php');
 	$bb_submenu['users.php'][15] = array(__('Blocked'), 'moderate', 'users-blocked.php');
 	$bb_submenu['users.php'][20] = array(__('Bozos'), 'moderate', 'users-bozoes.php');
 
@@ -98,6 +98,14 @@ function bb_get_admin_tab_link( $m ) {
 function get_recently_moderated_posts( $num = 10 ) {
 	global $bbdb;
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status <> 0 ORDER BY post_time DESC LIMIT $num"); // post_time != moderation_time;
+}
+
+function get_ids_by_role( $role = 'moderator' ) {
+	global $bbdb, $bb_table_prefix;
+	$key = $bb_table_prefix . 'capabilities';
+	$ids = $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value LIKE '%$role%'");
+	bb_cache_users( $ids );
+	return $ids;
 }
 
 ?>

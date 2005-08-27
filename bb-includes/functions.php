@@ -1411,7 +1411,6 @@ function global_profile_menu_structure() {
 	// The URL of the item's file
 	$profile_menu[0] = array(__('Edit'), 'edit_profile', 'edit_users', 'profile-edit.php');
 	$profile_menu[5] = array(__('Favorites'), 'edit_favorites', 'edit_others_favorites', 'favorites.php');
-	$profile_menu[10]= array(__('Admin'), 'administrate', 'impersonate_others', 'bb-admin/admin-profile.php');
 
 	// Create list of page plugin hook names the current user can access
 	$profile_hooks = array();

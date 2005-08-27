@@ -3,6 +3,7 @@
 <a href="http://bbpress.org/documentation/"><?php _e('Documentation'); ?></a> &#8212; <a href="http://bbpress.automattic.com/"><?php _e('Development'); ?></a> <br />
 <?php printf(__('%s seconds'), number_format(bb_timer_stop(), 2)); ?>
 </p>
+</div>
 
 </div>
 
