@@ -640,7 +640,7 @@ function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
-	global $bbdb, $bb_current_user;
+	global $bbdb, $bb_cache, $bb_current_user;
 	$title = bb_apply_filters('pre_topic_title', $title);
 	$forum = (int) $forum;
 	$now   = bb_current_time('mysql');

@@ -197,8 +197,8 @@ class BB_Cache {
 			break;
 		endswitch;
 
-		foreach ( $files as $file )
-			if ( file_exists($file) )
+		if ( is_array($files) )
+			foreach ( $files as $file )
 				unlink($file);
 	}
 
