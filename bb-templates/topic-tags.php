@@ -1,4 +1,4 @@
-<div id="tags">
+<div id="tags-bad-ie">
 <?php if ( $user_tags ) : ?>
 <div id="yourtags">
 <p>Your tags:</p>

@@ -79,7 +79,7 @@ function getResponseElement(type) {
 		var p = document.getElementById('ajaxtagresponse');
 		if (!p) {
 			p = document.createElement('p');
-			document.getElementById('tags').appendChild(p);
+			document.getElementById('tags-bad-ie').appendChild(p);
 			p.id = 'ajaxtagresponse';
 		}
 		return p;
@@ -125,7 +125,7 @@ function newTagCompletion() {
 	ajaxTag.myResponseElement.parentNode.removeChild(ajaxTag.myResponseElement);
 	var yourTags = document.getElementById('yourtags');
 	if (!yourTags) {
-		var tags = document.getElementById('tags');
+		var tags = document.getElementById('tags-bad-ie');
 		yourTags = document.createElement('div');
 		yourTags.id = 'yourtags';
 		yourTagsP = document.createElement('p');
