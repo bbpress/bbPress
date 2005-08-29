@@ -196,8 +196,10 @@ function ajaxNewTag() {
 	ajaxTag.runAJAX('tag=' + encodeURIComponent(newtag.value) + '&id=' + topicId + '&action=tag-add');
 }
 
-function ajaxDelTag(tag, user) {
+function ajaxDelTag(tag, user, tagName) {
+	if (!confirm('Are you sure you want to remove the "' + tagName + '" tag?')) return false;
 	ajaxTag = new sack(uriBase + 'topic-ajax.php');
+	if (ajaxTag.failed) return true;
 	ajaxTag.myResponseElement = getResponseElement('tag');
 	tagId = tag;
 	userId = user;
@@ -207,6 +209,7 @@ function ajaxDelTag(tag, user) {
 	ajaxTag.onInteractive = function() { ajaxTag.myResponseElement.innerHTML = 'Processing Data...'; };
 	ajaxTag.onCompletion = delTagCompletion;
 	ajaxTag.runAJAX('tag=' + tagId + '&user=' + userId + '&topic=' + topicId + '&action=tag-remove');
+	return false;
 }
 
 function FavIt(id, addFav) {
@@ -279,9 +282,11 @@ function getPostPos(id) {
 	return post_pos;
 }	
 
-function ajaxPostDelete(postId) {
-	getPostsAndColors();
+function ajaxPostDelete(postId, postAuthor) {
+	if (!confirm('Are you sure you wanna delete this post by "' + postAuthor + '"?')) return false;
 	ajaxPost = new sack(uriBase + 'topic-ajax.php');
+	if (ajaxPost.failed) return true;
+	getPostsAndColors();
 	ajaxPost.myResponseElement = getResponseElement('post-del');
 	ajaxPost.onLoading = function() { ajaxPost.myResponseElement.innerHTML = 'Sending Data...'; };
 	ajaxPost.onLoaded = function() { ajaxPost.myResponseElement.innerHTML = 'Data Sent...'; };
@@ -295,6 +300,7 @@ function ajaxPostDelete(postId) {
 	}
 	ajaxPost.method = 'POST';
 	ajaxPost.runAJAX('id=' + postId + '&page=' + page + '&last_mod=' + lastMod + '&action=post-delete');
+	return false;
 }
 
 function ajaxNewPost() {

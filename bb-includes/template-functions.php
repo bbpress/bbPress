@@ -622,7 +622,7 @@ function post_delete_link() {
 		return;
 
 	if ( 0 == $bb_post->post_status )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick='if ( confirm(\"Are you sure you wanna delete that?\") ) { ajaxPostDelete(" . get_post_id() . "); } return false;'>Delete</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>Delete</a>";
 	else
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;view=deleted' onclick='return confirm(\"Are you sure you wanna undelete that?\")'>Undelete</a>";
 }
@@ -836,7 +836,7 @@ function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 
-	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' . addslashes(htmlspecialchars($tag->raw_tag)) . '&quot; tag?\') ) { ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . '); } return false;" title="Remove this tag">x</a>]';
+	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . addslashes(htmlspecialchars($tag->raw_tag)) . '\');" title="Remove this tag">x</a>]';
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {
