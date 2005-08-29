@@ -33,7 +33,7 @@ case 'tag-add' :
 	if ( add_topic_tag( $topic_id, $tag ) ) {
 		$new_tag = get_tag( $ajax_results['tag_id'] );
 		header('Content-type: text/xml');
-		$new_tag->raw_tag = bb_specialchars($new_tag->raw_tag);
+		$new_tag->raw_tag = htmlspecialchars(bb_specialchars($new_tag->raw_tag));
 		die("<?xml version='1.0' standalone='yes'?><tag><id>$new_tag->tag_id</id><user>{$ajax_results['user_id']}</user><raw>$new_tag->raw_tag</raw><cooked>$new_tag->tag</cooked></tag>");
 	} else {
 		die('0');
