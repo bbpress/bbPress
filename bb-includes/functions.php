@@ -1329,7 +1329,7 @@ function bb_repermalink() {
 	if ( $args ) {
 		$permalink = bb_add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
-				$pretty_args = array('id', 'page', 'tag', 'tab', 'view'); // these are already specified in the path
+				$pretty_args = array('id', 'page', 'tag', 'tab'); // these are already specified in the path
 				foreach( $pretty_args as $arg )
 					$permalink = bb_remove_query_arg($arg, $permalink);
 			}
