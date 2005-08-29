@@ -199,7 +199,7 @@ class BB_Cache {
 
 		if ( is_array($files) )
 			foreach ( $files as $file )
-				unlink($file);
+				@unlink($file);
 	}
 
 	function flush_old() {
