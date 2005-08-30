@@ -157,14 +157,18 @@ case 'post-add' :
 
 	$bb_post = bb_get_post( $post_id );
 
+	$new_page = get_page_number( $bb_post->post_position );
+
 	if ( !$need_thread ) :
 		header('Content-type: text/xml');
 		echo "<?xml version='1.0' standalone='yes'?><post><id>$post_id</id><templated><![CDATA[";
 		bb_post_template();
-		echo ']]></templated></post>';
+		echo ']]></templated>';
+		if ( $page != $new_page ) echo "<link><![CDATA[You're post has been posted to the <a href='" . bb_specialchars( get_post_link( $bb_post->post_id ) ) . "'>next page</a> in this topic.]]></link>";
+		echo '</post>';
 		exit;
 	else :
-		bb_ajax_thread( $bb_post->topic_id, $page );
+		bb_ajax_thread( $bb_post->topic_id, $page, $new_page );
 	endif;
 	break;
 
@@ -174,9 +178,13 @@ function bb_ajax_thread( $topic_id, $page ) {
 	global $bb_post;
 	$topic_id = (int) $topic_id;
 	$page = (int) $page;
+	$new_page = $page;
 
 	if ( !$thread = get_thread( $topic_id, $page ) )
 		die('0');
+
+	if ( 2 < func_num_args() )
+		$new_page = func_get_arg(2);
 
 	header('Content-type: text/xml');
 	echo "<?xml version='1.0' standalone='yes'?><thread><id>$topic_id</id><page>$page</page>";
@@ -187,6 +195,7 @@ function bb_ajax_thread( $topic_id, $page ) {
 		echo ']]></templated></post>';
 	endforeach;
 
+	if ( $new_page != $page ) echo "<link><![CDATA[You're post has been posted to <a href='" . get_topic_link( $topic_id, $new_page ) . "'>page $new_page</a> in this topic.]]></link>";
 	echo '</thread>';
 	exit;
 }

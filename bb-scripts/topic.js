@@ -144,7 +144,7 @@ function newTagCompletion() {
 	}
 	var newLi = document.createElement('li');
 	var yourTagList = document.getElementById('yourtaglist');
-	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="if ( confirm(\'Are you sure you want to remove the &quot;' + raw.replace("'", "\\'").replace('"', '&quot;') + '&quot; tag?\') ) { ajaxDelTag(' + tagId + ', ' + userId + '); } return false;">x</a>]';
+	newLi.innerHTML = '<a href="' + tagLinkBase + cooked + '">' + raw + '</a> [<a href="#" onclick="return ajaxDelTag(' + tagId + ', ' + userId + ', &quot;' + raw + '&quot;);">x</a>]';
 	newLi.id = 'tag-' + tagId + '-' + userId;
 	newLi.className = 'fade';
 	yourTagList.appendChild(newLi);
@@ -174,7 +174,7 @@ function delTagCompletion() {
 		ajaxTag.myResponseElement.innerHTML = "You don't have permission to do that.";
 		return;
 	}
-	if (id == '0') {
+	else if (id == '0') {
 		ajaxTag.myResponseElement.innerHTML = "Tag not removed. Try something else.";
 		return;
 	}
@@ -222,14 +222,14 @@ function FavIt(id, addFav) {
 	ajaxFav.onInteractive = function() { ajaxFav.myResponseElement.innerHTML = 'Processing Data...'; };
 	ajaxFav.onCompletion = function() {
 		var id = parseInt(ajaxFav.response, 10);
-		if (1 == id) {
+		if ( 1 == id) {
 			if (addFav) isFav = 1;
 			else isFav = 0;
 			favoritesAddIn();
 			Fat.fade_element('favoritestoggle');
-		} else {
-			ajaxFav.myResponseElement.innerHTML = 'Something odd happened.';
 		}
+		else if ( 0 == id) { ajaxFav.myResponseElement.innerHTML = 'Something odd happened.'; }
+		else if (-1 == id) { ajaxFav.myResponseElement.innerHTML = "You don't have permission to do that."; }
 	}
 	ajaxFav.method = 'POST';
 	ajaxFav.runAJAX('topic_id=' + id + '&user_id=' + currentUserId + '&action=' + string);
@@ -248,9 +248,9 @@ function resolveTopic(event) {
 			ajaxRes.myResponseElement.parentNode.removeChild(ajaxRes.myResponseElement);
 			Fat.fade_element('resolutionflipper');
 			Fat.fade_element('resolvedformsel');
-		} else {
-			ajaxRes.myResponseElement.innerHTML = '<br />Something odd happened.';
 		}
+		else if ( 0 == id) { ajaxRes.myResponseElement.innerHTML = '<br />Something odd happened.'; }
+		else if (-1 == id) { ajaxRes.myResponseElement.innerHTML = "<br />You don't have permission to do that."; }
 	}
 	ajaxRes.method = 'POST';
 	ajaxRes.runAJAX('id=' + topicId + '&resolved=' + resolvedSel.value + '&action=topic-resolve');
@@ -295,8 +295,8 @@ function ajaxPostDelete(postId, postAuthor) {
 		var id = parseInt(ajaxPost.response, 10);
 		if (1 == id) deletePost('post-' +postId);
 		else if (ajaxPost.responseXML) mergeThread();
+		else if (-1 == id) { ajaxPost.myResponseElement.innerHTML = "You don't have permission to do that."; return; }
 		else { ajaxPost.myResponseElement.innerHTML = 'Something odd happened.'; return; }
-		ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement);
 	}
 	ajaxPost.method = 'POST';
 	ajaxPost.runAJAX('id=' + postId + '&page=' + page + '&last_mod=' + lastMod + '&action=post-delete');
@@ -314,10 +314,12 @@ function ajaxNewPost() {
 	ajaxPost.onInteractive = function() { ajaxPost.myResponseElement.innerHTML = 'Processing Data...'; };
 	ajaxPost.onCompletion = function() {
 		var id = parseInt(ajaxPost.response, 10);
-		if ( 0 == id ||  -1 == id || -2 == id || -3 == id ) { ajaxPost.myResponseElement.innerHTML = 'Something odd (#' + id + ') happened.'; return; }
+		if ( 0 == id ) { ajaxPost.myResponseElement.innerHTML = 'Something odd happened.'; return; }
+		else if (-1 == id ) { ajaxPost.myResponseElement.innerHTML = 'You do not have permission to do that.'; return; }
+		else if (-2 == id ) { ajaxPost.myResponseElement.innerHTML = 'This topic is closed.'; return; }
+		else if (-3 == id ) { ajaxPost.myResponseElement.innerHTML = 'Slow down!  You can only post every 30 seconds.'; return; }
 		if ( ajaxPost.responseXML.getElementsByTagName('thread')[0] ) mergeThread();
 		else appendPost();
-		ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement);
 		postContent.value = '';
 	}
 	ajaxPost.method = 'POST';
@@ -331,8 +333,11 @@ function deletePost(id,norecolor) {
 	Fat.fade_element(id,null,700,'#FF3333');
 	var post_pos = getPostPos(id);
 	posts.splice(post_pos,1);
-	if (norecolor)	setTimeout('thread.removeChild(postsToBeDeleted.pop())', 710);
-	else		setTimeout('thread.removeChild(postsToBeDeleted.pop()); recolorPosts(post_pos,1000)', 710);
+	if (norecolor) { setTimeout('thread.removeChild(postsToBeDeleted.pop())', 710); }
+	else {
+		setTimeout('thread.removeChild(postsToBeDeleted.pop()); recolorPosts(post_pos,1000)', 710);
+		ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement);
+	}
 }
 
 function appendPost() {
@@ -344,6 +349,11 @@ function appendPost() {
 	thread.appendChild(newPost);
 	posts.push(newPost.id);
 	recolorPosts(posts.length - 1,null,'#FFFF33');
+	newLink = ajaxPost.responseXML.getElementsByTagName('link');
+	if ( newLink[0] ) {
+		ajaxPost.myResponseElement.innerHTML = newLink[0].firstChild.data;
+		Fat.fade_element(ajaxPost.myResponseElement.id);
+	} else { ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement); }
 }
 
 function mergeThread() {
@@ -391,4 +401,9 @@ function mergeThread() {
 		}
 	}
 	posts = newPostList;
+	newLink = ajaxPost.responseXML.getElementsByTagName('link');
+	if ( newLink[0] ) {
+		ajaxPost.myResponseElement.innerHTML = newLink[0].firstChild.data;
+		Fat.fade_element(ajaxPost.myResponseElement.id);
+	} else { ajaxPost.myResponseElement.parentNode.removeChild(ajaxPost.myResponseElement); }
 }
