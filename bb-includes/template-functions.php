@@ -48,8 +48,10 @@ function profile_menu() {
 function login_form() {
 	global $bb_current_user, $bb;
 	if ($bb_current_user) {
-		echo '<p class="login">Welcome, ' . get_user_name( $bb_current_user->ID ) . "! <a href='" . get_user_profile_link( $bb_current_user->ID ) . "'>View your profile &raquo;</a> 
-		<small>(<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
+		echo '<p class="login">Welcome, ' . get_user_name( $bb_current_user->ID ) . "! <a href='" . get_user_profile_link( $bb_current_user->ID ) . "'>View your profile &raquo;</a>\n<small>(";
+	if ( bb_current_user_can('moderate') )
+		echo "<a href='" . bb_get_option('uri') . "bb-admin/'>Admin</a> | ";
+	echo "<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
 	}
