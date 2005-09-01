@@ -1,5 +1,5 @@
 <?php
-require_once('admin-header.php');
+require_once('admin-action.php');
 
 $topic_id = $_REQUEST['topic_id'];
 $forum_id = $_REQUEST['forum_id'];

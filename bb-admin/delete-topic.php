@@ -1,5 +1,5 @@
 <?php
-require('admin-header.php');
+require('admin-action.php');
 
 if ( bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');

@@ -1,5 +1,5 @@
 <?php
-require('admin-header.php');
+require('admin-action.php');
 
 if ( !bb_current_user_can('view_by_ip') ) {
 	header('Location: ' . bb_get_option('uri') );

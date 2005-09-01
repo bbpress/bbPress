@@ -1,5 +1,5 @@
 <?php
-require('admin-header.php');
+require('admin-action.php');
 
 $topic_id = (int) $_GET['id'];
 $topic    =  get_topic ( $topic_id );

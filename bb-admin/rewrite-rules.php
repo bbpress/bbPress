@@ -1,5 +1,5 @@
 <?php
-require('admin-header.php');
+require('admin-action.php');
 
 header('Content-type: text/plain');
 
