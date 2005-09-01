@@ -108,4 +108,13 @@ function get_ids_by_role( $role = 'moderator' ) {
 	return $ids;
 }
 
+function get_deleted_posts( $page = 1 ) {
+	global $bbdb;
+	$page = (int) $page;
+	$limit = bb_get_option('page_topics');
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
+	return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status <> 0 ORDER BY post_time DESC LIMIT $limit");
+}
+
 ?>

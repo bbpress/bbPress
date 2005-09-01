@@ -99,11 +99,15 @@ function no_where( $where ) {
 	return;
 }
 
-function get_latest_posts( $num ) {
+function get_latest_posts( $limit, $page = 1 ) {
 	global $bbdb;
-	$num = (int) $num;
+	$limit = (int) $limit;
+	if ( !$limit )
+		$limit = bb_get_option('page_topics');
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = bb_apply_filters('get_latest_posts_where', 'WHERE post_status = 0');
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $num");
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
 }
 
 function get_user_favorites( $user_id, $list = false ) {
@@ -1483,8 +1487,6 @@ function get_views( $cache = true ) {
 	global $bb_current_user, $views;
 	if ( !isset($views) || !$cache )
 		$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
-	if ( bb_current_user_can('browse_deleted') )
-		$views['deleted'] = __('Deleted Topics');
 	return bb_apply_filters('bb_views', $views);
 }
 ?>
