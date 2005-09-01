@@ -37,6 +37,6 @@
 <?php endif; ?>
 </head>
 
-<body>
+<body id="top">
 
 <div id="main">
