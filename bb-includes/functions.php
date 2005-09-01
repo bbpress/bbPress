@@ -270,7 +270,7 @@ function bb_remove_filter($tag, $function_to_remove, $priority = 10) {
 // The *_action functions are just aliases for the *_filter functions, they take special strings instead of generic content
 
 function bb_do_action($tag) {
-	$string = ( 1 > func_num_args() ) ? func_get_arg(1) : '';
+	$string = ( 1 < func_num_args() ) ? func_get_arg(1) : '';
 	bb_apply_filters($tag, $string, false);
 	return $string;
 }
