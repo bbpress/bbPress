@@ -13,6 +13,7 @@ pagination oddities.</p>
 	<fieldset>
 	<legend>Choose items to recalculate</legend>
 		<label for="topic-posts"><input name="topic-posts" id="topic-posts" type="checkbox" value="1" tabindex="100" /> Count posts of every topic.</label><br />
+		<label for="topic-deleted-posts"><input name="topic-deleted-posts" id="topic-deleted-posts" type="checkbox" value="1" tabindex="100" /> Count deleted posts on every topic.</label><br />
 		<label for="forums"><input name="forums" id="forums" type="checkbox" value="1" tabindex="101" /> Count topics and posts in every forum (relies on the above).</label><br />
 		<label for="topics-replied"><input name="topics-replied" id="topics-replied" type="checkbox" value="1" tabindex="102" /> Count topics to which each user has replied.</label><br />
 		<label for="topic-tag-count"><input name="topic-tag-count" id="topic-tag-count" type="checkbox" value="1" tabindex="103" /> Count tags for every topic.</label><br />

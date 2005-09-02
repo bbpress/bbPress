@@ -15,6 +15,17 @@ if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
 	echo "Done counting posts.\n\n";
 endif;
 
+if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
+	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status <> '0' GROUP BY topic_id") ) :
+		echo "Counting deleted posts...\n";
+		$counts = $bbdb->get_col('', 1);
+		foreach ($topics as $t => $i)
+			bb_update_topicmeta( $i, 'deleted_posts', $counts[$t] );
+		unset($topics, $t, $i, $counts);
+	endif;
+	echo "Done counting deleted posts.\n\n";
+endif;
+
 if ( isset($_POST['forums']) && 1 == $_POST['forums'] ) :
 	if ( $all_forums = $bbdb->get_col("SELECT forum_id FROM $bbdb->forums") ) :
 		echo "Counting forum topics and posts...\n";

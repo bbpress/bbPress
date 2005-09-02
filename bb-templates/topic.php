@@ -15,7 +15,7 @@
 	<li id="resolutionflipper">This topic is <?php topic_resolved(); ?></li>
 <?php if ( $bb_current_user ) : ?>
 	<li id="favoritestoggle"><?php user_favorites_link() ?></li>
-<?php endif; ?>
+<?php endif; bb_do_action('topicmeta'); ?>
 </ul>
 <br clear="all" />
 </div>

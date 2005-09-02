@@ -770,6 +770,7 @@ function bb_delete_post( $post_id ) {
 		$new_status = ( $bb_post->post_status + 1 ) % 2;
 		$sign = ( $new_status ) ? '-' : '+';
 		$bbdb->query("UPDATE $bbdb->posts SET post_status = $new_status WHERE post_id = $post_id");
+		bb_update_topicmeta( $topic->topic_id, 'deleted_posts', $topic->deleted_posts + ( $new_status ? 1 : -1 ) );
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts $sign 1 WHERE forum_id = $topic->forum_id");
 		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $bb_post->topic_id AND post_status = 0");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $bb_post->topic_id");

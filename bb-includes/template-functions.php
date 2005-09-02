@@ -83,6 +83,10 @@ function edit_form( $bb_post = '', $topic_title = '' ) {
 }
 
 function alt_class( $key, $others = '' ) {
+	echo get_alt_class( $key, $others );
+}
+
+function get_alt_class( $key, $others = '' ) {
 	global $bb_alt;
 	$class = '';
 	if ( !isset( $bb_alt[$key] ) ) $bb_alt[$key] = -1;
@@ -91,7 +95,7 @@ function alt_class( $key, $others = '' ) {
 		$class = ' class="' . ( ($others) ? $others : 'alt' ) . '"';
 	elseif ( $others && $bb_alt[$key] % 2 )
 		$class = ' class="' . $others . ' alt"';
-	echo $class;
+	return $class;
 }
 
 function is_front() {
@@ -414,7 +418,11 @@ function topic_last_post_link( $id = 0 ) {
 
 function topic_pages() {
 	global $topic, $page;
-	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts ) );
+	$add = 0;
+	if ( isset($_GET['view']) && 'deleted' == $_GET['view'] ) :
+		$add += $topic->deleted_posts;
+	endif;
+	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ) );
 }
 
 function get_page_number_links($page, $total) {
