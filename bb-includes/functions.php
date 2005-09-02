@@ -621,7 +621,7 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 }
 
 function bb_new_forum( $name, $desc, $order = 0 ) {
-	global $bbdb, $bb_current_user;
+	global $bbdb, $bb_cache, $bb_current_user;
 	if ( !bb_current_user_can('manage_forums') )
 		return false;
 	if ( strlen($name) < 1 )
