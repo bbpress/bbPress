@@ -108,6 +108,11 @@ function get_ids_by_role( $role = 'moderator' ) {
 	return $ids;
 }
 
+function get_deleted_topics_count() {
+	global $bbdb;
+	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
+}
+
 function get_deleted_posts( $page = 1 ) {
 	global $bbdb;
 	$page = (int) $page;

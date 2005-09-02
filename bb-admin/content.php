@@ -27,6 +27,6 @@
 <?php endforeach; endif; ?>
 </table>
 
-<?php echo get_page_number_links( $page, -1 ); ?>
+<?php $total = get_deleted_topics_count(); echo get_page_number_links( $page, $total ); ?>
 
 <?php bb_get_admin_footer(); ?>
