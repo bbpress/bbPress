@@ -837,7 +837,7 @@ function bb_resolve_topic ( $topic_id, $resolved = 'yes' ) {
 
 function bb_close_topic ( $topic_id ) {
 	global $bbdb, $bb_cache;
-	$topic_id = (int) $toppic_id;
+	$topic_id = (int) $topic_id;
 	bb_do_action('close_topic', $topic_id);
 	$bb_cache->flush_one( 'topic', $topic_id );
 	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '0' WHERE topic_id = $topic_id");
