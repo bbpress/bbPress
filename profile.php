@@ -33,9 +33,9 @@ else
 $posts = get_recent_user_replies( $user_id );
 $threads = get_recent_user_threads( $user_id );
 
-bb_remove_filter('post_time', 'bb_offset_time');
-bb_add_filter('post_time', 'strtotime');
-bb_add_filter('post_time', 'bb_since');
+bb_remove_filter('bb_post_time', 'bb_offset_time');
+bb_add_filter('bb_post_time', 'strtotime');
+bb_add_filter('bb_post_time', 'bb_since');
 
 bb_do_action( 'bb_profile.php', $user_id );
 

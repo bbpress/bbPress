@@ -31,7 +31,7 @@ bb_add_filter('edit_text', 'trim', 15);
 
 bb_add_filter('get_user_link', 'bb_fix_link');
 
-bb_add_filter('post_time', 'bb_offset_time');
+bb_add_filter('bb_post_time', 'bb_offset_time');
 
 bb_add_filter('topic_rss_link', 'bb_make_feed');
 bb_add_filter('tag_rss_link', 'bb_make_feed');
