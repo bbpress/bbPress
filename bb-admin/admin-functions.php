@@ -71,7 +71,7 @@ function bb_admin_menu() {
 	foreach ( $bb_menu as $m ) :
 		if ( bb_current_user_can($m[1]) ) :
 			$class = ( $m[2] == $bb_current_menu[2] ) ? " class='current'" : '';
-			$r .= "\t<li$class><a href='" . bb_get_admin_tab_link($m) . "'>{$m[0]}</a></li>\n";
+			$r .= "\t<li$class><a href='" . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . "'>{$m[0]}</a></li>\n";
 		endif;
 	endforeach;
 	$r .= '</ul>';
@@ -80,7 +80,7 @@ function bb_admin_menu() {
 		foreach ( $bb_submenu[$bb_current_menu[2]] as $m ) :
 			if ( bb_current_user_can($m[1]) ) :
 				$class = ( $m[2] == $bb_current_submenu[2] ) ? " class='current'" : '';
-				$r .= "\t\t<li$class><a href='" . bb_get_admin_tab_link($m) . "'>{$m[0]}</a></li>\n";
+				$r .= "\t\t<li$class><a href='" . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . "'>{$m[0]}</a></li>\n";
 			endif;
 		endforeach;
 		$r .= "\t</ul>\n";
@@ -95,9 +95,17 @@ function bb_get_admin_tab_link( $m ) {
 		return 'admin-base.php?plugin=' . $m[2];
 }
 
-function get_recently_moderated_posts( $num = 5 ) {
+function get_recently_moderated_objects( $num = 5 ) {
 	global $bbdb;
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE post_status <> 0 ORDER BY post_time DESC LIMIT $num"); // post_time != moderation_time;
+	$posts = get_deleted_posts( 1, $num ); // post_time != moderation_time;
+	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status <> 0 ORDER BY topic_time DESC LIMIT $num"); // topic_time == topic_start_time != moderation_time;
+	$objects = array();
+	foreach ( array_keys($posts) as $key )
+		$objects[strtotime($posts[$key]->post_time . ' +0000')] = array('type' => 'post', 'data' => $posts[$key]);
+	foreach ( array_keys($topics) as $key )
+		$objects[strtotime($topics[$key]->topic_time . ' +0000')] = array('type' => 'topic', 'data' => $topics[$key]);
+	krsort($objects);
+	return array_slice($objects, 0, 5);
 }
 
 function get_ids_by_role( $role = 'moderator' ) {
@@ -113,10 +121,11 @@ function get_deleted_topics_count() {
 	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
 }
 
-function get_deleted_posts( $page = 1 ) {
+function get_deleted_posts( $page = 1, $limit = false ) {
 	global $bbdb;
 	$page = (int) $page;
-	$limit = bb_get_option('page_topics');
+	if ( !$limit )
+		$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	if ( $page )
