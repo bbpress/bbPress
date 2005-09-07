@@ -162,14 +162,16 @@ function is_view() {
 }
 
 function bb_title() {
-	global $topic, $forum, $static_title, $tag;
+	global $topic, $forum, $static_title, $tag, $user;
 	$title = '';
 	if ( is_topic() )
 		$title = get_topic_title(). ' &laquo; ';
 	if ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
 	if ( is_tag() )
-		$title = bb_specialchars( get_tag_name() ). ' &laquo; Tags ';
+		$title = bb_specialchars( get_tag_name() ). ' &laquo; Tags &laquo; ';
+	if ( is_bb_profile() )
+		$title = $user->user_login . ' &laquo; ';
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
 	$title .= bb_get_option('name');
