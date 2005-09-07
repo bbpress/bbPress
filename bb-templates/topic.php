@@ -26,7 +26,7 @@
 </div>
 <ol id="thread" start="<?php echo $list_start; ?>">
 
-<?php foreach ($posts as $bb_post) : $del_class = ( $bb_post->post_status ) ? 'deleted' : ''; ?>
+<?php foreach ($posts as $bb_post) : $del_class = post_del_class(); ?>
 	<li id="post-<?php post_id(); ?>"<?php alt_class('post', $del_class); ?>>
 <?php bb_post_template(); ?>
 	</li>

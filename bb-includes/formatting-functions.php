@@ -289,7 +289,7 @@ function closed_title( $title ) {
 	return $title;
 }
 
-function make_link_deleted( $link ) {
-	return bb_specialchars( bb_add_query_arg( 'view', 'deleted', $link ) );
+function make_link_view_all( $link ) {
+	return bb_specialchars( bb_add_query_arg( 'view', 'all', $link ) );
 }
 ?>

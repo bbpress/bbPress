@@ -5,7 +5,7 @@
 <?php	if ( !bb_current_user_can('browse_deleted') )
 		die("Now how'd you get here?  And what did you think you'd being doing?"); //This should never happen.
 	bb_add_filter( 'get_topic_where', 'no_where' );
-	bb_add_filter( 'topic_link', 'make_link_deleted' );
+	bb_add_filter( 'topic_link', 'make_link_view_all' );
 	$bb_posts = get_deleted_posts( $page );
 ?>
 

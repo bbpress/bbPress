@@ -6,7 +6,7 @@
 <h2>Key masters</h2>
 <ul class="users">
 <?php foreach ( $ids as $id ) : $user = bb_get_user( $id ) ;?>
- <li><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>">profile</a>] registered <?php echo bb_since(strtotime($user->user_registered)); ?> ago.</li>
+ <li<?php alt_class('key'); ?>><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>">profile</a>] registered <?php echo bb_since(strtotime($user->user_registered)); ?> ago.</li>
 <?php endforeach; ?>
 </ul>
 <?php endif; ?>
@@ -15,7 +15,7 @@
 <h2>Adminstrators</h2>
 <ul class="users">
 <?php foreach ( $ids as $id ) : $user = bb_get_user( $id ) ;?>
- <li><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>">profile</a>] registered <?php echo bb_since(strtotime($user->user_registered)); ?> ago.</li>
+ <li<?php alt_class('adm'); ?>><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>">profile</a>] registered <?php echo bb_since(strtotime($user->user_registered)); ?> ago.</li>
 <?php endforeach; ?>
 </ul>
 <?php endif; ?>
@@ -24,7 +24,7 @@
 <h2>Moderators</h2>
 <ul class="users">
 <?php foreach ( $ids as $id ) : $user = bb_get_user( $id ) ;?>
- <li><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>">profile</a>] registered <?php echo bb_since(strtotime($user->user_registered)); ?> ago.</li>
+ <li<?php alt_class('mod'); ?>><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>">profile</a>] registered <?php echo bb_since(strtotime($user->user_registered)); ?> ago.</li>
 <?php endforeach; ?>
 </ul>
 <?php endif; ?>

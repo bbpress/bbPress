@@ -1,7 +1,7 @@
 <?php
 require('admin-action.php');
 
-if ( bb_current_user_can('edit_deleted') && 'deleted' == $_GET['view'] ) {
+if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
 	bb_add_filter('get_topic_where', 'no_where');
 	bb_add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
 }
@@ -12,12 +12,13 @@ if ( !bb_current_user_can('manage_posts') ) {
 }
 
 $post_id = (int) $_GET['id'];
-$bb_post    =  bb_get_post ( $post_id );
+$status  = (int) $_GET['status'];
+$bb_post = bb_get_post ( $post_id );
 
 if ( !$bb_post )
 	die('There is a problem with that post, pardner.');
 
-bb_delete_post( $post_id );
+bb_delete_post( $post_id, $status );
 
 $topic = get_topic( $bb_post->topic_id );
 

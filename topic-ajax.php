@@ -125,7 +125,7 @@ case 'post-delete' :
 
 	$topic = get_topic( $bb_post->topic_id );
 
-	if ( bb_delete_post( $post_id ) ) :
+	if ( bb_delete_post( $post_id, 1 ) ) :
 		if ( $last_mod < strtotime($topic->topic_time . ' +0000') ) :
 			bb_ajax_thread( $topic->topic_id, $page );
 		else :
