@@ -654,7 +654,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
 		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
 		VALUES
-		('$title', $bb_current_user->ID, '$bb_current_user->data->user_login', $bb_current_user->ID, '$bb_current_user->data->user_login', '$now', '$now', $forum)");
+		('$title', $bb_current_user->ID, '{$bb_current_user->data->user_login}', $bb_current_user->ID, '{$bb_current_user->data->user_login}', '$now', '$now', $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
