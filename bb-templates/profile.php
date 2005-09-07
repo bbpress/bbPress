@@ -28,7 +28,7 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 <?php if ( $posts ) : ?>
 <ol>
 <?php foreach ($posts as $bb_post) : $topic = get_topic( $bb_post->topic_id ) ?>
-<li<?php alt_class('replies'); ?>><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> User last replied: <?php bb_post_time(); ?> ago.
+<li<?php alt_class('replies'); ?>><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> <?php if ( $user->ID == $bb_current_user->ID ) _e('You last replied'); else _e('User last replied'); ?>: <?php bb_post_time(); ?> ago.
 <?php
 if ( strtotime(bb_get_post_time()) < strtotime(get_topic_time()) ) {
 	echo ' <span class="freshness">Most recent reply: ';
