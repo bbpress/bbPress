@@ -70,7 +70,8 @@ function bb_post_template() {
 
 function post_form() {
 	global $bb_current_user, $bb, $page, $topic;
-	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
+	$add = topic_pages_add();
+	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
 		include( BBPATH . '/bb-templates/post-form.php');
 	} elseif( !$bb_current_user ) {
 		echo "<p>You must login to post.</p>";
@@ -420,12 +421,16 @@ function topic_last_post_link( $id = 0 ) {
 
 function topic_pages() {
 	global $topic, $page;
-	$add = 0;
+	$add = topic_pages_add();
+	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ) );
+}
+
+function topic_pages_add() {
+	global $topic;
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
 		$add += $topic->deleted_posts;
 	endif;
-	$add = bb_apply_filters( 'topic_pages_add', $add );
-	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ) );
+	return bb_apply_filters( 'topic_pages_add', $add );
 }
 
 function get_page_number_links($page, $total) {
