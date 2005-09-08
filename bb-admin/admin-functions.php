@@ -12,7 +12,7 @@ function bb_get_admin_footer() {
 }
 
 function bb_admin_menu_generator() {
-	global $bb_menu, $bb_submenu, $bb_admin_hooks;
+	global $bb_menu, $bb_submenu;
 	$bb_menu = array();
 	$bb_menu[0] = array(__('Dashboard'), 'moderate', 'index.php');
 	$bb_menu[5] = array(__('Users'), 'moderate', 'users.php');
@@ -130,6 +130,21 @@ function get_deleted_posts( $page = 1, $limit = false ) {
 	if ( $page )
 		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status = 1 ORDER BY post_time DESC LIMIT $limit");
 	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status = 1");
+}
+
+function bb_recount_list() {
+	global $recount_list;
+	$recount_list = array();
+	$recount_list[5] = array('topic-posts', __('Count posts of every topic'));
+	$recount_list[10] = array('topic-deleted-posts', __('Count deleted posts on every topic'));
+	$recount_list[15] = array('forums', __('Count topics and posts in every forum (relies on the above)'));
+	$recount_list[20] = array('topics-replied', __('Count topics to which each user has replied'));
+	$recount_list[25] = array('topic-tag-count', __('Count tags for every topic'));
+	$recount_list[30] = array('tags-tag-count', __('Count topics for every tag'));
+	$recount_list[35] = array('zap-tags', __('DELETE tags with no topics.  Only functions if the above checked'));
+	bb_do_action('bb_recount_list');
+	ksort($recount_list);
+	return $recount_list;
 }
 
 ?>

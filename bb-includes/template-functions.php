@@ -710,13 +710,16 @@ function get_user_link( $user_id ) {
 function user_link( $id ) {
 	echo bb_apply_filters('user_link', get_user_link($id) );
 }
+function get_full_user_link( $id ) {
+	if ( get_user_link( $id ) )
+		$r = '<a href="' . get_user_link( get_post_author_id() ) . '">' . get_user_name( $id ) . '</a>';
+	else
+		$r = get_user_name( $id );
+	return $r;
+}
 
 function full_user_link( $id ) {
-	if ( get_user_link( $id ) ) {
-		echo '<a href="' . get_user_link( get_post_author_id() ) . '">' . get_user_name( $id ) . '</a>';
-	} else {
-		echo get_user_name( $id );
-	}
+	echo get_full_user_link( $id );
 }
 
 function get_user_type_label( $type ) {

@@ -1,5 +1,6 @@
 <?php
-require('../bb-config.php');
+require_once('../bb-config.php');
+require_once('admin-functions.php');
 header('Content-type: text/plain');
 
 if ( bb_current_user_can('recount') ) :
@@ -100,6 +101,12 @@ if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 	endif;
 	echo "\n\n";
 endif;
+
+bb_recount_list();
+ if ( $recount_list )
+	foreach ( $recount_list as $item )
+		if ( isset($item[2]) && isset($_POST[$item[0]]) && 1 == $_POST[$item[0]])
+			$item[2]();
 
 endif;
 
