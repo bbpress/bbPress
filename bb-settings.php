@@ -107,8 +107,10 @@ register_shutdown_function('bb_shutdown_action_hook');
 
 $bb_current_user = bb_current_user();
 
+if ( $bb_current_user && bb_current_user_can('not_play_nice') )
+	bb_block_current_user();
 if ( $bb_current_user && !bb_current_user_can('read') )
-	die("You've been blocked.  If you think a mistake has been made, contact this site's administrator.");
+	bb_log_current_nocaps();
 
 $page = bb_get_uri_page();
 ?>

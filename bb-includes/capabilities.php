@@ -141,7 +141,9 @@ class BB_Roles {
 
 				'blocked' => array(
 					'name' => __('Blocked'),
-					'capabilities' => array())
+					'capabilities' => array(
+						'not_play_nice' => true
+				))
 			);
 	}
 

@@ -467,6 +467,17 @@ function bb_current_user() {
 	return false;
 }
 
+function bb_block_current_user() {
+	global $bbdb, $bb_table_prefix, $bb_current_user;
+	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
+	die("You've been blocked.  If you think a mistake has been made, contact this site's administrator.");
+}
+
+//Temp
+function bb_log_current_nocaps() {
+	global $bbdb, $bb_table_prefix, $bb_current_user;
+	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'no_caps', 1 ); // Just for logging.
+}
 function bb_get_user( $user_id, $cache = true ) {
 	global $bb_cache, $bb_user_cache;
 	if ( !is_numeric( $user_id ) )
