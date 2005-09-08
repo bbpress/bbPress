@@ -30,6 +30,8 @@ if ( !isset( $_GET['updated'] ) )
 	$updated = false;
 else
 	$updated = true;
+
+bb_do_action( 'bb_profile.php_pre_db', $user_id );
 $posts = get_recent_user_replies( $user_id );
 $threads = get_recent_user_threads( $user_id );
 

@@ -761,7 +761,7 @@ function bb_new_post( $topic_id, $bb_post ) {
 }
 
 function bb_delete_post( $post_id, $new_status = 0 ) {
-	global $bbdb, $bb_cache, $bb_table_prefix, $thread_ids_cache;
+	global $bbdb, $bb_cache, $bb_table_prefix, $thread_ids_cache, $topic, $bb_post;
 	$post_id = (int) $post_id;
 	$new_status = (int) $new_status;
 	$bb_post    = bb_get_post ( $post_id );
