@@ -647,7 +647,8 @@ function post_delete_link() {
 		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=1' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>Delete</a>";
 	else
 		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=0&#038;view=all' onclick='return confirm(\"Are you sure you wanna undelete that?\");'>Undelete</a>";
-	echo bb_apply_filters( 'post_delete_link', array($r, $bb_post->post_status) )
+	$r = bb_apply_filters( 'post_delete_link', array($r, $bb_post->post_status) );
+	echo $r[0];
 }
 
 function post_author_id() {

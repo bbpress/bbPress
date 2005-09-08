@@ -29,7 +29,7 @@ function get_thread_post_ids ( $topic_id ) {
 		$where = bb_apply_filters('get_thread_post_ids_where', 'AND post_status = 0');
 		$thread_ids_cache[$topic_id]['post'] = $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
 		$thread_ids_cache[$topic_id]['poster'] = $bbdb->get_col('', 1);
-	}	
+	}
 	return $thread_ids_cache[$topic_id];
 }
 
@@ -729,16 +729,14 @@ function bb_new_post( $topic_id, $bb_post ) {
 	$uid   = $bb_current_user->ID;
 	$uname = $bb_current_user->data->user_login;
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
-	$status = 0;
 
 	$topic = get_topic( $tid );
-	$status = bb_apply_filters( 'bb_new_post_status', $tid );
 
 	if ( $bb_post && $topic ) {
 		$bbdb->query("INSERT INTO $bbdb->posts 
-		(topic_id, poster_id, post_text, post_time, poster_ip, post_status, post_position)
+		(topic_id, poster_id, post_text, post_time, poster_ip, post_position)
 		VALUES
-		('$tid',  '$uid',    '$bb_post','$now',    '$ip',      $status,     $topic->topic_posts + 1)");
+		('$tid',  '$uid',    '$bb_post','$now',    '$ip',      $topic->topic_posts + 1)");
 		$post_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = $uid, topic_last_poster_name = '$uname',
