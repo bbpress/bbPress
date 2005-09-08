@@ -700,7 +700,7 @@ function bb_delete_topic( $topic_id ) {
 		$post_ids = get_thread_post_ids( $topic_id );
 		$post_ids['post'] = array_reverse($post_ids['post']);
 		foreach ( $post_ids['post'] as $post_id )
-			bb_delete_post( $post_id );
+			bb_delete_post( $post_id, ( $topic->topic_status + 1 ) % 2 );
 		if ( $topic->topic_status ) {
 			global $bb_table_prefix;
 			$ids = array_unique($post_ids['poster']);
