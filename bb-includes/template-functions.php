@@ -421,9 +421,10 @@ function topic_last_post_link( $id = 0 ) {
 function topic_pages() {
 	global $topic, $page;
 	$add = 0;
-	if ( isset($_GET['view']) && 'deleted' == $_GET['view'] ) :
+	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
 		$add += $topic->deleted_posts;
 	endif;
+	$add = bb_apply_filters( 'topic_pages_add', $add );
 	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ) );
 }
 
@@ -486,7 +487,7 @@ function topic_delete_link() {
 	if ( 0 == $topic->topic_status )
 		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&#038;view=deleted' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete entire topic</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&#038;view=all' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete entire topic</a>";
 }
 
 function topic_close_link() {
@@ -516,10 +517,10 @@ function topic_show_all_link() {
 	global $bb_current_user;
 	if ( !bb_current_user_can('browse_deleted') )
 		return;
-	if ( 'deleted' == @$_GET['view'] )
+	if ( 'all' == @$_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
 	else
-		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'deleted', get_topic_link() ) ) . "'>View deleted posts</a>";
+		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>View all posts</a>";
 }
 
 function topic_move_dropdown() {
@@ -628,15 +629,25 @@ function post_edit_link() {
 		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>Edit</a>";
 }
 
+function post_del_class() {
+	global $bb_current_user, $bb_post;
+	switch ( $bb_post->post_status ) :
+	case 0 : return ''; break;
+	case 1 : return 'deleted'; break;
+	default: return bb_apply_filters( 'post_del_class', $bb_post->post_status );
+	endswitch;
+}
+
 function post_delete_link() {
 	global $bb_current_user, $bb_post;
 	if ( !bb_current_user_can('manage_posts') )
 		return;
 
 	if ( 0 == $bb_post->post_status )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>Delete</a>";
+		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=1' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>Delete</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;view=deleted' onclick='return confirm(\"Are you sure you wanna undelete that?\")'>Undelete</a>";
+		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=0&#038;view=all' onclick='return confirm(\"Are you sure you wanna undelete that?\");'>Undelete</a>";
+	echo bb_apply_filters( 'post_delete_link', array($r, $bb_post->post_status) )
 }
 
 function post_author_id() {
@@ -742,7 +753,9 @@ function get_user_name( $id ) {
 
 function profile_pages() {
 	global $user, $page;
-	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $user->topics_replied ) );
+	$add = 0;
+	$add = bb_apply_filters( 'profile_pages_add', $add );
+	echo bb_apply_filters( 'topic_pages', get_page_number_links( $page, $user->topics_replied + $add ) );
 }
 
 //TAGS

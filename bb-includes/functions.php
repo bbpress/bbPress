@@ -179,7 +179,7 @@ function get_recent_user_replies( $user_id ) {
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = bb_apply_filters('get_recent_user_replies', 'AND post_status = 0');
+	$where = bb_apply_filters('get_recent_user_replies_where', 'AND post_status = 0');
 	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY post_time DESC LIMIT $limit");
 	if ( $posts ) :
 		foreach ($posts as $bb_post) {
@@ -729,14 +729,16 @@ function bb_new_post( $topic_id, $bb_post ) {
 	$uid   = $bb_current_user->ID;
 	$uname = $bb_current_user->data->user_login;
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
+	$status = 0;
 
 	$topic = get_topic( $tid );
+	$status = bb_apply_filters( 'bb_new_post_status', $tid );
 
 	if ( $bb_post && $topic ) {
 		$bbdb->query("INSERT INTO $bbdb->posts 
-		(topic_id, poster_id, post_text, post_time, poster_ip, post_position)
+		(topic_id, poster_id, post_text, post_time, poster_ip, post_status, post_position)
 		VALUES
-		('$tid',   '$uid',    '$bb_post',   '$now',    '$ip',     $topic->topic_posts + 1)");
+		('$tid',  '$uid',    '$bb_post','$now',    '$ip',      $status,     $topic->topic_posts + 1)");
 		$post_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = $uid, topic_last_poster_name = '$uname',
@@ -760,54 +762,65 @@ function bb_new_post( $topic_id, $bb_post ) {
 	}
 }
 
-function bb_delete_post( $post_id ) {
+function bb_delete_post( $post_id, $new_status = 0 ) {
 	global $bbdb, $bb_cache, $bb_table_prefix, $thread_ids_cache;
 	$post_id = (int) $post_id;
+	$new_status = (int) $new_status;
 	$bb_post    = bb_get_post ( $post_id );
 	$topic   = get_topic( $bb_post->topic_id );
+	$tid = (int) $topic->topic_id;
 
 	if ( $bb_post ) {
-		$new_status = ( $bb_post->post_status + 1 ) % 2;
+		$uid = (int) $bb_post->poster_id;
+		if ( $new_status == $bb_post->post_status )
+			return;
 		$sign = ( $new_status ) ? '-' : '+';
 		$bbdb->query("UPDATE $bbdb->posts SET post_status = $new_status WHERE post_id = $post_id");
-		bb_update_topicmeta( $topic->topic_id, 'deleted_posts', $topic->deleted_posts + ( $new_status ? 1 : -1 ) );
+		if ( 1 == $new_status )
+			bb_update_topicmeta( $tid, 'deleted_posts', $topic->deleted_posts + 1 );
+		else
+			bb_do_action( 'bb_delete_post_new_status', $new_status );
+		if ( 1 == $bb_post->post_status )
+			bb_update_topicmeta( $tid, 'deleted_posts', $topic->deleted_posts - 1 );
+		else
+			bb_do_action( 'bb_delete_post_old_status', $bb_post->post_status );
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts $sign 1 WHERE forum_id = $topic->forum_id");
-		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $bb_post->topic_id AND post_status = 0");
-		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $bb_post->topic_id");
+		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $tid AND post_status = 0");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $tid");
 
 		if ( 0 == $posts ) {
-			$bbdb->query("UPDATE $bbdb->topics SET topic_status = 1 WHERE topic_id = $bb_post->topic_id");
-			if ( $tags = $bbdb->get_col("SELECT tag_id FROM $bbdb->tagged WHERE topic_id = $bb_post->topic_id") ) {
+			$bbdb->query("UPDATE $bbdb->topics SET topic_status = 1 WHERE topic_id = $tid");
+			if ( $tags = $bbdb->get_col("SELECT tag_id FROM $bbdb->tagged WHERE topic_id = $tid") ) {
 				$tags = join(',', $tags);
 				$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id IN ($tags)");
 			}
-			$bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = $bb_post->topic_id");
+			$bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = $tid");
 			$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1 WHERE forum_id = $topic->forum_id");
-			bb_do_action('bb_delete_topic', $bb_post->topic_id);
+			bb_do_action('bb_delete_topic', $tid);
 		} else {
-			$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $bb_post->topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
+			$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $tid AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
 			$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = $old_post->poster_id");
 			if ( $topic->topic_status ) {
-				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0, topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $bb_post->topic_id");
+				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0, topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $tid");
 				$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $topic->forum_id");
 			} else
-				$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $bb_post->topic_id");
+				$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $tid");
 			if ( $topic->topic_posts != $bb_post->post_position )
-				update_post_positions( $topic->topic_id );
+				update_post_positions( $tid );
 		}
 		//Only happens if we're deleting an entire topic
-		if ( $new_status && isset($thread_ids_cache[$topic->topic_id]) ) {
-			array_pop($thread_ids_cache[$topic->topic_id]['post']);
-			array_pop($thread_ids_cache[$topic->topic_id]['poster']);
+		if ( $new_status && isset($thread_ids_cache[$tid]) ) {
+			array_pop($thread_ids_cache[$tid]['post']);
+			array_pop($thread_ids_cache[$tid]['poster']);
 		}
-		$post_ids = get_thread_post_ids( $bb_post->topic_id );
-		$user = bb_get_user( $bb_post->poster_id );
+		$post_ids = get_thread_post_ids( $tid );
+		$user = bb_get_user( $uid );
 		if ( $new_status && ( !is_array($post_ids['poster']) || !in_array($user->ID, $post_ids['poster']) ) )
 			bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', $user->topics_replied - 1 );
-		$bb_cache->flush_one( 'topic', $bb_post->topic_id );
-		$bb_cache->flush_many( 'thread', $bb_post->topic_id );
+		$bb_cache->flush_one( 'topic', $tid );
+		$bb_cache->flush_many( 'thread', $tid );
 		$bb_cache->flush_many( 'forum', $forum_id );
-		bb_do_action('bb_delete_post', $post_id);
+		bb_do_action( 'bb_delete_post', $post_id );
 		return $post_id;
 	} else {
 		return false;

@@ -23,7 +23,6 @@ function bb_admin_menu_generator() {
 	$bb_submenu['users.php'][5] = array(__('Find'), 'moderate', 'users.php');
 	$bb_submenu['users.php'][10] = array(__('Moderators'), 'moderate', 'users-moderators.php');
 	$bb_submenu['users.php'][15] = array(__('Blocked'), 'moderate', 'users-blocked.php');
-	$bb_submenu['users.php'][20] = array(__('Bozos'), 'moderate', 'users-bozoes.php');
 
 	$bb_submenu['content.php'][5] = array(__('Topics'), 'moderate', 'content.php');
 	$bb_submenu['content.php'][10] = array(__('Posts'), 'moderate', 'content-posts.php');
@@ -129,8 +128,8 @@ function get_deleted_posts( $page = 1, $limit = false ) {
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	if ( $page )
-		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status <> 0 ORDER BY post_time DESC LIMIT $limit");
-	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status <> 0");
+		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status = 1 ORDER BY post_time DESC LIMIT $limit");
+	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status = 1");
 }
 
 ?>

@@ -16,12 +16,20 @@ if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
 endif;
 
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
-	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status <> '0' GROUP BY topic_id") ) :
+	$old = $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'deleted_posts'");
+	$old = array_flip($old);
+	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '1' GROUP BY topic_id") ) :
 		echo "Counting deleted posts...\n";
 		$counts = $bbdb->get_col('', 1);
-		foreach ($topics as $t => $i)
+		foreach ($topics as $t => $i) :
 			bb_update_topicmeta( $i, 'deleted_posts', $counts[$t] );
+			unset($old[$i]);
+		endforeach;
 		unset($topics, $t, $i, $counts);
+	endif;
+	if ( $old ) :
+		$old = join(',', array_flip($old));
+		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($old) AND meta_key = 'deleted_posts'");
 	endif;
 	echo "Done counting deleted posts.\n\n";
 endif;
