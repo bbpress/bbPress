@@ -717,7 +717,7 @@ function user_link( $id ) {
 }
 function get_full_user_link( $id ) {
 	if ( get_user_link( $id ) )
-		$r = '<a href="' . get_user_link( get_post_author_id() ) . '">' . get_user_name( $id ) . '</a>';
+		$r = '<a href="' . get_user_link( $id ) . '">' . get_user_name( $id ) . '</a>';
 	else
 		$r = get_user_name( $id );
 	return $r;
