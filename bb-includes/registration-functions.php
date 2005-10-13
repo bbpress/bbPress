@@ -114,7 +114,9 @@ function bb_send_pass( $user, $pass ) {
 	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user");
 
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ': Password', "Your password is: $pass
+		mail( $user->user_email, bb_get_option('name') . ': Password', "
+Your username is: $user->user_login
+Your password is: $pass
 You can now login: " . bb_get_option('uri') . "
 
 Enjoy!", 'From: ' . bb_get_option('admin_email') );
