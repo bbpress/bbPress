@@ -25,6 +25,9 @@ endif;
 <p><sup>*</sup>These items are <span class="required">required</span>.</p>
 <?php endif; ?>
 </fieldset>
+
+<?php bb_do_action('extra_profile_info', $user); ?>
+
 <?php if ( bb_current_user_can('edit_users') ) : $required = false; ?>
 <fieldset>
 <legend>Administration</legend>
