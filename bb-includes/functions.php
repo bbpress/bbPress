@@ -1005,7 +1005,8 @@ function get_path( $level = 1 ) {
 	if ( isset($_SERVER['PATH_INFO']) ) :
 		$url = explode('/',$_SERVER['PATH_INFO']);
 		return $url[$level];
-	else:	return;
+	else :
+		return;
 	endif;
 }
 
@@ -1304,7 +1305,8 @@ function bb_repermalink() {
 	$uri = $_SERVER['REQUEST_URI'];
 	if ( isset($_GET['id']) )
 		$permalink = (int) $_GET['id'];
-	else	$permalink = intval( get_path() );
+	else
+		$permalink = intval( get_path() );
 
 	if ( is_forum() ) {
 		global $forum_id;
@@ -1336,7 +1338,8 @@ function bb_repermalink() {
 	} elseif ( is_tag() ) {  // It's not an integer and tags.php pulls double duty.
 		if ( isset($_GET['tag']) )
 			$permalink = $_GET['tag'];
-		else	$permalink = get_path();
+		else
+			$permalink = get_path();
 		if ( !$permalink )
 			$permalink = get_tag_page_link();
 		else {

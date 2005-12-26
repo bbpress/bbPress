@@ -1,7 +1,7 @@
 <?php
 
 class BB_Cache {
-	var $use_cache = true;
+	var $use_cache = false;
 	var $flush_freq = 100;
 	var $flush_time = 172800; // 2 days
 
@@ -158,6 +158,8 @@ class BB_Cache {
 	}
 
 	function write_cache($file, $data) {
+		if ( !$this->use_cache )
+			return;
 		$data = serialize($data);
 		$f = fopen($file, 'w');
 		flock($f, LOCK_EX);
