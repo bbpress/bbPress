@@ -32,8 +32,14 @@ if ( !topic_is_open( $topic_id ) )
 
 $post_id = bb_new_post( $topic_id, $_POST['post_content'] );
 
+$link = get_post_link($post_id);
+
+$topic = get_topic( $topic_id, false );
+
+$link = bb_add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
+
 if ($post_id)
-	header('Location: ' . get_post_link($post_id) );
+	header('Location: ' . $link );
 else
 	header('Location: ' . bb_get_option('uri') );
 exit;

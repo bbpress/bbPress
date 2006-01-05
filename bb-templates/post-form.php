@@ -30,7 +30,7 @@
 <?php forum_dropdown(); ?></p>
 <?php endif; ?>
 <p class="submit">
-  <input type="submit" id="postformsub" name="Submit" value="Send Post &raquo;" tabindex="6" />
+  <input type="submit" id="postformsub" name="Submit" value="Send Post &raquo;" tabindex="4" />
 <?php if ( is_forum() ) : ?>
 <input type="hidden" name="forum_id" value="<?php forum_id(); ?>" />
 <?php else : ?>

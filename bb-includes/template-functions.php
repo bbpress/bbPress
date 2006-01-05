@@ -72,10 +72,13 @@ function post_form() {
 	global $bb_current_user, $bb, $page, $topic;
 	$add = topic_pages_add();
 	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
-		include( BBPATH . '/bb-templates/post-form.php');
+		if (file_exists( BBPATH . 'my-templates/post-form.php' ))
+			include( BBPATH . 'my-templates/post-form.php' );
+		else
+			include( BBPATH . 'bb-templates/post-form.php');
 	} elseif( !$bb_current_user ) {
 		echo "<p>You must login to post.</p>";
-		include( BBPATH . '/bb-templates/login-form.php');
+		include( BBPATH . 'bb-templates/login-form.php');
 	}
 }
 
@@ -162,7 +165,7 @@ function is_view() {
 		return false;
 }
 
-function bb_title() {
+function bb_get_title() {
 	global $topic, $forum, $static_title, $tag, $user;
 	$title = '';
 	if ( is_topic() )
@@ -176,6 +179,11 @@ function bb_title() {
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
 	$title .= bb_get_option('name');
+	return $title;
+}
+
+function bb_title() {
+	$title = bb_get_title();
 	echo $title;
 }
 
@@ -281,6 +289,9 @@ function get_topic_link( $id = 0, $page = 1 ) {
 		$link = bb_get_option('uri') . "topic/$topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
 	else
 		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id" . ( 1 < $page ? "&page=$page" : '' );
+
+	if ( bb_current_user_can('write_posts') )
+		$link = bb_add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
 
 	return bb_apply_filters('get_topic_link', $link);
 }
@@ -455,7 +466,7 @@ function get_page_number_links($page, $total) {
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
 		for ( $page_num = 1; $page_num <= $total_pages; $page_num++ ) :
 			if ( $page == $page_num ) :
-				$r .= ( $page_num ) . "\n";
+				$r .=  "<span>$page_num</span>\n";
 			else :
 				$p = false;
 				if ( $page_num < 3 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
@@ -907,7 +918,7 @@ function tag_pages() {
 function forum_dropdown() {
 	global $forum_id;
 	$forums = get_forums();
-	echo '<select name="forum_id" id="forum_id" tabindex="4">';
+	echo '<select name="forum_id" id="forum_id" tabindex="5">';
 
 	foreach ( $forums as $forum ) :
 		$selected = ( $forum_id == $forum->forum_id ) ? " selected='selected'" : '';
