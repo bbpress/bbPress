@@ -62,7 +62,7 @@ function newPostAddIn() {
 addLoadEvent(newTagAddIn);
 addLoadEvent(favoritesAddIn);
 addLoadEvent(resolutionAddIn);
-addLoadEvent(newPostAddIn);
+//addLoadEvent(newPostAddIn);
 
 function getResponseElement(type) {
 	switch (type) {
