@@ -244,8 +244,11 @@ class BB_User {
 		$this->id = $this->ID = $this->data->ID;
 		$this->cap_key = $bb_table_prefix . 'capabilities';
 		$this->caps = &$this->data->capabilities;
-		if ( ! is_array($this->caps) )
+		if ( ! is_array($this->caps) ) {
+			$this->caps  = array();
+			$this->roles = array();
 			$this->set_role('member');
+		}
 		$this->get_role_caps();
 	}
 
