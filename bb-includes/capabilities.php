@@ -245,11 +245,10 @@ class BB_User {
 		$this->cap_key = $bb_table_prefix . 'capabilities';
 		$this->caps = &$this->data->capabilities;
 		if ( ! is_array($this->caps) )
-
-			$this->caps = array();
+			$this->set_role('member');
 		$this->get_role_caps();
 	}
-	
+
 	function get_role_caps() {
 		global $bb_roles;
 		//Filter out caps that are not role names and assign to $this->roles
