@@ -79,6 +79,8 @@ if ( $plugins ) : foreach ( $plugins as $plugin ) :
 endforeach; endif;
 bb_do_action('bb_plugins_loaded', '');
 
+require( BBPATH . 'bb-includes/pluggable-functions.php');
+
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
 if ( defined('CUSTOM_USER_META_TABLE') )

@@ -448,25 +448,6 @@ function bb_current_time( $type = 'timestamp' ) {
 	return $d;
 }
 
-//This is only used at initialization.  Use global $bb_current_user to grab user info.
-function bb_current_user() {
-	if ( defined( 'BB_INSTALLING' ) )
-		return false;
-
-	global $bbdb, $bb, $bb_cache, $bb_user_cache;
-	if ( !isset($_COOKIE[ $bb->usercookie ]) )
-		return false;
-	if ( !isset($_COOKIE[ $bb->passcookie ]) )
-		return false;
-	$user = user_sanitize( $_COOKIE[ $bb->usercookie ] );
-	$pass = user_sanitize( $_COOKIE[ $bb->passcookie ] );
-	if ( $bb_current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass' AND user_status % 2 = 0") ) {
-		$bb_current_user = $bb_cache->append_current_user_meta( $bb_current_user );
-		return new BB_User($bb_current_user->ID);
-	} else 	$bb_user_cache[$bb_current_user->ID] = false;
-	return false;
-}
-
 function bb_block_current_user() {
 	global $bbdb, $bb_table_prefix, $bb_current_user;
 	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
@@ -555,13 +536,6 @@ function cast_meta_value( $value ) {
 	if ( false === $r )
 		$r = $value;
 	return $r;
-}
-
-function bb_check_login($user, $pass) {
-	global $bbdb;
-	$user = user_sanitize( $user );
-	$pass = user_sanitize( md5( $pass ) );
-	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND user_pass = '$pass'");
 }
 
 function bb_user_exists( $user ) {
@@ -989,16 +963,6 @@ function bb_offset_time($time) {
 	} else {
 		return ($time + ($bb->gmt_offset * 3600));
 	}
-}
-
-function bb_cookie( $name, $value, $expires = 0 ) {
-	global $bb;
-	if ( !$expires )
-		$expires = time() + 604800;
-	if ( isset( $bb->cookiedomain ) )
-		setcookie( $name, $value, $expires, $bb->cookiepath, $bb->cookiedomain );
-	else
-		setcookie( $name, $value, $expires, $bb->cookiepath );
 }
 
 function get_path( $level = 1 ) {
