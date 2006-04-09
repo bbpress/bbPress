@@ -427,6 +427,10 @@ function bb_get_uri_page() {
 
 function post_author_cache($posts) {
 	global $bb_user_cache;
+
+	if ( !$posts )
+		return;
+
 	foreach ($posts as $bb_post)
 		if ( 0 != $bb_post->poster_id )
 			if ( !isset($bb_user_cache[$bb_post->poster_id]) ) // Don't cache what we already have

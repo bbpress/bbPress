@@ -2,7 +2,7 @@
 <?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
-<h2><?php echo $user->user_login; ?></h2>
+<h2 id="userlogin"><?php echo $user->user_login; ?></h2>
 
 <?php if ( $updated ) : ?>
 <div class="notice">
@@ -74,4 +74,5 @@ if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
 </div><br style="clear: both;" />
 
 <?php profile_pages(); ?>
+
 <?php bb_get_footer(); ?>

@@ -11,7 +11,7 @@ bb_add_filter('topic_start_time', 'bb_since');
 bb_add_filter('pre_topic_title', 'bb_specialchars');
 bb_add_filter('get_forum_name', 'bb_specialchars');
 bb_add_filter('topic_title', 'closed_title', 30);
-bb_add_filter('topic_title', 'htmlspecialchars');
+bb_add_filter('topic_title', 'bb_specialchars');
 
 bb_add_filter('pre_post', 'trim');
 bb_add_filter('pre_post', 'encode_bad');
@@ -22,6 +22,7 @@ bb_add_filter('pre_post', 'addslashes', 55);
 bb_add_filter('pre_post', 'bb_autop', 60);
 
 bb_add_filter('post_text', 'bb_make_clickable');
+bb_add_filter('post_text', 'bb_rel_nofollow');
 
 bb_add_filter('total_posts', 'number_format');
 bb_add_filter('total_users', 'number_format');
@@ -43,4 +44,5 @@ if ( !$bb->mod_rewrite ) {
 	bb_add_filter('post_link', 'bb_specialchars');
 	bb_add_filter('favorites_link', 'bb_specialchars');
 }
+
 ?>
