@@ -73,7 +73,7 @@ $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-$plugins = glob( BBPATH . 'bb-plugins/*.php');
+$plugins = glob( BBPATH . 'my-plugins/*.php');
 if ( $plugins ) : foreach ( $plugins as $plugin ) :
 	require($plugin);
 endforeach; endif;
