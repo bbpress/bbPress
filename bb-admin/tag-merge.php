@@ -1,5 +1,5 @@
 <?php
-require('../bb-config.php');
+require('../config.php');
 
 nocache_headers();
 

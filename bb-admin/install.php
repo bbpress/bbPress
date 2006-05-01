@@ -1,9 +1,9 @@
 <?php
 define('BB_INSTALLING', true);
-if (!file_exists('../bb-config.php')) 
-    die('There doesn\'t seem to be a <code>bb-config.php</code> file. I need this before we can get started.');
+if (!file_exists('../config.php')) 
+    die('There doesn\'t seem to be a <code>config.php</code> file. I need this before we can get started.');
 
-require_once('../bb-config.php');
+require_once('../config.php');
 
 $step = isset($_GET['step']) ? (int) $_GET['step'] : 0 ;
 
@@ -112,7 +112,7 @@ all after
 	case 1:
 ?>
 <h1><?php _e('First Step'); ?></h1>
-<p><?php _e('Make sure you have <strong>everything</strong> (database information, email address, etc.) entered correctly in <code>bb-config.php</code> before running this script.'); ?></p>
+<p><?php _e('Make sure you have <strong>everything</strong> (database information, email address, etc.) entered correctly in <code>config.php</code> before running this script.'); ?></p>
 <p><?php _e("Before we begin we need a little bit of information about your site's first <strong>administrator account</strong>, and your site's first <strong>forum</strong>."); ?></p>
 
 <form id="setup" method="post" action="install.php?step=2">

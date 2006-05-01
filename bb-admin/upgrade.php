@@ -7,7 +7,7 @@ if ( ini_get('safe_mode') )
 	To throw caution to the wind and run the script in safe mode anyway,
 	remove the first two lines of code in this file.  Backups are always a
 	good idea.");
-require('../bb-config.php');
+require('../config.php');
 set_time_limit(600);
 
 // Use the following only if you have a May, 2005 or earlier version of bbPress

@@ -29,7 +29,7 @@ class bbdb {
 		if (!$this->dbh) {
 			$this->bail("
 <h1>Error establishing a database connection</h1>
-<p>This either means that the username and password information in your <code>bb-config.php</code> file is incorrect or we can't contact the database server at <code>$dbhost</code>.</p>
+<p>This either means that the username and password information in your <code>config.php</code> file is incorrect or we can't contact the database server at <code>$dbhost</code>.</p>
 <ul>
 	<li>Are you sure you have the correct username and password?</li>
 	<li>Are you sure that you have typed the correct hostname?</li>

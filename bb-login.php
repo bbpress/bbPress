@@ -1,5 +1,5 @@
 <?php
-require('bb-config.php');
+require('config.php');
 
 if ( @$_SERVER['HTTP_REFERER'] == bb_get_option('uri') . 'bb-login.php' && isset( $_POST['re'] ) )
 	$re = $_POST['re'];

@@ -1,5 +1,5 @@
 <?php
-require_once('bb-config.php');
+require_once('config.php');
 
 bb_repermalink();
 

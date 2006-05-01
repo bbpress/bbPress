@@ -1,5 +1,5 @@
 <?php
-require_once('bb-config.php');
+require_once('config.php');
 
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_option('uri');

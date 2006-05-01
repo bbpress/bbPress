@@ -1,5 +1,5 @@
 <?php
-require_once('bb-config.php');
+require_once('config.php');
 $topic_id = 0;
 
 if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] ) {

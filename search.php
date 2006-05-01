@@ -1,5 +1,5 @@
 <?php
-require_once('bb-config.php');
+require_once('config.php');
 
 $q = trim( @$_GET['q'] );
 $likeit = preg_replace('/\s+/', '%', $q);

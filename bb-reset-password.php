@@ -1,5 +1,5 @@
 <?php
-require('bb-config.php');
+require('config.php');
 
 require_once( BBPATH . 'bb-includes/registration-functions.php');
 
