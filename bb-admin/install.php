@@ -1,7 +1,7 @@
 <?php
 define('BB_INSTALLING', true);
 if (!file_exists('../config.php')) 
-    die('There doesn\'t seem to be a <code>config.php</code> file. I need this before we can get started.');
+    die('There doesn&#8217;t seem to be a <code>config.php</code> file. I need this before we can get started.');
 
 require_once('../config.php');
 
@@ -52,17 +52,17 @@ header( 'Content-Type: text/html; charset=utf-8' );
 	.step a, .step input {
 		font-size: 2em;
 	}
-	td input {
-		font-size: 1.5em;
-	}
 	.step {
 		text-align: right;
 	}
 	th {
 		text-align: left;
 	}
-	.required {
-		color: #060;
+	td input {
+		width: 98%;
+	}
+	.alt {
+		background: #eee;
 	}
 	#footer {
 		text-align: center; 
@@ -89,20 +89,16 @@ $bbdb->show_errors();
 switch ($step):
 	case 0:
 ?>
-<div class="warning">
-<p>bbPress is alpha software.  That means it will</p>
+<div class="warning" style="padding: 1em;">
+<p>bbPress is <em>alpha software</em>.  That means it will</p>
 <ol>
 <li>eat all your data,</li>
 <li>crush your dreams,</li>
 <li>and stab you in the eye</li>
 </ol>
-all after
-<ol>
-<li>claiming ownership of your firstborn,</li>
-<li>serving you your own computer... with a delicious sauce flamb&#233;,</li>
-<li>and urinating on your car door handle (just 'cause it can).</li>
-</ol>
-<p>You've been warned.</p>
+
+<p>It's currently best for semi-savvy users.</p>
+
 </div>
 <p><?php _e('Welcome to bbPress installation. We&#8217;re now going to go through a few steps to get you up and running with the latest in forums software.'); ?></p>
 	<h2 class="step"><a href="install.php?step=1"><?php _e('First Step &raquo;'); ?></a></h2>
@@ -116,36 +112,38 @@ all after
 <p><?php _e("Before we begin we need a little bit of information about your site's first <strong>administrator account</strong>, and your site's first <strong>forum</strong>."); ?></p>
 
 <form id="setup" method="post" action="install.php?step=2">
-<table width="100%"> 
-<tr><th>Administrator</th></tr>
-<tr>
-<td class="required"><?php _e('Login name*:'); ?></td>
+<h2>Administrator</h2>
+<table width="100%" cellpadding="4"> 
+<tr class="alt">
+<td class="required" width="25%"><?php _e('Login name*:'); ?></td>
 <td><input name="admin_login" type="text" id="admin_login" size="25" /></td>
 </tr>
 <tr>
 <td><?php _e("Website:"); ?></td>
-<td><input name="admin_url" type="text" id="admin_url" size="100" /></td>
+<td><input name="admin_url" type="text" id="admin_url" size="30" /></td>
 </tr>
-<tr>
+<tr class="alt">
 <td><?php _e("Location:"); ?></td>
-<td><input name="admin_loc" type="text" id="admin_loc" size="100" /></td>
+<td><input name="admin_loc" type="text" id="admin_loc" size="30" /></td>
 </tr>
 <tr>
 <td><?php _e('Interests:'); ?></td>
 <td><input name="admin_int" type="text" id="admin_int" size="25" /></td>
 </tr>
-<tr><th>Forum</th></tr>
-<tr>
-<td class="required"><?php _e('Forum Name*:'); ?></td>
+</table>
+
+<h2>First Forum</h2>
+
+<table width="100%" cellpadding="4">
+<tr class="alt">
+<td class="required" width="25%"><?php _e('Forum Name*:'); ?></td>
 <td><input name="forum_name" type="text" id="forum_name" size="25" /></td>
 </tr>
 <tr>
-<td"><?php _e('Description:'); ?></td>
+<td><?php _e('Description:'); ?></td>
 <td><input name="forum_desc" type="text" id="forum_desc" size="25" /></td>
 </tr>
 </table>
-
-<p><?php _e('* Items marked in <span class="required">green</span> are required.'); ?></p>
 <p><em><?php _e('Double-check that login name before continuing.'); ?></em></p>
 
 <h2 class="step">

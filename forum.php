@@ -1,6 +1,6 @@
 <?php
 
-require_once('config.php');
+require_once('./bb-load.php');
 
 $forum_id = 0;
 

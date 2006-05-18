@@ -1,6 +1,6 @@
 <?php
 
-require_once('config.php');
+require('./bb-load.php');
 
 $bb_db_override = false;
 bb_do_action( 'bb_index.php_pre_db', '' );

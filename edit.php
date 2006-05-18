@@ -1,5 +1,5 @@
 <?php
-require('config.php');
+require('./bb-load.php');
 
 if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
 	bb_add_filter('bb_is_first_where', 'no_where');

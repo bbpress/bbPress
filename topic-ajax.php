@@ -1,5 +1,5 @@
 <?php
-require('config.php');
+require('./bb-load.php');
 
 if ( !$bb_current_user )
 	die('-1');

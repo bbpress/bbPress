@@ -1,5 +1,5 @@
 <?php
-require_once('config.php');
+require_once('./bb-load.php');
 
 if ( isset($_GET['username']) ) :
 	$user = bb_get_user_by_name( $_GET['username'] );

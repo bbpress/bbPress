@@ -1,5 +1,5 @@
 <?php
-require_once('../config.php');
+require_once('../bb-load.php');
 
 if ( !bb_current_user_can('moderate') ) {
 	header('Location: ' . bb_get_option('uri'));

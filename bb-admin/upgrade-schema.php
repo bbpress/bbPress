@@ -1,5 +1,5 @@
 <?php
-require_once('../config.php');
+require_once('../bb-load.php');
 set_time_limit(600);
 
 $bb_queries = "CREATE TABLE $bbdb->forums (

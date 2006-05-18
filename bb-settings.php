@@ -66,6 +66,11 @@ $bbdb->usermeta  = $bb_table_prefix . 'usermeta';
 $bbdb->tags      = $bb_table_prefix . 'tags';
 $bbdb->tagged    = $bb_table_prefix . 'tagged';
 
+$bbdb->hide_errors();
+if ( !$bbdb->query("SELECT * FROM $bbdb->forums LIMIT 1") && !strstr( $_SERVER['PHP_SELF'], 'install.php' ) )
+	die('Does&#8217;t look like you&#8217;ve installed bbPress yet, <a href="bb-admin/install.php">go here</a>.');
+$bbdb->show_errors();
+
 $static_title = '';
 
 $_GET    = bb_global_sanitize($_GET   );

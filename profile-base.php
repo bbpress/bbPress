@@ -1,5 +1,5 @@
 <?php
-require_once('config.php');
+require_once('./bb-load.php');
 
 if ( !is_bb_profile() ) {
 	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );

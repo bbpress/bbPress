@@ -7,15 +7,6 @@
 <p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
 </div>
 
-<div id="viewdiv">
-<h2>Views</h2>
-<ul id="views">
-<?php foreach ( get_views() as $view => $title ) : ?>
-<li class="view"><a href="<?php echo get_view_link($view); ?>"><?php echo $view; ?></a></li>
-<?php endforeach; ?>
-</ul>
-</div>
-
 <?php if ( $topics || $super_stickies ) : ?>
 
 <h2>Latest Discussions</h2>
@@ -67,5 +58,17 @@
 <?php endforeach; ?>
 </table>
 <?php endif; ?>
+
+<?php if ( $bb_current_user->ID ) : ?>
+<div id="viewdiv">
+<h2>Views</h2>
+<ul id="views">
+<?php foreach ( get_views() as $view => $title ) : ?>
+<li class="view"><a href="<?php echo get_view_link($view); ?>"><?php echo $view; ?></a></li>
+<?php endforeach; ?>
+</ul>
+</div>
+<?php endif; ?>
+
 
 <?php bb_get_footer(); ?>

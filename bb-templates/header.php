@@ -3,10 +3,8 @@
 <head>
 	<title><?php bb_title() ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<?php bb_feed_head(); ?>
-	<style type="text/css">
-	 @import url(<?php bb_stylesheet_uri(); ?>);
-	</style>
+	<?php bb_feed_head(); ?> 
+	<link rel="stylesheet" href="<?php bb_stylesheet_uri(); ?>" type="text/css" />
 
 <?php if ( is_topic() && $bb_current_user ) : ?>
 	<script type="text/javascript">

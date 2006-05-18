@@ -1,5 +1,5 @@
 <?php
-require_once('config.php');
+require_once('./bb-load.php');
 
 if ( !bb_current_user_can( 'edit_favorites_of', $user_id ) )
 	die('You cannot edit those favorites.  How did you get here?');

@@ -1,5 +1,5 @@
 <?php
-require('config.php');
+require('./bb-load.php');
 
 if ( isset($_GET['topic']) )
 	$topic_id = (int) $_GET['topic'];

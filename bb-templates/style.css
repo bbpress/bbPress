@@ -1,0 +1,170 @@
+body {
+	background: #eee;
+	font-family: Georgia;
+}
+
+a {
+	color: #0000cd;
+}
+
+a:hover {
+	color: #006400;
+}
+
+#main {
+	width: 700px;
+	margin: auto;
+	background: #fff;
+	padding: 1.5em;
+}
+
+.alt {
+	background: #fff;
+}
+
+.frontpageheatmap {
+	border-bottom: 1px solid #000;
+	font-weight: normal;
+	line-height: 30px;
+	padding-bottom: 10px;
+}
+
+.infobox{
+	border: 1px solid #ccc;
+	margin-top: 1.5em;
+	padding: 1em;
+}
+
+.infobox h2{
+	margin-right: 7em;
+}
+
+.infobox ul{
+	margin-left: 10px;
+	padding: 0;
+}
+
+.nav{
+	margin: 15px 0;
+	padding: 12px 0;
+}
+
+.nav span{
+	font-weight: bold;
+}
+
+.nav span,.nav a{
+	padding: 6px;
+}
+
+.num,#forumlist small{
+	font: 11px Verdana,Arial,Helvetica,sans-serif;
+	text-align: center;
+}
+
+.postform{
+	background: #eee;
+	padding: 1em;
+}
+
+.postform textarea{
+	height: 12em;
+	padding: 10px;
+	width: 490px;
+}
+
+.poststuff{
+	font: 10px Verdana,Arial,Helvetica,sans-serif;
+	text-transform: uppercase;
+}
+
+.sticky{
+	background: #f695a9;
+}
+
+.submit{
+	text-align: right;
+}
+
+.threadauthor{
+	margin-left: -120px;
+	overflow: hidden;
+	position: absolute;
+	width: 95px;
+}
+
+.threadauthor small{
+	font: 11px Verdana,Arial,Helvetica,sans-serif;
+}
+
+.topiclink{
+	display: block;
+}
+
+.topictitle{
+	font-size: 26px;
+	font-weight: normal;
+}
+
+#content .frontpageheatmap a{
+	font-weight: normal;
+	text-decoration: none;
+}
+
+#content .infobox li{
+	margin-bottom: 2px;
+}
+
+#content .nav a{
+	border: 1px solid #ccc;
+	font-weight: normal;
+}
+
+#content .nav a:hover{
+	border: 1px solid #999;
+}
+
+#content a:visited{
+	font-weight: normal;
+}
+
+#front-search {
+	float: right;
+	margin-top: -8px;
+}
+
+#latest td,#forumlist td{
+	padding: 5px 10px;
+}
+
+#latest th,#forumlist th{
+	background: #ddd;
+	font: 11px Verdana,Arial,Helvetica,sans-serif;
+	padding: 5px 10px;
+	text-transform: uppercase;
+}
+
+#latest,#forumlist{
+	background: #eee;
+	margin-bottom: 2em;
+	width: 100%;
+}
+
+#tags-bad-ie{
+	border-bottom: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	float: right;
+	margin-top: -2em;
+	padding: 0 1em 1em;
+}
+
+#thread{
+	background: #eee;
+	list-style: none;
+	margin: 0 0 0 100px;
+	padding: 0;
+}
+
+#thread li{
+	padding: 1em;
+}
