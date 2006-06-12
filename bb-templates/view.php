@@ -8,15 +8,15 @@
 
 <table id="latest">
 <tr>
-	<th>Topic</th>
-	<th>Posts</th>
-	<th>Last Poster</th>
-	<th>Freshness</th>
+	<th><?php _e('Topic'); ?></th>
+	<th><?php _e('Posts'); ?></th>
+	<th><?php _e('Last Poster'); ?></th>
+	<th><?php _e('Freshness'); ?></th>
 </tr>
 
 <?php if ( $stickies ) : foreach ( $stickies as $topic ) : ?>
 <tr<?php alt_class('topic', 'sticky'); ?>>
-	<td>Sticky: <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
+	<td><?php _e('Sticky:'); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>

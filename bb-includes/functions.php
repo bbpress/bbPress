@@ -1386,21 +1386,6 @@ function status_header( $header ) {
 }
 }
 
-// Placeholders
-//WPcommon
-if ( !function_exists('_e') ) {
-function _e($e) {
-	echo $e;
-}
-}
-
-//WPcommon
-if ( !function_exists('__') ) {
-function __($e) {
-	return $e;
-}
-}
-
 // Profile/Admin
 function global_profile_menu_structure() {
 	global $bb_current_user, $user_id, $profile_menu, $profile_hooks;

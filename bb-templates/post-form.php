@@ -1,22 +1,22 @@
 <?php if ( is_topic() ) : ?>
-<h2>Reply</h2>
+<h2><?php _e('Reply'); ?></h2>
 <?php elseif ( is_forum() ) : ?>
-<h2>New Topic in this Forum</h2>
+<h2><?php _e('New Topic in this Forum'); ?></h2>
 <?php elseif ( is_tag() ) : ?>
-<h2>Add New Topic</h2>
+<h2><?php _e('Add New Topic'); ?></h2>
 <?php endif; ?>
 
 <form class="postform" method="post" action="<?php option('uri'); ?>bb-post.php">
 <?php if ( is_forum() || is_tag() ) : ?>
 <p>Before posting a new topic, <a href="<?php option('uri'); ?>search.php">be sure to search</a> to see if one has been started already.</p>
 <p>
-  <label>Topic title: (be brief and descriptive)<br />
+  <label><?php _e('Topic title: (be brief and descriptive)'); ?><br />
   <input name="topic" type="text" id="topic" size="50" maxlength="80" tabindex="1" />
-</label>
-<label><input name="support" type="checkbox" id="support" checked="checked" value="1" tabindex="2"/>This is a support question.</label>
+</label><br />
+<label><input name="support" type="checkbox" id="support" checked="checked" value="1" tabindex="2"/><?php _e('This is a support question.'); ?></label>
 </p>
 <?php endif; ?>
-<p><label>Post:<br />
+<p><label><?php _e('Post:'); ?><br />
   <textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="3"></textarea>
   </label>
 </p>
@@ -26,11 +26,11 @@
 </p>
 <?php endif; ?>
 <?php if ( is_tag() ) : ?>
-<p>Pick a section:<br />
+<p><?php _e('Pick a section:'); ?><br />
 <?php forum_dropdown(); ?></p>
 <?php endif; ?>
 <p class="submit">
-  <input type="submit" id="postformsub" name="Submit" value="Send Post &raquo;" tabindex="4" />
+  <input type="submit" id="postformsub" name="Submit" value="<?php _e('Send Post'); ?> &raquo;" tabindex="4" />
 <?php if ( is_forum() ) : ?>
 <input type="hidden" name="forum_id" value="<?php forum_id(); ?>" />
 <?php else : ?>
@@ -38,5 +38,5 @@
 <?php endif; ?>
 
 </p>
-<p>Allowed tags: <code>a em strong code ul ol li blockquote</code>. <br />Put code in between <code>`backticks`</code>.</p>
+<p><?php _e('Allowed tags: <code>a em strong code ul ol li blockquote</code>. <br />Put code in between <code>`backticks`</code>.'); ?></p>
 </form>
