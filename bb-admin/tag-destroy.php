@@ -2,21 +2,20 @@
 require('../bb-load.php');
 
 nocache_headers();
-
 if ( !bb_current_user_can('manage_tags') )
-	die('You are not allowed to manage tags.');
+	die(__('You are not allowed to manage tags.'));
 
 $tag_id = (int) $_POST['id' ];
 
 $old_tag = get_tag( $tag_id );
 if ( !$old_tag )
-	die('Tag not found.');
+	die(__('Tag not found.'));
 
 if ( $destroyed = destroy_tag( $tag_id ) ) {
-	echo 'Rows deleted from tags table: ' . $destroyed['tags'] . "<br />\n";
-	echo 'Rows deleted from tagged table: ' . $destroyed['tagged'] . "<br />\n";
-	echo '<a href="'. $bb->path . '">Home</a>';
+	printf(__("Rows deleted from tags table: %d <br />\n"), $destroyed['tags']);
+	printf(__("Rows deleted from tagged table: %d <br />\n"), $destroyed['tagged']);
+	printf(__('<a href="%s">Home</a>'), $bb->path);
 } else {
-	die("Something odd happened when attempting to destroy that tag.<br />\n<a href=\"" . $_SERVER['HTTP_REFERER'] . '">Try Again?</a>');
+   die(printf(__("Something odd happened when attempting to destroy that tag.<br />\n<a href=\"%s\">Try Again?</a>"), $_SERVER['HTTP_REFERER']));
 }
 ?>

@@ -4,6 +4,6 @@
 
 <?php if ( function_exists($bb_admin_page) ) : $bb_admin_page(); else : ?>
 
-<p>Nothing to see here.<p>
+<p><?php _e('Nothing to see here.'); ?><p>
 
 <?php endif; bb_get_admin_footer(); ?>

@@ -112,10 +112,10 @@ switch ($step):
 <p><?php _e("Before we begin we need a little bit of information about your site's first <strong>administrator account</strong>, and your site's first <strong>forum</strong>."); ?></p>
 
 <form id="setup" method="post" action="install.php?step=2">
-<h2>Administrator</h2>
+<h2><?php _e('Administrator'); ?></h2>
 <table width="100%" cellpadding="4"> 
 <tr class="alt">
-<td class="required" width="25%"><?php _e('Login name*:'); ?></td>
+<td class="required" width="25%"><?php _e('Login name:'); ?>*</td>
 <td><input name="admin_login" type="text" id="admin_login" size="25" /></td>
 </tr>
 <tr>
@@ -132,11 +132,11 @@ switch ($step):
 </tr>
 </table>
 
-<h2>First Forum</h2>
+<h2><?php _e('First Forum') ?></h2>
 
 <table width="100%" cellpadding="4">
 <tr class="alt">
-<td class="required" width="25%"><?php _e('Forum Name*:'); ?></td>
+<td class="required" width="25%"><?php _e('Forum Name:'); ?>*</td>
 <td><input name="forum_name" type="text" id="forum_name" size="25" /></td>
 </tr>
 <tr>
@@ -169,12 +169,12 @@ require_once('../bb-includes/registration-functions.php');
 
 // Fill in the data we gathered
 if ( !$admin_login = user_sanitize( $_POST['admin_login'] ) )
-	die('Bad login name.  Go back and try again.');
+	die(__('Bad login name.  Go back and try again.'));
 if ( isset( $_POST['admin_url'] ) )
 	$admin_url = bb_fix_link( $_POST['admin_url'] );
 
 if ( !$forum_name = $_POST['forum_name'] )
-	die('You must name your first forum.  Go back and try again.');
+	die(__('You must name your first forum.  Go back and try again.'));
 $forum_desc = ( isset( $_POST['forum_desc'] ) ) ? $_POST['forum_desc'] : '' ;
 
 $password = bb_new_user( $admin_login, $bb->admin_email, $admin_url );

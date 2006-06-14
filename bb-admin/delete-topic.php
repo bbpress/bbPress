@@ -15,7 +15,7 @@ $topic_id = (int) $_GET['id'];
 $topic    =  get_topic ( $topic_id );
 
 if ( !$topic )
-	die('There is a problem with that topic, pardner.');
+	die(__('There is a problem with that topic, pardner.'));
 
 bb_delete_topic( $topic->topic_id );
 

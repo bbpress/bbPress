@@ -12,8 +12,8 @@ $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_ip = '$ip' 
 
 require('head.php');
 ?>
-<h2>IP Information</h2>
-<h3>Last 30 posts</h3>
+<h2><?php _e('IP Information'); ?></h2>
+<h3><?php _e('Last 30 posts'); ?></h3>
 <?php if ($posts) : ?>
 <div class="nav">
 <?php topic_pages(); ?>
@@ -30,7 +30,7 @@ require('head.php');
 		
 		<div class="threadpost">
 			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">Posted: <?php bb_post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip(); ?></div>
+			<div class="poststuff"><?php _e('Posted:'); ?> <?php bb_post_time(); ?> <a href="#post-<?php post_id(); ?>">#</a> <?php post_ip(); ?></div>
 		</div>
 	</li>
 <?php endforeach; ?>
