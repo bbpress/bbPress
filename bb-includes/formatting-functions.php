@@ -288,9 +288,9 @@ function closed_title( $title ) {
 	global $topic;
 	if ( '0' === $topic->topic_open ) {
 		if ( is_bb_feed() )
-			return "[closed] $title";
+			return sprintf(__('[closed] %s'), $title);
 		else
-			return "[closed] <span class='closed'>$title</span>";
+			return sprintf(__('[closed]'). "<span class='closed'>%s</span>", $title);
 	}
 	return $title;
 }

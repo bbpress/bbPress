@@ -296,14 +296,14 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 function bb_since( $original, $do_more = 0 ) {
 	// array of time period chunks
 	$chunks = array(
-		array(60 * 60 * 24 * 365 , 'year'),
-		array(60 * 60 * 24 * 30 , 'month'),
-		array(60 * 60 * 24 * 7, 'week'),
-		array(60 * 60 * 24 , 'day'),
-		array(60 * 60 , 'hour'),
-		array(60 , 'minute'),
+		array(60 * 60 * 24 * 365 , __('year')),
+		array(60 * 60 * 24 * 30 , __('month')),
+		array(60 * 60 * 24 * 7, __('week')),
+		array(60 * 60 * 24 , __('day')),
+		array(60 * 60 , __('hour')),
+		array(60 , __('minute')),
 	);
-	
+
 	$today = time();
 	$since = $today - bb_offset_time($original);
 	
@@ -455,7 +455,7 @@ function bb_current_time( $type = 'timestamp' ) {
 function bb_block_current_user() {
 	global $bbdb, $bb_table_prefix, $bb_current_user;
 	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
-	die("You've been blocked.  If you think a mistake has been made, contact this site's administrator.");
+	die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
 //Temp
@@ -466,7 +466,7 @@ function bb_log_current_nocaps() {
 function bb_get_user( $user_id, $cache = true ) {
 	global $bb_cache, $bb_user_cache;
 	if ( !is_numeric( $user_id ) )
-		die('bb_get_user needs a numeric ID');
+		die(__('bb_get_user needs a numeric ID'));
 	$user_id = (int) $user_id;
 	if ( isset( $bb_user_cache[$user_id] ) && $cache )
 		return $bb_user_cache[$user_id];
@@ -1337,13 +1337,13 @@ function bb_repermalink() {
 	$check = preg_replace( '|' . trim( bb_get_option('domain'), ' /' ) . '|', '', $permalink, 1 );
 
 	if ( isset($bb->debug) && 1 === $bb->debug ) :
-		echo "<table>\n<tr><td>REQUEST_URI:</td><td>";
+		echo "<table>\n<tr><td>". __('REQUEST_URI') .":</td><td>";
 		var_dump($uri);
-		echo "</td></tr>\n<tr><td>should be:</td><td>";
+		echo "</td></tr>\n<tr><td>". __('should be') .":</td><td>";
 		var_dump($check);
-		echo "</td></tr>\n<tr><td>full permalink:</td><td>";
+		echo "</td></tr>\n<tr><td>". __('full permalink') .":</td><td>";
 		var_dump($permalink);
-		echo "</td></tr>\n<tr><td>PATH_INFO:</td><td>";
+		echo "</td></tr>\n<tr><td>". __('PATH_INFO') ."</td>:<td>";
 		var_dump($_SERVER['PATH_INFO']);
 		echo "</td></tr>\n</table>";
 	else :

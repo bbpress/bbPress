@@ -62,11 +62,11 @@ function bb_reset_email( $user_login ) {
 	$resetkey = bb_random_pass( 15 );
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ': Password Reset', "If you wanted to reset your password, you may do so by visiting the following address:
+		mail( $user->user_email, bb_get_option('name') . ': ' __('Password Reset'), sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
 
-" . bb_get_option('uri') . "bb-reset-password.php?key=$resetkey
+%s
 
-If you don't want to reset your password, just ignore this email. Thanks!", 'From: ' . bb_get_option('admin_email') );
+If you don't want to reset your password, just ignore this email. Thanks!"), bb_get_option('uri')."bb-reset-password.php?key=".$resetkey ), 'From: ' . bb_get_option('admin_email') );
 
 	endif;
 }
@@ -75,7 +75,7 @@ function bb_reset_password( $key ) {
 	global $bbdb;
 	$key = user_sanitize( $key );
 	if ( empty( $key ) )
-		die('Key not found.');
+		die(__('Key not found.'));
 	$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'");
 	if ( $user = bb_get_user( $user_id ) ) :
 		$newpass = bb_random_pass( 6 );
@@ -83,7 +83,7 @@ function bb_reset_password( $key ) {
 		bb_send_pass           ( $user->ID, $newpass );
 		bb_update_usermeta( $user->ID, 'newpwdkey', '' );
 	else :
-		die('Key not found.');
+		die(__('Key not found.'));
 	endif;
 }
 
@@ -114,12 +114,12 @@ function bb_send_pass( $user, $pass ) {
 	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user");
 
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ': Password', "
-Your username is: $user->user_login
-Your password is: $pass
-You can now login: " . bb_get_option('uri') . "
+		mail( $user->user_email, bb_get_option('name') . ':' __('Password'), sprintf(
+__("Your username is: %1$s
+Your password is: %2$s
+You can now login: %3$s
 
-Enjoy!", 'From: ' . bb_get_option('admin_email') );
+Enjoy!"), $user->user_login, $pass, bb_get_option('uri') ), 'From: ' . bb_get_option('admin_email') );
 
 	endif;
 }

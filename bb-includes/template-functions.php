@@ -48,10 +48,10 @@ function profile_menu() {
 function login_form() {
 	global $bb_current_user, $bb;
 	if ($bb_current_user) {
-		echo '<p class="login">Welcome, ' . get_user_name( $bb_current_user->ID ) . "! <a href='" . get_user_profile_link( $bb_current_user->ID ) . "'>View your profile &raquo;</a>\n<small>(";
+        printf('<p class="login">'. __('Welcome, %1$s!'). ' <a href="' . get_user_profile_link( $bb_current_user->ID ) . '">'. __('View your profile') ."&raquo;</a>\n<small>(",get_user_name( $bb_current_user->ID ));
 	if ( bb_current_user_can('moderate') )
 		echo "<a href='" . bb_get_option('uri') . "bb-admin/'>Admin</a> | ";
-	echo "<a href='" . bb_get_option('uri') . "bb-login.php?logout'>Logout</a>)</small></p>";
+	echo "<a href='" . bb_get_option('uri') . "bb-login.php?logout'>". __('Logout') ."</a>)</small></p>";
 	} else {
 		include( BBPATH . '/bb-templates/login-form.php');
 	}
@@ -404,7 +404,7 @@ function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a s
 		}
 
 		$resolved_form .= "</select>\n";
-		$resolved_form .= '<input type="submit" name="submit" id="resolvedformsub" value="Change" />' . "\n</div></form>";
+		$resolved_form .= '<input type="submit" name="submit" id="resolvedformsub" value="'. __('Change') .'" />' . "\n</div></form>";
 		echo $resolved_form;
 	else:
 		switch ( get_topic_resolved( $id ) ) {
@@ -461,7 +461,7 @@ function get_page_number_links($page, $total) {
 		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg(
 								$args,
 								str_replace("/page/$page", ( 2 == $page ? '' : '/page/' . ($page - 1) ), $uri)
-								) ) . '">&laquo; Previous Page</a>' . "\n";
+								) ) . '">&laquo; '. __('Previous Page') .'</a>' . "\n";
 	}
 	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
 		for ( $page_num = 1; $page_num <= $total_pages; $page_num++ ) :
@@ -490,7 +490,7 @@ function get_page_number_links($page, $total) {
 		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg(
 								$args,
 								str_replace("/page/$page", '/page/' . ($page + 1), $uri)
-								) ) . '">Next Page &raquo;</a>' . "\n";
+								) ) . '">'. __('Next Page') .' &raquo;</a>' . "\n";
 	}
 	return $r;
 }
@@ -501,9 +501,9 @@ function topic_delete_link() {
 		return;
 
 	if ( 0 == $topic->topic_status )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('Are you sure you wanna delete that?')\">Delete entire topic</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "' onclick=\"return confirm('". __('Are you sure you wanna delete that?') ."')\">Delete entire topic</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&#038;view=all' onclick=\"return confirm('Are you sure you wanna undelete that?')\">Undelete entire topic</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . "&#038;view=all' onclick=\"return confirm('". __('Are you sure you wanna undelete that?') ."')\">Undelete entire topic</a>";
 }
 
 function topic_close_link() {
@@ -512,9 +512,9 @@ function topic_close_link() {
 		return;
 
 	if ( topic_is_open( get_topic_id() ) )
-		$text = 'Close topic';
+		$text = __('Close topic');
 	else
-		$text = 'Open topic';
+		$text = __('Open topic');
 	echo "<a href='" . bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id() . "'>$text</a>";
 }
 
@@ -524,9 +524,9 @@ function topic_sticky_link() {
 		return;
 
 	if ( topic_is_sticky( get_topic_id() ) )
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>Unstick topic</a>";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>". __('Unstick topic') ."</a>";
 	else
-		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>Stick topic</a> (<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "&#038;super=1'>to front</a>)";
+		echo "<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "'>". __('Stick topic') ."</a> (<a href='" . bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . "&#038;super=1'>". __('to front') ."</a>)";
 }
 
 function topic_show_all_link() {
@@ -534,9 +534,9 @@ function topic_show_all_link() {
 	if ( !bb_current_user_can('browse_deleted') )
 		return;
 	if ( 'all' == @$_GET['view'] )
-		echo "<a href='" . get_topic_link() . "'>View normal posts</a>";
+		echo "<a href='" . get_topic_link() . "'>". __('View normal posts') ."</a>";
 	else
-		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>View all posts</a>";
+		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
 }
 
 function topic_move_dropdown() {
@@ -547,10 +547,10 @@ function topic_move_dropdown() {
 
 	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
 	echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
-	echo '<label for="forum_id">Move this topic to the selected forum: ';
+	echo '<label for="forum_id">'. __('Move this topic to the selected forum:');
 	forum_dropdown();
 	echo "</label>\n\t";
-	echo "<input type='submit' name='Submit' value='Move' />\n</div></form>";
+	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
 }
 
 // POSTS
@@ -583,7 +583,7 @@ function get_post_author() {
 		if ( $user = bb_get_user( $id ) )
 			return $user->user_login;
 	else
-		return 'Anonymous';
+		return __('Anonymous');
 }
 
 function post_author_link() {
@@ -642,7 +642,7 @@ function post_edit_link() {
 	global $bb_post;
 
 	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) )
-		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>Edit</a>";
+		echo "<a href='" . bb_apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>". __('Edit') ."</a>";
 }
 
 function post_del_class() {
@@ -660,9 +660,9 @@ function post_delete_link() {
 		return;
 
 	if ( 0 == $bb_post->post_status )
-		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=1' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>Delete</a>";
+		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=1' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>". __('Delete') ."</a>";
 	else
-		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=0&#038;view=all' onclick='return confirm(\"Are you sure you wanna undelete that?\");'>Undelete</a>";
+		$r = "<a href='" . bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . "&#038;status=0&#038;view=all' onclick='return confirm(\" ". __('Are you sure you wanna undelete that?') ." \");'>". __('Undelete') ."</a>";
 	$r = bb_apply_filters( 'post_delete_link', array($r, $bb_post->post_status) );
 	echo $r[0];
 }
@@ -860,22 +860,22 @@ function manage_tags_forms() {
 	if ( !bb_current_user_can('manage_tags') )
 		return false;
 	$form  = "<ul id='manage-tags'>\n ";
-	$form .= "<li id='tag-rename'>Rename tag:\n\t";
+	$form .= "<li id='tag-rename'>". __('Rename tag:') ."\n\t";
 	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-rename.php'><div>\n\t";
 	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
-	$form .= "<input type='submit' name='Submit' value='Rename' />\n\t</div></form>\n  </li>\n ";
-	$form .= "<li id='tag-merge'>Merge this tag into:\n\t";
+	$form .= "<input type='submit' name='Submit' value='". __('Rename') ."' />\n\t</div></form>\n  </li>\n ";
+	$form .= "<li id='tag-merge'>". __('Merge this tag into:') ."\n\t";
 	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-merge.php'><div>\n\t";
 	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
-	$form .= "<input type='submit' name='Submit' value='Merge' ";
-	$form .= "onclick='return confirm(\"Are you sure you want to merge the &#039;" . bb_specialchars( $tag->raw_tag ) . "&#039; tag into the tag you specified? This is permanent and cannot be undone.\")' />\n\t</div></form>\n  </li>\n ";
-	$form .= "<li id='tag-destroy'>Destroy tag:\n\t";
+	$form .= "<input type='submit' name='Submit' value='". __('Merge') ."'";
+    $form .= "onclick='return confirm(\" ". sprintf(__('Are you sure you want to merge the &#039;%s&#039; tag into the tag you specified? This is permanent and cannot be undone.'), bb_specialchars( $tag->raw_tag )) ."\")' />\n\t</div></form>\n  </li>\n ";
+	$form .= "<li id='tag-destroy'>". __('Destroy tag:') ."\n\t";
 	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-destroy.php'><div>\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
-	$form .= "<input type='submit' name='Submit' value='Destroy' ";
-	$form .= "onclick='return confirm(\"Are you sure you want to destroy the &#039;" . bb_specialchars( $tag->raw_tag ) . "&#039; tag? This is permanent and cannot be undone.\")' />\n\t</div></form>\n  </li>\n</ul>";
+	$form .= "<input type='submit' name='Submit' value='". __('Destroy') ."'";
+	$form .= "onclick='return confirm(\" ". sprintf(__('Are you sure you want to destroy the &#039;%s&#039; tag? This is permanent and cannot be undone.'), bb_specialchars( $tag->raw_tag )) ."\")' />\n\t</div></form>\n  </li>\n</ul>";
 	echo $form;
 }
 
@@ -884,7 +884,7 @@ function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 
-	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . addslashes(htmlspecialchars($tag->raw_tag)) . '\');" title="Remove this tag">x</a>]';
+	echo '[<a href="' . bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&#038;user=' . $tag->user_id . '&#038;topic=' . $tag->topic_id . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . addslashes(htmlspecialchars($tag->raw_tag)) . '\');" title="'. __('Remove this tag') .'">x</a>]';
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {
