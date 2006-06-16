@@ -25,23 +25,23 @@ if ( isset($topic_id) ) {
 		die();
 	if ( !$posts = get_thread( $topic_id, 0, 1 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ' Thread: ' . get_topic_title());
+	$title = bb_specialchars(bb_get_option('name') . ' '. __('Thread:') .' ' . get_topic_title());
 } elseif ( isset($user_id) ) {
 	if ( !$user = bb_get_user( $user_id ) )
 		die();
 	if ( !$posts = get_user_favorites( $user->ID ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ' User Favorites: ' . $user->user_login);
+	$title = bb_specialchars(bb_get_option('name') . ' '. __('User Favorites:') .' ' . $user->user_login);
 } elseif ( isset($tag) ) {
 	if ( !$tag = get_tag_by_name($tag) )
 		die();
 	if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ' Tag: ' . get_tag_name());
+	$title = bb_specialchars(bb_get_option('name') . ' '. __('Tag:') .' ' . get_tag_name());
 } else {
 	if ( !$posts = get_latest_posts( 35 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ': Last 35 Posts');
+	$title = bb_specialchars(bb_get_option('name') . ': '. __('Last 35 Posts');
 }
 endif;
 

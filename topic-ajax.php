@@ -164,7 +164,7 @@ case 'post-add' :
 		echo "<?xml version='1.0' standalone='yes'?><post><id>$post_id</id><templated><![CDATA[";
 		bb_post_template();
 		echo ']]></templated>';
-		if ( $page != $new_page ) echo "<link><![CDATA[Your post has been posted to the <a href='" . bb_specialchars( get_post_link( $bb_post->post_id ) ) . "'>next page</a> in this topic.]]></link>";
+		if ( $page != $new_page ) echo "<link><![CDATA[". sprintf(__('Your post has been posted to the <a href="%1$s">next page</a> in this topic.'), bb_specialchars( get_post_link( $bb_post->post_id ) ) ) ."]]></link>";
 		echo '</post>';
 		exit;
 	else :
@@ -195,7 +195,7 @@ function bb_ajax_thread( $topic_id, $page ) {
 		echo ']]></templated></post>';
 	endforeach;
 
-	if ( $new_page != $page ) echo "<link><![CDATA[Your post has been posted to <a href='" . get_topic_link( $topic_id, $new_page ) . "'>page $new_page</a> in this topic.]]></link>";
+	if ( $new_page != $page ) echo "<link><![CDATA[". sprintf(__('Your post has been posted to <a href="%1$s">page %2$s</a> in this topic.'), get_topic_link( $topic_id, $new_page ), $new_page) ."]]></link>";
 	echo '</thread>';
 	exit;
 }

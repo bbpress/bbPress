@@ -11,11 +11,11 @@ $topic	=  get_topic ( $topic_id );
 $user	=  bb_get_user( $user_id );
 
 if ( !$tag || !$topic )
-	die('The dude does not abide.');
+	die(__('The dude does not abide.'));
 
 if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) )
 	header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
 else
-	die('The tag was not removed.  You cannot remove a tag from a closed topic.');
+	die(__('The tag was not removed.  You cannot remove a tag from a closed topic.'));
 exit;
 ?>
