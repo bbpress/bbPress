@@ -62,7 +62,7 @@ function bb_reset_email( $user_login ) {
 	$resetkey = bb_random_pass( 15 );
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ': ' __('Password Reset'), sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
+		mail( $user->user_email, bb_get_option('name') . ': ' . __('Password Reset'), sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
 
 %s
 
@@ -114,7 +114,7 @@ function bb_send_pass( $user, $pass ) {
 	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user");
 
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ':' __('Password'), sprintf(
+		mail( $user->user_email, bb_get_option('name') . ':' . __('Password'), sprintf(
 __("Your username is: %1$s
 Your password is: %2$s
 You can now login: %3$s
