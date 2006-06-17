@@ -1,12 +1,10 @@
 <?php
+
 // ** MySQL settings ** //
 define('BBDB_NAME', 'bbpress');     // The name of the database
 define('BBDB_USER', 'username');     // Your MySQL username
 define('BBDB_PASSWORD', 'password'); // ...and password
 define('BBDB_HOST', 'localhost');     // 99% chance you won't need to change this value
-
-// Change the prefix if you want to have multiple forums in a single database.
-$bb_table_prefix  = 'bb_';
 
 $bb->domain = 'http://bbpress.example.com';	// There should be no trailing slash here.
 $bb->path   = '/support/';			// There should be both a leading and trailing slash here. '/' is fine.
@@ -21,8 +19,12 @@ $bb->edit_lock = 60;
 
 $bb->gmt_offset = 0;
 
+// Change the prefix if you want to have multiple forums in a single database.
+$bb_table_prefix  = 'bb_';
+
 /* Stop editing */
 
 define('BBPATH', dirname(__FILE__) . '/' );
 require_once( BBPATH . 'bb-settings.php' );
+
 ?>
