@@ -41,7 +41,7 @@ if ( isset($topic_id) ) {
 } else {
 	if ( !$posts = get_latest_posts( 35 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ': '. __('Last 35 Posts');
+	$title = bb_specialchars(bb_get_option('name')) . ': '. __('Last 35 Posts');
 }
 endif;
 
