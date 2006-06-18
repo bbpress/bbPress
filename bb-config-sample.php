@@ -7,7 +7,8 @@ define('BBDB_PASSWORD', 'password'); // ...and password
 define('BBDB_HOST', 'localhost');     // 99% chance you won't need to change this value
 
 $bb->domain = 'http://bbpress.example.com';	// There should be no trailing slash here.
-$bb->path   = '/support/';			// There should be both a leading and trailing slash here. '/' is fine.
+// There should be both a leading and trailing slash here. '/' is fine if the site is in root.
+$bb->path   = '/support/';
 $bb->name   = 'New bbPress Site';
 
 $bb->admin_email = 'you@example.com';
