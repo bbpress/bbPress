@@ -1,12 +1,11 @@
 <?php
 require_once('../bb-load.php');
 
-if ( !bb_current_user_can('moderate') ) {
-	header('Location: ' . bb_get_option('uri'));
-	exit; //Simple protection.
-}
+bb_auth();
 
 require('admin-functions.php');
+
+nocache_headers();
 
 if ( isset($_GET['plugin']) )
 	$bb_admin_page = $_GET['plugin'];

@@ -1,5 +1,5 @@
 <?php
-require_once('../bb-load.php');
+require_once('admin.php');
 
 if ( !bb_current_user_can('manage_forums') )
 	die(__("You don't have the authority to mess with the forums."));

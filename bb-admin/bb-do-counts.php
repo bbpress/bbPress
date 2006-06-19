@@ -1,6 +1,5 @@
 <?php
-require_once('../bb-load.php');
-require_once('admin-functions.php');
+require_once('admin.php');
 header('Content-type: text/plain');
 
 if ( bb_current_user_can('recount') ) :

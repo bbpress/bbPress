@@ -1,5 +1,20 @@
 <?php
 
+if ( !function_exists('bb_auth') ) :
+function bb_auth() {
+	global $bb;
+	// Checks if a user is logged in, if not redirects them to the login page
+	if ( (!empty($_COOKIE[$bb->usercookie]) && 
+				!bb_check_login($_COOKIE[$bb->usercookie], $_COOKIE[$bb->passcookie], true)) ||
+			 (empty($_COOKIE[$bb->usercookie])) ) {
+		nocache_headers();
+
+		header('Location: ' . bb_get_option('uri'));
+		exit();
+	}
+}
+endif;
+
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $bbdb;

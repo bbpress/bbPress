@@ -1,5 +1,5 @@
 <?php
-require('../bb-load.php');
+require('admin.php');
 
 nocache_headers();
 if ( !bb_current_user_can('manage_tags') )
