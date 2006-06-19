@@ -114,11 +114,13 @@ function bb_shutdown_action_hook() {
 }
 register_shutdown_function('bb_shutdown_action_hook');
 
-$bb_current_user = bb_current_user();
+bb_current_user();
 
-if ( $bb_current_user && bb_current_user_can('not_play_nice') )
+bb_do_action('init', '');
+
+if ( bb_is_user_logged_in() && bb_current_user_can('not_play_nice') )
 	bb_block_current_user();
-if ( $bb_current_user && !bb_current_user_can('read') )
+if ( bb_is_user_logged_in() && !bb_current_user_can('read') )
 	bb_log_current_nocaps();
 
 $page = bb_get_uri_page();

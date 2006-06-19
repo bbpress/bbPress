@@ -40,11 +40,45 @@ function bb_cookie( $name, $value, $expires = 0 ) {
 }
 endif;
 
+if ( !function_exists('bb_get_current_user') ) :
+function bb_get_current_user() {
+	global $bb_current_user;
+
+	bb_current_user();
+
+	return $bb_current_user;
+}
+endif;
+
+if ( !function_exists('bb_set_current_user') ) :
+function bb_set_current_user($id) {
+	global $bb_current_user;
+
+	if ( isset($bb_current_user) && ($id == $bb_current_user->ID) )
+		return $bb_current_user;
+
+	if ( empty($id) ) {
+		$bb_current_user = 0;
+	} else {
+		$bb_current_user = new BB_User($id);
+	}
+
+	bb_do_action('bb_set_current_user', $id);
+
+	return $bb_current_user;
+}
+endif;
+
 if ( !function_exists('bb_current_user') ) :
 //This is only used at initialization.  Use global $bb_current_user to grab user info.
 function bb_current_user() {
+	global $bb_current_user;
+
 	if ( defined( 'BB_INSTALLING' ) )
 		return false;
+
+	if ( ! empty($bb_current_user) )
+		return $bb_current_user;
 
 	global $bbdb, $bb, $bb_cache, $bb_user_cache;
 	$userpass = bb_get_cookie_login();
@@ -52,11 +86,14 @@ function bb_current_user() {
 		return false;
 	$user = user_sanitize( $userpass['login'] );
 	$pass = user_sanitize( $userpass['password'] );
-	if ( $bb_current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass' AND user_status % 2 = 0") ) {
-		$bb_current_user = $bb_cache->append_current_user_meta( $bb_current_user );
-		return new BB_User($bb_current_user->ID);
-	} else 	$bb_user_cache[$bb_current_user->ID] = false;
-	return false;
+	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass' AND user_status % 2 = 0") ) {
+		$current_user = $bb_cache->append_current_user_meta( $current_user );
+		return bb_set_current_user($current_user->ID);
+	} else {
+		$bb_user_cache[$current_user->ID] = false;
+		bb_set_current_user(0);
+		return false;
+	}
 }
 endif;
 
@@ -79,9 +116,9 @@ endif;
 
 if ( !function_exists('bb_is_user_logged_in') ) :
 function bb_is_user_logged_in() {
-	global $bb_current_user;
+	$current_user = bb_get_current_user();
 
-	if ( empty($bb_current_user) )
+	if ( empty($current_user) )
 		return false;
 
 	return true;
