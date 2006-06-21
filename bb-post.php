@@ -1,6 +1,8 @@
 <?php
 require('./bb-load.php');
 
+bb_auth();
+
 nocache_headers();
 
 if ( !bb_current_user_can('write_posts') )

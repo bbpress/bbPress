@@ -1,6 +1,8 @@
 <?php
 require_once('./bb-load.php');
 
+bb_auth();
+
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_option('uri');
 	header("Location: $sendto");
@@ -12,8 +14,6 @@ if ( !is_bb_profile() ) {
 }
 
 require_once( BBPATH . 'bb-includes/registration-functions.php');
-
-nocache_headers();
 
 $profile_info_keys = get_profile_info_keys();
 if ( bb_current_user_can('edit_users') ) {

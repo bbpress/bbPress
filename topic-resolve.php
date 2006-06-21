@@ -1,7 +1,7 @@
 <?php
 require('./bb-load.php');
 
-nocache_headers();
+bb_auth();
 
 if ( !$bb_current_user )
 	die(__('You need to be logged in to add a tag.'));

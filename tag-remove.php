@@ -1,7 +1,7 @@
 <?php
 require('./bb-load.php');
 
-nocache_headers();
+bb_auth();
 
 $tag_id = (int) @$_GET['tag'];
 $user_id = (int) @$_GET['user'];

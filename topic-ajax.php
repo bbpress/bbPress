@@ -1,6 +1,8 @@
 <?php
 require('./bb-load.php');
 
+bb_auth();
+
 if ( !$bb_current_user )
 	die('-1');
 define('DOING_AJAX', true);
