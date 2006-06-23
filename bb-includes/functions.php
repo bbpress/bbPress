@@ -720,12 +720,13 @@ function bb_new_post( $topic_id, $bb_post ) {
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
 	$topic = get_topic( $tid );
+	$forum_id = $topic->forum_id;
 
 	if ( $bb_post && $topic ) {
 		$bbdb->query("INSERT INTO $bbdb->posts 
-		(topic_id, poster_id, post_text, post_time, poster_ip, post_position)
+		(forum_id, topic_id, poster_id, post_text, post_time, poster_ip, post_position)
 		VALUES
-		('$tid',  '$uid',    '$bb_post','$now',    '$ip',      $topic->topic_posts + 1)");
+		('$forum_id', '$tid',  '$uid',    '$bb_post','$now',    '$ip',      $topic->topic_posts + 1)");
 		$post_id = $bbdb->insert_id;
 		$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = $uid, topic_last_poster_name = '$uname',
