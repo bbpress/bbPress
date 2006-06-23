@@ -114,12 +114,11 @@ function bb_send_pass( $user, $pass ) {
 	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user");
 
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ':' . __('Password'), sprintf(
-__("Your username is: %1$s
-Your password is: %2$s
-You can now login: %3$s
-
-Enjoy!"), $user->user_login, $pass, bb_get_option('uri') ), 'From: ' . bb_get_option('admin_email') );
+		$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now login: %3\$s \n\nEnjoy!");
+		mail( $user->user_email, bb_get_option('name') . ':' . __('Password'), 
+			sprintf( $message, "$user->user_login", "$pass", bb_get_option('uri') ), 
+			'From: ' . bb_get_option('admin_email') 
+		);
 
 	endif;
 }
