@@ -210,7 +210,7 @@ class bbdb {
 			$this->rows_affected = mysql_affected_rows();
 			// Take note of the insert_id
 			if ( preg_match("/^\\s*(insert|replace) /i",$query) ) {
-				$this->insert_id = mysql_insert_id($this->dbh);	
+				$this->insert_id = mysql_insert_id($dbh);	
 			}
 			// Return number of rows affected
 			$return_val = $this->rows_affected;
