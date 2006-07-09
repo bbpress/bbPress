@@ -20,6 +20,10 @@ function bb_get_footer() {
 	else	include( BBPATH . 'bb-templates/footer.php');
 }
 
+function bb_head() {
+        bb_do_action('bb_head');
+}
+
 function profile_menu() {
 	global $bb, $bbdb, $bb_current_user, $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";

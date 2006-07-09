@@ -6,7 +6,7 @@
 	<?php bb_feed_head(); ?> 
 	<link rel="stylesheet" href="<?php bb_stylesheet_uri(); ?>" type="text/css" />
 
-<?php if ( is_topic() && $bb_current_user ) : ?>
+<?php if ( is_topic() && bb_is_user_logged_in() ) : ?>
 	<script type="text/javascript">
 		function addLoadEvent(func) {
 			var oldonload = window.onload;
@@ -29,9 +29,7 @@
 		var favoritesLink = '<?php favorites_link(); ?>'; 
 		var isFav = <?php if ( false === $is_fav = is_user_favorite( $bb_current_user->ID ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>
-	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/fat.js"></script>
-	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/tw-sack.js"></script>
-	<script type="text/javascript" src="<?php option('uri'); ?>bb-scripts/topic.js"></script>
+	<?php bb_enqueue_script('topic'); bb_head(); ?>
 <?php endif; ?>
 </head>
 

@@ -39,6 +39,8 @@ bb_add_filter('topic_rss_link', 'bb_make_feed');
 bb_add_filter('tag_rss_link', 'bb_make_feed');
 bb_add_filter('favorites_rss_link', 'bb_make_feed');
 
+bb_add_action('bb_head', 'bb_print_scripts');
+
 if ( !$bb->mod_rewrite ) {
 	bb_add_filter('profile_tab_link', 'bb_specialchars');
 	bb_add_filter('post_link', 'bb_specialchars');

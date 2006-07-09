@@ -56,6 +56,7 @@ require( BBPATH . 'bb-includes/template-functions.php');
 require( BBPATH . 'bb-includes/capabilities.php');
 require( BBPATH . 'bb-includes/cache.php');
 require( BBPATH . 'bb-includes/default-filters.php');
+require( BBPATH . 'bb-includes/script-loader.php');
 
 require( BBPATH . 'bb-includes/l10n.php');
 
