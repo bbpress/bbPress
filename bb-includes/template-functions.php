@@ -39,7 +39,7 @@ function profile_menu() {
 			if ( file_exists($item[3]) || function_exists($item[3]) )
 				$list .= "\n\t<li$class><a href='" . bb_specialchars( get_profile_tab_link($user_id, $item[0]) ) . "'>{$item[0]}</a></li>";
 	}
-	if ( $bb_current_user ) :
+	if ( bb_is_user_logged_in() ) :
 		$list .= "\n\t<li class='last'><a href='" . bb_get_option('uri') . 'bb-login.php?logout' . "' title='" . __('Log out of this account') . "'>";
 		$list .= 	__('Logout') . ' (' . get_user_name( $bb_current_user->ID ) . ')</a></li>';
 	else:
@@ -51,7 +51,7 @@ function profile_menu() {
 
 function login_form() {
 	global $bb_current_user, $bb;
-	if ($bb_current_user) {
+	if ( bb_is_user_logged_in() ) {
         printf('<p class="login">'. __('Welcome, %1$s!'). ' <a href="' . get_user_profile_link( $bb_current_user->ID ) . '">'. __('View your profile') ."&raquo;</a>\n<small>(",get_user_name( $bb_current_user->ID ));
 	if ( bb_current_user_can('moderate') )
 		echo "<a href='" . bb_get_option('uri') . "bb-admin/'>Admin</a> | ";
@@ -80,7 +80,7 @@ function post_form() {
 			include( BBPATH . 'my-templates/post-form.php' );
 		else
 			include( BBPATH . 'bb-templates/post-form.php');
-	} elseif( !$bb_current_user ) {
+	} elseif( !bb_is_user_logged_in() ) {
 		echo "<p>You must login to post.</p>";
 		include( BBPATH . 'bb-templates/login-form.php');
 	}
