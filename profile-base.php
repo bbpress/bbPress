@@ -2,7 +2,6 @@
 require_once('./bb-load.php');
 
 if ( !is_bb_profile() ) {
-	error_log("Not the profile", 0 );
 	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );
 	header("Location: $sendto");
 }

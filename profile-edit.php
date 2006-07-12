@@ -4,15 +4,11 @@ require_once('./bb-load.php');
 bb_auth();
 
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
-	error_log("No auth", 0 );
-	exit;
 	$sendto = bb_get_option('uri');
 	header("Location: $sendto");
 }
 
 if ( !is_bb_profile() ) {
-	error_log("Not profile", 0 );
-	exit;
 	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );
 	header("Location: $sendto");
 }
@@ -97,7 +93,6 @@ if ($_POST) :
 		bb_do_action('profile_edited', $user->ID);
 
 		$sendto = bb_add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) );
-		error_log("Sending to: $sendto", 0 );
 		header("Location: $sendto");
 		exit();	
 	endif;
