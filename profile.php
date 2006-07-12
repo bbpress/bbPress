@@ -5,6 +5,7 @@ if ( isset($_GET['username']) ) :
 	$user = bb_get_user_by_name( $_GET['username'] );
 	if ( !$user )
 		die(__('Username not found.'));
+		error_log("Redirecting to profile link", 0 );
 	header('Location: ' . get_user_profile_link( $user->ID ) );
 	exit;
 endif;

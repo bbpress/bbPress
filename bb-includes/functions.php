@@ -1335,7 +1335,9 @@ function bb_repermalink() {
 			}
 	}
 
-	$check = preg_replace( '|' . trim( bb_get_option('domain'), ' /' ) . '|', '', $permalink, 1 );
+	$domain = bb_get_option('domain');
+	$domain = preg_replace('/^https?/', '', $domain);
+	$check = preg_replace( '|^.*' . trim($domain, ' /' ) . '|', '', $permalink, 1 );
 
 	if ( isset($bb->debug) && 1 === $bb->debug ) :
 		echo "<table>\n<tr><td>". __('REQUEST_URI') .":</td><td>";
