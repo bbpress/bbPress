@@ -6,12 +6,12 @@ if ( isset($_GET['topic']) )
 elseif ( 'topic' == get_path() )
 	$topic_id = (int) get_path(2);
 
-if ( isset($_GET['profile']) )
+elseif ( isset($_GET['profile']) )
 	$user_id = (int) $_GET['profile'];
 elseif ( 'profile' == get_path() )
 	$user_id = (int) get_path(2);
 
-if ( isset($_GET['tag']) )
+elseif ( isset($_GET['tag']) )
 	$tag = $_GET['tag'];
 elseif ( 'tags' == get_path() )
 	$tag = get_path(2);
