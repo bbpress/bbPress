@@ -9,7 +9,7 @@ function get_total_users() {
 }
 
 function total_users() {
-	echo bb_apply_filters('total_users', get_total_users() );
+	echo apply_filters('total_users', get_total_users() );
 }
 
 function get_total_posts() {
@@ -21,7 +21,7 @@ function get_total_posts() {
 }
 
 function total_posts() {
-	echo bb_apply_filters('total_posts', get_total_posts() );
+	echo apply_filters('total_posts', get_total_posts() );
 }
 
 function get_total_topics() {
@@ -33,7 +33,7 @@ function get_total_topics() {
 }
 
 function total_topics() {
-	echo bb_apply_filters('total_topics', get_total_topics());
+	echo apply_filters('total_topics', get_total_topics());
 }
 
 function get_popular_topics( $num = 10 ) {
@@ -61,7 +61,7 @@ function get_registrations_per_day() {
 }
 
 function registrations_per_day() {
-	echo bb_apply_filters('registrations_per_day', number_format(get_registrations_per_day(),3));
+	echo apply_filters('registrations_per_day', number_format(get_registrations_per_day(),3));
 }
 
 function get_posts_per_day() {
@@ -69,7 +69,7 @@ function get_posts_per_day() {
 }
 
 function posts_per_day() {
-	echo bb_apply_filters('posts_per_day', number_format(get_posts_per_day(),3));
+	echo apply_filters('posts_per_day', number_format(get_posts_per_day(),3));
 }
 
 function get_topics_per_day() {
@@ -77,7 +77,7 @@ function get_topics_per_day() {
 }
 
 function topics_per_day() {
-	echo bb_apply_filters('topics_per_day', number_format(get_topics_per_day(),3));
+	echo apply_filters('topics_per_day', number_format(get_topics_per_day(),3));
 }
 
 ?>

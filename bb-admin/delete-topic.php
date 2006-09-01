@@ -2,8 +2,8 @@
 require('admin-action.php');
 
 if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
-	bb_add_filter('get_topic_where', 'no_where');
-	bb_add_filter('get_thread_post_ids_where', 'no_where');
+	add_filter('get_topic_where', 'no_where');
+	add_filter('get_thread_post_ids_where', 'no_where');
 }
 
 if ( !bb_current_user_can('manage_topics') ) {

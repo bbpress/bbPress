@@ -17,7 +17,7 @@ elseif ( 'tags' == get_path() )
 	$tag = get_path(2);
 
 $bb_db_override = false;
-bb_do_action( 'bb_rss.php_pre_db', '' );
+do_action( 'bb_rss.php_pre_db', '' );
 
 if ( !$bb_db_override ) :
 if ( isset($topic_id) ) {
@@ -45,14 +45,14 @@ if ( isset($topic_id) ) {
 }
 endif;
 
-bb_do_action( 'bb_rss.php', '' );
+do_action( 'bb_rss.php', '' );
 
 require_once( BBPATH . 'bb-includes/feed-functions.php');
 
 bb_send_304( $posts[0]->post_time );
 
-bb_add_filter('post_link', 'wp_specialchars');
-bb_add_filter('post_text', 'htmlspecialchars');
+add_filter('post_link', 'wp_specialchars');
+add_filter('post_text', 'htmlspecialchars');
 
 if (file_exists( BBPATH . 'my-templates/rss2.php'))
 	require( BBPATH . 'my-templates/rss2.php' );

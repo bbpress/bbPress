@@ -31,12 +31,12 @@ function bb_new_user( $user_login, $email, $url ) {
 
 	if ( defined( 'BB_INSTALLING' ) ) {
 		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('keymaster' => true) );
-		bb_do_action('bb_new_user', $user_id);
+		do_action('bb_new_user', $user_id);
 		return $password;
 	} else {		
 		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user_id, $password );
-		bb_do_action('bb_new_user', $user_id);
+		do_action('bb_new_user', $user_id);
 		return $user_id;
 	}
 }
@@ -51,7 +51,7 @@ function bb_update_user( $user_id, $email, $url ) {
 	");
 	$bb_cache->flush_one( 'user', $user_id );
 
-	bb_do_action('bb_update_user', $user_id);
+	do_action('bb_update_user', $user_id);
 	return $user_id;
 }
 
@@ -97,7 +97,7 @@ function bb_update_user_password( $user_id, $password ) {
 	");
 	$bb_cache->flush_one( 'user', $user_id );
 
-	bb_do_action('bb_update_user_password', $user_id);
+	do_action('bb_update_user_password', $user_id);
 	return $user_id;
 }
 

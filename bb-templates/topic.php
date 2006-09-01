@@ -15,11 +15,11 @@
 	<li id="resolutionflipper">This topic is <?php topic_resolved(); ?></li>
 <?php if ( $bb_current_user ) : ?>
 	<li id="favoritestoggle"><?php user_favorites_link() ?></li>
-<?php endif; bb_do_action('topicmeta'); ?>
+<?php endif; do_action('topicmeta'); ?>
 </ul>
 <br clear="all" />
 </div>
-<?php bb_do_action('under_title', ''); ?>
+<?php do_action('under_title', ''); ?>
 <?php if ($posts) : ?>
 <div class="nav">
 <?php topic_pages(); ?>

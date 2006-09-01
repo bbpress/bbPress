@@ -1,50 +1,50 @@
 <?php
 
-bb_add_filter('forum_topics', 'number_format');
-bb_add_filter('forum_posts', 'number_format');
+add_filter('forum_topics', 'number_format');
+add_filter('forum_posts', 'number_format');
 
-bb_add_filter('topic_time', 'strtotime');
-bb_add_filter('topic_time', 'bb_since');
-bb_add_filter('topic_start_time', 'strtotime');
-bb_add_filter('topic_start_time', 'bb_since');
+add_filter('topic_time', 'strtotime');
+add_filter('topic_time', 'bb_since');
+add_filter('topic_start_time', 'strtotime');
+add_filter('topic_start_time', 'bb_since');
 
-bb_add_filter('pre_topic_title', 'wp_specialchars');
-bb_add_filter('get_forum_name', 'wp_specialchars');
-bb_add_filter('topic_title', 'closed_title', 30);
-bb_add_filter('topic_title', 'wp_specialchars');
+add_filter('pre_topic_title', 'wp_specialchars');
+add_filter('get_forum_name', 'wp_specialchars');
+add_filter('topic_title', 'closed_title', 30);
+add_filter('topic_title', 'wp_specialchars');
 
-bb_add_filter('pre_post', 'trim');
-bb_add_filter('pre_post', 'encode_bad');
-bb_add_filter('pre_post', 'balanceTags');
-bb_add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
-bb_add_filter('pre_post', 'bb_filter_kses', 50);
-bb_add_filter('pre_post', 'addslashes', 55);
-bb_add_filter('pre_post', 'bb_autop', 60);
+add_filter('pre_post', 'trim');
+add_filter('pre_post', 'encode_bad');
+add_filter('pre_post', 'balanceTags');
+add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
+add_filter('pre_post', 'bb_filter_kses', 50);
+add_filter('pre_post', 'addslashes', 55);
+add_filter('pre_post', 'bb_autop', 60);
 
-bb_add_filter('post_text', 'bb_make_clickable');
-bb_add_filter('post_text', 'bb_rel_nofollow');
+add_filter('post_text', 'make_clickable');
+add_filter('post_text', 'bb_rel_nofollow');
 
-bb_add_filter('total_posts', 'number_format');
-bb_add_filter('total_users', 'number_format');
+add_filter('total_posts', 'number_format');
+add_filter('total_users', 'number_format');
 
-bb_add_filter('edit_text', 'code_trick_reverse');
-bb_add_filter('edit_text', 'htmlspecialchars');
-bb_add_filter('edit_text', 'trim', 15);
+add_filter('edit_text', 'code_trick_reverse');
+add_filter('edit_text', 'htmlspecialchars');
+add_filter('edit_text', 'trim', 15);
 
-bb_add_filter('get_user_link', 'bb_fix_link');
+add_filter('get_user_link', 'bb_fix_link');
 
-bb_add_filter('bb_post_time', 'bb_offset_time');
+add_filter('bb_post_time', 'bb_offset_time');
 
-bb_add_filter('topic_rss_link', 'bb_make_feed');
-bb_add_filter('tag_rss_link', 'bb_make_feed');
-bb_add_filter('favorites_rss_link', 'bb_make_feed');
+add_filter('topic_rss_link', 'bb_make_feed');
+add_filter('tag_rss_link', 'bb_make_feed');
+add_filter('favorites_rss_link', 'bb_make_feed');
 
-bb_add_action('bb_head', 'bb_print_scripts');
+add_action('bb_head', 'bb_print_scripts');
 
 if ( !$bb->mod_rewrite ) {
-	bb_add_filter('profile_tab_link', 'wp_specialchars');
-	bb_add_filter('post_link', 'wp_specialchars');
-	bb_add_filter('favorites_link', 'wp_specialchars');
+	add_filter('profile_tab_link', 'wp_specialchars');
+	add_filter('post_link', 'wp_specialchars');
+	add_filter('favorites_link', 'wp_specialchars');
 }
 
 ?>

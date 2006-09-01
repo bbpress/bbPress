@@ -22,7 +22,7 @@ $recent = $bbdb->get_results("SELECT $bbdb->posts.*, MAX(post_time) as post_time
 $relevant = $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->posts.topic_id = $bbdb->topics.topic_id
 				WHERE MATCH(post_text) AGAINST ('$q') AND post_status = 0 AND topic_status = 0 LIMIT 5");
 
-bb_do_action('do_search', $q);
+do_action('do_search', $q);
 
 // Cache topics
 if ( $recent ) :
@@ -49,8 +49,8 @@ endif;
 
 $q = stripslashes( $q );
 
-bb_add_filter('bb_get_post_time', 'strtotime');
-bb_add_filter('bb_get_post_time', 'bb_offset_time');
+add_filter('bb_get_post_time', 'strtotime');
+add_filter('bb_get_post_time', 'bb_offset_time');
 
 if (file_exists( BBPATH . 'my-templates/search.php' ))
 	require( BBPATH . 'my-templates/search.php' );

@@ -16,12 +16,12 @@ function grab_results() {
 }
 
 function get_out_now() { exit; }
-bb_add_action('bb_shutdown', 'get_out_now', -1);
+add_action('bb_shutdown', 'get_out_now', -1);
 
 switch ( $_POST['action'] ) :
 case 'tag-add' :
-	bb_add_action('bb_tag_added', 'grab_results');
-	bb_add_action('bb_already_tagged', 'grab_results');
+	add_action('bb_tag_added', 'grab_results');
+	add_action('bb_already_tagged', 'grab_results');
 	$topic_id = (int) @$_POST['id'];
 	$tag      =       @$_POST['tag'];
 	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_user->ID, $topic_id) )
@@ -43,7 +43,7 @@ case 'tag-add' :
 	break;
 
 case 'tag-remove' :
-	bb_add_action('bb_tag_removed', 'grab_results');
+	add_action('bb_tag_removed', 'grab_results');
 	$tag_id   = (int) @$_POST['tag'];
 	$user_id  = (int) @$_POST['user'];
 	$topic_id = (int) @$_POST['topic'];

@@ -6,7 +6,7 @@
 
 <p><a href="<?php tag_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> link for this tag.</a></p>
 
-<?php bb_do_action('tag_above_table', ''); ?>
+<?php do_action('tag_above_table', ''); ?>
 
 <?php if ( $topics ) : ?>
 
@@ -34,7 +34,7 @@
 
 <?php post_form(); ?>
 
-<?php bb_do_action('tag_below_table', ''); ?>
+<?php do_action('tag_below_table', ''); ?>
 
 <?php manage_tags_forms(); ?>
 

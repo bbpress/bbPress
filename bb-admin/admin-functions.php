@@ -1,13 +1,13 @@
 <?php
 
 function bb_get_admin_header() {
-	bb_do_action('bb_admin-header.php', '');
+	do_action('bb_admin-header.php', '');
 	include('admin-header.php');
-	bb_do_action('bb_get_admin_header', '');
+	do_action('bb_get_admin_header', '');
 }
 
 function bb_get_admin_footer() {
-	bb_do_action('bb_admin-footer.php', '');
+	do_action('bb_admin-footer.php', '');
 	include('admin-footer.php');
 }
 
@@ -30,7 +30,7 @@ function bb_admin_menu_generator() {
 
 	$bb_submenu['site.php'][5] = array(__('Recount'), 'recount', 'site.php');
 
-	bb_do_action('bb_admin_menu_generator','');
+	do_action('bb_admin_menu_generator','');
 	ksort($bb_menu);
 }
 
@@ -142,7 +142,7 @@ function bb_recount_list() {
 	$recount_list[25] = array('topic-tag-count', __('Count tags for every topic'));
 	$recount_list[30] = array('tags-tag-count', __('Count topics for every tag'));
 	$recount_list[35] = array('zap-tags', __('DELETE tags with no topics.  Only functions if the above checked'));
-	bb_do_action('bb_recount_list');
+	do_action('bb_recount_list');
 	ksort($recount_list);
 	return $recount_list;
 }

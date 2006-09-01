@@ -172,7 +172,7 @@ class _BB_Script {
  * @see BB_Scripts::print_scripts()
  */
 function bb_print_scripts( $handles = false ) {
-	bb_do_action( 'bb_print_scripts' );
+	do_action( 'bb_print_scripts' );
 	if ( '' === $handles ) // for bb_head
 		$handles = false;
 

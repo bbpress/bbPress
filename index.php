@@ -3,7 +3,7 @@
 require('./bb-load.php');
 
 $bb_db_override = false;
-bb_do_action( 'bb_index.php_pre_db', '' );
+do_action( 'bb_index.php_pre_db', '' );
 
 if ( !$bb_db_override ) :
 	$forums = get_forums(); // Comment to hide forums
@@ -11,7 +11,7 @@ if ( !$bb_db_override ) :
 	$super_stickies = get_sticky_topics();
 endif;
 
-bb_do_action( 'bb_index.php', '' );
+do_action( 'bb_index.php', '' );
 
 if (file_exists( BBPATH . 'my-templates/front-page.php' ))
 	require( BBPATH . 'my-templates/front-page.php' );

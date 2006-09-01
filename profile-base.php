@@ -6,7 +6,7 @@ if ( !is_bb_profile() ) {
 	header("Location: $sendto");
 }
 
-bb_do_action($self . '_pre_head', '');
+do_action($self . '_pre_head', '');
 
 if ( function_exists($self) )
 	if (file_exists( BBPATH . 'my-templates/profile-base.php' ))

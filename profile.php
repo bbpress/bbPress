@@ -31,15 +31,15 @@ if ( !isset( $_GET['updated'] ) )
 else
 	$updated = true;
 
-bb_do_action( 'bb_profile.php_pre_db', $user_id );
+do_action( 'bb_profile.php_pre_db', $user_id );
 $posts = get_recent_user_replies( $user_id );
 $threads = get_recent_user_threads( $user_id );
 
-bb_remove_filter('bb_post_time', 'bb_offset_time');
-bb_add_filter('bb_post_time', 'strtotime');
-bb_add_filter('bb_post_time', 'bb_since');
+remove_filter('bb_post_time', 'bb_offset_time');
+add_filter('bb_post_time', 'strtotime');
+add_filter('bb_post_time', 'bb_since');
 
-bb_do_action( 'bb_profile.php', $user_id );
+do_action( 'bb_profile.php', $user_id );
 
 if (file_exists( BBPATH . 'my-templates/profile.php' ))
 	require( BBPATH . 'my-templates/profile.php' );

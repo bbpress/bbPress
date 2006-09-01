@@ -87,7 +87,7 @@ $plugins = glob( BBPATH . 'my-plugins/*.php');
 if ( $plugins ) : foreach ( $plugins as $plugin ) :
 	require($plugin);
 endforeach; endif;
-bb_do_action('bb_plugins_loaded', '');
+do_action('bb_plugins_loaded', '');
 
 require( BBPATH . 'bb-includes/pluggable.php');
 
@@ -110,16 +110,16 @@ if ( !isset( $bb->tagpath ) )
 $bb_cache = new BB_Cache();
 
 $bb_roles = new BB_Roles();
-bb_do_action('bb_got_roles', '');
+do_action('bb_got_roles', '');
 
 function bb_shutdown_action_hook() {
-	bb_do_action('bb_shutdown', '');
+	do_action('bb_shutdown', '');
 }
 register_shutdown_function('bb_shutdown_action_hook');
 
 bb_current_user();
 
-bb_do_action('init', '');
+do_action('init', '');
 
 if ( bb_is_user_logged_in() && bb_current_user_can('not_play_nice') )
 	bb_block_current_user();

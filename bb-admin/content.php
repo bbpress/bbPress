@@ -4,8 +4,8 @@
 
 <?php	if ( !bb_current_user_can('browse_deleted') )
 		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
-	bb_add_filter( 'get_latest_topics_where', 'deleted_topics' );
-	bb_add_filter( 'topic_link', 'make_link_view_all' );
+	add_filter( 'get_latest_topics_where', 'deleted_topics' );
+	add_filter( 'topic_link', 'make_link_view_all' );
 	$topics = get_latest_topics( 0, $page );
 ?>
 

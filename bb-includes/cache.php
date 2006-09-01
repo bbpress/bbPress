@@ -78,7 +78,7 @@ class BB_Cache {
 		$topic_id = (int) $topic_id;
 
 		$normal = true;
-		if ( 'AND topic_status = 0' != $where = bb_apply_filters('get_topic_where', 'AND topic_status = 0') )
+		if ( 'AND topic_status = 0' != $where = apply_filters('get_topic_where', 'AND topic_status = 0') )
 			$normal = false;
 
 		if ( $use_cache && $this->use_cache && $normal && file_exists(BBPATH . 'bb-cache/bb_topic-' . $topic_id) ) :
@@ -103,7 +103,7 @@ class BB_Cache {
 		$page = (int) $page;
 		$reverse = $reverse ? 1 : 0;
 		$normal = true;
-		if ( 'AND post_status = 0' != $where = bb_apply_filters('get_thread_where', 'AND post_status = 0') )
+		if ( 'AND post_status = 0' != $where = apply_filters('get_thread_where', 'AND post_status = 0') )
 			$normal = false;
 
 		$limit = bb_get_option('page_topics');

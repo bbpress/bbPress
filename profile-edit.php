@@ -90,7 +90,7 @@ if ($_POST) :
 			bb_cookie( $bb->passcookie, md5( md5( $_POST['pass1'] ) ) ); // One week
 		endif;
 		
-		bb_do_action('profile_edited', $user->ID);
+		do_action('profile_edited', $user->ID);
 
 		$sendto = bb_add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) );
 		header("Location: $sendto");

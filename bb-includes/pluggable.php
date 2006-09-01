@@ -63,7 +63,7 @@ function bb_set_current_user($id) {
 		$bb_current_user = new BB_User($id);
 	}
 
-	bb_do_action('bb_set_current_user', $id);
+	do_action('bb_set_current_user', $id);
 
 	return $bb_current_user;
 }
@@ -132,7 +132,7 @@ function bb_login($login, $password) {
 	if ( $user = bb_check_login( $login, $password ) ) {
 		bb_cookie( $bb->usercookie, $user->user_login, time() + 6048000 );
 		bb_cookie( $bb->passcookie, md5( $user->user_pass ) );
-		bb_do_action('bb_user_login', '');
+		do_action('bb_user_login', '');
 	}
 
 	return $user;
@@ -145,7 +145,7 @@ function bb_logout() {
 
 	bb_cookie( $bb->passcookie , ' ', time() - 31536000 );
 	bb_cookie( $bb->usercookie , ' ', time() - 31536000 );
-	bb_do_action('bb_user_logout', '');
+	do_action('bb_user_logout', '');
 }
 endif;
 

@@ -3,10 +3,10 @@ require_once('./bb-load.php');
 $topic_id = 0;
 
 if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] ) {
-	bb_add_filter('get_topic_where', 'no_where');
-	bb_add_filter('get_thread_where', 'no_where');
-	bb_add_filter('get_thread_post_ids', 'no_where');
-	bb_add_filter('post_edit_uri', 'make_link_view_all');
+	add_filter('get_topic_where', 'no_where');
+	add_filter('get_thread_where', 'no_where');
+	add_filter('get_thread_post_ids', 'no_where');
+	add_filter('post_edit_uri', 'make_link_view_all');
 }
 
 bb_repermalink();
@@ -15,7 +15,7 @@ if ( !$topic )
 	die(__('Topic not found.'));
 
 $bb_db_override = false;
-bb_do_action( 'bb_topic.php_pre_db', $topic_id );
+do_action( 'bb_topic.php_pre_db', $topic_id );
 
 if ( !$bb_db_override ) :
 	$posts = get_thread( $topic_id, $page );
@@ -38,7 +38,7 @@ if ( !$bb_db_override ) :
 	post_author_cache($posts);
 endif;
 
-bb_do_action( 'bb_topic.php', $topic_id );
+do_action( 'bb_topic.php', $topic_id );
 
 if (file_exists( BBPATH . 'my-templates/topic.php' ))
 	require( BBPATH . 'my-templates/topic.php' );

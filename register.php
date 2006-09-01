@@ -32,7 +32,7 @@ if ($_POST) :
 		foreach( $profile_info_keys as $key => $label )
 			if ( strpos($key, 'user_') !== 0 && $$key !== '' )
 				bb_update_usermeta( $user_id, $key, $$key );
-		bb_do_action('register_user', $user_id);
+		do_action('register_user', $user_id);
 		require( BBPATH . 'bb-templates/register-success.php');
 		exit();	
 	endif;
