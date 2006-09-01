@@ -90,7 +90,7 @@ Inactive users can login and look around but not do anything.  Blocked users jus
 </tr>
 </table>
 </fieldset>
-<?php endif; ?>
+<?php endif; bb_nonce_field( 'edit-profile_' . $user->ID ); ?>
 <p class="submit">
   <input type="submit" name="Submit" value="Update Profile &raquo;" />
 </p>

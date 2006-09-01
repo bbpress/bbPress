@@ -1,5 +1,4 @@
 
-<form name="post" id="post" method="post" action="<?php option('uri'); ?>bb-edit.php">
 <?php if ( $topic_title ) : ?>
 <p>
   <label><?php _e('Topic:'); ?><br />
@@ -17,4 +16,3 @@
 <input type="hidden" name="topic_id" value="<?php topic_id(); ?>" />
 </p>
 <p><?php _e('Allowed tags: <code>a em strong code ul ol li blockquote</code>. <br />Put code in between <code>`backticks`</code>.'); ?></p>
-</form>
