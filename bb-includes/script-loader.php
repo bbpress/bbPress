@@ -25,7 +25,7 @@ class BB_Scripts {
 	 */
 	function print_scripts( $handles = false ) {
 		// Print the queue if nothing is passed.  If a string is passed, print that script.  If an array is passed, print those scripts.
-		$handles = empty($handles) ? $this->queue : (array) $handles;
+		$handles = false === $handles ? $this->queue : (array) $handles;
 		$handles = $this->all_deps( $handles );
 
 		$this->_print_scripts( $handles );
@@ -173,6 +173,9 @@ class _BB_Script {
  */
 function bb_print_scripts( $handles = false ) {
 	bb_do_action( 'bb_print_scripts' );
+	if ( '' === $handles ) // for bb_head
+		$handles = false;
+
 	global $bb_scripts;
 	if ( !is_a($bb_scripts, 'BB_Scripts') ) {
 		if ( !$handles )
