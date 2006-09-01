@@ -46,7 +46,7 @@ echo "Done with preformatting posts...";
 $topics = $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics");
 if ($topics) {
 	foreach($topics as $topic) {
-		$topic_title = bb_specialchars(addslashes(deslash($topic->topic_title)));
+		$topic_title = wp_specialchars(addslashes(deslash($topic->topic_title)));
 		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$topic_title' WHERE topic_id = '$topic->topic_id'");
 		echo '.';
 	}

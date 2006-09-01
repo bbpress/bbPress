@@ -19,7 +19,7 @@ if ( isset( $_REQUEST['logout'] ) ) {
 if ( ! $user = bb_login( @$_POST['user_login'], @$_POST['password'] ) ) {
 	$user_exists = bb_user_exists( @$_POST['user_login'] );
 	$user_login  = user_sanitize ( @$_POST['user_login'] );
-	$redirect_to = bb_specialchars( $re, 1 );
+	$redirect_to = wp_specialchars( $re, 1 );
 	include('bb-templates/login-failed.php');
 	exit;
 }

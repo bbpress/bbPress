@@ -4,7 +4,7 @@
 <?php search_form( $q ); ?>
 
 <?php if ( !empty ( $q ) ) : ?>
-<h2>Search for &#8220;<?php echo bb_specialchars($q); ?>&#8221;</h2>
+<h2>Search for &#8220;<?php echo wp_specialchars($q); ?>&#8221;</h2>
 <?php endif; ?>
 
 <?php if ( $users ) : ?>

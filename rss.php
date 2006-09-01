@@ -25,23 +25,23 @@ if ( isset($topic_id) ) {
 		die();
 	if ( !$posts = get_thread( $topic_id, 0, 1 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ' '. __('Thread:') .' ' . get_topic_title());
+	$title = wp_specialchars(bb_get_option('name') . ' '. __('Thread:') .' ' . get_topic_title());
 } elseif ( isset($user_id) ) {
 	if ( !$user = bb_get_user( $user_id ) )
 		die();
 	if ( !$posts = get_user_favorites( $user->ID ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ' '. __('User Favorites:') .' ' . $user->user_login);
+	$title = wp_specialchars(bb_get_option('name') . ' '. __('User Favorites:') .' ' . $user->user_login);
 } elseif ( isset($tag) ) {
 	if ( !$tag = get_tag_by_name($tag) )
 		die();
 	if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name') . ' '. __('Tag:') .' ' . get_tag_name());
+	$title = wp_specialchars(bb_get_option('name') . ' '. __('Tag:') .' ' . get_tag_name());
 } else {
 	if ( !$posts = get_latest_posts( 35 ) )
 		die();
-	$title = bb_specialchars(bb_get_option('name')) . ': '. __('Last 35 Posts');
+	$title = wp_specialchars(bb_get_option('name')) . ': '. __('Last 35 Posts');
 }
 endif;
 
@@ -51,7 +51,7 @@ require_once( BBPATH . 'bb-includes/feed-functions.php');
 
 bb_send_304( $posts[0]->post_time );
 
-bb_add_filter('post_link', 'bb_specialchars');
+bb_add_filter('post_link', 'wp_specialchars');
 bb_add_filter('post_text', 'htmlspecialchars');
 
 if (file_exists( BBPATH . 'my-templates/rss2.php'))

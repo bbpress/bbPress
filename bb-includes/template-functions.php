@@ -37,7 +37,7 @@ function profile_menu() {
 		}
 		if ( can_access_tab( $item, $bb_current_user->ID, $user_id ) )
 			if ( file_exists($item[3]) || function_exists($item[3]) )
-				$list .= "\n\t<li$class><a href='" . bb_specialchars( get_profile_tab_link($user_id, $item[0]) ) . "'>{$item[0]}</a></li>";
+				$list .= "\n\t<li$class><a href='" . wp_specialchars( get_profile_tab_link($user_id, $item[0]) ) . "'>{$item[0]}</a></li>";
 	}
 	if ( bb_is_user_logged_in() ) :
 		$list .= "\n\t<li class='last'><a href='" . bb_get_option('uri') . 'bb-login.php?logout' . "' title='" . __('Log out of this account') . "'>";
@@ -187,7 +187,7 @@ function bb_get_title() {
 	if ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
 	if ( is_tag() )
-		$title = bb_specialchars( get_tag_name() ). ' &laquo; Tags &laquo; ';
+		$title = wp_specialchars( get_tag_name() ). ' &laquo; Tags &laquo; ';
 	if ( is_bb_profile() )
 		$title = $user->user_login . ' &laquo; ';
 	if ( !empty($static_title) )
@@ -205,9 +205,9 @@ function bb_feed_head() {
 	global $tag;
 	$feed_link = '';
 	if ( is_topic() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Thread: ' . bb_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Thread: ' . wp_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
 	elseif ( is_tag() && $tag )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Tag: ' . bb_specialchars( get_tag_name(), 1 ) . '" href="' . get_tag_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Tag: ' . wp_specialchars( get_tag_name(), 1 ) . '" href="' . get_tag_rss_link() . '" />';
 	elseif ( is_front() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Recent Posts" href="' . get_recent_rss_link() . '" />';
 	echo bb_apply_filters('bb_feed_head', $feed_link);
@@ -474,7 +474,7 @@ function get_page_number_links($page, $total) {
 	if ( 1 < $page ) {
 		if ( !bb_get_option('mod_rewrite') )
 			$args['page'] = ( 1 == $page - 1 ) ? '' : $page - 1;
-		$r .=  '<a class="prev" href="' . bb_specialchars( bb_add_query_arg(
+		$r .=  '<a class="prev" href="' . wp_specialchars( bb_add_query_arg(
 								$args,
 								str_replace("/page/$page", ( 2 == $page ? '' : '/page/' . ($page - 1) ), $uri)
 								) ) . '">&laquo; '. __('Previous Page') .'</a>' . "\n";
@@ -488,7 +488,7 @@ function get_page_number_links($page, $total) {
 				if ( $page_num < 3 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
 					if ( !bb_get_option('mod_rewrite') )
 						$args['page'] = ( 1 == $page_num ) ? '' : $page_num;
-					$r .= '<a class="page-numbers" href="' . bb_specialchars( bb_add_query_arg(
+					$r .= '<a class="page-numbers" href="' . wp_specialchars( bb_add_query_arg(
 								$args,
 								str_replace("/page/$page", ( 1 == $page_num ? '' : '/page/' . $page_num ), $uri)
 								) ) . '">' . ( $page_num ) . "</a>\n";
@@ -503,7 +503,7 @@ function get_page_number_links($page, $total) {
 	if ( ( $page ) * bb_get_option('page_topics') < $total || -1 == $total ) {
 		if ( !bb_get_option('mod_rewrite') )
 			$args['page'] = $page + 1;
-		$r .=  '<a class="next" href="' . bb_specialchars( bb_add_query_arg(
+		$r .=  '<a class="next" href="' . wp_specialchars( bb_add_query_arg(
 								$args,
 								str_replace("/page/$page", '/page/' . ($page + 1), $uri)
 								) ) . '">'. __('Next Page') .' &raquo;</a>' . "\n";
@@ -552,7 +552,7 @@ function topic_show_all_link() {
 	if ( 'all' == @$_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>". __('View normal posts') ."</a>";
 	else
-		echo "<a href='" . bb_specialchars( bb_add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
+		echo "<a href='" . wp_specialchars( bb_add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
 }
 
 function topic_move_dropdown() {
@@ -845,7 +845,7 @@ function get_tag_name( $id = 0 ) {
 }
 
 function tag_name( $id = 0 ) {
-	echo bb_specialchars( get_tag_name( $id ) );
+	echo wp_specialchars( get_tag_name( $id ) );
 }
 
 function tag_rss_link( $id = 0 ) {
@@ -893,7 +893,7 @@ function manage_tags_forms() {
 	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
 	$form .= "<input type='submit' name='Submit' value='". __('Merge') ."'";
-	$form .= "onclick='return confirm(\" ". sprintf(__('Are you sure you want to merge the &#039;%s&#039; tag into the tag you specified? This is permanent and cannot be undone.'), bb_specialchars( $tag->raw_tag )) ."\")' />\n\t";
+	$form .= "onclick='return confirm(\" ". sprintf(__('Are you sure you want to merge the &#039;%s&#039; tag into the tag you specified? This is permanent and cannot be undone.'), wp_specialchars( $tag->raw_tag )) ."\")' />\n\t";
 	echo $form;
 	bb_nonce_field( 'merge-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n ";
@@ -901,7 +901,7 @@ function manage_tags_forms() {
 	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-destroy.php'><div>\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
 	$form .= "<input type='submit' name='Submit' value='". __('Destroy') ."'";
-	$form .= "onclick='return confirm(\" ". sprintf(__('Are you sure you want to destroy the &#039;%s&#039; tag? This is permanent and cannot be undone.'), bb_specialchars( $tag->raw_tag )) ."\")' />\n\t";
+	$form .= "onclick='return confirm(\" ". sprintf(__('Are you sure you want to destroy the &#039;%s&#039; tag? This is permanent and cannot be undone.'), wp_specialchars( $tag->raw_tag )) ."\")' />\n\t";
 	echo $form;
 	bb_nonce_field( 'destroy-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n</ul>";
@@ -935,7 +935,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 	uksort($counts, 'strnatcasecmp');
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
-		$tag = str_replace(' ', '&nbsp;', bb_specialchars( $tag ));
+		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
 		print "<a href='$taglink' title='$count topics' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}

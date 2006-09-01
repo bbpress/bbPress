@@ -2,7 +2,7 @@
 <?php if ( $topic_title ) : ?>
 <p>
   <label><?php _e('Topic:'); ?><br />
-  <input name="topic" type="text" id="topic" size="50" maxlength="80"  value="<?php echo bb_specialchars(get_topic_title(), 1); ?>" />
+  <input name="topic" type="text" id="topic" size="50" maxlength="80"  value="<?php echo wp_specialchars(get_topic_title(), 1); ?>" />
 </label>
 </p>
 <?php endif; ?>

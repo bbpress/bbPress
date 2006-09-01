@@ -62,7 +62,7 @@ function code_trick_reverse( $text ) {
 }
 
 function encode_bad( $text) {
-	$text = bb_specialchars($text);
+	$text = wp_specialchars($text);
 	$text = preg_replace('|&lt;(/?strong)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?em)&gt;|', '<$1>', $text);
 	$text = preg_replace('|&lt;(/?a.*?)&gt;|', '<$1>', $text);
@@ -156,6 +156,6 @@ function closed_title( $title ) {
 }
 
 function make_link_view_all( $link ) {
-	return bb_specialchars( bb_add_query_arg( 'view', 'all', $link ) );
+	return wp_specialchars( bb_add_query_arg( 'view', 'all', $link ) );
 }
 ?>

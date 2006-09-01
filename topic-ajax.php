@@ -35,7 +35,7 @@ case 'tag-add' :
 	if ( add_topic_tag( $topic_id, $tag ) ) {
 		$new_tag = get_tag( $ajax_results['tag_id'] );
 		header('Content-type: text/xml');
-		$new_tag->raw_tag = htmlspecialchars(bb_specialchars($new_tag->raw_tag));
+		$new_tag->raw_tag = htmlspecialchars(wp_specialchars($new_tag->raw_tag));
 		die("<?xml version='1.0' standalone='yes'?><tag><id>$new_tag->tag_id</id><user>{$ajax_results['user_id']}</user><raw>$new_tag->raw_tag</raw><cooked>$new_tag->tag</cooked></tag>");
 	} else {
 		die('0');
@@ -166,7 +166,7 @@ case 'post-add' :
 		echo "<?xml version='1.0' standalone='yes'?><post><id>$post_id</id><templated><![CDATA[";
 		bb_post_template();
 		echo ']]></templated>';
-		if ( $page != $new_page ) echo "<link><![CDATA[". sprintf(__('Your post has been posted to the <a href="%1$s">next page</a> in this topic.'), bb_specialchars( get_post_link( $bb_post->post_id ) ) ) ."]]></link>";
+		if ( $page != $new_page ) echo "<link><![CDATA[". sprintf(__('Your post has been posted to the <a href="%1$s">next page</a> in this topic.'), wp_specialchars( get_post_link( $bb_post->post_id ) ) ) ."]]></link>";
 		echo '</post>';
 		exit;
 	else :

@@ -30,9 +30,9 @@ if ($_POST) :
 
 	foreach ( $profile_info_keys as $key => $label ) :
 		if ( is_string($$key) ) :
-			$$key = bb_specialchars( $$key, 1 );
+			$$key = wp_specialchars( $$key, 1 );
 		elseif ( is_null($$key) ) :
-			$$key = bb_specialchars( $_POST[$key], 1 );
+			$$key = wp_specialchars( $_POST[$key], 1 );
 		endif;
 		if ( !$$key && $label[0] == 1 ) :
 			$bad_input = true;
@@ -41,9 +41,9 @@ if ($_POST) :
 	endforeach;
 
 	if ( bb_current_user_can('edit_users') ):
-		$role = bb_specialchars( $_POST['role'], 1 );
+		$role = wp_specialchars( $_POST['role'], 1 );
 		foreach ( $profile_admin_keys as $key => $label ) :
-			$$key = bb_specialchars( $_POST[$key], 1 );
+			$$key = wp_specialchars( $_POST[$key], 1 );
 			if ( !$$key && $label[0] == 1 ) :
 				$bad_input = true;
 				$$key = false;

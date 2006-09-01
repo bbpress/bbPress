@@ -30,8 +30,8 @@
 		     <th><?php _e('Position'); ?></th>
 		 </tr>
 <?php $t = 20; foreach ( $forums as $forum ) : ?>
-		 <tr><td><input type="text" name="name-<?php forum_id(); ?>"  value="<?php echo bb_specialchars( get_forum_name(), 1 ); ?>" tabindex="<?php echo $t++; ?>" /></td>
-		     <td><input type="text" name="desc-<?php forum_id(); ?>"  value="<?php echo bb_specialchars( get_forum_description(), 1 ); ?>" tabindex="<?php echo $t++; ?>" /></td>
+		 <tr><td><input type="text" name="name-<?php forum_id(); ?>"  value="<?php echo wp_specialchars( get_forum_name(), 1 ); ?>" tabindex="<?php echo $t++; ?>" /></td>
+		     <td><input type="text" name="desc-<?php forum_id(); ?>"  value="<?php echo wp_specialchars( get_forum_description(), 1 ); ?>" tabindex="<?php echo $t++; ?>" /></td>
 		     <td><input type="text" name="order-<?php forum_id(); ?>" value="<?php echo $forum->forum_order; ?>" maxlength="10" tabindex="<?php echo $t++; ?>" /></td>
 		 </tr>
 <?php endforeach; ?>
