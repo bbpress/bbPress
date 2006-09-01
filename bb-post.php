@@ -38,7 +38,7 @@ $link = get_post_link($post_id);
 
 $topic = get_topic( $topic_id, false );
 
-$link = bb_add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
+$link = add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
 
 if ($post_id)
 	header('Location: ' . $link );

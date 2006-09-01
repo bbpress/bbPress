@@ -1208,11 +1208,11 @@ function bb_repermalink() {
 
 	parse_str($_SERVER['QUERY_STRING'], $args);
 	if ( $args ) {
-		$permalink = bb_add_query_arg($args, $permalink);
+		$permalink = add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
 				$pretty_args = array('id', 'page', 'tag', 'tab'); // these are already specified in the path
 				foreach( $pretty_args as $arg )
-					$permalink = bb_remove_query_arg($arg, $permalink);
+					$permalink = remove_query_arg($arg, $permalink);
 			}
 	}
 

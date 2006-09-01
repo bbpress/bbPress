@@ -156,6 +156,6 @@ function closed_title( $title ) {
 }
 
 function make_link_view_all( $link ) {
-	return wp_specialchars( bb_add_query_arg( 'view', 'all', $link ) );
+	return wp_specialchars( add_query_arg( 'view', 'all', $link ) );
 }
 ?>

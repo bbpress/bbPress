@@ -305,7 +305,7 @@ function get_topic_link( $id = 0, $page = 1 ) {
 		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id" . ( 1 < $page ? "&page=$page" : '' );
 
 	if ( bb_current_user_can('write_posts') )
-		$link = bb_add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
+		$link = add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
 
 	return apply_filters('get_topic_link', $link);
 }
@@ -474,7 +474,7 @@ function get_page_number_links($page, $total) {
 	if ( 1 < $page ) {
 		if ( !bb_get_option('mod_rewrite') )
 			$args['page'] = ( 1 == $page - 1 ) ? '' : $page - 1;
-		$r .=  '<a class="prev" href="' . wp_specialchars( bb_add_query_arg(
+		$r .=  '<a class="prev" href="' . wp_specialchars( add_query_arg(
 								$args,
 								str_replace("/page/$page", ( 2 == $page ? '' : '/page/' . ($page - 1) ), $uri)
 								) ) . '">&laquo; '. __('Previous Page') .'</a>' . "\n";
@@ -488,7 +488,7 @@ function get_page_number_links($page, $total) {
 				if ( $page_num < 3 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
 					if ( !bb_get_option('mod_rewrite') )
 						$args['page'] = ( 1 == $page_num ) ? '' : $page_num;
-					$r .= '<a class="page-numbers" href="' . wp_specialchars( bb_add_query_arg(
+					$r .= '<a class="page-numbers" href="' . wp_specialchars( add_query_arg(
 								$args,
 								str_replace("/page/$page", ( 1 == $page_num ? '' : '/page/' . $page_num ), $uri)
 								) ) . '">' . ( $page_num ) . "</a>\n";
@@ -503,7 +503,7 @@ function get_page_number_links($page, $total) {
 	if ( ( $page ) * bb_get_option('page_topics') < $total || -1 == $total ) {
 		if ( !bb_get_option('mod_rewrite') )
 			$args['page'] = $page + 1;
-		$r .=  '<a class="next" href="' . wp_specialchars( bb_add_query_arg(
+		$r .=  '<a class="next" href="' . wp_specialchars( add_query_arg(
 								$args,
 								str_replace("/page/$page", '/page/' . ($page + 1), $uri)
 								) ) . '">'. __('Next Page') .' &raquo;</a>' . "\n";
@@ -552,7 +552,7 @@ function topic_show_all_link() {
 	if ( 'all' == @$_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>". __('View normal posts') ."</a>";
 	else
-		echo "<a href='" . wp_specialchars( bb_add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
+		echo "<a href='" . wp_specialchars( add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
 }
 
 function topic_move_dropdown() {
@@ -729,7 +729,7 @@ function get_profile_tab_link( $id, $tab, $page = 1 ) {
 		$args = array('tab' => $tab);
 		if ( 1 < $page )
 			$args['page'] = $page;
-		$r = bb_add_query_arg( $args, get_user_profile_link( $id ) );
+		$r = add_query_arg( $args, get_user_profile_link( $id ) );
 	}
 	return apply_filters('get_profile_tab_link', $r);
 }
@@ -998,7 +998,7 @@ function user_favorites_link($add = array('mid' => 'Add this topic to your favor
 		$post = ( is_array($add) && isset($add['post']) ) ? $add['post'] : '';
 	endif;
 	if ( false !== $is_fav )
-		echo "$pre<a href='" . bb_nonce_url( bb_add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) . "'>$mid</a>$post";
+		echo "$pre<a href='" . bb_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) . "'>$mid</a>$post";
 }
 
 function favorites_rss_link( $id = 0 ) {

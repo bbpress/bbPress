@@ -16,9 +16,9 @@
 <h3><?php _e('Recently Moderated'); ?></h3>
 <ul class="posts">
 <?php if ( $objects = get_recently_moderated_objects() ) : foreach ( $objects as $object ) : if ( 'post' == $object['type'] ) : global $bb_post; $bb_post = $object['data']; ?>
- <li><a href="<?php echo bb_add_query_arg( 'view', 'all', get_post_link() ); ?>"><?php _e('Post'); ?></a> <?php _e('on'); ?> <a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a> <?php _e('by'); ?> <a href="<?php user_profile_link( $bb_post->poster_id ); ?>"><?php post_author(); ?></a>.</li>
+ <li><a href="<?php echo add_query_arg( 'view', 'all', get_post_link() ); ?>"><?php _e('Post'); ?></a> <?php _e('on'); ?> <a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a> <?php _e('by'); ?> <a href="<?php user_profile_link( $bb_post->poster_id ); ?>"><?php post_author(); ?></a>.</li>
 <?php elseif ( 'topic' == $object['type'] ) : global $topic; $topic = $object['data']; ?>
- <li><?php _e('Topic titled'); ?> <a href="<?php echo bb_add_query_arg( 'view', 'all', get_topic_link() ); ?>"><?php topic_title(); ?></a> <?php _e('started by'); ?> <a href="<?php user_profile_link( $topic->topic_poster ); ?>"><?php echo $topic->topic_poster_name; ?></a>.</li>
+ <li><?php _e('Topic titled'); ?> <a href="<?php echo add_query_arg( 'view', 'all', get_topic_link() ); ?>"><?php topic_title(); ?></a> <?php _e('started by'); ?> <a href="<?php user_profile_link( $topic->topic_poster ); ?>"><?php echo $topic->topic_poster_name; ?></a>.</li>
 <?php endif; endforeach; endif; ?>
 </ul>
 </div>

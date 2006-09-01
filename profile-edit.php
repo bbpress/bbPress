@@ -92,7 +92,7 @@ if ($_POST) :
 		
 		do_action('profile_edited', $user->ID);
 
-		$sendto = bb_add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) );
+		$sendto = add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) );
 		header("Location: $sendto");
 		exit();	
 	endif;
