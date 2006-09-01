@@ -13,5 +13,4 @@ else	$bb_admin_page = bb_find_filename($_SERVER['PHP_SELF']);
 
 bb_admin_menu_generator();
 bb_get_current_admin_menu();
-
 ?>
