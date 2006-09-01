@@ -55,6 +55,8 @@ require( BBPATH . 'bb-includes/formatting-functions.php');
 require( BBPATH . 'bb-includes/template-functions.php');
 require( BBPATH . 'bb-includes/capabilities.php');
 require( BBPATH . 'bb-includes/cache.php');
+require( BBPATH . 'bb-includes/deprecated.php');
+require( BBPATH . 'bb-includes/wp-functions.php');  // We'll just not include this when WP is running.
 require( BBPATH . 'bb-includes/default-filters.php');
 require( BBPATH . 'bb-includes/script-loader.php');
 

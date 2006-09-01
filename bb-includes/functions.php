@@ -214,75 +214,6 @@ function get_page_number( $item, $per_page = 0 ) {
 	return intval( ceil( $item / $per_page ) ); // page 1 is the first page
 }
 
-function bb_apply_filters($tag, $string, $filter = true) {
-	global $wp_filter;
-	if (isset($wp_filter['all'])) {
-		foreach ($wp_filter['all'] as $priority => $functions) {
-			if (isset($wp_filter[$tag][$priority]))
-				$wp_filter[$tag][$priority] = array_merge($wp_filter['all'][$priority], $wp_filter[$tag][$priority]);
-			else
-				$wp_filter[$tag][$priority] = array_merge($wp_filter['all'][$priority], array());
-			$wp_filter[$tag][$priority] = array_unique($wp_filter[$tag][$priority]);
-		}
-
-	}
-
-	if (isset($wp_filter[$tag])) {
-		ksort($wp_filter[$tag]);
-		foreach ($wp_filter[$tag] as $priority => $functions) {
-			if (!is_null($functions)) {
-				foreach($functions as $function) {
-					if ($filter)
-						$string = call_user_func($function, $string);
-					else
-						call_user_func($function, $string);
-				}
-			}
-		}
-	}
-	return $string;
-}
-
-function bb_add_filter($tag, $function_to_add, $priority = 10) {
-	global $wp_filter;
-	// So the format is wp_filter['tag']['array of priorities']['array of functions']
-	if (!@in_array($function_to_add, $wp_filter[$tag]["$priority"])) {
-		$wp_filter[$tag]["$priority"][] = $function_to_add;
-	}
-	return true;
-}
-
-function bb_remove_filter($tag, $function_to_remove, $priority = 10) {
-	global $wp_filter;
-	if (@in_array($function_to_remove, $wp_filter[$tag]["$priority"])) {
-		foreach ($wp_filter[$tag]["$priority"] as $function) {
-			if ($function_to_remove != $function) {
-				$new_function_list[] = $function;
-			}
-		}
-		if ( isset($new_function_list) )
-			$wp_filter[$tag]["$priority"] = $new_function_list;
-		else	unset($wp_filter[$tag]["$priority"]);
-	}
-	return true;
-}
-
-// The *_action functions are just aliases for the *_filter functions, they take special strings instead of generic content
-
-function bb_do_action($tag) {
-	$string = ( 1 < func_num_args() ) ? func_get_arg(1) : '';
-	bb_apply_filters($tag, $string, false);
-	return $string;
-}
-
-function bb_add_action($tag, $function_to_add, $priority = 10) {
-	bb_add_filter($tag, $function_to_add, $priority);
-}
-
-function bb_remove_action($tag, $function_to_remove, $priority = 10) {
-	bb_remove_filter($tag, $function_to_remove, $priority);
-}
-
 function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer_stop(1), will echo $timetotal
 	global $bb_timestart, $timeend;
 	$mtime = explode(' ', microtime());
@@ -364,53 +295,6 @@ function bb_get_option( $option ) {
 
 function option( $option ) {
 	echo bb_get_option( $option ) ;
-}
-
-function bb_add_query_arg() {
-	$ret = '';
-	if( is_array( func_get_arg(0) ) )
-		$uri = @func_get_arg(1);
-	else
-		$uri = @func_get_arg(2);
-	if ( false === $uri )
-		$uri = $_SERVER['REQUEST_URI'];
-
-	if ( $frag = strstr($uri, '#') )
-		$uri = substr($uri, 0, -strlen($frag));
-
-	if ( false !== strpos($uri, '?') ) {
-		$parts = explode('?', $uri, 2);
-		if (1 == count($parts)) {
-			$base = '?';
-			$query = $parts[0];
-		} else {
-			$base = $parts[0] . '?';
-			$query = $parts[1];
-		}
-	} else {
-		$base = $uri . '?';
-		$query = '';
-	}
-	parse_str($query, $qs);
-	if (is_array(func_get_arg(0))) {
-		$kayvees = func_get_arg(0);
-		$qs = array_merge($qs, $kayvees);
-	} else {
-		$qs[func_get_arg(0)] = func_get_arg(1);
-	}
-
-	foreach($qs as $k => $v) {
-		if($v != '') {
-			if($ret != '') $ret .= '&';
-			$ret .= "$k=$v";
-		}
-	}
-	$ret = $base . $ret;   
-	return trim($ret, '?') . ($frag ? $frag : '');
-}
-
-function bb_remove_query_arg($key, $query) {
-	return bb_add_query_arg($key, '', $query);
 }
 
 function bb_get_uri_page() {
@@ -979,16 +863,6 @@ function get_path( $level = 1 ) {
 	endif;
 }
 
-//WPcommon
-if ( !function_exists('nocache_headers') ) {
-function nocache_headers() {
-	header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
-	header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-	header('Cache-Control: no-cache, must-revalidate, max-age=0');
-	header('Pragma: no-cache');
-}
-}
-
 function add_topic_tag( $topic_id, $tag ) {
 	global $bbdb, $bb_cache, $bb_current_user;
 	$topic_id = (int) $topic_id;
@@ -1257,9 +1131,16 @@ function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 	} else { return false; }
 }
 
-function bb_find_filename( $text ) { 
-	$text = preg_replace('|.*?/([a-z\-]+\.php)/?.*|', '$1', $text);
-	return $text;
+function bb_find_filename( $text ) {
+	global $bb;
+	if ( preg_match('|.*?/([a-z\-]+\.php)/?.*|', $text, $matches) )
+		return $matches[1];
+	else {
+		$text = preg_replace("#^$bb->path#", '', $text);
+		$text = preg_replace('#/.+$#', '', $text);
+		return $text . '.php';
+	}
+	return false;
 }
 
 function get_top_tags( $recent = true, $limit = 40 ) {
@@ -1362,33 +1243,6 @@ function bb_repermalink() {
 	endif;
 }
 
-//WPcommon
-if ( !function_exists('status_header') ) {
-function status_header( $header ) {
-	if ( 200 == $header ) {
-		$text = 'OK';
-	} elseif ( 301 == $header ) {
-		$text = 'Moved Permanently';
-	} elseif ( 302 == $header ) {
-		$text = 'Moved Temporarily';
-	} elseif ( 304 == $header ) {
-		$text = 'Not Modified';
-	} elseif ( 404 == $header ) {
-		$text = 'Not Found';
-	} elseif ( 410 == $header ) {
-		$text = 'Gone';
-	}
-	if ( preg_match('/cgi/',php_sapi_name()) ) {
-		@header("Status: $header $text");
-	} else {
-		if ( version_compare(phpversion(), '4.3.0', '>=') )
-			@header($text, TRUE, $header);
-		else
-			@header("HTTP/1.x $header $text");
-	}
-}
-}
-
 // Profile/Admin
 function global_profile_menu_structure() {
 	global $bb_current_user, $user_id, $profile_menu, $profile_hooks;
@@ -1471,4 +1325,14 @@ function get_views( $cache = true ) {
 		$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
 	return bb_apply_filters('bb_views', $views);
 }
+
+function bb_nonce_url($actionurl, $action = -1) {
+	return wp_specialchars(add_query_arg('_wpnonce', bb_create_nonce($action), $actionurl));
+}
+
+function bb_nonce_field($action = -1) {
+	echo '<input type="hidden" name="_wpnonce" value="' . bb_create_nonce($action) . '" />';
+	wp_referer_field();
+}
+
 ?>

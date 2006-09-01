@@ -149,4 +149,53 @@ function bb_logout() {
 }
 endif;
 
+if ( !function_exists('bb_verify_nonce') ) :
+function bb_verify_nonce($nonce, $action = -1) {
+	$user = bb_get_current_user();
+	$uid = $user->ID;
+
+	$i = ceil(time() / 43200);
+
+	//Allow for expanding range, but only do one check if we can
+	if( substr(wp_hash($i . $action . $uid), -12, 10) == $nonce || substr(wp_hash(($i - 1) . $action . $uid), -12, 10) == $nonce )
+		return true;
+	return false;
+}
+endif;
+
+if ( !function_exists('bb_create_nonce') ) :
+function bb_create_nonce($action = -1) {
+	$user = bb_get_current_user();
+	$uid = $user->ID;
+
+	$i = ceil(time() / 43200);
+	
+	return substr(wp_hash($i . $action . $uid), -12, 10);
+}
+endif;
+
+if ( !function_exists('bb_check_admin_referer') ) :
+function bb_check_admin_referer($action = -1) {
+	if ( !bb_verify_nonce($_REQUEST['_wpnonce'], $action) ) {
+		bb_nonce_ays($action);
+		die();
+	}
+	do_action('bb_check_admin_referer', $action);
+}endif;
+
+if ( !function_exists('bb_check_ajax_referer') ) :
+function bb_check_ajax_referer() {
+	$cookie = explode('; ', urldecode(empty($_POST['cookie']) ? $_GET['cookie'] : $_POST['cookie'])); // AJAX scripts must pass cookie=document.cookie
+	foreach ( $cookie as $tasty ) {
+		if ( false !== strpos($tasty, USER_COOKIE) )
+			$user = substr(strstr($tasty, '='), 1);
+		if ( false !== strpos($tasty, PASS_COOKIE) )
+			$pass = substr(strstr($tasty, '='), 1);
+	}
+	if ( !bb_check_login( $user, $pass, true ) )
+		die('-1');
+	do_action('bb_check_ajax_referer');
+}
+endif;
+
 ?>
