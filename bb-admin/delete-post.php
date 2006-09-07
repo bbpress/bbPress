@@ -22,7 +22,7 @@ bb_delete_post( $post_id, $status );
 
 $topic = get_topic( $bb_post->topic_id );
 
-if ( $topic->topic_posts == 1 )
+if ( $topic->topic_posts == 0 )
 	$sendto = get_forum_link( $topic->forum_id );
 else
 	$sendto = $_SERVER['HTTP_REFERER'];

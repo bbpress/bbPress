@@ -17,7 +17,7 @@ $topic    =  get_topic ( $topic_id );
 if ( !$topic )
 	die(__('There is a problem with that topic, pardner.'));
 
-bb_delete_topic( $topic->topic_id );
+bb_delete_topic( $topic->topic_id, 1 );
 
 if ( 0 == $topic->topic_status )
 	$sendto = get_forum_link( $topic->forum_id );

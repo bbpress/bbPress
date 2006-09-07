@@ -681,8 +681,8 @@ function post_delete_link() {
 		$r = "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=1', 'delete-post_' . get_post_id() ) .  "' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>". __('Delete') ."</a>";
 	else
 		$r = "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) . "' onclick='return confirm(\" ". __('Are you sure you wanna undelete that?') ." \");'>". __('Undelete') ."</a>";
-	$r = apply_filters( 'post_delete_link', array($r, $bb_post->post_status) );
-	echo $r[0];
+	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status );
+	echo $r;
 }
 
 function post_author_id() {

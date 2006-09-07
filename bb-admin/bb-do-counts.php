@@ -20,7 +20,7 @@ endif;
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
 	$old = $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'deleted_posts'");
 	$old = array_flip($old);
-	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '1' GROUP BY topic_id") ) :
+	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
 		printf (__('Counting deleted posts...'). "\n");
 		$counts = $bbdb->get_col('', 1);
 		foreach ($topics as $t => $i) :

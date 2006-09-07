@@ -38,7 +38,8 @@ $link = get_post_link($post_id);
 
 $topic = get_topic( $topic_id, false );
 
-$link = add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
+if ( $topic->topic_posts )
+	$link = add_query_arg( 'replies', $topic->topic_posts, $link );
 
 if ($post_id)
 	header('Location: ' . $link );

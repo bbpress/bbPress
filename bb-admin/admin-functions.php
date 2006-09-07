@@ -120,16 +120,22 @@ function get_deleted_topics_count() {
 	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
 }
 
-function get_deleted_posts( $page = 1, $limit = false ) {
+function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
 	global $bbdb;
 	$page = (int) $page;
 	if ( !$limit )
 		$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
+	if ( false === $topic_status )
+		$where = '';
+	else {
+		$topic_status = (int) $topic_status;
+		$where = "topic_status = '$topic_status' AND";
+	}
 	if ( $page )
-		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status = 1 ORDER BY post_time DESC LIMIT $limit");
-	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE topic_status = 0 AND post_status = 1");
+		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status = '$status' ORDER BY post_time DESC LIMIT $limit");
+	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status = '$status'");
 }
 
 function bb_recount_list() {
@@ -145,6 +151,22 @@ function bb_recount_list() {
 	do_action('bb_recount_list');
 	ksort($recount_list);
 	return $recount_list;
+}
+
+function bb_admin_list_posts() {
+	global $bb_posts, $bb_post;
+	if ( $bb_posts ) : foreach ( $bb_posts as $bb_post ) : ?>
+	<li<?php alt_class('post'); ?>>
+		<div class="threadauthor">
+			<p><strong><?php post_author_link(); ?></strong><br />
+				<small><?php post_author_type(); ?></small></p>
+		</div>
+		<div class="threadpost">
+			<div class="post"><?php post_text(); ?></div>
+			<div class="poststuff">
+				<?php printf(__('Posted: %1$s in <a href="%2$s">%3$s</a>'), bb_get_post_time(), get_topic_link( $bb_post->topic_id ), get_topic_title( $bb_post->topic_id ));?> IP: <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link();?></div>
+			</div>
+	</li><?php endforeach; endif;
 }
 
 ?>
