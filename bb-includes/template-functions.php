@@ -359,6 +359,11 @@ function topic_last_poster() {
 	echo apply_filters('topic_last_poster', $topic->topic_last_poster_name);
 }
 
+function topic_author() {
+	global $topic;
+	echo apply_filters( 'topic_author', $topic->topic_poster_name );
+}
+
 function topic_time( $id = 0 ) {
 	echo apply_filters('topic_time', get_topic_time($id) );
 }
