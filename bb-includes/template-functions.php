@@ -94,7 +94,7 @@ function post_form() {
 
 function edit_form() {
 	global $bb_post, $topic_title;
-	echo "<form name='post' id='post' method='post' action='" . bb_get_option('uri'). "'bb-edit.php'>\n";
+	echo "<form name='post' id='post' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
 	require( BBPATH . '/bb-templates/edit-form.php');
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	echo "\n</form>";

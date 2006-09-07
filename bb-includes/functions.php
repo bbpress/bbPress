@@ -788,7 +788,7 @@ function bb_update_post( $bb_post, $post_id, $topic_id ) {
 	$post_status = (int) apply_filters( 'pre_post_status', $old_post->post_status );
 
 	if ( $post_id && $bb_post ) {
-		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$bb_post', post_statuts = '$post_status' WHERE post_id = $post_id");
+		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$bb_post', post_status = '$post_status' WHERE post_id = $post_id");
 		$bb_cache->flush_many( 'thread', $topic_id );
 		do_action('bb_update_post', $post_id);
 		return $post_id;
