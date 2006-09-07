@@ -347,6 +347,7 @@ function bb_log_current_nocaps() {
 	global $bbdb, $bb_table_prefix, $bb_current_user;
 	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'no_caps', 1 ); // Just for logging.
 }
+
 function bb_get_user( $user_id, $cache = true ) {
 	global $bb_cache, $bb_user_cache;
 	if ( !is_numeric( $user_id ) )
