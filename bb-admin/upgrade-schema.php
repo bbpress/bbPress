@@ -25,7 +25,7 @@ CREATE TABLE $bbdb->posts (
   KEY topic_id (topic_id),
   KEY poster_id (poster_id),
   FULLTEXT KEY post_text (post_text)
-);
+) TYPE = MYISAM;
 CREATE TABLE $bbdb->topics (
   topic_id bigint(20) NOT NULL auto_increment,
   topic_title varchar(100) NOT NULL default '',
