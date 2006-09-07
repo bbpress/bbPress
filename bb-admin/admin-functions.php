@@ -96,8 +96,8 @@ function bb_get_admin_tab_link( $m ) {
 
 function get_recently_moderated_objects( $num = 5 ) {
 	global $bbdb;
-	$posts = get_deleted_posts( 1, $num ); // post_time != moderation_time;
-	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status <> 0 ORDER BY topic_time DESC LIMIT $num"); // topic_time == topic_start_time != moderation_time;
+	$posts = (array) get_deleted_posts( 1, $num ); // post_time != moderation_time;
+	$topics = (array) $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status <> 0 ORDER BY topic_time DESC LIMIT $num"); // topic_time == topic_start_time != moderation_time;
 	$objects = array();
 	foreach ( array_keys($posts) as $key )
 		$objects[strtotime($posts[$key]->post_time . ' +0000')] = array('type' => 'post', 'data' => $posts[$key]);
