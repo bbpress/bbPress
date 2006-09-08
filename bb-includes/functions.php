@@ -27,8 +27,8 @@ function get_thread_post_ids( $topic_id ) {
 	global $bbdb, $thread_ids_cache;
 	if ( !isset( $thread_ids_cache[$topic_id] ) ) {
 		$where = apply_filters('get_thread_post_ids_where', 'AND post_status = 0');
-		$thread_ids_cache[$topic_id]['post'] = $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
-		$thread_ids_cache[$topic_id]['poster'] = $bbdb->get_col('', 1);
+		$thread_ids_cache[$topic_id]['post'] = (array) $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
+		$thread_ids_cache[$topic_id]['poster'] = (array) $bbdb->get_col('', 1);
 	}
 	return $thread_ids_cache[$topic_id];
 }
@@ -575,7 +575,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			if ( $user = bb_get_user( $id ) )
 				bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
 		if ( $new_status ) {
-			if( $tags = $bbdb->get_col("SELECT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
+			if( $tags = (array) $bbdb->get_col("SELECT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
 				$tags = join(',', $tags);
 				$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id IN ($tags)");
 			}
@@ -988,8 +988,8 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
 
-	$topics = array_flip($bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id"));
-	$counts = $bbdb->get_col('', 1);
+	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id"));
+	$counts = (array) $bbdb->get_col('', 1);
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") ) :
 		if ( 1 == $counts[$topics[$topic_id]] ) :
 			$tagged = $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
@@ -1013,10 +1013,10 @@ function merge_tags( $old_id, $new_id ) {
 	do_action('bb_pre_merge_tags', $old_id, $new_id);
 
 	$tagged_del = 0;
-	if ( $old_topic_ids = $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
+	if ( $old_topic_ids = (array) $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
 		$old_topic_ids = join(',', $old_topic_ids);
-		$shared_topics_u = $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
-		$shared_topics_i = $bbdb->get_col( '', 1 );
+		$shared_topics_u = (array) $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
+		$shared_topics_i = (array) $bbdb->get_col( '', 1 );
 		foreach ( $shared_topics_i as $t => $i ) {
 			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$i'" );
 			$count = $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
@@ -1041,7 +1041,7 @@ function destroy_tag( $tag_id ) {
 	do_action('bb_pre_destroy_tag', $tag_id);
 
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") ) {
-		if ( $topics = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
+		if ( $topics = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
 			$topics = join(',', $topics);
 			$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id IN ($topics)");
 			$bb_cache->flush_one( 'topic', $topic_id );
@@ -1127,7 +1127,7 @@ function get_public_tags ( $topic_id ) {
 function get_tagged_topic_ids( $tag_id ) {
 	global $bbdb, $tagged_topic_count;
 	$tag_id = (int) $tag_id;
-	if ( $topic_ids = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' ORDER BY tagged_on DESC") ) {
+	if ( $topic_ids = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' ORDER BY tagged_on DESC") ) {
 		$tagged_topic_count = count($topic_ids);
 		return apply_filters('get_tagged_topic_ids', $topic_ids);
 	} else {

@@ -119,7 +119,7 @@ upgrade_150();
 //alter user table column names
 function upgrade_100() {
 	global $bbdb, $bb_table_prefix;
-	$fields = $bbdb->get_col("SHOW COLUMNS FROM $bbdb->users");
+	$fields = (array) $bbdb->get_col("SHOW COLUMNS FROM $bbdb->users");
 	if ( in_array( 'user_id', $fields ) )
 		$bbdb->query("ALTER TABLE `$bbdb->users` CHANGE `user_id` `ID` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT");
 	if ( in_array( 'username', $fields ) )
@@ -175,7 +175,7 @@ function upgrade_120() {
 //populate posts.post_position
 function upgrade_130() {
 	global $bbdb;
-	if ( $topics = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics") )
+	if ( $topics = (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topics") )
 		foreach ( $topics as $topic_id )
 			update_post_positions( $topic_id );
 }
@@ -203,16 +203,16 @@ function upgrade_150() {
 	$role['4'] = $role['3'] = serialize(array('administrator' => true));
 	$role['5'] = serialize(array('keymaster' => true));
 	$inactive = serialize(array('inactive' => true));
-	if ( $mods = $bbdb->get_col("SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = '$old_key' AND meta_value > 0") ) :
-		$mod_type = $bbdb->get_col('', 1);
+	if ( $mods = (array) $bbdb->get_col("SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = '$old_key' AND meta_value > 0") ) :
+		$mod_type = (array) $bbdb->get_col('', 1);
 		foreach ( $mods as $i => $u ) :
 			if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") )
 				$bbdb->query("INSERT INTO $bbdb->usermeta ( user_id, meta_key, meta_value ) VALUES ( $u, '$new_key', '{$role[$mod_type[$i]]}' )");
 		endforeach;
 		echo "Done translating from moderators' user_types to roles<br />\n";
 	endif;
-	if ( $user_ids = $bbdb->get_col("SELECT ID, user_status FROM $bbdb->users") ) :
-		$user_stati = $bbdb->get_col('' , 1);
+	if ( $user_ids = (array) $bbdb->get_col("SELECT ID, user_status FROM $bbdb->users") ) :
+		$user_stati = (array) $bbdb->get_col('' , 1);
 		foreach ( $user_ids as $i => $u ) :
 			if ( !$set = $bbdb->get_var("SELECT umeta_id FROM $bbdb->usermeta WHERE meta_key = '$new_key' AND user_id = $u") ) :
 				if ( $user_stati[$i] == 2 )

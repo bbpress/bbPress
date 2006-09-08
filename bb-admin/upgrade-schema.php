@@ -130,7 +130,7 @@ function dbDelta($queries, $execute = true) {
 	}	
 
 	// Check to see which tables and fields exist
-	if($tables = $bbdb->get_col('SHOW TABLES;')) {
+	if($tables = (array) $bbdb->get_col('SHOW TABLES;')) {
 		// For every table in the database
 		foreach($tables as $table) {
 			// If a table query exists for the database table...

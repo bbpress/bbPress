@@ -110,7 +110,7 @@ function get_recently_moderated_objects( $num = 5 ) {
 function get_ids_by_role( $role = 'moderator' ) {
 	global $bbdb, $bb_table_prefix;
 	$key = $bb_table_prefix . 'capabilities';
-	if ( $ids = $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value LIKE '%$role%'") )
+	if ( $ids = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value LIKE '%$role%'") )
 		bb_cache_users( $ids );
 	return $ids;
 }

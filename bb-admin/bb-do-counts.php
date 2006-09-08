@@ -5,11 +5,11 @@ header('Content-type: text/plain');
 if ( bb_current_user_can('recount') ) :
 
 if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
-	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :
-		$approved=isset($approved)?$approved : 'No';
+	if ( $topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :
+		$approved = isset($approved) ? $approved : 'No';
 		echo sprintf(__("%s comments approved"), $approved) . "\n";
 		printf (__('Counting posts...'). "\n");
-		$counts = $bbdb->get_col('', 1);
+		$counts = (array) $bbdb->get_col('', 1);
 		foreach ($topics as $t => $i)
 			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '{$counts[$t]}' WHERE topic_id = $i");
 		unset($topics, $t, $i, $counts);
@@ -20,10 +20,10 @@ endif;
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
 	$old = (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'deleted_posts'");
 	$old = array_flip($old);
-	if ( $topics = $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
+	if ( $topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
 		printf (__('Counting deleted posts...'). "\n");
-		$counts = $bbdb->get_col('', 1);
-		foreach ( (array) $topics as $t => $i ) :
+		$counts = (array) $bbdb->get_col('', 1);
+		foreach ( $topics as $t => $i ) :
 			bb_update_topicmeta( $i, 'deleted_posts', $counts[$t] );
 			unset($old[$i]);
 		endforeach;
@@ -56,9 +56,9 @@ if ( isset($_POST['forums']) && 1 == $_POST['forums'] ) :
 endif;
 
 if ( isset($_POST['topics-replied']) && 1 == $_POST['topics-replied'] ) :
-	if ( $users = $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
+	if ( $users = (array) $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
 		printf(__('Counting topics to which each user has replied...'). "\n");
-		foreach ( (array) $users as $user ) :
+		foreach ( $users as $user ) :
 			$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = $user");
 			bb_update_usermeta( $user, $bb_table_prefix. 'topics_replied', $topics_replied );
 		endforeach;
@@ -70,10 +70,10 @@ endif;
 if ( isset($_POST['topic-tag-count']) && 1 == $_POST['topic-tag-count'] ) :
 	if ( $topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(DISTINCT tag_id) FROM $bbdb->tagged GROUP BY topic_id") ) :
 		printf(__('Counting topic tags...'). "\n");
-		$counts = $bbdb->get_col('', 1);
+		$counts = (array) $bbdb->get_col('', 1);
 		foreach ( $topics as $t => $i)
 			$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = $i");
-		$not_tagged = array_diff($bbdb->get_col("SELECT topic_id FROM $bbdb->topics"), $topics);
+		$not_tagged = array_diff( (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topics"), $topics);
 		foreach ( $not_tagged as $i )
 			$bbdb->query("UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = $i");
 		unset($topics, $t, $i, $counts, $not_tagged);
@@ -84,10 +84,10 @@ endif;
 if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 	if ( $tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged GROUP BY tag_id") ) :
 		printf(__('Counting tagged topics...'). "\n");
-		$counts = $bbdb->get_col('', 1);
+		$counts = (array) $bbdb->get_col('', 1);
 		foreach ( $tags as $t => $i )
 			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '{$counts[$t]}' WHERE tag_id = $i");
-		$not_tagged = array_diff($bbdb->get_col("SELECT tag_id FROM $bbdb->tags"), $tags);
+		$not_tagged = array_diff((array) $bbdb->get_col("SELECT tag_id FROM $bbdb->tags"), $tags);
 		foreach ( $not_tagged as $i )
 			$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0 WHERE tag_id = $i");
 		unset($tags, $t, $i, $counts, $not_tagged);

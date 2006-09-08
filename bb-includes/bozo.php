@@ -25,7 +25,7 @@ function get_bozos( $page = 1 ) {
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$bozo_mkey = $bb_table_prefix . 'bozo_topics';
 	$blank = serialize(array());
-	if ( $ids = $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' ORDER BY umeta_id DESC LIMIT $limit") )
+	if ( $ids = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' ORDER BY umeta_id DESC LIMIT $limit") )
 		bb_cache_users( $ids );
 	return $ids;
 }
@@ -74,8 +74,8 @@ function bozo_recount_topics() {
 		if ( $topics = (array) $bbdb->get_col("SELECT topic_id, poster_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 GROUP BY topic_id, poster_id") ) :
 			_e("Counting bozo posts...\n");
 			$unique_topics = array_unique($topics);
-			$posters = $bbdb->get_col('', 1);
-			$counts = $bbdb->get_col('', 2);
+			$posters = (array) $bbdb->get_col('', 1);
+			$counts = (array) $bbdb->get_col('', 2);
 			foreach ($unique_topics as $i):
 				$bozos = array();
 				$indices = array_keys($topics, $i);
