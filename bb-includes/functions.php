@@ -153,7 +153,7 @@ function bb_add_user_favorite( $user_id, $topic_id ) {
 		$fav = implode(',', $fav);
 		bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
 	}
-	do_action('bb_add_user_favorite', serialize(array('user_id' => $user_id, 'topic_id' => $topic_id)));
+	do_action('bb_add_user_favorite', $user_id, $topic_id);
 	return true;
 }
 
@@ -170,7 +170,7 @@ function bb_remove_user_favorite( $user_id, $topic_id ) {
 		$fav = implode(',', $fav);
 		bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
 	}
-	do_action('bb_remove_user_favorite', serialize(array('user_id' => $user_id, 'topic_id' => $topic_id)));
+	do_action('bb_remove_user_favorite', $user_id, $topic_id);
 	return true;
 }
 
@@ -520,7 +520,7 @@ function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	global $bbdb, $bb_cache, $bb_current_user;
-	$title = apply_filters('pre_topic_title', $title);
+	$title = apply_filters('pre_topic_title', $title, false);
 	$forum = (int) $forum;
 	$now   = bb_current_time('mysql');
 
@@ -543,7 +543,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 
 function bb_update_topic( $title, $topic_id ) {
 	global $bbdb, $bb_cache;
-	$title = apply_filters('pre_topic_title', $title);
+	$title = apply_filters('pre_topic_title', $title, $topic_id);
 	$topic_id = (int) $topic_id;
 
 	if ( $topic_id && $title ) {
@@ -618,8 +618,8 @@ function bb_move_topic( $topic_id, $forum_id ) {
 
 function bb_new_post( $topic_id, $bb_post ) {
 	global $bbdb, $bb_cache, $bb_table_prefix, $bb_current_user, $thread_ids_cache;
-	$bb_post  = apply_filters('pre_post', $bb_post);
-	$post_status = (int) apply_filters('pre_post_status', '0');
+	$bb_post  = apply_filters('pre_post', $bb_post, false);
+	$post_status = (int) apply_filters('pre_post_status', '0', false);
 	$tid   = (int) $topic_id;
 	$now   = bb_current_time('mysql');
 	$uid   = $bb_current_user->ID;
@@ -694,7 +694,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 			bb_delete_topic( $tid, $new_status );
 		} else if ( 0 != $posts ) {
 			if ( 0 != $topic->topic_status ) {
-				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0 WHERE topic_id = $topic_id");
+				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0 WHERE topic_id = $tid");
 				$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $topic->forum_id");
 			}
 			bb_topic_set_last_post( $tid );
@@ -739,44 +739,49 @@ function topics_replied_on_undelete_post( $post_id ) {
 function bb_resolve_topic( $topic_id, $resolved = 'yes' ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
+	apply_filters( 'topic_resolution', $resolved, $topic_id );
 	if ( ! in_array($resolved, array('yes', 'no', 'mu')) )
 		return false;
-	do_action('resolve_topic', $topic_id);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	return $bbdb->query("UPDATE $bbdb->topics SET topic_resolved = '$resolved' WHERE topic_id = '$topic_id'");
+	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_resolved = '$resolved' WHERE topic_id = '$topic_id'");
+	do_action( 'resolve_topic', $topic_id, $resolved, $r );
+	return $r;
 }
 
 function bb_close_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
-	do_action('close_topic', $topic_id);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '0' WHERE topic_id = $topic_id");
+	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_open = '0' WHERE topic_id = $topic_id");
+	do_action('close_topic', $topic_id, $r);
+	return $r;
 }
 
 function bb_open_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
-	do_action('opentopic', $topic_id);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	return $bbdb->query("UPDATE $bbdb->topics SET topic_open = '1' WHERE topic_id = $topic_id");
+	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_open = '1' WHERE topic_id = $topic_id");
+	do_action('open_topic', $topic_id, $r);
+	return $r;
 }
 
 function bb_stick_topic( $topic_id, $super = 0 ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	$stick = 1 + abs((int) $super);
-	do_action('stick_topic', $topic_id);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	return $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '$stick' WHERE topic_id = $topic_id");
+	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '$stick' WHERE topic_id = $topic_id");
+	do_action('stick_topic', $topic_id, $r);
 }
 
 function bb_unstick_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
-	do_action('unstick_topic', $topic_id);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	return $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '0' WHERE topic_id = $topic_id");
+	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '0' WHERE topic_id = $topic_id");
+	do_action('unstick_topic', $topic_id, $r);
+	return $r;
 }
 
 function bb_update_post( $bb_post, $post_id, $topic_id ) {
@@ -784,8 +789,8 @@ function bb_update_post( $bb_post, $post_id, $topic_id ) {
 	$post_id  = (int) $post_id;
 	$topic_id = (int) $topic_id;
 	$old_post = bb_get_post( $post_id );
-	$bb_post  = apply_filters( 'pre_post', $bb_post );
-	$post_status = (int) apply_filters( 'pre_post_status', $old_post->post_status );
+	$bb_post  = apply_filters( 'pre_post', $bb_post, $post_id );
+	$post_status = (int) apply_filters( 'pre_post_status', $old_post->post_status, $post_id );
 
 	if ( $post_id && $bb_post ) {
 		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$bb_post', post_status = '$post_status' WHERE post_id = $post_id");
@@ -905,7 +910,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	$now    = bb_current_time('mysql');
 	if ( $user_already = $bbdb->get_var("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") )
 		if ( $user_already == $bb_current_user->ID ) :
-			do_action('bb_already_tagged', serialize(array('tag_id' => $tag_id, 'user_id' => $bb_current_user->ID, 'topic_id' => $topic_id)));
+			do_action('bb_already_tagged', $tag_id, $bb_current_user->ID, $topic_id);
 			return true;
 		endif;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
@@ -917,7 +922,7 @@ function add_topic_tag( $topic_id, $tag ) {
 		$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id = '$topic_id'");
 		$bb_cache->flush_one( 'topic', $topic_id );
 	}
-	do_action('bb_tag_added', serialize(array('tag_id' => $tag_id, 'user_id' => $bb_current_user->ID, 'topic_id' => $topic_id)));
+	do_action('bb_tag_added', $tag_id, $bb_current_user->ID, $topic_id);
 	return true;
 }
 
@@ -946,7 +951,7 @@ function create_tag( $tag ) {
 		return $exists;
 
 	$bbdb->query("INSERT INTO $bbdb->tags ( tag, raw_tag ) VALUES ( '$tag', '$raw_tag' )");
-	do_action('bb_tag_created', $bbdb->insert_id);
+	do_action('bb_tag_created', $raw_tag, $bbdb->insert_id);
 	return $bbdb->insert_id;
 }
 
@@ -962,10 +967,12 @@ function rename_tag( $tag_id, $tag ) {
 	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag' AND tag_id <> '$tag_id'") )
 		return false;
 
-	do_action('bb_tag_renamed', $tag_id );
+	$old_tag = get_tag( $tag_id );
 
-	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") )
-		return get_tag_by_name( $tag );
+	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") ) {
+		do_action('bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
+		return get_tag( $tag_id );
+	}
 	return false;
 }
 
@@ -974,13 +981,12 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	$tag_id = (int) $tag_id;
 	$user_id = (int) $user_id;
 	$topic_id = (int) $topic_id;
-	$tagged = serialize( array('tag_id' => $tag_id, 'user_id' => $user_id, 'topic_id' => $topic_id) );
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $user_id, $topic_id ) )
 		return false;
 
-	do_action('bb_tag_removed', $tagged);
+	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
 
 	$topics = array_flip($bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id"));
 	$counts = $bbdb->get_col('', 1);
@@ -1004,9 +1010,7 @@ function merge_tags( $old_id, $new_id ) {
 	if ( $old_id == $new_id )
 		return false;
 
-	$merged_tags = serialize( array( 'old_id' => $old_id, 'new_id' => $new_id ) );
-
-	do_action('bb_tag_merged', $merged_tags);
+	do_action('bb_pre_merge_tags', $old_id, $new_id);
 
 	$tagged_del = 0;
 	if ( $old_topic_ids = $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
@@ -1034,7 +1038,7 @@ function destroy_tag( $tag_id ) {
 	if ( !bb_current_user_can('manage_tags') ) 
 		return false;
 
-	do_action('bb_tag_destroyed', $tag_id);
+	do_action('bb_pre_destroy_tag', $tag_id);
 
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") ) {
 		if ( $topics = $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
@@ -1291,7 +1295,7 @@ function global_profile_menu_structure() {
 		if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
 			$profile_hooks[$profile_tab[3]] = tag_sanitize($profile_tab[0]);
 
-	do_action('bb_profile_menu','');
+	do_action('bb_profile_menu');
 	ksort($profile_menu);
 }
 
