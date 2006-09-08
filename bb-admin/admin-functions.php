@@ -96,7 +96,7 @@ function bb_get_admin_tab_link( $m ) {
 
 function get_recently_moderated_objects( $num = 5 ) {
 	global $bbdb;
-	$posts = (array) get_deleted_posts( 1, $num ); // post_time != moderation_time;
+	$posts = (array) get_deleted_posts( 1, $num, -1 ); // post_time != moderation_time;
 	$topics = (array) $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status <> 0 ORDER BY topic_time DESC LIMIT $num"); // topic_time == topic_start_time != moderation_time;
 	$objects = array();
 	foreach ( array_keys($posts) as $key )
@@ -123,6 +123,7 @@ function get_deleted_topics_count() {
 function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
 	global $bbdb;
 	$page = (int) $page;
+	$status = (int) $status;
 	if ( !$limit )
 		$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
@@ -133,8 +134,9 @@ function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_statu
 		$topic_status = (int) $topic_status;
 		$where = "topic_status = '$topic_status' AND";
 	}
+	$status = ( 0 < $status ) ? "= '$status'" : "> '0'";
 	if ( $page )
-		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status = '$status' ORDER BY post_time DESC LIMIT $limit");
+		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status ORDER BY post_time DESC LIMIT $limit");
 	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status = '$status'");
 }
 
