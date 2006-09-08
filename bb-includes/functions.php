@@ -1187,6 +1187,8 @@ function bb_repermalink() {
 	else
 		$permalink = intval( get_path() );
 
+	do_action( 'pre_permalink', $permalink );
+
 	if ( is_forum() ) {
 		global $forum_id;
 		$forum_id = $permalink;
@@ -1270,6 +1272,7 @@ function bb_repermalink() {
 			exit;
 		}
 	endif;
+	do_action( 'post_permalink', $permalink );
 }
 
 // Profile/Admin
