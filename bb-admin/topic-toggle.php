@@ -12,6 +12,8 @@ if ( !bb_current_user_can('manage_topics') ) {
 	exit();
 }
 
+bb_check_admin_referer( 'close-topic_' . $topic_id );
+
 if ( topic_is_open( $topic_id ) )
 	bb_close_topic( $topic_id );
 else

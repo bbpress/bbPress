@@ -16,6 +16,8 @@ if ( !$topic )
 if ( !bb_current_user_can( 'edit_topic', $topic_id ) )
 	die(__("You must be either the original poster or a moderator to change a topic's resolution status."));
 
+bb_check_admin_referer( 'resolve-topic_' . $topic_id );
+
 if ( bb_resolve_topic( $topic_id, $resolved ) )
 	header('Location: ' . get_topic_link( $topic_id ) );
 else

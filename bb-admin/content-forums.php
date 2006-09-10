@@ -19,6 +19,7 @@
 		</table>
 		<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Add Forum'); ?>" tabindex="13" /><input type="hidden" name="action" value="add" /></p>
 	</fieldset> 
+	<?php bb_nonce_field( 'add-forum' ); ?>
 </form>
 <?php if ( $forums = get_forums() ) : ?>
 <form method="post" id="update-forums" action="<?php option('uri'); ?>bb-admin/bb-forum.php">
@@ -38,6 +39,7 @@
 		</table>
 	<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Update'); ?>" tabindex="<?php echo $t; ?>" /><input type="hidden" name="action" value="update" /></p>
 	</fieldset>
+	<?php bb_nonce_field( 'update-forums' ); ?>
 </form>
 <?php endif; ?>
 

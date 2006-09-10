@@ -12,6 +12,8 @@ if ( !bb_current_user_can('manage_topics') ) {
 	exit();
 }
 
+bb_check_admin_referer( 'move-topic_' . $topic_id );
+
 $topic = get_topic( $topic_id );
 $forum = get_forum( $forum_id );
 

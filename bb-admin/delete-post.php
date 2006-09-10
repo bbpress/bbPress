@@ -1,6 +1,8 @@
 <?php
 require('admin-action.php');
 
+$post_id = (int) $_GET['id'];
+
 if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
 	add_filter('get_topic_where', 'no_where');
 	add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
@@ -11,7 +13,8 @@ if ( !bb_current_user_can('manage_posts') ) {
 	exit();
 }
 
-$post_id = (int) $_GET['id'];
+bb_check_admin_referer( 'delete-post_' . $post_id );
+
 $status  = (int) $_GET['status'];
 $bb_post = bb_get_post ( $post_id );
 

@@ -12,12 +12,15 @@ if ( !bb_current_user_can('manage_topics') ) {
 }
 
 $topic_id = (int) $_GET['id'];
+
+bb_check_admin_referer( 'delete-topic_' . $topic_id );
+
 $topic    =  get_topic ( $topic_id );
 
 if ( !$topic )
 	die(__('There is a problem with that topic, pardner.'));
 
-bb_delete_topic( $topic->topic_id, 1 );
+bb_delete_topic( $topic->topic_id, $topic->topic_status ? 0 : 1 );
 
 if ( 0 == $topic->topic_status )
 	$sendto = get_forum_link( $topic->forum_id );

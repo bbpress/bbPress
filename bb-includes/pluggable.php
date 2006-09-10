@@ -175,13 +175,14 @@ function bb_create_nonce($action = -1) {
 endif;
 
 if ( !function_exists('bb_check_admin_referer') ) :
-function bb_check_admin_referer($action = -1) {
+function bb_check_admin_referer( $action = -1 ) {
 	if ( !bb_verify_nonce($_REQUEST['_wpnonce'], $action) ) {
 		bb_nonce_ays($action);
 		die();
 	}
 	do_action('bb_check_admin_referer', $action);
-}endif;
+}
+endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
 function bb_check_ajax_referer() {

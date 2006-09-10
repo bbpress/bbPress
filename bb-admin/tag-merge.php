@@ -7,6 +7,9 @@ if ( !bb_current_user_can('manage_tags') )
 
 $old_id = (int) $_POST['id' ];
 $tag = $_POST['tag'];
+
+bb_check_admin_referer( 'merge-tag_' . $old_id );
+
 if ( ! $tag = get_tag_by_name( $tag ) )
 	die(__('Tag specified not found.'));
 

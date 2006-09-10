@@ -13,6 +13,8 @@ if ( !bb_current_user_can('manage_topics') ) {
 	exit();
 }
 
+bb_check_admin_referer( 'stick-topic_' . $topic_id );
+
 if ( topic_is_sticky( $topic_id ) )
 	bb_unstick_topic ( $topic_id );
 else

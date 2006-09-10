@@ -10,6 +10,9 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 	nocache_headers();
 	$fav = (int) $_GET['fav'];
 	$topic_id = (int) $_GET['topic_id'];
+
+	bb_check_admin_referer( 'toggle-favorite_' . $topic_id );
+
 	$topic = get_topic( $topic_id );
 	if ( !$topic || 0 != $topic->topic_status )
 		die;

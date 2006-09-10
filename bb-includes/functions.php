@@ -586,7 +586,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			$all_posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id'");
 			bb_update_topicmeta( $topic_id, 'deleted_posts', $all_posts - $topic_posts );
 			$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + '$topic_posts' WHERE forum_id = '$topic->forum_id'");
-			$bbdb->query("UPDATE $bbdb->topics SET posts = '$topic_posts' WHERE topic_id = '$topic_id'");
+			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$topic_posts' WHERE topic_id = '$topic_id'");
 			bb_topic_set_last_post( $topic_id );
 			update_post_positions( $topic_id );
 		}
@@ -1370,5 +1370,144 @@ function bb_nonce_field($action = -1) {
 	echo '<input type="hidden" name="_wpnonce" value="' . bb_create_nonce($action) . '" />';
 	wp_referer_field();
 }
+
+function bb_nonce_ays($action) {
+	global $bb;
+
+	$adminurl = bb_get_option('siteurl') . '/wp-admin';
+	if ( wp_get_referer() )
+		$adminurl = wp_get_referer();
+
+	$title = __('bbPress Confirmation');
+	// Remove extra layer of slashes.
+	$_POST   = stripslashes_deep( $_POST );
+	if ( $_POST ) {
+		$q = http_build_query($_POST);
+		$q = explode( ini_get('arg_separator.output'), $q);
+		$html .= "\t<form method='post' action='$pagenow'>\n";
+		foreach ( (array) $q as $a ) {
+			$v = substr(strstr($a, '='), 1);
+			$k = substr($a, 0, -(strlen($v)+1));
+			$html .= "\t\t<input type='hidden' name='" . wp_specialchars( urldecode($k), 1 ) . "' value='" . wp_specialchars( urldecode($v), 1 ) . "' />\n";
+		}
+		$html .= "\t\t<input type='hidden' name='_wpnonce' value='" . bb_create_nonce($action) . "' />\n";
+		$html .= "\t\t<div id='message' class='confirm fade'>\n\t\t<p>" . bb_explain_nonce($action) . "</p>\n\t\t<p><a href='$adminurl'>" . __('No') . "</a> <input type='submit' value='" . __('Yes') . "' /></p>\n\t\t</div>\n\t</form>\n";
+	} else {
+		$html .= "\t<div id='message' class='confirm fade'>\n\t<p>" . bb_explain_nonce($action) . "</p>\n\t<p><a href='$adminurl'>" . __('No') . "</a> <a href='" . add_query_arg( '_wpnonce', bb_create_nonce($action), $_SERVER['REQUEST_URI'] ) . "'>" . __('Yes') . "</a></p>\n\t</div>\n";
+	}
+	$html .= "</body>\n</html>";
+	bb_die($html, $title);
+}
+
+function bb_die($message, $title = '') {
+	header('Content-Type: text/html; charset=utf-8');
+
+	if ( empty($title) )
+		$title = __('WordPress &rsaquo; Error');
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title><?php echo $title ?></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style media="screen" type="text/css">
+	<!--
+	html {
+		background: #eee;
+	}
+	body {
+		background: #fff;
+		color: #000;
+		font-family: Georgia, "Times New Roman", Times, serif;
+		margin-left: 25%;
+		margin-right: 25%;
+		padding: .2em 2em;
+	}
+
+	h1 {
+		color: #060;
+		font-size: 18px;
+		font-weight: lighter;
+	}
+
+	h2 {
+		font-size: 16px;
+	}
+
+	p, li, dt {
+		line-height: 140%;
+		padding-bottom: 2px;
+	}
+
+	ul, ol {
+		padding: 5px 5px 5px 20px;
+	}
+	#logo {
+		margin-bottom: 2em;
+	}
+	-->
+	</style>
+</head>
+<body>
+	<h1 id="logo"><img alt="bbPress" src="<?php option('uri'); ?>bb-images/bbpress.png" /></h1>
+	<p><?php echo $message; ?></p>
+</body>
+</html>
+<?php
+	die();
+}
+
+function bb_explain_nonce($action) {
+	if ( $action !== -1 && preg_match('/([a-z]+)-([a-z]+)(_(.+))?/', $action, $matches) ) {
+		$verb = $matches[1];
+		$noun = $matches[2];
+
+		$trans = array();
+		$trans['create']['post'] = array(__('Are you sure you want to submit this post?'), false);
+		$trans['edit']['post'] = array(__('Are you sure you want to edit this post?'), false);
+		$trans['delete']['post'] = array(__('Are you sure you want to delete this post?'), false);
+
+		$trans['create']['topic'] = array(__('Are you sure you want to create this topic?'), false);
+		$trans['resolve']['topic'] = array(__('Are you sure you want to change the resolution status of this topic?'), false);
+		$trans['delete']['topic'] = array(__('Are you sure you want to delete this topic?'), false);
+		$trans['close']['topic'] = array(__('Are you sure you want to change the status of this topic?'), false);
+		$trans['stick']['topic'] = array(__('Are you sure you want to change the sticky status of this topic?'), false);
+		$trans['move']['topic'] = array(__('Are you sure you want to move this topic?'), false);
+
+		$trans['add']['tag'] = array(__('Are you sure you want to add this tag to this topic?'), false);
+		$trans['rename']['tag'] = array(__('Are you sure you want to rename this tag?'), false);
+		$trans['merge']['tag'] = array(__('Are you sure you want to submit these tags?'), false);
+		$trans['destroy']['tag'] = array(__('Are you sure you want to destroy this tag?'), false);
+		$trans['remove']['tag'] = array(__('Are you sure you want to remove this tag from this topic?'), false);
+
+		$trans['toggle']['favorite'] = array(__('Are you sure you want to toggle your favorite status for this topic?'), false);
+
+		$trans['edit']['profile'] = array(__("Are you sure you want to edit this user's profile?"), false);
+
+		$trans['add']['forum'] = array(__("Are you sure you want to add this forum?"), false);
+		$trans['update']['forums'] = array(__("Are you sure you want to update your forums?"), false);
+
+		$trans['do']['counts'] = array(__("Are you sure you want to recount these items?"), false);
+
+		if ( isset($trans[$verb][$noun]) ) {
+			if ( !empty($trans[$verb][$noun][1]) ) {
+				$lookup = $trans[$verb][$noun][1];
+				$object = $matches[4];
+				if ( 'use_id' != $lookup )
+					$object = call_user_func($lookup, $object);
+				return sprintf($trans[$verb][$noun][0], $object);
+			} else {
+				return $trans[$verb][$noun][0];
+			}
+		}
+	}
+
+	return apply_filters( 'bb_explain_nonce_' . $verb . '-' . $noun, __('Are you sure you want to do this?'), $matches[4] );
+}
+
+function stripslashes_deep($value) {
+   return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
+}
+
 
 ?>

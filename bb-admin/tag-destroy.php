@@ -7,6 +7,8 @@ if ( !bb_current_user_can('manage_tags') )
 
 $tag_id = (int) $_POST['id' ];
 
+bb_check_admin_referer( 'destroy-tag_' . $tag_id );
+
 $old_tag = get_tag( $tag_id );
 if ( !$old_tag )
 	die(__('Tag not found.'));

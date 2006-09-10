@@ -13,6 +13,9 @@ switch ( $_POST['action'] ) :
 case 'add' :
 	if ( !isset($_POST['forum']) || '' === $_POST['forum'] )
 		die(__('Bad forum name.  Go back and try again.'));
+
+	bb_check_admin_referer( 'add-forum' );
+
 	$forum_name = $_POST['forum'];
 	$forum_desc = $_POST['forum-desc'];
 	$forum_order = ( '' === $_POST['forum-order'] ) ? 0 : (int) $_POST['forum-order'];
@@ -24,6 +27,8 @@ case 'add' :
 	endif;
 	break;
 case 'update' :
+	bb_check_admin_referer( 'update-forums' );
+
 	if ( !$forums = get_forums() )
 		die(__('No forums to update!'));
 	foreach ( $forums as $forum ) :

@@ -15,6 +15,8 @@ if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	if ( !bb_current_user_can('write_topics') )
 		die(__('You are not allowed to write new topics.'));
 
+	bb_check_admin_referer( 'create-topic' );
+
 	$topic = trim( $_POST['topic'] );
 	$tags  = trim( $_POST['tags']  );
 	$support = (int) $_POST['support'];
@@ -27,6 +29,7 @@ if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 		bb_resolve_topic( $topic_id, 'mu' );
 } elseif ( isset($_POST['topic_id'] ) ) {
 	$topic_id = (int) $_POST['topic_id'];
+	bb_check_admin_referer( 'create-post_' . $topic_id );
 }
 
 if ( !topic_is_open( $topic_id ) )

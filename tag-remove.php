@@ -6,6 +6,9 @@ bb_auth();
 $tag_id = (int) @$_GET['tag'];
 $user_id = (int) @$_GET['user'];
 $topic_id = (int) @$_GET['topic'];
+
+bb_check_admin_referer( 'remove-tag_' . $tag_id . '|' . $topic_id );
+
 $tag    =  get_tag ( $tag_id );
 $topic	=  get_topic ( $topic_id );
 $user	=  bb_get_user( $user_id );

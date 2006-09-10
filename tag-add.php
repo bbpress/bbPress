@@ -9,6 +9,8 @@ if ( !$bb_current_user )
 $topic_id = (int) @$_POST['id' ];
 $tag      =       @$_POST['tag'];
 
+bb_check_admin_referer( 'add-tag_' . $topic_id );
+
 $topic = get_topic ( $topic_id );
 if ( !$topic )
 	die(__('Topic not found.'));

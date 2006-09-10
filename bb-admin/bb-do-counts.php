@@ -4,6 +4,8 @@ header('Content-type: text/plain');
 
 if ( bb_current_user_can('recount') ) :
 
+bb_check_admin_referer( 'do-counts' );
+
 if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
 	if ( $topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :
 		$approved = isset($approved) ? $approved : 'No';
@@ -109,7 +111,8 @@ bb_recount_list();
 		if ( isset($item[2]) && isset($_POST[$item[0]]) && 1 == $_POST[$item[0]])
 			$item[2]();
 
+echo "$bbdb->num_queries queries. " . bb_timer_stop(0) . ' seconds';
+
 endif;
 
-echo "$bbdb->num_queries queries. " . bb_timer_stop(0) . ' seconds';
 ?>

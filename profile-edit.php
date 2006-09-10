@@ -24,6 +24,8 @@ $updated = false;
 $user_email = true;
 
 if ($_POST) :
+	bb_check_admin_referer( 'edit-profile_' . $user_id );
+
 	$user_url = bb_fix_link( $_POST['user_url'] );
 	if ( isset($_POST['user_email']) && $bb_current_user->ID == $user->ID )
 		$user_email = bb_verify_email( $_POST['user_email'] );

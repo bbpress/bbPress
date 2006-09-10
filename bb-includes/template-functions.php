@@ -84,7 +84,7 @@ function post_form() {
 		} else {
 			include( BBPATH . 'bb-templates/post-form.php');
 		}
-		bb_nonce_field( 'create-post_' . $topic->topic_id );
+		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo "<p>You must login to post.</p>";
@@ -917,7 +917,7 @@ function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 
-	echo '[<a href="' . bb_nonce_url( bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id, 'remove-tag_' . $tag->tag_id ) . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . addslashes(htmlspecialchars($tag->raw_tag)) . '\');" title="'. __('Remove this tag') .'">x</a>]';
+	echo '[<a href="' . bb_nonce_url( bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . addslashes(htmlspecialchars($tag->raw_tag)) . '\');" title="'. __('Remove this tag') .'">x</a>]';
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {

@@ -19,6 +19,7 @@ pagination oddities.") ?></p>
 		</ol>
 		<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Count!') ?>" tabindex="<?php echo $i++; ?>" /></p>
 	</fieldset>
+	<?php bb_nonce_field( 'do-counts' ); ?>
 </form>
 
 <?php bb_get_admin_footer(); ?>

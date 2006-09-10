@@ -62,6 +62,7 @@ require( BBPATH . 'bb-includes/bozo.php');
 require( BBPATH . 'bb-includes/default-filters.php');
 require( BBPATH . 'bb-includes/script-loader.php');
 
+require( BBPATH . 'bb-includes/compat.php');
 require( BBPATH . 'bb-includes/l10n.php');
 
 $bbdb->forums    = $bb_table_prefix . 'forums';
