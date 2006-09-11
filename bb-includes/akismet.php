@@ -170,7 +170,7 @@ function bb_ksd_admin_page() {
 	if ( !bb_current_user_can('browse_deleted') )
 		die(__("Now how'd you get here?  And what did you think you'd being doing?"));
 	add_filter( 'get_topic_where', 'no_where' );
-	add_filter( 'topic_link', 'make_link_view_all' );
+	add_filter( 'get_topic_link', 'make_link_view_all' );
 	$bb_posts = get_deleted_posts( $page, false, 2, false ); ?>
 <ol id="the-list">
 <?php bb_admin_list_posts(); ?>
