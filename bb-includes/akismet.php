@@ -1,15 +1,4 @@
 <?php
-/*
-Plugin Name: bbAkismet
-Plugin URI: http://akismet.com/
-Description: Akismet checks posts against the Akismet web serivce to see if they look like spam or not.
-You need a <a href="http://wordpress.com/api-keys/">WordPress.com API key</a> to use this service.
-Hat tip: <a href="http://photomatt.net">Matt Mullenweg</a>, <a href="http://ioerror.us/">Michael Hampton</a> and <a href="http://chrisjdavis.org/">Chris J. Davis</a> for help with the plugin.
-Author: Michael Adams
-Version: 0.1
-Author URI: http://blogwaffe.com/
-*/
-
 if ( !$bb->akismet_key )
 	return; // Bail if no key.
 
