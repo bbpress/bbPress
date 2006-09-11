@@ -591,7 +591,7 @@ function post_anchor_link( $force_full = false ) {
 	if ( defined('DOING_AJAX') || $force_full )
 		post_link();
 	else
-		echo '#post-' . post_id();
+		echo '#post-' . get_post_id();
 }
 
 
