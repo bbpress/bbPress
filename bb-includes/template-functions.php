@@ -743,12 +743,13 @@ function get_user_link( $user_id ) {
 	global $bbdb;
 	if ( $user_id )
 		if ( $user = bb_get_user( $user_id ) )
-			return apply_filters('get_user_link', $user->user_url);
+			return apply_filters('get_user_link', $user->user_url, $user_id);
 }
 
 function user_link( $id ) {
-	echo apply_filters('user_link', get_user_link($id) );
+	echo apply_filters('user_link', get_user_link($id), $user_id );
 }
+
 function get_full_user_link( $id ) {
 	if ( get_user_link( $id ) )
 		$r = '<a href="' . get_user_link( $id ) . '">' . get_user_name( $id ) . '</a>';

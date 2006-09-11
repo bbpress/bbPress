@@ -104,13 +104,14 @@ function get_recently_moderated_objects( $num = 5 ) {
 	foreach ( array_keys($topics) as $key )
 		$objects[strtotime($topics[$key]->topic_time . ' +0000')] = array('type' => 'topic', 'data' => $topics[$key]);
 	krsort($objects);
-	return array_slice($objects, 0, 5);
+	return array_slice($objects, 0, $num);
 }
 
-function get_ids_by_role( $role = 'moderator' ) {
+function get_ids_by_role( $role = 'moderator', $sort = 0 ) {
 	global $bbdb, $bb_table_prefix;
+	$sort = $sort ? 'DESC' : 'ASC';
 	$key = $bb_table_prefix . 'capabilities';
-	if ( $ids = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value LIKE '%$role%'") )
+	if ( $ids = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value LIKE '%$role%' ORDER BY user_id $sort") )
 		bb_cache_users( $ids );
 	return $ids;
 }
