@@ -22,7 +22,6 @@ add_filter('pre_post', 'addslashes', 55);
 add_filter('pre_post', 'bb_autop', 60);
 
 add_filter('post_text', 'make_clickable');
-add_filter('post_text', 'bb_rel_nofollow');
 
 add_filter('total_posts', 'number_format');
 add_filter('total_users', 'number_format');
