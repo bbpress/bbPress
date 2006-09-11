@@ -131,8 +131,8 @@ function bb_ksd_new_post( $post_id ) {
 }
 	
 
-function bb_akismet_delete_old() { // Delete old every 20, optimize every 1000
-	$n = mt_rand(1, 1000);
+function bb_akismet_delete_old() { // Delete old every 20
+	$n = mt_rand(1, 20);
 	if ( $n % 20 )
 		return;
 	global $bbdb;
@@ -140,10 +140,6 @@ function bb_akismet_delete_old() { // Delete old every 20, optimize every 1000
 	$posts = (array) $bbdb->get_col("SELECT post_id FROM $bbdb->posts WHERE DATE_SUB('$now', INTERVAL 15 DAY) > post_time AND post_status = '2'");
 	foreach ( $posts as $post )
 		bb_delete_post( $post, 1 );
-	$n = mt_rand(1, 5);
-	if ( $n % 1000 )
-		return;
-	$bbdb->query("OPTIMIZE TABLE $bbdb->posts");
 }
 
 function bb_ksd_pre_post_status( $post_status ) {
