@@ -288,7 +288,7 @@ function bb_get_option( $option ) {
 		return $bb->edit_lock;
 		break;
 	case 'version' :
-		return 'Version e<sup>i&#960;</sup>+1... and a half&#8212;&#945;';
+		return '1.0-a';
 		break; 
 	endswitch;
 }
@@ -459,10 +459,14 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 		return false;
 	switch ( $type ) :
 	case 'user' :
+		global $bb_user_cache;
+		$cache =& $bb_user_cache;
 		$table = $bbdb->usermeta;
 		$field = 'user_id';
 		break;
 	case 'topic' :
+		global $bb_topic_cache;
+		$cache =& $bb_topic_cache;
 		$table = $bbdb->topicmeta;
 		$field = 'topic_id';
 		break;
@@ -485,13 +489,19 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 		$bbdb->query("INSERT INTO $table ( $field, meta_key, meta_value )
 		VALUES
 		( '$type_id', '$meta_key', '$meta_value' )");
-		$bb_cache->flush_one( $type, $type_id );
-		return true;
-	}
-	if ( $cur->meta_value != $meta_value ) {
+	} elseif ( $cur->meta_value != $meta_value ) {
 		$bbdb->query("UPDATE $table SET meta_value = '$meta_value' WHERE $field = '$type_id' AND meta_key = '$meta_key'");
-		$bb_cache->flush_one( $type, $type_id );
 	}
+
+	if ( isset($cache[$type_id]) ) {
+		$cache[$type_id]->{$meta_key} = cast_meta_value( $meta_value );
+		if ( strpos($meta_key, $bb_table_prefix) === 0 )
+			$cache[$type_id]->{substr($meta_key, strlen($bb_table_prefix))} = $cache[$type_id]->{$meta_key};
+	}
+
+	$bb_cache->flush_one( $type, $type_id );
+	if ( !$cur )
+		return true;
 }
 
 function bb_new_forum( $name, $desc, $order = 0 ) {
