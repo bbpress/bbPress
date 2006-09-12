@@ -215,7 +215,7 @@ function fermion( $user_id, $topic_id = 0 ) {
 		bb_update_topicmeta( $topic_id, 'bozos', $topic->bozos );
 		
 		if ( --$user->bozo_topics[$topic_id] < 1 )
-			unset($user->bozo_topics[$topci_id]);
+			unset($user->bozo_topics[$topic_id]);
 		bb_update_usermeta( $uid, $bb_table_prefix . 'bozo_topics', $user->bozo_topics );
 	}
 }
