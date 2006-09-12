@@ -168,19 +168,3 @@ a:hover {
 #thread li{
 	padding: 1em;
 }
-
-.bozo {
-	background: #eeee88;
-}
-
-.bozo.alt {
-	background: #ffff99;
-}
-
-.deleted {
-	background: #ee8888;
-}
-.deleted.alt {
-	background: #ff9999;
-}
-
