@@ -23,6 +23,10 @@ $bb->gmt_offset = 0;
 // Change the prefix if you want to have multiple forums in a single database.
 $bb_table_prefix  = 'bb_';
 
+// If you want to integrate bbPress with a WordPress installation in the same database,
+// put WordPress' table prefix here.
+$bb->wp_table_prefix = false;  // 'wp_';
+
 // Akismet Key: http://wordpress.com/api-keys/
 $bb->akismet_key = false;
 

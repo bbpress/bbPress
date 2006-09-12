@@ -12,6 +12,9 @@ class BB_Scripts {
 	function default_scripts() {
 		$this->add( 'fat', '/bb-scripts/fat.js', false, '1.0-RC1_3660' );
 		$this->add( 'sack', '/bb-scripts/tw-sack.js', false, '1.6.1' );
+		$this->add( 'prototype', '/bb-scripts/prototype.js', false, '1.5.0' );
+//		$this->add( 'prototype', '/bb-scripts/prototype.js', false, '1.5.0' );
+		$this->add( 'listman', '/bb-scripts/list-manipulation-js.php', array('wp-ajax'), '2.1-beta' );
 		$this->add( 'topic', '/bb-scripts/topic.js', array('sack', 'fat'), '3517' );
 	}
 

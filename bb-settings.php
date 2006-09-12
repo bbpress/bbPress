@@ -70,8 +70,8 @@ $bbdb->forums    = $bb_table_prefix . 'forums';
 $bbdb->posts     = $bb_table_prefix . 'posts';
 $bbdb->topics    = $bb_table_prefix . 'topics';
 $bbdb->topicmeta = $bb_table_prefix . 'topicmeta';
-$bbdb->users     = $bb_table_prefix . 'users';
-$bbdb->usermeta  = $bb_table_prefix . 'usermeta';
+$bbdb->users     = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'users';
+$bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'usermeta';
 $bbdb->tags      = $bb_table_prefix . 'tags';
 $bbdb->tagged    = $bb_table_prefix . 'tagged';
 
