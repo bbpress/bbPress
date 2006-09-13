@@ -140,12 +140,8 @@ function bb_make_feed( $link ) {
 
 function closed_title( $title ) {
 	global $topic;
-	if ( '0' === $topic->topic_open ) {
-		if ( is_bb_feed() )
-			return sprintf(__('[closed] %s'), $title);
-		else
-			return sprintf(__('[closed]'). "<span class='closed'>%s</span>", $title);
-	}
+	if ( '0' === $topic->topic_open )
+		return sprintf(__('[closed] %s'), $title);
 	return $title;
 }
 

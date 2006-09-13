@@ -340,12 +340,17 @@ function get_topic_title( $id = 0 ) {
 }
 
 function topic_posts() {
-	echo apply_filters('topic_posts', get_topic_posts() );
+	echo apply_filters( 'topic_posts', get_topic_posts() );
 }
 
 function get_topic_posts() {
 	global $topic;
-	return apply_filters('get_topic_posts', $topic->topic_posts);
+	return apply_filters( 'get_topic_posts', $topic->topic_posts );
+}
+
+function get_topic_deleted_posts() {
+	global $topic;
+	return apply_filters( 'get_topic_deleted_posts', $topic->deleted_posts );
 }
 
 function topic_noreply( $title ) {
@@ -560,6 +565,27 @@ function topic_show_all_link() {
 		echo "<a href='" . wp_specialchars( add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
 }
 
+function topic_posts_link() {
+	global $bb_current_user, $topic;
+	$posts = __(sprintf('%d posts', get_topic_posts()));
+	if ( 'all' == @$_GET['view'] && bb_current_user_can('browse_deleted') )
+		echo "<a href='" . get_topic_link() . "'>$posts</a>";
+	else
+		echo $posts;
+
+	if ( bb_current_user_can('browse_deleted') ) {
+		if ( isset($topic->bozos[$bb_current_user->ID]) && 'all' != @$_GET['view'] )
+			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$bb_current_user->ID]}; return \$a;") );
+		if ( $deleted = get_topic_deleted_posts() ) {
+			$extra = __(sprintf('+%d more', $deleted));
+			if ( 'all' == @$_GET['view'] )
+				echo " $extra";
+			else
+				echo " <a href='" . wp_specialchars( add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>$extra</a>";
+		}
+	}
+}
+
 function topic_move_dropdown() {
 	global $bb_current_user, $forum_id, $topic;
 	if ( !bb_current_user_can('manage_topics') )
@@ -573,6 +599,26 @@ function topic_move_dropdown() {
 	echo "</label>\n\t";
 	bb_nonce_field( 'move-topic_' . $topic->topic_id );
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
+}
+
+function topic_class() {
+	global $topic;
+	$class = array();
+	if ( '1' === $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )
+		$class[] = 'deleted';
+	elseif ( 1 < $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )
+		$class[] = 'bozo';
+	if ( 'yes' == $topic->topic_resolved )
+		$class[] = 'resolved';
+	if ( '0' === $topic->topic_open )
+		$class[] = 'closed';
+	if ( 1 == $topic->topic_sticky && is_forum() )
+		$class[] = 'sticky';
+	elseif ( 2 == $topic->topic_sticky && is_front() )
+		$class[] = 'sticky super-sticky';
+	$class = apply_filters( 'topic_class', $class );
+	$class = join(' ', $class);
+	alt_class( 'topic', $class );
 }
 
 // POSTS

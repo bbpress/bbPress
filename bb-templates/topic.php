@@ -4,14 +4,15 @@
 
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
 <div class="infobox">
-<h2 class="topictitle<?php if ( $topic->topic_status ) echo ' deleted'; ?>"><?php topic_title(); ?></h2>
+<h2 class="topictitle<?php if ( $topic->topic_status ) echo ' deleted'; ?>"><?php topic_title(); ?></h2> <span id="topic_posts">(<?php topic_posts_link(); ?>)</span>
 
 <?php topic_tags(); ?>
 
 <ul class="topicmeta">
-	<li>Topic started <?php topic_start_time(); ?> ago</li>
-	<li><?php topic_posts(); ?> posts so far</li>
+	<li>Started <?php topic_start_time(); ?> ago by <?php topic_author(); ?></li>
+<?php if ( 1 < get_topic_posts() ) : ?>
 	<li><a href="<?php topic_last_post_link(); ?>">Latest reply</a> from <?php topic_last_poster(); ?></li>
+<?php endif; ?>
 	<li id="resolutionflipper">This topic is <?php topic_resolved(); ?></li>
 <?php if ( $bb_current_user ) : ?>
 	<li id="favoritestoggle"><?php user_favorites_link() ?></li>
@@ -46,7 +47,7 @@
 <p>This topic has been closed to new replies.</p>
 <?php endif; ?>
 <div class="admin">
-<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?> <?php topic_show_all_link(); ?><br />
+<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?><br />
 <?php topic_move_dropdown(); ?>
 </div>
 <?php bb_get_footer(); ?>

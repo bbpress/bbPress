@@ -35,10 +35,6 @@ a:hover {
 	padding: 1em;
 }
 
-.infobox h2{
-	margin-right: 7em;
-}
-
 .infobox ul{
 	margin-left: 10px;
 	padding: 0;
@@ -104,6 +100,7 @@ a:hover {
 .topictitle{
 	font-size: 26px;
 	font-weight: normal;
+	display: inline;
 }
 
 #content .frontpageheatmap a{

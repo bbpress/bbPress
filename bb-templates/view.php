@@ -15,7 +15,7 @@
 </tr>
 
 <?php if ( $stickies ) : foreach ( $stickies as $topic ) : ?>
-<tr<?php alt_class('topic', 'sticky'); ?>>
+<tr<?php topic_class(); ?>>
 	<td><?php _e('Sticky:'); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
@@ -24,7 +24,7 @@
 <?php endforeach; endif; ?>
 
 <?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
-<tr<?php alt_class('topic'); ?>>
+<tr<?php topic_class(); ?>>
 	<td><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>

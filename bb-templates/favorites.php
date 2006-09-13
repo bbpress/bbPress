@@ -22,7 +22,7 @@ To add topics to your list of favorites, just click the "Add to Favorites" link 
 </tr>
 
 <?php foreach ( $topics as $topic ) : ?>
-<tr<?php alt_class('topic'); ?>>
+<tr<?php topic_class(); ?>>
 	<td><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
