@@ -614,7 +614,7 @@ function topic_class() {
 		$class[] = 'closed';
 	if ( 1 == $topic->topic_sticky && is_forum() )
 		$class[] = 'sticky';
-	elseif ( 2 == $topic->topic_sticky && is_front() )
+	elseif ( 2 == $topic->topic_sticky && ( is_front() || is_forum() ) )
 		$class[] = 'sticky super-sticky';
 	$class = apply_filters( 'topic_class', $class );
 	$class = join(' ', $class);
