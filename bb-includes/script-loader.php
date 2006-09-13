@@ -10,9 +10,12 @@ class BB_Scripts {
 	}
 
 	function default_scripts() {
-		$this->add( 'fat', '/bb-scripts/fat.js', false, '1.0-RC1_3660' );
-		$this->add( 'sack', '/bb-scripts/tw-sack.js', false, '1.6.1' );
-		$this->add( 'topic', '/bb-scripts/topic.js', array('sack', 'fat'), '3517' );
+		$this->add( 'fat', '/bb-includes/js/fat.js', false, '1.0-RC1_3660' );
+		$this->add( 'sack', '/bb-includes/js/tw-sack.js', false, '1.6.1' );
+		$this->add( 'prototype', '/bb-includes/js/prototype.js', false, '1.5.0' );
+		$this->add( 'wp-ajax', '/bb-includes/js/wp-ajax-js.php', array('prototype'), '2.1-beta' );
+		$this->add( 'listman', '/bb-includes/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '2.1-beta' );
+		$this->add( 'topic', '/bb-includes/js/topic.js', array('listman'), '3517' );
 	}
 
 	/**
@@ -50,7 +53,7 @@ class BB_Scripts {
 				$ver = $this->scripts[$handle]->ver ? $this->scripts[$handle]->ver : $bb_db_version;
 				if ( isset($this->args[$handle]) )
 					$ver .= '&amp;' . $this->args[$handle];
-				$src = 0 === strpos($this->scripts[$handle]->src, 'http://') ? $this->scripts[$handle]->src : bb_get_option( 'uri' ) . $this->scripts[$handle]->src;
+				$src = 0 === strpos($this->scripts[$handle]->src, 'http://') ? $this->scripts[$handle]->src : rtrim(bb_get_option( 'uri' ), ' /') . $this->scripts[$handle]->src;
 				echo "<script type='text/javascript' src='$src?ver=$ver'></script>\n";
 				$this->printed[] = $handle;
 			}

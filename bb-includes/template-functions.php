@@ -921,7 +921,7 @@ function tag_form() {
 	global $topic, $bb_current_user;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
 		return false;
-	echo "<form method='post' action='" . bb_get_option('uri') . "tag-add.php'>\n";
+	echo "<form id='tag-form' method='post' action='" . bb_get_option('uri') . "tag-add.php'>\n";
 	include( BBPATH . '/bb-templates/tag-form.php');
 	bb_nonce_field( 'add-tag_' . $topic->topic_id );
 	echo "</form>";
@@ -959,12 +959,17 @@ function manage_tags_forms() {
 	echo "\n\t</div></form>\n  </li>\n</ul>";
 }
 
-function tag_remove_link( $tag_id = 0, $user_id = 0, $topic_id = 0 ) {
+function tag_remove_link() {
+	echo get_tag_remove_link();
+}
+
+function get_tag_remove_link() {
 	global $tag, $bb_current_user, $topic;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
-
-	echo '[<a href="' . bb_nonce_url( bb_get_option('uri') . 'tag-remove.php?tag=' . $tag->tag_id . '&user=' . $tag->user_id . '&topic=' . $tag->topic_id, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . addslashes(htmlspecialchars($tag->raw_tag)) . '\');" title="'. __('Remove this tag') .'">x</a>]';
+	$url = add_query_arg( array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id), bb_get_option('uri') . 'tag-remove.php' );
+	$r = '[<a href="' . bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . js_escape($tag->raw_tag) . '\');" title="'. __('Remove this tag') .'">x</a>]';
+	return $r;
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {

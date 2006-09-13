@@ -13,9 +13,9 @@
 <?php if ( 1 < get_topic_posts() ) : ?>
 	<li><a href="<?php topic_last_post_link(); ?>">Latest reply</a> from <?php topic_last_poster(); ?></li>
 <?php endif; ?>
-	<li id="resolutionflipper">This topic is <?php topic_resolved(); ?></li>
-<?php if ( $bb_current_user ) : ?>
-	<li id="favoritestoggle"><?php user_favorites_link() ?></li>
+	<li id="resolution-flipper">This topic is <?php topic_resolved(); ?></li>
+<?php if ( $bb_current_user ) : $class = 0 === is_user_favorite( $bb_current_user->ID ) ? ' class="is-not-favorite"' : ''; ?>
+	<li<?php echo $class;?> id="favorite-toggle"><?php user_favorites_link() ?></li>
 <?php endif; do_action('topicmeta'); ?>
 </ul>
 <br clear="all" />
@@ -25,6 +25,7 @@
 <div class="nav">
 <?php topic_pages(); ?>
 </div>
+<div id="ajax-response"></div>
 <ol id="thread" start="<?php echo $list_start; ?>">
 
 <?php foreach ($posts as $bb_post) : $del_class = post_del_class(); ?>

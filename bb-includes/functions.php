@@ -127,10 +127,12 @@ function get_user_favorites( $user_id, $list = false ) {
 function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( $user_id )
 		$user = bb_get_user( $user_id );
-	else 	global $user;
+	else
+	 	global $user;
 	if ( $topic_id )
 		$topic = get_topic( $topic_id );
-	else	global $topic;
+	else
+		global $topic;
 	if ( !$user || !$topic )
 		return false;
 
