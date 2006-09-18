@@ -91,8 +91,9 @@ function post_form() {
 			echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n";
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
-		echo "<p>You must login to post.</p>";
-		include( BBPATH . 'bb-templates/login-form.php');
+		echo '<p>';
+		_e(sprintf('You must <a href="%s">login</a> to post.', bb_get_option('uri') . 'bb-login.php'));
+		echo '</p>';
 	}
 }
 
