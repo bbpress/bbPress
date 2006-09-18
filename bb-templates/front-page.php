@@ -3,7 +3,6 @@
 <?php login_form(); ?>
 
 <?php if ( $forums ) : ?>
-<?php new_topic(); ?>
 
 <div id="hottags">
 <h2><?php _e('Hot Tags'); ?></h2>
@@ -16,7 +15,7 @@
 
 <table id="latest">
 <tr>
-	<th><?php _e('Topic'); ?></th>
+	<th><?php _e('Topic'); ?> &#8212; <?php new_topic(); ?></th>
 	<th><?php _e('Posts'); ?></th>
 	<th><?php _e('Last Poster'); ?></th>
 	<th><?php _e('Freshness'); ?></th>

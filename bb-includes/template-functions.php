@@ -627,9 +627,14 @@ function topic_class() {
 
 function new_topic( $text = false ) {
 	if ( !$text )
-		$text = __('Add New Topic');
+		$text = __('Add New');
 
-	echo "<a href='" . add_query_arg( 'new', '1', bb_get_option( 'uri' ) ) . "' class='new-topic'>$text</a>\n";
+	if ( is_forum() || is_tag() )
+		$url = '#postform';
+	elseif ( is_front() )
+		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
+	if ( $url )
+		echo "<a href='$url' class='new-topic'>$text</a>\n";
 }
 
 // POSTS

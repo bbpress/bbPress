@@ -12,10 +12,10 @@
 
 <table id="latest">
 <tr>
-	<th>Topic</th>
-	<th>Posts</th>
-	<th>Last Poster</th>
-	<th>Freshness</th>
+	<th><?php _e('Topic'); ?> &#8212; <?php new_topic(); ?></th>
+	<th><?php _e('Posts'); ?></th>
+	<th><?php _e('Last Poster'); ?></th>
+	<th><?php _e('Freshness'); ?></th>
 </tr>
 
 <?php foreach ( $topics as $topic ) : ?>
