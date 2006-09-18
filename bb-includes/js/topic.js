@@ -29,6 +29,8 @@ addLoadEvent( function() { // Tags
 	othersTagList.alt = false;
 	othersTagList.inputData = '&topic_id=' + topicId;
 
+	if ( !yourTagList.theList )
+		return;
 	var newtagSub = $('tagformsub');
 	newtagSub.onclick = function(e) { return yourTagList.ajaxAdder( 'tag', 'tag-form' ); }
 } );
