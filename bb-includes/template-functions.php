@@ -634,6 +634,10 @@ function new_topic( $text = false ) {
 		$url = '#postform';
 	elseif ( is_front() )
 		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
+	if ( !bb_is_user_logged_in() )
+		$url = add_query_arg( 're', urlencode($url), bb_get_option( 'uri' ) . 'bb-login.php' );
+	elseif ( !bb_current_user('write_topics') )
+		return;
 	if ( $url )
 		echo "<a href='$url' class='new-topic'>$text</a>\n";
 }
