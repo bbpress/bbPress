@@ -75,7 +75,7 @@ function bb_post_template() {
 }
 
 function post_form() {
-	global $bb_current_user, $bb, $page, $topic;
+	global $bb_current_user, $bb, $page, $topic, $forum;
 	$add = topic_pages_add();
 	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
 		echo "<form class='postform' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
@@ -85,6 +85,10 @@ function post_form() {
 			include( BBPATH . 'bb-templates/post-form.php');
 		}
 		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
+		if ( is_forum() )
+			echo "<input type='hidden' name='forum_id' value='$forum->forum_id' />\n";
+		else if ( is_topic() )
+			echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n";
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo "<p>You must login to post.</p>";
@@ -619,6 +623,13 @@ function topic_class() {
 	$class = apply_filters( 'topic_class', $class );
 	$class = join(' ', $class);
 	alt_class( 'topic', $class );
+}
+
+function new_topic( $text = false ) {
+	if ( !$text )
+		$text = __('Add New Topic');
+
+	echo "<a href='" . add_query_arg( 'new', '1', bb_get_option( 'uri' ) ) . "' class='new-topic'>$text</a>\n";
 }
 
 // POSTS

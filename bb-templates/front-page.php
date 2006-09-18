@@ -2,6 +2,9 @@
 
 <?php login_form(); ?>
 
+<?php if ( $forums ) : ?>
+<?php new_topic(); ?>
+
 <div id="hottags">
 <h2><?php _e('Hot Tags'); ?></h2>
 <p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
@@ -39,7 +42,6 @@
 </table>
 <?php endif; ?>
 
-<?php if ( $forums ) : ?>
 <h2><?php _e('Forums'); ?></h2>
 <table id="forumlist">
 
@@ -57,7 +59,6 @@
 </tr>
 <?php endforeach; ?>
 </table>
-<?php endif; ?>
 
 <?php if ( $bb_current_user->ID ) : ?>
 <div id="viewdiv">
@@ -68,7 +69,10 @@
 <?php endforeach; ?>
 </ul>
 </div>
-<?php endif; ?>
+<?php endif; else : // $forums ?>
 
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a></h3>
+
+<?php post_form(); endif; ?>
 
 <?php bb_get_footer(); ?>

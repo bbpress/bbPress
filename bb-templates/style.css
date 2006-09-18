@@ -67,6 +67,11 @@ a:hover {
 	height: 12em;
 	padding: 10px;
 	width: 490px;
+	display: block;
+}
+
+.postform label {
+	display: block;
 }
 
 .poststuff{
