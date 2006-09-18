@@ -341,7 +341,7 @@ function bb_current_time( $type = 'timestamp' ) {
 function bb_block_current_user() {
 	global $bbdb, $bb_table_prefix, $bb_current_user;
 	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
-	die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
+	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
 //Temp

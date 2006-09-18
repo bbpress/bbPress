@@ -18,7 +18,7 @@ bb_check_admin_referer( 'delete-topic_' . $topic_id );
 $topic    =  get_topic ( $topic_id );
 
 if ( !$topic )
-	die(__('There is a problem with that topic, pardner.'));
+	bb_die(__('There is a problem with that topic, pardner.'));
 
 bb_delete_topic( $topic->topic_id, $topic->topic_status ? 0 : 1 );
 

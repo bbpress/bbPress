@@ -83,7 +83,7 @@ header( 'Content-Type: text/html; charset=utf-8' );
 // Let's check to make sure bb isn't already installed.
 $bbdb->hide_errors();
 $installed = $bbdb->get_results("SELECT * FROM $bbdb->users");
-if ($installed) die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+if ($installed) bb_die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
 $bbdb->show_errors();
 
 switch ($step):
@@ -169,12 +169,12 @@ require_once('../bb-includes/registration-functions.php');
 
 // Fill in the data we gathered
 if ( !$admin_login = user_sanitize( $_POST['admin_login'] ) )
-	die(__('Bad login name.  Go back and try again.'));
+	bb_die(__('Bad login name.  Go back and try again.'));
 if ( isset( $_POST['admin_url'] ) )
 	$admin_url = bb_fix_link( $_POST['admin_url'] );
 
 if ( !$forum_name = $_POST['forum_name'] )
-	die(__('You must name your first forum.  Go back and try again.'));
+	bb_die(__('You must name your first forum.  Go back and try again.'));
 $forum_desc = ( isset( $_POST['forum_desc'] ) ) ? $_POST['forum_desc'] : '' ;
 
 $password = bb_new_user( $admin_login, $bb->admin_email, $admin_url );

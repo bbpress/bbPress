@@ -6,14 +6,14 @@ bb_auth();
 nocache_headers();
 
 if ( !bb_current_user_can('write_posts') )
-	die(__('You are not allowed to post.  Are you logged in?'));
+	bb_die(__('You are not allowed to post.  Are you logged in?'));
 
 if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
-	die(__('Slow down; you move too fast.'));
+	bb_die(__('Slow down; you move too fast.'));
 
 if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	if ( !bb_current_user_can('write_topics') )
-		die(__('You are not allowed to write new topics.'));
+		bb_die(__('You are not allowed to write new topics.'));
 
 	bb_check_admin_referer( 'create-topic' );
 
@@ -22,7 +22,7 @@ if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	$support = (int) $_POST['support'];
 
 	if ('' == $topic)
-		die(__('Please enter a topic title'));
+		bb_die(__('Please enter a topic title'));
 
 	$topic_id = bb_new_topic( $topic, $forum, $tags );
 	if ( 1 != $support )
@@ -33,7 +33,7 @@ if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 }
 
 if ( !topic_is_open( $topic_id ) )
-	die(__('This topic has been closed'));
+	bb_die(__('This topic has been closed'));
 
 $post_id = bb_new_post( $topic_id, $_POST['post_content'] );
 

@@ -75,15 +75,16 @@ function bb_reset_password( $key ) {
 	global $bbdb;
 	$key = user_sanitize( $key );
 	if ( empty( $key ) )
-		die(__('Key not found.'));
-	$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'");
+		bb_die(__('Key not found.'));
+	if ( !$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'") )
+		bb_die(__('Key not found.'));
 	if ( $user = bb_get_user( $user_id ) ) :
 		$newpass = bb_random_pass( 6 );
 		bb_update_user_password( $user->ID, $newpass );
 		bb_send_pass           ( $user->ID, $newpass );
 		bb_update_usermeta( $user->ID, 'newpwdkey', '' );
 	else :
-		die(__('Key not found.'));
+		bb_die(__('Key not found.'));
 	endif;
 }
 

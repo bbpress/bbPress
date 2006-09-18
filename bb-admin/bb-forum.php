@@ -2,17 +2,17 @@
 require_once('admin.php');
 
 if ( !bb_current_user_can('manage_forums') )
-	die(__("You don't have the authority to mess with the forums."));
+	bb_die(__("You don't have the authority to mess with the forums."));
 
 if ( !isset($_POST['action']) )
-	die(__('What am I supposed to do with that?'));
+	bb_die(__('What am I supposed to do with that?'));
 
 $sent_from = $_SERVER['HTTP_REFERER'];
 
 switch ( $_POST['action'] ) :
 case 'add' :
 	if ( !isset($_POST['forum']) || '' === $_POST['forum'] )
-		die(__('Bad forum name.  Go back and try again.'));
+		bb_die(__('Bad forum name.  Go back and try again.'));
 
 	bb_check_admin_referer( 'add-forum' );
 
@@ -23,14 +23,14 @@ case 'add' :
 		header("Location: $sent_from");
 		exit;
 	else :
-		die(__('The forum was not added'));
+		bb_die(__('The forum was not added'));
 	endif;
 	break;
 case 'update' :
 	bb_check_admin_referer( 'update-forums' );
 
 	if ( !$forums = get_forums() )
-		die(__('No forums to update!'));
+		bb_die(__('No forums to update!'));
 	foreach ( $forums as $forum ) :
 		if ( isset($_POST['name-' . $forum->forum_id]) && '' !== $_POST['name-' . $forum->forum_id] )
 			bb_update_forum( $forum->forum_id, $_POST['name-' . $forum->forum_id], $_POST['desc-' . $forum->forum_id], $_POST['order-' . $forum->forum_id]);

@@ -5,7 +5,7 @@ $topic_id = (int) $_GET['id'];
 $topic    =  get_topic ( $topic_id );
 
 if ( !$topic )
-	die(__('There is a problem with that topic, pardner.'));
+	bb_die(__('There is a problem with that topic, pardner.'));
 
 if ( !bb_current_user_can('manage_topics') ) {
 	header('Location: ' . bb_get_option('uri') );

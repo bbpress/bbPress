@@ -6,7 +6,7 @@ bb_repermalink();
 // Temporary, refactor this!
 
 if ( !$tag && $tag_name )
-	die(__('Tag not found'));
+	bb_die(__('Tag not found'));
 
 if ( $tag_name && $tag ) :
 

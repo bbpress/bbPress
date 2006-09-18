@@ -3,7 +3,7 @@ require('admin.php');
 
 nocache_headers();
 if ( !bb_current_user_can('manage_tags') )
-	die(__('You are not allowed to manage tags.'));
+	bb_die(__('You are not allowed to manage tags.'));
 
 $tag_id = (int) $_POST['id' ];
 
@@ -11,7 +11,7 @@ bb_check_admin_referer( 'destroy-tag_' . $tag_id );
 
 $old_tag = get_tag( $tag_id );
 if ( !$old_tag )
-	die(__('Tag not found.'));
+	bb_die(__('Tag not found.'));
 
 if ( $destroyed = destroy_tag( $tag_id ) ) {
 	printf(__("Rows deleted from tags table: %d <br />\n"), $destroyed['tags']);

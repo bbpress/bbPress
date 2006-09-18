@@ -12,7 +12,7 @@ if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] ) {
 bb_repermalink();
 
 if ( !$topic )
-	die(__('Topic not found.'));
+	bb_die(__('Topic not found.'));
 
 $bb_db_override = false;
 do_action( 'bb_topic.php_pre_db', $topic_id );

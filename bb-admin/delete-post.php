@@ -19,7 +19,7 @@ $status  = (int) $_GET['status'];
 $bb_post = bb_get_post ( $post_id );
 
 if ( !$bb_post )
-	die(__('There is a problem with that post, pardner.'));
+	bb_die(__('There is a problem with that post, pardner.'));
 
 bb_delete_post( $post_id, $status );
 

@@ -4,7 +4,7 @@ require('admin.php');
 nocache_headers();
 
 if ( !bb_current_user_can('manage_tags') )
-	die(__('You are not allowed to manage tags.'));
+	bb_die(__('You are not allowed to manage tags.'));
 
 $tag_id = (int) $_POST['id' ];
 $tag    =       $_POST['tag'];
@@ -13,7 +13,7 @@ bb_check_admin_referer( 'rename-tag_' . $tag_id );
 
 $old_tag = get_tag( $tag_id );
 if ( !$old_tag )
-	die(__('Tag not found.'));
+	bb_die(__('Tag not found.'));
 
 if ( $tag = rename_tag( $tag_id, $tag ) )
 	header('Location: ' . get_tag_link() );

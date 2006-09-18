@@ -4,7 +4,7 @@ require_once('./bb-load.php');
 bb_auth();
 
 if ( !bb_current_user_can( 'edit_favorites_of', $user_id ) )
-	die(__('You cannot edit those favorites.  How did you get here?'));
+	bb_die(__('You cannot edit those favorites.  How did you get here?'));
 
 if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 	nocache_headers();

@@ -17,7 +17,7 @@ if ( !$bb_post ) {
 }
 
 if ( !bb_current_user_can( 'edit_post', $post_id ) )
-	die(__('Sorry, post is too old.'));
+	bb_die(__('Sorry, post is too old.'));
 
 bb_check_admin_referer( 'edit-post_' . $post_id );
 
