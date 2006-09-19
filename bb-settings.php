@@ -70,8 +70,8 @@ $bbdb->forums    = $bb_table_prefix . 'forums';
 $bbdb->posts     = $bb_table_prefix . 'posts';
 $bbdb->topics    = $bb_table_prefix . 'topics';
 $bbdb->topicmeta = $bb_table_prefix . 'topicmeta';
-$bbdb->users     = $bb_table_prefix . 'users';
-$bbdb->usermeta  = $bb_table_prefix . 'usermeta';
+$bbdb->users     = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'users';
+$bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'usermeta';
 $bbdb->tags      = $bb_table_prefix . 'tags';
 $bbdb->tagged    = $bb_table_prefix . 'tagged';
 
@@ -100,14 +100,16 @@ if ( defined('CUSTOM_USER_TABLE') )
 if ( defined('CUSTOM_USER_META_TABLE') )
 	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
 
-define('BBHASH', md5($bb_table_prefix) );
+define('BBHASH', $bb->wp_siteurl ? md5($bb->wp_siteurl) : md5($bb_table_prefix) );
 
 if ( !isset( $bb->usercookie ) )
-	$bb->usercookie = 'bb_user_' . BBHASH;
+	$bb->usercookie = ( $bb->wp_table_prefix ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
 if ( !isset( $bb->passcookie ) )
-	$bb->passcookie = 'bb_pass_' . BBHASH;
+	$bb->passcookie = ( $bb->wp_table_prefix ? 'wordpresspass_' : 'bb_pass_' ) . BBHASH;
 if ( !isset( $bb->cookiepath ) )
-	$bb->cookiepath = bb_get_option('path');
+	$bb->cookiepath = $bb->wp_home ? preg_replace('|https?://[^/]+|i', '', "$bb->wp_home/" ) : bb_get_option('path');
+if ( !isset( $bb->sitecookiepath ) )
+	$bb->sitecookiepath = $bb->wp_siteurl ? preg_replace('|https?://[^/]+|i', '', "$bb->wp_site/" ) : bb_get_option('path');
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
 

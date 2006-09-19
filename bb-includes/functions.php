@@ -358,7 +358,7 @@ function bb_get_user( $user_id, $cache = true ) {
 	if ( isset( $bb_user_cache[$user_id] ) && $cache )
 		return $bb_user_cache[$user_id];
 	else
-		return  $bb_cache->get_user( $user_id, $cache );
+		return $bb_cache->get_user( $user_id, $cache );
 }
 
 function bb_cache_users( $ids, $soft_cache = true ) {

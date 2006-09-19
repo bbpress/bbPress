@@ -32,7 +32,7 @@ function bb_new_user( $user_login, $email, $url ) {
 	if ( defined( 'BB_INSTALLING' ) ) {
 		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('keymaster' => true) );
 		do_action('bb_new_user', $user_id);
-		return $password;
+		return array($user_id, $password);
 	} else {		
 		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user_id, $password );

@@ -6,6 +6,8 @@ if (!file_exists('../config.php'))
 require_once('../config.php');
 
 $step = isset($_GET['step']) ? (int) $_GET['step'] : 0 ;
+	if ( 2 == $step && isset($_POST['new_keymaster']) && 'new' == $_POST['new_keymaster'] )
+		$step = 1;
 
 header( 'Content-Type: text/html; charset=utf-8' );
 ?>
@@ -82,8 +84,8 @@ header( 'Content-Type: text/html; charset=utf-8' );
 <?php
 // Let's check to make sure bb isn't already installed.
 $bbdb->hide_errors();
-$installed = $bbdb->get_results("SELECT * FROM $bbdb->users");
-if ($installed) bb_die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+$installed = $bbdb->get_results("SELECT * FROM $bbdb->forums LIMIT 1");
+if ($installed) die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
 $bbdb->show_errors();
 
 switch ($step):
@@ -106,6 +108,26 @@ switch ($step):
 	break;
 
 	case 1:
+		$keymaster = false;
+		$users = false;
+		if ( !isset($_POST['new_keymaster']) ) {
+			$bbdb->hide_errors();
+			if ( $users = (array) $bbdb->get_results("SELECT * FROM $bbdb->users") ) {
+				$meta_key = $bb_table_prefix . 'capabilities';
+				if ( $keymasters = $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_key = '$meta_key' AND meta_value LIKE '%keymaster%'") ) {
+					foreach ( $keymasters as $potential ) {
+						$pot_array = unserialize($potential->meta_value);
+						if ( array_key_exists('keymaster', $pot_array) && true === $pot_array['keymaster'] ) {
+							$keymaster = (int) $potential->user_id;
+							break;
+						}
+					}
+					if ( $keymaster )
+						$keymaster = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = '$keymaster'");
+				}
+			}
+			$bbdb->show_errors();
+		}
 ?>
 <h1><?php _e('First Step'); ?></h1>
 <p><?php _e('Make sure you have <strong>everything</strong> (database information, email address, etc.) entered correctly in <code>config.php</code> before running this script.'); ?></p>
@@ -113,6 +135,17 @@ switch ($step):
 
 <form id="setup" method="post" action="install.php?step=2">
 <h2><?php _e('Administrator'); ?></h2>
+<?php	if ( $keymaster ) : ?>
+<p>We found <strong><?php echo get_user_name( $keymaster->ID ); ?></strong> who is already a "Key Master" on these forums.  You may make others later.</p>
+<input type="hidden" name="old_keymaster" value="<?php echo $keymaster->ID; ?>" />
+<?php elseif ( $users ) : ?>
+<p>Please select a user below to be the keymaster for these forums.  You can make more later if you choose.</p>
+<select name="new_keymaster">
+	<option value='new'>Create a new User</option>
+<?php	foreach ( $users as $user )
+		echo "\t<option value='$user->ID'>" . get_user_name( $user->ID ) . "</option>\n"; ?>
+</select>
+<?php else : ?>
 <table width="100%" cellpadding="4"> 
 <tr class="alt">
 <td class="required" width="25%"><?php _e('Login name:'); ?>*</td>
@@ -131,17 +164,18 @@ switch ($step):
 <td><input name="admin_int" type="text" id="admin_int" size="25" /></td>
 </tr>
 </table>
+<?php endif; ?>
 
 <h2><?php _e('First Forum') ?></h2>
 
 <table width="100%" cellpadding="4">
 <tr class="alt">
 <td class="required" width="25%"><?php _e('Forum Name:'); ?>*</td>
-<td><input name="forum_name" type="text" id="forum_name" size="25" /></td>
+<td><input name="forum_name" type="text" id="forum_name" value="<?php echo wp_specialchars( @$_POST['forum_name'], 1); ?>" size="25" /></td>
 </tr>
 <tr>
 <td><?php _e('Description:'); ?></td>
-<td><input name="forum_desc" type="text" id="forum_desc" size="25" /></td>
+<td><input name="forum_desc" type="text" id="forum_desc" value="<?php echo wp_specialchars( @$_POST['forum_desc'], 1); ?>" size="25" /></td>
 </tr>
 </table>
 <p><em><?php _e('Double-check that login name before continuing.'); ?></em></p>
@@ -164,27 +198,40 @@ switch ($step):
 flush();
 
 // Set everything up
+if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = user_sanitize( $_POST['admin_login'] ) )
+		die(__('Bad login name.  Go back and try again.'));
+if ( !$forum_name = $_POST['forum_name'] )
+	die(__('You must name your first forum.  Go back and try again.'));
 require_once('upgrade-schema.php');
 require_once('../bb-includes/registration-functions.php');
 
 // Fill in the data we gathered
-if ( !$admin_login = user_sanitize( $_POST['admin_login'] ) )
-	bb_die(__('Bad login name.  Go back and try again.'));
-if ( isset( $_POST['admin_url'] ) )
-	$admin_url = bb_fix_link( $_POST['admin_url'] );
-
-if ( !$forum_name = $_POST['forum_name'] )
-	bb_die(__('You must name your first forum.  Go back and try again.'));
-$forum_desc = ( isset( $_POST['forum_desc'] ) ) ? $_POST['forum_desc'] : '' ;
-
-$password = bb_new_user( $admin_login, $bb->admin_email, $admin_url );
-$bb_current_user = new BB_User( 1 );
-if ( strlen( $_POST['admin_loc'] ) > 0 )
-	bb_update_usermeta( 1, 'from', $_POST['admin_loc'] );
-if ( strlen( $_POST['admin_int'] ) > 0 )
-	bb_update_usermeta( 1, 'interest', $_POST['admin_int'] );
+// KeyMaster
+if ( isset($_POST['old_keymaster']) ) :
+	$bb_current_user = bb_set_current_user( (int) $_POST['old_keymaster'] );
+	$admin_login = get_user_name( $bb_current_user->ID );
+	$password = __('*Your WordPress password*');
+	$already = true;
+elseif ( isset($_POST['new_keymaster']) ) :
+	$bb_current_user = bb_set_current_user( (int) $_POST['new_keymaster'] );
+	$bb_current_user->set_role('keymaster');
+	$admin_login = get_user_name( $bb_current_user->ID );
+	$password = __('*Your WordPress password*');
+	$already = true;
+else :
+	if ( isset( $_POST['admin_url'] ) )
+		$admin_url = bb_fix_link( $_POST['admin_url'] );
+	list($user_id, $password) = bb_new_user( $admin_login, $bb->admin_email, $admin_url );
+	$bb_current_user = bb_set_current_user( $user_id );
+	if ( strlen( $_POST['admin_loc'] ) > 0 )
+		bb_update_usermeta( 1, 'from', $_POST['admin_loc'] );
+	if ( strlen( $_POST['admin_int'] ) > 0 )
+		bb_update_usermeta( 1, 'interest', $_POST['admin_int'] );
+	$already = false;
+endif;
 
 // First Forum
+$forum_desc = ( isset( $_POST['forum_desc'] ) ) ? $_POST['forum_desc'] : '' ;
 bb_new_forum( $forum_name, $forum_desc );
 
 // First Topic
@@ -212,7 +259,9 @@ http://bbpress.org/
 <p><em><?php _e('Finished!'); ?></em></p>
 
 <p><?php printf(__('Now you can <a href="%1$s">log in</a> with the <strong>username</strong> "<code>%2$s</code>" and <strong>password</strong> "<code>%3$s</code>".'), '..', $admin_login, $password); ?></p>
+<?php if ( !$already ) : ?>
 <p><?php _e('<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you. If you lose it, you will have to delete the tables from the database yourself, and re-install bbPress. So to review:'); ?>
+<?php endif; ?>
 </p>
 <dl>
 <dt><?php _e('Login'); ?></dt>
