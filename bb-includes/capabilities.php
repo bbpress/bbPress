@@ -247,7 +247,7 @@ class BB_User {
 		if ( ! is_array($this->caps) ) {
 			$this->caps  = array();
 			$this->roles = array();
-			$this->set_role('member');
+			do_action_ref_array('bb_user_has_no_caps', array(&$this));
 		}
 		$this->get_role_caps();
 	}
@@ -409,4 +409,11 @@ function bb_current_user_can($capability) {
 
 	return call_user_func_array(array(&$bb_current_user, 'has_cap'), $args);
 }
+
+function bb_give_user_default_role( $user ) {
+	if ( !( is_object($user) && is_a($user, 'BB_User') ) )
+		return;
+	$user->set_role('inactive');
+}
+
 ?>

@@ -15,6 +15,8 @@ if ( !is_bb_profile() ) {
 
 require_once( BBPATH . 'bb-includes/registration-functions.php');
 
+if ( !$user->capabilities )
+	$user->capabilities = array('inactive' => true);
 $profile_info_keys = get_profile_info_keys();
 if ( bb_current_user_can('edit_users') ) {
 	$profile_admin_keys = get_profile_admin_keys();

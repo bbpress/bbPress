@@ -848,7 +848,7 @@ function get_user_type ( $id ) {
 			return $user->title;
 		@$caps = array_keys($user->capabilities);
 		if ( !$caps )
-			$caps[] = 'member';
+			$caps[] = 'inactive';
 
 		return get_user_type_label( $caps[0] ); //Just support one role for now.
 	else :
