@@ -1,5 +1,9 @@
 <?php
 
+function stripslashes_deep($value) {
+   return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
+}
+
 /* Formatting */
 
 function wp_specialchars( $text, $quotes = 0 ) {

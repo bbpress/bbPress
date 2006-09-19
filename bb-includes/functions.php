@@ -1517,9 +1517,4 @@ function bb_explain_nonce($action) {
 	return apply_filters( 'bb_explain_nonce_' . $verb . '-' . $noun, __('Are you sure you want to do this?'), $matches[4] );
 }
 
-function stripslashes_deep($value) {
-   return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
-}
-
-
 ?>
