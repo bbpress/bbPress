@@ -229,7 +229,9 @@ function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) 
 function apply_filters($tag, $string) {
 	global $wp_filter;
 
-	$args = array_slice(func_get_args(), 2);
+	$args = array();
+	for ( $a = 2; $a < func_num_args(); $a++ )
+		$args[] = func_get_arg($a);
 
 	merge_filters($tag);
 
@@ -240,18 +242,15 @@ function apply_filters($tag, $string) {
 		if ( !is_null($functions) ) {
 			foreach($functions as $function) {
 
-				$all_args = array_merge(array($string), $args);
 				$function_name = $function['function'];
 				$accepted_args = $function['accepted_args'];
 
-				if ( $accepted_args == 1 )
-					$the_args = array($string);
-				elseif ( $accepted_args > 1 )
-					$the_args = array_slice($all_args, 0, $accepted_args);
+				$the_args = $args;
+				array_unshift($the_args, $string);
+				if ( $accepted_args > 0 )
+					$the_args = array_slice($the_args, 0, $accepted_args);
 				elseif ( $accepted_args == 0 )
 					$the_args = NULL;
-				else
-					$the_args = $all_args;
 
 				$string = call_user_func_array($function_name, $the_args);
 			}
@@ -277,8 +276,6 @@ function merge_filters($tag) {
 		ksort( $wp_filter[$tag] );
 }
 
-
-
 function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
 	global $wp_filter;
 
@@ -301,17 +298,19 @@ function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) 
 
 function do_action($tag, $arg = '') {
 	global $wp_filter;
-	$extra_args = array_slice(func_get_args(), 2);
- 	if ( is_array($arg) )
- 		$args = array_merge($arg, $extra_args);
+	$args = array();
+	if ( is_array($arg) && 1 == count($arg) && is_object($arg[0]) ) // array(&$this)
+		$args[] =& $arg[0];
 	else
-		$args = array_merge(array($arg), $extra_args);
+		$args[] = $arg;
+	for ( $a = 2; $a < func_num_args(); $a++ )
+		$args[] = func_get_arg($a);
 
 	merge_filters($tag);
 
-	if ( !isset($wp_filter[$tag]) ) {
+	if ( !isset($wp_filter[$tag]) )
 		return;
-	}
+
 	foreach ($wp_filter[$tag] as $priority => $functions) {
 		if ( !is_null($functions) ) {
 			foreach($functions as $function) {
@@ -319,20 +318,42 @@ function do_action($tag, $arg = '') {
 				$function_name = $function['function'];
 				$accepted_args = $function['accepted_args'];
 
-				if ( $accepted_args == 1 ) {
-					if ( is_array($arg) )
-						$the_args = $arg;
-					else
-						$the_args = array($arg);
-				} elseif ( $accepted_args > 1 ) {
+				if ( $accepted_args > 0 )
 					$the_args = array_slice($args, 0, $accepted_args);
-				} elseif ( $accepted_args == 0 ) {
+				elseif ( $accepted_args == 0 )
 					$the_args = NULL;
-				} else {
+				else
 					$the_args = $args;
-				}
 
-				$string = call_user_func_array($function_name, $the_args);
+				call_user_func_array($function_name, $the_args);
+			}
+		}
+	}
+}
+
+function do_action_ref_array($tag, $args) {
+	global $wp_filter;
+
+	merge_filters($tag);
+
+	if ( !isset($wp_filter[$tag]) )
+		return;
+
+	foreach ($wp_filter[$tag] as $priority => $functions) {
+		if ( !is_null($functions) ) {
+			foreach($functions as $function) {
+
+				$function_name = $function['function'];
+				$accepted_args = $function['accepted_args'];
+
+				if ( $accepted_args > 0 )
+					$the_args = array_slice($args, 0, $accepted_args);
+				elseif ( $accepted_args == 0 )
+					$the_args = NULL;
+				else
+					$the_args = $args;
+
+				call_user_func_array($function_name, $the_args);
 			}
 		}
 	}
