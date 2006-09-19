@@ -19,7 +19,7 @@ $bb_table_prefix  = 'bb_'; // Only letters, numbers and underscores please!
 // What are you going to call me?
 $bb->name   = 'New bbPress Site';
 
-// This must be set befor running the install script.
+// This must be set before running the install script.
 $bb->admin_email = 'you@example.com';
 
 // Set to true if you want pretty permalinks.
