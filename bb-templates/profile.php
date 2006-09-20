@@ -2,7 +2,7 @@
 <?php profile_menu(); ?>
 
 <h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
-<h2 id="userlogin"><?php echo $user->user_login; ?></h2>
+<h2 id="userlogin"><?php echo get_user_name( $user->ID ); ?></h2>
 
 <?php if ( $updated ) : ?>
 <div class="notice">

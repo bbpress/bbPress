@@ -194,7 +194,7 @@ function bb_get_title() {
 	if ( is_tag() )
 		$title = wp_specialchars( get_tag_name() ). ' &laquo; Tags &laquo; ';
 	if ( is_bb_profile() )
-		$title = $user->user_login . ' &laquo; ';
+		$title = get_user_name( $user->ID ) . ' &laquo; ';
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
 	$title .= bb_get_option('name');
