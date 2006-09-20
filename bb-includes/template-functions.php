@@ -366,12 +366,12 @@ function topic_noreply( $title ) {
 
 function topic_last_poster() {
 	global $topic;
-	echo apply_filters('topic_last_poster', $topic->topic_last_poster_name);
+	echo apply_filters( 'topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster );
 }
 
 function topic_author() {
 	global $topic;
-	echo apply_filters( 'topic_author', $topic->topic_poster_name );
+	echo apply_filters( 'topic_author', $topic->topic_poster_name, $topic->topic_poster );
 }
 
 function topic_time( $id = 0 ) {
@@ -671,7 +671,7 @@ function get_post_author() {
 	$id = get_post_author_id();
 	if ( $id )
 		if ( $user = bb_get_user( $id ) )
-			return $user->user_login;
+			return apply_filters( 'get_post_author', $user->user_login, $id );
 	else
 		return __('Anonymous');
 }
@@ -862,7 +862,7 @@ function user_type( $id ) {
 
 function get_user_name( $id ) {
 	$user = bb_get_user( $id );
-	return $user->user_login;
+	return apply_filters( 'get_user_name', $user->user_login, $user->ID );
 }
 
 function profile_pages() {
