@@ -198,35 +198,4 @@ function bb_check_ajax_referer() {
 	do_action('bb_check_ajax_referer');
 }
 endif;
-
-// This function should NOT tbe overwritten by a plugin.  This is a core WP and bb function.  It is included here
-// in the case of integrating bb with an earlier version of WP that does not have this function.
-if (!function_exists('do_action_ref_array') ) :
-function do_action_ref_array($tag, $args) {
-	global $wp_filter;
-
-	merge_filters($tag);
-
-	if ( !isset($wp_filter[$tag]) )
-		return;
-
-	foreach ($wp_filter[$tag] as $priority => $functions) {
-		if ( !is_null($functions) ) {
-			foreach($functions as $function) {
-
-				$function_name = $function['function'];
-				$accepted_args = $function['accepted_args'];
-
-				if ( $accepted_args > 0 )
-					$the_args = array_slice($args, 0, $accepted_args);
-				elseif ( $accepted_args == 0 )
-					$the_args = NULL;
-				else
-					$the_args = $args;
-
-				call_user_func_array($function_name, $the_args);
-			}
-		}
-	}
-}
 ?>

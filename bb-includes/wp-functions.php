@@ -331,6 +331,7 @@ function do_action($tag, $arg = '') {
 	}
 }
 
+/* functions.php
 function do_action_ref_array($tag, $args) {
 	global $wp_filter;
 
@@ -358,6 +359,7 @@ function do_action_ref_array($tag, $args) {
 		}
 	}
 }
+*/
 
 function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
 	remove_filter($tag, $function_to_remove, $priority, $accepted_args);
