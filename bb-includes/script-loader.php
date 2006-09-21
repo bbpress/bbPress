@@ -10,12 +10,12 @@ class BB_Scripts {
 	}
 
 	function default_scripts() {
-		$this->add( 'fat', '/bb-includes/js/fat.js', false, '1.0-RC1_3660' );
-		$this->add( 'sack', '/bb-includes/js/tw-sack.js', false, '1.6.1' );
-		$this->add( 'prototype', '/bb-includes/js/prototype.js', false, '1.5.0' );
-		$this->add( 'wp-ajax', '/bb-includes/js/wp-ajax-js.php', array('prototype'), '2.1-beta' );
-		$this->add( 'listman', '/bb-includes/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '2.1-beta' );
-		$this->add( 'topic', '/bb-includes/js/topic.js', array('listman'), '3517' );
+		$this->add( 'fat', '/' . BBINC . '/js/fat.js', false, '1.0-RC1_3660' );
+		$this->add( 'sack', '/' . BBINC . '/js/tw-sack.js', false, '1.6.1' );
+		$this->add( 'prototype', '/' . BBINC . '/js/prototype.js', false, '1.5.0' );
+		$this->add( 'wp-ajax', '/' . BBINC . '/js/wp-ajax-js.php', array('prototype'), '2.1-beta' );
+		$this->add( 'listman', '/' . BBINC . '/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '2.1-beta' );
+		$this->add( 'topic', '/' . BBINC . '/js/topic.js', array('listman'), '3517' );
 	}
 
 	/**

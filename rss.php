@@ -47,7 +47,7 @@ endif;
 
 do_action( 'bb_rss.php', '' );
 
-require_once( BBPATH . 'bb-includes/feed-functions.php');
+require_once( BBPATH . BBINC . '/feed-functions.php');
 
 bb_send_304( $posts[0]->post_time );
 

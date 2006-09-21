@@ -1,7 +1,7 @@
 <?php
 require('./bb-load.php');
 
-require_once( BBPATH . 'bb-includes/registration-functions.php');
+require_once( BBPATH . BBINC . '/registration-functions.php');
 
 $profile_info_keys = get_profile_info_keys();
 

@@ -203,7 +203,7 @@ if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$adm
 if ( !$forum_name = $_POST['forum_name'] )
 	die(__('You must name your first forum.  Go back and try again.'));
 require_once('upgrade-schema.php');
-require_once('../bb-includes/registration-functions.php');
+require_once( BBPATH . BBINC . '/registration-functions.php');
 
 // Fill in the data we gathered
 // KeyMaster
