@@ -7,7 +7,7 @@ $forum_id = 0;
 bb_repermalink();
 
 if ( !$forum )
-	die('Forum not found.');
+	bb_die(__('Forum not found.'));
 
 $bb_db_override = false;
 do_action( 'bb_forum.php_pre_db', $forum_id );

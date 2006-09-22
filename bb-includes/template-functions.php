@@ -235,12 +235,18 @@ function forum_link() {
 
 function get_forum_link( $id = 0, $page = 1 ) {
 	global $forum, $bb;
+
 	if ( $id )
 		$forum = get_forum( $id );
 	if ( $bb->mod_rewrite )
 		$link = bb_get_option('uri') . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
-	else
-		$link = bb_get_option('uri') . "forum.php?id=$forum->forum_id" . ( 1 < $page ? "&page=$page" : '' );
+	else {
+		$args = array();
+		$link = bb_get_option('uri') . 'forum.php';
+		$args['id'] = $forum->forum_id;
+		$args['page'] = 1 < $page ? $page : '';
+		$link = add_query_arg( $args, $link );
+	}
 
 	return apply_filters('get_forum_link', $link);
 }
@@ -304,13 +310,20 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	if ( $id )
 		$topic = get_topic( $id );
 
+	$args = array();
+
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . "topic/$topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
-	else
-		$link = bb_get_option('uri') . "topic.php?id=$topic->topic_id" . ( 1 < $page ? "&page=$page" : '' );
+	else {
+		$link = bb_get_option('uri') . 'topic.php';
+		$args['id'] = $topic->topic_id;
+		$args['page'] = 1 < $page ? $page : ''; 
+	}
 
 	if ( bb_current_user_can('write_posts') )
-		$link = add_query_arg( array( 'replies' => $topic->topic_posts ), $link );
+		$args['replies'] = $topic->topic_posts;
+	if ( $args )
+		$link = add_query_arg( $args, $link );
 
 	return apply_filters('get_topic_link', $link);
 }
