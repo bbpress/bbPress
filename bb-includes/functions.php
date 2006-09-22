@@ -1544,7 +1544,11 @@ function bb_count_last_query() {
 	if ( false === strpos($q, 'SELECT') )
 		return false;
 
-	$q = preg_replace(array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/'), array('SELECT COUNT(*) FROM', ''), $q, -1);
+	$q = preg_replace(
+		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/'),
+		array('SELECT COUNT(*) FROM', ''),
+		$q
+	);
 	$bb_last_countable_query = '';
 	return $bbdb->get_var($q);
 }
