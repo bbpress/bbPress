@@ -137,8 +137,12 @@ case 'delete-post' :
 	break;
 
 case 'add-post' : // Can put last_modified stuff back in later
+	$error = false;
+	$post_id = 0;
 	$topic_id = (int) $_POST['topic_id'];
 	$last_mod = (int) $_POST['last_mod'];
+	if ( !$post_content = trim($_POST['post_content']) )
+		$error = new WP_Error( 'no-content', __('You need to actually submit some content!') );
 	if ( !bb_current_user_can('write_posts') )
 		die('-1');
 	if ( !$topic = get_topic( $topic_id ) )
@@ -148,19 +152,21 @@ case 'add-post' : // Can put last_modified stuff back in later
 	if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
 		$error = new WP_Error( 'throttle-limit', __('Slow down!  You can only post every 30 seconds.') );
 
-	if ( !$post_id = bb_new_post( $topic_id, rawurldecode($_POST['post_content']) ) )
-		die('0');
+	if ( !$error ) :
+		if ( !$post_id = bb_new_post( $topic_id, rawurldecode($_POST['post_content']) ) )
+			die('0');
 
-	$bb_post = bb_get_post( $post_id );
+		$bb_post = bb_get_post( $post_id );
 
-	$new_page = get_page_number( $bb_post->post_position );
+		$new_page = get_page_number( $bb_post->post_position );
 
-	ob_start();
-		echo "<li id='post-$post_id'>";
-		bb_post_template();
-		echo '</li>';
-	$data = ob_get_contents();
-	ob_end_clean();
+		ob_start();
+			echo "<li id='post-$post_id'>";
+			bb_post_template();
+			echo '</li>';
+		$data = ob_get_contents();
+		ob_end_clean();
+	endif;
 	$x = new WP_Ajax_Response( array(
 		'what' => 'post',
 		'id' => $post_id,

@@ -11,6 +11,9 @@ if ( !bb_current_user_can('write_posts') )
 if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
 	bb_die(__('Slow down; you move too fast.'));
 
+if ( !$post_content = trim($_POST['post_content']) )
+	bb_die(__('You need to actually submit some content!'));
+
 if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	if ( !bb_current_user_can('write_topics') )
 		bb_die(__('You are not allowed to write new topics.'));
