@@ -248,46 +248,46 @@ function get_forum_link( $id = 0, $page = 1 ) {
 		$link = add_query_arg( $args, $link );
 	}
 
-	return apply_filters('get_forum_link', $link);
+	return apply_filters( 'get_forum_link', $link, $id );
 }
 
 function forum_name() {
-	echo apply_filters('forum_name', get_forum_name() );
+	echo apply_filters( 'forum_name', get_forum_name() );
 }
 function get_forum_id() {
 	global $forum;
 	return $forum->forum_id;
 }
 function forum_id() {
-	echo apply_filters('forum_id', get_forum_id() );
+	echo apply_filters( 'forum_id', get_forum_id() );
 }
 function get_forum_name() {
 	global $forum;
-	return apply_filters('get_forum_name', $forum->forum_name);
+	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
 }
 
 function forum_description() {
-	echo apply_filters('forum_description', get_forum_description());
+	echo apply_filters( 'forum_description', get_forum_description() );
 }
 
 function get_forum_description() {
 	global $forum;
-	return apply_filters('get_forum_description', $forum->forum_desc);
+	return apply_filters( 'get_forum_description', $forum->forum_desc, $forum->forum_id );
 }
 
 function forum_topics() {
 	global $forum;
-	echo apply_filters('forum_topics', $forum->topics);
+	echo apply_filters( 'forum_topics', $forum->topics, $forum->forum_id );
 }
 
 function forum_posts() {
 	global $forum;
-	echo apply_filters('forum_posts', $forum->posts);
+	echo apply_filters( 'forum_posts', $forum->posts, $forum->forum_id );
 }
 
 function forum_pages() {
 	global $forum, $page;
-	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ) );
+	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->forum_topics );
 }
 
 // TOPICS
@@ -297,11 +297,11 @@ function get_topic_id() {
 }
 
 function topic_id() {
-	echo apply_filters('topic_id', get_topic_id() );
+	echo apply_filters( 'topic_id', get_topic_id() );
 }
 
 function topic_link( $id = 0, $page = 1 ) {
-	echo apply_filters('topic_link', get_topic_link($id) );
+	echo apply_filters( 'topic_link', get_topic_link($id) );
 }
 
 function get_topic_link( $id = 0, $page = 1 ) {
@@ -325,7 +325,7 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	if ( $args )
 		$link = add_query_arg( $args, $link );
 
-	return apply_filters('get_topic_link', $link);
+	return apply_filters( 'get_topic_link', $link, $id );
 }
 
 function topic_rss_link( $id = 0 ) {
@@ -343,18 +343,18 @@ function get_topic_rss_link( $id = 0 ) {
 	else
 		$link = bb_get_option('uri') . "rss.php?topic=$topic->topic_id";
 
-	return apply_filters('get_topic_rss_link', $link);
+	return apply_filters( 'get_topic_rss_link', $link, $id );
 }
 
 function topic_title( $id = 0 ) {
-	echo apply_filters('topic_title', get_topic_title( $id ) );
+	echo apply_filters( 'topic_title', get_topic_title( $id ) );
 }
 
 function get_topic_title( $id = 0 ) {
 	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
-	return $topic->topic_title;
+	return apply_filters( 'get_topic_title', $topic->topic_title, $id );
 }
 
 function topic_posts() {
@@ -363,12 +363,12 @@ function topic_posts() {
 
 function get_topic_posts() {
 	global $topic;
-	return apply_filters( 'get_topic_posts', $topic->topic_posts );
+	return apply_filters( 'get_topic_posts', $topic->topic_posts, $topic->topic_id );
 }
 
 function get_topic_deleted_posts() {
 	global $topic;
-	return apply_filters( 'get_topic_deleted_posts', $topic->deleted_posts );
+	return apply_filters( 'get_topic_deleted_posts', $topic->deleted_posts, $topic->topic_id );
 }
 
 function topic_noreply( $title ) {
@@ -471,13 +471,13 @@ function topic_last_post_link( $id = 0 ) {
 	if ( $id )
 		$topic = get_topic( $id );
 	$page = get_page_number( $topic->topic_posts );
-	echo apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id" );
+	echo apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
 }
 
 function topic_pages() {
 	global $topic, $page;
 	$add = topic_pages_add();
-	echo apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ) );
+	echo apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ), $topic->topic_id );
 }
 
 function topic_pages_add() {
@@ -485,7 +485,7 @@ function topic_pages_add() {
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
 		$add += $topic->deleted_posts;
 	endif;
-	return apply_filters( 'topic_pages_add', $add );
+	return apply_filters( 'topic_pages_add', $add, $topic->topic_id );
 }
 
 function get_page_number_links($page, $total) {
@@ -634,7 +634,7 @@ function topic_class() {
 		$class[] = 'sticky';
 	elseif ( 2 == $topic->topic_sticky && ( is_front() || is_forum() ) )
 		$class[] = 'sticky super-sticky';
-	$class = apply_filters( 'topic_class', $class );
+	$class = apply_filters( 'topic_class', $class, $topic->topic_id );
 	$class = join(' ', $class);
 	alt_class( 'topic', $class );
 }
@@ -698,7 +698,7 @@ function post_author_link() {
 }
 
 function post_text() {
-	echo apply_filters('post_text', get_post_text() );
+	echo apply_filters( 'post_text', get_post_text() );
 }
 
 function get_post_text() {
@@ -707,12 +707,12 @@ function get_post_text() {
 }
 
 function bb_post_time() {
-	echo apply_filters('bb_post_time', bb_get_post_time() );
+	echo apply_filters( 'bb_post_time', bb_get_post_time() );
 }
 
 function bb_get_post_time() {
 	global $bb_post;
-	return apply_filters('bb_get_post_time', $bb_post->post_time);
+	return apply_filters( 'bb_get_post_time', $bb_post->post_time, $bb_post->post_id );
 }
 
 function post_date( $format ) {
@@ -731,21 +731,21 @@ function get_post_ip() {
 
 function post_ip() {
 	if ( bb_current_user_can( 'view_by_ip' ) )
-		echo apply_filters('post_ip', get_post_ip() );
+		echo apply_filters( 'post_ip', get_post_ip(), get_post_id() );
 }
 
 function post_ip_link() {
 	if ( !bb_current_user_can( 'view_by_ip' ) )
 		return;
 	$link = '<a href="' . bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip() . '">' . get_post_ip() . '</a>';
-	echo apply_filters('post_ip_link', $link );
+	echo apply_filters( 'post_ip_link', $link, get_post_id() );
 }
 
 function post_edit_link() {
 	global $bb_post;
 
 	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) )
-		echo "<a href='" . apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id() ) . "'>". __('Edit') ."</a>";
+		echo "<a href='" . apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id(), $bb_post->post_id ) . "'>". __('Edit') ."</a>";
 }
 
 function post_del_class() {
@@ -753,7 +753,7 @@ function post_del_class() {
 	switch ( $bb_post->post_status ) :
 	case 0 : return ''; break;
 	case 1 : return 'deleted'; break;
-	default: return apply_filters( 'post_del_class', $bb_post->post_status );
+	default: return apply_filters( 'post_del_class', $bb_post->post_status, $bb_post->post_id );
 	endswitch;
 }
 
@@ -766,7 +766,7 @@ function post_delete_link() {
 		$r = "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=1', 'delete-post_' . get_post_id() ) .  "' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>". __('Delete') ."</a>";
 	else
 		$r = "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) . "' onclick='return confirm(\" ". __('Are you sure you wanna undelete that?') ." \");'>". __('Undelete') ."</a>";
-	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status );
+	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
 	echo $r;
 }
 
@@ -790,7 +790,7 @@ function post_author_type() {
 
 // USERS
 function user_profile_link( $id, $page = 1 ) {
-	echo apply_filters('user_profile_link', get_user_profile_link( $id ));
+	echo apply_filters( 'user_profile_link', get_user_profile_link( $id ), $id );
 }
 
 function get_user_profile_link( $id, $page = 1 ) {
@@ -799,11 +799,11 @@ function get_user_profile_link( $id, $page = 1 ) {
 	} else {
 		$r = bb_get_option('uri') . "profile.php?id=$id" . ( 1 < $page ? "&page=$page" : '' );
 	}
-	return apply_filters('get_user_profile_link', $r);
+	return apply_filters( 'get_user_profile_link', $r, $id );
 }
 
 function profile_tab_link( $id, $tab, $page = 1 ) {
-	echo apply_filters('profile_tab_link', get_profile_tab_link( $id, $tab ));
+	echo apply_filters( 'profile_tab_link', get_profile_tab_link( $id, $tab ) );
 }
 
 function get_profile_tab_link( $id, $tab, $page = 1 ) {
@@ -816,18 +816,18 @@ function get_profile_tab_link( $id, $tab, $page = 1 ) {
 			$args['page'] = $page;
 		$r = add_query_arg( $args, get_user_profile_link( $id ) );
 	}
-	return apply_filters('get_profile_tab_link', $r);
+	return apply_filters( 'get_profile_tab_link', $r, $id );
 }
 
 function get_user_link( $user_id ) {
 	global $bbdb;
 	if ( $user_id )
 		if ( $user = bb_get_user( $user_id ) )
-			return apply_filters('get_user_link', $user->user_url, $user_id);
+			return apply_filters( 'get_user_link', $user->user_url, $user_id );
 }
 
 function user_link( $id ) {
-	echo apply_filters('user_link', get_user_link($id), $user_id );
+	echo apply_filters( 'user_link', get_user_link($id), $user_id );
 }
 
 function get_full_user_link( $id ) {
@@ -870,7 +870,7 @@ function get_user_type ( $id ) {
 }
 
 function user_type( $id ) {
-	echo apply_filters('user_type', get_user_type($id) );
+	echo apply_filters( 'user_type', get_user_type($id) );
 }
 
 function get_user_name( $id ) {
@@ -935,7 +935,7 @@ function tag_name( $id = 0 ) {
 }
 
 function tag_rss_link( $id = 0 ) {
-	echo apply_filters('tag_rss_link', get_tag_rss_link($id) );
+	echo apply_filters( 'tag_rss_link', get_tag_rss_link($id), $id );
 }
 
 function get_tag_rss_link( $tag_id = 0 ) {
@@ -948,7 +948,7 @@ function get_tag_rss_link( $tag_id = 0 ) {
 	else
 		$link = bb_get_option('uri') . "rss.php?tag=$tag->tag";
 
-	return apply_filters('get_tag_rss_link', $link);
+	return apply_filters( 'get_tag_rss_link', $link, $tag_id );
 }
 
 function tag_form() {
@@ -1051,14 +1051,14 @@ function forum_dropdown() {
 
 //FAVORITES
 function favorites_link( $user_id = 0 ) {
-	echo apply_filters('favorites_link', get_favorites_link( $user_id ));
+	echo apply_filters( 'favorites_link', get_favorites_link( $user_id ) );
 }
 
 function get_favorites_link( $user_id = 0 ) {
 	global $bb_current_user;
 	if ( !$user_id )
 		$user_id = $bb_current_user->ID;
-	return apply_filters('get_favorites_link', get_profile_tab_link($user_id, 'favorites'));
+	return apply_filters( 'get_favorites_link', get_profile_tab_link($user_id, 'favorites'), $user_id );
 }
 
 function user_favorites_link($add = array('mid' => 'Add this topic to your favorites', 'post' => ' (%?%)'), $rem = array( 'pre' => 'This topic is one of your %favorites% [', 'mid' => 'x', 'post' => ']'), $user_id = 0) {
@@ -1106,7 +1106,7 @@ function get_favorites_rss_link( $id = 0 ) {
 	else
 		$link = bb_get_option('uri') . "rss.php?profile=$user->ID";
 
-	return apply_filters('get_favorites_rss_link', $link);
+	return apply_filters( 'get_favorites_rss_link', $link, $user_id );
 }
 
 //VIEWS
@@ -1130,6 +1130,6 @@ function get_view_link( $view, $page = 1 ) {
 	else
 		$link = bb_get_option('uri') . "view.php?view=$view" . ( 1 < $page ? "&page=$page" : '');
 
-	return apply_filters('get_view_link', $link);
+	return apply_filters( 'get_view_link', $link, $view, $page );
 }
 ?>
