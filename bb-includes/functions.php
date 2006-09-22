@@ -99,14 +99,26 @@ function no_where( $where ) {
 	return;
 }
 
-function get_latest_posts( $limit, $page = 1 ) {
+function get_latest_posts( $limit = 0, $page = 1 ) {
 	global $bbdb;
 	$limit = (int) $limit;
 	if ( !$limit )
-		$limit = bb_get_option('page_topics');
+		$limit = bb_get_option( 'page_topics' );
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters('get_latest_posts_where', 'WHERE post_status = 0');
+	$where = apply_filters( 'get_latest_posts_where', 'WHERE post_status = 0' );
+	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+}
+
+function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
+	global $bbdb;
+	$limit = (int) $limit;
+	$forum_id = (int) $forum_id;
+	if ( !$limit )
+		$limit = bb_get_option( 'page_topics' );
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
+	$where = apply_filters('get_latest_forum_posts_where', "WHERE forum_id = '$forum_id' AND post_status = 0");
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
 }
 

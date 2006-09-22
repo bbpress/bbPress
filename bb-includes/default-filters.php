@@ -35,6 +35,7 @@ add_filter('get_user_link', 'bb_fix_link');
 add_filter('bb_post_time', 'bb_offset_time');
 
 add_filter('topic_rss_link', 'bb_make_feed');
+add_filter('forum_rss_link', 'bb_make_feed');
 add_filter('tag_rss_link', 'bb_make_feed');
 add_filter('favorites_rss_link', 'bb_make_feed');
 

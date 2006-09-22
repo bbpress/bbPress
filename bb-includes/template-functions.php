@@ -210,9 +210,11 @@ function bb_feed_head() {
 	global $tag;
 	$feed_link = '';
 	if ( is_topic() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Thread: ' . wp_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Topic: ' . wp_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
 	elseif ( is_tag() && $tag )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Tag: ' . wp_specialchars( get_tag_name(), 1 ) . '" href="' . get_tag_rss_link() . '" />';
+	elseif ( is_forum() )
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Forum: ' . wp_specialchars( get_forum_name(), 1) . '" href="' . get_forum_rss_link() . '" />';
 	elseif ( is_front() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Recent Posts" href="' . get_recent_rss_link() . '" />';
 	echo apply_filters('bb_feed_head', $feed_link);
@@ -254,15 +256,20 @@ function get_forum_link( $id = 0, $page = 1 ) {
 function forum_name() {
 	echo apply_filters( 'forum_name', get_forum_name() );
 }
+
 function get_forum_id() {
 	global $forum;
 	return $forum->forum_id;
 }
+
 function forum_id() {
 	echo apply_filters( 'forum_id', get_forum_id() );
 }
-function get_forum_name() {
+
+function get_forum_name( $forum_id = 0 ) {
 	global $forum;
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
 	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
 }
 
@@ -288,6 +295,24 @@ function forum_posts() {
 function forum_pages() {
 	global $forum, $page;
 	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->forum_topics );
+}
+
+function forum_rss_link( $forum_id = 0 ) {
+	echo apply_filters('forum_rss_link', get_forum_rss_link( $forum_id ) );
+}
+
+function get_forum_rss_link( $forum_id = 0 ) {
+	global $forum;
+
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
+
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . "rss/forum/$forum->forum_id";
+	else
+		$link = bb_get_option('uri') . "rss.php?forum=$forum->forum_id";
+
+	return apply_filters( 'get_forum_rss_link', $link, $forum_id );
 }
 
 // TOPICS
