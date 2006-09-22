@@ -1142,8 +1142,8 @@ function view_name() {
 }
 
 function view_pages() {
-	global $page;
-	echo apply_filters( 'view_pages', get_page_number_links( $page, -1 ) );
+	global $page, $view_count;
+	echo apply_filters( 'view_pages', get_page_number_links( $page, $view_count ) );
 }
 
 function get_view_link( $view, $page = 1 ) {

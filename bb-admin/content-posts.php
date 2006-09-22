@@ -7,6 +7,7 @@
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'topic_link', 'make_link_view_all' );
 	$bb_posts = get_deleted_posts( $page );
+	$total = bb_count_last_query();
 ?>
 
 <h2><?php _e('Deleted Posts'); ?></h2>
@@ -15,6 +16,6 @@
 <?php bb_admin_list_posts(); ?>
 </ol>
 
-<?php $total = get_deleted_posts(0); echo get_page_number_links( $page, $total ); ?>
+<?php echo get_page_number_links( $page, $total ); ?>
 
 <?php bb_get_admin_footer(); ?>

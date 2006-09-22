@@ -140,9 +140,7 @@ function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_statu
 		$where = "topic_status = '$topic_status' AND";
 	}
 	$status = ( 0 < $status ) ? "= '$status'" : "> '0'";
-	if ( $page )
-		return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status ORDER BY post_time DESC LIMIT $limit");
-	else	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status");
+	return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status ORDER BY post_time DESC LIMIT $limit");
 }
 
 function bb_recount_list() {

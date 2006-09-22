@@ -194,11 +194,12 @@ function bb_ksd_admin_page() {
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'get_topic_link', 'make_link_view_all' );
 	$bb_posts = get_deleted_posts( $page, false, 2, false ); ?>
+	$total = bb_count_lastquery();
 <ol id="the-list">
 <?php bb_admin_list_posts(); ?>
 </ol>
 <?php
-	$total = get_deleted_posts(0, false, 2, false); echo get_page_number_links( $page, $total );
+	echo get_page_number_links( $page, $total );
 }
 
 function bb_ksd_post_delete_link($link, $post_status) {

@@ -42,7 +42,7 @@ function bb_get_post( $post_id ) {
 }
 
 function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
-	global $bbdb, $bb;
+	global $bbdb, $bb, $bb_last_countable_query;
 	$forum = (int) $forum;
 	$page = (int) $page;
 	$where = 'WHERE topic_status = 0';
@@ -52,19 +52,21 @@ function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 		$where .= " AND forum_id NOT IN ('$exclude') ";
 	if ( is_front() )
 		$where .= " AND topic_sticky <> 2 ";
-	elseif ( is_forum() )
+	elseif ( is_forum() || is_view() )
 		$where .= " AND topic_sticky = 0 ";
 	$limit = bb_get_option('page_topics');
 	$where = apply_filters('get_latest_topics_where', $where);
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit") )
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit";
+	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
 		return bb_append_meta( $topics, 'topic' );
-	else	return false;
+	else
+		return false;
 }
 
 function get_sticky_topics( $forum = 0, $display = 1 ) {
-	global $bbdb, $bb;
+	global $bbdb, $bb, $bb_last_countable_query;
 	if ( 1 != $display )
 		return false;
 	$forum = (int) $forum;
@@ -74,7 +76,8 @@ function get_sticky_topics( $forum = 0, $display = 1 ) {
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
 	$where = apply_filters('get_sticky_topics_where', $where);
-	if ( $stickies = $bbdb->get_results("SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC") )
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC";
+	if ( $stickies = $bbdb->get_results($bb_last_countable_query) )
 		return bb_append_meta( $stickies, 'topic' );	
 	else	return false;
 }
@@ -189,7 +192,7 @@ function bb_remove_user_favorite( $user_id, $topic_id ) {
 }
 
 function get_recent_user_replies( $user_id ) {
-	global $bbdb, $bb_post_cache, $page;
+	global $bbdb, $bb_post_cache, $page, $bb_last_countable_query;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
@@ -201,7 +204,8 @@ function get_recent_user_replies( $user_id ) {
 			$topics[] = $bb_post->topic_id;
 		}
 		$topic_ids = join(',', $topics);
-		$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
+		$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)";
+		$topics = $bbdb->get_results($bb_last_countable_query);
 		bb_append_meta( $topics, 'topic' );
 		return $posts;
 	else :
@@ -210,13 +214,13 @@ function get_recent_user_replies( $user_id ) {
 }
 
 function get_recent_user_threads( $user_id ) {
-	global $bbdb, $page;
+	global $bbdb, $page, $bb_last_countable_query;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = apply_filters('get_recent_user_threads_where', 'AND topic_status = 0');
-	$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id $where ORDER BY topic_start_time DESC LIMIT $limit");
-	if ( $topics )
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id $where ORDER BY topic_start_time DESC LIMIT $limit";
+	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
 		$topic = bb_append_meta( $topics, 'topic' );
 	return $topics;
 }
@@ -1161,14 +1165,15 @@ function get_tagged_topic_ids( $tag_id ) {
 }
 
 function get_tagged_topics( $tag_id, $page = 1 ) {
-	global $bbdb;
+	global $bbdb, $bb_last_countable_query;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
 	$topic_ids = join($topic_ids, ',');
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit") )
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit";
+	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
 		return bb_append_meta( $topics, 'topic' );
 	else	return false;
 }
@@ -1527,6 +1532,21 @@ function bb_explain_nonce($action) {
 	}
 
 	return apply_filters( 'bb_explain_nonce_' . $verb . '-' . $noun, __('Are you sure you want to do this?'), $matches[4] );
+}
+
+function bb_count_last_query() {
+	global $bbdb, $bb_last_countable_query;
+	if ( $bb_last_countable_query )
+		$q = $bb_last_countable_query;
+	else
+		$q = $bbdb->last_query;
+
+	if ( false === strpos($q, 'SELECT') )
+		return false;
+
+	$q = preg_replace(array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/'), array('SELECT COUNT(*) FROM', ''), $q, -1);
+	$bb_last_countable_query = '';
+	return $bbdb->get_var($q);
 }
 
 // We should just require the most recent version of WP.
