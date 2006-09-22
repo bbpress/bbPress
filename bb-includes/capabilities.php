@@ -413,7 +413,7 @@ function bb_current_user_can($capability) {
 function bb_give_user_default_role( $user ) {
 	if ( !( is_object($user) && is_a($user, 'BB_User') ) )
 		return;
-	$user->set_role('inactive');
+	$user->set_role('member');
 }
 
 ?>
