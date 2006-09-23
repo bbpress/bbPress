@@ -21,7 +21,7 @@
 	<tr valign="top" class="error">
 		<th scope="row"><?php _e('Username:'); ?></th>
 		<td><input name="user_login" type="text" value="<?php echo $user_login; ?>" /><br />
-		This username does not exist. <a href="<?php option('uri'); ?>register.php?user=<?php echo $user_login; ?>">Register it?</a></td>
+		<?php _e('This username does not exist.'); ?> <a href="<?php option('uri'); ?>register.php?user=<?php echo $user_login; ?>"><?php _e('Register it?'); ?></a></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php _e('Password:'); ?></th>

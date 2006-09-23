@@ -210,13 +210,13 @@ function bb_feed_head() {
 	global $tag;
 	$feed_link = '';
 	if ( is_topic() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Topic: ' . wp_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . __('Topic') . ': '  . wp_specialchars( get_topic_title(), 1 ) . '" href="' . get_topic_rss_link() . '" />';
 	elseif ( is_tag() && $tag )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Tag: ' . wp_specialchars( get_tag_name(), 1 ) . '" href="' . get_tag_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . __('Tag') . ': ' . wp_specialchars( get_tag_name(), 1 ) . '" href="' . get_tag_rss_link() . '" />';
 	elseif ( is_forum() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Forum: ' . wp_specialchars( get_forum_name(), 1) . '" href="' . get_forum_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . __('Forum') . ': ' . wp_specialchars( get_forum_name(), 1) . '" href="' . get_forum_rss_link() . '" />';
 	elseif ( is_front() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="Recent Posts" href="' . get_recent_rss_link() . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . __('Recent Posts') . '" href="' . get_recent_rss_link() . '" />';
 	echo apply_filters('bb_feed_head', $feed_link);
 }
 

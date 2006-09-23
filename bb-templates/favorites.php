@@ -37,7 +37,7 @@ To add topics to your list of favorites, just click the "Add to Favorites" link 
 
 <?php else : ?>
 
-<p><?php echo get_user_name( $user_id ); ?> currently has no favorites.</p>
+<p><?php echo get_user_name( $user_id ); ?> <?php _e('currently has no favorites.'); ?></p>
 
 <?php endif; endif; ?>
 

@@ -32,7 +32,7 @@
 </tr>
 <?php endforeach; endif; ?>
 </table>
-<p><a href="<?php forum_rss_link(); ?>">RSS feed for this forum</a></p>
+<p><a href="<?php forum_rss_link(); ?>"><?php _e('RSS feed for this forum'); ?></a></p>
 <div class="nav">
 <?php forum_pages(); ?>
 </div>

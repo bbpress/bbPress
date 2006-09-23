@@ -104,7 +104,7 @@ case 'update-resolution' :
 	if ( bb_resolve_topic( $topic_id, $resolved ) ) {
 		$topic->topic_resolved = $resolved;
 		ob_start();
-			echo '<li id="resolution-flipper">This topic is ';
+			echo '<li id="resolution-flipper">' . __('This topic is') . ' ';
 			topic_resolved();
 			echo '</li>';
 		$data = ob_get_contents();
