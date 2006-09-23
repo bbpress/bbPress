@@ -1,3 +1,4 @@
+<?php @require_once('../../config.php'); cache_javascript_headers(); ?>
 addLoadEvent( function() { // Posts
 	thePostList = new listMan('thread');
 	thePostList.alt = 'alt';
@@ -5,7 +6,7 @@ addLoadEvent( function() { // Posts
 } );
 
 function ajaxPostDelete(postId, postAuthor) {
-	if (!confirm('Are you sure you wanna delete this post by "' + postAuthor + '"?')) return false;
+	if (!confirm('<?php printf(__("Are you sure you wanna delete this post by \"' + %s + '\"?"), 'postAuthor'); //postAuthor should be left untranslated ?>')) return false;
 	return thePostList.ajaxDelete( 'post', postId );
 }
 
@@ -36,7 +37,7 @@ addLoadEvent( function() { // Tags
 } );
 
 function ajaxDelTag(tag, user, tagName) {
-	if ( !confirm('Are you sure you want to remove the "' + tagName + '" tag?') )
+	if ( !confirm('<?php printf(__("Are you sure you want to remove the \"' + %s + '\" tag?"), 'tagName'); ?>') )
 		return false;
 	if ( currentUserId == user )
 		return yourTagList.ajaxDelete( 'tag', tag + '_' + user );
@@ -73,9 +74,9 @@ function favLinkSetup() {
 	if ('no' == isFav)
 		return;
 	if ( 1 == isFav )
-		favoritesToggle.update('This topic is one of your <a href="' + favoritesLink + '">favorites</a> [<a href="#" onclick="return FavIt();">x</a>]');
+		favoritesToggle.update('<?php printf(__("This topic is one of your <a href=' + %s + '>favorites</a>"), 'favoritesLink'); ?> [<a href="#" onclick="return FavIt();">x</a>]');
 	else 
-		favoritesToggle.update('<a href="#" onclick="return FavIt();">Add this topic to your favorites</a> (<a href="' + favoritesLink + '">?</a>)');
+		favoritesToggle.update('<a href="#" onclick="return FavIt();"><?php _e('Add this topic to your favorites'); ?></a> (<a href="' + favoritesLink + '">?</a>)');
 }
 
 function FavIt() { return theTopicMeta.ajaxDimmer( 'favorite', 'toggle', 'is-not-favorite' ); }
