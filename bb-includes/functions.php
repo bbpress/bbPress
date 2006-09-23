@@ -325,7 +325,7 @@ function bb_get_uri_page() {
 				return $page;
 		endif;
 	return 1;
-}	
+}
 
 function post_author_cache($posts) {
 	global $bb_user_cache;
@@ -1275,8 +1275,9 @@ function bb_repermalink() {
 		$permalink = add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
 				$pretty_args = array('id', 'page', 'tag', 'tab'); // these are already specified in the path
-				foreach( $pretty_args as $arg )
-					$permalink = remove_query_arg($arg, $permalink);
+				if ( is_view() )
+					$pretty_args[] = 'view';
+				$permalink = remove_query_arg($pretty_args, $permalink);
 			}
 	}
 
@@ -1291,7 +1292,7 @@ function bb_repermalink() {
 		var_dump($check);
 		echo "</td></tr>\n<tr><td>". __('full permalink') .":</td><td>";
 		var_dump($permalink);
-		echo "</td></tr>\n<tr><td>". __('PATH_INFO') ."</td>:<td>";
+		echo "</td></tr>\n<tr><td>". __('PATH_INFO') .":</td><td>";
 		var_dump($_SERVER['PATH_INFO']);
 		echo "</td></tr>\n</table>";
 	else :
