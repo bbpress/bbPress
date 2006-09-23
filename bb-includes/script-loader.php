@@ -15,7 +15,7 @@ class BB_Scripts {
 		$this->add( 'prototype', '/' . BBINC . '/js/prototype.js', false, '1.5.0' );
 		$this->add( 'wp-ajax', '/' . BBINC . '/js/wp-ajax-js.php', array('prototype'), '2.1-beta' );
 		$this->add( 'listman', '/' . BBINC . '/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '2.1-beta' );
-		$this->add( 'topic', '/' . BBINC . '/js/topic-js.php', array('listman'), '3517' );
+		$this->add( 'topic', '/' . BBINC . '/js/topic-js.php', array('listman'), '433' );
 	}
 
 	/**
