@@ -11,7 +11,6 @@ class BB_Scripts {
 
 	function default_scripts() {
 		$this->add( 'fat', '/' . BBINC . '/js/fat.js', false, '1.0-RC1_3660' );
-		$this->add( 'sack', '/' . BBINC . '/js/tw-sack.js', false, '1.6.1' );
 		$this->add( 'prototype', '/' . BBINC . '/js/prototype.js', false, '1.5.0' );
 		$this->add( 'wp-ajax', '/' . BBINC . '/js/wp-ajax-js.php', array('prototype'), '2.1-beta' );
 		$this->add( 'listman', '/' . BBINC . '/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '2.1-beta' );
