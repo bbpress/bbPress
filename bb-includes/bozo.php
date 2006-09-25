@@ -127,7 +127,7 @@ function bozo_recount_users() {
 }
 
 function bozo_post_del_class( $status ) {
-	if ( 2 == $status && bb_current_user_can('browse_deleted') )
+	if ( 1 < $status && bb_current_user_can('browse_deleted') )
 		return 'bozo';
 }
 
@@ -159,6 +159,16 @@ function bozo_new_post( $post_id ) {
 	$bb_post = bb_get_post( $post_id );
 	if ( 1 < $bb_post->post_status )
 		bozon( $bb_post->poster_id, $bb_post->topic_id );
+	$topic = get_topic( $bb_post->topic_id );
+	if ( 0 == $topic->topic_posts )
+		bb_delete_topic( $topic->topic_id, 3 );
+}
+
+function bozo_pre_post_status( $status, $post_id, $topic_id ) {
+	if ( !$post_id && current_user_is_bozo() )
+		return 3;
+	if ( current_user_is_bozo( $topic_id ) )
+		return 3;
 }
 
 function bozo_delete_post( $post_id, $new_status, $old_status ) {
@@ -248,6 +258,7 @@ function bozo_admin_page() {
 	echo $r;
 }
 
+add_filter( 'pre_post_status', 'bozo_pre_post_status', 5, 3 );
 add_action( 'bb_new_post', 'bozo_new_post', 5 );
 add_action( 'bb_delete_post', 'bozo_delete_post', 5, 3 );
 

@@ -644,9 +644,9 @@ function topic_move_dropdown() {
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
 }
 
-function topic_class() {
+function topic_class( $class = '' ) {
 	global $topic;
-	$class = array();
+	$class = $class ? explode(' ', $class ) : array();
 	if ( '1' === $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )
 		$class[] = 'deleted';
 	elseif ( 1 < $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )

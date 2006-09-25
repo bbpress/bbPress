@@ -4,7 +4,7 @@
 
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
 <div class="infobox">
-<h2 class="topictitle<?php if ( $topic->topic_status ) echo ' deleted'; ?>"><?php topic_title(); ?></h2> <span id="topic_posts">(<?php topic_posts_link(); ?>)</span>
+<h2<?php topic_class( 'topictitle' ); ?>><?php topic_title(); ?></h2> <span id="topic_posts">(<?php topic_posts_link(); ?>)</span>
 
 <?php topic_tags(); ?>
 

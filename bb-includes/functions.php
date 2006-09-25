@@ -646,15 +646,15 @@ function bb_move_topic( $topic_id, $forum_id ) {
 
 function bb_new_post( $topic_id, $bb_post ) {
 	global $bbdb, $bb_cache, $bb_table_prefix, $bb_current_user, $thread_ids_cache;
-	$bb_post  = apply_filters('pre_post', $bb_post, false);
-	$post_status = (int) apply_filters('pre_post_status', '0', false);
-	$tid   = (int) $topic_id;
+	$topic_id   = (int) $topic_id;
+	$bb_post  = apply_filters('pre_post', $bb_post, false, $topic_id);
+	$post_status = (int) apply_filters('pre_post_status', '0', false, $topic_id);
 	$now   = bb_current_time('mysql');
 	$uid   = $bb_current_user->ID;
 	$uname = $bb_current_user->data->user_login;
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
-	$topic = get_topic( $tid );
+	$topic = get_topic( $topic_id );
 	$forum_id = $topic->forum_id;
 
 	if ( $bb_post && $topic ) {
@@ -662,24 +662,25 @@ function bb_new_post( $topic_id, $bb_post ) {
 		$bbdb->query("INSERT INTO $bbdb->posts 
 		(forum_id, topic_id, poster_id, post_text, post_time, poster_ip, post_status, post_position)
 		VALUES
-		('$forum_id', '$tid', '$uid',  '$bb_post','$now',    '$ip',    '$post_status', $topic_posts)");
+		('$forum_id', '$topic_id', '$uid',  '$bb_post','$now',    '$ip',    '$post_status', $topic_posts)");
 		$post_id = $bbdb->insert_id;
 		if ( 0 == $post_status ) {
 			$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 			$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = '$uid', topic_last_poster_name = '$uname',
-				topic_last_post_id = '$post_id', topic_posts = '$topic_posts' WHERE topic_id = '$tid'");
-			if ( isset($thread_ids_cache[$tid]) ) {
-				$thread_ids_cache[$tid]['post'][] = $post_id;
-				$thread_ids_cache[$tid]['poster'][] = $uid;
+				topic_last_post_id = '$post_id', topic_posts = '$topic_posts' WHERE topic_id = '$topic_id'");
+			if ( isset($thread_ids_cache[$topic_id]) ) {
+				$thread_ids_cache[$topic_id]['post'][] = $post_id;
+				$thread_ids_cache[$topic_id]['poster'][] = $uid;
 			}
-			$post_ids = get_thread_post_ids( $tid );
+			$post_ids = get_thread_post_ids( $topic_id );
 			if ( !in_array($uid, array_slice($post_ids['poster'], 0, -1)) )
 				bb_update_usermeta( $uid, $bb_table_prefix . 'topics_replied', $bb_current_user->data->topics_replied + 1 );
-		}
+		} else
+			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts + 1 : 1 );
 		if ( !bb_current_user_can('throttle') )
 			bb_update_usermeta( $uid, 'last_posted', time() );
-		$bb_cache->flush_one( 'topic', $tid );
-		$bb_cache->flush_many( 'thread', $tid );
+		$bb_cache->flush_one( 'topic', $topic_id );
+		$bb_cache->flush_many( 'thread', $topic_id );
 		$bb_cache->flush_many( 'forum', $forum_id );
 		do_action('bb_new_post', $post_id);
 		return $post_id;
@@ -695,7 +696,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 	$new_status = (int) $new_status;
 	$old_status = (int) $bb_post->post_status;
 	$topic   = get_topic( $bb_post->topic_id );
-	$tid = (int) $topic->topic_id;
+	$topic_id = (int) $topic->topic_id;
 
 	if ( $bb_post ) {
 		$uid = (int) $bb_post->poster_id;
@@ -703,36 +704,36 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 			return;
 		_bb_delete_post( $post_id, $new_status );
 		if ( 0 == $old_status ) {
-			bb_update_topicmeta( $tid, 'deleted_posts', $topic->deleted_posts + 1 );
+			bb_update_topicmeta( $topic_id, 'deleted_posts', $topic->deleted_posts + 1 );
 			$bbdb->query("UPDATE $bbdb->forums SET posts = posts - 1 WHERE forum_id = $topic->forum_id");
 		} else if ( 0 == $new_status ) {
-			bb_update_topicmeta( $tid, 'deleted_posts', $topic->deleted_posts - 1 );
+			bb_update_topicmeta( $topic_id, 'deleted_posts', $topic->deleted_posts - 1 );
 			$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		}
-		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $tid AND post_status = 0");
-		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $tid");
+		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $topic_id");
 
-		if ( isset($thread_ids_cache[$tid]) && false !== $pos = array_search($post_id, $thread_ids_cache[$tid]['post']) ) {
-			array_splice($thread_ids_cache[$tid]['post'], $pos, 1);
-			array_splice($thread_ids_cache[$tid]['poster'], $pos, 1);
+		if ( isset($thread_ids_cache[$topic_id]) && false !== $pos = array_search($post_id, $thread_ids_cache[$topic_id]['post']) ) {
+			array_splice($thread_ids_cache[$topic_id]['post'], $pos, 1);
+			array_splice($thread_ids_cache[$topic_id]['poster'], $pos, 1);
 		}
-		$post_ids = get_thread_post_ids( $tid );
+		$post_ids = get_thread_post_ids( $topic_id );
 
 		if ( 0 == $posts && 0 == $topic->topic_status ) {
-			bb_delete_topic( $tid, $new_status );
+			bb_delete_topic( $topic_id, $new_status );
 		} else if ( 0 != $posts ) {
 			if ( 0 != $topic->topic_status ) {
-				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0 WHERE topic_id = $tid");
+				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0 WHERE topic_id = $topic_id");
 				$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $topic->forum_id");
 			}
-			bb_topic_set_last_post( $tid );
-			update_post_positions( $tid );
+			bb_topic_set_last_post( $topic_id );
+			update_post_positions( $topic_id );
 		}
 		$user = bb_get_user( $uid );
 		if ( $new_status && ( !is_array($post_ids['poster']) || !in_array($user->ID, $post_ids['poster']) ) )
 			bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', $user->topics_replied - 1 );
-		$bb_cache->flush_one( 'topic', $tid );
-		$bb_cache->flush_many( 'thread', $tid );
+		$bb_cache->flush_one( 'topic', $topic_id );
+		$bb_cache->flush_many( 'thread', $topic_id );
 		$bb_cache->flush_many( 'forum', $forum_id );
 		do_action( 'bb_delete_post', $post_id, $new_status, $old_status );
 		return $post_id;
@@ -817,8 +818,8 @@ function bb_update_post( $bb_post, $post_id, $topic_id ) {
 	$post_id  = (int) $post_id;
 	$topic_id = (int) $topic_id;
 	$old_post = bb_get_post( $post_id );
-	$bb_post  = apply_filters( 'pre_post', $bb_post, $post_id );
-	$post_status = (int) apply_filters( 'pre_post_status', $old_post->post_status, $post_id );
+	$bb_post  = apply_filters( 'pre_post', $bb_post, $post_id, $topic_id );
+	$post_status = (int) apply_filters( 'pre_post_status', $old_post->post_status, $post_id, $topic_id );
 
 	if ( $post_id && $bb_post ) {
 		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$bb_post', post_status = '$post_status' WHERE post_id = $post_id");
