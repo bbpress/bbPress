@@ -161,14 +161,14 @@ function bozo_new_post( $post_id ) {
 		bozon( $bb_post->poster_id, $bb_post->topic_id );
 	$topic = get_topic( $bb_post->topic_id );
 	if ( 0 == $topic->topic_posts )
-		bb_delete_topic( $topic->topic_id, 3 );
+		bb_delete_topic( $topic->topic_id, 2 );
 }
 
 function bozo_pre_post_status( $status, $post_id, $topic_id ) {
 	if ( !$post_id && current_user_is_bozo() )
-		return 3;
+		return 2;
 	if ( current_user_is_bozo( $topic_id ) )
-		return 3;
+		return 2;
 }
 
 function bozo_delete_post( $post_id, $new_status, $old_status ) {
