@@ -51,16 +51,18 @@ Object.extend(listMan.prototype, {
 					if ( tempObj.showLink )
 						tempObj.showLink = id;
 				});
+				ajaxAdd.myResponseElement.update(tempObj.showLink ? ( "<div id='jumplink' class='updated fade'><p><a href='#" + what + '-' + tempObj.showLink + "'><?php _e('Jump to new item'); ?></a></p></div>" ) : '');
 			}
-			ajaxAdd.myResponseElement.update(tempObj.showLink ? ( "<div id='jumplink' class='updated fade'><p><a href='#" + what + '-' + tempObj.showLink + "'><?php _e('Jump to new item'); ?></a></p></div>" ) : '');
 			if ( tempObj.addComplete && typeof tempObj.addComplete == 'function' )
 				tempObj.addComplete( what, where, update, transport );
 			tempObj.recolorList();
 			ajaxAdd.restoreInputs = null;
 		});
-		ajaxAdd.addOnWPError( function(transport) { tempObj.restoreForm(ajaxAdd.restoreInputs); });
+		if ( !update )
+			ajaxAdd.addOnWPError( function(transport) { tempObj.restoreForm(ajaxAdd.restoreInputs); });
 		ajaxAdd.request(ajaxAdd.url);
-		this.clear();
+		if ( !update )
+			this.clear();
 		return false;
 	},
 
