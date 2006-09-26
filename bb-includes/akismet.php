@@ -193,8 +193,9 @@ function bb_ksd_admin_page() {
 		die(__("Now how'd you get here?  And what did you think you'd being doing?"));
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'get_topic_link', 'make_link_view_all' );
-	$bb_posts = get_deleted_posts( $page, false, 2, false ); ?>
-	$total = bb_count_lastquery();
+	$bb_posts = get_deleted_posts( $page, false, 2, false );
+	$total = bb_count_last_query();
+ ?>
 <ol id="the-list">
 <?php bb_admin_list_posts(); ?>
 </ol>
