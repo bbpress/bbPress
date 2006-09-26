@@ -390,7 +390,7 @@ function bb_cache_users( $ids, $soft_cache = true ) {
 function bb_get_user_by_name( $name ) {
 	global $bbdb;
 	$name    = user_sanitize( $name );
-	$user_id =  $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_login = '$name'");
+	$user_id = $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_login = '$name'");
 	return bb_get_user( $user_id );
 }
 

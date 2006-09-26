@@ -102,16 +102,30 @@ function bb_rel_nofollow( $text ) {
 	return $text;
 }
 
-function user_sanitize( $text ) {
-    $text = preg_replace('/[^a-z0-9_-]/i', '', $text);
+function user_sanitize( $text, $strict = false ) {
+	if ( $strict ) {
+		$text = preg_replace('/[^a-z0-9-]/i', '', $text);
+		$text = preg_replace('|-+|', '-', $text);
+	} else
+		$text = preg_replace('/[^a-z0-9_-]/i', '', $text); // For backward compatibility.
 	return $text;
 }
 
 function tag_sanitize( $tag ) {
-	$tag	= trim         ( $tag );
-	$tag	= strtolower   ( $tag );
-	$tag	= user_sanitize( $tag );
-	return $tag;
+	return sanitize_with_dashes( $tag );
+}
+
+function sanitize_with_dashes( $text ) {
+	$text = strip_tags($text);
+	$text = remove_accents($text);
+
+	$text = strtolower($text);
+	$text = preg_replace('/&.+?;/', '', $text); // kill entities
+	$text = preg_replace('/[^a-z0-9 _-]/', '', $text);
+	$text = preg_replace('/\s+/', '-', $text);
+	$text = preg_replace(array('|-+|', '|_+|'), array('-', '_'), $text); // Kill the repeats
+
+	return $text;
 }
 
 function show_context( $term, $text ) {

@@ -8,7 +8,7 @@ $profile_info_keys = get_profile_info_keys();
 $user_login = $user_safe = true;
 
 if ($_POST) :
-	$user_login = user_sanitize  ( $_POST['user_login'] );
+	$user_login = user_sanitize  ( $_POST['user_login'], true );
 	$user_email = bb_verify_email( $_POST['user_email'] );
 	$user_url   = bb_fix_link( $_POST['user_url'] );
 
@@ -39,7 +39,7 @@ if ($_POST) :
 endif;
 
 if ( isset( $_GET['user'] ) )
-	$user_login = user_sanitize( $_GET['user'] ) ;
+	$user_login = user_sanitize( $_GET['user'], true ) ;
 elseif ( isset( $_POST['user_login'] ) && !is_string($user_login) )
 	$user_login = '';
 
