@@ -91,11 +91,13 @@ function bb_admin_menu() {
 	echo $r;
 }
 
-function bb_get_admin_tab_link( $m ) {
-	if ( strpos($m[2], '.php') !== false )
-		return $m[2];
+function bb_get_admin_tab_link( $tab ) {
+	if ( is_array($tab) )
+		$tab = $tab[2];
+	if ( strpos($tab, '.php') !== false )
+		return $tab;
 	else
-		return 'admin-base.php?plugin=' . $m[2];
+		return 'admin-base.php?plugin=' . $tab;
 }
 
 function get_recently_moderated_objects( $num = 5 ) {
@@ -248,13 +250,15 @@ class BB_User_Search {
 	}
 
 	function do_paging() {
+		global $bb_current_submenu;
 		if ( $this->total_users_for_query > $this->users_per_page ) { // have to page the results
+		$pagenow = bb_get_admin_tab_link($bb_current_submenu);
 			$this->paging_text = paginate_links( array(
 				'total' => ceil($this->total_users_for_query / $this->users_per_page),
 				'current' => $this->page,
 				'prev_text' => '&laquo; Previous Page',
 				'next_text' => 'Next Page &raquo;',
-				'base' => 'users.php?%_%',
+				'base' => $pagenow . ( false === strpos($pagenow, '?') ? '?%_%' : '&amp;%_%' ),
 				'format' => 'userspage=%#%',
 				'add_args' => array( 'usersearch' => urlencode($this->search_term) )
 			) );
@@ -323,7 +327,7 @@ class BB_User_Search {
 			$r .= '<h3>' . sprintf(__('%1$s &#8211; %2$s of %3$s shown below'), $this->first_user + 1, min($this->first_user + $this->users_per_page, $this->total_users_for_query), $this->total_users_for_query) . "</h3>\n";
 
 			if ( $this->results_are_paged() )
-				$r .= "<div class='user-paging-text'>\n" . $this->page_links() . "</div>\n\n";
+				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
 
 			$r .= "<table class='widefat'>\n";
 			foreach($roleclasses as $role => $roleclass) {
@@ -351,7 +355,7 @@ class BB_User_Search {
 			$r .= "</table>\n\n";
 
 		 	if ( $this->results_are_paged() )
-				$r .= "<div class='user-paging-text'>\n" . $this->page_links() . "</div>\n\n";
+				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
 		}
 		echo $r;
 	}

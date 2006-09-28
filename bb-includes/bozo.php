@@ -258,7 +258,7 @@ function bozo_admin_page() {
 
 		function query() {
 			global $bbdb;
-			$this->results = get_bozos( $page );
+			$this->results = get_bozos( $this->page );
 
 			if ( $this->results )
 				$this->total_users_for_query = bb_count_last_query();
