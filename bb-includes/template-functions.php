@@ -517,50 +517,106 @@ function get_page_number_links($page, $total) {
 	$r = '';
 	$args = array();
 	$uri = $_SERVER['REQUEST_URI'];
-	if ( 1 == $page && bb_get_option('mod_rewrite') ) :
-		if ( false === $pos = strpos($uri, '?') )
-			$uri = $uri . '/page/1';
-		else	$uri = substr_replace($uri, '/page/1', $pos, 0);
+	if ( bb_get_option('mod_rewrite') ) :
+		if ( 1 == $page ) :
+			if ( false === $pos = strpos($uri, '?') )
+				$uri = $uri . '%_%';
+			else
+				$uri = substr_replace($uri, '%_%', $pos, 0);
+		else :
+			$uri = preg_replace('|/page/[0-9]+|', '%_%', $uri);
+		endif;
+	else : 
+		$uri = add_query_arg( 'page', '%_%', $uri );
 	endif;
+		
 	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
 		$args['view'] = $_GET['view'];
-	if ( 1 < $page ) {
-		if ( !bb_get_option('mod_rewrite') )
-			$args['page'] = ( 1 == $page - 1 ) ? '' : $page - 1;
-		$r .=  '<a class="prev" href="' . wp_specialchars( add_query_arg(
-								$args,
-								str_replace("/page/$page", ( 2 == $page ? '' : '/page/' . ($page - 1) ), $uri)
-								) ) . '">&laquo; '. __('Previous Page') .'</a>' . "\n";
-	}
-	if ( ( $total_pages = ceil( $total / bb_get_option('page_topics') ) ) > 1 ) {
-		for ( $page_num = 1; $page_num <= $total_pages; $page_num++ ) :
-			if ( $page == $page_num ) :
-				$r .=  "<span>$page_num</span>\n";
-			else :
-				$p = false;
-				if ( $page_num < 3 || ( $page_num >= $page - 3 && $page_num <= $page + 3 ) || $page_num > $total_pages - 3 ) :
-					if ( !bb_get_option('mod_rewrite') )
-						$args['page'] = ( 1 == $page_num ) ? '' : $page_num;
-					$r .= '<a class="page-numbers" href="' . wp_specialchars( add_query_arg(
-								$args,
-								str_replace("/page/$page", ( 1 == $page_num ? '' : '/page/' . $page_num ), $uri)
-								) ) . '">' . ( $page_num ) . "</a>\n";
-					$in = true;
-				elseif ( $in == true ) :
-					$r .= "...\n";
-					$in = false;
-				endif;
+
+	return paginate_links( array(
+		'base' => $uri,
+		'format' => bb_get_option('mod_rewrite') ? '/page/%#%' : '%#%',
+		'total' => ceil($total/bb_get_option('page_topics')),
+		'current' => $page,
+		'add_args' => $args
+	) );
+}
+
+function paginate_links( $arg = '' ) {
+	if ( is_array($arg) )
+		$a = &$arg;
+	else
+		parse_str($arg, $a);
+
+	// Defaults
+	$base = '%_%'; // http://example.com/all_posts.php%_% : %_% is replaced by format (below)
+	$format = '?page=%#%'; // ?page=%#% : %#% is replaced by the page number
+	$total = 1;
+	$current = 0;
+	$show_all = false;
+	$prev_next = true;
+	$prev_text = __('&laquo; Previous');
+	$next_text = __('Next &raquo;');
+	$end_size = 1; // How many numbers on either end including the end
+	$mid_size = 2; // How many numbers to either side of current not including current
+	$type = 'plain';
+	$add_args = false; // array of query args to aadd
+
+	extract($a);
+
+	// Who knows what else people pass in $args
+	$total    = (int) $total;
+	$current  = (int) $current;
+	$end_size = 0  < (int) $end_size ? (int) $end_size : 1; // Out of bounds?  Make it the default.
+	$mid_size = 0 <= (int) $mid_size ? (int) $mid_size : 2;
+	$add_args = is_array($add_args) ? $add_args : false;
+	$r = '';
+	$page_links = array();
+	$n = 0;
+	$dots = false;
+
+	if ( $prev_next && $current && 1 < $current ) :
+		$link = str_replace('%_%', 2 == $current ? '' : str_replace('%#%', $current - 1, $format), $base);
+		if ( $add_args )
+			$link = add_query_arg( $add_args, $link );
+		$page_links[] = "<a class='prev page-numbers' href='" . wp_specialchars( $link, 1 ) . "'>$prev_text</a>";
+	endif;
+	for ( $n = 1; $n <= $total; $n++ ) :
+		if ( $n == $current ) :
+			$page_links[] = "<span class='page-numbers current'>$n</span>";
+			$dots = true;
+		else :
+			if ( $show_all || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) :
+				$link = str_replace('%_%', 1 == $n ? '' : str_replace('%#%', $n, $format), $base);
+				if ( $add_args )
+					$link = add_query_arg( $add_args, $link );
+				$page_links[] = "<a class='page-numbers' href='" . wp_specialchars( $link, 1 ) . "'>$n</a>";
+				$dots = true;
+			elseif ( $dots && !$show_all ) :
+				$page_links[] = "<span class='page-numbers dots'>...</span>";
+				$dots = false;
 			endif;
-		endfor;
-	}
-	if ( ( $page ) * bb_get_option('page_topics') < $total || -1 == $total ) {
-		if ( !bb_get_option('mod_rewrite') )
-			$args['page'] = $page + 1;
-		$r .=  '<a class="next" href="' . wp_specialchars( add_query_arg(
-								$args,
-								str_replace("/page/$page", '/page/' . ($page + 1), $uri)
-								) ) . '">'. __('Next Page') .' &raquo;</a>' . "\n";
-	}
+		endif;
+	endfor;
+	if ( $prev_next && $current && ( $current < $total || -1 == $total ) ) :
+		$link = str_replace('%_%', str_replace('%#%', $current + 1, $format), $base);
+		if ( $add_args )
+			$link = add_query_arg( $add_args, $link );
+		$page_links[] = "<a class='next page-numbers' href='" . wp_specialchars( $link, 1 ) . "'>$next_text</a>";
+	endif;
+	switch ( $type ) :
+		case 'array' :
+			return $page_links;
+			break;
+		case 'list' :
+			$r .= "<ul class='page-numbers'>\n\t<li>";
+			$r .= join("</li>\n\t<li>", $page_links);
+			$r .= "</li>\n</ul>\n";
+			break;
+		default :
+			$r = join("\n", $page_links);
+			break;
+	endswitch;
 	return $r;
 }
 

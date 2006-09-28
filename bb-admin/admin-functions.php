@@ -174,4 +174,14 @@ function bb_admin_list_posts() {
 	</li><?php endforeach; endif;
 }
 
+function bb_user_row( $user_id, $role = '' ) {
+	$user = bb_get_user( $user_id );
+	$r  = "<tr id='user-$user_id'" . get_alt_class("user-$role") . ">\n";
+	$r .= "\t<td>$user_id</td>\n";
+	$r .= "\t<td><a href='" . get_user_profile_link( $user_id ) . "'>" . get_user_name( $user_id ) . "</a></td>\n";
+	$r .= "\t<td>$user->user_registered</td>\n";
+	$r .= "\t<td><a href='" . get_profile_tab_link( $user_id, 'edit' ) . "'>Edit</a></td>\n";
+	return $r;
+}
+
 ?>
