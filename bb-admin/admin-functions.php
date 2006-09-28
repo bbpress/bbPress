@@ -111,11 +111,16 @@ function get_recently_moderated_objects( $num = 5 ) {
 	return array_slice($objects, 0, $num);
 }
 
-function get_ids_by_role( $role = 'moderator', $sort = 0 ) {
-	global $bbdb, $bb_table_prefix;
+function get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
+	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
 	$key = $bb_table_prefix . 'capabilities';
-	if ( $ids = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND meta_value LIKE '%$role%' ORDER BY user_id $sort") )
+	if ( is_array($role) )
+		$and_where = "( meta_value LIKE '%" . join("%' OR meta_value LIKE '%", $role) . "%' )";
+	else
+		$and_where = "meta_value LIKE'%$role%'";
+	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort" . $limit_str;
+	if ( $ids = (array) $bbdb->get_col($bb_last_countable_query) )
 		bb_cache_users( $ids );
 	return $ids;
 }
@@ -174,14 +179,217 @@ function bb_admin_list_posts() {
 	</li><?php endforeach; endif;
 }
 
-function bb_user_row( $user_id, $role = '' ) {
+function bb_user_row( $user_id, $role = '', $email = false ) {
 	$user = bb_get_user( $user_id );
-	$r  = "<tr id='user-$user_id'" . get_alt_class("user-$role") . ">\n";
-	$r .= "\t<td>$user_id</td>\n";
-	$r .= "\t<td><a href='" . get_user_profile_link( $user_id ) . "'>" . get_user_name( $user_id ) . "</a></td>\n";
-	$r .= "\t<td>$user->user_registered</td>\n";
-	$r .= "\t<td><a href='" . get_profile_tab_link( $user_id, 'edit' ) . "'>Edit</a></td>\n";
+	$r  = "\t<tr id='user-$user_id'" . get_alt_class("user-$role") . ">\n";
+	$r .= "\t\t<td>$user_id</td>\n";
+	$r .= "\t\t<td><a href='" . get_user_profile_link( $user_id ) . "'>" . get_user_name( $user_id ) . "</a></td>\n";
+	if ( $email )
+		$r .= "\t\t<td><a href='mailto:$user->user_email'>$user->user_email</a></td>\n";
+	$r .= "\t\t<td>$user->user_registered</td>\n";
+	$r .= "\t\t<td><a href='" . get_profile_tab_link( $user_id, 'edit' ) . "'>Edit</a></td>\n\t</tr>";
 	return $r;
 }
 
+// BB_User_Search class
+// by Mark Jaquith
+
+class BB_User_Search {
+	var $results;
+	var $search_term;
+	var $page;
+	var $raw_page;
+	var $users_per_page = 50;
+	var $first_user;
+	var $last_user;
+	var $query_limit;
+	var $query_from_where;
+	var $total_users_for_query = 0;
+	var $search_errors;
+
+	function BB_User_Search ($search_term = '', $page = '') { // constructor
+		$this->search_term = $search_term;
+		$this->raw_page = ( '' == $page ) ? false : (int) $page;
+		$this->page = (int) ( '' == $page ) ? 1 : $page;
+
+		$this->prepare_query();
+		$this->query();
+		$this->prepare_vars_for_template_usage();
+		$this->do_paging();
+	}
+
+	function prepare_query() {
+		global $bbdb;
+		$this->first_user = ($this->page - 1) * $this->users_per_page;
+		$this->query_limit = 'LIMIT ' . $this->first_user . ',' . $this->users_per_page;
+		if ( $this->search_term ) {
+			$searches = array();
+			$search_sql = 'AND (';
+			foreach ( array('user_login', 'user_nicename', 'user_email', 'user_url', 'display_name') as $col )
+				$searches[] = $col . " LIKE '%$this->search_term%'";
+			$search_sql .= implode(' OR ', $searches);
+			$search_sql .= ')';
+		}
+		$this->query_from_where = "FROM $bbdb->users WHERE 1=1 $search_sql";
+	}
+
+	function query() {
+		global $bbdb;
+		$this->results = $bbdb->get_col('SELECT ID ' . $this->query_from_where . $this->query_limit);
+
+		if ( $this->results )
+			$this->total_users_for_query = $bbdb->get_var('SELECT COUNT(ID) ' . $this->query_from_where); // no limit
+		else
+			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+	}
+
+	function prepare_vars_for_template_usage() {
+		$this->search_term = stripslashes($this->search_term); // done with DB, from now on we want slashes gone
+	}
+
+	function do_paging() {
+		if ( $this->total_users_for_query > $this->users_per_page ) { // have to page the results
+			$this->paging_text = paginate_links( array(
+				'total' => ceil($this->total_users_for_query / $this->users_per_page),
+				'current' => $this->page,
+				'prev_text' => '&laquo; Previous Page',
+				'next_text' => 'Next Page &raquo;',
+				'base' => 'users.php?%_%',
+				'format' => 'userspage=%#%',
+				'add_args' => array( 'usersearch' => urlencode($this->search_term) )
+			) );
+		}
+	}
+
+	function get_results() {
+		return (array) $this->results;
+	}
+
+	function page_links() {
+		echo $this->paging_text;
+	}
+
+	function results_are_paged() {
+		if ( $this->paging_text )
+			return true;
+		return false;
+	}
+
+	function is_search() {
+		if ( $this->search_term )
+			return true;
+		return false;
+	}
+
+	function display( $show_search = true, $show_email = false ) {
+		global $bb_roles;
+		$r = '';
+		// Make the user objects
+		foreach ( $this->get_results() as $user_id ) {
+			$tmp_user = new BB_User($user_id);
+			$roles = $tmp_user->roles;
+			$role = array_shift($roles);
+			$roleclasses[$role][$tmp_user->data->user_login] = $tmp_user;
+		}
+
+		if ( isset($this->title) )
+			$title = $this->title;
+		elseif ( $this->is_search() )
+			$title = sprintf(__('Users Matching "%s" by Role'), wp_specialchars( $this->search_term ));
+		else
+			$title = __('User List by Role');
+		$r .= "<h2>$title</h2>\n";
+
+		if ( $show_search ) {
+			$r .= "<form action='' method='get' name='search' id='search'>\n\t<p>";
+			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . wp_specialchars( $this->search_term, 1) . "' />\n";
+			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
+			$r .= "</form>\n\n";
+		}
+
+		if ( is_wp_error( $this->search_errors ) ) {
+			$r .= "<div class='error'>\n";
+			$r .= "\t<ul>\n";
+			foreach ( $this->search_errors->get_error_messages() as $message )
+				$r .= "<\t\tli>$message</li>\n";
+			$r .= "\t</ul>\n</div>\n\n";
+		}
+
+		if ( $this->get_results() ) {
+			$colspan = $show_email ? 5 : 4;
+			if ( $this->is_search() )
+				$r .= "<p>\n\t<a href='users.php'>" . __('&laquo; Back to All Users') . "</a>\n</p>\n\n";
+
+			$r .= '<h3>' . sprintf(__('%1$s &#8211; %2$s of %3$s shown below'), $this->first_user + 1, min($this->first_user + $this->users_per_page, $this->total_users_for_query), $this->total_users_for_query) . "</h3>\n";
+
+			if ( $this->results_are_paged() )
+				$r .= "<div class='user-paging-text'>\n" . $this->page_links() . "</div>\n\n";
+
+			$r .= "<table class='widefat'>\n";
+			foreach($roleclasses as $role => $roleclass) {
+				ksort($roleclass);
+				$r .= "\t<tr>\n";
+				if ( !empty($role) )
+					$r .= "\t\t<th colspan='$colspan'><h3>{$bb_roles->role_names[$role]}</h3></th>\n";
+				else
+					$r .= "\t\t<th colspan='$colspan'><h3><em>" . __('No role for this blog') . "</h3></th>\n";
+				$r .= "\t</tr>\n";
+				$r .= "\t<tr class='thead'>\n";
+				$r .= "\t\t<th>" . __('ID') . "</th>\n";
+				$r .= "\t\t<th>" . __('Username') . "</th>\n";
+				if ( $show_email )
+					$r .= "\t\t<th>" . __('Email') . "</th>\n";
+				$r .= "\t\t<th>" . __('Registered Since') . "</th>\n";
+				$r .= "\t\t<th>" . __('Actions') . "</th>\n";
+				$r .= "\t</tr>\n\n";
+
+				$r .= "<tbody id='role-$role'>\n";
+				foreach ( (array) $roleclass as $user_object )
+				$r .= bb_user_row($user_object->ID, $role, $show_email);
+				$r .= "</tbody>\n";
+			}
+			$r .= "</table>\n\n";
+
+		 	if ( $this->results_are_paged() )
+				$r .= "<div class='user-paging-text'>\n" . $this->page_links() . "</div>\n\n";
+		}
+		echo $r;
+	}
+
+}
+
+class BB_Users_By_Role extends BB_User_Search {
+	var $role = '';
+	var $title = '';
+
+	function BB_Users_By_Role($role = '', $page = '') { // constructor
+		$this->role = $role ? $role : 'member';
+		$this->raw_page = ( '' == $page ) ? false : (int) $page;
+		$this->page = (int) ( '' == $page ) ? 1 : $page;
+
+		$this->prepare_query();
+		$this->query();
+		$this->do_paging();
+	}
+
+	function prepare_query() {
+		$this->first_user = ($this->page - 1) * $this->users_per_page;
+		$this->query_limit = ' LIMIT ' . $this->first_user . ',' . $this->users_per_page;
+	}
+
+	function query() {
+		global $bbdb;
+		$this->results = get_ids_by_role( $this->role, 0, $this->query_limit );
+
+		if ( $this->results )
+			$this->total_users_for_query = bb_count_last_query();
+		else
+			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+	}
+
+	function display() {
+		parent::display( false, true );
+	}
+
+}
 ?>

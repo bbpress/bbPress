@@ -1,27 +1,11 @@
-<?php require_once('admin.php'); ?>
+<?php
+require_once('admin.php');
+bb_get_admin_header();
 
-<?php bb_get_admin_header(); ?>
+// Query the users
+$bb_blocked_users = new BB_Users_By_Role( array('inactive', 'blocked'), $_GET['userspage'] );
+$bb_blocked_users->title = __('These users have been blocked by the forum administrators');
+$bb_blocked_users->display();
 
-<h2><?php _e('Deactivated Users'); ?></h2>
-<?php if ( $ids = get_ids_by_role( 'inactive', 1 ) ) : ?>
-<ul class="users">
-<?php foreach ( $ids as $id ) : $user = bb_get_user( $id ) ;?>
- <li<?php alt_class('ina'); ?>><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>"><?php _e('profile'); ?></a>] <?php printf(__('registered %s ago'), bb_since(strtotime($user->user_registered))) ?> </li>
-<?php endforeach; ?>
-</ul>
-<?php else: ?>
-<p><?php _e('There are no inactive users.'); ?></p>
-<?php endif; ?>
-
-<h2><?php _e('Blocked Users'); ?></h2>
-<?php if ( $ids = get_ids_by_role( 'blocked', 1 ) ) : ?>
-<ul class="users">
-<?php foreach ( $ids as $id ) : $user = bb_get_user( $id ) ;?>
- <li<?php alt_class('blo'); ?>><?php full_user_link( $id ); ?> [<a href="<?php user_profile_link( $id ); ?>"><?php _e('profile'); ?></a>] <?php printf(__('registered %s ago'), bb_since(strtotime($user->user_registered))) ?></li>
-<?php endforeach; ?>
-</ul>
-<?php else: ?>
-<p><?php _e('There are no blocked users.'); ?></p>
-<?php endif; ?>
-
-<?php bb_get_admin_footer(); ?>
+bb_get_admin_footer();
+?>

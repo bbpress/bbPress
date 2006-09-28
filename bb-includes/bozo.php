@@ -18,14 +18,14 @@ function bozo_topics( $where ) {
 
 // Gets those users with the bozo bit.  Does not grab users who have been bozoed on a specific topic.
 function get_bozos( $page = 1 ) {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$page = (int) $page;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$bozo_mkey = $bb_table_prefix . 'bozo_topics';
-	$blank = serialize(array());
-	if ( $ids = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' ORDER BY umeta_id DESC LIMIT $limit") )
+	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' ORDER BY umeta_id DESC LIMIT $limit";
+	if ( $ids = (array) $bbdb->get_col($bb_last_countable_query) )
 		bb_cache_users( $ids );
 	return $ids;
 }
@@ -243,20 +243,32 @@ function bozo_add_admin_page() {
 }
 
 function bozo_admin_page() {
-	$r = '<h2>' . __('Bozos') . "</h2>\n";
-	if ( $ids = get_bozos( $page ) ) :
-		global $topic;
-		$r .= "<ul class='users'>\n";
-		foreach ( $ids as $id ) :
-			$user = bb_get_user( $id );
-			$r .= ' <li' . get_alt_class('users') . '>' . get_full_user_link( $id ) . " [<a href='" . get_user_profile_link( $id ) . "'>" . __('profile') . "</a>]\n";
-			$r .= " </li>\n";
-		endforeach;
-		$r .= '</ul>';
-	else :
-		$r .= '<p>' . __('No users have been bozoed yet.') . '</p>';
-	endif;
-	echo $r;
+	class BB_Bozo_Users extends BB_Users_By_Role {
+		var $title = '';
+
+		function BB_Bozo_Users( $page = '' ) { // constructor
+			$this->raw_page = ( '' == $page ) ? false : (int) $page;
+			$this->page = (int) ( '' == $page ) ? 1 : $page;
+			$this->title = __('These users have been marked as bozos');
+
+			$this->prepare_query();
+			$this->query();
+			$this->do_paging();
+		}
+
+		function query() {
+			global $bbdb;
+			$this->results = get_bozos( $page );
+
+			if ( $this->results )
+				$this->total_users_for_query = bb_count_last_query();
+			else
+				$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+		}
+	}
+
+	$bozos = new BB_Bozo_Users( $_GET['userspage'] );
+	$bozos->display();
 }
 
 add_filter( 'pre_post_status', 'bozo_pre_post_status', 5, 3 );
