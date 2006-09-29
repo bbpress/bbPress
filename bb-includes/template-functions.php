@@ -566,6 +566,8 @@ function paginate_links( $arg = '' ) {
 
 	// Who knows what else people pass in $args
 	$total    = (int) $total;
+	if ( $total < 2 )
+		return;
 	$current  = (int) $current;
 	$end_size = 0  < (int) $end_size ? (int) $end_size : 1; // Out of bounds?  Make it the default.
 	$mid_size = 0 <= (int) $mid_size ? (int) $mid_size : 2;
