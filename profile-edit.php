@@ -74,8 +74,14 @@ if ($_POST) :
 
 		if ( bb_current_user_can('edit_users') ) :
 			$user_obj = new BB_User( $user->ID );
-			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) )
+			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
+				$old_role = $user_obj->roles[0];
 				$user_obj->set_role($role); // Only support one role for now
+				if ( 'blocked' == $role && 'blocked' != $old_role )
+					bb_break_password( $user->ID );
+				elseif ( 'blocked' != $role && 'blocked' == $old_role )
+					bb_fix_password( $user->ID );
+			}
 			if ( isset($user_status) && $user_status != $user->user_status )
 				update_user_status( $user->ID, $user_status );
 			foreach( $profile_admin_keys as $key => $label )

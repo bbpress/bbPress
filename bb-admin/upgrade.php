@@ -116,6 +116,11 @@ upgrade_140();
 upgrade_150();
 */
 
+// Reversibly break Passwords of blocked users Oct 2nd, 2006.
+/*
+upgrade_160();
+*/
+
 //alter user table column names
 function upgrade_100() {
 	global $bbdb, $bb_table_prefix;
@@ -225,6 +230,14 @@ function upgrade_150() {
 	endif;
 	$bbdb->query("DELETE FROM $bbdb->usermeta WHERE meta_key = '$old_key'");
 	echo "Done deleting user_type<br />\n";
+}
+
+// Reversibly break passwords of blocked users.
+function upgrade_160() {
+	require_once('admin-functions.php');
+	$blocked = get_ids_by_role( 'blocked' );
+	foreach ( $blocked as $b )
+		bb_break_password( $b );
 }
 
 function deslash($content) {

@@ -21,7 +21,7 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 	$user = user_sanitize( $user );
 	if ( !$already_md5 ) {
 		$pass = user_sanitize( md5( $pass ) );
-		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND user_pass = '$pass'");
+		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND SUBSTRING_INDEX( user_pass, '---', 1 ) = '$pass'");
 	} else {
 		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
 	}
@@ -196,6 +196,33 @@ function bb_check_ajax_referer() {
 	if ( !bb_check_login( $user, $pass, true ) )
 		die('-1');
 	do_action('bb_check_ajax_referer');
+}
+endif;
+
+if ( !function_exists('bb_break_password') ) :
+function bb_break_password( $user_id ) {
+	global $bbdb;
+	$user_id = (int) $user_id;
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+	$secret = substr(wp_hash( 'bb_break_password' ), 0, 13);
+	if ( false === strpos( $user->user_pass, '---' ) )
+		return $bbdb->query("UPDATE $bbdb->users SET user_pass = CONCAT(user_pass, '---', '$secret') WHERE ID = '$user_id'");
+	else
+		return true;
+}
+endif;
+
+if ( !function_exists('bb_fix_password') ) :
+function bb_fix_password( $user_id ) {
+	global $bbdb;
+	$user_id = (int) $user_id;
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+	if ( false === strpos( $user->user_pass, '---' ) )
+		return true;
+	else
+		return $bbdb->query("UPDATE $bbdb->users SET user_pass = SUBSTRING_INDEX(user_pass, '---', 1) WHERE ID = '$user_id'");
 }
 endif;
 ?>
