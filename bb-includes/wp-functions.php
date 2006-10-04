@@ -1,12 +1,12 @@
 <?php
 
-function stripslashes_deep($value) {
+function stripslashes_deep($value) { // [2700]
    return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
 }
 
 /* Formatting */
 
-function wp_specialchars( $text, $quotes = 0 ) {
+function wp_specialchars( $text, $quotes = 0 ) { // [3710]
 	// Like htmlspecialchars except don't double-encode HTML entities
 	$text = preg_replace('/&([^#])(?![a-z1-4]{1,8};)/', '&#038;$1', $text);
 	$text = str_replace('<', '&lt;', $text);
@@ -23,7 +23,7 @@ function wp_specialchars( $text, $quotes = 0 ) {
 }
 
 // Escape single quotes, specialchar double quotes, and fix line endings.
-function js_escape($text) {
+function js_escape($text) { // [3907]
 	$text = wp_specialchars($text, 'double');
 	$text = str_replace('&#039;', "'", $text);
 	return preg_replace("/\r?\n/", "\\n", addslashes($text));
@@ -146,7 +146,7 @@ function balanceTags($text, $is_comment = 0) {
 	return $newtext;
 }
 
-function make_clickable($ret) {
+function make_clickable($ret) { // [4011]
 	$ret = ' ' . $ret;
 	$ret = preg_replace("#(^|[\n ])([\w]+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "$1<a href='$2' rel='nofollow'>$2</a>", $ret);
 	$ret = preg_replace("#(^|[\n ])((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "$1<a href='http://$2' rel='nofollow'>$2</a>", $ret);
@@ -155,7 +155,7 @@ function make_clickable($ret) {
 	return $ret;
 }
 
-function seems_utf8($Str) { # by bmorel at ssi dot fr
+function seems_utf8($Str) { # by bmorel at ssi dot fr // [1345]
 	for ($i=0; $i<strlen($Str); $i++) {
 		if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
 		elseif ((ord($Str[$i]) & 0xE0) == 0xC0) $n=1; # 110bbbbb
@@ -172,7 +172,7 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr
 	return true;
 }
 
-function remove_accents($string) {
+function remove_accents($string) { // [4320]
 	if ( !preg_match('/[\x80-\xff]/', $string) )
 		return $string;
 
@@ -273,7 +273,9 @@ function remove_accents($string) {
 		chr(197).chr(188) => 'z', chr(197).chr(189) => 'Z',
 		chr(197).chr(190) => 'z', chr(197).chr(191) => 's',
 		// Euro Sign
-		chr(226).chr(130).chr(172) => 'E');
+		chr(226).chr(130).chr(172) => 'E',
+		// GBP (Pound) Sign
+		chr(194).chr(163) => '');
 
 		$string = strtr($string, $chars);
 	} else {
@@ -302,7 +304,7 @@ function remove_accents($string) {
 
 /* Forms */
 
-function wp_referer_field() {
+function wp_referer_field() { // [3919]
 	$ref = wp_specialchars($_SERVER['REQUEST_URI']);
 	echo '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
 	if ( wp_get_original_referer() ) {
@@ -311,48 +313,26 @@ function wp_referer_field() {
 	}
 }
 
-function wp_original_referer_field() {
+function wp_original_referer_field() { // [3908]
 	echo '<input type="hidden" name="_wp_original_http_referer" value="' . wp_specialchars(stripslashes($_SERVER['REQUEST_URI'])) . '" />';
 }
 
-function wp_get_referer() {
+function wp_get_referer() { // [3908]
 	foreach ( array($_REQUEST['_wp_http_referer'], $_SERVER['HTTP_REFERER']) as $ref )
 		if ( !empty($ref) )
 			return $ref;
 	return false;
 }
 
-function wp_get_original_referer() {
+function wp_get_original_referer() { // [3908]
 	if ( !empty($_REQUEST['_wp_original_http_referer']) )
 		return $_REQUEST['_wp_original_http_referer'];
 	return false;
 }
 
-/* Secret */
-
-// Not verbatim WP,  bb has no options table and constants have different names.
-function wp_salt() {
-	global $bb;
-	$salt = $bb->secret;
-	if ( empty($salt) )
-		$salt = BBDB_PASSWORD . BBDB_USER . BBDB_NAME . BBDB_HOST . BBPATH;
-
-	return $salt;
-}
-
-function wp_hash($data) {
-	$salt = wp_salt();
-
-	if ( function_exists('hash_hmac') ) {
-		return hash_hmac('md5', $data, $salt);
-	} else {
-		return md5($data . $salt);
-	}
-}
-
 /* Plugin API */
 
-function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [3893]
 	global $wp_filter;
 
 	// check that we don't already have the same filter at the same priority
@@ -371,7 +351,7 @@ function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) 
 	return true;
 }
 
-function apply_filters($tag, $string) {
+function apply_filters($tag, $string) { // [4179]
 	global $wp_filter;
 
 	$args = array();
@@ -404,8 +384,7 @@ function apply_filters($tag, $string) {
 	return $string;
 }
 
-
-function merge_filters($tag) {
+function merge_filters($tag) { // [4289]
 	global $wp_filter;
 	if ( isset($wp_filter['all']) ) {
 		foreach ($wp_filter['all'] as $priority => $functions) {
@@ -418,10 +397,10 @@ function merge_filters($tag) {
 	}
 
 	if ( isset($wp_filter[$tag]) )
-		ksort( $wp_filter[$tag] );
+		uksort( $wp_filter[$tag], "strnatcasecmp" );
 }
 
-function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
+function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) { // [3893]
 	global $wp_filter;
 
 	// rebuild the list of filters
@@ -437,11 +416,11 @@ function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args
 	return true;
 }
 
-function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [3893]
 	add_filter($tag, $function_to_add, $priority, $accepted_args);
 }
 
-function do_action($tag, $arg = '') {
+function do_action($tag, $arg = '') { // [4179]
 	global $wp_filter;
 	$args = array();
 	if ( is_array($arg) && 1 == count($arg) && is_object($arg[0]) ) // array(&$this)
@@ -477,7 +456,7 @@ function do_action($tag, $arg = '') {
 }
 
 /* functions.php
-function do_action_ref_array($tag, $args) {
+function do_action_ref_array($tag, $args) { // [4186]
 	global $wp_filter;
 
 	merge_filters($tag);
@@ -506,7 +485,7 @@ function do_action_ref_array($tag, $args) {
 }
 */
 
-function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
+function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) { // [3893]
 	remove_filter($tag, $function_to_remove, $priority, $accepted_args);
 }
 
@@ -520,7 +499,7 @@ Parameters:
 add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
-function add_query_arg() {
+function add_query_arg() { // [4123]
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
 		if ( @func_num_args() < 2 || '' == @func_get_arg(1) )
@@ -594,7 +573,7 @@ remove_query_arg(removekey, [oldquery_or_uri]) or
 remove_query_arg(removekeyarray, [oldquery_or_uri])
 */
 
-function remove_query_arg($key, $query='') {
+function remove_query_arg($key, $query='') { // [3857]
 	if ( is_array($key) ) { // removing multiple keys
 		foreach ( (array) $key as $k )
 			$query = add_query_arg($k, '', $query);
@@ -603,7 +582,7 @@ function remove_query_arg($key, $query='') {
 	return add_query_arg($key, '', $query);
 }
 
-function status_header( $header ) {
+function status_header( $header ) { // [3005]
 	if ( 200 == $header )
 		$text = 'OK';
 	elseif ( 301 == $header )
@@ -621,7 +600,7 @@ function status_header( $header ) {
 	@header("Status: $header $text");
 }
 
-function nocache_headers() {
+function nocache_headers() { // [2623]
 	@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 	@ header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 	@ header('Cache-Control: no-cache, must-revalidate, max-age=0');
@@ -635,7 +614,7 @@ function cache_javascript_headers() { // Not verbatim WP.  Charset hardcoded.
 	header("Expires: " . gmdate("D, d M Y H:i:s", time() + $expiresOffset) . " GMT");
 }
 
-class WP_Error {
+class WP_Error { // [4122]
 	var $errors = array();
 	var $error_data = array();
 
@@ -713,13 +692,13 @@ class WP_Error {
 	}
 }
 
-function is_wp_error($thing) {
+function is_wp_error($thing) { // [3667]
 	if ( is_object($thing) && is_a($thing, 'WP_Error') )
 		return true;
 	return false;
 }
 
-class WP_Ajax_Response {
+class WP_Ajax_Response { // [4187]
 	var $responses = array();
 
 	function WP_Ajax_Response( $args = '' ) {

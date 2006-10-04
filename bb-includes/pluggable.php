@@ -174,6 +174,30 @@ function bb_create_nonce($action = -1) {
 }
 endif;
 
+// Not verbatim WP,  bb has no options table and constants have different names.
+if ( !function_exists('wp_salt') ) :
+function wp_salt() {
+	global $bb;
+	$salt = $bb->secret;
+	if ( empty($salt) )
+		$salt = BBDB_PASSWORD . BBDB_USER . BBDB_NAME . BBDB_HOST . BBPATH;
+
+	return $salt;
+}
+endif;
+
+if ( !function_exists('wp_hash') ) :
+function wp_hash($data) { 
+	$salt = wp_salt();
+
+	if ( function_exists('hash_hmac') ) {
+		return hash_hmac('md5', $data, $salt);
+	} else {
+		return md5($data . $salt);
+	}
+}
+endif;
+
 if ( !function_exists('bb_check_admin_referer') ) :
 function bb_check_admin_referer( $action = -1 ) {
 	if ( !bb_verify_nonce($_REQUEST['_wpnonce'], $action) ) {
