@@ -137,7 +137,7 @@ bb_current_user();
 
 do_action('init', '');
 
-if ( bb_is_user_logged_in() && bb_current_user_can('not_play_nice') )
+if ( bb_is_user_logged_in() && bb_has_broken_pass() )
 	bb_block_current_user();
 if ( bb_is_user_logged_in() && !bb_current_user_can('read') )
 	bb_log_current_nocaps();

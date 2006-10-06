@@ -249,4 +249,16 @@ function bb_fix_password( $user_id ) {
 		return $bbdb->query("UPDATE $bbdb->users SET user_pass = SUBSTRING_INDEX(user_pass, '---', 1) WHERE ID = '$user_id'");
 }
 endif;
+
+if ( !function_exists('bb_has_broken_pass') ) :
+function bb_has_broken_pass( $user_id = 0 ) {
+	global $bb_current_user;
+	if ( !$user_id )
+		$user =& $bb_current_user->data->user_pass;
+	else
+		$user = bb_get_user( $user_id );
+
+	return ( false !== strpos($user->user_pass, '---' ) );
+}
+endif;
 ?>
