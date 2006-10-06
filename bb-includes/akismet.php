@@ -117,7 +117,9 @@ function bb_ksd_submit_spam( $post_id ) {
 }
 
 function bb_ksd_check_post( $post_text ) {
-	global $bb_ksd_pre_post_status;
+	global $bb_current_user, $bb_ksd_pre_post_status;
+	if ( in_array($bb_current_user->roles[0], bb_trusted_roles()) ) // Don't filter content from users with a trusted role
+		return $post_text;
 
 	$response = bb_ksd_submit( $post_text );
 	if ( 'true' == $response[1] )
