@@ -1586,4 +1586,8 @@ function do_action_ref_array($tag, $args) {
 }
 endif;
 
+function bb_trusted_roles() {
+	return apply_filters( 'bb_trusted_roles', array('moderator', 'administrator', 'keymaster') );
+}
+
 ?>
