@@ -254,7 +254,7 @@ if ( !function_exists('bb_has_broken_pass') ) :
 function bb_has_broken_pass( $user_id = 0 ) {
 	global $bb_current_user;
 	if ( !$user_id )
-		$user =& $bb_current_user->data->user_pass;
+		$user =& $bb_current_user->data;
 	else
 		$user = bb_get_user( $user_id );
 
