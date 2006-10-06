@@ -456,8 +456,14 @@ function get_topic_start_timestamp( $id = 0 ) {
 	return strtotime( $topic->topic_start_time );
 }
 
-function topic_resolved( $yes = 'resolved', $no = 'not resolved', $mu = 'not a support question', $id = 0 ) {
+function topic_resolved( $yes = '', $no = '', $mu = '', $id = 0 ) {
 	global $bb_current_user, $topic;
+	if ( empty($yes) )
+		$yes = __('resolved');
+	if ( empty($no) )
+		$no = __('not resolved');
+	if ( empty($mu) )
+		$mu = __('not a support question');
 	if ( bb_current_user_can( 'edit_topic', $topic->topic_id ) ) :
 		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php"><div>' . "\n";
 		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
@@ -1065,8 +1071,12 @@ function get_favorites_link( $user_id = 0 ) {
 	return apply_filters( 'get_favorites_link', get_profile_tab_link($user_id, 'favorites'), $user_id );
 }
 
-function user_favorites_link($add = array('mid' => 'Add this topic to your favorites', 'post' => ' (%?%)'), $rem = array( 'pre' => 'This topic is one of your %favorites% [', 'mid' => 'x', 'post' => ']'), $user_id = 0) {
+function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 	global $topic, $bb_current_user;
+	if ( empty($add) || !is_array($add) )
+		$add = array('mid' => __('Add this topic to your favorites'), 'post' => __(' (%?%)'));
+	if ( empty($rem) || !is_array($rem) )
+		$rem = array( 'pre' => __('This topic is one of your %favorites% ['), 'mid' => __('x'), 'post' => __(']'));
 	if ( $user_id ) :
 		if ( !bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
 			return false;
