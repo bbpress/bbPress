@@ -356,7 +356,8 @@ function bb_current_time( $type = 'timestamp' ) {
 
 function bb_block_current_user() {
 	global $bbdb, $bb_table_prefix, $bb_current_user;
-	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
+	if ( $bb_current_user )
+		bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
@@ -473,7 +474,7 @@ function bb_update_topicmeta( $topic_id, $meta_key, $meta_value ) {
 
 function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 	global $bbdb, $bb_cache, $bb_table_prefix;
-	if ( !is_numeric( $type_id ) )
+	if ( !is_numeric( $type_id ) || empty($type_id) )
 		return false;
 	switch ( $type ) :
 	case 'user' :
