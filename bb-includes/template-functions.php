@@ -74,9 +74,22 @@ function bb_post_template() {
 	}
 }
 
-function post_form() {
+function post_form( $h2 = '' ) {
 	global $bb_current_user, $bb, $page, $topic, $forum;
 	$add = topic_pages_add();
+	if ( empty($h2) ) {
+		if ( is_topic() )
+			$h2 =  __('Reply');
+		elseif ( is_forum() )
+			$h2 = __('New Topic in this Forum');
+		elseif ( is_tag() || is_front() )
+			$h2 = __('Add New Topic');
+	}
+	if ( !empty($h2) )
+		echo "<h2 class='post-form'>$h2</h2>\n";
+
+	do_action('pre_post_form');
+
 	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
 		echo "<form class='postform' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
 		if ( file_exists( BBPATH . 'my-templates/post-form.php' ) ) {
@@ -95,6 +108,7 @@ function post_form() {
 		_e(sprintf('You must <a href="%s">login</a> to post.', bb_get_option('uri') . 'bb-login.php'));
 		echo '</p>';
 	}
+	do_action('post_form');
 }
 
 function edit_form() {
