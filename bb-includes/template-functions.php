@@ -1097,7 +1097,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
 		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
-		print "<a href='$taglink' title='$count topics' style='font-size: ".
+		print "<a href='$taglink' title='$count topics' rel='tag' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}
 }
