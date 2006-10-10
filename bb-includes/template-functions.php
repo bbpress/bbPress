@@ -2,22 +2,27 @@
 
 function bb_get_header() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $bb_current_user;
-	if (file_exists( BBPATH . 'my-templates/header.php') )
+	if ( file_exists( BBPATH . 'my-templates/header.php') ) {
 		include( BBPATH . 'my-templates/header.php');
-	else	include( BBPATH . 'bb-templates/header.php');
+	} else {
+		include( BBPATH . 'bb-templates/header.php');
+	}
 }
 
 function bb_stylesheet_uri() {
 	if ( file_exists( BBPATH . 'my-templates/style.css') )
 		echo bb_get_option('uri') . 'my-templates/style.css';
-	else	echo bb_get_option('uri') . 'bb-templates/style.css';
+	else
+		echo bb_get_option('uri') . 'bb-templates/style.css';
 }
 
 function bb_get_footer() {
 	global $bb, $bbdb, $forum, $forum_id, $topic, $bb_current_user;
-	if (file_exists( BBPATH . 'my-templates/footer.php') )
+	if ( file_exists( BBPATH . 'my-templates/footer.php') ) {
 		include( BBPATH . 'my-templates/footer.php');
-	else	include( BBPATH . 'bb-templates/footer.php');
+	} else {
+		include( BBPATH . 'bb-templates/footer.php');
+	}
 }
 
 function bb_head() {
@@ -57,12 +62,20 @@ function login_form() {
 		echo "<a href='" . bb_get_option('uri') . "bb-admin/'>Admin</a> | ";
 	echo "<a href='" . bb_get_option('uri') . "bb-login.php?logout'>". __('Logout') ."</a>)</small></p>";
 	} else {
-		include( BBPATH . '/bb-templates/login-form.php');
+		if ( file_exists(BBPATH . '/my-templates/login-form.php') ) {
+			include(BBPATH . '/my-templates/login-form.php');
+		} else {
+			include(BBPATH . '/bb-templates/login-form.php');
+		}
 	}
 }
 
 function search_form( $q = '' ) {
-	require( BBPATH . '/bb-templates/search-form.php');
+	if ( file_exists(BBPATH . '/my-templates/search-form.php') ) {
+		include(BBPATH . '/my-templates/search-form.php');
+	} else {
+		include(BBPATH . '/bb-templates/search-form.php');
+	}
 }
 
 function bb_post_template() {
@@ -114,7 +127,11 @@ function post_form( $h2 = '' ) {
 function edit_form() {
 	global $bb_post, $topic_title;
 	echo "<form name='post' id='post' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
-	require( BBPATH . '/bb-templates/edit-form.php');
+	if ( file_exists(BBPATH . '/my-templates/edit-form.php') ) {
+		include(BBPATH . '/my-templates/edit-form.php');
+	} else {
+		include(BBPATH . '/bb-templates/edit-form.php');
+	}
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	echo "\n</form>";
 }
@@ -1005,7 +1022,11 @@ function tag_form() {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
 		return false;
 	echo "<form id='tag-form' method='post' action='" . bb_get_option('uri') . "tag-add.php'>\n";
-	include( BBPATH . '/bb-templates/tag-form.php');
+	if ( file_exists(BBPATH . '/my-templates/tag-form.php') ) {
+		include(BBPATH . '/my-templates/tag-form.php');
+	} else {
+		include(BBPATH . '/bb-templates/tag-form.php');
+	}
 	bb_nonce_field( 'add-tag_' . $topic->topic_id );
 	echo "</form>";
 }
