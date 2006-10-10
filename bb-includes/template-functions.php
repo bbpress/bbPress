@@ -271,20 +271,20 @@ function forum_name() {
 	echo apply_filters( 'forum_name', get_forum_name() );
 }
 
-function get_forum_id() {
+function get_forum_name( $forum_id = 0 ) {
 	global $forum;
-	return $forum->forum_id;
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
+	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
 }
 
 function forum_id() {
 	echo apply_filters( 'forum_id', get_forum_id() );
 }
 
-function get_forum_name( $forum_id = 0 ) {
+function get_forum_id() {
 	global $forum;
-	if ( $forum_id )
-		$forum = get_forum( $forum_id );
-	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
+	return $forum->forum_id;
 }
 
 function forum_description() {
@@ -298,12 +298,22 @@ function get_forum_description() {
 
 function forum_topics() {
 	global $forum;
-	echo apply_filters( 'forum_topics', $forum->topics, $forum->forum_id );
+	echo apply_filters( 'forum_topics', get_forum_topics(), $forum->forum_id );
+}
+
+function get_forum_topics() {
+	global $forum;
+	return apply_filters( 'get_forum_topics', $forum->topics, $forum->forum_id );
 }
 
 function forum_posts() {
 	global $forum;
-	echo apply_filters( 'forum_posts', $forum->posts, $forum->forum_id );
+	echo apply_filters( 'forum_posts', get_forum_posts(), $forum->forum_id );
+}
+
+function get_forum_posts() {
+	global $forum;
+	return apply_filters( 'get_forum_posts', $forum->posts, $forum->forum_id );
 }
 
 function forum_pages() {
@@ -330,13 +340,13 @@ function get_forum_rss_link( $forum_id = 0 ) {
 }
 
 // TOPICS
+function topic_id() {
+	echo apply_filters( 'topic_id', get_topic_id() );
+}
+
 function get_topic_id() {
 	global $topic;
 	return $topic->topic_id;
-}
-
-function topic_id() {
-	echo apply_filters( 'topic_id', get_topic_id() );
 }
 
 function topic_link( $id = 0, $page = 1 ) {
@@ -418,23 +428,33 @@ function topic_noreply( $title ) {
 
 function topic_last_poster() {
 	global $topic;
-	echo apply_filters( 'topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster );
+	echo apply_filters( 'topic_last_poster', get_topic_last_poster(), $topic->topic_last_poster );
+}
+
+function get_topic_last_poster() {
+	global $topic;
+	return apply_filters( 'get_topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster );
 }
 
 function topic_author() {
 	global $topic;
-	echo apply_filters( 'topic_author', $topic->topic_poster_name, $topic->topic_poster );
+	echo apply_filters( 'topic_author', get_topic_author(), $topic->topic_poster );
+}
+
+function get_topic_author() {
+	global $topic;
+	return apply_filters( 'get_topic_author', $topic->topic_poster_name, $topic->topic_poster );
 }
 
 function topic_time( $id = 0 ) {
-	echo apply_filters('topic_time', get_topic_time($id) );
+	echo apply_filters( 'topic_time', get_topic_time($id) );
 }
 
 function get_topic_time( $id = 0 ) {
 	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
-	return $topic->topic_time;
+	return apply_filters( 'get_topic_time', $topic->topic_time );
 }
 
 function topic_date( $format = '', $id = 0 ) {
@@ -748,14 +768,14 @@ function get_post_timestamp() {
 	return strtotime( $bb_post->post_time );
 }
 
-function get_post_ip() {
-	global $bb_post;
-	return $bb_post->poster_ip;
-}
-
 function post_ip() {
 	if ( bb_current_user_can( 'view_by_ip' ) )
 		echo apply_filters( 'post_ip', get_post_ip(), get_post_id() );
+}
+
+function get_post_ip() {
+	global $bb_post;
+	return $bb_post->poster_ip;
 }
 
 function post_ip_link() {
@@ -843,6 +863,10 @@ function get_profile_tab_link( $id, $tab, $page = 1 ) {
 	return apply_filters( 'get_profile_tab_link', $r, $id );
 }
 
+function user_link( $id ) {
+	echo apply_filters( 'user_link', get_user_link($id), $user_id );
+}
+
 function get_user_link( $user_id ) {
 	global $bbdb;
 	if ( $user_id )
@@ -850,8 +874,8 @@ function get_user_link( $user_id ) {
 			return apply_filters( 'get_user_link', $user->user_url, $user_id );
 }
 
-function user_link( $id ) {
-	echo apply_filters( 'user_link', get_user_link($id), $user_id );
+function full_user_link( $id ) {
+	echo get_full_user_link( $id );
 }
 
 function get_full_user_link( $id ) {
@@ -862,8 +886,8 @@ function get_full_user_link( $id ) {
 	return $r;
 }
 
-function full_user_link( $id ) {
-	echo get_full_user_link( $id );
+function user_type_label( $type ) {
+	echo apply_filters( 'user_type_label', get_user_type_label( $type ) );
 }
 
 function get_user_type_label( $type ) {
@@ -872,8 +896,8 @@ function get_user_type_label( $type ) {
 		return $bb_roles->role_names[$type];
 }
 
-function user_type_label( $type ) {
-	echo apply_filters( 'user_type_label', get_user_type_label( $type ) );
+function user_type( $id ) {
+	echo apply_filters( 'user_type', get_user_type($id) );
 }
 
 function get_user_type ( $id ) {
@@ -891,10 +915,6 @@ function get_user_type ( $id ) {
 	else :
 		return __('Unregistered');
 	endif;
-}
-
-function user_type( $id ) {
-	echo apply_filters( 'user_type', get_user_type($id) );
 }
 
 function get_user_name( $id ) {
@@ -916,16 +936,16 @@ function topic_tags() {
 		include( BBPATH . '/bb-templates/topic-tags.php');
 }
 
+function tag_page_link() {
+	echo get_tag_page_link();
+}
+
 function get_tag_page_link() {
 	global $bb;
 	if ( bb_get_option('mod_rewrite') )
 		return $bb->tagpath . 'tags/';
 	else
 		return $bb->tagpath . 'tags.php';
-}
-
-function tag_page_link() {
-	echo get_tag_page_link();
 }
 
 function tag_link( $id = 0, $page = 1 ) {
@@ -943,19 +963,24 @@ function get_tag_link( $tag_name = 0, $page = 1 ) {
 }
 
 function tag_link_base() {
+	echo get_tag_link_base();
+}
+
+function get_tag_link_base() {
 	global $bb;
 	if ( bb_get_option('mod_rewrite') )
-		echo bb_get_option('domain') . $bb->tagpath . 'tags/';
-	else	echo bb_get_option('domain') . $bb->tagpath . 'tags.php?tag=';
+		return bb_get_option('domain') . $bb->tagpath . 'tags/';
+	else
+		return bb_get_option('domain') . $bb->tagpath . 'tags.php?tag=';
+}
+
+function tag_name( $id = 0 ) {
+	echo wp_specialchars( get_tag_name( $id ) );
 }
 
 function get_tag_name( $id = 0 ) {
 	global $tag;
 	return $tag->raw_tag;
-}
-
-function tag_name( $id = 0 ) {
-	echo wp_specialchars( get_tag_name( $id ) );
 }
 
 function tag_rss_link( $id = 0 ) {
