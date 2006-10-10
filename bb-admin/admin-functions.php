@@ -315,7 +315,7 @@ class BB_User_Search {
 			$r .= "<div class='error'>\n";
 			$r .= "\t<ul>\n";
 			foreach ( $this->search_errors->get_error_messages() as $message )
-				$r .= "<\t\tli>$message</li>\n";
+				$r .= "\t\t<li>$message</li>\n";
 			$r .= "\t</ul>\n</div>\n\n";
 		}
 
