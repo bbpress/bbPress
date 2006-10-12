@@ -153,34 +153,34 @@ function bb_location() {
 function get_bb_location() { // Not for display.  Do not internationalize.
 	switch ( bb_find_filename($_SERVER['PHP_SELF']) ) :
 	case 'index.php' :
-		return 'front';
+		return 'front-page';
 		break;
 	case 'forum.php' :
-		return 'forum';
+		return 'forum-page';
 		break;
 	case 'tags.php' :
-		return 'tag';
+		return 'tag-page';
 		break;
 	case 'topic.php' :
-		return 'topic';
+		return 'topic-page';
 		break;
 	case 'rss.php' :
-		return 'feed';
+		return 'feed-page';
 		break;
 	case 'search.php' :
-		return 'search';
+		return 'search-page';
 		break;
 	case 'profile.php' :
-		return 'profile';
+		return 'profile-page';
 		break;
 	case 'favorites.php' :
-		return 'favorites';
+		return 'favorites-page';
 		break;
 	case 'view.php' :
-		return 'view';
+		return 'view-page';
 		break;
 	case 'statistics.php' :
-		return 'stats';
+		return 'stats-page';
 		break;
 	default:
 		return apply_filters( 'get_bb_location', '' );
@@ -189,70 +189,70 @@ function get_bb_location() { // Not for display.  Do not internationalize.
 }
 
 function is_front() {
-	if ( 'front' == get_bb_location() )
+	if ( 'front-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_forum() {
-	if ( 'forum' == get_bb_location() )
+	if ( 'forum-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_tag() {
-	if ( 'tag' == get_bb_location() )
+	if ( 'tag-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_topic() {
-	if ( 'topic' == get_bb_location() )
+	if ( 'topic-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_feed() {
-	if ( 'rss' == get_bb_location() )
+	if ( 'feed-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_search() {
-	if ( 'search' == get_bb_location() )
+	if ( 'search-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_profile() {
-	if ( 'profile' == get_bb_location() )
+	if ( 'profile-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_favorites() {
-	if ( 'favorites' == get_bb_location() )
+	if ( 'favorites-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_view() {
-	if ( 'view' == get_bb_location() )
+	if ( 'view-page' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_stats() {
-	if ( 'stats' == get_bb_location() )
+	if ( 'stats-page' == get_bb_location() )
 		return true;
 	else
 		return false;

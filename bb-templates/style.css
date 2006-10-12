@@ -128,12 +128,12 @@ form.login input {
 /* Front Page
 =================================== */
 
-#front #hottags { 
+#front-page #hottags { 
 	float: left;
 	width: 150px;
 }
 
-#front #discussions { 
+#front-page #discussions { 
 	margin-left: 170px;
 	width: 590px;
 }
@@ -144,7 +144,7 @@ form.login input {
 	padding-bottom: 10px;
 }
 
-#front #main h2, h2.post-form, #userlogin, 
+#front-page #main h2, h2.post-form, #userlogin, 
 #currentfavorites, #register {
 	color: #333;
 	border-bottom: 1px solid #ddd;
@@ -152,7 +152,7 @@ form.login input {
 	padding: 0 0 5px;
 }
 
-#front #discussions ul {
+#front-page #discussions ul {
 	padding: 0 0 0 14px;
 }
 
@@ -179,7 +179,7 @@ form.login input {
 	padding-bottom: 3px;
 }
 
-#tags-bad-ie {
+#topic-tags {
 	border-left: 1px solid #ccc;
 	float: right;
 	margin-top: -2em;
