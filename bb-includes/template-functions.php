@@ -745,7 +745,7 @@ function topic_class( $class = '' ) {
 
 function new_topic( $text = false ) {
 	if ( !$text )
-		$text = __('Add New');
+		$text = __('Add New &raquo;');
 
 	if ( is_forum() || is_tag() )
 		$url = '#postform';

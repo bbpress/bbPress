@@ -131,6 +131,7 @@ form.login input {
 #front-page #hottags { 
 	float: left;
 	width: 150px;
+	overflow-x: hidden;
 }
 
 #front-page #discussions { 
