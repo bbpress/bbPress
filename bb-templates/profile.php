@@ -12,14 +12,7 @@
 You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and subscribe to your favorites' <a href="<?php favorites_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
 <?php endif; ?>
 
-<dl id="userinfo">
-<dt>Member Since</dt>
-<dd><?php echo gmdate('F j, Y', $reg_time); ?> (<?php echo bb_since($reg_time); ?>)</dd>
-<?php if ( is_array( $profile_info_keys ) ) : foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key && isset($user->$key) && '' !== $user->$key ) : ?>
-<dt><?php echo $label[1]; ?></dt>
-<dd><?php echo make_clickable($user->$key); ?></dd>
-<?php endif; endforeach; endif;?>
-</dl>
+<?php bb_profile_data(); ?>
 
 <h3 id="useractivity">User Activity</h3>
 

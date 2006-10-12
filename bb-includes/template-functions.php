@@ -989,6 +989,27 @@ function profile_pages() {
 	echo apply_filters( 'topic_pages', get_page_number_links( $page, $user->topics_replied + $add ) );
 }
 
+function bb_profile_data() {
+	global $user_id;
+
+	$user = bb_get_user( $user_id );
+	$reg_time = strtotime( $user->user_registered );
+	$profile_info_keys = get_profile_info_keys();
+	echo "<dl id='userinfo'>\n";
+	echo "\t<dt>" . __('Member Since') . "</dt>\n";
+	echo "\t<dd>" . gmdate('F j, Y', $reg_time) . ' (' . bb_since($reg_time) . ")</dd>\n";
+	if ( is_array( $profile_info_keys ) ) {
+		foreach ( $profile_info_keys as $key => $label ) {
+			if ( 'user_email' != $key && isset($user->$key) && '' !== $user->$key && 'http://' != $user->$key ) {
+				echo "\t<dt>{$label[1]}</dt>\n";
+				echo "\t<dd>" . make_clickable($user->$key) . "</dd>\n";
+			}
+		}
+	}
+	echo "</dl>\n";
+}
+
+
 //TAGS
 function topic_tags() {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $bb_current_user, $topic;
