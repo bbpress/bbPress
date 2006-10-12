@@ -44,12 +44,6 @@ function profile_menu() {
 			if ( file_exists($item[3]) || function_exists($item[3]) )
 				$list .= "\n\t<li$class><a href='" . wp_specialchars( get_profile_tab_link($user_id, $item[0]) ) . "'>{$item[0]}</a></li>";
 	}
-	if ( bb_is_user_logged_in() ) :
-		$list .= "\n\t<li class='last'><a href='" . bb_get_option('uri') . 'bb-login.php?logout' . "' title='" . __('Log out of this account') . "'>";
-		$list .= 	__('Logout') . ' (' . get_user_name( $bb_current_user->ID ) . ')</a></li>';
-	else:
-		$list .=  "\n\t<li class='last'><a href='" . bb_get_option('uri') . "bb-login.php'>" . __('Login') . '</a></li>';
-	endif;
 	$list .= "\n</ul>";
 	echo $list;
 }
@@ -152,64 +146,113 @@ function get_alt_class( $key, $others = '' ) {
 	return $class;
 }
 
+function bb_location() {
+	echo apply_filters( 'bb_location', get_bb_location() );
+}
+
+function get_bb_location() { // Not for display.  Do not internationalize.
+	switch ( bb_find_filename($_SERVER['PHP_SELF']) ) :
+	case 'index.php' :
+		return 'front';
+		break;
+	case 'forum.php' :
+		return 'forum';
+		break;
+	case 'tags.php' :
+		return 'tag';
+		break;
+	case 'topic.php' :
+		return 'topic';
+		break;
+	case 'rss.php' :
+		return 'feed';
+		break;
+	case 'search.php' :
+		return 'search';
+		break;
+	case 'profile.php' :
+		return 'profile';
+		break;
+	case 'favorites.php' :
+		return 'favorites';
+		break;
+	case 'view.php' :
+		return 'view';
+		break;
+	case 'statistics.php' :
+		return 'stats';
+		break;
+	default:
+		return apply_filters( 'get_bb_location', '' );
+		break;
+	endswitch;
+}
+
 function is_front() {
-	if ( 'index.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'front' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_forum() {
-	if ( 'forum.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'forum' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_tag() {
-	if ( 'tags.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'tag' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_topic() {
-	if ( 'topic.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'topic' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_feed() {
-	if ( 'rss.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'rss' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_search() {
-	if ( 'search.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'search' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_profile() {
-	if ( 'profile.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'profile' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_bb_favorites() {
-	if ( 'favorites.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'favorites' == get_bb_location() )
 		return true;
 	else
 		return false;
 }
 
 function is_view() {
-	if ( 'view.php' == bb_find_filename($_SERVER['PHP_SELF']) )
+	if ( 'view' == get_bb_location() )
+		return true;
+	else
+		return false;
+}
+
+function is_bb_stats() {
+	if ( 'stats' == get_bb_location() )
 		return true;
 	else
 		return false;

@@ -1,6 +1,6 @@
 <?php bb_get_header(); ?>
 
-<h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Login'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Login'); ?></h3>
 
 <h2><?php isset($_POST['user_login']) ? _e('Login Failed') : _e('Login') ; ?></h2>
 

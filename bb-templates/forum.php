@@ -1,8 +1,6 @@
 <?php bb_get_header(); ?>
 
-<?php login_form(); ?>
-
-<h2><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php forum_name(); ?></h2>
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php forum_name(); ?></h3>
 
 <?php if ( $topics || $stickies ) : ?>
 

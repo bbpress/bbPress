@@ -1,8 +1,7 @@
 <?php bb_get_header(); ?>
-<?php profile_menu(); ?>
 
-<h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Edit Profile'); ?></h3>
-<h2><?php echo get_user_name( $user->ID ); ?></h2>
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Edit Profile'); ?></h3>
+<h2 id="userlogin"><?php echo get_user_name( $user->ID ); ?></h2>
 <form method="post" action="<?php profile_tab_link($user->ID, 'edit');  ?>">
 <fieldset>
 <legend><?php _e('Profile Info'); ?></legend>

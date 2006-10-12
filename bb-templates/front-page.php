@@ -1,7 +1,5 @@
 <?php bb_get_header(); ?>
 
-<?php login_form(); ?>
-
 <?php if ( $forums ) : ?>
 
 <div id="hottags">
@@ -9,6 +7,7 @@
 <p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
 </div>
 
+<div id="discussions">
 <?php if ( $topics || $super_stickies ) : ?>
 
 <h2><?php _e('Latest Discussions'); ?></h2>
@@ -73,5 +72,6 @@
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a></h3>
 
 <?php post_form(); endif; ?>
+</div>
 
 <?php bb_get_footer(); ?>

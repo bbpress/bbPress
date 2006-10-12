@@ -1,6 +1,6 @@
 <?php bb_get_header(); ?>
 
-<h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Search</h3>
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Search</h3>
 <?php search_form( $q ); ?>
 
 <?php if ( !empty ( $q ) ) : ?>

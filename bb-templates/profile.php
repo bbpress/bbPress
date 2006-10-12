@@ -1,7 +1,6 @@
 <?php bb_get_header(); ?>
-<?php profile_menu(); ?>
 
-<h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; Profile</h3>
 <h2 id="userlogin"><?php echo get_user_name( $user->ID ); ?></h2>
 
 <?php if ( $updated ) : ?>
@@ -22,9 +21,9 @@ You can also <a href="<?php favorites_link(); ?>">manage your favorites</a> and 
 <?php endif; endforeach; endif;?>
 </dl>
 
-<h2>User Activity</h2>
+<h3 id="useractivity">User Activity</h3>
 
-<div id="user-replies" class="user-recent"><h3>Recent Replies</h3>
+<div id="user-replies" class="user-recent"><h4>Recent Replies</h4>
 <?php if ( $posts ) : ?>
 <ol>
 <?php foreach ($posts as $bb_post) : $topic = get_topic( $bb_post->topic_id ) ?>
@@ -49,7 +48,7 @@ if ( strtotime(bb_get_post_time()) < strtotime(get_topic_time()) ) {
 </div>
 
 <div id="user-threads" class="user-recent">
-<h3>Threads Started</h3>
+<h4>Threads Started</h4>
 <?php if ( $threads ) : ?>
 <ol>
 <?php foreach ($threads as $topic) : ?>

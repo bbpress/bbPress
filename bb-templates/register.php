@@ -1,8 +1,8 @@
 <?php bb_get_header(); ?>
 
-<h3><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
 
-<h2><?php _e('Registration'); ?></h2>
+<h2 id="register"><?php _e('Registration'); ?></h2>
 
 <?php if ( !$bb_current_user ) : ?>
 <form method="post" action="<?php option('uri'); ?>register.php">
