@@ -521,7 +521,7 @@ function topic_date( $format = '', $id = 0 ) {
 	echo gmdate( $format, get_topic_timestamp( $id ) );
 }
 
-function return_topic_date( $format = '', $id = 0 ){
+function get_topic_date( $format = '', $id = 0 ){
 	return gmdate( $format, get_topic_timestamp( $id ) );
 }
 function get_topic_timestamp( $id = 0 ) {
@@ -532,19 +532,14 @@ function get_topic_timestamp( $id = 0 ) {
 }
 
 function topic_start_time( $id = 0 ) {
-	echo apply_filters('topic_start_time', get_topic_start_time($id) );
-}
-
-function return_topic_start_time( $id = 0 ) {
-	// Oh no!
-	return apply_filters('topic_start_time', get_topic_start_time($id) );
+	echo apply_filters( 'topic_start_time', get_topic_start_time($id) );
 }
 
 function get_topic_start_time( $id = 0 ) {
 	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
-	return $topic->topic_start_time;
+	return apply_filters( 'get_topic_start_time', $topic->topic_start_time );
 }
 
 function topic_start_date( $format = '', $id = 0 ) {

@@ -45,7 +45,7 @@ if ( strtotime(bb_get_post_time()) < strtotime(get_topic_time()) ) {
 <ol>
 <?php foreach ($threads as $topic) : ?>
 <li<?php alt_class('threads'); ?>><a href="<?php topic_link(); ?>"><?php topic_title();
-?></a> <?php printf(__('Started %s ago'), return_topic_start_time()) ?>
+?></a> <?php printf(__('Started %s ago'), get_topic_start_time()) ?>
 <?php
 if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) ) {
 	echo '<span class="freshness"> '. __('Most recent reply: ');

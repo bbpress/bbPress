@@ -26,7 +26,7 @@ foreach ( $titles as $topic ) :
 $count = $topic->topic_posts;
 ?>
 <li><h4><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></h4>
-<small><?php printf(__(' %1$d replies &#8212; Last reply: %2$s'), $count, return_topic_date('F j, Y', $topic->topic_id) ) ?> </small>
+<small><?php printf(__(' %1$d replies &#8212; Last reply: %2$s'), $count, get_topic_date('F j, Y', $topic->topic_id) ) ?> </small>
 </li>
 <?php endforeach; ?>
 
