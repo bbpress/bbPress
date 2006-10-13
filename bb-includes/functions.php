@@ -1279,7 +1279,8 @@ function bb_repermalink() {
 				$pretty_args = array('id', 'page', 'tag', 'tab'); // these are already specified in the path
 				if ( is_view() )
 					$pretty_args[] = 'view';
-				$permalink = remove_query_arg($pretty_args, $permalink);
+				foreach ( $pretty_args as $pretty_arg )
+					$permalink = remove_query_arg( $pretty_arg, $permalink );
 			}
 	}
 
