@@ -1556,39 +1556,7 @@ function bb_count_last_query() {
 	return $bbdb->get_var($q);
 }
 
-// We should just require the most recent version of WP.
-if ( !function_exists('do_action_ref_array') ) :
-function do_action_ref_array($tag, $args) {
-	global $wp_filter;
-
-	merge_filters($tag);
-
-	if ( !isset($wp_filter[$tag]) )
-		return;
-
-	foreach ($wp_filter[$tag] as $priority => $functions) {
-		if ( !is_null($functions) ) {
-			foreach($functions as $function) {
-
-				$function_name = $function['function'];
-				$accepted_args = $function['accepted_args'];
-
-				if ( $accepted_args > 0 )
-					$the_args = array_slice($args, 0, $accepted_args);
-				elseif ( $accepted_args == 0 )
-					$the_args = NULL;
-				else
-					$the_args = $args;
-
-				call_user_func_array($function_name, $the_args);
-			}
-		}
-	}
-}
-endif;
-
 function bb_trusted_roles() {
 	return apply_filters( 'bb_trusted_roles', array('moderator', 'administrator', 'keymaster') );
 }
-
 ?>

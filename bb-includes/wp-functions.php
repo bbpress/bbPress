@@ -1,11 +1,14 @@
 <?php
 
+if ( !function_exists('stripslashes_deep') ) :
 function stripslashes_deep($value) { // [2700]
    return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
 }
+endif;
 
 /* Formatting */
 
+if ( !function_exists('wp_specialchars') ) :
 function wp_specialchars( $text, $quotes = 0 ) { // [3710]
 	// Like htmlspecialchars except don't double-encode HTML entities
 	$text = preg_replace('/&([^#])(?![a-z1-4]{1,8};)/', '&#038;$1', $text);
@@ -21,13 +24,17 @@ function wp_specialchars( $text, $quotes = 0 ) { // [3710]
 	}
 	return $text;
 }
+endif;
+
 
 // Escape single quotes, specialchar double quotes, and fix line endings.
+if ( !function_exists('js_escape') ) :
 function js_escape($text) { // [3907]
 	$text = wp_specialchars($text, 'double');
 	$text = str_replace('&#039;', "'", $text);
 	return preg_replace("/\r?\n/", "\\n", addslashes($text));
 }
+endif;
 
 /*
  balanceTags
@@ -48,6 +55,7 @@ function js_escape($text) { // [3907]
                   Added Cleaning Hooks
              1.0  First Version
 */
+if ( !function_exists('balanceTags') ) :
 function balanceTags($text, $is_comment = 0) {
 	
 	$tagstack = array(); $stacksize = 0; $tagqueue = ''; $newtext = '';
@@ -145,7 +153,9 @@ function balanceTags($text, $is_comment = 0) {
 
 	return $newtext;
 }
+endif;
 
+if ( !function_exists('make_clickable') ) :
 function make_clickable($ret) { // [4011]
 	$ret = ' ' . $ret;
 	$ret = preg_replace("#(^|[\n ])([\w]+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)#is", "$1<a href='$2' rel='nofollow'>$2</a>", $ret);
@@ -154,7 +164,9 @@ function make_clickable($ret) { // [4011]
 	$ret = trim($ret);
 	return $ret;
 }
+endif;
 
+if ( !function_exists('seems_utf8') ) :
 function seems_utf8($Str) { # by bmorel at ssi dot fr // [1345]
 	for ($i=0; $i<strlen($Str); $i++) {
 		if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
@@ -171,7 +183,9 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr // [1345]
 	}
 	return true;
 }
+endif;
 
+if ( !function_exists('remove_accents') ) :
 function remove_accents($string) { // [4320]
 	if ( !preg_match('/[\x80-\xff]/', $string) )
 		return $string;
@@ -301,9 +315,11 @@ function remove_accents($string) { // [4320]
 
 	return $string;
 }
+endif;
 
 /* Forms */
 
+if ( !function_exists('wp_referer_field') ) :
 function wp_referer_field() { // [3919]
 	$ref = wp_specialchars($_SERVER['REQUEST_URI']);
 	echo '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
@@ -312,26 +328,34 @@ function wp_referer_field() { // [3919]
 		echo '<input type="hidden" name="_wp_original_http_referer" value="'. $original_ref . '" />';
 	}
 }
+endif;
 
+if ( !function_exists('wp_original_referer_field') ) :
 function wp_original_referer_field() { // [3908]
 	echo '<input type="hidden" name="_wp_original_http_referer" value="' . wp_specialchars(stripslashes($_SERVER['REQUEST_URI'])) . '" />';
 }
+endif;
 
+if ( !function_exists('wp_get_referer') ) :
 function wp_get_referer() { // [3908]
 	foreach ( array($_REQUEST['_wp_http_referer'], $_SERVER['HTTP_REFERER']) as $ref )
 		if ( !empty($ref) )
 			return $ref;
 	return false;
 }
+endif;
 
+if ( !function_exists('wp_get_original_referer') ) :
 function wp_get_original_referer() { // [3908]
 	if ( !empty($_REQUEST['_wp_original_http_referer']) )
 		return $_REQUEST['_wp_original_http_referer'];
 	return false;
 }
+endif;
 
 /* Plugin API */
 
+if ( !function_exists('add_filter') ) :
 function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [3893]
 	global $wp_filter;
 
@@ -350,7 +374,9 @@ function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) 
 	$wp_filter[$tag]["$priority"][] = array('function'=>$function_to_add, 'accepted_args'=>$accepted_args);
 	return true;
 }
+endif;
 
+if ( !function_exists('apply_filters') ) :
 function apply_filters($tag, $string) { // [4179]
 	global $wp_filter;
 
@@ -383,7 +409,9 @@ function apply_filters($tag, $string) { // [4179]
 	}
 	return $string;
 }
+endif;
 
+if ( !function_exists('merge_filters') ) :
 function merge_filters($tag) { // [4289]
 	global $wp_filter;
 	if ( isset($wp_filter['all']) ) {
@@ -399,7 +427,9 @@ function merge_filters($tag) { // [4289]
 	if ( isset($wp_filter[$tag]) )
 		uksort( $wp_filter[$tag], "strnatcasecmp" );
 }
+endif;
 
+if ( !function_exists('remove_filter') ) :
 function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) { // [3893]
 	global $wp_filter;
 
@@ -415,11 +445,15 @@ function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args
 	}
 	return true;
 }
+endif;
 
+if ( !function_exists('add_action') ) :
 function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [3893]
 	add_filter($tag, $function_to_add, $priority, $accepted_args);
 }
+endif;
 
+if ( !function_exists('do_action') ) :
 function do_action($tag, $arg = '') { // [4179]
 	global $wp_filter;
 	$args = array();
@@ -454,8 +488,9 @@ function do_action($tag, $arg = '') { // [4179]
 		}
 	}
 }
+endif;
 
-/* functions.php
+if ( !function_exists('do_action_ref_array') ) :
 function do_action_ref_array($tag, $args) { // [4186]
 	global $wp_filter;
 
@@ -483,11 +518,13 @@ function do_action_ref_array($tag, $args) { // [4186]
 		}
 	}
 }
-*/
+endif;
 
+if ( !function_exists('remove_action') ) :
 function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) { // [3893]
 	remove_filter($tag, $function_to_remove, $priority, $accepted_args);
 }
+endif;
 
 /*
 add_query_arg: Returns a modified querystring by adding
@@ -499,6 +536,7 @@ Parameters:
 add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
+if ( !function_exists('add_query_arg') ) :
 function add_query_arg() { // [4123]
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
@@ -562,6 +600,7 @@ function add_query_arg() { // [4123]
 		$ret = stripslashes($ret); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
 	return trim($ret, '?');
 }
+endif;
 
 /*
 remove_query_arg: Returns a modified querystring by removing
@@ -573,6 +612,7 @@ remove_query_arg(removekey, [oldquery_or_uri]) or
 remove_query_arg(removekeyarray, [oldquery_or_uri])
 */
 
+if ( !function_exists('remove_query_arg') ) :
 function remove_query_arg($key, $query='') { // [3857]
 	if ( is_array($key) ) { // removing multiple keys
 		foreach ( (array) $key as $k )
@@ -581,7 +621,9 @@ function remove_query_arg($key, $query='') { // [3857]
 	}
 	return add_query_arg($key, '', $query);
 }
+endif;
 
+if ( !function_exists('status_header') ) :
 function status_header( $header ) { // [3005]
 	if ( 200 == $header )
 		$text = 'OK';
@@ -599,21 +641,27 @@ function status_header( $header ) { // [3005]
 	@header("HTTP/1.1 $header $text");
 	@header("Status: $header $text");
 }
+endif;
 
+if ( !function_exists('nocache_headers') ) :
 function nocache_headers() { // [2623]
 	@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 	@ header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 	@ header('Cache-Control: no-cache, must-revalidate, max-age=0');
 	@ header('Pragma: no-cache');
 }
+endif;
 
+if ( !function_exists('cache_javascript_headers') ) :
 function cache_javascript_headers() { // Not verbatim WP.  Charset hardcoded.
 	$expiresOffset = 864000; // 10 days
 	header("Content-type: text/javascript; charset=utf-8");
 	header("Vary: Accept-Encoding"); // Handle proxies
 	header("Expires: " . gmdate("D, d M Y H:i:s", time() + $expiresOffset) . " GMT");
 }
+endif;
 
+if ( !class_exists('WP_Error') ) :
 class WP_Error { // [4122]
 	var $errors = array();
 	var $error_data = array();
@@ -691,13 +739,17 @@ class WP_Error { // [4122]
 		$this->error_data[$code] = $data;
 	}
 }
+endif;
 
+if ( !function_exists('is_wp_error') ) :
 function is_wp_error($thing) { // [3667]
 	if ( is_object($thing) && is_a($thing, 'WP_Error') )
 		return true;
 	return false;
 }
+endif;
 
+if ( !class_exists('WP_Ajax_Rpespons') ) :
 class WP_Ajax_Response { // [4187]
 	var $responses = array();
 
@@ -760,9 +812,11 @@ class WP_Ajax_Response { // [4187]
 		die();
 	}
 }
+endif;
 
 /* Templates */
 
+if ( !function_exists('paginate_links') ) :
 function paginate_links( $arg = '' ) { // [4276]
 	if ( is_array($arg) )
 		$a = &$arg;
@@ -845,4 +899,5 @@ function paginate_links( $arg = '' ) { // [4276]
 	endswitch;
 	return $r;
 }
+endif;
 ?>
