@@ -72,9 +72,6 @@ header( 'Content-Type: text/html; charset=utf-8' );
 		padding-top: 1em;
 		font-style: italic;
 	}
-	.warning {
-		background: #ff6;
-	}
 	-->
 	</style>
 </head>
@@ -91,17 +88,6 @@ $bbdb->show_errors();
 switch ($step):
 	case 0:
 ?>
-<div class="warning" style="padding: 1em;">
-<p>bbPress is <em>alpha software</em>.  That means it will</p>
-<ol>
-<li>eat all your data,</li>
-<li>crush your dreams,</li>
-<li>and stab you in the eye</li>
-</ol>
-
-<p>It's currently best for semi-savvy users.</p>
-
-</div>
 <p><?php _e('Welcome to bbPress installation. We&#8217;re now going to go through a few steps to get you up and running with the latest in forums software.'); ?></p>
 	<h2 class="step"><a href="install.php?step=1"><?php _e('First Step &raquo;'); ?></a></h2>
 <?php
