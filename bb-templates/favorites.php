@@ -8,7 +8,7 @@
 To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic&#8217;s page.'); ?></p>
 
 <?php if ( $user_id == $bb_current_user->ID ) : ?>
-<p>Subscribe to your favorites' <a href="<?php favorites_rss_link( $bb_current_user->ID ) ?>"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.</p>
+<p><?php printf(__('Subscribe to your favorites&#8217; <a href="%s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), get_favorites_rss_link( $bb_current_user->ID )) ?></p>
 <?php endif; ?>
 
 <?php if ( $topics ) : ?>

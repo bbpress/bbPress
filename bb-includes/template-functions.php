@@ -426,7 +426,7 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	else {
 		$link = bb_get_option('uri') . 'topic.php';
 		$args['id'] = $topic->topic_id;
-		$args['page'] = 1 < $page ? $page : ''; 
+		$args['page'] = 1 < $page ? $page : '';
 	}
 
 	if ( bb_current_user_can('write_posts') )
@@ -521,6 +521,9 @@ function topic_date( $format = '', $id = 0 ) {
 	echo gmdate( $format, get_topic_timestamp( $id ) );
 }
 
+function return_topic_date( $format = '', $id = 0 ){
+	return gmdate( $format, get_topic_timestamp( $id ) );
+}
 function get_topic_timestamp( $id = 0 ) {
 	global $topic;
 	if ( $id )
@@ -530,6 +533,11 @@ function get_topic_timestamp( $id = 0 ) {
 
 function topic_start_time( $id = 0 ) {
 	echo apply_filters('topic_start_time', get_topic_start_time($id) );
+}
+
+function return_topic_start_time( $id = 0 ) {
+	// Oh no!
+	return apply_filters('topic_start_time', get_topic_start_time($id) );
 }
 
 function get_topic_start_time( $id = 0 ) {
@@ -582,7 +590,7 @@ function topic_resolved( $yes = '', $no = '', $mu = '', $id = 0 ) {
 			case 'mu'  : echo $mu;  break;
 		}
 	endif;
-}	
+}
 
 function get_topic_resolved( $id = 0 ) {
 	global $topic;
@@ -593,12 +601,16 @@ function get_topic_resolved( $id = 0 ) {
 
 function topic_last_post_link( $id = 0 ) {
 	global $topic;
+	echo apply_filters( 'topic_last_post_link', get_topic_last_post_link( $id ));
+}
+
+function get_topic_last_post_link( $id = 0 ){
+	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
 	$page = get_page_number( $topic->topic_posts );
-	echo apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
+	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
 }
-
 function topic_pages() {
 	global $topic, $page;
 	$add = topic_pages_add();
@@ -626,10 +638,10 @@ function get_page_number_links($page, $total) {
 		else :
 			$uri = preg_replace('|/page/[0-9]+|', '%_%', $uri);
 		endif;
-	else : 
+	else :
 		$uri = add_query_arg( 'page', '%_%', $uri );
 	endif;
-		
+
 	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
 		$args['view'] = $_GET['view'];
 
@@ -1151,7 +1163,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 		$taglinks{$tag->raw_tag} = get_tag_link();
 	}
 
-	$spread = max($counts) - min($counts); 
+	$spread = max($counts) - min($counts);
 	if ( $spread <= 0 )
 		$spread = 1;
 	$fontspread = $largest - $smallest;

@@ -4,6 +4,6 @@
 
 <h2 id="register"><?php _e('Great!'); ?></h2>
 
-<p>Your registration as <strong><?php echo $user_login; ?></strong> was successful. Within a few minutes you should receive an email with your password.</p>
+<p><?php printf(__('Your registration as <strong>%s</strong> was successful. Within a few minutes you should receive an email with your password.'), $user_login) ?></p>
 
 <?php bb_get_footer(); ?>

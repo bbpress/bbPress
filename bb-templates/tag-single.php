@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>">Tags</a> &raquo; <?php tag_name(); ?></h3>
 
-<p><a href="<?php tag_rss_link(); ?>"><abbr title="Really Simple Syndication">RSS</abbr> link for this tag.</a></p>
+<p><a href="<?php tag_rss_link(); ?>"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag.') ?></a></p>
 
 <?php do_action('tag_above_table', ''); ?>
 

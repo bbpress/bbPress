@@ -7,11 +7,11 @@
 <?php topic_tags(); ?>
 
 <ul class="topicmeta">
-	<li>Started <?php topic_start_time(); ?> ago by <?php topic_author(); ?></li>
+	<li><?php printf(__('Started %1$s ago by %2$s'), return_topic_start_time(), get_topic_author()) ?></li>
 <?php if ( 1 < get_topic_posts() ) : ?>
-	<li><a href="<?php topic_last_post_link(); ?>">Latest reply</a> from <?php topic_last_poster(); ?></li>
+	<li><?php printf(__('<a href="%1$s">Latest reply</a> from %2$s'), get_topic_last_post_link(), get_topic_last_poster()) ?></li>
 <?php endif; ?>
-	<li id="resolution-flipper">This topic is <?php topic_resolved(); ?></li>
+	<li id="resolution-flipper"><?php _e('This topic is') ?> <?php topic_resolved(); ?></li>
 <?php if ( $bb_current_user ) : $class = 0 === is_user_favorite( $bb_current_user->ID ) ? ' class="is-not-favorite"' : ''; ?>
 	<li<?php echo $class;?> id="favorite-toggle"><?php user_favorites_link() ?></li>
 <?php endif; do_action('topicmeta'); ?>
@@ -34,7 +34,7 @@
 
 </ol>
 <div class="clearit"><br style=" clear: both;" /></div>
-<p><a href="<?php topic_rss_link(); ?>">RSS feed for this topic</a></p>
+<p><a href="<?php topic_rss_link(); ?>"><?php _e('RSS feed for this topic') ?></a></p>
 <div class="nav">
 <?php topic_pages(); ?>
 </div>
@@ -42,11 +42,11 @@
 <?php if ( topic_is_open( $bb_post->topic_id ) ) : ?>
 <?php post_form(); ?>
 <?php else : ?>
-<h2>Topic Closed</h2>
-<p>This topic has been closed to new replies.</p>
+<h2><?php _e('Topic Closed') ?></h2>
+<p><?php _e('This topic has been closed to new replies.') ?></p>
 <?php endif; ?>
 <div class="admin">
-<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?><br />
+[<?php topic_delete_link(); ?>] [<?php topic_close_link(); ?>] [<?php topic_sticky_link(); ?>]<br />
 <?php topic_move_dropdown(); ?>
 </div>
 <?php bb_get_footer(); ?>

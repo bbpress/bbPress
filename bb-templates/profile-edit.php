@@ -21,7 +21,7 @@ endif;
 <?php endif; endforeach; endif; ?>
 </table>
 <?php if ( $required ) : ?>
-<p><sup>*</sup>These items are <span class="required">required</span>.</p>
+<p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
 <?php endif; ?>
 </fieldset>
 
@@ -60,12 +60,12 @@ endif;
 <?php endforeach; endif; ?>
 <tr>
   <th scope="row"><?php _e('Delete user:'); ?></th>
-  <td><label for="user_status"><input type="checkbox" name="user_status" id="user_status" value="1" /> <?php _e('Check to delete user.  This cannote be easily undone.'); ?></label>
+  <td><label for="user_status"><input type="checkbox" name="user_status" id="user_status" value="1" /> <?php _e('Check to delete user.  This cannot be easily undone.'); ?></label>
   </td>
 </tr>
 </table>
 <?php if ( $required ) : ?>
-<p><sup>*</sup>These items are <span class="required">required</span>.</p>
+<p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
 <?php endif; ?>
 <p><?php _e('Deletion attributes all content to Anonymous and cannot be easily undone.  A Deleted user can do anything any non-logged in person can do.
 A more useful solution to user problems is to change a user&#8217;s User Type to Inactive or Blocked.

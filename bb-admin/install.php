@@ -1,6 +1,6 @@
 <?php
 define('BB_INSTALLING', true);
-if (!file_exists('../config.php')) 
+if (!file_exists('../config.php'))
     die('There doesn&#8217;t seem to be a <code>config.php</code> file. I need this before we can get started.');
 
 require_once('../config.php');
@@ -29,17 +29,17 @@ header( 'Content-Type: text/html; charset=utf-8' );
 		margin-right: 20%;
 		padding: .2em 2em;
 	}
-	
+
 	h1 {
 		color: #060;
 		font-size: 18px;
 		font-weight: lighter;
 	}
-	
+
 	h2 {
 		font-size: 16px;
 	}
-	
+
 	p, li, dt {
 		line-height: 140%;
 		padding-bottom: 2px;
@@ -67,9 +67,9 @@ header( 'Content-Type: text/html; charset=utf-8' );
 		background: #eee;
 	}
 	#footer {
-		text-align: center; 
-		border-top: 1px solid #ccc; 
-		padding-top: 1em; 
+		text-align: center;
+		border-top: 1px solid #ccc;
+		padding-top: 1em;
 		font-style: italic;
 	}
 	.warning {
@@ -136,17 +136,17 @@ switch ($step):
 <form id="setup" method="post" action="install.php?step=2">
 <h2><?php _e('Administrator'); ?></h2>
 <?php	if ( $keymaster ) : ?>
-<p>We found <strong><?php echo get_user_name( $keymaster->ID ); ?></strong> who is already a "Key Master" on these forums.  You may make others later.</p>
+<p><?php printf(__('We found <strong>%s</strong> who is already a "Key Master" on these forums.  You may make others later'), get_user_name( $keymaster->ID )) ?>.</p>
 <input type="hidden" name="old_keymaster" value="<?php echo $keymaster->ID; ?>" />
 <?php elseif ( $users ) : ?>
-<p>Please select a user below to be the keymaster for these forums.  You can make more later if you choose.</p>
+<p><?php _e('Please select a user below to be the keymaster for these forums.  You can make more later if you choose.') ?></p>
 <select name="new_keymaster">
-	<option value='new'>Create a new User</option>
+	<option value='new'><?php _e('Create a new User') ?></option>
 <?php	foreach ( $users as $user )
 		echo "\t<option value='$user->ID'>" . get_user_name( $user->ID ) . "</option>\n"; ?>
 </select>
 <?php else : ?>
-<table width="100%" cellpadding="4"> 
+<table width="100%" cellpadding="4">
 <tr class="alt">
 <td class="required" width="25%"><?php _e('Login name:'); ?>*</td>
 <td><input name="admin_login" type="text" id="admin_login" size="25" /></td>
@@ -235,8 +235,8 @@ $forum_desc = ( isset( $_POST['forum_desc'] ) ) ? $_POST['forum_desc'] : '' ;
 bb_new_forum( $forum_name, $forum_desc );
 
 // First Topic
-bb_new_topic('Your first topic', 1, 'bbPress');
-bb_new_post(1, 'First Post!  w00t.');
+bb_new_topic(__('Your first topic'), 1, 'bbPress');
+bb_new_post(1, __('First Post!  w00t.'));
 
 $message_headers = 'From: ' . $forum_name . ' <' . $bb->admin_email . '>';
 $message = sprintf(__("Your new bbPress site has been successfully set up at:

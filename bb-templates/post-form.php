@@ -12,7 +12,7 @@
 </p>
 <?php if ( !is_topic() ) : ?>
 <p>
-	<label for="tags">Enter a few words (called <a href="<?php tag_page_link(); ?>">tags</a>) separated by spaces to help someone find your topic:
+	<label for="tags"><?php printf(__('Enter a few words (called <a href="%s">tags</a>) separated by spaces to help someone find your topic:'), get_tag_page_link()) ?>
 		<input name="tags" type="text" size="50" maxlength="100" value="<?php tag_name(); ?> " tabindex="4" />
 	</label>
 </p>
