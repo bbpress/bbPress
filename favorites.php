@@ -23,21 +23,23 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 		bb_remove_user_favorite( $user_id, $topic_id );
 
 	if ( false !== strpos( $_SERVER['HTTP_REFERER'], bb_get_option('uri') ) )
-		@header('Location: ' . $_SERVER['HTTP_REFERER'] );
+		wp_redirect( $_SERVER['HTTP_REFERER'] );
 	else
-		@header('Location: ' . get_topic_link( $topic_id ) );
+		wp_redirect( get_topic_link( $topic_id ) );
 	exit;
 endif;
 
 if ( !is_bb_profile() ) {
 	$sendto = get_profile_tab_link( $user->ID, 'favorites' );
-	header("Location: $sendto");
+	wp_redirect( $sendto );
 }
 
 $topics = get_user_favorites( $user->ID, true );
 
-if (file_exists( BBPATH . 'my-templates/favorites.php' ))
+if ( file_exists(BBPATH . 'my-templates/favorites.php' ) ) {
 	require( BBPATH . 'my-templates/favorites.php' );
-else	require( BBPATH . 'bb-templates/favorites.php' );
+} else {
+	require( BBPATH . 'bb-templates/favorites.php' );
+}
 
 ?>

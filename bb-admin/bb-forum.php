@@ -20,7 +20,7 @@ case 'add' :
 	$forum_desc = $_POST['forum-desc'];
 	$forum_order = ( '' === $_POST['forum-order'] ) ? 0 : (int) $_POST['forum-order'];
 	if ( false !== bb_new_forum( $forum_name, $forum_desc, $forum_order ) ) :
-		header("Location: $sent_from");
+		wp_redirect( $sent_from );
 		exit;
 	else :
 		bb_die(__('The forum was not added'));
@@ -35,7 +35,7 @@ case 'update' :
 		if ( isset($_POST['name-' . $forum->forum_id]) && '' !== $_POST['name-' . $forum->forum_id] )
 			bb_update_forum( $forum->forum_id, $_POST['name-' . $forum->forum_id], $_POST['desc-' . $forum->forum_id], $_POST['order-' . $forum->forum_id]);
 	endforeach;
-	header("Location: $sent_from");
+	wp_redirect( $sent_from );
 	exit;
 	break;
 endswitch;

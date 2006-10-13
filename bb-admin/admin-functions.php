@@ -57,7 +57,7 @@ function bb_get_current_admin_menu() {
 		}
 	endif;
 	if ( $bb_current_submenu && !bb_current_user_can( $bb_current_submenu[1] ) || !bb_current_user_can( $bb_current_menu[1] ) ) {
-		header('Location: ' . bb_get_option('uri'));
+		wp_redirect( bb_get_option( 'uri' ) );
 		exit();
 	}
 }

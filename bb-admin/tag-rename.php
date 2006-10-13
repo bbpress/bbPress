@@ -16,7 +16,7 @@ if ( !$old_tag )
 	bb_die(__('Tag not found.'));
 
 if ( $tag = rename_tag( $tag_id, $tag ) )
-	header('Location: ' . get_tag_link() );
+	wp_redirect( get_tag_link() );
 else
 	die(printf(__('There already exists a tag by that name or the name is invalid. <a href="%s">Try Again</a>'), $_SERVER['HTTP_REFERER']));
 ?>

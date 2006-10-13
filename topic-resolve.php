@@ -19,7 +19,7 @@ if ( !bb_current_user_can( 'edit_topic', $topic_id ) )
 bb_check_admin_referer( 'resolve-topic_' . $topic_id );
 
 if ( bb_resolve_topic( $topic_id, $resolved ) )
-	header('Location: ' . get_topic_link( $topic_id ) );
+	wp_redirect( get_topic_link( $topic_id ) );
 else
 	bb_die(__('That is not the sound of one hand clapping.'));
 ?>

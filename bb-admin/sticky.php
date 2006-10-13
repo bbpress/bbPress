@@ -9,7 +9,7 @@ if ( !$topic )
 	bb_die(__('There is a problem with that topic, pardner.'));
 
 if ( !bb_current_user_can('manage_topics') ) {
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }
 
@@ -20,7 +20,7 @@ if ( topic_is_sticky( $topic_id ) )
 else
 	bb_stick_topic   ( $topic_id, $super );
 
-header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
+wp_redirect( $_SERVER['HTTP_REFERER'] );
 exit;
 
 ?>

@@ -149,6 +149,27 @@ function bb_logout() {
 }
 endif;
 
+// Cookie safe redirect.  Works around IIS Set-Cookie bug.
+// http://support.microsoft.com/kb/q176113/
+if ( !function_exists('wp_redirect') ) : // [WP4273]
+function wp_redirect($location, $status = 302) {
+	global $is_IIS;
+
+	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%]|i', '', $location);
+	$location = wp_kses_no_null($location);
+
+	$strip = array('%0d', '%0a');
+	$location = str_replace($strip, '', $location);
+
+	if ( $is_IIS ) {
+		header("Refresh: 0;url=$location");
+	} else {
+		status_header($status); // This causes problems on IIS
+		header("Location: $location");
+	}
+}
+endif;
+
 if ( !function_exists('bb_verify_nonce') ) :
 function bb_verify_nonce($nonce, $action = -1) {
 	$user = bb_get_current_user();

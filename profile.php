@@ -5,7 +5,7 @@ if ( isset($_GET['username']) ) :
 	$user = bb_get_user_by_name( $_GET['username'] );
 	if ( !$user )
 		bb_die(__('Username not found.'));
-	header('Location: ' . get_user_profile_link( $user->ID ) );
+	wp_redirect( get_user_profile_link( $user->ID ) );
 	exit;
 endif;
 
@@ -16,10 +16,11 @@ if ( !$user )
 	bb_die(__('User not found.'));
 
 if ( $self ) {
-	if ( strpos($self, '.php') !== false )
+	if ( strpos($self, '.php') !== false ) {
 		require($self);
-	else
+	} else {
 		require( BBPATH . 'profile-base.php' );
+	}
 	return;
 }
 
@@ -45,7 +46,9 @@ add_filter('bb_post_time', 'bb_since');
 
 do_action( 'bb_profile.php', $user_id );
 
-if (file_exists( BBPATH . 'my-templates/profile.php' ))
+if ( file_exists(BBPATH . 'my-templates/profile.php') ) {
 	require( BBPATH . 'my-templates/profile.php' );
-else	require( BBPATH . 'bb-templates/profile.php' );
+} else {
+	require( BBPATH . 'bb-templates/profile.php' );
+}
 ?>

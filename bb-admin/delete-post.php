@@ -9,7 +9,7 @@ if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
 }
 
 if ( !bb_current_user_can('manage_posts') ) {
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }
 
@@ -30,7 +30,7 @@ if ( $topic->topic_posts == 0 )
 else
 	$sendto = $_SERVER['HTTP_REFERER'];
 
-header( "Location: $sendto" );
+wp_redirect( $sendto );
 exit;
 
 ?>

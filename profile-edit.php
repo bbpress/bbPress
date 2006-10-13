@@ -5,15 +5,15 @@ bb_auth();
 
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_option('uri');
-	header("Location: $sendto");
+	wp_redirect( $sendto );
 }
 
 if ( !is_bb_profile() ) {
 	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );
-	header("Location: $sendto");
+	wp_redirect( $sendto );
 }
 
-require_once( BBPATH . BBINC . '/registration-functions.php');
+require_once(BBPATH . BBINC . '/registration-functions.php');
 
 if ( !$user->capabilities )
 	$user->capabilities = array('inactive' => true);
@@ -103,12 +103,14 @@ if ($_POST) :
 		do_action('profile_edited', $user->ID);
 
 		$sendto = add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) );
-		header("Location: $sendto");
+		wp_redirect( $sendto );
 		exit();	
 	endif;
 endif;
 
-if (file_exists( BBPATH . 'my-templates/profile-edit.php' ))
+if ( file_exists(BBPATH . 'my-templates/profile-edit.php') ) {
 	require( BBPATH . 'my-templates/profile-edit.php' );
-else	require( BBPATH . 'bb-templates/profile-edit.php' );
+} else {
+	require( BBPATH . 'bb-templates/profile-edit.php' );
+}
 ?>

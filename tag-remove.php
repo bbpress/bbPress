@@ -17,7 +17,7 @@ if ( !$tag || !$topic )
 	bb_die(__('The dude does not abide.'));
 
 if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) )
-	header( 'Location: ' . $_SERVER['HTTP_REFERER'] );
+	wp_redirect( $_SERVER['HTTP_REFERER'] );
 else
 	bb_die(__('The tag was not removed.  You cannot remove a tag from a closed topic.'));
 exit;

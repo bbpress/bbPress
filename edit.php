@@ -12,7 +12,7 @@ $post_id = (int) $_GET['id'];
 $bb_post  = bb_get_post( $post_id );
 
 if ( !$bb_post || !bb_current_user_can( 'edit_post', $post_id ) ) {
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 	die();
 }
 
@@ -23,8 +23,10 @@ if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $top
 else 
 	$topic_title = false;
 
-if (file_exists( BBPATH . 'my-templates/edit-post.php' ))
+if ( file_exists(BBPATH . 'my-templates/edit-post.php') ) {
 	require( BBPATH . 'my-templates/edit-post.php' );
-else	require( BBPATH . 'bb-templates/edit-post.php' );
+} else {
+	require( BBPATH . 'bb-templates/edit-post.php' );
+}
 
 ?>

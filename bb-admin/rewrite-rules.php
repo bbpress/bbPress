@@ -4,7 +4,7 @@ require('admin-action.php');
 header('Content-type: text/plain');
 
 if ( !bb_current_user_can('manage_options') ) {
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }
 

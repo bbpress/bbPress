@@ -48,9 +48,9 @@ if ( $topic->topic_posts )
 	$link = add_query_arg( 'replies', $topic->topic_posts, $link );
 
 if ($post_id)
-	header('Location: ' . $link );
+	wp_redirect( $link );
 else
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 exit;
 
 ?>

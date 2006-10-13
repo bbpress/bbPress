@@ -33,6 +33,7 @@ function bb_timer_start() {
 }
 bb_timer_start();
 
+$is_IIS = strstr($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') ? 1 : 0;
 // Fix for IIS, which doesn't set REQUEST_URI
 if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 	$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME']; // Does this work under CGI?
@@ -65,6 +66,7 @@ require( BBPATH . BBINC . '/cache.php');
 require( BBPATH . BBINC . '/deprecated.php');
 require( BBPATH . BBINC . '/wp-functions.php');
 if ( !( defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
+	require( BBPATH . BBINC . '/kses.php');
 	if ( defined('WPLANG') && '' != constant('WPLANG') ) {
 		include_once(BBPATH . BBINC . '/streams.php');
 		include_once(BBPATH . BBINC . '/gettext.php');

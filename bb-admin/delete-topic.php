@@ -7,7 +7,7 @@ if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
 }
 
 if ( !bb_current_user_can('manage_topics') ) {
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }
 
@@ -27,7 +27,7 @@ if ( 0 == $topic->topic_status )
 else
 	$sendto = get_topic_link( $topic_id );
 	
-header( "Location: $sendto" );
+wp_redirect( $sendto );
 exit;
 
 ?>

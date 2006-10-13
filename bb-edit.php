@@ -12,7 +12,7 @@ $post_id = (int) $_POST['post_id'];
 $bb_post  = bb_get_post( $post_id );
 
 if ( !$bb_post ) {
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 	die();
 }
 
@@ -27,7 +27,7 @@ if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_
 bb_update_post( $_POST['post_content'], $post_id, $bb_post->topic_id );
 
 if ($post_id)
-	header('Location: ' . get_post_link($post_id) );
+	wp_redirect( get_post_link( $post_id ) );
 else
-	header('Location: ' . bb_get_option('uri') );
+	wp_redirect( bb_get_option( 'uri' ) );
 ?>

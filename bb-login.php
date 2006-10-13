@@ -12,7 +12,7 @@ nocache_headers();
 
 if ( isset( $_REQUEST['logout'] ) ) {
 	bb_logout();
-	header('Location: ' . $re);
+	wp_redirect( $re );
 	exit;
 }
 
@@ -24,5 +24,5 @@ if ( !bb_is_user_logged_in() && !$user = bb_login( @$_POST['user_login'], @$_POS
 	exit;
 }
 
-header('Location: ' . $re);
+wp_redirect( $re );
 ?>

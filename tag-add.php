@@ -16,7 +16,7 @@ if ( !$topic )
 	bb_die(__('Topic not found.'));
 
 if ( add_topic_tag( $topic_id, $tag ) )
-	header('Location: ' . get_topic_link( $topic_id ) );
+	wp_redirect( get_topic_link( $topic_id ) );
 else
 	bb_die(__('The tag was not added.  Either the tag name was invalid or the topic is closed.'));
 ?>
