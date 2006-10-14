@@ -27,6 +27,7 @@ RewriteRule ^profile/([0-9]+)/([a-z]+)/page/([0-9]+)$ <?php echo $bb->path; ?>pr
 RewriteRule ^profile/([0-9]+)$ <?php echo $bb->path; ?>profile.php?id=$1 [L,QSA]
 RewriteRule ^view/([a-z-]+)/page/([0-9]+)$ <?php echo $bb->path; ?>view.php?view=$1&page=$2 [L,QSA]
 RewriteRule ^view/([a-z-]+)$ <?php echo $bb->path; ?>view.php?view=$1 [L,QSA]
+RewriteRule ^rss/$ <?php echo $bb->path; ?>rss.php [L,QSA]
 RewriteRule ^rss/forum/([0-9]+)$ <?php echo $bb->path; ?>rss.php?forum=$1 [L,QSA]
 RewriteRule ^rss/topic/([0-9]+)$ <?php echo $bb->path; ?>rss.php?topic=$1 [L,QSA]
 RewriteRule ^rss/tags/([a-z]+)$ <?php echo $bb->path; ?>rss.php?tag=$1 [L,QSA]
