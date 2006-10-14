@@ -306,7 +306,7 @@ function bb_get_option( $option ) {
 		return $bb->edit_lock;
 		break;
 	case 'version' :
-		return '1.0-a';
+		return '0.72';
 		break; 
 	endswitch;
 }
