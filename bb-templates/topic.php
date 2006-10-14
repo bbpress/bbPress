@@ -45,8 +45,10 @@
 <h2><?php _e('Topic Closed') ?></h2>
 <p><?php _e('This topic has been closed to new replies.') ?></p>
 <?php endif; ?>
+<?php if ( bb_current_user_can('manage_topics') ) : ?>
 <div class="admin">
 [<?php topic_delete_link(); ?>] [<?php topic_close_link(); ?>] [<?php topic_sticky_link(); ?>]<br />
 <?php topic_move_dropdown(); ?>
 </div>
+<?php endif; ?>
 <?php bb_get_footer(); ?>
