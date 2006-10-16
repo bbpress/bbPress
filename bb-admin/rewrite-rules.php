@@ -18,7 +18,7 @@ RewriteRule ^forum/([0-9]+)/page/([0-9]+)$ <?php echo $bb->path; ?>forum.php?id=
 RewriteRule ^forum/([0-9]+)$ <?php echo $bb->path; ?>forum.php?id=$1 [L,QSA]
 RewriteRule ^topic/([0-9]+)/page/([0-9]+)$ <?php echo $bb->path; ?>topic.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^topic/([0-9]+)$ <?php echo $bb->path; ?>topic.php?id=$1 [L,QSA]
-RewriteRule ^tags/(.+)/page/([0-9]+)$ <?php echo $bb->path; ?>ags.php?tag=$1&page=$2 [L,QSA]
+RewriteRule ^tags/(.+)/page/([0-9]+)$ <?php echo $bb->path; ?>tags.php?tag=$1&page=$2 [L,QSA]
 RewriteRule ^tags/(.+)/?$ <?php echo $bb->path; ?>tags.php?tag=$1 [L,QSA]
 RewriteRule ^tags/? <?php echo $bb->path; ?>tags.php [L,QSA]
 RewriteRule ^profile/([0-9]+)/page/([0-9]+)$ <?php echo $bb->path; ?>profile.php?id=$1&page=$2 [L,QSA]
