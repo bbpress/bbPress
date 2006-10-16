@@ -43,7 +43,7 @@ $bb->akismet_key = false;
 // The rest is only useful if you are integrating bbPress with WordPress.
 // If you're not, just leave the rest as it is.
 
-$bb->wp_table_prefix = false;  // 'wp_'; // WordPress table prefix.
+$bb->wp_table_prefix = false;  // WordPress table prefix.  Example: 'wp_';
 $bb->wp_home = false;  // WordPress - Options->General: Blog address (URL) // No trailing slash
 $bb->wp_siteurl = false;  // WordPress - Options->General: WordPress address (URL) // No trailing slash
 
