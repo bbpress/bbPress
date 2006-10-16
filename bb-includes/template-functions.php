@@ -1255,7 +1255,11 @@ function get_favorites_rss_link( $id = 0 ) {
 }
 
 //VIEWS
-function view_name() {
+function view_name() { // Filtration should be done at get_views() level
+	echo get_view_name();
+}
+
+function get_view_name() {
 	global $view;
 	$views = get_views();
 	echo $views[$view];
@@ -1266,15 +1270,24 @@ function view_pages() {
 	echo apply_filters( 'view_pages', get_page_number_links( $page, $view_count ) );
 }
 
-function get_view_link( $view, $page = 1 ) {
+function view_link( $_view = false, $page = 1 ) {
+	echo get_view_link( $_view, $page );
+}
+
+function get_view_link( $_view = false, $page = 1 ) {
+	global $view;
+	if ( $_view )
+		$v =& $_view;
+	else
+		$v =& $view;
 	$views = get_views();
-	if ( !array_key_exists($view, $views) )
+	if ( !array_key_exists($v, $views) )
 		return bb_get_option('uri');
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . 'view/' . $view . ( 1 < $page ? "/page/$page" : '' );
+		$link = bb_get_option('uri') . 'view/' . $v . ( 1 < $page ? "/page/$page" : '' );
 	else
-		$link = bb_get_option('uri') . "view.php?view=$view" . ( 1 < $page ? "&page=$page" : '');
+		$link = bb_get_option('uri') . "view.php?view=$v" . ( 1 < $page ? "&page=$page" : '');
 
-	return apply_filters( 'get_view_link', $link, $view, $page );
+	return apply_filters( 'get_view_link', $link, $v, $page );
 }
 ?>

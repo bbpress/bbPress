@@ -63,7 +63,7 @@
 <h2><?php _e('Views'); ?></h2>
 <ul id="views">
 <?php foreach ( get_views() as $view => $title ) : ?>
-<li class="view"><a href="<?php echo get_view_link($view); ?>"><?php echo $view; ?></a></li>
+<li class="view"><a href="<?php view_link(); ?>"><?php view_name(); ?></a></li>
 <?php endforeach; ?>
 </ul>
 </div>

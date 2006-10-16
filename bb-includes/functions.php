@@ -1390,8 +1390,9 @@ function get_assignable_caps() {
 
 function get_views( $cache = true ) {
 	global $bb_current_user, $views;
-	if ( !isset($views) || !$cache )
-		$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
+	if ( isset($views) && $cache )
+		return $views;
+	$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
 	return apply_filters('bb_views', $views);
 }
 
