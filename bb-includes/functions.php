@@ -245,34 +245,36 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 function bb_since( $original, $do_more = 0 ) {
 	// array of time period chunks
 	$chunks = array(
-		array(60 * 60 * 24 * 365 , __('year')),
-		array(60 * 60 * 24 * 30 , __('month')),
-		array(60 * 60 * 24 * 7, __('week')),
-		array(60 * 60 * 24 , __('day')),
-		array(60 * 60 , __('hour')),
-		array(60 , __('minute')),
+		array(60 * 60 * 24 * 365 , __('year') , __('years')),
+		array(60 * 60 * 24 * 30 , __('month') , __('months')),
+		array(60 * 60 * 24 * 7, __('week') , __('weeks')),
+		array(60 * 60 * 24 , __('day') , __('days')),
+		array(60 * 60 , __('hour') , __('hours')),
+		array(60 , __('minute') , __('minutes')),
 	);
 
 	$today = time();
 	$since = $today - bb_offset_time($original);
-	
+
 	for ($i = 0, $j = count($chunks); $i < $j; $i++) {
 		$seconds = $chunks[$i][0];
 		$name = $chunks[$i][1];
-		
+		$names = $chunks[$i][2];
+
 		if (($count = floor($since / $seconds)) != 0)
 			break;
 	}
-	
-	$print = ($count == 1) ? '1 '.$name : "$count {$name}s";
-	
+
+	$print = sprintf(__('%1$d %2$s'), $count, ($count == 1) ? $name : $names);
+
 	if ($i + 1 < $j) {
 		$seconds2 = $chunks[$i + 1][0];
 		$name2 = $chunks[$i + 1][1];
-		
+		$names2 = $chunks[$i + 1][1];
+
 		// add second item if it's greater than 0
 		if ( (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) && $do_more )
-			$print .= ($count2 == 1) ? ', 1 '.$name2 : ", $count2 {$name2}s";
+			$print .= sprintf(__(', %1$d %2$s'), $count2, ($count2 == 1) ? $name2 : $names2);
 	}
 	return $print;
 }
