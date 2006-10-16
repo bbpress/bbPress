@@ -9,11 +9,33 @@ function bb_get_header() {
 	}
 }
 
-function bb_stylesheet_uri() {
-	if ( file_exists( BBPATH . 'my-templates/style.css') )
-		echo bb_get_option('uri') . 'my-templates/style.css';
+function language_attributes() {
+	$output = '';
+	if ( $dir = bb_get_option('text_direction') )
+		$output = "dir=\"$dir\"";
+	if ( $lang = bb_get_option('language') ) {
+		if ( $dir ) $output .= ' ';
+		$output .= "lang=\"$lang\" xml:lang=\"$lang\"";
+	}
+
+	echo $output;
+}
+
+function bb_stylesheet_uri( $stylesheet = '' ) {
+	echo bb_get_stylesheet_uri( $stylesheet );
+}
+
+function bb_get_stylesheet_uri( $stylesheet = '' ) {
+	if ( 'rtl' == $stylesheet )
+		$css_file = 'style-rtl.css';
 	else
-		echo bb_get_option('uri') . 'bb-templates/style.css';
+		$css_file = 'style.css';
+
+	if ( file_exists( BBPATH . 'my-templates/style.css') )
+		$r = bb_get_option('uri') . 'my-templates/' . $css_file;
+	else
+		$r = bb_get_option('uri') . 'bb-templates/' . $css_file;
+	return apply_filters( 'bb_get_stylesheet_uri', $r, $stylesheet );
 }
 
 function bb_get_footer() {

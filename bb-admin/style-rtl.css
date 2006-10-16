@@ -1,0 +1,114 @@
+body, td { font: 13px Tahoma, "Lucida Grande", "Lucida Sans Unicode", Tahoma, Verdana; }
+
+fieldset label.selectit { padding: 0 0 0 2px; }
+
+fieldset legend { padding: .1em 0 0 .3em; }
+
+fieldset span.cat-nest {
+	margin-left: auto;
+	margin-right: 10px;
+}
+
+h2 {
+	font: normal 30px/5px serif;
+	margin: 5px 0 0 10px;
+}
+
+textarea, input, select {
+	font:  13px Verdana, Arial, Helvetica, sans-serif;
+}
+
+.alignleft {
+	float: right;
+}
+
+.alignright {
+	float: left;
+}
+
+.submit input:active, .button:active {
+	border-left-color: #ccc;
+	border-right-color: #999;
+}
+
+.submit, .editform th {
+	text-align: left;
+}
+
+.updated, .error {
+	margin: 1em 5% 10px;
+}
+
+.wrap {
+	margin: 15px 5%;
+	padding: .5em 1em;
+}
+
+.wrap h2 {
+	margin: .8em 0 .5em;
+}
+
+.widefat td, .widefat th {
+	padding: 5px 0 0 6px;
+}
+
+.widefat th {
+	text-align: right;
+}
+
+#bb-admin-menu {
+	padding: .2em 2em .3em .2em;
+	height: 30px;
+}
+
+#bb-admin-menu a {
+	margin: 0 0 0 10px;
+	display: block;
+	float: right;
+}
+
+#bb-admin-menu li { line-height: 180%; }
+
+#bb-admin-submenu {
+	padding: 3px 3em 0 2em;
+	height: 25px;
+}
+
+#bb-admin-submenu .current a {
+	border-right: 0;
+	border-left: 2px solid #049052;
+}
+
+#bb-admin-submenu a {
+	padding: .3em .4em .4em .4em;
+	margin: 0 0 0 10px;
+	display: block;
+	float: right;
+}
+
+#bb-admin-submenu li {
+	line-height: 120%;
+}
+
+#top {
+	padding: .8em 2em .8em 19em;
+}
+
+#top h1 {
+	font-family: Tahoma, Georgia, "Times New Roman", Times, serif
+}
+
+#top .login {
+	right: auto;
+	left: 1em;
+}
+
+#zeitgeist {
+	float: left;
+	margin: .5em 0 .5em 1em;
+}
+
+#zeitgeist ul {
+	margin: 0 .6em .3em 0;
+	padding: 0 .6em 0 0;
+}

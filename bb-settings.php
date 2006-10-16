@@ -65,12 +65,12 @@ require( BBPATH . BBINC . '/capabilities.php');
 require( BBPATH . BBINC . '/cache.php');
 require( BBPATH . BBINC . '/deprecated.php');
 require( BBPATH . BBINC . '/wp-functions.php');
+if ( defined('BBLANG') && '' != constant('BBLANG') ) {
+	include_once(BBPATH . BBINC . '/streams.php');
+	include_once(BBPATH . BBINC . '/gettext.php');
+}
 if ( !( defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
 	require( BBPATH . BBINC . '/kses.php');
-	if ( defined('WPLANG') && '' != constant('WPLANG') ) {
-		include_once(BBPATH . BBINC . '/streams.php');
-		include_once(BBPATH . BBINC . '/gettext.php');
-	}
 	require( BBPATH . BBINC . '/l10n.php');
 }
 require( BBPATH . BBINC . '/bozo.php');
@@ -128,7 +128,14 @@ if ( !isset( $bb->tagpath ) )
 
 $bb_cache = new BB_Cache();
 
-$bb_roles = new BB_Roles();
+// Load the default text localization domain.
+load_default_textdomain();
+
+// Pull in locale data after loading text domain.
+require_once(BBPATH . BBINC . '/locale.php');
+$bb_locale = new BB_Locale();
+
+$bb_roles  = new BB_Roles();
 do_action('bb_got_roles', '');
 
 function bb_shutdown_action_hook() {

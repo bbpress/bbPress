@@ -305,6 +305,13 @@ function bb_get_option( $option ) {
 	case 'edit_lock' :
 		return $bb->edit_lock;
 		break;
+	case 'language':
+		return str_replace('_', '-', get_locale());
+		break;
+	case 'text_direction':
+		global $bb_locale;
+		return $bb_locale->text_direction;
+		break;
 	case 'version' :
 		return '0.72';
 		break; 
@@ -1434,53 +1441,22 @@ function bb_nonce_ays($action) {
 }
 
 function bb_die($message, $title = '') {
+	global $bb_locale;
+
 	header('Content-Type: text/html; charset=utf-8');
 
 	if ( empty($title) )
 		$title = __('bbPress &rsaquo; Error');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
 <head>
 	<title><?php echo $title ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<style media="screen" type="text/css">
-	<!--
-	html {
-		background: #eee;
-	}
-	body {
-		background: #fff;
-		color: #000;
-		font-family: Georgia, "Times New Roman", Times, serif;
-		margin-left: 25%;
-		margin-right: 25%;
-		padding: .2em 2em;
-	}
-
-	h1 {
-		color: #060;
-		font-size: 18px;
-		font-weight: lighter;
-	}
-
-	h2 {
-		font-size: 16px;
-	}
-
-	p, li, dt {
-		line-height: 140%;
-		padding-bottom: 2px;
-	}
-
-	ul, ol {
-		padding: 5px 5px 5px 20px;
-	}
-	#logo {
-		margin-bottom: 2em;
-	}
-	-->
-	</style>
+	<link rel="stylesheet" href="<?php option('uri'); ?>bb-admin/install.css" type="text/css" />
+<?php if ( ('rtl' == $bb_locale->text_direction) ) : ?>
+	<link rel="stylesheet" href="<?php option('uri'); ?>bb-admin/install-rtl.css" type="text/css" />
+<?php endif; ?>
 </head>
 <body>
 	<h1 id="logo"><img alt="bbPress" src="<?php option('uri'); ?>bb-images/bbpress.png" /></h1>

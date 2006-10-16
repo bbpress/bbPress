@@ -1,0 +1,76 @@
+/*
+Author: Sewar
+Author URI: http://sewar.wordpress.com
+*/
+
+body { font: 62.5% Tahoma, 'Trebuchet MS', 'Lucida Grande', Verdana, Tahoma, Arial; }
+
+code { font: 1.0em Tahoma, Monaco, 'Courier New', monospace; }
+
+fieldset table { text-align: right; }
+
+.submit, #header h1 { text-align: left; }
+
+#front-page #hottags, #topic-tags, #manage-tags li, .login label { float: right; }
+
+#front-search { float: left; }
+
+#latest th, #forumlist th, #favorites th, .num, .threadauthor small, #forumlist small { font: 11px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
+
+.poststuff { font: 10px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
+
+#wrapper { background: #fff url('images/page_header_tile.png') repeat-x 0px -25px; }
+
+#header { background: url('images/page_header_bblogo.png') no-repeat bottom left; }
+
+#thread { margin: 0 100px 0 0; }
+
+.user-recent ol { margin: 5px 28px 0 0; }
+
+.bbcrumb { padding: 5px 0 20px 0; }
+
+#front-page #discussions ul { padding: 0 14px 0 0; }
+
+fieldset { padding: 10px 10px 0 10px; }
+
+.login label {
+	padding-right: 0;
+	padding-left: 10px;
+}
+
+#front-page #discussions { 
+	margin-left: auto;
+	margin-right: 170px;
+}
+
+#thread li ol, #thread li ul { 
+	margin-left: 0;
+	margin-right: 40px;
+}
+
+.threadauthor {
+	margin-left: 0;
+	margin-right: -110px;
+}
+
+.infobox ul {
+	margin: 10px 12px 10px 0;
+	padding: 0;
+}
+
+#profile-menu {
+	right: auto;
+	left: 0;
+}
+
+#topic-tags {
+	border-left: 0;
+	border-right: 1px solid #ccc;
+	padding: 0 1em 1em 1em;
+}
+
+#header h1 { 
+	font-family: Tahoma, Georgia;
+	right: auto;
+	left: 59px;
+}

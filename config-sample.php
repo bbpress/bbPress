@@ -34,6 +34,12 @@ $bb->edit_lock = 60;
 // Your timezone offset.  Example: -7 for Pacific Daylight Time.
 $bb->gmt_offset = 0;
 
+// Change this to localize bbPress.  A corresponding MO file for the
+// chosen language must be installed to bb-includes/languages.
+// For example, install de.mo to bb-includes/languages and set BBLANG to 'de'
+// to enable German language support.
+define('BBLANG', '');
+
 // Your Akismet Key.  You do not need a key to run bbPress, but if you want to take advantage
 // of Akismet's powerful spam blocking, you'll need one.  You can get an Akismet key at
 // http://wordpress.com/api-keys/

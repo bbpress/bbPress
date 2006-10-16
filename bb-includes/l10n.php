@@ -5,9 +5,9 @@ function get_locale() {
 	if (isset($locale))
 		return $locale;
 
-	// WPLANG is defined in wp-config.
-	if (defined('WPLANG'))
-		$locale = WPLANG;
+	// BBLANG is defined in config.php
+	if (defined('BBLANG'))
+		$locale = BBLANG;
 
 	if (empty($locale))
 		$locale = 'en_US';
@@ -69,7 +69,7 @@ function load_default_textdomain() {
 	global $l10n;
 
 	$locale = get_locale();
-	$mofile = ABSPATH . BBLANGDIR . "/$locale.mo";
+	$mofile = BBPATH . BBLANGDIR . "/$locale.mo";
 
 	load_textdomain('default', $mofile);
 }
@@ -79,7 +79,7 @@ function load_plugin_textdomain($domain, $path = false) {
 	if ( false === $path )
 		$path = BBPLUGINDIR;
 
-	$mofile = ABSPATH . "$path/$domain-$locale.mo";
+	$mofile = BBPATH . "$path/$domain-$locale.mo";
 	load_textdomain($domain, $mofile);
 }
 
