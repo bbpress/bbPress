@@ -1,7 +1,7 @@
 <?php
 require_once('../bb-load.php');
 
-bb_auth();
+bb_check_ajax_referer();
 
 if ( !$bb_current_user )
 	die('-1');

@@ -231,11 +231,12 @@ endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
 function bb_check_ajax_referer() {
+	global $bb;
 	$cookie = explode('; ', urldecode(empty($_POST['cookie']) ? $_GET['cookie'] : $_POST['cookie'])); // AJAX scripts must pass cookie=document.cookie
 	foreach ( $cookie as $tasty ) {
-		if ( false !== strpos($tasty, USER_COOKIE) )
+		if ( false !== strpos($tasty, $bb->usercookie) )
 			$user = substr(strstr($tasty, '='), 1);
-		if ( false !== strpos($tasty, PASS_COOKIE) )
+		if ( false !== strpos($tasty, $bb->passcookie) )
 			$pass = substr(strstr($tasty, '='), 1);
 	}
 	if ( !bb_check_login( $user, $pass, true ) )
