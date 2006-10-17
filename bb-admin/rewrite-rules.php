@@ -20,7 +20,7 @@ RewriteRule ^topic/([0-9]+)/page/([0-9]+)$ <?php echo $bb->path; ?>topic.php?id=
 RewriteRule ^topic/([0-9]+)$ <?php echo $bb->path; ?>topic.php?id=$1 [L,QSA]
 RewriteRule ^tags/(.+)/page/([0-9]+)$ <?php echo $bb->path; ?>tags.php?tag=$1&page=$2 [L,QSA]
 RewriteRule ^tags/(.+)/?$ <?php echo $bb->path; ?>tags.php?tag=$1 [L,QSA]
-RewriteRule ^tags/? <?php echo $bb->path; ?>tags.php [L,QSA]
+RewriteRule ^tags/?$ <?php echo $bb->path; ?>tags.php [L,QSA]
 RewriteRule ^profile/([0-9]+)/page/([0-9]+)$ <?php echo $bb->path; ?>profile.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^profile/([0-9]+)/([a-z]+)$ <?php echo $bb->path; ?>profile.php?id=$1&tab=$2 [L,QSA]
 RewriteRule ^profile/([0-9]+)/([a-z]+)/page/([0-9]+)$ <?php echo $bb->path; ?>profile.php?id=$1&tab=$2&page=$3 [L,QSA]
