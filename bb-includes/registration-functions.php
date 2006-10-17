@@ -78,9 +78,11 @@ function bb_reset_password( $key ) {
 		bb_die(__('Key not found.'));
 	if ( !$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'") )
 		bb_die(__('Key not found.'));
-	if ( $user = bb_get_user( $user_id ) ) :
+	if ( $user = new BB_User( $user_id ) ) :
 		if ( bb_has_broken_pass( $user->ID ) )
 			bb_block_current_user();
+		if ( !$user->has_cap( 'change_password' ) )
+			bb_die( __('You are not allowed to change your password.') );
 		$newpass = bb_random_pass( 6 );
 		bb_update_user_password( $user->ID, $newpass );
 		bb_send_pass           ( $user->ID, $newpass );

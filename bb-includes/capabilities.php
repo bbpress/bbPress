@@ -56,6 +56,7 @@ class BB_Roles {
 						'edit_profile' => true,
 						'write_topics' => true,
 						'write_posts' => true,
+						'change_password' => true,
 						'read' => true
 				)),
 
@@ -88,6 +89,7 @@ class BB_Roles {
 						'edit_profile' => true,
 						'write_topics' => true,
 						'write_posts' => true,
+						'change_password' => true,
 						'read' => true
 				)),
 
@@ -115,6 +117,7 @@ class BB_Roles {
 						'edit_profile' => true,
 						'write_topics' => true,
 						'write_posts' => true,
+						'change_password' => true,
 						'read' => true
 				)),
 
@@ -130,12 +133,14 @@ class BB_Roles {
 						'edit_profile' => true,
 						'write_topics' => true,
 						'write_posts' => true,
+						'change_password' => true,
 						'read' => true
 				)),
 											
 				'inactive' => array(
 					'name' => __('Inactive'),
 					'capabilities' => array(
+						'change_password' => true,
 						'read' => true
 				)),
 
