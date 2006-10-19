@@ -82,7 +82,33 @@ header( 'Content-Type: text/html; charset=utf-8' );
 // Let's check to make sure bb isn't already installed.
 $bbdb->hide_errors();
 $installed = $bbdb->get_results("SELECT * FROM $bbdb->forums LIMIT 1");
-if ($installed) die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+if ( $installed ) :
+	if ( !isset($bb->new_keymaster) )
+		die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+	$meta_key = $bb_table_prefix . 'capabilities';
+	$keymaster = false;
+	if ( $keymasters = $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_key = '$meta_key' AND meta_value LIKE '%keymaster%'") ) {
+		foreach ( $keymasters as $potential ) {
+			$pot_array = unserialize($potential->meta_value);
+			if ( is_array($pot_array) && array_key_exists('keymaster', $pot_array) && true === $pot_array['keymaster'] )
+				die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+		}
+	}
+
+	$user = new BB_User( $bb->new_keymaster );
+	if ( $user->data ) :
+		$user->set_role( 'keymaster' ); ?>
+
+<p><?php printf(__('%s is now a Key Master'), $user->data->user_login); ?></p>
+<p><a href="<?php option( 'uri' ); ?>"><?php _e('Back to the front page'); ?></a></p>
+
+<?php	else : ?>
+
+<p><?php _e('Username not found.  Try again.'); ?></p>
+<?php	endif;
+
+$step = 10;
+endif;
 $bbdb->show_errors();
 
 switch ($step):
@@ -98,7 +124,7 @@ switch ($step):
 		$users = false;
 		if ( !isset($_POST['new_keymaster']) ) {
 			$bbdb->hide_errors();
-			if ( $users = (array) $bbdb->get_results("SELECT * FROM $bbdb->users") ) {
+			if ( $users = $bbdb->get_var("SELECT ID FROM $bbdb->users LIMIT 1") ) {
 				$meta_key = $bb_table_prefix . 'capabilities';
 				if ( $keymasters = $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_key = '$meta_key' AND meta_value LIKE '%keymaster%'") ) {
 					foreach ( $keymasters as $potential ) {
@@ -125,28 +151,24 @@ switch ($step):
 <p><?php printf(__('We found <strong>%s</strong> who is already a "Key Master" on these forums.  You may make others later'), get_user_name( $keymaster->ID )) ?>.</p>
 <input type="hidden" name="old_keymaster" value="<?php echo $keymaster->ID; ?>" />
 <?php elseif ( $users ) : ?>
-<p><?php _e('Please select a user below to be the keymaster for these forums.  You can make more later if you choose.') ?></p>
-<select name="new_keymaster">
-	<option value='new'><?php _e('Create a new User') ?></option>
-<?php	foreach ( $users as $user )
-		echo "\t<option value='$user->ID'>" . get_user_name( $user->ID ) . "</option>\n"; ?>
-</select>
+<p><?php _e("Enter your username below.  You will be made the first Key Master on these forums.  Leave this blank if you want to create a new account"); ?></p>
+<input type="text" name="new_keymaster" />
 <?php else : ?>
 <table width="100%" cellpadding="4">
 <tr class="alt">
-<td class="required" width="25%"><?php _e('Login name:'); ?>*</td>
+<td class="required" width="25%"><label for="admin_login"><?php _e('Login name:'); ?>*</label></td>
 <td><input name="admin_login" type="text" id="admin_login" size="25" /></td>
 </tr>
 <tr>
-<td><?php _e("Website:"); ?></td>
+<td><label for="admin_url"><?php _e("Website:"); ?></label></td>
 <td><input name="admin_url" type="text" id="admin_url" size="30" /></td>
 </tr>
 <tr class="alt">
-<td><?php _e("Location:"); ?></td>
+<td><label for="admin_loc"><?php _e("Location:"); ?></label></td>
 <td><input name="admin_loc" type="text" id="admin_loc" size="30" /></td>
 </tr>
 <tr>
-<td><?php _e('Interests:'); ?></td>
+<td><label for="admin_int"><?php _e('Interests:'); ?></label></td>
 <td><input name="admin_int" type="text" id="admin_int" size="25" /></td>
 </tr>
 </table>
@@ -175,19 +197,20 @@ switch ($step):
 	break;
 
 	case 2:
-?>
-<h1><?php _e('Second Step'); ?></h1>
-<p><?php _e('Now we&#8217;re going to create the database tables and fill them with some default data.'); ?></p>
-
-
-<?php
 flush();
 
 // Set everything up
 if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = user_sanitize( $_POST['admin_login'] ) )
-		die(__('Bad login name.  Go back and try again.'));
+	die(__('Bad login name.  Go back and try again.'));
+if ( isset($_POST['new_keymaster']) && !bb_get_user_by_name( $_POST['new_keymaster'] ) )
+	die(__('Username not found.  Go back and try again.'));
 if ( !$forum_name = $_POST['forum_name'] )
 	die(__('You must name your first forum.  Go back and try again.'));
+?>
+<h1><?php _e('Second Step'); ?></h1>
+<p><?php _e('Now we&#8217;re going to create the database tables and fill them with some default data.'); ?></p>
+
+<?php
 require_once('upgrade-schema.php');
 require_once( BBPATH . BBINC . '/registration-functions.php');
 
@@ -199,7 +222,7 @@ if ( isset($_POST['old_keymaster']) ) :
 	$password = __('*Your WordPress password*');
 	$already = true;
 elseif ( isset($_POST['new_keymaster']) ) :
-	$bb_current_user = bb_set_current_user( (int) $_POST['new_keymaster'] );
+	$bb_current_user = bb_set_current_user( $_POST['new_keymaster'] );
 	$bb_current_user->set_role('keymaster');
 	$admin_login = get_user_name( $bb_current_user->ID );
 	$password = __('*Your WordPress password*');
