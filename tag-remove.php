@@ -14,7 +14,7 @@ $topic	=  get_topic ( $topic_id );
 $user	=  bb_get_user( $user_id );
 
 if ( !$tag || !$topic )
-	bb_die(__('The dude does not abide.'));
+	bb_die(__('Invalid tag or topic.'));
 
 if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) )
 	wp_redirect( $_SERVER['HTTP_REFERER'] );

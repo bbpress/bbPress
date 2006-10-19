@@ -5,7 +5,7 @@ $topic_id = $_REQUEST['topic_id'];
 $forum_id = $_REQUEST['forum_id'];
 
 if ( !is_numeric($topic_id) || !is_numeric($forum_id) )
-	bb_die(__('Neither cast ye for pearls ye swine.'));
+	bb_die(__('Invalid topic or forum.'));
 
 if ( !bb_current_user_can('manage_topics') ) {
 	wp_redirect( bb_get_option( 'uri' ) );

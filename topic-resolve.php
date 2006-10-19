@@ -21,5 +21,5 @@ bb_check_admin_referer( 'resolve-topic_' . $topic_id );
 if ( bb_resolve_topic( $topic_id, $resolved ) )
 	wp_redirect( get_topic_link( $topic_id ) );
 else
-	bb_die(__('That is not the sound of one hand clapping.'));
+	bb_die(__('Invalid resolution status.'));
 ?>
