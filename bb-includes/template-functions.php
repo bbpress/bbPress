@@ -119,7 +119,7 @@ function post_form( $h2 = '' ) {
 
 	do_action('pre_post_form');
 
-	if ( ( is_topic() && bb_current_user_can('write_posts') && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can('write_topics') ) ) {
+	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
 		echo "<form class='postform' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
 		if ( file_exists( BBPATH . 'my-templates/post-form.php' ) ) {
 			include( BBPATH . 'my-templates/post-form.php' );
@@ -773,6 +773,7 @@ function topic_class( $class = '' ) {
 }
 
 function new_topic( $text = false ) {
+	global $forum;
 	if ( !$text )
 		$text = __('Add New &raquo;');
 
@@ -782,8 +783,14 @@ function new_topic( $text = false ) {
 		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
 	if ( !bb_is_user_logged_in() )
 		$url = add_query_arg( 're', urlencode($url), bb_get_option( 'uri' ) . 'bb-login.php' );
-	elseif ( !bb_current_user_can('write_topics') )
-		return;
+	elseif ( is_forum() ) {
+		if ( !bb_current_user_can( 'write_topic', $forum->forum_id ) )
+			return;
+	} else {
+		if ( !bb_current_user_can( 'write_topics' ) )
+			return;
+	}
+
 	if ( $url )
 		echo "<a href='$url' class='new-topic'>$text</a>\n";
 }

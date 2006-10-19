@@ -313,9 +313,10 @@ class BB_User {
 		$args = array_merge(array($cap, $this->id), $args);
 		$caps = call_user_func_array('bb_map_meta_cap', $args);
 		// Must have ALL requested caps
+		$capabilities = apply_filters('bb_user_has_cap', $this->allcaps, $caps, $args);
 		foreach ($caps as $cap) {
 			//echo "Checking cap $cap<br/>";
-			if(empty($this->allcaps[$cap]) || !$this->allcaps[$cap])
+			if(empty($capabilities[$cap]) || !$capabilities[$cap])
 				return false;
 		}
 
@@ -393,6 +394,12 @@ function bb_map_meta_cap($cap, $user_id) {
 		if ( $user_id == $args[0] )
 			$caps[] = 'edit_favorites';
 		else	$caps[] = 'edit_others_favorites';
+		break;
+	case 'write_topic':
+		$caps[] = 'write_topics';
+		break;
+	case 'write_post':
+		$caps[] = 'write_posts';
 		break;
 	default:
 		// If no meta caps match, return the original cap.

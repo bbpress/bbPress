@@ -143,7 +143,7 @@ case 'add-post' : // Can put last_modified stuff back in later
 	$last_mod = (int) $_POST['last_mod'];
 	if ( !$post_content = trim($_POST['post_content']) )
 		$error = new WP_Error( 'no-content', __('You need to actually submit some content!') );
-	if ( !bb_current_user_can('write_posts') )
+	if ( !bb_current_user_can( 'write_post', $topic_id ) )
 		die('-1');
 	if ( !$topic = get_topic( $topic_id ) )
 		die('0');
