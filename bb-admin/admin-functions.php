@@ -396,4 +396,52 @@ class BB_Users_By_Role extends BB_User_Search {
 	}
 
 }
+
+function bb_get_plugin_data($plugin_file) {
+	$plugin_data = implode('', file($plugin_file));
+	if ( !preg_match("|Plugin Name:(.*)|i", $plugin_data, $plugin_name) )
+		return false;
+	preg_match("|Plugin URI:(.*)|i", $plugin_data, $plugin_uri);
+	preg_match("|Description:(.*)|i", $plugin_data, $description);
+	preg_match("|Author:(.*)|i", $plugin_data, $author_name);
+	preg_match("|Author URI:(.*)|i", $plugin_data, $author_uri);
+	if ( preg_match("|Requires at least:(.*)|i", $plugin_data, $requires) )
+		$requires = trim($requires[1]);
+	else
+		$requires = '';
+	if ( preg_match("|Tested up to:(.*)|i", $plugin_data, $tested) )
+		$tested = trim($tested[1]);
+	else
+		$tested = '';
+	if ( preg_match("|Version:(.*)|i", $plugin_data, $version) )
+		$version = trim($version[1]);
+	else
+		$version = '';
+
+	$plugin_name = trim($plugin_name[1]);
+	$plugin_uri = trim($plugin_uri[1]);
+	$description = trim($description[1]);
+	$author_name = trim($author_name[1]);
+	$author_uri = trim($author_uri[1]);
+
+	$r = array(
+		'name' => $plugin_name,
+		'uri' => $plugin_uri,
+		'description' => $description,
+		'author' => $author_name,
+		'author_uri' => $author_uri,
+		'requires' => $requires,
+		'tested' => $tested,
+		'version' => $version
+	);
+
+	$r['plugin_link'] = ( $plugin_uri ) ?
+		"<a href='$plugin_uri' title='" . __('Visit plugin homepage') . "'>$plugin_name</a>" :
+		$plugin_name;
+	$r['author_link'] = ( $author_name && $author_uri ) ?
+		"<a href='$author_uri' title='" . __('Visit author homepage') . "'>$author_name</a>" :
+		$author_name;
+
+	return $r;
+}
 ?>
