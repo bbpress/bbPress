@@ -101,12 +101,13 @@ function bb_rel_nofollow( $text ) {
 }
 
 function user_sanitize( $text, $strict = false ) {
+	$raw = $text;
 	if ( $strict ) {
 		$text = preg_replace('/[^a-z0-9-]/i', '', $text);
 		$text = preg_replace('|-+|', '-', $text);
 	} else
 		$text = preg_replace('/[^a-z0-9_-]/i', '', $text); // For backward compatibility.
-	return $text;
+	return apply_filters( 'user_sanitize', $text, $raw, $strict );
 }
 
 function tag_sanitize( $tag ) {
