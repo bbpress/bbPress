@@ -21,11 +21,11 @@
 <?php foreach ($posts as $bb_post) : $topic = get_topic( $bb_post->topic_id ) ?>
 <li<?php alt_class('replies'); ?>>
 	<a href="<?php topic_link(); ?>"><?php topic_title(); ?></a>
-	<?php if ( $user->ID == $bb_current_user->ID ) printf(__('You last replied: %s ago.'), bb_get_post_time()); else printf(__('User last replied: %s ago.'), bb_get_post_time()); ?>
+	<?php if ( $user->ID == $bb_current_user->ID ) printf(__('You last replied: %s ago.'), bb_since( bb_get_post_time() )); else printf(__('User last replied: %s ago.'), bb_since( bb_get_post_time() )); ?>
 
 	<span class="freshness"><?php
 		if ( strtotime(bb_get_post_time()) < strtotime(get_topic_time()) )
-			printf(__('Most recent reply: %s ago'), bb_since(get_topic_time()));
+			printf(__('Most recent reply: %s ago'), bb_since( get_topic_time() ));
 		else
 			_e('No replies since.');
 	?></span>
@@ -50,7 +50,7 @@
 
 	<span class="freshness"><?php
 		if ( strtotime(get_topic_start_time()) < strtotime(get_topic_time()) )
-			printf(__('Most recent reply: %s ago.'), bb_since(get_topic_time()));
+			printf(__('Most recent reply: %s ago.'), bb_since( get_topic_time() ));
 		else
 			_e('No replies.');
 	?></span>
