@@ -3,9 +3,7 @@
 add_filter('get_forum_topics', 'number_format');
 add_filter('get_forum_posts', 'number_format');
 
-add_filter('topic_time', 'strtotime');
 add_filter('topic_time', 'bb_since');
-add_filter('get_topic_start_time', 'strtotime');
 add_filter('get_topic_start_time', 'bb_since');
 
 add_filter('pre_topic_title', 'wp_specialchars');

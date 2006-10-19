@@ -41,8 +41,8 @@ $posts = get_recent_user_replies( $user_id );
 $threads = get_recent_user_threads( $user_id );
 
 remove_filter('bb_post_time', 'bb_offset_time');
-add_filter('bb_post_time', 'strtotime');
-add_filter('bb_post_time', 'bb_since');
+add_filter('bb_get_post_time', 'strtotime');
+add_filter('bb_get_post_time', 'bb_since');
 
 do_action( 'bb_profile.php', $user_id );
 

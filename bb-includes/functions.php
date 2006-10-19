@@ -243,6 +243,8 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 }
 
 function bb_since( $original, $do_more = 0 ) {
+	if ( !is_numeric($original) )
+		$original = strtotime($original);
 	// array of time period chunks
 	$chunks = array(
 		array(60 * 60 * 24 * 365 , __('year') , __('years')),

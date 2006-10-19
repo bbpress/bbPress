@@ -1026,7 +1026,7 @@ function bb_profile_data() {
 	$profile_info_keys = get_profile_info_keys();
 	echo "<dl id='userinfo'>\n";
 	echo "\t<dt>" . __('Member Since') . "</dt>\n";
-	echo "\t<dd>" . gmdate('F j, Y', $reg_time) . ' (' . bb_since($reg_time) . ")</dd>\n";
+	echo "\t<dd>" . gmdate(__('F j, Y'), $reg_time) . ' (' . bb_since($reg_time) . ")</dd>\n";
 	if ( is_array( $profile_info_keys ) ) {
 		foreach ( $profile_info_keys as $key => $label ) {
 			if ( 'user_email' != $key && isset($user->$key) && '' !== $user->$key && 'http://' != $user->$key ) {
