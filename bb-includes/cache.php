@@ -118,14 +118,20 @@ class BB_Cache {
 				$bb_post_cache[$bb_post->post_id] = $bb_post;
 			return $thread;
 		else :
-			if ( $thread = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time $order LIMIT $limit") )
-				foreach ($thread as $bb_post)
-					$bb_post_cache[$bb_post->post_id] = $bb_post;
+			$thread = $this->cache_posts( "SELECT * FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time $order LIMIT $limit" );
 		endif;
 
 		if ( $this->use_cache && $normal && $thread )
 			$this->write_cache($file, $thread);
 		return $thread;
+	}
+
+	function cache_posts( $query ) { // soft cache
+		global $bbdb, $bb_post_cache;
+		if ( $posts = $bbdb->get_results( $query ) )
+			foreach( (array) $posts as $bb_post )
+				$bb_post_cache[$bb_post->post_id] = $bb_post;
+		return $posts;
 	}
 
 	function get_forums() {
