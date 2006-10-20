@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Favorites'); ?></h3>
 
-<h2 id="currentfavorites"><?php _e('Current Favorites'); ?><?php if ( $topics ) echo ' (' . count($topics) . ')'; ?></h2>
+<h2 id="currentfavorites"><?php _e('Current Favorites'); ?><?php if ( $topics ) echo ' (' . $favorites_total . ')'; ?></h2>
 
 <p><?php _e('Your Favorites allow you to create a custom <abbr title="Really Simple Syndication">RSS</abbr> feed which pulls recent replies to the topics you specify.
 To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic&#8217;s page.'); ?></p>
@@ -30,6 +30,10 @@ To add topics to your list of favorites, just click the "Add to Favorites" link 
 </tr>
 <?php endforeach; ?>
 </table>
+
+<div class="nav">
+<?php favorites_pages(); ?>
+</div>
 
 <?php else: if ( $user_id == $bb_current_user->ID ) : ?>
 

@@ -35,6 +35,7 @@ if ( !is_bb_profile() ) {
 }
 
 $topics = get_user_favorites( $user->ID, true );
+$favorites_total = isset($user->favorites) ? count(explode(',', $user->favorites)) : 0;
 
 if ( file_exists(BBPATH . 'my-templates/favorites.php' ) ) {
 	require( BBPATH . 'my-templates/favorites.php' );

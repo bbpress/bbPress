@@ -126,14 +126,17 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 }
 
 function get_user_favorites( $user_id, $list = false ) {
-	global $bbdb;
+	global $bbdb, $page;
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites )
-		if ( $list )
+		if ( $list ) {
+			$limit = bb_get_option( 'page_topics' );
+			if ( 1 < $page )
+				$limit = ($limit * ($page - 1)) . ", $limit";
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY topic_time");
-		else
+				ORDER BY topic_time DESC LIMIT $limit");
+		} else
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
 				ORDER BY post_time DESC LIMIT 20");

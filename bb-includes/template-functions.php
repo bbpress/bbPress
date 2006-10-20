@@ -1284,6 +1284,11 @@ function get_favorites_rss_link( $id = 0 ) {
 	return apply_filters( 'get_favorites_rss_link', $link, $user_id );
 }
 
+function favorites_pages() {
+	global $page, $user, $favorites_total;
+	echo apply_filters( 'favorites_pages', get_page_number_links( $page, $favorites_total ), $user->user_id );
+}
+
 //VIEWS
 function view_name() { // Filtration should be done at get_views() level
 	echo get_view_name();
