@@ -46,4 +46,10 @@ function bb_remove_query_arg($key, $query = '') {
 	return remove_query_arg($key, $query);
 }
 
+if ( !function_exists('language_attributes') ) :
+function language_attributes( $xhtml = 0 ) {
+	bb_language_attributes( $xhtml );
+}
+endif;
+
 ?>

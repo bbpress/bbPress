@@ -9,16 +9,17 @@ function bb_get_header() {
 	}
 }
 
-function language_attributes() {
+function bb_language_attributes( $xhtml = 0 ) {
 	$output = '';
 	if ( $dir = bb_get_option('text_direction') )
-		$output = "dir=\"$dir\"";
+		$output = "dir=\"$dir\" ";
 	if ( $lang = bb_get_option('language') ) {
-		if ( $dir ) $output .= ' ';
-		$output .= "lang=\"$lang\" xml:lang=\"$lang\"";
+		$output .= "xml:lang=\"$lang\" ";
+		if ( $xhtml < '1.1' )
+			$output .= "lang=\"$lang\"";
 	}
 
-	echo $output;
+	echo rtrim($output);
 }
 
 function bb_stylesheet_uri( $stylesheet = '' ) {
