@@ -275,7 +275,7 @@ function bb_since( $original, $do_more = 0 ) {
 	if ($i + 1 < $j) {
 		$seconds2 = $chunks[$i + 1][0];
 		$name2 = $chunks[$i + 1][1];
-		$names2 = $chunks[$i + 1][1];
+		$names2 = $chunks[$i + 1][2];
 
 		// add second item if it's greater than 0
 		if ( (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) && $do_more )
