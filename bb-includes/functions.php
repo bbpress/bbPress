@@ -241,8 +241,8 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 	$timeend = $mtime[1] + $mtime[0];
 	$timetotal = $timeend - $bb_timestart;
 	if ($display)
-		echo number_format($timetotal,$precision);
-	return $timetotal;
+		echo number_format($timetotal, $precision);
+	return number_format($timetotal, $precision);
 }
 
 function bb_since( $original, $do_more = 0 ) {
