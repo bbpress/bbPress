@@ -753,7 +753,7 @@ function topic_move_dropdown() {
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
 }
 
-function topic_class( $class = '' ) {
+function topic_class( $class = '', $key = 'topic' ) {
 	global $topic;
 	$class = $class ? explode(' ', $class ) : array();
 	if ( '1' === $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )
@@ -770,7 +770,7 @@ function topic_class( $class = '' ) {
 		$class[] = 'sticky super-sticky';
 	$class = apply_filters( 'topic_class', $class, $topic->topic_id );
 	$class = join(' ', $class);
-	alt_class( 'topic', $class );
+	alt_class( $key, $class );
 }
 
 function new_topic( $text = false ) {
