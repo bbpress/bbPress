@@ -1,5 +1,6 @@
 <?php
 require('./bb-load.php');
+require_once( BBPATH . BBINC . '/feed-functions.php');
 
 if ( isset($_GET['topic']) )
 	$topic_id = (int) $_GET['topic'];
@@ -55,8 +56,6 @@ if ( isset($topic_id) ) {
 endif;
 
 do_action( 'bb_rss.php', '' );
-
-require_once( BBPATH . BBINC . '/feed-functions.php');
 
 bb_send_304( $posts[0]->post_time );
 

@@ -94,6 +94,30 @@ CREATE TABLE $bbdb->tagged (
   KEY user_id_index (user_id),
   KEY topic_id_index (topic_id)
 );
+CREATE TABLE {$bb_table_prefix}stats (
+  topic_id bigint(20) unsigned NOT NULL default '0',
+  downloads bigint(20) unsigned NOT NULL default '0',
+  stamp date NOT NULL default '0000-00-00',
+  PRIMARY KEY (topic_id,stamp)
+);
+CREATE TABLE {$bb_table_prefix}stats_users (
+  topic_id bigint(20) unsigned NOT NULL default '0',
+  user_name varchar(60) NOT NULL default '0',
+  stamp date NOT NULL default '0000-00-00',
+  PRIMARY KEY (topic_id),
+  KEY user_name (user_name)
+);
+CREATE TABLE {$bb_table_prefix}downloads (
+  dl_id bigint(20) NOT NULL auto_increment,
+  topic_id bigint(20) unsigned NOT NULL default '0',
+  client_ip varchar(50) NOT NULL,
+  client_host varchar(250) NOT NULL,
+  user_id bigint(20) unsigned NOT NULL default '0',
+  user_name varchar(60) NOT NULL,
+  stamp datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY (dl_id),
+  KEY client_ip (client_ip(20),stamp)
+);
 ";
 
 function dbDelta($queries, $execute = true) {
