@@ -10,7 +10,8 @@ if (!defined('SAVEQUERIES'))
 class bbdb {
 
 	var $show_errors = true;
-	var $num_queries = 0;	
+	var $num_queries = 0;
+	var $retries = 0;
 	var $last_query;
 	var $col_info;
 	var $queries;
@@ -25,35 +26,99 @@ class bbdb {
 	//	DB Constructor - connects to the server and selects a database
 
 	function bbdb($dbuser, $dbpassword, $dbname, $dbhost) {
-		$this->dbh = @mysqli_connect($dbhost, $dbuser, $dbpassword);
-		if (!$this->dbh) {
-			$this->bail("
-<h1>Error establishing a database connection</h1>
-<p>This either means that the username and password information in your <code>config.php</code> file is incorrect or we can't contact the database server at <code>$dbhost</code>.</p>
-<ul>
-	<li>Are you sure you have the correct username and password?</li>
-	<li>Are you sure that you have typed the correct hostname?</li>
-	<li>Are you sure that the database server is running?</li>
-</ul>
-");
-		}
 
-		$this->select($dbname);
+		$this->db_connect();
+		return true;
+
+	}
+
+	function db_connect( $query = 'SELECT' ) {
+		global $current_connection;
+
+		if ( empty( $query ) || $query == 'SELECT' )
+			return false;
+
+		$table = $this->get_table_from_query( $query );
+
+		if ( defined('USER_BBDB_NAME') && ( $table == $this->users || $table == $this->usermeta ) ) { // global user tables
+			$dbhname = 'dbh_user'; // This is connection identifier
+			$server->database = constant('USER_BBDB_NAME');
+			$server->user = constant('USER_BBDB_USER');
+			$server->pass = constant('USER_BBDB_PASSWORD');
+			$server->host = constant('USER_BBDB_HOST');
+		} else { // just us
+			$dbhname = 'dbh_local'; // This is connection identifier
+			$server->database = constant('BBDB_NAME');
+			$server->user = constant('BBDB_USER');
+			$server->pass = constant('BBDB_PASSWORD');
+			$server->host = constant('BBDB_HOST');
+		}
+		
+		$current_connection = "$dbhname";
+
+		if ( isset( $this->$dbhname ) ) // We're already connected!
+			return $this->$dbhname;
+
+		$this->timer_start();
+		
+		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass );	
+		$this->select( $server->database, $this->$dbhname );
+
+		$current_connection .= ' connect: ' . number_format( ( $this->timer_stop() * 1000 ), 2) . 'ms';
+
+		return $this->$dbhname;	
+	}
+
+	function get_table_from_query ( $q ) {
+		If( substr( $q, -1 ) == ';' )
+			$q = substr( $q, 0, -1 );
+		if ( preg_match('/^\s*SELECT.*?\s+FROM\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*UPDATE IGNORE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*UPDATE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*INSERT INTO\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*INSERT IGNORE INTO\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*REPLACE INTO\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*DELETE\s+FROM\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*OPTIMIZE\s+TABLE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^SHOW TABLE STATUS (LIKE|FROM) \'?`?(\w+)\'?`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^SHOW INDEX FROM `?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*SHOW CREATE TABLE `?(\w+?)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^SHOW CREATE TABLE (wp_[a-z0-9_]+)/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*CREATE\s+TABLE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*DROP\s+TABLE\s+IF\s+EXISTS\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*DROP\s+TABLE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*DESCRIBE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+		if ( preg_match('/^\s*ALTER\s+TABLE\s+`?(\w+)`?\s*/is', $q, $maybe) )
+			return $maybe[1];
+
+		return false;
 	}
 
 	// ==================================================================
 	//	Select a DB (if another one needs to be selected)
 
-	function select($db) {
-		if (!@mysqli_select_db($this->dbh, $db)) {
-			$this->bail("
-<h1>Can&#8217;t select database</h1>
-<p>We were able to connect to the database server (which means your username and password is okay) but not able to select the <code>$db</code> database.</p>
-<ul>
-<li>Are you sure it exists?</li>
-<li>On some systems the name of your database is prefixed with your username, so it would be like username_bbpress. Could that be the problem?</li>
-</ul>
-");
+	function select($db, &$dbh) {
+		if (!@mysqli_select_db($dbh, $db)) {
+//			$this->handle_error_connecting( $dbh, array( "db" => $db ) );
+			die('Cannot select DB.');
 		}
 	}
 
@@ -69,7 +134,7 @@ class bbdb {
 
 	function print_error($str = '') {
 		global $EZSQL_ERROR;
-		if (!$str) $str = mysqli_error( $this->dbh );
+		if (!$str) $str = mysqli_error( $this->db_connect( $this->last_query ) ); // Will this work?
 		$EZSQL_ERROR[] = 
 		array ('query' => $this->last_query, 'error_str' => $str);
 
@@ -109,6 +174,7 @@ class bbdb {
 	//	Basic Query	- see docs for more detail
 
 	function query($query) {
+		global $current_connection;
 		// initialise return
 		$return_val = 0;
 		$this->flush();
@@ -122,24 +188,29 @@ class bbdb {
 		// Perform the query via std mysqli_query function..
 		if (SAVEQUERIES)
 			$this->timer_start();
-		
-		$this->result = @mysqli_query( $this->dbh, $query );
+
+		unset( $dbh );
+		$dbh = $this->db_connect( $query );
+
+		$this->result = @mysqli_query($dbh, $query);
 		++$this->num_queries;
 
 		if (SAVEQUERIES)
-			$this->queries[] = array( $query, $this->bb_timer_stop() );
+			$this->queries[] = array( $query . ' server:' . $current_connection, $this->timer_stop() );
 
 		// If there is an error then take note of it..
-		if ( mysqli_error( $this->dbh ) ) {
-			$this->print_error();
-			return false;
+		if( $dbh ) {
+			if ( mysqli_error( $dbh ) ) {
+				$this->print_error( mysqli_error( $dbh ) );
+				return false;
+			}
 		}
 
 		if ( preg_match("/^\\s*(insert|delete|update|replace) /i",$query) ) {
-			$this->rows_affected = mysqli_affected_rows( $this->dbh );
+			$this->rows_affected = mysqli_affected_rows( $dbh );
 			// Take note of the insert_id
 			if ( preg_match("/^\\s*(insert|replace) /i",$query) ) {
-				$this->insert_id = mysqli_insert_id($this->dbh);	
+				$this->insert_id = mysqli_insert_id($dbh);	
 			}
 			// Return number of rows affected
 			$return_val = $this->rows_affected;
@@ -274,7 +345,7 @@ class bbdb {
 		return true;
 	}
 	
-	function bb_timer_stop($precision = 3) {
+	function timer_stop($precision = 3) {
 		$mtime = microtime();
 		$mtime = explode(' ', $mtime);
 		$time_end = $mtime[1] + $mtime[0];
