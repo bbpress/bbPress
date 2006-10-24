@@ -5,13 +5,13 @@ $q = trim( @$_GET['q'] );
 $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :
-/*
+
 if ( strlen( preg_replace('/[^a-z0-9]/i', '', $q) ) > 2 ) {
 	$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE user_login LIKE ('%$likeit%')");
 	if ( $users )
 		bb_append_meta( $users, 'user' );
 }
-*/
+
 //Not appending topicmeta to titles at the moment!
 $titles = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY topic_time DESC LIMIT 5");
 
