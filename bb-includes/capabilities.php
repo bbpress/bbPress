@@ -22,7 +22,7 @@ class BB_Roles {
 		}
 	}
 
-	function get_roles( $role_key ) {
+	function get_roles( $role_key = '' ) {
 		return array(	'keymaster' => array(
 					'name' => __('Key Master'),
 					'capabilities' => array(
