@@ -97,7 +97,7 @@ $static_title = '';
 
 $_GET    = bb_global_sanitize($_GET   );
 $_POST   = bb_global_sanitize($_POST  );
-$_COOKIE = bb_global_sanitize($_COOKIE);
+$_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
 $plugins = glob( BBPATH . BBPLUGINDIR . '/*.php');

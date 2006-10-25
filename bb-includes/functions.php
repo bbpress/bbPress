@@ -904,15 +904,15 @@ function bb_is_first( $post_id ) { // First post in thread
 		return false;
 }
 
-function bb_global_sanitize( $array ) {
+function bb_global_sanitize( $array, $trim = true ) {
 	foreach ($array as $k => $v) {
 		if ( is_array($v) ) {
 			$array[$k] = bb_global_sanitize($v);
 		} else {
-			if ( get_magic_quotes_gpc() )
-				$array[$k] = trim($v);
-			else
-				$array[$k] = addslashes( trim($v) );
+			if ( !get_magic_quotes_gpc() )
+				$array[$k] = addslashes($v);
+			if ( $trim )
+				$array[$k] = trim($array[$k]);
 		}
 	}
 	return $array;
