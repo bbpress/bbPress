@@ -69,7 +69,7 @@ if ( defined('BBLANG') && '' != constant('BBLANG') ) {
 	include_once(BBPATH . BBINC . '/streams.php');
 	include_once(BBPATH . BBINC . '/gettext.php');
 }
-if ( !( defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
+if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
 	require( BBPATH . BBINC . '/kses.php');
 	require( BBPATH . BBINC . '/l10n.php');
 }

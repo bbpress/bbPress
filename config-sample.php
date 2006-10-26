@@ -53,9 +53,6 @@ $bb->wp_table_prefix = false;  // WordPress table prefix.  Example: 'wp_';
 $bb->wp_home = false;  // WordPress - Options->General: Blog address (URL) // No trailing slash
 $bb->wp_siteurl = false;  // WordPress - Options->General: WordPress address (URL) // No trailing slash
 
-// Use the following line *only* if you will be loading WordPress everytime you load bbPress.
-//define('WP_BB', true);
-
 /* Stop editing */
 
 define('BBPATH', dirname(__FILE__) . '/' );
