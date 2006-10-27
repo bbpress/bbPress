@@ -758,7 +758,7 @@ function is_wp_error($thing) { // [3667]
 }
 endif;
 
-if ( !class_exists('WP_Ajax_Rpespons') ) :
+if ( !class_exists('WP_Ajax_Response') ) :
 class WP_Ajax_Response { // [4187]
 	var $responses = array();
 
