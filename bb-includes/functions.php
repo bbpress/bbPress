@@ -320,7 +320,7 @@ function bb_get_option( $option ) {
 		return $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.72';
+		return '0.73';
 		break; 
 	endswitch;
 }
