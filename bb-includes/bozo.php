@@ -235,7 +235,7 @@ function fermion( $user_id, $topic_id = 0 ) {
 
 function bozo_profile_admin_keys( $a ) {
 	global $user;
-	$a['is_bozo'] = array(0, __('This user is a bozo'), 'checkbox" value="1"' . ( $user->is_bozo ? ' checked="checked"' : '' ) . '"');
+	$a['is_bozo'] = array(0, __('This user is a bozo'), '"checkbox" value="1"' . ( $user->is_bozo ? ' checked="checked"' : '' ));
 	return $a;
 } 
 

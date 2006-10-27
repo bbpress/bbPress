@@ -51,11 +51,13 @@ endif;
 <?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo $key; ?>" id="<?php echo $key; ?>" type="<?php if ( isset($label[2]) ) echo $label[2]; else echo 'text" size="30" maxlength="140" value="' . $user->$key . '"'; ?>" /><?php
-if ( isset($$key) && false === $$key ) :
-	_e('<br />The above field is required.');
-endif;
-?></td>
+  <td><input name="<?php echo $key; ?>" id="<?php echo $key; ?>" type=<?php
+	if ( isset($label[2]) )
+		echo $label[2];
+	else
+		echo '"text" size="30" maxlength="140" value="' . $user->$key . '"';
+	?> />
+<?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
 </tr>
 <?php endforeach; endif; ?>
 <tr>
