@@ -28,4 +28,4 @@
   <input type="submit" id="postformsub" name="Submit" value="<?php _e('Send Post'); ?> &raquo;" tabindex="4" />
 </p>
 
-<p><?php _e('Allowed tags: <code>a em strong code ul ol li blockquote</code>. <br />Put code in between <code>`backticks`</code>.'); ?></p>
+<p><?php _e('Allowed markup: <code>a em strong code ul ol li blockquote</code>. <br />Put code in between <code>`backticks`</code>.'); ?></p>
