@@ -11,7 +11,7 @@ fieldset table { text-align: right; }
 
 .submit, #header h1 { text-align: left; }
 
-#front-page #hottags, #topic-tags, #manage-tags li, .login label { float: right; }
+#front-page #hottags, #topic-tags, #manage-tags li, .login label, .login #submit { float: right; }
 
 #front-search { float: left; }
 

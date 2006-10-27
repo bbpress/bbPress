@@ -56,7 +56,7 @@ p {
 	text-align: right;
 	letter-spacing: -1px;
 	right: 59px;
-	top: 53px;
+	bottom: 31px;
 }
 
 #header p { margin-bottom: 0; }
@@ -108,16 +108,16 @@ p {
 
 .login { 
 	position: absolute;
-	bottom: 27px;
+	bottom: 31px;
 	font-weight: bold;
 	color: #444;
 }
 
 .login p { padding: 0 0 5px; }
 .login label { display: block; float: left; padding-right: 10px; }
-.login #submit { font-size: 1.2em; margin-top: 13px; }
+.login #submit { font-size: 1.2em; margin-top: 13px; float: left; }
 
-p.login { font-weight: normal; font-size: 1.2em; bottom: 32px; }
+p.login { font-weight: normal; font-size: 1.2em; }
 
 form.login input { 
 	margin-top: 3px;
