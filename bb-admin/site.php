@@ -9,7 +9,7 @@ pages worth of posts a particular topic has.  You shouldn't need to do do any of
 this unless you're upgrading from one version to another or are seeing
 pagination oddities.") ?></p>
 
-<form method="post" action="<?php option('uri'); ?>bb-admin/bb-do-counts.php">
+<form method="post" action="<?php bb_option('uri'); ?>bb-admin/bb-do-counts.php">
 	<fieldset>
 	<legend><?php _e('Choose items to recalculate') ?></legend>
 		<ol>

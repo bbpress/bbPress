@@ -1,6 +1,6 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
+<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <a href="<?php forum_link(); ?>"><?php forum_name(); ?></a></h3>
 <div class="infobox">
 <h2<?php topic_class( 'topictitle' ); ?>><?php topic_title(); ?></h2> <span id="topic_posts">(<?php topic_posts_link(); ?>)</span>
 

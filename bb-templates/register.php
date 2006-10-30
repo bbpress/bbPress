@@ -1,11 +1,11 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
 
 <h2 id="register"><?php _e('Registration'); ?></h2>
 
 <?php if ( !$bb_current_user ) : ?>
-<form method="post" action="<?php option('uri'); ?>register.php">
+<form method="post" action="<?php bb_option('uri'); ?>register.php">
 <fieldset>
 <legend><?php _e('Profile Information'); ?></legend>
 <p><?php printf(__("A password will be mailed to the email address you provide. Make sure to whitelist our domain (%s) so the confirmation email doesn't get caught by any  filters."), bb_get_option( 'domain' )) ?> </p>

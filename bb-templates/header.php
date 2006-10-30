@@ -27,7 +27,7 @@
 		var page = <?php global $page; echo $page; ?>;
 		var currentUserId = <?php echo $bb_current_user->ID; ?>;
 		var topicId = <?php topic_id(); ?>;
-		var uriBase = '<?php option('uri'); ?>';
+		var uriBase = '<?php bb_option('uri'); ?>';
 		var tagLinkBase = '<?php tag_link_base(); ?>';
 		var favoritesLink = '<?php favorites_link(); ?>'; 
 		var isFav = <?php if ( false === $is_fav = is_user_favorite( $bb_current_user->ID ) ) echo "'no'"; else echo $is_fav; ?>;
@@ -41,7 +41,7 @@
 	<div id="wrapper">
 	
 		<div id="header">
-			<h1><a href="<?php option('uri'); ?>"><?php option('name'); ?></a></h1>
+			<h1><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a></h1>
 			<?php login_form(); ?>
 
 		</div>

@@ -100,7 +100,7 @@ if ( $installed ) :
 		$user->set_role( 'keymaster' ); ?>
 
 <p><?php printf(__('%s is now a Key Master'), $user->data->user_login); ?></p>
-<p><a href="<?php option( 'uri' ); ?>"><?php _e('Back to the front page'); ?></a></p>
+<p><a href="<?php bb_option( 'uri' ); ?>"><?php _e('Back to the front page'); ?></a></p>
 
 <?php	else : ?>
 

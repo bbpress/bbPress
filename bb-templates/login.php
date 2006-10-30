@@ -1,11 +1,11 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php option('uri'); ?>"><?php option('name'); ?></a> &raquo; <?php _e('Login'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Login'); ?></h3>
 
 <h2><?php isset($_POST['user_login']) ? _e('Login Failed') : _e('Login') ; ?></h2>
 
 
-<form method="post" action="<?php option('uri'); ?>bb-login.php">
+<form method="post" action="<?php bb_option('uri'); ?>bb-login.php">
 <table width="50%">
 <?php if ( $user_exists ) : ?>
 	<tr valign="top">
@@ -21,7 +21,7 @@
 	<tr valign="top" class="error">
 		<th scope="row"><?php _e('Username:'); ?></th>
 		<td><input name="user_login" type="text" value="<?php echo $user_login; ?>" /><br />
-		<?php _e('This username does not exist.'); ?> <a href="<?php option('uri'); ?>register.php?user=<?php echo $user_login; ?>"><?php _e('Register it?'); ?></a></td>
+		<?php _e('This username does not exist.'); ?> <a href="<?php bb_option('uri'); ?>register.php?user=<?php echo $user_login; ?>"><?php _e('Register it?'); ?></a></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><?php _e('Password:'); ?></th>
@@ -47,7 +47,7 @@
 
 <?php if ( $user_exists ) : ?>
 <hr />
-<form method="post" action="<?php option('uri'); ?>bb-reset-password.php">
+<form method="post" action="<?php bb_option('uri'); ?>bb-reset-password.php">
 <p><?php _e('If you would like to recover the password for this account, you may use the following button to start the recovery process:'); ?><br />
 <input name="user_login" type="hidden" value="<?php echo $user_login; ?>" />
 <input type="submit" value="<?php _e('Recover Password'); ?> &raquo;" /></p>

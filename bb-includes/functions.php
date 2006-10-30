@@ -1551,13 +1551,13 @@ function bb_die($message, $title = '') {
 <head>
 	<title><?php echo $title ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="<?php option('uri'); ?>bb-admin/install.css" type="text/css" />
+	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/install.css" type="text/css" />
 <?php if ( ('rtl' == $bb_locale->text_direction) ) : ?>
-	<link rel="stylesheet" href="<?php option('uri'); ?>bb-admin/install-rtl.css" type="text/css" />
+	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/install-rtl.css" type="text/css" />
 <?php endif; ?>
 </head>
 <body>
-	<h1 id="logo"><img alt="bbPress" src="<?php option('uri'); ?>bb-images/bbpress.png" /></h1>
+	<h1 id="logo"><img alt="bbPress" src="<?php bb_option('uri'); ?>bb-images/bbpress.png" /></h1>
 	<p><?php echo $message; ?></p>
 </body>
 </html>

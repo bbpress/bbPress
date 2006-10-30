@@ -8,7 +8,7 @@
 	</div>
 
 	<div id="footer">
-		<p><?php printf(__('%1$s is proudly powered by <a href="%2$s">bbPress</a>.</p>'), option('name'), "http://bbpress.org") ?>
+		<p><?php printf(__('%1$s is proudly powered by <a href="%2$s">bbPress</a>.</p>'), bb_option('name'), "http://bbpress.org") ?>
 	</div>
 
 	<?php do_action('bb_foot', ''); ?>

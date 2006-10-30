@@ -3,7 +3,7 @@
 <?php bb_get_admin_header(); ?>
 
 <h2><?php _e('Forum Management'); ?></h2>
-<form method="post" id="add-forum" action="<?php option('uri'); ?>bb-admin/bb-forum.php">
+<form method="post" id="add-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
 	<h3><?php _e('Add forum'); ?></h3>
 	<fieldset>
 		<table>
@@ -22,7 +22,7 @@
 	<?php bb_nonce_field( 'add-forum' ); ?>
 </form>
 <?php if ( $forums = get_forums() ) : ?>
-<form method="post" id="update-forums" action="<?php option('uri'); ?>bb-admin/bb-forum.php">
+<form method="post" id="update-forums" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
 	<h3><?php _e('Update forum information'); ?></h3>
 	<fieldset>
 		<table>

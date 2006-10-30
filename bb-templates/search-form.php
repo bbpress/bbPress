@@ -1,4 +1,4 @@
-<form action="<?php option('uri'); ?>search.php" method="get">
+<form action="<?php bb_option('uri'); ?>search.php" method="get">
 	<p><?php _e('Search:'); ?>
 		<input type="text" size="38" maxlength="100" name="q" value="<?php echo wp_specialchars($q, 1); ?>" />
 	</p>

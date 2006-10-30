@@ -1,4 +1,4 @@
-<form class="login" method="post" action="<?php option('uri'); ?>bb-login.php">
+<form class="login" method="post" action="<?php bb_option('uri'); ?>bb-login.php">
 <p><?php printf(__('<a href="%1$s">Register</a> or login'), bb_get_option('uri').'register.php') ?>:</p>
 <p>
 	<label><?php _e('Username:'); ?><br />
