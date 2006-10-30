@@ -909,4 +909,27 @@ function paginate_links( $arg = '' ) { // [4276]
 	return $r;
 }
 endif;
+
+if ( !function_exists('is_serialized') ) : // [WP4382]
+function is_serialized($data) {
+	if ( !is_string($data) ) // if it isn't a string, it isn't serialized
+		return false;
+	$data = trim($data);
+	if ( preg_match("/^[adobis]:[0-9]+:.*[;}]/si",$data) ) // this should fetch all legitimately serialized data
+		return true;
+	return false;
+}
+endif;
+
+if ( !function_exists('is_serialized_string') ) : // [WP4382]
+function is_serialized_string($data) {
+	if ( !is_string($data) ) // if it isn't a string, it isn't a serialized string
+		return false;
+	$data = trim($data);
+	if ( preg_match("/^s:[0-9]+:.*[;}]/si",$data) ) // this should fetch all serialized strings
+		return true;
+	return false;
+}
+endif;
+
 ?>

@@ -284,49 +284,103 @@ function bb_since( $original, $do_more = 0 ) {
 	return $print;
 }
 
+function option( $option ) {
+	echo bb_get_option( $option ) ;
+}
+
 function bb_get_option( $option ) {
 	global $bb;
 
 	switch ( $option ) :
 	case 'uri' :
-		return $bb->domain . $bb->path;
+		$r = $bb->domain . $bb->path;
 		break;
 	case 'name' :
-		return $bb->name;
+		$r = $bb->name;
 		break;
 	case 'page_topics' : 
-		return $bb->page_topics;
+		$r = $bb->page_topics;
 		break;
 	case 'mod_rewrite' : 
-		return $bb->mod_rewrite;
+		$r = $bb->mod_rewrite;
 		break;
 	case 'path' : 
-		return $bb->path;
+		$r = $bb->path;
 		break;
 	case 'domain' :
-		return $bb->domain;
+		$r = $bb->domain;
 		break;
 	case 'admin_email' : 
-		return $bb->admin_email;
+		$r = $bb->admin_email;
 		break;
 	case 'edit_lock' :
-		return $bb->edit_lock;
+		$r = $bb->edit_lock;
 		break;
 	case 'language':
-		return str_replace('_', '-', get_locale());
+		$r = str_replace('_', '-', get_locale());
 		break;
 	case 'text_direction':
 		global $bb_locale;
-		return $bb_locale->text_direction;
+		$r = $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.73';
-		break; 
+		return '0.73'; // Don't filter
+		break;
+	default :
+		global $bbdb, $bb_topic_cache;
+		$option = preg_replace('|[^a-z0-9_]|i', '', $option);
+		if ( isset($bb_topic_cache[0]->$option) ) {
+			$r = $bb_topic_cache[0]->$option;
+			if ( is_wp_error( $r ) && 'bb_get_option' == $r->get_error_code() )
+				$r = null; // see WP_Error below
+			break;
+		} elseif ( isset($bb->$option) ) {
+			$r = $bb->$option;
+			break;
+		}
+		$row = $bbdb->get_row("SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = '$option'");
+		if ( is_object($row) ) {
+			$bb_topic_cache[0]->$option = $r = bb_maybe_unserialize( $row->meta_value );
+		} else {
+			$r = null;
+			$bb_topic_cache[0]->$option = new WP_Error( 'bb_get_option' ); // Used internally for caching.  See above.
+		}
+		break;
 	endswitch;
+	return apply_filters( 'bb_get_option_' . $option, $r, $option);
 }
 
-function option( $option ) {
-	echo bb_get_option( $option ) ;
+function bb_cache_all_options() { // Don't use the return value; use the API.  Only returns options stored in DB.
+	return bb_append_meta( (object) array('topic_id' => 0), 'topic' );
+}
+
+// Can store anything but NULL.
+function bb_update_option( $option, $value ) {
+	return bb_update_meta( 0, $option, $value, 'topic', true );
+}
+
+function bb_delete_option( $option, $value = '' ) {
+	return bb_delete_meta( 0, $option, $value, 'topic', true );
+}
+
+function bb_maybe_serialize( $data ) {
+	if ( is_string($data) )
+		$data = trim($data);
+	elseif ( is_array($data) || is_object($data) || is_bool($data) )
+		return serialize($data);
+	if ( is_serialized( $data ) )
+		return serialize($data);
+	return $data;
+}
+
+function bb_maybe_unserialize( $data ) {
+	if ( is_serialized( $data ) ) {
+		if ( 'b:0;' === $data )
+			return false;
+		if ( false !== $_data = @unserialize($data) )
+			return $_data;
+	}
+	return $data;
 }
 
 function bb_get_uri_page() {
@@ -435,9 +489,9 @@ function bb_append_meta( $object, $type ) {
 		$ids = join(',', array_keys($trans));
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
 			foreach ( $metas as $meta ) :
-				$trans[$meta->$field]->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+				$trans[$meta->$field]->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bb_table_prefix) === 0 )
-					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bb_table_prefix))} = cast_meta_value( $meta->meta_value );
+					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bb_table_prefix))} = bb_maybe_unserialize( $meta->meta_value );
 			endforeach;
 		foreach ( array_keys($trans) as $i )
 			$cache[$i] = $trans[$i];
@@ -445,21 +499,13 @@ function bb_append_meta( $object, $type ) {
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $table WHERE $field = '{$object->$id}'") )
 			foreach ( $metas as $meta ) :
-				$object->{$meta->meta_key} = cast_meta_value( $meta->meta_value );
+				$object->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bb_table_prefix) === 0 )
-					$object->{substr($meta->meta_key, strlen($bb_table_prefix))} = cast_meta_value( $meta->meta_value );
+					$object->{substr($meta->meta_key, strlen($bb_table_prefix))} = bb_maybe_unserialize( $meta->meta_value );
 			endforeach;
 		$cache[$object->$id] = $object;
 		return $object;
 	endif;
-}
-
-function cast_meta_value( $value ) {
-	$value = stripslashes($value);
-	@ $r = unserialize($value);
-	if ( false === $r )
-		$r = $value;
-	return $r;
 }
 
 function bb_user_exists( $user ) {
@@ -484,14 +530,24 @@ function bb_update_usermeta( $user_id, $meta_key, $meta_value ) {
 	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
 
+function bb_delete_usermeta( $user_id, $meta_key, $meta_value = '' ) {
+	return bb_delete_meta( $user_id, $meta_key, $meta_value, 'user' );
+}
+
 function bb_update_topicmeta( $topic_id, $meta_key, $meta_value ) {
 	return bb_update_meta( $topic_id, $meta_key, $meta_value, 'topic' );
 }
 
-function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
+function bb_delete_topicmeta( $topic_id, $meta_key, $meta_value = '' ) {
+	return bb_delete_meta( $topic_id, $meta_key, $meta_value, 'topic' );
+}
+
+// Internal use only.  Use API.
+function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = false ) {
 	global $bbdb, $bb_cache, $bb_table_prefix;
-	if ( !is_numeric( $type_id ) || empty($type_id) )
+	if ( !is_numeric( $type_id ) || empty($type_id) && !$global )
 		return false;
+	$type_id = (int) $type_id;
 	switch ( $type ) :
 	case 'user' :
 		global $bb_user_cache;
@@ -515,22 +571,22 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 	$meta_tuple = apply_filters('bb_update_meta', $meta_tuple);
 	extract($meta_tuple, EXTR_OVERWRITE);
 
-	if ( is_array($meta_value) || is_object($meta_value) )
-		$meta_value = serialize($meta_value);
-	$meta_value = $bbdb->escape( $meta_value );
+	$meta_value = bb_maybe_serialize( $meta_value );
+	$_meta_value = $bbdb->escape( $meta_value );
+	$meta_value = bb_maybe_unserialize( $meta_value );
 
 	$cur = $bbdb->get_row("SELECT * FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 	if ( !$cur ) {
 		$bbdb->query("INSERT INTO $table ( $field, meta_key, meta_value )
 		VALUES
-		( '$type_id', '$meta_key', '$meta_value' )");
+		( '$type_id', '$meta_key', '$_meta_value' )");
 	} elseif ( $cur->meta_value != $meta_value ) {
-		$bbdb->query("UPDATE $table SET meta_value = '$meta_value' WHERE $field = '$type_id' AND meta_key = '$meta_key'");
+		$bbdb->query("UPDATE $table SET meta_value = '$_meta_value' WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 	}
 
 	if ( isset($cache[$type_id]) ) {
-		$cache[$type_id]->{$meta_key} = cast_meta_value( $meta_value );
-		if ( strpos($meta_key, $bb_table_prefix) === 0 )
+		$cache[$type_id]->{$meta_key} = $meta_value;
+		if ( 0 === strpos($meta_key, $bb_table_prefix) )
 			$cache[$type_id]->{substr($meta_key, strlen($bb_table_prefix))} = $cache[$type_id]->{$meta_key};
 	}
 
@@ -538,6 +594,59 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type ) {
 	if ( !$cur )
 		return true;
 }
+
+// Internal use only.  Use API.
+function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = false ) {
+	global $bbdb, $bb_cache, $bb_table_prefix;
+	if ( !is_numeric( $type_id ) || empty($type_id) && !$global )
+		return false;
+	$type_id = (int) $type_id;
+	switch ( $type ) :
+	case 'user' :
+		global $bb_user_cache;
+		$cache =& $bb_user_cache;
+		$table = $bbdb->usermeta;
+		$field = 'user_id';
+		break;
+	case 'topic' :
+		global $bb_topic_cache;
+		$cache =& $bb_topic_cache;
+		$table = $bbdb->topicmeta;
+		$field = 'topic_id';
+		break;
+	endswitch;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+
+	$meta_tuple = compact('type_id', 'meta_key', 'meta_value', 'type');
+	$meta_tuple = apply_filters('bb_delete_meta', $meta_tuple);
+	extract($meta_tuple, EXTR_OVERWRITE);
+
+	$meta_value = bb_maybe_serialize( $meta_value );
+	$meta_value = $bbdb->escape( $meta_value );
+
+	if ( empty($meta_value) )
+		$meta_id = $bbdb->get_var("SELECT meta_id FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
+	else
+		$meta_id = $bbdb->get_var("SELECT meta_id FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key' AND meta_value = '$meta_value'");
+
+	if ( !$meta_id )
+		return false;
+
+	if ( empty($meta_value) )
+		$bbdb->query("DELETE FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
+	else
+		$bbdb->query("DELETE FROM $table WHERE meta_id = '$meta_id'");
+
+	unset($cache[$type_id]->{$meta_key});
+	if ( 0 === strpos($meta_key, $bb_table_prefix) )
+		unset($cache[$type_id]->{substr($meta_key, strlen($bb_table_prefix))});
+
+	$bb_cache->flush_one( $type, $type_id );
+	return true;
+}
+
+
 
 function bb_new_forum( $name, $desc, $order = 0 ) {
 	global $bbdb, $bb_cache, $bb_current_user;

@@ -52,4 +52,8 @@ function language_attributes( $xhtml = 0 ) {
 }
 endif;
 
+function cast_meta_value( $data ) {
+	return bb_maybe_unserialize( $data );
+}
+
 ?>
