@@ -328,15 +328,15 @@ function get_recent_rss_link() {
 
 // FORUMS
 
-function forum_link() {
-	echo apply_filters('forum_link', get_forum_link() );
+function forum_link( $forum_id = 0, $page = 1 ) {
+	echo apply_filters('forum_link', get_forum_link( $forum_id, $page ), $forum_id );
 }
 
-function get_forum_link( $id = 0, $page = 1 ) {
+function get_forum_link( $forum_id = 0, $page = 1 ) {
 	global $forum, $bb;
 
-	if ( $id )
-		$forum = get_forum( $id );
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
 	if ( $bb->mod_rewrite )
 		$link = bb_get_option('uri') . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
 	else {
@@ -347,11 +347,11 @@ function get_forum_link( $id = 0, $page = 1 ) {
 		$link = add_query_arg( $args, $link );
 	}
 
-	return apply_filters( 'get_forum_link', $link, $id );
+	return apply_filters( 'get_forum_link', $link, $forum->forum_id );
 }
 
-function forum_name() {
-	echo apply_filters( 'forum_name', get_forum_name() );
+function forum_name( $forum_id = 0 ) {
+	echo apply_filters( 'forum_name', get_forum_name( $forum_id ), $forum_id );
 }
 
 function get_forum_name( $forum_id = 0 ) {
@@ -370,32 +370,36 @@ function get_forum_id() {
 	return $forum->forum_id;
 }
 
-function forum_description() {
-	echo apply_filters( 'forum_description', get_forum_description() );
+function forum_description( $forum_id = 0 ) {
+	echo apply_filters( 'forum_description', get_forum_description( $forum_id ), $forum_id );
 }
 
-function get_forum_description() {
+function get_forum_description( $forum_id = 0 ) {
 	global $forum;
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
 	return apply_filters( 'get_forum_description', $forum->forum_desc, $forum->forum_id );
 }
 
-function forum_topics() {
-	global $forum;
-	echo apply_filters( 'forum_topics', get_forum_topics(), $forum->forum_id );
+function forum_topics( $forum_id = 0 ) {
+	echo apply_filters( 'forum_topics', get_forum_topics( $forum_id ), $forum_id );
 }
 
-function get_forum_topics() {
+function get_forum_topics( $forum_id = 0 ) {
 	global $forum;
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
 	return apply_filters( 'get_forum_topics', $forum->topics, $forum->forum_id );
 }
 
-function forum_posts() {
-	global $forum;
-	echo apply_filters( 'forum_posts', get_forum_posts(), $forum->forum_id );
+function forum_posts( $forum_id = 0 ) {
+	echo apply_filters( 'forum_posts', get_forum_posts( $forum_id ), $forum_id );
 }
 
-function get_forum_posts() {
+function get_forum_posts( $forum_id = 0 ) {
 	global $forum;
+	if ( $forum_id )
+		$forum = get_forum( $forum_id );
 	return apply_filters( 'get_forum_posts', $forum->posts, $forum->forum_id );
 }
 
@@ -433,7 +437,7 @@ function get_topic_id() {
 }
 
 function topic_link( $id = 0, $page = 1 ) {
-	echo apply_filters( 'topic_link', get_topic_link($id) );
+	echo apply_filters( 'topic_link', get_topic_link($id), $id );
 }
 
 function get_topic_link( $id = 0, $page = 1 ) {
@@ -457,11 +461,11 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	if ( $args )
 		$link = add_query_arg( $args, $link );
 
-	return apply_filters( 'get_topic_link', $link, $id );
+	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
 }
 
 function topic_rss_link( $id = 0 ) {
-	echo apply_filters('topic_rss_link', get_topic_rss_link($id) );
+	echo apply_filters('topic_rss_link', get_topic_rss_link($id), $id );
 }
 
 function get_topic_rss_link( $id = 0 ) {
@@ -475,31 +479,35 @@ function get_topic_rss_link( $id = 0 ) {
 	else
 		$link = bb_get_option('uri') . "rss.php?topic=$topic->topic_id";
 
-	return apply_filters( 'get_topic_rss_link', $link, $id );
+	return apply_filters( 'get_topic_rss_link', $link, $topic->topic_id );
 }
 
 function topic_title( $id = 0 ) {
-	echo apply_filters( 'topic_title', get_topic_title( $id ) );
+	echo apply_filters( 'topic_title', get_topic_title( $id ), $id );
 }
 
 function get_topic_title( $id = 0 ) {
 	global $topic;
 	if ( $id )
 		$topic = get_topic( $id );
-	return apply_filters( 'get_topic_title', $topic->topic_title, $id );
+	return apply_filters( 'get_topic_title', $topic->topic_title, $topic->topic_id );
 }
 
-function topic_posts() {
-	echo apply_filters( 'topic_posts', get_topic_posts() );
+function topic_posts( $id = 0 ) {
+	echo apply_filters( 'topic_posts', get_topic_posts(), $id );
 }
 
 function get_topic_posts() {
 	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
 	return apply_filters( 'get_topic_posts', $topic->topic_posts, $topic->topic_id );
 }
 
-function get_topic_deleted_posts() {
+function get_topic_deleted_posts( $id = 0 ) {
 	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
 	return apply_filters( 'get_topic_deleted_posts', $topic->deleted_posts, $topic->topic_id );
 }
 
@@ -509,24 +517,32 @@ function topic_noreply( $title ) {
 	return $title;
 }
 
-function topic_last_poster() {
+function topic_last_poster( $id = 0 ) {
 	global $topic;
-	echo apply_filters( 'topic_last_poster', get_topic_last_poster(), $topic->topic_last_poster );
+	if ( $id )
+		$topic = get_topic( $id );
+	echo apply_filters( 'topic_last_poster', get_topic_last_poster( $id ), $topic->topic_last_poster ); // Last arg = user ID
 }
 
-function get_topic_last_poster() {
+function get_topic_last_poster( $id = 0 ) {
 	global $topic;
-	return apply_filters( 'get_topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster );
+	if ( $id )
+		$topic = get_topic( $id );
+	return apply_filters( 'get_topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster ); // Last arg = user ID
 }
 
-function topic_author() {
+function topic_author( $id = 0 ) {
 	global $topic;
-	echo apply_filters( 'topic_author', get_topic_author(), $topic->topic_poster );
+	if ( $id )
+		$topic = get_topic( $id );
+	echo apply_filters( 'topic_author', get_topic_author( $id ), $topic->topic_poster ); // Last arg = user ID
 }
 
-function get_topic_author() {
+function get_topic_author( $id = 0 ) {
 	global $topic;
-	return apply_filters( 'get_topic_author', $topic->topic_poster_name, $topic->topic_poster );
+	if ( $id )
+		$topic = get_topic( $id );
+	return apply_filters( 'get_topic_author', $topic->topic_poster_name, $topic->topic_poster ); // Last arg = user ID
 }
 
 function topic_time( $id = 0 ) {
@@ -629,6 +645,7 @@ function get_topic_last_post_link( $id = 0 ){
 	$page = get_page_number( $topic->topic_posts );
 	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
 }
+
 function topic_pages() {
 	global $topic, $page;
 	$add = topic_pages_add();
