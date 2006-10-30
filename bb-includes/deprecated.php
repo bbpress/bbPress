@@ -56,4 +56,8 @@ function cast_meta_value( $data ) {
 	return bb_maybe_unserialize( $data );
 }
 
+function option( $option ) {
+	return bb_option( $option );
+}
+
 ?>

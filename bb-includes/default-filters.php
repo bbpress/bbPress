@@ -41,7 +41,7 @@ add_action('bb_head', 'bb_print_scripts');
 
 add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 
-if ( !$bb->mod_rewrite ) {
+if ( !bb_get_option( 'mod_rewrite' ) ) {
 	add_filter('profile_tab_link', 'wp_specialchars');
 	add_filter('post_link', 'wp_specialchars');
 	add_filter('favorites_link', 'wp_specialchars');

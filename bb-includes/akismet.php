@@ -1,10 +1,10 @@
 <?php
-if ( !$bb->akismet_key )
+if ( !bb_get_option( 'akismet_key' ) )
 	return; // Bail if no key.
 
-$bb_ksd_api_host = $bb->akismet_key . '.rest.akismet.com';
+$bb_ksd_api_host = bb_get_option( 'akismet_key' ) . '.rest.akismet.com';
 $bb_ksd_api_port = 80;
-$bb_ksd_user_agent = 'bbPress/' . bb_get_option('version') . ' | bbAkismet/'. bb_get_option('version');
+$bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. bb_get_option( 'version' );
 
 function bb_akismet_verify_key( $key ) {
 	global $bb_ksd_pre_post_status, $bb_ksd_api_host, $bb_ksd_api_port;
@@ -186,9 +186,9 @@ function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
 }
 
 function bb_ksd_admin_page() {
-	global $bb, $bb_current_submenu, $bb_posts, $page;
-	if ( !bb_akismet_verify_key( $bb->akismet_key ) ) : ?>
-<div class="error"><p><?php printf(__('The API key you have specified is invalid.  Please double check the <code>$bb->akismet_key</code> variable in your <code>config.php file</code>.  If you don\'t have an API key yet, you can get one at <a href="%s">WordPress.com</a>.'), 'http://wordpress.com/api-keys/'); ?></p></div>
+	global $bb_current_submenu, $bb_posts, $page;
+	if ( !bb_akismet_verify_key( bb_get_option( 'akismet_key' ) ) ) : ?>
+<div class="error"><p><?php printf(__('The API key you have specified is invalid.  Please double check the <code>$bb->akismet_keyy</code> variable in your <code>config.php file</code>.  If you don\'t have an API key yet, you can get one at <a href="%s">WordPress.com</a>.'), 'http://wordpress.com/api-keys/'); ?></p></div>
 <?php	endif;
 
 	if ( !bb_current_user_can('browse_deleted') )

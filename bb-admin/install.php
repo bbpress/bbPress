@@ -83,7 +83,7 @@ header( 'Content-Type: text/html; charset=utf-8' );
 $bbdb->hide_errors();
 $installed = $bbdb->get_results("SELECT * FROM $bbdb->forums LIMIT 1");
 if ( $installed ) :
-	if ( !isset($bb->new_keymaster) )
+	if ( $new_keymaster = bb_get_option( 'new_keymaster' ) )
 		die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
 	$meta_key = $bb_table_prefix . 'capabilities';
 	$keymaster = false;
@@ -95,7 +95,7 @@ if ( $installed ) :
 		}
 	}
 
-	$user = new BB_User( $bb->new_keymaster );
+	$user = new BB_User( $new_keymaster );
 	if ( $user->data ) :
 		$user->set_role( 'keymaster' ); ?>
 
@@ -230,7 +230,7 @@ elseif ( isset($_POST['new_keymaster']) ) :
 else :
 	if ( isset( $_POST['admin_url'] ) )
 		$admin_url = bb_fix_link( $_POST['admin_url'] );
-	list($user_id, $password) = bb_new_user( $admin_login, $bb->admin_email, $admin_url );
+	list($user_id, $password) = bb_new_user( $admin_login, bb_get_option( 'admin_email' ), $admin_url );
 	$bb_current_user = bb_set_current_user( $user_id );
 	if ( strlen( $_POST['admin_loc'] ) > 0 )
 		bb_update_usermeta( 1, 'from', $_POST['admin_loc'] );
@@ -247,7 +247,7 @@ bb_new_forum( $forum_name, $forum_desc );
 bb_new_topic(__('Your first topic'), 1, 'bbPress');
 bb_new_post(1, __('First Post!  w00t.'));
 
-$message_headers = 'From: ' . $forum_name . ' <' . $bb->admin_email . '>';
+$message_headers = 'From: ' . $forum_name . ' <' . bb_get_option( 'admin_email' ) . '>';
 $message = sprintf(__("Your new bbPress site has been successfully set up at:
 
 %1\$s
@@ -261,9 +261,9 @@ We hope you enjoy your new forums. Thanks!
 
 --The bbPress Team
 http://bbpress.org/
-"), $bb->domain . $bb->path, $admin_login, $password);
+"), bb_get_option( 'uri' ), $admin_login, $password);
 
-@mail($bb->admin_email, __('New bbPress installation'), $message, $message_headers);?>
+@mail(bb_get_option( 'admin_email' ), __('New bbPress installation'), $message, $message_headers);?>
 
 <p><em><?php _e('Finished!'); ?></em></p>
 
@@ -278,7 +278,7 @@ http://bbpress.org/
 <dt><?php _e('Password'); ?></dt>
 <dd><code><?php echo $password; ?></code></dd>
 	<dt><?php _e('Login address'); ?></dt>
-<dd><a href=".."><?php echo $bb->name; ?></a></dd>
+<dd><a href=".."><?php bb_option( 'name' ); ?></a></dd>
 </dl>
 <p><?php _e('Were you expecting more steps? Sorry to disappoint. All done! :)'); ?></p>
 <?php

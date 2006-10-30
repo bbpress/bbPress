@@ -6,8 +6,7 @@ class BB_Cache {
 	var $flush_time = 172800; // 2 days
 
 	function BB_Cache() {
-		global $bb;
-		if ( isset($bb->use_cache) && false === $bb->use_cache || !is_writable(BBPATH . 'bb-cache/') )
+		if ( false === bb_get_option( 'use_cache' ) || !is_writable(BBPATH . 'bb-cache/') )
 			$this->use_cache = false;
 		else	$this->flush_old();
 	}

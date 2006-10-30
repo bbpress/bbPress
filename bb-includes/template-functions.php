@@ -53,7 +53,7 @@ function bb_head() {
 }
 
 function profile_menu() {
-	global $bb, $bbdb, $bb_current_user, $user_id, $profile_menu, $self, $profile_page_title;
+	global $bbdb, $bb_current_user, $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . get_user_profile_link( $user_id ) . '">' . __('Profile') . '</a></li>';
 	foreach ($profile_menu as $item) {
@@ -72,12 +72,12 @@ function profile_menu() {
 }
 
 function login_form() {
-	global $bb_current_user, $bb;
+	global $bb_current_user;
 	if ( bb_is_user_logged_in() ) {
         printf('<p class="login">'. __('Welcome, %1$s!'). ' <a href="' . get_user_profile_link( $bb_current_user->ID ) . '">'. __('View your profile') ."&raquo;</a>\n<small>(",get_user_name( $bb_current_user->ID ));
 	if ( bb_current_user_can('moderate') )
-		echo "<a href='" . bb_get_option('uri') . "bb-admin/'>Admin</a> | ";
-	echo "<a href='" . bb_get_option('uri') . "bb-login.php?logout'>". __('Logout') ."</a>)</small></p>";
+		echo "<a href='" . bb_get_option( 'uri' ) . "bb-admin/'>Admin</a> | ";
+	echo "<a href='" . bb_get_option( 'uri' ) . "bb-login.php?logout'>". __('Logout') ."</a>)</small></p>";
 	} else {
 		if ( file_exists(BBPATH . '/my-templates/login-form.php') ) {
 			include(BBPATH . '/my-templates/login-form.php');
@@ -318,12 +318,11 @@ function bb_feed_head() {
 }
 
 function get_recent_rss_link() {
-	global $bb;
-	if ( $bb->mod_rewrite )
-		$link = bb_get_option('uri') . 'rss/';
+	if ( bb_get_option( 'mod_rewrite' ) )
+		$link = bb_get_option( 'uri' ) . 'rss/';
 	else
-		$link = bb_get_option('uri') . "rss.php";
-	return apply_filters('get_recent_rss_link', $link);
+		$link = bb_get_option( 'uri' ) . "rss.php";
+	return apply_filters( 'get_recent_rss_link', $link );
 }
 
 // FORUMS
@@ -333,15 +332,15 @@ function forum_link( $forum_id = 0, $page = 1 ) {
 }
 
 function get_forum_link( $forum_id = 0, $page = 1 ) {
-	global $forum, $bb;
+	global $forum;
 
 	if ( $forum_id )
 		$forum = get_forum( $forum_id );
-	if ( $bb->mod_rewrite )
-		$link = bb_get_option('uri') . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
+	if ( bb_get_option( 'mod_rewrite' ) )
+		$link = bb_get_option( 'uri' ) . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
 	else {
 		$args = array();
-		$link = bb_get_option('uri') . 'forum.php';
+		$link = bb_get_option( 'uri' ) . 'forum.php';
 		$args['id'] = $forum->forum_id;
 		$args['page'] = 1 < $page ? $page : '';
 		$link = add_query_arg( $args, $link );
@@ -1107,11 +1106,10 @@ function tag_page_link() {
 }
 
 function get_tag_page_link() {
-	global $bb;
 	if ( bb_get_option('mod_rewrite') )
-		return $bb->tagpath . 'tags/';
+		return bb_get_option( 'tagpath' ) . 'tags/';
 	else
-		return $bb->tagpath . 'tags.php';
+		return bb_get_option( 'tagpath' ) . 'tags.php';
 }
 
 function tag_link( $id = 0, $page = 1 ) {
@@ -1119,13 +1117,13 @@ function tag_link( $id = 0, $page = 1 ) {
 }
 
 function get_tag_link( $tag_name = 0, $page = 1 ) {
-	global $tag, $bb;
+	global $tag;
 	if ( $tag_name )
 		$tag = get_tag_by_name( $tag_name );
 	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . $bb->tagpath . "tags/$tag->tag" . ( 1 < $page ? "/page/$page" : '' );
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$tag->tag" . ( 1 < $page ? "/page/$page" : '' );
 	else
-		return bb_get_option('domain') . $bb->tagpath . "tags.php?tag=$tag->tag" . ( 1 < $page ? "&page=$page" : '' );
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$tag->tag" . ( 1 < $page ? "&page=$page" : '' );
 }
 
 function tag_link_base() {
@@ -1133,11 +1131,10 @@ function tag_link_base() {
 }
 
 function get_tag_link_base() {
-	global $bb;
 	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . $bb->tagpath . 'tags/';
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . 'tags/';
 	else
-		return bb_get_option('domain') . $bb->tagpath . 'tags.php?tag=';
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . 'tags.php?tag=';
 }
 
 function tag_name( $id = 0 ) {

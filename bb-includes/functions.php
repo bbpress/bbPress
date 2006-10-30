@@ -42,7 +42,7 @@ function bb_get_post( $post_id ) {
 }
 
 function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
-	global $bbdb, $bb, $bb_last_countable_query;
+	global $bbdb, $bb_last_countable_query;
 	$forum = (int) $forum;
 	$page = (int) $page;
 	$where = 'WHERE topic_status = 0';
@@ -66,7 +66,7 @@ function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 }
 
 function get_sticky_topics( $forum = 0, $display = 1 ) {
-	global $bbdb, $bb, $bb_last_countable_query;
+	global $bbdb, $bb_last_countable_query;
 	if ( 1 != $display )
 		return false;
 	$forum = (int) $forum;
@@ -284,7 +284,7 @@ function bb_since( $original, $do_more = 0 ) {
 	return $print;
 }
 
-function option( $option ) {
+function bb_option( $option ) {
 	echo bb_get_option( $option ) ;
 }
 
@@ -295,6 +295,7 @@ function bb_get_option( $option ) {
 	case 'uri' :
 		$r = $bb->domain . $bb->path;
 		break;
+/*
 	case 'name' :
 		$r = $bb->name;
 		break;
@@ -316,6 +317,7 @@ function bb_get_option( $option ) {
 	case 'edit_lock' :
 		$r = $bb->edit_lock;
 		break;
+*/
 	case 'language':
 		$r = str_replace('_', '-', get_locale());
 		break;
@@ -410,13 +412,12 @@ function post_author_cache($posts) {
 }
 
 function bb_current_time( $type = 'timestamp' ) {
-	global $bb;
 	switch ($type) {
 		case 'mysql':
 			$d = gmdate('Y-m-d H:i:s');
 			break;
 		case 'timestamp':
-			$d = time() - $bb->gmt_offset * 3600; //make this GMT
+			$d = time() - bb_get_option( 'gmt_offset' ) * 3600; //make this GMT
 			break;
 	}
 	return $d;
@@ -1030,16 +1031,15 @@ function bb_global_sanitize( $array, $trim = true ) {
 // GMT -> Local
 function bb_offset_time($time) {
 	// in future versions this could eaily become a user option.
-	global $bb;
 	if ( !is_numeric($time) ) {
 		if ( !(strtotime($time) === -1)) {
 			$time = strtotime($time);
-			return date('Y-m-d H:i:s', ($time + ($bb->gmt_offset * 3600)));
+			return date('Y-m-d H:i:s', $time + bb_get_option( 'gmt_offset' ) * 3600);
 		} else {
 			return $time;
 		}
 	} else {
-		return ($time + ($bb->gmt_offset * 3600));
+		return $time + bb_get_option( 'gmt_offset' ) * 3600;
 	}
 }
 
@@ -1321,11 +1321,11 @@ function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 }
 
 function bb_find_filename( $text ) {
-	global $bb;
 	if ( preg_match('|.*?/([a-z\-]+\.php)/?.*|', $text, $matches) )
 		return $matches[1];
 	else {
-		$text = preg_replace("#^$bb->path#", '', $text);
+		$path = bb_get_option( 'path' );
+		$text = preg_replace("#^$path#", '', $text);
 		$text = preg_replace('#/.+$#', '', $text);
 		return $text . '.php';
 	}
@@ -1340,7 +1340,7 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
 function bb_repermalink() {
-	global $bb, $page;
+	global $page;
 	$uri = $_SERVER['REQUEST_URI'];
 	if ( isset($_GET['id']) )
 		$permalink = (int) $_GET['id'];
@@ -1413,7 +1413,7 @@ function bb_repermalink() {
 	$domain = preg_replace('/^https?/', '', $domain);
 	$check = preg_replace( '|^.*' . trim($domain, ' /' ) . '|', '', $permalink, 1 );
 
-	if ( isset($bb->debug) && 1 === $bb->debug ) :
+	if ( 1 === bb_get_option( 'debug' ) ) :
 		echo "<table>\n<tr><td>". __('REQUEST_URI') .":</td><td>";
 		var_dump($uri);
 		echo "</td></tr>\n<tr><td>". __('should be') .":</td><td>";
@@ -1531,8 +1531,6 @@ function bb_nonce_field($action = -1) {
 }
 
 function bb_nonce_ays($action) {
-	global $bb;
-
 	$adminurl = bb_get_option('siteurl') . '/wp-admin';
 	if ( wp_get_referer() )
 		$adminurl = wp_get_referer();

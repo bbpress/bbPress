@@ -2,11 +2,10 @@
 
 if ( !function_exists('bb_auth') ) :
 function bb_auth() {
-	global $bb;
 	// Checks if a user is logged in, if not redirects them to the login page
-	if ( (!empty($_COOKIE[$bb->usercookie]) && 
-				!bb_check_login($_COOKIE[$bb->usercookie], $_COOKIE[$bb->passcookie], true)) ||
-			 (empty($_COOKIE[$bb->usercookie])) ) {
+	if ( (!empty($_COOKIE[bb_get_option( 'usercookie' )]) && 
+				!bb_check_login($_COOKIE[bb_get_option( 'usercookie' )], $_COOKIE[bb_get_option( 'passcookie' )], true)) ||
+			 (empty($_COOKIE[bb_get_option( 'usercookie' )])) ) {
 		nocache_headers();
 
 		header('Location: ' . bb_get_option('uri'));
@@ -30,13 +29,12 @@ endif;
 
 if ( !function_exists('bb_cookie') ) :
 function bb_cookie( $name, $value, $expires = 0 ) {
-	global $bb;
 	if ( !$expires )
 		$expires = time() + 604800;
-	if ( isset( $bb->cookiedomain ) )
-		setcookie( $name, $value, $expires, $bb->cookiepath, $bb->cookiedomain );
+	if ( bb_get_option( 'cookiedomain' ) )
+		setcookie( $name, $value, $expires, bb_get_option( 'cookiepath' ), bb_get_option( 'cookiedomain' ) );
 	else
-		setcookie( $name, $value, $expires, $bb->cookiepath );
+		setcookie( $name, $value, $expires, bb_get_option( 'cookiepath' ) );
 }
 endif;
 
@@ -80,7 +78,7 @@ function bb_current_user() {
 	if ( ! empty($bb_current_user) )
 		return $bb_current_user;
 
-	global $bbdb, $bb, $bb_cache, $bb_user_cache;
+	global $bbdb, $bb_cache, $bb_user_cache;
 	$userpass = bb_get_cookie_login();
 	if ( empty($userpass) )
 		return false;
@@ -99,12 +97,10 @@ endif;
 
 if ( !function_exists('bb_get_cookie_login') ) :
 function bb_get_cookie_login() {
-	global $bb;
-
-	if ( empty($_COOKIE[$bb->usercookie]) || empty($_COOKIE[$bb->passcookie]) )
+	if ( empty($_COOKIE[bb_get_option( 'usercookie' )]) || empty($_COOKIE[bb_get_option( 'passcookie' )]) )
 		return false;
 
-	return array('login' => $_COOKIE[$bb->usercookie],	'password' => $_COOKIE[$bb->passcookie]);
+	return array('login' => $_COOKIE[bb_get_option( 'usercookie' )],	'password' => $_COOKIE[bb_get_option( 'passcookie' )]);
 }
 endif;
 
@@ -127,11 +123,9 @@ endif;
 
 if ( !function_exists('bb_login') ) :
 function bb_login($login, $password) {
-	global $bb;
-
 	if ( $user = bb_check_login( $login, $password ) ) {
-		bb_cookie( $bb->usercookie, $user->user_login, time() + 6048000 );
-		bb_cookie( $bb->passcookie, md5( $user->user_pass ) );
+		bb_cookie( bb_get_option( 'usercookie' ), $user->user_login, time() + 6048000 );
+		bb_cookie( bb_get_option( 'passcookie' ), md5( $user->user_pass ) );
 		do_action('bb_user_login', '');
 	}
 
@@ -141,10 +135,8 @@ endif;
 
 if ( !function_exists('bb_logout') ) :
 function bb_logout() {
-	global $bb;
-
-	bb_cookie( $bb->passcookie , ' ', time() - 31536000 );
-	bb_cookie( $bb->usercookie , ' ', time() - 31536000 );
+	bb_cookie( bb_get_option( 'passcookie' ) , ' ', time() - 31536000 );
+	bb_cookie( bb_get_option( 'usercookie' ) , ' ', time() - 31536000 );
 	do_action('bb_user_logout', '');
 }
 endif;
@@ -198,8 +190,7 @@ endif;
 // Not verbatim WP,  bb has no options table and constants have different names.
 if ( !function_exists('wp_salt') ) :
 function wp_salt() {
-	global $bb;
-	$salt = $bb->secret;
+	$salt = bb_get_option( 'secret' );
 	if ( empty($salt) )
 		$salt = BBDB_PASSWORD . BBDB_USER . BBDB_NAME . BBDB_HOST . BBPATH;
 
@@ -231,12 +222,11 @@ endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
 function bb_check_ajax_referer() {
-	global $bb;
 	$cookie = explode('; ', urldecode(empty($_POST['cookie']) ? $_GET['cookie'] : $_POST['cookie'])); // AJAX scripts must pass cookie=document.cookie
 	foreach ( $cookie as $tasty ) {
-		if ( false !== strpos($tasty, $bb->usercookie) )
+		if ( false !== strpos($tasty, bb_get_option( 'usercookie' )) )
 			$user = substr(strstr($tasty, '='), 1);
-		if ( false !== strpos($tasty, $bb->passcookie) )
+		if ( false !== strpos($tasty, bb_get_option( 'passcookie' )) )
 			$pass = substr(strstr($tasty, '='), 1);
 	}
 	if ( !bb_check_login( $user, $pass, true ) )
