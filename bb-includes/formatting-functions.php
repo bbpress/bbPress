@@ -56,17 +56,16 @@ function code_trick_reverse( $text ) {
 }
 
 function encode_bad( $text ) {
-	$text = wp_specialchars($text);
-	$text = preg_replace('|&lt;(/?strong)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?em)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?a.*?)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?ol)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?p)&gt;|', '<$1>', $text);
+	$text = wp_specialchars( $text );
 	$text = preg_replace('|&lt;br /&gt;|', '<br />', $text);
-	$text = preg_replace('|&lt;(/?ul)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?li)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?blockquote.*?)&gt;|', '<$1>', $text);
-	$text = preg_replace('|&lt;(/?code)&gt;|', '<$1>', $text);
+	foreach ( bb_allowed_tags() as $tag => $args ) {
+		if ( 'br' == $tag )
+			continue;
+		if ( $args )
+			$text = preg_replace("|&lt;(/?$tag.*?)&gt;|", '<$1>', $text);
+		else
+			$text = preg_replace("|&lt;(/?$tag)&gt;|", '<$1>', $text);
+	}
 
 	$text = preg_replace("|`(.*?)`|se", "'<code>' . encodeit('$1') . '</code>'", $text);
 
