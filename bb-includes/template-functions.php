@@ -938,7 +938,7 @@ function get_allowed_tags( $args = '' ) {
 	if ( is_array($args) )
 		$a = &$args;
 	else
-		parse_str($args, $;);
+		parse_str($args, $a);
 
 	$format = 'flat';
 	extract($a);
