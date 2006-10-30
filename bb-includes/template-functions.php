@@ -281,6 +281,10 @@ function is_bb_stats() {
 		return false;
 }
 
+function bb_title() {
+	echo apply_filters( 'bb_title', bb_get_title() );
+}
+
 function bb_get_title() {
 	global $topic, $forum, $static_title, $tag, $user;
 	$title = '';
@@ -295,12 +299,7 @@ function bb_get_title() {
 	if ( !empty($static_title) )
 		$title = $static_title . ' &laquo; ';
 	$title .= bb_get_option('name');
-	return $title;
-}
-
-function bb_title() {
-	$title = bb_get_title();
-	echo $title;
+	return apply_filters( 'bb_get_title', $title );
 }
 
 function bb_feed_head() {
