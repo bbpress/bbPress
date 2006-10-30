@@ -292,32 +292,10 @@ function bb_get_option( $option ) {
 	global $bb;
 
 	switch ( $option ) :
+	case 'url' :
 	case 'uri' :
 		$r = $bb->domain . $bb->path;
 		break;
-/*
-	case 'name' :
-		$r = $bb->name;
-		break;
-	case 'page_topics' : 
-		$r = $bb->page_topics;
-		break;
-	case 'mod_rewrite' : 
-		$r = $bb->mod_rewrite;
-		break;
-	case 'path' : 
-		$r = $bb->path;
-		break;
-	case 'domain' :
-		$r = $bb->domain;
-		break;
-	case 'admin_email' : 
-		$r = $bb->admin_email;
-		break;
-	case 'edit_lock' :
-		$r = $bb->edit_lock;
-		break;
-*/
 	case 'language':
 		$r = str_replace('_', '-', get_locale());
 		break;
@@ -329,17 +307,21 @@ function bb_get_option( $option ) {
 		return '0.73'; // Don't filter
 		break;
 	default :
-		global $bbdb, $bb_topic_cache;
 		$option = preg_replace('|[^a-z0-9_]|i', '', $option);
+
+		if ( isset($bb->$option) ) {
+			$r = $bb->$option;
+			break;
+		}
+
+		global $bbdb, $bb_topic_cache;
 		if ( isset($bb_topic_cache[0]->$option) ) {
 			$r = $bb_topic_cache[0]->$option;
 			if ( is_wp_error( $r ) && 'bb_get_option' == $r->get_error_code() )
 				$r = null; // see WP_Error below
 			break;
-		} elseif ( isset($bb->$option) ) {
-			$r = $bb->$option;
-			break;
 		}
+
 		$row = $bbdb->get_row("SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = '$option'");
 		if ( is_object($row) ) {
 			$bb_topic_cache[0]->$option = $r = bb_maybe_unserialize( $row->meta_value );
