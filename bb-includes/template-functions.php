@@ -929,6 +929,37 @@ function post_author_type() {
 	}
 }
 
+function allowed_tags( $args = '' ) {
+	echo apply_filters( 'allowed_tags', get_allowed_tags( $args ) );
+}
+
+// format=list or array( 'format' => 'list' )
+function get_allowed_tags( $args = '' ) {
+	if ( is_array($args) )
+		$a = &$args;
+	else
+		parse_str($args, $;);
+
+	$format = 'flat';
+	extract($a);
+
+	$tags = array_keys(bb_allowed_tags());
+	switch ( $format ) :
+	case 'array' :
+		$r = $tags;
+		break;
+	case 'list' :
+		$r = "<ul class='allowed-tags'>\n\t<li>";
+		$r .= join("</li>\n\t<li>", $tags);
+		$r .= "</li>\n</ul>\n";
+		break;
+	default :
+		$r = join(' ', $tags);
+		break;
+	endswitch;
+	return apply_filters( 'get_allowed_tags', $r, $format );
+}
+
 // USERS
 function user_profile_link( $id, $page = 1 ) {
 	echo apply_filters( 'user_profile_link', get_user_profile_link( $id ), $id );
