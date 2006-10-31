@@ -58,6 +58,15 @@ if ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . '/db.php');
 }
 
+$bbdb->forums    = $bb_table_prefix . 'forums';
+$bbdb->posts     = $bb_table_prefix . 'posts';
+$bbdb->topics    = $bb_table_prefix . 'topics';
+$bbdb->topicmeta = $bb_table_prefix . 'topicmeta';
+$bbdb->users     = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'users';
+$bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'usermeta';
+$bbdb->tags      = $bb_table_prefix . 'tags';
+$bbdb->tagged    = $bb_table_prefix . 'tagged';
+
 require( BBPATH . BBINC . '/functions.php');
 require( BBPATH . BBINC . '/formatting-functions.php');
 require( BBPATH . BBINC . '/template-functions.php');
@@ -78,15 +87,6 @@ require( BBPATH . BBINC . '/akismet.php');
 require( BBPATH . BBINC . '/default-filters.php');
 require( BBPATH . BBINC . '/script-loader.php');
 require( BBPATH . BBINC . '/compat.php');
-
-$bbdb->forums    = $bb_table_prefix . 'forums';
-$bbdb->posts     = $bb_table_prefix . 'posts';
-$bbdb->topics    = $bb_table_prefix . 'topics';
-$bbdb->topicmeta = $bb_table_prefix . 'topicmeta';
-$bbdb->users     = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'users';
-$bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'usermeta';
-$bbdb->tags      = $bb_table_prefix . 'tags';
-$bbdb->tagged    = $bb_table_prefix . 'tagged';
 
 $bbdb->hide_errors();
 if ( !$bbdb->query("SELECT * FROM $bbdb->forums LIMIT 1") && !strstr( $_SERVER['PHP_SELF'], 'install.php' ) )
