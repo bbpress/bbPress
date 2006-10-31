@@ -1096,8 +1096,13 @@ function bb_profile_data() {
 //TAGS
 function topic_tags() {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $bb_current_user, $topic;
-	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
-		include( BBPATH . '/bb-templates/topic-tags.php');
+	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) ) {
+		if ( file_exists( BBPATH . '/my-templates/topic-tags.php' ) ) {
+			include( BBPATH . '/my-templates/topic-tags.php' );
+		} else {
+			include( BBPATH . '/bb-templates/topic-tags.php');
+		}
+	}
 }
 
 function tag_page_link() {
