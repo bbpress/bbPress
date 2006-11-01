@@ -26,6 +26,7 @@ $updated = false;
 $user_email = true;
 
 if ($_POST) :
+	$_POST = stripslashes_deep( $_POST );
 	bb_check_admin_referer( 'edit-profile_' . $user_id );
 
 	$user_url = bb_fix_link( $_POST['user_url'] );
@@ -33,11 +34,9 @@ if ($_POST) :
 		$user_email = bb_verify_email( $_POST['user_email'] );
 
 	foreach ( $profile_info_keys as $key => $label ) :
-		if ( is_string($$key) ) :
-			$$key = wp_specialchars( $$key, 1 );
-		elseif ( is_null($$key) ) :
-			$$key = wp_specialchars( $_POST[$key], 1 );
-		endif;
+		if ( is_null($$key) )
+			$$key = $_POST[$key];
+		$$key = apply_filters( 'sanitize_profile_info', $$key );
 		if ( !$$key && $label[0] == 1 ) :
 			$bad_input = true;
 			$$key = false;
@@ -45,9 +44,9 @@ if ($_POST) :
 	endforeach;
 
 	if ( bb_current_user_can('edit_users') ):
-		$role = wp_specialchars( $_POST['role'], 1 );
+		$role = $_POST['role'];
 		foreach ( $profile_admin_keys as $key => $label ) :
-			$$key = wp_specialchars( $_POST[$key], 1 );
+			$$key = apply_filters( 'sanitize_profile_admin', $_POST[$key] );
 			if ( !$$key && $label[0] == 1 ) :
 				$bad_input = true;
 				$$key = false;
@@ -63,9 +62,12 @@ if ($_POST) :
 
 	if ( $user_email && !$bad_input ) :
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) :
-			if ( is_string($user_email) ) 
+			$user_url = addslashes( $user_url );
+			if ( is_string($user_email) ) {
+				$user_email = addslashes( $user_email );
 				bb_update_user( $user->ID, $user_email, $user_url );
-			else	bb_update_user( $user->ID, $user->user_email, $user_url );
+			} else
+				bb_update_user( $user->ID, $user->user_email, $user_url );
 			foreach( $profile_info_keys as $key => $label )
 				if ( strpos($key, 'user_') !== 0 )
 					if ( $$key != ''  || isset($user->$key) )
@@ -96,6 +98,7 @@ if ($_POST) :
 		endif;
 
 		if ( bb_current_user_can( 'change_password' ) && !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $bb_current_user->ID == $user->ID ) :
+			$_POST['pass1'] = addslashes($_POST['pass1']);
 			bb_update_user_password ( $bb_current_user->ID, $_POST['pass1'] );
 			bb_cookie( bb_get_option( 'passcookie' ), md5( md5( $_POST['pass1'] ) ) ); // One week
 		endif;

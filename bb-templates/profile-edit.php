@@ -9,7 +9,7 @@
 <?php if ( is_array($profile_info_keys) ) : foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_user->ID == $user_id ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo $key; ?>" type="<?php if ( isset($label[2]) ) echo $label[2]; else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo $key; ?>" value="<?php echo $user->$key; ?>" /><?php
+  <td><input name="<?php echo $key; ?>" type="<?php if ( isset($label[2]) ) echo $label[2]; else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo $key; ?>" value="<?php echo wp_specialchars( $user->$key, 1); ?>" /><?php
 if ( isset($$key) && false === $$key) :
 	if ( $key == 'user_email' )
 		_e('<br />There was a problem with your email; please check it.');
@@ -55,7 +55,7 @@ endif;
 	if ( isset($label[2]) )
 		echo $label[2];
 	else
-		echo '"text" size="30" maxlength="140" value="' . $user->$key . '"';
+		echo '"text" size="30" maxlength="140" value="' . wp_specialchars( $user->$key, 1 ). '"';
 	?> />
 <?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
 </tr>
