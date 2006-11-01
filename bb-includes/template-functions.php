@@ -693,7 +693,7 @@ function topic_delete_link() {
 		return;
 
 	if ( 0 == $topic->topic_status )
-		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . 'delete-topic_' . $topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna delete that?') . "')\">" . __('Delete entire topic') . "</a>";
+		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() , 'delete-topic_' . $topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna delete that?') . "')\">" . __('Delete entire topic') . "</a>";
 	else
 		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . '&view=all', 'delete-topic_' . $topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna undelete that?') . "')\">" . __('Undelete entire topic') . "</a>";
 }
