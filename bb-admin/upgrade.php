@@ -249,7 +249,6 @@ function upgrade_170() {
 
 	global $bbdb;
 	foreach ( (array) $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_value LIKE '%&quot;%' OR meta_value LIKE '%&#039;%'") as $meta ) {
-		var_dump($meta->meta_value);
 		$value = str_replace(array('&quot;', '&#039;'), array('"', "'"), $meta->meta_value);
 		$value = stripslashes($value);
 		bb_update_usermeta( $meta->user_id, $meta->meta_key, $value);
@@ -258,7 +257,6 @@ function upgrade_170() {
 	bb_update_option( 'bb_db_version', 536 );
 	echo "Done updating usermeta<br />";
 }
-		
 
 function deslash($content) {
     // Note: \\\ inside a regex denotes a single backslash.
@@ -277,4 +275,5 @@ function deslash($content) {
     return $content;
 }
 
+printf(__('%1$d queries and %2$s seconds.'), $bbdb->num_queries, bb_timer_stop(0));
 ?>
