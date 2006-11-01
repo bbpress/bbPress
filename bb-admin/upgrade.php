@@ -122,6 +122,8 @@ upgrade_150();
 upgrade_160();
 */
 
+upgrade_170();
+
 //alter user table column names
 function upgrade_100() {
 	global $bbdb, $bb_table_prefix;
@@ -240,6 +242,23 @@ function upgrade_160() {
 	foreach ( $blocked as $b )
 		bb_break_password( $b );
 }
+
+function upgrade_170() {
+	if ( ( $dbv = bb_get_option( 'bb_db_version' ) ) && $dbv >= 536 )
+		return;
+
+	global $bbdb;
+	foreach ( (array) $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_value LIKE '%&quot;%' OR meta_value LIKE '%&#039;%'") as $meta ) {
+		var_dump($meta->meta_value);
+		$value = str_replace(array('&quot;', '&#039;'), array('"', "'"), $meta->meta_value);
+		$value = stripslashes($value);
+		bb_update_usermeta( $meta->user_id, $meta->meta_key, $value);
+	}
+	var_dump($bbdb->last_query);
+	bb_update_option( 'bb_db_version', 536 );
+	echo "Done updating usermeta<br />";
+}
+		
 
 function deslash($content) {
     // Note: \\\ inside a regex denotes a single backslash.
