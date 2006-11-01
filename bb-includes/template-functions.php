@@ -944,12 +944,12 @@ function post_author_type() {
 	}
 }
 
-function allowed_tags( $args = '' ) {
-	echo apply_filters( 'allowed_tags', get_allowed_tags( $args ) );
+function allowed_markup( $args = '' ) {
+	echo apply_filters( 'allowed_markup', get_allowed_markup( $args ) );
 }
 
 // format=list or array( 'format' => 'list' )
-function get_allowed_tags( $args = '' ) {
+function get_allowed_markup( $args = '' ) {
 	if ( is_array($args) )
 		$a = &$args;
 	else
@@ -964,7 +964,7 @@ function get_allowed_tags( $args = '' ) {
 		$r = $tags;
 		break;
 	case 'list' :
-		$r = "<ul class='allowed-tags'>\n\t<li>";
+		$r = "<ul class='allowed-markup'>\n\t<li>";
 		$r .= join("</li>\n\t<li>", $tags);
 		$r .= "</li>\n</ul>\n";
 		break;
@@ -972,7 +972,7 @@ function get_allowed_tags( $args = '' ) {
 		$r = join(' ', $tags);
 		break;
 	endswitch;
-	return apply_filters( 'get_allowed_tags', $r, $format );
+	return apply_filters( 'get_allowed_markup', $r, $format );
 }
 
 // USERS
