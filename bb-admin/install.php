@@ -83,7 +83,7 @@ header( 'Content-Type: text/html; charset=utf-8' );
 $bbdb->hide_errors();
 $installed = $bbdb->get_results("SELECT * FROM $bbdb->forums LIMIT 1");
 if ( $installed ) :
-	if ( $new_keymaster = bb_get_option( 'new_keymaster' ) )
+	if ( !$new_keymaster = bb_get_option( 'new_keymaster' ) )
 		die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
 	$meta_key = $bb_table_prefix . 'capabilities';
 	$keymaster = false;
