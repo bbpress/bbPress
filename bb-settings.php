@@ -145,7 +145,7 @@ register_shutdown_function('bb_shutdown_action_hook');
 
 bb_current_user();
 
-do_action('init', '');
+do_action('bb_init', '');
 
 if ( bb_is_user_logged_in() && bb_has_broken_pass() )
 	bb_block_current_user();
