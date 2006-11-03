@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" <?php bb_language_attributes( '1.1' ); ?>>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -32,8 +32,10 @@
 		var favoritesLink = '<?php favorites_link(); ?>'; 
 		var isFav = <?php if ( false === $is_fav = is_user_favorite( $bb_current_user->ID ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>
-	<?php bb_enqueue_script('topic'); bb_head(); ?>
+	<?php bb_enqueue_script('topic'); ?>
 <?php endif; ?>
+
+<?php bb_head(); ?>
 </head>
 
 <body id="<?php bb_location(); ?>">
