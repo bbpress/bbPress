@@ -19,7 +19,7 @@ Object.extend(WPAjax.prototype, {
 					tempObj.WPError(transport);
 			}
 		});
-		this.url = url;
+		this.url = url ? url : '<?php bb_option( 'uri' ); ?>bb-admin/admin-ajax.php';
 		this.getResponseElement(responseEl);
 	},
 	addArg: function(key, value) {

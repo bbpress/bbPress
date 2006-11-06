@@ -175,7 +175,10 @@ case 'add-post' : // Can put last_modified stuff back in later
 	$x->send();
 	break;
 
+default :
+	do_action( 'bb_ajax_' . $_POST['action'] );
+var_dump($_POST);
+	die('0');
+	break;
 endswitch;
-
-die('0');
 ?>

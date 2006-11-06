@@ -12,7 +12,7 @@ class BB_Scripts {
 	function default_scripts() {
 		$this->add( 'fat', '/' . BBINC . '/js/fat.js', false, '1.0-RC1_3660' );
 		$this->add( 'prototype', '/' . BBINC . '/js/prototype.js', false, '1.5.0' );
-		$this->add( 'wp-ajax', '/' . BBINC . '/js/wp-ajax-js.php', array('prototype'), '2.1-beta' );
+		$this->add( 'wp-ajax', '/' . BBINC . '/js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
 		$this->add( 'listman', '/' . BBINC . '/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '440' );
 		$this->add( 'topic', '/' . BBINC . '/js/topic-js.php', array('listman'), '433' );
 	}
@@ -29,7 +29,6 @@ class BB_Scripts {
 		// Print the queue if nothing is passed.  If a string is passed, print that script.  If an array is passed, print those scripts.
 		$handles = false === $handles ? $this->queue : (array) $handles;
 		$handles = $this->all_deps( $handles );
-
 		$this->_print_scripts( $handles );
 		return $this->printed;
 	}
