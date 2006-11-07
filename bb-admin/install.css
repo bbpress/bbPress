@@ -38,3 +38,14 @@ td input { font-size: 1.5em; }
 	padding-top: 1em; 
 	font-style: italic;
 }
+
+.error {
+	background-color: #f99;
+}
+
+.notice {
+	background-color: #ff9;
+}
+
+span.bad-input { color: #d00; }
+input.bad-input { background-color: #fdd; }

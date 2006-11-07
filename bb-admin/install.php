@@ -16,64 +16,10 @@ header( 'Content-Type: text/html; charset=utf-8' );
 <head>
 	<title><?php _e('bbPress &rsaquo; Installation'); ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<style media="screen" type="text/css">
-	<!--
-	html {
-		background: #eee;
-	}
-	body {
-		background: #fff;
-		color: #000;
-		font-family: Georgia, "Times New Roman", Times, serif;
-		margin-left: 20%;
-		margin-right: 20%;
-		padding: .2em 2em;
-	}
-
-	h1 {
-		color: #060;
-		font-size: 18px;
-		font-weight: lighter;
-	}
-
-	h2 {
-		font-size: 16px;
-	}
-
-	p, li, dt {
-		line-height: 140%;
-		padding-bottom: 2px;
-	}
-
-	ul, ol {
-		padding: 5px 5px 5px 20px;
-	}
-	#logo {
-		margin-bottom: 2em;
-	}
-	.step a, .step input {
-		font-size: 2em;
-	}
-	.step {
-		text-align: right;
-	}
-	th {
-		text-align: left;
-	}
-	td input {
-		width: 98%;
-	}
-	.alt {
-		background: #eee;
-	}
-	#footer {
-		text-align: center;
-		border-top: 1px solid #ccc;
-		padding-top: 1em;
-		font-style: italic;
-	}
-	-->
-	</style>
+	<link rel="stylesheet" href="install.css" type="text/css" />
+<?php if ( 'rtl' == $bb_locale->text_direction ) : ?>
+        <link rel="stylesheet" href="install-rtl.css" type="text/css" />
+<?php endif; ?>
 </head>
 
 <body>
@@ -140,9 +86,100 @@ switch ($step):
 			}
 			$bbdb->show_errors();
 		}
+
+
 ?>
 <h1><?php _e('First Step'); ?></h1>
 <p><?php _e('Make sure you have <strong>everything</strong> (database information, email address, etc.) entered correctly in <code>config.php</code> before running this script.'); ?></p>
+<?php
+	$errors = new WP_Error();
+	$notices = new WP_Error();
+
+	$bbd = bb_get_option( 'domain' );
+	$bbp = bb_get_option( 'path' );
+	if ( '/' == substr($bbd, -1) )
+		$errors->add('domain', __('Your <code>$bb->domain</code> setting must <strong>not</strong> end in a backslash "<code>/</code>".') );
+	$domain = parse_url($bbd);
+	if ( !$domain )
+		$errors->add('domain', __('Your <code>$bb->domain</code> setting cannot be parsed.') ); // Not very helpful, but should essentially never happen.
+	if ( !$domain['scheme'] )
+		$errors->add('domain', __('Your <code>$bb->domain</code> setting <strong>must</strong> start with <code>http://</code>.') );
+	if ( $domain['path'] && '/' != $domain['path'] )
+		$errors->add('domain', __('Your <code>$bb->domain</code> setting must only include the <code>http://</code> and the domain name; it may not include any directories or path information.') );
+	if ( '/' != $bbp{0} )
+		$errors->add('path', __('Your <code>$bb->path</code> setting <strong>must</strong> start with a backslash "<code>/</code>".') );
+	if ( '/' != substr($bbp, -1) )
+		$errors->add('path', __('Your <code>$bb->path</code> setting <strong>must</strong> end with a backslash "<code>/</code>".') );
+
+	// We don't really do anything with $bb->wp_site_url.
+
+	if ( $wph = bb_get_option( 'wp_home' ) ) {
+		if ( '/' == $wph{strlen($wph) - 1} )
+			$errors->add('wp_home', __('Your <code>$bb->wp_home</code> setting must <strong>not</strong> end in a backslash "<code>/</code>".') );
+		$home = parse_url($wph);
+		if ( !$home )
+			$errors->add('wp_home', __('Your <code>$bb->wp_home</code> setting cannot be parsed.') );
+		if ( !$home['scheme'] )
+			$errors->add('wp_home', __('Your <code>$bb->wp_home</code> setting <strong>must</strong> start with <code>http://</code>.') );
+		if ( preg_match('|(.*\.)?([^.]+\.[^.]+)|', $domain['host'], $d2 ) && preg_match('|(.*\.)?([^.]+\.[^.]+)|', $home['host'], $h2 )) {
+			if ( $d2[2] != $h2[2] )
+				$errors->add('cookie', __('Your <code>$bb->domain</code> and <code>$bb->wp_home</code> settings do not have the same domain.<br />You cannot share login cookies between the two.<br />Remove the <code>$bb->wp_home</code> setting from your config.php file.') );
+		} elseif ( !$d2 ) {
+			$errors->add('domain', __('Your <code>$bb->domain</code> setting cannot be parsed.') ); // Not very helpful, but should essentially never happen.
+		} else {
+			$errors->add('cookie', __('Your <code>$bb->wp_home</code> setting cannot be parsed.') ); // Not very helpful, but should essentially never happen.
+		}
+		if ( !strstr($bbp, $home['path'] . '/') )
+			$notices->add('cookie', __("Your bbPress URL ({$bbd}$bbp) is not a subdirectory of your WordPress URL ($bb->wp_home).<br />Sharing login cookies is possible but is more complicated.  See the documentation about integrating bbPress and WordPress.<br />In the meantime, remove the <code>$bb->wp_home</code> setting from your config.php file, or you may not be able to log in.") );
+	}
+
+	if ( $cd = bb_get_option( 'cookiedomain' ) ) {
+		if ( '.' == $cd{0} )
+			$cd = substr($cd, 1);
+		if ( !strstr($bbd, $cd) )
+			$errors->add('cookie', __('Your <code>$bb->cookiedomain</code> is not in the same domain as your <code>$bb->domain</code>.  You will not be able to log in.') );
+	}
+
+	$cp = bb_get_option( 'cookiepath' );
+	if ( $cp != preg_replace('|https?://[^/]+|i', '', bb_get_option( 'wp_home' ) . '/') && !strstr($bbp, $cp) )
+		$notices->add('cookie', __('Your bbPress URL <code>$bb->path</code> is outside of your <code>$bb->cookiepath</code>.  You may not be able to log in.') );
+
+	if ( $ecodes = $errors->get_error_codes() ) {
+		echo "<ul class='error'>\n";
+		if ( in_array('domain', $ecodes) )
+			foreach ( $errors->get_error_messages( 'domain' ) as $message )
+				echo "\t<li>$message</li>\n";
+		
+		if ( in_array('path', $ecodes) )
+			foreach ( $errors->get_error_messages( 'path' ) as $message )
+				echo "\t<li>$message</li>\n";
+		if ( in_array('wp_home', $ecodes) )
+			foreach ( $errors->get_error_messages( 'wp_home' ) as $message )
+				echo "\t<li>$message</li>\n";
+		if ( array('cookie') == $ecodes ) { // Only show cookie errors if nothing else is wrong
+			foreach ( $errors->get_error_messages( 'cookie' ) as $message )
+				echo "\t<li>$message</li>\n";
+			echo "</ul>\n";
+			break;
+		}
+		echo "</ul>\n";
+		echo "<h2>Current settings</h2>\n";
+		echo "<table class='current'>\n";
+		foreach ( $ecodes as $ecode ) {
+			if ( 'cookie' == $ecode )
+				continue;
+			echo "\t<tr><td>\$bb->$ecode:</td><td><code>" . bb_get_option( $ecode ) . "</code></td></tr>\n";
+		}
+		echo "</table>\n";
+		break;
+	}
+	if ( $ncodes = $notices->get_error_codes() ) {
+		echo "<ul class='notice'>\n";
+		foreach ( $notices->get_error_messages() as $message )
+			echo "\t<li>$message</li>\n";
+		echo "</ul>\n";
+	}
+?>
 <p><?php _e("Before we begin we need a little bit of information about your site's first <strong>administrator account</strong>, and your site's first <strong>forum</strong>."); ?></p>
 
 <form id="setup" method="post" action="install.php?step=2">
@@ -155,19 +192,23 @@ switch ($step):
 <input type="text" name="new_keymaster" />
 <?php else : ?>
 <table width="100%" cellpadding="4">
-<tr class="alt">
+<tr<?php alt_class( 'user' ); ?>>
 <td class="required" width="25%"><label for="admin_login"><?php _e('Login name:'); ?>*</label></td>
 <td><input name="admin_login" type="text" id="admin_login" size="25" /></td>
 </tr>
-<tr>
+<tr<?php alt_class( 'user' ); ?>>
+<td width="25%"><?php _e('Email address:'); ?></td>
+<td><?php bb_option( 'admin_email' ); ?><br /><small><?php _e('(You already set this in your <code>config.php</code> file.)'); ?></small></td>
+</tr>
+<tr<?php alt_class( 'user' ); ?>>
 <td><label for="admin_url"><?php _e("Website:"); ?></label></td>
 <td><input name="admin_url" type="text" id="admin_url" size="30" /></td>
 </tr>
-<tr class="alt">
+<tr<?php alt_class( 'user' ); ?>>
 <td><label for="admin_loc"><?php _e("Location:"); ?></label></td>
 <td><input name="admin_loc" type="text" id="admin_loc" size="30" /></td>
 </tr>
-<tr>
+<tr<?php alt_class( 'user' ); ?>>
 <td><label for="admin_int"><?php _e('Interests:'); ?></label></td>
 <td><input name="admin_int" type="text" id="admin_int" size="25" /></td>
 </tr>
@@ -177,11 +218,11 @@ switch ($step):
 <h2><?php _e('First Forum') ?></h2>
 
 <table width="100%" cellpadding="4">
-<tr class="alt">
+<tr<?php alt_class( 'forum' ); ?>>
 <td class="required" width="25%"><?php _e('Forum Name:'); ?>*</td>
 <td><input name="forum_name" type="text" id="forum_name" value="<?php echo wp_specialchars( @$_POST['forum_name'], 1); ?>" size="25" /></td>
 </tr>
-<tr>
+<tr<?php alt_class( 'forum' ); ?>>
 <td><?php _e('Description:'); ?></td>
 <td><input name="forum_desc" type="text" id="forum_desc" value="<?php echo wp_specialchars( @$_POST['forum_desc'], 1); ?>" size="25" /></td>
 </tr>
