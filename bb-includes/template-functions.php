@@ -286,7 +286,7 @@ function bb_title() {
 }
 
 function bb_get_title() {
-	global $topic, $forum, $static_title, $tag, $user;
+	global $topic, $forum, $tag, $user;
 	$title = '';
 	if ( is_topic() )
 		$title = get_topic_title(). ' &laquo; ';
@@ -296,8 +296,8 @@ function bb_get_title() {
 		$title = wp_specialchars( get_tag_name() ). ' &laquo; Tags &laquo; ';
 	if ( is_bb_profile() )
 		$title = get_user_name( $user->ID ) . ' &laquo; ';
-	if ( !empty($static_title) )
-		$title = $static_title . ' &laquo; ';
+	if ( $st = bb_get_option( 'static_title' ) )
+		$title = $st;
 	$title .= bb_get_option('name');
 	return apply_filters( 'bb_get_title', $title );
 }

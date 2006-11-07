@@ -292,10 +292,6 @@ function bb_get_option( $option ) {
 	global $bb;
 
 	switch ( $option ) :
-	case 'url' :
-	case 'uri' :
-		$r = $bb->domain . $bb->path;
-		break;
 	case 'language':
 		$r = str_replace('_', '-', get_locale());
 		break;
@@ -306,32 +302,39 @@ function bb_get_option( $option ) {
 	case 'version' :
 		return '0.73'; // Don't filter
 		break;
+	case 'url' :
+		$option = 'uri';
 	default :
-		$option = preg_replace('|[^a-z0-9_]|i', '', $option);
-
 		if ( isset($bb->$option) ) {
 			$r = $bb->$option;
 			break;
 		}
 
-		global $bbdb, $bb_topic_cache;
-		if ( isset($bb_topic_cache[0]->$option) ) {
-			$r = $bb_topic_cache[0]->$option;
-			if ( is_wp_error( $r ) && 'bb_get_option' == $r->get_error_code() )
-				$r = null; // see WP_Error below
-			break;
-		}
+		$r = bb_get_option_from_db( $option );
+		break;
+	endswitch;
+	return apply_filters( 'bb_get_option_' . $option, $r, $option);
+}
 
+function bb_get_option_from_db( $option ) {
+	global $bbdb, $bb_topic_cache;
+	$option = preg_replace('|[^a-z0-9_]|i', '', $option);
+
+	if ( isset($bb_topic_cache[0]->$option) ) {
+		$r = $bb_topic_cache[0]->$option;
+		if ( is_wp_error( $r ) && 'bb_get_option' == $r->get_error_code() )
+			$r = null; // see WP_Error below
+	} else {
 		$row = $bbdb->get_row("SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = '$option'");
+
 		if ( is_object($row) ) {
 			$bb_topic_cache[0]->$option = $r = bb_maybe_unserialize( $row->meta_value );
 		} else {
 			$r = null;
 			$bb_topic_cache[0]->$option = new WP_Error( 'bb_get_option' ); // Used internally for caching.  See above.
 		}
-		break;
-	endswitch;
-	return apply_filters( 'bb_get_option_' . $option, $r, $option);
+	}
+	return apply_filters( 'bb_get_option_from_db_' . $option, $r, $option );
 }
 
 function bb_cache_all_options() { // Don't use the return value; use the API.  Only returns options stored in DB.

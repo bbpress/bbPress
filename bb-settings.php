@@ -67,6 +67,11 @@ $bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_pre
 $bbdb->tags      = $bb_table_prefix . 'tags';
 $bbdb->tagged    = $bb_table_prefix . 'tagged';
 
+foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'wp_siteurl', 'cookiedomain', 'static_title', 'load_options') as $o )
+	if ( !isset($bb->$o) )
+		$bb->$o = false;
+unset($o);
+
 require( BBPATH . BBINC . '/functions.php');
 require( BBPATH . BBINC . '/formatting-functions.php');
 require( BBPATH . BBINC . '/template-functions.php');
@@ -93,7 +98,8 @@ if ( !$bbdb->query("SELECT * FROM $bbdb->forums LIMIT 1") && !strstr( $_SERVER['
 	die(sprintf(__('Does&#8217;t look like you&#8217;ve installed bbPress yet, <a href="%s">go here</a>.'), 'bb-admin/install.php'));
 $bbdb->show_errors();
 
-$static_title = '';
+if ( $bb->load_options )
+	bb_cache_all_options();
 
 $_GET    = bb_global_sanitize($_GET   );
 $_POST   = bb_global_sanitize($_POST  );
@@ -115,14 +121,15 @@ if ( defined('CUSTOM_USER_META_TABLE') )
 
 define('BBHASH', $bb->wp_siteurl ? md5($bb->wp_siteurl) : md5($bb_table_prefix) );
 
+$bb->uri = $bb->domain . $bb->path;
 if ( !isset( $bb->usercookie ) )
 	$bb->usercookie = ( $bb->wp_table_prefix ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
 if ( !isset( $bb->passcookie ) )
 	$bb->passcookie = ( $bb->wp_table_prefix ? 'wordpresspass_' : 'bb_pass_' ) . BBHASH;
 if ( !isset( $bb->cookiepath ) )
-	$bb->cookiepath = $bb->wp_home ? preg_replace('|https?://[^/]+|i', '', "$bb->wp_home/" ) : bb_get_option('path');
+	$bb->cookiepath = $bb->wp_home ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home . '/' ) : $bb->path;
 if ( !isset( $bb->sitecookiepath ) )
-	$bb->sitecookiepath = $bb->wp_siteurl ? preg_replace('|https?://[^/]+|i', '', "$bb->wp_site/" ) : bb_get_option('path');
+	$bb->sitecookiepath = $bb->wp_siteurl ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl . '/' ) : $bb->path;
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
 

@@ -43,15 +43,15 @@ define('BBLANG', '');
 // Your Akismet Key.  You do not need a key to run bbPress, but if you want to take advantage
 // of Akismet's powerful spam blocking, you'll need one.  You can get an Akismet key at
 // http://wordpress.com/api-keys/
-$bb->akismet_key = false;
+$bb->akismet_key = ''; // Example: '0123456789ab'
 
 
 // The rest is only useful if you are integrating bbPress with WordPress.
 // If you're not, just leave the rest as it is.
 
-$bb->wp_table_prefix = false;  // WordPress table prefix.  Example: 'wp_';
-$bb->wp_home = false;  // WordPress - Options->General: Blog address (URL) // No trailing slash
-$bb->wp_siteurl = false;  // WordPress - Options->General: WordPress address (URL) // No trailing slash
+$bb->wp_table_prefix = '';  // WordPress table prefix.  Example: 'wp_';
+$bb->wp_home = '';  // WordPress - Options->General: Blog address (URL) // No trailing slash.  Example: 'http://example.com'
+$bb->wp_siteurl = '';  // WordPress - Options->General: WordPress address (URL) // No trailing slash. Example: 'http://example.com'
 
 /* Stop editing */
 
