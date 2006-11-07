@@ -1111,9 +1111,9 @@ function tag_page_link() {
 
 function get_tag_page_link() {
 	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option( 'tagpath' ) . 'tags/';
+		return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . 'tags/';
 	else
-		return bb_get_option( 'tagpath' ) . 'tags.php';
+		return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . 'tags.php';
 }
 
 function tag_link( $id = 0, $page = 1 ) {
