@@ -91,3 +91,6 @@ Ajax.Responders.register( {
 		window.onbeforeunload = wpBeforeUnload;
 	}
 });
+
+//Pretty func adapted from ALA http://www.alistapart.com/articles/gettingstartedwithajax
+function getNodeValue(tree,el){try { var r = tree.getElementsByTagName(el)[0].firstChild.nodeValue; } catch(err) { var r = null; } return r; }
