@@ -336,7 +336,7 @@ class BB_User_Search {
 				if ( !empty($role) )
 					$r .= "\t\t<th colspan='$colspan'><h3>{$bb_roles->role_names[$role]}</h3></th>\n";
 				else
-					$r .= "\t\t<th colspan='$colspan'><h3><em>" . __('No role for this blog') . "</h3></th>\n";
+					$r .= "\t\t<th colspan='$colspan'><h3><em>" . __('Users with no role in these forums') . "</h3></th>\n";
 				$r .= "\t</tr>\n";
 				$r .= "\t<tr class='thead'>\n";
 				$r .= "\t\t<th>" . __('ID') . "</th>\n";
