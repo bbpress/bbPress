@@ -7,13 +7,17 @@ function bb_verify_email( $email ) {
 		if ( $check_domain && function_exists('checkdnsrr') ) {
 			list (, $domain)  = explode('@', $email);
 			if ( checkdnsrr($domain . '.', 'MX') || checkdnsrr($domain . '.', 'A') ) {
-				return $email;
+				$r = $email;
+			} else {
+				$r = false;
 			}
-			return false;
+		} else {
+			$r = $email;
 		}
-		return $email;
+	} else {
+		$r = false;
 	}
-	return false;
+	return apply_filters( 'bb_verify_email', $r, $email );
 }
 
 function bb_new_user( $user_login, $email, $url ) {
