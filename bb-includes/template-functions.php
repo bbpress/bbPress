@@ -1227,8 +1227,6 @@ function get_tag_remove_link() {
 }
 
 function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 ) {
-	global $tag;
-
 	$tags = get_top_tags( false, $limit );
 	if (empty($tags))
 		return;
