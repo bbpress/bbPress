@@ -1123,11 +1123,13 @@ function tag_link( $id = 0, $page = 1 ) {
 function get_tag_link( $tag_name = 0, $page = 1 ) {
 	global $tag;
 	if ( $tag_name )
-		$tag = get_tag_by_name( $tag_name );
-	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$tag->tag" . ( 1 < $page ? "/page/$page" : '' );
+		$_tag = get_tag_by_name( $tag_name );
 	else
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$tag->tag" . ( 1 < $page ? "&page=$page" : '' );
+		$_tag =& $tag;
+	if ( bb_get_option('mod_rewrite') )
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$_tag->tag" . ( 1 < $page ? "/page/$page" : '' );
+	else
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$_tag->tag" . ( 1 < $page ? "&page=$page" : '' );
 }
 
 function tag_link_base() {
@@ -1147,7 +1149,12 @@ function tag_name( $id = 0 ) {
 
 function get_tag_name( $id = 0 ) {
 	global $tag;
-	return $tag->raw_tag;
+	$id = (int) $id;
+	if ( $id )
+		$_tag = get_tag( $id );
+	else
+		$_tag =& $tag;
+	return $_tag->raw_tag;
 }
 
 function tag_rss_link( $id = 0 ) {
@@ -1156,13 +1163,16 @@ function tag_rss_link( $id = 0 ) {
 
 function get_tag_rss_link( $tag_id = 0 ) {
 	global $tag;
+	$tag_id = (int) $tag_id;
 	if ( $tag_id )
-		$tag = get_tag( $tag_id );
+		$_tag = get_tag( $tag_id );
+	else
+		$_tag =& $tag;
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . "rss/tags/$tag->tag";
+		$link = bb_get_option('uri') . "rss/tags/$_tag->tag";
 	else
-		$link = bb_get_option('uri') . "rss.php?tag=$tag->tag";
+		$link = bb_get_option('uri') . "rss.php?tag=$_tag->tag";
 
 	return apply_filters( 'get_tag_rss_link', $link, $tag_id );
 }
@@ -1232,7 +1242,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 		return;
 	foreach ( $tags as $tag ) {
 		$counts{$tag->raw_tag} = $tag->tag_count;
-		$taglinks{$tag->raw_tag} = get_tag_link();
+		$taglinks{$tag->raw_tag} = get_tag_link( $tag->tag );
 	}
 
 	$spread = max($counts) - min($counts);

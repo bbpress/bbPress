@@ -1371,9 +1371,10 @@ function bb_repermalink() {
 		if ( !$permalink )
 			$permalink = get_tag_page_link();
 		else {
-			global $tag_name;
+			global $tag, $tag_name;
 			$tag_name = $permalink;
-			$permalink = get_tag_link( $permalink, $page );
+			$tag = get_tag_by_name( $tag_name );
+			$permalink = get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 		}
 	} elseif ( is_view() ) { // Not an integer
 		if ( isset($_GET['view']) )
