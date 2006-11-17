@@ -77,7 +77,7 @@ function login_form() {
         printf('<p class="login">'. __('Welcome, %1$s!'). ' <a href="' . get_user_profile_link( $bb_current_user->ID ) . '">'. __('View your profile') ."&raquo;</a>\n<small>(",get_user_name( $bb_current_user->ID ));
 	if ( bb_current_user_can('moderate') )
 		echo "<a href='" . bb_get_option( 'uri' ) . "bb-admin/'>Admin</a> | ";
-	echo "<a href='" . bb_get_option( 'uri' ) . "bb-login.php?logout'>". __('Logout') ."</a>)</small></p>";
+	echo "<a href='" . bb_get_option( 'uri' ) . "bb-login.php?logout'>". __('Log out') ."</a>)</small></p>";
 	} else {
 		if ( file_exists(BBPATH . '/my-templates/login-form.php') ) {
 			include(BBPATH . '/my-templates/login-form.php');
@@ -135,7 +135,7 @@ function post_form( $h2 = '' ) {
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
-		_e(sprintf('You must <a href="%s">login</a> to post.', bb_get_option('uri') . 'bb-login.php'));
+		_e(sprintf('You must <a href="%s">log in</a> to post.', bb_get_option('uri') . 'bb-login.php'));
 		echo '</p>';
 	}
 	do_action('post_form');

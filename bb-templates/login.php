@@ -1,8 +1,8 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Login'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Log in'); ?></h3>
 
-<h2><?php isset($_POST['user_login']) ? _e('Login Failed') : _e('Login') ; ?></h2>
+<h2><?php isset($_POST['user_login']) ? _e('Log in Failed') : _e('Log in') ; ?></h2>
 
 
 <form method="post" action="<?php bb_option('uri'); ?>bb-login.php">
@@ -40,7 +40,7 @@
 	<tr>
 		<th scope="row">&nbsp;</th>
 		<td><input name="re" type="hidden" value="<?php echo $re; ?>" />
-		<input type="submit" value="<?php isset($_POST['user_login']) ? _e('Try Login Again'): _e('Login'); ?> &raquo;" /></td>
+		<input type="submit" value="<?php isset($_POST['user_login']) ? _e('Try Again'): _e('Log in'); ?> &raquo;" /></td>
 	</tr>
 </table>
 </form>

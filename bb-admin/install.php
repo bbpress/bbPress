@@ -193,7 +193,7 @@ switch ($step):
 <?php else : ?>
 <table width="100%" cellpadding="4">
 <tr<?php alt_class( 'user' ); ?>>
-<td class="required" width="25%"><label for="admin_login"><?php _e('Login name:'); ?>*</label></td>
+<td class="required" width="25%"><label for="admin_login"><?php _e('Username:'); ?>*</label></td>
 <td><input name="admin_login" type="text" id="admin_login" size="25" /></td>
 </tr>
 <tr<?php alt_class( 'user' ); ?>>
@@ -227,7 +227,7 @@ switch ($step):
 <td><input name="forum_desc" type="text" id="forum_desc" value="<?php echo wp_specialchars( @$_POST['forum_desc'], 1); ?>" size="25" /></td>
 </tr>
 </table>
-<p><em><?php _e('Double-check that login name before continuing.'); ?></em></p>
+<p><em><?php _e('Double-check that username before continuing.'); ?></em></p>
 
 <h2 class="step">
 <input type="submit" name="Submit" value="<?php _e('Continue to Second Step &raquo;'); ?>" />
@@ -242,7 +242,7 @@ flush();
 
 // Set everything up
 if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = user_sanitize( $_POST['admin_login'] ) )
-	die(__('Bad login name.  Go back and try again.'));
+	die(__('Bad username.  Go back and try again.'));
 if ( isset($_POST['new_keymaster']) && !bb_get_user_by_name( $_POST['new_keymaster'] ) )
 	die(__('Username not found.  Go back and try again.'));
 if ( !$forum_name = $_POST['forum_name'] )
@@ -314,7 +314,7 @@ http://bbpress.org/
 <?php endif; ?>
 </p>
 <dl>
-<dt><?php _e('Login'); ?></dt>
+<dt><?php _e('Username'); ?></dt>
 <dd><code><?php echo $admin_login ?></code></dd>
 <dt><?php _e('Password'); ?></dt>
 <dd><code><?php echo $password; ?></code></dd>
