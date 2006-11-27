@@ -701,6 +701,7 @@ function bb_update_topic( $title, $topic_id ) {
 function bb_delete_topic( $topic_id, $new_status = 0 ) {
 	global $bbdb, $bb_cache, $bb_table_prefix;
 	$topic_id = (int) $topic_id;
+	add_filter( 'get_topic_where', 'no_where' );
 	if ( $topic = get_topic( $topic_id ) ) {
 		$new_status = (int) $new_status;
 		$old_status = (int) $topic->topic_status;
@@ -809,6 +810,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 	$bb_post    = bb_get_post ( $post_id );
 	$new_status = (int) $new_status;
 	$old_status = (int) $bb_post->post_status;
+	add_filter( 'get_topic_where', 'no_where' );
 	$topic   = get_topic( $bb_post->topic_id );
 	$topic_id = (int) $topic->topic_id;
 
@@ -833,9 +835,10 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 		}
 		$post_ids = get_thread_post_ids( $topic_id );
 
-		if ( 0 == $posts && 0 == $topic->topic_status ) {
-			bb_delete_topic( $topic_id, $new_status );
-		} else if ( 0 != $posts ) {
+		if ( 0 == $posts ) {
+			if ( 0 == $topic->topic_status || 1 == $new_status )
+				bb_delete_topic( $topic_id, $new_status );
+		} else {
 			if ( 0 != $topic->topic_status ) {
 				$bbdb->query("UPDATE $bbdb->topics SET topic_status = 0 WHERE topic_id = $topic_id");
 				$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $topic->forum_id");

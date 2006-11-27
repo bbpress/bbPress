@@ -179,9 +179,9 @@ function bb_ksd_admin_menu() {
 }
 
 function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
-	if ( 2 == $new_status && 0 == $old_status )
+	if ( 2 == $new_status && 2 != $old_status )
 		bb_ksd_submit_spam( $post_id );
-	else if ( 0 == $new_status && 2 == $old_status )
+	else if ( 2 != $new_status && 2 == $old_status )
 		bb_ksd_submit_ham( $post_id );
 }
 
@@ -209,8 +209,8 @@ function bb_ksd_post_delete_link($link, $post_status) {
 	if ( !bb_current_user_can('moderate') )
 		return $link;
 	if ( 2 == $post_status )
-		$link  = "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) . "' >" . __('Not Spam') ."</a>";
-	else if ( 0 == $post_status )
+		$link .= " <a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) . "' >" . __('Not Spam') ."</a>";
+	else
 		$link .= " <a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=2', 'delete-post_' . get_post_id() ) . "' >" . __('Spam') ."</a>";
 	return $link;
 }
