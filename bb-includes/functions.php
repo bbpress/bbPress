@@ -1432,26 +1432,29 @@ function global_profile_menu_structure() {
 	// The capability required for own user to view the tab ('' to allow non logged in access)
 	// The capability required for other users to view the tab ('' to allow non logged in access)
 	// The URL of the item's file
-	$profile_menu[0] = array(__('Edit'), 'edit_profile', 'edit_users', 'profile-edit.php');
-	$profile_menu[5] = array(__('Favorites'), 'edit_favorites', 'edit_others_favorites', 'favorites.php');
+	// Item name for URL (nontranslated)
+	$profile_menu[0] = array(__('Edit'), 'edit_profile', 'edit_users', 'profile-edit.php', 'edit');
+	$profile_menu[5] = array(__('Favorites'), 'edit_favorites', 'edit_others_favorites', 'favorites.php', 'favorites');
 
 	// Create list of page plugin hook names the current user can access
 	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
 		if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
-			$profile_hooks[$profile_tab[3]] = tag_sanitize($profile_tab[0]);
+			$profile_hooks[$profile_tab[3]] = tag_sanitize($profile_tab[4]);
 
 	do_action('bb_profile_menu');
 	ksort($profile_menu);
 }
 
-function add_profile_tab($tab_title, $users_cap, $others_cap, $file) {
+function add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = false) {
 	global $profile_menu, $profile_hooks, $bb_current_user, $user_id;
 
-	$profile_tab = array($tab_title, $users_cap, $others_cap, $file);
+	$arg = $arg ? $arg : $tab_title;
+
+	$profile_tab = array($tab_title, $users_cap, $others_cap, $file, $arg);
 	$profile_menu[] = $profile_tab;
 	if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
-		$profile_hooks[$file] = tag_sanitize($tab_title);
+		$profile_hooks[$file] = tag_sanitize($arg);
 }
 
 function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
