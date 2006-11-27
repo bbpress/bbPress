@@ -1251,13 +1251,22 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 	$fontspread = $largest - $smallest;
 	$fontstep = $spread / $fontspread;
 	if ($fontspread <= 0) { $fontspread = 1; }
-	uksort($counts, 'strnatcasecmp');
+
+	do_action_ref_array( 'sort_tag_heat_map', array(&$counts) );
+
+	$r = '';
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
 		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
-		print "<a href='$taglink' title='$count topics' rel='tag' style='font-size: ".
+		$r .= "<a href='$taglink' title='$count topics' rel='tag' style='font-size: ".
 		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
 	}
+
+	echo apply_filters( 'tag_heat_map', $r, $smallest, $largest, $unit, $limit );
+}
+
+function bb_sort_tag_heat_map( &$tag_counts ) {
+	uksort($tag_counts, 'strnatcasecmp');
 }
 
 function tag_pages() {

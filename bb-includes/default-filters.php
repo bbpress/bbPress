@@ -50,4 +50,6 @@ if ( !bb_get_option( 'mod_rewrite' ) ) {
 	add_filter('favorites_link', 'wp_specialchars');
 }
 
+add_filter('sort_tag_heat_map', 'bb_sort_tag_heat_map')
+
 ?>
