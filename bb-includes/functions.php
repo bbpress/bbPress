@@ -749,6 +749,7 @@ function bb_move_topic( $topic_id, $forum_id ) {
 	$forum_id = (int) $forum_id;
 	$topic = get_topic( $topic_id );
 	if ( $topic && $topic->forum_id != $forum_id && get_forum( $forum_id ) ) {
+		$bbdb->query("UPDATE $bbdb->posts SET forum_id = $forum_id WHERE topic_id = $topic_id");
 		$bbdb->query("UPDATE $bbdb->topics SET forum_id = $forum_id WHERE topic_id = $topic_id");
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + $topic->topic_posts WHERE forum_id = $forum_id");
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - $topic->topic_posts WHERE forum_id = $topic->forum_id");
