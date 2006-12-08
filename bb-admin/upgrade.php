@@ -122,7 +122,8 @@ upgrade_150();
 upgrade_160();
 */
 
-upgrade_170();
+upgrade_170(); // Escaping in usermeta
+upgrade_180(); // Delete users for real
 
 //alter user table column names
 function upgrade_100() {
@@ -253,9 +254,20 @@ function upgrade_170() {
 		$value = stripslashes($value);
 		bb_update_usermeta( $meta->user_id, $meta->meta_key, $value);
 	}
-	var_dump($bbdb->last_query);
 	bb_update_option( 'bb_db_version', 536 );
 	echo "Done updating usermeta<br />";
+}
+
+function upgrade_180() {
+	if ( ( $dbv = bb_get_option( 'bb_db_version' ) ) && $dbv >= 559 )
+                return;
+
+	global $bbdb;
+
+	foreach ( (array) $bbdb->get_col("SELECT ID FROM $bbdb->users WHERE user_status = 1") as $user_id )
+		bb_delete_user( $user_id );
+	bb_update_option( 'bb_db_version', 559 );
+	echo "Done clearing deleted users<br />";
 }
 
 function deslash($content) {

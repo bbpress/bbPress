@@ -19,7 +19,7 @@ class BB_Cache {
 			$bb_user_cache[$user_id] = $this->read_cache(BBPATH . 'bb-cache/bb_user-' . $user_id);
 			return $bb_user_cache[$user_id];
 		else :
-			if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id AND user_status % 2 = 0") ) :
+			if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id") ) :
 				bb_append_meta( $user, 'user' );
 			else :
 				$bb_user_cache[$user_id] = false;
@@ -61,7 +61,7 @@ class BB_Cache {
 			endif;
 		elseif ( 0 < count($ids) ) :
 			$sids = join(',', $ids);
-			if ( $users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($sids) AND user_status % 2 = 0") )
+			if ( $users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE ID IN ($sids)") )
 				bb_append_meta( $users, 'user' );
 		endif;
 

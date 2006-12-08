@@ -84,7 +84,7 @@ function bb_current_user() {
 		return false;
 	$user = user_sanitize( $userpass['login'] );
 	$pass = user_sanitize( $userpass['password'] );
-	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass' AND user_status % 2 = 0") ) {
+	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'") ) {
 		$current_user = $bb_cache->append_current_user_meta( $current_user );
 		return bb_set_current_user($current_user->ID);
 	} else {

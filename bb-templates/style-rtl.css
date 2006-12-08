@@ -11,9 +11,9 @@ fieldset table { text-align: right; }
 
 .submit, #header h1 { text-align: left; }
 
-#front-page #hottags, #topic-tags, #manage-tags li, .login label, .login #submit { float: right; }
+.left, #front-page #hottags, #topic-tags, #manage-tags li, .login label, .login #submit { float: right; }
 
-#front-search { float: left; }
+.right, #front-search { float: left; }
 
 #latest th, #forumlist th, #favorites th, .num, .threadauthor small, #forumlist small { font: 11px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
 

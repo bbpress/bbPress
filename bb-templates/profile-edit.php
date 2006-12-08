@@ -60,18 +60,12 @@ endif;
 <?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
 </tr>
 <?php endforeach; endif; ?>
-<tr>
-  <th scope="row"><?php _e('Delete user:'); ?></th>
-  <td><label for="user_status"><input type="checkbox" name="user_status" id="user_status" value="1" /> <?php _e('Check to delete user.  This cannot be easily undone.'); ?></label>
-  </td>
-</tr>
 </table>
 <?php if ( $required ) : ?>
 <p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
 <?php endif; ?>
-<p><?php _e('Deletion attributes all content to Anonymous and cannot be easily undone.  A Deleted user can do anything any non-logged in person can do.
-A more useful solution to user problems is to change a user&#8217;s User Type to Inactive or Blocked.
-Inactive users can login and look around but not do anything.  Blocked users just see a simple error message when they visit the site.</p>
+<p><?php _e('Inactive users can login and look around but not do anything.
+Blocked users just see a simple error message when they visit the site.</p>
 <p><strong>Note</strong>: Blocking a user does <em>not</em> block any IP addresses.'); ?></p>
 </fieldset>
 <?php endif; ?>
@@ -92,8 +86,11 @@ Inactive users can login and look around but not do anything.  Blocked users jus
 </table>
 </fieldset>
 <?php endif; bb_nonce_field( 'edit-profile_' . $user->ID ); ?>
-<p class="submit">
-  <input type="submit" name="Submit" value="Update Profile &raquo;" />
+<p class="submit left">
+  <input type="submit" class="delete" name="delete-user" value="<?php _e('Delete User &raquo;'); ?>" onclick="return confirm('<?php echo js_escape(__('Are you sure you want to delete this user?')); ?>');" />
+</p>
+<p class="submit right">
+  <input type="submit" name="Submit" value="<?php _e('Update Profile &raquo;'); ?>" />
 </p>
 </form>
 

@@ -32,6 +32,15 @@ p {
 	margin-bottom: 1.0em;
 }
 
+.left { float: left; }
+
+.right { float: right; }
+
+.delete:hover {
+	background: #c00;
+	color: #fff;
+}
+
 /* Structure
 =================================== */
 

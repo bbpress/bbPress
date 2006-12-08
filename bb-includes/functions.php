@@ -500,7 +500,45 @@ function bb_user_exists( $user ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
 }
 
-// delete_user
+function bb_delete_user( $user_id, $reassign = 0 ) {
+	global $bbdb;
+
+	$user_id = (int) $user_id;
+	$reassign = (int) $reassign;
+
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+
+	if ( $reassign ) {
+		if ( !$new_user = bb_get_user( $user_id ) )
+			return false;
+		$bbdb->query("UPDATE $bbdb->posts SET poster_id = '$new_user->ID' WHERE poster_id = '$user->ID'");
+		$bbdb->query("UPDATE $bbdb->tagged SET user_id = '$new_user->ID' WHERE user_id = '$user->ID'");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_poster = '$new_user->ID', topic_poster_name = '$new_user->user_login' WHERE topic_poster = '$user->ID'");
+		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = '$new_user->ID', topic_last_poster_name = '$new_user->user_login' WHERE topic_last_poster = '$user->ID'");
+		bb_update_topics_replied( $new_user->ID );
+	}
+
+	do_action( 'bb_delete_user', $user_id, $reassign );
+
+	$bbdb->query("DELETE FROM $bbdb->users WHERE ID = '$user->ID'");
+	$bbdb->query("DELETE FROM $bbdb->usermeta WHERE user_id = '$user->ID'");
+
+	return true;
+}
+
+function bb_update_topics_replied( $user_id ) {
+	global $bbdb, $bb_table_prefix;
+
+	$user_id = (int) $user_id;
+
+	if ( !$user = bb_get_user( $user_id ) )
+		return false;
+
+	$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = '$user_id'");
+	return bb_update_usermeta( $user_id, $bb_table_prefix . 'topics_replied', $topics_replied );
+}
+
 function update_user_status( $user_id, $status = 0 ) {
 	global $bbdb, $bb_cache, $bb_current_user;
 	$user = bb_get_user( $user_id );

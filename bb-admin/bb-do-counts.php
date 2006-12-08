@@ -74,11 +74,9 @@ if ( isset($_POST['topics-replied']) && 1 == $_POST['topics-replied'] ) :
 	echo "\t<li>\n";
 	if ( $users = (array) $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
 		echo "\t\t" . __('Counting topics to which each user has replied...') . "<br />\n";
-		foreach ( $users as $user ) :
-			$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = $user");
-			bb_update_usermeta( $user, $bb_table_prefix. 'topics_replied', $topics_replied );
-		endforeach;
-		unset($users, $user, $topics_replied);
+		foreach ( $users as $user )
+			bb_update_topics_replied( $user );
+		unset($users, $user);
 	endif;
 	echo "\t\t" . __('Done counting topics.');
 	echo "\n\t</li>\n";
