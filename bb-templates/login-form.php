@@ -7,6 +7,7 @@
 	<label><?php _e('Password:'); ?><br />
 		<input name="password" type="password" id="password" size="13" maxlength="40" />
 	</label>
+	<input name="re" type="hidden" value="<?php global $re; echo $re; ?>" />
 	<input type="submit" name="Submit" id="submit" value="<?php _e('Log in'); ?> &raquo;" />
 </p>
 </form>
