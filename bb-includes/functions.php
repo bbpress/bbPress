@@ -631,14 +631,14 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 		$cache =& $bb_user_cache;
 		$table = $bbdb->usermeta;
 		$field = 'user_id';
-		$meta_id = 'umeta_id';
+		$meta_id_field = 'umeta_id';
 		break;
 	case 'topic' :
 		global $bb_topic_cache;
 		$cache =& $bb_topic_cache;
 		$table = $bbdb->topicmeta;
 		$field = 'topic_id';
-		$meta_id = 'meta_id';
+		$meta_id_field = 'meta_id';
 		break;
 	endswitch;
 
@@ -652,9 +652,9 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	$meta_value = $bbdb->escape( $meta_value );
 
 	if ( empty($meta_value) )
-		$meta_id = $bbdb->get_var("SELECT $meta_id FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
+		$meta_id = $bbdb->get_var("SELECT $meta_id_field FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 	else
-		$meta_id = $bbdb->get_var("SELECT $meta_id FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key' AND meta_value = '$meta_value'");
+		$meta_id = $bbdb->get_var("SELECT $meta_id_field FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key' AND meta_value = '$meta_value'");
 
 	if ( !$meta_id )
 		return false;
@@ -662,7 +662,7 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	if ( empty($meta_value) )
 		$bbdb->query("DELETE FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
 	else
-		$bbdb->query("DELETE FROM $table WHERE $meta_id = '$meta_id'");
+		$bbdb->query("DELETE FROM $table WHERE $meta_id_field = '$meta_id'");
 
 	unset($cache[$type_id]->{$meta_key});
 	if ( 0 === strpos($meta_key, $bb_table_prefix) )
