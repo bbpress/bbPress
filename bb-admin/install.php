@@ -310,9 +310,8 @@ http://bbpress.org/
 
 <p><?php printf(__('Now you can <a href="%1$s">log in</a> with the <strong>username</strong> "<code>%2$s</code>" and <strong>password</strong> "<code>%3$s</code>".'), '..', $admin_login, $password); ?></p>
 <?php if ( !$already ) : ?>
-<p><?php _e('<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you. If you lose it, you will have to delete the tables from the database yourself, and re-install bbPress. So to review:'); ?>
+<p><?php _e('<strong><em>Note that password</em></strong> carefully! It is a <em>random</em> password that was generated just for you. If you lose it, you will have to delete the tables from the database yourself, and re-install bbPress. So to review:'); ?></p>
 <?php endif; ?>
-</p>
 <dl>
 <dt><?php _e('Username'); ?></dt>
 <dd><code><?php echo $admin_login ?></code></dd>
