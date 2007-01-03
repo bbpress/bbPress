@@ -940,13 +940,28 @@ function get_post_author_id() {
 	return $bb_post->poster_id;
 }
 
+function post_author_title() {
+	$title = get_post_author_title();
+	if ( false === $title )
+		$r = __('Unregistered'); // This should never happen
+	else
+		$r = '<a href="' . get_user_profile_link( get_post_author_id() ) . '">' . $title . '</a>';
+
+	echo apply_filters( 'post_author_title', $r );
+}
+
+function get_post_author_title() {
+	return get_user_title( get_post_author_id() );
+}
+
 function post_author_type() {
-	$type = get_user_type ( get_post_author_id() );
-	if ('Unregistered' == $type) {
-		echo $type;
-	} else {
-		echo '<a href="' . get_user_profile_link( get_post_author_id() ) . '">' . $type . '</a>';
-	}
+	$type = get_user_type( get_post_author_id() );
+	if ( false === $type )
+		$r = __('Unregistered'); // This should never happen
+	else
+		$r = '<a href="' . get_user_profile_link( get_post_author_id() ) . '">' . $type . '</a>';
+
+	echo apply_filters( 'post_author_type', $r );
 }
 
 function allowed_markup( $args = '' ) {
@@ -1035,39 +1050,50 @@ function get_full_user_link( $id ) {
 }
 
 function user_type_label( $type ) {
-	echo apply_filters( 'user_type_label', get_user_type_label( $type ) );
+	echo apply_filters( 'user_type_label', get_user_type_label( $type ), $type );
 }
 
 function get_user_type_label( $type ) {
 	global $bb_roles;
 	if ( $bb_roles->is_role( $type ) )
-		return $bb_roles->role_names[$type];
+		return apply_filters( 'get_user_type_label', $bb_roles->role_names[$type], $type );
 }
 
 function user_type( $id ) {
 	echo apply_filters( 'user_type', get_user_type($id) );
 }
 
-function get_user_type ( $id ) {
-	global $bbdb, $bb_current_user;
+function get_user_type( $id ) {
 	$user = bb_get_user( $id );
 
 	if ( $id && false !== $user ) :
-		if ( !empty( $user->title ) )
-			return $user->title;
 		@$caps = array_keys($user->capabilities);
 		if ( !$caps )
 			$caps[] = 'inactive';
 
-		return get_user_type_label( $caps[0] ); //Just support one role for now.
+		$type = get_user_type_label( $caps[0] ); //Just support one role for now.
 	else :
-		return __('Unregistered');
+		$type = false;
 	endif;
+	return apply_filters( 'get_user_type', $type, $user->ID );
 }
 
 function get_user_name( $id ) {
 	$user = bb_get_user( $id );
 	return apply_filters( 'get_user_name', $user->user_login, $user->ID );
+}
+
+function user_title( $id ) {
+	echo apply_filters( 'user_title', get_user_title( $id ), $id );
+}
+
+function get_user_title( $id ) {
+	$user = bb_get_user( $id );
+
+	if ( !empty( $user->title ) )
+		return apply_filters( 'get_user_title', $user->title, $id );
+	else
+		return get_user_type( $id );
 }
 
 function profile_pages() {
