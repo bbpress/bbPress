@@ -2,7 +2,7 @@
 
 function get_forums() {
 	global $bb_cache;
-	return $bb_cache->get_forums();
+	return apply_filters('get_forums',$bb_cache->get_forums());
 }
 
 function get_forum( $id ) {

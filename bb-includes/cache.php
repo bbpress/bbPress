@@ -136,11 +136,15 @@ class BB_Cache {
 	function get_forums() {
 		global $bbdb;
 
-		if ( $this->use_cache && file_exists(BBPATH . 'bb-cache/bb_forums') )
+		$normal = true;
+		if ( '' != $where = apply_filters('get_forums_where', '') )
+			$normal = false;
+
+		if ( $this->use_cache && $normal && file_exists(BBPATH . 'bb-cache/bb_forums') )
 			return $this->read_cache(BBPATH . 'bb-cache/bb_forums');
 
-		$forums = $bbdb->get_results("SELECT * FROM $bbdb->forums ORDER BY forum_order");
-		if ( $this->use_cache && $forums )
+		$forums = $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
+		if ( $this->use_cache && $normal && $forums )
 			$this->write_cache(BBPATH . 'bb-cache/bb_forums', $forums);
 		return $forums;
 	}
@@ -149,11 +153,15 @@ class BB_Cache {
 		global $bbdb;
 		$forum_id = (int) $forum_id;
 
-		if ( $this->use_cache && file_exists(BBPATH . 'bb-cache/bb_forum-' . $forum_id) )
+		$normal = true;
+		if ( '' != $where = apply_filters('get_forum_where', '') )
+			$normal = false;
+
+		if ( $this->use_cache && $normal && file_exists(BBPATH . 'bb-cache/bb_forum-' . $forum_id) )
 			return $this->read_cache(BBPATH . 'bb-cache/bb_forum-' . $forum_id);
 
-		$forum = $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $forum_id");
-		if ( $this->use_cache && $forum )
+		$forum = $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $forum_id $where");
+		if ( $this->use_cache && $normal && $forum )
 			$this->write_cache(BBPATH . 'bb-cache/bb_forum-' . $forum_id, $forum);
 		return $forum;
 	}
