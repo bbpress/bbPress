@@ -22,7 +22,7 @@
 <?php endif; ?>
 
 <?php if ( !$tags ) : ?>
-<p><?php printf(__('No <a href="%s">tags</a> yet.'), bb_get_option('uri') . 'tags/')?></p>
+<p><?php printf(__('No <a href="%s">tags</a> yet.'), get_tag_page_link() ); ?></p>
 <?php endif; ?>
 <?php tag_form(); ?>
 
