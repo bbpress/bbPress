@@ -148,6 +148,15 @@ textarea, input, select {
 	font-family: "Courier New", Courier, monospace;
 }
 
+.submit input, .submit input:focus, .button, .button:focus {
+	background: url( ../bb-images/fade-butt.png );
+	border: 3px double #999;
+	border-left-color: #ccc;
+	border-top-color: #ccc;
+	color: #333;
+	padding: 0.25em;
+}
+
 .submit input:active, .button:active {
 	background: #f4f4f4;
 	border: 3px double #ccc;
