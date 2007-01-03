@@ -120,7 +120,7 @@ function get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
 	if ( is_array($role) )
 		$and_where = "( meta_value LIKE '%" . join("%' OR meta_value LIKE '%", $role) . "%' )";
 	else
-		$and_where = "meta_value LIKE'%$role%'";
+		$and_where = "meta_value LIKE '%$role%'";
 	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort" . $limit_str;
 	if ( $ids = (array) $bbdb->get_col($bb_last_countable_query) )
 		bb_cache_users( $ids );
