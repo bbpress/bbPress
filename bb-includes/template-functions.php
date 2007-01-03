@@ -210,6 +210,9 @@ function get_bb_location() { // Not for display.  Do not internationalize.
 	case 'statistics.php' :
 		return 'stats-page';
 		break;
+	case 'bb-login.php' :
+		return 'login-page';
+		break;
 	default:
 		return apply_filters( 'get_bb_location', '' );
 		break;
