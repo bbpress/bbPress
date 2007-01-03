@@ -19,7 +19,7 @@ if ( topic_is_open( $topic_id ) )
 else
 	bb_open_topic ( $topic_id );
 
-wp_redirect( $_SERVER['HTTP_REFERER'] );
+wp_redirect( wp_get_referer() );
 exit;
 
 ?>

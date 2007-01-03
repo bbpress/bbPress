@@ -1,10 +1,12 @@
 <?php
 require('./bb-load.php');
 
-if ( 0 === strpos(@$_SERVER['HTTP_REFERER'], bb_get_option( 'uri' )) ) {
+$ref = wp_get_referer();
+
+if ( 0 === strpos($ref, bb_get_option( 'uri' )) ) {
 	$re = $_POST['re'] ? $_POST['re'] : $_GET['re'];
 	if ( 0 !== strpos($re, bb_get_option( 'uri' )) )
-		$re = $_SERVER['HTTP_REFERER'] . $re;
+		$re = $ref . $re;
 } else
 	$re = bb_get_option('uri');
 

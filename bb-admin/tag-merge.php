@@ -22,6 +22,6 @@ if ( $merged = merge_tags( $old_id, $tag->tag_id ) ) {
 	printf(__("Number of rows deleted from tags table:%d <br />\n"),$merged['destroyed']['tags']);
 	printf(__('<a href="%s">New Tag</a>'), get_tag_link());
 } else {
-   die(printf(__("Something odd happened when attempting to merge those tags.<br />\n<a href=\"%s\">Try Again?</a>"), $_SERVER['HTTP_REFERER']));
+   die(printf(__("Something odd happened when attempting to merge those tags.<br />\n<a href=\"%s\">Try Again?</a>"), wp_get_referer()));
 }
 ?>

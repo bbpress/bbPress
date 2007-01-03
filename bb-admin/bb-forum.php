@@ -7,7 +7,7 @@ if ( !bb_current_user_can('manage_forums') )
 if ( !isset($_POST['action']) )
 	bb_die(__('What am I supposed to do with that?'));
 
-$sent_from = $_SERVER['HTTP_REFERER'];
+$sent_from = wp_get_referer();
 
 switch ( $_POST['action'] ) :
 case 'add' :

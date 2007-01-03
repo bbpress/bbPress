@@ -1564,7 +1564,7 @@ function bb_nonce_field($action = -1) {
 }
 
 function bb_nonce_ays($action) {
-	$adminurl = bb_get_option('siteurl') . '/wp-admin';
+	$adminurl = bb_get_option( 'uri' ) . '/bb-admin';
 	if ( wp_get_referer() )
 		$adminurl = wp_get_referer();
 
@@ -1574,7 +1574,8 @@ function bb_nonce_ays($action) {
 	if ( $_POST ) {
 		$q = http_build_query($_POST);
 		$q = explode( ini_get('arg_separator.output'), $q);
-		$html .= "\t<form method='post' action='$pagenow'>\n";
+		$url = remove_query_arg( '_wpnonce' );
+		$html .= "\t<form method='post' action='$url'>\n";
 		foreach ( (array) $q as $a ) {
 			$v = substr(strstr($a, '='), 1);
 			$k = substr($a, 0, -(strlen($v)+1));

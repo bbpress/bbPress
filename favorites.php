@@ -22,8 +22,9 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 	else
 		bb_remove_user_favorite( $user_id, $topic_id );
 
-	if ( false !== strpos( $_SERVER['HTTP_REFERER'], bb_get_option('uri') ) )
-		wp_redirect( $_SERVER['HTTP_REFERER'] );
+	$ref = wp_get_referer();
+	if ( false !== strpos( $ref, bb_get_option('uri') ) )
+		wp_redirect( $ref );
 	else
 		wp_redirect( get_topic_link( $topic_id ) );
 	exit;

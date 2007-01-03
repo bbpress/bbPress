@@ -18,6 +18,6 @@ if ( $destroyed = destroy_tag( $tag_id ) ) {
 	printf(__("Rows deleted from tagged table: %d <br />\n"), $destroyed['tagged']);
 	printf(__('<a href="%s">Home</a>'), bb_get_option( 'uri' ));
 } else {
-   die(printf(__("Something odd happened when attempting to destroy that tag.<br />\n<a href=\"%s\">Try Again?</a>"), $_SERVER['HTTP_REFERER']));
+   die(printf(__("Something odd happened when attempting to destroy that tag.<br />\n<a href=\"%s\">Try Again?</a>"), wp_get_referer()));
 }
 ?>

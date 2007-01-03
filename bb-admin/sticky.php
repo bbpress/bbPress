@@ -20,7 +20,7 @@ if ( topic_is_sticky( $topic_id ) )
 else
 	bb_stick_topic   ( $topic_id, $super );
 
-wp_redirect( $_SERVER['HTTP_REFERER'] );
+wp_redirect( wp_get_referer() );
 exit;
 
 ?>
