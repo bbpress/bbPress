@@ -174,7 +174,12 @@ function bb_location() {
 }
 
 function get_bb_location() { // Not for display.  Do not internationalize.
-	switch ( bb_find_filename($_SERVER['PHP_SELF']) ) :
+	$file = '';
+	foreach ( array($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['SCRIPT_NAME']) as $name )
+		if ( false !== strpos($name, '.php') )
+			$file = $name;
+
+	switch ( bb_find_filename( $file ) ) :
 	case 'index.php' :
 		return 'front-page';
 		break;
