@@ -57,7 +57,7 @@ $count = $topic->topic_posts;
 </ol>
 <?php endif; ?>
 
-<?php if ( !$topics && !$recent && !$relevant && !users) : ?>
+<?php if ( !$topics && !$recent && !$relevant && !$users) : ?>
 <p><?php _e('No results found.') ?></p>
 <?php endif; ?>
 <br />
