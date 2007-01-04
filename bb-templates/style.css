@@ -138,9 +138,11 @@ form.login input {
 =================================== */
 
 #front-page #hottags { 
-	float: left;
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 150px;
-	overflow-x: hidden;
+	overflow: hidden;
 }
 
 #front-page #discussions { 
@@ -355,17 +357,17 @@ form.login input {
 	background: #eeee88;
 }
 
-.bozo.alt {
+.alt.bozo {
 	background: #ffff99;
 }
 
 .deleted {
 	background: #ee8888;
 }
-.deleted.alt {
+
+.alt.deleted {
 	background: #ff9999;
 }
-
 
 /* Profile Page
 =================================== */
