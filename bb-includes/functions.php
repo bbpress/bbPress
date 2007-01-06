@@ -300,7 +300,7 @@ function bb_get_option( $option ) {
 		$r = $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.73'; // Don't filter
+		return '0.74'; // Don't filter
 		break;
 	case 'url' :
 		$option = 'uri';
