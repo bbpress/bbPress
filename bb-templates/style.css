@@ -21,16 +21,11 @@ body {
 a { color: #2e6e15; text-decoration: none; }
 a:hover { color: #006400; }
 
-.alt {
-	background: #fff;
-}
+.alt { background: #fff; }
 
 code { font: 1.0em Monaco, 'Courier New', monospace; }
 
-
-p {
-	margin-bottom: 1.0em;
-}
+p { margin-bottom: 1.0em; }
 
 .left { float: left; }
 
@@ -40,6 +35,10 @@ p {
 	background: #c00;
 	color: #fff;
 }
+
+h1 { font-size: 2em; }
+
+h2 { font-size: 1.5em; }
 
 /* Structure
 =================================== */
@@ -123,10 +122,23 @@ p {
 }
 
 .login p { padding: 0 0 5px; }
-.login label { display: block; float: left; padding-right: 10px; }
-.login #submit { font-size: 1.2em; margin-top: 13px; float: left; }
 
-p.login { font-weight: normal; font-size: 1.2em; }
+.login label {
+	display: block;
+	float: left;
+	padding-right: 10px;
+}
+
+.login #submit {
+	font-size: 1.2em;
+	margin-top: 13px;
+	float: left;
+}
+
+p.login {
+	font-weight: normal;
+	font-size: 1.2em;
+}
 
 form.login input { 
 	margin-top: 3px;
@@ -156,22 +168,16 @@ form.login input {
 	padding-bottom: 10px;
 }
 
-#front-page #main h2, h2.post-form, #userlogin, 
-#currentfavorites, #register {
+#front-page #main h2, h2.post-form, #userlogin, #currentfavorites, #register {
 	color: #333;
 	border-bottom: 1px solid #ddd;
 	margin: 0 0 10px;
 	padding: 0 0 5px;
 }
 
-#front-page #discussions ul {
-	padding: 0 0 0 14px;
-}
+#front-page #discussions ul { padding: 0 0 0 14px; }
 
-.sticky {
-	background: #a1d29a;
-}
-
+.sticky { background: #a1d29a; }
 
 /* Topic Page
 =================================== */
@@ -187,9 +193,7 @@ form.login input {
 	padding: 0;
 }
 
-.infobox ul li { 
-	padding-bottom: 3px;
-}
+.infobox ul li { padding-bottom: 3px; }
 
 #topic-tags {
 	border-left: 1px solid #ccc;
@@ -203,13 +207,9 @@ form.login input {
 	padding: 12px 0;
 }
 
-.nav span {
-	font-weight: bold;
-}
+.nav span { font-weight: bold; }
 
-.nav span,.nav a {
-	padding: 6px;
-}
+.nav span, .nav a { padding: 6px; }
 
 #thread {
 	background: #eee;
@@ -223,13 +223,9 @@ form.login input {
 	line-height: 1.5em;
 }
 
-#thread li ol, #thread li ul { 
-	margin-left: 40px;
-}
+#thread li ol, #thread li ul { margin-left: 40px; }
 
-#thread li ol li, #thread li ul li { 
-	padding: 0;
-}
+#thread li ol li, #thread li ul li { padding: 0; }
 
 .threadauthor {
 	margin-left: -110px;
@@ -238,9 +234,7 @@ form.login input {
 	width: 95px;
 }
 
-.threadauthor small {
-	font: 11px Verdana, Arial, Helvetica, sans-serif;
-}
+.threadauthor small { font: 11px Verdana, Arial, Helvetica, sans-serif; }
 
 .poststuff {
 	border-top: 1px dotted #ccc;
@@ -268,13 +262,9 @@ form.login input {
 	display: block;
 }
 
-.postform label {
-	display: block;
-}
+.postform label { display: block; }
 
-.admin { 
-	padding: 10px 0 0;
-}
+.admin { padding: 10px 0 0; }
 
 #manage-tags { 
 	margin: 10px 0; 
@@ -287,13 +277,9 @@ form.login input {
 	padding-bottom: 10px;
 }
 
-.submit {
-	text-align: right;
-}
+.submit { text-align: right; }
 
-.topiclink {
-	display: block;
-}
+.topiclink { display: block; }
 
 .topictitle {
 	font-size: 26px;
@@ -309,19 +295,15 @@ form.login input {
 	text-decoration: none;
 }
 
-#content .infobox li {
-	margin-bottom: 2px;
-}
+#content .infobox li { margin-bottom: 2px; }
 
 #content .nav a {
 	border: 1px solid #ccc;
 	font-weight: normal;
 }
-
 #content .nav a:hover {
 	border: 1px solid #999;
 }
-
 #content a:visited {
 	font-weight: normal;
 }
@@ -331,13 +313,9 @@ form.login input {
 	margin-top: -8px;
 }
 
-#latest td, #forumlist td, #favorites td {
-	padding: 5px 10px;
-}
+#latest td, #forumlist td, #favorites td { padding: 5px 10px; }
 
-#latest tr:hover, #forumlist tr:hover, #favorites tr:hover { 
-	background: #e4f3e1;
-}
+#latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background: #e4f3e1; }
 
 #latest th, #forumlist th, #favorites th {
 	border-bottom: 1px solid #aaa;
@@ -353,21 +331,13 @@ form.login input {
 	width: 100%;
 }
 
-.bozo {
-	background: #eeee88;
-}
+.bozo { background: #eeee88; }
 
-.alt.bozo {
-	background: #ffff99;
-}
+.alt.bozo { background: #ffff99; }
 
-.deleted {
-	background: #ee8888;
-}
+.deleted { background: #ee8888; }
 
-.alt.deleted {
-	background: #ff9999;
-}
+.alt.deleted { background: #ff9999; }
 
 /* Profile Page
 =================================== */
@@ -394,13 +364,17 @@ form.login input {
 }
 
 #userinfo { margin-top: 10px; }
+
 #userinfo dt { font-weight: bold; }
+
 #userinfo dd { margin: 0 0 5px; } 
 
 #useractivity { margin: 15px 0 5px; }
 
 .user-recent { margin: 0 0 10px; }
+
 .user-recent ol { margin: 5px 0 0 28px; }
+
 .user-recent ol li { margin: 0 0 3px; }
 
 /* Profile Edit
