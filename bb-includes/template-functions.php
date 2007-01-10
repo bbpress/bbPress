@@ -1012,6 +1012,17 @@ function get_user_profile_link( $id, $page = 1 ) {
 	return apply_filters( 'get_user_profile_link', $r, $id );
 }
 
+function user_delete_button() {
+	if ( bb_current_user_can('edit_users') ) 
+		echo apply_filters( 'user_delete_button', get_user_delete_button());
+}
+
+function get_user_delete_button() {
+	$r  = '<input type="submit" class="delete" name="delete-user" value="' . __('Delete User &raquo;') . '" ';
+	$r .= 'onclick="return confirm(\'' . js_escape(__('Are you sure you want to delete this user?')) . '\')" />';
+	return apply_filters( 'get_user_delete_button', $r);
+}
+
 function profile_tab_link( $id, $tab, $page = 1 ) {
 	echo apply_filters( 'profile_tab_link', get_profile_tab_link( $id, $tab ) );
 }

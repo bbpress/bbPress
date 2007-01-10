@@ -87,7 +87,7 @@ Blocked users just see a simple error message when they visit the site.</p>
 </fieldset>
 <?php endif; bb_nonce_field( 'edit-profile_' . $user->ID ); ?>
 <p class="submit left">
-  <input type="submit" class="delete" name="delete-user" value="<?php _e('Delete User &raquo;'); ?>" onclick="return confirm('<?php echo js_escape(__('Are you sure you want to delete this user?')); ?>');" />
+  <?php user_delete_button(); ?>
 </p>
 <p class="submit right">
   <input type="submit" name="Submit" value="<?php _e('Update Profile &raquo;'); ?>" />
