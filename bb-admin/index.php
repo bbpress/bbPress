@@ -29,7 +29,7 @@
  <li><?php _e('Posts per day'); ?>: <?php posts_per_day(); ?></li>
  <li><?php _e('Topics per day'); ?>: <?php topics_per_day(); ?></li>
  <li><?php _e('Registrations per day'); ?>: <?php registrations_per_day(); ?></li>
- <li><?php printf('Forums started %s ago.', bb_since(get_inception())); ?></li>
+ <li><?php printf(__('Forums started %s ago.'), bb_since(get_inception())); ?></li>
 </ul>
 </div>
 

@@ -189,7 +189,7 @@ function bb_user_row( $user_id, $role = '', $email = false ) {
 	if ( $email )
 		$r .= "\t\t<td><a href='mailto:$user->user_email'>$user->user_email</a></td>\n";
 	$r .= "\t\t<td>$user->user_registered</td>\n";
-	$r .= "\t\t<td><a href='" . get_profile_tab_link( $user_id, 'edit' ) . "'>Edit</a></td>\n\t</tr>";
+	$r .= "\t\t<td><a href='" . get_profile_tab_link( $user_id, 'edit' ) . "'>" . __('Edit') . "</a></td>\n\t</tr>";
 	return $r;
 }
 

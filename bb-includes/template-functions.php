@@ -135,7 +135,7 @@ function post_form( $h2 = '' ) {
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
-		_e(sprintf('You must <a href="%s">log in</a> to post.', bb_get_option('uri') . 'bb-login.php'));
+		sprintf(__('You must <a href="%s">log in</a> to post.'), bb_get_option('uri') . 'bb-login.php');
 		echo '</p>';
 	}
 	do_action('post_form');
@@ -301,7 +301,7 @@ function bb_get_title() {
 	if ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
 	if ( is_tag() )
-		$title = wp_specialchars( get_tag_name() ). ' &laquo; Tags &laquo; ';
+		$title = wp_specialchars( get_tag_name() ). ' &laquo; ' . __('Tags') . ' &laquo; ';
 	if ( is_bb_profile() )
 		$title = get_user_name( $user->ID ) . ' &laquo; ';
 	if ( $st = bb_get_option( 'static_title' ) )
@@ -742,7 +742,7 @@ function topic_show_all_link() {
 function topic_posts_link() {
 	global $bb_current_user, $topic;
 	$post_num = get_topic_posts();
-	$posts = sprintf('%1$s %2$s', $post_num, __ngettext( 'post', 'posts', $post_num ));
+	$posts = sprintf('%1$s %2$s', $post_num, __ngettext( __('post'), __('posts'), $post_num ));
 	if ( 'all' == @$_GET['view'] && bb_current_user_can('browse_deleted') )
 		echo "<a href='" . get_topic_link() . "'>$posts</a>";
 	else
@@ -752,7 +752,7 @@ function topic_posts_link() {
 		if ( isset($topic->bozos[$bb_current_user->ID]) && 'all' != @$_GET['view'] )
 			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$bb_current_user->ID]}; return \$a;") );
 		if ( $deleted = get_topic_deleted_posts() ) {
-			$extra = __(sprintf('+%d more', $deleted));
+			$extra = sprintf(__('+%d more'), $deleted);
 			if ( 'all' == @$_GET['view'] )
 				echo " $extra";
 			else
