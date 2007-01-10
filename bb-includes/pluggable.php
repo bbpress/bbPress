@@ -126,7 +126,7 @@ function bb_login($login, $password) {
 	if ( $user = bb_check_login( $login, $password ) ) {
 		bb_cookie( bb_get_option( 'usercookie' ), $user->user_login, time() + 6048000 );
 		bb_cookie( bb_get_option( 'passcookie' ), md5( $user->user_pass ) );
-		do_action('bb_user_login', '');
+		do_action('bb_user_login', (int) $user->ID );
 	}
 
 	return $user;
