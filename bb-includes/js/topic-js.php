@@ -58,15 +58,6 @@ addLoadEvent( function() { // TopicMeta
 	}
 	favLinkSetup();
 			
-	var resolvedSub = $('resolvedformsub');
-	if ( !resolvedSub )
-		return;
-	resFunc = function(e) { return theTopicMeta.ajaxUpdater( 'resolution', 'resolved' ); }
-	resolvedSub.onclick = resFunc;
-	theTopicMeta.addComplete = function(what, where, update) {
-		if ( update && 'resolved' == where )
-			$('resolvedformsub').onclick = resFunc;
-	}
 } );
 
 function favLinkSetup() {

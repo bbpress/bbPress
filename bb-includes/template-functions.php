@@ -598,47 +598,6 @@ function get_topic_start_timestamp( $id = 0 ) {
 	return strtotime( $topic->topic_start_time );
 }
 
-function topic_resolved( $yes = '', $no = '', $mu = '', $id = 0 ) {
-	global $bb_current_user, $topic;
-	if ( empty($yes) )
-		$yes = __('resolved');
-	if ( empty($no) )
-		$no = __('not resolved');
-	if ( empty($mu) )
-		$mu = __('not a support question');
-	if ( bb_current_user_can( 'edit_topic', $topic->topic_id ) ) :
-		$resolved_form  = '<form id="resolved" method="post" action="' . bb_get_option('uri') . 'topic-resolve.php"><div>' . "\n";
-		$resolved_form .= '<input type="hidden" name="id" value="' . $topic->topic_id . "\" />\n";
-		$resolved_form .= '<select name="resolved" id="resolvedformsel" tabindex="2">' . "\n";
-
-		$cases = array( 'yes', 'no', 'mu' );
-		$resolved = get_topic_resolved( $id );
-		foreach ( $cases as $case ) {
-			$selected = ( $case == $resolved ) ? ' selected="selected"' : '';
-			$resolved_form .= "<option value=\"$case\"$selected>${$case}</option>\n";
-		}
-
-		$resolved_form .= "</select>\n";
-		$resolved_form .= '<input type="submit" name="submit" id="resolvedformsub" value="'. __('Change') .'" />' . "\n</div>";
-		echo $resolved_form;
-		bb_nonce_field( 'resolve-topic_' . $topic->topic_id );
-		echo "\n</form>";
-	else:
-		switch ( get_topic_resolved( $id ) ) {
-			case 'yes' : echo $yes; break;
-			case 'no'  : echo $no;  break;
-			case 'mu'  : echo $mu;  break;
-		}
-	endif;
-}
-
-function get_topic_resolved( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
-	return $topic->topic_resolved;
-}
-
 function topic_last_post_link( $id = 0 ) {
 	global $topic;
 	echo apply_filters( 'topic_last_post_link', get_topic_last_post_link( $id ));
@@ -783,8 +742,6 @@ function topic_class( $class = '', $key = 'topic' ) {
 		$class[] = 'deleted';
 	elseif ( 1 < $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )
 		$class[] = 'bozo';
-	if ( 'yes' == $topic->topic_resolved )
-		$class[] = 'resolved';
 	if ( '0' === $topic->topic_open )
 		$class[] = 'closed';
 	if ( 1 == $topic->topic_sticky && is_forum() )

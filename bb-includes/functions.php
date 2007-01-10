@@ -90,10 +90,6 @@ function untagged( $where ) {
 	return $where . ' AND tag_count = 0 ';
 }
 
-function unresolved( $where ) {
-	return $where . " AND topic_resolved = 'no' ";
-}
-
 function deleted_topics( $where ) {
 	return str_replace('topic_status = 0', 'topic_status = 1', $where);
 }
@@ -921,18 +917,6 @@ function topics_replied_on_undelete_post( $post_id ) {
 			bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', $user->topics_replied + 1 );
 }
 
-function bb_resolve_topic( $topic_id, $resolved = 'yes' ) {
-	global $bbdb, $bb_cache;
-	$topic_id = (int) $topic_id;
-	apply_filters( 'topic_resolution', $resolved, $topic_id );
-	if ( ! in_array($resolved, array('yes', 'no', 'mu')) )
-		return false;
-	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_resolved = '$resolved' WHERE topic_id = '$topic_id'");
-	do_action( 'resolve_topic', $topic_id, $resolved, $r );
-	return $r;
-}
-
 function bb_close_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
@@ -1555,8 +1539,14 @@ function get_views( $cache = true ) {
 	global $bb_current_user, $views;
 	if ( isset($views) && $cache )
 		return $views;
-	$views = array('no-replies' => __('Topics with no replies'), 'untagged' => __('Topics with no tags'), 'unresolved' => __('Unresolved topics'));
-	return apply_filters('bb_views', $views);
+	
+	$views = array(
+		'no-replies' => __('Topics with no replies'), 
+		'untagged' => __('Topics with no tags'), 
+	);
+	
+	$views = apply_filters('bb_views', $views);
+	return $views;
 }
 
 function bb_nonce_url($actionurl, $action = -1) {

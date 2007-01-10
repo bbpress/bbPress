@@ -17,13 +17,8 @@ case 'untagged' :
 	$stickies = get_sticky_topics( 0, $page );
 	$view_count = max($view_count, bb_count_last_query());
 	break;	
-case 'unresolved' :
-	add_filter( 'get_latest_topics_where', 'unresolved' );
-	$topics = get_latest_topics( 0, $page );
-	$view_count = bb_count_last_query();
-	break;
 default :
-	do_action( 'bb_custom_view', $view );
+	do_action( 'bb_custom_view', $view, $page );
 endswitch;
 
 do_action( 'bb_view.php', '' );

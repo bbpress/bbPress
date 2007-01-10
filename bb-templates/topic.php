@@ -11,7 +11,6 @@
 <?php if ( 1 < get_topic_posts() ) : ?>
 	<li><?php printf(__('<a href="%1$s">Latest reply</a> from %2$s'), get_topic_last_post_link(), get_topic_last_poster()) ?></li>
 <?php endif; ?>
-	<li id="resolution-flipper"><?php _e('This topic is') ?> <?php topic_resolved(); ?></li>
 <?php if ( $bb_current_user ) : $class = 0 === is_user_favorite( $bb_current_user->ID ) ? ' class="is-not-favorite"' : ''; ?>
 	<li<?php echo $class;?> id="favorite-toggle"><?php user_favorites_link() ?></li>
 <?php endif; do_action('topicmeta'); ?>

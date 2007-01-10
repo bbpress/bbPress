@@ -90,34 +90,6 @@ case 'dim-favorite' :
 	}
 	break;
 
-case 'update-resolution' :
-	$topic_id = (int) @$_POST['topic_id'];
-	$resolved = @$_POST['resolved'];
-
-	if ( !bb_current_user_can( 'edit_topic', $topic_id ) )
-		die('-1');
-
-	$topic = get_topic( $topic_id );
-	if ( !$topic )
-		die('0');
-
-	if ( bb_resolve_topic( $topic_id, $resolved ) ) {
-		$topic->topic_resolved = $resolved;
-		ob_start();
-			echo '<li id="resolution-flipper">' . __('This topic is') . ' ';
-			topic_resolved();
-			echo '</li>';
-		$data = ob_get_contents();
-		ob_end_clean();
-		$x = new WP_Ajax_Response( array(
-			'what' => 'resolution',
-			'id' => 'flipper',
-			'data' => $data
-		) );
-		$x->send();
-	}
-	break;
-
 case 'delete-post' :
 	$post_id = (int) $_POST['id'];
 	$page = (int) $_POST['page'];
