@@ -815,7 +815,7 @@ function new_topic( $text = false ) {
 			return;
 	}
 
-	if ( $url )
+	if ( $url = apply_filters( 'new_topic_url', $url ) )
 		echo "<a href='$url' class='new-topic'>$text</a>\n";
 }
 
