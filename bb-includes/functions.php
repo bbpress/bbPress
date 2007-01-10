@@ -1249,8 +1249,12 @@ function get_tag( $id ) {
 }
 
 function get_tag_by_name( $tag ) {
-	global $bbdb;
-	$tag     = tag_sanitize( $tag );
+	global $bbdb, $tag_cache;
+
+	$tag = tag_sanitize( $tag );
+
+	if ( isset($tag_cache[$tag]) )
+		return $tag_cache[$tag];
 
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag = '$tag'");
 }
@@ -1362,8 +1366,9 @@ function bb_find_filename( $text ) {
 }
 
 function get_top_tags( $recent = true, $limit = 40 ) {
-	global $bbdb;
-	$tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit");
+	global $bbdb, $tag_cache;
+	foreach ( (array) $tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit") as $tag )
+		$tag_cache[$tag->tag] = $tag;
 	return $tags;
 }
 
