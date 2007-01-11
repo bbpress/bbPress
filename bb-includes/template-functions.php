@@ -1365,7 +1365,7 @@ function view_name() { // Filtration should be done at get_views() level
 function get_view_name() {
 	global $view;
 	$views = get_views();
-	echo $views[$view];
+	return $views[$view];
 }
 
 function view_pages() {
