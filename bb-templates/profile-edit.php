@@ -86,11 +86,14 @@ Blocked users just see a simple error message when they visit the site.</p>
 </table>
 </fieldset>
 <?php endif; bb_nonce_field( 'edit-profile_' . $user->ID ); ?>
-<p class="submit left">
-  <?php user_delete_button(); ?>
-</p>
 <p class="submit right">
   <input type="submit" name="Submit" value="<?php _e('Update Profile &raquo;'); ?>" />
+</p>
+</form>
+<form method="post" action="<?php profile_tab_link($user->ID, 'edit');  ?>">
+<p class="submit left">
+<?php bb_nonce_field( 'edit-profile_' . $user->ID ); ?>
+<?php user_delete_button(); ?>
 </p>
 </form>
 
