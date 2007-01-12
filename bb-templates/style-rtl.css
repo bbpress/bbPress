@@ -11,11 +11,11 @@ fieldset table { text-align: right; }
 
 .submit, #header h1 { text-align: left; }
 
-.left, #topic-tags, #manage-tags li, .login label, .login #submit { float: right; }
+.left, #manage-tags li, .login label, .login #submit { float: right; }
 
 #front-page #hottags, .login { left: auto; right: 0; }
 
-.right, #front-search { float: left; }
+.right, #topic-tags, #front-search { float: left; }
 
 #latest th, #forumlist th, #favorites th, .num, .threadauthor small, #forumlist small { font: 11px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
 
