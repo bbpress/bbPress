@@ -1247,21 +1247,25 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 		$taglinks{$tag->raw_tag} = get_tag_link( $tag->tag );
 	}
 
-	$spread = max($counts) - min($counts);
+	$min_count = min($counts);
+	$spread = max($counts) - $min_count;
 	if ( $spread <= 0 )
 		$spread = 1;
 	$fontspread = $largest - $smallest;
-	$fontstep = $spread / $fontspread;
-	if ($fontspread <= 0) { $fontspread = 1; }
+	if ( $fontspread <= 0 )
+		$fontspread = 1;
+	$fontstep = $fontspread / $spread;
 
 	do_action_ref_array( 'sort_tag_heat_map', array(&$counts) );
 
 	$r = '';
+
 	foreach ($counts as $tag => $count) {
 		$taglink = $taglinks{$tag};
 		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
-		$r .= "<a href='$taglink' title='$count topics' rel='tag' style='font-size: ".
-		($smallest + ($count/$fontstep))."$unit;'>$tag</a> \n";
+		$r .= "<a href='$taglink' title='$count topics' rel='tag' style='font-size: " .
+		( $smallest + ( ( $count - $min_count ) * $fontstep ) )
+		. "$unit;'>$tag:$count</a> \n";
 	}
 
 	echo apply_filters( 'tag_heat_map', $r, $smallest, $largest, $unit, $limit );
