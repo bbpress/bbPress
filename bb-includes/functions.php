@@ -1057,12 +1057,12 @@ function bb_offset_time($time) {
 }
 
 function get_path( $level = 1 ) {
-	if ( isset($_SERVER['PATH_INFO']) ) :
-		$url = explode('/',$_SERVER['PATH_INFO']);
-		return $url[$level];
-	else :
-		return;
-	endif;
+	$request = parse_url($_SERVER['REQUEST_URI']);
+	$path = $request['path'];
+	$bbpath = bb_get_option('path');
+	$path = preg_replace("#$bbpath#",'',$path,1);
+	$url = explode('/',$path);
+	return $url[$level];
 }
 
 function add_topic_tag( $topic_id, $tag ) {
