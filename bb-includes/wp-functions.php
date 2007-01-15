@@ -633,7 +633,7 @@ function remove_query_arg($key, $query='') { // [3857]
 endif;
 
 if ( !function_exists('status_header') ) :
-function status_header( $header ) { // [3005]
+function status_header( $header ) { // [4725]
 	if ( 200 == $header )
 		$text = 'OK';
 	elseif ( 301 == $header )
@@ -647,8 +647,10 @@ function status_header( $header ) { // [3005]
 	elseif ( 410 == $header )
 		$text = 'Gone';
 
-	@header("HTTP/1.1 $header $text");
-	@header("Status: $header $text");
+	if ( version_compare(phpversion(), '4.3.0', '>=') )
+		@header("HTTP/1.1 $header $text", true, $header);
+	else
+		@header("HTTP/1.1 $header $text");
 }
 endif;
 

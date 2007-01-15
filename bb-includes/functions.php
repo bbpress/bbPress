@@ -300,7 +300,7 @@ function bb_get_option( $option ) {
 		$r = $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.74'; // Don't filter
+		return '0.75'; // Don't filter
 		break;
 	case 'url' :
 		$option = 'uri';
@@ -1073,12 +1073,12 @@ function bb_offset_time($time) {
 }
 
 function get_path( $level = 1 ) {
-	if ( isset($_SERVER['PATH_INFO']) ) :
-		$url = explode('/',$_SERVER['PATH_INFO']);
-		return $url[$level];
-	else :
-		return;
-	endif;
+	$request = parse_url($_SERVER['REQUEST_URI']);
+	$path = $request['path'];
+	$bbpath = bb_get_option('path');
+	$path = preg_replace("#$bbpath#",'',$path,1);
+	$url = explode('/',$path);
+	return $url[$level];
 }
 
 function add_topic_tag( $topic_id, $tag ) {
@@ -1201,10 +1201,10 @@ function merge_tags( $old_id, $new_id ) {
 		$old_topic_ids = join(',', $old_topic_ids);
 		$shared_topics_u = (array) $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
 		$shared_topics_i = (array) $bbdb->get_col( '', 1 );
-		foreach ( $shared_topics_i as $t => $i ) {
-			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$i'" );
+		foreach ( $shared_topics_i as $t => $topic_id ) {
+			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$topic_id'" );
 			$count = $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
-			$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
+			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$topic_id'" );
 		}
 	}
 

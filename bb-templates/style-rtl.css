@@ -11,9 +11,11 @@ fieldset table { text-align: right; }
 
 .submit, #header h1 { text-align: left; }
 
-.left, #front-page #hottags, #topic-tags, #manage-tags li, .login label, .login #submit { float: right; }
+.left, #manage-tags li, .login label, .login #submit { float: right; }
 
-.right, #front-search { float: left; }
+#front-page #hottags, .login { left: auto; right: 0; }
+
+.right, #topic-tags, #front-search { float: left; }
 
 #latest th, #forumlist th, #favorites th, .num, .threadauthor small, #forumlist small { font: 11px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
 
@@ -21,7 +23,7 @@ fieldset table { text-align: right; }
 
 #wrapper { background: #fff url('images/page_header_tile.png') repeat-x 0px -25px; }
 
-#header { background: url('images/page_header_bblogo.png') no-repeat bottom left; }
+#header { background: url('images/page_header_bblogo.png') no-repeat -45px -25px; }
 
 #thread { margin: 0 100px 0 0; }
 
