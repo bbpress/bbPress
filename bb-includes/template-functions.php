@@ -1265,7 +1265,7 @@ function tag_heat_map( $smallest = 8, $largest = 22, $unit = 'pt', $limit = 45 )
 		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
 		$r .= "<a href='$taglink' title='$count topics' rel='tag' style='font-size: " .
 		( $smallest + ( ( $count - $min_count ) * $fontstep ) )
-		. "$unit;'>$tag:$count</a> \n";
+		. "$unit;'>$tag</a> \n";
 	}
 
 	echo apply_filters( 'tag_heat_map', $r, $smallest, $largest, $unit, $limit );
