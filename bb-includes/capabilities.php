@@ -345,7 +345,8 @@ function bb_map_meta_cap($cap, $user_id) {
 			$caps[] = 'edit_closed';
 		$post_time = strtotime($bb_post->post_time . '+0000');
 		$curr_time = time();
-                if ( $curr_time - $post_time > bb_get_option( 'edit_lock' ) * 60 )
+		$edit_lock = bb_get_option( 'edit_lock' );
+                if ( $edit_lock >= 0 && $curr_time - $post_time > $edit_lock * 60 )
 			$caps[] = 'ignore_edit_lock';
 		break;
 	case 'edit_topic': // edit_closed, edit_deleted, edit_topics, edit_others_topics
