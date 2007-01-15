@@ -6,7 +6,7 @@ $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :
 
-if ( $users = bb_user_search( $q ) && is_wp_error($users) ) {
+if ( ( $users = bb_user_search( stripslashes($q) ) ) && is_wp_error($users) ) {
 	$error = $users;
 	$users = false;
 }
