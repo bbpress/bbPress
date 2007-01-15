@@ -205,12 +205,11 @@ class BB_User_Search {
 	var $first_user;
 	var $last_user;
 	var $query_limit;
-	var $query_from_where;
 	var $total_users_for_query = 0;
 	var $search_errors;
 
 	function BB_User_Search ($search_term = '', $page = '') { // constructor
-		$this->search_term = $search_term;
+		$this->search_term = stripslashes($search_term);
 		$this->raw_page = ( '' == $page ) ? false : (int) $page;
 		$this->page = (int) ( '' == $page ) ? 1 : $page;
 
@@ -223,24 +222,15 @@ class BB_User_Search {
 	function prepare_query() {
 		global $bbdb;
 		$this->first_user = ($this->page - 1) * $this->users_per_page;
-		$this->query_limit = 'LIMIT ' . $this->first_user . ',' . $this->users_per_page;
-		if ( $this->search_term ) {
-			$searches = array();
-			$search_sql = 'AND (';
-			foreach ( array('user_login', 'user_nicename', 'user_email', 'user_url', 'display_name') as $col )
-				$searches[] = $col . " LIKE '%$this->search_term%'";
-			$search_sql .= implode(' OR ', $searches);
-			$search_sql .= ')';
-		}
-		$this->query_from_where = "FROM $bbdb->users WHERE 1=1 $search_sql";
 	}
 
 	function query() {
 		global $bbdb;
-		$this->results = $bbdb->get_col('SELECT ID ' . $this->query_from_where . $this->query_limit);
+		foreach ( (array) bb_user_search( "query=$this->search_term&user_email=1&users_per_page=$this->users_per_page" ) as $user )
+			$this->results[] = $user->ID;
 
 		if ( $this->results )
-			$this->total_users_for_query = $bbdb->get_var('SELECT COUNT(ID) ' . $this->query_from_where); // no limit
+			$this->total_users_for_query = bb_count_last_query();
 		else
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
 	}

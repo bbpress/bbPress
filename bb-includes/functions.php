@@ -1682,4 +1682,82 @@ function bb_count_last_query() {
 function bb_trusted_roles() {
 	return apply_filters( 'bb_trusted_roles', array('moderator', 'administrator', 'keymaster') );
 }
+
+function bb_parse_args( $args, $defaults = '' ) {
+	if ( is_array($args) )
+		$r =& $args;
+	else
+		parse_str( $args, $r );
+
+	if ( is_array($defaults) ) :
+		extract($defaults);
+		extract($r);
+		return compact(array_keys($defaults)); // only those options defined in $defaults
+	else :
+		return $r;
+	endif;
+}	
+
+/* Searh Functions */
+function bb_user_search( $args = '' ) {
+	global $page, $bbdb, $bb_last_countable_query;
+
+	if ( is_string($args) && false === strpos($args, '=') )
+		$args = array( 'query' => $args );
+
+	$defaults = array( 'query' => '', 'append_meta' => true, 'user_login' => true, 'display_name' => true, 'user_nicename' => false, 'user_url' => true, 'user_email' => false, 'user_meta' => false, 'users_per_page' => false );
+
+	extract(bb_parse_args( $args, $defaults ));
+
+	if ( strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
+		return new WP_Error( 'invalid-query', __('Your search term was too short') );
+
+	$query = $bbdb->escape( $query );
+
+	$limit = 0 < (int) $users_per_page ? (int) $users_per_page : bb_get_option( 'page_topics' );
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
+
+	$likeit = preg_replace('/\s+/', '%', $query);
+
+	$fields = array();
+
+	foreach ( array('user_login', 'display_name', 'user_nicename', 'user_url', 'user_email') as $field )
+		if ( $$field )
+			$fields[] = $field;
+
+	if ( $user_meta ) :
+		$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
+		if ( empty($fields) )
+			$bb_last_countable_query .= " LIMIT $limit";
+		$user_meta_ids = $bbdb->get_col($bb_last_countable_query);
+		if ( empty($fields) ) :
+			bb_cache_users( $user_meta_ids );
+			$users = array();
+			foreach( $user_meta_ids as $user_id )
+				$users[] = bb_get_user( $user_id );
+			return $users;
+		endif;
+	endif;
+
+	$sql = "SELECT * FROM $bbdb->users WHERE ";
+
+	$sql_terms = array();
+	foreach ( $fields as $field )
+		$sql_terms[] = "$field LIKE ('%$likeit%')";
+
+	if ( $user_meta_ids )
+		$sql_terms[] = "ID IN (". join(',', $user_meta_ids) . ")";
+
+	if ( empty($sql_terms) )
+		return new WP_Error( 'invalid-query', __('Your query parameters are invalid') );
+
+	$bb_last_countable_query = $sql .= implode(' OR ', $sql_terms) . " LIMIT $limit";
+	
+	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
+		return bb_append_meta( $users, 'user' );
+
+	return $users ? $users : false;
+}
+
 ?>

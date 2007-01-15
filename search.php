@@ -6,10 +6,9 @@ $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :
 
-if ( strlen( preg_replace('/[^a-z0-9]/i', '', $q) ) > 2 ) {
-	$users = $bbdb->get_results("SELECT * FROM $bbdb->users WHERE user_login LIKE ('%$likeit%')");
-	if ( $users )
-		bb_append_meta( $users, 'user' );
+if ( $users = bb_user_search( $q ) && is_wp_error($users) ) {
+	$error = $users;
+	$users = false;
 }
 
 //Not appending topicmeta to titles at the moment!
