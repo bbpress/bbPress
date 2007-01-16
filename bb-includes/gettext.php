@@ -63,10 +63,12 @@ class gettext_reader {
   function readint() {
       if ($this->BYTEORDER == 0) {
         // low endian
-        return array_shift(unpack('V', $this->STREAM->read(4)));
+        $low_end = unpack('V', $this->STREAM->read(4));
+        return array_shift($low_end);
       } else {
         // big endian
-        return array_shift(unpack('N', $this->STREAM->read(4)));
+        $big_end = unpack('N', $this->STREAM->read(4));
+        return array_shift($big_end);
       }
     }
 
@@ -300,7 +302,11 @@ class gettext_reader {
     $string = str_replace('nplurals',"\$total",$string);
     $string = str_replace("n",$n,$string);
     $string = str_replace('plural',"\$plural",$string);
-    
+
+    # poEdit doesn't put any semicolons, which
+    # results in parse error in eval
+    $string .= ';';
+	
     $total = 0;
     $plural = 0;
 
