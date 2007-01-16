@@ -1702,7 +1702,7 @@ function bb_parse_args( $args, $defaults = '' ) {
 function bb_user_search( $args = '' ) {
 	global $page, $bbdb, $bb_last_countable_query;
 
-	if ( is_string($args) && false === strpos($args, '=') )
+	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
 
 	$defaults = array( 'query' => '', 'append_meta' => true, 'user_login' => true, 'display_name' => true, 'user_nicename' => false, 'user_url' => true, 'user_email' => false, 'user_meta' => false, 'users_per_page' => false );
@@ -1758,6 +1758,59 @@ function bb_user_search( $args = '' ) {
 		return bb_append_meta( $users, 'user' );
 
 	return $users ? $users : false;
+}
+
+function bb_tag_search( $args = '' ) {
+	global $page, $bbdb, $bb_last_countable_query, $tag_cache;
+
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'query' => $args );
+
+	$defaults = array( 'query' => '', 'tags_per_page' => false );
+
+	extract(bb_parse_args( $args, $defaults ));
+
+	if ( strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
+		return new WP_Error( 'invalid-query', __('Your search term was too short') );
+
+	$query = $bbdb->escape( $query );
+
+	$limit = 0 < (int) $tags_per_page ? (int) $tags_per_page : bb_get_option( 'page_topics' );
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
+
+	$likeit = preg_replace('/\s+/', '%', $query);
+
+	$bb_last_countable_query = "SELECT * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit";
+
+	foreach ( (array) $tags = $bbdb->get_results( $bb_last_countable_query ) as $tag )
+		$tag_cache[$tag->tag] = $tag;
+
+	return $tags ? $tags : false;
+}
+
+function bb_related_tags( $_tag = false, $number = 40 ) {
+	global $bbdb, $tag_cache, $tag;;
+	if ( is_numeric($_tag) )
+		$_tag = get_tag( $_tag );
+	elseif ( is_string($_tag) )
+		$_tag = get_tag_by_name( $_tag );
+	elseif ( false === $_tag )
+		$_tag =& $tag;
+
+	if ( !$_tag )
+		return false;
+
+	$sql = "SELECT tag.tag_id, tag.tag, tag.raw_tag, COUNT(DISTINCT t.topic_id) AS tag_count
+	           FROM $bbdb->tagged AS t
+	           JOIN $bbdb->tagged AS tt  ON (t.topic_id = tt.topic_id)
+	           JOIN $bbdb->tags   AS tag ON (t.tag_id = tag.tag_id)
+	        WHERE tt.tag_id = '$_tag->tag_id' AND t.tag_id != '$_tag->tag_id' GROUP BY t.tag_id ORDER BY tag_count DESC";
+
+	foreach ( (array) $tags = $bbdb->get_results( $sql ) as $_tag )
+		$tag_cache[$_tag->tag] = $_tag;
+
+	return $tags;
 }
 
 ?>
