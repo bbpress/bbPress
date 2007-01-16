@@ -1557,8 +1557,9 @@ function get_views( $cache = true ) {
 		return $views;
 	
 	$views = array(
-		'no-replies' => __('Topics with no replies'), 
-		'untagged' => __('Topics with no tags'), 
+		'no-replies' => __('Topics with no replies'),
+		'untagged' => __('Topics with no tags'),
+		'unresolved' => __('Unresolved topics')
 	);
 	
 	$views = apply_filters('bb_views', $views);
