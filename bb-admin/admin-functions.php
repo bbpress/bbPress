@@ -226,12 +226,16 @@ class BB_User_Search {
 
 	function query() {
 		global $bbdb;
-		foreach ( (array) bb_user_search( "query=$this->search_term&user_email=1&users_per_page=$this->users_per_page" ) as $user )
-			$this->results[] = $user->ID;
+		$users = bb_user_search( "query=$this->search_term&user_email=1&users_per_page=$this->users_per_page" )
+		if ( is_wp_error($users) )
+			$this->search_errors = $users;
+		else 
+			foreach ( (array) $users as $user )
+				$this->results[] = $user->ID;
 
 		if ( $this->results )
 			$this->total_users_for_query = bb_count_last_query();
-		else
+		elseif ( !is_wp_error($this->search_errors) )
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
 	}
 
