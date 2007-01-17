@@ -135,7 +135,7 @@ function post_form( $h2 = '' ) {
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
-		sprintf(__('You must <a href="%s">log in</a> to post.'), bb_get_option('uri') . 'bb-login.php');
+		printf(__('You must <a href="%s">log in</a> to post.'), bb_get_option('uri') . 'bb-login.php');
 		echo '</p>';
 	}
 	do_action('post_form');
@@ -701,7 +701,7 @@ function topic_show_all_link() {
 function topic_posts_link() {
 	global $bb_current_user, $topic;
 	$post_num = get_topic_posts();
-	$posts = sprintf('%1$s %2$s', $post_num, __ngettext( __('post'), __('posts'), $post_num ));
+	$posts = sprintf(__ngettext( '%s post', '%s posts', $post_num ), $post_num);
 	if ( 'all' == @$_GET['view'] && bb_current_user_can('browse_deleted') )
 		echo "<a href='" . get_topic_link() . "'>$posts</a>";
 	else
