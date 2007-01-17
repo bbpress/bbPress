@@ -226,7 +226,7 @@ class BB_User_Search {
 
 	function query() {
 		global $bbdb;
-		$users = bb_user_search( "query=$this->search_term&user_email=1&users_per_page=$this->users_per_page" )
+		$users = bb_user_search( "query=$this->search_term&user_email=1&users_per_page=$this->users_per_page" );
 		if ( is_wp_error($users) )
 			$this->search_errors = $users;
 		else 
