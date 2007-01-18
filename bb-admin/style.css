@@ -4,6 +4,11 @@ a {
 	text-decoration: none;
 }
 
+input.delete:hover {
+	background: #ce0000;
+	color: #fff;
+}
+
 a.delete:hover {
 	background: #c00;
 	color: #fff;
@@ -211,7 +216,16 @@ textarea, input, select {
 	clear: both;
 }
 
-table .vers, table .name {
+.narrow {
+	width: 450px;
+	margin: auto;
+}
+ 
+.narrow p {
+	line-height: 150%;
+}
+
+table .vers, table .name, .centered {
 	text-align: center;
 }
 
