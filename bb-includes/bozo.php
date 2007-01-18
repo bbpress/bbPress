@@ -219,7 +219,7 @@ function fermion( $user_id, $topic_id = 0 ) {
 	$topic_id = (int) $topic_id;
 
 	if ( !$topic_id )
-		bb_update_usermeta( $user_id, 'is_bozo', '' );
+		bb_delete_usermeta( $user_id, 'is_bozo' );
 	else {
 		$topic = get_topic( $topic_id );
 		$user = bb_get_user( $user_id );
