@@ -24,7 +24,7 @@ function get_bozos( $page = 1 ) {
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$bozo_mkey = $bb_table_prefix . 'bozo_topics';
-	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' ORDER BY umeta_id DESC LIMIT $limit";
+	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' AND meta_value='1' ORDER BY umeta_id DESC LIMIT $limit";
 	if ( $ids = (array) $bbdb->get_col($bb_last_countable_query) )
 		bb_cache_users( $ids );
 	return $ids;
