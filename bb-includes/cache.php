@@ -223,11 +223,11 @@ class BB_Cache {
 			$cache_data = $this->read_cache(BBPATH . 'bb-cache/bb_cache_data');
 			if ( ++$cache_data > $this->flush_freq ) :
 				$cache_data = 0;
-				$handle=opendir(BBPATH . 'bb-cache');	//http://us2.php.net/manual/en/function.filemtime.php#42065
-				while (false!==($file = readdir($handle))) {
-					if ($file != "." && $file != "..") { 
+				$handle = opendir(BBPATH . 'bb-cache');	//http://us2.php.net/manual/en/function.filemtime.php#42065
+				while ( false !== ( $file = readdir($handle) ) ) {
+					if ( $file != "." && $file != ".." && is_file(BBPATH . "bb-cache/$file") ) { 
 						$Diff = time() - filemtime(BBPATH . "bb-cache/$file");
-						if ($Diff > $this->flush_time)
+						if ( $Diff > $this->flush_time )
 							unlink(BBPATH . "bb-cache/$file");
 					}
 				}
@@ -235,6 +235,14 @@ class BB_Cache {
 			endif;
 		endif;
 		$this->write_cache(BBPATH . 'bb-cache/bb_cache_data', $cache_data);
+	}
+
+	function flush_all() {
+		$handle = opendir( BBPATH . 'bb-cache' );
+		while ( false !== ( $file = readdir($handle) ) )
+			if ( 0 !== strpos($file, '.') )
+				unlink(BBPATH . "bb-cache/$file");
+		closedir($handle);
 	}
 
 }
