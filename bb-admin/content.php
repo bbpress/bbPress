@@ -1,5 +1,4 @@
 <?php require_once('admin.php'); ?>
-
 <?php bb_get_admin_header(); ?>
 
 <?php	if ( !bb_current_user_can('browse_deleted') )

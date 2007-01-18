@@ -1,5 +1,4 @@
 <?php require_once('admin.php'); ?>
-
 <?php bb_get_admin_header(); ?>
 
 <h2><?php _e('Recount') ?></h2>
