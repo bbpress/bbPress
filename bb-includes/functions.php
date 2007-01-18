@@ -98,6 +98,39 @@ function no_where( $where ) {
 	return;
 }
 
+function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
+	global $bb_cache, $bbdb;
+	
+	$from_forum_id = (int) $from_forum_id ;
+	$to_forum_id = (int) $to_forum_id;
+	
+	add_filter('get_forum_where', 'no_where'); // Just in case
+	
+	$from_forum = get_forum( $from_forum_id );
+	if ( !$to_forum = get_forum( $to_forum_id ) )
+		return false;
+
+	$bb_cache->flush_many( 'forum', $from_forum_id );
+	$bb_cache->flush_many( 'forum', $to_forum_id );
+	
+	$posts = $to_forum->posts + ( $from_forum ? $from_forum->posts : 0 );
+	$topics = $to_forum->topics + ( $from_forum ? $from_forum->topics : 0 );
+	
+	$bbdb->query("UPDATE $bbdb->forums SET topics = '$topics', posts = '$posts' WHERE forum_id = '$to_forum_id'");
+	$bbdb->query("UPDATE $bbdb->forums SET topics = 0, posts = 0 WHERE forum_id = '$from_forum_id'");
+	$bbdb->query("UPDATE $bbdb->posts SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
+	$topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$from_forum_id'");
+	$return = $bbdb->query("UPDATE $bbdb->topics SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
+	if ( $topic_ids )
+		foreach ( $topic_ids as $topic_id ) {
+			$bb_cache->flush_one( 'topic', $topic_id );
+			$bb_cache->flush_many( 'thread', $topic_id );
+		}
+	$bb_cache->flush_one( 'forum', $to_forum_id );
+	$bb_cache->flush_many( 'forum', $from_forum_id );
+	return $return;
+}
+
 function get_latest_posts( $limit = 0, $page = 1 ) {
 	global $bbdb;
 	$limit = (int) $limit;
@@ -497,7 +530,7 @@ function bb_user_exists( $user ) {
 }
 
 function bb_delete_user( $user_id, $reassign = 0 ) {
-	global $bbdb;
+	global $bbdb, $bb_cache;
 
 	$user_id = (int) $user_id;
 	$reassign = (int) $reassign;
@@ -506,19 +539,21 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 		return false;
 
 	if ( $reassign ) {
-		if ( !$new_user = bb_get_user( $user_id ) )
+		if ( !$new_user = bb_get_user( $reassign ) )
 			return false;
 		$bbdb->query("UPDATE $bbdb->posts SET poster_id = '$new_user->ID' WHERE poster_id = '$user->ID'");
 		$bbdb->query("UPDATE $bbdb->tagged SET user_id = '$new_user->ID' WHERE user_id = '$user->ID'");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_poster = '$new_user->ID', topic_poster_name = '$new_user->user_login' WHERE topic_poster = '$user->ID'");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = '$new_user->ID', topic_last_poster_name = '$new_user->user_login' WHERE topic_last_poster = '$user->ID'");
 		bb_update_topics_replied( $new_user->ID );
+		$bb_cache->flush_one( 'user', $new_user->ID );
 	}
 
 	do_action( 'bb_delete_user', $user_id, $reassign );
 
 	$bbdb->query("DELETE FROM $bbdb->users WHERE ID = '$user->ID'");
 	$bbdb->query("DELETE FROM $bbdb->usermeta WHERE user_id = '$user->ID'");
+	$bb_cache->flush_one( 'user', $user->ID );
 
 	return true;
 }
@@ -692,6 +727,33 @@ function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
 		return false;
 	$bb_cache->flush_many( 'forum', $forum_id );
 	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$name', forum_desc = '$desc', forum_order = '$order' WHERE forum_id = $forum_id");
+}
+
+// When you delete a forum, you delete *everything*
+function bb_delete_forum( $forum_id ) {
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'delete_forum', $forum_id ) )
+		return false;
+	if ( !$forum_id = (int) $forum_id )
+		return false;
+
+	if ( $topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$forum_id'") ) {
+		$_topic_ids = join(',', $topic_ids);
+		$bbdb->query("DELETE FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
+		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
+		$bbdb->query("DELETE FROM $bbdb->topics WHERE forum_id = '$forum_id'");
+	}
+	
+	$return = $bbdb->query("DELETE FROM $bbdb->forums WHERE forum_id = $forum_id");
+
+	if ( $topic_ids )
+		foreach ( $topic_ids as $topic_id ) {
+			$bb_cache->flush_one( 'topic', $topic_id );
+			$bb_cache->flush_many( 'thread', $topic_id );
+		}
+
+	$bb_cache->flush_many( 'forum', $forum_id );
+	return $return;
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {

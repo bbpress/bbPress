@@ -37,7 +37,8 @@ class BB_Roles {
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,
-						'manage_forums' => true,	// Add forum
+						'manage_forums' => true,	// Add/Rename forum
+						'delete_forums' => true,	// Delete forum
 						'manage_topics' => true,	// Delete/Close/Stick
 						'view_by_ip' => true,		// view-ip.php
 						'edit_closed' => true,		// Edit closed topics
@@ -71,6 +72,7 @@ class BB_Roles {
 						'manage_tags' => true,			//+
 						'edit_others_favorites' => true,	//+
 						'manage_forums' => true,		//+
+						'delete_forums' => true,		//+
 						'manage_topics' => true,
 						'view_by_ip' => true,
 						'edit_closed' => true,
@@ -401,6 +403,9 @@ function bb_map_meta_cap($cap, $user_id) {
 		break;
 	case 'write_post':
 		$caps[] = 'write_posts';
+		break;
+	case 'delete_forum':
+		$caps[] = 'delete_forums';
 		break;
 	default:
 		// If no meta caps match, return the original cap.
