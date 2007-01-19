@@ -32,6 +32,10 @@ class BB_Cache {
 	}
 
 	function append_current_user_meta( $user ) {
+		return $this->append_user_meta( $user );
+	}
+
+	function append_user_meta( $user ) {
 		global $bb_user_cache;
 		if ( $this->use_cache && file_exists(BBPATH . 'bb-cache/bb_user-' . $user->ID) ) :
 			$bb_user_cache[$user->ID] = $this->read_cache(BBPATH . 'bb-cache/bb_user-' . $user->ID);
