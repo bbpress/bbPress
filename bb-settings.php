@@ -69,7 +69,7 @@ $bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_pre
 $bbdb->tags      = $bb_table_prefix . 'tags';
 $bbdb->tagged    = $bb_table_prefix . 'tagged';
 
-foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'wp_siteurl', 'cookiedomain', 'static_title', 'load_options') as $o )
+foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'wp_siteurl', 'cookiedomain', 'static_title', 'load_options', 'akismet_key') as $o )
 	if ( !isset($bb->$o) )
 		$bb->$o = false;
 unset($o);
