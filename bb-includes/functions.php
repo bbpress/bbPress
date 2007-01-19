@@ -1771,7 +1771,7 @@ function bb_user_search( $args = '' ) {
 
 	extract(bb_parse_args( $args, $defaults ));
 
-	if ( strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
+	if ( $query && strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
 
 	$query = $bbdb->escape( $query );
@@ -1788,7 +1788,7 @@ function bb_user_search( $args = '' ) {
 		if ( $$field )
 			$fields[] = $field;
 
-	if ( $user_meta ) :
+	if ( $query && $user_meta ) :
 		$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
 		if ( empty($fields) )
 			$bb_last_countable_query .= " LIMIT $limit";
@@ -1802,19 +1802,20 @@ function bb_user_search( $args = '' ) {
 		endif;
 	endif;
 
-	$sql = "SELECT * FROM $bbdb->users WHERE ";
+	$sql = "SELECT * FROM $bbdb->users";
 
 	$sql_terms = array();
-	foreach ( $fields as $field )
-		$sql_terms[] = "$field LIKE ('%$likeit%')";
+	if ( $query )
+		foreach ( $fields as $field )
+			$sql_terms[] = "$field LIKE ('%$likeit%')";
 
 	if ( $user_meta_ids )
 		$sql_terms[] = "ID IN (". join(',', $user_meta_ids) . ")";
 
-	if ( empty($sql_terms) )
+	if ( $query && empty($sql_terms) )
 		return new WP_Error( 'invalid-query', __('Your query parameters are invalid') );
 
-	$bb_last_countable_query = $sql .= implode(' OR ', $sql_terms) . " LIMIT $limit";
+	$bb_last_countable_query = $sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
 	
 	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
 		return bb_append_meta( $users, 'user' );
