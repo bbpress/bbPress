@@ -23,7 +23,7 @@ header( 'Content-Type: text/html; charset=utf-8' );
 </head>
 
 <body>
-<h1 id="logo"><img alt="bbPress" src="http://bbpress.org/bbpress.png" /></h1>
+<h1 id="logo"><img alt="bbPress" src="../bb-images/bbpress-large.png" /></h1>
 <?php
 // Let's check to make sure bb isn't already installed.
 $bbdb->hide_errors();

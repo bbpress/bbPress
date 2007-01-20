@@ -24,7 +24,7 @@ p, li, dt {
 
 ul, ol { padding: 5px 5px 5px 20px; }
 
-#logo { margin-bottom: 2em; }
+#logo { margin: 2em 0; }
 
 .step a, .step input { font-size: 2em; }
 
