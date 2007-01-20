@@ -1762,17 +1762,20 @@ function bb_parse_args( $args, $defaults = '' ) {
 
 /* Searh Functions */
 function bb_user_search( $args = '' ) {
-	global $page, $bbdb, $bb_last_countable_query;
+	global $bbdb, $bb_last_countable_query;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
 
-	$defaults = array( 'query' => '', 'append_meta' => true, 'user_login' => true, 'display_name' => true, 'user_nicename' => false, 'user_url' => true, 'user_email' => false, 'user_meta' => false, 'users_per_page' => false );
+	$defaults = array( 'query' => '', 'append_meta' => true, 'user_login' => true, 'display_name' => true, 'user_nicename' => false, 'user_url' => true, 'user_email' => false, 'user_meta' => false, 'users_per_page' => false, 'page' => false );
 
 	extract(bb_parse_args( $args, $defaults ));
 
 	if ( $query && strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
+
+	if ( !$page )
+		$page = $GLOBALS['page'];
 
 	$query = $bbdb->escape( $query );
 
@@ -1816,7 +1819,7 @@ function bb_user_search( $args = '' ) {
 		return new WP_Error( 'invalid-query', __('Your query parameters are invalid') );
 
 	$bb_last_countable_query = $sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
-	
+
 	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
 		return bb_append_meta( $users, 'user' );
 
