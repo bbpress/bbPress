@@ -177,7 +177,6 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 
 	$last_post_ids = array();
 	$topic_ids = array();
-/*
 	foreach ( $_topics as $topic )
 		if ( is_object($topic) )
 			$last_post_ids[] = (int) $topic->topic_last_post_id;
@@ -185,9 +184,6 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 			$last_post_ids[] = (int) $bb_topic_cache[(int) $topic]->topic_last_post_id;
 		else if ( is_numeric($topic) )
 			$topic_ids[] = (int) $topic;
-*/
-	foreach ( $_topics as $topic )
-		$topic_ids[] = (int) $topic->topic_id;
 
 	if ( !empty($last_post_ids) ) {
 		$_last_post_ids = join(',', $last_post_ids);
