@@ -114,13 +114,13 @@ function tag_sanitize( $tag ) {
 	return sanitize_with_dashes( $tag );
 }
 
-function sanitize_with_dashes( $text ) {
+function sanitize_with_dashes( $text ) { // Multibyte aware
 	$text = strip_tags($text);
 	$text = remove_accents($text);
 
 	$text = strtolower($text);
-	$text = preg_replace('/&.+?;/', '', $text); // kill entities
-	$text = preg_replace('/[^a-z0-9 _-]/', '', $text);
+	$text = preg_replace('/&(^\x80-\xff)+?;/', '', $text); // kill entities
+	$text = preg_replace('/[^a-z0-9\x80-\xff _-]/', '', $text);
 	$text = preg_replace('/\s+/', '-', $text);
 	$text = preg_replace(array('|-+|', '|_+|'), array('-', '_'), $text); // Kill the repeats
 
