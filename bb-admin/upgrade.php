@@ -288,4 +288,5 @@ function deslash($content) {
 }
 
 printf(__('%1$d queries and %2$s seconds.'), $bbdb->num_queries, bb_timer_stop(0));
+$bb_cache->flush_all();
 ?>
