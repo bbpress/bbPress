@@ -7,7 +7,7 @@
 
 </div>
 
-<?php do_action('bb_admin_footer', ''); ?>
+<?php do_action('bb_admin_footer'); ?>
 
 </body>
 </html>

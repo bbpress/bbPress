@@ -6,7 +6,7 @@
 	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style.css" type="text/css" />
 <?php global $bb_locale; if ( ('rtl' == $bb_locale->text_direction) ) : ?>
 	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style-rtl.css" type="text/css" />
-<?php endif; ?>
+<?php endif; do_action( 'bb_admin_head' ); ?>
 </head>
 
 <body>

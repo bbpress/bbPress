@@ -1,9 +1,9 @@
 <?php
 
 function bb_get_admin_header() {
-	do_action('bb_admin-header.php', '');
+	do_action('bb_admin-header.php');
 	include('admin-header.php');
-	do_action('bb_get_admin_header', '');
+	do_action('bb_get_admin_header');
 }
 
 function bb_get_admin_footer() {
