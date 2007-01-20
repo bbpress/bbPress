@@ -208,10 +208,11 @@ class BB_User_Search {
 	var $total_users_for_query = 0;
 	var $search_errors;
 
-	function BB_User_Search ($search_term = '', $page = '') { // constructor
-		$this->search_term = stripslashes($search_term);
+	function BB_User_Search ($search_term = false, $page = 1 ) { // constructor
+		$this->search_term = $search_term ? stripslashes($search_term) : false;
 		$this->raw_page = ( '' == $page ) ? false : (int) $page;
-		$this->page = (int) ( '' == $page ) ? 1 : $page;
+		$page = (int) $page;
+		$this->page = $page < 2 ? 1 : $page;
 
 		$this->prepare_query();
 		$this->query();
@@ -226,10 +227,16 @@ class BB_User_Search {
 
 	function query() {
 		global $bbdb;
-		$users = bb_user_search( "query=$this->search_term&user_email=1&users_per_page=$this->users_per_page" );
+		$users = bb_user_search( array(
+				'query' => $this->search_term,
+				'user_email' => true,
+				'users_per_page' => $this->users_per_page,
+				'page' => $this->page
+		) );
+
 		if ( is_wp_error($users) )
 			$this->search_errors = $users;
-		else 
+		else if ( $users )
 			foreach ( (array) $users as $user )
 				$this->results[] = $user->ID;
 

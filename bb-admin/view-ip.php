@@ -1,5 +1,5 @@
 <?php
-require('admin-action.php');
+require('admin.php');
 
 if ( !bb_current_user_can('view_by_ip') ) {
 	wp_redirect( bb_get_option( 'uri' ) );
@@ -10,7 +10,7 @@ $ip = preg_replace('/[^0-9\.]/', '', $_GET['ip']);
 
 $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_ip = '$ip' ORDER BY post_time DESC LIMIT 30");
 
-require('head.php');
+bb_get_admin_header();
 ?>
 <h2><?php _e('IP Information'); ?></h2>
 <h3><?php _e('Last 30 posts'); ?></h3>
@@ -41,4 +41,4 @@ require('head.php');
 <?php topic_pages(); ?>
 </div>
 <?php endif; ?>
-<?php require('foot.php'); ?>
+<?php bb_get_admin_footer(); ?>
