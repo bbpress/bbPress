@@ -82,6 +82,128 @@ function get_sticky_topics( $forum = 0, $display = 1 ) {
 	else	return false;
 }
 
+
+// Globalizes the result.
+function bb_get_first_post( $_topic = false, $author_cache = true ) {
+	global $topic, $bb_first_post_cache, $bb_post;
+	if ( !$_topic )
+		$topic_id = (int) $topic->topic_id;
+	else if ( is_object($_topic) )
+		$topic_id = (int) $_topic->topic_id;
+	else if ( is_numeric($_topic) )
+		$topic_id = (int) $_topic;
+
+	if ( !$topic_id )
+		return false;
+
+	if ( isset($bb_first_post_cache[$topic_id]) ) {
+		$post = bb_get_post( $bb_first_post_cache[$topic_id] );
+	} else {
+		$first_posts = bb_cache_first_posts( array($topic_id), $author_cache );
+		if ( isset($first_posts[$topic_id]) )
+			$post = $first_posts[$topic_id];
+	}
+
+	if ( $post ) {
+		$bb_post = $post;
+		return $bb_post;
+	}
+
+	return false;
+}
+
+// Ignore the return value.  Cache first posts with this function and use bb_get_first_post to grab each.
+function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
+	global $topics, $bb_first_post_cache, $bb_cache, $bbdb;
+	if ( !$_topics )
+		$_topics =& $topics;
+	if ( !is_array($_topics) )
+		return false;
+
+	$topic_ids = array();
+	foreach ( $_topics as $topic )
+		if ( is_object($topic) )
+			$topic_ids[] = (int) $topic->topic_id;
+		else if ( is_numeric($topic) )
+			$topic_ids[] = (int) $topic;
+
+	$_topic_ids = join(',', $topic_ids);
+
+	$posts = (array) $bb_cache->cache_posts( "SELECT * FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND post_position = 1 AND post_status = 0" );
+
+	$first_posts = array();
+	foreach ( $posts as $post ) {
+		$bb_first_post_cache[(int) $post->topic_id] = (int) $post->post_id;
+		$first_posts[(int) $post->topic_id] = $post;
+	}
+
+	if ( $author_cache )
+		post_author_cache( $posts );
+
+	return $first_posts;
+}
+
+// Globalizes the result
+function bb_get_last_post( $_topic = false, $author_cache = true ) {
+	global $topic, $bb_post;
+	if ( !$_topic )
+		$topic_id = (int) $topic->topic_id;
+	else if ( is_object($_topic) )
+		$topic_id = (int) $_topic->topic_id;
+	else if ( is_numeric($_topic) )
+		$topic_id = (int) $_topic;
+
+	if ( !$topic_id )
+		return false;
+
+	$_topic = get_topic( $topic_id );
+
+	if ( $post = bb_get_post( $_topic->topic_last_post_id ) ) {
+		if ( $author_cache )
+			post_author_cache( array($post) );
+		$bb_post = $post;
+	}
+
+	return $post;
+}
+
+// No return value. Cache last posts with this function and use bb_get_last_post to grab each.
+function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
+	global $topics, $bb_topic_cache, $bb_cache, $bbdb;
+	if ( !$_topics )
+		$_topics =& $topics;
+	if ( !is_array($_topics) )
+		return false;
+
+	$last_post_ids = array();
+	$topic_ids = array();
+/*
+	foreach ( $_topics as $topic )
+		if ( is_object($topic) )
+			$last_post_ids[] = (int) $topic->topic_last_post_id;
+		else if ( is_numeric($topic) && isset($bb_topic_cache[(int) $topic]) && $bb_topic_cache[(int) $topic] )
+			$last_post_ids[] = (int) $bb_topic_cache[(int) $topic]->topic_last_post_id;
+		else if ( is_numeric($topic) )
+			$topic_ids[] = (int) $topic;
+*/
+	foreach ( $_topics as $topic )
+		$topic_ids[] = (int) $topic->topic_id;
+
+	if ( !empty($last_post_ids) ) {
+		$_last_post_ids = join(',', $last_post_ids);
+		$posts = (array) $bb_cache->cache_posts( "SELECT * FROM $bbdb->posts WHERE post_id IN ($_last_post_ids) AND post_status = 0" );
+		if ( $author_cache )
+			post_author_cache( $posts );
+	}
+
+	if ( !empty($topic_ids) ) {	
+		$_topic_ids = join(',', $topic_ids);
+		$posts = (array) $bb_cache->cache_posts( "SELECT p.* FROM $bbdb->topics AS t LEFT JOIN $bbdb->posts AS p ON ( t.topic_last_post_id = p.post_id ) WHERE t.topic_id IN ($_topic_ids) AND p.post_status = 0" );
+		if ( $author_cache )
+			post_author_cache( $posts );
+	}
+}
+
 function no_replies( $where ) {
 	return $where . ' AND topic_posts = 1 ';
 }
@@ -462,7 +584,7 @@ function bb_get_user( $user_id, $cache = true ) {
 }
 
 function bb_cache_users( $ids, $soft_cache = true ) {
-	global $bb_cache;
+	global $bb_cache, $bb_user_cache;
 	if ( $soft_cache )
 		foreach( $ids as $i => $d )
 			if ( isset($bb_user_cache[$d]) )
