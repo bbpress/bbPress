@@ -13,10 +13,13 @@ function bb_load_template( $file, $globals = false ) {
 				global $$v;
 
 	if ( file_exists( bb_get_active_theme_folder() .  "/$file") ) {
-		include( bb_get_active_theme_folder() .  "/$file" );
+		$template = bb_get_active_theme_folder() .  "/$file";
 	} else {
-		include( BBPATH . "bb-templates/kakumei/$file" );
+		$template = BBPATH . "bb-templates/kakumei/$file";
 	}
+
+	$template = apply_filters( 'bb_template', $template, $file );
+	include($template);
 }
 
 function bb_get_template( $file ) {
