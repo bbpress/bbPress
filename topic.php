@@ -40,7 +40,6 @@ endif;
 
 do_action( 'bb_topic.php', $topic_id );
 
-if (file_exists( BBPATH . 'my-templates/topic.php' ))
-	require( BBPATH . 'my-templates/topic.php' );
-else	require( BBPATH . 'bb-templates/topic.php' );
+bb_load_template( 'topic.php', array('bb_db_override', 'user_tags', 'other_tags', 'list_start') );
+
 ?>

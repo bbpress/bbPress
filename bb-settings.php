@@ -52,7 +52,9 @@ define('BBINC', 'bb-includes');
 if ( !defined('BBLANGDIR') )
 	define('BBLANGDIR', BBINC . '/languages'); // no leading slash, no trailing slash
 if ( !defined('BBPLUGINDIR') )
-	define('BBPLUGINDIR', BBPATH . 'my-plugins');       // no leading slash, no trailing slash
+	define('BBPLUGINDIR', BBPATH . 'my-plugins'); // no leading slash, no trailing slash
+if ( !defined('BBTHEMEDIR') )
+	define('BBTHEMEDIR', BBPATH . 'my-templates'); // no leading slash, no trailing slash
 
 if ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . '/db-mysqli.php');

@@ -111,9 +111,6 @@ if ($_POST) :
 	endif;
 endif;
 
-if ( file_exists(BBPATH . 'my-templates/profile-edit.php') ) {
-	require( BBPATH . 'my-templates/profile-edit.php' );
-} else {
-	require( BBPATH . 'bb-templates/profile-edit.php' );
-}
+bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'updated', 'user_email', 'bb_roles') );
+
 ?>

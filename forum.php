@@ -19,8 +19,6 @@ endif;
 
 do_action( 'bb_forum.php', $forum_id );
 
-if (file_exists( BBPATH . 'my-templates/forum.php' ))
-	require( BBPATH . 'my-templates/forum.php' );
-else	require( BBPATH . 'bb-templates/forum.php' );
+bb_load_template( 'forum.php', array('bb_db_override', 'stickies') );
 
 ?>

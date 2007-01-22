@@ -62,7 +62,6 @@ bb_send_304( $posts[0]->post_time );
 add_filter('post_link', 'wp_specialchars');
 add_filter('post_text', 'htmlspecialchars');
 
-if (file_exists( BBPATH . 'my-templates/rss2.php'))
-	require( BBPATH . 'my-templates/rss2.php' );
-else	require( BBPATH . 'bb-templates/rss2.php' );
+bb_load_template( 'rss2.php', array('bb_db_override', 'title') );
+
 ?>

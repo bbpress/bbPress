@@ -86,7 +86,7 @@ function load_plugin_textdomain($domain, $path = false) {
 function load_theme_textdomain($domain) {
 	$locale = get_locale();
 
-	$mofile = BBPATH . "my-templates/$locale.mo";
+	$mofile = bb_get_template( "$locale.mo" );
 	load_textdomain($domain, $mofile);
 }
 

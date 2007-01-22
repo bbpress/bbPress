@@ -17,6 +17,7 @@ function bb_admin_menu_generator() {
 	$bb_menu[0] = array(__('Dashboard'), 'moderate', 'index.php');
 	$bb_menu[5] = array(__('Users'), 'moderate', 'users.php');
 	$bb_menu[10] = array(__('Content'), 'moderate', 'content.php');
+	$bb_menu[13] = array(__('Presentation'), 'use_keys', 'themes.php');
 	$bb_menu[15] = array(__('Site Management'), 'use_keys', 'site.php');
 
 	$bb_submenu = array();
@@ -27,6 +28,8 @@ function bb_admin_menu_generator() {
 	$bb_submenu['content.php'][5] = array(__('Topics'), 'moderate', 'content.php');
 	$bb_submenu['content.php'][10] = array(__('Posts'), 'moderate', 'content-posts.php');
 	$bb_submenu['content.php'][15] = array(__('Forums'), 'moderate', 'content-forums.php');
+
+	$bb_submenu['themes.php'][5] = array(__('Themes'), 'use_keys', 'themes.php');
 
 	$bb_submenu['site.php'][5] = array(__('Recount'), 'recount', 'site.php');
 

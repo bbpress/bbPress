@@ -42,9 +42,5 @@ $threads = get_recent_user_threads( $user_id );
 
 do_action( 'bb_profile.php', $user_id );
 
-if ( file_exists(BBPATH . 'my-templates/profile.php') ) {
-	require( BBPATH . 'my-templates/profile.php' );
-} else {
-	require( BBPATH . 'bb-templates/profile.php' );
-}
+bb_load_template( 'profile.php', array('reg_time', 'profile_info_keys', 'updated', 'threads') );
 ?>

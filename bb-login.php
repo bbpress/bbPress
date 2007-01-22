@@ -22,11 +22,7 @@ if ( !bb_is_user_logged_in() && !$user = bb_login( @$_POST['user_login'], @$_POS
 	$user_exists = bb_user_exists( @$_POST['user_login'] );
 	$user_login  = user_sanitize ( @$_POST['user_login'] );
 	$redirect_to = wp_specialchars( $re, 1 );
-	if ( file_exists( BBPATH . 'my-templates/login.php' ) ) {
-		include( BBPATH . 'my-templates/login.php' );
-	} else {
-		include( BBPATH . 'bb-templates/login.php' );
-	}
+	bb_load_template( 'login.php', array('re', 'user_exists', 'user_login', 'redirect_to', 'ref') );
 	exit;
 }
 

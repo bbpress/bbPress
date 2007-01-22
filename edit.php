@@ -23,10 +23,7 @@ if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $top
 else 
 	$topic_title = false;
 
-if ( file_exists(BBPATH . 'my-templates/edit-post.php') ) {
-	require( BBPATH . 'my-templates/edit-post.php' );
-} else {
-	require( BBPATH . 'bb-templates/edit-post.php' );
-}
+
+bb_load_template( 'edit-post.php', array('topic_title') );
 
 ?>

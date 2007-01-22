@@ -8,12 +8,9 @@ if ( !is_bb_profile() ) {
 
 do_action($self . '_pre_head', '');
 
-if ( function_exists($self) ) {
-	if ( file_exists(BBPATH . 'my-templates/profile-base.php') ) {
-		require( BBPATH . 'my-templates/profile-base.php' );
-	} else {
-		require( BBPATH . 'bb-templates/profile-base.php' );
-	}
-}
+
+if ( function_exists($self) )
+	bb_load_template( 'profile-base.php', array('self') );
+
 exit();
 ?>

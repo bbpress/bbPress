@@ -17,9 +17,5 @@ if ( isset( $_GET['key'] ) ) :
 	$reset = true;
 endif;
 
-if ( file_exists( BBPATH . 'my-templates/password-reset.php') ) {
-	require( BBPATH . 'my-templates/password-reset.php');
-} else {
-	require( BBPATH . 'bb-templates/password-reset.php');
-}
+bb_load_template( 'password-reset.php', array('reset', 'user_login', 'reset') );
 ?>

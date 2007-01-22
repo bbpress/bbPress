@@ -22,7 +22,7 @@ default :
 endswitch;
 
 do_action( 'bb_view.php', '' );
-if (file_exists( BBPATH . 'my-templates/view.php' ))
-	require( BBPATH . 'my-templates/view.php' );
-else	require( BBPATH . 'bb-templates/view.php' );
+
+bb_load_template( 'view.php', array('view_count', 'stickies') );
+
 ?>

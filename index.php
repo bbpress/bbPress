@@ -15,8 +15,6 @@ endif;
 
 do_action( 'bb_index.php', '' );
 
-if (file_exists( BBPATH . 'my-templates/front-page.php' ))
-	require( BBPATH . 'my-templates/front-page.php' );
-else	require( BBPATH . 'bb-templates/front-page.php' );
+bb_load_template( 'front-page.php', array('bb_db_override', 'super_stickies') );
 
 ?>
