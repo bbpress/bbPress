@@ -1,9 +1,6 @@
 <?php
 define('BB_INSTALLING', true);
-if (!file_exists('../config.php'))
-    die('There doesn&#8217;t seem to be a <code>config.php</code> file. I need this before we can get started.');
-
-require_once('../config.php');
+require_once('../bb-load.php');
 
 $step = isset($_GET['step']) ? (int) $_GET['step'] : 0 ;
 	if ( 2 == $step && isset($_POST['new_keymaster']) && 'new' == $_POST['new_keymaster'] )

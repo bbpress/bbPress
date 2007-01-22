@@ -1,4 +1,4 @@
-<?php @require_once('../../config.php'); cache_javascript_headers(); ?>
+<?php @require_once('../../bb-load.php'); cache_javascript_headers(); ?>
 var WPAjax = Class.create();
 Object.extend(WPAjax.prototype, Ajax.Request.prototype);
 Object.extend(WPAjax.prototype, {

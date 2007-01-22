@@ -1,4 +1,4 @@
-<?php @require_once('../../config.php'); cache_javascript_headers(); ?>
+<?php @require_once('../../bb-load.php'); cache_javascript_headers(); ?>
 addLoadEvent( function() { // Posts
 	thePostList = new listMan('thread');
 	thePostList.alt = 'alt';

@@ -55,7 +55,8 @@ $bb->wp_siteurl = '';  // WordPress - Options->General: WordPress address (URL) 
 
 /* Stop editing */
 
-define('BBPATH', dirname(__FILE__) . '/' );
+if ( !defined('BBPATH') )
+	define('BBPATH', dirname(__FILE__) . '/' );
 require_once( BBPATH . 'bb-settings.php' );
 
 ?>
