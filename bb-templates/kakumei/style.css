@@ -196,11 +196,15 @@ form.login input {
 
 .infobox ul li { padding-bottom: 3px; }
 
+#topic-info {
+	float: left;
+	padding: 0 1em 0 0;
+}
+
 #topic-tags {
 	border-left: 1px solid #ccc;
 	float: right;
-	margin-top: -2em;
-	padding: 0 1em 1em;
+	padding: 0 0 0 1em;
 }
 
 .nav {

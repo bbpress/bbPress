@@ -11,7 +11,7 @@ fieldset table { text-align: right; }
 
 .submit, #header h1 { text-align: left; }
 
-.left, #manage-tags li, .login label, .login #submit { float: right; }
+.left, #manage-tags li, .login label, .login #submit, #topic-info { float: right; }
 
 #front-page #hottags, .login { left: auto; right: 0; }
 
@@ -68,7 +68,11 @@ fieldset { padding: 10px 10px 0 10px; }
 #topic-tags {
 	border-left: 0;
 	border-right: 1px solid #ccc;
-	padding: 0 1em 1em 1em;
+	padding: 0 1em 0 0;
+}
+
+#topic-info {
+	padding: 0 0 0 1em;
 }
 
 #header h1 { 
