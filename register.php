@@ -33,11 +33,8 @@ if ($_POST) :
 			if ( strpos($key, 'user_') !== 0 && $$key !== '' )
 				bb_update_usermeta( $user_id, $key, $$key );
 		do_action('register_user', $user_id);
-		if ( file_exists( BBPATH . 'bb-templates/' . get_bb_default_theme_folder() .  '/register-success.php' ) ) {
-			require( BBPATH . 'bb-templates/' . get_bb_default_theme_folder() .  '/register-success.php' );
-		} else {
-			require( BBPATH . 'bb-templates/default/register-success.php' );
-		}
+
+		bb_load_template( 'register-success.php' );
 		exit();	
 	endif;
 endif;
