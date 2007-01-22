@@ -252,6 +252,11 @@ if ( !$forum_name = $_POST['forum_name'] )
 require_once('upgrade-schema.php');
 require_once( BBPATH . BBINC . '/registration-functions.php');
 
+function get_keymaster_password($user_id, $pass) {
+	global $password;
+	$password = $pass;
+}
+
 // Fill in the data we gathered
 // KeyMaster
 if ( isset($_POST['old_keymaster']) ) :
@@ -268,7 +273,9 @@ elseif ( isset($_POST['new_keymaster']) ) :
 else :
 	if ( isset( $_POST['admin_url'] ) )
 		$admin_url = bb_fix_link( $_POST['admin_url'] );
-	list($user_id, $password) = bb_new_user( $admin_login, bb_get_option( 'admin_email' ), $admin_url );
+	add_action('bb_new_user','get_keymaster_password',10,2);
+	global $password;
+	$user_id = bb_new_user( $admin_login, bb_get_option( 'admin_email' ), $admin_url );
 	$bb_current_user = bb_set_current_user( $user_id );
 	if ( strlen( $_POST['admin_loc'] ) > 0 )
 		bb_update_usermeta( 1, 'from', $_POST['admin_loc'] );

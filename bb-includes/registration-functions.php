@@ -20,31 +20,6 @@ function bb_verify_email( $email ) {
 	return apply_filters( 'bb_verify_email', $r, $email );
 }
 
-function bb_new_user( $user_login, $email, $url ) {
-	global $bbdb, $bb_table_prefix;
-	$now       = bb_current_time('mysql');
-	$password  = bb_random_pass();
-	$passcrypt = md5( $password );
-
-	$bbdb->query("INSERT INTO $bbdb->users
-	(user_login,     user_pass, user_email,  user_url, user_registered)
-	VALUES
-	('$user_login', '$passcrypt', '$email', '$url',   '$now')");
-	
-	$user_id = $bbdb->insert_id;
-
-	if ( defined( 'BB_INSTALLING' ) ) {
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('keymaster' => true) );
-		do_action('bb_new_user', $user_id);
-		return array($user_id, $password);
-	} else {		
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('member' => true) );
-		bb_send_pass( $user_id, $password );
-		do_action('bb_new_user', $user_id);
-		return $user_id;
-	}
-}
-
 function bb_update_user( $user_id, $email, $url ) {
 	global $bbdb, $bb_cache;
 
