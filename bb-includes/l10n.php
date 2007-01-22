@@ -79,7 +79,7 @@ function load_plugin_textdomain($domain, $path = false) {
 	if ( false === $path )
 		$path = BBPLUGINDIR;
 
-	$mofile = BBPATH . "$path/$domain-$locale.mo";
+	$mofile = BBPATH . basename(BBPLUGINDIR) . "$path/$domain-$locale.mo";
 	load_textdomain($domain, $mofile);
 }
 

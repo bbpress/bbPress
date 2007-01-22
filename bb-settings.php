@@ -52,7 +52,7 @@ define('BBINC', 'bb-includes');
 if ( !defined('BBLANGDIR') )
 	define('BBLANGDIR', BBINC . '/languages'); // no leading slash, no trailing slash
 if ( !defined('BBPLUGINDIR') )
-	define('BBPLUGINDIR', 'my-plugins');       // no leading slash, no trailing slash
+	define('BBPLUGINDIR', BBPATH . 'my-plugins');       // no leading slash, no trailing slash
 
 if ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . '/db-mysqli.php');
@@ -108,7 +108,7 @@ $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-$plugins = glob( BBPATH . BBPLUGINDIR . '/*.php');
+$plugins = glob( BBPLUGINDIR . '/*.php');
 if ( $plugins ) : foreach ( $plugins as $plugin ) :
 	require($plugin);
 endforeach; endif;
