@@ -124,6 +124,7 @@ upgrade_160();
 
 upgrade_170(); // Escaping in usermeta
 upgrade_180(); // Delete users for real
+upgrade_190(); // Move topic_resolved to topicmeta
 
 //alter user table column names
 function upgrade_100() {
@@ -260,7 +261,7 @@ function upgrade_170() {
 
 function upgrade_180() {
 	if ( ( $dbv = bb_get_option( 'bb_db_version' ) ) && $dbv >= 559 )
-                return;
+		return;
 
 	global $bbdb;
 
@@ -268,6 +269,23 @@ function upgrade_180() {
 		bb_delete_user( $user_id );
 	bb_update_option( 'bb_db_version', 559 );
 	echo "Done clearing deleted users<br />";
+}
+
+function upgrade_190() {
+	if ( ( $dbv = bb_get_option( 'bb_db_version' ) ) && $dbv >= 630 )
+		return;
+
+	global $bbdb;
+	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_resolved FROM $bbdb->topics" );
+	foreach ( $topics  as $topic )
+		bb_update_topicmeta( $topic->topic_id, 'topic_resolved', $topic->topic_resolved );
+	unset($topics,$topic);
+
+	$bbdb->query("ALTER TABLE $bbdb->topics DROP topic_resolved");
+
+	bb_update_option( 'bb_db_version', 630 );
+
+	echo "Done converting topic_resolved.<br />";
 }
 
 function deslash($content) {
