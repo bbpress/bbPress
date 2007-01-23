@@ -135,13 +135,14 @@ function post_form( $h2 = '' ) {
 			echo "<input type='hidden' name='forum_id' value='$forum->forum_id' />\n";
 		else if ( is_topic() )
 			echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n";
+		do_action('post_form');	
 		echo "\n</form>";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
 		printf(__('You must <a href="%s">log in</a> to post.'), bb_get_option('uri') . 'bb-login.php');
 		echo '</p>';
 	}
-	do_action('post_form');
+	do_action('post_post_form');
 }
 
 function edit_form() {
