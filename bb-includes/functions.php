@@ -1874,7 +1874,7 @@ function bb_get_active_theme_folder() {
 function bb_get_themes() {
 	$r = array();
 
-	$theme_roots = array(BBPATH . 'bb-templates/', BBTHEMEDIR);
+	$theme_roots = array(BBPATH . 'bb-templates/', BBTHEMEDIR . '/');
 	foreach ( $theme_roots as $theme_root )
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
