@@ -409,5 +409,6 @@ HEAD;
 	}
 }
 
-$bbdb = new bbdb(BBDB_USER, BBDB_PASSWORD, BBDB_NAME, BBDB_HOST);
+if ( !isset($bbdb) )
+	$bbdb = new bbdb(BBDB_USER, BBDB_PASSWORD, BBDB_NAME, BBDB_HOST);
 ?>
