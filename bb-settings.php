@@ -138,6 +138,10 @@ if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
 
 $bb_cache = new BB_Cache();
+	
+if ( TRUE == bb_get_option( 'use_cache' ) ){
+	$bb_cache->use_cache = TRUE;
+}
 
 // Load the default text localization domain.
 load_default_textdomain();
