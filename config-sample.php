@@ -25,10 +25,6 @@ $bb->admin_email = 'you@example.com';
 // Set to true if you want pretty permalinks.
 $bb->mod_rewrite = false;
 
-//  If you want to use caching, check if your server 
-// can write bb-cache folder and set this value to true
-$bb->use_cache = false;
-
 // The number of topics that show on each page.
 $bb->page_topics = 30;
 
