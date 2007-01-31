@@ -9,9 +9,11 @@ endif;
 /* Formatting */
 
 if ( !function_exists('wp_specialchars') ) :
-function wp_specialchars( $text, $quotes = 0 ) { // [3710]
+function wp_specialchars( $text, $quotes = 0 ) { // [4451]
 	// Like htmlspecialchars except don't double-encode HTML entities
-	$text = preg_replace('/&([^#])(?![a-z1-4]{1,8};)/', '&#038;$1', $text);
+	$text = str_replace('&&', '&#038;&', $text);
+	$text = str_replace('&&', '&#038;&', $text);
+	$text = preg_replace('/&(?:$|([^#])(?![a-z1-4]{1,8};))/', '&#038;$1', $text);
 	$text = str_replace('<', '&lt;', $text);
 	$text = str_replace('>', '&gt;', $text);
 	if ( 'double' === $quotes ) {
