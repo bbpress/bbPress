@@ -395,10 +395,6 @@ class BB_Users_By_Role extends BB_User_Search {
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
 	}
 
-	function display() {
-		parent::display( false, true );
-	}
-
 }
 
 function bb_get_plugin_data($plugin_file) {

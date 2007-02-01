@@ -270,7 +270,7 @@ function bozo_admin_page() {
 	}
 
 	$bozos = new BB_Bozo_Users( $_GET['userspage'] );
-	$bozos->display();
+	$bozos->display( false, bb_current_user_can( 'edit_users' ) );
 }
 
 add_filter( 'pre_post_status', 'bozo_pre_post_status', 5, 3 );
