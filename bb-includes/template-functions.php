@@ -114,7 +114,7 @@ function bb_post_template() {
 function post_form( $h2 = '' ) {
 	global $bb_current_user, $bb, $page, $topic, $forum;
 	$add = topic_pages_add();
-	if ( empty($h2) ) {
+	if ( empty($h2) && false !== $h2 ) {
 		if ( is_topic() )
 			$h2 =  __('Reply');
 		elseif ( is_forum() )
@@ -122,12 +122,18 @@ function post_form( $h2 = '' ) {
 		elseif ( is_tag() || is_front() )
 			$h2 = __('Add New Topic');
 	}
-	if ( !empty($h2) )
+
+	$last_page = get_page_number( $topic->topic_posts + $add );
+
+	if ( !empty($h2) ) {
+		if ( $page != $last_page )
+			$h2 = $h2 . ' <a href="' . get_topic_link( 0, $last_page ) . '#postform">&raquo;</a>';
 		echo "<h2 class='post-form'>$h2</h2>\n";
+	}
 
 	do_action('pre_post_form');
 
-	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == get_page_number( $topic->topic_posts + $add ) ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
+	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
 		echo "<form class='postform' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
 		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
