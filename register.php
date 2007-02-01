@@ -45,7 +45,7 @@ elseif ( isset( $_POST['user_login'] ) && !is_string($user_login) )
 	$user_login = '';
 
 $_globals = array('profile_info_keys', 'user_safe', 'user_login', 'user_email', 'user_url', 'bad_input');
-$_globals = array_merge($_globals, $profile_info_keys);
+$_globals = array_merge($_globals, array_keys($profile_info_keys));
 
 bb_load_template( 'register.php', $_globals );
 
