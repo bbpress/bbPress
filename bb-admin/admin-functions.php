@@ -247,6 +247,9 @@ class BB_User_Search {
 			$this->total_users_for_query = bb_count_last_query();
 		elseif ( !is_wp_error($this->search_errors) )
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+
+		if ( is_wp_error( $this->search_errors ) )
+			bb_admin_notice( join( "<br />\n", $this->search_errors->get_error_messages() ), 'error' );
 	}
 
 	function prepare_vars_for_template_usage() {
@@ -313,14 +316,6 @@ class BB_User_Search {
 			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . wp_specialchars( $this->search_term, 1) . "' />\n";
 			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
 			$r .= "</form>\n\n";
-		}
-
-		if ( is_wp_error( $this->search_errors ) ) {
-			$r .= "<div class='error'>\n";
-			$r .= "\t<ul>\n";
-			foreach ( $this->search_errors->get_error_messages() as $message )
-				$r .= "\t\t<li>$message</li>\n";
-			$r .= "\t</ul>\n</div>\n\n";
 		}
 
 		if ( $this->get_results() ) {
@@ -393,6 +388,9 @@ class BB_Users_By_Role extends BB_User_Search {
 			$this->total_users_for_query = bb_count_last_query();
 		else
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+
+		if ( is_wp_error( $this->search_errors ) )
+			bb_admin_notice( join( "<br />\n", $this->search_errors->get_error_messages() ), 'error' );
 	}
 
 }

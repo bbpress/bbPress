@@ -14,7 +14,7 @@ $themes = bb_get_themes();
 if ( !in_array($activetheme, $themes)) {
 	$activetheme = BBPATH . 'bb-templates/kakumei';
 	bb_update_option('bb_active_theme',$activetheme);
-	bb_admin_notice( __('Theme not found.  Default theme applied.') );
+	bb_admin_notice( __('Theme not found.  Default theme applied.'), 'error' );
 }
 
 bb_get_admin_header();

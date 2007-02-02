@@ -11,6 +11,14 @@ if ( 'delete' == $_GET['action'] ) {
 		wp_redirect( add_query_arg( array('action' => false, 'id' => false) ) );
 }
 
+if ( isset($_GET['message']) ) {
+	switch ( $_GET['message'] ) :
+	case 'deleted' :
+		bb_admin_notice( sprintf(__('Forum deleted.  You should have bbPress <a href="%s">recount your site information</a>.'), bb_get_option( 'uri' ) . 'bb-admin/site.php') );
+		break;
+	endswitch;
+}
+
 bb_get_admin_header();
 ?>
 
@@ -53,19 +61,7 @@ bb_get_admin_header();
 	</form>
 </div>
 <?php else: // action ?>
-<?php if ( isset($_GET['message']) ) : ?>
-<div class="updated">
-	<p>
-<?php
-switch ( $_GET['message'] ) :
-case 'deleted' :
-	printf(__('Forum deleted.  You should have bbPress <a href="%s">recount your site information</a>.'), bb_get_option( 'uri' ) . 'bb-admin/site.php');
-	break;
-endswitch;
-?>
-	</p>
-</div>
-<?php endif; ?>
+
 <form method="post" id="add-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
 	<h3><?php _e('Add forum'); ?></h3>
 	<fieldset>
