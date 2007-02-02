@@ -449,6 +449,12 @@ function bb_get_option( $option ) {
 	case 'version' :
 		return '0.8-alpha'; // Don't filter
 		break;
+	case 'html_type' :
+		$r = 'text/html';
+		break;
+	case 'charset' :
+		$r = 'UTF-8';
+		break;
 	case 'url' :
 		$option = 'uri';
 	default :
@@ -1534,6 +1540,12 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 	foreach ( (array) $tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit") as $tag )
 		$tag_cache[$tag->tag] = $tag;
 	return $tags;
+}
+
+
+function bb_send_headers() {
+	@header('Content-type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
+	do_action( 'bb_send_headers' );
 }
 
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
