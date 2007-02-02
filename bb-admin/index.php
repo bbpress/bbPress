@@ -1,4 +1,4 @@
-<?php require_once('admin.php'); require_once(BBPATH . BBINC . '/statistics-functions.php'); ?>
+<?php require_once('admin.php'); require_once(BBPATH . BBINC . 'statistics-functions.php'); ?>
 <?php bb_get_admin_header(); ?>
 
 <h2><?php _e('Dashboard'); ?></h2>

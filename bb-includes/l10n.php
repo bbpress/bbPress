@@ -69,17 +69,17 @@ function load_default_textdomain() {
 	global $l10n;
 
 	$locale = get_locale();
-	$mofile = BBPATH . BBLANGDIR . "/$locale.mo";
+	$mofile = BBLANGDIR . "$locale.mo";
 
 	load_textdomain('default', $mofile);
 }
 
-function load_plugin_textdomain($domain, $path = false) {
+function load_plugin_textdomain($domain, $path = false) { // optional path parameter is an absolute path
 	$locale = get_locale();
 	if ( false === $path )
 		$path = BBPLUGINDIR;
 
-	$mofile = BBPATH . basename(BBPLUGINDIR) . "$path/$domain-$locale.mo";
+	$mofile = "$path/$domain-$locale.mo";
 	load_textdomain($domain, $mofile);
 }
 

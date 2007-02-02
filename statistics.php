@@ -2,7 +2,7 @@
 
 require('./bb-load.php');
 
-require_once( BBPATH . BBINC . '/statistics-functions.php');
+require_once( BBPATH . BBINC . 'statistics-functions.php');
 
 $popular = get_popular_topics();
 

@@ -375,3 +375,47 @@ thead, .thead {
 	margin: 0 0 .3em .6em;
 	padding: 0 0 0 .6em;
 }
+
+/* Themes */
+
+.theme-list {
+	list-style: none;
+}
+
+.theme-list div.screen-shot {
+	width: 250px;
+	height: 188px;
+	float: left;
+	margin-right: 1ex;
+	border: 1px solid #666;
+}
+
+.theme-list.active div.screen-shot {
+	width: 300px;
+	height: 225px;
+}
+
+.theme-list div.screen-shot a {
+	text-decoration: none;
+	border: none;
+}
+
+.theme-list div.screen-shot img { width: 100% }
+
+.theme-list .description { float: left; }
+
+.theme-list li { padding: 1ex; }
+
+.theme-list.active li { background-color: #f0fff8; }
+
+.theme-list h3 {
+	margin-top: 0;
+	display: inline;
+}
+
+br.clear {
+	clear: both;
+	height: 1px;
+	font-size: 1px;
+	line-height: 1px;
+}

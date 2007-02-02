@@ -12,8 +12,8 @@ function bb_load_template( $file, $globals = false ) {
 			else
 				global $$v;
 
-	if ( file_exists( bb_get_active_theme_folder() .  "/$file") ) {
-		$template = bb_get_active_theme_folder() .  "/$file";
+	if ( file_exists( bb_get_active_theme_folder() .  $file) ) {
+		$template = bb_get_active_theme_folder() .  $file;
 	} else {
 		$template = BBPATH . "bb-templates/kakumei/$file";
 	}
@@ -23,8 +23,8 @@ function bb_load_template( $file, $globals = false ) {
 }
 
 function bb_get_template( $file ) {
-	if ( file_exists( bb_get_active_theme_folder() .  "/$file") )
-		return bb_get_active_theme_folder() .  "/$file";
+	if ( file_exists( bb_get_active_theme_folder() .  $file) )
+		return bb_get_active_theme_folder() .  $file;
 	return BBPATH . "bb-templates/kakumei/$file";
 }
 
@@ -57,12 +57,19 @@ function bb_get_stylesheet_uri( $stylesheet = '' ) {
 
 	$active_theme = bb_get_active_theme_folder();
 
-	if ( file_exists( "$active_theme/style.css" ) ) {
-		$path = substr($active_theme, strlen(BBPATH));
-		$r = bb_get_option('uri') . "$path/$css_file";
-	} else
-		$r = bb_get_option('uri') . "bb-templates/default/$css_file";
+	if ( file_exists( $active_theme . 'style.css' ) )
+		$r = bb_get_active_theme_uri() . $css_file;
+	else
+		$r = bb_get_option( 'uri' ) . "bb-templates/kakumei/$css_file";
 	return apply_filters( 'bb_get_stylesheet_uri', $r, $stylesheet );
+}
+
+function bb_active_theme_uri() {
+	echo bb_get_active_theme_uri();
+}
+
+function bb_get_active_theme_uri() {
+	return apply_filters( 'bb_get_active_theme_uri', bb_path_to_url( bb_get_active_theme_folder() ) );
 }
 
 function bb_get_footer() {

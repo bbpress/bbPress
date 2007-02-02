@@ -48,18 +48,18 @@ if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 
 error_reporting(E_ALL ^ E_NOTICE);
 
-define('BBINC', 'bb-includes');
+define('BBINC', 'bb-includes/');
 if ( !defined('BBLANGDIR') )
-	define('BBLANGDIR', BBINC . '/languages'); // no leading slash, no trailing slash
+	define('BBLANGDIR', BBPATH . BBINC . 'languages/'); // absolute path with trailing slash
 if ( !defined('BBPLUGINDIR') )
-	define('BBPLUGINDIR', BBPATH . 'my-plugins'); // no leading slash, no trailing slash
+	define('BBPLUGINDIR', BBPATH . 'my-plugins/');
 if ( !defined('BBTHEMEDIR') )
-	define('BBTHEMEDIR', BBPATH . 'my-templates'); // no leading slash, no trailing slash
+	define('BBTHEMEDIR', BBPATH . 'my-templates/');
 
 if ( extension_loaded('mysqli') ) {
-	require( BBPATH . BBINC . '/db-mysqli.php');
+	require( BBPATH . BBINC . 'db-mysqli.php');
 } else {
-	require( BBPATH . BBINC . '/db.php');
+	require( BBPATH . BBINC . 'db.php');
 }
 
 $bbdb->forums    = $bb_table_prefix . 'forums';
@@ -76,26 +76,26 @@ foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'w
 		$bb->$o = false;
 unset($o);
 
-require( BBPATH . BBINC . '/functions.php');
-require( BBPATH . BBINC . '/formatting-functions.php');
-require( BBPATH . BBINC . '/template-functions.php');
-require( BBPATH . BBINC . '/capabilities.php');
-require( BBPATH . BBINC . '/cache.php');
-require( BBPATH . BBINC . '/deprecated.php');
-require( BBPATH . BBINC . '/wp-functions.php');
+require( BBPATH . BBINC . 'functions.php');
+require( BBPATH . BBINC . 'formatting-functions.php');
+require( BBPATH . BBINC . 'template-functions.php');
+require( BBPATH . BBINC . 'capabilities.php');
+require( BBPATH . BBINC . 'cache.php');
+require( BBPATH . BBINC . 'deprecated.php');
+require( BBPATH . BBINC . 'wp-functions.php');
 if ( defined('BBLANG') && '' != constant('BBLANG') ) {
-	include_once(BBPATH . BBINC . '/streams.php');
-	include_once(BBPATH . BBINC . '/gettext.php');
+	include_once(BBPATH . BBINC . 'streams.php');
+	include_once(BBPATH . BBINC . 'gettext.php');
 }
 if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
-	require( BBPATH . BBINC . '/kses.php');
-	require( BBPATH . BBINC . '/l10n.php');
+	require( BBPATH . BBINC . 'kses.php');
+	require( BBPATH . BBINC . 'l10n.php');
 }
-require( BBPATH . BBINC . '/bozo.php');
-require( BBPATH . BBINC . '/akismet.php');
-require( BBPATH . BBINC . '/default-filters.php');
-require( BBPATH . BBINC . '/script-loader.php');
-require( BBPATH . BBINC . '/compat.php');
+require( BBPATH . BBINC . 'bozo.php');
+require( BBPATH . BBINC . 'akismet.php');
+require( BBPATH . BBINC . 'default-filters.php');
+require( BBPATH . BBINC . 'script-loader.php');
+require( BBPATH . BBINC . 'compat.php');
 
 $bbdb->hide_errors();
 if ( !$bbdb->query("SELECT * FROM $bbdb->forums LIMIT 1") && !strstr( $_SERVER['PHP_SELF'], 'install.php' ) )
@@ -110,13 +110,13 @@ $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-$plugins = glob( BBPLUGINDIR . '/*.php');
+$plugins = glob( BBPLUGINDIR . '*.php');
 if ( $plugins ) : foreach ( $plugins as $plugin ) :
 	require($plugin);
 endforeach; endif;
 do_action('bb_plugins_loaded', '');
 
-require( BBPATH . BBINC . '/pluggable.php');
+require( BBPATH . BBINC . 'pluggable.php');
 
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
@@ -143,7 +143,7 @@ $bb_cache = new BB_Cache();
 load_default_textdomain();
 
 // Pull in locale data after loading text domain.
-require_once(BBPATH . BBINC . '/locale.php');
+require_once(BBPATH . BBINC . 'locale.php');
 $bb_locale = new BB_Locale();
 
 $bb_roles  = new BB_Roles();

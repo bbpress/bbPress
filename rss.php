@@ -1,6 +1,6 @@
 <?php
 require('./bb-load.php');
-require_once( BBPATH . BBINC . '/feed-functions.php');
+require_once( BBPATH . BBINC . 'feed-functions.php');
 
 if ( isset($_GET['topic']) )
 	$topic_id = (int) $_GET['topic'];

@@ -10,11 +10,11 @@ class BB_Scripts {
 	}
 
 	function default_scripts() {
-		$this->add( 'fat', '/' . BBINC . '/js/fat.js', false, '1.0-RC1_3660' );
-		$this->add( 'prototype', '/' . BBINC . '/js/prototype.js', false, '1.5.0' );
-		$this->add( 'wp-ajax', '/' . BBINC . '/js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
-		$this->add( 'listman', '/' . BBINC . '/js/list-manipulation-js.php', array('wp-ajax', 'fat'), '440' );
-		$this->add( 'topic', '/' . BBINC . '/js/topic-js.php', array('listman'), '433' );
+		$this->add( 'fat', '/' . BBINC . 'js/fat.js', false, '1.0-RC1_3660' );
+		$this->add( 'prototype', '/' . BBINC . 'js/prototype.js', false, '1.5.0' );
+		$this->add( 'wp-ajax', '/' . BBINC . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
+		$this->add( 'listman', '/' . BBINC . 'js/list-manipulation-js.php', array('wp-ajax', 'fat'), '440' );
+		$this->add( 'topic', '/' . BBINC . 'js/topic-js.php', array('listman'), '433' );
 	}
 
 	/**

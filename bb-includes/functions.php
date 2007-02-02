@@ -1878,7 +1878,7 @@ function bb_trusted_roles() {
 function bb_get_active_theme_folder() {
 	$activetheme = bb_get_option( 'bb_active_theme' );
 	if ( !$activetheme )
-		$activetheme = BBPATH . 'bb-templates/kakumei';
+		$activetheme = BBPATH . 'bb-templates/kakumei/';
 
 	return apply_filters( 'bb_get_active_theme_folder', $activetheme );
 }
@@ -1886,12 +1886,12 @@ function bb_get_active_theme_folder() {
 function bb_get_themes() {
 	$r = array();
 
-	$theme_roots = array(BBPATH . 'bb-templates/', BBTHEMEDIR . '/');
+	$theme_roots = array(BBPATH . 'bb-templates/', BBTHEMEDIR );
 	foreach ( $theme_roots as $theme_root )
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
 				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir{0} )
-					$r[$theme_dir] = $theme_root . $theme_dir;
+					$r[$theme_dir] = $theme_root . $theme_dir . '/';
 
 	ksort($r);
 	return $r;
@@ -2029,6 +2029,52 @@ function bb_related_tags( $_tag = false, $number = 40 ) {
 		$tag_cache[$_tag->tag] = $_tag;
 
 	return $tags;
+}
+
+// It's not omnipotent
+function bb_path_to_url( $path ) {
+	return apply_filters( 'bb_path_to_url', bb_convert_path_base( $path, BBPATH, bb_get_option( 'uri' ) ), $path );
+}
+
+// Neither is this one
+function bb_url_to_path( $url ) {
+	return apply_filters( 'bb_url_to_path', bb_convert_path_base( $url, bb_get_option( 'uri' ), BBPATH ), $url );
+}
+
+function bb_convert_path_base( $path, $from_base, $to_base ) {
+	$last_char = $path{strlen($path)};
+	if ( '/' != $last_char && '\\' != $last_char )
+		$last_char = '';
+
+	list($from_base, $to_base) = bb_trim_common_path_right($from_base, $to_base);
+
+	if ( 0 === strpos( $path, $from_base ) )
+		$r = $to_base . substr($path, strlen($from_base)) . $last_char;
+	else
+		$r = false;
+
+	return $r;
+}
+
+function bb_trim_common_path_right( $one, $two ) {
+	$root_one = false;
+	$root_two = false;
+
+	while ( false === $root_one ) {
+		$base_one = basename($one);
+		$base_two = basename($two);
+		if ( !$base_one || !$base_two )
+			break;		
+		if ( $base_one == $base_two ) {
+			$one = dirname($one);
+			$two = dirname($two);
+		} else {
+			$root_one = $one;
+			$root_two = $two;
+		}
+	}
+
+	return array($root_one, $root_two);
 }
 
 ?>

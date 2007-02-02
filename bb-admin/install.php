@@ -250,7 +250,7 @@ if ( !$forum_name = $_POST['forum_name'] )
 
 <?php
 require_once('upgrade-schema.php');
-require_once( BBPATH . BBINC . '/registration-functions.php');
+require_once( BBPATH . BBINC . 'registration-functions.php');
 
 function get_keymaster_password($user_id, $pass) {
 	global $password;
