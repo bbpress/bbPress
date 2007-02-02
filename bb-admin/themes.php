@@ -2,7 +2,7 @@
 
 <?php
 if (isset($_POST['submit'])) {
-	$activetheme = $_POST['active_theme'];
+	$activetheme = stripslashes($_POST['active_theme']);
 	bb_update_option('bb_active_theme',$activetheme);
 	bb_admin_notice( sprintf(__('Theme "%s" activated'), basename($activetheme)) );
 }
