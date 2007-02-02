@@ -266,6 +266,9 @@ function bozo_admin_page() {
 				$this->total_users_for_query = bb_count_last_query();
 			else
 				$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+
+			if ( is_wp_error( $this->search_errors ) )
+				bb_admin_notice( join( "<br />\n", $this->search_errors->get_error_messages() ), 'error' );
 		}
 	}
 
