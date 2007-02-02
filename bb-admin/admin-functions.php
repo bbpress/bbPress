@@ -444,4 +444,13 @@ function bb_get_plugin_data($plugin_file) {
 
 	return $r;
 }
+
+function bb_admin_notice( $message, $class = 'updated' ) {
+	$message = "<div class='$class'><p>$message</p></div>";
+	$message = str_replace("'", "\'", $message);
+	$lambda = create_function( '', "echo '$message';" );
+	add_action( 'bb_admin_notices', $lambda );
+	return $lambda;
+}
+
 ?>

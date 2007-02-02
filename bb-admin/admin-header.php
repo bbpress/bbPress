@@ -15,5 +15,6 @@
 <?php login_form(); ?>
 </div>
 <?php bb_admin_menu(); ?>
+<?php do_action( 'bb_admin_notices' ); ?>
 <div class="wrap">
 

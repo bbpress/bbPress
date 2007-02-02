@@ -1,24 +1,26 @@
 <?php require_once('admin.php'); require_once(BBPATH . BBINC . '/statistics-functions.php'); ?>
 
-<?php bb_get_admin_header(); ?>
 <?php
+if (isset($_POST['submit'])) {
+	$activetheme = $_POST['active_theme'];
+	bb_update_option('bb_active_theme',$activetheme);
+	bb_admin_notice( sprintf(__('Theme "%s" activated'), basename($activetheme)) );
+}
 
-	if (isset($_POST['submit'])) {
-		$activetheme = $_POST['active_theme'];
-		bb_update_option('bb_active_theme',$activetheme);
-	}
+$activetheme = bb_get_option('bb_active_theme');
 
-	$activetheme = bb_get_option('bb_active_theme');
+$themes = bb_get_themes();
 
-	$themes = bb_get_themes();
+if ( !in_array($activetheme, $themes)) {
+	$activetheme = BBPATH . 'bb-templates/kakumei';
+	bb_update_option('bb_active_theme',$activetheme);
+	bb_admin_notice( __('Theme not found.  Default theme applied.') );
+}
 
-	if ( !in_array($activetheme, $themes)) {
-		$activetheme = BBPATH . 'bb-templates/kakumei';
-		bb_update_option('bb_active_theme',$activetheme);
-	}
+bb_get_admin_header();
 ?>
-<h2><?php _e('Presentation'); ?></h2>
 
+<h2><?php _e('Presentation'); ?></h2>
 
 <form method="post">
 	<?php
@@ -30,6 +32,5 @@
 	?>
 	<p class="submit"><input type="submit" name="submit" value="Make Default"></p>
 </form>
-
 
 <?php bb_get_admin_footer(); ?>
