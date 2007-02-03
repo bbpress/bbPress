@@ -48,16 +48,23 @@ function get_recent_registrants( $num = 10 ) {
 	return bb_append_meta( (array) $bbdb->get_results("SELECT * FROM $bbdb->users ORDER BY user_registered DESC LIMIT $num"), 'user');
 }
 
-function get_inception() {
+function bb_inception( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+	$time = apply_filters( 'bb_inception', bb_get_inception( array('format' => 'mysql') + $args), $args );
+	echo _bb_time_function_return( $time, $args );
+}
+
+function bb_get_inception( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+
 	global $bbdb, $bb_inception;
-	if ( isset($bb_inception) )
-		return $bb_inception;
-	$bb_inception = $bbdb->get_var("SELECT topic_start_time FROM $bbdb->topics ORDER BY topic_start_time LIMIT 1");
-	$bb_inception = bb_gmtstrtotime( $bb_inception );
-	return $bb_inception;
+	if ( !isset($bb_inception) )
+		$bb_inception = $bbdb->get_var("SELECT topic_start_time FROM $bbdb->topics ORDER BY topic_start_time LIMIT 1");
+
+	return apply_filters( 'bb_get_inception', _bb_time_function_return( $bb_inception, $args ) );
 }
 function get_registrations_per_day() {
-	return get_total_users() / ( time() - get_inception() ) * 3600 * 24;
+	return get_total_users() / ( time() - bb_get_inception( 'timestamp' ) ) * 3600 * 24;
 }
 
 function registrations_per_day() {
@@ -65,7 +72,7 @@ function registrations_per_day() {
 }
 
 function get_posts_per_day() {
-	return get_total_posts() / ( time() - get_inception() ) * 3600 * 24;
+	return get_total_posts() / ( time() - bb_get_inception( 'timestamp' ) ) * 3600 * 24;
 }
 
 function posts_per_day() {
@@ -73,7 +80,7 @@ function posts_per_day() {
 }
 
 function get_topics_per_day() {
-	return get_total_topics() / ( time() - get_inception() ) * 3600 * 24;
+	return get_total_topics() / ( time() - bb_get_inception( 'timestamp' ) ) * 3600 * 24;
 }
 
 function topics_per_day() {

@@ -95,4 +95,8 @@ function get_post_timestamp() {
 	return bb_gmtstrtotime( $bb_post->post_time );
 }
 
+function get_inception() {
+	return bb_get_inception( 'timestamp' );
+}
+
 ?>
