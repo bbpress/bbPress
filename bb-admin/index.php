@@ -8,7 +8,7 @@
 <h3><?php _e('User Registrations'); ?></h3>
 <ul class="users">
 <?php if ( $users = get_recent_registrants() ) : foreach ( $users as $user ) : ?>
- <li><?php full_user_link( $user->ID ); ?> [<a href="<?php user_profile_link( $user->ID ); ?>"><?php _e('profile') ?></a>] <?php printf(__('registered %s ago'), bb_since(strtotime($user->user_registered))) ?></li>
+ <li><?php full_user_link( $user->ID ); ?> [<a href="<?php user_profile_link( $user->ID ); ?>"><?php _e('profile') ?></a>] <?php printf(__('registered %s ago'), bb_since( $user->user_registered )) ?></li>
 <?php endforeach; endif; ?>
 </ul>
 

@@ -564,51 +564,45 @@ function get_topic_author( $id = 0 ) {
 	return apply_filters( 'get_topic_author', $topic->topic_poster_name, $topic->topic_poster ); // Last arg = user ID
 }
 
-function topic_time( $id = 0 ) {
-	echo apply_filters( 'topic_time', get_topic_time($id) );
+// Filters expect the format to by mysql on both topic_time and get_topic_time
+function topic_time( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+	$time = apply_filters( 'topic_time', get_topic_time( array('format' => 'mysql') + $args), $args );
+	echo _bb_time_function_return( $time, $args );
 }
 
-function get_topic_time( $id = 0 ) {
+function get_topic_time( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+
 	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
-	return apply_filters( 'get_topic_time', $topic->topic_time );
+	if ( $args['id'] )
+		$_topic = get_topic( $args['id'] );
+	else
+		$_topic =& $topic; 
+
+	$time = apply_filters( 'get_topic_time', $_topic->topic_time, $args );
+
+	return _bb_time_function_return( $time, $args );
 }
 
-function topic_date( $format = '', $id = 0 ) {
-	echo gmdate( $format, get_topic_timestamp( $id ) );
+function topic_start_time( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+	$time = apply_filters( 'topic_start_time', get_topic_start_time( array('format' => 'mysql') + $args), $args );
+	echo _bb_time_function_return( $time, $args );
 }
 
-function get_topic_date( $format = '', $id = 0 ){
-	return gmdate( $format, get_topic_timestamp( $id ) );
-}
-function get_topic_timestamp( $id = 0 ) {
+function get_topic_start_time( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+
 	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
-	return strtotime( $topic->topic_time );
-}
+	if ( $args['id'] )
+		$_topic = get_topic( $args['id'] );
+	else
+		$_topic =& $topic;
 
-function topic_start_time( $id = 0 ) {
-	echo apply_filters( 'topic_start_time', get_topic_start_time($id) );
-}
+	$time = apply_filters( 'get_topic_start_time', $_topic->topic_start_time, $args );
 
-function get_topic_start_time( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
-	return apply_filters( 'get_topic_start_time', $topic->topic_start_time );
-}
-
-function topic_start_date( $format = '', $id = 0 ) {
-	echo gmdate( $format, get_topic_start_timestamp( $id ) );
-}
-
-function get_topic_start_timestamp( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
-	return strtotime( $topic->topic_start_time );
+	return _bb_time_function_return( $time, $args );
 }
 
 function topic_last_post_link( $id = 0 ) {
@@ -840,22 +834,24 @@ function get_post_text() {
 	return $bb_post->post_text;
 }
 
-function bb_post_time() {
-	echo apply_filters( 'bb_post_time', bb_get_post_time() );
+function bb_post_time( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+	$time = apply_filters( 'bb_post_time', bb_get_post_time( array('format' => 'mysql') + $args ), $args );
+	echo _bb_time_function_return( $time, $args );
 }
 
-function bb_get_post_time() {
+function bb_get_post_time( $args = '' ) {
+	$args = _bb_parse_time_function_args( $args );
+
 	global $bb_post;
-	return apply_filters( 'bb_get_post_time', $bb_post->post_time, $bb_post->post_id );
-}
+	if ( $args['id'] )
+		$_bb_post = bb_get_post( $args['id'] );
+	else
+		$_bb_post =& $bb_post;
 
-function post_date( $format ) {
-	echo gmdate( $format, get_post_timestamp() );
-}
+	$time = apply_filters( 'bb_get_post_time', $_bb_post->post_time, $args );
 
-function get_post_timestamp() {
-	global $bb_post;
-	return strtotime( $bb_post->post_time );
+	return _bb_time_function_return( $time, $args );
 }
 
 function post_ip() {
@@ -1091,7 +1087,7 @@ function bb_profile_data() {
 	global $user_id;
 
 	$user = bb_get_user( $user_id );
-	$reg_time = strtotime( $user->user_registered );
+	$reg_time = bb_gmtstrtotime( $user->user_registered );
 	$profile_info_keys = get_profile_info_keys();
 	echo "<dl id='userinfo'>\n";
 	echo "\t<dt>" . __('Member Since') . "</dt>\n";
@@ -1452,4 +1448,33 @@ function get_view_link( $_view = false, $page = 1 ) {
 
 	return apply_filters( 'get_view_link', $link, $v, $page );
 }
+
+function _bb_parse_time_function_args( $args ) {
+	if ( is_numeric($args) )
+		$args = array('id' => $args);
+	elseif ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array('format' => $args);
+
+	$defaults = array( 'id' => 0, 'format' => 'since', 'more' => 0 );
+	return bb_parse_args( $args, $defaults );
+}
+
+function _bb_time_function_return( $time, $args ) {
+	$time = bb_gmtstrtotime( $time );
+
+	switch ( $format = $args['format'] ) :
+	case 'since' :
+		return bb_since( $time, $args['more'] );
+		break;
+	case 'timestamp' :
+		$format = 'U';
+		break;
+	case 'mysql' :
+		$format = 'Y-m-d H:i:s';
+		break;
+	endswitch;
+
+	return gmdate( $format, $time );
+}
+
 ?>

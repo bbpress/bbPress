@@ -53,7 +53,7 @@ function get_inception() {
 	if ( isset($bb_inception) )
 		return $bb_inception;
 	$bb_inception = $bbdb->get_var("SELECT topic_start_time FROM $bbdb->topics ORDER BY topic_start_time LIMIT 1");
-	$bb_inception = strtotime($bb_inception . ' +0000');
+	$bb_inception = bb_gmtstrtotime( $bb_inception );
 	return $bb_inception;
 }
 function get_registrations_per_day() {

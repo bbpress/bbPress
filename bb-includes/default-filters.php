@@ -3,8 +3,9 @@
 add_filter('get_forum_topics', 'number_format');
 add_filter('get_forum_posts', 'number_format');
 
-add_filter('topic_time', 'bb_since');
-add_filter('get_topic_start_time', 'bb_since');
+add_filter('topic_time', 'bb_offset_time', 10, 2);
+add_filter('topic_start_time', 'bb_offset_time', 10, 2);
+add_filter('bb_post_time', 'bb_offset_time', 10, 2);
 
 add_filter('pre_topic_title', 'wp_specialchars');
 add_filter('get_forum_name', 'wp_specialchars');
@@ -29,8 +30,6 @@ add_filter('edit_text', 'htmlspecialchars');
 add_filter('edit_text', 'trim', 15);
 
 add_filter('get_user_link', 'bb_fix_link');
-
-add_filter('bb_post_time', 'bb_offset_time');
 
 add_filter('topic_rss_link', 'bb_make_feed');
 add_filter('forum_rss_link', 'bb_make_feed');

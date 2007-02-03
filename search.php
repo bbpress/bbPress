@@ -48,9 +48,6 @@ endif;
 
 $q = stripslashes( $q );
 
-add_filter('bb_get_post_time', 'strtotime');
-add_filter('bb_get_post_time', 'bb_offset_time');
-
 bb_load_template( 'search.php', array('q', 'likeit', 'error', 'titles', 'recent', 'relevant') );
 
 ?>

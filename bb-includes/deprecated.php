@@ -60,4 +60,39 @@ function option( $option ) {
 	return bb_option( $option );
 }
 
+
+// Use topic_time
+function topic_date( $format = '', $id = 0 ) {
+	echo gmdate( $format, get_topic_timestamp( $id ) );
+}
+function get_topic_date( $format = '', $id = 0 ){
+	return gmdate( $format, get_topic_timestamp( $id ) );
+}
+function get_topic_timestamp( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	return bb_gmtstrtotime( $topic->topic_time );
+}
+
+// Use topic_start_time
+function topic_start_date( $format = '', $id = 0 ) {
+	echo gmdate( $format, get_topic_start_timestamp( $id ) );
+}
+function get_topic_start_timestamp( $id = 0 ) {
+	global $topic;
+	if ( $id )
+		$topic = get_topic( $id );
+	return bb_gmtstrtotime( $topic->topic_start_time );
+}
+
+// Use bb_post_time
+function post_date( $format ) {
+	echo gmdate( $format, get_post_timestamp() );
+}
+function get_post_timestamp() {
+	global $bb_post;
+	return bb_gmtstrtotime( $bb_post->post_time );
+}
+
 ?>

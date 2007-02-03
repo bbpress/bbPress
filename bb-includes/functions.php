@@ -392,9 +392,17 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 	return number_format($timetotal, $precision);
 }
 
+// GMT -> so many minutes ago
 function bb_since( $original, $do_more = 0 ) {
-	if ( !is_numeric($original) )
-		$original = strtotime($original);
+	$today = time();
+
+	if ( !is_numeric($original) ) {
+		if ( $today < $_original = bb_gmtstrtotime( str_replace(',', ' ', $original) ) ) // Looks like bb_since was called twice
+			return $original;
+		else
+			$original = $_original;
+	}
+		
 	// array of time period chunks
 	$chunks = array(
 		array(60 * 60 * 24 * 365 , __('year') , __('years')),
@@ -403,29 +411,27 @@ function bb_since( $original, $do_more = 0 ) {
 		array(60 * 60 * 24 , __('day') , __('days')),
 		array(60 * 60 , __('hour') , __('hours')),
 		array(60 , __('minute') , __('minutes')),
+		array(1 , __('second') , __('seconds')),
 	);
 
-	$today = time();
-	$since = $today - bb_offset_time($original);
+	$since = $today - $original;
 
 	for ($i = 0, $j = count($chunks); $i < $j; $i++) {
 		$seconds = $chunks[$i][0];
 		$name = $chunks[$i][1];
 		$names = $chunks[$i][2];
 
-		if (($count = floor($since / $seconds)) != 0)
+		if ( 0 != $count = floor($since / $seconds) )
 			break;
 	}
 
-	$print = sprintf(__('%1$d %2$s'), $count, ($count == 1) ? $name : $names);
+	$print = sprintf(__('%1$d %2$s'), $count, $count == 1 ? $name : $names);
 
-	if ($i + 1 < $j) {
+	if ( $do_more && $i + 1 < $j) {
 		$seconds2 = $chunks[$i + 1][0];
 		$name2 = $chunks[$i + 1][1];
 		$names2 = $chunks[$i + 1][2];
-
-		// add second item if it's greater than 0
-		if ( (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) && $do_more )
+		if ( 0 != $count2 = floor( ($since - $seconds * $count) / $seconds2) )
 			$print .= sprintf(__(', %1$d %2$s'), $count2, ($count2 == 1) ? $name2 : $names2);
 	}
 	return $print;
@@ -555,7 +561,7 @@ function bb_current_time( $type = 'timestamp' ) {
 			$d = gmdate('Y-m-d H:i:s');
 			break;
 		case 'timestamp':
-			$d = time() - bb_get_option( 'gmt_offset' ) * 3600; //make this GMT
+			$d = time();
 			break;
 	}
 	return $d;
@@ -1228,15 +1234,15 @@ function bb_global_sanitize( $array, $trim = true ) {
 }
 
 // GMT -> Local
-function bb_offset_time($time) {
-	// in future versions this could eaily become a user option.
+// in future versions this could eaily become a user option.
+function bb_offset_time( $time, $args = '' ) {
+	if ( 'since' == $args['format'] )
+		return $time;
 	if ( !is_numeric($time) ) {
-		if ( !(strtotime($time) === -1)) {
-			$time = strtotime($time);
-			return date('Y-m-d H:i:s', $time + bb_get_option( 'gmt_offset' ) * 3600);
-		} else {
-			return $time;
-		}
+		if ( -1 !== $_time = bb_gmtstrtotime( $time ) )
+			return gmdate('Y-m-d H:i:s', $_time + bb_get_option( 'gmt_offset' ) * 3600);
+		else
+			return $time; // Perhaps should return -1 here
 	} else {
 		return $time + bb_get_option( 'gmt_offset' ) * 3600;
 	}

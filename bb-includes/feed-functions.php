@@ -10,10 +10,10 @@ function bb_send_304( $bb_last_modified ) {
 
 	$client_last_modified = trim( $_SERVER['HTTP_IF_MODIFIED_SINCE']);
 	// If string is empty, return 0. If not, attempt to parse into a timestamp
-	$client_modified_timestamp = $client_last_modified ? strtotime($client_last_modified) : 0;
+	$client_modified_timestamp = $client_last_modified ? bb_gmtstrtotime($client_last_modified) : 0;
 
 	// Make a timestamp for our most recent modification...	
-	$bb_modified_timestamp = strtotime($bb_last_modified);
+	$bb_modified_timestamp = bb_gmtstrtotime($bb_last_modified);
 
 	if ( ($client_last_modified && $client_etag) ?
 		 (($client_modified_timestamp >= $bb_modified_timestamp) && ($client_etag == $bb_etag)) :

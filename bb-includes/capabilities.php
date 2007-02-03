@@ -345,7 +345,7 @@ function bb_map_meta_cap($cap, $user_id) {
 			$caps[] = 'edit_deleted';
 		if ( !topic_is_open( $bb_post->topic_id ) )
 			$caps[] = 'edit_closed';
-		$post_time = strtotime($bb_post->post_time . '+0000');
+		$post_time = bb_gmtstrtotime( $bb_post->post_time );
 		$curr_time = time();
 		$edit_lock = bb_get_option( 'edit_lock' );
                 if ( $edit_lock >= 0 && $curr_time - $post_time > $edit_lock * 60 )

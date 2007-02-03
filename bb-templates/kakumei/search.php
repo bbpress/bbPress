@@ -26,7 +26,7 @@ foreach ( $titles as $topic ) :
 $count = $topic->topic_posts;
 ?>
 <li><h4><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></h4>
-<small><?php printf(__(' %1$d replies &#8212; Last reply: %2$s'), $count, get_topic_date(__('F j, Y'), $topic->topic_id) ) ?> </small>
+<small><?php printf(__(' %1$d replies &#8212; Last reply: %2$s'), $count, get_topic_time(__('F j, Y'), $topic->topic_id) ) ?> </small>
 </li>
 <?php endforeach; ?>
 
@@ -39,7 +39,7 @@ $count = $topic->topic_posts;
 <?php foreach ( $recent as $bb_post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
 <p><?php echo show_context($q, $bb_post->post_text); ?></p>
-<p><small><?php _e('Posted') ?> <?php echo date(__('F j, Y, h:i A'), bb_get_post_time()); ?></small></p>
+<p><small><?php _e('Posted') ?> <?php bb_post_time( __('F j, Y, h:i A') ); ?></small></p>
 </li>
 <?php endforeach; ?>
 </ol>
@@ -51,7 +51,7 @@ $count = $topic->topic_posts;
 <?php foreach ( $relevant as $bb_post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
 <p><?php echo show_context($q, $bb_post->post_text); ?></p>
-<p><small><?php _e('Posted') ?> <?php echo date(__('F j, Y, h:i A'), bb_get_post_time()); ?></small></p>
+<p><small><?php _e('Posted') ?> <?php bb_post_time( __('F j, Y, h:i A') ); ?></small></p>
 </li>
 <?php endforeach; ?>
 </ol>

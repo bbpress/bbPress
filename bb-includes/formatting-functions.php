@@ -161,4 +161,20 @@ function closed_title( $title ) {
 function make_link_view_all( $link ) {
 	return wp_specialchars( add_query_arg( 'view', 'all', $link ) );
 }
+
+function bb_gmtstrtotime( $string ) {
+	if ( is_numeric($string) )
+		return $string;
+	if ( !is_string($string) )
+		return -1;
+
+	if ( stristr($string, 'utc') || stristr($string, 'gmt') || stristr($string, '+0000') )
+		return strtotime($string);
+
+	if ( -1 == $time = strtotime($string . ' +0000') )
+		return strtotime($string);
+
+	return $time;
+}
+
 ?>

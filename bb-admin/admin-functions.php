@@ -109,9 +109,9 @@ function get_recently_moderated_objects( $num = 5 ) {
 	$topics = (array) $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status <> 0 ORDER BY topic_time DESC LIMIT $num"); // topic_time == topic_start_time != moderation_time;
 	$objects = array();
 	foreach ( array_keys($posts) as $key )
-		$objects[strtotime($posts[$key]->post_time . ' +0000')] = array('type' => 'post', 'data' => $posts[$key]);
+		$objects[bb_gmtstrtotime($posts[$key]->post_time)] = array('type' => 'post', 'data' => $posts[$key]);
 	foreach ( array_keys($topics) as $key )
-		$objects[strtotime($topics[$key]->topic_time . ' +0000')] = array('type' => 'topic', 'data' => $topics[$key]);
+		$objects[bb_gmtstrtotime($topics[$key]->topic_time)] = array('type' => 'topic', 'data' => $topics[$key]);
 	krsort($objects);
 	return array_slice($objects, 0, $num);
 }
