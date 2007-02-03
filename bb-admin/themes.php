@@ -1,5 +1,6 @@
-<?php require_once('admin.php'); require_once(BBPATH . BBINC . 'statistics-functions.php'); ?>
 <?php
+require_once('admin.php');
+
 if ( isset($_GET['theme']) ) {
 	if ( !bb_current_user_can( 'use_keys' ) ) {
 		wp_redirect( bb_get_option( 'uri' ) );
