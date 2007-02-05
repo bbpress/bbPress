@@ -662,7 +662,7 @@ function get_page_number_links($page, $total) {
 }
 
 function topic_delete_link( $args = '' ) {
-	$defaults = array( 'id' => 0, 'pre' => '[', 'post' => ']' );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(bb_parse_args( $args, $defaults ));
 	$id = (int) $id;
 
@@ -676,13 +676,13 @@ function topic_delete_link( $args = '' ) {
 		return;
 
 	if ( 0 == $_topic->topic_status )
-		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id , 'delete-topic_' . $_topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna delete that?') . "')\">" . __('Delete entire topic') . "</a>$post";
+		echo "$before<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id , 'delete-topic_' . $_topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna delete that?') . "')\">" . __('Delete entire topic') . "</a>$after";
 	else
-		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id . '&view=all', 'delete-topic_' . $_topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna undelete that?') . "')\">" . __('Undelete entire topic') . "</a>$post";
+		echo "$before<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id . '&view=all', 'delete-topic_' . $_topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna undelete that?') . "')\">" . __('Undelete entire topic') . "</a>$after";
 }
 
 function topic_close_link( $args = '' ) {
-	$defaults = array( 'id' => 0, 'pre' => '[', 'post' => ']' );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(bb_parse_args( $args, $defaults ));
 	$id = (int) $id;
 
@@ -699,11 +699,11 @@ function topic_close_link( $args = '' ) {
 		$text = __('Close topic');
 	else
 		$text = __('Open topic');
-	echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $_topic->topic_id, 'close-topic_' . $_topic->topic_id ) . "'>$text</a>$post";
+	echo "$before<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $_topic->topic_id, 'close-topic_' . $_topic->topic_id ) . "'>$text</a>$after";
 }
 
 function topic_sticky_link() {
-	$defaults = array( 'id' => 0, 'pre' => '[', 'post' => ']' );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(bb_parse_args( $args, $defaults ));
 	$id = (int) $id;
 
@@ -717,9 +717,9 @@ function topic_sticky_link() {
 		return;
 
 	if ( topic_is_sticky( $_topic->topic_id ) )
-		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) . "'>". __('Unstick topic') ."</a>$post";
+		echo "$before<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) . "'>". __('Unstick topic') ."</a>$after";
 	else
-		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) . "'>". __('Stick topic') . "</a> (<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) . "'>" . __('to front') . "</a>)$post";
+		echo "$before<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) . "'>". __('Stick topic') . "</a> (<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) . "'>" . __('to front') . "</a>)$after";
 }
 
 function topic_show_all_link() {
