@@ -41,7 +41,7 @@ function bb_reset_email( $user_login ) {
 	$resetkey = bb_random_pass( 15 );
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 	if ( $user ) :
-		mail( $user->user_email, bb_get_option('name') . ': ' . __('Password Reset'), sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
+		mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
 
 %s
 
@@ -99,7 +99,7 @@ function bb_send_pass( $user, $pass ) {
 
 	if ( $user ) :
 		$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!");
-		mail( $user->user_email, bb_get_option('name') . ': ' . __('Password'), 
+		mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password'), 
 			sprintf( $message, "$user->user_login", "$pass", bb_get_option('uri') ), 
 			'From: ' . bb_get_option('admin_email') 
 		);

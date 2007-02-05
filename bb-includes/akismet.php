@@ -57,9 +57,9 @@ function bb_ksd_submit( $submit, $type = false ) {
 			'user_ip' => $bb_post->poster_ip,
 			'permalink' => get_topic_link( $bb_post->topic_id ), // First page
 			'comment_type' => 'forum',
-			'comment_author' => $user->user_login,
-			'comment_author_email' =>  $user->user_email,
-			'comment_author_url' => $user->user_url,
+			'comment_author' => get_user_name( $user->ID ),
+			'comment_author_email' =>  bb_get_user_email( $user->ID ),
+			'comment_author_url' => get_user_link( $user->ID ),
 			'comment_content' => $bb_post->post_text,
 			'comment_date_gmt' => $bb_post->post_time
 		);
@@ -76,9 +76,9 @@ function bb_ksd_submit( $submit, $type = false ) {
 			'blog' => bb_get_option('uri'),
 			'permalink' => get_user_profile_link( $user->ID ),
 			'comment_type' => 'profile',
-			'comment_author' => $user->user_login,
-			'comment_author_email' =>  $user->user_email,
-			'comment_author_url' => $user->user_url,
+			'comment_author' => get_user_name( $user-ID ),
+			'comment_author_email' =>  bb_get_user_email( $user->ID ),
+			'comment_author_url' => get_user_link( $user->ID ),
 			'comment_content' => $user->occ . ' ' . $user->interests,
 			'comment_date_gmt' => $user->user_registered
 		);
@@ -92,9 +92,9 @@ function bb_ksd_submit( $submit, $type = false ) {
 			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
 			'referrer' => $_SERVER['HTTP_REFERER'],
 			'comment_type' => isset($_POST['topic_id']) ? 'forum' : 'profile',
-			'comment_author' => $bb_current_user->data->user_login,
-			'comment_author_email' => $bb_current_user->data->user_email,
-			'comment_author_url' => $bb_current_user->data->user_url,
+			'comment_author' => bb_get_current_user_info( 'name' ),
+			'comment_author_email' => bb_get_current_user_info( 'email' ),
+			'comment_author_url' => bb_get_current_user_info( 'url' ),
 			'comment_content' => $submit
 		);
 		if ( isset($_POST['topic_id']) )

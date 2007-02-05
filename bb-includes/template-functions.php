@@ -100,13 +100,9 @@ function profile_menu() {
 }
 
 function login_form() {
-	global $bb_current_user;
-	if ( bb_is_user_logged_in() ) {
-        printf('<p class="login">'. __('Welcome, %1$s!'). ' <a href="' . get_user_profile_link( $bb_current_user->ID ) . '">'. __('View your profile') ."&raquo;</a>\n<small>(",get_user_name( $bb_current_user->ID ));
-	if ( bb_current_user_can('moderate') )
-		echo "<a href='" . bb_get_option( 'uri' ) . "bb-admin/'>Admin</a> | ";
-	echo "<a href='" . bb_get_option( 'uri' ) . "bb-login.php?logout'>". __('Log out') ."</a>)</small></p>";
-	} else
+	if ( bb_is_user_logged_in() )
+		bb_load_template( 'logged-in.php' );
+	else
 		bb_load_template( 'login-form.php' );
 }
 
@@ -1241,6 +1237,89 @@ function bb_profile_admin_form( $id = 0 ) {
 Blocked users just see a simple error message when they visit the site.</p>
 <p><strong>Note</strong>: Blocking a user does <em>not</em> block any IP addresses.'); ?></p>
 <?php
+}
+
+function bb_logout_link( $args = '' ) {
+	echo apply_filters( 'bb_logout_link', bb_get_logout_link( $args ), $args );
+}
+
+function bb_get_logout_link( $args = '' ) {
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'text' => $args );
+
+	$defaults = array('text' => __('Log out'), 'before' => '', 'after' => '');
+	$args = bb_parse_args( $args, $defaults );
+	extract($args);
+
+	return apply_filters( 'bb_get_logout_link', "$before<a href='" . bb_get_option( 'uri' ) . "bb-login.php?logout'>$text</a>$after", $args );
+}
+
+function bb_admin_link( $args = '' ) {
+	echo apply_filters( 'bb_admin_link', bb_get_admin_link( $args ), $args );
+}
+
+function bb_get_admin_link( $args = '' ) {
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'text' => $args );
+
+	$defaults = array('text' => __('Admin'), 'before' => '', 'after' => '');
+	$args = bb_parse_args( $args, $defaults );
+	extract($args);
+
+	return apply_filters( 'bb_get_admin_link', "$before<a href='" . bb_get_option( 'uri' ) . "bb-admin/'>$text</a>$after", $args );
+}
+
+function bb_profile_link( $args = '' ) {
+	global $bb_current_user;
+
+	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '' );
+	$args = bb_parse_args( $args, $defaults );
+	echo apply_filters( 'bb_profile_link', "$before<a href='" . get_user_profile_link( $bb_current_user->ID ) . "'>$text</a>$after", $args );
+}
+
+function bb_current_user_info( $key = '' ) {
+	if ( !$key )
+		return;
+
+	echo apply_filters( 'bb_current_user_info', bb_get_current_user_info( $key ), $key );
+}
+	
+
+function bb_get_current_user_info( $key = '' ) {
+	if ( !is_string($key) )
+		return;
+	$user = bb_get_current_user(); // Not globalized
+
+	switch ( $key ) :
+	case '' :
+		return $user;
+		break;
+	case 'id' :
+	case 'ID' :
+		return $user->ID;
+		break;
+	case 'name' :
+	case 'login' :
+	case 'user_login' :
+		return get_user_name( $user->ID );
+		break;
+	case 'email' :
+	case 'user_email' :
+		return bb_get_user_email( $user->ID );
+		break;
+	case 'url' :
+	case 'uri' :
+	case 'user_url' :
+		return get_user_link( $user->ID );
+		break;
+	endswitch;
+}
+
+function bb_get_user_email( $id ) {
+	if ( !$user = bb_get_user( $id ) )
+		return false;
+
+	return apply_filters( 'bb_get_user_email', $user->user_email, $id );
 }
 
 //TAGS

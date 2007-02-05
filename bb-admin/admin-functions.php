@@ -186,13 +186,15 @@ function bb_admin_list_posts() {
 
 function bb_user_row( $user_id, $role = '', $email = false ) {
 	$user = bb_get_user( $user_id );
-	$r  = "\t<tr id='user-$user_id'" . get_alt_class("user-$role") . ">\n";
-	$r .= "\t\t<td>$user_id</td>\n";
-	$r .= "\t\t<td><a href='" . get_user_profile_link( $user_id ) . "'>" . get_user_name( $user_id ) . "</a></td>\n";
-	if ( $email )
-		$r .= "\t\t<td><a href='mailto:$user->user_email'>$user->user_email</a></td>\n";
+	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
+	$r .= "\t\t<td>$user->ID</td>\n";
+	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_name( $user->ID ) . "</a></td>\n";
+	if ( $email ) {
+		$email = bb_get_user_email( $user->ID );
+		$r .= "\t\t<td><a href='mailto:$email'>$email</a></td>\n";
+	}
 	$r .= "\t\t<td>$user->user_registered</td>\n";
-	$r .= "\t\t<td><a href='" . get_profile_tab_link( $user_id, 'edit' ) . "'>" . __('Edit') . "</a></td>\n\t</tr>";
+	$r .= "\t\t<td><a href='" . get_profile_tab_link( $user->ID, 'edit' ) . "'>" . __('Edit') . "</a></td>\n\t</tr>";
 	return $r;
 }
 
