@@ -20,7 +20,7 @@
 <?php if ( is_tag() || is_front() ) : ?>
 <p>
 	<label for="forum_id"><?php _e('Pick a section:'); ?>
-		<?php forum_dropdown(); ?>
+		<?php bb_new_topic_forum_dropdown(); ?>
 	</label>
 </p>
 <?php endif; ?>

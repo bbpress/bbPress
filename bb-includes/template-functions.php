@@ -763,7 +763,7 @@ function topic_move_dropdown() {
 	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
 	echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
 	echo '<label for="forum_id">'. __('Move this topic to the selected forum:');
-	forum_dropdown();
+	forum_dropdown( 'bb_current_user_can', array('move_topic', $topic->topic_id) );
 	echo "</label>\n\t";
 	bb_nonce_field( 'move-topic_' . $topic->topic_id );
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
@@ -808,6 +808,10 @@ function new_topic( $text = false ) {
 
 	if ( $url = apply_filters( 'new_topic_url', $url ) )
 		echo "<a href='$url' class='new-topic'>$text</a>\n";
+}
+
+function bb_new_topic_forum_dropdown() {
+	forum_dropdown( 'bb_current_user_can', array('write_topic') );
 }
 
 // POSTS
@@ -1367,11 +1371,19 @@ function tag_pages() {
 function forum_dropdown( $callback = false, $callback_args = false ) {
 	global $forum_id;
 	$forums = get_forums();
+
+	if ( !is_array($callback_args) )
+		$callback_args = array();
+
 	echo '<select name="forum_id" id="forum_id" tabindex="5">';
 
 	foreach ( $forums as $forum ) :
-		if ( is_callable($callback) && false == call_user_func( $callback, $forum->forum_id, $callback_args ) )
-			continue;
+		if ( is_callable($callback) ) :
+			$_callback_args = $callback_args;
+			array_push( $_callback_args, $forum->forum_id );
+			if ( false == call_user_func_array( $callback, $_callback_args ) ) // $forum_id will be last arg;
+				continue;
+		endif;
 		$selected = ( $forum_id == $forum->forum_id ) ? " selected='selected'" : '';
 		echo "<option value='$forum->forum_id'$selected>$forum->forum_name</option>";
 	endforeach;
