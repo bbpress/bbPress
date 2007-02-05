@@ -257,6 +257,7 @@ form.login input {
 .postform {
 	background: #f0f0f0;
 	padding: 1em;
+	margin-bottom: 1em;
 }
 
 .postform textarea {
@@ -268,8 +269,6 @@ form.login input {
 }
 
 .postform label { display: block; }
-
-.admin { padding: 10px 0 0; }
 
 #manage-tags { 
 	margin: 10px 0; 

@@ -501,5 +501,4 @@ function bb_get_theme_data( $theme_file ) {
 	);
 }
 
-
 ?>

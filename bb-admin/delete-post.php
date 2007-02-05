@@ -8,7 +8,7 @@ if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
 	add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
 }
 
-if ( !bb_current_user_can('manage_posts') ) {
+if ( !bb_current_user_can( 'delete_post', $post_id ) ) {
 	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }

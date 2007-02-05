@@ -2,6 +2,9 @@
 require_once('../bb-load.php');
 require_once('admin-functions.php');
 
+if ( !bb_current_user_can( 'use_keys' ) )
+	bb_die( __('No thieving allowed.') );
+
 // See bb_export_user for syntax
 function _bb_export_object( $object, $properties = null, $tabs = 1 ) {
 	$r = '';

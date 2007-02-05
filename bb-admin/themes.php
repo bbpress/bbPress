@@ -6,7 +6,7 @@ if ( isset($_GET['theme']) ) {
 		wp_redirect( bb_get_option( 'uri' ) );
 		exit;
 	}
-	bb_check_admin_referer( 'switch_theme' );
+	bb_check_admin_referer( 'switch-theme' );
 	$activetheme = stripslashes($_GET['theme']);
 	bb_update_option( 'bb_active_theme', $activetheme );
 	wp_redirect( bb_get_option( 'uri' ) . 'bb-admin/themes.php?activated' );
@@ -29,7 +29,7 @@ if ( !in_array($activetheme, $themes) ) {
 function bb_admin_theme_row( $theme ) {
 	$theme_data = file_exists( $theme . 'style.css' ) ? bb_get_theme_data( $theme . 'style.css' ) : false;
 	$screen_shot = file_exists( $theme . 'screenshot.png' ) ? bb_path_to_url( $theme . 'screenshot.png' ) : false;
-	$activation_url = bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch_theme' );
+	$activation_url = bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch-theme' );
 ?>
 	<li<?php alt_class( 'theme', $class ); ?>>
 		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php _e('Click to activate'); ?>"><img alt="<?php echo wp_specialchars( $theme_data['Title'], 1 ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>

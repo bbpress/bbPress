@@ -661,38 +661,65 @@ function get_page_number_links($page, $total) {
 	) );
 }
 
-function topic_delete_link() {
-	global $bb_current_user, $topic;
-	if ( !bb_current_user_can('manage_topics') )
+function topic_delete_link( $args = '' ) {
+	$defaults = array( 'id' => 0, 'pre' => '[', 'post' => ']' );
+	extract(bb_parse_args( $args, $defaults ));
+	$id = (int) $id;
+
+	global $topic;
+	if ( $id )
+		$_topic = get_topic( $id );
+	else
+		$_topic =& $topic;
+
+	if ( !$_topic || !bb_current_user_can( 'delete_topic', $_topic->topic_id ) )
 		return;
 
-	if ( 0 == $topic->topic_status )
-		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() , 'delete-topic_' . $topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna delete that?') . "')\">" . __('Delete entire topic') . "</a>";
+	if ( 0 == $_topic->topic_status )
+		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id , 'delete-topic_' . $_topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna delete that?') . "')\">" . __('Delete entire topic') . "</a>$post";
 	else
-		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . get_topic_id() . '&view=all', 'delete-topic_' . $topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna undelete that?') . "')\">" . __('Undelete entire topic') . "</a>";
+		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id . '&view=all', 'delete-topic_' . $_topic->topic_id ) . "' onclick=\"return confirm('" . __('Are you sure you wanna undelete that?') . "')\">" . __('Undelete entire topic') . "</a>$post";
 }
 
-function topic_close_link() {
-	global $bb_current_user, $topic;
-	if ( !bb_current_user_can('manage_topics') )
+function topic_close_link( $args = '' ) {
+	$defaults = array( 'id' => 0, 'pre' => '[', 'post' => ']' );
+	extract(bb_parse_args( $args, $defaults ));
+	$id = (int) $id;
+
+	global $topic;
+	if ( $id )
+		$_topic = get_topic( $id );
+	else
+		$_topic =& $topic;
+
+	if ( !$topic || !bb_current_user_can( 'close_topic', $_topic->topic_id ) )
 		return;
 
-	if ( topic_is_open( get_topic_id() ) )
+	if ( topic_is_open( $_topic->id ) )
 		$text = __('Close topic');
 	else
 		$text = __('Open topic');
-	echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . get_topic_id(), 'close-topic_' . $topic->topic_id ) . "'>$text</a>";
+	echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $_topic->topic_id, 'close-topic_' . $_topic->topic_id ) . "'>$text</a>$post";
 }
 
 function topic_sticky_link() {
-	global $bb_current_user, $topic;
-	if ( !bb_current_user_can('manage_topics') )
+	$defaults = array( 'id' => 0, 'pre' => '[', 'post' => ']' );
+	extract(bb_parse_args( $args, $defaults ));
+	$id = (int) $id;
+
+	global $topic;
+	if ( $id )
+		$_topic = get_topic( $id );
+	else
+		$_topic =& $topic;
+
+	if ( !$_topic || !bb_current_user_can( 'stick_topic', $_topic->topic_id ) )
 		return;
 
-	if ( topic_is_sticky( get_topic_id() ) )
-		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id(), 'stick-topic_' . $topic->topic_id ) . "'>". __('Unstick topic') ."</a>";
+	if ( topic_is_sticky( $_topic->topic_id ) )
+		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) . "'>". __('Unstick topic') ."</a>$post";
 	else
-		echo "<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id(), 'stick-topic_' . $topic->topic_id ) . "'>". __('Stick topic') . "</a> (<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . get_topic_id() . '&super=1', 'stick-topic_' . $topic->topic_id ) . "'>" . __('to front') . "</a>)";
+		echo "$pre<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) . "'>". __('Stick topic') . "</a> (<a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) . "'>" . __('to front') . "</a>)$post";
 }
 
 function topic_show_all_link() {
@@ -729,7 +756,7 @@ function topic_posts_link() {
 
 function topic_move_dropdown() {
 	global $bb_current_user, $forum_id, $topic;
-	if ( !bb_current_user_can('manage_topics') )
+	if ( !bb_current_user_can( 'move_topic', get_topic_id() ) )
 		return;
 	$forum_id = $topic->forum_id;
 
@@ -889,7 +916,7 @@ function post_del_class() {
 
 function post_delete_link() {
 	global $bb_current_user, $bb_post;
-	if ( !bb_current_user_can('manage_posts') )
+	if ( !bb_current_user_can( 'delete_post', get_post_id() ) )
 		return;
 
 	if ( 1 == $bb_post->post_status )
@@ -1331,12 +1358,14 @@ function tag_pages() {
 	echo apply_filters( 'topic_pages', get_page_number_links( $page, $tagged_topic_count ) );
 }
 
-function forum_dropdown() {
+function forum_dropdown( $callback = false, $callback_args = false ) {
 	global $forum_id;
 	$forums = get_forums();
 	echo '<select name="forum_id" id="forum_id" tabindex="5">';
 
 	foreach ( $forums as $forum ) :
+		if ( is_callable($callback) && false == call_user_func( $callback, $forum->forum_id, $callback_args ) )
+			continue;
 		$selected = ( $forum_id == $forum->forum_id ) ? " selected='selected'" : '';
 		echo "<option value='$forum->forum_id'$selected>$forum->forum_name</option>";
 	endforeach;

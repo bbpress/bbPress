@@ -7,7 +7,7 @@ $forum_id = $_REQUEST['forum_id'];
 if ( !is_numeric($topic_id) || !is_numeric($forum_id) )
 	bb_die(__('Invalid topic or forum.'));
 
-if ( !bb_current_user_can('manage_topics') ) {
+if ( !bb_current_user_can( 'move_topic', $topic_id, $forum_id ) ) {
 	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }

@@ -39,14 +39,17 @@ class BB_Roles {
 						'edit_others_favorites' => true,
 						'manage_forums' => true,	// Add/Rename forum
 						'delete_forums' => true,	// Delete forum
-						'manage_topics' => true,	// Delete/Close/Stick
+						'delete_topics' => true,
+						'close_topics' => true,
+						'stick_topics' => true,
+						'move_topics' => true,
 						'view_by_ip' => true,		// view-ip.php
 						'edit_closed' => true,		// Edit closed topics
 						'edit_deleted' => true,		// Edit deleted topics
 						'browse_deleted' => true,	// Use 'deleted' view
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
-						'manage_posts' => true,		// Delete
+						'delete_posts' => true,
 						'throttle' => true,		// Post back to back arbitrarily quickly
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
@@ -73,14 +76,17 @@ class BB_Roles {
 						'edit_others_favorites' => true,	//+
 						'manage_forums' => true,		//+
 						'delete_forums' => true,		//+
-						'manage_topics' => true,
+						'delete_topics' => true,
+						'close_topics' => true,
+						'stick_topics' => true,
+						'move_topics' => true,
 						'view_by_ip' => true,
 						'edit_closed' => true,
 						'edit_deleted' => true,
 						'browse_deleted' => true,
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
-						'manage_posts' => true,
+						'delete_posts' => true,
 						'throttle' => true,
 						'ignore_edit_lock' => true,
 						'edit_others_posts' => true,
@@ -101,14 +107,17 @@ class BB_Roles {
 						'moderate' => true,
 						'participate' => true,
 
-						'manage_topics' => true,	//+
+						'delete_topics' => true,	//+
+						'close_topics' => true,		//+
+						'stick_topics' => true,		//+
+						'mave_topics' => true,		//+
 						'view_by_ip' => true,		//+
 						'edit_closed' => true,		//+
 						'edit_deleted' => true,		//+
 						'browse_deleted' => true,	//+
 						'edit_others_tags' => true,	//+
 						'edit_others_topics' => true,	//+
-						'manage_posts' => true,		//+
+						'delete_posts' => true,		//+
 						'throttle' => true,		//+
 						'ignore_edit_lock' => true,	//+
 						'edit_others_posts' => true,	//+
@@ -332,7 +341,10 @@ function bb_map_meta_cap($cap, $user_id) {
 	$args = array_slice(func_get_args(), 2);
 	$caps = array();
 
-	switch ($cap) {
+	switch ( $cap ) {
+	case 'write_post':
+		$caps[] = 'write_posts';
+		break;
 	case 'edit_post': // edit_posts, edit_others_posts, edit_deleted, edit_closed, ignore_edit_lock
 		if ( !$bb_post = bb_get_post( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
@@ -351,6 +363,13 @@ function bb_map_meta_cap($cap, $user_id) {
                 if ( $edit_lock >= 0 && $curr_time - $post_time > $edit_lock * 60 )
 			$caps[] = 'ignore_edit_lock';
 		break;
+	case 'manage_posts' : // back compat
+	case 'delete_post' :
+		$caps[] = 'delete_posts';
+		break;
+	case 'write_topic':
+		$caps[] = 'write_topics';
+		break;
 	case 'edit_topic': // edit_closed, edit_deleted, edit_topics, edit_others_topics
 		if ( !$topic = get_topic( $args[0] ) ) :
 			$caps[] = 'magically_provide_data_given_bad_input';
@@ -363,6 +382,24 @@ function bb_map_meta_cap($cap, $user_id) {
 		if ( $user_id == $topic->topic_poster )
 			$caps[] = 'edit_topics';
 		else	$caps[] = 'edit_others_topics';
+		break;
+	case 'move_topic' :
+		$caps[] = 'move_topics';
+		break;
+	case 'stick_topic' :
+		$caps[] = 'stick_topics';
+		break;
+	case 'close_topic' :
+		$cops[] = 'close_topics';
+		break;
+	case 'delete_topic' :
+		$caps[] = 'delete_topics';
+		break;
+	case 'manage_topics' : // back compat
+		$caps[] = 'move_topics';
+		$caps[] = 'stick_topics';
+		$cops[] = 'close_topics';
+		$caps[] = 'delete_topics';
 		break;
 	case 'add_tag_to': // edit_closed, edit_deleted, edit_tags;
 		if ( !$topic = get_topic( $args[0] ) ) :
@@ -397,12 +434,6 @@ function bb_map_meta_cap($cap, $user_id) {
 		if ( $user_id == $args[0] )
 			$caps[] = 'edit_favorites';
 		else	$caps[] = 'edit_others_favorites';
-		break;
-	case 'write_topic':
-		$caps[] = 'write_topics';
-		break;
-	case 'write_post':
-		$caps[] = 'write_posts';
 		break;
 	case 'delete_forum':
 		$caps[] = 'delete_forums';

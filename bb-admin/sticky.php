@@ -8,7 +8,7 @@ $super = ( isset($_GET['super']) && 1 == (int) $_GET['super'] ) ? 1 : 0;
 if ( !$topic )
 	bb_die(__('There is a problem with that topic, pardner.'));
 
-if ( !bb_current_user_can('manage_topics') ) {
+if ( !bb_current_user_can( 'stick_topic', $topic_id ) ) {
 	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }

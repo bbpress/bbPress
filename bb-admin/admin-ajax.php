@@ -71,13 +71,13 @@ case 'dim-favorite' :
 	$topic_id = (int) @$_POST['topic_id'];
 	$user_id  = (int) @$_POST['user_id'];
 
-	if ( !bb_current_user_can('edit_favorites') )
-		die('-1');
-
 	$topic = get_topic( $topic_id );
 	$user = bb_get_user( $user_id );
 	if ( !$topic || !$user )
 		die('0');
+
+	if ( !bb_current_user_can( 'edit_favorites_of', $user->ID ) )
+		die('-1');
 
 	$is_fav = is_user_favorite( $user_id, $topic_id );
 
@@ -94,7 +94,8 @@ case 'delete-post' :
 	$post_id = (int) $_POST['id'];
 	$page = (int) $_POST['page'];
 	$last_mod = (int) $_POST['last_mod'];
-	if ( !bb_current_user_can('manage_posts') )
+
+	if ( !bb_current_user_can( 'delete_post', $post_id ) )
 		die('-1');
 
 	$bb_post = bb_get_post ( $post_id );
@@ -149,7 +150,6 @@ case 'add-post' : // Can put last_modified stuff back in later
 
 default :
 	do_action( 'bb_ajax_' . $_POST['action'] );
-var_dump($_POST);
 	die('0');
 	break;
 endswitch;

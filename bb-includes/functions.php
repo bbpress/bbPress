@@ -1839,8 +1839,11 @@ function bb_explain_nonce($action) {
 
 		$trans['add']['forum'] = array(__("Are you sure you want to add this forum?"), false);
 		$trans['update']['forums'] = array(__("Are you sure you want to update your forums?"), false);
+		$trans['delete']['forums'] = array(__("Are you sure you want to delete that forum?"), false);
 
 		$trans['do']['counts'] = array(__("Are you sure you want to recount these items?"), false);
+
+		$trans['switch']['theme'] = array(__("Are you sure you want to switch themes?"), false);
 
 		if ( isset($trans[$verb][$noun]) ) {
 			if ( !empty($trans[$verb][$noun][1]) ) {

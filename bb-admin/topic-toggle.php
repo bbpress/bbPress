@@ -7,7 +7,7 @@ $topic    =  get_topic ( $topic_id );
 if ( !$topic )
 	bb_die(__('There is a problem with that topic, pardner.'));
 
-if ( !bb_current_user_can('manage_topics') ) {
+if ( !bb_current_user_can( 'close_topic', $topic_id ) ) {
 	wp_redirect( bb_get_option( 'uri' ) );
 	exit();
 }
