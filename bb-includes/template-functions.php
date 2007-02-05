@@ -981,7 +981,10 @@ function get_allowed_markup( $args = '' ) {
 	$format = 'flat';
 	extract($a);
 
-	$tags = array_keys(bb_allowed_tags());
+	$tags = bb_allowed_tags();
+	unset($tags['pre']);
+	$tags = array_keys($tags);
+
 	switch ( $format ) :
 	case 'array' :
 		$r = $tags;

@@ -3,8 +3,8 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = $pee . "\n"; // just to make things a little easier, pad the end
 	$pee = preg_replace('|<br />\s*<br />|', "\n\n", $pee);
 	// Space things out a little
-	$pee = preg_replace('!(<(?:ul|ol|li|blockquote|p)[^>]*>)!', "\n$1", $pee); 
-	$pee = preg_replace('!(</(?:ul|ol|li|blockquote|p)>)!', "$1\n", $pee);
+	$pee = preg_replace('!(<(?:ul|ol|li|blockquote|pre|p)[^>]*>)!', "\n$1", $pee); 
+	$pee = preg_replace('!(</(?:ul|ol|li|blockquote|pre|p)>)!', "$1\n", $pee);
 	$pee = str_replace(array("\r\n", "\r"), "\n", $pee); // cross-platform newlines 
 	$pee = preg_replace("/\n\n+/", "\n\n", $pee); // take care of duplicates
 	$pee = preg_replace('/\n?(.+?)(?:\n\s*\n|\z)/s', "<p>$1</p>\n", $pee); // make paragraphs, including one at the end 
@@ -18,16 +18,16 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	if ($br) $pee = preg_replace('|(?<!<br />)\s*\n|', "<br />\n", $pee); // optionally make line breaks
 	$pee = preg_replace('!(</?(?:ul|ol|li|blockquote|p)[^>]*>)\s*<br />!', "$1", $pee);
 	$pee = preg_replace('!<br />(\s*</?(?:p|li|ul|ol)>)!', '$1', $pee);
-	
+	if ( false !== strpos( $pee, '<pre' ) )
+		$pee = preg_replace('!(<pre.*?>)(.*?)</pre>!ise', " stripslashes('$1') .  stripslashes(clean_pre('$2'))  . '</pre>' ", $pee);
 	return $pee; 
 }
 
 function encodeit($text) {
 	$text = stripslashes($text); // because it's a regex callback
 	$text = htmlspecialchars($text, ENT_QUOTES);
-	$text = str_replace("\r", "\n", $text);
-	$text = preg_replace("|\n\n+|", "\n", $text);
-	$text = nl2br($text);
+	$text = str_replace(array("\r\n", "\r"), "\n", $text);
+	$text = preg_replace("|\n\n\n+|", "\n\n", $text);
 	$text = str_replace('&amp;lt;', '&lt;', $text);
 	$text = str_replace('&amp;gt;', '&gt;', $text);
 	return $text;
@@ -44,12 +44,12 @@ function decodeit($text) {
 }
 
 function code_trick( $text ) {
-	$text = preg_replace("|`(.*?)`|se", "'<code>' . encodeit('$1') . '</code>'", $text);
+	$text = preg_replace("|`(.*?)`|se", "'<pre><code>' . encodeit('$1') . '</code></pre>'", $text);
 	return $text;
 }
 
 function code_trick_reverse( $text ) {
-	$text = preg_replace("|<code>(.*?)</code>|se", "'`' . decodeit('$1') . '`'", $text);
+	$text = preg_replace("!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!se", "'`' . decodeit('$2') . '`'", $text);
 	$text = str_replace(array('<p>', '<br />'), '', $text);
 	$text = str_replace('</p>', "\n", $text);
 	return $text;
@@ -67,8 +67,7 @@ function encode_bad( $text ) {
 			$text = preg_replace("|&lt;(/?$tag)&gt;|", '<$1>', $text);
 	}
 
-	$text = preg_replace("|`(.*?)`|se", "'<code>' . encodeit('$1') . '</code>'", $text);
-
+	$text = code_trick( $text );
 	return $text;
 }
 
@@ -86,6 +85,7 @@ function bb_allowed_tags() {
 		'blockquote' => array('cite' => array()),
 		'br' => array(),
 		'code' => array(),
+		'pre' => array(),
 		'em' => array(),
 		'strong' => array(),
 		'ul' => array(),

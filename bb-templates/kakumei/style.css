@@ -23,7 +23,7 @@ a:hover { color: #006400; }
 
 .alt { background: #fff; }
 
-code { font: 1.0em Monaco, 'Courier New', monospace; }
+pre, code { font: 1.0em Monaco, 'Courier New', monospace; }
 
 p { margin-bottom: 1.0em; }
 

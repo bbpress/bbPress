@@ -8,6 +8,15 @@ endif;
 
 /* Formatting */
 
+if ( !function_exists('clean_pre') ) : // [WP2056]
+function clean_pre( $text ) {
+	$text = str_replace('<br />', '', $text);
+	$text = str_replace('<p>', "\n", $text);
+	$text = str_replace('</p>', '', $text);
+	return $text;
+}
+endif;
+
 if ( !function_exists('wp_specialchars') ) :
 function wp_specialchars( $text, $quotes = 0 ) { // [4451]
 	// Like htmlspecialchars except don't double-encode HTML entities
