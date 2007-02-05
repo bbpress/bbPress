@@ -1579,7 +1579,7 @@ function bb_repermalink() {
 		global_profile_menu_structure();
 		$valid = false;
 		if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
-			foreach ( $profile_hooks as $valid_file => $valid_tab )
+			foreach ( $profile_hooks as $valid_tab => $valid_file )
 				if ( $tab == $valid_tab ) {
 					$valid = true;
 					$self = $valid_file;
@@ -1669,7 +1669,7 @@ function global_profile_menu_structure() {
 	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
 		if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
-			$profile_hooks[$profile_tab[3]] = tag_sanitize($profile_tab[4]);
+			$profile_hooks[tag_sanitize($profile_tab[4])] = $profile_tab[3];
 
 	do_action('bb_profile_menu');
 	ksort($profile_menu);
@@ -1683,7 +1683,7 @@ function add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = fals
 	$profile_tab = array($tab_title, $users_cap, $others_cap, $file, $arg);
 	$profile_menu[] = $profile_tab;
 	if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
-		$profile_hooks[$file] = tag_sanitize($arg);
+		$profile_hooks[tag_sanitize($arg)] = $file;
 }
 
 function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {

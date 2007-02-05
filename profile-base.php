@@ -9,7 +9,7 @@ if ( !is_bb_profile() ) {
 do_action($self . '_pre_head', '');
 
 
-if ( function_exists($self) )
+if ( is_callable($self) )
 	bb_load_template( 'profile-base.php', array('self') );
 
 exit();

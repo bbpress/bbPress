@@ -92,7 +92,7 @@ function profile_menu() {
 			$profile_page_title = $item[0];
 		}
 		if ( can_access_tab( $item, $bb_current_user->ID, $user_id ) )
-			if ( file_exists($item[3]) || function_exists($item[3]) )
+			if ( file_exists($item[3]) || is_callable($item[3]) )
 				$list .= "\n\t<li$class><a href='" . wp_specialchars( get_profile_tab_link($user_id, $item[4]) ) . "'>{$item[0]}</a></li>";
 	}
 	$list .= "\n</ul>";
@@ -1130,6 +1130,12 @@ function bb_profile_data() {
 	echo "</dl>\n";
 }
 
+function bb_profile_base_content() {
+	global $self;
+	if ( !is_callable( $self ) )
+		return; // should never happen
+	call_user_func( $self );
+}
 
 //TAGS
 function topic_tags() {
