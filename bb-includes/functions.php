@@ -1009,7 +1009,7 @@ function bb_new_post( $topic_id, $bb_post ) {
 	$post_status = (int) apply_filters('pre_post_status', '0', false, $topic_id);
 	$now   = bb_current_time('mysql');
 	$uid   = bb_get_current_user_info( 'id' );
-	$uname = bb_get_current_user_info( 'name' )
+	$uname = bb_get_current_user_info( 'name' );
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
 	$topic = get_topic( $topic_id );

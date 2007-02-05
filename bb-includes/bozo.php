@@ -36,7 +36,7 @@ function current_user_is_bozo( $topic_id = false ) {
 		return isset($bb_current_user->data->is_bozo) && $bb_current_user->data->is_bozo;
 	global $topic;
 	$topic = get_topic( $topic_id );
-	$id = bb_get_current_user_info( 'id' )
+	$id = bb_get_current_user_info( 'id' );
 	return isset($topic->bozos[$id]) && $topic->bozos[$id];
 }
 
