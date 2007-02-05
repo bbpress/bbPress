@@ -99,4 +99,8 @@ function get_inception() {
 	return bb_get_inception( 'timestamp' );
 }
 
+function forum_dropdown( $c = false, $a = false ) {
+	bb_forum_dropdown( $c, $a );
+}
+
 ?>

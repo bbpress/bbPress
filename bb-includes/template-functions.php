@@ -760,10 +760,13 @@ function topic_move_dropdown() {
 		return;
 	$forum_id = $topic->forum_id;
 
+	if ( !$dropdown = bb_get_forum_dropdown( 'bb_current_user_can', array('move_topic', $topic->topic_id) ) )
+		return;
+
 	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
 	echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
-	echo '<label for="forum_id">'. __('Move this topic to the selected forum:');
-	forum_dropdown( 'bb_current_user_can', array('move_topic', $topic->topic_id) );
+	echo '<label for="forum_id">'. __('Move this topic to the selected forum:') . ' ';
+	echo $dropdown;
 	echo "</label>\n\t";
 	bb_nonce_field( 'move-topic_' . $topic->topic_id );
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
@@ -811,7 +814,7 @@ function new_topic( $text = false ) {
 }
 
 function bb_new_topic_forum_dropdown() {
-	forum_dropdown( 'bb_current_user_can', array('write_topic') );
+	bb_forum_dropdown( 'bb_current_user_can', array('write_topic') );
 }
 
 // POSTS
@@ -1368,26 +1371,23 @@ function tag_pages() {
 	echo apply_filters( 'topic_pages', get_page_number_links( $page, $tagged_topic_count ) );
 }
 
-function forum_dropdown( $callback = false, $callback_args = false ) {
+function bb_forum_dropdown( $callback = false, $callback_args = false ) {
+	echo bb_get_forum_dropdown( $callback, $callback_args );
+}
+
+function bb_get_forum_dropdown( $callback = false, $callback_args = false ) {
 	global $forum_id;
-	$forums = get_forums();
+	if ( !$forums = get_forums( $callback, $callback_args ) )
+		return;
 
-	if ( !is_array($callback_args) )
-		$callback_args = array();
-
-	echo '<select name="forum_id" id="forum_id" tabindex="5">';
+	$r = '<select name="forum_id" id="forum_id" tabindex="5">';
 
 	foreach ( $forums as $forum ) :
-		if ( is_callable($callback) ) :
-			$_callback_args = $callback_args;
-			array_push( $_callback_args, $forum->forum_id );
-			if ( false == call_user_func_array( $callback, $_callback_args ) ) // $forum_id will be last arg;
-				continue;
-		endif;
 		$selected = ( $forum_id == $forum->forum_id ) ? " selected='selected'" : '';
-		echo "<option value='$forum->forum_id'$selected>$forum->forum_name</option>";
+		$r .= "<option value='$forum->forum_id'$selected>$forum->forum_name</option>";
 	endforeach;
-	echo '</select>';
+	$r .= '</select>';
+	return $r;
 }
 
 //FAVORITES

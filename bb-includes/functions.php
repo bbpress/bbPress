@@ -1,8 +1,21 @@
 <?php
 
-function get_forums() {
+function get_forums( $callback = false, $callback_args = false ) {
 	global $bb_cache;
-	return apply_filters('get_forums',$bb_cache->get_forums());
+	$forums = (array) apply_filters('get_forums',$bb_cache->get_forums());
+	if ( !is_callable($callback) )
+		return $forums;
+
+	if ( !is_array($callback_args) )
+		$callback_args = array();
+
+	foreach ( array_keys($forums) as $f ) :
+		$_callback_args = $callback_args;
+		array_push( $_callback_args, $forums[$f]->forum_id );
+		if ( false == call_user_func_array( $callback, $_callback_args ) ) // $forum_id will be last arg;
+			unset($forums[$f]);
+	endforeach;
+	return $forums;
 }
 
 function get_forum( $id ) {

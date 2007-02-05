@@ -131,8 +131,8 @@ class BB_Cache {
 
 	function cache_posts( $query ) { // soft cache
 		global $bbdb, $bb_post_cache;
-		if ( $posts = $bbdb->get_results( $query ) )
-			foreach( (array) $posts as $bb_post )
+		if ( $posts = (array) $bbdb->get_results( $query ) )
+			foreach( $posts as $bb_post )
 				$bb_post_cache[$bb_post->post_id] = $bb_post;
 		return $posts;
 	}
@@ -147,7 +147,7 @@ class BB_Cache {
 		if ( $this->use_cache && $normal && file_exists(BBPATH . 'bb-cache/bb_forums') )
 			return $this->read_cache(BBPATH . 'bb-cache/bb_forums');
 
-		$forums = $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
+		$forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
 		if ( $this->use_cache && $normal && $forums )
 			$this->write_cache(BBPATH . 'bb-cache/bb_forums', $forums);
 		return $forums;
