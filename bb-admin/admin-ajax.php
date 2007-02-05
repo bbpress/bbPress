@@ -3,7 +3,7 @@ require_once('../bb-load.php');
 
 bb_check_ajax_referer();
 
-if ( !$bb_current_user )
+if ( !$bb_current_id = bb_get_current_user_info( 'id' ) )
 	die('-1');
 define('DOING_AJAX', true);
 
@@ -25,7 +25,7 @@ case 'add-tag' :
 	add_action('bb_already_tagged', 'grab_results', 10, 3);
 	$topic_id = (int) @$_POST['id'];
 	$tag_name =       @$_POST['tag'];
-	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_user->ID, $topic_id) )
+	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_id, $topic_id) )
 		die('-1');
 
 	$topic = get_topic( $topic_id );
@@ -37,7 +37,7 @@ case 'add-tag' :
 		$tag = get_tag( $ajax_results[0] );
 		$tag_id_val = $tag->tag_id . '_' . $ajax_results[1];
 		$tag->raw_tag = wp_specialchars($tag->raw_tag, 1);
-		$tag->user_id = $bb_current_user->ID;
+		$tag->user_id = $bb_current_id;
 		$tag->topic_id = $topic_id;
 		$x = new WP_Ajax_Response( array(
 			'what' => 'tag',

@@ -1,18 +1,16 @@
 <?php
 function bozo_posts( $where ) {
-	global $bb_current_user;
-	if ( $bb_current_user )
-		$where = " AND ( post_status = 0 OR post_status > 1 AND poster_id = '$bb_current_user->ID' ) ";
+	if ( $id = bb_get_current_user_info( 'id' ) )
+		$where = " AND ( post_status = 0 OR post_status > 1 AND poster_id = '$id' ) ";
 	return $where;
 }
 
 function bozo_topics( $where ) {
-	global $bb_current_user;
-	if ( $bb_current_user )
+	if ( $id = bb_get_current_user_info( 'id' ) )
 		$where = str_replace(
 			array('topic_status = 0', "topic_status = '0'"),
-			"( topic_status = 0 OR topic_status > 1 AND topic_poster = '$bb_current_user->ID' )",
-			$where);
+			"( topic_status = 0 OR topic_status > 1 AND topic_poster = '$id' )",
+		$where);
 	return $where;
 }
 
@@ -38,7 +36,8 @@ function current_user_is_bozo( $topic_id = false ) {
 		return isset($bb_current_user->data->is_bozo) && $bb_current_user->data->is_bozo;
 	global $topic;
 	$topic = get_topic( $topic_id );
-	return isset($topic->bozos[$bb_current_user->ID]) && $topic->bozos[$bb_current_user->ID];
+	$id = bb_get_current_user_info( 'id' )
+	return isset($topic->bozos[$id]) && $topic->bozos[$id];
 }
 
 function bozo_pre_permalink() {
@@ -53,7 +52,7 @@ function bozo_latest_filter() {
 }
 
 function bozo_topic_db_filter() {
-	global $topic, $topic_id, $bb_current_user;
+	global $topic, $topic_id;
 	if ( current_user_is_bozo( $topic->topic_id ? $topic->topic_id : $topic_id ) ) {
 		add_filter( 'get_thread_where', 'bozo_posts' );
 		add_filter( 'get_thread_post_ids', 'bozo_posts' );
@@ -61,8 +60,8 @@ function bozo_topic_db_filter() {
 }
 
 function bozo_profile_db_filter() {
-	global $user, $bb_current_user;
-	if ( $bb_current_user->ID == $user->ID && is_array($user->bozo_topics) )
+	global $user;
+	if ( bb_get_current_user_info( 'id' ) == $user->ID && is_array($user->bozo_topics) )
 		add_filter( 'get_recent_user_replies_where', 'bozo_posts' );
 }
 
@@ -141,19 +140,19 @@ function bozo_add_recount_list() {
 }
 
 function bozo_topic_pages_add( $add ) {
-	global $topic, $bb_current_user;
+	global $topic;
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
 		$add += @array_sum($topic->bozos);
 	endif;
 	if ( current_user_is_bozo( $topic->topic_id ) )
-		$add += $topic->bozos[(int) $bb_current_user->ID];
+		$add += $topic->bozos[bb_get_current_user_info( 'id' )];
 	return $add;
 }
 
 function bozo_get_topic_posts( $topic_posts ) {
-	global $topic, $bb_current_user;
+	global $topic;
 	if ( current_user_is_bozo( $topic->topic_id ) )
-		$topic_posts += $topic->bozos[$bb_current_user->ID];
+		$topic_posts += $topic->bozos[bb_get_current_user_info( 'id' )];
 	return $topic_posts;
 }
 

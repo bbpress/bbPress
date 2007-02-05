@@ -7,8 +7,8 @@
 <p><?php _e('Your Favorites allow you to create a custom <abbr title="Really Simple Syndication">RSS</abbr> feed which pulls recent replies to the topics you specify.
 To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic&#8217;s page.'); ?></p>
 
-<?php if ( $user_id == $bb_current_user->ID ) : ?>
-<p><?php printf(__('Subscribe to your favorites&#8217; <a href="%s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), get_favorites_rss_link( $bb_current_user->ID )) ?></p>
+<?php if ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
+<p><?php printf(__('Subscribe to your favorites&#8217; <a href="%s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), get_favorites_rss_link( bb_get_current_user_info( 'id' ) )) ?></p>
 <?php endif; ?>
 
 <?php if ( $topics ) : ?>
@@ -35,7 +35,7 @@ To add topics to your list of favorites, just click the "Add to Favorites" link 
 <?php favorites_pages(); ?>
 </div>
 
-<?php else: if ( $user_id == $bb_current_user->ID ) : ?>
+<?php else: if ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
 
 <p><?php _e('You currently have no favorites.'); ?></p>
 

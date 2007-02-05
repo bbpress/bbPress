@@ -68,7 +68,7 @@ function bb_set_current_user($id) {
 endif;
 
 if ( !function_exists('bb_current_user') ) :
-//This is only used at initialization.  Use global $bb_current_user to grab user info.
+//This is only used at initialization.  Use bb_get_current_user_info() (or $bb_current_user global if really needed) to grab user info.
 function bb_current_user() {
 	global $bb_current_user;
 

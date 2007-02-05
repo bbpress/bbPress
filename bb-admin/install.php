@@ -261,13 +261,13 @@ function get_keymaster_password($user_id, $pass) {
 // KeyMaster
 if ( isset($_POST['old_keymaster']) ) :
 	$bb_current_user = bb_set_current_user( (int) $_POST['old_keymaster'] );
-	$admin_login = get_user_name( $bb_current_user->ID );
+	$admin_login = bb_get_current_user_info( 'name' );
 	$password = __('*Your WordPress password*');
 	$already = true;
 elseif ( isset($_POST['new_keymaster']) ) :
 	$bb_current_user = bb_set_current_user( $_POST['new_keymaster'] );
 	$bb_current_user->set_role('keymaster');
-	$admin_login = get_user_name( $bb_current_user->ID );
+	$admin_login = bb_get_current_user_info( 'name' );
 	$password = __('*Your WordPress password*');
 	$already = true;
 else :

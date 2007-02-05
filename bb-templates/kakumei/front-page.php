@@ -58,7 +58,7 @@
 <?php endforeach; ?>
 </table>
 
-<?php if ( $bb_current_user->ID ) : ?>
+<?php if ( bb_is_user_logged_in() ) : ?>
 <div id="viewdiv">
 <h2><?php _e('Views'); ?></h2>
 <ul id="views">

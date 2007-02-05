@@ -81,9 +81,10 @@ function bb_head() {
 }
 
 function profile_menu() {
-	global $bbdb, $bb_current_user, $user_id, $profile_menu, $self, $profile_page_title;
+	global $bbdb, $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . get_user_profile_link( $user_id ) . '">' . __('Profile') . '</a></li>';
+	$id = bb_get_current_user_info( 'id' );
 	foreach ($profile_menu as $item) {
 		// 0 = name, 1 = users cap, 2 = others cap, 3 = file
 		$class = '';
@@ -91,7 +92,7 @@ function profile_menu() {
 			$class = ' class="current"';
 			$profile_page_title = $item[0];
 		}
-		if ( can_access_tab( $item, $bb_current_user->ID, $user_id ) )
+		if ( can_access_tab( $item, $id, $user_id ) )
 			if ( file_exists($item[3]) || is_callable($item[3]) )
 				$list .= "\n\t<li$class><a href='" . wp_specialchars( get_profile_tab_link($user_id, $item[4]) ) . "'>{$item[0]}</a></li>";
 	}
@@ -115,7 +116,7 @@ function bb_post_template() {
 }
 
 function post_form( $h2 = '' ) {
-	global $bb_current_user, $bb, $page, $topic, $forum;
+	global $bb, $page, $topic, $forum;
 	$add = topic_pages_add();
 	if ( empty($h2) && false !== $h2 ) {
 		if ( is_topic() )
@@ -719,8 +720,7 @@ function topic_sticky_link() {
 }
 
 function topic_show_all_link() {
-	global $bb_current_user;
-	if ( !bb_current_user_can('browse_deleted') )
+	if ( !bb_current_user_can( 'browse_deleted' ) )
 		return;
 	if ( 'all' == @$_GET['view'] )
 		echo "<a href='" . get_topic_link() . "'>". __('View normal posts') ."</a>";
@@ -729,7 +729,7 @@ function topic_show_all_link() {
 }
 
 function topic_posts_link() {
-	global $bb_current_user, $topic;
+	global $topic;
 	$post_num = get_topic_posts();
 	$posts = sprintf(__ngettext( '%s post', '%s posts', $post_num ), $post_num);
 	if ( 'all' == @$_GET['view'] && bb_current_user_can('browse_deleted') )
@@ -737,9 +737,10 @@ function topic_posts_link() {
 	else
 		echo $posts;
 
-	if ( bb_current_user_can('browse_deleted') ) {
-		if ( isset($topic->bozos[$bb_current_user->ID]) && 'all' != @$_GET['view'] )
-			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$bb_current_user->ID]}; return \$a;") );
+	if ( bb_current_user_can( 'browse_deleted' ) ) {
+		$id = bb_get_current_user_info( 'id' );
+		if ( isset($topic->bozos[$id]) && 'all' != @$_GET['view'] )
+			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$id]}; return \$a;") );
 		if ( $deleted = get_topic_deleted_posts() ) {
 			$extra = sprintf(__('+%d more'), $deleted);
 			if ( 'all' == @$_GET['view'] )
@@ -751,7 +752,7 @@ function topic_posts_link() {
 }
 
 function topic_move_dropdown() {
-	global $bb_current_user, $forum_id, $topic;
+	global $forum_id, $topic;
 	if ( !bb_current_user_can( 'move_topic', get_topic_id() ) )
 		return;
 	$forum_id = $topic->forum_id;
@@ -909,7 +910,7 @@ function post_edit_link() {
 }
 
 function post_del_class() {
-	global $bb_current_user, $bb_post;
+	global $bb_post;
 	switch ( $bb_post->post_status ) :
 	case 0 : return ''; break;
 	case 1 : return 'deleted'; break;
@@ -918,7 +919,7 @@ function post_del_class() {
 }
 
 function post_delete_link() {
-	global $bb_current_user, $bb_post;
+	global $bb_post;
 	if ( !bb_current_user_can( 'delete_post', get_post_id() ) )
 		return;
 
@@ -1149,7 +1150,7 @@ function bb_profile_base_content() {
 }
 
 function bb_profile_data_form( $id = 0 ) {
-	global $user_id, $bb_current_user;
+	global $user_id;
 
 	if ( !$id )
 		$id =& $user_id;
@@ -1164,7 +1165,7 @@ function bb_profile_data_form( $id = 0 ) {
 	$required = false;
 ?>
 <table id="userinfo">
-<?php if ( is_array($profile_info_keys) ) : foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_user->ID == $user->ID ) : ?>
+<?php if ( is_array($profile_info_keys) ) : $bb_current_id = bb_get_current_user_info( 'id' ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_id == $user->ID ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="<?php if ( isset($label[2]) ) echo $label[2]; else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo $key; ?>" value="<?php echo wp_specialchars( $user->$key, 1); ?>" /><?php
@@ -1184,7 +1185,7 @@ endif;
 }
 
 function bb_profile_admin_form( $id = 0 ) {
-	global $user_id, $bb_current_user, $bb_roles;
+	global $user_id, $bb_roles;
 
 	if ( !$id )
 		$id =& $user_id;
@@ -1270,11 +1271,9 @@ function bb_get_admin_link( $args = '' ) {
 }
 
 function bb_profile_link( $args = '' ) {
-	global $bb_current_user;
-
 	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '' );
 	$args = bb_parse_args( $args, $defaults );
-	echo apply_filters( 'bb_profile_link', "$before<a href='" . get_user_profile_link( $bb_current_user->ID ) . "'>$text</a>$after", $args );
+	echo apply_filters( 'bb_profile_link', "$before<a href='" . get_user_profile_link( bb_get_current_user_info( 'id' ) ) . "'>$text</a>$after", $args );
 }
 
 function bb_current_user_info( $key = '' ) {
@@ -1288,7 +1287,8 @@ function bb_current_user_info( $key = '' ) {
 function bb_get_current_user_info( $key = '' ) {
 	if ( !is_string($key) )
 		return;
-	$user = bb_get_current_user(); // Not globalized
+	if ( !$user = bb_get_current_user() ) // Not globalized
+		return false;
 
 	switch ( $key ) :
 	case '' :
@@ -1296,7 +1296,7 @@ function bb_get_current_user_info( $key = '' ) {
 		break;
 	case 'id' :
 	case 'ID' :
-		return $user->ID;
+		return (int) $user->ID;
 		break;
 	case 'name' :
 	case 'login' :
@@ -1324,8 +1324,8 @@ function bb_get_user_email( $id ) {
 
 //TAGS
 function topic_tags() {
-	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $bb_current_user, $topic;
-	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
+	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $topic;
+	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 		bb_load_template( 'topic-tags.php', array('user_tags', 'other_tags') );
 }
 
@@ -1402,8 +1402,8 @@ function get_tag_rss_link( $tag_id = 0 ) {
 }
 
 function tag_form() {
-	global $topic, $bb_current_user;
-	if ( !bb_current_user_can( 'edit_tag_by_on', $bb_current_user->ID, $topic->topic_id ) )
+	global $topic;
+	if ( !bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 		return false;
 	echo "<form id='tag-form' method='post' action='" . bb_get_option('uri') . "tag-add.php'>\n";
 	bb_load_template( 'tag-form.php' );
@@ -1412,7 +1412,7 @@ function tag_form() {
 }
 
 function manage_tags_forms() {
-	global $tag, $bb_current_user;
+	global $tag;
 	if ( !bb_current_user_can('manage_tags') )
 		return false;
 	$form  = "<ul id='manage-tags'>\n ";
@@ -1448,7 +1448,7 @@ function tag_remove_link() {
 }
 
 function get_tag_remove_link() {
-	global $tag, $bb_current_user, $topic;
+	global $tag, $topic;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 	$url = add_query_arg( array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id), bb_get_option('uri') . 'tag-remove.php' );
@@ -1574,9 +1574,8 @@ function favorites_link( $user_id = 0 ) {
 }
 
 function get_favorites_link( $user_id = 0 ) {
-	global $bb_current_user;
 	if ( !$user_id )
-		$user_id = $bb_current_user->ID;
+		$user_id = bb_get_current_user_info( 'id' );
 	return apply_filters( 'get_favorites_link', get_profile_tab_link($user_id, 'favorites'), $user_id );
 }
 

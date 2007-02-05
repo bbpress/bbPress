@@ -40,7 +40,7 @@ function bb_ksd_http_post($request, $host, $path, $port = 80) {
 }
 
 function bb_ksd_submit( $submit, $type = false ) {
-	global $bb_ksd_api_host, $bb_ksd_api_port, $bb_current_user;
+	global $bb_ksd_api_host, $bb_ksd_api_port;
 
 	switch ( $type ) :
 	case 'ham' :
@@ -130,9 +130,9 @@ function bb_ksd_check_post( $post_text ) {
 
 function bb_ksd_check_profile( $user_id ) {
 	global $bb_current_user, $user_obj;
-	$current = $bb_current_user ? $bb_current_user->ID : 0;
+	$bb_current_id = bb_get_current_user_info( 'id' );
 	bb_set_current_user( $user_id );
-	if ( $current && $current != $user_id ) {
+	if ( $bb_current_id && $bb_current_id != $user_id ) {
 		if ( $user_obj->data->is_bozo && !$bb_current_user->data->is_bozo )
 			bb_ksd_submit( $user_id, 'hammer' );
 		if ( !$user_obj->data->is_bozo && $bb_current_user->data->is_bozo )
@@ -140,9 +140,9 @@ function bb_ksd_check_profile( $user_id ) {
 	} else {
 		$response = bb_ksd_submit( $bb_current_user->data->occ . ' ' . $bb_current_user->data->interests );
 		if ( 'true' == $response[1] )
-			bozon( $bb_current_user->ID );
+			bozon( bb_get_current_user_info( 'id' ) );
 	}
-	bb_set_current_user($current);
+	bb_set_current_user((int) $bb_current_id);
 }
 
 function bb_ksd_new_post( $post_id ) {

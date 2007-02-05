@@ -581,16 +581,16 @@ function bb_current_time( $type = 'timestamp' ) {
 }
 
 function bb_block_current_user() {
-	global $bbdb, $bb_table_prefix, $bb_current_user;
-	if ( $bb_current_user )
-		bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
+	global $bbdb, $bb_table_prefix;
+	if ( $id = bb_get_current_user_info( 'id' ) )
+		bb_update_usermeta( $id, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
 //Temp
 function bb_log_current_nocaps() {
-	global $bbdb, $bb_table_prefix, $bb_current_user;
-	bb_update_usermeta( $bb_current_user->ID, $bb_table_prefix . 'no_caps', 1 ); // Just for logging.
+	global $bbdb, $bb_table_prefix;
+	bb_update_usermeta( bb_get_current_user_info( 'id' ), $bb_table_prefix . 'no_caps', 1 ); // Just for logging.
 }
 
 function bb_get_user( $user_id, $cache = true ) {
@@ -714,10 +714,10 @@ function bb_update_topics_replied( $user_id ) {
 }
 
 function update_user_status( $user_id, $status = 0 ) {
-	global $bbdb, $bb_cache, $bb_current_user;
+	global $bbdb, $bb_cache;
 	$user = bb_get_user( $user_id );
 	$status = (int) $status;
-	if ( $user->ID != $bb_current_user->ID && bb_current_user_can('edit_users') ) :
+	if ( $user->ID != bb_get_current_user_info( 'id' ) && bb_current_user_can( 'edit_users' ) ) :
 		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
 		$bb_cache->flush_one( 'user', $user->ID );
 	endif;
@@ -849,8 +849,8 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 
 
 function bb_new_forum( $name, $desc, $order = 0 ) {
-	global $bbdb, $bb_cache, $bb_current_user;
-	if ( !bb_current_user_can('manage_forums') )
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 	if ( strlen($name) < 1 )
 		return false;
@@ -860,8 +860,8 @@ function bb_new_forum( $name, $desc, $order = 0 ) {
 }
 
 function bb_update_forum( $forum_id, $name, $desc, $order = 0 ) {
-	global $bbdb, $bb_cache, $bb_current_user;
-	if ( !bb_current_user_can('manage_forums') )
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 	if ( !$forum_id = (int) $forum_id )
 		return false;
@@ -900,16 +900,19 @@ function bb_delete_forum( $forum_id ) {
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
-	global $bbdb, $bb_cache, $bb_current_user;
+	global $bbdb, $bb_cache;
 	$title = apply_filters('pre_topic_title', $title, false);
 	$forum = (int) $forum;
 	$now   = bb_current_time('mysql');
+
+	$id = bb_get_current_user_info( 'id' );
+	$name = bb_get_current_user_info( 'name' );
 
 	if ( $forum && $title ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
 		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
 		VALUES
-		('$title', $bb_current_user->ID, '{$bb_current_user->data->user_login}', $bb_current_user->ID, '{$bb_current_user->data->user_login}', '$now', '$now', $forum)");
+		('$title',   $id,          '$name',           $id,               '$name',                '$now',           '$now',     $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
@@ -1005,8 +1008,8 @@ function bb_new_post( $topic_id, $bb_post ) {
 	$bb_post  = apply_filters('pre_post', $bb_post, false, $topic_id);
 	$post_status = (int) apply_filters('pre_post_status', '0', false, $topic_id);
 	$now   = bb_current_time('mysql');
-	$uid   = $bb_current_user->ID;
-	$uname = $bb_current_user->data->user_login;
+	$uid   = bb_get_current_user_info( 'id' );
+	$uname = bb_get_current_user_info( 'name' )
 	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
 	$topic = get_topic( $topic_id );
@@ -1271,7 +1274,7 @@ function get_path( $level = 1 ) {
 }
 
 function add_topic_tag( $topic_id, $tag ) {
-	global $bbdb, $bb_cache, $bb_current_user;
+	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
@@ -1280,27 +1283,29 @@ function add_topic_tag( $topic_id, $tag ) {
 	if ( !$tag_id = create_tag( $tag ) )
 		return false;
 
+	$id = bb_get_current_user_info( 'id' );
+
 	$now    = bb_current_time('mysql');
 	if ( $user_already = $bbdb->get_var("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") )
-		if ( $user_already == $bb_current_user->ID ) :
-			do_action('bb_already_tagged', $tag_id, $bb_current_user->ID, $topic_id);
+		if ( $user_already == $id ) :
+			do_action('bb_already_tagged', $tag_id, $id, $topic_id);
 			return true;
 		endif;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES
-	( '$tag_id', '$bb_current_user->ID', '$topic_id', '$now')");
+	( '$tag_id', '$id', '$topic_id', '$now')");
 	if ( !$user_already ) {
 		$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
 		$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id = '$topic_id'");
 		$bb_cache->flush_one( 'topic', $topic_id );
 	}
-	do_action('bb_tag_added', $tag_id, $bb_current_user->ID, $topic_id);
+	do_action('bb_tag_added', $tag_id, $id, $topic_id);
 	return true;
 }
 
 function add_topic_tags( $topic_id, $tags ) {
-	global $bbdb, $bb_current_user;
+	global $bbdb;
 
 	$tags = trim( $tags );
 	$words = preg_split("/[\s,]+/", $tags);
@@ -1329,8 +1334,8 @@ function create_tag( $tag ) {
 }
 
 function rename_tag( $tag_id, $tag ) {
-	global $bbdb, $bb_current_user;
-	if ( !bb_current_user_can('manage_tags') )
+	global $bbdb;
+	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
 	$raw_tag = $tag;
 	$tag     = tag_sanitize( $tag ); 
@@ -1350,7 +1355,7 @@ function rename_tag( $tag_id, $tag ) {
 }
 
 function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
-	global $bbdb, $bb_cache, $bb_current_user;
+	global $bbdb, $bb_cache;
 	$tag_id = (int) $tag_id;
 	$user_id = (int) $user_id;
 	$topic_id = (int) $topic_id;
@@ -1377,8 +1382,8 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 // merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
 function merge_tags( $old_id, $new_id ) {
-	global $bbdb, $bb_current_user;
-	if ( !bb_current_user_can('manage_tags') )
+	global $bbdb;
+	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
 	if ( $old_id == $new_id )
 		return false;
@@ -1407,8 +1412,8 @@ function merge_tags( $old_id, $new_id ) {
 }
 
 function destroy_tag( $tag_id ) {
-	global $bbdb, $bb_cache, $bb_current_user;
-	if ( !bb_current_user_can('manage_tags') ) 
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'manage_tags' ) ) 
 		return false;
 
 	do_action('bb_pre_destroy_tag', $tag_id);
@@ -1669,7 +1674,7 @@ function bb_repermalink() {
 
 // Profile/Admin
 function global_profile_menu_structure() {
-	global $bb_current_user, $user_id, $profile_menu, $profile_hooks;
+	global $user_id, $profile_menu, $profile_hooks;
 	// Menu item name
 	// The capability required for own user to view the tab ('' to allow non logged in access)
 	// The capability required for other users to view the tab ('' to allow non logged in access)
@@ -1681,7 +1686,7 @@ function global_profile_menu_structure() {
 	// Create list of page plugin hook names the current user can access
 	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
-		if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
+		if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
 			$profile_hooks[tag_sanitize($profile_tab[4])] = $profile_tab[3];
 
 	do_action('bb_profile_menu');
@@ -1689,13 +1694,13 @@ function global_profile_menu_structure() {
 }
 
 function add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = false) {
-	global $profile_menu, $profile_hooks, $bb_current_user, $user_id;
+	global $profile_menu, $profile_hooks, $user_id;
 
 	$arg = $arg ? $arg : $tab_title;
 
 	$profile_tab = array($tab_title, $users_cap, $others_cap, $file, $arg);
 	$profile_menu[] = $profile_tab;
-	if ( can_access_tab( $profile_tab, $bb_current_user->ID, $user_id ) )
+	if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
 		$profile_hooks[tag_sanitize($arg)] = $file;
 }
 
@@ -1703,7 +1708,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	global $bb_current_user;
 	$viewer_id = (int) $viewer_id;
 	$owner_id = (int) $owner_id;
-	if ( $viewer_id == $bb_current_user->ID )
+	if ( $viewer_id == bb_get_current_user_info( 'id' ) )
 		$viewer =& $bb_current_user;
 	else
 		$viewer = new BB_User( $viewer_id );
@@ -1747,7 +1752,7 @@ function get_assignable_caps() {
 }
 
 function get_views( $cache = true ) {
-	global $bb_current_user, $views;
+	global $views;
 	if ( isset($views) && $cache )
 		return $views;
 	

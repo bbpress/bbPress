@@ -3,7 +3,7 @@ require('./bb-load.php');
 
 bb_auth();
 
-if ( !$bb_current_user )
+if ( !bb_is_user_logged_in() )
 	bb_die(__('You need to be logged in to add a tag.'));
 
 $topic_id = (int) @$_POST['id' ];

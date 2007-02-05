@@ -4,7 +4,7 @@
 
 <h2 id="register"><?php _e('Registration'); ?></h2>
 
-<?php if ( !$bb_current_user ) : ?>
+<?php if ( !bb_is_user_logged_in() ) : ?>
 <form method="post" action="<?php bb_option('uri'); ?>register.php">
 <fieldset>
 <legend><?php _e('Profile Information'); ?></legend>

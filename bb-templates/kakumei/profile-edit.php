@@ -17,7 +17,7 @@
 </fieldset>
 <?php endif; ?>
 
-<?php if ( $bb_current_user->ID == $user->ID && bb_current_user_can( 'change_password' ) ) : ?>
+<?php if ( bb_get_current_user_info( 'id' ) == $user->ID && bb_current_user_can( 'change_password' ) ) : ?>
 <fieldset>
 <legend><?php _e('Password'); ?></legend>
 <p><?php _e('If you wish to update your password, you may enter a new password twice below:'); ?></p>

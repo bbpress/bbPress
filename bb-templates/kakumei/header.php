@@ -25,12 +25,12 @@
 
 		var lastMod = <?php topic_time( 'timestamp' ); ?>;
 		var page = <?php global $page; echo $page; ?>;
-		var currentUserId = <?php echo $bb_current_user->ID; ?>;
+		var currentUserId = <?php bb_current_user_info( 'id' ); ?>;
 		var topicId = <?php topic_id(); ?>;
 		var uriBase = '<?php bb_option('uri'); ?>';
 		var tagLinkBase = '<?php tag_link_base(); ?>';
 		var favoritesLink = '<?php favorites_link(); ?>'; 
-		var isFav = <?php if ( false === $is_fav = is_user_favorite( $bb_current_user->ID ) ) echo "'no'"; else echo $is_fav; ?>;
+		var isFav = <?php if ( false === $is_fav = is_user_favorite( bb_get_current_user_info( 'id' ) ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>
 	<?php bb_enqueue_script('topic'); ?>
 <?php endif; ?>

@@ -8,8 +8,10 @@ if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	wp_redirect( $sendto );
 }
 
+$bb_current_id = bb_get_current_user_info( 'id' );
+
 if ( !is_bb_profile() ) {
-	$sendto = get_profile_tab_link( $bb_current_user->ID, 'edit' );
+	$sendto = get_profile_tab_link( $bb_current_id, 'edit' );
 	wp_redirect( $sendto );
 }
 
@@ -30,7 +32,7 @@ if ($_POST) :
 	bb_check_admin_referer( 'edit-profile_' . $user_id );
 
 	$user_url = bb_fix_link( $_POST['user_url'] );
-	if ( isset($_POST['user_email']) && $bb_current_user->ID == $user->ID )
+	if ( isset($_POST['user_email']) && $bb_current_id == $user->ID )
 		$user_email = bb_verify_email( $_POST['user_email'] );
 
 	foreach ( $profile_info_keys as $key => $label ) :
@@ -63,7 +65,7 @@ if ($_POST) :
 	if ( $user_email && !$bad_input ) :
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) :
 			$user_url = addslashes( $user_url );
-			if ( is_string($user_email) && $bb_current_user->ID == $user->ID ) {
+			if ( is_string($user_email) && $bb_current_id == $user->ID ) {
 				$user_email = addslashes( $user_email );
 				bb_update_user( $user->ID, $user_email, $user_url );
 			} else
@@ -97,9 +99,9 @@ if ($_POST) :
 			endforeach;
 		endif;
 
-		if ( bb_current_user_can( 'change_password' ) && !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $bb_current_user->ID == $user->ID ) :
+		if ( bb_current_user_can( 'change_password' ) && !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] && $bb_current_id == $user->ID ) :
 			$_POST['pass1'] = addslashes($_POST['pass1']);
-			bb_update_user_password ( $bb_current_user->ID, $_POST['pass1'] );
+			bb_update_user_password ( $bb_current_id, $_POST['pass1'] );
 			bb_cookie( bb_get_option( 'passcookie' ), md5( md5( $_POST['pass1'] ) ) ); // One week
 		endif;
 		

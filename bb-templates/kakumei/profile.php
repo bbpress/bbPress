@@ -7,7 +7,7 @@
 <div class="notice">
 <p><?php _e('Profile updated'); ?>. <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>"><?php _e('Edit again &raquo;'); ?></a></p>
 </div>
-<?php elseif ( $user_id == $bb_current_user->ID ) : ?>
+<?php elseif ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
 <p><?php printf(__('This is how your profile appears to a fellow logged in member, you may <a href="%1$s">edit this information</a>. You can also <a href="%2$s">manage your favorites</a> and subscribe to your favorites&#8217; <a href="%3$s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>'), get_profile_tab_link( $user_id, 'edit' ), get_favorites_link(), get_favorites_rss_link()) ?></p>
 <?php endif; ?>
 
@@ -21,7 +21,7 @@
 <?php foreach ($posts as $bb_post) : $topic = get_topic( $bb_post->topic_id ) ?>
 <li<?php alt_class('replies'); ?>>
 	<a href="<?php topic_link(); ?>"><?php topic_title(); ?></a>
-	<?php if ( $user->ID == $bb_current_user->ID ) printf(__('You last replied: %s ago.'), bb_get_post_time()); else printf(__('User last replied: %s ago.'), bb_get_post_time()); ?>
+	<?php if ( $user->ID == bb_get_current_user_info( 'id' ) ) printf(__('You last replied: %s ago.'), bb_get_post_time()); else printf(__('User last replied: %s ago.'), bb_get_post_time()); ?>
 
 	<span class="freshness"><?php
 		if ( bb_get_post_time( 'timestamp' ) < get_topic_time( 'timestamp' ) )

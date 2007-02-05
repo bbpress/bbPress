@@ -22,9 +22,9 @@ if ( !$bb_db_override ) :
 	$forum = get_forum ( $topic->forum_id );
 
 	$tags  = get_topic_tags ( $topic_id );
-	if ( $bb_current_user && $tags ) {
-		$user_tags  = get_user_tags  ( $topic_id, $bb_current_user->ID );
-		$other_tags = get_other_tags ( $topic_id, $bb_current_user->ID );
+	if ( $tags && $bb_current_id = bb_get_current_user_info( 'id' ) ) {
+		$user_tags  = get_user_tags  ( $topic_id, $bb_current_id );
+		$other_tags = get_other_tags ( $topic_id, $bb_current_id );
 	} elseif ( is_array($tags) ) {
 		$user_tags  = false;
 		$other_tags = get_public_tags( $topic_id );
