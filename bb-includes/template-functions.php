@@ -1274,6 +1274,8 @@ function bb_get_admin_link( $args = '' ) {
 function bb_profile_link( $args = '' ) {
 	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '' );
 	$args = bb_parse_args( $args, $defaults );
+	extract($args);
+
 	echo apply_filters( 'bb_profile_link', "$before<a href='" . get_user_profile_link( bb_get_current_user_info( 'id' ) ) . "'>$text</a>$after", $args );
 }
 
