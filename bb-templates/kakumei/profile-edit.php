@@ -8,8 +8,6 @@
 <?php bb_profile_data_form(); ?>
 </fieldset>
 
-<?php do_action('extra_profile_info', $user); ?>
-
 <?php if ( bb_current_user_can( 'edit_users' ) ) : ?>
 <fieldset>
 <legend><?php _e('Administration'); ?></legend>
