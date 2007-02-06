@@ -110,7 +110,7 @@ class BB_Roles {
 						'delete_topics' => true,	//+
 						'close_topics' => true,		//+
 						'stick_topics' => true,		//+
-						'mave_topics' => true,		//+
+						'move_topics' => true,		//+
 						'view_by_ip' => true,		//+
 						'edit_closed' => true,		//+
 						'edit_deleted' => true,		//+
