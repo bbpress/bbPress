@@ -1257,10 +1257,14 @@ function bb_get_logout_link( $args = '' ) {
 }
 
 function bb_admin_link( $args = '' ) {
+	if ( !bb_current_user_can( 'moderate' ) )
+		return;
 	echo apply_filters( 'bb_admin_link', bb_get_admin_link( $args ), $args );
 }
 
 function bb_get_admin_link( $args = '' ) {
+	if ( !bb_current_user_can( 'moderate' ) )
+		return;
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'text' => $args );
 
