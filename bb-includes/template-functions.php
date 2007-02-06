@@ -692,7 +692,7 @@ function topic_close_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'close_topic', $_topic->topic_id ) )
 		return;
 
-	if ( topic_is_open( $_topic->id ) )
+	if ( topic_is_open( $_topic->topic_id ) )
 		$text = __('Close topic');
 	else
 		$text = __('Open topic');
@@ -1182,6 +1182,7 @@ endif;
 <?php bb_nonce_field( 'edit-profile_' . $user->ID ); if ( $required ) : ?>
 <p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
 <?php endif;
+do_action( 'extra_profile_info', $user->ID )
 }
 
 function bb_profile_admin_form( $id = 0 ) {
