@@ -10,8 +10,8 @@
 
 <h2><?php _e('Deleted Topics') ?></h2>
 
-<table>
-<tr>
+<table class="widefat">
+<tr class="thead">
 	<th><?php _e('Topic') ?></th>
 	<th><?php _e('Last Poster') ?></th>
 	<th><?php _e('Freshness') ?></th>

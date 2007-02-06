@@ -1,21 +1,8 @@
 body, td { font: 13px Tahoma, "Lucida Grande", "Lucida Sans Unicode", Tahoma, Verdana; }
 
-fieldset label.selectit { padding: 0 0 0 2px; }
-
-fieldset legend { padding: .1em 0 0 .3em; }
-
 fieldset span.cat-nest {
 	margin-left: auto;
 	margin-right: 10px;
-}
-
-h2 {
-	font: normal 30px/5px serif;
-	margin: 5px 0 0 10px;
-}
-
-textarea, input, select {
-	font:  13px Verdana, Arial, Helvetica, sans-serif;
 }
 
 .alignleft {
@@ -26,6 +13,11 @@ textarea, input, select {
 	float: left;
 }
 
+.submit input, .submit input:focus, .button, .button:focus {
+	border-left-color: #999;
+	border-right-color: #ccc;
+}
+	
 .submit input:active, .button:active {
 	border-left-color: #ccc;
 	border-right-color: #999;
@@ -35,34 +27,21 @@ textarea, input, select {
 	text-align: left;
 }
 
-.updated, .error {
-	margin: 1em 5% 10px;
-}
-
-.wrap {
-	margin: 15px 5%;
-	padding: .5em 1em;
-}
-
-.wrap h2 {
-	margin: .8em 0 .5em;
-}
-
-.widefat td, .widefat th {
-	padding: 5px 0 0 6px;
-}
-
 .widefat th {
 	text-align: right;
 }
 
+th[scope="row"] {
+	text-align: left;
+}
+
 #bb-admin-menu {
-	padding: .2em 2em .3em .2em;
+	padding: .2em 2em .2em .2em;
 	height: 30px;
 }
 
 #bb-admin-menu a {
-	margin: 0 0 0 10px;
+	margin-left: .5ex;
 	display: block;
 	float: right;
 }
@@ -80,10 +59,14 @@ textarea, input, select {
 }
 
 #bb-admin-submenu a {
-	padding: .3em .4em .4em .4em;
-	margin: 0 0 0 10px;
+	padding: .3em .4em .4em;
+	margin-left: .5ex;
 	display: block;
 	float: right;
+}
+
+#bb-admin-submenu a:hover {
+	padding-bottom: .5em;
 }
 
 #bb-admin-submenu li {
@@ -111,4 +94,14 @@ textarea, input, select {
 #zeitgeist ul {
 	margin: 0 .6em .3em 0;
 	padding: 0 .6em 0 0;
+}
+
+.theme-list div.screen-shot {
+	float: right;
+	margin-right: 0;
+	margin-left: 1ex;
+}
+
+.theme-list .description {
+	float: right;
 }

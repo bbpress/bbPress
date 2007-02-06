@@ -139,7 +139,7 @@ textarea, input, select {
 }
 
 .anchors {
-	margin: 10px 20px 10px 20px;
+	margin: 10px 20px;
 }
 
 .checkbox {
@@ -193,14 +193,14 @@ textarea, input, select {
 	background: #f0fff8;
 	border: 1px solid #6c9;
 	margin: 1em 5% 10px;
-	padding: 0 1em 0 1em;
+	padding: 0 1em;
 }
 
 .error {
 	background: #FFEFF7;
 	border: 1px solid #c69;
 	margin: 1em 5% 10px;
-	padding: 0 1em 0 1em;
+	padding: 0 1em;
 }
 
 .wrap {
@@ -241,6 +241,10 @@ table .vers, table .name, .centered {
 	text-align: left;
 }
 
+th[scope="row"] {
+	text-align: right;
+}
+
 thead, .thead {
 	background: #dfdfdf
 }
@@ -252,7 +256,7 @@ thead, .thead {
 	padding: .2em .2em .2em 2em;
 }
 
-#bb-admin-menu .current a, #bb-admin-submenu .current a{
+#bb-admin-menu .current a, #bb-admin-submenu .current a {
 	font-weight: bold;
 }
 
