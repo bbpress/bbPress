@@ -24,6 +24,7 @@ CREATE TABLE $bbdb->posts (
   PRIMARY KEY  (post_id),
   KEY topic_id (topic_id),
   KEY poster_id (poster_id),
+  KEY post_time (post_time),
   FULLTEXT KEY post_text (post_text)
 ) TYPE = MYISAM;
 CREATE TABLE $bbdb->topics (
@@ -43,7 +44,9 @@ CREATE TABLE $bbdb->topics (
   topic_posts bigint(20) NOT NULL default '0',
   tag_count bigint(20) NOT NULL default '0',
   PRIMARY KEY  (topic_id),
-  KEY forum_id (forum_id)
+  KEY forum_id (forum_id),
+  KEY topic_time (topic_time)
+  KEY topic_start_time (topic_start_time)
 );
 CREATE TABLE $bbdb->topicmeta (
   meta_id bigint(20) NOT NULL auto_increment,
