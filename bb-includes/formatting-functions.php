@@ -110,6 +110,38 @@ function user_sanitize( $text, $strict = false ) {
 	return apply_filters( 'user_sanitize', $text, $raw, $strict );
 }
 
+// Reduce utf8 string to $length in single byte character equivalents without breaking multibyte characters
+function utf8_cut( $utf8_string, $length ) {
+	$unicode = '';
+	$chars = array();
+	$num_octets = 1;
+
+	for ($i = 0; $i < strlen( $utf8_string ); $i++ ) {
+
+		$value = ord( $utf8_string[ $i ] );
+
+		if ( $value < 128 ) {
+			if ( strlen($unicode) + 1 > $length )
+				break; 
+			$unicode .= $utf8_string[ $i ];
+		} else {
+			if ( count( $chars ) == 0 )
+				$num_octets = ( $value < 224 ) ? 2 : 3;
+
+			$chars[] = $utf8_string[ $i ];
+			if ( strlen($unicode) + $num_octets > $length )
+				break;
+			if ( count( $chars ) == $num_octets ) {
+				$unicode .= join('', $chars);
+				$chars = array();
+				$num_octets = 1;
+			}
+		}
+	}
+
+	return $unicode;
+}
+
 function tag_sanitize( $tag ) {
 	return sanitize_with_dashes( $tag );
 }

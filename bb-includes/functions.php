@@ -1324,6 +1324,10 @@ function add_topic_tags( $topic_id, $tags ) {
 
 function create_tag( $tag ) {
 	global $bbdb;
+
+	if ( seems_utf8( $tag ) )
+		$tag = utf8_cut( $tag, 50 ); // Should match raw_tag column width in DB schema
+
 	$raw_tag = $tag;
 	$tag     = tag_sanitize( $tag );
 
