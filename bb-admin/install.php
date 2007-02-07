@@ -7,27 +7,15 @@ $step = isset($_GET['step']) ? (int) $_GET['step'] : 0 ;
 		$step = 1;
 
 header( 'Content-Type: text/html; charset=utf-8' );
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<title><?php _e('bbPress &rsaquo; Installation'); ?></title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="install.css" type="text/css" />
-<?php if ( 'rtl' == $bb_locale->text_direction ) : ?>
-        <link rel="stylesheet" href="install-rtl.css" type="text/css" />
-<?php endif; ?>
-</head>
 
-<body>
-<h1 id="logo"><img alt="bbPress" src="../bb-images/bbpress-large.png" /></h1>
-<?php
+bb_install_header( __('bbPress &rsaquo; Installation') );
+
 // Let's check to make sure bb isn't already installed.
 $bbdb->hide_errors();
 $installed = $bbdb->get_results("SELECT * FROM $bbdb->forums LIMIT 1");
 if ( $installed ) :
 	if ( !$new_keymaster = bb_get_option( 'new_keymaster' ) )
-		die(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to run the upgrade scripts instead? To reinstall please clear your old database tables first.</p>') . '</body></html>');
+		die(sprintf(__('<h1>Already Installed</h1><p>You appear to have already installed bbPress. Perhaps you meant to <a href="%s">upgrade</a> instead?</p><p>To reinstall please clear your old database tables first.</p>') . '</body></html>', bb_get_option( 'uri' ) . 'bb-admin/upgrade.php'));
 	$meta_key = $bb_table_prefix . 'capabilities';
 	$keymaster = false;
 	if ( $keymasters = $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_key = '$meta_key' AND meta_value LIKE '%keymaster%'") ) {
@@ -330,5 +318,4 @@ http://bbpress.org/
 endswitch;
 ?>
 <p id="footer"><?php _e('<a href="http://bbpress.org/">bbPress</a>: Simple, Fast, Elegant.'); ?></p>
-</body>
-</html>
+<?php bb_install_footer(); ?>

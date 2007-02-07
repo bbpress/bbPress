@@ -78,7 +78,7 @@ CREATE TABLE $bbdb->usermeta (
 );
 CREATE TABLE $bbdb->tags (
   tag_id bigint(20) unsigned NOT NULL auto_increment,
-  tag varchar(30) NOT NULL default '',
+  tag varchar(200) NOT NULL default '',
   raw_tag varchar(50) NOT NULL default '',
   tag_count bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (tag_id)

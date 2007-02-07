@@ -468,6 +468,9 @@ function bb_get_option( $option ) {
 	case 'version' :
 		return '0.8-RC2'; // Don't filter
 		break;
+	case 'bb_db_version' :
+		return '683'; // Don't filter
+		break;
 	case 'html_type' :
 		$r = 'text/html';
 		break;
@@ -1323,6 +1326,7 @@ function create_tag( $tag ) {
 	global $bbdb;
 	$raw_tag = $tag;
 	$tag     = tag_sanitize( $tag );
+
 	if ( empty( $tag ) )
 		return false;
 	if ( $exists = $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
@@ -1801,13 +1805,11 @@ function bb_nonce_ays($action) {
 	bb_die($html, $title);
 }
 
-function bb_die($message, $title = '') {
-	global $bb_locale;
-
+function bb_install_header( $title = '' ) {
 	header('Content-Type: text/html; charset=utf-8');
 
 	if ( empty($title) )
-		$title = __('bbPress &rsaquo; Error');
+		$title = 'bbPress';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
@@ -1821,10 +1823,28 @@ function bb_die($message, $title = '') {
 </head>
 <body>
 	<h1 id="logo"><img alt="bbPress" src="<?php bb_option('uri'); ?>bb-images/bbpress.png" /></h1>
-	<p><?php echo $message; ?></p>
+<?php
+}
+
+function bb_install_footer() {
+?>
 </body>
 </html>
 <?php
+}
+
+
+function bb_die( $message, $title = '' ) {
+	global $bb_locale;
+
+	if ( empty($title) )
+		$title = __('bbPress &rsaquo; Error');
+
+	bb_install_header( $title );
+?>
+	<p><?php echo $message; ?></p>
+<?php
+	bb_install_footer();
 	die();
 }
 

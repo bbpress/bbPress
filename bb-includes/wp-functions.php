@@ -37,6 +37,43 @@ function wp_specialchars( $text, $quotes = 0 ) { // [4451]
 }
 endif;
 
+if ( !function_exists('utf8_uri_encode') ) :
+function utf8_uri_encode( $utf8_string, $length = 0 ) { // [WP4560]
+	$unicode = '';
+	$values = array();
+	$num_octets = 1;
+
+	for ($i = 0; $i < strlen( $utf8_string ); $i++ ) {
+
+		$value = ord( $utf8_string[ $i ] );
+
+		if ( $value < 128 ) {
+			if ( $length && ( strlen($unicode) + 1 > $length ) )
+				break; 
+			$unicode .= chr($value);
+		} else {
+			if ( count( $values ) == 0 ) $num_octets = ( $value < 224 ) ? 2 : 3;
+
+			$values[] = $value;
+
+			if ( $length && ( (strlen($unicode) + ($num_octets * 3)) > $length ) )
+				break;
+			if ( count( $values ) == $num_octets ) {
+				if ($num_octets == 3) {
+					$unicode .= '%' . dechex($values[0]) . '%' . dechex($values[1]) . '%' . dechex($values[2]);
+				} else {
+					$unicode .= '%' . dechex($values[0]) . '%' . dechex($values[1]);
+				}
+
+				$values = array();
+				$num_octets = 1;
+			}
+		}
+	}
+
+	return $unicode;
+}
+endif;
 
 // Escape single quotes, specialchar double quotes, and fix line endings.
 if ( !function_exists('js_escape') ) :

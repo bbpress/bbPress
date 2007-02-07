@@ -1357,10 +1357,11 @@ function get_tag_link( $tag_name = 0, $page = 1 ) {
 		$_tag = get_tag_by_name( $tag_name );
 	else
 		$_tag =& $tag;
+	$tagname = tag_sanitize( $_tag->raw_tag );
 	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$_tag->tag" . ( 1 < $page ? "/page/$page" : '' );
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$tagname" . ( 1 < $page ? "/page/$page" : '' );
 	else
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$_tag->tag" . ( 1 < $page ? "&page=$page" : '' );
+		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$tagname" . ( 1 < $page ? "&page=$page" : '' );
 }
 
 function tag_link_base() {
