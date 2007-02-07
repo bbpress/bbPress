@@ -466,7 +466,7 @@ function bb_get_option( $option ) {
 		$r = $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.8-RC2'; // Don't filter
+		return '0.8-RC3'; // Don't filter
 		break;
 	case 'bb_db_version' :
 		return '683'; // Don't filter
