@@ -29,6 +29,10 @@ add_filter('edit_text', 'code_trick_reverse');
 add_filter('edit_text', 'htmlspecialchars');
 add_filter('edit_text', 'trim', 15);
 
+add_filter('pre_create_tag', 'bb_pre_create_tag_utf8' );
+
+add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8' );
+
 add_filter('get_user_link', 'bb_fix_link');
 
 add_filter('topic_rss_link', 'bb_make_feed');

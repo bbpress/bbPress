@@ -1325,8 +1325,7 @@ function add_topic_tags( $topic_id, $tags ) {
 function create_tag( $tag ) {
 	global $bbdb;
 
-	if ( seems_utf8( $tag ) )
-		$tag = utf8_cut( $tag, 50 ); // Should match raw_tag column width in DB schema
+	$tag = apply_filters( 'pre_create_tag', $tag );
 
 	$raw_tag = $tag;
 	$tag     = tag_sanitize( $tag );
@@ -1339,6 +1338,12 @@ function create_tag( $tag ) {
 	$bbdb->query("INSERT INTO $bbdb->tags ( tag, raw_tag ) VALUES ( '$tag', '$raw_tag' )");
 	do_action('bb_tag_created', $raw_tag, $bbdb->insert_id);
 	return $bbdb->insert_id;
+}
+
+function bb_pre_create_tag_utf8( $tag ) {
+	if ( seems_utf8( $tag ) )
+		$tag = utf8_cut( $tag, 50 ); // Should match raw_tag column width in DB schema
+	return $tag;
 }
 
 function rename_tag( $tag_id, $tag ) {

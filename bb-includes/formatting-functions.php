@@ -143,10 +143,12 @@ function utf8_cut( $utf8_string, $length ) {
 }
 
 function tag_sanitize( $tag ) {
-	return sanitize_with_dashes( $tag );
+	$_tag = $tag;
+	return apply_filters( 'tag_sanitize', sanitize_with_dashes( $tag ), $_tag );
 }
 
 function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
+	$_text = $text;
 	$text = strip_tags($text);
 
 	// Preserve escaped octets.
@@ -156,13 +158,7 @@ function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	// Restore octets.
 	$text = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $text);
 
-	$text = remove_accents($text);
-
-	if ( seems_utf8( $text ) ) {
-		if ( function_exists('mb_strtolower') )
-			$text = mb_strtolower($text, 'UTF-8');
-		$text = utf8_uri_encode( $text, $length );
-	}
+	$text = apply_filters( 'pre_sanitize_with_dashes', $text, $_text );
 
 	$text = strtolower($text);
 	$text = preg_replace('/&(^\x80-\xff)+?;/', '', $text); // kill entities
@@ -170,6 +166,17 @@ function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	$text = preg_replace('/\s+/', '-', $text);
 	$text = preg_replace(array('|-+|', '|_+|'), array('-', '_'), $text); // Kill the repeats
 
+	return $text;
+}
+
+function bb_pre_sanitize_with_dashes_utf8( $text ) {
+	$text = remove_accents($text);
+
+	if ( seems_utf8( $text ) ) {
+		if ( function_exists('mb_strtolower') )
+			$text = mb_strtolower($text, 'UTF-8');
+		$text = utf8_uri_encode( $text, $length );
+	}
 	return $text;
 }
 
