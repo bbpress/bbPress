@@ -1,14 +1,14 @@
 <?php
 
 function bb_install() {
-	set_time_limit(600);
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	make_db_current();
 	bb_update_db_version();
 }
 
 function bb_upgrade_all() {
-	set_time_limit(600);
+	if ( !ini_get('safe_mode') )
+		set_time_limit(600);
 	$bb_upgrade = 0;
 	$bb_upgrade += upgrade_160(); // Break blocked users
 	$bb_upgrade += upgrade_170(); // Escaping in usermeta

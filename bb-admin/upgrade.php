@@ -1,12 +1,15 @@
 <?php
+// Remove these lines if you want to upgrade and are using safe mode
 if ( ini_get('safe_mode') )
 	die("You're running in safe mode which does not allow this upgrade
 	script to set a running time limit.  Depending on the size of your
 	database and on which parts of the script you are running, the script
 	can take quite some time to run (or it could take just a few seconds).
 	To throw caution to the wind and run the script in safe mode anyway,
-	remove the first two lines of code in this file.  Backups are always a
+	remove the first few lines of code in this file.  Backups are always a
 	good idea.");
+// Stop removing lines
+
 require('../bb-load.php');
 require( BBPATH . 'bb-admin/upgrade-functions.php' );
 define('BB_UPGRADING', true);
