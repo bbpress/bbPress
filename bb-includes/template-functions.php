@@ -1013,7 +1013,8 @@ function get_user_profile_link( $id, $page = 1 ) {
 }
 
 function user_delete_button() {
-	if ( bb_current_user_can('edit_users') ) 
+	global $user;
+	if ( bb_current_user_can( 'edit_users' ) && bb_get_current_user_info( 'id' ) != (int) $user->ID )
 		echo apply_filters( 'user_delete_button', get_user_delete_button());
 }
 

@@ -46,6 +46,11 @@ if ($_POST) :
 	endforeach;
 
 	if ( bb_current_user_can('edit_users') ):
+		if ( isset($_POST['delete-user']) && $_POST['delete-user'] && $bb_current_id != $user->ID ) :
+			bb_delete_user( $user->ID );
+			wp_redirect( bb_get_option( 'uri' ) );
+			exit;
+		endif;
 		$role = $_POST['role'];
 		foreach ( $profile_admin_keys as $key => $label ) :
 			$$key = apply_filters( 'sanitize_profile_admin', $_POST[$key] );
@@ -56,8 +61,6 @@ if ($_POST) :
 		endforeach;
 		foreach ( $assignable_caps as $cap => $label )
 			$$cap = ( isset($_POST[$cap]) && $_POST[$cap] ) ? 1 : 0;
-		if ( isset($_POST['delete-user']) && $_POST['delete-user'] )
-			$delete_user = 1;
 	endif;
 
 	$updated = true;
@@ -72,7 +75,7 @@ if ($_POST) :
 				bb_update_user( $user->ID, $user->user_email, $user_url );
 			foreach( $profile_info_keys as $key => $label )
 				if ( strpos($key, 'user_') !== 0 )
-					if ( $$key != ''  || isset($user->$key) )
+					if ( $$key != '' || isset($user->$key) )
 						bb_update_usermeta( $user->ID, $key, $$key );
 		endif;
 
@@ -86,8 +89,6 @@ if ($_POST) :
 				elseif ( 'blocked' != $role && 'blocked' == $old_role )
 					bb_fix_password( $user->ID );
 			}
-			if ( isset($delete_user) && $delete_user )
-				bb_delete_user( $user->ID );
 			foreach( $profile_admin_keys as $key => $label )
 				if ( $$key != ''  || isset($user->$key) )
 					bb_update_usermeta( $user->ID, $key, $$key );
@@ -107,8 +108,7 @@ if ($_POST) :
 		
 		do_action('profile_edited', $user->ID);
 
-		$sendto = $delete_user ? bb_get_option( 'uri' ) : add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) );
-		wp_redirect( $sendto );
+		wp_redirect( add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) ) );
 		exit();	
 	endif;
 endif;
