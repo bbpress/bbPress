@@ -237,8 +237,10 @@ if ( !$forum_name = $_POST['forum_name'] )
 <p><?php _e('Now we&#8217;re going to create the database tables and fill them with some default data.'); ?></p>
 
 <?php
-require_once('upgrade-schema.php');
+require_once( BBPATH . 'bb-admin/upgrade-functions.php');
 require_once( BBPATH . BBINC . 'registration-functions.php');
+
+bb_install();
 
 function get_keymaster_password($user_id, $pass) {
 	global $password;
