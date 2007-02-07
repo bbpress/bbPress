@@ -13,7 +13,7 @@ set_time_limit(600);
 
 $bb_upgrade = 0;
 
-bb_install_header( __('bbPress &raquo; Upgrade') );
+bb_install_header( __('bbPress &rsaquo; Upgrade') );
 
 // Very old (pre 0.7) installs may need further upgrade functions.  Post to http://lists.bbpress.org/mailman/listinfo/bbdev if needed
 
