@@ -45,7 +45,7 @@ CREATE TABLE $bbdb->topics (
   tag_count bigint(20) NOT NULL default '0',
   PRIMARY KEY  (topic_id),
   KEY forum_id (forum_id),
-  KEY topic_time (topic_time)
+  KEY topic_time (topic_time),
   KEY topic_start_time (topic_start_time)
 );
 CREATE TABLE $bbdb->topicmeta (
