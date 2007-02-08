@@ -390,7 +390,7 @@ function bb_map_meta_cap($cap, $user_id) {
 		$caps[] = 'stick_topics';
 		break;
 	case 'close_topic' :
-		$cops[] = 'close_topics';
+		$caps[] = 'close_topics';
 		break;
 	case 'delete_topic' :
 		$caps[] = 'delete_topics';
@@ -398,7 +398,7 @@ function bb_map_meta_cap($cap, $user_id) {
 	case 'manage_topics' : // back compat
 		$caps[] = 'move_topics';
 		$caps[] = 'stick_topics';
-		$cops[] = 'close_topics';
+		$caps[] = 'close_topics';
 		$caps[] = 'delete_topics';
 		break;
 	case 'add_tag_to': // edit_closed, edit_deleted, edit_tags;
