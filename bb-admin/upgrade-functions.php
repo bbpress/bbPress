@@ -311,6 +311,14 @@ function upgrade_190() {
 		return 0;
 
 	global $bbdb;
+
+	$exists = false;
+	foreach ( (array) $bbdb->get_col("DESC $bbdb->topics") as $col )
+		if ( 'topic_resolved' == $col )
+			$exists = true;
+	if ( !$exists )
+		return 0;
+
 	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_resolved FROM $bbdb->topics" );
 	foreach ( $topics  as $topic )
 		bb_update_topicmeta( $topic->topic_id, 'topic_resolved', $topic->topic_resolved );
