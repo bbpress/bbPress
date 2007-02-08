@@ -96,4 +96,7 @@ CREATE TABLE $bbdb->tagged (
   KEY topic_id_index (topic_id)
 );
 ";
+
+do_action( 'bb_schema_defined' );
+
 ?>
