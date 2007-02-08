@@ -106,14 +106,9 @@ switch ($step):
 			$errors->add('wp_home', __('Your <code>$bb->wp_home</code> setting cannot be parsed.') );
 		if ( !$home['scheme'] )
 			$errors->add('wp_home', __('Your <code>$bb->wp_home</code> setting <strong>must</strong> start with <code>http://</code>.') );
-		if ( preg_match('|(.*\.)?([^.]+\.[^.]+)|', $domain['host'], $d2 ) && preg_match('|(.*\.)?([^.]+\.[^.]+)|', $home['host'], $h2 )) {
+		if ( preg_match('|(.*\.)?([^.]+\.[^.]+)|', $domain['host'], $d2 ) && preg_match('|(.*\.)?([^.]+\.[^.]+)|', $home['host'], $h2 ))
 			if ( $d2[2] != $h2[2] )
 				$errors->add('cookie', __('Your <code>$bb->domain</code> and <code>$bb->wp_home</code> settings do not have the same domain.<br />You cannot share login cookies between the two.<br />Remove the <code>$bb->wp_home</code> setting from your config.php file.') );
-		} elseif ( !$d2 ) {
-			$errors->add('domain', __('Your <code>$bb->domain</code> setting cannot be parsed.') ); // Not very helpful, but should essentially never happen.
-		} else {
-			$errors->add('cookie', __('Your <code>$bb->wp_home</code> setting cannot be parsed.') ); // Not very helpful, but should essentially never happen.
-		}
 		if ( !strstr($bbp, $home['path'] . '/') )
 			$notices->add('cookie', __("Your bbPress URL ({$bbd}$bbp) is not a subdirectory of your WordPress URL ($bb->wp_home).<br />Sharing login cookies is possible but is more complicated.  See the documentation about integrating bbPress and WordPress.<br />In the meantime, remove the <code>$bb->wp_home</code> setting from your config.php file, or you may not be able to log in.") );
 	}
