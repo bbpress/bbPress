@@ -2107,7 +2107,10 @@ function bb_convert_path_base( $path, $from_base, $to_base ) {
 	if ( 0 === strpos( $path, $from_base ) )
 		$r = $to_base . substr($path, strlen($from_base)) . $last_char;
 	else
-		$r = false;
+		return false;
+
+	$r = str_replace(array('//', '\\\\'), array('/', '\\'), $r);
+	$r = preg_replace('|:/([^/])|', '://$1', $r);
 
 	return $r;
 }
