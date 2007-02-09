@@ -251,7 +251,7 @@ class BB_User_Search {
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
 
 		if ( is_wp_error( $this->search_errors ) )
-			bb_admin_notice( join( "<br />\n", $this->search_errors->get_error_messages() ), 'error' );
+			bb_admin_notice( $this->search_errors );
 	}
 
 	function prepare_vars_for_template_usage() {
@@ -392,7 +392,7 @@ class BB_Users_By_Role extends BB_User_Search {
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
 
 		if ( is_wp_error( $this->search_errors ) )
-			bb_admin_notice( join( "<br />\n", $this->search_errors->get_error_messages() ), 'error' );
+			bb_admin_notice( $this->search_errors );
 	}
 
 }
@@ -445,8 +445,29 @@ function bb_get_plugin_data($plugin_file) {
 	return $r;
 }
 
-function bb_admin_notice( $message, $class = 'updated' ) {
-	$message = "<div class='$class'><p>$message</p></div>";
+function bb_admin_notice( $message, $class = false ) {
+	if ( is_string($message) ) {
+		$message = "<p>$message</p>";
+		$class = $class ? $class : 'updated';
+	} elseif ( is_wp_error($message) ) {
+		$errors = $message->get_error_messages();
+		switch ( count($errors) ) :
+		case 0 :
+			return false;
+			break;
+		case 1 :
+			$message = "<p>{$errors[0]}</p>";
+			break;
+		default :
+			$message = "<ul>\n\t<li>" . join( "</li>\n\t<li>", $errors ) . "</li>\n</ul>";
+			break;
+		endswitch;
+		$class = $class ? $class : 'error';
+	} else {
+		return false;
+	}
+
+	$message = "<div class='$class'>$message</div>";
 	$message = str_replace("'", "\'", $message);
 	$lambda = create_function( '', "echo '$message';" );
 	add_action( 'bb_admin_notices', $lambda );
