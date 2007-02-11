@@ -44,7 +44,9 @@ function decodeit($text) {
 }
 
 function code_trick( $text ) {
-	$text = preg_replace("|`(.*?)`|se", "'<pre><code>' . encodeit('$1') . '</code></pre>'", $text);
+	$text = str_replace(array("\r\n", "\r"), "\n", $text);
+	$text = preg_replace("|`(.*?)`|e", "'<code>' . encodeit('$1') . '</code>'", $text);
+	$text = preg_replace("|\n`(.*?)`|se", "'<pre><code>' . encodeit('$1') . '</code></pre>'", $text);
 	return $text;
 }
 
