@@ -48,16 +48,20 @@ class BB_Scripts {
 			elseif ( is_array($handles[$handle]) )
 				$this->_print_scripts( $handles[$handle] );
 			if ( !in_array($handle, $this->printed) && isset($this->scripts[$handle]) ) {
-				$ver = $this->scripts[$handle]->ver ? $this->scripts[$handle]->ver : $bb_db_version;
-				if ( isset($this->args[$handle]) )
-					$ver .= '&amp;' . $this->args[$handle];
-				$src = 0 === strpos($this->scripts[$handle]->src, 'http://') ? $this->scripts[$handle]->src : rtrim(bb_get_option( 'uri' ), ' /') . $this->scripts[$handle]->src;
-				echo "<script type='text/javascript' src='$src?ver=$ver'></script>\n";
+				if ( $this->scripts[$handle]->src ) { // Else it defines a group.
+					$ver = $this->scripts[$handle]->ver ? $this->scripts[$handle]->ver : $bb_db_version;
+					if ( isset($this->args[$handle]) )
+						$ver .= '&amp;' . $this->args[$handle];
+					$src = 0 === strpos($this->scripts[$handle]->src, 'http://') ? $this->scripts[$handle]->src : rtrim(bb_get_option( 'uri' ), ' /') . $this->scripts[$handle]->src;
+					$src = add_query_arg('ver', $ver, $src);
+					$src = apply_filters( 'bb_script_loader_src', $src );
+					$src = attribute_escape( $src );
+					echo "<script type='text/javascript' src='$src'></script>\n";
+				}
 				$this->printed[] = $handle;
 			}
 		}
 	}
-				
 
 	/**
 	 * Determines dependencies of scripts
