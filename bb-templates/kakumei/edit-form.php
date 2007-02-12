@@ -2,7 +2,8 @@
 <?php if ( $topic_title ) : ?>
 <p>
   <label><?php _e('Topic:'); ?><br />
-  <input name="topic" type="text" id="topic" size="50" maxlength="80"  value="<?php echo wp_specialchars(get_topic_title(), 1); ?>" />
+
+  <input name="topic" type="text" id="topic" size="50" maxlength="80"  value="<?php echo attribute_escape( get_topic_title() ); ?>" />
 </label>
 </p>
 <?php endif; ?>
@@ -11,7 +12,7 @@
   </label>
 </p>
 <p class="submit">
-<input type="submit" name="Submit" value="<?php _e('Edit Post'); ?> &raquo;" />
+<input type="submit" name="Submit" value="<?php echo attribute_escape( __('Edit Post &raquo;') ); ?>" />
 <input type="hidden" name="post_id" value="<?php post_id(); ?>" />
 <input type="hidden" name="topic_id" value="<?php topic_id(); ?>" />
 </p>

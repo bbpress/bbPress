@@ -8,7 +8,7 @@
 To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic&#8217;s page.'); ?></p>
 
 <?php if ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
-<p><?php printf(__('Subscribe to your favorites&#8217; <a href="%s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), get_favorites_rss_link( bb_get_current_user_info( 'id' ) )) ?></p>
+<p><?php printf(__('Subscribe to your favorites&#8217; <a href="%s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), attribute_escape( get_favorites_rss_link( bb_get_current_user_info( 'id' ) ) )) ?></p>
 <?php endif; ?>
 
 <?php if ( $topics ) : ?>

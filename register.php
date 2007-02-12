@@ -14,9 +14,9 @@ if ($_POST) :
 
 	foreach ( $profile_info_keys as $key => $label ) :
 		if ( is_string($$key) ) :
-			$$key = wp_specialchars( $$key, 1 );
+			$$key = attribute_escape( $$key );
 		elseif ( is_null($$key) ) :
-			$$key = wp_specialchars( $_POST[$key], 1 );
+			$$key = attribute_escape( $_POST[$key] );
 		endif;
 		if ( !$$key && $label[0] == 1 ) :
 			$bad_input = true;

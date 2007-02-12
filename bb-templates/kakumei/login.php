@@ -40,7 +40,7 @@
 	<tr>
 		<th scope="row">&nbsp;</th>
 		<td><input name="re" type="hidden" value="<?php echo $re; ?>" />
-		<input type="submit" value="<?php isset($_POST['user_login']) ? _e('Try Again'): _e('Log in'); ?> &raquo;" /></td>
+		<input type="submit" value="<?php echo attribute_escape( isset($_POST['user_login']) ? __('Try Again &raquo;'): __('Log in &raquo;') ); ?>" /></td>
 	</tr>
 </table>
 </form>
@@ -50,7 +50,7 @@
 <form method="post" action="<?php bb_option('uri'); ?>bb-reset-password.php">
 <p><?php _e('If you would like to recover the password for this account, you may use the following button to start the recovery process:'); ?><br />
 <input name="user_login" type="hidden" value="<?php echo $user_login; ?>" />
-<input type="submit" value="<?php _e('Recover Password'); ?> &raquo;" /></p>
+<input type="submit" value="<?php echo attribute_escape( __('Recover Password &raquo;') ); ?>" /></p>
 </form>
 <?php endif; ?>
 

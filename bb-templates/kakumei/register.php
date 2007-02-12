@@ -42,7 +42,7 @@ endif;
 <?php do_action('extra_profile_info', $user); ?>
 
 <p class="submit">
-  <input type="submit" name="Submit" value="<?php _e('Register'); ?> &raquo;" />
+  <input type="submit" name="Submit" value="<?php echo attribute_escape( __('Register &raquo;') ); ?>" />
 </p>
 </form>
 <?php else : ?>

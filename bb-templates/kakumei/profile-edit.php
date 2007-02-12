@@ -32,7 +32,7 @@
 </fieldset>
 <?php endif; ?>
 <p class="submit right">
-  <input type="submit" name="Submit" value="<?php _e('Update Profile &raquo;'); ?>" />
+  <input type="submit" name="Submit" value="<?php echo attribute_escape( __('Update Profile &raquo;') ); ?>" />
 </p>
 </form>
 <form method="post" action="<?php profile_tab_link($user->ID, 'edit');  ?>">
