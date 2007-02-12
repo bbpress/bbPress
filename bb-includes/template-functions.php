@@ -83,7 +83,7 @@ function bb_head() {
 function profile_menu() {
 	global $bbdb, $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";
-	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . atttribute_escape( get_user_profile_link( $user_id ) ) . '">' . __('Profile') . '</a></li>';
+	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . attribute_escape( get_user_profile_link( $user_id ) ) . '">' . __('Profile') . '</a></li>';
 	$id = bb_get_current_user_info( 'id' );
 	foreach ($profile_menu as $item) {
 		// 0 = name, 1 = users cap, 2 = others cap, 3 = file
