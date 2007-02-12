@@ -76,7 +76,7 @@ function bb_ksd_submit( $submit, $type = false ) {
 			'blog' => bb_get_option('uri'),
 			'permalink' => get_user_profile_link( $user->ID ),
 			'comment_type' => 'profile',
-			'comment_author' => get_user_name( $user-ID ),
+			'comment_author' => get_user_name( $user->ID ),
 			'comment_author_email' =>  bb_get_user_email( $user->ID ),
 			'comment_author_url' => get_user_link( $user->ID ),
 			'comment_content' => $user->occ . ' ' . $user->interests,
@@ -209,9 +209,9 @@ function bb_ksd_post_delete_link($link, $post_status) {
 	if ( !bb_current_user_can('moderate') )
 		return $link;
 	if ( 2 == $post_status )
-		$link .= " <a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) . "' >" . __('Not Spam') ."</a>";
+		$link .= " <a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) ) . "' >" . __('Not Spam') ."</a>";
 	else
-		$link .= " <a href='" . bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=2', 'delete-post_' . get_post_id() ) . "' >" . __('Spam') ."</a>";
+		$link .= " <a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=2', 'delete-post_' . get_post_id() ) ) . "' >" . __('Spam') ."</a>";
 	return $link;
 }
 
