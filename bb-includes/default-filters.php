@@ -48,9 +48,19 @@ add_filter('sanitize_profile_info', 'wp_specialchars');
 add_filter('sanitize_profile_admin', 'wp_specialchars');
 
 if ( !bb_get_option( 'mod_rewrite' ) ) {
-	add_filter('profile_tab_link', 'wp_specialchars');
-	add_filter('post_link', 'wp_specialchars');
-	add_filter('favorites_link', 'wp_specialchars');
+	add_filter( 'bb_stylesheet_uri', 'attribute_escape', 1, 9999 );
+	add_filter( 'forum_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'forum_rss_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'tag_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'tag_rss_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'topic_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'topic_rss_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'post_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'post_anchor_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'user_profile_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'profile_tab_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'favorites_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'view_link', 'attribute_escape', 1, 9999 );
 }
 
 add_filter('sort_tag_heat_map', 'bb_sort_tag_heat_map')
