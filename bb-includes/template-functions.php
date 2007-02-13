@@ -1169,7 +1169,7 @@ function bb_profile_data_form( $id = 0 ) {
 <?php if ( is_array($profile_info_keys) ) : $bb_current_id = bb_get_current_user_info( 'id' ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_id == $user->ID ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo $key; ?>" type="<?php if ( isset($label[2]) ) echo $label[2]; else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo $key; ?>" value="<?php echo wp_specialchars( $user->$key, 1); ?>" /><?php
+  <td><input name="<?php echo atttribute_escape( $key ); ?>" type="<?php if ( isset($label[2]) ) echo attribute_escape( $label[2] ); else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo attribute_escape( $key ); ?>" value="<?php echo attribute_escape( $user->$key ); ?>" /><?php
 if ( isset($$key) && false === $$key) :
 	if ( $key == 'user_email' )
 		_e('<br />There was a problem with your email; please check it.');
@@ -1216,18 +1216,18 @@ function bb_profile_admin_form( $id = 0 ) {
   <th scope="row"><?php _e('Allow this user to:'); ?></th>
   <td>
 <?php foreach( $assignable_caps as $cap => $label ) : ?>
-      <label><input name="<?php echo $cap; ?>" value="1" type="checkbox"<?php if ( array_key_exists($cap, $user->capabilities) ) echo ' checked="checked"'; ?> /> <?php echo $label; ?></label><br />
+      <label><input name="<?php echo attribute_escape( $cap ); ?>" value="1" type="checkbox"<?php if ( array_key_exists($cap, $user->capabilities) ) echo ' checked="checked"'; ?> /> <?php echo $label; ?></label><br />
 <?php endforeach; ?>
   </td>
 </tr>
 <?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo $key; ?>" id="<?php echo $key; ?>" type=<?php
+  <td><input name="<?php echo attribute_escape( $key ); ?>" id="<?php echo attribute_escape( $key ); ?>" type=<?php
 	if ( isset($label[2]) )
-		echo $label[2];
+		echo attribute_escape( $label[2] );
 	else
-		echo '"text" size="30" maxlength="140" value="' . wp_specialchars( $user->$key, 1 ). '"';
+		echo '"text" size="30" maxlength="140" value="' . attribute_escape( $user->$key ). '"';
 	?> />
 <?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
 </tr>

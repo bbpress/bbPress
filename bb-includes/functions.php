@@ -1804,7 +1804,7 @@ function bb_nonce_ays($action) {
 		foreach ( (array) $q as $a ) {
 			$v = substr(strstr($a, '='), 1);
 			$k = substr($a, 0, -(strlen($v)+1));
-			$html .= "\t\t<input type='hidden' name='" . wp_specialchars( urldecode($k), 1 ) . "' value='" . wp_specialchars( urldecode($v), 1 ) . "' />\n";
+			$html .= "\t\t<input type='hidden' name='" . attribute_escape( urldecode($k) ) . "' value='" . attribute_escape( urldecode($v) ) . "' />\n";
 		}
 		$html .= "\t\t<input type='hidden' name='_wpnonce' value='" . bb_create_nonce($action) . "' />\n";
 		$html .= "\t\t<div id='message' class='confirm fade'>\n\t\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t\t<p><a href='$adminurl'>" . __('No') . "</a> <input type='submit' value='" . __('Yes') . "' /></p>\n\t\t</div>\n\t</form>\n";
