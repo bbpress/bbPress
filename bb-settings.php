@@ -102,6 +102,8 @@ if ( !$bbdb->query("SELECT * FROM $bbdb->forums LIMIT 1") && !strstr( $_SERVER['
 	die(sprintf(__('Does&#8217;t look like you&#8217;ve installed bbPress yet, <a href="%s">go here</a>.'), 'bb-admin/install.php'));
 $bbdb->show_errors();
 
+$bb_cache = new BB_Cache();
+
 if ( $bb->load_options )
 	bb_cache_all_options();
 
@@ -136,8 +138,6 @@ if ( !isset( $bb->sitecookiepath ) )
 	$bb->sitecookiepath = $bb->wp_siteurl ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl . '/' ) : $bb->path;
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
-
-$bb_cache = new BB_Cache();
 
 // Load the default text localization domain.
 load_default_textdomain();
