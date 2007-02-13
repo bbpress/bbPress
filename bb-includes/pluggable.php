@@ -143,9 +143,14 @@ endif;
 
 // Cookie safe redirect.  Works around IIS Set-Cookie bug.
 // http://support.microsoft.com/kb/q176113/
-if ( !function_exists('wp_redirect') ) : // [WP4273]
+if ( !function_exists('wp_redirect') ) : // [WP4407]
 function wp_redirect($location, $status = 302) {
 	global $is_IIS;
+
+	$location = apply_filters('wp_redirect', $location, $status);
+
+	if ( !$location ) // allows the wp_redirect filter to cancel a redirect
+		return false; 
 
 	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%]|i', '', $location);
 	$location = wp_kses_no_null($location);
@@ -156,7 +161,8 @@ function wp_redirect($location, $status = 302) {
 	if ( $is_IIS ) {
 		header("Refresh: 0;url=$location");
 	} else {
-		status_header($status); // This causes problems on IIS
+		if ( php_sapi_name() != 'cgi-fcgi' )
+			status_header($status); // This causes problems on IIS and some FastCGI setups
 		header("Location: $location");
 	}
 }
@@ -274,7 +280,6 @@ function bb_has_broken_pass( $user_id = 0 ) {
 }
 endif;
 
-// ticket #495
 if ( !function_exists('bb_new_user') ) :
 function bb_new_user( $user_login, $email, $url ) {
 	global $bbdb, $bb_table_prefix;

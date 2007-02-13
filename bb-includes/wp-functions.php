@@ -603,7 +603,7 @@ add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
 if ( !function_exists('add_query_arg') ) :
-function add_query_arg() { // [4123]
+function add_query_arg() { // [WP4435]
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
 		if ( @func_num_args() < 2 || '' == @func_get_arg(1) )
@@ -655,10 +655,13 @@ function add_query_arg() { // [4123]
 	}
 
 	foreach($qs as $k => $v) {
-		if ( $v != '' ) {
+		if ( $v !== FALSE ) {
 			if ( $ret != '' )
 				$ret .= '&';
-			$ret .= "$k=$v";
+			if ( empty($v) && !preg_match('|[?&]' . preg_quote($k, '|') . '=|', $query) )
+				$ret .= $k;
+			else
+				$ret .= "$k=$v";
 		}
 	}
 	$ret = $protocol . $base . $ret . $frag;
@@ -679,13 +682,13 @@ remove_query_arg(removekeyarray, [oldquery_or_uri])
 */
 
 if ( !function_exists('remove_query_arg') ) :
-function remove_query_arg($key, $query='') { // [3857]
+function remove_query_arg($key, $query='') { // [WP4435]
 	if ( is_array($key) ) { // removing multiple keys
 		foreach ( (array) $key as $k )
-			$query = add_query_arg($k, '', $query);
+			$query = add_query_arg($k, FALSE, $query);
 		return $query;
 	}
-	return add_query_arg($key, '', $query);
+	return add_query_arg($key, FALSE, $query);
 }
 endif;
 
