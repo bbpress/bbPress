@@ -1169,7 +1169,7 @@ function bb_profile_data_form( $id = 0 ) {
 <?php if ( is_array($profile_info_keys) ) : $bb_current_id = bb_get_current_user_info( 'id' ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_id == $user->ID ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo atttribute_escape( $key ); ?>" type="<?php if ( isset($label[2]) ) echo attribute_escape( $label[2] ); else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo attribute_escape( $key ); ?>" value="<?php echo attribute_escape( $user->$key ); ?>" /><?php
+  <td><input name="<?php echo attribute_escape( $key ); ?>" type="<?php if ( isset($label[2]) ) echo attribute_escape( $label[2] ); else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo attribute_escape( $key ); ?>" value="<?php echo attribute_escape( $user->$key ); ?>" /><?php
 if ( isset($$key) && false === $$key) :
 	if ( $key == 'user_email' )
 		_e('<br />There was a problem with your email; please check it.');
