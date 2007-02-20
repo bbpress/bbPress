@@ -19,12 +19,11 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = preg_replace('!(</?(?:ul|ol|li|blockquote|p)[^>]*>)\s*<br />!', "$1", $pee);
 	$pee = preg_replace('!<br />(\s*</?(?:p|li|ul|ol)>)!', '$1', $pee);
 	if ( false !== strpos( $pee, '<pre' ) )
-		$pee = preg_replace('!(<pre.*?>)(.*?)</pre>!ise', " stripslashes('$1') .  stripslashes(clean_pre('$2'))  . '</pre>' ", $pee);
+		$pee = preg_replace('!(<pre.*?>)(.*?)</pre>!ise', "'$1' .  clean_pre('$2')  . '</pre>' ", $pee);
 	return $pee; 
 }
 
 function encodeit($text) {
-	$text = stripslashes($text); // because it's a regex callback
 	$text = htmlspecialchars($text, ENT_QUOTES);
 	$text = str_replace(array("\r\n", "\r"), "\n", $text);
 	$text = preg_replace("|\n\n\n+|", "\n\n", $text);
@@ -34,7 +33,6 @@ function encodeit($text) {
 }
 
 function decodeit($text) {
-	$text = stripslashes($text); // because it's a regex callback
 	$trans_table = array_flip(get_html_translation_table(HTML_ENTITIES));
 	$text = strtr($text, $trans_table);;
 	$text = str_replace('<br />', '', $text);
