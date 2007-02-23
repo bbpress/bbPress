@@ -51,6 +51,8 @@ function bb_ksd_submit( $submit, $type = false ) {
 		if ( !$bb_post )
 			return;
 		$user = bb_get_user( $bb_post->poster_id );
+		if ( bb_is_trusted_user( $user->ID ) )
+			return;
 
 		$_submit = array(
 			'blog' => bb_get_option('uri'),
@@ -71,6 +73,8 @@ function bb_ksd_submit( $submit, $type = false ) {
 		$user = bb_get_user( $submit );
 		if ( !$user )
 			return;
+		if ( bb_is_trusted_user( $user->ID ) )
+			return;
 
 		$_submit = array(
 			'blog' => bb_get_option('uri'),
@@ -84,6 +88,9 @@ function bb_ksd_submit( $submit, $type = false ) {
 		);
 		break;
 	default :
+		if ( bb_is_trusted_user( bb_get_current_user() ) )
+			return;
+
 		$path = '/1.1/comment-check';
 
 		$_submit = array(

@@ -1932,6 +1932,21 @@ function bb_trusted_roles() {
 	return apply_filters( 'bb_trusted_roles', array('moderator', 'administrator', 'keymaster') );
 }
 
+function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
+	if ( is_numeric($user) || is_string($user) )
+		$user = new BB_User( $user );
+	elseif ( is_object($user) && is_a($user, 'BB_User') ); // Intentional
+	elseif ( is_object($user) && isset($user->ID) && isset($user->user_login) ) // Make sure it's actually a user object
+		$user = new BB_User( $user->ID );
+	else
+		return;
+
+	if ( !$user->ID )
+		return;
+
+	return apply_filters( 'bb_is_trusted_user', (bool) array_intersect(bb_trusted_roles(), $user->roles), $user->ID );
+}
+
 function bb_get_active_theme_folder() {
 	$activetheme = bb_get_option( 'bb_active_theme' );
 	if ( !$activetheme )
