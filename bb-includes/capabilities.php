@@ -438,6 +438,11 @@ function bb_map_meta_cap($cap, $user_id) {
 	case 'delete_forum':
 		$caps[] = 'delete_forums';
 		break;
+	case 'change_user_password': // change_password, edit_users
+		$caps[] = 'change_password';
+		if ( $user_id != $args[0] )
+			$caps[] = 'edit_users';
+		break;
 	default:
 		// If no meta caps match, return the original cap.
 		$caps[] = $cap;

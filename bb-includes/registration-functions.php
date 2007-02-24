@@ -60,7 +60,7 @@ function bb_reset_password( $key ) {
 	if ( $user = new BB_User( $user_id ) ) :
 		if ( bb_has_broken_pass( $user->ID ) )
 			bb_block_current_user();
-		if ( !$user->has_cap( 'change_password' ) )
+		if ( !$user->has_cap( 'change_user_password', $user->ID ) )
 			bb_die( __('You are not allowed to change your password.') );
 		$newpass = bb_random_pass( 6 );
 		bb_update_user_password( $user->ID, $newpass );

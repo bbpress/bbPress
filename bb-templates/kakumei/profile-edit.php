@@ -15,10 +15,10 @@
 </fieldset>
 <?php endif; ?>
 
-<?php if ( bb_get_current_user_info( 'id' ) == $user->ID && bb_current_user_can( 'change_password' ) ) : ?>
+<?php if ( bb_current_user_can( 'change_user_password', $user->ID ) ) : ?>
 <fieldset>
 <legend><?php _e('Password'); ?></legend>
-<p><?php _e('If you wish to update your password, you may enter a new password twice below:'); ?></p>
+<p><?php _e('To change your password, enter a new password twice below:'); ?></p>
 <table width="100%">
 <tr>
   <th scope="row"><?php _e('New password:'); ?></th>
