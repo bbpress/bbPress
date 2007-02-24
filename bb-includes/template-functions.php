@@ -1466,7 +1466,7 @@ function get_tag_remove_link() {
 }
 
 function tag_heat_map( $args = '' ) {
-	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45 );
+	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = bb_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
@@ -1491,7 +1491,7 @@ function bb_related_tags_heat_map( $args = '' ) {
 	if ( $args && is_string($args) && false === strpos($args, '=') || is_numeric($args) )
 		$args = array( 'tag' => $args );
 
-	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'tag' => false );
+	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat', 'tag' => false );
 	$args = bb_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
@@ -1513,7 +1513,7 @@ function bb_related_tags_heat_map( $args = '' ) {
 }
 
 function bb_get_tag_heat_map( $tags, $args = '' ) {
-	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45 );
+	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = bb_parse_args( $args, $defaults );
 	extract($args);
 
@@ -1536,15 +1536,29 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 
 	do_action_ref_array( 'sort_tag_heat_map', array(&$counts) );
 
-	$r = '';
+	$a = array();
 
 	foreach ( $counts as $tag => $count ) {
 		$taglink = attribute_escape($taglinks{$tag});
 		$tag = str_replace(' ', '&nbsp;', wp_specialchars( $tag ));
-		$r .= "<a href='$taglink' title='" . attribute_escape( sprintf( __('%d topics'), $count ) ) . "' rel='tag' style='font-size: " .
+		$a[] = "<a href='$taglink' title='" . attribute_escape( sprintf( __('%d topics'), $count ) ) . "' rel='tag' style='font-size: " .
 			( $smallest + ( ( $count - $min_count ) * $fontstep ) )
-			. "$unit;'>$tag</a>\n";
+			. "$unit;'>$tag</a>";
 	}
+
+	switch ( $format ) :
+	case 'array' :
+		$r =& $a;
+		break;
+	case 'list' :
+		$r = "<ul class='bb-tag-heat-map'>\n\t<li>";
+		$r .= join("</li>\n\t<li>", $a);
+		$r .= "</li>\n</ul>\n";
+		break;
+	default :
+		$r = join("\n", $a);
+		break;
+	endswitch;
 
 	return apply_filters( 'bb_get_tag_heat_map', $r, $tags, $args );
 }
