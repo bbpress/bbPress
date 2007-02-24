@@ -19,37 +19,49 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = preg_replace('!(</?(?:ul|ol|li|blockquote|p)[^>]*>)\s*<br />!', "$1", $pee);
 	$pee = preg_replace('!<br />(\s*</?(?:p|li|ul|ol)>)!', '$1', $pee);
 	if ( false !== strpos( $pee, '<pre' ) )
-		$pee = preg_replace('!(<pre.*?>)(.*?)</pre>!ise', "'$1' .  clean_pre('$2')  . '</pre>' ", $pee);
+		$pee = preg_replace_callback('!(<pre.*?>)(.*?)</pre>!is', '_bb_autop_pre', $pee);
 	return $pee; 
 }
 
-function encodeit($text) {
+function _bb_autop_pre( $matches ) {
+	return $matches[1] . clean_pre($matches[2])  . '</pre>';
+}
+	
+
+function encodeit( $matches ) {
+	$text = trim($matches[2]);
 	$text = htmlspecialchars($text, ENT_QUOTES);
 	$text = str_replace(array("\r\n", "\r"), "\n", $text);
 	$text = preg_replace("|\n\n\n+|", "\n\n", $text);
 	$text = str_replace('&amp;lt;', '&lt;', $text);
 	$text = str_replace('&amp;gt;', '&gt;', $text);
+	$text = "<code>$text</code>";
+	if ( "`" != $matches[1] )
+		$text = "<pre>$text</pre>";
 	return $text;
 }
 
-function decodeit($text) {
+function decodeit( $matches ) {
+	$text = $matches[2];
 	$trans_table = array_flip(get_html_translation_table(HTML_ENTITIES));
-	$text = strtr($text, $trans_table);;
+	$text = strtr($text, $trans_table);
 	$text = str_replace('<br />', '', $text);
 	$text = str_replace('&#38;', '&', $text);
 	$text = str_replace('&#39;', "'", $text);
-	return $text;
+	if ( '<pre><code>' == $matches[1] )
+		$text = "\n$text\n";
+	return "`$text`";
 }
 
 function code_trick( $text ) {
 	$text = str_replace(array("\r\n", "\r"), "\n", $text);
-	$text = preg_replace("|`(.*?)`|e", "'<code>' . encodeit('$1') . '</code>'", $text);
-	$text = preg_replace("|\n`(.*?)`|se", "'<pre><code>' . encodeit('$1') . '</code></pre>'", $text);
+	$text = preg_replace_callback("|(`)(.*?)`|", 'encodeit', $text);
+	$text = preg_replace_callback("!(^|\n)`(.*?)`!s", 'encodeit', $text);
 	return $text;
 }
 
 function code_trick_reverse( $text ) {
-	$text = preg_replace("!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!se", "'`' . decodeit('$2') . '`'", $text);
+	$text = preg_replace_callback("!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'decodeit', $text);
 	$text = str_replace(array('<p>', '<br />'), '', $text);
 	$text = str_replace('</p>', "\n", $text);
 	return $text;
