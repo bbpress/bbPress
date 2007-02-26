@@ -45,7 +45,7 @@ class BB_Roles {
 						'move_topics' => true,
 						'view_by_ip' => true,		// view-ip.php
 						'edit_closed' => true,		// Edit closed topics
-						'edit_deleted' => true,		// Edit deleted topics
+						'edit_deleted' => true,		// Edit deleted topics/posts
 						'browse_deleted' => true,	// Use 'deleted' view
 						'edit_others_tags' => true,
 						'edit_others_topics' => true,
@@ -363,8 +363,15 @@ function bb_map_meta_cap($cap, $user_id) {
                 if ( $edit_lock >= 0 && $curr_time - $post_time > $edit_lock * 60 )
 			$caps[] = 'ignore_edit_lock';
 		break;
+	case 'delete_post' : // edit_deleted, delete_posts
+		if ( !$bb_post = bb_get_post( $args[0] ) ) :
+			$caps[] = 'magically_provide_data_given_bad_input';
+			return $caps;
+		endif;
+		if ( 0 != $bb_post->post_status )
+			$caps[] = 'edit_deleted';
+		// NO BREAK
 	case 'manage_posts' : // back compat
-	case 'delete_post' :
 		$caps[] = 'delete_posts';
 		break;
 	case 'write_topic':
@@ -394,6 +401,14 @@ function bb_map_meta_cap($cap, $user_id) {
 		break;
 	case 'delete_topic' :
 		$caps[] = 'delete_topics';
+		add_filter( 'get_topic_where', 'no_where', 9999 );
+		if ( !$topic = get_topic( $args[0] ) ) :
+			$caps[] = 'magically_provide_data_given_bad_input';
+			return $caps;
+		endif;
+		if ( 0 != $topic->topic_status )
+			$caps[] = 'edit_deleted';
+		remove_filter( 'get_topic_where', 'no_where', 9999 );
 		break;
 	case 'manage_topics' : // back compat
 		$caps[] = 'move_topics';

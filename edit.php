@@ -3,10 +3,6 @@ require('./bb-load.php');
 
 bb_auth();
 
-if ( bb_current_user_can('edit_deleted') && 'all' == $_GET['view'] ) {
-	add_filter('bb_is_first_where', 'no_where');
-}
-
 $post_id = (int) $_GET['id'];
 
 $bb_post  = bb_get_post( $post_id );
@@ -15,6 +11,9 @@ if ( !$bb_post || !bb_current_user_can( 'edit_post', $post_id ) ) {
 	wp_redirect( bb_get_option( 'uri' ) );
 	die();
 }
+
+if ( 0 != $bb_post->post_status && 'all' == $_GET['view'] ) // We're trying to edit a deleted post
+	add_filter('bb_is_first_where', 'no_where');
 
 $topic = get_topic( $bb_post->topic_id );
 

@@ -952,6 +952,8 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		$old_status = (int) $topic->topic_status;
 		if ( $new_status == $old_status )
 			return;
+		if ( 0 != $old_status && 0 == $new_status )
+			add_filter('get_thread_post_ids_where', 'no_where');
 		$post_ids = get_thread_post_ids( $topic_id );
 		$post_ids['post'] = array_reverse((array) $post_ids['post']);
 		foreach ( $post_ids['post'] as $post_id )
