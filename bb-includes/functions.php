@@ -1603,9 +1603,10 @@ function bb_repermalink() {
 		$forum_id = $permalink;
 		$permalink = get_forum_link( $permalink, $page );
 	} elseif ( is_topic() ) {
-		global $topic_id;
+		global $topic_id, $topic;
 		$topic_id = $permalink;
-		$permalink = get_topic_link( $permalink, $page );
+		$topic = get_topic( $topic_id );
+		$permalink = get_topic_link( $topic->topic_id, $page );
 	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
 		global $user_id, $profile_hooks, $self;
 		$user_id = $permalink;
