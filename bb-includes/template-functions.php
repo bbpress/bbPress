@@ -460,24 +460,26 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	global $topic;
 
 	if ( $id )
-		$topic = get_topic( $id );
+		$_topic = get_topic( $id );
+	else
+		$_topic =& $topic;
 
 	$args = array();
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . "topic/$topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
+		$link = bb_get_option('uri') . "topic/$_topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
 	else {
 		$link = bb_get_option('uri') . 'topic.php';
-		$args['id'] = $topic->topic_id;
+		$args['id'] = $_topic->topic_id;
 		$args['page'] = 1 < $page ? $page : '';
 	}
 
-	if ( bb_current_user_can('write_posts') )
-		$args['replies'] = $topic->topic_posts;
+	if ( bb_is_user_logged_in() )
+		$args['replies'] = $_topic->topic_posts;
 	if ( $args )
 		$link = add_query_arg( $args, $link );
 
-	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
+	return apply_filters( 'get_topic_link', $link, $_topic->topic_id );
 }
 
 function topic_rss_link( $id = 0 ) {
