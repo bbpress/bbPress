@@ -958,20 +958,30 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		$post_ids['post'] = array_reverse((array) $post_ids['post']);
 		foreach ( $post_ids['post'] as $post_id )
 			_bb_delete_post( $post_id, $new_status );
-		$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status' WHERE topic_id = '$topic_id'");
 
 		$ids = array_unique((array) $post_ids['poster']);
 		foreach ( $ids as $id )
 			if ( $user = bb_get_user( $id ) )
 				bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
+
 		if ( $new_status ) {
-			if( $tags = (array) $bbdb->get_col("SELECT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
+			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status', tag_count = 0 WHERE topic_id = '$topic_id'");
+			if( $tags = (array) $bbdb->get_col("SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
 				$tags = join(',', $tags);
-				$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id IN ($tags)");
+				$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
+				$_counts = (array) $bbdb->get_col('', 1);
+				foreach ( $_tags as $t => $i ) {
+					$new_count = (int) $counts[$t] - 1;
+					if ( 0 < $new_count )
+						$bbdb->query("UPDATE $bbdb->tags SET tag_count = $new_count WHERE tag_id = $i");
+					else
+						destroy_tag( $i, false );
+				}
 			}
 			$bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = '$topic_id'");
 			$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - '$topic->topic_posts' WHERE forum_id = '$topic->forum_id'");
 		} else {
+			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status' WHERE topic_id = '$topic_id'");
 			$topic_posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id' AND post_status = 0");
 			$all_posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id'");
 			bb_update_topicmeta( $topic_id, 'deleted_posts', $all_posts - $topic_posts );
@@ -1381,15 +1391,18 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
 
-	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id"));
+	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'")); // We care about the tag in this topic and if it's in other topics, but not which other topics
 	$counts = (array) $bbdb->get_col('', 1);
-	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") ) :
-		if ( 1 == $counts[$topics[$topic_id]] ) :
+	if ( !$here = $counts[$topics[$topic_id]] ) // Topic doesn't have this tag
+		return false;
+
+	if ( 1 == count($counts) ) : // This is the only time the tag is used
+		$destroyed = destroy_tag( $tag_id );
+	elseif ( $tags = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'") ) :
+		if ( 1 == $here ) :
 			$tagged = $bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = '$tag_id'");
 			$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id = '$topic_id'");
 			$bb_cache->flush_one( 'topic', $topic_id );
-			if ( 1 == count($counts) )
-				$destroyed = destroy_tag( $tag_id );
 		endif;
 	endif;
 	return array( 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
@@ -1423,10 +1436,10 @@ function merge_tags( $old_id, $new_id ) {
 	}
 
 	// return values and destroy the old tag
-	return array( 'destroyed' => destroy_tag( $old_id ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
+	return array( 'destroyed' => destroy_tag( $old_id, false ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
 }
 
-function destroy_tag( $tag_id ) {
+function destroy_tag( $tag_id, $recount_topics = true ) {
 	global $bbdb, $bb_cache;
 	if ( !bb_current_user_can( 'manage_tags' ) ) 
 		return false;
@@ -1434,10 +1447,14 @@ function destroy_tag( $tag_id ) {
 	do_action('bb_pre_destroy_tag', $tag_id);
 
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") ) {
-		if ( $topics = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
+		if ( $recount_topics && $topics = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
 			$topics = join(',', $topics);
-			$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id IN ($topics)");
-			$bb_cache->flush_one( 'topic', $topic_id );
+			$_topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
+			$_counts = (array) $bbdb->get_col('', 1);
+			foreach ( $_topics as $t => $topic_id ) {
+				$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = $topic_id");
+				$bb_cache->flush_one( 'topic', $topic_id );
+			}
 		}	
 		$tagged = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
 	}
