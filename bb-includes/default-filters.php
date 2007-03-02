@@ -36,6 +36,7 @@ add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8' );
 add_filter('get_user_link', 'bb_fix_link');
 
 add_action('bb_head', 'bb_print_scripts');
+add_action('bb_admin_print_scripts', 'bb_print_scripts');
 
 add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 
