@@ -129,6 +129,10 @@ class bbdb {
 		return addslashes($str);				
 	}
 
+	function escape_deep( $array ) {
+		return is_array($array) ? array_map(array(&$this, 'escape_deep'), $array) : $this->escape( $array );
+	}
+
 	// ==================================================================
 	//	Print SQL/DB error.
 
