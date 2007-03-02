@@ -1,4 +1,6 @@
 <?php
+die('No thieving allowed.');
+
 require_once('../bb-load.php');
 require_once('admin-functions.php');
 
