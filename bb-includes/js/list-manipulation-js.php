@@ -116,7 +116,7 @@ Object.extend(listMan.prototype, {
 		this.theList.cleanWhitespace();
 		var id = this.topAdder ? this.theList.firstChild.id : this.theList.lastChild.id;
 		if ( this.alt )
-			if ( this.theList.childNodes.length % 2 )
+			if ( ( this.theList.childNodes.length + this.altOffset ) % 2 )
 				$(id).addClassName(this.alt);
 		Fat.fade_element(id);
 	},

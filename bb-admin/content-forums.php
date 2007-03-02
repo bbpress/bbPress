@@ -13,17 +13,27 @@ if ( 'delete' == $_GET['action'] ) {
 
 if ( isset($_GET['message']) ) {
 	switch ( $_GET['message'] ) :
+	case 'updated' :
+		bb_admin_notice( __('Forum Updated.') );
+		break;
 	case 'deleted' :
 		bb_admin_notice( sprintf(__('Forum deleted.  You should have bbPress <a href="%s">recount your site information</a>.'), bb_get_option( 'uri' ) . 'bb-admin/site.php') );
 		break;
 	endswitch;
 }
 
+if ( !isset($_GET['action']) )
+	bb_enqueue_script( 'content-forums' );
+
 bb_get_admin_header();
 ?>
 
 <h2><?php _e('Forum Management'); ?></h2>
-<?php  if ( 'delete' == $_GET['action'] ) : ?>
+<?php switch ( $_GET['action'] ) : ?>
+<?php case 'edit' : ?>
+<h3><?php _e('Update Forum'); ?></h3>
+<?php bb_forum_form( (int) $_GET['id'] ); ?>
+<?php break; case 'delete' : ?>
 <div class="ays narrow">
 	<p><big><?php printf(__('Are you sure you want to delete the "<strong>%s</strong>" forum?'), $deleted_forum->forum_name); ?></big></p>
 	<p>This forum contains</p>
@@ -36,14 +46,11 @@ bb_get_admin_header();
 		<p>
 			<label for="move-topics-delete"><input type="radio" name="move_topics" id="move-topics-delete" value="delete" /> <?php _e('Delete all topics and posts in this forum. <em>This can never be undone.</em>'); ?></label><br />
 			<label for="move-topics-move"><input type="radio" name="move_topics" id="move-topics-move" value="move" checked="checked" /> <?php _e('Move topics from this forum into'); ?></label>
-			<?php $forums = get_forums(); ?>
+			<?php $forums = get_forums( 'strcmp', array($deleted_forum->forum_id) ); ?>
 			<select name="move_topics_forum" id="move-topics-forum">
-				<?php foreach ($forums as $forum ) : ?>
-					<?php if ($forum->forum_id != $deleted_forum->forum_id) : ?>
-
-						<option value="<?php forum_id(); ?>"><?php forum_name(); ?></option>
-					<?php endif; ?>
-				<?php endforeach; ?>
+<?php foreach ($forums as $forum ) : ?>
+				<option value="<?php forum_id(); ?>"><?php forum_name(); ?></option>
+<?php endforeach; ?>
 			</select>
 			
 		</p>
@@ -60,54 +67,38 @@ bb_get_admin_header();
 		</p>
 	</form>
 </div>
-<?php else: // action ?>
+<?php break; default : ?>
 
-<form method="post" id="add-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
-	<h3><?php _e('Add forum'); ?></h3>
-	<fieldset>
-		<table>
-		 <tr><th scope="row"><?php _e('Forum Name:'); ?></th>
-		     <td><input type="text" name="forum" id="forum" tabindex="10" /></td>
-		 </tr>
-		 <tr><th scope="row"><?php _e('Forum Description:'); ?></th>
-		     <td><input type="text" name="forum-desc" id="forum-desc" tabindex="11" /></td>
-		 </tr>
-		 <tr><th scope="row"><?php _e('Position:'); ?></th>
-		     <td><input type="text" name="forum-order" id="forum-order" tabindex="12" maxlength="10" /></td>
-		 </tr>
-		</table>
-		<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Add Forum'); ?>" tabindex="13" /><input type="hidden" name="action" value="add" /></p>
-	</fieldset> 
-	<?php bb_nonce_field( 'add-forum' ); ?>
-</form>
-<?php if ( $forums ) : ?>
-<form method="post" id="update-forums" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
-	<h3><?php _e('Update forum information'); ?></h3>
-	<fieldset>
-		<table>
-		 <tr><th><?php _e('Name'); ?></th>
-		     <th><?php _e('Description'); ?></th>
-		     <th><?php _e('Position'); ?></th>
-<?php if ( bb_current_user_can( 'delete_forums' ) && 1 < $forums_count ) : ?>
-		     <th><?php _e('Action'); ?></th>
-<?php endif; ?>
-		 </tr>
-<?php $t = 20; foreach ( $forums as $forum ) : ?>
-		 <tr><td><input type="text" name="name-<?php forum_id(); ?>"  value="<?php echo wp_specialchars( get_forum_name(), 1 ); ?>" tabindex="<?php echo $t++; ?>" /></td>
-		     <td><input type="text" name="desc-<?php forum_id(); ?>"  value="<?php echo wp_specialchars( get_forum_description(), 1 ); ?>" tabindex="<?php echo $t++; ?>" /></td>
-		     <td><input type="text" name="order-<?php forum_id(); ?>" value="<?php echo $forum->forum_order; ?>" maxlength="10" tabindex="<?php echo $t++; ?>" /></td>
-<?php if ( bb_current_user_can( 'delete_forums' ) && 1 < $forums_count ) : ?>
-		     <td><?php if ( bb_current_user_can( 'delete_forum', $forum->forum_id ) ) : ?><a class="delete" href="<?php bb_option('uri'); ?>bb-admin/content-forums.php?action=delete&id=<?php forum_id();?>"><?php _e('Delete'); ?></a><?php endif; ?></td>
-<?php endif; ?>
-		 </tr>
-<?php endforeach; ?>
-		</table>
-	<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Update'); ?>" tabindex="<?php echo $t; ?>" /><input type="hidden" name="action" value="update" /></p>
-	</fieldset>
-	<?php bb_nonce_field( 'update-forums' ); ?>
-</form>
+<?php
+function bb_list_h( $forums, $level = 0, $id = 0 ) {
+	$tabs = $level ? str_repeat( "\t", $level + 1 ) : '';
+	if ( $level )
+		echo "$tabs<ul id='forum-root-$id' class='list-block holder'>\n";
+	foreach ( array_keys($forums) as $f ) {
+		echo "$tabs";
+		bb_forum_row( $f, true, false, 'forum' );
+		if ( is_array($forums[$f]) )
+			bb_list_h( $forums[$f], $level + 1, $f );
+		echo "$tabs\t</li>\n";
+	}
+	if ( $level )
+		echo "$tabs</ul>\n";
+}
+?>
+
+<?php if ( $forums ) : $_forums = bb_get_forums_hierarchical(); ?>
+
+<ul id="the-list" class="list-block holder">
+	<li class="thead list-block"><div class="list-block">Name &#8212; Description</div></li>
+<?php bb_list_h( $_forums ); ?>
+</ul>
 <?php endif; // $forums ?>
 
-<?php endif; // action ?>
+<h3><?php _e('Add Forum'); ?></h3>
+<?php bb_forum_form(); ?>
+
+<?php break; endswitch; // action ?>
+
+<div id="ajax-response"></div>
 
 <?php bb_get_admin_footer(); ?>

@@ -373,8 +373,10 @@ function forum_name( $forum_id = 0 ) {
 function get_forum_name( $forum_id = 0 ) {
 	global $forum;
 	if ( $forum_id )
-		$forum = get_forum( $forum_id );
-	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+	return apply_filters( 'get_forum_name', $_forum->forum_name, $_forum->forum_id );
 }
 
 function forum_id() {
@@ -393,8 +395,28 @@ function forum_description( $forum_id = 0 ) {
 function get_forum_description( $forum_id = 0 ) {
 	global $forum;
 	if ( $forum_id )
-		$forum = get_forum( $forum_id );
-	return apply_filters( 'get_forum_description', $forum->forum_desc, $forum->forum_id );
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+	return apply_filters( 'get_forum_description', $_forum->forum_desc, $_forum->forum_id );
+}
+
+function get_forum_parent( $forum_id = 0 ) {
+	global $forum;
+	if ( $forum_id )
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+	return apply_filters( 'get_forum_parent', $_forum->forum_parent, $_forum->forum_id );
+}
+
+function get_forum_position( $forum_id = 0 ) {
+	global $forum;
+	if ( $forum_id )
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+	return apply_filters( 'get_forum_position', $_forum->forum_order, $_forum->forum_id );
 }
 
 function forum_topics( $forum_id = 0 ) {
@@ -1574,22 +1596,39 @@ function tag_pages() {
 	echo apply_filters( 'topic_pages', get_page_number_links( $page, $tagged_topic_count ) );
 }
 
-function bb_forum_dropdown( $callback = false, $callback_args = false ) {
-	echo bb_get_forum_dropdown( $callback, $callback_args );
+function bb_forum_dropdown( $args = '' ) {
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'callback' => $args );
+	if ( 1 < func_num_args() )
+		$args['callback_args'] = func_get_arg(1);
+	echo bb_get_forum_dropdown( $args );
 }
 
-function bb_get_forum_dropdown( $callback = false, $callback_args = false ) {
+function bb_get_forum_dropdown( $args = '' ) {
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5 );
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'callback' => $args );
+	if ( 1 < func_num_args() )
+		$args['callback_args'] = func_get_arg(1);
+
+	extract($args = bb_parse_args( $args, $defaults ));
+
 	global $forum_id;
 	if ( !$forums = get_forums( $callback, $callback_args ) )
 		return;
 
-	$r = '<select name="forum_id" id="forum_id" tabindex="5">';
+	$id = attribute_escape( $id );
+	$tab = (int) $tab;
+
+	$r = "<select name='$id' id='$id' tabindex='$tab'>\n";
+	if ( $none )
+		$r .= "\n<option value='0'>" . __('- None -') . "</option>\n";
 
 	foreach ( $forums as $forum ) :
-		$selected = ( $forum_id == $forum->forum_id ) ? " selected='selected'" : '';
-		$r .= "<option value='$forum->forum_id'$selected>$forum->forum_name</option>";
+		$_selected = ( !$selected && $forum_id == $forum->forum_id || $selected == $forum->forum_id ) ? " selected='selected'" : '';
+		$r .= "\n<option value='$forum->forum_id'$_selected>$forum->forum_name</option>\n";
 	endforeach;
-	$r .= '</select>';
+	$r .= "</select>\n";
 	return $r;
 }
 

@@ -524,4 +524,66 @@ function bb_get_theme_data( $theme_file ) {
 	);
 }
 
+function bb_forum_row( $forum_id = 0, $echo = true, $close = true, $class = 'forum' ) {
+	global $forum, $forums_count;
+	if ( $forum_id )
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+
+	if ( !$_forum )
+		return;
+
+	$r  = "\t<li id='forum-$_forum->forum_id'" . get_alt_class( 'forum', "$class clear list-block" ) . ">\n";
+	$r .= "\t\t<div class='list-block posrel'>" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n";
+	$r .= "\t\t\t<div class='abstop absright'>\n";
+	if ( bb_current_user_can( 'manage_forums' ) )
+		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=edit&id=$_forum->forum_id" ) . "'>" . __('Edit') . "</a>\n";
+	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
+		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=$_forum->forum_id" ) . "'>" . __('Delete') . "</a>\n";
+	$r .= "\t\t\t</div>\n\t\t</div>\n";
+	if ( $close )
+		$r .= "\t</li>\n";
+
+	if ( $echo )
+		echo $r;
+	return $r;
+}
+
+function bb_forum_form( $forum_id = 0 ) {
+	$forum_id = (int) $forum_id;
+	if ( $forum_id && !$forum = get_forum( $forum_id ) )
+		return;
+	$action = $forum_id ? 'update' : 'add';
+?>
+<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
+	<fieldset>
+	<table><col /><col style="width: 80%" />
+		<tr><th scope="row"><?php _e('Forum Name:'); ?></th>
+			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
+		</tr>
+		<tr><th scope="row"><?php _e('Forum Description:'); ?></th>
+			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
+		</tr>
+		<tr><th scope="row"><?php _e('Forum Parent:'); ?></th>
+			<td><?php bb_forum_dropdown( array('callback' => 'strcmp', 'callback_args' => array($forum_id), 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0) ); ?></td>
+		</tr>
+		<tr><th scope="row"><?php _e('Position:'); ?></th>
+			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
+		</tr>
+	</table>
+	<p class="submit">
+<?php if ( $forum_id ) : ?>
+		<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
+<?php endif; ?>
+		<?php bb_nonce_field( "$action-forum" ); ?>
+
+		<input type="hidden" name="action" value="<?php echo $action; ?>" />
+		<input name="Submit" type="submit" value="<?php if ( $forum_id ) _e('Update Forum &#187;'); else _e('Add Forum &#187;'); ?>" tabindex="13" />
+	</p>
+	</fieldset> 
+</form>
+<?php
+}
+
 ?>

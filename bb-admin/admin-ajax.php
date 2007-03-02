@@ -1,10 +1,11 @@
 <?php
 require_once('../bb-load.php');
-
+require_once(BBPATH . 'bb-admin/admin-functions.php');
 bb_check_ajax_referer();
 
 if ( !$bb_current_id = bb_get_current_user_info( 'id' ) )
 	die('-1');
+
 define('DOING_AJAX', true);
 
 function grab_results() {
@@ -146,6 +147,51 @@ case 'add-post' : // Can put last_modified stuff back in later
 		'data' => is_wp_error($error) ? $error : $data
 	) );
 	$x->send();
+	break;
+
+case 'add-forum' :
+	if ( !bb_current_user_can( 'manage_forums' ) )
+		die('-1');
+
+	if ( !$forum_id = bb_new_forum( $_POST ) )
+		die('0');
+
+	global $forums_count;
+	$forums_count = 2; // Hack
+
+	$x = new WP_Ajax_Response( array(
+		'what' => 'forum',
+		'id' => $forum_id,
+		'data' => bb_forum_row( $forum_id, false )
+	) );
+	$x->send();
+	break;
+
+case 'order-forums' :
+	if ( !is_array($_POST['order']) )
+		die('0');
+
+	global $bbdb;
+
+	$forums = array();
+
+	get_forums(); // cache
+
+	foreach ( $_POST['order'] as $pos => $forum_id ) :
+		$forum = $bbdb->escape_deep( get_object_vars( get_forum( $forum_id ) ) );
+		$forum['forum_order'] = $pos;
+		$forums[(int) $forum_id] = $forum;
+	endforeach;
+
+	foreach ( $_POST['root'] as $root => $ids )
+		foreach ( $ids as $forum_id )
+			$forums[(int) $forum_id]['forum_parent'] = (int) $root;
+
+	foreach ( $forums as $forum )
+		bb_update_forum( $forum );
+
+
+	die('1');
 	break;
 
 default :

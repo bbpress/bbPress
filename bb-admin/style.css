@@ -1,3 +1,7 @@
+.helper { border: 2px dashed #777; }
+
+.sort-handle { cursor: move; }
+
 a {
 	border-bottom: 1px solid #6c9;
 	color: #009b01;
@@ -14,10 +18,43 @@ a.delete:hover {
 	color: #fff;
 }
 
+ul.list-block {
+	margin: 0;
+	padding: 0;
+	background-color: #fff;
+}
+
+ul.list-block ul.list-block {
+	padding: 0 0 0 4ex;
+}
+
+li.list-block {
+	list-style: none;
+	margin: 0;
+	padding: 8px 0 0;
+}
+
+.absright {
+	position: absolute;
+	right: 0;
+}
+
+.abstop {
+	position: absolute;
+	top: 0;
+}
+
+.posrel {
+	position: relative;
+}
+
+div.list-block {
+	padding: 0 8px 8px;
+}
+
 a.edit, a.delete, a.edit:hover, a.delete:hover {
+	padding: 5px;
 	border-bottom: none;
-	display: block;
-	padding: 5px 0;
 	text-align: center;
 }
 
@@ -246,7 +283,8 @@ th[scope="row"] {
 }
 
 thead, .thead {
-	background: #dfdfdf
+	background: #dfdfdf;
+	font-weight: bold;
 }
 
 #bb-admin-menu {
@@ -417,8 +455,11 @@ thead, .thead {
 	display: inline;
 }
 
-br.clear {
+.clear {
 	clear: both;
+}
+
+br.clear {
 	height: 1px;
 	font-size: 1px;
 	line-height: 1px;

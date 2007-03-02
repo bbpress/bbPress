@@ -11,15 +11,12 @@ $sent_from = wp_get_referer();
 
 switch ( $_POST['action'] ) :
 case 'add' :
-	if ( !isset($_POST['forum']) || '' === $_POST['forum'] )
+	if ( !isset($_POST['forum_name']) || '' === $_POST['forum_name'] )
 		bb_die(__('Bad forum name.  Go back and try again.'));
 
 	bb_check_admin_referer( 'add-forum' );
 
-	$forum_name = $_POST['forum'];
-	$forum_desc = $_POST['forum-desc'];
-	$forum_order = ( '' === $_POST['forum-order'] ) ? 0 : (int) $_POST['forum-order'];
-	if ( false !== bb_new_forum( $forum_name, $forum_desc, $forum_order ) ) :
+	if ( false !== bb_new_forum( $_POST ) ) :
 		wp_redirect( $sent_from );
 		exit;
 	else :
@@ -27,15 +24,15 @@ case 'add' :
 	endif;
 	break;
 case 'update' :
-	bb_check_admin_referer( 'update-forums' );
+	bb_check_admin_referer( 'update-forum' );
 
 	if ( !$forums = get_forums() )
 		bb_die(__('No forums to update!'));
-	foreach ( $forums as $forum ) :
-		if ( isset($_POST['name-' . $forum->forum_id]) && '' !== $_POST['name-' . $forum->forum_id] )
-			bb_update_forum( $forum->forum_id, $_POST['name-' . $forum->forum_id], $_POST['desc-' . $forum->forum_id], $_POST['order-' . $forum->forum_id]);
-	endforeach;
-	wp_redirect( $sent_from );
+	if ( (int) $_POST['forum_id'] && isset($_POST['forum_name']) && '' !== $_POST['forum_name'] )
+		bb_update_forum( $_POST );
+	foreach ( array('action', 'id') as $arg )
+		$sent_from = remove_query_arg( $arg, $sent_from );
+	wp_redirect( add_query_arg( 'message', 'updated', $sent_from ) );
 	exit;
 	break;
 case 'delete' :

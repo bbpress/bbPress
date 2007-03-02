@@ -11,18 +11,6 @@
 
 <?php if ( is_topic() && bb_is_user_logged_in() ) : ?>
 	<script type="text/javascript">
-		function addLoadEvent(func) {
-			var oldonload = window.onload;
-			if (typeof window.onload != 'function') {
-				window.onload = func;
-			} else {
-				window.onload = function() {
-					oldonload();
-					func();
-				}
-			}
-		}
-
 		var lastMod = <?php topic_time( 'timestamp' ); ?>;
 		var page = <?php global $page; echo $page; ?>;
 		var currentUserId = <?php bb_current_user_info( 'id' ); ?>;

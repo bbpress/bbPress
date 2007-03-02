@@ -138,11 +138,17 @@ class BB_Cache {
 	}
 
 	function get_forums() {
-		global $bbdb;
+		global $bbdb, $bb_forum_cache;
 
 		$normal = true;
 		if ( '' != $where = apply_filters('get_forums_where', '') )
 			$normal = false;
+
+		if ( $normal && isset($bb_forum_cache[-1]) && $bb_forum_cache[-1] ) {
+			$forums = $bb_forum_cache;
+			unset($forums[-1]);
+			return $forums;
+		}
 
 		if ( $this->use_cache && $normal && file_exists(BBPATH . 'bb-cache/bb_forums') )
 			return $this->read_cache(BBPATH . 'bb-cache/bb_forums');
@@ -150,23 +156,34 @@ class BB_Cache {
 		$forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
 		if ( $this->use_cache && $normal && $forums )
 			$this->write_cache(BBPATH . 'bb-cache/bb_forums', $forums);
+		foreach ( $forums as $forum )
+			$bb_forum_cache[(int) $forum->forum_id] = $forum;
+
+		$bb_forum_cache[-1] = true;
+
 		return $forums;
 	}
 
 	function get_forum( $forum_id ) {
-		global $bbdb;
+		global $bbdb, $bb_forum_cache;
 		$forum_id = (int) $forum_id;
 
 		$normal = true;
 		if ( '' != $where = apply_filters('get_forum_where', '') )
 			$normal = false;
 
+		if ( $normal && $forum_id && isset($bb_forum_cache[$forum_id]) )
+			return $bb_forum_cache[$forum_id];
+
 		if ( $this->use_cache && $normal && file_exists(BBPATH . 'bb-cache/bb_forum-' . $forum_id) )
 			return $this->read_cache(BBPATH . 'bb-cache/bb_forum-' . $forum_id);
 
-		$forum = $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $forum_id $where");
+		if ( $forum = $bbdb->get_row("SELECT * FROM $bbdb->forums WHERE forum_id = $forum_id $where") )
+			$bb_forum_cache[$forum_id] = $forum;
+
 		if ( $this->use_cache && $normal && $forum )
 			$this->write_cache(BBPATH . 'bb-cache/bb_forum-' . $forum_id, $forum);
+
 		return $forum;
 	}
 
@@ -186,8 +203,6 @@ class BB_Cache {
 	}
 
 	function flush_one( $type, $id = 0, $page = 0 ) {
-		if ( !$this->use_cache )
-			return;
 		switch ( $type ) :
 		case 'user' :
 			$file = BBPATH . 'bb-cache/bb_user-' . $id;
@@ -196,25 +211,33 @@ class BB_Cache {
 			$file = BBPATH . 'bb-cache/bb_topic-' . $id;
 			break;
 		case 'forums' :
+			global $bb_forum_cache;
+			unset($bb_forum_cache[-1]);
 			$file = BBPATH . 'bb-cache/bb_forums';
 			break;
 		endswitch;
+
+		if ( !$this->use_cache )
+			return;
 
 		if ( file_exists($file) )
 			unlink($file);
 	}
 
 	function flush_many( $type, $id, $start = 0 ) {
-		if ( !$this->use_cache )
-			return;
 		switch ( $type ) :
 		case 'thread' :
 			$files = glob( BBPATH . 'bb-cache/bb_thread-' . $id . '-*');
 			break;
 		case 'forum' :
+			global $bb_forum_cache;
+			unset($bb_forum_cache[$id], $bb_forum_cache[-1]);
 			$files = array(BBPATH . 'bb-cache/bb_forum-' . $id, BBPATH . 'bb-cache/bb_forums');
 			break;
 		endswitch;
+
+		if ( !$this->use_cache )
+			return;
 
 		if ( is_array($files) )
 			foreach ( $files as $file )

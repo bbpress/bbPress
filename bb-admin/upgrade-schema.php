@@ -5,6 +5,7 @@ $bb_queries = "CREATE TABLE $bbdb->forums (
   forum_id int(10) NOT NULL auto_increment,
   forum_name varchar(150)  NOT NULL default '',
   forum_desc text  NOT NULL,
+  forum_parent int(10) NOT NULL default '0',
   forum_order int(10) NOT NULL default '0',
   topics bigint(20) NOT NULL default '0',
   posts bigint(20) NOT NULL default '0',
