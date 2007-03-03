@@ -5,7 +5,7 @@
 	<title><?php bb_title() ?></title>
 	<?php bb_feed_head(); ?> 
 	<link rel="stylesheet" href="<?php bb_stylesheet_uri(); ?>" type="text/css" />
-<?php if ( 'rtl' == bb_get_option( 'text_direction ) ) : ?>
+<?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_stylesheet_uri( 'rtl' ); ?>" type="text/css" />
 <?php endif; ?> 
 
