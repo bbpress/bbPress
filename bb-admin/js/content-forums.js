@@ -22,6 +22,8 @@ var div = document.createElement('div'); div.innerHTML = 'Save Forum Order &#187
 saveText = div.childNodes[0].nodeValue;
 div = null;
 
+var rtl = 'rtl' == $('html').attr( 'dir' );
+
 // overwrite with more advanced function
 jQuery.iSort.checkhover = function(e,o) {
 	if (!jQuery.iDrag.dragged)
@@ -29,21 +31,24 @@ jQuery.iSort.checkhover = function(e,o) {
 
 	if ( e.dropCfg.el.size() > 0 ) {
 		var bottom = jQuery.grep(e.dropCfg.el, function(i) { // All the list items whose bottom edges are inside the draggable
-			return i.pos.y + i.pos.hb > jQuery.iDrag.dragged.dragCfg.ny && i.pos.y + i.pos.hb < jQuery.iDrag.dragged.dragCfg.ny + 30 && i.pos.x < jQuery.iDrag.dragged.dragCfg.nx;
+			var x = rtl ? i.pos.x + i.pos.wb > jQuery.iDrag.dragged.dragCfg.nx + jQuery.iDrag.dragged.dragCfg.oC.wb : i.pos.x < jQuery.iDrag.dragged.dragCfg.nx;
+			return i.pos.y + i.pos.hb > jQuery.iDrag.dragged.dragCfg.ny && i.pos.y + i.pos.hb < jQuery.iDrag.dragged.dragCfg.ny + 30 && x;
 		} );
 
 		if ( bottom.length > 0 ) { // Use the lowest one one the totem pole
-			if ( placed != bottom[bottom.length-1].id || bottom[bottom.length-1].pos.x + 30 > jQuery.iDrag.dragged.dragCfg.nx ) { // Testing to see if still placed in shifted box
+			var x = rtl ? bottom[bottom.length-1].pos.x + bottom[bottom.length-1].pos.wb - 30 > jQuery.iDrag.dragged.dragCfg.nx + jQuery.iDrag.dragged.dragCfg.oC.wb : bottom[bottom.length-1].pos.x + 30 < jQuery.iDrag.dragged.dragCfg.nx;
+			if ( placed != bottom[bottom.length-1].id || !x ) { // Testing to see if still placed in shifted box
 				placed = null;
 				jQuery(bottom[bottom.length-1]).after(jQuery.iSort.helper.get(0));
 			}
-			bbCheckHover(bottom[bottom.length-1], bottom[bottom.length-1].pos.x + 30 < jQuery.iDrag.dragged.dragCfg.nx); // If far enough right, shift it over
+			bbCheckHover(bottom[bottom.length-1], x); // If far enough right, shift it over
 			return;
 		}
 
 		// Didn't find anything by checking bottems.  Look at tops
 		var top = jQuery.grep(e.dropCfg.el, function(i) { // All the list items whose top edges are inside the draggable
-			return i.pos.y > jQuery.iDrag.dragged.dragCfg.ny && i.pos.y < jQuery.iDrag.dragged.dragCfg.ny + 30 && i.pos.x < jQuery.iDrag.dragged.dragCfg.nx;
+			var x = rtl ? i.pos.x + i.pos.wb > jQuery.iDrag.dragged.dragCfg.nx : i.pos.x < jQuery.iDrag.dragged.dragCfg.nx;
+			return i.pos.y > jQuery.iDrag.dragged.dragCfg.ny && i.pos.y < jQuery.iDrag.dragged.dragCfg.ny + 30 && x;
 		} );
 
 		if ( top.length ) { // Use the highest one (should be only one)
@@ -73,7 +78,7 @@ function bbCheckHover(el, doit) {
 		return;
 
 	var id = 'forum-root-' + place.split('-')[1];
-	$('#' + place).not('[ul]').append("<ul id='" + id + "' class='list-block holder'><ul>").end().children('ul').append(jQuery.iSort.helper.get(0)); // Place in shifted box
+	$('#' + place).not('[ul]').append("<ul id='" + id + "' class='list-block holder'></ul>").end().children('ul').append(jQuery.iSort.helper.get(0)); // Place in shifted box
 	placed = 'forum-' + place.split('-')[1];
 }
 

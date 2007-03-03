@@ -1,5 +1,9 @@
 body, td { font: 13px Tahoma, "Lucida Grande", "Lucida Sans Unicode", Tahoma, Verdana; }
 
+ul.list-block {
+	padding: 0 4ex 0 0;
+}
+
 fieldset span.cat-nest {
 	margin-left: auto;
 	margin-right: 10px;
@@ -11,6 +15,16 @@ fieldset span.cat-nest {
 
 .alignright {
 	float: left;
+}
+
+.absleft {
+	left: auto;
+	right: 0;
+}
+
+.absright {
+	right: auto;
+	left: 0;
 }
 
 .submit input, .submit input:focus, .button, .button:focus {

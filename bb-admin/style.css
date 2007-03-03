@@ -20,18 +20,23 @@ a.delete:hover {
 
 ul.list-block {
 	margin: 0;
-	padding: 0;
+	padding: 0 0 0 4ex;
 	background-color: #fff;
 }
 
-ul.list-block ul.list-block {
-	padding: 0 0 0 4ex;
+ul#the-list.list-block {
+	padding: 0;
 }
 
 li.list-block {
 	list-style: none;
 	margin: 0;
 	padding: 8px 0 0;
+}
+
+.absleft {
+	position: absolute;
+	left: 0;
 }
 
 .absright {
