@@ -4,7 +4,7 @@
 	<title><?php bb_admin_title() ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style.css" type="text/css" />
-<?php global $bb_locale; if ( ('rtl' == $bb_locale->text_direction) ) : ?>
+<?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style-rtl.css" type="text/css" />
 <?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
 </head>
