@@ -535,13 +535,14 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = true, $class = 'for
 		return;
 
 	$r  = "\t<li id='forum-$_forum->forum_id'" . get_alt_class( 'forum', "$class clear list-block" ) . ">\n";
-	$r .= "\t\t<div class='list-block posrel'>" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n";
-	$r .= "\t\t\t<div class='abstop absright'>\n";
+	$r .= "\t\t<div class='list-block posrel'>";
+	$r .= "\t\t\t<div class='alignright'>\n";
 	if ( bb_current_user_can( 'manage_forums' ) )
 		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=edit&id=$_forum->forum_id" ) . "'>" . __('Edit') . "</a>\n";
 	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
 		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=$_forum->forum_id" ) . "'>" . __('Delete') . "</a>\n";
-	$r .= "\t\t\t</div>\n\t\t</div>\n";
+	$r .= "\t\t\t</div>\n";
+	$r .= "\t\t\t" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n\t\t</div>\n";
 	if ( $close )
 		$r .= "\t</li>\n";
 

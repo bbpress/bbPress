@@ -74,7 +74,7 @@ function bbCheckHover(el, doit) {
 	}
 
 	place = el.id;
-	if ( $('#' + place).children('ul[li]').size() ) // Don't shift over if there's already a UL with stuff in it
+	if ( $('#' + place).children('ul[li:visible]').size() ) // Don't shift over if there's already a UL with stuff in it
 		return;
 
 	var id = 'forum-root-' + place.split('-')[1];
@@ -103,8 +103,10 @@ $('#add-forum').submit( function() {
 	theList.alt = 'alt';
 	theList.showLink = 0;
 	theList.addComplete = function() {
-		var last = $('#the-list li:last').children('div').prepend(handle).end()[0];
-		$('#the-list').SortableAddItem(last);
+		if ( saveText == $('#forum-order-edit').val() ) {
+			var last = $('#the-list li:last').find('div.alignright').after(handle).end()[0];
+			$('#the-list').SortableAddItem(last);
+		}
 	}
 
 	theList.ajaxAdder( 'forum', 'add-forum' );
@@ -113,7 +115,7 @@ $('#add-forum').submit( function() {
 
 $('#forum-order-edit').toggle( function() {
 	$(this).val(saveText);
-	$('#the-list li:gt(0)').children('div').prepend(handle);
+	$('#the-list li:gt(0) div.alignright').after(handle);
 	$('#the-list').Sortable( sortCfg );
 }, function() {
 	$(this).val(editText);
