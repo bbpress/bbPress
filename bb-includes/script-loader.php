@@ -1,6 +1,4 @@
 <?php
-require(BBPATH . BBINC . 'js/js-i18n.php');
-
 class BB_Scripts {
 	var $scripts = array();
 	var $queue = array();
