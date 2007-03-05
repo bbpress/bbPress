@@ -112,11 +112,12 @@ $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-$plugins = glob( BBPLUGINDIR . '*.php');
-if ( $plugins ) : foreach ( $plugins as $plugin ) :
-	require($plugin);
-endforeach; endif;
-do_action('bb_plugins_loaded', '');
+if ( $plugins = bb_get_option( 'active_plugins' ) )
+	foreach ( $plugins as $plugin )
+		if ( file_exists(BBPLUGINDIR . $plugin) )
+			require( BBPLUGINDIR . $plugin );
+do_action( 'bb_plugins_loaded' );
+unset($plugins, $plugin);
 
 require( BBPATH . BBINC . 'pluggable.php');
 

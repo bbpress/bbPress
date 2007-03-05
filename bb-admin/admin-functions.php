@@ -18,7 +18,7 @@ function bb_admin_menu_generator() {
 	$bb_menu[5] = array(__('Users'), 'moderate', 'users.php');
 	$bb_menu[10] = array(__('Content'), 'moderate', 'content.php');
 	$bb_menu[13] = array(__('Presentation'), 'use_keys', 'themes.php');
-	$bb_menu[15] = array(__('Site Management'), 'use_keys', 'site.php');
+	$bb_menu[15] = array(__('Site Management'), 'use_keys', 'plugins.php');
 
 	$bb_submenu = array();
 	$bb_submenu['users.php'][5] = array(__('Find'), 'moderate', 'users.php');
@@ -31,7 +31,8 @@ function bb_admin_menu_generator() {
 
 	$bb_submenu['themes.php'][5] = array(__('Themes'), 'use_keys', 'themes.php');
 
-	$bb_submenu['site.php'][5] = array(__('Recount'), 'recount', 'site.php');
+	$bb_submenu['plugins.php'][5] = array(__('Plugins'), 'use_keys', 'plugins.php');
+	$bb_submenu['plugins.php'][10] = array(__('Recount'), 'recount', 'site.php');
 
 	do_action('bb_admin_menu_generator','');
 	ksort($bb_menu);
@@ -395,6 +396,29 @@ class BB_Users_By_Role extends BB_User_Search {
 			bb_admin_notice( $this->search_errors );
 	}
 
+}
+
+function bb_get_plugins( $plugin_dir = false ) {
+	$plugins = array();
+	if ( !$plugin_dir )
+		$plugin_dir = BBPLUGINDIR;
+
+	$plugin_dir = rtrim($plugin_dir, '/\\');
+
+	if ( 0 < func_num_args() && dirname($plugin_dir) !== rtrim(BBPLUGINDIR, '/\\') ) // only go one level deep;
+		return $plugins;
+	else
+		$plugin_dir = dir($plugin_dir);
+
+	while ( false !== $file = $plugin_dir->read() ) {
+		if ( '.' == $file{0} )
+			continue;
+		if ( is_dir($plugin_dir->path . "/$file") )
+			$plugins = array_merge($plugins, bb_get_plugins( $plugin_dir->path . "/$file" ));
+		if ( $data = bb_get_plugin_data( $plugin_dir->path . "/$file" ) )
+			$plugins[ltrim(substr($plugin_dir->path, strlen(BBPLUGINDIR)) . "/$file", '/\\')] = $data;
+	}
+	return $plugins;
 }
 
 function bb_get_plugin_data($plugin_file) {

@@ -267,7 +267,7 @@ textarea, input, select {
 	line-height: 150%;
 }
 
-table .vers, table .name, .centered {
+table .vers, table th.vers, table .name, table .action, table th.action, table th.centered, .centered {
 	text-align: center;
 }
 
@@ -468,4 +468,11 @@ br.clear {
 	height: 1px;
 	font-size: 1px;
 	line-height: 1px;
+}
+
+tr.alt.active td {
+	background-color: #88bb88;
+}
+tr.active td {
+	background-color: #aaddaa;
 }
