@@ -435,43 +435,43 @@ function get_forum_rss_link( $forum_id = 0 ) {
 }
 
 // TOPICS
-function topic_id() {
-	echo apply_filters( 'topic_id', get_topic_id() );
+function topic_id( $id = 0 ) {
+	echo apply_filters( 'topic_id', get_topic_id( $id ) );
 }
 
-function get_topic_id() {
+function get_topic_id( $id = 0 ) {
 	global $topic;
-	return $topic->topic_id;
-}
-
-function topic_link( $id = 0, $page = 1 ) {
-	echo apply_filters( 'topic_link', get_topic_link($id), $id );
-}
-
-function get_topic_link( $id = 0, $page = 1 ) {
-	global $topic;
-
+	$id = (int) $id;
 	if ( $id )
 		$_topic = get_topic( $id );
 	else
 		$_topic =& $topic;
+	return $_topic->topic_id;
+}
+
+function topic_link( $id = 0, $page = 1 ) {
+	echo apply_filters( 'topic_link', get_topic_link( $id ), $id );
+}
+
+function get_topic_link( $id = 0, $page = 1 ) {
+	$topic = get_topic( get_topic_id( $id ) );
 
 	$args = array();
 
 	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . "topic/$_topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
+		$link = bb_get_option('uri') . "topic/$topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
 	else {
 		$link = bb_get_option('uri') . 'topic.php';
-		$args['id'] = $_topic->topic_id;
+		$args['id'] = $topic->topic_id;
 		$args['page'] = 1 < $page ? $page : '';
 	}
 
 	if ( bb_is_user_logged_in() )
-		$args['replies'] = $_topic->topic_posts;
+		$args['replies'] = $topic->topic_posts;
 	if ( $args )
 		$link = add_query_arg( $args, $link );
 
-	return apply_filters( 'get_topic_link', $link, $_topic->topic_id );
+	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
 }
 
 function topic_rss_link( $id = 0 ) {
@@ -479,10 +479,7 @@ function topic_rss_link( $id = 0 ) {
 }
 
 function get_topic_rss_link( $id = 0 ) {
-	global $topic;
-
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . "rss/topic/$topic->topic_id";
@@ -497,9 +494,7 @@ function topic_title( $id = 0 ) {
 }
 
 function get_topic_title( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	return apply_filters( 'get_topic_title', $topic->topic_title, $topic->topic_id );
 }
 
@@ -508,16 +503,12 @@ function topic_posts( $id = 0 ) {
 }
 
 function get_topic_posts() {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	return apply_filters( 'get_topic_posts', $topic->topic_posts, $topic->topic_id );
 }
 
 function get_topic_deleted_posts( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	return apply_filters( 'get_topic_deleted_posts', $topic->deleted_posts, $topic->topic_id );
 }
 
@@ -528,30 +519,22 @@ function topic_noreply( $title ) {
 }
 
 function topic_last_poster( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	echo apply_filters( 'topic_last_poster', get_topic_last_poster( $id ), $topic->topic_last_poster ); // Last arg = user ID
 }
 
 function get_topic_last_poster( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	return apply_filters( 'get_topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster ); // Last arg = user ID
 }
 
 function topic_author( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	echo apply_filters( 'topic_author', get_topic_author( $id ), $topic->topic_poster ); // Last arg = user ID
 }
 
 function get_topic_author( $id = 0 ) {
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	return apply_filters( 'get_topic_author', $topic->topic_poster_name, $topic->topic_poster ); // Last arg = user ID
 }
 
@@ -565,13 +548,9 @@ function topic_time( $args = '' ) {
 function get_topic_time( $args = '' ) {
 	$args = _bb_parse_time_function_args( $args );
 
-	global $topic;
-	if ( $args['id'] )
-		$_topic = get_topic( $args['id'] );
-	else
-		$_topic =& $topic; 
+	$topic = get_topic( get_topic_id( $args['id'] ) );
 
-	$time = apply_filters( 'get_topic_time', $_topic->topic_time, $args );
+	$time = apply_filters( 'get_topic_time', $topic->topic_time, $args );
 
 	return _bb_time_function_return( $time, $args );
 }
@@ -585,38 +564,32 @@ function topic_start_time( $args = '' ) {
 function get_topic_start_time( $args = '' ) {
 	$args = _bb_parse_time_function_args( $args );
 
-	global $topic;
-	if ( $args['id'] )
-		$_topic = get_topic( $args['id'] );
-	else
-		$_topic =& $topic;
+	$topic = get_topic( get_topic_id( $args['id'] ) );
 
-	$time = apply_filters( 'get_topic_start_time', $_topic->topic_start_time, $args );
+	$time = apply_filters( 'get_topic_start_time', $topic->topic_start_time, $args );
 
 	return _bb_time_function_return( $time, $args );
 }
 
 function topic_last_post_link( $id = 0 ) {
-	global $topic;
 	echo apply_filters( 'topic_last_post_link', get_topic_last_post_link( $id ));
 }
 
 function get_topic_last_post_link( $id = 0 ){
-	global $topic;
-	if ( $id )
-		$topic = get_topic( $id );
+	$topic = get_topic( get_topic_id( $id ) );
 	$page = get_page_number( $topic->topic_posts );
 	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
 }
 
-function topic_pages() {
-	global $topic, $page;
+function topic_pages( $id = 0 ) {
+	global $page;
+	$topic = get_topic( get_topic_id( $id ) );
 	$add = topic_pages_add();
 	echo apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ), $topic->topic_id );
 }
 
-function topic_pages_add() {
-	global $topic;
+function topic_pages_add( $id = 0 ) {
+	$topic = get_topic( get_topic_id( $id ) );
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') )
 		$add += $topic->deleted_posts;
 	return apply_filters( 'topic_pages_add', $add, $topic->topic_id );
@@ -656,19 +629,15 @@ function topic_delete_link( $args = '' ) {
 	extract(bb_parse_args( $args, $defaults ));
 	$id = (int) $id;
 
-	global $topic;
-	if ( $id )
-		$_topic = get_topic( $id );
-	else
-		$_topic =& $topic;
+	$topic = get_topic( get_topic_id( $id ) );
 
-	if ( !$_topic || !bb_current_user_can( 'delete_topic', $_topic->topic_id ) )
+	if ( !$topic || !bb_current_user_can( 'delete_topic', $topic->topic_id ) )
 		return;
 
-	if ( 0 == $_topic->topic_status )
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id , 'delete-topic_' . $_topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna delete that?') ) . "')\">" . __('Delete entire topic') . "</a>$after";
+	if ( 0 == $topic->topic_status )
+		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id , 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna delete that?') ) . "')\">" . __('Delete entire topic') . "</a>$after";
 	else
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $_topic->topic_id . '&view=all', 'delete-topic_' . $_topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna undelete that?') ) . "')\">" . __('Undelete entire topic') . "</a>$after";
+		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id . '&view=all', 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna undelete that?') ) . "')\">" . __('Undelete entire topic') . "</a>$after";
 }
 
 function topic_close_link( $args = '' ) {
@@ -676,54 +645,46 @@ function topic_close_link( $args = '' ) {
 	extract(bb_parse_args( $args, $defaults ));
 	$id = (int) $id;
 
-	global $topic;
-	if ( $id )
-		$_topic = get_topic( $id );
-	else
-		$_topic =& $topic;
+	$topic = get_topic( get_topic_id( $id ) );
 
-	if ( !$topic || !bb_current_user_can( 'close_topic', $_topic->topic_id ) )
+	if ( !$topic || !bb_current_user_can( 'close_topic', $topic->topic_id ) )
 		return;
 
-	$text = topic_is_open( $_topic->topic_id ) ? __('Close topic') : __('Open topic');
-	echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $_topic->topic_id, 'close-topic_' . $_topic->topic_id ) ) . "'>$text</a>$after";
+	$text = topic_is_open( $topic->topic_id ) ? __('Close topic') : __('Open topic');
+	echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $topic->topic_id, 'close-topic_' . $topic->topic_id ) ) . "'>$text</a>$after";
 }
 
-function topic_sticky_link() {
+function topic_sticky_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(bb_parse_args( $args, $defaults ));
 	$id = (int) $id;
 
-	global $topic;
-	if ( $id )
-		$_topic = get_topic( $id );
-	else
-		$_topic =& $topic;
+	$topic = get_topic( get_topic_id( $id ) );
 
-	if ( !$_topic || !bb_current_user_can( 'stick_topic', $_topic->topic_id ) )
+	if ( !$topic || !bb_current_user_can( 'stick_topic', $topic->topic_id ) )
 		return;
 
-	if ( topic_is_sticky( $_topic->topic_id ) )
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) ) . "'>". __('Unstick topic') ."</a>$after";
+	if ( topic_is_sticky( $topic->topic_id ) )
+		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Unstick topic') ."</a>$after";
 	else
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id, 'stick-topic_' . $_topic->topic_id ) ) . "'>". __('Stick topic') . "</a> (<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $_topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) ) . "'>" . __('to front') . "</a>)$after";
+		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Stick topic') . "</a> (<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) ) . "'>" . __('to front') . "</a>)$after";
 }
 
-function topic_show_all_link() {
+function topic_show_all_link( $id = 0 ) {
 	if ( !bb_current_user_can( 'browse_deleted' ) )
 		return;
 	if ( 'all' == @$_GET['view'] )
-		echo "<a href='" . attribute_escape( get_topic_link() ) . "'>". __('View normal posts') ."</a>";
+		echo "<a href='" . attribute_escape( get_topic_link( $id ) ) . "'>". __('View normal posts') ."</a>";
 	else
-		echo "<a href='" . attribute_escape( add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>". __('View all posts') ."</a>";
+		echo "<a href='" . attribute_escape( add_query_arg( 'view', 'all', get_topic_link( $id ) ) ) . "'>". __('View all posts') ."</a>";
 }
 
-function topic_posts_link() {
-	global $topic;
-	$post_num = get_topic_posts();
+function topic_posts_link( $id = 0 ) {
+	$topic = get_topic( get_topic_id( $id ) );
+	$post_num = get_topic_posts( $id );
 	$posts = sprintf(__ngettext( '%s post', '%s posts', $post_num ), $post_num);
 	if ( 'all' == @$_GET['view'] && bb_current_user_can('browse_deleted') )
-		echo "<a href='" . attribute_escape( get_topic_link() ) . "'>$posts</a>";
+		echo "<a href='" . attribute_escape( get_topic_link( $id ) ) . "'>$posts</a>";
 	else
 		echo $posts;
 
@@ -731,19 +692,20 @@ function topic_posts_link() {
 		$id = bb_get_current_user_info( 'id' );
 		if ( isset($topic->bozos[$id]) && 'all' != @$_GET['view'] )
 			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$id]}; return \$a;") );
-		if ( $deleted = get_topic_deleted_posts() ) {
+		if ( $deleted = get_topic_deleted_posts( $id ) ) {
 			$extra = sprintf(__('+%d more'), $deleted);
 			if ( 'all' == @$_GET['view'] )
 				echo " $extra";
 			else
-				echo " <a href='" . attribute_escape( add_query_arg( 'view', 'all', get_topic_link() ) ) . "'>$extra</a>";
+				echo " <a href='" . attribute_escape( add_query_arg( 'view', 'all', get_topic_link( $id ) ) ) . "'>$extra</a>";
 		}
 	}
 }
 
-function topic_move_dropdown() {
-	global $forum_id, $topic;
-	if ( !bb_current_user_can( 'move_topic', get_topic_id() ) )
+function topic_move_dropdown( $id = 0 ) {
+	global $forum_id;
+	$topic = get_topic( get_topic_id( $id ) );
+	if ( !bb_current_user_can( 'move_topic', $topic->topic_id ) )
 		return;
 	$forum_id = $topic->forum_id;
 
@@ -751,7 +713,7 @@ function topic_move_dropdown() {
 		return;
 
 	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
-	echo '<input type="hidden" name="topic_id" value="' . get_topic_id() . '" />' . "\n\t";
+	echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n\t";
 	echo '<label for="forum_id">'. __('Move this topic to the selected forum:') . ' ';
 	echo $dropdown;
 	echo "</label>\n\t";
@@ -759,8 +721,8 @@ function topic_move_dropdown() {
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
 }
 
-function topic_class( $class = '', $key = 'topic' ) {
-	global $topic;
+function topic_class( $class = '', $key = 'topic', $id = 0 ) {
+	$topic = get_topic( get_topic_id( $id ) );
 	$class = $class ? explode(' ', $class ) : array();
 	if ( '1' === $topic->topic_status && bb_current_user_can( 'browse_deleted' ) )
 		$class[] = 'deleted';
@@ -1630,20 +1592,21 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 		$user =& $bb_current_user->data;
 	endif;
 
-	if ( 1 == $is_fav = is_user_favorite( $user->ID, $topic->topic_id ) ) :
+	if ( $is_fav = is_user_favorite( $user->ID, $topic->topic_id ) ) :
 		$rem = preg_replace('|%(.+)%|', "<a href='" . attribute_escape( get_favorites_link( $user_id ) ) . "'>$1</a>", $rem);
 		$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
 		$pre  = ( is_array($rem) && isset($rem['pre'])  ) ? $rem['pre']  : '';
 		$mid  = ( is_array($rem) && isset($rem['mid'])  ) ? $rem['mid']  : ( is_string($rem) ? $rem : '' );
 		$post = ( is_array($rem) && isset($rem['post']) ) ? $rem['post'] : '';
-	elseif ( 0 === $is_fav ) :
+	elseif ( false === $is_fav ) :
 		$add = preg_replace('|%(.+)%|', "<a href='" . attribute_escape( get_favorites_link( $user_id ) ) . "'>$1</a>", $add);
 		$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
 		$pre  = ( is_array($add) && isset($add['pre'])  ) ? $add['pre']  : '';
 		$mid  = ( is_array($add) && isset($add['mid'])  ) ? $add['mid']  : ( is_string($add) ? $add : '' );
 		$post = ( is_array($add) && isset($add['post']) ) ? $add['post'] : '';
 	endif;
-	if ( false !== $is_fav )
+
+	if (  !is_null($is_fav) )
 		echo "$pre<a href='" . attribute_escape( bb_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) ) . "'>$mid</a>$post";
 }
 

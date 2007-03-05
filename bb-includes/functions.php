@@ -311,7 +311,7 @@ function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	else
 		global $topic;
 	if ( !$user || !$topic )
-		return false;
+		return;
 
 	return in_array($topic->topic_id, explode(',', $user->favorites));
 }
