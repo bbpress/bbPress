@@ -314,15 +314,26 @@ function get_recent_rss_link() {
 
 // FORUMS
 
+function forum_id( $forum_id = 0 ) {
+	echo apply_filters( 'forum_id', get_forum_id( $forum_id ) );
+}
+
+function get_forum_id( $forum_id = 0 ) {
+	global $forum;
+	$forum_id = (int) $forum_id;
+	if ( $forum_id )
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+	return $_forum->forum_id;
+}
+
 function forum_link( $forum_id = 0, $page = 1 ) {
 	echo apply_filters('forum_link', get_forum_link( $forum_id, $page ), $forum_id );
 }
 
 function get_forum_link( $forum_id = 0, $page = 1 ) {
-	global $forum;
-
-	if ( $forum_id )
-		$forum = get_forum( $forum_id );
+	$forum = get_forum( get_forum_id( $forum_id ) );
 	if ( bb_get_option( 'mod_rewrite' ) )
 		$link = bb_get_option( 'uri' ) . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
 	else {
@@ -341,21 +352,8 @@ function forum_name( $forum_id = 0 ) {
 }
 
 function get_forum_name( $forum_id = 0 ) {
-	global $forum;
-	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
-	else
-		$_forum =& $forum;
-	return apply_filters( 'get_forum_name', $_forum->forum_name, $_forum->forum_id );
-}
-
-function forum_id() {
-	echo apply_filters( 'forum_id', get_forum_id() );
-}
-
-function get_forum_id() {
-	global $forum;
-	return $forum->forum_id;
+	$forum = get_forum( get_forum_id( $forum_id ) );
+	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
 }
 
 function forum_description( $forum_id = 0 ) {
@@ -363,30 +361,18 @@ function forum_description( $forum_id = 0 ) {
 }
 
 function get_forum_description( $forum_id = 0 ) {
-	global $forum;
-	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
-	else
-		$_forum =& $forum;
-	return apply_filters( 'get_forum_description', $_forum->forum_desc, $_forum->forum_id );
+	$forum = get_forum( get_forum_id( $forum_id ) );
+	return apply_filters( 'get_forum_description', $forum->forum_desc, $forum->forum_id );
 }
 
 function get_forum_parent( $forum_id = 0 ) {
-	global $forum;
-	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
-	else
-		$_forum =& $forum;
-	return apply_filters( 'get_forum_parent', $_forum->forum_parent, $_forum->forum_id );
+	$forum = get_forum( get_forum_id( $forum_id ) );
+	return apply_filters( 'get_forum_parent', $forum->forum_parent, $forum->forum_id );
 }
 
 function get_forum_position( $forum_id = 0 ) {
-	global $forum;
-	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
-	else
-		$_forum =& $forum;
-	return apply_filters( 'get_forum_position', $_forum->forum_order, $_forum->forum_id );
+	$forum = get_forum( get_forum_id( $forum_id ) );
+	return apply_filters( 'get_forum_position', $forum->forum_order, $forum->forum_id );
 }
 
 function forum_topics( $forum_id = 0 ) {
@@ -394,9 +380,7 @@ function forum_topics( $forum_id = 0 ) {
 }
 
 function get_forum_topics( $forum_id = 0 ) {
-	global $forum;
-	if ( $forum_id )
-		$forum = get_forum( $forum_id );
+	$forum = get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_topics', $forum->topics, $forum->forum_id );
 }
 
@@ -405,14 +389,13 @@ function forum_posts( $forum_id = 0 ) {
 }
 
 function get_forum_posts( $forum_id = 0 ) {
-	global $forum;
-	if ( $forum_id )
-		$forum = get_forum( $forum_id );
+	$forum = get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_posts', $forum->posts, $forum->forum_id );
 }
 
-function forum_pages() {
-	global $forum, $page;
+function forum_pages( $forum_id = 0 ) {
+	global $page;
+	$forum = get_forum( get_forum_id( $forum_id ) );
 	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->forum_topics );
 }
 
@@ -421,11 +404,7 @@ function forum_rss_link( $forum_id = 0 ) {
 }
 
 function get_forum_rss_link( $forum_id = 0 ) {
-	global $forum;
-
-	if ( $forum_id )
-		$forum = get_forum( $forum_id );
-
+	$forum = get_forum( get_forum_id( $forum_id ) );
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . "rss/forum/$forum->forum_id";
 	else

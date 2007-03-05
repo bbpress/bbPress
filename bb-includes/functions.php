@@ -1480,8 +1480,9 @@ function bb_repermalink() {
 	do_action( 'pre_permalink', $permalink );
 
 	if ( is_forum() ) {
-		global $forum_id;
+		global $forum_id, $forum;
 		$forum_id = $permalink;
+		$forum = get_forum( $forum_id );
 		$permalink = get_forum_link( $permalink, $page );
 	} elseif ( is_topic() ) {
 		global $topic_id, $topic;
