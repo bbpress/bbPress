@@ -261,39 +261,6 @@ function no_where( $where ) {
 	return;
 }
 
-function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
-	global $bb_cache, $bbdb;
-	
-	$from_forum_id = (int) $from_forum_id ;
-	$to_forum_id = (int) $to_forum_id;
-	
-	add_filter('get_forum_where', 'no_where'); // Just in case
-	
-	$from_forum = get_forum( $from_forum_id );
-	if ( !$to_forum = get_forum( $to_forum_id ) )
-		return false;
-
-	$bb_cache->flush_many( 'forum', $from_forum_id );
-	$bb_cache->flush_many( 'forum', $to_forum_id );
-	
-	$posts = $to_forum->posts + ( $from_forum ? $from_forum->posts : 0 );
-	$topics = $to_forum->topics + ( $from_forum ? $from_forum->topics : 0 );
-	
-	$bbdb->query("UPDATE $bbdb->forums SET topics = '$topics', posts = '$posts' WHERE forum_id = '$to_forum_id'");
-	$bbdb->query("UPDATE $bbdb->forums SET topics = 0, posts = 0 WHERE forum_id = '$from_forum_id'");
-	$bbdb->query("UPDATE $bbdb->posts SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
-	$topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$from_forum_id'");
-	$return = $bbdb->query("UPDATE $bbdb->topics SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
-	if ( $topic_ids )
-		foreach ( $topic_ids as $topic_id ) {
-			$bb_cache->flush_one( 'topic', $topic_id );
-			$bb_cache->flush_many( 'thread', $topic_id );
-		}
-	$bb_cache->flush_one( 'forum', $to_forum_id );
-	$bb_cache->flush_many( 'forum', $from_forum_id );
-	return $return;
-}
-
 function get_latest_posts( $limit = 0, $page = 1 ) {
 	global $bbdb;
 	$limit = (int) $limit;
@@ -346,9 +313,7 @@ function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( !$user || !$topic )
 		return false;
 
-	if ( in_array($topic->topic_id, explode(',', $user->favorites)) )
-		return 1;
-	else	return 0;
+	return in_array($topic->topic_id, explode(',', $user->favorites));
 }
 
 function bb_add_user_favorite( $user_id, $topic_id ) {
@@ -622,12 +587,6 @@ function bb_block_current_user() {
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
-//Temp
-function bb_log_current_nocaps() {
-	global $bbdb, $bb_table_prefix;
-	bb_update_usermeta( bb_get_current_user_info( 'id' ), $bb_table_prefix . 'no_caps', 1 ); // Just for logging.
-}
-
 function bb_get_user( $user_id, $cache = true ) {
 	global $bb_cache, $bb_user_cache;
 	if ( !is_numeric( $user_id ) )
@@ -756,7 +715,6 @@ function update_user_status( $user_id, $status = 0 ) {
 		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
 		$bb_cache->flush_one( 'user', $user->ID );
 	endif;
-	return;
 }
 
 function bb_update_usermeta( $user_id, $meta_key, $meta_value ) {
@@ -879,90 +837,6 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 
 	$bb_cache->flush_one( $type, $type_id );
 	return true;
-}
-
-
-
-function bb_new_forum( $args ) {
-	global $bbdb, $bb_cache;
-	if ( !bb_current_user_can( 'manage_forums' ) )
-		return false;
-
-	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false );
-	$args = bb_parse_args( $args, $defaults );
-	if ( 1 < func_num_args() ) : // For back compat
-		$args['forum_id']    = func_get_arg(0);
-		$args['forum_name']  = func_get_arg(1);
-		$args['forum_desc']  = 2 < func_num_args() ? func_get_arg(2) : '';
-		$args['forum_order'] = 3 < func_num_args() && is_numeric(func_get_arg(3)) ? func_get_arg(3) : false;
-	endif;
-
-	extract($args);
-
-	if ( false === $forum_order )
-		$forum_order = $bbdb->get_var("SELECT MAX(forum_order) FROM $bbdb->forums") + 1;
-
-	$forum_order = (int) $forum_order;
-	$forum_parent = (int) $forum_parent;
-	if ( strlen($forum_name) < 1 )
-		return false;
-	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_desc, forum_parent, forum_order) VALUES ('$forum_name', '$forum_desc', '$forum_parent', '$forum_order')");
-	$bb_cache->flush_one( 'forums' );
-	return $bbdb->insert_id;
-}
-
-function bb_update_forum( $args ) {
-	global $bbdb, $bb_cache;
-	if ( !bb_current_user_can( 'manage_forums' ) )
-		return false;
-
-	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0 );
-	$args = bb_parse_args( $args, $defaults );
-	if ( 1 < func_num_args() ) : // For back compat
-		$args['forum_name']  = func_get_arg(0);
-		$args['forum_desc']  = func_get_arg(1);
-		$args['forum_order'] = 2 < func_num_args() ? func_get_arg(2) : 0;
-	endif;
-
-	extract($args);
-
-	if ( !$forum_id = (int) $forum_id )
-		return false;
-	$forum_order = (int) $forum_order;
-	$forum_parent = (int) $forum_parent;
-	if ( strlen($forum_name) < 1 )
-		return false;
-	$bb_cache->flush_many( 'forum', $forum_id );
-	$bb_cache->flush_one( 'forums' );
-	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$forum_name', forum_desc = '$forum_desc', forum_parent = '$forum_parent', forum_order = '$forum_order' WHERE forum_id = $forum_id");
-}
-
-// When you delete a forum, you delete *everything*
-function bb_delete_forum( $forum_id ) {
-	global $bbdb, $bb_cache;
-	if ( !bb_current_user_can( 'delete_forum', $forum_id ) )
-		return false;
-	if ( !$forum_id = (int) $forum_id )
-		return false;
-
-	if ( $topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$forum_id'") ) {
-		$_topic_ids = join(',', $topic_ids);
-		$bbdb->query("DELETE FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
-		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
-		$bbdb->query("DELETE FROM $bbdb->topics WHERE forum_id = '$forum_id'");
-	}
-	
-	$return = $bbdb->query("DELETE FROM $bbdb->forums WHERE forum_id = $forum_id");
-
-	if ( $topic_ids )
-		foreach ( $topic_ids as $topic_id ) {
-			$bb_cache->flush_one( 'topic', $topic_id );
-			$bb_cache->flush_many( 'thread', $topic_id );
-		}
-
-	$bb_cache->flush_many( 'forum', $forum_id );
-	$bb_cache->flush_one( 'forums' );
-	return $return;
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
@@ -1257,19 +1131,6 @@ function bb_update_post( $bb_post, $post_id, $topic_id ) {
 	}
 }
 
-function get_post_link( $post_id ) {
-	global $bb_post;
-	$post_id = (int) $post_id;
-	if ( $post_id )
-		$bb_post = bb_get_post( $post_id );
-	$page = get_page_number( $bb_post->post_position );
-	return apply_filters( 'get_post_link', get_topic_link( $bb_post->topic_id, $page ) . "#post-$bb_post->post_id" );
-}
-
-function post_link( $post_id = 0 ) {
-	echo apply_filters( 'post_link', get_post_link( $post_id ) );
-}
-
 function update_post_positions( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
@@ -1285,20 +1146,14 @@ function update_post_positions( $topic_id ) {
 	}
 }
 
-function topic_is_open ( $topic_id ) {
+function topic_is_open( $topic_id ) {
 	$topic = get_topic( $topic_id );
-	if ( 1 == $topic->topic_open )
-		return true;
-	else
-		return false;
+	return 1 == $topic->topic_open;
 }
 
-function topic_is_sticky ( $topic_id ) {
+function topic_is_sticky( $topic_id ) {
 	$topic = get_topic( $topic_id );
-	if ( '0' !== $topic->topic_sticky )
-		return true;
-	else
-		return false;
+	return '0' !== $topic->topic_sticky;
 }
 
 function bb_is_first( $post_id ) { // First post in thread
@@ -1307,10 +1162,7 @@ function bb_is_first( $post_id ) { // First post in thread
 	$where = apply_filters('bb_is_first_where', 'AND post_status = 0');
 	$first_post = $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $bb_post->topic_id $where ORDER BY post_id ASC LIMIT 1");
 
-	if ( $post_id == $first_post )
-		return true;
-	else
-		return false;
+	return $post_id == $first_post;
 }
 
 function bb_global_sanitize( $array, $trim = true ) {
@@ -1421,27 +1273,6 @@ function bb_pre_create_tag_utf8( $tag ) {
 	return $tag;
 }
 
-function rename_tag( $tag_id, $tag ) {
-	global $bbdb;
-	if ( !bb_current_user_can( 'manage_tags' ) )
-		return false;
-	$raw_tag = $tag;
-	$tag     = tag_sanitize( $tag ); 
-
-	if ( empty( $tag ) )
-		return false;
-	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag' AND tag_id <> '$tag_id'") )
-		return false;
-
-	$old_tag = get_tag( $tag_id );
-
-	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") ) {
-		do_action('bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
-		return get_tag( $tag_id );
-	}
-	return false;
-}
-
 function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	global $bbdb, $bb_cache;
 	$tag_id = (int) $tag_id;
@@ -1471,37 +1302,7 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	return array( 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
 }
 
-// merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
-function merge_tags( $old_id, $new_id ) {
-	global $bbdb;
-	if ( !bb_current_user_can( 'manage_tags' ) )
-		return false;
-	if ( $old_id == $new_id )
-		return false;
-
-	do_action('bb_pre_merge_tags', $old_id, $new_id);
-
-	$tagged_del = 0;
-	if ( $old_topic_ids = (array) $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
-		$old_topic_ids = join(',', $old_topic_ids);
-		$shared_topics_u = (array) $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
-		$shared_topics_i = (array) $bbdb->get_col( '', 1 );
-		foreach ( $shared_topics_i as $t => $topic_id ) {
-			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$topic_id'" );
-			$count = $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
-			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$topic_id'" );
-		}
-	}
-
-	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) ) {
-		$count = $bbdb->get_var( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = '$new_id' GROUP BY tag_id" );
-		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
-	}
-
-	// return values and destroy the old tag
-	return array( 'destroyed' => destroy_tag( $old_id, false ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
-}
-
+// rename and merge in admin-functions.php
 function destroy_tag( $tag_id, $recount_topics = true ) {
 	global $bbdb, $bb_cache;
 	if ( !bb_current_user_can( 'manage_tags' ) ) 
@@ -1548,7 +1349,7 @@ function get_tag_by_name( $tag ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
-function get_topic_tags ( $topic_id ) {
+function get_topic_tags( $topic_id ) {
 	global $topic_tag_cache, $bbdb;
 	
 	if ( isset ($topic_tag_cache[$topic_id] ) )
@@ -1559,8 +1360,8 @@ function get_topic_tags ( $topic_id ) {
 	return $topic_tag_cache[$topic_id];
 }
 
-function get_user_tags ( $topic_id, $user_id ) {
-	$tags = get_topic_tags ( $topic_id );
+function get_user_tags( $topic_id, $user_id ) {
+	$tags = get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$user_tags = array();
@@ -1572,8 +1373,8 @@ function get_user_tags ( $topic_id, $user_id ) {
 	return $user_tags;
 }
 
-function get_other_tags ( $topic_id, $user_id ) {
-	$tags = get_topic_tags ( $topic_id );
+function get_other_tags( $topic_id, $user_id ) {
+	$tags = get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$other_tags = array();
@@ -1585,8 +1386,8 @@ function get_other_tags ( $topic_id, $user_id ) {
 	return $other_tags;
 }
 
-function get_public_tags ( $topic_id ) {
-	$tags = get_topic_tags ( $topic_id );
+function get_public_tags( $topic_id ) {
+	$tags = get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$used_tags   = array();

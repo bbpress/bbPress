@@ -1,6 +1,7 @@
 <?php
 define('BB_INSTALLING', true);
 require_once('../bb-load.php');
+require_once('admin-functions.php');
 
 $step = isset($_GET['step']) ? (int) $_GET['step'] : 0 ;
 	if ( 2 == $step && isset($_POST['new_keymaster']) && 'new' == $_POST['new_keymaster'] )

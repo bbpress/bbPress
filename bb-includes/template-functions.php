@@ -230,73 +230,43 @@ function get_bb_location() { // Not for display.  Do not internationalize.
 }
 
 function is_front() {
-	if ( 'front-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'front-page' == get_bb_location();
 }
 
 function is_forum() {
-	if ( 'forum-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'forum-page' == get_bb_location();
 }
 
 function is_tag() {
-	if ( 'tag-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'tag-page' == get_bb_location();
 }
 
 function is_topic() {
-	if ( 'topic-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'topic-page' == get_bb_location();
 }
 
 function is_bb_feed() {
-	if ( 'feed-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'feed-page' == get_bb_location();
 }
 
 function is_bb_search() {
-	if ( 'search-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'search-page' == get_bb_location();
 }
 
 function is_bb_profile() {
-	if ( 'profile-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'profile-page' == get_bb_location();
 }
 
 function is_bb_favorites() {
-	if ( 'favorites-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'favorites-page' == get_bb_location();
 }
 
 function is_view() {
-	if ( 'view-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'view-page' == get_bb_location();
 }
 
 function is_bb_stats() {
-	if ( 'stats-page' == get_bb_location() )
-		return true;
-	else
-		return false;
+	return 'stats-page' == get_bb_location();
 }
 
 function bb_title() {
@@ -647,9 +617,8 @@ function topic_pages() {
 
 function topic_pages_add() {
 	global $topic;
-	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
+	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') )
 		$add += $topic->deleted_posts;
-	endif;
 	return apply_filters( 'topic_pages_add', $add, $topic->topic_id );
 }
 
@@ -716,10 +685,7 @@ function topic_close_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'close_topic', $_topic->topic_id ) )
 		return;
 
-	if ( topic_is_open( $_topic->topic_id ) )
-		$text = __('Close topic');
-	else
-		$text = __('Open topic');
+	$text = topic_is_open( $_topic->topic_id ) ? __('Close topic') : __('Open topic');
 	echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $_topic->topic_id, 'close-topic_' . $_topic->topic_id ) ) . "'>$text</a>$after";
 }
 
@@ -848,6 +814,19 @@ function post_id() {
 function get_post_id() {
 	global $bb_post;
 	return $bb_post->post_id;
+}
+
+function get_post_link( $post_id ) {
+	global $bb_post;
+	$post_id = (int) $post_id;
+	if ( $post_id )
+		$bb_post = bb_get_post( $post_id );
+	$page = get_page_number( $bb_post->post_position );
+	return apply_filters( 'get_post_link', get_topic_link( $bb_post->topic_id, $page ) . "#post-$bb_post->post_id" );
+}
+
+function post_link( $post_id = 0 ) {
+	echo apply_filters( 'post_link', get_post_link( $post_id ) );
 }
 
 function post_anchor_link( $force_full = false ) {
@@ -1129,10 +1108,7 @@ function user_title( $id ) {
 function get_user_title( $id ) {
 	$user = bb_get_user( $id );
 
-	if ( !empty( $user->title ) )
-		return apply_filters( 'get_user_title', $user->title, $id );
-	else
-		return get_user_type( $id );
+	return empty( $user->title ) ? get_user_type( $id ) : apply_filters( 'get_user_title', $user->title, $id );
 }
 
 function profile_pages() {
@@ -1311,7 +1287,6 @@ function bb_profile_link( $args = '' ) {
 function bb_current_user_info( $key = '' ) {
 	if ( !$key )
 		return;
-
 	echo apply_filters( 'bb_current_user_info', bb_get_current_user_info( $key ), $key );
 }
 	
@@ -1366,10 +1341,7 @@ function tag_page_link() {
 }
 
 function get_tag_page_link() {
-	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . 'tags/';
-	else
-		return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . 'tags.php';
+	return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' );
 }
 
 function tag_link( $id = 0, $page = 1 ) {
@@ -1394,10 +1366,7 @@ function tag_link_base() {
 }
 
 function get_tag_link_base() {
-	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . 'tags/';
-	else
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . 'tags.php?tag=';
+	return get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
 }
 
 function tag_name( $id = 0 ) {

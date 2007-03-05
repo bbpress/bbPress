@@ -11,6 +11,37 @@ function bb_get_admin_footer() {
 	include('admin-footer.php');
 }
 
+function bb_admin_notice( $message, $class = false ) {
+	if ( is_string($message) ) {
+		$message = "<p>$message</p>";
+		$class = $class ? $class : 'updated';
+	} elseif ( is_wp_error($message) ) {
+		$errors = $message->get_error_messages();
+		switch ( count($errors) ) :
+		case 0 :
+			return false;
+			break;
+		case 1 :
+			$message = "<p>{$errors[0]}</p>";
+			break;
+		default :
+			$message = "<ul>\n\t<li>" . join( "</li>\n\t<li>", $errors ) . "</li>\n</ul>";
+			break;
+		endswitch;
+		$class = $class ? $class : 'error';
+	} else {
+		return false;
+	}
+
+	$message = "<div class='$class'>$message</div>";
+	$message = str_replace("'", "\'", $message);
+	$lambda = create_function( '', "echo '$message';" );
+	add_action( 'bb_admin_notices', $lambda );
+	return $lambda;
+}
+
+/* Menu */
+
 function bb_admin_menu_generator() {
 	global $bb_menu, $bb_submenu;
 	$bb_menu = array();
@@ -104,6 +135,8 @@ function bb_get_admin_tab_link( $tab ) {
 		return 'admin-base.php?plugin=' . $tab;
 }
 
+/* Stats */
+
 function get_recently_moderated_objects( $num = 5 ) {
 	global $bbdb;
 	$posts = (array) get_deleted_posts( 1, $num, -1 ); // post_time != moderation_time;
@@ -117,6 +150,8 @@ function get_recently_moderated_objects( $num = 5 ) {
 	return array_slice($objects, 0, $num);
 }
 
+/* Users */
+
 function get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
 	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
@@ -129,60 +164,6 @@ function get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
 	if ( $ids = (array) $bbdb->get_col($bb_last_countable_query) )
 		bb_cache_users( $ids );
 	return $ids;
-}
-
-function get_deleted_topics_count() {
-	global $bbdb;
-	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
-}
-
-function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
-	global $bbdb;
-	$page = (int) $page;
-	$status = (int) $status;
-	if ( !$limit )
-		$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( false === $topic_status )
-		$where = '';
-	else {
-		$topic_status = (int) $topic_status;
-		$where = "topic_status = '$topic_status' AND";
-	}
-	$status = ( 0 < $status ) ? "= '$status'" : "> '0'";
-	return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status ORDER BY post_time DESC LIMIT $limit");
-}
-
-function bb_recount_list() {
-	global $recount_list;
-	$recount_list = array();
-	$recount_list[5] = array('topic-posts', __('Count posts of every topic'));
-	$recount_list[10] = array('topic-deleted-posts', __('Count deleted posts on every topic'));
-	$recount_list[15] = array('forums', __('Count topics and posts in every forum (relies on the above)'));
-	$recount_list[20] = array('topics-replied', __('Count topics to which each user has replied'));
-	$recount_list[25] = array('topic-tag-count', __('Count tags for every topic'));
-	$recount_list[30] = array('tags-tag-count', __('Count topics for every tag'));
-	$recount_list[35] = array('zap-tags', __('DELETE tags with no topics.  Only functions if the above checked'));
-	do_action('bb_recount_list');
-	ksort($recount_list);
-	return $recount_list;
-}
-
-function bb_admin_list_posts() {
-	global $bb_posts, $bb_post;
-	if ( $bb_posts ) : foreach ( $bb_posts as $bb_post ) : ?>
-	<li<?php alt_class('post'); ?>>
-		<div class="threadauthor">
-			<p><strong><?php post_author_link(); ?></strong><br />
-				<small><?php post_author_type(); ?></small></p>
-		</div>
-		<div class="threadpost">
-			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">
-				<?php printf(__('Posted: %1$s in <a href="%2$s">%3$s</a>'), bb_get_post_time(), get_topic_link( $bb_post->topic_id ), get_topic_title( $bb_post->topic_id ));?> IP: <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link();?></div>
-			</div>
-	</li><?php endforeach; endif;
 }
 
 function bb_user_row( $user_id, $role = '', $email = false ) {
@@ -398,6 +379,302 @@ class BB_Users_By_Role extends BB_User_Search {
 
 }
 
+/* Forums */
+
+function bb_new_forum( $args ) {
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'manage_forums' ) )
+		return false;
+
+	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false );
+	$args = bb_parse_args( $args, $defaults );
+	if ( 1 < func_num_args() ) : // For back compat
+		$args['forum_id']    = func_get_arg(0);
+		$args['forum_name']  = func_get_arg(1);
+		$args['forum_desc']  = 2 < func_num_args() ? func_get_arg(2) : '';
+		$args['forum_order'] = 3 < func_num_args() && is_numeric(func_get_arg(3)) ? func_get_arg(3) : false;
+	endif;
+
+	extract($args);
+
+	if ( false === $forum_order )
+		$forum_order = $bbdb->get_var("SELECT MAX(forum_order) FROM $bbdb->forums") + 1;
+
+	$forum_order = (int) $forum_order;
+	$forum_parent = (int) $forum_parent;
+	if ( strlen($forum_name) < 1 )
+		return false;
+	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_desc, forum_parent, forum_order) VALUES ('$forum_name', '$forum_desc', '$forum_parent', '$forum_order')");
+	$bb_cache->flush_one( 'forums' );
+	return $bbdb->insert_id;
+}
+
+function bb_update_forum( $args ) {
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'manage_forums' ) )
+		return false;
+
+	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0 );
+	$args = bb_parse_args( $args, $defaults );
+	if ( 1 < func_num_args() ) : // For back compat
+		$args['forum_name']  = func_get_arg(0);
+		$args['forum_desc']  = func_get_arg(1);
+		$args['forum_order'] = 2 < func_num_args() ? func_get_arg(2) : 0;
+	endif;
+
+	extract($args);
+
+	if ( !$forum_id = (int) $forum_id )
+		return false;
+	$forum_order = (int) $forum_order;
+	$forum_parent = (int) $forum_parent;
+	if ( strlen($forum_name) < 1 )
+		return false;
+	$bb_cache->flush_many( 'forum', $forum_id );
+	$bb_cache->flush_one( 'forums' );
+	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$forum_name', forum_desc = '$forum_desc', forum_parent = '$forum_parent', forum_order = '$forum_order' WHERE forum_id = $forum_id");
+}
+
+// When you delete a forum, you delete *everything*
+function bb_delete_forum( $forum_id ) {
+	global $bbdb, $bb_cache;
+	if ( !bb_current_user_can( 'delete_forum', $forum_id ) )
+		return false;
+	if ( !$forum_id = (int) $forum_id )
+		return false;
+
+	if ( $topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$forum_id'") ) {
+		$_topic_ids = join(',', $topic_ids);
+		$bbdb->query("DELETE FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
+		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
+		$bbdb->query("DELETE FROM $bbdb->topics WHERE forum_id = '$forum_id'");
+	}
+	
+	$return = $bbdb->query("DELETE FROM $bbdb->forums WHERE forum_id = $forum_id");
+
+	if ( $topic_ids )
+		foreach ( $topic_ids as $topic_id ) {
+			$bb_cache->flush_one( 'topic', $topic_id );
+			$bb_cache->flush_many( 'thread', $topic_id );
+		}
+
+	$bb_cache->flush_many( 'forum', $forum_id );
+	$bb_cache->flush_one( 'forums' );
+	return $return;
+}
+
+function bb_forum_row( $forum_id = 0, $echo = true, $close = true, $class = 'forum' ) {
+	global $forum, $forums_count;
+	if ( $forum_id )
+		$_forum = get_forum( $forum_id );
+	else
+		$_forum =& $forum;
+
+	if ( !$_forum )
+		return;
+
+	$r  = "\t<li id='forum-$_forum->forum_id'" . get_alt_class( 'forum', "$class clear list-block" ) . ">\n";
+	$r .= "\t\t<div class='list-block posrel'>";
+	$r .= "\t\t\t<div class='alignright'>\n";
+	if ( bb_current_user_can( 'manage_forums' ) )
+		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=edit&id=$_forum->forum_id" ) . "'>" . __('Edit') . "</a>\n";
+	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
+		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=$_forum->forum_id" ) . "'>" . __('Delete') . "</a>\n";
+	$r .= "\t\t\t</div>\n";
+	$r .= "\t\t\t" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n\t\t</div>\n";
+	if ( $close )
+		$r .= "\t</li>\n";
+
+	if ( $echo )
+		echo $r;
+	return $r;
+}
+
+function bb_forum_form( $forum_id = 0 ) {
+	$forum_id = (int) $forum_id;
+	if ( $forum_id && !$forum = get_forum( $forum_id ) )
+		return;
+	$action = $forum_id ? 'update' : 'add';
+?>
+<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
+	<fieldset>
+	<table><col /><col style="width: 80%" />
+		<tr><th scope="row"><?php _e('Forum Name:'); ?></th>
+			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
+		</tr>
+		<tr><th scope="row"><?php _e('Forum Description:'); ?></th>
+			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
+		</tr>
+		<tr><th scope="row"><?php _e('Forum Parent:'); ?></th>
+			<td><?php bb_forum_dropdown( array('callback' => 'strcmp', 'callback_args' => array($forum_id), 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0) ); ?></td>
+		</tr>
+		<tr><th scope="row"><?php _e('Position:'); ?></th>
+			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
+		</tr>
+	</table>
+	<p class="submit">
+<?php if ( $forum_id ) : ?>
+		<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
+<?php endif; ?>
+		<?php bb_nonce_field( "$action-forum" ); ?>
+
+		<input type="hidden" name="action" value="<?php echo $action; ?>" />
+		<input name="Submit" type="submit" value="<?php if ( $forum_id ) _e('Update Forum &#187;'); else _e('Add Forum &#187;'); ?>" tabindex="13" />
+	</p>
+	</fieldset> 
+</form>
+<?php
+}
+
+/* Tags */
+
+function rename_tag( $tag_id, $tag ) {
+	global $bbdb;
+	if ( !bb_current_user_can( 'manage_tags' ) )
+		return false;
+	$raw_tag = $tag;
+	$tag     = tag_sanitize( $tag ); 
+
+	if ( empty( $tag ) )
+		return false;
+	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag' AND tag_id <> '$tag_id'") )
+		return false;
+
+	$old_tag = get_tag( $tag_id );
+
+	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") ) {
+		do_action('bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
+		return get_tag( $tag_id );
+	}
+	return false;
+}
+
+// merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
+function merge_tags( $old_id, $new_id ) {
+	global $bbdb;
+	if ( !bb_current_user_can( 'manage_tags' ) )
+		return false;
+	if ( $old_id == $new_id )
+		return false;
+
+	do_action('bb_pre_merge_tags', $old_id, $new_id);
+
+	$tagged_del = 0;
+	if ( $old_topic_ids = (array) $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
+		$old_topic_ids = join(',', $old_topic_ids);
+		$shared_topics_u = (array) $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
+		$shared_topics_i = (array) $bbdb->get_col( '', 1 );
+		foreach ( $shared_topics_i as $t => $topic_id ) {
+			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$topic_id'" );
+			$count = $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
+			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$topic_id'" );
+		}
+	}
+
+	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) ) {
+		$count = $bbdb->get_var( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = '$new_id' GROUP BY tag_id" );
+		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
+	}
+
+	// return values and destroy the old tag
+	return array( 'destroyed' => destroy_tag( $old_id, false ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
+}
+
+/* Topics */
+
+function get_deleted_topics_count() {
+	global $bbdb;
+	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
+}
+
+function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
+	global $bb_cache, $bbdb;
+	
+	$from_forum_id = (int) $from_forum_id ;
+	$to_forum_id = (int) $to_forum_id;
+	
+	add_filter('get_forum_where', 'no_where'); // Just in case
+	
+	$from_forum = get_forum( $from_forum_id );
+	if ( !$to_forum = get_forum( $to_forum_id ) )
+		return false;
+
+	$bb_cache->flush_many( 'forum', $from_forum_id );
+	$bb_cache->flush_many( 'forum', $to_forum_id );
+	
+	$posts = $to_forum->posts + ( $from_forum ? $from_forum->posts : 0 );
+	$topics = $to_forum->topics + ( $from_forum ? $from_forum->topics : 0 );
+	
+	$bbdb->query("UPDATE $bbdb->forums SET topics = '$topics', posts = '$posts' WHERE forum_id = '$to_forum_id'");
+	$bbdb->query("UPDATE $bbdb->forums SET topics = 0, posts = 0 WHERE forum_id = '$from_forum_id'");
+	$bbdb->query("UPDATE $bbdb->posts SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
+	$topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$from_forum_id'");
+	$return = $bbdb->query("UPDATE $bbdb->topics SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
+	if ( $topic_ids )
+		foreach ( $topic_ids as $topic_id ) {
+			$bb_cache->flush_one( 'topic', $topic_id );
+			$bb_cache->flush_many( 'thread', $topic_id );
+		}
+	$bb_cache->flush_one( 'forum', $to_forum_id );
+	$bb_cache->flush_many( 'forum', $from_forum_id );
+	return $return;
+}
+
+/* Posts */
+
+function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
+	global $bbdb;
+	$page = (int) $page;
+	$status = (int) $status;
+	if ( !$limit )
+		$limit = bb_get_option('page_topics');
+	if ( 1 < $page )
+		$limit = ($limit * ($page - 1)) . ", $limit";
+	if ( false === $topic_status )
+		$where = '';
+	else {
+		$topic_status = (int) $topic_status;
+		$where = "topic_status = '$topic_status' AND";
+	}
+	$status = ( 0 < $status ) ? "= '$status'" : "> '0'";
+	return $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status ORDER BY post_time DESC LIMIT $limit");
+}
+
+function bb_admin_list_posts() {
+	global $bb_posts, $bb_post;
+	if ( $bb_posts ) : foreach ( $bb_posts as $bb_post ) : ?>
+	<li<?php alt_class('post'); ?>>
+		<div class="threadauthor">
+			<p><strong><?php post_author_link(); ?></strong><br />
+				<small><?php post_author_type(); ?></small></p>
+		</div>
+		<div class="threadpost">
+			<div class="post"><?php post_text(); ?></div>
+			<div class="poststuff">
+				<?php printf(__('Posted: %1$s in <a href="%2$s">%3$s</a>'), bb_get_post_time(), get_topic_link( $bb_post->topic_id ), get_topic_title( $bb_post->topic_id ));?> IP: <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link();?></div>
+			</div>
+	</li><?php endforeach; endif;
+}
+
+/* Recounts */
+
+function bb_recount_list() {
+	global $recount_list;
+	$recount_list = array();
+	$recount_list[5] = array('topic-posts', __('Count posts of every topic'));
+	$recount_list[10] = array('topic-deleted-posts', __('Count deleted posts on every topic'));
+	$recount_list[15] = array('forums', __('Count topics and posts in every forum (relies on the above)'));
+	$recount_list[20] = array('topics-replied', __('Count topics to which each user has replied'));
+	$recount_list[25] = array('topic-tag-count', __('Count tags for every topic'));
+	$recount_list[30] = array('tags-tag-count', __('Count topics for every tag'));
+	$recount_list[35] = array('zap-tags', __('DELETE tags with no topics.  Only functions if the above checked'));
+	do_action('bb_recount_list');
+	ksort($recount_list);
+	return $recount_list;
+}
+
+/* Pluigns */
+
 function bb_get_plugins( $plugin_dir = false ) {
 	$plugins = array();
 	if ( !$plugin_dir )
@@ -469,34 +746,7 @@ function bb_get_plugin_data($plugin_file) {
 	return $r;
 }
 
-function bb_admin_notice( $message, $class = false ) {
-	if ( is_string($message) ) {
-		$message = "<p>$message</p>";
-		$class = $class ? $class : 'updated';
-	} elseif ( is_wp_error($message) ) {
-		$errors = $message->get_error_messages();
-		switch ( count($errors) ) :
-		case 0 :
-			return false;
-			break;
-		case 1 :
-			$message = "<p>{$errors[0]}</p>";
-			break;
-		default :
-			$message = "<ul>\n\t<li>" . join( "</li>\n\t<li>", $errors ) . "</li>\n</ul>";
-			break;
-		endswitch;
-		$class = $class ? $class : 'error';
-	} else {
-		return false;
-	}
-
-	$message = "<div class='$class'>$message</div>";
-	$message = str_replace("'", "\'", $message);
-	$lambda = create_function( '', "echo '$message';" );
-	add_action( 'bb_admin_notices', $lambda );
-	return $lambda;
-}
+/* Themes */
 
 function bb_get_theme_data( $theme_file ) {
 	$theme_data = implode( '', file( $theme_file ) );
@@ -546,69 +796,6 @@ function bb_get_theme_data( $theme_file ) {
 //		'Template' => $template[1],
 		'Status' => $status
 	);
-}
-
-function bb_forum_row( $forum_id = 0, $echo = true, $close = true, $class = 'forum' ) {
-	global $forum, $forums_count;
-	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
-	else
-		$_forum =& $forum;
-
-	if ( !$_forum )
-		return;
-
-	$r  = "\t<li id='forum-$_forum->forum_id'" . get_alt_class( 'forum', "$class clear list-block" ) . ">\n";
-	$r .= "\t\t<div class='list-block posrel'>";
-	$r .= "\t\t\t<div class='alignright'>\n";
-	if ( bb_current_user_can( 'manage_forums' ) )
-		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=edit&id=$_forum->forum_id" ) . "'>" . __('Edit') . "</a>\n";
-	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
-		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=$_forum->forum_id" ) . "'>" . __('Delete') . "</a>\n";
-	$r .= "\t\t\t</div>\n";
-	$r .= "\t\t\t" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n\t\t</div>\n";
-	if ( $close )
-		$r .= "\t</li>\n";
-
-	if ( $echo )
-		echo $r;
-	return $r;
-}
-
-function bb_forum_form( $forum_id = 0 ) {
-	$forum_id = (int) $forum_id;
-	if ( $forum_id && !$forum = get_forum( $forum_id ) )
-		return;
-	$action = $forum_id ? 'update' : 'add';
-?>
-<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
-	<fieldset>
-	<table><col /><col style="width: 80%" />
-		<tr><th scope="row"><?php _e('Forum Name:'); ?></th>
-			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
-		</tr>
-		<tr><th scope="row"><?php _e('Forum Description:'); ?></th>
-			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
-		</tr>
-		<tr><th scope="row"><?php _e('Forum Parent:'); ?></th>
-			<td><?php bb_forum_dropdown( array('callback' => 'strcmp', 'callback_args' => array($forum_id), 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0) ); ?></td>
-		</tr>
-		<tr><th scope="row"><?php _e('Position:'); ?></th>
-			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
-		</tr>
-	</table>
-	<p class="submit">
-<?php if ( $forum_id ) : ?>
-		<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
-<?php endif; ?>
-		<?php bb_nonce_field( "$action-forum" ); ?>
-
-		<input type="hidden" name="action" value="<?php echo $action; ?>" />
-		<input name="Submit" type="submit" value="<?php if ( $forum_id ) _e('Update Forum &#187;'); else _e('Add Forum &#187;'); ?>" tabindex="13" />
-	</p>
-	</fieldset> 
-</form>
-<?php
 }
 
 ?>
