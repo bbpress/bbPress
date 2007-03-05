@@ -478,10 +478,10 @@ function get_topic_title( $id = 0 ) {
 }
 
 function topic_posts( $id = 0 ) {
-	echo apply_filters( 'topic_posts', get_topic_posts(), $id );
+	echo apply_filters( 'topic_posts', get_topic_posts( $id = 0 ), get_topic_id( $id ) );
 }
 
-function get_topic_posts() {
+function get_topic_posts( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
 	return apply_filters( 'get_topic_posts', $topic->topic_posts, $topic->topic_id );
 }
@@ -563,7 +563,7 @@ function get_topic_last_post_link( $id = 0 ){
 function topic_pages( $id = 0 ) {
 	global $page;
 	$topic = get_topic( get_topic_id( $id ) );
-	$add = topic_pages_add();
+	$add = topic_pages_add( $topic->topic_id );
 	echo apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ), $topic->topic_id );
 }
 
@@ -747,27 +747,28 @@ function bb_new_topic_forum_dropdown() {
 
 // POSTS
 
-function post_id() {
-	global $bb_post;
-	echo $bb_post->post_id;
+function post_id( $post_id = 0 ) {
+	echo get_post_id( $post_id );
 }
 
-function get_post_id() {
-	global $bb_post;
-	return $bb_post->post_id;
-}
-
-function get_post_link( $post_id ) {
+function get_post_id( $post_id = 0 ) {
 	global $bb_post;
 	$post_id = (int) $post_id;
 	if ( $post_id )
-		$bb_post = bb_get_post( $post_id );
-	$page = get_page_number( $bb_post->post_position );
-	return apply_filters( 'get_post_link', get_topic_link( $bb_post->topic_id, $page ) . "#post-$bb_post->post_id" );
+		$post = bb_get_post( $post_id );
+	else
+		$post =& $bb_post;
+	return $post->post_id;
 }
 
 function post_link( $post_id = 0 ) {
-	echo apply_filters( 'post_link', get_post_link( $post_id ) );
+	echo apply_filters( 'post_link', get_post_link( $post_id ), get_post_id( $post_id ) );
+}
+
+function get_post_link( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	$page = get_page_number( $bb_post->post_position );
+	return apply_filters( 'get_post_link', get_topic_link( $bb_post->topic_id, $page ) . "#post-$bb_post->post_id", $bb_post->post_id );
 }
 
 function post_anchor_link( $force_full = false ) {
@@ -778,13 +779,13 @@ function post_anchor_link( $force_full = false ) {
 }
 
 
-function post_author() {
-	echo apply_filters('post_author', get_post_author() );
+function post_author( $post_id = 0 ) {
+	echo apply_filters('post_author', get_post_author( $post_id ) );
 }
 
-function get_post_author() {
+function get_post_author( $post_id = 0 ) {
 	global $bbdb;
-	$id = get_post_author_id();
+	$id = get_post_author_id( $post_id );
 	if ( $id )
 		if ( $user = bb_get_user( $id ) )
 			return apply_filters( 'get_post_author', $user->user_login, $id );
@@ -792,21 +793,21 @@ function get_post_author() {
 		return __('Anonymous');
 }
 
-function post_author_link() {
-	if ( get_user_link( get_post_author_id() ) ) {
-		echo '<a href="' . attribute_escape( get_user_link( get_post_author_id() ) ) . '">' . get_post_author() . '</a>';
+function post_author_link( $post_id = 0 ) {
+	if ( get_user_link( get_post_author_id( $post_id ) ) ) {
+		echo '<a href="' . attribute_escape( get_user_link( get_post_author_id( $post_id ) ) ) . '">' . get_post_author( $post_id ) . '</a>';
 	} else {
-		post_author();
+		post_author( $post_id );
 	}
 }
 
-function post_text() {
-	echo apply_filters( 'post_text', get_post_text() );
+function post_text( $post_id = 0 ) {
+	echo apply_filters( 'post_text', get_post_text( $post_id ), get_post_id( $post_id ) );
 }
 
-function get_post_text() {
-	global $bb_post;
-	return $bb_post->post_text;
+function get_post_text( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	return apply_filters( 'get_post_text', $bb_post->post_text, $bb_post->post_id );
 }
 
 function bb_post_time( $args = '' ) {
@@ -818,43 +819,38 @@ function bb_post_time( $args = '' ) {
 function bb_get_post_time( $args = '' ) {
 	$args = _bb_parse_time_function_args( $args );
 
-	global $bb_post;
-	if ( $args['id'] )
-		$_bb_post = bb_get_post( $args['id'] );
-	else
-		$_bb_post =& $bb_post;
+	$bb_post = bb_get_post( get_post_id( $args['id'] ) );
 
 	$time = apply_filters( 'bb_get_post_time', $_bb_post->post_time, $args );
 
 	return _bb_time_function_return( $time, $args );
 }
 
-function post_ip() {
+function post_ip( $post_id = 0 ) {
 	if ( bb_current_user_can( 'view_by_ip' ) )
-		echo apply_filters( 'post_ip', get_post_ip(), get_post_id() );
+		echo apply_filters( 'post_ip', get_post_ip( $post_id ), get_post_id( $post_id ) );
 }
 
-function get_post_ip() {
-	global $bb_post;
-	return $bb_post->poster_ip;
+function get_post_ip( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	return apply_filters( 'get_post_ip', $bb_post->poster_ip, $bb_post->post_id );
 }
 
-function post_ip_link() {
+function post_ip_link( $post_id = 0 ) {
 	if ( !bb_current_user_can( 'view_by_ip' ) )
 		return;
-	$link = '<a href="' . attribute_escape( bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip() ) . '">' . get_post_ip() . '</a>';
-	echo apply_filters( 'post_ip_link', $link, get_post_id() );
+	$link = '<a href="' . attribute_escape( bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip( $post_id ) ) . '">' . get_post_ip( $post_id ) . '</a>';
+	echo apply_filters( 'post_ip_link', $link, get_post_id( $post_id ) );
 }
 
-function post_edit_link() {
-	global $bb_post;
-
+function post_edit_link( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) )
-		echo "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . get_post_id(), $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
+		echo "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . $bb_post->post_id, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
 }
 
-function post_del_class() {
-	global $bb_post;
+function post_del_class( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	switch ( $bb_post->post_status ) :
 	case 0 : return ''; break;
 	case 1 : return 'deleted'; break;
@@ -862,48 +858,48 @@ function post_del_class() {
 	endswitch;
 }
 
-function post_delete_link() {
-	global $bb_post;
-	if ( !bb_current_user_can( 'delete_post', get_post_id() ) )
+function post_delete_link( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
 		return;
 
 	if ( 1 == $bb_post->post_status )
-		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) ) . "' onclick='return confirm(\" ". js_escape( __('Are you sure you wanna undelete that?') ) ." \");'>". __('Undelete') ."</a>";
+		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=0&view=all', 'delete-post_' . $bb_post->post_id ) ) . "' onclick='return confirm(\" ". js_escape( __('Are you sure you wanna undelete that?') ) ." \");'>". __('Undelete') ."</a>";
 	else
-		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=1', 'delete-post_' . get_post_id() ) ) . "' onclick='return ajaxPostDelete(" . get_post_id() . ", \"" . get_post_author() . "\");'>". __('Delete') ."</a>";
+		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=1', 'delete-post_' . $bb_post->post_id ) ) . "' onclick='return ajaxPostDelete(" . $bb_post->post_id . ", \"" . get_post_author( $post_id ) . "\");'>". __('Delete') ."</a>";
 	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
 	echo $r;
 }
 
-function post_author_id() {
-	echo apply_filters('post_author_id', get_post_author_id() );
+function post_author_id( $post_id = 0 ) {
+	echo apply_filters( 'post_author_id', get_post_author_id( $post_id ), get_post_id( $post_id ) );
 }
 
-function get_post_author_id() {
-	global $bb_post;
-	return $bb_post->poster_id;
+function get_post_author_id( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	return apply_filters( 'get_post_author_id', $bb_post->poster_id, get_post_id( $post_id ) );
 }
 
-function post_author_title() {
-	$title = get_post_author_title();
+function post_author_title( $post_id = 0 ) {
+	$title = get_post_author_title( $post_id );
 	if ( false === $title )
 		$r = __('Unregistered'); // This should never happen
 	else
-		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id() ) ) . '">' . $title . '</a>';
+		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $title . '</a>';
 
 	echo apply_filters( 'post_author_title', $r );
 }
 
-function get_post_author_title() {
-	return get_user_title( get_post_author_id() );
+function get_post_author_title( $post_id = 0 ) {
+	return get_user_title( get_post_author_id( $post_id ) );
 }
 
-function post_author_type() {
-	$type = get_user_type( get_post_author_id() );
+function post_author_type( $post_id = 0 ) {
+	$type = get_user_type( get_post_author_id( $post_id = 0 ) );
 	if ( false === $type )
 		$r = __('Unregistered'); // This should never happen
 	else
-		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id() ) ) . '">' . $type . '</a>';
+		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $type . '</a>';
 
 	echo apply_filters( 'post_author_type', $r );
 }
