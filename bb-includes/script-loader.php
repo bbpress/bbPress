@@ -1,4 +1,6 @@
 <?php
+require(BBPATH . BBINC . 'js/js-i18n.php');
+
 class BB_Scripts {
 	var $scripts = array();
 	var $queue = array();
@@ -18,7 +20,12 @@ class BB_Scripts {
 		$this->add( 'jquery', '/' . BBINC . 'js/jquery/jquery.js', false, '1.1.2');
 		$this->add( 'interface', '/' . BBINC . 'js/jquery/interface.js', array('jquery'), '1.2');
 		$this->add( 'add-load-event', '/' . BBINC . 'js/add-load-event.js' );
-		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), 3 );
+		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), 3, 'bb_js_i18n_content_forums' );
+		$this->localize( 'content-forums', 'bbSortForumsL10n', array(
+	                'handleText' => __('drag'),
+        	        'saveText' => __('Save Forum Order &#187;')
+	        ) );
+
 	}
 
 	/**
@@ -61,10 +68,30 @@ class BB_Scripts {
 					$src = apply_filters( 'bb_script_loader_src', $src );
 					$src = attribute_escape( $src );
 					echo "<script type='text/javascript' src='$src'></script>\n";
+					$this->print_scripts_l10n( $handle );
 				}
 				$this->printed[] = $handle;
 			}
 		}
+	}
+
+	function print_scripts_l10n( $handle ) {
+		if ( empty($this->scripts[$handle]->l10n_object) || empty($this->scripts[$handle]->l10n) || !is_array($this->scripts[$handle]->l10n) )
+			return;
+
+		$object_name = $this->scripts[$handle]->l10n_object;
+
+		echo "<script type='text/javascript'>\n";
+		echo "/* <![CDATA[ */\n";
+		echo "\t$object_name = {\n";
+		$eol = '';
+		foreach ( $this->scripts[$handle]->l10n as $var => $val ) {
+			echo "$eol\t\t$var: \"" . js_escape( $val ) . '"';
+			$eol = ",\n";
+		}
+		echo "\n\t}\n";
+		echo "/* ]]> */\n";
+		echo "</script>\n";
 	}
 
 	/**
@@ -117,6 +144,22 @@ class BB_Scripts {
 		return true;
 	}
 
+	/**
+	 * Localizes a script
+	 *
+	 * Localizes only if script has already been added
+	 *
+	 * @param string handle Script name
+	 * @param string object_name Name of JS object to hold l10n info
+	 * @param array l10n Array of JS var name => localized string
+	 * @return bool Successful localization
+	 */
+	function localize( $handle, $object_name, $l10n ) {
+		if ( !isset($this->scripts[$handle]) )
+			return false;
+		return $this->scripts[$handle]->localize( $object_name, $l10n );
+	}		
+
 	function remove( $handles ) {
 		foreach ( (array) $handles as $handle )
 			unset($this->scripts[$handle]);
@@ -159,14 +202,23 @@ class _BB_Script {
 	var $src;
 	var $deps = array();
 	var $ver = false;
-	var $args = false;
+	var $l10n_object = '';
+	var $l10n = array();
 
 	function _BB_Script() {
-		@list($this->handle, $this->src, $this->deps, $this->ver) = func_get_args();
+		@list($this->handle, $this->src, $this->deps, $this->ver ) = func_get_args();
 		if ( !is_array($this->deps) )
 			$this->deps = array();
 		if ( !$this->ver )
 			$this->ver = false;
+	}
+
+	function localize( $object_name, $l10n ) {
+		if ( !$object_name || !is_array($l10n) )
+			return false;
+		$this->l10n_object = $object_name;
+		$this->l10n = $l10n;
+		return true;
 	}
 }
 
@@ -204,6 +256,21 @@ function bb_register_script( $handle, $src, $deps = array(), $ver = false ) {
 	$bb_scripts->add( $handle, $src, $deps, $ver );
 }
 
+/**
+ * Localizes a script
+ *
+ * Localizes only if script has already been added
+ *
+ * @see BB_Script::localize()
+ */
+function bb_localize_script( $handle, $object_name, $l10n ) {
+	global $bb_scripts;
+	if ( !is_a($bb_scripts, 'BB_Scripts') )
+		return false;
+
+	return $bb_scripts->localize( $handle, $object_name, $l10n );
+}
+
 function bb_deregister_script( $handle ) {
 	global $bb_scripts;
 	if ( !is_a($bb_scripts, 'BB_Scripts') )
@@ -230,4 +297,5 @@ function bb_enqueue_script( $handle, $src = false, $deps = array(), $ver = false
 	}
 	$bb_scripts->enqueue( $handle );
 }
+
 ?>
