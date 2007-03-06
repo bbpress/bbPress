@@ -156,7 +156,7 @@ class BB_Scripts {
 		if ( !isset($this->scripts[$handle]) )
 			return false;
 		return $this->scripts[$handle]->localize( $object_name, $l10n );
-	}		
+	}
 
 	function remove( $handles ) {
 		foreach ( (array) $handles as $handle )
