@@ -1,19 +1,7 @@
 <?php
 require_once('./bb-load.php');
 
-if ( isset($_GET['username']) ) :
-	$user = bb_get_user_by_name( $_GET['username'] );
-	if ( !$user )
-		bb_die(__('Username not found.'));
-	wp_redirect( get_user_profile_link( $user->ID ) );
-	exit;
-endif;
-
 bb_repermalink(); // The magic happens here.
-$user = bb_get_user( $user_id );
-
-if ( !$user )
-	bb_die(__('User not found.'));
 
 if ( $self ) {
 	if ( strpos($self, '.php') !== false ) {

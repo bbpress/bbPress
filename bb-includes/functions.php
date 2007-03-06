@@ -589,8 +589,12 @@ function bb_block_current_user() {
 
 function bb_get_user( $user_id, $cache = true ) {
 	global $bb_cache, $bb_user_cache;
-	if ( !is_numeric( $user_id ) )
-		die(__('bb_get_user needs a numeric ID'));
+	if ( !is_numeric( $user_id ) ) {
+		if ( is_string($user_id) )
+			return bb_get_user_by_name( $user_id );
+		else
+			return false;
+	}
 	$user_id = (int) $user_id;
 	if ( isset( $bb_user_cache[$user_id] ) && $cache )
 		return $bb_user_cache[$user_id];
@@ -1491,8 +1495,15 @@ function bb_repermalink() {
 		$permalink = get_topic_link( $topic->topic_id, $page );
 	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
 		global $user_id, $user, $profile_hooks, $self;
-		$user_id = $permalink;
-		$user = bb_get_user( $user_id );
+		if ( isset($_GET['id']) )
+			$permalink = $_GET['id'];
+		elseif ( isset($_GET['username']) )
+			$permalink = $_GET['username'];
+		else
+			$permalink = get_path();
+		if ( !$user = bb_get_user( $permalink ) )
+			bb_die(__('User not found.'));
+		$user_id = $user->ID;
 		global_profile_menu_structure();
 		$valid = false;
 		if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
@@ -1535,7 +1546,7 @@ function bb_repermalink() {
 	if ( $args ) {
 		$permalink = add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
-				$pretty_args = array('id', 'page', 'tag', 'tab'); // these are already specified in the path
+				$pretty_args = array('id', 'page', 'tag', 'tab', 'username'); // these are already specified in the path
 				if ( is_view() )
 					$pretty_args[] = 'view';
 				foreach ( $pretty_args as $pretty_arg )
