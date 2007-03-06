@@ -101,9 +101,10 @@ function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 		$where .= " AND topic_sticky = 0 ";
 	$limit = bb_get_option('page_topics');
 	$where = apply_filters('get_latest_topics_where', $where);
+	$order_by = apply_filters('get_latest_topics_order_by', 'topic_time DESC' );
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC LIMIT $limit";
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY $order_by LIMIT $limit";
 	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
 		return bb_append_meta( $topics, 'topic' );
 	else
