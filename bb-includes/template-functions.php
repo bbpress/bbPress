@@ -668,9 +668,9 @@ function topic_posts_link( $id = 0 ) {
 		echo $posts;
 
 	if ( bb_current_user_can( 'browse_deleted' ) ) {
-		$id = bb_get_current_user_info( 'id' );
-		if ( isset($topic->bozos[$id]) && 'all' != @$_GET['view'] )
-			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$id]}; return \$a;") );
+		$user_id = bb_get_current_user_info( 'id' );
+		if ( isset($topic->bozos[$user_id]) && 'all' != @$_GET['view'] )
+			add_filter('get_topic_deleted_posts', create_function('$a', "\$a -= {$topic->bozos[$user_id]}; return \$a;") );
 		if ( $deleted = get_topic_deleted_posts( $id ) ) {
 			$extra = sprintf(__('+%d more'), $deleted);
 			if ( 'all' == @$_GET['view'] )
