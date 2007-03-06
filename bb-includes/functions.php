@@ -1520,7 +1520,7 @@ function bb_repermalink() {
 		endif;
 	} elseif ( is_bb_favorites() ) {
 		$permalink = get_favorites_link();
-	} elseif ( is_tag() ) {  // It's not an integer and tags.php pulls double duty.
+	} elseif ( is_tags() ) {  // It's not an integer and tags.php pulls double duty.
 		if ( isset($_GET['tag']) )
 			$permalink = $_GET['tag'];
 		else

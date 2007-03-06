@@ -237,8 +237,13 @@ function is_forum() {
 	return 'forum-page' == get_bb_location();
 }
 
-function is_tag() {
+function is_tags() {
 	return 'tag-page' == get_bb_location();
+}
+
+function is_tag() {
+	global $tag, $tag_name;
+	return $tag && $tag_name && is_tags();
 }
 
 function is_topic() {
@@ -274,28 +279,26 @@ function bb_title() {
 }
 
 function bb_get_title() {
-	global $topic, $forum, $tag, $user;
 	$title = '';
 	if ( is_topic() )
 		$title = get_topic_title(). ' &laquo; ';
-	if ( is_forum() )
+	elseif ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
-	if ( is_tag() )
-		$title = wp_specialchars( get_tag_name() ). ' &laquo; ' . __('Tags') . ' &laquo; ';
-	if ( is_bb_profile() )
-		$title = get_user_name( $user->ID ) . ' &laquo; ';
+	elseif ( is_tags() )
+		$title = ( is_tag() ? wp_specialchars( get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
+	elseif ( is_bb_profile() )
+		$title = get_user_name() . ' &laquo; ';
 	if ( $st = bb_get_option( 'static_title' ) )
 		$title = $st;
-	$title .= bb_get_option('name');
+	$title .= bb_get_option( 'name' );
 	return apply_filters( 'bb_get_title', $title );
 }
 
 function bb_feed_head() {
-	global $tag;
 	$feed_link = '';
 	if ( is_topic() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Topic: %s'), get_topic_title() ) ) . '" href="' . attribute_escape( get_topic_rss_link() ) . '" />';
-	elseif ( is_tag() && $tag )
+	elseif ( is_tag() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), get_tag_name() ) ) . '" href="' . attribute_escape( get_tag_rss_link() ) . '" />';
 	elseif ( is_forum() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Forum: %s'), get_forum_name() ) ) . '" href="' . attribute_escape( get_forum_rss_link() ) . '" />';
@@ -682,13 +685,17 @@ function topic_posts_link( $id = 0 ) {
 }
 
 function topic_move_dropdown( $id = 0 ) {
-	global $forum_id;
 	$topic = get_topic( get_topic_id( $id ) );
 	if ( !bb_current_user_can( 'move_topic', $topic->topic_id ) )
 		return;
-	$forum_id = $topic->forum_id;
 
-	if ( !$dropdown = bb_get_forum_dropdown( 'bb_current_user_can', array('move_topic', $topic->topic_id) ) )
+	$dropdown = bb_get_forum_dropdown( array(
+		'callback' => 'bb_current_user_can',
+		'callback_args' => array('move_topic', $topic->topic_id),
+		'selected' => $topic->forum_id
+	) );
+
+	if ( !$dropdown )
 		return;
 
 	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
@@ -719,7 +726,6 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 }
 
 function new_topic( $text = false ) {
-	global $forum;
 	if ( !$text )
 		$text = __('Add New &raquo;');
 
@@ -730,7 +736,7 @@ function new_topic( $text = false ) {
 	if ( !bb_is_user_logged_in() )
 		$url = add_query_arg( 're', urlencode($url), bb_get_option( 'uri' ) . 'bb-login.php' );
 	elseif ( is_forum() ) {
-		if ( !bb_current_user_can( 'write_topic', $forum->forum_id ) )
+		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
 			return;
 	} else {
 		if ( !bb_current_user_can( 'write_topics' ) )
@@ -784,18 +790,15 @@ function post_author( $post_id = 0 ) {
 }
 
 function get_post_author( $post_id = 0 ) {
-	global $bbdb;
-	$id = get_post_author_id( $post_id );
-	if ( $id )
-		if ( $user = bb_get_user( $id ) )
-			return apply_filters( 'get_post_author', $user->user_login, $id );
+	if ( $user = bb_get_user( get_post_author_id( $post_id ) ) )
+		return apply_filters( 'get_post_author', $user->user_login, $user->ID );
 	else
 		return __('Anonymous');
 }
 
 function post_author_link( $post_id = 0 ) {
-	if ( get_user_link( get_post_author_id( $post_id ) ) ) {
-		echo '<a href="' . attribute_escape( get_user_link( get_post_author_id( $post_id ) ) ) . '">' . get_post_author( $post_id ) . '</a>';
+	if ( $link = get_user_link( get_post_author_id( $post_id ) ) ) {
+		echo '<a href="' . attribute_escape( $link ) . '">' . get_post_author( $post_id ) . '</a>';
 	} else {
 		post_author( $post_id );
 	}
@@ -877,7 +880,7 @@ function post_author_id( $post_id = 0 ) {
 
 function get_post_author_id( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
-	return apply_filters( 'get_post_author_id', $bb_post->poster_id, get_post_id( $post_id ) );
+	return apply_filters( 'get_post_author_id', (int) $bb_post->poster_id, get_post_id( $post_id ) );
 }
 
 function post_author_title( $post_id = 0 ) {
@@ -895,11 +898,12 @@ function get_post_author_title( $post_id = 0 ) {
 }
 
 function post_author_type( $post_id = 0 ) {
-	$type = get_user_type( get_post_author_id( $post_id = 0 ) );
+	$id = get_post_author_id( $post_id );
+	$type = get_user_type( $id );
 	if ( false === $type )
 		$r = __('Unregistered'); // This should never happen
 	else
-		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $type . '</a>';
+		$r = '<a href="' . attribute_escape( get_user_profile_link( $id ) ) . '">' . $type . '</a>';
 
 	echo apply_filters( 'post_author_type', $r );
 }
@@ -1584,16 +1588,14 @@ function favorites_rss_link( $id = 0 ) {
 }
 
 function get_favorites_rss_link( $id = 0 ) {
-	global $user;
-	if ( $id )
-		$user = bb_get_user( $id );
+	$user = bb_get_user( bb_get_user_id( $id ) );
 
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . "rss/profile/$user->ID";
 	else
 		$link = bb_get_option('uri') . "rss.php?profile=$user->ID";
 
-	return apply_filters( 'get_favorites_rss_link', $link, $user_id );
+	return apply_filters( 'get_favorites_rss_link', $link, $user->ID );
 }
 
 function favorites_pages() {
