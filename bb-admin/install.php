@@ -224,7 +224,7 @@ flush();
 // Set everything up
 if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = user_sanitize( $_POST['admin_login'] ) )
 	die(__('Bad username.  Go back and try again.'));
-if ( isset($_POST['new_keymaster']) && !bb_get_user_by_name( $_POST['new_keymaster'] ) )
+if ( isset($_POST['new_keymaster']) && !bb_get_user( $_POST['new_keymaster'] ) )
 	die(__('Username not found.  Go back and try again.'));
 if ( !$forum_name = $_POST['forum_name'] )
 	die(__('You must name your first forum.  Go back and try again.'));

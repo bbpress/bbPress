@@ -248,11 +248,7 @@ class BB_User {
 	function BB_User($id) {
 		global $bb_roles, $bb_table_prefix;
 
-		if ( is_numeric($id) ) {
-			$this->data = bb_get_user($id);
-		} else {
-			$this->data = bb_get_user_by_name($id);
-		}
+		$this->data = bb_get_user( $id );
 
 		if ( empty($this->data->ID) )
 			return;
