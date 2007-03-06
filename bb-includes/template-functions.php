@@ -939,23 +939,36 @@ function get_allowed_markup( $args = '' ) {
 }
 
 // USERS
-function user_profile_link( $id, $page = 1 ) {
-	echo apply_filters( 'user_profile_link', get_user_profile_link( $id ), $id );
+function bb_get_user_id( $id = 0 ) {
+	global $user;
+	if ( is_object($id) && isset($id->ID) )
+		return (int) $id->ID;
+	elseif ( !is_numeric($id) || 0 == $id )
+		return $user->ID;
+
+	$id = (int) $id;
+	$_user = bb_get_user( $id );
+	return $_user->ID;
 }
 
-function get_user_profile_link( $id, $page = 1 ) {
+function user_profile_link( $id = 0 , $page = 1 ) {
+	echo apply_filters( 'user_profile_link', get_user_profile_link( $id ), bb_get_user_id( $id ) );
+}
+
+function get_user_profile_link( $id = 0, $page = 1 ) {
+	$user = bb_get_user( bb_get_user_id( $id ) );
 	if ( bb_get_option('mod_rewrite') ) {
-		$r = bb_get_option('uri') . "profile/$id" . ( 1 < $page ? "/page/$page" : '' );
+		$r = bb_get_option('uri') . "profile/$user->ID" . ( 1 < $page ? "/page/$page" : '' );
 	} else {
-		$r = bb_get_option('uri') . "profile.php?id=$id" . ( 1 < $page ? "&page=$page" : '' );
+		$r = bb_get_option('uri') . "profile.php?id=$user->ID" . ( 1 < $page ? "&page=$page" : '' );
 	}
-	return apply_filters( 'get_user_profile_link', $r, $id );
+	return apply_filters( 'get_user_profile_link', $r, $user->ID );
 }
 
 function user_delete_button() {
 	global $user;
 	if ( bb_current_user_can( 'edit_users' ) && bb_get_current_user_info( 'id' ) != (int) $user->ID )
-		echo apply_filters( 'user_delete_button', get_user_delete_button());
+		echo apply_filters( 'user_delete_button', get_user_delete_button() );
 }
 
 function get_user_delete_button() {
@@ -964,11 +977,11 @@ function get_user_delete_button() {
 	return apply_filters( 'get_user_delete_button', $r);
 }
 
-function profile_tab_link( $id, $tab, $page = 1 ) {
+function profile_tab_link( $id = 0, $tab, $page = 1 ) {
 	echo apply_filters( 'profile_tab_link', get_profile_tab_link( $id, $tab ) );
 }
 
-function get_profile_tab_link( $id, $tab, $page = 1 ) {
+function get_profile_tab_link( $id = 0, $tab, $page = 1 ) {
 	$tab = tag_sanitize($tab);
 	if ( bb_get_option('mod_rewrite') )
 		$r = get_user_profile_link( $id ) . "/$tab" . ( 1 < $page ? "/page/$page" : '' );
@@ -978,25 +991,23 @@ function get_profile_tab_link( $id, $tab, $page = 1 ) {
 			$args['page'] = $page;
 		$r = add_query_arg( $args, get_user_profile_link( $id ) );
 	}
-	return apply_filters( 'get_profile_tab_link', $r, $id );
+	return apply_filters( 'get_profile_tab_link', $r, bb_get_user_id( $id ) );
 }
 
-function user_link( $id ) {
-	echo apply_filters( 'user_link', get_user_link($id), $user_id );
+function user_link( $id = 0 ) {
+	echo apply_filters( 'user_link', get_user_link( $id ), $id );
 }
 
-function get_user_link( $user_id ) {
-	global $bbdb;
-	if ( $user_id )
-		if ( $user = bb_get_user( $user_id ) )
-			return apply_filters( 'get_user_link', $user->user_url, $user_id );
+function get_user_link( $id = 0 ) {
+	if ( $user = bb_get_user( bb_get_user_id( $id ) ) )
+		return apply_filters( 'get_user_link', $user->user_url, $user->ID );
 }
 
-function full_user_link( $id ) {
+function full_user_link( $id = 0 ) {
 	echo get_full_user_link( $id );
 }
 
-function get_full_user_link( $id ) {
+function get_full_user_link( $id = 0 ) {
 	if ( get_user_link( $id ) )
 		$r = '<a href="' . attribute_escape( get_user_link( $id ) ) . '">' . get_user_name( $id ) . '</a>';
 	else
@@ -1014,14 +1025,12 @@ function get_user_type_label( $type ) {
 		return apply_filters( 'get_user_type_label', $bb_roles->role_names[$type], $type );
 }
 
-function user_type( $id ) {
-	echo apply_filters( 'user_type', get_user_type($id) );
+function user_type( $id = 0 ) {
+	echo apply_filters( 'user_type', get_user_type( $id ) );
 }
 
-function get_user_type( $id ) {
-	$user = bb_get_user( $id );
-
-	if ( $id && false !== $user ) :
+function get_user_type( $id = 0 ) {
+	if ( $user = bb_get_user( bb_get_user_id( $id ) ) ) :
 		@$caps = array_keys($user->capabilities);
 		if ( !$caps )
 			$caps[] = 'inactive';
@@ -1033,19 +1042,18 @@ function get_user_type( $id ) {
 	return apply_filters( 'get_user_type', $type, $user->ID );
 }
 
-function get_user_name( $id ) {
-	$user = bb_get_user( $id );
+function get_user_name( $id = 0 ) {
+	$user = bb_get_user( bb_get_user_id( $id ) );
 	return apply_filters( 'get_user_name', $user->user_login, $user->ID );
 }
 
-function user_title( $id ) {
-	echo apply_filters( 'user_title', get_user_title( $id ), $id );
+function user_title( $id = 0 ) {
+	echo apply_filters( 'user_title', get_user_title( $id ), bb_get_user_id( $id ) );
 }
 
-function get_user_title( $id ) {
-	$user = bb_get_user( $id );
-
-	return empty( $user->title ) ? get_user_type( $id ) : apply_filters( 'get_user_title', $user->title, $id );
+function get_user_title( $id = 0 ) {
+	$user = bb_get_user( bb_get_user_id( $id ) );
+	return empty( $user->title ) ? get_user_type( $id ) : apply_filters( 'get_user_title', $user->title, $user->ID );
 }
 
 function profile_pages() {
@@ -1056,12 +1064,7 @@ function profile_pages() {
 }
 
 function bb_profile_data( $id = 0 ) {
-	global $user_id;
-
-	if ( !$id )
-		$id =& $user_id;
-
-	if ( !$user = bb_get_user( $id ) )
+	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return;
 
 	$reg_time = bb_gmtstrtotime( $user->user_registered );
@@ -1088,12 +1091,7 @@ function bb_profile_base_content() {
 }
 
 function bb_profile_data_form( $id = 0 ) {
-	global $user_id;
-
-	if ( !$id )
-		$id =& $user_id;
-
-	if ( !$user = bb_get_user( $id ) )
+	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return;
 
 	if ( !bb_current_user_can( 'edit_user', $user->ID ) )
@@ -1124,12 +1122,8 @@ do_action( 'extra_profile_info', $user->ID );
 }
 
 function bb_profile_admin_form( $id = 0 ) {
-	global $user_id, $bb_roles;
-
-	if ( !$id )
-		$id =& $user_id;
-
-	if ( !$user = bb_get_user( $id ) )
+	global $bb_roles;
+	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return;
 
 	if ( !bb_current_user_can( 'edit_user', $user->ID ) )

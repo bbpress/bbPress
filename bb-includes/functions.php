@@ -1490,8 +1490,9 @@ function bb_repermalink() {
 		$topic = get_topic( $topic_id );
 		$permalink = get_topic_link( $topic->topic_id, $page );
 	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
-		global $user_id, $profile_hooks, $self;
+		global $user_id, $user, $profile_hooks, $self;
 		$user_id = $permalink;
+		$user = bb_get_user( $user_id );
 		global_profile_menu_structure();
 		$valid = false;
 		if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
