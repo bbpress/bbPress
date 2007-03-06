@@ -76,6 +76,11 @@ foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'w
 		$bb->$o = false;
 unset($o);
 
+if ( defined('BB_INSTALLING') && BB_INSTALLING )
+foreach ( array('active_plugins') as $i )
+	$bb->$i = false;
+unset($i);
+
 require( BBPATH . BBINC . 'functions.php');
 require( BBPATH . BBINC . 'formatting-functions.php');
 require( BBPATH . BBINC . 'template-functions.php');
@@ -113,7 +118,7 @@ $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
 if ( $plugins = bb_get_option( 'active_plugins' ) )
-	foreach ( $plugins as $plugin )
+	foreach ( (array) $plugins as $plugin )
 		if ( file_exists(BBPLUGINDIR . $plugin) )
 			require( BBPLUGINDIR . $plugin );
 do_action( 'bb_plugins_loaded' );
