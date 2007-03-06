@@ -389,10 +389,9 @@ function bb_new_forum( $args ) {
 	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false );
 	$args = bb_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
-		$args['forum_id']    = func_get_arg(0);
-		$args['forum_name']  = func_get_arg(1);
-		$args['forum_desc']  = 2 < func_num_args() ? func_get_arg(2) : '';
-		$args['forum_order'] = 3 < func_num_args() && is_numeric(func_get_arg(3)) ? func_get_arg(3) : false;
+		$args['forum_name']  = func_get_arg(0);
+		$args['forum_desc']  = func_get_arg(1);
+		$args['forum_order'] = 2 < func_num_args() ? func_get_arg(2) : 0;
 	endif;
 
 	extract($args);
@@ -417,9 +416,10 @@ function bb_update_forum( $args ) {
 	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0 );
 	$args = bb_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
-		$args['forum_name']  = func_get_arg(0);
-		$args['forum_desc']  = func_get_arg(1);
-		$args['forum_order'] = 2 < func_num_args() ? func_get_arg(2) : 0;
+		$args['forum_id']    = func_get_arg(0);
+		$args['forum_name']  = func_get_arg(1);
+		$args['forum_desc']  = 2 < func_num_args() ? func_get_arg(2) : '';
+		$args['forum_order'] = 3 < func_num_args() && is_numeric(func_get_arg(3)) ? func_get_arg(3) : 0;
 	endif;
 
 	extract($args);
