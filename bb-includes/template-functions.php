@@ -180,10 +180,10 @@ function get_alt_class( $key, $others = '' ) {
 }
 
 function bb_location() {
-	echo apply_filters( 'bb_location', get_bb_location() );
+	echo apply_filters( 'bb_location', bb_get_location() );
 }
 
-function get_bb_location() { // Not for display.  Do not internationalize.
+function bb_get_location() { // Not for display.  Do not internationalize.
 	$file = '';
 	foreach ( array($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['SCRIPT_NAME']) as $name )
 		if ( false !== strpos($name, '.php') )
@@ -224,21 +224,21 @@ function get_bb_location() { // Not for display.  Do not internationalize.
 		return 'login-page';
 		break;
 	default:
-		return apply_filters( 'get_bb_location', '' );
+		return apply_filters( 'bb_get_location', '', $file );
 		break;
 	endswitch;
 }
 
 function is_front() {
-	return 'front-page' == get_bb_location();
+	return 'front-page' == bb_get_location();
 }
 
 function is_forum() {
-	return 'forum-page' == get_bb_location();
+	return 'forum-page' == bb_get_location();
 }
 
 function is_tags() {
-	return 'tag-page' == get_bb_location();
+	return 'tag-page' == bb_get_location();
 }
 
 function is_tag() {
@@ -247,31 +247,31 @@ function is_tag() {
 }
 
 function is_topic() {
-	return 'topic-page' == get_bb_location();
+	return 'topic-page' == bb_get_location();
 }
 
 function is_bb_feed() {
-	return 'feed-page' == get_bb_location();
+	return 'feed-page' == bb_get_location();
 }
 
 function is_bb_search() {
-	return 'search-page' == get_bb_location();
+	return 'search-page' == bb_get_location();
 }
 
 function is_bb_profile() {
-	return 'profile-page' == get_bb_location();
+	return 'profile-page' == bb_get_location();
 }
 
 function is_bb_favorites() {
-	return 'favorites-page' == get_bb_location();
+	return 'favorites-page' == bb_get_location();
 }
 
 function is_view() {
-	return 'view-page' == get_bb_location();
+	return 'view-page' == bb_get_location();
 }
 
 function is_bb_stats() {
-	return 'stats-page' == get_bb_location();
+	return 'stats-page' == bb_get_location();
 }
 
 function bb_title() {

@@ -103,4 +103,11 @@ function forum_dropdown( $c = false, $a = false ) {
 	bb_forum_dropdown( $c, $a );
 }
 
+function get_bb_location() {
+	$r = bb_get_location();
+	if ( !$r )
+		$r = apply_filters( 'get_bb_location', '' ); // Deprecated filter
+	return $r;
+}
+
 ?>
