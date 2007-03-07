@@ -1151,13 +1151,13 @@ function update_post_positions( $topic_id ) {
 	}
 }
 
-function topic_is_open( $topic_id ) {
-	$topic = get_topic( $topic_id );
+function topic_is_open( $topic_id = 0 ) {
+	$topic = get_topic( get_topic_id( $topic_id ) );
 	return 1 == $topic->topic_open;
 }
 
-function topic_is_sticky( $topic_id ) {
-	$topic = get_topic( $topic_id );
+function topic_is_sticky( $topic_id = 0 ) {
+	$topic = get_topic( get_topic_id( $topic_id ) );
 	return '0' !== $topic->topic_sticky;
 }
 
