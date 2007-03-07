@@ -34,19 +34,18 @@ case 'add-tag' :
 		die('0');
 
 	$tag_name = rawurldecode($tag_name);
-	if ( add_topic_tag( $topic_id, $tag_name ) ) {
-		$tag = get_tag( $ajax_results[0] );
-		$tag_id_val = $tag->tag_id . '_' . $ajax_results[1];
-		$tag->raw_tag = wp_specialchars($tag->raw_tag, 1);
-		$tag->user_id = $bb_current_id;
-		$tag->topic_id = $topic_id;
-		$x = new WP_Ajax_Response( array(
+	$x = new WP_Ajax_Response();
+	foreach ( add_topic_tags( $topic_id, $tag_name ) as $tag_id ) {
+		$tag = get_tag( $tag_id );
+		$tag_id_val = $tag->tag_id . '_' . $tag->user_id;
+		$tag->raw_tag = attribute_escape( $tag->raw_tag );
+		$x->add( array(
 			'what' => 'tag',
 			'id' => $tag_id_val,
 			'data' => "<li id='tag-$tag_id_val'><a href='" . get_tag_link() . "' rel='tag'>$tag->raw_tag</a> " . get_tag_remove_link() . '</li>' 
 		) );
-		$x->send();
 	}
+	$x->send();
 	break;
 
 case 'delete-tag' :

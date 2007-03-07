@@ -161,6 +161,7 @@ function tag_sanitize( $tag ) {
 
 function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	$_text = $text;
+	$text = trim($text);
 	$text = strip_tags($text);
 
 	// Preserve escaped octets.

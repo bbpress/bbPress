@@ -1236,22 +1236,23 @@ function add_topic_tag( $topic_id, $tag ) {
 		$bb_cache->flush_one( 'topic', $topic_id );
 	}
 	do_action('bb_tag_added', $tag_id, $id, $topic_id);
-	return true;
+	return $tag_id;
 }
 
 function add_topic_tags( $topic_id, $tags ) {
 	global $bbdb;
 
 	$tags = trim( $tags );
-	$words = preg_split("/[\s,]+/", $tags);
+	$words = explode(',', $tags);
 
 	if ( !is_array( $words ) )
 		return false;
 
+	$tag_ids = array();
 	foreach ( $words as $tag ) :
-		add_topic_tag( $topic_id, $tag );
+		$tag_ids[] = add_topic_tag( $topic_id, $tag );
 	endforeach;
-	return true;
+	return $tag_ids;
 }
 
 function create_tag( $tag ) {
