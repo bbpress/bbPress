@@ -1224,7 +1224,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	if ( $user_already = $bbdb->get_var("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") )
 		if ( $user_already == $id ) :
 			do_action('bb_already_tagged', $tag_id, $id, $topic_id);
-			return true;
+			return $tag_id;
 		endif;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )

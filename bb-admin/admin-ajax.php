@@ -36,8 +36,9 @@ case 'add-tag' :
 	$tag_name = rawurldecode($tag_name);
 	$x = new WP_Ajax_Response();
 	foreach ( add_topic_tags( $topic_id, $tag_name ) as $tag_id ) {
-		$tag = get_tag( $tag_id );
-		$tag_id_val = $tag->tag_id . '_' . $tag->user_id;
+		if ( !is_numeric($tag_id) || !$tag = get_tag( $tag_id ) )
+			continue;
+		$tag_id_val = $tag->tag_id . '_' . $bb_current_id;
 		$tag->raw_tag = attribute_escape( $tag->raw_tag );
 		$x->add( array(
 			'what' => 'tag',
