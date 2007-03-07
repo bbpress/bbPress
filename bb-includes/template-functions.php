@@ -1212,11 +1212,20 @@ function bb_get_admin_link( $args = '' ) {
 }
 
 function bb_profile_link( $args = '' ) {
-	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '' );
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'text' => $args );
+	elseif ( is_numeric($args) )
+		$args = array( 'id' => $args );
+
+	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '', 'id' => false );
 	$args = bb_parse_args( $args, $defaults );
 	extract($args);
 
-	echo apply_filters( 'bb_profile_link', "$before<a href='" . attribute_escape( get_user_profile_link( bb_get_current_user_info( 'id' ) ) ) . "'>$text</a>$after", $args );
+	$id = (int) $id;
+	if ( !$id )
+		$id = bb_get_current_user_info( 'id' );
+
+	echo apply_filters( 'bb_profile_link', "$before<a href='" . attribute_escape( get_user_profile_link( $id ) ) . "'>$text</a>$after", $args );
 }
 
 function bb_current_user_info( $key = '' ) {
