@@ -124,7 +124,8 @@ function get_sticky_topics( $forum = 0, $display = 1 ) {
 	if ( $forum )
 		$where .= " AND forum_id = $forum ";
 	$where = apply_filters('get_sticky_topics_where', $where);
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY topic_time DESC";
+	$order_by = apply_filters('get_sticky_topics_order_by', 'topic_time DESC' );
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY $order_by";
 	if ( $stickies = $bbdb->get_results($bb_last_countable_query) )
 		return bb_append_meta( $stickies, 'topic' );	
 	else	return false;
@@ -290,18 +291,20 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 function get_user_favorites( $user_id, $list = false ) {
 	global $bbdb, $page;
 	$user = bb_get_user( $user_id );
-	if ( $user->favorites )
+	if ( $user->favorites ) {
+		$order_by = apply_filters( 'get_user_favorites_order_by', 'topic_time DESC', $list );
 		if ( $list ) {
 			$limit = bb_get_option( 'page_topics' );
 			if ( 1 < $page )
 				$limit = ($limit * ($page - 1)) . ", $limit";
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY topic_time DESC LIMIT $limit");
+				ORDER BY $order_by LIMIT $limit");
 		} else
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY post_time DESC LIMIT 20");
+				ORDER BY $order_by LIMIT 20");
+	}
 }
 
 function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
@@ -316,7 +319,7 @@ function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( !$user || !$topic )
 		return;
 
-	return in_array($topic->topic_id, explode(',', $user->favorites));
+        return in_array($topic->topic_id, explode(',', $user->favorites));
 }
 
 function bb_add_user_favorite( $user_id, $topic_id ) {
@@ -360,7 +363,8 @@ function get_recent_user_replies( $user_id ) {
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = apply_filters('get_recent_user_replies_where', 'AND post_status = 0');
-	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY post_time DESC LIMIT $limit");
+	$order_by = apply_filters('get_recent_user_replies_order_by', 'post_time DESC');
+	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY $order_by LIMIT $limit");
 	if ( $posts ) :
 		foreach ($posts as $bb_post) {
 			$bb_post_cache[$bb_post->post_id] = $bb_post;
@@ -381,10 +385,12 @@ function get_recent_user_threads( $user_id ) {
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters('get_recent_user_threads_where', 'AND topic_status = 0');
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_poster = $user_id $where ORDER BY topic_start_time DESC LIMIT $limit";
+	$join = apply_filters('get_recent_user_threads_join', '', $user_id);
+	$where = apply_filters('get_recent_user_threads_where', 'AND topic_status = 0', $user_id);
+	$order_by = apply_filters( 'get_recent_user_threads_order_by', 'topic_start_time DESC', $user_id);
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $join WHERE topic_poster = $user_id $where ORDER BY $order_by LIMIT $limit";
 	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
-		$topic = bb_append_meta( $topics, 'topic' );
+		$topics = bb_append_meta( $topics, 'topic' );
 	return $topics;
 }
 
@@ -1430,7 +1436,8 @@ function get_tagged_topics( $tag_id, $page = 1 ) {
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY topic_time DESC LIMIT $limit";
+	$order_by = apply_filters('get_tagged_topics_order_by', 'topic_time DESC' );
+	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY $order_by LIMIT $limit";
 	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
 		return bb_append_meta( $topics, 'topic' );
 	else	return false;
