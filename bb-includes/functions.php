@@ -915,20 +915,8 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 				bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
 
 		if ( $new_status ) {
+			bb_remove_topic_tags( $topic_id );
 			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status', tag_count = 0 WHERE topic_id = '$topic_id'");
-			if( $tags = (array) $bbdb->get_col("SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
-				$tags = join(',', $tags);
-				$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
-				$_counts = (array) $bbdb->get_col('', 1);
-				foreach ( $_tags as $t => $i ) {
-					$new_count = (int) $counts[$t] - 1;
-					if ( 0 < $new_count )
-						$bbdb->query("UPDATE $bbdb->tags SET tag_count = $new_count WHERE tag_id = $i");
-					else
-						destroy_tag( $i, false );
-				}
-			}
-			$bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = '$topic_id'");
 			$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - '$topic->topic_posts' WHERE forum_id = '$topic->forum_id'");
 		} else {
 			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status' WHERE topic_id = '$topic_id'");
@@ -1314,6 +1302,35 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 		endif;
 	endif;
 	return array( 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
+}
+
+function bb_remove_topic_tags( $topic_id ) {
+	global $bbdb, $bb_cache;
+	$topic_id = (int) $topic_id;
+	if ( !$topic_id || !get_topic( $topic_id ) )
+		return false;
+
+	do_action( 'bb_pre_remove_topic_tags', $topic_id );
+
+	if( $tags = (array) $bbdb->get_col("SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
+		$tags = join(',', $tags);
+		$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
+		$_counts = (array) $bbdb->get_col('', 1);
+		foreach ( $_tags as $t => $i ) {
+			$new_count = (int) $counts[$t] - 1;
+			if ( 0 < $new_count )
+				$bbdb->query("UPDATE $bbdb->tags SET tag_count = $new_count WHERE tag_id = $i");
+			else
+				destroy_tag( $i, false );
+		}
+	}
+
+	$r = $bbdb->query("DELETE FROM $bbdb->tagged WHERE topic_id = '$topic_id'");
+	$bb_cache->flush_one( 'topic', $topic_id );
+
+	do_action( 'bb_remove_topic_tags', $topic_id, $r );
+
+	return $r;
 }
 
 // rename and merge in admin-functions.php
