@@ -202,12 +202,20 @@ class BB_Cache {
 		fclose($f);
 	}
 
-	function flush_one( $type, $id = 0, $page = 0 ) {
+	function flush_one( $type, $id = false, $page = 0 ) {
 		switch ( $type ) :
 		case 'user' :
+			$id = (int) $id;
+			global $bb_user_cache;
+			unset($bb_user_cache[$id]);
 			$file = BBPATH . 'bb-cache/bb_user-' . $id;
 			break;
 		case 'topic' :
+			if ( !is_numeric($id) )
+				break;
+			$id = (int) $id;
+			global $bb_topic_cache;
+			unset($bb_topic_cache[$id]);
 			$file = BBPATH . 'bb-cache/bb_topic-' . $id;
 			break;
 		case 'forums' :
