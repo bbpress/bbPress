@@ -59,6 +59,8 @@ function bb_set_current_user($id) {
 		$bb_current_user = 0;
 	} else {
 		$bb_current_user = new BB_User($id);
+		if ( !$bb_current_user->ID )
+			$bb_current_user = 0;
 	}
 
 	do_action('bb_set_current_user', $id);
