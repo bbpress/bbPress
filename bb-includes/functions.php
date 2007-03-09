@@ -1901,6 +1901,8 @@ function bb_parse_args( $args, $defaults = '' ) {
 		$r =& $args;
 	else
 		parse_str( $args, $r );
+	if ( get_magic_quotes_gpc() )
+		$r = stripslashes_deep( $r );
 
 	if ( is_array($defaults) ) :
 		extract($defaults);
