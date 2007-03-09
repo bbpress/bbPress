@@ -1511,6 +1511,8 @@ function bb_repermalink() {
 
 	do_action( 'pre_permalink', $permalink );
 
+	$permalink = apply_filters( 'bb_repermalink', $permalink );
+
 	if ( is_forum() ) {
 		global $forum_id, $forum;
 		$forum_id = $permalink;
