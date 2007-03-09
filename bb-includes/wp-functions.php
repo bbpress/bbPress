@@ -8,6 +8,23 @@ endif;
 
 /* Formatting */
 
+if ( !function_exists( 'clean_url' ) ) : // [WP4990]
+function clean_url( $url, $protocols = null ) {
+	if ('' == $url) return $url;
+	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%]|i', '', $url);
+	$strip = array('%0d', '%0a');
+	$url = str_replace($strip, '', $url);
+	$url = str_replace(';//', '://', $url);
+	$url = (strpos($url, '://') === false) ? 'http://'.$url : $url;
+	$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
+	if ( !is_array($protocols) )
+		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet'); 
+	if ( wp_kses_bad_protocol( $url, $protocols ) != $url )
+		return '';
+	return $url;
+}
+endif;
+
 if ( !function_exists('clean_pre') ) : // [WP2056]
 function clean_pre( $text ) {
 	$text = str_replace('<br />', '', $text);

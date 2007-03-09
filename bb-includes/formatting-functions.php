@@ -202,11 +202,10 @@ function show_context( $term, $text ) {
 }
 
 function bb_fix_link( $link ) {
-	if ( !strstr( $link, 'http' ) ) // for 'www.example.com'
-		$link = 'http://' . $link;
-	if ( !strstr( $link, '.' ) ) // these are usually random words
-		$link = '';
-	return $link;
+	if ( false === strpos($link, '.') ) // these are usually random words
+		return '';
+	$link = wp_kses_no_null( $link );
+	return clean_url( $link );
 }
 
 function bb_make_feed( $link ) {
