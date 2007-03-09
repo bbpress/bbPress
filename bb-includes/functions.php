@@ -57,10 +57,12 @@ function get_forum( $id ) {
 
 function get_topic( $id, $cache = true ) {
 	global $bb_cache, $bb_topic_cache;
-	$id = (int) $id;
+	if ( !$id = (int) $id )
+		return false;
 	if ( isset( $bb_topic_cache[$id] ) && $cache )
 		return $bb_topic_cache[$id];
-	else	return $bb_cache->get_topic($id, $cache);
+	else
+		return $bb_cache->get_topic($id, $cache);
 }
 
 function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
