@@ -824,7 +824,7 @@ function bb_get_post_time( $args = '' ) {
 
 	$bb_post = bb_get_post( get_post_id( $args['id'] ) );
 
-	$time = apply_filters( 'bb_get_post_time', $_bb_post->post_time, $args );
+	$time = apply_filters( 'bb_get_post_time', $bb_post->post_time, $args );
 
 	return _bb_time_function_return( $time, $args );
 }
