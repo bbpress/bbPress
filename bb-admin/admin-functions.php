@@ -684,15 +684,17 @@ function bb_get_plugins( $plugin_dir = false ) {
 
 	if ( 0 < func_num_args() && dirname($plugin_dir) !== rtrim(BBPLUGINDIR, '/\\') ) // only go one level deep;
 		return $plugins;
-	else
-		$plugin_dir = dir($plugin_dir);
+	
+	$plugin_dir = @dir($plugin_dir);
+	if(!$plugin_dir)
+		return $plugins;
 
 	while ( false !== $file = $plugin_dir->read() ) {
 		if ( '.' == $file{0} )
 			continue;
 		if ( is_dir($plugin_dir->path . "/$file") )
 			$plugins = array_merge($plugins, bb_get_plugins( $plugin_dir->path . "/$file" ));
-		if ( $data = bb_get_plugin_data( $plugin_dir->path . "/$file" ) )
+		elseif ( $data = bb_get_plugin_data( $plugin_dir->path . "/$file" ) )
 			$plugins[ltrim(substr($plugin_dir->path, strlen(BBPLUGINDIR)) . "/$file", '/\\')] = $data;
 	}
 	return $plugins;
