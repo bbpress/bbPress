@@ -1,7 +1,7 @@
 <?php
 
 if ( !function_exists('stripslashes_deep') ) :
-function stripslashes_deep($value) { // [2700]
+function stripslashes_deep($value) { // [4495]
    return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
 }
 endif;
@@ -35,7 +35,7 @@ function clean_pre( $text ) {
 endif;
 
 if ( !function_exists('wp_specialchars') ) :
-function wp_specialchars( $text, $quotes = 0 ) { // [4451]
+function wp_specialchars( $text, $quotes = 0 ) { // [WP4451]
 	// Like htmlspecialchars except don't double-encode HTML entities
 	$text = str_replace('&&', '&#038;&', $text);
 	$text = str_replace('&&', '&#038;&', $text);
@@ -94,7 +94,7 @@ endif;
 
 // Escape single quotes, specialchar double quotes, and fix line endings.
 if ( !function_exists('js_escape') ) :
-function js_escape($text) {
+function js_escape($text) { // [WP4660]
 	$safe_text = wp_specialchars($text, 'double');
 	$safe_text = str_replace('&#039;', "'", $safe_text);
 	$safe_text = preg_replace("/\r?\n/", "\\n", addslashes($safe_text));
@@ -104,7 +104,7 @@ endif;
 
 // Escaping for HTML attributes
 if ( !function_exists('attribute_escape') ) :
-function attribute_escape($text) {
+function attribute_escape($text) { // [WP4660]
 	$safe_text = wp_specialchars($text, true);
 	return apply_filters('attribute_escape', $safe_text, $text);
 }
@@ -130,8 +130,11 @@ endif;
              1.0  First Version
 */
 if ( !function_exists('balanceTags') ) :
-function balanceTags($text, $is_comment = 0) {
-	
+function balanceTags($text, $force = false) { // [WP4662]
+
+	if ( !$force ) // This line differs from that in WP
+		return $text;
+
 	$tagstack = array(); $stacksize = 0; $tagqueue = ''; $newtext = '';
 
 	# WP bug fix for comments - in case you REALLY meant to type '< !--'
@@ -151,7 +154,7 @@ function balanceTags($text, $is_comment = 0) {
 		if ($regex[1][0] == "/") { // End Tag
 			$tag = strtolower(substr($regex[1],1));
 			// if too many closing tags
-			if($stacksize <= 0) { 
+			if($stacksize <= 0) {
 				$tag = '';
 				//or close to be safe $tag = '/' . $tag;
 			}
@@ -208,7 +211,7 @@ function balanceTags($text, $is_comment = 0) {
 		}
 		$newtext .= substr($text,0,$i) . $tag;
 		$text = substr($text,$i+$l);
-	}  
+	}
 
 	// Clear Tag Queue
 	$newtext .= $tagqueue;
@@ -250,7 +253,7 @@ function make_clickable($ret) {
 endif;
 
 if ( !function_exists('seems_utf8') ) :
-function seems_utf8($Str) { # by bmorel at ssi dot fr // [1345]
+function seems_utf8($Str) { # by bmorel at ssi dot fr // [WP1345]
 	for ($i=0; $i<strlen($Str); $i++) {
 		if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
 		elseif ((ord($Str[$i]) & 0xE0) == 0xC0) $n=1; # 110bbbbb
@@ -269,7 +272,7 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr // [1345]
 endif;
 
 if ( !function_exists('remove_accents') ) :
-function remove_accents($string) { // [4320]
+function remove_accents($string) { // [WP4320]
 	if ( !preg_match('/[\x80-\xff]/', $string) )
 		return $string;
 
@@ -403,24 +406,24 @@ endif;
 /* Forms */
 
 if ( !function_exists('wp_referer_field') ) :
-function wp_referer_field() { // [3919]
-	$ref = wp_specialchars($_SERVER['REQUEST_URI']);
+function wp_referer_field() { // [WP4656]
+	$ref = attribute_escape($_SERVER['REQUEST_URI']);
 	echo '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
 	if ( wp_get_original_referer() ) {
-		$original_ref = wp_specialchars(stripslashes(wp_get_original_referer()));
+		$original_ref = attribute_escape(stripslashes(wp_get_original_referer()));
 		echo '<input type="hidden" name="_wp_original_http_referer" value="'. $original_ref . '" />';
 	}
 }
 endif;
 
 if ( !function_exists('wp_original_referer_field') ) :
-function wp_original_referer_field() { // [3908]
-	echo '<input type="hidden" name="_wp_original_http_referer" value="' . wp_specialchars(stripslashes($_SERVER['REQUEST_URI'])) . '" />';
+function wp_original_referer_field() { // [WP4656]
+	echo '<input type="hidden" name="_wp_original_http_referer" value="' . attribute_escape(stripslashes($_SERVER['REQUEST_URI'])) . '" />';
 }
 endif;
 
 if ( !function_exists('wp_get_referer') ) :
-function wp_get_referer() { // [3908]
+function wp_get_referer() { // [WP3908]
 	foreach ( array($_REQUEST['_wp_http_referer'], $_SERVER['HTTP_REFERER']) as $ref )
 		if ( !empty($ref) )
 			return $ref;
@@ -429,7 +432,7 @@ function wp_get_referer() { // [3908]
 endif;
 
 if ( !function_exists('wp_get_original_referer') ) :
-function wp_get_original_referer() { // [3908]
+function wp_get_original_referer() { // [WP3908]
 	if ( !empty($_REQUEST['_wp_original_http_referer']) )
 		return $_REQUEST['_wp_original_http_referer'];
 	return false;
@@ -439,106 +442,73 @@ endif;
 /* Plugin API */
 
 if ( !function_exists('add_filter') ) :
-function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [3893]
+function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [WP4955]
 	global $wp_filter;
 
-	// check that we don't already have the same filter at the same priority
-	if ( isset($wp_filter[$tag]["$priority"]) ) {
-		foreach($wp_filter[$tag]["$priority"] as $filter) {
-			// uncomment if we want to match function AND accepted_args
-			// if ( $filter == array($function, $accepted_args) ) {
-			if ( $filter['function'] == $function_to_add ) {
-				return true;
-			}
-		}
-	}
-
-	// So the format is wp_filter['tag']['array of priorities']['array of ['array (functions, accepted_args)]']
-	$wp_filter[$tag]["$priority"][] = array('function'=>$function_to_add, 'accepted_args'=>$accepted_args);
+	// So the format is wp_filter['tag']['array of priorities']['array of functions serialized']['array of ['array (functions, accepted_args)]']
+	$wp_filter[$tag][$priority][serialize($function_to_add)] = array('function' => $function_to_add, 'accepted_args' => $accepted_args);
 	return true;
 }
 endif;
 
 if ( !function_exists('apply_filters') ) :
-function apply_filters($tag, $string) { // [4179]
+function apply_filters($tag, $string) { // [WP4955]
 	global $wp_filter;
-
-	$args = array();
-	for ( $a = 2; $a < func_num_args(); $a++ )
-		$args[] = func_get_arg($a);
 
 	merge_filters($tag);
 
-	if ( !isset($wp_filter[$tag]) ) {
+	if ( !isset($wp_filter[$tag]) )
 		return $string;
-	}
-	foreach ($wp_filter[$tag] as $priority => $functions) {
-		if ( !is_null($functions) ) {
-			foreach($functions as $function) {
 
-				$function_name = $function['function'];
-				$accepted_args = $function['accepted_args'];
+	$args = func_get_args();
 
-				$the_args = $args;
-				array_unshift($the_args, $string);
-				if ( $accepted_args > 0 )
-					$the_args = array_slice($the_args, 0, $accepted_args);
-				elseif ( $accepted_args == 0 )
-					$the_args = NULL;
-
-				$string = call_user_func_array($function_name, $the_args);
+	do{
+		foreach( (array) current($wp_filter[$tag]) as $the_ )
+			if ( !is_null($the_['function']) ){
+				$args[1] = $string;
+				$string = call_user_func_array($the_['function'], array_slice($args, 1, (int) $the_['accepted_args']));
 			}
-		}
-	}
+
+	} while ( next($wp_filter[$tag]) );
+
 	return $string;
 }
 endif;
 
 if ( !function_exists('merge_filters') ) :
-function merge_filters($tag) { // [4289]
+function merge_filters($tag) { // [WP4955]
 	global $wp_filter;
-	if ( isset($wp_filter['all']) ) {
-		foreach ($wp_filter['all'] as $priority => $functions) {
-			if ( isset($wp_filter[$tag][$priority]) )
-				$wp_filter[$tag][$priority] = array_merge($wp_filter['all'][$priority], $wp_filter[$tag][$priority]);
-			else
-				$wp_filter[$tag][$priority] = array_merge($wp_filter['all'][$priority], array());
-			$wp_filter[$tag][$priority] = array_unique($wp_filter[$tag][$priority]);
-		}
-	}
 
-	if ( isset($wp_filter[$tag]) )
-		uksort( $wp_filter[$tag], "strnatcasecmp" );
+	if ( isset($wp_filter['all']) )
+		$wp_filter[$tag] = array_merge($wp_filter['all'], (array) $wp_filter[$tag]);
+
+	if ( isset($wp_filter[$tag]) ){
+		reset($wp_filter[$tag]);
+		uksort($wp_filter[$tag], "strnatcasecmp");
+	}
 }
 endif;
 
-if ( !function_exists('remove_filter') ) :
-function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) { // [3893]
+if ( !function_exists('remove_filter') ) : // [WP4955]
+function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
 	global $wp_filter;
 
-	// rebuild the list of filters
-	if ( isset($wp_filter[$tag]["$priority"]) ) {
-		$new_function_list = array();
-		foreach($wp_filter[$tag]["$priority"] as $filter) {
-			if ( $filter['function'] != $function_to_remove ) {
-				$new_function_list[] = $filter;
-			}
-		}
-		$wp_filter[$tag]["$priority"] = $new_function_list;
-	}
+	unset($GLOBALS['wp_filter'][$tag][$priority][serialize($function_to_remove)]);
+
 	return true;
 }
 endif;
 
-if ( !function_exists('add_action') ) :
-function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [3893]
+if ( !function_exists('add_action') ) : // [WP3893]
+function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
 	add_filter($tag, $function_to_add, $priority, $accepted_args);
 }
 endif;
 
-if ( !function_exists('do_action') ) :
-function do_action($tag, $arg = '') { // [4179]
-	global $wp_filter;
+if ( !function_exists('do_action') ) : // [WP4955]
+function do_action($tag, $arg = '') {
+	global $wp_filter, $wp_actions;
+
 	$args = array();
 	if ( is_array($arg) && 1 == count($arg) && is_object($arg[0]) ) // array(&$this)
 		$args[] =& $arg[0];
@@ -552,59 +522,54 @@ function do_action($tag, $arg = '') { // [4179]
 	if ( !isset($wp_filter[$tag]) )
 		return;
 
-	foreach ($wp_filter[$tag] as $priority => $functions) {
-		if ( !is_null($functions) ) {
-			foreach($functions as $function) {
+	do{
+		foreach( (array) current($wp_filter[$tag]) as $the_ )
+			if ( !is_null($the_['function']) )
+				call_user_func_array($the_['function'], array_slice($args, 0, (int) $the_['accepted_args']));
 
-				$function_name = $function['function'];
-				$accepted_args = $function['accepted_args'];
+	} while ( next($wp_filter[$tag]) );
 
-				if ( $accepted_args > 0 )
-					$the_args = array_slice($args, 0, $accepted_args);
-				elseif ( $accepted_args == 0 )
-					$the_args = NULL;
-				else
-					$the_args = $args;
-
-				call_user_func_array($function_name, $the_args);
-			}
-		}
-	}
+	if ( is_array($wp_actions) )
+		$wp_actions[] = $tag;
+	else
+		$wp_actions = array($tag);
 }
 endif;
 
-if ( !function_exists('do_action_ref_array') ) :
-function do_action_ref_array($tag, $args) { // [4186]
-	global $wp_filter;
+if ( !function_exists('do_action_ref_array') ) : // [WP4955]
+function do_action_ref_array($tag, $args) {
+	global $wp_filter, $wp_actions;
+
+	if ( !is_array($wp_actions) )
+		$wp_actions = array($tag);
+	else
+		$wp_actions[] = $tag;
 
 	merge_filters($tag);
 
 	if ( !isset($wp_filter[$tag]) )
 		return;
 
-	foreach ($wp_filter[$tag] as $priority => $functions) {
-		if ( !is_null($functions) ) {
-			foreach($functions as $function) {
+	do{
+		foreach( (array) current($wp_filter[$tag]) as $the_ )
+			if ( !is_null($the_['function']) )
+				call_user_func_array($the_['function'], array_slice($args, 0, (int) $the_['accepted_args']));
 
-				$function_name = $function['function'];
-				$accepted_args = $function['accepted_args'];
+	} while ( next($wp_filter[$tag]) );
 
-				if ( $accepted_args > 0 )
-					$the_args = array_slice($args, 0, $accepted_args);
-				elseif ( $accepted_args == 0 )
-					$the_args = NULL;
-				else
-					$the_args = $args;
-
-				call_user_func_array($function_name, $the_args);
-			}
-		}
-	}
 }
 endif;
 
-if ( !function_exists('remove_action') ) :
-function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) { // [3893]
+if ( !function_exists('did_action') ) : // [WP4630]
+function did_action($tag) {
+	global $wp_actions;
+
+	return count(array_keys($wp_actions, $tag));
+}
+endif;
+
+if ( !function_exists('remove_action') ) : // [WP3894]
+function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
 	remove_filter($tag, $function_to_remove, $priority, $accepted_args);
 }
 endif;
@@ -620,7 +585,7 @@ add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
 if ( !function_exists('add_query_arg') ) :
-function add_query_arg() { // [WP4435]
+function add_query_arg() { // [WP4990]
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
 		if ( @func_num_args() < 2 || '' == @func_get_arg(1) )
@@ -646,7 +611,7 @@ function add_query_arg() { // [WP4435]
 		$protocol = '';
 	}
 
-	if ( strstr($uri, '?') ) {
+	if (strpos($uri, '?') !== false) {
 		$parts = explode('?', $uri, 2);
 		if ( 1 == count($parts) ) {
 			$base = '?';
@@ -655,7 +620,7 @@ function add_query_arg() { // [WP4435]
 			$base = $parts[0] . '?';
 			$query = $parts[1];
 		}
-	} else if ( !empty($protocol) || strstr($uri, '/') ) {
+	} elseif (!empty($protocol) || strpos($uri, '/') !== false) {
 		$base = $uri . '?';
 		$query = '';
 	} else {
@@ -710,7 +675,7 @@ function remove_query_arg($key, $query='') { // [WP4435]
 endif;
 
 if ( !function_exists('status_header') ) :
-function status_header( $header ) { // [4725]
+function status_header( $header ) { // [WP4725]
 	if ( 200 == $header )
 		$text = 'OK';
 	elseif ( 301 == $header )
@@ -732,7 +697,7 @@ function status_header( $header ) { // [4725]
 endif;
 
 if ( !function_exists('nocache_headers') ) :
-function nocache_headers() { // [2623]
+function nocache_headers() { // [WP2623]
 	@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 	@ header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 	@ header('Cache-Control: no-cache, must-revalidate, max-age=0');
@@ -741,7 +706,7 @@ function nocache_headers() { // [2623]
 endif;
 
 if ( !function_exists('cache_javascript_headers') ) :
-function cache_javascript_headers() { // Not verbatim WP.  Charset hardcoded.
+function cache_javascript_headers() { // [WP4109] Not verbatim WP.  Charset hardcoded.
 	$expiresOffset = 864000; // 10 days
 	header("Content-type: text/javascript; charset=utf-8");
 	header("Vary: Accept-Encoding"); // Handle proxies
@@ -750,7 +715,7 @@ function cache_javascript_headers() { // Not verbatim WP.  Charset hardcoded.
 endif;
 
 if ( !class_exists('WP_Error') ) :
-class WP_Error { // [4122]
+class WP_Error { // [4WP495]
 	var $errors = array();
 	var $error_data = array();
 
@@ -777,7 +742,7 @@ class WP_Error { // [4122]
 		if ( empty($codes) )
 			return '';
 
-		return $codes[0];	
+		return $codes[0];
 	}
 
 	function get_error_messages($code = '') {
@@ -793,7 +758,7 @@ class WP_Error { // [4122]
 		if ( isset($this->errors[$code]) )
 			return $this->errors[$code];
 		else
-			return array();	
+			return array();
 	}
 
 	function get_error_message($code = '') {
@@ -830,7 +795,7 @@ class WP_Error { // [4122]
 endif;
 
 if ( !function_exists('is_wp_error') ) :
-function is_wp_error($thing) { // [3667]
+function is_wp_error($thing) { // [WP3667]
 	if ( is_object($thing) && is_a($thing, 'WP_Error') )
 		return true;
 	return false;
@@ -838,7 +803,7 @@ function is_wp_error($thing) { // [3667]
 endif;
 
 if ( !class_exists('WP_Ajax_Response') ) :
-class WP_Ajax_Response { // [4187]
+class WP_Ajax_Response { // [WP4458]
 	var $responses = array();
 
 	function WP_Ajax_Response( $args = '' ) {
@@ -905,7 +870,7 @@ endif;
 /* Templates */
 
 if ( !function_exists('paginate_links') ) :
-function paginate_links( $arg = '' ) { // [4276]
+function paginate_links( $arg = '' ) { // [WP4657]
 	if ( is_array($arg) )
 		$a = &$arg;
 	else
@@ -945,7 +910,7 @@ function paginate_links( $arg = '' ) { // [4276]
 		$link = str_replace('%#%', $current - 1, $link);
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='prev page-numbers' href='" . wp_specialchars( $link, 1 ) . "'>$prev_text</a>";
+		$page_links[] = "<a class='prev page-numbers' href='" . attribute_escape($link) . "'>$prev_text</a>";
 	endif;
 	for ( $n = 1; $n <= $total; $n++ ) :
 		if ( $n == $current ) :
@@ -957,7 +922,7 @@ function paginate_links( $arg = '' ) { // [4276]
 				$link = str_replace('%#%', $n, $link);
 				if ( $add_args )
 					$link = add_query_arg( $add_args, $link );
-				$page_links[] = "<a class='page-numbers' href='" . wp_specialchars( $link, 1 ) . "'>$n</a>";
+				$page_links[] = "<a class='page-numbers' href='" . attribute_escape($link) . "'>$n</a>";
 				$dots = true;
 			elseif ( $dots && !$show_all ) :
 				$page_links[] = "<span class='page-numbers dots'>...</span>";
@@ -970,7 +935,7 @@ function paginate_links( $arg = '' ) { // [4276]
 		$link = str_replace('%#%', $current + 1, $link);
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='next page-numbers' href='" . wp_specialchars( $link, 1 ) . "'>$next_text</a>";
+		$page_links[] = "<a class='next page-numbers' href='" . attribute_escape($link) . "'>$next_text</a>";
 	endif;
 	switch ( $type ) :
 		case 'array' :
