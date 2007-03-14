@@ -59,8 +59,7 @@ do_action( 'bb_rss.php', '' );
 
 bb_send_304( $posts[0]->post_time );
 
-add_filter('post_link', 'wp_specialchars');
-add_filter('post_text', 'htmlspecialchars');
+$title = apply_filters( 'bb_title_rss', $title );
 
 bb_load_template( 'rss2.php', array('bb_db_override', 'title') );
 

@@ -59,6 +59,13 @@ if ( !bb_get_option( 'mod_rewrite' ) ) {
 	add_filter( 'view_link', 'attribute_escape', 1, 9999 );
 }
 
-add_filter('sort_tag_heat_map', 'bb_sort_tag_heat_map')
+add_filter('sort_tag_heat_map', 'bb_sort_tag_heat_map');
 
+if ( is_bb_feed() ) {
+	add_filter( 'bb_title_rss', 'ent2ncr' );
+	add_filter( 'topic_title', 'ent2ncr' );
+	add_filter( 'post_link', 'wp_specialchars' );
+	add_filter( 'post_text', 'htmlspecialchars' ); // encode_bad should not be overruled by wp_specialchars
+	add_filter( 'post_text', 'ent2ncr' );
+}
 ?>
