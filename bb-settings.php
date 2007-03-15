@@ -102,10 +102,8 @@ require( BBPATH . BBINC . 'default-filters.php');
 require( BBPATH . BBINC . 'script-loader.php');
 require( BBPATH . BBINC . 'compat.php');
 
-$bbdb->hide_errors();
-if ( !$bbdb->query("SELECT * FROM $bbdb->forums LIMIT 1") && !strstr( $_SERVER['PHP_SELF'], 'install.php' ) )
+if ( !bb_is_installed() && false === strpos($_SERVER['PHP_SELF'], 'install.php') && !defined('BB_INSTALLING') )
 	die(sprintf(__('Doesn&#8217;t look like you&#8217;ve installed bbPress yet, <a href="%s">go here</a>.'), 'bb-admin/install.php'));
-$bbdb->show_errors();
 
 $bb_cache = new BB_Cache();
 

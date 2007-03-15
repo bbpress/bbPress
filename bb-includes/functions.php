@@ -1,5 +1,13 @@
 <?php
 
+function bb_is_installed() { // Maybe we should grab all forums and cache them.
+	global $bbdb;
+	$bbdb->hide_errors();
+	$installed = $bbdb->get_var("SELECT * FROM $bbdb->forums LIMIT 1");
+	$bbdb->show_errors();
+	return $installed;
+}
+
 function bb_get_forums_hierarchical( $root = 0, $old_root = 0, $leaves = false ) {
 	static $tree = 0;
 
