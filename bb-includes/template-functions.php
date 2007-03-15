@@ -448,12 +448,17 @@ function get_topic_link( $id = 0, $page = 1 ) {
 		$args['page'] = 1 < $page ? $page : '';
 	}
 
-	if ( bb_is_user_logged_in() )
-		$args['replies'] = $topic->topic_posts;
 	if ( $args )
 		$link = add_query_arg( $args, $link );
 
 	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
+}
+
+function bb_add_replies_to_topic_link( $link, $id ) {
+	$topic = get_topic( get_topic_id( $id ) );
+	if ( bb_is_user_logged_in() )
+		$link = add_query_arg( 'replies', $topic->topic_posts, $link );
+	return $link;
 }
 
 function topic_rss_link( $id = 0 ) {
