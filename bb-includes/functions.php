@@ -1709,7 +1709,7 @@ function bb_nonce_url($actionurl, $action = -1) {
 	return add_query_arg( '_wpnonce', bb_create_nonce( $action ), $actionurl );
 }
 
-function wp_nonce_field($action = -1, $name = "_wpnonce", $referer = true) {
+function bb_nonce_field($action = -1, $name = "_wpnonce", $referer = true) {
 	$name = attribute_escape($name);
 	echo '<input type="hidden" name="' . $name . '" value="' . wp_create_nonce($action) . '" />';
 	if ( $referer )
