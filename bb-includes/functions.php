@@ -1203,8 +1203,8 @@ function bb_offset_time( $time, $args = '' ) {
 	}
 }
 
-function get_path( $level = 1 ) {
-	$request = parse_url($_SERVER['REQUEST_URI']);
+function get_path( $level = 1, $request = false ) {
+	$request = $request ? $request : parse_url($_SERVER['REQUEST_URI']);
 	$path = $request['path'];
 	$bbpath = bb_get_option('path');
 	$path = preg_replace("#$bbpath#",'',$path,1);
@@ -1591,6 +1591,8 @@ function bb_repermalink() {
 					$permalink = remove_query_arg( $pretty_arg, $permalink );
 			}
 	}
+
+	$permalink = apply_filters( 'bb_repermalink_result', $permalink );
 
 	$domain = bb_get_option('domain');
 	$domain = preg_replace('/^https?/', '', $domain);
