@@ -1325,7 +1325,7 @@ function bb_remove_topic_tags( $topic_id ) {
 		$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
 		$_counts = (array) $bbdb->get_col('', 1);
 		foreach ( $_tags as $t => $i ) {
-			$new_count = (int) $counts[$t] - 1;
+			$new_count = (int) $_counts[$t] - 1;
 			if ( 0 < $new_count )
 				$bbdb->query("UPDATE $bbdb->tags SET tag_count = $new_count WHERE tag_id = $i");
 			else
