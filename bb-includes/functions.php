@@ -1608,12 +1608,7 @@ function bb_repermalink() {
 		echo "</td></tr>\n</table>";
 	else :
 		if ( $check != $uri ) {
-			if ( version_compare(phpversion(), '4.3.0', '>=') ) {
-				header("Location: $permalink", true, 301);
-			} else {
-				header("Location: $permalink");
-				status_header( 301 );
-			}
+			wp_redirect( $permalink );
 			exit;
 		}
 	endif;
@@ -1725,9 +1720,8 @@ function bb_nonce_field($action = -1, $name = "_wpnonce", $referer = true) {
 }
 
 function bb_nonce_ays($action) {
-	$adminurl = bb_get_option( 'uri' ) . '/bb-admin';
-	if ( wp_get_referer() )
-		$adminurl = wp_get_referer();
+	if ( !$adminurl = wp_get_referer() )
+		$adminurl = bb_get_option( 'uri' ) . '/bb-admin';
 
 	$title = wp_specialchars( __('bbPress Confirmation') );
 	$adminurl = attribute_escape( $adminurl );
@@ -1736,7 +1730,7 @@ function bb_nonce_ays($action) {
 	if ( $_POST ) {
 		$q = http_build_query($_POST);
 		$q = explode( ini_get('arg_separator.output'), $q);
-		$url = remove_query_arg( '_wpnonce' );
+		$url = attribute_escape( remove_query_arg( '_wpnonce' ) );
 		$html .= "\t<form method='post' action='$url'>\n";
 		foreach ( (array) $q as $a ) {
 			$v = substr(strstr($a, '='), 1);
@@ -1744,9 +1738,9 @@ function bb_nonce_ays($action) {
 			$html .= "\t\t<input type='hidden' name='" . attribute_escape( urldecode($k) ) . "' value='" . attribute_escape( urldecode($v) ) . "' />\n";
 		}
 		$html .= "\t\t<input type='hidden' name='_wpnonce' value='" . bb_create_nonce($action) . "' />\n";
-		$html .= "\t\t<div id='message' class='confirm fade'>\n\t\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t\t<p><a href='$adminurl'>" . __('No') . "</a> <input type='submit' value='" . __('Yes') . "' /></p>\n\t\t</div>\n\t</form>\n";
+		$html .= "\t\t<div id='message' class='confirm fade'>\n\t\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t\t<p><a href='$adminurl'>" . wp_specialchars( __('No') ) . "</a> <input type='submit' value='" . attribute_escape( __('Yes') ) . "' /></p>\n\t\t</div>\n\t</form>\n";
 	} else {
-		$html .= "\t<div id='message' class='confirm fade'>\n\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t<p><a href='$adminurl'>" . __('No') . "</a> <a href='" . attribute_escape( bb_nonce_url( $_SERVER['REQUEST_URI'], $action ) ) . "'>" . __('Yes') . "</a></p>\n\t</div>\n";
+		$html .= "\t<div id='message' class='confirm fade'>\n\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t<p><a href='$adminurl'>" . wp_specialchars( __('No') ) . "</a> <a href='" . attribute_escape( bb_nonce_url( $_SERVER['REQUEST_URI'], $action ) ) . "'>" . wp_specialchars( __('Yes') ) . "</a></p>\n\t</div>\n";
 	}
 	$html .= "</body>\n</html>";
 	bb_die($html, $title);
