@@ -82,6 +82,7 @@ foreach ( array('active_plugins') as $i )
 unset($i);
 
 require( BBPATH . BBINC . 'functions.php');
+require( BBPATH . BBINC . 'classes.php');
 require( BBPATH . BBINC . 'formatting-functions.php');
 require( BBPATH . BBINC . 'template-functions.php');
 require( BBPATH . BBINC . 'capabilities.php');

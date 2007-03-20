@@ -675,29 +675,12 @@ function bb_recount_list() {
 
 /* Pluigns */
 
-function bb_get_plugins( $plugin_dir = false ) {
-	$plugins = array();
-	if ( !$plugin_dir )
-		$plugin_dir = BBPLUGINDIR;
-
-	$plugin_dir = rtrim($plugin_dir, '/\\');
-
-	if ( 0 < func_num_args() && dirname($plugin_dir) !== rtrim(BBPLUGINDIR, '/\\') ) // only go one level deep;
-		return $plugins;
-	
-	$plugin_dir = @dir($plugin_dir);
-	if(!$plugin_dir)
-		return $plugins;
-
-	while ( false !== $file = $plugin_dir->read() ) {
-		if ( '.' == $file{0} )
-			continue;
-		if ( is_dir($plugin_dir->path . "/$file") )
-			$plugins = array_merge($plugins, bb_get_plugins( $plugin_dir->path . "/$file" ));
-		elseif ( $data = bb_get_plugin_data( $plugin_dir->path . "/$file" ) )
-			$plugins[ltrim(substr($plugin_dir->path, strlen(BBPLUGINDIR)) . "/$file", '/\\')] = $data;
-	}
-	return $plugins;
+function bb_get_plugins() {
+	$dir = new BB_Dir_Map( BBPLUGINDIR, array(
+		'callback' => create_function('$f', 'if ( ".php" != substr($f,-4) ) return false; return bb_get_plugin_data( $f );'),
+		'recurse' => 1
+	) );
+	return $dir->get_results();
 }
 
 function bb_get_plugin_data($plugin_file) {
