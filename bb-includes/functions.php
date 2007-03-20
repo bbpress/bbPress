@@ -1224,12 +1224,12 @@ function add_topic_tag( $topic_id, $tag ) {
 
 	$id = bb_get_current_user_info( 'id' );
 
-	$now    = bb_current_time('mysql');
-	if ( $user_already = $bbdb->get_var("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") )
-		if ( $user_already == $id ) :
-			do_action('bb_already_tagged', $tag_id, $id, $topic_id);
-			return $tag_id;
-		endif;
+	$now = bb_current_time('mysql');
+	$user_already = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'");
+	if ( in_array($id, $user_already) ) : 
+		do_action('bb_already_tagged', $tag_id, $id, $topic_id);
+		return $tag_id;
+	endif;
 	$bbdb->query("INSERT INTO $bbdb->tagged 
 	( tag_id, user_id, topic_id, tagged_on )
 	VALUES
@@ -1325,11 +1325,13 @@ function bb_remove_topic_tags( $topic_id ) {
 		$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
 		$_counts = (array) $bbdb->get_col('', 1);
 		foreach ( $_tags as $t => $i ) {
-			$new_count = (int) $_counts[$t] - 1;
-			if ( 0 < $new_count )
-				$bbdb->query("UPDATE $bbdb->tags SET tag_count = $new_count WHERE tag_id = $i");
-			else
+			if ( 0 > ( $new_count = (int) $_counts[$t] - 1 ) )
+				$new_count = 0;
+			if ( !$new_count && bb_current_user_can( 'manage_tags' ) ) {
 				destroy_tag( $i, false );
+				continue;
+			}
+			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$i'");
 		}
 	}
 
