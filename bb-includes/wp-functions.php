@@ -8,14 +8,14 @@ endif;
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP4990]
+if ( !function_exists( 'clean_url' ) ) : // [WP5065]
 function clean_url( $url, $protocols = null ) {
 	if ('' == $url) return $url;
 	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%]|i', '', $url);
 	$strip = array('%0d', '%0a');
 	$url = str_replace($strip, '', $url);
 	$url = str_replace(';//', '://', $url);
-	$url = (strpos($url, '://') === false) ? 'http://'.$url : $url;
+	$url = (strpos($url, '://') === false && substr( $url, 0, 1 ) != '/' ) ? 'http://'.$url : $url;
 	$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
 	if ( !is_array($protocols) )
 		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet'); 
