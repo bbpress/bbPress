@@ -36,7 +36,8 @@ class BB_Dir_Map {
 		// keep_empty: (bool)
 		// recurse: (int) depth, -1 = infinite
 		// dots: true (everything), false (nothing), nosvn
-		$defaults = array( 'callback' => false, 'callback_args' => false, 'keep_empty' => false, 'apply_to' => 'files', 'recurse' => true, 'dots' => false );
+		$defaults = array( 'callback' => false, 'callback_args' => false, 'keep_empty' => false, 'apply_to' => 'files', 'recurse' => -1, 'dots' => false );
+		$this->callback = is_array($args) && isset($args['callback']) ? $args['callback'] : false;
 		$args = bb_parse_args( $args, $defaults );
 
 		foreach ( array('callback', 'keep_empty', 'dots') as $a )
@@ -45,7 +46,10 @@ class BB_Dir_Map {
 			elseif ( 'true' == $args[$a] )
 				$args[$a] = true;
 
-		$this->callback = is_callable($args['callback']) ? $args['callback'] : false;
+		if ( !isset($this->callback) )
+			$this->callback = $args['callback'];
+		if ( !is_callable($this->callback) )
+			$this->callback = false;
 		$this->callback_args = is_array($args['callback_args']) ? $args['callback_args'] : array();
 
 		$this->keep_empty = (bool) $args['keep_empty'];
