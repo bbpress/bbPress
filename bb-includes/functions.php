@@ -483,7 +483,7 @@ function bb_get_option( $option ) {
 		return '1.0-alpha'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '700'; // Don't filter
+		return '788'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -863,6 +863,11 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	global $bbdb, $bb_cache;
 	$title = apply_filters('pre_topic_title', $title, false);
+	$slug = bb_slug_sanitize($title);
+	$existing_slugs = $bbdb->get_col("SELECT topic_slug FROM $bbdb->topics WHERE topic_slug LIKE '$slug%'");
+	if ($existing_slugs) {
+		$slug = bb_slug_increment($slug, $existing_slugs);
+	}
 	$forum = (int) $forum;
 	$now   = bb_current_time('mysql');
 
@@ -871,9 +876,9 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 
 	if ( $forum && $title ) {
 		$bbdb->query("INSERT INTO $bbdb->topics 
-		(topic_title, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
+		(topic_title, topic_slug, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
 		VALUES
-		('$title',   $id,          '$name',           $id,               '$name',                '$now',           '$now',     $forum)");
+		('$title',    '$slug',    $id,          '$name',           $id,               '$name',                '$now',           '$now',     $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
 			add_topic_tags( $topic_id, $tags );
@@ -1513,81 +1518,100 @@ function bb_send_headers() {
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
 function bb_repermalink() {
 	global $page;
+	$location = bb_get_location();
 	$uri = $_SERVER['REQUEST_URI'];
 	if ( isset($_GET['id']) )
-		$permalink = (int) $_GET['id'];
+		$permalink = $_GET['id'];
 	else
-		$permalink = intval( get_path() );
+		$permalink = get_path();
 
 	do_action( 'pre_permalink', $permalink );
 
 	$permalink = apply_filters( 'bb_repermalink', $permalink );
 
-	if ( is_forum() ) {
-		global $forum_id, $forum;
-		$forum_id = $permalink;
-		$forum = get_forum( $forum_id );
-		$permalink = get_forum_link( $permalink, $page );
-	} elseif ( is_topic() ) {
-		global $topic_id, $topic;
-		$topic_id = $permalink;
-		$topic = get_topic( $topic_id );
-		$permalink = get_topic_link( $topic->topic_id, $page );
-	} elseif ( is_bb_profile() ) { // This handles the admin side of the profile as well.
-		global $user_id, $user, $profile_hooks, $self;
-		if ( isset($_GET['id']) )
-			$permalink = $_GET['id'];
-		elseif ( isset($_GET['username']) )
-			$permalink = $_GET['username'];
-		else
-			$permalink = get_path();
-		if ( !$user = bb_get_user( $permalink ) )
-			bb_die(__('User not found.'));
-		$user_id = $user->ID;
-		global_profile_menu_structure();
-		$valid = false;
-		if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
-			foreach ( $profile_hooks as $valid_tab => $valid_file )
-				if ( $tab == $valid_tab ) {
-					$valid = true;
-					$self = $valid_file;
-				}
-		if ( $valid ) :
-			$permalink = get_profile_tab_link( $permalink, $tab, $page );
-		else :
-			$permalink = get_user_profile_link( $permalink, $page );
-			unset($self, $tab);
-		endif;
-	} elseif ( is_bb_favorites() ) {
-		$permalink = get_favorites_link();
-	} elseif ( is_tags() ) {  // It's not an integer and tags.php pulls double duty.
-		if ( isset($_GET['tag']) )
-			$permalink = $_GET['tag'];
-		else
-			$permalink = get_path();
-		if ( !$permalink )
-			$permalink = get_tag_page_link();
-		else {
-			global $tag, $tag_name;
-			$tag_name = $permalink;
-			$tag = get_tag_by_name( $tag_name );
-			$permalink = get_tag_link( 0, $page ); // 0 => grabs $tag from global.
-		}
-	} elseif ( is_view() ) { // Not an integer
-		if ( isset($_GET['view']) )
-			$permalink = $_GET['view'];
-		else	$permalink = get_path();
-		global $view;
-		$view = $permalink;
-		$permalink = get_view_link( $permalink, $page );
-	} else { return; }
-
+	switch ($location) {
+		case 'forum-page':
+			global $forum_id, $forum;
+			if (!is_numeric($permalink)) {
+				$forum_id = bb_get_id_from_slug('forum', $permalink);
+			} else {
+				$forum_id = $permalink;
+			}
+			$forum = get_forum( $forum_id );
+			$permalink = get_forum_link( $permalink, $page );
+			break;
+		case 'topic-page':
+			global $topic_id, $topic;
+			if (!is_numeric($permalink)) {
+				$topic_id = bb_get_id_from_slug('topic', $permalink);
+			} else {
+				$topic_id = $permalink;
+			}
+			$topic = get_topic( $topic_id );
+			$permalink = get_topic_link( $topic->topic_id, $page );
+			break;
+		case 'profile-page': // This handles the admin side of the profile as well.
+			global $user_id, $user, $profile_hooks, $self;
+			if ( isset($_GET['id']) )
+				$permalink = $_GET['id'];
+			elseif ( isset($_GET['username']) )
+				$permalink = $_GET['username'];
+			else
+				$permalink = get_path();
+			if ( !$user = bb_get_user( $permalink ) )
+				bb_die(__('User not found.'));
+			$user_id = $user->ID;
+			global_profile_menu_structure();
+			$valid = false;
+			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
+				foreach ( $profile_hooks as $valid_tab => $valid_file )
+					if ( $tab == $valid_tab ) {
+						$valid = true;
+						$self = $valid_file;
+					}
+			if ( $valid ) :
+				$permalink = get_profile_tab_link( $permalink, $tab, $page );
+			else :
+				$permalink = get_user_profile_link( $permalink, $page );
+				unset($self, $tab);
+			endif;
+			break;
+		case 'favorites-page':
+			$permalink = get_favorites_link();
+			break;
+		case 'tag-page': // It's not an integer and tags.php pulls double duty.
+			if ( isset($_GET['tag']) )
+				$permalink = $_GET['tag'];
+			else
+				$permalink = get_path();
+			if ( !$permalink )
+				$permalink = get_tag_page_link();
+			else {
+				global $tag, $tag_name;
+				$tag_name = $permalink;
+				$tag = get_tag_by_name( $tag_name );
+				$permalink = get_tag_link( 0, $page ); // 0 => grabs $tag from global.
+			}
+			break;
+		case 'view-page': // Not an integer
+			if ( isset($_GET['view']) )
+				$permalink = $_GET['view'];
+			else	$permalink = get_path();
+			global $view;
+			$view = $permalink;
+			$permalink = get_view_link( $permalink, $page );
+			break;
+		default:
+			return;
+			break;
+	}
+	
 	parse_str($_SERVER['QUERY_STRING'], $args);
 	if ( $args ) {
 		$permalink = add_query_arg($args, $permalink);
 			if ( bb_get_option('mod_rewrite') ) {
 				$pretty_args = array('id', 'page', 'tag', 'tab', 'username'); // these are already specified in the path
-				if ( is_view() )
+				if ( $location == 'view-page' )
 					$pretty_args[] = 'view';
 				foreach ( $pretty_args as $pretty_arg )
 					$permalink = remove_query_arg( $pretty_arg, $permalink );
@@ -2089,4 +2113,29 @@ function bb_trim_common_path_right( $one, $two ) {
 	return array($root_one, $root_two);
 }
 
+function bb_slug_increment($slug, $all_slugs)
+{
+	$all_slugs = preg_grep('/^' . $slug . '(\-[0-9]+)?$/', $all_slugs);
+	if (!count($all_slugs)) {
+		return $slug;
+	}
+	
+	natsort($all_slugs);
+	$all_slugs = array_reverse($all_slugs);
+	if ($slug == $all_slugs[0]) {
+		$last_slug_number = 1;
+	} else {
+		$last_slug_number = (integer) str_replace($slug . '-', '', $all_slugs[0]);
+	}
+	return $slug . '-' . ($last_slug_number + 1);
+}
+
+function bb_get_id_from_slug($table, $slug)
+{
+	global $bbdb;
+	$tablename = $table . 's';
+	$slug = bb_slug_sanitize($slug);
+	$result = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$slug'");
+	return $result;
+}
 ?>

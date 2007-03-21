@@ -337,9 +337,15 @@ function forum_link( $forum_id = 0, $page = 1 ) {
 
 function get_forum_link( $forum_id = 0, $page = 1 ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
-	if ( bb_get_option( 'mod_rewrite' ) )
-		$link = bb_get_option( 'uri' ) . "forum/$forum->forum_id" . ( 1 < $page ? "/page/$page" : '' );
-	else {
+	$rewrite = bb_get_option( 'mod_rewrite' );
+	if ( $rewrite ) {
+		if ( $rewrite === 'slugs' ) {
+			$column = 'forum_slug';
+		} else {
+			$column = 'forum_id';
+		}
+		$link = bb_get_option( 'uri' ) . "forum/" . $forum->$column . ( 1 < $page ? "/page/$page" : '' );
+	} else {
 		$args = array();
 		$link = bb_get_option( 'uri' ) . 'forum.php';
 		$args['id'] = $forum->forum_id;
@@ -440,9 +446,15 @@ function get_topic_link( $id = 0, $page = 1 ) {
 
 	$args = array();
 
-	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . "topic/$topic->topic_id" . ( 1 < $page ? "/page/$page" : '' );
-	else {
+	$rewrite = bb_get_option( 'mod_rewrite' );
+	if ( $rewrite ) {
+		if ( $rewrite === 'slugs' ) {
+			$column = 'topic_slug';
+		} else {
+			$column = 'topic_id';
+		}
+		$link = bb_get_option('uri') . "topic/" . $topic->$column . ( 1 < $page ? "/page/$page" : '' );
+	} else {
 		$link = bb_get_option('uri') . 'topic.php';
 		$args['id'] = $topic->topic_id;
 		$args['page'] = 1 < $page ? $page : '';
@@ -966,8 +978,14 @@ function user_profile_link( $id = 0 , $page = 1 ) {
 
 function get_user_profile_link( $id = 0, $page = 1 ) {
 	$user = bb_get_user( bb_get_user_id( $id ) );
-	if ( bb_get_option('mod_rewrite') ) {
-		$r = bb_get_option('uri') . "profile/$user->ID" . ( 1 < $page ? "/page/$page" : '' );
+	$rewrite = bb_get_option( 'mod_rewrite' );
+	if ( $rewrite ) {
+		if ( $rewrite === 'slugs' ) {
+			$column = 'user_login';
+		} else {
+			$column = 'ID';
+		}
+		$r = bb_get_option('uri') . "profile/" . $user->$column . ( 1 < $page ? "/page/$page" : '' );
 	} else {
 		$r = bb_get_option('uri') . "profile.php?id=$user->ID" . ( 1 < $page ? "&page=$page" : '' );
 	}

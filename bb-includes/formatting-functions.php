@@ -159,6 +159,11 @@ function tag_sanitize( $tag ) {
 	return apply_filters( 'tag_sanitize', sanitize_with_dashes( $tag ), $_tag );
 }
 
+function bb_slug_sanitize( $slug ) {
+	$_slug = $slug;
+	return apply_filters( 'bb_slug_sanitize', sanitize_with_dashes( $slug ), $_slug );
+}
+
 function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	$_text = $text;
 	$text = trim($text);

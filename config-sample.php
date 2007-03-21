@@ -22,7 +22,7 @@ $bb->name   = 'New bbPress Site';
 // This must be set before running the install script.
 $bb->admin_email = 'you@example.com';
 
-// Set to true if you want pretty permalinks.
+// Set to true if you want pretty permalinks, set to 'slugs' if you want to use slug based pretty permalinks.
 $bb->mod_rewrite = false;
 
 // The number of topics that show on each page.

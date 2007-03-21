@@ -403,7 +403,14 @@ function bb_new_forum( $args ) {
 	$forum_parent = (int) $forum_parent;
 	if ( strlen($forum_name) < 1 )
 		return false;
-	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_desc, forum_parent, forum_order) VALUES ('$forum_name', '$forum_desc', '$forum_parent', '$forum_order')");
+	
+	$forum_slug = bb_slug_sanitize($forum_name);
+	$existing_slugs = $bbdb->get_col("SELECT forum_slug FROM $bbdb->forums WHERE forum_slug LIKE '$forum_slug%'");
+	if ($existing_slugs) {
+		$forum_slug = bb_slug_increment($forum_slug, $existing_slugs);
+	}
+	
+	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_slug, forum_desc, forum_parent, forum_order) VALUES ('$forum_name', '$forum_slug', '$forum_desc', '$forum_parent', '$forum_order')");
 	$bb_cache->flush_one( 'forums' );
 	return $bbdb->insert_id;
 }

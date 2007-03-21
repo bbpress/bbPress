@@ -16,6 +16,7 @@ function bb_upgrade_all() {
 	$bb_upgrade += upgrade_190(); // Move topic_resolved to topicmeta
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	make_db_current();
+	$bb_upgrade += upgrade_200(); // Make forum and topic slugs
 	bb_update_db_version();
 	return $bb_upgrade;
 }
@@ -329,6 +330,54 @@ function upgrade_190() {
 	bb_update_option( 'bb_db_version', 630 );
 
 	echo "Done converting topic_resolved.<br />";
+	return 1;
+}
+
+function upgrade_200() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 788 )
+		return 0;
+	
+	global $bbdb;
+	
+	$forums = (array) $bbdb->get_results("SELECT forum_id, forum_name, forum_slug FROM $bbdb->forums ORDER BY forum_order ASC" );
+	foreach ($forums  as $forum) {
+		$slug = bb_slug_sanitize(trim($forum->forum_name));
+		$forum_slugs[$slug][] = $forum->forum_id;
+	}
+	foreach ($forum_slugs as $slug => $forums) {
+		foreach ($forums as $count => $forum_id) {
+			if ($count > 0) {
+				$increment = '-' . ($count + 1);
+			} else {
+				$increment = null;
+			}
+			$slug .= $increment;
+			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$slug' WHERE forum_id = $forum_id;");
+		}
+	}
+	unset($forums,$forum,$forum_slugs,$slug,$forum_id,$increment,$count);
+	
+	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_title, topic_slug FROM $bbdb->topics ORDER BY topic_start_time ASC" );
+	foreach ($topics  as $topic) {
+		$slug = bb_slug_sanitize(trim($topic->topic_title));
+		$topic_slugs[$slug][] = $topic->topic_id;
+	}
+	foreach ($topic_slugs as $slug => $topics) {
+		foreach ($topics as $count => $topic_id) {
+			if ($count > 0) {
+				$increment = '-' . ($count + 1);
+			} else {
+				$increment = null;
+			}
+			$slug .= $increment;
+			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$slug' WHERE topic_id = $topic_id;");
+		}
+	}
+	unset($topics,$topic,$topic_slugs,$slug,$topic_id,$increment,$count);
+	
+	bb_update_option( 'bb_db_version', 788 );
+	
+	echo "Done adding slugs.<br />";
 	return 1;
 }
 
