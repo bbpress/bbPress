@@ -3,6 +3,7 @@
 class BB_Dir_Map {
 	var $root;
 	var $callback;
+	var $callback_args;
 	var $keep_empty;
 	var $apply_to;
 	var $recurse;
@@ -30,11 +31,12 @@ class BB_Dir_Map {
 
 	function parse_args( $args ) {
 		// callback: should be callable
+		// callback_args: additional args to pass to callback
 		// apply_to: all, files, dirs
 		// keep_empty: (bool)
 		// recurse: (int) depth, -1 = infinite
 		// dots: true (everything), false (nothing), nosvn
-		$defaults = array( 'callback' => false, 'keep_empty' => false, 'apply_to' => 'files', 'recurse' => true, 'dots' => false );
+		$defaults = array( 'callback' => false, 'callback_args' => false, 'keep_empty' => false, 'apply_to' => 'files', 'recurse' => true, 'dots' => false );
 		$args = bb_parse_args( $args, $defaults );
 
 		foreach ( array('callback', 'keep_empty', 'dots') as $a )
@@ -44,6 +46,7 @@ class BB_Dir_Map {
 				$args[$a] = true;
 
 		$this->callback = is_callable($args['callback']) ? $args['callback'] : false;
+		$this->callback_args = is_array($args['callback_args']) ? $args['callback_args'] : array();
 
 		$this->keep_empty = (bool) $args['keep_empty'];
 
@@ -67,12 +70,13 @@ class BB_Dir_Map {
 
 			$item = $_dir->path . DIRECTORY_SEPARATOR . $this->_current_file;
 			$_item = substr( $item, strlen($this->root) + 1 );
-
+			$_callback_args = $this->callback_args;
+			array_push( $_callback_args, $item, $_item ); // $item, $_item will be last two args
 			if ( is_dir($item) )  { // dir stuff
 				if ( 1 & $this->dots && in_array($this->_current_file, array('.svn', 'CVS')) )
 					continue;
 				if ( 2 & $this->apply_to ) {
-					$result = $this->callback ? call_user_func($this->callback, $item) : true;
+					$result = $this->callback ? call_user_func_array($this->callback, $_callback_args) : true;
 					if ( $result || $this->keep_empty )
 						$this->flat[$_item] = $result;
 				}
@@ -84,7 +88,7 @@ class BB_Dir_Map {
 			} else { // file stuff
 				if ( !(1 & $this->apply_to) )
 					continue;
-				$result = $this->callback ? call_user_func($this->callback, $item) : true;
+				$result = $this->callback ? call_user_func_array($this->callback, $_callback_args) : true;
 				if ( $result || $this->keep_empty )
 					$this->flat[$_item] = $result;
 			}
