@@ -12,7 +12,7 @@ foreach ( $current as $c => $cur )
 	}
 
 if ( isset($_GET['action']) ) {
-	$plugin = trim($_GET['plugin']);
+	$plugin = stripslashes(trim($_GET['plugin']));
 	if ('activate' == $_GET['action']) {
 		bb_check_admin_referer( 'activate-plugin_' . $plugin );
 		if ( !in_array($plugin, array_keys($plugins)) )
