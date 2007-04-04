@@ -1,11 +1,11 @@
 <?php
-function bozo_posts( $where ) {
+function bb_bozo_posts( $where ) {
 	if ( $id = bb_get_current_user_info( 'id' ) )
 		$where = " AND ( post_status = 0 OR post_status > 1 AND poster_id = '$id' ) ";
 	return $where;
 }
 
-function bozo_topics( $where ) {
+function bb_bozo_topics( $where ) {
 	if ( $id = bb_get_current_user_info( 'id' ) )
 		$where = str_replace(
 			array('topic_status = 0', "topic_status = '0'"),
@@ -15,7 +15,7 @@ function bozo_topics( $where ) {
 }
 
 // Gets those users with the bozo bit.  Does not grab users who have been bozoed on a specific topic.
-function get_bozos( $page = 1 ) {
+function bb_get_bozos( $page = 1 ) {
 	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$page = (int) $page;
 	$limit = bb_get_option('page_topics');
@@ -28,7 +28,7 @@ function get_bozos( $page = 1 ) {
 	return $ids;
 }
 
-function current_user_is_bozo( $topic_id = false ) {
+function bb_current_user_is_bozo( $topic_id = false ) {
 	global $bb_current_user;
 	if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] )
 		return false;
@@ -40,32 +40,32 @@ function current_user_is_bozo( $topic_id = false ) {
 	return isset($topic->bozos[$id]) && $topic->bozos[$id];
 }
 
-function bozo_pre_permalink() {
+function bb_bozo_pre_permalink() {
 	if ( is_topic() )
-		add_filter( 'get_topic_where', 'bozo_topics' );
+		add_filter( 'get_topic_where', 'bb_bozo_topics' );
 }
 
-function bozo_latest_filter() {
+function bb_bozo_latest_filter() {
 	global $bb_current_user;
 	if ( isset($bb_current_user->data->bozo_topics) && $bb_current_user->data->bozo_topics )
-		add_filter( 'get_latest_topics_where', 'bozo_topics' );
+		add_filter( 'get_latest_topics_where', 'bb_bozo_topics' );
 }
 
-function bozo_topic_db_filter() {
+function bb_bozo_topic_db_filter() {
 	global $topic, $topic_id;
-	if ( current_user_is_bozo( $topic->topic_id ? $topic->topic_id : $topic_id ) ) {
-		add_filter( 'get_thread_where', 'bozo_posts' );
-		add_filter( 'get_thread_post_ids', 'bozo_posts' );
+	if ( bb_current_user_is_bozo( $topic->topic_id ? $topic->topic_id : $topic_id ) ) {
+		add_filter( 'get_thread_where', 'bb_bozo_posts' );
+		add_filter( 'get_thread_post_ids', 'bb_bozo_posts' );
 	}
 }
 
-function bozo_profile_db_filter() {
+function bb_bozo_profile_db_filter() {
 	global $user;
 	if ( bb_get_current_user_info( 'id' ) == $user->ID && is_array($user->bozo_topics) )
-		add_filter( 'get_recent_user_replies_where', 'bozo_posts' );
+		add_filter( 'get_recent_user_replies_where', 'bb_bozo_posts' );
 }
 
-function bozo_recount_topics() {
+function bb_bozo_recount_topics() {
 	global $bbdb;
 	if ( isset($_POST['topic-bozo-posts']) && 1 == $_POST['topic-bozo-posts'] ):
 	echo "\t<li>\n";
@@ -97,7 +97,7 @@ function bozo_recount_topics() {
 	endif;
 }
 
-function bozo_recount_users() {
+function bb_bozo_recount_users() {
 	global $bbdb, $bb_table_prefix;
 	if ( isset($_POST['topics-replied-with-bozos']) && 1 == $_POST['topics-replied-with-bozos'] ) :
 		if ( $users = (array) $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
@@ -127,61 +127,61 @@ function bozo_recount_users() {
 	endif;
 }
 
-function bozo_post_del_class( $status ) {
+function bb_bozo_post_del_class( $status ) {
 	if ( 1 < $status && bb_current_user_can('browse_deleted') )
 		return 'bozo';
 }
 
-function bozo_add_recount_list() {
+function bb_bozo_add_recount_list() {
 	global $recount_list;
-	$recount_list[20] = array('topics-replied-with-bozos', __('Count topics to which each user has replied and count each users&#039; bozo posts'), 'bozo_recount_users');
-	$recount_list[21] = array('topic-bozo-posts', __('Count bozo posts on every topic'), 'bozo_recount_topics');
+	$recount_list[20] = array('topics-replied-with-bozos', __('Count topics to which each user has replied and count each users&#039; bozo posts'), 'bb_bozo_recount_users');
+	$recount_list[21] = array('topic-bozo-posts', __('Count bozo posts on every topic'), 'bb_bozo_recount_topics');
 	return;
 }
 
-function bozo_topic_pages_add( $add ) {
+function bb_bozo_topic_pages_add( $add ) {
 	global $topic;
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') ) :
 		$add += @array_sum($topic->bozos);
 	endif;
-	if ( current_user_is_bozo( $topic->topic_id ) )
+	if ( bb_current_user_is_bozo( $topic->topic_id ) )
 		$add += $topic->bozos[bb_get_current_user_info( 'id' )];
 	return $add;
 }
 
-function bozo_get_topic_posts( $topic_posts ) {
+function bb_bozo_get_topic_posts( $topic_posts ) {
 	global $topic;
-	if ( current_user_is_bozo( $topic->topic_id ) )
+	if ( bb_current_user_is_bozo( $topic->topic_id ) )
 		$topic_posts += $topic->bozos[bb_get_current_user_info( 'id' )];
 	return $topic_posts;
 }
 
-function bozo_new_post( $post_id ) {
+function bb_bozo_new_post( $post_id ) {
 	$bb_post = bb_get_post( $post_id );
 	if ( 1 < $bb_post->post_status )
-		bozon( $bb_post->poster_id, $bb_post->topic_id );
+		bb_bozon( $bb_post->poster_id, $bb_post->topic_id );
 	$topic = get_topic( $bb_post->topic_id, false );
 	if ( 0 == $topic->topic_posts )
 		bb_delete_topic( $topic->topic_id, 2 );
 }
 
-function bozo_pre_post_status( $status, $post_id, $topic_id ) {
-	if ( !$post_id && current_user_is_bozo() )
+function bb_bozo_pre_post_status( $status, $post_id, $topic_id ) {
+	if ( !$post_id && bb_current_user_is_bozo() )
 		$status = 2;
-	elseif ( current_user_is_bozo( $topic_id ) )
+	elseif ( bb_current_user_is_bozo( $topic_id ) )
 		$status = 2;
 	return $status;
 }
 
-function bozo_delete_post( $post_id, $new_status, $old_status ) {
+function bb_bozo_delete_post( $post_id, $new_status, $old_status ) {
 	$bb_post = bb_get_post( $post_id );
 	if ( 1 < $new_status && 2 > $old_status )
-		bozon( $bb_post->poster_id, $bb_post->topic_id );
+		bb_bozon( $bb_post->poster_id, $bb_post->topic_id );
 	elseif ( 2 > $new_status && 1 < $old_status )
-		fermion( $bb_post->poster_id, $bb_post->topic_id );
+		bb_fermion( $bb_post->poster_id, $bb_post->topic_id );
 }
 
-function bozon( $user_id, $topic_id = 0 ) {
+function bb_bozon( $user_id, $topic_id = 0 ) {
 	global $bb_table_prefix;
 
 	$user_id = (int) $user_id;
@@ -211,7 +211,7 @@ function bozon( $user_id, $topic_id = 0 ) {
 	}
 }
 
-function fermion( $user_id, $topic_id = 0 ) {
+function bb_fermion( $user_id, $topic_id = 0 ) {
 	global $bb_table_prefix;
 
 	$user_id = (int) $user_id;
@@ -232,18 +232,18 @@ function fermion( $user_id, $topic_id = 0 ) {
 	}
 }
 
-function bozo_profile_admin_keys( $a ) {
+function bb_bozo_profile_admin_keys( $a ) {
 	global $user;
 	$a['is_bozo'] = array(0, __('This user is a bozo'));
 	return $a;
 } 
 
-function bozo_add_admin_page() {
+function bb_bozo_add_admin_page() {
 	global $bb_submenu;
-	$bb_submenu['users.php'][] = array(__('Bozos'), 'moderate', 'bozo_admin_page');
+	$bb_submenu['users.php'][] = array(__('Bozos'), 'moderate', 'bb_bozo_admin_page');
 }
 
-function bozo_admin_page() {
+function bb_bozo_admin_page() {
 	class BB_Bozo_Users extends BB_Users_By_Role {
 		var $title = '';
 
@@ -259,7 +259,7 @@ function bozo_admin_page() {
 
 		function query() {
 			global $bbdb;
-			$this->results = get_bozos( $this->page );
+			$this->results = bb_get_bozos( $this->page );
 
 			if ( $this->results )
 				$this->total_users_for_query = bb_count_last_query();
@@ -275,22 +275,22 @@ function bozo_admin_page() {
 	$bozos->display( false, bb_current_user_can( 'edit_users' ) );
 }
 
-add_filter( 'pre_post_status', 'bozo_pre_post_status', 5, 3 );
-add_action( 'bb_new_post', 'bozo_new_post', 5 );
-add_action( 'bb_delete_post', 'bozo_delete_post', 5, 3 );
+add_filter( 'pre_post_status', 'bb_bozo_pre_post_status', 5, 3 );
+add_action( 'bb_new_post', 'bb_bozo_new_post', 5 );
+add_action( 'bb_delete_post', 'bb_bozo_delete_post', 5, 3 );
 
-add_action( 'pre_permalink', 'bozo_pre_permalink' );
-add_action( 'bb_index.php_pre_db', 'bozo_latest_filter' );
-add_action( 'bb_forum.php_pre_db', 'bozo_latest_filter' );
-add_action( 'bb_topic.php_pre_db', 'bozo_topic_db_filter' );
-add_action( 'bb_profile.php_pre_db', 'bozo_profile_db_filter' );
+add_action( 'pre_permalink', 'bb_bozo_pre_permalink' );
+add_action( 'bb_index.php_pre_db', 'bb_bozo_latest_filter' );
+add_action( 'bb_forum.php_pre_db', 'bb_bozo_latest_filter' );
+add_action( 'bb_topic.php_pre_db', 'bb_bozo_topic_db_filter' );
+add_action( 'bb_profile.php_pre_db', 'bb_bozo_profile_db_filter' );
 
-add_action( 'bb_recount_list', 'bozo_add_recount_list' );
-add_action( 'topic_pages_add', 'bozo_topic_pages_add' );
+add_action( 'bb_recount_list', 'bb_bozo_add_recount_list' );
+add_action( 'topic_pages_add', 'bb_bozo_topic_pages_add' );
 
-add_action( 'post_del_class', 'bozo_post_del_class' );
-add_filter( 'get_topic_posts', 'bozo_get_topic_posts' );
+add_action( 'post_del_class', 'bb_bozo_post_del_class' );
+add_filter( 'get_topic_posts', 'bb_bozo_get_topic_posts' );
 
-add_filter( 'get_profile_admin_keys', 'bozo_profile_admin_keys' );
-add_action( 'bb_admin_menu_generator', 'bozo_add_admin_page' );
+add_filter( 'get_profile_admin_keys', 'bb_bozo_profile_admin_keys' );
+add_action( 'bb_admin_menu_generator', 'bb_bozo_add_admin_page' );
 ?>

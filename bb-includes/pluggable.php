@@ -17,9 +17,9 @@ endif;
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $bbdb;
-	$user = user_sanitize( $user );
+	$user = bb_user_sanitize( $user );
 	if ( !$already_md5 ) {
-		$pass = user_sanitize( md5( $pass ) );
+		$pass = bb_user_sanitize( md5( $pass ) );
 		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND SUBSTRING_INDEX( user_pass, '---', 1 ) = '$pass'");
 	} else {
 		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
@@ -84,8 +84,8 @@ function bb_current_user() {
 	$userpass = bb_get_cookie_login();
 	if ( empty($userpass) )
 		return false;
-	$user = user_sanitize( $userpass['login'] );
-	$pass = user_sanitize( $userpass['password'] );
+	$user = bb_user_sanitize( $userpass['login'] );
+	$pass = bb_user_sanitize( $userpass['password'] );
 	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'") ) {
 		$current_user = $bb_cache->append_current_user_meta( $current_user );
 		return bb_set_current_user($current_user->ID);

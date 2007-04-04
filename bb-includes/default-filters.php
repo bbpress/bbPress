@@ -10,11 +10,11 @@ add_filter('get_topic_link', 'bb_add_replies_to_topic_link', 10, 2);
 
 add_filter('pre_topic_title', 'wp_specialchars');
 add_filter('get_forum_name', 'wp_specialchars');
-add_filter('topic_title', 'closed_title', 30);
+add_filter('topic_title', 'bb_closed_title', 30);
 add_filter('topic_title', 'wp_specialchars');
 
 add_filter('pre_post', 'trim');
-add_filter('pre_post', 'encode_bad');
+add_filter('pre_post', 'bb_encode_bad');
 add_filter('pre_post', 'balanceTags');
 add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
 add_filter('pre_post', 'bb_filter_kses', 50);
@@ -26,7 +26,7 @@ add_filter('post_text', 'make_clickable');
 add_filter('total_posts', 'number_format');
 add_filter('total_users', 'number_format');
 
-add_filter('edit_text', 'code_trick_reverse');
+add_filter('edit_text', 'bb_code_trick_reverse');
 add_filter('edit_text', 'htmlspecialchars');
 add_filter('edit_text', 'trim', 15);
 

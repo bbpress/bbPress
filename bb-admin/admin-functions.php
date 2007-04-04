@@ -137,9 +137,9 @@ function bb_get_admin_tab_link( $tab ) {
 
 /* Stats */
 
-function get_recently_moderated_objects( $num = 5 ) {
+function bb_get_recently_moderated_objects( $num = 5 ) {
 	global $bbdb;
-	$posts = (array) get_deleted_posts( 1, $num, -1 ); // post_time != moderation_time;
+	$posts = (array) bb_get_deleted_posts( 1, $num, -1 ); // post_time != moderation_time;
 	$topics = (array) $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_status <> 0 ORDER BY topic_time DESC LIMIT $num"); // topic_time == topic_start_time != moderation_time;
 	$objects = array();
 	foreach ( array_keys($posts) as $key )
@@ -152,7 +152,7 @@ function get_recently_moderated_objects( $num = 5 ) {
 
 /* Users */
 
-function get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
+function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
 	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
 	$key = $bb_table_prefix . 'capabilities';
@@ -366,7 +366,7 @@ class BB_Users_By_Role extends BB_User_Search {
 
 	function query() {
 		global $bbdb;
-		$this->results = get_ids_by_role( $this->role, 0, $this->query_limit );
+		$this->results = bb_get_ids_by_role( $this->role, 0, $this->query_limit );
 
 		if ( $this->results )
 			$this->total_users_for_query = bb_count_last_query();
@@ -589,7 +589,7 @@ function merge_tags( $old_id, $new_id ) {
 
 /* Topics */
 
-function get_deleted_topics_count() {
+function bb_get_deleted_topics_count() {
 	global $bbdb;
 	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
 }
@@ -629,7 +629,7 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 
 /* Posts */
 
-function get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
+function bb_get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
 	global $bbdb;
 	$page = (int) $page;
 	$status = (int) $status;

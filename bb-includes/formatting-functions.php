@@ -28,7 +28,7 @@ function _bb_autop_pre( $matches ) {
 }
 	
 
-function encodeit( $matches ) {
+function bb_encodeit( $matches ) {
 	$text = trim($matches[2]);
 	$text = htmlspecialchars($text, ENT_QUOTES);
 	$text = str_replace(array("\r\n", "\r"), "\n", $text);
@@ -41,7 +41,7 @@ function encodeit( $matches ) {
 	return $text;
 }
 
-function decodeit( $matches ) {
+function bb_decodeit( $matches ) {
 	$text = $matches[2];
 	$trans_table = array_flip(get_html_translation_table(HTML_ENTITIES));
 	$text = strtr($text, $trans_table);
@@ -53,21 +53,21 @@ function decodeit( $matches ) {
 	return "`$text`";
 }
 
-function code_trick( $text ) {
+function bb_code_trick( $text ) {
 	$text = str_replace(array("\r\n", "\r"), "\n", $text);
-	$text = preg_replace_callback("|(`)(.*?)`|", 'encodeit', $text);
-	$text = preg_replace_callback("!(^|\n)`(.*?)`!s", 'encodeit', $text);
+	$text = preg_replace_callback("|(`)(.*?)`|", 'bb_encodeit', $text);
+	$text = preg_replace_callback("!(^|\n)`(.*?)`!s", 'bb_encodeit', $text);
 	return $text;
 }
 
-function code_trick_reverse( $text ) {
-	$text = preg_replace_callback("!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'decodeit', $text);
+function bb_code_trick_reverse( $text ) {
+	$text = preg_replace_callback("!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'bb_decodeit', $text);
 	$text = str_replace(array('<p>', '<br />'), '', $text);
 	$text = str_replace('</p>', "\n", $text);
 	return $text;
 }
 
-function encode_bad( $text ) {
+function bb_encode_bad( $text ) {
 	$text = wp_specialchars( $text );
 	$text = preg_replace('|&lt;br /&gt;|', '<br />', $text);
 	foreach ( bb_allowed_tags() as $tag => $args ) {
@@ -79,7 +79,7 @@ function encode_bad( $text ) {
 			$text = preg_replace("|&lt;(/?$tag)&gt;|", '<$1>', $text);
 	}
 
-	$text = code_trick( $text );
+	$text = bb_code_trick( $text );
 	return $text;
 }
 
@@ -112,18 +112,18 @@ function bb_rel_nofollow( $text ) {
 	return $text;
 }
 
-function user_sanitize( $text, $strict = false ) {
+function bb_user_sanitize( $text, $strict = false ) {
 	$raw = $text;
 	if ( $strict ) {
 		$text = preg_replace('/[^a-z0-9-]/i', '', $text);
 		$text = preg_replace('|-+|', '-', $text);
 	} else
 		$text = preg_replace('/[^a-z0-9_-]/i', '', $text); // For backward compatibility.
-	return apply_filters( 'user_sanitize', $text, $raw, $strict );
+	return apply_filters( 'bb_user_sanitize', $text, $raw, $strict );
 }
 
 // Reduce utf8 string to $length in single byte character equivalents without breaking multibyte characters
-function utf8_cut( $utf8_string, $length ) {
+function bb_utf8_cut( $utf8_string, $length ) {
 	$unicode = '';
 	$chars = array();
 	$num_octets = 1;
@@ -154,9 +154,9 @@ function utf8_cut( $utf8_string, $length ) {
 	return $unicode;
 }
 
-function tag_sanitize( $tag ) {
+function bb_tag_sanitize( $tag ) {
 	$_tag = $tag;
-	return apply_filters( 'tag_sanitize', sanitize_with_dashes( $tag ), $_tag );
+	return apply_filters( 'bb_tag_sanitize', bb_sanitize_with_dashes( $tag ), $_tag );
 }
 
 function bb_slug_sanitize( $slug ) {
@@ -164,7 +164,7 @@ function bb_slug_sanitize( $slug ) {
 	return apply_filters( 'bb_slug_sanitize', sanitize_with_dashes( $slug ), $_slug );
 }
 
-function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
+function bb_sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	$_text = $text;
 	$text = trim($text);
 	$text = strip_tags($text);
@@ -198,7 +198,7 @@ function bb_pre_sanitize_with_dashes_utf8( $text ) {
 	return $text;
 }
 
-function show_context( $term, $text ) {
+function bb_show_context( $term, $text ) {
 	$text = strip_tags($text);
 	$term = preg_quote($term);
 	$text = preg_replace("|.*?(.{0,80})$term(.{0,80}).*|is", "... $1<strong>$term</strong>$2 ...", $text, 1);
@@ -221,14 +221,14 @@ function bb_make_feed( $link ) {
 		return $link;
 }
 
-function closed_title( $title ) {
+function bb_closed_title( $title ) {
 	global $topic;
 	if ( '0' === $topic->topic_open )
 		return sprintf(__('[closed] %s'), $title);
 	return $title;
 }
 
-function make_link_view_all( $link ) {
+function bb_make_link_view_all( $link ) {
 	return wp_specialchars( add_query_arg( 'view', 'all', $link ) );
 }
 

@@ -147,7 +147,7 @@ function bb_ksd_check_profile( $user_id ) {
 	} else {
 		$response = bb_ksd_submit( $bb_current_user->data->occ . ' ' . $bb_current_user->data->interests );
 		if ( 'true' == $response[1] )
-			bozon( bb_get_current_user_info( 'id' ) );
+			bb_bozon( bb_get_current_user_info( 'id' ) );
 	}
 	bb_set_current_user((int) $bb_current_id);
 }
@@ -201,8 +201,8 @@ function bb_ksd_admin_page() {
 	if ( !bb_current_user_can('browse_deleted') )
 		die(__("Now how'd you get here?  And what did you think you'd being doing?"));
 	add_filter( 'get_topic_where', 'no_where' );
-	add_filter( 'get_topic_link', 'make_link_view_all' );
-	$bb_posts = get_deleted_posts( $page, false, 2, false );
+	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
+	$bb_posts = bb_get_deleted_posts( $page, false, 2, false );
 	$total = bb_count_last_query();
  ?>
 <ol id="the-list">

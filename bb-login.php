@@ -20,7 +20,7 @@ if ( isset( $_REQUEST['logout'] ) ) {
 
 if ( !bb_is_user_logged_in() && !$user = bb_login( @$_POST['user_login'], @$_POST['password'] ) ) {
 	$user_exists = bb_user_exists( @$_POST['user_login'] );
-	$user_login  = user_sanitize ( @$_POST['user_login'] );
+	$user_login  = bb_user_sanitize ( @$_POST['user_login'] );
 	$redirect_to = wp_specialchars( $re, 1 );
 	bb_load_template( 'login.php', array('re', 'user_exists', 'user_login', 'redirect_to', 'ref') );
 	exit;

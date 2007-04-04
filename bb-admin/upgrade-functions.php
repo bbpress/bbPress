@@ -2,7 +2,7 @@
 
 function bb_install() {
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
-	make_db_current();
+	bb_make_db_current();
 	bb_update_db_version();
 }
 
@@ -10,18 +10,18 @@ function bb_upgrade_all() {
 	if ( !ini_get('safe_mode') )
 		set_time_limit(600);
 	$bb_upgrade = 0;
-	$bb_upgrade += upgrade_160(); // Break blocked users
-	$bb_upgrade += upgrade_170(); // Escaping in usermeta
-	$bb_upgrade += upgrade_180(); // Delete users for real
-	$bb_upgrade += upgrade_190(); // Move topic_resolved to topicmeta
+	$bb_upgrade += bb_upgrade_160(); // Break blocked users
+	$bb_upgrade += bb_upgrade_170(); // Escaping in usermeta
+	$bb_upgrade += bb_upgrade_180(); // Delete users for real
+	$bb_upgrade += bb_upgrade_190(); // Move topic_resolved to topicmeta
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
-	make_db_current();
-	$bb_upgrade += upgrade_200(); // Make forum and topic slugs
+	bb_make_db_current();
+	$bb_upgrade += bb_upgrade_200(); // Make forum and topic slugs
 	bb_update_db_version();
 	return $bb_upgrade;
 }
 
-function dbDelta($queries, $execute = true) {
+function bb_dbDelta($queries, $execute = true) {
 	global $bbdb;
 	
 	// Seperate individual queries into an array
@@ -231,12 +231,12 @@ function dbDelta($queries, $execute = true) {
 }
 
 /**
- ** maybe_add_column()
+ ** bb_maybe_add_column()
  ** Add column to db table if it doesn't exist.
  ** Returns:  true if already exists or on successful completion
  **           false on error
  */
-function maybe_add_column( $table_name, $column_name, $create_ddl ) {
+function bb_maybe_add_column( $table_name, $column_name, $create_ddl ) {
 	global $bbdb, $debug;
 	foreach ($bbdb->get_col("DESC $table_name", 0) as $column ) {
 		if ($debug) echo("checking $column == $column_name<br />");
@@ -255,10 +255,10 @@ function maybe_add_column( $table_name, $column_name, $create_ddl ) {
 	return false;
 }
 
-function make_db_current() {
+function bb_make_db_current() {
 	global $bb_queries;
 
-	$alterations = dbDelta($bb_queries);
+	$alterations = bb_dbDelta($bb_queries);
 	echo "<ol>\n";
 	foreach($alterations as $alteration) {
 		echo "<li>$alteration</li>\n";
@@ -268,18 +268,18 @@ function make_db_current() {
 }
 
 // Reversibly break passwords of blocked users.
-function upgrade_160() {
+function bb_upgrade_160() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 535 )
 		return 0;
 
 	require_once('admin-functions.php');
-	$blocked = get_ids_by_role( 'blocked' );
+	$blocked = bb_get_ids_by_role( 'blocked' );
 	foreach ( $blocked as $b )
 		bb_break_password( $b );
 	return 1;
 }
 
-function upgrade_170() {
+function bb_upgrade_170() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 536 )
 		return 0;
 
@@ -294,7 +294,7 @@ function upgrade_170() {
 	return 1;
 }
 
-function upgrade_180() {
+function bb_upgrade_180() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 559 )
 		return 0;
 
@@ -307,7 +307,7 @@ function upgrade_180() {
 	return 1;
 }
 
-function upgrade_190() {
+function bb_upgrade_190() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 630 )
 		return 0;
 
@@ -333,7 +333,7 @@ function upgrade_190() {
 	return 1;
 }
 
-function upgrade_200() {
+function bb_upgrade_200() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 788 )
 		return 0;
 	
@@ -381,7 +381,7 @@ function upgrade_200() {
 	return 1;
 }
 
-function deslash($content) {
+function bb_deslash($content) {
     // Note: \\\ inside a regex denotes a single backslash.
 
     // Replace one or more backslashes followed by a single quote with

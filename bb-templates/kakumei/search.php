@@ -38,7 +38,7 @@ $count = $topic->topic_posts;
 <ol class="results">
 <?php foreach ( $recent as $bb_post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
-<p><?php echo show_context($q, $bb_post->post_text); ?></p>
+<p><?php echo bb_show_context($q, $bb_post->post_text); ?></p>
 <p><small><?php _e('Posted') ?> <?php bb_post_time( __('F j, Y, h:i A') ); ?></small></p>
 </li>
 <?php endforeach; ?>
@@ -50,7 +50,7 @@ $count = $topic->topic_posts;
 <ol class="results">
 <?php foreach ( $relevant as $bb_post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
-<p><?php echo show_context($q, $bb_post->post_text); ?></p>
+<p><?php echo bb_show_context($q, $bb_post->post_text); ?></p>
 <p><small><?php _e('Posted') ?> <?php bb_post_time( __('F j, Y, h:i A') ); ?></small></p>
 </li>
 <?php endforeach; ?>

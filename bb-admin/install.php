@@ -222,7 +222,7 @@ switch ($step):
 flush();
 
 // Set everything up
-if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = user_sanitize( $_POST['admin_login'] ) )
+if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = bb_user_sanitize( $_POST['admin_login'] ) )
 	die(__('Bad username.  Go back and try again.'));
 if ( isset($_POST['new_keymaster']) && !bb_get_user( $_POST['new_keymaster'] ) )
 	die(__('Username not found.  Go back and try again.'));
@@ -238,7 +238,7 @@ require_once( BBPATH . BBINC . 'registration-functions.php');
 
 bb_install();
 
-function get_keymaster_password($user_id, $pass) {
+function bb_get_keymaster_password($user_id, $pass) {
 	global $password;
 	$password = $pass;
 }
@@ -259,7 +259,7 @@ elseif ( isset($_POST['new_keymaster']) ) :
 else :
 	if ( isset( $_POST['admin_url'] ) )
 		$admin_url = bb_fix_link( $_POST['admin_url'] );
-	add_action('bb_new_user','get_keymaster_password',10,2);
+	add_action('bb_new_user','bb_get_keymaster_password',10,2);
 	global $password;
 	$user_id = bb_new_user( $admin_login, bb_get_option( 'admin_email' ), $admin_url );
 	$bb_current_user = bb_set_current_user( $user_id );

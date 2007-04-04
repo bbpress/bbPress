@@ -6,7 +6,7 @@ if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] ) {
 	add_filter('get_topic_where', 'no_where');
 	add_filter('get_thread_where', 'no_where');
 	add_filter('get_thread_post_ids', 'no_where');
-	add_filter('post_edit_uri', 'make_link_view_all');
+	add_filter('post_edit_uri', 'bb_make_link_view_all');
 }
 
 bb_repermalink();

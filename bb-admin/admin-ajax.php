@@ -8,7 +8,7 @@ if ( !$bb_current_id = bb_get_current_user_info( 'id' ) )
 
 define('DOING_AJAX', true);
 
-function grab_results() {
+function bb_grab_results() {
 	global $ajax_results;
 	$ajax_results = @ unserialize(func_get_arg(0));
 	if ( false === $ajax_results )
@@ -16,14 +16,14 @@ function grab_results() {
 	return;
 }
 
-function get_out_now() { exit; }
-add_action('bb_shutdown', 'get_out_now', -1);
+function bb_get_out_now() { exit; }
+add_action('bb_shutdown', 'bb_get_out_now', -1);
 
 switch ( $_POST['action'] ) :
 case 'add-tag' :
 	global $tag, $topic;
-	add_action('bb_tag_added', 'grab_results', 10, 3);
-	add_action('bb_already_tagged', 'grab_results', 10, 3);
+	add_action('bb_tag_added', 'bb_grab_results', 10, 3);
+	add_action('bb_already_tagged', 'bb_grab_results', 10, 3);
 	$topic_id = (int) @$_POST['id'];
 	$tag_name =       @$_POST['tag'];
 	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_id, $topic_id) )
@@ -50,7 +50,7 @@ case 'add-tag' :
 	break;
 
 case 'delete-tag' :
-	add_action('bb_rpe_tag_removed', 'grab_results', 10, 3);
+	add_action('bb_rpe_tag_removed', 'bb_grab_results', 10, 3);
 	list($tag_id, $user_id) = explode('_', $_POST['id']);
 	$tag_id   = (int) $tag_id;
 	$user_id  = (int) $user_id;

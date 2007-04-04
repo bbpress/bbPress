@@ -52,7 +52,7 @@ If you don't want to reset your password, just ignore this email. Thanks!"), bb_
 
 function bb_reset_password( $key ) {
 	global $bbdb;
-	$key = user_sanitize( $key );
+	$key = bb_user_sanitize( $key );
 	if ( empty( $key ) )
 		bb_die(__('Key not found.'));
 	if ( !$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'") )

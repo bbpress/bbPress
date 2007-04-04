@@ -631,7 +631,7 @@ function bb_cache_users( $ids, $soft_cache = true ) {
 
 function bb_get_user_by_name( $name ) {
 	global $bbdb;
-	$name = user_sanitize( $name );
+	$name = bb_user_sanitize( $name );
 	if ( $user_id = $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_login = '$name'") )
 		return bb_get_user( $user_id );
 	else
@@ -683,7 +683,7 @@ function bb_append_meta( $object, $type ) {
 
 function bb_user_exists( $user ) {
 	global $bbdb;
-	$user = user_sanitize( $user );
+	$user = bb_user_sanitize( $user );
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
 }
 
@@ -1270,7 +1270,7 @@ function create_tag( $tag ) {
 	$tag = apply_filters( 'pre_create_tag', $tag );
 
 	$raw_tag = $tag;
-	$tag     = tag_sanitize( $tag );
+	$tag     = bb_tag_sanitize( $tag );
 
 	if ( empty( $tag ) )
 		return false;
@@ -1284,11 +1284,11 @@ function create_tag( $tag ) {
 
 function bb_pre_create_tag_utf8( $tag ) {
 	if ( seems_utf8( $tag ) )
-		$tag = utf8_cut( $tag, 50 ); // Should match raw_tag column width in DB schema
+		$tag = bb_utf8_cut( $tag, 50 ); // Should match raw_tag column width in DB schema
 	return $tag;
 }
 
-function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
+function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	global $bbdb, $bb_cache;
 	$tag_id = (int) $tag_id;
 	$user_id = (int) $user_id;
@@ -1373,7 +1373,7 @@ function destroy_tag( $tag_id, $recount_topics = true ) {
 
 function get_tag_id( $tag ) {
 	global $bbdb;
-	$tag     = tag_sanitize( $tag );
+	$tag     = bb_tag_sanitize( $tag );
 
 	return $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
 }
@@ -1387,7 +1387,7 @@ function get_tag( $id ) {
 function get_tag_by_name( $tag ) {
 	global $bbdb, $tag_cache;
 
-	$tag = tag_sanitize( $tag );
+	$tag = bb_tag_sanitize( $tag );
 
 	if ( isset($tag_cache[$tag]) )
 		return $tag_cache[$tag];
@@ -1658,7 +1658,7 @@ function global_profile_menu_structure() {
 	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
 		if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
-			$profile_hooks[tag_sanitize($profile_tab[4])] = $profile_tab[3];
+			$profile_hooks[bb_tag_sanitize($profile_tab[4])] = $profile_tab[3];
 
 	do_action('bb_profile_menu');
 	ksort($profile_menu);
@@ -1672,7 +1672,7 @@ function add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = fals
 	$profile_tab = array($tab_title, $users_cap, $others_cap, $file, $arg);
 	$profile_menu[] = $profile_tab;
 	if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
-		$profile_hooks[tag_sanitize($arg)] = $file;
+		$profile_hooks[bb_tag_sanitize($arg)] = $file;
 }
 
 function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
