@@ -54,6 +54,13 @@ class bbdb {
 			$server->host = constant('BBDB_HOST');
 		}
 		
+		// Set the port if it is specified in the host
+		if (strpos($server->host, ':') === false) {
+			$server->port = null;
+		} else {
+			list($server->host, $server->port) = explode(':', $server->host);
+		}
+		
 		$current_connection = "$dbhname";
 
 		if ( isset( $this->$dbhname ) ) // We're already connected!
@@ -61,7 +68,7 @@ class bbdb {
 
 		$this->timer_start();
 		
-		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass );	
+		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass, null, $server->port );
 		$this->select( $server->database, $this->$dbhname );
 
 		$current_connection .= ' connect: ' . number_format( ( $this->timer_stop() * 1000 ), 2) . 'ms';
