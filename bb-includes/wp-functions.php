@@ -8,14 +8,18 @@ endif;
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP5065]
+if ( !function_exists( 'clean_url' ) ) : // [WP5095]
 function clean_url( $url, $protocols = null ) {
 	if ('' == $url) return $url;
 	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%]|i', '', $url);
 	$strip = array('%0d', '%0a');
 	$url = str_replace($strip, '', $url);
 	$url = str_replace(';//', '://', $url);
-	$url = (strpos($url, '://') === false && substr( $url, 0, 1 ) != '/' ) ? 'http://'.$url : $url;
+	// Append http unless a relative link starting with / or a php file.
+	if ( strpos($url, '://') === false &&
+		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9]+?\.php/i', $url) )
+		$url = 'http://' . $url;
+	
 	$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
 	if ( !is_array($protocols) )
 		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet'); 
