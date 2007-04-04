@@ -23,7 +23,7 @@ class BB_Roles {
 	}
 
 	function get_roles( $role_key = '' ) {
-		return array(	'keymaster' => array(
+		return apply_filters('get_roles', array(	'keymaster' => array(
 					'name' => __('Key Master'),
 					'capabilities' => array(
 						'use_keys' => true,		// Verb forms of roles - keymaster
@@ -160,7 +160,7 @@ class BB_Roles {
 					'capabilities' => array(
 						'not_play_nice' => true
 				))
-			);
+			));
 	}
 
 
@@ -217,7 +217,7 @@ class BB_Role {
 		global $bb_roles;
 
 		$this->capabilities[$cap] = $grant;
-		$bb_roles->add_cap($this->name, $cap);
+		$bb_roles->add_cap($this->name, $cap, $grant);
 	}
 
 	function remove_cap($cap) {
