@@ -28,16 +28,16 @@ if ( !in_array($activetheme, $themes) ) {
 
 function bb_admin_theme_row( $theme ) {
 	$theme_data = file_exists( $theme . 'style.css' ) ? bb_get_theme_data( $theme . 'style.css' ) : false;
-	$screen_shot = file_exists( $theme . 'screenshot.png' ) ? bb_path_to_url( $theme . 'screenshot.png' ) : false;
-	$activation_url = attribute_escape( bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch-theme' ) );
+	$screen_shot = file_exists( $theme . 'screenshot.png' ) ? attribute_escape( bb_path_to_url( $theme . 'screenshot.png' ) ) : false;
+	$activation_url = clean_url( bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme', $class ); ?>>
-		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php _e('Click to activate'); ?>"><img alt="<?php echo wp_specialchars( $theme_data['Title'], 1 ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
+		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><img alt="<?php echo attribute_escape( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
 		<div class="description">
-			<h3><a href="<?php echo $activation_url; ?>" title="<?php _e('Click to activate'); ?>"><?php echo wp_specialchars( $theme_data['Title'] ); ?></a></h3>
-			<small class="version"><?php echo wp_specialchars( $theme_data['Version'] ); ?></small>
+			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
+			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?>
-			<?php echo bb_autop( $theme_data['Description'] ); ?>
+			<?php echo $theme_data['Description']; ?>
 		</div>
 		<br class="clear" />
 	</li>

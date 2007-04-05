@@ -9,6 +9,7 @@ foreach ( $current as $c => $cur )
 	if ( !file_exists(BBPLUGINDIR . $cur) ) {
 		$update = true;
 		unset($current[$c]);
+		do_action( 'bb_deactivate_plugin' . $c );
 	}
 
 if ( isset($_GET['action']) ) {

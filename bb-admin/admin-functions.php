@@ -706,6 +706,7 @@ function bb_get_plugins() {
 	return $dir->get_results();
 }
 
+// Output sanitized for display
 function bb_get_plugin_data($plugin_file) {
 	$plugin_data = implode('', file($plugin_file));
 	if ( !preg_match("|Plugin Name:(.*)|i", $plugin_data, $plugin_name) )
@@ -715,23 +716,28 @@ function bb_get_plugin_data($plugin_file) {
 	preg_match("|Author:(.*)|i", $plugin_data, $author_name);
 	preg_match("|Author URI:(.*)|i", $plugin_data, $author_uri);
 	if ( preg_match("|Requires at least:(.*)|i", $plugin_data, $requires) )
-		$requires = trim($requires[1]);
+		$requires = wp_specialchars( trim($requires[1]) );
 	else
 		$requires = '';
 	if ( preg_match("|Tested up to:(.*)|i", $plugin_data, $tested) )
-		$tested = trim($tested[1]);
+		$tested = wp_specialchars( trim($tested[1]) );
 	else
 		$tested = '';
 	if ( preg_match("|Version:(.*)|i", $plugin_data, $version) )
-		$version = trim($version[1]);
+		$version = wp_specialchars( trim($version[1]) );
 	else
 		$version = '';
 
-	$plugin_name = trim($plugin_name[1]);
-	$plugin_uri = trim($plugin_uri[1]);
+	$plugin_name = wp_specialchars( trim($plugin_name[1]) );
+	$plugin_uri = clean_url( trim($plugin_uri[1]) );
+	$author_name = wp_specialchars( trim($author_name[1]) );
+	$author_uri = clean_url( trim($author_uri[1]) );
+
 	$description = trim($description[1]);
-	$author_name = trim($author_name[1]);
-	$author_uri = trim($author_uri[1]);
+	$description = bb_encode_bad( $description );
+	$description = balanceTags( $description );
+	$description = bb_filter_kses( $description );
+	$description = bb_autop( $description );
 
 	$r = array(
 		'name' => $plugin_name,
@@ -745,10 +751,10 @@ function bb_get_plugin_data($plugin_file) {
 	);
 
 	$r['plugin_link'] = ( $plugin_uri ) ?
-		"<a href='$plugin_uri' title='" . __('Visit plugin homepage') . "'>$plugin_name</a>" :
+		"<a href='$plugin_uri' title='" . attribute_escape( __('Visit plugin homepage') ) . "'>$plugin_name</a>" :
 		$plugin_name;
 	$r['author_link'] = ( $author_name && $author_uri ) ?
-		"<a href='$author_uri' title='" . __('Visit author homepage') . "'>$author_name</a>" :
+		"<a href='$author_uri' title='" . attribute_escape( __('Visit author homepage') ) . "'>$author_name</a>" :
 		$author_name;
 
 	return $r;
@@ -756,6 +762,7 @@ function bb_get_plugin_data($plugin_file) {
 
 /* Themes */
 
+// Output sanitized for display
 function bb_get_theme_data( $theme_file ) {
 	$theme_data = implode( '', file( $theme_file ) );
 	$theme_data = str_replace ( '\r', '\n', $theme_data ); 
@@ -768,11 +775,11 @@ function bb_get_theme_data( $theme_file ) {
 	preg_match( '|Porter URI:(.*)|i', $theme_data, $porter_uri );
 //	preg_match( '|Template:(.*)|i', $theme_data, $template );
 	if ( preg_match( '|Version:(.*)|i', $theme_data, $version ) )
-		$version = trim( $version[1] );
+		$version = wp_specialchars( trim( $version[1] ) );
 	else
 		$version ='';
 	if ( preg_match('|Status:(.*)|i', $theme_data, $status) )
-		$status = trim($status[1]);
+		$status = wp_specialchars( trim($status[1]) );
 	else
 		$status = 'publish';
 
@@ -780,21 +787,22 @@ function bb_get_theme_data( $theme_file ) {
 	$description = bb_encode_bad( $description );
 	$description = balanceTags( $description );
 	$description = bb_filter_kses( $description );
+	$description = bb_autop( $description );
 
 	$name = $theme_name[1];
-	$name = trim( $name );
+	$name = wp_specialchars( trim($name) );
 	$theme = $name;
 
 	if ( '' == $author_uri[1] ) {
-		$author = trim( $author_name[1] );
+		$author = wp_specialchars( trim($author_name[1]) );
 	} else {
-		$author = '<a href="' . trim( $author_uri[1] ) . '" title="' . __('Visit author homepage') . '">' . trim( $author_name[1] ) . '</a>';
+		$author = '<a href="' . clean_url( trim($author_uri[1]) ) . '" title="' . attribute_escape( __('Visit author homepage') ) . '">' . wp_specialchars( trim($author_name[1]) ) . '</a>';
 	}
 
 	if ( '' == $porter_uri[1] ) {
-		$porter = trim( $porter_name[1] );
+		$porter = wp_specialchars( trim($porter_name[1]) );
 	} else {
-		$porter = '<a href="' . trim( $porter_uri[1] ) . '" title="' . __('Visit porter homepage') . '">' . trim( $porter_name[1] ) . '</a>';
+		$porter = '<a href="' . clean_url( trim($porter_uri[1]) ) . '" title="' . attribute_escape( __('Visit porter homepage') ) . '">' . wp_specialchars( trim($porter_name[1]) ) . '</a>';
 	}
 
 	return array(
@@ -805,7 +813,8 @@ function bb_get_theme_data( $theme_file ) {
 		'Porter' => $porter,
 		'Version' => $version,
 //		'Template' => $template[1],
-		'Status' => $status
+		'Status' => $status,
+		'URI' => clean_url( $theme_uri[1] )
 	);
 }
 
