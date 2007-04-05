@@ -1,10 +1,19 @@
 <?php
 
-if ( !(phpversion() >= '4.2') )
-	die(sprintf(__('Your server is running PHP version %s but bbPress requires at least 4.2'), phpversion()) );
+if ( phpversion() < '4.2' )
+	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.2', phpversion()) );
 
 if ( !extension_loaded('mysql') && !extension_loaded('mysqli') )
-	die(__('Your PHP installation appears to be missing the MySQL which is required for bbPress.' ));
+	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
+
+if ( !$bb_table_prefix )
+	die('You must specify a table prefix in your <code>config.php</code> file.');
+
+if ( preg_match('/[^A-Za-z0-9_]/', $bb_table_prefix) )
+	die('Your table prefix may only contain letters, numbers and underscores.');
+
+if ( !defined('BBPATH') )
+	die('This file cannot be called directly.');
 
 // Turn register globals off
 function bb_unregister_GLOBALS() {
@@ -12,7 +21,7 @@ function bb_unregister_GLOBALS() {
 		return;
 
 	if ( isset($_REQUEST['GLOBALS']) )
-		die(__('GLOBALS overwrite attempt detected'));
+		die('GLOBALS overwrite attempt detected');
 
 	// Variables that shouldn't be unset
 	$noUnset = array('GLOBALS', '_GET', '_POST', '_COOKIE', '_REQUEST', '_SERVER', '_ENV', '_FILES', 'bb_table_prefix', 'bb');
