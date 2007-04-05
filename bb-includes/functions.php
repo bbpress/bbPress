@@ -2113,8 +2113,7 @@ function bb_trim_common_path_right( $one, $two ) {
 	return array($root_one, $root_two);
 }
 
-function bb_slug_increment($slug, $all_slugs)
-{
+function bb_slug_increment($slug, $all_slugs) {
 	$all_slugs = preg_grep('/^' . $slug . '(\-[0-9]+)?$/', $all_slugs);
 	if (!count($all_slugs)) {
 		return $slug;
@@ -2130,12 +2129,28 @@ function bb_slug_increment($slug, $all_slugs)
 	return $slug . '-' . ($last_slug_number + 1);
 }
 
-function bb_get_id_from_slug($table, $slug)
-{
+function bb_get_id_from_slug($table, $slug) {
 	global $bbdb;
 	$tablename = $table . 's';
 	$slug = bb_slug_sanitize($slug);
 	$result = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$slug'");
 	return $result;
 }
+
+function bb_plugin_basename($file) {
+	$file = preg_replace('|\\\\+|', '\\\\', $file);
+	$file = preg_replace('|^.*' . preg_quote(BBPLUGINDIR, '|') . '|', '', $file);
+	return $file;
+}
+
+function bb_register_activation_hook($file, $function) {
+	$file = bb_plugin_basename($file);
+	add_action('bb_activate_plugin_' . $file, $function);
+}
+
+function bb_register_deactivation_hook($file, $function) {
+	$file = plugin_basename($file);
+	add_action('bb_deactivate_plugin_' . $file, $function);
+}
+
 ?>
