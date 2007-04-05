@@ -130,9 +130,26 @@ if ( defined('CUSTOM_USER_TABLE') )
 if ( defined('CUSTOM_USER_META_TABLE') )
 	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
 
+if ( isset($bb->uri) ) {
+	$bb->domain = preg_replace('|(?<!/)/(?!/).*$|', '', $bb->uri);
+	$bb->path = substr($bb->uri, strlen($bb->domain));
+} elseif ( isset($bb->path) && isset($bb->domain) ) {
+	$bb->domain = rtrim($bb->domain, '/');
+	$bb->path = '/' . ltrim($bb->path, '/');
+} else {
+	bb_die( '<code>$bb->uri</cade> must be set in your <code>config.php</code> file.' );
+}
+
+foreach ( array('wp_site_url', 'wp_home', 'path') as $p )
+	if ( $bb->$p )
+		$bb->$p = rtrim($bb->path, '/');
+unset($p);
+
+$bb->path = "$bb->path/";
+$bb->uri = $bb->domain . $bb->path;
+
 define('BBHASH', $bb->wp_siteurl ? md5($bb->wp_siteurl) : md5($bb_table_prefix) );
 
-$bb->uri = $bb->domain . $bb->path;
 if ( !isset( $bb->usercookie ) )
 	$bb->usercookie = ( $bb->wp_table_prefix ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
 if ( !isset( $bb->passcookie ) )

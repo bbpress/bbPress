@@ -7,19 +7,15 @@ define('BBDB_PASSWORD', 'password'); // ...and password
 define('BBDB_HOST', 'localhost');    // 99% chance you won't need to change this value
 
 // Change the prefix if you want to have multiple forums in a single database.
-$bb_table_prefix  = 'bb_'; // Only letters, numbers and underscores please!
+$bb_table_prefix = 'bb_'; // Only letters, numbers and underscores please!
 
-// If your bbPress URL is http://bbpress.example.com/forums/ , the examples would be correct.
-// Adjust the domain and path to suit your actual URL.
-	// Just the domain name; no directories or path. There should be no trailing slash here.
-	$bb->domain = 'http://my-cool-forums.example.com'; // Example: 'http://bbpress.example.com'
-	// There should be both a leading and trailing slash here. '/' is fine if the site is in root.
-	$bb->path   = '/';				   // Example: '/forums/'
+// The full URL of your bbPress install
+$bb->uri = 'http://my-cool-site.com/forums/';
 
 // What are you going to call me?
-$bb->name   = 'New bbPress Site';
+$bb->name = 'New bbPress Site';
 
-// This must be set before running the install script.
+// This must be set before you run the install script.
 $bb->admin_email = 'you@example.com';
 
 // Set to true if you want pretty permalinks, set to 'slugs' if you want to use slug based pretty permalinks.
@@ -47,11 +43,11 @@ $bb->akismet_key = ''; // Example: '0123456789ab'
 
 
 // The rest is only useful if you are integrating bbPress with WordPress.
-// If you're not, just leave the rest as it is.
+// If you're not, just leave it as it is.
 
 $bb->wp_table_prefix = '';  // WordPress table prefix.  Example: 'wp_';
-$bb->wp_home = '';  // WordPress - Options->General: Blog address (URL) // No trailing slash.  Example: 'http://example.com'
-$bb->wp_siteurl = '';  // WordPress - Options->General: WordPress address (URL) // No trailing slash. Example: 'http://example.com'
+$bb->wp_home = '';  // WordPress - Options->General: Blog address (URL) // Example: 'http://example.com'
+$bb->wp_siteurl = '';  // WordPress - Options->General: WordPress address (URL) // Example: 'http://example.com'
 
 /* Stop editing */
 
