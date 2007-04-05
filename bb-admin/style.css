@@ -449,8 +449,6 @@ thead, .thead {
 
 .theme-list div.screen-shot img { width: 100% }
 
-.theme-list .description { float: left; }
-
 .theme-list li { padding: 1ex; }
 
 .theme-list.active li { background-color: #f0fff8; }

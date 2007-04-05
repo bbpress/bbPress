@@ -776,7 +776,10 @@ function bb_get_theme_data( $theme_file ) {
 	else
 		$status = 'publish';
 
-	$description = wp_specialchars( trim($description[1]) );
+	$description = trim($description[1]);
+	$description = bb_encode_bad( $description );
+	$description = balanceTags( $description );
+	$description = bb_filter_kses( $description );
 
 	$name = $theme_name[1];
 	$name = trim( $name );
