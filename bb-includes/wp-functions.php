@@ -589,7 +589,7 @@ add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
 if ( !function_exists('add_query_arg') ) :
-function add_query_arg() { // [WP4990]
+function add_query_arg() { // [WP5193]
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
 		if ( @func_num_args() < 2 || '' == @func_get_arg(1) )
@@ -642,6 +642,7 @@ function add_query_arg() { // [WP4990]
 
 	foreach($qs as $k => $v) {
 		if ( $v !== FALSE ) {
+			$v = rawurlencode($v);
 			if ( $ret != '' )
 				$ret .= '&';
 			if ( empty($v) && !preg_match('|[?&]' . preg_quote($k, '|') . '=|', $query) )
@@ -650,10 +651,11 @@ function add_query_arg() { // [WP4990]
 				$ret .= "$k=$v";
 		}
 	}
+	$ret = trim($ret, '?');
 	$ret = $protocol . $base . $ret . $frag;
 	if ( get_magic_quotes_gpc() )
 		$ret = stripslashes($ret); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
-	return trim($ret, '?');
+	return $ret;
 }
 endif;
 
