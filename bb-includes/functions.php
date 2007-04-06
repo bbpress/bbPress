@@ -1879,7 +1879,7 @@ function bb_count_last_query() {
 		return false;
 
 	$q = preg_replace(
-		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/'),
+		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+[\S]+/', '/DESC/', '/ASC/'),
 		array('SELECT COUNT(*) FROM', ''),
 		$q
 	);
