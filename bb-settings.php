@@ -151,7 +151,7 @@ if ( isset($bb->uri) ) {
 
 foreach ( array('wp_site_url', 'wp_home', 'path') as $p )
 	if ( $bb->$p )
-		$bb->$p = rtrim($bb->path, '/');
+		$bb->$p = rtrim($bb->$p, '/');
 unset($p);
 
 $bb->path = "$bb->path/";
