@@ -168,6 +168,9 @@ case 'add-forum' :
 	break;
 
 case 'order-forums' :
+	if ( !bb_current_user_can( 'manage_forums' ) )
+		die('-1');
+
 	if ( !is_array($_POST['order']) )
 		die('0');
 
@@ -189,7 +192,6 @@ case 'order-forums' :
 
 	foreach ( $forums as $forum )
 		bb_update_forum( $forum );
-
 
 	die('1');
 	break;
