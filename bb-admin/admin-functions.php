@@ -58,7 +58,7 @@ function bb_admin_menu_generator() {
 
 	$bb_submenu['content.php'][5] = array(__('Topics'), 'moderate', 'content.php');
 	$bb_submenu['content.php'][10] = array(__('Posts'), 'moderate', 'content-posts.php');
-	$bb_submenu['content.php'][15] = array(__('Forums'), 'moderate', 'content-forums.php');
+	$bb_submenu['content.php'][15] = array(__('Forums'), 'manage_forums', 'content-forums.php');
 
 	$bb_submenu['themes.php'][5] = array(__('Themes'), 'use_keys', 'themes.php');
 
