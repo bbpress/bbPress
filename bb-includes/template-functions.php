@@ -130,7 +130,7 @@ function post_form( $h2 = '' ) {
 	$last_page = get_page_number( $topic->topic_posts + $add );
 
 	if ( !empty($h2) ) {
-		if ( $page != $last_page )
+		if ( is_topic() && $page != $last_page )
 			$h2 = $h2 . ' <a href="' . attribute_escape( get_topic_link( 0, $last_page ) . '#postform' ) . '">&raquo;</a>';
 		echo "<h2 class='post-form'>$h2</h2>\n";
 	}
