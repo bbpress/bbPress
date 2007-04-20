@@ -588,8 +588,8 @@ Parameters:
 add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
-if ( !function_exists('add_query_arg') ) :
-function add_query_arg() { // [WP5193]
+if ( !function_exists('add_query_arg') ) : // [WP5269]
+function add_query_arg() {
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
 		if ( @func_num_args() < 2 || '' == @func_get_arg(1) )
@@ -633,6 +633,9 @@ function add_query_arg() { // [WP5193]
 	}
 
 	parse_str($query, $qs);
+	if ( get_magic_quotes_gpc() )
+		$qs = stripslashes_deep($qs); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
+	$qs = urlencode_deep($qs);
 	if ( is_array(func_get_arg(0)) ) {
 		$kayvees = func_get_arg(0);
 		$qs = array_merge($qs, $kayvees);
@@ -642,7 +645,6 @@ function add_query_arg() { // [WP5193]
 
 	foreach($qs as $k => $v) {
 		if ( $v !== FALSE ) {
-			$v = rawurlencode($v);
 			if ( $ret != '' )
 				$ret .= '&';
 			if ( empty($v) && !preg_match('|[?&]' . preg_quote($k, '|') . '=|', $query) )
@@ -653,8 +655,7 @@ function add_query_arg() { // [WP5193]
 	}
 	$ret = trim($ret, '?');
 	$ret = $protocol . $base . $ret . $frag;
-	if ( get_magic_quotes_gpc() )
-		$ret = stripslashes($ret); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
+	$ret = trim($ret, '?');
 	return $ret;
 }
 endif;
@@ -1130,6 +1131,16 @@ function wp_parse_args( $args, $defaults = '' ) {
 	else :
 		return $r;
 	endif;
+}
+endif;
+
+if ( !function_exists('urlencode_deep') ) : // [WP5261]
+function urlencode_deep($value) {
+	 $value = is_array($value) ?
+		 array_map('urlencode_deep', $value) :
+		 urlencode($value);
+
+	 return $value;
 }
 endif;
 
