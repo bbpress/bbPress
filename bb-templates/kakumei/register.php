@@ -8,7 +8,7 @@
 <form method="post" action="<?php bb_option('uri'); ?>register.php">
 <fieldset>
 <legend><?php _e('Profile Information'); ?></legend>
-<p><?php printf(__("A password will be mailed to the email address you provide. Make sure to whitelist our domain (%s) so the confirmation email doesn't get caught by any  filters."), bb_get_option( 'domain' )) ?> </p>
+<p><?php _e("Your password will be emailed to the address you provide."); ?></p>
 <table width="100%">
 <?php if ( $user_safe === false ) : ?>
 <tr class="error">
