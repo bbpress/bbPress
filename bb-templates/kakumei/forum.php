@@ -35,6 +35,27 @@
 <?php forum_pages(); ?>
 </div>
 <?php endif; ?>
+
+<?php if ( bb_forums( $forum_id ) ) : ?>
+<h2><?php _e('Subforums'); ?></h2>
+<table id="forumlist">
+
+<tr>
+	<th><?php _e('Main Theme'); ?></th>
+	<th><?php _e('Topics'); ?></th>
+	<th><?php _e('Posts'); ?></th>
+</tr>
+
+<?php while ( bb_forum() ) : ?>
+<tr<?php bb_forum_class(); ?>>
+	<td><?php bb_forum_pad( ' &#8212; ' ); ?><a href="<?php forum_link(); ?>"><?php forum_name(); ?></a><small><?php forum_description(); ?></small></td>
+	<td class="num"><?php forum_topics(); ?></td>
+	<td class="num"><?php forum_posts(); ?></td>
+</tr>
+<?php endwhile; ?>
+</table>
+<?php endif; ?>
+
 <?php post_form(); ?>
 
 <?php bb_get_footer(); ?>

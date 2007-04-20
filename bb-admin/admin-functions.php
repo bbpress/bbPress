@@ -486,6 +486,23 @@ function bb_delete_forum( $forum_id ) {
 	return $return;
 }
 
+function bb_forum_adminlistitems($forums, $depth = 0, $hierarchical = true) {
+	echo apply_filters('bb_get_forum_rows', bb_get_forum_adminlistitems($forums, $depth, $hierarchical));
+}
+
+function bb_get_forum_adminlistitems($forums, $depth = 0, $hierarchical = true) {
+	$args = array(
+		$forums,
+		$depth,
+		array(
+			'hierarchical' => $hierarchical
+		)
+	);
+	
+	$walker = new BB_Walker_ForumAdminlistitems();
+	return call_user_func_array(array(&$walker, 'walk'), $args);
+}
+
 function bb_forum_row( $forum_id = 0, $echo = true, $close = true, $class = 'forum' ) {
 	global $forum, $forums_count;
 	if ( $forum_id )
@@ -547,6 +564,70 @@ function bb_forum_form( $forum_id = 0 ) {
 	</fieldset> 
 </form>
 <?php
+}
+
+class BB_Walker_ForumAdminlistitems extends BB_Walker {
+	var $tree_type = 'forum';
+	var $db_fields = array ('parent' => 'forum_parent', 'id' => 'forum_id'); //TODO: decouple this
+	
+	// Hack to get forum id into start_lvl
+	var $forum_indexed;
+	var $forum_position = -1;
+
+	function BB_Walker_ForumAdminlistitems() {
+		global $forums;
+		// Hack to get forum id into start_lvl
+		$this->forum_indexed = array_values($forums);
+	}
+	
+	function start_lvl($output, $depth) {
+		// Hack to get forum id into start_lvl
+		$forum_id = $this->forum_indexed[$this->forum_position]->forum_id;
+		
+		$indent = str_repeat("\t", $depth);
+		$output .= $indent . "<ul id=\"forum-root-" . $forum_id . "\" class=\"list-block holder\">\n";
+		return $output;
+	}
+	
+	function end_lvl($output, $depth) {
+		$indent = str_repeat("\t", $depth);
+		$output .= $indent . "</ul>\n";
+		return $output;
+	}
+	
+	function start_el($output, $forum, $depth, $args) {
+		global $forums_count;
+		
+		extract($args);
+		
+		$indent = str_repeat("\t", $depth);
+		
+		$output .= $indent . "\t<li id=\"forum-" . $forum->forum_id . "\"" . get_alt_class('forum', 'forum clear list-block') . ">\n";
+		$output .= $indent . "\t\t<div class=\"list-block posrel\">\n";
+		$output .= $indent . "\t\t\t<div class=\"alignright\">\n";
+		if (bb_current_user_can('manage_forums')) {
+			$edit_href = attribute_escape(bb_get_option('uri') . "bb-admin/content-forums.php?action=edit&id=" . $forum->forum_id);
+			$output .= $indent . "\t\t\t\t<a class=\"edit\" href=\"" . $edit_href . "\">" . __('Edit') . "</a>\n";
+		}
+		if (bb_current_user_can('delete_forum', $forum->forum_id) && 1 < $forums_count) {
+			$delete_href = attribute_escape(bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=" . $forum->forum_id);
+			$output .= $indent . "\t\t\t\t<a class=\"delete\" href=\"" . $edit_href . "\">" . __('Delete') . "</a>\n";
+		}
+		$output .= $indent . "\t\t\t</div>\n";
+		$output .= $indent . "\t\t\t" . get_forum_name($forum->forum_id) . " &#8212; " . get_forum_description($forum->forum_id) . "\n";
+		$output .= $indent . "\t\t</div>\n";
+		
+		// Hack to get forum id into start_lvl
+		$this->forum_position++;
+		
+		return $output;
+	}
+	
+	function end_el($output, $forum, $depth, $args) {
+		$indent = str_repeat("\t", $depth);
+		$output .= $indent . "\t</li>\n";
+		return $output;
+	}
 }
 
 /* Tags */

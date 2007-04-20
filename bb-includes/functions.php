@@ -8,29 +8,24 @@ function bb_is_installed() { // Maybe we should grab all forums and cache them.
 	return $installed;
 }
 
-function bb_get_forums_hierarchical( $root = 0, $old_root = 0, $leaves = false ) {
-	static $tree = 0;
-
+function bb_get_forums_hierarchical( $root = 0, $depth = 0, $_leaves = false ) {
 	$root = (int) $root;
 
-	if ( 0 !== $tree )
-		return $tree;
+	$_recursed = (bool) $_leaves;
 
-	$_recursed = (bool) $leaves;
+	if ( false === $_leaves )
+		$_leaves = get_forums();
 
-	if ( false === $leaves )
-		$leaves = get_forums();
-
-	if ( !$leaves )
+	if ( !$_leaves )
 		return false;
 
 	$branch = array();
 
-	foreach ( $leaves as $l => $leaf ) {
+	foreach ( $_leaves as $l => $leaf ) {
 		if ( $root == $leaf->forum_parent ) {
 			$new_root = (int) $leaf->forum_id;
-			unset($leaves[$l]);
-			$branch[$new_root] = bb_get_forums_hierarchical( $new_root, $root, $leaves );
+			unset($_leaves[$l]);
+			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, $_leaves );
 		}
 	}
 
@@ -40,9 +35,54 @@ function bb_get_forums_hierarchical( $root = 0, $old_root = 0, $leaves = false )
 	return $branch ? $branch : true;
 }
 
-function get_forums( $callback = false, $callback_args = false ) {
+function bb_flatten_array( $array, $keep_child_array_keys = true ) {
+	if ( empty($array) )
+		return null;
+	
+	$temp = array();
+	foreach ( $array as $k => $v ) {
+		if ( is_array($v) ) {
+			if ( $keep_child_array_keys ) {
+				$temp[$k] = true;
+			}
+			$temp += bb_flatten_array($v, $keep_child_array_keys);
+		} else {
+			$temp[$k] = $v;
+		}
+	}
+	return $temp;
+}
+
+function get_forums( $args = null ) {
+	if ( is_numeric($args) ) {
+		$args = array( 'child_of' => $args, 'hierarchical' => 1, 'depth' => 0 );
+	} elseif ( is_callable($args) ) {
+		$args = array( 'callback' => $args );
+		if ( 1 < func_num_args() )
+			$args['callback_args'] = func_get_arg(1);
+	}
+
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0 );
+	$args = bb_parse_args( $args, $defaults );
+
+	extract($args);
+	$child_of = (int) $child_of;
+	$hierarchical = 'false' == $hierarchical ? false : (bool) $hierarchical;
+	$depth = (int) $depth;
+
 	global $bb_cache;
-	$forums = (array) apply_filters('get_forums',$bb_cache->get_forums());
+	$forums = (array) apply_filters( 'get_forums', $bb_cache->get_forums() );
+
+	if ( $child_of || $hierarchical || $depth ) {
+		$_forums = bb_get_forums_hierarchical( $child_of, $depth );
+		$_forums = (array) bb_flatten_array( $_forums );
+
+		foreach ( array_keys($_forums) as $_id )
+			$_forums[$_id] = $forums[$_id];
+
+		$forums = $_forums;
+	}
+
 	if ( !is_callable($callback) )
 		return $forums;
 
@@ -1927,23 +1967,6 @@ function bb_get_themes() {
 	ksort($r);
 	return $r;
 }
-
-function bb_parse_args( $args, $defaults = '' ) {
-	if ( is_array($args) )
-		$r =& $args;
-	else
-		parse_str( $args, $r );
-	if ( get_magic_quotes_gpc() )
-		$r = stripslashes_deep( $r );
-
-	if ( is_array($defaults) ) :
-		extract($defaults);
-		extract($r);
-		return compact(array_keys($defaults)); // only those options defined in $defaults
-	else :
-		return $r;
-	endif;
-}	
 
 /* Searh Functions */
 function bb_user_search( $args = '' ) {

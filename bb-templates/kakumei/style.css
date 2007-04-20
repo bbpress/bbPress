@@ -169,7 +169,7 @@ form.login input {
 	padding-bottom: 10px;
 }
 
-#front-page #main h2, h2.post-form, #userlogin, #currentfavorites, #register {
+#front-page #main h2, #forum-page #main h2, h2.post-form, #userlogin, #currentfavorites, #register {
 	color: #333;
 	border-bottom: 1px solid #ddd;
 	margin: 0 0 10px;

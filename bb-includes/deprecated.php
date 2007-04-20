@@ -255,4 +255,9 @@ function get_bb_location() {
 		$r = apply_filters( 'get_bb_location', '' ); // Deprecated filter
 	return $r;
 }
+
+function bb_parse_args( $args, $defaults = '' ) {
+	return wp_parse_args( $args, $defaults );
+}
+
 ?>

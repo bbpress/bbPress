@@ -69,28 +69,13 @@ bb_get_admin_header();
 </div>
 <?php break; default : ?>
 
-<?php
-function bb_list_h( $forums, $level = 0, $id = 0 ) {
-	$tabs = $level ? str_repeat( "\t", $level + 1 ) : '';
-	if ( $level )
-		echo "$tabs<ul id='forum-root-$id' class='list-block holder'>\n";
-	foreach ( array_keys($forums) as $f ) {
-		echo "$tabs";
-		bb_forum_row( $f, true, false, 'forum' );
-		if ( is_array($forums[$f]) )
-			bb_list_h( $forums[$f], $level + 1, $f );
-		echo "$tabs\t</li>\n";
-	}
-	if ( $level )
-		echo "$tabs</ul>\n";
-}
-?>
-
-<?php if ( $forums ) : $_forums = bb_get_forums_hierarchical(); ?>
+<?php if ( $forums ) : ?>
 
 <ul id="the-list" class="list-block holder">
 	<li class="thead list-block"><div class="list-block">Name &#8212; Description</div></li>
-<?php bb_list_h( $_forums ); ?>
+<?php
+bb_forum_adminlistitems($forums);
+?>
 </ul>
 <?php endif; // $forums ?>
 

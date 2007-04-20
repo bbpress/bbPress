@@ -156,12 +156,14 @@ class BB_Cache {
 		$forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
 		if ( $this->use_cache && $normal && $forums )
 			$this->write_cache(BBPATH . 'bb-cache/bb_forums', $forums);
+
+		$_forums = array();
 		foreach ( $forums as $forum )
-			$bb_forum_cache[(int) $forum->forum_id] = $forum;
+			$_forums[(int) $forum->forum_id] = $bb_forum_cache[(int) $forum->forum_id] = $forum;
 
 		$bb_forum_cache[-1] = true;
 
-		return $forums;
+		return $_forums;
 	}
 
 	function get_forum( $forum_id ) {

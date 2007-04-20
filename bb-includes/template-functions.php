@@ -172,6 +172,7 @@ function get_alt_class( $key, $others = '' ) {
 	$class = '';
 	if ( !isset( $bb_alt[$key] ) ) $bb_alt[$key] = -1;
 	++$bb_alt[$key];
+	$others = trim($others);
 	if ( $others xor $bb_alt[$key] % 2 )
 		$class = ' class="' . ( ($others) ? $others : 'alt' ) . '"';
 	elseif ( $others && $bb_alt[$key] % 2 )
@@ -365,8 +366,16 @@ function get_forum_name( $forum_id = 0 ) {
 	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
 }
 
-function forum_description( $forum_id = 0 ) {
-	echo apply_filters( 'forum_description', get_forum_description( $forum_id ), $forum_id );
+function forum_description( $args = null ) {
+	if ( is_numeric($args) )
+		$args = array( 'id' => $args );
+	elseif ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'before' => $args );
+	$defaults = array( 'id' => 0, 'before' => ' &#8211; ', 'after' => '' );
+	$args = bb_parse_args( $args, $defaults );
+
+	if ( $desc = apply_filters( 'forum_description', get_forum_description( $args['id'] ), $args['id'], $args ) )
+		echo $args['before'] . $desc . $args['after'];
 }
 
 function get_forum_description( $forum_id = 0 ) {
@@ -420,6 +429,75 @@ function get_forum_rss_link( $forum_id = 0 ) {
 		$link = bb_get_option('uri') . "rss.php?forum=$forum->forum_id";
 
 	return apply_filters( 'get_forum_rss_link', $link, $forum_id );
+}
+
+// Forum Loop //
+
+function &bb_forums( $type = 'flat' ) {
+	global $bb_forums_loop;
+	
+	$args = array_slice( func_get_args(), 1 );
+
+	$levels = array( '', '' );
+
+	switch ( strtolower($type) ) :
+	case 'flat' : // [sic]
+		break;
+	case 'list' :
+	case 'ul' :
+		$levels = array( '<ul>', '</ul>' );
+		break;
+	default :
+		$args = func_get_args();
+		break;
+	endswitch;
+
+	$forums = call_user_func_array( 'get_forums', $args );
+
+	if ( $bb_forums_loop = BB_Loop::start( $forums ) ) {
+		$bb_forums_loop->walker->db_fields = array( 'id' => 'forum_id', 'parent' => 'forum_parent' );
+		list($bb_forums_loop->walker->start_lvl, $bb_forums_loop->walker->end_lvl) = $levels;
+		return $bb_forums_loop->elements;
+	}
+	return false;
+}
+
+function bb_forum() { // Returns current depth
+	global $bb_forums_loop, $forum;
+	if ( !is_object($bb_forums_loop) || !is_a($bb_forums_loop, 'BB_Loop') )
+		return false;
+	if ( !is_array($bb_forums_loop->elements) )
+		return false;
+
+	if ( $r = $bb_forums_loop->step() )
+		$forum =& current($bb_forums_loop->elements); // Globalize the current forum object
+	else
+		return $bb_forums_loop = null; // All done?  Kill the object and exit the loop.
+
+	return $bb_forums_loop->walker->depth;
+}
+
+function bb_forum_pad( $pad ) {
+	global $bb_forums_loop;
+	if ( !is_object($bb_forums_loop) || !is_a($bb_forums_loop, 'BB_Loop') )
+		return false;
+
+	echo $bb_forums_loop->pad( $pad );
+}
+
+function bb_forum_class( $args = null ) {
+	if ( is_numeric($args) ) // Not used
+		$args = array( 'id' => $args );
+	elseif ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'class' => $args );
+	$defaults = array( 'id' => 0, 'key' => 'forum', 'class' => '' );
+	$args = bb_parse_args( $args, $defaults );
+
+	global $bb_forums_loop;
+	if ( is_object($bb_forums_loop) && is_a($bb_forums_loop, 'BB_Loop') )
+		$args['class'] .= ' ' . $bb_forums_loop->classes();
+
+	return apply_filters( 'bb_forum_class', alt_class( 'forum', $args['class'] ) );
 }
 
 // TOPICS
