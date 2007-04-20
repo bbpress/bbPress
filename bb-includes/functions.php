@@ -336,22 +336,24 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
 }
 
-function get_user_favorites( $user_id, $list = false ) {
+function get_user_favorites( $user_id, $topics = false ) {
 	global $bbdb, $page;
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites ) {
-		$order_by = apply_filters( 'get_user_favorites_order_by', 'topic_time DESC', $list );
-		if ( $list ) {
+		if ( $topics ) {
+			$order_by = apply_filters( 'get_user_favorites_order_by', 'topic_time DESC', $topics );
 			$limit = bb_get_option( 'page_topics' );
 			if ( 1 < $page )
 				$limit = ($limit * ($page - 1)) . ", $limit";
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_id IN ($user->favorites)
 				ORDER BY $order_by LIMIT $limit");
-		} else
+		} else {
+			$order_by = apply_filters( 'get_user_favorites_order_by', 'post_time DESC', $topics );
 			return $bbdb->get_results("
 				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
 				ORDER BY $order_by LIMIT 20");
+		}
 	}
 }
 
