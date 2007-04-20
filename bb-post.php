@@ -48,6 +48,7 @@ $topic = get_topic( $topic_id, false );
 if ( $topic->topic_posts )
 	$link = add_query_arg( 'replies', $topic->topic_posts, $link );
 
+do_action( 'bb_post.php', $post_id );
 if ($post_id)
 	wp_redirect( $link );
 else
