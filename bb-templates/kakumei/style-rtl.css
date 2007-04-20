@@ -13,7 +13,7 @@ fieldset table { text-align: right; }
 
 .left, #manage-tags li, .login label, .login #submit, #topic-info { float: right; }
 
-#front-page #hottags, .login { left: auto; right: 0; }
+#front-page #hottags { left: auto; right: 0; }
 
 .right, #topic-tags, #front-search { float: left; }
 
