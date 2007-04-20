@@ -497,7 +497,7 @@ function bb_forum_class( $args = null ) {
 	if ( is_object($bb_forums_loop) && is_a($bb_forums_loop, 'BB_Loop') )
 		$args['class'] .= ' ' . $bb_forums_loop->classes();
 
-	return apply_filters( 'bb_forum_class', alt_class( 'forum', $args['class'] ) );
+	echo apply_filters( 'bb_forum_class', get_alt_class( 'forum', $args['class'] ) );
 }
 
 // TOPICS
@@ -1619,7 +1619,7 @@ function bb_forum_dropdown( $args = '' ) {
 }
 
 function bb_get_forum_dropdown( $args = '' ) {
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5 );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0 );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'callback' => $args );
 	if ( 1 < func_num_args() )
@@ -1627,9 +1627,11 @@ function bb_get_forum_dropdown( $args = '' ) {
 
 	extract($args = bb_parse_args( $args, $defaults ));
 
-	global $forum_id;
-	if ( !$forums = get_forums( $callback, $callback_args ) )
+	if ( !$forums = bb_forums( $args ) )
 		return;
+
+	global $forum_id, $forum;
+	$old_global = $forum;
 
 	$id = attribute_escape( $id );
 	$tab = (int) $tab;
@@ -1638,10 +1640,11 @@ function bb_get_forum_dropdown( $args = '' ) {
 	if ( $none )
 		$r .= "\n<option value='0'>" . __('- None -') . "</option>\n";
 
-	foreach ( $forums as $forum ) :
+	while ( $depth = bb_forum() ) :
 		$_selected = ( !$selected && $forum_id == $forum->forum_id || $selected == $forum->forum_id ) ? " selected='selected'" : '';
-		$r .= "\n<option value='$forum->forum_id'$_selected>$forum->forum_name</option>\n";
-	endforeach;
+		$r .= "\n<option value='$forum->forum_id'$_selected>" . str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . " $forum->forum_name</option>\n";
+	endwhile;
+	$forum = $old_global;
 	$r .= "</select>\n";
 	return $r;
 }
