@@ -3,12 +3,16 @@ require('./bb-load.php');
 
 $ref = wp_get_referer();
 
+$re = bb_get_option('uri');
+
 if ( 0 === strpos($ref, bb_get_option( 'uri' )) ) {
 	$re = $_POST['re'] ? $_POST['re'] : $_GET['re'];
 	if ( 0 !== strpos($re, bb_get_option( 'uri' )) )
 		$re = $ref . $re;
-} else
-	$re = bb_get_option('uri');
+}
+
+if ( 0 === strpos($re, bb_get_option( 'uri' ) . 'register.php') )
+	$re = bb_get_option( 'uri' );
 
 nocache_headers();
 
