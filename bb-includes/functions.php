@@ -1199,6 +1199,11 @@ function bb_get_option( $option ) {
 		break;
 	case 'url' :
 		$option = 'uri';
+	case 'bb_table_prefix' :
+	case 'table_prefix' :
+		global $bb_table_prefix;
+		return $bb_table_prefix; // Don't filter;
+		break;
 	default :
 		if ( isset($bb->$option) ) {
 			$r = $bb->$option;
