@@ -81,7 +81,7 @@ fieldset { padding: 10px 10px 0 10px; }
 	left: 59px;
 }
 
-#forumlist tr td div {
+#forumlist tr td div.nest {
 	padding-right: 2.5ex;
 	padding-left: 0;
 }
