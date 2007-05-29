@@ -611,7 +611,7 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 		}
 		if (bb_current_user_can('delete_forum', $forum->forum_id) && 1 < $forums_count) {
 			$delete_href = attribute_escape(bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=" . $forum->forum_id);
-			$output .= $indent . "\t\t\t\t<a class=\"delete\" href=\"" . $edit_href . "\">" . __('Delete') . "</a>\n";
+			$output .= $indent . "\t\t\t\t<a class=\"delete\" href=\"" . $delete_href . "\">" . __('Delete') . "</a>\n";
 		}
 		$output .= $indent . "\t\t\t</div>\n";
 		$output .= $indent . "\t\t\t" . get_forum_name($forum->forum_id) . " &#8212; " . get_forum_description($forum->forum_id) . "\n";
