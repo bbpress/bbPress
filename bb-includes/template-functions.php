@@ -1644,6 +1644,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 		$r .= "\n<option value='0'>" . __('- None -') . "</option>\n";
 
 	while ( $depth = bb_forum() ) :
+		global $forum; // Globals + References = Pain
 		$_selected = ( !$selected && $forum_id == $forum->forum_id || $selected == $forum->forum_id ) ? " selected='selected'" : '';
 		$r .= "\n<option value='$forum->forum_id'$_selected>" . str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . " $forum->forum_name</option>\n";
 	endwhile;

@@ -257,15 +257,15 @@ class BB_Loop {
 	var $_looping = false;
 
 	function &start( $elements, $walker = 'BB_Walker_Blank' ) {
-		$a = new BB_Loop( &$elements );
+		$a = new BB_Loop( $elements );
 		if ( !$a->elements )
 			return null;
 		$a->walker = new $walker;
 		return $a;
 	}
 
-	function BB_Loop( $elements ) {
-		$this->elements =& $elements;
+	function BB_Loop( &$elements ) {
+		$this->elements = $elements;
 		if ( !is_array($this->elements) || empty($this->elements) )
 			return $this->elements = false;
 	}
