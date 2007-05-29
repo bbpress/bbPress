@@ -69,7 +69,22 @@ function bb_active_theme_uri() {
 }
 
 function bb_get_active_theme_uri() {
-	return apply_filters( 'bb_get_active_theme_uri', bb_path_to_url( bb_get_active_theme_folder() ) );
+	if ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
+		$active_theme = BBPATH . 'bb-templates/kakumei/';
+	return apply_filters( 'bb_get_active_theme_uri', bb_get_theme_uri( $active_theme ) );
+}
+
+function bb_get_theme_uri( $theme = false ) {
+	if ( !$theme )
+		$r = BBTHEMEURL;
+	elseif ( 0 === strpos($theme, BBTHEMEDIR) )
+		$r = BBTHEMEURL . substr($theme, strlen(BBTHEMEDIR));
+	elseif ( 0 === strpos($theme, BBPATH) )
+		$r = bb_get_option( 'uri' ) . substr($theme, strlen(BBPATH));
+	else
+		$r = false;
+
+	return apply_filters( 'bb_get_theme_uri', $r, $theme );
 }
 
 function bb_get_footer() {

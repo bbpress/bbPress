@@ -28,7 +28,7 @@ if ( !in_array($activetheme, $themes) ) {
 
 function bb_admin_theme_row( $theme ) {
 	$theme_data = file_exists( $theme . 'style.css' ) ? bb_get_theme_data( $theme . 'style.css' ) : false;
-	$screen_shot = file_exists( $theme . 'screenshot.png' ) ? attribute_escape( bb_path_to_url( $theme . 'screenshot.png' ) ) : false;
+	$screen_shot = file_exists( $theme . 'screenshot.png' ) ? clean_url( bb_get_theme_uri( $theme . 'screenshot.png' ) ) : false;
 	$activation_url = clean_url( bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme', $class ); ?>>

@@ -296,4 +296,53 @@ function get_tag_link_base() {
 }
 endif;
 
+// It's not omnipotent
+function bb_path_to_url( $path ) {
+	return apply_filters( 'bb_path_to_url', bb_convert_path_base( $path, BBPATH, bb_get_option( 'uri' ) ), $path );
+}
+
+// Neither is this one
+function bb_url_to_path( $url ) {
+	return apply_filters( 'bb_url_to_path', bb_convert_path_base( $url, bb_get_option( 'uri' ), BBPATH ), $url );
+}
+
+function bb_convert_path_base( $path, $from_base, $to_base ) {
+	$last_char = $path{strlen($path)-1};
+	if ( '/' != $last_char && '\\' != $last_char )
+		$last_char = '';
+
+	list($from_base, $to_base) = bb_trim_common_path_right($from_base, $to_base);
+
+	if ( 0 === strpos( $path, $from_base ) )
+		$r = $to_base . substr($path, strlen($from_base)) . $last_char;
+	else
+		return false;
+
+	$r = str_replace(array('//', '\\\\'), array('/', '\\'), $r);
+	$r = preg_replace('|:/([^/])|', '://$1', $r);
+
+	return $r;
+}
+
+function bb_trim_common_path_right( $one, $two ) {
+	$root_one = false;
+	$root_two = false;
+
+	while ( false === $root_one ) {
+		$base_one = basename($one);
+		$base_two = basename($two);
+		if ( !$base_one || !$base_two )
+			break;		
+		if ( $base_one == $base_two ) {
+			$one = dirname($one);
+			$two = dirname($two);
+		} else {
+			$root_one = $one;
+			$root_two = $two;
+		}
+	}
+
+	return array($root_one, $root_two);
+}
+
 ?>

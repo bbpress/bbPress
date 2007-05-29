@@ -57,13 +57,35 @@ if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 
 error_reporting(E_ALL ^ E_NOTICE);
 
+if ( isset($bb->uri) ) {
+	$bb->domain = preg_replace('|(?<!/)/(?!/).*$|', '', $bb->uri);
+	$bb->path = substr($bb->uri, strlen($bb->domain));
+} elseif ( isset($bb->path) && isset($bb->domain) ) {
+	$bb->domain = rtrim($bb->domain, '/');
+	$bb->path = '/' . ltrim($bb->path, '/');
+} else {
+	bb_die( '<code>$bb->uri</cade> must be set in your <code>config.php</code> file.' );
+}
+
+foreach ( array('wp_site_url', 'wp_home', 'path') as $p )
+	if ( isset($bb->$p) && $bb->$p )
+		$bb->$p = rtrim($bb->$p, '/');
+unset($p);
+
+$bb->path = "$bb->path/";
+$bb->uri = $bb->domain . $bb->path;
+
 define('BBINC', 'bb-includes/');
 if ( !defined('BBLANGDIR') )
 	define('BBLANGDIR', BBPATH . BBINC . 'languages/'); // absolute path with trailing slash
 if ( !defined('BBPLUGINDIR') )
 	define('BBPLUGINDIR', BBPATH . 'my-plugins/');
+if ( !defined('BBPLUGINURL') )
+	define('BBPLUGINURL', $bb->uri . 'my-plugins/');
 if ( !defined('BBTHEMEDIR') )
 	define('BBTHEMEDIR', BBPATH . 'my-templates/');
+if ( !defined('BBTHEMEURL') )
+	define('BBTHEMEDIR', $bb->uri . 'my-templates/');
 
 if ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . 'db-mysqli.php');
@@ -142,24 +164,6 @@ if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
 if ( defined('CUSTOM_USER_META_TABLE') )
 	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
-
-if ( isset($bb->uri) ) {
-	$bb->domain = preg_replace('|(?<!/)/(?!/).*$|', '', $bb->uri);
-	$bb->path = substr($bb->uri, strlen($bb->domain));
-} elseif ( isset($bb->path) && isset($bb->domain) ) {
-	$bb->domain = rtrim($bb->domain, '/');
-	$bb->path = '/' . ltrim($bb->path, '/');
-} else {
-	bb_die( '<code>$bb->uri</cade> must be set in your <code>config.php</code> file.' );
-}
-
-foreach ( array('wp_site_url', 'wp_home', 'path') as $p )
-	if ( isset($bb->$p) && $bb->$p )
-		$bb->$p = rtrim($bb->$p, '/');
-unset($p);
-
-$bb->path = "$bb->path/";
-$bb->uri = $bb->domain . $bb->path;
 
 define('BBHASH', $bb->wp_siteurl ? md5($bb->wp_siteurl) : md5($bb_table_prefix) );
 
