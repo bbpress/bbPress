@@ -780,7 +780,7 @@ function bb_recount_list() {
 
 function bb_get_plugins() {
 	$dir = new BB_Dir_Map( BBPLUGINDIR, array(
-		'callback' => create_function('$f', 'if ( ".php" != substr($f,-4) ) return false; return bb_get_plugin_data( $f );'),
+		'callback' => create_function('$f,$_f', 'if ( ".php" != substr($f,-4) || "_" == substr($_f, 0, 1) ) return false; return bb_get_plugin_data( $f );'),
 		'recurse' => 1
 	) );
 	$r = $dir->get_results();

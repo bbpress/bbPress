@@ -2,6 +2,11 @@
 require_once('admin.php');
 
 $plugins = bb_get_plugins();
+$_plugins = new BB_Dir_Map( BBPLUGINDIR, array( 'recurse' => 0, 'callback' => create_function( '$f,$_f', 'if ( !preg_match("/^_.*?\.php$/", $_f) ) return false; if ( $r = bb_get_plugin_data( $f ) ) return $r; return true;' ) ) );
+$_plugins = $_plugins->get_results();
+if ( is_wp_error( $_plugins ) )
+	$_plugins = array();
+
 $current = (array) bb_get_option( 'active_plugins' );
 
 $update = false;
@@ -60,7 +65,7 @@ bb_get_admin_header();
 
 <h2><?php _e('Plugins'); ?></h2>
 
-<?php if($plugins) : ?> 
+<?php if( $plugins ) : ?> 
 
 <table class="widefat">
 <thead>
@@ -91,7 +96,39 @@ bb_get_admin_header();
 </tbody>
 </table>
 
+<?php endif; if ( $_plugins ) : ?>
+
+<br />
+<h3><?php _e('Automatically loaded plugins'); ?></h3>
+
+<table class="widefat">
+<thead>
+	<tr>
+		<th>Plugin</th>
+		<th class="vers">Version</th>
+		<th>Description</th>
+	</tr>
+</thead>
+<tbody>
+
+<?php foreach ( $_plugins as $p => $plugin ) : ?>
+	<tr<?php alt_class( '_plugin' ); ?>>
+<?php if ( is_array($plugin) ) : ?>
+		<td><?php echo $plugin['plugin_link']; ?></td>
+		<td class="vers"><?php echo $plugin['version']; ?></td>
+		<td><?php echo $plugin['description']; ?>
+			<cite><?php printf( __('By %s.'), $plugin['author_link'] ); ?></cite>
+		</td>
 <?php else : ?>
+		<td colspan="3"><?php echo wp_specialchars( $p ); ?></td>
+<?php endif; ?>
+	</tr>
+<?php endforeach; ?>
+
+</tbody>
+</table>
+
+<?php endif; if ( !$plugins && !$_plugins ) :?>
 <p>No Plugins Installed</p>
 
 <?php endif; ?>
