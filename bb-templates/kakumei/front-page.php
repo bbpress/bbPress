@@ -51,7 +51,7 @@
 </tr>
 <?php while ( bb_forum() ) : ?>
 <tr<?php bb_forum_class(); ?>>
-	<td><?php bb_forum_pad( ' &#8212; ' ); ?><a href="<?php forum_link(); ?>"><?php forum_name(); ?></a><small><?php forum_description(); ?></small></td>
+	<td><?php bb_forum_pad( '<div class="nest">' ); ?><a href="<?php forum_link(); ?>"><?php forum_name(); ?></a><small><?php forum_description(); ?></small><?php bb_forum_pad( '</div>' ); ?></td>
 	<td class="num"><?php forum_topics(); ?></td>
 	<td class="num"><?php forum_posts(); ?></td>
 </tr>

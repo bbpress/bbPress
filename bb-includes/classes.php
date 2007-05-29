@@ -287,9 +287,13 @@ class BB_Loop {
 		return $r;
 	}
 
-	function pad( $pad ) {
+	function pad( $pad, $offset = 0 ) {
 		if ( !is_array($this->elements) || !is_object($this->walker) )
 			return false;
+
+		if ( is_numeric($pad) )
+			return $pad * ($this->walker->depth - 1) + (int) $offset;
+
 		return str_repeat( $pad, $this->walker->depth - 1 );
 	}
 

@@ -80,3 +80,8 @@ fieldset { padding: 10px 10px 0 10px; }
 	right: auto;
 	left: 59px;
 }
+
+#forumlist tr td div {
+	padding-right: 2.5ex;
+	padding-left: 0;
+}

@@ -322,6 +322,10 @@ form.login input {
 
 #latest td, #forumlist td, #favorites td { padding: 5px 10px; }
 
+#forumlist tr td div.nest {
+	padding-left: 2.5ex;
+}
+
 #latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background: #e4f3e1; }
 
 #latest th, #forumlist th, #favorites th {

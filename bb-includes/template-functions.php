@@ -480,12 +480,12 @@ function bb_forum() { // Returns current depth
 	return $bb_forums_loop->walker->depth;
 }
 
-function bb_forum_pad( $pad ) {
+function bb_forum_pad( $pad, $offset = 0 ) {
 	global $bb_forums_loop;
 	if ( !is_object($bb_forums_loop) || !is_a($bb_forums_loop, 'BB_Loop') )
 		return false;
 
-	echo $bb_forums_loop->pad( $pad );
+	echo $bb_forums_loop->pad( $pad, $offset );
 }
 
 function bb_forum_class( $args = null ) {
