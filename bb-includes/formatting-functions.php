@@ -79,7 +79,6 @@ function bb_encode_bad( $text ) {
 			$text = preg_replace("|&lt;(/?$tag)&gt;|", '<$1>', $text);
 	}
 
-	$text = bb_code_trick( $text );
 	return $text;
 }
 

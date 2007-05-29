@@ -816,6 +816,7 @@ function bb_get_plugin_data($plugin_file) {
 
 	$description = trim($description[1]);
 	$description = bb_encode_bad( $description );
+	$description = bb_code_trick( $description );
 	$description = balanceTags( $description );
 	$description = bb_filter_kses( $description );
 	$description = bb_autop( $description );
@@ -866,6 +867,7 @@ function bb_get_theme_data( $theme_file ) {
 
 	$description = trim($description[1]);
 	$description = bb_encode_bad( $description );
+	$description = bb_code_trick( $description );
 	$description = balanceTags( $description );
 	$description = bb_filter_kses( $description );
 	$description = bb_autop( $description );
