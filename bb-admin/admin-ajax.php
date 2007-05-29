@@ -43,7 +43,7 @@ case 'add-tag' :
 		$x->add( array(
 			'what' => 'tag',
 			'id' => $tag_id_val,
-			'data' => "<li id='tag-$tag_id_val'><a href='" . get_tag_link() . "' rel='tag'>$tag->raw_tag</a> " . get_tag_remove_link() . '</li>' 
+			'data' => "<li id='tag-$tag_id_val'><a href='" . bb_get_tag_link() . "' rel='tag'>$tag->raw_tag</a> " . get_tag_remove_link() . '</li>' 
 		) );
 	}
 	$x->send();

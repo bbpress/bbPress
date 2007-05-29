@@ -1390,10 +1390,10 @@ function get_tag_page_link() {
 }
 
 function bb_tag_link( $id = 0, $page = 1 ) {
-	echo get_tag_link( $id );
+	echo bb_get_tag_link( $id );
 }
 
-function get_tag_link( $tag_name = 0, $page = 1 ) {
+function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
 	global $tag;
 	if ( $tag_name )
 		$_tag = get_tag_by_name( $tag_name );
@@ -1407,10 +1407,10 @@ function get_tag_link( $tag_name = 0, $page = 1 ) {
 }
 
 function bb_tag_link_base() {
-	echo get_tag_link_base();
+	echo bb_get_tag_link_base();
 }
 
-function get_tag_link_base() {
+function bb_get_tag_link_base() {
 	return get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
 }
 
@@ -1560,7 +1560,7 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 
 	foreach ( (array) $tags as $tag ) {
 		$counts{$tag->raw_tag} = $tag->tag_count;
-		$taglinks{$tag->raw_tag} = get_tag_link( $tag->tag );
+		$taglinks{$tag->raw_tag} = bb_get_tag_link( $tag->tag );
 	}
 
 	$min_count = min($counts);

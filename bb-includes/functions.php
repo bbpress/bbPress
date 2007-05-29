@@ -1639,7 +1639,7 @@ function bb_repermalink() {
 				global $tag, $tag_name;
 				$tag_name = $permalink;
 				$tag = get_tag_by_name( $tag_name );
-				$permalink = get_tag_link( 0, $page ); // 0 => grabs $tag from global.
+				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;
 		case 'view-page': // Not an integer

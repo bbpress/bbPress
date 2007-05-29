@@ -284,4 +284,16 @@ function tag_link_base() {
 }
 endif;
 
+if ( !function_exists( 'get_tag_link' ) ) :
+function tag_link() {
+	bb_get_tag_link();
+}
+endif;
+
+if ( !function_exists( 'get_tag_link_base' ) ) :
+function tag_link_base() {
+	bb_get_tag_link_base();
+}
+endif;
+
 ?>
