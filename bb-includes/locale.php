@@ -87,6 +87,18 @@ class BB_Locale {
 		$this->meridiem['AM'] = __('AM');
 		$this->meridiem['PM'] = __('PM');
 
+		// Numbers formatting
+		// See http://php.net/number_format
+
+		$trans = __('number_format_decimals'); 
+		$this->number_format['decimals'] = ('number_format_decimals' == $trans) ? 0 : $trans;
+		
+		$trans = __('number_format_decimal_point');
+		$this->number_format['decimal_point'] = ('number_format_decimal_point' == $trans) ? '.' : $trans;
+
+		$trans = __('number_format_thousands_sep');	
+		$this->number_format['thousands_sep'] = ('number_format_thousands_sep' == $trans) ? ',' : $trans; 
+		
 		$this->_load_locale_data();
 	}
 
@@ -175,7 +187,7 @@ function bb_number_format_i18n($number, $decimals = null) {
 	// let the user override the precision only
 	$decimals = is_null($decimals) ? $bb_locale->bb_number_format_i18n['decimals'] : intval($decimals);
 
-	return number_format($number, $decimals, $bb_locale->bb_number_format_i18n['decimal_point'], $bb_locale->bb_number_format_i18n['thousands_sep']);
+	return number_format($number, $decimals, $bb_locale->number_format['decimal_point'], $bb_locale->number_format['thousands_sep']);
 }
 
 ?>
