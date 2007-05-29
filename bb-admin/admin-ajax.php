@@ -36,7 +36,7 @@ case 'add-tag' :
 	$tag_name = rawurldecode($tag_name);
 	$x = new WP_Ajax_Response();
 	foreach ( add_topic_tags( $topic_id, $tag_name ) as $tag_id ) {
-		if ( !is_numeric($tag_id) || !$tag = get_tag( $tag_id ) )
+		if ( !is_numeric($tag_id) || !$tag = get_tag( $tag_id, bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 			continue;
 		$tag_id_val = $tag->tag_id . '_' . $bb_current_id;
 		$tag->raw_tag = attribute_escape( $tag->raw_tag );
@@ -64,7 +64,7 @@ case 'delete-tag' :
 	$topic = get_topic ( $topic_id );
 	if ( !$tag || !$topic )
 		die('0');
-	if ( remove_topic_tag( $tag_id, $user_id, $topic_id ) )
+	if ( bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) )
 		die('1');
 	break;
 

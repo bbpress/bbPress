@@ -711,10 +711,13 @@ function add_topic_tag( $topic_id, $tag ) {
 		do_action('bb_already_tagged', $tag_id, $id, $topic_id);
 		return $tag_id;
 	endif;
+
 	$bbdb->query("INSERT INTO $bbdb->tagged 
-	( tag_id, user_id, topic_id, tagged_on )
-	VALUES
-	( '$tag_id', '$id', '$topic_id', '$now')");
+			( tag_id, user_id, topic_id, tagged_on )
+			VALUES
+			( '$tag_id', '$id', '$topic_id', '$now')"
+	);
+
 	if ( !$user_already ) {
 		$bbdb->query("UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = '$tag_id'");
 		$bbdb->query("UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id = '$topic_id'");
@@ -808,7 +811,7 @@ function bb_remove_topic_tags( $topic_id ) {
 		foreach ( $_tags as $t => $i ) {
 			if ( 0 > ( $new_count = (int) $_counts[$t] - 1 ) )
 				$new_count = 0;
-			if ( !$new_count && bb_current_user_can( 'manage_tags' ) ) {
+			if ( !$new_count ) {
 				destroy_tag( $i, false );
 				continue;
 			}
@@ -827,8 +830,6 @@ function bb_remove_topic_tags( $topic_id ) {
 // rename and merge in admin-functions.php
 function destroy_tag( $tag_id, $recount_topics = true ) {
 	global $bbdb, $bb_cache;
-	if ( !bb_current_user_can( 'manage_tags' ) ) 
-		return false;
 
 	do_action('bb_pre_destroy_tag', $tag_id);
 
@@ -854,10 +855,14 @@ function get_tag_id( $tag ) {
 	return $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
-function get_tag( $id ) {
+function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	global $bbdb;
-	$id = (int) $id;
-	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag_id = '$id'");
+	$tag_id   = (int) $tag_id;
+	$user_id  = (int) $user_id;
+	$topic_id = (int) $topic_id;
+	if ( $user_id && $topic_id )
+		return $bbdb->get_row("SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'");
+	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag_id = '$tag_id'");
 }
 
 function get_tag_by_name( $tag ) {
