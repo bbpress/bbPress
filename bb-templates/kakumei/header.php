@@ -16,7 +16,7 @@
 		var currentUserId = <?php bb_current_user_info( 'id' ); ?>;
 		var topicId = <?php topic_id(); ?>;
 		var uriBase = '<?php bb_option('uri'); ?>';
-		var tagLinkBase = '<?php tag_link_base(); ?>';
+		var tagLinkBase = '<?php bb_tag_link_base(); ?>';
 		var favoritesLink = '<?php favorites_link(); ?>'; 
 		var isFav = <?php if ( false === $is_fav = is_user_favorite( bb_get_current_user_info( 'id' ) ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>

@@ -1389,7 +1389,7 @@ function get_tag_page_link() {
 	return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' );
 }
 
-function tag_link( $id = 0, $page = 1 ) {
+function bb_tag_link( $id = 0, $page = 1 ) {
 	echo get_tag_link( $id );
 }
 
@@ -1406,7 +1406,7 @@ function get_tag_link( $tag_name = 0, $page = 1 ) {
 		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$_tag->tag" . ( 1 < $page ? "&page=$page" : '' );
 }
 
-function tag_link_base() {
+function bb_tag_link_base() {
 	echo get_tag_link_base();
 }
 
