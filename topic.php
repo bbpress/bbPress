@@ -23,14 +23,15 @@ if ( !$bb_db_override ) :
 
 	$tags  = get_topic_tags ( $topic_id );
 	if ( $tags && $bb_current_id = bb_get_current_user_info( 'id' ) ) {
-		$user_tags  = get_user_tags  ( $topic_id, $bb_current_id );
-		$other_tags = get_other_tags ( $topic_id, $bb_current_id );
+		$user_tags  = get_user_tags   ( $topic_id, $bb_current_id );
+		$other_tags = get_other_tags  ( $topic_id, $bb_current_id );
+		$public_tags = get_public_tags( $topic_id );
 	} elseif ( is_array($tags) ) {
 		$user_tags  = false;
 		$other_tags = get_public_tags( $topic_id );
+		$public_tags =& $other_tags;
 	} else {
-		$user_tags  = false;
-		$other_tags = false;
+		$user_tags = $other_tags = $public_tags = false;
 	}
 
 	$list_start = ($page - 1) * bb_get_option('page_topics') + 1;

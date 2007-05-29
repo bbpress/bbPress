@@ -1381,7 +1381,7 @@ function bb_get_user_email( $id ) {
 function topic_tags() {
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $topic;
 	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
-		bb_load_template( 'topic-tags.php', array('user_tags', 'other_tags') );
+		bb_load_template( 'topic-tags.php', array('user_tags', 'other_tags', 'public_tags') );
 }
 
 function tag_page_link() {

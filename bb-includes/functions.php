@@ -706,8 +706,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	$id = bb_get_current_user_info( 'id' );
 
 	$now = bb_current_time('mysql');
-	$user_already = (array) $bbdb->get_col("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'");
-	if ( in_array($id, $user_already) ) : 
+	if ( (array) $bbdb->get_col("SELECT user_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' AND topic_id='$topic_id'") ) :
 		do_action('bb_already_tagged', $tag_id, $id, $topic_id);
 		return $tag_id;
 	endif;
@@ -737,9 +736,9 @@ function add_topic_tags( $topic_id, $tags ) {
 		return false;
 
 	$tag_ids = array();
-	foreach ( $words as $tag ) :
-		$tag_ids[] = add_topic_tag( $topic_id, $tag );
-	endforeach;
+	foreach ( $words as $tag )
+		if ( $_tag = add_topic_tag( $topic_id, $tag ) )
+			$tag_ids[] = $_tag;
 	return $tag_ids;
 }
 
@@ -862,7 +861,7 @@ function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	$topic_id = (int) $topic_id;
 	if ( $user_id && $topic_id )
 		return $bbdb->get_row("SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = '$tag_id' AND user_id = '$user_id' AND topic_id = '$topic_id'");
-	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag_id = '$tag_id'");
+	return $bbdb->get_row("SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = '$tag_id' LIMIT 1");
 }
 
 function get_tag_by_name( $tag ) {
