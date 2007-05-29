@@ -65,6 +65,7 @@ h2 { font-size: 1.5em; }
 	letter-spacing: -1px;
 	right: 59px;
 	bottom: 31px;
+	z-index: 2;
 }
 
 #header p { margin-bottom: 0; }
@@ -120,7 +121,8 @@ h2 { font-size: 1.5em; }
 	left: 0;
 	font-weight: bold;
 	color: #444;
-	width: 100%
+	width: 100%;
+	z-index: 1;
 }
 
 .login p { padding: 0 0 5px; }
