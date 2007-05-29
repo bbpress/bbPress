@@ -1,7 +1,7 @@
 <?php
 
-add_filter('get_forum_topics', 'number_format');
-add_filter('get_forum_posts', 'number_format');
+add_filter('get_forum_topics', 'bb_number_format_i18n');
+add_filter('get_forum_posts', 'bb_number_format_i18n');
 
 add_filter('topic_time', 'bb_offset_time', 10, 2);
 add_filter('topic_start_time', 'bb_offset_time', 10, 2);
@@ -23,8 +23,8 @@ add_filter('pre_post', 'bb_autop', 60);
 
 add_filter('post_text', 'make_clickable');
 
-add_filter('total_posts', 'number_format');
-add_filter('total_users', 'number_format');
+add_filter('total_posts', 'bb_number_format_i18n');
+add_filter('total_users', 'bb_number_format_i18n');
 
 add_filter('edit_text', 'bb_code_trick_reverse');
 add_filter('edit_text', 'htmlspecialchars');

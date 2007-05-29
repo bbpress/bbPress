@@ -62,10 +62,10 @@ function option( $option ) {
 
 // Use topic_time
 function topic_date( $format = '', $id = 0 ) {
-	echo gmdate( $format, get_topic_timestamp( $id ) );
+	echo bb_gmdate_i18n( $format, get_topic_timestamp( $id ) );
 }
 function get_topic_date( $format = '', $id = 0 ){
-	return gmdate( $format, get_topic_timestamp( $id ) );
+	return bb_gmdate_i18n( $format, get_topic_timestamp( $id ) );
 }
 function get_topic_timestamp( $id = 0 ) {
 	global $topic;
@@ -76,7 +76,7 @@ function get_topic_timestamp( $id = 0 ) {
 
 // Use topic_start_time
 function topic_start_date( $format = '', $id = 0 ) {
-	echo gmdate( $format, get_topic_start_timestamp( $id ) );
+	echo bb_gmdate_i18n( $format, get_topic_start_timestamp( $id ) );
 }
 function get_topic_start_timestamp( $id = 0 ) {
 	global $topic;
@@ -87,7 +87,7 @@ function get_topic_start_timestamp( $id = 0 ) {
 
 // Use bb_post_time
 function post_date( $format ) {
-	echo gmdate( $format, get_post_timestamp() );
+	echo bb_gmdate_i18n( $format, get_post_timestamp() );
 }
 function get_post_timestamp() {
 	global $bb_post;

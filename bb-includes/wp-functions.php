@@ -1144,4 +1144,18 @@ function urlencode_deep($value) {
 }
 endif;
 
+if ( !function_exists( 'zeroise' ) ) : // [WP2018]
+function zeroise($number,$threshold) { // function to add leading zeros when necessary
+	return sprintf('%0'.$threshold.'s', $number);
+}
+endif;
+
+if ( !function_exists( 'backslashit' ) ) : // [WP3855]
+function backslashit($string) {
+	$string = preg_replace('/^([0-9])/', '\\\\\\\\\1', $string);
+	$string = preg_replace('/([a-z])/i', '\\\\\1', $string);
+	return $string;
+}
+endif;
+
 ?>

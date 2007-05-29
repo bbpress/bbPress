@@ -1460,8 +1460,8 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 	$timeend = $mtime[1] + $mtime[0];
 	$timetotal = $timeend - $bb_timestart;
 	if ($display)
-		echo number_format($timetotal, $precision);
-	return number_format($timetotal, $precision);
+		echo bb_number_format_i18n($timetotal, $precision);
+	return bb_number_format_i18n($timetotal, $precision);
 }
 
 // GMT -> so many minutes ago

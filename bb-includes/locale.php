@@ -146,4 +146,36 @@ class BB_Locale {
 	}
 }
 
+function bb_gmdate_i18n( $dateformatstring, $unixtimestamp ) {
+	global $bb_locale;
+	$i = $unixtimestamp;
+	if ( !empty($bb_locale->month) && !empty($bb_locale->weekday) ) {
+		$datemonth = $bb_locale->get_month( gmdate('m', $i) );
+		$datemonth_abbrev = $bb_locale->get_month_abbrev( $datemonth );
+		$dateweekday = $bb_locale->get_weekday( gmdate('w', $i) );
+		$dateweekday_abbrev = $bb_locale->get_weekday_abbrev( $dateweekday );
+		$datemeridiem = $bb_locale->get_meridiem( gmdate('a', $i) );
+		$datemeridiem_capital = $bb_locale->get_meridiem( gmdate('A', $i) );
+		$dateformatstring = ' ' . $dateformatstring;
+		$dateformatstring = preg_replace("/([^\\\])D/", "\\1" . backslashit( $dateweekday_abbrev ), $dateformatstring);
+		$dateformatstring = preg_replace("/([^\\\])F/", "\\1" . backslashit( $datemonth ), $dateformatstring);
+		$dateformatstring = preg_replace("/([^\\\])l/", "\\1" . backslashit( $dateweekday ), $dateformatstring);
+		$dateformatstring = preg_replace("/([^\\\])M/", "\\1" . backslashit( $datemonth_abbrev ), $dateformatstring);
+		$dateformatstring = preg_replace("/([^\\\])a/", "\\1" . backslashit( $datemeridiem ), $dateformatstring);
+		$dateformatstring = preg_replace("/([^\\\])A/", "\\1" . backslashit( $datemeridiem_capital ), $dateformatstring);
+
+		$dateformatstring = substr($dateformatstring, 1, strlen($dateformatstring)-1);
+	}
+	$j = @gmdate($dateformatstring, $i);
+	return $j;
+}
+
+function bb_number_format_i18n($number, $decimals = null) {
+	global $bb_locale;
+	// let the user override the precision only
+	$decimals = is_null($decimals) ? $bb_locale->bb_number_format_i18n['decimals'] : intval($decimals);
+
+	return number_format($number, $decimals, $bb_locale->bb_number_format_i18n['decimal_point'], $bb_locale->bb_number_format_i18n['thousands_sep']);
+}
+
 ?>

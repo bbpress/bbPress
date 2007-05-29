@@ -1176,7 +1176,7 @@ function bb_profile_data( $id = 0 ) {
 	$profile_info_keys = get_profile_info_keys();
 	echo "<dl id='userinfo'>\n";
 	echo "\t<dt>" . __('Member Since') . "</dt>\n";
-	echo "\t<dd>" . gmdate(__('F j, Y'), $reg_time) . ' (' . bb_since($reg_time) . ")</dd>\n";
+	echo "\t<dd>" . bb_gmdate_i18n(__('F j, Y'), $reg_time) . ' (' . bb_since($reg_time) . ")</dd>\n";
 	if ( is_array( $profile_info_keys ) ) {
 		foreach ( $profile_info_keys as $key => $label ) {
 			if ( 'user_email' != $key && isset($user->$key) && '' !== $user->$key && 'http://' != $user->$key ) {
@@ -1778,7 +1778,7 @@ function _bb_time_function_return( $time, $args ) {
 		break;
 	endswitch;
 
-	return gmdate( $format, $time );
+	return bb_gmdate_i18n( $format, $time );
 }
 
 ?>

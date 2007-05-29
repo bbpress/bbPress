@@ -68,7 +68,7 @@ function get_registrations_per_day() {
 }
 
 function registrations_per_day() {
-	echo apply_filters('registrations_per_day', number_format(get_registrations_per_day(),3));
+	echo apply_filters('registrations_per_day', bb_number_format_i18n(get_registrations_per_day(),3));
 }
 
 function get_posts_per_day() {
@@ -76,7 +76,7 @@ function get_posts_per_day() {
 }
 
 function posts_per_day() {
-	echo apply_filters('posts_per_day', number_format(get_posts_per_day(),3));
+	echo apply_filters('posts_per_day', bb_number_format_i18n(get_posts_per_day(),3));
 }
 
 function get_topics_per_day() {
@@ -84,7 +84,7 @@ function get_topics_per_day() {
 }
 
 function topics_per_day() {
-	echo apply_filters('topics_per_day', number_format(get_topics_per_day(),3));
+	echo apply_filters('topics_per_day', bb_number_format_i18n(get_topics_per_day(),3));
 }
 
 ?>
