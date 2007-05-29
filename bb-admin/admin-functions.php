@@ -783,7 +783,8 @@ function bb_get_plugins() {
 		'callback' => create_function('$f', 'if ( ".php" != substr($f,-4) ) return false; return bb_get_plugin_data( $f );'),
 		'recurse' => 1
 	) );
-	return $dir->get_results();
+	$r = $dir->get_results();
+	return is_wp_error($r) ? array() : $r;
 }
 
 // Output sanitized for display

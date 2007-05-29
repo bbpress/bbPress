@@ -58,6 +58,10 @@ endswitch; endif;
 bb_get_admin_header();
 ?>
 
+<h2><?php _e('Plugins'); ?></h2>
+
+<?php if($plugins) : ?> 
+
 <table class="widefat">
 <thead>
 	<tr>
@@ -69,9 +73,7 @@ bb_get_admin_header();
 </thead>
 <tbody>
 
-<?php if($plugins) : foreach ( $plugins as $p => $plugin ) :
-	$class = in_array($p, $current) ? 'active' : '';
-?>
+<?php foreach ( $plugins as $p => $plugin ) : $class = in_array($p, $current) ? 'active' : ''; ?>
 	<tr<?php alt_class( 'plugin', $class ); ?>>
 		<td><?php echo $plugin['plugin_link']; ?></td>
 		<td class="vers"><?php echo $plugin['version']; ?></td>
@@ -84,13 +86,14 @@ bb_get_admin_header();
 		<td class="action"><a class="edit" href="<?php echo attribute_escape( bb_nonce_url( add_query_arg( array('action' => 'activate', 'plugin' => urlencode($p)), bb_get_option( 'uri' ) . 'bb-admin/plugins.php' ), 'activate-plugin_' . $p ) ); ?>">Activate</a></td>
 <?php endif; ?>
 	</tr>
-<?php endforeach; else :?>
-	<tr<?php alt_class( 'plugin', $class ); ?>>
-		<td align="center" colspan=4>No Plugins Installed</td>
-	</tr>
-<?php endif; ?>
+<?php endforeach; ?>
 
 </tbody>
 </table>
+
+<?php else : ?>
+<p>No Plugins Installed</p>
+
+<?php endif; ?>
 
 <?php bb_get_admin_footer(); ?>
