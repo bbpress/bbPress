@@ -193,7 +193,7 @@ function bb_pre_sanitize_with_dashes_utf8( $text ) {
 	if ( seems_utf8( $text ) ) {
 		if ( function_exists('mb_strtolower') )
 			$text = mb_strtolower($text, 'UTF-8');
-		$text = utf8_uri_encode( $text, $length );
+		$text = utf8_uri_encode( $text );
 	}
 	return $text;
 }

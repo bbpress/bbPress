@@ -185,7 +185,7 @@ function bb_gmdate_i18n( $dateformatstring, $unixtimestamp ) {
 function bb_number_format_i18n($number, $decimals = null) {
 	global $bb_locale;
 	// let the user override the precision only
-	$decimals = is_null($decimals) ? $bb_locale->bb_number_format_i18n['decimals'] : intval($decimals);
+	$decimals = is_null($decimals) ? $bb_locale->number_format['decimals'] : intval($decimals);
 
 	return number_format($number, $decimals, $bb_locale->number_format['decimal_point'], $bb_locale->number_format['thousands_sep']);
 }

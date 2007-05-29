@@ -1702,7 +1702,7 @@ function bb_url_to_path( $url ) {
 }
 
 function bb_convert_path_base( $path, $from_base, $to_base ) {
-	$last_char = $path{strlen($path)};
+	$last_char = $path{strlen($path)-1};
 	if ( '/' != $last_char && '\\' != $last_char )
 		$last_char = '';
 
