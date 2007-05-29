@@ -466,14 +466,14 @@ function &bb_forums( $type = 'flat' ) {
 }
 
 function bb_forum() { // Returns current depth
-	global $bb_forums_loop, $forum;
+	global $bb_forums_loop;
 	if ( !is_object($bb_forums_loop) || !is_a($bb_forums_loop, 'BB_Loop') )
 		return false;
 	if ( !is_array($bb_forums_loop->elements) )
 		return false;
 
 	if ( $r = $bb_forums_loop->step() )
-		$forum =& $bb_forums_loop->elements[key($bb_forums_loop->elements)]; // Globalize the current forum object
+		$GLOBALS['forum'] =& $bb_forums_loop->elements[key($bb_forums_loop->elements)]; // Globalize the current forum object
 	else
 		return $bb_forums_loop = null; // All done?  Kill the object and exit the loop.
 
