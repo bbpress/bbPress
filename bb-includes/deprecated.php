@@ -260,4 +260,15 @@ function bb_parse_args( $args, $defaults = '' ) {
 	return wp_parse_args( $args, $defaults );
 }
 
+if ( !function_exists( 'is_tag' ) ) :
+function is_tag() {
+	return is_bb_tag();
+}
+endif;
+
+if ( !function_exists( 'is_tags' ) ) :
+function is_tags() {
+	return is_bb_tags();
+}
+endif;
 ?>

@@ -17,7 +17,7 @@
 	</label>
 </p>
 <?php endif; ?>
-<?php if ( is_tag() || is_front() ) : ?>
+<?php if ( is_bb_tag() || is_front() ) : ?>
 <p>
 	<label for="forum_id"><?php _e('Pick a section:'); ?>
 		<?php bb_new_topic_forum_dropdown(); ?>

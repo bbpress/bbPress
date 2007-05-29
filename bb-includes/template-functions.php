@@ -123,7 +123,7 @@ function post_form( $h2 = '' ) {
 			$h2 =  __('Reply');
 		elseif ( is_forum() )
 			$h2 = __('New Topic in this Forum');
-		elseif ( is_tag() || is_front() )
+		elseif ( is_bb_tag() || is_front() )
 			$h2 = __('Add New Topic');
 	}
 
@@ -238,13 +238,13 @@ function is_forum() {
 	return 'forum-page' == bb_get_location();
 }
 
-function is_tags() {
+function is_bb_tags() {
 	return 'tag-page' == bb_get_location();
 }
 
-function is_tag() {
+function is_bb_tag() {
 	global $tag, $tag_name;
-	return $tag && $tag_name && is_tags();
+	return $tag && $tag_name && is_bb_tags();
 }
 
 function is_topic() {
@@ -285,8 +285,8 @@ function bb_get_title() {
 		$title = get_topic_title(). ' &laquo; ';
 	elseif ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
-	elseif ( is_tags() )
-		$title = ( is_tag() ? wp_specialchars( get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
+	elseif ( is_bb_tags() )
+		$title = ( is_bb_tag() ? wp_specialchars( get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
 	elseif ( is_bb_profile() )
 		$title = get_user_name() . ' &laquo; ';
 	if ( $st = bb_get_option( 'static_title' ) )
@@ -299,7 +299,7 @@ function bb_feed_head() {
 	$feed_link = '';
 	if ( is_topic() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Topic: %s'), get_topic_title() ) ) . '" href="' . attribute_escape( get_topic_rss_link() ) . '" />';
-	elseif ( is_tag() )
+	elseif ( is_bb_tag() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), get_tag_name() ) ) . '" href="' . attribute_escape( get_tag_rss_link() ) . '" />';
 	elseif ( is_forum() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Forum: %s'), get_forum_name() ) ) . '" href="' . attribute_escape( get_forum_rss_link() ) . '" />';
@@ -824,7 +824,7 @@ function new_topic( $text = false ) {
 	if ( !$text )
 		$text = __('Add New &raquo;');
 
-	if ( is_forum() || is_tag() )
+	if ( is_forum() || is_bb_tag() )
 		$url = '#postform';
 	elseif ( is_front() )
 		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
