@@ -110,7 +110,7 @@ class BB_Scripts {
 			if ( isset($handle[1]) )
 				$this->args[$handle[0]] = $handle[1];
 			$handle = $handle[0];
-			if ( is_null($return[$handle]) ) // Prime the return array with $handles
+			if ( !isset($return[$handle]) ) // Prime the return array with $handles
 				$return[$handle] = true;
 			if ( $this->scripts[$handle]->deps ) {
 				if ( false !== $return[$handle] && array_diff($this->scripts[$handle]->deps, array_keys($this->scripts)) )

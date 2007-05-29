@@ -4,7 +4,7 @@ require_once('admin.php');
 $forums = get_forums();
 $forums_count = $forums ? count($forums) : 0;
 
-if ( 'delete' == $_GET['action'] ) {
+if ( isset($_GET['action']) && 'delete' == $_GET['action'] ) {
 	$forum_to_delete = (int) $_GET['id'];
 	$deleted_forum = get_forum( $forum_to_delete );
 	if ( !$deleted_forum || $forums_count < 2 || !bb_current_user_can( 'delete_forum', $forum_to_delete ) )
@@ -29,7 +29,7 @@ bb_get_admin_header();
 ?>
 
 <h2><?php _e('Forum Management'); ?></h2>
-<?php switch ( $_GET['action'] ) : ?>
+<?php switch ( @$_GET['action'] ) : ?>
 <?php case 'edit' : ?>
 <h3><?php _e('Update Forum'); ?></h3>
 <?php bb_forum_form( (int) $_GET['id'] ); ?>

@@ -440,6 +440,9 @@ function &bb_forums( $type = 'flat' ) {
 
 	$levels = array( '', '' );
 
+	if ( !is_string($type) )
+		$type = 'default';
+
 	switch ( strtolower($type) ) :
 	case 'flat' : // [sic]
 		break;
@@ -470,7 +473,7 @@ function bb_forum() { // Returns current depth
 		return false;
 
 	if ( $r = $bb_forums_loop->step() )
-		$forum =& current($bb_forums_loop->elements); // Globalize the current forum object
+		$forum =& $bb_forums_loop->elements[key($bb_forums_loop->elements)]; // Globalize the current forum object
 	else
 		return $bb_forums_loop = null; // All done?  Kill the object and exit the loop.
 
