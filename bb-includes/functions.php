@@ -116,7 +116,7 @@ function get_topic( $id, $cache = true ) {
 }
 
 function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
-	global $bbdb, $bb_last_countable_query;
+	global $bbdb;
 	$forum = (int) $forum;
 	$page = (int) $page;
 	$where = 'WHERE topic_status = 0';
@@ -133,15 +133,14 @@ function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
 	$order_by = apply_filters('get_latest_topics_order_by', 'topic_time DESC' );
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY $order_by LIMIT $limit";
-	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
+	if ( $topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics $where ORDER BY $order_by LIMIT $limit") )
 		return bb_append_meta( $topics, 'topic' );
 	else
 		return false;
 }
 
 function get_sticky_topics( $forum = 0, $display = 1 ) {
-	global $bbdb, $bb_last_countable_query;
+	global $bbdb;
 	if ( 1 != $display )
 		return false;
 	$forum = (int) $forum;
@@ -152,22 +151,20 @@ function get_sticky_topics( $forum = 0, $display = 1 ) {
 		$where .= " AND forum_id = $forum ";
 	$where = apply_filters('get_sticky_topics_where', $where);
 	$order_by = apply_filters('get_sticky_topics_order_by', 'topic_time DESC' );
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY $order_by";
-	if ( $stickies = $bbdb->get_results($bb_last_countable_query) )
+	if ( $stickies = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics $where ORDER BY $order_by") )
 		return bb_append_meta( $stickies, 'topic' );	
 	else	return false;
 }
 
 function get_recent_user_threads( $user_id ) {
-	global $bbdb, $page, $bb_last_countable_query;
+	global $bbdb, $page;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$join = apply_filters('get_recent_user_threads_join', '', $user_id);
 	$where = apply_filters('get_recent_user_threads_where', 'AND topic_status = 0', $user_id);
 	$order_by = apply_filters( 'get_recent_user_threads_order_by', 'topic_start_time DESC', $user_id);
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $join WHERE topic_poster = $user_id $where ORDER BY $order_by LIMIT $limit";
-	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
+	if ( $topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics $join WHERE topic_poster = $user_id $where ORDER BY $order_by LIMIT $limit") )
 		$topics = bb_append_meta( $topics, 'topic' );
 	return $topics;
 }
@@ -673,7 +670,7 @@ function post_author_cache($posts) {
 }
 
 function get_recent_user_replies( $user_id ) {
-	global $bbdb, $bb_post_cache, $page, $bb_last_countable_query;
+	global $bbdb, $bb_post_cache, $page;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
@@ -686,8 +683,7 @@ function get_recent_user_replies( $user_id ) {
 			$topics[] = $bb_post->topic_id;
 		}
 		$topic_ids = join(',', $topics);
-		$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)";
-		$topics = $bbdb->get_results($bb_last_countable_query);
+		$topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
 		bb_append_meta( $topics, 'topic' );
 		return $posts;
 	else :
@@ -941,7 +937,7 @@ function get_tagged_topic_ids( $tag_id ) {
 }
 
 function get_tagged_topics( $tag_id, $page = 1 ) {
-	global $bbdb, $bb_last_countable_query;
+	global $bbdb;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
 	$topic_ids = join($topic_ids, ',');
@@ -949,8 +945,7 @@ function get_tagged_topics( $tag_id, $page = 1 ) {
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$order_by = apply_filters('get_tagged_topics_order_by', 'topic_time DESC' );
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY $order_by LIMIT $limit";
-	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
+	if ( $topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY $order_by LIMIT $limit") )
 		return bb_append_meta( $topics, 'topic' );
 	else	return false;
 }
@@ -1974,21 +1969,20 @@ function bb_explain_nonce($action) {
 
 function bb_count_last_query() {
 	global $bbdb, $bb_last_countable_query;
-	if ( $bb_last_countable_query )
-		$q = $bb_last_countable_query;
-	else
-		$q = $bbdb->last_query;
+	if ( !$bb_last_countable_query )
+		return $bbdb->get_var( "SELECT FOUND_ROWS()" );
 
-	if ( false === strpos($q, 'SELECT') )
+	if ( false === strpos($bb_last_countable_query, 'SELECT') )
 		return false;
 
-	$q = preg_replace(
+	$bb_last_countable_query = preg_replace(
 		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+[\S]+/', '/DESC/', '/ASC/'),
 		array('SELECT COUNT(*) FROM', ''),
-		$q
+		$bb_last_countable_query
 	);
+
 	$bb_last_countable_query = '';
-	return $bbdb->get_var($q);
+	return $bbdb->get_var($bb_last_countable_query);
 }
 
 function no_replies( $where ) {
@@ -2051,7 +2045,7 @@ function bb_get_themes() {
 
 /* Search Functions */
 function bb_user_search( $args = '' ) {
-	global $bbdb, $bb_last_countable_query;
+	global $bbdb;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
@@ -2081,10 +2075,10 @@ function bb_user_search( $args = '' ) {
 			$fields[] = $field;
 
 	if ( $query && $user_meta ) :
-		$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
+		$sql = "SELECT SQL_CALC_FOUND_ROWS user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
 		if ( empty($fields) )
-			$bb_last_countable_query .= " LIMIT $limit";
-		$user_meta_ids = $bbdb->get_col($bb_last_countable_query);
+			$sql .= " LIMIT $limit";
+		$user_meta_ids = $bbdb->get_col($sql);
 		if ( empty($fields) ) :
 			bb_cache_users( $user_meta_ids );
 			$users = array();
@@ -2107,7 +2101,7 @@ function bb_user_search( $args = '' ) {
 	if ( $query && empty($sql_terms) )
 		return new WP_Error( 'invalid-query', __('Your query parameters are invalid') );
 
-	$bb_last_countable_query = $sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
+	$sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
 
 	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
 		return bb_append_meta( $users, 'user' );
@@ -2116,7 +2110,7 @@ function bb_user_search( $args = '' ) {
 }
 
 function bb_tag_search( $args = '' ) {
-	global $page, $bbdb, $bb_last_countable_query, $tag_cache;
+	global $page, $bbdb, $tag_cache;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
@@ -2136,9 +2130,7 @@ function bb_tag_search( $args = '' ) {
 
 	$likeit = preg_replace('/\s+/', '%', $query);
 
-	$bb_last_countable_query = "SELECT * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit";
-
-	foreach ( (array) $tags = $bbdb->get_results( $bb_last_countable_query ) as $tag )
+	foreach ( (array) $tags = $bbdb->get_results( "SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit" ) as $tag )
 		$tag_cache[$tag->tag] = $tag;
 
 	return $tags ? $tags : false;
