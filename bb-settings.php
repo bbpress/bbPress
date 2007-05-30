@@ -85,7 +85,7 @@ if ( !defined('BBPLUGINURL') )
 if ( !defined('BBTHEMEDIR') )
 	define('BBTHEMEDIR', BBPATH . 'my-templates/');
 if ( !defined('BBTHEMEURL') )
-	define('BBTHEMEDIR', $bb->uri . 'my-templates/');
+	define('BBTHEMEURL', $bb->uri . 'my-templates/');
 
 if ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . 'db-mysqli.php');
