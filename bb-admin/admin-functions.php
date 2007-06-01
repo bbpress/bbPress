@@ -411,14 +411,20 @@ function bb_new_forum( $args ) {
 
 	extract($args);
 
-	if ( false === $forum_order )
+	if ( !is_numeric($forum_order) )
 		$forum_order = $bbdb->get_var("SELECT MAX(forum_order) FROM $bbdb->forums") + 1;
 
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
 	if ( strlen($forum_name) < 1 )
 		return false;
-	
+
+	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
+	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
+
+	$forum_name = $bbdb->escape( $forum_name );
+	$forum_desc = $bbdb->escape( $forum_desc );
+
 	$forum_slug = bb_slug_sanitize($forum_name);
 	$existing_slugs = $bbdb->get_col("SELECT forum_slug FROM $bbdb->forums WHERE forum_slug LIKE '$forum_slug%'");
 	if ($existing_slugs) {

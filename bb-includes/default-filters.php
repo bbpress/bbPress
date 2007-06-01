@@ -1,5 +1,11 @@
 <?php
 
+add_filter('bb_pre_forum_name', 'trim');
+add_filter('bb_pre_forum_name', 'strip_tags');
+add_filter('bb_pre_forum_name', 'wp_specialchars');
+add_filter('bb_pre_forum_desc', 'trim');
+add_filter('bb_pre_forum_desc', 'bb_filter_kses');
+
 add_filter('get_forum_topics', 'bb_number_format_i18n');
 add_filter('get_forum_posts', 'bb_number_format_i18n');
 
