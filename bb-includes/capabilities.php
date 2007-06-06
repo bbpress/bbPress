@@ -469,10 +469,14 @@ function bb_current_user_can($capability) {
 	$args = array_slice(func_get_args(), 1);
 	$args = array_merge(array($capability), $args);
 
-	if ( empty($bb_current_user) )
-		return false;
-
-	return call_user_func_array(array(&$bb_current_user, 'has_cap'), $args);
+	if ( empty($bb_current_user) ) {
+		$retvalue = false;
+	} else {
+		$retvalue = call_user_func_array(array(&$bb_current_user, 'has_cap'), $args);
+	}
+	
+	// Use bb_user_has_cap whenever possible!  This will not work everywhere.
+	return apply_filters('bb_current_user_can', $retvalue, $capability, $args);
 }
 
 function bb_give_user_default_role( $user ) {
