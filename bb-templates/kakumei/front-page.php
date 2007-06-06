@@ -27,7 +27,7 @@
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
 </tr>
-<?php endforeach; endif; ?>
+<?php endforeach; endif; // $super_stickies ?>
 
 <?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
 <tr<?php topic_class(); ?>>
@@ -36,9 +36,9 @@
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
 </tr>
-<?php endforeach; endif; ?>
+<?php endforeach; endif; // $topics ?>
 </table>
-<?php endif; ?>
+<?php endif; // $topics or $super_stickies ?>
 
 <?php if ( bb_forums() ) : ?>
 <h2><?php _e('Forums'); ?></h2>
@@ -57,7 +57,7 @@
 </tr>
 <?php endwhile; ?>
 </table>
-<?php endif; ?>
+<?php endif; // bb_forums() ?>
 
 <?php if ( bb_is_user_logged_in() ) : ?>
 <div id="viewdiv">
@@ -68,11 +68,14 @@
 <?php endforeach; ?>
 </ul>
 </div>
-<?php endif; else : // $forums ?>
+<?php endif; // bb_is_user_logged_in() ?>
+
+</div>
+
+<?php else : // $forums ?>
 
 <h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a></h3>
 
-<?php post_form(); endif; ?>
-</div>
+<?php post_form(); endif; // $forums ?>
 
 <?php bb_get_footer(); ?>
