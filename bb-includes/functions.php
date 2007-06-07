@@ -173,7 +173,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 	$title = apply_filters('pre_topic_title', $title, false);
 	$title = bb_trim_for_db( $title, 150 );
 	$slug  = $_slug = bb_slug_sanitize($title);
-	while ( $existing_slug = $bbdb->get_var("SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = '$slug'") )
+	while ( is_numeric($slug) || $existing_slug = $bbdb->get_var("SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = '$slug'") )
 		$slug = bb_slug_increment($_slug, $existing_slug);
 
 	$forum = (int) $forum;

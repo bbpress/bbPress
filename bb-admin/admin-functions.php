@@ -426,12 +426,10 @@ function bb_new_forum( $args ) {
 	$forum_name = $bbdb->escape( $forum_name );
 	$forum_desc = $bbdb->escape( $forum_desc );
 
-	$forum_slug = bb_slug_sanitize($forum_name);
-	$existing_slugs = $bbdb->get_col("SELECT forum_slug FROM $bbdb->forums WHERE forum_slug LIKE '$forum_slug%'");
-	if ($existing_slugs) {
-		$forum_slug = bb_slug_increment($forum_slug, $existing_slugs);
-	}
-	
+	$forum_slug = $_forum_slug = bb_slug_sanitize($forum_name);
+	while ( is_numeric($forum_slug) || $existing_slug = $bbdb->get_var("SELECT forum_slug FROM $bbdb->forums WHERE forum_slug = '$forum_slug'") )
+		$forum_slug = bb_slug_increment($_forum_slug, $existing_slug);
+
 	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_slug, forum_desc, forum_parent, forum_order) VALUES ('$forum_name', '$forum_slug', '$forum_desc', '$forum_parent', '$forum_order')");
 	$bb_cache->flush_one( 'forums' );
 	return $bbdb->insert_id;
