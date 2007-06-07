@@ -1566,32 +1566,32 @@ function bb_repermalink() {
 	$location = bb_get_location();
 	$uri = $_SERVER['REQUEST_URI'];
 	if ( isset($_GET['id']) )
-		$permalink = $_GET['id'];
+		$id = $_GET['id'];
 	else
-		$permalink = get_path();
-	$_original_piece = $permalink;
+		$id = get_path();
+	$_original_id = $id;
 
-	do_action( 'pre_permalink', $permalink );
+	do_action( 'pre_permalink', $id );
 
-	$permalink = apply_filters( 'bb_repermalink', $permalink );
+	$id = apply_filters( 'bb_repermalink', $id );
 
 	switch ($location) {
 		case 'forum-page':
 			global $forum_id, $forum;
-			if (!is_numeric($permalink)) {
-				$forum_id = bb_get_id_from_slug('forum', $permalink);
+			if (!is_numeric($id)) {
+				$forum_id = bb_get_id_from_slug('forum', $id);
 			} else {
-				$forum_id = $permalink;
+				$forum_id = $id;
 			}
 			$forum = get_forum( $forum_id );
-			$permalink = get_forum_link( $permalink, $page );
+			$permalink = get_forum_link( $forum->forum_id, $page );
 			break;
 		case 'topic-page':
 			global $topic_id, $topic;
-			if (!is_numeric($permalink)) {
-				$topic_id = bb_get_id_from_slug('topic', $permalink);
+			if (!is_numeric($id)) {
+				$topic_id = bb_get_id_from_slug('topic', $id);
 			} else {
-				$topic_id = $permalink;
+				$topic_id = $id;
 			}
 			$topic = get_topic( $topic_id );
 			$permalink = get_topic_link( $topic->topic_id, $page );
@@ -1599,13 +1599,13 @@ function bb_repermalink() {
 		case 'profile-page': // This handles the admin side of the profile as well.
 			global $user_id, $user, $profile_hooks, $self;
 			if ( isset($_GET['id']) )
-				$permalink = $_GET['id'];
+				$id = $_GET['id'];
 			elseif ( isset($_GET['username']) )
-				$permalink = $_GET['username'];
+				$id = $_GET['username'];
 			else
-				$permalink = get_path();
-			$_original_piece = $permalink;
-			if ( !$user = bb_get_user( $permalink ) )
+				$id = get_path();
+			$_original_id = $id;
+			if ( !$user = bb_get_user( $id ) )
 				bb_die(__('User not found.'));
 			$user_id = $user->ID;
 			global_profile_menu_structure();
@@ -1617,9 +1617,9 @@ function bb_repermalink() {
 						$self = $valid_file;
 					}
 			if ( $valid ) :
-				$permalink = get_profile_tab_link( $permalink, $tab, $page );
+				$permalink = get_profile_tab_link( $user->ID, $tab, $page );
 			else :
-				$permalink = get_user_profile_link( $permalink, $page );
+				$permalink = get_user_profile_link( $user->ID, $page );
 				unset($self, $tab);
 			endif;
 			break;
@@ -1628,28 +1628,28 @@ function bb_repermalink() {
 			break;
 		case 'tag-page': // It's not an integer and tags.php pulls double duty.
 			if ( isset($_GET['tag']) )
-				$permalink = $_GET['tag'];
+				$id = $_GET['tag'];
 			else
-				$permalink = get_path();
-			$_original_piece = $permalink;
-			if ( !$permalink )
+				$id = get_path();
+			$_original_id = $id;
+			if ( !$id )
 				$permalink = get_tag_page_link();
 			else {
 				global $tag, $tag_name;
-				$tag_name = $permalink;
+				$tag_name = $id;
 				$tag = get_tag_by_name( $tag_name );
 				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;
 		case 'view-page': // Not an integer
 			if ( isset($_GET['view']) )
-				$permalink = $_GET['view'];
+				$id = $_GET['view'];
 			else
-				$permalink = get_path();
-			$_original_piece = $permalink;
+				$id = get_path();
+			$_original_id = $id;
 			global $view;
-			$view = $permalink;
-			$permalink = get_view_link( $permalink, $page );
+			$view = $id;
+			$permalink = get_view_link( $view, $page );
 			break;
 		default:
 			return;
@@ -1685,7 +1685,7 @@ function bb_repermalink() {
 		var_dump($_SERVER['PATH_INFO']);
 		echo "</td></tr>\n</table>";
 	else :
-		if ( $check != $uri && $check != str_replace(urlencode($_original_piece), $_original_piece, $uri) ) {
+		if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
 			wp_redirect( $permalink );
 			exit;
 		}
