@@ -421,6 +421,7 @@ function bb_new_forum( $args ) {
 
 	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
+	$forum_name = bb_trim_for_db( $forum_name, 150 );
 
 	$forum_name = $bbdb->escape( $forum_name );
 	$forum_desc = $bbdb->escape( $forum_desc );

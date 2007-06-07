@@ -1,5 +1,4 @@
 <?php
-
 /* INIT */
 
 function bb_global_sanitize( $array, $trim = true ) {
@@ -172,11 +171,11 @@ function get_recent_user_threads( $user_id ) {
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	global $bbdb, $bb_cache;
 	$title = apply_filters('pre_topic_title', $title, false);
-	$slug = bb_slug_sanitize($title);
-	$existing_slugs = $bbdb->get_col("SELECT topic_slug FROM $bbdb->topics WHERE topic_slug LIKE '$slug%'");
-	if ($existing_slugs) {
-		$slug = bb_slug_increment($slug, $existing_slugs);
-	}
+	$title = bb_trim_for_db( $title, 150 );
+	$slug  = $_slug = bb_slug_sanitize($title);
+	while ( $existing_slug = $bbdb->get_var("SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = '$slug'") )
+		$slug = bb_slug_increment($_slug, $existing_slug);
+
 	$forum = (int) $forum;
 	$now   = bb_current_time('mysql');
 
@@ -747,7 +746,7 @@ function create_tag( $tag ) {
 
 	$tag = apply_filters( 'pre_create_tag', $tag );
 
-	$raw_tag = $tag;
+	$raw_tag = bb_trim_for_db( $tag, 50 );
 	$tag     = bb_tag_sanitize( $tag );
 
 	if ( empty( $tag ) )
@@ -758,12 +757,6 @@ function create_tag( $tag ) {
 	$bbdb->query("INSERT INTO $bbdb->tags ( tag, raw_tag ) VALUES ( '$tag', '$raw_tag' )");
 	do_action('bb_tag_created', $raw_tag, $bbdb->insert_id);
 	return $bbdb->insert_id;
-}
-
-function bb_pre_create_tag_utf8( $tag ) {
-	if ( seems_utf8( $tag ) )
-		$tag = bb_utf8_cut( $tag, 50 ); // Should match raw_tag column width in DB schema
-	return $tag;
 }
 
 function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
@@ -1188,7 +1181,7 @@ function bb_get_option( $option ) {
 		return '1.0-alpha'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '845'; // Don't filter
+		return '846'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -1547,7 +1540,7 @@ function get_path( $level = 1, $request = false ) {
 	$bbpath = bb_get_option('path');
 	$path = preg_replace("#$bbpath#",'',$path,1);
 	$url = explode('/',$path);
-	return $url[$level];
+	return urldecode($url[$level]);
 }
 
 function bb_find_filename( $text ) {
@@ -1576,6 +1569,7 @@ function bb_repermalink() {
 		$permalink = $_GET['id'];
 	else
 		$permalink = get_path();
+	$_original_piece = $permalink;
 
 	do_action( 'pre_permalink', $permalink );
 
@@ -1610,6 +1604,7 @@ function bb_repermalink() {
 				$permalink = $_GET['username'];
 			else
 				$permalink = get_path();
+			$_original_piece = $permalink;
 			if ( !$user = bb_get_user( $permalink ) )
 				bb_die(__('User not found.'));
 			$user_id = $user->ID;
@@ -1636,6 +1631,7 @@ function bb_repermalink() {
 				$permalink = $_GET['tag'];
 			else
 				$permalink = get_path();
+			$_original_piece = $permalink;
 			if ( !$permalink )
 				$permalink = get_tag_page_link();
 			else {
@@ -1648,7 +1644,9 @@ function bb_repermalink() {
 		case 'view-page': // Not an integer
 			if ( isset($_GET['view']) )
 				$permalink = $_GET['view'];
-			else	$permalink = get_path();
+			else
+				$permalink = get_path();
+			$_original_piece = $permalink;
 			global $view;
 			$view = $permalink;
 			$permalink = get_view_link( $permalink, $page );
@@ -1687,7 +1685,7 @@ function bb_repermalink() {
 		var_dump($_SERVER['PATH_INFO']);
 		echo "</td></tr>\n</table>";
 	else :
-		if ( $check != $uri ) {
+		if ( $check != $uri && $check != str_replace(urlencode($_original_piece), $_original_piece, $uri) ) {
 			wp_redirect( $permalink );
 			exit;
 		}
@@ -2132,28 +2130,32 @@ function bb_related_tags( $_tag = false, $number = 40 ) {
 
 /* Slugs */
 
-function bb_slug_increment($slug, $all_slugs) {
-	$all_slugs = preg_grep('/^' . $slug . '(\-[0-9]+)?$/', $all_slugs);
-	if (!count($all_slugs)) {
-		return $slug;
-	}
-	
-	natsort($all_slugs);
-	$all_slugs = array_reverse($all_slugs);
-	if ($slug == $all_slugs[0]) {
-		$last_slug_number = 1;
-	} else {
-		$last_slug_number = (integer) str_replace($slug . '-', '', $all_slugs[0]);
-	}
-	return $slug . '-' . ($last_slug_number + 1);
+function bb_slug_increment( $slug, $existing_slug, $slug_length = 255 ) {
+	if ( preg_match('/^.*-([0-9]+)$/', $existing_slug, $m) )
+		$number = (int) $m[1] + 1;
+	else
+		$number = 1;
+
+	$r = bb_encoded_utf8_cut( $slug, $slug_length - 1 - strlen($number) );
+	return apply_filters( 'bb_slug_increment', "$r-$number", $slug, $existing_slug, $slug_length );
 }
 
-function bb_get_id_from_slug($table, $slug) {
+function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 	global $bbdb;
 	$tablename = $table . 's';
-	$slug = bb_slug_sanitize($slug);
-	$result = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$slug'");
-	return $result;
+	$r = false;
+	// Look for new style equiv of old style slug
+	$_slug = bb_slug_sanitize( $slug );
+	if ( strlen($_slug) > $slug_length && preg_match('/^.*-([0-9]+)$/', $_slug, $m) ) {
+		$_slug = bb_encoded_utf8_cut( $_slug, $slug_length - 1 - strlen($number) );
+		$number = (int) $m[1];
+		$r = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$_slug-$number'");
+	}
+	if ( !$r ) {
+		$_slug = bb_slug_sanitize($slug);
+		$r = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$_slug'");
+	}
+	return $r;
 }
 
 /* Utility */

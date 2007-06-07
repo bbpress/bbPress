@@ -4,7 +4,7 @@ global $bb_queries, $bbdb;
 $bb_queries = "CREATE TABLE $bbdb->forums (
   forum_id int(10) NOT NULL auto_increment,
   forum_name varchar(150)  NOT NULL default '',
-  forum_slug text  NOT NULL default '',
+  forum_slug varchar(255)  NOT NULL default '',
   forum_desc text  NOT NULL,
   forum_parent int(10) NOT NULL default '0',
   forum_order int(10) NOT NULL default '0',
@@ -31,7 +31,7 @@ CREATE TABLE $bbdb->posts (
 CREATE TABLE $bbdb->topics (
   topic_id bigint(20) NOT NULL auto_increment,
   topic_title varchar(100) NOT NULL default '',
-  topic_slug text NOT NULL default '',
+  topic_slug varchar(255) NOT NULL default '',
   topic_poster bigint(20) NOT NULL default '0',
   topic_poster_name varchar(40) NOT NULL default 'Anonymous',
   topic_last_poster bigint(20) NOT NULL default '0',

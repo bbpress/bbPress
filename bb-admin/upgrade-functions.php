@@ -15,6 +15,7 @@ function bb_upgrade_all() {
 	$bb_upgrade += bb_upgrade_180(); // Delete users for real
 	$bb_upgrade += bb_upgrade_190(); // Move topic_resolved to topicmeta
 	$bb_upgrade += bb_upgrade_200(); // Indices
+	$bb_upgrade += bb_upgrade_210(); // Convert text slugs to varchar slugs
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	bb_make_db_current();
 	$bb_upgrade += bb_upgrade_1000(); // Make forum and topic slugs
@@ -268,6 +269,51 @@ function bb_make_db_current() {
 	echo "</ol>\n";
 }
 
+function bb_upgrade_process_all_slugs() {
+	global $bbdb;
+	// Forums
+
+	$ids = (array) $bbdb->get_col("SELECT forum_id, forum_name FROM $bbdb->forums ORDER BY forum_order ASC" );
+
+	$names = $bbdb->get_col('', 1);
+
+	$slugs = array();
+	foreach ( $ids as $r => $id ) :
+		$slug = bb_slug_sanitize( $names[$r] );
+		$slugs[$slug][] = $id;
+	endforeach;
+
+	foreach ( $slugs as $slug => $forum_ids ) :
+		foreach ( $forum_ids as $count => $forum_id ) :
+			if ( $count > 0 )
+				$slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
+			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$slug' WHERE forum_id = '$forum_id';");
+		endforeach;
+	endforeach;
+	unset($ids, $names, $slugs, $r, $id, $slug, $forum_ids, $forum_id, $count);
+
+	// Topics
+
+	$ids = (array) $bbdb->get_col("SELECT topic_id, topic_title FROM $bbdb->topics ORDER BY topic_start_time ASC" );
+
+	$names = $bbdb->get_col('', 1);
+
+	$slugs = array();
+	foreach ( $ids as $r => $id ) :
+		$slug = bb_slug_sanitize( $names[$r] );
+		$slugs[$slug][] = $id;
+	endforeach;
+
+	foreach ( $slugs as $slug => $topic_ids ) :
+		foreach ( $topic_ids as $count => $topic_id ) :
+			if ( $count > 0 )
+				$slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
+			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$slug' WHERE topic_id = '$topic_id';");
+		endforeach;
+	endforeach;
+	unset($ids, $names, $slugs, $r, $id, $slug, $topic_ids, $topic_id, $count);
+}
+
 // Reversibly break passwords of blocked users.
 function bb_upgrade_160() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 535 )
@@ -358,49 +404,34 @@ function bb_upgrade_200() {
 
 }
 
-function bb_upgrade_1000() {
-	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 788 )
+// 210 converts text slugs to varchar(255) width slugs (upgrading from alpha version - fires before dbDelta)
+// 1000 Gives new slugs (upgrading from previous release - fires after dbDelta)
+function bb_upgrade_210() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 846 )
 		return 0;
-	
+
 	global $bbdb;
+
+	$bbdb->hide_errors();
+	if ( !$ids = $bbdb->get_var("SELECT forum_slug FROM $bbdb->forums ORDER BY forum_order ASC LIMIT 1" ) )
+		return; // Wait till after dbDelta
+	$bbdb->show_errors();
+
+	bb_upgrade_process_all_slugs();
+
+	bb_update_option( 'bb_db_version', 846 );
 	
-	$forums = (array) $bbdb->get_results("SELECT forum_id, forum_name, forum_slug FROM $bbdb->forums ORDER BY forum_order ASC" );
-	foreach ($forums  as $forum) {
-		$slug = bb_slug_sanitize(trim($forum->forum_name));
-		$forum_slugs[$slug][] = $forum->forum_id;
-	}
-	foreach ($forum_slugs as $slug => $forums) {
-		foreach ($forums as $count => $forum_id) {
-			if ($count > 0) {
-				$increment = '-' . ($count + 1);
-			} else {
-				$increment = null;
-			}
-			$slug .= $increment;
-			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$slug' WHERE forum_id = $forum_id;");
-		}
-	}
-	unset($forums,$forum,$forum_slugs,$slug,$forum_id,$increment,$count);
-	
-	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_title, topic_slug FROM $bbdb->topics ORDER BY topic_start_time ASC" );
-	foreach ($topics  as $topic) {
-		$slug = bb_slug_sanitize(trim($topic->topic_title));
-		$topic_slugs[$slug][] = $topic->topic_id;
-	}
-	foreach ($topic_slugs as $slug => $topics) {
-		foreach ($topics as $count => $topic_id) {
-			if ($count > 0) {
-				$increment = '-' . ($count + 1);
-			} else {
-				$increment = null;
-			}
-			$slug .= $increment;
-			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$slug' WHERE topic_id = $topic_id;");
-		}
-	}
-	unset($topics,$topic,$topic_slugs,$slug,$topic_id,$increment,$count);
-	
-	bb_update_option( 'bb_db_version', 788 );
+	echo "Done adding slugs.<br />";
+	return 1;
+}
+
+function bb_upgrade_1000() { // Give all topics and forums slugs
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 846 )
+		return 0;
+
+	bb_upgrade_process_all_slugs();
+
+	bb_update_option( 'bb_db_version', 846 );
 	
 	echo "Done adding slugs.<br />";
 	return 1;

@@ -121,8 +121,17 @@ function bb_user_sanitize( $text, $strict = false ) {
 	return apply_filters( 'bb_user_sanitize', $text, $raw, $strict );
 }
 
+function bb_trim_for_db( $string, $length ) {
+	if ( seems_utf8( $string ) )
+		$_string = bb_utf8_cut( $string, $length );
+	return apply_filters( 'bb_trim_for_db', $_string, $string, $length );
+}
+
 // Reduce utf8 string to $length in single byte character equivalents without breaking multibyte characters
-function bb_utf8_cut( $utf8_string, $length ) {
+function bb_utf8_cut( $utf8_string, $length = 0 ) {
+	if ( $length < 1 )
+		return $utf8_string;
+
 	$unicode = '';
 	$chars = array();
 	$num_octets = 1;
@@ -153,21 +162,51 @@ function bb_utf8_cut( $utf8_string, $length ) {
 	return $unicode;
 }
 
-function bb_tag_sanitize( $tag ) {
+function bb_encoded_utf8_cut( $encoded, $length = 0 ) {
+	if ( $length < 1 )
+		return $encoded;
+
+	$r = '';
+	$values = preg_split( '/(%[0-9a-f]{2})/i', $encoded, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );;
+
+	for ($i = 0; $i < count( $values ); $i += $num_octets ) {
+		$num_octets = 1;
+		if ( '%' != $values[$i][0] ) {
+			$r .= $values[$i];
+			if ( $length && strlen($r) > $length )
+				return substr($r, 0, $length);
+		} else {
+			$value = hexdec(substr($values[$i], 1));
+
+			if ( 1 == $num_octets )
+				$num_octets = $value < 224 ? 2 : 3;
+
+			if ( $length && ( strlen($r) + $num_octets * 3 ) > $length )
+				return $r;
+
+			$r .= $values[$i] . $values[$i + 1];
+			if ( 3 == $num_octets )
+				$r .= $values[$i + 2];
+		}
+	}
+
+	return $r;
+}
+
+function bb_tag_sanitize( $tag, $length = 200 ) {
 	$_tag = $tag;
-	return apply_filters( 'bb_tag_sanitize', bb_sanitize_with_dashes( $tag ), $_tag );
+	return apply_filters( 'bb_tag_sanitize', bb_sanitize_with_dashes( $tag, $length ), $_tag, $length );
 }
 
-function bb_slug_sanitize( $slug ) {
+function bb_slug_sanitize( $slug, $length = 255 ) {
 	$_slug = $slug;
-	return apply_filters( 'bb_slug_sanitize', sanitize_with_dashes( $slug ), $_slug );
+	return apply_filters( 'bb_slug_sanitize', bb_sanitize_with_dashes( $slug, $length ), $_slug, $length );
 }
 
-function bb_sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
+function bb_sanitize_with_dashes( $text, $length = 0 ) { // Multibyte aware
 	$_text = $text;
 	$text = trim($text);
 	$text = strip_tags($text);
-
 	// Preserve escaped octets.
 	$text = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '---$1---', $text);
 	// Remove percent signs that are not part of an octet.
@@ -175,7 +214,7 @@ function bb_sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	// Restore octets.
 	$text = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $text);
 
-	$text = apply_filters( 'pre_sanitize_with_dashes', $text, $_text );
+	$text = apply_filters( 'pre_sanitize_with_dashes', $text, $_text, $length );
 
 	$text = strtolower($text);
 	$text = preg_replace('/&(^\x80-\xff)+?;/', '', $text); // kill entities
@@ -186,14 +225,15 @@ function bb_sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	return $text;
 }
 
-function bb_pre_sanitize_with_dashes_utf8( $text ) {
+function bb_pre_sanitize_with_dashes_utf8( $text, $_text = '', $length = 0 ) {
 	$text = remove_accents($text);
 
 	if ( seems_utf8( $text ) ) {
 		if ( function_exists('mb_strtolower') )
 			$text = mb_strtolower($text, 'UTF-8');
-		$text = utf8_uri_encode( $text );
+		$text = utf8_uri_encode( $text, $length );
 	}
+
 	return $text;
 }
 
