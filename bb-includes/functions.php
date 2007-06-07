@@ -484,18 +484,18 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 }
 
 function get_latest_posts( $limit = 0, $page = 1 ) {
-	global $bbdb;
+	global $bbdb, $bb_cache;
 	$limit = (int) $limit;
 	if ( !$limit )
 		$limit = bb_get_option( 'page_topics' );
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = apply_filters( 'get_latest_posts_where', 'WHERE post_status = 0' );
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+	return $bb_cache->cache_posts("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
 }
 
 function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
-	global $bbdb;
+	global $bbdb, $bb_cache;
 	$limit = (int) $limit;
 	$forum_id = (int) $forum_id;
 	if ( !$limit )
@@ -503,7 +503,7 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = apply_filters('get_latest_forum_posts_where', "WHERE forum_id = '$forum_id' AND post_status = 0");
-	return $bbdb->get_results("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+	return $bb_cache->cache_posts("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
 }
 
 function bb_new_post( $topic_id, $bb_post ) {
@@ -955,18 +955,17 @@ function get_tagged_topics( $tag_id, $page = 1 ) {
 }
 
 function get_tagged_topic_posts( $tag_id, $page = 1 ) {
-	global $bbdb, $bb_post_cache;
+	global $bbdb, $bb_cache, $bb_post_cache;
 	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
 		return false;
 	$topic_ids = join($topic_ids, ',');
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( $posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time DESC LIMIT $limit") ) {
-		foreach ( $posts as $bb_post )
-			$bb_post_cache[$bb_post->post_id] = $bb_post;
+	if ( $posts = $bb_cache->cache_posts("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time DESC LIMIT $limit") )
 		return $posts;
-	} else { return false; }
+	else
+		return false;
 }
 
 function get_top_tags( $recent = true, $limit = 40 ) {
@@ -1098,7 +1097,7 @@ function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
 /* Favorites */
 
 function get_user_favorites( $user_id, $topics = false ) {
-	global $bbdb, $page;
+	global $bbdb, $bb_cache, $page;
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites ) {
 		if ( $topics ) {
@@ -1111,7 +1110,7 @@ function get_user_favorites( $user_id, $topics = false ) {
 				ORDER BY $order_by LIMIT $limit");
 		} else {
 			$order_by = apply_filters( 'get_user_favorites_order_by', 'post_time DESC', $topics );
-			return $bbdb->get_results("
+			return $bb_cache->cache_posts("
 				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
 				ORDER BY $order_by LIMIT 20");
 		}
