@@ -14,9 +14,10 @@ function bb_upgrade_all() {
 	$bb_upgrade += bb_upgrade_170(); // Escaping in usermeta
 	$bb_upgrade += bb_upgrade_180(); // Delete users for real
 	$bb_upgrade += bb_upgrade_190(); // Move topic_resolved to topicmeta
+	$bb_upgrade += bb_upgrade_200(); // Indices
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	bb_make_db_current();
-	$bb_upgrade += bb_upgrade_200(); // Make forum and topic slugs
+	$bb_upgrade += bb_upgrade_1000(); // Make forum and topic slugs
 	bb_update_db_version();
 	return $bb_upgrade;
 }
@@ -334,6 +335,30 @@ function bb_upgrade_190() {
 }
 
 function bb_upgrade_200() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 845 )
+		return 0;
+
+	global $bbdb;
+
+	$bbdb->hide_errors();
+	$bbdb->query( "DROP INDEX tag_id_index ON $bbdb->tagged" );
+	$bbdb->query( "DROP INDEX user_id ON $bbdb->topicmeta" );
+	$bbdb->query( "DROP INDEX forum_id ON $bbdb->topics" );
+	$bbdb->query( "DROP INDEX topic_time ON $bbdb->topics" );
+	$bbdb->query( "DROP INDEX topic_start_time ON $bbdb->topics" );
+	$bbdb->query( "DROP INDEX tag_id_index ON $bbdb->tagged" );
+	$bbdb->query( "DROP INDEX topic_id ON $bbdb->posts" );
+	$bbdb->query( "DROP INDEX poster_id ON $bbdb->posts" );
+	$bbdb->show_errors();
+
+	bb_update_option( 'bb_db_version', 845 );
+
+	echo "Done removing old indices.<br />";
+	return 1;
+
+}
+
+function bb_upgrade_1000() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 788 )
 		return 0;
 	

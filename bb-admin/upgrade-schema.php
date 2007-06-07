@@ -23,8 +23,8 @@ CREATE TABLE $bbdb->posts (
   post_status tinyint(1) NOT NULL default '0',
   post_position bigint(20) NOT NULL default '0',
   PRIMARY KEY  (post_id),
-  KEY topic_id (topic_id),
-  KEY poster_id (poster_id),
+  KEY topic_time (topic_id,post_time),
+  KEY poster_time (poster_id,post_time),
   KEY post_time (post_time),
   FULLTEXT KEY post_text (post_text)
 ) TYPE = MYISAM;
@@ -46,9 +46,8 @@ CREATE TABLE $bbdb->topics (
   topic_posts bigint(20) NOT NULL default '0',
   tag_count bigint(20) NOT NULL default '0',
   PRIMARY KEY  (topic_id),
-  KEY forum_id (forum_id),
-  KEY topic_time (topic_time),
-  KEY topic_start_time (topic_start_time)
+  KEY forum_time (forum_id,topic_time),
+  KEY user_start_time (topic_poster,topic_start_time)
 );
 CREATE TABLE $bbdb->topicmeta (
   meta_id bigint(20) NOT NULL auto_increment,
@@ -56,7 +55,7 @@ CREATE TABLE $bbdb->topicmeta (
   meta_key varchar(255) default NULL,
   meta_value longtext,
   PRIMARY KEY  (meta_id),
-  KEY user_id (topic_id),
+  KEY topic_id (topic_id),
   KEY meta_key (meta_key)
 );
 CREATE TABLE $bbdb->users (
@@ -86,7 +85,8 @@ CREATE TABLE $bbdb->tags (
   tag varchar(200) NOT NULL default '',
   raw_tag varchar(50) NOT NULL default '',
   tag_count bigint(20) unsigned NOT NULL default '0',
-  PRIMARY KEY  (tag_id)
+  PRIMARY KEY  (tag_id),
+  KEY name (tag)
 );
 CREATE TABLE $bbdb->tagged (
   tag_id bigint(20) unsigned NOT NULL default '0',
@@ -94,7 +94,6 @@ CREATE TABLE $bbdb->tagged (
   topic_id bigint(20) unsigned NOT NULL default '0',
   tagged_on datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (tag_id,user_id,topic_id),
-  KEY tag_id_index (tag_id),
   KEY user_id_index (user_id),
   KEY topic_id_index (topic_id)
 );
