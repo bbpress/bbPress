@@ -721,7 +721,7 @@ function get_page_number_links($page, $total) {
 
 function topic_delete_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
-	extract(bb_parse_args( $args, $defaults ));
+	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
 	$topic = get_topic( get_topic_id( $id ) );
@@ -737,7 +737,7 @@ function topic_delete_link( $args = '' ) {
 
 function topic_close_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
-	extract(bb_parse_args( $args, $defaults ));
+	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
 	$topic = get_topic( get_topic_id( $id ) );
@@ -751,7 +751,7 @@ function topic_close_link( $args = '' ) {
 
 function topic_sticky_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
-	extract(bb_parse_args( $args, $defaults ));
+	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
 	$topic = get_topic( get_topic_id( $id ) );
@@ -1027,13 +1027,8 @@ function allowed_markup( $args = '' ) {
 
 // format=list or array( 'format' => 'list' )
 function get_allowed_markup( $args = '' ) {
-	if ( is_array($args) )
-		$a = &$args;
-	else
-		parse_str($args, $a);
-
-	$format = 'flat';
-	extract($a);
+	$args = bb_parse_args( $args, array('format' => 'flat') );
+	extract($args, EXTR_SKIP);
 
 	$tags = bb_allowed_tags();
 	unset($tags['pre']);
@@ -1306,7 +1301,7 @@ function bb_get_logout_link( $args = '' ) {
 
 	$defaults = array('text' => __('Log out'), 'before' => '', 'after' => '');
 	$args = bb_parse_args( $args, $defaults );
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	return apply_filters( 'bb_get_logout_link', "$before<a href='" . attribute_escape( bb_get_option( 'uri' ) . 'bb-login.php?logout' ) . "'>$text</a>$after", $args );
 }
@@ -1325,7 +1320,7 @@ function bb_get_admin_link( $args = '' ) {
 
 	$defaults = array('text' => __('Admin'), 'before' => '', 'after' => '');
 	$args = bb_parse_args( $args, $defaults );
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	return apply_filters( 'bb_get_admin_link', "$before<a href='" . attribute_escape( bb_get_option( 'uri' ) . 'bb-admin/' ) . "'>$text</a>$after", $args );
 }
@@ -1338,7 +1333,7 @@ function bb_profile_link( $args = '' ) {
 
 	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '', 'id' => false );
 	$args = bb_parse_args( $args, $defaults );
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	$id = (int) $id;
 	if ( !$id )
@@ -1532,7 +1527,7 @@ function tag_heat_map( $args = '' ) {
 		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
 	endif;
 
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	$tags = get_top_tags( false, $limit );
 
@@ -1557,7 +1552,7 @@ function bb_related_tags_heat_map( $args = '' ) {
 		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
 	endif;
 
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	$tags = bb_related_tags( $tag, $limit );
 
@@ -1571,7 +1566,7 @@ function bb_related_tags_heat_map( $args = '' ) {
 function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = bb_parse_args( $args, $defaults );
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	if ( !$tags )
 		return;
@@ -1643,7 +1638,9 @@ function bb_get_forum_dropdown( $args = '' ) {
 	if ( 1 < func_num_args() )
 		$args['callback_args'] = func_get_arg(1);
 
-	extract($args = bb_parse_args( $args, $defaults ));
+	$args = bb_parse_args( $args, $defaults );
+
+	extract($args, EXTR_SKIP);
 
 	if ( !$forums = bb_forums( $args ) )
 		return;

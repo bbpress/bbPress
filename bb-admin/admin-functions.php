@@ -409,7 +409,7 @@ function bb_new_forum( $args ) {
 		$args['forum_order'] = 2 < func_num_args() ? func_get_arg(2) : 0;
 	endif;
 
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	if ( !is_numeric($forum_order) )
 		$forum_order = $bbdb->get_var("SELECT MAX(forum_order) FROM $bbdb->forums") + 1;
@@ -449,7 +449,7 @@ function bb_update_forum( $args ) {
 		$args['forum_order'] = 3 < func_num_args() && is_numeric(func_get_arg(3)) ? func_get_arg(3) : 0;
 	endif;
 
-	extract($args);
+	extract($args, EXTR_SKIP);
 
 	if ( !$forum_id = (int) $forum_id )
 		return false;
@@ -602,7 +602,7 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 	function start_el($output, $forum, $depth, $args) {
 		global $forums_count;
 		
-		extract($args);
+		extract($args, EXTR_SKIP);
 		
 		$indent = str_repeat("\t", $depth);
 		
