@@ -62,7 +62,7 @@ function get_forums( $args = null ) {
 	}
 
 	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0 );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 
 	extract($args, EXTR_SKIP);
 	$child_of = (int) $child_of;
@@ -2020,7 +2020,7 @@ function bb_user_search( $args = '' ) {
 
 	$defaults = array( 'query' => '', 'append_meta' => true, 'user_login' => true, 'display_name' => true, 'user_nicename' => false, 'user_url' => true, 'user_email' => false, 'user_meta' => false, 'users_per_page' => false, 'page' => false );
 
-	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
+	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 
 	if ( $query && strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
@@ -2085,7 +2085,7 @@ function bb_tag_search( $args = '' ) {
 
 	$defaults = array( 'query' => '', 'tags_per_page' => false );
 
-	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
+	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 
 	if ( strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );

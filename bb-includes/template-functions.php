@@ -387,7 +387,7 @@ function forum_description( $args = null ) {
 	elseif ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'before' => $args );
 	$defaults = array( 'id' => 0, 'before' => ' &#8211; ', 'after' => '' );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 
 	if ( $desc = apply_filters( 'forum_description', get_forum_description( $args['id'] ), $args['id'], $args ) )
 		echo $args['before'] . $desc . $args['after'];
@@ -509,7 +509,7 @@ function bb_forum_class( $args = null ) {
 	elseif ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'class' => $args );
 	$defaults = array( 'id' => 0, 'key' => 'forum', 'class' => '' );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 
 	global $bb_forums_loop;
 	if ( is_object($bb_forums_loop) && is_a($bb_forums_loop, 'BB_Loop') )
@@ -721,7 +721,7 @@ function get_page_number_links($page, $total) {
 
 function topic_delete_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
-	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
+	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
 	$topic = get_topic( get_topic_id( $id ) );
@@ -737,7 +737,7 @@ function topic_delete_link( $args = '' ) {
 
 function topic_close_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
-	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
+	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
 	$topic = get_topic( get_topic_id( $id ) );
@@ -751,7 +751,7 @@ function topic_close_link( $args = '' ) {
 
 function topic_sticky_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
-	extract(bb_parse_args( $args, $defaults ), EXTR_SKIP);
+	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
 	$topic = get_topic( get_topic_id( $id ) );
@@ -1027,7 +1027,7 @@ function allowed_markup( $args = '' ) {
 
 // format=list or array( 'format' => 'list' )
 function get_allowed_markup( $args = '' ) {
-	$args = bb_parse_args( $args, array('format' => 'flat') );
+	$args = wp_parse_args( $args, array('format' => 'flat') );
 	extract($args, EXTR_SKIP);
 
 	$tags = bb_allowed_tags();
@@ -1300,7 +1300,7 @@ function bb_get_logout_link( $args = '' ) {
 		$args = array( 'text' => $args );
 
 	$defaults = array('text' => __('Log out'), 'before' => '', 'after' => '');
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
 	return apply_filters( 'bb_get_logout_link', "$before<a href='" . attribute_escape( bb_get_option( 'uri' ) . 'bb-login.php?logout' ) . "'>$text</a>$after", $args );
@@ -1319,7 +1319,7 @@ function bb_get_admin_link( $args = '' ) {
 		$args = array( 'text' => $args );
 
 	$defaults = array('text' => __('Admin'), 'before' => '', 'after' => '');
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
 	return apply_filters( 'bb_get_admin_link', "$before<a href='" . attribute_escape( bb_get_option( 'uri' ) . 'bb-admin/' ) . "'>$text</a>$after", $args );
@@ -1332,7 +1332,7 @@ function bb_profile_link( $args = '' ) {
 		$args = array( 'id' => $args );
 
 	$defaults = array( 'text' => __('View your profile'), 'before' => '', 'after' => '', 'id' => false );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
 	$id = (int) $id;
@@ -1518,7 +1518,7 @@ function get_tag_remove_link() {
 
 function tag_heat_map( $args = '' ) {
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
 		$args['smallest'] = func_get_arg(0);
@@ -1543,7 +1543,7 @@ function bb_related_tags_heat_map( $args = '' ) {
 		$args = array( 'tag' => $args );
 
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat', 'tag' => false );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
 		$args['smallest'] = func_get_arg(0);
@@ -1565,7 +1565,7 @@ function bb_related_tags_heat_map( $args = '' ) {
 
 function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
 	if ( !$tags )
@@ -1638,7 +1638,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 	if ( 1 < func_num_args() )
 		$args['callback_args'] = func_get_arg(1);
 
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 
 	extract($args, EXTR_SKIP);
 
@@ -1776,7 +1776,7 @@ function _bb_parse_time_function_args( $args ) {
 		$args = array('format' => $args);
 
 	$defaults = array( 'id' => 0, 'format' => 'since', 'more' => 0 );
-	return bb_parse_args( $args, $defaults );
+	return wp_parse_args( $args, $defaults );
 }
 
 function _bb_time_function_return( $time, $args ) {

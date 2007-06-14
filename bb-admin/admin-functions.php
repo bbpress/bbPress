@@ -402,7 +402,7 @@ function bb_new_forum( $args ) {
 		return false;
 
 	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
 		$args['forum_name']  = func_get_arg(0);
 		$args['forum_desc']  = func_get_arg(1);
@@ -441,7 +441,7 @@ function bb_update_forum( $args ) {
 		return false;
 
 	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0 );
-	$args = bb_parse_args( $args, $defaults );
+	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
 		$args['forum_id']    = func_get_arg(0);
 		$args['forum_name']  = func_get_arg(1);

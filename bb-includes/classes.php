@@ -38,7 +38,7 @@ class BB_Dir_Map {
 		// dots: true (everything), false (nothing), nosvn
 		$defaults = array( 'callback' => false, 'callback_args' => false, 'keep_empty' => false, 'apply_to' => 'files', 'recurse' => -1, 'dots' => false );
 		$this->callback = is_array($args) && isset($args['callback']) ? $args['callback'] : false;
-		$args = bb_parse_args( $args, $defaults );
+		$args = wp_parse_args( $args, $defaults );
 
 		foreach ( array('callback', 'keep_empty', 'dots') as $a )
 			if ( 'false' == $args[$a] )
