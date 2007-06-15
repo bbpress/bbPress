@@ -2,13 +2,13 @@
 
 if ( !function_exists('stripslashes_deep') ) :
 function stripslashes_deep($value) { // [4495]
-   return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
+	return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
 }
 endif;
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP5095]
+if ( !function_exists( 'clean_url' ) ) : // [WP5700]
 function clean_url( $url, $protocols = null ) {
 	if ('' == $url) return $url;
 	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%]|i', '', $url);
@@ -17,9 +17,9 @@ function clean_url( $url, $protocols = null ) {
 	$url = str_replace(';//', '://', $url);
 	// Append http unless a relative link starting with / or a php file.
 	if ( strpos($url, '://') === false &&
-		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9]+?\.php/i', $url) )
+		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9-]+?\.php/i', $url) )
 		$url = 'http://' . $url;
-	
+
 	$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
 	if ( !is_array($protocols) )
 		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet'); 
@@ -133,13 +133,15 @@ endif;
                   Added Cleaning Hooks
              1.0  First Version
 */
-if ( !function_exists('balanceTags') ) :
-function balanceTags($text, $force = false) { // [WP4662]
+if ( !function_exists('balanceTags') ) : // [WP5623]
+function balanceTags($text, $force = false) {
 
-	if ( !$force ) // This line differs from that in WP
+	if ( !$force ) // This line differs from WP
 		return $text;
 
 	$tagstack = array(); $stacksize = 0; $tagqueue = ''; $newtext = '';
+	$single_tags = array('br', 'hr', 'img', 'input'); //Known single-entity/self-closing tags
+	$nestable_tags = array('blockquote', 'div', 'span'); //Tags that can be immediately nested within themselves
 
 	# WP bug fix for comments - in case you REALLY meant to type '< !--'
 	$text = str_replace('< !--', '<    !--', $text);
@@ -190,11 +192,11 @@ function balanceTags($text, $force = false) { // [WP4662]
 			if((substr($regex[2],-1) == '/') || ($tag == '')) {
 			}
 			// ElseIf it's a known single-entity tag but it doesn't close itself, do so
-			elseif ($tag == 'br' || $tag == 'img' || $tag == 'hr' || $tag == 'input') {
+			elseif ( in_array($tag, $single_tags) ) {
 				$regex[2] .= '/';
 			} else {	// Push the tag onto the stack
 				// If the top of the stack is the same as the tag we want to push, close previous tag
-				if (($stacksize > 0) && ($tag != 'div') && ($tagstack[$stacksize - 1] == $tag)) {
+				if (($stacksize > 0) && !in_array($tag, $nestable_tags) && ($tagstack[$stacksize - 1] == $tag)) {
 					$tagqueue = '</' . array_pop ($tagstack) . '>';
 					$stacksize--;
 				}
@@ -256,8 +258,8 @@ function make_clickable($ret) {
 }
 endif;
 
-if ( !function_exists('seems_utf8') ) :
-function seems_utf8($Str) { # by bmorel at ssi dot fr // [WP1345]
+if ( !function_exists('seems_utf8') ) : // [WP1345]
+function seems_utf8($Str) { # by bmorel at ssi dot fr
 	for ($i=0; $i<strlen($Str); $i++) {
 		if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
 		elseif ((ord($Str[$i]) & 0xE0) == 0xC0) $n=1; # 110bbbbb
@@ -275,8 +277,8 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr // [WP1345]
 }
 endif;
 
-if ( !function_exists('remove_accents') ) :
-function remove_accents($string) { // [WP4320]
+if ( !function_exists('remove_accents') ) : // [WP4320]
+function remove_accents($string) {
 	if ( !preg_match('/[\x80-\xff]/', $string) )
 		return $string;
 
@@ -445,24 +447,29 @@ endif;
 
 /* Plugin API */
 
-if ( !function_exists('add_filter') ) :
-function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) { // [WP4955]
-	global $wp_filter;
+if ( !function_exists('add_filter') ) : // [WP5169]
+function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+	global $wp_filter, $merged_filters;
 
 	// So the format is wp_filter['tag']['array of priorities']['array of functions serialized']['array of ['array (functions, accepted_args)]']
 	$wp_filter[$tag][$priority][serialize($function_to_add)] = array('function' => $function_to_add, 'accepted_args' => $accepted_args);
+	unset( $merged_filters[ $tag ] );
 	return true;
 }
 endif;
 
-if ( !function_exists('apply_filters') ) :
-function apply_filters($tag, $string) { // [WP4955]
-	global $wp_filter;
 
-	merge_filters($tag);
+if ( !function_exists('apply_filters') ) : // [WP5170]
+function apply_filters($tag, $string) {
+	global $wp_filter, $merged_filters;
+
+	if ( !isset( $merged_filters[ $tag ] ) )
+		merge_filters($tag);
 
 	if ( !isset($wp_filter[$tag]) )
 		return $string;
+
+	reset( $wp_filter[ $tag ] );
 
 	$args = func_get_args();
 
@@ -479,27 +486,31 @@ function apply_filters($tag, $string) { // [WP4955]
 }
 endif;
 
-if ( !function_exists('merge_filters') ) :
-function merge_filters($tag) { // [WP4955]
-	global $wp_filter;
+if ( !function_exists('merge_filters') ) : // [WP5169]
+function merge_filters($tag) {
+	global $wp_filter, $merged_filters;
 
-	if ( isset($wp_filter['all']) )
+	if ( isset($wp_filter['all']) && is_array($wp_filter['all']) )
 		$wp_filter[$tag] = array_merge($wp_filter['all'], (array) $wp_filter[$tag]);
 
 	if ( isset($wp_filter[$tag]) ){
 		reset($wp_filter[$tag]);
 		uksort($wp_filter[$tag], "strnatcasecmp");
 	}
+	$merged_filters[ $tag ] = true;
 }
 endif;
 
-if ( !function_exists('remove_filter') ) : // [WP4955]
+if ( !function_exists('remove_filter') ) : // [WP5393]
 function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
-	global $wp_filter;
+	$function_to_remove = serialize($function_to_remove);
 
-	unset($GLOBALS['wp_filter'][$tag][$priority][serialize($function_to_remove)]);
+	$r = isset($GLOBALS['wp_filter'][$tag][$priority][$function_to_remove]);
 
-	return true;
+	unset($GLOBALS['wp_filter'][$tag][$priority][$function_to_remove]);
+	unset($GLOBALS['merged_filters'][$tag]);
+
+	return $r;
 }
 endif;
 
@@ -509,9 +520,14 @@ function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) 
 }
 endif;
 
-if ( !function_exists('do_action') ) : // [WP4955]
+if ( !function_exists('do_action') ) : // [WP5409]
 function do_action($tag, $arg = '') {
 	global $wp_filter, $wp_actions;
+
+	if ( is_array($wp_actions) )
+		$wp_actions[] = $tag;
+	else
+		$wp_actions = array($tag);
 
 	$args = array();
 	if ( is_array($arg) && 1 == count($arg) && is_object($arg[0]) ) // array(&$this)
@@ -533,10 +549,6 @@ function do_action($tag, $arg = '') {
 
 	} while ( next($wp_filter[$tag]) );
 
-	if ( is_array($wp_actions) )
-		$wp_actions[] = $tag;
-	else
-		$wp_actions = array($tag);
 }
 endif;
 
@@ -564,17 +576,20 @@ function do_action_ref_array($tag, $args) {
 }
 endif;
 
-if ( !function_exists('did_action') ) : // [WP4630]
+if ( !function_exists('did_action') ) : // [WP5413]
 function did_action($tag) {
 	global $wp_actions;
+
+	if ( empty($wp_actions) )
+		return 0;
 
 	return count(array_keys($wp_actions, $tag));
 }
 endif;
 
-if ( !function_exists('remove_action') ) : // [WP3894]
+if ( !function_exists('remove_action') ) : // [WP5393]
 function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
-	remove_filter($tag, $function_to_remove, $priority, $accepted_args);
+	return remove_filter($tag, $function_to_remove, $priority, $accepted_args);
 }
 endif;
 
@@ -588,16 +603,16 @@ Parameters:
 add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
-if ( !function_exists('add_query_arg') ) : // [WP5269]
+if ( !function_exists('add_query_arg') ) : // [WP5709]
 function add_query_arg() {
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
-		if ( @func_num_args() < 2 || '' == @func_get_arg(1) )
+		if ( @func_num_args() < 2 || false === @func_get_arg(1) )
 			$uri = $_SERVER['REQUEST_URI'];
 		else
 			$uri = @func_get_arg(1);
 	} else {
-		if ( @func_num_args() < 3 || '' == @func_get_arg(2) )
+		if ( @func_num_args() < 3 || false === @func_get_arg(2) )
 			$uri = $_SERVER['REQUEST_URI'];
 		else
 			$uri = @func_get_arg(2);
@@ -632,9 +647,7 @@ function add_query_arg() {
 		$query = $uri;
 	}
 
-	parse_str($query, $qs);
-	if ( get_magic_quotes_gpc() )
-		$qs = stripslashes_deep($qs); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
+	wp_parse_str($query, $qs);
 	$qs = urlencode_deep($qs);
 	if ( is_array(func_get_arg(0)) ) {
 		$kayvees = func_get_arg(0);
@@ -655,7 +668,7 @@ function add_query_arg() {
 	}
 	$ret = trim($ret, '?');
 	$ret = $protocol . $base . $ret . $frag;
-	$ret = trim($ret, '?');
+	$ret = rtrim($ret, '?');
 	return $ret;
 }
 endif;
@@ -670,8 +683,8 @@ remove_query_arg(removekey, [oldquery_or_uri]) or
 remove_query_arg(removekeyarray, [oldquery_or_uri])
 */
 
-if ( !function_exists('remove_query_arg') ) :
-function remove_query_arg($key, $query='') { // [WP4435]
+if ( !function_exists('remove_query_arg') ) : // [WP5705]
+function remove_query_arg($key, $query=FALSE) {
 	if ( is_array($key) ) { // removing multiple keys
 		foreach ( (array) $key as $k )
 			$query = add_query_arg($k, FALSE, $query);
@@ -681,25 +694,38 @@ function remove_query_arg($key, $query='') { // [WP4435]
 }
 endif;
 
-if ( !function_exists('status_header') ) :
-function status_header( $header ) { // [WP4725]
-	if ( 200 == $header )
-		$text = 'OK';
-	elseif ( 301 == $header )
-		$text = 'Moved Permanently';
-	elseif ( 302 == $header )
-		$text = 'Moved Temporarily';
-	elseif ( 304 == $header )
-		$text = 'Not Modified';
-	elseif ( 404 == $header )
-		$text = 'Not Found';
-	elseif ( 410 == $header )
-		$text = 'Gone';
+if ( !function_exists('get_status_header_desc') ) : // [WP5700]
+function get_status_header_desc( $code ) {
+	global $wp_header_to_desc;
 
-	if ( version_compare(phpversion(), '4.3.0', '>=') )
-		@header("HTTP/1.1 $header $text", true, $header);
-	else
-		@header("HTTP/1.1 $header $text");
+	$code = (int) $code;
+
+	if ( isset( $wp_header_to_desc[$code] ) ) {
+		return $wp_header_to_desc[$code];
+	} else {
+		return '';
+	}
+}
+endif;
+
+if ( !function_exists('status_header') ) : // [WP5700]
+function status_header( $header ) {
+	$text = get_status_header_desc( $header );
+
+	if ( empty( $text ) )
+		return false;
+
+	$protocol = $_SERVER["SERVER_PROTOCOL"];
+	if ( ('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol) )
+		$protocol = 'HTTP/1.0';
+	$status_header = "$protocol $header $text";
+	$status_header = apply_filters('status_header', $status_header, $header, $text, $protocol);
+
+	if ( version_compare( phpversion(), '4.3.0', '>=' ) ) {
+		return @header( $status_header, true, $header );
+	} else {
+		return @header( $status_header );
+	}
 }
 endif;
 
@@ -713,9 +739,9 @@ function nocache_headers() { // [WP2623]
 endif;
 
 if ( !function_exists('cache_javascript_headers') ) :
-function cache_javascript_headers() { // [WP4109] Not verbatim WP.  Charset hardcoded.
+function cache_javascript_headers() { // [WP5640] Not verbatim WP.  Charset hardcoded.
 	$expiresOffset = 864000; // 10 days
-	header("Content-type: text/javascript; charset=utf-8");
+	header("Content-Type: text/javascript; charset=utf-8");
 	header("Vary: Accept-Encoding"); // Handle proxies
 	header("Expires: " . gmdate("D, d M Y H:i:s", time() + $expiresOffset) . " GMT");
 }
@@ -723,28 +749,25 @@ endif;
 
 /* Templates */
 
-if ( !function_exists('paginate_links') ) :
-function paginate_links( $arg = '' ) { // [WP4657]
-	if ( is_array($arg) )
-		$a = &$arg;
-	else
-		parse_str($arg, $a);
+if ( !function_exists('paginate_links') ) : // [WP5709]
+function paginate_links( $args = '' ) {
+	$defaults = array( 
+		'base' => '%_%', // http://example.com/all_posts.php%_% : %_% is replaced by format (below)
+		'format' => '?page=%#%', // ?page=%#% : %#% is replaced by the page number
+		'total' => 1,
+		'current' => 0,
+		'show_all' => false,
+		'prev_next' => true,
+		'prev_text' => __('&laquo; Previous'),
+		'next_text' => __('Next &raquo;'),
+		'end_size' => 1, // How many numbers on either end including the end
+		'mid_size' => 2, // How many numbers to either side of current not including current
+		'type' => 'plain',
+		'add_args' => false // array of query args to aadd
+	);
 
-	// Defaults
-	$base = '%_%'; // http://example.com/all_posts.php%_% : %_% is replaced by format (below)
-	$format = '?page=%#%'; // ?page=%#% : %#% is replaced by the page number
-	$total = 1;
-	$current = 0;
-	$show_all = false;
-	$prev_next = true;
-	$prev_text = __('&laquo; Previous');
-	$next_text = __('Next &raquo;');
-	$end_size = 1; // How many numbers on either end including the end
-	$mid_size = 2; // How many numbers to either side of current not including current
-	$type = 'plain';
-	$add_args = false; // array of query args to aadd
-
-	extract($a);
+	$args = wp_parse_args( $args, $defaults );
+	extract($args, EXTR_SKIP);
 
 	// Who knows what else people pass in $args
 	$total    = (int) $total;
@@ -764,7 +787,7 @@ function paginate_links( $arg = '' ) { // [WP4657]
 		$link = str_replace('%#%', $current - 1, $link);
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='prev page-numbers' href='" . attribute_escape($link) . "'>$prev_text</a>";
+		$page_links[] = "<a class='prev page-numbers' href='" . clean_url($link) . "'>$prev_text</a>";
 	endif;
 	for ( $n = 1; $n <= $total; $n++ ) :
 		if ( $n == $current ) :
@@ -776,7 +799,7 @@ function paginate_links( $arg = '' ) { // [WP4657]
 				$link = str_replace('%#%', $n, $link);
 				if ( $add_args )
 					$link = add_query_arg( $add_args, $link );
-				$page_links[] = "<a class='page-numbers' href='" . attribute_escape($link) . "'>$n</a>";
+				$page_links[] = "<a class='page-numbers' href='" . clean_url($link) . "'>$n</a>";
 				$dots = true;
 			elseif ( $dots && !$show_all ) :
 				$page_links[] = "<span class='page-numbers dots'>...</span>";
@@ -789,7 +812,7 @@ function paginate_links( $arg = '' ) { // [WP4657]
 		$link = str_replace('%#%', $current + 1, $link);
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='next page-numbers' href='" . attribute_escape($link) . "'>$next_text</a>";
+		$page_links[] = "<a class='next page-numbers' href='" . clean_url($link) . "'>$next_text</a>";
 	endif;
 	switch ( $type ) :
 		case 'array' :
@@ -848,7 +871,7 @@ function is_serialized_string($data) {
 }
 endif;
 
-if ( !function_exists('ent2ncr') ) : // [WP2869]
+if ( !function_exists('ent2ncr') ) : // [WP2689]
 function ent2ncr($text) {
 	$to_ncr = array(
 		'&quot;' => '&#34;',
@@ -1114,23 +1137,17 @@ function ent2ncr($text) {
 }
 endif;
 
-if ( !function_exists('wp_parse_args') ) : // [WP5234]
+if ( !function_exists('wp_parse_args') ) : // [WP5709]
 function wp_parse_args( $args, $defaults = '' ) {
-	if ( is_array($args) ) :
+	if ( is_array( $args ) )
 		$r =& $args;
-	else :
-		parse_str( $args, $r );
-		if ( get_magic_quotes_gpc() )
-			$r = stripslashes_deep( $r );
-	endif;
+	else
+		wp_parse_str( $args, $r );
 
-	if ( is_array($defaults) ) :
-		extract($defaults);
-		extract($r);
-		return compact(array_keys($defaults)); // only those options defined in $defaults
-	else :
+	if ( is_array( $defaults ) )
+		return array_merge( $defaults, $r );
+	else
 		return $r;
-	endif;
 }
 endif;
 
@@ -1155,6 +1172,15 @@ function backslashit($string) {
 	$string = preg_replace('/^([0-9])/', '\\\\\\\\\1', $string);
 	$string = preg_replace('/([a-z])/i', '\\\\\1', $string);
 	return $string;
+}
+endif;
+
+if ( !function_exists( 'wp_parse_str' ) ) : // [WP5709]
+function wp_parse_str( $string, &$array ) {
+	parse_str( $string, $array );
+	if ( get_magic_quotes_gpc() )
+		$array = stripslashes_deep( $array ); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
+	$array = apply_filters( 'wp_parse_str', $array );
 }
 endif;
 
