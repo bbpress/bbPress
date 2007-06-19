@@ -39,7 +39,7 @@
 <?php endif; ?>
 	<tr>
 		<th scope="row">&nbsp;</th>
-		<td><input name="re" type="hidden" value="<?php echo $re; ?>" />
+		<td><input name="re" type="hidden" value="<?php echo $redirect_to; ?>" />
 		<input type="submit" value="<?php echo attribute_escape( isset($_POST['user_login']) ? __('Try Again &raquo;'): __('Log in &raquo;') ); ?>" /></td>
 	</tr>
 </table>
