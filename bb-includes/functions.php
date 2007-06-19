@@ -132,7 +132,7 @@ function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
 
 	// Last param makes filters back compat
 	$query = new BB_Query( 'topic', $q, 'get_latest_topics' );
-	return $query->topics;
+	return $query->results;
 }
 
 function get_sticky_topics( $forum = false, $display = 1 ) {
@@ -145,7 +145,7 @@ function get_sticky_topics( $forum = false, $display = 1 ) {
 	);
 
 	$query = new BB_Query( 'topic', $q, 'get_sticky_topics' );
-	return $query->topics;
+	return $query->results;
 }
 
 function get_recent_user_threads( $user_id ) {
@@ -153,7 +153,7 @@ function get_recent_user_threads( $user_id ) {
 	$q = array( 'page' => $page, 'topic_author' => $user_id, 'order_by' => 't.topic_start_time');
 
 	$query = new BB_Query( 'topic', $q, 'get_recent_user_threads' );
-	return $query->topics;
+	return $query->results;
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
@@ -923,7 +923,7 @@ function get_tagged_topic_ids( $tag_id ) {
 
 function get_tagged_topics( $tag_id, $page = 1 ) {
 	$query = new BB_Query( 'topic', array('tag_id' => $tag_id), 'get_tagged_topics' );
-	return $query->topics;
+	return $query->results;
 }
 
 function get_tagged_topic_posts( $tag_id, $page = 1 ) {
@@ -1074,7 +1074,7 @@ function get_user_favorites( $user_id, $topics = false ) {
 	if ( $user->favorites ) {
 		if ( $topics ) {
 			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'append_meta' => 0), 'get_user_favorites' );
-			return $query->topics;
+			return $query->results;
 		} else {
 			$order_by = apply_filters( 'get_user_favorites_order_by', 'post_time DESC', $topics );
 			return $bb_cache->cache_posts("

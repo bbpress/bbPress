@@ -157,7 +157,7 @@ function bb_get_recently_moderated_objects( $num = 5 ) {
 	global $bbdb;
 	$posts = (array) bb_get_deleted_posts( 1, $num, -1 ); // post_time != moderation_time;
 	$topic_query = new BB_Query( 'topic', array('per_page' => $num, 'topic_status' => '-normal', 'append_meta' => 0) ); // topic_time == topic_start_time != moderation_time;
-	$topics = $topic_query->topics;
+	$topics = $topic_query->results;
 	$objects = array();
 	foreach ( array_keys($posts) as $key )
 		$objects[bb_gmtstrtotime($posts[$key]->post_time)] = array('type' => 'post', 'data' => $posts[$key]);

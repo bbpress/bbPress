@@ -38,7 +38,7 @@ function total_topics() {
 
 function get_popular_topics( $num = 10 ) {
 	$query = new BB_Query( 'topic', array('per_page' => $num, 'order_by' => 'topic_posts', 'append_meta' => 0) );
-	return $query->topics;
+	return $query->results;
 }
 
 function get_recent_registrants( $num = 10 ) {

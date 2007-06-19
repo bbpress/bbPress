@@ -10,13 +10,9 @@ class BB_Query {
 	var $request;
 	var $count_request = 'SELECT FOUND_ROWS()';
 
-	var $topics;
-	var $topic_count = 0;
-	var $found_topics = 0;
-
-	var $posts;
-	var $post_count = 0;
-	var $found_posts = 0;
+	var $results;
+	var $count = 0;
+	var $found_rows = 0;
 
 	var $errors;
 
@@ -30,22 +26,20 @@ class BB_Query {
 		global $bbdb;
 		$this->type = $type;
 		$this->parse_query($query, $id);
-		do_action_ref_array( "bb_pre_get_$this->type", array(&$this) );
-		if ( 'post' == $type ) {
+
+		if ( 'post' == $type )
 			$this->generate_post_sql();
-			$this->posts = $bbdb->get_results( $this->request );
-			$this->post_count = count( $this->posts );
-			$this->found_posts = $bbdb->get_var( $this->count_request );
-			return $this->posts;
-		} else {
+		else
 			$this->generate_topic_sql();
-			$this->topics = $bbdb->get_results( $this->request );
-			$this->topic_count = count( $this->topics );
-			$this->found_topics = $bbdb->get_var( $this->count_request );
-			if ( $this->query_vars['append_meta'] )
-				$this->topics = bb_append_meta( $this->topics, 'topic' );
-			return $this->topics;
-		}
+
+		do_action_ref_array( 'bb_query', array(&$this) );
+
+		$this->results = $bbdb->get_results( $this->request );
+		$this->count = count( $this->results );
+		$this->found_rows = $bbdb->get_var( $this->count_request );
+		if ( 'topic' == $this->type && $this->query_vars['append_meta'] )
+			$this->results = bb_append_meta( $this->results, 'topic' );
+		return $this->results;
 	}
 
 	function init( $id = '' ) {
@@ -53,11 +47,8 @@ class BB_Query {
 		$this->query_vars = array();
 		$this->query_id = $id;
 
-		unset($this->topics);
-		$this->topic_count = $this->found_topics = 0;
-
-		unset($this->posts);
-		$this->post_count = $this->found_posts = 0;
+		unset($this->results);
+		$this->count = $this->found_rows = 0;
 	}
 
 	function fill_query_vars( $array ) {
@@ -189,7 +180,7 @@ class BB_Query {
 		$this->query_vars[$query_var] = $value;
 	}
 
-	function generate_topic_sql( $topic_part_only = false ) {
+	function generate_topic_sql( $_part_of_post_query = false ) {
 		global $bbdb;
 
 		$q =& $this->query_vars;
@@ -205,12 +196,12 @@ class BB_Query {
 		$post_where = '';
 		$post_queries = array('post_author_id', 'post_author', 'posted', 'post_status', 'position', 'search', 'ip');
 
-		if ( !$topic_part_only && array_diff($post_queries, $this->not_set) ) :
+		if ( !$_part_of_post_query && array_diff($post_queries, $this->not_set) ) :
 			$join .= " JOIN $bbdb->posts as p ON ( t.topic_id = p.topic_id )";
 			$post_where = $this->generate_post_sql( true );
 		endif;
 
-		if ( !$topic_part_only ) :
+		if ( !$_part_of_post_query ) :
 			if ( $q['post_id'] ) :
 				$post_topics = $post_topics_no = array();
 				$op = substr($q['post_id'], 0, 1);
@@ -331,7 +322,7 @@ class BB_Query {
 			$where = substr($where, 5);
 
 		// Just getting topic part for inclusion in post query
-		if ( $topic_part_only )
+		if ( $_part_of_post_query )
 			return $where;
 
 		$where .= $post_where;
@@ -344,12 +335,10 @@ class BB_Query {
 		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->topics AS t" );
 
-		do_action_ref_array( 'bb_post_process_query', array(&$this) );
-
 		return $this->request;
 	}
 
-	function generate_post_sql( $post_part_only = false ) {
+	function generate_post_sql( $_part_of_topic_query = false ) {
 		global $bbdb;
 
 		$q =& $this->query_vars;
@@ -364,12 +353,12 @@ class BB_Query {
 
 		$topic_where = '';
 		$topic_queries = array( 'topic_author_id', 'topic_author', 'topic_status', 'post_count', 'tag_count', 'started', 'updated', 'open', 'sticky', 'meta_key', 'meta_value', 'view', 'topic_title' );
-		if ( !$post_part_only && array_intersect(array_keys($q, !false), $topic_queries) ) :
+		if ( !$_part_of_topic_query && array_intersect(array_keys($q, !false), $topic_queries) ) :
 			$join .= " JOIN $bbdb->topics as t ON ( t.topic_id = p.topic_id )";
 			$topic_where = $this->generate_topic_sql( true );
 		endif;
 		
-		if ( !$post_part_only ) :
+		if ( !$_part_of_topic_query ) :
 			if ( $q['post_id'] )
 				$where .= $this->parse_value( 'p.post_id', $q['post_id'] );
 
@@ -417,7 +406,7 @@ class BB_Query {
 			$where .= " AND poster_ip = '$q[ip]'";
 
 		// Just getting post part for inclusion in topic query
-		if ( $post_part_only )
+		if ( $_part_of_topic_query )
 			return $where;
 
 		$where .= $topic_where;
@@ -432,8 +421,6 @@ class BB_Query {
 
 		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->posts AS p" );
-
-		do_action_ref_array( 'bb_post_process_query', array(&$this) );
 
 		return $this->request;
 	}
