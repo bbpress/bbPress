@@ -7,9 +7,9 @@ function bb_bozo_posts( $where ) {
 
 function bb_bozo_topics( $where ) {
 	if ( $id = bb_get_current_user_info( 'id' ) )
-		$where = str_replace(
-			array('topic_status = 0', "topic_status = '0'"),
-			"( topic_status = 0 OR topic_status > 1 AND topic_poster = '$id' )",
+		$where = preg_replace(
+			'/(\w+\.)?topic_status = ["\']?0["\']?/',
+			"( \\1topic_status = 0 OR \\1topic_status > 1 AND \\1topic_poster = '$id' )",
 		$where);
 	return $where;
 }

@@ -114,58 +114,46 @@ function get_topic( $id, $cache = true ) {
 		return $bb_cache->get_topic($id, $cache);
 }
 
-function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
-	global $bbdb;
-	$forum = (int) $forum;
-	$page = (int) $page;
+// $exclude is deprecated
+function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
+	if ( $exclude ) {
+		$exclude = '-' . str_replace(',', '-,', $exclude);
+		$exclude = str_replace('--', '-', $exclude);
+		$forum = (string) $forum . ",$exclude";
+	}
+
+	$q = array('forum_id' => $forum, 'page' => $page);
+
 	$where = 'WHERE topic_status = 0';
-	if ( $forum )
-		$where .= " AND forum_id = $forum ";
-	if ( !empty( $exclude ) )
-		$where .= " AND forum_id NOT IN ('$exclude') ";
 	if ( is_front() )
-		$where .= " AND topic_sticky <> 2 ";
+		$q['sticky'] = '-2';
 	elseif ( is_forum() || is_view() )
-		$where .= " AND topic_sticky = 0 ";
-	$limit = bb_get_option('page_topics');
-	$where = apply_filters('get_latest_topics_where', $where);
-	$order_by = apply_filters('get_latest_topics_order_by', 'topic_time DESC' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( $topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics $where ORDER BY $order_by LIMIT $limit") )
-		return bb_append_meta( $topics, 'topic' );
-	else
-		return false;
+		$q['sticky'] = 0;
+
+	// Last param makes filters back compat
+	$query = new BB_Query( 'topic', $q, 'get_latest_topics' );
+	return $query->topics;
 }
 
-function get_sticky_topics( $forum = 0, $display = 1 ) {
-	global $bbdb;
-	if ( 1 != $display )
+function get_sticky_topics( $forum = false, $display = 1 ) {
+	if ( 1 != $display ) // Why is this even here?
 		return false;
-	$forum = (int) $forum;
-	if ( is_front() )
-		$where = 'WHERE topic_sticky = 2  AND topic_status = 0';
-	else	$where = 'WHERE topic_sticky <> 0 AND topic_status = 0';
-	if ( $forum )
-		$where .= " AND forum_id = $forum ";
-	$where = apply_filters('get_sticky_topics_where', $where);
-	$order_by = apply_filters('get_sticky_topics_order_by', 'topic_time DESC' );
-	if ( $stickies = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics $where ORDER BY $order_by") )
-		return bb_append_meta( $stickies, 'topic' );	
-	else	return false;
+
+	$q = array(
+		'forum_id' => $forum,
+		'sticky' => is_front() ? 'super' : 'forum'
+	);
+
+	$query = new BB_Query( 'topic', $q, 'get_sticky_topics' );
+	return $query->topics;
 }
 
 function get_recent_user_threads( $user_id ) {
-	global $bbdb, $page;
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$join = apply_filters('get_recent_user_threads_join', '', $user_id);
-	$where = apply_filters('get_recent_user_threads_where', 'AND topic_status = 0', $user_id);
-	$order_by = apply_filters( 'get_recent_user_threads_order_by', 'topic_start_time DESC', $user_id);
-	if ( $topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics $join WHERE topic_poster = $user_id $where ORDER BY $order_by LIMIT $limit") )
-		$topics = bb_append_meta( $topics, 'topic' );
-	return $topics;
+	global $page;
+	$q = array( 'page' => $page, 'topic_author' => $user_id, 'order_by' => 't.topic_start_time');
+
+	$query = new BB_Query( 'topic', $q, 'get_recent_user_threads' );
+	return $query->topics;
 }
 
 function bb_new_topic( $title, $forum, $tags = '' ) {
@@ -934,17 +922,8 @@ function get_tagged_topic_ids( $tag_id ) {
 }
 
 function get_tagged_topics( $tag_id, $page = 1 ) {
-	global $bbdb;
-	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
-		return false;
-	$topic_ids = join($topic_ids, ',');
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$order_by = apply_filters('get_tagged_topics_order_by', 'topic_time DESC' );
-	if ( $topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY $order_by LIMIT $limit") )
-		return bb_append_meta( $topics, 'topic' );
-	else	return false;
+	$query = new BB_Query( 'topic', array('tag_id' => $tag_id), 'get_tagged_topics' );
+	return $query->topics;
 }
 
 function get_tagged_topic_posts( $tag_id, $page = 1 ) {
@@ -1094,13 +1073,8 @@ function get_user_favorites( $user_id, $topics = false ) {
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites ) {
 		if ( $topics ) {
-			$order_by = apply_filters( 'get_user_favorites_order_by', 'topic_time DESC', $topics );
-			$limit = bb_get_option( 'page_topics' );
-			if ( 1 < $page )
-				$limit = ($limit * ($page - 1)) . ", $limit";
-			return $bbdb->get_results("
-				SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY $order_by LIMIT $limit");
+			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'append_meta' => 0), 'get_user_favorites' );
+			return $query->topics;
 		} else {
 			$order_by = apply_filters( 'get_user_favorites_order_by', 'post_time DESC', $topics );
 			return $bb_cache->cache_posts("
