@@ -2155,7 +2155,7 @@ function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 		$_slug = bb_slug_sanitize($slug);
 		$r = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$_slug'");
 	}
-	return $r;
+	return (int) $r;
 }
 
 /* Utility */
