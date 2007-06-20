@@ -448,29 +448,29 @@ function get_forum_rss_link( $forum_id = 0 ) {
 
 // Forum Loop //
 
-function &bb_forums( $type = 'flat' ) {
+function &bb_forums( $args = '' ) {
 	global $bb_forums_loop;
-	
-	$args = array_slice( func_get_args(), 1 );
+
+	$default_type = 'flat';
+
+	if ( is_numeric($args) ) {
+		$args = array( 'child_of' => $args );
+	} elseif ( func_num_args() > 1 ) { // bb_forums( 'ul', $args ); Deprecated
+		$default_type = $args;
+		$args = func_get_arg(1);
+	} elseif ( $args && is_string($args) && false === strpos($args, '=') ) {
+		$args = array( 'type' => $args );
+	}
+
+	// hierarchical not used here.  Sent to get_forums for proper ordering.
+	$args = wp_parse_args( $args, array('hierarchical' => true, 'type' => $default_type) );
 
 	$levels = array( '', '' );
 
-	if ( !is_string($type) )
-		$type = 'default';
-
-	switch ( strtolower($type) ) :
-	case 'flat' : // [sic]
-		break;
-	case 'list' :
-	case 'ul' :
+	if ( in_array($args['type'], array('list', 'ul')) )
 		$levels = array( '<ul>', '</ul>' );
-		break;
-	default :
-		$args = func_get_args();
-		break;
-	endswitch;
 
-	$forums = call_user_func_array( 'get_forums', $args );
+	$forums = get_forums( $args );
 
 	if ( $bb_forums_loop = BB_Loop::start( $forums ) ) {
 		$bb_forums_loop->walker->db_fields = array( 'id' => 'forum_id', 'parent' => 'forum_parent' );

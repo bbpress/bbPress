@@ -25,10 +25,8 @@ function bb_is_installed() { // Maybe we should grab all forums and cache them.
 
 /* Forums */
 
-function bb_get_forums_hierarchical( $root = 0, $depth = 0, $_leaves = false ) {
+function bb_get_forums_hierarchical( $root = 0, $depth = 0, $_leaves = false, $_recursed = false ) {
 	$root = (int) $root;
-
-	$_recursed = (bool) $_leaves;
 
 	if ( false === $_leaves )
 		$_leaves = get_forums();
@@ -42,7 +40,7 @@ function bb_get_forums_hierarchical( $root = 0, $depth = 0, $_leaves = false ) {
 		if ( $root == $leaf->forum_parent ) {
 			$new_root = (int) $leaf->forum_id;
 			unset($_leaves[$l]);
-			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, $_leaves );
+			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, $_leaves, true );
 		}
 	}
 
@@ -66,14 +64,14 @@ function get_forums( $args = null ) {
 
 	extract($args, EXTR_SKIP);
 	$child_of = (int) $child_of;
-	$hierarchical = 'false' == $hierarchical ? false : (bool) $hierarchical;
+	$hierarchical = 'false' === $hierarchical ? false : (bool) $hierarchical;
 	$depth = (int) $depth;
 
 	global $bb_cache;
 	$forums = (array) apply_filters( 'get_forums', $bb_cache->get_forums() );
 
 	if ( $child_of || $hierarchical || $depth ) {
-		$_forums = bb_get_forums_hierarchical( $child_of, $depth );
+		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums );
 		$_forums = (array) bb_flatten_array( $_forums );
 
 		foreach ( array_keys($_forums) as $_id )
