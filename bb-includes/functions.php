@@ -1896,24 +1896,27 @@ function bb_explain_nonce($action) {
 }
 
 /* DB Helpers */
-
 function bb_count_last_query() {
 	global $bbdb, $bb_last_countable_query;
-	if ( !$bb_last_countable_query )
-		return $bbdb->get_var( "SELECT FOUND_ROWS()" );
+	if ( $bb_last_countable_query ) {
+		$q = $bb_last_countable_query;
+	} else {
+		if ( false !== strpos($bbdb->last_query, 'SQL_CALC_FOUND_ROWS') 
+			return $bbdb->get_var( "SELECT FOUND_ROWS()" );
+		$q = $bbdb->last_query;
+	}
 
-	if ( false === strpos($bb_last_countable_query, 'SELECT') )
+	if ( false === strpos($q, 'SELECT') )
 		return false;
 
-	$bb_last_countable_query = preg_replace(
+	$q = preg_replace(
 		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+[\S]+/', '/DESC/', '/ASC/'),
 		array('SELECT COUNT(*) FROM', ''),
-		$bb_last_countable_query
+		$q
 	);
 
-	$r = $bbdb->get_var($bb_last_countable_query);
 	$bb_last_countable_query = '';
-	return $r;
+	return $bbdb->get_var($q);
 }
 
 function no_replies( $where ) {
