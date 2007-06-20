@@ -170,14 +170,16 @@ function bb_get_recently_moderated_objects( $num = 5 ) {
 /* Users */
 
 function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
 	$key = $bb_table_prefix . 'capabilities';
 	if ( is_array($role) )
 		$and_where = "( meta_value LIKE '%" . join("%' OR meta_value LIKE '%", $role) . "%' )";
 	else
 		$and_where = "meta_value LIKE '%$role%'";
-	if ( $ids = (array) $bbdb->get_col("SELECT SQL_CALC_FOUND_ROWS user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort" . $limit_str) )
+	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort" . $limit_str;
+
+	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
 		bb_cache_users( $ids );
 	return $ids;
 }

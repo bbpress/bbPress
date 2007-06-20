@@ -655,20 +655,21 @@ function post_author_cache($posts) {
 }
 
 function get_recent_user_replies( $user_id ) {
-	global $bbdb, $bb_post_cache, $page;
+	global $bbdb, $bb_post_cache, $page, $bb_last_countable_query;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$where = apply_filters('get_recent_user_replies_where', 'AND post_status = 0');
 	$order_by = apply_filters('get_recent_user_replies_order_by', 'post_time DESC');
-	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY $order_by LIMIT $limit");
+	$bb_last_countable_query = "SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY $order_by LIMIT $limit";
+	$posts = $bbdb->get_results( $bb_last_countable_query );
 	if ( $posts ) :
 		foreach ($posts as $bb_post) {
 			$bb_post_cache[$bb_post->post_id] = $bb_post;
 			$topics[] = $bb_post->topic_id;
 		}
 		$topic_ids = join(',', $topics);
-		$topics = $bbdb->get_results("SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
+		$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
 		bb_append_meta( $topics, 'topic' );
 		return $posts;
 	else :
@@ -1910,8 +1911,9 @@ function bb_count_last_query() {
 		$bb_last_countable_query
 	);
 
+	$r = $bbdb->get_var($bb_last_countable_query);
 	$bb_last_countable_query = '';
-	return $bbdb->get_var($bb_last_countable_query);
+	return $r;
 }
 
 function no_replies( $where ) {
@@ -1985,7 +1987,7 @@ function bb_get_themes() {
 
 /* Search Functions */
 function bb_user_search( $args = '' ) {
-	global $bbdb;
+	global $bbdb, $bb_last_countable_query;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
@@ -2015,7 +2017,7 @@ function bb_user_search( $args = '' ) {
 			$fields[] = $field;
 
 	if ( $query && $user_meta ) :
-		$sql = "SELECT SQL_CALC_FOUND_ROWS user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
+		$sql = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
 		if ( empty($fields) )
 			$sql .= " LIMIT $limit";
 		$user_meta_ids = $bbdb->get_col($sql);
@@ -2043,6 +2045,8 @@ function bb_user_search( $args = '' ) {
 
 	$sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
 
+	$bb_last_countable_query = $sql;
+
 	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
 		return bb_append_meta( $users, 'user' );
 
@@ -2050,7 +2054,7 @@ function bb_user_search( $args = '' ) {
 }
 
 function bb_tag_search( $args = '' ) {
-	global $page, $bbdb, $tag_cache;
+	global $page, $bbdb, $tag_cache, $bb_last_countable_query;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
@@ -2070,7 +2074,9 @@ function bb_tag_search( $args = '' ) {
 
 	$likeit = preg_replace('/\s+/', '%', $query);
 
-	foreach ( (array) $tags = $bbdb->get_results( "SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit" ) as $tag )
+	$bb_last_countable_query = "SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit";
+
+	foreach ( (array) $tags = $bbdb->get_results( $bb_last_countable_query ) as $tag )
 		$tag_cache[$tag->tag] = $tag;
 
 	return $tags ? $tags : false;

@@ -16,13 +16,14 @@ function bb_bozo_topics( $where ) {
 
 // Gets those users with the bozo bit.  Does not grab users who have been bozoed on a specific topic.
 function bb_get_bozos( $page = 1 ) {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$page = (int) $page;
 	$limit = bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$bozo_mkey = $bb_table_prefix . 'bozo_topics';
-	if ( $ids = (array) $bbdb->get_col("SELECT SQL_CALC_FOUND_ROWS user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' AND meta_value='1' ORDER BY umeta_id DESC LIMIT $limit") )
+	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' AND meta_value='1' ORDER BY umeta_id DESC LIMIT $limit";
+	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
 		bb_cache_users( $ids );
 	return $ids;
 }
