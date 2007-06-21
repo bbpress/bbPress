@@ -1901,7 +1901,7 @@ function bb_count_last_query() {
 	if ( $bb_last_countable_query ) {
 		$q = $bb_last_countable_query;
 	} else {
-		if ( false !== strpos($bbdb->last_query, 'SQL_CALC_FOUND_ROWS') 
+		if ( false !== strpos($bbdb->last_query, 'SQL_CALC_FOUND_ROWS') )
 			return $bbdb->get_var( "SELECT FOUND_ROWS()" );
 		$q = $bbdb->last_query;
 	}
