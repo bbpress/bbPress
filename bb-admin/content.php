@@ -3,9 +3,10 @@
 
 <?php	if ( !bb_current_user_can('browse_deleted') )
 		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
-	add_filter( 'get_latest_topics_where', 'deleted_topics' );
 	add_filter( 'topic_link', 'bb_make_link_view_all' );
-	$topics = get_latest_topics( 0, $page );
+	$topic_query = new BB_Query('topic', array('topic_status' => 1) );
+	$topics = $topic_query->results;
+
 ?>
 
 <h2><?php _e('Deleted Topics') ?></h2>
@@ -26,6 +27,6 @@
 <?php endforeach; endif; ?>
 </table>
 
-<?php $total = bb_get_deleted_topics_count(); echo get_page_number_links( $page, $total ); ?>
+<?php echo get_page_number_links( $page, $topic_query->row_count ); ?>
 
 <?php bb_get_admin_footer(); ?>

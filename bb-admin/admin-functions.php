@@ -693,11 +693,6 @@ function merge_tags( $old_id, $new_id ) {
 
 /* Topics */
 
-function bb_get_deleted_topics_count() {
-	global $bbdb;
-	return $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->topics WHERE topic_status <> 0");
-}
-
 function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	global $bb_cache, $bbdb;
 	

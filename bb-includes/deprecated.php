@@ -345,4 +345,8 @@ function bb_trim_common_path_right( $one, $two ) {
 	return array($root_one, $root_two);
 }
 
+function deleted_topics( $where ) {
+	return preg_replace( '/(\w+\.)?topic_status = ["\']?0["\']?/', "\\1topic_status = 1", $where);
+}
+
 ?>

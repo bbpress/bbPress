@@ -1927,10 +1927,6 @@ function untagged( $where ) {
 	return $where . ' AND tag_count = 0 ';
 }
 
-function deleted_topics( $where ) {
-	return str_replace('topic_status = 0', 'topic_status = 1', $where);
-}
-
 function no_where( $where ) {
 	return;
 }

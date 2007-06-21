@@ -132,7 +132,13 @@ class BB_Query {
 		}
 
 		// Both
-		$array['page'] = isset($array['page']) ? (int) $array['page'] : 1;
+		if ( isset($array['page']) )
+			$array['page'] = (int) $array['page'];
+		elseif ( isset($GLOBALS['page']) )
+			$array['page'] = (int) $GLOBALS['page'];
+		else
+			$array['page'] = bb_get_uri_page();
+
 		if ( $array['page'] < 1 )
 			$array['page'] = 1;
 
