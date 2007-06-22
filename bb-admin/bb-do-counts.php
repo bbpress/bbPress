@@ -19,7 +19,7 @@ if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
 		echo "\t\t" . __('Counting posts...') . "<br />\n";
 		$counts = (array) $bbdb->get_col('', 1);
 		foreach ($topics as $t => $i)
-			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '{$counts[$t]}' WHERE topic_id = $i");
+			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '{$counts[$t]}' WHERE topic_id = '$i'");
 		unset($topics, $t, $i, $counts);
 	endif;
 	echo "\t\t" . __('Done counting posts.');
@@ -57,7 +57,7 @@ if ( isset($_POST['forums']) && 1 == $_POST['forums'] ) :
 		$forums = $bbdb->get_results("SELECT forum_id, COUNT(topic_id) AS topic_count, SUM(topic_posts) AS post_count FROM $bbdb->topics
 			WHERE topic_status = 0 GROUP BY forum_id");
 		foreach ( (array) $forums as $forum ) :
-			$bbdb->query("UPDATE $bbdb->forums SET topics = $forum->topic_count, posts = $forum->post_count WHERE forum_id = $forum->forum_id");
+			$bbdb->query("UPDATE $bbdb->forums SET topics = '$forum->topic_count', posts = '$forum->post_count' WHERE forum_id = '$forum->forum_id'");
 			unset($all_forums[$forum->forum_id]);
 		endforeach;
 		if ( $all_forums ) :
@@ -88,10 +88,10 @@ if ( isset($_POST['topic-tag-count']) && 1 == $_POST['topic-tag-count'] ) :
 		echo "\t\t" . __('Counting topic tags...') . "<br />\n";
 		$counts = (array) $bbdb->get_col('', 1);
 		foreach ( $topics as $t => $i)
-			$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = $i");
+			$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = '$i'");
 		$not_tagged = array_diff( (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topics"), $topics);
 		foreach ( $not_tagged as $i )
-			$bbdb->query("UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = $i");
+			$bbdb->query("UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = '$i'");
 		unset($topics, $t, $i, $counts, $not_tagged);
 	endif;
 	echo "\t\t" . __('Done counting topic tags.');
@@ -104,10 +104,10 @@ if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 		echo "\t\t" . __('Counting tagged topics...') . "<br />\n";
 		$counts = (array) $bbdb->get_col('', 1);
 		foreach ( $tags as $t => $i )
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '{$counts[$t]}' WHERE tag_id = $i");
+			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '{$counts[$t]}' WHERE tag_id = '$i'");
 		$not_tagged = array_diff((array) $bbdb->get_col("SELECT tag_id FROM $bbdb->tags"), $tags);
 		foreach ( $not_tagged as $i )
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0 WHERE tag_id = $i");
+			$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0 WHERE tag_id = '$i'");
 		unset($tags, $t, $i, $counts, $not_tagged);
 	else :
 		$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0");

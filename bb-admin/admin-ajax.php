@@ -110,7 +110,7 @@ case 'delete-post' :
 	if ( bb_delete_post( $post_id, 1 ) )
 		die('1');
 	break;
-
+/*
 case 'add-post' : // Can put last_modified stuff back in later
 	$error = false;
 	$post_id = 0;
@@ -149,7 +149,7 @@ case 'add-post' : // Can put last_modified stuff back in later
 	) );
 	$x->send();
 	break;
-
+*/
 case 'add-forum' :
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		die('-1');

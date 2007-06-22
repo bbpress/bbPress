@@ -173,6 +173,9 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
 	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
 	$key = $bb_table_prefix . 'capabilities';
+
+	$role = $bbdb->escape_deep($role);
+
 	if ( is_array($role) )
 		$and_where = "( meta_value LIKE '%" . join("%' OR meta_value LIKE '%", $role) . "%' )";
 	else
@@ -399,6 +402,7 @@ class BB_Users_By_Role extends BB_User_Search {
 
 /* Forums */
 
+// Expects forum_name, forum_desc to be pre-escaped
 function bb_new_forum( $args ) {
 	global $bbdb, $bb_cache;
 	if ( !bb_current_user_can( 'manage_forums' ) )
@@ -415,12 +419,10 @@ function bb_new_forum( $args ) {
 	extract($args, EXTR_SKIP);
 
 	if ( !is_numeric($forum_order) )
-		$forum_order = $bbdb->get_var("SELECT MAX(forum_order) FROM $bbdb->forums") + 1;
+		$forum_order = (int) $bbdb->get_var("SELECT MAX(forum_order) FROM $bbdb->forums") + 1;
 
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
-	if ( strlen($forum_name) < 1 )
-		return false;
 
 	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
@@ -428,6 +430,9 @@ function bb_new_forum( $args ) {
 
 	$forum_name = $bbdb->escape( $forum_name );
 	$forum_desc = $bbdb->escape( $forum_desc );
+
+	if ( strlen($forum_name) < 1 )
+		return false;
 
 	$forum_slug = $_forum_slug = bb_slug_sanitize($forum_name);
 	while ( is_numeric($forum_slug) || $existing_slug = $bbdb->get_var("SELECT forum_slug FROM $bbdb->forums WHERE forum_slug = '$forum_slug'") )
@@ -438,6 +443,7 @@ function bb_new_forum( $args ) {
 	return $bbdb->insert_id;
 }
 
+// Expects forum_name, forum_desc to be pre-escaped
 function bb_update_forum( $args ) {
 	global $bbdb, $bb_cache;
 	if ( !bb_current_user_can( 'manage_forums' ) )
@@ -458,8 +464,17 @@ function bb_update_forum( $args ) {
 		return false;
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
+
+	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
+	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
+	$forum_name = bb_trim_for_db( $forum_name, 150 );
+
+	$forum_name = $bbdb->escape( $forum_name );
+	$forum_desc = $bbdb->escape( $forum_desc );
+
 	if ( strlen($forum_name) < 1 )
 		return false;
+
 	$bb_cache->flush_many( 'forum', $forum_id );
 	$bb_cache->flush_one( 'forums' );
 	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$forum_name', forum_desc = '$forum_desc', forum_parent = '$forum_parent', forum_order = '$forum_order' WHERE forum_id = $forum_id");
@@ -639,11 +654,14 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 
 /* Tags */
 
+// Expects $tag to be pre-escaped
 function rename_tag( $tag_id, $tag ) {
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
-	$raw_tag = $tag;
+
+	$tag_id = (int) $tag_id;
+	$raw_tag = bb_trim_for_db( $tag, 50 );
 	$tag     = tag_sanitize( $tag ); 
 
 	if ( empty( $tag ) )
@@ -665,6 +683,10 @@ function merge_tags( $old_id, $new_id ) {
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
+
+	$old_id = (int) $old_id;
+	$new_id = (int) $new_id;
+
 	if ( $old_id == $new_id )
 		return false;
 
@@ -677,13 +699,13 @@ function merge_tags( $old_id, $new_id ) {
 		$shared_topics_i = (array) $bbdb->get_col( '', 1 );
 		foreach ( $shared_topics_i as $t => $topic_id ) {
 			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$topic_id'" );
-			$count = $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
+			$count = (int) $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
 			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$topic_id'" );
 		}
 	}
 
 	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) ) {
-		$count = $bbdb->get_var( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = '$new_id' GROUP BY tag_id" );
+		$count = (int) $bbdb->get_var( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = '$new_id' GROUP BY tag_id" );
 		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
 	}
 

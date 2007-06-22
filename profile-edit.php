@@ -67,9 +67,7 @@ if ($_POST) :
 
 	if ( $user_email && !$bad_input ) :
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) :
-			$user_url = addslashes( $user_url );
 			if ( is_string($user_email) && $bb_current_id == $user->ID ) {
-				$user_email = addslashes( $user_email );
 				bb_update_user( $user->ID, $user_email, $user_url );
 			} else
 				bb_update_user( $user->ID, $user->user_email, $user_url );

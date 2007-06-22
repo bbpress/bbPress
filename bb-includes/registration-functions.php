@@ -23,6 +23,10 @@ function bb_verify_email( $email ) {
 function bb_update_user( $user_id, $email, $url ) {
 	global $bbdb, $bb_cache;
 
+	$user_id = (int) $user_id;
+	$email   = $bbdb->escape( $email );
+	$url     = bb_fix_link( $url );
+
 	$bbdb->query("UPDATE $bbdb->users SET
 	user_email = '$email',
 	user_url   = '$url'
@@ -36,6 +40,9 @@ function bb_update_user( $user_id, $email, $url ) {
 
 function bb_reset_email( $user_login ) {
 	global $bbdb;
+
+	$user_login = bb_user_sanitize( $user_login );
+
 	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'");
 
 	$resetkey = bb_random_pass( 15 );
@@ -73,6 +80,9 @@ function bb_reset_password( $key ) {
 
 function bb_update_user_password( $user_id, $password ) {
 	global $bbdb, $bb_cache;
+
+	$user_id = (int) $user_id;
+
 	$passhash = md5( $password );
 
 	$bbdb->query("UPDATE $bbdb->users SET

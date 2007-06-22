@@ -122,8 +122,11 @@ function bb_user_sanitize( $text, $strict = false ) {
 }
 
 function bb_trim_for_db( $string, $length ) {
-	if ( seems_utf8( $string ) )
+	if ( seems_utf8( $string ) ) {
 		$_string = bb_utf8_cut( $string, $length );
+		$string = stripslashes($string);
+		$string = addslashes($string);
+	}
 	return apply_filters( 'bb_trim_for_db', $_string, $string, $length );
 }
 

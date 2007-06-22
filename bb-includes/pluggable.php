@@ -285,9 +285,17 @@ endif;
 if ( !function_exists('bb_new_user') ) :
 function bb_new_user( $user_login, $email, $url ) {
 	global $bbdb, $bb_table_prefix;
-	$now       = bb_current_time('mysql');
-	$password  = bb_random_pass();
-	$passcrypt = md5( $password );
+	$user_login = bb_user_sanitize( $user_login, true );
+	$email      = bb_verify_email( $email );
+	$url        = bb_fix_link( $url );
+	$now        = bb_current_time('mysql');
+	$password   = bb_random_pass();
+	$passcrypt  = md5( $password );
+
+	if ( !$user_login || !$email )
+		return false;
+
+	$email = $bbdb->escape( $email );
 
 	$bbdb->query("INSERT INTO $bbdb->users
 	(user_login,     user_pass, user_email,  user_url, user_registered)

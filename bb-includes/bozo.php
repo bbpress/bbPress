@@ -105,9 +105,9 @@ function bb_bozo_recount_users() {
 			$bozo_mkey = $bb_table_prefix . 'bozo_topics';
 			_e("Counting bozo topics for each user...\n");
 			foreach ( $users as $user ) :
-				$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = $user");
+				$topics_replied = (int) $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = '$user'");
 				bb_update_usermeta( $user, $bb_table_prefix. 'topics_replied', $topics_replied );
-				$bozo_keys = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = $user GROUP BY topic_id");
+				$bozo_keys = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = '$user' GROUP BY topic_id");
 				$bozo_values = (array) $bbdb->get_col('', 1);
 				if ( $c = count($bozo_keys) ) :
 					for ( $i=0; $i < $c; $i++ )
