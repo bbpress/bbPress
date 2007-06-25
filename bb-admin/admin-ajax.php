@@ -163,7 +163,7 @@ case 'add-forum' :
 	$x = new WP_Ajax_Response( array(
 		'what' => 'forum',
 		'id' => $forum_id,
-		'data' => bb_forum_row( $forum_id, false )
+		'data' => bb_forum_row( $forum_id, false, true )
 	) );
 	$x->send();
 	break;

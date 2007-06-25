@@ -59,7 +59,7 @@ function get_forums( $args = null ) {
 			$args['callback_args'] = func_get_arg(1);
 	}
 
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0 );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0, 'cut_branch' => 0 );
 	$args = wp_parse_args( $args, $defaults );
 
 	extract($args, EXTR_SKIP);
@@ -72,7 +72,7 @@ function get_forums( $args = null ) {
 
 	if ( $child_of || $hierarchical || $depth ) {
 		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums );
-		$_forums = (array) bb_flatten_array( $_forums );
+		$_forums = (array) bb_flatten_array( $_forums, $cut_branch );
 
 		foreach ( array_keys($_forums) as $_id )
 			$_forums[$_id] = $forums[$_id];
@@ -2203,17 +2203,19 @@ function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 
 /* Utility */
 
-function bb_flatten_array( $array, $keep_child_array_keys = true ) {
+function bb_flatten_array( $array, $cut_branch = 0, $keep_child_array_keys = true ) {
 	if ( empty($array) )
 		return null;
 	
 	$temp = array();
 	foreach ( $array as $k => $v ) {
+		if ( $cut_branch && $k == $cut_branch )
+			continue;
 		if ( is_array($v) ) {
 			if ( $keep_child_array_keys ) {
 				$temp[$k] = true;
 			}
-			$temp += bb_flatten_array($v, $keep_child_array_keys);
+			$temp += bb_flatten_array($v, $cut_branch, $keep_child_array_keys);
 		} else {
 			$temp[$k] = $v;
 		}

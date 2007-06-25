@@ -63,6 +63,8 @@ bbSortForums = {
 		this.saveText = div.childNodes[0].nodeValue;
 		div = null;
 
+		$('#forum-parent-row, #forum-position-row').remove();
+
 		$('#add-forum').submit( function() {
 			theList.alt = 'alt';
 			theList.showLink = 0;

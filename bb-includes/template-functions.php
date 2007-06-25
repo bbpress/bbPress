@@ -463,7 +463,7 @@ function &bb_forums( $args = '' ) {
 	}
 
 	// hierarchical not used here.  Sent to get_forums for proper ordering.
-	$args = wp_parse_args( $args, array('hierarchical' => true, 'type' => $default_type) );
+	$args = wp_parse_args( $args, array('hierarchical' => true, 'type' => $default_type, 'walker' => 'BB_Walker_Blank') );
 
 	$levels = array( '', '' );
 
@@ -472,7 +472,10 @@ function &bb_forums( $args = '' ) {
 
 	$forums = get_forums( $args );
 
-	if ( $bb_forums_loop = BB_Loop::start( $forums ) ) {
+	if ( !class_exists($args['walker']) )
+		$args['walker'] = 'BB_Walker_Blank';
+
+	if ( $bb_forums_loop = BB_Loop::start( $forums, $args['walker'] ) ) {
 		$bb_forums_loop->preserve( array('forum', 'forum_id') );
 		$bb_forums_loop->walker->db_fields = array( 'id' => 'forum_id', 'parent' => 'forum_parent' );
 		list($bb_forums_loop->walker->start_lvl, $bb_forums_loop->walker->end_lvl) = $levels;
@@ -1651,10 +1654,11 @@ function bb_get_forum_dropdown( $args = '' ) {
 	global $forum_id, $forum;
 	$old_global = $forum;
 
-	$id = attribute_escape( $id );
+	$name = attribute_escape( $id );
+	$id = str_replace( '_', '-', $name );
 	$tab = (int) $tab;
 
-	$r = "<select name='$id' id='$id' tabindex='$tab'>\n";
+	$r = "<select name='$name' id='$id' tabindex='$tab'>\n";
 	if ( $none )
 		$r .= "\n<option value='0'>" . __('- None -') . "</option>\n";
 

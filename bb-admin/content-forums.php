@@ -46,13 +46,7 @@ bb_get_admin_header();
 		<p>
 			<label for="move-topics-delete"><input type="radio" name="move_topics" id="move-topics-delete" value="delete" /> <?php _e('Delete all topics and posts in this forum. <em>This can never be undone.</em>'); ?></label><br />
 			<label for="move-topics-move"><input type="radio" name="move_topics" id="move-topics-move" value="move" checked="checked" /> <?php _e('Move topics from this forum into'); ?></label>
-			<?php $forums = get_forums( 'strcmp', array($deleted_forum->forum_id) ); ?>
-			<select name="move_topics_forum" id="move-topics-forum">
-<?php foreach ($forums as $forum ) : ?>
-				<option value="<?php forum_id(); ?>"><?php forum_name(); ?></option>
-<?php endforeach; ?>
-			</select>
-			
+			<?php bb_forum_dropdown( array('id' => 'move_topics_forum', 'callback' => 'strcmp', 'callback_args' => array($deleted_forum->forum_id), 'selected' => $deleted_forum->forum_parent) ); ?>
 		</p>
 		<p class="submit alignright">
 			<input class="delete" name="Submit" type="submit" value="<?php _e('Delete forum &raquo;'); ?>" tabindex="10" />
@@ -69,15 +63,15 @@ bb_get_admin_header();
 </div>
 <?php break; default : ?>
 
-<?php if ( $forums ) : ?>
 
+<?php if ( bb_forums( 'type=list&walker=BB_Walker_ForumAdminlistitems' ) ) : ?>
 <ul id="the-list" class="list-block holder">
 	<li class="thead list-block"><div class="list-block">Name &#8212; Description</div></li>
-<?php
-bb_forum_adminlistitems($forums);
-?>
+<?php while ( bb_forum() ) : ?>
+<?php bb_forum_row(); ?>
+<?php endwhile; ?>
+<?php endif; // bb_forums() ?>
 </ul>
-<?php endif; // $forums ?>
 
 <h3><?php _e('Add Forum'); ?></h3>
 <?php bb_forum_form(); ?>

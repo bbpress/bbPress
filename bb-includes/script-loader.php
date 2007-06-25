@@ -18,7 +18,7 @@ class BB_Scripts {
 		$this->add( 'jquery', '/' . BBINC . 'js/jquery/jquery.js', false, '1.1.2');
 		$this->add( 'interface', '/' . BBINC . 'js/jquery/interface.js', array('jquery'), '1.2');
 		$this->add( 'add-load-event', '/' . BBINC . 'js/add-load-event.js' );
-		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), 3 );
+		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), 4 );
 		$this->localize( 'content-forums', 'bbSortForumsL10n', array(
 	                'handleText' => __('drag'),
         	        'saveText' => __('Save Forum Order &#187;')
