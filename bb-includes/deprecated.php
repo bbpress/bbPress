@@ -349,4 +349,16 @@ function deleted_topics( $where ) {
 	return preg_replace( '/(\w+\.)?topic_status = ["\']?0["\']?/', "\\1topic_status = 1", $where);
 }
 
+function no_replies( $where ) {
+	return $where . ' AND topic_posts = 1 ';
+}
+
+function untagged( $where ) {
+	return $where . ' AND tag_count = 0 ';
+}
+
+function get_views() {
+	return bb_get_views();
+}
+
 ?>

@@ -1763,18 +1763,75 @@ function get_assignable_caps() {
 
 /* Views */
 
-function get_views( $cache = true ) {
-	global $views;
-	if ( isset($views) && $cache )
-		return $views;
-	
-	$views = array(
-		'no-replies' => __('Topics with no replies'),
-		'untagged' => __('Topics with no tags')
-	);
-	
-	$views = apply_filters('bb_views', $views);
+function bb_get_views() {
+	global $bb_views;
+
+	$views = array();
+	foreach ( (array) $bb_views as $view => $array )
+		$views[$view] = $array['title'];
+
 	return $views;
+}
+
+function bb_register_view( $view, $title, $query_args = '' ) {
+	global $bb_views;
+
+	$view  = bb_slug_sanitize( $view );
+	$title = wp_specialchars( $title );
+
+	if ( !$view || !$title )
+		return false;
+
+	$query_args = wp_parse_args( $query_args );
+	$separate_stickies = (bool) $separate_stickies;
+
+	if ( !$sticky_set = isset($query_args['sticky']) )
+		$query_args['sticky'] = 'no';
+
+	$bb_views[$view]['title']  = $title;
+	$bb_views[$view]['query']  = $query_args;
+	$bb_views[$view]['sticky'] = !$sticky_set; // No sticky set => split into stickies and not
+	return $bb_views[$view];
+}
+
+function bb_deregister_view( $view ) {
+	global $bb_views;
+
+	$view = bb_slug_sanitize( $view );
+	if ( !isset($bb_views[$view]) )
+		return false;
+
+	unset($GLOBALS['bb_views'][$view]);
+	return true;
+}
+
+function bb_view_query( $view, $new_args = '' ) {
+	global $bb_views;
+
+	$view = bb_slug_sanitize( $view );
+	if ( !isset($bb_views[$view]) )
+		return false;
+
+	if ( $new_args ) {
+		$new_args = wp_parse_args( $new_args );
+		$query_args = array_merge( $bb_views[$view]['query'], $new_args );
+	} else {
+		$query_args =& $bb_views[$view]['query'];
+	}
+
+	$topic_query = new BB_Query( 'topic', $query_args, "bb_view_$view" );
+
+	return array( $topic_query->results, $topic_query->found_rows );
+}
+
+function bb_get_view_query_args( $view ) {
+	global $bb_views;
+
+	$view = bb_slug_sanitize( $view );
+	if ( !isset($bb_views[$view]) )
+		return false;
+
+	return $bb_views[$view]['query'];
 }
 
 /* Nonce */
@@ -1932,14 +1989,6 @@ function bb_count_last_query() {
 
 	$bb_last_countable_query = '';
 	return (int) $bbdb->get_var($q);
-}
-
-function no_replies( $where ) {
-	return $where . ' AND topic_posts = 1 ';
-}
-
-function untagged( $where ) {
-	return $where . ' AND tag_count = 0 ';
 }
 
 function no_where( $where ) {

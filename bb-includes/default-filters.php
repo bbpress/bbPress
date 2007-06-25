@@ -122,4 +122,7 @@ $wp_header_to_desc = apply_filters( 'wp_header_to_desc_array', array(
 	505 => 'HTTP Version Not Supported'
 ) );
 
+bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1 ) );
+bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
+
 ?>

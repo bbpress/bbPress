@@ -707,7 +707,7 @@ function get_page_number_links($page, $total) {
 		$uri = add_query_arg( 'page', '%_%', $uri );
 	endif;
 
-	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
+	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
 		$args['view'] = $_GET['view'];
 
 	return paginate_links( array(
@@ -1733,14 +1733,19 @@ function favorites_pages() {
 }
 
 //VIEWS
-function view_name() { // Filtration should be done at get_views() level
-	echo get_view_name();
+function view_name( $view = '' ) { // Filtration should be done at bb_register_view()
+	echo get_view_name( $view );
 }
 
-function get_view_name() {
-	global $view;
-	$views = get_views();
-	return $views[$view];
+function get_view_name( $_view = '' ) {
+	global $view, $bb_views;
+	if ( $_view )
+		$v = bb_slug_sanitize($_view);
+	else
+		$v =& $view;
+
+	if ( isset($bb_views[$v]) )
+		return $bb_views[$v]['title'];
 }
 
 function view_pages() {
@@ -1753,13 +1758,13 @@ function view_link( $_view = false, $page = 1 ) {
 }
 
 function get_view_link( $_view = false, $page = 1 ) {
-	global $view;
+	global $view, $bb_views;
 	if ( $_view )
-		$v =& $_view;
+		$v = bb_slug_sanitize($_view);
 	else
 		$v =& $view;
-	$views = get_views();
-	if ( !array_key_exists($v, $views) )
+
+	if ( !array_key_exists($v, $bb_views) )
 		return bb_get_option('uri');
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . 'view/' . $v . ( 1 < $page ? "/page/$page" : '' );

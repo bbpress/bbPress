@@ -3,23 +3,18 @@ require_once('./bb-load.php');
 
 bb_repermalink();
 
-switch ( $view ) :
-case 'no-replies' :
-	add_filter( 'get_latest_topics_where', 'no_replies' );
-	$topics = get_latest_topics( 0, $page );
-	$view_count = bb_count_last_query();
-	break;
-case 'untagged' :
-	add_filter( 'get_latest_topics_where', 'untagged' );
-	add_filter( 'get_sticky_topics_where', 'untagged' );
-	$topics = get_latest_topics( 0, $page );
-	$view_count  = bb_count_last_query();
-	$stickies = get_sticky_topics( 0, $page );
-	$view_count = max($view_count, bb_count_last_query());
-	break;	
-default :
-	do_action( 'bb_custom_view', $view, $page );
-endswitch;
+$view = bb_slug_sanitize($view);
+
+$stickies = $topics = $view_count = false;
+
+if ( isset($bb_views[$view]) ) {
+	if ( $bb_views[$view]['sticky'] )
+		list($stickies, $sticky_count) = bb_view_query( $view, array('sticky' => '-no') ); // -no = yes
+	list($topics,   $topic_count)  = bb_view_query( $view );
+	$view_count = max($sticky_count, $topic_count);
+}
+
+do_action( 'bb_custom_view', $view, $page );
 
 do_action( 'bb_view.php', '' );
 

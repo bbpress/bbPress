@@ -95,7 +95,6 @@ class BB_Query {
 			'sticky',	// all, no = normal, forum, super = front, parse_int ( and - )
 			'meta_key',	// one meta_key ( and - )
 			'meta_value',	// range
-			'view',		// not implemented: view name
 			'topic_title',	// not implemented: LIKE search
 
 			// Posts
