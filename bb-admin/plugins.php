@@ -2,10 +2,13 @@
 require_once('admin.php');
 
 $plugins = bb_get_plugins();
-$_plugins = new BB_Dir_Map( BBPLUGINDIR, array( 'recurse' => 0, 'callback' => create_function( '$f,$_f', 'if ( !preg_match("/^_.*?\.php$/", $_f) ) return false; if ( $r = bb_get_plugin_data( $f ) ) return $r; return true;' ) ) );
-$_plugins = $_plugins->get_results();
-if ( is_wp_error( $_plugins ) )
-	$_plugins = array();
+$_plugins = array();
+if ( is_callable( 'glob' ) ) {
+	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin ) {
+		$_data = bb_get_plugin_data( $_plugin );
+		$_plugins[$_plugin] = $_data ? $_data : true;
+	}
+}
 
 $current = (array) bb_get_option( 'active_plugins' );
 

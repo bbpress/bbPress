@@ -148,7 +148,10 @@ $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-new BB_Dir_Map( BBPLUGINDIR, array( 'recurse' => 0, 'callback' => create_function( '$f,$_f', 'if ( preg_match("/^_.*?\.php$/", $_f) ) require($f);' ) ) );
+if ( is_callable( 'glob' ) )
+	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
+		require($_plugin);
+unset($_plugin);
 do_action( 'bb_underscore_plugins_loaded' );
 
 if ( $plugins = bb_get_option( 'active_plugins' ) )
