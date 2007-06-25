@@ -473,6 +473,7 @@ function &bb_forums( $args = '' ) {
 	$forums = get_forums( $args );
 
 	if ( $bb_forums_loop = BB_Loop::start( $forums ) ) {
+		$bb_forums_loop->preserve( array('forum', 'forum_id') );
 		$bb_forums_loop->walker->db_fields = array( 'id' => 'forum_id', 'parent' => 'forum_parent' );
 		list($bb_forums_loop->walker->start_lvl, $bb_forums_loop->walker->end_lvl) = $levels;
 		return $bb_forums_loop->elements;
@@ -487,10 +488,12 @@ function bb_forum() { // Returns current depth
 	if ( !is_array($bb_forums_loop->elements) )
 		return false;
 
-	if ( $r = $bb_forums_loop->step() )
+	if ( $r = $bb_forums_loop->step() ) {
 		$GLOBALS['forum'] =& $bb_forums_loop->elements[key($bb_forums_loop->elements)]; // Globalize the current forum object
-	else
+	} else {
+		$bb_forums_loop->reinstate();
 		return $bb_forums_loop = null; // All done?  Kill the object and exit the loop.
+	}
 
 	return $bb_forums_loop->walker->depth;
 }

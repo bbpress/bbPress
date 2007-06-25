@@ -796,6 +796,7 @@ class BB_Walker_Blank extends BB_Walker { // Used for template functions
 class BB_Loop {
 	var $elements;
 	var $walker;
+	var $_preserve = array();
 	var $_looping = false;
 
 	function &start( $elements, $walker = 'BB_Walker_Blank' ) {
@@ -837,6 +838,19 @@ class BB_Loop {
 			return $pad * ($this->walker->depth - 1) + (int) $offset;
 
 		return str_repeat( $pad, $this->walker->depth - 1 );
+	}
+
+	function preserve( $array ) {
+		if ( !is_array( $array ) )
+			return false;
+
+		foreach ( $array as $key )
+			$this->_preserve[$key] = $GLOBALS[$key];
+	}
+
+	function reinstate() {
+		foreach ( $this->_preserve as $key => $value )
+			$GLOBALS[$key] = $value;
 	}
 
 	function classes() {
