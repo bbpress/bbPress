@@ -285,12 +285,13 @@ function bb_upgrade_process_all_slugs() {
 
 	foreach ( $slugs as $slug => $forum_ids ) :
 		foreach ( $forum_ids as $count => $forum_id ) :
+			$_slug = $slug;
 			if ( $count > 0 )
-				$slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
-			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$slug' WHERE forum_id = '$forum_id';");
+				$_slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
+			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$_slug' WHERE forum_id = '$forum_id';");
 		endforeach;
 	endforeach;
-	unset($ids, $names, $slugs, $r, $id, $slug, $forum_ids, $forum_id, $count);
+	unset($ids, $names, $slugs, $r, $id, $slug, $_slug, $forum_ids, $forum_id, $count);
 
 	// Topics
 
@@ -306,12 +307,13 @@ function bb_upgrade_process_all_slugs() {
 
 	foreach ( $slugs as $slug => $topic_ids ) :
 		foreach ( $topic_ids as $count => $topic_id ) :
+			$_slug = $slug;
 			if ( $count > 0 )
-				$slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
-			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$slug' WHERE topic_id = '$topic_id';");
+				$_slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
+			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$_slug' WHERE topic_id = '$topic_id';");
 		endforeach;
 	endforeach;
-	unset($ids, $names, $slugs, $r, $id, $slug, $topic_ids, $topic_id, $count);
+	unset($ids, $names, $slugs, $r, $id, $slug, $_slug, $topic_ids, $topic_id, $count);
 }
 
 // Reversibly break passwords of blocked users.
