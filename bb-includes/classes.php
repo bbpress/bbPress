@@ -9,6 +9,7 @@ class BB_Query {
 	var $not_set = array();
 	var $request;
 	var $count_request = 'SELECT FOUND_ROWS()';
+	var $match_query = false;
 
 	var $results;
 	var $count = 0;
@@ -90,17 +91,21 @@ class BB_Query {
 
 			// Topics
 			'topic_author',	// one username
-			'topic_status',	// noraml, deleted, all, parse_int ( and - )
+			'topic_status',	// normal, deleted, all, parse_int ( and - )
 			'open',		// all, yes = open, no = closed, parse_int ( and - )
 			'sticky',	// all, no = normal, forum, super = front, parse_int ( and - )
 			'meta_key',	// one meta_key ( and - )
 			'meta_value',	// range
-			'topic_title',	// not implemented: LIKE search
+			'topic_title',	// LIKE search.  Understands "doublequoted strings"
+			'search',	// generic search: topic_title OR post_text
+					// Can ONLY be used in a topic query
+					// Returns additional search_score and (concatenated) post_text columns
 
 			// Posts
 			'post_author',	// one username
 			'post_status',	// noraml, deleted, all, parse_int ( and - )
-			'search',	// not implemented: FULL TEXT search
+			'post_text',	// FULLTEXT search
+					// Returns additional search_score column (and (concatenated) post_text column if topic query)
 
 			// SQL
 			'order_by',	// fieldname
@@ -112,21 +117,21 @@ class BB_Query {
 		);
 
 		foreach ( $ints as $key )
-			if ( false === $array[$key] = isset($array[$key]) ? (int) $array[$key] : false )
+			if ( ( false === $array[$key] = isset($array[$key]) ? (int) $array[$key] : false ) && isset($this) )
 				$this->not_set[] = $key;
 
 		foreach ( $parse_ints as $key )
-			if ( false === $array[$key] = isset($array[$key]) ? preg_replace( '/[^<=>0-9,-]/', '', $array[$key] ) : false )
+			if ( ( false === $array[$key] = isset($array[$key]) ? preg_replace( '/[^<=>0-9,-]/', '', $array[$key] ) : false ) && isset($this) )
 				$this->not_set[] = $key;
 
 		foreach ( $dates as $key )
-			if ( false === $array[$key] = isset($array[$key]) ? preg_replace( '/[^<>0-9]/', '', $array[$key] ) : false )
+			if ( ( false === $array[$key] = isset($array[$key]) ? preg_replace( '/[^<>0-9]/', '', $array[$key] ) : false ) && isset($this) )
 				$this->not_set[] = $key;
 
 		foreach ( $others as $key ) {
 			if ( !isset($array[$key]) )
 				$array[$key] = false;
-			if ( false === $array[$key] )
+			if ( isset($this) && false === $array[$key] )
 				$this->not_set[] = $key;
 		}
 
@@ -149,8 +154,12 @@ class BB_Query {
 		$array['append_meta'] = isset($array['append_meta']) ? (int) (bool) $array['append_meta'] : 1;
 
 		// Posts
-		if ( !$array['ip'] = isset($array['ip']) ? preg_replace('/[^0-9.]/', '', $array['ip']) : false )
+		if ( ( !$array['ip'] = isset($array['ip']) ? preg_replace('/[^0-9.]/', '', $array['ip']) : false ) && isset($this) )
 			$this->not_set[] = 'ip';
+
+		// Only one FULLTEXT search per query please
+		if ( $array['search'] )
+			unset($array['post_text']);
 
 		return $array;
 	}
@@ -162,7 +171,7 @@ class BB_Query {
 			if ( is_array($query) )
 				$this->query_vars = $query;
 			else
-				parse_str($query, $this->query_vars);
+				wp_parse_str($query, $this->query_vars);
 			$this->query = $query;
 		}
 
@@ -199,11 +208,34 @@ class BB_Query {
 		$order_by = '';
 
 		$post_where = '';
-		$post_queries = array('post_author_id', 'post_author', 'posted', 'post_status', 'position', 'search', 'ip');
+		$post_queries = array('post_author_id', 'post_author', 'posted', 'post_status', 'position', 'post_text', 'ip');
 
-		if ( !$_part_of_post_query && array_diff($post_queries, $this->not_set) ) :
+		if ( !$_part_of_post_query && ( $q['search'] || array_diff($post_queries, $this->not_set) ) ) :
 			$join .= " JOIN $bbdb->posts as p ON ( t.topic_id = p.topic_id )";
 			$post_where = $this->generate_post_sql( true );
+			if ( $q['search'] ) {
+				$post_where .= ' AND ( ';
+				$post_where .= $this->generate_topic_title_sql( $q['search'] );
+				$post_where .= ' OR ';
+				$post_where .= $this->generate_post_text_sql( $q['search'] );
+				$post_where .= ' )';
+			}
+
+			$group_by = 't.topic_id';
+
+			// GROUP_CONCAT requires MySQL >= 4.1
+			if ( version_compare('4.1', mysql_get_client_info(), '<=') )
+				$fields = "t.*, GROUP_CONCAT(p.post_text) AS post_text";
+			else
+				$fields = "t.*, p.post_text";
+
+			if ( $this->match_query ) {
+				$fields .= ", AVG($this->match_query) AS search_score";
+				if ( !$q['order_by'] )
+					$q['order_by'] = 'search_score';
+			} elseif ( $q['search'] || $q['post_text'] ) {
+				$fields .= ", 0 AS search_score";
+			}
 		endif;
 
 		if ( !$_part_of_post_query ) :
@@ -253,7 +285,11 @@ class BB_Query {
 					$this->error( 'query_var:forum', 'No forum by that name' );
 				$where .= " AND t.forum_id = $q[forum_id]";
 			endif;
-		endif; // topic_part_only
+		endif; // !_part_of_post_query
+
+
+		if ( $q['topic_title'] )
+			$where .= ' AND ' . $this->generate_topic_title_sql( $q['topic_title'] );
 
 		if ( $q['started'] )
 			$where .= $this->date( 't.topic_start_time', $q['started'] );
@@ -323,14 +359,14 @@ class BB_Query {
 			endif;
 		endif;
 
-		if ( $where ) // Get rid of initial " AND " (this is pre-filters)
-			$where = substr($where, 5);
-
 		// Just getting topic part for inclusion in post query
 		if ( $_part_of_post_query )
 			return $where;
 
 		$where .= $post_where;
+
+		if ( $where ) // Get rid of initial " AND " (this is pre-filters)
+			$where = substr($where, 5);
 
 		if ( $q['order_by'] )
 			$order_by = $q['order_by'];
@@ -382,7 +418,18 @@ class BB_Query {
 					$this->error( 'query_var:forum', 'No forum by that name' );
 				$where .= " AND p.forum_id = $q[forum_id]";
 			endif;
-		endif; // !post_part_only
+		endif; // !_part_of_topic_query
+
+		if ( $q['post_text'] ) :
+			$where  .= ' AND ' . $this->generate_post_text_sql( $q['post_text'] );
+			if ( $this->match_query ) {
+				$fields .= ", $this->match_query AS search_score";
+				if ( !$q['order_by'] )
+					$q['order_by'] = 'search_score';
+			} else {
+				$fields .= ', 0 AS search_score';
+			}
+		endif;
 
 		if ( $q['posted'] )
 			$where .= $this->date( 'p.post_time', $q['posted'] );
@@ -428,6 +475,41 @@ class BB_Query {
 		$this->request = $this->_filter_sql( $bits, "$bbdb->posts AS p" );
 
 		return $this->request;
+	}
+
+	function generate_topic_title_sql( $string ) {
+		global $bbdb;
+		$string = trim($string);
+
+		if ( !preg_match_all('/".*?("|$)|((?<=[\s",+])|^)[^\s",+]+/', $string, $matches) ) {
+			$string = $bbdb->escape($string);
+			return "(t.topic_title LIKE '%$string%')";
+		}
+
+		$where = '';
+
+		foreach ( $matches[0] as $match ) {
+			$term = trim($match, "\"\n\r ");
+			$term = $bbdb->escape($term);
+			$where .= " AND t.topic_title LIKE '%$term%'";
+		}
+
+		if ( count($matches[0]) > 1 && $string != $matches[0][0] ) {
+			$string = $bbdb->escape($string);
+			$where .= " OR t.topic_title LIKE '%$string%'";
+		}
+
+		return '(' . substr($where, 5) . ')';
+	}
+
+	function generate_post_text_sql( $string ) {
+		global $bbdb;
+		$string = trim($string);
+		$_string = $bbdb->escape( $string );
+		if ( strlen($string) < 5 )
+			return "p.post_text LIKE '%$_string%'";
+
+		return $this->match_query = "MATCH(p.post_text) AGAINST('$_string')";
 	}
 
 	function _filter_sql( $bits, $from ) {
