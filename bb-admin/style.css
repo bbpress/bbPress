@@ -474,3 +474,24 @@ tr.alt.active td {
 tr.active td {
 	background-color: #aaddaa;
 }
+
+#topic-search-form fieldset {
+	float: left;
+	margin: 0 1.5ex 1em 0;
+	padding: 0;
+}
+
+#topic-search-form fieldset legend {
+	padding: 0 0 .2em 1px;
+}
+	
+#topic-search-form .text-input {
+	padding: 4px 3px;
+}
+
+#topic-search-form #topic-search-form-submit {
+	float: left;
+	margin: 12px 0 1em;
+	position: relative;
+	top: .35em;
+}
