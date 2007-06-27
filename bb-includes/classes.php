@@ -42,6 +42,12 @@ class BB_Query {
 		return $this->results;
 	}
 
+	// $defaults = vars to use if not set in GET, POST or over
+	// $over = array( key_name => value, key_name, key_name, key_name => value );
+	// 	key_name => value pairs override anything from defaults, GET, POST
+	//	Lone key_names are a whitelist.  Only those can be set by defaults, GET, POST (a whitelist)
+	//	Ex: $over = array( 'topic_status' => 0, 'post_status' => 0, 'topic_author', 'started' );
+	//		Will only take topic_author and started values from defaults, GET, POST and will query with topic_status = 0 and post_status = 0
 	function &query_from_env( $type = 'topic', $defaults = null, $over = null, $id = '' ) {
 		$vars = $this->fill_query_vars( array() );
 
@@ -52,10 +58,12 @@ class BB_Query {
 
 		$allowed = array();
 		foreach ( $over as $k => $v ) {
-			if ( is_numeric($k) )
+			if ( is_numeric($k) ) {
 				$allowed[] = $v;
-			elseif ( !isset($$k) )
+			} elseif ( !isset($$k) ) {
+				$allowed[] = $k;
 				$$k = $v;
+			}
 		}
 
 		extract($post_vars, EXTR_SKIP);
