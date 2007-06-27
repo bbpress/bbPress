@@ -880,25 +880,4 @@ function bb_get_theme_data( $theme_file ) {
 	);
 }
 
-function bb_query_from_env( $type = 'topic', $defaults = null, $over = null ) {
-	$query = new BB_Query;
-
-	$vars = $query->fill_query_vars( array() );
-
-	$defaults  = wp_parse_args($defaults);
-	$get_vars  = stripslashes_deep( $_GET );
-	$post_vars = stripslashes_deep( $_POST );
-	$over      = wp_parse_args($over);
-
-	extract($over, EXTR_SKIP);
-	extract($post_vars, EXTR_SKIP);
-	extract($get_vars, EXTR_SKIP);
-	extract($defaults, EXTR_SKIP);
-
-	$vars = compact(array_keys($vars));
-	
-	$query->query( $type, $vars );
-	return $query;
-}
-
 ?>

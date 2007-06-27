@@ -870,64 +870,16 @@ function bb_new_topic_forum_dropdown() {
 	bb_forum_dropdown( 'bb_current_user_can', array('write_topic') );
 }
 
-function bb_topic_search_form( $args = 'not implemented', $query_vars = '' ) {
-	$query_vars = wp_parse_args( $query_vars );
-	$query_vars = BB_Query::fill_query_vars( $query_vars );
+function bb_topic_search_form( $args = null, $query_obj = null ) {
+	global $bb_query_form;
 
-	extract($query_vars);
+	if ( $query_obj && is_a($query_obj, 'BB_Query_Form') ); // [sic]
+	else
+		$query_obj =& $bb_query_form;
 
-	$r  = "<form action='' method='get' id='topic-search-form'>\n";
-
-	$search = attribute_escape( $search );
-	$r .= "\t<fieldset><legend>" . __('Search&#8230;') . "</legend>\n";
-	$r .= "\t\t<input name='search' id='search' type='text' class='text-input' value='$search'>";
-	$r .= "\t</fieldset>\n\n";
-
-	$r .= "\t<fieldset><legend>" . __('Forum&#8230;') . "</legend>\n";
-	$r .= bb_get_forum_dropdown( array('selected' => $forum_id, 'none' => true) );
-	$r .= "\t</fieldset>\n\n";
-
-	$tag = attribute_escape( $tag );
-	$r .= "\t<fieldset><legend>" . __('Tag&#8230;') . "</legend>\n";
-	$r .= "\t\t<input name='tag' id='topic-tag' type='text' class='text-input' value='$tag'>";
-	$r .= "\t</fieldset>\n\n";
-
-	$topic_author = attribute_escape( $topic_author );
-	$r .= "\t<fieldset><legend>" . __('Author&#8230;') . "</legend>\n";
-	$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$topic_author'>";
-	$r .= "\t</fieldset>\n\n";
-
-
-	$r .= "\t<fieldset><legend>" . __('Status&#8230;') . "</legend>\n";
-	$r .= "\t\t<select name='topic_status' id='topic-status'>\n";
-	foreach ( array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ) as $status => $label ) {
-		$label = wp_specialchars( $label );
-		$selected = (string) $status == (string) $topic_status ? " selected='selected'" : '';
-		$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
-	}
-	$r .= "\t\t</select>\n";
-	$r .= "\t</fieldset>\n\n";
-	$r .= "\t<fieldset><legend>" . __('Open?&#8230;') . "</legend>\n";
-	$r .= "\t\t<select name='open' id='topic-open'>\n";
-	foreach ( array( 'all' => __('All'), '1' => __('Open'), '0' => __('Closed') ) as $status => $label ) {
-		$label = wp_specialchars( $label );
-		$selected = (string) $status == (string) $open ? " selected='selected'" : '';
-		$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
-	}
-	$r .= "\t\t</select>\n";
-	$r .= "\t</fieldset>\n\n";
-
-//	$r .= "\t<fieldset><legend>" . __('Title&#8230;') . "</legend>\n";
-//	$r .= "\t\t<input name='topic_title' id='topic-title' type='text' class='text-input' value='$topic_title'>";
-//	$r .= "\t</fieldset>\n\n";
-
-	$r .= "\t<input type='submit' class='button' value='" . attribute_escape(__('Filter &#187;')) . "' id='topic-search-form-submit'>\n";
-	$r .= "</form>\n\n";
-
-	$r .= "<br class='clear'>\n\n";
-
-	echo $r;
+	$query_obj->topic_search_form( $args );
 }
+		
 
 // POSTS
 

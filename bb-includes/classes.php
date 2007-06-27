@@ -1,5 +1,4 @@
 <?php
-
 class BB_Query {
 	var $type;
 
@@ -23,7 +22,7 @@ class BB_Query {
 			$this->query($type, $query, $id);
 	}
 
-	function &query( $type = 'topic', $query, $id = '') {
+	function &query( $type = 'topic', $query, $id = '' ) {
 		global $bbdb;
 		$this->type = $type;
 		$this->parse_query($query, $id);
@@ -41,6 +40,30 @@ class BB_Query {
 		if ( 'topic' == $this->type && $this->query_vars['append_meta'] )
 			$this->results = bb_append_meta( $this->results, 'topic' );
 		return $this->results;
+	}
+
+	function &query_from_env( $type = 'topic', $defaults = null, $over = null, $id = '' ) {
+		$vars = $this->fill_query_vars( array() );
+
+		$defaults  = wp_parse_args($defaults);
+		$get_vars  = stripslashes_deep( $_GET );
+		$post_vars = stripslashes_deep( $_POST );
+		$over      = wp_parse_args($over);
+
+		$allowed = array();
+		foreach ( $over as $k => $v ) {
+			if ( is_numeric($k) )
+				$allowed[] = $v;
+			elseif ( !isset($$k) )
+				$$k = $v;
+		}
+
+		extract($post_vars, EXTR_SKIP);
+		extract($get_vars, EXTR_SKIP);
+		extract($defaults, EXTR_SKIP);
+
+		$vars = compact( $allowed ? $allowed : array_keys( $vars ));
+		return $this->query( $type, $vars, $id );
 	}
 
 	function init( $id = '' ) {
@@ -223,11 +246,13 @@ class BB_Query {
 
 			$group_by = 't.topic_id';
 
+			$fields .= ", MIN(p.post_id) as post_id";
+
 			// GROUP_CONCAT requires MySQL >= 4.1
 			if ( version_compare('4.1', mysql_get_client_info(), '<=') )
-				$fields = "t.*, GROUP_CONCAT(p.post_text) AS post_text";
+				$fields .= ", GROUP_CONCAT(p.post_text SEPARATOR ' ') AS post_text";
 			else
-				$fields = "t.*, p.post_text";
+				$fields .= ", p.post_text";
 
 			if ( $this->match_query ) {
 				$fields .= ", AVG($this->match_query) AS search_score";
@@ -622,6 +647,115 @@ class BB_Query {
 		else
 			$this->errors = new WP_Error( $code, $message );
 	}
+}
+
+class BB_Query_Form extends BB_Query {
+	var $defaults;
+	var $over;
+
+	// Can optionally pass unique id string to help out filters
+	function BB_Query_Form( $type = 'topic', $defaults = '', $over = '', $id = '' ) {
+		$this->defaults = wp_parse_args( $defaults );
+		$this->over = wp_parse_args( $over );
+		if ( !empty($defaults) || !empty($over) )
+			$this->query_from_env($type, $defaults, $over, $id);
+	}
+
+	function topic_search_form( $args = null ) {
+		$defaults = array(
+			'search' => true,
+			'forum'  => true,
+			'tag'    => false,
+			'author' => false,
+			'status' => false,
+			'open'   => false,
+			'topic_title' => false,
+
+			'id'     => 'topic-search-form',
+			'method' => 'get',
+			'submit' => __('Search &#187;')
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+		extract( $args, EXTR_SKIP );
+
+		$id = attribute_escape( $id );
+		$method = 'get' == strtolower($method) ? 'get' : 'post';
+		$submit = attribute_escape( $submit );
+
+		if ( $this->query_vars )
+			$query_vars =& $this->query_vars;
+		else
+			$query_vars = $this->fill_query_vars( $this->defaults );
+
+		extract($query_vars, EXTR_PREFIX_ALL, 'q');
+
+		$r  = "<form action='' method='$method' id='$id'>\n";
+
+		$q_search = attribute_escape( $q_search );
+		if ( $search ) {
+			$r .= "\t<fieldset><legend>" . __('Search&#8230;') . "</legend>\n";
+			$r .= "\t\t<input name='search' id='search' type='text' class='text-input' value='$q_search'>";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $forum ) {
+			$r .= "\t<fieldset><legend>" . __('Forum&#8230;')  . "</legend>\n";
+			$r .= bb_get_forum_dropdown( array('selected' => $q_forum_id, 'none' => true) );
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $tag ) {
+			$q_tag = attribute_escape( $q_tag );
+			$r .= "\t<fieldset><legend>" .  __('Tag&#8230;') . "</legend>\n";
+			$r .= "\t\t<input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag'>";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $author ) {
+			$q_topic_author = attribute_escape( $q_topic_author );
+			$r .= "\t<fieldset><legend>" . __('Author&#8230;') . "</legend>\n";
+			$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author'>";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $status ) {
+			$r .= "\t<fieldset><legend>" . __('Status&#8230;') . "</legend>\n";
+			$r .= "\t\t<select name='topic_status' id='topic-status'>\n";
+			foreach ( array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ) as $status => $label ) {
+				$label = wp_specialchars( $label );
+				$selected = (string) $status == (string) $q_topic_status ? " selected='selected'" : '';
+				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
+			}
+			$r .= "\t\t</select>\n";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $open ) {
+			$r .= "\t<fieldset><legend>" . __('Open?&#8230;') . "</legend>\n";
+			$r .= "\t\t<select name='open' id='topic-open'>\n";
+			foreach ( array( 'all' => __('All'), '1' => __('Open'), '0' => __('Closed') ) as $status => $label ) {
+				$label = wp_specialchars( $label );
+				$selected = (string) $status == (string) $q_open ? " selected='selected'" : '';
+				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
+			}
+			$r .= "\t\t</select>\n";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $topic_title ) {
+			$q_topic_title = attribute_escape( $q_topic_title );
+			$r .= "\t<fieldset><legend>" . __('Title&#8230;') . "</legend>\n";
+			$r .= "\t\t<input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title'>";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		$r .= "\t<input type='submit' class='button submit-input' value='$submit' id='$id-submit'>\n";
+		$r .= "</form>\n\n";
+
+		echo $r;
+	}
+
 }
 
 class BB_Dir_Map {

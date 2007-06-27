@@ -8,7 +8,7 @@
 	$topic_query_vars = array('topic_status' => 1, 'open' => 'all');
 	if ( isset($_REQUEST['search']) )
 		$topic_query_vars['post_status'] = 'all';
-	$topic_query = bb_query_from_env( 'topic', $topic_query_vars );
+	$topic_query = new BB_Query_Form( 'topic', $topic_query_vars );
 	$topics = $topic_query->results;
 ?>
 
@@ -37,7 +37,9 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 
 ?></h2>
 
-<?php bb_topic_search_form( '', $topic_query->query_vars ); ?>
+<?php $topic_query->topic_search_form( array('tag' => true, 'author' => true, 'status' => true, 'open' => true, 'submit' => __('Filter &#187;')) ); ?>
+
+<br class="clear" />
 
 <table class="widefat">
 <tr class="thead">
