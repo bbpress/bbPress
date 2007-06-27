@@ -1,53 +1,42 @@
 <?php
 require_once('./bb-load.php');
 
-$q = trim( @$_GET['q'] );
+if ( !$q = trim( @$_GET['search'] ) )
+	$q = trim( @$_GET['q'] );
+
 $likeit = preg_replace('/\s+/', '%', $q);
 
-if ( !empty( $q ) ) :
-
-if ( ( $users = bb_user_search( stripslashes($q) ) ) && is_wp_error($users) ) {
-	$error = $users;
-	$users = false;
-}
-
-//Not appending topicmeta to titles at the moment!
-$titles = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY topic_time DESC LIMIT 5");
-
-$recent = $bbdb->get_results("SELECT $bbdb->posts.*, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
+if ( $likeit ) {
+	$recent = $bbdb->get_results("SELECT $bbdb->posts.*, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
 				WHERE LOWER(post_text) LIKE ('%$likeit%') AND post_status = 0 AND topic_status = 0
 				GROUP BY $bbdb->topics.topic_id ORDER BY post_time DESC LIMIT 5");
+}
 
-$relevant = $bbdb->get_results("SELECT $bbdb->posts.* FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->posts.topic_id = $bbdb->topics.topic_id
-				WHERE MATCH(post_text) AGAINST ('$q') AND post_status = 0 AND topic_status = 0 LIMIT 5");
+$q = stripslashes( $q );
 
-do_action('do_search', $q);
+$bb_query_form = new BB_Query_Form;
+
+if ( $q ) {
+	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author' )  );
+	$relevant = $bb_query_form->results;
+
+	$q = $bb_query_form->get( 'search' );
+}
+
+do_action( 'do_search', $q );
 
 // Cache topics
 if ( $recent ) :
+	$topic_ids = array();
 	foreach ($recent as $bb_post) {
-		$topic_ids[] = $bb_post->topic_id;
+		$topic_ids[] = (int) $bb_post->topic_id;
 		$bb_post_cache[$bb_post->post_id] = $bb_post;
 	}
-endif;
-
-if ( $relevant ) :
-	foreach ($relevant as $bb_post) {
-		$topic_ids[] = $bb_post->topic_id;
-		$bb_post_cache[$bb_post->post_id] = $bb_post;
-	}
-endif;
-
-if ( $recent || $relevant ) :
-	$topic_ids = join(',', $topic_ids);
+	$topic_ids = join($topic_ids);
 	if ( $topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)") )
 		$topics = bb_append_meta( $topics, 'topic' );
 endif;
 
-endif;
-
-$q = stripslashes( $q );
-
-bb_load_template( 'search.php', array('q', 'likeit', 'error', 'titles', 'recent', 'relevant') );
+bb_load_template( 'search.php', array('q', 'recent', 'relevant') );
 
 ?>

@@ -1,36 +1,10 @@
 <?php bb_get_header(); ?>
 
 <h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Search')?></h3>
-<?php search_form( $q ); ?>
+<?php bb_topic_search_form(); ?>
 
 <?php if ( !empty ( $q ) ) : ?>
 <h2><?php _e('Search for')?> &#8220;<?php echo wp_specialchars($q); ?>&#8221;</h2>
-<?php endif; ?>
-
-<?php if ( $users ) : ?>
-<h2><?php _e('Users')?></h2>
-<ul>
-<?php foreach ( $users as $user ) : ?>
-	<li><a href="<?php user_profile_link($user->ID); ?>"><?php echo get_user_name( $user->ID ); ?></a></li>
-
-<?php endforeach; ?>
-</ul>
-<?php endif; ?>
-
-<?php if ( $titles ) : ?>
-<h2><?php _e('Thread title matches')?></h2>
-
-<ol>
-<?php
-foreach ( $titles as $topic ) :
-$count = $topic->topic_posts;
-?>
-<li><h4><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></h4>
-<small><?php printf(__(' %1$d replies &#8212; Last reply: %2$s'), $count, get_topic_time(__('F j, Y'), $topic->topic_id) ) ?> </small>
-</li>
-<?php endforeach; ?>
-
-</ol>
 <?php endif; ?>
 
 <?php if ( $recent ) : ?>
@@ -57,7 +31,7 @@ $count = $topic->topic_posts;
 </ol>
 <?php endif; ?>
 
-<?php if ( !$topics && !$recent && !$relevant && !$users) : ?>
+<?php if ( !$recent && !$relevant ) : ?>
 <p><?php _e('No results found.') ?></p>
 <?php endif; ?>
 <br />
