@@ -42,27 +42,28 @@ class BB_Query {
 		return $this->results;
 	}
 
-	// $defaults = vars to use if not set in GET, POST or over
-	// $over = array( key_name => value, key_name, key_name, key_name => value );
+	// $defaults = vars to use if not set in GET, POST or allowed
+	// $allowed = array( key_name => value, key_name, key_name, key_name => value );
 	// 	key_name => value pairs override anything from defaults, GET, POST
-	//	Lone key_names are a whitelist.  Only those can be set by defaults, GET, POST (a whitelist)
-	//	Ex: $over = array( 'topic_status' => 0, 'post_status' => 0, 'topic_author', 'started' );
+	//	Lone key_names are a whitelist.  Only those can be set by defaults, GET, POST
+	//	If there are no lone key_names, allow everything but still override with key_name => value pairs
+	//	Ex: $allowed = array( 'topic_status' => 0, 'post_status' => 0, 'topic_author', 'started' );
 	//		Will only take topic_author and started values from defaults, GET, POST and will query with topic_status = 0 and post_status = 0
-	function &query_from_env( $type = 'topic', $defaults = null, $over = null, $id = '' ) {
+	function &query_from_env( $type = 'topic', $defaults = null, $allowed = null, $id = '' ) {
 		$vars = $this->fill_query_vars( array() );
 
 		$defaults  = wp_parse_args($defaults);
 		$get_vars  = stripslashes_deep( $_GET );
 		$post_vars = stripslashes_deep( $_POST );
-		$over      = wp_parse_args($over);
+		$allowed   = wp_parse_args($allowed);
 
-		$allowed = array();
-		foreach ( $over as $k => $v ) {
+		$_allowed = array();
+		foreach ( array_keys($allowed) as $k ) {
 			if ( is_numeric($k) ) {
-				$allowed[] = $v;
+				$_allowed[] = $allowed[$k];
+				unset($allowed[$k]);
 			} elseif ( !isset($$k) ) {
-				$allowed[] = $k;
-				$$k = $v;
+				$$k = $allowed[$k];
 			}
 		}
 
@@ -70,7 +71,7 @@ class BB_Query {
 		extract($get_vars, EXTR_SKIP);
 		extract($defaults, EXTR_SKIP);
 
-		$vars = compact( $allowed ? $allowed : array_keys( $vars ));
+		$vars = $_allowed ? compact($_allowed, array_keys($allowed)) : compact(array_keys($vars));
 		return $this->query( $type, $vars, $id );
 	}
 
@@ -659,14 +660,14 @@ class BB_Query {
 
 class BB_Query_Form extends BB_Query {
 	var $defaults;
-	var $over;
+	var $allowed;
 
 	// Can optionally pass unique id string to help out filters
-	function BB_Query_Form( $type = 'topic', $defaults = '', $over = '', $id = '' ) {
+	function BB_Query_Form( $type = 'topic', $defaults = '', $allowed = '', $id = '' ) {
 		$this->defaults = wp_parse_args( $defaults );
-		$this->over = wp_parse_args( $over );
-		if ( !empty($defaults) || !empty($over) )
-			$this->query_from_env($type, $defaults, $over, $id);
+		$this->allowed  = wp_parse_args( $allowed );
+		if ( !empty($defaults) || !empty($allowed) )
+			$this->query_from_env($type, $defaults, $allowed, $id);
 	}
 
 	function topic_search_form( $args = null ) {
