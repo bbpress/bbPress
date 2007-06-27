@@ -159,10 +159,12 @@ function bb_get_recently_moderated_objects( $num = 5 ) {
 	$topic_query = new BB_Query( 'topic', array('per_page' => $num, 'topic_status' => '-normal', 'append_meta' => 0) ); // topic_time == topic_start_time != moderation_time;
 	$topics = $topic_query->results;
 	$objects = array();
-	foreach ( array_keys($posts) as $key )
-		$objects[bb_gmtstrtotime($posts[$key]->post_time)] = array('type' => 'post', 'data' => $posts[$key]);
-	foreach ( array_keys($topics) as $key )
-		$objects[bb_gmtstrtotime($topics[$key]->topic_time)] = array('type' => 'topic', 'data' => $topics[$key]);
+	if ( $posts )
+		foreach ( array_keys($posts) as $key )
+			$objects[bb_gmtstrtotime($posts[$key]->post_time)] = array('type' => 'post', 'data' => $posts[$key]);
+	if ( $topics )
+		foreach ( array_keys($topics) as $key )
+			$objects[bb_gmtstrtotime($topics[$key]->topic_time)] = array('type' => 'topic', 'data' => $topics[$key]);
 	krsort($objects);
 	return array_slice($objects, 0, $num);
 }
