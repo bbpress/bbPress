@@ -59,6 +59,6 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 <?php endif; ?>
 </table>
 
-<?php echo get_page_number_links( $page, $topic_query->row_count ); ?>
+<?php echo get_page_number_links( $page, $topic_query->found_rows ); ?>
 
 <?php bb_get_admin_footer(); ?>
