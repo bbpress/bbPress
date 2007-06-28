@@ -877,7 +877,7 @@ function bb_topic_search_form( $args = null, $query_obj = null ) {
 	else
 		$query_obj =& $bb_query_form;
 
-	$query_obj->topic_search_form( $args );
+	$query_obj->form( $args );
 }
 		
 

@@ -344,7 +344,7 @@ class BB_Query {
 				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
 					$where .= " AND t.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
 				else
-					$where .= " /* No such tag */ AND 0";
+					$where .= " AND 0 /* No such tag */";
 			endif;
 
 			if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
@@ -474,7 +474,7 @@ class BB_Query {
 				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
 					$where .= " AND p.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
 				else
-					$where .= " /* No such tag */ AND 0";
+					$where .= " AND 0 /* No such tag */";
 			endif;
 
 			if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
@@ -697,20 +697,25 @@ class BB_Query_Form extends BB_Query {
 			$this->query_from_env($type, $defaults, $allowed, $id);
 	}
 
-	function topic_search_form( $args = null ) {
+	function form( $args = null ) {
+		$_post = 'post' == $this->type;
+
 		$defaults = array(
 			'search' => true,
 			'forum'  => true,
 			'tag'    => false,
-			'author' => false,
-			'status' => false,
 			'open'   => false,
-			'topic_title' => false,
+			'topic_author' => false,
+			'post_author'  => false,
+			'topic_status' => false,
+			'post_status'  => false,
+			'topic_title'  => false,
 
-			'id'     => 'topic-search-form',
 			'method' => 'get',
-			'submit' => __('Search &#187;')
+			'submit' => __('Search &#187;'),
+			'action' => ''
 		);
+		$defaults['id'] = $_post ? 'post-search-form' : 'topic-search-form';
 
 		$args = wp_parse_args( $args, $defaults );
 		extract( $args, EXTR_SKIP );
@@ -718,6 +723,7 @@ class BB_Query_Form extends BB_Query {
 		$id = attribute_escape( $id );
 		$method = 'get' == strtolower($method) ? 'get' : 'post';
 		$submit = attribute_escape( $submit );
+		$action = clean_url( $action );
 
 		if ( $this->query_vars )
 			$query_vars =& $this->query_vars;
@@ -726,12 +732,19 @@ class BB_Query_Form extends BB_Query {
 
 		extract($query_vars, EXTR_PREFIX_ALL, 'q');
 
-		$r  = "<form action='' method='$method' id='$id'>\n";
+		$r  = "<form action='' method='$method' id='$id' class='search-form'>\n";
 
-		$q_search = attribute_escape( $q_search );
 		if ( $search ) {
+			if ( $_post ) {
+				$s_value = attribute_escape( $q_post_text );
+				$s_name = 'post_text';
+				$s_id = 'post-text';
+			} else {
+				$s_value = attribute_escape( $q_search );
+				$s_name = $s_id = 'search';
+			}
 			$r .= "\t<fieldset><legend>" . __('Search&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='search' id='search' type='text' class='text-input' value='$q_search'>";
+			$r .= "\t\t<input name='$s_name' id='$s_id' type='text' class='text-input' value='$s_value'>";
 			$r .= "\t</fieldset>\n\n";
 		}
 
@@ -748,19 +761,38 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</fieldset>\n\n";
 		}
 
-		if ( $author ) {
+		if ( $topic_author ) {
 			$q_topic_author = attribute_escape( $q_topic_author );
-			$r .= "\t<fieldset><legend>" . __('Author&#8230;') . "</legend>\n";
+			$r .= "\t<fieldset><legend>" . __('Topic Author&#8230;') . "</legend>\n";
 			$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author'>";
 			$r .= "\t</fieldset>\n\n";
 		}
 
-		if ( $status ) {
-			$r .= "\t<fieldset><legend>" . __('Status&#8230;') . "</legend>\n";
+		if ( $post_author ) {
+			$q_post_author = attribute_escape( $q_post_author );
+			$r .= "\t<fieldset><legend>" . __('Post Author&#8230;') . "</legend>\n";
+			$r .= "\t\t<input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author'>";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		$stati = array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') );
+
+		if ( $topic_status ) {
+			$r .= "\t<fieldset><legend>" . __('Topic Status&#8230;') . "</legend>\n";
 			$r .= "\t\t<select name='topic_status' id='topic-status'>\n";
-			foreach ( array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ) as $status => $label ) {
-				$label = wp_specialchars( $label );
+			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_topic_status ? " selected='selected'" : '';
+				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
+			}
+			$r .= "\t\t</select>\n";
+			$r .= "\t</fieldset>\n\n";
+		}
+
+		if ( $post_status ) {
+			$r .= "\t<fieldset><legend>" . __('Post Status&#8230;') . "</legend>\n";
+			$r .= "\t\t<select name='post_status' id='post-status'>\n";
+			foreach ( $stati as $status => $label ) {
+				$selected = (string) $status == (string) $q_post_status ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
 			}
 			$r .= "\t\t</select>\n";
@@ -791,7 +823,6 @@ class BB_Query_Form extends BB_Query {
 
 		echo $r;
 	}
-
 }
 
 class BB_Dir_Map {

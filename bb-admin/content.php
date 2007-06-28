@@ -37,7 +37,7 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 
 ?></h2>
 
-<?php $topic_query->topic_search_form( array('tag' => true, 'author' => true, 'status' => true, 'open' => true, 'submit' => __('Filter &#187;')) ); ?>
+<?php $topic_query->form( array('tag' => true, 'topic_author' => true, 'topic_status' => true, 'open' => true, 'submit' => __('Filter &#187;')) ); ?>
 
 <br class="clear" />
 
