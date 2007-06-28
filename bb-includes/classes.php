@@ -23,7 +23,7 @@ class BB_Query {
 	}
 
 	function &query( $type = 'topic', $query, $id = '' ) {
-		global $bbdb;
+		global $bbdb, $bb_cache;
 		$this->type = $type;
 		$this->parse_query($query, $id);
 
@@ -34,11 +34,24 @@ class BB_Query {
 
 		do_action_ref_array( 'bb_query', array(&$this) );
 
-		$this->results = $bbdb->get_results( $this->request );
+		if ( 'post' == $this->type )
+			$this->results = $bb_cache->cache_posts( $this->request );
+		else
+			$this->results = $bbdb->get_results( $this->request );
+
 		$this->count = count( $this->results );
 		$this->found_rows = $bbdb->get_var( $this->count_request );
-		if ( 'topic' == $this->type && $this->query_vars['append_meta'] )
-			$this->results = bb_append_meta( $this->results, 'topic' );
+
+		if ( 'post' == $this->type ) {
+			if ( $this->query_vars['cache_users'] )
+				post_author_cache( $this->results );
+			if ( $this->query_vars['cache_topics'] )
+				bb_cache_post_topics( $this->results );
+		} else {
+			if ( $this->query_vars['append_meta'] )
+				$this->results = bb_append_meta( $this->results, 'topic' );
+		}
+
 		return $this->results;
 	}
 
@@ -183,7 +196,9 @@ class BB_Query {
 			$q['per_page'] = 1;
 
 		// Utility
-		$array['append_meta'] = isset($array['append_meta']) ? (int) (bool) $array['append_meta'] : 1;
+		$array['append_meta']  = isset($array['append_meta'])  ? (int) (bool) $array['append_meta'] : 1;
+		$array['cache_users']  = isset($array['cache_users'])  ? (bool) $array['cache_users']  : true;
+		$array['cache_topics'] = isset($array['cache_topics']) ? (bool) $array['cache_topics'] : true;
 
 		// Posts
 		if ( ( !$array['ip'] = isset($array['ip']) ? preg_replace('/[^0-9.]/', '', $array['ip']) : false ) && isset($this) )
@@ -319,8 +334,22 @@ class BB_Query {
 					$this->error( 'query_var:forum', 'No forum by that name' );
 				$where .= " AND t.forum_id = $q[forum_id]";
 			endif;
-		endif; // !_part_of_post_query
 
+			/* Convert to JOIN after new taxonomy tables are in */
+
+			if ( $q['tag'] && !is_int($q['tag_id']) )
+				$q['tag_id'] = (int) get_tag_id( $q['tag'] );
+
+			if ( is_numeric($q['tag_id']) ) :
+				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
+					$where .= " AND t.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
+				else
+					$where .= " /* No such tag */ AND 0";
+			endif;
+
+			if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
+				$where .= $this->parse_value( 't.topic_id', $f_user->favorites );
+		endif; // !_part_of_post_query
 
 		if ( $q['topic_title'] )
 			$where .= ' AND ' . $this->generate_topic_title_sql( $q['topic_title'] );
@@ -365,21 +394,6 @@ class BB_Query {
 
 		if ( false !== $q['tag_count'] )
 			$where .= $this->parse_value( 't.tag_count', $q['tag_count'] );
-
-		/* Convert to JOIN after new taxonomy tables are in */
-
-		if ( $q['tag'] && !is_int($q['tag_id']) )
-			$q['tag_id'] = (int) get_tag_id( $q['tag'] );
-
-		if ( is_numeric($q['tag_id']) ) :
-			if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
-				$where .= " AND t.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
-			else
-				$where .= " /* No such tag */ AND 0";
-		endif;
-
-		if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
-			$where .= $this->parse_value( 't.topic_id', $f_user->favorites );
 
 		if ( $q['meta_key'] ) :
 			$q['meta_key'] = preg_replace('|[^a-z0-9_-]|i', '', $q['meta_key']);
@@ -428,7 +442,7 @@ class BB_Query {
 
 		$topic_where = '';
 		$topic_queries = array( 'topic_author_id', 'topic_author', 'topic_status', 'post_count', 'tag_count', 'started', 'updated', 'open', 'sticky', 'meta_key', 'meta_value', 'view', 'topic_title' );
-		if ( !$_part_of_topic_query && array_intersect(array_keys($q, !false), $topic_queries) ) :
+		if ( !$_part_of_topic_query && array_diff($topic_queries, $this->not_set) ) :
 			$join .= " JOIN $bbdb->topics as t ON ( t.topic_id = p.topic_id )";
 			$topic_where = $this->generate_topic_sql( true );
 		endif;
@@ -452,6 +466,19 @@ class BB_Query {
 					$this->error( 'query_var:forum', 'No forum by that name' );
 				$where .= " AND p.forum_id = $q[forum_id]";
 			endif;
+
+			if ( $q['tag'] && !is_int($q['tag_id']) )
+				$q['tag_id'] = (int) get_tag_id( $q['tag'] );
+
+			if ( is_numeric($q['tag_id']) ) :
+				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
+					$where .= " AND p.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
+				else
+					$where .= " /* No such tag */ AND 0";
+			endif;
+
+			if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
+				$where .= $this->parse_value( 'p.topic_id', $f_user->favorites );
 		endif; // !_part_of_topic_query
 
 		if ( $q['post_text'] ) :

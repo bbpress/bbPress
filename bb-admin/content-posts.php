@@ -6,8 +6,9 @@
 		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
-	$bb_posts = bb_get_deleted_posts( $page );
-	$total = bb_count_last_query();
+	$post_query = new BB_Query( 'post', array( 'post_status' => 1 ) );
+	$bb_posts =& $post_query->results;
+	$total = $post_query->found_rows;
 ?>
 
 <h2><?php _e('Deleted Posts'); ?></h2>

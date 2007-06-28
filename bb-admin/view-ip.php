@@ -8,19 +8,19 @@ if ( !bb_current_user_can('view_by_ip') ) {
 
 $ip = preg_replace('/[^0-9\.]/', '', $_GET['ip']);
 
-$posts = $bbdb->get_results("SELECT * FROM $bbdb->posts WHERE poster_ip = '$ip' ORDER BY post_time DESC LIMIT 30");
+$post_query = new BB_Query( 'post', array( 'ip' => $ip, 'per_page' => 30 ) );
 
 bb_get_admin_header();
 ?>
 <h2><?php _e('IP Information'); ?></h2>
 <h3><?php _e('Last 30 posts'); ?></h3>
-<?php if ($posts) : ?>
+<?php if ($post_query->results) : ?>
 <div class="nav">
 <?php topic_pages(); ?>
 </div>
 <ol id="thread">
 
-<?php foreach ($posts as $bb_post) : ?>
+<?php foreach ($post_query->results as $bb_post) : ?>
 	<li id="post-<?php post_id(); ?>" <?php alt_class('post'); ?>>
 	
 		<div class="threadauthor">

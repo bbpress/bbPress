@@ -154,17 +154,16 @@ function bb_get_admin_tab_link( $tab ) {
 /* Stats */
 
 function bb_get_recently_moderated_objects( $num = 5 ) {
-	global $bbdb;
-	$posts = (array) bb_get_deleted_posts( 1, $num, -1 ); // post_time != moderation_time;
-	$topic_query = new BB_Query( 'topic', array('per_page' => $num, 'topic_status' => '-normal', 'append_meta' => 0) ); // topic_time == topic_start_time != moderation_time;
-	$topics = $topic_query->results;
+	$post_query  = new BB_Query( 'post', array( 'per_page' => $num, 'post_status' => '-normal', 'topic_status' => 0 ) ); // post_time != moderation_time;
+	$topic_query = new BB_Query( 'topic', array( 'per_page' => $num, 'topic_status' => '-normal', 'append_meta' => 0 ) ); // topic_time == topic_start_time != moderation_time;
+
 	$objects = array();
-	if ( $posts )
-		foreach ( array_keys($posts) as $key )
-			$objects[bb_gmtstrtotime($posts[$key]->post_time)] = array('type' => 'post', 'data' => $posts[$key]);
-	if ( $topics )
-		foreach ( array_keys($topics) as $key )
-			$objects[bb_gmtstrtotime($topics[$key]->topic_time)] = array('type' => 'topic', 'data' => $topics[$key]);
+	if ( $post_query->results )
+		foreach ( array_keys($post_query->results) as $key )
+			$objects[bb_gmtstrtotime($post_query->results[$key]->post_time)] = array('type' => 'post', 'data' => $post_query->results[$key]);
+	if ( $topic_query->results )
+		foreach ( array_keys($topic_query->results) as $key )
+			$objects[bb_gmtstrtotime($topic_query->results[$key]->topic_time)] = array('type' => 'topic', 'data' => $topic_query->results[$key]);
 	krsort($objects);
 	return array_slice($objects, 0, $num);
 }
@@ -703,24 +702,6 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 }
 
 /* Posts */
-
-function bb_get_deleted_posts( $page = 1, $limit = false, $status = 1, $topic_status = 0 ) {
-	global $bbdb, $bb_cache;
-	$page = (int) $page;
-	$status = (int) $status;
-	if ( !$limit )
-		$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( false === $topic_status )
-		$where = '';
-	else {
-		$topic_status = (int) $topic_status;
-		$where = "topic_status = '$topic_status' AND";
-	}
-	$status = ( 0 < $status ) ? "= '$status'" : "> '0'";
-	return $bb_cache->cache_posts("SELECT $bbdb->posts.* FROM $bbdb->posts LEFT JOIN $bbdb->topics USING (topic_id) WHERE $where post_status $status ORDER BY post_time DESC LIMIT $limit");
-}
 
 function bb_admin_list_posts() {
 	global $bb_posts, $bb_post;

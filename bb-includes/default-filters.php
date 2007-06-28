@@ -49,6 +49,9 @@ add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 add_filter('sanitize_profile_info', 'wp_specialchars');
 add_filter('sanitize_profile_admin', 'wp_specialchars');
 
+add_filter( 'get_recent_user_replies_fields', 'get_recent_user_replies_fields' );
+add_filter( 'get_recent_user_replies_group_by', 'get_recent_user_replies_group_by' );
+
 if ( !bb_get_option( 'mod_rewrite' ) ) {
 	add_filter( 'bb_stylesheet_uri', 'attribute_escape', 1, 9999 );
 	add_filter( 'forum_link', 'attribute_escape', 1, 9999 );

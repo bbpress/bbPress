@@ -473,27 +473,39 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 	}
 }
 
+function bb_cache_post_topics( $posts ) {
+	global $bbdb, $bb_topic_cache;
+
+	if ( !$posts )
+		return;
+
+	$topic_ids = array();
+	foreach ( $posts as $post ) {
+		$topic_id = (int) $post->topic_id;
+		if ( !isset($bb_topic_cache[$topic_id]) )
+			$topic_ids[] = $topic_id;
+	}
+
+	if ( !$topic_ids )
+		return;
+
+	$topic_ids = join(',', $topic_ids);
+
+	if ( $topics = $bbdb->get_results( "SELECT * FROM $bbdb->topics WHERE topic_id IN($topic_ids)" ) )
+		bb_append_meta( $topics, 'topic' );
+}
+
 function get_latest_posts( $limit = 0, $page = 1 ) {
-	global $bbdb, $bb_cache;
 	$limit = (int) $limit;
-	if ( !$limit )
-		$limit = bb_get_option( 'page_topics' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters( 'get_latest_posts_where', 'WHERE post_status = 0' );
-	return $bb_cache->cache_posts("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+	$post_query = new BB_Query( 'post', array( 'page' => $page, 'per_page' => $limit ), 'get_latest_posts' );
+	return $post_query->results;
 }
 
 function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
-	global $bbdb, $bb_cache;
-	$limit = (int) $limit;
 	$forum_id = (int) $forum_id;
-	if ( !$limit )
-		$limit = bb_get_option( 'page_topics' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters('get_latest_forum_posts_where', "WHERE forum_id = '$forum_id' AND post_status = 0");
-	return $bb_cache->cache_posts("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+	$limit    = (int) $limit;
+	$post_query = new BB_Query( 'post', array( 'forum_id' => $forum_id, 'page' => $page, 'per_page' => $limit ), 'get_latest_forum_posts' );
+	return $post_query->results;
 }
 
 // Expects $bb_post to be pre-escaped
@@ -663,28 +675,22 @@ function post_author_cache($posts) {
 		bb_cache_users(array_unique($ids), false); // false since we've already checked for soft cached data.
 }
 
+// These two filters are lame.  It'd be nice if we could do this in the query parameters
+function get_recent_user_replies_fields( $fields ) {
+	return $fields . ', MAX(post_time) as post_time';
+}
+
+function get_recent_user_replies_group_by() {
+	return 't.topic_id';
+}
+
 function get_recent_user_replies( $user_id ) {
-	global $bbdb, $bb_post_cache, $page, $bb_last_countable_query;
+	global $bbdb;
 	$user_id = (int) $user_id;
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters('get_recent_user_replies_where', 'AND post_status = 0');
-	$order_by = apply_filters('get_recent_user_replies_order_by', 'post_time DESC');
-	$bb_last_countable_query = "SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY $order_by LIMIT $limit";
-	$posts = $bbdb->get_results( $bb_last_countable_query );
-	if ( $posts ) :
-		foreach ($posts as $bb_post) {
-			$bb_post_cache[$bb_post->post_id] = $bb_post;
-			$topics[] = $bb_post->topic_id;
-		}
-		$topic_ids = join(',', $topics);
-		$topics = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)");
-		bb_append_meta( $topics, 'topic' );
-		return $posts;
-	else :
-		return false;
-	endif;
+
+	$post_query = new BB_Query( 'post', array( 'post_author_id' => $user_id ), 'get_recent_user_replies' );
+
+	return $post_query->results;
 }
 
 /* Tags */
@@ -940,17 +946,8 @@ function get_tagged_topics( $tag_id, $page = 1 ) {
 }
 
 function get_tagged_topic_posts( $tag_id, $page = 1 ) {
-	global $bbdb, $bb_cache, $bb_post_cache;
-	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
-		return false;
-	$topic_ids = join($topic_ids, ',');
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( $posts = $bb_cache->cache_posts("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time DESC LIMIT $limit") )
-		return $posts;
-	else
-		return false;
+	$post_query = new BB_Query( 'post', array( 'tag_id' => $tag_id, 'page' => $page ), 'get_tagged_topic_posts' );
+	return $post_query->results;
 }
 
 function get_top_tags( $recent = true, $limit = 40 ) {
@@ -1086,15 +1083,11 @@ function get_user_favorites( $user_id, $topics = false ) {
 	global $bbdb, $bb_cache, $page;
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites ) {
-		if ( $topics ) {
+		if ( $topics )
 			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'append_meta' => 0), 'get_user_favorites' );
-			return $query->results;
-		} else {
-			$order_by = apply_filters( 'get_user_favorites_order_by', 'post_time DESC', $topics );
-			return $bb_cache->cache_posts("
-				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY $order_by LIMIT 20");
-		}
+		else
+			$query = new BB_Query( 'post', array('favorites' => $user_id), 'get_user_favorites' );
+		return $query->results;
 	}
 }
 
