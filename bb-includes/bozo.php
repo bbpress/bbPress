@@ -1,17 +1,22 @@
 <?php
 function bb_bozo_posts( $where ) {
-	if ( $id = bb_get_current_user_info( 'id' ) )
-		$where = " AND ( post_status = 0 OR post_status > 1 AND poster_id = '$id' ) ";
-	return $where;
+	if ( !$id = bb_get_current_user_info( 'id' ) )
+		return $where;
+
+	return preg_replace(
+		'/(\w+\.)?post_status = ["\']?0["\']?/',
+		"( \\1post_status = 0 OR \\1post_status > 1 AND \\1poster_id = '$id' )",
+	$where);
 }
 
 function bb_bozo_topics( $where ) {
-	if ( $id = bb_get_current_user_info( 'id' ) )
-		$where = preg_replace(
-			'/(\w+\.)?topic_status = ["\']?0["\']?/',
-			"( \\1topic_status = 0 OR \\1topic_status > 1 AND \\1topic_poster = '$id' )",
-		$where);
-	return $where;
+	if ( !$id = bb_get_current_user_info( 'id' ) )
+		return $where;
+
+	return preg_replace(
+		'/(\w+\.)?topic_status = ["\']?0["\']?/',
+		"( \\1topic_status = 0 OR \\1topic_status > 1 AND \\1topic_poster = '$id' )",
+	$where);
 }
 
 // Gets those users with the bozo bit.  Does not grab users who have been bozoed on a specific topic.
