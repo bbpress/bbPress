@@ -1669,9 +1669,12 @@ function bb_get_forum_dropdown( $args = '' ) {
 	$id = str_replace( '_', '-', $name );
 	$tab = (int) $tab;
 
+	if ( $none && 1 == $none )
+		$none = __('- None -');
+
 	$r = "<select name='$name' id='$id' tabindex='$tab'>\n";
 	if ( $none )
-		$r .= "\n<option value='0'>" . __('- None -') . "</option>\n";
+		$r .= "\n<option value='0'>$none</option>\n";
 
 	while ( $depth = bb_forum() ) :
 		global $forum; // Globals + References = Pain

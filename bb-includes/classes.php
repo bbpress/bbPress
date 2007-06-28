@@ -750,7 +750,7 @@ class BB_Query_Form extends BB_Query {
 
 		if ( $forum ) {
 			$r .= "\t<fieldset><legend>" . __('Forum&#8230;')  . "</legend>\n";
-			$r .= bb_get_forum_dropdown( array('selected' => $q_forum_id, 'none' => true) );
+			$r .= bb_get_forum_dropdown( array('selected' => $q_forum_id, 'none' => __('Any')) );
 			$r .= "\t</fieldset>\n\n";
 		}
 
