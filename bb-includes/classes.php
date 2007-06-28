@@ -441,7 +441,7 @@ class BB_Query {
 		$order_by = '';
 
 		$topic_where = '';
-		$topic_queries = array( 'topic_author_id', 'topic_author', 'topic_status', 'post_count', 'tag_count', 'started', 'updated', 'open', 'sticky', 'meta_key', 'meta_value', 'view', 'topic_title' );
+		$topic_queries = array( 'topic_author_id', 'topic_author', 'topic_status', 'post_count', 'tag_count', 'started', 'updated', 'open', 'sticky', 'meta_key', 'meta_value', 'topic_title' );
 		if ( !$_part_of_topic_query && array_diff($topic_queries, $this->not_set) ) :
 			$join .= " JOIN $bbdb->topics as t ON ( t.topic_id = p.topic_id )";
 			$topic_where = $this->generate_topic_sql( true );
