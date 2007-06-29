@@ -1809,12 +1809,10 @@ function bb_view_query( $view, $new_args = '' ) {
 		$new_args = wp_parse_args( $new_args );
 		$query_args = array_merge( $bb_views[$view]['query'], $new_args );
 	} else {
-		$query_args =& $bb_views[$view]['query'];
+		$query_args = $bb_views[$view]['query'];
 	}
 
-	$topic_query = new BB_Query( 'topic', $query_args, "bb_view_$view" );
-
-	return array( $topic_query->results, $topic_query->found_rows );
+	return new BB_Query( 'topic', $query_args, "bb_view_$view" );
 }
 
 function bb_get_view_query_args( $view ) {
@@ -1961,18 +1959,21 @@ function bb_explain_nonce($action) {
 }
 
 /* DB Helpers */
-function bb_count_last_query() {
+function bb_count_last_query( $query = '' ) {
 	global $bbdb, $bb_last_countable_query;
-	if ( $bb_last_countable_query ) {
+
+	if ( $query )
+		$q = $query;
+	elseif ( $bb_last_countable_query )
 		$q = $bb_last_countable_query;
-	} else {
-		if ( false !== strpos($bbdb->last_query, 'SQL_CALC_FOUND_ROWS') )
-			return (int) $bbdb->get_var( "SELECT FOUND_ROWS()" );
+	else
 		$q = $bbdb->last_query;
-	}
 
 	if ( false === strpos($q, 'SELECT') )
 		return false;
+
+	if ( false !== strpos($q, 'SQL_CALC_FOUND_ROWS') )
+		return (int) $bbdb->get_var( "SELECT FOUND_ROWS()" );
 
 	$q = preg_replace(
 		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+[\S]+/', '/DESC/', '/ASC/'),
@@ -1980,7 +1981,8 @@ function bb_count_last_query() {
 		$q
 	);
 
-	$bb_last_countable_query = '';
+	if ( !$query )
+		$bb_last_countable_query = '';
 	return (int) $bbdb->get_var($q);
 }
 
@@ -2132,7 +2134,7 @@ function bb_tag_search( $args = '' ) {
 
 	$likeit = preg_replace('/\s+/', '%', $query);
 
-	$bb_last_countable_query = "SELECT SQL_CALC_FOUND_ROWS * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit";
+	$bb_last_countable_query = "SELECT * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit";
 
 	foreach ( (array) $tags = $bbdb->get_results( $bb_last_countable_query ) as $tag )
 		$tag_cache[$tag->tag] = $tag;

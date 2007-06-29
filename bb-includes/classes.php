@@ -7,12 +7,11 @@ class BB_Query {
 	var $query_vars = array();
 	var $not_set = array();
 	var $request;
-	var $count_request = 'SELECT FOUND_ROWS()';
 	var $match_query = false;
 
 	var $results;
 	var $count = 0;
-	var $found_rows = 0;
+	var $found_rows = false;
 
 	var $errors;
 
@@ -40,7 +39,9 @@ class BB_Query {
 			$this->results = $bbdb->get_results( $this->request );
 
 		$this->count = count( $this->results );
-		$this->found_rows = $bbdb->get_var( $this->count_request );
+
+		if ( $this->query_vars['count'] ) // handles FOUND_ROWS() or COUNT(*)
+			$this->found_rows = bb_count_last_query( $this->request );
 
 		if ( 'post' == $this->type ) {
 			if ( $this->query_vars['cache_users'] )
@@ -101,7 +102,11 @@ class BB_Query {
 		// Should use 0, '' for empty values
 		// Function should return false iff not set
 
+		// parameters commented out are handled farther down
+
 		$ints = array(
+//			'page',		// Defaults to global or number in URI
+//			'per_page',	// Defaults to page_topics
 			'tag_id',	// one tag ID
 			'favorites'	// one user ID
 		);
@@ -136,9 +141,9 @@ class BB_Query {
 
 			// Topics
 			'topic_author',	// one username
-			'topic_status',	// normal, deleted, all, parse_int ( and - )
-			'open',		// all, yes = open, no = closed, parse_int ( and - )
-			'sticky',	// all, no = normal, forum, super = front, parse_int ( and - )
+			'topic_status',	// *normal, deleted, all, parse_int ( and - )
+			'open',		// *all, yes = open, no = closed, parse_int ( and - )
+			'sticky',	// *all, no = normal, forum, super = front, parse_int ( and - )
 			'meta_key',	// one meta_key ( and - )
 			'meta_value',	// range
 			'topic_title',	// LIKE search.  Understands "doublequoted strings"
@@ -148,16 +153,21 @@ class BB_Query {
 
 			// Posts
 			'post_author',	// one username
-			'post_status',	// noraml, deleted, all, parse_int ( and - )
+			'post_status',	// *noraml, deleted, all, parse_int ( and - )
 			'post_text',	// FULLTEXT search
 					// Returns additional search_score column (and (concatenated) post_text column if topic query)
+//			'ip',		// one IPv4 address
 
 			// SQL
 			'order_by',	// fieldname
-			'order',	// DESC, ASC
+			'order',	// *DESC, ASC
+			'count',	// *false = none, true = COUNT(*), found_rows = FOUND_ROWS()
 			'_join_type',	// not implemented: For benchmarking only.  Will disappear. join (1 query), in (2 queries)
 
 			// Utility
+//			'append_meta',	// *true, false: topics only
+//			'cache_users',	// *true, false
+//			'cache_topics,  // *true, false: posts only
 			'cache_posts'	// not implemented: none, first, last
 		);
 
@@ -195,14 +205,14 @@ class BB_Query {
 		if ( $q['per_page'] < -1 )
 			$q['per_page'] = 1;
 
-		// Utility
-		$array['append_meta']  = isset($array['append_meta'])  ? (int) (bool) $array['append_meta'] : 1;
-		$array['cache_users']  = isset($array['cache_users'])  ? (bool) $array['cache_users']  : true;
-		$array['cache_topics'] = isset($array['cache_topics']) ? (bool) $array['cache_topics'] : true;
-
 		// Posts
 		if ( ( !$array['ip'] = isset($array['ip']) ? preg_replace('/[^0-9.]/', '', $array['ip']) : false ) && isset($this) )
 			$this->not_set[] = 'ip';
+
+		// Utility
+		$array['append_meta']  = isset($array['append_meta'])  ? (int) (bool) $array['append_meta']  : 1;
+		$array['cache_users']  = isset($array['cache_users'])  ? (int) (bool) $array['cache_users']  : 1;
+		$array['cache_topics'] = isset($array['cache_topics']) ? (int) (bool) $array['cache_topics'] : 1;
 
 		// Only one FULLTEXT search per query please
 		if ( $array['search'] )
@@ -246,7 +256,7 @@ class BB_Query {
 
 		$q =& $this->query_vars;
 		$distinct = '';
-		$sql_calc_found_rows = 'SQL_CALC_FOUND_ROWS';
+		$sql_calc_found_rows = 'found_rows' == $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 't.*';
 		$join = '';
 		$where = '';
@@ -432,7 +442,7 @@ class BB_Query {
 
 		$q =& $this->query_vars;
 		$distinct = '';
-		$sql_calc_found_rows = 'SQL_CALC_FOUND_ROWS';
+		$sql_calc_found_rows = 'found_rows' == $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 'p.*';
 		$join = '';
 		$where = '';
@@ -593,6 +603,10 @@ class BB_Query {
 		endif;
 
 		$name = "get_{$this->type}s_";
+
+		// Unfiltered
+		$sql_calc_found_rows = $bits['sql_calc_found_rows'];
+		unset($bits['sql_calc_found_rows']);
 
 		foreach ( $bits as $bit => $value ) {
 			if ( $this->query_id )

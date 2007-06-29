@@ -202,7 +202,7 @@ function bb_ksd_admin_page() {
 		die(__("Now how'd you get here?  And what did you think you'd being doing?"));
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
-	$post_query = new BB_Query( 'post', array( 'post_status' => 2 ) );
+	$post_query = new BB_Query( 'post', array( 'post_status' => 2, 'count' => true ) );
 	$bb_posts = $post_query->results;
 	$total = $post_query->found_rows;
  ?>
