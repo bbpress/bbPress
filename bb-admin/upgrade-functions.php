@@ -286,8 +286,9 @@ function bb_upgrade_process_all_slugs() {
 	foreach ( $slugs as $slug => $forum_ids ) :
 		foreach ( $forum_ids as $count => $forum_id ) :
 			$_slug = $slug;
-			if ( $count > 0 )
-				$_slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
+			$count = - $count; // madness
+			if ( is_numeric($slug) || $count )
+				$_slug = bb_slug_increment( $slug, $count );
 			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$_slug' WHERE forum_id = '$forum_id';");
 		endforeach;
 	endforeach;
@@ -308,8 +309,9 @@ function bb_upgrade_process_all_slugs() {
 	foreach ( $slugs as $slug => $topic_ids ) :
 		foreach ( $topic_ids as $count => $topic_id ) :
 			$_slug = $slug;
-			if ( $count > 0 )
-				$_slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
+			$count = - $count;
+			if ( is_numeric($slug) || $count )
+				$_slug = bb_slug_increment( $slug, $count );
 			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$_slug' WHERE topic_id = '$topic_id';");
 		endforeach;
 	endforeach;
