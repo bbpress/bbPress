@@ -97,6 +97,15 @@ function get_forums( $args = null ) {
 
 function get_forum( $id ) {
 	global $bb_cache;
+
+	if ( is_numeric($id) )
+		$id = (int) $id;
+	else
+		$id = bb_get_id_from_slug( 'forum', $id );
+
+	if ( !$id )
+		return false;
+
 	return $bb_cache->get_forum( $id );
 }
 
@@ -104,8 +113,15 @@ function get_forum( $id ) {
 
 function get_topic( $id, $cache = true ) {
 	global $bb_cache, $bb_topic_cache;
-	if ( !$id = (int) $id )
+
+	if ( is_numeric($id) )
+		$id = (int) $id;
+	else
+		$id = bb_get_id_from_slug( 'topic', $id );
+
+	if ( !$id )
 		return false;
+
 	if ( isset( $bb_topic_cache[$id] ) && $cache )
 		return $bb_topic_cache[$id];
 	else
@@ -1559,22 +1575,14 @@ function bb_repermalink() {
 	switch ($location) {
 		case 'forum-page':
 			global $forum_id, $forum;
-			if (!is_numeric($id)) {
-				$forum_id = bb_get_id_from_slug('forum', $id);
-			} else {
-				$forum_id = $id;
-			}
-			$forum = get_forum( $forum_id );
+			$forum     = get_forum( $id );
+			$forum_id  = $forum->forum_id;
 			$permalink = get_forum_link( $forum->forum_id, $page );
 			break;
 		case 'topic-page':
 			global $topic_id, $topic;
-			if (!is_numeric($id)) {
-				$topic_id = bb_get_id_from_slug('topic', $id);
-			} else {
-				$topic_id = $id;
-			}
-			$topic = get_topic( $topic_id );
+			$topic     = get_topic( $id );
+			$topic_id  = $topic->topic_id;
 			$permalink = get_topic_link( $topic->topic_id, $page );
 			break;
 		case 'profile-page': // This handles the admin side of the profile as well.
