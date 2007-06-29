@@ -681,7 +681,7 @@ function get_recent_user_replies_fields( $fields ) {
 }
 
 function get_recent_user_replies_group_by() {
-	return 't.topic_id';
+	return 'p.topic_id';
 }
 
 function get_recent_user_replies( $user_id ) {
