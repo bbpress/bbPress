@@ -155,7 +155,7 @@ function bb_get_admin_tab_link( $tab ) {
 
 function bb_get_recently_moderated_objects( $num = 5 ) {
 	$post_query  = new BB_Query( 'post', array( 'per_page' => $num, 'post_status' => '-normal', 'topic_status' => 0 ) ); // post_time != moderation_time;
-	$topic_query = new BB_Query( 'topic', array( 'per_page' => $num, 'topic_status' => '-normal', 'append_meta' => 0 ) ); // topic_time == topic_start_time != moderation_time;
+	$topic_query = new BB_Query( 'topic', array( 'per_page' => $num, 'topic_status' => '-normal' ) ); // topic_time == topic_start_time != moderation_time;
 
 	$objects = array();
 	if ( $post_query->results )
