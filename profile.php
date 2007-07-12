@@ -22,7 +22,7 @@ else
 
 do_action( 'bb_profile.php_pre_db', $user_id );
 
-if ( $user->is_bozo && $user->ID != bb_get_current_user_info( 'id' ) && !bb_current_user_can( 'moderate' ) )
+if ( isset($user->is_bozo) && $user->is_bozo && $user->ID != bb_get_current_user_info( 'id' ) && !bb_current_user_can( 'moderate' ) )
 	$profile_info_keys = array();
 
 $posts = get_recent_user_replies( $user_id );

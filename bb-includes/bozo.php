@@ -66,7 +66,7 @@ function bb_bozo_topic_db_filter() {
 
 function bb_bozo_profile_db_filter() {
 	global $user;
-	if ( bb_get_current_user_info( 'id' ) == $user->ID && is_array($user->bozo_topics) )
+	if ( bb_get_current_user_info( 'id' ) == $user->ID && @is_array($user->bozo_topics) )
 		add_filter( 'get_recent_user_replies_where', 'bb_bozo_posts' );
 }
 

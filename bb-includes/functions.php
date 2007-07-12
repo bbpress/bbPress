@@ -1537,7 +1537,7 @@ function get_path( $level = 1, $request = false ) {
 	$bbpath = bb_get_option('path');
 	$path = preg_replace("#$bbpath#",'',$path,1);
 	$url = explode('/',$path);
-	return urldecode($url[$level]);
+	return isset($url[$level]) ? urldecode($url[$level]) : '';
 }
 
 function bb_find_filename( $text ) {
@@ -1784,7 +1784,6 @@ function bb_register_view( $view, $title, $query_args = '' ) {
 		return false;
 
 	$query_args = wp_parse_args( $query_args );
-	$separate_stickies = (bool) $separate_stickies;
 
 	if ( !$sticky_set = isset($query_args['sticky']) )
 		$query_args['sticky'] = 'no';
