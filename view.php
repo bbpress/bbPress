@@ -14,7 +14,7 @@ if ( isset($bb_views[$view]) ) {
 		$stickies     = $sticky_query->results;
 		$sticky_count = $sticky_query->found_rows;
 	}
-	$topic_query = bb_view_query( $view, 'count' => true );
+	$topic_query = bb_view_query( $view, array('count' => true) );
 	$topics      = $topic_query->results;
 	$topic_count = $topic_query->found_rows;
 
