@@ -202,8 +202,8 @@ class BB_Query {
 			$array['page'] = 1;
 
 		$array['per_page'] = isset($array['per_page']) ? (int) $array['per_page'] : 0;
-		if ( $q['per_page'] < -1 )
-			$q['per_page'] = 1;
+		if ( $array['per_page'] < -1 )
+			$array['per_page'] = 1;
 
 		// Posts
 		if ( ( !$array['ip'] = isset($array['ip']) ? preg_replace('/[^0-9.]/', '', $array['ip']) : false ) && isset($this) )
@@ -256,7 +256,7 @@ class BB_Query {
 
 		$q =& $this->query_vars;
 		$distinct = '';
-		$sql_calc_found_rows = 'found_rows' == $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
+		$sql_calc_found_rows = 'found_rows' === $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 't.*';
 		$join = '';
 		$where = '';
@@ -442,7 +442,7 @@ class BB_Query {
 
 		$q =& $this->query_vars;
 		$distinct = '';
-		$sql_calc_found_rows = 'found_rows' == $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
+		$sql_calc_found_rows = 'found_rows' === $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 'p.*';
 		$join = '';
 		$where = '';
