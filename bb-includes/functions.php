@@ -1282,12 +1282,32 @@ function bb_append_meta( $object, $type ) {
 	endif;
 }
 
+function bb_get_usermeta( $user_id, $meta_key ) {
+	if ( !$user = bb_get_user( $user_id ) )
+		return;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( !isset($user->$meta_key) )
+		return;
+	return $user->$meta_key;
+}
+
 function bb_update_usermeta( $user_id, $meta_key, $meta_value ) {
 	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
 
 function bb_delete_usermeta( $user_id, $meta_key, $meta_value = '' ) {
 	return bb_delete_meta( $user_id, $meta_key, $meta_value, 'user' );
+}
+
+function bb_get_topicmeta( $topic_id, $meta_key ) {
+	if ( !$topic = get_topic( $topic_id ) )
+		return;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( !isset($topic->$meta_key) )
+		return;
+	return $topic->$meta_key;
 }
 
 function bb_update_topicmeta( $topic_id, $meta_key, $meta_value ) {
