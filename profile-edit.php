@@ -77,11 +77,12 @@ if ($_POST) :
 						bb_update_usermeta( $user->ID, $key, $$key );
 		endif;
 
-		if ( bb_current_user_can('edit_users') ) :
+		if ( bb_current_user_can( 'edit_users' ) ) :
 			$user_obj = new BB_User( $user->ID );
-			if ( !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
+			if ( ( 'keymaster' != $role || bb_current_user_can( 'keep_gate' ) ) && !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
 				$old_role = $user_obj->roles[0];
-				$user_obj->set_role($role); // Only support one role for now
+				if ( $bb_current_id != $user->ID || 'keymaster' != $old_role ) // keymasters cannot demote themselves
+					$user_obj->set_role($role); // Only support one role for now
 				if ( 'blocked' == $role && 'blocked' != $old_role )
 					bb_break_password( $user->ID );
 				elseif ( 'blocked' != $role && 'blocked' == $old_role )

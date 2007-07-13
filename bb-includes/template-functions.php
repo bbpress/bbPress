@@ -1264,17 +1264,25 @@ function bb_profile_admin_form( $id = 0 ) {
 	if ( !bb_current_user_can( 'edit_user', $user->ID ) )
 		return;
 
+	$bb_current_id = bb_get_current_user_info( 'id' );
+
 	$profile_admin_keys = get_profile_admin_keys();
 	$assignable_caps = get_assignable_caps();
 	$required = false;
+
+	$roles = $bb_roles->role_names;
+	if ( !bb_current_user_can( 'keep_gate' ) )
+		unset($roles['keymaster']);
+	elseif ( $bb_current_id == $user->ID )
+		$roles = array( 'keymaster' => $roles['keymaster'] );
 ?>
 <table id="admininfo">
 <tr>
   <th scope="row"><?php _e('User Type:'); ?></th>
   <td><select name="role">
-<?php foreach( $bb_roles->role_names as $r => $n ) : if ( 'keymaster' != $r || bb_current_user_can('keep_gate') ) : ?>
+<?php foreach( $roles as $r => $n ) : ?>
        <option value="<?php echo $r; ?>"<?php if ( array_key_exists($r, $user->capabilities) ) echo ' selected="selected"'; ?>><?php echo $n; ?></option>
-<?php endif; endforeach; ?>
+<?php endforeach; ?>
       </select>
   </td>
 </tr>
