@@ -90,11 +90,14 @@ class BB_Query {
 	}
 
 	function init( $id = '' ) {
-		unset($this->query);
+		unset($this->query, $this->request);
 		$this->query_vars = array();
 		$this->query_id = $id;
 
-		unset($this->results);
+		$this->not_set = array();
+		$this->match_query = false;
+
+		unset($this->results, $this->errors);
 		$this->count = $this->found_rows = 0;
 	}
 

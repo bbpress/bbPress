@@ -4,20 +4,15 @@ require_once('./bb-load.php');
 if ( !$q = trim( @$_GET['search'] ) )
 	$q = trim( @$_GET['q'] );
 
-$likeit = preg_replace('/\s+/', '%', $q);
-
-if ( $likeit ) {
-	$recent = $bbdb->get_results("SELECT $bbdb->posts.*, MAX(post_time) as post_time FROM $bbdb->posts RIGHT JOIN $bbdb->topics ON $bbdb->topics.topic_id = $bbdb->posts.topic_id
-				WHERE LOWER(post_text) LIKE ('%$likeit%') AND post_status = 0 AND topic_status = 0
-				GROUP BY $bbdb->topics.topic_id ORDER BY post_time DESC LIMIT 5");
-}
-
-$q = stripslashes( $q );
-
 $bb_query_form = new BB_Query_Form;
 
-if ( $q ) {
-	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author' )  );
+if ( $q = stripslashes( $q ) ) {
+	add_filter( 'bb_recent_search_fields',   create_function( '$f', 'return $f . ", MAX(post_time) AS post_time";' ) );
+	add_filter( 'bb_recent_search_group_by', create_function( '', 'return "t.topic_id";' ) );
+	$bb_query_form->BB_Query_Form( 'post', array(), array( 'per_page' => 5, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
+	$recent = $bb_query_form->results;
+
+	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
 	$relevant = $bb_query_form->results;
 
 	$q = $bb_query_form->get( 'search' );
