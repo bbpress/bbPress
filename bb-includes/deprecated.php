@@ -361,4 +361,11 @@ function get_views() {
 	return bb_get_views();
 }
 
+if ( !function_exists( 'balanceTags' ) ) :
+function balanceTags( $text ) {
+	return force_balance_tags( $text );
+}
+endif;
+
+
 ?>

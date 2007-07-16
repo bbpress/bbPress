@@ -115,30 +115,27 @@ function attribute_escape($text) { // [WP4660]
 endif;
 
 /*
- balanceTags
- 
+ force_balance_tags
+
  Balances Tags of string using a modified stack.
- 
+
  @param text      Text to be balanced
+ @param force     Forces balancing, ignoring the value of the option
  @return          Returns balanced text
  @author          Leonard Lin (leonard@acm.org)
  @version         v1.1
  @date            November 4, 2001
  @license         GPL v2.0
- @notes           
- @changelog       
+ @notes
+ @changelog
  ---  Modified by Scott Reilly (coffee2code) 02 Aug 2004
-             1.2  ***TODO*** Make better - change loop condition to $text
-             1.1  Fixed handling of append/stack pop order of end text
-                  Added Cleaning Hooks
-             1.0  First Version
+	1.2  ***TODO*** Make better - change loop condition to $text
+	1.1  Fixed handling of append/stack pop order of end text
+	     Added Cleaning Hooks
+	1.0  First Version
 */
-if ( !function_exists('balanceTags') ) : // [WP5623]
-function balanceTags($text, $force = false) {
-
-	if ( !$force ) // This line differs from WP
-		return $text;
-
+if ( !function_exists( 'force_balance_tags' ) ) : // [WP5805]
+function force_balance_tags( $text ) {
 	$tagstack = array(); $stacksize = 0; $tagqueue = ''; $newtext = '';
 	$single_tags = array('br', 'hr', 'img', 'input'); //Known single-entity/self-closing tags
 	$nestable_tags = array('blockquote', 'div', 'span'); //Tags that can be immediately nested within themselves
