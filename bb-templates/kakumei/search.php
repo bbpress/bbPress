@@ -31,7 +31,7 @@
 </ol>
 <?php endif; ?>
 
-<?php if ( !$recent && !$relevant ) : ?>
+<?php if ( $q && !$recent && !$relevant ) : ?>
 <p><?php _e('No results found.') ?></p>
 <?php endif; ?>
 <br />
