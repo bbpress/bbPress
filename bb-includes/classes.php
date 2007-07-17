@@ -411,11 +411,13 @@ class BB_Query {
 		if ( $q['meta_key'] ) :
 			$q['meta_key'] = preg_replace('|[^a-z0-9_-]|i', '', $q['meta_key']);
 			if ( '-' == substr($q['meta_key'], 0, 1) ) :
-				$join  .= " LEFT JOIN $bbdb->topicmeta AS tm ON ( t.topic_id = tm.topic_id AND meta_key = '$q[meta_key]' )";
+				$join  .= " LEFT JOIN $bbdb->topicmeta AS tm ON ( t.topic_id = tm.topic_id AND meta_key = '" . substr( $q[meta_key], 1 ) . "' )";
 				$where .= " AND tm.meta_key IS NULL";
 			elseif ( $q['meta_value'] ) :
 				$join   = " JOIN $bbdb->topicmeta AS tm ON ( t.topic_id = tm.topic_id AND meta_key = '$q[meta_key]' )";
 				$q['meta_value'] = bb_maybe_serialize( $q['meta_value'] );
+				if ( strpos( $q['meta_value'], 'NULL' ) !== false )
+					$join = " LEFT" . $join;
 				$where .= $this->parse_value( 'tm.meta_value', $q['meta_value'] );
 			endif;
 		endif;
@@ -653,17 +655,40 @@ class BB_Query {
 		foreach ( explode(',', $value) as $v ) {
 			$v = is_numeric($v) ? (int) $v : $bbdb->escape( $v );
 			if ( '-' == substr($v, 0, 1) )
-				$n[] = substr($v, 1);
+				if ( $v == '-NULL' )
+					$not_null_flag = true;
+				else
+					$n[] = substr($v, 1);
 			else
-				$y[] = $v;
+				if ( $v == 'NULL' )
+					$null_flag = true;
+				else
+					$y[] = $v;
 		}
 
 		$r = '';
-		if ( $y )
-			$r .= " AND $field IN ('" . join("','", $y) . "')";
-		if ( $n )
-			$r .= " AND $field NOT IN ('" . join("','", $n) . "')";
-
+		if ( $y ) {
+			$r .= " AND ";
+			if ( $null_flag )
+				$r .= "(";
+			$r .= "$field IN ('" . join("','", $y) . "')";
+			if ( $null_flag )
+				$r .= " OR $field IS NULL)";
+		} elseif ( $null_flag ) {
+			$r .= " AND $field IS NULL";
+		}
+		
+		if ( $n ) {
+			$r .= " AND ";
+			if ( $not_null_flag )
+				$r .= "(";
+			$r .= "$field NOT IN ('" . join("','", $n) . "')";
+			if ( $not_null_flag )
+				$r .= " AND $field IS NOT NULL)";
+		} elseif ( $not_null_flag ) {
+			$r .= " AND $field IS NOT NULL";
+		}
+		
 		return $r;
 	}
 
