@@ -6,10 +6,7 @@ $likeit = preg_replace('/\s+/', '%', $q);
 
 if ( !empty( $q ) ) :
 
-if ( ( $users = bb_user_search( stripslashes($q) ) ) && is_wp_error($users) ) {
-	$error = $users;
-	$users = false;
-}
+$users = false;
 
 //Not appending topicmeta to titles at the moment!
 $titles = $bbdb->get_results("SELECT * FROM $bbdb->topics WHERE LOWER(topic_title) LIKE ('%$likeit%') AND topic_status = 0 ORDER BY topic_time DESC LIMIT 5");
