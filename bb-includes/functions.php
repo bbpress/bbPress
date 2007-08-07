@@ -1551,11 +1551,14 @@ function bb_offset_time( $time, $args = '' ) {
 
 /* Permalinking / URLs / Paths */
 
-function get_path( $level = 1, $request = false ) {
-	$request = $request ? $request : parse_url($_SERVER['REQUEST_URI']);
+function get_path( $level = 1, $base = false, $request = false ) {
+	$request = $request ? $request : $_SERVER['REQUEST_URI'];
+	if ( is_string($request) )
+		$request = parse_url($request);
 	$path = $request['path'];
-	$bbpath = bb_get_option('path');
-	$path = preg_replace("#$bbpath#",'',$path,1);
+	$base = $base ? $base : bb_get_option('path');
+	$base = preg_quote($base, '|');
+	$path = preg_replace("|$base|",'',$path,1);
 	$url = explode('/',$path);
 	return isset($url[$level]) ? urldecode($url[$level]) : '';
 }
@@ -1639,7 +1642,7 @@ function bb_repermalink() {
 			if ( isset($_GET['tag']) )
 				$id = $_GET['tag'];
 			else
-				$id = get_path();
+				$id = get_path( 1, bb_get_option('tagpath') );
 			$_original_id = $id;
 			if ( !$id )
 				$permalink = get_tag_page_link();
