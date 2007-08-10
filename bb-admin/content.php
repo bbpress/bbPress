@@ -6,7 +6,7 @@
 		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
 	add_filter( 'topic_link', 'bb_make_link_view_all' );
 	$topic_query_vars = array('topic_status' => 1, 'open' => 'all', 'count' => true);
-	if ( isset($_REQUEST['search']) )
+	if ( isset($_REQUEST['search']) && $_REQUEST['search'] )
 		$topic_query_vars['post_status'] = 'all';
 	$topic_query = new BB_Query_Form( 'topic', $topic_query_vars );
 	$topics = $topic_query->results;
