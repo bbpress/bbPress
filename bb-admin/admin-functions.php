@@ -648,12 +648,11 @@ function merge_tags( $old_id, $new_id ) {
 	$tagged_del = 0;
 	if ( $old_topic_ids = (array) $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
 		$old_topic_ids = join(',', $old_topic_ids);
-		$shared_topics_u = (array) $bbdb->get_col( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
-		$shared_topics_i = (array) $bbdb->get_col( '', 1 );
-		foreach ( $shared_topics_i as $t => $topic_id ) {
-			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '{$shared_topics_u[$t]}' AND topic_id = '$topic_id'" );
-			$count = (int) $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$topic_id' GROUP BY topic_id" );
-			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$topic_id'" );
+		$shared_topics = (array) $bbdb->get_results( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
+		foreach ( $shared_topics as $st ) {
+			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '$st->user_id' AND topic_id = '$st->topic_id'" );
+			$count = (int) $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$st->topic_id' GROUP BY topic_id" );
+			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$st->topic_id'" );
 		}
 	}
 

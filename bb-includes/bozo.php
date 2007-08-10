@@ -76,22 +76,21 @@ function bb_bozo_recount_topics() {
 	echo "\t<li>\n";
 		$old = (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'bozos'");
 		$old = array_flip($old);
-		if ( $topics = (array) $bbdb->get_col("SELECT topic_id, poster_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 GROUP BY topic_id, poster_id") ) :
+		if ( $topics = (array) $bbdb->get_results("SELECT topic_id, poster_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status > 1 GROUP BY topic_id, poster_id") ) :
+			list($topic_ids, $poster_ids, $counts) = bb_pull_cols( $topics, 'topic_id', 'poster_id', 'count' );
 			echo "\t\t" . __("Counting bozo posts...") . "<br />\n";
-			$unique_topics = array_unique($topics);
-			$posters = (array) $bbdb->get_col('', 1);
-			$counts = (array) $bbdb->get_col('', 2);
+			$unique_topics = array_unique($topic_ids);
 			foreach ($unique_topics as $i):
 				$bozos = array();
-				$indices = array_keys($topics, $i);
+				$indices = array_keys($topic_ids, $i);
 				foreach ( $indices as $index )
-					$bozos[(int) $posters[$index]] = (int) $counts[$index]; 
+					$bozos[(int) $poster_ids[$index]] = (int) $counts[$index]; 
 				if ( $bozos ) :
 					bb_update_topicmeta( $i, 'bozos', $bozos );
 					unset($indices, $index, $old[$i]);
 				endif;
 			endforeach;
-			unset($topics, $t, $i, $counts, $posters, $bozos);
+			unset($topics, $topic_ids, $poster_ids, $counts, $unique_topics, $i, $bozos);
 		endif;
 		if ( $old ) :
 			$old = join(',', array_flip($old));
@@ -112,11 +111,11 @@ function bb_bozo_recount_users() {
 			foreach ( $users as $user ) :
 				$topics_replied = (int) $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = 0 AND poster_id = '$user'");
 				bb_update_usermeta( $user, $bb_table_prefix. 'topics_replied', $topics_replied );
-				$bozo_keys = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = '$user' GROUP BY topic_id");
-				$bozo_values = (array) $bbdb->get_col('', 1);
-				if ( $c = count($bozo_keys) ) :
+				$bozos = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status > 1 AND poster_id = '$user' GROUP BY topic_id");
+				if ( $c = count($bozos) ) :
+					$bozo_topics = array();
 					for ( $i=0; $i < $c; $i++ )
-						$bozo_topics[(int) $bozo_keys[$i]] = (int) $bozo_values[$i];
+						$bozo_topics[(int) $bozos[$i]->topic_id] = (int) $bozos[$i]->count;
 					bb_update_usermeta( $user, $bozo_mkey, $bozo_topics );
 				else :
 					$no_bozos[] = $user;
@@ -126,7 +125,6 @@ function bb_bozo_recount_users() {
 				$no_bozos = join(',', $no_bozos);
 				$bbdb->query("DELETE FROM $bbdb->usermeta WHERE user_id IN ($no_bozos) AND meta_key = '$bozo_mkey'");
 			endif;
-			unset($users, $user, $topics_replied, $bozo_keys, $bozo_values, $bozo_topics);
 		endif;
 		_e("Done counting bozo topics.\n\n");
 	endif;

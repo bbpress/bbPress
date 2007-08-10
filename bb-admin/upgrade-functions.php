@@ -273,14 +273,12 @@ function bb_upgrade_process_all_slugs() {
 	global $bbdb;
 	// Forums
 
-	$ids = (array) $bbdb->get_col("SELECT forum_id, forum_name FROM $bbdb->forums ORDER BY forum_order ASC" );
-
-	$names = $bbdb->get_col('', 1);
+	$forums = (array) $bbdb->get_results("SELECT forum_id, forum_name FROM $bbdb->forums ORDER BY forum_order ASC" );
 
 	$slugs = array();
-	foreach ( $ids as $r => $id ) :
-		$slug = bb_slug_sanitize( $names[$r] );
-		$slugs[$slug][] = $id;
+	foreach ( $forums as $forum ) :
+		$slug = bb_slug_sanitize( $forum->forum_name );
+		$slugs[$slug][] = $forum->forum_id;
 	endforeach;
 
 	foreach ( $slugs as $slug => $forum_ids ) :
@@ -292,18 +290,16 @@ function bb_upgrade_process_all_slugs() {
 			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$_slug' WHERE forum_id = '$forum_id';");
 		endforeach;
 	endforeach;
-	unset($ids, $names, $slugs, $r, $id, $slug, $_slug, $forum_ids, $forum_id, $count);
+	unset($forums, $forum, $slugs, $slug, $_slug, $forum_ids, $forum_id, $count);
 
 	// Topics
 
-	$ids = (array) $bbdb->get_col("SELECT topic_id, topic_title FROM $bbdb->topics ORDER BY topic_start_time ASC" );
-
-	$names = $bbdb->get_col('', 1);
+	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics ORDER BY topic_start_time ASC" );
 
 	$slugs = array();
-	foreach ( $ids as $r => $id ) :
-		$slug = bb_slug_sanitize( $names[$r] );
-		$slugs[$slug][] = $id;
+	foreach ( $topics as $topic) :
+		$slug = bb_slug_sanitize( $topic->topic_title );
+		$slugs[$slug][] = $topic->topic_id;
 	endforeach;
 
 	foreach ( $slugs as $slug => $topic_ids ) :
@@ -315,7 +311,7 @@ function bb_upgrade_process_all_slugs() {
 			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$_slug' WHERE topic_id = '$topic_id';");
 		endforeach;
 	endforeach;
-	unset($ids, $names, $slugs, $r, $id, $slug, $_slug, $topic_ids, $topic_id, $count);
+	unset($topics, $topic, $slugs, $slug, $_slug, $topic_ids, $topic_id, $count);
 }
 
 // Reversibly break passwords of blocked users.

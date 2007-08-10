@@ -346,8 +346,8 @@ function get_thread_post_ids( $topic_id ) {
 	$topic_id = (int) $topic_id;
 	if ( !isset( $thread_ids_cache[$topic_id] ) ) {
 		$where = apply_filters('get_thread_post_ids_where', 'AND post_status = 0');
-		$thread_ids_cache[$topic_id]['post'] = (array) $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
-		$thread_ids_cache[$topic_id]['poster'] = (array) $bbdb->get_col('', 1);
+		$thread_ids = (array) $bbdb->get_results("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
+		list($thread_ids_cache[$topic_id]['post'], $thread_ids_cache[$topic_id]['poster']) = bb_pull_cols( $thread_ids, 'post_id', 'poster_id' );
 	}
 	return $thread_ids_cache[$topic_id];
 }
@@ -790,9 +790,11 @@ function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
 
-	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'")); // We care about the tag in this topic and if it's in other topics, but not which other topics
-	$counts = (array) $bbdb->get_col('', 1);
-	if ( !$here = $counts[$topics[$topic_id]] ) // Topic doesn't have this tag
+	// We care about the tag in this topic and if it's in other topics, but not which other topics
+	$topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(*) AS count FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'");
+	list($topic_ids, $counts) = bb_pull_topics( $topics, 'topic_id', 'count' );
+
+	if ( !$here = $counts[$topic_ids[$topic_id]] ) // Topic doesn't have this tag
 		return false;
 
 	if ( 1 == count($counts) ) : // This is the only time the tag is used
@@ -817,16 +819,14 @@ function bb_remove_topic_tags( $topic_id ) {
 
 	if( $tags = (array) $bbdb->get_col("SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
 		$tags = join(',', $tags);
-		$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
-		$_counts = (array) $bbdb->get_col('', 1);
-		foreach ( $_tags as $t => $i ) {
-			if ( 0 > ( $new_count = (int) $_counts[$t] - 1 ) )
-				$new_count = 0;
-			if ( !$new_count ) {
-				destroy_tag( $i, false );
+		$_tags = (array) $bbdb->get_results("SELECT tag_id, COUNT(DISTINCT topic_id) AS count FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
+		foreach ( $_tags as $_tag ) {
+			$new_count = (int) $tag->count - 1;
+			if ( $new_count < 1 ) {
+				destroy_tag( $tag->tag_id, false );
 				continue;
 			}
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$i'");
+			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$tag->tag_id'");
 		}
 	}
 
@@ -849,11 +849,10 @@ function destroy_tag( $tag_id, $recount_topics = true ) {
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") ) {
 		if ( $recount_topics && $topics = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
 			$topics = join(',', $topics);
-			$_topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
-			$_counts = (array) $bbdb->get_col('', 1);
-			foreach ( $_topics as $t => $topic_id ) {
-				$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = $topic_id");
-				$bb_cache->flush_one( 'topic', $topic_id );
+			$_topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(DISTINCT tag_id) AS count FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
+			foreach ( $_topics as $_topic ) {
+				$bbdb->query("UPDATE $bbdb->topics SET tag_count = '$_topic->count' WHERE topic_id = $_topic->topic_id");
+				$bb_cache->flush_one( 'topic', $_topic->topic_id );
 			}
 		}	
 		$tagged = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
@@ -2246,6 +2245,27 @@ function bb_flatten_array( $array, $cut_branch = 0, $keep_child_array_keys = tru
 		}
 	}
 	return $temp;
+}
+
+// With no extra arguments, converts array of objects into object of arrays
+// With extra arguments corresponding to name of object properties, returns array of arrays:
+//     list($a, $b) = bb_pull_cols( $obj_array, 'a', 'b' );
+function bb_pull_cols( $obj_array ) {
+	$r = new stdClass;
+	foreach ( array_keys($obj_array) as $o )
+		foreach ( get_object_vars( $obj_array[$o] ) as $k => $v )
+			$r->{$k}[] = $v;
+
+	if ( 1 == func_num_args() )
+		return $r;
+
+	$args = func_get_args();
+	$args = array_splice($args, 1);
+
+	$a = array();
+	foreach ( $args as $arg )
+		$a[] = $r->$arg;
+	return $a;
 }
 
 ?>
