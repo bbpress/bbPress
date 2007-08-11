@@ -4,7 +4,11 @@
 define('BBDB_NAME', 'bbpress');      // The name of the database
 define('BBDB_USER', 'username');     // Your MySQL username
 define('BBDB_PASSWORD', 'password'); // ...and password
-define('BBDB_HOST', 'localhost');    // 99% chance you won't need to change this value
+define('BBDB_HOST', 'localhost');    // 99% chance you won't need to change these last few
+
+define('BBDB_CHARSET', 'utf8');      // If you are *upgrading*, and your old config.php does
+define('BBDB_COLLATE', '');          // not have these two contstants in them, DO NOT define them
+                                     // If you are installing for the first time, leave them here
 
 // Change the prefix if you want to have multiple forums in a single database.
 $bb_table_prefix = 'bb_'; // Only letters, numbers and underscores please!

@@ -22,10 +22,17 @@ class bbdb {
 	var $topics;
 	var $users;
 
+	var $charset;
+	var $collate;
+
 	// ==================================================================
 	//	DB Constructor - connects to the server and selects a database
 
 	function bbdb($dbuser, $dbpassword, $dbname, $dbhost) {
+		if ( defined('BBDB_CHARSET') )
+			$this->charset = BBDB_CHARSET;
+		if ( defined('BBDB_COLLATE') )
+			$this->collate = BBDB_COLLATE;
 
 		$this->db_connect();
 		return true;
@@ -62,6 +69,10 @@ class bbdb {
 		$this->timer_start();
 		
 		$this->$dbhname = @mysql_connect( $server->host, $server->user, $server->pass, true );	
+
+		if ( !empty($this->charset) && version_compare(mysql_get_server_info(), '4.1.0', '>=') )
+			$this->query("SET NAMES '$this->charset'");
+
 		$this->select( $server->database, $this->$dbhname );
 
 		$current_connection .= ' connect: ' . number_format( ( $this->timer_stop() * 1000 ), 2) . 'ms';

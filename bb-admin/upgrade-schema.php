@@ -1,6 +1,15 @@
 <?php
 global $bb_queries, $bbdb;
 
+$charset_collate = '';
+
+if ( version_compare(mysql_get_server_info(), '4.1.0', '>=') ) {
+	if ( ! empty($bbdb->charset) )
+		$charset_collate = "DEFAULT CHARACTER SET $bbdb->charset";
+	if ( ! empty($bbdb->collate) )
+		$charset_collate .= " COLLATE $bbdb->collate";
+}
+
 $bb_queries = "CREATE TABLE $bbdb->forums (
   forum_id int(10) NOT NULL auto_increment,
   forum_name varchar(150)  NOT NULL default '',
@@ -11,7 +20,7 @@ $bb_queries = "CREATE TABLE $bbdb->forums (
   topics bigint(20) NOT NULL default '0',
   posts bigint(20) NOT NULL default '0',
   PRIMARY KEY  (forum_id)
-);
+) $charset_collate;
 CREATE TABLE $bbdb->posts (
   post_id bigint(20) NOT NULL auto_increment,
   forum_id int(10) NOT NULL default '1',
@@ -27,7 +36,7 @@ CREATE TABLE $bbdb->posts (
   KEY poster_time (poster_id,post_time),
   KEY post_time (post_time),
   FULLTEXT KEY post_text (post_text)
-) TYPE = MYISAM;
+) TYPE = MYISAM $charset_collate;
 CREATE TABLE $bbdb->topics (
   topic_id bigint(20) NOT NULL auto_increment,
   topic_title varchar(100) NOT NULL default '',
@@ -48,7 +57,7 @@ CREATE TABLE $bbdb->topics (
   PRIMARY KEY  (topic_id),
   KEY forum_time (forum_id,topic_time),
   KEY user_start_time (topic_poster,topic_start_time)
-);
+) $charset_collate;
 CREATE TABLE $bbdb->topicmeta (
   meta_id bigint(20) NOT NULL auto_increment,
   topic_id bigint(20) NOT NULL default '0',
@@ -57,7 +66,7 @@ CREATE TABLE $bbdb->topicmeta (
   PRIMARY KEY  (meta_id),
   KEY topic_id (topic_id),
   KEY meta_key (meta_key)
-);
+) $charset_collate;
 CREATE TABLE $bbdb->users (
   ID bigint(20) unsigned NOT NULL auto_increment,
   user_login varchar(60) NOT NULL default '',
@@ -70,7 +79,7 @@ CREATE TABLE $bbdb->users (
   display_name varchar(250) NOT NULL default '',
   PRIMARY KEY  (ID),
   UNIQUE KEY user_login (user_login)
-);
+) $charset_collate;
 CREATE TABLE $bbdb->usermeta (
   umeta_id bigint(20) NOT NULL auto_increment,
   user_id bigint(20) NOT NULL default '0',
@@ -79,7 +88,7 @@ CREATE TABLE $bbdb->usermeta (
   PRIMARY KEY  (umeta_id),
   KEY user_id (user_id),
   KEY meta_key (meta_key)
-);
+) $charset_collate;
 CREATE TABLE $bbdb->tags (
   tag_id bigint(20) unsigned NOT NULL auto_increment,
   tag varchar(200) NOT NULL default '',
@@ -87,7 +96,7 @@ CREATE TABLE $bbdb->tags (
   tag_count bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (tag_id),
   KEY name (tag)
-);
+) $charset_collate;
 CREATE TABLE $bbdb->tagged (
   tag_id bigint(20) unsigned NOT NULL default '0',
   user_id bigint(20) unsigned NOT NULL default '0',
@@ -96,7 +105,7 @@ CREATE TABLE $bbdb->tagged (
   PRIMARY KEY  (tag_id,user_id,topic_id),
   KEY user_id_index (user_id),
   KEY topic_id_index (topic_id)
-);
+) $charset_collate;
 ";
 
 do_action( 'bb_schema_defined' );
