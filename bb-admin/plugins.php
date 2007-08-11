@@ -17,7 +17,7 @@ foreach ( $current as $c => $cur )
 	if ( !file_exists(BBPLUGINDIR . $cur) ) {
 		$update = true;
 		unset($current[$c]);
-		do_action( 'bb_deactivate_plugin' . $c );
+		do_action( 'bb_deactivate_plugin_' . $c );
 	}
 
 if ( isset($_GET['action']) ) {
@@ -39,7 +39,7 @@ if ( isset($_GET['action']) ) {
 		bb_check_admin_referer( 'deactivate-plugin_' . $plugin );
 		array_splice($current, array_search($plugin, $current), 1 );
 		bb_update_option( 'active_plugins', $current );
-		do_action( 'bb_deactivate_plugin' . $plugin );
+		do_action( 'bb_deactivate_plugin_' . $plugin );
 		wp_redirect('plugins.php?message=deactivate');
 	}
 	exit;
