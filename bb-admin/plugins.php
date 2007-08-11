@@ -73,10 +73,10 @@ bb_get_admin_header();
 <table class="widefat">
 <thead>
 	<tr>
-		<th>Plugin</th>
-		<th class="vers">Version</th>
-		<th>Description</th>
-		<th class="action">Action</th>
+		<th><?php _e('Plugin'); ?></th>
+		<th class="vers"><?php _e('Version'); ?></th>
+		<th><?php _e('Description'); ?></th>
+		<th class="action"><?php _e('Action'); ?></th>
 	</tr>
 </thead>
 <tbody>
@@ -107,9 +107,9 @@ bb_get_admin_header();
 <table class="widefat">
 <thead>
 	<tr>
-		<th>Plugin</th>
-		<th class="vers">Version</th>
-		<th>Description</th>
+		<th><?php _e('Plugin'); ?></th>
+		<th class="vers"><?php _e('Version'); ?></th>
+		<th><?php _e('Description'); ?></th>
 	</tr>
 </thead>
 <tbody>
@@ -132,7 +132,7 @@ bb_get_admin_header();
 </table>
 
 <?php endif; if ( !$plugins && !$_plugins ) :?>
-<p>No Plugins Installed</p>
+<p><?php _e('No Plugins Installed'); ?></p>
 
 <?php endif; ?>
 
