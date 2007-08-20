@@ -763,6 +763,7 @@ function add_topic_tags( $topic_id, $tags ) {
 function create_tag( $tag ) {
 	global $bbdb;
 
+	$tag = trim( $tag );
 	$tag = apply_filters( 'pre_create_tag', $tag );
 
 	$raw_tag = bb_trim_for_db( $tag, 50 );
