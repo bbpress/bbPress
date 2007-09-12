@@ -148,21 +148,6 @@ $_POST   = bb_global_sanitize($_POST  );
 $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-if ( is_callable( 'glob' ) )
-	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
-		require($_plugin);
-unset($_plugin);
-do_action( 'bb_underscore_plugins_loaded' );
-
-if ( $plugins = bb_get_option( 'active_plugins' ) )
-	foreach ( (array) $plugins as $plugin )
-		if ( file_exists(BBPLUGINDIR . $plugin) )
-			require( BBPLUGINDIR . $plugin );
-do_action( 'bb_plugins_loaded' );
-unset($plugins, $plugin);
-
-require( BBPATH . BBINC . 'pluggable.php');
-
 if ( defined('CUSTOM_USER_TABLE') )
 	$bbdb->users = CUSTOM_USER_TABLE;
 if ( defined('CUSTOM_USER_META_TABLE') )
@@ -180,6 +165,21 @@ if ( !isset( $bb->sitecookiepath ) )
 	$bb->sitecookiepath = $bb->wp_siteurl ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl . '/' ) : $bb->path;
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
+
+if ( is_callable( 'glob' ) )
+	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
+		require($_plugin);
+unset($_plugin);
+do_action( 'bb_underscore_plugins_loaded' );
+
+if ( $plugins = bb_get_option( 'active_plugins' ) )
+	foreach ( (array) $plugins as $plugin )
+		if ( file_exists(BBPLUGINDIR . $plugin) )
+			require( BBPLUGINDIR . $plugin );
+do_action( 'bb_plugins_loaded' );
+unset($plugins, $plugin);
+
+require( BBPATH . BBINC . 'pluggable.php');
 
 // Load the default text localization domain.
 load_default_textdomain();
