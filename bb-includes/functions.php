@@ -662,7 +662,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 function _bb_delete_post( $post_id, $new_status ) {
 	global $bbdb;
 	$post_id = (int) $post_id;
-	$new_status = (int) $post_id;
+	$new_status = (int) $new_status;
 	$bbdb->query("UPDATE $bbdb->posts SET post_status = $new_status WHERE post_id = $post_id");
 }
 
