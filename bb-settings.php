@@ -140,8 +140,11 @@ if ( !bb_is_installed() && false === strpos($_SERVER['PHP_SELF'], 'install.php')
 
 $bb_cache = new BB_Cache();
 
-if ( $bb->load_options )
+if ( $bb->load_options ) {
+	$bbdb->hide_errors();
 	bb_cache_all_options();
+	$bbdb->show_errors();
+}
 
 $_GET    = bb_global_sanitize($_GET   );
 $_POST   = bb_global_sanitize($_POST  );
