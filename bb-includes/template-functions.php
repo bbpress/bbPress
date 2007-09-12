@@ -844,17 +844,28 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 	alt_class( $key, $class );
 }
 
-function new_topic( $text = false ) {
-	if ( !$text )
-		$text = __('Add New &raquo;');
+function new_topic( $args = null ) {
+	$defaults = array( 'text' => __('Add New &raquo;'), 'forum' => 0, 'tag' => '' );
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'text' => $args );
 
-	if ( is_forum() || is_bb_tag() )
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	if ( $forum && $forum = get_forum( $forum ) )
+		$url = get_forum_link( $forum->forum_id ) . '#postform';
+	elseif ( $tag && ( ( is_numeric($tag) && $tag = get_tag( $tag ) ) || $tag = get_tag_by_name( $tag ) ) )
+		$url = bb_get_tag_link( $tag->tag ) . '#postform';
+	elseif ( is_forum() || is_bb_tag() )
 		$url = '#postform';
+	elseif ( is_topic() )
+		$url = get_forum_link() . '#postform';
 	elseif ( is_front() )
 		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
+
 	if ( !bb_is_user_logged_in() )
 		$url = add_query_arg( 're', urlencode($url), bb_get_option( 'uri' ) . 'bb-login.php' );
-	elseif ( is_forum() ) {
+	elseif ( is_forum() || is_topic() ) {
 		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
 			return;
 	} else {
