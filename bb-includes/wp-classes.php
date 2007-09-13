@@ -143,7 +143,7 @@ class WP_Ajax_Response { // [WP4458]
 	}
 
 	function send() {
-		header('Content-type: text/xml');
+		header('Content-Type: text/xml');
 		echo "<?xml version='1.0' standalone='yes'?><wp_ajax>";
 		foreach ( $this->responses as $response )
 			echo $response;

@@ -1,7 +1,7 @@
 <?php
 require('admin-action.php');
 
-header('Content-type: text/plain');
+header('Content-Type: text/plain');
 
 if ( !bb_current_user_can('manage_options') ) {
 	wp_redirect( bb_get_option( 'uri' ) );

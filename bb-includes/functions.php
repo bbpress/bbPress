@@ -1576,7 +1576,7 @@ function bb_find_filename( $text ) {
 }
 
 function bb_send_headers() {
-	@header('Content-type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
+	@header('Content-Type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
 	do_action( 'bb_send_headers' );
 }
 

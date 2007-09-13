@@ -1,4 +1,4 @@
-<?php header('Content-type: text/xml'); ?>
+<?php header('Content-Type: text/xml'); ?>
 <?php echo '<?xml version="1.0"?>'; ?>
 <!-- generator="bbPress" -->
 
