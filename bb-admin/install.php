@@ -278,7 +278,6 @@ bb_new_forum( $forum_name, $forum_desc );
 bb_new_topic(__('Your first topic'), 1, 'bbPress');
 bb_new_post(1, __('First Post!  w00t.'));
 
-$message_headers = 'From: ' . $forum_name . ' <' . bb_get_option( 'admin_email' ) . '>';
 $message = sprintf(__("Your new bbPress site has been successfully set up at:
 
 %1\$s
@@ -294,7 +293,7 @@ We hope you enjoy your new forums. Thanks!
 http://bbpress.org/
 "), bb_get_option( 'uri' ), $admin_login, $password);
 
-@mail(bb_get_option( 'admin_email' ), __('New bbPress installation'), $message, $message_headers);?>
+bb_mail(bb_get_option( 'admin_email' ), __('New bbPress installation'), $message);?>
 
 <p><em><?php _e('Finished!'); ?></em></p>
 

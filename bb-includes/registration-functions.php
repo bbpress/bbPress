@@ -43,18 +43,19 @@ function bb_reset_email( $user_login ) {
 
 	$user_login = bb_user_sanitize( $user_login );
 
-	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'");
+	if ( !$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'") )
+		return false;
 
 	$resetkey = bb_random_pass( 15 );
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
-	if ( $user ) :
-		mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
+
+	$message = sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
 
 %s
 
-If you don't want to reset your password, just ignore this email. Thanks!"), bb_get_option('uri')."bb-reset-password.php?key=".$resetkey ), 'From: ' . bb_get_option('admin_email') );
+If you don't want to reset your password, just ignore this email. Thanks!"), bb_get_option('uri') . "bb-reset-password.php?key=$resetkey" );
 
-	endif;
+	return bb_mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), $message );
 }
 
 function bb_reset_password( $key ) {
@@ -105,15 +106,15 @@ function bb_random_pass( $length = 6) {
 function bb_send_pass( $user, $pass ) {
 	global $bbdb;
 	$user = (int) $user;
-	$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user");
+	if ( !$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user") )
+		return false;
 
-	if ( $user ) :
-		$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!");
-		mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password'), 
-			sprintf( $message, "$user->user_login", "$pass", bb_get_option('uri') ), 
-			'From: ' . bb_get_option('admin_email') 
-		);
+	$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!");
 
-	endif;
+	return bb_mail(
+		bb_get_user_email( $user->ID ),
+		bb_get_option('name') . ': ' . __('Password'),
+		sprintf( $message, "$user->user_login", "$pass", bb_get_option('uri') )
+	);
 }
 ?>
