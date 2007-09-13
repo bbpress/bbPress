@@ -1065,7 +1065,7 @@ class BB_Walker {
 					$cb_args = array_merge( array(&$output, $parent, $this->depth - 1), $args);
 					call_user_func_array(array(&$this, 'end_el'), $cb_args);
 				}
-				if ( isset($parents[0]) && $element->$parent_field == $this->parents[0]->$id_field ) {
+				if ( isset($this->parents[0]) && $element->$parent_field == $this->parents[0]->$id_field ) {
 					break;
 				}
 			}
