@@ -365,7 +365,7 @@ function get_forum_link( $forum_id = 0, $page = 1 ) {
 		$args = array();
 		$link = bb_get_option( 'uri' ) . 'forum.php';
 		$args['id'] = $forum->forum_id;
-		$args['page'] = 1 < $page ? $page : '';
+		$args['page'] = 1 < $page ? $page : false;
 		$link = add_query_arg( $args, $link );
 	}
 
@@ -559,7 +559,7 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	} else {
 		$link = bb_get_option('uri') . 'topic.php';
 		$args['id'] = $topic->topic_id;
-		$args['page'] = 1 < $page ? $page : '';
+		$args['page'] = 1 < $page ? $page : false;
 	}
 
 	if ( $args )
@@ -700,25 +700,42 @@ function get_page_number_links($page, $total) {
 	$r = '';
 	$args = array();
 	$uri = $_SERVER['REQUEST_URI'];
-	if ( bb_get_option('mod_rewrite') ) :
-		if ( 1 == $page ) :
+	if ( bb_get_option('mod_rewrite') ) {
+		$format = '/page/%#%';
+		if ( 1 == $page ) {
 			if ( false === $pos = strpos($uri, '?') )
 				$uri = $uri . '%_%';
 			else
 				$uri = substr_replace($uri, '%_%', $pos, 0);
-		else :
+		} else {
 			$uri = preg_replace('|/page/[0-9]+|', '%_%', $uri);
-		endif;
-	else :
-		$uri = add_query_arg( 'page', '%_%', $uri );
-	endif;
+		}
+	} else {
+		if ( 1 == $page ) {
+			if ( false === $pos = strpos($uri, '?') ) {
+				$uri = $uri . '%_%';
+				$format = '?page=%#%';
+			} else {
+				$uri = substr_replace($uri, '?%_%', $pos, 1);
+				$format = 'page=%#%&';
+			}
+		} else {
+			if ( false === strpos($uri, '?page=') ) {
+				$uri = preg_replace('!&page=[0-9]+!', '%_%', $uri );
+				$format = '&page=%#%';
+			} else {
+				$uri = preg_replace('!?page=[0-9]+!', '%_%', $uri );
+				$format = '?page=%#%';
+			}
+		}
+	}
 
 	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
 		$args['view'] = $_GET['view'];
 
 	return paginate_links( array(
 		'base' => $uri,
-		'format' => bb_get_option('mod_rewrite') ? '/page/%#%' : '%#%',
+		'format' => $format,
 		'total' => ceil($total/bb_get_option('page_topics')),
 		'current' => $page,
 		'add_args' => $args
@@ -1133,8 +1150,7 @@ function get_profile_tab_link( $id = 0, $tab, $page = 1 ) {
 		$r = get_user_profile_link( $id ) . "/$tab" . ( 1 < $page ? "/page/$page" : '' );
 	else {
 		$args = array('tab' => $tab);
-		if ( 1 < $page )
-			$args['page'] = $page;
+		$args['page'] = 1 < $page ? $page : false;
 		$r = add_query_arg( $args, get_user_profile_link( $id ) );
 	}
 	return apply_filters( 'get_profile_tab_link', $r, bb_get_user_id( $id ) );
