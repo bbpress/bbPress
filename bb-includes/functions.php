@@ -1932,6 +1932,7 @@ function bb_die( $message, $title = '' ) {
 	bb_install_header( $title );
 ?>
 	<p><?php echo $message; ?></p>
+	<p><?php printf( __('Back to <a href="%s">%s</a>.'), bb_get_option( 'uri' ), bb_get_option( 'name' ) ); ?></p>
 <?php
 	bb_install_footer();
 	die();
