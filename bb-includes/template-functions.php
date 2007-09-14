@@ -304,6 +304,8 @@ function bb_get_title() {
 		$title = ( is_bb_tag() ? wp_specialchars( get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
 	elseif ( is_bb_profile() )
 		$title = get_user_name() . ' &laquo; ';
+	elseif ( is_view() )
+		$title = get_view_name() . ' &laquo; ';
 	if ( $st = bb_get_option( 'static_title' ) )
 		$title = $st;
 	$title .= bb_get_option( 'name' );
