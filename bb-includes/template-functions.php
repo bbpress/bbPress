@@ -153,7 +153,7 @@ function post_form( $h2 = '' ) {
 	do_action('pre_post_form');
 
 	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
-		echo "<form class='postform' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
+		echo "<form class='postform post-form' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
 		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
 		if ( is_forum() )
@@ -172,7 +172,7 @@ function post_form( $h2 = '' ) {
 
 function edit_form() {
 	global $bb_post, $topic_title;
-	echo "<form name='post' id='post' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
+	echo "<form name='postform' class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	echo "\n</form>";
