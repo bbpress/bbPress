@@ -107,8 +107,13 @@ function bb_allowed_tags() {
 }
 
 function bb_rel_nofollow( $text ) {
-	$text = preg_replace('|<a (.+?)>|i', '<a $1 rel="nofollow">', $text);
-	return $text;
+	return preg_replace_callback('|<a (.+?)>|i', 'bb_rel_nofollow_callback', $text);
+}
+
+function bb_rel_nofollow_callback( $matches ) {
+	$text = $matches[1];
+	$text = str_replace(array(' rel="nofollow"', " rel='nofollow'"), '', $text);
+	return "<a $text rel=\"nofollow\">";
 }
 
 function bb_user_sanitize( $text, $strict = false ) {
