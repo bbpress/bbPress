@@ -4,7 +4,7 @@
 
 <div id="hottags">
 <h2><?php _e('Hot Tags'); ?></h2>
-<p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
+<p class="frontpageheatmap"><?php bb_tag_heat_map(); ?></p>
 </div>
 
 <div id="discussions">

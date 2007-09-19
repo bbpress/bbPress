@@ -1570,7 +1570,7 @@ function bb_get_tag_remove_link() {
 	return $r;
 }
 
-function tag_heat_map( $args = '' ) {
+function bb_tag_heat_map( $args = '' ) {
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = wp_parse_args( $args, $defaults );
 

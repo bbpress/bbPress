@@ -357,6 +357,22 @@ function tag_remove_link() {
 }
 endif;
 
+if ( !function_exists( 'tag_heat_map' ) ) :
+function tag_heat_map( $args = '' ) {
+	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
+	$args = wp_parse_args( $args, $defaults );
+
+	if ( 1 < $fn = func_num_args() ) : // For back compat
+		$args['smallest'] = func_get_arg(0);
+		$args['largest']  = func_get_arg(1);
+		$args['unit']     = 2 < $fn ? func_get_arg(2) : $unit;
+		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
+	endif;
+
+	bb_tag_heat_map( $args );
+}
+endif;
+
 function get_bb_location() {
 	$r = bb_get_location();
 	if ( !$r )
