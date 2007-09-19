@@ -301,7 +301,7 @@ function bb_get_title() {
 	elseif ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
 	elseif ( is_bb_tags() )
-		$title = ( is_bb_tag() ? wp_specialchars( get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
+		$title = ( is_bb_tag() ? wp_specialchars( bb_get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
 	elseif ( is_bb_profile() )
 		$title = get_user_name() . ' &laquo; ';
 	elseif ( is_view() )
@@ -317,7 +317,7 @@ function bb_feed_head() {
 	if ( is_topic() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Topic: %s'), get_topic_title() ) ) . '" href="' . attribute_escape( get_topic_rss_link() ) . '" />';
 	elseif ( is_bb_tag() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), get_tag_name() ) ) . '" href="' . attribute_escape( get_tag_rss_link() ) . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), bb_get_tag_name() ) ) . '" href="' . attribute_escape( get_tag_rss_link() ) . '" />';
 	elseif ( is_forum() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Forum: %s'), get_forum_name() ) ) . '" href="' . attribute_escape( get_forum_rss_link() ) . '" />';
 	elseif ( is_front() )
@@ -1481,11 +1481,11 @@ function bb_get_tag_link_base() {
 	return get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
 }
 
-function tag_name( $id = 0 ) {
-	echo wp_specialchars( get_tag_name( $id ) );
+function bb_tag_name( $id = 0 ) {
+	echo wp_specialchars( bb_get_tag_name( $id ) );
 }
 
-function get_tag_name( $id = 0 ) {
+function bb_get_tag_name( $id = 0 ) {
 	global $tag;
 	$id = (int) $id;
 	if ( $id )

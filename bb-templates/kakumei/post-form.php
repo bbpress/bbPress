@@ -13,7 +13,7 @@
 <?php if ( !is_topic() ) : ?>
 <p>
 	<label for="tags-input"><?php printf(__('Enter a few words (called <a href="%s">tags</a>) separated by commas to help someone find your topic:'), get_tag_page_link()) ?>
-		<input id="tags-input" name="tags" type="text" size="50" maxlength="100" value="<?php tag_name(); ?> " tabindex="4" />
+		<input id="tags-input" name="tags" type="text" size="50" maxlength="100" value="<?php bb_tag_name(); ?> " tabindex="4" />
 	</label>
 </p>
 <?php endif; ?>

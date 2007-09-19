@@ -309,6 +309,18 @@ function get_top_tags( $recent = true, $limit = 40 ) {
 }
 endif;
 
+if ( !function_exists( 'get_tag_name' ) ) :
+function get_tag_name( $id = 0 ) {
+	return bb_get_tag_name( $id );
+}
+endif;
+
+if ( !function_exists( 'tag_name' ) ) :
+function tag_name( $id = 0 ) {
+	bb_tag_name( $id );
+}
+endif;
+
 function get_bb_location() {
 	$r = bb_get_location();
 	if ( !$r )

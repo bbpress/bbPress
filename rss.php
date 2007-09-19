@@ -43,7 +43,7 @@ if ( isset($topic_id) ) {
 		die();
 	if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
 		die();
-	$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('Tag') . ': ' . get_tag_name() );
+	$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('Tag') . ': ' . bb_get_tag_name() );
 } elseif ( isset($forum_id) ) {
 	if ( !$posts = get_latest_forum_posts( $forum_id ) )
 		die();
