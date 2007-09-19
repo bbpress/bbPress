@@ -39,7 +39,7 @@ if ( isset($topic_id) ) {
 		die();
 	$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('User Favorites') . ': ' . $user->user_login );
 } elseif ( isset($tag) ) {
-	if ( !$tag = get_tag_by_name($tag) )
+	if ( !$tag = bb_get_tag_by_name($tag) )
 		die();
 	if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
 		die();

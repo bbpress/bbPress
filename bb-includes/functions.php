@@ -878,7 +878,7 @@ function bb_get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = '$tag_id' LIMIT 1");
 }
 
-function get_tag_by_name( $tag ) {
+function bb_get_tag_by_name( $tag ) {
 	global $bbdb, $tag_cache;
 
 	$tag = bb_tag_sanitize( $tag );
@@ -889,7 +889,7 @@ function get_tag_by_name( $tag ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
-function get_topic_tags( $topic_id ) {
+function bb_get_topic_tags( $topic_id ) {
 	global $topic_tag_cache, $bbdb;
 
 	$topic_id = (int) $topic_id;
@@ -902,8 +902,8 @@ function get_topic_tags( $topic_id ) {
 	return $topic_tag_cache[$topic_id];
 }
 
-function get_user_tags( $topic_id, $user_id ) {
-	$tags = get_topic_tags( $topic_id );
+function bb_get_user_tags( $topic_id, $user_id ) {
+	$tags = bb_get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$user_tags = array();
@@ -915,8 +915,8 @@ function get_user_tags( $topic_id, $user_id ) {
 	return $user_tags;
 }
 
-function get_other_tags( $topic_id, $user_id ) {
-	$tags = get_topic_tags( $topic_id );
+function bb_get_other_tags( $topic_id, $user_id ) {
+	$tags = bb_get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$other_tags = array();
@@ -928,8 +928,8 @@ function get_other_tags( $topic_id, $user_id ) {
 	return $other_tags;
 }
 
-function get_public_tags( $topic_id ) {
-	$tags = get_topic_tags( $topic_id );
+function bb_get_public_tags( $topic_id ) {
+	$tags = bb_get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$used_tags   = array();
@@ -944,7 +944,7 @@ function get_public_tags( $topic_id ) {
 	return $public_tags;
 }
 
-function get_tagged_topic_ids( $tag_id ) {
+function bb_get_tagged_topic_ids( $tag_id ) {
 	global $bbdb, $tagged_topic_count;
 	$tag_id = (int) $tag_id;
 	if ( $topic_ids = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' ORDER BY tagged_on DESC") ) {
@@ -1649,7 +1649,7 @@ function bb_repermalink() {
 			else {
 				global $tag, $tag_name;
 				$tag_name = $id;
-				$tag = get_tag_by_name( $tag_name );
+				$tag = bb_get_tag_by_name( $tag_name );
 				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;
@@ -2178,7 +2178,7 @@ function bb_related_tags( $_tag = false, $number = 40 ) {
 	if ( is_numeric($_tag) )
 		$_tag = bb_get_tag( $_tag );
 	elseif ( is_string($_tag) )
-		$_tag = get_tag_by_name( $_tag );
+		$_tag = bb_get_tag_by_name( $_tag );
 	elseif ( false === $_tag )
 		$_tag =& $tag;
 

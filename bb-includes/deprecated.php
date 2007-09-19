@@ -277,7 +277,31 @@ function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 }
 endif;
 
+if ( !function_exists( 'get_tag_by_name' ) ) :
+function get_tag_by_name( $tag ) {
+	return bb_get_tag_by_name( $tag );
+}
+endif;
 
+function get_topic_tags( $topic_id ) {
+	return bb_get_topic_tags( $topic_id );
+}
+
+function get_user_tags( $topic_id, $user_id ) {
+	return bb_get_user_tags( $topic_id, $user_id );
+}
+
+function get_other_tags( $topic_id, $user_id ) {
+	return bb_get_other_tags( $topic_id, $user_id );
+}
+
+function get_public_tags( $topic_id ) {
+	return bb_get_public_tags( $topic_id );
+}
+
+function get_tagged_topic_ids( $tag_id ) {
+	return bb_get_tagged_topic_ids( $tag_id );
+}
 
 function get_bb_location() {
 	$r = bb_get_location();

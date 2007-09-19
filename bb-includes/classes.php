@@ -354,7 +354,7 @@ class BB_Query {
 				$q['tag_id'] = (int) bb_get_tag_id( $q['tag'] );
 
 			if ( is_numeric($q['tag_id']) ) :
-				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
+				if ( $tagged_topic_ids = bb_get_tagged_topic_ids( $q['tag_id'] ) )
 					$where .= " AND t.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
 				else
 					$where .= " AND 0 /* No such tag */";
@@ -486,7 +486,7 @@ class BB_Query {
 				$q['tag_id'] = (int) bb_get_tag_id( $q['tag'] );
 
 			if ( is_numeric($q['tag_id']) ) :
-				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
+				if ( $tagged_topic_ids = bb_get_tagged_topic_ids( $q['tag_id'] ) )
 					$where .= " AND p.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
 				else
 					$where .= " AND 0 /* No such tag */";

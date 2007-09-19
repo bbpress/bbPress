@@ -873,7 +873,7 @@ function new_topic( $args = null ) {
 
 	if ( $forum && $forum = get_forum( $forum ) )
 		$url = get_forum_link( $forum->forum_id ) . '#postform';
-	elseif ( $tag && ( ( is_numeric($tag) && $tag = bb_get_tag( $tag ) ) || $tag = get_tag_by_name( $tag ) ) )
+	elseif ( $tag && ( ( is_numeric($tag) && $tag = bb_get_tag( $tag ) ) || $tag = bb_get_tag_by_name( $tag ) ) )
 		$url = bb_get_tag_link( $tag->tag ) . '#postform';
 	elseif ( is_forum() || is_bb_tag() )
 		$url = '#postform';
@@ -1463,7 +1463,7 @@ function bb_tag_link( $id = 0, $page = 1 ) {
 function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
 	global $tag;
 	if ( $tag_name )
-		$_tag = get_tag_by_name( $tag_name );
+		$_tag = bb_get_tag_by_name( $tag_name );
 	else
 		$_tag =& $tag;
 
