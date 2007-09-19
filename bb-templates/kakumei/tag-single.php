@@ -1,8 +1,8 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <a href="<?php tag_page_link(); ?>"><?php _e('Tags'); ?></a> &raquo; <?php bb_tag_name(); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <a href="<?php bb_tag_page_link(); ?>"><?php _e('Tags'); ?></a> &raquo; <?php bb_tag_name(); ?></h3>
 
-<p><a href="<?php tag_rss_link(); ?>"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag.') ?></a></p>
+<p><a href="<?php bb_tag_rss_link(); ?>"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag.') ?></a></p>
 
 <?php do_action('tag_above_table', ''); ?>
 

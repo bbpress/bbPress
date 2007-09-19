@@ -317,7 +317,7 @@ function bb_feed_head() {
 	if ( is_topic() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Topic: %s'), get_topic_title() ) ) . '" href="' . attribute_escape( get_topic_rss_link() ) . '" />';
 	elseif ( is_bb_tag() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), bb_get_tag_name() ) ) . '" href="' . attribute_escape( get_tag_rss_link() ) . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), bb_get_tag_name() ) ) . '" href="' . attribute_escape( bb_get_tag_rss_link() ) . '" />';
 	elseif ( is_forum() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Forum: %s'), get_forum_name() ) ) . '" href="' . attribute_escape( get_forum_rss_link() ) . '" />';
 	elseif ( is_front() )
@@ -1448,11 +1448,11 @@ function topic_tags() {
 		bb_load_template( 'topic-tags.php', array('user_tags', 'other_tags', 'public_tags') );
 }
 
-function tag_page_link() {
-	echo get_tag_page_link();
+function bb_tag_page_link() {
+	echo bb_get_tag_page_link();
 }
 
-function get_tag_page_link() {
+function bb_get_tag_page_link() {
 	return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' );
 }
 
@@ -1478,7 +1478,7 @@ function bb_tag_link_base() {
 }
 
 function bb_get_tag_link_base() {
-	return get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
+	return bb_get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
 }
 
 function bb_tag_name( $id = 0 ) {
@@ -1495,11 +1495,11 @@ function bb_get_tag_name( $id = 0 ) {
 	return $_tag->raw_tag;
 }
 
-function tag_rss_link( $id = 0 ) {
-	echo apply_filters( 'tag_rss_link', get_tag_rss_link($id), $id );
+function bb_tag_rss_link( $id = 0 ) {
+	echo apply_filters( 'tag_rss_link', bb_get_tag_rss_link($id), $id );
 }
 
-function get_tag_rss_link( $tag_id = 0 ) {
+function bb_get_tag_rss_link( $tag_id = 0 ) {
 	global $tag;
 	$tag_id = (int) $tag_id;
 	if ( $tag_id )
@@ -1557,11 +1557,11 @@ function manage_tags_forms() {
 	echo "\n\t</div></form>\n  </li>\n</ul>";
 }
 
-function tag_remove_link() {
-	echo get_tag_remove_link();
+function bb_tag_remove_link() {
+	echo bb_get_tag_remove_link();
 }
 
-function get_tag_remove_link() {
+function bb_get_tag_remove_link() {
 	global $tag, $topic;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;

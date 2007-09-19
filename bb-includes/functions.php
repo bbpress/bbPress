@@ -1645,7 +1645,7 @@ function bb_repermalink() {
 				$id = get_path( 1, bb_get_option('tagpath') );
 			$_original_id = $id;
 			if ( !$id )
-				$permalink = get_tag_page_link();
+				$permalink = bb_get_tag_page_link();
 			else {
 				global $tag, $tag_name;
 				$tag_name = $id;

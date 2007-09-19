@@ -321,6 +321,42 @@ function tag_name( $id = 0 ) {
 }
 endif;
 
+if ( !function_exists( 'get_tag_rss_link' ) ) :
+function get_tag_rss_link( $id = 0 ) {
+	return bb_get_tag_rss_link( $id );
+}
+endif;
+
+if ( !function_exists( 'tag_rss_link' ) ) :
+function tag_rss_link( $id = 0 ) {
+	bb_tag_rss_link( $id );
+}
+endif;
+
+if ( !function_exists( 'get_tag_page_link' ) ) :
+function get_tag_page_link() {
+	bb_get_tag_page_link();
+}
+endif;
+
+if ( !function_exists( 'tag_page_link' ) ) :
+function tag_page_link() {
+	bb_tag_page_link();
+}
+endif;
+
+if ( !function_exists( 'get_tag_remove_link' ) ) :
+function get_tag_remove_link() {
+	bb_get_tag_remove_link();
+}
+endif;
+
+if ( !function_exists( 'tag_remove_link' ) ) :
+function tag_remove_link() {
+	bb_tag_remove_link();
+}
+endif;
+
 function get_bb_location() {
 	$r = bb_get_location();
 	if ( !$r )
