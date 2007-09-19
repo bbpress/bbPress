@@ -249,6 +249,36 @@ function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	return bb_remove_topic_tag( $tag_id, $user_id, $topic_id );
 }
 
+function add_topic_tag( $topic_id, $tag ) {
+	return bb_add_topic_tag( $topic_id, $tag );
+}
+
+function add_topic_tags( $topic_id, $tags ) {
+	return bb_add_topic_tags( $topic_id, $tags );
+}
+
+function create_tag( $tag ) {
+	return bb_create_tag( $tag );
+}
+
+function destroy_tag( $tag_id, $recount_topics = true ) {
+	return bb_destroy_tag( $tag_id, $recount_topics );
+}
+
+if ( !function_exists( 'get_tag_id' ) ) :
+function get_tag_id( $tag ) {
+	return bb_get_tag_id( $tag );
+}
+endif;
+
+if ( !function_exists( 'get_tag' ) ) :
+function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
+	return bb_get_tag( $tag_id, $user_id, $topic_id );
+}
+endif;
+
+
+
 function get_bb_location() {
 	$r = bb_get_location();
 	if ( !$r )

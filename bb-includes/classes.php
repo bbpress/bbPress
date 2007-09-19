@@ -351,7 +351,7 @@ class BB_Query {
 			/* Convert to JOIN after new taxonomy tables are in */
 
 			if ( $q['tag'] && !is_int($q['tag_id']) )
-				$q['tag_id'] = (int) get_tag_id( $q['tag'] );
+				$q['tag_id'] = (int) bb_get_tag_id( $q['tag'] );
 
 			if ( is_numeric($q['tag_id']) ) :
 				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )
@@ -483,7 +483,7 @@ class BB_Query {
 			endif;
 
 			if ( $q['tag'] && !is_int($q['tag_id']) )
-				$q['tag_id'] = (int) get_tag_id( $q['tag'] );
+				$q['tag_id'] = (int) bb_get_tag_id( $q['tag'] );
 
 			if ( is_numeric($q['tag_id']) ) :
 				if ( $tagged_topic_ids = get_tagged_topic_ids( $q['tag_id'] ) )

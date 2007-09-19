@@ -622,11 +622,11 @@ function rename_tag( $tag_id, $tag ) {
 	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag' AND tag_id <> '$tag_id'") )
 		return false;
 
-	$old_tag = get_tag( $tag_id );
+	$old_tag = bb_get_tag( $tag_id );
 
 	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") ) {
 		do_action('bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
-		return get_tag( $tag_id );
+		return bb_get_tag( $tag_id );
 	}
 	return false;
 }
@@ -662,7 +662,7 @@ function merge_tags( $old_id, $new_id ) {
 	}
 
 	// return values and destroy the old tag
-	return array( 'destroyed' => destroy_tag( $old_id, false ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
+	return array( 'destroyed' => bb_destroy_tag( $old_id, false ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
 }
 
 /* Topics */

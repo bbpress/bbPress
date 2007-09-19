@@ -11,7 +11,7 @@ $tag    =       $_POST['tag'];
 
 bb_check_admin_referer( 'rename-tag_' . $tag_id );
 
-$old_tag = get_tag( $tag_id );
+$old_tag = bb_get_tag( $tag_id );
 if ( !$old_tag )
 	bb_die(__('Tag not found.'));
 

@@ -192,7 +192,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 		('$title',    '$slug',    $id,          '$name',           $id,               '$name',                '$now',           '$now',     $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
-			add_topic_tags( $topic_id, $tags );
+			bb_add_topic_tags( $topic_id, $tags );
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
 		$bb_cache->flush_many( 'forum', $forum_id );
 		do_action('bb_new_topic', $topic_id);
@@ -711,14 +711,14 @@ function get_recent_user_replies( $user_id ) {
 
 /* Tags */
 
-function add_topic_tag( $topic_id, $tag ) {
+function bb_add_topic_tag( $topic_id, $tag ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 	if ( !bb_current_user_can( 'add_tag_to', $topic_id ) )
 		return false;
-	if ( !$tag_id = create_tag( $tag ) )
+	if ( !$tag_id = bb_create_tag( $tag ) )
 		return false;
 
 	$id = bb_get_current_user_info( 'id' );
@@ -744,7 +744,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	return $tag_id;
 }
 
-function add_topic_tags( $topic_id, $tags ) {
+function bb_add_topic_tags( $topic_id, $tags ) {
 	global $bbdb;
 
 	$tags = trim( $tags );
@@ -755,12 +755,12 @@ function add_topic_tags( $topic_id, $tags ) {
 
 	$tag_ids = array();
 	foreach ( $words as $tag )
-		if ( $_tag = add_topic_tag( $topic_id, $tag ) )
+		if ( $_tag = bb_add_topic_tag( $topic_id, $tag ) )
 			$tag_ids[] = $_tag;
 	return $tag_ids;
 }
 
-function create_tag( $tag ) {
+function bb_create_tag( $tag ) {
 	global $bbdb;
 
 	$tag = trim( $tag );
@@ -840,7 +840,7 @@ function bb_remove_topic_tags( $topic_id ) {
 }
 
 // rename and merge in admin-functions.php
-function destroy_tag( $tag_id, $recount_topics = true ) {
+function bb_destroy_tag( $tag_id, $recount_topics = true ) {
 	global $bbdb, $bb_cache;
 
 	$tag_id = (int) $tag_id;
@@ -861,14 +861,14 @@ function destroy_tag( $tag_id, $recount_topics = true ) {
 	return array( 'tags' => $tags, 'tagged' => $tagged );
 }
 
-function get_tag_id( $tag ) {
+function bb_get_tag_id( $tag ) {
 	global $bbdb;
 	$tag     = bb_tag_sanitize( $tag );
 
 	return (int) $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
-function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
+function bb_get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	global $bbdb;
 	$tag_id   = (int) $tag_id;
 	$user_id  = (int) $user_id;
@@ -2176,7 +2176,7 @@ function bb_tag_search( $args = '' ) {
 function bb_related_tags( $_tag = false, $number = 40 ) {
 	global $bbdb, $tag_cache, $tag;;
 	if ( is_numeric($_tag) )
-		$_tag = get_tag( $_tag );
+		$_tag = bb_get_tag( $_tag );
 	elseif ( is_string($_tag) )
 		$_tag = get_tag_by_name( $_tag );
 	elseif ( false === $_tag )

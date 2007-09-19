@@ -10,10 +10,10 @@ $tag = $_POST['tag'];
 
 bb_check_admin_referer( 'merge-tag_' . $old_id );
 
-if ( ! $tag = get_tag_by_name( $tag ) )
+if ( ! $tag = bb_get_tag_by_name( $tag ) )
 	bb_die(__('Tag specified not found.'));
 
-if ( ! get_tag( $old_id ) )
+if ( ! bb_get_tag( $old_id ) )
 	bb_die(__('Tag to be merged not found.'));
 
 if ( $merged = merge_tags( $old_id, $tag->tag_id ) ) {
