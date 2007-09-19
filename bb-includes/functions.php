@@ -966,7 +966,7 @@ function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 	return $post_query->results;
 }
 
-function get_top_tags( $recent = true, $limit = 40 ) {
+function bb_get_top_tags( $recent = true, $limit = 40 ) {
 	global $bbdb, $tag_cache;
 	$limit = (int) $limit;
 	foreach ( (array) $tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit") as $tag )

@@ -303,6 +303,12 @@ function get_tagged_topic_ids( $tag_id ) {
 	return bb_get_tagged_topic_ids( $tag_id );
 }
 
+if ( !function_exists( 'get_top_tags' ) ) :
+function get_top_tags( $recent = true, $limit = 40 ) {
+	return bb_get_top_tags( $recent, $limit );
+}
+endif;
+
 function get_bb_location() {
 	$r = bb_get_location();
 	if ( !$r )

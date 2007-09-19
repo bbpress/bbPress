@@ -1583,7 +1583,7 @@ function tag_heat_map( $args = '' ) {
 
 	extract($args, EXTR_SKIP);
 
-	$tags = get_top_tags( false, $limit );
+	$tags = bb_get_top_tags( false, $limit );
 
 	if ( empty($tags) )
 		return;
