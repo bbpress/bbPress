@@ -1,7 +1,7 @@
 <?php
 
-if ( !class_exists('WP_Error') ) :
-class WP_Error { // [4WP495]
+if ( !class_exists('WP_Error') ) : // [WP4495]
+class WP_Error {
 	var $errors = array();
 	var $error_data = array();
 
@@ -88,8 +88,8 @@ function is_wp_error($thing) { // [WP3667]
 }
 endif;
 
-if ( !class_exists('WP_Ajax_Response') ) :
-class WP_Ajax_Response { // [WP4458]
+if ( !class_exists('WP_Ajax_Response') ) : // [WP5920]
+class WP_Ajax_Response {
 	var $responses = array();
 
 	function WP_Ajax_Response( $args = '' ) {
@@ -99,16 +99,14 @@ class WP_Ajax_Response { // [WP4458]
 
 	// a WP_Error object can be passed in 'id' or 'data'
 	function add( $args = '' ) {
-		if ( is_array($args) )
-			$r = &$args;
-		else
-			parse_str($args, $r);
+		$defaults = array(
+			'what' => 'object', 'action' => false,
+			'id' => '0', 'old_id' => false,
+			'data' => '', 'supplemental' => array()
+		);
 
-		$defaults = array('what' => 'object', 'action' => false, 'id' => '0', 'old_id' => false,
-				'data' => '', 'supplemental' => array());
-
-		$r = array_merge($defaults, $r);
-		extract($r);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r, EXTR_SKIP );
 
 		if ( is_wp_error($id) ) {
 			$data = $id;

@@ -1,39 +1,53 @@
 <?php
 
 if ( !function_exists('stripslashes_deep') ) :
-function stripslashes_deep($value) { // [4495]
+function stripslashes_deep($value) { // [5261]
 	return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
 }
 endif;
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP5700]
+if ( !function_exists( 'clean_url' ) ) : // [WP6026]
 function clean_url( $url, $protocols = null ) {
+	$original_url = $url;
+
 	if ('' == $url) return $url;
-	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%]|i', '', $url);
+	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@]|i', '', $url);
 	$strip = array('%0d', '%0a');
 	$url = str_replace($strip, '', $url);
 	$url = str_replace(';//', '://', $url);
-	// Append http unless a relative link starting with / or a php file.
-	if ( strpos($url, '://') === false &&
+	/* If the URL doesn't appear to contain a scheme, we
+	 * presume it needs http:// appended (unless a relative
+	 * link starting with / or a php file).
+	*/
+	if ( strpos($url, ':') === false &&
 		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9-]+?\.php/i', $url) )
 		$url = 'http://' . $url;
 
 	$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
 	if ( !is_array($protocols) )
-		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet'); 
+		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet');
 	if ( wp_kses_bad_protocol( $url, $protocols ) != $url )
 		return '';
-	return $url;
+
+	return apply_filters('clean_url', $url, $original_url);
 }
 endif;
 
-if ( !function_exists('clean_pre') ) : // [WP2056]
-function clean_pre( $text ) {
+if ( !function_exists('clean_pre') ) : // [WP6102]
+// Accepts matches array from preg_replace_callback in wpautop()
+// or a string
+function clean_pre($matches) {
+	if ( is_array($matches) )
+		$text = $matches[1] . $matches[2] . "</pre>";
+	else
+		$text = $matches;
+
 	$text = str_replace('<br />', '', $text);
 	$text = str_replace('<p>', "\n", $text);
 	$text = str_replace('</p>', '', $text);
+
 	return $text;
 }
 endif;
@@ -58,8 +72,8 @@ function wp_specialchars( $text, $quotes = 0 ) { // [WP4451]
 }
 endif;
 
-if ( !function_exists('utf8_uri_encode') ) :
-function utf8_uri_encode( $utf8_string, $length = 0 ) { // [WP4560]
+if ( !function_exists('utf8_uri_encode') ) : // [WP6026]
+function utf8_uri_encode( $utf8_string, $length = 0 ) {
 	$unicode = '';
 	$values = array();
 	$num_octets = 1;
@@ -70,7 +84,7 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) { // [WP4560]
 
 		if ( $value < 128 ) {
 			if ( $length && ( strlen($unicode) + 1 > $length ) )
-				break; 
+				break;
 			$unicode .= chr($value);
 		} else {
 			if ( count( $values ) == 0 ) $num_octets = ( $value < 224 ) ? 2 : 3;
@@ -97,10 +111,10 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) { // [WP4560]
 endif;
 
 // Escape single quotes, specialchar double quotes, and fix line endings.
-if ( !function_exists('js_escape') ) :
-function js_escape($text) { // [WP4660]
+if ( !function_exists('js_escape') ) : // [WP5734]
+function js_escape($text) {
 	$safe_text = wp_specialchars($text, 'double');
-	$safe_text = str_replace('&#039;', "'", $safe_text);
+	$safe_text = preg_replace('/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes($safe_text));
 	$safe_text = preg_replace("/\r?\n/", "\\n", addslashes($safe_text));
 	return apply_filters('js_escape', $safe_text, $text);
 }
@@ -274,7 +288,7 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr
 }
 endif;
 
-if ( !function_exists('remove_accents') ) : // [WP4320]
+if ( !function_exists('remove_accents') ) : // [WP5969]
 function remove_accents($string) {
 	if ( !preg_match('/[\x80-\xff]/', $string) )
 		return $string;
@@ -285,30 +299,33 @@ function remove_accents($string) {
 		chr(195).chr(128) => 'A', chr(195).chr(129) => 'A',
 		chr(195).chr(130) => 'A', chr(195).chr(131) => 'A',
 		chr(195).chr(132) => 'A', chr(195).chr(133) => 'A',
-		chr(195).chr(135) => 'C', chr(195).chr(136) => 'E',
-		chr(195).chr(137) => 'E', chr(195).chr(138) => 'E',
-		chr(195).chr(139) => 'E', chr(195).chr(140) => 'I',
-		chr(195).chr(141) => 'I', chr(195).chr(142) => 'I',
-		chr(195).chr(143) => 'I', chr(195).chr(145) => 'N',
+		chr(195).chr(134) => 'AE',chr(195).chr(135) => 'C',
+		chr(195).chr(136) => 'E', chr(195).chr(137) => 'E',
+		chr(195).chr(138) => 'E', chr(195).chr(139) => 'E',
+		chr(195).chr(140) => 'I', chr(195).chr(141) => 'I',
+		chr(195).chr(142) => 'I', chr(195).chr(143) => 'I',
+		chr(195).chr(144) => 'D', chr(195).chr(145) => 'N',
 		chr(195).chr(146) => 'O', chr(195).chr(147) => 'O',
 		chr(195).chr(148) => 'O', chr(195).chr(149) => 'O',
 		chr(195).chr(150) => 'O', chr(195).chr(153) => 'U',
 		chr(195).chr(154) => 'U', chr(195).chr(155) => 'U',
 		chr(195).chr(156) => 'U', chr(195).chr(157) => 'Y',
-		chr(195).chr(159) => 's', chr(195).chr(160) => 'a',
-		chr(195).chr(161) => 'a', chr(195).chr(162) => 'a',
-		chr(195).chr(163) => 'a', chr(195).chr(164) => 'a',
-		chr(195).chr(165) => 'a', chr(195).chr(167) => 'c',
+		chr(195).chr(158) => 'TH',chr(195).chr(159) => 's',
+		chr(195).chr(160) => 'a', chr(195).chr(161) => 'a',
+		chr(195).chr(162) => 'a', chr(195).chr(163) => 'a',
+		chr(195).chr(164) => 'a', chr(195).chr(165) => 'a',
+		chr(195).chr(166) => 'ae',chr(195).chr(167) => 'c',
 		chr(195).chr(168) => 'e', chr(195).chr(169) => 'e',
 		chr(195).chr(170) => 'e', chr(195).chr(171) => 'e',
 		chr(195).chr(172) => 'i', chr(195).chr(173) => 'i',
 		chr(195).chr(174) => 'i', chr(195).chr(175) => 'i',
-		chr(195).chr(177) => 'n', chr(195).chr(178) => 'o',
-		chr(195).chr(179) => 'o', chr(195).chr(180) => 'o',
-		chr(195).chr(181) => 'o', chr(195).chr(182) => 'o',
-		chr(195).chr(182) => 'o', chr(195).chr(185) => 'u',
-		chr(195).chr(186) => 'u', chr(195).chr(187) => 'u',
-		chr(195).chr(188) => 'u', chr(195).chr(189) => 'y',
+		chr(195).chr(176) => 'd', chr(195).chr(177) => 'n',
+		chr(195).chr(178) => 'o', chr(195).chr(179) => 'o',
+		chr(195).chr(180) => 'o', chr(195).chr(181) => 'o',
+		chr(195).chr(182) => 'o', chr(195).chr(182) => 'o',
+		chr(195).chr(185) => 'u', chr(195).chr(186) => 'u',
+		chr(195).chr(187) => 'u', chr(195).chr(188) => 'u',
+		chr(195).chr(189) => 'y', chr(195).chr(190) => 'th',
 		chr(195).chr(191) => 'y',
 		// Decompositions for Latin Extended-A
 		chr(196).chr(128) => 'A', chr(196).chr(129) => 'a',
@@ -444,19 +461,21 @@ endif;
 
 /* Plugin API */
 
-if ( !function_exists('add_filter') ) : // [WP5169]
+if ( !function_exists('add_filter') ) : // [WP5936]
 function add_filter($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
 	global $wp_filter, $merged_filters;
 
 	// So the format is wp_filter['tag']['array of priorities']['array of functions serialized']['array of ['array (functions, accepted_args)]']
-	$wp_filter[$tag][$priority][serialize($function_to_add)] = array('function' => $function_to_add, 'accepted_args' => $accepted_args);
+	$idx = _wp_filter_build_unique_id($tag, $function_to_add, $priority);
+	$wp_filter[$tag][$priority][$idx] = array('function' => $function_to_add, 'accepted_args' => $accepted_args);
+	//$wp_filter[$tag][$priority][serialize($function_to_add)] = array('function' => $function_to_add, 'accepted_args' => $accepted_args);
 	unset( $merged_filters[ $tag ] );
 	return true;
 }
 endif;
 
 
-if ( !function_exists('apply_filters') ) : // [WP5170]
+if ( !function_exists('apply_filters') ) : // [WP5857]
 function apply_filters($tag, $string) {
 	global $wp_filter, $merged_filters;
 
@@ -477,13 +496,13 @@ function apply_filters($tag, $string) {
 				$string = call_user_func_array($the_['function'], array_slice($args, 1, (int) $the_['accepted_args']));
 			}
 
-	} while ( next($wp_filter[$tag]) );
+	} while ( next($wp_filter[$tag]) !== false );
 
 	return $string;
 }
 endif;
 
-if ( !function_exists('merge_filters') ) : // [WP5169]
+if ( !function_exists('merge_filters') ) : // [WP5202]
 function merge_filters($tag) {
 	global $wp_filter, $merged_filters;
 
@@ -498,9 +517,9 @@ function merge_filters($tag) {
 }
 endif;
 
-if ( !function_exists('remove_filter') ) : // [WP5393]
+if ( !function_exists('remove_filter') ) : // [WP5936]
 function remove_filter($tag, $function_to_remove, $priority = 10, $accepted_args = 1) {
-	$function_to_remove = serialize($function_to_remove);
+	$function_to_remove = _wp_filter_build_unique_id($tag, $function_to_remove, $priority);
 
 	$r = isset($GLOBALS['wp_filter'][$tag][$priority][$function_to_remove]);
 
@@ -517,7 +536,7 @@ function add_action($tag, $function_to_add, $priority = 10, $accepted_args = 1) 
 }
 endif;
 
-if ( !function_exists('do_action') ) : // [WP5409]
+if ( !function_exists('do_action') ) : // [WP5857]
 function do_action($tag, $arg = '') {
 	global $wp_filter, $wp_actions;
 
@@ -544,12 +563,12 @@ function do_action($tag, $arg = '') {
 			if ( !is_null($the_['function']) )
 				call_user_func_array($the_['function'], array_slice($args, 0, (int) $the_['accepted_args']));
 
-	} while ( next($wp_filter[$tag]) );
+	} while ( next($wp_filter[$tag]) !== false );
 
 }
 endif;
 
-if ( !function_exists('do_action_ref_array') ) : // [WP4955]
+if ( !function_exists('do_action_ref_array') ) : // [WP5958]
 function do_action_ref_array($tag, $args) {
 	global $wp_filter, $wp_actions;
 
@@ -568,7 +587,7 @@ function do_action_ref_array($tag, $args) {
 			if ( !is_null($the_['function']) )
 				call_user_func_array($the_['function'], array_slice($args, 0, (int) $the_['accepted_args']));
 
-	} while ( next($wp_filter[$tag]) );
+	} while ( next($wp_filter[$tag]) !== false );
 
 }
 endif;
@@ -590,6 +609,34 @@ function remove_action($tag, $function_to_remove, $priority = 10, $accepted_args
 }
 endif;
 
+if ( !function_exists('_wp_filter_build_unique_id') ) : // [WP6025]
+function _wp_filter_build_unique_id($tag, $function, $priority = 10)
+{
+	global $wp_filter;
+
+	// If function then just skip all of the tests and not overwrite the following.
+	// Static Calling
+	if( is_string($function) )
+		return $function;
+	// Object Class Calling
+	else if(is_object($function[0]) )
+	{
+		$obj_idx = get_class($function[0]).$function[1];
+		if( is_null($function[0]->wp_filter_id) ) {
+			$count = count((array)$wp_filter[$tag][$priority]);
+			$function[0]->wp_filter_id = $count;
+			$obj_idx .= $count;
+			unset($count);
+		} else
+			$obj_idx .= $function[0]->wp_filter_id;
+		return $obj_idx;
+	}
+	else if( is_string($function[0]) )
+		return $function[0].$function[1];
+}
+endif;
+
+
 /*
 add_query_arg: Returns a modified querystring by adding
 a single key & value or an associative array.
@@ -600,7 +647,7 @@ Parameters:
 add_query_arg(newkey, newvalue, oldquery_or_uri) or
 add_query_arg(associative_array, oldquery_or_uri)
 */
-if ( !function_exists('add_query_arg') ) : // [WP5709]
+if ( !function_exists('add_query_arg') ) : // [WP6064]
 function add_query_arg() {
 	$ret = '';
 	if ( is_array(func_get_arg(0)) ) {
@@ -636,7 +683,7 @@ function add_query_arg() {
 			$base = $parts[0] . '?';
 			$query = $parts[1];
 		}
-	} elseif (!empty($protocol) || strpos($uri, '/') !== false) {
+	} elseif (!empty($protocol) || strpos($uri, '=') === false ) {
 		$base = $uri . '?';
 		$query = '';
 	} else {
@@ -645,7 +692,7 @@ function add_query_arg() {
 	}
 
 	wp_parse_str($query, $qs);
-	$qs = urlencode_deep($qs);
+	$qs = urlencode_deep($qs); // this re-URL-encodes things that were already in the query string
 	if ( is_array(func_get_arg(0)) ) {
 		$kayvees = func_get_arg(0);
 		$qs = array_merge($qs, $kayvees);
@@ -653,17 +700,14 @@ function add_query_arg() {
 		$qs[func_get_arg(0)] = func_get_arg(1);
 	}
 
-	foreach($qs as $k => $v) {
-		if ( $v !== FALSE ) {
-			if ( $ret != '' )
-				$ret .= '&';
-			if ( empty($v) && !preg_match('|[?&]' . preg_quote($k, '|') . '=|', $query) )
-				$ret .= $k;
-			else
-				$ret .= "$k=$v";
-		}
+	foreach ( $qs as $k => $v ) {
+		if ( $v === false )
+			unset($qs[$k]);
 	}
+
+	$ret = build_query($qs);
 	$ret = trim($ret, '?');
+	$ret = preg_replace('#=(&|$)#', '$1', $ret);
 	$ret = $protocol . $base . $ret . $frag;
 	$ret = rtrim($ret, '?');
 	return $ret;
@@ -691,11 +735,97 @@ function remove_query_arg($key, $query=FALSE) {
 }
 endif;
 
-if ( !function_exists('get_status_header_desc') ) : // [WP5700]
+if ( !function_exists( 'build_query' ) ) : // [WP6064]
+function build_query($data) {
+	return _http_build_query($data, NULL, '&', '', false);
+}
+endif;
+
+if ( !function_exists( '_http_build_query' ) ) : // [WP6070]
+// from php.net (modified by Mark Jaquith to behave like the native PHP5 function)
+function _http_build_query($data, $prefix=null, $sep=null, $key='', $urlencode=true) {
+	$ret = array();
+
+	foreach ( (array) $data as $k => $v ) {
+		if ( $urlencode)
+			$k = urlencode($k);
+		if ( is_int($k) && $prefix != null )
+			$k = $prefix.$k;
+		if ( !empty($key) )
+			$k = $key . '%5B' . $k . '%5D';
+		if ( $v === NULL )
+			continue;
+		elseif ( $v === FALSE )
+			$v = '0';
+
+		if ( is_array($v) || is_object($v) )
+			array_push($ret,_http_build_query($v, '', $sep, $k, $urlencode));
+		elseif ( $urlencode )
+			array_push($ret, $k.'='.urlencode($v));
+		else
+			array_push($ret, $k.'='.$v);
+	}
+
+	if ( NULL === $sep )
+		$sep = ini_get('arg_separator.output');
+
+	return implode($sep, $ret);
+}
+endif;
+
+if ( !function_exists('get_status_header_desc') ) : // [WP6104]
 function get_status_header_desc( $code ) {
 	global $wp_header_to_desc;
 
 	$code = (int) $code;
+
+	if ( !isset($wp_header_to_desc) ) {
+		$wp_header_to_desc = array(
+			100 => 'Continue',
+			101 => 'Switching Protocols',
+
+			200 => 'OK',
+			201 => 'Created',
+			202 => 'Accepted',
+			203 => 'Non-Authoritative Information',
+			204 => 'No Content',
+			205 => 'Reset Content',
+			206 => 'Partial Content',
+
+			300 => 'Multiple Choices',
+			301 => 'Moved Permanently',
+			302 => 'Found',
+			303 => 'See Other',
+			304 => 'Not Modified',
+			305 => 'Use Proxy',
+			307 => 'Temporary Redirect',
+
+			400 => 'Bad Request',
+			401 => 'Unauthorized',
+			403 => 'Forbidden',
+			404 => 'Not Found',
+			405 => 'Method Not Allowed',
+			406 => 'Not Acceptable',
+			407 => 'Proxy Authentication Required',
+			408 => 'Request Timeout',
+			409 => 'Conflict',
+			410 => 'Gone',
+			411 => 'Length Required',
+			412 => 'Precondition Failed',
+			413 => 'Request Entity Too Large',
+			414 => 'Request-URI Too Long',
+			415 => 'Unsupported Media Type',
+			416 => 'Requested Range Not Satisfiable',
+			417 => 'Expectation Failed',
+
+			500 => 'Internal Server Error',
+			501 => 'Not Implemented',
+			502 => 'Bad Gateway',
+			503 => 'Service Unavailable',
+			504 => 'Gateway Timeout',
+			505 => 'HTTP Version Not Supported'
+		);
+	}
 
 	if ( isset( $wp_header_to_desc[$code] ) ) {
 		return $wp_header_to_desc[$code];
@@ -705,7 +835,7 @@ function get_status_header_desc( $code ) {
 }
 endif;
 
-if ( !function_exists('status_header') ) : // [WP5700]
+if ( !function_exists('status_header') ) : // [WP6107]
 function status_header( $header ) {
 	$text = get_status_header_desc( $header );
 
@@ -716,7 +846,8 @@ function status_header( $header ) {
 	if ( ('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol) )
 		$protocol = 'HTTP/1.0';
 	$status_header = "$protocol $header $text";
-	$status_header = apply_filters('status_header', $status_header, $header, $text, $protocol);
+	if ( function_exists('apply_filters') )
+		$status_header = apply_filters('status_header', $status_header, $header, $text, $protocol);
 
 	if ( version_compare( phpversion(), '4.3.0', '>=' ) ) {
 		return @header( $status_header, true, $header );
@@ -746,9 +877,9 @@ endif;
 
 /* Templates */
 
-if ( !function_exists('paginate_links') ) : // [WP5709]
+if ( !function_exists('paginate_links') ) : // [6026]
 function paginate_links( $args = '' ) {
-	$defaults = array( 
+	$defaults = array(
 		'base' => '%_%', // http://example.com/all_posts.php%_% : %_% is replaced by format (below)
 		'format' => '?page=%#%', // ?page=%#% : %#% is replaced by the page number
 		'total' => 1,
@@ -868,7 +999,7 @@ function is_serialized_string($data) {
 }
 endif;
 
-if ( !function_exists('ent2ncr') ) : // [WP2689]
+if ( !function_exists('ent2ncr') ) : // [WP3641]
 function ent2ncr($text) {
 	$to_ncr = array(
 		'&quot;' => '&#34;',
@@ -1134,9 +1265,11 @@ function ent2ncr($text) {
 }
 endif;
 
-if ( !function_exists('wp_parse_args') ) : // [WP5709]
+if ( !function_exists('wp_parse_args') ) : // [WP5796]
 function wp_parse_args( $args, $defaults = '' ) {
-	if ( is_array( $args ) )
+	if ( is_object($args) )
+		$r = get_object_vars($args);
+	else if ( is_array( $args ) )
 		$r =& $args;
 	else
 		wp_parse_str( $args, $r );
@@ -1158,7 +1291,7 @@ function urlencode_deep($value) {
 }
 endif;
 
-if ( !function_exists( 'zeroise' ) ) : // [WP2018]
+if ( !function_exists( 'zeroise' ) ) : // [WP3855]
 function zeroise($number,$threshold) { // function to add leading zeros when necessary
 	return sprintf('%0'.$threshold.'s', $number);
 }

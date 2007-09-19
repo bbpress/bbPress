@@ -19,14 +19,9 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = preg_replace('!(</?(?:ul|ol|li|blockquote|p)[^>]*>)\s*<br />!', "$1", $pee);
 	$pee = preg_replace('!<br />(\s*</?(?:p|li|ul|ol)>)!', '$1', $pee);
 	if ( false !== strpos( $pee, '<pre' ) )
-		$pee = preg_replace_callback('!(<pre.*?>)(.*?)</pre>!is', '_bb_autop_pre', $pee);
+		$pee = preg_replace_callback('!(<pre.*?>)(.*?)</pre>!is', 'clean_pre', $pee );
 	return $pee; 
 }
-
-function _bb_autop_pre( $matches ) {
-	return $matches[1] . clean_pre($matches[2])  . '</pre>';
-}
-	
 
 function bb_encodeit( $matches ) {
 	$text = trim($matches[2]);
