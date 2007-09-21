@@ -64,8 +64,9 @@ h2 { font-size: 1.5em; }
 	color: #444;
 	text-align: right;
 	letter-spacing: -1px;
-	right: 59px;
-	bottom: 31px;
+	right: 53px;
+	bottom: 25px;
+	padding: 6px;
 	z-index: 2;
 }
 
@@ -132,20 +133,22 @@ h2 { font-size: 1.5em; }
 	display: block;
 	float: left;
 	padding-right: 10px;
+	font-size: 1em;
 }
 
 .login #submit {
-	font-size: 1.2em;
-	margin-top: 13px;
 	float: left;
+	margin-top: 1.4em;
 }
 
-p.login {
+.login {
+	line-height: 1.3;
 	font-weight: normal;
-	font-size: 1.2em;
+	font-size: 1.3em;
 }
 
 form.login input { 
+	font-size: 1em;
 	margin-top: 3px;
 	border: 1px solid #999;
 }
