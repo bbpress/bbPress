@@ -145,20 +145,16 @@ endif;
 
 // Cookie safe redirect.  Works around IIS Set-Cookie bug.
 // http://support.microsoft.com/kb/q176113/
-if ( !function_exists('wp_redirect') ) : // [WP4407]
+if ( !function_exists('wp_redirect') ) : // [WP6134]
 function wp_redirect($location, $status = 302) {
 	global $is_IIS;
 
 	$location = apply_filters('wp_redirect', $location, $status);
 
 	if ( !$location ) // allows the wp_redirect filter to cancel a redirect
-		return false; 
+		return false;
 
-	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%]|i', '', $location);
-	$location = wp_kses_no_null($location);
-
-	$strip = array('%0d', '%0a');
-	$location = str_replace($strip, '', $location);
+	$location = wp_sanitize_redirect($location);
 
 	if ( $is_IIS ) {
 		header("Refresh: 0;url=$location");
@@ -167,6 +163,57 @@ function wp_redirect($location, $status = 302) {
 			status_header($status); // This causes problems on IIS and some FastCGI setups
 		header("Location: $location");
 	}
+}
+endif;
+
+if ( !function_exists('wp_sanitize_redirect') ) : // [WP6134]
+/**
+ * sanitizes a URL for use in a redirect
+ * @return string redirect-sanitized URL
+ **/
+function wp_sanitize_redirect($location) {
+	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%]|i', '', $location);
+	$location = wp_kses_no_null($location);
+
+	// remove %0d and %0a from location
+	$strip = array('%0d', '%0a');
+	$found = true;
+	while($found) {
+		$found = false;
+		foreach($strip as $val) {
+			while(strpos($location, $val) !== false) {
+				$found = true;
+				$location = str_replace($val, '', $location);
+			}
+		}
+	}
+	return $location;
+}
+endif;
+
+if ( !function_exists('bb_safe_redirect') ) : // based on [WP6145] (home is different)
+/**
+ * performs a safe (local) redirect, using wp_redirect()
+ * @return void
+ **/
+function bb_safe_redirect($location, $status = 302) {
+
+	// Need to look at the URL the way it will end up in wp_redirect()
+	$location = wp_sanitize_redirect($location);
+
+	// browsers will assume 'http' is your protocol, and will obey a redirect to a URL starting with '//'
+	if ( substr($location, 0, 2) == '//' )
+		$location = 'http:' . $location;
+
+	$lp  = parse_url($location);
+	$wpp = parse_url(bb_get_option('uri'));
+
+	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($wpp['host']), $lp['host']);
+
+	if ( isset($lp['host']) && !in_array($lp['host'], $allowed_hosts) )
+		$location = bb_get_option('uri');
+
+	wp_redirect($location, $status);
 }
 endif;
 
@@ -230,6 +277,9 @@ endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
 function bb_check_ajax_referer() {
+	if ( !$current_name = bb_get_current_user_info( 'name' ) )
+		die('-1');
+
 	$cookie = explode('; ', urldecode(empty($_POST['cookie']) ? $_GET['cookie'] : $_POST['cookie'])); // AJAX scripts must pass cookie=document.cookie
 	foreach ( $cookie as $tasty ) {
 		if ( false !== strpos($tasty, bb_get_option( 'usercookie' )) )
@@ -237,7 +287,8 @@ function bb_check_ajax_referer() {
 		if ( false !== strpos($tasty, bb_get_option( 'passcookie' )) )
 			$pass = substr(strstr($tasty, '='), 1);
 	}
-	if ( !bb_check_login( $user, $pass, true ) )
+
+	if ( $current_name != $user || !bb_check_login( $user, $pass, true ) )
 		die('-1');
 	do_action('bb_check_ajax_referer');
 }

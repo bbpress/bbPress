@@ -32,5 +32,7 @@ if ( !bb_is_user_logged_in() && !$user = bb_login( @$_POST['user_login'], @$_POS
 	exit;
 }
 
-wp_redirect( $re );
+// We already know it's safe from the above, but we might as well use this anyway.
+bb_safe_redirect( $re );
+
 ?>
