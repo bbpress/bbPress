@@ -346,8 +346,8 @@ function get_thread_post_ids( $topic_id ) {
 	$topic_id = (int) $topic_id;
 	if ( !isset( $thread_ids_cache[$topic_id] ) ) {
 		$where = apply_filters('get_thread_post_ids_where', 'AND post_status = 0');
-		$thread_ids = (array) $bbdb->get_results("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
-		list($thread_ids_cache[$topic_id]['post'], $thread_ids_cache[$topic_id]['poster']) = bb_pull_cols( $thread_ids, 'post_id', 'poster_id' );
+		$thread_ids_cache[$topic_id]['post'] = (array) $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
+		$thread_ids_cache[$topic_id]['poster'] = (array) $bbdb->get_col('', 1);
 	}
 	return $thread_ids_cache[$topic_id];
 }
@@ -792,10 +792,9 @@ function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
 
 	// We care about the tag in this topic and if it's in other topics, but not which other topics
-	$topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(*) AS count FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'");
-	list($topic_ids, $counts) = bb_pull_topics( $topics, 'topic_id', 'count' );
-
-	if ( !$here = $counts[$topic_ids[$topic_id]] ) // Topic doesn't have this tag
+	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'"));
+	$counts = (array) $bbdb->get_col('', 1);
+	if ( !$here = $counts[$topics[$topic_id]] ) // Topic doesn't have this tag
 		return false;
 
 	if ( 1 == count($counts) ) : // This is the only time the tag is used
@@ -2247,27 +2246,6 @@ function bb_flatten_array( $array, $cut_branch = 0, $keep_child_array_keys = tru
 		}
 	}
 	return $temp;
-}
-
-// With no extra arguments, converts array of objects into object of arrays
-// With extra arguments corresponding to name of object properties, returns array of arrays:
-//     list($a, $b) = bb_pull_cols( $obj_array, 'a', 'b' );
-function bb_pull_cols( $obj_array ) {
-	$r = new stdClass;
-	foreach ( array_keys($obj_array) as $o )
-		foreach ( get_object_vars( $obj_array[$o] ) as $k => $v )
-			$r->{$k}[] = $v;
-
-	if ( 1 == func_num_args() )
-		return $r;
-
-	$args = func_get_args();
-	$args = array_splice($args, 1);
-
-	$a = array();
-	foreach ( $args as $arg )
-		$a[] = $r->$arg;
-	return $a;
 }
 
 ?>

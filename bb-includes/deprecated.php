@@ -491,5 +491,25 @@ function balanceTags( $text ) {
 }
 endif;
 
+// With no extra arguments, converts array of objects into object of arrays
+// With extra arguments corresponding to name of object properties, returns array of arrays:
+//     list($a, $b) = bb_pull_cols( $obj_array, 'a', 'b' );
+function bb_pull_cols( $obj_array ) {
+	$r = new stdClass;
+	foreach ( array_keys($obj_array) as $o )
+		foreach ( get_object_vars( $obj_array[$o] ) as $k => $v )
+			$r->{$k}[] = $v;
+
+	if ( 1 == func_num_args() )
+		return $r;
+
+	$args = func_get_args();
+	$args = array_splice($args, 1);
+
+	$a = array();
+	foreach ( $args as $arg )
+		$a[] = $r->$arg;
+	return $a;
+}
 
 ?>
