@@ -19,6 +19,7 @@ function bb_upgrade_all() {
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	bb_make_db_current();
 	$bb_upgrade += bb_upgrade_1000(); // Make forum and topic slugs
+	$bb_upgrade += bb_upgrade_1010(); // Make sure all forums have a valid parent
 	bb_update_db_version();
 	return $bb_upgrade;
 }
@@ -434,6 +435,26 @@ function bb_upgrade_1000() { // Give all topics and forums slugs
 	bb_update_option( 'bb_db_version', 846 );
 	
 	echo "Done adding slugs.<br />";
+	return 1;
+}
+
+// Make sure all forums have a valid parent
+function bb_upgrade_1010() {
+	global $bbdb;
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 952 )
+		return 0;
+
+	$forums = (array) $bbdb->get_results( "SELECT forum_id, forum_parent FROM $bbdb->forums" );
+	$forum_ids = (array) $bbdb->get_col( '', 0 );
+
+	foreach ( $forums as $forum ) {
+		if ( $forum->forum_parent && !in_array( $forum->forum_parent, $forum_ids ) )
+			$bbdb->query( "UPDATE $bbdb->forums SET forum_parent = 0 WHERE forum_id = '$forum->forum_id'" );
+	}
+
+	bb_update_option( 'bb_db_version', 952 );
+	
+	echo "Done reparenting orphaned forums.<br />";
 	return 1;
 }
 

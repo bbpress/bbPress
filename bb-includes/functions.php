@@ -1177,7 +1177,7 @@ function bb_get_option( $option ) {
 		return '0.8.3'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '846'; // Don't filter
+		return '952'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';

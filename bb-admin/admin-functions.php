@@ -489,6 +489,9 @@ function bb_delete_forum( $forum_id ) {
 	if ( !$forum_id = (int) $forum_id )
 		return false;
 
+	if ( !$forum = get_forum( $forum_id ) )
+		return false;
+
 	if ( $topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$forum_id'") ) {
 		$_topic_ids = join(',', $topic_ids);
 		$bbdb->query("DELETE FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
@@ -496,6 +499,8 @@ function bb_delete_forum( $forum_id ) {
 		$bbdb->query("DELETE FROM $bbdb->topics WHERE forum_id = '$forum_id'");
 	}
 	
+	$bbdb->query( "UPDATE $bbdb->forums SET forum_parent = '$forum->forum_parent' WHERE forum_parent = '$forum_id'" );
+
 	$return = $bbdb->query("DELETE FROM $bbdb->forums WHERE forum_id = $forum_id");
 
 	if ( $topic_ids )
