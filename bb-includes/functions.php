@@ -25,27 +25,35 @@ function bb_is_installed() { // Maybe we should grab all forums and cache them.
 
 /* Forums */
 
-function bb_get_forums_hierarchical( $root = 0, $depth = 0, $_leaves = false, $_recursed = false ) {
+function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_recursed = false ) {
+	static $_leaves = false;
 	$root = (int) $root;
 
 	if ( false === $_leaves )
-		$_leaves = get_forums();
+		$_leaves = $leaves ? $leaves : get_forums();
 
 	if ( !$_leaves )
 		return false;
 
 	$branch = array();
 
-	foreach ( $_leaves as $l => $leaf ) {
+	reset($_leaves);
+
+	while ( list($l, $leaf) = each($_leaves) ) {
 		if ( $root == $leaf->forum_parent ) {
 			$new_root = (int) $leaf->forum_id;
 			unset($_leaves[$l]);
-			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, $_leaves, true );
+			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, false, true );
+			reset($_leaves);
 		}
 	}
 
-	if ( !$_recursed )
+	if ( !$_recursed ) {
+		foreach ( $_leaves as $leaf ) // Attach orphans to root
+			$branch[$leaf->forum_id] = true;
+		$_leaves = false;
 		return $tree = empty($branch) ? false : $branch;
+	}
 
 	return $branch ? $branch : true;
 }
