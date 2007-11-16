@@ -9,9 +9,6 @@ if ( !extension_loaded('mysql') && !extension_loaded('mysqli') )
 if ( !$bb_table_prefix )
 	die('You must specify a table prefix in your <code>config.php</code> file.');
 
-if ( preg_match('/[^A-Za-z0-9_]/', $bb_table_prefix) )
-	die('Your table prefix may only contain letters, numbers and underscores.');
-
 if ( !defined('BBPATH') )
 	die('This file cannot be called directly.');
 
@@ -87,20 +84,21 @@ if ( !defined('BBTHEMEDIR') )
 if ( !defined('BBTHEMEURL') )
 	define('BBTHEMEURL', $bb->uri . 'my-templates/');
 
+require( BBPATH . BBINC . 'db-base.php');
 if ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . 'db-mysqli.php');
 } else {
 	require( BBPATH . BBINC . 'db.php');
 }
 
-$bbdb->forums    = $bb_table_prefix . 'forums';
-$bbdb->posts     = $bb_table_prefix . 'posts';
-$bbdb->topics    = $bb_table_prefix . 'topics';
-$bbdb->topicmeta = $bb_table_prefix . 'topicmeta';
-$bbdb->users     = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'users';
-$bbdb->usermeta  = ( $bb->wp_table_prefix ? $bb->wp_table_prefix : $bb_table_prefix ) . 'usermeta';
-$bbdb->tags      = $bb_table_prefix . 'tags';
-$bbdb->tagged    = $bb_table_prefix . 'tagged';
+require( BBPATH . BBINC . 'compat.php');
+require( BBPATH . BBINC . 'wp-functions.php');
+require( BBPATH . BBINC . 'functions.php');
+require( BBPATH . BBINC . 'wp-classes.php');
+require( BBPATH . BBINC . 'classes.php');
+
+if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+	die('Your table prefix may only contain letters, numbers and underscores.');
 
 foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'wp_siteurl', 'cookiedomain', 'static_title', 'load_options', 'akismet_key') as $o )
 	if ( !isset($bb->$o) )
@@ -112,15 +110,11 @@ foreach ( array('active_plugins') as $i )
 	$bb->$i = false;
 unset($i);
 
-require( BBPATH . BBINC . 'functions.php');
-require( BBPATH . BBINC . 'wp-classes.php');
-require( BBPATH . BBINC . 'classes.php');
 require( BBPATH . BBINC . 'formatting-functions.php');
 require( BBPATH . BBINC . 'template-functions.php');
 require( BBPATH . BBINC . 'capabilities.php');
 require( BBPATH . BBINC . 'cache.php');
 require( BBPATH . BBINC . 'deprecated.php');
-require( BBPATH . BBINC . 'wp-functions.php');
 if ( defined('BBLANG') && '' != constant('BBLANG') ) {
 	include_once(BBPATH . BBINC . 'streams.php');
 	include_once(BBPATH . BBINC . 'gettext.php');
@@ -133,7 +127,6 @@ require( BBPATH . BBINC . 'bozo.php');
 require( BBPATH . BBINC . 'akismet.php');
 require( BBPATH . BBINC . 'default-filters.php');
 require( BBPATH . BBINC . 'script-loader.php');
-require( BBPATH . BBINC . 'compat.php');
 
 if ( !bb_is_installed() && false === strpos($_SERVER['PHP_SELF'], 'install.php') && !defined('BB_INSTALLING') )
 	die(sprintf(__('Doesn&#8217;t look like you&#8217;ve installed bbPress yet, <a href="%s">go here</a>.'), 'bb-admin/install.php'));

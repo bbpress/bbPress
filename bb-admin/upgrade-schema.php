@@ -2,12 +2,23 @@
 global $bb_queries, $bbdb;
 
 $charset_collate = '';
+$user_charset_collate = '';
 
-if ( version_compare(mysql_get_server_info(), '4.1.0', '>=') ) {
+if ( !defined( 'BB_MYSQLI' ) )
+	die( __('Database class not loaded.') );
+
+if ( $bbdb->has_cap( 'collation', $bbdb->forums ) ) {
 	if ( ! empty($bbdb->charset) )
 		$charset_collate = "DEFAULT CHARACTER SET $bbdb->charset";
 	if ( ! empty($bbdb->collate) )
 		$charset_collate .= " COLLATE $bbdb->collate";
+}
+
+if ( $bbdb->has_cap( 'collation', $bbdb->users ) ) {
+	if ( ! empty($bbdb->charset) )
+		$user_charset_collate = "DEFAULT CHARACTER SET $bbdb->charset";
+	if ( ! empty($bbdb->collate) )
+		$user_charset_collate .= " COLLATE $bbdb->collate";
 }
 
 $bb_queries = "CREATE TABLE $bbdb->forums (
@@ -79,7 +90,7 @@ CREATE TABLE $bbdb->users (
   display_name varchar(250) NOT NULL default '',
   PRIMARY KEY  (ID),
   UNIQUE KEY user_login (user_login)
-) $charset_collate;
+) $user_charset_collate;
 CREATE TABLE $bbdb->usermeta (
   umeta_id bigint(20) NOT NULL auto_increment,
   user_id bigint(20) NOT NULL default '0',
@@ -88,7 +99,7 @@ CREATE TABLE $bbdb->usermeta (
   PRIMARY KEY  (umeta_id),
   KEY user_id (user_id),
   KEY meta_key (meta_key)
-) $charset_collate;
+) $user_charset_collate;
 CREATE TABLE $bbdb->tags (
   tag_id bigint(20) unsigned NOT NULL auto_increment,
   tag varchar(200) NOT NULL default '',
