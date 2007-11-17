@@ -164,12 +164,12 @@ class bbdb extends bbdb_base {
 		return $return_val;
 	}
 
-	// table name or mysql resource
+	// table name or mysqli object
 	function db_version( $dbh = false ) {
 		if ( !$dbh )
 			$dbh = $this->forums;
 
-		if ( !is_resource( $dbh ) )
+		if ( !is_object( $dbh ) )
 			$dbh = $this->db_connect( "DESCRIBE $dbh" );
 
 		return mysqli_get_server_info( $dbh );
