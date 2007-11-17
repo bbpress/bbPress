@@ -285,7 +285,8 @@ class BB_Query {
 
 			$fields .= ", MIN(p.post_id) as post_id";
 
-			if ( $bbdb->has_cap( 'GROUP_CONCAT', $bbdb->posts ) )
+			// GROUP_CONCAT requires MySQL >= 4.1
+			if ( version_compare('4.1', mysql_get_client_info(), '<=') )
 				$fields .= ", GROUP_CONCAT(p.post_text SEPARATOR ' ') AS post_text";
 			else
 				$fields .= ", p.post_text";
