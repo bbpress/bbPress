@@ -165,7 +165,9 @@ class bbdb extends bbdb_base {
 		if ( !is_resource( $dbh ) )
 			$dbh = $this->db_connect( "DESCRIBE $dbh" );
 
-		return mysql_get_server_info( $dbh );
+		if ( $dbh )
+			return mysql_get_server_info( $dbh );
+		return false;
 	}
 }
 

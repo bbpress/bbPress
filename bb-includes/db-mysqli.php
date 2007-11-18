@@ -172,7 +172,9 @@ class bbdb extends bbdb_base {
 		if ( !is_object( $dbh ) )
 			$dbh = $this->db_connect( "DESCRIBE $dbh" );
 
-		return mysqli_get_server_info( $dbh );
+		if ( $dbh )
+			return mysqli_get_server_info( $dbh );
+		return false;
 	}
 }
 
