@@ -3,9 +3,6 @@
 if ( phpversion() < '4.2' )
 	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.2', phpversion()) );
 
-if ( !extension_loaded('mysql') && !extension_loaded('mysqli') )
-	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
-
 if ( !$bb_table_prefix )
 	die('You must specify a table prefix in your <code>config.php</code> file.');
 
@@ -85,10 +82,12 @@ if ( !defined('BBTHEMEURL') )
 	define('BBTHEMEURL', $bb->uri . 'my-templates/');
 
 require( BBPATH . BBINC . 'db-base.php');
-if ( extension_loaded('mysqli') ) {
+if ( extension_loaded('mysql') ) {
+	require( BBPATH . BBINC . 'db.php');
+} elseif ( extension_loaded('mysqli') ) {
 	require( BBPATH . BBINC . 'db-mysqli.php');
 } else {
-	require( BBPATH . BBINC . 'db.php');
+	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
 }
 
 require( BBPATH . BBINC . 'compat.php');
