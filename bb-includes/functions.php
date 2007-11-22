@@ -2062,7 +2062,7 @@ function bb_get_plugin_uri( $plugin = false ) {
 function bb_get_active_theme_folder() {
 	$activetheme = bb_get_option( 'bb_active_theme' );
 	if ( !$activetheme )
-		$activetheme = BBPATH . 'bb-templates/kakumei/';
+		$activetheme = BBDEFAULTTHEMEDIR;
 
 	return apply_filters( 'bb_get_active_theme_folder', $activetheme );
 }
@@ -2075,7 +2075,7 @@ function bb_get_themes() {
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
 				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir{0} )
-					$r[$theme_dir] = $theme_root . $theme_dir . '/';
+					$r[$theme_root . $theme_dir . '/'] = $theme_root . $theme_dir . '/';
 
 	ksort($r);
 	return $r;

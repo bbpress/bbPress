@@ -12,20 +12,14 @@ function bb_load_template( $file, $globals = false ) {
 			else
 				global $$v;
 
-	if ( file_exists( bb_get_active_theme_folder() .  $file) ) {
-		$template = bb_get_active_theme_folder() .  $file;
-	} else {
-		$template = BBPATH . "bb-templates/kakumei/$file";
-	}
-
-	$template = apply_filters( 'bb_template', $template, $file );
+	$template = apply_filters( 'bb_template', bb_get_template( $file ), $file );
 	include($template);
 }
 
 function bb_get_template( $file ) {
 	if ( file_exists( bb_get_active_theme_folder() .  $file) )
 		return bb_get_active_theme_folder() .  $file;
-	return BBPATH . "bb-templates/kakumei/$file";
+	return BBDEFAULTTHEMEDIR . $file;
 }
 
 function bb_get_header() {
@@ -60,7 +54,7 @@ function bb_get_stylesheet_uri( $stylesheet = '' ) {
 	if ( file_exists( $active_theme . 'style.css' ) )
 		$r = bb_get_active_theme_uri() . $css_file;
 	else
-		$r = bb_get_option( 'uri' ) . "bb-templates/kakumei/$css_file";
+		$r = BBDEFAULTTHEMEURL . $css_file;
 	return apply_filters( 'bb_get_stylesheet_uri', $r, $stylesheet );
 }
 
@@ -70,7 +64,7 @@ function bb_active_theme_uri() {
 
 function bb_get_active_theme_uri() {
 	if ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
-		$active_theme = BBPATH . 'bb-templates/kakumei/';
+		$active_theme = BBDEFAULTTHEMEDIR;
 	return apply_filters( 'bb_get_active_theme_uri', bb_get_theme_uri( $active_theme ) );
 }
 

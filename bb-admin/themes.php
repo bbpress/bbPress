@@ -8,22 +8,33 @@ if ( isset($_GET['theme']) ) {
 	}
 	bb_check_admin_referer( 'switch-theme' );
 	$activetheme = stripslashes($_GET['theme']);
-	bb_update_option( 'bb_active_theme', $activetheme );
+	if ($activetheme == BBDEFAULTTHEMEDIR) {
+		bb_delete_option( 'bb_active_theme' );
+	} else {
+		bb_update_option( 'bb_active_theme', $activetheme );
+	}
 	wp_redirect( bb_get_option( 'uri' ) . 'bb-admin/themes.php?activated' );
 	exit;
 } 
 
 $themes = bb_get_themes();
 $activetheme = bb_get_option('bb_active_theme');
+if (!$activetheme) {
+	$activetheme = BBDEFAULTTHEMEDIR;
+}
 
 if ( isset($_GET['activated']) )
 	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" activated'), basename($activetheme)) );
 
 if ( !in_array($activetheme, $themes) ) {
-	$activetheme = BBPATH . 'bb-templates/kakumei';
-	bb_update_option( 'bb_active_theme', $activetheme );
-	remove_action( 'bb_admin_notices', $theme_notice );
-	bb_admin_notice( __('Theme not found.  Default theme applied.'), 'error' );
+	if ($activetheme == BBDEFAULTTHEMEDIR) {
+		remove_action( 'bb_admin_notices', $theme_notice );
+		bb_admin_notice( __('Default theme is missing.'), 'error' );
+	} else {
+		bb_delete_option( 'bb_active_theme' );
+		remove_action( 'bb_admin_notices', $theme_notice );
+		bb_admin_notice( __('Theme not found.  Default theme applied.'), 'error' );
+	}
 }
 
 function bb_admin_theme_row( $theme ) {
@@ -37,7 +48,8 @@ function bb_admin_theme_row( $theme ) {
 			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?>
-			<?php echo $theme_data['Description']; ?>
+			<p><?php echo $theme_data['Description']; ?></p>
+			<small><?php printf(__('Installed in: %s'), basename(dirname($theme)) . '/' . basename($theme)); ?></small>
 		</div>
 		<br class="clear" />
 	</li>
@@ -49,7 +61,7 @@ bb_get_admin_header();
 
 <h2><?php _e('Current Theme'); ?></h2>
 <ul class="theme-list active">
-<?php bb_admin_theme_row( $themes[basename($activetheme)] ); unset($themes[basename($activetheme)] ); ?>
+<?php bb_admin_theme_row( $themes[$activetheme] ); unset($themes[$activetheme] ); ?>
 </ul>
 <?php if ( !empty($themes) ) : ?>
 

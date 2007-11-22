@@ -80,6 +80,10 @@ if ( !defined('BBTHEMEDIR') )
 	define('BBTHEMEDIR', BBPATH . 'my-templates/');
 if ( !defined('BBTHEMEURL') )
 	define('BBTHEMEURL', $bb->uri . 'my-templates/');
+if ( !defined('BBDEFAULTTHEMEDIR') )
+	define('BBDEFAULTTHEMEDIR', BBPATH . 'bb-templates/kakumei/');
+if ( !defined('BBDEFAULTTHEMEURL') )
+	define('BBDEFAULTTHEMEURL', $bb->uri . 'bb-templates/kakumei/');
 
 require( BBPATH . BBINC . 'db-base.php');
 if ( extension_loaded('mysql') ) {
