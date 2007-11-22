@@ -239,7 +239,13 @@ function bb_fermion( $user_id, $topic_id = 0 ) {
 
 function bb_bozo_profile_admin_keys( $a ) {
 	global $user;
-	$a['is_bozo'] = array(0, __('This user is a bozo'));
+	$a['is_bozo'] = array(
+		0,							// Required
+		__('This user is a bozo'),	// Label
+		'checkbox',					// Type
+		'1',						// Value
+		''							// Default when not set
+	);
 	return $a;
 } 
 

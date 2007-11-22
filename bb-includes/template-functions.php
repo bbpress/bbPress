@@ -1327,11 +1327,21 @@ function bb_profile_admin_form( $id = 0 ) {
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo attribute_escape( $key ); ?>" id="<?php echo attribute_escape( $key ); ?>" type=<?php
-	if ( isset($label[2]) )
-		echo attribute_escape( $label[2] );
-	else
-		echo '"text" size="30" maxlength="140" value="' . attribute_escape( $user->$key ). '"';
-	?> />
+	switch ($label[2]) {
+		case 'checkbox':
+			if ($user->$key == $label[3] || $label[4] == $label[3]) {
+				$checked = ' checked="checked"';
+			} else {
+				$checked = '';
+			}
+			echo '"checkbox" value="' . attribute_escape( $label[3] ) . '"' . $checked;
+			break;
+		case 'text':
+		default:
+			echo '"text" size="30" maxlength="140" value="' . attribute_escape( $user->$key ). '"';
+			break;
+	}
+?> />
 <?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
 </tr>
 <?php endforeach; endif; ?>
