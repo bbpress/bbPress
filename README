@@ -1,0 +1,39 @@
+bbPress
+
+----
+
+Copyright (C) 2005 Matt Mullenweg (photomatt)
+Copyright (C) 2005 Michael D. Adams (mdawaffe)
+Copyright (C) 2005 Scott Yang
+Copyright (C) 2006 Ryan Boren (rboren)
+Copyright (C) 2007 Sam Bauers (sambauers)
+Copyright (C) 2007 Aditya Niak (so1o)
+
+This list of contributors may be incomplete. If you wish to be added to this
+list of contributors, please raise a ticket at http://trac.bbpress.org
+detailing your code contribution so we can validate it and add your copyright
+details.
+
+----
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as published
+by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License version 2 for
+more details.
+
+You should have received a copy of the GNU General Public License version 2
+in a file named "COPYING" along with this program; if not, you may request a
+copy by writing to:
+
+	Free Software Foundation, Inc.
+	51 Franklin St, Fifth Floor
+	Boston, MA
+	02110-1301 USA
+
+The license is also available for viewing on the world wide web at:
+
+	http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
