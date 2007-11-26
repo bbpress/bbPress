@@ -79,7 +79,11 @@ function get_forums( $args = null ) {
 	$forums = (array) apply_filters( 'get_forums', $bb_cache->get_forums() );
 
 	if ( $child_of || $hierarchical || $depth ) {
-		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums );
+		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums, true );
+
+		if ( !is_array( $_forums ) )
+			return false;
+
 		$_forums = (array) bb_flatten_array( $_forums, $cut_branch );
 
 		foreach ( array_keys($_forums) as $_id )
@@ -2237,6 +2241,9 @@ function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 /* Utility */
 
 function bb_flatten_array( $array, $cut_branch = 0, $keep_child_array_keys = true ) {
+	if ( !is_array($array) )
+		return $array;
+	
 	if ( empty($array) )
 		return null;
 	
