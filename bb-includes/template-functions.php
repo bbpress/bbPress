@@ -442,6 +442,45 @@ function get_forum_rss_link( $forum_id = 0 ) {
 	return apply_filters( 'get_forum_rss_link', $link, $forum_id );
 }
 
+function bb_get_forum_bread_crumb($args = '') {
+	$defaults = array(
+		'forum_id' => 0,
+		'separator' => ' &raquo ',
+		'class' => null
+	);
+	$args = wp_parse_args($args, $defaults);
+	extract($args, EXTR_SKIP);
+
+	$trail = '';
+	$trail_forum = get_forum(get_forum_id($forum_id));
+	if ($class) {
+		$class = ' class="' . $class . '"';
+	}
+	$current_trail_forum_id = $trail_forum->forum_id;
+	while ($trail_forum->forum_id > 0) {
+		$crumb = $separator;
+		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
+			$crumb .= '<a' . $class . ' href="' . get_forum_link($trail_forum->forum_id) . '">';
+		} elseif ($class) {
+			$crumb .= '<span' . $class . '>';
+		}
+		$crumb .= get_forum_name($trail_forum->forum_id);
+		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
+			$crumb .= '</a>';
+		} elseif ($class) {
+			$crumb .= '</span>';
+		}
+		$trail = $crumb . $trail;
+		$trail_forum = get_forum($trail_forum->forum_parent);
+	}
+
+	return apply_filters('bb_get_forum_bread_crumb', $trail, $forum_id );
+}
+
+function bb_forum_bread_crumb( $args = '' ) {
+	echo apply_filters('bb_forum_bread_crumb', bb_get_forum_bread_crumb( $args ) );
+}
+
 // Forum Loop //
 
 function &bb_forums( $args = '' ) {
