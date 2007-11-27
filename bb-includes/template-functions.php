@@ -625,6 +625,10 @@ function get_topic_rss_link( $id = 0 ) {
 	return apply_filters( 'get_topic_rss_link', $link, $topic->topic_id );
 }
 
+function bb_topic_labels() {
+	echo apply_filters( 'bb_topic_labels', null );
+}
+
 function topic_title( $id = 0 ) {
 	echo apply_filters( 'topic_title', get_topic_title( $id ), $id );
 }

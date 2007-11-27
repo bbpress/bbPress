@@ -263,11 +263,25 @@ function bb_make_feed( $link ) {
 		return $link;
 }
 
-function bb_closed_title( $title ) {
+function bb_sticky_label( $label ) {
+	global $topic;
+	if (is_front()) {
+		if ( '2' === $topic->topic_sticky ) {
+			return sprintf(__('[sticky] %s'), $label);
+		}
+	} else {
+		if ( '1' === $topic->topic_sticky || '2' === $topic->topic_sticky ) {
+			return sprintf(__('[sticky] %s'), $label);
+		}
+	}
+	return $label;
+}
+
+function bb_closed_label( $label ) {
 	global $topic;
 	if ( '0' === $topic->topic_open )
-		return sprintf(__('[closed] %s'), $title);
-	return $title;
+		return sprintf(__('[closed] %s'), $label);
+	return $label;
 }
 
 function bb_make_link_view_all( $link ) {

@@ -16,7 +16,8 @@ add_filter('get_topic_link', 'bb_add_replies_to_topic_link', 10, 2);
 
 add_filter('pre_topic_title', 'wp_specialchars');
 add_filter('get_forum_name', 'wp_specialchars');
-add_filter('topic_title', 'bb_closed_title', 30);
+add_filter('bb_topic_labels', 'bb_closed_label', 10);
+add_filter('bb_topic_labels', 'bb_sticky_label', 20);
 add_filter('topic_title', 'wp_specialchars');
 
 add_filter('pre_post', 'trim');

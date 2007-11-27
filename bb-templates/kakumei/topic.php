@@ -4,7 +4,9 @@
 <div class="infobox">
 
 <div id="topic-info">
-<h2<?php topic_class( 'topictitle' ); ?>><?php topic_title(); ?></h2> <span id="topic_posts">(<?php topic_posts_link(); ?>)</span>
+<span id="topic_labels"><?php bb_topic_labels(); ?></span>
+<h2<?php topic_class( 'topictitle' ); ?>><?php topic_title(); ?></h2>
+<span id="topic_posts">(<?php topic_posts_link(); ?>)</span>
 
 <ul class="topicmeta">
 	<li><?php printf(__('Started %1$s ago by %2$s'), get_topic_start_time(), get_topic_author()) ?></li>

@@ -238,7 +238,12 @@ function show_context( $term, $text ) {
 }
 
 function closed_title( $title ) {
-	return bb_closed_title( $title );
+	return bb_closed_label( $title );
+}
+
+// Closed label now applied using bb_topic_labels filters
+function bb_closed_title( $title ) {
+	return bb_closed_label( $title );
 }
 
 function make_link_view_all( $link ) {
@@ -511,5 +516,4 @@ function bb_pull_cols( $obj_array ) {
 		$a[] = $r->$arg;
 	return $a;
 }
-
 ?>
