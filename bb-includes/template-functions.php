@@ -630,7 +630,7 @@ function bb_topic_labels() {
 }
 
 function topic_title( $id = 0 ) {
-	echo apply_filters( 'topic_title', get_topic_title( $id ), $id );
+	echo apply_filters( 'topic_title', get_topic_title( $id ), get_topic_id( $id ) );
 }
 
 function get_topic_title( $id = 0 ) {
