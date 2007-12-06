@@ -84,7 +84,7 @@ function bb_update_user_password( $user_id, $password ) {
 
 	$user_id = (int) $user_id;
 
-	$passhash = md5( $password );
+	$passhash = wp_hash_password( $password );
 
 	$bbdb->query("UPDATE $bbdb->users SET
 	user_pass = '$passhash'

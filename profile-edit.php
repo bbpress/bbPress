@@ -102,8 +102,10 @@ if ($_POST) :
 		if ( bb_current_user_can( 'change_user_password', $user->ID ) && !empty( $_POST['pass1'] ) && $_POST['pass1'] == $_POST['pass2'] ) :
 			$_POST['pass1'] = addslashes($_POST['pass1']);
 			bb_update_user_password( $user->ID, $_POST['pass1'] );
-			if ( $bb_current_id == $user->ID )
-				bb_cookie( bb_get_option( 'passcookie' ), md5( md5( $_POST['pass1'] ) ) ); // One week
+			if ( $bb_current_id == $user->ID ) {
+				$user = bb_get_user( $user->ID );
+				bb_cookie( bb_get_option( 'passcookie' ), md5( $user->user_pass ) ); // One week
+			}
 		endif;
 		
 		do_action('profile_edited', $user->ID);

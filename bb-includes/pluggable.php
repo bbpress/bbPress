@@ -3,9 +3,12 @@
 if ( !function_exists('bb_auth') ) :
 function bb_auth() {
 	// Checks if a user is logged in, if not redirects them to the login page
-	if ( (!empty($_COOKIE[bb_get_option( 'usercookie' )]) && 
-				!bb_check_login($_COOKIE[bb_get_option( 'usercookie' )], $_COOKIE[bb_get_option( 'passcookie' )], true)) ||
-			 (empty($_COOKIE[bb_get_option( 'usercookie' )])) ) {
+	$usercookie = $_COOKIE[bb_get_option( 'usercookie' )];
+	$passcookie = $_COOKIE[bb_get_option( 'passcookie' )];
+	if (
+		empty($usercookie) ||
+		(!empty($usercookie) && !bb_check_login($usercookie, $passcookie, true))
+	) {
 		nocache_headers();
 
 		header('Location: ' . bb_get_option('uri'));
@@ -18,12 +21,31 @@ if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $bbdb;
 	$user = bb_user_sanitize( $user );
-	if ( !$already_md5 ) {
-		$pass = bb_user_sanitize( md5( $pass ) );
-		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND SUBSTRING_INDEX( user_pass, '---', 1 ) = '$pass'");
-	} else {
-		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
+	if ($user == '') {
+		return false;
 	}
+	$user = bb_get_user_by_name( $user );
+	
+	if ( !$already_md5 ) {
+		if ( wp_check_password($pass, $user->user_pass) ) {
+			// If using old md5 password, rehash.
+			if ( strlen($user->user_pass) <= 32 ) {
+				$hash = wp_hash_password($pass);
+				$bbdb->query("UPDATE $bbdb->users SET user_pass = '$hash' WHERE ID = '$user->ID'");
+				global $bb_cache;
+				$bb_cache->flush_one( 'user', $user->ID );
+				$user = bb_get_user( $user->ID );
+			}
+			
+			return $user;
+		}
+	} else {
+		if ( md5($user->user_pass) == $pass ) {
+			return $user;
+		}
+	}
+	
+	return false;
 }
 endif;
 
@@ -265,6 +287,39 @@ function wp_hash($data) {
 }
 endif;
 
+if ( !function_exists('wp_hash_password') ) : // [WP6350]
+function wp_hash_password($password) {
+	global $wp_hasher;
+
+	if ( empty($wp_hasher) ) { 
+		require_once( BBPATH . BBINC . 'class-phpass.php');
+		// By default, use the portable hash from phpass
+		$wp_hasher = new PasswordHash(8, TRUE);
+	}
+	
+	return $wp_hasher->HashPassword($password);
+}
+endif;
+
+if ( !function_exists('wp_check_password') ) : // [WP6350]
+function wp_check_password($password, $hash) {
+	global $wp_hasher;
+
+	if ( strlen($hash) <= 32 )
+		return ( $hash == md5($password) );
+
+	// If the stored hash is longer than an MD5, presume the
+	// new style phpass portable hash.
+	if ( empty($wp_hasher) ) {
+		require_once( BBPATH . BBINC . 'class-phpass.php');
+		// By default, use the portable hash from phpass
+		$wp_hasher = new PasswordHash(8, TRUE);
+	}
+
+	return $wp_hasher->CheckPassword($password, $hash);
+}
+endif;
+
 if ( !function_exists('bb_check_admin_referer') ) :
 function bb_check_admin_referer( $action = -1 ) {
 	if ( !bb_verify_nonce($_REQUEST['_wpnonce'], $action) ) {
@@ -341,7 +396,7 @@ function bb_new_user( $user_login, $email, $url ) {
 	$url        = bb_fix_link( $url );
 	$now        = bb_current_time('mysql');
 	$password   = bb_random_pass();
-	$passcrypt  = md5( $password );
+	$passcrypt  = wp_hash_password( $password );
 
 	if ( !$user_login || !$email )
 		return false;
