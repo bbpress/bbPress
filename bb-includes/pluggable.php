@@ -25,7 +25,6 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 		return false;
 	}
 	$user = bb_get_user_by_name( $user );
-	$pass = bb_user_sanitize( $pass );
 	
 	if ( !$already_md5 ) {
 		if ( wp_check_password($pass, $user->user_pass) ) {
@@ -40,10 +39,8 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 			
 			return $user;
 		}
-	} else {
-		if ( md5($user->user_pass) == $pass ) {
-			return $user;
-		}
+	} elseif ( md5($user->user_pass) == $pass ) {
+		return $user;
 	}
 	
 	return false;
