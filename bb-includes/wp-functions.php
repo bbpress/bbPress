@@ -8,8 +8,8 @@ endif;
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP6026]
-function clean_url( $url, $protocols = null ) {
+if ( !function_exists( 'clean_url' ) ) : // [WP6182]
+function clean_url( $url, $protocols = null, $context = 'display' ) {
 	$original_url = $url;
 
 	if ('' == $url) return $url;
@@ -25,13 +25,16 @@ function clean_url( $url, $protocols = null ) {
 		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9-]+?\.php/i', $url) )
 		$url = 'http://' . $url;
 
-	$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
+	// Replace ampersands ony when displaying.
+	if ( 'display' == $context )
+		$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
+
 	if ( !is_array($protocols) )
 		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet');
 	if ( wp_kses_bad_protocol( $url, $protocols ) != $url )
 		return '';
 
-	return apply_filters('clean_url', $url, $original_url);
+	return apply_filters('clean_url', $url, $original_url, $context);
 }
 endif;
 
@@ -72,32 +75,37 @@ function wp_specialchars( $text, $quotes = 0 ) { // [WP4451]
 }
 endif;
 
-if ( !function_exists('utf8_uri_encode') ) : // [WP6026]
+if ( !function_exists('utf8_uri_encode') ) : // [WP6314]
 function utf8_uri_encode( $utf8_string, $length = 0 ) {
 	$unicode = '';
 	$values = array();
 	$num_octets = 1;
+	$unicode_length = 0;
 
-	for ($i = 0; $i < strlen( $utf8_string ); $i++ ) {
+	$string_length = strlen( $utf8_string );
+	for ($i = 0; $i < $string_length; $i++ ) {
 
 		$value = ord( $utf8_string[ $i ] );
 
 		if ( $value < 128 ) {
-			if ( $length && ( strlen($unicode) + 1 > $length ) )
+			if ( $length && ( $unicode_length >= $length ) )
 				break;
 			$unicode .= chr($value);
+			$unicode_length++;
 		} else {
 			if ( count( $values ) == 0 ) $num_octets = ( $value < 224 ) ? 2 : 3;
 
 			$values[] = $value;
 
-			if ( $length && ( (strlen($unicode) + ($num_octets * 3)) > $length ) )
+			if ( $length && ( $unicode_length + ($num_octets * 3) ) > $length )
 				break;
 			if ( count( $values ) == $num_octets ) {
 				if ($num_octets == 3) {
 					$unicode .= '%' . dechex($values[0]) . '%' . dechex($values[1]) . '%' . dechex($values[2]);
+					$unicode_length += 9;
 				} else {
 					$unicode .= '%' . dechex($values[0]) . '%' . dechex($values[1]);
+					$unicode_length += 6;
 				}
 
 				$values = array();
@@ -269,9 +277,10 @@ function make_clickable($ret) {
 }
 endif;
 
-if ( !function_exists('seems_utf8') ) : // [WP1345]
+if ( !function_exists('seems_utf8') ) : // [WP6314]
 function seems_utf8($Str) { # by bmorel at ssi dot fr
-	for ($i=0; $i<strlen($Str); $i++) {
+	$length = strlen($Str);
+	for ($i=0; $i < $length; $i++) {
 		if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
 		elseif ((ord($Str[$i]) & 0xE0) == 0xC0) $n=1; # 110bbbbb
 		elseif ((ord($Str[$i]) & 0xF0) == 0xE0) $n=2; # 1110bbbb
@@ -280,7 +289,7 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr
 		elseif ((ord($Str[$i]) & 0xFE) == 0xFC) $n=5; # 1111110b
 		else return false; # Does not match any model
 		for ($j=0; $j<$n; $j++) { # n bytes matching 10bbbbbb follow ?
-			if ((++$i == strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80))
+			if ((++$i == $length) || ((ord($Str[$i]) & 0xC0) != 0x80))
 			return false;
 		}
 	}
@@ -288,7 +297,7 @@ function seems_utf8($Str) { # by bmorel at ssi dot fr
 }
 endif;
 
-if ( !function_exists('remove_accents') ) : // [WP5969]
+if ( !function_exists('remove_accents') ) : // [WP6150]
 function remove_accents($string) {
 	if ( !preg_match('/[\x80-\xff]/', $string) )
 		return $string;
@@ -299,33 +308,30 @@ function remove_accents($string) {
 		chr(195).chr(128) => 'A', chr(195).chr(129) => 'A',
 		chr(195).chr(130) => 'A', chr(195).chr(131) => 'A',
 		chr(195).chr(132) => 'A', chr(195).chr(133) => 'A',
-		chr(195).chr(134) => 'AE',chr(195).chr(135) => 'C',
-		chr(195).chr(136) => 'E', chr(195).chr(137) => 'E',
-		chr(195).chr(138) => 'E', chr(195).chr(139) => 'E',
-		chr(195).chr(140) => 'I', chr(195).chr(141) => 'I',
-		chr(195).chr(142) => 'I', chr(195).chr(143) => 'I',
-		chr(195).chr(144) => 'D', chr(195).chr(145) => 'N',
+		chr(195).chr(135) => 'C', chr(195).chr(136) => 'E',
+		chr(195).chr(137) => 'E', chr(195).chr(138) => 'E',
+		chr(195).chr(139) => 'E', chr(195).chr(140) => 'I',
+		chr(195).chr(141) => 'I', chr(195).chr(142) => 'I',
+		chr(195).chr(143) => 'I', chr(195).chr(145) => 'N',
 		chr(195).chr(146) => 'O', chr(195).chr(147) => 'O',
 		chr(195).chr(148) => 'O', chr(195).chr(149) => 'O',
 		chr(195).chr(150) => 'O', chr(195).chr(153) => 'U',
 		chr(195).chr(154) => 'U', chr(195).chr(155) => 'U',
 		chr(195).chr(156) => 'U', chr(195).chr(157) => 'Y',
-		chr(195).chr(158) => 'TH',chr(195).chr(159) => 's',
-		chr(195).chr(160) => 'a', chr(195).chr(161) => 'a',
-		chr(195).chr(162) => 'a', chr(195).chr(163) => 'a',
-		chr(195).chr(164) => 'a', chr(195).chr(165) => 'a',
-		chr(195).chr(166) => 'ae',chr(195).chr(167) => 'c',
+		chr(195).chr(159) => 's', chr(195).chr(160) => 'a',
+		chr(195).chr(161) => 'a', chr(195).chr(162) => 'a',
+		chr(195).chr(163) => 'a', chr(195).chr(164) => 'a',
+		chr(195).chr(165) => 'a', chr(195).chr(167) => 'c',
 		chr(195).chr(168) => 'e', chr(195).chr(169) => 'e',
 		chr(195).chr(170) => 'e', chr(195).chr(171) => 'e',
 		chr(195).chr(172) => 'i', chr(195).chr(173) => 'i',
 		chr(195).chr(174) => 'i', chr(195).chr(175) => 'i',
-		chr(195).chr(176) => 'd', chr(195).chr(177) => 'n',
-		chr(195).chr(178) => 'o', chr(195).chr(179) => 'o',
-		chr(195).chr(180) => 'o', chr(195).chr(181) => 'o',
-		chr(195).chr(182) => 'o', chr(195).chr(182) => 'o',
-		chr(195).chr(185) => 'u', chr(195).chr(186) => 'u',
-		chr(195).chr(187) => 'u', chr(195).chr(188) => 'u',
-		chr(195).chr(189) => 'y', chr(195).chr(190) => 'th',
+		chr(195).chr(177) => 'n', chr(195).chr(178) => 'o',
+		chr(195).chr(179) => 'o', chr(195).chr(180) => 'o',
+		chr(195).chr(181) => 'o', chr(195).chr(182) => 'o',
+		chr(195).chr(182) => 'o', chr(195).chr(185) => 'u',
+		chr(195).chr(186) => 'u', chr(195).chr(187) => 'u',
+		chr(195).chr(188) => 'u', chr(195).chr(189) => 'y',
 		chr(195).chr(191) => 'y',
 		// Decompositions for Latin Extended-A
 		chr(196).chr(128) => 'A', chr(196).chr(129) => 'a',
