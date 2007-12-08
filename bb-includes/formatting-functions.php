@@ -255,14 +255,6 @@ function bb_fix_link( $link ) {
 	return clean_url( $link );
 }
 
-function bb_make_feed( $link ) {
-	$link = trim( $link );
-	if ( 0 !== strpos( $link, 'feed:' ) )
-		return 'feed:' . $link;
-	else
-		return $link;
-}
-
 function bb_sticky_label( $label ) {
 	global $topic;
 	if (is_front()) {

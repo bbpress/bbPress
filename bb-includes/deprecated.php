@@ -233,6 +233,10 @@ function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	return bb_sanitize_with_dashes( $text, $length ) ;
 }
 
+function bb_make_feed( $link ) {
+	return trim( $link );
+}
+
 function show_context( $term, $text ) {
 	return bb_show_context( $term, $text );
 }
