@@ -530,7 +530,7 @@ form.options fieldset table {
 	background-color: #f0fff8;
 }
 
-form.options fieldset table input,
+form.options fieldset table input.text,
 form.options fieldset table select {
 	width: 100%;
 }
@@ -554,7 +554,7 @@ form.options fieldset div {
 }
 
 form.options fieldset div.spacer {
-	margin-left: 36%;
+	padding-left: 36%;
 }
 
 form.options fieldset div p,
@@ -566,19 +566,20 @@ form.options fieldset div ul {
 form.options fieldset div pre.block {
 	width:100%;
 	margin: 0.2em;
-	padding: 1em;
+	padding: 1em 1em 2em 1em;
 	line-height: 1.4em;
 	display: block;
 	border: 1px dotted #999;
 	background-color: #f0fff8;
 	overflow: auto;
+	overflow-y: hidden;
 }
 
 form.options fieldset div li {
 	margin: 0.2em auto;
 }
 
-form.options fieldset div input,
+form.options fieldset div input.text,
 form.options fieldset div select {
 	width:80%;
 	line-height: 1em;

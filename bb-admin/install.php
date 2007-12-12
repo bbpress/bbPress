@@ -1565,7 +1565,7 @@ EOQ;
 					<dt><?php _e('Password:'); ?></dt>
 					<dd><code><?php echo $keymaster_password; ?></code></dd>
 					<dt><?php _e('Site address:'); ?></dt>
-					<dd><a href="<?php bb_option( 'uri' ); ?>"><?php bb_option( 'name' ); ?></a></dd>
+					<dd><a href="<?php bb_option( 'uri' ); ?>"><?php bb_option( 'uri' ); ?></a></dd>
 				</dl>
 <?php
 				if ( $keymaster_type == 'bb' ) {

@@ -61,14 +61,14 @@ bb_get_admin_header();
 			<?php _e('WordPress address (URL):'); ?>
 		</label>
 		<div>
-			<input name="wp_siteurl" id="wp_siteurl" value="<?php bb_form_option('wp_siteurl'); ?>" />
+			<input class="text" name="wp_siteurl" id="wp_siteurl" value="<?php bb_form_option('wp_siteurl'); ?>" />
 			<p><?php _e('This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general options.'); ?></p>
 		</div>
 		<label for="wp_home">
 			<?php _e('Blog address (URL):'); ?>
 		</label>
 		<div>
-			<input name="wp_home" id="wp_home" value="<?php bb_form_option('wp_home'); ?>" />
+			<input class="text" name="wp_home" id="wp_home" value="<?php bb_form_option('wp_home'); ?>" />
 			<p><?php _e('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general options.'); ?></p>
 		</div>
 <?php
@@ -95,7 +95,7 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 			<?php _e('User database table prefix:'); ?>
 		</label>
 		<div>
-			<input name="wp_table_prefix" id="wp_table_prefix" value="<?php bb_form_option('wp_table_prefix'); ?>" />
+			<input class="text" name="wp_table_prefix" id="wp_table_prefix" value="<?php bb_form_option('wp_table_prefix'); ?>" />
 			<p><?php _e('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$wp_table_prefix</code> in your WordPress <code>wp-config.php</code> file.'); ?></p>
 			<p><?php _e('In any case, it is usually <strong>wp_</strong>'); ?></p>
 		</div>
@@ -137,35 +137,35 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 			<?php _e('User database name:'); ?>
 		</label>
 		<div>
-			<input name="user_bbdb_name" id="user_bbdb_name" value="<?php bb_form_option('user_bbdb_name'); ?>" />
+			<input class="text" name="user_bbdb_name" id="user_bbdb_name" value="<?php bb_form_option('user_bbdb_name'); ?>" />
 			<p><?php _e('The name of the database in which your user tables reside.'); ?></p>
 		</div>
 		<label for="user_bbdb_user">
 			<?php _e('User database user:'); ?>
 		</label>
 		<div>
-			<input name="user_bbdb_user" id="user_bbdb_user" value="<?php bb_form_option('user_bbdb_user'); ?>" />
+			<input class="text" name="user_bbdb_user" id="user_bbdb_user" value="<?php bb_form_option('user_bbdb_user'); ?>" />
 			<p><?php _e('The database user that has access to that database.'); ?></p>
 		</div>
 		<label for="user_bbdb_password">
 			<?php _e('User database password:'); ?>
 		</label>
 		<div>
-			<input type="password" name="user_bbdb_password" id="user_bbdb_password" value="<?php bb_form_option('user_bbdb_password'); ?>" />
+			<input class="text" type="password" name="user_bbdb_password" id="user_bbdb_password" value="<?php bb_form_option('user_bbdb_password'); ?>" />
 			<p><?php _e('That database user\'s password.'); ?></p>
 		</div>
 		<label for="user_bbdb_host">
 			<?php _e('User database host:'); ?>
 		</label>
 		<div>
-			<input name="user_bbdb_host" id="user_bbdb_host" value="<?php bb_form_option('user_bbdb_host'); ?>" />
+			<input class="text" name="user_bbdb_host" id="user_bbdb_host" value="<?php bb_form_option('user_bbdb_host'); ?>" />
 			<p><?php _e('The domain name or IP address of the server where the database is located. If the database is on the same server as the web site, then this probably should remain <strong>localhost</strong>.'); ?></p>
 		</div>
 		<label for="user_bbdb_charset">
 			<?php _e('User database character set:'); ?>
 		</label>
 		<div>
-			<input name="user_bbdb_charset" id="user_bbdb_charset" value="<?php bb_form_option('user_bbdb_charset'); ?>" />
+			<input class="text" name="user_bbdb_charset" id="user_bbdb_charset" value="<?php bb_form_option('user_bbdb_charset'); ?>" />
 			<p><?php _e('The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.'); ?></p>
 		</div>
 	</fieldset>
@@ -178,14 +178,14 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 			<?php _e('User database "user" table:'); ?>
 		</label>
 		<div>
-			<input name="custom_user_table" id="custom_user_table" value="<?php bb_form_option('custom_user_table'); ?>" />
+			<input class="text" name="custom_user_table" id="custom_user_table" value="<?php bb_form_option('custom_user_table'); ?>" />
 			<p><?php _e('The complete table name, including any prefix.'); ?></p>
 		</div>
 		<label for="custom_user_meta_table">
 			<?php _e('User database "user meta" table:'); ?>
 		</label>
 		<div>
-			<input name="custom_user_meta_table" id="custom_user_meta_table" value="<?php bb_form_option('custom_user_meta_table'); ?>" />
+			<input class="text" name="custom_user_meta_table" id="custom_user_meta_table" value="<?php bb_form_option('custom_user_meta_table'); ?>" />
 			<p><?php _e('The complete table name, including any prefix.'); ?></p>
 		</div>
 	</fieldset>
@@ -302,9 +302,7 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 						</label>
 					</td>
 					<td>
-						<select name="wp_roles_map[<?php echo $wpRole; ?>]" id="wp_roles_map[<?php echo $wpRole; ?>]">
 <?php echo bb_get_roles_dropdown( 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
-						</select>
 					</td>
 <?php
 }

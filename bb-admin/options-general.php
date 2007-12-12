@@ -41,20 +41,20 @@ bb_get_admin_header();
 			<?php _e('Site title:'); ?>
 		</label>
 		<div>
-			<input<?php echo $disabled; ?> name="name" id="name" value="<?php bb_form_option('name'); ?>" />
+			<input class="text" name="name" id="name" value="<?php bb_form_option('name'); ?>" />
 		</div>
 		<label for="uri">
 			<?php _e('bbPress address (URL):'); ?>
 		</label>
 		<div>
-			<input<?php echo $disabled; ?> name="uri" id="uri" value="<?php bb_form_option('uri'); ?>" />
+			<input class="text" name="uri" id="uri" value="<?php bb_form_option('uri'); ?>" />
 			<p><?php _e('The full URL of your bbPress install.'); ?></p>
 		</div>
 		<label for="admin_email">
 			<?php _e('E-mail address:') ?>
 		</label>
 		<div>
-			<input name="admin_email" id="admin_email" value="<?php bb_form_option('admin_email'); ?>" />
+			<input class="text" name="admin_email" id="admin_email" value="<?php bb_form_option('admin_email'); ?>" />
 			<p><?php _e('This address is used only for admin purposes.'); ?></p>
 		</div>
 		<label for="mod_rewrite">
@@ -75,14 +75,14 @@ $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 			<?php _e('Items per page:') ?>
 		</label>
 		<div>
-			<input name="page_topics" id="page_topics" value="<?php bb_form_option('page_topics'); ?>" />
+			<input class="text" name="page_topics" id="page_topics" value="<?php bb_form_option('page_topics'); ?>" />
 			<p><?php _e('Number of topics, posts or tags to show per page.') ?></p>
 		</div>
 		<label for="editing">
 			<?php _e('Lock post editing after:') ?>
 		</label>
 		<div>
-			<input name="edit_lock" id="edit_lock" value="<?php bb_form_option('edit_lock'); ?>" />
+			<input class="text" name="edit_lock" id="edit_lock" value="<?php bb_form_option('edit_lock'); ?>" />
 			<?php _e('minutes') ?>
 			<p>A user can edit a post for this many minutes after submitting.</p>
 		</div>
@@ -99,7 +99,7 @@ $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 			<?php _e('Times should differ from UTC by:') ?>
 		</label>
 		<div>
-			<input name="gmt_offset" id="gmt_offset" value="<?php bb_form_option('gmt_offset'); ?>" />
+			<input class="text" name="gmt_offset" id="gmt_offset" value="<?php bb_form_option('gmt_offset'); ?>" />
 			<?php _e('hours') ?>
 			<p><?php _e('Example: -7 for Pacific Daylight Time.'); ?></p>
 		</div>
@@ -110,7 +110,7 @@ $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 			<?php _e('Akismet Key:') ?>
 		</label>
 		<div>
-			<input name="akismet_key" id="akismet_key" value="<?php bb_form_option('akismet_key'); ?>" />
+			<input class="text" name="akismet_key" id="akismet_key" value="<?php bb_form_option('akismet_key'); ?>" />
 			<p><?php _e('You do not need a key to run bbPress, but if you want to take advantage of Akismet\'s powerful spam blocking, you\'ll need one.'); ?></p>
 			<p><?php _e('You can get an Akismet key at <a href="http://wordpress.com/api-keys/">WordPress.com</a>') ?></p>
 		</div>
