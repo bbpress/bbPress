@@ -25,6 +25,7 @@ RewriteRule ^profile/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>profi
 RewriteRule ^profile/([^/]+)/([^/]+)/?$ <?php bb_option( 'path' ); ?>profile.php?id=$1&tab=$2 [L,QSA]
 RewriteRule ^profile/([^/]+)/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>profile.php?id=$1&tab=$2&page=$3 [L,QSA]
 RewriteRule ^profile/([^/]+)/?$ <?php bb_option( 'path' ); ?>profile.php?id=$1 [L,QSA]
+RewriteRule ^profile/?$ <?php bb_option( 'path' ); ?>profile.php [L,QSA]
 RewriteRule ^view/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>view.php?view=$1&page=$2 [L,QSA]
 RewriteRule ^view/([^/]+)/?$ <?php bb_option( 'path' ); ?>view.php?view=$1 [L,QSA]
 RewriteRule ^rss/?$ <?php bb_option( 'path' ); ?>rss.php [L,QSA]

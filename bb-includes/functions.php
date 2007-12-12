@@ -1638,11 +1638,16 @@ function bb_repermalink() {
 				$id = get_path();
 			$_original_id = $id;
 			
-			if ( !is_numeric( $id ) && is_string( $id ) ) {
-				if ( !$user = bb_get_user_by_nicename( $id ) )
-					bb_die(__('User not found.'));
-			} elseif ( !$user = bb_get_user( $id ) )
+			if ( !$id )
+				$user = bb_get_current_user(); // Attempt to go to the current users profile
+			elseif ( !is_numeric( $id ) && is_string( $id ) )
+				$user = bb_get_user_by_nicename( $id ); // Get by the user_nicename
+			else
+				$user = bb_get_user( $id ); // Get by the ID
+			
+			if ( !$user )
 				bb_die(__('User not found.'));
+			
 			$user_id = $user->ID;
 			global_profile_menu_structure();
 			$valid = false;
