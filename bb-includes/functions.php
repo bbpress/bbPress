@@ -2059,7 +2059,7 @@ function bb_register_activation_hook($file, $function) {
 }
 
 function bb_register_deactivation_hook($file, $function) {
-	$file = plugin_basename($file);
+	$file = bb_plugin_basename($file);
 	add_action('bb_deactivate_plugin_' . $file, $function);
 }
 
