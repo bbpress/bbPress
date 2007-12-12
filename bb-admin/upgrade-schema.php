@@ -47,7 +47,7 @@ CREATE TABLE $bbdb->posts (
   KEY poster_time (poster_id,post_time),
   KEY post_time (post_time),
   FULLTEXT KEY post_text (post_text)
-) TYPE = MYISAM $charset_collate;
+) $charset_collate;
 CREATE TABLE $bbdb->topics (
   topic_id bigint(20) NOT NULL auto_increment,
   topic_title varchar(100) NOT NULL default '',
@@ -89,7 +89,8 @@ CREATE TABLE $bbdb->users (
   user_status int(11) NOT NULL default '0',
   display_name varchar(250) NOT NULL default '',
   PRIMARY KEY  (ID),
-  UNIQUE KEY user_login (user_login)
+  UNIQUE KEY user_login (user_login),
+  UNIQUE KEY user_nicename (user_nicename)
 ) $user_charset_collate;
 CREATE TABLE $bbdb->usermeta (
   umeta_id bigint(20) NOT NULL auto_increment,

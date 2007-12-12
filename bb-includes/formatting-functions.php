@@ -111,16 +111,6 @@ function bb_rel_nofollow_callback( $matches ) {
 	return "<a $text rel=\"nofollow\">";
 }
 
-function bb_user_sanitize( $text, $strict = false ) {
-	$raw = $text;
-	if ( $strict ) {
-		$text = preg_replace('/[^a-z0-9-]/i', '', $text);
-		$text = preg_replace('|-+|', '-', $text);
-	} else
-		$text = preg_replace('/[^a-z0-9_-]/i', '', $text); // For backward compatibility.
-	return apply_filters( 'bb_user_sanitize', $text, $raw, $strict );
-}
-
 function bb_trim_for_db( $string, $length ) {
 	if ( seems_utf8( $string ) ) {
 		$_string = bb_utf8_cut( $string, $length );
@@ -204,6 +194,11 @@ function bb_tag_sanitize( $tag, $length = 200 ) {
 function bb_slug_sanitize( $slug, $length = 255 ) {
 	$_slug = $slug;
 	return apply_filters( 'bb_slug_sanitize', bb_sanitize_with_dashes( $slug, $length ), $_slug, $length );
+}
+
+function bb_user_nicename_sanitize( $user_nicename, $length = 50 ) {
+	$_user_nicename = $user_nicename;
+	return apply_filters( 'bb_user_nicename_sanitize', bb_sanitize_with_dashes( $user_nicename, $length ), $_user_nicename, $length );
 }
 
 function bb_sanitize_with_dashes( $text, $length = 0 ) { // Multibyte aware

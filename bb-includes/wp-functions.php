@@ -118,6 +118,22 @@ function utf8_uri_encode( $utf8_string, $length = 0 ) {
 }
 endif;
 
+if ( !function_exists('sanitize_user') ) : // [WP3795]
+function sanitize_user( $username, $strict = false ) {
+	$raw_username = $username;
+	$username = strip_tags($username);
+	// Kill octets
+	$username = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '', $username);
+	$username = preg_replace('/&.+?;/', '', $username); // Kill entities
+
+	// If strict, reduce to ASCII for max portability.
+	if ( $strict )
+		$username = preg_replace('|[^a-z0-9 _.\-@]|i', '', $username);
+
+	return apply_filters('sanitize_user', $username, $raw_username, $strict);
+}
+endif;
+
 // Escape single quotes, specialchar double quotes, and fix line endings.
 if ( !function_exists('js_escape') ) : // [WP5734]
 function js_escape($text) {

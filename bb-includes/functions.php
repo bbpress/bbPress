@@ -1021,8 +1021,17 @@ function bb_cache_users( $ids, $soft_cache = true ) {
 
 function bb_get_user_by_name( $name ) {
 	global $bbdb;
-	$name = bb_user_sanitize( $name );
+	$name = sanitize_user( $name );
 	if ( $user_id = $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_login = '$name'") )
+		return bb_get_user( $user_id );
+	else
+		return false;
+}
+
+function bb_get_user_by_nicename( $nicename ) {
+	global $bbdb;
+	$nicename = sanitize_user( $nicename );
+	if ( $user_id = $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_nicename = '$nicename'") )
 		return bb_get_user( $user_id );
 	else
 		return false;
@@ -1030,7 +1039,7 @@ function bb_get_user_by_name( $name ) {
 
 function bb_user_exists( $user ) {
 	global $bbdb;
-	$user = bb_user_sanitize( $user );
+	$user = sanitize_user( $user );
 	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
 }
 
@@ -1189,7 +1198,7 @@ function bb_get_option( $option ) {
 		return '0.8.3'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '952'; // Don't filter
+		return '977'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -1628,7 +1637,11 @@ function bb_repermalink() {
 			else
 				$id = get_path();
 			$_original_id = $id;
-			if ( !$user = bb_get_user( $id ) )
+			
+			if ( !is_numeric( $id ) && is_string( $id ) ) {
+				if ( !$user = bb_get_user_by_nicename( $id ) )
+					bb_die(__('User not found.'));
+			} elseif ( !$user = bb_get_user( $id ) )
 				bb_die(__('User not found.'));
 			$user_id = $user->ID;
 			global_profile_menu_structure();

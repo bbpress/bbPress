@@ -20,6 +20,7 @@ function bb_upgrade_all() {
 	bb_make_db_current();
 	$bb_upgrade += bb_upgrade_1000(); // Make forum and topic slugs
 	$bb_upgrade += bb_upgrade_1010(); // Make sure all forums have a valid parent
+	$bb_upgrade += bb_upgrade_1020(); // Add a user_nicename to existing users
 	bb_update_db_version();
 	return $bb_upgrade;
 }
@@ -455,6 +456,31 @@ function bb_upgrade_1010() {
 	bb_update_option( 'bb_db_version', 952 );
 	
 	echo "Done reparenting orphaned forums.<br />";
+	return 1;
+}
+
+// Add a nicename for existing users if they don't have one already
+function bb_upgrade_1020() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 977 )
+		return 0;
+	
+	global $bbdb;
+	
+	$users = $bbdb->get_results( "SELECT ID, user_login, user_nicename FROM $bbdb->users WHERE user_nicename IS NULL OR user_nicename = ''" );
+	
+	if ( $users ) {
+		foreach ( $users as $user ) {
+			$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user->user_login );
+			while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
+				$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
+			
+			$bbdb->query( "UPDATE $bbdb->users SET user_nicename = '$user_nicename' WHERE ID = $user->ID;" );
+		}
+	}
+	
+	bb_update_option( 'bb_db_version', 977 );
+	
+	echo "Done adding nicenames to existing users.<br />";
 	return 1;
 }
 

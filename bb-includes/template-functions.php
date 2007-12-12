@@ -1156,7 +1156,7 @@ function get_user_profile_link( $id = 0, $page = 1 ) {
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
-			$column = 'user_login';
+			$column = 'user_nicename';
 		} else {
 			$column = 'ID';
 		}

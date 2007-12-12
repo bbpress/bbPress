@@ -41,7 +41,7 @@ function bb_update_user( $user_id, $email, $url ) {
 function bb_reset_email( $user_login ) {
 	global $bbdb;
 
-	$user_login = bb_user_sanitize( $user_login );
+	$user_login = sanitize_user( $user_login );
 
 	if ( !$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'") )
 		return false;
@@ -60,7 +60,7 @@ If you don't want to reset your password, just ignore this email. Thanks!"), bb_
 
 function bb_reset_password( $key ) {
 	global $bbdb;
-	$key = bb_user_sanitize( $key );
+	$key = sanitize_user( $key );
 	if ( empty( $key ) )
 		bb_die(__('Key not found.'));
 	if ( !$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'") )

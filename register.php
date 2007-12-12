@@ -12,7 +12,7 @@ $_globals = array_merge($_globals, array_keys($profile_info_keys));
 
 if ($_POST) :
 	$_POST = stripslashes_deep( $_POST );
-	$user_login = bb_user_sanitize( $_POST['user_login'], true );
+	$user_login = sanitize_user( $_POST['user_login'], true );
 	$user_email = bb_verify_email( $_POST['user_email'] );
 	$user_url   = bb_fix_link( $_POST['user_url'] );
 
@@ -45,7 +45,7 @@ if ($_POST) :
 endif;
 
 if ( isset( $_GET['user'] ) )
-	$user_login = bb_user_sanitize( $_GET['user'], true ) ;
+	$user_login = sanitize_user( $_GET['user'], true ) ;
 elseif ( isset( $_POST['user_login'] ) && !is_string($user_login) )
 	$user_login = '';
 

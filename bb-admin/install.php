@@ -222,7 +222,7 @@ switch ($step):
 flush();
 
 // Set everything up
-if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = bb_user_sanitize( $_POST['admin_login'] ) )
+if ( !isset($_POST['old_keymaster']) && !isset($_POST['new_keymaster']) && !$admin_login = sanitize_user( $_POST['admin_login'] ) )
 	die(__('Bad username.  Go back and try again.'));
 if ( isset($_POST['new_keymaster']) && !bb_get_user( $_POST['new_keymaster'] ) )
 	die(__('Username not found.  Go back and try again.'));

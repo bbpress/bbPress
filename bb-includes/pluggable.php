@@ -20,7 +20,7 @@ endif;
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $bbdb;
-	$user = bb_user_sanitize( $user );
+	$user = sanitize_user( $user );
 	if ($user == '') {
 		return false;
 	}
@@ -104,8 +104,8 @@ function bb_current_user() {
 	$userpass = bb_get_cookie_login();
 	if ( empty($userpass) )
 		return false;
-	$user = bb_user_sanitize( $userpass['login'] );
-	$pass = bb_user_sanitize( $userpass['password'] );
+	$user = sanitize_user( $userpass['login'] );
+	$pass = sanitize_user( $userpass['password'] );
 	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'") ) {
 		$current_user = $bb_cache->append_current_user_meta( $current_user );
 		return bb_set_current_user($current_user->ID);
@@ -389,22 +389,27 @@ endif;
 if ( !function_exists('bb_new_user') ) :
 function bb_new_user( $user_login, $email, $url ) {
 	global $bbdb, $bb_table_prefix;
-	$user_login = bb_user_sanitize( $user_login, true );
+	$user_login = sanitize_user( $user_login, true );
 	$email      = bb_verify_email( $email );
-	$url        = bb_fix_link( $url );
-	$now        = bb_current_time('mysql');
-	$password   = bb_random_pass();
-	$passcrypt  = wp_hash_password( $password );
-
+	
 	if ( !$user_login || !$email )
 		return false;
+	
+	$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user_login );
+	while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
+		$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
+	
+	$url           = bb_fix_link( $url );
+	$now           = bb_current_time('mysql');
+	$password      = bb_random_pass();
+	$passcrypt     = wp_hash_password( $password );
 
 	$email = $bbdb->escape( $email );
 
 	$bbdb->query("INSERT INTO $bbdb->users
-	(user_login,     user_pass, user_email,  user_url, user_registered)
+	(user_login,     user_pass,   user_nicename,    user_email, user_url, user_registered)
 	VALUES
-	('$user_login', '$passcrypt', '$email', '$url',   '$now')");
+	('$user_login', '$passcrypt', '$user_nicename', '$email',   '$url',   '$now')");
 	
 	$user_id = $bbdb->insert_id;
 

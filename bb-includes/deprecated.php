@@ -218,7 +218,11 @@ function encode_bad( $text ) {
 }
 
 function user_sanitize( $text, $strict = false ) {
-	return bb_user_sanitize( $text, $strict );
+	return sanitize_user( $text, $strict );
+}
+
+function bb_user_sanitize( $text, $strict = false ) {
+	return sanitize_user( $text, $strict );
 }
 
 function utf8_cut( $utf8_string, $length ) {
