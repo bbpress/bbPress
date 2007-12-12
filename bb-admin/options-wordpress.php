@@ -123,7 +123,7 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 					}
 				}
 			</script>
-			<input name="user_bbdb_advanced" id="user_bbdb_advanced" type="checkbox" value="1" onchange="toggleAdvanced(this);"<?php echo $checked; ?> />
+			<input name="user_bbdb_advanced" id="user_bbdb_advanced" type="checkbox" value="1" onclick="toggleAdvanced(this);"<?php echo $checked; ?> />
 			<p><?php _e('If your bbPress and WordPress installation do not share the same database, then you will need to add advanced settings.'); ?></p>
 		</div>
 	</fieldset>
@@ -207,7 +207,7 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 					}
 				}
 			</script>
-			<input name="show_bb_config" id="show_bb_config" type="checkbox" value="1" onchange="toggleConfig(this);" />
+			<input name="show_bb_config" id="show_bb_config" type="checkbox" value="1" onclick="toggleConfig(this);" />
 <?php
 $cookie_settings = array(
 	'wp_siteurl',

@@ -106,7 +106,7 @@ switch ($step) {
 				<form action="<?php bb_option('uri'); ?>bb-admin/" method="get">
 					<label for="upgrade_log_container_toggle">
 						<?php _e('Show upgrade log:'); ?>
-						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onchange="toggleAdvanced(this, 'upgrade_log_container');" />
+						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced(this, 'upgrade_log_container');" />
 					</label>
 					<div class="advanced" id="upgrade_log_container" style="display:none;">
 						<fieldset>
@@ -140,7 +140,7 @@ switch ($step) {
 					<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 					<label for="upgrade_log_container_toggle">
 						<?php _e('Show upgrade log:'); ?>
-						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onchange="toggleAdvanced(this, 'upgrade_log_container');" />
+						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced(this, 'upgrade_log_container');" />
 					</label>
 					<div class="advanced" id="upgrade_log_container" style="display:none;">
 						<fieldset>

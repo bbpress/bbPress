@@ -1019,7 +1019,7 @@ switch ($step) {
 						</p>
 						<label for="install_s1_advanced_toggle">
 							<?php _e('Show advanced settings:')?>
-							<input class="checkbox" type="checkbox" name="install_s1_advanced_toggle" id="install_s1_advanced_toggle" value="1" onchange="toggleAdvanced(this, 'install_s1_advanced');"<?php echo $install_s1_advanced_toggle_checked; ?> />
+							<input class="checkbox" type="checkbox" name="install_s1_advanced_toggle" id="install_s1_advanced_toggle" value="1" onclick="toggleAdvanced(this, 'install_s1_advanced');"<?php echo $install_s1_advanced_toggle_checked; ?> />
 						</label>
 						<p class="note">
 							<?php _e('99% of the time these settings will not have to be changed.'); ?>
@@ -1143,7 +1143,7 @@ switch ($step) {
 						<?php bb_nonce_field( 'bbpress-installer' ); ?>
 						<label for="install_s2_integrate_toggle">
 							<?php _e('Add integration settings:')?>
-							<input class="checkbox" type="checkbox" name="install_s2_integrate_toggle" id="install_s2_integrate_toggle" value="1" onchange="toggleAdvanced(this, 'install_s2_integrate'); toggleSubmit(this, 'install_s2_submit', '<?php echo(addslashes(__('Skip WordPress integration &raquo;'))); ?>', '<?php echo(addslashes(__('Save WordPress integration settings &raquo;'))); ?>');"<?php echo $install_s2_integrate_toggle_checked; ?> />
+							<input class="checkbox" type="checkbox" name="install_s2_integrate_toggle" id="install_s2_integrate_toggle" value="1" onclick="toggleAdvanced(this, 'install_s2_integrate'); toggleSubmit(this, 'install_s2_submit', '<?php echo(addslashes(__('Skip WordPress integration &raquo;'))); ?>', '<?php echo(addslashes(__('Save WordPress integration settings &raquo;'))); ?>');"<?php echo $install_s2_integrate_toggle_checked; ?> />
 						</label>
 						<p class="note">
 							<?php _e('If you want to integrate bbPress with an existing WordPress installation.'); ?>
@@ -1172,7 +1172,7 @@ switch ($step) {
 						<fieldset>
 							<label for="install_s2_integrate_database_toggle">
 								<?php _e('Add user database integration settings:')?>
-								<input class="checkbox" type="checkbox" name="install_s2_integrate_database_toggle" id="install_s2_integrate_database_toggle" value="1" onchange="toggleAdvanced(this, 'install_s2_integrate_database');"<?php echo $install_s2_integrate_database_toggle_checked; ?> />
+								<input class="checkbox" type="checkbox" name="install_s2_integrate_database_toggle" id="install_s2_integrate_database_toggle" value="1" onclick="toggleAdvanced(this, 'install_s2_integrate_database');"<?php echo $install_s2_integrate_database_toggle_checked; ?> />
 							</label>
 							<p class="note">
 								<?php _e('If you want to share user tables with an existing WordPress installation.'); ?>
@@ -1193,7 +1193,7 @@ switch ($step) {
 								</p>
 								<label for="install_s2_advanced_toggle">
 									<?php _e('Show advanced database settings:'); ?>
-									<input class="checkbox" type="checkbox" name="install_s2_advanced_toggle" id="install_s2_advanced_toggle" value="1" onchange="toggleAdvanced(this, 'install_s2_advanced');"<?php echo $install_s2_advanced_toggle_checked; ?> />
+									<input class="checkbox" type="checkbox" name="install_s2_advanced_toggle" id="install_s2_advanced_toggle" value="1" onclick="toggleAdvanced(this, 'install_s2_advanced');"<?php echo $install_s2_advanced_toggle_checked; ?> />
 								</label>
 								<p class="note">
 									<?php _e('If your bbPress and WordPress installation do not share the same database, then you will need to add advanced settings.'); ?>
@@ -1576,7 +1576,7 @@ EOQ;
 					<fieldset>
 						<label for="install_s4_advanced_toggle">
 							<?php _e('Show installation messages:'); ?>
-							<input class="checkbox" type="checkbox" name="install_s4_advanced_toggle" id="install_s4_advanced_toggle" value="1" onchange="toggleAdvanced(this, 'install_s4_advanced');" />
+							<input class="checkbox" type="checkbox" name="install_s4_advanced_toggle" id="install_s4_advanced_toggle" value="1" onclick="toggleAdvanced(this, 'install_s4_advanced');" />
 						</label>
 						<div class="advanced" id="install_s4_advanced" style="display:none;">
 <?php
