@@ -282,6 +282,7 @@ select {
 }
 
 textarea {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 0.9em;
 	padding: 0em;
 	border: 1px solid rgb(125, 125, 125);
