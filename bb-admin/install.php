@@ -60,6 +60,7 @@ switch ($step) {
 		break;
 	
 	case -1:
+		require_once(BBPATH . BBINC . 'l10n.php');
 		break;
 	
 	case 0:
