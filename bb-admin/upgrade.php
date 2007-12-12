@@ -28,7 +28,11 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 		
 		define('BB_UPGRADING', true);
 		
+		$bbdb->return_errors();
+		
 		$upgrade_log_raw = bb_upgrade_all();
+		
+		$bbdb->show_errors();
 		
 		$upgrade_log = array();
 		
