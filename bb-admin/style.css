@@ -495,3 +495,118 @@ tr.active td {
 	position: relative;
 	top: .35em;
 }
+
+
+/*
+Options forms
+*/
+
+form.options fieldset {
+	margin-bottom: 2em;
+}
+
+form.options fieldset legend {
+	font-family: serif;
+	font-size: 1.4em;
+	font-weight: bold;
+	color: #333;
+}
+
+form.options fieldset label {
+	display: block;
+	float: left;
+	clear: both;
+	width: 35%;
+	text-align: right;
+	line-height: 2em;
+	margin-right: 1%;
+	font-weight: bold;
+}
+
+form.options fieldset table {
+	margin-left: 36%;
+	width: 45%;
+	line-height: 2em;
+	background-color: #f0fff8;
+}
+
+form.options fieldset table input,
+form.options fieldset table select {
+	width: 100%;
+}
+
+form.options fieldset table label {
+	display: block;
+	float: none;
+	clear: auto;
+	width: auto;
+	line-height: 2em;
+	margin-right: auto;
+	font-weight: normal;
+	padding: 0 0.5em;
+}
+
+form.options fieldset div {
+	float: left;
+	margin-bottom: 1.4em;
+	width: 55%;
+	line-height: 2em;
+}
+
+form.options fieldset div.spacer {
+	margin-left: 36%;
+}
+
+form.options fieldset div p,
+form.options fieldset div ul {
+	width:100%;
+	margin: 0.6em 0.2em 0.6em 0.2em;
+}
+
+form.options fieldset div pre.block {
+	width:100%;
+	margin: 0.2em;
+	padding: 1em;
+	line-height: 1.4em;
+	display: block;
+	border: 1px dotted #999;
+	background-color: #f0fff8;
+	overflow: auto;
+}
+
+form.options fieldset div li {
+	margin: 0.2em auto;
+}
+
+form.options fieldset div input,
+form.options fieldset div select {
+	width:80%;
+	line-height: 1em;
+}
+
+form.options fieldset div select {
+	width: auto;
+}
+
+form.options fieldset div input#page_topics,
+form.options fieldset div input#edit_lock,
+form.options fieldset div input#gmt_offset {
+	width:10%;
+}
+
+form.options fieldset div input#submit {
+	width:auto;
+	background: url('../bb-images/fade-butt.png');
+	border: 3px double #999;
+	border-left-color: #ccc;
+	border-top-color: #ccc;
+	color: #333;
+	padding: 0.25em;
+}
+
+form.options fieldset div input#submit:active {
+	background: #f4f4f4;
+	border: 3px double #ccc;
+	border-left-color: #999;
+	border-top-color: #999;
+}

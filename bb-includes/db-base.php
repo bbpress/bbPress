@@ -7,7 +7,7 @@ if ( !defined('SAVEQUERIES') )
 	define('SAVEQUERIES', false);
 
 class bbdb_base {
-	var $show_errors = true;
+	var $show_errors = 1;
 	var $num_queries = 0;
 	var $retries = 0;
 	var $last_query;
@@ -30,6 +30,8 @@ class bbdb_base {
 	var $charset;
 	var $collate;
 
+	var $user_charset;
+
 	// ==================================================================
 	//	DB Constructor - connects to the server and selects a database
 
@@ -38,11 +40,13 @@ class bbdb_base {
 	}
 
 	function __construct($dbuser, $dbpassword, $dbname, $dbhost) {
-		if ( defined('BBDB_CHARSET') )
+		if ( defined('BBDB_CHARSET') ) {
 			$this->charset = BBDB_CHARSET;
+			$this->user_charset = BBDB_CHARSET;
+		}
 		if ( defined('BBDB_COLLATE') )
 			$this->collate = BBDB_COLLATE;
-
+		
 		$this->db_connect();
 		return true;
 
@@ -53,32 +57,63 @@ class bbdb_base {
 	}
 
 	function set_prefix($prefix) {
-
+		
 		if ( preg_match('|[^a-z0-9_]|i', $prefix) )
 			return new WP_Error('invalid_db_prefix', 'Invalid database prefix'); // No gettext here
-
+		
 		$old_prefix = $this->prefix;
 		$this->prefix = $prefix;
-
+		
 		foreach ( $this->tables as $table )
 			$this->$table = $this->prefix . $table;
-
+		
+		return $old_prefix;
+	}
+	
+	function set_user_prefix() {
+		
+		global $bb;
+		
+		$old_prefix = $this->prefix;
+		$this->prefix = $prefix;
+		
 		if ( function_exists('bb_get_option') )
 			$wp_prefix = bb_get_option( 'wp_table_prefix' );
 		else
-			$wp_prefix = $GLOBALS['bb']->wp_table_prefix;
-
+			$wp_prefix = $bb->wp_table_prefix;
+		
+		if ( preg_match('|[^a-z0-9_]|i', $wp_prefix) )
+			return new WP_Error('invalid_user_table_prefix', 'Invalid user table prefix'); // No gettext here
+		
 		if ( $wp_prefix ) {
 			$this->users    = $wp_prefix . 'users';
 			$this->usermeta = $wp_prefix . 'usermeta';
 		}
-
+		
+		if ( defined('USER_BBDB_CHARSET') )
+			$this->user_charset = constant('USER_BBDB_CHARSET');
+		elseif ( function_exists('bb_get_option') )
+			if ($user_charset = bb_get_option( 'user_bbdb_charset' ))
+				$this->user_charset = $user_charset;
+		else
+			$this->user_charset = $bb->user_bbdb_charset;
+		
 		if ( defined('CUSTOM_USER_TABLE') )
-			$this->users = CUSTOM_USER_TABLE;
-
+			$this->users = constant('CUSTOM_USER_TABLE');
+		elseif ( function_exists('bb_get_option') )
+			if ($users = bb_get_option( 'custom_user_table' ))
+				$this->users = $users;
+		elseif (isset($bb->custom_user_table))
+			$this->users = $bb->custom_user_table;
+		
 		if ( defined('CUSTOM_USER_META_TABLE') )
-			$this->usermeta = CUSTOM_USER_META_TABLE;
-
+			$this->usermeta = constant('CUSTOM_USER_META_TABLE');
+		elseif ( function_exists('bb_get_option') )
+			if ($usermeta = bb_get_option( 'custom_user_meta_table' ))
+				$this->usermeta = $usermeta;
+		elseif (isset($bb->custom_user_meta_table))
+			$this->usermeta = $bb->custom_user_meta_table;
+		
 		return $old_prefix;
 	}
 
@@ -189,7 +224,7 @@ class bbdb_base {
 	//	Format a string correctly for safe insert under all PHP conditions
 	
 	function escape($str) {
-		return addslashes($str);				
+		return addslashes($str);
 	}
 
 	function escape_deep( $array ) {
@@ -227,14 +262,21 @@ class bbdb_base {
 	}
 
 	// ==================================================================
-	//	Turn error handling on or off..
-
-	function show_errors() {
-		$this->show_errors = true;
+	//	Toggle error handling..
+	
+	// Cause errors to be returned in print_error
+	function return_errors() {
+		$this->show_errors = 2;
 	}
 	
+	// Cause errors to be echoed in print_error
+	function show_errors() {
+		$this->show_errors = 1;
+	}
+	
+	// Cause errors to be surpressed in print_error
 	function hide_errors() {
-		$this->show_errors = false;
+		$this->show_errors = 0;
 	}
 
 	// ==================================================================
@@ -318,7 +360,7 @@ class bbdb_base {
 		} elseif ( $output == ARRAY_N ) {
 			return $this->last_result[$y] ? array_values(get_object_vars($this->last_result[$y])) : null;
 		} else {
-			$this->print_error(" \$db->get_row(string query, output type, int offset) -- Output type must be one of: OBJECT, ARRAY_A, ARRAY_N");
+			return $this->print_error(" \$db->get_row(string query, output type, int offset) -- Output type must be one of: OBJECT, ARRAY_A, ARRAY_N");
 		}
 	}
 

@@ -1,51 +1,335 @@
-html { background: #eee; }
+/*
+Start with some basic resets
+*/
+
+/*
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.3.1
+*/
+body {font:13px/1.22 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
+table {font-size:inherit;font:100%;}
+pre,code,kbd,samp,tt {font-family:monospace;*font-size:108%;line-height:99%;}
+body {color:#000;background:#FFF;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}
+table{border-collapse:collapse;border-spacing:0;}
+fieldset,img{border:0;}
+address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
+li {list-style:none;}
+caption,th {text-align:left;}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+q:before,q:after{content:'';}
+abbr,acronym {border:0;font-variant:normal;}
+sup,sub {line-height:-1px;vertical-align: text-top;}
+sub {vertical-align:text-bottom;}
+input, textarea, select{font-family:inherit;font-size:inherit;font-weight:inherit;}
+
+/*
+Now for our own code
+*/
 
 body {
-	background: #fff;
-	color: #000;
-	font-family: Georgia, "Times New Roman", Times, serif;
-	margin-left: 20%;
-	margin-right: 20%;
-	padding: .2em 2em;
+	background-image: url('../bb-images/install-body-background.gif');
+	background-repeat: repeat-x;
+	background-attachment: fixed;
+	background-color: rgb(220, 220, 220);
+	text-align: center;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: rgb(255, 255, 255);
 }
 
-h1 {
-	color: #006;
-	font-size: 18px;
-	font-weight: lighter;
+div#container {
+	margin: 0 auto;
+	padding: 2.5em;
+	width: 35em;
+	background-image: url('../bb-images/install-container-background.gif');
+	background-repeat: repeat-x;
+	background-color: rgb(30, 71, 13);
+	text-align: left;
+	-khtml-border-bottom-left-radius: 1em;
+	-khtml-border-bottom-right-radius: 1em;
+	border-bottom-left-radius: 1em;
+	border-bottom-right-radius: 1em;
 }
 
-h2 { font-size: 16px; }
-
-p, li, dt {
-	line-height: 140%;
-	padding-bottom: 2px;
+a {
+	color: rgb(235, 184, 45);
+	text-decoration: none;
 }
 
-ul, ol { padding: 5px 5px 5px 20px; }
+a:hover {
+	text-decoration: underline;
+}
 
-#logo { margin: 2em 0; }
+strong {
+	font-weight: bold;
+}
 
-.step a, .step input { font-size: 2em; }
-
-td input { font-size: 1.5em; }
-
-.step, th { text-align: right; }
-
-#footer {
-	text-align: center; 
-	border-top: 1px solid #ccc; 
-	padding-top: 1em; 
+em {
 	font-style: italic;
 }
 
-.error {
-	background-color: #f99;
+div.logo {
+	text-align: center;
 }
 
-.notice {
-	background-color: #ff9;
+div.logo img {
+	display: block;
+	margin: 0 auto;
 }
 
-span.bad-input { color: #d00; }
-input.bad-input { background-color: #fdd; }
+h1 {
+	margin: 1em 0 2.5em 0;
+	font-size: 0.8em;
+	text-align: center;
+}
+
+p {
+	margin: 1.5em 0;
+	font-size: 0.8em;
+}
+
+dl {
+	border-left: 1px solid rgb(125, 125, 125);
+	padding-left: 0.6em;
+	margin: 1.5em 0;
+	font-size: 0.8em;
+}
+
+dl code {
+	font-size: 1.1em;
+}
+
+dt {
+	margin: 1.2em 0 0 0;
+}
+
+dd {
+	font-size: 1.2em;
+	margin: 0.2em 0 0 3em;
+}
+
+dd a {
+	color: rgb(46, 110, 21);
+}
+
+p.status {
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 1.25em;
+}
+
+p code {
+	font-size: 1.1em;
+}
+
+p.last {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+h2 {
+	font-size: 0.8em;
+}
+
+div#step1 {
+	margin-top: 2.5em;
+}
+
+div.open,
+div.closed {
+	border-top: 1px solid rgb(255, 255, 255);
+}
+
+div.open div,
+div.closed div {
+	padding: 1em;
+}
+
+div.closed div {
+	position: relative;
+}
+
+div.open div {
+	margin: 1px 0;
+	background-color: rgb(255, 255, 255);
+	color: rgb(0, 0, 0);
+}
+
+p.error {
+	border: 1px solid rgb(125, 125, 125);
+	background-color: rgb(153, 0, 0);
+	padding: 0.6em;
+	color: rgb(255, 255, 255);
+}
+
+dl.error {
+	margin-top: -1em;
+}
+
+p.complete {
+	border: 1px solid rgb(125, 125, 125);
+	background-color: rgb(46, 110, 21);
+	padding: 0.6em;
+	color: rgb(255, 255, 255);
+}
+
+p span.first {
+	display: block;
+	float: left;
+	height: 1.2em;
+	width: 1.2em;
+	line-height: 1.1em;
+	font-size: 2em;
+	text-align: center;
+	-khtml-border-radius: 0.6em;
+	border-radius: 0.6em;
+	margin: -1px 0.4em 0.5em -1px;
+	font-weight: bold;
+	background-color: rgb(235, 184, 45);
+	color: rgb(0, 0, 0);
+	border: 1px solid rgb(255, 255, 255);
+}
+
+div.open div.advanced {
+	margin: 0;
+	padding: 0;
+}
+
+div.open h2 {
+	font-weight: bold;
+}
+
+form {
+	clear: both;
+}
+
+fieldset {
+	margin-top: 2em;
+}
+
+legend {
+	font-size: 0.8em;
+	font-weight: bold;
+	padding-bottom: 0.5em;
+	font-style: italic;
+}
+
+label {
+	display: block;
+	margin: 1em 0 0 0;
+	font-size: 0.8em;
+}
+
+label.error {
+	padding: 0.3em;
+	background-color: rgb(153, 0, 0);
+	color: rgb(255, 255, 255);
+	border: 1px solid rgb(125, 125, 125);
+}
+
+label span.error {
+	display: block;
+	margin: 0.4em 0.4em 0.4em 4em;
+}
+
+label code {
+	font-size: 1.1em;
+}
+
+fieldset.buttons label.forward {
+	margin: 0;
+	float: right;
+}
+
+fieldset.buttons label.back {
+	margin: 0;
+	float: left;
+}
+
+p.note {
+	margin: 0 0 0 2.5em;
+	color: rgb(125, 125, 125);
+	border-left: 1px solid rgb(125, 125, 125);
+	padding: 0.6em;
+	font-size: 0.7em;
+}
+
+input.text {
+	font-size: 1.4em;
+	padding: 0.3em;
+	border: 1px solid rgb(125, 125, 125);
+	background-color: rgb(240, 240, 240);
+	width: 28.8em;
+	display: block;
+	margin-top: 0.2em;
+}
+
+label.error input.text {
+	width: 28.2em;
+}
+
+select {
+	font-size: 1.4em;
+	padding: 0;
+	border: 1px solid rgb(125, 125, 125);
+	background-color: rgb(240, 240, 240);
+	width: 100%;
+	display: block;
+	margin-top: 0.2em;
+}
+
+textarea {
+	font-size: 0.9em;
+	padding: 0em;
+	border: 1px solid rgb(125, 125, 125);
+	background-color: rgb(240, 240, 240);
+	width: 45.7em;
+	height: 38em;
+	display: block;
+	margin-top: 0.4em;
+}
+
+textarea.short {
+	height: 15em;
+}
+
+textarea.error {
+	border-color: rgb(153, 0, 0);
+	color: rgb(153, 0, 0);
+}
+
+input.checkbox {
+	font-size: 1.25em;
+}
+
+input:focus,
+textarea:focus {
+	background-color: rgb(210, 210, 210);
+}
+
+input.button {
+	font-size: 1.2em;
+	background: url('../bb-images/fade-butt.png');
+	border: 3px double rgb(125, 125, 125);
+	border-left-color: rgb(210, 210, 210);
+	border-top-color: rgb(210, 210, 210);
+	padding: 0.4em;
+}
+
+input.button:active {
+	background: rgb(240, 240, 240);
+	border: 3px double rgb(210, 210, 210);
+	border-left-color: rgb(125, 125, 125);
+	border-top-color: rgb(125, 125, 125);
+}
+
+p#footer {
+	color: rgb(0, 0, 0);
+}
+
+p#footer a {
+	color: rgb(46, 110, 21);
+}

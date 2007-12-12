@@ -82,4 +82,8 @@ if ( is_bb_feed() ) {
 bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1 ) );
 bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
 
+if ( bb_get_option( 'wp_table_prefix' ) ) {
+	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
+}
+
 ?>

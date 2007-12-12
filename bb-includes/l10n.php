@@ -5,7 +5,7 @@ function get_locale() {
 	if (isset($locale))
 		return $locale;
 
-	// BBLANG is defined in config.php
+	// BBLANG is defined in bb-config.php
 	if (defined('BBLANG'))
 		$locale = BBLANG;
 

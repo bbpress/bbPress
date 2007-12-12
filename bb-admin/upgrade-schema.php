@@ -15,10 +15,10 @@ if ( $bbdb->has_cap( 'collation', $bbdb->forums ) ) {
 }
 
 if ( $bbdb->has_cap( 'collation', $bbdb->users ) ) {
-	if ( ! empty($bbdb->charset) )
-		$user_charset_collate = "DEFAULT CHARACTER SET $bbdb->charset";
-	if ( ! empty($bbdb->collate) )
-		$user_charset_collate .= " COLLATE $bbdb->collate";
+	if ( ! empty($bbdb->user_charset) )
+		$user_charset_collate = "DEFAULT CHARACTER SET $bbdb->user_charset";
+	if ( ! empty($bbdb->user_collate) )
+		$user_charset_collate .= " COLLATE $bbdb->user_collate";
 }
 
 $bb_queries = "CREATE TABLE $bbdb->forums (

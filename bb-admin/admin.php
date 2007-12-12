@@ -3,8 +3,10 @@ require_once('../bb-load.php');
 
 bb_auth();
 
-if ( bb_get_option( 'bb_db_version' ) != bb_get_option_from_db( 'bb_db_version' ) )
-	bb_die( sprintf(__("Your database is out-of-date.  Please <a href='%s'>upgrade</a>."), bb_get_option( 'uri' ) . 'bb-admin/upgrade.php') );
+if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) ) {
+	bb_safe_redirect( 'upgrade.php' );
+	die();
+}
 
 require('admin-functions.php');
 require('admin-deprecated.php');

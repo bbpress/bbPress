@@ -1113,6 +1113,103 @@ function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
 	return apply_filters( 'bb_is_trusted_user', (bool) array_intersect(bb_trusted_roles(), $user->roles), $user->ID );
 }
 
+function bb_apply_wp_role_map_to_user( $user ) {
+	if ( is_numeric($user) || is_string($user) ) {
+		$user_id = (integer) $user;
+	} elseif ( is_object($user) ) {
+		$user_id = $user->ID;
+	} else {
+		return;
+	}
+	
+	if ($wp_roles_map = bb_get_option('wp_roles_map')) {
+		
+		global $bb_table_prefix;
+		
+		$bb_roles_map = array_flip($wp_roles_map);
+		
+		$wp_userlevel_map = array(
+			'administrator' => 10,
+			'editor' => 7,
+			'author' => 2,
+			'contributor' => 1,
+			'subscriber' => 0
+		);
+		
+		$bb_roles = bb_get_usermeta($user_id, $bb_table_prefix . 'capabilities');
+		
+		$wp_table_prefix = bb_get_option('wp_table_prefix');
+		
+		$wp_roles = bb_get_usermeta($user_id, $wp_table_prefix . 'capabilities');
+		
+		if (!$bb_roles && is_array($wp_roles)) {
+			$bb_roles_new = array();
+			
+			foreach ($wp_roles as $wp_role => $wp_role_value) {
+				if ($wp_roles_map[$wp_role] && $wp_role_value) {
+					$bb_roles_new[$wp_roles_map[$wp_role]] = true;
+				}
+			}
+			
+			if (count($bb_roles_new)) {
+				bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', $bb_roles_new );
+			}
+			
+		} elseif (!$wp_roles && is_array($bb_roles)) {
+			$wp_roles_new = array();
+			
+			foreach ($bb_roles as $bb_role => $bb_role_value) {
+				if ($bb_roles_map[$bb_role] && $bb_role_value) {
+					$wp_roles_new[$bb_roles_map[$bb_role]] = true;
+					$wp_userlevels_new[] = $wp_userlevel_map[$bb_roles_map[$bb_role]];
+				}
+			}
+			
+			if (count($wp_roles_new)) {
+				bb_update_usermeta( $user_id, $wp_table_prefix . 'capabilities', $wp_roles_new );
+				bb_update_usermeta( $user_id, $wp_table_prefix . 'user_level', max($wp_userlevels_new) );
+			}
+			
+		}
+		
+	}
+}
+
+function bb_apply_wp_role_map_to_orphans() {
+	if ( $wp_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
+		
+		$role_query = <<<EOQ
+			SELECT
+				ID
+			FROM
+				%1\$s
+			LEFT JOIN %2\$s AS bbrole
+				ON ID = bbrole.user_id
+				AND bbrole.meta_key = '%3\$scapabilities'
+			LEFT JOIN %2\$s AS wprole
+				ON ID = wprole.user_id
+				AND wprole.meta_key = '%4\$scapabilities'
+			WHERE
+				bbrole.meta_key IS NULL OR
+				bbrole.meta_value IS NULL OR
+				wprole.meta_key IS NULL OR
+				wprole.meta_value IS NULL
+			ORDER BY
+				ID
+EOQ;
+		global $bbdb, $bb_table_prefix;
+		
+		$role_query = sprintf($role_query, $bbdb->users, $bbdb->usermeta, $bb_table_prefix, $wp_table_prefix);
+		
+		if ( $user_ids = $bbdb->get_col($role_query) ) {
+			foreach ( $user_ids as $user_id ) {
+				bb_apply_wp_role_map_to_user( $user_id );
+			}
+		}
+		
+	}
+}
+
 /* Favorites */
 
 function get_user_favorites( $user_id, $topics = false ) {
@@ -1198,7 +1295,7 @@ function bb_get_option( $option ) {
 		return '0.8.3'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '977'; // Don't filter
+		return '981'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -1216,10 +1313,31 @@ function bb_get_option( $option ) {
 	default :
 		if ( isset($bb->$option) ) {
 			$r = $bb->$option;
+			if ($option == 'mod_rewrite')
+				if (is_bool($r))
+					$r = (integer) $r;
 			break;
 		}
-
+		
 		$r = bb_get_option_from_db( $option );
+		
+		if (!$r) {
+			switch ($option) {
+				case 'mod_rewrite':
+					$r = 0;
+					break;
+				case 'page_topics':
+					$r = 30;
+					break;
+				case 'edit_lock':
+					$r = 60;
+					break;
+				case 'gmt_offset':
+					$r = 0;
+					break;
+			}
+		}
+		
 		break;
 	endswitch;
 	return apply_filters( 'bb_get_option_' . $option, $r, $option);
@@ -1234,16 +1352,29 @@ function bb_get_option_from_db( $option ) {
 		if ( is_wp_error( $r ) && 'bb_get_option' == $r->get_error_code() )
 			$r = null; // see WP_Error below
 	} else {
+		if ( defined( 'BB_INSTALLING' ) )
+			$bbdb->hide_errors();
 		$row = $bbdb->get_row("SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = '$option'");
+		if ( defined( 'BB_INSTALLING' ) )
+			$bbdb->show_errors();
 
 		if ( is_object($row) ) {
 			$bb_topic_cache[0]->$option = $r = bb_maybe_unserialize( $row->meta_value );
 		} else {
 			$r = null;
-			$bb_topic_cache[0]->$option = new WP_Error( 'bb_get_option' ); // Used internally for caching.  See above.
+			if ( isset($bb_topic_cache) )
+				$bb_topic_cache[0]->$option = new WP_Error( 'bb_get_option' ); // Used internally for caching.  See above.
 		}
 	}
 	return apply_filters( 'bb_get_option_from_db_' . $option, $r, $option );
+}
+
+function bb_form_option( $option ) {
+	echo bb_get_form_option( $option );
+}
+
+function bb_get_form_option( $option ) {
+	return attribute_escape( bb_get_option( $option ) );
 }
 
 function bb_cache_all_options() { // Don't use the return value; use the API.  Only returns options stored in DB.
@@ -1924,29 +2055,50 @@ function bb_nonce_ays($action) {
 	bb_die($html, $title);
 }
 
-function bb_install_header( $title = '' ) {
-	header('Content-Type: text/html; charset=utf-8');
-
+function bb_install_header( $title = '', $header = false ) {
 	if ( empty($title) )
-		$title = 'bbPress';
+		if ( function_exists('__') )
+			$title = __('bbPress');
+		else
+			$title = 'bbPress';
+	
+	header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
+<html xmlns="http://www.w3.org/1999/xhtml" <?php if ( function_exists( 'bb_language_attributes' ) ) bb_language_attributes(); ?>>
 <head>
-	<title><?php echo $title ?></title>
+	<title><?php echo $title; ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/install.css" type="text/css" />
-<?php if ( ('rtl' == $bb_locale->text_direction) ) : ?>
-	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/install-rtl.css" type="text/css" />
-<?php endif; ?>
+	<link rel="stylesheet" href="install.css" type="text/css" />
+<?php
+	if ( function_exists( 'bb_get_option' ) && 'rtl' == bb_get_option( 'text_direction' ) ) {
+?>
+	<link rel="stylesheet" href="install-rtl.css" type="text/css" />
+<?php
+	}
+?>
 </head>
 <body>
-	<h1 id="logo"><img alt="bbPress" src="<?php bb_option('uri'); ?>bb-images/bbpress.png" /></h1>
+	<div id="container">
+		<div class="logo">
+			<img src="../bb-images/install-logo.gif" alt="bbPress Installation" />
+		</div>
 <?php
+	if ( !empty($header) ) {
+?>
+		<h1>
+			<?php echo $header; ?>
+		</h1>
+<?php
+	}
 }
 
 function bb_install_footer() {
 ?>
+	</div>
+	<p id="footer">
+		<?php _e('<a href="http://bbpress.org/">bbPress</a> - simple, fast, elegant'); ?>
+	</p>
 </body>
 </html>
 <?php
@@ -1954,14 +2106,15 @@ function bb_install_footer() {
 
 function bb_die( $message, $title = '' ) {
 	global $bb_locale;
-
+	
 	if ( empty($title) )
 		$title = __('bbPress &rsaquo; Error');
-
+	
 	bb_install_header( $title );
 ?>
 	<p><?php echo $message; ?></p>
-	<p><?php printf( __('Back to <a href="%s">%s</a>.'), bb_get_option( 'uri' ), bb_get_option( 'name' ) ); ?></p>
+	
+	<p class="last"><?php printf( __('Back to <a href="%s">%s</a>.'), bb_get_option( 'uri' ), bb_get_option( 'name' ) ); ?></p>
 <?php
 	bb_install_footer();
 	die();
@@ -2279,6 +2432,91 @@ function bb_flatten_array( $array, $cut_branch = 0, $keep_child_array_keys = tru
 		}
 	}
 	return $temp;
+}
+
+function bb_get_common_parts($string1 = false, $string2 = false, $delimiter = '', $reverse = false) {
+	if (!$string1 || !$string2) {
+		return false;
+	}
+	
+	if ($string1 === $string2) {
+		return $string1;
+	}
+	
+	$string1_parts = explode( $delimiter, (string) $string1 );
+	$string2_parts = explode( $delimiter, (string) $string2 );
+	
+	if ($reverse) {
+		$string1_parts = array_reverse( $string1_parts );
+		$string2_parts = array_reverse( $string2_parts );
+		ksort( $string1_parts );
+		ksort( $string2_parts );
+	}
+	
+	$common_parts = array();
+	foreach ( $string1_parts as $index => $part ) {
+		if ( $string2_parts[$index] == $part ) {
+			$common_parts[] = $part;
+		} else {
+			break;
+		}
+	}
+	
+	if ($reverse) {
+		$common_parts = array_reverse( $common_parts );
+	}
+	
+	return join( $delimiter, $common_parts );
+}
+
+function bb_get_common_domains($domain1 = false, $domain2 = false) {
+	if (!$domain1 || !$domain2) {
+		return false;
+	}
+	
+	$domain1 = strtolower( preg_replace( '@^https?://([^/]+).*$@i', '$1', $domain1 ) );
+	$domain2 = strtolower( preg_replace( '@^https?://([^/]+).*$@i', '$1', $domain2 ) );
+	
+	return bb_get_common_parts( $domain1, $domain2, '.', true );
+}
+
+function bb_get_common_paths($path1 = false, $path2 = false) {
+	if (!$path1 || !$path2) {
+		return false;
+	}
+	
+	$path1 = preg_replace('@^https?://[^/]+(.*)$@i', '$1', $path1);
+	$path2 = preg_replace('@^https?://[^/]+(.*)$@i', '$1', $path2);
+	
+	if ($path1 === $path2) {
+		return $path1;
+	}
+	
+	$path1 = trim( $path1, '/' );
+	$path2 = trim( $path2, '/' );
+	
+	$common_path = bb_get_common_parts( $path1, $path2, '/' );
+	
+	if ($common_path) {
+		return '/' . $common_path . '/';
+	} else {
+		return '/';
+	}
+}
+
+function bb_match_domains($domain1 = false, $domain2 = false) {
+	if (!$domain1 || !$domain2) {
+		return false;
+	}
+	
+	$domain1 = strtolower( preg_replace( '@^https?://([^/]+).*$@i', '$1', $domain1 ) );
+	$domain2 = strtolower( preg_replace( '@^https?://([^/]+).*$@i', '$1', $domain2 ) );
+	
+	if ( (string) $domain1 === (string) $domain2 ) {
+		return true;
+	}
+	
+	return false;
 }
 
 ?>

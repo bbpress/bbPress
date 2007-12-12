@@ -50,6 +50,7 @@ function bb_admin_menu_generator() {
 	$bb_menu[10] = array(__('Content'), 'moderate', 'content.php');
 	$bb_menu[13] = array(__('Presentation'), 'use_keys', 'themes.php');
 	$bb_menu[15] = array(__('Site Management'), 'use_keys', 'plugins.php');
+	$bb_menu[50] = array(__('Options'), 'use_keys', 'options-general.php');
 
 	$bb_submenu = array();
 	$bb_submenu['users.php'][5] = array(__('Find'), 'moderate', 'users.php');
@@ -64,6 +65,9 @@ function bb_admin_menu_generator() {
 
 	$bb_submenu['plugins.php'][5] = array(__('Plugins'), 'use_keys', 'plugins.php');
 	$bb_submenu['plugins.php'][10] = array(__('Recount'), 'recount', 'site.php');
+	
+	$bb_submenu['options-general.php'][5] = array(__('General'), 'use_keys', 'options-general.php');
+	$bb_submenu['options-general.php'][10] = array(__('WordPress Integration'), 'use_keys', 'options-wordpress.php');
 
 	do_action('bb_admin_menu_generator','');
 	ksort($bb_menu);

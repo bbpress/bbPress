@@ -37,13 +37,15 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 				$user = bb_get_user( $user->ID );
 			}
 			
-			return $user;
+			//return $user;
+		} else {
+			$user = false;
 		}
-	} elseif ( md5($user->user_pass) == $pass ) {
-		return $user;
+	} elseif ( md5($user->user_pass) != $pass ) {
+		$user = false;
 	}
 	
-	return false;
+	return $user;
 }
 endif;
 

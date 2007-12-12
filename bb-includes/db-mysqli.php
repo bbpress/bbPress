@@ -19,24 +19,28 @@ class bbdb extends bbdb_base {
 
 	function db_connect( $query = 'SELECT' ) {
 		global $current_connection;
-
+		
 		if ( empty( $query ) || $query == 'SELECT' )
 			return false;
-
+		
 		$table = $this->get_table_from_query( $query );
-
+		
+		$server = new StdClass();
+		
 		if ( defined('USER_BBDB_NAME') && ( $table == $this->users || $table == $this->usermeta ) ) { // global user tables
 			$dbhname = 'dbh_user'; // This is connection identifier
 			$server->database = constant('USER_BBDB_NAME');
 			$server->user = constant('USER_BBDB_USER');
 			$server->pass = constant('USER_BBDB_PASSWORD');
 			$server->host = constant('USER_BBDB_HOST');
+			$server->charset = $this->user_charset;
 		} else { // just us
 			$dbhname = 'dbh_local'; // This is connection identifier
 			$server->database = constant('BBDB_NAME');
 			$server->user = constant('BBDB_USER');
 			$server->pass = constant('BBDB_PASSWORD');
 			$server->host = constant('BBDB_HOST');
+			$server->charset = $this->charset;
 		}
 		
 		// Set the port if it is specified in the host
@@ -47,21 +51,24 @@ class bbdb extends bbdb_base {
 		}
 		
 		$current_connection = "$dbhname";
-
+		
 		if ( isset( $this->$dbhname ) ) // We're already connected!
 			return $this->$dbhname;
-
+		
 		$this->timer_start();
 		
 		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass, null, $server->port );
-
-		if ( !empty($this->charset) && $this->has_cap( 'collation', $this->$dbhname ) )
-			$this->query("SET NAMES '$this->charset'");
-
+		
+		if (!$this->$dbhname)
+			return false;
+		
+		if ( isset($server->charset) && !empty($server->charset) && $this->has_cap( 'collation', $this->$dbhname ) )
+			$this->query("SET NAMES '$server->charset'");
+		
 		$this->select( $server->database, $this->$dbhname );
-
+		
 		$current_connection .= ' connect: ' . number_format( ( $this->timer_stop() * 1000 ), 2) . 'ms';
-
+		
 		return $this->$dbhname;	
 	}
 
@@ -82,17 +89,28 @@ class bbdb extends bbdb_base {
 		global $EZSQL_ERROR;
 		if (!$str) $str = mysqli_error( $this->db_connect( $this->last_query ) ); // Will this work?
 		$EZSQL_ERROR[] = 
-		array ('query' => $this->last_query, 'error_str' => $str);
-
-		// Is error output turned on or not..
-		if ( $this->show_errors ) {
-			// If there is an error then take note of it
-			print "<div id='error'>
-			<p class='bbdberror'><strong>bbPress database error:</strong> [$str]<br />
-			<code>$this->last_query</code></p>
-			</div>";
-		} else {
-			return false;	
+		array('query' => $this->last_query, 'error_str' => $str);
+		
+		// What to do with the error?
+		switch ( $this->show_errors ) {
+			case 0:
+				// Surpress
+				return false;
+				break;
+			
+			case 1:
+				// Print
+				print "<div id='error'>
+				<p class='bbdberror'><strong>bbPress database error:</strong> [$str]<br />
+				<code>$this->last_query</code></p>
+				</div>";
+				return false;
+				break;
+			
+			case 2:
+				// Return
+				return array('query' => $this->last_query, 'error_str' => $str);
+				break;
 		}
 	}
 
@@ -127,8 +145,7 @@ class bbdb extends bbdb_base {
 		// If there is an error then take note of it..
 		if( $dbh ) {
 			if ( mysqli_error( $dbh ) ) {
-				$this->print_error( mysqli_error( $dbh ) );
-				return false;
+				return $this->print_error( mysqli_error( $dbh ) );
 			}
 		}
 

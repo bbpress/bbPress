@@ -4,7 +4,7 @@ if ( phpversion() < '4.2' )
 	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.2', phpversion()) );
 
 if ( !$bb_table_prefix )
-	die('You must specify a table prefix in your <code>config.php</code> file.');
+	die('You must specify a table prefix in your <code>bb-config.php</code> file.');
 
 if ( !defined('BBPATH') )
 	die('This file cannot be called directly.');
@@ -48,28 +48,114 @@ if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 		$_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
 }
 
-
+// Modify error reporting levels
 error_reporting(E_ALL ^ E_NOTICE);
 
-if ( isset($bb->uri) ) {
-	$bb->domain = preg_replace('|(?<!/)/(?!/).*$|', '', $bb->uri);
-	$bb->path = substr($bb->uri, strlen($bb->domain));
-} elseif ( isset($bb->path) && isset($bb->domain) ) {
-	$bb->domain = rtrim($bb->domain, '/');
-	$bb->path = '/' . ltrim($bb->path, '/');
+// Define the include path
+define('BBINC', 'bb-includes/');
+
+// Choose a database class
+require( BBPATH . BBINC . 'db-base.php');
+if ( extension_loaded('mysql') ) {
+	require( BBPATH . BBINC . 'db.php');
+} elseif ( extension_loaded('mysqli') ) {
+	require( BBPATH . BBINC . 'db-mysqli.php');
 } else {
-	bb_die( '<code>$bb->uri</cade> must be set in your <code>config.php</code> file.' );
+	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
 }
 
-foreach ( array('wp_site_url', 'wp_home', 'path') as $p )
-	if ( isset($bb->$p) && $bb->$p )
-		$bb->$p = rtrim($bb->$p, '/');
-unset($p);
+// Include functions
+require( BBPATH . BBINC . 'compat.php');
+require( BBPATH . BBINC . 'wp-functions.php');
+require( BBPATH . BBINC . 'functions.php');
+require( BBPATH . BBINC . 'wp-classes.php');
+require( BBPATH . BBINC . 'classes.php');
+if ( defined('BBLANG') && '' != constant('BBLANG') ) {
+	include_once(BBPATH . BBINC . 'streams.php');
+	include_once(BBPATH . BBINC . 'gettext.php');
+}
+if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
+	require( BBPATH . BBINC . 'kses.php');
+	require( BBPATH . BBINC . 'l10n.php');
+}
 
-$bb->path = "$bb->path/";
-$bb->uri = $bb->domain . $bb->path;
+if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+	die(__('Your table prefix may only contain letters, numbers and underscores.'));
 
-define('BBINC', 'bb-includes/');
+if ( !bb_is_installed() && false === strpos($_SERVER['PHP_SELF'], 'install.php') && !defined('BB_INSTALLING') ) {
+	$link = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
+	require( BBPATH . BBINC . 'pluggable.php');
+	wp_redirect($link);
+	die();
+}
+
+if ( is_wp_error( $bbdb->set_user_prefix() ) )
+	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
+
+foreach ( array('use_cache', 'secret', 'debug', 'static_title', 'load_options') as $o )
+	if ( !isset($bb->$o) )
+		$bb->$o = false;
+unset($o);
+
+if ( defined('BB_INSTALLING') && BB_INSTALLING )
+foreach ( array('active_plugins') as $i )
+	$bb->$i = false;
+unset($i);
+
+require( BBPATH . BBINC . 'formatting-functions.php');
+require( BBPATH . BBINC . 'template-functions.php');
+require( BBPATH . BBINC . 'capabilities.php');
+require( BBPATH . BBINC . 'cache.php');
+require( BBPATH . BBINC . 'deprecated.php');
+
+require( BBPATH . BBINC . 'bozo.php');
+require( BBPATH . BBINC . 'akismet.php');
+require( BBPATH . BBINC . 'default-filters.php');
+require( BBPATH . BBINC . 'script-loader.php');
+
+$bb_cache = new BB_Cache();
+
+if ( $bb->load_options ) {
+	$bbdb->hide_errors();
+	bb_cache_all_options();
+	$bbdb->show_errors();
+}
+
+$_GET    = bb_global_sanitize($_GET   );
+$_POST   = bb_global_sanitize($_POST  );
+$_COOKIE = bb_global_sanitize($_COOKIE, false);
+$_SERVER = bb_global_sanitize($_SERVER);
+
+// Set the URI and derivitaves
+if ( $bb->uri = bb_get_option('uri') ) {
+	$bb->uri = rtrim($bb->uri, '/') . '/';
+	
+	// Not used in core anymore, only set here for plugin compatibility
+	if ( preg_match( '@^(https?://[^/]+)(/.*)/+$@i', $bb->uri, $matches ) ) {
+		$bb->domain = $matches[1];
+		$bb->path = $matches[2] . '/';
+		if ($bb->path == '//') $bb->path = '/';
+	}
+} else {
+	// Backwards compatibility
+	// These were never set in the database
+	if ( isset($bb->domain) ) {
+		$bb->domain = rtrim( trim( $bb->domain ), '/' );
+	}
+	if ( isset($bb->path) ) {
+		$bb->path = trim($bb->path);
+		if ( $bb->path != '/' ) $bb->path = '/' . trim($bb->path, '/') . '/';
+	}
+	// We need both to build a uri
+	if ( $bb->domain && $bb->path ) {
+		$bb->uri = $bb->domain . $bb->path;
+	}
+}
+// Die if no URI
+if ( !$bb->uri && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
+	bb_die( __('Could not determine site URI') );
+}
+
 if ( !defined('BBLANGDIR') )
 	define('BBLANGDIR', BBPATH . BBINC . 'languages/'); // absolute path with trailing slash
 if ( !defined('BBPLUGINDIR') )
@@ -85,86 +171,97 @@ if ( !defined('BBDEFAULTTHEMEDIR') )
 if ( !defined('BBDEFAULTTHEMEURL') )
 	define('BBDEFAULTTHEMEURL', $bb->uri . 'bb-templates/kakumei/');
 
-require( BBPATH . BBINC . 'db-base.php');
-if ( extension_loaded('mysql') ) {
-	require( BBPATH . BBINC . 'db.php');
-} elseif ( extension_loaded('mysqli') ) {
-	require( BBPATH . BBINC . 'db-mysqli.php');
-} else {
-	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
+// Check for defined custom user tables
+// Constants are taken before $bb before database settings
+$bb->wp_table_prefix = bb_get_option('wp_table_prefix');
+if ( defined('USER_BBDB_NAME') ) {
+	$bb->user_bbdb_name = USER_BBDB_NAME;
+} elseif ($bb->user_bbdb_name = bb_get_option('user_bbdb_name')) {
+	define('USER_BBDB_NAME', $bb->user_bbdb_name);
+}
+if ( defined('USER_BBDB_USER') ) {
+	$bb->user_bbdb_user = USER_BBDB_USER;
+} elseif ($bb->user_bbdb_user = bb_get_option('user_bbdb_user')) {
+	define('USER_BBDB_USER', $bb->user_bbdb_user);
+}
+if ( defined('USER_BBDB_PASSWORD') ) {
+	$bb->user_bbdb_password = USER_BBDB_PASSWORD;
+} elseif ($bb->user_bbdb_password = bb_get_option('user_bbdb_password')) {
+	define('USER_BBDB_PASSWORD', $bb->user_bbdb_password);
+}
+if ( defined('USER_BBDB_HOST') ) {
+	$bb->user_bbdb_host = USER_BBDB_HOST;
+} elseif ($bb->user_bbdb_host = bb_get_option('user_bbdb_host')) {
+	define('USER_BBDB_HOST', $bb->user_bbdb_host);
+}
+if ( defined('USER_BBDB_CHARSET') ) {
+	$bb->user_bbdb_charset = USER_BBDB_CHARSET;
+} elseif ($bb->user_bbdb_charset = bb_get_option('user_bbdb_charset')) {
+	define('USER_BBDB_CHARSET', $bb->user_bbdb_charset);
+}
+if ( defined('CUSTOM_USER_TABLE') ) {
+	$bb->custom_user_table = CUSTOM_USER_TABLE;
+} elseif ($bb->custom_user_table = bb_get_option('custom_user_table')) {
+	define('CUSTOM_USER_TABLE', $bb->custom_user_table);
+}
+if ( defined('CUSTOM_USER_META_TABLE') ) {
+	$bb->custom_user_meta_table = CUSTOM_USER_META_TABLE;
+} elseif ($bb->custom_user_meta_table = bb_get_option('custom_user_meta_table')) {
+	define('CUSTOM_USER_META_TABLE', $bb->custom_user_meta_table);
 }
 
-require( BBPATH . BBINC . 'compat.php');
-require( BBPATH . BBINC . 'wp-functions.php');
-require( BBPATH . BBINC . 'functions.php');
-require( BBPATH . BBINC . 'wp-classes.php');
-require( BBPATH . BBINC . 'classes.php');
-
-if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
-	die('Your table prefix may only contain letters, numbers and underscores.');
-
-foreach ( array('use_cache', 'secret', 'debug', 'wp_table_prefix', 'wp_home', 'wp_siteurl', 'cookiedomain', 'static_title', 'load_options', 'akismet_key') as $o )
-	if ( !isset($bb->$o) )
-		$bb->$o = false;
-unset($o);
-
-if ( defined('BB_INSTALLING') && BB_INSTALLING )
-foreach ( array('active_plugins') as $i )
-	$bb->$i = false;
-unset($i);
-
-require( BBPATH . BBINC . 'formatting-functions.php');
-require( BBPATH . BBINC . 'template-functions.php');
-require( BBPATH . BBINC . 'capabilities.php');
-require( BBPATH . BBINC . 'cache.php');
-require( BBPATH . BBINC . 'deprecated.php');
-if ( defined('BBLANG') && '' != constant('BBLANG') ) {
-	include_once(BBPATH . BBINC . 'streams.php');
-	include_once(BBPATH . BBINC . 'gettext.php');
+// Sort out cookies so they work with WordPress (if required)
+// Note that database integration is no longer a pre-requisite for cookie integration
+$bb->wp_siteurl = bb_get_option('wp_siteurl');
+if ( $bb->wp_siteurl ) {
+	$bb->wp_siteurl = rtrim($bb->wp_siteurl, '/') . '/';
 }
-if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
-	require( BBPATH . BBINC . 'kses.php');
-	require( BBPATH . BBINC . 'l10n.php');
+$bb->wp_home = bb_get_option('wp_home');
+if ( $bb->wp_home ) {
+	$bb->wp_home = rtrim($bb->wp_home, '/') . '/';
 }
-require( BBPATH . BBINC . 'bozo.php');
-require( BBPATH . BBINC . 'akismet.php');
-require( BBPATH . BBINC . 'default-filters.php');
-require( BBPATH . BBINC . 'script-loader.php');
-
-if ( !bb_is_installed() && false === strpos($_SERVER['PHP_SELF'], 'install.php') && !defined('BB_INSTALLING') )
-	die(sprintf(__('Doesn&#8217;t look like you&#8217;ve installed bbPress yet, <a href="%s">go here</a>.'), 'bb-admin/install.php'));
-
-$bb_cache = new BB_Cache();
-
-if ( $bb->load_options ) {
-	$bbdb->hide_errors();
-	bb_cache_all_options();
-	$bbdb->show_errors();
+$bb->wp_cookies_integrated = false;
+$bb->cookiedomain = bb_get_option('cookiedomain');
+if ( $bb->wp_siteurl && $bb->wp_home ) {
+	if ( $bb->cookiedomain ) {
+		$bb->wp_cookies_integrated = true;
+	} else {
+		$cookiedomain = bb_get_common_domains($bb->uri, $bb->wp_home);
+		if ( bb_match_domains($bb->uri, $bb->wp_home) ) {
+			$bb->cookiepath = bb_get_common_paths($bb->uri, $bb->wp_home);
+			$bb->wp_cookies_integrated = true;
+		} elseif ($cookiedomain && strpos($cookiedomain, '.') !== false) {
+			$bb->cookiedomain = '.' . $cookiedomain;
+			$bb->cookiepath = bb_get_common_paths($bb->uri, $bb->wp_home);
+			$bb->wp_cookies_integrated = true;
+		}
+		unset($cookiedomain);
+	}
+}
+define('BBHASH', $bb->wp_cookies_integrated ? md5(rtrim($bb->wp_siteurl, '/')) : md5(rtrim($bb->uri, '/')) );
+$bb->usercookie = bb_get_option('usercookie');
+if ( !$bb->usercookie ) {
+	$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
+}
+$bb->passcookie = bb_get_option('passcookie');
+if ( !$bb->passcookie ) {
+	$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BBHASH;
+}
+$bb->cookiepath = bb_get_option('cookiepath');
+if ( !isset( $bb->cookiepath ) ) {
+	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
+}
+$bb->sitecookiepath = bb_get_option('sitecookiepath');
+if ( !isset( $bb->sitecookiepath ) ) {
+	$bb->sitecookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl ) : $bb->path;
 }
 
-$_GET    = bb_global_sanitize($_GET   );
-$_POST   = bb_global_sanitize($_POST  );
-$_COOKIE = bb_global_sanitize($_COOKIE, false);
-$_SERVER = bb_global_sanitize($_SERVER);
 
-if ( defined('CUSTOM_USER_TABLE') )
-	$bbdb->users = CUSTOM_USER_TABLE;
-if ( defined('CUSTOM_USER_META_TABLE') )
-	$bbdb->usermeta = CUSTOM_USER_META_TABLE;
-
-define('BBHASH', $bb->wp_siteurl ? md5($bb->wp_siteurl) : md5($bb_table_prefix) );
-
-if ( !isset( $bb->usercookie ) )
-	$bb->usercookie = ( $bb->wp_table_prefix ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
-if ( !isset( $bb->passcookie ) )
-	$bb->passcookie = ( $bb->wp_table_prefix ? 'wordpresspass_' : 'bb_pass_' ) . BBHASH;
-if ( !isset( $bb->cookiepath ) )
-	$bb->cookiepath = $bb->wp_home ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home . '/' ) : $bb->path;
-if ( !isset( $bb->sitecookiepath ) )
-	$bb->sitecookiepath = $bb->wp_siteurl ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl . '/' ) : $bb->path;
+// Set the path to the tag pages
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
 
+// Load Plugins
 if ( is_callable( 'glob' ) )
 	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
 		require($_plugin);
