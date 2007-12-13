@@ -57,10 +57,10 @@ if ($old_config_exists && $step > -1) {
 // Change the step if required based on what state the installation is in
 switch ($step) {
 	case -2:
+		require_once(BBPATH . BBINC . 'l10n.php');
 		break;
 	
 	case -1:
-		require_once(BBPATH . BBINC . 'l10n.php');
 		break;
 	
 	case 0:
