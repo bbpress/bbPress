@@ -40,10 +40,8 @@ class bbdb_base {
 	}
 
 	function __construct($dbuser, $dbpassword, $dbname, $dbhost) {
-		if ( defined('BBDB_CHARSET') ) {
+		if ( defined('BBDB_CHARSET') )
 			$this->charset = BBDB_CHARSET;
-			$this->user_charset = BBDB_CHARSET;
-		}
 		if ( defined('BBDB_COLLATE') )
 			$this->collate = BBDB_COLLATE;
 		

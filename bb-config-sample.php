@@ -10,6 +10,10 @@ define('BBDB_CHARSET', 'utf8');      // If you are *upgrading*, and your old bb-
 define('BBDB_COLLATE', '');          // not have these two contstants in them, DO NOT define them
                                      // If you are installing for the first time, leave them here
 
+define('BB_SECRET_KEY', '');         // Change this to a unique phrase. If you are integrating
+                                     // logins with WordPress, you will need to match the value
+                                     // of the "SECRET_KEY" in the WordPress file wp-config.php
+
 // If you are running multiple bbPress installations in a single database,
 // you will probably want to change this.
 $bb_table_prefix = 'bb_'; // Only letters, numbers and underscores please!

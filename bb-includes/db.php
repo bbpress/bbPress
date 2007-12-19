@@ -28,19 +28,19 @@ class bbdb extends bbdb_base {
 		$server = new StdClass();
 		
 		if ( defined('USER_BBDB_NAME') && ( $table == $this->users || $table == $this->usermeta ) ) { // global user tables
-			$dbhname = 'dbh_user'; // This is connection identifier
+			$dbhname =          'dbh_user'; // This is connection identifier
 			$server->database = constant('USER_BBDB_NAME');
-			$server->user = constant('USER_BBDB_USER');
-			$server->pass = constant('USER_BBDB_PASSWORD');
-			$server->host = constant('USER_BBDB_HOST');
-			$server->charset = $this->user_charset;
+			$server->user =     constant('USER_BBDB_USER');
+			$server->pass =     constant('USER_BBDB_PASSWORD');
+			$server->host =     constant('USER_BBDB_HOST');
+			$server->charset =  $this->user_charset;
 		} else { // just us
-			$dbhname = 'dbh_local'; // This is connection identifier
-			$server->database = constant('BBDB_NAME');
-			$server->user = constant('BBDB_USER');
-			$server->pass = constant('BBDB_PASSWORD');
-			$server->host = constant('BBDB_HOST');
-			$server->charset = $this->charset;
+			$dbhname =          'dbh_local'; // This is connection identifier
+			$server->database = defined('BBDB_NAME')     ? constant('BBDB_NAME')     : false;
+			$server->user =     defined('BBDB_USER')     ? constant('BBDB_USER')     : false;
+			$server->pass =     defined('BBDB_PASSWORD') ? constant('BBDB_PASSWORD') : false;
+			$server->host =     defined('BBDB_HOST')     ? constant('BBDB_HOST')     : false;
+			$server->charset =  $this->charset;
 		}
 		
 		$current_connection = "$dbhname";
@@ -58,7 +58,10 @@ class bbdb extends bbdb_base {
 		if ( !empty($server->charset) && $this->has_cap( 'collation', $this->$dbhname ) )
 			$this->query("SET NAMES '$server->charset'");
 		
-		$this->select( $server->database, $this->$dbhname );
+		if ( !$this->select( $server->database, $this->$dbhname ) ) {
+			unset($this->$dbhname);
+			return false;
+		}
 		
 		$current_connection .= ' connect: ' . number_format( ( $this->timer_stop() * 1000 ), 2) . 'ms';
 		
@@ -71,8 +74,10 @@ class bbdb extends bbdb_base {
 	function select($db, &$dbh) {
 		if (!@mysql_select_db($db, $dbh)) {
 //			$this->handle_error_connecting( $dbh, array( "db" => $db ) );
-			die('Cannot select DB.');
+			//die('Cannot select DB.');
+			return false;
 		}
+		return true;
 	}
 
 	// ==================================================================

@@ -1352,11 +1352,9 @@ function bb_get_option_from_db( $option ) {
 		if ( is_wp_error( $r ) && 'bb_get_option' == $r->get_error_code() )
 			$r = null; // see WP_Error below
 	} else {
-		if ( defined( 'BB_INSTALLING' ) )
-			$bbdb->hide_errors();
+		if ( defined( 'BB_INSTALLING' ) ) $bbdb->return_errors();
 		$row = $bbdb->get_row("SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = '$option'");
-		if ( defined( 'BB_INSTALLING' ) )
-			$bbdb->show_errors();
+		if ( defined( 'BB_INSTALLING' ) ) $bbdb->show_errors();
 
 		if ( is_object($row) ) {
 			$bb_topic_cache[0]->$option = $r = bb_maybe_unserialize( $row->meta_value );
@@ -2113,9 +2111,12 @@ function bb_die( $message, $title = '' ) {
 	bb_install_header( $title );
 ?>
 	<p><?php echo $message; ?></p>
-	
-	<p class="last"><?php printf( __('Back to <a href="%s">%s</a>.'), bb_get_option( 'uri' ), bb_get_option( 'name' ) ); ?></p>
 <?php
+	if ($uri = bb_get_option('uri')) {
+?>
+	<p class="last"><?php printf( __('Back to <a href="%s">%s</a>.'), $uri, bb_get_option( 'name' ) ); ?></p>
+<?php
+	}
 	bb_install_footer();
 	die();
 }

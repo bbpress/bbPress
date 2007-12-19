@@ -16,7 +16,7 @@ if ( file_exists( BBPATH . 'bb-config.php') ) {
 	// The config file resides one level below BBPATH
 	require_once( dirname(BBPATH) . '/bb-config.php' );
 	
-} elseif ( strpos($_SERVER['PHP_SELF'], 'install.php') === false ) {
+} elseif ( !defined('BB_INSTALLING') || !BB_INSTALLING ) {
 	
 	// The config file doesn't exist and we aren't on the installation page
 	

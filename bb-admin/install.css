@@ -169,7 +169,7 @@ dl.error {
 	margin-top: -1em;
 }
 
-p.complete {
+p.message {
 	border: 1px solid rgb(125, 125, 125);
 	background-color: rgb(46, 110, 21);
 	padding: 0.6em;
@@ -193,7 +193,7 @@ p span.first {
 	border: 1px solid rgb(255, 255, 255);
 }
 
-div.open div.advanced {
+div.open div.toggle {
 	margin: 0;
 	padding: 0;
 }
@@ -293,11 +293,12 @@ textarea {
 	margin-top: 0.4em;
 }
 
-textarea.short {
+textarea.short,
+textarea#error_log {
 	height: 15em;
 }
 
-textarea.error {
+textarea#error_log {
 	border-color: rgb(153, 0, 0);
 	color: rgb(153, 0, 0);
 }

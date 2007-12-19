@@ -59,8 +59,9 @@ bb_install_header( __('bbPress database upgrade'), __('bbPress database upgrade'
 ?>
 		<script type="text/javascript" charset="utf-8">
 			function toggleAdvanced(toggle, target) {
+				var toggleObj = document.getElementById(toggle);
 				var targetObj = document.getElementById(target);
-				if (toggle.checked) {
+				if (toggleObj.checked) {
 					targetObj.style.display = 'block';
 				} else {
 					targetObj.style.display = 'none';
@@ -104,15 +105,15 @@ switch ($step) {
 		<div class="open">
 			<div>
 				<h2><?php _e('Database upgrade complete'); ?></h2>
-				<p class="complete">
+				<p class="message">
 					<span class="first">!</span> <?php _e('Your database has been successfully updated.<br />Enjoy!'); ?>
 				</p>
 				<form action="<?php bb_option('uri'); ?>bb-admin/" method="get">
 					<label for="upgrade_log_container_toggle">
 						<?php _e('Show upgrade log:'); ?>
-						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced(this, 'upgrade_log_container');" />
+						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
 					</label>
-					<div class="advanced" id="upgrade_log_container" style="display:none;">
+					<div class="toggle" id="upgrade_log_container" style="display:none;">
 						<fieldset>
 							<label for="upgrade_log">
 								<?php _e('Upgrade log:'); ?>
@@ -144,9 +145,9 @@ switch ($step) {
 					<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 					<label for="upgrade_log_container_toggle">
 						<?php _e('Show upgrade log:'); ?>
-						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced(this, 'upgrade_log_container');" />
+						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
 					</label>
-					<div class="advanced" id="upgrade_log_container" style="display:none;">
+					<div class="toggle" id="upgrade_log_container" style="display:none;">
 						<fieldset>
 							<label for="upgrade_log">
 								<?php _e('Upgrade log:'); ?>

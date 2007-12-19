@@ -64,6 +64,10 @@ if ( extension_loaded('mysql') ) {
 	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
 }
 
+// Define the language file directory
+if ( !defined('BBLANGDIR') )
+	define('BBLANGDIR', BBPATH . BBINC . 'languages/'); // absolute path with trailing slash
+
 // Include functions
 require( BBPATH . BBINC . 'compat.php');
 require( BBPATH . BBINC . 'wp-functions.php');
@@ -82,15 +86,12 @@ if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include 
 if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
 	die(__('Your table prefix may only contain letters, numbers and underscores.'));
 
-if ( !bb_is_installed() && false === strpos($_SERVER['PHP_SELF'], 'install.php') && !defined('BB_INSTALLING') ) {
+if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 	$link = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
 	require( BBPATH . BBINC . 'pluggable.php');
 	wp_redirect($link);
 	die();
 }
-
-if ( is_wp_error( $bbdb->set_user_prefix() ) )
-	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
 
 foreach ( array('use_cache', 'secret', 'debug', 'static_title', 'load_options') as $o )
 	if ( !isset($bb->$o) )
@@ -156,8 +157,6 @@ if ( !$bb->uri && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 	bb_die( __('Could not determine site URI') );
 }
 
-if ( !defined('BBLANGDIR') )
-	define('BBLANGDIR', BBPATH . BBINC . 'languages/'); // absolute path with trailing slash
 if ( !defined('BBPLUGINDIR') )
 	define('BBPLUGINDIR', BBPATH . 'my-plugins/');
 if ( !defined('BBPLUGINURL') )
@@ -209,6 +208,9 @@ if ( defined('CUSTOM_USER_META_TABLE') ) {
 } elseif ($bb->custom_user_meta_table = bb_get_option('custom_user_meta_table')) {
 	define('CUSTOM_USER_META_TABLE', $bb->custom_user_meta_table);
 }
+
+if ( is_wp_error( $bbdb->set_user_prefix() ) )
+	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
 
 // Sort out cookies so they work with WordPress (if required)
 // Note that database integration is no longer a pre-requisite for cookie integration
