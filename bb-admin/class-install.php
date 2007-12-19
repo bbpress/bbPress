@@ -624,22 +624,25 @@ class BB_Install
 						'note'  => __('We have attempted to guess this, it\'s usually correct, but change it here if you wish.')
 					),
 					'keymaster_user_login' => array(
-						'value'    => '',
-						'label'    => __('Username:'),
-						'note'     => __('This is the user login for the initial bbPress administrator (known as a "key master").')
+						'value'     => '',
+						'maxlength' => 60,
+						'label'     => __('Username:'),
+						'note'      => __('This is the user login for the initial bbPress administrator (known as a "key master").')
 					),
 					'keymaster_user_email' => array(
-						'value' => '',
-						'label' => __('Email address:'),
-						'note'  => __('The login details will be emailed to this address.')
+						'value'     => '',
+						'maxlength' => 100,
+						'label'     => __('Email address:'),
+						'note'      => __('The login details will be emailed to this address.')
 					),
 					'keymaster_user_type' => array(
 						'value' => 'bbPress'
 					),
 					'forum_name' => array(
-						'value' => '',
-						'label' => __('Forum name:'),
-						'note'  => __('This can be changed after installation, so don\'t worry about it too much.')
+						'value'     => '',
+						'maxlength' => 150,
+						'label'     => __('Forum name:'),
+						'note'      => __('This can be changed after installation, so don\'t worry about it too much.')
 					),
 					'forward_3_0' => array(
 						'value' => __('Save site settings &raquo;')
@@ -1508,7 +1511,11 @@ EOF;
 			}
 		}
 		
-		$r .= '<input type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '" />' . "\n";
+		if (isset($data['maxlength']) && is_integer($data['maxlength'])) {
+			$maxlength = ' maxlength="' . $data['maxlength'] . '"';
+		}
+		
+		$r .= '<input type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . ' />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
