@@ -1426,15 +1426,21 @@ class BB_Install
 				break;
 		}
 		
-		if (bb_new_forum(array('forum_name' => $data3['forum_name']['value']))) {
-			$installation_log[] = '>>> ' . __('Forum name:') . ' ' . $data3['forum_name']['value'];
-			bb_new_topic(__('Your first topic'), 1, 'bbPress');
-			$installation_log[] = '>>>>>> ' . __('Topic:') . ' ' . __('Your first topic');
-			bb_new_post(1, __('First Post!  w00t.'));
-			$installation_log[] = '>>>>>>>>> ' . __('Post:') . ' ' . __('First Post!  w00t.');
+		if (!$this->database_tables_are_installed()) {
+			if (bb_new_forum(array('forum_name' => $data3['forum_name']['value']))) {
+				$installation_log[] = '>>> ' . __('Forum name:') . ' ' . $data3['forum_name']['value'];
+				bb_new_topic(__('Your first topic'), 1, 'bbPress');
+				$installation_log[] = '>>>>>> ' . __('Topic:') . ' ' . __('Your first topic');
+				bb_new_post(1, __('First Post!  w00t.'));
+				$installation_log[] = '>>>>>>>>> ' . __('Post:') . ' ' . __('First Post!  w00t.');
+			} else {
+				$installation_log[] = '>>> ' . __('Forum could not be created!');
+				$error_log[] = __('Forum could not be created!');
+			}
 		} else {
-			$installation_log[] = '>>> ' . __('Forum could not be created!');
-			$error_log[] = __('Forum could not be created!');
+			$installation_log[] = '>>> ' . __('There are existing forums in this database.');
+			$installation_log[] = '>>>>>> ' . __('No new forum created.');
+			$error_log[] = __('Forums already exist!');
 		}
 		
 		if ($keymaster_created) {

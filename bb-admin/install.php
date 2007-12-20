@@ -253,13 +253,18 @@ switch ($bb_install->step) {
 					$bb_install->input_hidden('keymaster_user_type');
 ?>
 					</fieldset>
+<?php
+					if (!$bb_install->database_tables_are_installed()) {
+?>
 					<fieldset>
 						<legend><?php _e('First forum'); ?></legend>
 <?php
-					$bb_install->input_text('forum_name');
+						$bb_install->input_text('forum_name');
 ?>
 					</fieldset>
 <?php
+					}
+					
 					$bb_install->input_buttons('forward_3_0');
 ?>
 				</form>
