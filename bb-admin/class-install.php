@@ -316,6 +316,7 @@ class BB_Install
 			// Step -1 is where we send fatal errors from any screen
 			$this->strings[-1]['messages']['error'][] = __('An old <code>config.php</code> file has been detected in your installation. You can either rename it to <code>bb-config.php</code> or remove it and run the <a href="install.php">installer</a> again.');
 			$this->step = -1;
+			return $this->step;
 		}
 		
 		// Check if bbPress is already installed
