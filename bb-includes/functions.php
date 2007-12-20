@@ -2059,6 +2059,13 @@ function bb_install_header( $title = '', $header = false ) {
 			$title = __('bbPress');
 		else
 			$title = 'bbPress';
+		
+		$uri = false;
+		if ( function_exists('bb_get_option') && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) )
+			$uri = bb_get_option('uri');
+		
+		if (!$uri)
+			$uri = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']);
 	
 	header('Content-Type: text/html; charset=utf-8');
 ?>
@@ -2067,11 +2074,11 @@ function bb_install_header( $title = '', $header = false ) {
 <head>
 	<title><?php echo $title; ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="install.css" type="text/css" />
+	<link rel="stylesheet" href="<?php echo $uri; ?>bb-admin/install.css" type="text/css" />
 <?php
 	if ( function_exists( 'bb_get_option' ) && 'rtl' == bb_get_option( 'text_direction' ) ) {
 ?>
-	<link rel="stylesheet" href="install-rtl.css" type="text/css" />
+	<link rel="stylesheet" href="<?php echo $uri; ?>bb-admin/install-rtl.css" type="text/css" />
 <?php
 	}
 ?>
@@ -2079,7 +2086,7 @@ function bb_install_header( $title = '', $header = false ) {
 <body>
 	<div id="container">
 		<div class="logo">
-			<img src="../bb-images/install-logo.gif" alt="bbPress Installation" />
+			<img src="<?php echo $uri; ?>bb-images/install-logo.gif" alt="bbPress Installation" />
 		</div>
 <?php
 	if ( !empty($header) ) {

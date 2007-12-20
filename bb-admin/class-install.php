@@ -1165,8 +1165,9 @@ class BB_Install
 		$this->strings[3]['form_errors']['keymaster_user_email'][] = !bb_verify_email($data['keymaster_user_email']['value']) ? 'email' : false;
 		
 		// Check for a forum name
-		$this->strings[3]['form_errors']['forum_name'][] = empty($data['forum_name']['value']) ? 'empty' : false;
-		
+		if (!$this->database_tables_are_installed()) {
+			$this->strings[3]['form_errors']['forum_name'][] = empty($data['forum_name']['value']) ? 'empty' : false;
+		}
 		
 		// Remove empty values from the error array
 		foreach ($this->strings[3]['form_errors'] as $input => $types) {
@@ -1271,40 +1272,44 @@ class BB_Install
 		
 		// Create the database
 		$installation_log[] = "\n" . __('Step 1 - Creating database tables');
-		// Return db errors
-		$bbdb->return_errors();
-		// Install the database
-		$alterations = bb_install();
-		// Show db errors
-		$bbdb->show_errors();
 		
-		// If the database installed
-		if ($alterations && count($alterations)) {
-			// Loop through it to check for errors on each table
-			foreach ($alterations as $alteration) {
-				if (is_array($alteration)) {
-					$installation_log[] = '>>> ' . $alteration['original']['message'];
-					$installation_log[] = '>>>>>> ' . $alteration['error']['message'];
-					$error_log[] = $alteration['error']['message'];
-				} else {
-					$installation_log[] = '>>> ' . $alteration;
+		if (!$this->database_tables_are_installed()) {
+			// Return db errors
+			$bbdb->return_errors();
+			// Install the database
+			$alterations = bb_install();
+			// Show db errors
+			$bbdb->show_errors();
+			
+			// If the database installed
+			if ($alterations && count($alterations)) {
+				// Loop through it to check for errors on each table
+				foreach ($alterations as $alteration) {
+					if (is_array($alteration)) {
+						$installation_log[] = '>>> ' . $alteration['original']['message'];
+						$installation_log[] = '>>>>>> ' . $alteration['error']['message'];
+						$error_log[] = $alteration['error']['message'];
+					} else {
+						$installation_log[] = '>>> ' . $alteration;
+					}
 				}
+			} else {
+				$installation_log[] = '>>> ' . __('Database installation failed!!!');
+				$installation_log[] = '>>>>>> ' . __('Halting installation!');
+				$error_log[] = __('Database installation failed!!!');
+				
+				$this->step_status[4] = 'incomplete';
+				$this->strings[4]['h2'] = __('Installation failed!');
+				$this->strings[4]['messages']['error'][] = __('The database failed to install. You may need to replace bbPress with a fresh copy and start again.');
+				
+				$data4['installation_log']['value'] = join("\n", $installation_log);
+				$data4['error_log']['value'] = join("\n", $error_log);
+				
+				return 'incomplete';
 			}
 		} else {
-			$installation_log[] = '>>> ' . __('Database installation failed!!!');
-			$installation_log[] = '>>>>>> ' . __('Halting installation!');
-			$error_log[] = __('Database installation failed!!!');
-			
-			$this->step_status[4] = 'incomplete';
-			$this->strings[4]['h2'] = __('Installation failed!');
-			$this->strings[4]['messages']['error'][] = __('The database failed to install. You may need to replace bbPress with a fresh copy and start again.');
-			
-			$data4['installation_log']['value'] = join("\n", $installation_log);
-			$data4['error_log']['value'] = join("\n", $error_log);
-			
-			return 'incomplete';
+			$installation_log[] = '>>> ' . __('Database is already installed!!!');
 		}
-		
 		
 		// Integration settings passed from step 2
 		// These are already validated provided that the referer checks out
@@ -1373,7 +1378,35 @@ class BB_Install
 		
 		switch ($data3['keymaster_user_type']['value']) {
 			case 'bbPress':
-				// The keymaster is brand new
+				
+				// Check to see if the user login already exists
+				if ($keymaster_user = bb_get_user_by_name($data3['keymaster_user_login']['value'])) {
+					// The keymaster is an existing bbPress user
+					$installation_log[] = '>>> ' . __('Key master could not be created!');
+					$installation_log[] = '>>>>>> ' . __('That login is already taken!');
+					$error_log[] = __('Key master could not be created!');
+					
+					if ($keymaster_user->bb_capabilities['keymaster']) {
+						// The existing user is a key master - continue
+						$bb_current_user = bb_set_current_user($keymaster_user->ID);
+						$installation_log[] = '>>>>>> ' . __('Existing key master entered!');
+						$data4['keymaster_user_password']['value'] = __('Your bbPress password');
+						$data3['keymaster_user_email']['value'] = $keymaster_user->user_email;
+						bb_update_option('admin_email', $keymaster_user->user_email);
+						$installation_log[] = '>>>>>> ' . __('Re-setting admin email address.');
+						$keymaster_created = true;
+					} else {
+						// The existing user is a non-key master user - halt installation
+						$installation_log[] = '>>>>>> ' . __('Existing user without key master role entered!');
+						$installation_log[] = '>>>>>>>>> ' . __('Halting installation!');
+						$this->step_status[4] = 'incomplete';
+						$this->strings[4]['h2'] = __('Installation failed!');
+						$this->strings[4]['messages']['error'][] = __('The key master could not be created. An existing user was found with that user login.');
+						return 'incomplete';
+					}
+					
+					break;
+				}
 				
 				// Helper function to let us know the password that was created
 				global $keymaster_password;

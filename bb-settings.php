@@ -132,10 +132,9 @@ if ( $bb->uri = bb_get_option('uri') ) {
 	$bb->uri = rtrim($bb->uri, '/') . '/';
 	
 	// Not used in core anymore, only set here for plugin compatibility
-	if ( preg_match( '@^(https?://[^/]+)(/.*)*/+$@i', $bb->uri, $matches ) ) {
+	if ( preg_match( '@^(https?://[^/]+)((?:/.*)*/{1,1})$@i', $bb->uri, $matches ) ) {
 		$bb->domain = $matches[1];
-		$bb->path = $matches[2] . '/';
-		if ($bb->path == '//') $bb->path = '/';
+		$bb->path = $matches[2];
 	}
 } else {
 	// Backwards compatibility
