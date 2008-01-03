@@ -238,7 +238,12 @@ function show_context( $term, $text ) {
 }
 
 function closed_title( $title ) {
-	return bb_closed_title( $title );
+	return bb_closed_label( $title );
+}
+
+// Closed label now applied using bb_topic_labels filters
+function bb_closed_title( $title ) {
+	return bb_closed_label( $title );
 }
 
 function make_link_view_all( $link ) {
@@ -248,6 +253,130 @@ function make_link_view_all( $link ) {
 function remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 	return bb_remove_topic_tag( $tag_id, $user_id, $topic_id );
 }
+
+function add_topic_tag( $topic_id, $tag ) {
+	return bb_add_topic_tag( $topic_id, $tag );
+}
+
+function add_topic_tags( $topic_id, $tags ) {
+	return bb_add_topic_tags( $topic_id, $tags );
+}
+
+function create_tag( $tag ) {
+	return bb_create_tag( $tag );
+}
+
+function destroy_tag( $tag_id, $recount_topics = true ) {
+	return bb_destroy_tag( $tag_id, $recount_topics );
+}
+
+if ( !function_exists( 'get_tag_id' ) ) :
+function get_tag_id( $tag ) {
+	return bb_get_tag_id( $tag );
+}
+endif;
+
+if ( !function_exists( 'get_tag' ) ) :
+function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
+	return bb_get_tag( $tag_id, $user_id, $topic_id );
+}
+endif;
+
+if ( !function_exists( 'get_tag_by_name' ) ) :
+function get_tag_by_name( $tag ) {
+	return bb_get_tag_by_name( $tag );
+}
+endif;
+
+function get_topic_tags( $topic_id ) {
+	return bb_get_topic_tags( $topic_id );
+}
+
+function get_user_tags( $topic_id, $user_id ) {
+	return bb_get_user_tags( $topic_id, $user_id );
+}
+
+function get_other_tags( $topic_id, $user_id ) {
+	return bb_get_other_tags( $topic_id, $user_id );
+}
+
+function get_public_tags( $topic_id ) {
+	return bb_get_public_tags( $topic_id );
+}
+
+function get_tagged_topic_ids( $tag_id ) {
+	return bb_get_tagged_topic_ids( $tag_id );
+}
+
+if ( !function_exists( 'get_top_tags' ) ) :
+function get_top_tags( $recent = true, $limit = 40 ) {
+	return bb_get_top_tags( $recent, $limit );
+}
+endif;
+
+if ( !function_exists( 'get_tag_name' ) ) :
+function get_tag_name( $id = 0 ) {
+	return bb_get_tag_name( $id );
+}
+endif;
+
+if ( !function_exists( 'tag_name' ) ) :
+function tag_name( $id = 0 ) {
+	bb_tag_name( $id );
+}
+endif;
+
+if ( !function_exists( 'get_tag_rss_link' ) ) :
+function get_tag_rss_link( $id = 0 ) {
+	return bb_get_tag_rss_link( $id );
+}
+endif;
+
+if ( !function_exists( 'tag_rss_link' ) ) :
+function tag_rss_link( $id = 0 ) {
+	bb_tag_rss_link( $id );
+}
+endif;
+
+if ( !function_exists( 'get_tag_page_link' ) ) :
+function get_tag_page_link() {
+	bb_get_tag_page_link();
+}
+endif;
+
+if ( !function_exists( 'tag_page_link' ) ) :
+function tag_page_link() {
+	bb_tag_page_link();
+}
+endif;
+
+if ( !function_exists( 'get_tag_remove_link' ) ) :
+function get_tag_remove_link() {
+	bb_get_tag_remove_link();
+}
+endif;
+
+if ( !function_exists( 'tag_remove_link' ) ) :
+function tag_remove_link() {
+	bb_tag_remove_link();
+}
+endif;
+
+if ( !function_exists( 'tag_heat_map' ) ) :
+function tag_heat_map( $args = '' ) {
+	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
+	$args = wp_parse_args( $args, $defaults );
+
+	if ( 1 < $fn = func_num_args() ) : // For back compat
+		$args['smallest'] = func_get_arg(0);
+		$args['largest']  = func_get_arg(1);
+		$args['unit']     = 2 < $fn ? func_get_arg(2) : $unit;
+		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
+	endif;
+
+	bb_tag_heat_map( $args );
+}
+endif;
 
 function get_bb_location() {
 	$r = bb_get_location();
@@ -345,4 +474,46 @@ function bb_trim_common_path_right( $one, $two ) {
 	return array($root_one, $root_two);
 }
 
+function deleted_topics( $where ) {
+	return preg_replace( '/(\w+\.)?topic_status = ["\']?0["\']?/', "\\1topic_status = 1", $where);
+}
+
+function no_replies( $where ) {
+	return $where . ' AND topic_posts = 1 ';
+}
+
+function untagged( $where ) {
+	return $where . ' AND tag_count = 0 ';
+}
+
+function get_views() {
+	return bb_get_views();
+}
+
+if ( !function_exists( 'balanceTags' ) ) :
+function balanceTags( $text ) {
+	return force_balance_tags( $text );
+}
+endif;
+
+// With no extra arguments, converts array of objects into object of arrays
+// With extra arguments corresponding to name of object properties, returns array of arrays:
+//     list($a, $b) = bb_pull_cols( $obj_array, 'a', 'b' );
+function bb_pull_cols( $obj_array ) {
+	$r = new stdClass;
+	foreach ( array_keys($obj_array) as $o )
+		foreach ( get_object_vars( $obj_array[$o] ) as $k => $v )
+			$r->{$k}[] = $v;
+
+	if ( 1 == func_num_args() )
+		return $r;
+
+	$args = func_get_args();
+	$args = array_splice($args, 1);
+
+	$a = array();
+	foreach ( $args as $arg )
+		$a[] = $r->$arg;
+	return $a;
+}
 ?>

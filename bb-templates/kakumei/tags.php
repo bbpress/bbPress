@@ -5,7 +5,7 @@
 <p><?php _e('This is a collection of tags that are currently popular on the forums.'); ?></p>
 
 <div id="hottags">
-<?php tag_heat_map( 9, 38, 'pt', 80 ); ?>
+<?php bb_tag_heat_map( 9, 38, 'pt', 80 ); ?>
 </div>
 
 <?php bb_get_footer(); ?>

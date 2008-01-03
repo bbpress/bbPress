@@ -13,7 +13,7 @@
 <h3><?php _e('Most Popular Topics'); ?></h3>
 <ol>
 <?php foreach ($popular as $topic) : ?>
-<li><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> &#8212; <?php topic_posts(); ?> posts</li>
+<li><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a> &#8212; <?php topic_posts(); ?> posts</li>
 <?php endforeach; ?>
 
 <?php endif; ?>

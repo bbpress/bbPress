@@ -2,10 +2,13 @@
 require_once('admin.php');
 
 $plugins = bb_get_plugins();
-$_plugins = new BB_Dir_Map( BBPLUGINDIR, array( 'recurse' => 0, 'callback' => create_function( '$f,$_f', 'if ( !preg_match("/^_.*?\.php$/", $_f) ) return false; if ( $r = bb_get_plugin_data( $f ) ) return $r; return true;' ) ) );
-$_plugins = $_plugins->get_results();
-if ( is_wp_error( $_plugins ) )
-	$_plugins = array();
+$_plugins = array();
+if ( is_callable( 'glob' ) ) {
+	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin ) {
+		$_data = bb_get_plugin_data( $_plugin );
+		$_plugins[$_plugin] = $_data ? $_data : true;
+	}
+}
 
 $current = (array) bb_get_option( 'active_plugins' );
 
@@ -14,7 +17,7 @@ foreach ( $current as $c => $cur )
 	if ( !file_exists(BBPLUGINDIR . $cur) ) {
 		$update = true;
 		unset($current[$c]);
-		do_action( 'bb_deactivate_plugin' . $c );
+		do_action( 'bb_deactivate_plugin_' . $c );
 	}
 
 if ( isset($_GET['action']) ) {
@@ -36,7 +39,7 @@ if ( isset($_GET['action']) ) {
 		bb_check_admin_referer( 'deactivate-plugin_' . $plugin );
 		array_splice($current, array_search($plugin, $current), 1 );
 		bb_update_option( 'active_plugins', $current );
-		do_action( 'bb_deactivate_plugin' . $plugin );
+		do_action( 'bb_deactivate_plugin_' . $plugin );
 		wp_redirect('plugins.php?message=deactivate');
 	}
 	exit;
@@ -70,10 +73,10 @@ bb_get_admin_header();
 <table class="widefat">
 <thead>
 	<tr>
-		<th>Plugin</th>
-		<th class="vers">Version</th>
-		<th>Description</th>
-		<th class="action">Action</th>
+		<th><?php _e('Plugin'); ?></th>
+		<th class="vers"><?php _e('Version'); ?></th>
+		<th><?php _e('Description'); ?></th>
+		<th class="action"><?php _e('Action'); ?></th>
 	</tr>
 </thead>
 <tbody>
@@ -104,9 +107,9 @@ bb_get_admin_header();
 <table class="widefat">
 <thead>
 	<tr>
-		<th>Plugin</th>
-		<th class="vers">Version</th>
-		<th>Description</th>
+		<th><?php _e('Plugin'); ?></th>
+		<th class="vers"><?php _e('Version'); ?></th>
+		<th><?php _e('Description'); ?></th>
 	</tr>
 </thead>
 <tbody>
@@ -129,7 +132,7 @@ bb_get_admin_header();
 </table>
 
 <?php endif; if ( !$plugins && !$_plugins ) :?>
-<p>No Plugins Installed</p>
+<p><?php _e('No Plugins Installed'); ?></p>
 
 <?php endif; ?>
 

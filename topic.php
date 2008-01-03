@@ -21,14 +21,14 @@ if ( !$bb_db_override ) :
 	$posts = get_thread( $topic_id, $page );
 	$forum = get_forum ( $topic->forum_id );
 
-	$tags  = get_topic_tags ( $topic_id );
+	$tags  = bb_get_topic_tags ( $topic_id );
 	if ( $tags && $bb_current_id = bb_get_current_user_info( 'id' ) ) {
-		$user_tags  = get_user_tags   ( $topic_id, $bb_current_id );
-		$other_tags = get_other_tags  ( $topic_id, $bb_current_id );
-		$public_tags = get_public_tags( $topic_id );
+		$user_tags  = bb_get_user_tags   ( $topic_id, $bb_current_id );
+		$other_tags = bb_get_other_tags  ( $topic_id, $bb_current_id );
+		$public_tags = bb_get_public_tags( $topic_id );
 	} elseif ( is_array($tags) ) {
 		$user_tags  = false;
-		$other_tags = get_public_tags( $topic_id );
+		$other_tags = bb_get_public_tags( $topic_id );
 		$public_tags =& $other_tags;
 	} else {
 		$user_tags = $other_tags = $public_tags = false;

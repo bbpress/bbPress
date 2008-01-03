@@ -25,29 +25,35 @@ function bb_is_installed() { // Maybe we should grab all forums and cache them.
 
 /* Forums */
 
-function bb_get_forums_hierarchical( $root = 0, $depth = 0, $_leaves = false ) {
+function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_recursed = false ) {
+	static $_leaves = false;
 	$root = (int) $root;
 
-	$_recursed = (bool) $_leaves;
-
 	if ( false === $_leaves )
-		$_leaves = get_forums();
+		$_leaves = $leaves ? $leaves : get_forums();
 
 	if ( !$_leaves )
 		return false;
 
 	$branch = array();
 
-	foreach ( $_leaves as $l => $leaf ) {
+	reset($_leaves);
+
+	while ( list($l, $leaf) = each($_leaves) ) {
 		if ( $root == $leaf->forum_parent ) {
 			$new_root = (int) $leaf->forum_id;
 			unset($_leaves[$l]);
-			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, $_leaves );
+			$branch[$new_root] = 1 == $depth ? true : bb_get_forums_hierarchical( $new_root, $depth - 1, false, true );
+			reset($_leaves);
 		}
 	}
 
-	if ( !$_recursed )
+	if ( !$_recursed ) {
+		foreach ( $_leaves as $leaf ) // Attach orphans to root
+			$branch[$leaf->forum_id] = true;
+		$_leaves = false;
 		return $tree = empty($branch) ? false : $branch;
+	}
 
 	return $branch ? $branch : true;
 }
@@ -61,20 +67,24 @@ function get_forums( $args = null ) {
 			$args['callback_args'] = func_get_arg(1);
 	}
 
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0 );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0, 'cut_branch' => 0 );
 	$args = wp_parse_args( $args, $defaults );
 
 	extract($args, EXTR_SKIP);
 	$child_of = (int) $child_of;
-	$hierarchical = 'false' == $hierarchical ? false : (bool) $hierarchical;
+	$hierarchical = 'false' === $hierarchical ? false : (bool) $hierarchical;
 	$depth = (int) $depth;
 
 	global $bb_cache;
 	$forums = (array) apply_filters( 'get_forums', $bb_cache->get_forums() );
 
 	if ( $child_of || $hierarchical || $depth ) {
-		$_forums = bb_get_forums_hierarchical( $child_of, $depth );
-		$_forums = (array) bb_flatten_array( $_forums );
+		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums, true );
+
+		if ( !is_array( $_forums ) )
+			return false;
+
+		$_forums = (array) bb_flatten_array( $_forums, $cut_branch );
 
 		foreach ( array_keys($_forums) as $_id )
 			$_forums[$_id] = $forums[$_id];
@@ -99,6 +109,15 @@ function get_forums( $args = null ) {
 
 function get_forum( $id ) {
 	global $bb_cache;
+
+	if ( is_numeric($id) )
+		$id = (int) $id;
+	else
+		$id = bb_get_id_from_slug( 'forum', $id );
+
+	if ( !$id )
+		return false;
+
 	return $bb_cache->get_forum( $id );
 }
 
@@ -106,71 +125,64 @@ function get_forum( $id ) {
 
 function get_topic( $id, $cache = true ) {
 	global $bb_cache, $bb_topic_cache;
-	if ( !$id = (int) $id )
+
+	if ( is_numeric($id) )
+		$id = (int) $id;
+	else
+		$id = bb_get_id_from_slug( 'topic', $id );
+
+	if ( !$id )
 		return false;
+
 	if ( isset( $bb_topic_cache[$id] ) && $cache )
 		return $bb_topic_cache[$id];
 	else
 		return $bb_cache->get_topic($id, $cache);
 }
 
-function get_latest_topics( $forum = 0, $page = 1, $exclude = '') {
-	global $bbdb, $bb_last_countable_query;
-	$forum = (int) $forum;
-	$page = (int) $page;
+// $exclude is deprecated
+function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
+	if ( $exclude ) {
+		$exclude = '-' . str_replace(',', '-,', $exclude);
+		$exclude = str_replace('--', '-', $exclude);
+		$forum = (string) $forum . ",$exclude";
+	}
+
+	$q = array('forum_id' => $forum, 'page' => $page);
+
 	$where = 'WHERE topic_status = 0';
-	if ( $forum )
-		$where .= " AND forum_id = $forum ";
-	if ( !empty( $exclude ) )
-		$where .= " AND forum_id NOT IN ('$exclude') ";
 	if ( is_front() )
-		$where .= " AND topic_sticky <> 2 ";
+		$q['sticky'] = '-2';
 	elseif ( is_forum() || is_view() )
-		$where .= " AND topic_sticky = 0 ";
-	$limit = bb_get_option('page_topics');
-	$where = apply_filters('get_latest_topics_where', $where);
-	$order_by = apply_filters('get_latest_topics_order_by', 'topic_time DESC' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY $order_by LIMIT $limit";
-	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
-		return bb_append_meta( $topics, 'topic' );
-	else
-		return false;
+		$q['sticky'] = 0;
+
+	// Last param makes filters back compat
+	$query = new BB_Query( 'topic', $q, 'get_latest_topics' );
+	return $query->results;
 }
 
-function get_sticky_topics( $forum = 0, $display = 1 ) {
-	global $bbdb, $bb_last_countable_query;
-	if ( 1 != $display )
+function get_sticky_topics( $forum = false, $display = 1 ) {
+	if ( 1 != $display ) // Why is this even here?
 		return false;
-	$forum = (int) $forum;
-	if ( is_front() )
-		$where = 'WHERE topic_sticky = 2  AND topic_status = 0';
-	else	$where = 'WHERE topic_sticky <> 0 AND topic_status = 0';
-	if ( $forum )
-		$where .= " AND forum_id = $forum ";
-	$where = apply_filters('get_sticky_topics_where', $where);
-	$order_by = apply_filters('get_sticky_topics_order_by', 'topic_time DESC' );
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $where ORDER BY $order_by";
-	if ( $stickies = $bbdb->get_results($bb_last_countable_query) )
-		return bb_append_meta( $stickies, 'topic' );	
-	else	return false;
+
+	$q = array(
+		'forum_id' => $forum,
+		'sticky' => is_front() ? 'super' : 'forum'
+	);
+
+	$query = new BB_Query( 'topic', $q, 'get_sticky_topics' );
+	return $query->results;
 }
 
 function get_recent_user_threads( $user_id ) {
-	global $bbdb, $page, $bb_last_countable_query;
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$join = apply_filters('get_recent_user_threads_join', '', $user_id);
-	$where = apply_filters('get_recent_user_threads_where', 'AND topic_status = 0', $user_id);
-	$order_by = apply_filters( 'get_recent_user_threads_order_by', 'topic_start_time DESC', $user_id);
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics $join WHERE topic_poster = $user_id $where ORDER BY $order_by LIMIT $limit";
-	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
-		$topics = bb_append_meta( $topics, 'topic' );
-	return $topics;
+	global $page;
+	$q = array( 'page' => $page, 'topic_author' => $user_id, 'order_by' => 't.topic_start_time');
+
+	$query = new BB_Query( 'topic', $q, 'get_recent_user_threads' );
+	return $query->results;
 }
 
+// Expects $title to be pre-escaped
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	global $bbdb, $bb_cache;
 	$title = apply_filters('pre_topic_title', $title, false);
@@ -192,7 +204,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 		('$title',    '$slug',    $id,          '$name',           $id,               '$name',                '$now',           '$now',     $forum)");
 		$topic_id = $bbdb->insert_id;
 		if ( !empty( $tags ) )
-			add_topic_tags( $topic_id, $tags );
+			bb_add_topic_tags( $topic_id, $tags );
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
 		$bb_cache->flush_many( 'forum', $forum_id );
 		do_action('bb_new_topic', $topic_id);
@@ -202,6 +214,7 @@ function bb_new_topic( $title, $forum, $tags = '' ) {
 	}
 }
 
+// Expects $title to be pre-escaped
 function bb_update_topic( $title, $topic_id ) {
 	global $bbdb, $bb_cache;
 	$title = apply_filters('pre_topic_title', $title, $topic_id);
@@ -244,8 +257,8 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - '$topic->topic_posts' WHERE forum_id = '$topic->forum_id'");
 		} else {
 			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status' WHERE topic_id = '$topic_id'");
-			$topic_posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id' AND post_status = 0");
-			$all_posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id'");
+			$topic_posts = (int) $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id' AND post_status = 0");
+			$all_posts = (int) $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id'");
 			bb_update_topicmeta( $topic_id, 'deleted_posts', $all_posts - $topic_posts );
 			$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + '$topic_posts' WHERE forum_id = '$topic->forum_id'");
 			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$topic_posts' WHERE topic_id = '$topic_id'");
@@ -281,9 +294,10 @@ function bb_move_topic( $topic_id, $forum_id ) {
 
 function bb_topic_set_last_post( $topic_id ) {
 	global $bbdb;
+	$topic_id = (int) $topic_id;
 	$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
-	$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = $old_post->poster_id");
-	$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = $old_post->poster_id, topic_last_poster_name = '$old_name', topic_last_post_id = $old_post->post_id WHERE topic_id = $topic_id");
+	$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = '$old_post->poster_id'");
+	$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = '$old_post->poster_id', topic_last_poster_name = '$old_name', topic_last_post_id = '$old_post->post_id' WHERE topic_id = $topic_id");
 }	
 
 function bb_close_topic( $topic_id ) {
@@ -341,6 +355,7 @@ function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
 
 function get_thread_post_ids( $topic_id ) {
 	global $bbdb, $thread_ids_cache;
+	$topic_id = (int) $topic_id;
 	if ( !isset( $thread_ids_cache[$topic_id] ) ) {
 		$where = apply_filters('get_thread_post_ids_where', 'AND post_status = 0');
 		$thread_ids_cache[$topic_id]['post'] = (array) $bbdb->get_col("SELECT post_id, poster_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_time");
@@ -361,9 +376,10 @@ function bb_get_post( $post_id ) {
 
 function bb_is_first( $post_id ) { // First post in thread
 	global $bbdb;
-	$bb_post = bb_get_post( $post_id );
+	if ( !$bb_post = bb_get_post( $post_id ) )
+		return false;
 	$where = apply_filters('bb_is_first_where', 'AND post_status = 0');
-	$first_post = $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $bb_post->topic_id $where ORDER BY post_id ASC LIMIT 1");
+	$first_post = (int) $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = '$bb_post->topic_id' $where ORDER BY post_id ASC LIMIT 1");
 
 	return $post_id == $first_post;
 }
@@ -485,29 +501,42 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 	}
 }
 
+function bb_cache_post_topics( $posts ) {
+	global $bbdb, $bb_topic_cache;
+
+	if ( !$posts )
+		return;
+
+	$topic_ids = array();
+	foreach ( $posts as $post ) {
+		$topic_id = (int) $post->topic_id;
+		if ( !isset($bb_topic_cache[$topic_id]) )
+			$topic_ids[] = $topic_id;
+	}
+
+	if ( !$topic_ids )
+		return;
+
+	$topic_ids = join(',', $topic_ids);
+
+	if ( $topics = $bbdb->get_results( "SELECT * FROM $bbdb->topics WHERE topic_id IN($topic_ids)" ) )
+		bb_append_meta( $topics, 'topic' );
+}
+
 function get_latest_posts( $limit = 0, $page = 1 ) {
-	global $bbdb, $bb_cache;
 	$limit = (int) $limit;
-	if ( !$limit )
-		$limit = bb_get_option( 'page_topics' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters( 'get_latest_posts_where', 'WHERE post_status = 0' );
-	return $bb_cache->cache_posts("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+	$post_query = new BB_Query( 'post', array( 'page' => $page, 'per_page' => $limit ), 'get_latest_posts' );
+	return $post_query->results;
 }
 
 function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
-	global $bbdb, $bb_cache;
-	$limit = (int) $limit;
 	$forum_id = (int) $forum_id;
-	if ( !$limit )
-		$limit = bb_get_option( 'page_topics' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters('get_latest_forum_posts_where', "WHERE forum_id = '$forum_id' AND post_status = 0");
-	return $bb_cache->cache_posts("SELECT * FROM $bbdb->posts $where ORDER BY post_time DESC LIMIT $limit");
+	$limit    = (int) $limit;
+	$post_query = new BB_Query( 'post', array( 'forum_id' => $forum_id, 'page' => $page, 'per_page' => $limit ), 'get_latest_forum_posts' );
+	return $post_query->results;
 }
 
+// Expects $bb_post to be pre-escaped
 function bb_new_post( $topic_id, $bb_post ) {
 	global $bbdb, $bb_cache, $bb_table_prefix, $bb_current_user, $thread_ids_cache;
 	$topic_id   = (int) $topic_id;
@@ -553,6 +582,7 @@ function bb_new_post( $topic_id, $bb_post ) {
 	}
 }
 
+// Expects $bb_post to be pre-escaped
 function bb_update_post( $bb_post, $post_id, $topic_id ) {
 	global $bbdb, $bb_cache;
 	$post_id  = (int) $post_id;
@@ -608,7 +638,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 			bb_update_topicmeta( $topic_id, 'deleted_posts', $topic->deleted_posts - 1 );
 			$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
 		}
-		$posts = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0");
+		$posts = (int) $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0");
 		$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$posts' WHERE topic_id = $topic_id");
 
 		if ( isset($thread_ids_cache[$topic_id]) && false !== $pos = array_search($post_id, $thread_ids_cache[$topic_id]['post']) ) {
@@ -643,6 +673,8 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 
 function _bb_delete_post( $post_id, $new_status ) {
 	global $bbdb;
+	$post_id = (int) $post_id;
+	$new_status = (int) $new_status;
 	$bbdb->query("UPDATE $bbdb->posts SET post_status = $new_status WHERE post_id = $post_id");
 }
 
@@ -671,39 +703,34 @@ function post_author_cache($posts) {
 		bb_cache_users(array_unique($ids), false); // false since we've already checked for soft cached data.
 }
 
+// These two filters are lame.  It'd be nice if we could do this in the query parameters
+function get_recent_user_replies_fields( $fields ) {
+	return $fields . ', MAX(post_time) as post_time';
+}
+
+function get_recent_user_replies_group_by() {
+	return 'p.topic_id';
+}
+
 function get_recent_user_replies( $user_id ) {
-	global $bbdb, $bb_post_cache, $page, $bb_last_countable_query;
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$where = apply_filters('get_recent_user_replies_where', 'AND post_status = 0');
-	$order_by = apply_filters('get_recent_user_replies_order_by', 'post_time DESC');
-	$posts = $bbdb->get_results("SELECT *, MAX(post_time) as post_time FROM $bbdb->posts WHERE poster_id = $user_id $where GROUP BY topic_id ORDER BY $order_by LIMIT $limit");
-	if ( $posts ) :
-		foreach ($posts as $bb_post) {
-			$bb_post_cache[$bb_post->post_id] = $bb_post;
-			$topics[] = $bb_post->topic_id;
-		}
-		$topic_ids = join(',', $topics);
-		$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids)";
-		$topics = $bbdb->get_results($bb_last_countable_query);
-		bb_append_meta( $topics, 'topic' );
-		return $posts;
-	else :
-		return false;
-	endif;
+	global $bbdb;
+	$user_id = (int) $user_id;
+
+	$post_query = new BB_Query( 'post', array( 'post_author_id' => $user_id ), 'get_recent_user_replies' );
+
+	return $post_query->results;
 }
 
 /* Tags */
 
-function add_topic_tag( $topic_id, $tag ) {
+function bb_add_topic_tag( $topic_id, $tag ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 	if ( !bb_current_user_can( 'add_tag_to', $topic_id ) )
 		return false;
-	if ( !$tag_id = create_tag( $tag ) )
+	if ( !$tag_id = bb_create_tag( $tag ) )
 		return false;
 
 	$id = bb_get_current_user_info( 'id' );
@@ -729,7 +756,7 @@ function add_topic_tag( $topic_id, $tag ) {
 	return $tag_id;
 }
 
-function add_topic_tags( $topic_id, $tags ) {
+function bb_add_topic_tags( $topic_id, $tags ) {
 	global $bbdb;
 
 	$tags = trim( $tags );
@@ -740,14 +767,15 @@ function add_topic_tags( $topic_id, $tags ) {
 
 	$tag_ids = array();
 	foreach ( $words as $tag )
-		if ( $_tag = add_topic_tag( $topic_id, $tag ) )
+		if ( $_tag = bb_add_topic_tag( $topic_id, $tag ) )
 			$tag_ids[] = $_tag;
 	return $tag_ids;
 }
 
-function create_tag( $tag ) {
+function bb_create_tag( $tag ) {
 	global $bbdb;
 
+	$tag = trim( $tag );
 	$tag = apply_filters( 'pre_create_tag', $tag );
 
 	$raw_tag = bb_trim_for_db( $tag, 50 );
@@ -755,7 +783,7 @@ function create_tag( $tag ) {
 
 	if ( empty( $tag ) )
 		return false;
-	if ( $exists = $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
+	if ( $exists = (int) $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'") )
 		return $exists;
 
 	$bbdb->query("INSERT INTO $bbdb->tags ( tag, raw_tag ) VALUES ( '$tag', '$raw_tag' )");
@@ -775,7 +803,8 @@ function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
 
-	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'")); // We care about the tag in this topic and if it's in other topics, but not which other topics
+	// We care about the tag in this topic and if it's in other topics, but not which other topics
+	$topics = array_flip((array) $bbdb->get_col("SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = '$tag_id' GROUP BY topic_id = '$topic_id'"));
 	$counts = (array) $bbdb->get_col('', 1);
 	if ( !$here = $counts[$topics[$topic_id]] ) // Topic doesn't have this tag
 		return false;
@@ -802,16 +831,14 @@ function bb_remove_topic_tags( $topic_id ) {
 
 	if( $tags = (array) $bbdb->get_col("SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = '$topic_id'") ) {
 		$tags = join(',', $tags);
-		$_tags = (array) $bbdb->get_col("SELECT tag_id, COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
-		$_counts = (array) $bbdb->get_col('', 1);
-		foreach ( $_tags as $t => $i ) {
-			if ( 0 > ( $new_count = (int) $_counts[$t] - 1 ) )
-				$new_count = 0;
-			if ( !$new_count ) {
-				destroy_tag( $i, false );
+		$_tags = (array) $bbdb->get_results("SELECT tag_id, COUNT(DISTINCT topic_id) AS count FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
+		foreach ( $_tags as $_tag ) {
+			$new_count = (int) $tag->count - 1;
+			if ( $new_count < 1 ) {
+				destroy_tag( $tag->tag_id, false );
 				continue;
 			}
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$i'");
+			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$tag->tag_id'");
 		}
 	}
 
@@ -824,19 +851,20 @@ function bb_remove_topic_tags( $topic_id ) {
 }
 
 // rename and merge in admin-functions.php
-function destroy_tag( $tag_id, $recount_topics = true ) {
+function bb_destroy_tag( $tag_id, $recount_topics = true ) {
 	global $bbdb, $bb_cache;
+
+	$tag_id = (int) $tag_id;
 
 	do_action('bb_pre_destroy_tag', $tag_id);
 
 	if ( $tags = $bbdb->query("DELETE FROM $bbdb->tags WHERE tag_id = '$tag_id'") ) {
 		if ( $recount_topics && $topics = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id'") ) {
 			$topics = join(',', $topics);
-			$_topics = (array) $bbdb->get_col("SELECT topic_id, COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
-			$_counts = (array) $bbdb->get_col('', 1);
-			foreach ( $_topics as $t => $topic_id ) {
-				$bbdb->query("UPDATE $bbdb->topics SET tag_count = '{$counts[$t]}' WHERE topic_id = $topic_id");
-				$bb_cache->flush_one( 'topic', $topic_id );
+			$_topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(DISTINCT tag_id) AS count FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
+			foreach ( $_topics as $_topic ) {
+				$bbdb->query("UPDATE $bbdb->topics SET tag_count = '$_topic->count' WHERE topic_id = $_topic->topic_id");
+				$bb_cache->flush_one( 'topic', $_topic->topic_id );
 			}
 		}	
 		$tagged = $bbdb->query("DELETE FROM $bbdb->tagged WHERE tag_id = '$tag_id'");
@@ -844,14 +872,14 @@ function destroy_tag( $tag_id, $recount_topics = true ) {
 	return array( 'tags' => $tags, 'tagged' => $tagged );
 }
 
-function get_tag_id( $tag ) {
+function bb_get_tag_id( $tag ) {
 	global $bbdb;
 	$tag     = bb_tag_sanitize( $tag );
 
-	return $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
+	return (int) $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
-function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
+function bb_get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	global $bbdb;
 	$tag_id   = (int) $tag_id;
 	$user_id  = (int) $user_id;
@@ -861,7 +889,7 @@ function get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = '$tag_id' LIMIT 1");
 }
 
-function get_tag_by_name( $tag ) {
+function bb_get_tag_by_name( $tag ) {
 	global $bbdb, $tag_cache;
 
 	$tag = bb_tag_sanitize( $tag );
@@ -872,8 +900,10 @@ function get_tag_by_name( $tag ) {
 	return $bbdb->get_row("SELECT * FROM $bbdb->tags WHERE tag = '$tag'");
 }
 
-function get_topic_tags( $topic_id ) {
+function bb_get_topic_tags( $topic_id ) {
 	global $topic_tag_cache, $bbdb;
+
+	$topic_id = (int) $topic_id;
 	
 	if ( isset ($topic_tag_cache[$topic_id] ) )
 		return $topic_tag_cache[$topic_id];
@@ -883,8 +913,8 @@ function get_topic_tags( $topic_id ) {
 	return $topic_tag_cache[$topic_id];
 }
 
-function get_user_tags( $topic_id, $user_id ) {
-	$tags = get_topic_tags( $topic_id );
+function bb_get_user_tags( $topic_id, $user_id ) {
+	$tags = bb_get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$user_tags = array();
@@ -896,8 +926,8 @@ function get_user_tags( $topic_id, $user_id ) {
 	return $user_tags;
 }
 
-function get_other_tags( $topic_id, $user_id ) {
-	$tags = get_topic_tags( $topic_id );
+function bb_get_other_tags( $topic_id, $user_id ) {
+	$tags = bb_get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$other_tags = array();
@@ -909,8 +939,8 @@ function get_other_tags( $topic_id, $user_id ) {
 	return $other_tags;
 }
 
-function get_public_tags( $topic_id ) {
-	$tags = get_topic_tags( $topic_id );
+function bb_get_public_tags( $topic_id ) {
+	$tags = bb_get_topic_tags( $topic_id );
 	if ( !is_array( $tags ) )
 		return;
 	$used_tags   = array();
@@ -925,7 +955,7 @@ function get_public_tags( $topic_id ) {
 	return $public_tags;
 }
 
-function get_tagged_topic_ids( $tag_id ) {
+function bb_get_tagged_topic_ids( $tag_id ) {
 	global $bbdb, $tagged_topic_count;
 	$tag_id = (int) $tag_id;
 	if ( $topic_ids = (array) $bbdb->get_col("SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = '$tag_id' ORDER BY tagged_on DESC") ) {
@@ -938,36 +968,18 @@ function get_tagged_topic_ids( $tag_id ) {
 }
 
 function get_tagged_topics( $tag_id, $page = 1 ) {
-	global $bbdb, $bb_last_countable_query;
-	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
-		return false;
-	$topic_ids = join($topic_ids, ',');
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	$order_by = apply_filters('get_tagged_topics_order_by', 'topic_time DESC' );
-	$bb_last_countable_query = "SELECT * FROM $bbdb->topics WHERE topic_id IN ($topic_ids) AND topic_status = 0 ORDER BY $order_by LIMIT $limit";
-	if ( $topics = $bbdb->get_results($bb_last_countable_query) )
-		return bb_append_meta( $topics, 'topic' );
-	else	return false;
+	$query = new BB_Query( 'topic', array('tag_id' => $tag_id), 'get_tagged_topics' );
+	return $query->results;
 }
 
 function get_tagged_topic_posts( $tag_id, $page = 1 ) {
-	global $bbdb, $bb_cache, $bb_post_cache;
-	if ( !$topic_ids = get_tagged_topic_ids( $tag_id ) )
-		return false;
-	$topic_ids = join($topic_ids, ',');
-	$limit = bb_get_option('page_topics');
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
-	if ( $posts = $bb_cache->cache_posts("SELECT * FROM $bbdb->posts WHERE topic_id IN ($topic_ids) AND post_status = 0 ORDER BY post_time DESC LIMIT $limit") )
-		return $posts;
-	else
-		return false;
+	$post_query = new BB_Query( 'post', array( 'tag_id' => $tag_id, 'page' => $page ), 'get_tagged_topic_posts' );
+	return $post_query->results;
 }
 
-function get_top_tags( $recent = true, $limit = 40 ) {
+function bb_get_top_tags( $recent = true, $limit = 40 ) {
 	global $bbdb, $tag_cache;
+	$limit = (int) $limit;
 	foreach ( (array) $tags = $bbdb->get_results("SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT $limit") as $tag )
 		$tag_cache[$tag->tag] = $tag;
 	return $tags;
@@ -1059,7 +1071,7 @@ function bb_update_topics_replied( $user_id ) {
 	if ( !$user = bb_get_user( $user_id ) )
 		return false;
 
-	$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = '$user_id'");
+	$topics_replied = (int) $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = '$user_id'");
 	return bb_update_usermeta( $user_id, $bb_table_prefix . 'topics_replied', $topics_replied );
 }
 
@@ -1098,20 +1110,11 @@ function get_user_favorites( $user_id, $topics = false ) {
 	global $bbdb, $bb_cache, $page;
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites ) {
-		if ( $topics ) {
-			$order_by = apply_filters( 'get_user_favorites_order_by', 'topic_time DESC', $topics );
-			$limit = bb_get_option( 'page_topics' );
-			if ( 1 < $page )
-				$limit = ($limit * ($page - 1)) . ", $limit";
-			return $bbdb->get_results("
-				SELECT * FROM $bbdb->topics WHERE topic_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY $order_by LIMIT $limit");
-		} else {
-			$order_by = apply_filters( 'get_user_favorites_order_by', 'post_time DESC', $topics );
-			return $bb_cache->cache_posts("
-				SELECT * FROM $bbdb->posts WHERE post_status = 0 AND topic_id IN ($user->favorites)
-				ORDER BY $order_by LIMIT 20");
-		}
+		if ( $topics )
+			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'append_meta' => 0), 'get_user_favorites' );
+		else
+			$query = new BB_Query( 'post', array('favorites' => $user_id), 'get_user_favorites' );
+		return $query->results;
 	}
 }
 
@@ -1183,10 +1186,10 @@ function bb_get_option( $option ) {
 		$r = $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.8.2.1'; // Don't filter
+		return '0.8.3'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '846'; // Don't filter
+		return '952'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -1290,12 +1293,32 @@ function bb_append_meta( $object, $type ) {
 	endif;
 }
 
+function bb_get_usermeta( $user_id, $meta_key ) {
+	if ( !$user = bb_get_user( $user_id ) )
+		return;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( !isset($user->$meta_key) )
+		return;
+	return $user->$meta_key;
+}
+
 function bb_update_usermeta( $user_id, $meta_key, $meta_value ) {
 	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
 
 function bb_delete_usermeta( $user_id, $meta_key, $meta_value = '' ) {
 	return bb_delete_meta( $user_id, $meta_key, $meta_value, 'user' );
+}
+
+function bb_get_topicmeta( $topic_id, $meta_key ) {
+	if ( !$topic = get_topic( $topic_id ) )
+		return;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( !isset($topic->$meta_key) )
+		return;
+	return $topic->$meta_key;
 }
 
 function bb_update_topicmeta( $topic_id, $meta_key, $meta_value ) {
@@ -1548,7 +1571,7 @@ function get_path( $level = 1, $base = false, $request = false ) {
 	$base = preg_quote($base, '|');
 	$path = preg_replace("|$base|",'',$path,1);
 	$url = explode('/',$path);
-	return urldecode($url[$level]);
+	return isset($url[$level]) ? urldecode($url[$level]) : '';
 }
 
 function bb_find_filename( $text ) {
@@ -1564,7 +1587,7 @@ function bb_find_filename( $text ) {
 }
 
 function bb_send_headers() {
-	@header('Content-type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
+	@header('Content-Type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
 	do_action( 'bb_send_headers' );
 }
 
@@ -1586,22 +1609,14 @@ function bb_repermalink() {
 	switch ($location) {
 		case 'forum-page':
 			global $forum_id, $forum;
-			if (!is_numeric($id)) {
-				$forum_id = bb_get_id_from_slug('forum', $id);
-			} else {
-				$forum_id = $id;
-			}
-			$forum = get_forum( $forum_id );
+			$forum     = get_forum( $id );
+			$forum_id  = $forum->forum_id;
 			$permalink = get_forum_link( $forum->forum_id, $page );
 			break;
 		case 'topic-page':
 			global $topic_id, $topic;
-			if (!is_numeric($id)) {
-				$topic_id = bb_get_id_from_slug('topic', $id);
-			} else {
-				$topic_id = $id;
-			}
-			$topic = get_topic( $topic_id );
+			$topic     = get_topic( $id );
+			$topic_id  = $topic->topic_id;
 			$permalink = get_topic_link( $topic->topic_id, $page );
 			break;
 		case 'profile-page': // This handles the admin side of the profile as well.
@@ -1641,11 +1656,11 @@ function bb_repermalink() {
 				$id = get_path( 1, bb_get_option('tagpath') );
 			$_original_id = $id;
 			if ( !$id )
-				$permalink = get_tag_page_link();
+				$permalink = bb_get_tag_page_link();
 			else {
 				global $tag, $tag_name;
 				$tag_name = $id;
-				$tag = get_tag_by_name( $tag_name );
+				$tag = bb_get_tag_by_name( $tag_name );
 				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;
@@ -1783,18 +1798,72 @@ function get_assignable_caps() {
 
 /* Views */
 
-function get_views( $cache = true ) {
-	global $views;
-	if ( isset($views) && $cache )
-		return $views;
-	
-	$views = array(
-		'no-replies' => __('Topics with no replies'),
-		'untagged' => __('Topics with no tags')
-	);
-	
-	$views = apply_filters('bb_views', $views);
+function bb_get_views() {
+	global $bb_views;
+
+	$views = array();
+	foreach ( (array) $bb_views as $view => $array )
+		$views[$view] = $array['title'];
+
 	return $views;
+}
+
+function bb_register_view( $view, $title, $query_args = '' ) {
+	global $bb_views;
+
+	$view  = bb_slug_sanitize( $view );
+	$title = wp_specialchars( $title );
+
+	if ( !$view || !$title )
+		return false;
+
+	$query_args = wp_parse_args( $query_args );
+
+	if ( !$sticky_set = isset($query_args['sticky']) )
+		$query_args['sticky'] = 'no';
+
+	$bb_views[$view]['title']  = $title;
+	$bb_views[$view]['query']  = $query_args;
+	$bb_views[$view]['sticky'] = !$sticky_set; // No sticky set => split into stickies and not
+	return $bb_views[$view];
+}
+
+function bb_deregister_view( $view ) {
+	global $bb_views;
+
+	$view = bb_slug_sanitize( $view );
+	if ( !isset($bb_views[$view]) )
+		return false;
+
+	unset($GLOBALS['bb_views'][$view]);
+	return true;
+}
+
+function bb_view_query( $view, $new_args = '' ) {
+	global $bb_views;
+
+	$view = bb_slug_sanitize( $view );
+	if ( !isset($bb_views[$view]) )
+		return false;
+
+	if ( $new_args ) {
+		$new_args = wp_parse_args( $new_args );
+		$query_args = array_merge( $bb_views[$view]['query'], $new_args );
+	} else {
+		$query_args = $bb_views[$view]['query'];
+	}
+
+	return new BB_Query( 'topic', $query_args, "bb_view_$view" );
+}
+
+function bb_get_view_query_args( $view ) {
+	global $bb_views;
+
+	$view = bb_slug_sanitize( $view );
+	if ( !isset($bb_views[$view]) )
+		return false;
+
+	return $bb_views[$view]['query'];
 }
 
 /* Nonce */
@@ -1874,6 +1943,7 @@ function bb_die( $message, $title = '' ) {
 	bb_install_header( $title );
 ?>
 	<p><?php echo $message; ?></p>
+	<p><?php printf( __('Back to <a href="%s">%s</a>.'), bb_get_option( 'uri' ), bb_get_option( 'name' ) ); ?></p>
 <?php
 	bb_install_footer();
 	die();
@@ -1931,10 +2001,12 @@ function bb_explain_nonce($action) {
 }
 
 /* DB Helpers */
-
-function bb_count_last_query() {
+function bb_count_last_query( $query = '' ) {
 	global $bbdb, $bb_last_countable_query;
-	if ( $bb_last_countable_query )
+
+	if ( $query )
+		$q = $query;
+	elseif ( $bb_last_countable_query )
 		$q = $bb_last_countable_query;
 	else
 		$q = $bbdb->last_query;
@@ -1942,25 +2014,18 @@ function bb_count_last_query() {
 	if ( false === strpos($q, 'SELECT') )
 		return false;
 
+	if ( false !== strpos($q, 'SQL_CALC_FOUND_ROWS') )
+		return (int) $bbdb->get_var( "SELECT FOUND_ROWS()" );
+
 	$q = preg_replace(
 		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+[\S]+/', '/DESC/', '/ASC/'),
 		array('SELECT COUNT(*) FROM', ''),
 		$q
 	);
-	$bb_last_countable_query = '';
-	return $bbdb->get_var($q);
-}
 
-function no_replies( $where ) {
-	return $where . ' AND topic_posts = 1 ';
-}
-
-function untagged( $where ) {
-	return $where . ' AND tag_count = 0 ';
-}
-
-function deleted_topics( $where ) {
-	return str_replace('topic_status = 0', 'topic_status = 1', $where);
+	if ( !$query )
+		$bb_last_countable_query = '';
+	return (int) $bbdb->get_var($q);
 }
 
 function no_where( $where ) {
@@ -2001,7 +2066,7 @@ function bb_get_plugin_uri( $plugin = false ) {
 function bb_get_active_theme_folder() {
 	$activetheme = bb_get_option( 'bb_active_theme' );
 	if ( !$activetheme )
-		$activetheme = BBPATH . 'bb-templates/kakumei/';
+		$activetheme = BBDEFAULTTHEMEDIR;
 
 	return apply_filters( 'bb_get_active_theme_folder', $activetheme );
 }
@@ -2014,7 +2079,7 @@ function bb_get_themes() {
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
 				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir{0} )
-					$r[$theme_dir] = $theme_root . $theme_dir . '/';
+					$r[$theme_root . $theme_dir . '/'] = $theme_root . $theme_dir . '/';
 
 	ksort($r);
 	return $r;
@@ -2037,6 +2102,8 @@ function bb_user_search( $args = '' ) {
 	if ( !$page )
 		$page = $GLOBALS['page'];
 
+	$page = (int) $page;
+
 	$query = $bbdb->escape( $query );
 
 	$limit = 0 < (int) $users_per_page ? (int) $users_per_page : bb_get_option( 'page_topics' );
@@ -2052,10 +2119,10 @@ function bb_user_search( $args = '' ) {
 			$fields[] = $field;
 
 	if ( $query && $user_meta ) :
-		$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
+		$sql = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
 		if ( empty($fields) )
-			$bb_last_countable_query .= " LIMIT $limit";
-		$user_meta_ids = $bbdb->get_col($bb_last_countable_query);
+			$sql .= " LIMIT $limit";
+		$user_meta_ids = $bbdb->get_col($sql);
 		if ( empty($fields) ) :
 			bb_cache_users( $user_meta_ids );
 			$users = array();
@@ -2078,7 +2145,9 @@ function bb_user_search( $args = '' ) {
 	if ( $query && empty($sql_terms) )
 		return new WP_Error( 'invalid-query', __('Your query parameters are invalid') );
 
-	$bb_last_countable_query = $sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
+	$sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
+
+	$bb_last_countable_query = $sql;
 
 	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
 		return bb_append_meta( $users, 'user' );
@@ -2087,7 +2156,7 @@ function bb_user_search( $args = '' ) {
 }
 
 function bb_tag_search( $args = '' ) {
-	global $page, $bbdb, $bb_last_countable_query, $tag_cache;
+	global $page, $bbdb, $tag_cache, $bb_last_countable_query;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'query' => $args );
@@ -2103,7 +2172,7 @@ function bb_tag_search( $args = '' ) {
 
 	$limit = 0 < (int) $tags_per_page ? (int) $tags_per_page : bb_get_option( 'page_topics' );
 	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
+		$limit = ($limit * (intval($page) - 1)) . ", $limit";
 
 	$likeit = preg_replace('/\s+/', '%', $query);
 
@@ -2118,9 +2187,9 @@ function bb_tag_search( $args = '' ) {
 function bb_related_tags( $_tag = false, $number = 40 ) {
 	global $bbdb, $tag_cache, $tag;;
 	if ( is_numeric($_tag) )
-		$_tag = get_tag( $_tag );
+		$_tag = bb_get_tag( $_tag );
 	elseif ( is_string($_tag) )
-		$_tag = get_tag_by_name( $_tag );
+		$_tag = bb_get_tag_by_name( $_tag );
 	elseif ( false === $_tag )
 		$_tag =& $tag;
 
@@ -2166,22 +2235,27 @@ function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 		$_slug = bb_slug_sanitize($slug);
 		$r = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$_slug'");
 	}
-	return $r;
+	return (int) $r;
 }
 
 /* Utility */
 
-function bb_flatten_array( $array, $keep_child_array_keys = true ) {
+function bb_flatten_array( $array, $cut_branch = 0, $keep_child_array_keys = true ) {
+	if ( !is_array($array) )
+		return $array;
+	
 	if ( empty($array) )
 		return null;
 	
 	$temp = array();
 	foreach ( $array as $k => $v ) {
+		if ( $cut_branch && $k == $cut_branch )
+			continue;
 		if ( is_array($v) ) {
 			if ( $keep_child_array_keys ) {
 				$temp[$k] = true;
 			}
-			$temp += bb_flatten_array($v, $keep_child_array_keys);
+			$temp += bb_flatten_array($v, $cut_branch, $keep_child_array_keys);
 		} else {
 			$temp[$k] = $v;
 		}

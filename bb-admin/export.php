@@ -206,7 +206,7 @@ function bb_export_topic_tags( $r, $topic_id ) {
 	if ( !$topic = get_topic( $topic_id ) )
 		return;
 
-	if ( !$tags = get_topic_tags( $topic_id ) )
+	if ( !$tags = bb_get_topic_tags( $topic_id ) )
 		return $r;
 
 	$r .= "\n";

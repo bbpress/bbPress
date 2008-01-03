@@ -1,6 +1,6 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php forum_name(); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a><?php bb_forum_bread_crumb(); ?></h3>
 
 <?php if ( $topics || $stickies ) : ?>
 
@@ -14,7 +14,7 @@
 
 <?php if ( $stickies ) : foreach ( $stickies as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><?php _e('Sticky:'); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
+	<td><?php bb_topic_labels(); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
@@ -23,7 +23,7 @@
 
 <?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
+	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>

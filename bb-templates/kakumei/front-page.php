@@ -4,7 +4,7 @@
 
 <div id="hottags">
 <h2><?php _e('Hot Tags'); ?></h2>
-<p class="frontpageheatmap"><?php tag_heat_map(); ?></p>
+<p class="frontpageheatmap"><?php bb_tag_heat_map(); ?></p>
 </div>
 
 <div id="discussions">
@@ -22,7 +22,7 @@
 
 <?php if ( $super_stickies ) : foreach ( $super_stickies as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><?php _e('Sticky:'); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
+	<td><?php bb_topic_labels(); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
@@ -31,7 +31,7 @@
 
 <?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
+	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><small><?php topic_time(); ?></small></td>
@@ -63,7 +63,7 @@
 <div id="viewdiv">
 <h2><?php _e('Views'); ?></h2>
 <ul id="views">
-<?php foreach ( get_views() as $view => $title ) : ?>
+<?php foreach ( bb_get_views() as $view => $title ) : ?>
 <li class="view"><a href="<?php view_link(); ?>"><?php view_name(); ?></a></li>
 <?php endforeach; ?>
 </ul>

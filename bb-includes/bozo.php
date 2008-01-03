@@ -1,17 +1,22 @@
 <?php
 function bb_bozo_posts( $where ) {
-	if ( $id = bb_get_current_user_info( 'id' ) )
-		$where = " AND ( post_status = 0 OR post_status > 1 AND poster_id = '$id' ) ";
-	return $where;
+	if ( !$id = bb_get_current_user_info( 'id' ) )
+		return $where;
+
+	return preg_replace(
+		'/(\w+\.)?post_status = ["\']?0["\']?/',
+		"( \\1post_status = 0 OR \\1post_status > 1 AND \\1poster_id = '$id' )",
+	$where);
 }
 
 function bb_bozo_topics( $where ) {
-	if ( $id = bb_get_current_user_info( 'id' ) )
-		$where = str_replace(
-			array('topic_status = 0', "topic_status = '0'"),
-			"( topic_status = 0 OR topic_status > 1 AND topic_poster = '$id' )",
-		$where);
-	return $where;
+	if ( !$id = bb_get_current_user_info( 'id' ) )
+		return $where;
+
+	return preg_replace(
+		'/(\w+\.)?topic_status = ["\']?0["\']?/',
+		"( \\1topic_status = 0 OR \\1topic_status > 1 AND \\1topic_poster = '$id' )",
+	$where);
 }
 
 // Gets those users with the bozo bit.  Does not grab users who have been bozoed on a specific topic.
@@ -23,7 +28,7 @@ function bb_get_bozos( $page = 1 ) {
 		$limit = ($limit * ($page - 1)) . ", $limit";
 	$bozo_mkey = $bb_table_prefix . 'bozo_topics';
 	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' AND meta_value='1' ORDER BY umeta_id DESC LIMIT $limit";
-	if ( $ids = (array) $bbdb->get_col($bb_last_countable_query) )
+	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
 		bb_cache_users( $ids );
 	return $ids;
 }
@@ -55,13 +60,13 @@ function bb_bozo_topic_db_filter() {
 	global $topic, $topic_id;
 	if ( bb_current_user_is_bozo( $topic->topic_id ? $topic->topic_id : $topic_id ) ) {
 		add_filter( 'get_thread_where', 'bb_bozo_posts' );
-		add_filter( 'get_thread_post_ids', 'bb_bozo_posts' );
+		add_filter( 'get_thread_post_ids_where', 'bb_bozo_posts' );
 	}
 }
 
 function bb_bozo_profile_db_filter() {
 	global $user;
-	if ( bb_get_current_user_info( 'id' ) == $user->ID && is_array($user->bozo_topics) )
+	if ( bb_get_current_user_info( 'id' ) == $user->ID && @is_array($user->bozo_topics) )
 		add_filter( 'get_recent_user_replies_where', 'bb_bozo_posts' );
 }
 
@@ -105,9 +110,9 @@ function bb_bozo_recount_users() {
 			$bozo_mkey = $bb_table_prefix . 'bozo_topics';
 			_e("Counting bozo topics for each user...\n");
 			foreach ( $users as $user ) :
-				$topics_replied = $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = $user");
+				$topics_replied = (int) $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = 0 AND poster_id = '$user'");
 				bb_update_usermeta( $user, $bb_table_prefix. 'topics_replied', $topics_replied );
-				$bozo_keys = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = $user GROUP BY topic_id");
+				$bozo_keys = (array) $bbdb->get_col("SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = '$user' GROUP BY topic_id");
 				$bozo_values = (array) $bbdb->get_col('', 1);
 				if ( $c = count($bozo_keys) ) :
 					for ( $i=0; $i < $c; $i++ )
@@ -234,7 +239,13 @@ function bb_fermion( $user_id, $topic_id = 0 ) {
 
 function bb_bozo_profile_admin_keys( $a ) {
 	global $user;
-	$a['is_bozo'] = array(0, __('This user is a bozo'));
+	$a['is_bozo'] = array(
+		0,							// Required
+		__('This user is a bozo'),	// Label
+		'checkbox',					// Type
+		'1',						// Value
+		''							// Default when not set
+	);
 	return $a;
 } 
 

@@ -2,6 +2,8 @@
 
 define( 'BBPATH', dirname(__FILE__) . '/' );
 
+$bb = new StdClass();
+
 if ( !file_exists( BBPATH . 'config.php') ) {
 	if ( !file_exists( dirname(BBPATH) . '/config.php') )
 		die("There doesn't seem to be a <code>config.php</code> file. I need this before we can get started. Open up <code>config-sample.php</code>, fill in your details, and save it as <code>config.php</code>.");
@@ -9,5 +11,4 @@ if ( !file_exists( BBPATH . 'config.php') ) {
 } else {
 	require_once( BBPATH . 'config.php');
 }
-
 ?>

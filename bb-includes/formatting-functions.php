@@ -19,14 +19,9 @@ function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = preg_replace('!(</?(?:ul|ol|li|blockquote|p)[^>]*>)\s*<br />!', "$1", $pee);
 	$pee = preg_replace('!<br />(\s*</?(?:p|li|ul|ol)>)!', '$1', $pee);
 	if ( false !== strpos( $pee, '<pre' ) )
-		$pee = preg_replace_callback('!(<pre.*?>)(.*?)</pre>!is', '_bb_autop_pre', $pee);
+		$pee = preg_replace_callback('!(<pre.*?>)(.*?)</pre>!is', 'clean_pre', $pee );
 	return $pee; 
 }
-
-function _bb_autop_pre( $matches ) {
-	return $matches[1] . clean_pre($matches[2])  . '</pre>';
-}
-	
 
 function bb_encodeit( $matches ) {
 	$text = trim($matches[2]);
@@ -107,8 +102,13 @@ function bb_allowed_tags() {
 }
 
 function bb_rel_nofollow( $text ) {
-	$text = preg_replace('|<a (.+?)>|i', '<a $1 rel="nofollow">', $text);
-	return $text;
+	return preg_replace_callback('|<a (.+?)>|i', 'bb_rel_nofollow_callback', $text);
+}
+
+function bb_rel_nofollow_callback( $matches ) {
+	$text = $matches[1];
+	$text = str_replace(array(' rel="nofollow"', " rel='nofollow'"), '', $text);
+	return "<a $text rel=\"nofollow\">";
 }
 
 function bb_user_sanitize( $text, $strict = false ) {
@@ -122,8 +122,11 @@ function bb_user_sanitize( $text, $strict = false ) {
 }
 
 function bb_trim_for_db( $string, $length ) {
-	if ( seems_utf8( $string ) )
+	if ( seems_utf8( $string ) ) {
 		$_string = bb_utf8_cut( $string, $length );
+		$string = stripslashes($string);
+		$string = addslashes($string);
+	}
 	return apply_filters( 'bb_trim_for_db', $_string, $string, $length );
 }
 
@@ -260,11 +263,25 @@ function bb_make_feed( $link ) {
 		return $link;
 }
 
-function bb_closed_title( $title ) {
+function bb_sticky_label( $label ) {
+	global $topic;
+	if (is_front()) {
+		if ( '2' === $topic->topic_sticky ) {
+			return sprintf(__('[sticky] %s'), $label);
+		}
+	} else {
+		if ( '1' === $topic->topic_sticky || '2' === $topic->topic_sticky ) {
+			return sprintf(__('[sticky] %s'), $label);
+		}
+	}
+	return $label;
+}
+
+function bb_closed_label( $label ) {
 	global $topic;
 	if ( '0' === $topic->topic_open )
-		return sprintf(__('[closed] %s'), $title);
-	return $title;
+		return sprintf(__('[closed] %s'), $label);
+	return $label;
 }
 
 function bb_make_link_view_all( $link ) {

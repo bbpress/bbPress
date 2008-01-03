@@ -12,20 +12,14 @@ function bb_load_template( $file, $globals = false ) {
 			else
 				global $$v;
 
-	if ( file_exists( bb_get_active_theme_folder() .  $file) ) {
-		$template = bb_get_active_theme_folder() .  $file;
-	} else {
-		$template = BBPATH . "bb-templates/kakumei/$file";
-	}
-
-	$template = apply_filters( 'bb_template', $template, $file );
+	$template = apply_filters( 'bb_template', bb_get_template( $file ), $file );
 	include($template);
 }
 
 function bb_get_template( $file ) {
 	if ( file_exists( bb_get_active_theme_folder() .  $file) )
 		return bb_get_active_theme_folder() .  $file;
-	return BBPATH . "bb-templates/kakumei/$file";
+	return BBDEFAULTTHEMEDIR . $file;
 }
 
 function bb_get_header() {
@@ -60,7 +54,7 @@ function bb_get_stylesheet_uri( $stylesheet = '' ) {
 	if ( file_exists( $active_theme . 'style.css' ) )
 		$r = bb_get_active_theme_uri() . $css_file;
 	else
-		$r = bb_get_option( 'uri' ) . "bb-templates/kakumei/$css_file";
+		$r = BBDEFAULTTHEMEURL . $css_file;
 	return apply_filters( 'bb_get_stylesheet_uri', $r, $stylesheet );
 }
 
@@ -70,7 +64,7 @@ function bb_active_theme_uri() {
 
 function bb_get_active_theme_uri() {
 	if ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
-		$active_theme = BBPATH . 'bb-templates/kakumei/';
+		$active_theme = BBDEFAULTTHEMEDIR;
 	return apply_filters( 'bb_get_active_theme_uri', bb_get_theme_uri( $active_theme ) );
 }
 
@@ -153,7 +147,7 @@ function post_form( $h2 = '' ) {
 	do_action('pre_post_form');
 
 	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
-		echo "<form class='postform' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
+		echo "<form class='postform post-form' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
 		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
 		if ( is_forum() )
@@ -172,7 +166,7 @@ function post_form( $h2 = '' ) {
 
 function edit_form() {
 	global $bb_post, $topic_title;
-	echo "<form name='post' id='post' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
+	echo "<form name='postform' class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	echo "\n</form>";
@@ -301,9 +295,11 @@ function bb_get_title() {
 	elseif ( is_forum() )
 		$title = get_forum_name() . ' &laquo; ';
 	elseif ( is_bb_tags() )
-		$title = ( is_bb_tag() ? wp_specialchars( get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
+		$title = ( is_bb_tag() ? wp_specialchars( bb_get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
 	elseif ( is_bb_profile() )
 		$title = get_user_name() . ' &laquo; ';
+	elseif ( is_view() )
+		$title = get_view_name() . ' &laquo; ';
 	if ( $st = bb_get_option( 'static_title' ) )
 		$title = $st;
 	$title .= bb_get_option( 'name' );
@@ -315,7 +311,7 @@ function bb_feed_head() {
 	if ( is_topic() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Topic: %s'), get_topic_title() ) ) . '" href="' . attribute_escape( get_topic_rss_link() ) . '" />';
 	elseif ( is_bb_tag() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), get_tag_name() ) ) . '" href="' . attribute_escape( get_tag_rss_link() ) . '" />';
+		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), bb_get_tag_name() ) ) . '" href="' . attribute_escape( bb_get_tag_rss_link() ) . '" />';
 	elseif ( is_forum() )
 		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Forum: %s'), get_forum_name() ) ) . '" href="' . attribute_escape( get_forum_rss_link() ) . '" />';
 	elseif ( is_front() )
@@ -365,7 +361,7 @@ function get_forum_link( $forum_id = 0, $page = 1 ) {
 		$args = array();
 		$link = bb_get_option( 'uri' ) . 'forum.php';
 		$args['id'] = $forum->forum_id;
-		$args['page'] = 1 < $page ? $page : '';
+		$args['page'] = 1 < $page ? $page : false;
 		$link = add_query_arg( $args, $link );
 	}
 
@@ -446,33 +442,76 @@ function get_forum_rss_link( $forum_id = 0 ) {
 	return apply_filters( 'get_forum_rss_link', $link, $forum_id );
 }
 
+function bb_get_forum_bread_crumb($args = '') {
+	$defaults = array(
+		'forum_id' => 0,
+		'separator' => ' &raquo ',
+		'class' => null
+	);
+	$args = wp_parse_args($args, $defaults);
+	extract($args, EXTR_SKIP);
+
+	$trail = '';
+	$trail_forum = get_forum(get_forum_id($forum_id));
+	if ($class) {
+		$class = ' class="' . $class . '"';
+	}
+	$current_trail_forum_id = $trail_forum->forum_id;
+	while ($trail_forum->forum_id > 0) {
+		$crumb = $separator;
+		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
+			$crumb .= '<a' . $class . ' href="' . get_forum_link($trail_forum->forum_id) . '">';
+		} elseif ($class) {
+			$crumb .= '<span' . $class . '>';
+		}
+		$crumb .= get_forum_name($trail_forum->forum_id);
+		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
+			$crumb .= '</a>';
+		} elseif ($class) {
+			$crumb .= '</span>';
+		}
+		$trail = $crumb . $trail;
+		$trail_forum = get_forum($trail_forum->forum_parent);
+	}
+
+	return apply_filters('bb_get_forum_bread_crumb', $trail, $forum_id );
+}
+
+function bb_forum_bread_crumb( $args = '' ) {
+	echo apply_filters('bb_forum_bread_crumb', bb_get_forum_bread_crumb( $args ) );
+}
+
 // Forum Loop //
 
-function &bb_forums( $type = 'flat' ) {
+function &bb_forums( $args = '' ) {
 	global $bb_forums_loop;
-	
-	$args = array_slice( func_get_args(), 1 );
+
+	$default_type = 'flat';
+
+	if ( is_numeric($args) ) {
+		$args = array( 'child_of' => $args );
+	} elseif ( func_num_args() > 1 ) { // bb_forums( 'ul', $args ); Deprecated
+		$default_type = $args;
+		$args = func_get_arg(1);
+	} elseif ( $args && is_string($args) && false === strpos($args, '=') ) {
+		$args = array( 'type' => $args );
+	}
+
+	// hierarchical not used here.  Sent to get_forums for proper ordering.
+	$args = wp_parse_args( $args, array('hierarchical' => true, 'type' => $default_type, 'walker' => 'BB_Walker_Blank') );
 
 	$levels = array( '', '' );
 
-	if ( !is_string($type) )
-		$type = 'default';
-
-	switch ( strtolower($type) ) :
-	case 'flat' : // [sic]
-		break;
-	case 'list' :
-	case 'ul' :
+	if ( in_array($args['type'], array('list', 'ul')) )
 		$levels = array( '<ul>', '</ul>' );
-		break;
-	default :
-		$args = func_get_args();
-		break;
-	endswitch;
 
-	$forums = call_user_func_array( 'get_forums', $args );
+	$forums = get_forums( $args );
 
-	if ( $bb_forums_loop = BB_Loop::start( $forums ) ) {
+	if ( !class_exists($args['walker']) )
+		$args['walker'] = 'BB_Walker_Blank';
+
+	if ( $bb_forums_loop = BB_Loop::start( $forums, $args['walker'] ) ) {
+		$bb_forums_loop->preserve( array('forum', 'forum_id') );
 		$bb_forums_loop->walker->db_fields = array( 'id' => 'forum_id', 'parent' => 'forum_parent' );
 		list($bb_forums_loop->walker->start_lvl, $bb_forums_loop->walker->end_lvl) = $levels;
 		return $bb_forums_loop->elements;
@@ -487,10 +526,12 @@ function bb_forum() { // Returns current depth
 	if ( !is_array($bb_forums_loop->elements) )
 		return false;
 
-	if ( $r = $bb_forums_loop->step() )
+	if ( $r = $bb_forums_loop->step() ) {
 		$GLOBALS['forum'] =& $bb_forums_loop->elements[key($bb_forums_loop->elements)]; // Globalize the current forum object
-	else
+	} else {
+		$bb_forums_loop->reinstate();
 		return $bb_forums_loop = null; // All done?  Kill the object and exit the loop.
+	}
 
 	return $bb_forums_loop->walker->depth;
 }
@@ -553,7 +594,7 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	} else {
 		$link = bb_get_option('uri') . 'topic.php';
 		$args['id'] = $topic->topic_id;
-		$args['page'] = 1 < $page ? $page : '';
+		$args['page'] = 1 < $page ? $page : false;
 	}
 
 	if ( $args )
@@ -584,8 +625,12 @@ function get_topic_rss_link( $id = 0 ) {
 	return apply_filters( 'get_topic_rss_link', $link, $topic->topic_id );
 }
 
+function bb_topic_labels() {
+	echo apply_filters( 'bb_topic_labels', null );
+}
+
 function topic_title( $id = 0 ) {
-	echo apply_filters( 'topic_title', get_topic_title( $id ), $id );
+	echo apply_filters( 'topic_title', get_topic_title( $id ), get_topic_id( $id ) );
 }
 
 function get_topic_title( $id = 0 ) {
@@ -694,25 +739,42 @@ function get_page_number_links($page, $total) {
 	$r = '';
 	$args = array();
 	$uri = $_SERVER['REQUEST_URI'];
-	if ( bb_get_option('mod_rewrite') ) :
-		if ( 1 == $page ) :
+	if ( bb_get_option('mod_rewrite') ) {
+		$format = '/page/%#%';
+		if ( 1 == $page ) {
 			if ( false === $pos = strpos($uri, '?') )
 				$uri = $uri . '%_%';
 			else
 				$uri = substr_replace($uri, '%_%', $pos, 0);
-		else :
+		} else {
 			$uri = preg_replace('|/page/[0-9]+|', '%_%', $uri);
-		endif;
-	else :
-		$uri = add_query_arg( 'page', '%_%', $uri );
-	endif;
+		}
+	} else {
+		if ( 1 == $page ) {
+			if ( false === $pos = strpos($uri, '?') ) {
+				$uri = $uri . '%_%';
+				$format = '?page=%#%';
+			} else {
+				$uri = substr_replace($uri, '?%_%', $pos, 1);
+				$format = 'page=%#%&';
+			}
+		} else {
+			if ( false === strpos($uri, '?page=') ) {
+				$uri = preg_replace('!&page=[0-9]+!', '%_%', $uri );
+				$format = '&page=%#%';
+			} else {
+				$uri = preg_replace('!?page=[0-9]+!', '%_%', $uri );
+				$format = '?page=%#%';
+			}
+		}
+	}
 
-	if ( isset($_GET['view']) && in_array($_GET['view'], get_views()) )
+	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
 		$args['view'] = $_GET['view'];
 
 	return paginate_links( array(
 		'base' => $uri,
-		'format' => bb_get_option('mod_rewrite') ? '/page/%#%' : '%#%',
+		'format' => $format,
 		'total' => ceil($total/bb_get_option('page_topics')),
 		'current' => $page,
 		'add_args' => $args
@@ -838,17 +900,28 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 	alt_class( $key, $class );
 }
 
-function new_topic( $text = false ) {
-	if ( !$text )
-		$text = __('Add New &raquo;');
+function new_topic( $args = null ) {
+	$defaults = array( 'text' => __('Add New &raquo;'), 'forum' => 0, 'tag' => '' );
+	if ( $args && is_string($args) && false === strpos($args, '=') )
+		$args = array( 'text' => $args );
 
-	if ( is_forum() || is_bb_tag() )
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	if ( $forum && $forum = get_forum( $forum ) )
+		$url = get_forum_link( $forum->forum_id ) . '#postform';
+	elseif ( $tag && ( ( is_numeric($tag) && $tag = bb_get_tag( $tag ) ) || $tag = bb_get_tag_by_name( $tag ) ) )
+		$url = bb_get_tag_link( $tag->tag ) . '#postform';
+	elseif ( is_forum() || is_bb_tag() )
 		$url = '#postform';
+	elseif ( is_topic() )
+		$url = get_forum_link() . '#postform';
 	elseif ( is_front() )
 		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
+
 	if ( !bb_is_user_logged_in() )
 		$url = add_query_arg( 're', urlencode($url), bb_get_option( 'uri' ) . 'bb-login.php' );
-	elseif ( is_forum() ) {
+	elseif ( is_forum() || is_topic() ) {
 		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
 			return;
 	} else {
@@ -863,6 +936,17 @@ function new_topic( $text = false ) {
 function bb_new_topic_forum_dropdown() {
 	bb_forum_dropdown( 'bb_current_user_can', array('write_topic') );
 }
+
+function bb_topic_search_form( $args = null, $query_obj = null ) {
+	global $bb_query_form;
+
+	if ( $query_obj && is_a($query_obj, 'BB_Query_Form') ); // [sic]
+	else
+		$query_obj =& $bb_query_form;
+
+	$query_obj->form( $args );
+}
+		
 
 // POSTS
 
@@ -1105,8 +1189,7 @@ function get_profile_tab_link( $id = 0, $tab, $page = 1 ) {
 		$r = get_user_profile_link( $id ) . "/$tab" . ( 1 < $page ? "/page/$page" : '' );
 	else {
 		$args = array('tab' => $tab);
-		if ( 1 < $page )
-			$args['page'] = $page;
+		$args['page'] = 1 < $page ? $page : false;
 		$r = add_query_arg( $args, get_user_profile_link( $id ) );
 	}
 	return apply_filters( 'get_profile_tab_link', $r, bb_get_user_id( $id ) );
@@ -1247,17 +1330,25 @@ function bb_profile_admin_form( $id = 0 ) {
 	if ( !bb_current_user_can( 'edit_user', $user->ID ) )
 		return;
 
+	$bb_current_id = bb_get_current_user_info( 'id' );
+
 	$profile_admin_keys = get_profile_admin_keys();
 	$assignable_caps = get_assignable_caps();
 	$required = false;
+
+	$roles = $bb_roles->role_names;
+	if ( !bb_current_user_can( 'keep_gate' ) )
+		unset($roles['keymaster']);
+	elseif ( $bb_current_id == $user->ID )
+		$roles = array( 'keymaster' => $roles['keymaster'] );
 ?>
 <table id="admininfo">
 <tr>
   <th scope="row"><?php _e('User Type:'); ?></th>
   <td><select name="role">
-<?php foreach( $bb_roles->role_names as $r => $n ) : if ( 'keymaster' != $r || bb_current_user_can('keep_gate') ) : ?>
+<?php foreach( $roles as $r => $n ) : ?>
        <option value="<?php echo $r; ?>"<?php if ( array_key_exists($r, $user->capabilities) ) echo ' selected="selected"'; ?>><?php echo $n; ?></option>
-<?php endif; endforeach; ?>
+<?php endforeach; ?>
       </select>
   </td>
 </tr>
@@ -1273,11 +1364,21 @@ function bb_profile_admin_form( $id = 0 ) {
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo attribute_escape( $key ); ?>" id="<?php echo attribute_escape( $key ); ?>" type=<?php
-	if ( isset($label[2]) )
-		echo attribute_escape( $label[2] );
-	else
-		echo '"text" size="30" maxlength="140" value="' . attribute_escape( $user->$key ). '"';
-	?> />
+	switch ($label[2]) {
+		case 'checkbox':
+			if ($user->$key == $label[3] || $label[4] == $label[3]) {
+				$checked = ' checked="checked"';
+			} else {
+				$checked = '';
+			}
+			echo '"checkbox" value="' . attribute_escape( $label[3] ) . '"' . $checked;
+			break;
+		case 'text':
+		default:
+			echo '"text" size="30" maxlength="140" value="' . attribute_escape( $user->$key ). '"';
+			break;
+	}
+?> />
 <?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
 </tr>
 <?php endforeach; endif; ?>
@@ -1394,11 +1495,11 @@ function topic_tags() {
 		bb_load_template( 'topic-tags.php', array('user_tags', 'other_tags', 'public_tags') );
 }
 
-function tag_page_link() {
-	echo get_tag_page_link();
+function bb_tag_page_link() {
+	echo bb_get_tag_page_link();
 }
 
-function get_tag_page_link() {
+function bb_get_tag_page_link() {
 	return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' );
 }
 
@@ -1409,7 +1510,7 @@ function bb_tag_link( $id = 0, $page = 1 ) {
 function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
 	global $tag;
 	if ( $tag_name )
-		$_tag = get_tag_by_name( $tag_name );
+		$_tag = bb_get_tag_by_name( $tag_name );
 	else
 		$_tag =& $tag;
 
@@ -1424,32 +1525,32 @@ function bb_tag_link_base() {
 }
 
 function bb_get_tag_link_base() {
-	return get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
+	return bb_get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
 }
 
-function tag_name( $id = 0 ) {
-	echo wp_specialchars( get_tag_name( $id ) );
+function bb_tag_name( $id = 0 ) {
+	echo wp_specialchars( bb_get_tag_name( $id ) );
 }
 
-function get_tag_name( $id = 0 ) {
+function bb_get_tag_name( $id = 0 ) {
 	global $tag;
 	$id = (int) $id;
 	if ( $id )
-		$_tag = get_tag( $id );
+		$_tag = bb_get_tag( $id );
 	else
 		$_tag =& $tag;
 	return $_tag->raw_tag;
 }
 
-function tag_rss_link( $id = 0 ) {
-	echo apply_filters( 'tag_rss_link', get_tag_rss_link($id), $id );
+function bb_tag_rss_link( $id = 0 ) {
+	echo apply_filters( 'tag_rss_link', bb_get_tag_rss_link($id), $id );
 }
 
-function get_tag_rss_link( $tag_id = 0 ) {
+function bb_get_tag_rss_link( $tag_id = 0 ) {
 	global $tag;
 	$tag_id = (int) $tag_id;
 	if ( $tag_id )
-		$_tag = get_tag( $tag_id );
+		$_tag = bb_get_tag( $tag_id );
 	else
 		$_tag =& $tag;
 
@@ -1503,11 +1604,11 @@ function manage_tags_forms() {
 	echo "\n\t</div></form>\n  </li>\n</ul>";
 }
 
-function tag_remove_link() {
-	echo get_tag_remove_link();
+function bb_tag_remove_link() {
+	echo bb_get_tag_remove_link();
 }
 
-function get_tag_remove_link() {
+function bb_get_tag_remove_link() {
 	global $tag, $topic;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
@@ -1516,7 +1617,7 @@ function get_tag_remove_link() {
 	return $r;
 }
 
-function tag_heat_map( $args = '' ) {
+function bb_tag_heat_map( $args = '' ) {
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = wp_parse_args( $args, $defaults );
 
@@ -1529,7 +1630,7 @@ function tag_heat_map( $args = '' ) {
 
 	extract($args, EXTR_SKIP);
 
-	$tags = get_top_tags( false, $limit );
+	$tags = bb_get_top_tags( false, $limit );
 
 	if ( empty($tags) )
 		return;
@@ -1648,12 +1749,16 @@ function bb_get_forum_dropdown( $args = '' ) {
 	global $forum_id, $forum;
 	$old_global = $forum;
 
-	$id = attribute_escape( $id );
+	$name = attribute_escape( $id );
+	$id = str_replace( '_', '-', $name );
 	$tab = (int) $tab;
 
-	$r = "<select name='$id' id='$id' tabindex='$tab'>\n";
+	if ( $none && 1 == $none )
+		$none = __('- None -');
+
+	$r = "<select name='$name' id='$id' tabindex='$tab'>\n";
 	if ( $none )
-		$r .= "\n<option value='0'>" . __('- None -') . "</option>\n";
+		$r .= "\n<option value='0'>$none</option>\n";
 
 	while ( $depth = bb_forum() ) :
 		global $forum; // Globals + References = Pain
@@ -1733,14 +1838,19 @@ function favorites_pages() {
 }
 
 //VIEWS
-function view_name() { // Filtration should be done at get_views() level
-	echo get_view_name();
+function view_name( $view = '' ) { // Filtration should be done at bb_register_view()
+	echo get_view_name( $view );
 }
 
-function get_view_name() {
-	global $view;
-	$views = get_views();
-	return $views[$view];
+function get_view_name( $_view = '' ) {
+	global $view, $bb_views;
+	if ( $_view )
+		$v = bb_slug_sanitize($_view);
+	else
+		$v =& $view;
+
+	if ( isset($bb_views[$v]) )
+		return $bb_views[$v]['title'];
 }
 
 function view_pages() {
@@ -1753,13 +1863,13 @@ function view_link( $_view = false, $page = 1 ) {
 }
 
 function get_view_link( $_view = false, $page = 1 ) {
-	global $view;
+	global $view, $bb_views;
 	if ( $_view )
-		$v =& $_view;
+		$v = bb_slug_sanitize($_view);
 	else
 		$v =& $view;
-	$views = get_views();
-	if ( !array_key_exists($v, $views) )
+
+	if ( !array_key_exists($v, $bb_views) )
 		return bb_get_option('uri');
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . 'view/' . $v . ( 1 < $page ? "/page/$page" : '' );

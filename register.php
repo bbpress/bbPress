@@ -11,7 +11,8 @@ $_globals = array('profile_info_keys', 'user_safe', 'user_login', 'user_email', 
 $_globals = array_merge($_globals, array_keys($profile_info_keys));
 
 if ($_POST) :
-	$user_login = bb_user_sanitize  ( $_POST['user_login'], true );
+	$_POST = stripslashes_deep( $_POST );
+	$user_login = bb_user_sanitize( $_POST['user_login'], true );
 	$user_email = bb_verify_email( $_POST['user_email'] );
 	$user_url   = bb_fix_link( $_POST['user_url'] );
 
@@ -31,14 +32,15 @@ if ($_POST) :
 		$user_safe = false;
 	
 	if ( $user_login && $user_safe && $user_email && !$bad_input) :
-		$user_id = bb_new_user( $user_login, $user_email, $user_url );
-		foreach( $profile_info_keys as $key => $label )
-			if ( strpos($key, 'user_') !== 0 && $$key !== '' )
-				bb_update_usermeta( $user_id, $key, $$key );
-		do_action('register_user', $user_id);
+		if ( $user_id = bb_new_user( $user_login, $user_email, $user_url ) ) :
+			foreach( $profile_info_keys as $key => $label )
+				if ( strpos($key, 'user_') !== 0 && $$key !== '' )
+					bb_update_usermeta( $user_id, $key, $$key );
+			do_action('register_user', $user_id);
 
-		bb_load_template( 'register-success.php', $_globals );
-		exit();	
+			bb_load_template( 'register-success.php', $_globals );
+			exit();	
+		endif;
 	endif;
 endif;
 

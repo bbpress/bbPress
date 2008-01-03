@@ -35,16 +35,16 @@ case 'add-tag' :
 
 	$tag_name = rawurldecode($tag_name);
 	$x = new WP_Ajax_Response();
-	foreach ( add_topic_tags( $topic_id, $tag_name ) as $tag_id ) {
-		if ( !is_numeric($tag_id) || !$tag = get_tag( $tag_id, bb_get_current_user_info( 'id' ), $topic->topic_id ) )
-			if ( !$tag = get_tag( $tag_id ) )
+	foreach ( bb_add_topic_tags( $topic_id, $tag_name ) as $tag_id ) {
+		if ( !is_numeric($tag_id) || !$tag = bb_get_tag( $tag_id, bb_get_current_user_info( 'id' ), $topic->topic_id ) )
+			if ( !$tag = bb_get_tag( $tag_id ) )
 				continue;
 		$tag_id_val = $tag->tag_id . '_' . $tag->user_id;
 		$tag->raw_tag = attribute_escape( $tag->raw_tag );
 		$x->add( array(
 			'what' => 'tag',
 			'id' => $tag_id_val,
-			'data' => "<li id='tag-$tag_id_val'><a href='" . bb_get_tag_link() . "' rel='tag'>$tag->raw_tag</a> " . get_tag_remove_link() . '</li>' 
+			'data' => "<li id='tag-$tag_id_val'><a href='" . bb_get_tag_link() . "' rel='tag'>$tag->raw_tag</a> " . bb_get_tag_remove_link() . '</li>' 
 		) );
 	}
 	$x->send();
@@ -60,7 +60,7 @@ case 'delete-tag' :
 	if ( !bb_current_user_can('edit_tag_by_on', $user_id, $topic_id) )
 		die('-1');
 
-	$tag   = get_tag( $tag_id );
+	$tag   = bb_get_tag( $tag_id );
 	$user  = bb_get_user( $user_id );
 	$topic = get_topic ( $topic_id );
 	if ( !$tag || !$topic )
@@ -110,7 +110,7 @@ case 'delete-post' :
 	if ( bb_delete_post( $post_id, 1 ) )
 		die('1');
 	break;
-
+/*
 case 'add-post' : // Can put last_modified stuff back in later
 	$error = false;
 	$post_id = 0;
@@ -149,7 +149,7 @@ case 'add-post' : // Can put last_modified stuff back in later
 	) );
 	$x->send();
 	break;
-
+*/
 case 'add-forum' :
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		die('-1');
@@ -163,7 +163,7 @@ case 'add-forum' :
 	$x = new WP_Ajax_Response( array(
 		'what' => 'forum',
 		'id' => $forum_id,
-		'data' => bb_forum_row( $forum_id, false )
+		'data' => bb_forum_row( $forum_id, false, true )
 	) );
 	$x->send();
 	break;

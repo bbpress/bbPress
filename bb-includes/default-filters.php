@@ -16,13 +16,14 @@ add_filter('get_topic_link', 'bb_add_replies_to_topic_link', 10, 2);
 
 add_filter('pre_topic_title', 'wp_specialchars');
 add_filter('get_forum_name', 'wp_specialchars');
-add_filter('topic_title', 'bb_closed_title', 30);
+add_filter('bb_topic_labels', 'bb_closed_label', 10);
+add_filter('bb_topic_labels', 'bb_sticky_label', 20);
 add_filter('topic_title', 'wp_specialchars');
 
 add_filter('pre_post', 'trim');
 add_filter('pre_post', 'bb_encode_bad');
 add_filter('pre_post', 'bb_code_trick');
-add_filter('pre_post', 'balanceTags');
+add_filter('pre_post', 'force_balance_tags');
 add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
 add_filter('pre_post', 'bb_filter_kses', 50);
 add_filter('pre_post', 'addslashes', 55);
@@ -48,6 +49,9 @@ add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 
 add_filter('sanitize_profile_info', 'wp_specialchars');
 add_filter('sanitize_profile_admin', 'wp_specialchars');
+
+add_filter( 'get_recent_user_replies_fields', 'get_recent_user_replies_fields' );
+add_filter( 'get_recent_user_replies_group_by', 'get_recent_user_replies_group_by' );
 
 if ( !bb_get_option( 'mod_rewrite' ) ) {
 	add_filter( 'bb_stylesheet_uri', 'attribute_escape', 1, 9999 );
@@ -75,51 +79,7 @@ if ( is_bb_feed() ) {
 	add_filter( 'post_text', 'ent2ncr' );
 }
 
-if ( !isset($wp_header_to_desc) )
-$wp_header_to_desc = apply_filters( 'wp_header_to_desc_array', array(
-	100 => 'Continue',
-	101 => 'Switching Protocols',
-
-	200 => 'OK',
-	201 => 'Created',
-	202 => 'Accepted',
-	203 => 'Non-Authoritative Information',
-	204 => 'No Content',
-	205 => 'Reset Content',
-	206 => 'Partial Content',
-
-	300 => 'Multiple Choices',
-	301 => 'Moved Permanently',
-	302 => 'Found',
-	303 => 'See Other',
-	304 => 'Not Modified',
-	305 => 'Use Proxy',
-	307 => 'Temporary Redirect',
-
-	400 => 'Bad Request',
-	401 => 'Unauthorized',
-	403 => 'Forbidden',
-	404 => 'Not Found',
-	405 => 'Method Not Allowed',
-	406 => 'Not Acceptable',
-	407 => 'Proxy Authentication Required',
-	408 => 'Request Timeout',
-	409 => 'Conflict',
-	410 => 'Gone',
-	411 => 'Length Required',
-	412 => 'Precondition Failed',
-	413 => 'Request Entity Too Large',
-	414 => 'Request-URI Too Long',
-	415 => 'Unsupported Media Type',
-	416 => 'Requested Range Not Satisfiable',
-	417 => 'Expectation Failed',
-
-	500 => 'Internal Server Error',
-	501 => 'Not Implemented',
-	502 => 'Bad Gateway',
-	503 => 'Service Unavailable',
-	504 => 'Gateway Timeout',
-	505 => 'HTTP Version Not Supported'
-) );
+bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1 ) );
+bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
 
 ?>

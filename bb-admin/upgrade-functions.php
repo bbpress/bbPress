@@ -19,6 +19,7 @@ function bb_upgrade_all() {
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	bb_make_db_current();
 	$bb_upgrade += bb_upgrade_1000(); // Make forum and topic slugs
+	$bb_upgrade += bb_upgrade_1010(); // Make sure all forums have a valid parent
 	bb_update_db_version();
 	return $bb_upgrade;
 }
@@ -273,45 +274,45 @@ function bb_upgrade_process_all_slugs() {
 	global $bbdb;
 	// Forums
 
-	$ids = (array) $bbdb->get_col("SELECT forum_id, forum_name FROM $bbdb->forums ORDER BY forum_order ASC" );
-
-	$names = $bbdb->get_col('', 1);
+	$forums = (array) $bbdb->get_results("SELECT forum_id, forum_name FROM $bbdb->forums ORDER BY forum_order ASC" );
 
 	$slugs = array();
-	foreach ( $ids as $r => $id ) :
-		$slug = bb_slug_sanitize( $names[$r] );
-		$slugs[$slug][] = $id;
+	foreach ( $forums as $forum ) :
+		$slug = bb_slug_sanitize( $forum->forum_name );
+		$slugs[$slug][] = $forum->forum_id;
 	endforeach;
 
 	foreach ( $slugs as $slug => $forum_ids ) :
 		foreach ( $forum_ids as $count => $forum_id ) :
-			if ( $count > 0 )
-				$slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
-			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$slug' WHERE forum_id = '$forum_id';");
+			$_slug = $slug;
+			$count = - $count; // madness
+			if ( is_numeric($slug) || $count )
+				$_slug = bb_slug_increment( $slug, $count );
+			$bbdb->query("UPDATE $bbdb->forums SET forum_slug = '$_slug' WHERE forum_id = '$forum_id';");
 		endforeach;
 	endforeach;
-	unset($ids, $names, $slugs, $r, $id, $slug, $forum_ids, $forum_id, $count);
+	unset($forums, $forum, $slugs, $slug, $_slug, $forum_ids, $forum_id, $count);
 
 	// Topics
 
-	$ids = (array) $bbdb->get_col("SELECT topic_id, topic_title FROM $bbdb->topics ORDER BY topic_start_time ASC" );
-
-	$names = $bbdb->get_col('', 1);
+	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_title FROM $bbdb->topics ORDER BY topic_start_time ASC" );
 
 	$slugs = array();
-	foreach ( $ids as $r => $id ) :
-		$slug = bb_slug_sanitize( $names[$r] );
-		$slugs[$slug][] = $id;
+	foreach ( $topics as $topic) :
+		$slug = bb_slug_sanitize( $topic->topic_title );
+		$slugs[$slug][] = $topic->topic_id;
 	endforeach;
 
 	foreach ( $slugs as $slug => $topic_ids ) :
 		foreach ( $topic_ids as $count => $topic_id ) :
-			if ( $count > 0 )
-				$slug = bb_slug_increment( $slug, "-" . ( $count - 1 ) );
-			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$slug' WHERE topic_id = '$topic_id';");
+			$_slug = $slug;
+			$count = - $count;
+			if ( is_numeric($slug) || $count )
+				$_slug = bb_slug_increment( $slug, $count );
+			$bbdb->query("UPDATE $bbdb->topics SET topic_slug = '$_slug' WHERE topic_id = '$topic_id';");
 		endforeach;
 	endforeach;
-	unset($ids, $names, $slugs, $r, $id, $slug, $topic_ids, $topic_id, $count);
+	unset($topics, $topic, $slugs, $slug, $_slug, $topic_ids, $topic_id, $count);
 }
 
 // Reversibly break passwords of blocked users.
@@ -434,6 +435,26 @@ function bb_upgrade_1000() { // Give all topics and forums slugs
 	bb_update_option( 'bb_db_version', 846 );
 	
 	echo "Done adding slugs.<br />";
+	return 1;
+}
+
+// Make sure all forums have a valid parent
+function bb_upgrade_1010() {
+	global $bbdb;
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 952 )
+		return 0;
+
+	$forums = (array) $bbdb->get_results( "SELECT forum_id, forum_parent FROM $bbdb->forums" );
+	$forum_ids = (array) $bbdb->get_col( '', 0 );
+
+	foreach ( $forums as $forum ) {
+		if ( $forum->forum_parent && !in_array( $forum->forum_parent, $forum_ids ) )
+			$bbdb->query( "UPDATE $bbdb->forums SET forum_parent = 0 WHERE forum_id = '$forum->forum_id'" );
+	}
+
+	bb_update_option( 'bb_db_version', 952 );
+	
+	echo "Done reparenting orphaned forums.<br />";
 	return 1;
 }
 
