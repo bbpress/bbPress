@@ -284,26 +284,45 @@ function is_bb_stats() {
 	return 'stats-page' == bb_get_location();
 }
 
-function bb_title() {
-	echo apply_filters( 'bb_title', bb_get_title() );
+function bb_title( $args = '' ) {
+	echo apply_filters( 'bb_title', bb_get_title( $args ) );
 }
 
-function bb_get_title() {
-	$title = '';
-	if ( is_topic() )
-		$title = get_topic_title(). ' &laquo; ';
-	elseif ( is_forum() )
-		$title = get_forum_name() . ' &laquo; ';
-	elseif ( is_bb_tags() )
-		$title = ( is_bb_tag() ? wp_specialchars( bb_get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
-	elseif ( is_bb_profile() )
-		$title = get_user_name() . ' &laquo; ';
-	elseif ( is_view() )
-		$title = get_view_name() . ' &laquo; ';
+function bb_get_title( $args = '' ) {
+	$defaults = array( 'separator' => ' &laquo; ', 'order' => 'normal', 'front' => '' );
+	$args = wp_parse_args( $args, $defaults );
+	$title = array();
+
+	switch ( bb_get_location() ) {
+		case 'front-page':
+			if( !empty( $args['front'] ) )
+				$title[] = $args['front'];
+			break;
+		case 'topic-page':
+			$title[] = get_topic_title();
+			break;
+		case 'forum-page':
+			$title[] = get_forum_name();
+			break;
+		case 'tag-page':
+			if(is_bb_tag()) {
+				$title[] = wp_specialchars( bb_get_tag_name() );
+			}
+			$title[] = __('Tags');
+			break;
+		case 'profile-page':
+			$title[] = get_user_name();
+			break;
+		case 'view-page':
+			$title[] = get_view_name();
+			break;
+	}
 	if ( $st = bb_get_option( 'static_title' ) )
-		$title = $st;
-	$title .= bb_get_option( 'name' );
-	return apply_filters( 'bb_get_title', $title );
+		$title = array( $st );
+	$title[] = bb_get_option( 'name' );
+	if( 'reversed' == $args['order'] )
+		array_reverse( $title );
+	return apply_filters( 'bb_get_title', implode( $args['separator'], $title ) );
 }
 
 function bb_feed_head() {
