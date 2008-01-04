@@ -603,13 +603,6 @@ function get_topic_link( $id = 0, $page = 1 ) {
 	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
 }
 
-function bb_add_replies_to_topic_link( $link, $id ) {
-	$topic = get_topic( get_topic_id( $id ) );
-	if ( bb_is_user_logged_in() )
-		$link = add_query_arg( 'replies', $topic->topic_posts, $link );
-	return $link;
-}
-
 function topic_rss_link( $id = 0 ) {
 	echo apply_filters('topic_rss_link', get_topic_rss_link($id), $id );
 }
