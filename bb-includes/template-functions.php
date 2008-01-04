@@ -321,7 +321,7 @@ function bb_get_title( $args = '' ) {
 		$title = array( $st );
 	$title[] = bb_get_option( 'name' );
 	if( 'reversed' == $args['order'] )
-		array_reverse( $title );
+		$title = array_reverse( $title );
 	return apply_filters( 'bb_get_title', implode( $args['separator'], $title ) );
 }
 
