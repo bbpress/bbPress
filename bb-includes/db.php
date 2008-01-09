@@ -532,7 +532,7 @@ HEAD;
 
 // Default database extension is mysql
 if (!defined('BBDB_EXTENSION')) {
-	define('BBDB_EXTESNION', 'mysql');
+	define('BBDB_EXTENSION', 'mysql');
 }
 
 // Choose a database extension
@@ -550,7 +550,7 @@ switch (BBDB_EXTENSION) {
 }
 
 // Die if object was not created
-if (!is_object($bbdb))
+if (!is_object($bbdb)) {
 	die('Your PHP installation appears to be missing the specified MySQL extension (' . BBDB_EXTENSION . ') which is required for bbPress.');
 }
 
