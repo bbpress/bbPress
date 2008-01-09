@@ -267,11 +267,24 @@ endif;
 // Not verbatim WP,  bb has no options table and constants have different names.
 if ( !function_exists('wp_salt') ) :
 function wp_salt() {
-	$salt = bb_get_option( 'secret' );
-	if ( empty($salt) )
-		$salt = BBDB_PASSWORD . BBDB_USER . BBDB_NAME . BBDB_HOST . BBPATH;
 
-	return $salt;
+	$secret_key = '';
+	if ( defined('BB_SECRET_KEY') && ('' != BB_SECRET_KEY) && ('put your unique phrase here' != BB_SECRET_KEY) )
+		$secret_key = BB_SECRET_KEY;
+
+	if ( defined('BB_SECRET_SALT') ) {
+		$salt = BB_SECRET_SALT;
+	} else {
+		if (!defined('BB_INSTALLING') && !BB_INSTALLING) {
+			$salt = bb_get_option('secret');
+			if ( empty($salt) ) {
+				$salt = wp_generate_password();
+				bb_update_option('secret', $salt);
+			}
+		}
+	}
+
+	return apply_filters('salt', $salt);
 }
 endif;
 
@@ -317,6 +330,21 @@ function wp_check_password($password, $hash) {
 	}
 
 	return $wp_hasher->CheckPassword($password, $hash);
+}
+endif;
+
+if ( !function_exists('wp_generate_password') ) :
+/**
+ * Generates a random password drawn from the defined set of characters
+ * @return string the password
+ **/
+function wp_generate_password() {
+	$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	$length = 7;
+	$password = '';
+	for ( $i = 0; $i < $length; $i++ )
+		$password .= substr($chars, mt_rand(0, 61), 1);
+	return $password;
 }
 endif;
 
@@ -403,7 +431,7 @@ function bb_new_user( $user_login, $email, $url ) {
 	
 	$url           = bb_fix_link( $url );
 	$now           = bb_current_time('mysql');
-	$password      = bb_random_pass();
+	$password      = wp_generate_password();
 	$passcrypt     = wp_hash_password( $password );
 
 	$email = $bbdb->escape( $email );

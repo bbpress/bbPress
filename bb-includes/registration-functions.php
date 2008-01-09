@@ -46,7 +46,7 @@ function bb_reset_email( $user_login ) {
 	if ( !$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'") )
 		return false;
 
-	$resetkey = bb_random_pass( 15 );
+	$resetkey = substr(md5(wp_generate_password()), 0, 15);
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 
 	$message = sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:
@@ -70,7 +70,7 @@ function bb_reset_password( $key ) {
 			bb_block_current_user();
 		if ( !$user->has_cap( 'change_user_password', $user->ID ) )
 			bb_die( __('You are not allowed to change your password.') );
-		$newpass = bb_random_pass( 6 );
+		$newpass = wp_generate_password();
 		bb_update_user_password( $user->ID, $newpass );
 		bb_send_pass           ( $user->ID, $newpass );
 		bb_update_usermeta( $user->ID, 'newpwdkey', '' );
@@ -94,13 +94,6 @@ function bb_update_user_password( $user_id, $password ) {
 
 	do_action('bb_update_user_password', $user_id);
 	return $user_id;
-}
-
-function bb_random_pass( $length = 6) {
-	$number = mt_rand(1, 15);
-	$string = md5( uniqid( microtime() ) );
- 	$password = substr( $string, $number, $length );
-	return $password;
 }
 
 function bb_send_pass( $user, $pass ) {

@@ -524,4 +524,10 @@ function bb_pull_cols( $obj_array ) {
 		$a[] = $r->$arg;
 	return $a;
 }
+
+// $length parameter is deprecated
+function bb_random_pass( $length ) {
+	return wp_generate_password();
+}
+
 ?>

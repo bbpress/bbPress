@@ -14,13 +14,6 @@ class BB_Install
 	var $caller;
 	
 	/**
-	 * The correct database library file to use
-	 *
-	 * @var string
-	 **/
-	var $db_library = 'db.php';
-	
-	/**
 	 * Whether or not we need to load some of the includes normally loaded by bb-settings.php
 	 *
 	 * @var boolean
@@ -185,7 +178,7 @@ class BB_Install
 	 * check_prerequisites() - Check installation pre-requisites
 	 *
 	 * Checks for appropriate PHP version and MySQL extensions, also
-	 * sets the db_library variable along the way
+	 * sets the BBDB_EXTENSION constant along the way if necessary.
 	 *
 	 * @return boolean False if any pre-requisites are not met, otherwise true
 	 **/
@@ -201,7 +194,9 @@ class BB_Install
 				$this->strings[-1]['messages']['error'][] = __('Your PHP installation appears to be missing the MySQL extension which is required for bbPress');
 				$this->step = -1;
 			} else {
-				$this->db_library = 'db-mysqli.php';
+				if (!defined('BBDB_EXTENSION')) {
+					define('BBDB_EXTENSION', 'mysqli');
+				}
 			}
 		}
 		
@@ -262,8 +257,7 @@ class BB_Install
 	function database_tables_are_installed()
 	{
 		if ($this->load_includes) {
-			require_once(BBPATH . BBINC . 'db-base.php');
-			require_once(BBPATH . BBINC . $this->db_library);
+			require_once(BBPATH . BBINC . 'db.php');
 		} else {
 			global $bbdb;
 		}
@@ -412,8 +406,7 @@ class BB_Install
 	function validate_current_database()
 	{
 		if ($this->load_includes) {
-			require_once(BBPATH . BBINC . 'db-base.php');
-			require_once(BBPATH . BBINC . $this->db_library);
+			require_once(BBPATH . BBINC . 'db.php');
 		} else {
 			global $bbdb;
 		}
@@ -854,8 +847,7 @@ class BB_Install
 		define('BBDB_CHARSET',  $data['bbdb_charset']['value']);
 		
 		// We'll fail here if the values are no good.
-		require_once(BBPATH . BBINC . 'db-base.php');
-		require_once(BBPATH . BBINC . $this->db_library);
+		require_once(BBPATH . BBINC . 'db.php');
 		
 		if (!$bbdb->db_connect('SHOW TABLES;')) {
 			$this->step_status[1] = 'incomplete';
@@ -1567,7 +1559,7 @@ EOF;
 	
 	function input_hidden($key)
 	{
-		$r = '<input type="hidden" name="' . $key . '" value="' . $this->data[$this->step]['form'][$key]['value'] . '" />' . "\n";
+		$r = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $this->data[$this->step]['form'][$key]['value'] . '" />' . "\n";
 		
 		echo $r;
 	}
@@ -1757,8 +1749,8 @@ EOQ;
 				
 				$data['options'][''] = '';
 				foreach ($wp_administrators as $wp_administrator) {
-					$email_maps .= 'emailMap[\'' . $wp_administrator->user_login . '\'] = \'' . $wp_administrator->user_email . '\';' . "\n\t\t\t\t\t\t\t\t";
-					$data['options'][$wp_administrator->user_login] = $wp_administrator->display_name;
+					$email_maps .= 'emailMap[\'' . $wp_administrator['user_login'] . '\'] = \'' . $wp_administrator['user_email'] . '\';' . "\n\t\t\t\t\t\t\t\t";
+					$data['options'][$wp_administrator['user_login']] = $wp_administrator['display_name'];
 				}
 				
 				$this->strings[3]['scripts']['changeKeymasterEmail'] = <<<EOS
