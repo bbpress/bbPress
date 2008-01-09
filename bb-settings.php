@@ -54,15 +54,8 @@ error_reporting(E_ALL ^ E_NOTICE);
 // Define the include path
 define('BBINC', 'bb-includes/');
 
-// Choose a database class
-require( BBPATH . BBINC . 'db-base.php');
-if ( extension_loaded('mysql') ) {
-	require( BBPATH . BBINC . 'db.php');
-} elseif ( extension_loaded('mysqli') ) {
-	require( BBPATH . BBINC . 'db-mysqli.php');
-} else {
-	die('Your PHP installation appears to be missing the MySQL which is required for bbPress.');
-}
+// Load the database class
+require( BBPATH . BBINC . 'db.php' );
 
 // Define the language file directory
 if ( !defined('BBLANGDIR') )

@@ -529,4 +529,29 @@ HEAD;
 	}
 }
 
+
+// Default database extension is mysql
+if (!defined('BBDB_EXTENSION')) {
+	define('BBDB_EXTESNION', 'mysql');
+}
+
+// Choose a database extension
+switch (BBDB_EXTENSION) {
+	case 'mysqli':
+		if (extension_loaded('mysqli')) {
+			require(BBPATH . BBINC . 'db-mysqli.php');
+		}
+		break;
+	case 'mysql':
+		if (extension_loaded('mysql')) {
+			require(BBPATH . BBINC . 'db-mysql.php');
+		}
+		break;
+}
+
+// Die if object was not created
+if (!is_object($bbdb))
+	die('Your PHP installation appears to be missing the specified MySQL extension (' . BBDB_EXTENSION . ') which is required for bbPress.');
+}
+
 ?>
