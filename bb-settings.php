@@ -86,7 +86,7 @@ if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 	die();
 }
 
-foreach ( array('use_cache', 'secret', 'debug', 'static_title', 'load_options') as $o )
+foreach ( array('use_cache', 'debug', 'static_title', 'load_options') as $o )
 	if ( !isset($bb->$o) )
 		$bb->$o = false;
 unset($o);
@@ -210,10 +210,12 @@ $bb->wp_siteurl = bb_get_option('wp_siteurl');
 if ( $bb->wp_siteurl ) {
 	$bb->wp_siteurl = rtrim($bb->wp_siteurl, '/') . '/';
 }
+
 $bb->wp_home = bb_get_option('wp_home');
 if ( $bb->wp_home ) {
 	$bb->wp_home = rtrim($bb->wp_home, '/') . '/';
 }
+
 $bb->wp_cookies_integrated = false;
 $bb->cookiedomain = bb_get_option('cookiedomain');
 if ( $bb->wp_siteurl && $bb->wp_home ) {
@@ -232,19 +234,29 @@ if ( $bb->wp_siteurl && $bb->wp_home ) {
 		unset($cookiedomain);
 	}
 }
+
 define('BBHASH', $bb->wp_cookies_integrated ? md5(rtrim($bb->wp_siteurl, '/')) : md5(rtrim($bb->uri, '/')) );
+
 $bb->usercookie = bb_get_option('usercookie');
 if ( !$bb->usercookie ) {
 	$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
 }
+
 $bb->passcookie = bb_get_option('passcookie');
 if ( !$bb->passcookie ) {
 	$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BBHASH;
 }
+
+$bb->authcookie = bb_get_option('authcookie');
+if ( !$bb->authcookie ) {
+	$bb->authcookie = ($bb->wp_cookies_integrated ? 'wordpress_' : 'bbpress_') . BBHASH;
+}
+
 $bb->cookiepath = bb_get_option('cookiepath');
 if ( !isset( $bb->cookiepath ) ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
+
 $bb->sitecookiepath = bb_get_option('sitecookiepath');
 if ( !isset( $bb->sitecookiepath ) ) {
 	$bb->sitecookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl ) : $bb->path;

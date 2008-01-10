@@ -825,7 +825,6 @@ class BB_Install
 		
 		// Stop here if we are going backwards
 		if ($_POST['back_1_1']) {
-			print_r($_POST);
 			$this->step_status[1] = 'incomplete';
 			return 'incomplete';
 		}
