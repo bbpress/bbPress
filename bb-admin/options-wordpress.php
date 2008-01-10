@@ -87,6 +87,14 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 			<p><?php _e('bbPress has automatically determined the best cookie settings for WordPress. In some cases integration may work without these settings, but if not add the following code to your <code>wp-config.php</code> file in the root directory of your WordPress installation.'); ?></p>
 			<pre class="block"><?php echo($wp_settings); ?></pre>
 		</div>
+		<div class="spacer">
+			<p><?php _e('Also make sure that the "SECRET_KEY" in your WordPress <code>wp-config.php</code> file matches the "BB_SECRET_KEY" in your bbPress <code>bb-config.php</code> file.'); ?></p>
+		</div>
+		<div class="spacer">
+			<p><?php _e('You will also need to match the "secret" option in your WordPress database to the "secret" in your bbPress database.'); ?></p>
+			<p><?php _e('In WordPress the "secret" option can be set by editing the value in the <code>wp_options</code> table.'); ?></p>
+			<p><?php _e('In bbPress the "secret" option can be set at installation or by editing the value in the <code>bb_topicmeta</code> table.'); ?></p>
+		</div>
 	</fieldset>
 	<fieldset>
 		<legend>User database</legend>
@@ -219,8 +227,7 @@ $cookie_settings = array(
 	'user_bbdb_host',
 	'custom_user_table',
 	'custom_user_meta_table',
-	'usercookie',
-	'passcookie',
+	'authcookie',
 	'cookiedomain',
 	'cookiepath',
 	'sitecookiepath'

@@ -237,11 +237,13 @@ if ( $bb->wp_siteurl && $bb->wp_home ) {
 
 define('BBHASH', $bb->wp_cookies_integrated ? md5(rtrim($bb->wp_siteurl, '/')) : md5(rtrim($bb->uri, '/')) );
 
+// Deprecated setting
 $bb->usercookie = bb_get_option('usercookie');
 if ( !$bb->usercookie ) {
 	$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BBHASH;
 }
 
+// Deprecated setting
 $bb->passcookie = bb_get_option('passcookie');
 if ( !$bb->passcookie ) {
 	$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BBHASH;

@@ -2,7 +2,7 @@
 <p><?php printf(__('<a href="%1$s">Register</a> or log in'), bb_get_option('uri').'register.php') ?>:</p>
 <p>
 	<label><?php _e('Username:'); ?><br />
-		<input name="user_login" type="text" id="user_login" size="13" maxlength="40" value="<?php echo attribute_escape( $_COOKIE[ bb_get_option( 'usercookie' ) ] ); ?>" />
+		<input name="user_login" type="text" id="user_login" size="13" maxlength="40" />
   </label>
 	<label><?php _e('Password:'); ?><br />
 		<input name="password" type="password" id="password" size="13" maxlength="40" />
