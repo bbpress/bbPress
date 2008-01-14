@@ -270,7 +270,7 @@ if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
 
 // Load Plugins
-if ( is_callable( 'glob' ) )
+if ( function_exists( 'glob' ) && is_callable( 'glob' ) )
 	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
 		require($_plugin);
 unset($_plugin);
