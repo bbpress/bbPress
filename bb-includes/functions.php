@@ -833,12 +833,12 @@ function bb_remove_topic_tags( $topic_id ) {
 		$tags = join(',', $tags);
 		$_tags = (array) $bbdb->get_results("SELECT tag_id, COUNT(DISTINCT topic_id) AS count FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
 		foreach ( $_tags as $_tag ) {
-			$new_count = (int) $tag->count - 1;
+			$new_count = (int) $_tag->count - 1;
 			if ( $new_count < 1 ) {
-				destroy_tag( $tag->tag_id, false );
+				destroy_tag( $_tag->tag_id, false );
 				continue;
 			}
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$tag->tag_id'");
+			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$new_count' WHERE tag_id = '$_tag->tag_id'");
 		}
 	}
 
