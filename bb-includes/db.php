@@ -69,11 +69,7 @@ class bbdb_base {
 	}
 	
 	function set_user_prefix() {
-		
 		global $bb;
-		
-		$old_prefix = $this->prefix;
-		$this->prefix = $prefix;
 		
 		if ( function_exists('bb_get_option') )
 			$wp_prefix = bb_get_option( 'wp_table_prefix' );
@@ -111,8 +107,6 @@ class bbdb_base {
 				$this->usermeta = $usermeta;
 		elseif (isset($bb->custom_user_meta_table))
 			$this->usermeta = $bb->custom_user_meta_table;
-		
-		return $old_prefix;
 	}
 
 	function db_connect( $query = 'SELECT' ) {
