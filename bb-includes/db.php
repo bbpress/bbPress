@@ -67,10 +67,12 @@ class bbdb_base {
 			$this->prefix = $prefix;
 			// Process all table names
 			$_tables = $this->tables;
-		} else {
+		} elseif ( $prefix ) {
 			$old_prefix = '';
 			// Just process the specified table names
 			$_tables = $tables;
+		} else {
+			return FALSE;
 		}
 		
 		// Add the prefix to the stored table names
