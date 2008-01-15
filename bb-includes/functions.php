@@ -182,52 +182,98 @@ function get_recent_user_threads( $user_id ) {
 	return $query->results;
 }
 
-// Expects $title to be pre-escaped
-function bb_new_topic( $title, $forum, $tags = '' ) {
+function bb_insert_topic( $args = null ) {
 	global $bbdb, $bb_cache;
-	$title = apply_filters('pre_topic_title', $title, false);
-	$title = bb_trim_for_db( $title, 150 );
-	$slug  = $_slug = bb_slug_sanitize($title);
-	while ( is_numeric($slug) || $existing_slug = $bbdb->get_var("SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = '$slug'") )
-		$slug = bb_slug_increment($_slug, $existing_slug);
 
-	$forum = (int) $forum;
-	$now   = bb_current_time('mysql');
+	$args = wp_parse_args( $args );
 
-	$id = bb_get_current_user_info( 'id' );
-	$name = bb_get_current_user_info( 'name' );
-
-	if ( $forum && $title ) {
-		$bbdb->query("INSERT INTO $bbdb->topics 
-		(topic_title, topic_slug, topic_poster, topic_poster_name, topic_last_poster, topic_last_poster_name, topic_start_time, topic_time, forum_id)
-		VALUES
-		('$title',    '$slug',    $id,          '$name',           $id,               '$name',                '$now',           '$now',     $forum)");
-		$topic_id = $bbdb->insert_id;
-		if ( !empty( $tags ) )
-			bb_add_topic_tags( $topic_id, $tags );
-		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = $forum");
-		$bb_cache->flush_many( 'forum', $forum_id );
-		do_action('bb_new_topic', $topic_id);
-		return $topic_id;
+	if ( isset($args['topic_id']) && false !== $args['topic_id'] ) {
+		$update = true;
+		if ( !$topic = get_topic( $args['topic_id'] ) )
+			return false;
+		$defaults = get_object_vars( $topic );
 	} else {
-		return false;
+		$update = false;
+
+		$now = bb_current_time('mysql');
+		$current_user_id = bb_get_current_user_info( 'id' );
+
+		$defaults = array(
+			'topic_id' => false, // accepts ids or slugs
+			'topic_title' => '',
+			'topic_slug' => '',
+			'topic_poster' => $current_user_id, // accepts ids or names
+			'topic_poster_name' => '', // useless
+			'topic_last_poster' => $current_user_id,
+			'topic_last_poster_name' => '', // useless
+			'topic_start_time' => $now,
+			'topic_time' => $now,
+			'forum_id' => 0 // accepts ids or slugs
+		);
 	}
+
+	$defaults['tags'] = false; // accepts array or comma delimited string
+	extract( wp_parse_args( $args, $defaults ) );
+	unset($defaults['topic_id'], $defaults['tags']);
+	$fields = array_keys($defaults);
+
+	if ( !$forum = get_forum( $forum_id ) )
+		return false;
+	$forum_id = (int) $forum->forum_id;
+
+	if ( !$user = bb_get_user( $topic_poster ) )
+		return false;
+	$topic_poster = $user->ID;
+	$topic_poster_name = $user->user_login;
+
+	if ( !$last_user = bb_get_user( $topic_last_poster ) )
+		return false;
+	$topic_last_poster = $last_user->ID;
+	$topic_last_poster_name = $last_user->user_login;
+
+	$topic_title = apply_filters( 'pre_topic_title', $topic_title, $topic_id );
+	$topic_title = bb_trim_for_db( $topic_title, 150 );
+	if ( !$topic_title )
+		return false;
+
+	$slug_sql = $update ?
+			$bbdb->prepare( "SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s AND topic_id != %d", $topic_slug, $topic_id ) :
+			$bbdb->prepare( "SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s", $topic_slug );
+
+	$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title ); // $topic_slug is always set when updating
+	while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $slug_sql ) )
+		$topic_slug = bb_slug_increment( $_topic_slug, $existing_slug );
+
+	if ( $update ) {
+		$bbdb->update( $bbdb->topics, compact( $fields ), compact( 'topic_id' ) );
+		$bb_cache->flush_one( 'topic', $topic_id );
+		do_action( 'bb_update_topic', $topic_id );
+	} else {
+		$bbdb->insert( $bbdb->topics, compact( $fields ) );
+		$topic_id = $bbdb->insert_id;
+		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = %d", $forum_id ) );
+		$bb_cache->flush_many( 'forum', $forum_id );
+		do_action( 'bb_new_topic', $topic_id );
+	}
+
+	if ( !empty( $tags ) )
+		bb_add_topic_tags( $topic_id, $tags );
+
+	do_action( 'bb_insert_topic', $topic_id, $args, compact( array_keys($args) ) ); // topic_id, what was passed, what was used
+
+	return $topic_id;
 }
 
-// Expects $title to be pre-escaped
-function bb_update_topic( $title, $topic_id ) {
-	global $bbdb, $bb_cache;
-	$title = apply_filters('pre_topic_title', $title, $topic_id);
-	$topic_id = (int) $topic_id;
+// Deprecated: expects $title to be pre-escaped
+function bb_new_topic( $title, $forum, $tags = '' ) {
+	$title = stripslashes( $title );
+	return bb_insert_topic( array( 'topic_title' => $title, 'forum_id' => $forum, 'tags' => $tags ) );
+}
 
-	if ( $topic_id && $title ) {
-		$bbdb->query("UPDATE $bbdb->topics SET topic_title = '$title' WHERE topic_id = $topic_id");
-		$bb_cache->flush_one( 'topic', $topic_id );
-		do_action('bb_update_topic', $topic_id);
-		return $topic_id;
-	} else {
-		return false;
-	}
+// Deprecated: expects $title to be pre-escaped
+function bb_update_topic( $title, $topic_id ) {
+	$title = stripslashes( $title );
+	return bb_insert_topic( array( 'topic_title' => $title, 'topic_id' => $topic_id ) );
 }
 
 function bb_delete_topic( $topic_id, $new_status = 0 ) {
@@ -809,14 +855,13 @@ function bb_add_topic_tag( $topic_id, $tag ) {
 function bb_add_topic_tags( $topic_id, $tags ) {
 	global $bbdb;
 
-	$tags = trim( $tags );
-	$words = explode(',', $tags);
-
-	if ( !is_array( $words ) )
-		return false;
+	if ( !is_array( $tags ) ) {
+		$tags = trim( (string) $tags );
+		$tags = explode(',', $tags);
+	}
 
 	$tag_ids = array();
-	foreach ( $words as $tag )
+	foreach ( (array) $tags as $tag )
 		if ( $_tag = bb_add_topic_tag( $topic_id, $tag ) )
 			$tag_ids[] = $_tag;
 	return $tag_ids;
