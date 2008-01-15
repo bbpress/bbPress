@@ -299,15 +299,23 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 
 		if ( $new_status ) {
 			bb_remove_topic_tags( $topic_id );
-			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status', tag_count = 0 WHERE topic_id = '$topic_id'");
-			$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - '$topic->topic_posts' WHERE forum_id = '$topic->forum_id'");
+			$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status, 'tag_count' => 0 ), compact( 'topic_id' ) );
+			$bbdb->query( $bbdb->prepare(
+				"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->topic->posts, $topic->forum_id
+			) );
 		} else {
-			$bbdb->query("UPDATE $bbdb->topics SET topic_status = '$new_status' WHERE topic_id = '$topic_id'");
-			$topic_posts = (int) $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id' AND post_status = 0");
-			$all_posts = (int) $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = '$topic_id'");
+			$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status ), compact( 'topic_id' ) );
+			$topic_posts = (int) $bbdb->get_var( $bbdb->prepare(
+				"SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0", $topic_id
+			) );
+			$all_posts = (int) $bbdb->get_var( $bbdb->prepare(
+				"SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d", $topic_id
+			) );
 			bb_update_topicmeta( $topic_id, 'deleted_posts', $all_posts - $topic_posts );
-			$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + '$topic_posts' WHERE forum_id = '$topic->forum_id'");
-			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$topic_posts' WHERE topic_id = '$topic_id'");
+			$bbdb->query( $bbdb->prepare(
+				"UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + %d WHERE forum_id = %d", $topic_posts, $topic->forum_id
+			) );
+			$bbdb->update( $bbdb->topics, compact( 'topic_posts' ), compact( 'topic_id' ) );
 			bb_topic_set_last_post( $topic_id );
 			update_post_positions( $topic_id );
 		}
@@ -329,10 +337,14 @@ function bb_move_topic( $topic_id, $forum_id ) {
 	$forum_id = (int) $forum->forum_id;
 
 	if ( $topic && $forum && $topic->forum_id != $forum_id ) {
-		$bbdb->query("UPDATE $bbdb->posts SET forum_id = $forum_id WHERE topic_id = $topic_id");
-		$bbdb->query("UPDATE $bbdb->topics SET forum_id = $forum_id WHERE topic_id = $topic_id");
-		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + $topic->topic_posts WHERE forum_id = $forum_id");
-		$bbdb->query("UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - $topic->topic_posts WHERE forum_id = $topic->forum_id");
+		$bbdb->update( $bbdb->posts, compact( 'forum_id' ), compact( 'topic_id' ) );
+		$bbdb->update( $bbdb->topics, compact( 'forum_id' ), compact( 'topic_id' ) );
+		$bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + %d WHERE forum_id = %d", $topic->topic_posts, $forum_id
+		) );
+		$bbdb->query( $bbdb->prepare( 
+			"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->topic_posts, $topic->forum_id
+		) );
 		$bb_cache->flush_one( 'topic', $topic_id );
 		$bb_cache->flush_many( 'forum', $forum_id );
 		return $forum_id;
@@ -343,16 +355,18 @@ function bb_move_topic( $topic_id, $forum_id ) {
 function bb_topic_set_last_post( $topic_id ) {
 	global $bbdb;
 	$topic_id = (int) $topic_id;
-	$old_post = $bbdb->get_row("SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = $topic_id AND post_status = 0 ORDER BY post_time DESC LIMIT 1");
-	$old_name = $bbdb->get_var("SELECT user_login FROM $bbdb->users WHERE ID = '$old_post->poster_id'");
-	$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$old_post->post_time', topic_last_poster = '$old_post->poster_id', topic_last_poster_name = '$old_name', topic_last_post_id = '$old_post->post_id' WHERE topic_id = $topic_id");
+	$old_post = $bbdb->get_row( $bbdb->prepare(
+		"SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0 ORDER BY post_time DESC LIMIT 1", $topic_id
+	) );
+	$old_name = $bbdb->get_var( $bbdb->prepare( "SELECT user_login FROM $bbdb->users WHERE ID = %d", $old_post->poster_id ) );
+	return $bbdb->update( $bbdb->topics, array( 'topic_time' => $old_post->post_time, 'topic_last_poster' => $old_post->poster_id, 'topic_last_poster_name' => $old_name, 'topic_last_post_id' => $old_post->post_id ), compact( 'topic_id' ) );
 }	
 
 function bb_close_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_open = '0' WHERE topic_id = $topic_id");
+	$r = $bbdb->update( $bbdb->topics, array( 'topic_open' => 0 ), compact( 'topic_id' ) );
 	do_action('close_topic', $topic_id, $r);
 	return $r;
 }
@@ -361,7 +375,7 @@ function bb_open_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_open = '1' WHERE topic_id = $topic_id");
+	$r = $bbdb->update( $bbdb->topics, array( 'topic_open' => 1 ), compact( 'topic_id' ) );
 	do_action('open_topic', $topic_id, $r);
 	return $r;
 }
@@ -371,7 +385,7 @@ function bb_stick_topic( $topic_id, $super = 0 ) {
 	$topic_id = (int) $topic_id;
 	$stick = 1 + abs((int) $super);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '$stick' WHERE topic_id = $topic_id");
+	$r = $bbdb->update( $bbdb->topics, array( 'topic_stickp' => $stick ), compact( 'topic_id' ) );
 	do_action('stick_topic', $topic_id, $r);
 }
 
@@ -379,7 +393,7 @@ function bb_unstick_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->query("UPDATE $bbdb->topics SET topic_sticky = '0' WHERE topic_id = $topic_id");
+	$r = $bbdb->update( $bbdb->topics, array( 'topic_stickp' => 0 ), compact( 'topic_id' ) );
 	do_action('unstick_topic', $topic_id, $r);
 	return $r;
 }
@@ -401,6 +415,7 @@ function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
 	return $bb_cache->get_thread( $topic_id, $page, $reverse );
 }
 
+// NOT bbdb::prepared
 function get_thread_post_ids( $topic_id ) {
 	global $bbdb, $thread_ids_cache;
 	$topic_id = (int) $topic_id;
