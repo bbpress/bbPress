@@ -1164,10 +1164,9 @@ function bb_get_user_id( $id = 0 ) {
 	global $user;
 	if ( is_object($id) && isset($id->ID) )
 		return (int) $id->ID;
-	elseif ( !is_numeric($id) || 0 == $id )
+	elseif ( !$id )
 		return $user->ID;
 
-	$id = (int) $id;
 	$_user = bb_get_user( $id );
 	return $_user->ID;
 }
