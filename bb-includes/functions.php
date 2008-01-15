@@ -269,7 +269,7 @@ function bb_insert_topic( $args = null ) {
 // Deprecated: expects $title to be pre-escaped
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	$title = stripslashes( $title );
-	$tags = striplslashes( $tags );
+	$tags  = stripslashes( $tags );
 	$forum = (int) $forum;
 	return bb_insert_topic( array( 'topic_title' => $title, 'forum_id' => $forum, 'tags' => $tags ) );
 }
