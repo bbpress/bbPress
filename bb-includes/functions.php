@@ -189,8 +189,10 @@ function bb_insert_topic( $args = null ) {
 
 	if ( isset($args['topic_id']) && false !== $args['topic_id'] ) {
 		$update = true;
-		if ( !$topic = get_topic( $args['topic_id'] ) )
+		if ( !$topic_id = (int) get_topic_id( $args['topic_id'] ) )
 			return false;
+		// Get from db, not cache.  Good idea?  Prevents trying to update meta_key names in the topic table (get_topic() returns appended topic obj)
+		$topic = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->topics WHERE topic_id = %d", $topic_id ) );
 		$defaults = get_object_vars( $topic );
 	} else {
 		$update = false;
@@ -615,8 +617,10 @@ function bb_insert_post( $args = null ) {
 
 	if ( isset($args['post_id']) && false !== $args['post_id'] ) {
 		$update = true;
-		if ( !$post = bb_get_post( $args['post_id'] ) )
+		if ( !$post_id = (int) get_post_id( $args['post_id'] ) )
 			return false;
+		// Get from db, not cache.  Good idea?
+		$post = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->posts WHERE post_id = %d", $post_id ) );
 		$defaults = get_object_vars( $post );
 	} else {
 		$update = false;
