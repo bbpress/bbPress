@@ -21,6 +21,7 @@ if ( $q = stripslashes( $q ) ) {
 do_action( 'do_search', $q );
 
 // Cache topics
+// NOT bbdb::prepared
 if ( $recent ) :
 	$topic_ids = array();
 	foreach ($recent as $bb_post) {

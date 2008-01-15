@@ -174,10 +174,17 @@ function bb_get_recently_moderated_objects( $num = 5 ) {
 
 /* Users */
 
-function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
+// Not bbdb::prepared
+function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit = 50 ) {
 	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
-	$key = $bb_table_prefix . 'capabilities';
+	$key = $bbdb->escape( $bb_table_prefix . 'capabilities' );
+
+	if ( !$page = abs( (int) $page ) )
+		$page = 1;
+	$limit = abs( (int) $limit );
+
+	$limit = ($limit * ($page - 1)) . ", $limit";
 
 	$role = $bbdb->escape_deep($role);
 
@@ -185,7 +192,7 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $limit_str = '' ) {
 		$and_where = "( meta_value LIKE '%" . join("%' OR meta_value LIKE '%", $role) . "%' )";
 	else
 		$and_where = "meta_value LIKE '%$role%'";
-	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort" . $limit_str;
+	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort LIMIT $limit";
 
 	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
 		bb_cache_users( $ids );
@@ -234,12 +241,10 @@ class BB_User_Search {
 	}
 
 	function prepare_query() {
-		global $bbdb;
 		$this->first_user = ($this->page - 1) * $this->users_per_page;
 	}
 
 	function query() {
-		global $bbdb;
 		$users = bb_user_search( array(
 				'query' => $this->search_term,
 				'user_email' => true,
@@ -385,14 +390,8 @@ class BB_Users_By_Role extends BB_User_Search {
 		$this->do_paging();
 	}
 
-	function prepare_query() {
-		$this->first_user = ($this->page - 1) * $this->users_per_page;
-		$this->query_limit = ' LIMIT ' . $this->first_user . ',' . $this->users_per_page;
-	}
-
 	function query() {
-		global $bbdb;
-		$this->results = bb_get_ids_by_role( $this->role, 0, $this->query_limit );
+		$this->results = bb_get_ids_by_role( $this->role, 0, $this->page, $this->users_per_page );
 
 		if ( $this->results )
 			$this->total_users_for_query = bb_count_last_query();
@@ -433,19 +432,20 @@ function bb_new_forum( $args ) {
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
 	$forum_name = bb_trim_for_db( $forum_name, 150 );
 
-	$forum_name = $bbdb->escape( $forum_name );
-	$forum_desc = $bbdb->escape( $forum_desc );
-
 	if ( strlen($forum_name) < 1 )
 		return false;
 
+	$forum_sql = "SELECT forum_slug FROM $bbdb->forums WHERE forum_slug = %s";
+
 	$forum_slug = $_forum_slug = bb_slug_sanitize($forum_name);
-	while ( is_numeric($forum_slug) || $existing_slug = $bbdb->get_var("SELECT forum_slug FROM $bbdb->forums WHERE forum_slug = '$forum_slug'") )
+	while ( is_numeric($forum_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $forum_sql, $forum_slug ) ) )
 		$forum_slug = bb_slug_increment($_forum_slug, $existing_slug);
 
-	$bbdb->query("INSERT INTO $bbdb->forums (forum_name, forum_slug, forum_desc, forum_parent, forum_order) VALUES ('$forum_name', '$forum_slug', '$forum_desc', '$forum_parent', '$forum_order')");
+	$bbdb->insert( $bbdb->forums, compact( 'forum_name', 'forum_slug', 'forum_desc', 'forum_parent', 'forum_order' ) );
+	$forum_id = $bbdb->insert_id;
+
 	$bb_cache->flush_one( 'forums' );
-	return $bbdb->insert_id;
+	return $forum_id;
 }
 
 // Expects forum_name, forum_desc to be pre-escaped
@@ -474,18 +474,17 @@ function bb_update_forum( $args ) {
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
 	$forum_name = bb_trim_for_db( $forum_name, 150 );
 
-	$forum_name = $bbdb->escape( $forum_name );
-	$forum_desc = $bbdb->escape( $forum_desc );
-
 	if ( strlen($forum_name) < 1 )
 		return false;
 
 	$bb_cache->flush_many( 'forum', $forum_id );
 	$bb_cache->flush_one( 'forums' );
-	return $bbdb->query("UPDATE $bbdb->forums SET forum_name = '$forum_name', forum_desc = '$forum_desc', forum_parent = '$forum_parent', forum_order = '$forum_order' WHERE forum_id = $forum_id");
+
+	return $bbdb->update( $bbdb->forums, compact( 'forum_name', 'forum_desc', 'forum_parent', 'forum_order' ), compact( 'forum_id' ) );
 }
 
 // When you delete a forum, you delete *everything*
+// NOT bbdb::prepared
 function bb_delete_forum( $forum_id ) {
 	global $bbdb, $bb_cache;
 	if ( !bb_current_user_can( 'delete_forum', $forum_id ) )
@@ -496,16 +495,16 @@ function bb_delete_forum( $forum_id ) {
 	if ( !$forum = get_forum( $forum_id ) )
 		return false;
 
-	if ( $topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$forum_id'") ) {
-		$_topic_ids = join(',', $topic_ids);
+	if ( $topic_ids = $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->topics WHERE forum_id = %d", $forum_id ) ) ) {
+		$_topic_ids = join(',', array_may('intval', $topic_ids));
 		$bbdb->query("DELETE FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
 		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
-		$bbdb->query("DELETE FROM $bbdb->topics WHERE forum_id = '$forum_id'");
+		$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->topics WHERE forum_id = %d", $forum_id ) );
 	}
 	
-	$bbdb->query( "UPDATE $bbdb->forums SET forum_parent = '$forum->forum_parent' WHERE forum_parent = '$forum_id'" );
+	$bbdb->update( $bbdb->forums, array( 'forum_parent' => $forum->forum_parent ), array( 'forum_parent' => $forum_id ) );
 
-	$return = $bbdb->query("DELETE FROM $bbdb->forums WHERE forum_id = $forum_id");
+	$return = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->forums WHERE forum_id = %d", $forum_id ) );
 
 	if ( $topic_ids )
 		foreach ( $topic_ids as $topic_id ) {
@@ -616,7 +615,6 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 
 /* Tags */
 
-// Expects $tag to be pre-escaped
 function rename_tag( $tag_id, $tag ) {
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
@@ -628,12 +626,12 @@ function rename_tag( $tag_id, $tag ) {
 
 	if ( empty( $tag ) )
 		return false;
-	if ( $bbdb->get_var("SELECT tag_id FROM $bbdb->tags WHERE tag = '$tag' AND tag_id <> '$tag_id'") )
+	if ( $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE tag = %s AND tag_id <> %d", $tag, $tag_id ) ) )
 		return false;
 
 	$old_tag = bb_get_tag( $tag_id );
 
-	if ( $bbdb->query("UPDATE $bbdb->tags SET tag = '$tag', raw_tag = '$raw_tag' WHERE tag_id = '$tag_id'") ) {
+	if ( $bbdb->update( $bbdb->tags, compact( 'tag', 'raw_tag' ), compact( 'tag_id' ) ) ) {
 		do_action('bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
 		return bb_get_tag( $tag_id );
 	}
@@ -641,6 +639,7 @@ function rename_tag( $tag_id, $tag ) {
 }
 
 // merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
+// NOT bbdb::prepared
 function merge_tags( $old_id, $new_id ) {
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
@@ -655,19 +654,25 @@ function merge_tags( $old_id, $new_id ) {
 	do_action('bb_pre_merge_tags', $old_id, $new_id);
 
 	$tagged_del = 0;
-	if ( $old_topic_ids = (array) $bbdb->get_col( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = '$old_id'" ) ) {
-		$old_topic_ids = join(',', $old_topic_ids);
+	if ( $old_topic_ids = (array) $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = %d", $old_id ) ) ) {
+		$old_topic_ids = join(',', array_map('intval', $old_topic_ids));
 		$shared_topics = (array) $bbdb->get_results( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
 		foreach ( $shared_topics as $st ) {
-			$tagged_del += $bbdb->query( "DELETE FROM $bbdb->tagged WHERE tag_id = '$old_id' AND user_id = '$st->user_id' AND topic_id = '$st->topic_id'" );
-			$count = (int) $bbdb->get_var( "SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = '$st->topic_id' GROUP BY topic_id" );
-			$bbdb->query( "UPDATE $bbdb->topics SET tag_count = $count WHERE topic_id = '$st->topic_id'" );
+			$tagged_del += $bbdb->query( $bbdb->prepare(
+				"DELETE FROM $bbdb->tagged WHERE tag_id = %d AND user_id = %d AND topic_id = %d",
+				$old_id, $st->user_id, $st->topic_id
+			) );
+			$count = (int) $bbdb->get_var( $bbdb->prepare(
+				"SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = %d GROUP BY topic_id",
+				$st->topic_id
+			) );
+			$bbdb->update( $bbdb->topics, array( 'tag_count' => $count ), array( 'topic_id' => $st->topic_id ) );
 		}
 	}
 
-	if ( $diff_count = $bbdb->query( "UPDATE $bbdb->tagged SET tag_id = '$new_id' WHERE tag_id = '$old_id'" ) ) {
-		$count = (int) $bbdb->get_var( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = '$new_id' GROUP BY tag_id" );
-		$bbdb->query( "UPDATE $bbdb->tags SET tag_count = $count WHERE tag_id = '$new_id'" );
+	if ( $diff_count = $bbdb->update( $bbdb->tagged, array( 'tag_id' => $new_id ), array( 'tag_id' => $old_id ) ) ) {
+		$count = (int) $bbdb->get_var( $bbdb->prepare( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = %d GROUP BY tag_id", $new_id ) );
+		$bbdb->update( $bbdb->tags, array( 'tag_count' => $count ), array( 'tag_id' => $new_id ) );
 	}
 
 	// return values and destroy the old tag
@@ -694,11 +699,11 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	$posts = $to_forum->posts + ( $from_forum ? $from_forum->posts : 0 );
 	$topics = $to_forum->topics + ( $from_forum ? $from_forum->topics : 0 );
 	
-	$bbdb->query("UPDATE $bbdb->forums SET topics = '$topics', posts = '$posts' WHERE forum_id = '$to_forum_id'");
-	$bbdb->query("UPDATE $bbdb->forums SET topics = 0, posts = 0 WHERE forum_id = '$from_forum_id'");
-	$bbdb->query("UPDATE $bbdb->posts SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
-	$topic_ids = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE forum_id = '$from_forum_id'");
-	$return = $bbdb->query("UPDATE $bbdb->topics SET forum_id = '$to_forum_id' WHERE forum_id = '$from_forum_id'");
+	$bbdb->update( $bbdb->forums, compact( 'topics', 'posts' ), array( 'forum_id' => $to_forum_id ) );
+	$bbdb->update( $bbdb->forums, array( 'topics' => 0, 'posts' => 0 ), array( 'forum_id' => $from_forum_id ) );
+	$bbdb->update( $bbdb->posts, array( 'forum_id' => $to_forum_id ), array( 'forum_id' => $from_forum_id ) );
+	$topic_ids = $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->topics WHERE forum_id = %d", $from_forum_id ) );
+	$return = $bbdb->update( $bbdb->topics, array( 'forum_id' => $to_forum_id ), array( 'forum_id' => $from_forum_id ) );
 	if ( $topic_ids )
 		foreach ( $topic_ids as $topic_id ) {
 			$bb_cache->flush_one( 'topic', $topic_id );
