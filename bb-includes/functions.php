@@ -1183,7 +1183,7 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 		$bbdb->update( $bbdb->posts, array( 'poster_id' => $new_user->ID ), array( 'poster_id' => $user->ID ) );
 		$bbdb->update( $bbdb->tagged, array( 'user_id' => $new_user->ID ), array( 'user_id' => $user->ID ) );
 		$bbdb->update( $bbdb->topics, array( 'topic_poster' => $new_user->ID, 'topic_poster_name' => $new_user->user_login), array( 'topic_poster' => $user->ID ) );
-		$bbdb->update( $bbdb->topics, array( 'topic_last_poster' => $new_user->ID, 'topic_last_poster_name' => $new_user->user_login, array( 'topic_last_poster' => $user->ID ) );
+		$bbdb->update( $bbdb->topics, array( 'topic_last_poster' => $new_user->ID, 'topic_last_poster_name' => $new_user->user_login ), array( 'topic_last_poster' => $user->ID ) );
 		bb_update_topics_replied( $new_user->ID );
 		$bb_cache->flush_one( 'user', $new_user->ID );
 	}
