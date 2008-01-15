@@ -1062,7 +1062,7 @@ class BB_Install
 				global $bbdb;
 				
 				// Set the new prefix for user tables
-				$bbdb->set_user_prefix();
+				$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
 				
 				// Hide errors for the test
 				$bbdb->return_errors();
@@ -1258,7 +1258,7 @@ class BB_Install
 			if (!empty($data2['custom_user_meta_table']['value'])) define('CUSTOM_USER_META_TABLE', $data2['custom_user_meta_table']['value']);
 			
 			// Set the new prefix for user tables
-			$bbdb->set_user_prefix();
+			$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
 		}
 		
 		// Create the database
@@ -1716,7 +1716,7 @@ EOF;
 		global $bbdb;
 		
 		// Set the new prefix for user tables
-		$bbdb->set_user_prefix();
+		$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
 		
 		$wp_administrator_meta_key = $bb->wp_table_prefix . 'capabilities';
 		$wp_administrator_query = <<<EOQ

@@ -54,59 +54,67 @@ class bbdb_base {
 		return true;
 	}
 
-	function set_prefix($prefix) {
+	function set_prefix($prefix, $tables = FALSE) {
 		
+		// Check that the prefix is valid
 		if ( preg_match('|[^a-z0-9_]|i', $prefix) )
-			return new WP_Error('invalid_db_prefix', 'Invalid database prefix'); // No gettext here
+			return new WP_Error('invalid_db_prefix', 'Invalid database prefix (' . $prefix . ')'); // No gettext here
 		
-		$old_prefix = $this->prefix;
-		$this->prefix = $prefix;
-		
-		foreach ( $this->tables as $table )
-			$this->$table = $this->prefix . $table;
-		
-		return $old_prefix;
-	}
-	
-	function set_user_prefix() {
-		global $bb;
-		
-		if ( function_exists('bb_get_option') )
-			$wp_prefix = bb_get_option( 'wp_table_prefix' );
-		else
-			$wp_prefix = $bb->wp_table_prefix;
-		
-		if ( preg_match('|[^a-z0-9_]|i', $wp_prefix) )
-			return new WP_Error('invalid_user_table_prefix', 'Invalid user table prefix'); // No gettext here
-		
-		if ( $wp_prefix ) {
-			$this->users    = $wp_prefix . 'users';
-			$this->usermeta = $wp_prefix . 'usermeta';
+		if ( !$tables ) {
+			// Set the old prefix to return
+			$old_prefix = $this->prefix;
+			// Set the general prefix
+			$this->prefix = $prefix;
+			// Process all table names
+			$_tables = $this->tables;
+		} else {
+			$old_prefix = '';
+			// Just process the specified table names
+			$_tables = $tables;
 		}
 		
-		if ( defined('USER_BBDB_CHARSET') )
-			$this->user_charset = constant('USER_BBDB_CHARSET');
-		elseif ( function_exists('bb_get_option') )
-			if ($user_charset = bb_get_option( 'user_bbdb_charset' ))
-				$this->user_charset = $user_charset;
-		else
-			$this->user_charset = $bb->user_bbdb_charset;
+		// Add the prefix to the stored table names
+		foreach ( $_tables as $table )
+			$this->$table = $prefix . $table;
 		
-		if ( defined('CUSTOM_USER_TABLE') )
-			$this->users = constant('CUSTOM_USER_TABLE');
-		elseif ( function_exists('bb_get_option') )
-			if ($users = bb_get_option( 'custom_user_table' ))
-				$this->users = $users;
-		elseif (isset($bb->custom_user_table))
-			$this->users = $bb->custom_user_table;
+		// If there is a custom list of tables
+		if ( $tables && is_array($tables) ) {
+			// If the custom list includes 'users' or 'usermeta'
+			if ( count( array_intersect( array('users', 'usermeta'), $tables ) ) ) {
+				// Bring in the $bb object
+				global $bb;
+				
+				// Set the user table's character set if defined
+				if ( defined('USER_BBDB_CHARSET') )
+					$this->user_charset = constant('USER_BBDB_CHARSET');
+				elseif ( function_exists('bb_get_option') )
+					if ($user_charset = bb_get_option( 'user_bbdb_charset' ))
+						$this->user_charset = $user_charset;
+				else
+					$this->user_charset = $bb->user_bbdb_charset;
+				
+				// Set the user table's custom name if defined
+				if ( defined('CUSTOM_USER_TABLE') )
+					$this->users = constant('CUSTOM_USER_TABLE');
+				elseif ( function_exists('bb_get_option') )
+					if ($users = bb_get_option( 'custom_user_table' ))
+						$this->users = $users;
+				elseif (isset($bb->custom_user_table))
+					$this->users = $bb->custom_user_table;
+				
+				// Set the usermeta table's custom name if defined
+				if ( defined('CUSTOM_USER_META_TABLE') )
+					$this->usermeta = constant('CUSTOM_USER_META_TABLE');
+				elseif ( function_exists('bb_get_option') )
+					if ($usermeta = bb_get_option( 'custom_user_meta_table' ))
+						$this->usermeta = $usermeta;
+				elseif (isset($bb->custom_user_meta_table))
+					$this->usermeta = $bb->custom_user_meta_table;
+			}
+		}
 		
-		if ( defined('CUSTOM_USER_META_TABLE') )
-			$this->usermeta = constant('CUSTOM_USER_META_TABLE');
-		elseif ( function_exists('bb_get_option') )
-			if ($usermeta = bb_get_option( 'custom_user_meta_table' ))
-				$this->usermeta = $usermeta;
-		elseif (isset($bb->custom_user_meta_table))
-			$this->usermeta = $bb->custom_user_meta_table;
+		// Return the old prefix
+		return $old_prefix;
 	}
 
 	function db_connect( $query = 'SELECT' ) {

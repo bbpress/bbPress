@@ -201,7 +201,7 @@ if ( defined('CUSTOM_USER_META_TABLE') ) {
 	define('CUSTOM_USER_META_TABLE', $bb->custom_user_meta_table);
 }
 
-if ( is_wp_error( $bbdb->set_user_prefix() ) )
+if ( is_wp_error( $bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') ) ) )
 	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
 
 // Sort out cookies so they work with WordPress (if required)
