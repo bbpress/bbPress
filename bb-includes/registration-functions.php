@@ -20,22 +20,17 @@ function bb_verify_email( $email ) {
 	return apply_filters( 'bb_verify_email', $r, $email );
 }
 
-function bb_update_user( $user_id, $email, $url ) {
+function bb_update_user( $user_id, $user_email, $user_url ) {
 	global $bbdb, $bb_cache;
 
-	$user_id = (int) $user_id;
-	$email   = $bbdb->escape( $email );
-	$url     = bb_fix_link( $url );
+	$ID = (int) $user_id;
+	$user_url = bb_fix_link( $user_url );
 
-	$bbdb->query("UPDATE $bbdb->users SET
-	user_email = '$email',
-	user_url   = '$url'
-	WHERE ID   = '$user_id'
-	");
-	$bb_cache->flush_one( 'user', $user_id );
+	$bbdb->update( $bbdb->users, compact( 'user_email', 'user_url' ), compact( 'ID' ) );
+	$bb_cache->flush_one( 'user', $ID );
 
-	do_action('bb_update_user', $user_id);
-	return $user_id;
+	do_action('bb_update_user', $ID);
+	return $ID;
 }
 
 function bb_reset_email( $user_login ) {
@@ -43,7 +38,7 @@ function bb_reset_email( $user_login ) {
 
 	$user_login = sanitize_user( $user_login );
 
-	if ( !$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user_login'") )
+	if ( !$user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user_login ) ) )
 		return false;
 
 	$resetkey = substr(md5(wp_generate_password()), 0, 15);
@@ -63,7 +58,7 @@ function bb_reset_password( $key ) {
 	$key = sanitize_user( $key );
 	if ( empty( $key ) )
 		bb_die(__('Key not found.'));
-	if ( !$user_id = $bbdb->get_var("SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = '$key'") )
+	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )
 		bb_die(__('Key not found.'));
 	if ( $user = new BB_User( $user_id ) ) :
 		if ( bb_has_broken_pass( $user->ID ) )
@@ -82,24 +77,20 @@ function bb_reset_password( $key ) {
 function bb_update_user_password( $user_id, $password ) {
 	global $bbdb, $bb_cache;
 
-	$user_id = (int) $user_id;
+	$ID = (int) $user_id;
 
-	$passhash = wp_hash_password( $password );
+	$user_pass = wp_hash_password( $password );
 
-	$bbdb->query("UPDATE $bbdb->users SET
-	user_pass = '$passhash'
-	WHERE ID = '$user_id'
-	");
-	$bb_cache->flush_one( 'user', $user_id );
+	$bbdb->update( $bbdb->users, compact( 'user_pass' ), compact( 'ID' ) );
+	$bb_cache->flush_one( 'user', $ID );
 
-	do_action('bb_update_user_password', $user_id);
-	return $user_id;
+	do_action('bb_update_user_password', $ID);
+	return $ID;
 }
 
 function bb_send_pass( $user, $pass ) {
 	global $bbdb;
-	$user = (int) $user;
-	if ( !$user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user") )
+	if ( !$user = bb_get_user( $user ) )
 		return false;
 
 	$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!");
@@ -107,7 +98,7 @@ function bb_send_pass( $user, $pass ) {
 	return bb_mail(
 		bb_get_user_email( $user->ID ),
 		bb_get_option('name') . ': ' . __('Password'),
-		sprintf( $message, "$user->user_login", "$pass", bb_get_option('uri') )
+		sprintf( $message, $user->user_login, $pass, bb_get_option('uri') )
 	);
 }
 ?>

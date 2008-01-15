@@ -28,7 +28,7 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 	// If using old md5 password, rehash.
 	if ( strlen($user->user_pass) <= 32 ) {
 		$hash = wp_hash_password($pass);
-		$bbdb->query("UPDATE $bbdb->users SET user_pass = '$hash' WHERE ID = '$user->ID'");
+		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->users SET user_pass = %s WHERE ID = %d", $hash, $user->ID ) );
 		global $bb_cache;
 		$bb_cache->flush_one( 'user', $user->ID );
 		$user = bb_get_user( $user->ID );
@@ -435,7 +435,10 @@ function bb_break_password( $user_id ) {
 		return false;
 	$secret = substr(wp_hash( 'bb_break_password' ), 0, 13);
 	if ( false === strpos( $user->user_pass, '---' ) )
-		return $bbdb->query("UPDATE $bbdb->users SET user_pass = CONCAT(user_pass, '---', '$secret') WHERE ID = '$user_id'");
+		return $bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->users SET user_pass = CONCAT(user_pass, '---', %s) WHERE ID = %d",
+			$secret, $user_id
+		) );
 	else
 		return true;
 }
@@ -450,7 +453,10 @@ function bb_fix_password( $user_id ) {
 	if ( false === strpos( $user->user_pass, '---' ) )
 		return true;
 	else
-		return $bbdb->query("UPDATE $bbdb->users SET user_pass = SUBSTRING_INDEX(user_pass, '---', 1) WHERE ID = '$user_id'");
+		return $bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->users SET user_pass = SUBSTRING_INDEX(user_pass, '---', 1) WHERE ID = %d",
+			$user_id
+		) );
 }
 endif;
 
@@ -467,29 +473,26 @@ function bb_has_broken_pass( $user_id = 0 ) {
 endif;
 
 if ( !function_exists('bb_new_user') ) :
-function bb_new_user( $user_login, $email, $url ) {
+function bb_new_user( $user_login, $user_email, $user_url ) {
 	global $bbdb, $bb_table_prefix;
 	$user_login = sanitize_user( $user_login, true );
-	$email      = bb_verify_email( $email );
+	$user_email = bb_verify_email( $user_email );
 	
-	if ( !$user_login || !$email )
+	if ( !$user_login || !$user_email )
 		return false;
 	
 	$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user_login );
 	while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
 		$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
 	
-	$url           = bb_fix_link( $url );
-	$now           = bb_current_time('mysql');
-	$password      = wp_generate_password();
-	$passcrypt     = wp_hash_password( $password );
+	$user_url = bb_fix_link( $user_url );
+	$user_registered = bb_current_time('mysql');
+	$password = wp_generate_password();
+	$user_pass = wp_hash_password( $password );
 
-	$email = $bbdb->escape( $email );
-
-	$bbdb->query("INSERT INTO $bbdb->users
-	(user_login,     user_pass,   user_nicename,    user_email, user_url, user_registered)
-	VALUES
-	('$user_login', '$passcrypt', '$user_nicename', '$email',   '$url',   '$now')");
+	$bbdb->insert( $bbdb->users,
+		compact( 'user_login', 'user_pass', 'user_nicename', 'user_email', 'user_url', 'user_registered' )
+	);
 	
 	$user_id = $bbdb->insert_id;
 
@@ -502,7 +505,6 @@ function bb_new_user( $user_login, $email, $url ) {
 
 	do_action('bb_new_user', $user_id, $password);
 	return $user_id;
-
 }
 endif;
 

@@ -90,7 +90,7 @@ function bb_head() {
 }
 
 function profile_menu() {
-	global $bbdb, $user_id, $profile_menu, $self, $profile_page_title;
+	global $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . attribute_escape( get_user_profile_link( $user_id ) ) . '">' . __('Profile') . '</a></li>';
 	$id = bb_get_current_user_info( 'id' );

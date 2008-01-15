@@ -168,7 +168,10 @@ function bb_akismet_delete_old() { // Delete old every 20
 		return;
 	global $bbdb;
 	$now = bb_current_time('mysql');
-	$posts = (array) $bbdb->get_col("SELECT post_id FROM $bbdb->posts WHERE DATE_SUB('$now', INTERVAL 15 DAY) > post_time AND post_status = '2'");
+	$posts = (array) $bbdb->get_col( $bbdb->prepare(
+		"SELECT post_id FROM $bbdb->posts WHERE DATE_SUB(%s, INTERVAL 15 DAY) > post_time AND post_status = '2'",
+		$now
+	) );
 	foreach ( $posts as $post )
 		bb_delete_post( $post, 1 );
 }
