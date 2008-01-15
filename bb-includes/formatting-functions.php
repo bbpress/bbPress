@@ -111,13 +111,19 @@ function bb_rel_nofollow_callback( $matches ) {
 	return "<a $text rel=\"nofollow\">";
 }
 
+// Should be able to take both escaped and unescaped data
 function bb_trim_for_db( $string, $length ) {
+	$_string = $string;
 	if ( seems_utf8( $string ) ) {
-		$_string = bb_utf8_cut( $string, $length );
-		$string = stripslashes($string);
-		$string = addslashes($string);
+		$string = bb_utf8_cut( $string, $length );
+		// if we have slashes at the end, make sure we have a reasonable number of them
+		if ( preg_match( '#[^\\\\](\\\\+)$#', $string, $matches ) ) {
+			$end = stripslashes($matches[1]);
+			$end = addslashes($end);
+			$string = trim( $string, '\\' ) . $end;
+		}
 	}
-	return apply_filters( 'bb_trim_for_db', $_string, $string, $length );
+	return apply_filters( 'bb_trim_for_db', $string, $_string, $length );
 }
 
 // Reduce utf8 string to $length in single byte character equivalents without breaking multibyte characters

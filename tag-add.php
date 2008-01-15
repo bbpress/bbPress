@@ -8,6 +8,7 @@ if ( !bb_is_user_logged_in() )
 
 $topic_id = (int) @$_POST['id' ];
 $tag      =       @$_POST['tag'];
+$tag      =       stripslashes( $tag );
 
 bb_check_admin_referer( 'add-tag_' . $topic_id );
 

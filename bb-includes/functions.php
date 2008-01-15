@@ -267,6 +267,8 @@ function bb_insert_topic( $args = null ) {
 // Deprecated: expects $title to be pre-escaped
 function bb_new_topic( $title, $forum, $tags = '' ) {
 	$title = stripslashes( $title );
+	$tags = striplslashes( $tags );
+	$forum = (int) $forum;
 	return bb_insert_topic( array( 'topic_title' => $title, 'forum_id' => $forum, 'tags' => $tags ) );
 }
 
@@ -960,7 +962,7 @@ function bb_remove_topic_tags( $topic_id ) {
 		}
 	}
 
-	$r = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE topic_id = %s", $topic_id ) );
+	$r = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE topic_id = %d", $topic_id ) );
 	$bb_cache->flush_one( 'topic', $topic_id );
 
 	do_action( 'bb_remove_topic_tags', $topic_id, $r );
@@ -2524,7 +2526,7 @@ function bb_slug_increment( $slug, $existing_slug, $slug_length = 255 ) {
 }
 
 function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
-	$bbdb;
+	global $bbdb;
 	$tablename = $table . 's';
 	$r = false;
 	// Look for new style equiv of old style slug
