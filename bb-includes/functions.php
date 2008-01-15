@@ -277,10 +277,12 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 
 function bb_move_topic( $topic_id, $forum_id ) {
 	global $bbdb, $bb_cache;
-	$topic_id = (int) $topic_id;
-	$forum_id = (int) $forum_id;
 	$topic = get_topic( $topic_id );
-	if ( $topic && $topic->forum_id != $forum_id && get_forum( $forum_id ) ) {
+	$forum = get_forum( $forum_id );
+	$topic_id = (int) $topic->topic_id;
+	$forum_id = (int) $forum->forum_id;
+
+	if ( $topic && $forum && $topic->forum_id != $forum_id ) {
 		$bbdb->query("UPDATE $bbdb->posts SET forum_id = $forum_id WHERE topic_id = $topic_id");
 		$bbdb->query("UPDATE $bbdb->topics SET forum_id = $forum_id WHERE topic_id = $topic_id");
 		$bbdb->query("UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + $topic->topic_posts WHERE forum_id = $forum_id");
@@ -536,69 +538,114 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 	return $post_query->results;
 }
 
-// Expects $bb_post to be pre-escaped
-function bb_new_post( $topic_id, $bb_post ) {
+function bb_insert_post( $args = null ) {
 	global $bbdb, $bb_cache, $bb_table_prefix, $bb_current_user, $thread_ids_cache;
-	$topic_id   = (int) $topic_id;
-	$bb_post  = apply_filters('pre_post', $bb_post, false, $topic_id);
-	$post_status = (int) apply_filters('pre_post_status', '0', false, $topic_id);
-	$now   = bb_current_time('mysql');
-	$uid   = bb_get_current_user_info( 'id' );
-	$uname = bb_get_current_user_info( 'name' );
-	$ip    = addslashes( $_SERVER['REMOTE_ADDR'] );
 
-	$topic = get_topic( $topic_id );
-	$forum_id = $topic->forum_id;
+	$args = wp_parse_args( $args );
 
-	if ( $bb_post && $topic ) {
-		$topic_posts = ( 0 == $post_status ) ? $topic->topic_posts + 1 : $topic->topic_posts;
-		$bbdb->query("INSERT INTO $bbdb->posts 
-		(forum_id, topic_id, poster_id, post_text, post_time, poster_ip, post_status, post_position)
-		VALUES
-		('$forum_id', '$topic_id', '$uid',  '$bb_post','$now',    '$ip',    '$post_status', $topic_posts)");
-		$post_id = $bbdb->insert_id;
+	if ( isset($args['post_id']) && false !== $args['post_id'] ) {
+		$update = true;
+		if ( !$post = bb_get_post( $args['post_id'] ) )
+			return false;
+		$defaults = get_object_vars( $post );
+	} else {
+		$update = false;
+		$now = bb_current_time( 'mysql' );
+		$current_user_id = bb_get_current_user_info( 'id' );
+		$ip_address = $_SERVER['REMOTE_ADDR'];
+
+		$defaults = array(
+			'post_id' => false,
+			'topic_id' => 0,
+			'post_text' => '',
+			'post_time' => $now,
+			'poster_id' => $current_user_id,
+			'poster_ip' => $ip_address,
+			'post_status' => 0,
+			'post_position' => false
+		);
+	}
+
+	$defaults['throttle'] = true;
+
+	extract( wp_parse_args( $args, $defaults ) );
+
+	if ( !$topic = get_topic( $topic_id ) )
+		return false;
+
+	if ( !$user = bb_get_user( $poster_id ) )
+		return false;
+
+	$topic_id = (int) $topic->topic_id;
+	$forum_id = (int) $topic->forum_id;
+
+	if ( !$post_text = apply_filters('pre_post', $post_text, $post_id, $topic_id) )
+		return false;
+
+	if ( $update ) // Don't change post_status with this function.  Use bb_delete_post().
+		$post_status = $post->post_status;
+
+	$post_status = (int) apply_filters('pre_post_status', $post_status, $post_id, $topic_id);
+
+	if ( false === $post_position )
+		$post_position = $topic_posts = intval( ( 0 == $post_status ) ? $topic->topic_posts + 1 : $topic->topic_posts );
+
+	if ( $update ) {
+		$bbdb->update( $bbdb->posts, compact( 'forum_id', 'topic_id', 'poster_id', 'post_text', 'post_time', 'poster_ip', 'post_status', 'post_position' ), compact( 'post_id' ) );
+	} else {
+		$bbdb->insert( $bbdb->posts, compact( 'forum_id', 'topic_id', 'poster_id', 'post_text', 'post_time', 'poster_ip', 'post_status', 'post_position' ) );
+		$post_id = $topic_last_post_id = (int) $bbdb->insert_id;
+
 		if ( 0 == $post_status ) {
-			$bbdb->query("UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = $topic->forum_id");
-			$bbdb->query("UPDATE $bbdb->topics SET topic_time = '$now', topic_last_poster = '$uid', topic_last_poster_name = '$uname',
-				topic_last_post_id = '$post_id', topic_posts = '$topic_posts' WHERE topic_id = '$topic_id'");
+			$topic_time = $post_time;
+			$topic_last_poster = $poster_id;
+			$topic_last_poster_name = $user->user_login;
+
+			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = %d", $topic->forum_id ) );
+			$bbdb->update(
+				$bbdb->topics,
+				compact( 'topic_time', 'topic_last_poster', 'topic_last_poster_name', 'topic_last_post_id', 'topic_posts' ),
+				compact ( 'topic_id' )
+			);
 			if ( isset($thread_ids_cache[$topic_id]) ) {
 				$thread_ids_cache[$topic_id]['post'][] = $post_id;
-				$thread_ids_cache[$topic_id]['poster'][] = $uid;
+				$thread_ids_cache[$topic_id]['poster'][] = $poster_id;
 			}
 			$post_ids = get_thread_post_ids( $topic_id );
-			if ( !in_array($uid, array_slice($post_ids['poster'], 0, -1)) )
-				bb_update_usermeta( $uid, $bb_table_prefix . 'topics_replied', $bb_current_user->data->topics_replied + 1 );
-		} else
+			if ( !in_array($poster_id, array_slice($post_ids['poster'], 0, -1)) )
+				bb_update_usermeta( $poster_id, $bb_table_prefix . 'topics_replied', $bb_current_user->data->topics_replied + 1 );
+		} else {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts + 1 : 1 );
-		if ( !bb_current_user_can('throttle') )
-			bb_update_usermeta( $uid, 'last_posted', time() );
-		$bb_cache->flush_one( 'topic', $topic_id );
-		$bb_cache->flush_many( 'thread', $topic_id );
-		$bb_cache->flush_many( 'forum', $forum_id );
-		do_action('bb_new_post', $post_id);
-		return $post_id;
-	} else {
-		return false;
+		}
 	}
+	
+	if ( $throttle && !bb_current_user_can( 'throttle' ) )
+		bb_update_usermeta( $poster_id, 'last_posted', time() );
+
+	$bb_cache->flush_one( 'topic', $topic_id );
+	$bb_cache->flush_many( 'thread', $topic_id );
+	$bb_cache->flush_many( 'forum', $forum_id );
+
+	if ( $update ) // fire actions after cache is flushed
+		do_action( 'bb_update_post', $post_id );
+	else
+		do_action( 'bb_new_post', $post_id );
+
+	do_action( 'bb_insert_post', $post_id, $args, compact( array_keys($args) ) ); // post_id, what was passed, what was used
+
+	return $post_id;
 }
 
-// Expects $bb_post to be pre-escaped
-function bb_update_post( $bb_post, $post_id, $topic_id ) {
-	global $bbdb, $bb_cache;
-	$post_id  = (int) $post_id;
-	$topic_id = (int) $topic_id;
-	$old_post = bb_get_post( $post_id );
-	$bb_post  = apply_filters( 'pre_post', $bb_post, $post_id, $topic_id );
-	$post_status = (int) apply_filters( 'pre_post_status', $old_post->post_status, $post_id, $topic_id );
+// Deprecated: expects $post_text to be pre-escaped
+function bb_new_post( $topic_id, $post_text ) {
+	$post_text = stripslashes( $post_text );
+	return bb_insert_post( compact( 'topic_id', 'post_text' ) );
+}
 
-	if ( $post_id && $bb_post ) {
-		$bbdb->query("UPDATE $bbdb->posts SET post_text = '$bb_post', post_status = '$post_status' WHERE post_id = $post_id");
-		$bb_cache->flush_many( 'thread', $topic_id );
-		do_action('bb_update_post', $post_id);
-		return $post_id;
-	} else {
-		return false;
-	}
+// Deprecated: expects $post_text to be pre-escaped
+function bb_update_post( $post_text, $post_id, $topic_id ) {
+	$post_text = stripslashes( $post_text );
+	return bb_insert_post( compact( 'post_text', 'post_id', 'topic_id' ) );
 }
 
 function update_post_positions( $topic_id ) {
