@@ -11,7 +11,7 @@ if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->da
 if ( !$post_content = trim($_POST['post_content']) )
 	bb_die(__('You need to actually submit some content!'));
 
-if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
+if ( isset($_POST['topic']) && $forum_id = (int) $_POST['forum_id'] ) {
 	if ( !bb_current_user_can('write_posts') )
 		bb_die(__('You are not allowed to post.  Are you logged in?'));
 
@@ -26,7 +26,7 @@ if ( isset($_POST['topic']) && $forum = (int) $_POST['forum_id'] ) {
 	if ('' == $topic)
 		bb_die(__('Please enter a topic title'));
 
-	$topic_id = bb_new_topic( $topic, $forum, $tags );
+	$topic_id = bb_new_topic( $topic, $forum_id, $tags );
 
 } elseif ( isset($_POST['topic_id'] ) ) {
 	$topic_id = (int) $_POST['topic_id'];
