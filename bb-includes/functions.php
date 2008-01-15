@@ -559,15 +559,14 @@ function bb_insert_post( $args = null ) {
 			'topic_id' => 0,
 			'post_text' => '',
 			'post_time' => $now,
-			'poster_id' => $current_user_id,
+			'poster_id' => $current_user_id, // accepts ids or names
 			'poster_ip' => $ip_address,
-			'post_status' => 0,
+			'post_status' => 0, // use bb_delete_post() instead
 			'post_position' => false
 		);
 	}
 
 	$defaults['throttle'] = true;
-
 	extract( wp_parse_args( $args, $defaults ) );
 
 	if ( !$topic = get_topic( $topic_id ) )
@@ -590,10 +589,14 @@ function bb_insert_post( $args = null ) {
 	if ( false === $post_position )
 		$post_position = $topic_posts = intval( ( 0 == $post_status ) ? $topic->topic_posts + 1 : $topic->topic_posts );
 
+	unset($defaults['post_id'], $defaults['throttle']);
+	$fields = array_keys($defaults);
+	$fields[] = 'forum_id';
+
 	if ( $update ) {
-		$bbdb->update( $bbdb->posts, compact( 'forum_id', 'topic_id', 'poster_id', 'post_text', 'post_time', 'poster_ip', 'post_status', 'post_position' ), compact( 'post_id' ) );
+		$bbdb->update( $bbdb->posts, compact( $fields ), compact( 'post_id' ) );
 	} else {
-		$bbdb->insert( $bbdb->posts, compact( 'forum_id', 'topic_id', 'poster_id', 'post_text', 'post_time', 'poster_ip', 'post_status', 'post_position' ) );
+		$bbdb->insert( $bbdb->posts, compact( $fields ) );
 		$post_id = $topic_last_post_id = (int) $bbdb->insert_id;
 
 		if ( 0 == $post_status ) {

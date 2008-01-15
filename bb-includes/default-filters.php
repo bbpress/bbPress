@@ -23,9 +23,7 @@ add_filter('pre_post', 'trim');
 add_filter('pre_post', 'bb_encode_bad');
 add_filter('pre_post', 'bb_code_trick');
 add_filter('pre_post', 'force_balance_tags');
-add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
 add_filter('pre_post', 'bb_filter_kses', 50);
-add_filter('pre_post', 'addslashes', 55);
 add_filter('pre_post', 'bb_autop', 60);
 
 add_filter('post_text', 'make_clickable');
