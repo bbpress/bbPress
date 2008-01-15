@@ -237,11 +237,11 @@ function bb_insert_topic( $args = null ) {
 		return false;
 
 	$slug_sql = $update ?
-			$bbdb->prepare( "SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s AND topic_id != %d", $topic_slug, $topic_id ) :
-			$bbdb->prepare( "SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s", $topic_slug );
+		"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s AND topic_id != %d" :
+		"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s";
 
 	$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title ); // $topic_slug is always set when updating
-	while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $slug_sql ) )
+	while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $slug_sql, $topic_slug, $topic_id ) ) )
 		$topic_slug = bb_slug_increment( $_topic_slug, $existing_slug );
 
 	if ( $update ) {
