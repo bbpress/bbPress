@@ -385,7 +385,7 @@ function bb_stick_topic( $topic_id, $super = 0 ) {
 	$topic_id = (int) $topic_id;
 	$stick = 1 + abs((int) $super);
 	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->update( $bbdb->topics, array( 'topic_stickp' => $stick ), compact( 'topic_id' ) );
+	$r = $bbdb->update( $bbdb->topics, array( 'topic_sticky' => $stick ), compact( 'topic_id' ) );
 	do_action('stick_topic', $topic_id, $r);
 }
 
@@ -393,7 +393,7 @@ function bb_unstick_topic( $topic_id ) {
 	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	$bb_cache->flush_one( 'topic', $topic_id );
-	$r = $bbdb->update( $bbdb->topics, array( 'topic_stickp' => 0 ), compact( 'topic_id' ) );
+	$r = $bbdb->update( $bbdb->topics, array( 'topic_sticky' => 0 ), compact( 'topic_id' ) );
 	do_action('unstick_topic', $topic_id, $r);
 	return $r;
 }
