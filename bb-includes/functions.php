@@ -1148,7 +1148,7 @@ function bb_cache_users( $ids, $soft_cache = true ) {
 function bb_get_user_by_name( $name ) {
 	global $bbdb;
 	$name = sanitize_user( $name );
-	if ( $user_id = $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_login = '$name'") )
+	if ( $user_id = $bbdb->get_var( $bbdb->prepare( "SELECT ID FROM $bbdb->users WHERE user_login = %s", $name ) ) )
 		return bb_get_user( $user_id );
 	else
 		return false;
@@ -1157,7 +1157,7 @@ function bb_get_user_by_name( $name ) {
 function bb_get_user_by_nicename( $nicename ) {
 	global $bbdb;
 	$nicename = sanitize_user( $nicename );
-	if ( $user_id = $bbdb->get_var("SELECT ID FROM $bbdb->users WHERE user_nicename = '$nicename'") )
+	if ( $user_id = $bbdb->get_var( $bbdb->prepare( "SELECT ID FROM $bbdb->users WHERE user_nicename = %s", $nicename ) ) )
 		return bb_get_user( $user_id );
 	else
 		return false;
@@ -1166,13 +1166,12 @@ function bb_get_user_by_nicename( $nicename ) {
 function bb_user_exists( $user ) {
 	global $bbdb;
 	$user = sanitize_user( $user );
-	return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user'");
+	return $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user ));
 }
 
 function bb_delete_user( $user_id, $reassign = 0 ) {
 	global $bbdb, $bb_cache;
 
-	$user_id = (int) $user_id;
 	$reassign = (int) $reassign;
 
 	if ( !$user = bb_get_user( $user_id ) )
@@ -1181,18 +1180,18 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 	if ( $reassign ) {
 		if ( !$new_user = bb_get_user( $reassign ) )
 			return false;
-		$bbdb->query("UPDATE $bbdb->posts SET poster_id = '$new_user->ID' WHERE poster_id = '$user->ID'");
-		$bbdb->query("UPDATE $bbdb->tagged SET user_id = '$new_user->ID' WHERE user_id = '$user->ID'");
-		$bbdb->query("UPDATE $bbdb->topics SET topic_poster = '$new_user->ID', topic_poster_name = '$new_user->user_login' WHERE topic_poster = '$user->ID'");
-		$bbdb->query("UPDATE $bbdb->topics SET topic_last_poster = '$new_user->ID', topic_last_poster_name = '$new_user->user_login' WHERE topic_last_poster = '$user->ID'");
+		$bbdb->update( $bbdb->posts, array( 'poster_id' => $new_user->ID ), array( 'poster_id' => $user->ID ) );
+		$bbdb->update( $bbdb->tagged, array( 'user_id' => $new_user->ID ), array( 'user_id' => $user->ID ) );
+		$bbdb->update( $bbdb->topics, array( 'topic_poster' => $new_user->ID, 'topic_poster_name' => $new_user->user_login), array( 'topic_poster' => $user->ID ) );
+		$bbdb->update( $bbdb->topics, array( 'topic_last_poster' => $new_user->ID, 'topic_last_poster_name' => $new_user->user_login, array( 'topic_last_poster' => $user->ID ) );
 		bb_update_topics_replied( $new_user->ID );
 		$bb_cache->flush_one( 'user', $new_user->ID );
 	}
 
-	do_action( 'bb_delete_user', $user_id, $reassign );
+	do_action( 'bb_delete_user', $user->ID, $reassign );
 
-	$bbdb->query("DELETE FROM $bbdb->users WHERE ID = '$user->ID'");
-	$bbdb->query("DELETE FROM $bbdb->usermeta WHERE user_id = '$user->ID'");
+	$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->users WHERE ID = %d", $user->ID ) );
+	$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->usermeta WHERE user_id = %d", $user->ID ) );
 	$bb_cache->flush_one( 'user', $user->ID );
 
 	return true;
@@ -1206,16 +1205,16 @@ function bb_update_topics_replied( $user_id ) {
 	if ( !$user = bb_get_user( $user_id ) )
 		return false;
 
-	$topics_replied = (int) $bbdb->get_var("SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = '$user_id'");
+	$topics_replied = (int) $bbdb->get_var( $bbdb->prepare( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = %d", $user_id ) );
 	return bb_update_usermeta( $user_id, $bb_table_prefix . 'topics_replied', $topics_replied );
 }
 
-function update_user_status( $user_id, $status = 0 ) {
+function update_user_status( $user_id, $user_status = 0 ) {
 	global $bbdb, $bb_cache;
 	$user = bb_get_user( $user_id );
-	$status = (int) $status;
+	$user_status = (int) $user_status;
 	if ( $user->ID != bb_get_current_user_info( 'id' ) && bb_current_user_can( 'edit_users' ) ) :
-		$bbdb->query("UPDATE $bbdb->users SET user_status = $status WHERE ID = $user->ID");
+		$bbdb->update( $bbdb->users, campact( 'user_status'), array( 'ID' => $user->ID ) );
 		$bb_cache->flush_one( 'user', $user->ID );
 	endif;
 }
@@ -1308,11 +1307,11 @@ function bb_apply_wp_role_map_to_orphans() {
 			SELECT
 				ID
 			FROM
-				%1\$s
-			LEFT JOIN %2\$s AS bbrole
+				`%1\$s`
+			LEFT JOIN `%2\$s` AS bbrole
 				ON ID = bbrole.user_id
 				AND bbrole.meta_key = '%3\$scapabilities'
-			LEFT JOIN %2\$s AS wprole
+			LEFT JOIN `%2\$s` AS wprole
 				ON ID = wprole.user_id
 				AND wprole.meta_key = '%4\$scapabilities'
 			WHERE
@@ -1325,7 +1324,7 @@ function bb_apply_wp_role_map_to_orphans() {
 EOQ;
 		global $bbdb, $bb_table_prefix;
 		
-		$role_query = sprintf($role_query, $bbdb->users, $bbdb->usermeta, $bb_table_prefix, $wp_table_prefix);
+		$role_query = $bbdb->prepare($role_query, $bbdb->users, $bbdb->usermeta, $bb_table_prefix, $wp_table_prefix);
 		
 		if ( $user_ids = $bbdb->get_col($role_query) ) {
 			foreach ( $user_ids as $user_id ) {
@@ -1339,7 +1338,6 @@ EOQ;
 /* Favorites */
 
 function get_user_favorites( $user_id, $topics = false ) {
-	global $bbdb, $bb_cache, $page;
 	$user = bb_get_user( $user_id );
 	if ( $user->favorites ) {
 		if ( $topics )
