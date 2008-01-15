@@ -1477,7 +1477,7 @@ function bb_get_option_from_db( $option ) {
 			$r = null; // see WP_Error below
 	} else {
 		if ( defined( 'BB_INSTALLING' ) ) $bbdb->return_errors();
-		$row = $bbdb->get_row("SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = '$option'");
+		$row = $bbdb->get_row( $bbdb->prepare( "SELECT meta_value FROM $bbdb->topicmeta WHERE topic_id = 0 AND meta_key = %s", $option ) );
 		if ( defined( 'BB_INSTALLING' ) ) $bbdb->show_errors();
 
 		if ( is_object($row) ) {
@@ -1513,6 +1513,7 @@ function bb_delete_option( $option, $value = '' ) {
 }
 
 // This is the only function that should add to $bb_(user||topic)_cache
+// NOT bbdb::prepared
 function bb_append_meta( $object, $type ) {
 	global $bbdb, $bb_table_prefix;
 	switch ( $type ) :
@@ -1544,7 +1545,7 @@ function bb_append_meta( $object, $type ) {
 			$cache[$i] = $trans[$i];
 		return $object;
 	elseif ( $object ) :
-		if ( $metas = $bbdb->get_results("SELECT meta_key, meta_value FROM $table WHERE $field = '{$object->$id}'") )
+		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $table WHERE $field = %d", $object->$id ) ) )
 			foreach ( $metas as $meta ) :
 				$object->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bb_table_prefix) === 0 )
@@ -1620,17 +1621,14 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	$meta_tuple = apply_filters('bb_update_meta', $meta_tuple);
 	extract($meta_tuple, EXTR_OVERWRITE);
 
-	$meta_value = bb_maybe_serialize( $meta_value );
-	$_meta_value = $bbdb->escape( $meta_value );
+	$meta_value = $_meta_value = bb_maybe_serialize( $meta_value );
 	$meta_value = bb_maybe_unserialize( $meta_value );
 
-	$cur = $bbdb->get_row("SELECT * FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
+	$cur = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $table WHERE $field = %d AND meta_key = %s", $type_id, $meta_key ) );
 	if ( !$cur ) {
-		$bbdb->query("INSERT INTO $table ( $field, meta_key, meta_value )
-		VALUES
-		( '$type_id', '$meta_key', '$_meta_value' )");
+		$bbdb->insert( $table, array( $field => $type_id, 'meta_key' => $meta_key, 'meta_value' => $_meta_value ) );
 	} elseif ( $cur->meta_value != $meta_value ) {
-		$bbdb->query("UPDATE $table SET meta_value = '$_meta_value' WHERE $field = '$type_id' AND meta_key = '$meta_key'");
+		$bbdb->update( $table, array( 'meta_value' => $_meta_value), array( $field => $type_id, 'meta_key' => $meta_key ) );
 	}
 
 	if ( isset($cache[$type_id]) ) {
@@ -1674,20 +1672,15 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	extract($meta_tuple, EXTR_OVERWRITE);
 
 	$meta_value = bb_maybe_serialize( $meta_value );
-	$meta_value = $bbdb->escape( $meta_value );
 
-	if ( empty($meta_value) )
-		$meta_id = $bbdb->get_var("SELECT $meta_id_field FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
-	else
-		$meta_id = $bbdb->get_var("SELECT $meta_id_field FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key' AND meta_value = '$meta_value'");
+	$meta_sql = empty($meta_value) ? 
+		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s", $type_id, $meta_key ) :
+		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s AND meta_value = %s", $type_id, $meta_key, $meta_value );
 
-	if ( !$meta_id )
+	if ( !$meta_id = $bbdb->get_var( $meta_sql ) )
 		return false;
 
-	if ( empty($meta_value) )
-		$bbdb->query("DELETE FROM $table WHERE $field = '$type_id' AND meta_key = '$meta_key'");
-	else
-		$bbdb->query("DELETE FROM $table WHERE $meta_id_field = '$meta_id'");
+	$bbdb->query( $bbdb->prepare( "DELETE FROM $table WHERE $meta_id_field = %d", $meta_id ) );
 
 	unset($cache[$type_id]->{$meta_key});
 	if ( 0 === strpos($meta_key, $bb_table_prefix) )
@@ -2389,6 +2382,7 @@ function bb_get_themes() {
 }
 
 /* Search Functions */
+// NOT bbdb::prepared
 function bb_user_search( $args = '' ) {
 	global $bbdb, $bb_last_countable_query;
 
@@ -2399,6 +2393,7 @@ function bb_user_search( $args = '' ) {
 
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 
+	$query = trim( $query );
 	if ( $query && strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
 
@@ -2468,6 +2463,8 @@ function bb_tag_search( $args = '' ) {
 
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 
+
+	$query = trim( $query );
 	if ( strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
 
@@ -2499,11 +2496,14 @@ function bb_related_tags( $_tag = false, $number = 40 ) {
 	if ( !$_tag )
 		return false;
 
-	$sql = "SELECT tag.tag_id, tag.tag, tag.raw_tag, COUNT(DISTINCT t.topic_id) AS tag_count
+	$sql = $bbdb->prepare(
+		"SELECT tag.tag_id, tag.tag, tag.raw_tag, COUNT(DISTINCT t.topic_id) AS tag_count
 	           FROM $bbdb->tagged AS t
 	           JOIN $bbdb->tagged AS tt  ON (t.topic_id = tt.topic_id)
 	           JOIN $bbdb->tags   AS tag ON (t.tag_id = tag.tag_id)
-	        WHERE tt.tag_id = '$_tag->tag_id' AND t.tag_id != '$_tag->tag_id' GROUP BY t.tag_id ORDER BY tag_count DESC";
+	        WHERE tt.tag_id = %d AND t.tag_id != %d GROUP BY t.tag_id ORDER BY tag_count DESC",
+		$_tag->tag_id, $_tag->tag_id
+	);
 
 	foreach ( (array) $tags = $bbdb->get_results( $sql ) as $_tag )
 		$tag_cache[$_tag->tag] = $_tag;
@@ -2524,7 +2524,7 @@ function bb_slug_increment( $slug, $existing_slug, $slug_length = 255 ) {
 }
 
 function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
-	global $bbdb;
+	$bbdb;
 	$tablename = $table . 's';
 	$r = false;
 	// Look for new style equiv of old style slug
@@ -2532,11 +2532,11 @@ function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 	if ( strlen($_slug) > $slug_length && preg_match('/^.*-([0-9]+)$/', $_slug, $m) ) {
 		$_slug = bb_encoded_utf8_cut( $_slug, $slug_length - 1 - strlen($number) );
 		$number = (int) $m[1];
-		$r = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$_slug-$number'");
+		$r = $bbdb->get_var( $bbdb->prepare( "SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = %s", "$_slug-$number" ) );
 	}
 	if ( !$r ) {
 		$_slug = bb_slug_sanitize($slug);
-		$r = $bbdb->get_var("SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = '$_slug'");
+		$r = $bbdb->get_var( $bbdb->prepare( "SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = %s", $_slug ) );
 	}
 	return (int) $r;
 }
