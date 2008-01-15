@@ -950,7 +950,7 @@ function bb_remove_topic_tags( $topic_id ) {
 	do_action( 'bb_pre_remove_topic_tags', $topic_id );
 
 	if( $tags = (array) $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = %d", $topic_id ) ) ) {
-		$tags = join(',', $tags);
+		$tags = join(',', array_map('intval', $tags));
 		$_tags = (array) $bbdb->get_results( "SELECT tag_id, COUNT(DISTINCT topic_id) AS count FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
 		foreach ( $_tags as $_tag ) {
 			$new_count = (int) $_tag->count - 1;
@@ -981,7 +981,7 @@ function bb_destroy_tag( $tag_id, $recount_topics = true ) {
 
 	if ( $tags = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tags WHERE tag_id = %d", $tag_id ) ) ) {
 		if ( $recount_topics && $topics = (array) $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = %d", $tag_id ) ) ) {
-			$topics = join(',', $topics);
+			$topics = join(',', array_map('intval', $topics));
 			$_topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(DISTINCT tag_id) AS count FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
 			foreach ( $_topics as $_topic ) {
 				$bbdb->update( $bbdb->topics, array( 'tag_count' => $_topic->count ), array( 'topic_id' => $_topic->topic_id ) );
@@ -1536,7 +1536,7 @@ function bb_append_meta( $object, $type ) {
 	if ( is_array($object) ) :
 		foreach ( array_keys($object) as $i )
 			$trans[$object[$i]->$id] =& $object[$i];
-		$ids = join(',', array_keys($trans));
+		$ids = join(',', array_map('intval', array_keys($trans)));
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
 			foreach ( $metas as $meta ) :
 				$trans[$meta->$field]->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
@@ -2455,6 +2455,7 @@ function bb_user_search( $args = '' ) {
 	return $users ? $users : false;
 }
 
+// NOT bbdb::prepared
 function bb_tag_search( $args = '' ) {
 	global $page, $bbdb, $tag_cache, $bb_last_countable_query;
 
