@@ -210,6 +210,7 @@ function bb_insert_topic( $args = null ) {
 			'topic_last_poster_name' => '', // useless
 			'topic_start_time' => $now,
 			'topic_time' => $now,
+			'topic_open' => 1,
 			'forum_id' => 0 // accepts ids or slugs
 		);
 	}
