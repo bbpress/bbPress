@@ -284,6 +284,12 @@ function is_bb_stats() {
 	return 'stats-page' == bb_get_location();
 }
 
+function is_bb_admin() {
+	if ( defined('BB_IS_ADMIN') )
+		return BB_IS_ADMIN;
+	return false;
+}
+
 function bb_title( $args = '' ) {
 	echo apply_filters( 'bb_title', bb_get_title( $args ) );
 }

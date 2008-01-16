@@ -51,6 +51,9 @@ if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 // Modify error reporting levels
 error_reporting(E_ALL ^ E_NOTICE);
 
+if ( !defined( 'BB_IS_ADMIN' ) )
+	define( 'BB_IS_ADMIN', false );
+
 // Define the include path
 define('BBINC', 'bb-includes/');
 

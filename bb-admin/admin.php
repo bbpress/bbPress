@@ -1,4 +1,6 @@
 <?php
+define( 'BB_IS_ADMIN', true );
+
 require_once('../bb-load.php');
 
 bb_auth();
