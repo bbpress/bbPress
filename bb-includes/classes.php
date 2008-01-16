@@ -26,6 +26,10 @@ class BB_Query {
 		$this->type = $type;
 		$this->parse_query($query, $id);
 
+		// Allow filter to abort query
+		if ( false === $this->query_vars )
+			return;
+
 		if ( 'post' == $type )
 			$this->generate_post_sql();
 		else
