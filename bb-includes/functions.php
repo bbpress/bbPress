@@ -1962,7 +1962,7 @@ function bb_repermalink() {
 			}
 	}
 
-	$permalink = apply_filters( 'bb_repermalink_result', $permalink );
+	$permalink = apply_filters( 'bb_repermalink_result', $permalink, $location );
 
 	$domain = bb_get_option('domain');
 	$domain = preg_replace('/^https?/', '', $domain);
