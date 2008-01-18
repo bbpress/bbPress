@@ -510,23 +510,21 @@ endif;
 
 if ( !function_exists( 'bb_mail' ) ) :
 function bb_mail( $to, $subject, $message, $headers = '' ) {
-	$headers = trim($headers);
-
-	if ( !preg_match( '/^from:\s/im', $headers ) ) {
-		$from = parse_url( bb_get_option( 'domain' ) );
-		if ( !$from || !$from['host'] ) {
-			$from = '';
-		} else {
-			$from_host = $from['host'];
-		        if ( substr( $from_host, 0, 4 ) == 'www.' )
-		                $from_host = substr( $from_host, 4 );
-			$from = 'From: "' . bb_get_option( 'name' ) . '" <bbpress@' . $from_host . '>';
-		}
-		$headers .= "\n$from";
+	if (!is_array($headers)) {
 		$headers = trim($headers);
+		$headers = preg_split('@\r(?:\n{0,1})|\n@', $headers);
 	}
-
-	return @mail( $to, $subject, $message, $headers );
+	
+	if (!count($headers) || !count(preg_grep('/^from:\s/im', $headers))) {
+		$from = parse_url(bb_get_option('uri'));
+		if ($from && $from['host']) {
+			$from = trim(preg_replace('/^www./i', '', $from['host']));
+			$headers[] = 'From: "' . bb_get_option('name') . '" <bbpress@' . $from . '>';
+		}
+	}
+	$headers = trim(join("\r\n", $headers));
+	
+	return @mail($to, $subject, $message, $headers);
 }
 endif;
 
