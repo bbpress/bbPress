@@ -530,4 +530,17 @@ function bb_random_pass( $length ) {
 	return wp_generate_password();
 }
 
+// Old RSS related functions
+function get_recent_rss_link() {
+	return bb_get_posts_rss_link();
+}
+
+function forum_rss_link( $forum_id = 0 ) {
+	echo bb_get_forum_posts_rss_link( $forum_id );
+}
+
+function get_forum_rss_link( $forum_id = 0 ) {
+	return bb_get_forum_posts_rss_link( $forum_id );
+}
+
 ?>
