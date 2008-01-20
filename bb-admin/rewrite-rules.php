@@ -35,4 +35,5 @@ RewriteRule ^rss/forum/([^/]+)/topics/?$ <?php bb_option( 'path' ); ?>rss.php?fo
 RewriteRule ^rss/topic/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?topic=$1 [L,QSA]
 RewriteRule ^rss/tags/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?tag=$1 [L,QSA]
 RewriteRule ^rss/profile/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?profile=$1 [L,QSA]
+RewriteRule ^rss/view/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?view=$1 [L,QSA]
 </IfModule>

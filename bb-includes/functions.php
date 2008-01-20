@@ -2079,7 +2079,7 @@ function bb_get_views() {
 	return $views;
 }
 
-function bb_register_view( $view, $title, $query_args = '' ) {
+function bb_register_view( $view, $title, $query_args = '', $feed = TRUE ) {
 	global $bb_views;
 
 	$view  = bb_slug_sanitize( $view );
@@ -2096,6 +2096,7 @@ function bb_register_view( $view, $title, $query_args = '' ) {
 	$bb_views[$view]['title']  = $title;
 	$bb_views[$view]['query']  = $query_args;
 	$bb_views[$view]['sticky'] = !$sticky_set; // No sticky set => split into stickies and not
+	$bb_views[$view]['feed'] = $feed;
 	return $bb_views[$view];
 }
 

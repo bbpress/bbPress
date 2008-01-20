@@ -3,7 +3,13 @@ require('./bb-load.php');
 require_once( BBPATH . BBINC . 'feed-functions.php');
 
 // Determine the type of feed and the id of the object
-if ( isset($_GET['topic']) || get_path() == 'topic' ) {
+if ( isset($_GET['view']) || get_path() == 'view' ) {
+	
+	// View
+	$feed = 'view';
+	$feed_id = isset($_GET['view']) ? $_GET['view'] : get_path(2);
+	
+} elseif ( isset($_GET['topic']) || get_path() == 'topic' ) {
 	
 	// Topic
 	$feed = 'topic';
@@ -52,6 +58,26 @@ if ( !$bb_db_override ) {
 	
 	// Get the posts and the title for the given feed
 	switch ($feed) {
+		case 'view':
+			if ( !isset($bb_views[$feed_id]) )
+				die();
+			if ( !$bb_views[$feed_id]['feed'] )
+				die();
+			if ( !$topics_object = new BB_Query( 'topic', $bb_views[$feed_id]['query'], "bb_view_$view" ) )
+				die();
+			
+			$topics = $topics_object->results;
+			if ( !$topics || !is_array($topics) )
+				die();
+			
+			$posts = array();
+			foreach ($topics as $topic) {
+				$posts[] = bb_get_first_post($topic->topic_id);
+			}
+			
+			$title = $bb_views[$feed_id]['title'];
+			break;
+		
 		case 'topic':
 			if ( !$topic = get_topic ( $feed_id ) )
 				die();

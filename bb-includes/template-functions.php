@@ -386,6 +386,16 @@ function bb_feed_head() {
 				'href'  => bb_get_topics_rss_link()
 			);
 			break;
+		
+		case 'view-page':
+			global $bb_views, $view;
+			if ($bb_views[$view]['feed']) {
+				$feeds[] = array(
+					'title' => get_view_name(),
+					'href'  => bb_get_view_rss_link()
+				);
+			}
+			break;
 	}
 	
 	if (count($feeds)) {
@@ -408,7 +418,7 @@ function bb_get_posts_rss_link() {
 	if ( bb_get_option( 'mod_rewrite' ) )
 		$link = bb_get_option( 'uri' ) . 'rss/';
 	else
-		$link = bb_get_option( 'uri' ) . "rss.php";
+		$link = bb_get_option( 'uri' ) . 'rss.php';
 	return apply_filters( 'bb_get_posts_rss_link', $link );
 }
 
@@ -416,8 +426,17 @@ function bb_get_topics_rss_link() {
 	if ( bb_get_option( 'mod_rewrite' ) )
 		$link = bb_get_option( 'uri' ) . 'rss/topics';
 	else
-		$link = bb_get_option( 'uri' ) . "rss.php?topics=1";
+		$link = bb_get_option( 'uri' ) . 'rss.php?topics=1';
 	return apply_filters( 'bb_get_topics_rss_link', $link );
+}
+
+function bb_get_view_rss_link() {
+	global $view;
+	if ( bb_get_option( 'mod_rewrite' ) )
+		$link = bb_get_option( 'uri' ) . 'rss/view/' . $view;
+	else
+		$link = bb_get_option( 'uri' ) . 'rss.php?view=' . $view;
+	return apply_filters( 'bb_get_view_rss_link', $link );
 }
 
 // FORUMS
