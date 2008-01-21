@@ -79,6 +79,9 @@ if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include 
 	require( BBPATH . BBINC . 'l10n.php');
 }
 
+if ( defined( 'BB_AWESOME_INCLUDE' ) && file_exists( BB_AWESOME_INCLUDE ) )
+	require( BB_AWESOME_INCLUDE );
+
 if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
 	die(__('Your table prefix may only contain letters, numbers and underscores.'));
 

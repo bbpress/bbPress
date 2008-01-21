@@ -120,6 +120,8 @@ CREATE TABLE $bbdb->tagged (
 ) $charset_collate;
 ";
 
+$bb_queries = apply_filters( 'bb_schema', $bb_queries );
+
 do_action( 'bb_schema_defined' );
 
 ?>
