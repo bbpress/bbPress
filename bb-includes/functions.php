@@ -904,7 +904,9 @@ function bb_create_tag( $tag ) {
 	$tag = apply_filters( 'pre_create_tag', $tag );
 
 	$raw_tag = bb_trim_for_db( $tag, 50 );
-	$tag     = bb_tag_sanitize( $tag );
+	$tag = $_tag = bb_tag_sanitize( $tag );
+	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
+		$tag = bb_slug_increment($_tag, $existing_tag);
 
 	if ( empty( $tag ) )
 		return false;
