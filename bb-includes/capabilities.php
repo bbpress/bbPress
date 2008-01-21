@@ -72,10 +72,10 @@ class BB_Roles {
 						'participate' => true,
 
 						'edit_users' => true,			//+
-						'manage_tags' => true,			//+
 						'edit_others_favorites' => true,	//+
 						'manage_forums' => true,		//+
 						'delete_forums' => true,		//+
+						'manage_tags' => true,
 						'delete_topics' => true,
 						'close_topics' => true,
 						'stick_topics' => true,
@@ -107,6 +107,7 @@ class BB_Roles {
 						'moderate' => true,
 						'participate' => true,
 
+						'manage_tags' => true,			//+
 						'delete_topics' => true,	//+
 						'close_topics' => true,		//+
 						'stick_topics' => true,		//+
