@@ -275,6 +275,8 @@ if ( !isset( $bb->sitecookiepath ) ) {
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
 
+do_action( 'bb_options_loaded' );
+
 // Load Plugins
 if ( function_exists( 'glob' ) && is_callable( 'glob' ) )
 	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
