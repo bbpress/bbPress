@@ -349,6 +349,17 @@ function bb_feed_head() {
 	$feeds = array();
 	
 	switch (bb_get_location()) {
+		case 'profile-page':
+			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
+				if ($tab != 'favorites')
+					break;
+			
+			$feeds[] = array(
+				'title' => sprintf(__('User Favorites: %s'), get_user_name()),
+				'href'  => get_favorites_rss_link()
+			);
+			break;
+		
 		case 'topic-page':
 			$feeds[] = array(
 				'title' => sprintf(__('Topic: %s'), get_topic_title()),
