@@ -744,6 +744,8 @@ function bb_recount_list() {
 	$recount_list[25] = array('topic-tag-count', __('Count tags for every topic'));
 	$recount_list[30] = array('tags-tag-count', __('Count topics for every tag'));
 	$recount_list[35] = array('zap-tags', __('DELETE tags with no topics.  Only functions if the above checked'));
+	$recount_list[40] = array('clean-favorites', __('REMOVE deleted topics from users\' favorites'));
+
 	do_action('bb_recount_list');
 	ksort($recount_list);
 	return $recount_list;

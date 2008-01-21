@@ -302,6 +302,10 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			if ( $user = bb_get_user( $id ) )
 				bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
 
+		if ( $ids = $bbdb->get_col( "SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = 'favorites' and FIND_IN_SET('$topic_id', meta_value) > 0" ) )
+			foreach ( $ids as $id )
+			  bb_remove_user_favorite( $id, $topic_id );
+
 		if ( $new_status ) {
 			bb_remove_topic_tags( $topic_id );
 			$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status, 'tag_count' => 0 ), compact( 'topic_id' ) );
