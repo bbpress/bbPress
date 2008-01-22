@@ -516,11 +516,13 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	}
 	
 	if (!count($headers) || !count(preg_grep('/^from:\s/im', $headers))) {
-		$from = parse_url(bb_get_option('uri'));
-		if ($from && $from['host']) {
-			$from = trim(preg_replace('/^www./i', '', $from['host']));
-			$headers[] = 'From: "' . bb_get_option('name') . '" <bbpress@' . $from . '>';
-		}
+		if (!$from = bb_get_option('from_email'))
+			if ($uri_parsed = parse_url(bb_get_option('uri')))
+				if ($uri_parsed['host'])
+					$from = 'bbpress@' . trim(preg_replace('/^www./i', '', $uri_parsed['host']));
+		
+		if ($from)
+			$headers[] = 'From: "' . bb_get_option('name') . '" <' . $from . '>';
 	}
 	$headers = trim(join("\r\n", $headers));
 	

@@ -50,12 +50,12 @@ bb_get_admin_header();
 			<input class="text" name="uri" id="uri" value="<?php bb_form_option('uri'); ?>" />
 			<p><?php _e('The full URL of your bbPress install.'); ?></p>
 		</div>
-		<label for="admin_email">
+		<label for="from_email">
 			<?php _e('E-mail address:') ?>
 		</label>
 		<div>
-			<input class="text" name="admin_email" id="admin_email" value="<?php bb_form_option('admin_email'); ?>" />
-			<p><?php _e('This address is used only for admin purposes.'); ?></p>
+			<input class="text" name="from_email" id="from_email" value="<?php bb_form_option('from_email'); ?>" />
+			<p><?php _e('Emails sent by the site will appear to come from this address.'); ?></p>
 		</div>
 		<label for="mod_rewrite">
 			<?php _e('Pretty permalink type:') ?>

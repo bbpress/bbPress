@@ -23,6 +23,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
 	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent
 	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
+	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
 	bb_update_db_version();
 	return $bb_upgrade; 
 }
@@ -500,6 +501,22 @@ function bb_upgrade_1020() {
 	bb_update_option( 'bb_db_version', 977 );
 	
 	return 'Done adding nice-names to existing users: ' . __FUNCTION__;
+}
+
+// Move admin_email option to from_email
+function bb_upgrade_1030() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1058 )
+		return;
+	
+	$admin_email = bb_get_option('admin_email');
+	if ($admin_email) {
+		bb_update_option('from_email', $admin_email);
+	}
+	bb_delete_option('admin_email');
+	
+	bb_update_option( 'bb_db_version', 1058 );
+	
+	return 'Done moving admin_email to from_email: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {
