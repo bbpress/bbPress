@@ -36,6 +36,7 @@ class BB_Roles {
 						'manage_options' => true,	// backend			//+
 						'manage_themes' => true,	// Themes			//+
 						'manage_plugins' => true,	// Plugins			//+
+						'manage_options' => true,	// Options			//+
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,
