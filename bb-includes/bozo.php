@@ -261,7 +261,7 @@ function bb_bozo_profile_admin_keys( $a ) {
 
 function bb_bozo_add_admin_page() {
 	global $bb_submenu;
-	$bb_submenu['users.php'][] = array(__('Bozos'), 'moderate', 'bb_bozo_admin_page');
+	$bb_submenu['users.php'][] = array(__('Bozos'), 'edit_users', 'bb_bozo_admin_page');
 }
 
 function bb_bozo_admin_page() {
