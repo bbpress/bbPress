@@ -55,15 +55,15 @@ function bb_admin_menu_generator() {
 	$bb_submenu = array();
 	$bb_submenu['users.php'][5] = array(__('Find'), 'moderate', 'users.php');
 	$bb_submenu['users.php'][10] = array(__('Moderators'), 'moderate', 'users-moderators.php');
-	$bb_submenu['users.php'][15] = array(__('Blocked'), 'moderate', 'users-blocked.php');
+	$bb_submenu['users.php'][15] = array(__('Blocked'), 'edit_users', 'users-blocked.php');
 
 	$bb_submenu['content.php'][5] = array(__('Topics'), 'moderate', 'content.php');
 	$bb_submenu['content.php'][10] = array(__('Posts'), 'moderate', 'content-posts.php');
 	$bb_submenu['content.php'][15] = array(__('Forums'), 'manage_forums', 'content-forums.php');
 
-	$bb_submenu['themes.php'][5] = array(__('Themes'), 'use_keys', 'themes.php');
+	$bb_submenu['themes.php'][5] = array(__('Themes'), 'manage_themes', 'themes.php');
 
-	$bb_submenu['plugins.php'][5] = array(__('Plugins'), 'use_keys', 'plugins.php');
+	$bb_submenu['plugins.php'][5] = array(__('Plugins'), 'manage_plugins', 'plugins.php');
 	$bb_submenu['plugins.php'][10] = array(__('Recount'), 'recount', 'site.php');
 	
 	$bb_submenu['options-general.php'][5] = array(__('General'), 'use_keys', 'options-general.php');
@@ -209,7 +209,10 @@ function bb_user_row( $user_id, $role = '', $email = false ) {
 		$r .= "\t\t<td><a href='mailto:$email'>$email</a></td>\n";
 	}
 	$r .= "\t\t<td>$user->user_registered</td>\n";
-	$r .= "\t\t<td><a href='" . get_profile_tab_link( $user->ID, 'edit' ) . "'>" . __('Edit') . "</a></td>\n\t</tr>";
+	$actions = '';
+	if ( bb_current_user_can( 'edit_user', $user_id ) )
+		$actions .= "<a href='" . get_profile_tab_link( $user->ID, 'edit' ) . "'>" . __('Edit') . "</a>";
+	$r .= "\t\t<td>$actions</td>\n\t</tr>";
 	return $r;
 }
 

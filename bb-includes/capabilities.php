@@ -34,6 +34,8 @@ class BB_Roles {
 						'keep_gate' => true,		// Make new Key Masters		//+
 						'recount' => true,		// bb-do-counts.php		//+
 						'manage_options' => true,	// backend			//+
+						'manage_themes' => true,	// Themes			//+
+						'manage_plugins' => true,	// Plugins			//+
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,

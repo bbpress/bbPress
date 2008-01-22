@@ -2,7 +2,7 @@
 require_once('admin.php');
 
 if ( isset($_GET['theme']) ) {
-	if ( !bb_current_user_can( 'use_keys' ) ) {
+	if ( !bb_current_user_can( 'manage_themes' ) ) {
 		wp_redirect( bb_get_option( 'uri' ) );
 		exit;
 	}
