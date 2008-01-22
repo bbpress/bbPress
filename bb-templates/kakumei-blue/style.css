@@ -1,0 +1,17 @@
+/*
+Theme Name: Kakumei Blue
+Theme URI: http://bbpress.org/
+Description: The "revolutionized" new face of bbPress... in blue.
+Version: 0.01 theta-beta
+Author: Bryan Veloso
+Author URI: http://avalonstar.com
+*/
+
+
+@import url('../kakumei/style.css');
+
+a { color: #32689b; text-decoration: none; }
+a:hover { color: #001364; }
+#header { background-image: url('images/page_header_bblogo.png'); }
+.sticky { background: #adb9e1; }
+#latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background: #d8dcf2; }
