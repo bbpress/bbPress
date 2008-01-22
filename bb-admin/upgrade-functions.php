@@ -17,6 +17,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_190(); // Move topic_resolved to topicmeta
 	$bb_upgrade[] = bb_upgrade_200(); // Indices
 	$bb_upgrade[] = bb_upgrade_210(); // Convert text slugs to varchar slugs
+	$bb_upgrade[] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
 	$bb_upgrade = array_merge($bb_upgrade, bb_dbDelta($bb_queries));
 	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
@@ -433,6 +434,18 @@ function bb_upgrade_210() {
 	bb_update_option( 'bb_db_version', 846 );
 	
 	return 'Done adding slugs: ' . __FUNCTION__;
+}
+
+function bb_upgrade_220() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1051 )
+		return;
+
+	global $bbdb;
+
+	$bbdb->query( "ALTER TABLE $bbdb->tagged DROP PRIMARY KEY" );
+	$bbdb->query( "ALTER TABLE $bbdb->tagged ADD tagged_id bigint(20) unsigned NOT NULL auto_increment PRIMARY KEY FIRST" );
+
+	return "Done removing key from $bbdb->tagged: " . __FUNCTION__;
 }
 
 function bb_upgrade_1000() { // Give all topics and forums slugs

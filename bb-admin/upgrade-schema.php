@@ -21,7 +21,9 @@ if ( $bbdb->has_cap( 'collation', $bbdb->users ) ) {
 		$user_charset_collate .= " COLLATE $bbdb->collate";
 }
 
-$bb_queries = "CREATE TABLE $bbdb->forums (
+$bb_queries = array();
+
+$bb_queries['forums'] = "CREATE TABLE $bbdb->forums (
   forum_id int(10) NOT NULL auto_increment,
   forum_name varchar(150)  NOT NULL default '',
   forum_slug varchar(255)  NOT NULL default '',
@@ -31,8 +33,9 @@ $bb_queries = "CREATE TABLE $bbdb->forums (
   topics bigint(20) NOT NULL default '0',
   posts bigint(20) NOT NULL default '0',
   PRIMARY KEY  (forum_id)
-) $charset_collate;
-CREATE TABLE $bbdb->posts (
+) $charset_collate;";
+
+$bb_queries['posts'] = "CREATE TABLE $bbdb->posts (
   post_id bigint(20) NOT NULL auto_increment,
   forum_id int(10) NOT NULL default '1',
   topic_id bigint(20) NOT NULL default '1',
@@ -47,8 +50,9 @@ CREATE TABLE $bbdb->posts (
   KEY poster_time (poster_id,post_time),
   KEY post_time (post_time),
   FULLTEXT KEY post_text (post_text)
-) TYPE = MYISAM $charset_collate;
-CREATE TABLE $bbdb->topics (
+) TYPE = MYISAM $charset_collate;";
+
+$bb_queries['topics'] = "CREATE TABLE $bbdb->topics (
   topic_id bigint(20) NOT NULL auto_increment,
   topic_title varchar(100) NOT NULL default '',
   topic_slug varchar(255) NOT NULL default '',
@@ -68,8 +72,9 @@ CREATE TABLE $bbdb->topics (
   PRIMARY KEY  (topic_id),
   KEY forum_time (forum_id,topic_time),
   KEY user_start_time (topic_poster,topic_start_time)
-) $charset_collate;
-CREATE TABLE $bbdb->topicmeta (
+) $charset_collate;";
+
+$bb_queries['topicmeta'] = "CREATE TABLE $bbdb->topicmeta (
   meta_id bigint(20) NOT NULL auto_increment,
   topic_id bigint(20) NOT NULL default '0',
   meta_key varchar(255) default NULL,
@@ -77,8 +82,9 @@ CREATE TABLE $bbdb->topicmeta (
   PRIMARY KEY  (meta_id),
   KEY topic_id (topic_id),
   KEY meta_key (meta_key)
-) $charset_collate;
-CREATE TABLE $bbdb->users (
+) $charset_collate;";
+
+$bb_queries['users'] = "CREATE TABLE $bbdb->users (
   ID bigint(20) unsigned NOT NULL auto_increment,
   user_login varchar(60) NOT NULL default '',
   user_pass varchar(64) NOT NULL default '',
@@ -91,8 +97,9 @@ CREATE TABLE $bbdb->users (
   PRIMARY KEY  (ID),
   UNIQUE KEY user_login (user_login),
   UNIQUE KEY user_nicename (user_nicename)
-) $user_charset_collate;
-CREATE TABLE $bbdb->usermeta (
+) $user_charset_collate;";
+
+$bb_queries['usermeta'] = "CREATE TABLE $bbdb->usermeta (
   umeta_id bigint(20) NOT NULL auto_increment,
   user_id bigint(20) NOT NULL default '0',
   meta_key varchar(255) default NULL,
@@ -100,25 +107,28 @@ CREATE TABLE $bbdb->usermeta (
   PRIMARY KEY  (umeta_id),
   KEY user_id (user_id),
   KEY meta_key (meta_key)
-) $user_charset_collate;
-CREATE TABLE $bbdb->tags (
+) $user_charset_collate;";
+
+$bb_queries['tags'] = "CREATE TABLE $bbdb->tags (
   tag_id bigint(20) unsigned NOT NULL auto_increment,
   tag varchar(200) NOT NULL default '',
   raw_tag varchar(50) NOT NULL default '',
   tag_count bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (tag_id),
   KEY name (tag)
-) $charset_collate;
-CREATE TABLE $bbdb->tagged (
+) $charset_collate;";
+
+$bb_queries['tagged'] = "CREATE TABLE $bbdb->tagged (
+  tagged_id bigint(20) unsigned NOT NULL auto_increment,
   tag_id bigint(20) unsigned NOT NULL default '0',
   user_id bigint(20) unsigned NOT NULL default '0',
   topic_id bigint(20) unsigned NOT NULL default '0',
   tagged_on datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (tag_id,user_id,topic_id),
+  PRIMARY KEY  (tagged_id),
+  UNIQUE KEY tag_user_topic (tag_id,user_id,topic_id),
   KEY user_id_index (user_id),
   KEY topic_id_index (topic_id)
-) $charset_collate;
-";
+) $charset_collate;";
 
 $bb_queries = apply_filters( 'bb_schema', $bb_queries );
 
