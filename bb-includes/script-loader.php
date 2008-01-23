@@ -10,19 +10,20 @@ class BB_Scripts {
 	}
 
 	function default_scripts() {
+		$this->add( 'fat', '/' . BBINC . 'js/fat.js', array('add-load-event'), '1.0-RC1_3660' );
 		$this->add( 'prototype', '/' . BBINC . 'js/prototype.js', false, '1.5.0' );
 		$this->add( 'wp-ajax', '/' . BBINC . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
-		$this->add( 'listman', '/' . BBINC . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'jquery-color'), '440' );
+		$this->add( 'listman', '/' . BBINC . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'fat'), '440' );
 		$this->add( 'topic', '/' . BBINC . 'js/topic-js.php', array('add-load-event', 'listman'), '433' );
-		$this->add( 'jquery', '/' . BBINC . 'js/jquery/jquery.js', false, '1.2.2' );
-		$this->add( 'interface', '/' . BBINC . 'js/jquery/interface.js', array('jquery'), '1.2' );
+		$this->add( 'jquery', '/' . BBINC . 'js/jquery/jquery.js', false, '1.1.3.1');
+		$this->add( 'interface', '/' . BBINC . 'js/jquery/interface.js', array('jquery'), '1.2');
 		$this->add( 'jquery-color', '/' . BBINC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
 		$this->add( 'add-load-event', '/' . BBINC . 'js/add-load-event.js' );
 		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), 4 );
 		$this->localize( 'content-forums', 'bbSortForumsL10n', array(
 			'handleText' => __('drag'),
 			'saveText' => __('Save Forum Order &#187;')
-		) );
+		));
 	}
 
 	/**

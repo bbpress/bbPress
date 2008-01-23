@@ -118,18 +118,14 @@ Object.extend(listMan.prototype, {
 		if ( this.alt )
 			if ( ( this.theList.childNodes.length + this.altOffset ) % 2 )
 				$(id).addClassName(this.alt);
-		originalColor = jQuery($(id)).css('background-color');
-		if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
-		jQuery($(id)).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: originalColor }, 1000 );
+		Fat.fade_element(id);
 	},
 
 	// only hides the element sa it can be put back again if necessary
 	removeListItem: function( id, noFade ) {
 		id = $(id);
 		if ( !noFade ) {
-			originalColor = jQuery(id).css('background-color');
-			if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
-			jQuery(id).animate( { backgroundColor: '#FF3333' }, 50 ).animate( { backgroundColor: originalColor }, 650 );
+			Fat.fade_element(id.id,null,700,'#FF3333');
 			var tempObj = this;
 			var func = function() { id.hide(); tempObj.recolorList(); }
 			setTimeout(func, 705);
@@ -147,27 +143,19 @@ Object.extend(listMan.prototype, {
 			return;
 		}
 		id.replace(h);
-		originalColor = jQuery(id).css('background-color');
-		if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
-		jQuery(id).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: originalColor }, 1000 );
+		Fat.fade_element(id.id);
 	},
 
 	// toggles class
 	dimItem: function( id, dimClass, noFade ) {
 		id = $(id);
 		if ( id.hasClassName(dimClass) ) {
-			if ( !noFade ) {
-				originalColor = jQuery(id).css('background-color');
-				if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
-				jQuery(id).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: originalColor }, 650 );
-			}
+			if ( !noFade )
+				Fat.fade_element(id.id,null,700,null);
 			id.removeClassName(dimClass);
 		} else {
-			if ( !noFade ) {
-				originalColor = jQuery(id).css('background-color');
-				if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
-				jQuery(id).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: '#FF3333' }, 650 );
-			}
+			if ( !noFade )
+				Fat.fade_element(id.id,null,700,'#FF3333');
 			id.addClassName(dimClass);
 		}
 	},
