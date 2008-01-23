@@ -176,9 +176,9 @@ function bb_get_recently_moderated_objects( $num = 5 ) {
 
 // Not bbdb::prepared
 function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit = 50 ) {
-	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
+	global $bbdb, $bb_last_countable_query;
 	$sort = $sort ? 'DESC' : 'ASC';
-	$key = $bbdb->escape( $bb_table_prefix . 'capabilities' );
+	$key = $bbdb->escape( $bbdb->prefix . 'capabilities' );
 
 	if ( !$page = abs( (int) $page ) )
 		$page = 1;

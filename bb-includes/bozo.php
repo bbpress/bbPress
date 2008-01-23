@@ -22,12 +22,12 @@ function bb_bozo_topics( $where ) {
 // Gets those users with the bozo bit.  Does not grab users who have been bozoed on a specific topic.
 // NOT bbdb::prepared
 function bb_get_bozos( $page = 1 ) {
-	global $bbdb, $bb_table_prefix, $bb_last_countable_query;
+	global $bbdb, $bb_last_countable_query;
 	$page = (int) $page;
 	$limit = (int) bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$bozo_mkey = $bb_table_prefix . 'bozo_topics';
+	$bozo_mkey = $bbdb->prefix . 'bozo_topics';
 	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' AND meta_value='1' ORDER BY umeta_id DESC LIMIT $limit";
 	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
 		bb_cache_users( $ids );
@@ -104,18 +104,18 @@ function bb_bozo_recount_topics() {
 }
 
 function bb_bozo_recount_users() {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb;
 	if ( isset($_POST['topics-replied-with-bozos']) && 1 == $_POST['topics-replied-with-bozos'] ) :
 		if ( $users = (array) $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
 			$no_bozos = array();
-			$bozo_mkey = $bb_table_prefix . 'bozo_topics';
+			$bozo_mkey = $bbdb->prefix . 'bozo_topics';
 			_e("Counting bozo topics for each user...\n");
 			foreach ( $users as $user ) :
 				$topics_replied = (int) $bbdb->get_var( $bbdb->prepare(
 					"SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = 0 AND poster_id = %d",
 					$user
 				) );
-				bb_update_usermeta( $user, $bb_table_prefix. 'topics_replied', $topics_replied );
+				bb_update_usermeta( $user, $bbdb->prefix. 'topics_replied', $topics_replied );
 				$bozo_keys = (array) $bbdb->get_col( $bbdb->prepare(
 					"SELECT topic_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 AND poster_id = %d GROUP BY topic_id",
 					$user
@@ -197,7 +197,7 @@ function bb_bozo_delete_post( $post_id, $new_status, $old_status ) {
 }
 
 function bb_bozon( $user_id, $topic_id = 0 ) {
-	global $bb_table_prefix;
+	global $bbdb;
 
 	$user_id = (int) $user_id;
 	$topic_id = (int) $topic_id;
@@ -222,12 +222,12 @@ function bb_bozon( $user_id, $topic_id = 0 ) {
 			$user->bozo_topics[$topic_id] = 1;
 		else
 			$user->bozo_topics = array($topic_id => 1);
-		bb_update_usermeta( $uid, $bb_table_prefix . 'bozo_topics', $user->bozo_topics );
+		bb_update_usermeta( $uid, $bbdb->prefix . 'bozo_topics', $user->bozo_topics );
 	}
 }
 
 function bb_fermion( $user_id, $topic_id = 0 ) {
-	global $bb_table_prefix;
+	global $bbdb;
 
 	$user_id = (int) $user_id;
 	$topic_id = (int) $topic_id;
@@ -243,7 +243,7 @@ function bb_fermion( $user_id, $topic_id = 0 ) {
 		
 		if ( --$user->bozo_topics[$topic_id] < 1 )
 			unset($user->bozo_topics[$topic_id]);
-		bb_update_usermeta( $uid, $bb_table_prefix . 'bozo_topics', $user->bozo_topics );
+		bb_update_usermeta( $uid, $bbdb->prefix . 'bozo_topics', $user->bozo_topics );
 	}
 }
 

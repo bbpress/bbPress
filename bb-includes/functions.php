@@ -282,7 +282,7 @@ function bb_update_topic( $title, $topic_id ) {
 }
 
 function bb_delete_topic( $topic_id, $new_status = 0 ) {
-	global $bbdb, $bb_cache, $bb_table_prefix;
+	global $bbdb, $bb_cache;
 	$topic_id = (int) $topic_id;
 	add_filter( 'get_topic_where', 'no_where' );
 	if ( $topic = get_topic( $topic_id ) ) {
@@ -300,7 +300,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		$ids = array_unique((array) $post_ids['poster']);
 		foreach ( $ids as $id )
 			if ( $user = bb_get_user( $id ) )
-				bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
+				bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
 
 		if ( $ids = $bbdb->get_col( "SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = 'favorites' and FIND_IN_SET('$topic_id', meta_value) > 0" ) )
 			foreach ( $ids as $id )
@@ -616,7 +616,7 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 }
 
 function bb_insert_post( $args = null ) {
-	global $bbdb, $bb_cache, $bb_table_prefix, $bb_current_user, $thread_ids_cache;
+	global $bbdb, $bb_cache, $bb_current_user, $thread_ids_cache;
 
 	$args = wp_parse_args( $args );
 
@@ -695,7 +695,7 @@ function bb_insert_post( $args = null ) {
 			}
 			$post_ids = get_thread_post_ids( $topic_id );
 			if ( !in_array($poster_id, array_slice($post_ids['poster'], 0, -1)) )
-				bb_update_usermeta( $poster_id, $bb_table_prefix . 'topics_replied', $bb_current_user->data->topics_replied + 1 );
+				bb_update_usermeta( $poster_id, $bbdb->prefix . 'topics_replied', $bb_current_user->data->topics_replied + 1 );
 		} else {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts + 1 : 1 );
 		}
@@ -746,7 +746,7 @@ function update_post_positions( $topic_id ) {
 }
 
 function bb_delete_post( $post_id, $new_status = 0 ) {
-	global $bbdb, $bb_cache, $bb_table_prefix, $thread_ids_cache, $topic, $bb_post;
+	global $bbdb, $bb_cache, $thread_ids_cache, $topic, $bb_post;
 	$post_id = (int) $post_id;
 	$bb_post    = bb_get_post ( $post_id );
 	$new_status = (int) $new_status;
@@ -789,7 +789,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 		}
 		$user = bb_get_user( $uid );
 		if ( $new_status && ( !is_array($post_ids['poster']) || !in_array($user->ID, $post_ids['poster']) ) )
-			bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', $user->topics_replied - 1 );
+			bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', $user->topics_replied - 1 );
 		$bb_cache->flush_one( 'topic', $topic_id );
 		$bb_cache->flush_many( 'thread', $topic_id );
 		$bb_cache->flush_many( 'forum', $forum_id );
@@ -808,14 +808,14 @@ function _bb_delete_post( $post_id, $post_status ) {
 }
 
 function topics_replied_on_undelete_post( $post_id ) {
-	global $bb_table_prefix;
+	global $bbdb;
 	$bb_post = bb_get_post( $post_id );
 	$topic = get_topic( $bb_post->topic_id );
 	$post_ids = get_thread_post_ids( $topic->topic_id );
 	$times = array_count_values( $post_ids['poster'] );
 	if ( 1 == $times[$bb_post->poster_id] )
 		if ( $user = bb_get_user( $bb_post->poster_id ) )
-			bb_update_usermeta( $user->ID, $bb_table_prefix . 'topics_replied', $user->topics_replied + 1 );
+			bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', $user->topics_replied + 1 );
 }
 
 function post_author_cache($posts) {
@@ -1127,9 +1127,9 @@ function bb_get_top_tags( $recent = true, $limit = 40 ) {
 /* Users */
 
 function bb_block_current_user() {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb;
 	if ( $id = bb_get_current_user_info( 'id' ) )
-		bb_update_usermeta( $id, $bb_table_prefix . 'been_blocked', 1 ); // Just for logging.
+		bb_update_usermeta( $id, $bbdb->prefix . 'been_blocked', 1 ); // Just for logging.
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
@@ -1211,7 +1211,7 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 }
 
 function bb_update_topics_replied( $user_id ) {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb;
 
 	$user_id = (int) $user_id;
 
@@ -1219,7 +1219,7 @@ function bb_update_topics_replied( $user_id ) {
 		return false;
 
 	$topics_replied = (int) $bbdb->get_var( $bbdb->prepare( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->posts WHERE post_status = '0' AND poster_id = %d", $user_id ) );
-	return bb_update_usermeta( $user_id, $bb_table_prefix . 'topics_replied', $topics_replied );
+	return bb_update_usermeta( $user_id, $bbdb->prefix . 'topics_replied', $topics_replied );
 }
 
 function update_user_status( $user_id, $user_status = 0 ) {
@@ -1262,7 +1262,7 @@ function bb_apply_wp_role_map_to_user( $user ) {
 	
 	if ($wp_roles_map = bb_get_option('wp_roles_map')) {
 		
-		global $bb_table_prefix;
+		global $bbdb;
 		
 		$bb_roles_map = array_flip($wp_roles_map);
 		
@@ -1274,7 +1274,7 @@ function bb_apply_wp_role_map_to_user( $user ) {
 			'subscriber' => 0
 		);
 		
-		$bb_roles = bb_get_usermeta($user_id, $bb_table_prefix . 'capabilities');
+		$bb_roles = bb_get_usermeta($user_id, $bbdb->prefix . 'capabilities');
 		
 		$wp_table_prefix = bb_get_option('wp_table_prefix');
 		
@@ -1290,7 +1290,7 @@ function bb_apply_wp_role_map_to_user( $user ) {
 			}
 			
 			if (count($bb_roles_new)) {
-				bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', $bb_roles_new );
+				bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', $bb_roles_new );
 			}
 			
 		} elseif (!$wp_roles && is_array($bb_roles)) {
@@ -1335,9 +1335,9 @@ function bb_apply_wp_role_map_to_orphans() {
 			ORDER BY
 				ID
 EOQ;
-		global $bbdb, $bb_table_prefix;
+		global $bbdb;
 		
-		$role_query = $bbdb->prepare($role_query, $bbdb->users, $bbdb->usermeta, $bb_table_prefix, $wp_table_prefix);
+		$role_query = $bbdb->prepare($role_query, $bbdb->users, $bbdb->usermeta, $bbdb->prefix, $wp_table_prefix);
 		
 		if ( $user_ids = $bbdb->get_col($role_query) ) {
 			foreach ( $user_ids as $user_id ) {
@@ -1377,6 +1377,7 @@ function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 }
 
 function bb_add_user_favorite( $user_id, $topic_id ) {
+	global $bbdb;
 	$user_id = (int) $user_id;
 	$topic_id = (int) $topic_id;
 	$user = bb_get_user( $user_id );
@@ -1388,13 +1389,14 @@ function bb_add_user_favorite( $user_id, $topic_id ) {
 	if ( ! in_array( $topic_id, $fav ) ) {
 		$fav[] = $topic_id;
 		$fav = implode(',', $fav);
-		bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
+		bb_update_usermeta( $user->ID, $bbdb->prefix . 'favorites', $fav);
 	}
 	do_action('bb_add_user_favorite', $user_id, $topic_id);
 	return true;
 }
 
 function bb_remove_user_favorite( $user_id, $topic_id ) {
+	global $bbdb;
 	$user_id = (int) $user_id;
 	$topic_id = (int) $topic_id;
 	$user = bb_get_user( $user_id );
@@ -1405,7 +1407,7 @@ function bb_remove_user_favorite( $user_id, $topic_id ) {
 	if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
 		array_splice($fav, $pos, 1);
 		$fav = implode(',', $fav);
-		bb_update_usermeta( $user->ID, $bb_table_prefix . 'favorites', $fav);
+		bb_update_usermeta( $user->ID, $bbdb->prefix . 'favorites', $fav);
 	}
 	do_action('bb_remove_user_favorite', $user_id, $topic_id);
 	return true;
@@ -1444,8 +1446,8 @@ function bb_get_option( $option ) {
 		$option = 'uri';
 	case 'bb_table_prefix' :
 	case 'table_prefix' :
-		global $bb_table_prefix;
-		return $bb_table_prefix; // Don't filter;
+		global $bbdb;
+		return $bbdb->prefix; // Don't filter;
 		break;
 	default :
 		if ( isset($bb->$option) ) {
@@ -1528,7 +1530,7 @@ function bb_delete_option( $option, $value = '' ) {
 // This is the only function that should add to $bb_(user||topic)_cache
 // NOT bbdb::prepared
 function bb_append_meta( $object, $type ) {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb;
 	switch ( $type ) :
 	case 'user' :
 		global $bb_user_cache;
@@ -1551,8 +1553,8 @@ function bb_append_meta( $object, $type ) {
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
 			foreach ( $metas as $meta ) :
 				$trans[$meta->$field]->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
-				if ( strpos($meta->meta_key, $bb_table_prefix) === 0 )
-					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bb_table_prefix))} = bb_maybe_unserialize( $meta->meta_value );
+				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
+					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bbdb->prefix))} = bb_maybe_unserialize( $meta->meta_value );
 			endforeach;
 		foreach ( array_keys($trans) as $i )
 			$cache[$i] = $trans[$i];
@@ -1561,8 +1563,8 @@ function bb_append_meta( $object, $type ) {
 		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $table WHERE $field = %d", $object->$id ) ) )
 			foreach ( $metas as $meta ) :
 				$object->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
-				if ( strpos($meta->meta_key, $bb_table_prefix) === 0 )
-					$object->{substr($meta->meta_key, strlen($bb_table_prefix))} = bb_maybe_unserialize( $meta->meta_value );
+				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
+					$object->{substr($meta->meta_key, strlen($bbdb->prefix))} = bb_maybe_unserialize( $meta->meta_value );
 			endforeach;
 		$cache[$object->$id] = $object;
 		return $object;
@@ -1607,7 +1609,7 @@ function bb_delete_topicmeta( $topic_id, $meta_key, $meta_value = '' ) {
 
 // Internal use only.  Use API.
 function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = false ) {
-	global $bbdb, $bb_cache, $bb_table_prefix;
+	global $bbdb, $bb_cache;
 	if ( !is_numeric( $type_id ) || empty($type_id) && !$global )
 		return false;
 	$type_id = (int) $type_id;
@@ -1628,7 +1630,7 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 
 	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
 	if ( 'user' == $type && 'capabilities' == $meta_key )
-		$meta_key = $bb_table_prefix . 'capabilities';
+		$meta_key = $bbdb->prefix . 'capabilities';
 
 	$meta_tuple = compact('type_id', 'meta_key', 'meta_value', 'type');
 	$meta_tuple = apply_filters('bb_update_meta', $meta_tuple);
@@ -1646,8 +1648,8 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 
 	if ( isset($cache[$type_id]) ) {
 		$cache[$type_id]->{$meta_key} = $meta_value;
-		if ( 0 === strpos($meta_key, $bb_table_prefix) )
-			$cache[$type_id]->{substr($meta_key, strlen($bb_table_prefix))} = $cache[$type_id]->{$meta_key};
+		if ( 0 === strpos($meta_key, $bbdb->prefix) )
+			$cache[$type_id]->{substr($meta_key, strlen($bbdb->prefix))} = $cache[$type_id]->{$meta_key};
 	}
 
 	$bb_cache->flush_one( $type, $type_id );
@@ -1657,7 +1659,7 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 
 // Internal use only.  Use API.
 function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = false ) {
-	global $bbdb, $bb_cache, $bb_table_prefix;
+	global $bbdb, $bb_cache;
 	if ( !is_numeric( $type_id ) || empty($type_id) && !$global )
 		return false;
 	$type_id = (int) $type_id;
@@ -1696,8 +1698,8 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	$bbdb->query( $bbdb->prepare( "DELETE FROM $table WHERE $meta_id_field = %d", $meta_id ) );
 
 	unset($cache[$type_id]->{$meta_key});
-	if ( 0 === strpos($meta_key, $bb_table_prefix) )
-		unset($cache[$type_id]->{substr($meta_key, strlen($bb_table_prefix))});
+	if ( 0 === strpos($meta_key, $bbdb->prefix) )
+		unset($cache[$type_id]->{substr($meta_key, strlen($bbdb->prefix))});
 
 	$bb_cache->flush_one( $type, $type_id );
 	return true;
@@ -2059,10 +2061,10 @@ function get_profile_info_keys() {
 }
 
 function get_profile_admin_keys() {
-	global $bb_table_prefix;
+	global $bbdb;
 	return apply_filters(
 		'get_profile_admin_keys',
-		array($bb_table_prefix . 'title' => array(0, __('Custom Title')))
+		array($bbdb->prefix . 'title' => array(0, __('Custom Title')))
 	);
 }
 

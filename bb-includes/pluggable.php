@@ -474,7 +474,7 @@ endif;
 
 if ( !function_exists('bb_new_user') ) :
 function bb_new_user( $user_login, $user_email, $user_url ) {
-	global $bbdb, $bb_table_prefix;
+	global $bbdb;
 	$user_login = sanitize_user( $user_login, true );
 	$user_email = bb_verify_email( $user_email );
 	
@@ -497,9 +497,9 @@ function bb_new_user( $user_login, $user_email, $user_url ) {
 	$user_id = $bbdb->insert_id;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('keymaster' => true) );
+		bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', array('keymaster' => true) );
 	} else {		
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('member' => true) );
+		bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user_id, $password );
 	}
 

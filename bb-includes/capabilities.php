@@ -8,8 +8,8 @@ class BB_Roles {
 	var $role_key;
 
 	function BB_Roles() {
-		global $bb_table_prefix;
-		$this->role_key = $bb_table_prefix . 'user_roles';
+		global $bbdb;
+		$this->role_key = $bbdb->prefix . 'user_roles';
 
 		$this->roles = $this->get_roles($this->role_key);
 
@@ -250,7 +250,7 @@ class BB_User {
 	var $allcaps = array();
 
 	function BB_User($id) {
-		global $bb_roles, $bb_table_prefix;
+		global $bb_roles, $bbdb;
 
 		$this->data = bb_get_user( $id );
 
@@ -258,7 +258,7 @@ class BB_User {
 			return;
 
 		$this->id = $this->ID = $this->data->ID;
-		$this->cap_key = $bb_table_prefix . 'capabilities';
+		$this->cap_key = $bbdb->prefix . 'capabilities';
 		$this->caps = &$this->data->capabilities;
 		if ( ! is_array($this->caps) ) {
 			$this->caps  = array();
