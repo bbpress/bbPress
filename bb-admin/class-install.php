@@ -294,15 +294,15 @@ class BB_Install
 		// Check for a config file
 		if (file_exists(BBPATH . 'bb-config.php')) {
 			$this->configs['bb-config.php'] = BBPATH . 'bb-config.php';
-		} elseif (file_exists(dirname(BBPATH) . 'bb-config.php')) {
-			$this->configs['bb-config.php'] = dirname(BBPATH) . 'bb-config.php';
+		} elseif (file_exists(dirname(BBPATH) . '/bb-config.php')) {
+			$this->configs['bb-config.php'] = dirname(BBPATH) . '/bb-config.php';
 		}
 		
 		// Check for an old config file
 		if (file_exists(BBPATH . 'config.php')) {
 			$this->configs['config.php'] = BBPATH . 'config.php';
-		} elseif (file_exists(dirname(BBPATH) . 'config.php')) {
-			$this->configs['config.php'] = dirname(BBPATH) . 'config.php';
+		} elseif (file_exists(dirname(BBPATH) . '/config.php')) {
+			$this->configs['config.php'] = dirname(BBPATH) . '/config.php';
 		}
 		
 		if ($this->configs['config.php']) {
