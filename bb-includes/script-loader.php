@@ -14,7 +14,7 @@ class BB_Scripts {
 		$this->add( 'prototype', '/' . BBINC . 'js/prototype.js', false, '1.5.0' );
 		$this->add( 'wp-ajax', '/' . BBINC . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
 		$this->add( 'listman', '/' . BBINC . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'fat'), '440' );
-		$this->add( 'topic', '/' . BBINC . 'js/topic-js.php', array('add-load-event', 'listman'), '433' );
+		$this->add( 'topic', '/' . BBINC . 'js/topic-js.php', array('add-load-event', 'listman', 'jquery'), '433' );
 		$this->add( 'jquery', '/' . BBINC . 'js/jquery/jquery.js', false, '1.1.3.1');
 		$this->add( 'interface', '/' . BBINC . 'js/jquery/interface.js', array('jquery'), '1.2');
 		$this->add( 'jquery-color', '/' . BBINC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
