@@ -210,6 +210,18 @@ if ( defined('CUSTOM_USER_META_TABLE') ) {
 if ( is_wp_error( $bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') ) ) )
 	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
 
+// Set the user table's character set if defined
+if ( defined('USER_BBDB_CHARSET') )
+	$bbdb->user_charset = constant('USER_BBDB_CHARSET');
+
+// Set the user table's custom name if defined
+if ( defined('CUSTOM_USER_TABLE') )
+	$bbdb->users = constant('CUSTOM_USER_TABLE');
+
+// Set the usermeta table's custom name if defined
+if ( defined('CUSTOM_USER_META_TABLE') )
+	$bbdb->usermeta = constant('CUSTOM_USER_META_TABLE');
+
 // Sort out cookies so they work with WordPress (if required)
 // Note that database integration is no longer a pre-requisite for cookie integration
 $bb->wp_siteurl = bb_get_option('wp_siteurl');

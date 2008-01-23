@@ -79,42 +79,6 @@ class bbdb_base {
 		foreach ( $_tables as $table )
 			$this->$table = $prefix . $table;
 		
-		// If there is a custom list of tables
-		if ( $tables && is_array($tables) ) {
-			// If the custom list includes 'users' or 'usermeta'
-			if ( count( array_intersect( array('users', 'usermeta'), $tables ) ) ) {
-				// Bring in the $bb object
-				global $bb;
-				
-				// Set the user table's character set if defined
-				if ( defined('USER_BBDB_CHARSET') )
-					$this->user_charset = constant('USER_BBDB_CHARSET');
-				elseif ( function_exists('bb_get_option') )
-					if ($user_charset = bb_get_option( 'user_bbdb_charset' ))
-						$this->user_charset = $user_charset;
-				else
-					$this->user_charset = $bb->user_bbdb_charset;
-				
-				// Set the user table's custom name if defined
-				if ( defined('CUSTOM_USER_TABLE') )
-					$this->users = constant('CUSTOM_USER_TABLE');
-				elseif ( function_exists('bb_get_option') )
-					if ($users = bb_get_option( 'custom_user_table' ))
-						$this->users = $users;
-				elseif (isset($bb->custom_user_table))
-					$this->users = $bb->custom_user_table;
-				
-				// Set the usermeta table's custom name if defined
-				if ( defined('CUSTOM_USER_META_TABLE') )
-					$this->usermeta = constant('CUSTOM_USER_META_TABLE');
-				elseif ( function_exists('bb_get_option') )
-					if ($usermeta = bb_get_option( 'custom_user_meta_table' ))
-						$this->usermeta = $usermeta;
-				elseif (isset($bb->custom_user_meta_table))
-					$this->usermeta = $bb->custom_user_meta_table;
-			}
-		}
-		
 		// Return the old prefix
 		return $old_prefix;
 	}
