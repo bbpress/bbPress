@@ -443,7 +443,6 @@ class BB_Query {
 
 		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->topics AS t" );
-
 		return $this->request;
 	}
 
@@ -660,12 +659,12 @@ class BB_Query {
 		foreach ( explode(',', $value) as $v ) {
 			$v = is_numeric($v) ? (int) $v : $bbdb->escape( $v );
 			if ( '-' == substr($v, 0, 1) )
-				if ( $v == '-NULL' )
+				if ( $v === '-NULL' )
 					$not_null_flag = true;
 				else
 					$n[] = substr($v, 1);
 			else
-				if ( $v == 'NULL' )
+				if ( $v === 'NULL' )
 					$null_flag = true;
 				else
 					$y[] = $v;

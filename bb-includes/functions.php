@@ -145,7 +145,10 @@ function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
 	if ( $exclude ) {
 		$exclude = '-' . str_replace(',', '-,', $exclude);
 		$exclude = str_replace('--', '-', $exclude);
-		$forum = (string) $forum . ",$exclude";
+		if ( $forum )
+			$forum = (string) $forum . ",$exclude";
+		else
+			$forum = $exclude;
 	}
 
 	$q = array('forum_id' => $forum, 'page' => $page);
