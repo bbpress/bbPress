@@ -879,7 +879,7 @@ class BB_Install
 					$config_lines[] = str_replace("''", "'" . $data['bbdb_collate']['value'] . "'", $line);
 					break;
 				case "define('BB_SECRET_":
-					$config_lines[] = str_replace("''", "'" . $data['bb_secret_key']['value'] . "'", $line);
+					$config_lines[] = str_replace("'put your unique phrase here'", "'" . $data['bb_secret_key']['value'] . "'", $line);
 					break;
 				case '$bb_table_prefix =':
 					$config_lines[] = str_replace('bb_', $data['bb_table_prefix']['value'], $line);
