@@ -118,14 +118,18 @@ Object.extend(listMan.prototype, {
 		if ( this.alt )
 			if ( ( this.theList.childNodes.length + this.altOffset ) % 2 )
 				$(id).addClassName(this.alt);
-		Fat.fade_element(id);
+		originalColor = jQuery($(id)).css('background-color');
+		if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
+		jQuery($(id)).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: originalColor }, 1000 );
 	},
 
 	// only hides the element sa it can be put back again if necessary
 	removeListItem: function( id, noFade ) {
 		id = $(id);
 		if ( !noFade ) {
-			Fat.fade_element(id.id,null,700,'#FF3333');
+			originalColor = jQuery(id).css('background-color');
+			if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
+			jQuery(id).animate( { backgroundColor: '#FF3333' }, 50 ).animate( { backgroundColor: originalColor }, 650 );
 			var tempObj = this;
 			var func = function() { id.hide(); tempObj.recolorList(); }
 			setTimeout(func, 705);
@@ -143,19 +147,27 @@ Object.extend(listMan.prototype, {
 			return;
 		}
 		id.replace(h);
-		Fat.fade_element(id.id);
+		originalColor = jQuery(id).css('background-color');
+		if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
+		jQuery(id).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: originalColor }, 1000 );
 	},
 
 	// toggles class
 	dimItem: function( id, dimClass, noFade ) {
 		id = $(id);
 		if ( id.hasClassName(dimClass) ) {
-			if ( !noFade )
-				Fat.fade_element(id.id,null,700,null);
+			if ( !noFade ) {
+				originalColor = jQuery(id).css('background-color');
+				if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
+				jQuery(id).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: originalColor }, 650 );
+			}
 			id.removeClassName(dimClass);
 		} else {
-			if ( !noFade )
-				Fat.fade_element(id.id,null,700,'#FF3333');
+			if ( !noFade ) {
+				originalColor = jQuery(id).css('background-color');
+				if (originalColor == 'transparent') { originalColor = '#FFFFFF' };
+				jQuery(id).animate( { backgroundColor: '#FFFF33' }, 50 ).animate( { backgroundColor: '#FF3333' }, 650 );
+			}
 			id.addClassName(dimClass);
 		}
 	},
