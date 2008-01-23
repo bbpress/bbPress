@@ -223,9 +223,10 @@ function bb_sanitize_with_dashes( $text, $length = 0 ) { // Multibyte aware
 	$text = strtolower($text);
 	$text = preg_replace('/&(^\x80-\xff)+?;/', '', $text); // kill entities
 	$text = preg_replace('/[^%a-z0-9\x80-\xff _-]/', '', $text);
+	$text = trim($text);
 	$text = preg_replace('/\s+/', '-', $text);
 	$text = preg_replace(array('|-+|', '|_+|'), array('-', '_'), $text); // Kill the repeats
-
+	
 	return $text;
 }
 
