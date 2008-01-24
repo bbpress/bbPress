@@ -908,14 +908,15 @@ function bb_create_tag( $tag ) {
 
 	$raw_tag = bb_trim_for_db( $tag, 50 );
 	$tag = $_tag = bb_tag_sanitize( $tag );
-	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
-		$tag = bb_slug_increment($_tag, $existing_tag);
-
+	
 	if ( empty( $tag ) )
 		return false;
-	if ( $exists = (int) $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
+	if ( $exists = (int) $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE raw_tag = %s", $raw_tag ) ) )
 		return $exists;
-
+	
+	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
+		$tag = bb_slug_increment($_tag, $existing_tag);
+	
 	$bbdb->insert( $bbdb->tags, compact( 'tag', 'raw_tag' ) );
 	$tag_id = $bbdb->insert_id;
 	do_action('bb_tag_created', $raw_tag, $tag_id);
