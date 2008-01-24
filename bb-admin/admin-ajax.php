@@ -16,9 +16,6 @@ function bb_grab_results() {
 	return;
 }
 
-function bb_get_out_now() { exit; }
-add_action('bb_shutdown', 'bb_get_out_now', -1);
-
 switch ( $_POST['action'] ) :
 case 'add-tag' :
 	global $tag, $topic;
