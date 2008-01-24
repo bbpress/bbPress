@@ -110,7 +110,7 @@ class BB_Roles {
 						'moderate' => true,
 						'participate' => true,
 
-						'manage_tags' => true,			//+
+						'manage_tags' => true,		//+
 						'delete_topics' => true,	//+
 						'close_topics' => true,		//+
 						'stick_topics' => true,		//+
