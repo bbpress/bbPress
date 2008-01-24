@@ -945,7 +945,7 @@ function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
 
 	if ( 1 == count($counts) ) : // This is the only time the tag is used
 		$destroyed = destroy_tag( $tag_id );
-	elseif ( $tags = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE tag_id = %d AND user_id = %d AND topic_id = %d'", $tag_id, $user_id, $topic_id ) ) ) :
+	elseif ( $tags = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE tag_id = %d AND user_id = %d AND topic_id = %d", $tag_id, $user_id, $topic_id ) ) ) :
 		if ( 1 == $here ) :
 			$tagged = $bbdb->query( $bbdb->prepare( "UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = %d", $tag_id ) );
 			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id = %d", $topic_id ) );
