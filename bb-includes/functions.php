@@ -1549,7 +1549,8 @@ function bb_append_meta( $object, $type ) {
 		$field = $id = 'topic_id';
 		break;
 	endswitch;
-	if ( is_array($object) ) :
+	if ( is_array($object) && $object ) :
+		$trans = array();
 		foreach ( array_keys($object) as $i )
 			$trans[$object[$i]->$id] =& $object[$i];
 		$ids = join(',', array_map('intval', array_keys($trans)));
