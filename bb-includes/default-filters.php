@@ -76,7 +76,8 @@ if ( is_bb_feed() ) {
 	add_filter( 'post_text', 'ent2ncr' );
 }
 
-bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1 ) );
+// no posts (besides the first one), older than 2 hours
+bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1, 'started' => '<' . gmdate( 'YmdH', time() - 7200 ) ) );
 bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
 
 if ( bb_get_option( 'wp_table_prefix' ) ) {
