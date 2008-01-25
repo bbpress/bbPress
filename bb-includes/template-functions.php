@@ -1350,9 +1350,9 @@ function user_type_label( $type ) {
 }
 
 function get_user_type_label( $type ) {
-	global $bb_roles;
-	if ( $bb_roles->is_role( $type ) )
-		return apply_filters( 'get_user_type_label', $bb_roles->role_names[$type], $type );
+	global $wp_roles;
+	if ( $wp_roles->is_role( $type ) )
+		return apply_filters( 'get_user_type_label', $wp_roles->role_names[$type], $type );
 }
 
 function user_type( $id = 0 ) {
@@ -1452,7 +1452,7 @@ do_action( 'extra_profile_info', $user->ID );
 }
 
 function bb_profile_admin_form( $id = 0 ) {
-	global $bb_roles;
+	global $wp_roles;
 	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return;
 
@@ -1465,7 +1465,7 @@ function bb_profile_admin_form( $id = 0 ) {
 	$assignable_caps = get_assignable_caps();
 	$required = false;
 
-	$roles = $bb_roles->role_names;
+	$roles = $wp_roles->role_names;
 	if ( !bb_current_user_can( 'keep_gate' ) )
 		unset($roles['keymaster']);
 	elseif ( $bb_current_id == $user->ID )

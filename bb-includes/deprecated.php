@@ -543,4 +543,24 @@ function get_forum_rss_link( $forum_id = 0 ) {
 	return bb_get_forum_posts_rss_link( $forum_id );
 }
 
+function bb_enqueue_script( $handle, $src = false, $deps = array(), $ver = false ) {
+	wp_enqueue_script( $handle, $src, $deps, $ver );
+}
+
+function bb_get_user_by_name( $name ) {
+	return bb_get_user( $name );
+}
+
+function bb_user_exists( $user ) {
+	return bb_get_user( $name );
+}
+
+function bb_maybe_serialize( $string ) {
+	return maybe_serialize( $string );
+}
+
+function bb_maybe_unserialize( $string ) {
+	return maybe_unserialize( $string );
+}
+
 ?>

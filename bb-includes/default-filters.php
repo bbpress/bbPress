@@ -39,8 +39,8 @@ add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8', 10, 3
 
 add_filter('get_user_link', 'bb_fix_link');
 
-add_action('bb_head', 'bb_print_scripts');
-add_action('bb_admin_print_scripts', 'bb_print_scripts');
+add_action('bb_head', 'wp_print_scripts');
+add_action('bb_admin_print_scripts', 'wp_print_scripts');
 
 add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 
@@ -83,5 +83,8 @@ bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'
 if ( bb_get_option( 'wp_table_prefix' ) ) {
 	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
 }
+
+add_filter( 'get_roles', 'bb_get_roles' );
+add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );
 
 ?>

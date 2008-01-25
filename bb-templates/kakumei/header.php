@@ -20,7 +20,7 @@
 		var favoritesLink = '<?php favorites_link(); ?>'; 
 		var isFav = <?php if ( false === $is_fav = is_user_favorite( bb_get_current_user_info( 'id' ) ) ) echo "'no'"; else echo $is_fav; ?>;
 	</script>
-	<?php bb_enqueue_script('topic'); ?>
+	<?php wp_enqueue_script('topic'); ?>
 <?php endif; ?>
 
 <?php bb_head(); ?>

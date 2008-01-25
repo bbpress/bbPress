@@ -311,11 +311,11 @@ class BB_User_Search {
 	}
 
 	function display( $show_search = true, $show_email = false ) {
-		global $bb_roles;
+		global $wp_roles;
 		$r = '';
 		// Make the user objects
 		foreach ( $this->get_results() as $user_id ) {
-			$tmp_user = new BB_User($user_id);
+			$tmp_user = new WP_User($user_id);
 			$roles = $tmp_user->roles;
 			$role = array_shift($roles);
 			$roleclasses[$role][$tmp_user->data->user_login] = $tmp_user;
@@ -351,7 +351,7 @@ class BB_User_Search {
 				ksort($roleclass);
 				$r .= "\t<tr>\n";
 				if ( !empty($role) )
-					$r .= "\t\t<th colspan='$colspan'><h3>{$bb_roles->role_names[$role]}</h3></th>\n";
+					$r .= "\t\t<th colspan='$colspan'><h3>{$wp_roles->role_names[$role]}</h3></th>\n";
 				else
 					$r .= "\t\t<th colspan='$colspan'><h3><em>" . __('Users with no role in these forums') . "</h3></th>\n";
 				$r .= "\t</tr>\n";

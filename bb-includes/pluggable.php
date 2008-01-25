@@ -1,9 +1,8 @@
 <?php
 
 if ( !function_exists('bb_auth') ) :
-function bb_auth() {
-	// Checks if a user has a valid cookie, if not redirects them to the login page
-	if (!wp_validate_auth_cookie()) {
+function bb_auth() { // Checks if a user has a valid cookie, if not redirects them to the main page
+	if ( !wp_validate_auth_cookie() ) {
 		nocache_headers();
 		header('Location: ' . bb_get_option('uri'));
 		exit();
@@ -14,23 +13,20 @@ endif;
 // $already_md5 variable is deprecated
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
-	global $bbdb;
-	$user = sanitize_user( $user );
-	if ($user == '') {
+	global $wp_auth_object;
+
+	if ( !$user = sanitize_user( $user ) )
 		return false;
-	}
-	$user = bb_get_user_by_name( $user );
+
+	if ( !$user = bb_get_user( $user ) )
+		return false;
 	
-	if ( !wp_check_password($pass, $user->user_pass) ) {
+	if ( !wp_check_password($pass, $user->user_pass) )
 		return false;
-	}
 	
 	// If using old md5 password, rehash.
 	if ( strlen($user->user_pass) <= 32 ) {
-		$hash = wp_hash_password($pass);
-		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->users SET user_pass = %s WHERE ID = %d", $hash, $user->ID ) );
-		global $bb_cache;
-		$bb_cache->flush_one( 'user', $user->ID );
+		$wp_auth_object->set_password( $pass, $user->ID );
 		$user = bb_get_user( $user->ID );
 	}
 	
@@ -40,54 +36,29 @@ endif;
 
 if ( !function_exists('bb_get_current_user') ) :
 function bb_get_current_user() {
-	global $bb_current_user;
-	
-	bb_current_user();
-	
-	return $bb_current_user;
+	global $wp_auth_object;
+	return $wp_auth_object->get_current_user();
 }
 endif;
 
 if ( !function_exists('bb_set_current_user') ) :
-function bb_set_current_user($id) {
-	global $bb_current_user;
+function bb_set_current_user( $id ) {
+	global $wp_auth_object;
+	$current_user = $wp_auth_object->set_current_user( $id );
 	
-	if ( isset($bb_current_user) && ($id == $bb_current_user->ID) )
-		return $bb_current_user;
+	do_action('bb_set_current_user', isset($current_user->ID) ? $current_user->ID : 0 );
 	
-	if ( empty($id) ) {
-		$bb_current_user = 0;
-	} else {
-		$bb_current_user = new BB_User($id);
-		if ( !$bb_current_user->ID )
-			$bb_current_user = 0;
-	}
-	
-	do_action('bb_set_current_user', $id);
-	
-	return $bb_current_user;
+	return $current_user;
 }
 endif;
 
 if ( !function_exists('bb_current_user') ) :
 //This is only used at initialization.  Use bb_get_current_user_info() (or $bb_current_user global if really needed) to grab user info.
 function bb_current_user() {
-	global $bb_current_user;
-	
 	if ( defined( 'BB_INSTALLING' ) )
 		return false;
-	
-	if ( ! empty($bb_current_user) )
-		return $bb_current_user;
-	
-	if ($user_id = wp_validate_auth_cookie()) {
-		return bb_set_current_user($user_id);
-	} else {
-		global $bb_user_cache;
-		$bb_user_cache[$user_id] = false;
-		bb_set_current_user(0);
-		return false;
-	}
+
+	return bb_get_current_user();
 }
 endif;
 
@@ -109,10 +80,10 @@ function bb_is_user_logged_in() {
 endif;
 
 if ( !function_exists('bb_login') ) :
-function bb_login($login, $password) {
+function bb_login( $login, $password, $remember = false ) {
+	global $wp_auth_object;
 	if ( $user = bb_check_login( $login, $password ) ) {
-		wp_set_auth_cookie($user->ID);
-		
+		wp_set_auth_cookie( $user->ID, $remember );
 		do_action('bb_user_login', (int) $user->ID );
 	}
 	
@@ -130,77 +101,29 @@ endif;
 
 if ( !function_exists('wp_validate_auth_cookie') ) :
 function wp_validate_auth_cookie($cookie = '') {
-	if ( empty($cookie) ) {
-		global $bb;
-		if ( empty($_COOKIE[$bb->authcookie]) )
-			return false;
-		$cookie = $_COOKIE[$bb->authcookie];
-	}
-
-	list($username, $expiration, $hmac) = explode('|', $cookie);
-
-	$expired = $expiration;
-
-	// Allow a grace period for POST and AJAX requests
-	if ( defined('DOING_AJAX') || 'POST' == $_SERVER['REQUEST_METHOD'] )
-		$expired += 3600;
-
-	if ( $expired < time() )
-		return false;
-
-	$key = wp_hash($username . $expiration);
-	$hash = hash_hmac('md5', $username . $expiration, $key);
-	
-	if ( $hmac != $hash )
-		return false;
-
-	$user = bb_get_user_by_name($username);
-	if ( ! $user )
-		return false;
-
-	return $user->ID;
-}
-endif;
-
-if ( !function_exists('wp_generate_auth_cookie') ) :
-function wp_generate_auth_cookie($user_id, $expiration) {
-	$user = bb_get_user($user_id);
-	
-	$key = wp_hash($user->user_login . $expiration);
-	$hash = hash_hmac('md5', $user->user_login . $expiration, $key);
-	
-	$cookie = $user->user_login . '|' . $expiration . '|' . $hash;
-	
-	return apply_filters('auth_cookie', $cookie, $user_id, $expiration);
+	global $wp_auth_object;
+	return $wp_auth_object->validate_auth_cookie( $cookie );
 }
 endif;
 
 if ( !function_exists('wp_set_auth_cookie') ) :
 function wp_set_auth_cookie($user_id, $remember = false) {
-	global $bb;
-	
-	if ( $remember ) {
-		$expiration = $expire = time() + 1209600;
-	} else {
-		$expiration = time() + 172800;
-		$expire = 0;
-	}
-	
-	$cookie = wp_generate_auth_cookie($user_id, $expiration);
-	
-	do_action('set_auth_cookie', $cookie, $expire);
-	
-	setcookie($bb->authcookie, $cookie, $expire, $bb->cookiepath, $bb->cookiedomain);
-	if ( $bb->cookiepath != $bb->sitecookiepath )
-		setcookie($bb->authcookie, $cookie, $expire, $bb->sitecookiepath, $bb->cookiedomain);
+	global $wp_auth_object;
+
+	if ( $remember )
+		$expiration = time() + 1209600;
+	else
+		$expiration = 0;
+
+	$wp_auth_object->set_auth_cookie( $user_id, $expiration );
 }
 endif;
 
 if ( !function_exists('wp_clear_auth_cookie') ) :
 function wp_clear_auth_cookie() {
-	global $bb;
-	setcookie($bb->authcookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
-	setcookie($bb->authcookie, ' ', time() - 31536000, $bb->sitecookiepath, $bb->cookiedomain);
+	global $bb, $wp_auth_object;
+
+	$wp_auth_object->clear_auth_cookie();
 	
 	// Old cookies
 	setcookie($bb->usercookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
@@ -347,34 +270,15 @@ endif;
 
 if ( !function_exists('wp_hash_password') ) : // [WP6350]
 function wp_hash_password($password) {
-	global $wp_hasher;
-
-	if ( empty($wp_hasher) ) { 
-		require_once( BBPATH . BBINC . 'class-phpass.php');
-		// By default, use the portable hash from phpass
-		$wp_hasher = new PasswordHash(8, TRUE);
-	}
-	
-	return $wp_hasher->HashPassword($password);
+	global $wp_auth_object;
+	return $wp_auth_object->hash_password( $password );
 }
 endif;
 
 if ( !function_exists('wp_check_password') ) : // [WP6350]
 function wp_check_password($password, $hash) {
-	global $wp_hasher;
-
-	if ( strlen($hash) <= 32 )
-		return ( $hash == md5($password) );
-
-	// If the stored hash is longer than an MD5, presume the
-	// new style phpass portable hash.
-	if ( empty($wp_hasher) ) {
-		require_once( BBPATH . BBINC . 'class-phpass.php');
-		// By default, use the portable hash from phpass
-		$wp_hasher = new PasswordHash(8, TRUE);
-	}
-
-	return $wp_hasher->CheckPassword($password, $hash);
+	global $wp_auth_object;
+	return $wp_auth_object->check_password( $password, $hash );
 }
 endif;
 
@@ -383,13 +287,9 @@ if ( !function_exists('wp_generate_password') ) :
  * Generates a random password drawn from the defined set of characters
  * @return string the password
  **/
-function wp_generate_password() {
-	$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	$length = 7;
-	$password = '';
-	for ( $i = 0; $i < $length; $i++ )
-		$password .= substr($chars, mt_rand(0, 61), 1);
-	return $password;
+function wp_generate_password( $length = 7 ) {
+	global $wp_auth_object;
+	return $wp_auth_object->generate_password( $length );
 }
 endif;
 
@@ -474,11 +374,17 @@ endif;
 
 if ( !function_exists('bb_new_user') ) :
 function bb_new_user( $user_login, $user_email, $user_url ) {
-	global $bbdb;
-	$user_login = sanitize_user( $user_login, true );
-	$user_email = bb_verify_email( $user_email );
-	
-	if ( !$user_login || !$user_email )
+	global $wp_users_object;
+
+	// is_email check + dns
+	if ( !$user_email = bb_verify_email( $user_email ) )
+		return false;
+
+	$new_user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url' ) );
+	if ( is_wp_error($new_user) )
+		return false;
+
+	if ( !$user_login = sanitize_user( $user_login, true ) )
 		return false;
 	
 	$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user_login );
@@ -486,25 +392,20 @@ function bb_new_user( $user_login, $user_email, $user_url ) {
 		$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
 	
 	$user_url = bb_fix_link( $user_url );
-	$user_registered = bb_current_time('mysql');
-	$password = wp_generate_password();
-	$user_pass = wp_hash_password( $password );
 
-	$bbdb->insert( $bbdb->users,
-		compact( 'user_login', 'user_pass', 'user_nicename', 'user_email', 'user_url', 'user_registered' )
-	);
-	
-	$user_id = $bbdb->insert_id;
+	$user_registered = bb_current_time('mysql');
+
+	$user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url', 'user_nicename', 'user_registered' ) );
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', array('keymaster' => true) );
+		bb_update_usermeta( $user->ID, $bbdb->prefix . 'capabilities', array('keymaster' => true) );
 	} else {		
-		bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', array('member' => true) );
-		bb_send_pass( $user_id, $password );
+		bb_update_usermeta( $user->ID, $bbdb->prefix . 'capabilities', array('member' => true) );
+		bb_send_pass( $user->ID, $password );
 	}
 
-	do_action('bb_new_user', $user_id, $password);
-	return $user_id;
+	do_action('bb_new_user', $user->ID, $password);
+	return $user->ID;
 }
 endif;
 

@@ -60,7 +60,7 @@ function bb_reset_password( $key ) {
 		bb_die(__('Key not found.'));
 	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )
 		bb_die(__('Key not found.'));
-	if ( $user = new BB_User( $user_id ) ) :
+	if ( $user = new WP_User( $user_id ) ) :
 		if ( bb_has_broken_pass( $user->ID ) )
 			bb_block_current_user();
 		if ( !$user->has_cap( 'change_user_password', $user->ID ) )

@@ -27,7 +27,7 @@ if ( bb_current_user_can('edit_users') ) {
 $updated = false;
 $user_email = true;
 
-if ($_POST) :
+if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) :
 	$_POST = stripslashes_deep( $_POST );
 	bb_check_admin_referer( 'edit-profile_' . $user_id );
 
@@ -78,7 +78,7 @@ if ($_POST) :
 		endif;
 
 		if ( bb_current_user_can( 'edit_users' ) ) :
-			$user_obj = new BB_User( $user->ID );
+			$user_obj = new WP_User( $user->ID );
 			if ( ( 'keymaster' != $role || bb_current_user_can( 'keep_gate' ) ) && !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
 				$old_role = $user_obj->roles[0];
 				if ( $bb_current_id != $user->ID || 'keymaster' != $old_role ) // keymasters cannot demote themselves

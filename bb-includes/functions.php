@@ -307,7 +307,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 
 		if ( $ids = $bbdb->get_col( "SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = 'favorites' and FIND_IN_SET('$topic_id', meta_value) > 0" ) )
 			foreach ( $ids as $id )
-			  bb_remove_user_favorite( $id, $topic_id );
+				bb_remove_user_favorite( $id, $topic_id );
 
 		if ( $new_status ) {
 			bb_remove_topic_tags( $topic_id );
@@ -370,8 +370,8 @@ function bb_topic_set_last_post( $topic_id ) {
 	$old_post = $bbdb->get_row( $bbdb->prepare(
 		"SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0 ORDER BY post_time DESC LIMIT 1", $topic_id
 	) );
-	$old_name = $bbdb->get_var( $bbdb->prepare( "SELECT user_login FROM $bbdb->users WHERE ID = %d", $old_post->poster_id ) );
-	return $bbdb->update( $bbdb->topics, array( 'topic_time' => $old_post->post_time, 'topic_last_poster' => $old_post->poster_id, 'topic_last_poster_name' => $old_name, 'topic_last_post_id' => $old_post->post_id ), compact( 'topic_id' ) );
+	$old_poster = bb_get_user( $old_post->poster_id );
+	return $bbdb->update( $bbdb->topics, array( 'topic_time' => $old_post->post_time, 'topic_last_poster' => $old_post->poster_id, 'topic_last_poster_name' => $old_poster->login_name, 'topic_last_post_id' => $old_post->post_id ), compact( 'topic_id' ) );
 }	
 
 function bb_close_topic( $topic_id ) {
@@ -1137,59 +1137,29 @@ function bb_block_current_user() {
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
-function bb_get_user( $user_id, $cache = true ) {
-	global $bb_cache, $bb_user_cache;
-	if ( !is_numeric( $user_id ) ) {
-		if ( is_string($user_id) )
-			return bb_get_user_by_name( $user_id );
-		else
-			return false;
-	}
-	$user_id = (int) $user_id;
-	if ( isset( $bb_user_cache[$user_id] ) && $cache )
-		return $bb_user_cache[$user_id];
-	else
-		return $bb_cache->get_user( $user_id, $cache );
-}
-
-function bb_cache_users( $ids, $soft_cache = true ) {
-	global $bb_cache, $bb_user_cache;
-	if ( $soft_cache )
-		foreach( $ids as $i => $d )
-			if ( isset($bb_user_cache[$d]) )
-				unset($ids[i]); // Don't cache what we already have
-	if ( 0 < count($ids) )
-		$bb_cache->cache_users( $ids );
-}
-
-function bb_get_user_by_name( $name ) {
-	global $bbdb;
-	$name = sanitize_user( $name );
-	if ( $user_id = $bbdb->get_var( $bbdb->prepare( "SELECT ID FROM $bbdb->users WHERE user_login = %s", $name ) ) )
-		return bb_get_user( $user_id );
-	else
+function bb_get_user( $user_id ) {
+	global $wp_users_object;
+	$user = $wp_users_object->get_user( $user_id );
+	if ( is_wp_error($user) )
 		return false;
+	return $user;
+}
+
+function bb_cache_users( $ids ) {
+	global $wp_users_object;
+	$wp_users_object->get_user( $ids );
 }
 
 function bb_get_user_by_nicename( $nicename ) {
-	global $bbdb;
-	$nicename = sanitize_user( $nicename );
-	if ( $user_id = $bbdb->get_var( $bbdb->prepare( "SELECT ID FROM $bbdb->users WHERE user_nicename = %s", $nicename ) ) )
-		return bb_get_user( $user_id );
-	else
+	global $wp_users_object;
+	$user = $wp_users_object->get_user( $user_id, array( 'by' => 'nicename' ) );
+	if ( is_wp_error($user) )
 		return false;
-}
-
-function bb_user_exists( $user ) {
-	global $bbdb;
-	$user = sanitize_user( $user );
-	return $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user ));
+	return $user;
 }
 
 function bb_delete_user( $user_id, $reassign = 0 ) {
-	global $bbdb, $bb_cache;
-
-	$reassign = (int) $reassign;
+	global $wp_users_object;
 
 	if ( !$user = bb_get_user( $user_id ) )
 		return false;
@@ -1202,14 +1172,11 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 		$bbdb->update( $bbdb->topics, array( 'topic_poster' => $new_user->ID, 'topic_poster_name' => $new_user->user_login), array( 'topic_poster' => $user->ID ) );
 		$bbdb->update( $bbdb->topics, array( 'topic_last_poster' => $new_user->ID, 'topic_last_poster_name' => $new_user->user_login ), array( 'topic_last_poster' => $user->ID ) );
 		bb_update_topics_replied( $new_user->ID );
-		$bb_cache->flush_one( 'user', $new_user->ID );
 	}
 
 	do_action( 'bb_delete_user', $user->ID, $reassign );
 
-	$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->users WHERE ID = %d", $user->ID ) );
-	$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->usermeta WHERE user_id = %d", $user->ID ) );
-	$bb_cache->flush_one( 'user', $user->ID );
+	$wp_users_object->delete_user( $user->ID );
 
 	return true;
 }
@@ -1227,13 +1194,12 @@ function bb_update_topics_replied( $user_id ) {
 }
 
 function update_user_status( $user_id, $user_status = 0 ) {
-	global $bbdb, $bb_cache;
+	global $wp_users_object;
 	$user = bb_get_user( $user_id );
 	$user_status = (int) $user_status;
-	if ( $user->ID != bb_get_current_user_info( 'id' ) && bb_current_user_can( 'edit_users' ) ) :
-		$bbdb->update( $bbdb->users, campact( 'user_status'), array( 'ID' => $user->ID ) );
-		$bb_cache->flush_one( 'user', $user->ID );
-	endif;
+
+	if ( $user->ID != bb_get_current_user_info( 'id' ) && bb_current_user_can( 'edit_users' ) )
+		$wp_users_object->update_user( $user->ID, compact( 'user_status' ) );
 }
 
 function bb_trusted_roles() {
@@ -1242,10 +1208,10 @@ function bb_trusted_roles() {
 
 function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
 	if ( is_numeric($user) || is_string($user) )
-		$user = new BB_User( $user );
-	elseif ( is_object($user) && is_a($user, 'BB_User') ); // Intentional
+		$user = new WP_User( $user );
+	elseif ( is_object($user) && is_a($user, 'WP_User') ); // Intentional
 	elseif ( is_object($user) && isset($user->ID) && isset($user->user_login) ) // Make sure it's actually a user object
-		$user = new BB_User( $user->ID );
+		$user = new WP_User( $user->ID );
 	else
 		return;
 
@@ -1537,11 +1503,8 @@ function bb_append_meta( $object, $type ) {
 	global $bbdb;
 	switch ( $type ) :
 	case 'user' :
-		global $bb_user_cache;
-		$cache =& $bb_user_cache;
-		$table = $bbdb->usermeta;
-		$field = 'user_id';
-		$id = 'ID';
+		global $wp_users_object;
+		return $wp_users_object->append_meta( $object );
 		break;
 	case 'topic' :
 		global $bb_topic_cache;
@@ -1613,17 +1576,18 @@ function bb_delete_topicmeta( $topic_id, $meta_key, $meta_value = '' ) {
 }
 
 // Internal use only.  Use API.
-function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = false ) {
+function bb_update_meta( $id, $meta_key, $meta_value, $type, $global = false ) {
 	global $bbdb, $bb_cache;
-	if ( !is_numeric( $type_id ) || empty($type_id) && !$global )
+	if ( !is_numeric( $id ) || empty($id) && !$global )
 		return false;
-	$type_id = (int) $type_id;
+	$id = (int) $id;
 	switch ( $type ) :
 	case 'user' :
-		global $bb_user_cache;
-		$cache =& $bb_user_cache;
-		$table = $bbdb->usermeta;
-		$field = 'user_id';
+		global $wp_users_object;
+		$return = $wp_users_object->update_meta( compact( 'id', 'meta_key', 'meta_value' ) );
+		if ( is_wp_error($return) )
+			return false;
+		return $return;
 		break;
 	case 'topic' :
 		global $bb_topic_cache;
@@ -1644,37 +1608,34 @@ function bb_update_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	$meta_value = $_meta_value = bb_maybe_serialize( $meta_value );
 	$meta_value = bb_maybe_unserialize( $meta_value );
 
-	$cur = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $table WHERE $field = %d AND meta_key = %s", $type_id, $meta_key ) );
+	$cur = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $table WHERE $field = %d AND meta_key = %s", $id, $meta_key ) );
 	if ( !$cur ) {
-		$bbdb->insert( $table, array( $field => $type_id, 'meta_key' => $meta_key, 'meta_value' => $_meta_value ) );
+		$bbdb->insert( $table, array( $field => $id, 'meta_key' => $meta_key, 'meta_value' => $_meta_value ) );
 	} elseif ( $cur->meta_value != $meta_value ) {
-		$bbdb->update( $table, array( 'meta_value' => $_meta_value), array( $field => $type_id, 'meta_key' => $meta_key ) );
+		$bbdb->update( $table, array( 'meta_value' => $_meta_value), array( $field => $id, 'meta_key' => $meta_key ) );
 	}
 
-	if ( isset($cache[$type_id]) ) {
-		$cache[$type_id]->{$meta_key} = $meta_value;
+	if ( isset($cache[$id]) ) {
+		$cache[$id]->{$meta_key} = $meta_value;
 		if ( 0 === strpos($meta_key, $bbdb->prefix) )
-			$cache[$type_id]->{substr($meta_key, strlen($bbdb->prefix))} = $cache[$type_id]->{$meta_key};
+			$cache[$id]->{substr($meta_key, strlen($bbdb->prefix))} = $cache[$id]->{$meta_key};
 	}
 
-	$bb_cache->flush_one( $type, $type_id );
+	$bb_cache->flush_one( $type, $id );
 	if ( !$cur )
 		return true;
 }
 
 // Internal use only.  Use API.
-function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = false ) {
+function bb_delete_meta( $id, $meta_key, $meta_value, $type, $global = false ) {
 	global $bbdb, $bb_cache;
-	if ( !is_numeric( $type_id ) || empty($type_id) && !$global )
+	if ( !is_numeric( $id ) || empty($id) && !$global )
 		return false;
-	$type_id = (int) $type_id;
+	$id = (int) $id;
 	switch ( $type ) :
 	case 'user' :
-		global $bb_user_cache;
-		$cache =& $bb_user_cache;
-		$table = $bbdb->usermeta;
-		$field = 'user_id';
-		$meta_id_field = 'umeta_id';
+		global $wp_users_object;
+		return $wp_users_object->update_meta( compact( 'id', 'meta_key', 'meta_value' ) );
 		break;
 	case 'topic' :
 		global $bb_topic_cache;
@@ -1694,40 +1655,20 @@ function bb_delete_meta( $type_id, $meta_key, $meta_value, $type, $global = fals
 	$meta_value = bb_maybe_serialize( $meta_value );
 
 	$meta_sql = empty($meta_value) ? 
-		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s", $type_id, $meta_key ) :
-		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s AND meta_value = %s", $type_id, $meta_key, $meta_value );
+		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s", $id, $meta_key ) :
+		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s AND meta_value = %s", $id, $meta_key, $meta_value );
 
 	if ( !$meta_id = $bbdb->get_var( $meta_sql ) )
 		return false;
 
 	$bbdb->query( $bbdb->prepare( "DELETE FROM $table WHERE $meta_id_field = %d", $meta_id ) );
 
-	unset($cache[$type_id]->{$meta_key});
+	unset($cache[$id]->{$meta_key});
 	if ( 0 === strpos($meta_key, $bbdb->prefix) )
-		unset($cache[$type_id]->{substr($meta_key, strlen($bbdb->prefix))});
+		unset($cache[$id]->{substr($meta_key, strlen($bbdb->prefix))});
 
-	$bb_cache->flush_one( $type, $type_id );
+	$bb_cache->flush_one( $type, $id );
 	return true;
-}
-
-function bb_maybe_serialize( $data ) {
-	if ( is_string($data) )
-		$data = trim($data);
-	elseif ( is_array($data) || is_object($data) || is_bool($data) )
-		return serialize($data);
-	if ( is_serialized( $data ) )
-		return serialize($data);
-	return $data;
-}
-
-function bb_maybe_unserialize( $data ) {
-	if ( is_serialized( $data ) ) {
-		if ( 'b:0;' === $data )
-			return false;
-		if ( false !== $_data = @unserialize($data) )
-			return $_data;
-	}
-	return $data;
 }
 
 /* Pagination */
@@ -2040,7 +1981,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	if ( $viewer_id == bb_get_current_user_info( 'id' ) )
 		$viewer =& $bb_current_user;
 	else
-		$viewer = new BB_User( $viewer_id );
+		$viewer = new WP_User( $viewer_id );
 	if ( !$viewer )
 		return false;
 

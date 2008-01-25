@@ -64,16 +64,40 @@ require( BBPATH . BBINC . 'db.php' );
 if ( !defined('BBLANGDIR') )
 	define('BBLANGDIR', BBPATH . BBINC . 'languages/'); // absolute path with trailing slash
 
+if ( !defined( 'BACKPRESS_PATH' ) )
+	define( 'BACKPRESS_PATH', BBPATH . BBINC . 'backpress/' );
+
 // Include functions
+require( BACKPRESS_PATH . 'functions.core.php' );
 require( BBPATH . BBINC . 'compat.php');
 require( BBPATH . BBINC . 'wp-functions.php');
 require( BBPATH . BBINC . 'functions.php');
-require( BBPATH . BBINC . 'wp-classes.php');
 require( BBPATH . BBINC . 'classes.php');
-if ( defined('BBLANG') && '' != constant('BBLANG') ) {
-	include_once(BBPATH . BBINC . 'streams.php');
-	include_once(BBPATH . BBINC . 'gettext.php');
+
+// Plugin API
+if ( !function_exists( 'add_filter' ) )
+	require( BACKPRESS_PATH . 'functions.plugin-api.php' );
+
+// Object Cache
+if ( !class_exists( 'WP_Object_Cache' ) ) {
+	require( BACKPRESS_PATH . 'class.wp-object-cache.php' );
+	require( BACKPRESS_PATH . 'functions.wp-object-cache.php' );
 }
+if ( !isset($wp_object_cache) )
+	$wp_object_cache = new WP_Object_Cache();
+
+// Gettext
+if ( defined('BBLANG') && '' != constant('BBLANG') ) {
+	if ( !class_exists( 'gettext_reader' ) )
+		require( BACKPRESS_PATH . 'class.gettext-reader.php' );
+	if ( !class_exists( 'StreamReader' ) )
+		require( BACKPRESS_PATH . 'class.streamreader.php' );
+}
+
+// WP_Error
+if ( !class_exists( 'WP_Error' ) )
+	require( BACKPRESS_PATH . 'class.wp-error.php' );
+
 if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
 	require( BBPATH . BBINC . 'kses.php');
 	require( BBPATH . BBINC . 'l10n.php');
@@ -283,6 +307,58 @@ if ( !isset( $bb->sitecookiepath ) ) {
 }
 
 
+/* BackPress */
+
+// WP_Users
+if ( !class_exists( 'WP_Users' ) ) {
+	require( BACKPRESS_PATH . 'class.wp-users.php' );
+	$wp_users_object = new WP_Users( &$bbdb );
+}
+
+if ( !class_exists( 'BP_Roles' ) )
+	require( BACKPRESS_PATH . 'class.bp-roles.php' );
+
+// WP_User
+if ( !class_exists( 'WP_User' ) )
+	require( BACKPRESS_PATH . 'class.wp-user.php' );
+
+// WP_Auth
+if ( !class_exists( 'WP_Auth' ) ) {
+	require( BACKPRESS_PATH . 'class.wp-auth.php' );
+	$wp_auth_object = new WP_Auth( $bbdb, array(
+		'domain' => $bb->cookiedomain,
+		'path' => array( $bb->cookiepath, $bb->sitecookiepath ),
+		'name' => $bb->authcookie
+	) );
+}
+$bb_current_user =& $wp_auth_object->current;
+
+// WP_Scripts
+if ( !isset($wp_scripts) ) {
+	if ( !class_exists( 'WP_Scripts' ) ) {
+		require( BACKPRESS_PATH . 'class.wp-scripts.php' );
+		require( BACKPRESS_PATH . 'functions.wp-scripts.php' );
+	}
+	$wp_scripts = new WP_Scripts( $bb->uri, bb_get_option( 'version' ) );
+} else {
+	bb_default_scripts( &$wp_scripts );
+}
+
+// WP_Taxonomy
+if ( !class_exists( 'WP_Taxonomy' ) )
+	require( BACKPRESS_PATH . 'class.wp-taxonomy.php' );
+if ( !class_exists( 'BB_Taxonomy' ) )
+	require( BBPATH . BBINC . 'class-bb-taxonomy.php' );
+if ( !isset($wp_taxonomy_object) ) { // Clean slate
+	$wp_taxonomy_object = new BB_Taxonomy( $bbdb );
+} elseif ( !is_a($wp_taxonomy_object, 'BB_Taxonomy') ) { // exists, but it's not good enough, translate it
+	$tax =& $wp_taxonomy_object->taxonomies; // preserve the references
+	$wp_taxonomy_object = new BB_Taxonomy( $bbdb );
+	$wp_taxonomy_object->taxonomies =& $tax;
+	unset($tax);
+}
+$wp_taxonomy_object->register_taxonomy( 'bb_topic_tag', 'bb_topic', array( 'hierarchical' => false ) );
+
 // Set the path to the tag pages
 if ( !isset( $bb->tagpath ) )
 	$bb->tagpath = $bb->path;
@@ -312,7 +388,7 @@ load_default_textdomain();
 require_once(BBPATH . BBINC . 'locale.php');
 $bb_locale = new BB_Locale();
 
-$bb_roles  = new BB_Roles();
+$bb_roles =& $wp_roles;
 do_action('bb_got_roles', '');
 
 function bb_shutdown_action_hook() {

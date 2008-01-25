@@ -23,7 +23,7 @@ if ( isset($_GET['message']) ) {
 }
 
 if ( !isset($_GET['action']) )
-	bb_enqueue_script( 'content-forums' );
+	wp_enqueue_script( 'content-forums' );
 
 bb_get_admin_header();
 ?>

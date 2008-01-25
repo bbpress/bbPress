@@ -262,9 +262,9 @@ function bb_get_roles_dropdown($name = 'roles', $set = false) {
 	$roles = '<select id="' . $name . '" name="' . $name . '">' . "\n";
 	$roles .= '<option value="">' . __('none') . '</option>' . "\n";
 	
-	global $bb_roles;
+	global $wp_roles;
 	
-	foreach ($bb_roles->get_names() as $key => $value) {
+	foreach ($wp_roles->get_names() as $key => $value) {
 		if ($key == $set) {
 			$selected = ' selected="selected"';
 		} else {
