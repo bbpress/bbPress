@@ -38,8 +38,10 @@ function bb_current_user_is_bozo( $topic_id = false ) {
 	global $bb_current_user;
 	if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] )
 		return false;
-	if ( !$topic_id )
-		return isset($bb_current_user->data->is_bozo) && $bb_current_user->data->is_bozo;
+	$is_bozo = isset($bb_current_user->data->is_bozo) && $bb_current_user->data->is_bozo;
+	if ( !$topic_id || $is_bozo )
+		return $is_bozo;
+
 	global $topic;
 	$topic = get_topic( $topic_id );
 	$id = bb_get_current_user_info( 'id' );
