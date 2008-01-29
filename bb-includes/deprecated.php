@@ -218,7 +218,11 @@ function encode_bad( $text ) {
 }
 
 function user_sanitize( $text, $strict = false ) {
-	return bb_user_sanitize( $text, $strict );
+	return sanitize_user( $text, $strict );
+}
+
+function bb_user_sanitize( $text, $strict = false ) {
+	return sanitize_user( $text, $strict );
 }
 
 function utf8_cut( $utf8_string, $length ) {
@@ -231,6 +235,10 @@ function tag_sanitize( $tag ) {
 
 function sanitize_with_dashes( $text, $length = 200 ) { // Multibyte aware
 	return bb_sanitize_with_dashes( $text, $length ) ;
+}
+
+function bb_make_feed( $link ) {
+	return trim( $link );
 }
 
 function show_context( $term, $text ) {
@@ -516,4 +524,23 @@ function bb_pull_cols( $obj_array ) {
 		$a[] = $r->$arg;
 	return $a;
 }
+
+// $length parameter is deprecated
+function bb_random_pass( $length ) {
+	return wp_generate_password();
+}
+
+// Old RSS related functions
+function get_recent_rss_link() {
+	return bb_get_posts_rss_link();
+}
+
+function forum_rss_link( $forum_id = 0 ) {
+	echo bb_get_forum_posts_rss_link( $forum_id );
+}
+
+function get_forum_rss_link( $forum_id = 0 ) {
+	return bb_get_forum_posts_rss_link( $forum_id );
+}
+
 ?>

@@ -2,26 +2,30 @@
 
 function bb_install() {
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
-	bb_make_db_current();
+	$alterations = bb_dbDelta($bb_queries);
 	bb_update_db_version();
+	return $alterations;
 }
 
 function bb_upgrade_all() {
 	if ( !ini_get('safe_mode') )
 		set_time_limit(600);
-	$bb_upgrade = 0;
-	$bb_upgrade += bb_upgrade_160(); // Break blocked users
-	$bb_upgrade += bb_upgrade_170(); // Escaping in usermeta
-	$bb_upgrade += bb_upgrade_180(); // Delete users for real
-	$bb_upgrade += bb_upgrade_190(); // Move topic_resolved to topicmeta
-	$bb_upgrade += bb_upgrade_200(); // Indices
-	$bb_upgrade += bb_upgrade_210(); // Convert text slugs to varchar slugs
+	$bb_upgrade = array();
+	$bb_upgrade[] = bb_upgrade_160(); // Break blocked users
+	$bb_upgrade[] = bb_upgrade_170(); // Escaping in usermeta
+	$bb_upgrade[] = bb_upgrade_180(); // Delete users for real
+	$bb_upgrade[] = bb_upgrade_190(); // Move topic_resolved to topicmeta
+	$bb_upgrade[] = bb_upgrade_200(); // Indices
+	$bb_upgrade[] = bb_upgrade_210(); // Convert text slugs to varchar slugs
+	$bb_upgrade[] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
 	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
-	bb_make_db_current();
-	$bb_upgrade += bb_upgrade_1000(); // Make forum and topic slugs
-	$bb_upgrade += bb_upgrade_1010(); // Make sure all forums have a valid parent
+	$bb_upgrade = array_merge($bb_upgrade, bb_dbDelta($bb_queries));
+	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
+	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent
+	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
+	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
 	bb_update_db_version();
-	return $bb_upgrade;
+	return $bb_upgrade; 
 }
 
 function bb_dbDelta($queries, $execute = true) {
@@ -41,7 +45,7 @@ function bb_dbDelta($queries, $execute = true) {
 	foreach($queries as $qry) {
 		if(preg_match("|CREATE TABLE ([^ ]*)|", $qry, $matches)) {
 			$cqueries[strtolower($matches[1])] = $qry;
-			$for_update[$matches[1]] = 'Created table '.$matches[1];
+			$for_update[strtolower($matches[1])] = 'Create table '.$matches[1];
 		}
 		else if(preg_match("|CREATE DATABASE ([^ ]*)|", $qry, $matches)) {
 			array_unshift($cqueries, $qry);
@@ -187,7 +191,7 @@ function bb_dbDelta($queries, $execute = true) {
 						}
 						$index_columns = '';
 						// For each column in the index
-						foreach($index_data['columns'] as $column_data) {					
+						foreach($index_data['columns'] as $column_data) {
 							if($index_columns != '') $index_columns .= ',';
 							// Add the field to the column list string
 							$index_columns .= $column_data['fieldname'];
@@ -224,9 +228,22 @@ function bb_dbDelta($queries, $execute = true) {
 
 	$allqueries = array_merge($cqueries, $iqueries);
 	if($execute) {
-		foreach($allqueries as $query) {
+		foreach($allqueries as $query_index => $query) {
 			//echo "<pre style=\"border:1px solid #ccc;margin-top:5px;\">".print_r($query, true)."</pre>\n";
-			$bbdb->query($query);
+			$result = $bbdb->query($query);
+			if ( is_array($result) ) {
+				// There was an error and $bbdb->show_errors = 2
+				$for_update[$query_index] = array(
+					'original' => array(
+						'message' => $for_update[$query_index],
+						'query'   => $query
+					),
+					'error' => array(
+						'message' => $result['error_str'],
+						'query'   => $result['query']
+					)
+				);
+			}
 		}
 	}
 
@@ -318,18 +335,18 @@ function bb_upgrade_process_all_slugs() {
 // Reversibly break passwords of blocked users.
 function bb_upgrade_160() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 535 )
-		return 0;
+		return;
 
 	require_once('admin-functions.php');
 	$blocked = bb_get_ids_by_role( 'blocked' );
 	foreach ( $blocked as $b )
 		bb_break_password( $b );
-	return 1;
+	return 'Done reversibly breaking passwords: ' . __FUNCTION__;
 }
 
 function bb_upgrade_170() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 536 )
-		return 0;
+		return;
 
 	global $bbdb;
 	foreach ( (array) $bbdb->get_results("SELECT * FROM $bbdb->usermeta WHERE meta_value LIKE '%&quot;%' OR meta_value LIKE '%&#039;%'") as $meta ) {
@@ -338,26 +355,24 @@ function bb_upgrade_170() {
 		bb_update_usermeta( $meta->user_id, $meta->meta_key, $value);
 	}
 	bb_update_option( 'bb_db_version', 536 );
-	echo "Done updating usermeta<br />";
-	return 1;
+	return 'Done updating usermeta: ' . __FUNCTION__;
 }
 
 function bb_upgrade_180() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 559 )
-		return 0;
+		return;
 
 	global $bbdb;
 
 	foreach ( (array) $bbdb->get_col("SELECT ID FROM $bbdb->users WHERE user_status = 1") as $user_id )
 		bb_delete_user( $user_id );
 	bb_update_option( 'bb_db_version', 559 );
-	echo "Done clearing deleted users<br />";
-	return 1;
+	return 'Done clearing deleted users: ' . __FUNCTION__;
 }
 
 function bb_upgrade_190() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 630 )
-		return 0;
+		return;
 
 	global $bbdb;
 
@@ -366,7 +381,7 @@ function bb_upgrade_190() {
 		if ( 'topic_resolved' == $col )
 			$exists = true;
 	if ( !$exists )
-		return 0;
+		return;
 
 	$topics = (array) $bbdb->get_results("SELECT topic_id, topic_resolved FROM $bbdb->topics" );
 	foreach ( $topics  as $topic )
@@ -377,13 +392,12 @@ function bb_upgrade_190() {
 
 	bb_update_option( 'bb_db_version', 630 );
 
-	echo "Done converting topic_resolved.<br />";
-	return 1;
+	return 'Done converting topic_resolved: ' . __FUNCTION__;
 }
 
 function bb_upgrade_200() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 845 )
-		return 0;
+		return;
 
 	global $bbdb;
 
@@ -400,16 +414,14 @@ function bb_upgrade_200() {
 
 	bb_update_option( 'bb_db_version', 845 );
 
-	echo "Done removing old indices.<br />";
-	return 1;
-
+	return 'Done removing old indices: ' . __FUNCTION__;
 }
 
 // 210 converts text slugs to varchar(255) width slugs (upgrading from alpha version - fires before dbDelta)
 // 1000 Gives new slugs (upgrading from previous release - fires after dbDelta)
 function bb_upgrade_210() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 846 )
-		return 0;
+		return;
 
 	global $bbdb;
 
@@ -422,27 +434,37 @@ function bb_upgrade_210() {
 
 	bb_update_option( 'bb_db_version', 846 );
 	
-	echo "Done adding slugs.<br />";
-	return 1;
+	return 'Done adding slugs: ' . __FUNCTION__;
+}
+
+function bb_upgrade_220() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1051 )
+		return;
+
+	global $bbdb;
+
+	$bbdb->query( "ALTER TABLE $bbdb->tagged DROP PRIMARY KEY" );
+	$bbdb->query( "ALTER TABLE $bbdb->tagged ADD tagged_id bigint(20) unsigned NOT NULL auto_increment PRIMARY KEY FIRST" );
+
+	return "Done removing key from $bbdb->tagged: " . __FUNCTION__;
 }
 
 function bb_upgrade_1000() { // Give all topics and forums slugs
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 846 )
-		return 0;
+		return;
 
 	bb_upgrade_process_all_slugs();
 
 	bb_update_option( 'bb_db_version', 846 );
 	
-	echo "Done adding slugs.<br />";
-	return 1;
+	return 'Done adding slugs: ' . __FUNCTION__;;
 }
 
 // Make sure all forums have a valid parent
 function bb_upgrade_1010() {
 	global $bbdb;
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 952 )
-		return 0;
+		return;
 
 	$forums = (array) $bbdb->get_results( "SELECT forum_id, forum_parent FROM $bbdb->forums" );
 	$forum_ids = (array) $bbdb->get_col( '', 0 );
@@ -454,8 +476,47 @@ function bb_upgrade_1010() {
 
 	bb_update_option( 'bb_db_version', 952 );
 	
-	echo "Done reparenting orphaned forums.<br />";
-	return 1;
+	return 'Done re-parenting orphaned forums: ' . __FUNCTION__;
+}
+
+// Add a nicename for existing users if they don't have one already
+function bb_upgrade_1020() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 977 )
+		return;
+	
+	global $bbdb;
+	
+	$users = $bbdb->get_results( "SELECT ID, user_login, user_nicename FROM $bbdb->users WHERE user_nicename IS NULL OR user_nicename = ''" );
+	
+	if ( $users ) {
+		foreach ( $users as $user ) {
+			$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user->user_login );
+			while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
+				$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
+			
+			$bbdb->query( "UPDATE $bbdb->users SET user_nicename = '$user_nicename' WHERE ID = $user->ID;" );
+		}
+	}
+	
+	bb_update_option( 'bb_db_version', 977 );
+	
+	return 'Done adding nice-names to existing users: ' . __FUNCTION__;
+}
+
+// Move admin_email option to from_email
+function bb_upgrade_1030() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1058 )
+		return;
+	
+	$admin_email = bb_get_option('admin_email');
+	if ($admin_email) {
+		bb_update_option('from_email', $admin_email);
+	}
+	bb_delete_option('admin_email');
+	
+	bb_update_option( 'bb_db_version', 1058 );
+	
+	return 'Done moving admin_email to from_email: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {

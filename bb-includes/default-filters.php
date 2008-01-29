@@ -12,7 +12,6 @@ add_filter('get_forum_posts', 'bb_number_format_i18n');
 add_filter('topic_time', 'bb_offset_time', 10, 2);
 add_filter('topic_start_time', 'bb_offset_time', 10, 2);
 add_filter('bb_post_time', 'bb_offset_time', 10, 2);
-add_filter('get_topic_link', 'bb_add_replies_to_topic_link', 10, 2);
 
 add_filter('pre_topic_title', 'wp_specialchars');
 add_filter('get_forum_name', 'wp_specialchars');
@@ -24,9 +23,7 @@ add_filter('pre_post', 'trim');
 add_filter('pre_post', 'bb_encode_bad');
 add_filter('pre_post', 'bb_code_trick');
 add_filter('pre_post', 'force_balance_tags');
-add_filter('pre_post', 'stripslashes', 40); // KSES doesn't like escaped atributes
 add_filter('pre_post', 'bb_filter_kses', 50);
-add_filter('pre_post', 'addslashes', 55);
 add_filter('pre_post', 'bb_autop', 60);
 
 add_filter('post_text', 'make_clickable');
@@ -79,7 +76,12 @@ if ( is_bb_feed() ) {
 	add_filter( 'post_text', 'ent2ncr' );
 }
 
-bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1 ) );
+// no posts (besides the first one), older than 2 hours
+bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1, 'started' => '<' . gmdate( 'YmdH', time() - 7200 ) ) );
 bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
+
+if ( bb_get_option( 'wp_table_prefix' ) ) {
+	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
+}
 
 ?>

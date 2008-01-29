@@ -8,7 +8,8 @@ class BB_Cache {
 	function BB_Cache() {
 		if ( false === bb_get_option( 'use_cache' ) || !is_writable(BBPATH . 'bb-cache/') )
 			$this->use_cache = false;
-		else	$this->flush_old();
+		else
+			$this->flush_old();
 	}
 
 	function get_user( $user_id, $use_cache = true ) {
@@ -19,7 +20,7 @@ class BB_Cache {
 			$bb_user_cache[$user_id] = $this->read_cache(BBPATH . 'bb-cache/bb_user-' . $user_id);
 			return $bb_user_cache[$user_id];
 		else :
-			if ( $user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE ID = $user_id") ) :
+			if ( $user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE ID = %d", $user_id ) ) ) :
 				bb_append_meta( $user, 'user' );
 			else :
 				$bb_user_cache[$user_id] = false;
@@ -49,8 +50,11 @@ class BB_Cache {
 		return $bb_user_cache[$user->ID];
 	}
 
+	// NOT bbdb::prepared
 	function cache_users( $ids, $use_cache = true ) {
 		global $bbdb, $bb_user_cache;
+
+		$ids = array_map( 'intval', $ids );
 
 		if ( $use_cache && $this->use_cache ) :
 				foreach ( $ids as $i => $user_id ) :
@@ -76,6 +80,7 @@ class BB_Cache {
 		return;
 	}
 
+	// NOT bbdb::prepared
 	function get_topic( $topic_id, $use_cache = true ) {
 		global $bbdb, $bb_topic_cache;
 		$topic_id = (int) $topic_id;
@@ -100,6 +105,7 @@ class BB_Cache {
 		return $bb_topic_cache[$topic_id];
 	}
 
+	// NOT bbdb::prepared
 	function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
 		global $bbdb, $bb_post_cache;
 		$topic_id = (int) $topic_id;
@@ -109,7 +115,7 @@ class BB_Cache {
 		if ( 'AND post_status = 0' != $where = apply_filters('get_thread_where', 'AND post_status = 0') )
 			$normal = false;
 
-		$limit = bb_get_option('page_topics');
+		$limit = (int) bb_get_option('page_topics');
 		if ( 1 < $page )
 			$limit = ($limit * ($page - 1)) . ", $limit";
 		$order = $reverse ? 'DESC' : 'ASC';
@@ -129,6 +135,7 @@ class BB_Cache {
 		return $thread;
 	}
 
+	// NOT bbdb::prepared
 	function cache_posts( $query ) { // soft cache
 		global $bbdb, $bb_post_cache;
 		if ( $posts = (array) $bbdb->get_results( $query ) )
@@ -137,6 +144,7 @@ class BB_Cache {
 		return $posts;
 	}
 
+	// NOT bbdb::prepared
 	function get_forums() {
 		global $bbdb, $bb_forum_cache;
 

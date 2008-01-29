@@ -124,6 +124,22 @@ if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 	echo "\n\t</li>\n";
 endif;
 
+if ( isset($_POST['clean-favorites']) && 1 == $_POST['clean-favorites'] ):
+	echo "\t<li>\n";
+	if ( $users = $bbdb->get_results("SELECT user_id AS id, meta_value AS favorites FROM $bbdb->usermeta WHERE meta_key = 'favorites'") ) :
+		echo "\t\t" . __('Removing deleted topics from users\' favorites...') . "<br />\n";
+		$topics = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE topic_status = '0'");
+		foreach ( $users as $user ) {
+			foreach ( explode(',', $user->favorites) as $favorite )
+				if ( !in_array($favorite, $topics) )
+					bb_remove_user_favorite( $user->id, $favorite );
+		}
+		unset($topics, $users, $user, $favorite);
+	endif;
+	echo "\t\t" . __('Done removing deleted topics from users\' favorites.');
+	echo "\n\t</li>\n";
+endif;
+
 bb_recount_list();
  if ( $recount_list )
 	foreach ( (array) $recount_list as $item )

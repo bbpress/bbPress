@@ -2,48 +2,48 @@
 
 if ( !function_exists('bb_auth') ) :
 function bb_auth() {
-	// Checks if a user is logged in, if not redirects them to the login page
-	if ( (!empty($_COOKIE[bb_get_option( 'usercookie' )]) && 
-				!bb_check_login($_COOKIE[bb_get_option( 'usercookie' )], $_COOKIE[bb_get_option( 'passcookie' )], true)) ||
-			 (empty($_COOKIE[bb_get_option( 'usercookie' )])) ) {
+	// Checks if a user has a valid cookie, if not redirects them to the login page
+	if (!wp_validate_auth_cookie()) {
 		nocache_headers();
-
 		header('Location: ' . bb_get_option('uri'));
 		exit();
 	}
 }
 endif;
 
+// $already_md5 variable is deprecated
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $bbdb;
-	$user = bb_user_sanitize( $user );
-	if ( !$already_md5 ) {
-		$pass = bb_user_sanitize( md5( $pass ) );
-		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND SUBSTRING_INDEX( user_pass, '---', 1 ) = '$pass'");
-	} else {
-		return $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'");
+	$user = sanitize_user( $user );
+	if ($user == '') {
+		return false;
 	}
-}
-endif;
-
-if ( !function_exists('bb_cookie') ) :
-function bb_cookie( $name, $value, $expires = 0 ) {
-	if ( !$expires )
-		$expires = time() + 604800;
-	if ( bb_get_option( 'cookiedomain' ) )
-		setcookie( $name, $value, $expires, bb_get_option( 'cookiepath' ), bb_get_option( 'cookiedomain' ) );
-	else
-		setcookie( $name, $value, $expires, bb_get_option( 'cookiepath' ) );
+	$user = bb_get_user_by_name( $user );
+	
+	if ( !wp_check_password($pass, $user->user_pass) ) {
+		return false;
+	}
+	
+	// If using old md5 password, rehash.
+	if ( strlen($user->user_pass) <= 32 ) {
+		$hash = wp_hash_password($pass);
+		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->users SET user_pass = %s WHERE ID = %d", $hash, $user->ID ) );
+		global $bb_cache;
+		$bb_cache->flush_one( 'user', $user->ID );
+		$user = bb_get_user( $user->ID );
+	}
+	
+	return $user;
 }
 endif;
 
 if ( !function_exists('bb_get_current_user') ) :
 function bb_get_current_user() {
 	global $bb_current_user;
-
+	
 	bb_current_user();
-
+	
 	return $bb_current_user;
 }
 endif;
@@ -51,10 +51,10 @@ endif;
 if ( !function_exists('bb_set_current_user') ) :
 function bb_set_current_user($id) {
 	global $bb_current_user;
-
+	
 	if ( isset($bb_current_user) && ($id == $bb_current_user->ID) )
 		return $bb_current_user;
-
+	
 	if ( empty($id) ) {
 		$bb_current_user = 0;
 	} else {
@@ -62,9 +62,9 @@ function bb_set_current_user($id) {
 		if ( !$bb_current_user->ID )
 			$bb_current_user = 0;
 	}
-
+	
 	do_action('bb_set_current_user', $id);
-
+	
 	return $bb_current_user;
 }
 endif;
@@ -73,36 +73,21 @@ if ( !function_exists('bb_current_user') ) :
 //This is only used at initialization.  Use bb_get_current_user_info() (or $bb_current_user global if really needed) to grab user info.
 function bb_current_user() {
 	global $bb_current_user;
-
+	
 	if ( defined( 'BB_INSTALLING' ) )
 		return false;
-
+	
 	if ( ! empty($bb_current_user) )
 		return $bb_current_user;
-
-	global $bbdb, $bb_cache, $bb_user_cache;
-	$userpass = bb_get_cookie_login();
-	if ( empty($userpass) )
-		return false;
-	$user = bb_user_sanitize( $userpass['login'] );
-	$pass = bb_user_sanitize( $userpass['password'] );
-	if ( $current_user = $bbdb->get_row("SELECT * FROM $bbdb->users WHERE user_login = '$user' AND MD5( user_pass ) = '$pass'") ) {
-		$current_user = $bb_cache->append_current_user_meta( $current_user );
-		return bb_set_current_user($current_user->ID);
+	
+	if ($user_id = wp_validate_auth_cookie()) {
+		return bb_set_current_user($user_id);
 	} else {
-		$bb_user_cache[$current_user->ID] = false;
+		global $bb_user_cache;
+		$bb_user_cache[$user_id] = false;
 		bb_set_current_user(0);
 		return false;
 	}
-}
-endif;
-
-if ( !function_exists('bb_get_cookie_login') ) :
-function bb_get_cookie_login() {
-	if ( empty($_COOKIE[bb_get_option( 'usercookie' )]) || empty($_COOKIE[bb_get_option( 'passcookie' )]) )
-		return false;
-
-	return array('login' => $_COOKIE[bb_get_option( 'usercookie' )],	'password' => $_COOKIE[bb_get_option( 'passcookie' )]);
 }
 endif;
 
@@ -115,10 +100,10 @@ endif;
 if ( !function_exists('bb_is_user_logged_in') ) :
 function bb_is_user_logged_in() {
 	$current_user = bb_get_current_user();
-
+	
 	if ( empty($current_user) )
 		return false;
-
+	
 	return true;
 }
 endif;
@@ -126,20 +111,102 @@ endif;
 if ( !function_exists('bb_login') ) :
 function bb_login($login, $password) {
 	if ( $user = bb_check_login( $login, $password ) ) {
-		bb_cookie( bb_get_option( 'usercookie' ), $user->user_login, time() + 6048000 );
-		bb_cookie( bb_get_option( 'passcookie' ), md5( $user->user_pass ) );
+		wp_set_auth_cookie($user->ID);
+		
 		do_action('bb_user_login', (int) $user->ID );
 	}
-
+	
 	return $user;
 }
 endif;
 
 if ( !function_exists('bb_logout') ) :
 function bb_logout() {
-	bb_cookie( bb_get_option( 'passcookie' ) , ' ', time() - 31536000 );
-	bb_cookie( bb_get_option( 'usercookie' ) , ' ', time() - 31536000 );
+	wp_clear_auth_cookie();
+	
 	do_action('bb_user_logout', '');
+}
+endif;
+
+if ( !function_exists('wp_validate_auth_cookie') ) :
+function wp_validate_auth_cookie($cookie = '') {
+	if ( empty($cookie) ) {
+		global $bb;
+		if ( empty($_COOKIE[$bb->authcookie]) )
+			return false;
+		$cookie = $_COOKIE[$bb->authcookie];
+	}
+
+	list($username, $expiration, $hmac) = explode('|', $cookie);
+
+	$expired = $expiration;
+
+	// Allow a grace period for POST and AJAX requests
+	if ( defined('DOING_AJAX') || 'POST' == $_SERVER['REQUEST_METHOD'] )
+		$expired += 3600;
+
+	if ( $expired < time() )
+		return false;
+
+	$key = wp_hash($username . $expiration);
+	$hash = hash_hmac('md5', $username . $expiration, $key);
+	
+	if ( $hmac != $hash )
+		return false;
+
+	$user = bb_get_user_by_name($username);
+	if ( ! $user )
+		return false;
+
+	return $user->ID;
+}
+endif;
+
+if ( !function_exists('wp_generate_auth_cookie') ) :
+function wp_generate_auth_cookie($user_id, $expiration) {
+	$user = bb_get_user($user_id);
+	
+	$key = wp_hash($user->user_login . $expiration);
+	$hash = hash_hmac('md5', $user->user_login . $expiration, $key);
+	
+	$cookie = $user->user_login . '|' . $expiration . '|' . $hash;
+	
+	return apply_filters('auth_cookie', $cookie, $user_id, $expiration);
+}
+endif;
+
+if ( !function_exists('wp_set_auth_cookie') ) :
+function wp_set_auth_cookie($user_id, $remember = false) {
+	global $bb;
+	
+	if ( $remember ) {
+		$expiration = $expire = time() + 1209600;
+	} else {
+		$expiration = time() + 172800;
+		$expire = 0;
+	}
+	
+	$cookie = wp_generate_auth_cookie($user_id, $expiration);
+	
+	do_action('set_auth_cookie', $cookie, $expire);
+	
+	setcookie($bb->authcookie, $cookie, $expire, $bb->cookiepath, $bb->cookiedomain);
+	if ( $bb->cookiepath != $bb->sitecookiepath )
+		setcookie($bb->authcookie, $cookie, $expire, $bb->sitecookiepath, $bb->cookiedomain);
+}
+endif;
+
+if ( !function_exists('wp_clear_auth_cookie') ) :
+function wp_clear_auth_cookie() {
+	global $bb;
+	setcookie($bb->authcookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
+	setcookie($bb->authcookie, ' ', time() - 31536000, $bb->sitecookiepath, $bb->cookiedomain);
+	
+	// Old cookies
+	setcookie($bb->usercookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
+	setcookie($bb->usercookie, ' ', time() - 31536000, $bb->sitecookiepath, $bb->cookiedomain);
+	setcookie($bb->passcookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
+	setcookie($bb->passcookie, ' ', time() - 31536000, $bb->sitecookiepath, $bb->cookiedomain);
 }
 endif;
 
@@ -245,11 +312,24 @@ endif;
 // Not verbatim WP,  bb has no options table and constants have different names.
 if ( !function_exists('wp_salt') ) :
 function wp_salt() {
-	$salt = bb_get_option( 'secret' );
-	if ( empty($salt) )
-		$salt = BBDB_PASSWORD . BBDB_USER . BBDB_NAME . BBDB_HOST . BBPATH;
 
-	return $salt;
+	$secret_key = '';
+	if ( defined('BB_SECRET_KEY') && ('' != BB_SECRET_KEY) && ('put your unique phrase here' != BB_SECRET_KEY) )
+		$secret_key = BB_SECRET_KEY;
+
+	if ( defined('BB_SECRET_SALT') ) {
+		$salt = BB_SECRET_SALT;
+	} else {
+		if (!defined('BB_INSTALLING')) {
+			$salt = bb_get_option('secret');
+			if ( empty($salt) ) {
+				$salt = wp_generate_password();
+				bb_update_option('secret', $salt);
+			}
+		}
+	}
+
+	return apply_filters('salt', $secret_key . $salt);
 }
 endif;
 
@@ -265,6 +345,54 @@ function wp_hash($data) {
 }
 endif;
 
+if ( !function_exists('wp_hash_password') ) : // [WP6350]
+function wp_hash_password($password) {
+	global $wp_hasher;
+
+	if ( empty($wp_hasher) ) { 
+		require_once( BBPATH . BBINC . 'class-phpass.php');
+		// By default, use the portable hash from phpass
+		$wp_hasher = new PasswordHash(8, TRUE);
+	}
+	
+	return $wp_hasher->HashPassword($password);
+}
+endif;
+
+if ( !function_exists('wp_check_password') ) : // [WP6350]
+function wp_check_password($password, $hash) {
+	global $wp_hasher;
+
+	if ( strlen($hash) <= 32 )
+		return ( $hash == md5($password) );
+
+	// If the stored hash is longer than an MD5, presume the
+	// new style phpass portable hash.
+	if ( empty($wp_hasher) ) {
+		require_once( BBPATH . BBINC . 'class-phpass.php');
+		// By default, use the portable hash from phpass
+		$wp_hasher = new PasswordHash(8, TRUE);
+	}
+
+	return $wp_hasher->CheckPassword($password, $hash);
+}
+endif;
+
+if ( !function_exists('wp_generate_password') ) :
+/**
+ * Generates a random password drawn from the defined set of characters
+ * @return string the password
+ **/
+function wp_generate_password() {
+	$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	$length = 7;
+	$password = '';
+	for ( $i = 0; $i < $length; $i++ )
+		$password .= substr($chars, mt_rand(0, 61), 1);
+	return $password;
+}
+endif;
+
 if ( !function_exists('bb_check_admin_referer') ) :
 function bb_check_admin_referer( $action = -1 ) {
 	if ( !bb_verify_nonce($_REQUEST['_wpnonce'], $action) ) {
@@ -277,19 +405,24 @@ endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
 function bb_check_ajax_referer() {
-	if ( !$current_name = bb_get_current_user_info( 'name' ) )
+	if ( !$current_id = bb_get_current_user_info( 'ID' ) )
 		die('-1');
-
+	
 	$cookie = explode('; ', urldecode(empty($_POST['cookie']) ? $_GET['cookie'] : $_POST['cookie'])); // AJAX scripts must pass cookie=document.cookie
 	foreach ( $cookie as $tasty ) {
-		if ( false !== strpos($tasty, bb_get_option( 'usercookie' )) )
-			$user = substr(strstr($tasty, '='), 1);
-		if ( false !== strpos($tasty, bb_get_option( 'passcookie' )) )
-			$pass = substr(strstr($tasty, '='), 1);
+		if ( false !== strpos($tasty, bb_get_option( 'authcookie' )) )
+			$auth_cookie = substr(strstr($tasty, '='), 1);
 	}
-
-	if ( $current_name != $user || !bb_check_login( $user, $pass, true ) )
+	
+	if ( empty($auth_cookie) )
 		die('-1');
+	
+	if ( ! $user_id = wp_validate_auth_cookie( $auth_cookie ) )
+	    die('-1');
+	
+	if ( $current_id != $user_id )
+		die('-1');
+	
 	do_action('bb_check_ajax_referer');
 }
 endif;
@@ -302,7 +435,10 @@ function bb_break_password( $user_id ) {
 		return false;
 	$secret = substr(wp_hash( 'bb_break_password' ), 0, 13);
 	if ( false === strpos( $user->user_pass, '---' ) )
-		return $bbdb->query("UPDATE $bbdb->users SET user_pass = CONCAT(user_pass, '---', '$secret') WHERE ID = '$user_id'");
+		return $bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->users SET user_pass = CONCAT(user_pass, '---', %s) WHERE ID = %d",
+			$secret, $user_id
+		) );
 	else
 		return true;
 }
@@ -317,7 +453,10 @@ function bb_fix_password( $user_id ) {
 	if ( false === strpos( $user->user_pass, '---' ) )
 		return true;
 	else
-		return $bbdb->query("UPDATE $bbdb->users SET user_pass = SUBSTRING_INDEX(user_pass, '---', 1) WHERE ID = '$user_id'");
+		return $bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->users SET user_pass = SUBSTRING_INDEX(user_pass, '---', 1) WHERE ID = %d",
+			$user_id
+		) );
 }
 endif;
 
@@ -334,59 +473,60 @@ function bb_has_broken_pass( $user_id = 0 ) {
 endif;
 
 if ( !function_exists('bb_new_user') ) :
-function bb_new_user( $user_login, $email, $url ) {
-	global $bbdb, $bb_table_prefix;
-	$user_login = bb_user_sanitize( $user_login, true );
-	$email      = bb_verify_email( $email );
-	$url        = bb_fix_link( $url );
-	$now        = bb_current_time('mysql');
-	$password   = bb_random_pass();
-	$passcrypt  = md5( $password );
-
-	if ( !$user_login || !$email )
+function bb_new_user( $user_login, $user_email, $user_url ) {
+	global $bbdb;
+	$user_login = sanitize_user( $user_login, true );
+	$user_email = bb_verify_email( $user_email );
+	
+	if ( !$user_login || !$user_email )
 		return false;
+	
+	$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user_login );
+	while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
+		$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
+	
+	$user_url = bb_fix_link( $user_url );
+	$user_registered = bb_current_time('mysql');
+	$password = wp_generate_password();
+	$user_pass = wp_hash_password( $password );
 
-	$email = $bbdb->escape( $email );
-
-	$bbdb->query("INSERT INTO $bbdb->users
-	(user_login,     user_pass, user_email,  user_url, user_registered)
-	VALUES
-	('$user_login', '$passcrypt', '$email', '$url',   '$now')");
+	$bbdb->insert( $bbdb->users,
+		compact( 'user_login', 'user_pass', 'user_nicename', 'user_email', 'user_url', 'user_registered' )
+	);
 	
 	$user_id = $bbdb->insert_id;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('keymaster' => true) );
+		bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', array('keymaster' => true) );
 	} else {		
-		bb_update_usermeta( $user_id, $bb_table_prefix . 'capabilities', array('member' => true) );
+		bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user_id, $password );
 	}
 
 	do_action('bb_new_user', $user_id, $password);
 	return $user_id;
-
 }
 endif;
 
 if ( !function_exists( 'bb_mail' ) ) :
 function bb_mail( $to, $subject, $message, $headers = '' ) {
-	$headers = trim($headers);
-
-	if ( !preg_match( '/^from:\s/im', $headers ) ) {
-		$from = parse_url( bb_get_option( 'domain' ) );
-		if ( !$from || !$from['host'] ) {
-			$from = '';
-		} else {
-			$from_host = $from['host'];
-		        if ( substr( $from_host, 0, 4 ) == 'www.' )
-		                $from_host = substr( $from_host, 4 );
-			$from = 'From: "' . bb_get_option( 'name' ) . '" <bbpress@' . $from_host . '>';
-		}
-		$headers .= "\n$from";
+	if (!is_array($headers)) {
 		$headers = trim($headers);
+		$headers = preg_split('@\r(?:\n{0,1})|\n@', $headers);
 	}
-
-	return @mail( $to, $subject, $message, $headers );
+	
+	if (!count($headers) || !count(preg_grep('/^from:\s/im', $headers))) {
+		if (!$from = bb_get_option('from_email'))
+			if ($uri_parsed = parse_url(bb_get_option('uri')))
+				if ($uri_parsed['host'])
+					$from = 'bbpress@' . trim(preg_replace('/^www./i', '', $uri_parsed['host']));
+		
+		if ($from)
+			$headers[] = 'From: "' . bb_get_option('name') . '" <' . $from . '>';
+	}
+	$headers = trim(join("\r\n", $headers));
+	
+	return @mail($to, $subject, $message, $headers);
 }
 endif;
 

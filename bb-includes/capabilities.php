@@ -8,8 +8,8 @@ class BB_Roles {
 	var $role_key;
 
 	function BB_Roles() {
-		global $bb_table_prefix;
-		$this->role_key = $bb_table_prefix . 'user_roles';
+		global $bbdb;
+		$this->role_key = $bbdb->prefix . 'user_roles';
 
 		$this->roles = $this->get_roles($this->role_key);
 
@@ -34,6 +34,9 @@ class BB_Roles {
 						'keep_gate' => true,		// Make new Key Masters		//+
 						'recount' => true,		// bb-do-counts.php		//+
 						'manage_options' => true,	// backend			//+
+						'manage_themes' => true,	// Themes			//+
+						'manage_plugins' => true,	// Plugins			//+
+						'manage_options' => true,	// Options			//+
 						'edit_users' => true,
 						'manage_tags' => true,		// Rename, Merge, Destroy
 						'edit_others_favorites' => true,
@@ -72,10 +75,10 @@ class BB_Roles {
 						'participate' => true,
 
 						'edit_users' => true,			//+
-						'manage_tags' => true,			//+
 						'edit_others_favorites' => true,	//+
 						'manage_forums' => true,		//+
 						'delete_forums' => true,		//+
+						'manage_tags' => true,
 						'delete_topics' => true,
 						'close_topics' => true,
 						'stick_topics' => true,
@@ -107,6 +110,7 @@ class BB_Roles {
 						'moderate' => true,
 						'participate' => true,
 
+						'manage_tags' => true,		//+
 						'delete_topics' => true,	//+
 						'close_topics' => true,		//+
 						'stick_topics' => true,		//+
@@ -246,7 +250,7 @@ class BB_User {
 	var $allcaps = array();
 
 	function BB_User($id) {
-		global $bb_roles, $bb_table_prefix;
+		global $bb_roles, $bbdb;
 
 		$this->data = bb_get_user( $id );
 
@@ -254,7 +258,7 @@ class BB_User {
 			return;
 
 		$this->id = $this->ID = $this->data->ID;
-		$this->cap_key = $bb_table_prefix . 'capabilities';
+		$this->cap_key = $bbdb->prefix . 'capabilities';
 		$this->caps = &$this->data->capabilities;
 		if ( ! is_array($this->caps) ) {
 			$this->caps  = array();

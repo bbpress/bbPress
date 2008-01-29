@@ -111,23 +111,19 @@ function bb_rel_nofollow_callback( $matches ) {
 	return "<a $text rel=\"nofollow\">";
 }
 
-function bb_user_sanitize( $text, $strict = false ) {
-	$raw = $text;
-	if ( $strict ) {
-		$text = preg_replace('/[^a-z0-9-]/i', '', $text);
-		$text = preg_replace('|-+|', '-', $text);
-	} else
-		$text = preg_replace('/[^a-z0-9_-]/i', '', $text); // For backward compatibility.
-	return apply_filters( 'bb_user_sanitize', $text, $raw, $strict );
-}
-
+// Should be able to take both escaped and unescaped data
 function bb_trim_for_db( $string, $length ) {
+	$_string = $string;
 	if ( seems_utf8( $string ) ) {
-		$_string = bb_utf8_cut( $string, $length );
-		$string = stripslashes($string);
-		$string = addslashes($string);
+		$string = bb_utf8_cut( $string, $length );
+		// if we have slashes at the end, make sure we have a reasonable number of them
+		if ( preg_match( '#[^\\\\](\\\\+)$#', $string, $matches ) ) {
+			$end = stripslashes($matches[1]);
+			$end = addslashes($end);
+			$string = trim( $string, '\\' ) . $end;
+		}
 	}
-	return apply_filters( 'bb_trim_for_db', $_string, $string, $length );
+	return apply_filters( 'bb_trim_for_db', $string, $_string, $length );
 }
 
 // Reduce utf8 string to $length in single byte character equivalents without breaking multibyte characters
@@ -206,6 +202,11 @@ function bb_slug_sanitize( $slug, $length = 255 ) {
 	return apply_filters( 'bb_slug_sanitize', bb_sanitize_with_dashes( $slug, $length ), $_slug, $length );
 }
 
+function bb_user_nicename_sanitize( $user_nicename, $length = 50 ) {
+	$_user_nicename = $user_nicename;
+	return apply_filters( 'bb_user_nicename_sanitize', bb_sanitize_with_dashes( $user_nicename, $length ), $_user_nicename, $length );
+}
+
 function bb_sanitize_with_dashes( $text, $length = 0 ) { // Multibyte aware
 	$_text = $text;
 	$text = trim($text);
@@ -222,9 +223,10 @@ function bb_sanitize_with_dashes( $text, $length = 0 ) { // Multibyte aware
 	$text = strtolower($text);
 	$text = preg_replace('/&(^\x80-\xff)+?;/', '', $text); // kill entities
 	$text = preg_replace('/[^%a-z0-9\x80-\xff _-]/', '', $text);
+	$text = trim($text);
 	$text = preg_replace('/\s+/', '-', $text);
 	$text = preg_replace(array('|-+|', '|_+|'), array('-', '_'), $text); // Kill the repeats
-
+	
 	return $text;
 }
 
@@ -253,14 +255,6 @@ function bb_fix_link( $link ) {
 		return '';
 	$link = wp_kses_no_null( $link );
 	return clean_url( $link );
-}
-
-function bb_make_feed( $link ) {
-	$link = trim( $link );
-	if ( 0 !== strpos( $link, 'feed:' ) )
-		return 'feed:' . $link;
-	else
-		return $link;
 }
 
 function bb_sticky_label( $label ) {

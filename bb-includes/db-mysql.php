@@ -1,5 +1,5 @@
 <?php
-define( 'BB_MYSQLI', true );
+define( 'BB_MYSQLI', false );
 
 class bbdb extends bbdb_base {
 	// ==================================================================
@@ -43,13 +43,6 @@ class bbdb extends bbdb_base {
 			$server->charset =  $this->charset;
 		}
 		
-		// Set the port if it is specified in the host
-		if (strpos($server->host, ':') === false) {
-			$server->port = null;
-		} else {
-			list($server->host, $server->port) = explode(':', $server->host);
-		}
-		
 		$current_connection = "$dbhname";
 		
 		if ( isset( $this->$dbhname ) ) // We're already connected!
@@ -57,12 +50,12 @@ class bbdb extends bbdb_base {
 		
 		$this->timer_start();
 		
-		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass, null, $server->port );
+		$this->$dbhname = @mysql_connect( $server->host, $server->user, $server->pass, true );
 		
 		if (!$this->$dbhname)
 			return false;
 		
-		if ( isset($server->charset) && !empty($server->charset) && $this->has_cap( 'collation', $this->$dbhname ) )
+		if ( !empty($server->charset) && $this->has_cap( 'collation', $this->$dbhname ) )
 			$this->query("SET NAMES '$server->charset'");
 		
 		if ( !$this->select( $server->database, $this->$dbhname ) ) {
@@ -79,7 +72,7 @@ class bbdb extends bbdb_base {
 	//	Select a DB (if another one needs to be selected)
 
 	function select($db, &$dbh) {
-		if (!@mysqli_select_db($dbh, $db)) {
+		if (!@mysql_select_db($db, $dbh)) {
 //			$this->handle_error_connecting( $dbh, array( "db" => $db ) );
 			//die('Cannot select DB.');
 			return false;
@@ -92,7 +85,7 @@ class bbdb extends bbdb_base {
 
 	function print_error($str = '') {
 		global $EZSQL_ERROR;
-		if (!$str) $str = mysqli_error( $this->db_connect( $this->last_query ) ); // Will this work?
+		if (!$str) $str = mysql_error();
 		$EZSQL_ERROR[] = 
 		array('query' => $this->last_query, 'error_str' => $str);
 		
@@ -134,14 +127,14 @@ class bbdb extends bbdb_base {
 		// Keep track of the last query for debug..
 		$this->last_query = $query;
 
-		// Perform the query via std mysqli_query function..
+		// Perform the query via std mysql_query function..
 		if (SAVEQUERIES)
 			$this->timer_start();
 
 		unset( $dbh );
 		$dbh = $this->db_connect( $query );
 
-		$this->result = @mysqli_query($dbh, $query);
+		$this->result = @mysql_query($query, $dbh);
 		++$this->num_queries;
 
 		if (SAVEQUERIES)
@@ -149,32 +142,32 @@ class bbdb extends bbdb_base {
 
 		// If there is an error then take note of it..
 		if( $dbh ) {
-			if ( mysqli_error( $dbh ) ) {
-				return $this->print_error( mysqli_error( $dbh ) );
+			if ( mysql_error( $dbh ) ) {
+				return $this->print_error( mysql_error( $dbh ));
 			}
 		}
 
 		if ( preg_match("/^\\s*(insert|delete|update|replace) /i",$query) ) {
-			$this->rows_affected = mysqli_affected_rows( $dbh );
+			$this->rows_affected = mysql_affected_rows();
 			// Take note of the insert_id
 			if ( preg_match("/^\\s*(insert|replace) /i",$query) ) {
-				$this->insert_id = mysqli_insert_id($dbh);	
+				$this->insert_id = mysql_insert_id($dbh);	
 			}
 			// Return number of rows affected
 			$return_val = $this->rows_affected;
 		} else {
 			$i = 0;
-			while ($i < @mysqli_num_fields($this->result)) {
-				$this->col_info[$i] = @mysqli_fetch_field($this->result);
+			while ($i < @mysql_num_fields($this->result)) {
+				$this->col_info[$i] = @mysql_fetch_field($this->result);
 				$i++;
 			}
 			$num_rows = 0;
-			while ( $row = @mysqli_fetch_object($this->result) ) {
+			while ( $row = @mysql_fetch_object($this->result) ) {
 				$this->last_result[$num_rows] = $row;
 				$num_rows++;
 			}
 
-			@mysqli_free_result($this->result);
+			@mysql_free_result($this->result);
 
 			// Log number of rows the query returned
 			$this->num_rows = $num_rows;
@@ -186,16 +179,16 @@ class bbdb extends bbdb_base {
 		return $return_val;
 	}
 
-	// table name or mysqli object
+	// table name or mysql resource 
 	function db_version( $dbh = false ) {
 		if ( !$dbh )
 			$dbh = $this->forums;
 
-		if ( !is_object( $dbh ) )
+		if ( !is_resource( $dbh ) )
 			$dbh = $this->db_connect( "DESCRIBE $dbh" );
 
 		if ( $dbh )
-			return mysqli_get_server_info( $dbh );
+			return mysql_get_server_info( $dbh );
 		return false;
 	}
 }

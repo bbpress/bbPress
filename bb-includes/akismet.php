@@ -168,7 +168,10 @@ function bb_akismet_delete_old() { // Delete old every 20
 		return;
 	global $bbdb;
 	$now = bb_current_time('mysql');
-	$posts = (array) $bbdb->get_col("SELECT post_id FROM $bbdb->posts WHERE DATE_SUB('$now', INTERVAL 15 DAY) > post_time AND post_status = '2'");
+	$posts = (array) $bbdb->get_col( $bbdb->prepare(
+		"SELECT post_id FROM $bbdb->posts WHERE DATE_SUB(%s, INTERVAL 15 DAY) > post_time AND post_status = '2'",
+		$now
+	) );
 	foreach ( $posts as $post )
 		bb_delete_post( $post, 1 );
 }
@@ -195,7 +198,7 @@ function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
 function bb_ksd_admin_page() {
 	global $bb_current_submenu, $bb_posts, $page;
 	if ( !bb_akismet_verify_key( bb_get_option( 'akismet_key' ) ) ) : ?>
-<div class="error"><p><?php printf(__('The API key you have specified is invalid.  Please double check the <code>$bb->akismet_key</code> variable in your <code>config.php file</code>.  If you don\'t have an API key yet, you can get one at <a href="%s">WordPress.com</a>.'), 'http://wordpress.com/api-keys/'); ?></p></div>
+<div class="error"><p><?php printf(__('The API key you have specified is invalid.  Please double check the <strong>Akismet Key</strong> set in the <a href="%s">General Options</a>.  If you don\'t have an API key yet, you can get one at <a href="%s">WordPress.com</a>.'), 'options-general.php', 'http://wordpress.com/api-keys/'); ?></p></div>
 <?php	endif;
 
 	if ( !bb_current_user_can('browse_deleted') )

@@ -43,8 +43,10 @@ function get_popular_topics( $num = 10 ) {
 
 function get_recent_registrants( $num = 10 ) {
 	global $bbdb;
-	$num = (int) $num;
-	return bb_append_meta( (array) $bbdb->get_results("SELECT * FROM $bbdb->users ORDER BY user_registered DESC LIMIT $num"), 'user');
+	return bb_append_meta( (array) $bbdb->get_results( $bbdb->prepare(
+		"SELECT * FROM $bbdb->users ORDER BY user_registered DESC LIMIT %d",
+		$num
+	) ), 'user');
 }
 
 function bb_inception( $args = '' ) {

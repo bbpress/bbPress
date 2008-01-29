@@ -6,7 +6,7 @@ require_once( BBPATH . BBINC . 'registration-functions.php');
 $reset = false;
 
 if ( $_POST ) :
-	$user_login = bb_user_sanitize  ( $_POST['user_login'] );
+	$user_login = sanitize_user  ( $_POST['user_login'] );
 	if ( empty( $user_login ) )
 		exit;
 	bb_reset_email( $user_login );

@@ -67,7 +67,7 @@ function _bb_translate_for_export( $translate, &$data ) {
 }
 
 function bb_export_user( $user_id ) {
-	global $bb_table_prefix;
+	global $bbdb;
 	if ( !$_user = bb_get_user( $user_id ) )
 		return;
 
@@ -97,7 +97,7 @@ function bb_export_user( $user_id ) {
 
 	$meta = array();
 	foreach ( $_user as $k => $v ) {
-		if ( 0 !== strpos($k, $bb_table_prefix) && isset($_user[$bb_table_prefix . $k]) )
+		if ( 0 !== strpos($k, $bbdb->prefix) && isset($_user[$bbdb->prefix . $k]) )
 			continue;
 		$meta[$k] = bb_maybe_serialize($v);
 	}

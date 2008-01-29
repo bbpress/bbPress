@@ -16,9 +16,6 @@ function bb_grab_results() {
 	return;
 }
 
-function bb_get_out_now() { exit; }
-add_action('bb_shutdown', 'bb_get_out_now', -1);
-
 switch ( $_POST['action'] ) :
 case 'add-tag' :
 	global $tag, $topic;
@@ -26,6 +23,7 @@ case 'add-tag' :
 	add_action('bb_already_tagged', 'bb_grab_results', 10, 3);
 	$topic_id = (int) @$_POST['id'];
 	$tag_name =       @$_POST['tag'];
+	$tag_name = stripslashes( $tag_name );
 	if ( !bb_current_user_can('edit_tag_by_on', $bb_current_id, $topic_id) )
 		die('-1');
 

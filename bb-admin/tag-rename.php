@@ -15,6 +15,7 @@ $old_tag = bb_get_tag( $tag_id );
 if ( !$old_tag )
 	bb_die(__('Tag not found.'));
 
+$tag = stripslashes( $tag );
 if ( $tag = rename_tag( $tag_id, $tag ) )
 	wp_redirect( bb_get_tag_link() );
 else

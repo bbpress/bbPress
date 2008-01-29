@@ -11,16 +11,16 @@ function ajaxPostDelete(postId, postAuthor) {
 }
 
 function newPostAddIn() { // Not currently loaded
-	var postFormSub = $('postformsub');
+	var postFormSub = jQuery('#postformsub');
 	if ( postFormSub )
 		postFormSub.onclick = function(e) { return thePostList.ajaxAdder( 'post', 'postform' ); }
 }
 
 addLoadEvent( function() { // Tags
-	var newtag = $('tag');
+	var newtag = jQuery('#tag');
 	if (!newtag)
 		return;
-	newtag.setAttribute('autocomplete', 'off');
+	newtag.attr('autocomplete', 'off');
 
 	yourTagList = new listMan('yourtaglist');
 	yourTagList.alt = false;
@@ -32,7 +32,7 @@ addLoadEvent( function() { // Tags
 
 	if ( !yourTagList.theList )
 		return;
-	var newtagSub = $('tagformsub');
+	var newtagSub = jQuery('#tagformsub');
 	newtagSub.onclick = function(e) { return yourTagList.ajaxAdder( 'tag', 'tag-form' ); }
 } );
 
@@ -51,8 +51,8 @@ addLoadEvent( function() { // TopicMeta
 	theTopicMeta.inputData = '&user_id=' + currentUserId + '&topic_id=' + topicId;
 	theTopicMeta.dimComplete = function(what, id, dimClass) {
 		if ( 'is-not-favorite' == dimClass ) {
-			var favoritesToggle = $('favorite-toggle');
-			isFav = favoritesToggle.hasClassName(dimClass) ? 0 : 1;
+			var favoritesToggle = jQuery('#favorite-toggle');
+			isFav = favoritesToggle.is('.' + dimClass) ? 0 : 1;
 			favLinkSetup();
 		}
 	}
@@ -61,13 +61,13 @@ addLoadEvent( function() { // TopicMeta
 } );
 
 function favLinkSetup() {
-	var favoritesToggle = $('favorite-toggle');
+	var favoritesToggle = jQuery('#favorite-toggle');
 	if ('no' == isFav)
 		return;
 	if ( 1 == isFav )
-		favoritesToggle.update('<?php printf(__("This topic is one of your <a href=' + %s + '>favorites</a>"), 'favoritesLink'); ?> [<a href="#" onclick="return FavIt();">x</a>]');
+		favoritesToggle.html('<?php printf(__("This topic is one of your <a href=' + %s + '>favorites</a>"), 'favoritesLink'); ?> [<a href="#" onclick="return FavIt();">x</a>]');
 	else 
-		favoritesToggle.update('<a href="#" onclick="return FavIt();"><?php _e('Add this topic to your favorites'); ?></a> (<a href="' + favoritesLink + '">?</a>)');
+		favoritesToggle.html('<a href="#" onclick="return FavIt();"><?php _e('Add this topic to your favorites'); ?></a> (<a href="' + favoritesLink + '">?</a>)');
 }
 
 function FavIt() { return theTopicMeta.ajaxDimmer( 'favorite', 'toggle', 'is-not-favorite' ); }

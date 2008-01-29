@@ -90,7 +90,7 @@ function bb_head() {
 }
 
 function profile_menu() {
-	global $bbdb, $user_id, $profile_menu, $self, $profile_page_title;
+	global $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";
 	$list .= "\n\t<li" . ( ( $self ) ? '' : ' class="current"' ) . '><a href="' . attribute_escape( get_user_profile_link( $user_id ) ) . '">' . __('Profile') . '</a></li>';
 	$id = bb_get_current_user_info( 'id' );
@@ -284,47 +284,170 @@ function is_bb_stats() {
 	return 'stats-page' == bb_get_location();
 }
 
-function bb_title() {
-	echo apply_filters( 'bb_title', bb_get_title() );
+function is_bb_admin() {
+	if ( defined('BB_IS_ADMIN') )
+		return BB_IS_ADMIN;
+	return false;
 }
 
-function bb_get_title() {
-	$title = '';
-	if ( is_topic() )
-		$title = get_topic_title(). ' &laquo; ';
-	elseif ( is_forum() )
-		$title = get_forum_name() . ' &laquo; ';
-	elseif ( is_bb_tags() )
-		$title = ( is_bb_tag() ? wp_specialchars( bb_get_tag_name() ) . ' &laquo; ' : '' ) . __('Tags') . ' &laquo; ';
-	elseif ( is_bb_profile() )
-		$title = get_user_name() . ' &laquo; ';
-	elseif ( is_view() )
-		$title = get_view_name() . ' &laquo; ';
+function bb_title( $args = '' ) {
+	echo apply_filters( 'bb_title', bb_get_title( $args ) );
+}
+
+function bb_get_title( $args = '' ) {
+	$defaults = array(
+		'separator' => ' &laquo; ',
+		'order' => 'normal',
+		'front' => ''
+	);
+	$args = wp_parse_args( $args, $defaults );
+	$title = array();
+	
+	switch ( bb_get_location() ) {
+		case 'front-page':
+			if ( !empty( $args['front'] ) )
+				$title[] = $args['front'];
+			break;
+		
+		case 'topic-page':
+			$title[] = get_topic_title();
+			break;
+		
+		case 'forum-page':
+			$title[] = get_forum_name();
+			break;
+		
+		case 'tag-page':
+			if ( is_bb_tag() )
+				$title[] = wp_specialchars( bb_get_tag_name() );
+			
+			$title[] = __('Tags');
+			break;
+		
+		case 'profile-page':
+			$title[] = get_user_name();
+			break;
+		
+		case 'view-page':
+			$title[] = get_view_name();
+			break;
+	}
+	
 	if ( $st = bb_get_option( 'static_title' ) )
-		$title = $st;
-	$title .= bb_get_option( 'name' );
-	return apply_filters( 'bb_get_title', $title );
+		$title = array( $st );
+	
+	$title[] = bb_get_option( 'name' );
+	
+	if ( 'reversed' == $args['order'] )
+		$title = array_reverse( $title );
+	
+	return apply_filters( 'bb_get_title', implode( $args['separator'], $title ) );
 }
 
 function bb_feed_head() {
-	$feed_link = '';
-	if ( is_topic() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Topic: %s'), get_topic_title() ) ) . '" href="' . attribute_escape( get_topic_rss_link() ) . '" />';
-	elseif ( is_bb_tag() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Tag: %s'), bb_get_tag_name() ) ) . '" href="' . attribute_escape( bb_get_tag_rss_link() ) . '" />';
-	elseif ( is_forum() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( sprintf( __('Forum: %s'), get_forum_name() ) ) . '" href="' . attribute_escape( get_forum_rss_link() ) . '" />';
-	elseif ( is_front() )
-		$feed_link = '<link rel="alternate" type="application/rss+xml" title="' . attribute_escape( __('Recent Posts') ) . '" href="' . attribute_escape( get_recent_rss_link() ) . '" />';
-	echo apply_filters('bb_feed_head', $feed_link);
+	
+	$feeds = array();
+	
+	switch (bb_get_location()) {
+		case 'profile-page':
+			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
+				if ($tab != 'favorites')
+					break;
+			
+			$feeds[] = array(
+				'title' => sprintf(__('User Favorites: %s'), get_user_name()),
+				'href'  => get_favorites_rss_link()
+			);
+			break;
+		
+		case 'topic-page':
+			$feeds[] = array(
+				'title' => sprintf(__('Topic: %s'), get_topic_title()),
+				'href'  => get_topic_rss_link()
+			);
+			break;
+		
+		case 'tag-page':
+			if (is_bb_tag()) {
+				$feeds[] = array(
+					'title' => sprintf(__('Tag: %s'), bb_get_tag_name()),
+					'href'  => bb_get_tag_rss_link()
+				);
+			}
+			break;
+		
+		case 'forum-page':
+			$feeds[] = array(
+				'title' => sprintf(__('Forum: %s - Recent Posts'), get_forum_name()),
+				'href'  => get_forum_rss_link()
+			);
+			$feeds[] = array(
+				'title' => sprintf(__('Forum: %s - Recent Topics'), get_forum_name()),
+				'href'  => bb_get_forum_topics_rss_link()
+			);
+			break;
+		
+		case 'front-page':
+			$feeds[] = array(
+				'title' => __('Recent Posts'),
+				'href'  => bb_get_posts_rss_link()
+			);
+			$feeds[] = array(
+				'title' => __('Recent Topics'),
+				'href'  => bb_get_topics_rss_link()
+			);
+			break;
+		
+		case 'view-page':
+			global $bb_views, $view;
+			if ($bb_views[$view]['feed']) {
+				$feeds[] = array(
+					'title' => get_view_name(),
+					'href'  => bb_get_view_rss_link()
+				);
+			}
+			break;
+	}
+	
+	if (count($feeds)) {
+		$feed_links = array();
+		foreach ($feeds as $feed) {
+			$link = '<link rel="alternate" type="application/rss+xml" ';
+			$link .= 'title="' . attribute_escape($feed['title']) . '" ';
+			$link .= 'href="' . attribute_escape($feed['href']) . '" />';
+			$feed_links[] = $link;
+		}
+		$feed_links = join("\n", $feed_links);
+	} else {
+		$feed_links = '';
+	}
+	
+	echo apply_filters('bb_feed_head', $feed_links);
 }
 
-function get_recent_rss_link() {
+function bb_get_posts_rss_link() {
 	if ( bb_get_option( 'mod_rewrite' ) )
 		$link = bb_get_option( 'uri' ) . 'rss/';
 	else
-		$link = bb_get_option( 'uri' ) . "rss.php";
-	return apply_filters( 'get_recent_rss_link', $link );
+		$link = bb_get_option( 'uri' ) . 'rss.php';
+	return apply_filters( 'bb_get_posts_rss_link', $link );
+}
+
+function bb_get_topics_rss_link() {
+	if ( bb_get_option( 'mod_rewrite' ) )
+		$link = bb_get_option( 'uri' ) . 'rss/topics';
+	else
+		$link = bb_get_option( 'uri' ) . 'rss.php?topics=1';
+	return apply_filters( 'bb_get_topics_rss_link', $link );
+}
+
+function bb_get_view_rss_link() {
+	global $view;
+	if ( bb_get_option( 'mod_rewrite' ) )
+		$link = bb_get_option( 'uri' ) . 'rss/view/' . $view;
+	else
+		$link = bb_get_option( 'uri' ) . 'rss.php?view=' . $view;
+	return apply_filters( 'bb_get_view_rss_link', $link );
 }
 
 // FORUMS
@@ -428,18 +551,32 @@ function forum_pages( $forum_id = 0 ) {
 	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->forum_topics );
 }
 
-function forum_rss_link( $forum_id = 0 ) {
-	echo apply_filters('forum_rss_link', get_forum_rss_link( $forum_id ) );
+function bb_forum_posts_rss_link( $forum_id = 0 ) {
+	echo apply_filters('bb_forum_posts_rss_link', bb_get_forum_posts_rss_link( $forum_id ) );
 }
 
-function get_forum_rss_link( $forum_id = 0 ) {
+function bb_get_forum_posts_rss_link( $forum_id = 0 ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
 	if ( bb_get_option('mod_rewrite') )
 		$link = bb_get_option('uri') . "rss/forum/$forum->forum_id";
 	else
 		$link = bb_get_option('uri') . "rss.php?forum=$forum->forum_id";
 
-	return apply_filters( 'get_forum_rss_link', $link, $forum_id );
+	return apply_filters( 'bb_get_forum_posts_rss_link', $link, $forum_id );
+}
+
+function bb_forum_topics_rss_link( $forum_id = 0 ) {
+	echo apply_filters('bb_forum_topics_rss_link', bb_get_forum_topics_rss_link( $forum_id ) );
+}
+
+function bb_get_forum_topics_rss_link( $forum_id = 0 ) {
+	$forum = get_forum( get_forum_id( $forum_id ) );
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_option('uri') . "rss/forum/$forum->forum_id/topics";
+	else
+		$link = bb_get_option('uri') . "rss.php?forum=$forum->forum_id&amp;topics=1";
+
+	return apply_filters( 'bb_get_forum_topics_rss_link', $link, $forum_id );
 }
 
 function bb_get_forum_bread_crumb($args = '') {
@@ -601,13 +738,6 @@ function get_topic_link( $id = 0, $page = 1 ) {
 		$link = add_query_arg( $args, $link );
 
 	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
-}
-
-function bb_add_replies_to_topic_link( $link, $id ) {
-	$topic = get_topic( get_topic_id( $id ) );
-	if ( bb_is_user_logged_in() )
-		$link = add_query_arg( 'replies', $topic->topic_posts, $link );
-	return $link;
 }
 
 function topic_rss_link( $id = 0 ) {
@@ -1139,10 +1269,9 @@ function bb_get_user_id( $id = 0 ) {
 	global $user;
 	if ( is_object($id) && isset($id->ID) )
 		return (int) $id->ID;
-	elseif ( !is_numeric($id) || 0 == $id )
+	elseif ( !$id )
 		return $user->ID;
 
-	$id = (int) $id;
 	$_user = bb_get_user( $id );
 	return $_user->ID;
 }
@@ -1156,7 +1285,7 @@ function get_user_profile_link( $id = 0, $page = 1 ) {
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
-			$column = 'user_login';
+			$column = 'user_nicename';
 		} else {
 			$column = 'ID';
 		}
