@@ -1904,16 +1904,17 @@ function bb_repermalink() {
 			break;
 	}
 	
-	parse_str($_SERVER['QUERY_STRING'], $args);
+	wp_parse_str($_SERVER['QUERY_STRING'], $args);
+	$args = urlencode_deep($args);
 	if ( $args ) {
 		$permalink = add_query_arg($args, $permalink);
-			if ( bb_get_option('mod_rewrite') ) {
-				$pretty_args = array('id', 'page', 'tag', 'tab', 'username'); // these are already specified in the path
-				if ( $location == 'view-page' )
-					$pretty_args[] = 'view';
-				foreach ( $pretty_args as $pretty_arg )
-					$permalink = remove_query_arg( $pretty_arg, $permalink );
-			}
+		if ( bb_get_option('mod_rewrite') ) {
+			$pretty_args = array('id', 'page', 'tag', 'tab', 'username'); // these are already specified in the path
+			if ( $location == 'view-page' )
+				$pretty_args[] = 'view';
+			foreach ( $pretty_args as $pretty_arg )
+				$permalink = remove_query_arg( $pretty_arg, $permalink );
+		}
 	}
 
 	$permalink = apply_filters( 'bb_repermalink_result', $permalink, $location );
