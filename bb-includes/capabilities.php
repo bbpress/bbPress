@@ -175,7 +175,7 @@ function bb_map_meta_cap( $caps, $cap, $user_id, $args ) {
 		if ( !topic_is_open( $bb_post->topic_id ) )
 			$caps[] = 'edit_closed';
 		$post_time = bb_gmtstrtotime( $bb_post->post_time );
-		$curr_time = time();
+		$curr_time = time() + 1;
 		$edit_lock = bb_get_option( 'edit_lock' );
                 if ( $edit_lock >= 0 && $curr_time - $post_time > $edit_lock * 60 )
 			$caps[] = 'ignore_edit_lock';
