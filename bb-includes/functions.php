@@ -1123,7 +1123,7 @@ function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 function bb_get_top_tags( $recent = true, $limit = 40 ) {
 	global $bbdb, $tag_cache;
 	$limit = abs((int) $limit);
-	foreach ( (array) $tags = $bbdb->get_results( $bbdb->prepare( "SELECT * FROM $bbdb->tags ORDER BY tag_count DESC LIMIT %d", $limit ) ) as $tag )
+	foreach ( (array) $tags = $bbdb->get_results( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag_count <> 0 ORDER BY tag_count DESC LIMIT %d", $limit ) ) as $tag )
 		$tag_cache[$tag->tag] = $tag;
 	return $tags;
 }
