@@ -14,6 +14,7 @@ $bb_install = new BB_Install(__FILE__);
 
 // Include some neccesary functions if not already there
 if ($bb_install->load_includes) {
+	require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
 	require_once(BBPATH . BBINC . 'wp-functions.php');
 	require_once(BBPATH . BBINC . 'functions.php');
 	

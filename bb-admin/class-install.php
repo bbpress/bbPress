@@ -243,6 +243,10 @@ class BB_Install
 			define('BBINC', 'bb-includes/');
 		}
 		
+		if (!defined('BACKPRESS_PATH')) {
+			define('BACKPRESS_PATH', BBPATH . BBINC . 'backpress/');
+		}
+		
 		return true;
 	}
 	
@@ -1362,7 +1366,7 @@ class BB_Install
 		bb_update_option('uri', $data3['uri']['value']);
 		$installation_log[] = '>>> ' . __('Site address (URL):') . ' ' . $data3['uri']['value'];
 		bb_update_option('from_email', $data3['keymaster_user_email']['value']);
-		$installation_log[] = '>>> ' . __('Admin email address:') . ' ' . $data3['keymaster_user_email']['value'];
+		$installation_log[] = '>>> ' . __('From email address:') . ' ' . $data3['keymaster_user_email']['value'];
 		
 		// Create the key master
 		$keymaster_created = false;
@@ -1371,7 +1375,7 @@ class BB_Install
 			case 'bbPress':
 				
 				// Check to see if the user login already exists
-				if ($keymaster_user = bb_get_user_by_name($data3['keymaster_user_login']['value'])) {
+				if ($keymaster_user = bb_get_user($data3['keymaster_user_login']['value'])) {
 					// The keymaster is an existing bbPress user
 					$installation_log[] = '>>> ' . __('Key master could not be created!');
 					$installation_log[] = '>>>>>> ' . __('That login is already taken!');
@@ -1393,6 +1397,10 @@ class BB_Install
 						$this->step_status[4] = 'incomplete';
 						$this->strings[4]['h2'] = __('Installation failed!');
 						$this->strings[4]['messages']['error'][] = __('The key master could not be created. An existing user was found with that user login.');
+						
+						$data4['installation_log']['value'] = join("\n", $installation_log);
+						$data4['error_log']['value'] = join("\n", $error_log);
+						
 						return 'incomplete';
 					}
 					
@@ -1423,12 +1431,16 @@ class BB_Install
 					$this->step_status[4] = 'incomplete';
 					$this->strings[4]['h2'] = __('Installation failed!');
 					$this->strings[4]['messages']['error'][] = __('The key master could not be created. You may need to replace bbPress with a fresh copy and start again.');
+					
+					$data4['installation_log']['value'] = join("\n", $installation_log);
+					$data4['error_log']['value'] = join("\n", $error_log);
+					
 					return 'incomplete';
 				}
 				break;
 			
 			case 'WordPress':
-				if ($keymaster_user = bb_get_user_by_name($data3['keymaster_user_login']['value'])) {
+				if ($keymaster_user = bb_get_user($data3['keymaster_user_login']['value'])) {
 					// The keymaster is an existing WordPress user
 					$bb_current_user = bb_set_current_user($keymaster_user->ID);
 					$bb_current_user->set_role('keymaster');
@@ -1445,6 +1457,10 @@ class BB_Install
 					$this->step_status[4] = 'incomplete';
 					$this->strings[4]['h2'] = __('Installation failed!');
 					$this->strings[4]['messages']['error'][] = __('The key master could not be assigned. You may need to replace bbPress with a fresh copy and start again.');
+					
+					$data4['installation_log']['value'] = join("\n", $installation_log);
+					$data4['error_log']['value'] = join("\n", $error_log);
+					
 					return 'incomplete';
 				}
 				break;

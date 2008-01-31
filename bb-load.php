@@ -20,14 +20,9 @@ if ( file_exists( BBPATH . 'bb-config.php') ) {
 	
 	// The config file doesn't exist and we aren't on the installation page
 	
-	// We only need all these to make wp_redirect work
-	require_once(BBPATH . 'bb-includes/wp-functions.php' );
-	require_once(BBPATH . 'bb-includes/pluggable.php' );
-	require_once(BBPATH . 'bb-includes/kses.php' );
-	
-	// Go to the installer
+	// Cut to the chase, go to the installer and use it to deal with errors
 	$install_uri = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
-	wp_redirect($install_uri);
+	header('Location: ' . $install_uri);
 	
 }
 ?>
