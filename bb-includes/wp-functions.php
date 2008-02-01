@@ -534,7 +534,7 @@ function add_query_arg() {
 			unset($qs[$k]);
 	}
 
-	$ret = build_query($qs);
+	$ret = _http_build_query($qs, NULL, '&', '', false);
 	$ret = trim($ret, '?');
 	$ret = preg_replace('#=(&|$)#', '$1', $ret);
 	$ret = $protocol . $base . $ret . $frag;
@@ -561,44 +561,6 @@ function remove_query_arg($key, $query=FALSE) {
 		return $query;
 	}
 	return add_query_arg($key, FALSE, $query);
-}
-endif;
-
-if ( !function_exists( 'build_query' ) ) : // [WP6064]
-function build_query($data) {
-	return _http_build_query($data, NULL, '&', '', false);
-}
-endif;
-
-if ( !function_exists( '_http_build_query' ) ) : // [WP6070]
-// from php.net (modified by Mark Jaquith to behave like the native PHP5 function)
-function _http_build_query($data, $prefix=null, $sep=null, $key='', $urlencode=true) {
-	$ret = array();
-
-	foreach ( (array) $data as $k => $v ) {
-		if ( $urlencode)
-			$k = urlencode($k);
-		if ( is_int($k) && $prefix != null )
-			$k = $prefix.$k;
-		if ( !empty($key) )
-			$k = $key . '%5B' . $k . '%5D';
-		if ( $v === NULL )
-			continue;
-		elseif ( $v === FALSE )
-			$v = '0';
-
-		if ( is_array($v) || is_object($v) )
-			array_push($ret,_http_build_query($v, '', $sep, $k, $urlencode));
-		elseif ( $urlencode )
-			array_push($ret, $k.'='.urlencode($v));
-		else
-			array_push($ret, $k.'='.$v);
-	}
-
-	if ( NULL === $sep )
-		$sep = ini_get('arg_separator.output');
-
-	return implode($sep, $ret);
 }
 endif;
 
