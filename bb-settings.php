@@ -378,9 +378,8 @@ if ( !isset( $bb->tagpath ) )
 do_action( 'bb_options_loaded' );
 
 // Load Plugins
-if ( function_exists( 'glob' ) && is_callable( 'glob' ) )
-	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
-		require($_plugin);
+foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
+	require($_plugin);
 unset($_plugin);
 do_action( 'bb_underscore_plugins_loaded' );
 

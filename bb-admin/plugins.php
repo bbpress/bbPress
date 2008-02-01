@@ -3,11 +3,9 @@ require_once('admin.php');
 
 $plugins = bb_get_plugins();
 $_plugins = array();
-if ( function_exists( 'glob' ) && is_callable( 'glob' ) ) {
-	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin ) {
-		$_data = bb_get_plugin_data( $_plugin );
-		$_plugins[$_plugin] = $_data ? $_data : true;
-	}
+foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin ) {
+	$_data = bb_get_plugin_data( $_plugin );
+	$_plugins[$_plugin] = $_data ? $_data : true;
 }
 
 $current = (array) bb_get_option( 'active_plugins' );
