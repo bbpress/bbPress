@@ -771,7 +771,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = %d", $topic->forum_id ) );
 		}
 		$posts = (int) $bbdb->get_var( $bbdb->prepare( "SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0", $topic_id ) );
-		$bbdb->update( $bbdb->topics, array( 'topic_posts' => $posts ), compact( $topic_id ) );
+		$bbdb->update( $bbdb->topics, array( 'topic_posts' => $posts ), compact( 'topic_id' ) );
 
 		if ( isset($thread_ids_cache[$topic_id]) && false !== $pos = array_search($post_id, $thread_ids_cache[$topic_id]['post']) ) {
 			array_splice($thread_ids_cache[$topic_id]['post'], $pos, 1);
