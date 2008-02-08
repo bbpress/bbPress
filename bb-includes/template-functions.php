@@ -879,6 +879,7 @@ function get_page_number_links($page, $total) {
 		} else {
 			$uri = preg_replace('|/page/[0-9]+|', '%_%', $uri);
 		}
+		$uri = str_replace( '/%_%', '%_%', $uri );
 	} else {
 		if ( 1 == $page ) {
 			if ( false === $pos = strpos($uri, '?') ) {
