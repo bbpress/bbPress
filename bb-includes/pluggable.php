@@ -413,7 +413,7 @@ if ( !function_exists( 'bb_mail' ) ) :
 function bb_mail( $to, $subject, $message, $headers = '' ) {
 	if (!is_array($headers)) {
 		$headers = trim($headers);
-		$headers = preg_split('@\r(?:\n{0,1})|\n@', $headers);
+		$headers = preg_split('@\r(?:\n{0,1})|\n@', $headers, -1, PREG_SPLIT_NO_EMPTY);
 	}
 	
 	if (!count($headers) || !count(preg_grep('/^from:\s/im', $headers))) {
