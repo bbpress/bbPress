@@ -188,7 +188,10 @@ function get_recent_user_threads( $user_id ) {
 function bb_insert_topic( $args = null ) {
 	global $bbdb, $bb_cache;
 
-	$args = wp_parse_args( $args );
+	if ( !$args = wp_parse_args( $args ) )
+		return false;
+
+	$fields = array_keys( $args );
 
 	if ( isset($args['topic_id']) && false !== $args['topic_id'] ) {
 		$update = true;
@@ -197,6 +200,13 @@ function bb_insert_topic( $args = null ) {
 		// Get from db, not cache.  Good idea?  Prevents trying to update meta_key names in the topic table (get_topic() returns appended topic obj)
 		$topic = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->topics WHERE topic_id = %d", $topic_id ) );
 		$defaults = get_object_vars( $topic );
+
+		// Only update the args we passed
+		$fields = array_intersect( $fields, array_keys($defaults) );
+		if ( in_array( 'topic_poster', $fields ) )
+			$fields[] = 'topic_poster_name';
+		if ( in_array( 'topic_last_poster', $fields ) )
+			$fields[] = 'topic_last_poster_name';
 	} else {
 		$update = false;
 
@@ -216,12 +226,14 @@ function bb_insert_topic( $args = null ) {
 			'topic_open' => 1,
 			'forum_id' => 0 // accepts ids or slugs
 		);
+
+		// Insert all args
+		$fields = array_keys($defaults);
 	}
 
 	$defaults['tags'] = false; // accepts array or comma delimited string
 	extract( wp_parse_args( $args, $defaults ) );
 	unset($defaults['topic_id'], $defaults['tags']);
-	$fields = array_keys($defaults);
 
 	if ( !$forum = get_forum( $forum_id ) )
 		return false;
@@ -237,18 +249,22 @@ function bb_insert_topic( $args = null ) {
 	$topic_last_poster = $last_user->ID;
 	$topic_last_poster_name = $last_user->user_login;
 
-	$topic_title = apply_filters( 'pre_topic_title', $topic_title, $topic_id );
-	$topic_title = bb_trim_for_db( $topic_title, 150 );
-	if ( !$topic_title )
-		return false;
+	if ( in_array( 'topic_title', $fields ) ) {
+		$topic_title = apply_filters( 'pre_topic_title', $topic_title, $topic_id );
+		$topic_title = bb_trim_for_db( $topic_title, 150 );
+		if ( !$topic_title )
+			return false;
+	}
 
-	$slug_sql = $update ?
-		"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s AND topic_id != %d" :
-		"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s";
+	if ( in_array( 'topic_slug', $fields ) ) {
+		$slug_sql = $update ?
+			"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s AND topic_id != %d" :
+			"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s";
 
-	$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title ); // $topic_slug is always set when updating
-	while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $slug_sql, $topic_slug, $topic_id ) ) )
-		$topic_slug = bb_slug_increment( $_topic_slug, $existing_slug );
+		$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title );
+		while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $slug_sql, $topic_slug, $topic_id ) ) )
+			$topic_slug = bb_slug_increment( $_topic_slug, $existing_slug );
+	}
 
 	if ( $update ) {
 		$bbdb->update( $bbdb->topics, compact( $fields ), compact( 'topic_id' ) );
@@ -621,7 +637,10 @@ function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 function bb_insert_post( $args = null ) {
 	global $bbdb, $bb_cache, $bb_current_user, $thread_ids_cache;
 
-	$args = wp_parse_args( $args );
+	if ( !$args = wp_parse_args( $args ) )
+		return false;
+
+	$fields = array_keys( $args );
 
 	if ( isset($args['post_id']) && false !== $args['post_id'] ) {
 		$update = true;
@@ -630,6 +649,15 @@ function bb_insert_post( $args = null ) {
 		// Get from db, not cache.  Good idea?
 		$post = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->posts WHERE post_id = %d", $post_id ) );
 		$defaults = get_object_vars( $post );
+
+		// Only update the args we passed
+		$fields = array_intersect( $fields, array_keys($defaults) );
+		if ( in_array( 'topic_id', $fields ) )
+			$fields[] = 'forum_id';
+
+		// No need to run filters if these aren't changing
+		// bb_new_post() and bb_update_post() will always run filters
+		$run_filters = (bool) array_intersect( array( 'post_status', 'post_text' ), $fields );
 	} else {
 		$update = false;
 		$now = bb_current_time( 'mysql' );
@@ -646,6 +674,12 @@ function bb_insert_post( $args = null ) {
 			'post_status' => 0, // use bb_delete_post() instead
 			'post_position' => false
 		);
+
+		// Insert all args
+		$fields = array_keys($defaults);
+		$fields[] = 'forum_id';
+
+		$run_filters = true;
 	}
 
 	$defaults['throttle'] = true;
@@ -660,20 +694,19 @@ function bb_insert_post( $args = null ) {
 	$topic_id = (int) $topic->topic_id;
 	$forum_id = (int) $topic->forum_id;
 
-	if ( !$post_text = apply_filters('pre_post', $post_text, $post_id, $topic_id) )
+	if ( $run_filters && !$post_text = apply_filters('pre_post', $post_text, $post_id, $topic_id) )
 		return false;
 
 	if ( $update ) // Don't change post_status with this function.  Use bb_delete_post().
 		$post_status = $post->post_status;
 
-	$post_status = (int) apply_filters('pre_post_status', $post_status, $post_id, $topic_id);
+	if ( $run_filters )
+		$post_status = (int) apply_filters('pre_post_status', $post_status, $post_id, $topic_id);
 
 	if ( false === $post_position )
 		$post_position = $topic_posts = intval( ( 0 == $post_status ) ? $topic->topic_posts + 1 : $topic->topic_posts );
 
 	unset($defaults['post_id'], $defaults['throttle']);
-	$fields = array_keys($defaults);
-	$fields[] = 'forum_id';
 
 	if ( $update ) {
 		$bbdb->update( $bbdb->posts, compact( $fields ), compact( 'post_id' ) );
