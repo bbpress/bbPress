@@ -2277,7 +2277,7 @@ function bb_count_last_query( $query = '' ) {
 		return (int) $bbdb->get_var( "SELECT FOUND_ROWS()" );
 
 	$q = preg_replace(
-		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+[\S]+/', '/DESC/', '/ASC/'),
+		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+.*$/', '/DESC/', '/ASC/'),
 		array('SELECT COUNT(*) FROM', ''),
 		$q
 	);
