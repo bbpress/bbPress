@@ -1,39 +1,53 @@
 <?php
+
 class BB_Query {
 	var $type;
-
 	var $query;
 	var $query_id;
+
 	var $query_vars = array();
 	var $not_set = array();
 	var $request;
 	var $match_query = false;
 
 	var $results;
+	var $errors;
 	var $count = 0;
 	var $found_rows = false;
 
-	var $errors;
-
 	// Can optionally pass unique id string to help out filters
 	function BB_Query( $type = 'topic', $query = '', $id = '' ) {
-		if ( !empty($query) )
-			$this->query($type, $query, $id);
+		$this->init( $type, $query, $id );
+
+		if ( !empty($this->query) )
+			$this->query();
 	}
 
-	function &query( $type = 'topic', $query, $id = '' ) {
+	function init( $type = null, $query = null, $id = null ) {
+		if ( !is_null($type) || !isset($this->type) )
+			$this->type = is_null($type) ? 'topic' : $type;
+		if ( !is_null($query) || !isset($this->query) )
+			$this->query = $query;
+		if ( !is_null($id) || !isset($this->query_id) )
+			$this->query_id = $id;
+
+		$this->query_vars = array();
+		$this->not_set = array();
+		unset($this->request);
+		$this->match_query = false;
+
+		unset($this->results, $this->errors);
+		$this->count = 0;
+		$this->found_rows = false;
+	}
+
+	function &query() {
 		global $bbdb, $bb_cache;
-		$this->type = $type;
-		$this->parse_query($query, $id);
 
-		// Allow filter to abort query
-		if ( false === $this->query_vars )
-			return;
+		if ( $args = func_get_args() )
+			call_user_func_array( array(&$this, 'init'), $args );
 
-		if ( 'post' == $type )
-			$this->generate_post_sql();
-		else
-			$this->generate_topic_sql();
+		$this->generate_query();
 
 		do_action_ref_array( 'bb_query', array(&$this) );
 
@@ -60,6 +74,22 @@ class BB_Query {
 		return $this->results;
 	}
 
+	function generate_query() {
+		if ( $args = func_get_args() )
+			call_user_func_array( array(&$this, 'init'), $args );
+
+		$this->parse_query();
+
+		// Allow filter to abort query
+		if ( false === $this->query_vars )
+			return;
+
+		if ( 'post' == $this->type )
+			$this->generate_post_sql();
+		else
+			$this->generate_topic_sql();
+	}
+
 	// $defaults = vars to use if not set in GET, POST or allowed
 	// $allowed = array( key_name => value, key_name, key_name, key_name => value );
 	// 	key_name => value pairs override anything from defaults, GET, POST
@@ -68,6 +98,11 @@ class BB_Query {
 	//	Ex: $allowed = array( 'topic_status' => 0, 'post_status' => 0, 'topic_author', 'started' );
 	//		Will only take topic_author and started values from defaults, GET, POST and will query with topic_status = 0 and post_status = 0
 	function &query_from_env( $type = 'topic', $defaults = null, $allowed = null, $id = '' ) {
+		$this->init_from_env( $type, $defaults, $allowed, $id );
+		return $this->query();
+	}
+
+	function init_from_env( $type = 'topic', $defaults = null, $allowed = null, $id = '' ) {
 		$vars = $this->fill_query_vars( array() );
 
 		$defaults  = wp_parse_args($defaults);
@@ -90,19 +125,8 @@ class BB_Query {
 		extract($defaults, EXTR_SKIP);
 
 		$vars = $_allowed ? compact($_allowed, array_keys($allowed)) : compact(array_keys($vars));
-		return $this->query( $type, $vars, $id );
-	}
 
-	function init( $id = '' ) {
-		unset($this->query, $this->request);
-		$this->query_vars = array();
-		$this->query_id = $id;
-
-		$this->not_set = array();
-		$this->match_query = false;
-
-		unset($this->results, $this->errors);
-		$this->count = $this->found_rows = 0;
+		$this->init( $type, $vars, $id );
 	}
 
 	function fill_query_vars( $array ) {
@@ -229,25 +253,18 @@ class BB_Query {
 	}
 
 	// Parse a query string and set query flag booleans.
-	function parse_query($query, $id = '') {
-		if ( !empty($query) || !isset($this->query) ) {
-			$this->init( $id );
-			if ( is_array($query) )
-				$this->query_vars = $query;
-			else
-				wp_parse_str($query, $this->query_vars);
-			$this->query = $query;
-		}
+	function parse_query() {
+		if ( $args = func_get_args() )
+			call_user_func_array( array(&$this, 'init'), $args );
+
+		if ( is_array($this->query) )
+			$this->query_vars = $this->query;
+		else
+			wp_parse_str($this->query, $this->query_vars);
+
+		do_action_ref_array('bb_parse_query', array(&$this));
 
 		$this->query_vars = $this->fill_query_vars($this->query_vars);
-
-		if ( !empty($query) )
-			do_action_ref_array('bb_parse_query', array(&$this));
-	}
-
-	// Reparse the query vars.
-	function parse_query_vars() {
-		$this->parse_query('');
 	}
 
 	function get($query_var) {
