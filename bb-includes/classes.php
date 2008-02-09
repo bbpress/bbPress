@@ -239,10 +239,9 @@ class BB_Query {
 			$this->query = $query;
 		}
 
-		$this->query_vars = $this->fill_query_vars($this->query_vars);
+		do_action_ref_array('bb_parse_query', array(&$this));
 
-		if ( !empty($query) )
-			do_action_ref_array('bb_parse_query', array(&$this));
+		$this->query_vars = $this->fill_query_vars($this->query_vars);
 	}
 
 	// Reparse the query vars.
