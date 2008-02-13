@@ -1218,7 +1218,7 @@ function post_author_title( $post_id = 0 ) {
 	else
 		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $title . '</a>';
 
-	echo apply_filters( 'post_author_title', $r );
+	echo apply_filters( 'post_author_title', $r, get_post_id( $post_id ) );
 }
 
 function get_post_author_title( $post_id = 0 ) {
