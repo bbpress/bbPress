@@ -388,6 +388,9 @@ function bb_new_user( $user_login, $user_email, $user_url ) {
 		return false;
 	
 	$user_nicename = $_user_nicename = bb_user_nicename_sanitize( $user_login );
+	if ( strlen( $_user_nicename ) < 1 )
+		return false;
+
 	while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
 		$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
 	

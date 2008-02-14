@@ -441,6 +441,9 @@ function bb_new_forum( $args ) {
 	$forum_sql = "SELECT forum_slug FROM $bbdb->forums WHERE forum_slug = %s";
 
 	$forum_slug = $_forum_slug = bb_slug_sanitize($forum_name);
+	if ( strlen($_forum_slug) < 1 )
+		return false;
+
 	while ( is_numeric($forum_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $forum_sql, $forum_slug ) ) )
 		$forum_slug = bb_slug_increment($_forum_slug, $existing_slug);
 

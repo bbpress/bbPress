@@ -262,6 +262,9 @@ function bb_insert_topic( $args = null ) {
 			"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s";
 
 		$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title );
+		if ( strlen( $_topic_slug ) < 1 )
+			return false;
+
 		while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $slug_sql, $topic_slug, $topic_id ) ) )
 			$topic_slug = bb_slug_increment( $_topic_slug, $existing_slug );
 	}
@@ -2533,18 +2536,21 @@ function bb_slug_increment( $slug, $existing_slug, $slug_length = 255 ) {
 function bb_get_id_from_slug( $table, $slug, $slug_length = 255 ) {
 	global $bbdb;
 	$tablename = $table . 's';
-	$r = false;
+	$r = 0;
 	// Look for new style equiv of old style slug
 	$_slug = bb_slug_sanitize( $slug );
+	if ( strlen( $_slug ) < 1 )
+		return 0;
+
 	if ( strlen($_slug) > $slug_length && preg_match('/^.*-([0-9]+)$/', $_slug, $m) ) {
 		$_slug = bb_encoded_utf8_cut( $_slug, $slug_length - 1 - strlen($number) );
 		$number = (int) $m[1];
 		$r = $bbdb->get_var( $bbdb->prepare( "SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = %s", "$_slug-$number" ) );
 	}
-	if ( !$r ) {
-		$_slug = bb_slug_sanitize($slug);
+
+	if ( !$r )
 		$r = $bbdb->get_var( $bbdb->prepare( "SELECT ${table}_id FROM {$bbdb->$tablename} WHERE ${table}_slug = %s", $_slug ) );
-	}
+
 	return (int) $r;
 }
 
