@@ -87,4 +87,7 @@ if ( bb_get_option( 'wp_table_prefix' ) ) {
 add_filter( 'get_roles', 'bb_get_roles' );
 add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );
 
+if ( !defined( 'BB_MAIL_EOL' ) )
+	define( 'BB_MAIL_EOL', "\n" );
+
 ?>

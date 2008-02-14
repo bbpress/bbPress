@@ -428,7 +428,7 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 		if ($from)
 			$headers[] = 'From: "' . bb_get_option('name') . '" <' . $from . '>';
 	}
-	$headers = trim(join("\r\n", $headers));
+	$headers = trim(join(defined('BB_MAIL_EOL') ? BB_MAIL_EOL : "\n", $headers));
 	
 	return @mail($to, $subject, $message, $headers);
 }
