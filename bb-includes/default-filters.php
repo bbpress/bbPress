@@ -84,4 +84,7 @@ if ( bb_get_option( 'wp_table_prefix' ) ) {
 	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
 }
 
+if ( !defined( 'BB_MAIL_EOL' ) )
+	define( 'BB_MAIL_EOL', "\n" );
+
 ?>
