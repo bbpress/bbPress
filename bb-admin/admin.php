@@ -13,6 +13,8 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 require('admin-functions.php');
 require('admin-deprecated.php');
 
+nocache_headers();
+
 if ( isset($_GET['plugin']) )
 	$bb_admin_page = $_GET['plugin'];
 else	$bb_admin_page = bb_find_filename($_SERVER['PHP_SELF']);
