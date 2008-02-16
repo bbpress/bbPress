@@ -330,6 +330,8 @@ if ( !class_exists( 'WP_Users' ) ) {
 if ( !class_exists( 'BP_Roles' ) )
 	require( BACKPRESS_PATH . 'class.bp-roles.php' );
 
+$wp_roles = new BP_Roles( &$bbdb );
+
 // WP_User
 if ( !class_exists( 'WP_User' ) )
 	require( BACKPRESS_PATH . 'class.wp-user.php' );

@@ -3,8 +3,6 @@ require('./bb-load.php');
 
 bb_auth();
 
-nocache_headers();
-
 if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
 	bb_die(__('Slow down; you move too fast.'));
 

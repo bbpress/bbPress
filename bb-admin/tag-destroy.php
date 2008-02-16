@@ -1,7 +1,6 @@
 <?php
 require('admin.php');
 
-nocache_headers();
 if ( !bb_current_user_can('manage_tags') )
 	bb_die(__('You are not allowed to manage tags.'));
 
