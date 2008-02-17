@@ -786,7 +786,8 @@ class BB_Query_Form extends BB_Query {
 		$id = attribute_escape( $id );
 		$method = 'get' == strtolower($method) ? 'get' : 'post';
 		$submit = attribute_escape( $submit );
-		$action = clean_url( $action );
+		if ( !$action = clean_url( $action ) )
+			$action = '';
 
 		if ( $this->query_vars )
 			$query_vars =& $this->query_vars;
@@ -795,7 +796,7 @@ class BB_Query_Form extends BB_Query {
 
 		extract($query_vars, EXTR_PREFIX_ALL, 'q');
 
-		$r  = "<form action='' method='$method' id='$id' class='search-form'>\n";
+		$r  = "<form action='$action' method='$method' id='$id' class='search-form'>\n";
 
 		if ( $search ) {
 			if ( $_post ) {
@@ -882,6 +883,9 @@ class BB_Query_Form extends BB_Query {
 		}
 
 		$r .= "\t<input type='submit' class='button submit-input' value='$submit' id='$id-submit'>\n";
+
+		do_action( 'bb_query_form', $args, $query_vars );
+
 		$r .= "</form>\n\n";
 
 		echo $r;
