@@ -2328,6 +2328,9 @@ function bb_count_last_query( $query = '' ) {
 		$q
 	);
 
+	if ( preg_match( '/GROUP BY\s+(\S+)/', $q, $matches ) )
+		$q = str_replace( array( 'COUNT(*)', $matches[0] ), array( "COUNT(DISTINCT $matches[1])", '' ), $q );
+
 	if ( !$query )
 		$bb_last_countable_query = '';
 	return (int) $bbdb->get_var($q);
