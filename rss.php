@@ -63,7 +63,7 @@ if ( !$bb_db_override ) {
 				die();
 			if ( !$bb_views[$feed_id]['feed'] )
 				die();
-			if ( !$topics_object = new BB_Query( 'topic', $bb_views[$feed_id]['query'], "bb_view_$view" ) )
+			if ( !$topics_object = new BB_Query( 'topic', $bb_views[$feed_id]['query'], "bb_view_$feed_id" ) )
 				die();
 			
 			$topics = $topics_object->results;
