@@ -2498,24 +2498,26 @@ function bb_tag_search( $args = '' ) {
 }
 
 function bb_related_tags( $_tag = false, $number = 40 ) {
-	global $bbdb, $tag_cache, $tag;;
+	global $bbdb, $tag_cache, $tag;
 	if ( is_numeric($_tag) )
 		$_tag = bb_get_tag( $_tag );
 	elseif ( is_string($_tag) )
 		$_tag = bb_get_tag_by_name( $_tag );
 	elseif ( false === $_tag )
-		$_tag =& $tag;
+		$_tag = $tag;
 
 	if ( !$_tag )
 		return false;
+
+	$number = (int) $number;
 
 	$sql = $bbdb->prepare(
 		"SELECT tag.tag_id, tag.tag, tag.raw_tag, COUNT(DISTINCT t.topic_id) AS tag_count
 	           FROM $bbdb->tagged AS t
 	           JOIN $bbdb->tagged AS tt  ON (t.topic_id = tt.topic_id)
 	           JOIN $bbdb->tags   AS tag ON (t.tag_id = tag.tag_id)
-	        WHERE tt.tag_id = %d AND t.tag_id != %d GROUP BY t.tag_id ORDER BY tag_count DESC",
-		$_tag->tag_id, $_tag->tag_id
+	        WHERE tt.tag_id = %d AND t.tag_id != %d GROUP BY t.tag_id ORDER BY tag_count DESC LIMIT %d",
+		$_tag->tag_id, $_tag->tag_id, $number
 	);
 
 	foreach ( (array) $tags = $bbdb->get_results( $sql ) as $_tag )
