@@ -141,10 +141,9 @@ if ( isset($_POST['clean-favorites']) && 1 == $_POST['clean-favorites'] ):
 endif;
 
 bb_recount_list();
- if ( $recount_list )
-	foreach ( (array) $recount_list as $item )
-		if ( isset($item[2]) && isset($_POST[$item[0]]) && 1 == $_POST[$item[0]])
-			$item[2]();
+foreach ( (array) $recount_list as $item )
+	if ( isset($item[2]) && isset($_POST[$item[0]]) && 1 == $_POST[$item[0]] && is_callable($item[2]) )
+		call_user_func( $item[2] );
 
 echo "</ul>\n\n<p>\n\t" . __('Done recounting.  The process took') . "\n\t";
 printf(__('%1$d queries and %2$s seconds.'), $bbdb->num_queries, bb_timer_stop(0));
