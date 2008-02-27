@@ -1,5 +1,5 @@
-<?php header('Content-Type: text/xml'); ?>
-<?php echo '<?xml version="1.0"?>'; ?>
+<?php header('Content-Type: text/xml; charset=UTF-8'); ?>
+<?php echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
 <!-- generator="bbPress" -->
 
 <rss version="2.0"
