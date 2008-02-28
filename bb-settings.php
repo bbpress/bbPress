@@ -133,7 +133,6 @@ require( BBPATH . BBINC . 'cache.php');
 require( BBPATH . BBINC . 'deprecated.php');
 
 require( BBPATH . BBINC . 'bozo.php');
-require( BBPATH . BBINC . 'akismet.php');
 require( BBPATH . BBINC . 'default-filters.php');
 require( BBPATH . BBINC . 'script-loader.php');
 
@@ -144,6 +143,9 @@ if ( $bb->load_options ) {
 	bb_cache_all_options();
 	$bbdb->show_errors();
 }
+
+if ( bb_get_option( 'akismet_key' ) )
+	require( BBPATH . BBINC . 'akismet.php');
 
 $_GET    = bb_global_sanitize($_GET   );
 $_POST   = bb_global_sanitize($_POST  );

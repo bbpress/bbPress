@@ -1,7 +1,4 @@
 <?php
-if ( !bb_get_option( 'akismet_key' ) )
-	return; // Bail if no key.
-
 $bb_ksd_api_host = bb_get_option( 'akismet_key' ) . '.rest.akismet.com';
 $bb_ksd_api_port = 80;
 $bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. bb_get_option( 'version' );
