@@ -1,7 +1,4 @@
 <?php
-if ( !defined( 'BB_DISABLE_BOZO_CHECKS' ) )
-	define( 'BB_DISABLE_BOZO_CHECKS', false );
-
 function bb_bozo_posts( $where ) {
 	if ( !$id = bb_get_current_user_info( 'id' ) )
 		return $where;
@@ -299,9 +296,6 @@ function bb_bozo_admin_page() {
 	$bozos = new BB_Bozo_Users( $_GET['userspage'] );
 	$bozos->display( false, bb_current_user_can( 'edit_users' ) );
 }
-
-if ( BB_DISABLE_BOZO_CHECKS )
-	return;
 
 add_filter( 'pre_post_status', 'bb_bozo_pre_post_status', 5, 3 );
 add_action( 'bb_new_post', 'bb_bozo_new_post', 5 );

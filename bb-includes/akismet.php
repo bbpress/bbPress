@@ -143,7 +143,7 @@ function bb_ksd_check_profile( $user_id ) {
 			bb_ksd_submit( $user_id, 'spammer' );
 	} else {
 		$response = bb_ksd_submit( $bb_current_user->data->occ . ' ' . $bb_current_user->data->interests );
-		if ( 'true' == $response[1] )
+		if ( 'true' == $response[1] && function_exists('bb_bozon') )
 			bb_bozon( bb_get_current_user_info( 'id' ) );
 	}
 	bb_set_current_user((int) $bb_current_id);
