@@ -90,7 +90,7 @@ if ( !$bb_db_override ) {
 		
 		case 'profile':
 			if ( !$user = bb_get_user( $feed_id ) )
-				if ( !$user = bb_get_user_by_name( $feed_id ) )
+				if ( !$user = bb_get_user_by_nicename( $feed_id ) )
 					die();
 			if ( !$posts = get_user_favorites( $user->ID ) )
 				die();
