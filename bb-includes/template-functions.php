@@ -1263,7 +1263,7 @@ function get_allowed_markup( $args = '' ) {
 	extract($args, EXTR_SKIP);
 
 	$tags = bb_allowed_tags();
-	unset($tags['pre']);
+	unset($tags['pre'], $tags['br']);
 	$tags = array_keys($tags);
 
 	switch ( $format ) :
