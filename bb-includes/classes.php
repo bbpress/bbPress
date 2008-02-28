@@ -808,7 +808,7 @@ class BB_Query_Form extends BB_Query {
 				$s_name = $s_id = 'search';
 			}
 			$r .= "\t<fieldset><legend>" . __('Search&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='$s_name' id='$s_id' type='text' class='text-input' value='$s_value'>";
+			$r .= "\t\t<input name='$s_name' id='$s_id' type='text' class='text-input' value='$s_value' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
@@ -821,21 +821,21 @@ class BB_Query_Form extends BB_Query {
 		if ( $tag ) {
 			$q_tag = attribute_escape( $q_tag );
 			$r .= "\t<fieldset><legend>" .  __('Tag&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag'>";
+			$r .= "\t\t<input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
 		if ( $topic_author ) {
 			$q_topic_author = attribute_escape( $q_topic_author );
 			$r .= "\t<fieldset><legend>" . __('Topic Author&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author'>";
+			$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
 		if ( $post_author ) {
 			$q_post_author = attribute_escape( $q_post_author );
 			$r .= "\t<fieldset><legend>" . __('Post Author&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author'>";
+			$r .= "\t\t<input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
@@ -878,11 +878,13 @@ class BB_Query_Form extends BB_Query {
 		if ( $topic_title ) {
 			$q_topic_title = attribute_escape( $q_topic_title );
 			$r .= "\t<fieldset><legend>" . __('Title&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title'>";
+			$r .= "\t\t<input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
-		$r .= "\t<input type='submit' class='button submit-input' value='$submit' id='$id-submit'>\n";
+		$r .= "\t<p class='submit'>\n";
+		$r .= "\t\t<input type='submit' class='button submit-input' value='$submit' id='$id-submit' />\n";
+		$r .= "\t</p>\n";
 
 		do_action( 'bb_query_form', $args, $query_vars );
 
