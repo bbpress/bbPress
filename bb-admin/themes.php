@@ -1,26 +1,28 @@
 <?php
 require_once('admin.php');
 
+$themes = bb_get_themes();
+$activetheme = bb_get_option('bb_active_theme');
+if (!$activetheme) {
+	$activetheme = BBDEFAULTTHEMEDIR;
+}
+
 if ( isset($_GET['theme']) ) {
 	if ( !bb_current_user_can( 'manage_themes' ) ) {
 		wp_redirect( bb_get_option( 'uri' ) );
 		exit;
 	}
 	bb_check_admin_referer( 'switch-theme' );
+	do_action( 'bb_deactivate_theme_' . basename($activetheme) );
 	$activetheme = stripslashes($_GET['theme']);
 	if ($activetheme == BBDEFAULTTHEMEDIR) {
 		bb_delete_option( 'bb_active_theme' );
 	} else {
 		bb_update_option( 'bb_active_theme', $activetheme );
 	}
+	do_action( 'bb_activate_theme_' . basename($activetheme) );
 	wp_redirect( bb_get_option( 'uri' ) . 'bb-admin/themes.php?activated' );
 	exit;
-} 
-
-$themes = bb_get_themes();
-$activetheme = bb_get_option('bb_active_theme');
-if (!$activetheme) {
-	$activetheme = BBDEFAULTTHEMEDIR;
 }
 
 if ( isset($_GET['activated']) )
