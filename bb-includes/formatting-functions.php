@@ -64,14 +64,18 @@ function bb_code_trick_reverse( $text ) {
 
 function bb_encode_bad( $text ) {
 	$text = wp_specialchars( $text );
-	$text = preg_replace('|&lt;br /&gt;|', '<br />', $text);
-	foreach ( bb_allowed_tags() as $tag => $args ) {
-		if ( 'br' == $tag )
-			continue;
+
+	$allowed = bb_allowed_tags();
+	$empty = array( 'br' => true, 'hr' => true, 'img' => true, 'input' => true, 'param' => true, 'area' => true, 'col' => true, 'embed' => true );
+
+	foreach ( $allowed as $tag => $args ) {
 		if ( $args )
-			$text = preg_replace("|&lt;(/?$tag.*?)&gt;|", '<$1>', $text);
+			$tag = "$tag(?:\s.*?)?";
+
+		if ( isset( $empty[$tag] ) )
+			$text = preg_replace("|&lt;($tag)\s*?/*?&gt;|i", '<$1 />', $text);
 		else
-			$text = preg_replace("|&lt;(/?$tag)&gt;|", '<$1>', $text);
+			$text = preg_replace("|&lt;(/?$tag)&gt;|i", '<$1>', $text);
 	}
 
 	return $text;
