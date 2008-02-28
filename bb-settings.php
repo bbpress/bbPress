@@ -297,7 +297,7 @@ do_action( 'bb_options_loaded' );
 if ( function_exists( 'glob' ) && is_callable( 'glob' ) && $_plugins_glob = glob(BBPLUGINDIR . '_*.php') )
 	foreach ( $_plugins_glob as $_plugin )
 		require($_plugin);
-unset($_plugins_glob, $_plugin)
+unset($_plugins_glob, $_plugin);
 do_action( 'bb_underscore_plugins_loaded' );
 
 if ( $plugins = bb_get_option( 'active_plugins' ) )
