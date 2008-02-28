@@ -2348,12 +2348,12 @@ function bb_plugin_basename($file) {
 	return $file;
 }
 
-function bb_register_activation_hook($file, $function) {
+function bb_register_plugin_activation_hook($file, $function) {
 	$file = bb_plugin_basename($file);
 	add_action('bb_activate_plugin_' . $file, $function);
 }
 
-function bb_register_deactivation_hook($file, $function) {
+function bb_register_plugin_deactivation_hook($file, $function) {
 	$file = bb_plugin_basename($file);
 	add_action('bb_deactivate_plugin_' . $file, $function);
 }
@@ -2391,6 +2391,14 @@ function bb_get_themes() {
 
 	ksort($r);
 	return $r;
+}
+
+function bb_register_theme_activation_hook($theme, $function) {
+	add_action('bb_activate_theme_' . $theme, $function);
+}
+
+function bb_register_theme_deactivation_hook($theme, $function) {
+	add_action('bb_deactivate_theme_' . $theme, $function);
 }
 
 /* Search Functions */

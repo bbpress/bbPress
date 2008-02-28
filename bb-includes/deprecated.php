@@ -543,6 +543,14 @@ function get_forum_rss_link( $forum_id = 0 ) {
 	return bb_get_forum_posts_rss_link( $forum_id );
 }
 
+function bb_register_activation_hook($file, $function) {
+	bb_register_plugin_activation_hook($file, $function);
+}
+
+function bb_register_deactivation_hook($file, $function) {
+	bb_register_plugin_deactivation_hook($file, $function);
+}
+
 function bb_enqueue_script( $handle, $src = false, $deps = array(), $ver = false ) {
 	wp_enqueue_script( $handle, $src, $deps, $ver );
 }
