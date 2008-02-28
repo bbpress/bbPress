@@ -1,7 +1,7 @@
 <?php
 
-if ( phpversion() < '4.2' )
-	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.2', phpversion()) );
+if ( version_compare(PHP_VERSION, '4.3', '<') )
+	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.3', PHP_VERSION) );
 
 if ( !$bb_table_prefix )
 	die('You must specify a table prefix in your <code>bb-config.php</code> file.');
@@ -290,10 +290,10 @@ if ( !isset( $bb->tagpath ) )
 do_action( 'bb_options_loaded' );
 
 // Load Plugins
-if ( function_exists( 'glob' ) && is_callable( 'glob' ) )
-	foreach ( glob(BBPLUGINDIR . '_*.php') as $_plugin )
+if ( function_exists( 'glob' ) && is_callable( 'glob' ) && $_plugins_glob = glob(BBPLUGINDIR . '_*.php') )
+	foreach ( $_plugins_glob as $_plugin )
 		require($_plugin);
-unset($_plugin);
+unset($_plugins_glob, $_plugin)
 do_action( 'bb_underscore_plugins_loaded' );
 
 if ( $plugins = bb_get_option( 'active_plugins' ) )
