@@ -13,7 +13,8 @@ if ( isset($_GET['view']) || get_path() == 'view' ) {
 	
 	// Topic
 	$feed = 'topic';
-	$feed_id = isset($_GET['topic']) ? $_GET['topic'] : get_path(2);
+	$topic = get_topic(isset($_GET['topic']) ? $_GET['topic'] : get_path(2));
+	$feed_id = $topic->topic_id;
 	
 } elseif ( isset($_GET['profile']) || get_path() == 'profile' ) {
 	
@@ -36,7 +37,8 @@ if ( isset($_GET['view']) || get_path() == 'view' ) {
 		// Forum recent posts
 		$feed = 'forum-posts';
 	}
-	$feed_id = isset($_GET['forum']) ? $_GET['forum'] : get_path(2);
+	$forum = get_forum(isset($_GET['forum']) ? $_GET['forum'] : get_path(2));
+	$feed_id = $forum->forum_id;
 	
 } elseif ( isset($_GET['topics']) || get_path() == 'topics' ) {
 	
