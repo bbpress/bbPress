@@ -132,7 +132,9 @@ require( BBPATH . BBINC . 'capabilities.php');
 require( BBPATH . BBINC . 'cache.php');
 require( BBPATH . BBINC . 'deprecated.php');
 
-require( BBPATH . BBINC . 'bozo.php');
+if ( defined('BB_DISABLE_BOZO_CHECKS') && !BB_DISABLE_BOZO_CHECKS )
+	require( BBPATH . BBINC . 'bozo.php');
+
 require( BBPATH . BBINC . 'default-filters.php');
 require( BBPATH . BBINC . 'script-loader.php');
 
