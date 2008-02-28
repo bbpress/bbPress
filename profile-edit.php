@@ -79,9 +79,11 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) :
 
 		if ( bb_current_user_can( 'edit_users' ) ) :
 			$user_obj = new WP_User( $user->ID );
-			if ( ( 'keymaster' != $role || bb_current_user_can( 'keep_gate' ) ) && !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
+			$can_keep_gate = bb_current_user_can( 'keep_gate' );
+			if ( ( 'keymaster' != $role || $can_keep_gate ) && !array_key_exists($role, $user->capabilities) && array_key_exists($role, $bb_roles->roles) ) {
 				$old_role = $user_obj->roles[0];
-				if ( $bb_current_id != $user->ID || 'keymaster' != $old_role ) // keymasters cannot demote themselves
+				// keymasters cannot demote themselves, only keymasters con demote keymasters
+				if ( 'keymaster' != $old_role || ( $bb_current_id != $user->ID && $can_keep_gate ) )
 					$user_obj->set_role($role); // Only support one role for now
 				if ( 'blocked' == $role && 'blocked' != $old_role )
 					bb_break_password( $user->ID );

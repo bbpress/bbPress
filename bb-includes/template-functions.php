@@ -1484,10 +1484,13 @@ function bb_profile_admin_form( $id = 0 ) {
 	$required = false;
 
 	$roles = $wp_roles->role_names;
-	if ( !bb_current_user_can( 'keep_gate' ) )
-		unset($roles['keymaster']);
-	elseif ( $bb_current_id == $user->ID )
+	$can_keep_gate = bb_current_user_can( 'keep_gate' );
+
+	if ( ( $bb_current_id == $user->ID && $can_keep_gate ) || ( array_key_exists('keymaster', $user->capabilities) && !$can_keep_gate ) )
 		$roles = array( 'keymaster' => $roles['keymaster'] );
+	elseif ( !$can_keep_gate )
+		unset($roles['keymaster']);
+
 ?>
 <table id="admininfo">
 <tr>
