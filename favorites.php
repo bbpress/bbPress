@@ -7,7 +7,6 @@ if ( !bb_current_user_can( 'edit_favorites_of', $user_id ) )
 	bb_die(__('You cannot edit those favorites.  How did you get here?'));
 
 if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
-	nocache_headers();
 	$fav = (int) $_GET['fav'];
 	$topic_id = (int) $_GET['topic_id'];
 
