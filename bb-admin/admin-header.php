@@ -1,8 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" <?php bb_language_attributes( '1.1' ); ?>>
 <head>
-	<title><?php bb_admin_title() ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title><?php bb_admin_title() ?></title>
 	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style.css" type="text/css" />
 <?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style-rtl.css" type="text/css" />
