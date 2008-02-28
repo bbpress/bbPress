@@ -1362,7 +1362,7 @@ class BB_Install
 		bb_update_option('uri', $data3['uri']['value']);
 		$installation_log[] = '>>> ' . __('Site address (URL):') . ' ' . $data3['uri']['value'];
 		bb_update_option('from_email', $data3['keymaster_user_email']['value']);
-		$installation_log[] = '>>> ' . __('Admin email address:') . ' ' . $data3['keymaster_user_email']['value'];
+		$installation_log[] = '>>> ' . __('From email address:') . ' ' . $data3['keymaster_user_email']['value'];
 		
 		// Create the key master
 		$keymaster_created = false;
