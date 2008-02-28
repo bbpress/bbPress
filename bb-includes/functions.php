@@ -1849,6 +1849,8 @@ function bb_find_filename( $text ) {
 }
 
 function bb_send_headers() {
+	if ( bb_is_user_logged_in() )
+		nocache_headers();
 	@header('Content-Type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
 	do_action( 'bb_send_headers' );
 }
