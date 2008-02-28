@@ -2152,31 +2152,14 @@ function bb_nonce_field($action = -1, $name = "_wpnonce", $referer = true) {
 		wp_referer_field();
 }
 
-function bb_nonce_ays($action) {
-	if ( !$adminurl = wp_get_referer() )
-		$adminurl = bb_get_option( 'uri' ) . '/bb-admin';
-
-	$title = wp_specialchars( __('bbPress Confirmation') );
-	$adminurl = attribute_escape( $adminurl );
-	// Remove extra layer of slashes.
-	$_POST   = stripslashes_deep( $_POST );
-	if ( $_POST ) {
-		$q = http_build_query($_POST);
-		$q = explode( ini_get('arg_separator.output'), $q);
-		$url = attribute_escape( remove_query_arg( '_wpnonce' ) );
-		$html .= "\t<form method='post' action='$url'>\n";
-		foreach ( (array) $q as $a ) {
-			$v = substr(strstr($a, '='), 1);
-			$k = substr($a, 0, -(strlen($v)+1));
-			$html .= "\t\t<input type='hidden' name='" . attribute_escape( urldecode($k) ) . "' value='" . attribute_escape( urldecode($v) ) . "' />\n";
-		}
-		$html .= "\t\t<input type='hidden' name='_wpnonce' value='" . bb_create_nonce($action) . "' />\n";
-		$html .= "\t\t<div id='message' class='confirm fade'>\n\t\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t\t<p><a href='$adminurl'>" . wp_specialchars( __('No') ) . "</a> <input type='submit' value='" . attribute_escape( __('Yes') ) . "' /></p>\n\t\t</div>\n\t</form>\n";
-	} else {
-		$html .= "\t<div id='message' class='confirm fade'>\n\t<p>" . wp_specialchars( bb_explain_nonce($action) ) . "</p>\n\t<p><a href='$adminurl'>" . wp_specialchars( __('No') ) . "</a> <a href='" . attribute_escape( bb_nonce_url( $_SERVER['REQUEST_URI'], $action ) ) . "'>" . wp_specialchars( __('Yes') ) . "</a></p>\n\t</div>\n";
-	}
+function bb_nonce_ays( $action ) {
+	$title = __( 'bbPress Failure Notice' );
+	$html .= "\t<div id='message' class='updated fade'>\n\t<p>" . wp_specialchars( bb_explain_nonce( $action ) ) . "</p>\n\t<p>";
+	if ( wp_get_referer() )
+		$html .= "<a href='" . remove_query_arg( 'updated', clean_url( wp_get_referer() ) ) . "'>" . __( 'Please try again.' ) . "</a>";
+	$html .= "</p>\n\t</div>\n";
 	$html .= "</body>\n</html>";
-	bb_die($html, $title);
+	bb_die( $html, $title );
 }
 
 function bb_install_header( $title = '', $header = false ) {
@@ -2260,34 +2243,34 @@ function bb_explain_nonce($action) {
 		$noun = $matches[2];
 
 		$trans = array();
-		$trans['create']['post'] = array(__('Are you sure you want to submit this post?'), false);
-		$trans['edit']['post'] = array(__('Are you sure you want to edit this post?'), false);
-		$trans['delete']['post'] = array(__('Are you sure you want to delete this post?'), false);
+		$trans['create']['post'] = array(__('Your attempt to submit this post has failed.'), false);
+		$trans['edit']['post'] = array(__('Your attempt to edit this post has failed.'), false);
+		$trans['delete']['post'] = array(__('Your attempt to delete this post has failed.'), false);
 
-		$trans['create']['topic'] = array(__('Are you sure you want to create this topic?'), false);
-		$trans['resolve']['topic'] = array(__('Are you sure you want to change the resolution status of this topic?'), false);
-		$trans['delete']['topic'] = array(__('Are you sure you want to delete this topic?'), false);
-		$trans['close']['topic'] = array(__('Are you sure you want to change the status of this topic?'), false);
-		$trans['stick']['topic'] = array(__('Are you sure you want to change the sticky status of this topic?'), false);
-		$trans['move']['topic'] = array(__('Are you sure you want to move this topic?'), false);
+		$trans['create']['topic'] = array(__('Your attempt to create this topic has failed.'), false);
+		$trans['resolve']['topic'] = array(__('Your attempt to change the resolution status of this topic has failed.'), false);
+		$trans['delete']['topic'] = array(__('Your attempt to delete this topic has failed.'), false);
+		$trans['close']['topic'] = array(__('Your attempt to change the status of this topic has failed.'), false);
+		$trans['stick']['topic'] = array(__('Your attempt to change the sticky status of this topic has failed.'), false);
+		$trans['move']['topic'] = array(__('Your attempt to move this topic has failed.'), false);
 
-		$trans['add']['tag'] = array(__('Are you sure you want to add this tag to this topic?'), false);
-		$trans['rename']['tag'] = array(__('Are you sure you want to rename this tag?'), false);
-		$trans['merge']['tag'] = array(__('Are you sure you want to submit these tags?'), false);
-		$trans['destroy']['tag'] = array(__('Are you sure you want to destroy this tag?'), false);
-		$trans['remove']['tag'] = array(__('Are you sure you want to remove this tag from this topic?'), false);
+		$trans['add']['tag'] = array(__('Your attempt to add this tag to this topic has failed.'), false);
+		$trans['rename']['tag'] = array(__('Your attempt to rename this tag has failed.'), false);
+		$trans['merge']['tag'] = array(__('Your attempt to submit these tags has failed.'), false);
+		$trans['destroy']['tag'] = array(__('Your attempt to destroy this tag has failed.'), false);
+		$trans['remove']['tag'] = array(__('Your attempt to remove this tag from this topic has failed.'), false);
 
-		$trans['toggle']['favorite'] = array(__('Are you sure you want to toggle your favorite status for this topic?'), false);
+		$trans['toggle']['favorite'] = array(__('Your attempt to toggle your favorite status for this topic has failed.'), false);
 
-		$trans['edit']['profile'] = array(__("Are you sure you want to edit this user's profile?"), false);
+		$trans['edit']['profile'] = array(__("Your attempt to edit this user's profile has failed."), false);
 
-		$trans['add']['forum'] = array(__("Are you sure you want to add this forum?"), false);
-		$trans['update']['forums'] = array(__("Are you sure you want to update your forums?"), false);
-		$trans['delete']['forums'] = array(__("Are you sure you want to delete that forum?"), false);
+		$trans['add']['forum'] = array(__("Your attempt to add this forum has failed."), false);
+		$trans['update']['forums'] = array(__("Your attempt to update your forums has failed."), false);
+		$trans['delete']['forums'] = array(__("Your attempt to delete that forum has failed."), false);
 
-		$trans['do']['counts'] = array(__("Are you sure you want to recount these items?"), false);
+		$trans['do']['counts'] = array(__("Your attempt to recount these items has failed."), false);
 
-		$trans['switch']['theme'] = array(__("Are you sure you want to switch themes?"), false);
+		$trans['switch']['theme'] = array(__("Your attempt to switch themes has failed."), false);
 
 		if ( isset($trans[$verb][$noun]) ) {
 			if ( !empty($trans[$verb][$noun][1]) ) {
@@ -2295,14 +2278,14 @@ function bb_explain_nonce($action) {
 				$object = $matches[4];
 				if ( 'use_id' != $lookup )
 					$object = call_user_func($lookup, $object);
-				return sprintf($trans[$verb][$noun][0], $object);
+				return sprintf($trans[$verb][$noun][0], wp_specialchars( $object ));
 			} else {
 				return $trans[$verb][$noun][0];
 			}
 		}
 	}
 
-	return apply_filters( 'bb_explain_nonce_' . $verb . '-' . $noun, __('Are you sure you want to do this?'), $matches[4] );
+	return apply_filters( 'bb_explain_nonce_' . $verb . '-' . $noun, __('Your attempt to do this has failed.'), $matches[4] );
 }
 
 /* DB Helpers */
