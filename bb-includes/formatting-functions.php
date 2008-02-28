@@ -69,13 +69,12 @@ function bb_encode_bad( $text ) {
 	$empty = array( 'br' => true, 'hr' => true, 'img' => true, 'input' => true, 'param' => true, 'area' => true, 'col' => true, 'embed' => true );
 
 	foreach ( $allowed as $tag => $args ) {
-		if ( $args )
-			$tag = "$tag(?:\s.*?)?";
+		$preg = $args ? "$tag(?:\s.*?)?" : $tag;
 
 		if ( isset( $empty[$tag] ) )
-			$text = preg_replace("|&lt;($tag)\s*?/*?&gt;|i", '<$1 />', $text);
+			$text = preg_replace("|&lt;($preg)\s*?/*?&gt;|i", '<$1 />', $text);
 		else
-			$text = preg_replace("|&lt;(/?$tag)&gt;|i", '<$1>', $text);
+			$text = preg_replace("|&lt;(/?$preg)&gt;|i", '<$1>', $text);
 	}
 
 	return $text;
