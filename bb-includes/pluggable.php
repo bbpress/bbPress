@@ -13,7 +13,7 @@ endif;
 // $already_md5 variable is deprecated
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
-	global $wp_auth_object;
+	global $wp_users_object;
 
 	if ( !$user = sanitize_user( $user ) )
 		return false;
@@ -26,7 +26,7 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 	
 	// If using old md5 password, rehash.
 	if ( strlen($user->user_pass) <= 32 ) {
-		$wp_auth_object->set_password( $pass, $user->ID );
+		$wp_users_object->set_password( $pass, $user->ID );
 		$user = bb_get_user( $user->ID );
 	}
 	
@@ -71,7 +71,7 @@ endif;
 if ( !function_exists('bb_is_user_logged_in') ) :
 function bb_is_user_logged_in() {
 	$current_user = bb_get_current_user();
-	
+
 	if ( empty($current_user) )
 		return false;
 	
@@ -270,15 +270,13 @@ endif;
 
 if ( !function_exists('wp_hash_password') ) : // [WP6350]
 function wp_hash_password($password) {
-	global $wp_auth_object;
-	return $wp_auth_object->hash_password( $password );
+	return WP_Pass::hash_password( $password );
 }
 endif;
 
 if ( !function_exists('wp_check_password') ) : // [WP6350]
 function wp_check_password($password, $hash) {
-	global $wp_auth_object;
-	return $wp_auth_object->check_password( $password, $hash );
+	return WP_Pass::check_password( $password, $hash );
 }
 endif;
 
@@ -288,8 +286,7 @@ if ( !function_exists('wp_generate_password') ) :
  * @return string the password
  **/
 function wp_generate_password( $length = 7 ) {
-	global $wp_auth_object;
-	return $wp_auth_object->generate_password( $length );
+	return WP_Pass::generate_password( $length );
 }
 endif;
 
@@ -373,15 +370,11 @@ function bb_has_broken_pass( $user_id = 0 ) {
 endif;
 
 if ( !function_exists('bb_new_user') ) :
-function bb_new_user( $user_login, $user_email, $user_url ) {
+function bb_new_user( $user_login, $user_email, $user_url = '' ) {
 	global $wp_users_object;
 
 	// is_email check + dns
 	if ( !$user_email = bb_verify_email( $user_email ) )
-		return false;
-
-	$new_user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url' ) );
-	if ( is_wp_error($new_user) )
 		return false;
 
 	if ( !$user_login = sanitize_user( $user_login, true ) )
@@ -394,20 +387,20 @@ function bb_new_user( $user_login, $user_email, $user_url ) {
 	while ( is_numeric($user_nicename) || $existing_user = bb_get_user_by_nicename( $user_nicename ) )
 		$user_nicename = bb_slug_increment($_user_nicename, $existing_user->user_nicename, 50);
 	
-	$user_url = bb_fix_link( $user_url );
+	$user_url = $user_url ? bb_fix_link( $user_url ) : '';
 
-	$user_registered = bb_current_time('mysql');
-
-	$user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url', 'user_nicename', 'user_registered' ) );
+	$user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url', 'user_nicename' ) );
+	if ( is_wp_error($user) )
+		return false;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
 		bb_update_usermeta( $user->ID, $bbdb->prefix . 'capabilities', array('keymaster' => true) );
 	} else {		
 		bb_update_usermeta( $user->ID, $bbdb->prefix . 'capabilities', array('member' => true) );
-		bb_send_pass( $user->ID, $password );
+		bb_send_pass( $user->ID, $user->plain_pass );
 	}
 
-	do_action('bb_new_user', $user->ID, $password);
+	do_action('bb_new_user', $user->ID, $user->plain_pass);
 	return $user->ID;
 }
 endif;

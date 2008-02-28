@@ -313,16 +313,20 @@ if ( !isset( $bb->sitecookiepath ) ) {
 
 /* BackPress */
 
+// WP_Pass
+if ( !class_exists( 'WP_Pass' ) )
+	require( BACKPRESS_PATH . 'class.wp-pass.php' );
+
 // WP_Users
 if ( !class_exists( 'WP_Users' ) ) {
 	require( BACKPRESS_PATH . 'class.wp-users.php' );
-	$wp_users_object = new WP_Users( &$bbdb );
+	$wp_users_object = new WP_Users( $bbdb );
 }
 
 if ( !class_exists( 'BP_Roles' ) )
 	require( BACKPRESS_PATH . 'class.bp-roles.php' );
 
-$wp_roles = new BP_Roles( &$bbdb );
+$wp_roles = new BP_Roles( $bbdb );
 
 // WP_User
 if ( !class_exists( 'WP_User' ) )
@@ -331,7 +335,7 @@ if ( !class_exists( 'WP_User' ) )
 // WP_Auth
 if ( !class_exists( 'WP_Auth' ) ) {
 	require( BACKPRESS_PATH . 'class.wp-auth.php' );
-	$wp_auth_object = new WP_Auth( $bbdb, array(
+	$wp_auth_object = new WP_Auth( $bbdb, $wp_users_object, array(
 		'domain' => $bb->cookiedomain,
 		'path' => array( $bb->cookiepath, $bb->sitecookiepath ),
 		'name' => $bb->authcookie
