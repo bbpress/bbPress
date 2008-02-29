@@ -109,9 +109,9 @@ function bb_is_user_logged_in() {
 endif;
 
 if ( !function_exists('bb_login') ) :
-function bb_login($login, $password) {
+function bb_login($login, $password, $remember) {
 	if ( $user = bb_check_login( $login, $password ) ) {
-		wp_set_auth_cookie($user->ID);
+		wp_set_auth_cookie($user->ID, $remember);
 		
 		do_action('bb_user_login', (int) $user->ID );
 	}

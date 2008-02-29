@@ -113,7 +113,7 @@ function login_form() {
 	if ( bb_is_user_logged_in() )
 		bb_load_template( 'logged-in.php' );
 	else
-		bb_load_template( 'login-form.php' );
+		bb_load_template( 'login-form.php', array('user_login', 'remember_checked', 'redirect_to', 're') );
 }
 
 function search_form( $q = '' ) {
@@ -1450,7 +1450,7 @@ function bb_profile_data_form( $id = 0 ) {
 ?>
 <table id="userinfo">
 <?php if ( is_array($profile_info_keys) ) : $bb_current_id = bb_get_current_user_info( 'id' ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_id == $user->ID ) : ?>
-<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
+<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] = '<sup class="required">*</sup> ' . $label[1]; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo attribute_escape( $key ); ?>" type="<?php if ( isset($label[2]) ) echo attribute_escape( $label[2] ); else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo attribute_escape( $key ); ?>" value="<?php echo attribute_escape( $user->$key ); ?>" /><?php
 if ( isset($$key) && false === $$key) :
@@ -1464,7 +1464,7 @@ endif;
 <?php endif; endforeach; endif; ?>
 </table>
 <?php bb_nonce_field( 'edit-profile_' . $user->ID ); if ( $required ) : ?>
-<p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
+<p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
 <?php endif;
 do_action( 'extra_profile_info', $user->ID );
 }
@@ -1511,7 +1511,7 @@ function bb_profile_admin_form( $id = 0 ) {
   </td>
 </tr>
 <?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
-<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; $required = true; } ?>>
+<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] = '<sup class="required">*</sup> ' . $label[1]; $required = true; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo attribute_escape( $key ); ?>" id="<?php echo attribute_escape( $key ); ?>" type=<?php
 	switch ($label[2]) {
@@ -1534,7 +1534,7 @@ function bb_profile_admin_form( $id = 0 ) {
 <?php endforeach; endif; ?>
 </table>
 <?php if ( $required ) : ?>
-<p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
+<p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
 <?php endif; ?>
 <p><?php _e('Inactive users can login and look around but not do anything.
 Blocked users just see a simple error message when they visit the site.</p>

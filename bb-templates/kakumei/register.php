@@ -18,12 +18,12 @@
 </tr>
 <?php else : ?>
 <tr class="required">
-<th scope="row"><?php _e('Username<sup>*</sup>:'); ?></th>
+<th scope="row"><sup class="required">*</sup> <?php _e('Username:'); ?></th>
 <td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (1 != $user_login) echo $user_login; ?>" /></td>
 </tr>
 <?php endif; ?>
 <?php if ( is_array($profile_info_keys) ) : foreach ( $profile_info_keys as $key => $label ) : ?>
-<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] .= '<sup>*</sup>'; } ?>>
+<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] = '<sup class="required">*</sup> ' . $label[1]; } ?>>
   <th scope="row"><?php echo $label[1]; ?>:</th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" /><?php
 if ( $$key === false ) :
@@ -36,7 +36,7 @@ endif;
 </tr>
 <?php endforeach; endif; ?>
 </table>
-<p><sup>*</sup><?php _e('These items are <span class="required">required</span>.') ?></p>
+<p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
 </fieldset>
 
 <?php do_action('extra_profile_info', $user); ?>
