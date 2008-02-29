@@ -37,6 +37,8 @@ fieldset table { text-align: right; }
 
 fieldset { padding: 10px 10px 0 10px; }
 
+fieldset table th { text-align: left; }
+
 .login label {
 	padding-right: 0;
 	padding-left: 10px;

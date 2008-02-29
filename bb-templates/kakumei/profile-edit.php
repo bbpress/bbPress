@@ -19,14 +19,14 @@
 <fieldset>
 <legend><?php _e('Password'); ?></legend>
 <p><?php _e('To change your password, enter a new password twice below:'); ?></p>
-<table width="100%">
+<table>
 <tr>
   <th scope="row"><?php _e('New password:'); ?></th>
-  <td><input name="pass1" type="password" id="pass1" size="15" maxlength="100" /></td>
+  <td><input name="pass1" type="password" id="pass1" size="30" maxlength="100" /></td>
 </tr>
 <tr>
   <th></th>
-  <td><input name="pass2" type="password" id="pass2" size="15" maxlength="100" /></td>
+  <td><input name="pass2" type="password" id="pass2" size="30" maxlength="100" /></td>
 </tr>
 </table>
 </fieldset>

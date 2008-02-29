@@ -127,6 +127,10 @@ h2 { font-size: 1.5em; }
 	z-index: 1;
 }
 
+form.login {
+	bottom: 19px;
+}
+
 .login p { padding: 0 0 5px; }
 
 .login label {
@@ -149,8 +153,12 @@ h2 { font-size: 1.5em; }
 
 form.login input { 
 	font-size: 1em;
-	margin-top: 3px;
 	border: 1px solid #999;
+}
+
+div.remember {
+	clear: both;
+	padding-top: 2px;
 }
 
 
@@ -372,17 +380,29 @@ form.login input {
 
 #profile-menu li {
 	font-size: 1.1em;
-	background-color: #eee;
+	background-color: #ddd;
 	padding: 4px 7px;
 	display: inline;
 	border-top: 3px double #9e9e9e;
 	position: relative;
 	top: -10px;
+	-moz-border-bottom-left-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	border-bottom-left-radius: 6px;
+	-moz-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	border-bottom-right-radius: 6px;
 }
 
 #profile-menu li.current {
-	background-color: #ddd;
+	background-color: #bbb;
 	border-top: 1px solid #9e9e9e;
+}
+
+#profile-menu li:hover {
+	background: #e4f3e1;
 }
 
 #userinfo { margin-top: 10px; }
@@ -409,7 +429,7 @@ fieldset {
 	border-right: none;
 	padding: 10px 0 10px 10px; 
 	margin-bottom: 15px;
-	width: 720px;
+	background-color: #f6f6f6;
 }
 
 legend { 
@@ -420,6 +440,13 @@ legend {
 fieldset table { 
 	text-align: left;
 	margin: 0 15px;
+	width: 100%;
+}
+
+fieldset table th {
+	padding: 2px;
+	text-align: right;
+	width: 20%;
 }
 
 fieldset table td { padding: 2px 0; }
@@ -427,4 +454,8 @@ fieldset table td { padding: 2px 0; }
 fieldset p { 
 	font-size: 11px;
 	margin: 10px 16px;
+}
+
+sup.required {
+	color: red;
 }

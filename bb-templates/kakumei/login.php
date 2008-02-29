@@ -2,11 +2,11 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Log in'); ?></h3>
 
-<h2><?php isset($_POST['user_login']) ? _e('Log in Failed') : _e('Log in') ; ?></h2>
-
+<h2 id="userlogin"><?php isset($_POST['user_login']) ? _e('Log in Failed') : _e('Log in') ; ?></h2>
 
 <form method="post" action="<?php bb_option('uri'); ?>bb-login.php">
-<table width="50%">
+<fieldset>
+<table>
 <?php if ( $user_exists ) : ?>
 	<tr valign="top">
 		<th scope="row"><?php _e('Username:'); ?></th>
@@ -37,6 +37,10 @@
 		<td><input name="password" type="password" /></td>
 	</tr>
 <?php endif; ?>
+	<tr valign="top">
+		<th scope="row"><?php _e('Remember me:'); ?></th>
+		<td><input name="remember" type="checkbox" id="remember" value="1"<?php echo $remember_checked; ?> /></td>
+	</tr>
 	<tr>
 		<th scope="row">&nbsp;</th>
 		<td>
@@ -46,14 +50,23 @@
 		</td>
 	</tr>
 </table>
+</fieldset>
 </form>
 
 <?php if ( $user_exists ) : ?>
-<hr />
 <form method="post" action="<?php bb_option('uri'); ?>bb-reset-password.php">
-<p><?php _e('If you would like to recover the password for this account, you may use the following button to start the recovery process:'); ?><br />
-<input name="user_login" type="hidden" value="<?php echo $user_login; ?>" />
-<input type="submit" value="<?php echo attribute_escape( __('Recover Password &raquo;') ); ?>" /></p>
+<fieldset>
+	<p><?php _e('If you would like to recover the password for this account, you may use the following button to start the recovery process:'); ?></p>
+	<table>
+		<tr>
+			<th></th>
+			<td>
+				<input name="user_login" type="hidden" value="<?php echo $user_login; ?>" />
+				<input type="submit" value="<?php echo attribute_escape( __('Recover Password &raquo;') ); ?>" />
+			</td>
+		</tr>
+	</table>
+</fieldset>
 </form>
 <?php endif; ?>
 
