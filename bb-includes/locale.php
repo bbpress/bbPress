@@ -11,6 +11,8 @@ class BB_Locale {
 	var $month_abbrev;
 
 	var $meridiem;
+	var $number_format;
+	var $datetime_formatstring;
 
 	var $text_direction = '';
 	var $locale_vars = array('text_direction');
@@ -99,6 +101,12 @@ class BB_Locale {
 		$trans = __('number_format_thousands_sep');	
 		$this->number_format['thousands_sep'] = ('number_format_thousands_sep' == $trans) ? ',' : $trans; 
 		
+		// Date/Time formatting
+		
+		$this->datetime_formatstring['datetime'] = __('F j, Y - h:i A');
+		$this->datetime_formatstring['date'] = __('F j, Y');
+		$this->datetime_formatstring['time'] = __('h:i A');
+		
 		$this->_load_locale_data();
 	}
 
@@ -143,6 +151,10 @@ class BB_Locale {
 		return $this->meridiem[$meridiem];
 	}
 
+	function get_datetime_formatstring($type = 'datetime') {
+		return $this->datetime_formatstring[$type];
+	}
+
 	// Global variables are deprecated. For backwards compatibility only.
 	function register_globals() {
 		$GLOBALS['weekday']         = $this->weekday;
@@ -180,6 +192,22 @@ function bb_gmdate_i18n( $dateformatstring, $unixtimestamp ) {
 	}
 	$j = @gmdate($dateformatstring, $i);
 	return $j;
+}
+
+function bb_get_datetime_formatstring_i18n( $type = 'datetime' ) {
+	$formatstring = bb_get_option( $type . '_format' );
+	if ( empty($formatstring) ) {
+		global $bb_locale;
+		$formatstring = $bb_locale->get_datetime_formatstring( $type );
+	}
+	return $formatstring;
+}
+
+function bb_datetime_format_i18n( $unixtimestamp, $type = 'datetime', $formatstring = '' ) {
+	if ( empty($formatstring) ) {
+		$formatstring = bb_get_datetime_formatstring_i18n( $type );
+	}
+	return bb_gmdate_i18n( $formatstring, bb_offset_time( $unixtimestamp ) );
 }
 
 function bb_number_format_i18n($number, $decimals = null) {

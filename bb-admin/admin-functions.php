@@ -208,7 +208,7 @@ function bb_user_row( $user_id, $role = '', $email = false ) {
 		$email = bb_get_user_email( $user->ID );
 		$r .= "\t\t<td><a href='mailto:$email'>$email</a></td>\n";
 	}
-	$r .= "\t\t<td>$user->user_registered</td>\n";
+	$r .= "\t\t<td>" . date( 'Y-m-d H:i:s', bb_offset_time( bb_gmtstrtotime( $user->user_registered ) ) ) . "</td>\n";
 	$actions = '';
 	if ( bb_current_user_can( 'edit_user', $user_id ) )
 		$actions .= "<a href='" . get_profile_tab_link( $user->ID, 'edit' ) . "'>" . __('Edit') . "</a>";
