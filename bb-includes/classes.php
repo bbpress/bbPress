@@ -47,7 +47,8 @@ class BB_Query {
 		if ( $args = func_get_args() )
 			call_user_func_array( array(&$this, 'init'), $args );
 
-		$this->generate_query();
+		if ( !$this->generate_query() )
+			return;
 
 		do_action_ref_array( 'bb_query', array(&$this) );
 
@@ -82,12 +83,14 @@ class BB_Query {
 
 		// Allow filter to abort query
 		if ( false === $this->query_vars )
-			return;
+			return false;
 
 		if ( 'post' == $this->type )
 			$this->generate_post_sql();
 		else
 			$this->generate_topic_sql();
+
+		return $this->request;
 	}
 
 	// $defaults = vars to use if not set in GET, POST or allowed
