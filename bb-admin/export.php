@@ -15,8 +15,8 @@ define('BB_EXPORT_TOPICS', 4);
 if ( !defined('BB_EXPORT_LEVEL') )
 	define('BB_EXPORT_LEVEL', 0);
 
-if ( !BB_EXPORT_LEVEL || !bb_current_user_can( 'use_keys' ) )
-	bb_die( __('No thieving allowed.') );
+if ( !BB_EXPORT_LEVEL || !bb_current_user_can( 'import_export' ) )
+	bb_die( __('Either export is disabled or you are not allowed to export.') );
 
 // See bb_export_user for syntax
 function _bb_export_object( $object, $properties = null, $tabs = 1 ) {
