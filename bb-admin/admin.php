@@ -11,7 +11,6 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 }
 
 require('admin-functions.php');
-require('admin-deprecated.php');
 
 if ( isset($_GET['plugin']) )
 	$bb_admin_page = $_GET['plugin'];
