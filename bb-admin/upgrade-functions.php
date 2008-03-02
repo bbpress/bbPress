@@ -527,7 +527,7 @@ function bb_upgrade_1040() {
 	
 	// Only do this when upgrading
 	if ( defined( 'BB_UPGRADING' ) && BB_UPGRADING ) {
-		$plugins = bb_get_option('active_plugins')
+		$plugins = bb_get_option('active_plugins');
 		if ( bb_get_option('akismet_key') && !in_array('akismet.php', $plugins) ) {
 			$plugins[] = 'akismet.php';
 		}
