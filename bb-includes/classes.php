@@ -439,7 +439,7 @@ class BB_Query {
 				$join  .= " JOIN $bbdb->topicmeta AS tm ON ( t.topic_id = tm.topic_id AND tm.meta_key = '$q[meta_key]' )";
 
 				if ( $q['meta_value'] ) :
-					$q['meta_value'] = bb_maybe_serialize( $q['meta_value'] );
+					$q['meta_value'] = maybe_serialize( $q['meta_value'] );
 					if ( strpos( $q['meta_value'], 'NULL' ) !== false )
 						$join = ' LEFT' . $join;
 					$where .= $this->parse_value( 'tm.meta_value', $q['meta_value'] );

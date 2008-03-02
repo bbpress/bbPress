@@ -1641,7 +1641,7 @@ function bb_update_meta( $id, $meta_key, $meta_value, $type, $global = false ) {
 	$meta_tuple = apply_filters('bb_update_meta', $meta_tuple);
 	extract($meta_tuple, EXTR_OVERWRITE);
 
-	$meta_value = $_meta_value = bb_maybe_serialize( $meta_value );
+	$meta_value = $_meta_value = maybe_serialize( $meta_value );
 	$meta_value = maybe_unserialize( $meta_value );
 
 	$cur = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $table WHERE $field = %d AND meta_key = %s", $id, $meta_key ) );
@@ -1688,7 +1688,7 @@ function bb_delete_meta( $id, $meta_key, $meta_value, $type, $global = false ) {
 	$meta_tuple = apply_filters('bb_delete_meta', $meta_tuple);
 	extract($meta_tuple, EXTR_OVERWRITE);
 
-	$meta_value = bb_maybe_serialize( $meta_value );
+	$meta_value = maybe_serialize( $meta_value );
 
 	$meta_sql = empty($meta_value) ? 
 		$bbdb->prepare( "SELECT $meta_id_field FROM $table WHERE $field = %d AND meta_key = %s", $id, $meta_key ) :

@@ -116,7 +116,7 @@ function bb_export_user( $user_id ) {
 	foreach ( $_user as $k => $v ) {
 		if ( 0 !== strpos($k, $bbdb->prefix) && isset($_user[$bbdb->prefix . $k]) )
 			continue;
-		$meta[$k] = bb_maybe_serialize($v);
+		$meta[$k] = maybe_serialize($v);
 	}
 	unset($_user, $k, $v);
 
@@ -175,7 +175,7 @@ function bb_export_topic( $topic_id ) {
 
 	$meta = array();
 	foreach ( $_topic as $k => $v )
-		$meta[$k] = bb_maybe_serialize($v);
+		$meta[$k] = maybe_serialize($v);
 	unset($_topic, $k, $v);
 
 	$topic['meta'] = $meta;
