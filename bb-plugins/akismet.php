@@ -1,4 +1,79 @@
 <?php
+/*
+Plugin Name: Akismet
+Plugin URI: http://akismet.com/
+Description: Akismet checks posts against the Akismet web serivce to see if they look like spam or not. You need a <a href="http://wordpress.com/api-keys/">WordPress.com API key</a> to use this service.
+Author: Michael Adams
+Version: 1.0
+Author URI: http://blogwaffe.com/
+*/
+
+// Add filters for the admin area
+add_action('bb_admin_menu_generator', 'bb_ksd_configuration_page_add');
+add_action('bb_admin-header.php', 'bb_ksd_configuration_page_process');
+
+function bb_ksd_configuration_page_add() {
+	bb_admin_add_submenu(__('Akismet Configuration'), 'use_keys', 'bb_ksd_configuration_page');
+}
+
+function bb_ksd_configuration_page() {
+?>
+<h2><?php _e('Akismet Configuration'); ?></h2>
+
+<form class="options" method="post">
+	<fieldset>
+		<label for="akismet_key">
+			<?php _e('Akismet Key:') ?>
+		</label>
+		<div>
+			<input class="text" name="akismet_key" id="akismet_key" value="<?php bb_form_option('akismet_key'); ?>" />
+			<p><?php _e('You do not need a key to run bbPress, but if you want to take advantage of Akismet\'s powerful spam blocking, you\'ll need one.'); ?></p>
+			<p><?php _e('You can get an Akismet key at <a href="http://wordpress.com/api-keys/">WordPress.com</a>') ?></p>
+		</div>
+	</fieldset>
+	<fieldset>
+		<?php bb_nonce_field( 'akismet-configuration' ); ?>
+		<input type="hidden" name="action" id="action" value="update-akismet-configuration" />
+		<div class="spacer">
+			<input type="submit" name="submit" id="submit" value="<?php _e('Update Configuration &raquo;') ?>" />
+		</div>
+	</fieldset>
+</form>
+<?php
+}
+
+function bb_ksd_configuration_page_process() {
+	if ($_POST['action'] == 'update-akismet-configuration') {
+		
+		bb_check_admin_referer( 'akismet-configuration' );
+		
+		if ($_POST['akismet_key']) {
+			$value = stripslashes_deep( trim( $_POST['akismet_key'] ) );
+			if ($value) {
+				bb_update_option( 'akismet_key', $value );
+			} else {
+				bb_delete_option( 'akismet_key' );
+			}
+		} else {
+			bb_delete_option( 'akismet_key' );
+		}
+		
+		$goback = add_query_arg('updated', 'true', wp_get_referer());
+		wp_redirect($goback);
+		
+	}
+	
+	if ($_GET['updated']) {
+		bb_admin_notice( __('Configuration saved.') );
+	}
+}
+
+// Bail here if no key is set
+if (!bb_get_option( 'akismet_key' ))
+	return;
+
+
+
 $bb_ksd_api_host = bb_get_option( 'akismet_key' ) . '.rest.akismet.com';
 $bb_ksd_api_port = 80;
 $bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. bb_get_option( 'version' );

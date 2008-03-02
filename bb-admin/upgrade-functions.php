@@ -24,6 +24,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent
 	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
 	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
+	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins on upgrade only
 	bb_update_db_version();
 	return $bb_upgrade; 
 }
@@ -517,6 +518,27 @@ function bb_upgrade_1030() {
 	bb_update_option( 'bb_db_version', 1058 );
 	
 	return 'Done moving admin_email to from_email: ' . __FUNCTION__;
+}
+
+// Activate Akismet and bozo plugins on upgrade only
+function bb_upgrade_1040() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1174 )
+		return;
+	
+	// Only do this when upgrading
+	if ( defined( 'BB_UPGRADING' ) && BB_UPGRADING ) {
+		$plugins = bb_get_option('active_plugins')
+		if ( bb_get_option('akismet_key') && !in_array('akismet.php', $plugins) ) {
+			$plugins[] = 'akismet.php';
+		}
+		if ( !in_array('bozo.php', $plugins) ) {
+			$plugins[] = 'bozo.php';
+		}
+		ksort($plugins);
+		bb_update_option( 'active_plugins', $plugins );
+	}
+	
+	bb_update_option( 'bb_db_version', 1174 );
 }
 
 function bb_deslash($content) {

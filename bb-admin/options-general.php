@@ -121,17 +121,6 @@ $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 		</div>
 	</fieldset>
 	<fieldset>
-		<legend><?php _e('Anti-spam') ?></legend>
-		<label for="akismet_key">
-			<?php _e('Akismet Key:') ?>
-		</label>
-		<div>
-			<input class="text" name="akismet_key" id="akismet_key" value="<?php bb_form_option('akismet_key'); ?>" />
-			<p><?php _e('You do not need a key to run bbPress, but if you want to take advantage of Akismet\'s powerful spam blocking, you\'ll need one.'); ?></p>
-			<p><?php _e('You can get an Akismet key at <a href="http://wordpress.com/api-keys/">WordPress.com</a>') ?></p>
-		</div>
-	</fieldset>
-	<fieldset>
 		<?php bb_nonce_field( 'options-general-update' ); ?>
 		<input type="hidden" name="action" id="action" value="update" />
 		<div class="spacer">

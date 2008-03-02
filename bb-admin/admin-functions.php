@@ -759,13 +759,26 @@ function bb_recount_list() {
 
 /* Pluigns */
 
+function bb_get_plugins_callback( $f, $_f ) {
+	if ( ".php" != substr($f,-4) || "_" == substr($_f, 0, 1) )
+		return false;
+	return bb_get_plugin_data( $f );
+}
+
 function bb_get_plugins() {
-	$dir = new BB_Dir_Map( BBPLUGINDIR, array(
-		'callback' => create_function('$f,$_f', 'if ( ".php" != substr($f,-4) || "_" == substr($_f, 0, 1) ) return false; return bb_get_plugin_data( $f );'),
+	$dir = new BB_Dir_Map( BBDEFAULTPLUGINDIR, array(
+		'callback' => 'bb_get_plugins_callback',
 		'recurse' => 1
 	) );
-	$r = $dir->get_results();
-	return is_wp_error($r) ? array() : $r;
+	$r1 = $dir->get_results();
+	$r1 = is_wp_error($r1) ? array() : $r1;
+	$dir = new BB_Dir_Map( BBPLUGINDIR, array(
+		'callback' => 'bb_get_plugins_callback',
+		'recurse' => 1
+	) );
+	$r2 = $dir->get_results();
+	$r2 = is_wp_error($r2) ? array() : $r2;
+	return array_merge($r1, $r2);
 }
 
 // Output sanitized for display
