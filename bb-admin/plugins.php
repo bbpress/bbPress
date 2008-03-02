@@ -4,7 +4,7 @@ require_once('admin.php');
 $plugins = bb_get_plugins();
 $_plugins = array();
 if ( function_exists( 'glob' ) && is_callable( 'glob' ) ) {
-	$_plugins_glob = glob(BBDEFAULTPLUGINDIR . '_*.php');
+	$_plugins_glob = glob(BB_CORE_PLUGIN_DIR . '_*.php');
 	foreach ( $_plugins_glob as $_plugin ) {
 		$_data = bb_get_plugin_data( $_plugin );
 		$_plugins[$_plugin] = $_data ? $_data : true;
@@ -24,7 +24,7 @@ $current = (array) bb_get_option( 'active_plugins' );
 
 $update = false;
 foreach ( $current as $c => $cur )
-	if ( !file_exists(BBPLUGINDIR . $cur) && !file_exists(BBDEFAULTPLUGINDIR . $cur) ) {
+	if ( !file_exists(BBPLUGINDIR . $cur) && !file_exists(BB_CORE_PLUGIN_DIR . $cur) ) {
 		$update = true;
 		unset($current[$c]);
 		do_action( 'bb_deactivate_plugin_' . $c );

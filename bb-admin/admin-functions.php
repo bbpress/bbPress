@@ -766,7 +766,7 @@ function bb_get_plugins_callback( $f, $_f ) {
 }
 
 function bb_get_plugins() {
-	$dir = new BB_Dir_Map( BBDEFAULTPLUGINDIR, array(
+	$dir = new BB_Dir_Map( BB_CORE_PLUGIN_DIR, array(
 		'callback' => 'bb_get_plugins_callback',
 		'recurse' => 1
 	) );

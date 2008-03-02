@@ -4,7 +4,7 @@ require_once('admin.php');
 $themes = bb_get_themes();
 $activetheme = bb_get_option('bb_active_theme');
 if (!$activetheme) {
-	$activetheme = BBDEFAULTTHEMEDIR;
+	$activetheme = BB_DEFAULT_THEME_DIR;
 }
 
 if ( isset($_GET['theme']) ) {
@@ -15,7 +15,7 @@ if ( isset($_GET['theme']) ) {
 	bb_check_admin_referer( 'switch-theme' );
 	do_action( 'bb_deactivate_theme_' . basename($activetheme) );
 	$activetheme = stripslashes($_GET['theme']);
-	if ($activetheme == BBDEFAULTTHEMEDIR) {
+	if ($activetheme == BB_DEFAULT_THEME_DIR) {
 		bb_delete_option( 'bb_active_theme' );
 	} else {
 		bb_update_option( 'bb_active_theme', $activetheme );
@@ -29,7 +29,7 @@ if ( isset($_GET['activated']) )
 	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" activated'), basename($activetheme)) );
 
 if ( !in_array($activetheme, $themes) ) {
-	if ($activetheme == BBDEFAULTTHEMEDIR) {
+	if ($activetheme == BB_DEFAULT_THEME_DIR) {
 		remove_action( 'bb_admin_notices', $theme_notice );
 		bb_admin_notice( __('Default theme is missing.'), 'error' );
 	} else {

@@ -19,7 +19,7 @@ function bb_load_template( $file, $globals = false ) {
 function bb_get_template( $file ) {
 	if ( file_exists( bb_get_active_theme_folder() .  $file) )
 		return bb_get_active_theme_folder() .  $file;
-	return BBDEFAULTTHEMEDIR . $file;
+	return BB_DEFAULT_THEME_DIR . $file;
 }
 
 function bb_get_header() {
@@ -54,7 +54,7 @@ function bb_get_stylesheet_uri( $stylesheet = '' ) {
 	if ( file_exists( $active_theme . 'style.css' ) )
 		$r = bb_get_active_theme_uri() . $css_file;
 	else
-		$r = BBDEFAULTTHEMEURL . $css_file;
+		$r = BB_DEFAULT_THEME_URL . $css_file;
 	return apply_filters( 'bb_get_stylesheet_uri', $r, $stylesheet );
 }
 
@@ -64,7 +64,7 @@ function bb_active_theme_uri() {
 
 function bb_get_active_theme_uri() {
 	if ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
-		$active_theme = BBDEFAULTTHEMEDIR;
+		$active_theme = BB_DEFAULT_THEME_DIR;
 	return apply_filters( 'bb_get_active_theme_uri', bb_get_theme_uri( $active_theme ) );
 }
 
