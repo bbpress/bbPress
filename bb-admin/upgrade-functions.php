@@ -539,6 +539,8 @@ function bb_upgrade_1040() {
 	}
 	
 	bb_update_option( 'bb_db_version', 1174 );
+	
+	return 'Done activating Akismet and Bozo plugins on upgrade only: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {
