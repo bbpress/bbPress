@@ -28,7 +28,7 @@ if ( $_POST && 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		}
 	}
 
-	if ( empty($user_login) || bb_user_exists($user_login) )
+	if ( empty($user_login) || bb_get_user($user_login) )
 		$user_safe = false;
 	
 	if ( $user_login && $user_safe && $user_email && !$bad_input) {
