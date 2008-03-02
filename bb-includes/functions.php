@@ -2360,7 +2360,7 @@ function bb_get_plugin_uri( $plugin = false ) {
 function bb_get_active_theme_folder() {
 	$activetheme = bb_get_option( 'bb_active_theme' );
 	if ( !$activetheme )
-		$activetheme = BBDEFAULTTHEMEDIR;
+		$activetheme = BB_DEFAULT_THEME_DIR;
 
 	return apply_filters( 'bb_get_active_theme_folder', $activetheme );
 }

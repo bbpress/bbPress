@@ -177,22 +177,19 @@ if ( !$bb->uri && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 	bb_die( __('Could not determine site URI') );
 }
 
+define('BB_CORE_PLUGIN_DIR', BBPATH . 'bb-plugins/');
+define('BB_CORE_PLUGIN_URL', $bb->uri . 'bb-plugins/');
+define('BB_DEFAULT_THEME_DIR', BBPATH . 'bb-templates/kakumei/');
+define('BB_DEFAULT_THEME_URL', $bb->uri . 'bb-templates/kakumei/');
+
 if ( !defined('BBPLUGINDIR') )
 	define('BBPLUGINDIR', BBPATH . 'my-plugins/');
 if ( !defined('BBPLUGINURL') )
 	define('BBPLUGINURL', $bb->uri . 'my-plugins/');
-if ( !defined('BBDEFAULTPLUGINDIR') )
-	define('BBDEFAULTPLUGINDIR', BBPATH . 'bb-plugins/');
-if ( !defined('BBDEFAULTPLUGINURL') )
-	define('BBDEFAULTPLUGINURL', $bb->uri . 'bb-plugins/');
 if ( !defined('BBTHEMEDIR') )
 	define('BBTHEMEDIR', BBPATH . 'my-templates/');
 if ( !defined('BBTHEMEURL') )
 	define('BBTHEMEURL', $bb->uri . 'my-templates/');
-if ( !defined('BBDEFAULTTHEMEDIR') )
-	define('BBDEFAULTTHEMEDIR', BBPATH . 'bb-templates/kakumei/');
-if ( !defined('BBDEFAULTTHEMEURL') )
-	define('BBDEFAULTTHEMEURL', $bb->uri . 'bb-templates/kakumei/');
 
 // Check for defined custom user tables
 // Constants are taken before $bb before database settings
@@ -377,8 +374,8 @@ do_action( 'bb_options_loaded' );
 
 // Underscore plugins
 if ( function_exists( 'glob' ) && is_callable( 'glob' ) ) {
-	// First BBDEFAULTPLUGINDIR
-	$_plugins_glob = glob(BBDEFAULTPLUGINDIR . '_*.php');
+	// First BB_CORE_PLUGIN_DIR
+	$_plugins_glob = glob(BB_CORE_PLUGIN_DIR . '_*.php');
 	foreach ( $_plugins_glob as $_plugin )
 		require($_plugin);
 	unset($_plugins_glob, $_plugin);
@@ -391,13 +388,13 @@ if ( function_exists( 'glob' ) && is_callable( 'glob' ) ) {
 }
 do_action( 'bb_underscore_plugins_loaded' );
 
-// Plugins in BBPLUGINDIR take precedence over BBDEFAULTPLUGINDIR when names collide
+// Plugins in BBPLUGINDIR take precedence over BB_CORE_PLUGIN_DIR when names collide
 if ( $plugins = bb_get_option( 'active_plugins' ) )
 	foreach ( (array) $plugins as $plugin )
 		if ( file_exists(BBPLUGINDIR . $plugin) ) {
 			require( BBPLUGINDIR . $plugin );
-		} elseif ( file_exists(BBDEFAULTPLUGINDIR . $plugin) ) {
-			require( BBDEFAULTPLUGINDIR . $plugin );
+		} elseif ( file_exists(BB_CORE_PLUGIN_DIR . $plugin) ) {
+			require( BB_CORE_PLUGIN_DIR . $plugin );
 		}
 do_action( 'bb_plugins_loaded' );
 unset($plugins, $plugin);
