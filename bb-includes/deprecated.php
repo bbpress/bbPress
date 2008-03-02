@@ -71,8 +71,8 @@ function language_attributes( $xhtml = 0 ) {
 endif;
 
 function cast_meta_value( $data ) {
-	bb_log_deprecated('function', __FUNCTION__, 'bb_maybe_unserialize');
-	return bb_maybe_unserialize( $data );
+	bb_log_deprecated('function', __FUNCTION__, 'maybe_unserialize');
+	return maybe_unserialize( $data );
 }
 
 function option( $option ) {

@@ -1502,7 +1502,7 @@ function bb_get_option_from_db( $option ) {
 		if ( defined( 'BB_INSTALLING' ) ) $bbdb->show_errors();
 
 		if ( is_object($row) ) {
-			$bb_topic_cache[0]->$option = $r = bb_maybe_unserialize( $row->meta_value );
+			$bb_topic_cache[0]->$option = $r = maybe_unserialize( $row->meta_value );
 		} else {
 			$r = null;
 			if ( isset($bb_topic_cache) )
@@ -1556,9 +1556,9 @@ function bb_append_meta( $object, $type ) {
 		$ids = join(',', array_map('intval', array_keys($trans)));
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
 			foreach ( $metas as $meta ) :
-				$trans[$meta->$field]->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
+				$trans[$meta->$field]->{$meta->meta_key} = maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
-					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bbdb->prefix))} = bb_maybe_unserialize( $meta->meta_value );
+					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bbdb->prefix))} = maybe_unserialize( $meta->meta_value );
 			endforeach;
 		foreach ( array_keys($trans) as $i )
 			$cache[$i] = $trans[$i];
@@ -1566,9 +1566,9 @@ function bb_append_meta( $object, $type ) {
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $table WHERE $field = %d", $object->$id ) ) )
 			foreach ( $metas as $meta ) :
-				$object->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
+				$object->{$meta->meta_key} = maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
-					$object->{substr($meta->meta_key, strlen($bbdb->prefix))} = bb_maybe_unserialize( $meta->meta_value );
+					$object->{substr($meta->meta_key, strlen($bbdb->prefix))} = maybe_unserialize( $meta->meta_value );
 			endforeach;
 		$cache[$object->$id] = $object;
 		return $object;
@@ -1642,7 +1642,7 @@ function bb_update_meta( $id, $meta_key, $meta_value, $type, $global = false ) {
 	extract($meta_tuple, EXTR_OVERWRITE);
 
 	$meta_value = $_meta_value = bb_maybe_serialize( $meta_value );
-	$meta_value = bb_maybe_unserialize( $meta_value );
+	$meta_value = maybe_unserialize( $meta_value );
 
 	$cur = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $table WHERE $field = %d AND meta_key = %s", $id, $meta_key ) );
 	if ( !$cur ) {
