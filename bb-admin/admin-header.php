@@ -11,8 +11,12 @@
 
 <body>
 
-<div id="top"><h1>bbPress &#8212; <a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a></h1>
-<?php login_form(); ?>
+<div id="top">
+	<h1>bbPress &#8212; <a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a></h1>
+	<p class="login">
+		<?php printf(__('Welcome, %1$s!'), bb_get_current_user_info( 'name' ));?>
+		<?php bb_profile_link(); ?> | <?php bb_logout_link(); ?>
+	</p>
 </div>
 <?php bb_admin_menu(); ?>
 <?php do_action( 'bb_admin_notices' ); ?>
