@@ -21,7 +21,7 @@
 
 <?php topic_tags(); ?>
 
-<br clear="all" />
+<div style="clear:both;"></div>
 </div>
 <?php do_action('under_title', ''); ?>
 <?php if ($posts) : ?>
@@ -32,7 +32,7 @@
 <ol id="thread" start="<?php echo $list_start; ?>">
 
 <?php foreach ($posts as $bb_post) : $del_class = post_del_class(); ?>
-	<li id="post-<?php post_id(); ?>"<?php alt_class('post', $del_class); ?>>
+	<li id="post-<?php post_id(); ?>">
 <?php bb_post_template(); ?>
 	</li>
 <?php endforeach; ?>

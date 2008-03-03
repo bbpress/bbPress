@@ -40,6 +40,8 @@ h1 { font-size: 2em; }
 
 h2 { font-size: 1.5em; }
 
+img.avatar { border: 1px solid #ddd; }
+
 /* Structure
 =================================== */
 
@@ -232,15 +234,16 @@ div.remember {
 .nav span, .nav a { padding: 6px; }
 
 #thread {
-	background: #eee;
 	list-style: none;
-	margin: 0 0 0 100px;
+	margin: 0;
 	padding: 0;
 }
 
 #thread li {
-	padding: 1.5em 1.0em;
 	line-height: 1.5em;
+	clear: both;
+	/* Hack to force padding on .threadauthor on IE */
+	border-top: 1px solid #fff;
 }
 
 #thread li ol, #thread li ul { margin-left: 40px; }
@@ -248,14 +251,28 @@ div.remember {
 #thread li ol li, #thread li ul li { padding: 0; }
 
 .threadauthor {
-	margin-left: -110px;
-	overflow: hidden;
-	position: absolute;
-	width: 95px;
+	float: left;
+	padding: 1em 0 0 1em;
+	width: 120px;
 }
+
+.threadauthor p { margin: 0; }
 
 .threadauthor small { font: 11px Verdana, Arial, Helvetica, sans-serif; }
 
+.threadpost {
+	padding: 1.5em 1em;
+	margin-left: 140px;
+	background-color: #eee;
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+}
+
+.threadpost.alt {
+	background-color: transparent;
+}
 
 #thread .post blockquote {
 	margin: 0 0 0 4ex;
@@ -386,11 +403,11 @@ div.remember {
 	border-top: 3px double #9e9e9e;
 	position: relative;
 	top: -10px;
-	-moz-border-bottom-left-radius: 6px;
+	-moz-border-radius-bottomleft: 6px;
 	-khtml-border-bottom-left-radius: 6px;
 	-webkit-border-bottom-left-radius: 6px;
 	border-bottom-left-radius: 6px;
-	-moz-border-bottom-right-radius: 6px;
+	-moz-border-radius-bottomright: 6px;
 	-khtml-border-bottom-right-radius: 6px;
 	-webkit-border-bottom-right-radius: 6px;
 	border-bottom-right-radius: 6px;
@@ -404,6 +421,10 @@ div.remember {
 #profile-menu li:hover {
 	background: #e4f3e1;
 }
+
+#useravatar { margin-bottom: 1em; }
+
+#useravatar img { display: block; border-width: 3px; border-style: double; }
 
 #userinfo { margin-top: 10px; }
 
