@@ -58,12 +58,12 @@ function bb_ksd_configuration_page_process() {
 			bb_delete_option( 'akismet_key' );
 		}
 		
-		$goback = add_query_arg('updated', 'true', wp_get_referer());
+		$goback = add_query_arg('akismet-updated', 'true', wp_get_referer());
 		wp_redirect($goback);
 		
 	}
 	
-	if ($_GET['updated']) {
+	if ($_GET['akismet-updated']) {
 		bb_admin_notice( __('Configuration saved.') );
 	}
 }
