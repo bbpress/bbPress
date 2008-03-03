@@ -66,9 +66,12 @@ bb_get_admin_header();
 $selected = array();
 $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 ?>
-				<option value="0"<?php echo $selected[0]; ?>><?php _e('None') ?>&nbsp;&nbsp;&nbsp;.../forums.php?id=1</option>
-				<option value="1"<?php echo $selected[1]; ?>><?php _e('Numeric') ?>&nbsp;&nbsp;&nbsp;.../forums/1</option>
-				<option value="slugs"<?php echo $selected['slugs']; ?>><?php _e('Name based') ?>&nbsp;&nbsp;&nbsp;.../forums/first-forum</option>
+				<option value="0"<?php echo $selected[0]; ?>><?php _e('None'); ?>&nbsp;&nbsp;&nbsp;.../forums.php?id=1</option>
+				<option value="1"<?php echo $selected[1]; ?>><?php _e('Numeric'); ?>&nbsp;&nbsp;&nbsp;.../forums/1</option>
+				<option value="slugs"<?php echo $selected['slugs']; ?>><?php _e('Name based'); ?>&nbsp;&nbsp;&nbsp;.../forums/first-forum</option>
+<?php
+unset($selected);
+?>
 			</select>
 		</div>
 		<label for="page_topics">
@@ -118,6 +121,60 @@ $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 			<p><?php printf(__('Output: <strong>%s</strong>'), bb_datetime_format_i18n( bb_current_time(), 'date' )); ?></p>
 			<p><?php _e('Click "Update options" to update sample output.') ?></p>
 			<p><?php _e('<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.'); ?></p>
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend><?php _e('Avatars'); ?></legend>
+		<p>
+			<?php _e('bbPress includes built-in support for <a href="http://gravatar.com/">Gravatars</a>, you can enable this feature here.'); ?>
+		</p>
+		<label for="avatars_show">
+			<?php _e('Show avatars:') ?>
+		</label>
+		<div>
+<?php
+$checked = array();
+$checked[bb_get_option('avatars_show')] = ' checked="checked"';
+?>
+			<input type="checkbox" class="checkbox" name="avatars_show" id="avatars_show" value="1"<?php echo $checked[1]; ?> />
+<?php
+unset($checked);
+?>
+		</div>
+		<label for="avatars_rating">
+			<?php _e('Gravatar maximum rating:'); ?>
+		</label>
+		<div>
+			<select name="avatars_rating" id="avatars_rating">
+<?php
+$selected = array();
+$selected[bb_get_option('avatars_rating')] = ' selected="selected"';
+?>
+				<option value="0"<?php echo $selected[0]; ?>><?php _e('None'); ?></option>
+				<option value="X"<?php echo $selected['X']; ?>><?php _e('X'); ?></option>
+				<option value="R"<?php echo $selected['R']; ?>><?php _e('R'); ?></option>
+				<option value="PG"<?php echo $selected['PG']; ?>><?php _e('PG'); ?></option>
+				<option value="G"<?php echo $selected['G']; ?>><?php _e('G'); ?></option>
+<?php
+unset($selected);
+?>
+			</select>
+			<p>
+				<img src="http://site.gravatar.com/images/gravatars/ratings/3.gif" alt="Rated X" style="height:30px; width:30px; float:left; margin-right:10px;" />
+				<?php _e('X rated gravatars may contain hardcore sexual imagery or extremely disturbing violence.'); ?>
+			</p>
+			<p>
+				<img src="http://site.gravatar.com/images/gravatars/ratings/2.gif" alt="Rated R" style="height:30px; width:30px; float:left; margin-right:10px;" />
+				<?php _e('R rated gravatars may contain such things as harsh profanity, intense violence, nudity, or hard drug use.'); ?>
+			</p>
+			<p>
+				<img src="http://site.gravatar.com/images/gravatars/ratings/1.gif" alt="Rated PG" style="height:30px; width:30px; float:left; margin-right:10px;" />
+				<?php _e('PG rated gravatars may contain rude gestures, provocatively dressed individuals, the lesser swear words, or mild violence.'); ?>
+			</p>
+			<p>
+				<img src="http://site.gravatar.com/images/gravatars/ratings/0.gif" alt="Rated G" style="height:30px; width:30px; float:left; margin-right:10px;" />
+				<?php _e('A G rated gravatar is suitable for display on all websites with any audience type.'); ?>
+			</p>
 		</div>
 	</fieldset>
 	<fieldset>

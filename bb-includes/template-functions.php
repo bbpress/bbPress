@@ -3,7 +3,8 @@
 function bb_load_template( $file, $globals = false ) {
 	global $bb, $bbdb, $bb_current_user, $page, $bb_cache,
 		$posts, $bb_post, $post_id, $topics, $topic, $topic_id,
-		$forums, $forum, $forum_id, $tags, $tag, $tag_name, $user, $user_id, $view;
+		$forums, $forum, $forum_id, $tags, $tag, $tag_name, $user, $user_id, $view,
+		$del_class, $bb_alt;
 
 	if ( $globals )
 		foreach ( $globals as $global => $v )
@@ -1149,6 +1150,18 @@ function post_author_link( $post_id = 0 ) {
 	}
 }
 
+function post_author_avatar( $size = '48', $default = '', $post_id = 0 ) {
+	if ( ! bb_get_option('show_avatars') )
+		return false;
+	
+	$author_id = get_post_author_id( $post_id );
+	if ( $link = get_user_link( $author_id ) ) {
+		echo '<a href="' . attribute_escape( $link ) . '">' . bb_get_avatar( $author_id, $size, $default ) . '</a>';
+	} else {
+		echo bb_get_avatar( $author_id, $size, $default );
+	}
+}
+
 function post_text( $post_id = 0 ) {
 	echo apply_filters( 'post_text', get_post_text( $post_id ), get_post_id( $post_id ) );
 }
@@ -1422,7 +1435,12 @@ function bb_profile_data( $id = 0 ) {
 	echo "\t<dd>" . bb_datetime_format_i18n($reg_time, 'date') . ' (' . bb_since($reg_time) . ")</dd>\n";
 	if ( is_array( $profile_info_keys ) ) {
 		foreach ( $profile_info_keys as $key => $label ) {
-			if ( 'user_email' != $key && isset($user->$key) && '' !== $user->$key && 'http://' != $user->$key ) {
+			if (
+				( 'user_email' != $key || ( 'user_email' == $key && bb_current_user_can( 'edit_users' ) ) )
+				&& isset($user->$key)
+				&& '' !== $user->$key
+				&& 'http://' != $user->$key
+			) {
 				echo "\t<dt>{$label[1]}</dt>\n";
 				echo "\t<dd>" . make_clickable($user->$key) . "</dd>\n";
 			}
