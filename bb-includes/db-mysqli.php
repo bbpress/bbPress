@@ -33,6 +33,8 @@ class bbdb extends bbdb_base {
 			$server->user =     constant('USER_BBDB_USER');
 			$server->pass =     constant('USER_BBDB_PASSWORD');
 			$server->host =     constant('USER_BBDB_HOST');
+			$server->port =     null;
+			$server->socket =   null;
 			$server->charset =  $this->user_charset;
 		} else { // just us
 			$dbhname =          'dbh_local'; // This is connection identifier
@@ -40,14 +42,19 @@ class bbdb extends bbdb_base {
 			$server->user =     defined('BBDB_USER')     ? constant('BBDB_USER')     : false;
 			$server->pass =     defined('BBDB_PASSWORD') ? constant('BBDB_PASSWORD') : false;
 			$server->host =     defined('BBDB_HOST')     ? constant('BBDB_HOST')     : false;
+			$server->port =     null;
+			$server->socket =   null;
 			$server->charset =  $this->charset;
 		}
 		
 		// Set the port if it is specified in the host
-		if (strpos($server->host, ':') === false) {
-			$server->port = null;
-		} else {
+		if (strpos($server->host, ':') !== false) {
 			list($server->host, $server->port) = explode(':', $server->host);
+			// Make it a socket if it's not numeric
+			if (!is_numeric($server->port)) {
+				$server->socket = $server->port;
+				$server->port = null;
+			}
 		}
 		
 		$current_connection = "$dbhname";
@@ -57,7 +64,7 @@ class bbdb extends bbdb_base {
 		
 		$this->timer_start();
 		
-		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass, null, $server->port );
+		$this->$dbhname = @mysqli_connect( $server->host, $server->user, $server->pass, null, $server->port, $server->socket );
 		
 		if (!$this->$dbhname)
 			return false;
