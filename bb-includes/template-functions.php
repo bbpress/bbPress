@@ -1151,7 +1151,7 @@ function post_author_link( $post_id = 0 ) {
 }
 
 function post_author_avatar( $size = '48', $default = '', $post_id = 0 ) {
-	if ( ! bb_get_option('show_avatars') )
+	if ( ! bb_get_option('avatars_show') )
 		return false;
 	
 	$author_id = get_post_author_id( $post_id );
