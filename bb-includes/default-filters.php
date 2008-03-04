@@ -76,9 +76,12 @@ if ( is_bb_feed() ) {
 	add_filter( 'post_text', 'ent2ncr' );
 }
 
-// no posts (besides the first one), older than 2 hours
-bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1, 'started' => '<' . gmdate( 'YmdH', time() - 7200 ) ) );
-bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
+function bb_register_default_views() {
+	// no posts (besides the first one), older than 2 hours
+	bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1, 'started' => '<' . gmdate( 'YmdH', time() - 7200 ) ) );
+	bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
+}
+add_action( 'bb_init', 'bb_register_default_views' );
 
 if ( bb_get_option( 'wp_table_prefix' ) ) {
 	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
