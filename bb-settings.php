@@ -108,9 +108,6 @@ require( BBPATH . BBINC . 'capabilities.php');
 require( BBPATH . BBINC . 'cache.php');
 require( BBPATH . BBINC . 'deprecated.php');
 
-require( BBPATH . BBINC . 'default-filters.php');
-require( BBPATH . BBINC . 'script-loader.php');
-
 $bb_cache = new BB_Cache();
 
 if ( $bb->load_options ) {
@@ -118,6 +115,9 @@ if ( $bb->load_options ) {
 	bb_cache_all_options();
 	$bbdb->show_errors();
 }
+
+require( BBPATH . BBINC . 'default-filters.php');
+require( BBPATH . BBINC . 'script-loader.php');
 
 $_GET    = bb_global_sanitize($_GET   );
 $_POST   = bb_global_sanitize($_POST  );
