@@ -1668,11 +1668,11 @@ function bb_tag_page_link() {
 }
 
 function bb_get_tag_page_link() {
-	return bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' );
+	return apply_filters( 'bb_get_tag_page_link', bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' ) );
 }
 
 function bb_tag_link( $id = 0, $page = 1 ) {
-	echo bb_get_tag_link( $id );
+	echo apply_filters( 'bb_tag_link', bb_get_tag_link( $id ), $id, $page );
 }
 
 function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
@@ -1683,9 +1683,10 @@ function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
 		$_tag =& $tag;
 
 	if ( bb_get_option('mod_rewrite') )
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$_tag->tag" . ( 1 < $page ? "/page/$page" : '' );
+		$r = bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$_tag->tag" . ( 1 < $page ? "/page/$page" : '' );
 	else
-		return bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$_tag->tag" . ( 1 < $page ? "&page=$page" : '' );
+		$r = bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$_tag->tag" . ( 1 < $page ? "&page=$page" : '' );
+	return apply_filters( 'bb_get_tag_link', $r, $_tag->tag, $page );
 }
 
 function bb_tag_link_base() {
