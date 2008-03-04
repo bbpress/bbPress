@@ -2,17 +2,19 @@
 require('./bb-load.php');
 
 $ref = wp_get_referer();
+if ( !$re = $_POST['re'] ? $_POST['re'] : $_GET['re'] )
+	$re = $ref;
 
-$re = bb_get_option('uri');
+$home_url = bb_get_option( 'uri' );
 
-if ( 0 === strpos($ref, bb_get_option( 'uri' )) ) {
-	$re = $_POST['re'] ? $_POST['re'] : $_GET['re'];
-	if ( 0 !== strpos($re, bb_get_option( 'uri' )) )
-		$re = $ref . $re;
+if ( 0 !== strpos($re, $home_url) ) {
+	if ( $common = bb_get_common_paths( $home_url, $re ) )
+		$re = substr( $re, strlen( $common ) );
+	$re = $home_url . ltrim( $re, '/' );
 }
 
-if ( 0 === strpos($re, bb_get_option( 'uri' ) . 'register.php') )
-	$re = bb_get_option( 'uri' );
+if ( 0 === strpos($re, $home_url . 'register.php') )
+	$re = $home_url;
 
 $re = clean_url( $re );
 
