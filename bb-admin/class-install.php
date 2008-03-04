@@ -865,19 +865,19 @@ class BB_Install
 		foreach ($sample_config as $line_num => $line) {
 			switch (substr($line,0,18)) {
 				case "define('BBDB_NAME'":
-					$config_lines[] = str_replace('bbpress', $data['bbdb_name']['value'], $line);
+					$config_lines[] = str_replace("'bbpress'", "'" . $data['bbdb_name']['value'] . "'", $line);
 					break;
 				case "define('BBDB_USER'":
-					$config_lines[] = str_replace('username', $data['bbdb_user']['value'], $line);
+					$config_lines[] = str_replace("'username'", "'" . $data['bbdb_user']['value'] . "'", $line);
 					break;
 				case "define('BBDB_PASSW":
-					$config_lines[] = str_replace('password', $data['bbdb_password']['value'], $line);
+					$config_lines[] = str_replace("'password'", "'" . $data['bbdb_password']['value'] . "'", $line);
 					break;
 				case "define('BBDB_HOST'":
-					$config_lines[] = str_replace('localhost', $data['bbdb_host']['value'], $line);
+					$config_lines[] = str_replace("'localhost'", "'" . $data['bbdb_host']['value'] . "'", $line);
 					break;
 				case "define('BBDB_CHARS":
-					$config_lines[] = str_replace('utf8', $data['bbdb_charset']['value'], $line);
+					$config_lines[] = str_replace("'utf8'", "'" . $data['bbdb_charset']['value'] . "'", $line);
 					break;
 				case "define('BBDB_COLLA":
 					$config_lines[] = str_replace("''", "'" . $data['bbdb_collate']['value'] . "'", $line);
@@ -886,7 +886,7 @@ class BB_Install
 					$config_lines[] = str_replace("'put your unique phrase here'", "'" . $data['bb_secret_key']['value'] . "'", $line);
 					break;
 				case '$bb_table_prefix =':
-					$config_lines[] = str_replace('bb_', $data['bb_table_prefix']['value'], $line);
+					$config_lines[] = str_replace("'bb_'", "'" . $data['bb_table_prefix']['value'] . "'", $line);
 					break;
 				default:
 					$config_lines[] = $line;
