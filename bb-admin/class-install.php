@@ -1067,8 +1067,6 @@ class BB_Install
 				// Hide errors for the test
 				$bbdb->return_errors();
 				
-				//$this->debug(__function__, '$bbdb', (array) $bbdb);
-				
 				// Select from the user table (may fail if there are no records in the table)
 				if (!$result = $bbdb->query('DESCRIBE ' . $bbdb->users . ';')) {
 					
