@@ -1521,7 +1521,48 @@ function bb_get_form_option( $option ) {
 }
 
 function bb_cache_all_options() { // Don't use the return value; use the API.  Only returns options stored in DB.
-	return bb_append_meta( (object) array('topic_id' => 0), 'topic' );
+	global $bb_topic_cache;
+	
+	bb_append_meta( (object) array('topic_id' => 0), 'topic' );
+	
+	$base_options = array(
+		// 'bb_db_version' if not present gets set by upgrade script
+		'name' => __('Please give me a name!'),
+		// 'uri' if missing causes massive failure anyway
+		'from_email' => '',
+		// 'secret' is auto-generated if not present
+		'page_topics' => '',
+		'edit_lock' => '',
+		'bb_active_theme' => '',
+		'active_plugins' => '',
+		'mod_rewrite' => '',
+		'datetime_format' => '',
+		'date_format' => '',
+		'avatars_show' => '',
+		'avatars_rating' => '',
+		'wp_table_prefix' => '',
+		'user_bbdb_name' => '',
+		'user_bbdb_user' => '',
+		'user_bbdb_password' => '',
+		'user_bbdb_host' => '',
+		'user_bbdb_charset' => '',
+		'custom_user_table' => '',
+		'custom_user_meta_table' => '',
+		'wp_siteurl' => '',
+		'wp_home' => '',
+		'cookiedomain' => '',
+		'usercookie' => '',
+		'passcookie' => '',
+		'authcookie' => '',
+		'cookiepath' => '',
+		'sitecookiepath' => ''
+	);
+	
+	foreach ($base_options as $base_option => $base_option_default)
+		if (!isset($bb_topic_cache[0]->$base_option))
+			$bb_topic_cache[0]->$base_option = $base_option_default;
+	
+	return true;
 }
 
 // Can store anything but NULL.
