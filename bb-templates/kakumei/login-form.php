@@ -8,6 +8,7 @@
 			<input name="password" type="password" id="password" size="13" maxlength="40" tabindex="2" />
 		</label>
 		<input name="re" type="hidden" value="<?php echo $re; ?>" />
+		<?php wp_referer_field(); ?>
 		<input type="submit" name="Submit" id="submit" value="<?php echo attribute_escape( __('Log in &raquo;') ); ?>" tabindex="4" />
 	</div>
 	<div class="remember">
