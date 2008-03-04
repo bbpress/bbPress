@@ -239,7 +239,7 @@ function bb_insert_topic( $args = null ) {
 
 	$topic_title = apply_filters( 'pre_topic_title', $topic_title, $topic_id );
 	$topic_title = bb_trim_for_db( $topic_title, 150 );
-	if ( !$topic_title )
+	if ( strlen($topic_title) < 1 )
 		return false;
 
 	$slug_sql = $update ?
@@ -248,7 +248,7 @@ function bb_insert_topic( $args = null ) {
 
 	$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title ); // $topic_slug is always set when updating
 	if ( strlen( $_topic_slug ) < 1 )
-		return false;
+		$topic_slug = $_topic_slug = '0';
 
 	while ( is_numeric($topic_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $slug_sql, $topic_slug, $topic_id ) ) )
 		$topic_slug = bb_slug_increment( $_topic_slug, $existing_slug );
