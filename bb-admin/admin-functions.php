@@ -772,7 +772,7 @@ function bb_get_plugins() {
 	) );
 	$r1 = $dir->get_results();
 	$r1 = is_wp_error($r1) ? array() : $r1;
-	$dir = new BB_Dir_Map( BBPLUGINDIR, array(
+	$dir = new BB_Dir_Map( BB_PLUGIN_DIR, array(
 		'callback' => 'bb_get_plugins_callback',
 		'recurse' => 1
 	) );

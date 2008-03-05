@@ -1,7 +1,7 @@
 <?php
 
 function bb_install() {
-	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
+	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
 	$alterations = bb_dbDelta($bb_queries);
 	bb_update_db_version();
 	return $alterations;
@@ -18,7 +18,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_200(); // Indices
 	$bb_upgrade[] = bb_upgrade_210(); // Convert text slugs to varchar slugs
 	$bb_upgrade[] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
-	require_once( BBPATH . 'bb-admin/upgrade-schema.php');
+	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
 	$bb_upgrade = array_merge($bb_upgrade, bb_dbDelta($bb_queries));
 	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
 	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent

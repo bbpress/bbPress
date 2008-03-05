@@ -350,7 +350,7 @@ function wp_hash_password($password) {
 	global $wp_hasher;
 
 	if ( empty($wp_hasher) ) { 
-		require_once( BBPATH . BBINC . 'class-phpass.php');
+		require_once( BB_PATH . BB_INC . 'class-phpass.php');
 		// By default, use the portable hash from phpass
 		$wp_hasher = new PasswordHash(8, TRUE);
 	}
@@ -369,7 +369,7 @@ function wp_check_password($password, $hash) {
 	// If the stored hash is longer than an MD5, presume the
 	// new style phpass portable hash.
 	if ( empty($wp_hasher) ) {
-		require_once( BBPATH . BBINC . 'class-phpass.php');
+		require_once( BB_PATH . BB_INC . 'class-phpass.php');
 		// By default, use the portable hash from phpass
 		$wp_hasher = new PasswordHash(8, TRUE);
 	}

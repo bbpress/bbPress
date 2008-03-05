@@ -23,14 +23,14 @@ $bb_table_prefix = 'bb_'; // Only letters, numbers and underscores please!
 
 // Change this to localize bbPress.  A corresponding MO file for the
 // chosen language must be installed to bb-includes/languages.
-// For example, install de.mo to bb-includes/languages and set BBLANG to 'de'
+// For example, install de.mo to bb-includes/languages and set BB_LANG to 'de'
 // to enable German language support.
-define('BBLANG', '');
+define('BB_LANG', '');
 
 /* Stop editing */
 
-if ( !defined('BBPATH') )
-	define('BBPATH', dirname(__FILE__) . '/' );
-require_once( BBPATH . 'bb-settings.php' );
+if ( !defined('BB_PATH') )
+	define('BB_PATH', dirname(__FILE__) . '/' );
+require_once( BB_PATH . 'bb-settings.php' );
 
 ?>

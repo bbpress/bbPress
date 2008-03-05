@@ -1,7 +1,7 @@
 <?php
 require('./bb-load.php');
 
-require_once( BBPATH . BBINC . 'registration-functions.php');
+require_once( BB_PATH . BB_INC . 'registration-functions.php');
 
 $reset = false;
 

@@ -112,7 +112,7 @@ class BB_Locale {
 
 	function _load_locale_data() {
 		$locale = get_locale();
-		$locale_file = BBPATH . "bb-includes/languages/$locale.php";
+		$locale_file = BB_PATH . "bb-includes/languages/$locale.php";
 		if ( !file_exists($locale_file) )
 			return;
 

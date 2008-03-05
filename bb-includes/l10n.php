@@ -5,9 +5,9 @@ function get_locale() {
 	if (isset($locale))
 		return $locale;
 
-	// BBLANG is defined in bb-config.php
-	if (defined('BBLANG'))
-		$locale = BBLANG;
+	// BB_LANG is defined in bb-config.php
+	if (defined('BB_LANG'))
+		$locale = BB_LANG;
 
 	if (empty($locale))
 		$locale = 'en_US';
@@ -69,7 +69,7 @@ function load_default_textdomain() {
 	global $l10n;
 
 	$locale = get_locale();
-	$mofile = BBLANGDIR . "$locale.mo";
+	$mofile = BB_LANG_DIR . "$locale.mo";
 
 	load_textdomain('default', $mofile);
 }
@@ -77,7 +77,7 @@ function load_default_textdomain() {
 function load_plugin_textdomain($domain, $path = false) { // optional path parameter is an absolute path
 	$locale = get_locale();
 	if ( false === $path )
-		$path = BBPLUGINDIR;
+		$path = BB_PLUGIN_DIR;
 
 	$mofile = "$path/$domain-$locale.mo";
 	load_textdomain($domain, $mofile);

@@ -7,7 +7,7 @@ if ( $self ) {
 	if ( strpos($self, '.php') !== false ) {
 		require($self);
 	} else {
-		require( BBPATH . 'profile-base.php' );
+		require( BB_PATH . 'profile-base.php' );
 	}
 	return;
 }

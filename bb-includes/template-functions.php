@@ -71,11 +71,11 @@ function bb_get_active_theme_uri() {
 
 function bb_get_theme_uri( $theme = false ) {
 	if ( !$theme )
-		$r = BBTHEMEURL;
-	elseif ( 0 === strpos($theme, BBTHEMEDIR) )
-		$r = BBTHEMEURL . substr($theme, strlen(BBTHEMEDIR));
-	elseif ( 0 === strpos($theme, BBPATH) )
-		$r = bb_get_option( 'uri' ) . substr($theme, strlen(BBPATH));
+		$r = BB_THEME_URL;
+	elseif ( 0 === strpos($theme, BB_THEME_DIR) )
+		$r = BB_THEME_URL . substr($theme, strlen(BB_THEME_DIR));
+	elseif ( 0 === strpos($theme, BB_PATH) )
+		$r = bb_get_option( 'uri' ) . substr($theme, strlen(BB_PATH));
 	else
 		$r = false;
 
