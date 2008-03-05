@@ -14,7 +14,7 @@ if ( ini_get('safe_mode') )
 // Post to http://lists.bbpress.org/mailman/listinfo/bbdev if needed
 
 require('../bb-load.php');
-require( BBPATH . 'bb-admin/upgrade-functions.php' );
+require( BB_PATH . 'bb-admin/upgrade-functions.php' );
 
 $step = 'unrequired';
 

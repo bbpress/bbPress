@@ -15,7 +15,7 @@ if ( !is_bb_profile() ) {
 	wp_redirect( $sendto );
 }
 
-require_once(BBPATH . BBINC . 'registration-functions.php');
+require_once(BB_PATH . BB_INC . 'registration-functions.php');
 
 if ( !$user->capabilities )
 	$user->capabilities = array('inactive' => true);

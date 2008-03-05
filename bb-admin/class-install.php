@@ -221,7 +221,7 @@ class BB_Install
 			return false;
 		}
 		
-		if (!defined('BBPATH')) {
+		if (!defined('BB_PATH')) {
 			// Determine the base path of the installation
 			// The caller must be in bb-admin or the base path of the installation
 			$bbpath = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $this->caller);
@@ -231,20 +231,20 @@ class BB_Install
 				die();
 			}
 			
-			define('BBPATH', $bbpath);
+			define('BB_PATH', $bbpath);
 		}
 		
-		if (!defined('BBINC')) {
-			// Define BBINC
+		if (!defined('BB_INC')) {
+			// Define BB_INC
 			// Tell us to load includes because bb-settings.php was not loaded
 			// bb-settings.php is generally not loaded on steps -1, 0 and 1 but
 			// there are exceptions, so this is safer than just reading the step
 			$this->load_includes = true;
-			define('BBINC', 'bb-includes/');
+			define('BB_INC', 'bb-includes/');
 		}
 		
 		if (!defined('BACKPRESS_PATH')) {
-			define('BACKPRESS_PATH', BBPATH . BBINC . 'backpress/');
+			define('BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/');
 		}
 		
 		return true;
@@ -261,7 +261,7 @@ class BB_Install
 	function database_tables_are_installed()
 	{
 		if ($this->load_includes) {
-			require_once(BBPATH . BBINC . 'db.php');
+			require_once(BB_PATH . BB_INC . 'db.php');
 		} else {
 			global $bbdb;
 		}
@@ -296,17 +296,17 @@ class BB_Install
 	function check_configs()
 	{
 		// Check for a config file
-		if (file_exists(BBPATH . 'bb-config.php')) {
-			$this->configs['bb-config.php'] = BBPATH . 'bb-config.php';
-		} elseif (file_exists(dirname(BBPATH) . '/bb-config.php')) {
-			$this->configs['bb-config.php'] = dirname(BBPATH) . '/bb-config.php';
+		if (file_exists(BB_PATH . 'bb-config.php')) {
+			$this->configs['bb-config.php'] = BB_PATH . 'bb-config.php';
+		} elseif (file_exists(dirname(BB_PATH) . '/bb-config.php')) {
+			$this->configs['bb-config.php'] = dirname(BB_PATH) . '/bb-config.php';
 		}
 		
 		// Check for an old config file
-		if (file_exists(BBPATH . 'config.php')) {
-			$this->configs['config.php'] = BBPATH . 'config.php';
-		} elseif (file_exists(dirname(BBPATH) . '/config.php')) {
-			$this->configs['config.php'] = dirname(BBPATH) . '/config.php';
+		if (file_exists(BB_PATH . 'config.php')) {
+			$this->configs['config.php'] = BB_PATH . 'config.php';
+		} elseif (file_exists(dirname(BB_PATH) . '/config.php')) {
+			$this->configs['config.php'] = dirname(BB_PATH) . '/config.php';
 		}
 		
 		if ($this->configs['config.php']) {
@@ -370,7 +370,7 @@ class BB_Install
 		}
 		
 		// Check if the config file path is writable
-		if ( is_writable(BBPATH) ) {
+		if ( is_writable(BB_PATH) ) {
 			$this->configs['writable'] = true;
 		}
 		
@@ -410,7 +410,7 @@ class BB_Install
 	function validate_current_database()
 	{
 		if ($this->load_includes) {
-			require_once(BBPATH . BBINC . 'db.php');
+			require_once(BB_PATH . BB_INC . 'db.php');
 		} else {
 			global $bbdb;
 		}
@@ -834,8 +834,8 @@ class BB_Install
 		}
 		
 		// Read the contents of the sample config
-		if (file_exists(BBPATH . 'bb-config-sample.php')) {
-			$sample_config = file(BBPATH . 'bb-config-sample.php');
+		if (file_exists(BB_PATH . 'bb-config-sample.php')) {
+			$sample_config = file(BB_PATH . 'bb-config-sample.php');
 		} else {
 			$this->step_status[1] = 'error';
 			$this->strings[1]['messages']['error'][] = __('I could not find the file <code>bb-config-sample.php</code><br />Please upload it to the root directory of your bbPress installation.');
@@ -850,7 +850,7 @@ class BB_Install
 		define('BBDB_CHARSET',  $data['bbdb_charset']['value']);
 		
 		// We'll fail here if the values are no good.
-		require_once(BBPATH . BBINC . 'db.php');
+		require_once(BB_PATH . BB_INC . 'db.php');
 		
 		if (!$bbdb->db_connect('SHOW TABLES;')) {
 			$this->step_status[1] = 'incomplete';
@@ -897,7 +897,7 @@ class BB_Install
 		if ($this->configs['writable']) {
 			
 			// Create the new config file and open it for writing
-			$config_handle = fopen(BBPATH . 'bb-config.php', 'w');
+			$config_handle = fopen(BB_PATH . 'bb-config.php', 'w');
 			
 			// Write lines one by one to avoid OS specific newline hassles
 			foreach ($config_lines as $config_line) {
@@ -908,10 +908,10 @@ class BB_Install
 			fclose($config_handle);
 			
 			// Make the file slightly more secure than world readable
-			chmod(BBPATH . 'bb-config.php', 0666);
+			chmod(BB_PATH . 'bb-config.php', 0666);
 			
-			if (file_exists(BBPATH . 'bb-config.php')) {
-				$this->configs['bb-config.php'] = BBPATH . 'bb-config.php';
+			if (file_exists(BB_PATH . 'bb-config.php')) {
+				$this->configs['bb-config.php'] = BB_PATH . 'bb-config.php';
 				$this->step_status[1] = 'complete';
 				$this->strings[1]['messages']['message'][] = __('Your settings have been saved to the file <code>bb-config.php</code><br />You can now continue to the next step.');
 			}
@@ -1053,20 +1053,35 @@ class BB_Install
 				// Setup variables and constants if available
 				global $bb;
 				$bb->wp_table_prefix = $data['wp_table_prefix']['value'];
-				define('USER_BBDB_NAME',     $data['user_bbdb_name']['value']);
-				define('USER_BBDB_USER',     $data['user_bbdb_user']['value']);
-				define('USER_BBDB_PASSWORD', $data['user_bbdb_password']['value']);
-				define('USER_BBDB_HOST',     $data['user_bbdb_host']['value']);
+				$bb->user_bbdb_name = $data['user_bbdb_name']['value'];
+				$bb->user_bbdb_user = $data['user_bbdb_user']['value'];
+				$bb->user_bbdb_password = $data['user_bbdb_password']['value'];
+				$bb->user_bbdb_host = $data['user_bbdb_host']['value'];
 				// These may be empty at this particular stage
-				if ( !empty($data['user_bbdb_charset']['value']) )      define('USER_BBDB_CHARSET',      $data['user_bbdb_charset']['value']);
-				if ( !empty($data['custom_user_table']['value']) )      define('CUSTOM_USER_TABLE',      $data['custom_user_table']['value']);
-				if ( !empty($data['custom_user_meta_table']['value']) ) define('CUSTOM_USER_META_TABLE', $data['custom_user_meta_table']['value']);
+				if ( !empty($data['user_bbdb_charset']['value']) )
+					$bb->user_bbdb_charset = $data['user_bbdb_charset']['value'];
+				if ( !empty($data['custom_user_table']['value']) )
+					$bb->custom_user_table = $data['custom_user_table']['value'];
+				if ( !empty($data['custom_user_meta_table']['value']) )
+					$bb->custom_user_meta_table = $data['custom_user_meta_table']['value'];
 				
 				// Bring in the database object
 				global $bbdb;
 				
 				// Set the new prefix for user tables
 				$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
+				
+				// Set the user table's character set if defined
+				if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
+					$bbdb->user_charset = $bb->user_bbdb_charset;
+				
+				// Set the user table's custom name if defined
+				if ( isset($bb->custom_user_table) && $bb->custom_user_table )
+					$bbdb->users = $bb->custom_user_table;
+				
+				// Set the usermeta table's custom name if defined
+				if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
+					$bbdb->usermeta = $bb->custom_user_meta_table;
 				
 				// Hide errors for the test
 				$bbdb->return_errors();
@@ -1151,7 +1166,7 @@ class BB_Install
 		$data['keymaster_user_login']['value'] == sanitize_user($data['keymaster_user_login']['value']);
 		
 		// bb_verify_email() needs this
-		require_once(BBPATH . BBINC . 'registration-functions.php');
+		require_once(BB_PATH . BB_INC . 'registration-functions.php');
 		
 		// Check for a valid email
 		$this->strings[3]['form_errors']['keymaster_user_email'][] = empty($data['keymaster_user_email']['value']) ? 'empty' : false;
@@ -1223,9 +1238,9 @@ class BB_Install
 	
 	function process_form_finalise_installation()
 	{
-		require_once(BBPATH . 'bb-admin/upgrade-functions.php');
-		require_once(BBPATH . BBINC . 'registration-functions.php');
-		require_once(BBPATH . 'bb-admin/admin-functions.php');
+		require_once(BB_PATH . 'bb-admin/upgrade-functions.php');
+		require_once(BB_PATH . BB_INC . 'registration-functions.php');
+		require_once(BB_PATH . 'bb-admin/admin-functions.php');
 		
 		$this->inject_form_values_into_data(2);
 		$this->inject_form_values_into_data(3);
@@ -1250,17 +1265,37 @@ class BB_Install
 			
 			global $bb;
 			
-			if (!empty($data2['wp_table_prefix']['value']))        $bb->wp_table_prefix =           $data2['wp_table_prefix']['value'];
-			if (!empty($data2['user_bbdb_name']['value']))         define('USER_BBDB_NAME',         $data2['user_bbdb_name']['value']);
-			if (!empty($data2['user_bbdb_user']['value']))         define('USER_BBDB_USER',         $data2['user_bbdb_user']['value']);
-			if (!empty($data2['user_bbdb_password']['value']))     define('USER_BBDB_PASSWORD',     $data2['user_bbdb_password']['value']);
-			if (!empty($data2['user_bbdb_host']['value']))         define('USER_BBDB_HOST',         $data2['user_bbdb_host']['value']);
-			if (!empty($data2['user_bbdb_charset']['value']))      define('USER_BBDB_CHARSET',      $data2['user_bbdb_charset']['value']);
-			if (!empty($data2['custom_user_table']['value']))      define('CUSTOM_USER_TABLE',      $data2['custom_user_table']['value']);
-			if (!empty($data2['custom_user_meta_table']['value'])) define('CUSTOM_USER_META_TABLE', $data2['custom_user_meta_table']['value']);
+			if ( !empty($data2['wp_table_prefix']['value']) )
+				$bb->wp_table_prefix = $data2['wp_table_prefix']['value'];
+			if ( !empty($data2['user_bbdb_name']['value']) )
+				$bb->user_bbdb_name = $data2['user_bbdb_name']['value'];
+			if ( !empty($data2['user_bbdb_user']['value']) )
+				$bb->user_bbdb_user = $data2['user_bbdb_user']['value'];
+			if ( !empty($data2['user_bbdb_password']['value']) )
+				$bb->user_bbdb_password = $data2['user_bbdb_password']['value'];
+			if ( !empty($data2['user_bbdb_host']['value']) )
+				$bb->user_bbdb_host = $data2['user_bbdb_host']['value'];
+			if ( !empty($data2['user_bbdb_charset']['value']) )
+				$bb->user_bbdb_charset = $data2['user_bbdb_charset']['value'];
+			if ( !empty($data2['custom_user_table']['value']) )
+				$bb->custom_user_table = $data2['custom_user_table']['value'];
+			if ( !empty($data2['custom_user_meta_table']['value']) )
+				$bb->custom_user_meta_table = $data2['custom_user_meta_table']['value'];
 			
 			// Set the new prefix for user tables
 			$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
+			
+			// Set the user table's character set if defined
+			if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
+				$bbdb->user_charset = $bb->user_bbdb_charset;
+			
+			// Set the user table's custom name if defined
+			if ( isset($bb->custom_user_table) && $bb->custom_user_table )
+				$bbdb->users = $bb->custom_user_table;
+			
+			// Set the usermeta table's custom name if defined
+			if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
+				$bbdb->usermeta = $bb->custom_user_meta_table;
 		}
 		
 		// Create the database
@@ -1718,19 +1753,39 @@ EOF;
 		
 		// Setup variables and constants if available
 		global $bb;
-		if ( !empty($this->data[2]['form']['wp_table_prefix']['value']) )        $bb->wp_table_prefix = $this->data[2]['form']['wp_table_prefix']['value'];
-		if ( !empty($this->data[2]['form']['user_bbdb_name']['value']) )         define('USER_BBDB_NAME',         $this->data[2]['form']['user_bbdb_name']['value']);
-		if ( !empty($this->data[2]['form']['user_bbdb_user']['value']) )         define('USER_BBDB_USER',         $this->data[2]['form']['user_bbdb_user']['value']);
-		if ( !empty($this->data[2]['form']['user_bbdb_password']['value']) )     define('USER_BBDB_PASSWORD',     $this->data[2]['form']['user_bbdb_password']['value']);
-		if ( !empty($this->data[2]['form']['user_bbdb_host']['value']) )         define('USER_BBDB_HOST',         $this->data[2]['form']['user_bbdb_host']['value']);
-		if ( !empty($this->data[2]['form']['user_bbdb_charset']['value']) )      define('USER_BBDB_CHARSET',      $this->data[2]['form']['user_bbdb_charset']['value']);
-		if ( !empty($this->data[2]['form']['custom_user_table']['value']) )      define('CUSTOM_USER_TABLE',      $this->data[2]['form']['custom_user_table']['value']);
-		if ( !empty($this->data[2]['form']['custom_user_meta_table']['value']) ) define('CUSTOM_USER_META_TABLE', $this->data[2]['form']['custom_user_meta_table']['value']);
+		if ( !empty($this->data[2]['form']['wp_table_prefix']['value']) )
+			$bb->wp_table_prefix = $this->data[2]['form']['wp_table_prefix']['value'];
+		if ( !empty($this->data[2]['form']['user_bbdb_name']['value']) )
+			$bb->user_bbdb_name = $this->data[2]['form']['user_bbdb_name']['value'];
+		if ( !empty($this->data[2]['form']['user_bbdb_user']['value']) )
+			$bb->user_bbdb_user = $this->data[2]['form']['user_bbdb_user']['value'];
+		if ( !empty($this->data[2]['form']['user_bbdb_password']['value']) )
+			$bb->user_bbdb_password = $this->data[2]['form']['user_bbdb_password']['value'];
+		if ( !empty($this->data[2]['form']['user_bbdb_host']['value']) )
+			$bb->user_bbdb_host = $this->data[2]['form']['user_bbdb_host']['value'];
+		if ( !empty($this->data[2]['form']['user_bbdb_charset']['value']) )
+			$bb->user_bbdb_charset = $this->data[2]['form']['user_bbdb_charset']['value'];
+		if ( !empty($this->data[2]['form']['custom_user_table']['value']) )
+			$bb->custom_user_table = $this->data[2]['form']['custom_user_table']['value'];
+		if ( !empty($this->data[2]['form']['custom_user_meta_table']['value']) )
+			$bb->custom_user_meta_table =  $this->data[2]['form']['custom_user_meta_table']['value'];
 		
 		global $bbdb;
 		
 		// Set the new prefix for user tables
 		$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
+		
+		// Set the user table's character set if defined
+		if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
+			$bbdb->user_charset = $bb->user_bbdb_charset;
+		
+		// Set the user table's custom name if defined
+		if ( isset($bb->custom_user_table) && $bb->custom_user_table )
+			$bbdb->users = $bb->custom_user_table;
+		
+		// Set the usermeta table's custom name if defined
+		if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
+			$bbdb->usermeta = $bb->custom_user_meta_table;
 		
 		$wp_administrator_meta_key = $bb->wp_table_prefix . 'capabilities';
 		$wp_administrator_query = <<<EOQ

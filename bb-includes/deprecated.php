@@ -534,13 +534,13 @@ endif;
 // It's not omnipotent
 function bb_path_to_url( $path ) {
 	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
-	return apply_filters( 'bb_path_to_url', bb_convert_path_base( $path, BBPATH, bb_get_option( 'uri' ) ), $path );
+	return apply_filters( 'bb_path_to_url', bb_convert_path_base( $path, BB_PATH, bb_get_option( 'uri' ) ), $path );
 }
 
 // Neither is this one
 function bb_url_to_path( $url ) {
 	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
-	return apply_filters( 'bb_url_to_path', bb_convert_path_base( $url, bb_get_option( 'uri' ), BBPATH ), $url );
+	return apply_filters( 'bb_url_to_path', bb_convert_path_base( $url, bb_get_option( 'uri' ), BB_PATH ), $url );
 }
 
 function bb_convert_path_base( $path, $from_base, $to_base ) {

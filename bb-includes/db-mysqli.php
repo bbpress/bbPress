@@ -27,12 +27,14 @@ class bbdb extends bbdb_base {
 		
 		$server = new StdClass();
 		
-		if ( defined('USER_BBDB_NAME') && ( $table == $this->users || $table == $this->usermeta ) ) { // global user tables
+		global $bb;
+		
+		if ( isset($bb->user_bbdb_name) && $bb->user_bbdb_name && ( $table == $this->users || $table == $this->usermeta ) ) { // global user tables
 			$dbhname =          'dbh_user'; // This is connection identifier
-			$server->database = constant('USER_BBDB_NAME');
-			$server->user =     constant('USER_BBDB_USER');
-			$server->pass =     constant('USER_BBDB_PASSWORD');
-			$server->host =     constant('USER_BBDB_HOST');
+			$server->database = $bb->user_bbdb_name;
+			$server->user =     $bb->user_bbdb_user;
+			$server->pass =     $bb->user_bbdb_password;
+			$server->host =     $bb->user_bbdb_host;
 			$server->port =     null;
 			$server->socket =   null;
 			$server->charset =  $this->user_charset;

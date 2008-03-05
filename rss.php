@@ -1,6 +1,6 @@
 <?php
 require('./bb-load.php');
-require_once( BBPATH . BBINC . 'feed-functions.php');
+require_once( BB_PATH . BB_INC . 'feed-functions.php');
 
 // Determine the type of feed and the id of the object
 if ( isset($_GET['view']) || get_path() == 'view' ) {

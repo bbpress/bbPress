@@ -507,12 +507,12 @@ if (!defined('BBDB_EXTENSION')) {
 switch (BBDB_EXTENSION) {
 	case 'mysqli':
 		if (extension_loaded('mysqli')) {
-			require(BBPATH . BBINC . 'db-mysqli.php');
+			require(BB_PATH . BB_INC . 'db-mysqli.php');
 		}
 		break;
 	case 'mysql':
 		if (extension_loaded('mysql')) {
-			require(BBPATH . BBINC . 'db-mysql.php');
+			require(BB_PATH . BB_INC . 'db-mysql.php');
 		}
 		break;
 }

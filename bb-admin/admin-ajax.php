@@ -4,7 +4,7 @@ require_once('../bb-load.php');
 if ( !class_exists( 'WP_Ajax_Response' ) )
 	require( BACKPRESS_PATH . 'class.wp-ajax-response.php' );
 
-require_once(BBPATH . 'bb-admin/admin-functions.php');
+require_once(BB_PATH . 'bb-admin/admin-functions.php');
 bb_check_ajax_referer();
 
 if ( !$bb_current_id = bb_get_current_user_info( 'id' ) )

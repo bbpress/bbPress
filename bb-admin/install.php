@@ -9,23 +9,23 @@ define('BB_INSTALLING', true);
 require_once('../bb-load.php');
 
 // Instantiate the install class
-require_once(BBPATH . 'bb-admin/class-install.php');
+require_once(BB_PATH . 'bb-admin/class-install.php');
 $bb_install = new BB_Install(__FILE__);
 
 // Include some neccesary functions if not already there
 if ($bb_install->load_includes) {
 	require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
-	require_once(BBPATH . BBINC . 'wp-functions.php');
-	require_once(BBPATH . BBINC . 'functions.php');
+	require_once(BB_PATH . BB_INC . 'wp-functions.php');
+	require_once(BB_PATH . BB_INC . 'functions.php');
 	
 	// Only load these if we need a translation
-	if (defined('BBLANG') && BBLANG) {
-		require_once(BBPATH . BBINC . 'streams.php');
-		require_once(BBPATH . BBINC . 'gettext.php');
+	if (defined('BB_LANG') && BB_LANG) {
+		require_once(BB_PATH . BB_INC . 'streams.php');
+		require_once(BB_PATH . BB_INC . 'gettext.php');
 	}
 	
-	// All strings pass through gettext, but not all will get translated, BBLANG usually isn't defined early on
-	require_once(BBPATH . BBINC . 'l10n.php');
+	// All strings pass through gettext, but not all will get translated, BB_LANG usually isn't defined early on
+	require_once(BB_PATH . BB_INC . 'l10n.php');
 	
 	load_default_textdomain();
 }

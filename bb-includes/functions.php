@@ -2371,7 +2371,7 @@ function no_where( $where ) {
 
 function bb_plugin_basename($file) {
 	$file = preg_replace('|\\\\+|', '\\\\', $file);
-	$file = preg_replace('|^.*' . preg_quote(BBPLUGINDIR, '|') . '|', '', $file);
+	$file = preg_replace('|^.*' . preg_quote(BB_PLUGIN_DIR, '|') . '|', '', $file);
 	return $file;
 }
 
@@ -2387,9 +2387,9 @@ function bb_register_plugin_deactivation_hook($file, $function) {
 
 function bb_get_plugin_uri( $plugin = false ) {
 	if ( !$plugin )
-		$r = BBPLUGINURL;
-	elseif ( 0 === strpos($plugin, BBPLUGINDIR) )
-		$r = BBPLUGINURL . substr($plugin, strlen(BBPLUGINDIR));
+		$r = BB_PLUGIN_URL;
+	elseif ( 0 === strpos($plugin, BB_PLUGIN_DIR) )
+		$r = BB_PLUGIN_URL . substr($plugin, strlen(BB_PLUGIN_DIR));
 	else
 		$r = false;
 
@@ -2409,7 +2409,7 @@ function bb_get_active_theme_folder() {
 function bb_get_themes() {
 	$r = array();
 
-	$theme_roots = array(BBPATH . 'bb-templates/', BBTHEMEDIR );
+	$theme_roots = array(BB_PATH . 'bb-templates/', BB_THEME_DIR );
 	foreach ( $theme_roots as $theme_root )
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
