@@ -757,28 +757,72 @@ function bb_recount_list() {
 	return $recount_list;
 }
 
-/* Pluigns */
+/* Plugins */
 
-function bb_get_plugins_callback( $f, $_f ) {
-	if ( ".php" != substr($f,-4) || "_" == substr($_f, 0, 1) )
+function bb_get_plugins_callback( $type = 'normal', $path, $filename ) {
+	if ( '.php' != substr($filename, -4) )
 		return false;
-	return bb_get_plugin_data( $f );
+	
+	switch ($type) {
+		case 'all':
+			// Catch, but do nothing
+			break;
+		case 'autoload':
+			if ( '_' != substr($filename, 0, 1) )
+				return false;
+			break;
+		case 'normal':
+		default:
+			if ( '_' == substr($filename, 0, 1) )
+				return false;
+			break;
+	}
+	
+	return bb_get_plugin_data( $path );
 }
 
-function bb_get_plugins() {
-	$dir = new BB_Dir_Map( BB_CORE_PLUGIN_DIR, array(
-		'callback' => 'bb_get_plugins_callback',
-		'recurse' => 1
-	) );
-	$r1 = $dir->get_results();
-	$r1 = is_wp_error($r1) ? array() : $r1;
-	$dir = new BB_Dir_Map( BB_PLUGIN_DIR, array(
-		'callback' => 'bb_get_plugins_callback',
-		'recurse' => 1
-	) );
-	$r2 = $dir->get_results();
-	$r2 = is_wp_error($r2) ? array() : $r2;
-	return array_merge($r1, $r2);
+function bb_get_plugins($location = 'all', $type = 'normal') {
+	switch ($location) {
+		case 'core':
+			$directories = array(BB_CORE_PLUGIN_DIR);
+			break;
+		case 'user':
+			$directories = array(BB_PLUGIN_DIR);
+			break;
+		case 'all':
+		default:
+			$directories = array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR);
+			break;
+	}
+	unset($location);
+	
+	$plugin_arrays = array();
+	foreach ($directories as $directory) {
+		$dir_map = new BB_Dir_Map(
+			$directory,
+			array(
+				'callback' => 'bb_get_plugins_callback',
+				'callback_args' => array($type),
+				'recurse' => 1
+			)
+		);
+		$dir_plugins = $dir_map->get_results();
+		$dir_plugins = is_wp_error($dir_plugins) ? array() : $dir_plugins;
+		$plugin_arrays[] = $dir_plugins;
+		unset($dir_map, $dir_plugins);
+	}
+	
+	$plugins = array();
+	foreach ($plugin_arrays as $plugin_array) {
+		$plugins = array_merge($plugins, $plugin_array);
+	}
+	
+	$adjusted_plugins = array();
+	foreach ($plugins as $plugin => $plugin_data) {
+		$adjusted_plugins[$plugin_data['location'] . '#' . $plugin] = $plugin_data;
+	}
+	
+	return $adjusted_plugins;
 }
 
 // Output sanitized for display
@@ -815,7 +859,14 @@ function bb_get_plugin_data($plugin_file) {
 	$description = bb_filter_kses( $description );
 	$description = bb_autop( $description );
 
+	if (substr($plugin_file, 0, strlen(BB_CORE_PLUGIN_DIR)) == BB_CORE_PLUGIN_DIR) {
+		$location = 'core';
+	} else {
+		$location = 'user';
+	}
+
 	$r = array(
+		'location' => $location,
 		'name' => $plugin_name,
 		'uri' => $plugin_uri,
 		'description' => $description,
