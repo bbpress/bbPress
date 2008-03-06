@@ -65,21 +65,23 @@ function bb_active_theme_uri() {
 
 function bb_get_active_theme_uri() {
 	if ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
-		$active_theme = BB_DEFAULT_THEME_DIR;
-	return apply_filters( 'bb_get_active_theme_uri', bb_get_theme_uri( $active_theme ) );
+		$active_theme_uri = BB_DEFAULT_THEME_URL;
+	else
+		$active_theme_uri = bb_get_theme_uri( $active_theme );
+	return apply_filters( 'bb_get_active_theme_uri', $active_theme_uri );
 }
 
 function bb_get_theme_uri( $theme = false ) {
-	if ( !$theme )
-		$r = BB_THEME_URL;
-	elseif ( 0 === strpos($theme, BB_THEME_DIR) )
-		$r = BB_THEME_URL . substr($theme, strlen(BB_THEME_DIR));
-	elseif ( 0 === strpos($theme, BB_PATH) )
-		$r = bb_get_option( 'uri' ) . substr($theme, strlen(BB_PATH));
-	else
-		$r = false;
-
-	return apply_filters( 'bb_get_theme_uri', $r, $theme );
+	if ( !$theme ) {
+		$theme_uri = BB_THEME_URL;
+	} else {
+		$theme_uri = str_replace(
+			array('core#', 'user#'),
+			array(BB_CORE_THEME_URL, BB_THEME_URL),
+			$theme
+		) . '/';
+	}
+	return apply_filters( 'bb_get_theme_uri', $theme_uri, $theme );
 }
 
 function bb_get_footer() {

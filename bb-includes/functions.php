@@ -2398,24 +2398,37 @@ function bb_get_plugin_uri( $plugin = false ) {
 
 /* Themes / Templates */
 
-function bb_get_active_theme_folder() {
-	$activetheme = bb_get_option( 'bb_active_theme' );
-	if ( !$activetheme )
-		$activetheme = BB_DEFAULT_THEME_DIR;
+function bb_get_active_theme_directory() {
+	return apply_filters( 'bb_get_active_theme_directory', bb_get_theme_directory() );
+}
 
-	return apply_filters( 'bb_get_active_theme_folder', $activetheme );
+function bb_get_theme_directory($theme = false) {
+	if (!$theme) {
+		$theme = bb_get_option( 'bb_active_theme' );
+	}
+	if ( !$theme ) {
+		$theme_directory = BB_DEFAULT_THEME_DIR;
+	} else {
+		$theme_directory = str_replace(
+			array('core#', 'user#'),
+			array(BB_CORE_THEME_DIR, BB_THEME_DIR),
+			$theme
+		) . '/';
+	}
+	return $theme_directory;
 }
 
 function bb_get_themes() {
 	$r = array();
-
-	$theme_roots = array(BB_PATH . 'bb-templates/', BB_THEME_DIR );
-	foreach ( $theme_roots as $theme_root )
+	$theme_roots = array(
+		'core' => BB_CORE_THEME_DIR,
+		'user' => BB_THEME_DIR
+	);
+	foreach ( $theme_roots as $theme_root_name => $theme_root )
 		if ( $themes_dir = @dir($theme_root) )
 			while( ( $theme_dir = $themes_dir->read() ) !== false )
 				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir{0} )
-					$r[$theme_root . $theme_dir . '/'] = $theme_root . $theme_dir . '/';
-
+					$r[$theme_root_name . '#' . $theme_dir] = $theme_root_name . '#' . $theme_dir;
 	ksort($r);
 	return $r;
 }

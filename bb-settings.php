@@ -185,8 +185,11 @@ if ( !$bb->uri && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 
 define('BB_CORE_PLUGIN_DIR', BB_PATH . 'bb-plugins/');
 define('BB_CORE_PLUGIN_URL', $bb->uri . 'bb-plugins/');
-define('BB_DEFAULT_THEME_DIR', BB_PATH . 'bb-templates/kakumei/');
-define('BB_DEFAULT_THEME_URL', $bb->uri . 'bb-templates/kakumei/');
+define('BB_CORE_THEME_DIR', BB_PATH . 'bb-templates/');
+define('BB_CORE_THEME_URL', $bb->uri . 'bb-templates/');
+define('BB_DEFAULT_THEME', 'core#kakumei');
+define('BB_DEFAULT_THEME_DIR', BB_CORE_THEME_DIR . 'kakumei/');
+define('BB_DEFAULT_THEME_URL', BB_CORE_THEME_URL . 'kakumei/');
 
 if ( !defined('BB_PLUGIN_DIR') )
 	if ( defined('BBPLUGINDIR') ) // User has set old constant

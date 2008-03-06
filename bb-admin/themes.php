@@ -2,34 +2,40 @@
 require_once('admin.php');
 
 $themes = bb_get_themes();
+
 $activetheme = bb_get_option('bb_active_theme');
 if (!$activetheme) {
-	$activetheme = BB_DEFAULT_THEME_DIR;
+	$activetheme = BB_DEFAULT_THEME;
 }
+$activetheme_filter = str_replace(array('core#', 'user#'), '', $activetheme);
 
 if ( isset($_GET['theme']) ) {
 	if ( !bb_current_user_can( 'manage_themes' ) ) {
 		wp_redirect( bb_get_option( 'uri' ) );
 		exit;
 	}
+	
 	bb_check_admin_referer( 'switch-theme' );
-	do_action( 'bb_deactivate_theme_' . basename($activetheme) );
-	$activetheme = stripslashes($_GET['theme']);
-	if ($activetheme == BB_DEFAULT_THEME_DIR) {
+	do_action( 'bb_deactivate_theme_' . $activetheme_filter );
+	
+	$theme = stripslashes($_GET['theme']);
+	$theme_filter = str_replace(array('core#', 'user#'), '', $theme);
+	
+	if ($theme == BB_DEFAULT_THEME) {
 		bb_delete_option( 'bb_active_theme' );
 	} else {
-		bb_update_option( 'bb_active_theme', $activetheme );
+		bb_update_option( 'bb_active_theme', $theme );
 	}
-	do_action( 'bb_activate_theme_' . basename($activetheme) );
+	do_action( 'bb_activate_theme_' . $theme_filter );
 	wp_redirect( bb_get_option( 'uri' ) . 'bb-admin/themes.php?activated' );
 	exit;
 }
 
 if ( isset($_GET['activated']) )
-	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" activated'), basename($activetheme)) );
+	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" activated'), $activetheme_filter) );
 
 if ( !in_array($activetheme, $themes) ) {
-	if ($activetheme == BB_DEFAULT_THEME_DIR) {
+	if ($activetheme == BB_DEFAULT_THEME) {
 		remove_action( 'bb_admin_notices', $theme_notice );
 		bb_admin_notice( __('Default theme is missing.'), 'error' );
 	} else {
@@ -40,8 +46,9 @@ if ( !in_array($activetheme, $themes) ) {
 }
 
 function bb_admin_theme_row( $theme ) {
-	$theme_data = file_exists( $theme . 'style.css' ) ? bb_get_theme_data( $theme . 'style.css' ) : false;
-	$screen_shot = file_exists( $theme . 'screenshot.png' ) ? clean_url( bb_get_theme_uri( $theme . 'screenshot.png' ) ) : false;
+	$theme_directory = bb_get_theme_directory( $theme );
+	$theme_data = file_exists( $theme_directory . 'style.css' ) ? bb_get_theme_data( $theme_directory . 'style.css' ) : false;
+	$screen_shot = file_exists( $theme_directory . 'screenshot.png' ) ? clean_url( bb_get_theme_uri( $theme ) . 'screenshot.png' ) : false;
 	$activation_url = clean_url( bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme', $class ); ?>>
@@ -51,7 +58,7 @@ function bb_admin_theme_row( $theme ) {
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?>
 			<p><?php echo $theme_data['Description']; ?></p>
-			<small><?php printf(__('Installed in: %s'), basename(dirname($theme)) . '/' . basename($theme)); ?></small>
+			<small><?php printf(__('Installed in: %s'), str_replace(array('core#', 'user#'), array(__('Core themes -&gt; '), __('User installed themes -&gt; ')), $theme)); ?></small>
 		</div>
 		<br class="clear" />
 	</li>
