@@ -413,30 +413,30 @@ unset($deprecated_constants, $old, $new);
 
 // Load Plugins
 
-// Underscore plugins
-if ( function_exists( 'glob' ) && is_callable( 'glob' ) ) {
-	// First BB_CORE_PLUGIN_DIR
-	$_plugins_glob = glob(BB_CORE_PLUGIN_DIR . '_*.php');
-	foreach ( $_plugins_glob as $_plugin )
-		require($_plugin);
-	unset($_plugins_glob, $_plugin);
-	
-	// Second BB_PLUGIN_DIR, with no name clash testing
-	$_plugins_glob = glob(BB_PLUGIN_DIR . '_*.php');
-	foreach ( $_plugins_glob as $_plugin )
-		require($_plugin);
-	unset($_plugins_glob, $_plugin);
-}
+// Autoloaded "underscore" plugins
+// First BB_CORE_PLUGIN_DIR
+foreach ( bb_glob(BB_CORE_PLUGIN_DIR . '_*.php') as $_plugin )
+	require( $_plugin );
+unset( $_plugin );
+// Second BB_PLUGIN_DIR, with no name clash testing
+foreach ( bb_glob(BB_PLUGIN_DIR . '_*.php') as $_plugin )
+	require( $_plugin );
+unset( $_plugin );
 do_action( 'bb_underscore_plugins_loaded' );
 
-// Plugins in BB_PLUGIN_DIR take precedence over BB_CORE_PLUGIN_DIR when names collide
-if ( $plugins = bb_get_option( 'active_plugins' ) )
-	foreach ( (array) $plugins as $plugin )
-		if ( file_exists(BB_PLUGIN_DIR . $plugin) ) {
-			require( BB_PLUGIN_DIR . $plugin );
-		} elseif ( file_exists(BB_CORE_PLUGIN_DIR . $plugin) ) {
-			require( BB_CORE_PLUGIN_DIR . $plugin );
+// Normal plugins
+if ( $plugins = bb_get_option( 'active_plugins' ) ) {
+	foreach ( (array) $plugins as $plugin ) {
+		$plugin = str_replace(
+			array('core#', 'user#'),
+			array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
+			$plugin
+		);
+		if ( file_exists( $plugin ) ) {
+			require( $plugin );
 		}
+	}
+}
 do_action( 'bb_plugins_loaded' );
 unset($plugins, $plugin);
 

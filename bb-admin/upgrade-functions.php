@@ -24,7 +24,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent
 	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
 	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
-	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins on upgrade only
+	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
 	bb_update_db_version();
 	return $bb_upgrade; 
 }
@@ -520,27 +520,38 @@ function bb_upgrade_1030() {
 	return 'Done moving admin_email to from_email: ' . __FUNCTION__;
 }
 
-// Activate Akismet and bozo plugins on upgrade only
+// Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
 function bb_upgrade_1040() {
-	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1174 )
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1230 )
 		return;
 	
 	// Only do this when upgrading
 	if ( defined( 'BB_UPGRADING' ) && BB_UPGRADING ) {
 		$plugins = bb_get_option('active_plugins');
-		if ( bb_get_option('akismet_key') && !in_array('akismet.php', $plugins) ) {
-			$plugins[] = 'akismet.php';
+		if ( bb_get_option('akismet_key') && !in_array('core#akismet.php', $plugins) ) {
+			$plugins[] = 'core#akismet.php';
 		}
-		if ( !in_array('bozo.php', $plugins) ) {
-			$plugins[] = 'bozo.php';
+		if ( !in_array('core#bozo.php', $plugins) ) {
+			$plugins[] = 'core#bozo.php';
 		}
-		ksort($plugins);
-		bb_update_option( 'active_plugins', $plugins );
+		
+		$new_plugins = array();
+		foreach ($plugins as $plugin) {
+			if (substr($plugin, 0, 5) != 'core#') {
+				if ($plugin != 'akismet.php' && $plugin != 'bozo.php') {
+					$new_plugins[] = 'user#' . $plugin;
+				}
+			} else {
+				$new_plugins[] = $plugin;
+			}
+		}
+		
+		bb_update_option( 'active_plugins', $new_plugins );
 	}
 	
-	bb_update_option( 'bb_db_version', 1174 );
+	bb_update_option( 'bb_db_version', 1230 );
 	
-	return 'Done activating Akismet and Bozo plugins on upgrade only: ' . __FUNCTION__;
+	return 'Done activating Akismet and Bozo plugins and converting active plugins to new convention on upgrade only,: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {

@@ -1440,7 +1440,7 @@ function bb_get_option( $option ) {
 		return '0.8.4-dev'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '1174'; // Don't filter
+		return '1230'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -2702,6 +2702,22 @@ function bb_match_domains($domain1 = false, $domain2 = false) {
 	}
 	
 	return false;
+}
+
+function bb_glob($pattern) {
+	// May break if pattern contains forward slashes
+	$directory = dirname( $pattern );
+	if ( file_exists( $directory ) && is_dir( $directory ) ) {
+		if ( function_exists( 'glob' ) && is_callable( 'glob' ) ) {
+			$glob = glob($pattern);
+			if ( is_array($glob) ) {
+				return $glob;
+			}
+		}
+	}
+	
+	// Return an empty array so that loops don't explode
+	return array();
 }
 
 ?>
