@@ -25,6 +25,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
 	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
 	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
+	$bb_upgrade[] = bb_upgrade_1050(); // Update active theme if present
 	bb_update_db_version();
 	return $bb_upgrade; 
 }
@@ -551,7 +552,31 @@ function bb_upgrade_1040() {
 	
 	bb_update_option( 'bb_db_version', 1230 );
 	
-	return 'Done activating Akismet and Bozo plugins and converting active plugins to new convention on upgrade only,: ' . __FUNCTION__;
+	return 'Done activating Akismet and Bozo plugins and converting active plugins to new convention on upgrade only: ' . __FUNCTION__;
+}
+
+// Update active theme if present
+function bb_upgrade_1050() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1234 )
+		return;
+	
+	// Only do this when upgrading
+	if ( defined( 'BB_UPGRADING' ) && BB_UPGRADING ) {
+		$theme = bb_get_option( 'bb_active_theme' );
+		if ($theme && substr($theme, 5) != 'core#' && substr($theme, 5) != 'user#') {
+			$basename = trim(basename($theme), '/');
+			if (substr($basename, 0, 7) == 'kakumei') {
+				$theme = 'core#' . $basename;
+			} else {
+				$theme = 'user#' . $basename;
+			}
+			bb_update_option( 'bb_active_theme', $theme );
+		}
+	}
+	
+	bb_update_option( 'bb_db_version', 1234 );
+	
+	return 'Done updating active theme if present: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {
