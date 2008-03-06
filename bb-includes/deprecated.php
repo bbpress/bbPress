@@ -664,4 +664,9 @@ function bb_register_deactivation_hook($file, $function) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_register_plugin_deactivation_hook');
 	bb_register_plugin_deactivation_hook($file, $function);
 }
+function bb_get_active_theme_folder() {
+	bb_log_deprecated('function', __FUNCTION__, 'bb_get_active_theme_directory');
+	return apply_filters( 'bb_get_active_theme_folder', bb_get_active_theme_directory() );
+}
+
 ?>
