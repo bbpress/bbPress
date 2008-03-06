@@ -563,13 +563,13 @@ function bb_upgrade_1050() {
 	// Only do this when upgrading
 	if ( defined( 'BB_UPGRADING' ) && BB_UPGRADING ) {
 		$theme = bb_get_option( 'bb_active_theme' );
-		if ($theme && substr($theme, 5) != 'core#' && substr($theme, 5) != 'user#') {
-			$basename = trim(basename($theme), '/');
-			if (substr($basename, 0, 7) == 'kakumei') {
-				$theme = 'core#' . $basename;
-			} else {
-				$theme = 'user#' . $basename;
-			}
+		if ($theme) {
+			$theme = str_replace(
+				array(BB_CORE_THEME_DIR, BB_THEME_DIR),
+				array('core#', 'user#'),
+				$theme
+			);
+			$theme = trim($theme, '/');
 			bb_update_option( 'bb_active_theme', $theme );
 		}
 	}
