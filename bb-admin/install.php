@@ -151,23 +151,37 @@ switch ($bb_install->step) {
 					</fieldset>
 					<div class="toggle" id="toggle_2_0_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_0']['display']; ?>;">
 						<fieldset>
-							<legend><?php _e('Cookies'); ?></legend>
 <?php
-					$bb_install->input_text('wp_siteurl');
-					$bb_install->input_text('wp_home');
-					$bb_install->input_text('secret');
 					$bb_install->input_toggle('toggle_2_1');
 ?>
 						</fieldset>
 						<div class="toggle" id="toggle_2_1_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_1']['display']; ?>;">
 							<fieldset>
-								<legend><?php _e('User database'); ?></legend>
+								<legend><?php _e('Cookies'); ?></legend>
+								<p><?php _e('Integrating cookies allows you and your users to login to either your bbPress or your WordPress site and be automatically logged into both.'); ?></p>
+								<p><?php _e('You may need to make changes to your WordPress configuration once installation is complete. See the "WordPress Integration" section of the bbPress administration area when you are done.'); ?></p>
 <?php
-					$bb_install->input_text('wp_table_prefix');
-					$bb_install->input_toggle('toggle_2_2');
+					$bb_install->input_text('wp_siteurl');
+					$bb_install->input_text('wp_home');
+					$bb_install->input_text('secret');
 ?>
 							</fieldset>
-							<div class="toggle" id="toggle_2_2_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_2']['display']; ?>;">
+						</div>
+						<fieldset>
+<?php
+					$bb_install->input_toggle('toggle_2_2');
+?>
+						</fieldset>
+						<div class="toggle" id="toggle_2_2_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_2']['display']; ?>;">
+							<fieldset>
+								<legend><?php _e('User database'); ?></legend>
+								<p><?php _e('Integrating your WordPress database user tables allows you to store user data in one location, instead of having separate user data for both bbPress and WordPress.'); ?></p>
+<?php
+					$bb_install->input_text('wp_table_prefix');
+					$bb_install->input_toggle('toggle_2_3');
+?>
+							</fieldset>
+							<div class="toggle" id="toggle_2_3_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_3']['display']; ?>;">
 								<fieldset>
 									<legend><?php _e('Separate user database settings'); ?></legend>
 									<p><?php _e('Most of the time these settings are <em>not</em> required. Look before you leap!'); ?></p>

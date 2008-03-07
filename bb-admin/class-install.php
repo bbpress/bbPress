@@ -514,28 +514,36 @@ class BB_Install
 							'on_value'  => __('Save WordPress integration settings &raquo;')
 						)
 					),
+					'toggle_2_1' => array(
+						'value'   => 0,
+						'label'   => __('Add cookie integration settings:'),
+						'note'    => __('If you want to allow shared logins with an existing WordPress installation.'),
+						'checked' => '',
+						'display' => 'none',
+						'prerequisite' => 'toggle_2_0'
+					),
 					'wp_siteurl' => array(
 						'value' => '',
 						'label' => __('WordPress address (URL):'),
 						'note'  => __('This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general options.'),
-						'prerequisite' => 'toggle_2_0'
+						'prerequisite' => 'toggle_2_1'
 					),
 					'wp_home' => array(
 						'value' => '',
 						'label' => __('Blog address (URL):'),
 						'note'  => __('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general options.'),
-						'prerequisite' => 'toggle_2_0'
+						'prerequisite' => 'toggle_2_1'
 					),
 					'secret' => array(
 						'value' => '',
 						'label' => __('Secret:'),
 						'note'  => __('This value should exactly match the <strong>secret</strong> option set in your WordPress database. The only way to access this value is to retrieve it directly from the "options" database table.'),
-						'prerequisite' => 'toggle_2_0'
+						'prerequisite' => 'toggle_2_1'
 					),
-					'toggle_2_1' => array(
+					'toggle_2_2' => array(
 						'value'   => 0,
 						'label'   => __('Add user database integration settings:'),
-						'note'    => __('If you want to share user tables with an existing WordPress installation.'),
+						'note'    => __('If you want to share user data with an existing WordPress installation.'),
 						'checked' => '',
 						'display' => 'none',
 						'prerequisite' => 'toggle_2_0'
@@ -544,58 +552,58 @@ class BB_Install
 						'value' => 'wp_',
 						'label' => __('User database table prefix:'),
 						'note'  => __('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$wp_table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.'),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_2'
 					),
-					'toggle_2_2' => array(
+					'toggle_2_3' => array(
 						'value'   => 0,
 						'label'   => __('Show advanced database settings:'),
 						'note'    => __('If your bbPress and WordPress installation do not share the same database, then you will need to add advanced settings.'),
 						'checked' => '',
 						'display' => 'none',
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_2'
 					),
 					'user_bbdb_name' => array(
 						'value' => '',
 						'label' => __('User database name:'),
 						'note'  => __('The name of the database in which your user tables reside.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_user' => array(
 						'value' => '',
 						'label' => __('User database user:'),
 						'note'  => __('The database user that has access to that database.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_password' => array(
 						'type'  => 'password',
 						'value' => '',
 						'label' => __('User database password:'),
 						'note'  => __('That database user\'s password.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_host' => array(
 						'value' => '',
 						'label' => __('User database host:'),
 						'note'  => __('The domain name or IP address of the server where the database is located. If the database is on the same server as the web site, then this probably should be <strong>localhost</strong>.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_charset' => array(
 						'value' => '',
 						'label' => __('User database character set:'),
 						'note'  => __('The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'custom_user_table' => array(
 						'value' => '',
 						'label' => __('User database "user" table:'),
 						'note'  => __('The complete table name, including any prefix.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'custom_user_meta_table' => array(
 						'value' => '',
 						'label' => __('User database "user meta" table:'),
 						'note'  => __('The complete table name, including any prefix.'),
-						'prerequisite' => 'toggle_2_2'
+						'prerequisite' => 'toggle_2_3'
 					),
 					'forward_2_0' => array(
 						'value' => __('Skip WordPress integration &raquo;')
@@ -951,42 +959,47 @@ class BB_Install
 			$data['toggle_2_0']['display'] = 'block';
 			$data['forward_2_0']['value'] = $data['toggle_2_0']['toggle_value']['on_value'];
 			
-			// Check the wp_siteurl URL for errors
-			$data['wp_siteurl']['value'] = $data['wp_siteurl']['value'] ? rtrim($data['wp_siteurl']['value'], '/') . '/' : '';
-			$this->strings[2]['form_errors']['wp_siteurl'][] = empty($data['wp_siteurl']['value']) ? 'empty' : false;
-			if ($parsed = parse_url($data['wp_siteurl']['value'])) {
-				$this->strings[2]['form_errors']['wp_siteurl'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
-				$this->strings[2]['form_errors']['wp_siteurl'][] = empty($parsed['host']) ? 'urlhost' : false;
-			} else {
-				$this->strings[2]['form_errors']['wp_siteurl'][] = 'urlparse';
-			}
-			
-			// Check the wp_home URL for errors
-			$data['wp_home']['value'] = $data['wp_home']['value'] ? rtrim($data['wp_home']['value'], '/') . '/' : '';
-			$this->strings[2]['form_errors']['wp_home'][] = empty($data['wp_home']['value']) ? 'empty' : false;
-			if ($parsed = parse_url($data['wp_home']['value'])) {
-				$this->strings[2]['form_errors']['wp_home'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
-				$this->strings[2]['form_errors']['wp_home'][] = empty($parsed['host']) ? 'urlhost' : false;
-			} else {
-				$this->strings[2]['form_errors']['wp_home'][] = 'urlparse';
-			}
-			
-			// Check the secret for errors
-			$this->strings[2]['form_errors']['secret'][] = empty($data['secret']['value']) ? 'empty' : false;
-			
-			// If database integration is selected
 			if ($data['toggle_2_1']['value']) {
 				$data['toggle_2_1']['checked'] = 'checked="checked"';
 				$data['toggle_2_1']['display'] = 'block';
+				
+				// Check the wp_siteurl URL for errors
+				$data['wp_siteurl']['value'] = $data['wp_siteurl']['value'] ? rtrim($data['wp_siteurl']['value'], '/') . '/' : '';
+				$this->strings[2]['form_errors']['wp_siteurl'][] = empty($data['wp_siteurl']['value']) ? 'empty' : false;
+				if ($parsed = parse_url($data['wp_siteurl']['value'])) {
+					$this->strings[2]['form_errors']['wp_siteurl'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
+					$this->strings[2]['form_errors']['wp_siteurl'][] = empty($parsed['host']) ? 'urlhost' : false;
+				} else {
+					$this->strings[2]['form_errors']['wp_siteurl'][] = 'urlparse';
+				}
+				
+				// Check the wp_home URL for errors
+				$data['wp_home']['value'] = $data['wp_home']['value'] ? rtrim($data['wp_home']['value'], '/') . '/' : '';
+				$this->strings[2]['form_errors']['wp_home'][] = empty($data['wp_home']['value']) ? 'empty' : false;
+				if ($parsed = parse_url($data['wp_home']['value'])) {
+					$this->strings[2]['form_errors']['wp_home'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
+					$this->strings[2]['form_errors']['wp_home'][] = empty($parsed['host']) ? 'urlhost' : false;
+				} else {
+					$this->strings[2]['form_errors']['wp_home'][] = 'urlparse';
+				}
+				
+				// Check the secret for errors
+				$this->strings[2]['form_errors']['secret'][] = empty($data['secret']['value']) ? 'empty' : false;
+			}
+			
+			// If database integration is selected
+			if ($data['toggle_2_2']['value']) {
+				$data['toggle_2_2']['checked'] = 'checked="checked"';
+				$data['toggle_2_2']['display'] = 'block';
 				
 				// Make the wp_table_prefix valid
 				$data['wp_table_prefix']['value'] = preg_replace('/[^0-9a-zA-Z_]/', '', $data['wp_table_prefix']['value']);
 				$data['wp_table_prefix']['value'] = empty($data['wp_table_prefix']['value']) ? 'wp_' : $data['wp_table_prefix']['value'];
 				
 				// If advanced database integration is selected
-				if ($data['toggle_2_2']['value']) {
-					$data['toggle_2_2']['checked'] = 'checked="checked"';
-					$data['toggle_2_2']['display'] = 'block';
+				if ($data['toggle_2_3']['value']) {
+					$data['toggle_2_3']['checked'] = 'checked="checked"';
+					$data['toggle_2_3']['display'] = 'block';
 					
 					// If any of these database values are set
 					if (
@@ -1002,6 +1015,14 @@ class BB_Install
 						$this->strings[2]['form_errors']['user_bbdb_host'][]     = empty($data['user_bbdb_host']['value'])     ? 'empty' : false;
 					}
 				}
+			}
+			
+			if (!$data['toggle_2_1']['value'] && !$data['toggle_2_2']['value']) {
+				$this->step_status[2] = 'incomplete';
+				$this->strings[2]['messages']['error'][] = __('You must enter your settings for integration setup to complete. Choose which integration settings you wish to enter from the options below.');
+				$this->strings[2]['form_errors']['toggle_2_1'][] = true;
+				$this->strings[2]['form_errors']['toggle_2_2'][] = true;
+				return 'incomplete';
 			}
 			
 			// Remove empty values from the error array
@@ -1046,7 +1067,7 @@ class BB_Install
 			}
 			
 			// If database integration is selected
-			if ($data['toggle_2_1']['value']) {
+			if ($data['toggle_2_2']['value']) {
 				
 				// Test the db connection.
 				
@@ -1111,7 +1132,7 @@ class BB_Install
 					// Set the status
 					$this->step_status[2] = 'incomplete';
 					
-					if ($data['toggle_2_2']['value']) {
+					if ($data['toggle_2_3']['value']) {
 						$this->strings[2]['messages']['error'][] = __('Existing WordPress user tables could not be found in the WordPress database you specified.');
 					} else {
 						$this->strings[2]['messages']['error'][] = __('Existing WordPress user tables could not be found in the bbPress database you specified in step 1.<br /><br />This is probably because the database does not already contain working WordPress tables. You may need to specify advanced database settings or leave integration until after installation.');
@@ -1684,7 +1705,11 @@ EOF;
 		
 		$checked = $data['checked'] ? ' ' . trim($data['checked']) : '';
 		
-		$r = '<label for="' . $key . '">' . "\n";
+		if (isset($this->strings[$this->step]['form_errors'][$key])) {
+			$class = ' class="error"';
+		}
+		
+		$r = '<label for="' . $key . '"' . $class . '>' . "\n";
 		
 		if (isset($data['label'])) {
 			$r .= $data['label'] . "\n";
