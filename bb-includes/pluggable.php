@@ -433,7 +433,7 @@ if ( !function_exists( 'bb_get_avatar' ) ) :
  *
  * Retrieve the avatar for a user provided a user ID or email address
  *
- * @since 0.8.4
+ * @since 0.9
  * @param int|string $id_or_email A user ID or email address
  * @param int $size Size of the avatar image
  * @param string $default URL to a default image to use if no avatar is available
