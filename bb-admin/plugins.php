@@ -34,7 +34,7 @@ if ( isset($_GET['action']) ) {
 	$plugin = stripslashes(trim($_GET['plugin']));
 	// Remove the core# or user# appendage for the filter name
 	// (otherwise the plugin would need to add a filter for each location)
-	$plugin_filter = str_replace(array('core#', 'user#'), '', $plugin);
+	$plugin_filter = basename(str_replace(array('core#', 'user#'), '', $plugin));
 	
 	if ('activate' == $_GET['action']) {
 		// Activation
