@@ -151,10 +151,10 @@ $selected = array();
 $selected[bb_get_option('avatars_rating')] = ' selected="selected"';
 ?>
 				<option value="0"<?php echo $selected[0]; ?>><?php _e('None'); ?></option>
-				<option value="X"<?php echo $selected['X']; ?>><?php _e('X'); ?></option>
-				<option value="R"<?php echo $selected['R']; ?>><?php _e('R'); ?></option>
-				<option value="PG"<?php echo $selected['PG']; ?>><?php _e('PG'); ?></option>
-				<option value="G"<?php echo $selected['G']; ?>><?php _e('G'); ?></option>
+				<option value="x"<?php echo $selected['x']; ?>><?php _e('X'); ?></option>
+				<option value="r"<?php echo $selected['r']; ?>><?php _e('R'); ?></option>
+				<option value="pg"<?php echo $selected['pg']; ?>><?php _e('PG'); ?></option>
+				<option value="g"<?php echo $selected['g']; ?>><?php _e('G'); ?></option>
 <?php
 unset($selected);
 ?>
