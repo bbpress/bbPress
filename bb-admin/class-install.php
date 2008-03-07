@@ -312,7 +312,7 @@ class BB_Install
 		if ($this->configs['config.php']) {
 			// There is an old school config file
 			// Step -1 is where we send fatal errors from any screen
-			$this->strings[-1]['messages']['error'][] = __('An old <code>config.php</code> file has been detected in your installation. You can either rename it to <code>bb-config.php</code> or remove it and run the <a href="install.php">installer</a> again.');
+			$this->strings[-1]['messages']['error'][] = __('An old <code>config.php</code> file has been detected in your installation. You should remove it and run the <a href="install.php">installer</a> again. You can use the same database connection details if you do.');
 			$this->step = -1;
 			return $this->step;
 		}
