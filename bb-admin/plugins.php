@@ -32,9 +32,12 @@ unset($update, $index, $filename);
 if ( isset($_GET['action']) ) {
 	// Get the arguments
 	$plugin = stripslashes(trim($_GET['plugin']));
-	// Remove the core# or user# appendage for the filter name
-	// (otherwise the plugin would need to add a filter for each location)
-	$plugin_filter = basename(str_replace(array('core#', 'user#'), '', $plugin));
+	$plugin_data = bb_get_plugin_data( $plugin );
+	if ($plugin_data['name']) {
+		$name = $plugin_data['name'];
+	} else {
+		$name = str_replace(array('core#', 'user#'), '', $plugin);
+	}
 	
 	if ('activate' == $_GET['action']) {
 		// Activation
@@ -61,10 +64,10 @@ if ( isset($_GET['action']) ) {
 			$active_plugins[] = $plugin;
 			ksort($active_plugins);
 			bb_update_option( 'active_plugins', $active_plugins );
-			do_action( 'bb_activate_plugin_' . $plugin_filter );
+			do_action( 'bb_activate_plugin_' . $plugin );
 			
 			// Overrides the ?error=true one above
-			wp_redirect( 'plugins.php?message=activate' );
+			wp_redirect( 'plugins.php?message=activate&name=' . urlencode($name) );
 		}
 	} elseif ('deactivate' == $_GET['action']) {
 		// Deactivation
@@ -73,10 +76,10 @@ if ( isset($_GET['action']) ) {
 		// Remove the deactivated plugin
 		array_splice($active_plugins, array_search($plugin, $active_plugins), 1 );
 		bb_update_option( 'active_plugins', $active_plugins );
-		do_action( 'bb_deactivate_plugin_' . $plugin_filter );
+		do_action( 'bb_deactivate_plugin_' . $plugin );
 		
 		// Redirect
-		wp_redirect('plugins.php?message=deactivate');
+		wp_redirect( 'plugins.php?message=deactivate&name=' . urlencode($name) );
 	}
 	
 	// Stop processing
@@ -93,10 +96,10 @@ if ( isset($_GET['message']) ) {
 			bb_admin_notice( __('File is not a valid plugin.'), 'error' );
 			break;
 		case 'activate' :
-			bb_admin_notice( __('Plugin <strong>activated</strong>') );
+			bb_admin_notice( sprintf( __('Plugin "%s" <strong>activated</strong>'), attribute_escape($_GET['name']) ) );
 			break;
 		case 'deactivate' :
-			bb_admin_notice( __('Plugin <strong>deactivated</strong>') );
+			bb_admin_notice( sprintf( __('Plugin "%s" <strong>deactivated</strong>'), attribute_escape($_GET['name']) ) );
 			break;
 	}
 }
