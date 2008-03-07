@@ -827,6 +827,13 @@ function bb_get_plugins($location = 'all', $type = 'normal') {
 
 // Output sanitized for display
 function bb_get_plugin_data($plugin_file) {
+	if ( strpos($plugin_file, '#') !== false ) {
+		$plugin_file = str_replace(
+			array('core#', 'user#'),
+			array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
+			$plugin_file
+		);
+	}
 	$plugin_data = implode('', file($plugin_file));
 	if ( !preg_match("|Plugin Name:(.*)|i", $plugin_data, $plugin_name) )
 		return false;
@@ -891,6 +898,8 @@ function bb_get_plugin_data($plugin_file) {
 
 // Output sanitized for display
 function bb_get_theme_data( $theme_file ) {
+	if ( strpos($theme_file, '#') !== false )
+		$theme_file = bb_get_theme_directory( $theme ) . 'style.css';
 	$theme_data = implode( '', file( $theme_file ) );
 	$theme_data = str_replace ( '\r', '\n', $theme_data ); 
 	preg_match( '|Theme Name:(.*)|i', $theme_data, $theme_name );

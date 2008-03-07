@@ -2367,12 +2367,25 @@ function no_where( $where ) {
 	return;
 }
 
+/* Plugins/Themes utility */
+
+function bb_basename($file, $directories) {
+	if (strpos($file, '#') !== false)
+		return $file; // It's already a basename
+	foreach ($directories as $type => $directory)
+		if (strpos($file, $directory) !== false)
+			break; // Keep the $file and $directory set and use them below, nifty huh?
+	$file = str_replace('\\','/',$file);
+	$file = preg_replace('|/+|','/', $file);
+	$file = preg_replace('|^.*' . preg_quote($directory, '|') . '|', $type . '#', $file);
+	$file = preg_replace('|/+.*|', '', $file);
+	return $file;
+}
+
 /* Plugins */
 
 function bb_plugin_basename($file) {
-	$file = preg_replace('|\\\\+|', '\\\\', $file);
-	$file = preg_replace('|^.*' . preg_quote(BB_PLUGIN_DIR, '|') . '|', '', $file);
-	return $file;
+	return bb_basename( $file, array('user' => BB_PLUGIN_DIR, 'core' => BB_CORE_PLUGIN_DIR) );
 }
 
 function bb_register_plugin_activation_hook($file, $function) {
@@ -2386,14 +2399,17 @@ function bb_register_plugin_deactivation_hook($file, $function) {
 }
 
 function bb_get_plugin_uri( $plugin = false ) {
-	if ( !$plugin )
-		$r = BB_PLUGIN_URL;
-	elseif ( 0 === strpos($plugin, BB_PLUGIN_DIR) )
-		$r = BB_PLUGIN_URL . substr($plugin, strlen(BB_PLUGIN_DIR));
-	else
-		$r = false;
-
-	return apply_filters( 'bb_get_plugin_uri', $r, $plugin );
+	if ( !$plugin ) {
+		$plugin_uri = BB_PLUGIN_URL;
+	} else {
+		$plugin_uri = str_replace(
+			array('core#', 'user#'),
+			array(BB_CORE_PLUGIN_URL, BB_PLUGIN_URL),
+			$plugin
+		);
+		$plugin_uri = dirname($plugin_uri) . '/';
+	}
+	return apply_filters( 'bb_get_plugin_uri', $plugin_uri, $plugin );
 }
 
 /* Themes / Templates */
@@ -2433,12 +2449,18 @@ function bb_get_themes() {
 	return $r;
 }
 
-function bb_register_theme_activation_hook($theme, $function) {
-	add_action('bb_activate_theme_' . $theme, $function);
+function bb_theme_basename($file) {
+	return bb_basename( $file, array('user' => BB_THEME_DIR, 'core' => BB_CORE_THEME_DIR) );
 }
 
-function bb_register_theme_deactivation_hook($theme, $function) {
-	add_action('bb_deactivate_theme_' . $theme, $function);
+function bb_register_theme_activation_hook($file, $function) {
+	$file = bb_theme_basename($file);
+	add_action('bb_activate_theme_' . $file, $function);
+}
+
+function bb_register_theme_deactivation_hook($file, $function) {
+	$file = bb_theme_basename($file);
+	add_action('bb_deactivate_theme_' . $file, $function);
 }
 
 /* Search Functions */
