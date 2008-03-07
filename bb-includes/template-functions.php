@@ -1097,7 +1097,41 @@ function bb_topic_search_form( $args = null, $query_obj = null ) {
 
 	$query_obj->form( $args );
 }
-		
+
+/**
+ * bb_topic_pagecount() - Print the total page count for a topic
+ *
+ * @since 0.9
+ * @param int $topic_id The topic id of the topic being queried
+ * @return void
+ **/
+function bb_topic_pagecount( $topic_id = 0 ) {
+	echo bb_get_topic_pagecount( $topic_id );
+}
+
+/**
+ * bb_get_topic_pagecount() - Get the total page count for a topic
+ *
+ * @since 0.9
+ * @param int $topic_id The topic id of the topic being queried
+ * @return int The total number of pages in the topic
+ **/
+function bb_get_topic_pagecount( $topic_id = 0 ) {
+	$topic = get_topic( get_topic_id( $topic_id ) );
+	return get_page_number( $topic->topic_posts + topic_pages_add() );
+}
+
+/**
+ * bb_is_topic_lastpage() - Report whether the current page is the last page of a given topic
+ *
+ * @since 0.9
+ * @param int $topic_id The topic id of the topic being queried
+ * @return boolean True if called on the last page of a topic, otherwise false
+ **/
+function bb_is_topic_lastpage( $topic_id = 0 ) {
+	global $page;
+	return ( $page == bb_get_topic_pagecount( $topic_id ) );
+}
 
 // POSTS
 
