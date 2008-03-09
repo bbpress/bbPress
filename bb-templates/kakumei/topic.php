@@ -39,7 +39,7 @@
 
 </ol>
 <div class="clearit"><br style=" clear: both;" /></div>
-<p><a href="<?php topic_rss_link(); ?>"><?php _e('RSS feed for this topic') ?></a></p>
+<p><a href="<?php topic_rss_link(); ?>" class="rss-link"><?php _e('RSS feed for this topic') ?></a></p>
 <div class="nav">
 <?php topic_pages(); ?>
 </div>
