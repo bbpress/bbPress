@@ -1,91 +1,133 @@
-/*
-Author: Sewar
-Author URI: http://sewar.wordpress.com
-*/
+/* Globals 
+=================================== */
 
-body { font: 62.5% Tahoma, 'Trebuchet MS', 'Lucida Grande', Verdana, Tahoma, Arial; }
+body { font-family: Tahoma, 'Trebuchet MS', 'Lucida Grande', Verdana, Tahoma, Arial; }
 
-code { font: 1.0em Tahoma, Monaco, 'Courier New', monospace; }
+pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 
-fieldset table { text-align: right; }
+.left { float: right; }
 
-.submit, #header h1 { text-align: left; }
+.right { float: left; }
 
-.left, #manage-tags li, .login label, .login #submit, #topic-info { float: right; }
+/* Structure
+=================================== */
 
-#front-page #hottags { left: auto; right: 0; }
+#header { background-position: -45px bottom; }
 
-.right, #topic-tags, #front-search { float: left; }
+#header h1 {
+	font-family: Tahoma, Georgia;
+	text-align: left;
+	left: 53px;
+	right: auto;
+}
 
-#latest th, #forumlist th, #favorites th, .num, .threadauthor small, #forumlist small { font: 11px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
+/* Login Form
+=================================== */
 
-.poststuff { font: 10px Tahoma, Verdana, Arial, Helvetica, sans-serif; }
+.login { 
+	right: 0;
+	left: auto;
+}
 
-#wrapper { background: #fff url('images/page_header_tile.png') repeat-x 0px -25px; }
+.login label {
+	float: right;
+	padding-left: 10px;
+	padding-right: 0;
+}
 
-#header { background: url('images/page_header_bblogo.png') no-repeat -45px -25px; }
+.login #submit { float: right; }
 
-#thread { margin: 0 100px 0 0; }
 
-#thread .post blockquote { margin: 0 4ex 0 0; padding: 0 1ex 0 0; border-left: none; border-right: 5px solid #ccc; }
+/* Front Page
+=================================== */
 
-.user-recent ol { margin: 5px 28px 0 0; }
+#front-page #hottags {
+	right: 0;
+	left: auto;
+	width: 150px;
+}
 
-.bbcrumb { padding: 5px 0 20px 0; }
+#front-page #discussions {
+	margin-right: 170px;
+	margin-left: 0;
+}
 
 #front-page #discussions ul { padding: 0 14px 0 0; }
 
-fieldset { padding: 10px 10px 0 10px; }
+/* Topic Page
+=================================== */
 
-fieldset table th { text-align: left; }
-
-.login label {
-	padding-right: 0;
-	padding-left: 10px;
-}
-
-#front-page #discussions { 
-	margin-left: auto;
-	margin-right: 170px;
-}
-
-#thread li ol, #thread li ul { 
-	margin-left: 0;
-	margin-right: 40px;
-}
-
-.threadauthor {
-	margin-left: 0;
-	margin-right: -110px;
-}
-
-.infobox ul {
-	margin: 10px 12px 10px 0;
-	padding: 0;
-}
-
-#profile-menu {
-	right: auto;
-	left: 0;
-}
-
-#topic-tags {
-	border-left: 0;
-	border-right: 1px solid #ccc;
-	padding: 0 1em 0 0;
-}
+.infobox ul { margin: 10px 12px 10px 0; }
 
 #topic-info {
+	float: right;
 	padding: 0 0 0 1em;
 }
 
-#header h1 { 
-	font-family: Tahoma, Georgia;
-	right: auto;
-	left: 59px;
+#topic-tags {
+	border-right: 1px solid #ccc;
+	border-left: none;
+	float: left;
+	padding: 0 1em 0 0;
 }
+
+#thread li ol, #thread li ul {
+	margin-right: 40px;
+	margin-left: 0;
+}
+
+.threadauthor { float: right; }
+
+.threadauthor small { font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif; }
+
+.threadpost { margin: 0 140px 0 0; }
+
+#thread .post blockquote {
+	margin: 0 4ex 0 0;
+	padding: 0 1ex 0 0;
+	border-right: 5px solid #ccc;
+	border-left: none;
+}
+
+.poststuff { font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif; }
+
+.num, #forumlist small { font-family: Tahoma, Verdana,Arial,Helvetica,sans-serif; }
+
+#manage-tags li { float: right; }
+
+.submit { text-align: left; }
+
+.rss-link {
+	background-position: 100% 50%;
+}
+
+/* Other
+=================================== */
+
+#front-search { float: left; }
 
 #forumlist tr td div.nest {
 	padding-right: 2.5ex;
 	padding-left: 0;
 }
+
+#latest th, #forumlist th, #favorites th { font-family: Tahoma, Verdana,Arial,Helvetica,sans-serif; }
+
+/* Profile Page
+=================================== */
+
+#profile-menu {
+	left: 0;
+	right: auto;
+}
+
+.user-recent ol { margin: 5px 28px 0 0; }
+
+/* Profile Edit
+=================================== */
+
+fieldset { padding: 10px 10px 10px 0; }
+
+fieldset table { text-align: right; }
+
+fieldset table th { text-align: left; }

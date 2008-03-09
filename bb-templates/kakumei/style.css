@@ -57,7 +57,7 @@ img.avatar { border: 1px solid #ddd; }
 	background: #fff url('images/page_header_tile.png') repeat-x 0px -25px;
 }
 
-#header { 
+#header {
 	background: url('images/page_header_bblogo.png') no-repeat bottom right; /* Remove to get rid of bb emblem. */
 	margin: 0 auto 10px;
 	width: 760px;
@@ -65,7 +65,7 @@ img.avatar { border: 1px solid #ddd; }
 	position: relative;
 }
 
-#header h1 { 
+#header h1 {
 	font-family: Georgia;
 	font-style: italic;
 	overflow: auto;
@@ -85,7 +85,7 @@ img.avatar { border: 1px solid #ddd; }
 #header h1 a { color: #555; text-decoration: none; }
 #header h1 a:hover, #header h1 a:visited { color: #666; }
 
-#main { 
+#main {
 	font-size: 1.2em;
 	width: 760px;
 	margin: 0 auto 25px;
@@ -99,7 +99,7 @@ img.avatar { border: 1px solid #ddd; }
 	padding: 5px 0 20px;
 }
 
-#footer { 
+#footer {
 	border-top: 1px solid #ccc;
 	margin: auto;
 	color: #666;
@@ -107,19 +107,19 @@ img.avatar { border: 1px solid #ddd; }
 	letter-spacing: 2px;
 	text-transform: uppercase;
 	padding-top: 10px;
-	clear: both; 
+	clear: both;
 	text-align: center;
-	width: 760px; 
+	width: 760px;
 }
 
-.notice { 
-	border: 2px solid #4c9545; 
-	background: #abd8a2; 
-	color: #4c9545; 
-	font-size: 1.1em; 
+.notice {
+	border: 2px solid #4c9545;
+	background-color: #abd8a2;
+	color: #4c9545;
+	font-size: 1.1em;
 	font-weight: bold;
-	padding: 10px 15px; 
-	margin: 0 0 1.1em; 
+	padding: 10px 15px;
+	margin: 0 0 1.1em;
 }
 
 .notice p { margin-bottom: 0; }
@@ -127,7 +127,7 @@ img.avatar { border: 1px solid #ddd; }
 /* Login Form
 =================================== */
 
-.login { 
+.login {
 	position: absolute;
 	bottom: 31px;
 	left: 0;
@@ -161,7 +161,7 @@ form.login {
 	font-size: 1.3em;
 }
 
-form.login input { 
+form.login input {
 	font-size: 1em;
 	border: 1px solid #999;
 }
@@ -175,7 +175,7 @@ div.remember {
 /* Front Page
 =================================== */
 
-#front-page #hottags { 
+#front-page #hottags {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -183,7 +183,7 @@ div.remember {
 	overflow: hidden;
 }
 
-#front-page #discussions { 
+#front-page #discussions {
 	margin-left: 170px;
 	width: 590px;
 }
@@ -203,7 +203,7 @@ div.remember {
 
 #front-page #discussions ul { padding: 0 0 0 14px; }
 
-.sticky { background: #a1d29a; }
+.sticky { background-color: #a1d29a; }
 
 /* Topic Page
 =================================== */
@@ -282,9 +282,9 @@ div.remember {
 
 #thread li.deleted { background-color: transparent; }
 
-#thread li.deleted .threadpost { background: #ee8888; }
+#thread li.deleted .threadpost { background-color: #ee8888; }
 
-#thread li.alt.deleted .threadpost { background: #ff9999; }
+#thread li.alt.deleted .threadpost { background-color: #ff9999; }
 
 #thread .post blockquote {
 	margin: 0 0 0 4ex;
@@ -307,7 +307,7 @@ div.remember {
 }
 
 .postform {
-	background: #f0f0f0;
+	background-color: #f0f0f0;
 	padding: 1em;
 	margin-bottom: 1em;
 	-moz-border-radius: 6px;
@@ -326,9 +326,9 @@ div.remember {
 
 .postform label { display: block; }
 
-#manage-tags { 
-	margin: 10px 0; 
-	list-style: none; 
+#manage-tags {
+	margin: 10px 0;
+	list-style: none;
 }
 
 #manage-tags li {
@@ -348,8 +348,12 @@ div.remember {
 }
 
 .rss-link {
-	padding: 6px 0 6px 20px;
-	background: url('images/feed-icon-16x16.gif') no-repeat center left;
+	display: block;
+	padding: 6px 0;
+	text-indent: 20px;
+	background-image: url('images/feed-icon-16x16.gif');
+	background-repeat: no-repeat;
+	background-position: 0 50%;
 }
 
 #topic-move { margin-top: 1em; }
@@ -459,22 +463,22 @@ div.remember {
 /* Profile Edit
 =================================== */
 
-fieldset { 
+fieldset {
 	border-top: 3px double #ccc;
 	border-bottom: 1px solid #ccc;
 	border-left: none;
 	border-right: none;
-	padding: 10px 0 10px 10px; 
+	padding: 10px 0 10px 10px;
 	margin-bottom: 15px;
 	background-color: #f6f6f6;
 }
 
-legend { 
+legend {
 	font-weight: bold;
 	padding: 0 15px;
 }
 
-fieldset table { 
+fieldset table {
 	text-align: left;
 	margin: 0 15px;
 	width: 100%;
@@ -488,7 +492,7 @@ fieldset table th {
 
 fieldset table td { padding: 2px 0; }
 
-fieldset p { 
+fieldset p {
 	font-size: 11px;
 	margin: 10px 16px;
 }
