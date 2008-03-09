@@ -42,6 +42,14 @@ h2 { font-size: 1.5em; }
 
 img.avatar { border: 1px solid #ddd; }
 
+.bozo { background: #eeee88; }
+
+.alt.bozo { background: #ffff99; }
+
+.deleted { background: #ee8888; }
+
+.alt.deleted { background: #ff9999; }
+
 /* Structure
 =================================== */
 
@@ -252,7 +260,7 @@ div.remember {
 
 .threadauthor {
 	float: left;
-	padding: 1em 0 0 1em;
+	padding: 1em 1em 0 1em;
 	width: 120px;
 }
 
@@ -270,9 +278,13 @@ div.remember {
 	border-radius: 6px;
 }
 
-.threadpost.alt {
-	background-color: transparent;
-}
+#thread li.alt .threadpost { background-color: transparent; }
+
+#thread li.deleted { background-color: transparent; }
+
+#thread li.deleted .threadpost { background: #ee8888; }
+
+#thread li.alt.deleted .threadpost { background: #ff9999; }
 
 #thread .post blockquote {
 	margin: 0 0 0 4ex;
@@ -281,6 +293,7 @@ div.remember {
 }
 
 .poststuff {
+	clear:both;
 	border-top: 1px dotted #ccc;
 	margin: 10px 0 0;
 	padding: 5px 0 0;
@@ -297,6 +310,10 @@ div.remember {
 	background: #f0f0f0;
 	padding: 1em;
 	margin-bottom: 1em;
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
 }
 
 .postform textarea {
@@ -329,6 +346,13 @@ div.remember {
 	font-weight: normal;
 	display: inline;
 }
+
+.rss-link {
+	padding: 6px 0 6px 20px;
+	background: url('images/feed-icon-16x16.gif') no-repeat center left;
+}
+
+#topic-move { margin-top: 1em; }
 
 /* Other
 =================================== */
@@ -377,14 +401,6 @@ div.remember {
 	margin-bottom: 2em;
 	width: 100%;
 }
-
-.bozo { background: #eeee88; }
-
-.alt.bozo { background: #ffff99; }
-
-.deleted { background: #ee8888; }
-
-.alt.deleted { background: #ff9999; }
 
 /* Profile Page
 =================================== */
