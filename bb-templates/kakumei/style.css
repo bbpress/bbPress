@@ -14,14 +14,14 @@ Author URI: http://avalonstar.com
 
 body {
 	margin-bottom: 50px;
-	background: #fff;
+	background-color: #fff;
 	font: 62.5% 'Trebuchet MS', 'Lucida Grande', Verdana, Tahoma, Arial;
 }
 
 a { color: #2e6e15; text-decoration: none; }
 a:hover { color: #006400; }
 
-.alt { background: #fff; }
+.alt { background-color: #fff; }
 
 pre, code { font: 1.0em Monaco, 'Courier New', monospace; }
 
@@ -32,7 +32,7 @@ p { margin-bottom: 1.0em; }
 .right { float: right; }
 
 .delete:hover {
-	background: #c00;
+	background-color: #c00;
 	color: #fff;
 }
 
@@ -42,13 +42,13 @@ h2 { font-size: 1.5em; }
 
 img.avatar { border: 1px solid #ddd; }
 
-.bozo { background: #eeee88; }
+.bozo { background-color: #eeee88; }
 
-.alt.bozo { background: #ffff99; }
+.alt.bozo { background-color: #ffff99; }
 
-.deleted { background: #ee8888; }
+.deleted { background-color: #ee8888; }
 
-.alt.deleted { background: #ff9999; }
+.alt.deleted { background-color: #ff9999; }
 
 /* Structure
 =================================== */
@@ -390,18 +390,18 @@ div.remember {
 	padding-left: 2.5ex;
 }
 
-#latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background: #e4f3e1; }
+#latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background-color: #e4f3e1; }
 
 #latest th, #forumlist th, #favorites th {
 	border-bottom: 1px solid #aaa;
-	background: #ddd;
+	background-color: #ddd;
 	font: 11px Verdana,Arial,Helvetica,sans-serif;
 	padding: 5px 10px;
 	text-transform: uppercase;
 }
 
 #latest, #forumlist, #favorites {
-	background: #f7f7f7;
+	background-color: #f7f7f7;
 	margin-bottom: 2em;
 	width: 100%;
 }
@@ -439,7 +439,7 @@ div.remember {
 }
 
 #profile-menu li:hover {
-	background: #e4f3e1;
+	background-color: #e4f3e1;
 }
 
 #useravatar { margin-bottom: 1em; }
