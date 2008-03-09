@@ -81,7 +81,7 @@ unset($selected);
 			<input class="text" name="page_topics" id="page_topics" value="<?php bb_form_option('page_topics'); ?>" />
 			<p><?php _e('Number of topics, posts or tags to show per page.') ?></p>
 		</div>
-		<label for="editing">
+		<label for="edit_lock">
 			<?php _e('Lock post editing after:') ?>
 		</label>
 		<div>
