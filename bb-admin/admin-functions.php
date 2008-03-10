@@ -866,7 +866,10 @@ function bb_get_plugin_data($plugin_file) {
 	$description = bb_filter_kses( $description );
 	$description = bb_autop( $description );
 
-	if (substr($plugin_file, 0, strlen(BB_CORE_PLUGIN_DIR)) == BB_CORE_PLUGIN_DIR) {
+	$plugin_file = str_replace( '\\', '/', $plugin_file );
+	$core_dir    = str_replace( '\\', '/', BB_CORE_PLUGIN_DIR );
+
+	if (substr($plugin_file, 0, strlen($core_dir)) == $core_dir) {
 		$location = 'core';
 	} else {
 		$location = 'user';
