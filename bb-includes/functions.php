@@ -2378,7 +2378,6 @@ function bb_basename($file, $directories) {
 	$file = str_replace('\\','/',$file);
 	$file = preg_replace('|/+|','/', $file);
 	$file = preg_replace('|^.*' . preg_quote($directory, '|') . '|', $type . '#', $file);
-	$file = preg_replace('|/+.*|', '', $file);
 	return $file;
 }
 
