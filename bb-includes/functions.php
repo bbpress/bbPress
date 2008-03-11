@@ -2449,7 +2449,9 @@ function bb_get_themes() {
 }
 
 function bb_theme_basename($file) {
-	return bb_basename( $file, array('user' => BB_THEME_DIR, 'core' => BB_CORE_THEME_DIR) );
+	$file = bb_basename( $file, array('user' => BB_THEME_DIR, 'core' => BB_CORE_THEME_DIR) );
+	$file = preg_replace('|/+.*|', '', $file);
+	return $file;
 }
 
 function bb_register_theme_activation_hook($file, $function) {
