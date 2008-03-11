@@ -909,7 +909,11 @@ class BB_Install
 			
 			// Write lines one by one to avoid OS specific newline hassles
 			foreach ($config_lines as $config_line) {
+				if (strpos($config_line, '?>') !== false)
+					$config_line = '?>';
 				fwrite($config_handle, $config_line);
+				if ($config_line == '?>')
+					break;
 			}
 			
 			// Close the new config file
@@ -929,7 +933,7 @@ class BB_Install
 		if (!$this->configs['bb-config.php']) {
 			
 			// Just write the contents to screen
-			$this->data[1]['form']['config']['value'] = join(null, $config_lines);
+			$this->data[1]['form']['config']['value'] = trim(join(null, $config_lines));
 			
 			$this->step_status[1] = 'manual';
 			$this->strings[1]['messages']['error'][] = __('Your settings could not be saved to a configuration file. You will need to save the text shown below into a file named <code>bb-config.php</code> in the root directory of your bbPress installation before you can continue.');
