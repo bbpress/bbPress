@@ -2099,7 +2099,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	else
 		$viewer = new BB_User( $viewer_id );
 	if ( !$viewer )
-		return false;
+		return '' === $profile_tab[2];
 
 	if ( $owner_id == $viewer_id ) {
 		if ( '' === $profile_tab[1] )
