@@ -902,7 +902,7 @@ function bb_get_plugin_data($plugin_file) {
 // Output sanitized for display
 function bb_get_theme_data( $theme_file ) {
 	if ( strpos($theme_file, '#') !== false )
-		$theme_file = bb_get_theme_directory( $theme ) . 'style.css';
+		$theme_file = bb_get_theme_directory( $theme_file ) . 'style.css';
 	$theme_data = implode( '', file( $theme_file ) );
 	$theme_data = str_replace ( '\r', '\n', $theme_data ); 
 	preg_match( '|Theme Name:(.*)|i', $theme_data, $theme_name );
