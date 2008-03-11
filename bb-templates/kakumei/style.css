@@ -286,6 +286,10 @@ div.remember {
 
 #thread li.alt.deleted .threadpost { background-color: #ff9999; }
 
+#thread .post {
+	_height: 90px; /* Hack to fix broken .alt coloring in IE6 */
+}
+
 #thread .post blockquote {
 	margin: 0 0 0 4ex;
 	padding: 0 0 0 1ex;
@@ -294,7 +298,7 @@ div.remember {
 
 .poststuff {
 	clear:both;
-	_clear:none; /* Hack to fix broken .alt coloring in IE6 */
+	_clear: none; /* Hack to fix broken .alt coloring in IE6 */
 	border-top: 1px dotted #ccc;
 	margin: 10px 0 0;
 	padding: 5px 0 0;
