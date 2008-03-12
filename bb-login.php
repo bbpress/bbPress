@@ -22,7 +22,7 @@ nocache_headers();
 
 if ( isset( $_REQUEST['logout'] ) ) {
 	bb_logout();
-	wp_redirect( $re );
+	bb_safe_redirect( $re );
 	exit;
 }
 

@@ -27,7 +27,7 @@ if ( in_array( $action, array('update-options', 'update-users') ) ) {
 	}
 	
 	$goback = add_query_arg('updated', $action, wp_get_referer());
-	wp_redirect($goback);
+	bb_safe_redirect($goback);
 }
 
 switch ($_GET['updated']) {

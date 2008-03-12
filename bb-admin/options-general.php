@@ -22,7 +22,7 @@ if ($_POST['action'] == 'update') {
 	}
 	
 	$goback = add_query_arg('updated', 'true', wp_get_referer());
-	wp_redirect($goback);
+	bb_safe_redirect($goback);
 	
 }
 

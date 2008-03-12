@@ -59,7 +59,7 @@ function bb_ksd_configuration_page_process() {
 		}
 		
 		$goback = add_query_arg('akismet-updated', 'true', wp_get_referer());
-		wp_redirect($goback);
+		bb_safe_redirect($goback);
 		
 	}
 	

@@ -8,7 +8,7 @@ if ( isset($_GET['action']) && 'delete' == $_GET['action'] ) {
 	$forum_to_delete = (int) $_GET['id'];
 	$deleted_forum = get_forum( $forum_to_delete );
 	if ( !$deleted_forum || $forums_count < 2 || !bb_current_user_can( 'delete_forum', $forum_to_delete ) )
-		wp_redirect( add_query_arg( array('action' => false, 'id' => false) ) );
+		bb_safe_redirect( add_query_arg( array('action' => false, 'id' => false) ) );
 }
 
 if ( isset($_GET['message']) ) {
