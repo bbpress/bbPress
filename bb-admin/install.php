@@ -163,7 +163,8 @@ switch ($bb_install->step) {
 <?php
 					$bb_install->input_text('wp_siteurl');
 					$bb_install->input_text('wp_home');
-					$bb_install->input_text('secret');
+					$bb_install->input_text('wp_secret_key');
+					$bb_install->input_text('wp_secret');
 ?>
 							</fieldset>
 						</div>
@@ -209,6 +210,27 @@ switch ($bb_install->step) {
 					$bb_install->input_buttons('forward_2_0');
 ?>
 				</form>
+				<script type="text/javascript" charset="utf-8">
+					function updateWordPressOptionURL () {
+						var siteURLInputValue = document.getElementById('wp_siteurl').value;
+						var outputAnchor = document.getElementById('getSecretOption');
+						if (siteURLInputValue) {
+							outputAnchor.innerHTML = siteURLInputValue + 'wp-admin/options.php';
+							outputAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+						} else {
+							outputAnchor.innerHTML = '';
+							outputAnchor.href = '';
+						}
+					}
+					var siteURLInput = document.getElementById('wp_siteurl');
+					if (siteURLInput.value) {
+						updateWordPressOptionURL();
+					}
+					siteURLInput.onkeyup = updateWordPressOptionURL;
+					siteURLInput.onblur = updateWordPressOptionURL;
+					siteURLInput.onclick = updateWordPressOptionURL;
+					siteURLInput.onchange = updateWordPressOptionURL;
+				</script>
 <?php
 					break;
 				

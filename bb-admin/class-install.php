@@ -370,7 +370,11 @@ class BB_Install
 		}
 		
 		// Check if the config file path is writable
-		if ( is_writable(BB_PATH) ) {
+		if ( file_exists($this->configs['bb-config.php']) ) {
+			if ( is_writable($this->configs['bb-config.php']) ) {
+				$this->configs['writable'] = true;
+			}
+		} elseif ( is_writable(BB_PATH) ) {
 			$this->configs['writable'] = true;
 		}
 		
@@ -470,8 +474,8 @@ class BB_Install
 					),
 					'bb_secret_key' => array(
 						'value'        => '',
-						'label'        => __('Cookie secret key:'),
-						'note'         => __('This should be a unique and secret phrase which will be used to protect authentication details. If you are integrating with WordPress this value must match the value of the constant named "SECRET_KEY" in your WordPress <code>wp-config.php</code> file.'),
+						'label'        => __('bbPress cookie secret key:'),
+						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress cookies unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_table_prefix' => array(
@@ -534,10 +538,16 @@ class BB_Install
 						'note'  => __('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general options.'),
 						'prerequisite' => 'toggle_2_1'
 					),
-					'secret' => array(
+					'wp_secret_key' => array(
 						'value' => '',
-						'label' => __('Secret:'),
-						'note'  => __('This value should exactly match the <strong>secret</strong> option set in your WordPress database. The only way to access this value is to retrieve it directly from the "options" database table.'),
+						'label' => __('WordPress cookie secret key:'),
+						'note'  => __('This value must match the value of the constant named "SECRET_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress cookie secret key set in the first step.'),
+						'prerequisite' => 'toggle_2_1'
+					),
+					'wp_secret' => array(
+						'value' => '',
+						'label' => __('WordPress database secret:'),
+						'note'  => __('This must match the value of the WordPress option named "secret" in your WordPress installation. Look for the option labeled "secret" in this WordPress admin page - <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;"></a>'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'toggle_2_2' => array(
@@ -831,8 +841,10 @@ class BB_Install
 			$data['toggle_1']['checked'] = 'checked="checked"';
 			$data['toggle_1']['display'] = 'block';
 			
-			// Remove dangerous characters from the secret key
-			$data['bb_secret_key']['value'] = str_replace(array("'", "\\"), '', $data['bb_secret_key']['value']);
+			// A backslash at the end of the secret key could escape the closing quotation mark in the define
+			$data['bb_secret_key']['value'] = rtrim($data['bb_secret_key']['value'], "\\");
+			// Replace any single quotes with nothing
+			$data['bb_secret_key']['value'] = str_replace("'", '', $data['bb_secret_key']['value']);
 		}
 		
 		// Stop here if we are going backwards
@@ -866,7 +878,7 @@ class BB_Install
 			return 'error';
 		}
 		
-		// Initialise an array to store th config lines
+		// Initialise an array to store the config lines
 		$config_lines = array();
 		
 		// Loop through the sample config and write lines to the new config file
@@ -987,8 +999,15 @@ class BB_Install
 					$this->strings[2]['form_errors']['wp_home'][] = 'urlparse';
 				}
 				
-				// Check the secret for errors
-				$this->strings[2]['form_errors']['secret'][] = empty($data['secret']['value']) ? 'empty' : false;
+				// A backslash at the end of the secret key could escape the closing quotation mark in the define
+				$data['wp_secret_key']['value'] = rtrim($data['wp_secret_key']['value'], "\\");
+				// Replace any single quotes with nothing
+				$data['wp_secret_key']['value'] = str_replace("'", '', $data['wp_secret_key']['value']);
+				// Check the secret key for errors
+				$this->strings[2]['form_errors']['wp_secret_key'][] = empty($data['wp_secret_key']['value']) ? 'empty' : false;
+				
+				// Check the database secret for errors
+				$this->strings[2]['form_errors']['wp_secret'][] = empty($data['wp_secret']['value']) ? 'empty' : false;
 			}
 			
 			// If database integration is selected
@@ -1346,6 +1365,9 @@ class BB_Install
 						$installation_log[] = '>>> ' . $alteration;
 					}
 				}
+				if (count($error_log)) {
+					$error_log[] = '>>> ' . __('User tables will already exist when performing a database integrated installation.');
+				}
 			} else {
 				$installation_log[] = '>>> ' . __('Database installation failed!!!');
 				$installation_log[] = '>>>>>> ' . __('Halting installation!');
@@ -1368,20 +1390,69 @@ class BB_Install
 		// These are already validated provided that the referer checks out
 		$installation_log[] = "\n" . __('Step 2 - WordPress integration (optional)');
 		if ($data2['toggle_2_0']['value']) {
-			bb_update_option('wp_siteurl', $data2['wp_siteurl']['value']);
-			$installation_log[] = '>>> ' . __('WordPress address (URL):') . ' ' . $data2['wp_siteurl']['value'];
-			bb_update_option('wp_home', $data2['wp_home']['value']);
-			$installation_log[] = '>>> ' . __('Blog address (URL):') . ' ' . $data2['wp_home']['value'];
-			bb_update_option('secret', $data2['secret']['value']);
-			$installation_log[] = '>>> ' . __('Secret:') . ' ' . $data2['secret']['value'];
-			
 			if ($data2['toggle_2_1']['value']) {
+				bb_update_option('wp_siteurl', $data2['wp_siteurl']['value']);
+				$installation_log[] = '>>> ' . __('WordPress address (URL):') . ' ' . $data2['wp_siteurl']['value'];
+				
+				bb_update_option('wp_home', $data2['wp_home']['value']);
+				$installation_log[] = '>>> ' . __('Blog address (URL):') . ' ' . $data2['wp_home']['value'];
+				
+				if ($data2['wp_secret_key']['value'] != BB_SECRET_KEY) {
+					// Update bb-config.php again what a pain...
+					$config = file($this->configs['bb-config.php']);
+					
+					// Initialise an array to store the config lines
+					$config_lines = array();
+					
+					// Loop through the sample config and write lines to the new config file
+					foreach ($config as $line_num => $line) {
+						if (substr($line,0,18) == "define('BB_SECRET_") {
+							$config_lines[] = str_replace("'" . BB_SECRET_KEY . "'", "'" . $data2['wp_secret_key']['value'] . "'", $line);
+						} else {
+							$config_lines[] = $line;
+						}
+					}
+					
+					// If we can write the file
+					if ($this->configs['writable']) {
+						// Open the config file for writing - rewrites the whole config file
+						$config_handle = fopen($this->configs['bb-config.php'], 'w');
+						
+						// Write lines one by one to avoid OS specific newline hassles
+						foreach ($config_lines as $config_line) {
+							if (strpos($config_line, '?>') !== false)
+								$config_line = '?>';
+							fwrite($config_handle, $config_line);
+							if ($config_line == '?>')
+								break;
+						}
+						
+						// Close the config file
+						fclose($config_handle);
+						
+						$installation_log[] = '>>> ' . __('WordPress cookie secret key set.');
+					} else {
+						
+						$error_log[] = '>>> ' . __('WordPress cookie secret key not set.');
+						$error_log[] = '>>>>>> ' . __('Your "bb-config.php" file was not writable.');
+						$error_log[] = '>>>>>> ' . __('You will need to manually define the "BB_SECRET_KEY" in your "bb-config.php" file.');
+						$installation_log[] = '>>> ' . __('WordPress cookie secret key not set.');
+					}
+				} else {
+					$installation_log[] = '>>> ' . __('WordPress cookie secret key set.');
+				}
+				
+				bb_update_option('secret', $data2['wp_secret']['value']);
+				$installation_log[] = '>>> ' . __('WordPress database secret set.');
+			}
+			
+			if ($data2['toggle_2_2']['value']) {
 				if ( !empty($data2['wp_table_prefix']['value']) ) {
 					bb_update_option('wp_table_prefix', $data2['wp_table_prefix']['value']);
 					$installation_log[] = '>>> ' . __('User database table prefix:') . ' ' . $data2['wp_table_prefix']['value'];
 				}
 				
-				if ($data2['toggle_2_2']['value']) {
+				if ($data2['toggle_2_3']['value']) {
 					if ( !empty($data2['user_bbdb_name']['value']) ) {
 						bb_update_option('user_bbdb_name', $data2['user_bbdb_name']['value']);
 						$installation_log[] = '>>> ' . __('User database name:') . ' ' . $data2['user_bbdb_name']['value'];
@@ -1542,24 +1613,8 @@ class BB_Install
 		}
 		
 		if ($keymaster_created) {
-			$keymaster_email_message = <<<EOF
-Your new bbPress site has been successfully set up at:
-
-%1\$s
-
-You can log in to the key master account with the following information:
-
-Username: %2\$s
-Password: %3\$s
-
-We hope you enjoy your new forums. Thanks!
-
---The bbPress Team
-http://bbpress.org/
-
-EOF;
 			$keymaster_email_message = sprintf(
-				__($keymaster_email_message),
+				__("Your new bbPress site has been successfully set up at:\n\n%1\$s\n\nYou can log in to the key master account with the following information:\n\nUsername: %2\$s\nPassword: %3\$s\n\nWe hope you enjoy your new forums. Thanks!\n\n--The bbPress Team\nhttp://bbpress.org/"),
 				bb_get_option( 'uri' ),
 				$data3['keymaster_user_login']['value'],
 				$data4['keymaster_user_password']['value']
@@ -1575,7 +1630,7 @@ EOF;
 		
 		if (count($error_log)) {
 			$this->strings[4]['h2'] = __('Installation completed with some errors!');
-			$this->strings[4]['messages']['error'][] = __('Your installation completed with some minor errors. This is usually due to some database tables already existing, which is common for installations that are integrated with WordPress.');
+			$this->strings[4]['messages']['error'][] = __('Your installation completed with some minor errors. See the error log below for more specific information.');
 			$installation_log[] = "\n" . __('There were some errors encountered during installation!');
 		} else {
 			$this->strings[4]['messages']['message'][] = __('Your installation completed successfully.<br />Check below for login details.');

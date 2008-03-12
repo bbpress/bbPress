@@ -257,6 +257,10 @@ p.note {
 	font-size: 0.7em;
 }
 
+p.note a {
+	color: rgb(46, 110, 21);
+}
+
 input.text {
 	font-size: 1.4em;
 	padding: 0.3em;
