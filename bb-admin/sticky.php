@@ -20,7 +20,7 @@ if ( topic_is_sticky( $topic_id ) )
 else
 	bb_stick_topic   ( $topic_id, $super );
 
-if ( !$redirect = wp_get_refefer() )
+if ( !$redirect = wp_get_referer() )
 	$redirect = get_topic_link( $topic_id );
 
 bb_safe_redirect( $redirect );
