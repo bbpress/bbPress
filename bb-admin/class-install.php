@@ -1023,20 +1023,6 @@ class BB_Install
 				if ($data['toggle_2_3']['value']) {
 					$data['toggle_2_3']['checked'] = 'checked="checked"';
 					$data['toggle_2_3']['display'] = 'block';
-					
-					// If any of these database values are set
-					if (
-						!empty($data['user_bbdb_name']['value']) ||
-						!empty($data['user_bbdb_user']['value']) ||
-						!empty($data['user_bbdb_password']['value']) ||
-						!empty($data['user_bbdb_host']['value'])
-					) {
-						// Then error if any of these data base values are not set
-						$this->strings[2]['form_errors']['user_bbdb_name'][]     = empty($data['user_bbdb_name']['value'])     ? 'empty' : false;
-						$this->strings[2]['form_errors']['user_bbdb_user'][]     = empty($data['user_bbdb_user']['value'])     ? 'empty' : false;
-						$this->strings[2]['form_errors']['user_bbdb_password'][] = empty($data['user_bbdb_password']['value']) ? 'empty' : false;
-						$this->strings[2]['form_errors']['user_bbdb_host'][]     = empty($data['user_bbdb_host']['value'])     ? 'empty' : false;
-					}
 				}
 			}
 			
@@ -1097,17 +1083,23 @@ class BB_Install
 				// Setup variables and constants if available
 				global $bb;
 				$bb->wp_table_prefix = $data['wp_table_prefix']['value'];
-				$bb->user_bbdb_name = $data['user_bbdb_name']['value'];
-				$bb->user_bbdb_user = $data['user_bbdb_user']['value'];
-				$bb->user_bbdb_password = $data['user_bbdb_password']['value'];
-				$bb->user_bbdb_host = $data['user_bbdb_host']['value'];
-				// These may be empty at this particular stage
-				if ( !empty($data['user_bbdb_charset']['value']) )
-					$bb->user_bbdb_charset = $data['user_bbdb_charset']['value'];
-				if ( !empty($data['custom_user_table']['value']) )
-					$bb->custom_user_table = $data['custom_user_table']['value'];
-				if ( !empty($data['custom_user_meta_table']['value']) )
+				if ($data['toggle_2_3']['value']) {
+					// These may be empty at this particular stage
+					if ( !empty($data['user_bbdb_name']['value']) )
+						$bb->user_bbdb_name = $data['user_bbdb_name']['value'];
+					if ( !empty($data['user_bbdb_user']['value']) )
+						$bb->user_bbdb_user = $data['user_bbdb_user']['value'];
+					if ( !empty($data['user_bbdb_password']['value']) )
+						$bb->user_bbdb_password = $data['user_bbdb_password']['value'];
+					if ( !empty($data['user_bbdb_host']['value']) )
+						$bb->user_bbdb_host = $data['user_bbdb_host']['value'];
+					if ( !empty($data['user_bbdb_charset']['value']) )
+						$bb->user_bbdb_charset = $data['user_bbdb_charset']['value'];
+					if ( !empty($data['custom_user_table']['value']) )
+						$bb->custom_user_table = $data['custom_user_table']['value'];
+					if ( !empty($data['custom_user_meta_table']['value']) )
 					$bb->custom_user_meta_table = $data['custom_user_meta_table']['value'];
+				}
 				
 				// Bring in the database object
 				global $bbdb;
@@ -1140,6 +1132,18 @@ class BB_Install
 					
 					// Set the status
 					$this->step_status[2] = 'incomplete';
+					if ( !empty($data['user_bbdb_name']['value']) )
+						$this->strings[2]['form_errors']['user_bbdb_name'][] = true;
+					if ( !empty($data['user_bbdb_user']['value']) )
+						$this->strings[2]['form_errors']['user_bbdb_user'][] = true;
+					if ( !empty($data['user_bbdb_password']['value']) )
+						$this->strings[2]['form_errors']['user_bbdb_password'][] = true;
+					if ( !empty($data['user_bbdb_host']['value']) )
+						$this->strings[2]['form_errors']['user_bbdb_host'][] = true;
+					if ( !empty($data['custom_user_table']['value']) )
+						$this->strings[2]['form_errors']['custom_user_table'][] = true;
+					if ( !empty($data['custom_user_meta_table']['value']) )
+						$this->strings[2]['form_errors']['custom_user_meta_table'][] = true;
 					$this->strings[2]['messages']['error'][] = __('There was a problem connecting to the WordPress user database you specified. Please check the settings, then try again.');
 					return 'incomplete';
 					
@@ -1160,7 +1164,7 @@ class BB_Install
 					} else {
 						$this->strings[2]['messages']['error'][] = __('Existing WordPress user tables could not be found in the bbPress database you specified in step 1.<br /><br />This is probably because the database does not already contain working WordPress tables. You may need to specify advanced database settings or leave integration until after installation.');
 					}
-					$this->strings[2]['form_errors']['wp_table_prefix'][] = __('&bull; This does not appear to be a valid table prefix.');
+					$this->strings[2]['form_errors']['wp_table_prefix'][] = __('&bull; This may not be a valid user table prefix.');
 					return 'incomplete';
 					
 				}
@@ -1667,7 +1671,9 @@ class BB_Install
 		
 		if (isset($this->strings[$this->step]['form_errors'][$key])) {
 			foreach ($this->strings[$this->step]['form_errors'][$key] as $error) {
-				$r .= '<span class="error">' . $error . '</span>' . "\n";
+				if (!is_bool($error)) {
+					$r .= '<span class="error">' . $error . '</span>' . "\n";
+				}
 			}
 		}
 		
