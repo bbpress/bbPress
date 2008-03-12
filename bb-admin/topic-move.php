@@ -22,6 +22,9 @@ if ( !$topic || !$forum )
 
 bb_move_topic( $topic_id, $forum_id );
 
-wp_redirect( wp_get_referer() );
+if ( !$redirect = wp_get_referer() )
+	$redirect = get_topic_link( $topic_id );
+
+bb_safe_redirect( $redirect );
 exit;
 ?>

@@ -19,7 +19,10 @@ if ( topic_is_open( $topic_id ) )
 else
 	bb_open_topic ( $topic_id );
 
-wp_redirect( wp_get_referer() );
+if ( !$redirect = wp_get_referer() )
+	$redirect = get_topic_link( $topic_id );
+
+bb_safe_redirect( $redirect );
 exit;
 
 ?>

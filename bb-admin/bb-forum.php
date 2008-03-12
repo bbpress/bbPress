@@ -17,7 +17,7 @@ case 'add' :
 	bb_check_admin_referer( 'add-forum' );
 
 	if ( false !== bb_new_forum( $_POST ) ) :
-		wp_redirect( $sent_from );
+		bb_safe_redirect( $sent_from );
 		exit;
 	else :
 		bb_die(__('The forum was not added'));
@@ -32,7 +32,7 @@ case 'update' :
 		bb_update_forum( $_POST );
 	foreach ( array('action', 'id') as $arg )
 		$sent_from = remove_query_arg( $arg, $sent_from );
-	wp_redirect( add_query_arg( 'message', 'updated', $sent_from ) );
+	bb_safe_redirect( add_query_arg( 'message', 'updated', $sent_from ) );
 	exit;
 	break;
 case 'delete' :
@@ -52,7 +52,7 @@ case 'delete' :
 
 	foreach ( array('action', 'id') as $arg )
 		$sent_from = remove_query_arg( $arg, $sent_from );
-	wp_redirect( add_query_arg( 'message', 'deleted', $sent_from ) );
+	bb_safe_redirect( add_query_arg( 'message', 'deleted', $sent_from ) );
 	exit;
 	break;
 endswitch;
