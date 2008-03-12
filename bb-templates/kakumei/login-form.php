@@ -2,7 +2,7 @@
 	<p><?php printf(__('<a href="%1$s">Register</a> or log in'), bb_get_option('uri').'register.php') ?>:</p>
 	<div>
 		<label><?php _e('Username:'); ?><br />
-			<input name="user_login" type="text" id="user_login" size="13" maxlength="40" value="<?php echo $user_login; ?>" tabindex="1" />
+			<input name="user_login" type="text" id="user_login" size="13" maxlength="40" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" tabindex="1" />
 		</label>
 		<label><?php _e('Password:'); ?><br />
 			<input name="password" type="password" id="password" size="13" maxlength="40" tabindex="2" />

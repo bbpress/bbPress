@@ -19,7 +19,7 @@
 <?php else : ?>
 <tr class="required">
 <th scope="row"><sup class="required">*</sup> <?php _e('Username:'); ?></th>
-<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (1 != $user_login) echo $user_login; ?>" /></td>
+<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" /></td>
 </tr>
 <?php endif; ?>
 <?php if ( is_array($profile_info_keys) ) : foreach ( $profile_info_keys as $key => $label ) : ?>
