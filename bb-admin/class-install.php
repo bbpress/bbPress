@@ -2,7 +2,7 @@
 /**
  * bbPress Installation class
  *
- * @since 0.8.4
+ * @since 0.9
  **/
 class BB_Install
 {
