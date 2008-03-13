@@ -83,7 +83,7 @@ bb_get_admin_header();
 			</label>
 			<div>
 				<input class="text" name="secret" id="secret" value="<?php bb_form_option('secret'); ?>" />
-				<p><?php _e('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>'); ?></p>
+				<p><?php _e('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
 			</div>
 		</div>
 		<script type="text/javascript" charset="utf-8">
