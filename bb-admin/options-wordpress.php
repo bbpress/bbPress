@@ -32,7 +32,7 @@ if ( in_array( $action, array('update-options', 'update-users') ) ) {
 
 switch ($_GET['updated']) {
 	case 'update-options':
-		bb_admin_notice( __('Options saved.') );
+		bb_admin_notice( __('Settings saved.') );
 		break;
 	
 	case 'update-users':
@@ -62,14 +62,14 @@ bb_get_admin_header();
 		</label>
 		<div>
 			<input class="text" name="wp_siteurl" id="wp_siteurl" value="<?php bb_form_option('wp_siteurl'); ?>" />
-			<p><?php _e('This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general options.'); ?></p>
+			<p><?php _e('This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general settings.'); ?></p>
 		</div>
 		<label for="wp_home">
 			<?php _e('Blog address (URL):'); ?>
 		</label>
 		<div>
 			<input class="text" name="wp_home" id="wp_home" value="<?php bb_form_option('wp_home'); ?>" />
-			<p><?php _e('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general options.'); ?></p>
+			<p><?php _e('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.'); ?></p>
 		</div>
 <?php
 $cookie_settings = array(
@@ -180,7 +180,7 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 	<fieldset id="advanced2" style="display:<?php echo $advanced_display; ?>">
 		<legend>Custom user tables</legend>
 		<div class="spacer">
-			<p><?php _e('Only set these options if your user tables do not fit the usual mould of <strong>"wordpressprefix+user"</strong> and <strong>"wordpressprefix+usermeta"</strong>.'); ?></p>
+			<p><?php _e('Only set these values if your user tables do not fit the usual mould of <strong>"wordpressprefix+user"</strong> and <strong>"wordpressprefix+usermeta"</strong>.'); ?></p>
 		</div>
 		<label for="custom_user_table">
 			<?php _e('User database "user" table:'); ?>

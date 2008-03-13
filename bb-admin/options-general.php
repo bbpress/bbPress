@@ -27,7 +27,7 @@ if ($_POST['action'] == 'update') {
 }
 
 if ($_GET['updated']) {
-	bb_admin_notice( __('Options saved.') );
+	bb_admin_notice( __('Settings saved.') );
 }
 
 bb_get_admin_header();
@@ -119,7 +119,7 @@ unset($selected);
 		<div>
 			<input class="text" name="date_format" id="date_format" value="<?php echo(attribute_escape(bb_get_datetime_formatstring_i18n('date'))); ?>" />
 			<p><?php printf(__('Output: <strong>%s</strong>'), bb_datetime_format_i18n( bb_current_time(), 'date' )); ?></p>
-			<p><?php _e('Click "Update options" to update sample output.') ?></p>
+			<p><?php _e('Click "Update settings" to update sample output.') ?></p>
 			<p><?php _e('<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.'); ?></p>
 		</div>
 	</fieldset>
