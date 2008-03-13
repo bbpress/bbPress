@@ -27,13 +27,13 @@ if ($_POST['action'] == 'update') {
 }
 
 if ($_GET['updated']) {
-	bb_admin_notice( __('Options saved.') );
+	bb_admin_notice( __('Settings saved.') );
 }
 
 bb_get_admin_header();
 ?>
 
-<h2><?php _e('General Options'); ?></h2>
+<h2><?php _e('General Settings'); ?></h2>
 
 <form class="options" method="post" action="<?php bb_option('uri'); ?>bb-admin/options-general.php">
 	<fieldset>
@@ -119,7 +119,7 @@ unset($selected);
 		<div>
 			<input class="text" name="date_format" id="date_format" value="<?php echo(attribute_escape(bb_get_datetime_formatstring_i18n('date'))); ?>" />
 			<p><?php printf(__('Output: <strong>%s</strong>'), bb_datetime_format_i18n( bb_current_time(), 'date' )); ?></p>
-			<p><?php _e('Click "Update options" to update sample output.') ?></p>
+			<p><?php _e('Click "Update settings" to update sample output.') ?></p>
 			<p><?php _e('<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.'); ?></p>
 		</div>
 	</fieldset>
@@ -181,7 +181,7 @@ unset($selected);
 		<?php bb_nonce_field( 'options-general-update' ); ?>
 		<input type="hidden" name="action" id="action" value="update" />
 		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update Options &raquo;') ?>" />
+			<input type="submit" name="submit" id="submit" value="<?php _e('Update Settings &raquo;') ?>" />
 		</div>
 	</fieldset>
 </form>

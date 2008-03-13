@@ -1604,7 +1604,7 @@ function bb_get_logout_link( $args = '' ) {
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'text' => $args );
 
-	$defaults = array('text' => __('Log out'), 'before' => '', 'after' => '');
+	$defaults = array('text' => __('Log Out'), 'before' => '', 'after' => '');
 	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
@@ -1631,6 +1631,10 @@ function bb_get_admin_link( $args = '' ) {
 }
 
 function bb_profile_link( $args = '' ) {
+	echo apply_filters( 'bb_profile_link', bb_get_profile_link( $args ), $args );
+}
+
+function bb_get_profile_link( $args = '' ) {
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'text' => $args );
 	elseif ( is_numeric($args) )
@@ -1644,7 +1648,7 @@ function bb_profile_link( $args = '' ) {
 	if ( !$id )
 		$id = bb_get_current_user_info( 'id' );
 
-	echo apply_filters( 'bb_profile_link', "$before<a href='" . attribute_escape( get_user_profile_link( $id ) ) . "'>$text</a>$after", $args );
+	return apply_filters( 'bb_get_profile_link', "$before<a href='" . attribute_escape( get_user_profile_link( $id ) ) . "'>$text</a>$after", $args );
 }
 
 function bb_current_user_info( $key = '' ) {

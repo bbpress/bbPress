@@ -373,6 +373,30 @@ thead, .thead {
 	font-family: Georgia, "Times New Roman", Times, serif
 }
 
+#top h1 #viewsite {
+	font-size: 0.45em;
+	margin-left: 0.6em;
+	margin-top: 0.3em;
+	position: absolute;
+}
+
+#top h1 #viewsite a {
+	padding: 5px;
+	display: block;
+	background-color: rgb(68, 189, 138);
+	font-family: 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Verdana, sans-serif;
+	letter-spacing: normal;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border-width: 0;
+}
+
+#top h1 #viewsite a:hover {
+	color: #148a56;
+}
+
 #top .login {
 	position: absolute;
 	right: 1em;
