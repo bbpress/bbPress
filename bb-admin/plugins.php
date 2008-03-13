@@ -107,7 +107,11 @@ if ( isset($_GET['message']) ) {
 bb_get_admin_header();
 ?>
 
-<h2><?php _e('Plugins'); ?></h2>
+<div class="wrap">
+
+<h2><?php _e('Plugin Management'); ?></h2>
+
+<p><?php _e('Plugins extend and expand the functionality of bbPress. Once a plugin is installed, you may activate it or deactivate it here.'); ?></p>
 
 <?php
 if ( $normal_plugins ) :
@@ -224,7 +228,11 @@ if ( $autoload_plugins ) :
 
 <?php
 endif;
+?>
 
+<p><?php _e('If something goes wrong with a plugin and you can’t use bbPress, delete or rename that file in the <code>my-plugins</code> directory and it will be automatically deactivated.'); ?></p>
+
+<?php
 if ( !$normal_plugins && !$autoload_plugins ) :
 ?>
 
@@ -232,6 +240,16 @@ if ( !$normal_plugins && !$autoload_plugins ) :
 
 <?php
 endif;
+?>
 
+<h2 class="after"><?php _e('Get More Plugins'); ?></h2>
+
+<p><?php printf(__('You can find additional plugins for your site in the <a href="%s">bbPress plugin directory</a>.'), 'http://bbpress.org/plugins/'); ?></p>
+
+<p><?php _e('To install a plugin you generally just need to upload the plugin file into your <code>my-plugins</code> directory. Once a plugin is uploaded, you may activate it here.'); ?></p>
+
+</div>
+
+<?php
 bb_get_admin_footer();
 ?>

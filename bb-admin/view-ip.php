@@ -12,12 +12,19 @@ $post_query = new BB_Query( 'post', array( 'ip' => $ip, 'per_page' => 30 ) );
 
 bb_get_admin_header();
 ?>
+
+<div class="wrap">
+
 <h2><?php _e('IP Information'); ?></h2>
+
 <h3><?php _e('Last 30 posts'); ?></h3>
+
 <?php if ($post_query->results) : ?>
+
 <div class="nav">
 <?php topic_pages(); ?>
 </div>
+
 <ol id="thread">
 
 <?php foreach ($post_query->results as $bb_post) : ?>
@@ -36,9 +43,15 @@ bb_get_admin_header();
 <?php endforeach; ?>
 
 </ol>
+
 <div class="clearit"><br style=" clear: both;" /></div>
+
 <div class="nav">
 <?php topic_pages(); ?>
 </div>
+
 <?php endif; ?>
+
+</div>
+
 <?php bb_get_admin_footer(); ?>

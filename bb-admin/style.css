@@ -1,0 +1,505 @@
+/*
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.4.1
+*/
+html{color:rgb(0,0,0);background:rgb(255,255,255);}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}
+table{border-collapse:collapse;border-spacing:0;}
+fieldset,img{border:0;}
+address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
+li{list-style:none;}
+caption,th{text-align:left;}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+q:before,q:after{content:'';}
+abbr,acronym {border:0;font-variant:normal;}
+sup {vertical-align:text-top;}
+sub {vertical-align:text-bottom;}
+input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}
+legend{color:rgb(0,0,0);}
+body {font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
+table {font-size:inherit;font:100%;}
+pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+
+
+
+html {
+	height: 100%;
+	font-size: 0.625em;
+}
+
+body.bbAdmin {
+	height: 100%;
+	font: normal normal normal 1em/normal 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Verdana, sans-serif;
+}
+
+strong {
+	font-weight: bold;
+}
+
+#bbWrap {
+	position: relative;
+	min-height: 100%;
+}
+
+#bbContent {
+	padding-bottom: 9.5em;
+}
+
+#bbFooter {
+	position: relative;
+	height: 6em;
+	margin-top: -7.5em;
+	padding: 1.5em 0 0 6.5em;
+	background-color: rgb(70, 70, 70);
+	background-image: url('../bb-images/admin-footer-logo.gif');
+	background-repeat: no-repeat;
+	background-position: 2em 1em;
+	color: rgb(153, 153, 153);
+	line-height: 1.8em;
+}
+
+#bbFooter p {
+	font-size: 1.3em;
+}
+
+#bbFooter p a {
+	color: rgb(255, 255, 255);
+	text-decoration: none;
+}
+
+#bbFooter p a:hover {
+	text-decoration: underline;
+}
+
+#bbHead {
+	border-top: 3em solid rgb(13, 79, 50);
+	background-color: rgb(20, 138, 86);
+	color: rgb(195, 241, 222);
+	height: 6.8em;
+}
+
+#bbHead h1 {
+	float: left;
+	font-size: 3.6em;
+	font-family: Georgia, 'Times New Roman', Times, serif;
+	padding: 0.32em 0 0 0.35em;
+	margin: 0px;
+}
+
+#bbVisitSite {
+	float: left;
+	display: block;
+	margin: 1.9em 0 0 1em;
+}
+
+#bbVisitSite a {
+	font-size: 1.4em;
+	padding: 0.4em;
+	display: block;
+	background-color: rgb(68, 189, 138);
+	color: rgb(255, 255, 255);
+	text-decoration: none;
+	-moz-border-radius: 0.25em;
+	-khtml-border-radius: 0.25em;
+	-webkit-border-radius: 0.25em;
+	border-radius: 0.25em;
+}
+
+#bbVisitSite a:hover {
+	color: rgb(13, 79, 50);
+}
+
+#bbUserMenu {
+	position: absolute;
+	top: 0.8em;
+	right: 1.5em;
+	height: 2.2em;
+	line-height: 2.2em;
+}
+
+#bbUserMenu p {
+	color: rgb(204, 204, 204);
+	font-size: 1.1em;
+}
+
+#bbUserMenu p a {
+	color: rgb(255, 255, 255);
+	text-decoration: none;
+}
+
+#bbUserMenu p a:hover {
+	text-decoration: underline;
+}
+
+#bbAdminDashboardMenu {
+	position: absolute;
+	top: 0.7em;
+	left: 0.9em;
+	line-height: 2.5em;
+}
+
+#bbAdminDashboardMenu li {
+	display: inline;
+}
+
+#bbAdminDashboardMenu li a {
+	color: rgb(195, 241, 222);
+	text-decoration: none;
+	font-size: 1.1em;
+	line-height: 1.2em;
+	padding: 0.5em 0.6em;
+	-moz-border-radius-topleft: 0.3em;
+	-moz-border-radius-topright: 0.3em;
+	-khtml-border-top-left-radius: 0.3em;
+	-khtml-border-top-right-radius: 0.3em;
+	-webkit-border-top-left-radius: 0.3em;
+	-webkit-border-top-right-radius: 0.3em;
+	border-top-left-radius: 0.3em;
+	border-top-right-radius: 0.3em;
+}
+
+#bbAdminDashboardMenu li a:hover {
+	color: rgb(255, 255, 255);
+}
+
+#bbAdminDashboardMenu li.current a {
+	background-color: rgb(20, 138, 86);
+}
+
+#bbAdminMainMenu {
+	background-color: rgb(20, 138, 86);
+	border-bottom: 0.1em solid rgb(195, 241, 222);
+	line-height: 3.2em;
+	padding-left: 1.1em;
+	height: 3.2em;
+}
+
+#bbAdminMainMenu li {
+	display: inline;
+	margin-right: 0.3em;
+}
+
+#bbAdminMainMenu li a {
+	position: relative;
+	color: rgb(195, 241, 222);
+	text-decoration: none;
+	font-size: 1.6em;
+	padding: 0.4em 0.4em 0.5em 0.4em;
+	-moz-border-radius-topleft: 0.33em;
+	-moz-border-radius-topright: 0.33em;
+	-khtml-border-top-left-radius: 0.3em;
+	-khtml-border-top-right-radius: 0.3em;
+	-webkit-border-top-left-radius: 0.3em;
+	-webkit-border-top-right-radius: 0.3em;
+	border-top-left-radius: 0.3em;
+	border-top-right-radius: 0.3em;
+}
+
+#bbAdminMainMenu li a:hover {
+	color: rgb(224, 153, 0);
+}
+
+#bbAdminMainMenu li.current a {
+	color: rgb(224, 153, 0);
+	background-color: rgb(255, 255, 255);
+	border: 0.0625em solid rgb(195, 241, 222);
+	border-bottom-width: 0;
+	font-weight: bold;
+}
+
+#bbAdminSideMenu {
+	float: right;
+	margin-top: -2.3em;
+	margin-right: 1.6em;
+	line-height: 1.6em;
+	height: 1.6em;
+}
+
+#bbAdminSideMenu li {
+	display: inline;
+	margin-left: -0.2em;
+}
+
+#bbAdminSideMenu li a {
+	position: relative;
+	color: rgb(195, 241, 222);
+	text-decoration: none;
+	font-size: 1.2em;
+	padding: 0.5em 0.5em 0.7em 0.5em;
+	-moz-border-radius-topleft: 0.27em;
+	-moz-border-radius-topright: 0.275em;
+	-khtml-border-top-left-radius: 0.4em;
+	-khtml-border-top-right-radius: 0.4em;
+	-webkit-border-top-left-radius: 0.4em;
+	-webkit-border-top-right-radius: 0.4em;
+	border-top-left-radius: 0.4em;
+	border-top-right-radius: 0.4em;
+}
+
+#bbAdminSideMenu li a:hover {
+	color: rgb(224, 153, 0);
+}
+
+#bbAdminSideMenu li.current a {
+	color: rgb(224, 153, 0);
+	background-color: rgb(255, 255, 255);
+	border: 0.084em solid rgb(195, 241, 222);
+	border-bottom-width: 0;
+	font-weight: bold;
+}
+
+#bbAdminSubMenu {
+	padding: 0.7em 1.7em 1.4em;
+	line-height: 2.6em;
+}
+
+#bbAdminSubMenu li {
+	display: inline;
+	margin-right: 2em;
+}
+
+#bbAdminSubMenu li a {
+	font-size: 1.4em;
+	text-decoration: none;
+	color: rgb(20, 138, 86);
+}
+
+#bbAdminSubMenu li a:hover {
+	color: rgb(224, 153, 0);
+}
+
+#bbAdminSubMenu li.current a {
+	color: rgb(224, 153, 0);
+}
+
+
+
+
+
+
+
+
+#bbBody {
+	color: rgb(51, 51, 51);
+}
+
+#bbBody a {
+	color: rgb(20, 138, 86);
+}
+
+#bbBody a:hover {
+	color: rgb(224, 153, 0);
+}
+
+div.updated,
+div.error,
+div.wrap {
+	margin: 0 1.5em;
+	max-width: 98em;
+}
+
+div.updated,
+div.error {
+	border-width: 0.1em;
+	border-style: solid;
+	padding: 1.5em;
+	margin-bottom: 1em;
+	max-width: 94.8em;
+}
+
+div.updated {
+	background-color: #ffffe0;
+	border-color: rgb(230, 219, 85);
+}
+
+div.error {
+	background-color: #ffebe8;
+	border-color: #c00;
+}
+
+div.updated p,
+div.error p {
+	line-height: 1.1em;
+	font-size: 1.3em;
+}
+
+#bbBody h2 {
+	border-bottom: 0.05em solid rgb(218, 218, 218);
+	font-size: 2.4em;
+	font-family: Georgia, 'Times New Roman', Times, serif;
+	color: rgb(90, 90, 90);
+	padding: 0 0 0.3em 0;
+}
+
+#bbBody h2.after {
+	margin-top: 1.6em;
+}
+
+#bbBody h3 {
+	font-size: 1.5em;
+	font-weight: bold;
+	padding: 1em 0;
+	color: rgb(51, 51, 51);
+}
+
+#bbBody p {
+	font-size: 1.3em;
+	margin: 1em 0;
+}
+
+#bbBody p code {
+	font-size: 1.2em;
+}
+
+.widefat {
+	border-width: 0.12em;
+	border-style: solid;
+	border-collapse: collapse;
+	width: 100%;
+	clear: both;
+}
+
+.widefat {
+	border-color: #ccc;
+}
+
+.widefat a {
+	text-decoration: none;
+}
+
+.widefat th {
+	font-weight: bold;
+}
+
+.widefat td,
+.widefat th {
+	border-bottom-width: 0.1em;
+	border-bottom-style: solid;
+	border-bottom-color: #ccc;
+	font-size: 1.2em;
+	padding: 1em 1em 2em;
+	vertical-align: text-top;
+}
+
+.widefat th {
+	padding-bottom: 8px;
+	padding-top: 10px;
+	text-align: left;
+}
+
+.widefat thead {
+	background-color: #464646;
+	color: #d7d7d7;
+}
+
+#bbBody .widefat td p {
+	font-size: 1em;
+	margin: 0;
+}
+
+.widefat cite {
+	font-style: italic;
+}
+
+form.settings fieldset {
+	margin-top: 1.3em;
+	border-bottom: 0.1em solid rgb(218, 218, 218);
+}
+
+form.settings legend {
+	font-size: 1.5em;
+	font-weight: bold;
+	padding: 1em 0;
+	color: rgb(51, 51, 51);
+}
+
+form.settings div {
+	background-color: rgb(220, 247, 236);
+	padding: 1em;
+	margin-bottom: 0.8em;
+}
+
+form.settings div label {
+	position: absolute;
+	width: 16em;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+form.settings div div {
+	margin: 0 0 0 22em;
+	padding: 0;
+}
+
+form.settings div input,
+form.settings div select {
+	color: rgb(0, 0, 0);
+	font-size: 1.3em;
+}
+
+form.settings div input.text {
+	color: rgb(0, 0, 0);
+	font-size: 1.3em;
+	border: 0.08em solid rgb(195, 241, 222);
+	padding: 0.25em;
+	margin: 0;
+	width: 30%;
+}
+
+form.settings div input.text.long {
+	width: 90%;
+}
+
+form.settings div input.text.short {
+	width: 10%;
+}
+
+#bbBody form.settings div p {
+	margin: 0.8em 0 0.2em 0;
+}
+
+pre.block {
+	margin: 0.2em;
+	padding: 1em;
+	line-height: 1.4em;
+	font-size: 1.3em;
+	display: block;
+	border: 1px dotted rgb(51, 51, 51);
+	background-color: rgb(220, 247, 236);
+	overflow: auto;
+	overflow-y: hidden;
+}
+
+#bbBody form.settings div p.gravatarRating {
+	clear: both;
+	width: 60%;
+	padding-top: 0.4em;
+}
+
+p.gravatarRating img {
+	height:30px;
+	width:30px;
+	float:left;
+	margin-right:1em;
+	border: 1px solid rgb(195, 241, 222);
+}
+
+form.settings input.submit {
+	font-size: 1.3em;
+	padding: 0.3em 0.4em;
+	color: rgb(20, 138, 86);
+	background-color: rgb(229, 229, 229);
+	border: 0.08em solid rgb(163, 163, 163);
+	margin-top: 1.6em;
+	-moz-border-radius: 0.25em;
+	-khtml-border-radius: 0.25em;
+	-webkit-border-radius: 0.25em;
+	border-radius: 0.25em;
+}
+
+form.settings input.submit:hover {
+	border-color: rgb(83, 83, 83);
+	color: rgb(224, 153, 0);
+}

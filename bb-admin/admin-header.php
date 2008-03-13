@@ -9,22 +9,27 @@
 <?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
 </head>
 
-<body>
+<body class="bbAdmin">
+	<div id="bbWrap">
+		<div id="bbContent">
+			<div id="bbHead">
+				<h1>
+					<?php bb_option('name'); ?>
+				</h1>
+				<span id="bbVisitSite">
+					<a href="<?php bb_option('uri'); ?>"><?php _e('Visit Site'); ?></a>
+				</span>
+			</div>
+			<div id="bbUserMenu">
+				<p>
+					<?php printf( __('Howdy, %1$s!'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
+					| <?php bb_logout_link(); ?>
+					| <a href="http://bbpress.org/forums/">Forums</a>
+				</p>
+			</div>
 
-<div id="top">
-	<h1>
-		<?php bb_option('name'); ?>
-		<span id="viewsite">
-			<a href="<?php bb_option('uri'); ?>"><?php _e('Visit Site'); ?></a>
-		</span>
-	</h1>
-	<p class="login">
-		<?php printf( __('Welcome, %1$s!'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
-		| <?php bb_logout_link(); ?>
-		| <a href="http://bbpress.org/forums/">Forums</a>
-	</p>
-</div>
 <?php bb_admin_menu(); ?>
-<?php do_action( 'bb_admin_notices' ); ?>
-<div class="wrap">
 
+<?php do_action( 'bb_admin_notices' ); ?>
+
+			<div id="bbBody">

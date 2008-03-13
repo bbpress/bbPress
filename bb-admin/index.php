@@ -1,6 +1,8 @@
 <?php require_once('admin.php'); require_once(BB_PATH . BB_INC . 'statistics-functions.php'); ?>
 <?php bb_get_admin_header(); ?>
 
+<div class="wrap">
+
 <h2><?php _e('Dashboard'); ?></h2>
 
 <div id="zeitgeist">
@@ -33,6 +35,8 @@
  <li><?php _e('Registrations per day'); ?>: <?php registrations_per_day(); ?></li>
  <li><?php printf(__('Forums started %s ago.'), bb_get_inception()); ?></li>
 </ul>
+</div>
+
 </div>
 
 <?php bb_get_admin_footer(); ?>

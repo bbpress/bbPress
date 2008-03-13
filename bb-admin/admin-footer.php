@@ -1,13 +1,24 @@
-<div id="footer"><p><a href="http://bbpress.org/"><img src="../bb-images/bbpress.png" alt="bbPress" /></a><br />
-<?php bb_option( 'version' ); ?> <br /> 
-<a href="http://bbpress.org/documentation/"><?php _e('Documentation'); ?></a> &#8212; <a href="http://trac.bbpress.org/"><?php _e('Development'); ?></a> <br />
-<?php printf(__('%s seconds'), bb_number_format_i18n(bb_timer_stop(), 2)); ?>
-</p>
-</div>
-
-</div>
-
-<?php do_action('bb_admin_footer'); ?>
-
+			</div>
+		</div>
+	</div>
+	<div id="bbFooter">
+		<p>
+			<?php printf(
+				__('Thank you for using <a href="%s">bbPress</a> | <a href="%s">Documentation</a> | <a href="%s">Development</a> | You are using version %s'),
+				'http://bbpress.org/',
+				'http://bbpress.org/documentation/',
+				'http://trac.bbpress.org/',
+				bb_get_option( 'version' )
+			) ?>
+		</p>
+		<!--
+			If you like showing off the fact that your server rocks
+		-->
+		<!--
+		<p><?php global $bbdb; printf(__('This page generated in %s seconds, using %d queries'), bb_number_format_i18n(bb_timer_stop(), 2), $bbdb->num_queries); ?></p>
+		-->
+	</div>
+	
+	<?php do_action('bb_admin_footer'); ?>
 </body>
 </html>

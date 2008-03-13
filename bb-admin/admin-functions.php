@@ -45,13 +45,22 @@ function bb_admin_notice( $message, $class = false ) {
 function bb_admin_menu_generator() {
 	global $bb_menu, $bb_submenu;
 	$bb_menu = array();
-	$bb_menu[0]  = array(__('Dashboard'), 'moderate',       'index.php');
-	$bb_menu[5]  = array(__('Users'),     'moderate',       'users.php');
-	$bb_menu[10] = array(__('Manage'),    'moderate',       'content.php');
-	$bb_menu[15] = array(__('Design'),    'manage_themes',  'themes.php');
-	$bb_menu[20] = array(__('Settings'),  'manage_options', 'options-general.php');
-	$bb_menu[25] = array(__('Plugins'),   'use_keys',       'plugins.php');
 
+	// Dashboard menu items < 100
+	$bb_menu[0]  = array(__('Dashboard'), 'moderate',       'index.php');
+
+	// 100 < Main menu items < 200
+	$bb_menu[100] = array(__('Users'),     'moderate',       'users.php');
+	$bb_menu[105] = array(__('Manage'),    'moderate',       'content.php');
+	$bb_menu[110] = array(__('Design'),    'manage_themes',  'themes.php');
+
+	// 200 < Plugin added menu items < 300
+
+	// 300 < Side menu items
+	$bb_menu[300] = array(__('Settings'),  'manage_options', 'options-general.php');
+	$bb_menu[305] = array(__('Plugins'),   'use_keys',       'plugins.php');
+
+	// Sub menu items
 	$bb_submenu = array();
 	$bb_submenu['users.php'][5]  = array(__('Find'),       'moderate',   'users.php');
 	$bb_submenu['users.php'][10] = array(__('Moderators'), 'moderate',   'users-moderators.php');
@@ -73,11 +82,36 @@ function bb_admin_menu_generator() {
 	ksort($bb_menu);
 }
 
-function bb_admin_add_menu($display_name, $capability, $file_name)
+function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group = 'main')
 {
 	global $bb_menu;
+
 	if ($display_name && $capability && $file_name) {
-		$bb_menu[] = array($display_name, $capability, $file_name);
+		// Get an array of the keys
+		$menu_keys = array_keys($bb_menu);
+		
+		// Set the bounds for different menu groups (main or side)
+		$lower = 200;
+		$upper = 300;
+		if ($menu_group == 'side') {
+			$lower = 400;
+			$upper = 500;
+		}
+		
+		// Get an array of all plugin added keys
+		$plugin_menu_keys = array_filter($menu_keys, create_function('$v', 'if ($v >= ' . $lower . ' && $v < ' . $upper . ') { return $v; }'));
+		
+		// If there is an array of keys
+		if (is_array($plugin_menu_keys) && count($plugin_menu_keys)) {
+			// Get the highest key value and add one
+			$plugin_menu_next = max($plugin_menu_keys) + 1;
+		} else {
+			// It's the first one
+			$plugin_menu_next = $lower;
+		}
+		
+		// Add the menu item at the given key
+		$bb_menu[$plugin_menu_next] = array($display_name, $capability, $file_name);
 	}
 }
 
@@ -119,30 +153,58 @@ function bb_get_current_admin_menu() {
 
 function bb_admin_title() {
 	global $bb_current_menu, $bb_current_submenu;
-	$title = 'bbPress &#8212; ' . bb_get_option('name') . ' &#8250; ' . $bb_current_menu[0] . ( $bb_current_submenu ? '&raquo; ' . $bb_current_submenu[0] : '' );
+	$title = bb_get_option('name') . ' &#8250; ' . $bb_current_menu[0] . ( $bb_current_submenu ? ' &raquo; ' . $bb_current_submenu[0] : '' ) . ' &#8212; bbPress';
 	echo $title;
 }
 
 function bb_admin_menu() {
 	global $bb_menu, $bb_submenu, $bb_current_menu, $bb_current_submenu;
-	$r = "<ul id='bb-admin-menu'>\n";
-	foreach ( $bb_menu as $m ) :
-		if ( bb_current_user_can($m[1]) ) :
-			$class = ( $m[2] == $bb_current_menu[2] ) ? " class='current'" : '';
-			$r .= "\t<li$class><a href='" . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . "'>{$m[0]}</a></li>\n";
-		endif;
-	endforeach;
-	$r .= '</ul>';
-	if ( $bb_current_submenu ) :
-		$r .= "\n\t<ul id='bb-admin-submenu'>\n";
-		foreach ( $bb_submenu[$bb_current_menu[2]] as $m ) :
-			if ( bb_current_user_can($m[1]) ) :
-				$class = ( $m[2] == $bb_current_submenu[2] ) ? " class='current'" : '';
-				$r .= "\t\t<li$class><a href='" . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . "'>{$m[0]}</a></li>\n";
-			endif;
-		endforeach;
-		$r .= "\t</ul>\n";
-	endif;
+	
+	$r = '';
+	
+	$is_menu = array(
+		'dash' => false,
+		'main' => false,
+		'side' => false
+	);
+	
+	foreach ( $bb_menu as $key => $m ) {
+		if ( $key < 100 && !$is_menu['dash'] ) {
+			$r .= "\t\t\t" . '<ul id="bbAdminDashboardMenu">' . "\n";
+			$is_menu['dash'] = true;
+		}
+		if ( $key >= 100 && $key < 300 && !$is_menu['main'] ) {
+			$r .= "\t\t\t" . '</ul>' . "\n";
+			$r .= "\t\t\t" . '<ul id="bbAdminMainMenu">' . "\n";
+			$is_menu['main'] = true;
+		}
+		if ( $key >= 300 && !$is_menu['side'] ) {
+			$r .= "\t\t\t" . '</ul>' . "\n";
+			$r .= "\t\t\t" . '<ul id="bbAdminSideMenu">' . "\n";
+			$is_menu['side'] = true;
+		}
+		if ( bb_current_user_can($m[1]) ) {
+			$class = ( $m[2] == $bb_current_menu[2] ) ? ' class="current"' : '';
+			$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '">' . $m[0] . '</a></li>' . "\n";
+		}
+	}
+	
+	$r .= "\t\t\t" . '</ul>' . "\n";
+	
+	if ( $bb_current_submenu ) {
+		$r .= "\t\t\t" . '<ul id="bbAdminSubMenu">' . "\n";
+		ksort($bb_submenu[$bb_current_menu[2]]);
+		foreach ( $bb_submenu[$bb_current_menu[2]] as $m ) {
+			if ( bb_current_user_can($m[1]) ) {
+				$class = ( $m[2] == $bb_current_submenu[2] ) ? ' class="current"' : '';
+				$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '">' . $m[0] . '</a></li>' . "\n";
+			}
+		}
+		$r .= "\t\t\t" . '</ul>' . "\n";
+	} else {
+		$r .= "\t\t\t" . '<div id="bbAdminSubMenu"></div>' . "\n";
+	}
+	
 	echo $r;
 }
 
@@ -327,7 +389,7 @@ class BB_User_Search {
 			$title = sprintf(__('Users Matching "%s" by Role'), wp_specialchars( $this->search_term ));
 		else
 			$title = __('User List by Role');
-		$r .= "<h2>$title</h2>\n";
+		$r .= "<h2 class=\"first\">$title</h2>\n";
 
 		if ( $show_search ) {
 			$r .= "<form action='' method='get' name='search' id='search'>\n\t<p>";
@@ -337,7 +399,6 @@ class BB_User_Search {
 		}
 
 		if ( $this->get_results() ) {
-			$colspan = $show_email ? 5 : 4;
 			if ( $this->is_search() )
 				$r .= "<p>\n\t<a href='users.php'>" . __('&laquo; Back to All Users') . "</a>\n</p>\n\n";
 
@@ -346,30 +407,30 @@ class BB_User_Search {
 			if ( $this->results_are_paged() )
 				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
 
-			$r .= "<table class='widefat'>\n";
 			foreach($roleclasses as $role => $roleclass) {
 				ksort($roleclass);
-				$r .= "\t<tr>\n";
 				if ( !empty($role) )
-					$r .= "\t\t<th colspan='$colspan'><h3>{$wp_roles->role_names[$role]}</h3></th>\n";
+					$r .= "\t\t<h3>{$wp_roles->role_names[$role]}</h3>\n";
 				else
-					$r .= "\t\t<th colspan='$colspan'><h3><em>" . __('Users with no role in these forums') . "</h3></th>\n";
-				$r .= "\t</tr>\n";
-				$r .= "\t<tr class='thead'>\n";
+					$r .= "\t\t<h3><em>" . __('Users with no role in these forums') . "</h3>\n";
+				$r .= "<table class='widefat'>\n";
+				$r .= "<thead>\n";
+				$r .= "\t<tr>\n";
 				$r .= "\t\t<th>" . __('ID') . "</th>\n";
 				$r .= "\t\t<th>" . __('Username') . "</th>\n";
 				if ( $show_email )
 					$r .= "\t\t<th>" . __('Email') . "</th>\n";
 				$r .= "\t\t<th>" . __('Registered Since') . "</th>\n";
 				$r .= "\t\t<th>" . __('Actions') . "</th>\n";
-				$r .= "\t</tr>\n\n";
+				$r .= "\t</tr>\n";
+				$r .= "</thead>\n\n";
 
 				$r .= "<tbody id='role-$role'>\n";
 				foreach ( (array) $roleclass as $user_object )
 				$r .= bb_user_row($user_object->ID, $role, $show_email);
 				$r .= "</tbody>\n";
+				$r .= "</table>\n\n";
 			}
-			$r .= "</table>\n\n";
 
 		 	if ( $this->results_are_paged() )
 				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";

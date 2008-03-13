@@ -28,6 +28,8 @@ if ( !isset($_GET['action']) )
 bb_get_admin_header();
 ?>
 
+<div class="wrap">
+
 <h2><?php _e('Forum Management'); ?></h2>
 <?php switch ( @$_GET['action'] ) : ?>
 <?php case 'edit' : ?>
@@ -79,5 +81,7 @@ bb_get_admin_header();
 <?php break; endswitch; // action ?>
 
 <div id="ajax-response"></div>
+
+</div>
 
 <?php bb_get_admin_footer(); ?>

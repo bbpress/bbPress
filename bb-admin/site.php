@@ -1,6 +1,8 @@
 <?php require_once('admin.php'); ?>
 <?php bb_get_admin_header(); ?>
 
+<div class="wrap">
+
 <h2><?php _e('Recount') ?></h2>
 <p><?php _e("The following checkboxes allow you to recalculate various numbers stored in
 the database.  These numbers are used for things like counting the number of
@@ -20,5 +22,7 @@ pagination oddities.") ?></p>
 	</fieldset>
 	<?php bb_nonce_field( 'do-counts' ); ?>
 </form>
+
+</div>
 
 <?php bb_get_admin_footer(); ?>

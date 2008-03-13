@@ -11,6 +11,8 @@
 	$total = $post_query->found_rows;
 ?>
 
+<div class="wrap">
+
 <h2><?php
 $h2_search = $post_query->get( 'post_text' );
 $h2_forum  = $post_query->get( 'forum_id' );
@@ -43,5 +45,7 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 </ol>
 
 <?php echo get_page_number_links( $page, $total ); ?>
+
+</div>
 
 <?php bb_get_admin_footer(); ?>

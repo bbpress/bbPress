@@ -71,6 +71,8 @@ function bb_admin_theme_row( $theme ) {
 bb_get_admin_header();
 ?>
 
+<div class="wrap">
+
 <h2><?php _e('Current Theme'); ?></h2>
 <ul class="theme-list active">
 <?php bb_admin_theme_row( $themes[$activetheme] ); unset($themes[$activetheme] ); ?>
@@ -81,5 +83,7 @@ bb_get_admin_header();
 <ul class="theme-list">
 <?php foreach ( $themes as $theme ) bb_admin_theme_row( $theme ); ?>
 </ul>
+
+</div>
 
 <?php endif; bb_get_admin_footer(); ?>

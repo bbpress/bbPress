@@ -12,6 +12,8 @@
 	$topics = $topic_query->results;
 ?>
 
+<div class="wrap">
+
 <h2><?php
 $h2_search = $topic_query->get( 'search' );
 $h2_forum  = $topic_query->get( 'forum_id' );
@@ -42,12 +44,15 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 <br class="clear" />
 
 <table class="widefat">
-<tr class="thead">
+<thead>
+<tr>
 	<th><?php _e('Topic') ?></th>
 	<th><?php _e('Last Poster') ?></th>
 	<th><?php _e('Freshness') ?></th>
 </tr>
+</thead>
 
+<tbody>
 <?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
 <tr<?php alt_class('topic'); ?>>
 	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
@@ -59,8 +64,11 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 	<td colspan="3"><?php _e('No Topics Found'); ?></td>
 </tr>
 <?php endif; ?>
+</tbody>
 </table>
 
 <?php echo get_page_number_links( $page, $topic_query->found_rows ); ?>
+
+</div>
 
 <?php bb_get_admin_footer(); ?>
