@@ -547,7 +547,7 @@ class BB_Install
 					'wp_secret' => array(
 						'value' => '',
 						'label' => __('WordPress database secret:'),
-						'note'  => __('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in this WordPress admin page - <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;"></a>'),
+						'note'  => __('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'toggle_2_2' => array(

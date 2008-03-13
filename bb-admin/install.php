@@ -215,10 +215,11 @@ switch ($bb_install->step) {
 						var siteURLInputValue = document.getElementById('wp_siteurl').value;
 						var outputAnchor = document.getElementById('getSecretOption');
 						if (siteURLInputValue) {
-							outputAnchor.innerHTML = siteURLInputValue + 'wp-admin/options.php';
+							if (siteURLInputValue.substr(-1,1) != '/') {
+								siteURLInputValue += '/';
+							}
 							outputAnchor.href = siteURLInputValue + 'wp-admin/options.php';
 						} else {
-							outputAnchor.innerHTML = '';
 							outputAnchor.href = '';
 						}
 					}
