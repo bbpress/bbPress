@@ -241,7 +241,7 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 	</fieldset>
 	<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
 	<input type="hidden" name="action" id="action" value="update-options" />
-	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Update Settings') ?>" />
+	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Save Changes') ?>" />
 </form>
 
 <h2 class="after">bbPress config file settings</h2>
@@ -328,7 +328,7 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 	</fieldset>
 	<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
 	<input type="hidden" name="action" id="action" value="update-users" />
-	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Update User Role Map') ?>" />
+	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Save User Role Map') ?>" />
 </form>
 
 </div>

@@ -116,7 +116,7 @@ unset($selected);
 		</div>
 		<div>
 			<label for="gmt_offset">
-				<?php _e('Times should differ from UTC by') ?>
+				<?php _e('Times should differ<br />from UTC by') ?>
 			</label>
 			<div>
 				<input class="text short" name="gmt_offset" id="gmt_offset" value="<?php bb_form_option('gmt_offset'); ?>" />
@@ -126,7 +126,7 @@ unset($selected);
 		</div>
 		<div>
 			<label for="datetime_format">
-				<?php _e('Date and time format:') ?>
+				<?php _e('Date and time format') ?>
 			</label>
 			<div>
 				<input class="text" name="datetime_format" id="datetime_format" value="<?php echo(attribute_escape(bb_get_datetime_formatstring_i18n())); ?>" />
@@ -135,7 +135,7 @@ unset($selected);
 		</div>
 		<div>
 			<label for="date_format">
-				<?php _e('Date format:') ?>
+				<?php _e('Date format') ?>
 			</label>
 			<div>
 				<input class="text" name="date_format" id="date_format" value="<?php echo(attribute_escape(bb_get_datetime_formatstring_i18n('date'))); ?>" />
@@ -152,7 +152,7 @@ unset($selected);
 		</p>
 		<div>
 			<label for="avatars_show">
-				<?php _e('Show avatars:') ?>
+				<?php _e('Show avatars') ?>
 			</label>
 			<div>
 <?php
@@ -167,7 +167,7 @@ unset($checked);
 		</div>
 		<div>
 			<label for="avatars_rating">
-				<?php _e('Gravatar maximum rating:'); ?>
+				<?php _e('Gravatar maximum rating'); ?>
 			</label>
 			<div>
 				<select name="avatars_rating" id="avatars_rating">
