@@ -119,7 +119,7 @@ function bb_get_current_admin_menu() {
 
 function bb_admin_title() {
 	global $bb_current_menu, $bb_current_submenu;
-	$title = 'bbPress &#8212; ' . bb_get_option('name') . ' &#8250; ' . $bb_current_menu[0] . ( $bb_current_submenu ? '&raquo; ' . $bb_current_submenu[0] : '' );
+	$title = bb_get_option('name') . ' &#8250; ' . $bb_current_menu[0] . ( $bb_current_submenu ? ' &raquo; ' . $bb_current_submenu[0] : '' ) . ' &#8212; bbPress';
 	echo $title;
 }
 
