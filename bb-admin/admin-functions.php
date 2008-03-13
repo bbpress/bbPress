@@ -45,26 +45,26 @@ function bb_admin_notice( $message, $class = false ) {
 function bb_admin_menu_generator() {
 	global $bb_menu, $bb_submenu;
 	$bb_menu = array();
-	$bb_menu[0]  = array(__('Dashboard'),       'moderate',       'index.php');
-	$bb_menu[5]  = array(__('Users'),           'moderate',       'users.php');
-	$bb_menu[10] = array(__('Content'),         'moderate',       'content.php');
-	$bb_menu[13] = array(__('Presentation'),    'manage_themes',  'themes.php');
-	$bb_menu[15] = array(__('Site Management'), 'use_keys',       'plugins.php');
-	$bb_menu[50] = array(__('Options'),         'manage_options', 'options-general.php');
+	$bb_menu[0]  = array(__('Dashboard'), 'moderate',       'index.php');
+	$bb_menu[5]  = array(__('Users'),     'moderate',       'users.php');
+	$bb_menu[10] = array(__('Manage'),    'moderate',       'content.php');
+	$bb_menu[15] = array(__('Design'),    'manage_themes',  'themes.php');
+	$bb_menu[20] = array(__('Settings'),  'manage_options', 'options-general.php');
+	$bb_menu[25] = array(__('Plugins'),   'use_keys',       'plugins.php');
 
 	$bb_submenu = array();
 	$bb_submenu['users.php'][5]  = array(__('Find'),       'moderate',   'users.php');
 	$bb_submenu['users.php'][10] = array(__('Moderators'), 'moderate',   'users-moderators.php');
 	$bb_submenu['users.php'][15] = array(__('Blocked'),    'edit_users', 'users-blocked.php');
 
-	$bb_submenu['content.php'][5]  = array(__('Topics'), 'moderate',      'content.php');
-	$bb_submenu['content.php'][10] = array(__('Posts'),  'moderate',      'content-posts.php');
-	$bb_submenu['content.php'][15] = array(__('Forums'), 'manage_forums', 'content-forums.php');
+	$bb_submenu['content.php'][5]  = array(__('Topics'),  'moderate',      'content.php');
+	$bb_submenu['content.php'][10] = array(__('Posts'),   'moderate',      'content-posts.php');
+	$bb_submenu['content.php'][15] = array(__('Forums'),  'manage_forums', 'content-forums.php');
+	$bb_submenu['content.php'][20] = array(__('Recount'), 'recount',       'site.php');
 
 	$bb_submenu['themes.php'][5]   = array(__('Themes'), 'manage_themes', 'themes.php');
 
 	$bb_submenu['plugins.php'][5]  = array(__('Plugins'), 'manage_plugins', 'plugins.php');
-	$bb_submenu['plugins.php'][10] = array(__('Recount'), 'recount',        'site.php');
 	
 	$bb_submenu['options-general.php'][5]  = array(__('General'),               'manage_options', 'options-general.php');
 	$bb_submenu['options-general.php'][10] = array(__('WordPress Integration'), 'manage_options', 'options-wordpress.php');

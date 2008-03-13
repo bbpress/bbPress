@@ -245,7 +245,7 @@ foreach ($cookie_settings as $bb_setting) {
 		<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
 		<input type="hidden" name="action" id="action" value="update-options" />
 		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update Options &raquo;') ?>" />
+			<input type="submit" name="submit" id="submit" value="<?php _e('Update Settings &raquo;') ?>" />
 		</div>
 	</fieldset>
 </form>

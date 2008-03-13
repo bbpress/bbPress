@@ -33,7 +33,7 @@ if ($_GET['updated']) {
 bb_get_admin_header();
 ?>
 
-<h2><?php _e('General Options'); ?></h2>
+<h2><?php _e('General Settings'); ?></h2>
 
 <form class="options" method="post" action="<?php bb_option('uri'); ?>bb-admin/options-general.php">
 	<fieldset>
@@ -181,7 +181,7 @@ unset($selected);
 		<?php bb_nonce_field( 'options-general-update' ); ?>
 		<input type="hidden" name="action" id="action" value="update" />
 		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update Options &raquo;') ?>" />
+			<input type="submit" name="submit" id="submit" value="<?php _e('Update Settings &raquo;') ?>" />
 		</div>
 	</fieldset>
 </form>
