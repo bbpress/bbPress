@@ -22,7 +22,18 @@ body {font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-
 table {font-size:inherit;font:100%;}
 pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
 
+/*
+There are six graduations of green
+	         Dark - rgb(5, 50, 0)
+	          Mid - rgb(10, 100, 0)
+	         Link - rgb(40, 140, 60)
+	        Light - rgb(110, 180, 105)
+	Input Borders - rgb(180, 220, 170)
+	    Highlight - rgb(200, 250, 200)
 
+One deep yellow
+		   Yellow - rgb(230, 145, 0)
+*/
 
 html {
 	height: 100%;
@@ -74,9 +85,9 @@ strong {
 }
 
 #bbHead {
-	border-top: 3em solid rgb(13, 79, 50);
-	background-color: rgb(20, 138, 86);
-	color: rgb(195, 241, 222);
+	border-top: 3em solid rgb(5, 50, 0);
+	background-color: rgb(10, 100, 0);
+	color: rgb(200, 250, 200);
 	height: 6.8em;
 }
 
@@ -98,7 +109,7 @@ strong {
 	font-size: 1.4em;
 	padding: 0.4em;
 	display: block;
-	background-color: rgb(68, 189, 138);
+	background-color: rgb(110, 180, 105);
 	color: rgb(255, 255, 255);
 	text-decoration: none;
 	-moz-border-radius: 0.25em;
@@ -108,7 +119,7 @@ strong {
 }
 
 #bbVisitSite a:hover {
-	color: rgb(13, 79, 50);
+	color: rgb(5, 50, 0);
 }
 
 #bbUserMenu {
@@ -145,7 +156,7 @@ strong {
 }
 
 #bbAdminDashboardMenu li a {
-	color: rgb(195, 241, 222);
+	color: rgb(200, 250, 200);
 	text-decoration: none;
 	font-size: 1.1em;
 	line-height: 1.2em;
@@ -165,12 +176,12 @@ strong {
 }
 
 #bbAdminDashboardMenu li.current a {
-	background-color: rgb(20, 138, 86);
+	background-color: rgb(10, 100, 0);
 }
 
 #bbAdminMainMenu {
-	background-color: rgb(20, 138, 86);
-	border-bottom: 0.1em solid rgb(195, 241, 222);
+	background-color: rgb(10, 100, 0);
+	border-bottom: 0.1em solid rgb(110, 180, 105);
 	line-height: 3.2em;
 	padding-left: 1.1em;
 	height: 3.2em;
@@ -183,7 +194,7 @@ strong {
 
 #bbAdminMainMenu li a {
 	position: relative;
-	color: rgb(195, 241, 222);
+	color: rgb(200, 250, 200);
 	text-decoration: none;
 	font-size: 1.6em;
 	padding: 0.4em 0.4em 0.5em 0.4em;
@@ -198,13 +209,13 @@ strong {
 }
 
 #bbAdminMainMenu li a:hover {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 }
 
 #bbAdminMainMenu li.current a {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 	background-color: rgb(255, 255, 255);
-	border: 0.0625em solid rgb(195, 241, 222);
+	border: 0.0625em solid rgb(110, 180, 105);
 	border-bottom-width: 0;
 	font-weight: bold;
 }
@@ -224,7 +235,7 @@ strong {
 
 #bbAdminSideMenu li a {
 	position: relative;
-	color: rgb(195, 241, 222);
+	color: rgb(200, 250, 200);
 	text-decoration: none;
 	font-size: 1.2em;
 	padding: 0.5em 0.5em 0.7em 0.5em;
@@ -239,13 +250,13 @@ strong {
 }
 
 #bbAdminSideMenu li a:hover {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 }
 
 #bbAdminSideMenu li.current a {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 	background-color: rgb(255, 255, 255);
-	border: 0.084em solid rgb(195, 241, 222);
+	border: 0.084em solid rgb(110, 180, 105);
 	border-bottom-width: 0;
 	font-weight: bold;
 }
@@ -263,15 +274,15 @@ strong {
 #bbAdminSubMenu li a {
 	font-size: 1.4em;
 	text-decoration: none;
-	color: rgb(20, 138, 86);
+	color: rgb(40, 140, 60);
 }
 
 #bbAdminSubMenu li a:hover {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 }
 
 #bbAdminSubMenu li.current a {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 }
 
 
@@ -286,11 +297,11 @@ strong {
 }
 
 #bbBody a {
-	color: rgb(20, 138, 86);
+	color: rgb(40, 140, 60);
 }
 
 #bbBody a:hover {
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 }
 
 div.updated,
@@ -416,7 +427,7 @@ form.settings legend {
 }
 
 form.settings div {
-	background-color: rgb(220, 247, 236);
+	background-color: rgb(200, 250, 200);
 	padding: 1em;
 	margin-bottom: 0.8em;
 }
@@ -437,12 +448,12 @@ form.settings div input,
 form.settings div select {
 	color: rgb(0, 0, 0);
 	font-size: 1.3em;
+	border: 0.08em solid rgb(180, 220, 170);
 }
 
 form.settings div input.text {
 	color: rgb(0, 0, 0);
 	font-size: 1.3em;
-	border: 0.08em solid rgb(195, 241, 222);
 	padding: 0.25em;
 	margin: 0;
 	width: 30%;
@@ -467,7 +478,7 @@ pre.block {
 	font-size: 1.3em;
 	display: block;
 	border: 1px dotted rgb(51, 51, 51);
-	background-color: rgb(220, 247, 236);
+	background-color: rgb(200, 250, 200);
 	overflow: auto;
 	overflow-y: hidden;
 }
@@ -483,13 +494,13 @@ p.gravatarRating img {
 	width:30px;
 	float:left;
 	margin-right:1em;
-	border: 1px solid rgb(195, 241, 222);
+	border: 1px solid rgb(110, 180, 105);
 }
 
 form.settings input.submit {
 	font-size: 1.3em;
 	padding: 0.3em 0.4em;
-	color: rgb(20, 138, 86);
+	color: rgb(40, 140, 60);
 	background-color: rgb(229, 229, 229);
 	border: 0.08em solid rgb(163, 163, 163);
 	margin-top: 1.6em;
@@ -501,5 +512,5 @@ form.settings input.submit {
 
 form.settings input.submit:hover {
 	border-color: rgb(83, 83, 83);
-	color: rgb(224, 153, 0);
+	color: rgb(230, 145, 0);
 }
