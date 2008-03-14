@@ -131,46 +131,54 @@ img.avatar { border: 1px solid #ddd; }
 	position: absolute;
 	bottom: 31px;
 	left: 0;
-	font-weight: bold;
+	font-weight: normal;
 	color: #444;
 	width: 100%;
 	z-index: 1;
+	font-size: 12px;
 }
 
 form.login {
-	bottom: 19px;
+	bottom: 15px;
 }
 
-.login p { padding: 0 0 5px; }
+.login p { padding: 0 0 4px; }
 
 .login label {
 	display: block;
 	float: left;
 	padding-right: 10px;
-	font-size: 1em;
-}
-
-.login #submit {
-	float: left;
-	margin-top: 1.4em;
-}
-
-.login {
-	line-height: 1.3;
-	font-weight: normal;
-	font-size: 1.3em;
+	line-height: 14px;
 }
 
 form.login input {
-	font-size: 1em;
 	border: 1px solid #999;
+	padding: 2px;
+	line-height: 14px;
+	font-size: 12px;
+	margin: 0;
 }
 
-div.remember {
+form.login input#submit {
+	float: left;
+	margin-top: 14px;
+	margin-bottom: -10px;
+	display: block;
+}
+
+div.remember label {
 	clear: both;
-	padding-top: 2px;
+	padding: 0;
+	margin: 6px 0 0 0;
+	line-height: 12px;
 }
 
+form.login input#remember {
+	border-width: 0;
+	padding: 0;
+	margin: 0;
+	vertical-align: baseline;
+}
 
 /* Front Page
 =================================== */
@@ -421,10 +429,14 @@ div.remember {
 }
 
 #profile-menu li {
+	display: inline;
+	margin-left: 3px;
+}
+
+#profile-menu li a {
 	font-size: 1.1em;
 	background-color: #ddd;
 	padding: 4px 7px;
-	display: inline;
 	border-top: 3px double #9e9e9e;
 	position: relative;
 	top: -10px;
@@ -438,12 +450,12 @@ div.remember {
 	border-bottom-right-radius: 6px;
 }
 
-#profile-menu li.current {
+#profile-menu li.current a {
 	background-color: #bbb;
 	border-top: 1px solid #9e9e9e;
 }
 
-#profile-menu li:hover {
+#profile-menu li a:hover {
 	background-color: #e4f3e1;
 }
 
