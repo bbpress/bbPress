@@ -478,7 +478,7 @@ pre.block {
 	font-size: 1.3em;
 	display: block;
 	border: 1px dotted rgb(51, 51, 51);
-	background-color: rgb(200, 250, 200);
+	background-color: rgb(218, 218, 218);
 	overflow: auto;
 	overflow-y: hidden;
 }
