@@ -371,7 +371,7 @@ endif;
 
 if ( !function_exists('bb_new_user') ) :
 function bb_new_user( $user_login, $user_email, $user_url = '' ) {
-	global $wp_users_object;
+	global $wp_users_object, $bbdb;
 
 	// is_email check + dns
 	if ( !$user_email = bb_verify_email( $user_email ) )
@@ -394,14 +394,14 @@ function bb_new_user( $user_login, $user_email, $user_url = '' ) {
 		return false;
 
 	if ( defined( 'BB_INSTALLING' ) ) {
-		bb_update_usermeta( $user->ID, $bbdb->prefix . 'capabilities', array('keymaster' => true) );
+		bb_update_usermeta( $user['ID'], $bbdb->prefix . 'capabilities', array('keymaster' => true) );
 	} else {		
-		bb_update_usermeta( $user->ID, $bbdb->prefix . 'capabilities', array('member' => true) );
-		bb_send_pass( $user->ID, $user->plain_pass );
+		bb_update_usermeta( $user['ID'], $bbdb->prefix . 'capabilities', array('member' => true) );
+		bb_send_pass( $user['ID'], $user['plain_pass'] );
 	}
 
-	do_action('bb_new_user', $user->ID, $user->plain_pass);
-	return $user->ID;
+	do_action('bb_new_user', $user['ID'], $user['plain_pass']);
+	return $user['ID'];
 }
 endif;
 
