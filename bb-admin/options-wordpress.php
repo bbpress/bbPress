@@ -71,6 +71,35 @@ bb_get_admin_header();
 			<input class="text" name="wp_home" id="wp_home" value="<?php bb_form_option('wp_home'); ?>" />
 			<p><?php _e('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.'); ?></p>
 		</div>
+		<label for="bb_secret">
+			<?php _e('WordPress database secret'); ?>
+		</label>
+		<div>
+			<input class="text" name="secret" id="secret" value="<?php bb_form_option('secret'); ?>" />
+			<p><?php _e('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
+		</div>
+		<script type="text/javascript" charset="utf-8">
+			function updateWordPressOptionURL () {
+				var siteURLInputValue = document.getElementById('wp_siteurl').value;
+				var outputAnchor = document.getElementById('getSecretOption');
+				if (siteURLInputValue) {
+					if (siteURLInputValue.substr(-1,1) != '/') {
+						siteURLInputValue += '/';
+					}
+					outputAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+				} else {
+					outputAnchor.href = '';
+				}
+			}
+			var siteURLInput = document.getElementById('wp_siteurl');
+			if (siteURLInput.value) {
+				updateWordPressOptionURL();
+			}
+			siteURLInput.onkeyup = updateWordPressOptionURL;
+			siteURLInput.onblur = updateWordPressOptionURL;
+			siteURLInput.onclick = updateWordPressOptionURL;
+			siteURLInput.onchange = updateWordPressOptionURL;
+		</script>
 <?php
 $cookie_settings = array(
 	'cookiedomain' => 'COOKIE_DOMAIN',
@@ -89,11 +118,6 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 		</div>
 		<div class="spacer">
 			<p><?php _e('Also make sure that the "SECRET_KEY" in your WordPress <code>wp-config.php</code> file matches the "BB_SECRET_KEY" in your bbPress <code>bb-config.php</code> file.'); ?></p>
-		</div>
-		<div class="spacer">
-			<p><?php _e('You will also need to match the "secret" option in your WordPress database to the "secret" in your bbPress database.'); ?></p>
-			<p><?php _e('In WordPress the "secret" option can be set by editing the value in the <code>wp_options</code> table.'); ?></p>
-			<p><?php _e('In bbPress the "secret" option can be set at installation or by editing the value in the <code>bb_topicmeta</code> table.'); ?></p>
 		</div>
 	</fieldset>
 	<fieldset>
