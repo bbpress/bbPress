@@ -433,70 +433,70 @@ class BB_Install
 				'form' => array(
 					'bbdb_name' => array(
 						'value' => '',
-						'label' => __('Database name:'),
+						'label' => __('Database name'),
 						'note'  => __('The name of the database in which you want to run bbPress.')
 					),
 					'bbdb_user' => array(
 						'value' => '',
-						'label' => __('Database user:'),
+						'label' => __('Database user'),
 						'note'  => __('The database user that has access to that database.')
 					),
 					'bbdb_password' => array(
 						'type'  => 'password',
 						'value' => '',
-						'label' => __('Database password:'),
+						'label' => __('Database password'),
 						'note'  => __('That database user\'s password.')
 					),
 					'toggle_1' => array(
 						'value'   => 0,
-						'label'   => __('Show advanced settings:'),
+						'label'   => __('Show advanced settings'),
 						'note'    => __('99% of the time these settings will not have to be changed.'),
 						'checked' => '',
 						'display' => 'none'
 					),
 					'bbdb_host'        => array(
 						'value'        => 'localhost',
-						'label'        => __('Database host:'),
+						'label'        => __('Database host'),
 						'note'         => __('The domain name or IP address of the server where the database is located. If the database is on the same server as the web site, then this probably should remain <strong>localhost</strong>.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bbdb_charset' => array(
 						'value'        => 'utf8',
-						'label'        => __('Database character set:'),
+						'label'        => __('Database character set'),
 						'note'         => __('The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bbdb_collate' => array(
 						'value'        => '',
-						'label'        => __('Database character collation:'),
+						'label'        => __('Database character collation'),
 						'note'         => __('The character collation value set when the database was created.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_secret_key' => array(
 						'value'        => '',
-						'label'        => __('bbPress cookie secret key:'),
+						'label'        => __('bbPress cookie secret key'),
 						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress cookies unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_table_prefix' => array(
 						'value'        => 'bb_',
-						'label'        => __('Table name prefix:'),
+						'label'        => __('Table name prefix'),
 						'note'         => __('If you are running multiple bbPress installations in a single database, you will probably want to change this.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'config' => array(
 						'value' => '',
-						'label' => __('Contents for <code>bb-config.php</code>:'),
+						'label' => __('Contents for <code>bb-config.php</code>'),
 						'note'  => __('Once you have created the configuration file, you can check for it below.')
 					),
 					'forward_1_0' => array(
-						'value' => __('Save database configuration file &raquo;')
+						'value' => __('Save database configuration file')
 					),
 					'back_1_1' => array(
 						'value' => __('&laquo; Go back')
 					),
 					'forward_1_1' => array(
-						'value' => __('Check for configuration file &raquo;')
+						'value' => __('Check for configuration file')
 					),
 					'forward_1_2' => array(
 						'value' => __('Go to step 2 &raquo;')
@@ -508,19 +508,19 @@ class BB_Install
 				'form' => array(
 					'toggle_2_0' => array(
 						'value'        => 0,
-						'label'        => __('Add integration settings:'),
+						'label'        => __('Add integration settings'),
 						'note'         => __('If you want to integrate bbPress with an existing WordPress installation.'),
 						'checked'      => '',
 						'display'      => 'none',
 						'toggle_value' => array(
 							'target'    => 'forward_2_0',
 							'off_value' => __('Skip WordPress integration &raquo;'),
-							'on_value'  => __('Save WordPress integration settings &raquo;')
+							'on_value'  => __('Save WordPress integration settings')
 						)
 					),
 					'toggle_2_1' => array(
 						'value'   => 0,
-						'label'   => __('Add cookie integration settings:'),
+						'label'   => __('Add cookie integration settings'),
 						'note'    => __('If you want to allow shared logins with an existing WordPress installation.'),
 						'checked' => '',
 						'display' => 'none',
@@ -528,31 +528,31 @@ class BB_Install
 					),
 					'wp_siteurl' => array(
 						'value' => '',
-						'label' => __('WordPress address (URL):'),
+						'label' => __('WordPress address (URL)'),
 						'note'  => __('This value should exactly match the <strong>WordPress address (URL)</strong> in your WordPress general settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'wp_home' => array(
 						'value' => '',
-						'label' => __('Blog address (URL):'),
+						'label' => __('Blog address (URL)'),
 						'note'  => __('This value should exactly match the <strong>Blog address (URL)</strong> in your WordPress general settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'wp_secret_key' => array(
 						'value' => '',
-						'label' => __('WordPress cookie secret key:'),
+						'label' => __('WordPress cookie secret key'),
 						'note'  => __('This value must match the value of the constant named "SECRET_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress cookie secret key set in the first step.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'wp_secret' => array(
 						'value' => '',
-						'label' => __('WordPress database secret:'),
+						'label' => __('WordPress database secret'),
 						'note'  => __('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'toggle_2_2' => array(
 						'value'   => 0,
-						'label'   => __('Add user database integration settings:'),
+						'label'   => __('Add user database integration settings'),
 						'note'    => __('If you want to share user data with an existing WordPress installation.'),
 						'checked' => '',
 						'display' => 'none',
@@ -560,13 +560,13 @@ class BB_Install
 					),
 					'wp_table_prefix' => array(
 						'value' => 'wp_',
-						'label' => __('User database table prefix:'),
+						'label' => __('User database table prefix'),
 						'note'  => __('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$wp_table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.'),
 						'prerequisite' => 'toggle_2_2'
 					),
 					'toggle_2_3' => array(
 						'value'   => 0,
-						'label'   => __('Show advanced database settings:'),
+						'label'   => __('Show advanced database settings'),
 						'note'    => __('If your bbPress and WordPress installation do not share the same database, then you will need to add advanced settings.'),
 						'checked' => '',
 						'display' => 'none',
@@ -574,44 +574,44 @@ class BB_Install
 					),
 					'user_bbdb_name' => array(
 						'value' => '',
-						'label' => __('User database name:'),
+						'label' => __('User database name'),
 						'note'  => __('The name of the database in which your user tables reside.'),
 						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_user' => array(
 						'value' => '',
-						'label' => __('User database user:'),
+						'label' => __('User database user'),
 						'note'  => __('The database user that has access to that database.'),
 						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_password' => array(
 						'type'  => 'password',
 						'value' => '',
-						'label' => __('User database password:'),
+						'label' => __('User database password'),
 						'note'  => __('That database user\'s password.'),
 						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_host' => array(
 						'value' => '',
-						'label' => __('User database host:'),
+						'label' => __('User database host'),
 						'note'  => __('The domain name or IP address of the server where the database is located. If the database is on the same server as the web site, then this probably should be <strong>localhost</strong>.'),
 						'prerequisite' => 'toggle_2_3'
 					),
 					'user_bbdb_charset' => array(
 						'value' => '',
-						'label' => __('User database character set:'),
+						'label' => __('User database character set'),
 						'note'  => __('The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.'),
 						'prerequisite' => 'toggle_2_3'
 					),
 					'custom_user_table' => array(
 						'value' => '',
-						'label' => __('User database "user" table:'),
+						'label' => __('User database "user" table'),
 						'note'  => __('The complete table name, including any prefix.'),
 						'prerequisite' => 'toggle_2_3'
 					),
 					'custom_user_meta_table' => array(
 						'value' => '',
-						'label' => __('User database "user meta" table:'),
+						'label' => __('User database "user meta" table'),
 						'note'  => __('The complete table name, including any prefix.'),
 						'prerequisite' => 'toggle_2_3'
 					),
@@ -631,24 +631,24 @@ class BB_Install
 				'form' => array(
 					'name' => array(
 						'value' => '',
-						'label' => __('Site name:'),
+						'label' => __('Site name'),
 						'note'  => __('This is what you are going to call your bbPress installation.')
 					),
 					'uri' => array(
 						'value' => $this->guess_uri(),
-						'label' => __('Site address (URL):'),
+						'label' => __('Site address (URL)'),
 						'note'  => __('We have attempted to guess this, it\'s usually correct, but change it here if you wish.')
 					),
 					'keymaster_user_login' => array(
 						'value'     => '',
 						'maxlength' => 60,
-						'label'     => __('Username:'),
+						'label'     => __('Username'),
 						'note'      => __('This is the user login for the initial bbPress administrator (known as a "key master").')
 					),
 					'keymaster_user_email' => array(
 						'value'     => '',
 						'maxlength' => 100,
-						'label'     => __('Email address:'),
+						'label'     => __('Email address'),
 						'note'      => __('The login details will be emailed to this address.')
 					),
 					'keymaster_user_type' => array(
@@ -657,11 +657,11 @@ class BB_Install
 					'forum_name' => array(
 						'value'     => '',
 						'maxlength' => 150,
-						'label'     => __('Forum name:'),
+						'label'     => __('Forum name'),
 						'note'      => __('This can be changed after installation, so don\'t worry about it too much.')
 					),
 					'forward_3_0' => array(
-						'value' => __('Save site settings &raquo;')
+						'value' => __('Save site settings')
 					),
 					'back_3_1' => array(
 						'value' => __('&laquo; Go back')
@@ -676,15 +676,15 @@ class BB_Install
 				'form' => array(
 					'toggle_4' => array(
 						'value' => 0,
-						'label' => __('Show installation messages:')
+						'label' => __('Show installation messages')
 					),
 					'error_log' => array(
 						'value' => '',
-						'label' => __('Installation errors:')
+						'label' => __('Installation errors')
 					),
 					'installation_log' => array(
 						'value' => '',
-						'label' => __('Installation log:')
+						'label' => __('Installation log')
 					)
 				)
 			)
