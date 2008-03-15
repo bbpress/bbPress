@@ -41,11 +41,11 @@
 </div>
 
 <div id="user-threads" class="user-recent">
-<h4><?php _e('Threads Started') ?></h4>
-<?php if ( $threads ) : ?>
+<h4><?php _e('Topics Started') ?></h4>
+<?php if ( $topics ) : ?>
 <ol>
-<?php foreach ($threads as $topic) : ?>
-<li<?php alt_class('threads'); ?>>
+<?php foreach ($topics as $topic) : ?>
+<li<?php alt_class('topics'); ?>>
 	<a href="<?php topic_link(); ?>"><?php topic_title(); ?></a>
 	<?php printf(__('Started: %s ago'), get_topic_start_time()); ?>
 

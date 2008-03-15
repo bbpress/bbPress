@@ -121,6 +121,11 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 	right: auto;
 }
 
+#profile-menu li {
+	margin-left: 0;
+	margin-right: 3px;
+}
+
 .user-recent ol { margin: 5px 28px 0 0; }
 
 /* Profile Edit
