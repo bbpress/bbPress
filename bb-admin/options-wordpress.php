@@ -78,7 +78,7 @@ bb_get_admin_header();
 			</div>
 		</div>
 		<div>
-			<label for="bb_secret">
+			<label for="secret">
 				<?php _e('WordPress database secret'); ?>
 			</label>
 			<div>
