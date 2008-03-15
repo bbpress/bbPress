@@ -71,7 +71,7 @@ bb_get_admin_header();
 			<input class="text" name="wp_home" id="wp_home" value="<?php bb_form_option('wp_home'); ?>" />
 			<p><?php _e('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.'); ?></p>
 		</div>
-		<label for="bb_secret">
+		<label for="secret">
 			<?php _e('WordPress database secret'); ?>
 		</label>
 		<div>
