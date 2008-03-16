@@ -60,7 +60,7 @@ function bb_admin_theme_row( $theme ) {
 			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?>
-			<p><?php echo $theme_data['Description']; ?></p>
+			<?php echo $theme_data['Description']; // Description is autop'ed ?>
 			<small><?php printf(__('Installed in: %s'), str_replace(array('core#', 'user#'), array(__('Core themes -&gt; '), __('User installed themes -&gt; ')), $theme)); ?></small>
 		</div>
 		<br class="clear" />
