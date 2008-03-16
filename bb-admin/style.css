@@ -419,6 +419,11 @@ form.settings fieldset {
 	border-bottom: 0.1em solid rgb(218, 218, 218);
 }
 
+form.settings fieldset.submit {
+	margin-top: 0;
+	border-bottom-width: 0;
+}
+
 form.settings legend {
 	font-size: 1.5em;
 	font-weight: bold;

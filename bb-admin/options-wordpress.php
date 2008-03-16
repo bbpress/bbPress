@@ -239,9 +239,11 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 			</div>
 		</div>
 	</fieldset>
-	<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
-	<input type="hidden" name="action" id="action" value="update-options" />
-	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Save Changes') ?>" />
+	<fieldset class="submit">
+		<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
+		<input type="hidden" name="action" value="update-options" />
+		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
+	</fieldset>
 </form>
 
 <h2 class="after">bbPress config file settings</h2>
@@ -279,8 +281,8 @@ foreach ($cookie_settings as $bb_setting) {
 
 <?php
 // Setup the role dropdowns
-function bb_get_roles_dropdown($name = 'roles', $set = false) {
-	$roles = '<select id="' . $name . '" name="' . $name . '">' . "\n";
+function bb_get_roles_dropdown($id = 'roles', $name = 'roles', $set = false) {
+	$roles = '<select id="' . $id . '" name="' . $name . '">' . "\n";
 	$roles .= '<option value="">' . __('none') . '</option>' . "\n";
 	
 	global $wp_roles;
@@ -315,20 +317,22 @@ $wpRolesMap = bb_get_option('wp_roles_map');
 foreach ($wpRoles as $wpRole => $wpRoleName) {
 ?>
 		<div>
-			<label for="wp_roles_map[<?php echo $wpRole; ?>]">
+			<label for="wp_roles_map_<?php echo $wpRole; ?>">
 				<?php _e($wpRoleName); ?>
 			</label>
 			<div>
-				<?php echo bb_get_roles_dropdown( 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
+				<?php echo bb_get_roles_dropdown( 'wp_roles_map_' . $wpRole, 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
 			</div>
 		</div>
 <?php
 }
 ?>
 	</fieldset>
-	<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
-	<input type="hidden" name="action" id="action" value="update-users" />
-	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Save User Role Map') ?>" />
+	<fieldset class="submit">
+		<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
+		<input type="hidden" name="action" value="update-users" />
+		<input class="submit" type="submit" name="submit" value="<?php _e('Save User Role Map') ?>" />
+	</fieldset>
 </form>
 
 </div>

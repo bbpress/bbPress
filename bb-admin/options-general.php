@@ -203,9 +203,11 @@ unset($selected);
 			</div>
 		</div>
 	</fieldset>
-	<?php bb_nonce_field( 'options-general-update' ); ?>
-	<input type="hidden" name="action" id="action" value="update" />
-	<input class="submit" type="submit" name="submit" id="submit" value="<?php _e('Save Changes') ?>" />
+	<fieldset class="submit">
+		<?php bb_nonce_field( 'options-general-update' ); ?>
+		<input type="hidden" name="action" value="update" />
+		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
+	</fieldset>
 </form>
 
 </div>
