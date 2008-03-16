@@ -12,15 +12,15 @@ pagination oddities.") ?></p>
 
 <form method="post" action="<?php bb_option('uri'); ?>bb-admin/bb-do-counts.php">
 	<fieldset>
-	<legend><?php _e('Choose items to recalculate') ?></legend>
+		<legend><?php _e('Choose items to recalculate') ?></legend>
 		<ol>
 		<?php bb_recount_list(); if ( $recount_list ) : $i = 100; foreach ( $recount_list as $item ) : ?>
-		 <li<?php alt_class('recount'); ?>><label for="<?php echo $item[0]; ?>"><input name="<?php echo $item[0]; ?>" id="<?php echo $item[0]; ?>" type="checkbox" value="1" tabindex="<?php echo $i++; ?>" /> <?php echo $item[1]; ?>.</label></li>
+			<li<?php alt_class('recount'); ?>><label for="<?php echo $item[0]; ?>"><input name="<?php echo $item[0]; ?>" id="<?php echo $item[0]; ?>" type="checkbox" value="1" tabindex="<?php echo $i++; ?>" /> <?php echo $item[1]; ?>.</label></li>
 		<?php endforeach; endif; ?>
 		</ol>
 		<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Count!') ?>" tabindex="<?php echo $i++; ?>" /></p>
+		<?php bb_nonce_field( 'do-counts' ); ?>
 	</fieldset>
-	<?php bb_nonce_field( 'do-counts' ); ?>
 </form>
 
 </div>
