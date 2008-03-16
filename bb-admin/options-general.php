@@ -179,9 +179,9 @@ unset($selected);
 	</fieldset>
 	<fieldset>
 		<?php bb_nonce_field( 'options-general-update' ); ?>
-		<input type="hidden" name="action" id="action" value="update" />
+		<input type="hidden" name="action" value="update" />
 		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update Settings &raquo;') ?>" />
+			<input type="submit" name="submit" value="<?php _e('Update Settings &raquo;') ?>" />
 		</div>
 	</fieldset>
 </form>

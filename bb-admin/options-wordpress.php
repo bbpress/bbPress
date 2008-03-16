@@ -267,9 +267,9 @@ foreach ($cookie_settings as $bb_setting) {
 			<pre id="config_code" class="block" style="display:none"><?php echo($bb_settings); ?></pre>
 		</div>
 		<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
-		<input type="hidden" name="action" id="action" value="update-options" />
+		<input type="hidden" name="action" value="update-options" />
 		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update Settings &raquo;') ?>" />
+			<input type="submit" name="submit" value="<?php _e('Update Settings &raquo;') ?>" />
 		</div>
 	</fieldset>
 </form>
@@ -282,8 +282,8 @@ foreach ($cookie_settings as $bb_setting) {
 
 <?php
 // Setup the role dropdowns
-function bb_get_roles_dropdown($name = 'roles', $set = false) {
-	$roles = '<select id="' . $name . '" name="' . $name . '">' . "\n";
+function bb_get_roles_dropdown($id = 'roles', $name = 'roles', $set = false) {
+	$roles = '<select id="' . $id . '" name="' . $name . '">' . "\n";
 	$roles .= '<option value="">' . __('none') . '</option>' . "\n";
 	
 	global $bb_roles;
@@ -328,13 +328,14 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 ?>
 				<tr>
 					<td>
-						<label for="wp_roles_map[<?php echo $wpRole; ?>]">
+						<label for="wp_roles_map_<?php echo $wpRole; ?>">
 							<?php _e($wpRoleName); ?>
 						</label>
 					</td>
 					<td>
-<?php echo bb_get_roles_dropdown( 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
+<?php echo bb_get_roles_dropdown( 'wp_roles_map_' . $wpRole, 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
 					</td>
+				</tr>
 <?php
 }
 ?>
@@ -343,9 +344,9 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 	</fieldset>
 	<fieldset>
 		<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
-		<input type="hidden" name="action" id="action" value="update-users" />
+		<input type="hidden" name="action" value="update-users" />
 		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update User Role Map &raquo;') ?>" />
+			<input type="submit" name="submit" value="<?php _e('Update User Role Map &raquo;') ?>" />
 		</div>
 	</fieldset>
 </form>
