@@ -330,14 +330,13 @@ class BB_User_Search {
 		$r .= "<h2>$title</h2>\n";
 
 		if ( $show_search ) {
-			$r .= "<form action='' method='get' name='search' id='search'>\n\t<p>";
+			$r .= "<form action='' method='get' id='search'>\n\t<p>";
 			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . wp_specialchars( $this->search_term, 1) . "' />\n";
 			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
 			$r .= "</form>\n\n";
 		}
 
 		if ( $this->get_results() ) {
-			$colspan = $show_email ? 5 : 4;
 			if ( $this->is_search() )
 				$r .= "<p>\n\t<a href='users.php'>" . __('&laquo; Back to All Users') . "</a>\n</p>\n\n";
 
@@ -346,30 +345,33 @@ class BB_User_Search {
 			if ( $this->results_are_paged() )
 				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
 
-			$r .= "<table class='widefat'>\n";
 			foreach($roleclasses as $role => $roleclass) {
 				ksort($roleclass);
-				$r .= "\t<tr>\n";
 				if ( !empty($role) )
-					$r .= "\t\t<th colspan='$colspan'><h3>{$bb_roles->role_names[$role]}</h3></th>\n";
+					$r .= "<h3>{$bb_roles->role_names[$role]}</h3>\n";
 				else
-					$r .= "\t\t<th colspan='$colspan'><h3><em>" . __('Users with no role in these forums') . "</h3></th>\n";
+					$r .= "<h3><em>" . __('Users with no role in these forums') . "</h3>\n";
+				$r .= "<table class='widefat'>\n";
+				$r .= "<thead>\n";
+				$r .= "\t<tr>\n";
+				$r .= "\t\t<th style='width:10%;'>" . __('ID') . "</th>\n";
+				if ( $show_email ) {
+					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:30%;'>" . __('Email') . "</th>\n";
+				} else {
+					$r .= "\t\t<th style='width:60%;'>" . __('Username') . "</th>\n";
+				}
+				$r .= "\t\t<th style='width:20%;'>" . __('Registered Since') . "</th>\n";
+				$r .= "\t\t<th style='width:10%;'>" . __('Actions') . "</th>\n";
 				$r .= "\t</tr>\n";
-				$r .= "\t<tr class='thead'>\n";
-				$r .= "\t\t<th>" . __('ID') . "</th>\n";
-				$r .= "\t\t<th>" . __('Username') . "</th>\n";
-				if ( $show_email )
-					$r .= "\t\t<th>" . __('Email') . "</th>\n";
-				$r .= "\t\t<th>" . __('Registered Since') . "</th>\n";
-				$r .= "\t\t<th>" . __('Actions') . "</th>\n";
-				$r .= "\t</tr>\n\n";
+				$r .= "</thead>\n\n";
 
 				$r .= "<tbody id='role-$role'>\n";
 				foreach ( (array) $roleclass as $user_object )
 				$r .= bb_user_row($user_object->ID, $role, $show_email);
 				$r .= "</tbody>\n";
+				$r .= "</table>\n\n";
 			}
-			$r .= "</table>\n\n";
 
 		 	if ( $this->results_are_paged() )
 				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
@@ -724,18 +726,28 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 
 function bb_admin_list_posts() {
 	global $bb_posts, $bb_post;
-	if ( $bb_posts ) : foreach ( $bb_posts as $bb_post ) : ?>
+	if ( $bb_posts ) {
+?>
+<ol id="the-list">
+<?php foreach ( $bb_posts as $bb_post ) : ?>
 	<li<?php alt_class('post'); ?>>
 		<div class="threadauthor">
-			<p><strong><?php post_author_link(); ?></strong><br />
-				<small><?php post_author_type(); ?></small></p>
+			<p>
+				<strong><?php post_author_link(); ?></strong><br />
+				<small><?php post_author_type(); ?></small>
+			</p>
 		</div>
 		<div class="threadpost">
 			<div class="post"><?php post_text(); ?></div>
 			<div class="poststuff">
-				<?php printf(__('Posted: %1$s in <a href="%2$s">%3$s</a>'), bb_get_post_time(), get_topic_link( $bb_post->topic_id ), get_topic_title( $bb_post->topic_id ));?> IP: <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link();?></div>
+				<?php printf(__('Posted: %1$s in <a href="%2$s">%3$s</a>'), bb_get_post_time(), get_topic_link( $bb_post->topic_id ), get_topic_title( $bb_post->topic_id ));?> IP: <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link();?>
 			</div>
-	</li><?php endforeach; endif;
+		</div>
+	</li>
+<?php endforeach; ?>
+</ol>
+<?php
+	}
 }
 
 /* Recounts */

@@ -144,21 +144,22 @@ function post_form( $h2 = '' ) {
 	if ( !empty($h2) ) {
 		if ( is_topic() && $page != $last_page )
 			$h2 = $h2 . ' <a href="' . attribute_escape( get_topic_link( 0, $last_page ) . '#postform' ) . '">&raquo;</a>';
-		echo "<h2 class='post-form'>$h2</h2>\n";
+		echo '<h2 class="post-form">' . $h2 . '</h2>' . "\n";
 	}
 
 	do_action('pre_post_form');
 
 	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
-		echo "<form class='postform post-form' name='postform' id='postform' method='post' action='" . bb_get_option('uri') . "bb-post.php'>\n";
+		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_option('uri') . 'bb-post.php">' . "\n";
+		echo '<fieldset>' . "\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
 		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
 		if ( is_forum() )
-			echo "<input type='hidden' name='forum_id' value='$forum->forum_id' />\n";
+			echo '<input type="hidden" name="forum_id" value="' . $forum->forum_id . '" />' . "\n";
 		else if ( is_topic() )
-			echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n";
-		do_action('post_form');	
-		echo "\n</form>";
+			echo '<input type="hidden" name="topic_id" value="' . $topic->topic_id . '" />' . "\n";
+		do_action('post_form');
+		echo "\n" . '</fieldset>' . "\n" . '</form>' . "\n";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
 		printf(__('You must <a href="%s">log in</a> to post.'), attribute_escape( bb_get_option('uri') . 'bb-login.php' ));
@@ -169,7 +170,7 @@ function post_form( $h2 = '' ) {
 
 function edit_form() {
 	global $bb_post, $topic_title;
-	echo "<form name='postform' class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
+	echo "<form class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	echo "\n</form>";
@@ -597,7 +598,7 @@ function bb_get_forum_topics_rss_link( $forum_id = 0 ) {
 function bb_get_forum_bread_crumb($args = '') {
 	$defaults = array(
 		'forum_id' => 0,
-		'separator' => ' &raquo ',
+		'separator' => ' &raquo; ',
 		'class' => null
 	);
 	$args = wp_parse_args($args, $defaults);
@@ -1024,13 +1025,13 @@ function topic_move_dropdown( $id = 0 ) {
 	if ( !$dropdown )
 		return;
 
-	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><div>' . "\n\t";
+	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><fieldset><div>' . "\n\t";
 	echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n\t";
-	echo '<label for="forum_id">'. __('Move this topic to the selected forum:') . ' ';
+	echo '<label for="forum-id">'. __('Move this topic to the selected forum:') . ' ';
 	echo $dropdown;
 	echo "</label>\n\t";
 	bb_nonce_field( 'move-topic_' . $topic->topic_id );
-	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></form>";
+	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></fieldset></form>";
 }
 
 function topic_class( $class = '', $key = 'topic', $id = 0 ) {
@@ -1775,10 +1776,10 @@ function tag_form() {
 	global $topic;
 	if ( !bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 		return false;
-	echo "<form id='tag-form' method='post' action='" . bb_get_option('uri') . "tag-add.php'>\n";
+	echo "<form id='tag-form' method='post' action='" . bb_get_option('uri') . "tag-add.php'><fieldset>\n";
 	bb_load_template( 'tag-form.php' );
 	bb_nonce_field( 'add-tag_' . $topic->topic_id );
-	echo "</form>";
+	echo "</fieldset></form>";
 }
 
 function manage_tags_forms() {
