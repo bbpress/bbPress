@@ -15,4 +15,4 @@ a:hover { color: #001364; }
 #header { background-image: url('images/page_header_bblogo.png'); }
 .sticky { background: #adb9e1; }
 #latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background: #d8dcf2; }
-#profile-menu li:hover { background: #d8dcf2; }
+#profile-menu li a:hover { background: #d8dcf2; }
