@@ -21,9 +21,9 @@ if ( 0 != $bb_post->post_status && 'all' == $_GET['view'] ) // We're trying to e
 	add_filter('bb_is_first_where', 'no_where');
 
 if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_post->topic_id ) )
-	bb_update_topic( $_POST['topic'], $bb_post->topic_id);
+	bb_insert_topic( array( 'topic_title' => $_POST['topic'], 'topic_id' => $bb_post->topic_id ) );
 
-bb_update_post( $_POST['post_content'], $post_id, $bb_post->topic_id );
+bb_insert_post( array( 'post_text' => $_POST['post_content'], 'post_id' => $post_id, 'topic_id' => $bb_post->topic_id ) );
 
 if ($post_id)
 	wp_redirect( get_post_link( $post_id ) );
