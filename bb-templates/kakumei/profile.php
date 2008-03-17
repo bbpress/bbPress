@@ -9,7 +9,17 @@
 <p><?php _e('Profile updated'); ?>. <a href="<?php profile_tab_link( $user_id, 'edit' ); ?>"><?php _e('Edit again &raquo;'); ?></a></p>
 </div>
 <?php elseif ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
-<p><?php printf(__('This is how your profile appears to a fellow logged in member, you may <a href="%1$s">edit this information</a>. You can also <a href="%2$s">manage your favorites</a> and subscribe to your favorites&#8217; <a href="%3$s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>'), attribute_escape( get_profile_tab_link( $user_id, 'edit' ) ), attribute_escape( get_favorites_link() ), attribute_escape( get_favorites_rss_link() )); ?></p>
+<p>
+<?php _e('This is how your profile appears to a logged in member.'); ?>
+
+<?php if (bb_current_user_can( 'edit_user', $user->ID )) : ?>
+<?php printf(__('You may <a href="%1$s">edit this information</a>.'), attribute_escape( get_profile_tab_link( $user_id, 'edit' ) ) ); ?>
+<?php endif; ?>
+</p>
+
+<?php if (bb_current_user_can( 'edit_favorites_of', $user->ID )) : ?>
+<p><?php printf(__('You can also <a href="%1$s">manage your favorites</a> and subscribe to your favorites&#8217; <a href="%2$s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), attribute_escape( get_favorites_link() ), attribute_escape( get_favorites_rss_link() )); ?></p>
+<?php endif; ?>
 <?php endif; ?>
 
 <?php bb_profile_data(); ?>
