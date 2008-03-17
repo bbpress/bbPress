@@ -24,13 +24,7 @@ if ( isset($_POST['topic']) && $forum_id = (int) $_POST['forum_id'] ) {
 	if ('' == $topic)
 		bb_die(__('Please enter a topic title'));
 
-	$topic_id = bb_insert_topic(
-		array(
-			'topic_title' => $topic,
-			'forum_id' => $forum_id,
-			'tags' => $tags
-		)
-	);
+	$topic_id = bb_new_topic( $topic, $forum_id, $tags );
 
 } elseif ( isset($_POST['topic_id'] ) ) {
 	$topic_id = (int) $_POST['topic_id'];
@@ -43,12 +37,7 @@ if ( !bb_current_user_can( 'write_post', $topic_id ) )
 if ( !topic_is_open( $topic_id ) )
 	bb_die(__('This topic has been closed'));
 
-$post_id = bb_insert_post(
-	array(
-		'topic_id' => $topic_id,
-		'post_text' => $_POST['post_content']
-	)
-);
+$post_id = bb_new_post( $topic_id, $_POST['post_content'] );
 
 $link = get_post_link($post_id);
 
