@@ -19,7 +19,7 @@
 <?php endif; ?>
 <?php if ( is_bb_tag() || is_front() ) : ?>
 <p>
-	<label for="forum_id"><?php _e('Pick a section:'); ?>
+	<label for="forum-id"><?php _e('Pick a section:'); ?>
 		<?php bb_new_topic_forum_dropdown(); ?>
 	</label>
 </p>

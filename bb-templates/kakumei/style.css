@@ -40,6 +40,12 @@ h1 { font-size: 2em; }
 
 h2 { font-size: 1.5em; }
 
+fieldset {
+	border-width: 0;
+	padding: 0;
+	margin: 0;
+}
+
 img.avatar { border: 1px solid #ddd; }
 
 .bozo { background-color: #eeee88; }
@@ -480,7 +486,7 @@ form.login input#remember {
 /* Profile Edit
 =================================== */
 
-fieldset {
+#profile-page fieldset {
 	border-top: 3px double #ccc;
 	border-bottom: 1px solid #ccc;
 	border-left: none;
@@ -490,30 +496,30 @@ fieldset {
 	background-color: #f6f6f6;
 }
 
-legend {
+#profile-page legend {
 	font-weight: bold;
 	padding: 0 15px;
 }
 
-fieldset table {
+#profile-page fieldset table {
 	text-align: left;
 	margin: 0 15px;
 	width: 100%;
 }
 
-fieldset table th {
+#profile-page fieldset table th {
 	padding: 2px;
 	text-align: right;
 	width: 20%;
 }
 
-fieldset table td { padding: 2px 0; }
+#profile-page fieldset table td { padding: 2px 0; }
 
-fieldset p {
+#profile-page fieldset p {
 	font-size: 11px;
 	margin: 10px 16px;
 }
 
-sup.required {
+#profile-page sup.required {
 	color: red;
 }

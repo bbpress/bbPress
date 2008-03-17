@@ -281,9 +281,9 @@ function bb_ksd_admin_page() {
 	$bb_posts = $post_query->results;
 	$total = $post_query->found_rows;
  ?>
-<ol id="the-list">
+
 <?php bb_admin_list_posts(); ?>
-</ol>
+
 <?php
 	echo get_page_number_links( $page, $total );
 }
