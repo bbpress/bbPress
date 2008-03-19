@@ -529,13 +529,13 @@ class BB_Install
 					'wp_siteurl' => array(
 						'value' => '',
 						'label' => __('WordPress address (URL)'),
-						'note'  => __('This value should exactly match the <strong>WordPress address (URL)</strong> in your WordPress general settings.'),
+						'note'  => __('This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'wp_home' => array(
 						'value' => '',
 						'label' => __('Blog address (URL)'),
-						'note'  => __('This value should exactly match the <strong>Blog address (URL)</strong> in your WordPress general settings.'),
+						'note'  => __('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'wp_secret_key' => array(
