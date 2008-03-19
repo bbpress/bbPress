@@ -5,6 +5,7 @@
 	if ( !bb_current_user_can('browse_deleted') )
 		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
 	add_filter( 'topic_link', 'bb_make_link_view_all' );
+	add_filter( 'topic_last_post_link', 'bb_make_link_view_all' );
 	$topic_query_vars = array('topic_status' => 1, 'open' => 'all', 'count' => true);
 	if ( isset($_REQUEST['search']) && $_REQUEST['search'] )
 		$topic_query_vars['post_status'] = 'all';
@@ -57,7 +58,7 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 <tr<?php alt_class('topic'); ?>>
 	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
-	<td class="num"><small><?php topic_time(); ?></small></td>
+	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
 </tr>
 <?php endforeach; else : ?>
 <tr>
