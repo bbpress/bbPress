@@ -214,6 +214,7 @@ function bb_get_location() { // Not for display.  Do not internationalize.
 	case 'tags.php' :
 		return 'tag-page';
 		break;
+	case 'edit.php' :
 	case 'topic.php' :
 		return 'topic-page';
 		break;
