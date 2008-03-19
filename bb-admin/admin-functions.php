@@ -273,7 +273,7 @@ function bb_user_row( $user_id, $role = '', $email = false ) {
 	$r .= "\t\t<td>" . date( 'Y-m-d H:i:s', bb_offset_time( bb_gmtstrtotime( $user->user_registered ) ) ) . "</td>\n";
 	$actions = '';
 	if ( bb_current_user_can( 'edit_user', $user_id ) )
-		$actions .= "<a href='" . get_profile_tab_link( $user->ID, 'edit' ) . "'>" . __('Edit') . "</a>";
+		$actions .= "<a href='" . attribute_escape( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
 	$r .= "\t\t<td>$actions</td>\n\t</tr>";
 	return $r;
 }
