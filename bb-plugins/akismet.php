@@ -20,7 +20,7 @@ function bb_ksd_configuration_page() {
 ?>
 <h2><?php _e('Akismet Configuration'); ?></h2>
 
-<form class="options" method="post">
+<form class="options" method="post" action="">
 	<fieldset>
 		<label for="akismet_key">
 			<?php _e('Akismet Key:') ?>
