@@ -1600,11 +1600,22 @@ class BB_Install
 		}
 		
 		if (!$this->database_tables_are_installed()) {
-			if (bb_new_forum(array('forum_name' => $data3['forum_name']['value']))) {
+			if ($forum_id = bb_new_forum(array('forum_name' => $data3['forum_name']['value']))) {
 				$installation_log[] = '>>> ' . __('Forum name:') . ' ' . $data3['forum_name']['value'];
-				bb_new_topic(__('Your first topic'), 1, 'bbPress');
+				$topic_id = bb_insert_topic(
+					array(
+						'topic_title' => __('Your first topic'),
+						'forum_id' => $forum_id,
+						'tags' => 'bbPress'
+					)
+				);
 				$installation_log[] = '>>>>>> ' . __('Topic:') . ' ' . __('Your first topic');
-				bb_new_post(1, __('First Post!  w00t.'));
+				bb_insert_post(
+					array(
+						'topic_id' => $topic_id,
+						'post_text' => __('First Post!  w00t.')
+					)
+				);
 				$installation_log[] = '>>>>>>>>> ' . __('Post:') . ' ' . __('First Post!  w00t.');
 			} else {
 				$installation_log[] = '>>> ' . __('Forum could not be created!');
