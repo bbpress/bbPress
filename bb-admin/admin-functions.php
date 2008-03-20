@@ -56,9 +56,11 @@ function bb_admin_menu_generator() {
 
 	// 200 < Plugin added menu items < 300
 
-	// 300 < Side menu items
+	// 300 < Side menu items < 400
 	$bb_menu[300] = array(__('Settings'),  'manage_options', 'options-general.php');
 	$bb_menu[305] = array(__('Plugins'),   'use_keys',       'plugins.php');
+
+	// 400 < Plugin added menu items < 500
 
 	// Sub menu items
 	$bb_submenu = array();
