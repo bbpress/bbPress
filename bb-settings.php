@@ -75,11 +75,11 @@ require( BB_PATH . BB_INC . 'wp-classes.php');
 require( BB_PATH . BB_INC . 'classes.php');
 if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) // User has set old constant
 	define('BB_LANG', BBLANG);
-if ( defined('BB_LANG') && '' != BB_LANG ) {
-	include_once(BB_PATH . BB_INC . 'streams.php');
-	include_once(BB_PATH . BB_INC . 'gettext.php');
-}
 if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
+	if ( defined('BB_LANG') && '' != BB_LANG ) {
+		include_once(BB_PATH . BB_INC . 'streams.php');
+		include_once(BB_PATH . BB_INC . 'gettext.php');
+	}
 	require( BB_PATH . BB_INC . 'kses.php');
 	require( BB_PATH . BB_INC . 'l10n.php');
 }
