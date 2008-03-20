@@ -353,7 +353,7 @@ switch ($bb_install->step) {
 				}
 			}
 ?>
-				<form>
+				<form action="<?php bb_option( 'uri' ); ?>">
 					<fieldset>
 <?php
 			$bb_install->input_toggle('toggle_4');
