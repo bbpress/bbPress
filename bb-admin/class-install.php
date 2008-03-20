@@ -1703,7 +1703,7 @@ class BB_Install
 			$r .= $data['label'] . "\n";
 		}
 		
-		$r .= '<textarea id="' . $key . '">' . $data['value'] . '</textarea>' . "\n";
+		$r .= '<textarea id="' . $key . '" rows="5" cols="30">' . $data['value'] . '</textarea>' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
