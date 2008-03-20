@@ -19,10 +19,11 @@ class BB_Scripts {
 		$this->add( 'interface', '/' . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
 		$this->add( 'jquery-color', '/' . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
 		$this->add( 'add-load-event', '/' . BB_INC . 'js/add-load-event.js' );
-		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), 4 );
+		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), '20080319' );
 		$this->localize( 'content-forums', 'bbSortForumsL10n', array(
 			'handleText' => __('drag'),
-			'saveText' => __('Save Forum Order &#187;')
+			'saveText' => __('Save Forum Order &#187;'),
+			'editText' => __('Edit Forum Order &#187;')
 		));
 	}
 
