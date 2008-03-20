@@ -13,7 +13,7 @@ bbSortForums = {
 			bbSortForums.recolor();
 		}
 	},
-	editText: '',
+	editText: 'Edit Forum Order &#187;',
 	saveText: 'Save Forum Order &#187;',
 	place: null,  // The id of the list item it's currently hovering before
 	placed: null, // The id of the list item it's been made a child of
@@ -57,11 +57,13 @@ bbSortForums = {
 
 	init: function() {
 		this.handle = "<strong class='sort-handle'>[" + this.handleText + "]&nbsp;</strong>";
-		$('#the-list').after("<p class='submit'><input type='button' id='forum-order-edit' value='Edit Forum Order &#187;' /></p>");
-		this.editText = $('#forum-order-edit').val();
-		var div = document.createElement('div'); div.innerHTML = this.saveText; // Save the raquo!
+		var div = document.createElement('div');
+		div.innerHTML = this.saveText; // Save the raquo!
 		this.saveText = div.childNodes[0].nodeValue;
+		div.innerHTML = this.editText; // Save the raquo!
+		this.editText = div.childNodes[0].nodeValue;
 		div = null;
+		$('#the-list').after("<p class='submit'><input type='button' id='forum-order-edit' value='" + this.editText + "' /></p>");
 
 		$('#forum-parent-row, #forum-position-row').remove();
 

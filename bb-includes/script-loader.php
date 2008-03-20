@@ -11,10 +11,11 @@ function bb_default_scripts( $scripts ) {
 	$scripts->add( 'interface', $base . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
 	$scripts->add( 'jquery-color', $base . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
 	$scripts->add( 'add-load-event', $base . BB_INC . 'js/add-load-event.js' );
-	$scripts->add( 'content-forums', $base . '/bb-admin/js/content-forums.js', array('listman', 'interface'), 4 );
+	$scripts->add( 'content-forums', $base . '/bb-admin/js/content-forums.js', array('listman', 'interface'), '20080309' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
-		'saveText' => __('Save Forum Order &#187;')
+		'saveText' => __('Save Forum Order &#187;'),
+		'editText' => __('Edit Forum Order &#187;')
 	));
 }
 
