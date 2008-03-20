@@ -7,17 +7,6 @@ if ( !$re = $_POST['re'] ? $_POST['re'] : $_GET['re'] )
 
 $home_url = bb_get_option( 'uri' );
 
-// Check if the redirect is not to a directory within our bbPress URI
-if ( 0 !== strpos($re, $home_url) ) {
-	// Check if the common domain is the same as the bbPress domain (yes, this excludes sub-domains)
-	if (!bb_match_domains($re, $home_url)) {
-		// Get the path and querystring of the redirect URI
-		$re_path = preg_replace('@^https?://[^/]+(.*)$@i', '$1', $re);
-		// Append it to the bbPress URI to create a new redirect location - (why? I don't know)
-		$re = $home_url . ltrim( $re_path, '/' );
-	}
-}
-
 if ( 0 === strpos($re, $home_url . 'register.php') )
 	$re = $home_url;
 
