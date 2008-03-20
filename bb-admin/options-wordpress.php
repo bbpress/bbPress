@@ -55,7 +55,7 @@ bb_get_admin_header();
 
 <form class="options" method="post" action="<?php bb_option('uri'); ?>bb-admin/options-wordpress.php">
 	<fieldset>
-		<legend>Cookies</legend>
+		<legend><?php _e('Cookies'); ?></legend>
 		<p><?php _e('Cookie sharing allows users to log in to either your bbPress or your WordPress site, and have access to both.'); ?></p>
 		<label for="wp_siteurl">
 			<?php _e('WordPress address (URL):'); ?>
@@ -121,7 +121,7 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 		</div>
 	</fieldset>
 	<fieldset>
-		<legend>User database</legend>
+		<legend><?php _e('User database'); ?></legend>
 		<p><?php _e('User database sharing allows you to store user data in your WordPress database.'); ?></p>
 		<label for="wp_table_prefix">
 			<?php _e('User database table prefix:'); ?>
@@ -160,7 +160,7 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 		</div>
 	</fieldset>
 	<fieldset id="advanced1" style="display:<?php echo $advanced_display; ?>">
-		<legend>Separate user database settings</legend>
+		<legend><?php _e('Separate user database settings'); ?></legend>
 		<div class="spacer">
 			<p><?php _e('Most of the time these settings are <em>not</em> required. Look before you leap!'); ?></p>
 			<p><?php _e('All settings except for the character set must be specified.'); ?></p>
@@ -202,7 +202,7 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 		</div>
 	</fieldset>
 	<fieldset id="advanced2" style="display:<?php echo $advanced_display; ?>">
-		<legend>Custom user tables</legend>
+		<legend><?php _e('Custom user tables'); ?></legend>
 		<div class="spacer">
 			<p><?php _e('Only set these values if your user tables do not fit the usual mould of <strong>"wordpressprefix+user"</strong> and <strong>"wordpressprefix+usermeta"</strong>.'); ?></p>
 		</div>
