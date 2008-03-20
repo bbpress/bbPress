@@ -1,5 +1,19 @@
 <?php
+/**
+ * bbPress User Registration Tools
+ *
+ * @package bbPress
+ */
 
+/**
+ * bb_verify_email() - Verifies that an email is valid
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ * @param string $email Email address to verify
+ * @return string|bool
+ */
 function bb_verify_email( $email ) {
 	if (ereg('^[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'.'@'.
 		'[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
@@ -20,6 +34,20 @@ function bb_verify_email( $email ) {
 	return apply_filters( 'bb_verify_email', $r, $email );
 }
 
+/**
+ * bb_update_user() - Updates a user's details in the database
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ * @global bbdb $bbdb
+ * @global BB_Cache $bb_cache
+ *
+ * @param int $user_id
+ * @param string $user_email
+ * @param string $user_url
+ * @return int
+ */
 function bb_update_user( $user_id, $user_email, $user_url ) {
 	global $bbdb, $bb_cache;
 
@@ -33,6 +61,18 @@ function bb_update_user( $user_id, $user_email, $user_url ) {
 	return $ID;
 }
 
+/**
+ * bb_reset_email() - Sends a reset password email
+ *
+ * Sends an email to the email address specified in the user's profile
+ * prompting them to change their password.
+ *
+ * @since {@internal Unknown}}
+ * @global bbdb $bbdb
+ *
+ * @param string $user_login
+ * @return bool
+ */
 function bb_reset_email( $user_login ) {
 	global $bbdb;
 
@@ -49,6 +89,17 @@ function bb_reset_email( $user_login ) {
 	return bb_mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), $message );
 }
 
+/**
+ * bb_reset_password() - {@internal Missing Short Description}}
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ * @global bbdb $bbdb
+ *
+ * @param string $key
+ * @return unknown
+ */
 function bb_reset_password( $key ) {
 	global $bbdb;
 	$key = sanitize_user( $key );
@@ -70,6 +121,19 @@ function bb_reset_password( $key ) {
 	endif;
 }
 
+/**
+ * bb_update_user_password() - {@internal Missing Short Description}}
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ * @global bbdb $bbdb
+ * @global BB_Cache $bb_cache
+ *
+ * @param int $user_id
+ * @param string $password
+ * @return int
+ */
 function bb_update_user_password( $user_id, $password ) {
 	global $bbdb, $bb_cache;
 
@@ -84,6 +148,17 @@ function bb_update_user_password( $user_id, $password ) {
 	return $ID;
 }
 
+/**
+ * bb_send_pass() - {@internal Missing Short Description}}
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ *
+ * @param int|string $user
+ * @param string $pass
+ * @return bool
+ */
 function bb_send_pass( $user, $pass ) {
 	global $bbdb;
 	if ( !$user = bb_get_user( $user ) )
