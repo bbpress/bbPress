@@ -2683,6 +2683,10 @@ function bb_get_common_parts($string1 = false, $string2 = false, $delimiter = ''
 		}
 	}
 	
+	if (!count($common_parts)) {
+		return false;
+	}
+	
 	if ($reverse) {
 		$common_parts = array_reverse( $common_parts );
 	}
