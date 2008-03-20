@@ -392,14 +392,21 @@ TODO: Completely remove old constants on version 1.0
 $deprecated_constants below is a complete array of old constants and their replacements
 */
 $deprecated_constants = array(
-	'BBPATH'                 => BB_PATH,
-	'BBINC'                  => BB_INC,
-	'BBLANG'                 => BB_LANG,
-	'BBLANGDIR'              => BB_LANG_DIR,
-	'BBPLUGINDIR'            => BB_PLUGIN_DIR,
-	'BBPLUGINURL'            => BB_PLUGIN_URL,
-	'BBTHEMEDIR'             => BB_THEME_DIR,
-	'BBTHEMEURL'             => BB_THEME_URL,
+	'BBPATH'                 => 'BB_PATH',
+	'BBINC'                  => 'BB_INC',
+	'BBLANG'                 => 'BB_LANG',
+	'BBLANGDIR'              => 'BB_LANG_DIR',
+	'BBPLUGINDIR'            => 'BB_PLUGIN_DIR',
+	'BBPLUGINURL'            => 'BB_PLUGIN_URL',
+	'BBTHEMEDIR'             => 'BB_THEME_DIR',
+	'BBTHEMEURL'             => 'BB_THEME_URL',
+	'BBHASH'                 => 'BB_HASH'
+);
+foreach ( $deprecated_constants as $old => $new )
+	if ( !defined($old) && defined($new)) // only define if new one is defined
+		define($old, constant($new));
+
+$deprecated_constants = array(
 	'USER_BBDB_NAME'         => $bb->user_bbdb_name,
 	'USER_BBDB_USER'         => $bb->user_bbdb_user,
 	'USER_BBDB_PASSWORD'     => $bb->user_bbdb_password,
@@ -407,7 +414,6 @@ $deprecated_constants = array(
 	'USER_BBDB_CHARSET'      => $bb->user_bbdb_charset,
 	'CUSTOM_USER_TABLE'      => $bb->custom_user_table,
 	'CUSTOM_USER_META_TABLE' => $bb->custom_user_meta_table,
-	'BBHASH'                 => BB_HASH
 );
 foreach ( $deprecated_constants as $old => $new )
 	if ( !defined($old) )
