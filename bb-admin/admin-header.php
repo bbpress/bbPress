@@ -16,9 +16,9 @@
 				<h1>
 					<?php bb_option('name'); ?>
 				</h1>
-				<span id="bbVisitSite">
-					<a href="<?php bb_option('uri'); ?>"><?php _e('Visit Site'); ?></a>
-				</span>
+				<div id="bbVisitSite">
+					<a href="<?php bb_option('uri'); ?>"><span><?php _e('Visit Site'); ?></span></a>
+				</div>
 			</div>
 			<div id="bbUserMenu">
 				<p>

@@ -185,7 +185,7 @@ function bb_admin_menu() {
 		}
 		if ( bb_current_user_can($m[1]) ) {
 			$class = ( $m[2] == $bb_current_menu[2] ) ? ' class="current"' : '';
-			$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '">' . $m[0] . '</a></li>' . "\n";
+			$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '"><span>' . $m[0] . '</span></a></li>' . "\n";
 		}
 	}
 	
@@ -197,7 +197,7 @@ function bb_admin_menu() {
 		foreach ( $bb_submenu[$bb_current_menu[2]] as $m ) {
 			if ( bb_current_user_can($m[1]) ) {
 				$class = ( $m[2] == $bb_current_submenu[2] ) ? ' class="current"' : '';
-				$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '">' . $m[0] . '</a></li>' . "\n";
+				$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '"><span>' . $m[0] . '</span></a></li>' . "\n";
 			}
 		}
 		$r .= "\t\t\t" . '</ul>' . "\n";

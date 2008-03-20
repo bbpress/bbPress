@@ -37,12 +37,11 @@ One deep yellow
 
 html {
 	height: 100%;
-	font-size: 0.625em;
 }
 
 body.bbAdmin {
 	height: 100%;
-	font: normal normal normal 1em/normal 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Verdana, sans-serif;
+	font: normal normal normal 0.625em/normal 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Verdana, sans-serif;
 }
 
 strong {
@@ -60,9 +59,9 @@ strong {
 
 #bbFooter {
 	position: relative;
-	height: 6em;
+	height: 5.9em;
 	margin-top: -7.5em;
-	padding: 1.5em 0 0 6.5em;
+	padding: 1.6em 0 0 6em;
 	background-color: rgb(70, 70, 70);
 	background-image: url('../bb-images/admin-footer-logo.gif');
 	background-repeat: no-repeat;
@@ -72,7 +71,7 @@ strong {
 }
 
 #bbFooter p {
-	font-size: 1.3em;
+	font-size: 1.2em;
 }
 
 #bbFooter p a {
@@ -101,21 +100,24 @@ strong {
 
 #bbVisitSite {
 	float: left;
-	display: block;
-	margin: 1.9em 0 0 1em;
+	margin: 2.3em 0 0 1em;
 }
 
 #bbVisitSite a {
-	font-size: 1.4em;
-	padding: 0.4em;
+	padding: 0.3em 0.4em;
 	display: block;
 	background-color: rgb(110, 180, 105);
 	color: rgb(255, 255, 255);
 	text-decoration: none;
-	-moz-border-radius: 0.25em;
-	-khtml-border-radius: 0.25em;
-	-webkit-border-radius: 0.25em;
-	border-radius: 0.25em;
+	-moz-border-radius: 0.3em;
+	-khtml-border-radius: 0.3em;
+	-webkit-border-radius: 0.3em;
+	border-radius: 0.3em;
+	border: 0.1em solid rgb(5, 50, 0);
+}
+
+#bbVisitSite a span {
+	font-size: 1.2em;
 }
 
 #bbVisitSite a:hover {
@@ -158,9 +160,8 @@ strong {
 #bbAdminDashboardMenu li a {
 	color: rgb(200, 250, 200);
 	text-decoration: none;
-	font-size: 1.1em;
 	line-height: 1.2em;
-	padding: 0.5em 0.6em;
+	padding: 0.6em;
 	-moz-border-radius-topleft: 0.3em;
 	-moz-border-radius-topright: 0.3em;
 	-khtml-border-top-left-radius: 0.3em;
@@ -169,6 +170,10 @@ strong {
 	-webkit-border-top-right-radius: 0.3em;
 	border-top-left-radius: 0.3em;
 	border-top-right-radius: 0.3em;
+}
+
+#bbAdminDashboardMenu li a span {
+	font-size: 1.1em;
 }
 
 #bbAdminDashboardMenu li a:hover {
@@ -181,31 +186,34 @@ strong {
 
 #bbAdminMainMenu {
 	background-color: rgb(10, 100, 0);
-	border-bottom: 0.1em solid rgb(110, 180, 105);
-	line-height: 3.2em;
+	border-bottom: 0.1em solid rgb(5, 50, 0);
 	padding-left: 1.1em;
-	height: 3.2em;
+	height: 3em;
 }
 
 #bbAdminMainMenu li {
 	display: inline;
-	margin-right: 0.3em;
+	margin-right: 0.1em;
+	margin-top: 0.2em;
 }
 
 #bbAdminMainMenu li a {
-	position: relative;
 	color: rgb(200, 250, 200);
 	text-decoration: none;
-	font-size: 1.6em;
-	padding: 0.4em 0.4em 0.5em 0.4em;
+	line-height: 3em;
+	padding: 1em 0.7em 0.8em 0.7em;
 	-moz-border-radius-topleft: 0.33em;
 	-moz-border-radius-topright: 0.33em;
-	-khtml-border-top-left-radius: 0.3em;
-	-khtml-border-top-right-radius: 0.3em;
-	-webkit-border-top-left-radius: 0.3em;
-	-webkit-border-top-right-radius: 0.3em;
-	border-top-left-radius: 0.3em;
-	border-top-right-radius: 0.3em;
+	-khtml-border-top-left-radius: 0.4em;
+	-khtml-border-top-right-radius: 0.4em;
+	-webkit-border-top-left-radius: 0.4em;
+	-webkit-border-top-right-radius: 0.4em;
+	border-top-left-radius: 0.4em;
+	border-top-right-radius: 0.4em;
+}
+
+#bbAdminMainMenu li a span {
+	font-size: 1.6em;
 }
 
 #bbAdminMainMenu li a:hover {
@@ -215,38 +223,40 @@ strong {
 #bbAdminMainMenu li.current a {
 	color: rgb(230, 145, 0);
 	background-color: rgb(255, 255, 255);
-	border: 0.0625em solid rgb(110, 180, 105);
+	border: 0.1em solid rgb(5, 50, 0);
+	padding-right: 0.6em;
+	padding-left: 0.6em;
 	border-bottom-width: 0;
 	font-weight: bold;
 }
 
 #bbAdminSideMenu {
 	float: right;
-	margin-top: -2.3em;
-	margin-right: 1.6em;
-	line-height: 1.6em;
-	height: 1.6em;
+	margin-top: -2.8em;
+	margin-right: 1.5em;
 }
 
 #bbAdminSideMenu li {
 	display: inline;
-	margin-left: -0.2em;
 }
 
 #bbAdminSideMenu li a {
-	position: relative;
 	color: rgb(200, 250, 200);
 	text-decoration: none;
-	font-size: 1.2em;
-	padding: 0.5em 0.5em 0.7em 0.5em;
-	-moz-border-radius-topleft: 0.27em;
-	-moz-border-radius-topright: 0.275em;
+	line-height: 2.6em;
+	padding: 0.8em 0.6em 0.9em 0.6em;
+	-moz-border-radius-topleft: 0.3em;
+	-moz-border-radius-topright: 0.3em;
 	-khtml-border-top-left-radius: 0.4em;
 	-khtml-border-top-right-radius: 0.4em;
 	-webkit-border-top-left-radius: 0.4em;
 	-webkit-border-top-right-radius: 0.4em;
 	border-top-left-radius: 0.4em;
 	border-top-right-radius: 0.4em;
+}
+
+#bbAdminSideMenu li a span {
+	font-size: 1.2em;
 }
 
 #bbAdminSideMenu li a:hover {
@@ -256,25 +266,32 @@ strong {
 #bbAdminSideMenu li.current a {
 	color: rgb(230, 145, 0);
 	background-color: rgb(255, 255, 255);
-	border: 0.084em solid rgb(110, 180, 105);
+	border: 0.1em solid rgb(5, 50, 0);
+	padding-right: 0.6em;
+	padding-left: 0.6em;
 	border-bottom-width: 0;
 	font-weight: bold;
 }
 
 #bbAdminSubMenu {
-	padding: 0.7em 1.7em 1.4em;
-	line-height: 2.6em;
+	margin-top: 1.1em;
+	margin-left: 1.7em;
+	margin-bottom: 0.8em;
 }
 
 #bbAdminSubMenu li {
 	display: inline;
-	margin-right: 2em;
+	margin-right: 1.8em;
 }
 
 #bbAdminSubMenu li a {
-	font-size: 1.4em;
 	text-decoration: none;
 	color: rgb(40, 140, 60);
+	line-height: 1.6em;
+}
+
+#bbAdminSubMenu li a span {
+	font-size: 1.4em;
 }
 
 #bbAdminSubMenu li a:hover {
@@ -341,7 +358,8 @@ div.error p {
 	font-size: 2.4em;
 	font-family: Georgia, 'Times New Roman', Times, serif;
 	color: rgb(90, 90, 90);
-	padding: 0 0 0.3em 0;
+	padding: 0.24em 0 0.3em 0;
+	margin-left: -0.2em;
 }
 
 #bbBody h2.after {
