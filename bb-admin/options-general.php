@@ -100,7 +100,7 @@ unset($selected);
 			<div>
 				<input class="text short" name="edit_lock" id="edit_lock" value="<?php bb_form_option('edit_lock'); ?>" />
 				<?php _e('minutes') ?>
-				<p>A user can edit a post for this many minutes after submitting.</p>
+				<p><?php _e('A user can edit a post for this many minutes after submitting.'); ?></p>
 			</div>
 		</div>
 	</fieldset>
