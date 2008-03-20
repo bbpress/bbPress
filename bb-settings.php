@@ -410,7 +410,7 @@ $deprecated_constants = array(
 	'BBHASH'                 => BB_HASH
 );
 foreach ( $deprecated_constants as $old => $new )
-	if ( !defined($old) && defined($new) )
+	if ( !defined($old) )
 		define($old, $new);
 unset($deprecated_constants, $old, $new);
 
