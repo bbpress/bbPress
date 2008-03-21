@@ -90,9 +90,10 @@ function bb_reset_email( $user_login ) {
 }
 
 /**
- * bb_reset_password() - {@internal Missing Short Description}}
+ * bb_reset_password() - Handles the resetting of users' passwords
  *
- * {@internal Missing Long Description}}
+ * Handles resetting a user's password, prompted by an email sent by
+ * {@see bb_reset_email()}
  *
  * @since {@internal Unknown}}
  * @global bbdb $bbdb
@@ -122,7 +123,7 @@ function bb_reset_password( $key ) {
 }
 
 /**
- * bb_update_user_password() - {@internal Missing Short Description}}
+ * bb_update_user_password() - Updates a user's password in the database
  *
  * {@internal Missing Long Description}}
  *
@@ -149,11 +150,12 @@ function bb_update_user_password( $user_id, $password ) {
 }
 
 /**
- * bb_send_pass() - {@internal Missing Short Description}}
+ * bb_send_pass() - Sends an email with the user's new password
  *
  * {@internal Missing Long Description}}
  *
  * @since {@internal Unknown}}
+ * @global bbdb $bbdb {@internal Not used}}
  *
  * @param int|string $user
  * @param string $pass
