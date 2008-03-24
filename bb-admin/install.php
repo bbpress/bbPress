@@ -16,18 +16,32 @@ $bb_install = new BB_Install(__FILE__);
 if ($bb_install->load_includes) {
 	require_once(BB_PATH . BB_INC . 'wp-functions.php');
 	require_once(BB_PATH . BB_INC . 'functions.php');
-	
-	// Only load these if we need a translation
-	if (defined('BB_LANG') && BB_LANG) {
-		require_once(BB_PATH . BB_INC . 'streams.php');
-		require_once(BB_PATH . BB_INC . 'gettext.php');
-	}
-	
-	// All strings pass through gettext, but not all will get translated, BB_LANG usually isn't defined early on
+	require_once(BB_PATH . BB_INC . 'kses.php');
 	require_once(BB_PATH . BB_INC . 'l10n.php');
-	
-	load_default_textdomain();
 }
+
+$bb_install->get_languages();
+$bb_install->set_language();
+
+if ($bb_install->language) {
+	$locale = $bb_install->language;
+	unset($l10n['default']);
+	if ($bb_install->load_includes) {
+		require_once( BB_PATH . BB_INC . 'gettext.php' );
+		require_once( BB_PATH . BB_INC . 'streams.php' );
+	}
+}
+
+if ($bb_install->load_includes) {
+	require_once( BB_PATH . BB_INC . 'template-functions.php');
+}
+
+// Load the default text localization domain.
+load_default_textdomain();
+
+// Pull in locale data after loading text domain.
+require_once(BB_PATH . BB_INC . 'locale.php');
+$bb_locale = new BB_Locale();
 
 $bb_install->prepare_strings();
 $bb_install->check_prerequisites();
@@ -83,6 +97,7 @@ switch ($bb_install->step) {
 					$bb_install->input_text('bbdb_name');
 					$bb_install->input_text('bbdb_user');
 					$bb_install->input_text('bbdb_password', 'password');
+					$bb_install->select_language();
 					$bb_install->input_toggle('toggle_1');
 ?>
 						<div class="toggle" id="toggle_1_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_1']['display']; ?>;">
@@ -91,7 +106,7 @@ switch ($bb_install->step) {
 					$bb_install->input_text('bbdb_charset');
 					$bb_install->input_text('bbdb_collate');
 					$bb_install->input_text('bb_secret_key');
-					$bb_install->input_text('bb_table_prefix');
+					$bb_install->input_text('bb_table_prefix', 'ltr');
 ?>
 						</div>
 					</fieldset>
@@ -110,7 +125,7 @@ switch ($bb_install->step) {
 ?>
 					<fieldset>
 <?php
-					$bb_install->textarea('config');
+					$bb_install->textarea('config', 'ltr');
 ?>
 					</fieldset>
 <?php
@@ -160,8 +175,8 @@ switch ($bb_install->step) {
 								<p><?php _e('Integrating cookies allows you and your users to login to either your bbPress or your WordPress site and be automatically logged into both.'); ?></p>
 								<p><?php _e('You may need to make changes to your WordPress configuration once installation is complete. See the "WordPress Integration" section of the bbPress administration area when you are done.'); ?></p>
 <?php
-					$bb_install->input_text('wp_siteurl');
-					$bb_install->input_text('wp_home');
+					$bb_install->input_text('wp_siteurl', 'ltr');
+					$bb_install->input_text('wp_home', 'ltr');
 					$bb_install->input_text('wp_secret_key');
 					$bb_install->input_text('wp_secret');
 ?>
@@ -177,7 +192,7 @@ switch ($bb_install->step) {
 								<legend><?php _e('User database'); ?></legend>
 								<p><?php _e('Integrating your WordPress database user tables allows you to store user data in one location, instead of having separate user data for both bbPress and WordPress.'); ?></p>
 <?php
-					$bb_install->input_text('wp_table_prefix');
+					$bb_install->input_text('wp_table_prefix', 'ltr');
 					$bb_install->input_toggle('toggle_2_3');
 ?>
 							</fieldset>
@@ -273,7 +288,7 @@ switch ($bb_install->step) {
 					<fieldset>
 <?php
 					$bb_install->input_text('name');
-					$bb_install->input_text('uri');
+					$bb_install->input_text('uri', 'ltr');
 ?>
 					</fieldset>
 					<fieldset>
@@ -285,7 +300,7 @@ switch ($bb_install->step) {
 						$bb_install->input_hidden('keymaster_user_email');
 					} else {
 						$bb_install->input_text('keymaster_user_login');
-						$bb_install->input_text('keymaster_user_email');
+						$bb_install->input_text('keymaster_user_email', 'ltr');
 					}
 					$bb_install->input_hidden('keymaster_user_type');
 ?>
@@ -342,7 +357,7 @@ switch ($bb_install->step) {
 					<dt><?php _e('Password:'); ?></dt>
 					<dd><code><?php echo $bb_install->data[4]['form']['keymaster_user_password']['value']; ?></code></dd>
 					<dt><?php _e('Site address:'); ?></dt>
-					<dd><a href="<?php bb_option( 'uri' ); ?>"><?php bb_option( 'uri' ); ?></a></dd>
+					<dd dir="ltr"><a href="<?php bb_option( 'uri' ); ?>"><?php bb_option( 'uri' ); ?></a></dd>
 				</dl>
 <?php
 				if ($bb_install->data[3]['form']['keymaster_user_type']['value'] == 'bbPress') {

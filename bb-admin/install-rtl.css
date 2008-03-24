@@ -1,0 +1,42 @@
+div#container {
+	text-align: right;
+}
+
+dl {
+	border-left-width: 0;
+	border-right: 1px solid rgb(125, 125, 125);
+	padding-left: auto;
+	padding-right: 0.6em;
+}
+
+dd {
+	margin: 0.2em 3em 0 0;
+}
+
+p.status {
+	right: auto;
+	left: 0;
+}
+
+p span.first {
+	float: right;
+	margin: -1px -1px 0.5em 0.4em;
+}
+
+label span.error {
+	margin: 0.4em 4em 0.4em 0.4em;
+}
+
+fieldset.buttons label.forward {
+	float: left;
+}
+
+fieldset.buttons label.back {
+	float: right;
+}
+
+p.note {
+	margin: 0 2.5em 0 0;
+	border-left-width: 0;
+	border-right: 1px solid rgb(125, 125, 125);
+}
