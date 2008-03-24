@@ -301,6 +301,10 @@ textarea {
 	margin-top: 0.4em;
 }
 
+textarea#config {
+	text-align: left;
+}
+
 textarea.short,
 textarea#error_log {
 	height: 15em;
@@ -334,6 +338,20 @@ input.button:active {
 	border: 3px double rgb(210, 210, 210);
 	border-left-color: rgb(125, 125, 125);
 	border-top-color: rgb(125, 125, 125);
+}
+
+form#lang {
+	display: inline;
+}
+
+form#lang label {
+	display: inline;
+}
+
+form#lang label select {
+	display: inline;
+	width: auto;
+	font-size: 1em;
 }
 
 p#footer {

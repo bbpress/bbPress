@@ -21,6 +21,20 @@ class BB_Install
 	var $load_includes = false;
 	
 	/**
+	 * An array of available languages to use in the installer
+	 *
+	 * @var array
+	 **/
+	var $languages = array('en_US' => 'en_US');
+	
+	/**
+	 * The currently selected language for the installer
+	 *
+	 * @var string
+	 **/
+	var $language = 'en_US';
+	
+	/**
 	 * The current step in the install process
 	 *
 	 * @var integer
@@ -128,6 +142,7 @@ class BB_Install
 				'messages'    => array(),
 				'intro'       => array(
 					__('We\'re now going to go through a few steps to get you up and running.'),
+					$this->get_language_selector(),
 					sprintf(__('Ready? Then <a href="%s">let\'s get started!</a>'), 'install.php?step=1')
 				)
 			),
@@ -184,8 +199,8 @@ class BB_Install
 	 **/
 	function check_prerequisites()
 	{
-		if (phpversion() < '4.2') {
-			$this->strings[-1]['messages']['error'][] = sprintf(__('Your server is running PHP version %s but bbPress requires at least 4.2'), phpversion());
+		if (version_compare(PHP_VERSION, '4.3', '<')) {
+			$this->strings[-1]['messages']['error'][] = sprintf(__('Your server is running PHP version %s but bbPress requires at least 4.3'), PHP_VERSION);
 			$this->step = -1;
 		}
 		
@@ -198,6 +213,11 @@ class BB_Install
 					define('BBDB_EXTENSION', 'mysqli');
 				}
 			}
+		}
+		
+		if (defined('DB_NAME') || defined('WP_BB') && WP_BB) {
+			$this->strings[-1]['messages']['error'][] = __('Please complete your installation before attempting to include WordPress within bbPress');
+			$this->step = -1;
 		}
 		
 		if ($this->step === -1) {
@@ -247,7 +267,89 @@ class BB_Install
 			define('BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/');
 		}
 		
+		// Define the language file directory
+		if ( !defined('BB_LANG_DIR') )
+			define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
+		
 		return true;
+	}
+	
+	/**
+	 * Gets an array of available languages form the language directory
+	 *
+	 * @return array
+	 **/
+	function get_languages()
+	{
+		foreach (bb_glob(BB_LANG_DIR . '*.mo') as $language) {
+			$language = str_replace('.mo', '', basename($language));
+			$this->languages[$language] = $language;
+		}
+		return $this->languages;
+	}
+	
+	/**
+	 * Returns a language selector for switching installation languages
+	 *
+	 * @return string|false Either the html for the selector or false if there are no languages
+	 **/
+	function get_language_selector()
+	{
+		// Don't provide a selection if there is only english
+		if (count($this->languages) < 2) {
+			return false;
+		}
+		
+		$r = '<script type="text/javascript" charset="utf-8">' . "\n";
+		$r .= '	function changeLanguage(selectObj) {' . "\n";
+		$r .= '		var selectedLanguage = selectObj.options[selectObj.selectedIndex].value;' . "\n";
+		$r .= '		location.href = "install.php?language=" + selectedLanguage;' . "\n";
+		$r .= '	}' . "\n";
+		$r .= '</script>' . "\n";
+		$r .= '<form id="lang" action="install.php?step=' . $this->step . '">' . "\n";
+		$r .= '	<label>' . "\n";
+		$r .= '		' . __('Please select the language you wish to use during installation -') . "\n";
+		$r .= '		<select onchange="changeLanguage(this);" name="language">' . "\n";
+		foreach ($this->languages as $language) {
+			$selected = '';
+			if ($language == $this->language) {
+				$selected = ' selected="selected"';
+			}
+			$r .= '			<option value="' . $language . '"' . $selected . '>' . $language . '</option>' . "\n";
+		}
+		$r .= '		</select>' . "\n";
+		$r .= '	</label>' . "\n";
+		$r .= '</form>' . "\n";
+		
+		return $r;
+	}
+	
+	/**
+	 * Sets the current installation language
+	 *
+	 * @return string The currently set language
+	 **/
+	function set_language()
+	{
+		if (isset($_COOKIE['bb_install_language']) && count($this->languages) > 1) {
+			if (in_array($_COOKIE['bb_install_language'], $this->languages)) {
+				$this->language = $_COOKIE['bb_install_language'];
+			}
+		}
+		
+		if ($_GET['language'] && count($this->languages) > 1) {
+			if (in_array($_GET['language'], $this->languages)) {
+				$this->language = $_GET['language'];
+				setcookie('bb_install_language', $this->language);
+			}
+		}
+		
+		if (!$this->language || $this->language == 'en_US') {
+			$this->language = 'en_US';
+			setcookie('bb_install_language', ' ', time() - 31536000);
+		}
+		
+		return $this->language;
 	}
 	
 	/**
@@ -446,6 +548,11 @@ class BB_Install
 						'value' => '',
 						'label' => __('Database password'),
 						'note'  => __('That database user\'s password.')
+					),
+					'bb_lang' => array(
+						'value' => '',
+						'label' => __('Language'),
+						'note' => sprintf(__('The language which bbPress will be presented in once installed. Your current language choice (%s) will remain for the rest of the install process.'), $this->language)
 					),
 					'toggle_1' => array(
 						'value'   => 0,
@@ -832,6 +939,10 @@ class BB_Install
 		
 		$data =& $this->data[1]['form'];
 		
+		if ($data['bb_lang']['value'] == 'en_US') {
+			$data['bb_lang']['value'] = '';
+		}
+		
 		$data['bb_table_prefix']['value'] = preg_replace('/[^0-9a-zA-Z_]/', '', $data['bb_table_prefix']['value']);
 		if (empty($data['bb_table_prefix']['value'])) {
 			$data['bb_table_prefix']['value'] = 'bb_';
@@ -907,6 +1018,9 @@ class BB_Install
 					break;
 				case '$bb_table_prefix =':
 					$config_lines[] = str_replace("'bb_'", "'" . $data['bb_table_prefix']['value'] . "'", $line);
+					break;
+				case "define('BB_LANG', ":
+					$config_lines[] = str_replace("''", "'" . $data['bb_lang']['value'] . "'", $line);
 					break;
 				default:
 					$config_lines[] = $line;
@@ -1302,7 +1416,7 @@ class BB_Install
 		
 		// Check the referer
 		bb_check_admin_referer('bbpress-installer');
-		$installation_log[] = __('Referrer is OK, beginning installation...');
+		$installation_log[] = __('Referrer is OK, beginning installation&hellip;');
 		
 		global $bbdb;
 		
@@ -1602,21 +1716,38 @@ class BB_Install
 		if (!$this->database_tables_are_installed()) {
 			if ($forum_id = bb_new_forum(array('forum_name' => $data3['forum_name']['value']))) {
 				$installation_log[] = '>>> ' . __('Forum name:') . ' ' . $data3['forum_name']['value'];
+				
+				if ($this->language != BB_LANG) {
+					global $locale, $l10n;
+					$locale = BB_LANG;
+					unset($l10n['default']);
+					load_default_textdomain();
+				}
+				
+				$topic_title = __('Your first topic');
 				$topic_id = bb_insert_topic(
 					array(
-						'topic_title' => __('Your first topic'),
+						'topic_title' => $topic_title,
 						'forum_id' => $forum_id,
 						'tags' => 'bbPress'
 					)
 				);
-				$installation_log[] = '>>>>>> ' . __('Topic:') . ' ' . __('Your first topic');
+				$post_text = __('First Post!  w00t.');
 				bb_insert_post(
 					array(
 						'topic_id' => $topic_id,
-						'post_text' => __('First Post!  w00t.')
+						'post_text' => $post_text
 					)
 				);
-				$installation_log[] = '>>>>>>>>> ' . __('Post:') . ' ' . __('First Post!  w00t.');
+				
+				if ($this->language != BB_LANG) {
+					$locale = $this->language;
+					unset($l10n['default']);
+					load_default_textdomain();
+				}
+				
+				$installation_log[] = '>>>>>> ' . __('Topic:') . ' ' . $topic_title;
+				$installation_log[] = '>>>>>>>>> ' . __('Post:') . ' ' . $post_text;
 			} else {
 				$installation_log[] = '>>> ' . __('Forum could not be created!');
 				$error_log[] = __('Forum could not be created!');
@@ -1660,7 +1791,7 @@ class BB_Install
 		return 'complete';
 	}
 	
-	function input_text($key)
+	function input_text($key, $direction = false)
 	{
 		$data = $this->data[$this->step]['form'][$key];
 		
@@ -1692,7 +1823,11 @@ class BB_Install
 			$maxlength = ' maxlength="' . $data['maxlength'] . '"';
 		}
 		
-		$r .= '<input type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . ' />' . "\n";
+		if ($direction) {
+			$direction = ' dir="' . $direction . '"';
+		}
+		
+		$r .= '<input' . $direction . ' type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . ' />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -1709,7 +1844,7 @@ class BB_Install
 		echo $r;
 	}
 	
-	function textarea($key)
+	function textarea($key, $direction = false)
 	{
 		$data = $this->data[$this->step]['form'][$key];
 		
@@ -1719,7 +1854,11 @@ class BB_Install
 			$r .= $data['label'] . "\n";
 		}
 		
-		$r .= '<textarea id="' . $key . '" rows="5" cols="30">' . $data['value'] . '</textarea>' . "\n";
+		if ($direction) {
+			$direction = ' dir="' . $direction . '"';
+		}
+		
+		$r .= '<textarea' . $direction . ' id="' . $key . '" rows="5" cols="30">' . $data['value'] . '</textarea>' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -1768,6 +1907,18 @@ class BB_Install
 		}
 		
 		echo $r;
+	}
+	
+	function select_language()
+	{
+		if (count($this->languages) > 1) {
+			$this->data[1]['form']['bb_lang']['value'] = $this->language;
+			$this->data[1]['form']['bb_lang']['options'] = $this->languages;
+			$this->select('bb_lang');
+		} else {
+			$this->data[1]['form']['bb_lang']['value'] = 'en_US';
+			$this->input_hidden('bb_lang');
+		}
 	}
 	
 	function input_toggle($key)
