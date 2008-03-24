@@ -37,7 +37,7 @@ function bb_language_attributes( $xhtml = 0 ) {
 			$output .= "lang=\"$lang\"";
 	}
 
-	echo rtrim($output);
+	echo ' ' . rtrim($output);
 }
 
 function bb_stylesheet_uri( $stylesheet = '' ) {
