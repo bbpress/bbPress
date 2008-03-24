@@ -7,7 +7,7 @@ if ( !$re = $_POST['re'] ? $_POST['re'] : $_GET['re'] )
 
 $home_url = bb_get_option( 'uri' );
 
-if ( 0 === strpos($re, $home_url . 'register.php') )
+if ( !$re || 0 === strpos($re, $home_url . 'register.php') )
 	$re = $home_url;
 
 $re = clean_url( $re );
