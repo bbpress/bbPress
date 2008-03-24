@@ -23,7 +23,7 @@ if ($bb_install->load_includes) {
 
 $bb_install->get_languages();
 $bb_install->set_language();
-error_log($bb_install->language);
+
 if ($bb_install->language) {
 	$locale = $bb_install->language;
 	unset($l10n['default']);
