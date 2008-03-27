@@ -26,10 +26,10 @@ $bb_install->set_language();
 if ($bb_install->language) {
 	$locale = $bb_install->language;
 	unset($l10n['default']);
-	if ($bb_install->load_includes) {
+	if ( !class_exists( 'gettext_reader' ) )
 		require_once( BB_PATH . BB_INC . 'gettext.php' );
+	if ( !class_exists( 'StreamReader' ) )
 		require_once( BB_PATH . BB_INC . 'streams.php' );
-	}
 }
 
 if ($bb_install->load_includes) {
