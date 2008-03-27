@@ -5,10 +5,11 @@ $ref = wp_get_referer();
 if ( !$re = $_POST['re'] ? $_POST['re'] : $_GET['re'] )
 	$re = $ref;
 
-$home_url = bb_get_option( 'uri' );
+$home_url = parse_url( bb_get_option( 'uri' ) );
+$home_path = $home_url['path'];
 
-if ( !$re || 0 === strpos($re, $home_url . 'register.php') )
-	$re = $home_url;
+if ( !$re || false !== strpos($re, $home_path . 'register.php') || false !== strpos($re, $home_path . 'bb-reset-password.php') )
+	$re = bb_get_option( 'uri' );
 
 $re = clean_url( $re );
 
