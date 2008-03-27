@@ -239,6 +239,9 @@ function bb_get_location() { // Not for display.  Do not internationalize.
 	case 'bb-login.php' :
 		return 'login-page';
 		break;
+	case 'register.php' :
+		return 'register-page';
+		break;
 	default:
 		return apply_filters( 'bb_get_location', '', $file );
 		break;
