@@ -27,10 +27,10 @@ $bb_install->set_language();
 if ($bb_install->language) {
 	$locale = $bb_install->language;
 	unset($l10n['default']);
-	if ($bb_install->load_includes) {
-		require_once( BACKPRESS_PATH . 'class.gettext-reader.php' );
-		require_once( BACKPRESS_PATH . 'class.streamreader.php' );
-	}
+	if ( !class_exists( 'gettext_reader' ) )
+		require( BACKPRESS_PATH . 'class.gettext-reader.php' );
+	if ( !class_exists( 'StreamReader' ) )
+		require( BACKPRESS_PATH . 'class.streamreader.php' );
 }
 
 if ($bb_install->load_includes) {
