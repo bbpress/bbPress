@@ -1188,7 +1188,7 @@ function bb_cache_users( $ids ) {
 
 function bb_get_user_by_nicename( $nicename ) {
 	global $wp_users_object;
-	$user = $wp_users_object->get_user( $user_id, array( 'by' => 'nicename' ) );
+	$user = $wp_users_object->get_user( $nicename, array( 'by' => 'nicename' ) );
 	if ( is_wp_error($user) )
 		return false;
 	return $user;
