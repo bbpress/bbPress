@@ -483,10 +483,10 @@ form.login input#remember {
 
 .user-recent ol li { margin: 0 0 3px; }
 
-/* Profile Edit
+/* Main Forms
 =================================== */
 
-#profile-page fieldset {
+#main fieldset {
 	border-top: 3px double #ccc;
 	border-bottom: 1px solid #ccc;
 	border-left: none;
@@ -496,30 +496,30 @@ form.login input#remember {
 	background-color: #f6f6f6;
 }
 
-#profile-page legend {
+#main legend {
 	font-weight: bold;
 	padding: 0 15px;
 }
 
-#profile-page fieldset table {
+#main fieldset table {
 	text-align: left;
 	margin: 0 15px;
 	width: 100%;
 }
 
-#profile-page fieldset table th {
+#main fieldset table th {
 	padding: 2px;
 	text-align: right;
 	width: 20%;
 }
 
-#profile-page fieldset table td { padding: 2px 0; }
+#main fieldset table td { padding: 2px 0; }
 
-#profile-page fieldset p {
+#main fieldset p {
 	font-size: 11px;
 	margin: 10px 16px;
 }
 
-#profile-page sup.required {
+#main sup.required {
 	color: red;
 }
