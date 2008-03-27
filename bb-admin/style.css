@@ -390,6 +390,7 @@ thead, .thead {
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
+	border-width: 0;
 }
 
 #top h1 #viewsite a:hover {
