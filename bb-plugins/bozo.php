@@ -36,7 +36,6 @@ function bb_get_bozos( $page = 1 ) {
 	$limit = (int) bb_get_option('page_topics');
 	if ( 1 < $page )
 		$limit = ($limit * ($page - 1)) . ", $limit";
-	$bozo_mkey = $bbdb->prefix . 'bozo_topics';
 	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key='is_bozo' AND meta_value='1' ORDER BY umeta_id DESC LIMIT $limit";
 	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
 		bb_cache_users( $ids );
@@ -103,7 +102,7 @@ function bb_bozo_recount_topics() {
 					unset($indices, $index, $old[$i]);
 				endif;
 			endforeach;
-			unset($topics, $t, $i, $counts, $posters, $bozos);
+			unset($topics, $i, $counts, $posters, $bozos);
 		endif;
 		if ( $old ) :
 			$old = join(',', array_map('intval', array_flip($old)));
@@ -233,7 +232,7 @@ function bb_bozon( $user_id, $topic_id = 0 ) {
 			$user->bozo_topics[$topic_id] = 1;
 		else
 			$user->bozo_topics = array($topic_id => 1);
-		bb_update_usermeta( $uid, $bbdb->prefix . 'bozo_topics', $user->bozo_topics );
+		bb_update_usermeta( $user_id, $bbdb->prefix . 'bozo_topics', $user->bozo_topics );
 	}
 }
 
@@ -254,12 +253,11 @@ function bb_fermion( $user_id, $topic_id = 0 ) {
 		
 		if ( --$user->bozo_topics[$topic_id] < 1 )
 			unset($user->bozo_topics[$topic_id]);
-		bb_update_usermeta( $uid, $bbdb->prefix . 'bozo_topics', $user->bozo_topics );
+		bb_update_usermeta( $user_id, $bbdb->prefix . 'bozo_topics', $user->bozo_topics );
 	}
 }
 
 function bb_bozo_profile_admin_keys( $a ) {
-	global $user;
 	$a['is_bozo'] = array(
 		0,							// Required
 		__('This user is a bozo'),	// Label

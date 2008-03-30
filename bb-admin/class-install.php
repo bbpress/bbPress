@@ -993,7 +993,7 @@ class BB_Install
 		$config_lines = array();
 		
 		// Loop through the sample config and write lines to the new config file
-		foreach ($sample_config as $line_num => $line) {
+		foreach ($sample_config as $line) {
 			switch (substr($line,0,18)) {
 				case "define('BBDB_NAME'":
 					$config_lines[] = str_replace("'bbpress'", "'" . $data['bbdb_name']['value'] . "'", $line);
@@ -1325,7 +1325,7 @@ class BB_Install
 		if ($data['keymaster_user_login']['value'] != sanitize_user($data['keymaster_user_login']['value'])) {
 			$this->strings[3]['form_errors']['keymaster_user_login'][] = 'userlogin';
 		}
-		$data['keymaster_user_login']['value'] == sanitize_user($data['keymaster_user_login']['value']);
+		$data['keymaster_user_login']['value'] = sanitize_user($data['keymaster_user_login']['value']);
 		
 		// bb_verify_email() needs this
 		require_once(BB_PATH . BB_INC . 'registration-functions.php');
@@ -1523,7 +1523,7 @@ class BB_Install
 					$config_lines = array();
 					
 					// Loop through the sample config and write lines to the new config file
-					foreach ($config as $line_num => $line) {
+					foreach ($config as $line) {
 						if (substr($line,0,18) == "define('BB_SECRET_") {
 							$config_lines[] = str_replace("'" . BB_SECRET_KEY . "'", "'" . $data2['wp_secret_key']['value'] . "'", $line);
 						} else {

@@ -169,7 +169,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 		else if ( 'all_with_object_id' == $fields )
 			$select_this = 't.*, tt.*, tr.object_id';
 
-		$query = "SELECT $select_this FROM {$this->db->terms} AS t INNER JOIN {$this->db->term_taxonomy} AS tt ON tt.term_id = t.term_id INNER JOIN {$this->db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tr.object_id IN ($object_ids)$usr_sql ORDER BY $orderby $order";
+		$query = "SELECT $select_this FROM {$this->db->terms} AS t INNER JOIN {$this->db->term_taxonomy} AS tt ON tt.term_id = t.term_id INNER JOIN {$this->db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tr.object_id IN ($object_ids)$user_sql ORDER BY $orderby $order";
 
 		if ( 'all' == $fields || 'all_with_object_id' == $fields ) {
 			$terms = $this->db->get_results($query);

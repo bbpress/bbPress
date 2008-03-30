@@ -221,7 +221,7 @@ function bb_export_tag( $tag ) {
 
 function bb_export_topic_tags( $r, $topic_id ) {
 	global $topic_tag_cache;
-	if ( !$topic = get_topic( $topic_id ) )
+	if ( !get_topic( $topic_id ) )
 		return;
 
 	if ( !$tags = bb_get_topic_tags( $topic_id ) )
@@ -238,7 +238,7 @@ function bb_export_topic_tags( $r, $topic_id ) {
 
 function bb_export_topic_posts( $r, $topic_id ) {
 	global $bb_post_cache;
-	if ( !$topic = get_topic( $topic_id ) )
+	if ( !get_topic( $topic_id ) )
 		return;
 
 	$r .= "\n";
@@ -271,7 +271,7 @@ function bb_export() {
 				echo bb_export_user( $user->ID );
 			$bb_user_cache = array(); // For the sake of memory
 		}
-		unset($users, $user_ids, $user_id, $page);
+		unset($users, $user, $page);
 	}
 
 	if (BB_EXPORT_LEVEL & BB_EXPORT_FORUMS) {

@@ -66,8 +66,6 @@ function load_textdomain($domain, $mofile) {
 }
 
 function load_default_textdomain() {
-	global $l10n;
-
 	$locale = get_locale();
 	$mofile = BB_LANG_DIR . "$locale.mo";
 

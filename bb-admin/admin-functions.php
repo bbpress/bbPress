@@ -119,7 +119,7 @@ function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group =
 
 function bb_admin_add_submenu($display_name, $capability, $file_name, $parent = 'plugins.php')
 {
-	global $bb_menu, $bb_submenu;
+	global $bb_submenu;
 	if ($display_name && $capability && $file_name) {
 		$bb_submenu[$parent][] = array($display_name, $capability, $file_name);
 	}
@@ -620,7 +620,7 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 
 function bb_forum_form( $forum_id = 0 ) {
 	$forum_id = (int) $forum_id;
-	if ( $forum_id && !$forum = get_forum( $forum_id ) )
+	if ( $forum_id && !get_forum( $forum_id ) )
 		return;
 	$action = $forum_id ? 'update' : 'add';
 ?>

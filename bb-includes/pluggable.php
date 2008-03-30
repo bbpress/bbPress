@@ -75,7 +75,6 @@ endif;
 
 if ( !function_exists('bb_login') ) :
 function bb_login( $login, $password, $remember = false ) {
-	global $wp_auth_object;
 	if ( $user = bb_check_login( $login, $password ) ) {
 		wp_set_auth_cookie( $user->ID, $remember );
 		do_action('bb_user_login', (int) $user->ID );
