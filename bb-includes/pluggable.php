@@ -21,14 +21,8 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 	if ( !$user = bb_get_user( $user ) )
 		return false;
 	
-	if ( !wp_check_password($pass, $user->user_pass) )
+	if ( !wp_check_password($pass, $user->user_pass, $user->ID) )
 		return false;
-	
-	// If using old md5 password, rehash.
-	if ( strlen($user->user_pass) <= 32 ) {
-		$wp_users_object->set_password( $pass, $user->ID );
-		$user = bb_get_user( $user->ID );
-	}
 	
 	return $user;
 }
@@ -275,8 +269,8 @@ function wp_hash_password($password) {
 endif;
 
 if ( !function_exists('wp_check_password') ) : // [WP6350]
-function wp_check_password($password, $hash) {
-	return WP_Pass::check_password( $password, $hash );
+function wp_check_password($password, $hash, $user_id = '') {
+	return WP_Pass::check_password( $password, $hash, $user_id );
 }
 endif;
 
