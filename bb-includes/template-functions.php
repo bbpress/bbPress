@@ -128,7 +128,7 @@ function bb_post_template() {
 }
 
 function post_form( $h2 = '' ) {
-	global $bb, $page, $topic, $forum;
+	global $page, $topic, $forum;
 	$add = topic_pages_add();
 	if ( empty($h2) && false !== $h2 ) {
 		if ( is_topic() )
@@ -169,7 +169,7 @@ function post_form( $h2 = '' ) {
 }
 
 function edit_form() {
-	global $bb_post, $topic_title;
+	global $bb_post;
 	echo "<form class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
 	echo "<fieldset>\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
@@ -684,7 +684,7 @@ function bb_forum() { // Returns current depth
 	if ( !is_array($bb_forums_loop->elements) )
 		return false;
 
-	if ( $r = $bb_forums_loop->step() ) {
+	if ( $bb_forums_loop->step() ) {
 		$GLOBALS['forum'] =& $bb_forums_loop->elements[key($bb_forums_loop->elements)]; // Globalize the current forum object
 	} else {
 		$bb_forums_loop->reinstate();
@@ -795,7 +795,7 @@ function get_topic_title( $id = 0 ) {
 }
 
 function topic_posts( $id = 0 ) {
-	echo apply_filters( 'topic_posts', get_topic_posts( $id = 0 ), get_topic_id( $id ) );
+	echo apply_filters( 'topic_posts', get_topic_posts( $id ), get_topic_id( $id ) );
 }
 
 function get_topic_posts( $id = 0 ) {
@@ -892,7 +892,6 @@ function topic_pages_add( $id = 0 ) {
 }
 
 function get_page_number_links($page, $total) {
-	$r = '';
 	$args = array();
 	$uri = $_SERVER['REQUEST_URI'];
 	if ( bb_get_option('mod_rewrite') ) {
@@ -1958,7 +1957,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 
 	extract($args, EXTR_SKIP);
 
-	if ( !$forums = bb_forums( $args ) )
+	if ( !bb_forums( $args ) )
 		return;
 
 	global $forum_id, $forum;

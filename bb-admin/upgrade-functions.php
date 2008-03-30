@@ -428,7 +428,7 @@ function bb_upgrade_210() {
 	global $bbdb;
 
 	$bbdb->hide_errors();
-	if ( !$ids = $bbdb->get_var("SELECT forum_slug FROM $bbdb->forums ORDER BY forum_order ASC LIMIT 1" ) )
+	if ( !$bbdb->get_var("SELECT forum_slug FROM $bbdb->forums ORDER BY forum_order ASC LIMIT 1" ) )
 		return; // Wait till after dbDelta
 	$bbdb->show_errors();
 

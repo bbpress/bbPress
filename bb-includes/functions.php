@@ -52,7 +52,7 @@ function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_r
 		foreach ( $_leaves as $leaf ) // Attach orphans to root
 			$branch[$leaf->forum_id] = true;
 		$_leaves = false;
-		return $tree = empty($branch) ? false : $branch;
+		return ( empty($branch) ? false : $branch );
 	}
 
 	return $branch ? $branch : true;

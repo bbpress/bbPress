@@ -4,7 +4,7 @@ function bb_verify_email( $email ) {
 	if (ereg('^[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'.'@'.
 		'[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
 		'[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$', $email)) {
-		if ( $check_domain && function_exists('checkdnsrr') ) {
+		if ( function_exists('checkdnsrr') ) {
 			list (, $domain)  = explode('@', $email);
 			if ( checkdnsrr($domain . '.', 'MX') || checkdnsrr($domain . '.', 'A') ) {
 				$r = $email;
@@ -85,7 +85,6 @@ function bb_update_user_password( $user_id, $password ) {
 }
 
 function bb_send_pass( $user, $pass ) {
-	global $bbdb;
 	if ( !$user = bb_get_user( $user ) )
 		return false;
 
