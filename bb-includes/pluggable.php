@@ -21,17 +21,8 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 	}
 	$user = bb_get_user_by_name( $user );
 	
-	if ( !wp_check_password($pass, $user->user_pass) ) {
+	if ( !wp_check_password($pass, $user->user_pass, $user->ID) ) {
 		return false;
-	}
-	
-	// If using old md5 password, rehash.
-	if ( strlen($user->user_pass) <= 32 ) {
-		$hash = wp_hash_password($pass);
-		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->users SET user_pass = %s WHERE ID = %d", $hash, $user->ID ) );
-		global $bb_cache;
-		$bb_cache->flush_one( 'user', $user->ID );
-		$user = bb_get_user( $user->ID );
 	}
 	
 	return $user;
@@ -360,8 +351,20 @@ function wp_hash_password($password) {
 endif;
 
 if ( !function_exists('wp_check_password') ) : // [WP6350]
-function wp_check_password($password, $hash) {
+function wp_check_password($password, $hash, $user_id = '') {
 	global $wp_hasher;
+
+	// If the hash is still md5...
+	if ( strlen($hash) <= 32 ) {
+		$check = ( $hash == md5($password) );
+		if ( $check && $user_id ) {
+			// Rehash using new hash.
+			wp_set_password($password, $user_id);
+			$hash = wp_hash_password($password);
+		}
+
+		return apply_filters('check_password', $check, $password, $hash, $user_id);
+	}
 
 	if ( strlen($hash) <= 32 )
 		return ( $hash == md5($password) );
@@ -374,7 +377,9 @@ function wp_check_password($password, $hash) {
 		$wp_hasher = new PasswordHash(8, TRUE);
 	}
 
-	return $wp_hasher->CheckPassword($password, $hash);
+	$check = $wp_hasher->CheckPassword($password, $hash);
+
+	return apply_filters('check_password', $check, $password, $hash, $user_id);
 }
 endif;
 
