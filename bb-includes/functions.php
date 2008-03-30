@@ -1160,7 +1160,7 @@ function bb_cache_users( $ids, $soft_cache = true ) {
 	if ( $soft_cache )
 		foreach( $ids as $i => $d )
 			if ( isset($bb_user_cache[$d]) )
-				unset($ids[i]); // Don't cache what we already have
+				unset($ids[$i]); // Don't cache what we already have
 	if ( 0 < count($ids) )
 		$bb_cache->cache_users( $ids );
 }
