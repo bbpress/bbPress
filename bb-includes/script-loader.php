@@ -14,7 +14,7 @@ class BB_Scripts {
 		$this->add( 'prototype', '/' . BB_INC . 'js/prototype.js', false, '1.5.0' );
 		$this->add( 'wp-ajax', '/' . BB_INC . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
 		$this->add( 'listman', '/' . BB_INC . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'fat'), '440' );
-		$this->add( 'topic', '/' . BB_INC . 'js/topic-js.php', array('add-load-event', 'listman'), '433' );
+		$this->add( 'topic', '/' . BB_INC . 'js/topic-js.php', array('add-load-event', 'listman'), '20080401' );
 		$this->add( 'jquery', '/' . BB_INC . 'js/jquery/jquery.js', false, '1.1.3.1');
 		$this->add( 'interface', '/' . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
 		$this->add( 'jquery-color', '/' . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
@@ -193,7 +193,6 @@ class BB_Scripts {
 		endswitch;
 		return false;
 	}
-			
 }
 
 class _BB_Script {

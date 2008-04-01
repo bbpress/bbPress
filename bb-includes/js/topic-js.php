@@ -5,8 +5,9 @@ addLoadEvent( function() { // Posts
 	thePostList.altOffset = 1;
 } );
 
-function ajaxPostDelete(postId, postAuthor) {
+function ajaxPostDelete(postId, postAuthor, a) {
 	if (!confirm('<?php printf(__("Are you sure you wanna delete this post by \"' + %s + '\"?"), 'postAuthor'); //postAuthor should be left untranslated ?>')) return false;
+	thePostList.inputData = '&_ajax_nonce=' + a.href.toQueryParams()['_wpnonce'];
 	return thePostList.ajaxDelete( 'post', postId );
 }
 
@@ -36,7 +37,9 @@ addLoadEvent( function() { // Tags
 	newtagSub.onclick = function(e) { return yourTagList.ajaxAdder( 'tag', 'tag-form' ); }
 } );
 
-function ajaxDelTag(tag, user, tagName) {
+function ajaxDelTag(tag, user, tagName, a) {
+	yourTagList.inputData = '&topic_id=' + topicId + '&_ajax_nonce=' + a.href.toQueryParams()['_wpnonce'];
+	othersTagList.inputData = '&topic_id=' + topicId + '&_ajax_nonce=' + a.href.toQueryParams()['_wpnonce'];
 	if ( !confirm('<?php printf(__("Are you sure you want to remove the \"' + %s + '\" tag?"), 'tagName'); ?>') )
 		return false;
 	if ( currentUserId == user )
@@ -46,24 +49,22 @@ function ajaxDelTag(tag, user, tagName) {
 }
 
 addLoadEvent( function() { // TopicMeta
+	var favoritesToggle = $('favorite-toggle');
+	favoritesToggle[ 1 === isFav ? 'removeClass' : 'addClass' ]( 'is-not-favorite' );
 	theTopicMeta = new listMan('topicmeta');
 	theTopicMeta.showLink = false;
-	theTopicMeta.inputData = '&user_id=' + currentUserId + '&topic_id=' + topicId;
+	var nonce = jQuery( '#favorite-toggle a[href*="_wpnonce="]' ).click( FavIt ).attr( 'href' ).toQueryParams()['_wpnonce'];
+	theTopicMeta.inputData = '&user_id=' + currentUserId + '&topic_id=' + topicId + '&_ajax_nonce=' + nonce;
 	theTopicMeta.dimComplete = function(what, id, dimClass) {
 		if ( 'is-not-favorite' == dimClass ) {
-			var favoritesToggle = $('favorite-toggle');
 			isFav = favoritesToggle.hasClassName(dimClass) ? 0 : 1;
 			favLinkSetup();
 		}
 	}
-	favLinkSetup();
-			
 } );
 
 function favLinkSetup() {
 	var favoritesToggle = $('favorite-toggle');
-	if ('no' == isFav)
-		return;
 	if ( 1 == isFav )
 		favoritesToggle.update('<?php printf(__("This topic is one of your <a href=' + %s + '>favorites</a>"), 'favoritesLink'); ?> [<a href="#" onclick="return FavIt();">x</a>]');
 	else 
