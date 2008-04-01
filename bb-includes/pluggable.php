@@ -193,7 +193,7 @@ function bb_safe_redirect($location, $status = 302) {
 	$lp  = parse_url($location);
 	$wpp = parse_url(bb_get_option('uri'));
 
-	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($wpp['host']), $lp['host']);
+	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($wpp['host']), isset($lp['host']) ? $lp['host'] : '');
 
 	if ( isset($lp['host']) && !in_array($lp['host'], $allowed_hosts) )
 		$location = bb_get_option('uri');
