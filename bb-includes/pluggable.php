@@ -432,9 +432,12 @@ if ( !function_exists( 'bb_get_avatar' ) ) :
  * @param string $default URL to a default image to use if no avatar is available
  * @return string <img> tag for the user's avatar
 */
-function bb_get_avatar( $id_or_email, $size = '80', $default = '' ) {
+function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	if ( !bb_get_option('avatars_show') )
 		return false;
+
+	if ( !is_numeric($size) )
+		$size = 80;
 
 	if ( !$email = bb_get_user_email($id_or_email) )
 		$email = $id_or_email;
@@ -443,24 +446,27 @@ function bb_get_avatar( $id_or_email, $size = '80', $default = '' ) {
 		$email = '';
 
 	if ( empty($default) )
-		$default = 'http://www.gravatar.com/avatar.php?gravatar_id=ad516503a11cd5ca435acc9bb6523536&size=' . $size;
+		$default = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=' . $size;
 		// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
 	$default = urlencode( $default );
 
 	if ( !empty($email) ) {
-		$out = 'http://www.gravatar.com/avatar.php?gravatar_id=';
-		$out .= md5( $email );
-		$out .= '&amp;size=' . $size;
-		$out .= '&amp;default=' . $default;
+		$src = 'http://www.gravatar.com/avatar/';
+		$src .= md5( $email );
+		$src .= '?s=' . $size;
+		$src .= '&amp;d=' . $default;
 
 		$rating = bb_get_option('avatars_rating');
 		if ( !empty( $rating ) )
-			$out .= '&amp;rating=' . $rating;
+			$src .= '&amp;r=' . $rating;
 
-		$avatar = '<img alt="" src="' . $out . '" class="avatar avatar-' . $size . '" height="' . $size . '" width="' . $size . '" />';
+		$class = 'avatar avatar-' . $size;
 	} else {
-		$avatar = '<img alt="" src="' . $default . '" />';
+		$src = $default;
+		$class = 'avatar avatar-' . $size . ' avatar-default';
 	}
+
+	$avatar = '<img alt="" src="' . $src . '" class="' . $class . '" style="height:' . $size . 'px; width:' . $size . 'px;" />';
 
 	return apply_filters('bb_get_avatar', $avatar, $id_or_email, $size, $default);
 }
