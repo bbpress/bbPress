@@ -5,15 +5,14 @@ addLoadEvent( function() { // Posts
 	thePostList.altOffset = 1;
 } );
 
-function ajaxPostDelete(postId, postAuthor) {
+function ajaxPostDelete(postId, postAuthor, a) {
 	if (!confirm('<?php printf(__("Are you sure you wanna delete this post by \"' + %s + '\"?"), 'postAuthor'); //postAuthor should be left untranslated ?>')) return false;
+	thePostList.inputData = '&_ajax_nonce=' + a.href.toQueryParams()['_wpnonce'];
 	return thePostList.ajaxDelete( 'post', postId );
 }
 
 function newPostAddIn() { // Not currently loaded
-	var postFormSub = jQuery('#postformsub');
-	if ( postFormSub )
-		postFormSub.onclick = function(e) { return thePostList.ajaxAdder( 'post', 'postform' ); }
+	jQuery('#postformsub').click( function() { return thePostList.ajaxAdder( 'post', 'postform' ); } );
 }
 
 addLoadEvent( function() { // Tags
@@ -32,11 +31,12 @@ addLoadEvent( function() { // Tags
 
 	if ( !yourTagList.theList )
 		return;
-	var newtagSub = jQuery('#tagformsub');
-	newtagSub.onclick = function(e) { return yourTagList.ajaxAdder( 'tag', 'tag-form' ); }
+	jQuery('#tag-form').submit( function() { return yourTagList.ajaxAdder( 'tag', 'tag-form' ); } );
 } );
 
-function ajaxDelTag(tag, user, tagName) {
+function ajaxDelTag(tag, user, tagName, a) {
+	yourTagList.inputData = '&topic_id=' + topicId + '&_ajax_nonce=' + a.href.toQueryParams()['_wpnonce'];
+	othersTagList.inputData = '&topic_id=' + topicId + '&_ajax_nonce=' + a.href.toQueryParams()['_wpnonce'];
 	if ( !confirm('<?php printf(__("Are you sure you want to remove the \"' + %s + '\" tag?"), 'tagName'); ?>') )
 		return false;
 	if ( currentUserId == user )
@@ -46,24 +46,22 @@ function ajaxDelTag(tag, user, tagName) {
 }
 
 addLoadEvent( function() { // TopicMeta
+	var favoritesToggle = jQuery('#favorite-toggle');
+	favoritesToggle[ 1 === isFav ? 'removeClass' : 'addClass' ]( 'is-not-favorite' );
 	theTopicMeta = new listMan('topicmeta');
 	theTopicMeta.showLink = false;
-	theTopicMeta.inputData = '&user_id=' + currentUserId + '&topic_id=' + topicId;
+	var nonce = jQuery( '#favorite-toggle a[href*="_wpnonce="]' ).click( FavIt ).attr( 'href' ).toQueryParams()['_wpnonce'];
+	theTopicMeta.inputData = '&user_id=' + currentUserId + '&topic_id=' + topicId + '&_ajax_nonce=' + nonce;
 	theTopicMeta.dimComplete = function(what, id, dimClass) {
 		if ( 'is-not-favorite' == dimClass ) {
-			var favoritesToggle = jQuery('#favorite-toggle');
 			isFav = favoritesToggle.is('.' + dimClass) ? 0 : 1;
 			favLinkSetup();
 		}
 	}
-	favLinkSetup();
-			
 } );
 
 function favLinkSetup() {
 	var favoritesToggle = jQuery('#favorite-toggle');
-	if ('no' == isFav)
-		return;
 	if ( 1 == isFav )
 		favoritesToggle.html('<?php printf(__("This topic is one of your <a href=' + %s + '>favorites</a>"), 'favoritesLink'); ?> [<a href="#" onclick="return FavIt();">x</a>]');
 	else 

@@ -209,9 +209,13 @@ function bb_verify_nonce($nonce, $action = -1) {
 
 	$i = ceil(time() / 43200);
 
-	//Allow for expanding range, but only do one check if we can
-	if( substr(wp_hash($i . $action . $uid), -12, 10) == $nonce || substr(wp_hash(($i - 1) . $action . $uid), -12, 10) == $nonce )
-		return true;
+	// Nonce generated 0-12 hours ago
+	if ( substr(wp_hash($i . $action . $uid), -12, 10) == $nonce )
+		return 1;
+	// Nonce generated 12-24 hours ago
+	if ( substr(wp_hash(($i - 1) . $action . $uid), -12, 10) == $nonce )
+		return 2;
+	// Invalid nonce
 	return false;
 }
 endif;
@@ -286,8 +290,8 @@ function wp_generate_password( $length = 7 ) {
 endif;
 
 if ( !function_exists('bb_check_admin_referer') ) :
-function bb_check_admin_referer( $action = -1 ) {
-	if ( !bb_verify_nonce($_REQUEST['_wpnonce'], $action) ) {
+function bb_check_admin_referer( $action = -1, $query_arg = '_wpnonce' ) {
+	if ( !bb_verify_nonce($_REQUEST[$query_arg], $action) ) {
 		bb_nonce_ays($action);
 		die();
 	}
@@ -296,26 +300,19 @@ function bb_check_admin_referer( $action = -1 ) {
 endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
-function bb_check_ajax_referer() {
-	if ( !$current_id = bb_get_current_user_info( 'ID' ) )
+function bb_check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
+	if ( $query_arg )
+		$nonce = $_REQUEST[$query_arg];
+	else
+		$nonce = $_REQUEST['_ajax_nonce'] ? $_REQUEST['_ajax_nonce'] : $_REQUEST['_wpnonce'];
+
+	$result = bb_verify_nonce( $nonce, $action );
+
+	if ( $die && false == $result )
 		die('-1');
-	
-	$cookie = explode('; ', urldecode(empty($_POST['cookie']) ? $_GET['cookie'] : $_POST['cookie'])); // AJAX scripts must pass cookie=document.cookie
-	foreach ( $cookie as $tasty ) {
-		if ( false !== strpos($tasty, bb_get_option( 'authcookie' )) )
-			$auth_cookie = substr(strstr($tasty, '='), 1);
-	}
-	
-	if ( empty($auth_cookie) )
-		die('-1');
-	
-	if ( ! $user_id = wp_validate_auth_cookie( $auth_cookie ) )
-	    die('-1');
-	
-	if ( $current_id != $user_id )
-		die('-1');
-	
-	do_action('bb_check_ajax_referer');
+
+	do_action('bb_check_ajax_referer', $action, $result);
+	return $result;
 }
 endif;
 

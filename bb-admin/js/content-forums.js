@@ -94,7 +94,7 @@ bbSortForums = {
 
 			$.post(
 				'admin-ajax.php',
-				'action=order-forums&cookie=' + encodeURIComponent(document.cookie) + '&' + hash
+				'action=order-forums&_ajax_nonce=' +  $('#add-forum input[name=order-nonce]').val() + '&' + hash
 			);
 		} );
 	}

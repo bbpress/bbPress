@@ -6,7 +6,7 @@ function bb_default_scripts( $scripts ) {
 	$scripts->add( 'prototype', $base . BB_INC . 'js/prototype.js', false, '1.5.0' );
 	$scripts->add( 'wp-ajax', $base . BB_INC . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
 	$scripts->add( 'listman', $base . BB_INC . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'fat'), '440' );
-	$scripts->add( 'topic', $base . BB_INC . 'js/topic-js.php', array('add-load-event', 'listman', 'jquery'), '433' );
+	$scripts->add( 'topic', $base . BB_INC . 'js/topic-js.php', array('add-load-event', 'listman', 'jquery'), '20080401' );
 	$scripts->add( 'jquery', $base . BB_INC . 'js/jquery/jquery.js', false, '1.1.3.1');
 	$scripts->add( 'interface', $base . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
 	$scripts->add( 'jquery-color', $base . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
