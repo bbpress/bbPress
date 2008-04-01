@@ -450,13 +450,12 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	if ( empty($default) )
 		$default = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=' . $size;
 		// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
-	$default = urlencode( $default );
 
 	if ( !empty($email) ) {
 		$src = 'http://www.gravatar.com/avatar/';
-		$src .= md5( $email );
+		$src .= md5( strtolower( $email ) );
 		$src .= '?s=' . $size;
-		$src .= '&amp;d=' . $default;
+		$src .= '&amp;d=' . urlencode( $default );
 
 		$rating = bb_get_option('avatars_rating');
 		if ( !empty( $rating ) )
