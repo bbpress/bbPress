@@ -134,6 +134,8 @@ function wp_redirect($location, $status = 302) {
 
 	$location = apply_filters('wp_redirect', $location, $status);
 
+	$status = apply_filters('wp_redirect_status', $status, $location);
+
 	if ( !$location ) // allows the wp_redirect filter to cancel a redirect
 		return false;
 
