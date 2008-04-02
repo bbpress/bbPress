@@ -31,7 +31,10 @@ addLoadEvent( function() { // Tags
 
 	if ( !yourTagList.theList )
 		return;
-	jQuery('#tag-form').submit( function() { return yourTagList.ajaxAdder( 'tag', 'tag-form' ); } );
+	jQuery('#tag-form').submit( function() {
+		yourTagList.inputData = '&topic_id=' + topicId;
+		return yourTagList.ajaxAdder( 'tag', 'tag-form' );
+	} );
 } );
 
 function ajaxDelTag(tag, user, tagName, a) {
