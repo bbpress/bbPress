@@ -537,6 +537,17 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 }
 endif;
 
+if ( !function_exists('wp_set_password') ) :
+function wp_set_password( $password, $user_id ) {
+	global $bbdb, $bb_cache;
+
+	$hash = wp_hash_password($password);
+	$query = $bbdb->prepare("UPDATE $bbdb->users SET user_pass = %s WHERE ID = %d", $hash, $user_id);
+	$bbdb->query($query);
+	$bb_cache->flush_one( 'user', $user_id );
+}
+endif;
+
 if ( !function_exists( 'bb_get_avatar' ) ) :
 /**
  * bb_get_avatar() - Get avatar for a user
