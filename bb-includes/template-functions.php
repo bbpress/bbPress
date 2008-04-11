@@ -937,7 +937,29 @@ function get_page_number_links($page, $total) {
 	) );
 }
 
+function bb_topic_admin( $args = '' ) {
+	
+	$id = 0;
+	
+	if ($args && is_array($args) && isset($args['id']) && !empty($args['id'])) {
+		$id = $args['id'];
+	}
+	
+	$parts = array(
+		'delete' => bb_get_topic_delete_link( $args ),
+		'close' => bb_get_topic_close_link( $args ),
+		'sticky' => bb_get_topic_sticky_link( $args )
+	);
+	echo join("\n", apply_filters('bb_topic_admin', $parts));
+	
+	topic_move_dropdown( $id );
+}
+
 function topic_delete_link( $args = '' ) {
+	echo bb_get_topic_delete_link( $args );
+}
+
+function bb_get_topic_delete_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
@@ -948,12 +970,16 @@ function topic_delete_link( $args = '' ) {
 		return;
 
 	if ( 0 == $topic->topic_status )
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id , 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna delete that?') ) . "')\">" . __('Delete entire topic') . "</a>$after";
+		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id , 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna delete that?') ) . "')\">" . __('Delete entire topic') . "</a>$after";
 	else
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id . '&view=all', 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna undelete that?') ) . "')\">" . __('Undelete entire topic') . "</a>$after";
+		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id . '&view=all', 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna undelete that?') ) . "')\">" . __('Undelete entire topic') . "</a>$after";
 }
 
 function topic_close_link( $args = '' ) {
+	echo bb_get_topic_close_link( $args );
+}
+
+function bb_get_topic_close_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
@@ -964,10 +990,14 @@ function topic_close_link( $args = '' ) {
 		return;
 
 	$text = topic_is_open( $topic->topic_id ) ? __('Close topic') : __('Open topic');
-	echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $topic->topic_id, 'close-topic_' . $topic->topic_id ) ) . "'>$text</a>$after";
+	return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $topic->topic_id, 'close-topic_' . $topic->topic_id ) ) . "'>$text</a>$after";
 }
 
 function topic_sticky_link( $args = '' ) {
+	echo bb_get_topic_sticky_link( $args );
+}
+
+function bb_get_topic_sticky_link( $args = '' ) {
 	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
@@ -978,9 +1008,9 @@ function topic_sticky_link( $args = '' ) {
 		return;
 
 	if ( topic_is_sticky( $topic->topic_id ) )
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Unstick topic') ."</a>$after";
+		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Unstick topic') ."</a>$after";
 	else
-		echo "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Stick topic') . "</a> (<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) ) . "'>" . __('to front') . "</a>)$after";
+		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Stick topic') . "</a> (<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) ) . "'>" . __('to front') . "</a>)$after";
 }
 
 function topic_show_all_link( $id = 0 ) {
@@ -1238,17 +1268,34 @@ function get_post_ip( $post_id = 0 ) {
 	return apply_filters( 'get_post_ip', $bb_post->poster_ip, $bb_post->post_id );
 }
 
+function bb_post_admin() {
+	$parts = array(
+		'ip' => bb_get_post_ip_link(),
+		'edit' => bb_get_post_edit_link(),
+		'delete' => bb_get_post_delete_link()
+	);
+	echo join("\n", apply_filters('bb_post_admin', $parts));
+}
+
 function post_ip_link( $post_id = 0 ) {
+	echo bb_get_post_ip_link( $post_id );
+}
+
+function bb_get_post_ip_link( $post_id = 0 ) {
 	if ( !bb_current_user_can( 'view_by_ip' ) )
 		return;
 	$link = '<a href="' . attribute_escape( bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip( $post_id ) ) . '">' . get_post_ip( $post_id ) . '</a>';
-	echo apply_filters( 'post_ip_link', $link, get_post_id( $post_id ) );
+	return apply_filters( 'post_ip_link', $link, get_post_id( $post_id ) );
 }
 
 function post_edit_link( $post_id = 0 ) {
+	echo bb_get_post_edit_link( $post_id );
+}
+
+function bb_get_post_edit_link( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) )
-		echo "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . $bb_post->post_id, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
+		return "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . $bb_post->post_id, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
 }
 
 function post_del_class( $post_id = 0 ) {
@@ -1261,6 +1308,10 @@ function post_del_class( $post_id = 0 ) {
 }
 
 function post_delete_link( $post_id = 0 ) {
+	echo bb_get_post_delete_link( $post_id );
+}
+
+function bb_get_post_delete_link( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
 		return;
@@ -1270,7 +1321,7 @@ function post_delete_link( $post_id = 0 ) {
 	else
 		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=1', 'delete-post_' . $bb_post->post_id ) ) . "' onclick='return ajaxPostDelete(" . $bb_post->post_id . ", \"" . get_post_author( $post_id ) . "\", this);'>". __('Delete') ."</a>";
 	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
-	echo $r;
+	return $r;
 }
 
 function post_author_id( $post_id = 0 ) {

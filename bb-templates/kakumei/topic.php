@@ -51,9 +51,10 @@
 <p><?php _e('This topic has been closed to new replies.') ?></p>
 <?php endif; ?>
 <?php if ( bb_current_user_can( 'delete_topic', get_topic_id() ) || bb_current_user_can( 'close_topic', get_topic_id() ) || bb_current_user_can( 'stick_topic', get_topic_id() ) || bb_current_user_can( 'move_topic', get_topic_id() ) ) : ?>
+
 <div class="admin">
-<?php topic_delete_link(); ?> <?php topic_close_link(); ?> <?php topic_sticky_link(); ?><br />
-<?php topic_move_dropdown(); ?>
+<?php bb_topic_admin(); ?>
 </div>
+
 <?php endif; ?>
 <?php bb_get_footer(); ?>
