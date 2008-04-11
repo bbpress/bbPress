@@ -33,7 +33,9 @@
 		<div id="header">
 			<h1><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a></h1>
 			<?php login_form(); ?>
-
+			<div class="search">
+				<?php search_form(); ?>
+			</div>
 		</div>
 
 	
