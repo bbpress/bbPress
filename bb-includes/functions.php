@@ -170,7 +170,7 @@ function get_sticky_topics( $forum = false, $display = 1 ) {
 
 	$q = array(
 		'forum_id' => $forum,
-		'sticky' => is_front() ? 'super' : 'forum'
+		'sticky' => is_front() ? 'super' : 'sticky'
 	);
 
 	$query = new BB_Query( 'topic', $q, 'get_sticky_topics' );

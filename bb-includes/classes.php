@@ -420,7 +420,7 @@ class BB_Query {
 		endif;
 
 		if ( false !== $q['sticky'] && false === strpos($q['sticky'], 'all') ) :
-			$stickies = array( 'no' => 0, 'normal' => 0, 'forum' => 1, 'super' => 2, 'front' => 2 );
+			$stickies = array( 'no' => 0, 'normal' => 0, 'forum' => 1, 'super' => 2, 'front' => 2, 'sticky' => '-0' );
 			$q['sticky'] = str_replace(array_keys($stickies), array_values($stickies), $q['sticky']);
 			$where .= $this->parse_value( 't.topic_sticky', $q['sticky'] );
 		endif;
