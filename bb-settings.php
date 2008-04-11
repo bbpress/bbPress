@@ -362,7 +362,7 @@ if ( !isset($wp_scripts) ) {
 	}
 	$wp_scripts = new WP_Scripts( $bb->uri, bb_get_option( 'version' ) );
 } else {
-	bb_default_scripts( &$wp_scripts );
+	bb_default_scripts( $wp_scripts );
 }
 
 // WP_Taxonomy

@@ -1,6 +1,6 @@
 <?php
 
-function bb_default_scripts( $scripts ) {
+function bb_default_scripts( &$scripts ) {
 	$base = bb_get_option( 'uri' );
 	$scripts->add( 'fat', $base . BB_INC . 'js/fat.js', array('add-load-event'), '1.0-RC1_3660' );
 	$scripts->add( 'prototype', $base . BB_INC . 'js/prototype.js', false, '1.5.0' );
