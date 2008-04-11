@@ -411,7 +411,7 @@ class BB_Install
 			$this->configs['config.php'] = dirname(BB_PATH) . '/config.php';
 		}
 		
-		if ($this->configs['config.php']) {
+		if ($this->configs['config.php'] && !$this->configs['bb-config.php']) {
 			// There is an old school config file
 			// Step -1 is where we send fatal errors from any screen
 			$this->strings[-1]['messages']['error'][] = __('An old <code>config.php</code> file has been detected in your installation. You should remove it and run the <a href="install.php">installer</a> again. You can use the same database connection details if you do.');
@@ -520,8 +520,10 @@ class BB_Install
 		} else {
 			global $bbdb;
 		}
-		
-		if (!is_resource($bbdb->dbh_local)) {
+
+		$db = $bbdb->db_connect( "SELECT * FROM $bbdb->forums LIMIT 1" );
+
+		if (!is_resource($db)) {
 			return false;
 		}
 		
