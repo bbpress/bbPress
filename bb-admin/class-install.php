@@ -1205,11 +1205,11 @@ class BB_Install
 					if ( !empty($data['user_bbdb_host']['value']) )
 						$bb->user_bbdb_host = $data['user_bbdb_host']['value'];
 					if ( !empty($data['user_bbdb_charset']['value']) )
-						$bb->user_bbdb_charset = $data['user_bbdb_charset']['value'];
+						$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $data['user_bbdb_charset']['value'] );
 					if ( !empty($data['custom_user_table']['value']) )
-						$bb->custom_user_table = $data['custom_user_table']['value'];
+						$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $data['custom_user_table']['value'] );
 					if ( !empty($data['custom_user_meta_table']['value']) )
-					$bb->custom_user_meta_table = $data['custom_user_meta_table']['value'];
+					$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $data['custom_user_meta_table']['value'] );
 				}
 				
 				// Bring in the database object
@@ -1435,11 +1435,11 @@ class BB_Install
 			if ( !empty($data2['user_bbdb_host']['value']) )
 				$bb->user_bbdb_host = $data2['user_bbdb_host']['value'];
 			if ( !empty($data2['user_bbdb_charset']['value']) )
-				$bb->user_bbdb_charset = $data2['user_bbdb_charset']['value'];
+				$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $data2['user_bbdb_charset']['value'] );
 			if ( !empty($data2['custom_user_table']['value']) )
-				$bb->custom_user_table = $data2['custom_user_table']['value'];
+				$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $data2['custom_user_table']['value'] );
 			if ( !empty($data2['custom_user_meta_table']['value']) )
-				$bb->custom_user_meta_table = $data2['custom_user_meta_table']['value'];
+				$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $data2['custom_user_meta_table']['value'] );
 			
 			// Set the new prefix for user tables
 			$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
@@ -2013,11 +2013,11 @@ class BB_Install
 		if ( !empty($this->data[2]['form']['user_bbdb_host']['value']) )
 			$bb->user_bbdb_host = $this->data[2]['form']['user_bbdb_host']['value'];
 		if ( !empty($this->data[2]['form']['user_bbdb_charset']['value']) )
-			$bb->user_bbdb_charset = $this->data[2]['form']['user_bbdb_charset']['value'];
+			$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['user_bbdb_charset']['value'] );
 		if ( !empty($this->data[2]['form']['custom_user_table']['value']) )
-			$bb->custom_user_table = $this->data[2]['form']['custom_user_table']['value'];
+			$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['custom_user_table']['value'] );
 		if ( !empty($this->data[2]['form']['custom_user_meta_table']['value']) )
-			$bb->custom_user_meta_table =  $this->data[2]['form']['custom_user_meta_table']['value'];
+			$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['custom_user_meta_table']['value'] );
 		
 		global $bbdb;
 		
@@ -2036,7 +2036,7 @@ class BB_Install
 		if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
 			$bbdb->usermeta = $bb->custom_user_meta_table;
 		
-		$wp_administrator_meta_key = $bb->wp_table_prefix . 'capabilities';
+		$wp_administrator_meta_key = $bbdb->escape( $bb->wp_table_prefix . 'capabilities' );
 		$wp_administrator_query = <<<EOQ
 			SELECT
 				user_login, user_email, display_name
