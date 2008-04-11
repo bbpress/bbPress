@@ -149,7 +149,7 @@ class bbdb extends bbdb_base {
 			}
 		}
 
-		if ( preg_match("/^\\s*(insert|delete|update|replace) /i",$query) ) {
+		if ( preg_match("/^\\s*(insert|delete|update|replace|set) /i",$query) ) {
 			$this->rows_affected = mysql_affected_rows();
 			// Take note of the insert_id
 			if ( preg_match("/^\\s*(insert|replace) /i",$query) ) {
