@@ -920,14 +920,9 @@ class BB_Install
 		
 		foreach ($data as $key => $value) {
 			if (substr($key, 0, 8) !== 'forward_' && substr($key, 0, 5) !== 'back_') {
-				if (isset($data[$key]['prerequisite'])) {
-					if ($_POST[$data[$key]['prerequisite']]) {
-						$data[$key]['value'] = trim($_POST[$key]);
-					} else {
-						$data[$key]['value'] = '';
-					}
-				} else {
-					$data[$key]['value'] = trim($_POST[$key]);
+				$data[$key]['value'] = stripslashes_deep(trim($_POST[$key]));
+				if (isset($data[$key]['prerequisite']) && !$_POST[$data[$key]['prerequisite']]) {
+					$data[$key]['value'] = '';
 				}
 			}
 		}
