@@ -1,10 +1,10 @@
 <?php
 
-function bb_verify_email( $email ) {
+function bb_verify_email( $email, $check_domain = false ) {
 	if (ereg('^[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'.'@'.
 		'[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
 		'[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$', $email)) {
-		if ( function_exists('checkdnsrr') ) {
+		if ( $check_domain && function_exists('checkdnsrr') ) {
 			list (, $domain)  = explode('@', $email);
 			if ( checkdnsrr($domain . '.', 'MX') || checkdnsrr($domain . '.', 'A') ) {
 				$r = $email;
