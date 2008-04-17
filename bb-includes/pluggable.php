@@ -404,13 +404,13 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 		$headers = preg_split('@\r(?:\n{0,1})|\n@', $headers, -1, PREG_SPLIT_NO_EMPTY);
 	}
 	
-	if (!count($headers) || !count(preg_grep('/^mime-version:\s/im', $headers))) {
+	if (!count($headers) || !count(preg_grep('/^mime-version:\s/im', $headers)))
 		$headers[] = "MIME-Version: 1.0";
 	
-	if (!count(preg_grep('/^content-type:\s/im', $headers))) {
+	if (!count(preg_grep('/^content-type:\s/im', $headers)))
 		$headers[] = "Content-Type: text/plain; Charset=UTF-8";
 	
-	if (!count(preg_grep('/^content-transfer-encoding:\s/im', $headers))) {
+	if (!count(preg_grep('/^content-transfer-encoding:\s/im', $headers)))
 		$headers[] = "Content-Transfer-Encoding: 8bit";
 	
 	if (!count(preg_grep('/^from:\s/im', $headers))) {
