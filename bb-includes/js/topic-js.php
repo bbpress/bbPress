@@ -52,7 +52,7 @@ function ajaxDelTag(tag, user, tagName, a) {
 }
 
 addLoadEvent( function() { // TopicMeta
-	var favoritesToggle = $('favorite-toggle');
+	var favoritesToggle = jQuery('favorite-toggle');
 	favoritesToggle[ 1 === isFav ? 'removeClass' : 'addClass' ]( 'is-not-favorite' );
 	theTopicMeta = new listMan('topicmeta');
 	theTopicMeta.showLink = false;
