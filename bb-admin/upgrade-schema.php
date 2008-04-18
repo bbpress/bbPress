@@ -32,7 +32,8 @@ $bb_queries['forums'] = "CREATE TABLE $bbdb->forums (
   forum_order int(10) NOT NULL default '0',
   topics bigint(20) NOT NULL default '0',
   posts bigint(20) NOT NULL default '0',
-  PRIMARY KEY  (forum_id)
+  PRIMARY KEY  (forum_id),
+  KEY forum_slug (forum_slug)
 ) $charset_collate;";
 
 $bb_queries['posts'] = "CREATE TABLE $bbdb->posts (
@@ -70,6 +71,7 @@ $bb_queries['topics'] = "CREATE TABLE $bbdb->topics (
   topic_posts bigint(20) NOT NULL default '0',
   tag_count bigint(20) NOT NULL default '0',
   PRIMARY KEY  (topic_id),
+  KEY topic_slug (topic_slug),
   KEY forum_time (forum_id,topic_time),
   KEY user_start_time (topic_poster,topic_start_time)
 ) $charset_collate;";
