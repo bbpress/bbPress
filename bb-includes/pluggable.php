@@ -139,8 +139,8 @@ function wp_validate_auth_cookie($cookie = '') {
 	if ( $expired < time() )
 		return false;
 
-	$key = wp_hash($username . $expiration);
-	$hash = hash_hmac('md5', $username . $expiration, $key);
+	$key = wp_hash($username . '|' . $expiration);
+	$hash = hash_hmac('md5', $username . '|' . $expiration, $key);
 	
 	if ( $hmac != $hash )
 		return false;
@@ -157,8 +157,8 @@ if ( !function_exists('wp_generate_auth_cookie') ) :
 function wp_generate_auth_cookie($user_id, $expiration) {
 	$user = bb_get_user($user_id);
 	
-	$key = wp_hash($user->user_login . $expiration);
-	$hash = hash_hmac('md5', $user->user_login . $expiration, $key);
+	$key = wp_hash($user->user_login . '|' . $expiration);
+	$hash = hash_hmac('md5', $user->user_login . '|' . $expiration, $key);
 	
 	$cookie = $user->user_login . '|' . $expiration . '|' . $hash;
 	
