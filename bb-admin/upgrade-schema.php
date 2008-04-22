@@ -73,7 +73,8 @@ $bb_queries['topics'] = "CREATE TABLE $bbdb->topics (
   PRIMARY KEY  (topic_id),
   KEY topic_slug (topic_slug),
   KEY forum_time (forum_id,topic_time),
-  KEY user_start_time (topic_poster,topic_start_time)
+  KEY user_start_time (topic_poster,topic_start_time),
+  KEY forum_stickies (topic_status,forum_id,topic_sticky,topic_time)
 ) $charset_collate;";
 
 $bb_queries['topicmeta'] = "CREATE TABLE $bbdb->topicmeta (
