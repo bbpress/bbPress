@@ -537,3 +537,7 @@ form.settings input.submit:hover {
 	border-color: rgb(83, 83, 83);
 	color: rgb(230, 145, 0);
 }
+
+.active {
+	background-color: rgb(200, 250, 200)
+}
