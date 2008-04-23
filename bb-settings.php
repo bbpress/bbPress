@@ -121,10 +121,10 @@ if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 	die();
 }
 
-foreach ( array('use_cache', 'debug', 'static_title', 'load_options') as $o )
+foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true) as $o => $oo)
 	if ( !isset($bb->$o) )
-		$bb->$o = false;
-unset($o);
+		$bb->$o = $oo;
+unset($o, $oo);
 
 if ( defined('BB_INSTALLING') && BB_INSTALLING )
 foreach ( array('active_plugins') as $i )
