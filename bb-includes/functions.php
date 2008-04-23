@@ -15,12 +15,19 @@ function bb_global_sanitize( $array, $trim = true ) {
 	return $array;
 }
 
-function bb_is_installed() { // Maybe we should grab all forums and cache them.
-	global $bbdb;
+function bb_is_installed() { // Maybe grab all the forums and cache them
+	global $bbdb, $bb_forum_cache;
 	$bbdb->hide_errors();
-	$installed = $bbdb->get_var("SELECT * FROM $bbdb->forums LIMIT 1");
+	$forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
 	$bbdb->show_errors();
-	return $installed;
+	if ( !$forums )
+		return false;
+
+	foreach ( $forums as $forum )
+		$bb_forum_cache[(int) $forum->forum_id] = $forum;
+	$bb_forum_cache[-1] = true;
+
+	return true;
 }
 
 /* Forums */
