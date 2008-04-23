@@ -35,7 +35,7 @@ html {
 }
 
 body {
-	background-image: url('../bb-images/install-body-background.gif');
+	background-image: url('images/install-body-background.gif');
 	background-repeat: repeat-x;
 	background-attachment: fixed;
 	text-align: center;
@@ -47,7 +47,7 @@ div#container {
 	margin: 0 auto;
 	padding: 2.5em;
 	width: 35em;
-	background-image: url('../bb-images/install-container-background.gif');
+	background-image: url('images/install-container-background.gif');
 	background-repeat: repeat-x;
 	background-color: rgb(30, 71, 13);
 	text-align: left;
@@ -326,7 +326,7 @@ textarea:focus {
 
 input.button {
 	font-size: 1.2em;
-	background: url('../bb-images/fade-butt.png');
+	background: url('images/fade-butt.png');
 	border: 3px double rgb(125, 125, 125);
 	border-left-color: rgb(210, 210, 210);
 	border-top-color: rgb(210, 210, 210);

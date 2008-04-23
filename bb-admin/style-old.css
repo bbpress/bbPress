@@ -196,7 +196,7 @@ textarea, input, select {
 }
 
 .submit input, .submit input:focus, .button, .button:focus {
-	background: url( ../bb-images/fade-butt.png );
+	background: url( images/fade-butt.png );
 	border: 3px double #999;
 	border-left-color: #ccc;
 	border-top-color: #ccc;
@@ -621,7 +621,7 @@ form.options fieldset div input#gmt_offset {
 
 form.options fieldset div input#submit {
 	width:auto;
-	background: url('../bb-images/fade-butt.png');
+	background: url('images/fade-butt.png');
 	border: 3px double #999;
 	border-left-color: #ccc;
 	border-top-color: #ccc;

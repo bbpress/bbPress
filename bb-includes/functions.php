@@ -2248,7 +2248,7 @@ function bb_install_header( $title = '', $header = false ) {
 <body>
 	<div id="container">
 		<div class="logo">
-			<img src="<?php echo $uri; ?>bb-images/install-logo.gif" alt="bbPress Installation" />
+			<img src="<?php echo $uri; ?>bb-admin/images/install-logo.gif" alt="bbPress Installation" />
 		</div>
 <?php
 	if ( !empty($header) ) {
