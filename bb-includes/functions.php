@@ -957,7 +957,7 @@ function bb_create_tag( $tag ) {
 	if ( $exists = (int) $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE raw_tag = %s", $raw_tag ) ) )
 		return $exists;
 	
-	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
+	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT tag FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
 		$tag = bb_slug_increment($_tag, $existing_tag);
 	
 	$bbdb->insert( $bbdb->tags, compact( 'tag', 'raw_tag' ) );
