@@ -884,7 +884,7 @@ function get_recent_user_replies( $user_id ) {
 	global $bbdb;
 	$user_id = (int) $user_id;
 
-	$post_query = new BB_Query( 'post', array( 'post_author_id' => $user_id ), 'get_recent_user_replies' );
+	$post_query = new BB_Query( 'post', array( 'post_author_id' => $user_id, 'order_by' => 'post_time' ), 'get_recent_user_replies' );
 
 	return $post_query->results;
 }
