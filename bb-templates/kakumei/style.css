@@ -553,21 +553,30 @@ form.login input#remember {
 #profile-page fieldset table {
 	text-align: left;
 	margin: 0 15px;
-	width: 100%;
+	width: 95%;
+	border-collapse: collapse;
 }
 
 #login-page fieldset table th,
 #register-page fieldset table th,
 #profile-page fieldset table th {
-	padding: 2px;
+	padding: 5px;
 	text-align: right;
 	width: 20%;
+	vertical-align: top;
+	padding-right: 1em;
 }
 
 #login-page fieldset table td,
 #register-page fieldset table td,
 #profile-page fieldset table td {
-	padding: 2px 0;
+	padding: 5px;
+}
+
+#login-page fieldset table td p,
+#register-page fieldset table td p,
+#profile-page fieldset table td p{
+	margin: 5px 0;
 }
 
 #login-page fieldset p,
@@ -581,4 +590,16 @@ form.login input#remember {
 #register-page sup.required,
 #profile-page sup.required {
 	color: red;
+}
+
+.form-invalid {
+	background-color: #ffebe8 !important;
+}
+
+.form-invalid input {
+	border-color: #c00 !important;
+}
+
+.form-table input, .form-table textarea {
+	border-color: #c6d9e9;
 }

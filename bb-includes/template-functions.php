@@ -1549,44 +1549,86 @@ function bb_profile_base_content() {
 }
 
 function bb_profile_data_form( $id = 0 ) {
+	global $errors;
 	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return;
 
 	if ( !bb_current_user_can( 'edit_user', $user->ID ) )
 		return;
 
+	$error_codes = $errors->get_error_codes();
 	$profile_info_keys = get_profile_info_keys();
 	$required = false;
 ?>
 <table id="userinfo">
-<?php if ( is_array($profile_info_keys) ) : $bb_current_id = bb_get_current_user_info( 'id' ); foreach ( $profile_info_keys as $key => $label ) : if ( 'user_email' != $key || $bb_current_id == $user->ID ) : ?>
-<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] = '<sup class="required">*</sup> ' . $label[1]; $required = true; } ?>>
-  <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo attribute_escape( $key ); ?>" type="<?php if ( isset($label[2]) ) echo attribute_escape( $label[2] ); else echo 'text" size="30" maxlength="140'; ?>" id="<?php echo attribute_escape( $key ); ?>" value="<?php echo attribute_escape( $user->$key ); ?>" /><?php
-if ( isset($$key) && false === $$key) :
-	if ( $key == 'user_email' )
-		_e('<br />There was a problem with your email; please check it.');
-	else
-		_e('<br />The above field is required.');
-endif;
-?></td>
+<?php
+	if ( is_array($profile_info_keys) ) :
+		$bb_current_id = bb_get_current_user_info( 'id' );
+		foreach ( $profile_info_keys as $key => $label ) :
+			if ( 'user_email' == $key && $bb_current_id != $user->ID )
+				continue;
+
+			if ( $label[0] ) {
+				$class = 'form-field form-required required';
+				$title = '<sup class="required">*</sup> ' . attribute_escape( $label[1] );
+				$required = true;
+			} else {
+				$class = 'form-field';
+				$title = attribute_escape( $label[1] );
+			}
+
+
+			$name = attribute_escape( $key );
+			$type = isset($label[2]) ? attribute_escape( $label[2] ) : 'text';
+
+			if ( in_array( $key, $error_codes ) ) {
+				$class .= ' form-invalid';
+				$data = $errors->get_error_data( $key );
+				if ( isset($data['data']) )
+					$value = $data['data'];
+				else
+					$value = $_POST[$key];
+
+				$message = wp_specialchars( $errors->get_error_message( $key ) );
+				$message = "<p class='error'>$message</p>";
+			} else {
+				$value = $user->$key;
+				$message = '';
+			}
+			$value = attribute_escape( $value );
+
+?>
+
+<tr class="<?php echo $class; ?>">
+	<th scope="row"><?php echo $title; ?></th>
+	<td>
+		<input name="<?php echo $name; ?>" type="<?php echo $type; ?>" id="<?php echo $name; ?>" value="<?php echo $value; ?>" />
+		<?php echo $message; ?>
+	</td>
 </tr>
-<?php endif; endforeach; endif; ?>
+
+<?php endforeach; endif; // $profile_info_keys; $profile_info_keys ?>
+
 </table>
+
 <?php bb_nonce_field( 'edit-profile_' . $user->ID ); if ( $required ) : ?>
+
 <p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
-<?php endif;
-do_action( 'extra_profile_info', $user->ID );
+
+<?php
+	endif;
+	do_action( 'extra_profile_info', $user->ID );
 }
 
 function bb_profile_admin_form( $id = 0 ) {
-	global $wp_roles;
+	global $wp_roles, $errors;
 	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return;
 
 	if ( !bb_current_user_can( 'edit_user', $user->ID ) )
 		return;
 
+	$error_codes = $errors->get_error_codes();
 	$bb_current_id = bb_get_current_user_info( 'id' );
 
 	$profile_admin_keys = get_profile_admin_keys();
@@ -1596,60 +1638,148 @@ function bb_profile_admin_form( $id = 0 ) {
 	$roles = $wp_roles->role_names;
 	$can_keep_gate = bb_current_user_can( 'keep_gate' );
 
+	// Keymasters can't demote themselves
 	if ( ( $bb_current_id == $user->ID && $can_keep_gate ) || ( array_key_exists('keymaster', $user->capabilities) && !$can_keep_gate ) )
 		$roles = array( 'keymaster' => $roles['keymaster'] );
-	elseif ( !$can_keep_gate )
+	elseif ( !$can_keep_gate ) // only keymasters can promote others to keymaster status
 		unset($roles['keymaster']);
 
 ?>
 <table id="admininfo">
-<tr>
-  <th scope="row"><?php _e('User Type:'); ?></th>
-  <td><select name="role">
+<tr class='form-field<?php if ( in_array( 'role', $error_codes ) ) echo ' form-invalid'; ?>'>
+	<th scope="row"><?php _e('User Type'); ?></th>
+	<td>
+		<select name="role">
 <?php foreach( $roles as $r => $n ) : ?>
-       <option value="<?php echo $r; ?>"<?php if ( array_key_exists($r, $user->capabilities) ) echo ' selected="selected"'; ?>><?php echo $n; ?></option>
+			<option value="<?php echo $r; ?>"<?php if ( array_key_exists($r, $user->capabilities) ) echo ' selected="selected"'; ?>><?php echo $n; ?></option>
 <?php endforeach; ?>
-      </select>
-  </td>
+		</select>
+		<?php if ( in_array( 'role', $error_codes ) ) echo '<p class="error">' . $errors->get_error_message( 'role' ) . '</p>'; ?>
+	</td>
 </tr>
 <tr class="extra-caps-row">
-  <th scope="row"><?php _e('Allow this user to:'); ?></th>
-  <td>
-<?php foreach( $assignable_caps as $cap => $label ) : ?>
-      <label><input name="<?php echo attribute_escape( $cap ); ?>" value="1" type="checkbox"<?php if ( array_key_exists($cap, $user->capabilities) ) echo ' checked="checked"'; ?> /> <?php echo $label; ?></label><br />
+	<th scope="row"><?php _e('Allow this user to'); ?></th>
+	<td>
+<?php
+	foreach( $assignable_caps as $cap => $label ) :
+		$name = attribute_escape( $cap );
+		$checked = array_key_exists($cap, $user->capabilities) ? ' checked="checked"' : '';
+		$label = wp_specialchars( $label );
+?>
+
+		<label><input name="<?php echo $name; ?>" value="1" type="checkbox"<?php echo $checked; ?> /> <?php echo $label; ?></label><br />
+
 <?php endforeach; ?>
-  </td>
+
+	</td>
 </tr>
-<?php if ( is_array($profile_admin_keys) ) : foreach ( $profile_admin_keys as $key => $label ) : ?>
-<tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] = '<sup class="required">*</sup> ' . $label[1]; $required = true; } ?>>
-  <th scope="row"><?php echo $label[1]; ?>:</th>
-  <td><input name="<?php echo attribute_escape( $key ); ?>" id="<?php echo attribute_escape( $key ); ?>" type=<?php
-	switch ($label[2]) {
-		case 'checkbox':
-			if ($user->$key == $label[3] || $label[4] == $label[3]) {
-				$checked = ' checked="checked"';
+
+<?php
+	if ( is_array($profile_admin_keys) ) :
+		foreach ( $profile_admin_keys as $key => $label ) :
+			if ( $label[0] ) {
+				$class = 'form-field form-required required';
+				$title = '<sup class="required">*</sup> ' . attribute_escape( $label[1] );
+				$required = true;
 			} else {
-				$checked = '';
+				$class = 'form-field';
+				$title = attribute_escape( $label[1] );
 			}
-			echo '"checkbox" value="' . attribute_escape( $label[3] ) . '"' . $checked;
-			break;
-		case 'text':
-		default:
-			echo '"text" size="30" maxlength="140" value="' . attribute_escape( $user->$key ). '"';
-			break;
-	}
-?> />
-<?php if ( isset($$key) && false === $$key ) _e('<br />The above field is required.'); ?></td>
+
+
+			$name = attribute_escape( $key );
+			$type = isset($label[2]) ? attribute_escape( $label[2] ) : 'text';
+
+			$checked = false;
+			if ( in_array( $key, $error_codes ) ) {
+				$class .= ' form-invalid';
+				$data = $errors->get_error_data( $key );
+				if ( 'checkbox' == $type ) {
+					if ( isset($data['data']) )
+						$checked = $data['data'];
+					else
+						$checked = $_POST[$key];
+					$value = $label[3];
+					$checked = $checked == $value;
+				} else {
+					if ( isset($data['data']) )
+						$value = $data['data'];
+					else
+						$value = $_POST[$key];
+				}
+
+				$message = wp_specialchars( $errors->get_error_message( $key ) );
+				$message = "<p class='error'>$message</p>";
+			} else {
+				if ( 'checkbox' == $type ) {
+					$checked = $user->$key == $label[3] || $label[4] == $label[3];
+					$value = $label[3];
+				} else {
+					$value = $user->$key;
+				}
+				$message = '';
+			}
+
+			$checked = $checked ? ' checked="checked"' : '';
+			$value = attribute_escape( $value );
+
+?>
+
+<tr class="<?php echo $class; ?>">
+	<th scope="row"><?php echo $title ?></th>
+	<td>
+		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo "<label for='$name'>"; ?>
+		<input name="<?php echo $name; ?>" id="<?php echo $name; ?>" type="<?php echo $type; ?>"<?php echo $checked; ?> value="<?php echo $value; ?>" />
+		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo wp_specialchars( $label[5] ) . "</label>"; ?>
+		<?php echo $message; ?>
+	</td>
 </tr>
-<?php endforeach; endif; ?>
+
+<?php endforeach; endif; // $profile_admin_keys; $profile_admin_keys ?>
+
 </table>
+
 <?php if ( $required ) : ?>
 <p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
+
 <?php endif; ?>
 <p><?php _e('Inactive users can login and look around but not do anything.
 Blocked users just see a simple error message when they visit the site.</p>
 <p><strong>Note</strong>: Blocking a user does <em>not</em> block any IP addresses.'); ?></p>
 <?php
+}
+
+function bb_profile_password_form( $id = 0 ) {
+	global $errors;
+	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
+		return;
+
+	if ( !bb_current_user_can( 'change_user_password', $user->ID ) )
+		return;
+
+	$class = 'form-field form-required';
+
+	if ( $message = $errors->get_error_message( 'pass' ) ) {
+		$class .= ' form-invalid';
+		$message = '<p class="error">' . wp_specialchars( $message ) . '</p>';
+	}
+?>
+
+<table>
+<tr class="<?php echo $class; ?>">
+	<th scope="row" rowspan="2"><?php _e('New password'); ?></th>
+	<td><input name="pass1" type="password" id="pass1" autocomplete="off" /></td>
+</tr>
+<tr class="<?php echo $class; ?>">
+	<td>
+		<input name="pass2" type="password" id="pass2" autocomplete="off" />
+		<?php echo $message; ?>
+	</td>
+</tr>
+</table>
+
+<?php
+
 }
 
 function bb_logout_link( $args = '' ) {
