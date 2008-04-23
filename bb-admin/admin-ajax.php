@@ -136,8 +136,9 @@ case 'add-post' : // Can put last_modified stuff back in later
 		die('0');
 	if ( !topic_is_open( $topic_id ) )
 		$error = new WP_Error( 'topic-closed', __('This topic is closed.') );
-	if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + 30 && !bb_current_user_can('throttle') )
-		$error = new WP_Error( 'throttle-limit', __('Slow down!  You can only post every 30 seconds.') );
+	if ( $throttle_time = bb_get_option( 'throttle_time' ) )
+		if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + $throttle_time && !bb_current_user_can('throttle') )
+			$error = new WP_Error( 'throttle-limit', sprintf( __('Slow down!  You can only post every %d seconds.'), $throttle_time );
 
 	if ( !$error ) :
 		if ( !$post_id = bb_new_post( $topic_id, rawurldecode($_POST['post_content']) ) )

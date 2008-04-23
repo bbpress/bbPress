@@ -1440,7 +1440,7 @@ function bb_get_option( $option ) {
 		return '1.0-dev'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '1428'; // Don't filter
+		return '1435'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -2107,10 +2107,10 @@ function get_profile_admin_keys() {
 }
 
 function get_assignable_caps() {
-	return apply_filters(
-		'get_assignable_caps',
-		array('throttle' => __('Ignore the 30 second post throttling limit'))
-	);
+	$caps = array();
+	if ( $throttle_time = bb_get_option( 'throttle_time' ) )
+		$caps['throttle'] = sprintf( __('Ignore the %d second post throttling limit'), $throttle_time );
+	return apply_filters( 'get_assignable_caps', $caps );
 }
 
 /* Views */
