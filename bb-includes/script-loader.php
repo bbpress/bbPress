@@ -36,42 +36,36 @@ class BB_Scripts {
 	 * @return array Scripts that have been printed
 	 */
 	function print_scripts( $handles = false ) {
-		// Print the queue if nothing is passed.  If a string is passed, print that script.  If an array is passed, print those scripts.
-		$handles = false === $handles ? $this->queue : (array) $handles;
-		$handles = $this->all_deps( $handles );
-		$this->_print_scripts( $handles );
-		return $this->printed;
-	}
-
-	/**
-	 * Internally used helper function for printing script tags
-	 *
-	 * @param array handles Hierarchical array of scripts to be printed
-	 * @see BB_Scripts::all_deps()
-	 */
-	function _print_scripts( $handles ) {
 		global $bb_db_version;
 
-		foreach( array_keys($handles) as $handle ) {
-			if ( !$handles[$handle] )
-				return;
-			elseif ( is_array($handles[$handle]) )
-				$this->_print_scripts( $handles[$handle] );
+		// Print the queue if nothing is passed.  If a string is passed, print that script.  If an array is passed, print those scripts.
+		$handles = false === $handles ? $this->queue : (array) $handles;
+		$this->all_deps( $handles );
+
+		$to_print = apply_filters( 'print_scripts_array', array_keys($this->to_print) );
+
+		foreach( $to_print as $handle ) {
 			if ( !in_array($handle, $this->printed) && isset($this->scripts[$handle]) ) {
 				if ( $this->scripts[$handle]->src ) { // Else it defines a group.
 					$ver = $this->scripts[$handle]->ver ? $this->scripts[$handle]->ver : $bb_db_version;
 					if ( isset($this->args[$handle]) )
 						$ver .= '&amp;' . $this->args[$handle];
-					$src = 0 === strpos($this->scripts[$handle]->src, 'http://') ? $this->scripts[$handle]->src : rtrim(bb_get_option( 'uri' ), ' /') . $this->scripts[$handle]->src;
+					$src = $this->scripts[$handle]->src;
+
+					if ( !preg_match('|^https?://|', $src) )
+						$src = rtrim(bb_get_option( 'uri' ), ' /') . $src;
+
 					$src = add_query_arg('ver', $ver, $src);
-					$src = apply_filters( 'bb_script_loader_src', $src );
-					$src = attribute_escape( $src );
-					echo "<script type='text/javascript' src='$src'></script>\n";
+					$src = clean_url(apply_filters( 'bb_script_loader_src', $src ));
 					$this->print_scripts_l10n( $handle );
+					echo "<script type='text/javascript' src='$src'></script>\n";
 				}
 				$this->printed[] = $handle;
 			}
 		}
+
+		$this->to_print = array();
+		return $this->printed;
 	}
 
 	function print_scripts_l10n( $handle ) {
@@ -96,33 +90,43 @@ class BB_Scripts {
 	/**
 	 * Determines dependencies of scripts
 	 *
-	 * Recursively builds hierarchical array of script dependencies.  Does NOT catch infinite loops.
+	 * Recursively builds array of scripts to print taking dependencies into account.  Does NOT catch infinite loops.
 	 *
 	 * @param mixed handles Accepts (string) script name or (array of strings) script names
 	 * @param bool recursion Used internally when function calls itself
-	 * @return array Hierarchical array of dependencies
 	 */
 	function all_deps( $handles, $recursion = false ) {
-		if ( ! $handles = (array) $handles )
-			return array();
-		$return = array();
+		if ( !$handles = (array) $handles )
+			return false;
+
 		foreach ( $handles as $handle ) {
 			$handle = explode('?', $handle);
 			if ( isset($handle[1]) )
 				$this->args[$handle[0]] = $handle[1];
 			$handle = $handle[0];
-			if ( !isset($return[$handle]) ) // Prime the return array with $handles
-				$return[$handle] = true;
-			if ( $this->scripts[$handle]->deps ) {
-				if ( false !== $return[$handle] && array_diff($this->scripts[$handle]->deps, array_keys($this->scripts)) )
-					$return[$handle] = false; // Script required deps which don't exist
+
+			if ( isset($this->to_print[$handle]) ) // Already grobbed it and its deps
+				continue;
+
+			$keep_going = true;
+			if ( !isset($this->scripts[$handle]) )
+				$keep_going = false; // Script doesn't exist
+			elseif ( $this->scripts[$handle]->deps && array_diff($this->scripts[$handle]->deps, array_keys($this->scripts)) )
+				$keep_going = false; // Script requires deps which don't exist (not a necessary check.  efficiency?)
+			elseif ( $this->scripts[$handle]->deps && !$this->all_deps( $this->scripts[$handle]->deps, true ) )
+				$keep_going = false; // Script requires deps which don't exist
+
+			if ( !$keep_going ) { // Either script or its deps don't exist.
+				if ( $recursion )
+					return false; // Abort this branch.
 				else
-					$return[$handle] = $this->all_deps( $this->scripts[$handle]->deps, true ); // Build the hierarchy
+					continue; // We're at the top level.  Move on to the next one.
 			}
-			if ( $recursion && false === $return[$handle] )
-				return false; // Cut the branch
+
+			$this->to_print[$handle] = true;
 		}
-		return $return;
+
+		return true;
 	}
 
 	/**
