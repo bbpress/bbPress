@@ -29,8 +29,6 @@ class bbdb extends bbdb_base {
 		
 		global $bb;
 		
-		$dbhname = 'dbh_local'; // This is the default connection identifier
-		
 		// We can attempt to force the connection identifier in use
 		if ( $this->_force_dbhname ) {
 			$dbhname = $this->_force_dbhname;
@@ -51,6 +49,8 @@ class bbdb extends bbdb_base {
 		// Now setup the parameters for the connection based on the connection identifier
 		switch ($dbhname) {
 			case 'dbh_user':
+				// This can only be forced or set for custom user tables
+				// $dbhname is already set at this stage
 				$server->database = $bb->user_bbdb_name;
 				$server->user     = $bb->user_bbdb_user;
 				$server->pass     = $bb->user_bbdb_password;
@@ -58,6 +58,9 @@ class bbdb extends bbdb_base {
 				$server->charset  = $this->user_charset;
 				break;
 			case 'dbh_local':
+			default:
+				// This is the default connection identifier
+				$dbhname          = 'dbh_local';
 				$server->database = defined('BBDB_NAME')     ? constant('BBDB_NAME')     : false;
 				$server->user     = defined('BBDB_USER')     ? constant('BBDB_USER')     : false;
 				$server->pass     = defined('BBDB_PASSWORD') ? constant('BBDB_PASSWORD') : false;
