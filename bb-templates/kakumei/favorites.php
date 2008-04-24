@@ -25,7 +25,7 @@
 	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
-	<td class="num">[<?php user_favorites_link('', array('mid'=>'x'), $user_id); ?>]</td>
+	<td class="num">[<?php user_favorites_link('', array('mid'=>'&times;'), $user_id); ?>]</td>
 </tr>
 <?php endforeach; ?>
 </table>
