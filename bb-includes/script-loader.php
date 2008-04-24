@@ -57,7 +57,7 @@ function bb_just_in_time_script_localization() {
 		'favLinkNo' => __( '?' ),
 		'favYes' => __( 'This topic is one of your %favLinkYes% [%favDel%]' ),
 		'favNo' => __( '%favAdd% (%favLinkNo%)' ),
-		'favDel' => __( 'x' ),
+		'favDel' => __( '&times;' ),
 		'favAdd' => __( 'Add this topic to your favorites' )
 	));
 }

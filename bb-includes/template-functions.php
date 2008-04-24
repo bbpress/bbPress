@@ -2253,7 +2253,7 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 	if ( empty($add) || !is_array($add) )
 		$add = array('mid' => __('Add this topic to your favorites'), 'post' => __(' (%?%)'));
 	if ( empty($rem) || !is_array($rem) )
-		$rem = array( 'pre' => __('This topic is one of your %favorites% ['), 'mid' => __('x'), 'post' => __(']'));
+		$rem = array( 'pre' => __('This topic is one of your %favorites% ['), 'mid' => __('&times;'), 'post' => __(']'));
 	if ( $user_id ) :
 		if ( !bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
 			return false;
