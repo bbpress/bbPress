@@ -170,11 +170,14 @@ function post_form( $h2 = '' ) {
 
 function edit_form() {
 	global $bb_post;
+	do_action('pre_edit_form');
 	echo "<form class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
 	echo "<fieldset>\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
+	do_action('edit_form');
 	echo "\n</fieldset>\n</form>\n";
+	do_action('post_edit_form');
 }
 
 function alt_class( $key, $others = '' ) {
