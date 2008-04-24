@@ -11,8 +11,8 @@ define('BBDB_COLLATE', '');          // not have these two contstants in them, D
                                      // If you are installing for the first time, leave them here
 
 // Change BB_SECRET_KEY to a unique phrase.  You won't have to remember it later,
-// so make it long and complicated.  You can visit https://www.grc.com/passwords.htm
-// to get a phrase generated for you, or just make something up.
+// so make it long and complicated.  You can visit http://api.wordpress.org/secret-key/1.0/
+// to get a secret key generated for you, or just make something up.
 // If you are integrating logins with WordPress, you will need to match the value
 // of the "SECRET_KEY" in the WordPress file wp-config.php
 define('BB_SECRET_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
