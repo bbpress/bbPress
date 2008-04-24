@@ -58,6 +58,7 @@ class BB_Install
 	 * @var array
 	 **/
 	var $step_status = array(
+		0 => 'incomplete',
 		1 => 'incomplete',
 		2 => 'incomplete',
 		3 => 'incomplete',
@@ -463,6 +464,12 @@ class BB_Install
 			
 		} else {
 			
+			if ( $this->step < 2 && !file_exists(BB_PATH . 'bb-config-sample.php') ) {
+				// There is no sample config file
+				$this->strings[0]['messages']['error'][] = __('I could not find the file <code>bb-config-sample.php</code><br />Please upload it to the root directory of your bbPress installation.');
+				$this->step = 0;
+			}
+			
 			if ( $this->step !== 1 ) {
 				// There is no config file, go back to the beginning
 				$this->strings[0]['messages']['error'][] = __('There doesn\'t seem to be a <code>bb-config.php</code> file. This usually means that you want to install bbPress.');
@@ -761,7 +768,7 @@ class BB_Install
 						'note'      => __('The login details will be emailed to this address.')
 					),
 					'keymaster_user_type' => array(
-						'value' => 'bbPress'
+						'value' => 'new'
 					),
 					'forum_name' => array(
 						'value'     => '',
@@ -1616,7 +1623,7 @@ class BB_Install
 		$keymaster_created = false;
 		
 		switch ($data3['keymaster_user_type']['value']) {
-			case 'bbPress':
+			case 'new':
 				
 				// Check to see if the user login already exists
 				if ($keymaster_user = bb_get_user($data3['keymaster_user_login']['value'])) {
@@ -1683,19 +1690,19 @@ class BB_Install
 				}
 				break;
 			
-			case 'WordPress':
+			case 'old':
 				if ($keymaster_user = bb_get_user($data3['keymaster_user_login']['value'])) {
-					// The keymaster is an existing WordPress user
+					// The keymaster is an existing bbPress or WordPress user
 					$bb_current_user = bb_set_current_user($keymaster_user->ID);
 					$bb_current_user->set_role('keymaster');
-					$data4['keymaster_user_password']['value'] = __('Your WordPress password');
-					$installation_log[] = '>>> ' . __('Key master role assigned to WordPress user');
+					$data4['keymaster_user_password']['value'] = __('Your existing password');
+					$installation_log[] = '>>> ' . __('Key master role assigned to existing user');
 					$installation_log[] = '>>>>>> ' . __('Username:') . ' ' . $data3['keymaster_user_login']['value'];
 					$installation_log[] = '>>>>>> ' . __('Email address:') . ' ' . $data3['keymaster_user_email']['value'];
 					$installation_log[] = '>>>>>> ' . __('Password:') . ' ' . $data4['keymaster_user_password']['value'];
 					$keymaster_created = true;
 				} else {
-					$installation_log[] = '>>> ' . __('Key master role could not be assigned to WordPress user!');
+					$installation_log[] = '>>> ' . __('Key master role could not be assigned to existing user!');
 					$installation_log[] = '>>>>>> ' . __('Halting installation!');
 					$error_log[] = __('Key master could not be created!');
 					$this->step_status[4] = 'incomplete';
@@ -2036,8 +2043,11 @@ class BB_Install
 		if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
 			$bbdb->usermeta = $bb->custom_user_meta_table;
 		
+		global $bb_table_prefix;
+		
+		$bb_keymaster_meta_key = $bbdb->escape( $bb_table_prefix . 'capabilities' );
 		$wp_administrator_meta_key = $bbdb->escape( $bb->wp_table_prefix . 'capabilities' );
-		$wp_administrator_query = <<<EOQ
+		$keymaster_query = <<<EOQ
 			SELECT
 				user_login, user_email, display_name
 			FROM
@@ -2046,8 +2056,16 @@ class BB_Install
 				$bbdb->usermeta ON
 				$bbdb->users.ID = $bbdb->usermeta.user_id
 			WHERE
-				meta_key = '$wp_administrator_meta_key' AND
-				meta_value LIKE '%administrator%' AND
+				(
+					(
+						meta_key = '$wp_administrator_meta_key' AND
+						meta_value LIKE '%administrator%'
+					) OR
+					(
+						meta_key = '$bb_keymaster_meta_key' AND
+						meta_value LIKE '%keymaster%'
+					)
+				) AND
 				user_email IS NOT NULL AND
 				user_email != ''
 			ORDER BY
@@ -2055,19 +2073,24 @@ class BB_Install
 EOQ;
 		$bbdb->hide_errors();
 		
-		if ( $wp_administrators = $bbdb->get_results( $wp_administrator_query, ARRAY_A ) ) {
+		if ( $keymasters = $bbdb->get_results( $keymaster_query, ARRAY_A ) ) {
 			
 			$bbdb->show_errors();
 			
-			if ( count($wp_administrators) ) {
+			if ( count($keymasters) ) {
 				$email_maps = '';
 				$data['options'] = array();
 				$data['onchange'] = 'changeKeymasterEmail(this, \'keymaster_user_email\');';
+				$data['note'] = __('Please select an existing bbPress Keymaster or WordPress administrator.');
 				
 				$data['options'][''] = '';
-				foreach ($wp_administrators as $wp_administrator) {
-					$email_maps .= 'emailMap[\'' . $wp_administrator['user_login'] . '\'] = \'' . $wp_administrator['user_email'] . '\';' . "\n\t\t\t\t\t\t\t\t";
-					$data['options'][$wp_administrator['user_login']] = $wp_administrator['display_name'];
+				foreach ($keymasters as $keymaster) {
+					$email_maps .= 'emailMap[\'' . $keymaster['user_login'] . '\'] = \'' . $keymaster['user_email'] . '\';' . "\n\t\t\t\t\t\t\t\t";
+					if ($keymaster['display_name']) {
+						$data['options'][$keymaster['user_login']] = $keymaster['user_login'] . ' (' . $keymaster['display_name'] . ')';
+					} else {
+						$data['options'][$keymaster['user_login']] = $keymaster['user_login'];
+					}
 				}
 				
 				$this->strings[3]['scripts']['changeKeymasterEmail'] = <<<EOS
@@ -2083,7 +2106,7 @@ EOQ;
 						</script>
 EOS;
 				
-				$this->data[3]['form']['keymaster_user_type']['value'] = 'WordPress';
+				$this->data[3]['form']['keymaster_user_type']['value'] = 'old';
 				
 				return true;
 			}
@@ -2118,6 +2141,7 @@ EOS;
 			foreach ($messages as $type => $paragraphs) {
 				$class = $type ? $type : '';
 				$title = ($type == 'error') ? __('Warning') : __('Message');
+				$first_character = ($type == 'error') ? '!' : '&raquo;';
 				
 				foreach ($paragraphs as $paragraph) {
 					$i++;
@@ -2125,7 +2149,7 @@ EOS;
 					
 					$r .= '<p class="' . $class . '">' . "\n";
 					if ($type) {
-						$r .= '<span class="first" title="' . $title . '">!</span>' . "\n";
+						$r .= '<span class="first" title="' . $title . '">' . $first_character . '</span>' . "\n";
 					}
 					$r .= $paragraph . "\n";
 					$r .= '</p>' . "\n";
@@ -2137,7 +2161,7 @@ EOS;
 	
 	function intro()
 	{
-		if (isset($this->strings[$this->step]['intro'])) {
+		if ($this->step_status[$this->step] == 'incomplete' && isset($this->strings[$this->step]['intro'])) {
 			$messages = $this->strings[$this->step]['intro'];
 			$count = count($messages);
 			$i = 0;

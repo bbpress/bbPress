@@ -17,7 +17,7 @@ if ($bb_install->load_includes) {
 	require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
 	require_once(BB_PATH . BB_INC . 'wp-functions.php');
 	require_once(BB_PATH . BB_INC . 'functions.php');
-	require_once(BB_PATH . BB_INC . 'kses.php');
+	require_once(BACKPRESS_PATH . 'functions.kses.php');
 	require_once(BB_PATH . BB_INC . 'l10n.php');
 }
 
@@ -295,7 +295,7 @@ switch ($bb_install->step) {
 					<fieldset>
 						<legend><?php _e('"Key master" account'); ?></legend>
 <?php
-					if ($bb_install->step_status[2] == 'complete' && $bb_install->populate_keymaster_user_login_from_user_tables()) {
+					if ($bb_install->populate_keymaster_user_login_from_user_tables()) {
 						echo $bb_install->strings[3]['scripts']['changeKeymasterEmail'];
 						$bb_install->select('keymaster_user_login');
 						$bb_install->input_hidden('keymaster_user_email');
