@@ -27,6 +27,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
 	$bb_upgrade[] = bb_upgrade_1050(); // Update active theme if present
 	$bb_upgrade[] = bb_upgrade_1060(); // throttle_time option
+	$bb_upgrade[] = bb_upgrade_1070(); // trim whitespace from raw_tag
 	bb_update_db_version();
 	return $bb_upgrade; 
 }
@@ -589,6 +590,18 @@ function bb_upgrade_1060() {
 	bb_update_option( 'bb_db_version', 1435 );
 
 	return 'throttle_limit option added: ' . __FUNCTION__;
+}
+
+function bb_upgrade_1070() {
+	global $bbdb;
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1467 )
+		return;
+
+	$bbdb->query( "UPDATE `$bbdb->tags` SET `raw_tag` = TRIM(`raw_tag`)" );
+
+	bb_update_option( 'bb_db_version', 1467 );
+
+	return 'Whitespace trimmed from raw_tag: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {
