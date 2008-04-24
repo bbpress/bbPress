@@ -265,7 +265,7 @@ foreach ($cookie_settings as $bb_setting) {
 	}
 }
 ?>
-			<p id="config_paragraph" style="display:none"><?php _e('If your integration settings will not change, you can help speed up bbPress by adding the following code to your <code>config.php</code> file in the root directory of your bbPress installation. Afterwards, the settings in this form will reflect the hard coded values, but you will not be able to edit them here.'); ?></p>
+			<p id="config_paragraph" style="display:none"><?php _e('If your integration settings will not change, you can help speed up bbPress by adding the following code to your <code>bb-config.php</code> file in the root directory of your bbPress installation. Afterwards, the settings in this form will reflect the hard coded values, but you will not be able to edit them here.'); ?></p>
 			<pre id="config_code" class="block" style="display:none"><?php echo($bb_settings); ?></pre>
 		</div>
 		<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
