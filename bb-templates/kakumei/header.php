@@ -7,13 +7,10 @@
 	<link rel="stylesheet" href="<?php bb_stylesheet_uri(); ?>" type="text/css" />
 <?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_stylesheet_uri( 'rtl' ); ?>" type="text/css" />
-<?php endif;
+<?php endif; ?>
 
-if ( is_topic() && bb_is_user_logged_in() )
-	wp_enqueue_script('topic');
-bb_head();
+<?php bb_head(); ?>
 
- ?>
 </head>
 
 <body id="<?php bb_location(); ?>">
@@ -31,6 +28,3 @@ bb_head();
 	
 		<div id="main">
 <?php if ( is_bb_profile() ) profile_menu(); ?>
-
-
-

@@ -39,6 +39,7 @@ add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8', 10, 3
 
 add_filter('get_user_link', 'bb_fix_link');
 
+add_action('bb_head', 'bb_template_scripts');
 add_action('bb_head', 'wp_print_scripts');
 add_action('bb_admin_print_scripts', 'wp_print_scripts');
 

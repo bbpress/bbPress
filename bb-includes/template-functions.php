@@ -2307,4 +2307,9 @@ function _bb_time_function_return( $time, $args ) {
 	return bb_gmdate_i18n( $format, $time );
 }
 
+function bb_template_scripts() {
+	if ( is_topic() && bb_is_user_logged_in() )
+		wp_enqueue_script( 'topic' );
+}
+
 ?>
