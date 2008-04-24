@@ -17,7 +17,7 @@ class BB_Scripts {
 		$this->add( 'topic', '/' . BB_INC . 'js/topic.js', array('add-load-event', 'listman', 'jquery'), '20080422' );
 		$this->add( 'jquery', '/' . BB_INC . 'js/jquery/jquery.js', false, '1.1.3.1');
 		$this->add( 'interface', '/' . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
-		$this->add( 'jquery-color', '/' . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
+		$this->add( 'jquery-color', '/' . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
 		$this->add( 'add-load-event', '/' . BB_INC . 'js/add-load-event.js' );
 		$this->add( 'content-forums', '/bb-admin/js/content-forums.js', array('listman', 'interface'), '20080319' );
 		$this->localize( 'content-forums', 'bbSortForumsL10n', array(
