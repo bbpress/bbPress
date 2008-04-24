@@ -49,7 +49,7 @@ case 'add-tag' : // $id is topic_id
 		$x->add( array(
 			'what' => 'tag',
 			'id' => $tag_id_val,
-			'data' => "<li id='tag-$tag_id_val'><a href='" . bb_get_tag_link() . "' rel='tag'>$tag->raw_tag</a> " . bb_get_tag_remove_link() . '</li>' 
+			'data' => _bb_list_tag_item( $tag, array( 'list_id' => 'tags-list', 'format' => 'list' ) )
 		) );
 	}
 	$x->send();
@@ -78,26 +78,23 @@ case 'delete-tag' :
 	break;
 
 case 'dim-favorite' :
-	$topic_id = (int) @$_POST['topic_id'];
-	$user_id  = (int) @$_POST['user_id'];
+	$user_id  = bb_get_current_user_info( 'id' );
 
-	$topic = get_topic( $topic_id );
-	$user = bb_get_user( $user_id );
-	if ( !$topic || !$user )
+	if ( !$topic = get_topic( $id ) )
 		die('0');
 
-	if ( !bb_current_user_can( 'edit_favorites_of', $user->ID ) )
+	if ( !bb_current_user_can( 'edit_favorites_of', $user_id ) )
 		die('-1');
 
-	bb_check_ajax_referer( "toggle-favorite_$topic_id" );
+	bb_check_ajax_referer( "toggle-favorite_$topic->topic_id" );
 
-	$is_fav = is_user_favorite( $user_id, $topic_id );
+	$is_fav = is_user_favorite( $user_id, $topic->topic_id );
 
 	if ( 1 == $is_fav ) {
-		if ( bb_remove_user_favorite( $user_id, $topic_id ) )
+		if ( bb_remove_user_favorite( $user_id, $topic->topic_id ) )
 			die('1');
 	} elseif ( false === $is_fav ) {
-		if ( bb_add_user_favorite( $user_id, $topic_id ) )
+		if ( bb_add_user_favorite( $user_id, $topic->topic_id ) )
 			die('1');
 	}
 	break;

@@ -956,7 +956,7 @@ function bb_create_tag( $tag ) {
 		return false;
 	if ( $exists = (int) $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE raw_tag = %s", $raw_tag ) ) )
 		return $exists;
-	
+
 	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT tag FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
 		$tag = bb_slug_increment($_tag, $existing_tag);
 	
@@ -1051,45 +1051,51 @@ function bb_destroy_tag( $tag_id, $recount_topics = true ) {
 	return array( 'tags' => $tags, 'tagged' => $tagged );
 }
 
-function bb_get_tag_id( $tag ) {
-	global $bbdb;
-	$tag     = bb_tag_sanitize( $tag );
-
-	return (int) $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE tag = %s", $tag ) );
+function bb_get_tag_id( $id = 0 ) {
+	global $bbdb, $tag;
+	if ( $id ) {
+		$_tag = bb_get_tag( $id );
+	} else {
+		$_tag =& $tag;
+	}
+	return (int) $_tag->tag_id;
 }
 
 function bb_get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
 	global $bbdb;
-	$tag_id   = (int) $tag_id;
+	if ( is_numeric( $tag_id ) ) {
+		$tag_id  = (int) $tag_id;
+		$where = "WHERE $bbdb->tags.tag_id = %d";
+	} else {
+		$tag_id = bb_tag_sanitize( $tag_id );
+		$where = "WHERE $bbdb->tags.tag = %s";
+	}
 	$user_id  = (int) $user_id;
 	$topic_id = (int) $topic_id;
+
 	if ( $user_id && $topic_id )
 		return $bbdb->get_row( $bbdb->prepare( 
-			"SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = %d AND user_id = %d AND topic_id = %d", $tag_id, $user_id, $topic_id
+			"SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) $where AND user_id = %d AND topic_id = %d", $tag_id, $user_id, $topic_id
 		) );
 
 	return $bbdb->get_row( $bbdb->prepare(
-		"SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE $bbdb->tags.tag_id = %d LIMIT 1", $tag_id
+		"SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) $where LIMIT 1", $tag_id
 	) );
 }
 
 function bb_get_tag_by_name( $tag ) {
-	global $bbdb, $tag_cache;
-
-	$tag = bb_tag_sanitize( $tag );
-
-	if ( isset($tag_cache[$tag]) )
-		return $tag_cache[$tag];
-
-	return $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag = %s", $tag ) );
+	return bb_get_tag( $tag );
 }
 
-function bb_get_topic_tags( $topic_id ) {
+function bb_get_topic_tags( $topic_id = 0 ) {
 	global $topic_tag_cache, $bbdb;
 
-	$topic_id = (int) $topic_id;
+	if ( !$topic = get_topic( get_topic_id( $topic_id ) ) )
+		return false;
+
+	$topic_id = (int) $topic->topic_id;
 	
-	if ( isset ($topic_tag_cache[$topic_id] ) )
+	if ( isset($topic_tag_cache[$topic_id]) )
 		return $topic_tag_cache[$topic_id];
 
 	$topic_tag_cache[$topic_id] = $bbdb->get_results( $bbdb->prepare(

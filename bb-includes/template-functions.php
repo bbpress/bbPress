@@ -1957,14 +1957,72 @@ function bb_get_tag_rss_link( $tag_id = 0 ) {
 	return apply_filters( 'get_tag_rss_link', $link, $tag_id );
 }
 
-function tag_form() {
-	global $topic;
+function bb_list_tags( $args = null ) {
+	$defaults = array(
+		'tags' => false,
+		'format' => 'list',
+		'topic' => 0,
+		'list_id' => 'tags-list'
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	if ( !$topic = get_topic( get_topic_id( $topic ) ) )
+		return false;
+
+	if ( !is_array($tags) )
+		$tags = bb_get_topic_tags( $topic->topic_id );
+
+	if ( !$tags )
+		return false;
+
+	$list_id = attribute_escape( $list_id );
+
+	$r = '';
+	switch ( strtolower($format) ) :
+	case 'table' :
+		break;
+	case 'list' :
+	default :
+		$args['format'] = 'list';
+		$r .= "<ul id='$list_id' class='tags-list list:tag'>\n";
+		foreach ( $tags as $tag )
+			$r .= _bb_list_tag_item( $tag, $args );
+		$r .= "</ul>";
+	endswitch;
+	echo $r;
+}
+
+function _bb_list_tag_item( $tag, $args ) {
+	$url = clean_url( bb_get_tag_link( $tag->tag ) );
+	$name = wp_specialchars( bb_get_tag_name( $tag->tag_id ) );
+	if ( 'list' == $args['format'] )
+		return "\t<li id='tag-{$tag->tag_id}_{$tag->user_id}'><a href='$url' rel='tag'>$name</a> " . bb_get_tag_remove_link( array( 'tag' => $tag->tag_id, 'list_id' => $args['list_id'] ) ) . "</li>\n";
+}
+	
+function tag_form( $args = null ) {
+	$defaults = array( 'topic' => 0, 'submit' => __('Add &raquo;'), 'list_id' => 'tags-list' );
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	if ( !$topic = get_topic( get_topic_id( $topic ) ) )
+		return false;
+
 	if ( !bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 		return false;
-	echo "<form id='tag-form' method='post' action='" . bb_get_option('uri') . "tag-add.php'><fieldset>\n";
-	bb_load_template( 'tag-form.php' );
-	bb_nonce_field( 'add-tag_' . $topic->topic_id );
-	echo "</fieldset></form>";
+?>
+
+<form id="tag-form" method="post" action="<?php bb_option('uri'); ?>tag-add.php" class="add:<?php echo attribute_escape( $list_id ); ?>:">
+	<p>
+		<input name="tag" type="text" id="tag" />
+		<input type="hidden" name="id" value="<?php echo $topic->topic_id; ?>" />
+		<?php bb_nonce_field( 'add-tag_' . $topic->topic_id ); ?>
+		<input type="submit" name="submit" id="tagformsub" value="<?php echo attribute_escape( $submit ); ?>" />
+	</p>
+</form>
+
+<?php
 }
 
 function manage_tags_forms() {
@@ -1999,17 +2057,28 @@ function manage_tags_forms() {
 	echo "\n\t</div></form>\n  </li>\n</ul>";
 }
 
-function bb_tag_remove_link() {
-	echo bb_get_tag_remove_link();
+function bb_tag_remove_link( $args = null ) {
+	echo bb_get_tag_remove_link( $args );
 }
 
-function bb_get_tag_remove_link() {
-	global $tag, $topic;
+function bb_get_tag_remove_link( $args = null ) {
+	if ( is_scalar($args) )
+		$args = array( 'tag' => $args );
+	$defaults = array( 'tag' => 0, 'topic' => 0, 'list_id' => 'tags-list' );
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	if ( !$tag = bb_get_tag( bb_get_tag_id( $tag ) ) )
+		return false;
+	if ( !$topic = get_topic( get_topic_id( $topic ) ) )
+		return false;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 	$url = add_query_arg( array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id), bb_get_option('uri') . 'tag-remove.php' );
-	$r = '[<a href="' . attribute_escape( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) ) . '" onclick="return ajaxDelTag(' . $tag->tag_id . ', ' . $tag->user_id . ', \'' . js_escape($tag->raw_tag) . '\', this);" title="' . attribute_escape( __('Remove this tag') ) . '">&times;</a>]';
-	return $r;
+	$url = clean_url( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) );
+	$title = attribute_escape( __('Remove this tag') );
+	$list_id = attribute_escape( $list_id );
+	return "[<a href='$url' class='delete:$list_id:tag-{$tag->tag_id}_{$tag->user_id}' title='$title'>&times;</a>]";
 }
 
 function bb_tag_heat_map( $args = '' ) {
@@ -2194,22 +2263,25 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 		$user =& $bb_current_user->data;
 	endif;
 
+        $url = clean_url( get_favorites_link( $user_id ) );
 	if ( $is_fav = is_user_favorite( $user->ID, $topic->topic_id ) ) :
-		$rem = preg_replace('|%(.+)%|', "<a href='" . attribute_escape( get_favorites_link( $user_id ) ) . "'>$1</a>", $rem);
+		$rem = preg_replace('|%(.+)%|', "<a href='$url'>$1</a>", $rem);
 		$favs = array('fav' => '0', 'topic_id' => $topic->topic_id);
 		$pre  = ( is_array($rem) && isset($rem['pre'])  ) ? $rem['pre']  : '';
 		$mid  = ( is_array($rem) && isset($rem['mid'])  ) ? $rem['mid']  : ( is_string($rem) ? $rem : '' );
 		$post = ( is_array($rem) && isset($rem['post']) ) ? $rem['post'] : '';
 	elseif ( false === $is_fav ) :
-		$add = preg_replace('|%(.+)%|', "<a href='" . attribute_escape( get_favorites_link( $user_id ) ) . "'>$1</a>", $add);
+		$add = preg_replace('|%(.+)%|', "<a href='$url'>$1</a>", $add);
 		$favs = array('fav' => '1', 'topic_id' => $topic->topic_id);
 		$pre  = ( is_array($add) && isset($add['pre'])  ) ? $add['pre']  : '';
 		$mid  = ( is_array($add) && isset($add['mid'])  ) ? $add['mid']  : ( is_string($add) ? $add : '' );
 		$post = ( is_array($add) && isset($add['post']) ) ? $add['post'] : '';
 	endif;
 
+	$url = clean_url(  bb_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) );
+
 	if (  !is_null($is_fav) )
-		echo "$pre<a href='" . attribute_escape( bb_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) ) . "'>$mid</a>$post";
+		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-not-favorite'>$mid</a>$post</span>";
 }
 
 function favorites_rss_link( $id = 0 ) {
