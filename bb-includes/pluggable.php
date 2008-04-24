@@ -245,7 +245,7 @@ function wp_salt() {
 		if (!defined('BB_INSTALLING')) {
 			$salt = bb_get_option('secret');
 			if ( empty($salt) ) {
-				$salt = wp_generate_password();
+				$salt = wp_generate_password(64);
 				bb_update_option('secret', $salt);
 			}
 		}
