@@ -663,7 +663,7 @@ class BB_Install
 					'wp_secret' => array(
 						'value' => '',
 						'label' => __('WordPress database secret'),
-						'note'  => __('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'),
+						'note'  => __('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'toggle_2_2' => array(
@@ -1123,9 +1123,6 @@ class BB_Install
 				$data['wp_secret_key']['value'] = str_replace("'", '', $data['wp_secret_key']['value']);
 				// Check the secret key for errors
 				$this->strings[2]['form_errors']['wp_secret_key'][] = empty($data['wp_secret_key']['value']) ? 'empty' : false;
-				
-				// Check the database secret for errors
-				$this->strings[2]['form_errors']['wp_secret'][] = empty($data['wp_secret']['value']) ? 'empty' : false;
 			}
 			
 			// If database integration is selected
@@ -1564,11 +1561,33 @@ class BB_Install
 					$installation_log[] = '>>> ' . __('WordPress cookie secret key set.');
 				}
 				
-				bb_update_option('secret', $data2['wp_secret']['value']);
-				$installation_log[] = '>>> ' . __('WordPress database secret set.');
+				if (!empty($data2['wp_secret']['value'])) {
+					bb_update_option('secret', $data2['wp_secret']['value']);
+					$installation_log[] = '>>> ' . __('WordPress database secret set.');
+				} else {
+					$fetch_wp_secret = true;
+				}
 			}
 			
 			if ($data2['toggle_2_2']['value']) {
+				if ($fetch_wp_secret) {
+					$installation_log[] = '>>> ' . __('Fetching WordPress database secret.');
+					array_push($bbdb->tables, 'options');
+					$bbdb->set_prefix( $bb->wp_table_prefix, array('options') );
+					$bbdb->force_user_connection = true;
+					$wp_secret = $bbdb->get_var("SELECT `option_value` FROM $bbdb->options WHERE `option_name` = 'secret' LIMIT 1");
+					$bbdb->force_user_connection = false;
+					if ($wp_secret) {
+						bb_update_option('secret', $wp_secret);
+						$installation_log[] = '>>>>>> ' . __('WordPress database secret set.');
+					} else {
+						$error_log[] = '>>> ' . __('WordPress database secret key not set.');
+						$error_log[] = '>>>>>> ' . __('Could not fetch secret from the WordPress options table.');
+						$error_log[] = '>>>>>> ' . __('You will need to manually define the secret in your database.');
+						$installation_log[] = '>>>>>> ' . __('WordPress database secret key not set.');
+					}
+				}
+				
 				if ( !empty($data2['wp_table_prefix']['value']) ) {
 					bb_update_option('wp_table_prefix', $data2['wp_table_prefix']['value']);
 					$installation_log[] = '>>> ' . __('User database table prefix:') . ' ' . $data2['wp_table_prefix']['value'];

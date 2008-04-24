@@ -29,7 +29,7 @@ class bbdb extends bbdb_base {
 		
 		global $bb;
 		
-		if ( isset($bb->user_bbdb_name) && $bb->user_bbdb_name && ( $table == $this->users || $table == $this->usermeta ) ) { // global user tables
+		if ( isset($bb->user_bbdb_name) && $bb->user_bbdb_name && ( $table == $this->users || $table == $this->usermeta || $this->force_user_connection ) ) { // global user tables
 			$dbhname =          'dbh_user'; // This is connection identifier
 			$server->database = $bb->user_bbdb_name;
 			$server->user =     $bb->user_bbdb_user;
