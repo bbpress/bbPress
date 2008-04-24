@@ -29,24 +29,45 @@ class bbdb extends bbdb_base {
 		
 		global $bb;
 		
-		if ( isset($bb->user_bbdb_name) && $bb->user_bbdb_name && ( $table == $this->users || $table == $this->usermeta || $this->force_user_connection ) ) { // global user tables
-			$dbhname =          'dbh_user'; // This is connection identifier
-			$server->database = $bb->user_bbdb_name;
-			$server->user =     $bb->user_bbdb_user;
-			$server->pass =     $bb->user_bbdb_password;
-			$server->host =     $bb->user_bbdb_host;
-			$server->port =     null;
-			$server->socket =   null;
-			$server->charset =  $this->user_charset;
-		} else { // just us
-			$dbhname =          'dbh_local'; // This is connection identifier
-			$server->database = defined('BBDB_NAME')     ? constant('BBDB_NAME')     : false;
-			$server->user =     defined('BBDB_USER')     ? constant('BBDB_USER')     : false;
-			$server->pass =     defined('BBDB_PASSWORD') ? constant('BBDB_PASSWORD') : false;
-			$server->host =     defined('BBDB_HOST')     ? constant('BBDB_HOST')     : false;
-			$server->port =     null;
-			$server->socket =   null;
-			$server->charset =  $this->charset;
+		$dbhname = 'dbh_local'; // This is the default connection identifier
+		
+		// We can attempt to force the connection identifier in use
+		if ( $this->_force_dbhname ) {
+			$dbhname = $this->_force_dbhname;
+		}
+		
+		// But sometimes it's not possible to force things
+		if ( !isset($bb->user_bbdb_name) ) {
+			// Always drop back to dbh_local if no custom user database is set
+			$dbhname = 'dbh_local';
+		} elseif ( empty($bb->user_bbdb_name) ) {
+			// Or if it is empty
+			$dbhname = 'dbh_local';
+		} elseif ( $table == $this->users || $table == $this->usermeta ) {
+			// But if they are set and we are querying the user tables then always use dbh_user
+			$dbhname = 'dbh_user';
+		}
+		
+		// Now setup the parameters for the connection based on the connection identifier
+		switch ($dbhname) {
+			case 'dbh_user':
+				$server->database = $bb->user_bbdb_name;
+				$server->user     = $bb->user_bbdb_user;
+				$server->pass     = $bb->user_bbdb_password;
+				$server->host     = $bb->user_bbdb_host;
+				$server->port     = null;
+				$server->socket   = null;
+				$server->charset  = $this->user_charset;
+				break;
+			case 'dbh_local':
+				$server->database = defined('BBDB_NAME')     ? constant('BBDB_NAME')     : false;
+				$server->user     = defined('BBDB_USER')     ? constant('BBDB_USER')     : false;
+				$server->pass     = defined('BBDB_PASSWORD') ? constant('BBDB_PASSWORD') : false;
+				$server->host     = defined('BBDB_HOST')     ? constant('BBDB_HOST')     : false;
+				$server->port     = null;
+				$server->socket   = null;
+				$server->charset  = $this->charset;
+				break;
 		}
 		
 		// Set the port if it is specified in the host

@@ -1574,9 +1574,9 @@ class BB_Install
 					$installation_log[] = '>>> ' . __('Fetching WordPress database secret.');
 					array_push($bbdb->tables, 'options');
 					$bbdb->set_prefix( $bb->wp_table_prefix, array('options') );
-					$bbdb->force_user_connection = true;
+					$bbdb->_force_dbhname = 'dbh_user';
 					$wp_secret = $bbdb->get_var("SELECT `option_value` FROM $bbdb->options WHERE `option_name` = 'secret' LIMIT 1");
-					$bbdb->force_user_connection = false;
+					$bbdb->_force_dbhname = false;
 					if ($wp_secret) {
 						bb_update_option('secret', $wp_secret);
 						$installation_log[] = '>>>>>> ' . __('WordPress database secret set.');

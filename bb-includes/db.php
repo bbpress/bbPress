@@ -27,7 +27,7 @@ class bbdb_base {
 	var $tags;
 	var $tagged;
 
-	var $force_user_connection = false;
+	var $_force_dbhname = false;
 
 	var $charset;
 	var $collate;
