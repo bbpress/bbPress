@@ -1447,7 +1447,7 @@ function bb_get_option( $option ) {
 		return '1.0-dev'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '1435'; // Don't filter
+		return '1467'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
