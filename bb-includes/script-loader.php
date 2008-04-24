@@ -9,7 +9,7 @@ function bb_default_scripts( &$scripts ) {
 	$scripts->add( 'topic', $base . BB_INC . 'js/topic.js', array('add-load-event', 'listman', 'jquery'), '20080422' );
 	$scripts->add( 'jquery', $base . BB_INC . 'js/jquery/jquery.js', false, '1.1.3.1');
 	$scripts->add( 'interface', $base . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
-	$scripts->add( 'jquery-color', $base . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '1.0' );
+	$scripts->add( 'jquery-color', $base . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
 	$scripts->add( 'add-load-event', $base . BB_INC . 'js/add-load-event.js' );
 	$scripts->add( 'content-forums', $base . '/bb-admin/js/content-forums.js', array('listman', 'interface'), '20080309' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
