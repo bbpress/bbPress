@@ -1399,6 +1399,13 @@ class BB_Install
 		return 'complete';
 	}
 	
+	function remove_user_tables_from_schema($schema)
+	{
+		unset($schema['users']);
+		unset($schema['usermeta']);
+		return $schema;
+	}
+	
 	function process_form_finalise_installation()
 	{
 		require_once(BB_PATH . 'bb-admin/upgrade-functions.php');
@@ -1422,7 +1429,7 @@ class BB_Install
 		global $bbdb;
 		
 		// Setup user table variables and constants if available
-		if ($data2['toggle_2_1']['value']) {
+		if ($data2['toggle_2_2']['value']) {
 			
 			$installation_log[] = '>>> ' . __('Setting up custom user table constants');
 			
@@ -1459,6 +1466,9 @@ class BB_Install
 			// Set the usermeta table's custom name if defined
 			if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
 				$bbdb->usermeta = $bb->custom_user_meta_table;
+			
+			add_filter( 'bb_schema', array(&$this, 'remove_user_tables_from_schema') );
+			$installation_log[] = '>>>>>> ' . __('Removed user tables from schema');
 		}
 		
 		// Create the database
