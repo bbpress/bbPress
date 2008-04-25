@@ -84,7 +84,7 @@ switch ($step) {
 			<div>
 				<h2><?php _e('Database upgrade required'); ?></h2>
 				<p class="error">
-					<span class="first">!</span> <?php _e('It look\'s like your database is out-of-date.<br />You can update it here.'); ?>
+					<span class="first">!</span> <?php _e('It looks like your database is out-of-date.<br />You can update it here.'); ?>
 				</p>
 				<form action="upgrade.php" method="post">
 					<fieldset class="buttons">
