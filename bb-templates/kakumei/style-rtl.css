@@ -21,6 +21,13 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 	right: auto;
 }
 
+#header p.description {
+	font-family: Tahoma, Georgia;
+	text-align: left;
+	left: 53px;
+	right: auto;
+}
+
 /* Login Form
 =================================== */
 

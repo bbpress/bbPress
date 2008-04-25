@@ -81,7 +81,22 @@ img.avatar { border: 1px solid #ddd; }
 	text-align: right;
 	letter-spacing: -1px;
 	right: 53px;
-	bottom: 25px;
+	bottom: 26px;
+	padding: 6px;
+	z-index: 2;
+}
+
+#header p.description {
+	font-size: 1.2em;
+	font-family: Georgia;
+	font-style: italic;
+	overflow: auto;
+	position: absolute;
+	display: block;
+	color: #666;
+	text-align: right;
+	right: 53px;
+	bottom: 13px;
 	padding: 6px;
 	z-index: 2;
 }
