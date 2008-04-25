@@ -1393,6 +1393,18 @@ class BB_Install
 		return 'complete';
 	}
 	
+	function remove_users_table_from_schema($schema)
+	{
+		unset($schema['users']);
+		return $schema;
+	}
+
+	function remove_usermeta_table_from_schema($schema)
+	{
+		unset($schema['usermeta']);
+		return $schema;
+	}
+	
 	function process_form_finalise_installation()
 	{
 		require_once(BB_PATH . 'bb-admin/upgrade-functions.php');
@@ -1416,14 +1428,18 @@ class BB_Install
 		global $bbdb;
 		
 		// Setup user table variables and constants if available
-		if ($data2['toggle_2_1']['value']) {
+		if ($data2['toggle_2_2']['value']) {
 			
 			$installation_log[] = '>>> ' . __('Setting up custom user table constants');
 			
 			global $bb;
 			
-			if ( !empty($data2['wp_table_prefix']['value']) )
+			if ( !empty($data2['wp_table_prefix']['value']) ) {
 				$bb->wp_table_prefix = $data2['wp_table_prefix']['value'];
+				add_filter( 'bb_schema', array(&$this, 'remove_users_table_from_schema') );
+				add_filter( 'bb_schema', array(&$this, 'remove_usermeta_table_from_schema') );
+				$installation_log[] = '>>>>>> ' . __('Removed user tables from schema');
+			}
 			if ( !empty($data2['user_bbdb_name']['value']) )
 				$bb->user_bbdb_name = $data2['user_bbdb_name']['value'];
 			if ( !empty($data2['user_bbdb_user']['value']) )
@@ -1434,10 +1450,16 @@ class BB_Install
 				$bb->user_bbdb_host = $data2['user_bbdb_host']['value'];
 			if ( !empty($data2['user_bbdb_charset']['value']) )
 				$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $data2['user_bbdb_charset']['value'] );
-			if ( !empty($data2['custom_user_table']['value']) )
+			if ( !empty($data2['custom_user_table']['value']) ) {
 				$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $data2['custom_user_table']['value'] );
-			if ( !empty($data2['custom_user_meta_table']['value']) )
+				add_filter( 'bb_schema', array(&$this, 'remove_users_table_from_schema') );
+				$installation_log[] = '>>>>>> ' . __('Removed users table from schema');
+			}
+			if ( !empty($data2['custom_user_meta_table']['value']) ) {
 				$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $data2['custom_user_meta_table']['value'] );
+				add_filter( 'bb_schema', array(&$this, 'remove_usermeta_table_from_schema') );
+				$installation_log[] = '>>>>>> ' . __('Removed usermeta table from schema');
+			}
 			
 			// Set the new prefix for user tables
 			$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
