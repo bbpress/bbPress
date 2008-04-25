@@ -10,7 +10,7 @@ if ($_POST['action'] == 'update') {
 			$option = trim( $option );
 			$value = is_array( $value ) ? $value : trim( $value );
 			$value = stripslashes_deep( $value );
-			if ($option == 'uri') {
+			if ($option == 'uri' && !empty($value)) {
 				$value = rtrim($value) . '/';
 			}
 			if ( $value ) {
@@ -45,6 +45,14 @@ bb_get_admin_header();
 			</label>
 			<div>
 				<input class="text long" name="name" id="name" value="<?php bb_form_option('name'); ?>" />
+			</div>
+		</div>
+		<div>
+			<label for="description">
+				<?php _e('Site description'); ?>
+			</label>
+			<div>
+				<input class="text long" name="description" id="description" value="<?php bb_form_option('description'); ?>" />
 			</div>
 		</div>
 		<div>

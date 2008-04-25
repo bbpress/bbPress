@@ -1541,6 +1541,7 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 	$base_options = array(
 		// 'bb_db_version' if not present gets set by upgrade script
 		'name' => __('Please give me a name!'),
+		'description' => '',
 		// 'uri' if missing causes massive failure anyway
 		'from_email' => '',
 		// 'secret' is auto-generated if not present

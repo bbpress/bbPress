@@ -1737,11 +1737,28 @@ class BB_Install
 		}
 		
 		if (!$this->database_tables_are_installed()) {
+			if ($this->language != BB_LANG) {
+				global $locale, $l10n;
+				$locale = BB_LANG;
+				unset($l10n['default']);
+				load_default_textdomain();
+			}
+			
+			$description = __('Just another bbPress community');
+			bb_update_option('description', $description);
+			
+			if ($this->language != BB_LANG) {
+				$locale = $this->language;
+				unset($l10n['default']);
+				load_default_textdomain();
+			}
+			
+			$installation_log[] = '>>> ' . __('Description:') . ' ' . $description;
+			
 			if ($forum_id = bb_new_forum(array('forum_name' => $data3['forum_name']['value']))) {
 				$installation_log[] = '>>> ' . __('Forum name:') . ' ' . $data3['forum_name']['value'];
 				
 				if ($this->language != BB_LANG) {
-					global $locale, $l10n;
 					$locale = BB_LANG;
 					unset($l10n['default']);
 					load_default_textdomain();
