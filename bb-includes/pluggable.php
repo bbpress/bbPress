@@ -128,7 +128,11 @@ function wp_validate_auth_cookie($cookie = '') {
 		$cookie = $_COOKIE[$bb->authcookie];
 	}
 
-	list($username, $expiration, $hmac) = explode('|', $cookie);
+	$cookie_elements = explode('|', $cookie);
+	if ( count($cookie_elements) != 3 )
+		return false;
+
+	list($username, $expiration, $hmac) = $cookie_elements;
 
 	$expired = $expiration;
 
