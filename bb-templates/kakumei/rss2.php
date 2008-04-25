@@ -10,7 +10,7 @@
 <channel>
 <title><?php echo $title; ?></title>
 <link><?php bb_option('uri'); ?></link>
-<description><?php echo $title; ?></description>
+<description><?php echo $description; ?></description>
 <language>en</language>
 <pubDate><?php echo gmdate('D, d M Y H:i:s +0000'); ?></pubDate>
 

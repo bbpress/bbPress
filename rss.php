@@ -150,8 +150,12 @@ do_action( 'bb_rss.php', '' );
 
 bb_send_304( $posts[0]->post_time );
 
+if (!$description = bb_get_option('description')) {
+	$description = $title;
+}
 $title = apply_filters( 'bb_title_rss', $title );
+$description = apply_filters( 'bb_description_rss', $description );
 
-bb_load_template( 'rss2.php', array('bb_db_override', 'title') );
+bb_load_template( 'rss2.php', array('bb_db_override', 'title', 'description') );
 
 ?>
