@@ -5,6 +5,11 @@ if ($_POST['action'] == 'update') {
 	
 	bb_check_admin_referer( 'options-general-update' );
 	
+	// Deal with avatars checkbox when it isn't checked
+	if (!$_POST['avatars_show']) {
+		$_POST['avatars_show'] = false;
+	}
+	
 	foreach ( (array) $_POST as $option => $value ) {
 		if ( !in_array( $option, array('_wpnonce', '_wp_http_referer', 'action', 'submit') ) ) {
 			$option = trim( $option );
