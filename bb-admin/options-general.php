@@ -6,7 +6,7 @@ if ($_POST['action'] == 'update') {
 	bb_check_admin_referer( 'options-general-update' );
 	
 	// Deal with avatars checkbox when it isn't checked
-	if (!$_POST['avatars_show']) {
+	if (!isset($_POST['avatars_show'])) {
 		$_POST['avatars_show'] = false;
 	}
 	
