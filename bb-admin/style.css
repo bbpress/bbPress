@@ -635,3 +635,7 @@ form.options fieldset div input#submit:active {
 	border-left-color: #999;
 	border-top-color: #999;
 }
+
+.hidden {
+	display: none;
+}

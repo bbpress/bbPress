@@ -12,19 +12,19 @@
 <table width="100%">
 <?php if ( $user_safe === false ) : ?>
 <tr class="error">
-<th scope="row"><?php _e('Username:'); ?></th>
+<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
 <td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" /><br />
 <?php _e('Your username was not valid, please try again'); ?></td>
 </tr>
 <?php else : ?>
 <tr class="required">
-<th scope="row"><sup class="required">*</sup> <?php _e('Username:'); ?></th>
+<th scope="row"><label for="user_login"><sup class="required">*</sup> <?php _e('Username:'); ?></label></th>
 <td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" /></td>
 </tr>
 <?php endif; ?>
 <?php if ( is_array($profile_info_keys) ) : foreach ( $profile_info_keys as $key => $label ) : ?>
 <tr<?php if ( $label[0] ) { echo ' class="required"'; $label[1] = '<sup class="required">*</sup> ' . $label[1]; } ?>>
-  <th scope="row"><?php echo $label[1]; ?>:</th>
+  <th scope="row"><label for="<?php echo $key; ?>"><?php echo $label[1]; ?>:</label></th>
   <td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" /><?php
 if ( $$key === false ) :
 	if ( $key == 'user_email' )

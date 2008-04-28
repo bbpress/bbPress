@@ -1,5 +1,6 @@
 <form action="<?php bb_option('uri'); ?>search.php" method="get">
-	<p><?php _e('Search:'); ?>
+	<p>
+		<label for="q"><?php _e('Search:'); ?></label>
 		<input type="text" size="38" maxlength="100" name="q" value="<?php echo attribute_escape( $q ); ?>" />
 	</p>
 	<?php if( empty($q) ) : ?>
