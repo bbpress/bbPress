@@ -395,6 +395,7 @@ class BB_User_Search {
 
 		if ( $show_search ) {
 			$r .= "<form action='' method='get' id='search'>\n\t<p>";
+			$r .= "<label class='hidden' for='usersearch'>" . _e('Search:') . "</label>";
 			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . wp_specialchars( $this->search_term, 1) . "' />\n";
 			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
 			$r .= "</form>\n\n";
@@ -627,16 +628,16 @@ function bb_forum_form( $forum_id = 0 ) {
 <form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
 	<fieldset>
 	<table><col /><col style="width: 80%" />
-		<tr><th scope="row"><?php _e('Forum Name:'); ?></th>
+		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>
 			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
 		</tr>
-		<tr><th scope="row"><?php _e('Forum Description:'); ?></th>
+		<tr><th scope="row"><label for="forum-desc"><?php _e('Forum Description:'); ?></label></th>
 			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
 		</tr>
-		<tr id="forum-parent-row"><th scope="row"><?php _e('Forum Parent:'); ?></th>
+		<tr id="forum-parent-row"><th scope="row"><label for="forum_parent"><?php _e('Forum Parent:'); ?></label></th>
 			<td><?php bb_forum_dropdown( array('cut_branch' => $forum_id, 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0) ); ?></td>
 		</tr>
-		<tr id="forum-position-row"><th scope="row"><?php _e('Position:'); ?></th>
+		<tr id="forum-position-row"><th scope="row"><label for="forum-order"><?php _e('Position:'); ?></label></th>
 			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
 		</tr>
 	</table>

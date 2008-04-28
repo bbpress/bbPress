@@ -1603,7 +1603,7 @@ function bb_profile_data_form( $id = 0 ) {
 ?>
 
 <tr class="<?php echo $class; ?>">
-	<th scope="row"><?php echo $title; ?></th>
+	<th scope="row"><label for="<?php echo $name; ?>"><?php echo $title; ?></label></th>
 	<td>
 		<input name="<?php echo $name; ?>" type="<?php echo $type; ?>" id="<?php echo $name; ?>" value="<?php echo $value; ?>" />
 		<?php echo $message; ?>
@@ -1770,7 +1770,7 @@ function bb_profile_password_form( $id = 0 ) {
 
 <table>
 <tr class="<?php echo $class; ?>">
-	<th scope="row" rowspan="2"><?php _e('New password'); ?></th>
+	<th scope="row" rowspan="2"><label for="pass1"><?php _e('New password'); ?></label></th>
 	<td><input name="pass1" type="password" id="pass1" autocomplete="off" /></td>
 </tr>
 <tr class="<?php echo $class; ?>">

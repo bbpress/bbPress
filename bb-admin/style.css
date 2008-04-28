@@ -542,3 +542,7 @@ form.settings input.submit:hover {
 .active {
 	background-color: rgb(200, 250, 200)
 }
+
+.hidden {
+	display: none;
+	}

@@ -618,3 +618,7 @@ form.login input#remember {
 .form-table input, .form-table textarea {
 	border-color: #c6d9e9;
 }
+
+.hidden {
+	display: none;
+}

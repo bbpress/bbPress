@@ -9,36 +9,36 @@
 <table>
 <?php if ( $user_exists ) : ?>
 	<tr valign="top">
-		<th scope="row"><?php _e('Username:'); ?></th>
-		<td><input name="user_login" type="text" value="<?php echo $user_login; ?>" /></td>
+		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
+		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /></td>
 	</tr>
 	<tr valign="top" class="error">
-		<th scope="row"><?php _e('Password:'); ?></th>
-		<td><input name="password" type="password" /><br />
+		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
+		<td><input name="password" id="password" type="password" /><br />
 		<?php _e('Incorrect password'); ?></td>
 	</tr>
 <?php elseif ( isset($_POST['user_login']) ) : ?>
 	<tr valign="top" class="error">
-		<th scope="row"><?php _e('Username:'); ?></th>
-		<td><input name="user_login" type="text" value="<?php echo $user_login; ?>" /><br />
+		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
+		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /><br />
 		<?php _e('This username does not exist.'); ?> <a href="<?php bb_option('uri'); ?>register.php?user=<?php echo $user_login; ?>"><?php _e('Register it?'); ?></a></td>
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e('Password:'); ?></th>
-		<td><input name="password" type="password" /></td>
+		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
+		<td><input name="password" id="password" type="password" /></td>
 	</tr>
 <?php else : ?>
 	<tr valign="top" class="error">
-		<th scope="row"><?php _e('Username:'); ?></th>
-		<td><input name="user_login" type="text" /><br />
+		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
+		<td><input name="user_login" id="user_login" type="text" /><br />
 	</tr>
 	<tr valign="top">
-		<th scope="row"><?php _e('Password:'); ?></th>
-		<td><input name="password" type="password" /></td>
+		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
+		<td><input name="password" id="password" type="password" /></td>
 	</tr>
 <?php endif; ?>
 	<tr valign="top">
-		<th scope="row"><?php _e('Remember me:'); ?></th>
+		<th scope="row"><label for="remember"><?php _e('Remember me:'); ?></label></th>
 		<td><input name="remember" type="checkbox" id="remember" value="1"<?php echo $remember_checked; ?> /></td>
 	</tr>
 	<tr>
