@@ -152,6 +152,41 @@ $checked[bb_get_option('avatars_show')] = ' checked="checked"';
 unset($checked);
 ?>
 		</div>
+		<label for="avatars_default">
+			<?php _e('Gravatar default image'); ?>
+		</label>
+		<div>
+			<select name="avatars_default" id="avatars_default">
+<?php
+$selected = array();
+$selected[bb_get_option('avatars_default')] = ' selected="selected"';
+?>
+				<option value="default"<?php echo $selected['default']; ?>><?php _e('Default'); ?></option>
+				<option value="logo"<?php echo $selected['logo']; ?>><?php _e('Gravatar Logo'); ?></option>
+				<option value="monsterid"<?php echo $selected['monsterid']; ?>><?php _e('MonsterID'); ?></option>
+				<option value="wavatar"<?php echo $selected['wavatar']; ?>><?php _e('Wavatar'); ?></option>
+				<option value="identicon"<?php echo $selected['identicon']; ?>><?php _e('Identicon'); ?></option>
+<?php
+unset($selected);
+?>
+			</select>
+			<p>Select what style of avatar to display to users without a Gravatar</p>
+			<p class="gravatarDefault">
+				<?php echo bb_get_avatar( 'anotherexample', 30, 'default' ); ?><?php _e('Default'); ?>
+			</p>
+			<p class="gravatarDefault">
+				<?php echo bb_get_avatar( 'anotherexample', 30, 'logo' ); ?><?php _e('Gravatar Logo'); ?>
+			</p>
+			<p class="gravatarDefault">
+				<?php echo bb_get_avatar( 'anotherexample', 30, 'monsterid' ); ?><?php _e('MonsterID'); ?>
+			</p>
+			<p class="gravatarDefault">
+				<?php echo bb_get_avatar( 'anotherexample', 30, 'wavatar' ); ?><?php _e('Wavatar'); ?>
+			</p>
+			<p class="gravatarDefault">
+				<?php echo bb_get_avatar( 'anotherexample', 30, 'identicon' ); ?><?php _e('Identicon'); ?>
+			</p>
+		</div>
 		<label for="avatars_rating">
 			<?php _e('Gravatar maximum rating:'); ?>
 		</label>
@@ -170,20 +205,20 @@ $selected[bb_get_option('avatars_rating')] = ' selected="selected"';
 unset($selected);
 ?>
 			</select>
-			<p>
-				<img src="http://site.gravatar.com/images/gravatars/ratings/3.gif" alt="Rated X" style="height:30px; width:30px; float:left; margin-right:10px;" />
+			<p class="gravatarRating">
+				<img src="http://site.gravatar.com/images/gravatars/ratings/3.gif" alt="Rated X" />
 				<?php _e('X rated gravatars may contain hardcore sexual imagery or extremely disturbing violence.'); ?>
 			</p>
-			<p>
-				<img src="http://site.gravatar.com/images/gravatars/ratings/2.gif" alt="Rated R" style="height:30px; width:30px; float:left; margin-right:10px;" />
+			<p class="gravatarRating">
+				<img src="http://site.gravatar.com/images/gravatars/ratings/2.gif" alt="Rated R" />
 				<?php _e('R rated gravatars may contain such things as harsh profanity, intense violence, nudity, or hard drug use.'); ?>
 			</p>
-			<p>
-				<img src="http://site.gravatar.com/images/gravatars/ratings/1.gif" alt="Rated PG" style="height:30px; width:30px; float:left; margin-right:10px;" />
+			<p class="gravatarRating">
+				<img src="http://site.gravatar.com/images/gravatars/ratings/1.gif" alt="Rated PG" />
 				<?php _e('PG rated gravatars may contain rude gestures, provocatively dressed individuals, the lesser swear words, or mild violence.'); ?>
 			</p>
-			<p>
-				<img src="http://site.gravatar.com/images/gravatars/ratings/0.gif" alt="Rated G" style="height:30px; width:30px; float:left; margin-right:10px;" />
+			<p class="gravatarRating">
+				<img src="http://site.gravatar.com/images/gravatars/ratings/0.gif" alt="Rated G" />
 				<?php _e('A G rated gravatar is suitable for display on all websites with any audience type.'); ?>
 			</p>
 		</div>

@@ -1548,6 +1548,7 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 		'datetime_format' => '',
 		'date_format' => '',
 		'avatars_show' => '',
+		'avatars_default' => '',
 		'avatars_rating' => '',
 		'wp_table_prefix' => '',
 		'user_bbdb_name' => '',
