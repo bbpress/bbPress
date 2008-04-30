@@ -450,24 +450,41 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 		$email = '';
 
 	if ( empty($default) )
-		$default = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=' . $size;
-		// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
+		$default = bb_get_option('avatars_default');
+
+	switch ($default) {
+		case 'logo':
+			$default = '';
+			break;
+		case 'monsterid':
+		case 'wavatar':
+		case 'identicon':
+			break;
+		case 'default':
+		default:
+			$default = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=' . $size;
+			// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
+			break;
+			break;
+	}
+
+	$src = 'http://www.gravatar.com/avatar/';
+	$class = 'avatar avatar-' . $size;
 
 	if ( !empty($email) ) {
-		$src = 'http://www.gravatar.com/avatar/';
 		$src .= md5( strtolower( $email ) );
-		$src .= '?s=' . $size;
-		$src .= '&amp;d=' . urlencode( $default );
-
-		$rating = bb_get_option('avatars_rating');
-		if ( !empty( $rating ) )
-			$src .= '&amp;r=' . $rating;
-
-		$class = 'avatar avatar-' . $size;
 	} else {
-		$src = $default;
-		$class = 'avatar avatar-' . $size . ' avatar-default';
+		$src .= 'd41d8cd98f00b204e9800998ecf8427e';
+		// d41d8cd98f00b204e9800998ecf8427e == md5('')
+		$class .= ' avatar-noemail';
 	}
+
+	$src .= '?s=' . $size;
+	$src .= '&amp;d=' . urlencode( $default );
+
+	$rating = bb_get_option('avatars_rating');
+	if ( !empty( $rating ) )
+		$src .= '&amp;r=' . $rating;
 
 	$avatar = '<img alt="" src="' . $src . '" class="' . $class . '" style="height:' . $size . 'px; width:' . $size . 'px;" />';
 

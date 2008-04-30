@@ -513,6 +513,18 @@ pre.block {
 	padding-top: 0.4em;
 }
 
+p.gravatarDefault {
+	line-height: 30px;
+}
+
+p.gravatarDefault img {
+	vertical-align: top;
+	height:30px;
+	width:30px;
+	margin-right:1em;
+	border: 1px solid rgb(110, 180, 105);
+}
+
 p.gravatarRating img {
 	height:30px;
 	width:30px;
