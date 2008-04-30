@@ -6,6 +6,11 @@ $action = $_POST['action'];
 if ( in_array( $action, array('update-options', 'update-users') ) ) {
 	bb_check_admin_referer( 'options-wordpress-' . $action );
 	
+	// Deal with advanced user database checkbox when it isn't checked
+	if (!isset($_POST['user_bbdb_advanced'])) {
+		$_POST['user_bbdb_advanced'] = false;
+	}
+	
 	foreach ( (array) $_POST as $option => $value ) {
 		if ( !in_array( $option, array('_wpnonce', '_wp_http_referer', 'action', 'submit') ) ) {
 			$option = trim( $option );
