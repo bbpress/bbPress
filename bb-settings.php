@@ -87,7 +87,7 @@ if ( !class_exists( 'WP_Object_Cache' ) ) {
 	require( BACKPRESS_PATH . 'functions.wp-object-cache.php' );
 }
 if ( !isset($wp_object_cache) )
-	$wp_object_cache = new WP_Object_Cache();
+	wp_cache_init();
 
 // Gettext
 if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) // User has set old constant

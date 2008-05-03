@@ -42,7 +42,7 @@ class BB_Query {
 	}
 
 	function &query() {
-		global $bbdb, $bb_cache;
+		global $bbdb;
 
 		if ( $args = func_get_args() )
 			call_user_func_array( array(&$this, 'init'), $args );
@@ -52,16 +52,44 @@ class BB_Query {
 
 		do_action_ref_array( 'bb_query', array(&$this) );
 
-		if ( 'post' == $this->type )
-			$this->results = $bb_cache->cache_posts( $this->request );
-		else
-			$this->results = $bbdb->get_results( $this->request );
+		$key = md5( $this->request );
+		if ( false === $cached_ids = wp_cache_get( $key, 'bb_query' ) ) {
+			if ( 'post' == $this->type ) {
+				$this->results = bb_cache_posts( $this->request );
+				$_the_id = 'post_id';
+			} else {
+				$this->results = $bbdb->get_results( $this->request );
+				$_the_id = 'topic_id';
+			}
+
+			$cached_ids = array();
+			if ( is_array($this->results) )
+				foreach ( $this->results as $object )
+					$cached_ids[] = $object->$_the_id;
+			wp_cache_set( $key, $cached_ids, 'bb_query' );
+		} else {
+			$_cached_ids = join( ',', array_map( 'intval', $cached_ids ) );
+			if ( 'post' == $this->type ) {
+				$results = $bbdb->get_results( "SELECT * FROM $bbdb->posts WHERE post_id IN($_cached_ids)" );
+				$_the_id = 'post_id';
+			} else {
+				$results = $bbdb->get_results( "SELECT * FROM $bbdb->topics WHERE topic_id IN($_cached_ids)" );
+				$_the_id = 'topic_id';
+			}
+
+			$this->results = array();
+			$trans = array();
+
+			foreach ( $results as $object )
+				$trans[$object->$_the_id] = $object;
+			foreach ( $cached_ids as $cached_id )
+				$this->results[] = $trans[$cached_id];
+		}
 
 		$this->count = count( $this->results );
 
 		if ( $this->query_vars['count'] ) // handles FOUND_ROWS() or COUNT(*)
 			$this->found_rows = bb_count_last_query( $this->request );
-
 		if ( 'post' == $this->type ) {
 			if ( $this->query_vars['cache_users'] )
 				post_author_cache( $this->results );
@@ -330,7 +358,7 @@ class BB_Query {
 				if ( in_array($op, array('>','<')) ) :
 					$post_topics = $bbdb->get_col( "SELECT DISTINCT topic_id FROM $bbdb->posts WHERE post_id $op '" . (int) substr($q['post_id'], 1) . "'" );
 				else :
-					global $bb_post_cache, $bb_cache;
+					global $bb_post_cache;
 					$posts = explode(',', $q['post_id']);
 					$get_posts = array();
 					foreach ( $posts as $post_id ) :
@@ -340,7 +368,7 @@ class BB_Query {
 							$get_posts[] = $_post_id;
 					endforeach;
 					$get_posts = join(',', $get_posts);
-					$bb_cache->cache_posts( "SELECT * FROM $bbdb->posts WHERE post_id IN ($get_posts)" );
+					bb_cache_posts( "SELECT * FROM $bbdb->posts WHERE post_id IN ($get_posts)" );
 
 					foreach ( $posts as $post_id ) :
 						$post = bb_get_post( abs($post_id) );
@@ -1249,5 +1277,3 @@ class BB_Loop {
 	}
 
 }
-
-?>

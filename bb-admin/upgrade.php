@@ -170,7 +170,5 @@ switch ($step) {
 
 bb_install_footer();
 
-if ( $bb_upgrade > 0 ) {
-	$bb_cache->flush_all();
-}
-?>
+if ( $bb_upgrade > 0 )
+	wp_cache_flush();

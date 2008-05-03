@@ -149,7 +149,7 @@ echo "</ul>\n\n<p>\n\t" . __('Done recounting.  The process took') . "\n\t";
 printf(__('%1$d queries and %2$s seconds.'), $bbdb->num_queries, bb_timer_stop(0));
 echo "\n</p>";
 
-$bb_cache->flush_all();
+wp_cache_flush();
 
 endif;
 

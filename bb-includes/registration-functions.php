@@ -41,7 +41,6 @@ function bb_verify_email( $email, $check_domain = false ) {
  *
  * @since {@internal Unknown}}
  * @global bbdb $bbdb
- * @global BB_Cache $bb_cache
  *
  * @param int $user_id
  * @param string $user_email
@@ -49,16 +48,15 @@ function bb_verify_email( $email, $check_domain = false ) {
  * @return int
  */
 function bb_update_user( $user_id, $user_email, $user_url ) {
-	global $bbdb, $bb_cache;
+	global $wp_users_object;
 
-	$ID = (int) $user_id;
+	$user_id = (int) $user_id;
 	$user_url = bb_fix_link( $user_url );
 
-	$bbdb->update( $bbdb->users, compact( 'user_email', 'user_url' ), compact( 'ID' ) );
-	$bb_cache->flush_one( 'user', $ID );
+	$wp_users_object->update_user( $user_id, compact( 'user_email', 'user_url' ) );
 
-	do_action('bb_update_user', $ID);
-	return $ID;
+	do_action('bb_update_user', $user_id);
+	return $user_id;
 }
 
 /**
@@ -129,24 +127,20 @@ function bb_reset_password( $key ) {
  *
  * @since {@internal Unknown}}
  * @global bbdb $bbdb
- * @global BB_Cache $bb_cache
  *
  * @param int $user_id
  * @param string $password
  * @return int
  */
 function bb_update_user_password( $user_id, $password ) {
-	global $bbdb, $bb_cache;
+	global $wp_users_object;
 
-	$ID = (int) $user_id;
+	$user_id = (int) $user_id;
 
-	$user_pass = wp_hash_password( $password );
+	$wp_users_object->set_password( $user_id, $password );
 
-	$bbdb->update( $bbdb->users, compact( 'user_pass' ), compact( 'ID' ) );
-	$bb_cache->flush_one( 'user', $ID );
-
-	do_action('bb_update_user_password', $ID);
-	return $ID;
+	do_action('bb_update_user_password', $user_id);
+	return $user_id;
 }
 
 /**
@@ -173,4 +167,3 @@ function bb_send_pass( $user, $pass ) {
 		sprintf( $message, $user->user_login, $pass, bb_get_option('uri') )
 	);
 }
-?>

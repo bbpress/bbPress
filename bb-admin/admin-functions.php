@@ -478,7 +478,7 @@ class BB_Users_By_Role extends BB_User_Search {
 
 // Expects forum_name, forum_desc to be pre-escaped
 function bb_new_forum( $args ) {
-	global $bbdb, $bb_cache;
+	global $bbdb;
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
@@ -517,13 +517,14 @@ function bb_new_forum( $args ) {
 	$bbdb->insert( $bbdb->forums, compact( 'forum_name', 'forum_slug', 'forum_desc', 'forum_parent', 'forum_order' ) );
 	$forum_id = $bbdb->insert_id;
 
-	$bb_cache->flush_one( 'forums' );
+	wp_cache_flush( 'bb_forums' );
+
 	return $forum_id;
 }
 
 // Expects forum_name, forum_desc to be pre-escaped
 function bb_update_forum( $args ) {
-	global $bbdb, $bb_cache;
+	global $bbdb;
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
@@ -550,8 +551,8 @@ function bb_update_forum( $args ) {
 	if ( strlen($forum_name) < 1 )
 		return false;
 
-	$bb_cache->flush_many( 'forum', $forum_id );
-	$bb_cache->flush_one( 'forums' );
+	wp_cache_delete( $forum_id, 'bb_forum' );
+	wp_cache_flush( 'bb_forums' );
 
 	return $bbdb->update( $bbdb->forums, compact( 'forum_name', 'forum_desc', 'forum_parent', 'forum_order' ), compact( 'forum_id' ) );
 }
@@ -559,7 +560,7 @@ function bb_update_forum( $args ) {
 // When you delete a forum, you delete *everything*
 // NOT bbdb::prepared
 function bb_delete_forum( $forum_id ) {
-	global $bbdb, $bb_cache;
+	global $bbdb;
 	if ( !bb_current_user_can( 'delete_forum', $forum_id ) )
 		return false;
 	if ( !$forum_id = (int) $forum_id )
@@ -581,12 +582,14 @@ function bb_delete_forum( $forum_id ) {
 
 	if ( $topic_ids )
 		foreach ( $topic_ids as $topic_id ) {
-			$bb_cache->flush_one( 'topic', $topic_id );
-			$bb_cache->flush_many( 'thread', $topic_id );
+			// should maybe just flush these groups instead
+			wp_cache_delete( $topic_id, 'bb_topic' );
+			wp_cache_delete( $topic_id, 'bb_thread' );
 		}
 
-	$bb_cache->flush_many( 'forum', $forum_id );
-	$bb_cache->flush_one( 'forums' );
+	wp_cache_delete( $forum_id, 'bb_forum' );
+	wp_cache_flush( 'bb_forums' );
+
 	return $return;
 }
 
@@ -755,7 +758,7 @@ function merge_tags( $old_id, $new_id ) {
 /* Topics */
 
 function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
-	global $bb_cache, $bbdb;
+	global $bbdb;
 	
 	$from_forum_id = (int) $from_forum_id ;
 	$to_forum_id = (int) $to_forum_id;
@@ -766,9 +769,6 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	if ( !$to_forum = get_forum( $to_forum_id ) )
 		return false;
 
-	$bb_cache->flush_many( 'forum', $from_forum_id );
-	$bb_cache->flush_many( 'forum', $to_forum_id );
-	
 	$posts = $to_forum->posts + ( $from_forum ? $from_forum->posts : 0 );
 	$topics = $to_forum->topics + ( $from_forum ? $from_forum->topics : 0 );
 	
@@ -779,11 +779,15 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	$return = $bbdb->update( $bbdb->topics, array( 'forum_id' => $to_forum_id ), array( 'forum_id' => $from_forum_id ) );
 	if ( $topic_ids )
 		foreach ( $topic_ids as $topic_id ) {
-			$bb_cache->flush_one( 'topic', $topic_id );
-			$bb_cache->flush_many( 'thread', $topic_id );
+			// should maybe just flush these groups
+			wp_cache_delete( $topic_id, 'bb_topic' );
+			wp_cache_delete( $topic_id, 'bb_thread' );
 		}
-	$bb_cache->flush_one( 'forum', $to_forum_id );
-	$bb_cache->flush_many( 'forum', $from_forum_id );
+
+	wp_cache_delete( $from_forum_id, 'bb_forum' );
+	wp_cache_delete( $to_forum_id, 'bb_forum' );
+	wp_cache_flush( 'bb_forums' );
+	
 	return $return;
 }
 
