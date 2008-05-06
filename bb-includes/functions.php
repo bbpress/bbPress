@@ -1181,9 +1181,11 @@ function bb_get_topic_tags( $topic_id = 0 ) {
 	$topic_id = (int) $topic->topic_id;
 	
 	if ( false === $tags = wp_cache_get( $topic_id, 'bb_topic_tags' ) ) {
-		$tags = $bbdb->get_results( $bbdb->prepare(
-			"SELECT * FROM $bbdb->tagged RIGHT JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE topic_id = %d", $topic_id
-		) );
+		if ( !$tags = $bbdb->get_results( $bbdb->prepare(
+			"SELECT * FROM $bbdb->tagged RIGHT JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE topic_id = %d",
+			$topic_id
+		) ) )
+			$tags = array();
 		wp_cache_set( $topic_id, $tags, 'bb_topic_tags' );
 		foreach ( $tags as $tag ) {
 			wp_cache_add( $tag->tag, (object) array( 'tag_id' => $tag->tag_id, 'tag' => $tag->tag, 'raw_tag' => $tag->raw_tag, 'tag_count' => $tag->tag_count ), 'bb_tag' );
