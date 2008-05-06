@@ -15,7 +15,7 @@ function bb_default_scripts( &$scripts ) {
 	$scripts->localize( 'wp-lists', 'wpListL10n', array(
 		'url' => bb_get_option( 'uri' ) . 'bb-admin/admin-ajax.php'
 	) );
-	$scripts->add( 'topic', $base . BB_INC . 'js/topic.js', array('wp-lists'), '20080422' );
+	$scripts->add( 'topic', $base . BB_INC . 'js/topic.js', array('wp-lists'), '20080506' );
 	$scripts->add( 'jquery', $base . BB_INC . 'js/jquery/jquery.js', false, '1.1.3.1');
 	$scripts->add( 'interface', $base . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
 	$scripts->add( 'jquery-color', $base . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
@@ -51,8 +51,8 @@ function bb_just_in_time_script_localization() {
 		'topicId' => get_topic_id(),
 		'favoritesLink' => get_favorites_link(),
 		'isFav' => (int) is_user_favorite( bb_get_current_user_info( 'id' ) ),
-		'confirmPostDelete' => __("Are you sure you wanna delete this post by '%author%'?"),
-		'confirmTagDelete' => __("Are you sure you want to remove the '%tag%' tag?"),
+		'confirmPostDelete' => __("Are you sure you wanna delete this post?"),
+		'confirmPostUnDelete' => __("Are you sure you wanna undelete this post?"),
 		'favLinkYes' => __( 'favorites' ),
 		'favLinkNo' => __( '?' ),
 		'favYes' => __( 'This topic is one of your %favLinkYes% [%favDel%]' ),

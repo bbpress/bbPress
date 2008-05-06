@@ -1320,9 +1320,9 @@ function bb_get_post_delete_link( $post_id = 0 ) {
 		return;
 
 	if ( 1 == $bb_post->post_status )
-		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=0&view=all', 'delete-post_' . $bb_post->post_id ) ) . "' onclick='return confirm(\" ". js_escape( __('Are you sure you wanna undelete that?') ) ." \");'>". __('Undelete') ."</a>";
+		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=0&view=all', 'delete-post_' . $bb_post->post_id ) ) . "' class='delete:thread:post-{$bb_post->post_id}'>". __('Undelete') ."</a>";
 	else
-		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=1', 'delete-post_' . $bb_post->post_id ) ) . "' onclick='return ajaxPostDelete(" . $bb_post->post_id . ", \"" . get_post_author( $post_id ) . "\", this);'>". __('Delete') ."</a>";
+		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=1', 'delete-post_' . $bb_post->post_id ) ) . "' class='delete:thread:post-{$bb_post->post_id}'>". __('Delete') ."</a>";
 	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
 	return $r;
 }

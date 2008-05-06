@@ -3,8 +3,7 @@ bbTopicJS = jQuery.extend( {
 	topicId: '0',
 	favoritesLink: '',
 	isFav: 0,
-	confirmPostDelete: 'Are you sure you wanna delete this post by "%author%"?',
-	confirmTagDelete: 'Are you sure you want to remove the "%tag%" tag?',
+	confirmPostDelete: 'Are you sure you wanna delete this post?',
 	favLinkYes: 'favorites',
 	favLinkNo: '?',
 	favYes: 'This topic is one of your %favLinkYes% [%favDel%]',
@@ -23,6 +22,7 @@ jQuery( function($) {
 	};
 	$('#tags-list').wpList( { alt: '', delBefore: tagsDelBefore } );
 
+	// Favorites
 	var favoritesToggle = $('#favorite-toggle')
 		.addClass( 'list:favorite' )
 		.wpList( { alt: '', dimAfter: favLinkSetup } );
@@ -47,4 +47,14 @@ jQuery( function($) {
 		favoritesToggleSpan.html( html );
 		favoritesToggle.wpList.process( favoritesToggleSpan );
 	}
+
+	// Posts
+	var postConfirm = function(e,s,a) {
+		if ( 'delete' != a ) {
+			return true;
+		}
+		return confirm( bbTopicJS[ $('#' + s.element).is('.deleted') ? 'confirmPostUnDelete' : 'confirmPostDelete'] );
+	};
+
+	$('#thread').addClass( 'list:post' ).wpList( { alt: 'alt', altOffset: 1, confirm: postConfirm } );
 } );
