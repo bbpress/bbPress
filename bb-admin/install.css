@@ -80,6 +80,7 @@ div.logo {
 }
 
 div.logo img {
+	height: 83px;
 	display: block;
 	margin: 0 auto;
 }
