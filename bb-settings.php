@@ -315,12 +315,12 @@ if ( !$bb->authcookie ) {
 }
 
 $bb->cookiepath = bb_get_option('cookiepath');
-if ( !isset( $bb->cookiepath ) ) {
+if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
 
 $bb->sitecookiepath = bb_get_option('sitecookiepath');
-if ( !isset( $bb->sitecookiepath ) ) {
+if ( !$bb->sitecookiepath ) {
 	$bb->sitecookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl ) : $bb->path;
 }
 
