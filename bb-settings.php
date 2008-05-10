@@ -57,8 +57,11 @@ if ( !defined( 'BB_IS_ADMIN' ) )
 // Define the include path
 define('BB_INC', 'bb-includes/');
 
+// Define the full path to the database class
+if ( !defined('BB_DATABASE_CLASS') )
+	define('BB_DATABASE_CLASS', BB_PATH . BB_INC . 'db.php');
 // Load the database class
-require( BB_PATH . BB_INC . 'db.php' );
+require( BB_DATABASE_CLASS );
 
 // Define the language file directory
 if ( !defined('BB_LANG_DIR') )

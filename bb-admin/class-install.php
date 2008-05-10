@@ -216,7 +216,7 @@ class BB_Install
 			}
 		}
 		
-		if (defined('DB_NAME') || defined('WP_BB') && WP_BB) {
+		if (defined('DB_NAME') && defined('WP_BB') && WP_BB) {
 			$this->strings[-1]['messages']['error'][] = __('Please complete your installation before attempting to include WordPress within bbPress');
 			$this->step = -1;
 		}
@@ -271,6 +271,10 @@ class BB_Install
 		// Define the language file directory
 		if ( !defined('BB_LANG_DIR') )
 			define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
+		
+		// Define the full path to the database class
+		if ( !defined('BB_DATABASE_CLASS') )
+			define('BB_DATABASE_CLASS', BB_PATH . BB_INC . 'db.php');
 		
 		return true;
 	}
@@ -364,7 +368,7 @@ class BB_Install
 	function database_tables_are_installed()
 	{
 		if ($this->load_includes) {
-			require_once(BB_PATH . BB_INC . 'db.php');
+			require_once( BB_DATABASE_CLASS );
 		} else {
 			global $bbdb;
 		}
@@ -523,7 +527,7 @@ class BB_Install
 	function validate_current_database()
 	{
 		if ($this->load_includes) {
-			require_once(BB_PATH . BB_INC . 'db.php');
+			require_once( BB_DATABASE_CLASS );
 		} else {
 			global $bbdb;
 		}
