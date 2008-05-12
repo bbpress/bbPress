@@ -208,8 +208,20 @@ function get_topic( $id, $cache = true ) {
 	return $topic;
 }
 
-// $exclude is deprecated
-function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
+function get_latest_topics( $args = null ) {
+	$defaults = array( 'forum' => false, 'page' => 1, 'exclude' => false, 'number' => false );
+	if ( is_numeric( $args ) )
+		$args = array( 'forum' => $args );
+	else
+		$args = wp_parse_args( $args ); // Make sure it's an array
+	if ( 1 < func_num_args() )
+		$args['page'] = func_get_arg(1);
+	if ( 2 < func_num_args() )
+		$args['exclude'] = func_get_arg(2);
+
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
 	if ( $exclude ) {
 		$exclude = '-' . str_replace(',', '-,', $exclude);
 		$exclude = str_replace('--', '-', $exclude);
@@ -219,9 +231,8 @@ function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
 			$forum = $exclude;
 	}
 
-	$q = array('forum_id' => $forum, 'page' => $page);
+	$q = array('forum_id' => $forum, 'page' => $page, 'per_page' => $number);
 
-	$where = 'WHERE topic_status = 0';
 	if ( is_front() )
 		$q['sticky'] = '-2';
 	elseif ( is_forum() || is_view() )
