@@ -202,53 +202,60 @@ function bb_location() {
 }
 
 function bb_get_location() { // Not for display.  Do not internationalize.
+	static $location;
+	
+	if ( isset($location) )
+		return $location;
+	
 	$file = '';
 	foreach ( array($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['SCRIPT_NAME']) as $name )
 		if ( false !== strpos($name, '.php') )
 			$file = $name;
 
-	switch ( bb_find_filename( $file ) ) :
-	case 'index.php' :
-		return 'front-page';
-		break;
-	case 'forum.php' :
-		return 'forum-page';
-		break;
-	case 'tags.php' :
-		return 'tag-page';
-		break;
-	case 'edit.php' :
-	case 'topic.php' :
-		return 'topic-page';
-		break;
-	case 'rss.php' :
-		return 'feed-page';
-		break;
-	case 'search.php' :
-		return 'search-page';
-		break;
-	case 'profile.php' :
-		return 'profile-page';
-		break;
-	case 'favorites.php' :
-		return 'favorites-page';
-		break;
-	case 'view.php' :
-		return 'view-page';
-		break;
-	case 'statistics.php' :
-		return 'stats-page';
-		break;
-	case 'bb-login.php' :
-		return 'login-page';
-		break;
-	case 'register.php' :
-		return 'register-page';
-		break;
-	default:
-		return apply_filters( 'bb_get_location', '', $file );
-		break;
-	endswitch;
+	switch ( bb_find_filename( $file ) ) {
+		case 'index.php' :
+			$location = 'front-page';
+			break;
+		case 'forum.php' :
+			$location = 'forum-page';
+			break;
+		case 'tags.php' :
+			$location = 'tag-page';
+			break;
+		case 'edit.php' :
+		case 'topic.php' :
+			$location = 'topic-page';
+			break;
+		case 'rss.php' :
+			$location = 'feed-page';
+			break;
+		case 'search.php' :
+			$location = 'search-page';
+			break;
+		case 'profile.php' :
+			$location = 'profile-page';
+			break;
+		case 'favorites.php' :
+			$location = 'favorites-page';
+			break;
+		case 'view.php' :
+			$location = 'view-page';
+			break;
+		case 'statistics.php' :
+			$location = 'stats-page';
+			break;
+		case 'bb-login.php' :
+			$location = 'login-page';
+			break;
+		case 'register.php' :
+			$location = 'register-page';
+			break;
+		default:
+			$location = apply_filters( 'bb_get_location', '', $file );
+			break;
+	}
+	
+	return $location;
 }
 
 function is_front() {
