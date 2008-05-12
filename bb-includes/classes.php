@@ -242,7 +242,7 @@ class BB_Query {
 				$this->not_set[] = $key;
 
 		foreach ( $dates as $key )
-			if ( ( false === $array[$key] = isset($array[$key]) ? preg_replace( '/[^<>0-9]/', '', $array[$key] ) : false ) && isset($this) )
+			if ( ( false === $array[$key] = isset($array[$key]) ? preg_replace( '/[^<>0-9-]/', '', $array[$key] ) : false ) && isset($this) )
 				$this->not_set[] = $key;
 
 		foreach ( $others as $key ) {
@@ -748,13 +748,29 @@ class BB_Query {
 		if ( !$date && !is_int($date) )
 			return '';
 
-		$op = substr($date, 0, 1);
-		if ( in_array($op, array('>', '<')) ) :
-			$date = (int) substr($date, 1, 14);
+		if ( $is_range = false !== strpos( $date, '--' ) )
+			$dates = explode( '--', $date, 2 );
+		else
+			$dates = array( $date );
+
+		$op = false;
+		$r = '';
+		foreach ( $dates as $date ) {
+			if ( $is_range ) {
+				$op = $op ? '<' : '>';
+				$date = (int) substr($date, 0, 14);
+			} else {
+				$op = substr($date, 0, 1);
+				if ( !in_array($op, array('>', '<')) )
+					break;
+				$date = (int) substr($date, 1, 14);
+			}
 			if ( strlen($date) < 14 )
 				$date .= str_repeat('0', 14 - strlen($date));
-			return " AND $field $op $date";
-		endif;
+			$r .= " AND $field $op $date";
+		}
+		if ( $r )
+			return $r;
 
 		$date = (int) $date;
 		$r = " AND YEAR($field) = " . substr($date, 0, 4);
