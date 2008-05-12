@@ -106,7 +106,7 @@ if ( defined('BB_LANG') && '' != BB_LANG ) {
 if ( !class_exists( 'WP_Error' ) )
 	require( BACKPRESS_PATH . 'class.wp-error.php' );
 
-if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
+if ( !( defined('DB_NAME') && defined('WP_BB') && WP_BB ) ) {  // Don't include these when WP is running.
 	require( BACKPRESS_PATH . 'functions.kses.php');
 	require( BB_PATH . BB_INC . 'l10n.php');
 }
