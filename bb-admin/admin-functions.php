@@ -46,8 +46,10 @@ function bb_admin_menu_generator() {
 	global $bb_menu, $bb_submenu;
 	$bb_menu = array();
 
-	// Dashboard menu items < 100
+	// Dashboard menu items < 50
 	$bb_menu[0]  = array(__('Dashboard'), 'moderate',       'index.php');
+
+	// 50 < Plugin added menu items < 100
 
 	// 100 < Main menu items < 200
 	$bb_menu[100] = array(__('Users'),     'moderate',       'users.php');
@@ -93,11 +95,20 @@ function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group =
 		$menu_keys = array_keys($bb_menu);
 		
 		// Set the bounds for different menu groups (main or side)
-		$lower = 200;
-		$upper = 300;
-		if ($menu_group == 'side') {
-			$lower = 400;
-			$upper = 500;
+		switch ($menu_group) {
+			case 'dash':
+				$lower = 50;
+				$upper = 100;
+				break;
+			case 'main':
+			default:
+				$lower = 200;
+				$upper = 300;
+				break;
+			case 'side':
+				$lower = 400;
+				$upper = 500;
+				break;
 		}
 		
 		// Get an array of all plugin added keys
@@ -114,6 +125,8 @@ function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group =
 		
 		// Add the menu item at the given key
 		$bb_menu[$plugin_menu_next] = array($display_name, $capability, $file_name);
+		
+		ksort($bb_menu);
 	}
 }
 
@@ -122,6 +135,8 @@ function bb_admin_add_submenu($display_name, $capability, $file_name, $parent = 
 	global $bb_submenu;
 	if ($display_name && $capability && $file_name) {
 		$bb_submenu[$parent][] = array($display_name, $capability, $file_name);
+		
+		ksort($bb_submenu);
 	}
 }
 
@@ -187,7 +202,11 @@ function bb_admin_menu() {
 		}
 		if ( bb_current_user_can($m[1]) ) {
 			$class = ( $m[2] == $bb_current_menu[2] ) ? ' class="current"' : '';
-			$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '"><span>' . $m[0] . '</span></a></li>' . "\n";
+			if (strpos($m[2], 'http://') === 0 || strpos($m[2], 'https://') === 0)
+				$href = $m[2];
+			else
+				$href = bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m[2]);
+			$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . $href . '"><span>' . $m[0] . '</span></a></li>' . "\n";
 		}
 	}
 	
@@ -199,7 +218,11 @@ function bb_admin_menu() {
 		foreach ( $bb_submenu[$bb_current_menu[2]] as $m ) {
 			if ( bb_current_user_can($m[1]) ) {
 				$class = ( $m[2] == $bb_current_submenu[2] ) ? ' class="current"' : '';
-				$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m) . '"><span>' . $m[0] . '</span></a></li>' . "\n";
+				if (strpos($m[2], 'http://') === 0 || strpos($m[2], 'https://') === 0)
+					$href = $m[2];
+				else
+					$href = bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m[2]);
+				$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . $href . '"><span>' . $m[0] . '</span></a></li>' . "\n";
 			}
 		}
 		$r .= "\t\t\t" . '</ul>' . "\n";
