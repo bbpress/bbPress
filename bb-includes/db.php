@@ -17,7 +17,7 @@ class bbdb_base {
 	var $prefix;
 
 	// Our tables
-	var $tables = array( 'forums', 'posts', 'topics', 'topicmeta', 'users', 'usermeta', 'tags', 'tagged' );
+	var $tables = array( 'forums', 'posts', 'topics', 'topicmeta', 'users', 'usermeta', 'tags', 'tagged', 'terms', 'term_taxonomy', 'term_relationships' );
 	var $forums;
 	var $posts;
 	var $topics;

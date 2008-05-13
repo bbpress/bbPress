@@ -53,6 +53,35 @@ $bb_queries['posts'] = "CREATE TABLE $bbdb->posts (
   FULLTEXT KEY post_text (post_text)
 ) TYPE = MYISAM $charset_collate;";
 
+$bb_queries['terms'] = "CREATE TABLE $bbdb->terms (
+ term_id bigint(20) NOT NULL auto_increment,
+ name varchar(55) NOT NULL default '',
+ slug varchar(200) NOT NULL default '',
+ term_group bigint(10) NOT NULL default 0,
+ PRIMARY KEY  (term_id),
+ UNIQUE KEY slug (slug)
+) $charset_collate;";
+
+$bb_queries['term_taxonomy'] = "CREATE TABLE $bbdb->term_taxonomy (
+ term_taxonomy_id bigint(20) NOT NULL auto_increment,
+ term_id bigint(20) NOT NULL default 0,
+ taxonomy varchar(32) NOT NULL default '',
+ description longtext NOT NULL,
+ parent bigint(20) NOT NULL default 0,
+ count bigint(20) NOT NULL default 0,
+ PRIMARY KEY  (term_taxonomy_id),
+ UNIQUE KEY term_id_taxonomy (term_id,taxonomy)
+) $charset_collate;";
+
+$bb_queries['term_relationships'] = "CREATE TABLE $bbdb->term_relationships (
+ object_id bigint(20) NOT NULL default 0,
+ term_taxonomy_id bigint(20) NOT NULL default 0,
+ user_id bigint(20) NOT NULL default 0,
+ term_order int(11) NOT NULL default 0,
+ PRIMARY KEY  (object_id,term_taxonomy_id),
+ KEY term_taxonomy_id (term_taxonomy_id)
+) $charset_collate;";
+
 $bb_queries['topics'] = "CREATE TABLE $bbdb->topics (
   topic_id bigint(20) NOT NULL auto_increment,
   topic_title varchar(100) NOT NULL default '',

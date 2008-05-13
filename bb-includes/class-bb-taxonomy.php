@@ -48,19 +48,20 @@ class BB_Taxonomy extends WP_Taxonomy {
 		$args = wp_parse_args( $args, $defaults );
 		extract($args, EXTR_SKIP);
 
-		$user_id = (int) $user_id;
-		$user_sql = '';
-		if ( $user_id )
-			$user_sql = " AND tr.user_id = $user_id";
-
 		$order = ( 'desc' == strtolower($order) ) ? 'DESC' : 'ASC';
+		$user_id = (int) $user_id;
 
 		$terms = array_map('intval', $terms);
 
 		$taxonomies = "'" . implode("', '", $taxonomies) . "'";
 		$terms = "'" . implode("', '", $terms) . "'";
 
-		$object_ids = $this->db->get_col("SELECT tr.object_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tt.term_id IN ($terms)$user_sql ORDER BY tr.object_id $order");
+		$sql = "SELECT tr.object_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tt.term_id IN ($terms)"
+		if ( $user_id )
+			$sql .= " AND tr.user_id = '$user_id'";
+		$sql .= " ORDER BY tr.object_id $order";
+
+		$object_ids = $this->db->get_col( $sql );
 
 		if ( ! $object_ids )
 			return array();
@@ -89,14 +90,13 @@ class BB_Taxonomy extends WP_Taxonomy {
 		if ( !is_array($taxonomies) )
 			$taxonomies = array($taxonomies);
 
-		$user_sql = '';
-		if ( $user_id )
-			$user_sql = " AND user_id = $user_id";
-
 		foreach ( $taxonomies as $taxonomy ) {
-			$terms = $this->get_object_terms($object_id, $taxonomy, 'fields=tt_ids');
+			$terms = $this->get_object_terms($object_id, $taxonomy, array('fields' => 'tt_ids', 'user_id' => $user_id));
 			$in_terms = "'" . implode("', '", $terms) . "'";
-			$this->db->query("DELETE FROM {$this->db->term_relationships} WHERE object_id = '$object_id'$user_sql AND term_taxonomy_id IN ($in_terms)");
+			$sql = "DELETE FROM {$this->db->term_relationships} WHERE object_id = %d AND term_taxonomy_id IN ($in_terms)"
+			if ( $user_id )
+				$sql .= " AND user_id = %d";
+			$this->db->query( $this->db->prepare( $sql, $object_id, $user_id ) );
 			$this->update_term_count($terms, $taxonomy);
 		}
 	}
@@ -145,39 +145,68 @@ class BB_Taxonomy extends WP_Taxonomy {
 
 		$defaults = array('orderby' => 'name', 'order' => 'ASC', 'fields' => 'all', 'user_id' => 0);
 		$args = wp_parse_args( $args, $defaults );
-		extract($args, EXTR_SKIP);
+		$args['user_id'] = (int) $args['user_id'];
 
+		$terms = array();
+		if ( count($taxonomies) > 1 ) {
+			foreach ( $taxonomies as $index => $taxonomy ) {
+				$t = $this->get_taxonomy($taxonomy);
+				if ( is_array($t->args) && $args != array_merge($args, $t->args) ) {
+					unset($taxonomies[$index]);
+					$terms = array_merge($terms, $this->get_object_terms($object_ids, $taxonomy, array_merge($args, $t->args)));
+				}
+			}
+		} else {
+			$t = $this->get_taxonomy($taxonomies[0]);
+			if ( is_array($t->args) )
+				$args = array_merge($args, $t->args);
+		}
+
+		extract($args, EXTR_SKIP);
 		$user_id = (int) $user_id;
-		$user_sql = '';
-		if ( $user_id )
-			$user_sql = " AND tr.user_id = $user_id";
 
 		if ( 'count' == $orderby )
 			$orderby = 'tt.count';
 		else if ( 'name' == $orderby )
 			$orderby = 't.name';
+		else if ( 'slug' == $orderby )
+			$orderby = 't.slug';
+		else if ( 'term_group' == $orderby )
+			$orderby = 't.term_group';
+		else if ( 'term_order' == $orderby )
+			$orderby = 'tr.term_order';
+		else
+			$orderby = 't.term_id';
 
 		$taxonomies = "'" . implode("', '", $taxonomies) . "'";
 		$object_ids = implode(', ', $object_ids);
 
+		$select_this = '';
 		if ( 'all' == $fields )
 			$select_this = 't.*, tt.*';
 		else if ( 'ids' == $fields )
 			$select_this = 't.term_id';
-		else if ( 'names' == $fields ) 
+		else if ( 'names' == $fields )
 			$select_this = 't.name';
 		else if ( 'all_with_object_id' == $fields )
 			$select_this = 't.*, tt.*, tr.object_id';
 
-		$query = "SELECT $select_this FROM {$this->db->terms} AS t INNER JOIN {$this->db->term_taxonomy} AS tt ON tt.term_id = t.term_id INNER JOIN {$this->db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tr.object_id IN ($object_ids)$user_sql ORDER BY $orderby $order";
+		$query = "SELECT $select_this FROM {$this->db->terms} AS t INNER JOIN {$this->db->term_taxonomy} AS tt ON tt.term_id = t.term_id INNER JOIN {$this->db->term_relationships} AS tr ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tr.object_id IN ($object_ids)";
+		if ( $user_id )
+			$query .= " AND user_id = '$user_id'";
+		$query .= " ORDER BY $orderby $order";
 
 		if ( 'all' == $fields || 'all_with_object_id' == $fields ) {
-			$terms = $this->db->get_results($query);
+			$terms = array_merge($terms, $this->db->get_results($query));
 			$this->update_term_cache($terms);
 		} else if ( 'ids' == $fields || 'names' == $fields ) {
-			$terms = $this->db->get_col($query);
+			$terms = array_merge($terms, $this->db->get_col($query));
 		} else if ( 'tt_ids' == $fields ) {
-			$terms = $this->db->get_col("SELECT tr.term_taxonomy_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tr.object_id IN ($object_ids) AND tt.taxonomy IN ($taxonomies) ORDER BY tr.term_taxonomy_id $order");
+			$query = "SELECT tr.term_taxonomy_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tr.object_id IN ($object_ids) AND tt.taxonomy IN ($taxonomies)";
+			if ( $user_id )
+				$query .= " AND tr.user_id = '$user_id'";
+			$query .= " ORDER BY tr.term_taxonomy_id $order";
+			$terms = $this->db->get_col( $query );
 		}
 
 		if ( ! $terms )
@@ -205,10 +234,16 @@ class BB_Taxonomy extends WP_Taxonomy {
 	 * @param bool $append If false will delete difference of terms.
 	 * @return array|WP_Error Affected Term IDs
 	 */
-	function set_object_terms($object_id, $terms, $taxonomy, $user_id, $append = false) {
+	function set_object_terms($object_id, $terms, $taxonomy, $args = null) {
 		$object_id = (int) $object_id;
+
+		$defaults = array( 'append' => false, 'user_id' => 0 );
+		if ( is_scalar( $args ) )
+			$args = array( 'append' => (bool) $args );
+		$args = wp_parse_args( $args, $defaults );
+		extract( $args, EXTR_SKIP );
 		if ( !$user_id = (int) $user_id )
-			return new WP_Error( 'invalid_user_id', __('Invalid User ID') );
+			return new WP_Error('invalid_user_id', __('Invalid User ID'));
 
 		if ( !$this->is_taxonomy($taxonomy) )
 			return new WP_Error('invalid_taxonomy', __('Invalid Taxonomy'));
@@ -217,7 +252,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 			$terms = array($terms);
 
 		if ( ! $append )
-			$old_terms = $this->get_object_terms($object_id, $taxonomy, 'fields=tt_ids');
+			$old_terms =  $this->get_object_terms($object_id, $taxonomy, array( 'user_id' => $user_id, 'fields' => 'tt_ids' ));
 
 		$tt_ids = array();
 		$term_ids = array();
@@ -225,7 +260,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 		foreach ($terms as $term) {
 			if ( !strlen(trim($term)) )
 				continue;
-			
+
 			if ( !$id = $this->is_term($term, $taxonomy) )
 				$id = $this->insert_term($term, $taxonomy);
 			if ( is_wp_error($id) )
@@ -234,7 +269,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 			$id = $id['term_taxonomy_id'];
 			$tt_ids[] = $id;
 
-			if ( $this->db->get_var( $this->db->prepare( "SELECT term_taxonomy_id FROM {$this->db->term_relationships} WHERE object_id = %d AND term_taxonomy_id = %d", $object_id, $id ) ) )
+			if ( $this->db->get_var( $this->db->prepare( "SELECT term_taxonomy_id FROM {$this->db->term_relationships} WHERE object_id = %d AND term_taxonomy_id = %d AND user_id = %d", $object_id, $id, $user_id ) ) )
 				continue;
 			$this->db->insert( $this->db->term_relationships, array( 'object_id' => $object_id, 'term_taxonomy_id' => $id, 'user_id' => $user_id ) );
 		}
@@ -245,14 +280,23 @@ class BB_Taxonomy extends WP_Taxonomy {
 			$delete_terms = array_diff($old_terms, $tt_ids);
 			if ( $delete_terms ) {
 				$in_delete_terms = "'" . implode("', '", $delete_terms) . "'";
-				$this->db->query("DELETE FROM {$this->db->term_relationships} WHERE object_id = '$object_id' AND term_taxonomy_id IN ($in_delete_terms)");
+				$this->db->query( $this->db->prepare("DELETE FROM {$this->db->term_relationships} WHERE object_id = %d AND user_id = %d AND term_taxonomy_id IN ($in_delete_terms)", $object_id, $user_id) );
 				$this->update_term_count($delete_terms, $taxonomy);
 			}
 		}
 
+		$t = $this->get_taxonomy($taxonomy);
+		if ( ! $append && isset($t->sort) && $t->sort ) {
+			$values = array();
+			$term_order = 0;
+			$final_term_ids = $this->get_object_terms($object_id, $taxonomy, array( 'user_id' => $user_id, 'fields' => 'tt_ids' ));
+			foreach ( $term_ids as $term_id )
+				if ( in_array($term_id, $final_term_ids) )
+					$values[] = $this->db->prepare( "(%d, %d, %d, %d)", $object_id, $term_id, $user_id, ++$term_order);
+			if ( $values )
+				$this->db->query("INSERT INTO {$this->db->term_relationships} (object_id, term_taxonomy_id, user_id, term_order) VALUES " . join(',', $values) . " ON DUPLICATE KEY UPDATE term_order = VALUES(term_order)");
+		}
+
 		return $tt_ids;
 	}
-
 }
-
-?>
