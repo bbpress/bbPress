@@ -10,7 +10,10 @@ function bb_install() {
 function bb_upgrade_all() {
 	if ( !ini_get('safe_mode') )
 		set_time_limit(600);
+
 	$bb_upgrade = array();
+
+	// Pre DB Delta
 	$bb_upgrade[] = bb_upgrade_160(); // Break blocked users
 	$bb_upgrade[] = bb_upgrade_170(); // Escaping in usermeta
 	$bb_upgrade[] = bb_upgrade_180(); // Delete users for real
@@ -18,8 +21,11 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_200(); // Indices
 	$bb_upgrade[] = bb_upgrade_210(); // Convert text slugs to varchar slugs
 	$bb_upgrade[] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
+
 	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
 	$bb_upgrade = array_merge($bb_upgrade, bb_dbDelta($bb_queries));
+
+	// Post DB Delta
 	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
 	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent
 	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
@@ -28,7 +34,10 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1050(); // Update active theme if present
 	$bb_upgrade[] = bb_upgrade_1060(); // throttle_time option
 	$bb_upgrade[] = bb_upgrade_1070(); // trim whitespace from raw_tag
+	$bb_upgrade[] = bb_upgrade_1080(); // Convert tags to taxonomy
+
 	bb_update_db_version();
+
 	return $bb_upgrade; 
 }
 
@@ -602,6 +611,45 @@ function bb_upgrade_1070() {
 	bb_update_option( 'bb_db_version', 1467 );
 
 	return 'Whitespace trimmed from raw_tag: ' . __FUNCTION__;
+}
+
+function bb_upgrade_1080() {
+	global $bbdb, $wp_taxonomy_object;
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1526 )
+		return;
+
+	$offset = 0;
+	while ( $tags = (array) $bbdb->get_results( "SELECT * FROM $bbdb->tags LIMIT $offset, 100" ) ) {
+		if ( !ini_get('safe_mode') ) set_time_limit(600);
+		$wp_taxonomy_object->defer_term_counting(true);
+		for ( $i = 0; isset($tags[$i]); $i++ ) {
+			$bbdb->insert( $bbdb->terms, array( 
+				'name' => $tags[$i]->raw_tag,
+				'slug' => $tags[$i]->tag
+			) );
+			$term_id = $bbdb->insert_id;
+			$bbdb->insert( $bbdb->term_taxonomy, array(
+				'term_id' => $term_id,
+				'taxonomy' => 'bb_topic_tag'
+			) );
+			$term_taxonomy_id = $bbdb->insert_id;
+			$topics = (array) $bbdb->get_results( $bbdb->prepare( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = %d", $tags[$i]->tag_id ) );
+			for ( $j = 0; isset($topics[$j]); $j++ ) {
+				$bbdb->insert( $bbdb->term_relationships, array(
+					'object_id' => $topics[$j]->topic_id,
+					'term_taxonomy_id' => $term_taxonomy_id,
+					'user_id' => $topics[$j]->user_id
+				) );
+			}
+			$wp_taxonomy_object->update_term_count( array( $term_taxonomy_id ), 'bb_topic_tag' );
+		}
+		$wp_taxonomy_object->defer_term_counting(false);
+		$offset += 100;
+	}
+
+	bb_update_option( 'bb_db_version', 1467 );
+
+	return 'Tags copied to taxonomy tables: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {
