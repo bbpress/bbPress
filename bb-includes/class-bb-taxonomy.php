@@ -56,7 +56,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 		$taxonomies = "'" . implode("', '", $taxonomies) . "'";
 		$terms = "'" . implode("', '", $terms) . "'";
 
-		$sql = "SELECT tr.object_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tt.term_id IN ($terms)"
+		$sql = "SELECT tr.object_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tt.term_id IN ($terms)";
 		if ( $user_id )
 			$sql .= " AND tr.user_id = '$user_id'";
 		$sql .= " ORDER BY tr.object_id $order";
@@ -93,7 +93,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 		foreach ( $taxonomies as $taxonomy ) {
 			$terms = $this->get_object_terms($object_id, $taxonomy, array('fields' => 'tt_ids', 'user_id' => $user_id));
 			$in_terms = "'" . implode("', '", $terms) . "'";
-			$sql = "DELETE FROM {$this->db->term_relationships} WHERE object_id = %d AND term_taxonomy_id IN ($in_terms)"
+			$sql = "DELETE FROM {$this->db->term_relationships} WHERE object_id = %d AND term_taxonomy_id IN ($in_terms)";
 			if ( $user_id )
 				$sql .= " AND user_id = %d";
 			$this->db->query( $this->db->prepare( $sql, $object_id, $user_id ) );
