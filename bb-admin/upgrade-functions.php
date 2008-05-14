@@ -647,7 +647,7 @@ function bb_upgrade_1080() {
 		$offset += 100;
 	}
 
-	bb_update_option( 'bb_db_version', 1467 );
+	bb_update_option( 'bb_db_version', 1526 );
 
 	return 'Tags copied to taxonomy tables: ' . __FUNCTION__;
 }
