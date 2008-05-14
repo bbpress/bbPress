@@ -101,6 +101,7 @@ function get_forums( $args = null ) {
 		$forum_ids = array();
 		$forums = array();
 		foreach ( $_forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order") as $f ) {
+			$f = bb_append_meta( $f, 'forum' );
 			$forums[(int) $f->forum_id] = $f;
 			$forum_ids[] = (int) $f->forum_id;
 			wp_cache_add( $f->forum_id, $f, 'bb_forum' );
@@ -158,13 +159,16 @@ function get_forum( $id ) {
 		return false;
 
 	// $where is NOT bbdb:prepared
-	if ( $where = apply_filters( 'get_forum_where', '' ) )
-		return $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->forums WHERE forum_id = %d", $id ) . " $where" );
+	if ( $where = apply_filters( 'get_forum_where', '' ) ) {
+		$forum = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->forums WHERE forum_id = %d", $id ) . " $where" );
+		return bb_append_meta( $forum, 'forum' );
+	}
 
 	if ( is_numeric($id) && false !== $forum = wp_cache_get( $id, 'bb_forum' ) )
 		return $forum;
 
 	$forum = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->forums WHERE $sql", $id ) );
+	$forum = bb_append_meta( $forum, 'forum' );
 	wp_cache_set( $forum->forum_id, $forum, 'bb_forum' );
 	wp_cache_add( $forum->forum_slug, $forum, 'bb_forum_slug' );
 
@@ -557,6 +561,7 @@ function bb_get_post( $post_id ) {
 	$post_id = (int) $post_id;
 	if ( false === $post = wp_cache_get( $post_id, 'bb_post' ) ) {
 		$post = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->posts WHERE post_id = %d", $post_id ) );
+		$post = bb_append_meta( $post, 'post' );
 		wp_cache_set( $post_id, $post, 'bb_post' );
 	}
 	return $post;
