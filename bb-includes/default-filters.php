@@ -12,7 +12,7 @@ foreach ( $filters as $filter ) {
 // Kses only for textarea saves
 $filters = array( 'pre_term_description', 'bb_pre_forum_desc' );
 foreach ( $filters as $filter ) {
-	add_filter( $filter, 'wp_filter_kses' );
+	add_filter( $filter, 'bb_filter_kses' );
 }
 
 // Slugs
