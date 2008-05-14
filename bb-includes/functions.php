@@ -334,7 +334,6 @@ function bb_insert_topic( $args = null ) {
 
 	if ( in_array( 'topic_title', $fields ) ) {
 		$topic_title = apply_filters( 'pre_topic_title', $topic_title, $topic_id );
-		$topic_title = bb_trim_for_db( $topic_title, 150 );
 		if ( strlen($topic_title) < 1 )
 			return false;
 	}
@@ -988,161 +987,154 @@ function get_recent_user_replies( $user_id ) {
 
 /* Tags */
 
+/**
+ * bb_add_topic_tag() - Adds a single tag to a topic.
+ *
+ * @param int $topic_id
+ * @param string $tag The (unsanitized) full name of the tag to be added
+ * @return int|bool The TT_ID of the new bb_topic_tag or false on failure
+ */
 function bb_add_topic_tag( $topic_id, $tag ) {
-	global $bbdb;
+	$tt_ids = bb_add_topic_tags( $topic_id, $tag );
+	if ( is_array( $tt_ids ) )
+		return $tt_ids[0];
+	return false;
+}
+
+/**
+ * bb_add_topic_tag() - Adds a multiple tags to a topic.
+ *
+ * @param int $topic_id
+ * @param array|string $tags The (unsanitized) full names of the tag to be added.  CSV or array.
+ * @return array|bool The TT_IDs of the new bb_topic_tags or false on failure
+ */
+function bb_add_topic_tags( $topic_id, $tags ) {
+	global $wp_taxonomy_object;
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 	if ( !bb_current_user_can( 'add_tag_to', $topic_id ) )
 		return false;
-	if ( !$tag_id = bb_create_tag( $tag ) )
-		return false;
 
 	$user_id = bb_get_current_user_info( 'id' );
 
-	$tagged_on = bb_current_time('mysql');
+	if ( !is_array( $tags ) )
+		$tags = explode(',', (string) $tags);
 
-	if ( (array) $bbdb->get_col( $bbdb->prepare( "SELECT user_id FROM $bbdb->tagged WHERE tag_id = %d AND topic_id = %d", $tag_id, $topic_id ) ) ) :
-		do_action('bb_already_tagged', $tag_id, $user_id, $topic_id);
-		return $tag_id;
-	endif;
+	$tt_ids = $wp_taxonomy_object->set_object_terms( $topic->topic_id, $tags, 'bb_topic_tag', array( 'append' => true, 'user_id' => $user_id ) );
 
-	$bbdb->insert( $bbdb->tagged, compact( 'tag_id', 'user_id', 'topic_id', 'tagged_on' ) );
-
-	if ( !$user_already ) {
-		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->tags SET tag_count = tag_count + 1 WHERE tag_id = %d", $tag_id ) );
-		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id = %d", $topic_id ) );
-		wp_cache_delete( $topic_id, 'bb_topic' );
+	if ( is_array($tt_ids) ) {
+		foreach ( $tt_ids as $tt_id )
+			do_action('bb_tag_added', $tt_id, $user_id, $topic_id);
+		return $tt_ids;
 	}
-	do_action('bb_tag_added', $tag_id, $user_id, $topic_id);
-	return $tag_id;
+	return false;
 }
 
-function bb_add_topic_tags( $topic_id, $tags ) {
-	global $bbdb;
-
-	if ( !is_array( $tags ) ) {
-		$tags = trim( (string) $tags );
-		$tags = explode(',', $tags);
-	}
-
-	$tag_ids = array();
-	foreach ( (array) $tags as $tag )
-		if ( $_tag = bb_add_topic_tag( $topic_id, $tag ) )
-			$tag_ids[] = $_tag;
-	return $tag_ids;
-}
-
+/**
+ * bb_create_tag() - Creates a single bb_topic_tag.
+ *
+ * @param string $tag The (unsanitized) full name of the tag to be created
+ * @return int|bool The TT_ID of the new bb_topic_tags or false on failure
+ */
 function bb_create_tag( $tag ) {
-	global $bbdb;
+	global $wp_taxonomy_object;
 
-	$tag = trim( $tag );
-	$tag = apply_filters( 'pre_create_tag', $tag );
+	if ( list($term_id, $tt_id) = $wp_taxonomy_object->is_term( $tag, 'bb_topic_tag' ) )
+		return $tt_id;
 
-	$raw_tag = bb_trim_for_db( $tag, 50 );
-	$tag = $_tag = bb_tag_sanitize( $tag );
-	
-	if ( empty( $tag ) )
+	list($term_id, $tt_id) = $wp_taxonomy_object->insert_term( $tag, 'bb_topic_tag' );
+
+	if ( is_wp_error($term_id) || is_wp_error($tt_id) || !$tt_id )
 		return false;
-	if ( $exists = (int) $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE raw_tag = %s", $raw_tag ) ) )
-		return $exists;
 
-	while ( is_numeric($tag) || $existing_tag = $bbdb->get_var( $bbdb->prepare( "SELECT tag FROM $bbdb->tags WHERE tag = %s", $tag ) ) )
-		$tag = bb_slug_increment($_tag, $existing_tag);
-	
-	$bbdb->insert( $bbdb->tags, compact( 'tag', 'raw_tag' ) );
-	$tag_id = $bbdb->insert_id;
-	do_action('bb_tag_created', $raw_tag, $tag_id);
-	return $tag_id;
+	return $tt_id;
 }
 
-function bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) {
-	global $bbdb;
-	$tag_id = (int) $tag_id;
-	$user_id = (int) $user_id;
+/**
+ * bb_remove_topic_tag() - Removes a single bb_topic_tag by a user from a topic.
+ *
+ * @param int $tt_id The TT_ID of the bb_topic_tag to be removed
+ * @param int $user_id
+ * @param int $topic_id
+ * @return array|false The TT_IDs of the users bb_topic_tags on that topic or false on failure
+ */
+function bb_remove_topic_tag( $tt_id, $user_id, $topic_id ) {
+	global $wp_taxonomy_object;
+	$tt_id   = (int) $tt_id;
+	$user_id  = (int) $user_id;
 	$topic_id = (int) $topic_id;
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $user_id, $topic_id ) )
 		return false;
 
-	do_action('bb_pre_tag_removed', $tag_id, $user_id, $topic_id);
-
-	// We care about the tag in this topic and if it's in other topics, but not which other topics
-	$topics = array_flip( (array) $bbdb->get_col( $bbdb->prepare(
-		"SELECT topic_id, COUNT(*) FROM $bbdb->tagged WHERE tag_id = %d GROUP BY topic_id = %d", $tag_id, $topic_id
-	) ) );
-	$counts = (array) $bbdb->get_col('', 1);
-	if ( !$here = $counts[$topics[$topic_id]] ) // Topic doesn't have this tag
+	do_action('bb_pre_tag_removed', $tt_id, $user_id, $topic_id);
+	$current_tag_ids = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', array( 'user_id' => $user_id, 'fields' => 'tt_ids' ) );
+	if ( !is_array($current_tag_ids) )
 		return false;
 
-	if ( 1 == count($counts) ) : // This is the only time the tag is used
-		$destroyed = destroy_tag( $tag_id );
-	elseif ( $tags = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE tag_id = %d AND user_id = %d AND topic_id = %d", $tag_id, $user_id, $topic_id ) ) ) :
-		if ( 1 == $here ) :
-			$tagged = $bbdb->query( $bbdb->prepare( "UPDATE $bbdb->tags SET tag_count = tag_count - 1 WHERE tag_id = %d", $tag_id ) );
-			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id = %d", $topic_id ) );
-			wp_cache_delete( $topic_id, 'topic' );
-		endif;
-	endif;
-	return array( 'tags' => $tags, 'tagged' => $tagged, 'destroyed' => $destroyed );
+	$current_tag_ids = array_map( 'int_val', $current_tag_ids );
+
+	if ( false === $pos = array_search( $current_tag_ids, $tt_id ) )
+		return false;
+
+	unset($current_tag_ids[$pos]);
+
+	$return = $wp_taxonomy_object->set_object_terms( $topic_id, 'bb_topic_tag', array_values($current_tag_ids), array( 'user_id' => $user_id ) );
+	if ( is_wp_error( $return ) )
+		return false;
+	return $return;
 }
 
-// NOT bbdb::prepared
+/**
+ * bb_remove_topic_tag() - Removes all bb_topic_tags from a topic.
+ *
+ * @param int $topic_id
+ * @return bool
+ */
 function bb_remove_topic_tags( $topic_id ) {
-	global $bbdb;
+	global $wp_taxonomy_object;
 	$topic_id = (int) $topic_id;
 	if ( !$topic_id || !get_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bb_pre_remove_topic_tags', $topic_id );
 
-	if( $tags = (array) $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT tag_id FROM $bbdb->tagged WHERE topic_id = %d", $topic_id ) ) ) {
-		$tags = join(',', array_map('intval', $tags));
-		$_tags = (array) $bbdb->get_results( "SELECT tag_id, COUNT(DISTINCT topic_id) AS count FROM $bbdb->tagged WHERE tag_id IN ($tags) GROUP BY tag_id");
-		foreach ( $_tags as $_tag ) {
-			$new_count = (int) $_tag->count - 1;
-			if ( $new_count < 1 ) {
-				destroy_tag( $_tag->tag_id, false );
-				continue;
-			}
-			$bbdb->update( $bbdb->tags, array( 'tag_count' => $new_count ), array( 'tag_id' => $_tag->tag_id ) );
-		}
-	}
-
-	$r = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE topic_id = %d", $topic_id ) );
-	wp_cache_delete( $topic_id, 'bb_topic' );
-
-	do_action( 'bb_remove_topic_tags', $topic_id, $r );
-
-	return $r;
+	$wp_taxonomy_object->delete_object_term_relationships( $topic_id, 'bb_topic_tag' );
+	return true;
 }
 
-// rename and merge in admin-functions.php
-// NOT bbdb::prepared
-function bb_destroy_tag( $tag_id, $recount_topics = true ) {
-	global $bbdb;
+/**
+ * bb_destroy_tag() - Completely removes a bb_topic_tag.
+ *
+ * @param int $tt_id The TT_ID of the tag to destroy
+ * @return bool
+ */
+function bb_destroy_tag( $tt_id, $recount_topics = true ) {
+	global $wp_taxonomy_object;
 
-	$tag_id = (int) $tag_id;
+	$tt_id = (int) $tt_id;
 
-	do_action('bb_pre_destroy_tag', $tag_id);
+	if ( !$tag = bb_get_tag( $tt_id ) )
+		return false;
 
-	if ( $tags = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tags WHERE tag_id = %d", $tag_id ) ) ) {
-		if ( $recount_topics && $topics = (array) $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = %d", $tag_id ) ) ) {
-			$topics = join(',', array_map('intval', $topics));
-			$_topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(DISTINCT tag_id) AS count FROM $bbdb->tagged WHERE topic_id IN ($topics) GROUP BY topic_id");
-			foreach ( $_topics as $_topic ) {
-				$bbdb->update( $bbdb->topics, array( 'tag_count' => $_topic->count ), array( 'topic_id' => $_topic->topic_id ) );
-				wp_cache_delete( $_topic->topic_id, 'bb_topic' );
-			}
-		}	
-		$tagged = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->tagged WHERE tag_id = %d", $tag_id ) );
-	}
-	return array( 'tags' => $tags, 'tagged' => $tagged );
+	$return = $wp_taxonomy_object->delete_term( $tag->term_id, 'bb_topic_tag' );
+
+	if ( is_wp_error($return) )
+		return false;
+
+	return $return;
 }
 
+/**
+ * bb_get_tag_id() - Returns the id of the specified or global tag.
+ *
+ * @param mixed $id The TT_ID, tag name of the desired tag, or 0 for the global tag
+ * @return int 
+ */
 function bb_get_tag_id( $id = 0 ) {
-	global $bbdb, $tag;
+	global $tag;
 	if ( $id ) {
 		$_tag = bb_get_tag( $id );
 	} else {
@@ -1151,65 +1143,65 @@ function bb_get_tag_id( $id = 0 ) {
 	return (int) $_tag->tag_id;
 }
 
-function bb_get_tag( $tag_id, $user_id = 0, $topic_id = 0 ) {
-	global $bbdb;
-	if ( is_numeric( $tag_id ) ) {
-		$tag_id  = (int) $tag_id;
-		if ( false !== $tag_name = wp_cache_get( $tag_id, 'bb_tag_id' ) )
-			if ( false !== $tag = wp_cache_get( $tag_name, 'bb_tag' ) )
-				return $tag;
-		$where = "WHERE $bbdb->tags.tag_id = %d";
-	} else {
-		$tag_id = bb_tag_sanitize( $tag_id );
-		if ( false !== $tag = wp_cache_get( $tag_id, 'bb_tag' ) )
-			return $tag;
-		$where = "WHERE $bbdb->tags.tag = %s";
-	}
+/**
+ * bb_get_tag() - Returns the specified tag.  If $user_id and $topic_id are passed, will check to see if that tag exists on that topic by that user.
+ *
+ * @param mixed $id The TT_ID or tag name of the desired tag
+ * @param int $user_id (optional)
+ * @param int $topic_id (optional)
+ * @return object Term object (back-compat)
+ */
+function bb_get_tag( $id, $user_id = 0, $topic_id = 0 ) {
+	global $wp_taxonomy_object;
 	$user_id  = (int) $user_id;
 	$topic_id = (int) $topic_id;
 
-	if ( $user_id && $topic_id )
-		$tag = $bbdb->get_row( $bbdb->prepare( 
-			"SELECT * FROM $bbdb->tags LEFT JOIN $bbdb->tagged ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) $where AND user_id = %d AND topic_id = %d", $tag_id, $user_id, $topic_id
-		) );
-	else
-		$tag = $bbdb->get_row( $bbdb->prepare(
-			"SELECT * FROM $bbdb->tags $where", $tag_id
-		) );
+	$term = false;
+	if ( is_numeric( $id ) ) {
+		$tt_id = (int) $id;
+	} else {
+		if ( !$term = $wp_taxonomy_object->get_term_by( 'slug', $id, 'bb_topic_tag' ) )
+			return false;
+		$tt_id = (int) $term->term_taxonomy_id;
+	}
 
-	wp_cache_set( $tag->tag, $tag, 'bb_tag' );
-	wp_cache_set( $tag->tag_id, $tag->tag, 'bb_tag_id' );
+	if ( $user_id && $topic_id ) {
+		$tt_ids = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', array( 'user_id' => $user_id, 'fields' => 'tt_ids' ) );
+		if ( !in_array( $tt_id, $tt_ids ) )
+			return false;
+	}
 
-	return $tag;
+	if ( !$term )
+		$term = $wp_taxonomy_object->get_term_by( 'tt_id', $tt_id, 'bb_topic_tag' );
+
+	_bb_make_tag_compat( $term );
+
+	return $term;
 }
 
-// deprecated
-function bb_get_tag_by_name( $tag ) {
-	return bb_get_tag( $tag );
-}
-
-function bb_get_topic_tags( $topic_id = 0 ) {
-	global $bbdb;
+/**
+ * bb_get_topic_tags() - Returns all of the bb_topic_tags associated with the specified topic.
+ *
+ * @param int $topic_id
+ * @param mixed $args
+ * @return array|false Term objects (back-compat), false on failure
+ */
+function bb_get_topic_tags( $topic_id = 0, $args = null ) {
+	global $wp_taxonomy_object;
 
 	if ( !$topic = get_topic( get_topic_id( $topic_id ) ) )
 		return false;
 
 	$topic_id = (int) $topic->topic_id;
 	
-	if ( false === $tags = wp_cache_get( $topic_id, 'bb_topic_tags' ) ) {
-		if ( !$tags = $bbdb->get_results( $bbdb->prepare(
-			"SELECT * FROM $bbdb->tagged RIGHT JOIN $bbdb->tags ON ($bbdb->tags.tag_id = $bbdb->tagged.tag_id) WHERE topic_id = %d",
-			$topic_id
-		) ) )
-			$tags = array();
-		wp_cache_set( $topic_id, $tags, 'bb_topic_tags' );
-		foreach ( $tags as $tag ) {
-			wp_cache_add( $tag->tag, (object) array( 'tag_id' => $tag->tag_id, 'tag' => $tag->tag, 'raw_tag' => $tag->raw_tag, 'tag_count' => $tag->tag_count ), 'bb_tag' );
-			wp_cache_add( $tag->tag_id, $tag->tag, 'bb_tag_id' );
-		}
-	}
+	$terms = $wp_taxonomy_object->get_object_terms( (int) $topic->topic_id, 'bb_topic_tag', $args );
+	if ( is_wp_error( $terms ) )
+		return false;
 
-	return $tags;
+	for ( $i = 0; isset($terms[$i]); $i++ )
+		_bb_make_tag_compat( $terms[$i] );
+
+	return $terms;
 }
 
 function bb_get_user_tags( $topic_id, $user_id ) {
@@ -1255,9 +1247,9 @@ function bb_get_public_tags( $topic_id ) {
 }
 
 function bb_get_tagged_topic_ids( $tag_id ) {
-	global $bbdb, $tagged_topic_count;
-	$tag_id = (int) $tag_id;
-	if ( $topic_ids = (array) $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT topic_id FROM $bbdb->tagged WHERE tag_id = %d ORDER BY tagged_on DESC", $tag_id ) ) ) {
+	global $wp_taxonomy_object, $tagged_topic_count;
+	
+	if ( $topic_ids = (array) $wp_taxonomy_object->get_objects_in_term( $tag_id, 'bb_topic_tag', array( 'field' => 'tt_id' ) ) ) {
 		$tagged_topic_count = count($topic_ids);
 		return apply_filters('get_tagged_topic_ids', $topic_ids);
 	} else {
@@ -1276,14 +1268,41 @@ function get_tagged_topic_posts( $tag_id, $page = 1 ) {
 	return $post_query->results;
 }
 
-function bb_get_top_tags( $recent = true, $limit = 40 ) {
-	global $bbdb;
-	$limit = abs((int) $limit);
-	foreach ( (array) $tags = $bbdb->get_results( $bbdb->prepare( "SELECT * FROM $bbdb->tags WHERE tag_count <> 0 ORDER BY tag_count DESC LIMIT %d", $limit ) ) as $tag ) {
-		wp_cache_add( $tag->tag, $tag, 'bb_tag' );
-		wp_cache_add( $tag->tag_id, $tag->tag, 'bb_tag_id' );
+/**
+ * bb_get_top_tags() - Returns most popular tags.
+ *
+ * @param mixed $args
+ * @return array|false Term objects (back-compat), false on failure
+ */
+function bb_get_top_tags( $args = null ) {
+	global $wp_taxonomy_object;
+
+	$args = wp_parse_args( $args, array( 'number' => 40 ) );
+	$args['order'] = 'DESC';
+	$args['orderby'] = 'count';
+
+	$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', $args );
+	if ( is_wp_error( $terms ) )
+		return false;
+
+	for ( $i = 0; isset($terms[$i]); $i++ )
+		_bb_make_tag_compat( $terms[$i] );
+
+	return $terms;
+}
+
+function _bb_make_tag_compat( &$tag ) {
+	if ( is_object($tag) && isset($tag->term_id) ) {
+		$tag->tag_id    =& $tag->term_taxonomy_id;
+		$tag->tag       =& $tag->slug;
+		$tag->raw_tag   =& $tag->name;
+		$tag->tag_count =& $tag->count;
+	} elseif ( is_array($tag) && isset($tag['term_id']) ) {
+		$tag->tag_id    =& $tag['term_taxonomy_id'];
+		$tag->tag       =& $tag['slug'];
+		$tag->raw_tag   =& $tag['name'];
+		$tag->tag_count =& $tag['count'];
 	}
-	return $tags;
 }
 
 /* Users */
@@ -1326,7 +1345,7 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 		if ( !$new_user = bb_get_user( $reassign ) )
 			return false;
 		$bbdb->update( $bbdb->posts, array( 'poster_id' => $new_user->ID ), array( 'poster_id' => $user->ID ) );
-		$bbdb->update( $bbdb->tagged, array( 'user_id' => $new_user->ID ), array( 'user_id' => $user->ID ) );
+		$bbdb->update( $bbdb->term_relationships, array( 'user_id' => $new_user->ID ), array( 'user_id' => $user->ID ) );
 		$bbdb->update( $bbdb->topics, array( 'topic_poster' => $new_user->ID, 'topic_poster_name' => $new_user->user_login), array( 'topic_poster' => $user->ID ) );
 		$bbdb->update( $bbdb->topics, array( 'topic_last_poster' => $new_user->ID, 'topic_last_poster_name' => $new_user->user_login ), array( 'topic_last_poster' => $user->ID ) );
 		bb_update_topics_replied( $new_user->ID );
@@ -2228,7 +2247,7 @@ function global_profile_menu_structure() {
 	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
 		if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
-			$profile_hooks[bb_tag_sanitize($profile_tab[4])] = $profile_tab[3];
+			$profile_hooks[bb_sanitize_with_dashes($profile_tab[4])] = $profile_tab[3];
 
 	do_action('bb_profile_menu');
 	ksort($profile_menu);
@@ -2242,7 +2261,7 @@ function add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = fals
 	$profile_tab = array($tab_title, $users_cap, $others_cap, $file, $arg);
 	$profile_menu[] = $profile_tab;
 	if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
-		$profile_hooks[bb_tag_sanitize($arg)] = $file;
+		$profile_hooks[bb_sanitize_with_dashes($arg)] = $file;
 }
 
 function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
@@ -2719,41 +2738,49 @@ function bb_user_search( $args = '' ) {
 	return $users ? $users : false;
 }
 
-// NOT bbdb::prepared
 function bb_tag_search( $args = '' ) {
-	global $page, $bbdb, $bb_last_countable_query;
+	global $page, $wp_taxonomy_object;
 
 	if ( $args && is_string($args) && false === strpos($args, '=') )
-		$args = array( 'query' => $args );
+		$args = array( 'search' => $args );
 
-	$defaults = array( 'query' => '', 'tags_per_page' => false );
+	$defaults = array( 'search' => '', 'number' => false );
 
-	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
+	$args = wp_parse_args( $args );
+	if ( isset( $args['query'] ) )
+		$args['search'] = $args['query'];
+	if ( isset( $args['tags_per_page'] ) )
+		$args['number'] = $args['tags_per_page'];
+	unset($args['query'], $args['tags_per_page']);
+	$args = wp_parse_args( $args, $defaults );
 
+	extract( $args, EXTR_SKIP );
 
-	$query = trim( $query );
-	if ( strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
+	$number = (int) $number;
+	$search = trim( $search );
+	if ( strlen( $search ) < 3 )
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
 
-	$query = $bbdb->escape( $query );
-
-	$limit = 0 < (int) $tags_per_page ? (int) $tags_per_page : bb_get_option( 'page_topics' );
+	$number = 0 < $number ? $number : bb_get_option( 'page_topics' );
 	if ( 1 < $page )
-		$limit = ($limit * (intval($page) - 1)) . ", $limit";
+		$offset = ( intval($page) - 1 ) * $number;
 
-	$likeit = preg_replace('/\s+/', '%', $query);
+	$args = array_merge( $args, compact( 'number', 'offset', 'search' ) );
 
-	$bb_last_countable_query = "SELECT * FROM $bbdb->tags WHERE raw_tag LIKE ('%$likeit%') LIMIT $limit";
+	$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', $args );
+	if ( is_wp_error( $terms ) )
+		return false;
 
-	foreach ( (array) $tags = $bbdb->get_results( $bb_last_countable_query ) as $tag ) {
-		wp_cache_add( $tag->tag, $tag, 'bb_tag' );
-		wp_cache_add( $tag->tag_id, $tag->tag, 'bb_tag_id' );
-	}
+	for ( $i = 0; isset($terms[$i]); $i++ )
+		_bb_make_tag_compat( $terms[$i] );
 
-	return $tags ? $tags : false;
+	return $terms;
 }
 
+// TODO
 function bb_related_tags( $_tag = false, $number = 40 ) {
+	return array();
+
 	global $bbdb, $tag;
 	if ( is_numeric($_tag) )
 		$_tag = bb_get_tag( $_tag );

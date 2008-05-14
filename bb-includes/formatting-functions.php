@@ -195,9 +195,16 @@ function bb_encoded_utf8_cut( $encoded, $length = 0 ) {
 	return $r;
 }
 
-function bb_tag_sanitize( $tag, $length = 200 ) {
-	$_tag = $tag;
-	return apply_filters( 'bb_tag_sanitize', bb_sanitize_with_dashes( $tag, $length ), $_tag, $length );
+function bb_pre_term_slug( $slug, $taxonomy = '', $term_id = 0 ) {
+	return bb_sanitize_with_dashes( $slug, 200 );
+}
+
+function bb_trim_for_db_55( $string ) {
+	return bb_trim_for_db( $string, 55 );
+}
+
+function bb_trim_for_db_150( $string ) {
+	return bb_trim_for_db( $string, 150 );
 }
 
 function bb_slug_sanitize( $slug, $length = 255 ) {

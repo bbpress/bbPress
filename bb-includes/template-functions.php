@@ -1455,7 +1455,7 @@ function profile_tab_link( $id = 0, $tab, $page = 1 ) {
 }
 
 function get_profile_tab_link( $id = 0, $tab, $page = 1 ) {
-	$tab = bb_tag_sanitize($tab);
+	$tab = bb_sanitize_with_dashes($tab);
 	if ( bb_get_option('mod_rewrite') )
 		$r = get_user_profile_link( $id ) . "/$tab" . ( 1 < $page ? "/page/$page" : '' );
 	else {

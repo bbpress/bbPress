@@ -695,4 +695,12 @@ function bb_get_active_theme_folder() {
 	return apply_filters( 'bb_get_active_theme_folder', bb_get_active_theme_directory() );
 }
 
-?>
+function bb_tag_sanitize( $tag ) {
+	bb_log_deprecated('function', __FUNCTION__, 'bb_pre_term_slug');
+	return bb_pre_term_slug( $tag );
+}
+
+function bb_get_tag_by_name( $tag ) {
+	bb_log_deprecated('function', __FUNCTION__, 'bb_get_tag');
+	return bb_get_tag( $tag );
+}

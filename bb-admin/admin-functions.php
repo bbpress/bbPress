@@ -524,7 +524,6 @@ function bb_new_forum( $args ) {
 
 	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
-	$forum_name = bb_trim_for_db( $forum_name, 150 );
 
 	if ( strlen($forum_name) < 1 )
 		return false;
@@ -570,9 +569,8 @@ function bb_update_forum( $args ) {
 	$forum_parent = (int) $forum_parent;
 	$forum_is_category = (int) $forum_is_category;
 
-	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
-	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
-	$forum_name = bb_trim_for_db( $forum_name, 150 );
+	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name), $forum_id );
+	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc), $forum_id );
 
 	if ( strlen($forum_name) < 1 )
 		return false;
@@ -726,7 +724,9 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 
 /* Tags */
 
+// TODO
 function rename_tag( $tag_id, $tag ) {
+	return false
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
@@ -751,7 +751,9 @@ function rename_tag( $tag_id, $tag ) {
 
 // merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
 // NOT bbdb::prepared
+// TODO
 function merge_tags( $old_id, $new_id ) {
+	return false;
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
