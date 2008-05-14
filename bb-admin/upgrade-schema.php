@@ -53,6 +53,27 @@ $bb_queries['posts'] = "CREATE TABLE $bbdb->posts (
   FULLTEXT KEY post_text (post_text)
 ) TYPE = MYISAM $charset_collate;";
 
+$bb_queries['tagged'] = "CREATE TABLE $bbdb->tagged (
+  tagged_id bigint(20) unsigned NOT NULL auto_increment,
+  tag_id bigint(20) unsigned NOT NULL default '0',
+  user_id bigint(20) unsigned NOT NULL default '0',
+  topic_id bigint(20) unsigned NOT NULL default '0',
+  tagged_on datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY  (tagged_id),
+  UNIQUE KEY tag_user_topic (tag_id,user_id,topic_id),
+  KEY user_id_index (user_id),
+  KEY topic_id_index (topic_id)
+) $charset_collate;";
+
+$bb_queries['tags'] = "CREATE TABLE $bbdb->tags (
+  tag_id bigint(20) unsigned NOT NULL auto_increment,
+  tag varchar(200) NOT NULL default '',
+  raw_tag varchar(50) NOT NULL default '',
+  tag_count bigint(20) unsigned NOT NULL default '0',
+  PRIMARY KEY  (tag_id),
+  KEY name (tag)
+) $charset_collate;";
+
 $bb_queries['terms'] = "CREATE TABLE $bbdb->terms (
  term_id bigint(20) NOT NULL auto_increment,
  name varchar(55) NOT NULL default '',
@@ -60,6 +81,15 @@ $bb_queries['terms'] = "CREATE TABLE $bbdb->terms (
  term_group bigint(10) NOT NULL default 0,
  PRIMARY KEY  (term_id),
  UNIQUE KEY slug (slug)
+) $charset_collate;";
+
+$bb_queries['term_relationships'] = "CREATE TABLE $bbdb->term_relationships (
+ object_id bigint(20) NOT NULL default 0,
+ term_taxonomy_id bigint(20) NOT NULL default 0,
+ user_id bigint(20) NOT NULL default 0,
+ term_order int(11) NOT NULL default 0,
+ PRIMARY KEY  (object_id,term_taxonomy_id),
+ KEY term_taxonomy_id (term_taxonomy_id)
 ) $charset_collate;";
 
 $bb_queries['term_taxonomy'] = "CREATE TABLE $bbdb->term_taxonomy (
@@ -71,15 +101,6 @@ $bb_queries['term_taxonomy'] = "CREATE TABLE $bbdb->term_taxonomy (
  count bigint(20) NOT NULL default 0,
  PRIMARY KEY  (term_taxonomy_id),
  UNIQUE KEY term_id_taxonomy (term_id,taxonomy)
-) $charset_collate;";
-
-$bb_queries['term_relationships'] = "CREATE TABLE $bbdb->term_relationships (
- object_id bigint(20) NOT NULL default 0,
- term_taxonomy_id bigint(20) NOT NULL default 0,
- user_id bigint(20) NOT NULL default 0,
- term_order int(11) NOT NULL default 0,
- PRIMARY KEY  (object_id,term_taxonomy_id),
- KEY term_taxonomy_id (term_taxonomy_id)
 ) $charset_collate;";
 
 $bb_queries['topics'] = "CREATE TABLE $bbdb->topics (
@@ -140,27 +161,6 @@ $bb_queries['usermeta'] = "CREATE TABLE $bbdb->usermeta (
   KEY user_id (user_id),
   KEY meta_key (meta_key)
 ) $user_charset_collate;";
-
-$bb_queries['tags'] = "CREATE TABLE $bbdb->tags (
-  tag_id bigint(20) unsigned NOT NULL auto_increment,
-  tag varchar(200) NOT NULL default '',
-  raw_tag varchar(50) NOT NULL default '',
-  tag_count bigint(20) unsigned NOT NULL default '0',
-  PRIMARY KEY  (tag_id),
-  KEY name (tag)
-) $charset_collate;";
-
-$bb_queries['tagged'] = "CREATE TABLE $bbdb->tagged (
-  tagged_id bigint(20) unsigned NOT NULL auto_increment,
-  tag_id bigint(20) unsigned NOT NULL default '0',
-  user_id bigint(20) unsigned NOT NULL default '0',
-  topic_id bigint(20) unsigned NOT NULL default '0',
-  tagged_on datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (tagged_id),
-  UNIQUE KEY tag_user_topic (tag_id,user_id,topic_id),
-  KEY user_id_index (user_id),
-  KEY topic_id_index (topic_id)
-) $charset_collate;";
 
 $bb_queries = apply_filters( 'bb_schema', $bb_queries );
 

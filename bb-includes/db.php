@@ -17,15 +17,30 @@ class bbdb_base {
 	var $prefix;
 
 	// Our tables
-	var $tables = array( 'forums', 'posts', 'topics', 'topicmeta', 'users', 'usermeta', 'tags', 'tagged', 'terms', 'term_taxonomy', 'term_relationships' );
+	var $tables = array(
+		'forums',
+		'posts',
+		'tagged',
+		'tags',
+		'terms',
+		'term_relationships',
+		'term_taxonomy',
+		'topics',
+		'topicmeta',
+		'users',
+		'usermeta'
+	);
 	var $forums;
 	var $posts;
+	var $tagged;
+	var $tags;
+	var $terms;
+	var $term_relationships;
+	var $term_taxonomy;
 	var $topics;
 	var $topicmeta;
 	var $users;
 	var $usermeta;
-	var $tags;
-	var $tagged;
 
 	var $_force_dbhname = false;
 
