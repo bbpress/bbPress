@@ -479,6 +479,10 @@ form.login input#remember {
 	text-transform: uppercase;
 }
 
+tr.bb-category td {
+	background-color: #ddd;
+}
+
 #latest, #forumlist, #favorites {
 	background-color: #f7f7f7;
 	margin-bottom: 2em;

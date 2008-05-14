@@ -129,6 +129,10 @@ function bb_post_template() {
 
 function post_form( $h2 = '' ) {
 	global $page, $topic, $forum;
+	
+	if ($forum->forum_is_category)
+		return;
+	
 	$add = topic_pages_add();
 	if ( empty($h2) && false !== $h2 ) {
 		if ( is_topic() )
@@ -544,6 +548,11 @@ function get_forum_parent( $forum_id = 0 ) {
 function get_forum_position( $forum_id = 0 ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_position', $forum->forum_order, $forum->forum_id );
+}
+
+function bb_get_forum_is_category( $forum_id = 0 ) {
+	$forum = get_forum( get_forum_id( $forum_id ) );
+	return apply_filters( 'bb_get_forum_is_category', $forum->forum_is_category, $forum->forum_id );
 }
 
 function forum_topics( $forum_id = 0 ) {
@@ -2207,7 +2216,7 @@ function bb_forum_dropdown( $args = '' ) {
 }
 
 function bb_get_forum_dropdown( $args = '' ) {
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0 );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0, 'disable_categories' => 1 );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'callback' => $args );
 	if ( 1 < func_num_args() )
@@ -2230,17 +2239,48 @@ function bb_get_forum_dropdown( $args = '' ) {
 	if ( $none && 1 == $none )
 		$none = __('- None -');
 
-	$r = "<select name='$name' id='$id' tabindex='$tab'>\n";
+	$r = '<select name="' . $name . '" id="' . $id . '" tabindex="' . $tab . '">' . "\n";
 	if ( $none )
-		$r .= "\n<option value='0'>$none</option>\n";
+		$r .= "\n" . '<option value="0">' . $none . '</option>' . "\n";
 
+	$no_option_selected = true;
+	$options = array();
 	while ( $depth = bb_forum() ) :
 		global $forum; // Globals + References = Pain
-		$_selected = ( !$selected && $forum_id == $forum->forum_id || $selected == $forum->forum_id ) ? " selected='selected'" : '';
-		$r .= "\n<option value='$forum->forum_id'$_selected>" . str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . " $forum->forum_name</option>\n";
+		if ($disable_categories && $forum->forum_is_category) {
+			$options[] = array(
+				'value' => 0,
+				'display' => str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . $forum->forum_name,
+				'disabled' => true,
+				'selected' => false
+			);
+			continue;
+		}
+		$_selected = false;
+		if ( (!$selected && $forum_id == $forum->forum_id) || $selected == $forum->forum_id ) {
+			$_selected = true;
+			$no_option_selected = false;
+		}
+		$options[] = array(
+			'value' => $forum->forum_id,
+			'display' => str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . $forum->forum_name,
+			'disabled' => false,
+			'selected' => $_selected
+		);
 	endwhile;
+	
+	foreach ($options as $option_index => $option_value) {
+		if (!$none && !$selected && $no_option_selected && !$option_value['disabled']) {
+			$option_value['selected'] = true;
+			$no_option_selected = false;
+		}
+		$option_disabled = $option_value['disabled'] ? ' disabled="disabled"' : '';
+		$option_selected = $option_value['selected'] ? ' selected="selected"' : '';
+		$r .= "\n" . '<option value="' . $option_value['value'] . '"' . $option_disabled . $option_selected . '>' . $option_value['display'] . '</option>' . "\n";
+	}
+	
 	$forum = $old_global;
-	$r .= "</select>\n";
+	$r .= '</select>' . "\n";
 	return $r;
 }
 

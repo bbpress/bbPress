@@ -505,7 +505,7 @@ function bb_new_forum( $args ) {
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
-	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false );
+	$defaults = array( 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => false, 'forum_is_category' => 0 );
 	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
 		$args['forum_name']  = func_get_arg(0);
@@ -520,6 +520,7 @@ function bb_new_forum( $args ) {
 
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
+	$forum_is_category = (int) $forum_is_category;
 
 	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
@@ -539,7 +540,8 @@ function bb_new_forum( $args ) {
 
 	$bbdb->insert( $bbdb->forums, compact( 'forum_name', 'forum_slug', 'forum_desc', 'forum_parent', 'forum_order' ) );
 	$forum_id = $bbdb->insert_id;
-
+	if ($forum_id && $forum_is_category)
+		bb_update_forummeta($forum_id, 'forum_is_category', $forum_is_category);
 	wp_cache_flush( 'bb_forums' );
 
 	return $forum_id;
@@ -551,7 +553,7 @@ function bb_update_forum( $args ) {
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
-	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0 );
+	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0, 'forum_is_category' => 0 );
 	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
 		$args['forum_id']    = func_get_arg(0);
@@ -566,6 +568,7 @@ function bb_update_forum( $args ) {
 		return false;
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
+	$forum_is_category = (int) $forum_is_category;
 
 	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
@@ -577,7 +580,13 @@ function bb_update_forum( $args ) {
 	wp_cache_delete( $forum_id, 'bb_forum' );
 	wp_cache_flush( 'bb_forums' );
 
-	return $bbdb->update( $bbdb->forums, compact( 'forum_name', 'forum_desc', 'forum_parent', 'forum_order' ), compact( 'forum_id' ) );
+	$update_result = $bbdb->update( $bbdb->forums, compact( 'forum_name', 'forum_desc', 'forum_parent', 'forum_order' ), compact( 'forum_id' ) );
+	if ($update_result)
+		if ($forum_is_category)
+			bb_update_forummeta($forum_id, 'forum_is_category', $forum_is_category);
+		else
+			bb_delete_forummeta($forum_id, 'forum_is_category');
+	return $update_result;
 }
 
 // When you delete a forum, you delete *everything*
@@ -661,10 +670,13 @@ function bb_forum_form( $forum_id = 0 ) {
 			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
 		</tr>
 		<tr id="forum-parent-row"><th scope="row"><label for="forum_parent"><?php _e('Forum Parent:'); ?></label></th>
-			<td><?php bb_forum_dropdown( array('cut_branch' => $forum_id, 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0) ); ?></td>
+			<td><?php bb_forum_dropdown( array('cut_branch' => $forum_id, 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0, 'disable_categories' => 0) ); ?></td>
 		</tr>
 		<tr id="forum-position-row"><th scope="row"><label for="forum-order"><?php _e('Position:'); ?></label></th>
 			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
+		</tr>
+		<tr id="forum-is-category-row"><th scope="row"><label for="forum-is-category"><?php _e('Forum is Category:'); ?></label></th>
+			<td><input type="checkbox" name="forum_is_category" id="forum-is-category" value="1" <?php if ( $forum_id && bb_get_forum_is_category($forum_id) ) : ?>checked="checked" <?php endif; ?>tabindex="13" /></td>
 		</tr>
 	</table>
 	<p class="submit">
