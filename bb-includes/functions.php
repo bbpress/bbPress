@@ -1754,6 +1754,24 @@ function bb_append_meta( $object, $type ) {
 	endif;
 }
 
+function bb_get_forummeta( $forum_id, $meta_key ) {
+	if ( !$forum = bb_get_forum( $forum_id ) )
+		return;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( !isset($forum->$meta_key) )
+		return;
+	return $forum->$meta_key;
+}
+
+function bb_update_forummeta( $forum_id, $meta_key, $meta_value ) {
+	return bb_update_meta( $forum_id, $meta_key, $meta_value, 'forum' );
+}
+
+function bb_delete_forummeta( $forum_id, $meta_key, $meta_value = '' ) {
+	return bb_delete_meta( $forum_id, $meta_key, $meta_value, 'forum' );
+}
+
 function bb_get_usermeta( $user_id, $meta_key ) {
 	if ( !$user = bb_get_user( $user_id ) )
 		return;
@@ -1788,6 +1806,24 @@ function bb_update_topicmeta( $topic_id, $meta_key, $meta_value ) {
 
 function bb_delete_topicmeta( $topic_id, $meta_key, $meta_value = '' ) {
 	return bb_delete_meta( $topic_id, $meta_key, $meta_value, 'topic' );
+}
+
+function bb_get_postmeta( $post_id, $meta_key ) {
+	if ( !$post = get_post( $post_id ) )
+		return;
+
+	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
+	if ( !isset($post->$meta_key) )
+		return;
+	return $post->$meta_key;
+}
+
+function bb_update_postmeta( $post_id, $meta_key, $meta_value ) {
+	return bb_update_meta( $post_id, $meta_key, $meta_value, 'post' );
+}
+
+function bb_delete_postmeta( $post_id, $meta_key, $meta_value = '' ) {
+	return bb_delete_meta( $post_id, $meta_key, $meta_value, 'post' );
 }
 
 // Internal use only.  Use API.
