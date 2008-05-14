@@ -461,10 +461,10 @@ class BB_Query {
 
 		if ( $q['meta_key'] && $q['meta_key'] = preg_replace('|[^a-z0-9_-]|i', '', $q['meta_key']) ) :
 			if ( '-' == substr($q['meta_key'], 0, 1) ) :
-				$join  .= " LEFT JOIN $bbdb->topicmeta AS tm ON ( t.topic_id = tm.topic_id AND tm.meta_key = '" . substr( $q['meta_key'], 1 ) . "' )";
+				$join  .= " LEFT JOIN $bbdb->meta AS tm ON ( tm.object_type = 'bb_topic' AND t.topic_id = tm.object_id AND tm.meta_key = '" . substr( $q['meta_key'], 1 ) . "' )";
 				$where .= " AND tm.meta_key IS NULL";
 			else :
-				$join  .= " JOIN $bbdb->topicmeta AS tm ON ( t.topic_id = tm.topic_id AND tm.meta_key = '$q[meta_key]' )";
+				$join  .= " JOIN $bbdb->meta AS tm ON ( tm.object_type = 'bb_topic' AND t.topic_id = tm.topic_id AND tm.meta_key = '$q[meta_key]' )";
 
 				if ( $q['meta_value'] ) :
 					$q['meta_value'] = maybe_serialize( $q['meta_value'] );

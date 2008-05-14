@@ -19,6 +19,7 @@ class bbdb_base {
 	// Our tables
 	var $tables = array(
 		'forums',
+		'meta',
 		'posts',
 		'tagged',
 		'tags',
@@ -31,6 +32,7 @@ class bbdb_base {
 		'usermeta'
 	);
 	var $forums;
+	var $meta;
 	var $posts;
 	var $tagged;
 	var $tags;

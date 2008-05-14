@@ -27,7 +27,7 @@ endif;
 
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
 	echo "\t<li>\n";
-	$old = (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'deleted_posts'");
+	$old = (array) $bbdb->get_col("SELECT object_id FROM $bbdb->meta WHERE object_type = 'bb_topics' AND meta_key = 'deleted_posts'");
 	$old = array_flip($old);
 	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
 		echo "\t\t" . __('Counting deleted posts...') . "<br />\n";
@@ -39,7 +39,7 @@ if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] 
 	endif;
 	if ( $old ) :
 		$old = join(',', array_flip($old));
-		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($old) AND meta_key = 'deleted_posts'");
+		$bbdb->query("DELETE FROM $bbdb->meta WHERE object_type = 'bb_topic' AND object_id IN ($old) AND meta_key = 'deleted_posts'");
 		echo "\t\t" . __('Done counting deleted posts.');
 	else :
 		echo "\t\t" . __('No deleted posts to count.');

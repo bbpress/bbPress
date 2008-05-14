@@ -85,7 +85,7 @@ function bb_bozo_recount_topics() {
 	global $bbdb;
 	if ( isset($_POST['topic-bozo-posts']) && 1 == $_POST['topic-bozo-posts'] ):
 	echo "\t<li>\n";
-		$old = (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'bozos'");
+		$old = (array) $bbdb->get_col("SELECT object_id FROM $bbdb->meta WHERE object_type = 'bb_topic' AND meta_key = 'bozos'");
 		$old = array_flip($old);
 		if ( $topics = (array) $bbdb->get_col("SELECT topic_id, poster_id, COUNT(post_id) FROM $bbdb->posts WHERE post_status > 1 GROUP BY topic_id, poster_id") ) :
 			echo "\t\t" . __("Counting bozo posts...") . "<br />\n";
@@ -106,7 +106,7 @@ function bb_bozo_recount_topics() {
 		endif;
 		if ( $old ) :
 			$old = join(',', array_map('intval', array_flip($old)));
-			$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($old) AND meta_key = 'bozos'");
+			$bbdb->query("DELETE FROM $bbdb->meta WHERE object_type = 'bb_topic' AND object_id IN ($old) AND meta_key = 'bozos'");
 		endif;
 		echo "\t\t" . __("Done counting bozo posts.");
 		echo "\n\t</li>";

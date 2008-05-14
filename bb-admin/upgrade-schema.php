@@ -36,6 +36,17 @@ $bb_queries['forums'] = "CREATE TABLE $bbdb->forums (
   KEY forum_slug (forum_slug)
 ) $charset_collate;";
 
+$bb_queries['meta'] = "CREATE TABLE $bbdb->meta (
+  meta_id bigint(20) NOT NULL auto_increment,
+  object_type varchar(16) NOT NULL default 'bb_option',
+  object_id bigint(20) NOT NULL default '0',
+  meta_key varchar(255) default NULL,
+  meta_value longtext default NULL,
+  PRIMARY KEY  (meta_id),
+  KEY object_type__meta_key (object_type, meta_key),
+  KEY object_type__object_id__meta_key (object_type, object_id, meta_key)
+) $charset_collate;";
+
 $bb_queries['posts'] = "CREATE TABLE $bbdb->posts (
   post_id bigint(20) NOT NULL auto_increment,
   forum_id int(10) NOT NULL default '1',
