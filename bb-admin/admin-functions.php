@@ -726,7 +726,7 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 
 // TODO
 function rename_tag( $tag_id, $tag ) {
-	return false
+	return false;
 	global $bbdb;
 	if ( !bb_current_user_can( 'manage_tags' ) )
 		return false;
