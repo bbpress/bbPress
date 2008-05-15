@@ -2,36 +2,6 @@
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP6182]
-function clean_url( $url, $protocols = null, $context = 'display' ) {
-	$original_url = $url;
-
-	if ('' == $url) return $url;
-	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@]|i', '', $url);
-	$strip = array('%0d', '%0a');
-	$url = str_replace($strip, '', $url);
-	$url = str_replace(';//', '://', $url);
-	/* If the URL doesn't appear to contain a scheme, we
-	 * presume it needs http:// appended (unless a relative
-	 * link starting with / or a php file).
-	*/
-	if ( strpos($url, ':') === false &&
-		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9-]+?\.php/i', $url) )
-		$url = 'http://' . $url;
-
-	// Replace ampersands ony when displaying.
-	if ( 'display' == $context )
-		$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
-
-	if ( !is_array($protocols) )
-		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet');
-	if ( wp_kses_bad_protocol( $url, $protocols ) != $url )
-		return '';
-
-	return apply_filters('clean_url', $url, $original_url, $context);
-}
-endif;
-
 if ( !function_exists('clean_pre') ) : // [WP6102]
 // Accepts matches array from preg_replace_callback in wpautop()
 // or a string
