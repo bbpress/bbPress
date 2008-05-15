@@ -55,26 +55,6 @@ function clean_pre($matches) {
 }
 endif;
 
-if ( !function_exists('wp_specialchars') ) :
-function wp_specialchars( $text, $quotes = 0 ) { // [WP4451]
-	// Like htmlspecialchars except don't double-encode HTML entities
-	$text = str_replace('&&', '&#038;&', $text);
-	$text = str_replace('&&', '&#038;&', $text);
-	$text = preg_replace('/&(?:$|([^#])(?![a-z1-4]{1,8};))/', '&#038;$1', $text);
-	$text = str_replace('<', '&lt;', $text);
-	$text = str_replace('>', '&gt;', $text);
-	if ( 'double' === $quotes ) {
-		$text = str_replace('"', '&quot;', $text);
-	} elseif ( 'single' === $quotes ) {
-		$text = str_replace("'", '&#039;', $text);
-	} elseif ( $quotes ) {
-		$text = str_replace('"', '&quot;', $text);
-		$text = str_replace("'", '&#039;', $text);
-	}
-	return $text;
-}
-endif;
-
 if ( !function_exists('utf8_uri_encode') ) : // [WP6314]
 function utf8_uri_encode( $utf8_string, $length = 0 ) {
 	$unicode = '';
@@ -1013,22 +993,6 @@ function ent2ncr($text) {
 	);
 
 	return str_replace( array_keys($to_ncr), array_values($to_ncr), $text );
-}
-endif;
-
-if ( !function_exists('wp_parse_args') ) : // [WP5796]
-function wp_parse_args( $args, $defaults = '' ) {
-	if ( is_object($args) )
-		$r = get_object_vars($args);
-	else if ( is_array( $args ) )
-		$r =& $args;
-	else
-		wp_parse_str( $args, $r );
-
-	if ( is_array( $defaults ) )
-		return array_merge( $defaults, $r );
-	else
-		return $r;
 }
 endif;
 
