@@ -1,11 +1,5 @@
 <?php
 
-if ( !function_exists('stripslashes_deep') ) :
-function stripslashes_deep($value) { // [5261]
-	return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
-}
-endif;
-
 /* Formatting */
 
 if ( !function_exists( 'clean_url' ) ) : // [WP6182]
@@ -1017,15 +1011,6 @@ function backslashit($string) {
 	$string = preg_replace('/^([0-9])/', '\\\\\\\\\1', $string);
 	$string = preg_replace('/([a-z])/i', '\\\\\1', $string);
 	return $string;
-}
-endif;
-
-if ( !function_exists( 'wp_parse_str' ) ) : // [WP5709]
-function wp_parse_str( $string, &$array ) {
-	parse_str( $string, $array );
-	if ( get_magic_quotes_gpc() )
-		$array = stripslashes_deep( $array ); // parse_str() adds slashes if magicquotes is on.  See: http://php.net/parse_str
-	$array = apply_filters( 'wp_parse_str', $array );
 }
 endif;
 
