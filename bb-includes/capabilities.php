@@ -159,6 +159,10 @@ function bb_get_roles( $roles ) {
 
 // Map meta capabilities to primitive capabilities.
 function bb_map_meta_cap( $caps, $cap, $user_id, $args ) {
+	// Unset the meta cap
+	if ( false !== $cap_pos = array_search( $cap, $caps ) )
+		unset( $caps[$cap_pos] );
+
 	switch ( $cap ) {
 	case 'write_post':
 		$caps[] = 'write_posts';
@@ -280,8 +284,5 @@ function bb_map_meta_cap( $caps, $cap, $user_id, $args ) {
 		// If no meta caps match, return the original cap.
 		$caps[] = $cap;
 	}
-
 	return $caps;
 }
-
-?>
