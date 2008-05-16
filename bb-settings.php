@@ -57,11 +57,44 @@ if ( !defined( 'BB_IS_ADMIN' ) )
 // Define the include path
 define('BB_INC', 'bb-includes/');
 
+if ( !defined( 'BACKPRESS_PATH' ) )
+	define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/' );
+require( BACKPRESS_PATH . 'functions.core.php' );
+require( BACKPRESS_PATH . 'functions.compat.php' );
+
 // Define the full path to the database class
-if ( !defined('BB_DATABASE_CLASS') )
-	define('BB_DATABASE_CLASS', BB_PATH . BB_INC . 'db.php');
+if ( !defined('BB_DATABASE_CLASS_INCLUDE') )
+	define('BB_DATABASE_CLASS_INCLUDE', BACKPRESS_PATH . 'class.bpdb-multi.php' );
 // Load the database class
-require( BB_DATABASE_CLASS );
+require( BB_DATABASE_CLASS_INCLUDE );
+
+if ( !defined( 'BB_DATABASE_CLASS' ) )
+	define( 'BB_DATABASE_CLASS', 'BPDB_Multi' );
+$bbdb_class = BB_DATABASE_CLASS;
+
+$bbdb =& new $bbdb_class( array(
+	'name' => BBDB_NAME,
+	'user' => BBDB_USER,
+	'password' => BBDB_PASSWORD,
+	'host' => BBDB_HOST,
+	'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
+	'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
+) );
+$bbdb->tables = array( // Better way to do this?
+	'forums',
+	'meta',
+	'posts',
+	'tagged',
+	'tags',
+	'terms',
+	'term_relationships',
+	'term_taxonomy',
+	'topics',
+	'topicmeta'
+//	, 'users'   // intentionally left off so that $bbdb->set_prefix doesn't have to keep track of stomping them
+//	, 'usermeta // good idea?
+);
+unset($bbdb_class);
 
 // Define the language file directory
 if ( !defined('BB_LANG_DIR') )
@@ -70,12 +103,7 @@ if ( !defined('BB_LANG_DIR') )
 	else
 		define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
 
-if ( !defined( 'BACKPRESS_PATH' ) )
-	define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/' );
-
 // Include functions
-require( BACKPRESS_PATH . 'functions.core.php' );
-require( BACKPRESS_PATH . 'functions.compat.php' );
 require( BB_PATH . BB_INC . 'wp-functions.php');
 require( BB_PATH . BB_INC . 'functions.php');
 require( BB_PATH . BB_INC . 'classes.php');
@@ -118,6 +146,7 @@ if ( !BB_IS_WP_LOADED ) {
 
 if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
 	die(__('Your table prefix may only contain letters, numbers and underscores.'));
+$bbdb->set_prefix( $bb_table_prefix, array( 'users', 'usermeta' ) );
 
 if ( defined( 'BB_AWESOME_INCLUDE' ) && file_exists( BB_AWESOME_INCLUDE ) )
 	require( BB_AWESOME_INCLUDE );
@@ -270,6 +299,10 @@ if ( !$bb->user_bbdb_charset = bb_get_option('user_bbdb_charset') )
 	if ( defined('USER_BBDB_CHARSET') ) // User has set old constant
 		$bb->user_bbdb_charset = USER_BBDB_CHARSET;
 
+if ( !$bb->user_bbdb_collate = bb_get_option('user_bbdb_collate') )
+	if ( defined('USER_BBDB_COLLATE') ) // User has set old constant
+		$bb->user_bbdb_collate = USER_BBDB_COLLATE;
+
 if ( !$bb->custom_user_table = bb_get_option('custom_user_table') )
 	if ( defined('CUSTOM_USER_TABLE') ) // User has set old constant
 		$bb->custom_user_table = CUSTOM_USER_TABLE;
@@ -281,10 +314,6 @@ if ( !$bb->custom_user_meta_table = bb_get_option('custom_user_meta_table') )
 if ( is_wp_error( $bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') ) ) )
 	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
 
-// Set the user table's character set if defined
-if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
-	$bbdb->user_charset = $bb->user_bbdb_charset;
-
 // Set the user table's custom name if defined
 if ( isset($bb->custom_user_table) && $bb->custom_user_table )
 	$bbdb->users = $bb->custom_user_table;
@@ -292,6 +321,19 @@ if ( isset($bb->custom_user_table) && $bb->custom_user_table )
 // Set the usermeta table's custom name if defined
 if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
 	$bbdb->usermeta = $bb->custom_user_meta_table;
+
+if ( $bb->user_bbdb_name ) {
+	$bbdb->add_db_server( 'dbh_user', array(
+		'name' => $bb->user_bbdb_name,
+		'user' => $bb->user_bbdb_user,
+		'password' => $bb->user_bbdb_password,
+		'host' => $bb->user_bbdb_host,
+		'charset' => $bb->user_bbdb_charset,
+		'collate' => $bb->user_bbdb_collate
+	) );
+	$bbdb->add_db_table( 'dbh_user', $bbdb->users );
+	$bbdb->add_db_table( 'dbh_user', $bbdb->usermeta );
+}
 
 // Sort out cookies so they work with WordPress (if required)
 // Note that database integration is no longer a pre-requisite for cookie integration
@@ -507,5 +549,3 @@ if ( bb_is_user_logged_in() && bb_has_broken_pass() )
 $page = bb_get_uri_page();
 
 bb_send_headers();
-
-?>
