@@ -1,5 +1,4 @@
 <?php
-
 if ( version_compare(PHP_VERSION, '4.3', '<') )
 	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.3', PHP_VERSION) );
 
@@ -427,15 +426,16 @@ if ( !class_exists( 'WP_Auth' ) ) {
 }
 $bb_current_user =& $wp_auth_object->current;
 
-// WP_Scripts
-if ( !isset($wp_scripts) ) {
-	if ( !class_exists( 'WP_Scripts' ) ) {
-		require( BACKPRESS_PATH . 'class.wp-scripts.php' );
-		require( BACKPRESS_PATH . 'functions.wp-scripts.php' );
-	}
-	$wp_scripts = new WP_Scripts( $bb->uri, bb_get_option( 'version' ) );
-} else {
-	bb_default_scripts( $wp_scripts );
+// WP_Scripts/WP_Styles
+if ( !class_exists( 'WP_Dependencies' ) )
+	require( BACKPRESS_PATH . 'class.wp-dependencies.php' );
+if ( !class_exists( 'WP_Scripts' ) ) {
+	require( BACKPRESS_PATH . 'class.wp-scripts.php' );
+	require( BACKPRESS_PATH . 'functions.wp-scripts.php' );
+}
+if ( !class_exists( 'WP_Styles' ) ) {
+	require( BACKPRESS_PATH . 'class.wp-styles.php' );
+	require( BACKPRESS_PATH . 'functions.wp-styles.php' );
 }
 
 // WP_Taxonomy
