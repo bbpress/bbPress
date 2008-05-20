@@ -4,7 +4,7 @@ global $bb_queries, $bbdb;
 $charset_collate = '';
 $user_charset_collate = '';
 
-if ( !defined( 'BB_MYSQLI' ) )
+if ( !isset($bbdb) || !is_a( $bbdb, 'BPDB' ) )
 	die( __('Database class not loaded.') );
 
 if ( $bbdb->has_cap( 'collation', $bbdb->forums ) ) {
