@@ -79,25 +79,26 @@ $bbdb =& new $bbdb_class( array(
 	'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
 	'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
 ) );
-$bbdb->tables = array( // Better way to do this?
-	'forums',
-	'meta',
-	'posts',
-	'tagged',
-	'tags',
-	'terms',
-	'term_relationships',
-	'term_taxonomy',
-	'topics',
-	'topicmeta'
-//	, 'users'   // intentionally left off so that $bbdb->set_prefix doesn't have to keep track of stomping them
-//	, 'usermeta // good idea?
+$bbdb->tables = array(
+	'forums'             => false,
+	'meta'               => false,
+	'posts'              => false,
+	'tagged'             => false, // Deprecated
+	'tags'               => false, // Deprecated
+	'terms'              => false,
+	'term_relationships' => false,
+	'term_taxonomy'      => false,
+	'topics'             => false,
+	'topicmeta'          => false, // Deprecated
+	'users'              => false,
+	'usermeta'           => false
 );
 unset($bbdb_class);
 
 // Define the language file directory
 if ( !defined('BB_LANG_DIR') )
 	if ( defined('BBLANGDIR') ) // User has set old constant
+		// TODO: Completely remove old constants on version 1.0
 		define('BB_LANG_DIR', BBLANGDIR);
 	else
 		define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
@@ -121,6 +122,7 @@ if ( !isset($wp_object_cache) )
 
 // Gettext
 if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) // User has set old constant
+	// TODO: Completely remove old constants on version 1.0
 	define('BB_LANG', BBLANG);
 if ( defined('BB_LANG') && '' != BB_LANG ) {
 	if ( !class_exists( 'gettext_reader' ) )
@@ -145,7 +147,6 @@ if ( !BB_IS_WP_LOADED ) {
 
 if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
 	die(__('Your table prefix may only contain letters, numbers and underscores.'));
-$bbdb->set_prefix( $bb_table_prefix, array( 'users', 'usermeta' ) );
 
 if ( defined( 'BB_AWESOME_INCLUDE' ) && file_exists( BB_AWESOME_INCLUDE ) )
 	require( BB_AWESOME_INCLUDE );
@@ -157,7 +158,8 @@ if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 	die();
 }
 
-// Make sure the new meta table exists - very ugly, consider seperating into external upgrade script for 1.0
+// Make sure the new meta table exists - very ugly
+// TODO: consider seperating into external upgrade script for 1.0
 $bbdb->hide_errors();
 if ( !bb_get_option_from_db( 'bb_db_version' ) ) {
 	$meta_exists = $bbdb->query("SELECT * FROM $bbdb->meta LIMIT 1");
@@ -225,6 +227,7 @@ if ( $bb->uri = bb_get_option('uri') ) {
 } else {
 	// Backwards compatibility
 	// These were never set in the database
+	// TODO: Completely remove old constants on version 1.0
 	if ( isset($bb->domain) ) {
 		$bb->domain = rtrim( trim( $bb->domain ), '/' );
 	}
@@ -252,87 +255,130 @@ define('BB_DEFAULT_THEME_URL', BB_CORE_THEME_URL . 'kakumei/');
 
 if ( !defined('BB_PLUGIN_DIR') )
 	if ( defined('BBPLUGINDIR') ) // User has set old constant
+		// TODO: Completely remove old constants on version 1.0
 		define('BB_PLUGIN_DIR', BBPLUGINDIR);
 	else
 		define('BB_PLUGIN_DIR', BB_PATH . 'my-plugins/');
 
 if ( !defined('BB_PLUGIN_URL') )
 	if ( defined('BBPLUGINURL') ) // User has set old constant
+		// TODO: Completely remove old constants on version 1.0
 		define('BB_PLUGIN_URL', BBPLUGINURL);
 	else
 		define('BB_PLUGIN_URL', $bb->uri . 'my-plugins/');
 
 if ( !defined('BB_THEME_DIR') )
 	if ( defined('BBTHEMEDIR') ) // User has set old constant
+		// TODO: Completely remove old constants on version 1.0
 		define('BB_THEME_DIR', BBTHEMEDIR);
 	else
 		define('BB_THEME_DIR', BB_PATH . 'my-templates/');
 
 if ( !defined('BB_THEME_URL') )
 	if ( defined('BBTHEMEURL') ) // User has set old constant
+		// TODO: Completely remove old constants on version 1.0
 		define('BB_THEME_URL', BBTHEMEURL);
 	else
 		define('BB_THEME_URL', $bb->uri . 'my-templates/');
 
-// Check for defined custom user tables
-// Constants are taken before $bb before database settings
-$bb->wp_table_prefix = bb_get_option('wp_table_prefix');
 
-if ( !$bb->user_bbdb_name = bb_get_option('user_bbdb_name') )
-	if ( defined('USER_BBDB_NAME') ) // User has set old constant
-		$bb->user_bbdb_name = USER_BBDB_NAME;
-
-if ( !$bb->user_bbdb_user = bb_get_option('user_bbdb_user') )
-	if ( defined('USER_BBDB_USER') ) // User has set old constant
-		$bb->user_bbdb_user = USER_BBDB_USER;
-
-if ( !$bb->user_bbdb_password = bb_get_option('user_bbdb_password') )
-	if ( defined('USER_BBDB_PASSWORD') ) // User has set old constant
-		$bb->user_bbdb_password = USER_BBDB_PASSWORD;
-
-if ( !$bb->user_bbdb_host = bb_get_option('user_bbdb_host') )
-	if ( defined('USER_BBDB_HOST') ) // User has set old constant
-		$bb->user_bbdb_host = USER_BBDB_HOST;
-
-if ( !$bb->user_bbdb_charset = bb_get_option('user_bbdb_charset') )
-	if ( defined('USER_BBDB_CHARSET') ) // User has set old constant
-		$bb->user_bbdb_charset = USER_BBDB_CHARSET;
-
-if ( !$bb->user_bbdb_collate = bb_get_option('user_bbdb_collate') )
-	if ( defined('USER_BBDB_COLLATE') ) // User has set old constant
-		$bb->user_bbdb_collate = USER_BBDB_COLLATE;
-
-if ( !$bb->custom_user_table = bb_get_option('custom_user_table') )
-	if ( defined('CUSTOM_USER_TABLE') ) // User has set old constant
-		$bb->custom_user_table = CUSTOM_USER_TABLE;
-
-if ( !$bb->custom_user_meta_table = bb_get_option('custom_user_meta_table') )
-	if ( defined('CUSTOM_USER_META_TABLE') ) // User has set old constant
-		$bb->custom_user_meta_table = CUSTOM_USER_META_TABLE;
-
-if ( is_wp_error( $bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') ) ) )
-	die(__('Your user table prefix may only contain letters, numbers and underscores.'));
-
-// Set the user table's custom name if defined
-if ( isset($bb->custom_user_table) && $bb->custom_user_table )
-	$bbdb->users = $bb->custom_user_table;
-
-// Set the usermeta table's custom name if defined
-if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
-	$bbdb->usermeta = $bb->custom_user_meta_table;
-
-if ( $bb->user_bbdb_name ) {
-	$bbdb->add_db_server( 'dbh_user', array(
-		'name' => $bb->user_bbdb_name,
-		'user' => $bb->user_bbdb_user,
-		'password' => $bb->user_bbdb_password,
-		'host' => $bb->user_bbdb_host,
-		'charset' => $bb->user_bbdb_charset,
-		'collate' => $bb->user_bbdb_collate
-	) );
-	$bbdb->add_db_table( 'dbh_user', $bbdb->users );
-	$bbdb->add_db_table( 'dbh_user', $bbdb->usermeta );
+// Check for older style custom user table
+// TODO: Completely remove old constants on version 1.0
+if ( !isset($bb->custom_tables['users']) ) { // Don't stomp new setting style
+	if ( !$bb->custom_user_table = bb_get_option('custom_user_table') ) // Maybe get from database or old config setting
+		if ( defined('CUSTOM_USER_TABLE') ) // Maybe user has set old constant
+			$bb->custom_user_table = CUSTOM_USER_TABLE;
+	if ( $bb->custom_user_table ) {
+		if ( !isset($bb->custom_tables) )
+			$bb->custom_tables = array();
+		$bb->custom_tables['users'] = $bb->custom_user_table;
+	}
 }
+
+// Check for older style custom user meta table
+// TODO: Completely remove old constants on version 1.0
+if ( !isset($bb->custom_tables['usermeta']) ) { // Don't stomp new setting style
+	if ( !$bb->custom_user_meta_table = bb_get_option('custom_user_meta_table') ) // Maybe get from database or old config setting
+		if ( defined('CUSTOM_USER_META_TABLE') ) // Maybe user has set old constant
+			$bb->custom_user_meta_table = CUSTOM_USER_META_TABLE;
+	if ( $bb->custom_user_meta_table ) {
+		if ( !isset($bb->custom_tables) )
+			$bb->custom_tables = array();
+		$bb->custom_tables['usermeta'] = $bb->custom_user_meta_table;
+	}
+}
+
+// Check for older style wp_table_prefix
+// TODO: Completely remove old constants on version 1.0
+if ( $bb->wp_table_prefix = bb_get_option('wp_table_prefix') ) { // User has set old constant
+	if ( !isset($bb->custom_tables) ) {
+		$bb->custom_tables = array(
+			'users'    => $bb->wp_table_prefix . 'users',
+			'usermeta' => $bb->wp_table_prefix . 'usermeta'
+		);
+	} else {
+		if ( !isset($bb->custom_tables['users']) ) // Don't stomp new setting style
+			$bb->custom_tables['users'] = $bb->wp_table_prefix . 'users';
+		if ( !isset($bb->custom_tables['usermeta']) )
+			$bb->custom_tables['usermeta'] = $bb->wp_table_prefix . 'usermeta';
+	}
+}
+
+// Check for older style user database
+// TODO: Completely remove old constants on version 1.0
+if ( !isset($bb->custom_databases) )
+	$bb->custom_databases = array();
+if ( !isset($bb->custom_databases) || ( isset($bb->custom_databases) && !isset($bb->custom_databases['user']) ) ) {
+	if ( !$bb->user_bbdb_name = bb_get_option('user_bbdb_name') )
+		if ( defined('USER_BBDB_NAME') ) // User has set old constant
+			$bb->user_bbdb_name = USER_BBDB_NAME;
+	if ( $bb->user_bbdb_name )
+		$bb->custom_databases['user']['name'] = $bb->user_bbdb_name;
+
+	if ( !$bb->user_bbdb_user = bb_get_option('user_bbdb_user') )
+		if ( defined('USER_BBDB_USER') ) // User has set old constant
+			$bb->user_bbdb_user = USER_BBDB_USER;
+	if ( $bb->user_bbdb_user )
+		$bb->custom_databases['user']['user'] = $bb->user_bbdb_user;
+
+	if ( !$bb->user_bbdb_password = bb_get_option('user_bbdb_password') )
+		if ( defined('USER_BBDB_PASSWORD') ) // User has set old constant
+			$bb->user_bbdb_password = USER_BBDB_PASSWORD;
+	if ( $bb->user_bbdb_password )
+		$bb->custom_databases['user']['password'] = $bb->user_bbdb_password;
+
+	if ( !$bb->user_bbdb_host = bb_get_option('user_bbdb_host') )
+		if ( defined('USER_BBDB_HOST') ) // User has set old constant
+			$bb->user_bbdb_host = USER_BBDB_HOST;
+	if ( $bb->user_bbdb_host )
+		$bb->custom_databases['user']['host'] = $bb->user_bbdb_host;
+
+	if ( !$bb->user_bbdb_charset = bb_get_option('user_bbdb_charset') )
+		if ( defined('USER_BBDB_CHARSET') ) // User has set old constant
+			$bb->user_bbdb_charset = USER_BBDB_CHARSET;
+	if ( $bb->user_bbdb_charset )
+		$bb->custom_databases['user']['charset'] = $bb->user_bbdb_charset;
+
+	if ( !$bb->user_bbdb_collate = bb_get_option('user_bbdb_collate') )
+		if ( defined('USER_BBDB_COLLATE') ) // User has set old constant
+			$bb->user_bbdb_collate = USER_BBDB_COLLATE;
+	if ( $bb->user_bbdb_collate )
+		$bb->custom_databases['user']['collate'] = $bb->user_bbdb_collate;
+}
+
+// Add custom databases if required
+if (isset($bb->custom_databases))
+	foreach ($bb->custom_databases as $connection => $database)
+		$bbdb->add_db_server($connection, $database);
+unset($connection, $database);
+
+// Add custom tables if required
+if (isset($bb->custom_tables)) {
+	$bbdb->tables = array_merge($bbdb->tables, $bb->custom_tables);
+	if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+		die(__('Your user table prefix may only contain letters, numbers and underscores.'));
+}
+
 
 // Sort out cookies so they work with WordPress (if required)
 // Note that database integration is no longer a pre-requisite for cookie integration
@@ -367,12 +413,14 @@ if ( $bb->wp_siteurl && $bb->wp_home ) {
 
 define('BB_HASH', $bb->wp_cookies_integrated ? md5(rtrim($bb->wp_siteurl, '/')) : md5(rtrim($bb->uri, '/')));
 // Deprecated setting
+// TODO: Completely remove old constants on version 1.0
 $bb->usercookie = bb_get_option('usercookie');
 if ( !$bb->usercookie ) {
 	$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BB_HASH;
 }
 
 // Deprecated setting
+// TODO: Completely remove old constants on version 1.0
 $bb->passcookie = bb_get_option('passcookie');
 if ( !$bb->passcookie ) {
 	$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BB_HASH;
