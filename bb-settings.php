@@ -582,6 +582,12 @@ $bb_locale = new BB_Locale();
 $bb_roles =& $wp_roles;
 do_action('bb_got_roles', '');
 
+// Load active template functions.php file
+$template_functions_include = bb_get_active_theme_directory() . 'functions.php';
+if ( file_exists($template_functions_include) )
+	include($template_functions_include);
+unset($template_functions_include);
+
 function bb_shutdown_action_hook() {
 	do_action('bb_shutdown', '');
 }
