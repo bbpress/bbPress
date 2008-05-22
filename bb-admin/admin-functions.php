@@ -127,7 +127,11 @@ function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group =
 		$bb_menu[$plugin_menu_next] = array($display_name, $capability, $file_name);
 		
 		ksort($bb_menu);
+		
+		return $plugin_menu_next;
 	}
+	
+	return false;
 }
 
 function bb_admin_add_submenu($display_name, $capability, $file_name, $parent = 'plugins.php')
