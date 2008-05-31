@@ -2066,15 +2066,27 @@ function bb_offset_time( $time, $args = '' ) {
 /* Permalinking / URLs / Paths */
 
 function get_path( $level = 1, $base = false, $request = false ) {
-	$request = $request ? $request : $_SERVER['REQUEST_URI'];
+	if ( !$request )
+		$request = $_SERVER['REQUEST_URI'];
 	if ( is_string($request) )
 		$request = parse_url($request);
-	$path = $request['path'];
-	$base = $base ? $base : bb_get_option('path');
-	$base = preg_quote($base, '|');
-	$path = preg_replace("|$base|",'',$path,1);
+	if ( !is_array($request) || !isset($request['path']) )
+		return '';
+
+	$path = rtrim($request['path'], '/');
+	if ( !$base )
+		$base = rtrim(bb_get_option('path'), '/');
+	$path = preg_replace('|' . preg_quote($base, '|') . '/?|','',$path,1);
+	if ( !$path )
+		return '';
+	if ( strpos($path, '/') === false )
+		return '';
+
 	$url = explode('/',$path);
-	return isset($url[$level]) ? urldecode($url[$level]) : '';
+	if ( !isset($url[$level]) )
+		return '';
+
+	return urldecode($url[$level]);
 }
 
 function bb_find_filename( $text ) {
