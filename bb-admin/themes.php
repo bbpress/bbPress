@@ -74,7 +74,7 @@ bb_get_admin_header();
 
 <h2><?php _e('Current Theme'); ?></h2>
 <ul class="theme-list active">
-<?php bb_admin_theme_row( $themes[$activetheme] ); /*unset($themes[$activetheme] );*/ ?>
+<?php bb_admin_theme_row( $themes[$activetheme] ); unset($themes[$activetheme] ); ?>
 </ul>
 <?php if ( !empty($themes) ) : ?>
 
