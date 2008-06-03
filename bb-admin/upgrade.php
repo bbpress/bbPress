@@ -18,7 +18,7 @@ require( BB_PATH . 'bb-admin/upgrade-functions.php' );
 
 $step = 'unrequired';
 
-if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) ) {
+if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) || $_GET['force'] == 1 ) {
 	
 	$step = 'required';
 	
@@ -51,6 +51,9 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 			$step = 'error';
 		}
 		
+		if ( $upgrade_log_raw && count($upgrade_log_raw) > 0 ) {
+			wp_cache_flush();
+		}
 	}
 	
 }
@@ -86,7 +89,7 @@ switch ($step) {
 				<p class="error">
 					<span class="first">!</span> <?php _e('It looks like your database is out-of-date.<br />You can update it here.'); ?>
 				</p>
-				<form action="upgrade.php" method="post">
+				<form action="upgrade.php?force=1" method="post">
 					<fieldset class="buttons">
 						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 						<label for="upgrade_next" class="forward">
@@ -169,6 +172,4 @@ switch ($step) {
 }
 
 bb_install_footer();
-
-if ( $bb_upgrade > 0 )
-	wp_cache_flush();
+?>
