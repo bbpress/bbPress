@@ -69,6 +69,7 @@ strong {
 	background-position: 2em 1em;
 	color: rgb(153, 153, 153);
 	line-height: 1.8em;
+	clear: both;
 }
 
 #bbFooter p {
@@ -361,6 +362,7 @@ div.error p {
 	color: rgb(90, 90, 90);
 	padding: 0.24em 0 0.3em 0;
 	margin-left: -0.2em;
+	clear: both;
 }
 
 #bbBody h2.after {
@@ -557,4 +559,126 @@ form.settings input.submit:hover {
 
 .hidden {
 	display: none;
-	}
+}
+
+div.theme-list {
+	width: 848px;
+	margin: 30px auto;
+	border-top: 1px solid rgb(204, 204, 204);
+	border-bottom: 1px solid rgb(204, 204, 204);
+	border-right: 1px solid rgb(255, 255, 255);
+}
+
+div.theme-list div.clear {
+	clear: both;
+	height: 0;
+}
+
+ul.theme-list li {
+	float: left;
+	width: 242px;
+	height: 330px;
+	overflow: hidden;
+	padding: 20px;
+	border-bottom: 1px solid rgb(238, 238, 238);
+	border-right: 1px solid rgb(238, 238, 238);
+}
+
+ul.theme-list li:nth-child(3n),
+ul.theme-list li:last-child {
+	border-right: none;
+}
+
+ul.theme-list li:nth-last-child(-n+3) {
+	border-bottom-color: rgb(255, 255, 255);
+}
+
+ul.theme-list li div.screen-shot {
+	border: 1px solid rgb(204, 204, 204);
+	width: 240px;
+	height: 180px;
+}
+
+ul.theme-list li div.screen-shot img {
+	width: 240px;
+	height: 180px;
+}
+
+#bbBody ul.theme-list li div.description h3 {
+	padding-bottom: 0;
+}
+
+ul.theme-list li div.description small.version,
+ul.theme-list li div.description small.author {
+	display: none;
+}
+
+ul.theme-list li div.description p {
+	font-size: 1.2em;
+}
+
+ul.theme-list li div.description small.location {
+	display: none;
+}
+
+ul.theme-list.active {
+	margin: 15px 0;
+	background-color: transparent;
+}
+
+ul.theme-list.active li {
+	width: auto;
+	height: auto;
+	margin: 0 0 20px;
+	padding: 0;
+	border: none;
+}
+
+ul.theme-list.active li div.screen-shot {
+	border: 1px solid rgb(102, 102, 102);
+	width: 150px;
+	height: 112px;
+	float: left;
+	margin-right: 15px;
+}
+
+ul.theme-list.active li div.screen-shot img {
+	width: 150px;
+	height: 112px;
+}
+
+ul.theme-list.active li div.description {
+	float: left;
+}
+
+#bbBody ul.theme-list.active li div.description h3 {
+	margin-top: 0;
+	padding: 0;
+	font-size: 1.7em;
+}
+
+#bbBody ul.theme-list.active li div.description h3 a {
+	color: inherit;
+	text-decoration: none;
+	font-weight: normal;
+}
+
+ul.theme-list.active li div.description small.version,
+ul.theme-list.active li div.description small.author {
+	display: inline;
+	font-size: 1.1em;
+}
+
+ul.theme-list.active li div.description p {
+	font-size: 1.4em;
+}
+
+ul.theme-list.active li div.description small.location {
+	display: inline;
+	font-size: 1.1em;
+}
+
+div.post-theme {
+	clear: both;
+	height: 30px;
+}

@@ -59,11 +59,10 @@ function bb_admin_theme_row( $theme ) {
 		<div class="description">
 			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
-			<?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?>
+			<small class="author"><?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?></small>
 			<?php echo $theme_data['Description']; // Description is autop'ed ?>
-			<small><?php printf(__('Installed in: %s'), str_replace(array('core#', 'user#'), array(__('Core themes -&gt; '), __('User installed themes -&gt; ')), $theme)); ?></small>
+			<small class="location"><?php printf(__('All of this theme\'s files are located in %s'), str_replace(array('core#', 'user#'), array(__('Core themes -&gt; '), __('User installed themes -&gt; ')), $theme)); ?></small>
 		</div>
-		<br class="clear" />
 	</li>
 <?php
 }
@@ -75,14 +74,17 @@ bb_get_admin_header();
 
 <h2><?php _e('Current Theme'); ?></h2>
 <ul class="theme-list active">
-<?php bb_admin_theme_row( $themes[$activetheme] ); unset($themes[$activetheme] ); ?>
+<?php bb_admin_theme_row( $themes[$activetheme] ); /*unset($themes[$activetheme] );*/ ?>
 </ul>
 <?php if ( !empty($themes) ) : ?>
 
 <h2><?php _e('Available Themes'); ?></h2>
+<div class="theme-list">
 <ul class="theme-list">
 <?php foreach ( $themes as $theme ) bb_admin_theme_row( $theme ); ?>
 </ul>
+<div class="clear"></div>
+</div>
 
 </div>
 
