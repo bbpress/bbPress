@@ -2,9 +2,11 @@
 
 function bb_install() {
 	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
-	$alterations = bb_dbDelta($bb_queries);
+	$alterations = bb_sql_delta($bb_queries);
+
 	bb_update_db_version();
-	return $alterations;
+
+	return array_filter($alterations);
 }
 
 function bb_upgrade_all() {
@@ -23,7 +25,7 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
 
 	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
-	$bb_upgrade = array_merge($bb_upgrade, bb_dbDelta($bb_queries));
+	$bb_upgrade = array_merge($bb_upgrade, bb_sql_delta($bb_queries));
 
 	// Post DB Delta
 	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
@@ -38,267 +40,493 @@ function bb_upgrade_all() {
 
 	bb_update_db_version();
 
-	return $bb_upgrade; 
+	return array_filter($bb_upgrade);
 }
 
-function bb_dbDelta($queries, $execute = true) {
-	global $bbdb;
-	
-	// Seperate individual queries into an array
-	if( !is_array($queries) ) {
-		$queries = explode( ';', $queries );
-		if('' == $queries[count($queries) - 1]) array_pop($queries);
+
+/**
+ * Builds a column definition as used in CREATE TABLE statements from
+ * an array such as those returned by DESCRIBE `foo` statements
+ */
+function bb_sql_get_column_definition($column_data) {
+	if (!is_array($column_data)) {
+		return $column_data;
 	}
 	
-	$cqueries = array(); // Creation Queries
-	$iqueries = array(); // Insertion Queries
-	$for_update = array();
+	if ($column_data['Null'] == 'NO') {
+		$null = 'NOT NULL';
+	}
 	
-	// Create a tablename index for an array ($cqueries) of queries
-	foreach($queries as $qry) {
-		if(preg_match("|CREATE TABLE ([^ ]*)|", $qry, $matches)) {
-			$cqueries[strtolower($matches[1])] = $qry;
-			$for_update[strtolower($matches[1])] = 'Create table '.$matches[1];
-		}
-		else if(preg_match("|CREATE DATABASE ([^ ]*)|", $qry, $matches)) {
-			array_unshift($cqueries, $qry);
-		}
-		else if(preg_match("|INSERT INTO ([^ ]*)|", $qry, $matches)) {
-			$iqueries[] = $qry;
-		}
-		else if(preg_match("|UPDATE ([^ ]*)|", $qry, $matches)) {
-			$iqueries[] = $qry;
-		}
-		else {
-			// Unrecognized query type
-		}
-	}	
-
-	// Check to see which tables and fields exist
-	if($tables = (array) $bbdb->get_col('SHOW TABLES;')) {
-		// For every table in the database
-		foreach($tables as $table) {
-			// If a table query exists for the database table...
-			if( array_key_exists(strtolower($table), $cqueries) ) {
-				// Clear the field and index arrays
-				unset($cfields);
-				unset($indices);
-				// Get all of the field names in the query from between the parens
-				preg_match("|\((.*)\)|ms", $cqueries[strtolower($table)], $match2);
-				$qryline = trim($match2[1]);
-
-				// Separate field lines into an array
-				$flds = explode("\n", $qryline);
-
-				//echo "<hr/><pre>\n".print_r(strtolower($table), true).":\n".print_r($cqueries, true)."</pre><hr/>";
-				
-				// For every field line specified in the query
-				foreach($flds as $fld) {
-					// Extract the field name
-					preg_match("|^([^ ]*)|", trim($fld), $fvals);
-					$fieldname = $fvals[1];
-					
-					// Verify the found field name
-					$validfield = true;
-					switch(strtolower($fieldname))
-					{
-					case '':
-					case 'primary':
-					case 'index':
-					case 'fulltext':
-					case 'unique':
-					case 'key':
-						$validfield = false;
-						$indices[] = trim(trim($fld), ", \n");
-						break;
-					}
-					$fld = trim($fld);
-					
-					// If it's a valid field, add it to the field array
-					if($validfield) {
-						$cfields[strtolower($fieldname)] = trim($fld, ", \n");
-					}
-				}
-				
-				// Fetch the table column structure from the database
-				$tablefields = $bbdb->get_results("DESCRIBE {$table};");
-								
-				// For every field in the table
-				foreach($tablefields as $tablefield) {				
-					// If the table field exists in the field array...
-					if(array_key_exists(strtolower($tablefield->Field), $cfields)) {
-						// Get the field type from the query
-						preg_match("|".$tablefield->Field." ([^ ]*( unsigned)?)|i", $cfields[strtolower($tablefield->Field)], $matches);
-						$fieldtype = $matches[1];
-
-						// Is actual field type different from the field type in query?
-						if($tablefield->Type != $fieldtype) {
-							// Add a query to change the column type
-							$cqueries[] = "ALTER TABLE {$table} CHANGE COLUMN {$tablefield->Field} " . $cfields[strtolower($tablefield->Field)];
-							$for_update[$table.'.'.$tablefield->Field] = "Changed type of {$table}.{$tablefield->Field} from {$tablefield->Type} to {$fieldtype}";
-						}
-						
-						// Get the default value from the array
-							//echo "{$cfields[strtolower($tablefield->Field)]}<br>";
-						if(preg_match("| DEFAULT '(.*)'|i", $cfields[strtolower($tablefield->Field)], $matches)) {
-							$default_value = $matches[1];
-							if($tablefield->Default != $default_value)
-							{
-								// Add a query to change the column's default value
-								$cqueries[] = "ALTER TABLE {$table} ALTER COLUMN {$tablefield->Field} SET DEFAULT '{$default_value}'";
-								$for_update[$table.'.'.$tablefield->Field] = "Changed default value of {$table}.{$tablefield->Field} from {$tablefield->Default} to {$default_value}";
-							}
-						}
-
-						// Remove the field from the array (so it's not added)
-						unset($cfields[strtolower($tablefield->Field)]);
-					}
-					else {
-						// This field exists in the table, but not in the creation queries?
-					}
-				}
-
-				// For every remaining field specified for the table
-				foreach($cfields as $fieldname => $fielddef) {
-					// Push a query line into $cqueries that adds the field to that table
-					$cqueries[] = "ALTER TABLE {$table} ADD COLUMN $fielddef";
-					$for_update[$table.'.'.$fieldname] = 'Added column '.$table.'.'.$fieldname;
-				}
-				
-				// Index stuff goes here
-				// Fetch the table index structure from the database
-				$tableindices = $bbdb->get_results("SHOW INDEX FROM {$table};");
-				
-				if($tableindices) {
-					// Clear the index array
-					unset($index_ary);
-
-					// For every index in the table
-					foreach($tableindices as $tableindex) {
-						// Add the index to the index data array
-						$keyname = $tableindex->Key_name;
-						$index_ary[$keyname]['columns'][] = array('fieldname' => $tableindex->Column_name, 'subpart' => $tableindex->Sub_part);
-						$index_ary[$keyname]['unique'] = ($tableindex->Non_unique == 0)?true:false;
-						$index_ary[$keyname]['type'] = ('BTREE' == $tableindex->Index_type)?false:$tableindex->Index_type;
-						if(!$index_ary[$keyname]['type']) {
-							$index_ary[$keyname]['type'] = (strpos($tableindex->Comment, 'FULLTEXT') === false)?false:'FULLTEXT';
-						}
-					}
-
-					// For each actual index in the index array
-					foreach($index_ary as $index_name => $index_data) {
-						// Build a create string to compare to the query
-						$index_string = '';
-						if($index_name == 'PRIMARY') {
-							$index_string .= 'PRIMARY ';
-						}
-						else if($index_data['unique']) {
-							$index_string .= 'UNIQUE ';
-						}
-						if($index_data['type']) {
-							$index_string .= $index_data['type'] . ' ';
-						}
-						$index_string .= 'KEY ';
-						if($index_name != 'PRIMARY') {
-							$index_string .= $index_name;
-						}
-						$index_columns = '';
-						// For each column in the index
-						foreach($index_data['columns'] as $column_data) {
-							if($index_columns != '') $index_columns .= ',';
-							// Add the field to the column list string
-							$index_columns .= $column_data['fieldname'];
-							if($column_data['subpart'] != '') {
-								$index_columns .= '('.$column_data['subpart'].')';
-							}
-						}
-						// Add the column list to the index create string 
-						$index_string .= ' ('.$index_columns.')';
-
-						if(!(($aindex = array_search($index_string, $indices)) === false)) {
-							unset($indices[$aindex]);
-							//echo "<pre style=\"border:1px solid #ccc;margin-top:5px;\">{$table}:<br/>Found index:".$index_string."</pre>\n";
-						}
-						//else echo "<pre style=\"border:1px solid #ccc;margin-top:5px;\">{$table}:<br/><b>Did not find index:</b>".$index_string."<br/>".print_r($indices, true)."</pre>\n";
-					}
-				}
-
-				// For every remaining index specified for the table
-				foreach($indices as $index) {
-					// Push a query line into $cqueries that adds the index to that table
-					$cqueries[] = "ALTER TABLE {$table} ADD $index";
-					$for_update[$table.'.'.$fieldname] = 'Added index '.$table.' '.$index;
-				}
-
-				// Remove the original table creation query from processing
-				unset($cqueries[strtolower($table)]);
-				unset($for_update[strtolower($table)]);
-			} else {
-				// This table exists in the database, but not in the creation queries?
-			}
-		}
+	if ($column_data['Null'] == 'YES' && $column_data['Default'] === null) {
+		$default = 'default NULL';
+	} elseif (preg_match('@^\d+$@', $column_data['Default'])) {
+		$default = 'default ' . $column_data['Default'];
+	} elseif (is_string($column_data['Default']) || is_float($column_data['Default'])) {
+		$default = 'default \'' . $column_data['Default'] . '\'';
+	} else {
+		$default = '';
 	}
-
-	$allqueries = array_merge($cqueries, $iqueries);
-	if($execute) {
-		foreach($allqueries as $query_index => $query) {
-			//echo "<pre style=\"border:1px solid #ccc;margin-top:5px;\">".print_r($query, true)."</pre>\n";
-			$result = $bbdb->query($query);
-			if ( is_array($result) ) {
-				// There was an error and $bbdb->show_errors = 2
-				$for_update[$query_index] = array(
-					'original' => array(
-						'message' => $for_update[$query_index],
-						'query'   => $query
-					),
-					'error' => array(
-						'message' => $result['error_str'],
-						'query'   => $result['query']
-					)
-				);
-			}
-		}
-	}
-
-	return $for_update;
+	
+	$column_definition = '`' . $column_data['Field'] . '` ' . $column_data['Type'] . ' ' . $null . ' ' . $column_data['Extra'] . ' ' . $default;
+	return preg_replace('@\s+@', ' ', trim($column_definition));
 }
 
 /**
- ** bb_maybe_add_column()
- ** Add column to db table if it doesn't exist.
- ** Returns:  true if already exists or on successful completion
- **           false on error
+ * Builds an index definition as used in CREATE TABLE statements from
+ * an array similar to those returned by SHOW INDEX FROM `foo` statements
  */
-function bb_maybe_add_column( $table_name, $column_name, $create_ddl ) {
-	global $bbdb, $debug;
-	foreach ($bbdb->get_col("DESC $table_name", 0) as $column ) {
-		if ($debug) echo("checking $column == $column_name<br />");
-		if ($column == $column_name) {
-			return true;
+function bb_sql_get_index_definition($index_data) {
+	if (!is_array($index_data)) {
+		return $index_data;
+	}
+	
+	if (!count($index_data)) {
+		return $index_data;
+	}
+	
+	$_name = '`' . $index_data[0]['Key_name'] . '`';
+	
+	if ($index_data[0]['Index_type'] == 'BTREE' && $index_data[0]['Key_name'] == 'PRIMARY') {
+		$_type = 'PRIMARY KEY';
+		$_name = '';
+	} elseif ($index_data[0]['Index_type'] == 'BTREE' && !$index_data[0]['Non_unique']) {
+		$_type = 'UNIQUE KEY';
+	} elseif ($index_data[0]['Index_type'] == 'FULLTEXT') {
+		$_type = 'FULLTEXT KEY';
+	} else {
+		$_type = 'KEY';
+	}
+	
+	$_columns = array();
+	foreach ($index_data as $_index) {
+		if ($_index['Sub_part']) {
+			$_columns[] = '`' . $_index['Column_name'] . '`(' . $_index['Sub_part'] . ')';
+		} else {
+			$_columns[] = '`' . $_index['Column_name'] . '`';
 		}
 	}
-	// didn't find it try to create it.
-	$q = $bbdb->query($create_ddl);
-	// we cannot directly tell that whether this succeeded!
-	foreach ($bbdb->get_col("DESC $table_name", 0) as $column ) {
-		if ($column == $column_name) {
-			return true;
+	$_columns = join(', ', $_columns);
+	
+	$index_definition = $_type . ' ' . $_name . ' (' . $_columns . ')';
+	return preg_replace('@\s+@', ' ', $index_definition);
+}
+
+/**
+ * Returns a table structure from a raw sql query of the form "CREATE TABLE foo" etc.
+ * The resulting array contains the original query, the columns as would be returned by DESCRIBE `foo`
+ * and the indices as would be returned by SHOW INDEX FROM `foo` on a real table
+ */
+function bb_sql_describe_table($query) {
+	// Retrieve the table structure from the query
+	if (!preg_match('@^CREATE\s+TABLE\s+`?([^\s|`]+)`?\s+\((.*)\)\s*([^\)|;]*)\s*;?@ims', $query, $_matches))
+		return $query;
+	
+	// Tidy up the table name
+	$_table_name = trim($_matches[1]);
+	
+	// Tidy up the table columns/indices
+	$_columns_indices = trim($_matches[2], " \t\n\r\0\x0B,");
+	// Split by commas not followed by a closing parenthesis ")", using fancy lookaheads
+	$_columns_indices = preg_split('@,(?!(?:[^\(]+\)))@ms', $_columns_indices);
+	$_columns_indices = array_map('trim', $_columns_indices);
+	
+	// Tidy the table attributes
+	$_attributes = preg_replace('@\s+@', ' ', trim($_matches[3]));
+	unset($_matches);
+	
+	// Initialise some temporary arrays
+	$_columns = array();
+	$_indices = array();
+	
+	// Loop over the columns/indices
+	foreach ($_columns_indices as $_column_index) {
+		if (preg_match('@^(PRIMARY\s+KEY|UNIQUE\s+(?:KEY|INDEX)|FULLTEXT\s+(?:KEY|INDEX)|KEY|INDEX)\s+(?:`?(\w+)`?\s+)*\((.+?)\)$@im', $_column_index, $_matches)) {
+			// It's an index
+			
+			// Tidy the type
+			$_index_type = strtoupper(preg_replace('@\s+@', ' ', trim($_matches[1])));
+			$_index_type = str_replace('INDEX', 'KEY', $_index_type);
+			// Set the index name
+			$_index_name = ($_matches[1] == 'PRIMARY KEY') ? 'PRIMARY' : $_matches[2];
+			// Split into columns
+			$_index_columns = array_map('trim', explode(',', $_matches[3]));
+			
+			foreach ($_index_columns as $_index_columns_index => $_index_column) {
+				preg_match('@`?(\w+)`?(?:\s*\(\s*(\d+)\s*\))?@i', $_index_column, $_matches_column);
+				$_indices[$_index_name][] = array(
+					'Table'        => $_table_name,
+					'Non_unique'   => ($_index_type == 'UNIQUE KEY' || $_index_name == 'PRIMARY') ? '0' : '1',
+					'Key_name'     => $_index_name,
+					'Seq_in_index' => (string) ($_index_columns_index + 1),
+					'Column_name'  => $_matches_column[1],
+					'Sub_part'     => $_matches_column[2] ? $_matches_column[2] : null,
+					'Index_type'   => ($_index_type == 'FULLTEXT KEY') ? 'FULLTEXT' : 'BTREE'
+				);
+			}
+			unset($_index_type, $_index_name, $_index_columns, $_index_columns_index, $_index_column, $_matches_column);
+			
+		} elseif (preg_match("@^`?(\w+)`?\s+(?:(\w+)(?:\s*\(\s*(\d+)\s*\))?(?:\s+(unsigned)){0,1})(?:\s+(NOT\s+NULL))?(?:\s+(auto_increment))?(?:\s+(default)\s+(?:(NULL|'[^']*'|\d+)))?@im", $_column_index, $_matches)) {
+			// It's a column
+			
+			// Tidy the NOT NULL
+			$_matches[5] = strtoupper(preg_replace('@\s+@', ' ', trim($_matches[5])));
+			
+			$_columns[$_matches[1]] = array(
+				'Field'   => $_matches[1],
+				'Type'    => (is_numeric($_matches[3])) ? $_matches[2] . '(' . $_matches[3] . ')' . ((strtolower($_matches[4]) == 'unsigned') ? ' unsigned' : '') : $_matches[2],
+				'Null'    => (strtoupper($_matches[5]) == 'NOT NULL') ? 'NO' : 'YES',
+				'Default' => (strtolower($_matches[7]) == 'default' && strtoupper($_matches[8]) !== 'NULL') ? trim($_matches[8], "'") : null,
+				'Extra'   => (strtolower($_matches[6]) == 'auto_increment') ? 'auto_increment' : ''
+			);
 		}
 	}
-	return false;
+	unset($_matches, $_columns_indices, $_column_index);
+	
+	// Tidy up the original query
+	$_tidy_query = 'CREATE TABLE `' . $_table_name . '` (' . "\n";
+	foreach ($_columns as $_column) {
+		$_tidy_query .= "\t" . bb_sql_get_column_definition($_column) . ",\n";
+	}
+	unset($_column);
+	foreach ($_indices as $_index) {
+		$_tidy_query .= "\t" . bb_sql_get_index_definition($_index) . ",\n";
+	}
+	$_tidy_query = substr($_tidy_query, 0, -2) . "\n" . ') ' . $_attributes . ';';
+	
+	// Add to the query array using the table name as the index
+	$description = array(
+		'query_original' => $query,
+		'query_tidy' => $_tidy_query,
+		'columns' => $_columns,
+		'indices' => $_indices
+	);
+	unset($_table_name, $_columns, $_indices, $_tidy_query);
+	
+	return $description;
 }
 
-function bb_make_db_current() {
-	global $bb_queries;
-
-	$alterations = bb_dbDelta($bb_queries);
-	echo "<ol>\n";
-	foreach($alterations as $alteration) {
-		echo "<li>$alteration</li>\n";
-		flush();
+/**
+ * Splits grouped SQL statements into queries within a highly structured array
+ * Only supports CREATE TABLE, INSERT and UPDATE
+ */
+function bb_sql_parse($sql) {
+	// Break the sql into seperate queries
+	if (!is_array($sql)) {
+		if (strpos(';', $sql) === false) {
+			$queries = array($sql);
+		} else {
+			$queries = explode(';', $sql);
 		}
-	echo "</ol>\n";
+	} else {
+		$queries = $sql;
+	}
+	
+	// Clean up the queries
+	$queries = array_map('trim', $queries);
+	
+	$_queries = array();
+	foreach ($queries as $_query) {
+		// Only process table creation, inserts and updates, capture the table/database name while we are at it
+		if (!preg_match('@^(CREATE\s+TABLE|INSERT\s+INTO|UPDATE)\s+`?([^\s|`]+)`?@im', $_query, $_matches)) {
+			continue;
+		}
+		
+		// Tidy up the type so we can switch it
+		$_type = strtoupper(preg_replace('@\s+@', ' ', trim($_matches[1])));
+		$_table_name = trim($_matches[2]);
+		unset($_matches);
+		
+		switch ($_type) {
+			case 'CREATE TABLE':
+				$_description = bb_sql_describe_table($_query);
+				if (is_array($_description)) {
+					$_queries['tables'][$_table_name] = $_description;
+				}
+				break;
+			
+			case 'INSERT INTO':
+				// Just add the query as is for now
+				$_queries['insert'][$_table_name][] = $_query;
+				break;
+			
+			case 'UPDATE':
+				// Just add the query as is for now
+				$_queries['update'][$_table_name][] = $_query;
+				break;
+		}
+		unset($_type, $_table_name);
+	}
+	unset($_query);
+	
+	if (!count($_queries)) {
+		return false;
+	}
+	return $_queries;
 }
+
+/**
+ * Evaluates the difference between a given set of SQL queries and real database structure
+ */
+function bb_sql_delta($queries, $execute = true) {
+	if (!$_queries = bb_sql_parse($queries)) {
+		return 'No schema available';
+	}
+	
+	global $bbdb;
+	
+	// Build an array of $bbdb registered tables and their database identifiers
+	$_tables = $bbdb->tables;
+	$bbdb_tables = array();
+	foreach ($_tables as $_table_id => $_table_name) {
+		if (is_array($_table_name) && isset($bbdb->db_servers['dbh_' . $_table_name[0]])) {
+			$bbdb_tables[$bbdb->$_table_id] = 'dbh_' . $_table_name[0];
+		} else {
+			$bbdb_tables[$bbdb->$_table_id] = 'dbh_global';
+		}
+	}
+	unset($_tables, $_table_id, $_table_name);
+	
+	$alterations = array();
+	
+	// Loop through table queries
+	if (isset($_queries['tables'])) {
+		foreach ($_queries['tables'] as $_new_table_name => $_new_table_data) {
+			// See if the table is custom and registered in $bbdb under a custom database
+			if (
+				isset($bbdb_tables[$_new_table_name]) &&
+				$bbdb_tables[$_new_table_name] != 'dbh_global' &&
+				isset($bbdb->db_servers[$bbdb_tables[$_new_table_name]]['ds']))
+			{
+				// Force the database connection
+				$_dbhname = $bbdb->db_servers[$bbdb_tables[$_new_table_name]]['ds'];
+				$bbdb->_force_dbhname = $_dbhname;
+			} else {
+				$_dbhname = 'dbh_global';
+			}
+			
+			// Fetch the existing table column structure from the database
+			if (!$_existing_table_columns = $bbdb->get_results('DESCRIBE `' . $_new_table_name . '`;', ARRAY_A)) {
+				// The table doesn't exist, add it and then continue to the next table
+				$alterations[$_dbhname][$_new_table_name][] = array(
+					'action' => 'create_table',
+					'message' => __('Creating table'),
+					'query' => $_new_table_data['query_tidy']
+				);
+				continue;
+			}
+			
+			// Add an index to the existing columns array
+			$__existing_table_columns = array();
+			foreach ($_existing_table_columns as $_existing_table_column) {
+				// Remove 'Key' from returned column structure
+				unset($_existing_table_column['Key']);
+				$__existing_table_columns[$_existing_table_column['Field']] = $_existing_table_column;
+			}
+			$_existing_table_columns = $__existing_table_columns;
+			unset($__existing_table_columns);
+			
+			// Loop over the columns in this table and look for differences
+			foreach ($_new_table_data['columns'] as $_new_column_name => $_new_column_data) {
+				if (!in_array($_new_column_data, $_existing_table_columns)) {
+					// There is a difference
+					if (!isset($_existing_table_columns[$_new_column_name])) {
+						// The column doesn't exist, so add it
+						$alterations[$_dbhname][$_new_table_name][] = array(
+							'action' => 'add_column',
+							'message' => __('Adding column:') . ' ' . $_new_column_name,
+							'column' => $_new_column_name,
+							'query' => 'ALTER TABLE `' . $_new_table_name . '` ADD COLUMN ' . bb_sql_get_column_definition($_new_column_data) . ';'
+						);
+						continue;
+					}
+					
+					if ($_new_column_data['Default'] !== $_existing_table_columns[$_new_column_name]['Default']) {
+						// Change the default value for the column
+						$alterations[$_dbhname][$_new_table_name][] = array(
+							'action' => 'set_default',
+							'message' => __('Setting default on column:') . ' ' . $_new_column_name,
+							'column' => $_new_column_name,
+							'query' => 'ALTER TABLE `' . $_new_table_name . '` ALTER COLUMN `' . $_new_column_name . '` SET DEFAULT \'' . $_new_column_data['Default'] . '\';'
+						);
+						// Don't continue, overwrite this if the next conditional is met
+					}
+					
+					if (
+						$_new_column_data['Type'] !== $_existing_table_columns[$_new_column_name]['Type'] ||
+						$_new_column_data['Null'] !== $_existing_table_columns[$_new_column_name]['Null'] ||
+						$_new_column_data['Extra'] !== $_existing_table_columns[$_new_column_name]['Extra']
+					) {
+						// Change the structure for the column
+						$alterations[$_dbhname][$_new_table_name][] = array(
+							'action' => 'change_column',
+							'message' => __('Changing column:') . ' ' . $_new_column_name,
+							'column' => $_new_column_name,
+							'query' => 'ALTER TABLE `' . $_new_table_name . '` CHANGE COLUMN `' . $_new_column_name . '` ' . bb_sql_get_column_definition($_new_column_data) . ';'
+						);
+					}
+				}
+			}
+			unset($_existing_table_columns, $_new_column_name, $_new_column_data);
+			
+			// Fetch the table index structure from the database
+			if (!$_existing_table_indices = $bbdb->get_results('SHOW INDEX FROM `' . $_new_table_name . '`;', ARRAY_A)) {
+				continue;
+			}
+			
+			// Add an index to the existing columns array and organise by index name
+			$__existing_table_indices = array();
+			foreach ($_existing_table_indices as $_existing_table_index) {
+				// Remove unused parts from returned index structure
+				unset(
+					$_existing_table_index['Collation'],
+					$_existing_table_index['Cardinality'],
+					$_existing_table_index['Packed'],
+					$_existing_table_index['Null'],
+					$_existing_table_index['Comment']
+				);
+				$__existing_table_indices[$_existing_table_index['Key_name']][] = $_existing_table_index;
+			}
+			$_existing_table_indices = $__existing_table_indices;
+			unset($__existing_table_indices);
+			
+			// Loop over the indices in this table and look for differences
+			foreach ($_new_table_data['indices'] as $_new_index_name => $_new_index_data) {
+				if (!in_array($_new_index_data, $_existing_table_indices)) {
+					// There is a difference
+					if (!isset($_existing_table_indices[$_new_index_name])) {
+						// The index doesn't exist, so add it
+						$alterations[$_dbhname][$_new_table_name][] = array(
+							'action' => 'add_index',
+							'message' => __('Adding index:') . ' ' . $_new_index_name,
+							'index' => $_new_index_name,
+							'query' => 'ALTER TABLE `' . $_new_table_name . '` ADD ' . bb_sql_get_index_definition($_new_index_data) . ';'
+						);
+						continue;
+					}
+					
+					if ($_new_index_data !== $_existing_table_indices[$_new_index_name]) {
+						// Ignore the 'user_nicename' index in the user table due to compatibility issues with WordPress
+						if ($bbdb->users == $_new_table_name && $_new_index_name == 'user_nicename') {
+							continue;
+						}
+						
+						// The index is incorrect, so drop it and add the new one
+						if ($_new_index_name == 'PRIMARY') {
+							$_drop_index_name = 'PRIMARY KEY';
+						} else {
+							$_drop_index_name = 'INDEX `' . $_new_index_name . '`';
+						}
+						$alterations[$_dbhname][$_new_table_name][] = array(
+							'action' => 'drop_index',
+							'message' => __('Dropping index:') . ' ' . $_new_index_name,
+							'index' => $_new_index_name,
+							'query' => 'ALTER TABLE `' . $_new_table_name . '` DROP ' . $_drop_index_name . ';'
+						);
+						unset($_drop_index_name);
+						$alterations[$_dbhname][$_new_table_name][] = array(
+							'action' => 'add_index',
+							'message' => __('Adding index:') . ' ' . $_new_index_name,
+							'index' => $_new_index_name,
+							'query' => 'ALTER TABLE `' . $_new_table_name . '` ADD ' . bb_sql_get_index_definition($_new_index_data) . ';'
+						);
+					}
+				}
+			}
+			unset($_new_index_name, $_new_index_data);
+			
+			// Go back to the default database connection
+			$bbdb->_force_dbhname = false;
+		}
+		unset($_new_table_name, $_new_table_data, $_dbhname);
+	}
+	
+	// Now deal with the sundry INSERT and UPDATE statements (if any)
+	if (isset($_queries['insert']) && is_array($_queries['insert']) && count($_queries['insert'])) {
+		foreach ($_queries['insert'] as $_table_name => $_inserts) {
+			foreach ($_inserts as $_insert) {
+				$alterations['dbh_global'][$_table_name][] = array(
+					'action' => 'insert',
+					'message' => __('Inserting data'),
+					'query' => $_insert
+				);
+			}
+			unset($_insert);
+		}
+		unset($_table_name, $_inserts);
+	}
+	if (isset($_queries['update']) && is_array($_queries['update']) && count($_queries['update'])) {
+		foreach ($_queries['update'] as $_table_name => $_updates) {
+			foreach ($_updates as $_update) {
+				$alterations['dbh_global'][$_table_name][] = array(
+					'action' => 'update',
+					'message' => __('Updating data'),
+					'query' => $_update
+				);
+			}
+			unset($_update);
+		}
+		unset($_table_name, $_updates);
+	}
+	
+	// Initialise an array to hold the output messages
+	$messages = array();
+	$errors = array();
+	
+	foreach ($alterations as $_dbhname => $_tables) {
+		// Force the database connection (this was already checked to be valid in the previous loop)
+		$bbdb->_force_dbhname = $_dbhname;
+		
+		// Note the database in the return messages
+		$messages[] = '>>> ' . __('Modifying database:') . ' ' . $bbdb->db_servers[$_dbhname]['name'] . ' (' . $bbdb->db_servers[$_dbhname]['host'] . ')';
+		
+		foreach ($_tables as $_table_name => $_alterations) {
+			// Note the table in the return messages
+			$messages[] = '>>>>>> ' . __('Table:') . ' ' . $_table_name;
+			
+			foreach ($_alterations as $_alteration) {
+				// If there is no query, then skip
+				if (!$_alteration['query']) {
+					continue;
+				}
+				
+				// Note the action in the return messages
+				$messages[] = '>>>>>>>>> ' . $_alteration['message'];
+				
+				if (!$execute) {
+					$messages[] = '>>>>>>>>>>>> ' . __('Skipped');
+					continue;
+				}
+				
+				// Run the query
+				$bbdb->return_errors();
+				$_result = $bbdb->query($_alteration['query']);
+				$_sql_error = $bbdb->print_error($bbdb->last_error);
+				$bbdb->hide_errors();
+				
+				if ( is_wp_error($_sql_error) ) {
+					// There was an error and $bbdb->show_errors = 2
+					$messages[] = '>>>>>>>>>>>> ' . __('SQL ERROR! See the error log for more detail');
+					$errors[] = __('SQL ERROR!');
+					$errors[] = '>>> ' . __('Database:') . ' ' . $bbdb->db_servers[$_dbhname]['name'] . ' (' . $bbdb->db_servers[$_dbhname]['host'] . ')';
+					$errors[] = '>>>>>> ' . $_sql_error->error_data['db_query']['query'];
+					$errors[] = '>>>>>> ' . $_sql_error->error_data['db_query']['error'];
+				} else {
+					$messages[] = '>>>>>>>>>>>> ' . __('Done');
+				}
+				unset($_result);
+			}
+			unset($_alteration);
+		}
+		unset($_table_name, $_alterations);
+	}
+	unset($_dbhname, $_tables);
+	
+	// Reset the database connection
+	$bbdb->_force_dbhname = false;
+	
+	return array('messages' => $messages, 'errors' => $errors);
+}
+
 
 function bb_upgrade_process_all_slugs() {
 	global $bbdb;

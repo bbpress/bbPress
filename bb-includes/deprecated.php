@@ -704,3 +704,18 @@ function bb_get_tag_by_name( $tag ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_get_tag');
 	return bb_get_tag( $tag );
 }
+
+function bb_dbDelta($queries, $execute = true) {
+	bb_log_deprecated('function', __FUNCTION__, 'bb_sql_delta');
+	return bb_sql_delta($queries, $execute);
+}
+
+function bb_make_db_current() {
+	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
+	return false;
+}
+
+function bb_maybe_add_column( $table_name, $column_name, $create_ddl ) {
+	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
+	return false;
+}

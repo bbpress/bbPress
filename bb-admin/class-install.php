@@ -1498,22 +1498,10 @@ class BB_Install
 			// Show db errors
 			$bbdb->show_errors();
 			
-			// If the database installed
-			if ($alterations && count($alterations)) {
-				// Loop through it to check for errors on each table
-				foreach ($alterations as $alteration) {
-					if (is_array($alteration)) {
-						$installation_log[] = '>>> ' . $alteration['original']['message'];
-						$installation_log[] = '>>>>>> ' . $alteration['error']['message'];
-						$error_log[] = $alteration['error']['message'];
-					} else {
-						$installation_log[] = '>>> ' . $alteration;
-					}
-				}
-				if (count($error_log)) {
-					$error_log[] = '>>> ' . __('User tables will already exist when performing a database integrated installation.');
-				}
-			} else {
+			$error_log = array_merge($error_log, $alterations['errors']);
+			$installation_log = array_merge($installation_log, $alterations['messages']);
+			
+			if (!$this->database_tables_are_installed()) {
 				$installation_log[] = '>>> ' . __('Database installation failed!!!');
 				$installation_log[] = '>>>>>> ' . __('Halting installation!');
 				$error_log[] = __('Database installation failed!!!');
