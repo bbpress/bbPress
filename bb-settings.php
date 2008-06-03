@@ -575,6 +575,18 @@ require( BB_PATH . BB_INC . 'pluggable.php');
 // Load the default text localization domain.
 load_default_textdomain();
 
+// Define BackPress Database errors
+if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
+	define(BPDB__CONNECT_ERROR_MESSAGE, 'ERROR: Error establishing a database connection');
+if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
+	define(BPDB__SELECT_ERROR_MESSAGE, 'ERROR: Can\'t select database.');
+if (!defined('BPDB__ERROR_STRING'))
+	define(BPDB__ERROR_STRING, 'ERROR: bbPress database error - "%s" for query "%s" via caller "%s"');
+if (!defined('BPDB__ERROR_HTML'))
+	define(BPDB__ERROR_HTML, '<div id="error"><p class="bpdberror"><strong>Database error:</strong> [%s]<br /><code>%s</code><br />Caller: %s</p></div>');
+if (!defined('BPDB__DB_VERSION_ERROR'))
+	define(BPDB__DB_VERSION_ERROR, 'ERROR: bbPress requires MySQL 4.0.0 or higher');
+
 // Pull in locale data after loading text domain.
 require_once(BB_PATH . BB_INC . 'locale.php');
 $bb_locale = new BB_Locale();
