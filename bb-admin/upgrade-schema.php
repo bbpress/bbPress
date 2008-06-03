@@ -172,6 +172,8 @@ $bb_queries['usermeta'] = "CREATE TABLE `$bbdb->usermeta` (
 	KEY `meta_key` (`meta_key`)
 );";
 
+$bb_queries = apply_filters( 'bb_schema_pre_charset', $bb_queries );
+
 // Set the charset and collation on each table
 foreach ($bb_queries as $_table_name => $_sql) {
 	// Skip SQL that isn't creating a table
