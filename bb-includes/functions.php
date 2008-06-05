@@ -1609,6 +1609,7 @@ function bb_append_meta( $object, $type ) {
 			$trans[$object[$i]->$id] =& $object[$i];
 		$ids = join(',', array_map('intval', array_keys($trans)));
 		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
+			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) :
 				$trans[$meta->$field]->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
@@ -1619,6 +1620,7 @@ function bb_append_meta( $object, $type ) {
 		return $object;
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $table WHERE $field = %d", $object->$id ) ) )
+			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) :
 				$object->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
@@ -1627,6 +1629,15 @@ function bb_append_meta( $object, $type ) {
 		$cache[$object->$id] = $object;
 		return $object;
 	endif;
+}
+
+/** 
+ * _bb_append_meta_sort() - sorts meta keys by length to ensure $appended_object->{$bbdb->prefix}key overwrites $appended_object->key as desired
+ *
+ * @internal
+ */
+function _bb_append_meta_sort( $a, $b ) {
+	return strlen( $a->meta_key ) - strlen( $b->meta_key );
 }
 
 function bb_get_usermeta( $user_id, $meta_key ) {
