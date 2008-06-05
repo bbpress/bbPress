@@ -1746,6 +1746,7 @@ function bb_append_meta( $object, $type ) {
 			$trans[$object[$i]->$object_id_column] =& $object[$i];
 		$ids = join(',', array_map('intval', array_keys($trans)));
 		if ( $metas = $bbdb->get_results("SELECT object_id, meta_key, meta_value FROM $bbdb->meta WHERE object_id IN ($ids) /* bb_append_meta */") )
+			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) :
 				$trans[$meta->object_id]->{$meta->meta_key} = maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
@@ -1759,6 +1760,7 @@ function bb_append_meta( $object, $type ) {
 		return $object;
 	elseif ( $object ) :
 		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $bbdb->meta WHERE object_type = '$object_type' AND object_id = %d /* bb_append_meta */", $object->$object_id_column ) ) )
+			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) :
 				$object->{$meta->meta_key} = maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
@@ -1771,6 +1773,15 @@ function bb_append_meta( $object, $type ) {
 		}
 		return $object;
 	endif;
+}
+
+/** 
+ * _bb_append_meta_sort() - sorts meta keys by length to ensure $appended_object->{$bbdb->prefix}key overwrites $appended_object->key as desired
+ *
+ * @internal
+ */
+function _bb_append_meta_sort( $a, $b ) {
+	return strlen( $a->meta_key ) - strlen( $b->meta_key );
 }
 
 function bb_get_forummeta( $forum_id, $meta_key ) {
