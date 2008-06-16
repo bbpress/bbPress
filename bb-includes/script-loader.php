@@ -4,6 +4,7 @@ class BB_Scripts {
 	var $queue = array();
 	var $printed = array();
 	var $args = array();
+	var $to_print = array();
 
 	function BB_Scripts() {
 		$this->default_scripts();
