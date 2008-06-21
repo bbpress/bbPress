@@ -132,7 +132,7 @@ if ( empty($PHP_SELF) )
 
 
 /**
- * Let bbPress know where we are, or aren't
+ * Let bbPress know what we are up to at the moment
  */
 
 /**
@@ -150,23 +150,47 @@ if ( !defined( 'BB_INSTALLING' ) )
 
 
 
-// Define the include path
+/**
+ * Define include paths and load core BackPress libraries
+ */
+
+/**
+ * The bbPress includes path relative to BB_PATH
+ */
 define('BB_INC', 'bb-includes/');
 
+/**
+ * The full path to the BackPress libraries
+ */
 if ( !defined( 'BACKPRESS_PATH' ) )
 	define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/' );
+
+// Load core BackPress functions
 require( BACKPRESS_PATH . 'functions.core.php' );
 require( BACKPRESS_PATH . 'functions.compat.php' );
 
-// Define the full path to the database class
+
+
+/**
+ * Set up database parameters based on config and initialise
+ */
+
+/**
+ * Define the full path to the database class
+ */
 if ( !defined('BB_DATABASE_CLASS_INCLUDE') )
 	define('BB_DATABASE_CLASS_INCLUDE', BACKPRESS_PATH . 'class.bpdb-multi.php' );
+
 // Load the database class
 require( BB_DATABASE_CLASS_INCLUDE );
 
+/**
+ * Define the name of the database class
+ */
 if ( !defined( 'BB_DATABASE_CLASS' ) )
 	define( 'BB_DATABASE_CLASS', 'BPDB_Multi' );
 
+// Setup the global database connection
 $bbdb_class = BB_DATABASE_CLASS;
 $bbdb =& new $bbdb_class( array(
 	'name' => BBDB_NAME,
@@ -178,6 +202,9 @@ $bbdb =& new $bbdb_class( array(
 ) );
 unset($bbdb_class);
 
+/**
+ * bbPress tables
+ */
 $bbdb->tables = array(
 	'forums'             => false,
 	'meta'               => false,
@@ -193,7 +220,9 @@ $bbdb->tables = array(
 	'usermeta'           => false
 );
 
-// Define BackPress Database errors if not already done - no internationalisation at this stage
+/**
+ * Define BackPress Database errors if not already done - no internationalisation at this stage
+ */
 if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
 	define(BPDB__CONNECT_ERROR_MESSAGE, 'ERROR: Error establishing a database connection');
 if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
@@ -205,18 +234,25 @@ if (!defined('BPDB__ERROR_HTML'))
 if (!defined('BPDB__DB_VERSION_ERROR'))
 	define(BPDB__DB_VERSION_ERROR, 'ERROR: bbPress requires MySQL 4.0.0 or higher');
 
-// Define the language file directory
-if ( !defined('BB_LANG_DIR') )
-	if ( defined('BBLANGDIR') ) // User has set old constant
-		// TODO: Completely remove old constants on version 1.0
-		define('BB_LANG_DIR', BBLANGDIR);
-	else
-		define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
+// Set the prefix on the tables
+if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+	die('Your table prefix may only contain letters, numbers and underscores.');
 
-// Include functions
+
+
+/**
+ * Load core bbPress libraries
+ */
+
 require( BB_PATH . BB_INC . 'wp-functions.php');
 require( BB_PATH . BB_INC . 'functions.php');
 require( BB_PATH . BB_INC . 'classes.php');
+
+
+
+/**
+ * Load API and object handling BackPress libraries
+ */
 
 // Plugin API
 if ( !function_exists( 'add_filter' ) )
@@ -230,20 +266,39 @@ if ( !class_exists( 'WP_Object_Cache' ) ) {
 if ( !isset($wp_object_cache) )
 	wp_cache_init();
 
-// Gettext
-if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) // User has set old constant
+// WP_Error
+if ( !class_exists( 'WP_Error' ) )
+	require( BACKPRESS_PATH . 'class.wp-error.php' );
+
+
+
+/**
+ * Determine language settings and load i10n libraries as required
+ */
+
+/**
+ * The full path to the directory containing language files
+ */
+if ( !defined('BB_LANG_DIR') )
+	if ( defined('BBLANGDIR') ) // User has set old constant
+		// TODO: Completely remove old constants on version 1.0
+		define('BB_LANG_DIR', BBLANGDIR);
+	else
+		define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
+
+/**
+ * The language in which to display bbPress
+ */
+if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) { // User has set old constant
 	// TODO: Completely remove old constants on version 1.0
 	define('BB_LANG', BBLANG);
+}
 if ( defined('BB_LANG') && '' != BB_LANG ) {
 	if ( !class_exists( 'gettext_reader' ) )
 		require( BACKPRESS_PATH . 'class.gettext-reader.php' );
 	if ( !class_exists( 'StreamReader' ) )
 		require( BACKPRESS_PATH . 'class.streamreader.php' );
 }
-
-// WP_Error
-if ( !class_exists( 'WP_Error' ) )
-	require( BACKPRESS_PATH . 'class.wp-error.php' );
 
 // Is WordPress loaded
 if ( !defined('BB_IS_WP_LOADED') )
@@ -255,12 +310,17 @@ if ( !BB_IS_WP_LOADED ) {
 	require( BB_PATH . BB_INC . 'l10n.php');
 }
 
-if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
-	die(__('Your table prefix may only contain letters, numbers and underscores.'));
 
-if ( defined( 'BB_COMMUNITIES_INCLUDE' ) && file_exists( BB_COMMUNITIES_INCLUDE ) )
+
+/**
+ * Routines related to installation
+ */
+
+// Load BB_COMMUNITIES_INCLUDE if it exists, must be done before the installer is launched
+if ( defined( 'BB_COMMUNITIES_INCLUDE' ) && file_exists( BB_COMMUNITIES_INCLUDE ) && !is_dir( BB_COMMUNITIES_INCLUDE ) )
 	require( BB_COMMUNITIES_INCLUDE );
 
+// If there is no forum table in the database then redirect to the installer
 if ( !BB_INSTALLING && !bb_is_installed() ) {
 	$link = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
 	require( BB_PATH . BB_INC . 'pluggable.php');
@@ -292,25 +352,37 @@ if ( !BB_INSTALLING && !bb_get_option_from_db( 'bb_db_version' ) ) {
 }
 $bbdb->suppress_errors(false);
 
+// Setup some variables in the $bb class if they don't exist - some of these are deprecated
 foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true) as $o => $oo)
 	if ( !isset($bb->$o) )
 		$bb->$o = $oo;
 unset($o, $oo);
 
+// Disable plugins during installation
 if ( BB_INSTALLING ) {
 	foreach ( array('active_plugins') as $i )
 		$bb->$i = false;
 	unset($i);
 }
 
+
+
+/**
+ * Load additional bbPress libraries
+ */
+
 require( BB_PATH . BB_INC . 'formatting-functions.php');
 require( BB_PATH . BB_INC . 'template-functions.php');
 require( BB_PATH . BB_INC . 'capabilities.php');
-require( BB_PATH . BB_INC . 'cache.php');
+require( BB_PATH . BB_INC . 'cache.php'); // Deprecating
 require( BB_PATH . BB_INC . 'deprecated.php');
 
+/**
+ * Old cache global object for backwards compatibility
+ */
 $bb_cache = new BB_Cache();
 
+// Cache options from the database
 if ( $bb->load_options ) {
 	$bbdb->suppress_errors();
 	bb_cache_all_options();
@@ -320,12 +392,15 @@ if ( $bb->load_options ) {
 require( BB_PATH . BB_INC . 'default-filters.php');
 require( BB_PATH . BB_INC . 'script-loader.php');
 
-$_GET    = bb_global_sanitize($_GET   );
-$_POST   = bb_global_sanitize($_POST  );
+// Sanitise external input
+$_GET    = bb_global_sanitize($_GET);
+$_POST   = bb_global_sanitize($_POST);
 $_COOKIE = bb_global_sanitize($_COOKIE, false);
 $_SERVER = bb_global_sanitize($_SERVER);
 
-// Set the URI and derivitaves
+/**
+ * Set the URI and derivitaves
+ */
 if ( $bb->uri = bb_get_option('uri') ) {
 	$bb->uri = rtrim($bb->uri, '/') . '/';
 	
@@ -351,19 +426,56 @@ if ( $bb->uri = bb_get_option('uri') ) {
 		$bb->uri = $bb->domain . $bb->path;
 	}
 }
+
 // Die if no URI
 if ( !BB_INSTALLING && !$bb->uri ) {
 	bb_die( __('Could not determine site URI') );
 }
 
+
+
+/**
+ * Define theme and plugin constants
+ */
+
+/**
+ * Full path to the location of the core plugins directory
+ */
 define('BB_CORE_PLUGIN_DIR', BB_PATH . 'bb-plugins/');
+
+/**
+ * Full URL of the core plugins directory
+ */
 define('BB_CORE_PLUGIN_URL', $bb->uri . 'bb-plugins/');
+
+/**
+ * Full path to the location of the core themes directory
+ */
 define('BB_CORE_THEME_DIR', BB_PATH . 'bb-templates/');
+
+/**
+ * Full URL of the core themes directory
+ */
 define('BB_CORE_THEME_URL', $bb->uri . 'bb-templates/');
+
+/**
+ * The default theme
+ */
 define('BB_DEFAULT_THEME', 'core#kakumei');
+
+/**
+ * Full path to the location of the default theme directory
+ */
 define('BB_DEFAULT_THEME_DIR', BB_CORE_THEME_DIR . 'kakumei/');
+
+/**
+ * Full URL of the default theme directory
+ */
 define('BB_DEFAULT_THEME_URL', BB_CORE_THEME_URL . 'kakumei/');
 
+/**
+ * Full path to the location of the user plugins directory
+ */
 if ( !defined('BB_PLUGIN_DIR') )
 	if ( defined('BBPLUGINDIR') ) // User has set old constant
 		// TODO: Completely remove old constants on version 1.0
@@ -371,6 +483,9 @@ if ( !defined('BB_PLUGIN_DIR') )
 	else
 		define('BB_PLUGIN_DIR', BB_PATH . 'my-plugins/');
 
+/**
+ * Full URL of the user plugins directory
+ */
 if ( !defined('BB_PLUGIN_URL') )
 	if ( defined('BBPLUGINURL') ) // User has set old constant
 		// TODO: Completely remove old constants on version 1.0
@@ -378,6 +493,9 @@ if ( !defined('BB_PLUGIN_URL') )
 	else
 		define('BB_PLUGIN_URL', $bb->uri . 'my-plugins/');
 
+/**
+ * Full path to the location of the user themes directory
+ */
 if ( !defined('BB_THEME_DIR') )
 	if ( defined('BBTHEMEDIR') ) // User has set old constant
 		// TODO: Completely remove old constants on version 1.0
@@ -385,12 +503,21 @@ if ( !defined('BB_THEME_DIR') )
 	else
 		define('BB_THEME_DIR', BB_PATH . 'my-templates/');
 
+/**
+ * Full URL of the user themes directory
+ */
 if ( !defined('BB_THEME_URL') )
 	if ( defined('BBTHEMEURL') ) // User has set old constant
 		// TODO: Completely remove old constants on version 1.0
 		define('BB_THEME_URL', BBTHEMEURL);
 	else
 		define('BB_THEME_URL', $bb->uri . 'my-templates/');
+
+
+
+/**
+ * Add custom tables if present
+ */
 
 // Resolve the various ways custom user tables might be setup
 bb_set_custom_user_tables();
@@ -409,8 +536,12 @@ if (isset($bb->custom_tables)) {
 }
 
 
-// Sort out cookies so they work with WordPress (if required)
-// Note that database integration is no longer a pre-requisite for cookie integration
+
+/**
+ * Sort out cookies so they work with WordPress (if required)
+ * Note that database integration is no longer a pre-requisite for cookie integration
+ */
+
 $bb->wp_siteurl = bb_get_option('wp_siteurl');
 if ( $bb->wp_siteurl ) {
 	$bb->wp_siteurl = rtrim($bb->wp_siteurl, '/') . '/';
@@ -471,7 +602,10 @@ if ( !$bb->sitecookiepath ) {
 }
 
 
-/* BackPress */
+
+/**
+ * Remaining BackPress
+ */
 
 // WP_Pass
 if ( !class_exists( 'WP_Pass' ) )
@@ -486,6 +620,9 @@ if ( !class_exists( 'WP_Users' ) ) {
 if ( !class_exists( 'BP_Roles' ) )
 	require( BACKPRESS_PATH . 'class.bp-roles.php' );
 
+/**
+ * BP_Roles object
+ */
 $wp_roles = new BP_Roles( $bbdb );
 
 // WP_User
@@ -495,12 +632,20 @@ if ( !class_exists( 'WP_User' ) )
 // WP_Auth
 if ( !class_exists( 'WP_Auth' ) ) {
 	require( BACKPRESS_PATH . 'class.wp-auth.php' );
+	
+	/**
+	 * WP_Auth object
+	 */
 	$wp_auth_object = new WP_Auth( $bbdb, $wp_users_object, array(
 		'domain' => $bb->cookiedomain,
 		'path' => array( $bb->cookiepath, $bb->sitecookiepath ),
 		'name' => $bb->authcookie
 	) );
 }
+
+/**
+ * Current user object
+ */
 $bb_current_user =& $wp_auth_object->current;
 
 // WP_Scripts/WP_Styles
@@ -536,11 +681,13 @@ if ( !isset( $bb->tagpath ) )
 
 do_action( 'bb_options_loaded' );
 
-/*
-Define deprecated constants for plugin compatibility
-TODO: Completely remove old constants on version 1.0
-$deprecated_constants below is a complete array of old constants and their replacements
-*/
+
+
+/**
+ * Define deprecated constants for plugin compatibility
+ * TODO: Completely remove old constants on version 1.0
+ * $deprecated_constants below is a complete array of old constants and their replacements
+ */
 $deprecated_constants = array(
 	'BBPATH'                 => 'BB_PATH',
 	'BBINC'                  => 'BB_INC',
@@ -570,13 +717,18 @@ foreach ( $deprecated_constants as $old => $new )
 		define($old, $new);
 unset($deprecated_constants, $old, $new);
 
-// Load Plugins
+
+
+/**
+ * Load Plugins
+ */
 
 // Autoloaded "underscore" plugins
 // First BB_CORE_PLUGIN_DIR
 foreach ( bb_glob(BB_CORE_PLUGIN_DIR . '_*.php') as $_plugin )
 	require( $_plugin );
 unset( $_plugin );
+
 // Second BB_PLUGIN_DIR, with no name clash testing
 foreach ( bb_glob(BB_PLUGIN_DIR . '_*.php') as $_plugin )
 	require( $_plugin );
@@ -601,34 +753,88 @@ unset($plugins, $plugin);
 
 require( BB_PATH . BB_INC . 'pluggable.php');
 
+
+
+/**
+ * Initialise localisation
+ */
+
 // Load the default text localization domain.
 load_default_textdomain();
 
 // Pull in locale data after loading text domain.
 require_once(BB_PATH . BB_INC . 'locale.php');
+
+/**
+ * Localisation object
+ */
 $bb_locale = new BB_Locale();
 
+
+
+/**
+ * Reference to $wp_roles
+ */
 $bb_roles =& $wp_roles;
 do_action('bb_got_roles', '');
 
-// Load active template functions.php file
+
+
+/**
+ * Load active template functions.php file
+ */
 $template_functions_include = bb_get_active_theme_directory() . 'functions.php';
 if ( file_exists($template_functions_include) )
 	include($template_functions_include);
 unset($template_functions_include);
+
+
+
+/**
+ * Create an API hook to run on shutdown
+ */
 
 function bb_shutdown_action_hook() {
 	do_action('bb_shutdown', '');
 }
 register_shutdown_function('bb_shutdown_action_hook');
 
+
+/**
+ * Get details of the current user
+ */
+
 bb_current_user();
 
+
+
+/**
+ * Initialisation complete API hook
+ */
+
 do_action('bb_init', '');
+
+
+
+/**
+ * Block user if they deserve it
+ */
 
 if ( bb_is_user_logged_in() && bb_has_broken_pass() )
 	bb_block_current_user();
 
+
+
+/**
+ * The currently viewed page number
+ */
 $page = bb_get_uri_page();
 
+
+
+/**
+ * Send HTTP headers
+ */
+
 bb_send_headers();
+?>
