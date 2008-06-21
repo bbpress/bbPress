@@ -1722,9 +1722,9 @@ function bb_get_option_from_db( $option ) {
 	$option = preg_replace('|[^a-z0-9_]|i', '', $option);
 
 	if ( false === $r = wp_cache_get( $option, 'bb_option' ) ) {
-		//if ( defined( 'BB_INSTALLING' ) ) $bbdb->return_errors();
+		//if ( BB_INSTALLING ) $bbdb->return_errors();
 		$row = $bbdb->get_row( $bbdb->prepare( "SELECT meta_value FROM $bbdb->meta WHERE object_type = 'bb_option' AND meta_key = %s", $option ) );
-		//if ( defined( 'BB_INSTALLING' ) ) $bbdb->show_errors();
+		//if ( BB_INSTALLING ) $bbdb->show_errors();
 
 		if ( is_object($row) ) {
 			$r = maybe_unserialize( $row->meta_value );
@@ -2527,7 +2527,7 @@ function bb_install_header( $title = '', $header = false ) {
 			$title = 'bbPress';
 		
 		$uri = false;
-		if ( function_exists('bb_get_option') && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) )
+		if ( function_exists('bb_get_option') && !BB_INSTALLING )
 			$uri = bb_get_option('uri');
 		
 		if (!$uri)

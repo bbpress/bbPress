@@ -49,7 +49,7 @@ endif;
 if ( !function_exists('bb_current_user') ) :
 //This is only used at initialization.  Use bb_get_current_user_info() (or $bb_current_user global if really needed) to grab user info.
 function bb_current_user() {
-	if ( defined( 'BB_INSTALLING' ) )
+	if (BB_INSTALLING)
 		return false;
 
 	return bb_get_current_user();
@@ -242,7 +242,7 @@ function wp_salt() {
 	if ( defined('BB_SECRET_SALT') ) {
 		$salt = BB_SECRET_SALT;
 	} else {
-		if (!defined('BB_INSTALLING')) {
+		if (!BB_INSTALLING) {
 			$salt = bb_get_option('secret');
 			if ( empty($salt) ) {
 				$salt = wp_generate_password(64);
@@ -381,7 +381,7 @@ function bb_new_user( $user_login, $user_email, $user_url = '' ) {
 	if ( is_wp_error($user) )
 		return false;
 
-	if ( defined( 'BB_INSTALLING' ) ) {
+	if (BB_INSTALLING) {
 		bb_update_usermeta( $user['ID'], $bbdb->prefix . 'capabilities', array('keymaster' => true) );
 	} else {		
 		bb_update_usermeta( $user['ID'], $bbdb->prefix . 'capabilities', array('member' => true) );

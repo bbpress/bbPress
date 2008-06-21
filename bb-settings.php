@@ -1,14 +1,43 @@
 <?php
+/**
+ * Used to setup and fix common variables and include
+ * the bbPress and BackPress procedural and class libraries.
+ *
+ * You should not have to change this file, some configuration
+ * is possible in bb-config.php
+ *
+ * @package bbPress
+ */
+
+
+
+/**
+ * Low level reasons to die
+ */
+
+// Die if PHP is not new enough
 if ( version_compare(PHP_VERSION, '4.3', '<') )
 	die(sprintf('Your server is running PHP version %s but bbPress requires at least 4.3', PHP_VERSION) );
 
-if ( !$bb_table_prefix )
-	die('You must specify a table prefix in your <code>bb-config.php</code> file.');
-
+// Die if called directly
 if ( !defined('BB_PATH') )
 	die('This file cannot be called directly.');
 
-// Turn register globals off
+// Die if there is no database table prefix
+if ( !$bb_table_prefix )
+	die('You must specify a table prefix in your <code>bb-config.php</code> file.');
+
+
+
+// Modify error reporting levels to exclude PHP notices
+error_reporting(E_ALL ^ E_NOTICE);
+
+/**
+ * bb_unregister_GLOBALS() - Turn register globals off
+ *
+ * @access private
+ * @return null Will return null if register_globals PHP directive was disabled
+ */
 function bb_unregister_GLOBALS() {
 	if ( !ini_get('register_globals') )
 		return;
@@ -26,9 +55,17 @@ function bb_unregister_GLOBALS() {
 			unset($GLOBALS[$k]);
 		}
 }
-
 bb_unregister_GLOBALS();
 
+
+
+/**
+ * bb_timer_start() - PHP 4 standard microtime start capture
+ *
+ * @access private
+ * @global int $bb_timestart Seconds and Microseconds added together from when function is called
+ * @return bool Always returns true
+ */
 function bb_timer_start() {
 	global $bb_timestart;
 	$mtime = explode(' ', microtime() );
@@ -37,21 +74,81 @@ function bb_timer_start() {
 }
 bb_timer_start();
 
+
+
+/**
+ * Whether the server software is IIS or something else
+ * @global bool $is_IIS
+ */
 $is_IIS = strstr($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') ? 1 : 0;
+
+
+
+/**
+ * Stabilise $_SERVER variables in various PHP environments
+ */
+
 // Fix for IIS, which doesn't set REQUEST_URI
 if ( empty( $_SERVER['REQUEST_URI'] ) ) {
-	$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME']; // Does this work under CGI?
 
-	// Append the query string if it exists and isn't null
-	if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING']))
-		$_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
+	// IIS Mod-Rewrite
+	if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
+		$_SERVER['REQUEST_URI'] = $_SERVER['HTTP_X_ORIGINAL_URL'];
+	}
+	// IIS Isapi_Rewrite
+	else if (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+		$_SERVER['REQUEST_URI'] = $_SERVER['HTTP_X_REWRITE_URL'];
+	}
+	else
+	{
+		// Some IIS + PHP configurations puts the script-name in the path-info (No need to append it twice)
+		if ( isset($_SERVER['PATH_INFO']) ) {
+			if ( $_SERVER['PATH_INFO'] == $_SERVER['SCRIPT_NAME'] )
+				$_SERVER['REQUEST_URI'] = $_SERVER['PATH_INFO'];
+			else
+				$_SERVER['REQUEST_URI'] = $_SERVER['SCRIPT_NAME'] . $_SERVER['PATH_INFO'];
+		}
+
+		// Append the query string if it exists and isn't null
+		if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
+			$_SERVER['REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
+		}
+	}
 }
 
-// Modify error reporting levels
-error_reporting(E_ALL ^ E_NOTICE);
+// Fix for PHP as CGI hosts that set SCRIPT_FILENAME to something ending in php.cgi for all requests
+if ( isset($_SERVER['SCRIPT_FILENAME']) && ( strpos($_SERVER['SCRIPT_FILENAME'], 'php.cgi') == strlen($_SERVER['SCRIPT_FILENAME']) - 7 ) )
+	$_SERVER['SCRIPT_FILENAME'] = $_SERVER['PATH_TRANSLATED'];
 
+// Fix for Dreamhost and other PHP as CGI hosts
+if (strpos($_SERVER['SCRIPT_NAME'], 'php.cgi') !== false)
+	unset($_SERVER['PATH_INFO']);
+
+// Fix empty PHP_SELF
+$PHP_SELF = $_SERVER['PHP_SELF'];
+if ( empty($PHP_SELF) )
+	$_SERVER['PHP_SELF'] = $PHP_SELF = preg_replace("/(\?.*)?$/",'',$_SERVER["REQUEST_URI"]);
+
+
+
+/**
+ * Let bbPress know where we are, or aren't
+ */
+
+/**
+ * Whether the current script is in the admin area or not
+ */
 if ( !defined( 'BB_IS_ADMIN' ) )
 	define( 'BB_IS_ADMIN', false );
+
+/**
+ * Whether the current script is part of the installation process or not
+ * @since 1.0-beta
+ */
+if ( !defined( 'BB_INSTALLING' ) )
+	define( 'BB_INSTALLING', false );
+
+
 
 // Define the include path
 define('BB_INC', 'bb-includes/');
@@ -70,38 +167,31 @@ require( BB_DATABASE_CLASS_INCLUDE );
 if ( !defined( 'BB_DATABASE_CLASS' ) )
 	define( 'BB_DATABASE_CLASS', 'BPDB_Multi' );
 
-function bb_init_bbdb() {
-	global $bbdb;
-	
-	$bbdb_class = BB_DATABASE_CLASS;
-	$bbdb =& new $bbdb_class( array(
-		'name' => BBDB_NAME,
-		'user' => BBDB_USER,
-		'password' => BBDB_PASSWORD,
-		'host' => BBDB_HOST,
-		'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
-		'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
-	) );
-	unset($bbdb_class);
-	
-	$bbdb->tables = array(
-		'forums'             => false,
-		'meta'               => false,
-		'posts'              => false,
-		'tagged'             => false, // Deprecated
-		'tags'               => false, // Deprecated
-		'terms'              => false,
-		'term_relationships' => false,
-		'term_taxonomy'      => false,
-		'topics'             => false,
-		'topicmeta'          => false, // Deprecated
-		'users'              => false,
-		'usermeta'           => false
-	);
-}
+$bbdb_class = BB_DATABASE_CLASS;
+$bbdb =& new $bbdb_class( array(
+	'name' => BBDB_NAME,
+	'user' => BBDB_USER,
+	'password' => BBDB_PASSWORD,
+	'host' => BBDB_HOST,
+	'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
+	'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
+) );
+unset($bbdb_class);
 
-bb_init_bbdb();
-
+$bbdb->tables = array(
+	'forums'             => false,
+	'meta'               => false,
+	'posts'              => false,
+	'tagged'             => false, // Deprecated
+	'tags'               => false, // Deprecated
+	'terms'              => false,
+	'term_relationships' => false,
+	'term_taxonomy'      => false,
+	'topics'             => false,
+	'topicmeta'          => false, // Deprecated
+	'users'              => false,
+	'usermeta'           => false
+);
 
 // Define BackPress Database errors if not already done - no internationalisation at this stage
 if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
@@ -171,7 +261,7 @@ if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
 if ( defined( 'BB_COMMUNITIES_INCLUDE' ) && file_exists( BB_COMMUNITIES_INCLUDE ) )
 	require( BB_COMMUNITIES_INCLUDE );
 
-if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
+if ( !BB_INSTALLING && !bb_is_installed() ) {
 	$link = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
 	require( BB_PATH . BB_INC . 'pluggable.php');
 	wp_redirect($link);
@@ -181,7 +271,7 @@ if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 // Make sure the new meta table exists - very ugly
 // TODO: consider seperating into external upgrade script for 1.0
 $bbdb->suppress_errors();
-if ( ( !defined('BB_INSTALLING') || !BB_INSTALLING ) && !bb_get_option_from_db( 'bb_db_version' ) ) {
+if ( !BB_INSTALLING && !bb_get_option_from_db( 'bb_db_version' ) ) {
 	$meta_exists = $bbdb->query("SELECT * FROM $bbdb->meta LIMIT 1");
 	if (!$meta_exists) {
 		$topicmeta_exists = $bbdb->query("SELECT * FROM $bbdb->topicmeta LIMIT 1");
@@ -207,10 +297,11 @@ foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false,
 		$bb->$o = $oo;
 unset($o, $oo);
 
-if ( defined('BB_INSTALLING') && BB_INSTALLING )
-foreach ( array('active_plugins') as $i )
-	$bb->$i = false;
-unset($i);
+if ( BB_INSTALLING ) {
+	foreach ( array('active_plugins') as $i )
+		$bb->$i = false;
+	unset($i);
+}
 
 require( BB_PATH . BB_INC . 'formatting-functions.php');
 require( BB_PATH . BB_INC . 'template-functions.php');
@@ -261,7 +352,7 @@ if ( $bb->uri = bb_get_option('uri') ) {
 	}
 }
 // Die if no URI
-if ( ( !defined('BB_INSTALLING') || !BB_INSTALLING ) && !$bb->uri ) {
+if ( !BB_INSTALLING && !$bb->uri ) {
 	bb_die( __('Could not determine site URI') );
 }
 
