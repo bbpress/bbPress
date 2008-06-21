@@ -69,31 +69,51 @@ require( BB_DATABASE_CLASS_INCLUDE );
 
 if ( !defined( 'BB_DATABASE_CLASS' ) )
 	define( 'BB_DATABASE_CLASS', 'BPDB_Multi' );
-$bbdb_class = BB_DATABASE_CLASS;
 
-$bbdb =& new $bbdb_class( array(
-	'name' => BBDB_NAME,
-	'user' => BBDB_USER,
-	'password' => BBDB_PASSWORD,
-	'host' => BBDB_HOST,
-	'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
-	'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
-) );
-$bbdb->tables = array(
-	'forums'             => false,
-	'meta'               => false,
-	'posts'              => false,
-	'tagged'             => false, // Deprecated
-	'tags'               => false, // Deprecated
-	'terms'              => false,
-	'term_relationships' => false,
-	'term_taxonomy'      => false,
-	'topics'             => false,
-	'topicmeta'          => false, // Deprecated
-	'users'              => false,
-	'usermeta'           => false
-);
-unset($bbdb_class);
+function bb_init_bbdb() {
+	global $bbdb;
+	
+	$bbdb_class = BB_DATABASE_CLASS;
+	$bbdb =& new $bbdb_class( array(
+		'name' => BBDB_NAME,
+		'user' => BBDB_USER,
+		'password' => BBDB_PASSWORD,
+		'host' => BBDB_HOST,
+		'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
+		'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
+	) );
+	unset($bbdb_class);
+	
+	$bbdb->tables = array(
+		'forums'             => false,
+		'meta'               => false,
+		'posts'              => false,
+		'tagged'             => false, // Deprecated
+		'tags'               => false, // Deprecated
+		'terms'              => false,
+		'term_relationships' => false,
+		'term_taxonomy'      => false,
+		'topics'             => false,
+		'topicmeta'          => false, // Deprecated
+		'users'              => false,
+		'usermeta'           => false
+	);
+}
+
+bb_init_bbdb();
+
+
+// Define BackPress Database errors if not already done - no internationalisation at this stage
+if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
+	define(BPDB__CONNECT_ERROR_MESSAGE, 'ERROR: Error establishing a database connection');
+if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
+	define(BPDB__SELECT_ERROR_MESSAGE, 'ERROR: Can\'t select database.');
+if (!defined('BPDB__ERROR_STRING'))
+	define(BPDB__ERROR_STRING, 'ERROR: bbPress database error - "%s" for query "%s" via caller "%s"');
+if (!defined('BPDB__ERROR_HTML'))
+	define(BPDB__ERROR_HTML, '<div id="error"><p class="bpdberror"><strong>Database error:</strong> [%s]<br /><code>%s</code><br />Caller: %s</p></div>');
+if (!defined('BPDB__DB_VERSION_ERROR'))
+	define(BPDB__DB_VERSION_ERROR, 'ERROR: bbPress requires MySQL 4.0.0 or higher');
 
 // Define the language file directory
 if ( !defined('BB_LANG_DIR') )
@@ -160,8 +180,8 @@ if ( !bb_is_installed() && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
 
 // Make sure the new meta table exists - very ugly
 // TODO: consider seperating into external upgrade script for 1.0
-$bbdb->hide_errors();
-if ( !bb_get_option_from_db( 'bb_db_version' ) ) {
+$bbdb->suppress_errors();
+if ( ( !defined('BB_INSTALLING') || !BB_INSTALLING ) && !bb_get_option_from_db( 'bb_db_version' ) ) {
 	$meta_exists = $bbdb->query("SELECT * FROM $bbdb->meta LIMIT 1");
 	if (!$meta_exists) {
 		$topicmeta_exists = $bbdb->query("SELECT * FROM $bbdb->topicmeta LIMIT 1");
@@ -180,7 +200,7 @@ if ( !bb_get_option_from_db( 'bb_db_version' ) ) {
 	}
 	unset($meta_exists);
 }
-$bbdb->show_errors();
+$bbdb->suppress_errors(false);
 
 foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true) as $o => $oo)
 	if ( !isset($bb->$o) )
@@ -201,9 +221,9 @@ require( BB_PATH . BB_INC . 'deprecated.php');
 $bb_cache = new BB_Cache();
 
 if ( $bb->load_options ) {
-	$bbdb->hide_errors();
+	$bbdb->suppress_errors();
 	bb_cache_all_options();
-	$bbdb->show_errors();
+	$bbdb->suppress_errors(false);
 }
 
 require( BB_PATH . BB_INC . 'default-filters.php');
@@ -241,7 +261,7 @@ if ( $bb->uri = bb_get_option('uri') ) {
 	}
 }
 // Die if no URI
-if ( !$bb->uri && ( !defined('BB_INSTALLING') || !BB_INSTALLING ) ) {
+if ( ( !defined('BB_INSTALLING') || !BB_INSTALLING ) && !$bb->uri ) {
 	bb_die( __('Could not determine site URI') );
 }
 
@@ -281,90 +301,8 @@ if ( !defined('BB_THEME_URL') )
 	else
 		define('BB_THEME_URL', $bb->uri . 'my-templates/');
 
-
-// Check for older style custom user table
-// TODO: Completely remove old constants on version 1.0
-if ( !isset($bb->custom_tables['users']) ) { // Don't stomp new setting style
-	if ( !$bb->custom_user_table = bb_get_option('custom_user_table') ) // Maybe get from database or old config setting
-		if ( defined('CUSTOM_USER_TABLE') ) // Maybe user has set old constant
-			$bb->custom_user_table = CUSTOM_USER_TABLE;
-	if ( $bb->custom_user_table ) {
-		if ( !isset($bb->custom_tables) )
-			$bb->custom_tables = array();
-		$bb->custom_tables['users'] = $bb->custom_user_table;
-	}
-}
-
-// Check for older style custom user meta table
-// TODO: Completely remove old constants on version 1.0
-if ( !isset($bb->custom_tables['usermeta']) ) { // Don't stomp new setting style
-	if ( !$bb->custom_user_meta_table = bb_get_option('custom_user_meta_table') ) // Maybe get from database or old config setting
-		if ( defined('CUSTOM_USER_META_TABLE') ) // Maybe user has set old constant
-			$bb->custom_user_meta_table = CUSTOM_USER_META_TABLE;
-	if ( $bb->custom_user_meta_table ) {
-		if ( !isset($bb->custom_tables) )
-			$bb->custom_tables = array();
-		$bb->custom_tables['usermeta'] = $bb->custom_user_meta_table;
-	}
-}
-
-// Check for older style wp_table_prefix
-// TODO: Completely remove old constants on version 1.0
-if ( $bb->wp_table_prefix = bb_get_option('wp_table_prefix') ) { // User has set old constant
-	if ( !isset($bb->custom_tables) ) {
-		$bb->custom_tables = array(
-			'users'    => $bb->wp_table_prefix . 'users',
-			'usermeta' => $bb->wp_table_prefix . 'usermeta'
-		);
-	} else {
-		if ( !isset($bb->custom_tables['users']) ) // Don't stomp new setting style
-			$bb->custom_tables['users'] = $bb->wp_table_prefix . 'users';
-		if ( !isset($bb->custom_tables['usermeta']) )
-			$bb->custom_tables['usermeta'] = $bb->wp_table_prefix . 'usermeta';
-	}
-}
-
-// Check for older style user database
-// TODO: Completely remove old constants on version 1.0
-if ( !isset($bb->custom_databases) )
-	$bb->custom_databases = array();
-if ( !isset($bb->custom_databases) || ( isset($bb->custom_databases) && !isset($bb->custom_databases['user']) ) ) {
-	if ( !$bb->user_bbdb_name = bb_get_option('user_bbdb_name') )
-		if ( defined('USER_BBDB_NAME') ) // User has set old constant
-			$bb->user_bbdb_name = USER_BBDB_NAME;
-	if ( $bb->user_bbdb_name )
-		$bb->custom_databases['user']['name'] = $bb->user_bbdb_name;
-
-	if ( !$bb->user_bbdb_user = bb_get_option('user_bbdb_user') )
-		if ( defined('USER_BBDB_USER') ) // User has set old constant
-			$bb->user_bbdb_user = USER_BBDB_USER;
-	if ( $bb->user_bbdb_user )
-		$bb->custom_databases['user']['user'] = $bb->user_bbdb_user;
-
-	if ( !$bb->user_bbdb_password = bb_get_option('user_bbdb_password') )
-		if ( defined('USER_BBDB_PASSWORD') ) // User has set old constant
-			$bb->user_bbdb_password = USER_BBDB_PASSWORD;
-	if ( $bb->user_bbdb_password )
-		$bb->custom_databases['user']['password'] = $bb->user_bbdb_password;
-
-	if ( !$bb->user_bbdb_host = bb_get_option('user_bbdb_host') )
-		if ( defined('USER_BBDB_HOST') ) // User has set old constant
-			$bb->user_bbdb_host = USER_BBDB_HOST;
-	if ( $bb->user_bbdb_host )
-		$bb->custom_databases['user']['host'] = $bb->user_bbdb_host;
-
-	if ( !$bb->user_bbdb_charset = bb_get_option('user_bbdb_charset') )
-		if ( defined('USER_BBDB_CHARSET') ) // User has set old constant
-			$bb->user_bbdb_charset = USER_BBDB_CHARSET;
-	if ( $bb->user_bbdb_charset )
-		$bb->custom_databases['user']['charset'] = $bb->user_bbdb_charset;
-
-	if ( !$bb->user_bbdb_collate = bb_get_option('user_bbdb_collate') )
-		if ( defined('USER_BBDB_COLLATE') ) // User has set old constant
-			$bb->user_bbdb_collate = USER_BBDB_COLLATE;
-	if ( $bb->user_bbdb_collate )
-		$bb->custom_databases['user']['collate'] = $bb->user_bbdb_collate;
-}
+// Resolve the various ways custom user tables might be setup
+bb_set_custom_user_tables();
 
 // Add custom databases if required
 if (isset($bb->custom_databases))
@@ -574,18 +512,6 @@ require( BB_PATH . BB_INC . 'pluggable.php');
 
 // Load the default text localization domain.
 load_default_textdomain();
-
-// Define BackPress Database errors
-if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
-	define(BPDB__CONNECT_ERROR_MESSAGE, 'ERROR: Error establishing a database connection');
-if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
-	define(BPDB__SELECT_ERROR_MESSAGE, 'ERROR: Can\'t select database.');
-if (!defined('BPDB__ERROR_STRING'))
-	define(BPDB__ERROR_STRING, 'ERROR: bbPress database error - "%s" for query "%s" via caller "%s"');
-if (!defined('BPDB__ERROR_HTML'))
-	define(BPDB__ERROR_HTML, '<div id="error"><p class="bpdberror"><strong>Database error:</strong> [%s]<br /><code>%s</code><br />Caller: %s</p></div>');
-if (!defined('BPDB__DB_VERSION_ERROR'))
-	define(BPDB__DB_VERSION_ERROR, 'ERROR: bbPress requires MySQL 4.0.0 or higher');
 
 // Pull in locale data after loading text domain.
 require_once(BB_PATH . BB_INC . 'locale.php');
