@@ -11,7 +11,7 @@ if ( !isset($bbdb) || !is_a( $bbdb, 'BPDB' ) )
 $bb_queries = array();
 
 // forums
-$bb_queries['forums'] = "CREATE TABLE `$bbdb->forums` (
+$bb_queries['forums'] = "CREATE TABLE IF NOT EXISTS `$bbdb->forums` (
 	`forum_id` int(10) NOT NULL auto_increment,
 	`forum_name` varchar(150) NOT NULL default '',
 	`forum_slug` varchar(255) NOT NULL default '',
@@ -25,7 +25,7 @@ $bb_queries['forums'] = "CREATE TABLE `$bbdb->forums` (
 );";
 
 // meta
-$bb_queries['meta'] = "CREATE TABLE `$bbdb->meta` (
+$bb_queries['meta'] = "CREATE TABLE IF NOT EXISTS `$bbdb->meta` (
 	`meta_id` bigint(20) NOT NULL auto_increment,
 	`object_type` varchar(16) NOT NULL default 'bb_option',
 	`object_id` bigint(20) NOT NULL default 0,
@@ -37,7 +37,7 @@ $bb_queries['meta'] = "CREATE TABLE `$bbdb->meta` (
 );";
 
 // posts
-$bb_queries['posts'] = "CREATE TABLE `$bbdb->posts` (
+$bb_queries['posts'] = "CREATE TABLE IF NOT EXISTS `$bbdb->posts` (
 	`post_id` bigint(20) NOT NULL auto_increment,
 	`forum_id` int(10) NOT NULL default 1,
 	`topic_id` bigint(20) NOT NULL default 1,
@@ -55,7 +55,7 @@ $bb_queries['posts'] = "CREATE TABLE `$bbdb->posts` (
 ) TYPE = MYISAM;";
 
 // tagged - deprecated
-$bb_queries['tagged'] = "CREATE TABLE `$bbdb->tagged` (
+$bb_queries['tagged'] = "CREATE TABLE IF NOT EXISTS `$bbdb->tagged` (
 	`tagged_id` bigint(20) unsigned NOT NULL auto_increment,
 	`tag_id` bigint(20) unsigned NOT NULL default 0,
 	`user_id` bigint(20) unsigned NOT NULL default 0,
@@ -68,7 +68,7 @@ $bb_queries['tagged'] = "CREATE TABLE `$bbdb->tagged` (
 );";
 
 // tags - deprecated
-$bb_queries['tags'] = "CREATE TABLE $bbdb->tags (
+$bb_queries['tags'] = "CREATE TABLE IF NOT EXISTS $bbdb->tags (
 	`tag_id` bigint(20) unsigned NOT NULL auto_increment,
 	`tag` varchar(200) NOT NULL default '',
 	`raw_tag` varchar(50) NOT NULL default '',
@@ -78,7 +78,7 @@ $bb_queries['tags'] = "CREATE TABLE $bbdb->tags (
 );";
 
 // terms
-$bb_queries['terms'] = "CREATE TABLE `$bbdb->terms` (
+$bb_queries['terms'] = "CREATE TABLE IF NOT EXISTS `$bbdb->terms` (
 	`term_id` bigint(20) NOT NULL auto_increment,
 	`name` varchar(55) NOT NULL default '',
 	`slug` varchar(200) NOT NULL default '',
@@ -88,7 +88,7 @@ $bb_queries['terms'] = "CREATE TABLE `$bbdb->terms` (
 );";
 
 // term_relationships
-$bb_queries['term_relationships'] = "CREATE TABLE `$bbdb->term_relationships` (
+$bb_queries['term_relationships'] = "CREATE TABLE IF NOT EXISTS `$bbdb->term_relationships` (
 	`object_id` bigint(20) NOT NULL default 0,
 	`term_taxonomy_id` bigint(20) NOT NULL default 0,
 	`user_id` bigint(20) NOT NULL default 0,
@@ -98,7 +98,7 @@ $bb_queries['term_relationships'] = "CREATE TABLE `$bbdb->term_relationships` (
 );";
 
 // term_taxonomy
-$bb_queries['term_taxonomy'] = "CREATE TABLE `$bbdb->term_taxonomy` (
+$bb_queries['term_taxonomy'] = "CREATE TABLE IF NOT EXISTS `$bbdb->term_taxonomy` (
 	`term_taxonomy_id` bigint(20) NOT NULL auto_increment,
 	`term_id` bigint(20) NOT NULL default 0,
 	`taxonomy` varchar(32) NOT NULL default '',
@@ -110,7 +110,7 @@ $bb_queries['term_taxonomy'] = "CREATE TABLE `$bbdb->term_taxonomy` (
 );";
 
 // topics
-$bb_queries['topics'] = "CREATE TABLE `$bbdb->topics` (
+$bb_queries['topics'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topics` (
 	`topic_id` bigint(20) NOT NULL auto_increment,
 	`topic_title` varchar(100) NOT NULL default '',
 	`topic_slug` varchar(255) NOT NULL default '',
@@ -135,7 +135,7 @@ $bb_queries['topics'] = "CREATE TABLE `$bbdb->topics` (
 );";
 
 // topicmeta - deprecated
-$bb_queries['topicmeta'] = "CREATE TABLE `$bbdb->topicmeta` (
+$bb_queries['topicmeta'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topicmeta` (
 	`meta_id` bigint(20) NOT NULL auto_increment,
 	`topic_id` bigint(20) NOT NULL default 0,
 	`meta_key` varchar(255),
@@ -146,7 +146,7 @@ $bb_queries['topicmeta'] = "CREATE TABLE `$bbdb->topicmeta` (
 );";
 
 // users - 'user_login' and 'user_nicename' indices are inconsistent with WordPress
-$bb_queries['users'] = "CREATE TABLE `$bbdb->users` (
+$bb_queries['users'] = "CREATE TABLE IF NOT EXISTS `$bbdb->users` (
 	`ID` bigint(20) unsigned NOT NULL auto_increment,
 	`user_login` varchar(60) NOT NULL default '',
 	`user_pass` varchar(64) NOT NULL default '',
@@ -162,7 +162,7 @@ $bb_queries['users'] = "CREATE TABLE `$bbdb->users` (
 );";
 
 // usermeta
-$bb_queries['usermeta'] = "CREATE TABLE `$bbdb->usermeta` (
+$bb_queries['usermeta'] = "CREATE TABLE IF NOT EXISTS `$bbdb->usermeta` (
 	`umeta_id` bigint(20) NOT NULL auto_increment,
 	`user_id` bigint(20) NOT NULL default 0,
 	`meta_key` varchar(255),

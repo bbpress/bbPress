@@ -118,20 +118,22 @@ function bb_sql_get_index_definition($index_data) {
  */
 function bb_sql_describe_table($query) {
 	// Retrieve the table structure from the query
-	if (!preg_match('@^CREATE\s+TABLE\s+`?([^\s|`]+)`?\s+\((.*)\)\s*([^\)|;]*)\s*;?@ims', $query, $_matches))
+	if (!preg_match('@^CREATE\s+TABLE(\s+IF\s+NOT\s+EXISTS)?\s+`?([^\s|`]+)`?\s+\((.*)\)\s*([^\)|;]*)\s*;?@ims', $query, $_matches))
 		return $query;
 	
+	$_if_not_exists = $_matches[1];
+	
 	// Tidy up the table name
-	$_table_name = trim($_matches[1]);
+	$_table_name = trim($_matches[2]);
 	
 	// Tidy up the table columns/indices
-	$_columns_indices = trim($_matches[2], " \t\n\r\0\x0B,");
+	$_columns_indices = trim($_matches[3], " \t\n\r\0\x0B,");
 	// Split by commas not followed by a closing parenthesis ")", using fancy lookaheads
 	$_columns_indices = preg_split('@,(?!(?:[^\(]+\)))@ms', $_columns_indices);
 	$_columns_indices = array_map('trim', $_columns_indices);
 	
 	// Tidy the table attributes
-	$_attributes = preg_replace('@\s+@', ' ', trim($_matches[3]));
+	$_attributes = preg_replace('@\s+@', ' ', trim($_matches[4]));
 	unset($_matches);
 	
 	// Initialise some temporary arrays
@@ -183,7 +185,11 @@ function bb_sql_describe_table($query) {
 	unset($_matches, $_columns_indices, $_column_index);
 	
 	// Tidy up the original query
-	$_tidy_query = 'CREATE TABLE `' . $_table_name . '` (' . "\n";
+	$_tidy_query = 'CREATE TABLE';
+	if ($_if_not_exists) {
+		$_tidy_query .= ' IF NOT EXISTS';
+	}
+	$_tidy_query .= ' `' . $_table_name . '` (' . "\n";
 	foreach ($_columns as $_column) {
 		$_tidy_query .= "\t" . bb_sql_get_column_definition($_column) . ",\n";
 	}
@@ -227,7 +233,7 @@ function bb_sql_parse($sql) {
 	$_queries = array();
 	foreach ($queries as $_query) {
 		// Only process table creation, inserts and updates, capture the table/database name while we are at it
-		if (!preg_match('@^(CREATE\s+TABLE|INSERT\s+INTO|UPDATE)\s+`?([^\s|`]+)`?@im', $_query, $_matches)) {
+		if (!preg_match('@^(CREATE\s+TABLE(?:\s+IF\s+NOT\s+EXISTS)?|INSERT\s+INTO|UPDATE)\s+`?([^\s|`]+)`?@im', $_query, $_matches)) {
 			continue;
 		}
 		
@@ -238,6 +244,7 @@ function bb_sql_parse($sql) {
 		
 		switch ($_type) {
 			case 'CREATE TABLE':
+			case 'CREATE TABLE IF NOT EXISTS':
 				$_description = bb_sql_describe_table($_query);
 				if (is_array($_description)) {
 					$_queries['tables'][$_table_name] = $_description;
@@ -305,7 +312,9 @@ function bb_sql_delta($queries, $execute = true) {
 			}
 			
 			// Fetch the existing table column structure from the database
+			$bbdb->suppress_errors();
 			if (!$_existing_table_columns = $bbdb->get_results('DESCRIBE `' . $_new_table_name . '`;', ARRAY_A)) {
+				$bbdb->suppress_errors(false);
 				// The table doesn't exist, add it and then continue to the next table
 				$alterations[$_dbhname][$_new_table_name][] = array(
 					'action' => 'create_table',
@@ -314,6 +323,7 @@ function bb_sql_delta($queries, $execute = true) {
 				);
 				continue;
 			}
+			$bbdb->suppress_errors(false);
 			
 			// Add an index to the existing columns array
 			$__existing_table_columns = array();
