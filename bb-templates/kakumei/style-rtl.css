@@ -42,7 +42,7 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 	padding-right: 0;
 }
 
-.login #submit { float: right; }
+form.login input#submit { float: right; }
 
 
 /* Front Page
@@ -138,8 +138,20 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 /* Profile Edit
 =================================== */
 
-fieldset { padding: 10px 10px 10px 0; }
+#login-page fieldset,
+#register-page fieldset,
+#profile-page fieldset {
+	padding: 10px 10px 10px 0;
+}
 
-fieldset table { text-align: right; }
+#login-page fieldset table,
+#register-page fieldset table,
+#profile-page fieldset table {
+	text-align: right;
+}
 
-fieldset table th { text-align: left; }
+#login-page fieldset table th,
+#register-page fieldset table th,
+#profile-page fieldset table th {
+	text-align: left;
+}
