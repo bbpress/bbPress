@@ -23,6 +23,7 @@ if ( file_exists( BB_PATH . 'bb-config.php') ) {
 	// Cut to the chase, go to the installer and use it to deal with errors
 	$install_uri = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
 	header('Location: ' . $install_uri);
+	die();
 	
 }
 ?>
