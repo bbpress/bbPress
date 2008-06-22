@@ -14,6 +14,7 @@ $bb_install = new BB_Install(__FILE__);
 
 // Include some neccesary functions if not already there
 if ($bb_install->load_includes) {
+	require_once(BACKPRESS_PATH . 'functions.core.php');
 	require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
 	require_once(BB_PATH . BB_INC . 'wp-functions.php');
 	require_once(BB_PATH . BB_INC . 'functions.php');
@@ -208,6 +209,7 @@ switch ($bb_install->step) {
 					$bb_install->input_text('user_bbdb_password', 'password');
 					$bb_install->input_text('user_bbdb_host');
 					$bb_install->input_text('user_bbdb_charset');
+					$bb_install->input_text('user_bbdb_collate');
 ?>
 								</fieldset>
 								<fieldset>
