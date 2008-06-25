@@ -12,49 +12,6 @@ require_once('../bb-load.php');
 require_once(BB_PATH . 'bb-admin/class-install.php');
 $bb_install = new BB_Install(__FILE__);
 
-// Include some neccesary functions if not already there
-if ($bb_install->load_includes) {
-	require_once(BACKPRESS_PATH . 'functions.core.php');
-	require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
-	require_once(BB_PATH . BB_INC . 'wp-functions.php');
-	require_once(BB_PATH . BB_INC . 'functions.php');
-	require_once(BACKPRESS_PATH . 'functions.kses.php');
-	require_once(BB_PATH . BB_INC . 'l10n.php');
-}
-
-$bb_install->get_languages();
-$bb_install->set_language();
-
-if ($bb_install->language) {
-	$locale = $bb_install->language;
-	unset($l10n['default']);
-	if ( !class_exists( 'gettext_reader' ) )
-		require( BACKPRESS_PATH . 'class.gettext-reader.php' );
-	if ( !class_exists( 'StreamReader' ) )
-		require( BACKPRESS_PATH . 'class.streamreader.php' );
-}
-
-if ($bb_install->load_includes) {
-	require_once( BB_PATH . BB_INC . 'template-functions.php');
-}
-
-// Load the default text localization domain.
-load_default_textdomain();
-
-// Pull in locale data after loading text domain.
-require_once(BB_PATH . BB_INC . 'locale.php');
-$bb_locale = new BB_Locale();
-
-$bb_install->prepare_strings();
-$bb_install->check_prerequisites();
-$bb_install->check_configs();
-
-if ($bb_install->step > 0) {
-	$bb_install->set_step();
-	$bb_install->prepare_data();
-	$bb_install->process_form();
-}
-
 $bb_install->header();
 ?>
 		<script type="text/javascript" charset="utf-8">

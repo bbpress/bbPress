@@ -89,10 +89,10 @@ class BB_Install
 	/**
 	 * BB_Install() - Constructor
 	 *
-	 * Just sets up a few initial values
+	 * Loads everything we might need to do the business
 	 *
 	 * @param string $caller The full path of the file that instantiated the class
-	 * @return boolean
+	 * @return boolean Always returns true
 	 **/
 	function BB_Install($caller)
 	{
@@ -100,6 +100,56 @@ class BB_Install
 		
 		$this->set_initial_step();
 		$this->define_paths();
+		
+		// We need to load these when bb-settings.php isn't loaded
+		if ($this->load_includes) {
+			error_log('loading');
+			require_once(BACKPRESS_PATH . 'functions.core.php');
+			require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
+			require_once(BACKPRESS_PATH . 'class.wp-error.php');
+			require_once(BB_PATH . BB_INC . 'wp-functions.php');
+			require_once(BB_PATH . BB_INC . 'functions.php');
+			require_once(BACKPRESS_PATH . 'functions.kses.php');
+			require_once(BB_PATH . BB_INC . 'l10n.php');
+			require_once(BB_PATH . BB_INC . 'template-functions.php');
+		}
+		
+		$this->get_languages();
+		$this->set_language();
+		
+		if ($this->language) {
+			global $locale;
+			global $l10n;
+			$locale = $this->language;
+			unset($l10n['default']);
+			
+			if ( !class_exists( 'gettext_reader' ) ) {
+				require_once( BACKPRESS_PATH . 'class.gettext-reader.php' );
+			}
+			if ( !class_exists( 'StreamReader' ) ) {
+				require( BACKPRESS_PATH . 'class.streamreader.php' );
+			}
+		}
+		
+		// Load the default text localization domain. Doing this twice doesn't hurt too much.
+		load_default_textdomain();
+		
+		// Pull in locale data after loading text domain.
+		if ($this->load_includes) {
+			require_once(BB_PATH . BB_INC . 'locale.php');
+		}
+		global $bb_locale;
+		$bb_locale = new BB_Locale();
+		
+		$this->prepare_strings();
+		$this->check_prerequisites();
+		$this->check_configs();
+		
+		if ($this->step > 0) {
+			$this->set_step();
+			$this->prepare_data();
+			$this->process_form();
+		}
 		
 		return true;
 	}
@@ -242,19 +292,6 @@ class BB_Install
 			return false;
 		}
 		
-		if (!defined('BB_PATH')) {
-			// Determine the base path of the installation
-			// The caller must be in bb-admin or the base path of the installation
-			$bbpath = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $this->caller);
-			
-			if (!$bbpath) {
-				echo 'Could not determine base path.';
-				die();
-			}
-			
-			define('BB_PATH', $bbpath);
-		}
-		
 		if (!defined('BB_INC')) {
 			// Define BB_INC
 			// Tell us to load includes because bb-settings.php was not loaded
@@ -269,18 +306,15 @@ class BB_Install
 		}
 		
 		// Define the language file directory
-		if ( !defined('BB_LANG_DIR') )
-			define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
-		
-		// Define the full path to the database class
-		if ( !defined('BB_DATABASE_CLASS') )
-			define('BB_DATABASE_CLASS', BB_PATH . BB_INC . 'db.php');
+		if ( !defined('BB_LANG_DIR') ) {
+			define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/');
+		}
 		
 		return true;
 	}
 	
 	/**
-	 * Gets an array of available languages form the language directory
+	 * get_languages() - Gets an array of available languages form the language directory
 	 *
 	 * @return array
 	 **/
@@ -294,7 +328,7 @@ class BB_Install
 	}
 	
 	/**
-	 * Returns a language selector for switching installation languages
+	 * get_language_selector() - Returns a language selector for switching installation languages
 	 *
 	 * @return string|false Either the html for the selector or false if there are no languages
 	 **/
@@ -330,7 +364,7 @@ class BB_Install
 	}
 	
 	/**
-	 * Sets the current installation language
+	 * set_language() - Sets the current installation language
 	 *
 	 * @return string The currently set language
 	 **/
@@ -367,39 +401,50 @@ class BB_Install
 	 **/
 	function database_tables_are_installed()
 	{
-		if ($this->load_includes) {
-			require_once( BB_DATABASE_CLASS );
-		} else {
-			global $bbdb;
-		}
-		
-		$bbdb->hide_errors();
-		$installed = (boolean) $bbdb->get_var("SELECT forum_id FROM $bbdb->forums LIMIT 1");
-		$bbdb->show_errors();
-		
+		global $bbdb;
+		$bbdb->suppress_errors();
+		$installed = (boolean) $bbdb->get_results('DESCRIBE `' . $bbdb->forums . '`;', ARRAY_A);
+		$bbdb->suppress_errors(false);
 		return $installed;
 	}
 	
+	/**
+	 * bb_options_are_set() - Tests whether an option is set in the database
+	 *
+	 * @return boolean False if the option isn't set, otherwise true
+	 **/
 	function bb_options_are_set()
 	{
-		if (!$this->load_includes) {
-			if (bb_get_option('uri')) {
-				return true;
-			}
+		if ($this->load_includes) {
+			return false;
 		}
-		return false;
+		if (!bb_get_option('uri')) {
+			return false;
+		}
+		return true;
 	}
 	
+	/**
+	 * is_installed() - Tests whether bbPress is installed
+	 *
+	 * @return boolean False if bbPress isn't installed, otherwise true
+	 **/
 	function is_installed()
 	{
-		if ($this->database_tables_are_installed()) {
-			if ($this->bb_options_are_set()) {
-				return true;
-			}
+		if (!$this->database_tables_are_installed()) {
+			return false;
 		}
-		return false;
+		if (!$this->bb_options_are_set()) {
+			return false;
+		}
+		return true;
 	}
 	
+	/**
+	 * check_configs() - checks for configs and sets variables describing current install state
+	 *
+	 * @return integer The current step we should be on based on the existence of the config file
+	 **/
 	function check_configs()
 	{
 		// Check for a config file
@@ -494,6 +539,11 @@ class BB_Install
 		return $this->step;
 	}
 	
+	/**
+	 * validate_current_config() - Determines if the current config is valid
+	 *
+	 * @return boolean False if the config is bad, otherwise true
+	 **/
 	function validate_current_config()
 	{
 		// If we are validating then the config file has already been included
@@ -524,16 +574,16 @@ class BB_Install
 		return $this->validate_current_database();
 	}
 	
+	/**
+	 * validate_current_database() - Validates the current database settings
+	 *
+	 * @return boolean False if the current database isn't valid, otherwise true
+	 **/
 	function validate_current_database()
 	{
-		if ($this->load_includes) {
-			require_once( BB_DATABASE_CLASS );
-		} else {
-			global $bbdb;
-		}
-
+		global $bbdb;
 		$db = $bbdb->db_connect( "SELECT * FROM $bbdb->forums LIMIT 1" );
-
+		
 		if (!is_resource($db)) {
 			return false;
 		}
@@ -541,6 +591,11 @@ class BB_Install
 		return true;
 	}
 	
+	/**
+	 * prepare_data() - Sets up default values for input data as well as labels and notes
+	 *
+	 * @return void
+	 **/
 	function prepare_data()
 	{
 		$this->data = array(
@@ -723,6 +778,12 @@ class BB_Install
 						'note'  => __('The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.'),
 						'prerequisite' => 'toggle_2_3'
 					),
+					'user_bbdb_collate' => array(
+						'value' => '',
+						'label' => __('User database character collation'),
+						'note'  => __('The character collation value set when the user database was created.'),
+						'prerequisite' => 'toggle_2_3'
+					),
 					'custom_user_table' => array(
 						'value' => '',
 						'label' => __('User database "user" table'),
@@ -811,6 +872,11 @@ class BB_Install
 		);
 	}
 	
+	/**
+	 * guess_uri() - Guesses the final installed URI based on the location of the install script
+	 *
+	 * @return string The guessed URI
+	 **/
 	function guess_uri()
 	{
 		global $bb;
@@ -828,6 +894,11 @@ class BB_Install
 		return rtrim($uri, '/') . '/';
 	}
 	
+	/**
+	 * is_posted() - Reports whether the request method is post or not
+	 *
+	 * @return boolean True if the page was posted, otherwise false
+	 **/
 	function is_posted()
 	{
 		if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
@@ -987,15 +1058,28 @@ class BB_Install
 		define('BBDB_PASSWORD', $data['bbdb_password']['value']);
 		define('BBDB_HOST',     $data['bbdb_host']['value']);
 		define('BBDB_CHARSET',  $data['bbdb_charset']['value']);
+		define('BBDB_COLLATE',  $data['bbdb_collate']['value']);
 		
 		// We'll fail here if the values are no good.
-		require_once(BB_PATH . BB_INC . 'db.php');
+		require_once(BACKPRESS_PATH . 'class.bpdb-multi.php');
 		
+		$bbdb =& new BPDB_Multi( array(
+			'name' => BBDB_NAME,
+			'user' => BBDB_USER,
+			'password' => BBDB_PASSWORD,
+			'host' => BBDB_HOST,
+			'charset' => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
+			'collate' => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
+		) );
+		
+		$bbdb->suppress_errors();
 		if (!$bbdb->db_connect('SHOW TABLES;')) {
+			$bbdb->suppress_errors(false);
 			$this->step_status[1] = 'incomplete';
 			$this->strings[1]['messages']['error'][] = __('There was a problem connecting to the database you specified.<br />Please check the settings, then try again.');
 			return 'error';
 		}
+		$bbdb->suppress_errors(false);
 		
 		// Initialise an array to store the config lines
 		$config_lines = array();
@@ -1214,29 +1298,30 @@ class BB_Install
 						$bb->user_bbdb_host = $data['user_bbdb_host']['value'];
 					if ( !empty($data['user_bbdb_charset']['value']) )
 						$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $data['user_bbdb_charset']['value'] );
+					if ( !empty($data['user_bbdb_collate']['value']) )
+						$bb->user_bbdb_collate = preg_replace( '/[^a-z0-9_-]/i', '', $data['user_bbdb_collate']['value'] );
 					if ( !empty($data['custom_user_table']['value']) )
 						$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $data['custom_user_table']['value'] );
 					if ( !empty($data['custom_user_meta_table']['value']) )
-					$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $data['custom_user_meta_table']['value'] );
+						$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $data['custom_user_meta_table']['value'] );
 				}
 				
 				// Bring in the database object
 				global $bbdb;
+				global $bb_table_prefix;
 				
-				// Set the new prefix for user tables
-				$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
+				// Resolve the custom user tables for bpdb
+				bb_set_custom_user_tables();
 				
-				// Set the user table's character set if defined
-				if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
-					$bbdb->user_charset = $bb->user_bbdb_charset;
+				if (isset($bb->custom_databases) && isset($bb->custom_databases['user']))
+					$bbdb->add_db_server('user', $bb->custom_databases['user']);
 				
-				// Set the user table's custom name if defined
-				if ( isset($bb->custom_user_table) && $bb->custom_user_table )
-					$bbdb->users = $bb->custom_user_table;
-				
-				// Set the usermeta table's custom name if defined
-				if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
-					$bbdb->usermeta = $bb->custom_user_meta_table;
+				// Add custom tables if required
+				if (isset($bb->custom_tables['users']) || isset($bb->custom_tables['usermeta'])) {
+					$bbdb->tables = array_merge($bbdb->tables, $bb->custom_tables);
+					if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+						die(__('Your user table prefix may only contain letters, numbers and underscores.'));
+				}
 				
 				// Hide errors for the test
 				$bbdb->return_errors();
@@ -1403,18 +1488,6 @@ class BB_Install
 		return 'complete';
 	}
 	
-	function remove_users_table_from_schema($schema)
-	{
-		unset($schema['users']);
-		return $schema;
-	}
-
-	function remove_usermeta_table_from_schema($schema)
-	{
-		unset($schema['usermeta']);
-		return $schema;
-	}
-	
 	function process_form_finalise_installation()
 	{
 		require_once(BB_PATH . 'bb-admin/upgrade-functions.php');
@@ -1443,13 +1516,10 @@ class BB_Install
 			$installation_log[] = '>>> ' . __('Setting up custom user table constants');
 			
 			global $bb;
+			global $bb_table_prefix;
 			
-			if ( !empty($data2['wp_table_prefix']['value']) ) {
+			if ( !empty($data2['wp_table_prefix']['value']) )
 				$bb->wp_table_prefix = $data2['wp_table_prefix']['value'];
-				add_filter( 'bb_schema', array(&$this, 'remove_users_table_from_schema') );
-				add_filter( 'bb_schema', array(&$this, 'remove_usermeta_table_from_schema') );
-				$installation_log[] = '>>>>>> ' . __('Removed user tables from schema');
-			}
 			if ( !empty($data2['user_bbdb_name']['value']) )
 				$bb->user_bbdb_name = $data2['user_bbdb_name']['value'];
 			if ( !empty($data2['user_bbdb_user']['value']) )
@@ -1460,31 +1530,21 @@ class BB_Install
 				$bb->user_bbdb_host = $data2['user_bbdb_host']['value'];
 			if ( !empty($data2['user_bbdb_charset']['value']) )
 				$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $data2['user_bbdb_charset']['value'] );
-			if ( !empty($data2['custom_user_table']['value']) ) {
-				$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $data2['custom_user_table']['value'] );
-				add_filter( 'bb_schema', array(&$this, 'remove_users_table_from_schema') );
-				$installation_log[] = '>>>>>> ' . __('Removed users table from schema');
+			if ( !empty($data['user_bbdb_collate']['value']) )
+				$bb->user_bbdb_collate = preg_replace( '/[^a-z0-9_-]/i', '', $data['user_bbdb_collate']['value'] );
+			
+			bb_set_custom_user_tables();
+			
+			// Add custom user database if required
+			if (isset($bb->custom_databases['user']))
+				$bbdb->add_db_server('user', $bb->custom_databases['user']);
+
+			// Add custom tables if required
+			if (isset($bb->custom_tables)) {
+				$bbdb->tables = array_merge($bbdb->tables, $bb->custom_tables);
+				if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+					die(__('Your user table prefix may only contain letters, numbers and underscores.'));
 			}
-			if ( !empty($data2['custom_user_meta_table']['value']) ) {
-				$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $data2['custom_user_meta_table']['value'] );
-				add_filter( 'bb_schema', array(&$this, 'remove_usermeta_table_from_schema') );
-				$installation_log[] = '>>>>>> ' . __('Removed usermeta table from schema');
-			}
-			
-			// Set the new prefix for user tables
-			$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
-			
-			// Set the user table's character set if defined
-			if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
-				$bbdb->user_charset = $bb->user_bbdb_charset;
-			
-			// Set the user table's custom name if defined
-			if ( isset($bb->custom_user_table) && $bb->custom_user_table )
-				$bbdb->users = $bb->custom_user_table;
-			
-			// Set the usermeta table's custom name if defined
-			if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
-				$bbdb->usermeta = $bb->custom_user_meta_table;
 		}
 		
 		// Create the database
@@ -1628,6 +1688,10 @@ class BB_Install
 						bb_update_option('user_bbdb_charset', $data2['user_bbdb_charset']['value']);
 						$installation_log[] = '>>> ' . __('User database character set:') . ' ' . $data2['user_bbdb_charset']['value'];
 					}
+					if ( !empty($data2['user_bbdb_collate']['value']) ) {
+						bb_update_option('user_bbdb_collate', $data2['user_bbdb_collate']['value']);
+						$installation_log[] = '>>> ' . __('User database collation:') . ' ' . $data2['user_bbdb_collate']['value'];
+					}
 					if ( !empty($data2['custom_user_table']['value']) ) {
 						bb_update_option('custom_user_table', $data2['custom_user_table']['value']);
 						$installation_log[] = '>>> ' . __('User database "user" table:') . ' ' . $data2['custom_user_table']['value'];
@@ -1750,7 +1814,8 @@ class BB_Install
 				break;
 		}
 		
-		if (!$this->database_tables_are_installed()) {
+		// Don't create an initial forum if any forums already exist
+		if (!$bbdb->get_results('SELECT `forum_id` FROM `' . $bbdb->forums . '` LIMIT 1;')) {
 			if ($this->language != BB_LANG) {
 				global $locale, $l10n;
 				$locale = BB_LANG;
@@ -2071,29 +2136,28 @@ class BB_Install
 			$bb->user_bbdb_host = $this->data[2]['form']['user_bbdb_host']['value'];
 		if ( !empty($this->data[2]['form']['user_bbdb_charset']['value']) )
 			$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['user_bbdb_charset']['value'] );
+		if ( !empty($this->data[2]['form']['user_bbdb_collate']['value']) )
+			$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['user_bbdb_collate']['value'] );
 		if ( !empty($this->data[2]['form']['custom_user_table']['value']) )
 			$bb->custom_user_table = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['custom_user_table']['value'] );
 		if ( !empty($this->data[2]['form']['custom_user_meta_table']['value']) )
 			$bb->custom_user_meta_table = preg_replace( '/[^a-z0-9_-]/i', '', $this->data[2]['form']['custom_user_meta_table']['value'] );
 		
 		global $bbdb;
-		
-		// Set the new prefix for user tables
-		$bbdb->set_prefix( $bb->wp_table_prefix, array('users', 'usermeta') );
-		
-		// Set the user table's character set if defined
-		if ( isset($bb->user_bbdb_charset) && $bb->user_bbdb_charset )
-			$bbdb->user_charset = $bb->user_bbdb_charset;
-		
-		// Set the user table's custom name if defined
-		if ( isset($bb->custom_user_table) && $bb->custom_user_table )
-			$bbdb->users = $bb->custom_user_table;
-		
-		// Set the usermeta table's custom name if defined
-		if ( isset($bb->custom_user_meta_table) && $bb->custom_user_meta_table )
-			$bbdb->usermeta = $bb->custom_user_meta_table;
-		
 		global $bb_table_prefix;
+		
+		// Resolve the custom user tables for bpdb
+		bb_set_custom_user_tables();
+		
+		if (isset($bb->custom_databases) && isset($bb->custom_databases['user']))
+			$bbdb->add_db_server('user', $bb->custom_databases['user']);
+		
+		// Add custom tables if required
+		if (isset($bb->custom_tables['users']) || isset($bb->custom_tables['usermeta'])) {
+			$bbdb->tables = array_merge($bbdb->tables, $bb->custom_tables);
+			if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
+				die(__('Your user table prefix may only contain letters, numbers and underscores.'));
+		}
 		
 		$bb_keymaster_meta_key = $bbdb->escape( $bb_table_prefix . 'capabilities' );
 		$wp_administrator_meta_key = $bbdb->escape( $bb->wp_table_prefix . 'capabilities' );
@@ -2121,11 +2185,11 @@ class BB_Install
 			ORDER BY
 				user_login;
 EOQ;
-		$bbdb->hide_errors();
+		$bbdb->suppress_errors();
 		
 		if ( $keymasters = $bbdb->get_results( $keymaster_query, ARRAY_A ) ) {
 			
-			$bbdb->show_errors();
+			$bbdb->suppress_errors(false);
 			
 			if ( count($keymasters) ) {
 				$email_maps = '';
@@ -2162,7 +2226,7 @@ EOS;
 			}
 		}
 		
-		$bbdb->show_errors();
+		$bbdb->suppress_errors(false);
 		
 		return false;
 	}
