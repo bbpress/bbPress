@@ -404,6 +404,11 @@ function bb_sql_delta($queries, $execute = true) {
 				if (!in_array($_new_index_data, $_existing_table_indices)) {
 					// There is a difference
 					if (!isset($_existing_table_indices[$_new_index_name])) {
+						// Ignore the 'user_login' index in the user table due to compatibility issues with WordPress
+						if ($bbdb->users == $_new_table_name && $_new_index_name == 'user_login') {
+							continue;
+						}
+						
 						// The index doesn't exist, so add it
 						$alterations[$_dbhname][$_new_table_name][] = array(
 							'action' => 'add_index',
@@ -510,16 +515,15 @@ function bb_sql_delta($queries, $execute = true) {
 				// Run the query
 				$bbdb->return_errors();
 				$_result = $bbdb->query($_alteration['query']);
-				$_sql_error = $bbdb->print_error($bbdb->last_error);
 				$bbdb->hide_errors();
 				
-				if ( is_wp_error($_sql_error) ) {
+				if ( is_wp_error($_result) ) {
 					// There was an error and $bbdb->show_errors = 2
 					$messages[] = '>>>>>>>>>>>> ' . __('SQL ERROR! See the error log for more detail');
 					$errors[] = __('SQL ERROR!');
 					$errors[] = '>>> ' . __('Database:') . ' ' . $bbdb->db_servers[$_dbhname]['name'] . ' (' . $bbdb->db_servers[$_dbhname]['host'] . ')';
-					$errors[] = '>>>>>> ' . $_sql_error->error_data['db_query']['query'];
-					$errors[] = '>>>>>> ' . $_sql_error->error_data['db_query']['error'];
+					$errors[] = '>>>>>> ' . $_result->error_data['db_query']['query'];
+					$errors[] = '>>>>>> ' . $_result->error_data['db_query']['error'];
 				} else {
 					$messages[] = '>>>>>>>>>>>> ' . __('Done');
 				}
