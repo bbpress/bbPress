@@ -11,10 +11,16 @@ if ( file_exists( BB_PATH . 'bb-config.php') ) {
 	// The config file resides in BB_PATH
 	require_once( BB_PATH . 'bb-config.php');
 	
+	// Load bb-settings.php
+	require_once( BB_PATH . 'bb-settings.php' );
+	
 } elseif ( file_exists( dirname(BB_PATH) . '/bb-config.php') ) {
 	
 	// The config file resides one level below BB_PATH
 	require_once( dirname(BB_PATH) . '/bb-config.php' );
+	
+	// Load bb-settings.php
+	require_once( BB_PATH . 'bb-settings.php' );
 	
 } elseif ( !defined('BB_INSTALLING') || !BB_INSTALLING ) {
 	
@@ -26,4 +32,5 @@ if ( file_exists( BB_PATH . 'bb-config.php') ) {
 	die();
 	
 }
+
 ?>

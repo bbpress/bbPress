@@ -27,10 +27,4 @@ $bb_table_prefix = 'bb_'; // Only letters, numbers and underscores please!
 // to enable German language support.
 define('BB_LANG', '');
 
-/* Stop editing */
-
-if ( !defined('BB_PATH') )
-	define('BB_PATH', dirname(__FILE__) . '/' );
-require_once( BB_PATH . 'bb-settings.php' );
-
 ?>
