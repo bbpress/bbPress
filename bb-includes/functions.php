@@ -75,7 +75,7 @@ function bb_set_custom_user_tables() {
 	// TODO: Completely remove old constants on version 1.0
 	if ( !isset($bb->custom_databases) )
 		$bb->custom_databases = array();
-	if ( !isset($bb->custom_databases) || ( isset($bb->custom_databases) && !isset($bb->custom_databases['user']) ) ) {
+	if ( !isset($bb->custom_databases['user']) ) {
 		if ( !$bb->user_bbdb_name = bb_get_option('user_bbdb_name') )
 			if ( defined('USER_BBDB_NAME') ) // User has set old constant
 				$bb->user_bbdb_name = USER_BBDB_NAME;
@@ -111,6 +111,11 @@ function bb_set_custom_user_tables() {
 				$bb->user_bbdb_collate = USER_BBDB_COLLATE;
 		if ( $bb->user_bbdb_collate )
 			$bb->custom_databases['user']['collate'] = $bb->user_bbdb_collate;
+
+		if ( isset($bb->custom_tables['users']) )
+			$bb->custom_tables['users'] = array('user', $bb->custom_tables['users']);
+		if ( isset($bb->custom_tables['usermeta']) )
+			$bb->custom_tables['usermeta'] = array('user', $bb->custom_tables['usermeta']);
 	}
 }
 
