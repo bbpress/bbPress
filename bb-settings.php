@@ -23,10 +23,6 @@ if ( version_compare(PHP_VERSION, '4.3', '<') )
 if ( !defined('BB_PATH') )
 	die('This file cannot be called directly.');
 
-// Die if there is no database table prefix
-if ( !$bb_table_prefix )
-	die('You must specify a table prefix in your <code>bb-config.php</code> file.');
-
 
 
 // Modify error reporting levels to exclude PHP notices
@@ -169,6 +165,10 @@ if ( !defined( 'BACKPRESS_PATH' ) )
 require( BACKPRESS_PATH . 'functions.core.php' );
 require( BACKPRESS_PATH . 'functions.compat.php' );
 
+// WP_Error
+if ( !class_exists( 'WP_Error' ) )
+	require( BACKPRESS_PATH . 'class.wp-error.php' );
+
 
 
 /**
@@ -189,6 +189,10 @@ require( BB_DATABASE_CLASS_INCLUDE );
  */
 if ( !defined( 'BB_DATABASE_CLASS' ) )
 	define( 'BB_DATABASE_CLASS', 'BPDB_Multi' );
+
+// Die if there is no database table prefix
+if ( !$bb_table_prefix )
+	die('You must specify a table prefix in your <code>bb-config.php</code> file.');
 
 // Setup the global database connection
 $bbdb_class = BB_DATABASE_CLASS;
@@ -265,10 +269,6 @@ if ( !class_exists( 'WP_Object_Cache' ) ) {
 }
 if ( !isset($wp_object_cache) )
 	wp_cache_init();
-
-// WP_Error
-if ( !class_exists( 'WP_Error' ) )
-	require( BACKPRESS_PATH . 'class.wp-error.php' );
 
 
 
