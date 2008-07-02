@@ -5,7 +5,7 @@ if ( !bb_current_user_can('manage_forums') )
 	bb_die(__("You don't have the authority to mess with the forums."));
 
 if ( !isset($_POST['action']) )
-	wp_redirect( bb_get_option( 'uri' ) . 'bb-admin/content-forums.php' );
+	wp_redirect( bb_get_uri('bb-admin/content-forums.php', null, BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_ADMIN) );
 
 $sent_from = wp_get_referer();
 

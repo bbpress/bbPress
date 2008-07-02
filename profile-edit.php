@@ -4,7 +4,7 @@ require_once('./bb-load.php');
 bb_auth();
 
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
-	$sendto = bb_get_option('uri');
+	$sendto = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
 	wp_redirect( $sendto );
 }
 
@@ -52,7 +52,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	if ( bb_current_user_can('edit_users') ) {
 		if ( isset($_POST['delete-user']) && $_POST['delete-user'] && $bb_current_id != $user->ID ) {
 			bb_delete_user( $user->ID );
-			wp_redirect( bb_get_option( 'uri' ) );
+			wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 			exit;
 		}
 

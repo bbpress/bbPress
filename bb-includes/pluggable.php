@@ -4,7 +4,7 @@ if ( !function_exists('bb_auth') ) :
 function bb_auth() { // Checks if a user has a valid cookie, if not redirects them to the main page
 	if ( !wp_validate_auth_cookie() ) {
 		nocache_headers();
-		header('Location: ' . bb_get_option('uri'));
+		header('Location: ' . bb_get_uri(null, null, BB_URI_CONTEXT_HEADER));
 		exit();
 	}
 }
@@ -191,12 +191,12 @@ function bb_safe_redirect($location, $status = 302) {
 		$location = 'http:' . $location;
 
 	$lp  = parse_url($location);
-	$wpp = parse_url(bb_get_option('uri'));
+	$wpp = parse_url(bb_get_uri());
 
 	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($wpp['host']), isset($lp['host']) ? $lp['host'] : '');
 
 	if ( isset($lp['host']) && !in_array($lp['host'], $allowed_hosts) )
-		$location = bb_get_option('uri');
+		$location = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
 
 	wp_redirect($location, $status);
 }
@@ -411,7 +411,7 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	
 	if (!count(preg_grep('/^from:\s/im', $headers))) {
 		if (!$from = bb_get_option('from_email'))
-			if ($uri_parsed = parse_url(bb_get_option('uri')))
+			if ($uri_parsed = parse_url(bb_get_uri()))
 				if ($uri_parsed['host'])
 					$from = 'bbpress@' . trim(preg_replace('/^www./i', '', $uri_parsed['host']));
 		

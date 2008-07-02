@@ -142,12 +142,13 @@ if ( $normal_plugins ) :
 		}
 		$href = attribute_escape(
 			bb_nonce_url(
-				add_query_arg(
+				bb_get_uri(
+					'bb-admin/plugins.php',
 					array(
 						'action' => $action,
 						'plugin' => urlencode($plugin)
 					),
-					bb_get_option( 'uri' ) . 'bb-admin/plugins.php'
+					BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN
 				),
 				$action . '-plugin_' . $plugin
 			)

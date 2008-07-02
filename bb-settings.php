@@ -404,9 +404,10 @@ $_SERVER = bb_global_sanitize($_SERVER);
 if ( $bb->uri = bb_get_option('uri') ) {
 	$bb->uri = rtrim($bb->uri, '/') . '/';
 	
-	// Not used in core anymore, only set here for plugin compatibility
 	if ( preg_match( '@^(https?://[^/]+)((?:/.*)*/{1,1})$@i', $bb->uri, $matches ) ) {
+		// Not used in core anymore, only set here for plugin compatibility
 		$bb->domain = $matches[1];
+		// Used when setting up cookie paths
 		$bb->path = $matches[2];
 	}
 	unset($matches);
@@ -431,6 +432,22 @@ if ( $bb->uri = bb_get_option('uri') ) {
 if ( !BB_INSTALLING && !$bb->uri ) {
 	bb_die( __('Could not determine site URI') );
 }
+
+/**
+ * BB_FORCE_SSL_USER_FORMS - Whether to force use of ssl on user forms like login, registration and profile editing
+ **/
+if ( !defined('BB_FORCE_SSL_USER_FORMS') ) {
+	define('BB_FORCE_SSL_USER_FORMS', false);
+}
+bb_force_ssl_user_forms(BB_FORCE_SSL_USER_FORMS);
+
+/**
+ * BB_FORCE_SSL_ADMIN - Whether to force use of ssl in the admin area
+ **/
+if ( !defined('BB_FORCE_SSL_ADMIN') ) {
+	define('BB_FORCE_SSL_ADMIN', false);
+}
+bb_force_ssl_admin(BB_FORCE_SSL_ADMIN);
 
 
 

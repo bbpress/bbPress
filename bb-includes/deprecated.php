@@ -534,13 +534,13 @@ endif;
 // It's not omnipotent
 function bb_path_to_url( $path ) {
 	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
-	return apply_filters( 'bb_path_to_url', bb_convert_path_base( $path, BB_PATH, bb_get_option( 'uri' ) ), $path );
+	return apply_filters( 'bb_path_to_url', bb_convert_path_base( $path, BB_PATH, bb_get_uri(null, null, BB_URI_CONTEXT_TEXT) ), $path );
 }
 
 // Neither is this one
 function bb_url_to_path( $url ) {
 	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
-	return apply_filters( 'bb_url_to_path', bb_convert_path_base( $url, bb_get_option( 'uri' ), BB_PATH ), $url );
+	return apply_filters( 'bb_url_to_path', bb_convert_path_base( $url, bb_get_uri(null, null, BB_URI_CONTEXT_TEXT), BB_PATH ), $url );
 }
 
 function bb_convert_path_base( $path, $from_base, $to_base ) {
@@ -647,7 +647,7 @@ function get_recent_rss_link() {
 
 function forum_rss_link( $forum_id = 0 ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_get_forum_posts_rss_link');
-	echo bb_get_forum_posts_rss_link( $forum_id );
+	bb_forum_posts_rss_link( $forum_id );
 }
 
 function get_forum_rss_link( $forum_id = 0 ) {

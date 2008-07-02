@@ -79,7 +79,7 @@
 
 <?php else : // $forums ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a></h3>
+<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a></h3>
 
 <?php post_form(); endif; // $forums ?>
 

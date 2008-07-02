@@ -42,7 +42,7 @@ bb_get_admin_header();
 
 <h2><?php _e('General Settings'); ?></h2>
 
-<form class="settings" method="post" action="<?php bb_option('uri'); ?>bb-admin/options-general.php">
+<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-general.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
 		<div>
 			<label for="name">

@@ -1714,6 +1714,8 @@ function bb_get_option( $option ) {
 				case 'gmt_offset':
 					$r = 0;
 					break;
+				case 'uri_ssl':
+					$r = preg_replace('|^http://|i', 'https://', bb_get_option('uri'));
 			}
 		}
 		
@@ -1762,6 +1764,7 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 		'name' => __('Please give me a name!'),
 		'description' => '',
 		'uri' => '',
+		'uri_ssl' => '',
 		'from_email' => '',
 		'secret' => '',
 		'page_topics' => '',
@@ -1807,6 +1810,152 @@ function bb_update_option( $option, $value ) {
 
 function bb_delete_option( $option, $value = '' ) {
 	return bb_delete_meta( 0, $option, $value, 'option', true );
+}
+
+/**
+ * BB_URI_CONTEXT_* - Bitwise definitions for bb_uri() and bb_get_uri() contexts
+ *
+ * @since 1.0-beta
+ **/
+define('BB_URI_CONTEXT_HEADER',               1);
+define('BB_URI_CONTEXT_TEXT',                 2);
+define('BB_URI_CONTEXT_A_HREF',               4);
+define('BB_URI_CONTEXT_FORM_ACTION',          8);
+define('BB_URI_CONTEXT_IMG_SRC',              16);
+define('BB_URI_CONTEXT_LINK_STYLESHEET_HREF', 32);
+define('BB_URI_CONTEXT_LINK_ALTERNATE_HREF',  64);
+define('BB_URI_CONTEXT_SCRIPT_SRC',           128);
+//define('BB_URI_CONTEXT_*',                    256);    // Reserved for future definitions
+//define('BB_URI_CONTEXT_*',                    512);    // Reserved for future definitions
+define('BB_URI_CONTEXT_BB_FEED',              1024);
+define('BB_URI_CONTEXT_BB_USER_FORMS',        2048);
+define('BB_URI_CONTEXT_BB_ADMIN',             4096);
+//define('BB_URI_CONTEXT_*',                    8192);   // Reserved for future definitions
+//define('BB_URI_CONTEXT_*',                    16384);  // Reserved for future definitions
+//define('BB_URI_CONTEXT_*',                    32768);  // Reserved for future definitions
+//define('BB_URI_CONTEXT_*',                    65536);  // Reserved for future definitions
+//define('BB_URI_CONTEXT_*',                    131072); // Reserved for future definitions
+//define('BB_URI_CONTEXT_*',                    262144); // Reserved for future definitions
+define('BB_URI_CONTEXT_AKISMET',              524288);
+
+/**
+ * bb_uri() - echo a URI based on the URI setting
+ *
+ * @since 1.0-beta
+ *
+ * @param $resource string The directory, may include a querystring
+ * @param $query mixed The query arguments as a querystring or an associative array
+ * @param $context integer The context of the URI, use BB_URI_CONTEXT_*
+ * @return void
+ **/
+function bb_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A_HREF) {
+	echo apply_filters('bb_uri', bb_get_uri($resource, $query, $context), $resource, $query, $context);
+}
+
+/**
+ * bb_get_uri() - return a URI based on the URI setting
+ *
+ * @since 1.0-beta
+ *
+ * @param $resource string The directory, may include a querystring
+ * @param $query mixed The query arguments as a querystring or an associative array
+ * @param $context integer The context of the URI, use BB_URI_CONTEXT_*
+ * @return string The complete URI
+ **/
+function bb_get_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A_HREF) {
+	// If there is a querystring in the resource then extract it
+	if ($resource && strpos($resource, '?') !== false) {
+		list($_resource, $_query) = explode('?', trim($resource));
+		$resource = $_resource;
+		$_query = wp_parse_args($_query);
+	}
+	
+	// Make sure $_query is an array for array_merge()
+	if (!$_query) {
+		$_query = array();
+	}
+	
+	// $query can be an array as well as a string
+	if ($query) {
+		if (is_string($query)) {
+			$query = ltrim(trim($query), '?');
+		}
+		$query = wp_parse_args($query);
+	}
+	
+	// Make sure $query is an array for array_merge()
+	if (!$query) {
+		$query = array();
+	}
+	
+	// Merge the queries into a single array
+	$query = array_merge($_query, $query);
+	
+	// Make sure context is an integer
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+	
+	// Get the base URI
+	$uri = bb_get_option('uri');
+	
+	// Force https when required on user forms
+	if (($context & BB_URI_CONTEXT_BB_USER_FORMS) && bb_force_ssl_user_forms()) {
+		$uri = bb_get_option('uri_ssl');
+	}
+	
+	// Force https when required in admin
+	if (($context & BB_URI_CONTEXT_BB_ADMIN) && bb_force_ssl_admin()) {
+		$uri = bb_get_option('uri_ssl');
+	}
+	
+	// Add the directory
+	$uri .= ltrim($resource, '/');
+	
+	// Add the query string to the URI
+	$uri = add_query_arg($query, $uri);
+	
+	return apply_filters('bb_get_uri', $uri, $resource, $context);
+}
+
+/**
+ * bb_force_ssl_user_forms() - Whether SSL should be forced when sensitive user data is being submitted.
+ *
+ * @since 1.0-beta
+ *
+ * @param string|bool $force Optional.
+ * @return bool True if forced, false if not forced.
+ **/
+function bb_force_ssl_user_forms($force = '') {
+	static $forced;
+	
+	if ( '' != $force ) {
+		$old_forced = $forced;
+		$forced = $force;
+		return $old_forced;
+	}
+	
+	return $forced;
+}
+
+/**
+ * bb_force_ssl_admin() - Whether SSL should be forced when using the admin area.
+ *
+ * @since 1.0-beta
+ *
+ * @param string|bool $force Optional.
+ * @return bool True if forced, false if not forced.
+ **/
+function bb_force_ssl_admin($force = '') {
+	static $forced;
+	
+	if ( '' != $force ) {
+		$old_forced = $forced;
+		$forced = $force;
+		return $old_forced;
+	}
+	
+	return $forced;
 }
 
 // This is the only function that should add to user / topic
@@ -2532,11 +2681,19 @@ function bb_install_header( $title = '', $header = false ) {
 			$title = 'bbPress';
 		
 		$uri = false;
-		if ( function_exists('bb_get_option') && !BB_INSTALLING )
-			$uri = bb_get_option('uri');
+		if ( function_exists('bb_get_uri') && !BB_INSTALLING ) {
+			$uri = bb_get_uri();
+			$uri_stylesheet = bb_get_uri('bb-admin/install.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_INSTALLER);
+			$uri_stylesheet_rtl = bb_get_uri('bb-admin/install-rtl.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_INSTALLER);
+			$uri_logo = bb_get_uri('bb-admin/images/install-logo.gif', null, BB_URI_CONTEXT_IMG_SRC + BB_URI_CONTEXT_BB_INSTALLER);
+		}
 		
-		if (!$uri)
+		if (!$uri) {
 			$uri = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']);
+			$uri_stylesheet = $uri . 'bb-admin/install.css';
+			$uri_stylesheet_rtl = $uri . 'bb-admin/install-rtl.css';
+			$uri_logo = $uri . 'bb-admin/images/install-logo.gif';
+		}
 	
 	header('Content-Type: text/html; charset=utf-8');
 ?>
@@ -2546,11 +2703,11 @@ function bb_install_header( $title = '', $header = false ) {
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title><?php echo $title; ?></title>
 	<meta name="robots" content="noindex, nofollow" />
-	<link rel="stylesheet" href="<?php echo $uri; ?>bb-admin/install.css" type="text/css" />
+	<link rel="stylesheet" href="<?php echo $uri_stylesheet; ?>" type="text/css" />
 <?php
 	if ( function_exists( 'bb_get_option' ) && 'rtl' == bb_get_option( 'text_direction' ) ) {
 ?>
-	<link rel="stylesheet" href="<?php echo $uri; ?>bb-admin/install-rtl.css" type="text/css" />
+	<link rel="stylesheet" href="<?php echo $uri_stylesheet_rtl; ?>" type="text/css" />
 <?php
 	}
 ?>
@@ -2558,7 +2715,7 @@ function bb_install_header( $title = '', $header = false ) {
 <body>
 	<div id="container">
 		<div class="logo">
-			<img src="<?php echo $uri; ?>bb-admin/images/install-logo.gif" alt="bbPress Installation" />
+			<img src="<?php echo $uri_logo; ?>" alt="bbPress Installation" />
 		</div>
 <?php
 	if ( !empty($header) ) {
@@ -2591,7 +2748,7 @@ function bb_die( $message, $title = '' ) {
 ?>
 	<p><?php echo $message; ?></p>
 <?php
-	if ($uri = bb_get_option('uri')) {
+	if ($uri = bb_get_uri()) {
 ?>
 	<p class="last"><?php printf( __('Back to <a href="%s">%s</a>.'), $uri, bb_get_option( 'name' ) ); ?></p>
 <?php

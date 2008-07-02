@@ -82,7 +82,14 @@ function bb_reset_email( $user_login ) {
 	$resetkey = substr(md5(wp_generate_password()), 0, 15);
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 
-	$message = sprintf( __("If you wanted to reset your password, you may do so by visiting the following address:\n\n%s\n\nIf you don't want to reset your password, just ignore this email. Thanks!"), bb_get_option('uri') . "bb-reset-password.php?key=$resetkey" );
+	$message = sprintf(
+		__("If you wanted to reset your password, you may do so by visiting the following address:\n\n%s\n\nIf you don't want to reset your password, just ignore this email. Thanks!"),
+		bb_get_uri(
+			'bb-reset-password.php',
+			array('key' => $resetkey),
+			BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_BB_USER_FORMS
+		)
+	);
 
 	return bb_mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), $message );
 }
@@ -164,6 +171,6 @@ function bb_send_pass( $user, $pass ) {
 	return bb_mail(
 		bb_get_user_email( $user->ID ),
 		bb_get_option('name') . ': ' . __('Password'),
-		sprintf( $message, $user->user_login, $pass, bb_get_option('uri') )
+		sprintf($message, $user->user_login, $pass, bb_get_uri(null, null, BB_URI_CONTEXT_TEXT))
 	);
 }

@@ -8,7 +8,7 @@ $post_id = (int) $_POST['post_id'];
 $bb_post  = bb_get_post( $post_id );
 
 if ( !$bb_post ) {
-	wp_redirect( bb_get_option( 'uri' ) );
+	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 	die();
 }
 
@@ -28,5 +28,5 @@ bb_update_post( $_POST['post_content'], $post_id, $bb_post->topic_id );
 if ($post_id)
 	wp_redirect( get_post_link( $post_id ) );
 else
-	wp_redirect( bb_get_option( 'uri' ) );
+	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 ?>

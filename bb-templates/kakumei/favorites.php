@@ -1,6 +1,6 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Favorites'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Favorites'); ?></h3>
 
 <h2 id="currentfavorites"><?php _e('Current Favorites'); ?><?php if ( $topics ) echo ' (' . $favorites_total . ')'; ?></h2>
 

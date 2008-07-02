@@ -1,6 +1,6 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a><?php bb_forum_bread_crumb(); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a><?php bb_forum_bread_crumb(); ?></h3>
 
 <?php if ( $topics || $stickies ) : ?>
 
@@ -30,7 +30,7 @@
 </tr>
 <?php endforeach; endif; ?>
 </table>
-<p><a href="<?php forum_rss_link(); ?>" class="rss-link"><?php _e('RSS feed for this forum'); ?></a></p>
+<p><a href="<?php bb_forum_posts_rss_link(); ?>" class="rss-link"><?php _e('RSS feed for this forum'); ?></a></p>
 <div class="nav">
 <?php forum_pages(); ?>
 </div>

@@ -51,7 +51,7 @@ do_action( 'bb_post.php', $post_id );
 if ($post_id)
 	wp_redirect( $link );
 else
-	wp_redirect( bb_get_option( 'uri' ) );
+	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 exit;
 
 ?>

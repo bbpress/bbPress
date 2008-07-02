@@ -2,7 +2,7 @@
 require('admin.php');
 
 if ( !bb_current_user_can('view_by_ip') ) {
-	wp_redirect( bb_get_option( 'uri' ) );
+	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 	exit();
 }
 

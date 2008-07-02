@@ -1,28 +1,29 @@
 <?php
 
 function bb_default_scripts( &$scripts ) {
-	$scripts->base_url = bb_get_option( 'uri' );
+	$scripts->base_url = bb_get_uri(BB_INC, null, BB_URI_CONTEXT_SCRIPT_SRC);
+	$scripts->base_url_admin = bb_get_uri('bb-admin/', null, BB_URI_CONTEXT_SCRIPT_SRC + BB_URI_CONTEXT_BB_ADMIN);
 	$scripts->default_version = bb_get_option( 'version' );
 	
-	$scripts->add( 'fat', $scripts->base_url . BB_INC . 'js/fat.js', array('add-load-event'), '1.0-RC1_3660' );
-	$scripts->add( 'prototype', $scripts->base_url . BB_INC . 'js/prototype.js', false, '1.5.0' );
-	$scripts->add( 'wp-ajax', $scripts->base_url . BB_INC . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
-	$scripts->add( 'listman', $scripts->base_url . BB_INC . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'fat'), '440' );
-	$scripts->add( 'wp-ajax-response', $scripts->base_url . BB_INC . 'js/wp-ajax-response.js', array('jquery'), '20080316' );
+	$scripts->add( 'fat',              $scripts->base_url . 'js/fat.js', array('add-load-event'), '1.0-RC1_3660' );
+	$scripts->add( 'prototype',        $scripts->base_url . 'js/prototype.js', false, '1.5.0' );
+	$scripts->add( 'wp-ajax',          $scripts->base_url . 'js/wp-ajax-js.php', array('prototype'), '2.1-beta2' );
+	$scripts->add( 'listman',          $scripts->base_url . 'js/list-manipulation-js.php', array('add-load-event', 'wp-ajax', 'fat'), '440' );
+	$scripts->add( 'wp-ajax-response', $scripts->base_url . 'js/wp-ajax-response.js', array('jquery'), '20080316' );
 	$scripts->localize( 'wp-ajax-response', 'wpAjax', array(
 		'noPerm' => __('You do not have permission to do that.'),
 		'broken' => __('An unidentified error has occurred.')
 	) );
-	$scripts->add( 'wp-lists', $scripts->base_url . BB_INC . 'js/wp-lists.js', array('wp-ajax-response','jquery-color'), '20080411' );
+	$scripts->add( 'wp-lists',         $scripts->base_url . 'js/wp-lists.js', array('wp-ajax-response','jquery-color'), '20080411' );
 	$scripts->localize( 'wp-lists', 'wpListL10n', array(
-		'url' => "{$scripts->base_url}bb-admin/admin-ajax.php"
+		'url' => $scripts->base_url_admin . 'admin-ajax.php'
 	) );
-	$scripts->add( 'topic', $scripts->base_url . BB_INC . 'js/topic.js', array('wp-lists'), '20080506' );
-	$scripts->add( 'jquery', $scripts->base_url . BB_INC . 'js/jquery/jquery.js', false, '1.1.3.1');
-	$scripts->add( 'interface', $scripts->base_url . BB_INC . 'js/jquery/interface.js', array('jquery'), '1.2.3');
-	$scripts->add( 'jquery-color', $scripts->base_url . BB_INC . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
-	$scripts->add( 'add-load-event', $scripts->base_url . BB_INC . 'js/add-load-event.js' );
-	$scripts->add( 'content-forums', $scripts->base_url . 'bb-admin/js/content-forums.js', array('listman', 'interface'), '20080309' );
+	$scripts->add( 'topic',            $scripts->base_url . 'js/topic.js', array('wp-lists'), '20080506' );
+	$scripts->add( 'jquery',           $scripts->base_url . 'js/jquery/jquery.js', false, '1.1.3.1');
+	$scripts->add( 'interface',        $scripts->base_url . 'js/jquery/interface.js', array('jquery'), '1.2.3');
+	$scripts->add( 'jquery-color',     $scripts->base_url . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
+	$scripts->add( 'add-load-event',   $scripts->base_url . 'js/add-load-event.js' );
+	$scripts->add( 'content-forums',   $scripts->base_url_admin . 'js/content-forums.js', array('listman', 'interface'), '20080309' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
 		'saveText' => __('Save Forum Order &#187;'),

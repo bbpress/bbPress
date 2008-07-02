@@ -167,7 +167,7 @@ function bb_get_current_admin_menu() {
 		}
 	endif;
 	if ( $bb_current_submenu && !bb_current_user_can( $bb_current_submenu[1] ) || !bb_current_user_can( $bb_current_menu[1] ) ) {
-		wp_redirect( bb_get_option( 'uri' ) );
+		wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 		exit();
 	}
 }
@@ -643,9 +643,9 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 	$r .= "\t\t<div class='list-block posrel'>\n";
 	$r .= "\t\t\t<div class='alignright'>\n";
 	if ( bb_current_user_can( 'manage_forums' ) )
-		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=edit&id=$_forum->forum_id" ) . "'>" . __('Edit') . "</a>\n";
+		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_uri('bb-admin/content-forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
 	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
-		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_option('uri') . "bb-admin/content-forums.php?action=delete&id=$_forum->forum_id" ) . "'>" . __('Delete') . "</a>\n";
+		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_uri('bb-admin/content-forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
 	$r .= "\t\t\t</div>\n";
 	$r .= "\t\t\t" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n\t\t</div>\n";
 	if ( $close )
@@ -662,7 +662,7 @@ function bb_forum_form( $forum_id = 0 ) {
 		return;
 	$action = $forum_id ? 'update' : 'add';
 ?>
-<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
+<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
 	<table><col /><col style="width: 80%" />
 		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>

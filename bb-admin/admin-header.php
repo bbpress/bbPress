@@ -3,9 +3,9 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title><?php bb_admin_title() ?></title>
-	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style.css" type="text/css" />
+	<link rel="stylesheet" href="<?php bb_uri('bb-admin/style.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" type="text/css" />
 <?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
-	<link rel="stylesheet" href="<?php bb_option('uri'); ?>bb-admin/style-rtl.css" type="text/css" />
+	<link rel="stylesheet" href="<?php bb_uri('bb-admin/style-rtl.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" type="text/css" />
 <?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
 </head>
 
@@ -17,14 +17,14 @@
 					<?php bb_option('name'); ?>
 				</h1>
 				<div id="bbVisitSite">
-					<a href="<?php bb_option('uri'); ?>"><span><?php _e('Visit Site'); ?></span></a>
+					<a href="<?php bb_uri(); ?>"><span><?php _e('Visit Site'); ?></span></a>
 				</div>
 			</div>
 			<div id="bbUserMenu">
 				<p>
 					<?php printf( __('Howdy, %1$s!'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
 					| <?php bb_logout_link(); ?>
-					| <a href="http://bbpress.org/forums/">Forums</a>
+					| <a href="http://bbpress.org/forums/">Support forums</a>
 				</p>
 			</div>
 

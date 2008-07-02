@@ -502,11 +502,14 @@ class BB_Install
 				if (bb_get_option('bb_db_version') > bb_get_option_from_db('bb_db_version')) {
 					// The database needs upgrading
 					$this->strings[-1]['messages'][0][] = __('bbPress is already installed, but appears to require an upgrade.');
-					$this->strings[-1]['messages'][0][] = sprintf(__('Perhaps you meant to run the <a href="%s">upgrade script</a> instead?'), bb_get_option('uri') . 'bb-admin/upgrade.php');
+					$this->strings[-1]['messages'][0][] = sprintf(
+						__('Perhaps you meant to run the <a href="%s">upgrade script</a> instead?'),
+						bb_get_uri('bb-admin/upgrade.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)
+					);
 					$this->step = -1;
 				} else {
 					// Redirect to the base url
-					bb_safe_redirect(bb_get_option('uri'));
+					bb_safe_redirect(bb_get_uri(null, null, BB_URI_CONTEXT_HEADER));
 					die();
 				}
 			}
@@ -1880,7 +1883,7 @@ class BB_Install
 		if ($keymaster_created) {
 			$keymaster_email_message = sprintf(
 				__("Your new bbPress site has been successfully set up at:\n\n%1\$s\n\nYou can log in to the key master account with the following information:\n\nUsername: %2\$s\nPassword: %3\$s\n\nWe hope you enjoy your new forums. Thanks!\n\n--The bbPress Team\nhttp://bbpress.org/"),
-				bb_get_option( 'uri' ),
+				bb_get_uri(null, null, BB_URI_CONTEXT_TEXT),
 				$data3['keymaster_user_login']['value'],
 				$data4['keymaster_user_password']['value']
 			);

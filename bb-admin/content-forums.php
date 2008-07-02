@@ -17,7 +17,10 @@ if ( isset($_GET['message']) ) {
 		bb_admin_notice( __('Forum Updated.') );
 		break;
 	case 'deleted' :
-		bb_admin_notice( sprintf(__('Forum deleted.  You should have bbPress <a href="%s">recount your site information</a>.'), bb_get_option( 'uri' ) . 'bb-admin/site.php') );
+		bb_admin_notice( sprintf(
+			__('Forum deleted.  You should have bbPress <a href="%s">recount your site information</a>.'),
+			bb_get_uri('bb-admin/site.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)
+		) );
 		break;
 	endswitch;
 }
@@ -44,7 +47,7 @@ bb_get_admin_header();
 		<li><?php printf(__ngettext('%d post', '%d posts', $deleted_forum->posts), $deleted_forum->posts); ?></li>
 	</ul>
 
-	<form method="post" id="delete-forums" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
+	<form method="post" id="delete-forums" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 		<p>
 			<label for="move-topics-delete"><input type="radio" name="move_topics" id="move-topics-delete" value="delete" /> <?php _e('Delete all topics and posts in this forum. <em>This can never be undone.</em>'); ?></label><br />
 			<label for="move-topics-move"><input type="radio" name="move_topics" id="move-topics-move" value="move" checked="checked" /> <?php _e('Move topics from this forum into'); ?></label>
@@ -57,7 +60,7 @@ bb_get_admin_header();
 		</p>
 		<?php bb_nonce_field( 'delete-forums' ); ?>
 	</form>
-	<form method="get" action="<?php bb_option('uri'); ?>bb-admin/bb-forum.php">
+	<form method="get" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 		<p class="submit alignleft">
 			<input type="submit" value="<?php _e('&laquo; Go back'); ?>" tabindex="10" />
 		</p>

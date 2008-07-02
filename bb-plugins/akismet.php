@@ -80,7 +80,7 @@ $bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. 
 
 function bb_akismet_verify_key( $key ) {
 	global $bb_ksd_api_port;
-	$blog = urlencode( bb_get_option('uri') );
+	$blog = urlencode( bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET) );
 	$response = bb_ksd_http_post("key=$key&blog=$blog", 'rest.akismet.com', '/1.1/verify-key', $bb_ksd_api_port);
 	if ( 'valid' == $response[1] )
 		return true;
@@ -127,7 +127,7 @@ function bb_ksd_submit( $submit, $type = false ) {
 			return;
 
 		$_submit = array(
-			'blog' => bb_get_option('uri'),
+			'blog' => bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET),
 			'user_ip' => $bb_post->poster_ip,
 			'permalink' => get_topic_link( $bb_post->topic_id ), // First page
 			'comment_type' => 'forum',
@@ -149,7 +149,7 @@ function bb_ksd_submit( $submit, $type = false ) {
 			return;
 
 		$_submit = array(
-			'blog' => bb_get_option('uri'),
+			'blog' => bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET),
 			'permalink' => get_user_profile_link( $user->ID ),
 			'comment_type' => 'profile',
 			'comment_author' => get_user_name( $user->ID ),
@@ -166,7 +166,7 @@ function bb_ksd_submit( $submit, $type = false ) {
 		$path = '/1.1/comment-check';
 
 		$_submit = array(
-			'blog' => bb_get_option('uri'),
+			'blog' => bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET),
 			'user_ip' => preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] ),
 			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
 			'referrer' => $_SERVER['HTTP_REFERER'],
@@ -291,10 +291,23 @@ function bb_ksd_admin_page() {
 function bb_ksd_post_delete_link($link, $post_status) {
 	if ( !bb_current_user_can('moderate') )
 		return $link;
-	if ( 2 == $post_status )
-		$link .= " <a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=0&view=all', 'delete-post_' . get_post_id() ) ) . "' >" . __('Not Spam') ."</a>";
-	else
-		$link .= " <a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . get_post_id() . '&status=2', 'delete-post_' . get_post_id() ) ) . "' >" . __('Spam') ."</a>";
+	if ( 2 == $post_status ) {
+		$query = array(
+			'id'     => get_post_id(),
+			'status' => 0,
+			'view'   => 'all'
+		);
+		$display = __('Not Spam');
+	} else {
+		$query = array(
+			'id'     => get_post_id(),
+			'status' => 2
+		);
+		$display = __('Spam');
+	}
+	$uri = bb_get_uri('bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri = attribute_escape( bb_nonce_url( $uri, 'delete-post_' . get_post_id() ) );
+	$link .= " <a href='" . $uri . "' >" . $display ."</a>";
 	return $link;
 }
 

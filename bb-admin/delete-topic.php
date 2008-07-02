@@ -4,7 +4,7 @@ require('admin-action.php');
 $topic_id = (int) $_GET['id'];
 
 if ( !bb_current_user_can( 'delete_topic', $topic_id ) ) {
-	wp_redirect( bb_get_option( 'uri' ) );
+	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 	exit();
 }
 

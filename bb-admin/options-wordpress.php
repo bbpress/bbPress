@@ -60,7 +60,7 @@ bb_get_admin_header();
 	<?php _e('<strong>Note:</strong> updating these settings may cause you to be logged out!'); ?>
 </p>
 
-<form class="settings" method="post" action="<?php bb_option('uri'); ?>bb-admin/options-wordpress.php">
+<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
 		<legend><?php _e('Cookies'); ?></legend>
 		<p><?php _e('Cookie sharing allows users to log in to either your bbPress or your WordPress site, and have access to both.'); ?></p>
@@ -316,7 +316,7 @@ $wpRoles = array(
 
 $wpRolesMap = bb_get_option('wp_roles_map');
 ?>
-<form class="settings" method="post" action="<?php bb_option('uri'); ?>bb-admin/options-wordpress.php">
+<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
 <?php
 foreach ($wpRoles as $wpRole => $wpRoleName) {

@@ -10,7 +10,7 @@ if (!$activetheme) {
 
 if ( isset($_GET['theme']) ) {
 	if ( !bb_current_user_can( 'manage_themes' ) ) {
-		wp_redirect( bb_get_option( 'uri' ) );
+		wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 		exit;
 	}
 	
@@ -30,7 +30,7 @@ if ( isset($_GET['theme']) ) {
 		bb_update_option( 'bb_active_theme', $theme );
 	}
 	do_action( 'bb_activate_theme_' . $theme );
-	wp_redirect( bb_get_option( 'uri' ) . 'bb-admin/themes.php?activated&name=' . urlencode($name) );
+	wp_redirect( bb_get_uri('bb-admin/themes.php', array('activated' => 1, 'name' => $name ), BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_ADMIN ) );
 	exit;
 }
 
@@ -52,7 +52,8 @@ function bb_admin_theme_row( $theme ) {
 	$theme_directory = bb_get_theme_directory( $theme );
 	$theme_data = file_exists( $theme_directory . 'style.css' ) ? bb_get_theme_data( $theme ) : false;
 	$screen_shot = file_exists( $theme_directory . 'screenshot.png' ) ? clean_url( bb_get_theme_uri( $theme ) . 'screenshot.png' ) : false;
-	$activation_url = clean_url( bb_nonce_url( add_query_arg( 'theme', urlencode($theme), bb_get_option( 'uri' ) . 'bb-admin/themes.php' ), 'switch-theme' ) );
+	$activation_url = bb_get_uri('bb-admin/themes.php', array('theme' => $theme), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$activation_url = clean_url( bb_nonce_url( $activation_url, 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme', $class ); ?>>
 		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><img alt="<?php echo attribute_escape( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>

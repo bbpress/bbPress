@@ -1,11 +1,11 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
 
 <h2 id="register"><?php _e('Registration'); ?></h2>
 
 <?php if ( !bb_is_user_logged_in() ) : ?>
-<form method="post" action="<?php bb_option('uri'); ?>register.php">
+<form method="post" action="<?php bb_uri('register.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS); ?>">
 <fieldset>
 <legend><?php _e('Profile Information'); ?></legend>
 <p><?php _e("Your password will be emailed to the address you provide."); ?></p>

@@ -8,7 +8,7 @@ $post_id = (int) $_GET['id'];
 $bb_post  = bb_get_post( $post_id );
 
 if ( !$bb_post || !bb_current_user_can( 'edit_post', $post_id ) ) {
-	wp_redirect( bb_get_option( 'uri' ) );
+	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 	die();
 }
 

@@ -79,7 +79,7 @@ switch ($step) {
 	case 'unrequired':
 ?>
 		<p class="last">
-			<?php printf( __('Nothing to upgrade.  <a href="%s">Get back to work!</a>'), bb_get_option( 'uri' ) . 'bb-admin/' ); ?>
+			<?php printf( __('Nothing to upgrade.  <a href="%s">Get back to work!</a>'), bb_get_uri('bb-admin/', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ); ?>
 		</p>
 <?php
 		break;
@@ -114,7 +114,7 @@ switch ($step) {
 				<p class="message">
 					<span class="first">!</span> <?php _e('Your database has been successfully updated.<br />Enjoy!'); ?>
 				</p>
-				<form action="<?php bb_option('uri'); ?>bb-admin/" method="get">
+				<form action="<?php bb_uri('bb-admin/', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" method="get">
 					<label for="upgrade_log_container_toggle">
 						<?php _e('Show upgrade log:'); ?>
 						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />

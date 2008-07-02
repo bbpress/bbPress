@@ -74,7 +74,8 @@ add_filter('sort_tag_heat_map', 'bb_sort_tag_heat_map');
 if ( !bb_get_option( 'mod_rewrite' ) ) {
 	add_filter( 'bb_stylesheet_uri', 'attribute_escape', 1, 9999 );
 	add_filter( 'forum_link', 'attribute_escape', 1, 9999 );
-	add_filter( 'forum_rss_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'bb_forum_posts_rss_link', 'attribute_escape', 1, 9999 );
+	add_filter( 'bb_forum_topics_rss_link', 'attribute_escape', 1, 9999 );
 	add_filter( 'bb_tag_link', 'attribute_escape', 1, 9999 );
 	add_filter( 'tag_rss_link', 'attribute_escape', 1, 9999 );
 	add_filter( 'topic_link', 'attribute_escape', 1, 9999 );

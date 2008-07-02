@@ -9,7 +9,7 @@
 
 <channel>
 <title><?php echo $title; ?></title>
-<link><?php bb_option('uri'); ?></link>
+<link><?php bb_uri(); ?></link>
 <description><?php echo $description; ?></description>
 <language>en</language>
 <pubDate><?php echo gmdate('D, d M Y H:i:s +0000'); ?></pubDate>
@@ -20,7 +20,7 @@
 <link><?php post_link(); ?></link>
 <pubDate><?php bb_post_time('D, d M Y H:i:s +0000'); ?></pubDate>
 <dc:creator><?php post_author(); ?></dc:creator>
-<guid isPermaLink="false"><?php post_id(); ?>@<?php bb_option('uri'); ?></guid>
+<guid isPermaLink="false"><?php post_id(); ?>@<?php bb_uri(); ?></guid>
 <description><?php post_text(); ?></description>
 </item>
 <?php endforeach; ?>

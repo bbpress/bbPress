@@ -1,10 +1,10 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_option('uri'); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Log in'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Log in'); ?></h3>
 
 <h2 id="userlogin"><?php isset($_POST['user_login']) ? _e('Log in Failed') : _e('Log in') ; ?></h2>
 
-<form method="post" action="<?php bb_option('uri'); ?>bb-login.php">
+<form method="post" action="<?php bb_uri('bb-login.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS); ?>">
 <fieldset>
 <table>
 <?php if ( $user_exists ) : ?>
@@ -21,7 +21,7 @@
 	<tr valign="top" class="error">
 		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
 		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /><br />
-		<?php _e('This username does not exist.'); ?> <a href="<?php bb_option('uri'); ?>register.php?user=<?php echo $user_login; ?>"><?php _e('Register it?'); ?></a></td>
+		<?php _e('This username does not exist.'); ?> <a href="<?php bb_uri('register.php', array('user' => $user_login), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS); ?>"><?php _e('Register it?'); ?></a></td>
 	</tr>
 	<tr valign="top">
 		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
@@ -54,7 +54,7 @@
 </form>
 
 <?php if ( $user_exists ) : ?>
-<form method="post" action="<?php bb_option('uri'); ?>bb-reset-password.php">
+<form method="post" action="<?php bb_uri('bb-reset-password.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS); ?>">
 <fieldset>
 	<p><?php _e('If you would like to recover the password for this account, you may use the following button to start the recovery process:'); ?></p>
 	<table>

@@ -154,8 +154,8 @@ function post_form( $h2 = '' ) {
 	do_action('pre_post_form');
 
 	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
-		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_option('uri') . 'bb-post.php">' . "\n";
-		echo "<fieldset>\n";
+		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_uri('bb-post.php', null, BB_URI_CONTEXT_FORM_ACTION) . '">' . "\n";
+		echo '<fieldset>' . "\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
 		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
 		if ( is_forum() )
@@ -166,7 +166,10 @@ function post_form( $h2 = '' ) {
 		echo "\n</fieldset>\n</form>\n";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
-		printf(__('You must <a href="%s">log in</a> to post.'), attribute_escape( bb_get_option('uri') . 'bb-login.php' ));
+		printf(
+			__('You must <a href="%s">log in</a> to post.'),
+			attribute_escape( bb_get_uri('bb-login.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS) )
+		);
 		echo '</p>';
 	}
 	do_action('post_post_form');
@@ -175,12 +178,12 @@ function post_form( $h2 = '' ) {
 function edit_form() {
 	global $bb_post;
 	do_action('pre_edit_form');
-	echo "<form class='postform edit-form' method='post' action='" . bb_get_option('uri')  . "bb-edit.php'>\n";
-	echo "<fieldset>\n";
+	echo '<form class="postform edit-form" method="post" action="' . bb_get_uri('bb-edit.php', null, BB_URI_CONTEXT_FORM_ACTION)  . '">' . "\n";
+	echo '<fieldset>' . "\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	do_action('edit_form');
-	echo "\n</fieldset>\n</form>\n";
+	echo "\n" . '</fieldset>' . "\n" . '</form>' . "\n";
 	do_action('post_edit_form');
 }
 
@@ -379,14 +382,14 @@ function bb_feed_head() {
 			
 			$feeds[] = array(
 				'title' => sprintf(__('User Favorites: %s'), get_user_name()),
-				'href'  => get_favorites_rss_link()
+				'href'  => get_favorites_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
 		
 		case 'topic-page':
 			$feeds[] = array(
 				'title' => sprintf(__('Topic: %s'), get_topic_title()),
-				'href'  => get_topic_rss_link()
+				'href'  => get_topic_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
 		
@@ -394,7 +397,7 @@ function bb_feed_head() {
 			if (is_bb_tag()) {
 				$feeds[] = array(
 					'title' => sprintf(__('Tag: %s'), bb_get_tag_name()),
-					'href'  => bb_get_tag_rss_link()
+					'href'  => bb_get_tag_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 			}
 			break;
@@ -402,22 +405,22 @@ function bb_feed_head() {
 		case 'forum-page':
 			$feeds[] = array(
 				'title' => sprintf(__('Forum: %s - Recent Posts'), get_forum_name()),
-				'href'  => get_forum_rss_link()
+				'href'  => bb_get_forum_posts_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			$feeds[] = array(
 				'title' => sprintf(__('Forum: %s - Recent Topics'), get_forum_name()),
-				'href'  => bb_get_forum_topics_rss_link()
+				'href'  => bb_get_forum_topics_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
 		
 		case 'front-page':
 			$feeds[] = array(
 				'title' => __('Recent Posts'),
-				'href'  => bb_get_posts_rss_link()
+				'href'  => bb_get_posts_rss_link(BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			$feeds[] = array(
 				'title' => __('Recent Topics'),
-				'href'  => bb_get_topics_rss_link()
+				'href'  => bb_get_topics_rss_link(BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
 		
@@ -426,7 +429,7 @@ function bb_feed_head() {
 			if ($bb_views[$view]['feed']) {
 				$feeds[] = array(
 					'title' => get_view_name(),
-					'href'  => bb_get_view_rss_link()
+					'href'  => bb_get_view_rss_link(BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 			}
 			break;
@@ -448,29 +451,38 @@ function bb_feed_head() {
 	echo apply_filters('bb_feed_head', $feed_links);
 }
 
-function bb_get_posts_rss_link() {
+function bb_get_posts_rss_link($context = 0) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
 	if ( bb_get_option( 'mod_rewrite' ) )
-		$link = bb_get_option( 'uri' ) . 'rss/';
+		$link = bb_get_uri('rss/', null, $context);
 	else
-		$link = bb_get_option( 'uri' ) . 'rss.php';
-	return apply_filters( 'bb_get_posts_rss_link', $link );
+		$link = bb_get_uri('rss.php', null, $context);
+	return apply_filters( 'bb_get_posts_rss_link', $link, $context );
 }
 
-function bb_get_topics_rss_link() {
+function bb_get_topics_rss_link($context = 0) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
 	if ( bb_get_option( 'mod_rewrite' ) )
-		$link = bb_get_option( 'uri' ) . 'rss/topics';
+		$link = bb_get_uri('rss/topics', null, $context);
 	else
-		$link = bb_get_option( 'uri' ) . 'rss.php?topics=1';
-	return apply_filters( 'bb_get_topics_rss_link', $link );
+		$link = bb_get_uri('rss.php', array('topics' => 1), $context);
+	return apply_filters( 'bb_get_topics_rss_link', $link, $context );
 }
 
-function bb_get_view_rss_link() {
+function bb_get_view_rss_link($context = 0) {
 	global $view;
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
 	if ( bb_get_option( 'mod_rewrite' ) )
-		$link = bb_get_option( 'uri' ) . 'rss/view/' . $view;
+		$link = bb_get_uri('rss/view/' . $view, null, $context);
 	else
-		$link = bb_get_option( 'uri' ) . 'rss.php?view=' . $view;
-	return apply_filters( 'bb_get_view_rss_link', $link );
+		$link = bb_get_uri('rss.php', array('view' => $view), $context);
+	return apply_filters( 'bb_get_view_rss_link', $link, $context );
 }
 
 // FORUMS
@@ -489,12 +501,20 @@ function get_forum_id( $forum_id = 0 ) {
 	return $_forum->forum_id;
 }
 
-function forum_link( $forum_id = 0, $page = 1 ) {
-	echo apply_filters('forum_link', get_forum_link( $forum_id, $page ), $forum_id );
+function forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+	echo apply_filters('forum_link', get_forum_link( $forum_id, $page, $context ), $forum_id, $context );
 }
 
-function get_forum_link( $forum_id = 0, $page = 1 ) {
+function get_forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
+	
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+	
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
@@ -502,16 +522,17 @@ function get_forum_link( $forum_id = 0, $page = 1 ) {
 		} else {
 			$column = 'forum_id';
 		}
-		$link = bb_get_option( 'uri' ) . "forum/" . $forum->$column . ( 1 < $page ? "/page/$page" : '' );
+		$page = $page > 1 ? $page : '';
+		$link = bb_get_uri('forum/' . $forum->$column . $page, null, $context);
 	} else {
-		$args = array();
-		$link = bb_get_option( 'uri' ) . 'forum.php';
-		$args['id'] = $forum->forum_id;
-		$args['page'] = 1 < $page ? $page : false;
-		$link = add_query_arg( $args, $link );
+		$query = array(
+			'id' => $forum->forum_id,
+			'page' => $page > 1 ? $page : false
+		);
+		$link = bb_get_uri('forum.php', $query, $context);
 	}
 
-	return apply_filters( 'get_forum_link', $link, $forum->forum_id );
+	return apply_filters( 'get_forum_link', $link, $forum->forum_id, $context );
 }
 
 function forum_name( $forum_id = 0 ) {
@@ -579,12 +600,20 @@ function forum_pages( $forum_id = 0 ) {
 	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->forum_topics );
 }
 
-function bb_forum_posts_rss_link( $forum_id = 0 ) {
-	echo apply_filters('bb_forum_posts_rss_link', bb_get_forum_posts_rss_link( $forum_id ) );
+function bb_forum_posts_rss_link( $forum_id = 0, $context = 0 ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	echo apply_filters('bb_forum_posts_rss_link', bb_get_forum_posts_rss_link( $forum_id, $context ), $context );
 }
 
-function bb_get_forum_posts_rss_link( $forum_id = 0 ) {
+function bb_get_forum_posts_rss_link( $forum_id = 0, $context = 0 ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
+	
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
@@ -592,19 +621,27 @@ function bb_get_forum_posts_rss_link( $forum_id = 0 ) {
 		} else {
 			$column = 'forum_id';
 		}
-		$link = bb_get_option('uri') . 'rss/forum/' . $forum->$column;
+		$link = bb_get_uri('rss/forum/' . $forum->$column, null, $context);
 	} else {
-		$link = bb_get_option('uri') . 'rss.php?forum=' . $forum->forum_id;
+		$link = bb_get_uri('rss.php', array('forum' => $forum->forum_id), $context);
 	}
-	return apply_filters( 'bb_get_forum_posts_rss_link', $link, $forum->forum_id );
+	return apply_filters( 'bb_get_forum_posts_rss_link', $link, $forum->forum_id, $context );
 }
 
-function bb_forum_topics_rss_link( $forum_id = 0 ) {
-	echo apply_filters('bb_forum_topics_rss_link', bb_get_forum_topics_rss_link( $forum_id ) );
+function bb_forum_topics_rss_link( $forum_id = 0, $context = 0 ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	echo apply_filters('bb_forum_topics_rss_link', bb_get_forum_topics_rss_link( $forum_id, $context ), $context );
 }
 
-function bb_get_forum_topics_rss_link( $forum_id = 0 ) {
+function bb_get_forum_topics_rss_link( $forum_id = 0, $context = 0 ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
+	
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
@@ -612,11 +649,11 @@ function bb_get_forum_topics_rss_link( $forum_id = 0 ) {
 		} else {
 			$column = 'forum_id';
 		}
-		$link = bb_get_option('uri') . 'rss/forum/' . $forum->$column . '/topics';
+		$link = bb_get_uri('rss/forum/' . $forum->$column . '/topics', null, $context);
 	} else {
-		$link = bb_get_option('uri') . 'rss.php?forum=' . $forum->forum_id . '&amp;topics=1';
+		$link = bb_get_uri('rss.php', array('forum' => $forum->forum_id, 'topics' => 1), $context);
 	}
-	return apply_filters( 'bb_get_forum_topics_rss_link', $link, $forum->forum_id );
+	return apply_filters( 'bb_get_forum_topics_rss_link', $link, $forum->forum_id, $context );
 }
 
 function bb_get_forum_bread_crumb($args = '') {
@@ -751,12 +788,16 @@ function get_topic_id( $id = 0 ) {
 	return $_topic->topic_id;
 }
 
-function topic_link( $id = 0, $page = 1 ) {
-	echo apply_filters( 'topic_link', get_topic_link( $id ), $id );
+function topic_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
+	echo apply_filters( 'topic_link', get_topic_link( $id ), $id, $context );
 }
 
-function get_topic_link( $id = 0, $page = 1 ) {
+function get_topic_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
 	$topic = get_topic( get_topic_id( $id ) );
+
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
 
 	$args = array();
 
@@ -767,25 +808,30 @@ function get_topic_link( $id = 0, $page = 1 ) {
 		} else {
 			$column = 'topic_id';
 		}
-		$link = bb_get_option('uri') . "topic/" . $topic->$column . ( 1 < $page ? "/page/$page" : '' );
+		$page = $page > 1 ? '/page/' . $page : '';
+		$link = bb_get_uri('topic/' . $topic->$column . $page, null, $context);
 	} else {
-		$link = bb_get_option('uri') . 'topic.php';
-		$args['id'] = $topic->topic_id;
-		$args['page'] = 1 < $page ? $page : false;
+		$page = $page > 1 ? $page : false;
+		$link = bb_get_uri('topic.php', array('id' => $topic->topic_id, 'page' => $page), $context);
 	}
 
-	if ( $args )
-		$link = add_query_arg( $args, $link );
-
-	return apply_filters( 'get_topic_link', $link, $topic->topic_id );
+	return apply_filters( 'get_topic_link', $link, $topic->topic_id, $context );
 }
 
-function topic_rss_link( $id = 0 ) {
-	echo apply_filters('topic_rss_link', get_topic_rss_link($id), $id );
+function topic_rss_link( $id = 0, $context = 0 ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	echo apply_filters('topic_rss_link', get_topic_rss_link($id, $context), $id, $context );
 }
 
-function get_topic_rss_link( $id = 0 ) {
+function get_topic_rss_link( $id = 0, $context = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
+
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
@@ -793,11 +839,11 @@ function get_topic_rss_link( $id = 0 ) {
 		} else {
 			$column = 'topic_id';
 		}
-		$link = bb_get_option('uri') . 'rss/topic/' . $topic->$column;
+		$link = bb_get_uri('rss/topic/' . $topic->$column, null, $context);
 	} else {
-		$link = bb_get_option('uri') . 'rss.php?topic=' . $topic->topic_id;
+		$link = bb_get_uri('rss.php', array('topic' => $topic->topic_id), $context);
 	}
-	return apply_filters( 'get_topic_rss_link', $link, $topic->topic_id );
+	return apply_filters( 'get_topic_rss_link', $link, $topic->topic_id, $context );
 }
 
 function bb_topic_labels() {
@@ -988,10 +1034,19 @@ function bb_get_topic_delete_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'delete_topic', $topic->topic_id ) )
 		return;
 
-	if ( 0 == $topic->topic_status )
-		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id , 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna delete that?') ) . "')\">" . __('Delete entire topic') . "</a>$after";
-	else
-		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-topic.php?id=' . $topic->topic_id . '&view=all', 'delete-topic_' . $topic->topic_id ) ) . "' onclick=\"return confirm('" . js_escape( __('Are you sure you wanna undelete that?') ) . "')\">" . __('Undelete entire topic') . "</a>$after";
+	if ( 0 == $topic->topic_status ) {
+		$query   = array('id' => $topic->topic_id);
+		$confirm = __('Are you sure you wanna delete that?');
+		$display = __('Delete entire topic');
+	} else {
+		$query   = array('id' => $topic->topic_id, 'view' => 'all');
+		$confirm = __('Are you sure you wanna undelete that?');
+		$display = __('Undelete entire topic');
+	}
+	$uri = bb_get_uri('bb-admin/delete-topic.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri = attribute_escape( bb_nonce_url( $uri, 'delete-topic_' . $topic->topic_id ) );
+	
+	return $before . '<a href="' . $uri . '" onclick="return confirm(\'' . js_escape( $confirm ) . '\');">' . $display . '</a>' . $after;
 }
 
 function topic_close_link( $args = '' ) {
@@ -1008,8 +1063,11 @@ function bb_get_topic_close_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'close_topic', $topic->topic_id ) )
 		return;
 
-	$text = topic_is_open( $topic->topic_id ) ? __('Close topic') : __('Open topic');
-	return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/topic-toggle.php?id=' . $topic->topic_id, 'close-topic_' . $topic->topic_id ) ) . "'>$text</a>$after";
+	$display = topic_is_open( $topic->topic_id ) ? __('Close topic') : __('Open topic');
+	$uri = bb_get_uri('bb-admin/topic-toggle.php', array('id' => $topic->topic_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri = attribute_escape( bb_nonce_url( $uri, 'close-topic_' . $topic->topic_id ) );
+	
+	return $before . '<a href="' . $uri . '" onclick="return confirm(\'' . js_escape( $confirm ) . '\');">' . $display . '</a>' . $after;
 }
 
 function topic_sticky_link( $args = '' ) {
@@ -1026,10 +1084,16 @@ function bb_get_topic_sticky_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'stick_topic', $topic->topic_id ) )
 		return;
 
+	$uri_stick = bb_get_uri('bb-admin/sticky.php', array('id' => $topic->topic_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri_stick = attribute_escape( bb_nonce_url( $uri_stick, 'stick-topic_' . $topic->topic_id ) );
+
+	$uri_super = bb_get_uri('bb-admin/sticky.php', array('id' => $topic->topic_id, 'super' => 1), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri_stick = attribute_escape( bb_nonce_url( $uri_super, 'stick-topic_' . $topic->topic_id ) );
+
 	if ( topic_is_sticky( $topic->topic_id ) )
-		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Unstick topic') ."</a>$after";
+		return "$before<a href='" . $uri_stick . "'>". __('Unstick topic') ."</a>$after";
 	else
-		return "$before<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id, 'stick-topic_' . $topic->topic_id ) ) . "'>". __('Stick topic') . "</a> (<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/sticky.php?id=' . $topic->topic_id . '&super=1', 'stick-topic_' . $topic->topic_id ) ) . "'>" . __('to front') . "</a>)$after";
+		return "$before<a href='" . $uri_stick . "'>". __('Stick topic') . "</a> (<a href='" . $uri_super . "'>" . __('to front') . "</a>)$after";
 }
 
 function topic_show_all_link( $id = 0 ) {
@@ -1078,7 +1142,7 @@ function topic_move_dropdown( $id = 0 ) {
 	if ( !$dropdown )
 		return;
 
-	echo '<form id="topic-move" method="post" action="' . bb_get_option('uri') . 'bb-admin/topic-move.php"><fieldset><div>' . "\n\t";
+	echo '<form id="topic-move" method="post" action="' . bb_get_uri('bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . '"><fieldset><div>' . "\n\t";
 	echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n\t";
 	echo '<label for="forum-id">'. __('Move this topic to the selected forum:') . ' ';
 	echo $dropdown;
@@ -1122,10 +1186,10 @@ function new_topic( $args = null ) {
 	elseif ( is_topic() )
 		$url = get_forum_link() . '#postform';
 	elseif ( is_front() )
-		$url = add_query_arg( 'new', '1', bb_get_option( 'uri' ) );
+		$url = bb_get_uri(null, array('new' => 1));
 
 	if ( !bb_is_user_logged_in() )
-		$url = add_query_arg( 're', urlencode($url), bb_get_option( 'uri' ) . 'bb-login.php' );
+		$url = bb_get_uri('bb-login.php', array('re' => $url), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS);
 	elseif ( is_forum() || is_topic() ) {
 		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
 			return;
@@ -1135,7 +1199,7 @@ function new_topic( $args = null ) {
 	}
 
 	if ( $url = attribute_escape( apply_filters( 'new_topic_url', $url ) ) )
-		echo "<a href='$url' class='new-topic'>$text</a>\n";
+		echo '<a href="' . $url . '" class="new-topic">' . $text . '</a>' . "\n";
 }
 
 function bb_new_topic_forum_dropdown() {
@@ -1303,7 +1367,9 @@ function post_ip_link( $post_id = 0 ) {
 function bb_get_post_ip_link( $post_id = 0 ) {
 	if ( !bb_current_user_can( 'view_by_ip' ) )
 		return;
-	$link = '<a href="' . attribute_escape( bb_get_option('uri') . 'bb-admin/view-ip.php?ip=' . get_post_ip( $post_id ) ) . '">' . get_post_ip( $post_id ) . '</a>';
+	
+	$uri = bb_get_uri('bb-admin/view-ip.php', array('ip' => get_post_ip($post_id)), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$link = '<a href="' . attribute_escape( $uri ) . '">' . get_post_ip( $post_id ) . '</a>';
 	return apply_filters( 'post_ip_link', $link, get_post_id( $post_id ) );
 }
 
@@ -1313,8 +1379,10 @@ function post_edit_link( $post_id = 0 ) {
 
 function bb_get_post_edit_link( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
-	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) )
-		return "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', bb_get_option('uri') . 'edit.php?id=' . $bb_post->post_id, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
+	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) ) {
+		$uri = bb_get_uri('edit.php', array('id' => $bb_post->post_id));
+		return "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', $uri, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
+	}
 }
 
 function post_del_class( $post_id = 0 ) {
@@ -1335,10 +1403,16 @@ function bb_get_post_delete_link( $post_id = 0 ) {
 	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
 		return;
 
-	if ( 1 == $bb_post->post_status )
-		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=0&view=all', 'delete-post_' . $bb_post->post_id ) ) . "' class='delete:thread:post-{$bb_post->post_id}'>". __('Undelete') ."</a>";
-	else
-		$r = "<a href='" . attribute_escape( bb_nonce_url( bb_get_option('uri') . 'bb-admin/delete-post.php?id=' . $bb_post->post_id . '&status=1', 'delete-post_' . $bb_post->post_id ) ) . "' class='delete:thread:post-{$bb_post->post_id}'>". __('Delete') ."</a>";
+	if ( 1 == $bb_post->post_status ) {
+		$query = array('id' => $bb_post->post_id, 'status' => 0, 'view' => 'all');
+		$display = __('Undelete');
+	} else {
+		$query = array('id' => $bb_post->post_id, 'status' => 1);
+		$display = __('Delete');
+	}
+	$uri = bb_get_uri('bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri = attribute_escape( bb_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
+	$r = '<a href="' . $uri . '" class="delete:thread:post-' . $bb_post->post_id . '">' . $display . '</a>';
 	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
 	return $r;
 }
@@ -1418,12 +1492,20 @@ function bb_get_user_id( $id = 0 ) {
 	return $_user->ID;
 }
 
-function user_profile_link( $id = 0 , $page = 1 ) {
-	echo apply_filters( 'user_profile_link', get_user_profile_link( $id ), bb_get_user_id( $id ) );
+function user_profile_link( $id = 0 , $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+	echo apply_filters( 'user_profile_link', get_user_profile_link( $id ), bb_get_user_id( $id ), $context );
 }
 
-function get_user_profile_link( $id = 0, $page = 1 ) {
+function get_user_profile_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
 	$user = bb_get_user( bb_get_user_id( $id ) );
+	
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+	
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
@@ -1431,11 +1513,16 @@ function get_user_profile_link( $id = 0, $page = 1 ) {
 		} else {
 			$column = 'ID';
 		}
-		$r = bb_get_option('uri') . "profile/" . $user->$column . ( 1 < $page ? "/page/$page" : '' );
+		$page = $page > 1 ? '/page/' . $page : '';
+		$r = bb_get_uri('profile/' . $user->$column . $page, null, $context);
 	} else {
-		$r = bb_get_option('uri') . "profile.php?id=$user->ID" . ( 1 < $page ? "&page=$page" : '' );
+		$query = array(
+			'id' => $user->ID,
+			'page' => $page > 1 ? $page : false
+		);
+		$r = bb_get_uri('profile.php', $query, $context);
 	}
-	return apply_filters( 'get_user_profile_link', $r, $user->ID );
+	return apply_filters( 'get_user_profile_link', $r, $user->ID, $context );
 }
 
 function user_delete_button() {
@@ -1813,7 +1900,9 @@ function bb_get_logout_link( $args = '' ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
-	return apply_filters( 'bb_get_logout_link', "$before<a href='" . attribute_escape( bb_get_option( 'uri' ) . 'bb-login.php?logout' ) . "'>$text</a>$after", $args );
+	$uri = attribute_escape( bb_get_uri('bb-login.php', array('logout' => 1), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS) );
+
+	return apply_filters( 'bb_get_logout_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
 }
 
 function bb_admin_link( $args = '' ) {
@@ -1832,7 +1921,9 @@ function bb_get_admin_link( $args = '' ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
-	return apply_filters( 'bb_get_admin_link', "$before<a href='" . attribute_escape( bb_get_option( 'uri' ) . 'bb-admin/' ) . "'>$text</a>$after", $args );
+	$uri = attribute_escape( bb_get_uri('bb-login.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) );
+
+	return apply_filters( 'bb_get_admin_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
 }
 
 function bb_profile_link( $args = '' ) {
@@ -1956,11 +2047,14 @@ function bb_get_tag_name( $id = 0 ) {
 	return $_tag->raw_tag;
 }
 
-function bb_tag_rss_link( $id = 0 ) {
-	echo apply_filters( 'tag_rss_link', bb_get_tag_rss_link($id), $id );
+function bb_tag_rss_link( $id = 0, $context = 0 ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	echo apply_filters( 'tag_rss_link', bb_get_tag_rss_link($id, $context), $id, $context );
 }
 
-function bb_get_tag_rss_link( $tag_id = 0 ) {
+function bb_get_tag_rss_link( $tag_id = 0, $context = 0 ) {
 	global $tag;
 	$tag_id = (int) $tag_id;
 	if ( $tag_id )
@@ -1968,12 +2062,16 @@ function bb_get_tag_rss_link( $tag_id = 0 ) {
 	else
 		$_tag =& $tag;
 
-	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . "rss/tags/$_tag->tag";
-	else
-		$link = bb_get_option('uri') . "rss.php?tag=$_tag->tag";
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
 
-	return apply_filters( 'get_tag_rss_link', $link, $tag_id );
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_uri('rss/tags/' . $_tag->tag, null, $context);
+	else
+		$link = bb_get_uri('rss.php', array('tag' => $_tag->tag), $context);
+
+	return apply_filters( 'get_tag_rss_link', $link, $tag_id, $context );
 }
 
 function bb_list_tags( $args = null ) {
@@ -2032,7 +2130,7 @@ function tag_form( $args = null ) {
 		return false;
 ?>
 
-<form id="tag-form" method="post" action="<?php bb_option('uri'); ?>tag-add.php" class="add:<?php echo attribute_escape( $list_id ); ?>:">
+<form id="tag-form" method="post" action="<?php bb_uri('tag-add.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:<?php echo attribute_escape( $list_id ); ?>:">
 	<p>
 		<input name="tag" type="text" id="tag" />
 		<input type="hidden" name="id" value="<?php echo $topic->topic_id; ?>" />
@@ -2050,7 +2148,7 @@ function manage_tags_forms() {
 		return false;
 	$form  = "<ul id='manage-tags'>\n ";
 	$form .= "<li id='tag-rename'>" . __('Rename tag:') . "\n\t";
-	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-rename.php'><div>\n\t";
+	$form .= "<form method='post' action='" . bb_get_uri('bb-admin/tag-rename.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . "'><div>\n\t";
 	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
 	$form .= "<input type='submit' name='Submit' value='" . __('Rename') . "' />\n\t";
@@ -2058,7 +2156,7 @@ function manage_tags_forms() {
 	bb_nonce_field( 'rename-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n ";
 	$form  = "<li id='tag-merge'>" . __('Merge this tag into:') . "\n\t";
-	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-merge.php'><div>\n\t";
+	$form .= "<form method='post' action='" . bb_get_uri('bb-admin/tag-merge.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . "'><div>\n\t";
 	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
 	$form .= "<input type='submit' name='Submit' value='" . __('Merge') . "' ";
@@ -2067,7 +2165,7 @@ function manage_tags_forms() {
 	bb_nonce_field( 'merge-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n ";
 	$form  = "<li id='tag-destroy'>" . __('Destroy tag:') . "\n\t";
-	$form .= "<form method='post' action='" . bb_get_option('uri') . "bb-admin/tag-destroy.php'><div>\n\t";
+	$form .= "<form method='post' action='" . bb_get_uri('bb-admin/tag-destroy.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . "'><div>\n\t";
 	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
 	$form .= "<input type='submit' name='Submit' value='" . __('Destroy') . "' ";
 	$form .= 'onclick="return confirm(\'' . js_escape( sprintf(__('Are you sure you want to destroy the "%s" tag? This is permanent and cannot be undone.'), $tag->raw_tag) ) . "');\" />\n\t";
@@ -2093,7 +2191,7 @@ function bb_get_tag_remove_link( $args = null ) {
 		return false;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
-	$url = add_query_arg( array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id), bb_get_option('uri') . 'tag-remove.php' );
+	$url = bb_get_uri('tag-remove.php', array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id) );
 	$url = clean_url( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) );
 	$title = attribute_escape( __('Remove this tag') );
 	$list_id = attribute_escape( $list_id );
@@ -2334,12 +2432,20 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-not-favorite'>$mid</a>$post</span>";
 }
 
-function favorites_rss_link( $id = 0 ) {
-	echo apply_filters('favorites_rss_link', get_favorites_rss_link( $id ));
+function favorites_rss_link( $id = 0, $context = 0 ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	echo apply_filters('favorites_rss_link', get_favorites_rss_link( $id, $context ), $context);
 }
 
-function get_favorites_rss_link( $id = 0 ) {
+function get_favorites_rss_link( $id = 0, $context = 0 ) {
 	$user = bb_get_user( bb_get_user_id( $id ) );
+	
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	
 	$rewrite = bb_get_option( 'mod_rewrite' );
 	if ( $rewrite ) {
 		if ( $rewrite === 'slugs' ) {
@@ -2347,11 +2453,11 @@ function get_favorites_rss_link( $id = 0 ) {
 		} else {
 			$column = 'ID';
 		}
-		$link = bb_get_option('uri') . 'rss/profile/' . $user->$column;
+		$link = bb_get_uri('rss/profile/' . $user->$column, null, $context);
 	} else {
-		$link = bb_get_option('uri') . 'rss.php?profile=' . $user->ID;
+		$link = bb_get_uri('rss.php', array('profile' => $user->ID), $context);
 	}
-	return apply_filters( 'get_favorites_rss_link', $link, $user->ID );
+	return apply_filters( 'get_favorites_rss_link', $link, $user->ID, $context );
 }
 
 function favorites_pages() {
@@ -2380,25 +2486,34 @@ function view_pages() {
 	echo apply_filters( 'view_pages', get_page_number_links( $page, $view_count ) );
 }
 
-function view_link( $_view = false, $page = 1 ) {
-	echo get_view_link( $_view, $page );
+function view_link( $_view = false, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
+	echo get_view_link( $_view, $page, $context );
 }
 
-function get_view_link( $_view = false, $page = 1 ) {
+function get_view_link( $_view = false, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
 	global $view, $bb_views;
 	if ( $_view )
 		$v = bb_slug_sanitize($_view);
 	else
 		$v =& $view;
-
+	
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+	
 	if ( !array_key_exists($v, $bb_views) )
-		return bb_get_option('uri');
-	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_option('uri') . 'view/' . $v . ( 1 < $page ? "/page/$page" : '' );
-	else
-		$link = bb_get_option('uri') . "view.php?view=$v" . ( 1 < $page ? "&page=$page" : '');
+		return bb_get_uri(null, null, $context);
+	if ( bb_get_option('mod_rewrite') ) {
+		$page = $page > 1 ? '/page/' . $page : '';
+		$link = bb_get_uri('view/' . $v . $page, null, $context);
+	} else {
+		$query = array(
+			'page' => $page > 1 ? $page : false
+		);
+		$link = bb_get_uri('view.php', $query, $context);
+	}
 
-	return apply_filters( 'get_view_link', $link, $v, $page );
+	return apply_filters( 'get_view_link', $link, $v, $page, $context );
 }
 
 function _bb_parse_time_function_args( $args ) {
