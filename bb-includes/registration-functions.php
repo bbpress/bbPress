@@ -144,7 +144,7 @@ function bb_update_user_password( $user_id, $password ) {
 
 	$user_id = (int) $user_id;
 
-	$wp_users_object->set_password( $user_id, $password );
+	$wp_users_object->set_password( $password, $user_id );
 
 	do_action('bb_update_user_password', $user_id);
 	return $user_id;
