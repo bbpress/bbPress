@@ -2208,15 +2208,11 @@ function bb_get_uri_page() {
 	if ( isset($_GET['page']) && is_numeric($_GET['page']) && 1 < (int) $_GET['page'] )
 		return (int) $_GET['page'];
 
-	if ( isset($_SERVER['PATH_INFO']) ) {
+	if ( isset($_SERVER['PATH_INFO']) )
 		$path = $_SERVER['PATH_INFO'];
-	} else {
-		if ( !$parsed = parse_url( $_SERVER['REQUEST_URI'] ) )
+	else
+		if ( !$path = strtok($_SERVER['REQUEST_URI'], '?') )
 			return 1;
-		if ( empty($parsed['path']) )
-			return 1;
-		$path = $parsed['path'];
-	}
 
 	if ( $page = strstr($path, '/page/') ) {
 		$page = (int) substr($page, 6);
