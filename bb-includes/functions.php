@@ -2402,10 +2402,10 @@ function bb_repermalink() {
 				$user = bb_get_user_by_nicename( $id ); // Get by the user_nicename
 			else
 				$user = bb_get_user( $id ); // Get by the ID
-			
-			if ( !$user )
-				bb_die(__('User not found.'));
-			
+
+			if ( !$user || ( 1 == $user->user_status && !bb_current_user_can( 'moderate' ) ) )
+				bb_die(__('User not found.'), '', 404);
+
 			$user_id = $user->ID;
 			global_profile_menu_structure();
 			$valid = false;
@@ -2734,9 +2734,12 @@ function bb_install_footer() {
 <?php
 }
 
-function bb_die( $message, $title = '' ) {
+function bb_die( $message, $title = '', $header = 0 ) {
 	global $bb_locale;
 	
+	if ( $header && !headers_sent() )
+		status_header( $header );
+
 	if ( empty($title) )
 		$title = __('bbPress &rsaquo; Error');
 	
