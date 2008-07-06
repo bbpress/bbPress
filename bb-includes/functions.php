@@ -1467,9 +1467,7 @@ function update_user_status( $user_id, $user_status = 0 ) {
 	global $wp_users_object;
 	$user = bb_get_user( $user_id );
 	$user_status = (int) $user_status;
-
-	if ( $user->ID != bb_get_current_user_info( 'id' ) && bb_current_user_can( 'edit_users' ) )
-		$wp_users_object->update_user( $user->ID, compact( 'user_status' ) );
+	$wp_users_object->update_user( $user->ID, compact( 'user_status' ) );
 }
 
 function bb_trusted_roles() {
