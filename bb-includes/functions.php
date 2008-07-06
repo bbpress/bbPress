@@ -1240,10 +1240,8 @@ function update_user_status( $user_id, $user_status = 0 ) {
 	global $bbdb, $bb_cache;
 	$user = bb_get_user( $user_id );
 	$user_status = (int) $user_status;
-	if ( $user->ID != bb_get_current_user_info( 'id' ) && bb_current_user_can( 'edit_users' ) ) :
-		$bbdb->update( $bbdb->users, campact( 'user_status'), array( 'ID' => $user->ID ) );
-		$bb_cache->flush_one( 'user', $user->ID );
-	endif;
+	$bbdb->update( $bbdb->users, compact( 'user_status'), array( 'ID' => $user->ID ) );
+	$bb_cache->flush_one( 'user', $user->ID );
 }
 
 function bb_trusted_roles() {
