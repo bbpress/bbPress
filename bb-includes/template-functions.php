@@ -1633,14 +1633,15 @@ function bb_profile_data( $id = 0 ) {
 	echo "\t<dd>" . bb_datetime_format_i18n($reg_time, 'date') . ' (' . bb_since($reg_time) . ")</dd>\n";
 	if ( is_array( $profile_info_keys ) ) {
 		foreach ( $profile_info_keys as $key => $label ) {
+			$val = 'user_url' == $key ? get_user_link( $user->ID ) : $user->$key;
 			if (
 				( 'user_email' != $key || ( 'user_email' == $key && bb_current_user_can( 'edit_users' ) ) )
-				&& isset($user->$key)
-				&& '' !== $user->$key
-				&& 'http://' != $user->$key
+				&& isset( $user->$key )
+				&& $val
+				&& 'http://' != $val
 			) {
 				echo "\t<dt>{$label[1]}</dt>\n";
-				echo "\t<dd>" . make_clickable($user->$key) . "</dd>\n";
+				echo "\t<dd>" . make_clickable( $val ) . "</dd>\n";
 			}
 		}
 	}
