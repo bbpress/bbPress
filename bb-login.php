@@ -1,6 +1,8 @@
 <?php
 require('./bb-load.php');
 
+bb_ssl_redirect();
+
 $ref = wp_get_referer();
 if ( !$re = $_POST['re'] ? $_POST['re'] : $_GET['re'] )
 	$re = $ref;

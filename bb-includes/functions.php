@@ -1956,6 +1956,71 @@ function bb_force_ssl_admin($force = '') {
 	return $forced;
 }
 
+/**
+ * bb_ssl_redirect() - Forces redirection to an SSL page when required
+ *
+ * @since 1.0-beta
+ *
+ * @return void
+ **/
+function bb_ssl_redirect()
+{
+	do_action('bb_ssl_redirect');
+	
+	$page = bb_get_location();
+	
+	if (BB_IS_ADMIN && !bb_force_ssl_admin()) {
+		return;
+	}
+	
+	switch ($page) {
+		case 'login-page':
+		case 'register-page':
+			if (!bb_force_ssl_user_forms()) {
+				return;
+			}
+			break;
+		
+		case 'profile-page':
+			$tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2);
+			if ($tab == 'edit' && !bb_force_ssl_user_forms()) {
+				return;
+			}
+			break;
+		
+		default:
+			return;
+			break;
+	}
+	
+	if (bb_is_ssl()) {
+		return;
+	}
+	
+	if ( 0 === strpos($_SERVER['REQUEST_URI'], bb_get_option('uri')) ) {
+		$uri = $_SERVER['REQUEST_URI'];
+	} else {
+		$uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	}
+	
+	$uri = bb_get_option('uri_ssl') . substr($uri, strlen(bb_get_option('uri')));
+	
+	bb_safe_redirect($uri);
+	
+	return;
+}
+
+/**
+ * bb_is_ssl() - Determine if SSL is used.
+ *
+ * @since 1.0-beta
+ *
+ * @return bool True if SSL, false if not used.
+ */
+function bb_is_ssl() {
+	return ( 'on' == strtolower($_SERVER['HTTPS']) ) ? true : false;
+}
+
 // This is the only function that should add to user / topic
 // NOT bbdb::prepared
 function bb_append_meta( $object, $type ) {

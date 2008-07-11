@@ -1,6 +1,8 @@
 <?php
 require_once('./bb-load.php');
 
+bb_ssl_redirect();
+
 bb_auth();
 
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {

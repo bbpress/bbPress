@@ -3,6 +3,8 @@ define( 'BB_IS_ADMIN', true );
 
 require_once('../bb-load.php');
 
+bb_ssl_redirect();
+
 bb_auth();
 
 if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) ) {
