@@ -1088,7 +1088,7 @@ function bb_get_topic_sticky_link( $args = '' ) {
 	$uri_stick = attribute_escape( bb_nonce_url( $uri_stick, 'stick-topic_' . $topic->topic_id ) );
 
 	$uri_super = bb_get_uri('bb-admin/sticky.php', array('id' => $topic->topic_id, 'super' => 1), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri_stick = attribute_escape( bb_nonce_url( $uri_super, 'stick-topic_' . $topic->topic_id ) );
+	$uri_super = attribute_escape( bb_nonce_url( $uri_super, 'stick-topic_' . $topic->topic_id ) );
 
 	if ( topic_is_sticky( $topic->topic_id ) )
 		return "$before<a href='" . $uri_stick . "'>". __('Unstick topic') ."</a>$after";
@@ -1922,7 +1922,7 @@ function bb_get_admin_link( $args = '' ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
-	$uri = attribute_escape( bb_get_uri('bb-login.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) );
+	$uri = attribute_escape( bb_get_uri('bb-admin/', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) );
 
 	return apply_filters( 'bb_get_admin_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
 }
@@ -2509,7 +2509,8 @@ function get_view_link( $_view = false, $page = 1, $context = BB_URI_CONTEXT_A_H
 		$link = bb_get_uri('view/' . $v . $page, null, $context);
 	} else {
 		$query = array(
-			'page' => $page > 1 ? $page : false
+			'view' => $v,
+			'page' => $page > 1 ? $page : false,
 		);
 		$link = bb_get_uri('view.php', $query, $context);
 	}
