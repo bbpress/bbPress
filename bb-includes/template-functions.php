@@ -1764,6 +1764,9 @@ function bb_profile_admin_form( $id = 0 ) {
 		<?php if ( in_array( 'role', $error_codes ) ) echo '<p class="error">' . $errors->get_error_message( 'role' ) . '</p>'; ?>
 	</td>
 </tr>
+<?php
+	if (count($assignable_caps)) :
+?>
 <tr class="extra-caps-row">
 	<th scope="row"><?php _e('Allow this user to'); ?></th>
 	<td>
@@ -1782,6 +1785,8 @@ function bb_profile_admin_form( $id = 0 ) {
 </tr>
 
 <?php
+	endif;
+	
 	if ( is_array($profile_admin_keys) ) :
 		foreach ( $profile_admin_keys as $key => $label ) :
 			if ( $label[0] ) {
