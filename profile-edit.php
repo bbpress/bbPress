@@ -3,7 +3,7 @@ require_once('./bb-load.php');
 
 bb_ssl_redirect();
 
-bb_auth();
+bb_auth('logged_in');
 
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);

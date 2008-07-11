@@ -1,7 +1,7 @@
 <?php
 require('./bb-load.php');
 
-bb_auth();
+bb_auth('logged_in');
 
 $tag_id = (int) @$_GET['tag'];
 $user_id = (int) @$_GET['user'];

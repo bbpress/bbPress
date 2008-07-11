@@ -1,7 +1,7 @@
 <?php
 require_once('./bb-load.php');
 
-bb_auth();
+bb_auth('logged_in');
 
 if ( !bb_current_user_can( 'edit_favorites_of', $user_id ) )
 	bb_die(__('You cannot edit those favorites.  How did you get here?'));

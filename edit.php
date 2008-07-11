@@ -1,7 +1,7 @@
 <?php
 require('./bb-load.php');
 
-bb_auth();
+bb_auth('logged_in');
 
 $post_id = (int) $_GET['id'];
 

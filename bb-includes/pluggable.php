@@ -1,8 +1,8 @@
 <?php
 
 if ( !function_exists('bb_auth') ) :
-function bb_auth() { // Checks if a user has a valid cookie, if not redirects them to the main page
-	if ( !wp_validate_auth_cookie() ) {
+function bb_auth($scheme = 'auth') { // Checks if a user has a valid cookie, if not redirects them to the main page
+	if ( !wp_validate_auth_cookie('', $scheme) ) {
 		nocache_headers();
 		header('Location: ' . bb_get_uri(null, null, BB_URI_CONTEXT_HEADER));
 		exit();
@@ -97,32 +97,54 @@ function bb_logout() {
 endif;
 
 if ( !function_exists('wp_validate_auth_cookie') ) :
-function wp_validate_auth_cookie($cookie = '') {
+function wp_validate_auth_cookie($cookie = '', $scheme = 'auth') {
 	global $wp_auth_object;
-	return $wp_auth_object->validate_auth_cookie( $cookie );
+	if ( empty($cookie) && $scheme == 'auth' ) {
+		if ( bb_is_ssl() ) {
+			$scheme = 'secure_auth';
+		} else {
+			$scheme = 'auth';
+		}
+	}
+	return $wp_auth_object->validate_auth_cookie( $cookie, $scheme );
 }
 endif;
 
 if ( !function_exists('wp_set_auth_cookie') ) :
-function wp_set_auth_cookie($user_id, $remember = false) {
+function wp_set_auth_cookie($user_id, $remember = false, $secure = '') {
 	global $wp_auth_object;
 
-	if ( $remember )
-		$expiration = time() + 1209600;
-	else
-		$expiration = 0;
+	if ( $remember ) {
+		$expiration = $expire = time() + 1209600;
+	} else {
+		$expiration = time() + 172800;
+		$expire = 0;
+	}
+	
+	if ( '' === $secure )
+		$secure = bb_is_ssl() ? true : false;
 
-	$wp_auth_object->set_auth_cookie( $user_id, $expiration );
+	if ( $secure ) {
+		$scheme = 'secure_auth';
+	} else {
+		$scheme = 'auth';
+	}
+
+	$wp_auth_object->set_auth_cookie( $user_id, $expiration, $expire, $scheme );
 }
 endif;
 
 if ( !function_exists('wp_clear_auth_cookie') ) :
 function wp_clear_auth_cookie() {
 	global $bb, $wp_auth_object;
-
+	
 	$wp_auth_object->clear_auth_cookie();
 	
 	// Old cookies
+	setcookie($bb->authcookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
+	setcookie($bb->authcookie, ' ', time() - 31536000, $bb->sitecookiepath, $bb->cookiedomain);
+	
+	// Even older cookies
 	setcookie($bb->usercookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
 	setcookie($bb->usercookie, ' ', time() - 31536000, $bb->sitecookiepath, $bb->cookiedomain);
 	setcookie($bb->passcookie, ' ', time() - 31536000, $bb->cookiepath, $bb->cookiedomain);
@@ -235,33 +257,71 @@ function bb_create_nonce($action = -1) {
 }
 endif;
 
-// Not verbatim WP,  bb has no options table and constants have different names.
+// Not verbatim WP,  constants have different names.
 if ( !function_exists('wp_salt') ) :
-function wp_salt() {
-
+function wp_salt($scheme = 'auth') {
+	global $bb_default_secret_key;
+	
 	$secret_key = '';
-	if ( defined('BB_SECRET_KEY') && ('' != BB_SECRET_KEY) && ('put your unique phrase here' != BB_SECRET_KEY) )
+	if ( defined('BB_SECRET_KEY') && ('' != BB_SECRET_KEY) && ($bb_default_secret_key != BB_SECRET_KEY) )
 		$secret_key = BB_SECRET_KEY;
-
-	if ( defined('BB_SECRET_SALT') ) {
-		$salt = BB_SECRET_SALT;
-	} else {
-		if (!BB_INSTALLING) {
-			$salt = bb_get_option('secret');
-			if ( empty($salt) ) {
-				$salt = wp_generate_password(64);
-				bb_update_option('secret', $salt);
+	
+	switch ($scheme) {
+		case 'auth':
+			if ( defined('BB_AUTH_KEY') && ('' != BB_AUTH_KEY) && ( $bb_default_secret_key != BB_AUTH_KEY) )
+				$secret_key = BB_AUTH_KEY;
+			
+			if ( defined('BB_AUTH_SALT') ) {
+				$salt = BB_AUTH_SALT;
+			} elseif ( defined('BB_SECRET_SALT') ) {
+				$salt = BB_SECRET_SALT;
+			} elseif ( !BB_INSTALLING ) {
+				$salt = bb_get_option('bb_auth_salt');
+				if ( empty($salt) ) {
+					$salt = wp_generate_password();
+					bb_update_option('bb_auth_salt', $salt);
+				}
 			}
-		}
+			break;
+		
+		case 'secure_auth':
+			if ( defined('BB_SECURE_AUTH_KEY') && ('' != BB_SECURE_AUTH_KEY) && ( $bb_default_secret_key != BB_SECURE_AUTH_KEY) )
+				$secret_key = BB_SECURE_AUTH_KEY;
+			
+			if ( defined('BB_SECURE_AUTH_SALT') ) {
+				$salt = BB_SECURE_AUTH_SALT;
+			} else {
+				$salt = bb_get_option('bb_secure_auth_salt');
+				if ( empty($salt) ) {
+					$salt = wp_generate_password();
+					bb_update_option('bb_secure_auth_salt', $salt);
+				}
+			}
+			break;
+		
+		case 'logged_in':
+			if ( defined('BB_LOGGED_IN_KEY') && ('' != BB_LOGGED_IN_KEY) && ( $bb_default_secret_key != BB_LOGGED_IN_KEY) )
+				$secret_key = BB_LOGGED_IN_KEY;
+			
+			if ( defined('BB_LOGGED_IN_SALT') ) {
+				$salt = BB_LOGGED_IN_SALT;
+			} else {
+				$salt = bb_get_option('bb_logged_in_salt');
+				if ( empty($salt) ) {
+					$salt = wp_generate_password();
+					bb_update_option('bb_logged_in_salt', $salt);
+				}
+			}
+			break;
 	}
-
-	return apply_filters('salt', $secret_key . $salt);
+	
+	return apply_filters('salt', $secret_key . $salt, $scheme);
 }
 endif;
 
 if ( !function_exists('wp_hash') ) :
-function wp_hash($data) { 
-	$salt = wp_salt();
+function wp_hash($data, $scheme = 'auth') { 
+	$salt = wp_salt($scheme);
 
 	return hash_hmac('md5', $data, $salt);
 }
@@ -284,8 +344,8 @@ if ( !function_exists('wp_generate_password') ) :
  * Generates a random password drawn from the defined set of characters
  * @return string the password
  **/
-function wp_generate_password( $length = 7 ) {
-	return WP_Pass::generate_password( $length );
+function wp_generate_password( $length = 12, $special_chars = true ) {
+	return WP_Pass::generate_password( $length, $special_chars );
 }
 endif;
 

@@ -1786,12 +1786,19 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 		'custom_user_meta_table' => '',
 		'wp_siteurl' => '',
 		'wp_home' => '',
-		'cookiedomain' => '',
+		'cookiedomain' => false,
 		'usercookie' => '',
 		'passcookie' => '',
 		'authcookie' => '',
 		'cookiepath' => '',
-		'sitecookiepath' => ''
+		'sitecookiepath' => '',
+		'secure_auth_cookie' => '',
+		'logged_in_cookie' => '',
+		'admin_cookie_path' => '',
+		'core_plugins_cookie_path' => '',
+		'user_plugins_cookie_path' => '',
+		'wp_admin_cookie_path' => '',
+		'wp_plugins_cookie_path' => ''
 	);
 	
 	foreach ( $base_options as $base_option => $base_option_default )

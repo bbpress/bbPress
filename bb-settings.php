@@ -405,7 +405,7 @@ if ( $bb->uri = bb_get_option('uri') ) {
 	$bb->uri = rtrim($bb->uri, '/') . '/';
 	
 	if ( preg_match( '@^(https?://[^/]+)((?:/.*)*/{1,1})$@i', $bb->uri, $matches ) ) {
-		// Not used in core anymore, only set here for plugin compatibility
+		// Used when setting up cookie domain
 		$bb->domain = $matches[1];
 		// Used when setting up cookie paths
 		$bb->path = $matches[2];
@@ -608,15 +608,63 @@ if ( !$bb->authcookie ) {
 	$bb->authcookie = ($bb->wp_cookies_integrated ? 'wordpress_' : 'bbpress_') . BB_HASH;
 }
 
+$bb->secure_auth_cookie = bb_get_option('secure_auth_cookie');
+if ( !$bb->secure_auth_cookie ) {
+	$bb->secure_auth_cookie = ($bb->wp_cookies_integrated ? 'wordpress_sec_' : 'bbpress_sec_') . BB_HASH;
+}
+
+$bb->logged_in_cookie = bb_get_option('logged_in_cookie');
+if ( !$bb->logged_in_cookie ) {
+	$bb->logged_in_cookie = ($bb->wp_cookies_integrated ? 'wordpress_logged_in_' : 'bbpress_logged_in_') . BB_HASH;
+}
+
 $bb->cookiepath = bb_get_option('cookiepath');
 if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
 
-$bb->sitecookiepath = bb_get_option('sitecookiepath');
-if ( !$bb->sitecookiepath ) {
-	$bb->sitecookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl ) : $bb->path;
+$bb->admin_cookie_path = bb_get_option('bb_admin_cookie_path');
+if ( !$bb->admin_cookie_path ) {
+	$bb->admin_cookie_path = $bb->path . 'bb-admin/';
 }
+
+$bb->core_plugins_cookie_path = bb_get_option('bb_core_plugins_cookie_path');
+if ( !$bb->core_plugins_cookie_path ) {
+	$bb->core_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL);
+}
+
+$bb->user_plugins_cookie_path = bb_get_option('bb_user_plugins_cookie_path');
+if ( !$bb->user_plugins_cookie_path ) {
+	$bb->user_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_PLUGIN_URL);
+}
+
+$bb->sitecookiepath = bb_get_option('sitecookiepath');
+$_bb_sitecookiepath = $bb->sitecookiepath;
+if ( !$bb->sitecookiepath && $bb->wp_cookies_integrated ) {
+	$bb->sitecookiepath = preg_replace('|https?://[^/]+|i', '', $bb->wp_siteurl );
+	$_bb_sitecookiepath = $bb->sitecookiepath;
+	if (bb_get_common_paths($bb->sitecookiepath, $bb->cookiepath) == $bb->cookiepath) {
+		$bb->sitecookiepath = $bb->cookiepath;
+	}
+}
+
+$bb->wp_admin_cookie_path = bb_get_option('wp_admin_cookie_path');
+if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
+	$bb->wp_admin_cookie_path = $_bb_sitecookiepath . 'wp-admin/';
+}
+
+$bb->wp_plugins_cookie_path = bb_get_option('wp_plugins_cookie_path');
+if ( !$bb->wp_plugins_cookie_path && $bb->wp_cookies_integrated ) {
+	// This is a best guess only, should be manually set to match WP_PLUGIN_URL
+	$bb->wp_plugins_cookie_path = $_bb_sitecookiepath . 'wp-content/plugins/';
+}
+unset($_bb_sitecookiepath);
+
+/**
+ * Should be exactly the same as the default value of the KEYS in bb-config-sample.php
+ * @since 1.0-beta
+ */
+$bb_default_secret_key = 'put your unique phrase here';
 
 
 
@@ -650,14 +698,96 @@ if ( !class_exists( 'WP_User' ) )
 if ( !class_exists( 'WP_Auth' ) ) {
 	require( BACKPRESS_PATH . 'class.wp-auth.php' );
 	
+	$cookies = array();
+	
+	$cookies['logged_in'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->cookiepath,
+		'name' => $bb->logged_in_cookie
+	);
+	
+	if ($bb->sitecookiepath && $bb->cookiepath != $bb->sitecookiepath) {
+		$cookies['logged_in'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $bb->sitecookiepath,
+			'name' => $bb->logged_in_cookie
+		);
+	}
+	
+	$cookies['auth'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->admin_cookie_path,
+		'name' => $bb->authcookie
+	);
+	
+	$cookies['secure_auth'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->admin_cookie_path,
+		'name' => $bb->secure_auth_cookie
+	);
+	
+	$cookies['auth'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->core_plugins_cookie_path,
+		'name' => $bb->authcookie
+	);
+	
+	$cookies['secure_auth'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->core_plugins_cookie_path,
+		'name' => $bb->secure_auth_cookie
+	);
+	
+	$cookies['auth'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->user_plugins_cookie_path,
+		'name' => $bb->authcookie
+	);
+	
+	$cookies['secure_auth'][] = array(
+		'domain' => $bb->cookiedomain,
+		'path' => $bb->user_plugins_cookie_path,
+		'name' => $bb->secure_auth_cookie
+	);
+	
+	if ($bb->wp_admin_cookie_path) {
+		$cookies['auth'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $bb->wp_admin_cookie_path,
+			'name' => $bb->authcookie
+		);
+	
+		$cookies['secure_auth'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $bb->wp_admin_cookie_path,
+			'name' => $bb->secure_auth_cookie
+		);
+	}
+	
+	if ($bb->wp_plugins_cookie_path) {
+		$cookies['auth'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $bb->wp_plugins_cookie_path,
+			'name' => $bb->authcookie
+		);
+	
+		$cookies['secure_auth'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $bb->wp_plugins_cookie_path,
+			'name' => $bb->secure_auth_cookie
+		);
+	}
+	
 	/**
 	 * WP_Auth object
 	 */
-	$wp_auth_object = new WP_Auth( $bbdb, $wp_users_object, array(
-		'domain' => $bb->cookiedomain,
-		'path' => array( $bb->cookiepath, $bb->sitecookiepath ),
-		'name' => $bb->authcookie
-	) );
+	$wp_auth_object = new WP_Auth(
+		$bbdb,
+		$wp_users_object,
+		$cookies
+	);
+	
+	unset($cookies);
 }
 
 /**
