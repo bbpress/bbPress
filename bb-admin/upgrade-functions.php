@@ -16,31 +16,37 @@ function bb_upgrade_all() {
 	$bb_upgrade = array();
 
 	// Pre DB Delta
-	$bb_upgrade[] = bb_upgrade_160(); // Break blocked users
-	$bb_upgrade[] = bb_upgrade_170(); // Escaping in usermeta
-	$bb_upgrade[] = bb_upgrade_180(); // Delete users for real
-	$bb_upgrade[] = bb_upgrade_190(); // Move topic_resolved to topicmeta
-	$bb_upgrade[] = bb_upgrade_200(); // Indices
-	$bb_upgrade[] = bb_upgrade_210(); // Convert text slugs to varchar slugs
-	$bb_upgrade[] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
+	$bb_upgrade['messages'][] = bb_upgrade_160(); // Break blocked users
+	$bb_upgrade['messages'][] = bb_upgrade_170(); // Escaping in usermeta
+	$bb_upgrade['messages'][] = bb_upgrade_180(); // Delete users for real
+	$bb_upgrade['messages'][] = bb_upgrade_190(); // Move topic_resolved to topicmeta
+	$bb_upgrade['messages'][] = bb_upgrade_200(); // Indices
+	$bb_upgrade['messages'][] = bb_upgrade_210(); // Convert text slugs to varchar slugs
+	$bb_upgrade['messages'][] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
 
 	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
-	$bb_upgrade = array_merge($bb_upgrade, bb_sql_delta($bb_queries));
+	$delta = bb_sql_delta($bb_queries);
+	$bb_upgrade['messages'] = array_merge($bb_upgrade['messages'], $delta['messages']);
+	$bb_upgrade['errors'] = $delta['errors'];
 
 	// Post DB Delta
-	$bb_upgrade[] = bb_upgrade_1000(); // Make forum and topic slugs
-	$bb_upgrade[] = bb_upgrade_1010(); // Make sure all forums have a valid parent
-	$bb_upgrade[] = bb_upgrade_1020(); // Add a user_nicename to existing users
-	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
-	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
-	$bb_upgrade[] = bb_upgrade_1050(); // Update active theme if present
-	$bb_upgrade[] = bb_upgrade_1060(); // throttle_time option
-	$bb_upgrade[] = bb_upgrade_1070(); // trim whitespace from raw_tag
-	$bb_upgrade[] = bb_upgrade_1080(); // Convert tags to taxonomy
+	$bb_upgrade['messages'][] = bb_upgrade_1000(); // Make forum and topic slugs
+	$bb_upgrade['messages'][] = bb_upgrade_1010(); // Make sure all forums have a valid parent
+	$bb_upgrade['messages'][] = bb_upgrade_1020(); // Add a user_nicename to existing users
+	$bb_upgrade['messages'][] = bb_upgrade_1030(); // Move admin_email option to from_email
+	$bb_upgrade['messages'][] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
+	$bb_upgrade['messages'][] = bb_upgrade_1050(); // Update active theme if present
+	$bb_upgrade['messages'][] = bb_upgrade_1060(); // throttle_time option
+	$bb_upgrade['messages'][] = bb_upgrade_1070(); // trim whitespace from raw_tag
+	$bb_upgrade['messages'][] = bb_upgrade_1080(); // Convert tags to taxonomy
+	$bb_upgrade['messages'][] = bb_upgrade_1090(); // Add display names
 
 	bb_update_db_version();
 
-	return array_filter($bb_upgrade);
+	$bb_upgrade['messages'] = array_filter($bb_upgrade['messages']);
+	$bb_upgrade['errors'] = array_filter($bb_upgrade['errors']);
+
+	return $bb_upgrade;
 }
 
 
@@ -892,6 +898,26 @@ function bb_upgrade_1080() {
 	bb_update_option( 'bb_db_version', 1526 );
 
 	return 'Tags copied to taxonomy tables: ' . __FUNCTION__;
+}
+
+function bb_upgrade_1090() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1589 )
+		return;
+
+	global $bbdb;
+
+	$users = (array) $bbdb->get_results( "SELECT `ID`, `user_login` FROM $bbdb->users WHERE `display_name` = '' OR `display_name` IS NULL;" );
+
+	if ($users) {
+		foreach ($users as $user) {
+			$bbdb->query( "UPDATE $bbdb->users SET `display_name` = '" . $user->user_login . "' WHERE ID = " . $user->ID . ";" );
+		}
+		unset($user, $users);
+	}
+
+	bb_update_option( 'bb_db_version', 1589 );
+
+	return 'Display names populated: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {

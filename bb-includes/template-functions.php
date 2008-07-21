@@ -351,7 +351,7 @@ function bb_get_title( $args = '' ) {
 			break;
 		
 		case 'profile-page':
-			$title[] = get_user_name();
+			$title[] = get_user_display_name();
 			break;
 		
 		case 'view-page':
@@ -886,7 +886,8 @@ function topic_last_poster( $id = 0 ) {
 
 function get_topic_last_poster( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	return apply_filters( 'get_topic_last_poster', $topic->topic_last_poster_name, $topic->topic_last_poster ); // Last arg = user ID
+	$user_display_name = get_user_display_name($topic->topic_last_poster);
+	return apply_filters( 'get_topic_last_poster', $user_display_name, $topic->topic_last_poster ); // Last arg = user ID
 }
 
 function topic_author( $id = 0 ) {
@@ -896,7 +897,8 @@ function topic_author( $id = 0 ) {
 
 function get_topic_author( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	return apply_filters( 'get_topic_author', $topic->topic_poster_name, $topic->topic_poster ); // Last arg = user ID
+	$user_display_name = get_user_display_name($topic->topic_poster);
+	return apply_filters( 'get_topic_author', $user_display_name, $topic->topic_poster ); // Last arg = user ID
 }
 
 // Filters expect the format to by mysql on both topic_time and get_topic_time
@@ -1291,7 +1293,7 @@ function post_author( $post_id = 0 ) {
 
 function get_post_author( $post_id = 0 ) {
 	if ( $user = bb_get_user( get_post_author_id( $post_id ) ) )
-		return apply_filters( 'get_post_author', $user->user_login, $user->ID );
+		return apply_filters( 'get_post_author', $user->display_name, $user->ID );
 	else
 		return __('Anonymous');
 }
@@ -1606,6 +1608,11 @@ function get_user_name( $id = 0 ) {
 	return apply_filters( 'get_user_name', $user->user_login, $user->ID );
 }
 
+function get_user_display_name( $id = 0 ) {
+	$user = bb_get_user( bb_get_user_id( $id ) );
+	return apply_filters( 'get_user_display_name', $user->display_name, $user->ID );
+}
+
 function user_title( $id = 0 ) {
 	echo apply_filters( 'user_title', get_user_title( $id ), bb_get_user_id( $id ) );
 }
@@ -1633,6 +1640,8 @@ function bb_profile_data( $id = 0 ) {
 	echo "\t<dd>" . bb_datetime_format_i18n($reg_time, 'date') . ' (' . bb_since($reg_time) . ")</dd>\n";
 	if ( is_array( $profile_info_keys ) ) {
 		foreach ( $profile_info_keys as $key => $label ) {
+			if ( in_array($key, array('first_name', 'last_name', 'display_name')) )
+				continue;
 			$val = 'user_url' == $key ? get_user_link( $user->ID ) : $user->$key;
 			if (
 				( 'user_email' != $key || ( 'user_email' == $key && bb_current_user_can( 'edit_users' ) ) )
@@ -1709,7 +1718,34 @@ function bb_profile_data_form( $id = 0 ) {
 <tr class="<?php echo $class; ?>">
 	<th scope="row"><label for="<?php echo $name; ?>"><?php echo $title; ?></label></th>
 	<td>
+<?php
+			if ($key == 'display_name') {
+?>
+		<select name="display_name" id="display_name">
+<?php
+				$public_display = array();
+				$public_display['display_displayname'] = $user->display_name;
+				//$public_display['display_nickname'] = $user->nickname;
+				$public_display['display_username'] = $user->user_login;
+				$public_display['display_firstname'] = $user->first_name;
+				$public_display['display_firstlast'] = $user->first_name.' '.$user->last_name;
+				$public_display['display_lastfirst'] = $user->last_name.' '.$user->first_name;
+				$public_display = array_unique(array_filter(array_map('trim', $public_display)));
+				
+				foreach($public_display as $id => $item) {
+?>
+			<option id="<?php echo $id; ?>" value="<?php echo $item; ?>"><?php echo $item; ?></option>
+<?php
+				}
+?>
+		</select>
+<?php
+			} else {
+?>
 		<input name="<?php echo $name; ?>" type="<?php echo $type; ?>" id="<?php echo $name; ?>" value="<?php echo $value; ?>" />
+<?php
+			}
+?>
 		<?php echo $message; ?>
 	</td>
 </tr>
@@ -1888,7 +1924,16 @@ function bb_profile_password_form( $id = 0 ) {
 		<?php echo $message; ?>
 	</td>
 </tr>
+<tr>
+	<th scope="row"><?php _e('Password Strength'); ?></th>
+	<td>
+		<input type="hidden" name="user_login" id="user_login" value="<?php echo $user->user_login; ?>" />
+		<div id="pass-strength-result"><?php _e('Too short'); ?></div>
+	</td>
+</tr>
 </table>
+
+<p><?php _e('Hint: Use upper and lower case characters, numbers and symbols like !"?$%^&amp;( in your password.'); ?></p>
 
 <?php
 
@@ -1975,6 +2020,8 @@ function bb_get_current_user_info( $key = '' ) {
 		return (int) $user->ID;
 		break;
 	case 'name' :
+		return get_user_display_name( $user->ID );
+		break;
 	case 'login' :
 	case 'user_login' :
 		return get_user_name( $user->ID );
@@ -2554,4 +2601,10 @@ function _bb_time_function_return( $time, $args ) {
 function bb_template_scripts() {
 	if ( is_topic() && bb_is_user_logged_in() )
 		wp_enqueue_script( 'topic' );
+	elseif ( is_bb_profile() && bb_is_user_logged_in() ) {
+		global $self;
+		if ($self == 'profile-edit.php') {
+			wp_enqueue_script( 'profile-edit' );
+		}
+	}
 }

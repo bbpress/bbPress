@@ -18,12 +18,20 @@ function bb_default_scripts( &$scripts ) {
 	$scripts->localize( 'wp-lists', 'wpListL10n', array(
 		'url' => $scripts->base_url_admin . 'admin-ajax.php'
 	) );
-	$scripts->add( 'topic',            $scripts->base_url . 'js/topic.js', array('wp-lists'), '20080506' );
-	$scripts->add( 'jquery',           $scripts->base_url . 'js/jquery/jquery.js', false, '1.1.3.1');
-	$scripts->add( 'interface',        $scripts->base_url . 'js/jquery/interface.js', array('jquery'), '1.2.3');
-	$scripts->add( 'jquery-color',     $scripts->base_url . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
-	$scripts->add( 'add-load-event',   $scripts->base_url . 'js/add-load-event.js' );
-	$scripts->add( 'content-forums',   $scripts->base_url_admin . 'js/content-forums.js', array('listman', 'interface'), '20080309' );
+	$scripts->add( 'topic',                   $scripts->base_url . 'js/topic.js', array('wp-lists'), '20080506' );
+	$scripts->add( 'jquery',                  $scripts->base_url . 'js/jquery/jquery.js', false, '1.1.3.1');
+	$scripts->add( 'interface',               $scripts->base_url . 'js/jquery/interface.js', array('jquery'), '1.2.3');
+	$scripts->add( 'jquery-color',            $scripts->base_url . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
+	$scripts->add( 'add-load-event',          $scripts->base_url . 'js/add-load-event.js' );
+	$scripts->add( 'password-strength-meter', $scripts->base_url . 'js/password-strength-meter.js', array('jquery'), '20070405' );
+	$scripts->localize( 'password-strength-meter', 'pwsL10n', array(
+		'short' => __('Too short'),
+		'bad' => __('Bad'),
+		'good' => __('Good'),
+		'strong' => __('Strong')
+	));
+	$scripts->add( 'profile-edit', $scripts->base_url . 'js/profile-edit.js', array('password-strength-meter'), '20080721' );
+	$scripts->add( 'content-forums',          $scripts->base_url_admin . 'js/content-forums.js', array('listman', 'interface'), '20080309' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
 		'saveText' => __('Save Forum Order &#187;'),

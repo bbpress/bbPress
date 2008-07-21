@@ -7,6 +7,10 @@ require_once( BB_PATH . BB_INC . 'registration-functions.php');
 
 $profile_info_keys = get_profile_info_keys();
 
+unset($profile_info_keys['first_name']);
+unset($profile_info_keys['last_name']);
+unset($profile_info_keys['display_name']);
+
 $user_login = $user_safe = true;
 
 $_globals = array('profile_info_keys', 'user_safe', 'user_login', 'user_email', 'user_url', 'bad_input');

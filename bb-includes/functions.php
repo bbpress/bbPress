@@ -1672,7 +1672,7 @@ function bb_get_option( $option ) {
 		return '1.0-dev'; // Don't filter
 		break;
 	case 'bb_db_version' :
-		return '1528'; // Don't filter
+		return '1589'; // Don't filter
 		break;
 	case 'html_type' :
 		$r = 'text/html';
@@ -2174,7 +2174,7 @@ function bb_update_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 	global $bbdb;
 	if ( !is_numeric( $object_id ) || empty($object_id) && !$global )
 		return false;
-	$object_id = (int) $object_id;
+	$cache_object_id = $object_id = (int) $object_id;
 	switch ( $type ) {
 		case 'option':
 			$object_type = 'bb_option';
@@ -2217,7 +2217,10 @@ function bb_update_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 		$bbdb->update( $bbdb->meta, array( 'meta_value' => $_meta_value), array( 'object_type' => $object_type, 'object_id' => $object_id, 'meta_key' => $meta_key ) );
 	}
 
-	wp_cache_delete( $object_id, $object_type );
+	if ($type == 'option') {
+		$cache_object_id = $meta_key;
+	}
+	wp_cache_delete( $cache_object_id, $object_type );
 	if ( !$cur )
 		return true;
 }
@@ -2227,7 +2230,7 @@ function bb_delete_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 	global $bbdb;
 	if ( !is_numeric( $object_id ) || empty($object_id) && !$global )
 		return false;
-	$object_id = (int) $object_id;
+	$cache_object_id = $object_id = (int) $object_id;
 	switch ( $type ) {
 		case 'option':
 			$object_type = 'bb_option';
@@ -2268,7 +2271,10 @@ function bb_delete_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 
 	$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->meta WHERE meta_id = %d", $meta_id ) );
 
-	wp_cache_delete( $object_id, $object_type );
+	if ($type == 'option') {
+		$cache_object_id = $meta_key;
+	}
+	wp_cache_delete( $cache_object_id, $object_type );
 	return true;
 }
 
@@ -2623,6 +2629,9 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 //meta_key => (required?, Label).  Don't use user_{anything} as the name of your meta_key.
 function get_profile_info_keys() {
 	return apply_filters( 'get_profile_info_keys', array(
+		'first_name' => array(0, __('First name')),
+		'last_name' => array(0, __('Last name')),
+		'display_name' => array(1, __('Display name as')),
 		'user_email' => array(1, __('Email')),
 		'user_url' => array(0, __('Website')),
 		'from' => array(0, __('Location')),
