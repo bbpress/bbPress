@@ -64,7 +64,9 @@ switch ($bb_install->step) {
 					$bb_install->input_text('bbdb_host');
 					$bb_install->input_text('bbdb_charset');
 					$bb_install->input_text('bbdb_collate');
-					$bb_install->input_text('bb_secret_key');
+					$bb_install->input_text('bb_auth_key');
+					$bb_install->input_text('bb_secure_auth_key');
+					$bb_install->input_text('bb_logged_in_key');
 					$bb_install->input_text('bb_table_prefix', 'ltr');
 ?>
 						</div>
@@ -136,8 +138,12 @@ switch ($bb_install->step) {
 <?php
 					$bb_install->input_text('wp_siteurl', 'ltr');
 					$bb_install->input_text('wp_home', 'ltr');
-					$bb_install->input_text('wp_secret_key');
-					$bb_install->input_text('wp_secret');
+					$bb_install->input_text('wp_auth_key');
+					$bb_install->input_text('wp_auth_salt');
+					$bb_install->input_text('wp_secure_auth_key');
+					$bb_install->input_text('wp_secure_auth_salt');
+					$bb_install->input_text('wp_logged_in_key');
+					$bb_install->input_text('wp_logged_in_salt');
 ?>
 							</fieldset>
 						</div>
@@ -187,14 +193,20 @@ switch ($bb_install->step) {
 				<script type="text/javascript" charset="utf-8">
 					function updateWordPressOptionURL () {
 						var siteURLInputValue = document.getElementById('wp_siteurl').value;
-						var outputAnchor = document.getElementById('getSecretOption');
+						if (siteURLInputValue && siteURLInputValue.substr(-1,1) != '/') {
+							siteURLInputValue += '/';
+						}
+						var authSaltAnchor = document.getElementById('getAuthSaltOption');
+						var secureAuthSaltAnchor = document.getElementById('getSecureAuthSaltOption');
+						var loggedInSaltAnchor = document.getElementById('getLoggedInSaltOption');
 						if (siteURLInputValue) {
-							if (siteURLInputValue.substr(-1,1) != '/') {
-								siteURLInputValue += '/';
-							}
-							outputAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+							authSaltAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+							secureAuthSaltAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+							loggedInSaltAnchor.href = siteURLInputValue + 'wp-admin/options.php';
 						} else {
-							outputAnchor.href = '';
+							authSaltAnchor.href = '';
+							secureAuthSaltAnchor.href = '';
+							loggedInSaltAnchor.href = '';
 						}
 					}
 					var siteURLInput = document.getElementById('wp_siteurl');
@@ -317,7 +329,7 @@ switch ($bb_install->step) {
 					<dt><?php _e('Password:'); ?></dt>
 					<dd><code><?php echo $bb_install->data[4]['form']['keymaster_user_password']['value']; ?></code></dd>
 					<dt><?php _e('Site address:'); ?></dt>
-					<dd dir="ltr"><a href="<?php bb_option( 'uri' ); ?>"><?php bb_option( 'uri' ); ?></a></dd>
+					<dd dir="ltr"><a href="<?php bb_uri(); ?>"><?php bb_uri(null, null, BB_URI_CONTEXT_TEXT); ?></a></dd>
 				</dl>
 <?php
 				if ($bb_install->data[3]['form']['keymaster_user_type']['value'] == 'bbPress') {
@@ -327,7 +339,7 @@ switch ($bb_install->step) {
 				}
 			}
 ?>
-				<form action="<?php bb_option( 'uri' ); ?>">
+				<form action="<?php bb_uri(null, null, BB_URI_CONTEXT_FORM_ACTION); ?>">
 					<fieldset>
 <?php
 			$bb_install->input_toggle('toggle_4');

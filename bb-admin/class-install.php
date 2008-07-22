@@ -650,10 +650,22 @@ class BB_Install
 						'note'         => __('The character collation value set when the database was created.'),
 						'prerequisite' => 'toggle_1'
 					),
-					'bb_secret_key' => array(
+					'bb_auth_key' => array(
 						'value'        => '',
-						'label'        => __('bbPress cookie secret key'),
-						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress cookies unique and harder for an attacker to decipher.'),
+						'label'        => __('bbPress "auth" cookie key'),
+						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "auth" cookie unique and harder for an attacker to decipher.'),
+						'prerequisite' => 'toggle_1'
+					),
+					'bb_secure_auth_key' => array(
+						'value'        => '',
+						'label'        => __('bbPress "secure auth" cookie key'),
+						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "secure auth" cookie unique and harder for an attacker to decipher.'),
+						'prerequisite' => 'toggle_1'
+					),
+					'bb_logged_in_key' => array(
+						'value'        => '',
+						'label'        => __('bbPress "logged in" cookie key'),
+						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "logged in" cookie unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_table_prefix' => array(
@@ -716,16 +728,40 @@ class BB_Install
 						'note'  => __('This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
-					'wp_secret_key' => array(
+					'wp_auth_key' => array(
 						'value' => '',
-						'label' => __('WordPress cookie secret key'),
-						'note'  => __('This value must match the value of the constant named "SECRET_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress cookie secret key set in the first step.'),
+						'label' => __('WordPress "auth" cookie key'),
+						'note'  => __('This value must match the value of the constant named "AUTH_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress "auth" cookie key set in the first step.'),
 						'prerequisite' => 'toggle_2_1'
 					),
-					'wp_secret' => array(
+					'wp_auth_salt' => array(
 						'value' => '',
-						'label' => __('WordPress database secret'),
-						'note'  => __('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.'),
+						'label' => __('WordPress "auth" cookie salt'),
+						'note'  => __('This must match the value of the WordPress setting named "auth_salt" in your WordPress installation. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.'),
+						'prerequisite' => 'toggle_2_1'
+					),
+					'wp_secure_auth_key' => array(
+						'value' => '',
+						'label' => __('WordPress "secure auth" cookie key'),
+						'note'  => __('This value must match the value of the constant named "SECURE_AUTH_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress "secure auth" cookie key set in the first step.'),
+						'prerequisite' => 'toggle_2_1'
+					),
+					'wp_secure_auth_salt' => array(
+						'value' => '',
+						'label' => __('WordPress "secure auth" cookie salt'),
+						'note'  => __('This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress installation. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.'),
+						'prerequisite' => 'toggle_2_1'
+					),
+					'wp_logged_in_key' => array(
+						'value' => '',
+						'label' => __('WordPress "logged in" cookie key'),
+						'note'  => __('This value must match the value of the constant named "LOGGED_IN_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress "logged in" cookie key set in the first step.'),
+						'prerequisite' => 'toggle_2_1'
+					),
+					'wp_logged_in_salt' => array(
+						'value' => '',
+						'label' => __('WordPress "logged in" cookie salt'),
+						'note'  => __('This must match the value of the WordPress setting named "logged_in_salt" in your WordPress installation. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.'),
 						'prerequisite' => 'toggle_2_1'
 					),
 					'toggle_2_2' => array(
@@ -898,6 +934,92 @@ class BB_Install
 	}
 	
 	/**
+	 * Writes the given alterations to file
+	 *
+	 * @param $file_source string The full path to the file to be read from
+	 * @param $file_target string The full path to the file to be written to
+	 * @param $alterations array An array of arrays containing alterations to be made
+	 * @return void
+	 **/
+	function write_lines_to_file($file_source, $file_target, $alterations)
+	{
+		if (!$file_source || !file_exists($file_source) || !is_file($file_source)) {
+			return -1;
+		}
+		
+		if (!$file_target) {
+			$file_target = $file_source;
+		}
+		
+		if (!$alterations || !is_array($alterations)) {
+			return -2;
+		}
+		
+		/*
+		Alterations array takes the form
+		array(
+			'1st 20 chars of line' => array('Search string', 'Replacement string'),
+			'1st 20 chars of line' => array('Search string', 'Replacement string')
+		);
+		*/
+		
+		// Get the existing lines in the file
+		$lines = file($file_source);
+		
+		// Initialise an array to store the modified lines
+		$modified_lines = array();
+		
+		// Loop through the lines and modify them
+		foreach ($lines as $line) {
+			if (isset($alterations[substr($line,0,20)])) {
+				$alteration = $alterations[substr($line,0,20)];
+				$modified_lines[] = str_replace($alteration[0], $alteration[1], $line);
+			} else {
+				$modified_lines[] = $line;
+			}
+		}
+		
+		$writable = true;
+		if (file_exists($file_target)) {
+			if (!is_writable($file_target)) {
+				$writable = false;
+			}
+		} else {
+			$dir_target = dirname($file_target);
+			if (file_exists($dir_target)) {
+				if (!is_writable($dir_target) || !is_dir($dir_target)) {
+					$writable = false;
+				}
+			} else {
+				$writable = false;
+			}
+		}
+		
+		if (!$writable) {
+			return trim(join(null, $modified_lines));
+		}
+		
+		// Open the file for writing - rewrites the whole file
+		$file_handle = fopen($file_target, 'w');
+		
+		// Write lines one by one to avoid OS specific newline hassles
+		foreach ($modified_lines as $modified_line) {
+			if (strpos($modified_line, '?>') !== false)
+				$modified_line = '?>';
+			fwrite($file_handle, $modified_line);
+			if ($modified_line == '?>')
+				break;
+		}
+		
+		// Close the config file
+		fclose($file_handle);
+		
+		chmod($file_target, 0666);
+		
+		return 1;
+	}
+	
+	/**
 	 * is_posted() - Reports whether the request method is post or not
 	 *
 	 * @return boolean True if the page was posted, otherwise false
@@ -1034,25 +1156,16 @@ class BB_Install
 			$data['toggle_1']['checked'] = 'checked="checked"';
 			$data['toggle_1']['display'] = 'block';
 			
-			// A backslash at the end of the secret key could escape the closing quotation mark in the define
-			$data['bb_secret_key']['value'] = rtrim($data['bb_secret_key']['value'], "\\");
-			// Replace any single quotes with nothing
-			$data['bb_secret_key']['value'] = str_replace("'", '', $data['bb_secret_key']['value']);
+			// Deal with slashes in the keys
+			$data['bb_auth_key']['value']        = addslashes(stripslashes($data['bb_auth_key']['value']));
+			$data['bb_secure_auth_key']['value'] = addslashes(stripslashes($data['bb_secure_auth_key']['value']));
+			$data['bb_logged_in_key']['value']   = addslashes(stripslashes($data['bb_logged_in_key']['value']));
 		}
 		
 		// Stop here if we are going backwards
 		if ($_POST['back_1_1']) {
 			$this->step_status[1] = 'incomplete';
 			return 'incomplete';
-		}
-		
-		// Read the contents of the sample config
-		if (file_exists(BB_PATH . 'bb-config-sample.php')) {
-			$sample_config = file(BB_PATH . 'bb-config-sample.php');
-		} else {
-			$this->step_status[1] = 'error';
-			$this->strings[1]['messages']['error'][] = __('I could not find the file <code>bb-config-sample.php</code><br />Please upload it to the root directory of your bbPress installation.');
-			return 'error';
 		}
 		
 		// Test the db connection.
@@ -1084,81 +1197,42 @@ class BB_Install
 		}
 		$bbdb->suppress_errors(false);
 		
-		// Initialise an array to store the config lines
-		$config_lines = array();
+		$config_result = $this->write_lines_to_file(
+			BB_PATH . 'bb-config-sample.php',
+			BB_PATH . 'bb-config.php',
+			array(
+				"define('BBDB_NAME', "  => array("'bbpress'",                     "'" . $data['bbdb_name']['value'] . "'"),
+				"define('BBDB_USER', "  => array("'username'",                    "'" . $data['bbdb_user']['value'] . "'"),
+				"define('BBDB_PASSWOR"  => array("'password'",                    "'" . $data['bbdb_password']['value'] . "'"),
+				"define('BBDB_HOST', "  => array("'localhost'",                   "'" . $data['bbdb_host']['value'] . "'"),
+				"define('BBDB_CHARSET"  => array("'utf8'",                        "'" . $data['bbdb_charset']['value'] . "'"),
+				"define('BBDB_COLLATE"  => array("''",                            "'" . $data['bbdb_collate']['value'] . "'"),
+				"define('BB_AUTH_KEY'"  => array("'put your unique phrase here'", "'" . $data['bb_auth_key']['value'] . "'"),
+				"define('BB_SECURE_AU"  => array("'put your unique phrase here'", "'" . $data['bb_secure_auth_key']['value'] . "'"),
+				"define('BB_LOGGED_IN"  => array("'put your unique phrase here'", "'" . $data['bb_logged_in_key']['value'] . "'"),
+				"\$bb_table_prefix = '" => array("'bb_'",                         "'" . $data['bb_table_prefix']['value'] . "'"),
+				"define('BB_LANG', ''"  => array("''",                            "'" . $data['bb_lang']['value'] . "'")
+			)
+		);
 		
-		// Loop through the sample config and write lines to the new config file
-		foreach ($sample_config as $line) {
-			switch (substr($line,0,18)) {
-				case "define('BBDB_NAME'":
-					$config_lines[] = str_replace("'bbpress'", "'" . $data['bbdb_name']['value'] . "'", $line);
-					break;
-				case "define('BBDB_USER'":
-					$config_lines[] = str_replace("'username'", "'" . $data['bbdb_user']['value'] . "'", $line);
-					break;
-				case "define('BBDB_PASSW":
-					$config_lines[] = str_replace("'password'", "'" . $data['bbdb_password']['value'] . "'", $line);
-					break;
-				case "define('BBDB_HOST'":
-					$config_lines[] = str_replace("'localhost'", "'" . $data['bbdb_host']['value'] . "'", $line);
-					break;
-				case "define('BBDB_CHARS":
-					$config_lines[] = str_replace("'utf8'", "'" . $data['bbdb_charset']['value'] . "'", $line);
-					break;
-				case "define('BBDB_COLLA":
-					$config_lines[] = str_replace("''", "'" . $data['bbdb_collate']['value'] . "'", $line);
-					break;
-				case "define('BB_SECRET_":
-					$config_lines[] = str_replace("'put your unique phrase here'", "'" . $data['bb_secret_key']['value'] . "'", $line);
-					break;
-				case '$bb_table_prefix =':
-					$config_lines[] = str_replace("'bb_'", "'" . $data['bb_table_prefix']['value'] . "'", $line);
-					break;
-				case "define('BB_LANG', ":
-					$config_lines[] = str_replace("''", "'" . $data['bb_lang']['value'] . "'", $line);
-					break;
-				default:
-					$config_lines[] = $line;
-			}
-		}
-		
-		// If we can write the file
-		if ($this->configs['writable']) {
-			
-			// Create the new config file and open it for writing
-			$config_handle = fopen(BB_PATH . 'bb-config.php', 'w');
-			
-			// Write lines one by one to avoid OS specific newline hassles
-			foreach ($config_lines as $config_line) {
-				if (strpos($config_line, '?>') !== false)
-					$config_line = '?>';
-				fwrite($config_handle, $config_line);
-				if ($config_line == '?>')
-					break;
-			}
-			
-			// Close the new config file
-			fclose($config_handle);
-			
-			// Make the file slightly more secure than world readable
-			chmod(BB_PATH . 'bb-config.php', 0666);
-			
-			if (file_exists(BB_PATH . 'bb-config.php')) {
+		switch ($config_result) {
+			case -1:
+				$this->step_status[1] = 'error';
+				$this->strings[1]['messages']['error'][] = __('I could not find the file <code>bb-config-sample.php</code><br />Please upload it to the root directory of your bbPress installation.');
+				return 'error';
+				break;
+			case 1:
 				$this->configs['bb-config.php'] = BB_PATH . 'bb-config.php';
 				$this->step_status[1] = 'complete';
 				$this->strings[1]['messages']['message'][] = __('Your settings have been saved to the file <code>bb-config.php</code><br />You can now continue to the next step.');
-			}
-			
-		}
-			
-		if (!$this->configs['bb-config.php']) {
-			
-			// Just write the contents to screen
-			$this->data[1]['form']['config']['value'] = trim(join(null, $config_lines));
-			
-			$this->step_status[1] = 'manual';
-			$this->strings[1]['messages']['error'][] = __('Your settings could not be saved to a configuration file. You will need to save the text shown below into a file named <code>bb-config.php</code> in the root directory of your bbPress installation before you can continue.');
-			
+				break;
+			default:
+				// Just write the contents to screen
+				$this->data[1]['form']['config']['value'] = $config_result;
+				
+				$this->step_status[1] = 'manual';
+				$this->strings[1]['messages']['error'][] = __('Your settings could not be saved to a configuration file. You will need to save the text shown below into a file named <code>bb-config.php</code> in the root directory of your bbPress installation before you can continue.');
+				break;
 		}
 	}
 	
@@ -1208,12 +1282,25 @@ class BB_Install
 					$this->strings[2]['form_errors']['wp_home'][] = 'urlparse';
 				}
 				
-				// A backslash at the end of the secret key could escape the closing quotation mark in the define
-				$data['wp_secret_key']['value'] = rtrim($data['wp_secret_key']['value'], "\\");
-				// Replace any single quotes with nothing
-				$data['wp_secret_key']['value'] = str_replace("'", '', $data['wp_secret_key']['value']);
-				// Check the secret key for errors
-				$this->strings[2]['form_errors']['wp_secret_key'][] = empty($data['wp_secret_key']['value']) ? 'empty' : false;
+				// Deal with slashes in the keys
+				$data['wp_auth_key']['value']         = addslashes(stripslashes($data['wp_auth_key']['value']));
+				$data['wp_auth_salt']['value']        = addslashes(stripslashes($data['wp_auth_salt']['value']));
+				$data['wp_secure_auth_key']['value']  = addslashes(stripslashes($data['wp_secure_auth_key']['value']));
+				$data['wp_secure_auth_salt']['value'] = addslashes(stripslashes($data['wp_secure_auth_salt']['value']));
+				$data['wp_logged_in_key']['value']    = addslashes(stripslashes($data['wp_logged_in_key']['value']));
+				$data['wp_logged_in_salt']['value']   = addslashes(stripslashes($data['wp_logged_in_salt']['value']));
+				
+				// Check the keys for errors
+				$this->strings[2]['form_errors']['wp_auth_key'][]         = empty($data['wp_auth_key']['value']) ? 'empty' : false;
+				$this->strings[2]['form_errors']['wp_secure_auth_key'][]  = empty($data['wp_secure_auth_key']['value']) ? 'empty' : false;
+				$this->strings[2]['form_errors']['wp_logged_in_key'][]    = empty($data['wp_logged_in_key']['value']) ? 'empty' : false;
+				
+				// Salts can be taken from the database if specified
+				if (!$data['toggle_2_2']['value']) {
+					$this->strings[2]['form_errors']['wp_auth_salt'][]        = empty($data['wp_auth_salt']['value']) ? 'empty' : false;
+					// NB; secure_auth_salt is not always set in WordPress
+					$this->strings[2]['form_errors']['wp_logged_in_salt'][]   = empty($data['wp_logged_in_salt']['value']) ? 'empty' : false;
+				}
 			}
 			
 			// If database integration is selected
@@ -1561,8 +1648,12 @@ class BB_Install
 			// Show db errors
 			$bbdb->show_errors();
 			
-			$error_log = array_merge($error_log, $alterations['errors']);
-			$installation_log = array_merge($installation_log, $alterations['messages']);
+			if (isset($alterations['errors']) && is_array($alterations['errors'])) {
+				$error_log = array_merge($error_log, $alterations['errors']);
+			}
+			if (isset($alterations['messages']) && is_array($alterations['messages'])) {
+				$installation_log = array_merge($installation_log, $alterations['messages']);
+			}
 			
 			if (!$this->database_tables_are_installed()) {
 				$installation_log[] = '>>> ' . __('Database installation failed!!!');
@@ -1593,75 +1684,90 @@ class BB_Install
 				bb_update_option('wp_home', $data2['wp_home']['value']);
 				$installation_log[] = '>>> ' . __('Blog address (URL):') . ' ' . $data2['wp_home']['value'];
 				
-				if ($data2['wp_secret_key']['value'] != BB_SECRET_KEY) {
-					// Update bb-config.php again what a pain...
-					$config = file($this->configs['bb-config.php']);
-					
-					// Initialise an array to store the config lines
-					$config_lines = array();
-					
-					// Loop through the sample config and write lines to the new config file
-					foreach ($config as $line) {
-						if (substr($line,0,18) == "define('BB_SECRET_") {
-							$config_lines[] = str_replace("'" . BB_SECRET_KEY . "'", "'" . $data2['wp_secret_key']['value'] . "'", $line);
-						} else {
-							$config_lines[] = $line;
-						}
-					}
-					
-					// If we can write the file
-					if ($this->configs['writable']) {
-						// Open the config file for writing - rewrites the whole config file
-						$config_handle = fopen($this->configs['bb-config.php'], 'w');
-						
-						// Write lines one by one to avoid OS specific newline hassles
-						foreach ($config_lines as $config_line) {
-							if (strpos($config_line, '?>') !== false)
-								$config_line = '?>';
-							fwrite($config_handle, $config_line);
-							if ($config_line == '?>')
-								break;
-						}
-						
-						// Close the config file
-						fclose($config_handle);
-						
-						$installation_log[] = '>>> ' . __('WordPress cookie secret key set.');
-					} else {
-						
-						$error_log[] = '>>> ' . __('WordPress cookie secret key not set.');
+				$config_result = $this->write_lines_to_file(
+					BB_PATH . 'bb-config.php',
+					false,
+					array(
+						"define('BB_AUTH_KEY'"  => array("'" . BB_AUTH_KEY . "'",        "'" . $data2['wp_auth_key']['value'] . "'"),
+						"define('BB_SECURE_AU"  => array("'" . BB_SECURE_AUTH_KEY . "'", "'" . $data2['wp_secure_auth_key']['value'] . "'"),
+						"define('BB_LOGGED_IN"  => array("'" . BB_LOGGED_IN_KEY . "'",   "'" . $data2['wp_logged_in_key']['value'] . "'"),
+					)
+				);
+				
+				switch ($config_result) {
+					case 1:
+						$installation_log[] = '>>> ' . __('WordPress cookie keys set.');
+						break;
+					default:
+						$error_log[] = '>>> ' . __('WordPress cookie keys not set.');
 						$error_log[] = '>>>>>> ' . __('Your "bb-config.php" file was not writable.');
-						$error_log[] = '>>>>>> ' . __('You will need to manually define the "BB_SECRET_KEY" in your "bb-config.php" file.');
-						$installation_log[] = '>>> ' . __('WordPress cookie secret key not set.');
-					}
-				} else {
-					$installation_log[] = '>>> ' . __('WordPress cookie secret key set.');
+						$error_log[] = '>>>>>> ' . __('You will need to manually re-define "BB_AUTH_KEY", "BB_SECURE_AUTH_KEY" and "BB_LOGGED_IN_KEY" in your "bb-config.php" file.');
+						$installation_log[] = '>>> ' . __('WordPress cookie keys not set.');
+						break;
 				}
 				
-				if (!empty($data2['wp_secret']['value'])) {
-					bb_update_option('secret', $data2['wp_secret']['value']);
-					$installation_log[] = '>>> ' . __('WordPress database secret set.');
-				} else {
-					$fetch_wp_secret = true;
+				if (!empty($data2['wp_auth_salt']['value'])) {
+					bb_update_option('bb_auth_salt', $data2['wp_auth_salt']['value']);
+					$installation_log[] = '>>> ' . __('WordPress "auth" cookie salt set from input.');
+				}
+				
+				if (!empty($data2['wp_secure_auth_salt']['value'])) {
+					bb_update_option('bb_secure_auth_salt', $data2['wp_secure_auth_salt']['value']);
+					$installation_log[] = '>>> ' . __('WordPress "secure auth" cookie salt set from input.');
+				}
+				
+				if (!empty($data2['wp_logged_in_salt']['value'])) {
+					bb_update_option('bb_logged_in_salt', $data2['wp_logged_in_salt']['value']);
+					$installation_log[] = '>>> ' . __('WordPress "logged in" cookie salt set from input.');
 				}
 			}
 			
 			if ($data2['toggle_2_2']['value']) {
-				if ($fetch_wp_secret) {
-					$installation_log[] = '>>> ' . __('Fetching WordPress database secret.');
-					array_push($bbdb->tables, 'options');
-					$bbdb->set_prefix( $bb->wp_table_prefix, array('options') );
-					$bbdb->_force_dbhname = 'dbh_user';
-					$wp_secret = $bbdb->get_var("SELECT `option_value` FROM $bbdb->options WHERE `option_name` = 'secret' LIMIT 1");
-					$bbdb->_force_dbhname = false;
-					if ($wp_secret) {
-						bb_update_option('secret', $wp_secret);
-						$installation_log[] = '>>>>>> ' . __('WordPress database secret set.');
-					} else {
-						$error_log[] = '>>> ' . __('WordPress database secret key not set.');
-						$error_log[] = '>>>>>> ' . __('Could not fetch secret from the WordPress options table.');
-						$error_log[] = '>>>>>> ' . __('You will need to manually define the secret in your database.');
-						$installation_log[] = '>>>>>> ' . __('WordPress database secret key not set.');
+				if (
+					!bb_get_option('bb_auth_salt') ||
+					!bb_get_option('bb_secure_auth_salt') ||
+					!bb_get_option('bb_logged_in_salt')
+				) {
+					$installation_log[] = '>>> ' . __('Fetching missing WordPress cookie salts.');
+					
+					$bbdb->tables['options'] = array('user', $bb->wp_table_prefix . 'options');
+					$bbdb->set_prefix( $bb_table_prefix );
+					
+					if (!bb_get_option('bb_auth_salt')) {
+						$wp_auth_salt = $bbdb->get_var("SELECT `option_value` FROM $bbdb->options WHERE `option_name` = 'auth_salt' LIMIT 1");
+						if ($wp_auth_salt) {
+							bb_update_option('bb_auth_salt', $wp_auth_salt);
+							$installation_log[] = '>>>>>> ' . __('WordPress "auth" cookie salt set.');
+						} else {
+							$error_log[] = '>>> ' . __('WordPress "auth" cookie salt not set.');
+							$error_log[] = '>>>>>> ' . __('Could not fetch "auth" cookie salt from the WordPress options table.');
+							$error_log[] = '>>>>>> ' . __('You will need to manually define the "auth" cookie salt in your database.');
+							$installation_log[] = '>>>>>> ' . __('WordPress "auth" cookie salt not set.');
+						}
+					}
+					
+					if (!bb_get_option('bb_secure_auth_salt')) {
+						$wp_secure_auth_salt = $bbdb->get_var("SELECT `option_value` FROM $bbdb->options WHERE `option_name` = 'secure_auth_salt' LIMIT 1");
+						if ($wp_secure_auth_salt) {
+							bb_update_option('bb_secure_auth_salt', $wp_secure_auth_salt);
+							$installation_log[] = '>>>>>> ' . __('WordPress "secure auth" cookie salt set.');
+						} else {
+							// This cookie salt is sometimes empty so don't error
+							$installation_log[] = '>>>>>> ' . __('WordPress "secure auth" cookie salt not set.');
+						}
+					}
+					
+					if (!bb_get_option('bb_logged_in_salt')) {
+						$wp_logged_in_salt = $bbdb->get_var("SELECT `option_value` FROM $bbdb->options WHERE `option_name` = 'logged_in_salt' LIMIT 1");
+						if ($wp_logged_in_salt) {
+							bb_update_option('bb_logged_in_salt', $wp_logged_in_salt);
+							$installation_log[] = '>>>>>> ' . __('WordPress "logged in" cookie salt set.');
+						} else {
+							$error_log[] = '>>> ' . __('WordPress "logged in" cookie salt not set.');
+							$error_log[] = '>>>>>> ' . __('Could not fetch "logged in" cookie salt from the WordPress options table.');
+							$error_log[] = '>>>>>> ' . __('You will need to manually define the "logged in" cookie salt in your database.');
+							$installation_log[] = '>>>>>> ' . __('WordPress "logged in" cookie salt not set.');
+						}
 					}
 				}
 				
