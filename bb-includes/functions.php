@@ -1727,9 +1727,9 @@ function bb_get_option_from_db( $option ) {
 	$option = preg_replace('|[^a-z0-9_]|i', '', $option);
 
 	if ( false === $r = wp_cache_get( $option, 'bb_option' ) ) {
-		//if ( BB_INSTALLING ) $bbdb->return_errors();
+		if ( BB_INSTALLING ) $bbdb->suppress_errors();
 		$row = $bbdb->get_row( $bbdb->prepare( "SELECT meta_value FROM $bbdb->meta WHERE object_type = 'bb_option' AND meta_key = %s", $option ) );
-		//if ( BB_INSTALLING ) $bbdb->show_errors();
+		if ( BB_INSTALLING ) $bbdb->suppress_errors(false);
 
 		if ( is_object($row) ) {
 			$r = maybe_unserialize( $row->meta_value );
@@ -1989,8 +1989,12 @@ function bb_ssl_redirect()
 			break;
 		
 		case 'profile-page':
-			$tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2);
-			if ($tab == 'edit' && !bb_force_ssl_user_forms()) {
+			global $self;
+			if ($self == 'profile-edit.php') {
+				if (!bb_force_ssl_user_forms()) {
+					return;
+				}
+			} else {
 				return;
 			}
 			break;
