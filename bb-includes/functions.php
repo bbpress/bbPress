@@ -2221,7 +2221,7 @@ function bb_update_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 		$bbdb->update( $bbdb->meta, array( 'meta_value' => $_meta_value), array( 'object_type' => $object_type, 'object_id' => $object_id, 'meta_key' => $meta_key ) );
 	}
 
-	if ($type == 'option') {
+	if ($object_type == 'bb_option') {
 		$cache_object_id = $meta_key;
 	}
 	wp_cache_delete( $cache_object_id, $object_type );
@@ -2275,7 +2275,7 @@ function bb_delete_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 
 	$bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->meta WHERE meta_id = %d", $meta_id ) );
 
-	if ($type == 'option') {
+	if ($object_type == 'bb_option') {
 		$cache_object_id = $meta_key;
 	}
 	wp_cache_delete( $cache_object_id, $object_type );
