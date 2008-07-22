@@ -623,17 +623,17 @@ if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
 
-$bb->admin_cookie_path = bb_get_option('bb_admin_cookie_path');
+$bb->admin_cookie_path = bb_get_option('admin_cookie_path');
 if ( !$bb->admin_cookie_path ) {
 	$bb->admin_cookie_path = $bb->path . 'bb-admin/';
 }
 
-$bb->core_plugins_cookie_path = bb_get_option('bb_core_plugins_cookie_path');
+$bb->core_plugins_cookie_path = bb_get_option('core_plugins_cookie_path');
 if ( !$bb->core_plugins_cookie_path ) {
 	$bb->core_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL);
 }
 
-$bb->user_plugins_cookie_path = bb_get_option('bb_user_plugins_cookie_path');
+$bb->user_plugins_cookie_path = bb_get_option('user_plugins_cookie_path');
 if ( !$bb->user_plugins_cookie_path ) {
 	$bb->user_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_PLUGIN_URL);
 }
