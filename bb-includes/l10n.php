@@ -64,7 +64,7 @@ function load_textdomain($domain, $mofile) {
 	if (isset($l10n[$domain])) {
 		$l10n[$domain]->load_tables();
 		$gettext->load_tables();
-		$l10n[$domain]->cache_translations = array_merge($l10n[$domain]->cache_translations, $gettext->cache_translations);
+		$l10n[$domain]->cache_translations = array_merge($gettext->cache_translations, $l10n[$domain]->cache_translations);
 	} else
 		$l10n[$domain] = $gettext;
 
