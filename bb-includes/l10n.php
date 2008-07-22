@@ -54,15 +54,21 @@ function __ngettext($single, $plural, $number, $domain = 'default') {
 function load_textdomain($domain, $mofile) {
 	global $l10n;
 
-	if (isset($l10n[$domain]))
-		return;
-
 	if ( is_readable($mofile))
 		$input = new CachedFileReader($mofile);
 	else
 		return;
 
-	$l10n[$domain] = new gettext_reader($input);
+	$gettext = new gettext_reader($input);
+
+	if (isset($l10n[$domain])) {
+		$l10n[$domain]->load_tables();
+		$gettext->load_tables();
+		$l10n[$domain]->cache_translations = array_merge($l10n[$domain]->cache_translations, $gettext->cache_translations);
+	} else
+		$l10n[$domain] = $gettext;
+
+	unset($input, $gettext);
 }
 
 function load_default_textdomain() {
