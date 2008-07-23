@@ -90,7 +90,7 @@ function bb_reset_email( $user_login ) {
 			BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_BB_USER_FORMS
 		)
 	);
-echo $message;
+
 	return bb_mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), $message );
 }
 
@@ -167,7 +167,7 @@ function bb_send_pass( $user, $pass ) {
 		return false;
 
 	$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!");
-echo $pass;
+
 	return bb_mail(
 		bb_get_user_email( $user->ID ),
 		bb_get_option('name') . ': ' . __('Password'),
