@@ -2455,12 +2455,20 @@ function bb_repermalink() {
 
 	switch ($location) {
 		case 'forum-page':
+			if (empty($id)) {
+				$permalink = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+				break;
+			}
 			global $forum_id, $forum;
 			$forum     = get_forum( $id );
 			$forum_id  = $forum->forum_id;
 			$permalink = get_forum_link( $forum->forum_id, $page );
 			break;
 		case 'topic-page':
+			if (empty($id)) {
+				$permalink = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+				break;
+			}
 			global $topic_id, $topic;
 			$topic     = get_topic( $id );
 			$topic_id  = $topic->topic_id;
