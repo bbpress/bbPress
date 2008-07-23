@@ -207,11 +207,11 @@ foreach ($bb_queries as $_table_name => $_sql) {
 		is_array($bbdb->db_servers[$_database])
 	) {
 		$_charset_collate = '';
-		if (isset($bbdb->db_servers[$_database]['charset'])) {
+		if (isset($bbdb->db_servers[$_database]['charset']) && !empty($bbdb->db_servers[$_database]['charset'])) {
 			// Add a charset if set
 			$_charset_collate .= ' DEFAULT CHARACTER SET \'' . $bbdb->db_servers[$_database]['charset'] . '\'';
 		}
-		if (isset($bbdb->db_servers[$_database]['collate'])) {
+		if (isset($bbdb->db_servers[$_database]['collate']) && !empty($bbdb->db_servers[$_database]['collate'])) {
 			// Add a collation if set
 			$_charset_collate .= ' COLLATE \'' . $bbdb->db_servers[$_database]['collate'] . '\'';
 		}
