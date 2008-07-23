@@ -1391,7 +1391,8 @@ function bb_get_post_edit_link( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) ) {
 		$uri = bb_get_uri('edit.php', array('id' => $bb_post->post_id));
-		return "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', $uri, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
+		$r = "<a href='" . attribute_escape( apply_filters( 'post_edit_uri', $uri, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
+		return apply_filters('bb_get_post_edit_link', $r, get_post_id( $post_id ) );
 	}
 }
 
