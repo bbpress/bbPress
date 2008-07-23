@@ -16,8 +16,10 @@ RewriteBase <?php bb_option( 'path' ); ?>
 
 RewriteRule ^forum/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>forum.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^forum/([^/]+)/?$ <?php bb_option( 'path' ); ?>forum.php?id=$1 [L,QSA]
+RewriteRule ^forum/?$ <?php bb_option( 'path' ); ?> [R,L]
 RewriteRule ^topic/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>topic.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^topic/([^/]+)/?$ <?php bb_option( 'path' ); ?>topic.php?id=$1 [L,QSA]
+RewriteRule ^topic/?$ <?php bb_option( 'path' ); ?> [R,L]
 RewriteRule ^tags/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>tags.php?tag=$1&page=$2 [L,QSA]
 RewriteRule ^tags/([^/]+)/?$ <?php bb_option( 'path' ); ?>tags.php?tag=$1 [L,QSA]
 RewriteRule ^tags/?$ <?php bb_option( 'path' ); ?>tags.php [L,QSA]
