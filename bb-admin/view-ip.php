@@ -32,7 +32,7 @@ bb_get_admin_header();
 	
 		<div class="threadauthor">
 			<p><strong><?php post_author_link(); ?></strong><br />
-			  <small><?php post_author_title(); ?></small></p>
+			  <small><?php post_author_title_link(); ?></small></p>
 		</div>
 		
 		<div class="threadpost">

@@ -1311,6 +1311,14 @@ function post_author_avatar( $size = '48', $default = '', $post_id = 0 ) {
 		return false;
 	
 	$author_id = get_post_author_id( $post_id );
+	echo bb_get_avatar( $author_id, $size, $default );
+}
+
+function post_author_avatar_link( $size = '48', $default = '', $post_id = 0 ) {
+	if ( ! bb_get_option('avatars_show') )
+		return false;
+	
+	$author_id = get_post_author_id( $post_id );
 	if ( $link = get_user_link( $author_id ) ) {
 		echo '<a href="' . attribute_escape( $link ) . '">' . bb_get_avatar( $author_id, $size, $default ) . '</a>';
 	} else {
@@ -1429,17 +1437,25 @@ function get_post_author_id( $post_id = 0 ) {
 }
 
 function post_author_title( $post_id = 0 ) {
+	echo apply_filters( 'post_author_title', get_post_author_title( $post_id ), get_post_id( $post_id ) );
+}
+
+function get_post_author_title( $post_id = 0 ) {
+	return get_user_title( get_post_author_id( $post_id ) );
+}
+
+function post_author_title_link( $post_id = 0 ) {
+	echo apply_filters( 'post_author_title_link', get_post_author_title_link( $post_id ), get_post_id( $post_id ) );
+}
+
+function get_post_author_title_link( $post_id = 0 ) {
 	$title = get_post_author_title( $post_id );
 	if ( false === $title )
 		$r = __('Unregistered'); // This should never happen
 	else
 		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $title . '</a>';
 
-	echo apply_filters( 'post_author_title', $r, get_post_id( $post_id ) );
-}
-
-function get_post_author_title( $post_id = 0 ) {
-	return get_user_title( get_post_author_id( $post_id ) );
+	echo apply_filters( 'post_author_title_link', $r, get_post_id( $post_id ) );
 }
 
 function post_author_type( $post_id = 0 ) {
