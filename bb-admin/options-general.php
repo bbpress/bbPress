@@ -95,6 +95,7 @@ $selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
 unset($selected);
 ?>
 				</select>
+				<p><?php printf(__('If you activate "Numeric" or "Name based" permalinks, you will need to create a file at <code>%s</code> containing the url rewriting rules <a href="%s">provided here</a>.'), BB_PATH . '.htaccess', bb_get_uri('bb-admin/rewrite-rules.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)); ?></p>
 			</div>
 		</div>
 		<div>
