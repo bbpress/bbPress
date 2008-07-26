@@ -84,7 +84,8 @@ $bb_queries['terms'] = "CREATE TABLE IF NOT EXISTS `$bbdb->terms` (
 	`slug` varchar(200) NOT NULL default '',
 	`term_group` bigint(10) NOT NULL default 0,
 	PRIMARY KEY (`term_id`),
-	UNIQUE KEY `slug` (`slug`)
+	UNIQUE KEY `slug` (`slug`),
+	KEY name (name)
 );";
 
 // term_relationships
