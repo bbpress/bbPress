@@ -509,6 +509,26 @@ pre.block {
 	overflow-y: hidden;
 }
 
+table.block {
+	font-family:monospace;
+	margin: 0.2em;
+	padding: 1em;
+	display: block;
+	border: 1px dotted rgb(51, 51, 51);
+	background-color: rgb(218, 218, 218);
+}
+
+table.block th {
+	border-bottom: 1px solid rgb(51, 51, 51);
+}
+
+table.block th,
+table.block td {
+	line-height: 1.4em;
+	font-size: 1.3em;
+	padding: 0.4em 3em 0.4em 0.4em;
+}
+
 #bbBody form.settings div p.gravatarRating {
 	clear: both;
 	width: 60%;

@@ -3,7 +3,7 @@ require_once('admin.php');
 
 $action = $_POST['action'];
 
-if ( in_array( $action, array('update-options', 'update-users') ) ) {
+if ( in_array( $action, array('update-users', 'update-options') ) ) {
 	bb_check_admin_referer( 'options-wordpress-' . $action );
 	
 	// Deal with advanced user database checkbox when it isn't checked
@@ -36,12 +36,11 @@ if ( in_array( $action, array('update-options', 'update-users') ) ) {
 }
 
 switch ($_GET['updated']) {
-	case 'update-options':
-		bb_admin_notice( __('Settings saved.') );
-		break;
-	
 	case 'update-users':
 		bb_admin_notice( __('User role mapping saved.') );
+		break;
+	case 'update-options':
+		bb_admin_notice( __('User integration settings saved.') );
 		break;
 }
 
@@ -50,15 +49,72 @@ bb_get_admin_header();
 
 <div class="wrap">
 
-<h2><?php _e('WordPress Integration'); ?></h2>
+<h2><?php _e('User Role Map'); ?></h2>
 
-<p>
-	<?php _e('Usually, you will have to specify both cookie sharing and user database sharing settings.'); ?>
-</p>
+<p><?php _e('Here you can match WordPress roles to bbPress roles.'); ?></p>
+<p><?php _e('This will have no effect until your user tables are integrated below. Only standard WordPress roles are supported. Changes do not affect users with existing roles in both WordPress and bbPress.'); ?></p>
 
-<p>
-	<?php _e('<strong>Note:</strong> updating these settings may cause you to be logged out!'); ?>
-</p>
+<?php
+// Setup the role dropdowns
+function bb_get_roles_dropdown($id = 'roles', $name = 'roles', $set = false) {
+	$roles = '<select id="' . $id . '" name="' . $name . '">' . "\n";
+	$roles .= '<option value="">' . __('none') . '</option>' . "\n";
+	
+	global $wp_roles;
+	
+	foreach ($wp_roles->get_names() as $key => $value) {
+		if ($key == $set) {
+			$selected = ' selected="selected"';
+		} else {
+			$selected = '';
+		}
+		$roles .= '<option value="' . $key . '"' . $selected . '>bbPress ' . $value . '</option>' . "\n";
+	}
+	
+	$roles .= '</select>' . "\n";
+	
+	return $roles;
+}
+
+$wpRoles = array(
+	'administrator' => 'WordPress Administrator',
+	'editor'        => 'WordPress Editor',
+	'author'        => 'WordPress Author',
+	'contributor'   => 'WordPress Contributor',
+	'subscriber'    => 'WordPress Subscriber'
+);
+
+$wpRolesMap = bb_get_option('wp_roles_map');
+?>
+<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+	<fieldset>
+<?php
+foreach ($wpRoles as $wpRole => $wpRoleName) {
+?>
+		<div>
+			<label for="wp_roles_map_<?php echo $wpRole; ?>">
+				<?php _e($wpRoleName); ?>
+			</label>
+			<div>
+				<?php echo bb_get_roles_dropdown( 'wp_roles_map_' . $wpRole, 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
+			</div>
+		</div>
+<?php
+}
+?>
+	</fieldset>
+	<fieldset class="submit">
+		<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
+		<input type="hidden" name="action" value="update-users" />
+		<input class="submit" type="submit" name="submit" value="<?php _e('Save User Role Map') ?>" />
+	</fieldset>
+</form>
+
+<h2 class="after"><?php _e('User Integration'); ?></h2>
+
+<p><?php _e('Usually, you will have to specify both cookie sharing and user database sharing settings.'); ?></p>
+<p><?php _e('Make sure you have a "User role map" setup above before trying to add user integration.'); ?></p>
+<p><?php _e('<strong>Note:</strong> updating these settings may cause you to be logged out!'); ?></p>
 
 <form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
@@ -83,25 +139,49 @@ bb_get_admin_header();
 			</div>
 		</div>
 		<div>
-			<label for="secret">
-				<?php _e('WordPress database secret'); ?>
+			<label for="bb_auth_salt">
+				<?php _e('WordPress "auth" cookie salt'); ?>
 			</label>
 			<div>
-				<input class="text" name="secret" id="secret" value="<?php bb_form_option('secret'); ?>" />
-				<p><?php _e('This must match the value of the WordPress setting named "secret" in your WordPress installation. Look for the option labeled "secret" in <a href="#" id="getSecretOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
+				<input class="text" name="bb_auth_salt" id="bb_auth_salt" value="<?php bb_form_option('bb_auth_salt'); ?>" />
+				<p><?php _e('This must match the value of the WordPress setting named "auth_salt" in your WordPress installation. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
+			</div>
+		</div>
+		<div>
+			<label for="bb_secure_auth_salt">
+				<?php _e('WordPress "secure auth" cookie salt'); ?>
+			</label>
+			<div>
+				<input class="text" name="bb_secure_auth_salt" id="bb_secure_auth_salt" value="<?php bb_form_option('bb_secure_auth_salt'); ?>" />
+				<p><?php _e('This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress installation. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.'); ?></p>
+			</div>
+		</div>
+		<div>
+			<label for="bb_logged_in_salt">
+				<?php _e('WordPress "logged in" cookie salt'); ?>
+			</label>
+			<div>
+				<input class="text" name="bb_logged_in_salt" id="bb_logged_in_salt" value="<?php bb_form_option('bb_logged_in_salt'); ?>" />
+				<p><?php _e('This must match the value of the WordPress setting named "logged_in_salt" in your WordPress installation. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
 			</div>
 		</div>
 		<script type="text/javascript" charset="utf-8">
 			function updateWordPressOptionURL () {
 				var siteURLInputValue = document.getElementById('wp_siteurl').value;
-				var outputAnchor = document.getElementById('getSecretOption');
+				if (siteURLInputValue && siteURLInputValue.substr(-1,1) != '/') {
+					siteURLInputValue += '/';
+				}
+				var authSaltAnchor = document.getElementById('getAuthSaltOption');
+				var secureAuthSaltAnchor = document.getElementById('getSecureAuthSaltOption');
+				var loggedInSaltAnchor = document.getElementById('getLoggedInSaltOption');
 				if (siteURLInputValue) {
-					if (siteURLInputValue.substr(-1,1) != '/') {
-						siteURLInputValue += '/';
-					}
-					outputAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+					authSaltAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+					secureAuthSaltAnchor.href = siteURLInputValue + 'wp-admin/options.php';
+					loggedInSaltAnchor.href = siteURLInputValue + 'wp-admin/options.php';
 				} else {
-					outputAnchor.href = '';
+					authSaltAnchor.href = '';
+					secureAuthSaltAnchor.href = '';
+					loggedInSaltAnchor.href = '';
 				}
 			}
 			var siteURLInput = document.getElementById('wp_siteurl');
@@ -128,10 +208,29 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 	</fieldset>
 	<p><?php _e('bbPress has automatically determined the best cookie settings for WordPress. In some cases integration may work without these settings, but if not add the following code to your <code>wp-config.php</code> file in the root directory of your WordPress installation.'); ?></p>
 	<pre class="block"><?php echo($wp_settings); ?></pre>
-	<p><?php _e('Also make sure that the "SECRET_KEY" in your WordPress <code>wp-config.php</code> file matches the "BB_SECRET_KEY" in your bbPress <code>bb-config.php</code> file.'); ?></p>
+	<p><?php _e('You will also have to manually ensure that the following constants are equivalent in WordPress\' and bbPress\' respective config files.'); ?></p>
+	<table class="block">
+		<tr>
+			<th><?php _e('WordPress (wp-config.php)'); ?></th>
+			<th><?php _e('bbPress (bb-config.php)'); ?></th>
+		</tr>
+		<tr>
+			<td>AUTH_KEY</td>
+			<td>BB_AUTH_KEY</td>
+		</tr>
+		<tr>
+			<td>SECURE_AUTH_KEY</td>
+			<td>BB_SECURE_AUTH_KEY</td>
+		</tr>
+		<tr>
+			<td>LOGGED_IN_KEY</td>
+			<td>BB_LOGGED_IN_KEY</td>
+		</tr>
+	</table>
 	<fieldset>
 		<legend><?php _e('User database'); ?></legend>
 		<p><?php _e('User database sharing allows you to store user data in your WordPress database.'); ?></p>
+		<p><?php _e('You should setup a "User role map" before'); ?></p>
 		<div>
 			<label for="wp_table_prefix">
 				<?php _e('User database table prefix'); ?>
@@ -221,10 +320,19 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 				<p><?php _e('The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.'); ?></p>
 			</div>
 		</div>
+		<div>
+			<label for="user_bbdb_collate">
+				<?php _e('User database character collation:'); ?>
+			</label>
+			<div>
+				<input class="text" name="user_bbdb_collate" id="user_bbdb_collate" value="<?php bb_form_option('user_bbdb_collate'); ?>" />
+				<p><?php _e('The character collation value set when the user database was created.'); ?></p>
+			</div>
+		</div>
 	</fieldset>
 	<fieldset id="advanced2" style="display:<?php echo $advanced_display; ?>">
 		<legend><?php _e('Custom user tables'); ?></legend>
-		<p><?php _e('Only set these values if your user tables do not fit the usual mould of <strong>"wordpressprefix+user"</strong> and <strong>"wordpressprefix+usermeta"</strong>.'); ?></p>
+		<p><?php _e('Only set these values if your user tables differ from the default WordPress naming convention.'); ?></p>
 		<div>
 			<label for="custom_user_table">
 				<?php _e('User database "user" table:'); ?>
@@ -251,94 +359,52 @@ if ( bb_get_option('user_bbdb_advanced') ) {
 	</fieldset>
 </form>
 
-<h2 class="after">bbPress config file settings</h2>
+<h2 class="after"><?php _e('Manual bbPress config file settings'); ?></h2>
 <?php
 $cookie_settings = array(
-	'wp_siteurl',
-	'wp_home',
+	'// Start integration speedups',
+	'',
+	'// WordPress database integration speedup',
 	'wp_table_prefix',
 	'user_bbdb_name',
 	'user_bbdb_user',
 	'user_bbdb_password',
 	'user_bbdb_host',
+	'user_bbdb_charset',
+	'user_bbdb_collate',
 	'custom_user_table',
 	'custom_user_meta_table',
-	'authcookie',
+	'',
+	'// WordPress cookie integration speedup',
+	'wp_siteurl',
+	'wp_home',
 	'cookiedomain',
 	'cookiepath',
-	'sitecookiepath'
+	'authcookie',
+	'secure_auth_cookie',
+	'logged_in_cookie',
+	'admin_cookie_path',
+	'core_plugins_cookie_path',
+	'user_plugins_cookie_path',
+	'sitecookiepath',
+	'wp_admin_cookie_path',
+	'wp_plugins_cookie_path',
+	'',
+	'// End integration speedups'
 );
 $bb_settings = '';
 foreach ($cookie_settings as $bb_setting) {
-	if ( isset($bb->$bb_setting) ) {
+	if ($bb_setting === '') {
+		$bb_settings .= "\n";
+	} elseif (substr($bb_setting, 0, 2) == '//') {
+		$bb_settings .= $bb_setting . "\n";
+	} elseif ( isset($bb->$bb_setting) ) {
 		$bb_settings .= '$bb->' . $bb_setting . ' = \'' . $bb->$bb_setting . '\';' . "\n";
 	}
 }
 ?>
 <p><?php _e('If your integration settings will not change, you can help speed up bbPress by adding the following code to your <code>bb-config.php</code> file in the root directory of your bbPress installation. Afterwards, the settings in this form will reflect the hard coded values, but you will not be able to edit them here.'); ?></p>
 <pre class="block"><?php echo($bb_settings); ?></pre>
-
-<h2 class="after"><?php _e('User role map'); ?></h2>
-
-<p>
-	<?php _e('Here you can match WordPress roles to bbPress roles. This will not work if your user tables are not shared. Only standard WordPress roles are supported. Changes do not affect users with existing roles in both WordPress and bbPress.'); ?>
-</p>
-
-<?php
-// Setup the role dropdowns
-function bb_get_roles_dropdown($id = 'roles', $name = 'roles', $set = false) {
-	$roles = '<select id="' . $id . '" name="' . $name . '">' . "\n";
-	$roles .= '<option value="">' . __('none') . '</option>' . "\n";
-	
-	global $wp_roles;
-	
-	foreach ($wp_roles->get_names() as $key => $value) {
-		if ($key == $set) {
-			$selected = ' selected="selected"';
-		} else {
-			$selected = '';
-		}
-		$roles .= '<option value="' . $key . '"' . $selected . '>bbPress ' . $value . '</option>' . "\n";
-	}
-	
-	$roles .= '</select>' . "\n";
-	
-	return $roles;
-}
-
-$wpRoles = array(
-	'administrator' => 'WordPress Administrator',
-	'editor' => 'WordPress Editor',
-	'author' => 'WordPress Author',
-	'contributor' => 'WordPress Contributor',
-	'subscriber' => 'WordPress Subscriber'
-);
-
-$wpRolesMap = bb_get_option('wp_roles_map');
-?>
-<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
-	<fieldset>
-<?php
-foreach ($wpRoles as $wpRole => $wpRoleName) {
-?>
-		<div>
-			<label for="wp_roles_map_<?php echo $wpRole; ?>">
-				<?php _e($wpRoleName); ?>
-			</label>
-			<div>
-				<?php echo bb_get_roles_dropdown( 'wp_roles_map_' . $wpRole, 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
-			</div>
-		</div>
-<?php
-}
-?>
-	</fieldset>
-	<fieldset class="submit">
-		<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
-		<input type="hidden" name="action" value="update-users" />
-		<input class="submit" type="submit" name="submit" value="<?php _e('Save User Role Map') ?>" />
-	</fieldset>
-</form>
 
 </div>
 
