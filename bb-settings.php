@@ -320,9 +320,9 @@ if ( !BB_IS_WP_LOADED ) {
  * Routines related to installation
  */
 
-// Load BB_COMMUNITIES_INCLUDE if it exists, must be done before the installer is launched
-if ( defined( 'BB_COMMUNITIES_INCLUDE' ) && file_exists( BB_COMMUNITIES_INCLUDE ) && !is_dir( BB_COMMUNITIES_INCLUDE ) )
-	require( BB_COMMUNITIES_INCLUDE );
+// Load BB_CHANNELS_INCLUDE if it exists, must be done before the install is completed
+if ( defined( 'BB_CHANNELS_INCLUDE' ) && file_exists( BB_CHANNELS_INCLUDE ) && !is_dir( BB_CHANNELS_INCLUDE ) )
+	require( BB_CHANNELS_INCLUDE );
 
 // If there is no forum table in the database then redirect to the installer
 if ( !BB_INSTALLING && !bb_is_installed() ) {
