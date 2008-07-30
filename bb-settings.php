@@ -889,13 +889,20 @@ do_action( 'bb_underscore_plugins_loaded' );
 // Normal plugins
 if ( $plugins = bb_get_option( 'active_plugins' ) ) {
 	foreach ( (array) $plugins as $plugin ) {
-		$plugin = str_replace(
-			array('core#', 'user#'),
-			array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
-			$plugin
-		);
-		if ( file_exists( $plugin ) ) {
-			require( $plugin );
+		if ( strpos($plugin, 'core#') === 0 || strpos($plugin, 'user#') === 0 ) {
+			$plugin = str_replace(
+				array('core#', 'user#'),
+				array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
+				$plugin
+			);
+			if (
+				BB_CORE_PLUGIN_DIR != $plugin &&
+				BB_PLUGIN_DIR != $plugin &&
+				0 == validate_file($plugin) &&
+				file_exists( $plugin )
+			) {
+				require( $plugin );
+			}
 		}
 	}
 }
