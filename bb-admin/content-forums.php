@@ -70,7 +70,7 @@ bb_get_admin_header();
 
 
 <?php if ( bb_forums( 'type=list&walker=BB_Walker_ForumAdminlistitems' ) ) : ?>
-<ul id="the-list" class="list-block holder">
+<ul id="the-list" class="list-block holder widefat">
 	<li class="thead list-block"><div class="list-block"><?php _e('Name &#8212; Description'); ?></div></li>
 <?php while ( bb_forum() ) : ?>
 <?php bb_forum_row(); ?>

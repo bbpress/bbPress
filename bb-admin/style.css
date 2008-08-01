@@ -421,7 +421,7 @@ div.error p {
 	text-align: left;
 }
 
-.widefat thead {
+.widefat thead, .widefat .thead {
 	background-color: #464646;
 	color: #d7d7d7;
 }
@@ -701,4 +701,67 @@ ul.theme-list.active li div.description small.location {
 div.post-theme {
 	clear: both;
 	height: 30px;
+}
+
+/* Layout classes */
+
+.absleft {
+	position: absolute;
+	left: 0;
+}
+
+.absright {
+	position: absolute;
+	right: 0;
+}
+
+.abstop {
+	position: absolute;
+	top: 0;
+}
+
+.posrel {
+	position: relative;
+}
+
+.alignleft {
+	float: left;
+}
+
+.alignright {
+	float: right;
+}
+
+.alternate, .alt {
+	background: #f1f1f1;
+}
+
+.helper {
+	border: 2px dashed #777;
+}
+
+.sort-handle {
+	cursor: move;
+}
+
+/* List Blocks */
+
+ul.list-block {
+	margin: 0;
+	padding: 0 0 0 3em;
+	background-color: #fff;
+}
+
+ul#the-list.list-block {
+	padding: 0;
+}
+
+li.list-block {
+	list-style: none;
+	margin: 0;
+	padding: 8px 0 0;
+}
+
+div.list-block {
+	padding: 0 8px 8px;
 }

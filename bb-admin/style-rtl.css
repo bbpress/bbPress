@@ -1,0 +1,130 @@
+#bbFooter {
+	padding: 1.6em 6em 0 0;
+}
+
+#bbHead h1 {
+	float: right;
+	padding: 0.32em 0.35em 0 0;
+}
+
+#bbVisitSite {
+	float: right;
+	margin: 2.3em 1em 0 0;
+}
+
+#bbUserMenu {
+	right: auto;
+	left: 1.5em;
+}
+
+#bbAdminDashboardMenu {
+	right: 0.9em;
+	left: auto;
+}
+
+#bbAdminMainMenu {
+	padding-right: 1.1em;
+	padding-left: 0;
+}
+
+#bbAdminMainMenu li {
+	margin-left: 0.1em;
+	margin-right: 0;
+}
+
+#bbAdminSideMenu {
+	float: left;
+	margin-left: 1.5em;
+	margin-right: 0;
+}
+
+#bbAdminSubMenu {
+	margin-right: 1.7em;
+	margin-left: 0;
+}
+
+#bbAdminSubMenu li {
+	margin-left: 1.8em;
+	margin-right: 0;
+}
+
+#bbBody h2 {
+	margin-right: -0.2em;
+	margin-left: 0;
+}
+
+.widefat th {
+	text-align: right;
+}
+
+form.settings div div {
+	margin: 0 22em 0 0;
+}
+
+table.block th,
+table.block td {
+	padding: 0.4em 0.4em 0.4em 3em;
+}
+
+p.gravatarDefault img {
+	margin-left:1em;
+	margin-right:0;
+}
+
+p.gravatarRating img {
+	float:right;
+	margin-left:1em;
+	margin-right:0;
+}
+
+div.theme-list {
+	border-right: none;
+	border-left: 1px solid rgb(255, 255, 255);
+}
+
+ul.theme-list li {
+	float: right;
+	border-left: 1px solid rgb(238, 238, 238);
+	border-right: none;
+}
+
+ul.theme-list li:nth-child(3n),
+ul.theme-list li:last-child {
+	border-left: none;
+}
+
+ul.theme-list.active li div.screen-shot {
+	float: right;
+	margin-right: 0;
+	margin-left: 15px;
+}
+
+ul.theme-list.active li div.description {
+	float: right;
+}
+
+/* Layout classes */
+
+.absleft {
+	left: auto;
+	right: 0;
+}
+
+.absright {
+	left: 0;
+	right: auto;
+}
+
+.alignleft {
+	float: right;
+}
+
+.alignright {
+	float: left;
+}
+
+/* List Blocks */
+
+ul.list-block {
+	padding: 0 3em 0 0;
+}

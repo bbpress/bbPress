@@ -30,8 +30,8 @@ function bb_default_scripts( &$scripts ) {
 		'good' => __('Good'),
 		'strong' => __('Strong')
 	));
-	$scripts->add( 'profile-edit', $scripts->base_url . 'js/profile-edit.js', array('password-strength-meter'), '20080721' );
-	$scripts->add( 'content-forums',          $scripts->base_url_admin . 'js/content-forums.js', array('listman', 'interface'), '20080309' );
+	$scripts->add( 'profile-edit',   $scripts->base_url . 'js/profile-edit.js', array('password-strength-meter'), '20080721' );
+	$scripts->add( 'content-forums', $scripts->base_url_admin . 'js/content-forums.js', array('listman', 'interface'), '20080801' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
 		'saveText' => __('Save Forum Order &#187;'),

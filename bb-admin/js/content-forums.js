@@ -33,11 +33,11 @@ bbSortForums = {
 		}
 
 		this.place = el.id;
-		if ( $('#' + this.place).children('ul[li:visible]').size() ) // Don't shift over if there's already a UL with stuff in it
+		if ( $('#' + this.place).children('ul:has(li:visible)').size() ) // Don't shift over if there's already a UL with stuff in it
 			return;
 
 		var id = this.place.split('-')[1];
-		$('#' + this.place).not('[ul]').append("<ul id='forum-root-" + id + "' class='list-block holder'></ul>").end().children('ul').append(jQuery.iSort.helper.get(0)); // Place in shifted box
+		$('#' + this.place).not(':has(ul)').append("<ul id='forum-root-" + id + "' class='list-block holder'></ul>").end().children('ul').append(jQuery.iSort.helper.get(0)); // Place in shifted box
 		this.placed = 'forum-' + id;
 	},
 
