@@ -16,6 +16,36 @@
  *
  * @return int
  */
+function get_total_forums() {
+	global $bbdb, $bb_total_forums;
+	if ( isset($bb_total_forums) )
+		return $bb_total_forums;
+	$bb_total_forums = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->forums");
+	return $bb_total_forums;
+}
+
+/**
+ * total_users() - {@internal Missing Short Description}}
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ */
+function total_forums() {
+	echo apply_filters('total_forums', get_total_forums() );
+}
+
+/**
+ * get_total_users() - {@internal Missing Short Description}}
+ *
+ * {@internal Missing Long Description}}
+ *
+ * @since {@internal Unknown}}
+ * @global bbdb $bbdb
+ * @global int $bb_total_users
+ *
+ * @return int
+ */
 function get_total_users() {
 	global $bbdb, $bb_total_users;
 	if ( isset($bb_total_users) )

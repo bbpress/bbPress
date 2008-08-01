@@ -1021,6 +1021,24 @@ function bb_get_plugin_data($plugin_file) {
 
 /* Themes */
 
+function bb_get_current_theme_data( $property = 'all' ) {
+	if (!$property) {
+		$property = 'all';
+	}
+	$directory = bb_get_active_theme_directory();
+	$stylesheet = $directory . 'style.css';
+	if (file_exists($stylesheet)) {
+		$data = bb_get_theme_data($stylesheet);
+	}
+	if ($property == 'all') {
+		return $data;
+	} elseif (isset($data[$property])) {
+		return $data[$property];
+	} else {
+		return false;
+	}
+}
+
 // Output sanitized for display
 function bb_get_theme_data( $theme_file ) {
 	if ( strpos($theme_file, '#') !== false )

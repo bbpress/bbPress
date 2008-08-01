@@ -1587,9 +1587,9 @@ function full_user_link( $id = 0 ) {
 
 function get_full_user_link( $id = 0 ) {
 	if ( get_user_link( $id ) )
-		$r = '<a href="' . attribute_escape( get_user_link( $id ) ) . '">' . get_user_name( $id ) . '</a>';
+		$r = '<a href="' . attribute_escape( get_user_link( $id ) ) . '">' . get_user_display_name( $id ) . '</a>';
 	else
-		$r = get_user_name( $id );
+		$r = get_user_display_name( $id );
 	return $r;
 }
 

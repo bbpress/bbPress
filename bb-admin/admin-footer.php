@@ -4,7 +4,7 @@
 	<div id="bbFooter">
 		<p>
 			<?php printf(
-				__('Thank you for using <a href="%s">bbPress</a> | <a href="%s">Documentation</a> | <a href="%s">Development</a> | You are using version %s'),
+				__('Thank you for using <a href="%s">bbPress</a> | <a href="%s">Documentation</a> | <a href="%s">Development</a> | Version %s'),
 				'http://bbpress.org/',
 				'http://bbpress.org/documentation/',
 				'http://trac.bbpress.org/',

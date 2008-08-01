@@ -74,6 +74,7 @@ strong {
 
 #bbFooter p {
 	font-size: 1.2em;
+	clear: both;
 }
 
 #bbFooter p a {
@@ -589,7 +590,7 @@ div.theme-list {
 	border-right: 1px solid rgb(255, 255, 255);
 }
 
-div.theme-list div.clear {
+div.clear {
 	clear: both;
 	height: 0;
 }
@@ -764,4 +765,51 @@ li.list-block {
 
 div.list-block {
 	padding: 0 8px 8px;
+}
+
+/* Dashboard */
+
+#bbBody div.dashboard {
+	border: 0.1em solid rgb(218, 218, 218);
+	padding: 0.2em;
+	margin-top: 1em;
+}
+
+#bbBody div.dashboard.left {
+	width: 48%;
+	float: left;
+}
+
+#bbBody div.dashboard.right {
+	width: 48%;
+	float: left;
+	margin-left: 2%;
+}
+
+#bbBody div.dashboard h3 {
+	margin: 0;
+	padding: 0 0.6em;
+	font-size: 1.4em;
+	line-height: 2;
+	background-color: rgb(200, 250, 200);
+	clear: none;
+}
+
+#bbBody div#dashboard-right-now h3 {
+	color: rgb(255, 255, 255);
+	background-color: rgb(10, 100, 0);
+}
+
+#bbBody div.dashboard p {
+	margin: 0.8em;
+	font-size: 1.3em;
+}
+
+#bbBody div.dashboard ul {
+	margin: 0.8em;
+	font-size: 1.3em;
+}
+
+#bbBody div.dashboard ul li {
+	margin-bottom: 0.6em;
 }
