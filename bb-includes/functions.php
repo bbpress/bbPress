@@ -112,10 +112,12 @@ function bb_set_custom_user_tables() {
 		if ( $bb->user_bbdb_collate )
 			$bb->custom_databases['user']['collate'] = $bb->user_bbdb_collate;
 
-		if ( isset($bb->custom_tables['users']) )
-			$bb->custom_tables['users'] = array('user', $bb->custom_tables['users']);
-		if ( isset($bb->custom_tables['usermeta']) )
-			$bb->custom_tables['usermeta'] = array('user', $bb->custom_tables['usermeta']);
+		if ( isset( $bb->custom_databases['user'] ) ) {
+			if ( isset($bb->custom_tables['users']) )
+				$bb->custom_tables['users'] = array('user', $bb->custom_tables['users']);
+			if ( isset($bb->custom_tables['usermeta']) )
+				$bb->custom_tables['usermeta'] = array('user', $bb->custom_tables['usermeta']);
+		}
 	}
 }
 
