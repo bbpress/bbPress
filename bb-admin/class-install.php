@@ -612,13 +612,15 @@ class BB_Install
 					'bbdb_user' => array(
 						'value' => '',
 						'label' => __('Database user'),
-						'note'  => __('The database user that has access to that database.')
+						'note'  => __('The database user that has access to that database.'),
+						'autocomplete' => 'off'
 					),
 					'bbdb_password' => array(
 						'type'  => 'password',
 						'value' => '',
 						'label' => __('Database password'),
-						'note'  => __('That database user\'s password.')
+						'note'  => __('That database user\'s password.'),
+						'autocomplete' => 'off'
 					),
 					'bb_lang' => array(
 						'value' => '',
@@ -2054,8 +2056,14 @@ class BB_Install
 		if ($direction) {
 			$direction = ' dir="' . $direction . '"';
 		}
+
+		if ( isset($data['autocomplete']) ) {
+			$autocomplete = ' autocomplete="' . $data['autocomplete'] . '"';
+		} else {
+			$autocomplete = '';
+		}
 		
-		$r .= '<input' . $direction . ' type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . ' />' . "\n";
+		$r .= '<input' . $direction . ' type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . $autocomplete . ' />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
