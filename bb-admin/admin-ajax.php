@@ -44,6 +44,7 @@ case 'add-tag' : // $id is topic_id
 		if ( !is_numeric($tag_id) || !$tag = bb_get_tag( $tag_id, bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 			if ( !$tag = bb_get_tag( $tag_id ) )
 				continue;
+		$tag->user_id = bb_get_current_user_info( 'id' );
 		$tag_id_val = $tag->tag_id . '_' . $tag->user_id;
 		$tag->raw_tag = attribute_escape( $tag->raw_tag );
 		$x->add( array(
@@ -73,7 +74,7 @@ case 'delete-tag' :
 	$topic = get_topic ( $topic_id );
 	if ( !$tag || !$topic )
 		die('0');
-	if ( bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) )
+	if ( false !== bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) )
 		die('1');
 	break;
 

@@ -1169,14 +1169,14 @@ function bb_remove_topic_tag( $tt_id, $user_id, $topic_id ) {
 	if ( !is_array($current_tag_ids) )
 		return false;
 
-	$current_tag_ids = array_map( 'int_val', $current_tag_ids );
+	$current_tag_ids = array_map( 'intval', $current_tag_ids );
 
-	if ( false === $pos = array_search( $current_tag_ids, $tt_id ) )
+	if ( false === $pos = array_search( $tt_id, $current_tag_ids ) )
 		return false;
 
 	unset($current_tag_ids[$pos]);
 
-	$return = $wp_taxonomy_object->set_object_terms( $topic_id, 'bb_topic_tag', array_values($current_tag_ids), array( 'user_id' => $user_id ) );
+	$return = $wp_taxonomy_object->set_object_terms( $topic_id, array_values($current_tag_ids), 'bb_topic_tag', array( 'user_id' => $user_id ) );
 	if ( is_wp_error( $return ) )
 		return false;
 	return $return;

@@ -2185,7 +2185,7 @@ function _bb_list_tag_item( $tag, $args ) {
 	$url = clean_url( bb_get_tag_link( $tag->tag ) );
 	$name = wp_specialchars( bb_get_tag_name( $tag->tag_id ) );
 	if ( 'list' == $args['format'] )
-		return "\t<li id='tag-{$tag->tag_id}_{$tag->user_id}'><a href='$url' rel='tag'>$name</a> " . bb_get_tag_remove_link( array( 'tag' => $tag->tag_id, 'list_id' => $args['list_id'] ) ) . "</li>\n";
+		return "\t<li id='tag-{$tag->tag_id}_{$tag->user_id}'><a href='$url' rel='tag'>$name</a> " . bb_get_tag_remove_link( array( 'tag' => $tag, 'list_id' => $args['list_id'] ) ) . "</li>\n";
 }
 	
 function tag_form( $args = null ) {
@@ -2249,20 +2249,21 @@ function bb_tag_remove_link( $args = null ) {
 }
 
 function bb_get_tag_remove_link( $args = null ) {
-	if ( is_scalar($args) )
+	if ( is_scalar($args) || is_object( $args ) )
 		$args = array( 'tag' => $args );
 	$defaults = array( 'tag' => 0, 'topic' => 0, 'list_id' => 'tags-list' );
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
-	if ( !$tag = bb_get_tag( bb_get_tag_id( $tag ) ) )
+	if ( is_object( $tag ) && isset( $tag->tag_id ) ); // [sic]
+	elseif ( !$tag = bb_get_tag( bb_get_tag_id( $tag ) ) )
 		return false;
 	if ( !$topic = get_topic( get_topic_id( $topic ) ) )
 		return false;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 	$url = bb_get_uri('tag-remove.php', array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id) );
-	$url = clean_url( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $tag->topic_id) );
+	$url = clean_url( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $topic->topic_id) );
 	$title = attribute_escape( __('Remove this tag') );
 	$list_id = attribute_escape( $list_id );
 	return "[<a href='$url' class='delete:$list_id:tag-{$tag->tag_id}_{$tag->user_id}' title='$title'>&times;</a>]";
