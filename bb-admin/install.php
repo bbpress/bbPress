@@ -55,7 +55,7 @@ switch ($bb_install->step) {
 <?php
 					$bb_install->input_text('bbdb_name');
 					$bb_install->input_text('bbdb_user');
-					$bb_install->input_text('bbdb_password', 'password');
+					$bb_install->input_text('bbdb_password');
 					$bb_install->select_language();
 					$bb_install->input_toggle('toggle_1');
 ?>
