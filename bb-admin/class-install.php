@@ -1733,7 +1733,11 @@ class BB_Install
 				) {
 					$installation_log[] = '>>> ' . __('Fetching missing WordPress cookie salts.');
 					
-					$bbdb->tables['options'] = array('user', $bb->wp_table_prefix . 'options');
+					if ( isset( $bb->custom_databases['user'] ) )
+						$bbdb->tables['options'] = array('user', $bb->wp_table_prefix . 'options');
+					else
+						$bbdb->tables['options'] = $bb->wp_table_prefix . 'options';
+
 					$bbdb->set_prefix( $bb_table_prefix );
 					
 					if (!bb_get_option('bb_auth_salt')) {
