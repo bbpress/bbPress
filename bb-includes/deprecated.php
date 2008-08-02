@@ -1,5 +1,6 @@
 <?php
-define('BB_LOG_DEPRECATED', false);
+if (!defined('BB_LOG_DEPRECATED'))
+	define('BB_LOG_DEPRECATED', false);
 
 function bb_log_deprecated($type, $name, $replacement = 'none') {
 	if (defined('BB_LOG_DEPRECATED') && BB_LOG_DEPRECATED)
