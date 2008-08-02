@@ -2,7 +2,7 @@
 
 /* Formatting */
 
-if ( !function_exists('clean_pre') ) : // [WP6102]
+if ( !function_exists('clean_pre') ) : // [WP6102] - current at [WP8525]
 // Accepts matches array from preg_replace_callback in wpautop()
 // or a string
 function clean_pre($matches) {
@@ -19,8 +19,8 @@ function clean_pre($matches) {
 }
 endif;
 
+if ( !function_exists('js_escape') ) : // [WP5734] - current at [WP8525]
 // Escape single quotes, specialchar double quotes, and fix line endings.
-if ( !function_exists('js_escape') ) : // [WP5734]
 function js_escape($text) {
 	$safe_text = wp_specialchars($text, 'double');
 	$safe_text = preg_replace('/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes($safe_text));
@@ -29,14 +29,15 @@ function js_escape($text) {
 }
 endif;
 
+if ( !function_exists('attribute_escape') ) : // [WP4660] - current at [WP8525]
 // Escaping for HTML attributes
-if ( !function_exists('attribute_escape') ) :
-function attribute_escape($text) { // [WP4660]
+function attribute_escape($text) {
 	$safe_text = wp_specialchars($text, true);
 	return apply_filters('attribute_escape', $safe_text, $text);
 }
 endif;
 
+if ( !function_exists( 'force_balance_tags' ) ) : // [WP5805] - current at [WP8525]
 /*
  force_balance_tags
 
@@ -57,7 +58,6 @@ endif;
 	     Added Cleaning Hooks
 	1.0  First Version
 */
-if ( !function_exists( 'force_balance_tags' ) ) : // [WP5805]
 function force_balance_tags( $text ) {
 	$tagstack = array(); $stacksize = 0; $tagqueue = ''; $newtext = '';
 	$single_tags = array('br', 'hr', 'img', 'input'); //Known single-entity/self-closing tags
@@ -158,19 +158,53 @@ function force_balance_tags( $text ) {
 }
 endif;
 
-if ( !function_exists('make_clickable') ) : // [WP4387]
+if ( !function_exists('_make_url_clickable_cb') ) : // current at [WP8525]
+function _make_url_clickable_cb($matches) {
+	$ret = '';
+	$url = $matches[2];
+	$url = clean_url($url);
+	if ( empty($url) )
+		return $matches[0];
+	// removed trailing [.,;:] from URL
+	if ( in_array(substr($url, -1), array('.', ',', ';', ':')) === true ) {
+		$ret = substr($url, -1);
+		$url = substr($url, 0, strlen($url)-1);
+	}
+	return $matches[1] . "<a href=\"$url\" rel=\"nofollow\">$url</a>" . $ret;
+}
+endif;
+
+if ( !function_exists('_make_web_ftp_clickable_cb') ) : // current at [WP8525]
+function _make_web_ftp_clickable_cb($matches) {
+	$ret = '';
+	$dest = $matches[2];
+	$dest = 'http://' . $dest;
+	$dest = clean_url($dest);
+	if ( empty($dest) )
+		return $matches[0];
+	// removed trailing [,;:] from URL
+	if ( in_array(substr($dest, -1), array('.', ',', ';', ':')) === true ) {
+		$ret = substr($dest, -1);
+		$dest = substr($dest, 0, strlen($dest)-1);
+	}
+	return $matches[1] . "<a href=\"$dest\" rel=\"nofollow\">$dest</a>" . $ret;
+}
+endif;
+
+if ( !function_exists('_make_email_clickable_cb') ) : // current at [WP8525]
+function _make_email_clickable_cb($matches) {
+	$email = $matches[2] . '@' . $matches[3];
+	return $matches[1] . "<a href=\"mailto:$email\">$email</a>";
+}
+endif;
+
+if ( !function_exists('make_clickable') ) : // [WP8525] - current at [WP8525]
 function make_clickable($ret) {
 	$ret = ' ' . $ret;
 	// in testing, using arrays here was found to be faster
-	$ret = preg_replace(
-		array(
-			'#([\s>])([\w]+?://[\w\#$%&~/.\-;:=,?@\[\]+]*)#is',
-			'#([\s>])((www|ftp)\.[\w\#$%&~/.\-;:=,?@\[\]+]*)#is',
-			'#([\s>])([a-z0-9\-_.]+)@([^,< \n\r]+)#i'),
-		array(
-			'$1<a href="$2" rel="nofollow">$2</a>',
-			'$1<a href="http://$2" rel="nofollow">$2</a>',
-			'$1<a href="mailto:$2@$3">$2@$3</a>'),$ret);
+	$ret = preg_replace_callback('#([\s>])([\w]+?://[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]*)#is', '_make_url_clickable_cb', $ret);
+	$ret = preg_replace_callback('#([\s>])((www|ftp)\.[\w\\x80-\\xff\#$%&~/.\-;:=,?@\[\]+]*)#is', '_make_web_ftp_clickable_cb', $ret);
+	$ret = preg_replace_callback('#([\s>])([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})#i', '_make_email_clickable_cb', $ret);
 	// this one is not in an array because we need it to run last, for cleanup of accidental links within links
 	$ret = preg_replace("#(<a( [^>]+?>|>))<a [^>]+?>([^>]+?)</a></a>#i", "$1$3</a>", $ret);
 	$ret = trim($ret);
@@ -180,88 +214,124 @@ endif;
 
 /* Forms */
 
-if ( !function_exists('wp_referer_field') ) :
-function wp_referer_field() { // [WP4656]
-	$ref = attribute_escape($_SERVER['REQUEST_URI']);
-	echo '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
-	if ( wp_get_original_referer() ) {
-		$original_ref = attribute_escape(stripslashes(wp_get_original_referer()));
-		echo '<input type="hidden" name="_wp_original_http_referer" value="'. $original_ref . '" />';
-	}
+if ( !function_exists('wp_referer_field') ) : // current at [WP8525]
+function wp_referer_field( $echo = true) {
+	$ref = attribute_escape( $_SERVER['REQUEST_URI'] );
+	$referer_field = '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
+
+	if ( $echo )
+		echo $referer_field;
+	return $referer_field;
 }
 endif;
 
-if ( !function_exists('wp_original_referer_field') ) :
-function wp_original_referer_field() { // [WP4656]
-	echo '<input type="hidden" name="_wp_original_http_referer" value="' . attribute_escape(stripslashes($_SERVER['REQUEST_URI'])) . '" />';
+if ( !function_exists('wp_original_referer_field') ) : // current at [WP8525]
+function wp_original_referer_field( $echo = true, $jump_back_to = 'current' ) {
+	$jump_back_to = ( 'previous' == $jump_back_to ) ? wp_get_referer() : $_SERVER['REQUEST_URI'];
+	$ref = ( wp_get_original_referer() ) ? wp_get_original_referer() : $jump_back_to;
+	$orig_referer_field = '<input type="hidden" name="_wp_original_http_referer" value="' . attribute_escape( stripslashes( $ref ) ) . '" />';
+	if ( $echo )
+		echo $orig_referer_field;
+	return $orig_referer_field;
 }
 endif;
 
-if ( !function_exists('wp_get_referer') ) :
-function wp_get_referer() { // [WP3908]
-	foreach ( array($_REQUEST['_wp_http_referer'], $_SERVER['HTTP_REFERER']) as $ref )
-		if ( !empty($ref) )
-			return $ref;
+if ( !function_exists('wp_get_referer') ) : // current at [WP8525]
+function wp_get_referer() {
+	if ( ! empty( $_REQUEST['_wp_http_referer'] ) )
+		$ref = $_REQUEST['_wp_http_referer'];
+	else if ( ! empty( $_SERVER['HTTP_REFERER'] ) )
+		$ref = $_SERVER['HTTP_REFERER'];
+
+	if ( $ref !== $_SERVER['REQUEST_URI'] )
+		return $ref;
 	return false;
 }
 endif;
 
-if ( !function_exists('wp_get_original_referer') ) :
-function wp_get_original_referer() { // [WP3908]
-	if ( !empty($_REQUEST['_wp_original_http_referer']) )
+if ( !function_exists('wp_get_original_referer') ) :  // [WP3908] - current at [WP8525]
+function wp_get_original_referer() {
+	if ( !empty( $_REQUEST['_wp_original_http_referer'] ) )
 		return $_REQUEST['_wp_original_http_referer'];
 	return false;
 }
 endif;
 
+if ( !function_exists('build_query') ) : // current at [WP8525]
+/**
+ * Build URL query based on an associative and, or indexed array.
+ *
+ * This is a convenient function for easily building url queries. It sets the
+ * separator to '&' and uses _http_build_query() function.
+ *
+ * @see _http_build_query() Used to build the query
+ * @link http://us2.php.net/manual/en/function.http-build-query.php more on what
+ *		http_build_query() does.
+ *
+ * @since unknown
+ *
+ * @param array $data URL-encode key/value pairs.
+ * @return string URL encoded string
+ */
+function build_query( $data ) {
+	return _http_build_query( $data, NULL, '&', '', false );
+}
+endif;
 
-/*
-add_query_arg: Returns a modified querystring by adding
-a single key & value or an associative array.
-Setting a key value to emptystring removes the key.
-Omitting oldquery_or_uri uses the $_SERVER value.
-
-Parameters:
-add_query_arg(newkey, newvalue, oldquery_or_uri) or
-add_query_arg(associative_array, oldquery_or_uri)
-*/
-if ( !function_exists('add_query_arg') ) : // [WP6064]
+if ( !function_exists('add_query_arg') ) : // current at [WP8525]
+/**
+ * Retrieve a modified URL query string.
+ *
+ * You can rebuild the URL and append a new query variable to the URL query by
+ * using this function. You can also retrieve the full URL with query data.
+ *
+ * Adding a single key & value or an associative array. Setting a key value to
+ * emptystring removes the key. Omitting oldquery_or_uri uses the $_SERVER
+ * value.
+ *
+ * @since 1.5.0
+ *
+ * @param mixed $param1 Either newkey or an associative_array
+ * @param mixed $param2 Either newvalue or oldquery or uri
+ * @param mixed $param3 Optional. Old query or uri
+ * @return unknown
+ */
 function add_query_arg() {
 	$ret = '';
-	if ( is_array(func_get_arg(0)) ) {
-		if ( @func_num_args() < 2 || false === @func_get_arg(1) )
+	if ( is_array( func_get_arg(0) ) ) {
+		if ( @func_num_args() < 2 || false === @func_get_arg( 1 ) )
 			$uri = $_SERVER['REQUEST_URI'];
 		else
-			$uri = @func_get_arg(1);
+			$uri = @func_get_arg( 1 );
 	} else {
-		if ( @func_num_args() < 3 || false === @func_get_arg(2) )
+		if ( @func_num_args() < 3 || false === @func_get_arg( 2 ) )
 			$uri = $_SERVER['REQUEST_URI'];
 		else
-			$uri = @func_get_arg(2);
+			$uri = @func_get_arg( 2 );
 	}
 
-	if ( $frag = strstr($uri, '#') )
-		$uri = substr($uri, 0, -strlen($frag));
+	if ( $frag = strstr( $uri, '#' ) )
+		$uri = substr( $uri, 0, -strlen( $frag ) );
 	else
 		$frag = '';
 
-	if ( preg_match('|^https?://|i', $uri, $matches) ) {
+	if ( preg_match( '|^https?://|i', $uri, $matches ) ) {
 		$protocol = $matches[0];
-		$uri = substr($uri, strlen($protocol));
+		$uri = substr( $uri, strlen( $protocol ) );
 	} else {
 		$protocol = '';
 	}
 
-	if (strpos($uri, '?') !== false) {
-		$parts = explode('?', $uri, 2);
-		if ( 1 == count($parts) ) {
+	if ( strpos( $uri, '?' ) !== false ) {
+		$parts = explode( '?', $uri, 2 );
+		if ( 1 == count( $parts ) ) {
 			$base = '?';
 			$query = $parts[0];
 		} else {
 			$base = $parts[0] . '?';
 			$query = $parts[1];
 		}
-	} elseif (!empty($protocol) || strpos($uri, '=') === false ) {
+	} elseif ( !empty( $protocol ) || strpos( $uri, '=' ) === false ) {
 		$base = $uri . '?';
 		$query = '';
 	} else {
@@ -269,57 +339,64 @@ function add_query_arg() {
 		$query = $uri;
 	}
 
-	wp_parse_str($query, $qs);
-	$qs = urlencode_deep($qs); // this re-URL-encodes things that were already in the query string
-	if ( is_array(func_get_arg(0)) ) {
-		$kayvees = func_get_arg(0);
-		$qs = array_merge($qs, $kayvees);
+	wp_parse_str( $query, $qs );
+	$qs = urlencode_deep( $qs ); // this re-URL-encodes things that were already in the query string
+	if ( is_array( func_get_arg( 0 ) ) ) {
+		$kayvees = func_get_arg( 0 );
+		$qs = array_merge( $qs, $kayvees );
 	} else {
-		$qs[func_get_arg(0)] = func_get_arg(1);
+		$qs[func_get_arg( 0 )] = func_get_arg( 1 );
 	}
 
 	foreach ( $qs as $k => $v ) {
 		if ( $v === false )
-			unset($qs[$k]);
+			unset( $qs[$k] );
 	}
 
-	$ret = _http_build_query($qs, NULL, '&', '', false);
-	$ret = trim($ret, '?');
-	$ret = preg_replace('#=(&|$)#', '$1', $ret);
+	$ret = build_query( $qs );
+	$ret = trim( $ret, '?' );
+	$ret = preg_replace( '#=(&|$)#', '$1', $ret );
 	$ret = $protocol . $base . $ret . $frag;
-	$ret = rtrim($ret, '?');
+	$ret = rtrim( $ret, '?' );
 	return $ret;
 }
 endif;
 
-/*
-remove_query_arg: Returns a modified querystring by removing
-a single key or an array of keys.
-Omitting oldquery_or_uri uses the $_SERVER value.
-
-Parameters:
-remove_query_arg(removekey, [oldquery_or_uri]) or
-remove_query_arg(removekeyarray, [oldquery_or_uri])
-*/
-
-if ( !function_exists('remove_query_arg') ) : // [WP5705]
-function remove_query_arg($key, $query=FALSE) {
-	if ( is_array($key) ) { // removing multiple keys
+if ( !function_exists('remove_query_arg') ) : // current at [WP8525]
+/**
+ * Removes an item or list from the query string.
+ *
+ * @since 1.5.0
+ *
+ * @param string|array $key Query key or keys to remove.
+ * @param bool $query When false uses the $_SERVER value.
+ * @return unknown
+ */
+function remove_query_arg( $key, $query=false ) {
+	if ( is_array( $key ) ) { // removing multiple keys
 		foreach ( (array) $key as $k )
-			$query = add_query_arg($k, FALSE, $query);
+			$query = add_query_arg( $k, false, $query );
 		return $query;
 	}
-	return add_query_arg($key, FALSE, $query);
+	return add_query_arg( $key, false, $query );
 }
 endif;
 
-if ( !function_exists('get_status_header_desc') ) : // [WP6104]
+if ( !function_exists('get_status_header_desc') ) : // current at [WP8525]
+/**
+ * Retrieve the description for the HTTP status.
+ *
+ * @since 2.3.0
+ *
+ * @param int $code HTTP status code.
+ * @return string Empty string if not found, or description if found.
+ */
 function get_status_header_desc( $code ) {
 	global $wp_header_to_desc;
 
-	$code = (int) $code;
+	$code = absint( $code );
 
-	if ( !isset($wp_header_to_desc) ) {
+	if ( !isset( $wp_header_to_desc ) ) {
 		$wp_header_to_desc = array(
 			100 => 'Continue',
 			101 => 'Switching Protocols',
@@ -367,15 +444,25 @@ function get_status_header_desc( $code ) {
 		);
 	}
 
-	if ( isset( $wp_header_to_desc[$code] ) ) {
+	if ( isset( $wp_header_to_desc[$code] ) )
 		return $wp_header_to_desc[$code];
-	} else {
+	else
 		return '';
-	}
 }
 endif;
 
-if ( !function_exists('status_header') ) : // [WP6107]
+if ( !function_exists('status_header') ) : // current at [WP8525]
+/**
+ * Set HTTP status header.
+ *
+ * @since unknown
+ * @uses apply_filters() Calls 'status_header' on status header string, HTTP
+ *		HTTP code, HTTP code description, and protocol string as separate
+ *		parameters.
+ *
+ * @param int $header HTTP status code
+ * @return null Does not return anything.
+ */
 function status_header( $header ) {
 	$text = get_status_header_desc( $header );
 
@@ -383,41 +470,54 @@ function status_header( $header ) {
 		return false;
 
 	$protocol = $_SERVER["SERVER_PROTOCOL"];
-	if ( ('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol) )
+	if ( 'HTTP/1.1' != $protocol && 'HTTP/1.0' != $protocol )
 		$protocol = 'HTTP/1.0';
 	$status_header = "$protocol $header $text";
-	if ( function_exists('apply_filters') )
-		$status_header = apply_filters('status_header', $status_header, $header, $text, $protocol);
+	if ( function_exists( 'apply_filters' ) )
+		$status_header = apply_filters( 'status_header', $status_header, $header, $text, $protocol );
 
-	if ( version_compare( phpversion(), '4.3.0', '>=' ) ) {
+	if ( version_compare( phpversion(), '4.3.0', '>=' ) )
 		return @header( $status_header, true, $header );
-	} else {
+	else
 		return @header( $status_header );
-	}
 }
 endif;
 
-if ( !function_exists('nocache_headers') ) :
-function nocache_headers() { // [WP2623]
-	@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
-	@ header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-	@ header('Cache-Control: no-cache, must-revalidate, max-age=0');
-	@ header('Pragma: no-cache');
+if ( !function_exists('nocache_headers') ) : // current at [WP8525]
+/**
+ * Sets the headers to prevent caching for the different browsers.
+ *
+ * Different browsers support different nocache headers, so several headers must
+ * be sent so that all of them get the point that no caching should occur.
+ *
+ * @since 2.0.0
+ */
+function nocache_headers() {
+	// why are these @-silenced when other header calls aren't?
+	@header( 'Expires: Wed, 11 Jan 1984 05:00:00 GMT' );
+	@header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT' );
+	@header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );
+	@header( 'Pragma: no-cache' );
 }
 endif;
 
-if ( !function_exists('cache_javascript_headers') ) :
-function cache_javascript_headers() { // [WP5640] Not verbatim WP.  Charset hardcoded.
+if ( !function_exists('cache_javascript_headers') ) : // current at [WP8525] - Not verbatim WP. Charset hardcoded.
+/**
+ * Set the headers for caching for 10 days with JavaScript content type.
+ *
+ * @since 2.1.0
+ */
+function cache_javascript_headers() {
 	$expiresOffset = 864000; // 10 days
-	header("Content-Type: text/javascript; charset=utf-8");
-	header("Vary: Accept-Encoding"); // Handle proxies
-	header("Expires: " . gmdate("D, d M Y H:i:s", time() + $expiresOffset) . " GMT");
+	header( "Content-Type: text/javascript; charset=utf-8" );
+	header( "Vary: Accept-Encoding" ); // Handle proxies
+	header( "Expires: " . gmdate( "D, d M Y H:i:s", time() + $expiresOffset ) . " GMT" );
 }
 endif;
 
 /* Templates */
 
-if ( !function_exists('paginate_links') ) : // [6026]
+if ( !function_exists('paginate_links') ) : // [WP6026] - current at [WP8525]
 function paginate_links( $args = '' ) {
 	$defaults = array(
 		'base' => '%_%', // http://example.com/all_posts.php%_% : %_% is replaced by format (below)
@@ -499,7 +599,7 @@ function paginate_links( $args = '' ) {
 }
 endif;
 
-if ( !function_exists('ent2ncr') ) : // [WP3641]
+if ( !function_exists('ent2ncr') ) : // [WP3641] - current at [WP8525]
 function ent2ncr($text) {
 	$to_ncr = array(
 		'&quot;' => '&#34;',
@@ -765,7 +865,7 @@ function ent2ncr($text) {
 }
 endif;
 
-if ( !function_exists('urlencode_deep') ) : // [WP5261]
+if ( !function_exists('urlencode_deep') ) : // [WP5261] - current at [WP8525]
 function urlencode_deep($value) {
 	 $value = is_array($value) ?
 		 array_map('urlencode_deep', $value) :
@@ -775,13 +875,13 @@ function urlencode_deep($value) {
 }
 endif;
 
-if ( !function_exists( 'zeroise' ) ) : // [WP3855]
+if ( !function_exists( 'zeroise' ) ) : // [WP3855] - current at [WP8525]
 function zeroise($number,$threshold) { // function to add leading zeros when necessary
 	return sprintf('%0'.$threshold.'s', $number);
 }
 endif;
 
-if ( !function_exists( 'backslashit' ) ) : // [WP3855]
+if ( !function_exists( 'backslashit' ) ) : // [WP3855] - current at [WP8525]
 function backslashit($string) {
 	$string = preg_replace('/^([0-9])/', '\\\\\\\\\1', $string);
 	$string = preg_replace('/([a-z])/i', '\\\\\1', $string);
@@ -789,36 +889,47 @@ function backslashit($string) {
 }
 endif;
 
-if ( !function_exists( 'wp_remote_fopen' ) ) : // [WP4752]
+if ( !function_exists( 'wp_remote_fopen' ) ) : // current at [WP8525]
+/**
+ * HTTP request for URI to retrieve content.
+ *
+ * Tries to retrieve the HTTP content with fopen first and then using cURL, if
+ * fopen can't be used.
+ *
+ * @since unknown
+ *
+ * @param string $uri URI/URL of web page to retrieve.
+ * @return string HTTP content.
+ */
 function wp_remote_fopen( $uri ) {
 	$timeout = 10;
-	$parsed_url = @parse_url($uri);
+	$parsed_url = @parse_url( $uri );
 
-	if ( !$parsed_url || !is_array($parsed_url) )
+	if ( !$parsed_url || !is_array( $parsed_url ) )
 		return false;
 
-	if ( !isset($parsed_url['scheme']) || !in_array($parsed_url['scheme'], array('http','https')) )
+	if ( !isset( $parsed_url['scheme'] ) || !in_array( $parsed_url['scheme'], array( 'http','https' ) ) )
 		$uri = 'http://' . $uri;
 
-	if ( ini_get('allow_url_fopen') ) {
+	if ( ini_get( 'allow_url_fopen' ) ) {
 		$fp = @fopen( $uri, 'r' );
 		if ( !$fp )
 			return false;
 
 		//stream_set_timeout($fp, $timeout); // Requires php 4.3
 		$linea = '';
-		while( $remote_read = fread($fp, 4096) )
+		while ( $remote_read = fread( $fp, 4096 ) )
 			$linea .= $remote_read;
-		fclose($fp);
+		fclose( $fp );
 		return $linea;
-	} else if ( function_exists('curl_init') ) {
+	} elseif ( function_exists( 'curl_init' ) ) {
 		$handle = curl_init();
-		curl_setopt ($handle, CURLOPT_URL, $uri);
-		curl_setopt ($handle, CURLOPT_CONNECTTIMEOUT, 1);
-		curl_setopt ($handle, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt ($handle, CURLOPT_TIMEOUT, $timeout);
-		$buffer = curl_exec($handle);
-		curl_close($handle);
+		curl_setopt( $handle, CURLOPT_URL, $uri);
+		curl_setopt( $handle, CURLOPT_CONNECTTIMEOUT, 1 );
+		curl_setopt( $handle, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $handle, CURLOPT_TIMEOUT, $timeout );
+		$buffer = curl_exec( $handle );
+		curl_close( $handle );
 		return $buffer;
 	} else {
 		return false;
@@ -826,7 +937,7 @@ function wp_remote_fopen( $uri ) {
 }
 endif;
 
-if ( !function_exists( 'validate_file' ) ) : // [WP8372]
+if ( !function_exists( 'validate_file' ) ) : // [WP8372] - current at [WP8525]
 /**
  * File validates against allowed set of defined rules.
  *
@@ -834,6 +945,8 @@ if ( !function_exists( 'validate_file' ) ) : // [WP8372]
  * return value of '2' means that the $file contains ':' after the first
  * character. A return value of '3' means that the file is not in the allowed
  * files list.
+ *
+ * @since 2.6
  *
  * @param string $file File path.
  * @param array $allowed_files List of allowed files.
