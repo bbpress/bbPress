@@ -8,6 +8,7 @@ bb_auth('logged_in');
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 	$sendto = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
 	wp_redirect( $sendto );
+	exit;
 }
 
 $bb_current_id = bb_get_current_user_info( 'id' );
@@ -15,6 +16,7 @@ $bb_current_id = bb_get_current_user_info( 'id' );
 if ( !is_bb_profile() ) {
 	$sendto = get_profile_tab_link( $bb_current_id, 'edit' );
 	wp_redirect( $sendto );
+	exit;
 }
 
 require_once(BB_PATH . BB_INC . 'registration-functions.php');
@@ -36,9 +38,6 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	bb_check_admin_referer( 'edit-profile_' . $user_id );
 
 	$user_url = bb_fix_link( $_POST['user_url'] );
-	if ( isset($_POST['user_email']) && $bb_current_id == $user->ID )
-		if ( !$user_email = bb_verify_email( $_POST['user_email'] ) )
-			$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
 
 	foreach ( $profile_info_keys as $key => $label ) {
 		if ( isset($$key) )
@@ -57,6 +56,10 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 			wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 			exit;
 		}
+
+		if ( isset($_POST['user_email']) )
+			if ( !$user_email = bb_verify_email( $_POST['user_email'] ) )
+				$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
 
 		$user_obj = new WP_User( $user->ID );
 
@@ -98,7 +101,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 
 	if ( $user_email && !$errors->get_error_codes() ) {
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) {
-			if ( is_string($user_email) && $bb_current_id == $user->ID ) {
+			if ( is_string($user_email) ) {
 				bb_update_user( $user->ID, $user_email, $user_url );
 			} else {
 				bb_update_user( $user->ID, $user->user_email, $user_url );
@@ -136,7 +139,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		do_action('profile_edited', $user->ID);
 
 		wp_redirect( add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) ) );
-		exit();	
+		exit;
 	}
 }
 

@@ -1698,9 +1698,6 @@ function bb_profile_data_form( $id = 0 ) {
 	if ( is_array($profile_info_keys) ) :
 		$bb_current_id = bb_get_current_user_info( 'id' );
 		foreach ( $profile_info_keys as $key => $label ) :
-			if ( 'user_email' == $key && $bb_current_id != $user->ID )
-				continue;
-
 			if ( $label[0] ) {
 				$class = 'form-field form-required required';
 				$title = '<sup class="required">*</sup> ' . attribute_escape( $label[1] );
