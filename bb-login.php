@@ -23,15 +23,47 @@ if ( isset( $_REQUEST['logout'] ) ) {
 	exit;
 }
 
-if ( !bb_is_user_logged_in() && !$user = bb_login( @$_POST['user_login'], @$_POST['password'], @$_POST['remember'] ) ) {
-	$user_exists = bb_get_user( @$_POST['user_login'] );
-	$user_login  = attribute_escape( sanitize_user( @$_POST['user_login'] ) );
-	$remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
-	$re = $redirect_to = attribute_escape( $re );
-	bb_load_template( 'login.php', array('user_exists', 'user_login', 'remember_checked', 'redirect_to', 're') );
+if ( bb_is_user_logged_in() ) {
+	bb_safe_redirect( $re );
 	exit;
 }
 
-bb_safe_redirect( $re );
+$user = bb_login( @$_POST['user_login'], @$_POST['password'], @$_POST['remember'] );
+
+if ( $user && !is_wp_error( $user ) ) {
+	bb_safe_redirect( $re );
+	exit;
+}
+
+if ( is_wp_error( $user ) ) {
+	$bb_login_error =& $user;
+} else {
+	$bb_login_error = new WP_Error;
+}
+
+
+$error_data = $bb_login_error->get_error_data();
+if ( isset($error_data['unique']) && false === $error_data['unique'] )
+	$user_exists = true;
+else
+	$user_exists = isset($_POST['user_login']) && $_POST['user_login'] && (bool) bb_get_user( $_POST['user_login'] );
+unset($error_data);
+
+if ( !$user_exists ) {
+	if ( isset($_POST['user_login']) && $_POST['user_login'] )
+		$bb_login_error->add( 'user_login', __( 'User does not exist.' ) );
+	else
+		$bb_login_error->add( 'user_login', __( 'Enter a username or email address.' ) );
+}
+
+if ( !$bb_login_error->get_error_code() )
+	$bb_login_error->add( 'password', __( 'Incorrect password.' ) );
+
+$user_login  = attribute_escape( sanitize_user( @$_POST['user_login'] ) );
+$remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
+$re = $redirect_to = attribute_escape( $re );
+
+bb_load_template( 'login.php', array('user_exists', 'user_login', 'remember_checked', 'redirect_to', 're', 'bb_login_error') );
+exit;
 
 ?>

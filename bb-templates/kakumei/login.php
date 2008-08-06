@@ -7,36 +7,28 @@
 <form method="post" action="<?php bb_uri('bb-login.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS); ?>">
 <fieldset>
 <table>
-<?php if ( $user_exists ) : ?>
-	<tr valign="top">
+<?php
+	$user_login_error = $bb_login_error->get_error_message( 'user_login' );
+	$user_email_error = $bb_login_error->get_error_message( 'user_email' );
+	$user_password_error = $bb_login_error->get_error_message( 'password' );
+?>
+	<tr valign="top" class="<?php if ( $user_login_error || $user_email_error ) echo 'error'; ?>">
 		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
-		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /></td>
+		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /><?php
+		if ( $user_login_error )
+			echo "<br />$user_login_error";
+		if ( $user_email_error )
+			echo "<br />$user_email_error";
+		?></td>
 	</tr>
-	<tr valign="top" class="error">
+	<tr valign="top" class="<?php if ( $user_password_error ) echo 'error'; ?>">
 		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
-		<td><input name="password" id="password" type="password" /><br />
-		<?php _e('Incorrect password'); ?></td>
+		<td><input name="password" id="password" type="password" /><?php
+		if ( $user_password_error )
+			echo "<br />$user_password_error";
+		?></td>
 	</tr>
-<?php elseif ( isset($_POST['user_login']) ) : ?>
-	<tr valign="top" class="error">
-		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
-		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /><br />
-		<?php _e('This username does not exist.'); ?> <a href="<?php bb_uri('register.php', array('user' => $user_login), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS); ?>"><?php _e('Register it?'); ?></a></td>
-	</tr>
-	<tr valign="top">
-		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
-		<td><input name="password" id="password" type="password" /></td>
-	</tr>
-<?php else : ?>
-	<tr valign="top" class="error">
-		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
-		<td><input name="user_login" id="user_login" type="text" /><br />
-	</tr>
-	<tr valign="top">
-		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
-		<td><input name="password" id="password" type="password" /></td>
-	</tr>
-<?php endif; ?>
+
 	<tr valign="top">
 		<th scope="row"><label for="remember"><?php _e('Remember me:'); ?></label></th>
 		<td><input name="remember" type="checkbox" id="remember" value="1"<?php echo $remember_checked; ?> /></td>

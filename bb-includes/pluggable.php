@@ -15,11 +15,48 @@ if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $wp_users_object;
 
-	if ( !$user = sanitize_user( $user ) )
+	if ( !bb_get_option( 'email_login' ) || false === strpos( $user, '@' ) ) { // user_login
+		$user = $wp_users_object->get_user( $user );
+	} else { // maybe an email
+		$email_user = $wp_users_object->get_user( $user, array( 'by' => 'email' ) );
+		$user = $wp_users_object->get_user( $user );
+		// 9 cases.  each can be FALSE, USER, or WP_ERROR
+		if (
+			( !$email_user && $user ) // FALSE && USER, FALSE && WP_ERROR
+		||
+			( is_wp_error( $email_user ) && $user && !is_wp_error( $user ) ) // WP_ERROR && USER
+		) {
+			// nope: it really was a user_login
+			// [sic]: use $user
+		} elseif (
+			( $email_user && !$user ) // USER && FALSE, WP_ERROR && FALSE
+		||
+			( $email_user && !is_wp_error( $email_user ) && is_wp_error( $user ) ) // USER && WP_ERROR
+		) {
+			// yup: it was an email
+			$user =& $email_user;
+		} elseif ( !$email_user && !$user ) { // FALSE && FALSE
+			// Doesn't matter what it was: neither worked
+			return false;
+		} elseif ( is_wp_error( $email_user ) && is_wp_error( $user ) ) { // WP_ERROR && WP_ERROR
+			// This can't happen.  If it does, let's use the email error.  It's probably "multiple matches", so maybe logging in with a username will work
+			$user =& $email_user;
+		} elseif ( $email_user && $user ) { // USER && USER
+			// both are user objects
+			if ( $email_user->ID == $user->ID ); // [sic]: they are the same, use $user
+			elseif ( wp_check_password($pass, $user->user_pass, $user->ID) ); // [sic]: use $user
+			elseif ( wp_check_password($pass, $email_user->user_pass, $email_user->ID) )
+				$user =& $email_user;
+		} else { // This can't happen, that's all 9 cases.
+			// [sic]: use $user
+		}
+	}
+
+	if ( !$user )
 		return false;
 
-	if ( !$user = bb_get_user( $user ) )
-		return false;
+	if ( is_wp_error($user) )
+		return $user;
 	
 	if ( !wp_check_password($pass, $user->user_pass, $user->ID) )
 		return false;
@@ -79,7 +116,8 @@ endif;
 
 if ( !function_exists('bb_login') ) :
 function bb_login( $login, $password, $remember = false ) {
-	if ( $user = bb_check_login( $login, $password ) ) {
+	$user = bb_check_login( $login, $password );
+	if ( $user && !is_wp_error( $user ) ) {
 		wp_set_auth_cookie( $user->ID, $remember );
 		do_action('bb_user_login', (int) $user->ID );
 	}

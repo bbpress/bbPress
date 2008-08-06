@@ -357,7 +357,7 @@ if ( !BB_INSTALLING && !bb_get_option_from_db( 'bb_db_version' ) ) {
 $bbdb->suppress_errors(false);
 
 // Setup some variables in the $bb class if they don't exist - some of these are deprecated
-foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true) as $o => $oo)
+foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true, 'email_login' => false) as $o => $oo)
 	if ( !isset($bb->$o) )
 		$bb->$o = $oo;
 unset($o, $oo);

@@ -1409,9 +1409,9 @@ function bb_block_current_user() {
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
-function bb_get_user( $user_id ) {
+function bb_get_user( $user_id, $args = null ) {
 	global $wp_users_object;
-	$user = $wp_users_object->get_user( $user_id );
+	$user = $wp_users_object->get_user( $user_id, $args );
 	if ( is_wp_error($user) )
 		return false;
 	return $user;
