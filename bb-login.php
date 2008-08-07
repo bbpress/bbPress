@@ -59,6 +59,11 @@ if ( !$user_exists ) {
 if ( !$bb_login_error->get_error_code() )
 	$bb_login_error->add( 'password', __( 'Incorrect password.' ) );
 
+// If trying to log in with email address, don't leak whether or not email address exists in the db
+// strpos @ is not perfect, usernames can have @
+if ( bb_get_option( 'email_login' ) && $bb_login_error->get_error_codes() && false !== strpos( $_POST['user_login'], '@' ) )
+	$bb_login_error = new WP_Error( 'user_login', __( 'Username and Password do not match.' ) );
+
 $user_login  = attribute_escape( sanitize_user( @$_POST['user_login'] ) );
 $remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
 $re = $redirect_to = attribute_escape( $re );
