@@ -45,21 +45,27 @@
 </fieldset>
 </form>
 
-<?php if ( $user_exists ) : ?>
+<h2 id="passwordrecovery"><?php _e( 'Password Recovery' ); ?></h2>
 <form method="post" action="<?php bb_uri('bb-reset-password.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS); ?>">
 <fieldset>
-	<p><?php _e('If you would like to recover the password for this account, you may use the following button to start the recovery process:'); ?></p>
+	<p><?php _e('To recover your password, enter your information below.'); ?></p>
 	<table>
-		<tr>
-			<th></th>
+		<tr valign="top">
+			<th scope="row">
+				<label for="user_login_reset_password"><?php _e( 'Username:' ); ?></label>
+			</th>
 			<td>
-				<input name="user_login" type="hidden" value="<?php echo $user_login; ?>" />
+				<input name="user_login" id="user_login_reset_password" type="text" value="<?php echo $user_login; ?>" />
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"></th>
+			<td>
 				<input type="submit" value="<?php echo attribute_escape( __('Recover Password &raquo;') ); ?>" />
 			</td>
 		</tr>
 	</table>
 </fieldset>
 </form>
-<?php endif; ?>
 
 <?php bb_get_footer(); ?>

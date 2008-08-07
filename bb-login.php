@@ -42,6 +42,8 @@ if ( is_wp_error( $user ) ) {
 }
 
 
+$email_login = bb_get_option( 'email_login' );
+
 $error_data = $bb_login_error->get_error_data();
 if ( isset($error_data['unique']) && false === $error_data['unique'] )
 	$user_exists = true;
@@ -53,7 +55,7 @@ if ( !$user_exists ) {
 	if ( isset($_POST['user_login']) && $_POST['user_login'] )
 		$bb_login_error->add( 'user_login', __( 'User does not exist.' ) );
 	else
-		$bb_login_error->add( 'user_login', __( 'Enter a username or email address.' ) );
+		$bb_login_error->add( 'user_login', $email_login ? __( 'Enter a username or email address.' ) : __( 'Enter a username.' ) );
 }
 
 if ( !$bb_login_error->get_error_code() )
@@ -61,7 +63,7 @@ if ( !$bb_login_error->get_error_code() )
 
 // If trying to log in with email address, don't leak whether or not email address exists in the db
 // strpos @ is not perfect, usernames can have @
-if ( bb_get_option( 'email_login' ) && $bb_login_error->get_error_codes() && false !== strpos( $_POST['user_login'], '@' ) )
+if ( $email_login && $bb_login_error->get_error_codes() && false !== strpos( $_POST['user_login'], '@' ) )
 	$bb_login_error = new WP_Error( 'user_login', __( 'Username and Password do not match.' ) );
 
 $user_login  = attribute_escape( sanitize_user( @$_POST['user_login'] ) );
