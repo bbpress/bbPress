@@ -1,5 +1,11 @@
 <form class="login" method="post" action="<?php bb_option('uri'); ?>bb-login.php">
-	<p><?php printf(__('<a href="%1$s">Register</a> or log in'), bb_get_option('uri').'register.php') ?>:</p>
+	<p><?php
+		printf(
+			__('<a href="%1$s">Register</a> or log in (<a href="%2$s">lost password?</a>):'),
+			bb_get_option('uri') . 'register.php',
+			bb_get_option('uri') . 'bb-login.php'
+		);
+	?></p>
 	<div>
 		<label><?php _e('Username:'); ?><br />
 			<input name="user_login" type="text" id="user_login" size="13" maxlength="40" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" tabindex="1" />
