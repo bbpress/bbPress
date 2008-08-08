@@ -776,6 +776,7 @@ class BB_Install
 					),
 					'wp_table_prefix' => array(
 						'value' => 'wp_',
+						'default_value' => '', // Used when setting is ignored
 						'label' => __('User database table prefix'),
 						'note'  => __('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$wp_table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.'),
 						'prerequisite' => 'toggle_2_2'
@@ -1130,6 +1131,8 @@ class BB_Install
 		foreach ($data as $key => $value) {
 			if (substr($key, 0, 8) !== 'forward_' && substr($key, 0, 5) !== 'back_') {
 				if (isset($data[$key]['prerequisite']) && !$_POST[$data[$key]['prerequisite']]) {
+					if ( isset($data[$key]['default_value']) )
+						$data[$key]['value'] = $data[$key]['default_value'];
 					// do nothing - keep the default value
 				} else {
 					$data[$key]['value'] = stripslashes_deep(trim($_POST[$key]));
