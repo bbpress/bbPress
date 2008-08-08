@@ -4,7 +4,7 @@
 global $bb_queries, $bbdb;
 
 // Die if no database class is loaded
-if ( !isset($bbdb) || !is_a( $bbdb, 'BPDB' ) )
+if ( !isset($bbdb) || ( !is_a( $bbdb, 'BPDB' ) && !is_a( $bbdb, 'db' ) ) )
 	die( __('Database class not loaded.') );
 
 // Initialise the query array
