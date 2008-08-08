@@ -519,12 +519,13 @@ function bb_sql_delta($queries, $execute = true) {
 				}
 				
 				// Run the query
-				$bbdb->return_errors();
 				$_result = $bbdb->query($_alteration['query']);
-				$bbdb->hide_errors();
-				
-				if ( is_wp_error($_result) ) {
-					// There was an error and $bbdb->show_errors = 2
+				$_result_error = $bbdb->get_error();
+
+				if ( $_result_error ) {
+					// There was an error
+					$_result =& $_result_error;
+					unset( $_result_error );
 					$messages[] = '>>>>>>>>>>>> ' . __('SQL ERROR! See the error log for more detail');
 					$errors[] = __('SQL ERROR!');
 					$errors[] = '>>> ' . __('Database:') . ' ' . $bbdb->db_servers[$_dbhname]['name'] . ' (' . $bbdb->db_servers[$_dbhname]['host'] . ')';

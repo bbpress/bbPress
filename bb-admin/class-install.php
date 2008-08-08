@@ -1420,16 +1420,18 @@ class BB_Install
 				}
 				
 				// Hide errors for the test
-				$bbdb->return_errors();
-				
+				$bbdb->hide_errors();
+
+				$result = $bbdb->query('DESCRIBE ' . $bbdb->users . ';');
+				$result_error = $bbdb->get_error();
 				// Select from the user table (may fail if there are no records in the table)
-				if (!$result = $bbdb->query('DESCRIBE ' . $bbdb->users . ';')) {
+				if ( !$result && $result_error ) {
 					
 					// We couldn't connect to the database at all
-					
+
 					// Turn errors back on
 					$bbdb->show_errors();
-					
+
 					// Set the status
 					$this->step_status[2] = 'incomplete';
 					if ( !empty($data['user_bbdb_name']['value']) )
@@ -1446,16 +1448,15 @@ class BB_Install
 						$this->strings[2]['form_errors']['custom_user_meta_table'][] = true;
 					$this->strings[2]['messages']['error'][] = __('There was a problem connecting to the WordPress user database you specified. Please check the settings, then try again.');
 					return 'incomplete';
-					
 				}
-				
-				if (is_array($result)) {
+					
+				if ( $result_error ) {
 					
 					// The result is an error, presumably telling us the table doesn't exist
-					
+
 					// Turn errors back on
 					$bbdb->show_errors();
-					
+
 					// Set the status
 					$this->step_status[2] = 'incomplete';
 					
@@ -1468,7 +1469,7 @@ class BB_Install
 					return 'incomplete';
 					
 				}
-				
+
 				// Turn errors back on
 				$bbdb->show_errors();
 			}
@@ -1647,8 +1648,8 @@ class BB_Install
 		$installation_log[] = "\n" . __('Step 1 - Creating database tables');
 		
 		if (!$this->database_tables_are_installed()) {
-			// Return db errors
-			$bbdb->return_errors();
+			// Hide db errors
+			$bbdb->hide_errors();
 			// Install the database
 			$alterations = bb_install();
 			// Show db errors
