@@ -269,7 +269,7 @@ class bbdb_base {
 	}
 
 	/**
-	 * Update a row in the table with an array of data
+	 * Update rows in the table with an array of data
 	 * @param string $table WARNING: not sanitized!
 	 * @param array $data should not already be SQL-escaped
 	 * @param array $where a named array of WHERE column => value relationships.  Multiple member pairs will be joined with ANDs.  WARNING: the column names are not currently sanitized!
@@ -286,7 +286,7 @@ class bbdb_base {
 				$wheres[] = "$c = '" . $this->escape( $v ) . "'";
 		else
 			return false;
-		return $this->query( "UPDATE $table SET " . implode( ', ', $bits ) . ' WHERE ' . implode( ' AND ', $wheres ) . ' LIMIT 1' );
+		return $this->query( "UPDATE $table SET " . implode( ', ', $bits ) . ' WHERE ' . implode( ' AND ', $wheres ) );
 	}
 
 	// ==================================================================
