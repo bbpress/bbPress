@@ -345,7 +345,7 @@ function wp_salt($scheme = 'auth') {
 				$salt = BB_LOGGED_IN_SALT;
 			} else {
 				$salt = bb_get_option('bb_logged_in_salt');
-				if ( empty($salt) ) {
+				if ( empty($salt) && ( !defined( 'BB_INSTALLING' ) || !BB_INSTALLING ) ) {
 					$salt = wp_generate_password();
 					bb_update_option('bb_logged_in_salt', $salt);
 				}
