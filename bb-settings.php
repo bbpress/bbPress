@@ -186,7 +186,8 @@ if ( !defined('BB_DATABASE_CLASS_INCLUDE') )
 	define('BB_DATABASE_CLASS_INCLUDE', BACKPRESS_PATH . 'class.bpdb-multi.php' );
 
 // Load the database class
-require( BB_DATABASE_CLASS_INCLUDE );
+if ( BB_DATABASE_CLASS_INCLUDE )
+	require( BB_DATABASE_CLASS_INCLUDE );
 
 /**
  * Define the name of the database class
