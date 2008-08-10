@@ -9,6 +9,7 @@ if ( !bb_current_user_can('manage_options') ) {
 }
 
 ?>
+Options -MultiViews
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
