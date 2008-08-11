@@ -556,7 +556,8 @@ function bb_update_forum( $args ) {
 	if ( !bb_current_user_can( 'manage_forums' ) )
 		return false;
 
-	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0, 'forum_is_category' => 0 );
+	$defaults = array( 'forum_id' => 0, 'forum_name' => '', 'forum_slug' => '', 'forum_desc' => '', 'forum_parent' => 0, 'forum_order' => 0, 'forum_is_category' => 0 );
+	$fields = array( 'forum_name', 'forum_desc', 'forum_parent', 'forum_order' );
 	$args = wp_parse_args( $args, $defaults );
 	if ( 1 < func_num_args() ) : // For back compat
 		$args['forum_id']    = func_get_arg(0);
@@ -569,6 +570,8 @@ function bb_update_forum( $args ) {
 
 	if ( !$forum_id = (int) $forum_id )
 		return false;
+	if ( !$forum = get_forum( $forum_id ) )
+		return false;
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
 	$forum_is_category = (int) $forum_is_category;
@@ -579,10 +582,26 @@ function bb_update_forum( $args ) {
 	if ( strlen($forum_name) < 1 )
 		return false;
 
+	// Slug is not changing, don't update it
+	if ( !$forum_slug || $forum_slug == $forum->forum_slug ) {
+		// [sic]
+	} else {
+		$forum_slug = $_forum_slug = bb_slug_sanitize($forum_slug);
+		if ( strlen($_forum_slug) < 1 )
+			return false;
+
+		$forum_sql = "SELECT forum_slug FROM $bbdb->forums WHERE forum_slug = %s";
+
+		while ( is_numeric($forum_slug) || $existing_slug = $bbdb->get_var( $bbdb->prepare( $forum_sql, $forum_slug ) ) )
+			$forum_slug = bb_slug_increment($_forum_slug, $existing_slug);
+
+		$fields[] = 'forum_slug';
+	}
+
 	wp_cache_delete( $forum_id, 'bb_forum' );
 	wp_cache_flush( 'bb_forums' );
 
-	$update_result = $bbdb->update( $bbdb->forums, compact( 'forum_name', 'forum_desc', 'forum_parent', 'forum_order' ), compact( 'forum_id' ) );
+	$update_result = $bbdb->update( $bbdb->forums, compact( $fields ), compact( 'forum_id' ) );
 	if ($update_result)
 		if ($forum_is_category)
 			bb_update_forummeta($forum_id, 'forum_is_category', $forum_is_category);
@@ -658,7 +677,7 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 
 function bb_forum_form( $forum_id = 0 ) {
 	$forum_id = (int) $forum_id;
-	if ( $forum_id && !get_forum( $forum_id ) )
+	if ( $forum_id && !$forum = get_forum( $forum_id ) )
 		return;
 	$action = $forum_id ? 'update' : 'add';
 ?>
@@ -668,6 +687,11 @@ function bb_forum_form( $forum_id = 0 ) {
 		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>
 			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
 		</tr>
+<?php if ( $forum_id ) : ?>
+		<tr><th scope="row"><label for="forum-slug"><?php _e('Forum Slug:'); ?></label></th>
+			<td><input type="text" name="forum_slug" id="forum-slug" value="<?php echo attribute_escape( $forum->forum_slug ); ?>" tabindex="10" class="widefat" /></td>
+		</tr>
+<?php endif; ?>
 		<tr><th scope="row"><label for="forum-desc"><?php _e('Forum Description:'); ?></label></th>
 			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
 		</tr>
