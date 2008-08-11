@@ -132,7 +132,7 @@ $bb_queries['topics'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topics` (
 	KEY `topic_slug` (`topic_slug`),
 	KEY `forum_time` (`forum_id`, `topic_time`),
 	KEY `user_start_time` (`topic_poster`, `topic_start_time`),
-	KEY `forum_stickies` (`topic_status`, `forum_id`, `topic_sticky`, `topic_time`)
+	KEY `stickies` (`topic_status`, `topic_sticky`, `topic_time`)
 );";
 
 // topicmeta - deprecated

@@ -40,6 +40,7 @@ function bb_upgrade_all() {
 	$bb_upgrade['messages'][] = bb_upgrade_1070(); // trim whitespace from raw_tag
 	$bb_upgrade['messages'][] = bb_upgrade_1080(); // Convert tags to taxonomy
 	$bb_upgrade['messages'][] = bb_upgrade_1090(); // Add display names
+	$bb_upgrade['messages'][] = bb_upgrade_1100(); // Replace forum_stickies index with stickies (#876)
 
 	bb_update_db_version();
 
@@ -919,6 +920,19 @@ function bb_upgrade_1090() {
 	bb_update_option( 'bb_db_version', 1589 );
 
 	return 'Display names populated: ' . __FUNCTION__;
+}
+
+function bb_upgrade_1100() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1638 )
+		return;
+
+	global $bbdb;
+
+	$bbdb->query( "DROP INDEX forum_stickies ON $bbdb->topics" );
+
+	bb_update_option( 'bb_db_version', 1638 );
+
+	return 'Index forum_stickies dropped: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {
