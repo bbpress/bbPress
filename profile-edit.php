@@ -106,10 +106,12 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 			} else {
 				bb_update_user( $user->ID, $user->user_email, $user_url );
 			}
-			foreach( $profile_info_keys as $key => $label )
-				if ( strpos($key, 'user_') !== 0 )
-					if ( $$key != '' || isset($user->$key) )
-						bb_update_usermeta( $user->ID, $key, $$key );
+			foreach( $profile_info_keys as $key => $label ) {
+				if ( 'display_name' == $key || 'ID' == $key || strpos($key, 'user_') === 0 )
+					continue;
+				if ( $$key != '' || isset($user->$key) )
+					bb_update_usermeta( $user->ID, $key, $$key );
+			}
 		}
 
 		if ( bb_current_user_can( 'edit_users' ) ) {
