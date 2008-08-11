@@ -967,8 +967,14 @@ function bb_get_plugins($location = 'all', $type = 'normal') {
 	foreach ($plugins as $plugin => $plugin_data) {
 		$adjusted_plugins[$plugin_data['location'] . '#' . $plugin] = $plugin_data;
 	}
-	
+
+	usort( $adjusted_plugins, 'bb_plugins_sort' );
+
 	return $adjusted_plugins;
+}
+
+function bb_plugins_sort( $a, $b ) {
+	return strnatcasecmp( $a['name'], $b['name'] );
 }
 
 // Output sanitized for display
