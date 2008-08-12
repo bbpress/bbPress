@@ -54,7 +54,7 @@ if ( $_POST && 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 			do_action('register_user', $user_id);
 
 			bb_load_template( 'register-success.php', $_globals );
-			exit();	
+			exit;	
 		} // else failure
 	}
 }

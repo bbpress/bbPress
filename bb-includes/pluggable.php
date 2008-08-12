@@ -5,7 +5,7 @@ function bb_auth($scheme = 'auth') { // Checks if a user has a valid cookie, if 
 	if ( !wp_validate_auth_cookie('', $scheme) ) {
 		nocache_headers();
 		header('Location: ' . bb_get_uri(null, null, BB_URI_CONTEXT_HEADER));
-		exit();
+		exit;
 	}
 }
 endif;

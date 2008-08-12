@@ -5,7 +5,7 @@ $post_id = (int) $_GET['id'];
 
 if ( !bb_current_user_can( 'delete_post', $post_id ) ) {
 	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
-	exit();
+	exit;
 }
 
 bb_check_admin_referer( 'delete-post_' . $post_id );

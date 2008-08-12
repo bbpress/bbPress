@@ -9,7 +9,7 @@ if ( !is_numeric($topic_id) || !is_numeric($forum_id) )
 
 if ( !bb_current_user_can( 'move_topic', $topic_id, $forum_id ) ) {
 	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
-	exit();
+	exit;
 }
 
 bb_check_admin_referer( 'move-topic_' . $topic_id );

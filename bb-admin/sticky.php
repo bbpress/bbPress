@@ -10,7 +10,7 @@ if ( !$topic )
 
 if ( !bb_current_user_can( 'stick_topic', $topic_id ) ) {
 	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
-	exit();
+	exit;
 }
 
 bb_check_admin_referer( 'stick-topic_' . $topic_id );
