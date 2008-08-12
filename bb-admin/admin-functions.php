@@ -602,11 +602,12 @@ function bb_update_forum( $args ) {
 	wp_cache_flush( 'bb_forums' );
 
 	$update_result = $bbdb->update( $bbdb->forums, compact( $fields ), compact( 'forum_id' ) );
-	if ($update_result)
-		if ($forum_is_category)
-			bb_update_forummeta($forum_id, 'forum_is_category', $forum_is_category);
-		else
-			bb_delete_forummeta($forum_id, 'forum_is_category');
+
+	if ($forum_is_category)
+		bb_update_forummeta($forum_id, 'forum_is_category', $forum_is_category);
+	else
+		bb_delete_forummeta($forum_id, 'forum_is_category');
+
 	return $update_result;
 }
 
