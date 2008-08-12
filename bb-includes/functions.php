@@ -195,8 +195,9 @@ function get_forums( $args = null ) {
 	} else {
 		$forum_ids = array();
 		$forums = array();
-		foreach ( $_forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order") as $f ) {
-			$f = bb_append_meta( $f, 'forum' );
+		$_forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
+		$_forums = bb_append_meta( $_forums, 'forum' );
+		foreach ( $_forums as $f ) {
 			$forums[(int) $f->forum_id] = $f;
 			$forum_ids[] = (int) $f->forum_id;
 			wp_cache_add( $f->forum_id, $f, 'bb_forum' );
@@ -2063,7 +2064,7 @@ function bb_append_meta( $object, $type ) {
 		foreach ( array_keys($object) as $i )
 			$trans[$object[$i]->$object_id_column] =& $object[$i];
 		$ids = join(',', array_map('intval', array_keys($trans)));
-		if ( $metas = $bbdb->get_results("SELECT object_id, meta_key, meta_value FROM $bbdb->meta WHERE object_id IN ($ids) /* bb_append_meta */") )
+		if ( $metas = $bbdb->get_results("SELECT object_id, meta_key, meta_value FROM $bbdb->meta WHERE object_type = '$object_type' AND object_id IN ($ids) /* bb_append_meta */") )
 			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) :
 				$trans[$meta->object_id]->{$meta->meta_key} = maybe_unserialize( $meta->meta_value );
