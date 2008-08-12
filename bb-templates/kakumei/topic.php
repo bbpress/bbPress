@@ -23,7 +23,7 @@
 
 <div style="clear:both;"></div>
 </div>
-<?php do_action('under_title', ''); ?>
+<?php do_action('under_title'); ?>
 <?php if ($posts) : ?>
 <div class="nav">
 <?php topic_pages(); ?>

@@ -7,7 +7,7 @@ function bb_get_admin_header() {
 }
 
 function bb_get_admin_footer() {
-	do_action('bb_admin-footer.php', '');
+	do_action('bb_admin-footer.php');
 	include('admin-footer.php');
 }
 
@@ -82,7 +82,7 @@ function bb_admin_menu_generator() {
 	$bb_submenu['options-general.php'][5]  = array(__('General'),               'manage_options', 'options-general.php');
 	$bb_submenu['options-general.php'][10] = array(__('WordPress Integration'), 'manage_options', 'options-wordpress.php');
 
-	do_action('bb_admin_menu_generator','');
+	do_action('bb_admin_menu_generator');
 	ksort($bb_menu);
 }
 

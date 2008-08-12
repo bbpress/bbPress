@@ -130,7 +130,7 @@ if ( !function_exists('bb_logout') ) :
 function bb_logout() {
 	wp_clear_auth_cookie();
 	
-	do_action('bb_user_logout', '');
+	do_action('bb_user_logout');
 }
 endif;
 

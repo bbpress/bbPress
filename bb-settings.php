@@ -935,7 +935,7 @@ $bb_locale = new BB_Locale();
  * Reference to $wp_roles
  */
 $bb_roles =& $wp_roles;
-do_action('bb_got_roles', '');
+do_action('bb_got_roles');
 
 
 
@@ -954,7 +954,7 @@ unset($template_functions_include);
  */
 
 function bb_shutdown_action_hook() {
-	do_action('bb_shutdown', '');
+	do_action('bb_shutdown');
 }
 register_shutdown_function('bb_shutdown_action_hook');
 
@@ -971,7 +971,7 @@ bb_current_user();
  * Initialisation complete API hook
  */
 
-do_action('bb_init', '');
+do_action('bb_init');
 
 
 

@@ -54,7 +54,7 @@ if ( isset($_GET['view']) || get_path() == 'view' ) {
 
 // Initialise the override variable
 $bb_db_override = false;
-do_action( 'bb_rss.php_pre_db', '' );
+do_action( 'bb_rss.php_pre_db' );
 
 if ( !$bb_db_override ) {
 	

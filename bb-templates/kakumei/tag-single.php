@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <a href="<?php bb_tag_page_link(); ?>"><?php _e('Tags'); ?></a> &raquo; <?php bb_tag_name(); ?></h3>
 
-<?php do_action('tag_above_table', ''); ?>
+<?php do_action('tag_above_table'); ?>
 
 <?php if ( $topics ) : ?>
 
@@ -33,7 +33,7 @@
 
 <?php post_form(); ?>
 
-<?php do_action('tag_below_table', ''); ?>
+<?php do_action('tag_below_table'); ?>
 
 <?php manage_tags_forms(); ?>
 

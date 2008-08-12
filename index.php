@@ -3,7 +3,7 @@
 require('./bb-load.php');
 
 $bb_db_override = false;
-do_action( 'bb_index.php_pre_db', '' );
+do_action( 'bb_index.php_pre_db' );
 
 if ( isset($_GET['new']) && '1' == $_GET['new'] ) :
 	$forums = false;
