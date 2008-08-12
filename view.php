@@ -23,8 +23,6 @@ if ( isset($bb_views[$view]) ) {
 
 do_action( 'bb_custom_view', $view, $page );
 
-do_action( 'bb_view.php', '' );
-
-bb_load_template( 'view.php', array('view_count', 'stickies') );
+bb_load_template( 'view.php', array('view_count', 'stickies'), $view );
 
 ?>

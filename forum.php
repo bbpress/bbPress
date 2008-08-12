@@ -17,8 +17,6 @@ if ( !$bb_db_override ) :
 	$stickies = get_sticky_topics( $forum_id, $page );
 endif;
 
-do_action( 'bb_forum.php', $forum_id );
-
-bb_load_template( 'forum.php', array('bb_db_override', 'stickies') );
+bb_load_template( 'forum.php', array('bb_db_override', 'stickies'), $forum_id );
 
 ?>

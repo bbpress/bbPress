@@ -39,8 +39,6 @@ if ( !$bb_db_override ) :
 	post_author_cache($posts);
 endif;
 
-do_action( 'bb_topic.php', $topic_id );
-
-bb_load_template( 'topic.php', array('bb_db_override', 'user_tags', 'other_tags', 'list_start') );
+bb_load_template( 'topic.php', array('bb_db_override', 'user_tags', 'other_tags', 'list_start'), $topic_id );
 
 ?>

@@ -13,8 +13,6 @@ elseif ( !$bb_db_override ) :
 	$super_stickies = get_sticky_topics();
 endif;
 
-do_action( 'bb_index.php', '' );
-
 bb_load_template( 'front-page.php', array('bb_db_override', 'super_stickies') );
 
 ?>

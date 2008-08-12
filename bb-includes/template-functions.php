@@ -1,6 +1,6 @@
 <?php
 
-function bb_load_template( $file, $globals = false ) {
+function bb_load_template( $file, $globals = false, $action_arg = null ) {
 	global $bb, $bbdb, $bb_current_user, $page, $bb_cache,
 		$posts, $bb_post, $post_id, $topics, $topic, $topic_id,
 		$forums, $forum, $forum_id, $tags, $tag, $tag_name, $user, $user_id, $view,
@@ -13,8 +13,12 @@ function bb_load_template( $file, $globals = false ) {
 			else
 				global $$v;
 
+	do_action( "bb_$file", $action_arg );
+
 	$template = apply_filters( 'bb_template', bb_get_template( $file ), $file );
 	include($template);
+
+	do_action( "bb_after_$file", $action_arg );
 }
 
 function bb_get_template( $file ) {

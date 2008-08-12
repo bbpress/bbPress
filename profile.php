@@ -28,7 +28,5 @@ if ( isset($user->is_bozo) && $user->is_bozo && $user->ID != bb_get_current_user
 $posts = get_recent_user_replies( $user_id );
 $topics = get_recent_user_threads( $user_id );
 
-do_action( 'bb_profile.php', $user_id );
-
-bb_load_template( 'profile.php', array('reg_time', 'profile_info_keys', 'updated', 'threads') );
+bb_load_template( 'profile.php', array('reg_time', 'profile_info_keys', 'updated', 'threads'), $user_id );
 ?>

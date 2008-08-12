@@ -11,12 +11,9 @@ if ( !$tag && $tag_name )
 if ( $tag_name && $tag ) :
 
 	$topics = get_tagged_topics($tag->tag_id, $page);
-	do_action( 'bb_tag-single.php', $tag->tag_id );
 
-	bb_load_template( 'tag-single.php', array('tag', 'tag_name', 'topics') );
+	bb_load_template( 'tag-single.php', array('tag', 'tag_name', 'topics'), $tag->tag_id );
 else :
-
-	do_action( 'bb_tags.php', '' );
 
 	bb_load_template( 'tags.php' );
 endif;
