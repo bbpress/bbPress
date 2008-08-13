@@ -574,14 +574,6 @@ form.settings input.submit:hover {
 	color: rgb(230, 145, 0);
 }
 
-.active {
-	background-color: rgb(200, 250, 200)
-}
-
-.hidden {
-	display: none;
-}
-
 div.theme-list {
 	width: 848px;
 	margin: 30px auto;
@@ -735,6 +727,14 @@ div.post-theme {
 
 .alternate, .alt {
 	background: #f1f1f1;
+}
+
+.active {
+	background-color: rgb(200, 250, 200)
+}
+
+.hidden {
+	display: none;
 }
 
 .helper {
