@@ -969,7 +969,7 @@ function bb_get_plugins($location = 'all', $type = 'normal') {
 		$adjusted_plugins[$plugin_data['location'] . '#' . $plugin] = $plugin_data;
 	}
 
-	usort( $adjusted_plugins, 'bb_plugins_sort' );
+	uasort( $adjusted_plugins, 'bb_plugins_sort' );
 
 	return $adjusted_plugins;
 }
