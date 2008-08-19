@@ -624,6 +624,11 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 
 	// If we don't have an email from the input headers
 	if ( !isset( $from_email ) ) {
+		$from_email = bb_get_option('from_email');
+	}
+
+	// If there is still no email address
+	if ( !$from_email ) {
 		// Get the site domain and get rid of www.
 		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
 		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
