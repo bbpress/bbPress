@@ -542,13 +542,13 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	// Compact the input, apply the filters, and extract them back out
 	extract( apply_filters( 'bb_mail', compact( 'to', 'subject', 'message', 'headers' ) ) );
 
-	global $phpmailer;
+	global $bb_phpmailer;
 
 	// (Re)create it, if it's gone missing
-	if ( !is_object( $phpmailer ) || !is_a( $phpmailer, 'PHPMailer' ) ) {
+	if ( !is_object( $bb_phpmailer ) || !is_a( $bb_phpmailer, 'PHPMailer' ) ) {
 		require_once BACKPRESS_PATH . 'class.mailer.php';
 		require_once BACKPRESS_PATH . 'class.mailer-smtp.php';
-		$phpmailer = new PHPMailer();
+		$bb_phpmailer = new PHPMailer();
 	}
 
 	// Headers
@@ -608,13 +608,13 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	}
 
 	// Empty out the values that may be set
-	$phpmailer->ClearAddresses();
-	$phpmailer->ClearAllRecipients();
-	$phpmailer->ClearAttachments();
-	$phpmailer->ClearBCCs();
-	$phpmailer->ClearCCs();
-	$phpmailer->ClearCustomHeaders();
-	$phpmailer->ClearReplyTos();
+	$bb_phpmailer->ClearAddresses();
+	$bb_phpmailer->ClearAllRecipients();
+	$bb_phpmailer->ClearAttachments();
+	$bb_phpmailer->ClearBCCs();
+	$bb_phpmailer->ClearCCs();
+	$bb_phpmailer->ClearCustomHeaders();
+	$bb_phpmailer->ClearReplyTos();
 
 	// From email and name
 	// If we don't have a name from the input headers
@@ -634,30 +634,30 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	}
 
 	// Set the from name and email
-	$phpmailer->From = apply_filters( 'bb_mail_from', $from_email );
-	$phpmailer->FromName = apply_filters( 'bb_mail_from_name', $from_name );
+	$bb_phpmailer->From = apply_filters( 'bb_mail_from', $from_email );
+	$bb_phpmailer->FromName = apply_filters( 'bb_mail_from_name', $from_name );
 
 	// Set destination address
-	$phpmailer->AddAddress( $to );
+	$bb_phpmailer->AddAddress( $to );
 
 	// Set mail's subject and body
-	$phpmailer->Subject = $subject;
-	$phpmailer->Body = $message;
+	$bb_phpmailer->Subject = $subject;
+	$bb_phpmailer->Body = $message;
 
 	// Add any CC and BCC recipients
 	if ( !empty($cc) ) {
 		foreach ( (array) $cc as $recipient ) {
-			$phpmailer->AddCc( trim($recipient) );
+			$bb_phpmailer->AddCc( trim($recipient) );
 		}
 	}
 	if ( !empty($bcc) ) {
 		foreach ( (array) $bcc as $recipient) {
-			$phpmailer->AddBcc( trim($recipient) );
+			$bb_phpmailer->AddBcc( trim($recipient) );
 		}
 	}
 
 	// Set to use PHP's mail()
-	$phpmailer->IsMail();
+	$bb_phpmailer->IsMail();
 
 	// Set Content-Type and charset
 	// If we don't have a content-type from the input headers
@@ -669,9 +669,9 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 
 	// Set whether it's plaintext or not, depending on $content_type
 	if ( $content_type == 'text/html' ) {
-		$phpmailer->IsHTML( true );
+		$bb_phpmailer->IsHTML( true );
 	} else {
-		$phpmailer->IsHTML( false );
+		$bb_phpmailer->IsHTML( false );
 	}
 
 	// If we don't have a charset from the input headers
@@ -680,19 +680,19 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	}
 
 	// Set the content-type and charset
-	$phpmailer->CharSet = apply_filters( 'bb_mail_charset', $charset );
+	$bb_phpmailer->CharSet = apply_filters( 'bb_mail_charset', $charset );
 
 	// Set custom headers
 	if ( !empty( $headers ) ) {
 		foreach( (array) $headers as $name => $content ) {
-			$phpmailer->AddCustomHeader( sprintf( '%1$s: %2$s', $name, $content ) );
+			$bb_phpmailer->AddCustomHeader( sprintf( '%1$s: %2$s', $name, $content ) );
 		}
 	}
 
-	do_action_ref_array( 'bb_phpmailer_init', array( &$phpmailer ) );
+	do_action_ref_array( 'bb_phpmailer_init', array( &$bb_phpmailer ) );
 
 	// Send!
-	$result = @$phpmailer->Send();
+	$result = @$bb_phpmailer->Send();
 
 	return $result;
 }
