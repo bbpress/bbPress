@@ -77,7 +77,7 @@ function bb_reset_email( $user_login ) {
 	$user_login = sanitize_user( $user_login );
 
 	if ( !$user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user_login ) ) )
-		return false;
+		return new WP_Error('user_does_not_exist', __('The specified user does not exist.'));
 
 	$resetkey = substr(md5(wp_generate_password()), 0, 15);
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
@@ -91,7 +91,17 @@ function bb_reset_email( $user_login ) {
 		)
 	);
 
-	return bb_mail( bb_get_user_email( $user->ID ), bb_get_option('name') . ': ' . __('Password Reset'), $message );
+	$mail_result = bb_mail(
+		bb_get_user_email( $user->ID ),
+		bb_get_option('name') . ': ' . __('Password Reset'),
+		$message
+	);
+
+	if (!$mail_result) {
+		return new WP_Error('sending_mail_failed', __('The email containing the password reset link could not be sent.'));
+	} else {
+		return true;
+	}
 }
 
 /**
@@ -110,21 +120,25 @@ function bb_reset_password( $key ) {
 	global $bbdb;
 	$key = sanitize_user( $key );
 	if ( empty( $key ) )
-		bb_die(__('Key not found.'));
+		return new WP_Error('key_not_found', __('Key not found.'));
 	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )
-		bb_die(__('Key not found.'));
-	if ( $user = new WP_User( $user_id ) ) :
+		return new WP_Error('key_not_found', __('Key not found.'));
+	if ( $user = new WP_User( $user_id ) ) {
 		if ( bb_has_broken_pass( $user->ID ) )
 			bb_block_current_user();
 		if ( !$user->has_cap( 'change_user_password', $user->ID ) )
-			bb_die( __('You are not allowed to change your password.') );
+			return new WP_Error('permission_denied', __('You are not allowed to change your password.'));
 		$newpass = wp_generate_password();
 		bb_update_user_password( $user->ID, $newpass );
-		bb_send_pass           ( $user->ID, $newpass );
-		bb_update_usermeta( $user->ID, 'newpwdkey', '' );
-	else :
-		bb_die(__('Key not found.'));
-	endif;
+		if (!bb_send_pass( $user->ID, $newpass )) {
+			return new WP_Error('sending_mail_failed', __('The email containing the new password could not be sent.'));
+		} else {
+			bb_update_usermeta( $user->ID, 'newpwdkey', '' );
+			return true;
+		}
+	} else {
+		return new WP_Error('key_not_found', __('Key not found.'));
+	}
 }
 
 /**

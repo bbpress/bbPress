@@ -177,6 +177,12 @@ img.avatar { border: 1px solid #ddd; }
 	margin: 0 0 1.1em;
 }
 
+.notice.error {
+	border-color: #852424;
+	background-color: #ca8a8a;
+	color: #5d2424;
+}
+
 .notice p { margin-bottom: 0; }
 
 /* Login Form

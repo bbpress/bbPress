@@ -3,19 +3,24 @@ require('./bb-load.php');
 
 require_once( BB_PATH . BB_INC . 'registration-functions.php');
 
-$reset = false;
+$error = false;
 
-if ( $_POST ) :
-	$user_login = sanitize_user  ( $_POST['user_login'] );
-	if ( empty( $user_login ) )
-		exit;
-	bb_reset_email( $user_login );
-endif;
+if ( $_POST ) {
+	$action = 'send_key';
+	$user_login = sanitize_user( $_POST['user_login'] );
+	if ( empty( $user_login ) ) {
+		$error = __('No username specified');
+	} else {
+		$send_key_result = bb_reset_email( $user_login );
+		if ( is_wp_error( $send_key_result ) )
+			$error = $send_key_result->get_error_message();
+	}
+} elseif ( isset( $_GET['key'] ) ) {
+	$action = 'reset_password';
+	$reset_pasword_result = bb_reset_password( $_GET['key'] );
+	if ( is_wp_error( $reset_pasword_result ) )
+		$error = $reset_pasword_result->get_error_message();
+}
 
-if ( isset( $_GET['key'] ) ) :
-	bb_reset_password( $_GET['key'] );
-	$reset = true;
-endif;
-
-bb_load_template( 'password-reset.php', array('reset', 'user_login', 'reset') );
+bb_load_template( 'password-reset.php', array('action', 'error') );
 ?>
