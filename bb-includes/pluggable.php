@@ -504,33 +504,199 @@ function bb_new_user( $user_login, $user_email, $user_url, $user_status = 1 ) {
 endif;
 
 if ( !function_exists( 'bb_mail' ) ) :
+/**
+ * Send mail, similar to PHP's mail
+ *
+ * A true return value does not automatically mean that the user received the
+ * email successfully. It just only means that the method used was able to
+ * process the request without any errors.
+ *
+ * Using the two 'wp_mail_from' and 'wp_mail_from_name' hooks allow from
+ * creating a from address like 'Name <email@address.com>' when both are set. If
+ * just 'wp_mail_from' is set, then just the email address will be used with no
+ * name.
+ *
+ * The default content type is 'text/plain' which does not allow using HTML.
+ * However, you can set the content type of the email by using the
+ * 'wp_mail_content_type' filter.
+ *
+ * The default charset is based on the charset used on the blog. The charset can
+ * be set using the 'wp_mail_charset' filter.
+ *
+ * @since 1.2.1
+ * @uses apply_filters() Calls 'wp_mail' hook on an array of all of the parameters.
+ * @uses apply_filters() Calls 'wp_mail_from' hook to get the from email address.
+ * @uses apply_filters() Calls 'wp_mail_from_name' hook to get the from address name.
+ * @uses apply_filters() Calls 'wp_mail_content_type' hook to get the email content type.
+ * @uses apply_filters() Calls 'wp_mail_charset' hook to get the email charset
+ * @uses do_action_ref_array() Calls 'phpmailer_init' hook on the reference to
+ *		phpmailer object.
+ * @uses PHPMailer
+ * @
+ *
+ * @param string $to Email address to send message
+ * @param string $subject Email subject
+ * @param string $message Message contents
+ * @param string|array $headers Optional. Additional headers.
+ * @return bool Whether the email contents were sent successfully.
+ */
 function bb_mail( $to, $subject, $message, $headers = '' ) {
-	if (!is_array($headers)) {
-		$headers = trim($headers);
-		$headers = preg_split('@\r(?:\n{0,1})|\n@', $headers, -1, PREG_SPLIT_NO_EMPTY);
+	// Compact the input, apply the filters, and extract them back out
+	extract( apply_filters( 'bb_mail', compact( 'to', 'subject', 'message', 'headers' ) ) );
+
+	global $phpmailer;
+
+	// (Re)create it, if it's gone missing
+	if ( !is_object( $phpmailer ) || !is_a( $phpmailer, 'PHPMailer' ) ) {
+		require_once BACKPRESS_PATH . 'class.mailer.php';
+		require_once BACKPRESS_PATH . 'class.mailer-smtp.php';
+		$phpmailer = new PHPMailer();
 	}
-	
-	if (!count($headers) || !count(preg_grep('/^mime-version:\s/im', $headers)))
-		$headers[] = "MIME-Version: 1.0";
-	
-	if (!count(preg_grep('/^content-type:\s/im', $headers)))
-		$headers[] = "Content-Type: text/plain; Charset=UTF-8";
-	
-	if (!count(preg_grep('/^content-transfer-encoding:\s/im', $headers)))
-		$headers[] = "Content-Transfer-Encoding: 8bit";
-	
-	if (!count(preg_grep('/^from:\s/im', $headers))) {
-		if (!$from = bb_get_option('from_email'))
-			if ($uri_parsed = parse_url(bb_get_uri()))
-				if ($uri_parsed['host'])
-					$from = 'bbpress@' . trim(preg_replace('/^www./i', '', $uri_parsed['host']));
-		
-		if ($from)
-			$headers[] = 'From: "' . bb_get_option('name') . '" <' . $from . '>';
+
+	// Headers
+	if ( empty( $headers ) ) {
+		$headers = array();
+	} elseif ( !is_array( $headers ) ) {
+		// Explode the headers out, so this function can take both
+		// string headers and an array of headers.
+		$tempheaders = (array) explode( "\n", $headers );
+		$headers = array();
+
+		// If it's actually got contents
+		if ( !empty( $tempheaders ) ) {
+			// Iterate through the raw headers
+			foreach ( (array) $tempheaders as $header ) {
+				if ( strpos($header, ':') === false )
+					continue;
+				// Explode them out
+				list( $name, $content ) = explode( ':', trim( $header ), 2 );
+
+				// Cleanup crew
+				$name = trim( $name );
+				$content = trim( $content );
+
+				// Mainly for legacy -- process a From: header if it's there
+				if ( 'from' == strtolower($name) ) {
+					if ( strpos($content, '<' ) !== false ) {
+						// So... making my life hard again?
+						$from_name = substr( $content, 0, strpos( $content, '<' ) - 1 );
+						$from_name = str_replace( '"', '', $from_name );
+						$from_name = trim( $from_name );
+
+						$from_email = substr( $content, strpos( $content, '<' ) + 1 );
+						$from_email = str_replace( '>', '', $from_email );
+						$from_email = trim( $from_email );
+					} else {
+						$from_name = trim( $content );
+					}
+				} elseif ( 'content-type' == strtolower($name) ) {
+					if ( strpos( $content,';' ) !== false ) {
+						list( $type, $charset ) = explode( ';', $content );
+						$content_type = trim( $type );
+						$charset = trim( str_replace( array( 'charset=', '"' ), '', $charset ) );
+					} else {
+						$content_type = trim( $content );
+					}
+				} elseif ( 'cc' == strtolower($name) ) {
+					$cc = explode(",", $content);
+				} elseif ( 'bcc' == strtolower($name) ) {
+					$bcc = explode(",", $content);
+				} else {
+					// Add it to our grand headers array
+					$headers[trim( $name )] = trim( $content );
+				}
+			}
+		}
 	}
-	$headers = trim(join(defined('BB_MAIL_EOL') ? BB_MAIL_EOL : "\n", $headers));
-	
-	return @mail($to, $subject, $message, $headers);
+
+	// Empty out the values that may be set
+	$phpmailer->ClearAddresses();
+	$phpmailer->ClearAllRecipients();
+	$phpmailer->ClearAttachments();
+	$phpmailer->ClearBCCs();
+	$phpmailer->ClearCCs();
+	$phpmailer->ClearCustomHeaders();
+	$phpmailer->ClearReplyTos();
+
+	// From email and name
+	// If we don't have a name from the input headers
+	if ( !isset( $from_name ) ) {
+		$from_name = bb_get_option('name');
+	}
+
+	// If we don't have an email from the input headers
+	if ( !isset( $from_email ) ) {
+		// Get the site domain and get rid of www.
+		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+			$sitename = substr( $sitename, 4 );
+		}
+
+		$from_email = 'bbpress@' . $sitename;
+	}
+
+	// Set the from name and email
+	$phpmailer->From = apply_filters( 'bb_mail_from', $from_email );
+	$phpmailer->FromName = apply_filters( 'bb_mail_from_name', $from_name );
+
+	// Set destination address
+	$phpmailer->AddAddress( $to );
+
+	// Set mail's subject and body
+	$phpmailer->Subject = $subject;
+	$phpmailer->Body = $message;
+
+	// Add any CC and BCC recipients
+	if ( !empty($cc) ) {
+		foreach ( (array) $cc as $recipient ) {
+			$phpmailer->AddCc( trim($recipient) );
+		}
+	}
+	if ( !empty($bcc) ) {
+		foreach ( (array) $bcc as $recipient) {
+			$phpmailer->AddBcc( trim($recipient) );
+		}
+	}
+
+	// Set to use PHP's mail()
+	$phpmailer->IsMail();
+
+	// Set Content-Type and charset
+	// If we don't have a content-type from the input headers
+	if ( !isset( $content_type ) ) {
+		$content_type = 'text/plain';
+	}
+
+	$content_type = apply_filters( 'bb_mail_content_type', $content_type );
+
+	// Set whether it's plaintext or not, depending on $content_type
+	if ( $content_type == 'text/html' ) {
+		$phpmailer->IsHTML( true );
+	} else {
+		$phpmailer->IsHTML( false );
+	}
+
+	// If we don't have a charset from the input headers
+	if ( !isset( $charset ) ) {
+		$charset = bb_get_option( 'charset' );
+	}
+
+	// Set the content-type and charset
+	$phpmailer->CharSet = apply_filters( 'bb_mail_charset', $charset );
+
+	// Set custom headers
+	if ( !empty( $headers ) ) {
+		foreach( (array) $headers as $name => $content ) {
+			$phpmailer->AddCustomHeader( sprintf( '%1$s: %2$s', $name, $content ) );
+		}
+	}
+
+	do_action_ref_array( 'bb_phpmailer_init', array( &$phpmailer ) );
+
+	// Send!
+	$result = @$phpmailer->Send();
+
+	return $result;
 }
 endif;
 
