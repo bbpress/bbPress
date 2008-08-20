@@ -125,6 +125,10 @@ function bb_set_custom_user_tables() {
 
 function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_recursed = false ) {
 	static $_leaves = false;
+
+	if (!$_recursed)
+		$_leaves = false;
+
 	$root = (int) $root;
 
 	if ( false === $_leaves )
