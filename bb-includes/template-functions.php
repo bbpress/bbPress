@@ -1460,7 +1460,7 @@ function get_post_author_title_link( $post_id = 0 ) {
 	else
 		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $title . '</a>';
 
-	echo apply_filters( 'post_author_title_link', $r, get_post_id( $post_id ) );
+	echo apply_filters( 'get_post_author_title_link', $r, get_post_id( $post_id ) );
 }
 
 function post_author_type( $post_id = 0 ) {
