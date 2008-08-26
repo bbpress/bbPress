@@ -151,8 +151,9 @@ function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_r
 	}
 
 	if ( !$_recursed ) {
-		foreach ( $_leaves as $leaf ) // Attach orphans to root
-			$branch[$leaf->forum_id] = true;
+		if ( !$root )
+			foreach ( $_leaves as $leaf ) // Attach orphans to root
+				$branch[$leaf->forum_id] = true;
 		$_leaves = false;
 		return ( empty($branch) ? false : $branch );
 	}
@@ -213,7 +214,8 @@ function get_forums( $args = null ) {
 	$forums = (array) apply_filters( 'get_forums', $forums );
 
 	if ( $child_of || $hierarchical || $depth ) {
-		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums, true );
+
+		$_forums = bb_get_forums_hierarchical( $child_of, $depth, $forums );
 
 		if ( !is_array( $_forums ) )
 			return false;
