@@ -753,7 +753,7 @@ ul.list-block {
 	background-color: #fff;
 }
 
-ul#the-list.list-block {
+ul#the-list.list-block, ul#forum-list.list-block {
 	padding: 0;
 }
 

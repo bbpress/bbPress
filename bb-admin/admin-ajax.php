@@ -173,10 +173,29 @@ case 'add-forum' :
 	global $forums_count;
 	$forums_count = 2; // Hack
 
+	$data = bb_forum_row( $forum_id, false, true );
+
+	$forum = get_forum( $forum_id );
+	if ( $forum->forum_parent ) {
+		$siblings = get_forums( $forum->forum_parent );
+		$last_sibling = array_pop( $siblings );
+		if ( $last_sibling->forum_id == $forum_id )
+			$last_sibling = array_pop( $siblings );
+		if ( $last_sibling ) {
+			$position = "forum-$last_sibling->forum_id";
+		} else {
+			$position = "+forum-$forum->forum_parent";
+			$data = "<ul id='forum-root-$forum->forum_parent' class='list-block holder'>$data</ul>";
+		}
+	} else {
+		$position = 1;
+	}
+
 	$x = new WP_Ajax_Response( array(
 		'what' => 'forum',
 		'id' => $forum_id,
-		'data' => bb_forum_row( $forum_id, false, true )
+		'data' => $data,
+		'position' => $position
 	) );
 	$x->send();
 	break;

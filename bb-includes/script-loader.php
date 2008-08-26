@@ -14,7 +14,7 @@ function bb_default_scripts( &$scripts ) {
 		'noPerm' => __('You do not have permission to do that.'),
 		'broken' => __('An unidentified error has occurred.')
 	) );
-	$scripts->add( 'wp-lists',         $scripts->base_url . 'js/wp-lists.js', array('wp-ajax-response','jquery-color'), '20080411' );
+	$scripts->add( 'wp-lists',         $scripts->base_url . 'js/wp-lists.js', array('wp-ajax-response','jquery-color'), '20080826' );
 	$scripts->localize( 'wp-lists', 'wpListL10n', array(
 		'url' => $scripts->base_url_admin . 'admin-ajax.php'
 	) );
@@ -31,7 +31,7 @@ function bb_default_scripts( &$scripts ) {
 		'strong' => __('Strong')
 	));
 	$scripts->add( 'profile-edit',   $scripts->base_url . 'js/profile-edit.js', array('password-strength-meter'), '20080721' );
-	$scripts->add( 'content-forums', $scripts->base_url_admin . 'js/content-forums.js', array('listman', 'interface'), '20080801' );
+	$scripts->add( 'content-forums', $scripts->base_url_admin . 'js/content-forums.js', array('wp-lists', 'interface'), '20080826' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
 		'saveText' => __('Save Forum Order &#187;'),

@@ -269,6 +269,9 @@ var wpList = {
 			if ( '-' == s.pos.substr(0,1) ) {
 				s.pos = s.pos.substr(1);
 				ba = 'before';
+			} else if ( '+' == s.pos.substr(0,1) ) {
+				s.pos = s.pos.substr(1);
+				ba = 'append';
 			}
 			var ref = list.find( '#' + s.pos );
 			if ( 1 === ref.size() ) { ref[ba](e); }

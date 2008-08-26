@@ -20,7 +20,7 @@ bbSortForums = {
 	rtl: 'rtl' == $('html').attr( 'dir' ),
 
 	recolor: function() {
-		$('#the-list li:gt(0)').css( 'background-color', '' ).filter(':even').removeClass('alt').end().filter(':odd').addClass('alt');
+		$('#forum-list li:gt(0)').css( 'background-color', '' ).filter(':even').removeClass('alt').end().filter(':odd').addClass('alt');
 	},
 
 	checkHover: function(el, doit) {
@@ -43,12 +43,12 @@ bbSortForums = {
 
 	serialize: function () {
 		h = '';
-		$('#the-list, #the-list ul').each( function() {
+		$('#forum-list, #forum-list ul').each( function() {
 			var i = this.id;
 			$('#' + i + '> .forum').each( function () {
 				if (h.length > 0)
 					h += '&';
-				var root = 'the-list' == i ? 0 : i.split('-')[2];
+				var root = 'forum-list' == i ? 0 : i.split('-')[2];
 				h += 'root[' + root + '][]=' + this.id.split('-')[1];
 			} );
 		} );
@@ -63,34 +63,21 @@ bbSortForums = {
 		div.innerHTML = this.editText; // Save the raquo!
 		this.editText = div.childNodes[0].nodeValue;
 		div = null;
-		$('#the-list').after("<p class='submit'><input type='button' id='forum-order-edit' value='" + this.editText + "' /></p>");
+		$('#forum-list').after("<p class='submit'><input type='button' id='forum-order-edit' value='" + this.editText + "' /></p>");
 
-		$('#forum-parent-row, #forum-position-row').remove();
-
-		$('#add-forum').submit( function() {
-			theList.alt = 'alt';
-			theList.showLink = 0;
-			theList.addComplete = function() {
-				if ( bbSortForums.saveText == $('#forum-order-edit').val() ) {
-					var last = $('#the-list li:last').find('div.alignright').after(bbSortForums.handle).end()[0];
-					$('#the-list').SortableAddItem(last);
-				}
-			}
-			theList.ajaxAdder( 'forum', 'add-forum' );
-			return false;
-		} );
+		$('#forum-position-row').remove();
 
 		$('#forum-order-edit').toggle( function() {
 			$(this).val(bbSortForums.saveText);
-			$('#the-list li:gt(0) div.alignright').after(bbSortForums.handle);
-			$('#the-list').Sortable( bbSortForums.sortCfg );
+			$('#forum-list li:gt(0) div.alignright').after(bbSortForums.handle);
+			$('#forum-list').Sortable( bbSortForums.sortCfg );
 		}, function() {
 			$(this).val(bbSortForums.editText);
 			$('.sort-handle').remove();
 
 			var hash = bbSortForums.serialize();
-			hash += '&' + $.SortSerialize('the-list').hash.replace(/the-list/g, 'order').replace(/forum-/g, '')
-			$('#the-list').SortableDestroy();
+			hash += '&' + $.SortSerialize('forum-list').hash.replace(/forum-list/g, 'order').replace(/forum-/g, '')
+			$('#forum-list').SortableDestroy();
 
 			$.post(
 				'admin-ajax.php',
@@ -140,5 +127,7 @@ if ( 'undefined' != typeof bbSortForumsL10n )
 	$.extend( bbSortForums, bbSortForumsL10n );
 
 bbSortForums.init();
+
+$('#forum-list').wpList();
 
 } );

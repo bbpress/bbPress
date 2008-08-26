@@ -682,7 +682,7 @@ function bb_forum_form( $forum_id = 0 ) {
 		return;
 	$action = $forum_id ? 'update' : 'add';
 ?>
-<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:forum-list:">
 	<fieldset>
 	<table><col /><col style="width: 80%" />
 		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>
@@ -697,7 +697,13 @@ function bb_forum_form( $forum_id = 0 ) {
 			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
 		</tr>
 		<tr id="forum-parent-row"><th scope="row"><label for="forum_parent"><?php _e('Forum Parent:'); ?></label></th>
-			<td><?php bb_forum_dropdown( array('cut_branch' => $forum_id, 'id' => 'forum_parent', 'none' => true, 'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0, 'disable_categories' => 0) ); ?></td>
+			<td><?php bb_forum_dropdown( array(
+					'cut_branch' => $forum_id,
+					'id' => 'forum_parent',
+					'none' => true,
+					'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0,
+					'disable_categories' => 0
+			) ); ?></td>
 		</tr>
 		<tr id="forum-position-row"><th scope="row"><label for="forum-order"><?php _e('Position:'); ?></label></th>
 			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
