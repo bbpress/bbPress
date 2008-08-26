@@ -220,7 +220,7 @@ form.login input {
 	margin: 0;
 }
 
-form.login input#submit {
+form.login input.submit {
 	float: left;
 	margin-top: 14px;
 	margin-bottom: -10px;
@@ -232,7 +232,7 @@ form.login input#submit {
 	border-radius: 4px;
 }
 
-form.login input#submit:hover {
+form.login input.submit:hover {
 	background-color: #ddd;
 }
 
@@ -422,7 +422,7 @@ form.login input#remember {
 	padding-bottom: 10px;
 }
 
-.submit { text-align: right; }
+p.submit { text-align: right; }
 
 .topiclink { display: block; }
 
