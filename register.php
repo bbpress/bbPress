@@ -11,7 +11,8 @@ unset($profile_info_keys['first_name']);
 unset($profile_info_keys['last_name']);
 unset($profile_info_keys['display_name']);
 
-$user_login = $user_safe = true;
+$user_login = '';
+$user_safe = true;
 
 $bb_register_error = new WP_Error;
 
