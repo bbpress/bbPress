@@ -195,7 +195,8 @@ case 'add-forum' :
 		'what' => 'forum',
 		'id' => $forum_id,
 		'data' => $data,
-		'position' => $position
+		'position' => $position,
+		'supplemental' => array( 'name' => $forum->forum_name )
 	) );
 	$x->send();
 	break;
