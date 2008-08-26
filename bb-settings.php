@@ -57,9 +57,6 @@ if ( !defined( 'BB_IS_ADMIN' ) )
 // Define the include path
 define('BB_INC', 'bb-includes/');
 
-// Load the database class
-require( BB_PATH . BB_INC . 'db.php' );
-
 // Define the language file directory
 if ( !defined('BB_LANG_DIR') )
 	if ( defined('BBLANGDIR') ) // User has set old constant
@@ -83,6 +80,16 @@ if ( !( defined('DB_NAME') || defined('WP_BB') && WP_BB ) ) {  // Don't include 
 	require( BB_PATH . BB_INC . 'kses.php');
 	require( BB_PATH . BB_INC . 'l10n.php');
 }
+
+/**
+ * Define the full path to the database class
+ */
+if ( !defined('BB_DATABASE_CLASS_INCLUDE') )
+	define('BB_DATABASE_CLASS_INCLUDE', BB_INC . 'db.php' );
+
+// Load the database class
+if ( BB_DATABASE_CLASS_INCLUDE )
+	require( BB_DATABASE_CLASS_INCLUDE );
 
 if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
 	die(__('Your table prefix may only contain letters, numbers and underscores.'));
