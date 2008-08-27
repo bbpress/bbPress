@@ -98,7 +98,7 @@ if ( is_bb_feed() ) {
 	add_filter( 'post_text', 'ent2ncr' );
 }
 
-add_filter( 'get_roles', 'bb_get_roles' );
+add_filter( 'init_roles', 'bb_init_roles' );
 add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );
 
 // Actions

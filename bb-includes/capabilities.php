@@ -23,138 +23,140 @@ function bb_give_user_default_role( $user ) {
 	$user->set_role('member');
 }
 
-function bb_get_roles( $roles ) {
-	$new_roles = array(
-		'keymaster' => array( 'name' => __('Key Master'), 'capabilities' => array(
-			'use_keys' => true,					// Verb forms of roles - keymaster
-			'administrate' => true,				// administrator
-			'moderate' => true, 				// moderator
-			'participate' => true,				// member
+function bb_init_roles( &$roles ) {
+	$roles->add_role( 'keymaster', __('Key Master'), array(
+		'use_keys' => true,			// Verb forms of roles - keymaster
+		'administrate' => true,			// administrator
+		'moderate' => true, 			// moderator
+		'participate' => true,			// member
 
-			'keep_gate' => true,				// Make new Key Masters		//+
-			'import_export' => true,			// Import and export data	//+
-			'recount' => true,					// bb-do-counts.php			//+
-			'manage_options' => true,			// backend					//+
-			'manage_themes' => true,			// Themes					//+
-			'manage_plugins' => true,			// Plugins					//+
-			'manage_options' => true,			// Options					//+
-			'edit_users' => true,
-			'manage_tags' => true,				// Rename, Merge, Destroy
-			'edit_others_favorites' => true,
-			'manage_forums' => true,			// Add/Rename forum
-			'delete_forums' => true,			// Delete forum
-			'delete_topics' => true,
-			'close_topics' => true,
-			'stick_topics' => true,
-			'move_topics' => true,
-			'view_by_ip' => true,				// view-ip.php
-			'edit_closed' => true,				// Edit closed topics
-			'edit_deleted' => true,				// Edit deleted topics/posts
-			'browse_deleted' => true,			// Use 'deleted' view
-			'edit_others_tags' => true,
-			'edit_others_topics' => true,
-			'delete_posts' => true,
-			'throttle' => true,					// Post back to back arbitrarily quickly
-			'ignore_edit_lock' => true,
-			'edit_others_posts' => true,
-			'edit_favorites' => true,
-			'edit_tags' => true,
-			'edit_topics' => true,				// Edit title, resolution status
-			'edit_posts' => true,
-			'edit_profile' => true,
-			'write_topics' => true,
-			'write_posts' => true,
-			'change_password' => true,
-			'read' => true
-		) ),
+		'keep_gate' => true,			// Make new Key Masters		//+
+		'import_export' => true,		// Import and export data	//+
+		'recount' => true,			// bb-do-counts.php		//+
+		'manage_options' => true,		// backend			//+
+		'manage_themes' => true,		// Themes			//+
+		'manage_plugins' => true,		// Plugins			//+
+		'manage_options' => true,		// Options			//+
+		'edit_users' => true,
+		'manage_tags' => true,			// Rename, Merge, Destroy
+		'edit_others_favorites' => true,
+		'manage_forums' => true,		// Add/Rename forum
+		'delete_forums' => true,		// Delete forum
+		'delete_topics' => true,
+		'close_topics' => true,
+		'stick_topics' => true,
+		'move_topics' => true,
+		'view_by_ip' => true,			// view-ip.php
+		'edit_closed' => true,			// Edit closed topics
+		'edit_deleted' => true,			// Edit deleted topics/posts
+		'browse_deleted' => true,		// Use 'deleted' view
+		'edit_others_tags' => true,
+		'edit_others_topics' => true,
+		'delete_posts' => true,
+		'throttle' => true,			// Post back to back arbitrarily quickly
+		'ignore_edit_lock' => true,
+		'edit_others_posts' => true,
+		'edit_favorites' => true,
+		'edit_tags' => true,
+		'edit_topics' => true,			// Edit title, resolution status
+		'edit_posts' => true,
+		'edit_profile' => true,
+		'write_topics' => true,
+		'write_posts' => true,
+		'change_password' => true,
+		'read' => true
+	) );
 
-		'administrator' => array( 'name' => __('Administrator'), 'capabilities' => array(
-			'administrate' => true,
-			'moderate' => true,
-			'participate' => true,
+	$roles->add_role( 'administrator', __('Administrator'), array(
+		'administrate' => true,
+		'moderate' => true,
+		'participate' => true,
 
-			'edit_users' => true,				//+
-			'edit_others_favorites' => true,	//+
-			'manage_forums' => true,			//+
-			'delete_forums' => true,			//+
-			'manage_tags' => true,
-			'delete_topics' => true,
-			'close_topics' => true,
-			'stick_topics' => true,
-			'move_topics' => true,
-			'view_by_ip' => true,
-			'edit_closed' => true,
-			'edit_deleted' => true,
-			'browse_deleted' => true,
-			'edit_others_tags' => true,
-			'edit_others_topics' => true,
-			'delete_posts' => true,
-			'throttle' => true,
-			'ignore_edit_lock' => true,
-			'edit_others_posts' => true,
-			'edit_favorites' => true,
-			'edit_tags' => true,
-			'edit_topics' => true,
-			'edit_posts' => true,
-			'edit_profile' => true,
-			'write_topics' => true,
-			'write_posts' => true,
-			'change_password' => true,
-			'read' => true
-		) ),
+		'edit_users' => true,			//+
+		'edit_others_favorites' => true,	//+
+		'manage_forums' => true,		//+
+		'delete_forums' => true,		//+
+		'manage_tags' => true,
+		'delete_topics' => true,
+		'close_topics' => true,
+		'stick_topics' => true,
+		'move_topics' => true,
+		'view_by_ip' => true,
+		'edit_closed' => true,
+		'edit_deleted' => true,
+		'browse_deleted' => true,
+		'edit_others_tags' => true,
+		'edit_others_topics' => true,
+		'delete_posts' => true,
+		'throttle' => true,
+		'ignore_edit_lock' => true,
+		'edit_others_posts' => true,
+		'edit_favorites' => true,
+		'edit_tags' => true,
+		'edit_topics' => true,
+		'edit_posts' => true,
+		'edit_profile' => true,
+		'write_topics' => true,
+		'write_posts' => true,
+		'change_password' => true,
+		'read' => true
+	) );
 
-		'moderator' => array( 'name' => __('Moderator'), 'capabilities' => array(
-			'moderate' => true,
-			'participate' => true,
-			'manage_tags' => true,			//+
-			'delete_topics' => true,		//+
-			'close_topics' => true,			//+
-			'stick_topics' => true,			//+
-			'move_topics' => true,			//+
-			'view_by_ip' => true,			//+
-			'edit_closed' => true,			//+
-			'edit_deleted' => true,			//+
-			'browse_deleted' => true,		//+
-			'edit_others_tags' => true,		//+
-			'edit_others_topics' => true,	//+
-			'delete_posts' => true,			//+
-			'throttle' => true,				//+
-			'ignore_edit_lock' => true,		//+
-			'edit_others_posts' => true,	//+
-			'edit_favorites' => true,
-			'edit_tags' => true,
-			'edit_topics' => true,
-			'edit_posts' => true,
-			'edit_profile' => true,
-			'write_topics' => true,
-			'write_posts' => true,
-			'change_password' => true,
-			'read' => true
-		) ),
 
-		'member' => array( 'name' => __('Member'), 'capabilities' => array(
-			'participate' => true,
-			'edit_favorites' => true,
-			'edit_tags' => true,
-			'edit_topics' => true,
-			'edit_posts' => true,
-			'edit_profile' => true,
-			'write_topics' => true,
-			'write_posts' => true,
-			'change_password' => true,
-			'read' => true
-		) ),
+	$roles->add_role( 'moderator', __('Moderator'), array(
+		'moderate' => true,
+		'participate' => true,
 
-		'inactive' => array( 'name' => __('Inactive'), 'capabilities' => array(
-			'change_password' => true,
-			'read' => true
-		) ),
+		'manage_tags' => true,		//+
+		'delete_topics' => true,	//+
+		'close_topics' => true,		//+
+		'stick_topics' => true,		//+
+		'move_topics' => true,		//+
+		'view_by_ip' => true,		//+
+		'edit_closed' => true,		//+
+		'edit_deleted' => true,		//+
+		'browse_deleted' => true,	//+
+		'edit_others_tags' => true,	//+
+		'edit_others_topics' => true,	//+
+		'delete_posts' => true,		//+
+		'throttle' => true,		//+
+		'ignore_edit_lock' => true,	//+
+		'edit_others_posts' => true,	//+
+		'edit_favorites' => true,
+		'edit_tags' => true,
+		'edit_topics' => true,
+		'edit_posts' => true,
+		'edit_profile' => true,
+		'write_topics' => true,
+		'write_posts' => true,
+		'change_password' => true,
+		'read' => true
+	) );
 
-		'blocked' => array( 'name' => __('Blocked'), 'capabilities' => array(
-			'not_play_nice' => true
-		) )
-	);
-	return array_merge( $roles, $new_roles );
+
+	$roles->add_role( 'member', __('Member'), array(
+		'participate' => true,
+
+		'edit_favorites' => true,
+		'edit_tags' => true,
+		'edit_topics' => true,
+		'edit_posts' => true,
+		'edit_profile' => true,
+		'write_topics' => true,
+		'write_posts' => true,
+		'change_password' => true,
+		'read' => true
+	) );
+
+
+	$roles->add_role( 'inactive', __('Inactive'), array(
+		'change_password' => true,
+		'read' => true
+	) );
+
+	$roles->add_role( 'blocked', __('Blocked'), array(
+		'not_play_nice' => true // Madness - a negative capability.  Don't try this at home.
+	) );
 }
 
 // Map meta capabilities to primitive capabilities.
