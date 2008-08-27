@@ -66,7 +66,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		$role = $_POST['role'];
 
 		$can_keep_gate = bb_current_user_can( 'keep_gate' );
-		if ( !array_key_exists($role, $bb_roles->roles) )
+		if ( !isset($bb_roles->role_objects[$role]) )
 			$errors->add( 'role', __( 'Invalid Role' ) );
 		elseif ( !$can_keep_gate && ( 'keymaster' == $role || 'keymaster' == $user_obj->roles[0] ) )
 			$errors->add( 'role', __( 'You are not the Gate Keeper.' ) );
