@@ -88,6 +88,8 @@ var wpList = {
 			var res = wpAjax.parseAjaxResponse(r, s.response, s.element);
 			if ( !res || res.errors ) { return false; }
 
+			if ( true === res ) { return true; }
+
 			jQuery.each( res.responses, function() {
 				wpList.add.call( list, this.data, $.extend( {}, s, { // this.firstChild.nodevalue
 					pos: this.position || 0,
@@ -234,7 +236,8 @@ var wpList = {
 		};
 
 		$.ajax( s );
-		return false;
+		if ( element.is( 'a, :submit, :button' ) )
+			return false;
 	},
 
 	// From jquery.color.js: jQuery Color Animation by John Resig
@@ -332,7 +335,7 @@ var wpList = {
 				} );
 			} );
 		$("[class^=delete:" + list.id + ":]", el || null).click( function() { return list.wpList.del(this); } );
-		var c = $("[class^=dim:" + list.id + ":]", el || null).click( function() { return list.wpList.dim(this); } );
+		$("[class^=dim:" + list.id + ":]", el || null).click( function() { return list.wpList.dim(this); } );
 	},
 
 	recolor: function() {
