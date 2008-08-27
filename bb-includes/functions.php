@@ -308,7 +308,7 @@ function get_topic( $id, $cache = true ) {
 
 	if ( $cache ) {
 		wp_cache_set( $topic->topic_id, $topic, 'bb_topic' );
-		wp_cache_add( $topic->topic_slug, $topic_id, 'bb_topic_slug' );
+		wp_cache_add( $topic->topic_slug, $topic->topic_id, 'bb_topic_slug' );
 	}
 
 	return $topic;
@@ -1599,7 +1599,7 @@ EOQ;
 
 function get_user_favorites( $user_id, $topics = false ) {
 	$user = bb_get_user( $user_id );
-	if ( $user->favorites ) {
+	if ( !empty($user->favorites) ) {
 		if ( $topics )
 			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'append_meta' => 0), 'get_user_favorites' );
 		else
@@ -1620,7 +1620,9 @@ function is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( !$user || !$topic )
 		return;
 
-        return in_array($topic->topic_id, explode(',', $user->favorites));
+	if ( isset($user->favorites) )
+	        return in_array($topic->topic_id, explode(',', $user->favorites));
+	return false;
 }
 
 function bb_add_user_favorite( $user_id, $topic_id ) {
@@ -1663,7 +1665,7 @@ function bb_remove_user_favorite( $user_id, $topic_id ) {
 /* Options/Meta */
 
 function bb_option( $option ) {
-	echo bb_get_option( $option ) ;
+	echo apply_filters( 'bb_option_' . $option, bb_get_option( $option ) );
 }
 
 function bb_get_option( $option ) {
@@ -1881,10 +1883,8 @@ function bb_get_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A
 		list($_resource, $_query) = explode('?', trim($resource));
 		$resource = $_resource;
 		$_query = wp_parse_args($_query);
-	}
-	
-	// Make sure $_query is an array for array_merge()
-	if (!$_query) {
+	} else {
+		// Make sure $_query is an array for array_merge()
 		$_query = array();
 	}
 	
@@ -2037,7 +2037,7 @@ function bb_ssl_redirect()
  * @return bool True if SSL, false if not used.
  */
 function bb_is_ssl() {
-	return ( 'on' == strtolower($_SERVER['HTTPS']) ) ? true : false;
+	return ( 'on' == strtolower(@$_SERVER['HTTPS']) ) ? true : false;
 }
 
 // This is the only function that should add to user / topic
@@ -2388,8 +2388,8 @@ function bb_current_time( $type = 'timestamp' ) {
 
 // GMT -> Local
 // in future versions this could eaily become a user option.
-function bb_offset_time( $time, $args = '' ) {
-	if ( 'since' == $args['format'] )
+function bb_offset_time( $time, $args = null ) {
+	if ( isset($args['format']) && 'since' == $args['format'] )
 		return $time;
 	if ( !is_numeric($time) ) {
 		if ( -1 !== $_time = bb_gmtstrtotime( $time ) )
@@ -3094,7 +3094,7 @@ function bb_user_search( $args = '' ) {
 		foreach ( $fields as $field )
 			$sql_terms[] = "$field LIKE ('%$likeit%')";
 
-	if ( $user_meta_ids )
+	if ( isset($user_meta_ids) && $user_meta_ids )
 		$sql_terms[] = "ID IN (". join(',', $user_meta_ids) . ")";
 
 	if ( $query && empty($sql_terms) )

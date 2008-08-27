@@ -2,7 +2,7 @@
 require_once('admin.php');
 
 // Query the users
-$bb_moderators = new BB_Users_By_Role( bb_trusted_roles(), $_GET['userspage'] );
+$bb_moderators = new BB_Users_By_Role( bb_trusted_roles(), @$_GET['userspage'] );
 
 bb_get_admin_header();
 ?>

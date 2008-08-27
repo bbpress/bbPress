@@ -30,7 +30,7 @@ $stati = array( 0 => __('Normal') . ' ', 1 => __('Deleted') . ' ', 'all' => '' )
 if ( 'all' == $h2_status )
 	$h2_noun = __('Posts');
 else
-	$h2_noun = sprintf( __( '%1$sposts'), $stati[$h2_status], $topic_open[$h2_open] );
+	$h2_noun = sprintf( __( '%1$sposts'), $stati[$h2_status] );
 
 printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, $h2_author );
 

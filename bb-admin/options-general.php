@@ -1,7 +1,7 @@
 <?php
 require_once('admin.php');
 
-if ($_POST['action'] == 'update') {
+if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update') {
 	
 	bb_check_admin_referer( 'options-general-update' );
 	
@@ -31,7 +31,7 @@ if ($_POST['action'] == 'update') {
 	
 }
 
-if ($_GET['updated']) {
+if ( !empty($_GET['updated']) ) {
 	bb_admin_notice( __('Settings saved.') );
 }
 
@@ -84,16 +84,9 @@ bb_get_admin_header();
 			</label>
 			<div>
 				<select name="mod_rewrite" id="mod_rewrite">
-<?php
-$selected = array();
-$selected[bb_get_option('mod_rewrite')] = ' selected="selected"';
-?>
-					<option value="0"<?php echo $selected[0]; ?>><?php _e('None'); ?>&nbsp;&nbsp;&nbsp;.../forums.php?id=1</option>
-					<option value="1"<?php echo $selected[1]; ?>><?php _e('Numeric'); ?>&nbsp;&nbsp;&nbsp;.../forums/1</option>
-					<option value="slugs"<?php echo $selected['slugs']; ?>><?php _e('Name based'); ?>&nbsp;&nbsp;&nbsp;.../forums/first-forum</option>
-<?php
-unset($selected);
-?>
+					<option value="0"<?php selected( bb_get_option('mod_rewrite'), 0 ); ?>><?php _e('None'); ?>&nbsp;&nbsp;&nbsp;.../forums.php?id=1</option>
+					<option value="1"<?php selected( bb_get_option('mod_rewrite'), 1 ); ?>><?php _e('Numeric'); ?>&nbsp;&nbsp;&nbsp;.../forums/1</option>
+					<option value="slugs"<?php selected( bb_get_option('mod_rewrite'), 'slugs' ); ?>><?php _e('Name based'); ?>&nbsp;&nbsp;&nbsp;.../forums/first-forum</option>
 				</select>
 				<p><?php printf(__('If you activate "Numeric" or "Name based" permalinks, you will need to create a file at <code>%s</code> containing the url rewriting rules <a href="%s">provided here</a>.'), BB_PATH . '.htaccess', bb_get_uri('bb-admin/rewrite-rules.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)); ?></p>
 			</div>
@@ -169,34 +162,24 @@ unset($selected);
 				<?php _e('Show avatars') ?>
 			</label>
 			<div>
-<?php
-$checked = array();
-$checked[bb_get_option('avatars_show')] = ' checked="checked"';
-?>
-				<input type="checkbox" class="checkbox" name="avatars_show" id="avatars_show" value="1"<?php echo $checked[1]; ?> />
-<?php
-unset($checked);
-?>
+				<input type="checkbox" class="checkbox" name="avatars_show" id="avatars_show" value="1"<?php checked( bb_get_option('avatars_show'), 1 ); ?> />
 			</div>
 		</div>
+<?php
+	$bb_get_option_avatars_show = create_function( '$a', 'return 1;' );
+	add_filter( 'bb_get_option_avatars_show', $bb_get_option_avatars_show );
+?>
 		<div>
 			<label for="avatars_default">
 				<?php _e('Gravatar default image'); ?>
 			</label>
 			<div>
 				<select name="avatars_default" id="avatars_default">
-<?php
-$selected = array();
-$selected[bb_get_option('avatars_default')] = ' selected="selected"';
-?>
-					<option value="default"<?php echo $selected['default']; ?>><?php _e('Default'); ?></option>
-					<option value="logo"<?php echo $selected['logo']; ?>><?php _e('Gravatar Logo'); ?></option>
-					<option value="monsterid"<?php echo $selected['monsterid']; ?>><?php _e('MonsterID'); ?></option>
-					<option value="wavatar"<?php echo $selected['wavatar']; ?>><?php _e('Wavatar'); ?></option>
-					<option value="identicon"<?php echo $selected['identicon']; ?>><?php _e('Identicon'); ?></option>
-<?php
-unset($selected);
-?>
+					<option value="default"<?php selected( bb_get_option('avatars_default'), 'default' ); ?>><?php _e('Default'); ?></option>
+					<option value="logo"<?php selected( bb_get_option('avatars_default'), 'logo' ); ?>><?php _e('Gravatar Logo'); ?></option>
+					<option value="monsterid"<?php selected( bb_get_option('avatars_default'), 'monsterid' ); ?>><?php _e('MonsterID'); ?></option>
+					<option value="wavatar"<?php selected( bb_get_option('avatars_default'), 'wavatar' ); ?>><?php _e('Wavatar'); ?></option>
+					<option value="identicon"<?php selected( bb_get_option('avatars_default'), 'identicon' ); ?>><?php _e('Identicon'); ?></option>
 				</select>
 				<p>Select what style of avatar to display to users without a Gravatar</p>
 				<p class="gravatarDefault">
@@ -216,24 +199,20 @@ unset($selected);
 				</p>
 			</div>
 		</div>
+<?php
+	remove_filter( 'bb_get_option_avatars_show', $bb_get_option_avatars_show );
+?>
 		<div>
 			<label for="avatars_rating">
 				<?php _e('Gravatar maximum rating'); ?>
 			</label>
 			<div>
 				<select name="avatars_rating" id="avatars_rating">
-<?php
-$selected = array();
-$selected[bb_get_option('avatars_rating')] = ' selected="selected"';
-?>
-					<option value="0"<?php echo $selected[0]; ?>><?php _e('None'); ?></option>
-					<option value="x"<?php echo $selected['x']; ?>><?php _e('X'); ?></option>
-					<option value="r"<?php echo $selected['r']; ?>><?php _e('R'); ?></option>
-					<option value="pg"<?php echo $selected['pg']; ?>><?php _e('PG'); ?></option>
-					<option value="g"<?php echo $selected['g']; ?>><?php _e('G'); ?></option>
-<?php
-unset($selected);
-?>
+					<option value="0"<?php selected( bb_get_option('avatars_rating'), 0 ); ?>><?php _e('None'); ?></option>
+					<option value="x"<?php selected( bb_get_option('avatars_rating'), 'x' ); ?>><?php _e('X'); ?></option>
+					<option value="r"<?php selected( bb_get_option('avatars_rating'), 'r' ); ?>><?php _e('R'); ?></option>
+					<option value="pg"<?php selected( bb_get_option('avatars_rating'), 'pg' ); ?>><?php _e('PG'); ?></option>
+					<option value="g"<?php selected( bb_get_option('avatars_rating'), 'g' ); ?>><?php _e('G'); ?></option>
 				</select>
 				<p class="gravatarRating">
 					<img src="http://site.gravatar.com/images/gravatars/ratings/3.gif" alt="Rated X" />

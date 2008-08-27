@@ -55,7 +55,7 @@ function bb_admin_theme_row( $theme ) {
 	$activation_url = bb_get_uri('bb-admin/themes.php', array('theme' => urlencode($theme)), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$activation_url = clean_url( bb_nonce_url( $activation_url, 'switch-theme' ) );
 ?>
-	<li<?php alt_class( 'theme', $class ); ?>>
+	<li<?php alt_class( 'theme' ); ?>>
 		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><img alt="<?php echo attribute_escape( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
 		<div class="description">
 			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>

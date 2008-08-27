@@ -175,7 +175,7 @@ function bb_get_current_admin_menu() {
 function bb_admin_title() {
 	global $bb_current_menu, $bb_current_submenu;
 	$title = bb_get_option('name') . ' &#8250; ' . $bb_current_menu[0] . ( $bb_current_submenu ? ' &raquo; ' . $bb_current_submenu[0] : '' ) . ' &#8212; bbPress';
-	echo $title;
+	echo wp_specialchars( $title );
 }
 
 function bb_admin_menu() {
@@ -390,7 +390,7 @@ class BB_User_Search {
 	}
 
 	function results_are_paged() {
-		if ( $this->paging_text )
+		if ( isset($this->paging_text) && $this->paging_text )
 			return true;
 		return false;
 	}
@@ -1014,16 +1014,32 @@ function bb_get_plugin_data($plugin_file) {
 		$version = '';
 
 	$plugin_name = wp_specialchars( trim($plugin_name[1]) );
-	$plugin_uri = clean_url( trim($plugin_uri[1]) );
-	$author_name = wp_specialchars( trim($author_name[1]) );
-	$author_uri = clean_url( trim($author_uri[1]) );
 
-	$description = trim($description[1]);
-	$description = bb_encode_bad( $description );
-	$description = bb_code_trick( $description );
-	$description = force_balance_tags( $description );
-	$description = bb_filter_kses( $description );
-	$description = bb_autop( $description );
+	if ( $plugin_uri )
+		$plugin_uri = clean_url( trim($plugin_uri[1]) );
+	else
+		$plugin_uri = '';
+
+	if ( $author_name )
+		$author_name = wp_specialchars( trim($author_name[1]) );
+	else
+		$author_name = '';
+
+	if ( $author_uri )
+		$author_uri = clean_url( trim($author_uri[1]) );
+	else
+		$author_uri = '';
+
+	if ( $description ) {
+		$description = trim($description[1]);
+		$description = bb_encode_bad( $description );
+		$description = bb_code_trick( $description );
+		$description = force_balance_tags( $description );
+		$description = bb_filter_kses( $description );
+		$description = bb_autop( $description );
+	} else {
+		$description = '';
+	}
 
 	$plugin_file = str_replace( '\\', '/', $plugin_file );
 	$core_dir    = str_replace( '\\', '/', BB_CORE_PLUGIN_DIR );
@@ -1110,16 +1126,24 @@ function bb_get_theme_data( $theme_file ) {
 	$name = wp_specialchars( trim($name) );
 	$theme = $name;
 
-	if ( '' == $author_uri[1] ) {
-		$author = wp_specialchars( trim($author_name[1]) );
+	if ( $author_name || $author_uri ) {
+		if ( empty($author_uri[1]) ) {
+			$author = wp_specialchars( trim($author_name[1]) );
+		} else {
+			$author = '<a href="' . clean_url( trim($author_uri[1]) ) . '" title="' . attribute_escape( __('Visit author homepage') ) . '">' . wp_specialchars( trim($author_name[1]) ) . '</a>';
+		}
 	} else {
-		$author = '<a href="' . clean_url( trim($author_uri[1]) ) . '" title="' . attribute_escape( __('Visit author homepage') ) . '">' . wp_specialchars( trim($author_name[1]) ) . '</a>';
+		$author = '';
 	}
 
-	if ( '' == $porter_uri[1] ) {
-		$porter = wp_specialchars( trim($porter_name[1]) );
+	if ( $porter_name || $porter_uri ) {
+		if ( empty($porter_uri[1]) ) {
+			$porter = wp_specialchars( trim($porter_name[1]) );
+		} else {
+			$porter = '<a href="' . clean_url( trim($porter_uri[1]) ) . '" title="' . attribute_escape( __('Visit porter homepage') ) . '">' . wp_specialchars( trim($porter_name[1]) ) . '</a>';
+		}
 	} else {
-		$porter = '<a href="' . clean_url( trim($porter_uri[1]) ) . '" title="' . attribute_escape( __('Visit porter homepage') ) . '">' . wp_specialchars( trim($porter_name[1]) ) . '</a>';
+		$porter = '';
 	}
 
 	return array(
@@ -1134,5 +1158,19 @@ function bb_get_theme_data( $theme_file ) {
 		'URI' => clean_url( $theme_uri[1] )
 	);
 }
+
+if ( !function_exists( 'checked' ) ) :
+function checked( $checked, $current) {
+	if ( $checked == $current)
+		echo ' checked="checked"';
+}
+endif;
+
+if ( !function_exists( 'selected' ) ) :
+function selected( $selected, $current) {
+	if ( $selected == $current)
+		echo ' selected="selected"';
+}
+endif;
 
 ?>

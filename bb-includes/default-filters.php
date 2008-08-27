@@ -24,7 +24,7 @@ add_filter( 'bb_pre_forum_name', 'bb_trim_for_db_150', 9999 );
 add_filter( 'pre_term_name', 'bb_trim_for_db_55', 9999 );
 
 // Format Strings for Display
-$filters = array( 'get_forum_name', 'topic_title' );
+$filters = array( 'get_forum_name', 'topic_title', 'bb_title', 'bb_option_name' );
 foreach ( $filters as $filter ) {
 	add_filter( $filter, 'wp_specialchars' );
 }

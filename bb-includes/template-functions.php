@@ -134,7 +134,7 @@ function bb_post_template() {
 function post_form( $h2 = '' ) {
 	global $page, $topic, $forum;
 	
-	if ($forum->forum_is_category)
+	if ( isset($forum->forum_is_category) && $forum->forum_is_category )
 		return;
 	
 	$add = topic_pages_add();
@@ -147,7 +147,7 @@ function post_form( $h2 = '' ) {
 			$h2 = __('Add New Topic');
 	}
 
-	$last_page = get_page_number( $topic->topic_posts + $add );
+	$last_page = get_page_number( ( isset($topic->topic_posts) ? $topic->topic_posts : 0 ) + $add );
 
 	if ( !empty($h2) ) {
 		if ( is_topic() && $page != $last_page )
@@ -157,7 +157,7 @@ function post_form( $h2 = '' ) {
 
 	do_action('pre_post_form');
 
-	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', $forum->forum_id ) ) ) {
+	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', isset($forum->forum_id) ? $forum->forum_id : 0 ) ) ) {
 		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_uri('bb-post.php', null, BB_URI_CONTEXT_FORM_ACTION) . '">' . "\n";
 		echo '<fieldset>' . "\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
@@ -577,7 +577,7 @@ function get_forum_position( $forum_id = 0 ) {
 
 function bb_get_forum_is_category( $forum_id = 0 ) {
 	$forum = get_forum( get_forum_id( $forum_id ) );
-	return apply_filters( 'bb_get_forum_is_category', $forum->forum_is_category, $forum->forum_id );
+	return apply_filters( 'bb_get_forum_is_category', isset($forum->forum_is_category) ? $forum->forum_is_category : false, $forum->forum_id );
 }
 
 function forum_topics( $forum_id = 0 ) {
@@ -601,7 +601,7 @@ function get_forum_posts( $forum_id = 0 ) {
 function forum_pages( $forum_id = 0 ) {
 	global $page;
 	$forum = get_forum( get_forum_id( $forum_id ) );
-	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->forum_topics );
+	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->topics );
 }
 
 function bb_forum_posts_rss_link( $forum_id = 0, $context = 0 ) {
@@ -675,7 +675,7 @@ function bb_get_forum_bread_crumb($args = '') {
 		$class = ' class="' . $class . '"';
 	}
 	$current_trail_forum_id = $trail_forum->forum_id;
-	while ($trail_forum->forum_id > 0) {
+	while ( $trail_forum && $trail_forum->forum_id > 0 ) {
 		$crumb = $separator;
 		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
 			$crumb .= '<a' . $class . ' href="' . get_forum_link($trail_forum->forum_id) . '">';
@@ -734,7 +734,8 @@ function &bb_forums( $args = '' ) {
 		list($bb_forums_loop->walker->start_lvl, $bb_forums_loop->walker->end_lvl) = $levels;
 		return $bb_forums_loop->elements;
 	}
-	return false;
+	$false = false;
+	return $false;
 }
 
 function bb_forum() { // Returns current depth
@@ -789,7 +790,10 @@ function get_topic_id( $id = 0 ) {
 		$_topic = get_topic( $id );
 	else
 		$_topic =& $topic;
-	return $_topic->topic_id;
+	if ( !isset($topic->topic_id) )
+		return 0;
+
+	return (int) $_topic->topic_id;
 }
 
 function topic_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
@@ -874,7 +878,7 @@ function get_topic_posts( $id = 0 ) {
 
 function get_topic_deleted_posts( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	return apply_filters( 'get_topic_deleted_posts', $topic->deleted_posts, $topic->topic_id );
+	return apply_filters( 'get_topic_deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts : 0, $topic->topic_id );
 }
 
 function topic_noreply( $title ) {
@@ -957,9 +961,11 @@ function topic_pages( $id = 0 ) {
 
 function topic_pages_add( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') )
-		$add += $topic->deleted_posts;
-	return apply_filters( 'topic_pages_add', $add, $topic->topic_id );
+	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') && isset( $topic->deleted_posts ) )
+		$add = $topic->deleteted_posts;
+	else
+		$add = 0;
+	return apply_filters( 'topic_pages_add', $add, isset($topic->topic_id) ? $topic->topic_id : 0 );
 }
 
 function get_page_number_links($page, $total) {
@@ -1073,7 +1079,7 @@ function bb_get_topic_close_link( $args = '' ) {
 	$uri = bb_get_uri('bb-admin/topic-toggle.php', array('id' => $topic->topic_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$uri = attribute_escape( bb_nonce_url( $uri, 'close-topic_' . $topic->topic_id ) );
 	
-	return $before . '<a href="' . $uri . '" onclick="return confirm(\'' . js_escape( $confirm ) . '\');">' . $display . '</a>' . $after;
+	return $before . '<a href="' . $uri . '">' . $display . '</a>' . $after;
 }
 
 function topic_sticky_link( $args = '' ) {
@@ -1661,12 +1667,11 @@ function bb_profile_data( $id = 0 ) {
 	echo "\t<dd>" . bb_datetime_format_i18n($reg_time, 'date') . ' (' . bb_since($reg_time) . ")</dd>\n";
 	if ( is_array( $profile_info_keys ) ) {
 		foreach ( $profile_info_keys as $key => $label ) {
-			if ( in_array($key, array('first_name', 'last_name', 'display_name')) )
+			if ( in_array($key, array('first_name', 'last_name', 'display_name')) || !isset($user->$key) )
 				continue;
 			$val = 'user_url' == $key ? get_user_link( $user->ID ) : $user->$key;
 			if (
 				( 'user_email' != $key || ( 'user_email' == $key && bb_current_user_can( 'edit_users' ) ) )
-				&& isset( $user->$key )
 				&& $val
 				&& 'http://' != $val
 			) {
@@ -1726,7 +1731,7 @@ function bb_profile_data_form( $id = 0 ) {
 				$message = wp_specialchars( $errors->get_error_message( $key ) );
 				$message = "<p class='error'>$message</p>";
 			} else {
-				$value = $user->$key;
+				$value = isset( $user->$key ) ? $user->$key : '';
 				$message = '';
 			}
 			$value = attribute_escape( $value );
@@ -1745,9 +1750,16 @@ function bb_profile_data_form( $id = 0 ) {
 				$public_display['display_displayname'] = $user->display_name;
 				//$public_display['display_nickname'] = $user->nickname;
 				$public_display['display_username'] = $user->user_login;
-				$public_display['display_firstname'] = $user->first_name;
-				$public_display['display_firstlast'] = $user->first_name.' '.$user->last_name;
-				$public_display['display_lastfirst'] = $user->last_name.' '.$user->first_name;
+				if ( isset($user->first_name) ) {
+					$public_display['display_firstname'] = $user->first_name;
+					if ( isset($user->last_name) ) {
+						$public_display['display_firstlast'] = $user->first_name.' '.$user->last_name;
+						$public_display['display_lastfirst'] = $user->last_name.' '.$user->first_name;
+					}
+				}
+				if ( isset($user->last_name) )
+					$public_display['display_lastname'] = $user->last_name;
+				
 				$public_display = array_unique(array_filter(array_map('trim', $public_display)));
 				
 				foreach($public_display as $id => $item) {
@@ -1881,7 +1893,7 @@ function bb_profile_admin_form( $id = 0 ) {
 					$checked = $user->$key == $label[3] || $label[4] == $label[3];
 					$value = $label[3];
 				} else {
-					$value = $user->$key;
+					$value = isset($user->$key) ? $user->$key : '';
 				}
 				$message = '';
 			}
@@ -2115,7 +2127,9 @@ function bb_get_tag_name( $id = 0 ) {
 		$_tag = bb_get_tag( $id );
 	else
 		$_tag =& $tag;
-	return $_tag->raw_tag;
+	if ( is_object($_tag) )
+		return $_tag->raw_tag;
+	return '';
 }
 
 function bb_tag_rss_link( $id = 0, $context = 0 ) {
@@ -2417,7 +2431,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 	$options = array();
 	while ( $depth = bb_forum() ) :
 		global $forum; // Globals + References = Pain
-		if ($disable_categories && $forum->forum_is_category) {
+		if ( $disable_categories && isset($forum->forum_is_category) && $forum->forum_is_category ) {
 			$options[] = array(
 				'value' => 0,
 				'display' => str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . $forum->forum_name,

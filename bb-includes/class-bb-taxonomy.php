@@ -158,7 +158,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 			}
 		} else {
 			$t = $this->get_taxonomy($taxonomies[0]);
-			if ( is_array($t->args) )
+			if ( isset($t->args) && is_array($t->args) )
 				$args = array_merge($args, $t->args);
 		}
 

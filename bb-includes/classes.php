@@ -278,7 +278,7 @@ class BB_Query {
 
 		// Only one FULLTEXT search per query please
 		if ( $array['search'] )
-			unset($array['post_text']);
+			$array['post_text'] = false;
 
 		return $array;
 	}
@@ -1107,7 +1107,7 @@ class BB_Walker {
 		}
 
 		// Walk the tree.
-		if ( !empty($this->previous_element) && ($element->$parent_field == $this->previous_element->$id_field) ) {
+		if ( !empty($element) && !empty($this->previous_element) && $element->$parent_field == $this->previous_element->$id_field ) {
 			// Previous element is my parent. Descend a level.
 			array_unshift($this->parents, $this->previous_element);
 			if ( !$to_depth || ($this->depth < $to_depth) ) { //only descend if we're below $to_depth
@@ -1118,7 +1118,7 @@ class BB_Walker {
 				call_user_func_array(array(&$this, 'end_el'), $cb_args);
 			}
 			$this->depth++; //always do this so when we start the element further down, we know where we are
-		} else if ( $element->$parent_field == $this->previous_element->$parent_field) {
+		} else if ( !empty($element) && !empty($this->previous_element) && $element->$parent_field == $this->previous_element->$parent_field) {
 			// On the same level as previous element.
 			if ( !$to_depth || ($this->depth <= $to_depth) ) {
 				$cb_args = array_merge( array(&$output, $this->previous_element, $this->depth - 1), $args);
@@ -1139,7 +1139,7 @@ class BB_Walker {
 					$cb_args = array_merge( array(&$output, $parent, $this->depth - 1), $args);
 					call_user_func_array(array(&$this, 'end_el'), $cb_args);
 				}
-				if ( isset($this->parents[0]) && $element->$parent_field == $this->parents[0]->$id_field ) {
+				if ( !empty($element) && isset($this->parents[0]) && $element->$parent_field == $this->parents[0]->$id_field ) {
 					break;
 				}
 			}
@@ -1153,7 +1153,7 @@ class BB_Walker {
 
 		// Start the element.
 		if ( !$to_depth || ($this->depth <= $to_depth) ) {
-			if ( $element->$id_field != 0 ) {
+			if ( !empty($element) && $element->$id_field != 0 ) {
 				$cb_args = array_merge( array(&$output, $element, $this->depth - 1), $args);
 				call_user_func_array(array(&$this, 'start_el'), $cb_args);
 			}
@@ -1199,9 +1199,10 @@ class BB_Loop {
 	var $_looping = false;
 
 	function &start( $elements, $walker = 'BB_Walker_Blank' ) {
+		$null = null;
 		$a = new BB_Loop( $elements );
 		if ( !$a->elements )
-			return null;
+			return $null;
 		$a->walker = new $walker;
 		return $a;
 	}
@@ -1244,7 +1245,8 @@ class BB_Loop {
 			return false;
 
 		foreach ( $array as $key )
-			$this->_preserve[$key] = $GLOBALS[$key];
+			if ( isset($GLOBALS[$key]) )
+				$this->_preserve[$key] = $GLOBALS[$key];
 	}
 
 	function reinstate() {
@@ -1269,16 +1271,16 @@ class BB_Loop {
 		else
 			end($this->elements);
 
-		if ( $next->{$this->walker->db_fields['parent']} == $current->{$this->walker->db_fields['id']} )
+		if ( !empty($next) && $next->{$this->walker->db_fields['parent']} == $current->{$this->walker->db_fields['id']} )
 			$classes[] = 'bb-parent';
-		elseif ( $next->{$this->walker->db_fields['parent']} == $current->{$this->walker->db_fields['parent']} )
+		elseif ( !empty($next) && $next->{$this->walker->db_fields['parent']} == $current->{$this->walker->db_fields['parent']} )
 			$classes[] = 'bb-precedes-sibling';
 		else
 			$classes[] = 'bb-last-child';
 
-		if ( $current->{$this->walker->db_fields['parent']} == $prev->{$this->walker->db_fields['id']} )
+		if ( !empty($prev) && $current->{$this->walker->db_fields['parent']} == $prev->{$this->walker->db_fields['id']} )
 			$classes[] = 'bb-first-child';
-		elseif ( $current->{$this->walker->db_fields['parent']} == $prev->{$this->walker->db_fields['parent']} )
+		elseif ( !empty($prev) && $current->{$this->walker->db_fields['parent']} == $prev->{$this->walker->db_fields['parent']} )
 			$classes[] = 'bb-follows-sibling';
 		elseif ( $prev )
 			$classes[] = 'bb-follows-niece';

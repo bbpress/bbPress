@@ -1,7 +1,10 @@
 <?php
 require_once('admin.php');
 
-$action = $_POST['action'];
+if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) )
+	$action = @$_POST['action'];
+else
+	$action = false;
 
 if ( in_array( $action, array('update-users', 'update-options') ) ) {
 	bb_check_admin_referer( 'options-wordpress-' . $action );
@@ -35,7 +38,7 @@ if ( in_array( $action, array('update-users', 'update-options') ) ) {
 	bb_safe_redirect($goback);
 }
 
-switch ($_GET['updated']) {
+switch (@$_GET['updated']) {
 	case 'update-users':
 		bb_admin_notice( __('User role mapping saved.') );
 		break;
@@ -166,6 +169,7 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 			</div>
 		</div>
 		<script type="text/javascript" charset="utf-8">
+/* <![CDATA[ */
 			function updateWordPressOptionURL () {
 				var siteURLInputValue = document.getElementById('wp_siteurl').value;
 				if (siteURLInputValue && siteURLInputValue.substr(-1,1) != '/') {
@@ -192,6 +196,7 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 			siteURLInput.onblur = updateWordPressOptionURL;
 			siteURLInput.onclick = updateWordPressOptionURL;
 			siteURLInput.onchange = updateWordPressOptionURL;
+/* ]]> */
 		</script>
 <?php
 $cookie_settings = array(
@@ -246,11 +251,14 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 				<?php _e('Show advanced database settings'); ?>
 			</label>
 <?php
-$advanced_display = 'none';
 if ( bb_get_option('user_bbdb_advanced') ) {
 	$advanced_display = 'block';
 	$checked = ' checked="checked"';
+} else {
+	$advanced_display = 'none';
+	$checked = '';
 }
+	
 ?>
 			<script type="text/javascript" charset="utf-8">
 				function toggleAdvanced(checkedObj) {
