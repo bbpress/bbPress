@@ -295,6 +295,9 @@ class BB_Query {
 
 		do_action_ref_array('bb_parse_query', array(&$this));
 
+		if ( false === $this->query_vars )
+			return;
+
 		$this->query_vars = $this->fill_query_vars($this->query_vars);
 	}
 
