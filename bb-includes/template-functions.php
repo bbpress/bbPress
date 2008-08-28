@@ -790,7 +790,8 @@ function get_topic_id( $id = 0 ) {
 		$_topic = get_topic( $id );
 	else
 		$_topic =& $topic;
-	if ( !isset($topic->topic_id) )
+
+	if ( empty($_topic->topic_id) )
 		return 0;
 
 	return (int) $_topic->topic_id;
