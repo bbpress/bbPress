@@ -88,7 +88,7 @@ class BB_Query {
 
 		$this->count = count( $this->results );
 
-		if ( $this->query_vars['count'] ) // handles FOUND_ROWS() or COUNT(*)
+		if ( false === $this->found_rows && $this->query_vars['count'] ) // handles FOUND_ROWS() or COUNT(*)
 			$this->found_rows = bb_count_last_query( $this->request );
 		if ( 'post' == $this->type ) {
 			if ( $this->query_vars['cache_users'] )
