@@ -13,8 +13,6 @@ $home_path = $home_url['path'];
 if ( !$re || false !== strpos($re, $home_path . 'register.php') || false !== strpos($re, $home_path . 'bb-reset-password.php') )
 	$re = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
 
-$re = clean_url( $re );
-
 nocache_headers();
 
 if ( isset( $_REQUEST['logout'] ) ) {
@@ -68,6 +66,7 @@ if ( $email_login && $bb_login_error->get_error_codes() && false !== strpos( $_P
 
 $user_login  = attribute_escape( sanitize_user( @$_POST['user_login'] ) );
 $remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
+$re = clean_url( $re );
 $re = $redirect_to = attribute_escape( $re );
 
 bb_load_template( 'login.php', array('user_exists', 'user_login', 'remember_checked', 'redirect_to', 're', 'bb_login_error') );
