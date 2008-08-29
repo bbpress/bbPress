@@ -33,6 +33,6 @@ if ( $recent ) :
 		$topics = bb_append_meta( $topics, 'topic' );
 endif;
 
-bb_load_template( 'search.php', array('q', 'recent', 'relevant') );
+bb_load_template( 'search.php', array('q', 'recent', 'relevant'), $q );
 
 ?>
