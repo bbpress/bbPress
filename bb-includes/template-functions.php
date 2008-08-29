@@ -1519,7 +1519,7 @@ function bb_get_user_id( $id = 0 ) {
 		return $user->ID;
 
 	$_user = bb_get_user( $id );
-	return $_user->ID;
+	return isset($_user->ID) ? $_user->ID : 0;
 }
 
 function user_profile_link( $id = 0 , $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {

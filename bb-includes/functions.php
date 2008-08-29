@@ -18,7 +18,7 @@ function bb_global_sanitize( $array, $trim = true ) {
 function bb_is_installed() { // Maybe grab all the forums and cache them
 	global $bbdb;
 	$bbdb->suppress_errors();
-	$forums = (array) get_forums();
+	$forums = (array) @get_forums();
 	$bbdb->suppress_errors(false);
 	if ( !$forums )
 		return false;
