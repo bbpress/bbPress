@@ -24,7 +24,7 @@
 <ol class="results">
 <?php foreach ( $relevant as $bb_post ) : ?>
 <li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
-<p><?php echo bb_show_context($q, $bb_post->post_text); ?></p>
+<p><?php post_text(); ?></p>
 <p><small><?php _e('Posted') ?> <?php echo bb_datetime_format_i18n( bb_get_post_time( array( 'format' => 'timestamp' ) ) ); ?></small></p>
 </li>
 <?php endforeach; ?>

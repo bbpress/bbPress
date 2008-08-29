@@ -51,6 +51,9 @@ add_filter('pre_post', 'force_balance_tags');
 add_filter('pre_post', 'bb_filter_kses', 50);
 add_filter('pre_post', 'bb_autop', 60);
 
+if ( is_bb_search() )
+	add_filter('get_post_text', 'bb_post_text_context');
+
 add_filter('post_text', 'make_clickable');
 
 add_filter('edit_text', 'bb_code_trick_reverse');
