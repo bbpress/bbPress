@@ -145,6 +145,6 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	}
 }
 
-bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'updated', 'user_email', 'bb_roles', 'errors') );
+bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'updated', 'user_email', 'bb_roles', 'errors', 'self') );
 
 ?>

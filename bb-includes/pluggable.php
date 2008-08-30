@@ -722,8 +722,12 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	if ( !is_numeric($size) )
 		$size = 80;
 
-	if ( !$email = bb_get_user_email($id_or_email) )
+	if ( $email = bb_get_user_email($id_or_email) ) {
+		$class = 'photo ';
+	} else {
+		$class = '';
 		$email = $id_or_email;
+	}
 
 	if ( !$email )
 		$email = '';
@@ -748,7 +752,7 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	}
 
 	$src = 'http://www.gravatar.com/avatar/';
-	$class = 'avatar avatar-' . $size;
+	$class .= 'avatar avatar-' . $size;
 
 	if ( !empty($email) ) {
 		$src .= md5( strtolower( $email ) );

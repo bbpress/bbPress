@@ -37,5 +37,5 @@ if ( !is_bb_profile() ) {
 $topics = get_user_favorites( $user->ID, true );
 $favorites_total = isset($user->favorites) ? count(explode(',', $user->favorites)) : 0;
 
-bb_load_template( 'favorites.php', array('favorites_total') );
+bb_load_template( 'favorites.php', array('favorites_total', 'self') );
 ?>

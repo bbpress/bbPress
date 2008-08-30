@@ -2646,16 +2646,16 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	}
 }
 
-//meta_key => (required?, Label).  Don't use user_{anything} as the name of your meta_key.
+//meta_key => (required?, Label, hCard property).  Don't use user_{anything} as the name of your meta_key.
 function get_profile_info_keys() {
 	return apply_filters( 'get_profile_info_keys', array(
 		'first_name' => array(0, __('First name')),
 		'last_name' => array(0, __('Last name')),
 		'display_name' => array(1, __('Display name as')),
-		'user_email' => array(1, __('Email')),
-		'user_url' => array(0, __('Website')),
+		'user_email' => array(1, __('Email'), 'email'),
+		'user_url' => array(0, __('Website'), 'url'),
 		'from' => array(0, __('Location')),
-		'occ' => array(0, __('Occupation')),
+		'occ' => array(0, __('Occupation'), 'role'),
 		'interest' => array(0, __('Interests')),
 	) );
 }

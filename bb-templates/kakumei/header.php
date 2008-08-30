@@ -1,6 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"<?php bb_language_attributes( '1.1' ); ?>>
+<?php if (is_bb_profile()) : global $self; ?>
+<?php if (!$self) : ?>
+<head profile="http://www.w3.org/2006/03/hcard">
+<?php else : ?>
 <head>
+<?php endif; ?>
+<?php else : ?>
+<head>
+<?php endif; ?>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title><?php bb_title() ?></title>
 	<?php bb_feed_head(); ?> 

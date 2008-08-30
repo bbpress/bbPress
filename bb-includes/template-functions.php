@@ -1677,7 +1677,15 @@ function bb_profile_data( $id = 0 ) {
 				&& 'http://' != $val
 			) {
 				echo "\t<dt>{$label[1]}</dt>\n";
-				echo "\t<dd>" . make_clickable( $val ) . "</dd>\n";
+				$val = make_clickable( $val );
+				$attributes = array();
+				if (isset($label[2]) && !empty($label[2]))
+					if (preg_match("#^<a#i", $val))
+						$val = preg_replace("#^<a#i", '<a class="' . attribute_escape($label[2]) . '"', $val);
+					else
+						$val = '<span class="' . attribute_escape($label[2]) . '">' . $val . '</span>';
+				
+				echo "\t<dd>" . $val . "</dd>\n";
 			}
 		}
 	}

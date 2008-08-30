@@ -1,10 +1,13 @@
 <?php bb_get_header(); ?>
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Profile') ?></h3>
+
+<div class="vcard">
+
 <?php if ( $avatar = bb_get_avatar( $user->ID ) ) : ?>
 <div id="useravatar"><?php echo $avatar; ?></div>
 <?php unset($avatar); endif; ?>
-<h2 id="userlogin"><?php echo get_user_display_name( $user->ID ); ?> <small>(<?php echo get_user_name( $user->ID ); ?>)</small></h2>
+<h2 id="userlogin"><span class="fn"><?php echo get_user_display_name( $user->ID ); ?></span> <small>(<span class="nickname"><?php echo get_user_name( $user->ID ); ?></span>)</small></h2>
 
 <?php if ( $updated ) : ?>
 <div class="notice">
@@ -25,6 +28,8 @@
 <?php endif; ?>
 
 <?php bb_profile_data(); ?>
+
+</div>
 
 <h3 id="useractivity"><?php _e('User Activity') ?></h3>
 
