@@ -2949,8 +2949,8 @@ function bb_basename($file, $directories) {
 	foreach ($directories as $type => $directory)
 		if (strpos($file, $directory) !== false)
 			break; // Keep the $file and $directory set and use them below, nifty huh?
-	$file = str_replace('\\','/',$file);
-	$file = preg_replace('|/+|','/', $file);
+	list($file, $directory) = str_replace('\\','/', array($file, $directory));
+	list($file, $directory) = preg_replace('|/+|','/', array($file,$directory));
 	$file = preg_replace('|^.*' . preg_quote($directory, '|') . '|', $type . '#', $file);
 	return $file;
 }
