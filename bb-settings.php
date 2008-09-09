@@ -566,12 +566,12 @@ if (isset($bb->custom_tables)) {
 
 $bb->wp_siteurl = bb_get_option('wp_siteurl');
 if ( $bb->wp_siteurl ) {
-	$bb->wp_siteurl = rtrim($bb->wp_siteurl, '/') . '/';
+	$bb->wp_siteurl = rtrim($bb->wp_siteurl, '/');
 }
 
 $bb->wp_home = bb_get_option('wp_home');
 if ( $bb->wp_home ) {
-	$bb->wp_home = rtrim($bb->wp_home, '/') . '/';
+	$bb->wp_home = rtrim($bb->wp_home, '/');
 }
 
 $bb->wp_cookies_integrated = false;
@@ -593,7 +593,7 @@ if ( $bb->wp_siteurl && $bb->wp_home ) {
 	}
 }
 
-define('BB_HASH', $bb->wp_cookies_integrated ? md5(rtrim($bb->wp_siteurl, '/')) : md5(rtrim($bb->uri, '/')));
+define('BB_HASH', $bb->wp_cookies_integrated ? md5($bb->wp_siteurl) : md5($bb->uri));
 // Deprecated setting
 // TODO: Completely remove old constants on version 1.0
 $bb->usercookie = bb_get_option('usercookie');
@@ -627,21 +627,25 @@ $bb->cookiepath = bb_get_option('cookiepath');
 if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
+$bb->cookiepath = rtrim($bb->cookiepath, '/');
 
 $bb->admin_cookie_path = bb_get_option('admin_cookie_path');
 if ( !$bb->admin_cookie_path ) {
-	$bb->admin_cookie_path = $bb->path . 'bb-admin/';
+	$bb->admin_cookie_path = $bb->path . 'bb-admin';
 }
+$bb->admin_cookie_path = rtrim($bb->admin_cookie_path, '/');
 
 $bb->core_plugins_cookie_path = bb_get_option('core_plugins_cookie_path');
 if ( !$bb->core_plugins_cookie_path ) {
 	$bb->core_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL);
 }
+$bb->core_plugins_cookie_path = rtrim($bb->core_plugins_cookie_path, '/');
 
 $bb->user_plugins_cookie_path = bb_get_option('user_plugins_cookie_path');
 if ( !$bb->user_plugins_cookie_path ) {
 	$bb->user_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_PLUGIN_URL);
 }
+$bb->user_plugins_cookie_path = rtrim($bb->user_plugins_cookie_path, '/');
 
 $bb->sitecookiepath = bb_get_option('sitecookiepath');
 $_bb_sitecookiepath = $bb->sitecookiepath;
@@ -652,17 +656,20 @@ if ( !$bb->sitecookiepath && $bb->wp_cookies_integrated ) {
 		$bb->sitecookiepath = $bb->cookiepath;
 	}
 }
+$bb->sitecookiepath = rtrim($bb->sitecookiepath, '/');
 
 $bb->wp_admin_cookie_path = bb_get_option('wp_admin_cookie_path');
 if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
-	$bb->wp_admin_cookie_path = $_bb_sitecookiepath . 'wp-admin/';
+	$bb->wp_admin_cookie_path = $_bb_sitecookiepath . '/wp-admin';
 }
+$bb->wp_admin_cookie_path = rtrim($bb->wp_admin_cookie_path, '/');
 
 $bb->wp_plugins_cookie_path = bb_get_option('wp_plugins_cookie_path');
 if ( !$bb->wp_plugins_cookie_path && $bb->wp_cookies_integrated ) {
 	// This is a best guess only, should be manually set to match WP_PLUGIN_URL
-	$bb->wp_plugins_cookie_path = $_bb_sitecookiepath . 'wp-content/plugins/';
+	$bb->wp_plugins_cookie_path = $_bb_sitecookiepath . '/wp-content/plugins';
 }
+$bb->wp_plugins_cookie_path = rtrim($bb->wp_plugins_cookie_path, '/');
 unset($_bb_sitecookiepath);
 
 /**
