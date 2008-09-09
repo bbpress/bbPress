@@ -601,6 +601,12 @@ class BB_Install
 	 **/
 	function prepare_data()
 	{
+		/**
+		 * Should be exactly the same as the default value of the KEYS in bb-config-sample.php
+		 * @since 1.0-beta
+		 */
+		$_bb_default_secret_key = 'put your unique phrase here';
+		
 		$this->data = array(
 			1 => array(
 				'form' => array(
@@ -653,19 +659,19 @@ class BB_Install
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_auth_key' => array(
-						'value'        => '',
+						'value'        => $_bb_default_secret_key,
 						'label'        => __('bbPress "auth" cookie key'),
 						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "auth" cookie unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_secure_auth_key' => array(
-						'value'        => '',
+						'value'        => $_bb_default_secret_key,
 						'label'        => __('bbPress "secure auth" cookie key'),
 						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "secure auth" cookie unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
 					),
 					'bb_logged_in_key' => array(
-						'value'        => '',
+						'value'        => $_bb_default_secret_key,
 						'label'        => __('bbPress "logged in" cookie key'),
 						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "logged in" cookie unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
