@@ -234,6 +234,8 @@ function bb_get_location() { // Not for display.  Do not internationalize.
 			$location = 'tag-page';
 			break;
 		case 'edit.php' :
+			$location = 'topic-edit-page';
+			break;
 		case 'topic.php' :
 			$location = 'topic-page';
 			break;
@@ -284,6 +286,10 @@ function is_bb_tags() {
 function is_bb_tag() {
 	global $tag, $tag_name;
 	return $tag && $tag_name && is_bb_tags();
+}
+
+function is_topic_edit() {
+	return 'topic-edit-page' == bb_get_location();
 }
 
 function is_topic() {
