@@ -62,6 +62,7 @@
 </tr>
 <?php endwhile; ?>
 </table>
+<?php bb_forum_unset(); ?>
 <?php endif; // bb_forums() ?>
 
 <?php if ( bb_is_user_logged_in() ) : ?>

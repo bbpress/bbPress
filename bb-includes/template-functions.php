@@ -505,6 +505,10 @@ function get_forum_id( $forum_id = 0 ) {
 	return $_forum->forum_id;
 }
 
+function bb_forum_unset() {
+	unset($GLOBALS['forum']);
+}
+
 function forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF;
