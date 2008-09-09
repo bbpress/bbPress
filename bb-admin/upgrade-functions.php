@@ -64,14 +64,20 @@ function bb_sql_get_column_definition($column_data) {
 		$null = 'NOT NULL';
 	}
 	
-	if ($column_data['Null'] == 'YES' && $column_data['Default'] === null) {
-		$default = 'default NULL';
-	} elseif (preg_match('@^\d+$@', $column_data['Default'])) {
-		$default = 'default ' . $column_data['Default'];
-	} elseif (is_string($column_data['Default']) || is_float($column_data['Default'])) {
-		$default = 'default \'' . $column_data['Default'] . '\'';
-	} else {
-		$default = '';
+	$default = '';
+	
+	// Defaults aren't allowed at all on certain column types
+	if (!in_array(
+		strtolower($column_data['Type']),
+		array('tinytext', 'text', 'mediumtext', 'longtext', 'blob', 'mediumblob', 'longblob')
+	)) {
+		if ($column_data['Null'] == 'YES' && $column_data['Default'] === null) {
+			$default = 'default NULL';
+		} elseif (preg_match('@^\d+$@', $column_data['Default'])) {
+			$default = 'default ' . $column_data['Default'];
+		} elseif (is_string($column_data['Default']) || is_float($column_data['Default'])) {
+			$default = 'default \'' . $column_data['Default'] . '\'';
+		}
 	}
 	
 	$column_definition = '`' . $column_data['Field'] . '` ' . $column_data['Type'] . ' ' . $null . ' ' . $column_data['Extra'] . ' ' . $default;
@@ -357,7 +363,14 @@ function bb_sql_delta($queries, $execute = true) {
 						continue;
 					}
 					
-					if ($_new_column_data['Default'] !== $_existing_table_columns[$_new_column_name]['Default']) {
+					// Adjust defaults on columns that allow defaults
+					if (
+						$_new_column_data['Default'] !== $_existing_table_columns[$_new_column_name]['Default'] &&
+						!in_array(
+							strtolower($_new_column_data['Type']),
+							array('tinytext', 'text', 'mediumtext', 'longtext', 'blob', 'mediumblob', 'longblob')
+						)
+					) {
 						// Change the default value for the column
 						$alterations[$_dbhname][$_new_table_name][] = array(
 							'action' => 'set_default',
