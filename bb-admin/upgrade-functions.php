@@ -880,7 +880,8 @@ function bb_upgrade_1080() {
 			$term_id = $bbdb->insert_id;
 			$bbdb->insert( $bbdb->term_taxonomy, array(
 				'term_id' => $term_id,
-				'taxonomy' => 'bb_topic_tag'
+				'taxonomy' => 'bb_topic_tag',
+				'description' => ''
 			) );
 			$term_taxonomy_id = $bbdb->insert_id;
 			$topics = (array) $bbdb->get_results( $bbdb->prepare( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = %d", $tags[$i]->tag_id ) );
