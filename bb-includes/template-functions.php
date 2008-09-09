@@ -345,6 +345,7 @@ function bb_get_title( $args = '' ) {
 				$title[] = $args['front'];
 			break;
 		
+		case 'topic-edit-page':
 		case 'topic-page':
 			$title[] = get_topic_title();
 			break;
