@@ -54,29 +54,6 @@ $bb_queries['posts'] = "CREATE TABLE IF NOT EXISTS `$bbdb->posts` (
 	FULLTEXT KEY `post_text` (`post_text`)
 ) TYPE = MYISAM;";
 
-// tagged - deprecated
-$bb_queries['tagged'] = "CREATE TABLE IF NOT EXISTS `$bbdb->tagged` (
-	`tagged_id` bigint(20) unsigned NOT NULL auto_increment,
-	`tag_id` bigint(20) unsigned NOT NULL default 0,
-	`user_id` bigint(20) unsigned NOT NULL default 0,
-	`topic_id` bigint(20) unsigned NOT NULL default 0,
-	`tagged_on` datetime NOT NULL default '0000-00-00 00:00:00',
-	PRIMARY KEY (`tagged_id`),
-	UNIQUE KEY `tag_user_topic` (`tag_id`, `user_id`, `topic_id`),
-	KEY `user_id_index` (`user_id`),
-	KEY `topic_id_index` (`topic_id`)
-);";
-
-// tags - deprecated
-$bb_queries['tags'] = "CREATE TABLE IF NOT EXISTS $bbdb->tags (
-	`tag_id` bigint(20) unsigned NOT NULL auto_increment,
-	`tag` varchar(200) NOT NULL default '',
-	`raw_tag` varchar(50) NOT NULL default '',
-	`tag_count` bigint(20) unsigned NOT NULL default 0,
-	PRIMARY KEY (`tag_id`),
-	KEY `name` (`tag`)
-);";
-
 // terms
 $bb_queries['terms'] = "CREATE TABLE IF NOT EXISTS `$bbdb->terms` (
 	`term_id` bigint(20) NOT NULL auto_increment,
@@ -133,17 +110,6 @@ $bb_queries['topics'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topics` (
 	KEY `forum_time` (`forum_id`, `topic_time`),
 	KEY `user_start_time` (`topic_poster`, `topic_start_time`),
 	KEY `stickies` (`topic_status`, `topic_sticky`, `topic_time`)
-);";
-
-// topicmeta - deprecated
-$bb_queries['topicmeta'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topicmeta` (
-	`meta_id` bigint(20) NOT NULL auto_increment,
-	`topic_id` bigint(20) NOT NULL default 0,
-	`meta_key` varchar(255),
-	`meta_value` longtext,
-	PRIMARY KEY (`meta_id`),
-	KEY `topic_id` (`topic_id`),
-	KEY `meta_key` (`meta_key`)
 );";
 
 // users - 'user_login' and 'user_nicename' indices are inconsistent with WordPress
