@@ -356,6 +356,17 @@ div.error p {
 	font-size: 1.3em;
 }
 
+div.updated a,
+div.error a {
+	color: rgb(40, 140, 60);
+	text-decoration: none;
+}
+
+div.updated a:hover,
+div.error a:hover {
+	color: rgb(230, 145, 0);
+}
+
 #bbBody h2 {
 	border-bottom: 0.05em solid rgb(218, 218, 218);
 	font-size: 2.4em;
