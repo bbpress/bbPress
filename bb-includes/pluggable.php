@@ -169,6 +169,7 @@ function wp_set_auth_cookie($user_id, $remember = false, $secure = '') {
 	}
 
 	$wp_auth_object->set_auth_cookie( $user_id, $expiration, $expire, $scheme );
+	$wp_auth_object->set_auth_cookie( $user_id, $expiration, $expire, 'logged_in' );
 }
 endif;
 

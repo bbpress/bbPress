@@ -735,7 +735,8 @@ if ( !class_exists( 'WP_Auth' ) ) {
 	$cookies['secure_auth'][] = array(
 		'domain' => $bb->cookiedomain,
 		'path' => $bb->admin_cookie_path,
-		'name' => $bb->secure_auth_cookie
+		'name' => $bb->secure_auth_cookie,
+		'secure' => true
 	);
 	
 	$cookies['auth'][] = array(
@@ -747,7 +748,8 @@ if ( !class_exists( 'WP_Auth' ) ) {
 	$cookies['secure_auth'][] = array(
 		'domain' => $bb->cookiedomain,
 		'path' => $bb->core_plugins_cookie_path,
-		'name' => $bb->secure_auth_cookie
+		'name' => $bb->secure_auth_cookie,
+		'secure' => true
 	);
 	
 	$cookies['auth'][] = array(
@@ -759,7 +761,8 @@ if ( !class_exists( 'WP_Auth' ) ) {
 	$cookies['secure_auth'][] = array(
 		'domain' => $bb->cookiedomain,
 		'path' => $bb->user_plugins_cookie_path,
-		'name' => $bb->secure_auth_cookie
+		'name' => $bb->secure_auth_cookie,
+		'secure' => true
 	);
 	
 	if ($bb->wp_admin_cookie_path) {
@@ -772,7 +775,8 @@ if ( !class_exists( 'WP_Auth' ) ) {
 		$cookies['secure_auth'][] = array(
 			'domain' => $bb->cookiedomain,
 			'path' => $bb->wp_admin_cookie_path,
-			'name' => $bb->secure_auth_cookie
+			'name' => $bb->secure_auth_cookie,
+			'secure' => true
 		);
 	}
 	
@@ -786,7 +790,8 @@ if ( !class_exists( 'WP_Auth' ) ) {
 		$cookies['secure_auth'][] = array(
 			'domain' => $bb->cookiedomain,
 			'path' => $bb->wp_plugins_cookie_path,
-			'name' => $bb->secure_auth_cookie
+			'name' => $bb->secure_auth_cookie,
+			'secure' => true
 		);
 	}
 	
