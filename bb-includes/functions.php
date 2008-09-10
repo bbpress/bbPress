@@ -1507,13 +1507,13 @@ function bb_apply_wp_role_map_to_user( $user ) {
 		return;
 	}
 	
-	if ($wp_roles_map = bb_get_option('wp_roles_map')) {
+	if ($wordpress_roles_map = bb_get_option('wp_roles_map')) {
 		
 		global $bbdb;
 		
-		$bb_roles_map = array_flip($wp_roles_map);
+		$bbpress_roles_map = array_flip($wordpress_roles_map);
 		
-		$wp_userlevel_map = array(
+		$wordpress_userlevel_map = array(
 			'administrator' => 10,
 			'editor' => 7,
 			'author' => 2,
@@ -1521,38 +1521,38 @@ function bb_apply_wp_role_map_to_user( $user ) {
 			'subscriber' => 0
 		);
 		
-		$bb_roles = bb_get_usermeta($user_id, $bbdb->prefix . 'capabilities');
+		$bbpress_roles = bb_get_usermeta($user_id, $bbdb->prefix . 'capabilities');
 		
-		$wp_table_prefix = bb_get_option('wp_table_prefix');
+		$wordpress_table_prefix = bb_get_option('wp_table_prefix');
 		
-		$wp_roles = bb_get_usermeta($user_id, $wp_table_prefix . 'capabilities');
+		$wordpress_roles = bb_get_usermeta($user_id, $wordpress_table_prefix . 'capabilities');
 		
-		if (!$bb_roles && is_array($wp_roles)) {
-			$bb_roles_new = array();
+		if (!$bbpress_roles && is_array($wordpress_roles)) {
+			$bbpress_roles_new = array();
 			
-			foreach ($wp_roles as $wp_role => $wp_role_value) {
-				if ($wp_roles_map[$wp_role] && $wp_role_value) {
-					$bb_roles_new[$wp_roles_map[$wp_role]] = true;
+			foreach ($wordpress_roles as $wordpress_role => $wordpress_role_value) {
+				if ($wordpress_roles_map[$wordpress_role] && $wordpress_role_value) {
+					$bbpress_roles_new[$wordpress_roles_map[$wordpress_role]] = true;
 				}
 			}
 			
-			if (count($bb_roles_new)) {
-				bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', $bb_roles_new );
+			if (count($bbpress_roles_new)) {
+				bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', $bbpress_roles_new );
 			}
 			
-		} elseif (!$wp_roles && is_array($bb_roles)) {
-			$wp_roles_new = array();
+		} elseif (!$wordpress_roles && is_array($bbpress_roles)) {
+			$wordpress_roles_new = array();
 			
-			foreach ($bb_roles as $bb_role => $bb_role_value) {
-				if ($bb_roles_map[$bb_role] && $bb_role_value) {
-					$wp_roles_new[$bb_roles_map[$bb_role]] = true;
-					$wp_userlevels_new[] = $wp_userlevel_map[$bb_roles_map[$bb_role]];
+			foreach ($bbpress_roles as $bbpress_role => $bbpress_role_value) {
+				if ($bbpress_roles_map[$bbpress_role] && $bbpress_role_value) {
+					$wordpress_roles_new[$bbpress_roles_map[$bbpress_role]] = true;
+					$wordpress_userlevels_new[] = $wordpress_userlevel_map[$bbpress_roles_map[$bbpress_role]];
 				}
 			}
 			
-			if (count($wp_roles_new)) {
-				bb_update_usermeta( $user_id, $wp_table_prefix . 'capabilities', $wp_roles_new );
-				bb_update_usermeta( $user_id, $wp_table_prefix . 'user_level', max($wp_userlevels_new) );
+			if (count($wordpress_roles_new)) {
+				bb_update_usermeta( $user_id, $wordpress_table_prefix . 'capabilities', $wordpress_roles_new );
+				bb_update_usermeta( $user_id, $wordpress_table_prefix . 'user_level', max($wordpress_userlevels_new) );
 			}
 			
 		}
