@@ -108,6 +108,9 @@ add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );
 
 add_action('bb_head', 'bb_template_scripts');
 add_action('bb_head', 'wp_print_scripts');
+add_action('bb_head', 'bb_rsd_link');
+add_action('bb_head', 'bb_pingback_link');
+add_action('bb_send_headers', 'bb_pingback_header');
 add_action('bb_admin_print_scripts', 'wp_print_scripts');
 
 add_action('bb_user_has_no_caps', 'bb_give_user_default_role');

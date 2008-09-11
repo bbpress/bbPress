@@ -96,6 +96,27 @@ function bb_head() {
         do_action('bb_head');
 }
 
+/**
+ * Display the link to the Really Simple Discovery service endpoint.
+ *
+ * @link http://archipelago.phrasewise.com/rsd
+ * @since 1.0-beta
+ */
+function bb_rsd_link() {
+	if (bb_get_option('enable_xmlrpc'))
+		echo '<link rel="EditURI" type="application/rsd+xml" title="RSD" href="' . bb_get_uri('xmlrpc.php', 'rsd', BB_URI_CONTEXT_LINK_OTHER + BB_URI_CONTEXT_BB_XMLRPC) . '" />' . "\n";
+}
+
+/**
+ * Display the link to the pingback service endpoint.
+ *
+ * @since 1.0-beta
+ */
+function bb_pingback_link() {
+	if (bb_get_option('enable_pingbacks'))
+		echo '<link rel="pingback" href="' . bb_get_uri('xmlrpc.php', null, BB_URI_CONTEXT_LINK_OTHER + BB_URI_CONTEXT_BB_XMLRPC) . '" />' . "\n";
+}
+
 function profile_menu() {
 	global $user_id, $profile_menu, $self, $profile_page_title;
 	$list  = "<ul id='profile-menu'>";

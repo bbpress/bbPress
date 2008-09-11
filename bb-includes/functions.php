@@ -1839,13 +1839,13 @@ define('BB_URI_CONTEXT_FORM_ACTION',          8);
 define('BB_URI_CONTEXT_IMG_SRC',              16);
 define('BB_URI_CONTEXT_LINK_STYLESHEET_HREF', 32);
 define('BB_URI_CONTEXT_LINK_ALTERNATE_HREF',  64);
-define('BB_URI_CONTEXT_SCRIPT_SRC',           128);
-//define('BB_URI_CONTEXT_*',                    256);    // Reserved for future definitions
+define('BB_URI_CONTEXT_LINK_OTHER',           128);
+define('BB_URI_CONTEXT_SCRIPT_SRC',           256);
 //define('BB_URI_CONTEXT_*',                    512);    // Reserved for future definitions
 define('BB_URI_CONTEXT_BB_FEED',              1024);
 define('BB_URI_CONTEXT_BB_USER_FORMS',        2048);
 define('BB_URI_CONTEXT_BB_ADMIN',             4096);
-//define('BB_URI_CONTEXT_*',                    8192);   // Reserved for future definitions
+define('BB_URI_CONTEXT_BB_XMLRPC',            8192);
 //define('BB_URI_CONTEXT_*',                    16384);  // Reserved for future definitions
 //define('BB_URI_CONTEXT_*',                    32768);  // Reserved for future definitions
 //define('BB_URI_CONTEXT_*',                    65536);  // Reserved for future definitions
@@ -2444,6 +2444,11 @@ function bb_send_headers() {
 		nocache_headers();
 	@header('Content-Type: ' . bb_get_option( 'html_type' ) . '; charset=' . bb_get_option( 'charset' ));
 	do_action( 'bb_send_headers' );
+}
+
+function bb_pingback_header() {
+	if (bb_get_option('enable_pingbacks'))
+		@header('X-Pingback: '. bb_get_uri('xmlrpc.php', null, BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_XMLRPC));
 }
 
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)

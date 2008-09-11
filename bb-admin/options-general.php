@@ -5,6 +5,16 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	
 	bb_check_admin_referer( 'options-general-update' );
 	
+	// Deal with xmlrpc checkbox when it isn't checked
+	if (!isset($_POST['enable_xmlrpc'])) {
+		$_POST['enable_xmlrpc'] = false;
+	}
+	
+	// Deal with pingbacks checkbox when it isn't checked
+	if (!isset($_POST['enable_pingbacks'])) {
+		$_POST['enable_pingbacks'] = false;
+	}
+	
 	// Deal with avatars checkbox when it isn't checked
 	if (!isset($_POST['avatars_show'])) {
 		$_POST['avatars_show'] = false;
@@ -149,6 +159,30 @@ bb_get_admin_header();
 				<p><?php printf(__('Output: <strong>%s</strong>'), bb_datetime_format_i18n( bb_current_time(), 'date' )); ?></p>
 				<p><?php _e('Click "Update settings" to update sample output.') ?></p>
 				<p><?php _e('<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.'); ?></p>
+			</div>
+		</div>
+	</fieldset>
+	<fieldset>
+		<legend><?php _e('Remote publishing and Pingbacks'); ?></legend>
+		<p>
+			<?php _e('How do we describe this?'); ?>
+		</p>
+		<div>
+			<label for="enable_xmlrpc">
+				<?php _e('Enable XML-RPC') ?>
+			</label>
+			<div>
+				<input type="checkbox" class="checkbox" name="enable_xmlrpc" id="enable_xmlrpc" value="1"<?php checked( bb_get_option('enable_xmlrpc'), 1 ); ?> />
+				<?php _e('Allows remote publishing and management via the bbPress <a href="http://codex.wordpress.org/Glossary#XML-RPC">XML-RPC</a> publishing protocol.'); ?>
+			</div>
+		</div>
+		<div>
+			<label for="enable_pingbacks">
+				<?php _e('Enable Pingbacks') ?>
+			</label>
+			<div>
+				<input type="checkbox" class="checkbox" name="enable_pingbacks" id="enable_pingbacks" value="1"<?php checked( bb_get_option('enable_pingbacks'), 1 ); ?> />
+				<?php _e('Allows sending and receiving of <a href="http://codex.wordpress.org/Glossary#PingBack">pingbacks</a>.'); ?>
 			</div>
 		</div>
 	</fieldset>
