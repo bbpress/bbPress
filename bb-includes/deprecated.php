@@ -368,7 +368,7 @@ endif;
 if ( !function_exists( 'get_tag_by_name' ) ) :
 function get_tag_by_name( $tag ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_get_tag_by_name');
-	return bb_get_tag_by_name( $tag );
+	return bb_get_tag( $tag );
 }
 endif;
 

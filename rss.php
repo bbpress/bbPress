@@ -101,7 +101,7 @@ if ( !$bb_db_override ) {
 			break;
 		
 		case 'tag':
-			if ( !$tag = bb_get_tag_by_name( $feed_id ) )
+			if ( !$tag = bb_get_tag( $feed_id ) )
 				die();
 			if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
 				die();

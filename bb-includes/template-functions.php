@@ -1220,7 +1220,7 @@ function new_topic( $args = null ) {
 
 	if ( $forum && $forum = get_forum( $forum ) )
 		$url = get_forum_link( $forum->forum_id ) . '#postform';
-	elseif ( $tag && ( ( is_numeric($tag) && $tag = bb_get_tag( $tag ) ) || $tag = bb_get_tag_by_name( $tag ) ) )
+	elseif ( $tag && $tag = bb_get_tag( $tag ) )
 		$url = bb_get_tag_link( $tag->tag ) . '#postform';
 	elseif ( is_forum() || is_bb_tag() )
 		$url = '#postform';
@@ -2158,7 +2158,10 @@ function bb_tag_link( $id = 0, $page = 1 ) {
 function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
 	global $tag;
 	if ( $tag_name )
-		$_tag = bb_get_tag_by_name( $tag_name );
+		if ( is_object($tag_name) )
+			$_tag = $tag_name;
+		else
+			$_tag = bb_get_tag( $tag_name );
 	else
 		$_tag =& $tag;
 
@@ -2204,7 +2207,10 @@ function bb_get_tag_rss_link( $tag_id = 0, $context = 0 ) {
 	global $tag;
 	$tag_id = (int) $tag_id;
 	if ( $tag_id )
-		$_tag = bb_get_tag( $tag_id );
+		if ( is_object($tag_id) )
+			$_tag = $tag_id;
+		else
+			$_tag = bb_get_tag( $tag_id );
 	else
 		$_tag =& $tag;
 
@@ -2402,7 +2408,7 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 
 	foreach ( (array) $tags as $tag ) {
 		$counts{$tag->raw_tag} = $tag->tag_count;
-		$taglinks{$tag->raw_tag} = bb_get_tag_link( $tag->tag );
+		$taglinks{$tag->raw_tag} = bb_get_tag_link( $tag );
 	}
 
 	$min_count = min($counts);

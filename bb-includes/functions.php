@@ -2560,7 +2560,7 @@ function bb_repermalink() {
 			else {
 				global $tag, $tag_name;
 				$tag_name = $id;
-				$tag = bb_get_tag_by_name( $tag_name );
+				$tag = bb_get_tag( $tag_name );
 				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;
@@ -3182,12 +3182,10 @@ function bb_related_tags( $_tag = false, $number = 40 ) {
 	return array();
 
 	global $bbdb, $tag;
-	if ( is_numeric($_tag) )
-		$_tag = bb_get_tag( $_tag );
-	elseif ( is_string($_tag) )
-		$_tag = bb_get_tag_by_name( $_tag );
-	elseif ( false === $_tag )
+	if ( false === $_tag )
 		$_tag = $tag;
+	else
+		$_tag = bb_get_tag( $_tag );
 
 	if ( !$_tag )
 		return false;
