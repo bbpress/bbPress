@@ -11,8 +11,8 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	}
 	
 	// Deal with pingbacks checkbox when it isn't checked
-	if (!isset($_POST['enable_pingbacks'])) {
-		$_POST['enable_pingbacks'] = false;
+	if (!isset($_POST['enable_pingback'])) {
+		$_POST['enable_pingback'] = false;
 	}
 	
 	// Deal with avatars checkbox when it isn't checked
@@ -177,11 +177,11 @@ bb_get_admin_header();
 			</div>
 		</div>
 		<div>
-			<label for="enable_pingbacks">
+			<label for="enable_pingback">
 				<?php _e('Enable Pingbacks') ?>
 			</label>
 			<div>
-				<input type="checkbox" class="checkbox" name="enable_pingbacks" id="enable_pingbacks" value="1"<?php checked( bb_get_option('enable_pingbacks'), 1 ); ?> />
+				<input type="checkbox" class="checkbox" name="enable_pingback" id="enable_pingback" value="1"<?php checked( bb_get_option('enable_pingback'), 1 ); ?> />
 				<?php _e('Allows sending and receiving of <a href="http://codex.wordpress.org/Glossary#PingBack">pingbacks</a>.'); ?>
 			</div>
 		</div>

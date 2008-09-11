@@ -314,6 +314,27 @@ function get_topic( $id, $cache = true ) {
 	return $topic;
 }
 
+function bb_get_topic_from_uri( $uri ) {
+	// Extract the topic id or slug of the uri
+	if ( 'topic' === get_path(0, false, $uri) ) {
+		$topic_id_or_slug = get_path(1, false, $uri);
+	} else {
+		if ($parsed_uri = parse_url($uri)) {
+			if (preg_match('@/topic\.php$@'  ,$parsed_uri['path'])) {
+				$args = wp_parse_args($parsed_uri['query']);
+				if (isset($args['id'])) {
+					$topic_id_or_slug = $args['id'];
+				}
+			}
+		}
+	}
+
+	if ( !$topic_id_or_slug )
+		return false;
+
+	return get_topic( $topic_id_or_slug );
+}
+
 function get_latest_topics( $args = null ) {
 	$defaults = array( 'forum' => false, 'page' => 1, 'exclude' => false, 'number' => false );
 	if ( is_numeric( $args ) )
@@ -2447,7 +2468,7 @@ function bb_send_headers() {
 }
 
 function bb_pingback_header() {
-	if (bb_get_option('enable_pingbacks'))
+	if (bb_get_option('enable_pingback'))
 		@header('X-Pingback: '. bb_get_uri('xmlrpc.php', null, BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_XMLRPC));
 }
 

@@ -113,7 +113,7 @@ function bb_rsd_link() {
  * @since 1.0-beta
  */
 function bb_pingback_link() {
-	if (bb_get_option('enable_pingbacks'))
+	if (bb_get_option('enable_pingback'))
 		echo '<link rel="pingback" href="' . bb_get_uri('xmlrpc.php', null, BB_URI_CONTEXT_LINK_OTHER + BB_URI_CONTEXT_BB_XMLRPC) . '" />' . "\n";
 }
 
