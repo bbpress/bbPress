@@ -17,10 +17,8 @@ RewriteBase <?php bb_option( 'path' ); ?>
 
 RewriteRule ^forum/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>forum.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^forum/([^/]+)/?$ <?php bb_option( 'path' ); ?>forum.php?id=$1 [L,QSA]
-RewriteRule ^forum/?$ <?php bb_option( 'path' ); ?> [R,L]
 RewriteRule ^topic/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>topic.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^topic/([^/]+)/?$ <?php bb_option( 'path' ); ?>topic.php?id=$1 [L,QSA]
-RewriteRule ^topic/?$ <?php bb_option( 'path' ); ?> [R,L]
 RewriteRule ^tags/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>tags.php?tag=$1&page=$2 [L,QSA]
 RewriteRule ^tags/([^/]+)/?$ <?php bb_option( 'path' ); ?>tags.php?tag=$1 [L,QSA]
 RewriteRule ^tags/?$ <?php bb_option( 'path' ); ?>tags.php [L,QSA]
@@ -39,4 +37,7 @@ RewriteRule ^rss/topic/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?topic=$1 
 RewriteRule ^rss/tags/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?tag=$1 [L,QSA]
 RewriteRule ^rss/profile/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?profile=$1 [L,QSA]
 RewriteRule ^rss/view/([^/]+)/?$ <?php bb_option( 'path' ); ?>rss.php?view=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ <?php bb_option( 'path' ); ?>index.php [L]
 </IfModule>

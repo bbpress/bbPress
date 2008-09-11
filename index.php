@@ -2,6 +2,8 @@
 
 require('./bb-load.php');
 
+bb_repermalink();
+
 $bb_db_override = false;
 do_action( 'bb_index.php_pre_db' );
 

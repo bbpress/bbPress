@@ -2473,6 +2473,10 @@ function bb_pingback_header() {
 		@header('X-Pingback: '. bb_get_uri('xmlrpc.php', null, BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_XMLRPC));
 }
 
+function bb_404_header() {
+	@header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+}
+
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
 function bb_repermalink() {
 	global $page;
@@ -2489,6 +2493,10 @@ function bb_repermalink() {
 	$id = apply_filters( 'bb_repermalink', $id );
 
 	switch ($location) {
+		case 'front-page':
+			$permalink = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+			$issue_404 = true;
+			break;
 		case 'forum-page':
 			if (empty($id)) {
 				$permalink = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
@@ -2598,7 +2606,7 @@ function bb_repermalink() {
 	$domain = preg_replace('/^https?/', '', $domain);
 	$check = preg_replace( '|^.*' . trim($domain, ' /' ) . '|', '', $permalink, 1 );
 
-	if ( 1 === bb_get_option( 'debug' ) ) :
+	if ( 1 === bb_get_option( 'debug' ) ) {
 		echo "<table>\n<tr><td>". __('REQUEST_URI') .":</td><td>";
 		var_dump($uri);
 		echo "</td></tr>\n<tr><td>". __('should be') .":</td><td>";
@@ -2608,12 +2616,17 @@ function bb_repermalink() {
 		echo "</td></tr>\n<tr><td>". __('PATH_INFO') .":</td><td>";
 		var_dump($_SERVER['PATH_INFO']);
 		echo "</td></tr>\n</table>";
-	else :
+	} else {
 		if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
-			wp_redirect( $permalink );
+			if ( $issue_404 ) {
+				bb_404_header();
+				bb_load_template( '404.php' );
+			} else {
+				wp_redirect( $permalink );
+			}
 			exit;
 		}
-	endif;
+	}
 	do_action( 'post_permalink', $permalink );
 }
 
