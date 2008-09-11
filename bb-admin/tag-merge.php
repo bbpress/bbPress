@@ -9,7 +9,7 @@ $tag = $_POST['tag'];
 
 bb_check_admin_referer( 'merge-tag_' . $old_id );
 
-if ( ! $tag = bb_get_tag_by_name( $tag ) )
+if ( ! $tag = bb_get_tag( $tag ) )
 	bb_die(__('Tag specified not found.'));
 
 if ( ! bb_get_tag( $old_id ) )
