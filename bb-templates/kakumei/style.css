@@ -364,14 +364,67 @@ form.login input#remember {
 
 #thread li.alt.deleted .threadpost { background-color: #ff9999; }
 
+
+
+#thread li.pingback {
+	margin-left: 140px;
+	margin-top: 2px;
+	margin-bottom: 2px;
+	background-color: #e4f3e1;
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	border: 0.2em solid #e4f3e1;
+}
+
+#thread li.pingback.alt {
+	background-color: #fff;
+}
+
+#thread li.pingback .threadpost {
+	background-color: #e4f3e1;
+}
+
+#thread li.pingback.alt .threadpost {
+	background-color: #fff;
+}
+
+#thread li.pingback .threadauthor {
+	float: none;
+	padding: 0.9em 0.9em 0;
+	width: auto;
+}
+
+#thread li.pingback .threadauthor strong {
+	font-weight: normal;
+}
+
+#thread li.pingback .threadauthor small {
+	color: #333;
+}
+
+#thread li.pingback .threadpost {
+	margin-left: 0;
+	padding: 0.5em 0.9em 1.5em;
+}
+
+#thread li.pingback .post {
+	font-style: italic;
+	color: #333;
+	margin: 0 0 0 2.4em;
+	padding: 0 0 0 0.8em;
+	border-left: 3px dotted #ccc;
+}
+
 #thread .post {
 	_height: 90px; /* Hack to fix broken .alt coloring in IE6 */
 }
 
 #thread .post blockquote {
-	margin: 0 0 0 4ex;
-	padding: 0 0 0 1ex;
-	border-left: 5px solid #ccc;
+	margin: 0 0 0 2.4em;
+	padding: 0 0 0 0.8em;
+	border-left: 3px solid #ccc;
 }
 
 #thread .post li { clear:none; }

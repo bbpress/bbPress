@@ -1325,6 +1325,16 @@ function post_anchor_link( $force_full = false ) {
 		echo '#post-' . get_post_id();
 }
 
+function bb_post_meta( $key, $post_id = 0 ) {
+	echo bb_get_post_meta( $key, $post_id );
+}
+
+function bb_get_post_meta( $key, $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	if ( isset($bb_post->$key) )
+		return $bb_post->$key;
+}
+
 
 function post_author( $post_id = 0 ) {
 	echo apply_filters('post_author', get_post_author( $post_id ) );
@@ -1333,12 +1343,16 @@ function post_author( $post_id = 0 ) {
 function get_post_author( $post_id = 0 ) {
 	if ( $user = bb_get_user( get_post_author_id( $post_id ) ) )
 		return apply_filters( 'get_post_author', $user->display_name, $user->ID );
+	elseif ( $title = bb_get_post_meta( 'pingback_title' ) )
+		return apply_filters( 'bb_get_pingback_title', $title );
 	else
 		return __('Anonymous');
 }
 
 function post_author_link( $post_id = 0 ) {
 	if ( $link = get_user_link( get_post_author_id( $post_id ) ) ) {
+		echo '<a href="' . attribute_escape( $link ) . '">' . get_post_author( $post_id ) . '</a>';
+	} elseif ( $link = bb_get_post_meta( 'pingback_uri' )) {
 		echo '<a href="' . attribute_escape( $link ) . '">' . get_post_author( $post_id ) . '</a>';
 	} else {
 		post_author( $post_id );
@@ -1437,11 +1451,15 @@ function bb_get_post_edit_link( $post_id = 0 ) {
 
 function post_del_class( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
-	switch ( $bb_post->post_status ) :
-	case 0 : return ''; break;
-	case 1 : return 'deleted'; break;
-	default: return apply_filters( 'post_del_class', $bb_post->post_status, $bb_post->post_id );
-	endswitch;
+	$classes = array();
+	if ( bb_get_post_meta( 'pingback_uri', $post_id ) )
+		$classes[] = 'pingback';
+	if ( $bb_post->post_status == 1 )
+		$classes[] = 'deleted';
+	if (count($classes))
+		return join(' ', $classes);
+	elseif ( $bb_post->post_status != 0 )
+		return apply_filters( 'post_del_class', $bb_post->post_status, $bb_post->post_id );
 }
 
 function post_delete_link( $post_id = 0 ) {
@@ -1490,9 +1508,12 @@ function post_author_title_link( $post_id = 0 ) {
 
 function get_post_author_title_link( $post_id = 0 ) {
 	$title = get_post_author_title( $post_id );
-	if ( false === $title )
-		$r = __('Unregistered'); // This should never happen
-	else
+	if ( false === $title ) {
+		if ( bb_get_post_meta( 'pingback_uri', $post_id ) )
+			$r = __('PingBack');
+		else
+			$r = __('Unregistered'); // This should never happen
+	} else
 		$r = '<a href="' . attribute_escape( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $title . '</a>';
 
 	echo apply_filters( 'get_post_author_title_link', $r, get_post_id( $post_id ) );
@@ -1501,9 +1522,12 @@ function get_post_author_title_link( $post_id = 0 ) {
 function post_author_type( $post_id = 0 ) {
 	$id = get_post_author_id( $post_id );
 	$type = get_user_type( $id );
-	if ( false === $type )
-		$r = __('Unregistered'); // This should never happen
-	else
+	if ( false === $type ) {
+		if ( bb_get_post_meta( 'pingback_uri', $post_id ) )
+			$r = __('PingBack');
+		else
+			$r = __('Unregistered'); // This should never happen
+	} else
 		$r = '<a href="' . attribute_escape( get_user_profile_link( $id ) ) . '">' . $type . '</a>';
 
 	echo apply_filters( 'post_author_type', $r );

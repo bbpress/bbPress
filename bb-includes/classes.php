@@ -91,6 +91,8 @@ class BB_Query {
 		if ( false === $this->found_rows && $this->query_vars['count'] ) // handles FOUND_ROWS() or COUNT(*)
 			$this->found_rows = bb_count_last_query( $this->request );
 		if ( 'post' == $this->type ) {
+			if ( $this->query_vars['append_meta'] )
+				$this->results = bb_append_meta( $this->results, 'post' );
 			if ( $this->query_vars['cache_users'] )
 				post_author_cache( $this->results );
 			if ( $this->query_vars['cache_topics'] )
