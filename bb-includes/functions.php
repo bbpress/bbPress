@@ -1868,7 +1868,7 @@ define('BB_URI_CONTEXT_BB_FEED',              1024);
 define('BB_URI_CONTEXT_BB_USER_FORMS',        2048);
 define('BB_URI_CONTEXT_BB_ADMIN',             4096);
 define('BB_URI_CONTEXT_BB_XMLRPC',            8192);
-//define('BB_URI_CONTEXT_*',                    16384);  // Reserved for future definitions
+define('BB_URI_CONTEXT_WP_HTTP_REQUEST',      16384);
 //define('BB_URI_CONTEXT_*',                    32768);  // Reserved for future definitions
 //define('BB_URI_CONTEXT_*',                    65536);  // Reserved for future definitions
 //define('BB_URI_CONTEXT_*',                    131072); // Reserved for future definitions

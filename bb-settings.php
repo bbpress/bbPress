@@ -173,6 +173,10 @@ require( BACKPRESS_PATH . 'functions.compat.php' );
 if ( !class_exists( 'WP_Error' ) )
 	require( BACKPRESS_PATH . 'class.wp-error.php' );
 
+// WP_Http
+if ( !class_exists( 'WP_Http' ) )
+	require( BACKPRESS_PATH . 'class.wp-http.php' );
+
 
 
 /**
@@ -274,6 +278,14 @@ if ( !class_exists( 'WP_Object_Cache' ) ) {
 }
 if ( !isset($wp_object_cache) )
 	wp_cache_init();
+
+
+
+/**
+ * Load mapping class for BackPress to store options
+ */
+require( BACKPRESS_PATH . 'interface.bp-options.php' );
+require( BB_PATH . BB_INC . 'class.bp-options.php' );
 
 
 
@@ -978,6 +990,17 @@ register_shutdown_function('bb_shutdown_action_hook');
  */
 
 bb_current_user();
+
+
+
+/**
+ * Initialise CRON
+ */
+
+if ( !function_exists('wp_schedule_single_event') )
+	require( BACKPRESS_PATH . 'functions.wp-cron.php' );
+if ((!defined('DOING_CRON') || !DOING_CRON))
+	wp_cron();
 
 
 
