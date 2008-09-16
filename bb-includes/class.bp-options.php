@@ -23,6 +23,9 @@ class BP_Options implements BP_Options_Interface
 			case 'charset':
 				return bb_get_option($option);
 				break;
+			case 'wp_http_version':
+				return 'bbPress/' . bb_get_option('version');
+				break;
 			default:
 				return bb_get_option(BP_Options::prefix() . $option);
 				break;
