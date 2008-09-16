@@ -395,6 +395,7 @@ if ( BB_INSTALLING ) {
 require( BB_PATH . BB_INC . 'formatting-functions.php');
 require( BB_PATH . BB_INC . 'template-functions.php');
 require( BB_PATH . BB_INC . 'capabilities.php');
+require( BB_PATH . BB_INC . 'class.bb-pingbacks.php');
 require( BB_PATH . BB_INC . 'cache.php'); // Deprecating
 require( BB_PATH . BB_INC . 'deprecated.php');
 

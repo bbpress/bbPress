@@ -25,7 +25,7 @@ if ( !isset( $HTTP_RAW_POST_DATA ) ) {
 if ( isset($HTTP_RAW_POST_DATA) )
 	$HTTP_RAW_POST_DATA = trim($HTTP_RAW_POST_DATA);
 
-/** Include the bootstrap for setting up WordPress environment */
+/** Include the bootstrap for setting up bbPress environment */
 require('./bb-load.php');
 
 if ( isset( $_GET['rsd'] ) ) { // http://archipelago.phrasewise.com/rsd

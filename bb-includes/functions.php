@@ -980,6 +980,11 @@ function bb_insert_post( $args = null ) {
 
 	do_action( 'bb_insert_post', $post_id, $args, compact( array_keys($args) ) ); // post_id, what was passed, what was used
 
+	if (bb_get_option('enable_pingback')) {
+		bb_update_postmeta($post_id, 'pingback_queued', '');
+		wp_schedule_single_event(time(), 'do_pingbacks');
+	}
+
 	return $post_id;
 }
 

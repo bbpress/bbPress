@@ -115,6 +115,8 @@ add_action('bb_admin_print_scripts', 'wp_print_scripts');
 
 add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 
+add_action('do_pingbacks', array('BB_Pingbacks', 'send_all'), 10, 1);
+
 function bb_register_default_views() {
 	// no posts (besides the first one), older than 2 hours
 	bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1, 'started' => '<' . gmdate( 'YmdH', time() - 7200 ) ) );
@@ -125,10 +127,5 @@ add_action( 'bb_init', 'bb_register_default_views' );
 if ( bb_get_option( 'wp_table_prefix' ) ) {
 	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
 }
-
-// Defines
-
-if ( !defined( 'BB_MAIL_EOL' ) )
-	define( 'BB_MAIL_EOL', "\n" );
 
 unset($filters);
