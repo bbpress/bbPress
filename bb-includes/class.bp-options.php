@@ -20,6 +20,9 @@ class BP_Options implements BP_Options_Interface
 			case 'cron_check':
 				return wp_hash('187425');
 				break;
+			case 'charset':
+				return bb_get_option($option);
+				break;
 			default:
 				return bb_get_option(BP_Options::prefix() . $option);
 				break;
