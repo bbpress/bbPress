@@ -2473,10 +2473,6 @@ function bb_pingback_header() {
 		@header('X-Pingback: '. bb_get_uri('xmlrpc.php', null, BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_XMLRPC));
 }
 
-function bb_404_header() {
-	@header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-}
-
 // Inspired by and adapted from Yung-Lung Scott YANG's http://scott.yang.id.au/2005/05/permalink-redirect/ (GPL)
 function bb_repermalink() {
 	global $page;
@@ -2619,7 +2615,7 @@ function bb_repermalink() {
 	} else {
 		if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
 			if ( $issue_404 ) {
-				bb_404_header();
+				status_header( 404 );
 				bb_load_template( '404.php' );
 			} else {
 				wp_redirect( $permalink );
