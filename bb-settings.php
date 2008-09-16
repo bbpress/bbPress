@@ -173,10 +173,6 @@ require( BACKPRESS_PATH . 'functions.compat.php' );
 if ( !class_exists( 'WP_Error' ) )
 	require( BACKPRESS_PATH . 'class.wp-error.php' );
 
-// WP_Http
-if ( !class_exists( 'WP_Http' ) )
-	require( BACKPRESS_PATH . 'class.wp-http.php' );
-
 
 
 /**
@@ -286,6 +282,14 @@ if ( !isset($wp_object_cache) )
  */
 require( BACKPRESS_PATH . 'interface.bp-options.php' );
 require( BB_PATH . BB_INC . 'class.bp-options.php' );
+
+
+
+/**
+ * Load WP_Http class
+ */
+if ( !class_exists( 'WP_Http' ) )
+	require( BACKPRESS_PATH . 'class.wp-http.php' );
 
 
 
