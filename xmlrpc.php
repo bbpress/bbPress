@@ -298,8 +298,6 @@ class bb_xmlrpc_server extends IXR_Server {
 
 	/* pingback.ping gets a pingback and registers it */
 	function pingback_ping($args) {
-		global $wpdb;
-
 		do_action('bb_xmlrpc_call', 'pingback.ping');
 
 		$this->escape($args);
