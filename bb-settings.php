@@ -280,7 +280,6 @@ if ( !isset($wp_object_cache) )
 /**
  * Load mapping class for BackPress to store options
  */
-require( BACKPRESS_PATH . 'interface.bp-options.php' );
 require( BB_PATH . BB_INC . 'class.bp-options.php' );
 
 

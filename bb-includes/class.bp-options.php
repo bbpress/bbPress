@@ -6,7 +6,7 @@
  *
  * @package bbPress
  **/
-class BP_Options implements BP_Options_Interface
+class BP_Options
 {
 	function prefix() {
 		return 'bp_bbpress_';
