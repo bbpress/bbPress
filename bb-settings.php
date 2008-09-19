@@ -852,7 +852,7 @@ if ( !class_exists( 'WP_Styles' ) ) {
 if ( !class_exists( 'WP_Taxonomy' ) )
 	require( BACKPRESS_PATH . 'class.wp-taxonomy.php' );
 if ( !class_exists( 'BB_Taxonomy' ) )
-	require( BB_PATH . BB_INC . 'class-bb-taxonomy.php' );
+	require( BB_PATH . BB_INC . 'class.bb-taxonomy.php' );
 if ( !isset($wp_taxonomy_object) ) { // Clean slate
 	$wp_taxonomy_object = new BB_Taxonomy( $bbdb );
 } elseif ( !is_a($wp_taxonomy_object, 'BB_Taxonomy') ) { // exists, but it's not good enough, translate it
