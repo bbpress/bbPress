@@ -267,6 +267,12 @@ require( BB_PATH . BB_INC . 'classes.php');
 if ( !function_exists( 'add_filter' ) )
 	require( BACKPRESS_PATH . 'functions.plugin-api.php' );
 
+// Shortcodes API
+if ( !function_exists( 'add_shortcode' ) )
+	require( BACKPRESS_PATH . 'functions.shortcodes.php' );
+else
+	remove_all_shortcodes();
+
 // Object Cache
 if ( !class_exists( 'WP_Object_Cache' ) ) {
 	require( BACKPRESS_PATH . 'class.wp-object-cache.php' );
@@ -397,6 +403,8 @@ require( BB_PATH . BB_INC . 'capabilities.php');
 require( BB_PATH . BB_INC . 'class.bb-pingbacks.php');
 require( BB_PATH . BB_INC . 'cache.php'); // Deprecating
 require( BB_PATH . BB_INC . 'deprecated.php');
+
+
 
 /**
  * Old cache global object for backwards compatibility
