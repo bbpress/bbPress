@@ -720,3 +720,90 @@ function bb_maybe_add_column( $table_name, $column_name, $create_ddl ) {
 	bb_log_deprecated('function', __FUNCTION__, 'no alternative');
 	return false;
 }
+
+class BB_Cache {
+	var $use_cache = false;
+	var $flush_freq = 100;
+	var $flush_time = 172800; // 2 days
+
+	function get_user( $user_id, $use_cache = true ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_get_user');
+		return bb_get_user( $user_id );
+	}
+
+	function append_current_user_meta( $user ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_append_meta');
+		return bb_append_meta( $user, 'user' );
+	}
+
+	function append_user_meta( $user ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_append_meta');
+		return bb_append_meta( $user, 'user' );
+	}
+
+	// NOT bbdb::prepared
+	function cache_users( $ids, $use_cache = true ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_cache_users');
+		return bb_cache_users( $ids );
+	}
+
+	// NOT bbdb::prepared
+	function get_topic( $topic_id, $use_cache = true ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'get_topic');
+		return get_topic( $topic_id, $use_cache );
+	}
+
+	// NOT bbdb::prepared
+	function get_thread( $topic_id, $page = 1, $reverse = 0 ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'get_thread');
+		return get_thread( $topic_id, $page, $reverse );
+	}
+
+	// NOT bbdb::prepared
+	function cache_posts( $query ) { // soft cache
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_cache_posts');
+		return bb_cache_posts( $query );
+	}
+
+	// NOT bbdb::prepared
+	function get_forums() {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'get_forums');
+		return get_forums();
+	}
+
+	function get_forum( $forum_id ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'get_forum');
+		return get_forum( $forum_id );
+	}
+
+	function read_cache($file) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+		return false;
+	}
+
+	function write_cache($file, $data) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+		return false;
+	}
+
+	function flush_one( $type, $id = false, $page = 0 ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+		return true;
+	}
+
+	function flush_many( $type, $id, $start = 0 ) {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+		return true;
+	}
+
+	function flush_old() {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+		return true;
+	}
+
+	function flush_all() {
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+		return true;
+	}
+
+}
