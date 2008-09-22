@@ -354,11 +354,11 @@ class bb_xmlrpc_server extends IXR_Server {
 
 		if ($forum_id) {
 			// First check the requested forum exists
-			if (!get_forum($forum_id)) {
+			if (!$forum = get_forum($forum_id)) {
 				return new IXR_Error(404, __('The requested parent forum does not exist.'));
 			}
 			// Add the specific forum to the arguments
-			$get_forums_args['child_of'] = $forum_id;
+			$get_forums_args['child_of'] = $forum->forum_id;
 		}
 
 		if ($depth) {
@@ -375,9 +375,9 @@ class bb_xmlrpc_server extends IXR_Server {
 		// Get the forums
 		$forums = (array) get_forums($get_forums_args);
 
-		// Return a count of 0 when no forums exist rather than an error
-		if (!$forums) {
-			return 0;
+		// Return an error when no forums exist
+		if ( !$forums || ( isset($forums[0]) && count($forums[0]) === 1 ) ) {
+			return new IXR_Error(404, __('No forums found.'));
 		}
 
 		// Return a count of the forums
@@ -451,11 +451,11 @@ class bb_xmlrpc_server extends IXR_Server {
 
 		if ($forum_id) {
 			// First check the requested forum exists
-			if (!get_forum($forum_id)) {
+			if (!$forum = get_forum($forum_id)) {
 				return new IXR_Error(404, __('The requested parent forum does not exist.'));
 			}
 			// Add the specific forum to the arguments
-			$get_forums_args['child_of'] = $forum_id;
+			$get_forums_args['child_of'] = $forum->forum_id;
 		}
 
 		if ($depth) {
@@ -472,9 +472,9 @@ class bb_xmlrpc_server extends IXR_Server {
 		// Get the forums
 		$forums = (array) get_forums($get_forums_args);
 
-		// Return an empty array when no forums exist rather than an error
-		if (!$forums) {
-			return array();
+		// Return an error when no forums exist
+		if ( !$forums || ( isset($forums[0]) && count($forums[0]) === 1 ) ) {
+			return new IXR_Error(404, __('No forums found.'));
 		} else {
 			// Only include "safe" data in the array
 			$_forums = array();
@@ -575,34 +575,36 @@ class bb_xmlrpc_server extends IXR_Server {
 
 
 	/**
-	 * PingBack functions
-	 * specs on www.hixie.ch/specs/pingback/pingback
+	 * Processes pingback requests
+	 *
+	 * @link http://www.hixie.ch/specs/pingback/pingback
+	 * @return string|object A message of success or an IXR_Error object on failure
 	 **/
-
-	/* pingback.ping gets a pingback and registers it */
-	function pingback_ping($args) {
+	function pingback_ping($args)
+	{
 		do_action('bb_xmlrpc_call', 'pingback.ping');
 
 		$this->escape($args);
 
-		$pagelinkedfrom = $args[0];
-		$pagelinkedto   = $args[1];
+		// No particular need to sanitise
+		$link_from = $args[0];
+		$link_to   = $args[1];
 
-		$title = '';
+		// Tidy up ampersands in the URLs
+		$link_from = str_replace('&amp;', '&', $link_from);
+		$link_to   = str_replace('&amp;', '&', $link_to);
+		$link_to   = str_replace('&', '&amp;', $link_to);
 
-		$pagelinkedfrom = str_replace('&amp;', '&', $pagelinkedfrom);
-		$pagelinkedto = str_replace('&amp;', '&', $pagelinkedto);
-		$pagelinkedto = str_replace('&', '&amp;', $pagelinkedto);
-
-		// Check if the topic linked to is in our site
-		$pos1 = strpos($pagelinkedto, str_replace(array('http://www.','http://','https://www.','https://'), '', bb_get_uri()));
-		if( !$pos1 )
-			return new IXR_Error(0, __('Is there no link to us?'));
+		// Check if the topic linked to is in our site - a little more strict than WordPress, doesn't pull out the www if added
+		if ( !bb_match_domains( $link_to, bb_get_uri() ) ) {
+			// These are not the droids you are looking for
+			return new IXR_Error(0, __('This is not the site you are trying to pingback.'));
+		}
 
 		// Get the topic
-		if ( $topic_to = bb_get_topic_from_uri($pagelinkedto) ) {
+		if ( $topic_to = bb_get_topic_from_uri($link_to) ) {
 			// Topics shouldn't ping themselves
-			if ( $topic_from = bb_get_topic_from_uri($pagelinkedfrom) ) {
+			if ( $topic_from = bb_get_topic_from_uri($link_from) ) {
 				if ( $topic_from->topic_id === $topic_to->topic_id ) {
 					return new IXR_Error(0, __('The source URL and the target URL cannot both point to the same resource.'));
 				}
@@ -611,74 +613,101 @@ class bb_xmlrpc_server extends IXR_Server {
 			return new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
 		}
 
-		bb_logIO("O","(PB) URL='$pagelinkedto' ID='$topic_to->topic_id'");
-
 		// Let's check that the remote site didn't already pingback this entry
 		$query = new BB_Query( 'post', array('topic_id' => $topic_to->topic_id, 'append_meta' => true), 'get_thread' );
 		$posts_to = $query->results;
 		unset($query);
 
-		// Check if we already have a Pingback from this URL
-		foreach ($posts_to as $post)
-			if (isset($post->pingback_uri) && trim($post->pingback_uri) === trim($pagelinkedfrom))
-				return new IXR_Error(48, __('The pingback has already been registered.'));
-		unset($post);
+		// Make sure we have some posts in the topic, this error should never happen really
+		if (!$posts_to || !is_array($posts_to) || !count($posts_to)) {
+			return new IXR_Error(0, __('The specified target topic does not contain any posts.'));
+		}
 
-		// very stupid, but gives time to the 'from' server to publish !
+		// Check if we already have a Pingback from this URL
+		foreach ($posts_to as $post) {
+			if (isset($post->pingback_uri) && trim($post->pingback_uri) === trim($link_from)) {
+				return new IXR_Error(48, __('The pingback has already been registered.'));
+			}
+		}
+		unset($posts_to, $post);
+
+		// Give time for the server sending the pingback to finish publishing it's post.
 		sleep(1);
 
-		// Let's check the remote site
-		$linea = wp_remote_fopen( $pagelinkedfrom );
-		if ( !$linea )
-	  		return new IXR_Error(16, __('The source URL does not exist.'));
+		// Let's check the remote site for valid URL and content
+		$link_from_source = wp_remote_fopen( $link_from );
+		if ( !$link_from_source ) {
+			return new IXR_Error(16, __('The source URL does not exist.'));
+		}
 
-		$linea = apply_filters('bb_pre_remote_source', $linea, $pagelinkedto);
+		// Allow plugins to filter here
+		$link_from_source = apply_filters('bb_pre_remote_source', $link_from_source, $link_to);
 
-		// Work around bug in strip_tags():
-		$linea = str_replace('<!DOC', '<DOC', $linea);
-		$linea = preg_replace( '/[\s\r\n\t]+/', ' ', $linea ); // normalize spaces
-		$linea = preg_replace( "/ <(h1|h2|h3|h4|h5|h6|p|th|td|li|dt|dd|pre|caption|input|textarea|button|body)[^>]*>/", "\n\n", $linea );
+		// Work around bug in strip_tags()
+		$link_from_source = str_replace('<!DOC', '<DOC', $link_from_source);
 
-		preg_match('|<title>([^<]*?)</title>|is', $linea, $matchtitle);
-		$title = $matchtitle[1];
-		if ( empty( $title ) )
+		// Normalize spaces
+		$link_from_source = preg_replace( '/[\s\r\n\t]+/', ' ', $link_from_source );
+
+		// Turn certain elements to double line returns
+		$link_from_source = preg_replace( "/ <(h1|h2|h3|h4|h5|h6|p|th|td|li|dt|dd|pre|caption|input|textarea|button|body)[^>]*>/", "\n\n", $link_from_source );
+
+		// Find the title of the page
+		preg_match('|<title>([^<]*?)</title>|is', $link_from_source, $link_from_title);
+		$link_from_title = $link_from_title[1];
+		if ( empty( $link_from_title ) ) {
 			return new IXR_Error(32, __('We cannot find a title on that page.'));
+		}
 
-		$linea = strip_tags( $linea, '<a>' ); // just keep the tag we need
+		// Strip out all tags except anchors
+		$link_from_source = strip_tags( $link_from_source, '<a>' ); // just keep the tag we need
 
-		$p = explode( "\n\n", $linea );
+		// Split the source into paragraphs
+		$link_from_paragraphs = explode( "\n\n", $link_from_source );
 
-		$preg_target = preg_quote($pagelinkedto);
+		// Prepare the link to search for in preg_match() once here
+		$preg_target = preg_quote($link_to);
 
-		foreach ( $p as $para ) {
-			if ( strpos($para, $pagelinkedto) !== false ) { // it exists, but is it a link?
-				preg_match("|<a[^>]+?".$preg_target."[^>]*>([^>]+?)</a>|", $para, $context);
-
-				// If the URL isn't in a link context, keep looking
-				if ( empty($context) )
+		// Loop through the paragraphs looking for the context for the url
+		foreach ( $link_from_paragraphs as $link_from_paragraph ) {
+			// The url exists
+			if ( strpos($link_from_paragraph, $link_to) !== false ) {
+				// But is it in an anchor tag
+				preg_match(
+					"|<a[^>]+?" . $preg_target . "[^>]*>([^>]+?)</a>|",
+					$link_from_paragraph,
+					$context
+				);
+				// If the URL isn't in an anchor tag, keep looking
+				if ( empty($context) ) {
 					continue;
+				}
 
 				// We're going to use this fake tag to mark the context in a bit
 				// the marker is needed in case the link text appears more than once in the paragraph
-				$excerpt = preg_replace('|\</?wpcontext\>|', '', $para);
+				$excerpt = preg_replace('|\</?wpcontext\>|', '', $link_from_paragraph);
 
-				// prevent really long link text
-				if ( strlen($context[1]) > 100 )
+				// Prevent really long link text
+				if ( strlen($context[1]) > 100 ) {
 					$context[1] = substr($context[1], 0, 100) . '...';
+				}
 
-				$marker = '<wpcontext>'.$context[1].'</wpcontext>';    // set up our marker
-				$excerpt= str_replace($context[0], $marker, $excerpt); // swap out the link for our marker
+				// Set up the marker around the context
+				$marker = '<wpcontext>' . $context[1] . '</wpcontext>';    // set up our marker
+				$excerpt = str_replace($context[0], $marker, $excerpt); // swap out the link for our marker
 				$excerpt = strip_tags($excerpt, '<wpcontext>');        // strip all tags but our context marker
 				$excerpt = trim($excerpt);
 				$preg_marker = preg_quote($marker);
-				$excerpt = preg_replace("|.*?\s(.{0,100}$preg_marker.{0,100})\s.*|s", '$1', $excerpt);
+				$excerpt = preg_replace("|.*?\s(.{0,100}" . $preg_marker . "{0,100})\s.*|s", '$1', $excerpt);
 				$excerpt = strip_tags($excerpt); // YES, again, to remove the marker wrapper
 				break;
 			}
 		}
 
-		if ( empty($context) ) // Link to target not found
+		 // Make sure the link to the target was found in the excerpt
+		if ( empty($context) ) {
 			return new IXR_Error(17, __('The source URL does not contain a link to the target URL, and so cannot be used as a source.'));
+		}
 
 		$excerpt = '[...] ' . wp_specialchars( $excerpt ) . ' [...]';
 		$this->escape($excerpt);
@@ -691,21 +720,27 @@ class bb_xmlrpc_server extends IXR_Server {
 		$post_ID = bb_insert_post($postdata);
 
 		// Post meta data
-		$pagelinkedfrom = str_replace('&', '&amp;', $pagelinkedfrom);
-		$this->escape($pagelinkedfrom);
-		bb_update_postmeta($post_ID, 'pingback_uri', $pagelinkedfrom);
-		$this->escape($title);
-		bb_update_postmeta($post_ID, 'pingback_title', $title);
+		$link_from = str_replace('&', '&amp;', $link_from);
+		$this->escape($link_from);
+		bb_update_postmeta($post_ID, 'pingback_uri', $link_from);
+		$this->escape($link_from_title);
+		bb_update_postmeta($post_ID, 'pingback_title', $link_from_title);
 
 		do_action('bb_pingback_post', $post_ID);
 
-		return sprintf(__('Pingback from %1$s to %2$s registered. Keep the web talking! :-)'), $pagelinkedfrom, $pagelinkedto);
+		return sprintf(__('Pingback from %1$s to %2$s registered. Keep the web talking! :-)'), $link_from, $link_to);
 	}
 
-	/* pingback.extensions.getPingbacks returns an array of URLs
-	that pingbacked the given URL
-	specs on http://www.aquarionics.com/misc/archives/blogite/0198.html */
-	function pingback_extensions_getPingbacks($args) {
+
+
+	/**
+	 * Returns an array of URLs that pingbacked the given URL
+	 *
+	 * @link http://www.aquarionics.com/misc/archives/blogite/0198.html
+	 * @return array The array of URLs that pingbacked the given topic
+	 **/
+	function pingback_extensions_getPingbacks($args)
+	{
 		do_action('bb_xmlrpc_call', 'pingback.extensions.getPingbacks');
 
 		$this->escape($args);
