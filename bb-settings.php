@@ -354,30 +354,6 @@ if ( !BB_INSTALLING && !bb_is_installed() ) {
 	die();
 }
 
-// Make sure the new meta table exists - very ugly
-// TODO: consider seperating into external upgrade script for 1.0
-$bbdb->suppress_errors();
-if ( !BB_INSTALLING && !bb_get_option_from_db( 'bb_db_version' ) ) {
-	$meta_exists = $bbdb->query("SELECT * FROM $bbdb->meta LIMIT 1");
-	if (!$meta_exists) {
-		$topicmeta_exists = $bbdb->query("SELECT * FROM $bbdb->topicmeta LIMIT 1");
-		if ($topicmeta_exists) {
-			require('bb-admin/upgrade-schema.php');
-			// Create the meta table
-			$bbdb->query($bb_queries['meta']);
-			// Copy options
-			$bbdb->query("INSERT INTO `$bbdb->meta` (`meta_key`, `meta_value`) SELECT `meta_key`, `meta_value` FROM `$bbdb->topicmeta` WHERE `topic_id` = 0;");
-			// Copy topic meta
-			$bbdb->query("INSERT INTO `$bbdb->meta` (`object_id`, `meta_key`, `meta_value`) SELECT `topic_id`, `meta_key`, `meta_value` FROM `$bbdb->topicmeta` WHERE `topic_id` != 0;");
-			// Entries with an object_id are topic meta at this stage
-			$bbdb->query("UPDATE `$bbdb->meta` SET `object_type` = 'bb_topic' WHERE `object_id` != 0");
-		}
-		unset($topicmeta_exists);
-	}
-	unset($meta_exists);
-}
-$bbdb->suppress_errors(false);
-
 // Setup some variables in the $bb class if they don't exist - some of these are deprecated
 foreach ( array('use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true, 'email_login' => false) as $o => $oo)
 	if ( !isset($bb->$o) )

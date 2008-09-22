@@ -1790,10 +1790,30 @@ function bb_get_form_option( $option ) {
 function bb_cache_all_options() { // Don't use the return value; use the API.  Only returns options stored in DB.
 	global $bbdb;
 	$results = $bbdb->get_results( "SELECT meta_key, meta_value FROM $bbdb->meta WHERE object_type = 'bb_option'" );
-	
-	if ( $results )
+
+	if (!$results || !is_array($results) || !count($results)) {
+		// Let's assume that the options haven't been populated from the old topicmeta table
+		if ( !BB_INSTALLING ) {
+			$topicmeta_exists = $bbdb->query("SELECT * FROM $bbdb->topicmeta LIMIT 1");
+			if ($topicmeta_exists) {
+				require_once(BB_PATH . 'bb-admin/upgrade-schema.php');
+				// Create the meta table
+				$bbdb->query($bb_queries['meta']);
+				// Copy options
+				$bbdb->query("INSERT INTO `$bbdb->meta` (`meta_key`, `meta_value`) SELECT `meta_key`, `meta_value` FROM `$bbdb->topicmeta` WHERE `topic_id` = 0;");
+				// Copy topic meta
+				$bbdb->query("INSERT INTO `$bbdb->meta` (`object_id`, `meta_key`, `meta_value`) SELECT `topic_id`, `meta_key`, `meta_value` FROM `$bbdb->topicmeta` WHERE `topic_id` != 0;");
+				// Entries with an object_id are topic meta at this stage
+				$bbdb->query("UPDATE `$bbdb->meta` SET `object_type` = 'bb_topic' WHERE `object_id` != 0");
+			}
+			unset($topicmeta_exists);
+		}
+		
+		return bb_cache_all_options();
+	} else {
 		foreach ( $results as $options )
 			wp_cache_set( $options->meta_key, maybe_unserialize($options->meta_value), 'bb_option' );
+	}
 	
 	$base_options = array(
 		'bb_db_version' => 0,
