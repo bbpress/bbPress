@@ -159,8 +159,9 @@ bb_send_304( $posts[0]->post_time );
 if (!$description = wp_specialchars( bb_get_option('description') )) {
 	$description = $title;
 }
-$title = apply_filters( 'bb_title_rss', $title );
-$description = apply_filters( 'bb_description_rss', $description );
+$title = apply_filters( 'bb_title_rss', $title, $feed );
+$description = apply_filters( 'bb_description_rss', $description, $feed );
+$posts = apply_filters( 'bb_posts_rss', $posts, $feed );
 
 bb_load_template( 'rss2.php', array('bb_db_override', 'title', 'description', 'link'), $feed );
 
