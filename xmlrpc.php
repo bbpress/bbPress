@@ -292,6 +292,8 @@ class bb_xmlrpc_server extends IXR_Server {
 	/**
 	 * Returns a numerical count of forums
 	 *
+	 * This method does not require authentication
+	 *
 	 * @return integer|object The number of forums when successfully executed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param integer|string $args[0] The parent forum's id or slug (optional).
@@ -299,6 +301,29 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * @uses class IXR_Error
 	 * @uses function get_forum
 	 * @uses function get_forums
+	 *
+	 * XML-RPC request to get a count of all forums in the bbPress instance
+	 * <methodCall>
+	 *     <methodName>bb.getForumCount</methodName>
+	 *     <params></params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get a count of all child forums in the forum with id number 34
+	 * <methodCall>
+	 *     <methodName>bb.getForumCount</methodName>
+	 *     <params>
+	 *         <param><value><string>34</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get a count of all child forums in the forum with id number 34 no more than 2 forums deep in the hierarchy
+	 * <methodCall>
+	 *     <methodName>bb.getForumCount</methodName>
+	 *     <params>
+	 *         <param><value><string>34</string></value></param>
+	 *         <param><value><string>2</string></value></param>
+	 *     </params>
+	 * </methodCall>
 	 **/
 	function bb_getForumCount($args)
 	{
@@ -356,6 +381,8 @@ class bb_xmlrpc_server extends IXR_Server {
 	/**
 	 * Returns details of multiple forums
 	 *
+	 * This method does not require authentication
+	 *
 	 * @return array|object An array containing details of all returned forums when successfully executed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param integer|string $args[0] The parent forum's id or slug (optional).
@@ -363,6 +390,29 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * @uses class IXR_Error
 	 * @uses function get_forum
 	 * @uses function get_forums
+	 *
+	 * XML-RPC request to get all forums in the bbPress instance
+	 * <methodCall>
+	 *     <methodName>bb.getForums</methodName>
+	 *     <params></params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get all child forums in the forum with id number 34
+	 * <methodCall>
+	 *     <methodName>bb.getForums</methodName>
+	 *     <params>
+	 *         <param><value><string>34</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get all child forums in the forum with id number 34 no more than 2 forums deep in the hierarchy
+	 * <methodCall>
+	 *     <methodName>bb.getForums</methodName>
+	 *     <params>
+	 *         <param><value><string>34</string></value></param>
+	 *         <param><value><string>2</string></value></param>
+	 *     </params>
+	 * </methodCall>
 	 **/
 	function bb_getForums($args)
 	{
@@ -441,10 +491,20 @@ class bb_xmlrpc_server extends IXR_Server {
 	/**
 	 * Returns details of a forum
 	 *
+	 * This method does not require authentication
+	 *
 	 * @return array|object An array containing details of the returned forum when successfully executed or an IXR_Error object on failure
 	 * @param array $args The forum's id or slug.
 	 * @uses class IXR_Error
 	 * @uses function get_forum
+	 *
+	 * XML-RPC request to get the forum with id number 34
+	 * <methodCall>
+	 *     <methodName>bb.getForum</methodName>
+	 *     <params>
+	 *         <param><value><string>34</string></value></param>
+	 *     </params>
+	 * </methodCall>
 	 **/
 	function bb_getForum($args)
 	{
