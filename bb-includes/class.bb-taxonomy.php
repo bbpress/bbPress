@@ -56,7 +56,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 		$taxonomies = "'" . implode("', '", $taxonomies) . "'";
 		$terms = "'" . implode("', '", $terms) . "'";
 
-		$sql = "SELECT tr.object_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tt.term_id IN ($terms)";
+		$sql = "SELECT tr.object_id FROM {$this->db->term_relationships} AS tr INNER JOIN {$this->db->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy IN ($taxonomies) AND tt.term_taxonomy_id IN ($terms)";
 		if ( $user_id )
 			$sql .= " AND tr.user_id = '$user_id'";
 		$sql .= " ORDER BY tr.object_id $order";
