@@ -107,8 +107,8 @@ class bb_xmlrpc_server extends IXR_Server {
 			$this->methods = array_merge($this->methods, array(
 				// - Forums
 				'bb.getForumCount'		=> 'this:bb_getForumCount',
-				//'bb.getForums'			=> 'this:bb_getForums',
-				//'bb.getForum'			=> 'this:bb_getForum',
+				'bb.getForums'			=> 'this:bb_getForums',
+				'bb.getForum'			=> 'this:bb_getForum',
 				//'bb.newForum'			=> 'this:bb_newForum',
 				//'bb.editForum'			=> 'this:bb_editForum',
 				//'bb.deleteForum'		=> 'this:bb_deleteForum',
@@ -300,16 +300,21 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * @uses function get_forum
 	 * @uses function get_forums
 	 **/
-	function bb_getForumCount($args) {
+	function bb_getForumCount($args)
+	{
 		do_action('bb_xmlrpc_call', 'bb.getForumCount');
 
 		$this->escape($args);
 
-		// Can be numeric id or slug - sanitised in get_forum()
-		$forum_id = $args[0];
+		if (is_array($args)) {
+			// Can be numeric id or slug - sanitised in get_forum()
+			$forum_id = $args[0];
 
-		// Can only be an integer
-		$depth = (int) $args[1];
+			// Can only be an integer
+			$depth = (int) $args[1];
+		} else {
+			$forum_id = $args;
+		}
 
 		// Setup an array to store arguments to pass to get_forums() function
 		$get_forums_args = array();
@@ -335,7 +340,7 @@ class bb_xmlrpc_server extends IXR_Server {
 		}
 
 		// Get the forums
-		$forums = get_forums($get_forums_args);
+		$forums = (array) get_forums($get_forums_args);
 
 		// Return a count of 0 when no forums exist rather than an error
 		if (!$forums) {
@@ -344,6 +349,143 @@ class bb_xmlrpc_server extends IXR_Server {
 
 		// Return a count of the forums
 		return count($forums);
+	}
+
+
+
+	/**
+	 * Returns details of multiple forums
+	 *
+	 * @return array|object An array containing details of all returned forums when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer|string $args[0] The parent forum's id or slug (optional).
+	 * @param integer $args[1] is the depth of child forums to retrieve (optional).
+	 * @uses class IXR_Error
+	 * @uses function get_forum
+	 * @uses function get_forums
+	 **/
+	function bb_getForums($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getForums');
+
+		$this->escape($args);
+
+		if (is_array($args)) {
+			// Can be numeric id or slug - sanitised in get_forum()
+			$forum_id = $args[0];
+
+			// Can only be an integer
+			$depth = (int) $args[1];
+		} else {
+			$forum_id = $args;
+		}
+
+		// Setup an array to store arguments to pass to get_forums() function
+		$get_forums_args = array();
+
+		if ($forum_id) {
+			// First check the requested forum exists
+			if (!get_forum($forum_id)) {
+				return new IXR_Error(404, __('The requested parent forum does not exist.'));
+			}
+			// Add the specific forum to the arguments
+			$get_forums_args['child_of'] = $forum_id;
+		}
+
+		if ($depth) {
+			// Add the depth to traverse to to the arguments
+			$get_forums_args['depth'] = $depth;
+			// Only make it hierarchical if the depth !== 1
+			if ($depth === 1) {
+				$get_forums_args['hierarchical'] = 0;
+			} else {
+				$get_forums_args['hierarchical'] = 1;
+			}
+		}
+
+		// Get the forums
+		$forums = (array) get_forums($get_forums_args);
+
+		// Return an empty array when no forums exist rather than an error
+		if (!$forums) {
+			return array();
+		} else {
+			// Only include "safe" data in the array
+			$_forums = array();
+			foreach ($forums as $key => $forum) {
+				if (!isset($forum->forum_is_category)) {
+					$forum->forum_is_category = 0;
+				}
+				$_forums[$key] = array(
+					'forum_id' =>          $forum->forum_id,
+					'forum_name' =>        $forum->forum_name,
+					'forum_slug' =>        $forum->forum_slug,
+					'forum_desc' =>        $forum->forum_desc,
+					'forum_parent' =>      $forum->forum_parent,
+					'forum_order' =>       $forum->forum_order,
+					'topics' =>            $forum->topics,
+					'posts' =>             $forum->posts,
+					'forum_is_category' => $forum->forum_is_category
+				);
+				// Allow plugins to add to the array
+				$_forums[$key] = apply_filters('bb.getForums_sanitise', $_forums[$key], $key, $forum);
+			}
+		}
+
+		// Return the forums
+		return $_forums;
+	}
+
+
+
+	/**
+	 * Returns details of a forum
+	 *
+	 * @return array|object An array containing details of the returned forum when successfully executed or an IXR_Error object on failure
+	 * @param array $args The forum's id or slug.
+	 * @uses class IXR_Error
+	 * @uses function get_forum
+	 **/
+	function bb_getForum($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getForums');
+
+		$this->escape($args);
+
+		// Don't accept arrays of arguments
+		if (is_array($args)) {
+			return new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		} else {
+			// Can be numeric id or slug - sanitised in get_forum()
+			$forum_id = $args;
+		}
+
+		// Check the requested forum exists
+		if (!$forum_id || !$forum = get_forum($forum_id)) {
+			return new IXR_Error(404, __('The requested forum does not exist.'));
+		}
+
+		// Make sure this is actually set
+		if (!isset($forum->forum_is_category)) {
+			$forum->forum_is_category = 0;
+		}
+		// Only include "safe" data in the array
+		$_forum = array(
+			'forum_id' =>          $forum->forum_id,
+			'forum_name' =>        $forum->forum_name,
+			'forum_slug' =>        $forum->forum_slug,
+			'forum_desc' =>        $forum->forum_desc,
+			'forum_parent' =>      $forum->forum_parent,
+			'forum_order' =>       $forum->forum_order,
+			'topics' =>            $forum->topics,
+			'posts' =>             $forum->posts,
+			'forum_is_category' => $forum->forum_is_category
+		);
+		// Allow plugins to add to the array
+		$_forum = apply_filters('bb.getForum_sanitise', $_forum, $forum);
+
+		// Return the forums
+		return $_forum;
 	}
 
 
