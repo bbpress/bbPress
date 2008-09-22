@@ -448,7 +448,7 @@ class bb_xmlrpc_server extends IXR_Server {
 	 **/
 	function bb_getForum($args)
 	{
-		do_action('bb_xmlrpc_call', 'bb.getForums');
+		do_action('bb_xmlrpc_call', 'bb.getForum');
 
 		$this->escape($args);
 
