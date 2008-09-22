@@ -312,7 +312,15 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * <methodCall>
 	 *     <methodName>bb.getForumCount</methodName>
 	 *     <params>
-	 *         <param><value><string>34</string></value></param>
+	 *         <param><value><int>34</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get a count of all child forums in the forum with slug "first-forum"
+	 * <methodCall>
+	 *     <methodName>bb.getForumCount</methodName>
+	 *     <params>
+	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 *
@@ -320,8 +328,8 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * <methodCall>
 	 *     <methodName>bb.getForumCount</methodName>
 	 *     <params>
-	 *         <param><value><string>34</string></value></param>
-	 *         <param><value><string>2</string></value></param>
+	 *         <param><value><int>34</int></value></param>
+	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 **/
@@ -401,7 +409,15 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * <methodCall>
 	 *     <methodName>bb.getForums</methodName>
 	 *     <params>
-	 *         <param><value><string>34</string></value></param>
+	 *         <param><value><int>34</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get all child forums in the forum with slug "first-forum"
+	 * <methodCall>
+	 *     <methodName>bb.getForums</methodName>
+	 *     <params>
+	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 *
@@ -409,8 +425,8 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * <methodCall>
 	 *     <methodName>bb.getForums</methodName>
 	 *     <params>
-	 *         <param><value><string>34</string></value></param>
-	 *         <param><value><string>2</string></value></param>
+	 *         <param><value><int>34</int></value></param>
+	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 **/
@@ -502,7 +518,15 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * <methodCall>
 	 *     <methodName>bb.getForum</methodName>
 	 *     <params>
-	 *         <param><value><string>34</string></value></param>
+	 *         <param><value><int>34</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get the forum with slug "first-forum"
+	 * <methodCall>
+	 *     <methodName>bb.getForum</methodName>
+	 *     <params>
+	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 **/
