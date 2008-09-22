@@ -25,7 +25,7 @@ a:hover { color: #006400; }
 
 pre, code { font: 1.0em Monaco, 'Courier New', monospace; }
 
-p { margin-bottom: 1.0em; }
+pre, p { margin-bottom: 1.0em; }
 
 .left { float: left; }
 

@@ -40,7 +40,9 @@ function bb_decodeit( $matches ) {
 	$text = $matches[2];
 	$trans_table = array_flip(get_html_translation_table(HTML_ENTITIES));
 	$text = strtr($text, $trans_table);
-	$text = str_replace('<br />', '', $text);
+	$text = str_replace('<br />', '<coded_br />', $text);
+	$text = str_replace('<p>', '<coded_p>', $text);
+	$text = str_replace('</p>', '</coded_p>', $text);
 	$text = str_replace('&#38;', '&', $text);
 	$text = str_replace('&#39;', "'", $text);
 	if ( '<pre><code>' == $matches[1] )
@@ -59,11 +61,26 @@ function bb_code_trick_reverse( $text ) {
 	$text = preg_replace_callback("!(<pre><code>|<code>)(.*?)(</code></pre>|</code>)!s", 'bb_decodeit', $text);
 	$text = str_replace(array('<p>', '<br />'), '', $text);
 	$text = str_replace('</p>', "\n", $text);
+	$text = str_replace('<coded_br />', '<br />', $text);
+	$text = str_replace('<coded_p>', '<p>', $text);
+	$text = str_replace('</coded_p>', '</p>', $text);
 	return $text;
+}
+
+function _bb_encode_bad_empty(&$text, $key, $preg) {
+	if (strpos($text, '`') !== 0)
+		$text = preg_replace("|&lt;($preg)\s*?/*?&gt;|i", '<$1 />', $text);
+}
+
+function _bb_encode_bad_normal(&$text, $key, $preg) {
+	if (strpos($text, '`') !== 0)
+		$text = preg_replace("|&lt;(/?$preg)&gt;|i", '<$1>', $text);
 }
 
 function bb_encode_bad( $text ) {
 	$text = wp_specialchars( $text );
+
+	$text = preg_split('@(`[^`]*`)@m', $text, -1, PREG_SPLIT_NO_EMPTY + PREG_SPLIT_DELIM_CAPTURE);
 
 	$allowed = bb_allowed_tags();
 	$empty = array( 'br' => true, 'hr' => true, 'img' => true, 'input' => true, 'param' => true, 'area' => true, 'col' => true, 'embed' => true );
@@ -72,12 +89,12 @@ function bb_encode_bad( $text ) {
 		$preg = $args ? "$tag(?:\s.*?)?" : $tag;
 
 		if ( isset( $empty[$tag] ) )
-			$text = preg_replace("|&lt;($preg)\s*?/*?&gt;|i", '<$1 />', $text);
+			array_walk($text, '_bb_encode_bad_empty', $preg);
 		else
-			$text = preg_replace("|&lt;(/?$preg)&gt;|i", '<$1>', $text);
+			array_walk($text, '_bb_encode_bad_normal', $preg);
 	}
 
-	return $text;
+	return join('', $text);
 }
 
 function bb_filter_kses($data) {
