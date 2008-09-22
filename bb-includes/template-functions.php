@@ -2023,7 +2023,11 @@ function bb_profile_password_form( $id = 0 ) {
 			<?php _e('Disabled (requires JavaScript)'); ?>
 		</noscript>
 		<script type="text/javascript" charset="utf-8">
-			document.writeln('<div id="pass-strength-result">' + pwsL10n.short + '</div>');
+			if (typeof jQuery != 'undefined') {
+				document.writeln('<div id="pass-strength-result">' + pwsL10n.short + '</div>');
+			} else {
+				document.writeln('<?php echo str_replace("'", "\'", __('Disabled (requires jQuery)')); ?>')
+			}
 		</script>
 	</td>
 </tr>
