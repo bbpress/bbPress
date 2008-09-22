@@ -295,6 +295,7 @@ function bb_user_row( $user_id, $role = '', $email = false ) {
 	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
 	$r .= "\t\t<td>$user->ID</td>\n";
 	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_name( $user->ID ) . "</a></td>\n";
+	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_display_name( $user->ID ) . "</a></td>\n";
 	if ( $email ) {
 		$email = bb_get_user_email( $user->ID );
 		$r .= "\t\t<td><a href='mailto:$email'>$email</a></td>\n";
@@ -448,10 +449,12 @@ class BB_User_Search {
 				$r .= "\t<tr>\n";
 				$r .= "\t\t<th style='width:10%;'>" . __('ID') . "</th>\n";
 				if ( $show_email ) {
-					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
-					$r .= "\t\t<th style='width:30%;'>" . __('Email') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('Display name') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('Email') . "</th>\n";
 				} else {
-					$r .= "\t\t<th style='width:60%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:30%;'>" . __('Display name') . "</th>\n";
 				}
 				$r .= "\t\t<th style='width:20%;'>" . __('Registered Since') . "</th>\n";
 				$r .= "\t\t<th style='width:10%;'>" . __('Actions') . "</th>\n";
