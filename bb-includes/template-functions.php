@@ -2015,7 +2015,7 @@ function bb_profile_password_form( $id = 0 ) {
 		<?php echo $message; ?>
 	</td>
 </tr>
-<tr>
+<tr class="pass-strength">
 	<th scope="row"><?php _e('Password Strength'); ?></th>
 	<td>
 		<input type="hidden" name="user_login" id="user_login" value="<?php echo $user->user_login; ?>" />
