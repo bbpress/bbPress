@@ -2019,7 +2019,12 @@ function bb_profile_password_form( $id = 0 ) {
 	<th scope="row"><?php _e('Password Strength'); ?></th>
 	<td>
 		<input type="hidden" name="user_login" id="user_login" value="<?php echo $user->user_login; ?>" />
-		<div id="pass-strength-result"><?php _e('Too short'); ?></div>
+		<noscript>
+			<?php _e('Disabled (requires JavaScript)'); ?>
+		</noscript>
+		<script type="text/javascript" charset="utf-8">
+			document.writeln('<div id="pass-strength-result">' + pwsL10n.short + '</div>');
+		</script>
 	</td>
 </tr>
 </table>
