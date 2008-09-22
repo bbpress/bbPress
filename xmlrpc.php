@@ -103,44 +103,42 @@ class bb_xmlrpc_server extends IXR_Server {
 		);
 
 		// bbPress API
-		/*
 		if (bb_get_option('enable_xmlrpc')) {
 			$this->methods = array_merge($this->methods, array(
 				// - Forums
 				'bb.getForumCount'		=> 'this:bb_getForumCount',
-				'bb.getForums'			=> 'this:bb_getForums',
-				'bb.getForum'			=> 'this:bb_getForum',
-				'bb.newForum'			=> 'this:bb_newForum',
-				'bb.editForum'			=> 'this:bb_editForum',
-				'bb.deleteForum'		=> 'this:bb_deleteForum',
+				//'bb.getForums'			=> 'this:bb_getForums',
+				//'bb.getForum'			=> 'this:bb_getForum',
+				//'bb.newForum'			=> 'this:bb_newForum',
+				//'bb.editForum'			=> 'this:bb_editForum',
+				//'bb.deleteForum'		=> 'this:bb_deleteForum',
 				// - Topics
-				'bb.getTopicCount'		=> 'this:bb_getTopicCount',
-				'bb.getTopics'			=> 'this:bb_getTopics',
-				'bb.getTopic'			=> 'this:bb_getTopic',
-				'bb.newTopic'			=> 'this:bb_newTopic',
-				'bb.editTopic'			=> 'this:bb_editTopic',
-				'bb.deleteTopic'		=> 'this:bb_deleteTopic',
+				//'bb.getTopicCount'		=> 'this:bb_getTopicCount',
+				//'bb.getTopics'			=> 'this:bb_getTopics',
+				//'bb.getTopic'			=> 'this:bb_getTopic',
+				//'bb.newTopic'			=> 'this:bb_newTopic',
+				//'bb.editTopic'			=> 'this:bb_editTopic',
+				//'bb.deleteTopic'		=> 'this:bb_deleteTopic',
 				// - Tags
-				'bb.getTagCount'		=> 'this:bb_getTagCount',
-				'bb.getTags'			=> 'this:bb_getTags',
-				'bb.getTag'				=> 'this:bb_getTag',
-				'bb.newTag'				=> 'this:bb_newTag',
-				'bb.editTag'			=> 'this:bb_editTag',
-				'bb.deleteTag'			=> 'this:bb_deleteTag',
-				'bb.mergeTags'			=> 'this:bb_mergeTags',
+				//'bb.getTagCount'		=> 'this:bb_getTagCount',
+				//'bb.getTags'			=> 'this:bb_getTags',
+				//'bb.getTag'				=> 'this:bb_getTag',
+				//'bb.newTag'				=> 'this:bb_newTag',
+				//'bb.editTag'			=> 'this:bb_editTag',
+				//'bb.deleteTag'			=> 'this:bb_deleteTag',
+				//'bb.mergeTags'			=> 'this:bb_mergeTags',
 				// - Replies
-				'bb.getReplyCount'		=> 'this:bb_getReplyCount',
-				'bb.getReplies'			=> 'this:bb_getReplies',
-				'bb.getReply'			=> 'this:bb_getReply',
-				'bb.newReply'			=> 'this:bb_newReply',
-				'bb.editReply'			=> 'this:bb_editReply',
-				'bb.deleteReply'		=> 'this:bb_deleteReply',
+				//'bb.getReplyCount'		=> 'this:bb_getReplyCount',
+				//'bb.getReplies'			=> 'this:bb_getReplies',
+				//'bb.getReply'			=> 'this:bb_getReply',
+				//'bb.newReply'			=> 'this:bb_newReply',
+				//'bb.editReply'			=> 'this:bb_editReply',
+				//'bb.deleteReply'		=> 'this:bb_deleteReply',
 				// - Options
-				'bb.getOptions'			=> 'this:bb_getOptions',
-				'bb.setOptions'			=> 'this:bb_setOptions',
+				//'bb.getOptions'			=> 'this:bb_getOptions',
+				//'bb.setOptions'			=> 'this:bb_setOptions',
 			));
 		}
-		*/
 
 		// PingBack
 		if (bb_get_option('enable_pingback')) {
@@ -288,6 +286,65 @@ class bb_xmlrpc_server extends IXR_Server {
 		$this->site_options = apply_filters( 'xmlrpc_site_options', $this->site_options );
 	}
 	*/
+
+
+
+	/**
+	 * Returns a numerical count of forums
+	 *
+	 * @return integer|object The number of forums when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer|string $args[0] The parent forum's id or slug (optional).
+	 * @param integer $args[1] is the depth of child forums to retrieve (optional).
+	 * @uses class IXR_Error
+	 * @uses function get_forum
+	 * @uses function get_forums
+	 **/
+	function bb_getForumCount($args) {
+		do_action('bb_xmlrpc_call', 'bb.getForumCount');
+
+		$this->escape($args);
+
+		// Can be numeric id or slug - sanitised in get_forum()
+		$forum_id = $args[0];
+
+		// Can only be an integer
+		$depth = (int) $args[1];
+
+		// Setup an array to store arguments to pass to get_forums() function
+		$get_forums_args = array();
+
+		if ($forum_id) {
+			// First check the requested forum exists
+			if (!get_forum($forum_id)) {
+				return new IXR_Error(404, __('The requested parent forum does not exist.'));
+			}
+			// Add the specific forum to the arguments
+			$get_forums_args['child_of'] = $forum_id;
+		}
+
+		if ($depth) {
+			// Add the depth to traverse to to the arguments
+			$get_forums_args['depth'] = $depth;
+			// Only make it hierarchical if the depth !== 1
+			if ($depth === 1) {
+				$get_forums_args['hierarchical'] = 0;
+			} else {
+				$get_forums_args['hierarchical'] = 1;
+			}
+		}
+
+		// Get the forums
+		$forums = get_forums($get_forums_args);
+
+		// Return a count of 0 when no forums exist rather than an error
+		if (!$forums) {
+			return 0;
+		}
+
+		// Return a count of the forums
+		return count($forums);
+	}
 
 
 
