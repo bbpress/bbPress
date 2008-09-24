@@ -1807,9 +1807,11 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 				$bbdb->query("UPDATE `$bbdb->meta` SET `object_type` = 'bb_topic' WHERE `object_id` != 0");
 			}
 			unset($topicmeta_exists);
+			
+			return bb_cache_all_options();
 		}
 		
-		return bb_cache_all_options();
+		return false;
 	} else {
 		foreach ( $results as $options )
 			wp_cache_set( $options->meta_key, maybe_unserialize($options->meta_value), 'bb_option' );
