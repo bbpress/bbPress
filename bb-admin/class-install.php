@@ -103,7 +103,6 @@ class BB_Install
 		
 		// We need to load these when bb-settings.php isn't loaded
 		if ($this->load_includes) {
-			error_log('loading');
 			require_once(BACKPRESS_PATH . 'functions.core.php');
 			require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
 			require_once(BACKPRESS_PATH . 'class.wp-error.php');
