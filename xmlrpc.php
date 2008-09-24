@@ -5,8 +5,10 @@
  * @package bbPress
  */
 
+
+
 /**
- * Whether this is a XMLRPC Request
+ * Whether this is an XML-RPC Request
  *
  * @var bool
  */
@@ -22,11 +24,14 @@ if ( !isset( $HTTP_RAW_POST_DATA ) ) {
 }
 
 // fix for mozBlog and other cases where '<?xml' isn't on the very first line
-if ( isset($HTTP_RAW_POST_DATA) )
+if ( isset($HTTP_RAW_POST_DATA) ) {
 	$HTTP_RAW_POST_DATA = trim($HTTP_RAW_POST_DATA);
+}
 
 /** Include the bootstrap for setting up bbPress environment */
 require('./bb-load.php');
+
+
 
 if ( isset( $_GET['rsd'] ) ) { // http://archipelago.phrasewise.com/rsd
 	header('Content-Type: text/xml; charset=UTF-8', true);
@@ -38,7 +43,7 @@ if ( isset( $_GET['rsd'] ) ) { // http://archipelago.phrasewise.com/rsd
 		<engineLink>http://bbpress.org/</engineLink>
 		<homePageLink><?php bb_uri() ?></homePageLink>
 		<apis>
-			<api name="bbPress" blogID="1" preferred="true" apiLink="<?php bb_uri('xmlrpc.php') ?>" />
+			<api name="bbPress" blogID="" preferred="true" apiLink="<?php bb_uri('xmlrpc.php') ?>" />
 		</apis>
 	</service>
 </rsd>
@@ -46,14 +51,18 @@ if ( isset( $_GET['rsd'] ) ) { // http://archipelago.phrasewise.com/rsd
 	exit;
 }
 
+
+
 include_once(BB_PATH . 'bb-admin/admin-functions.php');
 include_once(BACKPRESS_PATH . '/class.ixr.php');
+
+
 
 // Turn off all warnings and errors.
 // error_reporting(0);
 
 /**
- * Whether to enable XMLRPC Logging.
+ * Whether to enable XML-RPC Logging.
  *
  * @name bb_xmlrpc_logging
  * @var int|bool
@@ -71,7 +80,8 @@ $bb_xmlrpc_logging = 0;
  * @param string $msg Information describing logging reason.
  * @return bool Always return true
  */
-function bb_logIO($io, $msg) {
+function bb_logIO($io, $msg)
+{
 	global $bb_xmlrpc_logging;
 	if ($bb_xmlrpc_logging) {
 		$fp = fopen("../xmlrpc.log","a+");
@@ -83,26 +93,35 @@ function bb_logIO($io, $msg) {
 	return true;
 }
 
-if ( isset($HTTP_RAW_POST_DATA) )
+if ( isset($HTTP_RAW_POST_DATA) ) {
 	bb_logIO("I", $HTTP_RAW_POST_DATA);
+}
+
+
 
 /**
- * @internal
- * Left undocumented to work on later. If you want to finish, then please do so.
+ * XML-RPC server class to allow for remote publishing
  *
- * @package WordPress
+ * @package bbPress
  * @subpackage Publishing
+ * @uses class IXR_Server
  */
-class bb_xmlrpc_server extends IXR_Server {
-
-	function bb_xmlrpc_server() {
+class bb_xmlrpc_server extends IXR_Server
+{
+	/**
+	 * Initialises the XML-RPC server
+	 *
+	 * @return void
+	 **/
+	function bb_xmlrpc_server()
+	{
+		// Demo
 		$this->methods = array(
-			// Demo
 			'demo.sayHello' => 'this:sayHello',
 			'demo.addTwoNumbers' => 'this:addTwoNumbers'
 		);
 
-		// bbPress API
+		// bbPress publishing API
 		if (bb_get_option('enable_xmlrpc')) {
 			$this->methods = array_merge($this->methods, array(
 				// - Forums
@@ -140,7 +159,7 @@ class bb_xmlrpc_server extends IXR_Server {
 			));
 		}
 
-		// PingBack
+		// Pingback
 		if (bb_get_option('enable_pingback')) {
 			$this->methods = array_merge($this->methods, array(
 				'pingback.ping' => 'this:pingback_ping',
@@ -153,90 +172,19 @@ class bb_xmlrpc_server extends IXR_Server {
 		$this->IXR_Server($this->methods);
 	}
 
-	function sayHello($args) {
-		return 'Hello!';
-	}
 
-	function addTwoNumbers($args) {
-		$number1 = $args[0];
-		$number2 = $args[1];
-		return $number1 + $number2;
-	}
 
-	/*
-	function login_pass_ok($user_login, $user_pass) {
-		if (!user_pass_ok($user_login, $user_pass)) {
-			$this->error = new IXR_Error(403, __('Bad login/pass combination.'));
-			return false;
-		}
-		return true;
-	}
-	*/
+	/**
+	 * Utility methods
+	 */
 
-	function escape(&$array) {
-		global $bbdb;
-
-		if(!is_array($array)) {
-			return($bbdb->escape($array));
-		}
-		else {
-			foreach ( (array) $array as $k => $v ) {
-				if (is_array($v)) {
-					$this->escape($array[$k]);
-				} else if (is_object($v)) {
-					//skip
-				} else {
-					$array[$k] = $bbdb->escape($v);
-				}
-			}
-		}
-	}
-
-	/*
-	function get_custom_fields($post_id) {
-		$post_id = (int) $post_id;
-
-		$custom_fields = array();
-
-		foreach ( (array) has_meta($post_id) as $meta ) {
-			// Don't expose protected fields.
-			if ( strpos($meta['meta_key'], '_wp_') === 0 ) {
-				continue;
-			}
-
-			$custom_fields[] = array(
-				"id"    => $meta['meta_id'],
-				"key"   => $meta['meta_key'],
-				"value" => $meta['meta_value']
-			);
-		}
-
-		return $custom_fields;
-	}
-
-	function set_custom_fields($post_id, $fields) {
-		$post_id = (int) $post_id;
-
-		foreach ( (array) $fields as $meta ) {
-			if ( isset($meta['id']) ) {
-				$meta['id'] = (int) $meta['id'];
-
-				if ( isset($meta['key']) ) {
-					update_meta($meta['id'], $meta['key'], $meta['value']);
-				}
-				else {
-					delete_meta($meta['id']);
-				}
-			}
-			else {
-				$_POST['metakeyinput'] = $meta['key'];
-				$_POST['metavalue'] = $meta['value'];
-				add_meta($post_id);
-			}
-		}
-	}
-
-	function initialise_site_option_info( ) {
+	/**
+	 * Initialises site options which can be manipulated using XML-RPC
+	 *
+	 * @return void
+	 **/
+	function initialise_site_option_info()
+	{
 		$this->site_options = array(
 			// Read only options
 			'software_name'		=> array(
@@ -285,9 +233,102 @@ class bb_xmlrpc_server extends IXR_Server {
 
 		$this->site_options = apply_filters( 'xmlrpc_site_options', $this->site_options );
 	}
+
+	/*
+	// To be implemented
+	function login_pass_ok($user_login, $user_pass)
+	{
+		if (!user_pass_ok($user_login, $user_pass)) {
+			$this->error = new IXR_Error(403, __('Bad login/pass combination.'));
+			return false;
+		}
+		return true;
+	}
 	*/
 
+	/**
+	 * Sanitises data from XML-RPC request parameters
+	 *
+	 * @return mixed The sanitised variable, should come back with the same type
+	 * @param $array mixed The variable to be sanitised
+	 * @uses $bbdb BackPress database class instance
+	 **/
+	function escape(&$array)
+	{
+		global $bbdb;
 
+		if (!is_array($array)) {
+			// Escape it
+			$array = $bbdb->escape($array);
+		} else {
+			foreach ( (array) $array as $k => $v ) {
+				if (is_array($v)) {
+					// Recursively sanitize arrays
+					$this->escape($array[$k]);
+				} else if (is_object($v)) {
+					// Don't sanitise objects - shouldn't happen anyway
+				} else {
+					// Escape it
+					$array[$k] = $bbdb->escape($v);
+				}
+			}
+		}
+		
+		return $array;
+	}
+
+
+
+	/**
+	 * Demo XML-RPC methods
+	 */
+
+	/**
+	 * Hello world demo function for XML-RPC
+	 *
+	 * @return string The phrase 'Hello!'.
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 *
+	 * XML-RPC request to get a greeting
+	 * <methodCall>
+	 *     <methodName>demo.sayHello</methodName>
+	 *     <params></params>
+	 * </methodCall>
+	 **/
+	function sayHello($args)
+	{
+		return 'Hello!';
+	}
+
+	/**
+	 * Adds two numbers together as a demo of XML-RPC
+	 *
+	 * @return integer The sum of the two supplied numbers.
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer $args[0] The first number to be added.
+	 * @param integer $args[1] The second number to be added.
+	 *
+	 * XML-RPC request to get the sum of two numbers
+	 * <methodCall>
+	 *     <methodName>demo.addTwoNumbers</methodName>
+	 *     <params>
+	 *         <param><value><int>5</int></value></param>
+	 *         <param><value><int>102</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 **/
+	function addTwoNumbers($args)
+	{
+		$number1 = $args[0];
+		$number2 = $args[1];
+		return $number1 + $number2;
+	}
+
+
+
+	/**
+	 * bbPress publishing API - Forum XML-RPC methods
+	 */
 
 	/**
 	 * Returns a numerical count of forums
@@ -298,9 +339,6 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param integer|string $args[0] The parent forum's id or slug (optional).
 	 * @param integer $args[1] is the depth of child forums to retrieve (optional).
-	 * @uses class IXR_Error
-	 * @uses function get_forum
-	 * @uses function get_forums
 	 *
 	 * XML-RPC request to get a count of all forums in the bbPress instance
 	 * <methodCall>
@@ -384,8 +422,6 @@ class bb_xmlrpc_server extends IXR_Server {
 		return count($forums);
 	}
 
-
-
 	/**
 	 * Returns details of multiple forums
 	 *
@@ -395,9 +431,6 @@ class bb_xmlrpc_server extends IXR_Server {
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param integer|string $args[0] The parent forum's id or slug (optional).
 	 * @param integer $args[1] is the depth of child forums to retrieve (optional).
-	 * @uses class IXR_Error
-	 * @uses function get_forum
-	 * @uses function get_forums
 	 *
 	 * XML-RPC request to get all forums in the bbPress instance
 	 * <methodCall>
@@ -502,8 +535,6 @@ class bb_xmlrpc_server extends IXR_Server {
 		return $_forums;
 	}
 
-
-
 	/**
 	 * Returns details of a forum
 	 *
@@ -511,8 +542,6 @@ class bb_xmlrpc_server extends IXR_Server {
 	 *
 	 * @return array|object An array containing details of the returned forum when successfully executed or an IXR_Error object on failure
 	 * @param array $args The forum's id or slug.
-	 * @uses class IXR_Error
-	 * @uses function get_forum
 	 *
 	 * XML-RPC request to get the forum with id number 34
 	 * <methodCall>
@@ -575,10 +604,26 @@ class bb_xmlrpc_server extends IXR_Server {
 
 
 	/**
+	 * Pingback XML-RPC methods
+	 */
+
+	/**
 	 * Processes pingback requests
 	 *
 	 * @link http://www.hixie.ch/specs/pingback/pingback
 	 * @return string|object A message of success or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The full URI of the post where the pingback is being sent from.
+	 * @param string $args[1] The full URI of the post where the pingback is being sent to.
+	 *
+	 * XML-RPC request to register a pingback
+	 * <methodCall>
+	 *     <methodName>pingback.ping</methodName>
+	 *     <params>
+	 *         <param><value><string>http://example.org/2008/09/post-containing-a-link/</string></value></param>
+	 *         <param><value><string>http://example.com/2008/08/post-being-linked-to/</string></value></param>
+	 *     </params>
+	 * </methodCall>
 	 **/
 	function pingback_ping($args)
 	{
@@ -623,7 +668,7 @@ class bb_xmlrpc_server extends IXR_Server {
 			return new IXR_Error(0, __('The specified target topic does not contain any posts.'));
 		}
 
-		// Check if we already have a Pingback from this URL
+		// Check if we already have a pingback from this URL
 		foreach ($posts_to as $post) {
 			if (isset($post->pingback_uri) && trim($post->pingback_uri) === trim($link_from)) {
 				return new IXR_Error(48, __('The pingback has already been registered.'));
@@ -693,13 +738,17 @@ class bb_xmlrpc_server extends IXR_Server {
 				}
 
 				// Set up the marker around the context
-				$marker = '<wpcontext>' . $context[1] . '</wpcontext>';    // set up our marker
-				$excerpt = str_replace($context[0], $marker, $excerpt); // swap out the link for our marker
-				$excerpt = strip_tags($excerpt, '<wpcontext>');        // strip all tags but our context marker
-				$excerpt = trim($excerpt);
+				$marker = '<wpcontext>' . $context[1] . '</wpcontext>';
+				// Swap out the link for our marker
+				$excerpt = str_replace($context[0], $marker, $excerpt);
+				// Strip all tags except for our context marker
+				$excerpt = trim(strip_tags($excerpt, '<wpcontext>'));
+				// Make the marker safe for use in regexp
 				$preg_marker = preg_quote($marker);
+				// Reduce the excerpt to only include 100 characters on either side of the link
 				$excerpt = preg_replace("|.*?\s(.{0,100}" . $preg_marker . "{0,100})\s.*|s", '$1', $excerpt);
-				$excerpt = strip_tags($excerpt); // YES, again, to remove the marker wrapper
+				// Strip tags again, to remove the marker wrapper
+				$excerpt = strip_tags($excerpt);
 				break;
 			}
 		}
@@ -709,25 +758,33 @@ class bb_xmlrpc_server extends IXR_Server {
 			return new IXR_Error(17, __('The source URL does not contain a link to the target URL, and so cannot be used as a source.'));
 		}
 
+		// Add whacky prefix and suffix to the excerpt and sanitize
 		$excerpt = '[...] ' . wp_specialchars( $excerpt ) . ' [...]';
 		$this->escape($excerpt);
 
+		// Build an array of post data to insert then insert a new post
 		$postdata = array(
 			'topic_id' => $topic_to->topic_id,
 			'post_text' => $excerpt,
 			'poster_id' => 0,
 		);
-		$post_ID = bb_insert_post($postdata);
+		if (!$post_ID = bb_insert_post($postdata)) {
+			return new IXR_Error(0, __('The pingback could not be added.'));
+		}
 
-		// Post meta data
+		// Add meta to let us know where the pingback came from
 		$link_from = str_replace('&', '&amp;', $link_from);
 		$this->escape($link_from);
 		bb_update_postmeta($post_ID, 'pingback_uri', $link_from);
+
+		// Add the title to meta
 		$this->escape($link_from_title);
 		bb_update_postmeta($post_ID, 'pingback_title', $link_from_title);
 
+		// Action for plugins and what not
 		do_action('bb_pingback_post', $post_ID);
 
+		// Return success message, complete with emoticon
 		return sprintf(__('Pingback from %1$s to %2$s registered. Keep the web talking! :-)'), $link_from, $link_to);
 	}
 
@@ -738,33 +795,72 @@ class bb_xmlrpc_server extends IXR_Server {
 	 *
 	 * @link http://www.aquarionics.com/misc/archives/blogite/0198.html
 	 * @return array The array of URLs that pingbacked the given topic
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The full URI of the post where the pingback is being sent from.
+	 * @param string $args[1] The full URI of the post where the pingback is being sent to.
+	 *
+	 * XML-RPC request to get all pingbacks on a topic
+	 * <methodCall>
+	 *     <methodName>pingback.ping</methodName>
+	 *     <params>
+	 *         <param><value><string>http://example.com/2008/08/post-tobe-queried/</string></value></param>
+	 *     </params>
+	 * </methodCall>
 	 **/
 	function pingback_extensions_getPingbacks($args)
 	{
 		do_action('bb_xmlrpc_call', 'pingback.extensions.getPingbacks');
 
 		$this->escape($args);
-		$url = $args;
 
-		if ( !$topic = bb_get_topic_from_uri($url) )
+		// Don't accept arrays of arguments
+		if (is_array($args)) {
+			return new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		} else {
+			$url = $args;
+		}
+
+		// Tidy up ampersands in the URI
+		$url = str_replace('&amp;', '&', $url);
+		$url = str_replace('&', '&amp;', $url);
+
+		// Check if the URI is in our site
+		if ( !bb_match_domains( $url, bb_get_uri() ) ) {
+			// These are not the droids you are looking for
+			return new IXR_Error(0, __('The specified target URL is not on this domain.'));
+		}
+
+		// Make sure the specified URI is in fact associated with a topic
+		if ( !$topic = bb_get_topic_from_uri($url) ) {
 			return new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+		}
 
-		// Grab the posts
+		// Grab the posts from the topic
 		$query = new BB_Query( 'post', array('topic_id' => $topic_to->topic_id, 'append_meta' => true), 'get_thread' );
 		$posts_to = $query->results;
 		unset($query);
 
-		// Check for Pingbacks
+		// Check for pingbacks in the post meta data
 		$pingbacks = array();
-		foreach ($posts_to as $post)
-			if (isset($post->pingback_uri))
+		foreach ($posts_to as $post) {
+			if (isset($post->pingback_uri)) {
 				$pingbacks[] = $post->pingback_uri;
+			}
+		}
 		unset($post);
 
+		// This will return an empty array on failure
 		return $pingbacks;
 	}
 }
 
+
+
+/**
+ * Initialises the XML-RPC server
+ *
+ * @var object The instance of the XML-RPC server class
+ **/
 $bb_xmlrpc_server = new bb_xmlrpc_server();
 
 ?>
