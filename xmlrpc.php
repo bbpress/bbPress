@@ -139,9 +139,9 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.getForumCount'		=> 'this:bb_getForumCount',
 				'bb.getForums'			=> 'this:bb_getForums',
 				'bb.getForum'			=> 'this:bb_getForum',
-				//'bb.newForum'			=> 'this:bb_newForum',
-				//'bb.editForum'			=> 'this:bb_editForum',
-				//'bb.deleteForum'		=> 'this:bb_deleteForum',
+				'bb.newForum'			=> 'this:bb_newForum',
+				'bb.editForum'			=> 'this:bb_editForum',
+				'bb.deleteForum'		=> 'this:bb_deleteForum',
 				// - Topics
 				//'bb.getTopicCount'		=> 'this:bb_getTopicCount',
 				//'bb.getTopics'			=> 'this:bb_getTopics',
@@ -568,6 +568,324 @@ class BB_XMLRPC_Server extends IXR_Server
 		return $_forum;
 	}
 
+	/**
+	 * Creates a new forum
+	 *
+	 * This method requires authentication
+	 *
+	 * @return integer|object The forum id when successfully created or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The username for authentication.
+	 * @param string $args[1] The password for authentication.
+	 * @param array $args[2] The values for the various settings in the new forum.
+	 * @param string $args[2]['name'] The name of the forum.
+	 * @param string $args[2]['description'] The description of the forum (optional).
+	 * @param integer $args[2]['parent_id'] The unique id of the parent forum for this forum (optional).
+	 * @param integer $args[2]['order'] The position of the forum in the forum list (optional).
+	 * @param integer $args[2]['is_category'] Whether the forum is simply a container category (optional).
+	 *
+	 * XML-RPC request to create a new sub-forum called "A new forum" inside the parent forum with id 2
+	 * <methodCall>
+	 *     <methodName>bb.newForum</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>name</name>
+	 *                 <value><string>A new forum</string></value>
+	 *             </member>
+	 *             <member>
+	 *                 <name>parent_id</name>
+	 *                 <value><integer>2</integer></value>
+	 *             </member>
+	 *         </struct></value></param>
+	 *     </params>
+	 * </methodCall>
+	 **/
+	function bb_newForum($args)
+	{
+		$this->escape($args);
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = $args[1];
+
+		// Check the user is valid
+		if( !$user_id = $this->authenticate( $username, $password ) ) {
+			// The error is set in authenticate()
+			return $this->error;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user_id );
+
+		// Make sure they are allowed to do this
+		if(!bb_current_user_can('manage_forums')) {
+			$this->error = new IXR_Error(403, __('You are not allowed to create new forums.'));
+			return $this->error;
+		}
+
+		// Do the action once we are authenticated
+		do_action('bb_xmlrpc_call', 'bb.newForum');
+
+		// Make sure there is something for us to do
+		if (!$args[2] || !is_array($args[2]) || !count($args[2])) {
+			$this->error = new IXR_Error(404, __('You must specify the options you wish to set.'));
+			return $this->error;
+		} else {
+			$structure = (array) $args[2];
+		}
+
+		// Minimum requirement is a name for the new forum
+		if (!isset($structure['name']) || !$structure['name']) {
+			$this->error = new IXR_Error(404, __('You must supply a name for the forum.'));
+			return $this->error;
+		}
+
+		// Inject settings into an array suitable for bb_new_forum()
+		$structure = array(
+			'forum_name' => $structure['name'],
+			'forum_desc' => $structure['description'],
+			'forum_parent' => $structure['parent_id'],
+			'forum_order' => $structure['order'],
+			'forum_is_category' => $structure['is_category']
+		);
+		// Remove empty settings so that changes to the defaults in bb_new_forum() are honoured
+		$structure = array_filter($structure);
+
+		// Leave the require until the very end
+		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+
+		// Create the forum
+		if (!$forum_id = bb_new_forum($structure)) {
+			$this->error = new IXR_Error(404, __('The new forum could not be created.'));
+			return $this->error;
+		}
+
+		return (int) $forum_id;
+	}
+
+	/**
+	 * Edits an existing forum
+	 *
+	 * This method requires authentication
+	 *
+	 * @return integer|object The forum id when successfully edited or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The username for authentication.
+	 * @param string $args[1] The password for authentication.
+	 * @param string $args[2] The unique id of the forum to be edited.
+	 * @param array $args[3] The values for the various settings in the new forum, at least one must be specified.
+	 * @param string $args[3]['name'] The name of the forum (optional).
+	 * @param string $args[3]['slug'] The slug for the forum (optional).
+	 * @param string $args[3]['description'] The description of the forum (optional).
+	 * @param integer $args[3]['parent_id'] The unique id of the parent forum for this forum (optional).
+	 * @param integer $args[3]['order'] The position of the forum in the forum list (optional).
+	 * @param integer $args[3]['is_category'] Whether the forum is simply a container category (optional).
+	 *
+	 * XML-RPC request to edit a forum with id 11, changing the description
+	 * <methodCall>
+	 *     <methodName>bb.editForum</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><integer>11</integer></value></param>
+	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>description</name>
+	 *                 <value><string>This is a great forum for all sorts of reasons.</string></value>
+	 *             </member>
+	 *         </struct></value></param>
+	 *     </params>
+	 * </methodCall>
+	 **/
+	function bb_editForum($args)
+	{
+		$this->escape($args);
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = $args[1];
+
+		// Check the user is valid
+		if( !$user_id = $this->authenticate( $username, $password ) ) {
+			// The error is set in authenticate()
+			return $this->error;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user_id );
+
+		// Make sure they are allowed to do this
+		if(!bb_current_user_can('manage_forums')) {
+			$this->error = new IXR_Error(403, __('You are not allowed to edit forums.'));
+			return $this->error;
+		}
+
+		// Get the forum id
+		$forum_id = $args[2];
+
+		// Check the requested forum exists
+		if (!$forum_id || !$forum = get_forum($forum_id)) {
+			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+			return $this->error;
+		}
+
+		// Do the action once we are authenticated
+		do_action('bb_xmlrpc_call', 'bb.editForum');
+
+		// Cast the forum object as an array
+		$forum = (array) $forum;
+		// The forum id may have been a slug, so make sure it's an integer here
+		$forum_id = $forum->forum_id;
+
+		// Remove some unneeded indexes
+		unset($forum['topics']);
+		unset($forum['posts']);
+
+		// Add one if it isn't there
+		if (!isset($forum['forum_is_category'])) {
+			$forum['forum_is_category'] = 0;
+		}
+
+		// Make sure there is something for us to do
+		if (!$args[3] || !is_array($args[3]) || !count($args[3])) {
+			$this->error = new IXR_Error(404, __('You must specify the options you wish to set.'));
+			return $this->error;
+		} else {
+			$structure = (array) $args[3];
+		}
+
+		// Don't allow name to be blanked
+		if (isset($structure['name']) && !$structure['name']) {
+			unset($structure['name']);
+			$this->error = new IXR_Error(404, __('You must supply a name for the forum.'));
+			return $this->error;
+		}
+
+		// Inject structure into an array suitable for bb_update_forum()
+		$_structure = array(
+			'forum_name' => $structure['name']
+		);
+
+		// Slug cannot be blank
+		if (isset($structure['slug']) && $structure['slug'] !== '') {
+			$_structure['forum_slug'] = $structure['slug'];
+		}
+
+		// Description can be nothing, but must be set
+		if (isset($structure['description'])) {
+			$_structure['forum_desc'] = $structure['description'];
+		}
+
+		// Parent forum ID must be an integer and it can be 0
+		if (isset($structure['parent_id']) && is_integer($structure['parent_id'])) {
+			$_structure['forum_parent'] = $structure['parent_id'];
+		}
+
+		// Order must be an integer and it can be 0
+		if (isset($structure['order']) && is_integer($structure['order'])) {
+			$_structure['forum_order'] = $structure['order'];
+		}
+
+		// Category flag must be an integer and it can be 0
+		if (isset($structure['is_category']) && is_integer($structure['is_category'])) {
+			$_structure['forum_is_category'] = $structure['is_category'];
+		}
+
+		// Merge the changes into the existing data for the forum
+		$structure = wp_parse_args( $_structure, $forum );
+
+		// Leave the require until the very end
+		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+
+		// Update the forum
+		if (!bb_update_forum($structure)) {
+			$this->error = new IXR_Error(404, __('The forum could not be edited.'));
+			return $this->error;
+		}
+
+		return (int) $forum_id;
+	}
+
+	/**
+	 * Deletes a forum
+	 *
+	 * This method requires authentication
+	 *
+	 * @return integer|object 1 when successfully deleted or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The username for authentication.
+	 * @param string $args[1] The password for authentication.
+	 * @param string $args[2] The unique id of the forum to be deleted.
+	 *
+	 * XML-RPC request to delete a forum with the slug "naughty-forum"
+	 * <methodCall>
+	 *     <methodName>bb.deleteForum</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>naughty-forum</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 **/
+	function bb_deleteForum($args)
+	{
+		$this->escape($args);
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = $args[1];
+
+		// Check the user is valid
+		if( !$user_id = $this->authenticate( $username, $password ) ) {
+			// The error is set in authenticate()
+			return $this->error;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user_id );
+
+		// Make sure they are allowed to do this
+		if (!bb_current_user_can('delete_forums')) {
+			$this->error = new IXR_Error(403, __('You are not allowed to delete forums.'));
+			return $this->error;
+		}
+
+		// Get the forum id
+		$forum_id = $args[2];
+
+		// Check the requested forum exists
+		if (!$forum_id || !$forum = get_forum($forum_id)) {
+			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+			return $this->error;
+		}
+
+		// The forum id may have been a slug, so make sure it's an integer here
+		$forum_id = $forum->forum_id;
+
+		// Make sure they are allowed to delete this forum specifically
+		if (!bb_current_user_can('delete_forum', $forum_id)) {
+			$this->error = new IXR_Error(403, __('You are not allowed to delete this forum.'));
+			return $this->error;
+		}
+
+		// Do the action once we are authenticated
+		do_action('bb_xmlrpc_call', 'bb.deleteForum');
+
+		// Leave the require until the very end
+		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+
+		// Delete the forum
+		if (!bb_delete_forum($forum_id)) {
+			$this->error = new IXR_Error(404, __('The forum could not be deleted.'));
+			return $this->error;
+		}
+
+		return 1;
+	}
+
 
 
 	/**
@@ -737,7 +1055,7 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Check the user is valid
 		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in login_pass_ok()
+			// The error is set in authenticate()
 			return $this->error;
 		}
 
