@@ -143,7 +143,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.editForum'			=> 'this:bb_editForum',
 				'bb.deleteForum'		=> 'this:bb_deleteForum',
 				// - Topics
-				//'bb.getTopicCount'		=> 'this:bb_getTopicCount',
+				'bb.getTopicCount'		=> 'this:bb_getTopicCount',
 				//'bb.getTopics'			=> 'this:bb_getTopics',
 				//'bb.getTopic'			=> 'this:bb_getTopic',
 				//'bb.newTopic'			=> 'this:bb_newTopic',
@@ -738,7 +738,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		// Cast the forum object as an array
 		$forum = (array) $forum;
 		// The forum id may have been a slug, so make sure it's an integer here
-		$forum_id = $forum->forum_id;
+		$forum_id = $forum['forum_id'];
 
 		// Remove some unneeded indexes
 		unset($forum['topics']);
@@ -884,6 +884,88 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		return 1;
+	}
+
+
+
+	/**
+	 * bbPress publishing API - Topic XML-RPC methods
+	 */
+
+	/**
+	 * Returns a numerical count of topics
+	 *
+	 * This method does not require authentication
+	 *
+	 * @return integer|object The number of topics when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer|string $args[0] The forum id or slug (optional).
+	 *
+	 * XML-RPC request to get a count of all topics in the bbPress instance
+	 * <methodCall>
+	 *     <methodName>bb.getTopicCount</methodName>
+	 *     <params></params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get a count of all topics in the forum with id number 34
+	 * <methodCall>
+	 *     <methodName>bb.getTopicCount</methodName>
+	 *     <params>
+	 *         <param><value><int>34</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get a count of all topics in the forum with slug "first-forum"
+	 * <methodCall>
+	 *     <methodName>bb.getTopicCount</methodName>
+	 *     <params>
+	 *         <param><value><string>first-forum</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 **/
+	function bb_getTopicCount($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getTopicCount');
+
+		$this->escape($args);
+
+		// Don't accept arrays of arguments
+		if (is_array($args)) {
+			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+			return $this->error;
+		} else {
+			// Can be numeric id or slug - sanitised in get_forum()
+			$forum_id = $args;
+		}
+
+		// Check the requested forum exists
+		if ($forum_id) {
+			if (!$forum = get_forum($forum_id)) {
+				$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+				return $this->error;
+			}
+
+			// OK, let's trust the count in the forum table
+			$count = $forum->topics;
+		} else {
+			// Get all forums
+			$forums = get_forums();
+	
+			// Return an error when no forums exist
+			if ( !$forums ) {
+				$this->error = new IXR_Error(404, __('No forums found.'));
+				return $this->error;
+			}
+
+			// Count the topics
+			$count = 0;
+			foreach ($forums as $forum) {
+				$count += $forum->topics;
+			}
+		}
+
+		// Return the count of topics
+		return $count;
 	}
 
 
