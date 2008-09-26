@@ -7,8 +7,8 @@
  * @since 1.0
  * @todo cache
  */
-class BB_Taxonomy extends WP_Taxonomy {
-
+class BB_Taxonomy extends WP_Taxonomy
+{
 	/**
 	 * Return object_ids of valid taxonomy and term
 	 *
@@ -302,6 +302,4 @@ class BB_Taxonomy extends WP_Taxonomy {
 
 		return $tt_ids;
 	}
-}
-
-?>
+} // END class BB_Taxonomy extends WP_Taxonomy

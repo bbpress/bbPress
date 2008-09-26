@@ -1,7 +1,4 @@
 <?php
-
-
-
 /**
  * bbPress class to handle pinging
  *
@@ -177,7 +174,3 @@ class BB_Pingbacks
 		return $count;
 	}
 } // END class BB_Pingbacks
-
-
-
-?>

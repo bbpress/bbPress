@@ -1,5 +1,4 @@
 <?php
-
 // Date and Time
 
 class BB_Locale {
@@ -217,5 +216,3 @@ function bb_number_format_i18n($number, $decimals = null) {
 
 	return number_format($number, $decimals, $bb_locale->number_format['decimal_point'], $bb_locale->number_format['thousands_sep']);
 }
-
-?>

@@ -3433,5 +3433,3 @@ function bb_glob($pattern) {
 	
 	return $glob;
 }
-
-?>

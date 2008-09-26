@@ -968,5 +968,3 @@ function validate_file( $file, $allowed_files = '' ) {
 	return 0;
 }
 endif;
-
-?>

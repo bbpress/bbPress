@@ -232,5 +232,3 @@ function get_topics_per_day() {
 function topics_per_day() {
 	echo apply_filters('topics_per_day', bb_number_format_i18n(get_topics_per_day(),3));
 }
-
-?>

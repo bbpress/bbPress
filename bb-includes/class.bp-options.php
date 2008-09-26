@@ -1,5 +1,4 @@
 <?php
-
 /**
  * BP_Options allows storage of options for BackPress
  * in the bbPress database
@@ -43,6 +42,4 @@ class BP_Options
 	function delete($option) {
 		return bb_delete_option(BP_Options::prefix() . $option);
 	}
-} // END class BP_Options implements BP_Options_Interface
-
-?>
+} // END class BP_Options

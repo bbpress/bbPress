@@ -6,6 +6,8 @@
  * @subpackage i18n
  */
 
+
+
 /**
  * Gets the current locale.
  *
@@ -19,7 +21,7 @@
  * The process to get the locale should only be done once but the locale will
  * always be filtered using the 'locale' hook.
  *
- * {@internal missing since version}
+ * @since 0.7.2
  * @uses apply_filters() Calls 'locale' hook on locale value.
  * @uses $locale Gets the locale stored in the global.
  *
@@ -100,7 +102,7 @@ function translate_with_context($text, $domain = 'default') {
  * Retrieves the translated string from the translate().
  *
  * @see translate() An alias of translate()
- * {@internal missing since version}
+ * @since 0.7.2
  *
  * @param string $text Text to translate
  * @param string $domain Optional. Domain to retrieve the translated text
@@ -114,7 +116,7 @@ function __($text, $domain = 'default') {
  * Displays the returned translated text from translate().
  *
  * @see translate() Echos returned translate() string
- * {@internal missing since version}
+ * @since 0.7.2
  *
  * @param string $text Text to translate
  * @param string $domain Optional. Domain to retrieve the translated text
@@ -157,7 +159,7 @@ function _c($text, $domain = 'default') {
  * to the 'ngettext' filter hook along with the same parameters. The expected
  * type will be a string.
  *
- * {@internal missing since version}
+ * @since 0.7.2
  * @uses $l10n Gets list of domain translated string (gettext_reader) objects
  * @uses apply_filters() Calls 'ngettext' hook on domains text returned,
  *		along with $single, $plural, and $number parameters. Expected to return string.
@@ -216,7 +218,7 @@ function __ngettext_noop($single, $plural, $number=1, $domain = 'default') {
  * On success, the mofile will be placed in the $l10n global by $domain and will
  * be an gettext_reader object.
  *
- * {@internal missing since version}
+ * @since 0.7.2
  * @uses $l10n Gets list of domain translated string (gettext_reader) objects
  * @uses CacheFileReader Reads the MO file
  * @uses gettext_reader Allows for retrieving translated strings
@@ -251,7 +253,7 @@ function load_textdomain($domain, $mofile) {
  * Loads the .mo file in BB_LANG_DIR constant path from bbPress root. The
  * translated (.mo) file is named based off of the locale.
  *
- * {@internal missing since version}
+ * @since 0.7.2
  */
 function load_default_textdomain() {
 	$locale = get_locale();
@@ -267,7 +269,7 @@ function load_default_textdomain() {
  * The .mo file should be named based on the domain with a dash followed by a
  * dash, and then the locale exactly.
  *
- * {@internal missing since version}
+ * @since 0.7.2
  *
  * @param string $domain Unique identifier for retrieving translated strings
  * @param string $path Optional. Absolute path to folder where the .mo file resides
@@ -289,7 +291,7 @@ function load_plugin_textdomain($domain, $path = false) {
  *
  * The .mo files must be named based on the locale exactly.
  *
- * {@internal missing since version}
+ * @since 0.7.2
  *
  * @param string $domain Unique identifier for retrieving translated strings
  */
@@ -299,5 +301,3 @@ function load_theme_textdomain($domain) {
 	$mofile = bb_get_template( "$locale.mo" );
 	load_textdomain($domain, $mofile);
 }
-
-?>

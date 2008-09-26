@@ -35,4 +35,3 @@ function bb_send_304( $bb_last_modified ) {
 		exit;
 	}
 }
-?>

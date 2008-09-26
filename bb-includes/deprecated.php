@@ -8,12 +8,14 @@
  * @subpackage Deprecated
  */
 
+
+
 /**
  * Dictates whether or not to trigger an error on a deprecated function call
  *
  * It is possible to define this in bb-config.php.
  *
- * @since {@internal Unknown}}
+ * @since 0.9
  */
 if (!defined('BB_LOG_DEPRECATED'))
 	define('BB_LOG_DEPRECATED', false);
@@ -26,10 +28,8 @@ if (!defined('BB_LOG_DEPRECATED'))
  *
  * This function is to be used in every function in deprecated.php
  *
- * @package bbPress
- * @package Debug
  * @access private
- * @since {@internal Unknown}}
+ * @since 0.9
  *
  * @param string $type The type of function call that was attempted: function or class::function
  * @param string $name The function that was called

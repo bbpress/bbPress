@@ -775,4 +775,3 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	return apply_filters('bb_get_avatar', $avatar, $id_or_email, $size, $default);
 }
 endif;
-?>

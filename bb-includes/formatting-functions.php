@@ -1,4 +1,5 @@
 <?php
+
 function bb_autop($pee, $br = 1) { // Reduced to be faster
 	$pee = $pee . "\n"; // just to make things a little easier, pad the end
 	$pee = preg_replace('|<br />\s*<br />|', "\n\n", $pee);
@@ -327,5 +328,3 @@ function bb_gmtstrtotime( $string ) {
 
 	return $time;
 }
-
-?>

@@ -5,12 +5,14 @@
  * @package bbPress
  */
 
+
+
 /**
- * bb_verify_email() - Verifies that an email is valid
+ * Verifies that an email is valid
  *
  * {@internal Missing Long Description}}
  *
- * @since {@internal Unknown}}
+ * @since 0.7.2
  * @param string $email Email address to verify
  * @return string|bool
  */
@@ -35,11 +37,11 @@ function bb_verify_email( $email, $check_domain = false ) {
 }
 
 /**
- * bb_update_user() - Updates a user's details in the database
+ * Updates a user's details in the database
  *
  * {@internal Missing Long Description}}
  *
- * @since {@internal Unknown}}
+ * @since 0.7.2
  * @global bbdb $bbdb
  *
  * @param int $user_id
@@ -60,12 +62,12 @@ function bb_update_user( $user_id, $user_email, $user_url ) {
 }
 
 /**
- * bb_reset_email() - Sends a reset password email
+ * Sends a reset password email
  *
  * Sends an email to the email address specified in the user's profile
  * prompting them to change their password.
  *
- * @since {@internal Unknown}}
+ * @since 0.7.2
  * @global bbdb $bbdb
  *
  * @param string $user_login
@@ -105,12 +107,12 @@ function bb_reset_email( $user_login ) {
 }
 
 /**
- * bb_reset_password() - Handles the resetting of users' passwords
+ * Handles the resetting of users' passwords
  *
  * Handles resetting a user's password, prompted by an email sent by
  * {@see bb_reset_email()}
  *
- * @since {@internal Unknown}}
+ * @since 0.7.2
  * @global bbdb $bbdb
  *
  * @param string $key
@@ -142,11 +144,11 @@ function bb_reset_password( $key ) {
 }
 
 /**
- * bb_update_user_password() - Updates a user's password in the database
+ * Updates a user's password in the database
  *
  * {@internal Missing Long Description}}
  *
- * @since {@internal Unknown}}
+ * @since 0.7.2
  * @global bbdb $bbdb
  *
  * @param int $user_id
@@ -165,11 +167,11 @@ function bb_update_user_password( $user_id, $password ) {
 }
 
 /**
- * bb_send_pass() - Sends an email with the user's new password
+ * Sends an email with the user's new password
  *
  * {@internal Missing Long Description}}
  *
- * @since {@internal Unknown}}
+ * @since 0.7.2
  * @global bbdb $bbdb {@internal Not used}}
  *
  * @param int|string $user
