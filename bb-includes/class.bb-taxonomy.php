@@ -1,13 +1,16 @@
 <?php
-
-// TODO: cache
+/**
+ * Taxonomy API
+ *
+ * @package bbPress
+ * @subpackage Taxonomy
+ * @since 1.0
+ * @todo cache
+ */
 class BB_Taxonomy extends WP_Taxonomy {
-	//
-	// Term API
-	//
 
 	/**
-	 * get_objects_in_term() - Return object_ids of valid taxonomy and term
+	 * Return object_ids of valid taxonomy and term
 	 *
 	 * The strings of $taxonomies must exist before this function will continue. On failure of finding
 	 * a valid taxonomy, it will return an WP_Error class, kind of like Exceptions in PHP 5, except you
@@ -20,9 +23,9 @@ class BB_Taxonomy extends WP_Taxonomy {
 	 * functions or using the database by using $args with either ASC or DESC array. The value should
 	 * be in the key named 'order'.
 	 *
-	 * @package WordPress
+	 * @package bbPress
 	 * @subpackage Taxonomy
-	 * @since 2.3
+	 * @since 1.0
 	 *
 	 * @uses wp_parse_args() Creates an array from string $args.
 	 *
@@ -70,15 +73,15 @@ class BB_Taxonomy extends WP_Taxonomy {
 	}
 
 	/**
-	 * delete_object_term_relationships() - Will unlink the term from the taxonomy
+	 * Will unlink the term from the taxonomy
 	 *
 	 * Will remove the term's relationship to the taxonomy, not the term or taxonomy itself.
 	 * The term and taxonomy will still exist. Will require the term's object ID to perform
 	 * the operation.
 	 *
-	 * @package WordPress
+	 * @package bbPress
 	 * @subpackage Taxonomy
-	 * @since 2.3
+	 * @since 1.0
 	 *
 	 * @param int $object_id The term Object Id that refers to the term
 	 * @param string|array $taxonomy List of Taxonomy Names or single Taxonomy name.
@@ -102,7 +105,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 	}
 
 	/**
-	 * get_object_terms() - Retrieves the terms associated with the given object(s), in the supplied taxonomies.
+	 * Retrieves the terms associated with the given object(s), in the supplied taxonomies.
 	 *
 	 * The following information has to do the $args parameter and for what can be contained in the string
 	 * or array of that parameter, if it exists.
@@ -121,9 +124,9 @@ class BB_Taxonomy extends WP_Taxonomy {
 	 * the default kept intact, then all matching terms objects will be returned. If either 'ids' or 'names'
 	 * is used, then an array of all matching term ids or term names will be returned respectively.
 	 *
-	 * @package WordPress
+	 * @package bbPress
 	 * @subpackage Taxonomy
-	 * @since 2.3
+	 * @since 1.0
 	 *
 	 * @param int|array $object_id The id of the object(s) to retrieve.
 	 * @param string|array $taxonomies The taxonomies to retrieve terms from.
@@ -216,7 +219,7 @@ class BB_Taxonomy extends WP_Taxonomy {
 	}
 
 	/**
-	 * set_object_terms() - Create Term and Taxonomy Relationships
+	 * Create Term and Taxonomy Relationships
 	 * 
 	 * Relates an object (post, link etc) to a term and taxonomy type. Creates the term and taxonomy
 	 * relationship if it doesn't already exist. Creates a term if it doesn't exist (using the slug).
@@ -224,9 +227,9 @@ class BB_Taxonomy extends WP_Taxonomy {
 	 * A relationship means that the term is grouped in or belongs to the taxonomy. A term has no
 	 * meaning until it is given context by defining which taxonomy it exists under.
 	 *
-	 * @package WordPress
+	 * @package bbPress
 	 * @subpackage Taxonomy
-	 * @since 2.3
+	 * @since 1.0
 	 *
 	 * @param int $object_id The object to relate to.
 	 * @param array|int|string $term The slug or id of the term.
@@ -300,3 +303,5 @@ class BB_Taxonomy extends WP_Taxonomy {
 		return $tt_ids;
 	}
 }
+
+?>
