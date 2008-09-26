@@ -1,7 +1,40 @@
 <?php
+/**
+ * Deprecated functions from past bbPress versions. You shouldn't use these
+ * globals and functions and look for the alternatives instead. The functions
+ * and globals will be removed in a later version.
+ *
+ * @package bbPress
+ * @subpackage Deprecated
+ */
+
+/**
+ * Dictates whether or not to trigger an error on a deprecated function call
+ *
+ * It is possible to define this in bb-config.php.
+ *
+ * @since {@internal Unknown}}
+ */
 if (!defined('BB_LOG_DEPRECATED'))
 	define('BB_LOG_DEPRECATED', false);
 
+/**
+ * Marks a function as deprecated and informs when it has been used.
+ *
+ * The current behavior is to trigger an user error if BB_LOG_DEPRECATED is
+ * defined and is true.
+ *
+ * This function is to be used in every function in deprecated.php
+ *
+ * @package bbPress
+ * @package Debug
+ * @access private
+ * @since {@internal Unknown}}
+ *
+ * @param string $type The type of function call that was attempted: function or class::function
+ * @param string $name The function that was called
+ * @param string $replacement Optional. The function that should have been called
+ */
 function bb_log_deprecated($type, $name, $replacement = 'none') {
 	if (defined('BB_LOG_DEPRECATED') && BB_LOG_DEPRECATED)
 		trigger_error(sprintf('Using deprecated bbPress %1$s - %2$s - replace with - %3$s', $type, $name, $replacement));

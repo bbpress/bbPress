@@ -1,4 +1,17 @@
 <?php
+
+/**
+ * Send status headers for clients supporting Conditional Get
+ *
+ * The function sends the Last-Modified and ETag headers for all clients. It
+ * then checks both the If-None-Match and If-Modified-Since headers to see if
+ * the client has used them. If so, and the ETag does matches the client ETag
+ * or the last modified date sent by the client is newer or the same as the
+ * generated last modified, the function sends a 304 Not Modified and exits.
+ *
+ * @link http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3
+ * @param string $bb_last_modified Last modified time. Must be a HTTP-date
+ */
 function bb_send_304( $bb_last_modified ) {
 	$bb_etag = '"' . md5($bb_last_modified) . '"';
 	@header("Last-Modified: $bb_last_modified");
