@@ -52,7 +52,7 @@ function get_locale() {
  *
  * If the domain is not set, the $text is just returned.
  *
- * @since 1.0-beta
+ * @since 1.0
  * @uses $l10n Gets list of domain translated string (gettext_reader) objects.
  * @uses apply_filters() Calls 'gettext' on domain translated text
  *		with the untranslated text as second parameter.
@@ -79,7 +79,7 @@ function translate($text, $domain = 'default') {
  *
  * If the domain is not set, the $text is just returned.
  *
- * @since 1.0-beta
+ * @since 1.0
  * @uses translate()
  *
  * @param string $text Text to translate
@@ -136,7 +136,7 @@ function _e($text, $domain = 'default') {
  * including the pipe character. If there is no pipe in the translated text then
  * everything is returned.
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @param string $text Text to translate
  * @param string $domain Optional. Domain to retrieve the translated text
@@ -196,7 +196,7 @@ function __ngettext($single, $plural, $number, $domain = 'default') {
  *  $message = $messages[$type];
  *  $usable_text = sprintf(__ngettext($message[0], $message[1], $count), $count);
  *
- * @since 1.0-beta
+ * @since 1.0
  * @param $single Single form to be i18ned
  * @param $plural Plural form to be i18ned
  * @param $number Not used, here for compatibility with __ngettext, optional

@@ -3,49 +3,49 @@
  * bbPress Installation class
  *
  * @since 0.9
- **/
+ */
 class BB_Install
 {
 	/**
 	 * The file where the class was instantiated
 	 *
 	 * @var string
-	 **/
+	 */
 	var $caller;
 	
 	/**
 	 * Whether or not we need to load some of the includes normally loaded by bb-settings.php
 	 *
 	 * @var boolean
-	 **/
+	 */
 	var $load_includes = false;
 	
 	/**
 	 * An array of available languages to use in the installer
 	 *
 	 * @var array
-	 **/
+	 */
 	var $languages = array('en_US' => 'en_US');
 	
 	/**
 	 * The currently selected language for the installer
 	 *
 	 * @var string
-	 **/
+	 */
 	var $language = 'en_US';
 	
 	/**
 	 * The current step in the install process
 	 *
 	 * @var integer
-	 **/
+	 */
 	var $step;
 	
 	/**
 	 * Info about config files and their locations
 	 *
 	 * @var array
-	 **/
+	 */
 	var $configs = array(
 		'writable' => false,
 		'bb-config.php' => false,
@@ -56,7 +56,7 @@ class BB_Install
 	 * An array of the current status of each step
 	 *
 	 * @var array
-	 **/
+	 */
 	var $step_status = array(
 		0 => 'incomplete',
 		1 => 'incomplete',
@@ -69,21 +69,21 @@ class BB_Install
 	 * An array of most strings in use, including errors
 	 *
 	 * @var array
-	 **/
+	 */
 	var $strings = array();
 	
 	/**
 	 * The data being manipulated as we go through the forms
 	 *
 	 * @var array
-	 **/
+	 */
 	var $data = array();
 	
 	/**
 	 * A boolean that can get flagged to stop posting of a form getting processed
 	 *
 	 * @var boolean
-	 **/
+	 */
 	var $stop_process = false;
 	
 	/**
@@ -93,7 +93,7 @@ class BB_Install
 	 *
 	 * @param string $caller The full path of the file that instantiated the class
 	 * @return boolean Always returns true
-	 **/
+	 */
 	function BB_Install($caller)
 	{
 		$this->caller = $caller;
@@ -159,7 +159,7 @@ class BB_Install
 	 * Sets the step from the querystring and keeps it within range
 	 *
 	 * @return integer The calculated step
-	 **/
+	 */
 	function set_initial_step()
 	{
 		// Set the step based on the $_GET value or 0
@@ -177,7 +177,7 @@ class BB_Install
 	 *
 	 * Sets up many of the strings to be used by the class that may
 	 * be later subject to change due to processing of the forms
-	 **/
+	 */
 	function prepare_strings()
 	{
 		$this->strings = array(
@@ -246,7 +246,7 @@ class BB_Install
 	 * sets the BBDB_EXTENSION constant along the way if necessary.
 	 *
 	 * @return boolean False if any pre-requisites are not met, otherwise true
-	 **/
+	 */
 	function check_prerequisites()
 	{
 		if (version_compare(PHP_VERSION, '4.3', '<')) {
@@ -284,7 +284,7 @@ class BB_Install
 	 * on the classes initiating file path.
 	 *
 	 * @return boolean False if no path was supplied, otherwise always true
-	 **/
+	 */
 	function define_paths()
 	{
 		if (!$this->caller) {
@@ -316,7 +316,7 @@ class BB_Install
 	 * get_languages() - Gets an array of available languages form the language directory
 	 *
 	 * @return array
-	 **/
+	 */
 	function get_languages()
 	{
 		foreach (bb_glob(BB_LANG_DIR . '*.mo') as $language) {
@@ -330,7 +330,7 @@ class BB_Install
 	 * get_language_selector() - Returns a language selector for switching installation languages
 	 *
 	 * @return string|false Either the html for the selector or false if there are no languages
-	 **/
+	 */
 	function get_language_selector()
 	{
 		// Don't provide a selection if there is only english
@@ -366,7 +366,7 @@ class BB_Install
 	 * set_language() - Sets the current installation language
 	 *
 	 * @return string The currently set language
-	 **/
+	 */
 	function set_language()
 	{
 		if (isset($_COOKIE['bb_install_language']) && count($this->languages) > 1) {
@@ -397,7 +397,7 @@ class BB_Install
 	 * currently configured.
 	 *
 	 * @return boolean False if the table isn't found, otherwise true
-	 **/
+	 */
 	function database_tables_are_installed()
 	{
 		global $bbdb;
@@ -411,7 +411,7 @@ class BB_Install
 	 * bb_options_are_set() - Tests whether an option is set in the database
 	 *
 	 * @return boolean False if the option isn't set, otherwise true
-	 **/
+	 */
 	function bb_options_are_set()
 	{
 		if ($this->load_includes) {
@@ -427,7 +427,7 @@ class BB_Install
 	 * is_installed() - Tests whether bbPress is installed
 	 *
 	 * @return boolean False if bbPress isn't installed, otherwise true
-	 **/
+	 */
 	function is_installed()
 	{
 		if (!$this->database_tables_are_installed()) {
@@ -443,7 +443,7 @@ class BB_Install
 	 * check_configs() - checks for configs and sets variables describing current install state
 	 *
 	 * @return integer The current step we should be on based on the existence of the config file
-	 **/
+	 */
 	function check_configs()
 	{
 		// Check for a config file
@@ -545,7 +545,7 @@ class BB_Install
 	 * validate_current_config() - Determines if the current config is valid
 	 *
 	 * @return boolean False if the config is bad, otherwise true
-	 **/
+	 */
 	function validate_current_config()
 	{
 		// If we are validating then the config file has already been included
@@ -580,7 +580,7 @@ class BB_Install
 	 * validate_current_database() - Validates the current database settings
 	 *
 	 * @return boolean False if the current database isn't valid, otherwise true
-	 **/
+	 */
 	function validate_current_database()
 	{
 		global $bbdb;
@@ -597,12 +597,12 @@ class BB_Install
 	 * prepare_data() - Sets up default values for input data as well as labels and notes
 	 *
 	 * @return void
-	 **/
+	 */
 	function prepare_data()
 	{
 		/**
 		 * Should be exactly the same as the default value of the KEYS in bb-config-sample.php
-		 * @since 1.0-beta
+		 * @since 1.0
 		 */
 		$_bb_default_secret_key = 'put your unique phrase here';
 		
@@ -923,7 +923,7 @@ class BB_Install
 	 * guess_uri() - Guesses the final installed URI based on the location of the install script
 	 *
 	 * @return string The guessed URI
-	 **/
+	 */
 	function guess_uri()
 	{
 		global $bb;
@@ -948,7 +948,7 @@ class BB_Install
 	 * @param $file_target string The full path to the file to be written to
 	 * @param $alterations array An array of arrays containing alterations to be made
 	 * @return void
-	 **/
+	 */
 	function write_lines_to_file($file_source, $file_target, $alterations)
 	{
 		if (!$file_source || !file_exists($file_source) || !is_file($file_source)) {
@@ -1031,7 +1031,7 @@ class BB_Install
 	 * is_posted() - Reports whether the request method is post or not
 	 *
 	 * @return boolean True if the page was posted, otherwise false
-	 **/
+	 */
 	function is_posted()
 	{
 		if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {

@@ -100,7 +100,7 @@ function bb_head() {
  * Display the link to the Really Simple Discovery service endpoint.
  *
  * @link http://archipelago.phrasewise.com/rsd
- * @since 1.0-beta
+ * @since 1.0
  */
 function bb_rsd_link() {
 	if (bb_get_option('enable_xmlrpc'))
@@ -110,7 +110,7 @@ function bb_rsd_link() {
 /**
  * Display the link to the pingback service endpoint.
  *
- * @since 1.0-beta
+ * @since 1.0
  */
 function bb_pingback_link() {
 	if (bb_get_option('enable_pingback'))
@@ -1263,7 +1263,7 @@ function bb_topic_search_form( $args = null, $query_obj = null ) {
  * @since 0.9
  * @param int $topic_id The topic id of the topic being queried
  * @return void
- **/
+ */
 function bb_topic_pagecount( $topic_id = 0 ) {
 	echo bb_get_topic_pagecount( $topic_id );
 }
@@ -1274,7 +1274,7 @@ function bb_topic_pagecount( $topic_id = 0 ) {
  * @since 0.9
  * @param int $topic_id The topic id of the topic being queried
  * @return int The total number of pages in the topic
- **/
+ */
 function bb_get_topic_pagecount( $topic_id = 0 ) {
 	$topic = get_topic( get_topic_id( $topic_id ) );
 	return get_page_number( $topic->topic_posts + topic_pages_add() );
@@ -1286,7 +1286,7 @@ function bb_get_topic_pagecount( $topic_id = 0 ) {
  * @since 0.9
  * @param int $topic_id The topic id of the topic being queried
  * @return boolean True if called on the last page of a topic, otherwise false
- **/
+ */
 function bb_is_topic_lastpage( $topic_id = 0 ) {
 	global $page;
 	return ( $page == bb_get_topic_pagecount( $topic_id ) );

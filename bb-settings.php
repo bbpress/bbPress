@@ -143,7 +143,7 @@ if ( !defined( 'BB_IS_ADMIN' ) )
 
 /**
  * Whether the current script is part of the installation process or not
- * @since 1.0-beta
+ * @since 1.0
  */
 if ( !defined( 'BB_INSTALLING' ) )
 	define( 'BB_INSTALLING', false );
@@ -439,7 +439,7 @@ if ( !BB_INSTALLING && !$bb->uri ) {
 
 /**
  * BB_FORCE_SSL_USER_FORMS - Whether to force use of ssl on user forms like login, registration and profile editing
- **/
+ */
 if ( !defined('BB_FORCE_SSL_USER_FORMS') ) {
 	define('BB_FORCE_SSL_USER_FORMS', false);
 }
@@ -447,7 +447,7 @@ bb_force_ssl_user_forms(BB_FORCE_SSL_USER_FORMS);
 
 /**
  * BB_FORCE_SSL_ADMIN - Whether to force use of ssl in the admin area
- **/
+ */
 if ( !defined('BB_FORCE_SSL_ADMIN') ) {
 	define('BB_FORCE_SSL_ADMIN', false);
 }
@@ -673,7 +673,7 @@ unset($_bb_sitecookiepath);
 
 /**
  * Should be exactly the same as the default value of the KEYS in bb-config-sample.php
- * @since 1.0-beta
+ * @since 1.0
  */
 $bb_default_secret_key = 'put your unique phrase here';
 

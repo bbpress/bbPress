@@ -220,7 +220,7 @@ if ( !function_exists('wp_sanitize_redirect') ) : // [WP6134]
 /**
  * sanitizes a URL for use in a redirect
  * @return string redirect-sanitized URL
- **/
+ */
 function wp_sanitize_redirect($location) {
 	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%]|i', '', $location);
 	$location = wp_kses_no_null($location);
@@ -245,7 +245,7 @@ if ( !function_exists('bb_safe_redirect') ) : // based on [WP6145] (home is diff
 /**
  * performs a safe (local) redirect, using wp_redirect()
  * @return void
- **/
+ */
 function bb_safe_redirect($location, $status = 302) {
 
 	// Need to look at the URL the way it will end up in wp_redirect()
@@ -382,7 +382,7 @@ if ( !function_exists('wp_generate_password') ) :
 /**
  * Generates a random password drawn from the defined set of characters
  * @return string the password
- **/
+ */
 function wp_generate_password( $length = 12, $special_chars = true ) {
 	return WP_Pass::generate_password( $length, $special_chars );
 }

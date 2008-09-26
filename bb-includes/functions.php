@@ -1881,8 +1881,8 @@ function bb_delete_option( $option, $value = '' ) {
 /**
  * BB_URI_CONTEXT_* - Bitwise definitions for bb_uri() and bb_get_uri() contexts
  *
- * @since 1.0-beta
- **/
+ * @since 1.0
+ */
 define('BB_URI_CONTEXT_HEADER',               1);
 define('BB_URI_CONTEXT_TEXT',                 2);
 define('BB_URI_CONTEXT_A_HREF',               4);
@@ -1907,13 +1907,13 @@ define('BB_URI_CONTEXT_AKISMET',              524288);
 /**
  * bb_uri() - echo a URI based on the URI setting
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @param $resource string The directory, may include a querystring
  * @param $query mixed The query arguments as a querystring or an associative array
  * @param $context integer The context of the URI, use BB_URI_CONTEXT_*
  * @return void
- **/
+ */
 function bb_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A_HREF) {
 	echo apply_filters('bb_uri', bb_get_uri($resource, $query, $context), $resource, $query, $context);
 }
@@ -1921,13 +1921,13 @@ function bb_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A_HRE
 /**
  * bb_get_uri() - return a URI based on the URI setting
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @param $resource string The directory, may include a querystring
  * @param $query mixed The query arguments as a querystring or an associative array
  * @param $context integer The context of the URI, use BB_URI_CONTEXT_*
  * @return string The complete URI
- **/
+ */
 function bb_get_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A_HREF) {
 	// If there is a querystring in the resource then extract it
 	if ($resource && strpos($resource, '?') !== false) {
@@ -1985,11 +1985,11 @@ function bb_get_uri($resource = null, $query = null, $context = BB_URI_CONTEXT_A
 /**
  * bb_force_ssl_user_forms() - Whether SSL should be forced when sensitive user data is being submitted.
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @param string|bool $force Optional.
  * @return bool True if forced, false if not forced.
- **/
+ */
 function bb_force_ssl_user_forms($force = '') {
 	static $forced;
 	
@@ -2005,11 +2005,11 @@ function bb_force_ssl_user_forms($force = '') {
 /**
  * bb_force_ssl_admin() - Whether SSL should be forced when using the admin area.
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @param string|bool $force Optional.
  * @return bool True if forced, false if not forced.
- **/
+ */
 function bb_force_ssl_admin($force = '') {
 	static $forced;
 	
@@ -2025,10 +2025,10 @@ function bb_force_ssl_admin($force = '') {
 /**
  * bb_ssl_redirect() - Forces redirection to an SSL page when required
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @return void
- **/
+ */
 function bb_ssl_redirect()
 {
 	do_action('bb_ssl_redirect');
@@ -2083,7 +2083,7 @@ function bb_ssl_redirect()
 /**
  * bb_is_ssl() - Determine if SSL is used.
  *
- * @since 1.0-beta
+ * @since 1.0
  *
  * @return bool True if SSL, false if not used.
  */

@@ -6,14 +6,14 @@
  * bbPress class to handle pinging
  *
  * @package bbPress
- **/
+ */
 class BB_Pingbacks
 {
 	/**
 	 * Gets the Pingback endpoint URI provided by a web page specified by URL
 	 *
 	 * @return string|boolean Returns the Pingback endpoint URI if found or false
-	 **/
+	 */
 	function get_endpoint_uri($url)
 	{
 		// First check for an X-pingback header
@@ -52,7 +52,7 @@ class BB_Pingbacks
 	 * expanded in the future.
 	 *
 	 * @return integer The number of pings sent
-	 **/
+	 */
 	function send_all()
 	{
 		$pings = BB_Pingbacks::send_all_pingbacks();
@@ -64,7 +64,7 @@ class BB_Pingbacks
 	 * Sends all pingbacks
 	 *
 	 * @return integer The number of pings sent
-	 **/
+	 */
 	function send_all_pingbacks()
 	{
 		global $bbdb;
@@ -92,7 +92,7 @@ class BB_Pingbacks
 	 * Sends a single pingback if a link is found
 	 *
 	 * @return integer The number of pingbacks sent
-	 **/
+	 */
 	function send_pingback($topic_id, $post_text)
 	{
 		if (!$topic_id || !$post_text)

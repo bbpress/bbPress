@@ -5,7 +5,7 @@
  * in the bbPress database
  *
  * @package bbPress
- **/
+ */
 class BP_Options
 {
 	function prefix() {
