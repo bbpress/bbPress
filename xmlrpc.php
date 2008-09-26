@@ -58,47 +58,6 @@ include_once(BACKPRESS_PATH . '/class.ixr.php');
 
 
 
-// Turn off all warnings and errors.
-// error_reporting(0);
-
-/**
- * Whether to enable XML-RPC Logging.
- *
- * @name bb_xmlrpc_logging
- * @var int|bool
- */
-$bb_xmlrpc_logging = 0;
-
-/**
- * bb_logIO() - Writes logging info to a file.
- *
- * @uses $bb_xmlrpc_logging
- * @package bbPress
- * @subpackage Logging
- *
- * @param string $io Whether input or output
- * @param string $msg Information describing logging reason.
- * @return bool Always return true
- */
-function bb_logIO($io, $msg)
-{
-	global $bb_xmlrpc_logging;
-	if ($bb_xmlrpc_logging) {
-		$fp = fopen("../xmlrpc.log","a+");
-		$date = gmdate("Y-m-d H:i:s ");
-		$iot = ($io == "I") ? " Input: " : " Output: ";
-		fwrite($fp, "\n\n".$date.$iot.$msg);
-		fclose($fp);
-	}
-	return true;
-}
-
-if ( isset($HTTP_RAW_POST_DATA) ) {
-	bb_logIO("I", $HTTP_RAW_POST_DATA);
-}
-
-
-
 /**
  * XML-RPC server class to allow for remote publishing
  *
