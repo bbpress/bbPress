@@ -33,7 +33,7 @@ require('./bb-load.php');
 
 
 
-if ( isset( $_GET['rsd'] ) ) { // http://archipelago.phrasewise.com/rsd
+if ( isset( $_GET['rsd'] ) ) {
 	header('Content-Type: text/xml; charset=UTF-8', true);
 ?>
 <?php echo '<?xml version="1.0" encoding="UTF-8"?'.'>' . "\n"; ?>
@@ -53,7 +53,6 @@ if ( isset( $_GET['rsd'] ) ) { // http://archipelago.phrasewise.com/rsd
 
 
 
-include_once(BB_PATH . 'bb-admin/admin-functions.php');
 include_once(BACKPRESS_PATH . '/class.ixr.php');
 
 
