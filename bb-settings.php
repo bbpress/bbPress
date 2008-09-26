@@ -155,15 +155,22 @@ if ( !defined( 'BB_INSTALLING' ) )
  */
 
 /**
- * The bbPress includes path relative to BB_PATH
- */
-define('BB_INC', 'bb-includes/');
-
-/**
  * The full path to the BackPress libraries
  */
 if ( !defined( 'BACKPRESS_PATH' ) )
 	define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/' );
+
+// Load logging class
+require_once( BACKPRESS_PATH . 'class.bp-log.php' );
+$bb_log = new BP_Log();
+if ( defined( 'BB_LOG_LEVEL' ) )
+	$bb_log->set_level( BB_LOG_LEVEL );
+if ( defined( 'BB_LOG_TYPE' ) )
+	$bb_log->set_type( BB_LOG_TYPE );
+if ( defined( 'BB_LOG_FILENAME' ) )
+	$bb_log->set_filename( BB_LOG_FILENAME );
+
+$bb_log->debug('Logging started', 'status');
 
 // Load core BackPress functions
 require( BACKPRESS_PATH . 'functions.core.php' );
@@ -1020,4 +1027,3 @@ $page = bb_get_uri_page();
  */
 
 bb_send_headers();
-?>

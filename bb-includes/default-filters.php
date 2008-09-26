@@ -124,6 +124,8 @@ add_action('bb_head', 'bb_template_scripts');
 add_action('bb_head', 'wp_print_scripts');
 add_action('bb_head', 'bb_rsd_link');
 add_action('bb_head', 'bb_pingback_link');
+if ( $bb_log->type === 'console' )
+	add_action('bb_head', array(&$bb_log, 'console_javascript'));
 add_action('bb_send_headers', 'bb_pingback_header');
 add_action('bb_admin_print_scripts', 'wp_print_scripts');
 
