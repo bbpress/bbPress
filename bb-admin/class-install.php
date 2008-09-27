@@ -2292,6 +2292,7 @@ class BB_Install
 		
 		$bb_keymaster_meta_key = $bbdb->escape( $bb_table_prefix . 'capabilities' );
 		$wp_administrator_meta_key = $bbdb->escape( $bb->wp_table_prefix . 'capabilities' );
+		$wpmu_administrator_meta_key = $bbdb->escape( $bb->wp_table_prefix . '1_capabilities' );
 		$keymaster_query = <<<EOQ
 			SELECT
 				user_login, user_email, display_name
@@ -2302,6 +2303,10 @@ class BB_Install
 				$bbdb->users.ID = $bbdb->usermeta.user_id
 			WHERE
 				(
+					(
+						meta_key = '$wpmu_administrator_meta_key' AND
+						meta_value LIKE '%administrator%'
+					) OR
 					(
 						meta_key = '$wp_administrator_meta_key' AND
 						meta_value LIKE '%administrator%'
