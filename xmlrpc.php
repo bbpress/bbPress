@@ -91,8 +91,8 @@ class BB_XMLRPC_Server extends IXR_Server
 		if (bb_get_option('enable_xmlrpc')) {
 			$this->methods = array(
 				// - Demo
-				'demo.sayHello' => 'this:sayHello',
-				'demo.addTwoNumbers' => 'this:addTwoNumbers',
+				'demo.sayHello'			=> 'this:sayHello',
+				'demo.addTwoNumbers'	=> 'this:addTwoNumbers',
 				// - Forums
 				'bb.getForumCount'		=> 'this:bb_getForumCount',
 				'bb.getForums'			=> 'this:bb_getForums',
@@ -102,6 +102,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.deleteForum'		=> 'this:bb_deleteForum',
 				// - Topics
 				'bb.getTopicCount'		=> 'this:bb_getTopicCount',
+				'bb.getLatestTopics'	=> 'this:bb_getLatestTopics',
 				//'bb.getTopics'			=> 'this:bb_getTopics',
 				//'bb.getTopic'			=> 'this:bb_getTopic',
 				//'bb.newTopic'			=> 'this:bb_newTopic',
@@ -924,6 +925,97 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Return the count of topics
 		return $count;
+	}
+
+	/**
+	 * Returns the latest topics in the site or a specified forum
+	 *
+	 * This method does not require authentication
+	 *
+	 * @return array|object The topics when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer|string $args[0] The forum id or slug (optional).
+	 * @param integer $args[1] The number of topics to return (optional).
+	 *
+	 * XML-RPC request to get the latest topics in the bbPress instance
+	 * <methodCall>
+	 *     <methodName>bb.getLatestTopics</methodName>
+	 *     <params></params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get the latest topics in the forum with id number 34
+	 * <methodCall>
+	 *     <methodName>bb.getLatestTopics</methodName>
+	 *     <params>
+	 *         <param><value><int>34</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get the latest 5 topics in the forum with slug "first-forum"
+	 * <methodCall>
+	 *     <methodName>bb.getLatestTopics</methodName>
+	 *     <params>
+	 *         <param><value><string>first-forum</string></value></param>
+	 *         <param><value><int>5</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getLatestTopics($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getLatestTopics');
+
+		$this->escape($args);
+
+		if (is_array($args)) {
+			// Can be numeric id or slug - sanitised in get_forum()
+			$forum_id = $args[0];
+
+			// Can only be an integer
+			$number = (int) $args[1];
+		} else {
+			// Can be numeric id or slug - sanitised in get_forum()
+			$forum_id = $args;
+		}
+
+		// Check the requested forum exists
+		if ($forum_id) {
+			if (!$forum = get_forum($forum_id)) {
+				$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+				return $this->error;
+			}
+
+			// The forum id may have been a slug, so make sure it's an integer here
+			$get_latest_topics_args = array('forum' => $forum->forum_id);
+		} else {
+			$get_latest_topics_args = array('forum' => false);
+		}
+
+		if (!isset($number) || !$number) {
+			$get_latest_topics_args['number'] = false;
+		} else {
+			$get_latest_topics_args['number'] = $number;
+		}
+
+		// Get the topics
+		if (!$topics = get_latest_topics($get_latest_topics_args)) {
+			$this->error = new IXR_Error(404, __('No topics found.'));
+			return $this->error;
+		}
+
+		$_topics = array();
+		foreach ($topics as $topic) {
+			// Cast to an array
+			$_topic = (array) $topic;
+			// Remove some sensitive user ids
+			unset($_topic['topic_poster']);
+			unset($_topic['topic_last_poster']);
+			$_topics[$_topic['topic_id']] = $_topic;
+			// Allow plugins to add to the array
+			$_topics[$_topic['topic_id']] = apply_filters('bb.getLatestTopics_sanitise', $_topics[$_topic['topic_id']], $_topic['topic_id'], $topic);
+		}
+
+		// Return the topics
+		return $_topics;
 	}
 
 
