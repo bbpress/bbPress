@@ -2631,27 +2631,22 @@ function bb_repermalink() {
 	$domain = preg_replace('/^https?/', '', $domain);
 	$check = preg_replace( '|^.*' . trim($domain, ' /' ) . '|', '', $permalink, 1 );
 
-	if ( 1 === bb_get_option( 'debug' ) ) {
-		echo "<table>\n<tr><td>". __('REQUEST_URI') .":</td><td>";
-		var_dump($uri);
-		echo "</td></tr>\n<tr><td>". __('should be') .":</td><td>";
-		var_dump($check);
-		echo "</td></tr>\n<tr><td>". __('full permalink') .":</td><td>";
-		var_dump($permalink);
-		echo "</td></tr>\n<tr><td>". __('PATH_INFO') .":</td><td>";
-		var_dump($_SERVER['PATH_INFO']);
-		echo "</td></tr>\n</table>";
-	} else {
-		if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
-			if ( $issue_404 ) {
-				status_header( 404 );
-				bb_load_template( '404.php' );
-			} else {
-				wp_redirect( $permalink );
-			}
-			exit;
+	global $bb_log;
+	$bb_log->debug($uri, 'bb_repermalink() ' . __('REQUEST_URI'));
+	$bb_log->debug($check, 'bb_repermalink() ' . __('should be'));
+	$bb_log->debug($permalink, 'bb_repermalink() ' . __('full permalink'));
+	$bb_log->debug($_SERVER['PATH_INFO'], 'bb_repermalink() ' . __('PATH_INFO'));
+
+	if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
+		if ( $issue_404 ) {
+			status_header( 404 );
+			bb_load_template( '404.php' );
+		} else {
+			wp_redirect( $permalink );
 		}
+		exit;
 	}
+
 	do_action( 'post_permalink', $permalink );
 }
 
