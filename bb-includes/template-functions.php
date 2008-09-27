@@ -554,7 +554,7 @@ function get_forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_H
 		} else {
 			$column = 'forum_id';
 		}
-		$page = $page > 1 ? $page : '';
+		$page = $page > 1 ? '/page/' . $page : '';
 		$link = bb_get_uri('forum/' . $forum->$column . $page, null, $context);
 	} else {
 		$query = array(
