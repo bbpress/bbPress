@@ -1632,8 +1632,8 @@ class BB_Install
 				$bb->user_bbdb_host = $data2['user_bbdb_host']['value'];
 			if ( !empty($data2['user_bbdb_charset']['value']) )
 				$bb->user_bbdb_charset = preg_replace( '/[^a-z0-9_-]/i', '', $data2['user_bbdb_charset']['value'] );
-			if ( !empty($data['user_bbdb_collate']['value']) )
-				$bb->user_bbdb_collate = preg_replace( '/[^a-z0-9_-]/i', '', $data['user_bbdb_collate']['value'] );
+			if ( !empty($data2['user_bbdb_collate']['value']) )
+				$bb->user_bbdb_collate = preg_replace( '/[^a-z0-9_-]/i', '', $data2['user_bbdb_collate']['value'] );
 			
 			bb_set_custom_user_tables();
 			

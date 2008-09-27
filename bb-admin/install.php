@@ -165,7 +165,7 @@ switch ($bb_install->step) {
 								<fieldset>
 									<legend><?php _e('Separate user database settings'); ?></legend>
 									<p><?php _e('Most of the time these settings are <em>not</em> required. Look before you leap!'); ?></p>
-									<p><?php _e('All settings except for the character set must be specified.'); ?></p>
+									<p><?php _e('If required, then all settings except for the character set must be specified.'); ?></p>
 <?php
 					$bb_install->input_text('user_bbdb_name');
 					$bb_install->input_text('user_bbdb_user');
