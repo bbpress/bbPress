@@ -1075,7 +1075,7 @@ class BB_Walker {
 		$last_element->{$this->db_fields['id']} = 0;
 		$elements[] = $last_element;
 
-		$flat = ($to_depth == -1) ? true : false;
+		$flat = (-1 == $to_depth) ? true : false;
 		foreach ( $elements as $element )
 			$output .= call_user_func_array( array(&$this, 'step'), array_merge( array($element, $to_depth), $args ) );
 
@@ -1090,7 +1090,7 @@ class BB_Walker {
 		$id_field = $this->db_fields['id'];
 		$parent_field = $this->db_fields['parent'];
 
-		$flat = ($to_depth == -1) ? true : false;
+		$flat = (-1 == $to_depth) ? true : false;
 
 		$output = '';
 

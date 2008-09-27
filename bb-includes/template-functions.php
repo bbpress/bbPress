@@ -554,12 +554,12 @@ function get_forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_H
 		} else {
 			$column = 'forum_id';
 		}
-		$page = $page > 1 ? '/page/' . $page : '';
+		$page = (1 < $page) ? '/page/' . $page : '';
 		$link = bb_get_uri('forum/' . $forum->$column . $page, null, $context);
 	} else {
 		$query = array(
 			'id' => $forum->forum_id,
-			'page' => $page > 1 ? $page : false
+			'page' => (1 < $page) ? $page : false
 		);
 		$link = bb_get_uri('forum.php', $query, $context);
 	}
@@ -845,10 +845,10 @@ function get_topic_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) 
 		} else {
 			$column = 'topic_id';
 		}
-		$page = $page > 1 ? '/page/' . $page : '';
+		$page = (1 < $page) ? '/page/' . $page : '';
 		$link = bb_get_uri('topic/' . $topic->$column . $page, null, $context);
 	} else {
-		$page = $page > 1 ? $page : false;
+		$page = (1 < $page) ? $page : false;
 		$link = bb_get_uri('topic.php', array('id' => $topic->topic_id, 'page' => $page), $context);
 	}
 
@@ -1595,12 +1595,12 @@ function get_user_profile_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_
 		} else {
 			$column = 'ID';
 		}
-		$page = $page > 1 ? '/page/' . $page : '';
+		$page = (1 < $page) ? '/page/' . $page : '';
 		$r = bb_get_uri('profile/' . $user->$column . $page, null, $context);
 	} else {
 		$query = array(
 			'id' => $user->ID,
-			'page' => $page > 1 ? $page : false
+			'page' => (1 < $page) ? $page : false
 		);
 		$r = bb_get_uri('profile.php', $query, $context);
 	}
@@ -1623,16 +1623,33 @@ function profile_tab_link( $id = 0, $tab, $page = 1 ) {
 	echo apply_filters( 'profile_tab_link', get_profile_tab_link( $id, $tab ) );
 }
 
-function get_profile_tab_link( $id = 0, $tab, $page = 1 ) {
+function get_profile_tab_link( $id = 0, $tab, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
+	$user = bb_get_user( bb_get_user_id( $id ) );
+
 	$tab = bb_sanitize_with_dashes($tab);
-	if ( bb_get_option('mod_rewrite') )
-		$r = get_user_profile_link( $id ) . "/$tab" . ( 1 < $page ? "/page/$page" : '' );
-	else {
-		$args = array('tab' => $tab);
-		$args['page'] = 1 < $page ? $page : false;
-		$r = add_query_arg( $args, get_user_profile_link( $id ) );
+
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
 	}
-	return apply_filters( 'get_profile_tab_link', $r, bb_get_user_id( $id ) );
+
+	$rewrite = bb_get_option( 'mod_rewrite' );
+	if ( $rewrite ) {
+		if ( $rewrite === 'slugs' ) {
+			$column = 'user_nicename';
+		} else {
+			$column = 'ID';
+		}
+		$page = (1 < $page) ? '/page/' . $page : '';
+		$r = bb_get_uri('profile/' . $user->$column . '/' . $tab . $page, null, $context);
+	} else {
+		$query = array(
+			'id' => $user->ID,
+			'tab' => $tab,
+			'page' => (1 < $page) ? $page : false
+		);
+		$r = bb_get_uri('profile.php', $query, $context);
+	}
+	return apply_filters( 'get_profile_tab_link', $r, $user->ID, $context );
 }
 
 function user_link( $id = 0 ) {
@@ -2156,16 +2173,26 @@ function bb_tag_page_link() {
 	echo bb_get_tag_page_link();
 }
 
-function bb_get_tag_page_link() {
-	return apply_filters( 'bb_get_tag_page_link', bb_get_option( 'domain' ) . bb_get_option( 'tagpath' ) . ( bb_get_option( 'mod_rewrite' ) ? 'tags/' : 'tags.php' ) );
+function bb_get_tag_page_link( $context = BB_URI_CONTEXT_A_HREF ) {
+	if ( bb_get_option( 'mod_rewrite' ) ) {
+		$r = bb_get_uri( 'tags/', null, $context );
+	} else {
+		$r = bb_get_uri( 'tags.php', null, $context );
+	}
+	return apply_filters( 'bb_get_tag_page_link', $r, $context );
 }
 
 function bb_tag_link( $id = 0, $page = 1 ) {
 	echo apply_filters( 'bb_tag_link', bb_get_tag_link( $id ), $id, $page );
 }
 
-function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
+function bb_get_tag_link( $tag_name = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
 	global $tag;
+
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF;
+	}
+
 	if ( $tag_name )
 		if ( is_object($tag_name) )
 			$_tag = $tag_name;
@@ -2174,11 +2201,17 @@ function bb_get_tag_link( $tag_name = 0, $page = 1 ) {
 	else
 		$_tag =& $tag;
 
-	if ( bb_get_option('mod_rewrite') )
-		$r = bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags/$_tag->tag" . ( 1 < $page ? "/page/$page" : '' );
-	else
-		$r = bb_get_option('domain') . bb_get_option( 'tagpath' ) . "tags.php?tag=$_tag->tag" . ( 1 < $page ? "&page=$page" : '' );
-	return apply_filters( 'bb_get_tag_link', $r, $_tag->tag, $page );
+	if ( bb_get_option('mod_rewrite') ) {
+		$page = (1 < $page) ? '/page/' . $page : '';
+		$r = bb_get_uri( 'tags/' . $_tag->tag . $page, null, $context );
+	} else {
+		$query = array(
+			'tag' => $_tag->tag,
+			'page' => ( 1 < $page ) ? $page : false
+		);
+		$r = bb_get_uri( 'tags.php', $query, $context );
+	}
+	return apply_filters( 'bb_get_tag_link', $r, $_tag->tag, $page, $context );
 }
 
 function bb_tag_link_base() {
@@ -2666,12 +2699,12 @@ function get_view_link( $_view = false, $page = 1, $context = BB_URI_CONTEXT_A_H
 	if ( !array_key_exists($v, $bb_views) )
 		return bb_get_uri(null, null, $context);
 	if ( bb_get_option('mod_rewrite') ) {
-		$page = $page > 1 ? '/page/' . $page : '';
+		$page = ( 1 < $page ) ? '/page/' . $page : '';
 		$link = bb_get_uri('view/' . $v . $page, null, $context);
 	} else {
 		$query = array(
 			'view' => $v,
-			'page' => $page > 1 ? $page : false,
+			'page' => ( 1 < $page ) ? $page : false,
 		);
 		$link = bb_get_uri('view.php', $query, $context);
 	}

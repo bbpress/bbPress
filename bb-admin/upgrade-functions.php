@@ -162,7 +162,7 @@ function bb_sql_describe_table($query) {
 			$_index_type = strtoupper(preg_replace('@\s+@', ' ', trim($_matches[1])));
 			$_index_type = str_replace('INDEX', 'KEY', $_index_type);
 			// Set the index name
-			$_index_name = ($_matches[1] == 'PRIMARY KEY') ? 'PRIMARY' : $_matches[2];
+			$_index_name = ('PRIMARY KEY' == $_matches[1]) ? 'PRIMARY' : $_matches[2];
 			// Split into columns
 			$_index_columns = array_map('trim', explode(',', $_matches[3]));
 			
@@ -170,12 +170,12 @@ function bb_sql_describe_table($query) {
 				preg_match('@`?(\w+)`?(?:\s*\(\s*(\d+)\s*\))?@i', $_index_column, $_matches_column);
 				$_indices[$_index_name][] = array(
 					'Table'        => $_table_name,
-					'Non_unique'   => ($_index_type == 'UNIQUE KEY' || $_index_name == 'PRIMARY') ? '0' : '1',
+					'Non_unique'   => ('UNIQUE KEY' == $_index_type || 'PRIMARY' == $_index_name) ? '0' : '1',
 					'Key_name'     => $_index_name,
 					'Seq_in_index' => (string) ($_index_columns_index + 1),
 					'Column_name'  => $_matches_column[1],
 					'Sub_part'     => $_matches_column[2] ? $_matches_column[2] : null,
-					'Index_type'   => ($_index_type == 'FULLTEXT KEY') ? 'FULLTEXT' : 'BTREE'
+					'Index_type'   => ('FULLTEXT KEY' == $_index_type) ? 'FULLTEXT' : 'BTREE'
 				);
 			}
 			unset($_index_type, $_index_name, $_index_columns, $_index_columns_index, $_index_column, $_matches_column);
@@ -189,9 +189,9 @@ function bb_sql_describe_table($query) {
 			$_columns[$_matches[1]] = array(
 				'Field'   => $_matches[1],
 				'Type'    => (is_numeric($_matches[3])) ? $_matches[2] . '(' . $_matches[3] . ')' . ((strtolower($_matches[4]) == 'unsigned') ? ' unsigned' : '') : $_matches[2],
-				'Null'    => (strtoupper($_matches[5]) == 'NOT NULL') ? 'NO' : 'YES',
-				'Default' => (strtolower($_matches[7]) == 'default' && strtoupper($_matches[8]) !== 'NULL') ? trim($_matches[8], "'") : null,
-				'Extra'   => (strtolower($_matches[6]) == 'auto_increment') ? 'auto_increment' : ''
+				'Null'    => ('NOT NULL' == strtoupper($_matches[5])) ? 'NO' : 'YES',
+				'Default' => ('default' == strtolower($_matches[7]) && 'NULL' !== strtoupper($_matches[8])) ? trim($_matches[8], "'") : null,
+				'Extra'   => ('auto_increment' == strtolower($_matches[6])) ? 'auto_increment' : ''
 			);
 		}
 	}

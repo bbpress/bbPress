@@ -160,13 +160,13 @@ function bb_utf8_cut( $utf8_string, $length = 0 ) {
 
 		$value = ord( $utf8_string[ $i ] );
 
-		if ( $value < 128 ) {
+		if ( 128 > $value ) {
 			if ( strlen($unicode) + 1 > $length )
 				break; 
 			$unicode .= $utf8_string[ $i ];
 		} else {
 			if ( count( $chars ) == 0 )
-				$num_octets = ( $value < 224 ) ? 2 : 3;
+				$num_octets = ( 224 > $value ) ? 2 : 3;
 
 			$chars[] = $utf8_string[ $i ];
 			if ( strlen($unicode) + $num_octets > $length )
@@ -199,7 +199,7 @@ function bb_encoded_utf8_cut( $encoded, $length = 0 ) {
 			$value = hexdec(substr($values[$i], 1));
 
 			if ( 1 == $num_octets )
-				$num_octets = $value < 224 ? 2 : 3;
+				$num_octets = ( 224 > $value ) ? 2 : 3;
 
 			if ( $length && ( strlen($r) + $num_octets * 3 ) > $length )
 				return $r;

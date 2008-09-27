@@ -1752,6 +1752,7 @@ function bb_get_option( $option ) {
 					break;
 				case 'uri_ssl':
 					$r = preg_replace('|^http://|i', 'https://', bb_get_option('uri'));
+					break;
 			}
 		}
 		
@@ -2413,14 +2414,14 @@ function bb_since( $original, $do_more = 0 ) {
 			break;
 	}
 
-	$print = sprintf(__('%1$d %2$s'), $count, $count == 1 ? $name : $names);
+	$print = sprintf(__('%1$d %2$s'), $count, (1 == $count) ? $name : $names);
 
 	if ( $do_more && $i + 1 < $j) {
 		$seconds2 = $chunks[$i + 1][0];
 		$name2 = $chunks[$i + 1][1];
 		$names2 = $chunks[$i + 1][2];
 		if ( 0 != $count2 = floor( ($since - $seconds * $count) / $seconds2) )
-			$print .= sprintf(__(', %1$d %2$s'), $count2, ($count2 == 1) ? $name2 : $names2);
+			$print .= sprintf(__(', %1$d %2$s'), $count2, (1 == $count2) ? $name2 : $names2);
 	}
 	return $print;
 }
@@ -2585,8 +2586,6 @@ function bb_repermalink() {
 		case 'tag-page': // It's not an integer and tags.php pulls double duty.
 			if ( isset($_GET['tag']) )
 				$id = $_GET['tag'];
-			else
-				$id = get_path( 1, bb_get_option('tagpath') );
 			$_original_id = $id;
 			if ( !$id )
 				$permalink = bb_get_tag_page_link();

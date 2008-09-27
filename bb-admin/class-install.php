@@ -2390,8 +2390,8 @@ EOS;
 			$r = '';
 			foreach ($messages as $type => $paragraphs) {
 				$class = $type ? $type : '';
-				$title = ($type == 'error') ? __('Warning') : __('Message');
-				$first_character = ($type == 'error') ? '!' : '&raquo;';
+				$title = ('error' == $type) ? __('Warning') : __('Message');
+				$first_character = ('error' == $type) ? '!' : '&raquo;';
 				
 				foreach ($paragraphs as $paragraph) {
 					$i++;

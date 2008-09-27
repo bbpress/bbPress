@@ -845,10 +845,6 @@ if ( !isset($wp_taxonomy_object) ) { // Clean slate
 }
 $wp_taxonomy_object->register_taxonomy( 'bb_topic_tag', 'bb_topic' );
 
-// Set the path to the tag pages
-if ( !isset( $bb->tagpath ) )
-	$bb->tagpath = $bb->path;
-
 do_action( 'bb_options_loaded' );
 
 
