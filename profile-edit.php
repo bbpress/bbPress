@@ -102,9 +102,9 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	if ( $user_email && !$errors->get_error_codes() ) {
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) {
 			if ( is_string($user_email) ) {
-				bb_update_user( $user->ID, $user_email, $user_url );
+				bb_update_user( $user->ID, $user_email, $user_url, $display_name );
 			} else {
-				bb_update_user( $user->ID, $user->user_email, $user_url );
+				bb_update_user( $user->ID, $user->user_email, $user_url, $display_name );
 			}
 			foreach( $profile_info_keys as $key => $label ) {
 				if ( 'display_name' == $key || 'ID' == $key || strpos($key, 'user_') === 0 )

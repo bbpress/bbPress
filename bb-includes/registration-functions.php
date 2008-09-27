@@ -49,13 +49,13 @@ function bb_verify_email( $email, $check_domain = false ) {
  * @param string $user_url
  * @return int
  */
-function bb_update_user( $user_id, $user_email, $user_url ) {
+function bb_update_user( $user_id, $user_email, $user_url, $display_name ) {
 	global $wp_users_object;
 
 	$user_id = (int) $user_id;
 	$user_url = bb_fix_link( $user_url );
 
-	$wp_users_object->update_user( $user_id, compact( 'user_email', 'user_url' ) );
+	$wp_users_object->update_user( $user_id, compact( 'user_email', 'user_url', 'display_name' ) );
 
 	do_action('bb_update_user', $user_id);
 	return $user_id;
