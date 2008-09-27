@@ -11,16 +11,6 @@
 
 
 /**
- * Dictates whether or not to trigger an error on a deprecated function call
- *
- * It is possible to define this in bb-config.php.
- *
- * @since 0.9
- */
-if (!defined('BB_LOG_DEPRECATED'))
-	define('BB_LOG_DEPRECATED', false);
-
-/**
  * Marks a function as deprecated and informs when it has been used.
  *
  * The current behavior is to trigger an user error if BB_LOG_DEPRECATED is
@@ -34,10 +24,11 @@ if (!defined('BB_LOG_DEPRECATED'))
  * @param string $type The type of function call that was attempted: function or class::function
  * @param string $name The function that was called
  * @param string $replacement Optional. The function that should have been called
+ * @uses $bb_log BP_Log logging object
  */
 function bb_log_deprecated($type, $name, $replacement = 'none') {
-	if (defined('BB_LOG_DEPRECATED') && BB_LOG_DEPRECATED)
-		trigger_error(sprintf('Using deprecated bbPress %1$s - %2$s - replace with - %3$s', $type, $name, $replacement));
+	global $bb_log;
+	$bb_log->notice(sprintf('Using deprecated bbPress %1$s - %2$s - replace with - %3$s', $type, $name, $replacement));
 }
 
 function bb_specialchars( $text, $quotes = 0 ) {

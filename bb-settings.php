@@ -170,7 +170,7 @@ if ( defined( 'BB_LOG_TYPE' ) )
 if ( defined( 'BB_LOG_FILENAME' ) )
 	$bb_log->set_filename( BB_LOG_FILENAME );
 
-$bb_log->debug('Logging started', 'status');
+$bb_log->notice('Logging started');
 
 // Load core BackPress functions
 require( BACKPRESS_PATH . 'functions.core.php' );
