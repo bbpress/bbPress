@@ -280,12 +280,20 @@ if ( !function_exists( 'add_shortcode' ) )
 else
 	remove_all_shortcodes();
 
-// Object Cache
-if ( !class_exists( 'WP_Object_Cache' ) ) {
-	require( BACKPRESS_PATH . 'class.wp-object-cache.php' );
-	require( BACKPRESS_PATH . 'functions.wp-object-cache.php' );
-}
-if ( !isset($wp_object_cache) )
+
+
+/**
+ * Define the full path to the object cache functions include
+ */
+if ( !defined( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE' ) )
+	define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', BACKPRESS_PATH . 'functions.wp-object-cache.php' );
+
+// Load the database class
+if ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE && !function_exists( 'wp_cache_init' ) )
+	require( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE );
+
+// Instantiate the $wp_object_cache object using wp_cache_init()
+if ( !isset( $wp_object_cache ) && function_exists( 'wp_cache_init' ) )
 	wp_cache_init();
 
 
