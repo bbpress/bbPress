@@ -14,7 +14,7 @@
 
 <table id="latest">
 <tr>
-	<th><?php _e('Topic'); ?> &#8212; <?php new_topic(); ?></th>
+	<th><?php _e('Topic'); ?> &#8212; <?php bb_new_topic_link(); ?></th>
 	<th><?php _e('Posts'); ?></th>
 	<th><?php _e('Last Poster'); ?></th>
 	<th><?php _e('Freshness'); ?></th>

@@ -1210,7 +1210,7 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 	alt_class( $key, $class );
 }
 
-function new_topic( $args = null ) {
+function bb_new_topic_link( $args = null ) {
 	$defaults = array( 'text' => __('Add New &raquo;'), 'forum' => 0, 'tag' => '' );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'text' => $args );
@@ -1222,9 +1222,13 @@ function new_topic( $args = null ) {
 		$url = get_forum_link( $forum->forum_id ) . '#postform';
 	elseif ( $tag && $tag = bb_get_tag( $tag ) )
 		$url = bb_get_tag_link( $tag->tag ) . '#postform';
-	elseif ( is_forum() || is_bb_tag() )
-		$url = '#postform';
-	elseif ( is_topic() )
+	elseif ( is_forum() ) {
+		global $forum;
+		$url = get_forum_link( $forum->forum_id ) . '#postform';
+	} elseif ( is_bb_tag() ) {
+		global $tag;
+		$url = bb_get_tag_link( $tag ) . '#postform';
+	} elseif ( is_topic() )
 		$url = get_forum_link() . '#postform';
 	elseif ( is_front() )
 		$url = bb_get_uri(null, array('new' => 1));

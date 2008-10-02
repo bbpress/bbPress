@@ -831,3 +831,8 @@ class BB_Cache {
 	}
 
 }
+
+function new_topic( $args = null ) {
+	bb_log_deprecated('function', __FUNCTION__, 'bb_new_topic_link');
+	bb_new_topic_link( $args );
+}
