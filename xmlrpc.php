@@ -111,7 +111,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				// - Topics
 				'bb.getTopicCount'		=> 'this:bb_getTopicCount',
 				'bb.getTopics'			=> 'this:bb_getTopics',
-				//'bb.getTopic'			=> 'this:bb_getTopic',
+				'bb.getTopic'			=> 'this:bb_getTopic',
 				//'bb.newTopic'			=> 'this:bb_newTopic',
 				//'bb.editTopic'			=> 'this:bb_editTopic',
 				//'bb.deleteTopic'		=> 'this:bb_deleteTopic',
@@ -449,23 +449,15 @@ class BB_XMLRPC_Server extends IXR_Server
 			// Only include "safe" data in the array
 			$_forums = array();
 			foreach ($forums as $key => $forum) {
-				if (!isset($forum->forum_is_category)) {
-					$forum->forum_is_category = 0;
+				// Cast to an array
+				$_forum = (array) $forum;
+				// Set the URI
+				$_forum['forum_uri'] = get_forum_link($_forum['forum_id']);
+				if (!isset($_forum['forum_is_category'])) {
+					$_forum['forum_is_category'] = 0;
 				}
-				$_forums[$key] = array(
-					'forum_id' =>          $forum->forum_id,
-					'forum_name' =>        $forum->forum_name,
-					'forum_slug' =>        $forum->forum_slug,
-					'forum_desc' =>        $forum->forum_desc,
-					'forum_parent' =>      $forum->forum_parent,
-					'forum_order' =>       $forum->forum_order,
-					'topics' =>            $forum->topics,
-					'posts' =>             $forum->posts,
-					'forum_is_category' => $forum->forum_is_category,
-					'forum_uri' =>         get_forum_link($forum->forum_id)
-				);
 				// Allow plugins to add to the array
-				$_forums[$key] = apply_filters('bb.getForums_sanitise', $_forums[$key], $key, $forum);
+				$_forums[$_forum['forum_id']] = apply_filters('bb.getForums_sanitise', $_forum, (array) $forum);
 			}
 		}
 
@@ -519,25 +511,15 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		// Make sure this is actually set
-		if (!isset($forum->forum_is_category)) {
-			$forum->forum_is_category = 0;
+		// Cast to an array
+		$_forum = (array) $forum;
+		// Set the URI
+		$_forum['forum_uri'] = get_forum_link($_forum['forum_id']);
+		if (!isset($_forum['forum_is_category'])) {
+			$_forum['forum_is_category'] = 0;
 		}
-		// Only include "safe" data in the array
-		$_forum = array(
-			'forum_id' =>          $forum->forum_id,
-			'forum_name' =>        $forum->forum_name,
-			'forum_slug' =>        $forum->forum_slug,
-			'forum_desc' =>        $forum->forum_desc,
-			'forum_parent' =>      $forum->forum_parent,
-			'forum_order' =>       $forum->forum_order,
-			'topics' =>            $forum->topics,
-			'posts' =>             $forum->posts,
-			'forum_is_category' => $forum->forum_is_category,
-			'forum_uri' =>         get_forum_link($forum->forum_id)
-		);
 		// Allow plugins to add to the array
-		$_forum = apply_filters('bb.getForum_sanitise', $_forum, $forum);
+		$_forum = apply_filters('bb.getForum_sanitise', $_forum, (array) $forum);
 
 		// Return the forums
 		return $_forum;
@@ -1051,11 +1033,77 @@ class BB_XMLRPC_Server extends IXR_Server
 			unset($_topic['topic_last_poster']);
 			$_topics[$_topic['topic_id']] = $_topic;
 			// Allow plugins to add to the array
-			$_topics[$_topic['topic_id']] = apply_filters('bb.getTopics_sanitise', $_topics[$_topic['topic_id']], $_topic['topic_id'], $topic);
+			$_topics[$_topic['topic_id']] = apply_filters('bb.getTopics_sanitise', $_topic, (array) $topic);
 		}
 
 		// Return the topics
 		return $_topics;
+	}
+
+	/**
+	 * Returns details of a topic
+	 *
+	 * This method does not require authentication
+	 *
+	 * @since 1.0
+	 * @return array|object An array containing details of the returned topic when successfully executed or an IXR_Error object on failure
+	 * @param array $args The topic's id or slug.
+	 *
+	 * XML-RPC request to get the topic with id number 105
+	 * <methodCall>
+	 *     <methodName>bb.getTopic</methodName>
+	 *     <params>
+	 *         <param><value><int>105</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get the topic with slug "cheesy-biscuits"
+	 * <methodCall>
+	 *     <methodName>bb.getTopic</methodName>
+	 *     <params>
+	 *         <param><value><string>cheesy-biscuits</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getTopic($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getTopic');
+
+		$this->escape($args);
+
+		// Don't accept arrays of arguments
+		if (is_array($args)) {
+			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+			return $this->error;
+		} else {
+			// Can be numeric id or slug - sanitised in get_topic()
+			$topic_id = $args;
+		}
+
+		// Check the requested topic exists
+		if (!$topic_id || !$topic = get_topic($topic_id)) {
+			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+			return $this->error;
+		}
+		
+		// Cast to an array
+		$_topic = (array) $topic;
+		// Set the URI
+		$_topic['topic_uri'] = get_topic_link($_topic['topic_id']);
+		// Set readable times
+		$_topic['topic_start_time_since'] = bb_since($_topic['topic_start_time']);
+		$_topic['topic_time_since'] = bb_since($_topic['topic_time']);
+		// Set the display names
+		$_topic['topic_poster_display_name'] = get_user_display_name($_topic['topic_poster']);
+		$_topic['topic_last_poster_display_name'] = get_user_display_name($_topic['topic_last_poster']);
+		// Remove some sensitive user ids
+		unset($_topic['topic_poster']);
+		unset($_topic['topic_last_poster']);
+		// Allow plugins to add to the array
+		$_topic = apply_filters('bb.getTopic_sanitise', $_topic, (array) $topic);
+
+		// Return the topic
+		return $_topic;
 	}
 
 
