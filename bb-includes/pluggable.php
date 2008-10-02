@@ -255,15 +255,19 @@ function bb_safe_redirect($location, $status = 302) {
 	if ( substr($location, 0, 2) == '//' )
 		$location = 'http:' . $location;
 
-	$lp  = parse_url($location);
+	$home = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+
+	if ( !$lp = @parse_url($location) )
+		return wp_redirect($home, $status);
+
 	$wpp = parse_url(bb_get_uri());
 
 	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($wpp['host']), isset($lp['host']) ? $lp['host'] : '');
 
 	if ( isset($lp['host']) && !in_array($lp['host'], $allowed_hosts) )
-		$location = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+		return wp_redirect($home, $status);
 
-	wp_redirect($location, $status);
+	return wp_redirect($location, $status);
 }
 endif;
 
