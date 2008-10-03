@@ -112,7 +112,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.getTopicCount'		=> 'this:bb_getTopicCount',
 				'bb.getTopics'			=> 'this:bb_getTopics',
 				'bb.getTopic'			=> 'this:bb_getTopic',
-				//'bb.newTopic'			=> 'this:bb_newTopic',
+				'bb.newTopic'			=> 'this:bb_newTopic',
 				//'bb.editTopic'			=> 'this:bb_editTopic',
 				//'bb.deleteTopic'		=> 'this:bb_deleteTopic',
 				// - Tags
@@ -589,7 +589,7 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Make sure there is something for us to do
 		if (!$args[2] || !is_array($args[2]) || !count($args[2])) {
-			$this->error = new IXR_Error(404, __('You must specify the options you wish to set.'));
+			$this->error = new IXR_Error(404, __('No data for the new forum was supplied.'));
 			return $this->error;
 		} else {
 			$structure = (array) $args[2];
@@ -710,7 +710,7 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Make sure there is something for us to do
 		if (!$args[3] || !is_array($args[3]) || !count($args[3])) {
-			$this->error = new IXR_Error(404, __('You must specify the options you wish to set.'));
+			$this->error = new IXR_Error(404, __('No data for the forum was supplied.'));
 			return $this->error;
 		} else {
 			$structure = (array) $args[3];
@@ -1085,7 +1085,7 @@ class BB_XMLRPC_Server extends IXR_Server
 			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
 			return $this->error;
 		}
-		
+
 		// Cast to an array
 		$_topic = (array) $topic;
 		// Set the URI
@@ -1104,6 +1104,128 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Return the topic
 		return $_topic;
+	}
+
+	/**
+	 * Creates a new topic
+	 *
+	 * This method requires authentication
+	 *
+	 * @since 1.0
+	 * @return integer|object The topic id when successfully created or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The username for authentication.
+	 * @param string $args[1] The password for authentication.
+	 * @param array $args[2] The values for the various parameters in the new topic.
+	 * @param string $args[2]['title'] The title of the topic.
+	 * @param string $args[2]['text'] The text of the topic.
+	 * @param integer $args[2]['forum_id'] The unique id of the forum which will contain this topic, slugs are OK to use too.
+	 * @param string|array $args[2]['tags'] A comma delimited string or an array of tags to add to the topic (optional).
+	 *
+	 * XML-RPC request to create a new topic called "Insane monkeys" inside the forum with id 2
+	 * <methodCall>
+	 *     <methodName>bb.newTopic</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>title</name>
+	 *                 <value><string>Insane monkeys</string></value>
+	 *             </member>
+	 *             <member>
+	 *                 <name>text</name>
+	 *                 <value><string>I just saw some insane monkeys eating bananas, did anyone else see that?</string></value>
+	 *             </member>
+	 *             <member>
+	 *                 <name>forum_id</name>
+	 *                 <value><integer>2</integer></value>
+	 *             </member>
+	 *             <member>
+	 *                 <name>tags</name>
+	 *                 <value><string>monkeys, bananas</string></value>
+	 *             </member>
+	 *         </struct></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_newTopic($args)
+	{
+		$this->escape($args);
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = $args[1];
+
+		// Check the user is valid
+		if( !$user_id = $this->authenticate( $username, $password ) ) {
+			// The error is set in authenticate()
+			return $this->error;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user_id );
+
+		// Make sure they are allowed to do this
+		if(!bb_current_user_can('write_topics') || !bb_current_user_can('write_posts')) {
+			$this->error = new IXR_Error(403, __('You are not allowed to create new topics.'));
+			return $this->error;
+		}
+
+		// Do the action once we are authenticated
+		do_action('bb_xmlrpc_call', 'bb.newTopic');
+
+		// Make sure there is something for us to do
+		if (!$args[2] || !is_array($args[2]) || !count($args[2])) {
+			$this->error = new IXR_Error(404, __('No data for the new topic was supplied.'));
+			return $this->error;
+		} else {
+			$structure = (array) $args[2];
+		}
+
+		// There needs to be a title
+		if (!isset($structure['title']) || !$structure['title']) {
+			$this->error = new IXR_Error(404, __('You must supply a title for the topic.'));
+			return $this->error;
+		}
+
+		// There needs to be text
+		if (!isset($structure['text']) || !$structure['text']) {
+			$this->error = new IXR_Error(404, __('You must supply text for the topic.'));
+			return $this->error;
+		}
+
+		// There needs to be a valid forum id
+		if (!isset($structure['forum_id']) || !$structure['forum_id']) {
+			$this->error = new IXR_Error(404, __('You must supply a forum id for the topic.'));
+			return $this->error;
+		}
+
+		// Check the requested forum exists
+		if (!$forum = get_forum($structure['forum_id'])) {
+			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+			return $this->error;
+		}
+
+		// Create the array for use with bb_insert_topic()
+		$bb_insert_topic_args = array(
+			'topic_title' => trim($structure['title']),
+			'forum_id' => (int) $forum->forum_id,
+			'tags' => trim($structure['tags'])
+		);
+
+		// Create the topic
+		if (!$topic_id = bb_insert_topic($bb_insert_topic_args)) {
+			$this->error = new IXR_Error(404, __('The new topic could not be created.'));
+			return $this->error;
+		}
+
+		if (!$post_id = bb_new_post($topic_id, $structure['text'])) {
+			$this->error = new IXR_Error(404, __('The new post could not be created.'));
+			return $this->error;
+		}
+
+		return (int) $topic_id;
 	}
 
 
