@@ -991,7 +991,7 @@ function topic_pages( $id = 0 ) {
 function topic_pages_add( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
 	if ( isset($_GET['view']) && 'all' == $_GET['view'] && bb_current_user_can('browse_deleted') && isset( $topic->deleted_posts ) )
-		$add = $topic->deleteted_posts;
+		$add = $topic->deleted_posts;
 	else
 		$add = 0;
 	return apply_filters( 'topic_pages_add', $add, isset($topic->topic_id) ? $topic->topic_id : 0 );
