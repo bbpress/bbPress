@@ -629,6 +629,7 @@ function bb_stick_topic( $topic_id, $super = 0 ) {
 	wp_cache_delete( $topic_id, 'bb_topic' );
 	$r = $bbdb->update( $bbdb->topics, array( 'topic_sticky' => $stick ), compact( 'topic_id' ) );
 	do_action('stick_topic', $topic_id, $r);
+	return $r;
 }
 
 function bb_unstick_topic( $topic_id ) {
