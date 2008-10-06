@@ -119,6 +119,13 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.stickTopic'			=> 'this:bb_stickTopic',
 				'bb.unstickTopic'		=> 'this:bb_unstickTopic',
 				'bb.closeTopic'			=> 'this:bb_closeTopic',
+				// - Posts (replies)
+				'bb.getPostCount'		=> 'this:bb_getPostCount',
+				//'bb.getPosts'			=> 'this:bb_getPosts',
+				//'bb.getPost'			=> 'this:bb_getPost',
+				//'bb.newPost'			=> 'this:bb_newPost',
+				//'bb.editPost'			=> 'this:bb_editPost',
+				//'bb.deletePost'		=> 'this:bb_deletePost',
 				// - Tags
 				//'bb.getTagCount'		=> 'this:bb_getTagCount',
 				//'bb.getTags'			=> 'this:bb_getTags',
@@ -127,13 +134,6 @@ class BB_XMLRPC_Server extends IXR_Server
 				//'bb.editTag'			=> 'this:bb_editTag',
 				//'bb.deleteTag'			=> 'this:bb_deleteTag',
 				//'bb.mergeTags'			=> 'this:bb_mergeTags',
-				// - Replies
-				//'bb.getReplyCount'		=> 'this:bb_getReplyCount',
-				//'bb.getReplies'			=> 'this:bb_getReplies',
-				//'bb.getReply'			=> 'this:bb_getReply',
-				//'bb.newReply'			=> 'this:bb_newReply',
-				//'bb.editReply'			=> 'this:bb_editReply',
-				//'bb.deleteReply'		=> 'this:bb_deleteReply',
 				// - Options
 				'bb.getOptions'			=> 'this:bb_getOptions',
 				'bb.setOptions'			=> 'this:bb_setOptions'
@@ -1742,6 +1742,58 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		return 1;
+	}
+
+
+
+	/**
+	 * bbPress publishing API - Post XML-RPC methods
+	 */
+
+	/**
+	 * Returns a numerical count of posts
+	 *
+	 * This method does not require authentication
+	 *
+	 * @since 1.0
+	 * @return integer|object The number of topics when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer|string $args[0] The topic id or slug.
+	 *
+	 * XML-RPC request to get a count of all posts in the topic with slug "countable-topic"
+	 * <methodCall>
+	 *     <methodName>bb.getPostCount</methodName>
+	 *     <params>
+	 *         <param><value><string>countable-topic</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getPostCount($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getPostCount');
+
+		$this->escape($args);
+
+		// Don't accept arrays of arguments
+		if (is_array($args)) {
+			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+			return $this->error;
+		} else {
+			// Can be numeric id or slug - sanitised in get_topic()
+			$topic_id = $args;
+		}
+
+		// Check the requested topic exists
+		if (!$topic_id || !$topic = get_topic($topic_id)) {
+			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+			return $this->error;
+		}
+
+		// OK, let's trust the count in the topic table
+		$count = $topic->topic_posts;
+
+		// Return the count of posts
+		return $count;
 	}
 
 
