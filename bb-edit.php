@@ -25,8 +25,13 @@ if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_
 
 bb_update_post( $_POST['post_content'], $post_id, $bb_post->topic_id );
 
-if ($post_id)
-	wp_redirect( get_post_link( $post_id ) );
-else
+if ( $post_id ) {
+	if ( $_REQUEST['view'] === 'all' ) {
+		add_filter( 'get_post_link', 'bb_make_link_view_all' );
+	}
+	$post_link = get_post_link( $post_id );
+	wp_redirect( $post_link );
+} else {
 	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
+}
 ?>

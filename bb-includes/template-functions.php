@@ -208,6 +208,8 @@ function edit_form() {
 	bb_load_template( 'edit-form.php', array('topic_title') );
 	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	do_action('edit_form');
+	if ($_REQUEST['view'] === 'all')
+		echo "\n" . '<input type="hidden" name="view" value="all" />';
 	echo "\n" . '</fieldset>' . "\n" . '</form>' . "\n";
 	do_action('post_edit_form');
 }
