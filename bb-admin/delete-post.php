@@ -23,10 +23,10 @@ bb_delete_post( $post_id, $status );
 
 $topic = get_topic( $bb_post->topic_id );
 
-if ( $topic->topic_posts == 0 ) {
-	$sendto = get_forum_link( $topic->forum_id );
-} else {
-	if ( !$sendto = wp_get_referer() ) {
+if ( !$sendto = wp_get_referer() ) {
+	if ( $topic->topic_posts == 0 ) {
+		$sendto = get_forum_link( $topic->forum_id );
+	} else {
 		$the_page = get_page_number( $bb_post->post_position );
 		$sendto = get_topic_link( $bb_post->topic_id, $the_page );
 	}
