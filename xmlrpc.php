@@ -1504,7 +1504,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * This method requires authentication
 	 *
 	 * @since 1.0
-	 * @return integer|object 1 when successfully stuck or an IXR_Error object on failure
+	 * @return integer|object 0 if it is already stuck to the desired location, 1 when successfully stuck or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
@@ -1557,9 +1557,6 @@ class BB_XMLRPC_Server extends IXR_Server
 		// The topic id may have been a slug, so make sure it's an integer here
 		$topic_id = $topic->topic_id;
 
-		// Stick to front?
-		$front = (int) $args[3];
-
 		// Make sure they are allowed to stick this topic specifically
 		if (!bb_current_user_can('stick_topic', $topic_id)) {
 			$this->error = new IXR_Error(403, __('You are not allowed to stick this topic.'));
@@ -1568,6 +1565,17 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Do the action once we are authenticated
 		do_action('bb_xmlrpc_call', 'bb.stickTopic');
+
+		// Stick to front?
+		$front = (int) $args[3];
+
+		if ($front === 1 && $topic->topic_sticky === "2") {
+			return 0;
+		}
+
+		if ($topic->topic_sticky === "1") {
+			return 0;
+		}
 
 		// Delete the topic
 		if (!bb_stick_topic($topic_id, $front)) {
@@ -1584,7 +1592,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * This method requires authentication
 	 *
 	 * @since 1.0
-	 * @return integer|object 1 when successfully stuck or an IXR_Error object on failure
+	 * @return integer|object 0 when already not stuck, 1 when successfully unstuck or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
@@ -1643,6 +1651,10 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Do the action once we are authenticated
 		do_action('bb_xmlrpc_call', 'bb.unstickTopic');
+
+		if ($topic->topic_sticky === "0") {
+			return 0;
+		}
 
 		// Delete the topic
 		if (!bb_unstick_topic($topic_id)) {
