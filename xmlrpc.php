@@ -115,7 +115,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.newTopic'			=> 'this:bb_newTopic',
 				'bb.editTopic'			=> 'this:bb_editTopic',
 				'bb.deleteTopic'		=> 'this:bb_deleteTopic',
-				//'bb.moveTopic'		=> 'this:bb_moveTopic',
+				'bb.moveTopic'			=> 'this:bb_moveTopic',
 				//'bb.stickTopic'		=> 'this:bb_stickTopic',
 				//'bb.closeTopic'		=> 'this:bb_closeTopic',
 				// - Tags
@@ -1406,6 +1406,95 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		return 1;
+	}
+
+	/**
+	 * Moves a topic to a different forum
+	 *
+	 * This method requires authentication
+	 *
+	 * @since 1.0
+	 * @return integer|object the forum id moved to when successfully moved or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The username for authentication.
+	 * @param string $args[1] The password for authentication.
+	 * @param string $args[2] The unique id of the topic to be moved.
+	 * @param string $args[3] The unique id of the forum to be moved to.
+	 *
+	 * XML-RPC request to move the topic with id of 34 to forum with slug of "better-forum"
+	 * <methodCall>
+	 *     <methodName>bb.moveTopic</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><integer>34</integer></value></param>
+	 *         <param><value><string>better-forum</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_moveTopic($args)
+	{
+		$this->escape($args);
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = $args[1];
+
+		// Check the user is valid
+		if( !$user_id = $this->authenticate( $username, $password ) ) {
+			// The error is set in authenticate()
+			return $this->error;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user_id );
+
+		// Make sure they are allowed to do this
+		if (!bb_current_user_can('move_topics')) {
+			$this->error = new IXR_Error(403, __('You are not allowed to move topics.'));
+			return $this->error;
+		}
+
+		// Get the topic id
+		$topic_id = $args[2];
+
+		// Check the requested forum exists
+		if (!$topic_id || !$topic = get_topic($topic_id)) {
+			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = $topic->topic_id;
+
+		// Get the forum id
+		$forum_id = $args[3];
+
+		// Check the requested forum exists
+		if (!$forum_id || !$forum = get_forum($forum_id)) {
+			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+			return $this->error;
+		}
+
+		// The forum id may have been a slug, so make sure it's an integer here
+		$forum_id = $forum->forum_id;
+
+		// Make sure they are allowed to move this topic specifically to this forum
+		if (!bb_current_user_can('move_topic', $topic_id, $forum_id)) {
+			$this->error = new IXR_Error(403, __('You are not allowed to move this topic to the specified forum.'));
+			return $this->error;
+		}
+
+		// Do the action once we are authenticated
+		do_action('bb_xmlrpc_call', 'bb.moveTopic');
+
+		// Delete the topic
+		if (!bb_move_topic($topic_id, $forum_id)) {
+			$this->error = new IXR_Error(404, __('The topic could not be moved.'));
+			return $this->error;
+		}
+
+		return $forum_id;
 	}
 
 
