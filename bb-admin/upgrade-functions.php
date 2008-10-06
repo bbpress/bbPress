@@ -26,7 +26,6 @@ function bb_upgrade_all() {
 	$bb_upgrade[] = bb_upgrade_1030(); // Move admin_email option to from_email
 	$bb_upgrade[] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
 	$bb_upgrade[] = bb_upgrade_1050(); // Update active theme if present
-	$bb_upgrade[] = bb_upgrade_1060(); // throttle_time option
 	$bb_upgrade[] = bb_upgrade_1070(); // trim whitespace from raw_tag
 	bb_update_db_version();
 	return $bb_upgrade; 
@@ -579,17 +578,6 @@ function bb_upgrade_1050() {
 	bb_update_option( 'bb_db_version', 1234 );
 	
 	return 'Done updating active theme if present: ' . __FUNCTION__;
-}
-
-function bb_upgrade_1060() {
-	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1435 )
-		return;
-	if ( !bb_get_option_from_db( 'throttle_time' ) )
-		bb_update_option( 'throttle_time', 30 );
-
-	bb_update_option( 'bb_db_version', 1435 );
-
-	return 'throttle_limit option added: ' . __FUNCTION__;
 }
 
 function bb_upgrade_1070() {
