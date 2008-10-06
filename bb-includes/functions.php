@@ -1286,7 +1286,7 @@ function bb_get_tag( $id, $user_id = 0, $topic_id = 0 ) {
 	$topic_id = (int) $topic_id;
 
 	$term = false;
-	if ( is_numeric( $id ) ) {
+	if ( is_integer( $id ) ) {
 		$tt_id = (int) $id;
 	} else {
 		if ( !$term = $wp_taxonomy_object->get_term_by( 'slug', $id, 'bb_topic_tag' ) )
@@ -2592,7 +2592,7 @@ function bb_repermalink() {
 			else {
 				global $tag, $tag_name;
 				$tag_name = $id;
-				$tag = bb_get_tag( $tag_name );
+				$tag = bb_get_tag( (string) $tag_name );
 				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;
