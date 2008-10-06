@@ -627,6 +627,9 @@ function bb_delete_forum( $forum_id ) {
 		return false;
 
 	if ( $topic_ids = $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->topics WHERE forum_id = %d", $forum_id ) ) ) {
+		foreach ($topic_ids as $topic_id) {
+			bb_remove_topic_tags( $topic_id );
+		}
 		$_topic_ids = join(',', array_map('intval', $topic_ids));
 		$bbdb->query("DELETE FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND topic_id != 0");
 		$bbdb->query("DELETE FROM $bbdb->meta WHERE object_type = 'bb_topic' AND object_id IN ($_topic_ids)");
