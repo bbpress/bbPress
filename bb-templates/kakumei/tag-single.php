@@ -16,7 +16,7 @@
 
 <?php foreach ( $topics as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
+	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a><?php topic_page_links(); ?></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
@@ -24,7 +24,7 @@
 <?php endforeach; ?>
 </table>
 
-<p><a href="<?php bb_tag_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag.') ?></a></p>
+<p class="rss-link"><a href="<?php bb_tag_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag.') ?></a></p>
 
 <div class="nav">
 <?php tag_pages(); ?>

@@ -16,3 +16,4 @@ a:hover { color: #001364; }
 .sticky { background: #adb9e1; }
 #latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background: #d8dcf2; }
 #profile-menu li a:hover { background: #d8dcf2; }
+a.prev.page-numbers:hover, a.next.page-numbers:hover { color: #001364; }

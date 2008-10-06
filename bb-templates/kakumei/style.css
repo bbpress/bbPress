@@ -283,6 +283,52 @@ form.login input#remember {
 
 .sticky { background-color: #a1d29a; }
 
+/* Page navigation
+=================================== */
+
+a.page-numbers,
+span.page-numbers {
+	border-right: 1px solid #bbbbbb;
+	border-bottom: 1px solid #bbbbbb;
+	padding: 4px 4px 2px 5px;
+	margin-left: 5px;
+	background-image: url('images/page-links-background.gif');
+	background-repeat: no-repeat;
+	background-position: 0 0;
+}
+
+span.page-numbers.current {
+	color: #ffffff;
+	background-position: 0 -100px;
+}
+
+#latest a.page-numbers {
+	font-size: 0.8em;
+	padding: 3px 3px 1px 4px;
+	margin-left: 3px;
+}
+
+a.prev.page-numbers,
+a.next.page-numbers,
+span.page-numbers.dots {
+	border-width: 0;
+	padding: 0 4px;
+	background-image: none;
+}
+
+span.page-numbers.dots {
+	padding: 0;
+}
+
+a.page-numbers:hover {
+	background-position: 0 -100px;
+}
+
+a.prev.page-numbers:hover,
+a.next.page-numbers:hover {
+	color: #006400;
+}
+
 /* Topic Page
 =================================== */
 
@@ -313,11 +359,8 @@ form.login input#remember {
 .nav {
 	margin: 15px 0;
 	padding: 12px 0;
+	text-align: center;
 }
-
-.nav span { font-weight: bold; }
-
-.nav span, .nav a { padding: 6px; }
 
 #thread {
 	list-style: none;
@@ -442,6 +485,7 @@ form.login input#remember {
 .num, #forumlist small {
 	font: 11px Verdana,Arial,Helvetica,sans-serif;
 	text-align: center;
+	white-space: nowrap;
 }
 
 .postform {
@@ -485,10 +529,12 @@ p.submit { text-align: right; }
 	display: inline;
 }
 
-.rss-link {
-	display: block;
-	padding: 6px 0;
-	text-indent: 20px;
+p.rss-link {
+	text-align: right;
+}
+
+a.rss-link {
+	padding: 6px 0 6px 20px;
 	background-image: url('images/feed-icon-16x16.gif');
 	background-repeat: no-repeat;
 	background-position: 0 50%;

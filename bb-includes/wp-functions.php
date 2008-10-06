@@ -531,7 +531,10 @@ function paginate_links( $args = '' ) {
 		'end_size' => 1, // How many numbers on either end including the end
 		'mid_size' => 2, // How many numbers to either side of current not including current
 		'type' => 'plain',
-		'add_args' => false // array of query args to aadd
+		'add_args' => false, // array of query args to aadd
+		'n_title' => __('Page %d'), // Not WP
+		'prev_title' => __('Previous page'), // Not WP
+		'next_title' => __('Next page') // Not WP
 	);
 
 	$args = wp_parse_args( $args, $defaults );
@@ -555,11 +558,11 @@ function paginate_links( $args = '' ) {
 		$link = str_replace('%#%', $current - 1, $link);
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='prev page-numbers' href='" . clean_url($link) . "'>$prev_text</a>";
+		$page_links[] = "<a class='prev page-numbers' href='" . clean_url($link) . "' title='" . attribute_escape($prev_title) . "'>$prev_text</a>";
 	endif;
 	for ( $n = 1; $n <= $total; $n++ ) :
 		if ( $n == $current ) :
-			$page_links[] = "<span class='page-numbers current'>$n</span>";
+			$page_links[] = "<span class='page-numbers current' title='" . attribute_escape(sprintf($n_title, $n)) . "'>$n</span>";
 			$dots = true;
 		else :
 			if ( $show_all || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) :
@@ -567,10 +570,10 @@ function paginate_links( $args = '' ) {
 				$link = str_replace('%#%', $n, $link);
 				if ( $add_args )
 					$link = add_query_arg( $add_args, $link );
-				$page_links[] = "<a class='page-numbers' href='" . clean_url($link) . "'>$n</a>";
+				$page_links[] = "<a class='page-numbers' href='" . clean_url($link) . "' title='" . attribute_escape(sprintf($n_title, $n)) . "'>$n</a>";
 				$dots = true;
 			elseif ( $dots && !$show_all ) :
-				$page_links[] = "<span class='page-numbers dots'>...</span>";
+				$page_links[] = "<span class='page-numbers dots'>&hellip;</span>";
 				$dots = false;
 			endif;
 		endif;
@@ -580,7 +583,7 @@ function paginate_links( $args = '' ) {
 		$link = str_replace('%#%', $current + 1, $link);
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='next page-numbers' href='" . clean_url($link) . "'>$next_text</a>";
+		$page_links[] = "<a class='next page-numbers' href='" . clean_url($link) . "' title='" . attribute_escape($next_title) . "'>$next_text</a>";
 	endif;
 	switch ( $type ) :
 		case 'array' :

@@ -23,14 +23,14 @@
 
 <?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
+	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a><?php topic_page_links(); ?></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
 </tr>
 <?php endforeach; endif; ?>
 </table>
-<p><a href="<?php bb_forum_posts_rss_link(); ?>" class="rss-link"><?php _e('RSS feed for this forum'); ?></a></p>
+<p class="rss-link"><a href="<?php bb_forum_posts_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for this forum'); ?></a></p>
 <div class="nav">
 <?php forum_pages(); ?>
 </div>

@@ -898,6 +898,70 @@ function get_topic_title( $id = 0 ) {
 	return apply_filters( 'get_topic_title', $topic->topic_title, $topic->topic_id );
 }
 
+function topic_page_links( $id = 0, $args = null ) {
+	echo apply_filters( 'topic_page_links', get_topic_page_links( $id, $args ), get_topic_id( $id ) );
+}
+
+function get_topic_page_links( $id = 0, $args = null ) {
+
+	$defaults = array(
+		'show_all' => true,
+		'end_size' => 2,
+		'before' => ' -',
+		'after' => null
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+
+	$topic = get_topic( get_topic_id( $id ) );
+
+	$uri = get_topic_link();
+	if ( bb_get_option('mod_rewrite') ) {
+		if ( false === $pos = strpos( $uri, '?' ) ) {
+			$uri = $uri . '%_%';
+		} else {
+			$uri = substr_replace( $uri, '%_%', $pos, 0 );
+		}
+	} else {
+		$uri = add_query_arg( 'page', '%_%', $uri );
+	}
+
+	$posts = $topic->topic_posts + topic_pages_add( $topic->topic_id );
+
+	$per_page = apply_filters( 'get_topic_page_links_per_page', bb_get_option('page_topics') );
+
+	$_links = paginate_links(
+		array(
+			'base' => $uri,
+			'format' => bb_get_option('mod_rewrite') ? '/page/%#%' : '%#%',
+			'total' => ceil($posts/$per_page),
+			'current' => 0,
+			'show_all' => $args['show_all'],
+			'end_size' => $args['end_size'],
+			'type' => 'array'
+		)
+	);
+
+	$links = $_links;
+
+	if ( $links ) {
+		if ( !$show_first ) {
+			unset( $links[0] );
+		}
+
+		$r = '';
+		if ( $args['before'] ) {
+			$r .= $args['before'];
+		}
+		$r .= join('', $links);
+		if ( $args['after'] ) {
+			$r .= $args['after'];
+		}
+	}
+
+	return apply_filters( 'get_topic_page_links', $r, $_links, $topic->topic_id );
+}
+
 function topic_posts( $id = 0 ) {
 	echo apply_filters( 'topic_posts', get_topic_posts( $id ), get_topic_id( $id ) );
 }
@@ -1036,13 +1100,20 @@ function get_page_number_links($page, $total) {
 	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
 		$args['view'] = $_GET['view'];
 
-	return paginate_links( array(
+	$links = paginate_links( array(
 		'base' => $uri,
 		'format' => $format,
 		'total' => ceil($total/bb_get_option('page_topics')),
 		'current' => $page,
-		'add_args' => $args
+		'add_args' => $args,
+		'type' => 'array',
+		'mid_size' => 1
 	) );
+
+	if ($links) {
+		$links = join('', $links);
+	}
+	return $links;
 }
 
 function bb_topic_admin( $args = '' ) {
