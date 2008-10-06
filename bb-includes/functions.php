@@ -1564,7 +1564,7 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 		'authcookie' => '',
 		'cookiepath' => '',
 		'sitecookiepath' => '',
-		'throttle_time' => ''
+		'throttle_time' => 30
 	);
 	
 	foreach ($base_options as $base_option => $base_option_default)
