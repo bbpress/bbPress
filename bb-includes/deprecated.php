@@ -836,3 +836,7 @@ function new_topic( $args = null ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_new_topic_link');
 	bb_new_topic_link( $args );
 }
+
+function bb_upgrade_1060() {
+	bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+}

@@ -36,7 +36,6 @@ function bb_upgrade_all() {
 	$bb_upgrade['messages'][] = bb_upgrade_1030(); // Move admin_email option to from_email
 	$bb_upgrade['messages'][] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
 	$bb_upgrade['messages'][] = bb_upgrade_1050(); // Update active theme if present
-	$bb_upgrade['messages'][] = bb_upgrade_1060(); // throttle_time option
 	$bb_upgrade['messages'][] = bb_upgrade_1070(); // trim whitespace from raw_tag
 	$bb_upgrade['messages'][] = bb_upgrade_1080(); // Convert tags to taxonomy
 	$bb_upgrade['messages'][] = bb_upgrade_1090(); // Add display names
@@ -229,19 +228,47 @@ function bb_sql_describe_table($query) {
  * Only supports CREATE TABLE, INSERT and UPDATE
  */
 function bb_sql_parse($sql) {
-	// Break the sql into seperate queries
-	if (!is_array($sql)) {
-		if (strpos(';', $sql) === false) {
-			$queries = array($sql);
-		} else {
-			$queries = explode(';', $sql);
-		}
+	// Only accept strings or arrays
+	if (is_string($sql)) {
+		// Just pop strings into an array to start with
+		$queries = array($sql);
+	} elseif (is_array($sql)) {
+		// Flatten the array
+		$queries = bb_flatten_array($sql, 0, false);
+		// Remove empty nodes
+		$queries = array_filter($queries);
 	} else {
-		$queries = $sql;
+		return false;
 	}
 	
 	// Clean up the queries
-	$queries = array_map('trim', $queries);
+	$_clean_queries = array();
+	foreach ($queries as $_query) {
+		// Trim space and semi-colons
+		$_query = trim($_query, "; \t\n\r\0\x0B");
+		// If it exists and isn't a number
+		if ($_query && !is_numeric($_query)) {
+			// Is it more than one query?
+			if (strpos(';', $_query) !== false) {
+				// Explode by semi-colon
+				foreach (explode(';', $_query) as $_part) {
+					$_part = trim($_part);
+					if ($_part && !is_numeric($_part)) {
+						$_clean_queries[] = $_part . ';';
+					}
+				}
+				unset($_part);
+			} else {
+				$_clean_queries[] = $_query . ';';
+			}
+		}
+	}
+	unset($_query);
+	if (!count($_clean_queries)) {
+		return false;
+	}
+	$queries = $_clean_queries;
+	unset($_clean_queries);
 	
 	$_queries = array();
 	foreach ($queries as $_query) {
@@ -851,17 +878,6 @@ function bb_upgrade_1050() {
 	bb_update_option( 'bb_db_version', 1234 );
 	
 	return 'Done updating active theme if present: ' . __FUNCTION__;
-}
-
-function bb_upgrade_1060() {
-	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1435 )
-		return;
-	if ( !bb_get_option_from_db( 'throttle_time' ) )
-		bb_update_option( 'throttle_time', 30 );
-
-	bb_update_option( 'bb_db_version', 1435 );
-
-	return 'throttle_limit option added: ' . __FUNCTION__;
 }
 
 function bb_upgrade_1070() {
