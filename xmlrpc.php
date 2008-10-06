@@ -118,7 +118,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.moveTopic'			=> 'this:bb_moveTopic',
 				'bb.stickTopic'			=> 'this:bb_stickTopic',
 				'bb.unstickTopic'		=> 'this:bb_unstickTopic',
-				//'bb.closeTopic'		=> 'this:bb_closeTopic',
+				'bb.closeTopic'			=> 'this:bb_closeTopic',
 				// - Tags
 				//'bb.getTagCount'		=> 'this:bb_getTagCount',
 				//'bb.getTags'			=> 'this:bb_getTags',
@@ -1659,6 +1659,85 @@ class BB_XMLRPC_Server extends IXR_Server
 		// Delete the topic
 		if (!bb_unstick_topic($topic_id)) {
 			$this->error = new IXR_Error(404, __('The topic could not be unstuck.'));
+			return $this->error;
+		}
+
+		return 1;
+	}
+
+	/**
+	 * Closes a topic
+	 *
+	 * This method requires authentication
+	 *
+	 * @since 1.0
+	 * @return integer|object 0 when already closed, 1 when successfully closed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param string $args[0] The username for authentication.
+	 * @param string $args[1] The password for authentication.
+	 * @param string $args[2] The unique id of the topic to be closed.
+	 *
+	 * XML-RPC request to close the topic with slug of "really-old-topic"
+	 * <methodCall>
+	 *     <methodName>bb.closeTopic</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>really-old-topic</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_closeTopic($args)
+	{
+		$this->escape($args);
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = $args[1];
+
+		// Check the user is valid
+		if( !$user_id = $this->authenticate( $username, $password ) ) {
+			// The error is set in authenticate()
+			return $this->error;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user_id );
+
+		// Make sure they are allowed to do this
+		if (!bb_current_user_can('close_topics')) {
+			$this->error = new IXR_Error(403, __('You are not allowed to close topics.'));
+			return $this->error;
+		}
+
+		// Get the topic id
+		$topic_id = $args[2];
+
+		// Check the requested topic exists
+		if (!$topic_id || !$topic = get_topic($topic_id)) {
+			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = $topic->topic_id;
+
+		// Make sure they are allowed to close this topic specifically
+		if (!bb_current_user_can('close_topic', $topic_id)) {
+			$this->error = new IXR_Error(403, __('You are not allowed to close this topic.'));
+			return $this->error;
+		}
+
+		// Do the action once we are authenticated
+		do_action('bb_xmlrpc_call', 'bb.closeTopic');
+
+		if ($topic->topic_open === "0") {
+			return 0;
+		}
+
+		// Delete the topic
+		if (!bb_close_topic($topic_id)) {
+			$this->error = new IXR_Error(404, __('The topic could not be closed.'));
 			return $this->error;
 		}
 
