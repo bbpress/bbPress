@@ -939,11 +939,11 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * This method does not require authentication
 	 *
 	 * @since 1.0
-	 * @return integer|object The number of topics when successfully executed or an IXR_Error object on failure
+	 * @return array|object The topics when successfully executed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param integer|string $args[0] The forum id or slug (optional).
-	 * @param integer $args[1] The number of the page to return (optional).
-	 * @param integer $args[2] The number of topics to return (optional).
+	 * @param integer $args[1] The number of topics to return (optional).
+	 * @param integer $args[2] The number of the page to return (optional).
 	 *
 	 * XML-RPC request to get all topics in the bbPress instance
 	 * <methodCall>
@@ -959,13 +959,13 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 *
-	 * XML-RPC request to get the latest 5 topics in the forum with slug "first-forum"
+	 * XML-RPC request to get topics 6 to 10 in the forum with slug "first-forum"
 	 * <methodCall>
 	 *     <methodName>bb.getTopics</methodName>
 	 *     <params>
 	 *         <param><value><string>first-forum</string></value></param>
-	 *         <param><value><int>1</int></value></param>
 	 *         <param><value><int>5</int></value></param>
+	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
@@ -980,10 +980,10 @@ class BB_XMLRPC_Server extends IXR_Server
 			$forum_id = $args[0];
 
 			// Can only be an integer
-			$page = (int) $args[1];
+			$number = (int) $args[1];
 
 			// Can only be an integer
-			$number = (int) $args[2];
+			$page = (int) $args[2];
 		} else {
 			// Can be numeric id or slug - sanitised in get_forum()
 			$forum_id = $args;
@@ -1002,16 +1002,16 @@ class BB_XMLRPC_Server extends IXR_Server
 			$get_topics_args = array('forum' => false);
 		}
 
-		if (!isset($page) || !$page) {
-			$get_topics_args['page'] = false;
-		} else {
-			$get_topics_args['page'] = $page;
-		}
-
 		if (!isset($number) || !$number) {
 			$get_topics_args['number'] = false;
 		} else {
 			$get_topics_args['number'] = $number;
+		}
+
+		if (!isset($page) || !$page) {
+			$get_topics_args['page'] = false;
+		} else {
+			$get_topics_args['page'] = $page;
 		}
 
 		// Get the topics
