@@ -8,7 +8,7 @@ if ( !bb_current_user_can('view_by_ip') ) {
 
 $ip = preg_replace('/[^0-9\.]/', '', $_GET['ip']);
 
-$post_query = new BB_Query( 'post', array( 'ip' => $ip, 'per_page' => 30 ) );
+$post_query = new BB_Query( 'post', array( 'poster_ip' => $ip, 'per_page' => 30 ) );
 
 bb_get_admin_header();
 ?>
