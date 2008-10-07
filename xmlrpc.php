@@ -121,8 +121,8 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.closeTopic'			=> 'this:bb_closeTopic',
 				// - Posts (replies)
 				'bb.getPostCount'		=> 'this:bb_getPostCount',
-				//'bb.getPosts'			=> 'this:bb_getPosts',
-				//'bb.getPost'			=> 'this:bb_getPost',
+				'bb.getPosts'			=> 'this:bb_getPosts',
+				'bb.getPost'			=> 'this:bb_getPost',
 				//'bb.newPost'			=> 'this:bb_newPost',
 				//'bb.editPost'			=> 'this:bb_editPost',
 				//'bb.deletePost'		=> 'this:bb_deletePost',
@@ -461,7 +461,7 @@ class BB_XMLRPC_Server extends IXR_Server
 					$_forum['forum_is_category'] = 0;
 				}
 				// Allow plugins to add to the array
-				$_forums[$_forum['forum_id']] = apply_filters('bb.getForums_sanitise', $_forum, (array) $forum);
+				$_forums[] = apply_filters('bb.getForums_sanitise', $_forum, (array) $forum);
 			}
 		}
 
@@ -476,7 +476,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *
 	 * @since 1.0
 	 * @return array|object An array containing details of the returned forum when successfully executed or an IXR_Error object on failure
-	 * @param array $args The forum's id or slug.
+	 * @param integer|string $args The forum's id or slug.
 	 *
 	 * XML-RPC request to get the forum with id number 34
 	 * <methodCall>
@@ -542,7 +542,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args[2] The values for the various settings in the new forum.
 	 * @param string $args[2]['name'] The name of the forum.
 	 * @param string $args[2]['description'] The description of the forum (optional).
-	 * @param integer $args[2]['parent_id'] The unique id of the parent forum for this forum (optional).
+	 * @param integer|string $args[2]['parent_id'] The unique id of the parent forum for this forum (optional).
 	 * @param integer $args[2]['order'] The position of the forum in the forum list (optional).
 	 * @param integer $args[2]['is_category'] Whether the forum is simply a container category (optional).
 	 *
@@ -638,7 +638,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the forum to be edited.
+	 * @param integer|string $args[2] The unique id of the forum to be edited.
 	 * @param array $args[3] The values for the various settings in the new forum, at least one must be specified.
 	 * @param string $args[3]['name'] The name of the forum (optional).
 	 * @param string $args[3]['slug'] The slug for the forum (optional).
@@ -782,7 +782,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the forum to be deleted.
+	 * @param integer|string $args[2] The unique id of the forum to be deleted.
 	 *
 	 * XML-RPC request to delete a forum with the slug "naughty-forum"
 	 * <methodCall>
@@ -1035,9 +1035,8 @@ class BB_XMLRPC_Server extends IXR_Server
 			// Remove some sensitive user ids
 			unset($_topic['topic_poster']);
 			unset($_topic['topic_last_poster']);
-			$_topics[$_topic['topic_id']] = $_topic;
 			// Allow plugins to add to the array
-			$_topics[$_topic['topic_id']] = apply_filters('bb.getTopics_sanitise', $_topic, (array) $topic);
+			$_topics[] = apply_filters('bb.getTopics_sanitise', $_topic, (array) $topic);
 		}
 
 		// Return the topics
@@ -1051,7 +1050,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *
 	 * @since 1.0
 	 * @return array|object An array containing details of the returned topic when successfully executed or an IXR_Error object on failure
-	 * @param array $args The topic's id or slug.
+	 * @param integer|string $args The topic's id or slug.
 	 *
 	 * XML-RPC request to get the topic with id number 105
 	 * <methodCall>
@@ -1123,7 +1122,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args[2] The values for the various parameters in the new topic.
 	 * @param string $args[2]['title'] The title of the topic.
 	 * @param string $args[2]['text'] The text of the topic.
-	 * @param integer $args[2]['forum_id'] The unique id of the forum which will contain this topic, slugs are OK to use too.
+	 * @param integer|string $args[2]['forum_id'] The unique id of the forum which will contain this topic, slugs are OK to use too.
 	 * @param string|array $args[2]['tags'] A comma delimited string or an array of tags to add to the topic (optional).
 	 *
 	 * XML-RPC request to create a new topic called "Insane monkeys" inside the forum with id 2
@@ -1242,9 +1241,10 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param array $args[2] The values for the various parameters in the new topic.
-	 * @param string $args[2]['title'] The title of the topic.
-	 * @param string $args[2]['text'] The text of the topic.
+	 * @param integer|string $args[2] The topic's id or slug.
+	 * @param array $args[3] The values for the various parameters in the new topic.
+	 * @param string $args[3]['title'] The title of the topic.
+	 * @param string $args[3]['text'] The text of the topic.
 	 *
 	 * XML-RPC request to edit the title of a topic with the slug "insane-monkeys"
 	 * <methodCall>
@@ -1344,7 +1344,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the topic to be deleted.
+	 * @param integer|string $args[2] The unique id of the topic to be deleted.
 	 *
 	 * XML-RPC request to delete a topic with id of 34
 	 * <methodCall>
@@ -1419,8 +1419,8 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the topic to be moved.
-	 * @param string $args[3] The unique id of the forum to be moved to.
+	 * @param integer|string $args[2] The unique id of the topic to be moved.
+	 * @param integer|string $args[3] The unique id of the forum to be moved to.
 	 *
 	 * XML-RPC request to move the topic with id of 34 to forum with slug of "better-forum"
 	 * <methodCall>
@@ -1508,7 +1508,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the topic to be stuck.
+	 * @param integer|string $args[2] The unique id of the topic to be stuck.
 	 * @param boolean $args[3] Whether or not to stick the topic to the front page.
 	 *
 	 * XML-RPC request to stick the topic with id of 34 to the front page
@@ -1596,7 +1596,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the topic to be unstuck.
+	 * @param integer|string $args[2] The unique id of the topic to be unstuck.
 	 *
 	 * XML-RPC request to unstick the topic with slug of "not-important-enough"
 	 * <methodCall>
@@ -1675,7 +1675,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param array $args Arguments passed by the XML-RPC call.
 	 * @param string $args[0] The username for authentication.
 	 * @param string $args[1] The password for authentication.
-	 * @param string $args[2] The unique id of the topic to be closed.
+	 * @param integer|string $args[2] The unique id of the topic to be closed.
 	 *
 	 * XML-RPC request to close the topic with slug of "really-old-topic"
 	 * <methodCall>
@@ -1794,6 +1794,167 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Return the count of posts
 		return $count;
+	}
+
+	/**
+	 * Returns details of the posts in a given topic
+	 *
+	 * This method does not require authentication
+	 *
+	 * @since 1.0
+	 * @return array|object The posts when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @param integer|string $args[0] The topic id or slug.
+	 * @param integer $args[1] The number of posts to return (optional).
+	 * @param integer $args[2] The number of the page to return (optional).
+	 *
+	 * XML-RPC request to get all posts in the topic with id number 53
+	 * <methodCall>
+	 *     <methodName>bb.getPosts</methodName>
+	 *     <params>
+	 *         <param><value><int>53</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get the latest 5 posts in the topic with id number 341
+	 * <methodCall>
+	 *     <methodName>bb.getPosts</methodName>
+	 *     <params>
+	 *         <param><value><int>341</int></value></param>
+	 *         <param><value><int>5</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to get posts 11 to 20 in the topic with slug "long-topic"
+	 * <methodCall>
+	 *     <methodName>bb.getPosts</methodName>
+	 *     <params>
+	 *         <param><value><string>long-topic</string></value></param>
+	 *         <param><value><int>10</int></value></param>
+	 *         <param><value><int>2</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getPosts($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getPosts');
+
+		$this->escape($args);
+
+		if (is_array($args)) {
+			// Can be numeric id or slug - sanitised in get_topic()
+			$topic_id = $args[0];
+
+			// Can only be an integer
+			$per_page = (int) $args[1];
+
+			// Can only be an integer
+			$page = (int) $args[2];
+		} else {
+			// Can be numeric id or slug - sanitised in get_topic()
+			$topic_id = $args;
+		}
+
+		// Check the requested topic exists
+		if (!$topic_id || !$topic = get_topic($topic_id)) {
+			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = $topic->topic_id;
+
+		if (isset($per_page) && $per_page) {
+			$get_thread_args['per_page'] = $per_page;
+		}
+
+		if (isset($page) && $page) {
+			$get_thread_args['page'] = $page;
+		}
+
+		// Get the posts
+		if (!$posts = get_thread($topic_id, $get_thread_args)) {
+			$this->error = new IXR_Error(404, __('No posts found.'));
+			return $this->error;
+		}
+
+		$_posts = array();
+		foreach ($posts as $post) {
+			// Cast to an array
+			$_post = (array) $post;
+			// Set the URI
+			$_post['post_uri'] = get_post_link($_post['post_id']);
+			// Set readable times
+			$_post['post_time_since'] = bb_since($_post['post_time']);
+			// Set the display names
+			$_post['poster_display_name'] = get_user_display_name($_post['poster_id']);
+			// Remove some sensitive data
+			unset($_post['poster_id']);
+			unset($_post['poster_ip']);
+			unset($_post['pingback_queued']);
+			// Allow plugins to add to the array
+			$_posts[] = apply_filters('bb.getPosts_sanitise', $_post, (array) $post);
+		}
+
+		// Return the posts
+		return $_posts;
+	}
+
+	/**
+	 * Returns details of a post
+	 *
+	 * This method does not require authentication
+	 *
+	 * @since 1.0
+	 * @return array|object An array containing details of the returned post when successfully executed or an IXR_Error object on failure
+	 * @param integer $args The post's id.
+	 *
+	 * XML-RPC request to get the post with id number 32
+	 * <methodCall>
+	 *     <methodName>bb.getPost</methodName>
+	 *     <params>
+	 *         <param><value><int>32</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getPost($args)
+	{
+		do_action('bb_xmlrpc_call', 'bb.getPost');
+
+		$this->escape($args);
+
+		// Don't accept arrays of arguments
+		if (is_array($args)) {
+			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+			return $this->error;
+		} else {
+			// Can only be an integer
+			$post_id = (int) $args;
+		}
+
+		// Check the requested post exists
+		if (!$post_id || !$post = bb_get_post($post_id)) {
+			$this->error = new IXR_Error(404, __('The requested post does not exist.'));
+			return $this->error;
+		}
+
+		// Cast to an array
+		$_post = (array) $post;
+		// Set the URI
+		$_post['post_uri'] = get_post_link($_post['post_id']);
+		// Set readable times
+		$_post['post_time_since'] = bb_since($_post['post_time']);
+		// Set the display names
+		$_post['poster_display_name'] = get_user_display_name($_post['poster_id']);
+		// Remove some sensitive data
+		unset($_post['poster_id']);
+		unset($_post['poster_ip']);
+		unset($_post['pingback_queued']);
+		// Allow plugins to add to the array
+		$_post = apply_filters('bb.getPost_sanitise', $_post, (array) $post);
+
+		// Return the post
+		return $_post;
 	}
 
 
