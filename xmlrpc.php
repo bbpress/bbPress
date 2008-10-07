@@ -14,39 +14,38 @@
  * @since 1.0
  * @var bool
  */
-define('XMLRPC_REQUEST', true);
+define( 'XMLRPC_REQUEST', true );
 
-// Some browser-embedded clients send cookies. We don't want them.
+// Get rid of cookies sent by some browser-embedded clients
 $_COOKIE = array();
 
-// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
-// but we can do it ourself.
+// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default
 if ( !isset( $HTTP_RAW_POST_DATA ) ) {
 	$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
 }
 
-// fix for mozBlog and other cases where '<?xml' isn't on the very first line
-if ( isset($HTTP_RAW_POST_DATA) ) {
-	$HTTP_RAW_POST_DATA = trim($HTTP_RAW_POST_DATA);
+// Fix for mozBlog and other cases where '<?xml' isn't on the very first line
+if ( isset( $HTTP_RAW_POST_DATA ) ) {
+	$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
 }
 
 // Load bbPress
-require_once('./bb-load.php');
+require_once( './bb-load.php' );
 
 
 
 // If the service discovery data is requested then return it and exit
 if ( isset( $_GET['rsd'] ) ) {
-	header('Content-Type: text/xml; charset=UTF-8', true);
+	header( 'Content-Type: text/xml; charset=UTF-8', true );
+	echo '<?xml version="1.0" encoding="UTF-8"?'.'>' . "\n";
 ?>
-<?php echo '<?xml version="1.0" encoding="UTF-8"?'.'>' . "\n"; ?>
 <rsd version="1.0" xmlns="http://archipelago.phrasewise.com/rsd">
 	<service>
 		<engineName>bbPress</engineName>
 		<engineLink>http://bbpress.org/</engineLink>
 		<homePageLink><?php bb_uri() ?></homePageLink>
 		<apis>
-			<api name="bbPress" blogID="" preferred="true" apiLink="<?php bb_uri('xmlrpc.php') ?>" />
+			<api name="bbPress" blogID="" preferred="true" apiLink="<?php bb_uri( 'xmlrpc.php' ) ?>" />
 		</apis>
 	</service>
 </rsd>
@@ -57,7 +56,7 @@ if ( isset( $_GET['rsd'] ) ) {
 
 
 // Load the XML-RPC server/client classes
-require_once(BACKPRESS_PATH . '/class.ixr.php');
+require_once( BACKPRESS_PATH . '/class.ixr.php' );
 
 
 
@@ -78,7 +77,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @var object|boolean An instance of the IXR_Error class or false if no error exists
 	 */
 	var $error = false;
-	
+
 	/**
 	 * Site options which can be manipulated using XML-RPC
 	 *
@@ -86,7 +85,15 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @var array
 	 */
 	var $site_options = array();
-	
+
+	/**
+	 * Whether read-only methods require authentication
+	 *
+	 * @since 1.0
+	 * @var boolean
+	 **/
+	var $auth_readonly = false;
+
 	/**
 	 * Initialises the XML-RPC server
 	 *
@@ -96,61 +103,63 @@ class BB_XMLRPC_Server extends IXR_Server
 	function bb_xmlrpc_server()
 	{
 		// bbPress publishing API
-		if (bb_get_option('enable_xmlrpc')) {
+		if ( bb_get_option( 'enable_xmlrpc' ) ) {
 			$this->methods = array(
 				// - Demo
-				'demo.sayHello'			=> 'this:sayHello',
-				'demo.addTwoNumbers'	=> 'this:addTwoNumbers',
+				'demo.sayHello'      => 'this:sayHello',
+				'demo.addTwoNumbers' => 'this:addTwoNumbers',
 				// - Forums
-				'bb.getForumCount'		=> 'this:bb_getForumCount',
-				'bb.getForums'			=> 'this:bb_getForums',
-				'bb.getForum'			=> 'this:bb_getForum',
-				'bb.newForum'			=> 'this:bb_newForum',
-				'bb.editForum'			=> 'this:bb_editForum',
-				'bb.deleteForum'		=> 'this:bb_deleteForum',
+				'bb.getForumCount'   => 'this:bb_getForumCount',
+				'bb.getForums'       => 'this:bb_getForums',
+				'bb.getForum'        => 'this:bb_getForum',
+				'bb.newForum'        => 'this:bb_newForum',
+				'bb.editForum'       => 'this:bb_editForum',
+				'bb.deleteForum'     => 'this:bb_deleteForum',
 				// - Topics
-				'bb.getTopicCount'		=> 'this:bb_getTopicCount',
-				'bb.getTopics'			=> 'this:bb_getTopics',
-				'bb.getTopic'			=> 'this:bb_getTopic',
-				'bb.newTopic'			=> 'this:bb_newTopic',
-				'bb.editTopic'			=> 'this:bb_editTopic',
-				'bb.deleteTopic'		=> 'this:bb_deleteTopic',
-				'bb.moveTopic'			=> 'this:bb_moveTopic',
-				'bb.stickTopic'			=> 'this:bb_stickTopic',
-				'bb.unstickTopic'		=> 'this:bb_unstickTopic',
-				'bb.closeTopic'			=> 'this:bb_closeTopic',
+				'bb.getTopicCount'   => 'this:bb_getTopicCount',
+				'bb.getTopics'       => 'this:bb_getTopics',
+				'bb.getTopic'        => 'this:bb_getTopic',
+				'bb.newTopic'        => 'this:bb_newTopic',
+				'bb.editTopic'       => 'this:bb_editTopic',
+				'bb.deleteTopic'     => 'this:bb_deleteTopic',
+				'bb.moveTopic'       => 'this:bb_moveTopic',
+				'bb.stickTopic'      => 'this:bb_stickTopic', // Also unsticks
+				'bb.closeTopic'      => 'this:bb_closeTopic', // Also opens
 				// - Posts (replies)
-				'bb.getPostCount'		=> 'this:bb_getPostCount',
-				'bb.getPosts'			=> 'this:bb_getPosts',
-				'bb.getPost'			=> 'this:bb_getPost',
-				//'bb.newPost'			=> 'this:bb_newPost',
-				//'bb.editPost'			=> 'this:bb_editPost',
-				//'bb.deletePost'		=> 'this:bb_deletePost',
+				'bb.getPostCount'    => 'this:bb_getPostCount',
+				'bb.getPosts'        => 'this:bb_getPosts',
+				'bb.getPost'         => 'this:bb_getPost',
+				'bb.newPost'         => 'this:bb_newPost',
+				//'bb.editPost'        => 'this:bb_editPost',
+				//'bb.deletePost'      => 'this:bb_deletePost',
 				// - Tags
-				//'bb.getTagCount'		=> 'this:bb_getTagCount',
-				//'bb.getTags'			=> 'this:bb_getTags',
-				//'bb.getTag'				=> 'this:bb_getTag',
-				//'bb.newTag'				=> 'this:bb_newTag',
-				//'bb.editTag'			=> 'this:bb_editTag',
-				//'bb.deleteTag'			=> 'this:bb_deleteTag',
-				//'bb.mergeTags'			=> 'this:bb_mergeTags',
+				//'bb.getTagCount'     => 'this:bb_getTagCount',
+				//'bb.getTags'         => 'this:bb_getTags',
+				//'bb.getTag'          => 'this:bb_getTag',
+				//'bb.newTag'          => 'this:bb_newTag',
+				//'bb.editTag'         => 'this:bb_editTag',
+				//'bb.deleteTag'       => 'this:bb_deleteTag',
+				//'bb.mergeTags'       => 'this:bb_mergeTags',
 				// - Options
-				'bb.getOptions'			=> 'this:bb_getOptions',
-				'bb.setOptions'			=> 'this:bb_setOptions'
+				'bb.getOptions'      => 'this:bb_getOptions',
+				'bb.setOptions'      => 'this:bb_setOptions'
 			);
 		}
 
 		// Pingback
-		if (bb_get_option('enable_pingback')) {
-			$this->methods = array_merge($this->methods, array(
+		if ( bb_get_option( 'enable_pingback' ) ) {
+			$this->methods = array_merge( $this->methods, array(
 				'pingback.ping' => 'this:pingback_ping',
 				'pingback.extensions.getPingbacks' => 'this:pingback_extensions_getPingbacks'
-			));
+			) );
 		}
 
+		// Tells read-only methods whether they require authentication or not
+		$this->auth_readonly = apply_filters( 'bb_xmlrpc_auth_readonly', $this->auth_readonly );
+
 		$this->initialise_site_option_info();
-		$this->methods = apply_filters('bb_xmlrpc_methods', $this->methods);
-		$this->IXR_Server($this->methods);
+		$this->methods = apply_filters( 'bb_xmlrpc_methods', $this->methods );
+		$this->IXR_Server( $this->methods );
 	}
 
 
@@ -167,15 +176,28 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param string $user_login The users login
 	 * @param string $user_pass The users password in plain text
 	 */
-	function authenticate($user_login, $user_pass)
+	function authenticate( $user_login, $user_pass, $capability = 'read', $message = false )
 	{
+		// Check the login
 		$user = bb_check_login( $user_login, $user_pass );
-		if ( !$user || is_wp_error($user) ) {
-			$this->error = new IXR_Error(403, __('The supplied authentication is invalid.'));
+		if ( !$user || is_wp_error( $user ) ) {
+			$this->error = new IXR_Error( 403, __( 'Authentication failed.' ) );
 			return false;
 		}
 
-		return $user->ID;
+		// Set the current user
+		$user = bb_set_current_user( $user->ID );
+
+		// Make sure they are allowed to do this
+		if ( !bb_current_user_can( $capability ) ) {
+			if ( !$message ) {
+				$message = __( 'You do not have permission to read this.' );
+			}
+			$this->error = new IXR_Error( 403, $message );
+			return false;
+		}
+
+		return $user;
 	}
 
 	/**
@@ -186,28 +208,100 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @param $array mixed The variable to be sanitised
 	 * @uses $bbdb BackPress database class instance
 	 */
-	function escape(&$array)
+	function escape( &$array )
 	{
 		global $bbdb;
 
-		if (!is_array($array)) {
+		if ( !is_array( $array ) ) {
 			// Escape it
-			$array = $bbdb->escape($array);
-		} elseif (count($array)) {
+			$array = $bbdb->escape( $array );
+		} elseif ( count( $array ) ) {
 			foreach ( (array) $array as $k => $v ) {
-				if (is_array($v)) {
+				if ( is_array( $v ) ) {
 					// Recursively sanitize arrays
-					$this->escape($array[$k]);
-				} else if (is_object($v)) {
+					$this->escape( $array[$k] );
+				} elseif ( is_object( $v ) ) {
 					// Don't sanitise objects - shouldn't happen anyway
 				} else {
 					// Escape it
-					$array[$k] = $bbdb->escape($v);
+					$array[$k] = $bbdb->escape( $v );
 				}
 			}
 		}
-		
+
 		return $array;
+	}
+
+	/**
+	 * Prepares forum data for return in an XML-RPC object
+	 *
+	 * @since 1.0
+	 * @return array The prepared forum data
+	 * @param array|object The unprepared forum data
+	 **/
+	function prepare_forum( $forum )
+	{
+		// Cast to an array
+		$_forum = (array) $forum;
+		// Set the URI
+		$_forum['forum_uri'] = get_forum_link( $_forum['forum_id'] );
+		// Give this a definite value
+		if ( !isset( $_forum['forum_is_category'] ) ) {
+			$_forum['forum_is_category'] = 0;
+		}
+		// Allow plugins to modify the data
+		return apply_filters( 'bb_xmlrpc_prepare_forum', $_forum, (array) $forum );
+	}
+
+	/**
+	 * Prepares topic data for return in an XML-RPC object
+	 *
+	 * @since 1.0
+	 * @return array The prepared topic data
+	 * @param array|object The unprepared topic data
+	 **/
+	function prepare_topic( $topic )
+	{
+		// Cast to an array
+		$_topic = (array) $topic;
+		// Set the URI
+		$_topic['topic_uri'] = get_topic_link( $_topic['topic_id'] );
+		// Set readable times
+		$_topic['topic_start_time_since'] = bb_since( $_topic['topic_start_time'] );
+		$_topic['topic_time_since'] = bb_since( $_topic['topic_time'] );
+		// Set the display names
+		$_topic['topic_poster_display_name'] = get_user_display_name( $_topic['topic_poster'] );
+		$_topic['topic_last_poster_display_name'] = get_user_display_name( $_topic['topic_last_poster'] );
+		// Remove some sensitive user ids
+		unset( $_topic['topic_poster'] );
+		unset( $_topic['topic_last_poster'] );
+		// Allow plugins to modify the data
+		return apply_filters( 'bb_xmlrpc_prepare_topic', $_topic, (array) $topic );
+	}
+
+	/**
+	 * Prepares post data for return in an XML-RPC object
+	 *
+	 * @since 1.0
+	 * @return array The prepared post data
+	 * @param array|object The unprepared post data
+	 **/
+	function prepare_post( $post )
+	{
+		// Cast to an array
+		$_post = (array) $post;
+		// Set the URI
+		$_post['post_uri'] = get_post_link( $_post['post_id'] );
+		// Set readable times
+		$_post['post_time_since'] = bb_since( $_post['post_time'] );
+		// Set the display names
+		$_post['poster_display_name'] = get_user_display_name( $_post['poster_id'] );
+		// Remove some sensitive data
+		unset( $_post['poster_id'] );
+		unset( $_post['poster_ip'] );
+		unset( $_post['pingback_queued'] );
+		// Allow plugins to modify the data
+		return apply_filters( 'bb_xmlrpc_prepare_post', $_post, (array) $post );
 	}
 
 
@@ -220,17 +314,34 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Hello world demo function for XML-RPC
 	 *
 	 * @since 1.0
-	 * @return string The phrase 'Hello!'.
-	 * @param array $args Arguments passed by the XML-RPC call.
+	 * @return string The phrase 'Hello!'
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
 	 *
 	 * XML-RPC request to get a greeting
 	 * <methodCall>
 	 *     <methodName>demo.sayHello</methodName>
-	 *     <params></params>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
 	 * </methodCall>
 	 */
-	function sayHello($args)
+	function sayHello( $args )
 	{
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly && !$this->authenticate( $username, $password ) ) {
+			return $this->error;
+		}
+
 		return 'Hello!';
 	}
 
@@ -238,25 +349,42 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Adds two numbers together as a demo of XML-RPC
 	 *
 	 * @since 1.0
-	 * @return integer The sum of the two supplied numbers.
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer $args[0] The first number to be added.
-	 * @param integer $args[1] The second number to be added.
+	 * @return integer The sum of the two supplied numbers
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer $args[2] The first number to be added
+	 * @param integer $args[3] The second number to be added
 	 *
 	 * XML-RPC request to get the sum of two numbers
 	 * <methodCall>
 	 *     <methodName>demo.addTwoNumbers</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>5</int></value></param>
 	 *         <param><value><int>102</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function addTwoNumbers($args)
+	function addTwoNumbers( $args )
 	{
-		$number1 = $args[0];
-		$number2 = $args[1];
-		return $number1 + $number2;
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly && !$this->authenticate( $username, $password ) ) {
+			return $this->error;
+		}
+
+		$number1 = (int) $args[2];
+		$number2 = (int) $args[3];
+
+		return ( $number1 + $number2 );
 	}
 
 
@@ -268,24 +396,29 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns a numerical count of forums
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The number of forums when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer|string $args[0] The parent forum's id or slug (optional).
-	 * @param integer $args[1] is the depth of child forums to retrieve (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The parent forum's id or slug (optional)
+	 * @param integer $args[3] The depth of child forums to retrieve (optional)
 	 *
 	 * XML-RPC request to get a count of all forums in the bbPress instance
 	 * <methodCall>
 	 *     <methodName>bb.getForumCount</methodName>
-	 *     <params></params>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
 	 * </methodCall>
 	 *
 	 * XML-RPC request to get a count of all child forums in the forum with id number 34
 	 * <methodCall>
 	 *     <methodName>bb.getForumCount</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -294,6 +427,8 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getForumCount</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -302,85 +437,112 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getForumCount</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getForumCount($args)
+	function bb_getForumCount( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getForumCount');
+		do_action( 'bb_xmlrpc_call', 'bb.getForumCount' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		if (is_array($args)) {
-			// Can be numeric id or slug - sanitised in get_forum()
-			$forum_id = $args[0];
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
-			// Can only be an integer
-			$depth = (int) $args[1];
-		} else {
-			$forum_id = $args;
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getForumCount' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
 		}
 
 		// Setup an array to store arguments to pass to get_forums() function
-		$get_forums_args = array();
+		$get_forums_args = array(
+			'child_of' => 0,
+			'hierarchical' => 0,
+			'depth' => 0
+		);
 
-		if ($forum_id) {
-			// First check the requested forum exists
-			if (!$forum = get_forum($forum_id)) {
-				$this->error = new IXR_Error(404, __('The requested parent forum does not exist.'));
+		// Can be numeric id or slug
+		$forum_id = isset( $args[2] ) ? $args[2] : false;
+
+		if ( $forum_id ) {
+			// Check for bad data
+			if ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+				return $this->error;
+			}
+			// Check the requested forum exists
+			if ( !$forum = get_forum( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
 			// Add the specific forum to the arguments
-			$get_forums_args['child_of'] = $forum->forum_id;
+			$get_forums_args['child_of'] = (int) $forum->forum_id;
 		}
 
-		if ($depth) {
+		// Can only be an integer
+		$depth = (int) $args[3];
+
+		if ( $depth > 0 ) {
 			// Add the depth to traverse to to the arguments
 			$get_forums_args['depth'] = $depth;
-			// Only make it hierarchical if the depth !== 1
-			if ($depth === 1) {
-				$get_forums_args['hierarchical'] = 0;
-			} else {
+			// Only make it hierarchical if the depth > 1
+			if ( $depth > 1 ) {
 				$get_forums_args['hierarchical'] = 1;
 			}
 		}
 
-		// Get the forums
-		$forums = get_forums($get_forums_args);
-
-		// Return an error when no forums exist
-		if ( !$forums ) {
-			$this->error = new IXR_Error(404, __('No forums found.'));
-			return $this->error;
+		// Get the forums. Return 0 when no forums exist
+		if ( !$forums = get_forums( $get_forums_args ) ) {
+			$count = 0;
+		} else {
+			$count = count( $forums );
 		}
 
+		do_action( 'bb_xmlrpc_call_return', 'bb.getForumCount' );
+
 		// Return a count of the forums
-		return count($forums);
+		return $count;
 	}
 
 	/**
 	 * Returns details of multiple forums
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object An array containing details of all returned forums when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer|string $args[0] The parent forum's id or slug (optional).
-	 * @param integer $args[1] is the depth of child forums to retrieve (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The parent forum's id or slug (optional)
+	 * @param integer $args[3] The depth of child forums to retrieve (optional)
 	 *
 	 * XML-RPC request to get all forums in the bbPress instance
 	 * <methodCall>
 	 *     <methodName>bb.getForums</methodName>
-	 *     <params></params>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
 	 * </methodCall>
 	 *
 	 * XML-RPC request to get all child forums in the forum with id number 34
 	 * <methodCall>
 	 *     <methodName>bb.getForums</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -389,6 +551,8 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getForums</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -397,73 +561,86 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getForums</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getForums($args)
+	function bb_getForums( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getForums');
+		do_action( 'bb_xmlrpc_call', 'bb.getForums' );
 
-		$this->escape($args);
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
-		if (is_array($args)) {
-			// Can be numeric id or slug - sanitised in get_forum()
-			$forum_id = $args[0];
-
-			// Can only be an integer
-			$depth = (int) $args[1];
-		} else {
-			$forum_id = $args;
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
 		}
 
-		// Setup an array to store arguments to pass to get_forums() function
-		$get_forums_args = array();
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getForums' );
 
-		if ($forum_id) {
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Escape args
+		$this->escape( $args );
+
+		// Setup an array to store arguments to pass to get_forums() function
+		$get_forums_args = array(
+			'child_of' => 0,
+			'hierarchical' => 0,
+			'depth' => 0
+		);
+
+		// Can be numeric id or slug
+		$forum_id = isset( $args[2] ) ? $args[2] : false;
+
+		if ( $forum_id ) {
+			// Check for bad data
+			if ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+				return $this->error;
+			}
 			// First check the requested forum exists
-			if (!$forum = get_forum($forum_id)) {
-				$this->error = new IXR_Error(404, __('The requested parent forum does not exist.'));
+			if ( !$forum = get_forum( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
 			// Add the specific forum to the arguments
-			$get_forums_args['child_of'] = $forum->forum_id;
+			$get_forums_args['child_of'] = (int) $forum->forum_id;
 		}
 
-		if ($depth) {
+		// Can only be an integer
+		$depth = (int) $args[3];
+
+		if ( $depth > 0 ) {
 			// Add the depth to traverse to to the arguments
 			$get_forums_args['depth'] = $depth;
-			// Only make it hierarchical if the depth !== 1
-			if ($depth === 1) {
-				$get_forums_args['hierarchical'] = 0;
-			} else {
+			// Only make it hierarchical if the depth > 1
+			if ( $depth > 1 ) {
 				$get_forums_args['hierarchical'] = 1;
 			}
 		}
 
-		// Get the forums
-		$forums = get_forums($get_forums_args);
-
-		// Return an error when no forums exist
-		if ( !$forums ) {
-			$this->error = new IXR_Error(404, __('No forums found.'));
+		// Get the forums. Return an error when no forums exist
+		if ( !$forums = get_forums( $get_forums_args ) ) {
+			$this->error = new IXR_Error( 404, __( 'No forums found.' ) );
 			return $this->error;
-		} else {
-			// Only include "safe" data in the array
-			$_forums = array();
-			foreach ($forums as $key => $forum) {
-				// Cast to an array
-				$_forum = (array) $forum;
-				// Set the URI
-				$_forum['forum_uri'] = get_forum_link($_forum['forum_id']);
-				if (!isset($_forum['forum_is_category'])) {
-					$_forum['forum_is_category'] = 0;
-				}
-				// Allow plugins to add to the array
-				$_forums[] = apply_filters('bb.getForums_sanitise', $_forum, (array) $forum);
-			}
 		}
+
+		// Only include "safe" data in the array
+		$_forums = array();
+		foreach ( $forums as $forum ) {
+			$_forums[] = $this->prepare_forum( $forum );
+		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getForums' );
 
 		// Return the forums
 		return $_forums;
@@ -472,16 +649,18 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns details of a forum
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object An array containing details of the returned forum when successfully executed or an IXR_Error object on failure
-	 * @param integer|string $args The forum's id or slug.
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The forum's id or slug
 	 *
 	 * XML-RPC request to get the forum with id number 34
 	 * <methodCall>
 	 *     <methodName>bb.getForum</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -490,61 +669,73 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getForum</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getForum($args)
+	function bb_getForum( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getForum');
+		do_action( 'bb_xmlrpc_call', 'bb.getForum' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		// Don't accept arrays of arguments
-		if (is_array($args)) {
-			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getForum' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
-		} else {
-			// Can be numeric id or slug - sanitised in get_forum()
-			$forum_id = $args;
+		}
+
+		// Can be numeric id or slug
+		$forum_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$forum_id || ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+			return $this->error;
 		}
 
 		// Check the requested forum exists
-		if (!$forum_id || !$forum = get_forum($forum_id)) {
-			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		if ( !$forum = get_forum( $forum_id ) ) {
+			$this->error = new IXR_Error( 404, __( 'No forum found.' ) );
 			return $this->error;
 		}
 
-		// Cast to an array
-		$_forum = (array) $forum;
-		// Set the URI
-		$_forum['forum_uri'] = get_forum_link($_forum['forum_id']);
-		if (!isset($_forum['forum_is_category'])) {
-			$_forum['forum_is_category'] = 0;
-		}
-		// Allow plugins to add to the array
-		$_forum = apply_filters('bb.getForum_sanitise', $_forum, (array) $forum);
+		// Only include "safe" data in the array
+		$forum = $this->prepare_forum( $forum );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getForum' );
 
 		// Return the forums
-		return $_forum;
+		return $forum;
 	}
 
 	/**
 	 * Creates a new forum
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The forum id when successfully created or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param array $args[2] The values for the various settings in the new forum.
-	 * @param string $args[2]['name'] The name of the forum.
-	 * @param string $args[2]['description'] The description of the forum (optional).
-	 * @param integer|string $args[2]['parent_id'] The unique id of the parent forum for this forum (optional).
-	 * @param integer $args[2]['order'] The position of the forum in the forum list (optional).
-	 * @param integer $args[2]['is_category'] Whether the forum is simply a container category (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The values for the various settings in the new forum
+	 * @param string $args[2]['name'] The name of the forum
+	 * @param string $args[2]['description'] The description of the forum (optional)
+	 * @param integer|string $args[2]['parent_id'] The unique id of the parent forum for this forum (optional)
+	 * @param integer $args[2]['order'] The position of the forum in the forum list (optional)
+	 * @param integer $args[2]['is_category'] Whether the forum is simply a container category (optional)
 	 *
 	 * XML-RPC request to create a new sub-forum called "A new forum" inside the parent forum with id 2
 	 * <methodCall>
@@ -565,87 +756,83 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_newForum($args)
+	function bb_newForum( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.newForum' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'manage_forums', __( 'You do not have permission to manage forums.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.newForum' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
-
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
-
-		// Make sure they are allowed to do this
-		if(!bb_current_user_can('manage_forums')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to create new forums.'));
-			return $this->error;
-		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.newForum');
 
 		// Make sure there is something for us to do
-		if (!$args[2] || !is_array($args[2]) || !count($args[2])) {
-			$this->error = new IXR_Error(404, __('No data for the new forum was supplied.'));
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum data is invalid.' ) );
 			return $this->error;
-		} else {
-			$structure = (array) $args[2];
 		}
+
+		$structure = (array) $args[2];
 
 		// Minimum requirement is a name for the new forum
-		if (!isset($structure['name']) || !$structure['name']) {
-			$this->error = new IXR_Error(404, __('You must supply a name for the forum.'));
+		if ( !isset( $structure['name'] ) || !$structure['name'] ) {
+			$this->error = new IXR_Error( 400, __( 'The forum name is invalid.' ) );
 			return $this->error;
 		}
 
-		// Inject settings into an array suitable for bb_new_forum()
-		$structure = array(
-			'forum_name' => $structure['name'],
-			'forum_desc' => $structure['description'],
-			'forum_parent' => $structure['parent_id'],
-			'forum_order' => $structure['order'],
-			'forum_is_category' => $structure['is_category']
+		// Inject structure into an array suitable for bb_new_forum()
+		$bb_new_forum_args = array(
+			'forum_name' => (string) $structure['name'],
+			'forum_desc' => (string) $structure['description'],
+			'forum_parent' => (int) $structure['parent_id'],
+			'forum_order' => (int) $structure['order'],
+			'forum_is_category' => (int) $structure['is_category']
 		);
+
 		// Remove empty settings so that changes to the defaults in bb_new_forum() are honoured
-		$structure = array_filter($structure);
+		$bb_new_forum_args = array_filter( $bb_new_forum_args );
 
 		// Leave the require until the very end
-		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
 
 		// Create the forum
-		if (!$forum_id = bb_new_forum($structure)) {
-			$this->error = new IXR_Error(404, __('The new forum could not be created.'));
+		if ( !$forum_id = (int) bb_new_forum( $bb_new_forum_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'The forum could not be created.' ) );
 			return $this->error;
 		}
 
-		return (int) $forum_id;
+		do_action( 'bb_xmlrpc_call_return', 'bb.newForum' );
+
+		return $forum_id;
 	}
 
 	/**
 	 * Edits an existing forum
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The forum id when successfully edited or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the forum to be edited.
-	 * @param array $args[3] The values for the various settings in the new forum, at least one must be specified.
-	 * @param string $args[3]['name'] The name of the forum (optional).
-	 * @param string $args[3]['slug'] The slug for the forum (optional).
-	 * @param string $args[3]['description'] The description of the forum (optional).
-	 * @param integer $args[3]['parent_id'] The unique id of the parent forum for this forum (optional).
-	 * @param integer $args[3]['order'] The position of the forum in the forum list (optional).
-	 * @param integer $args[3]['is_category'] Whether the forum is simply a container category (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The values for the various settings in the new forum, at least one must be specified
+	 * @param integer|string $args[2]['forum_id'] The unique id of the forum to be edited
+	 * @param string $args[2]['name'] The name of the forum (optional)
+	 * @param string $args[2]['slug'] The slug for the forum (optional)
+	 * @param string $args[2]['description'] The description of the forum (optional)
+	 * @param integer $args[2]['parent_id'] The unique id of the parent forum for this forum (optional)
+	 * @param integer $args[2]['order'] The position of the forum in the forum list (optional)
+	 * @param integer $args[2]['is_category'] Whether the forum is simply a container category (optional)
 	 *
 	 * XML-RPC request to edit a forum with id 11, changing the description
 	 * <methodCall>
@@ -653,8 +840,11 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     <params>
 	 *         <param><value><string>joeblow</string></value></param>
 	 *         <param><value><string>123password</string></value></param>
-	 *         <param><value><integer>11</integer></value></param>
 	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>forum_id</name>
+	 *                 <value><integer>11</integer></value>
+	 *             </member>
 	 *             <member>
 	 *                 <name>description</name>
 	 *                 <value><string>This is a great forum for all sorts of reasons.</string></value>
@@ -663,126 +853,126 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_editForum($args)
+	function bb_editForum( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.editForum' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'manage_forums', __( 'You do not have permission to manage forums.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.editForum' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
-
-		// Make sure they are allowed to do this
-		if(!bb_current_user_can('manage_forums')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to edit forums.'));
+		// Make sure there is something for us to do
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum data is invalid.' ) );
 			return $this->error;
 		}
 
-		// Get the forum id
-		$forum_id = $args[2];
+		$structure = (array) $args[2];
+
+		// Can be numeric id or slug
+		$forum_id = isset( $structure['forum_id'] ) ? $structure['forum_id'] : false;
+
+		// Check for bad data
+		if ( !$forum_id || ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+			return $this->error;
+		}
 
 		// Check the requested forum exists
-		if (!$forum_id || !$forum = get_forum($forum_id)) {
-			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		if ( !$forum = get_forum( $forum_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.editForum');
 
 		// Cast the forum object as an array
 		$forum = (array) $forum;
 		// The forum id may have been a slug, so make sure it's an integer here
-		$forum_id = $forum['forum_id'];
+		$forum_id = (int) $forum['forum_id'];
 
 		// Remove some unneeded indexes
-		unset($forum['topics']);
-		unset($forum['posts']);
+		unset( $forum['topics'] );
+		unset( $forum['posts'] );
 
 		// Add one if it isn't there
-		if (!isset($forum['forum_is_category'])) {
+		if ( !isset( $forum['forum_is_category'] ) ) {
 			$forum['forum_is_category'] = 0;
 		}
 
-		// Make sure there is something for us to do
-		if (!$args[3] || !is_array($args[3]) || !count($args[3])) {
-			$this->error = new IXR_Error(404, __('No data for the forum was supplied.'));
-			return $this->error;
-		} else {
-			$structure = (array) $args[3];
-		}
-
-		// Don't allow name to be blanked
-		if (isset($structure['name']) && !$structure['name']) {
-			unset($structure['name']);
-			$this->error = new IXR_Error(404, __('You must supply a name for the forum.'));
+		// Validate the name for the forum
+		if ( isset( $structure['name'] ) && !$structure['name'] ) {
+			$this->error = new IXR_Error( 400, __( 'The forum name is invalid.' ) );
 			return $this->error;
 		}
 
 		// Inject structure into an array suitable for bb_update_forum()
-		$_structure = array(
+		$bb_update_forum_args = array(
 			'forum_name' => $structure['name']
 		);
 
 		// Slug cannot be blank
-		if (isset($structure['slug']) && $structure['slug'] !== '') {
-			$_structure['forum_slug'] = $structure['slug'];
+		if ( isset( $structure['slug'] ) && $structure['slug'] !== '' ) {
+			$bb_update_forum_args['forum_slug'] = $structure['slug'];
 		}
 
-		// Description can be nothing, but must be set
-		if (isset($structure['description'])) {
-			$_structure['forum_desc'] = $structure['description'];
+		// Description can be nothing
+		if ( isset( $structure['description'] ) ) {
+			$bb_update_forum_args['forum_desc'] = $structure['description'];
 		}
 
 		// Parent forum ID must be an integer and it can be 0
-		if (isset($structure['parent_id']) && is_integer($structure['parent_id'])) {
-			$_structure['forum_parent'] = $structure['parent_id'];
+		if ( isset( $structure['parent_id'] ) && is_integer( $structure['parent_id'] ) ) {
+			$bb_update_forum_args['forum_parent'] = $structure['parent_id'];
 		}
 
 		// Order must be an integer and it can be 0
-		if (isset($structure['order']) && is_integer($structure['order'])) {
-			$_structure['forum_order'] = $structure['order'];
+		if ( isset( $structure['order'] ) && is_integer( $structure['order'] ) ) {
+			$bb_update_forum_args['forum_order'] = $structure['order'];
 		}
 
 		// Category flag must be an integer and it can be 0
-		if (isset($structure['is_category']) && is_integer($structure['is_category'])) {
-			$_structure['forum_is_category'] = $structure['is_category'];
+		if ( isset( $structure['is_category'] ) && is_integer( $structure['is_category'] ) ) {
+			$bb_update_forum_args['forum_is_category'] = $structure['is_category'];
 		}
 
 		// Merge the changes into the existing data for the forum
-		$structure = wp_parse_args( $_structure, $forum );
+		$bb_update_forum_args = wp_parse_args( $bb_update_forum_args, $forum );
 
 		// Leave the require until the very end
-		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
 
 		// Update the forum
-		if (!bb_update_forum($structure)) {
-			$this->error = new IXR_Error(404, __('The forum could not be edited.'));
+		if ( !bb_update_forum( $bb_update_forum_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'The forum could not be edited.' ) );
 			return $this->error;
 		}
 
-		return (int) $forum_id;
+		do_action( 'bb_xmlrpc_call_return', 'bb.editForum' );
+
+		return $forum_id;
 	}
 
 	/**
 	 * Deletes a forum
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object 1 when successfully deleted or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the forum to be deleted.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The unique id of the forum to be deleted
 	 *
 	 * XML-RPC request to delete a forum with the slug "naughty-forum"
 	 * <methodCall>
@@ -794,60 +984,67 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_deleteForum($args)
+	function bb_deleteForum( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.deleteForum' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'delete_forums', __( 'You do not have permission to delete forums.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.deleteForum' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		// Can be numeric id or slug
+		$forum_id = isset( $args[2] ) ? $args[2] : false;
 
-		// Make sure they are allowed to do this
-		if (!bb_current_user_can('delete_forums')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to delete forums.'));
+		// Check for bad data
+		if ( !$forum_id || ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
 			return $this->error;
 		}
-
-		// Get the forum id
-		$forum_id = $args[2];
 
 		// Check the requested forum exists
-		if (!$forum_id || !$forum = get_forum($forum_id)) {
-			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		if ( !$forum = get_forum( $forum_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
 
+		// Cast the forum object as an array
+		$forum = (array) $forum;
 		// The forum id may have been a slug, so make sure it's an integer here
-		$forum_id = $forum->forum_id;
+		$forum_id = (int) $forum['forum_id'];
 
 		// Make sure they are allowed to delete this forum specifically
-		if (!bb_current_user_can('delete_forum', $forum_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to delete this forum.'));
+		if ( !bb_current_user_can( 'delete_forum', $forum_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to delete this forum.' ) );
 			return $this->error;
 		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.deleteForum');
 
 		// Leave the require until the very end
-		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
 
 		// Delete the forum
-		if (!bb_delete_forum($forum_id)) {
-			$this->error = new IXR_Error(404, __('The forum could not be deleted.'));
+		if ( !bb_delete_forum( $forum_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'The forum could not be deleted.' ) );
 			return $this->error;
 		}
 
-		return 1;
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.deleteForum' );
+
+		return $result;
 	}
 
 
@@ -859,23 +1056,28 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns a numerical count of topics
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The number of topics when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer|string $args[0] The forum id or slug (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The forum id or slug (optional)
 	 *
 	 * XML-RPC request to get a count of all topics in the bbPress instance
 	 * <methodCall>
 	 *     <methodName>bb.getTopicCount</methodName>
-	 *     <params></params>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
 	 * </methodCall>
 	 *
 	 * XML-RPC request to get a count of all topics in the forum with id number 34
 	 * <methodCall>
 	 *     <methodName>bb.getTopicCount</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -884,50 +1086,68 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getTopicCount</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>first-forum</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getTopicCount($args)
+	function bb_getTopicCount( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getTopicCount');
+		do_action( 'bb_xmlrpc_call', 'bb.getTopicCount' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		// Don't accept arrays of arguments
-		if (is_array($args)) {
-			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
-			return $this->error;
-		} else {
-			// Can be numeric id or slug - sanitised in get_forum()
-			$forum_id = $args;
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
 		}
 
-		// Check the requested forum exists
-		if ($forum_id) {
-			if (!$forum = get_forum($forum_id)) {
-				$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getTopicCount' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		if ( isset( $args[2] ) && $forum_id = $args[2] ) {
+			// Check for bad data
+			if ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+				return $this->error;
+			}
+			// Check the requested forum exists
+			if ( !$forum = get_forum( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
 
 			// OK, let's trust the count in the forum table
-			$count = $forum->topics;
+			$count = (int) $forum->topics;
 		} else {
 			// Get all forums
 			$forums = get_forums();
 	
 			// Return an error when no forums exist
 			if ( !$forums ) {
-				$this->error = new IXR_Error(404, __('No forums found.'));
+				$this->error = new IXR_Error( 400, __( 'No forums found.' ) );
 				return $this->error;
 			}
 
 			// Count the topics
 			$count = 0;
-			foreach ($forums as $forum) {
-				$count += $forum->topics;
+			foreach ( $forums as $forum ) {
+				$count += (int) $forum->topics;
 			}
 		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getTopicCount' );
 
 		// Return the count of topics
 		return $count;
@@ -936,25 +1156,30 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns details of the latest topics
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object The topics when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer|string $args[0] The forum id or slug (optional).
-	 * @param integer $args[1] The number of topics to return (optional).
-	 * @param integer $args[2] The number of the page to return (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The forum id or slug (optional)
+	 * @param integer $args[3] The number of topics to return (optional)
+	 * @param integer $args[4] The number of the page to return (optional)
 	 *
 	 * XML-RPC request to get all topics in the bbPress instance
 	 * <methodCall>
 	 *     <methodName>bb.getTopics</methodName>
-	 *     <params></params>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
 	 * </methodCall>
 	 *
 	 * XML-RPC request to get all topics in the forum with id number 34
 	 * <methodCall>
 	 *     <methodName>bb.getTopics</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>34</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -963,81 +1188,84 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getTopics</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>first-forum</string></value></param>
 	 *         <param><value><int>5</int></value></param>
 	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getTopics($args)
+	function bb_getTopics( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getTopics');
+		do_action( 'bb_xmlrpc_call', 'bb.getTopics' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		if (is_array($args)) {
-			// Can be numeric id or slug - sanitised in get_forum()
-			$forum_id = $args[0];
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
-			// Can only be an integer
-			$number = (int) $args[1];
-
-			// Can only be an integer
-			$page = (int) $args[2];
-		} else {
-			// Can be numeric id or slug - sanitised in get_forum()
-			$forum_id = $args;
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
 		}
 
-		// Check the requested forum exists
-		if ($forum_id) {
-			if (!$forum = get_forum($forum_id)) {
-				$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getTopics' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Setup an array to store arguments to pass to get_topics() function
+		$get_topics_args = array(
+			'forum' => false,
+			'number' => false,
+			'page' => false
+		);
+
+		// Can be numeric id or slug
+		if ( isset( $args[2] ) && $forum_id = $args[2] ) {
+			// Check for bad data
+			if ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+				return $this->error;
+			}
+			// Check the requested forum exists
+			if ( !$forum = get_forum( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
 
 			// The forum id may have been a slug, so make sure it's an integer here
-			$get_topics_args = array('forum' => $forum->forum_id);
-		} else {
-			$get_topics_args = array('forum' => false);
+			$get_topics_args['forum'] = (int) $forum->forum_id;
 		}
 
-		if (!isset($number) || !$number) {
-			$get_topics_args['number'] = false;
-		} else {
+		// Can only be an integer
+		if ( isset( $args[3] ) && $number = (int) $args[3] ) {
 			$get_topics_args['number'] = $number;
 		}
 
-		if (!isset($page) || !$page) {
-			$get_topics_args['page'] = false;
-		} else {
+		// Can only be an integer
+		if ( isset( $args[4] ) && $page = (int) $args[4] ) {
 			$get_topics_args['page'] = $page;
 		}
 
 		// Get the topics
-		if (!$topics = get_latest_topics($get_topics_args)) {
-			$this->error = new IXR_Error(404, __('No topics found.'));
+		if ( !$topics = get_latest_topics( $get_topics_args ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topics found.' ) );
 			return $this->error;
 		}
 
+		// Only include "safe" data in the array
 		$_topics = array();
-		foreach ($topics as $topic) {
-			// Cast to an array
-			$_topic = (array) $topic;
-			// Set the URI
-			$_topic['topic_uri'] = get_topic_link($_topic['topic_id']);
-			// Set readable times
-			$_topic['topic_start_time_since'] = bb_since($_topic['topic_start_time']);
-			$_topic['topic_time_since'] = bb_since($_topic['topic_time']);
-			// Set the display names
-			$_topic['topic_poster_display_name'] = get_user_display_name($_topic['topic_poster']);
-			$_topic['topic_last_poster_display_name'] = get_user_display_name($_topic['topic_last_poster']);
-			// Remove some sensitive user ids
-			unset($_topic['topic_poster']);
-			unset($_topic['topic_last_poster']);
-			// Allow plugins to add to the array
-			$_topics[] = apply_filters('bb.getTopics_sanitise', $_topic, (array) $topic);
+		foreach ( $topics as $topic ) {
+			$_topics[] = $this->prepare_topic( $topic );
 		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getTopics' );
 
 		// Return the topics
 		return $_topics;
@@ -1046,16 +1274,18 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns details of a topic
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object An array containing details of the returned topic when successfully executed or an IXR_Error object on failure
-	 * @param integer|string $args The topic's id or slug.
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The topic's id or slug
 	 *
 	 * XML-RPC request to get the topic with id number 105
 	 * <methodCall>
 	 *     <methodName>bb.getTopic</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>105</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -1064,66 +1294,72 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getTopic</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>cheesy-biscuits</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getTopic($args)
+	function bb_getTopic( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getTopic');
+		do_action( 'bb_xmlrpc_call', 'bb.getTopic' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		// Don't accept arrays of arguments
-		if (is_array($args)) {
-			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getTopic' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
-		} else {
-			// Can be numeric id or slug - sanitised in get_topic()
-			$topic_id = $args;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
 		}
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
-		// Cast to an array
-		$_topic = (array) $topic;
-		// Set the URI
-		$_topic['topic_uri'] = get_topic_link($_topic['topic_id']);
-		// Set readable times
-		$_topic['topic_start_time_since'] = bb_since($_topic['topic_start_time']);
-		$_topic['topic_time_since'] = bb_since($_topic['topic_time']);
-		// Set the display names
-		$_topic['topic_poster_display_name'] = get_user_display_name($_topic['topic_poster']);
-		$_topic['topic_last_poster_display_name'] = get_user_display_name($_topic['topic_last_poster']);
-		// Remove some sensitive user ids
-		unset($_topic['topic_poster']);
-		unset($_topic['topic_last_poster']);
-		// Allow plugins to add to the array
-		$_topic = apply_filters('bb.getTopic_sanitise', $_topic, (array) $topic);
+		// Only include "safe" data in the array
+		$topic = $this->prepare_topic( $topic );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getTopic' );
 
 		// Return the topic
-		return $_topic;
+		return $topic;
 	}
 
 	/**
 	 * Creates a new topic
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The topic id when successfully created or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param array $args[2] The values for the various parameters in the new topic.
-	 * @param string $args[2]['title'] The title of the topic.
-	 * @param string $args[2]['text'] The text of the topic.
-	 * @param integer|string $args[2]['forum_id'] The unique id of the forum which will contain this topic, slugs are OK to use too.
-	 * @param string|array $args[2]['tags'] A comma delimited string or an array of tags to add to the topic (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The values for the various parameters in the new topic
+	 * @param string $args[2]['title'] The title of the topic
+	 * @param string $args[2]['text'] The text of the topic
+	 * @param integer|string $args[2]['forum_id'] The unique id of the forum which will contain this topic, slugs are OK to use too
+	 * @param string|array $args[2]['tags'] A comma delimited string or an array of tags to add to the topic (optional)
 	 *
 	 * XML-RPC request to create a new topic called "Insane monkeys" inside the forum with id 2
 	 * <methodCall>
@@ -1152,99 +1388,117 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_newTopic($args)
+	function bb_newTopic( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.newTopic' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
-			return $this->error;
+		$user = $this->authenticate( $username, $password, 'write_topics', __( 'You do not have permission to write topics.' ) );
+
+		// Additionally they need to be able to write posts
+		if( !$this->error && !bb_current_user_can( 'write_posts' ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to write posts.' ) );
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.newTopic' );
 
-		// Make sure they are allowed to do this
-		if(!bb_current_user_can('write_topics') || !bb_current_user_can('write_posts')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to create new topics.'));
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.newTopic');
 
 		// Make sure there is something for us to do
-		if (!$args[2] || !is_array($args[2]) || !count($args[2])) {
-			$this->error = new IXR_Error(404, __('No data for the new topic was supplied.'));
-			return $this->error;
-		} else {
-			$structure = (array) $args[2];
-		}
-
-		// There needs to be a title
-		if (!isset($structure['title']) || !$structure['title']) {
-			$this->error = new IXR_Error(404, __('You must supply a title for the topic.'));
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic data is invalid.' ) );
 			return $this->error;
 		}
 
-		// There needs to be text
-		if (!isset($structure['text']) || !$structure['text']) {
-			$this->error = new IXR_Error(404, __('You must supply text for the topic.'));
-			return $this->error;
-		}
+		$structure = (array) $args[2];
 
-		// There needs to be a valid forum id
-		if (!isset($structure['forum_id']) || !$structure['forum_id']) {
-			$this->error = new IXR_Error(404, __('You must supply a forum id for the topic.'));
+		// Can be numeric id or slug
+		$forum_id = isset( $structure['forum_id'] ) ? $structure['forum_id'] : false;
+
+		// Check for bad data
+		if ( !$forum_id || ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
 			return $this->error;
 		}
 
 		// Check the requested forum exists
-		if (!$forum = get_forum($structure['forum_id'])) {
-			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		if ( !$forum = get_forum( $forum_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
 
-		// Create the array for use with bb_insert_topic()
+		// The forum id may have been a slug, so make sure it's an integer here
+		$forum_id = (int) $forum->forum_id;
+
+		// The topic requires a title
+		if ( !isset( $structure['title'] ) || !$structure['title'] ) {
+			$this->error = new IXR_Error( 400, __( 'The topic title is invalid.' ) );
+			return $this->error;
+		}
+
+		// The topic requires text
+		if ( !isset( $structure['text'] ) || !$structure['text'] ) {
+			$this->error = new IXR_Error( 400, __( 'The topic text is invalid.' ) );
+			return $this->error;
+		}
+
+		// Inject structure into an array suitable for bb_insert_topic()
 		$bb_insert_topic_args = array(
-			'topic_title' => trim($structure['title']),
-			'forum_id' => (int) $forum->forum_id,
-			'tags' => trim($structure['tags'])
+			'topic_title' => (string) $structure['title'],
+			'forum_id' => $forum_id,
+			'tags' => (string) trim( $structure['tags'] )
 		);
 
+		// Remove empty settings so that changes to the defaults in bb_insert_topic() are honoured
+		$bb_insert_topic_args = array_filter( $bb_insert_topic_args );
+
 		// Create the topic
-		if (!$topic_id = bb_insert_topic($bb_insert_topic_args)) {
-			$this->error = new IXR_Error(404, __('The new topic could not be created.'));
+		if ( !$topic_id = bb_insert_topic( $bb_insert_topic_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'The topic could not be created.' ) );
 			return $this->error;
 		}
 
-		if (!$post_id = bb_new_post($topic_id, $structure['text'])) {
-			$this->error = new IXR_Error(404, __('The new post could not be created.'));
+		// Inject structure into an array suitable for bb_insert_post()
+		$bb_insert_post_args = array(
+			'topic_id' => (int) $topic_id,
+			'post_text' => (string) $structure['text']
+		);
+
+		// Create the post
+		if ( !$post_id = bb_insert_post( $bb_insert_post_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'The post could not be created.' ) );
 			return $this->error;
 		}
 
-		return (int) $topic_id;
+		$topic_id = (int) $topic_id;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.newTopic' );
+
+		return $topic_id;
 	}
 
 	/**
 	 * Edits an existing topic
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The topic id when successfully edited or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The topic's id or slug.
-	 * @param array $args[3] The values for the various parameters in the new topic.
-	 * @param string $args[3]['title'] The title of the topic.
-	 * @param string $args[3]['text'] The text of the topic.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The values for the various parameters in the edited topic
+	 * @param integer|string $args[2]['topic_id'] The topic's id or slug
+	 * @param string $args[2]['title'] The title of the topic
+	 * @param string $args[2]['text'] The text of the topic
 	 *
 	 * XML-RPC request to edit the title of a topic with the slug "insane-monkeys"
 	 * <methodCall>
@@ -1252,8 +1506,11 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     <params>
 	 *         <param><value><string>joeblow</string></value></param>
 	 *         <param><value><string>123password</string></value></param>
-	 *         <param><value><string>insane-monkeys</string></value></param>
 	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>topic_id</name>
+	 *                 <value><string>insane-monkeys</string></value>
+	 *             </member>
 	 *             <member>
 	 *                 <name>title</name>
 	 *                 <value><string>Very insane monkeys</string></value>
@@ -1262,89 +1519,118 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_editTopic($args)
+	function bb_editTopic( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.editTopic' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
-			return $this->error;
+		$user = $this->authenticate( $username, $password, 'edit_topics', __( 'You do not have permission to edit topics.' ) );
+
+		// Additionally they need to be able to edit posts
+		if( !$this->error && !bb_current_user_can( 'edit_posts' ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit posts.' ) );
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.editTopic' );
 
-		// Get the topic, we need to do this first to properly authenticate
-		$topic_id = $args[2];
-		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
-
-		// Make sure this is the ID and not the slug
-		$topic_id = $topic->topic_id;
-
-		// Get the first post in the topic (that'swhere the content is)
-		if (!$post = bb_get_first_post($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic has no posts.'));
-			return $this->error;
-		}
-
-		$post_id = $post->post_id;
-
-		// Make sure they are allowed to do this
-		if(!bb_current_user_can('edit_topic', $topic_id) || !bb_current_user_can('edit_post', $post_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to edit this topic.'));
-			return $this->error;
-		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.editTopic');
 
 		// Make sure there is something for us to do
-		if (!$args[3] || !is_array($args[3]) || !count($args[3])) {
-			$this->error = new IXR_Error(404, __('No data for the topic was supplied.'));
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic data is invalid.' ) );
 			return $this->error;
-		} else {
-			$structure = (array) $args[3];
 		}
 
-		// Only do this if there is a title supplied
-		if (isset($structure['title']) && $structure['title']) {
-			if (!bb_insert_topic(array( 'topic_title' => $structure['title'], 'topic_id' => $topic_id ))) {
-				$this->error = new IXR_Error(404, __('The topic title could not be edited.'));
+		$structure = (array) $args[2];
+
+		// Can be numeric id or slug
+		$topic_id = isset( $structure['topic_id'] ) ? $structure['topic_id'] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = (int) $topic->topic_id;
+
+		// Make sure they are allowed to edit this topic
+		if( !bb_current_user_can( 'edit_topic', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit this topic.' ) );
+			return $this->error;
+		}
+
+		// Get the first post in the topic (that's where the content is)
+		if ( !$post = bb_get_first_post( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No posts found.' ) );
+			return $this->error;
+		}
+
+		$post_id = (int) $post->post_id;
+
+		// Make sure they are allowed to edit this post
+		if( !bb_current_user_can( 'edit_post', $post_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit this post.' ) );
+			return $this->error;
+		}
+
+		// The topic requires a title
+		if ( isset( $structure['title'] ) && !$structure['title'] ) {
+			$this->error = new IXR_Error( 400, __( 'The topic title is invalid.' ) );
+			return $this->error;
+		}
+
+		// The topic requires text
+		if ( isset( $structure['text'] ) && !$structure['text'] ) {
+			$this->error = new IXR_Error( 400, __( 'The topic text is invalid.' ) );
+			return $this->error;
+		}
+
+		if ( $structure['title'] ) {
+			if ( !bb_insert_topic( array( 'topic_title' => (string) $structure['title'], 'topic_id' => $topic_id ) ) ) {
+				$this->error = new IXR_Error( 500, __( 'The topic could not be edited.' ) );
 				return $this->error;
 			}
 		}
 
-		// Only do this if there is text supplied
-		if (isset($structure['text']) && $structure['text']) {
-			if (!bb_insert_post(array('post_text' => $structure['text'], 'post_id' => $post_id, 'topic_id'=> $topic_id))) {
-				$this->error = new IXR_Error(404, __('The topic text could not be edited.'));
+		if ( $structure['text'] ) {
+			if ( !bb_insert_post( array( 'post_text' => (string) $structure['text'], 'post_id' => $post_id, 'topic_id'=> $topic_id ) ) ) {
+				$this->error = new IXR_Error( 500, __( 'The post could not be edited.' ) );
 				return $this->error;
 			}
 		}
 
-		return (int) $topic_id;
+		do_action( 'bb_xmlrpc_call_return', 'bb.editTopic' );
+
+		return $topic_id;
 	}
 
 	/**
 	 * Deletes a topic
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object 1 when successfully deleted or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the topic to be deleted.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The unique id of the topic to be deleted
 	 *
 	 * XML-RPC request to delete a topic with id of 34
 	 * <methodCall>
@@ -1356,71 +1642,74 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_deleteTopic($args)
+	function bb_deleteTopic( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.deleteTopic' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'delete_topics', __( 'You do not have permission to delete topics.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.deleteTopic' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
 
-		// Make sure they are allowed to do this
-		if (!bb_current_user_can('delete_topics')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to delete topics.'));
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
 			return $this->error;
 		}
-
-		// Get the topic id
-		$topic_id = $args[2];
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
 		// The topic id may have been a slug, so make sure it's an integer here
-		$topic_id = $topic->topic_id;
+		$topic_id = (int) $topic->topic_id;
 
-		// Make sure they are allowed to delete this topic specifically
-		if (!bb_current_user_can('delete_topic', $topic_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to delete this topic.'));
+		// Make sure they are allowed to delete this topic
+		if( !bb_current_user_can( 'delete_topic', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to delete this topic.' ) );
 			return $this->error;
 		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.deleteTopic');
 
 		// Delete the topic
-		if (!bb_delete_topic($topic_id, 1)) {
-			$this->error = new IXR_Error(404, __('The topic could not be deleted.'));
+		if ( !bb_delete_topic( $topic_id, 1 ) ) {
+			$this->error = new IXR_Error( 500, __( 'The topic could not be deleted.' ) );
 			return $this->error;
 		}
 
-		return 1;
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.deleteTopic' );
+
+		return $result;
 	}
 
 	/**
 	 * Moves a topic to a different forum
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object the forum id moved to when successfully moved or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the topic to be moved.
-	 * @param integer|string $args[3] The unique id of the forum to be moved to.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The unique id of the topic to be moved
+	 * @param integer|string $args[3] The unique id of the forum to be moved to
 	 *
 	 * XML-RPC request to move the topic with id of 34 to forum with slug of "better-forum"
 	 * <methodCall>
@@ -1433,67 +1722,76 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_moveTopic($args)
+	function bb_moveTopic( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.moveTopic' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'move_topics', __( 'You do not have permission to move topics.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.moveTopic' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
 
-		// Make sure they are allowed to do this
-		if (!bb_current_user_can('move_topics')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to move topics.'));
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
 			return $this->error;
 		}
-
-		// Get the topic id
-		$topic_id = $args[2];
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
 		// The topic id may have been a slug, so make sure it's an integer here
-		$topic_id = $topic->topic_id;
+		$topic_id = (int) $topic->topic_id;
 
-		// Get the forum id
-		$forum_id = $args[3];
+		// Can be numeric id or slug
+		$forum_id = isset( $args[3] ) ? $args[3] : false;
 
-		// Check the requested forum exists
-		if (!$forum_id || !$forum = get_forum($forum_id)) {
-			$this->error = new IXR_Error(404, __('The requested forum does not exist.'));
+		// Check for bad data
+		if ( !$forum_id || ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$forum = get_forum( $forum_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
 
 		// The forum id may have been a slug, so make sure it's an integer here
-		$forum_id = $forum->forum_id;
+		$forum_id = (int) $forum->forum_id;
 
 		// Make sure they are allowed to move this topic specifically to this forum
-		if (!bb_current_user_can('move_topic', $topic_id, $forum_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to move this topic to the specified forum.'));
+		if ( !bb_current_user_can( 'move_topic', $topic_id, $forum_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You are not allowed to move this topic to this forum.' ) );
 			return $this->error;
 		}
 
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.moveTopic');
-
-		// Delete the topic
-		if (!bb_move_topic($topic_id, $forum_id)) {
-			$this->error = new IXR_Error(404, __('The topic could not be moved.'));
+		// Move the topic
+		if ( !bb_move_topic( $topic_id, $forum_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'The topic could not be moved.' ) );
 			return $this->error;
 		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.moveTopic' );
 
 		return $forum_id;
 	}
@@ -1501,15 +1799,13 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Sticks a topic to the top of a forum or the front page
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object 0 if it is already stuck to the desired location, 1 when successfully stuck or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the topic to be stuck.
-	 * @param boolean $args[3] Whether or not to stick the topic to the front page.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The unique id of the topic to be stuck
+	 * @param integer $args[3] 0 unsticks, 1 sticks, 2 sticks to front (optional)
 	 *
 	 * XML-RPC request to stick the topic with id of 34 to the front page
 	 * <methodCall>
@@ -1518,164 +1814,88 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *         <param><value><string>joeblow</string></value></param>
 	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><integer>34</integer></value></param>
-	 *         <param><value><boolean>1</boolean></value></param>
+	 *         <param><value><integer>1</integer></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_stickTopic($args)
+	function bb_stickTopic( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.stickTopic' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'stick_topics', __( 'You do not have permission to stick topics.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.stickTopic' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
 
-		// Make sure they are allowed to do this
-		if (!bb_current_user_can('stick_topics')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to stick topics.'));
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
 			return $this->error;
 		}
-
-		// Get the topic id
-		$topic_id = $args[2];
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
 		// The topic id may have been a slug, so make sure it's an integer here
-		$topic_id = $topic->topic_id;
+		$topic_id = (int) $topic->topic_id;
 
-		// Make sure they are allowed to stick this topic specifically
-		if (!bb_current_user_can('stick_topic', $topic_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to stick this topic.'));
+		// Make sure they are allowed to stick this topic
+		if( !bb_current_user_can( 'stick_topic', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to stick this topic.' ) );
 			return $this->error;
 		}
 
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.stickTopic');
+		// Stick to where?
+		$where = isset( $args[3] ) ? (int) $args[3] : 1;
 
-		// Stick to front?
-		$front = (int) $args[3];
-
-		if ($front === 1 && $topic->topic_sticky === "2") {
+		// Forget it if it's already there
+		if ( (string) $where === (string) $topic->topic_sticky ) {
 			return 0;
 		}
 
-		if ($topic->topic_sticky === "1") {
-			return 0;
-		}
-
-		// Delete the topic
-		if (!bb_stick_topic($topic_id, $front)) {
-			$this->error = new IXR_Error(404, __('The topic could not be stuck.'));
+		// Stick the topic
+		if ( !bb_stick_topic( $topic_id, $where ) ) {
+			$this->error = new IXR_Error( 500, __( 'The topic could not be stuck.' ) );
 			return $this->error;
 		}
 
-		return 1;
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.stickTopic' );
+
+		return $result;
 	}
 
-	/**
-	 * Unsticks a topic
-	 *
-	 * This method requires authentication
-	 *
-	 * @since 1.0
-	 * @return integer|object 0 when already not stuck, 1 when successfully unstuck or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the topic to be unstuck.
-	 *
-	 * XML-RPC request to unstick the topic with slug of "not-important-enough"
-	 * <methodCall>
-	 *     <methodName>bb.unstickTopic</methodName>
-	 *     <params>
-	 *         <param><value><string>joeblow</string></value></param>
-	 *         <param><value><string>123password</string></value></param>
-	 *         <param><value><string>not-important-enough</string></value></param>
-	 *     </params>
-	 * </methodCall>
-	 */
-	function bb_unstickTopic($args)
-	{
-		$this->escape($args);
 
-		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
-
-		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
-			return $this->error;
-		}
-
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
-
-		// Make sure they are allowed to do this
-		if (!bb_current_user_can('stick_topics')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to unstick topics.'));
-			return $this->error;
-		}
-
-		// Get the topic id
-		$topic_id = $args[2];
-
-		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
-			return $this->error;
-		}
-
-		// The topic id may have been a slug, so make sure it's an integer here
-		$topic_id = $topic->topic_id;
-
-		// Make sure they are allowed to stick this topic specifically
-		if (!bb_current_user_can('stick_topic', $topic_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to unstick this topic.'));
-			return $this->error;
-		}
-
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.unstickTopic');
-
-		if ($topic->topic_sticky === "0") {
-			return 0;
-		}
-
-		// Delete the topic
-		if (!bb_unstick_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The topic could not be unstuck.'));
-			return $this->error;
-		}
-
-		return 1;
-	}
 
 	/**
 	 * Closes a topic
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object 0 when already closed, 1 when successfully closed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param integer|string $args[2] The unique id of the topic to be closed.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The unique id of the topic to be closed
+	 * @param integer $args[2] 0 closes, 1 opens (optional)
 	 *
 	 * XML-RPC request to close the topic with slug of "really-old-topic"
 	 * <methodCall>
@@ -1686,62 +1906,88 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *         <param><value><string>really-old-topic</string></value></param>
 	 *     </params>
 	 * </methodCall>
+	 *
+	 * XML-RPC request to open the topic with slug of "really-old-topic"
+	 * <methodCall>
+	 *     <methodName>bb.closeTopic</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>really-old-topic</string></value></param>
+	 *         <param><value><integer>1</integer></value></param>
+	 *     </params>
+	 * </methodCall>
 	 */
-	function bb_closeTopic($args)
+	function bb_closeTopic( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.closeTopic' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'close_topics', __( 'You do not have permission to close topics.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.closeTopic' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
 
-		// Make sure they are allowed to do this
-		if (!bb_current_user_can('close_topics')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to close topics.'));
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
 			return $this->error;
 		}
-
-		// Get the topic id
-		$topic_id = $args[2];
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
 		// The topic id may have been a slug, so make sure it's an integer here
-		$topic_id = $topic->topic_id;
+		$topic_id = (int) $topic->topic_id;
 
-		// Make sure they are allowed to close this topic specifically
-		if (!bb_current_user_can('close_topic', $topic_id)) {
-			$this->error = new IXR_Error(403, __('You are not allowed to close this topic.'));
+		// Make sure they are allowed to close this topic
+		if( !bb_current_user_can( 'close_topic', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to close this topic.' ) );
 			return $this->error;
 		}
 
-		// Do the action once we are authenticated
-		do_action('bb_xmlrpc_call', 'bb.closeTopic');
+		// Open or close?
+		$close = isset( $args[3] ) ? (int) $args[3] : 0;
 
-		if ($topic->topic_open === "0") {
+		// Forget it if it's already matching
+		if ( (string) $close === (string) $topic->topic_open ) {
 			return 0;
 		}
 
-		// Delete the topic
-		if (!bb_close_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The topic could not be closed.'));
+		// Close the topic
+		if ( !$close && !bb_close_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'The topic could not be closed.' ) );
 			return $this->error;
 		}
 
-		return 1;
+		// Open the topic
+		if ( $close && !bb_open_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'The topic could not be opened.' ) );
+			return $this->error;
+		}
+
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.closeTopic' );
+
+		return $result;
 	}
 
 
@@ -1753,44 +1999,65 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns a numerical count of posts
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return integer|object The number of topics when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer|string $args[0] The topic id or slug.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The topic id or slug
 	 *
 	 * XML-RPC request to get a count of all posts in the topic with slug "countable-topic"
 	 * <methodCall>
 	 *     <methodName>bb.getPostCount</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>countable-topic</string></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getPostCount($args)
+	function bb_getPostCount( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getPostCount');
+		do_action( 'bb_xmlrpc_call', 'bb.getPostCount' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		// Don't accept arrays of arguments
-		if (is_array($args)) {
-			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getPostCount' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
-		} else {
-			// Can be numeric id or slug - sanitised in get_topic()
-			$topic_id = $args;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
 		}
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
 		// OK, let's trust the count in the topic table
 		$count = $topic->topic_posts;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getPostCount' );
 
 		// Return the count of posts
 		return $count;
@@ -1799,19 +2066,21 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns details of the posts in a given topic
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object The posts when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param integer|string $args[0] The topic id or slug.
-	 * @param integer $args[1] The number of posts to return (optional).
-	 * @param integer $args[2] The number of the page to return (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The topic id or slug
+	 * @param integer $args[3] The number of posts to return (optional)
+	 * @param integer $args[4] The number of the page to return (optional)
 	 *
 	 * XML-RPC request to get all posts in the topic with id number 53
 	 * <methodCall>
 	 *     <methodName>bb.getPosts</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>53</int></value></param>
 	 *     </params>
 	 * </methodCall>
@@ -1820,6 +2089,8 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getPosts</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>341</int></value></param>
 	 *         <param><value><int>5</int></value></param>
 	 *     </params>
@@ -1829,72 +2100,81 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * <methodCall>
 	 *     <methodName>bb.getPosts</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><string>long-topic</string></value></param>
 	 *         <param><value><int>10</int></value></param>
 	 *         <param><value><int>2</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getPosts($args)
+	function bb_getPosts( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getPosts');
+		do_action( 'bb_xmlrpc_call', 'bb.getPosts' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		if (is_array($args)) {
-			// Can be numeric id or slug - sanitised in get_topic()
-			$topic_id = $args[0];
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
-			// Can only be an integer
-			$per_page = (int) $args[1];
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
 
-			// Can only be an integer
-			$page = (int) $args[2];
-		} else {
-			// Can be numeric id or slug - sanitised in get_topic()
-			$topic_id = $args;
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getPosts' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
 		}
 
 		// Check the requested topic exists
-		if (!$topic_id || !$topic = get_topic($topic_id)) {
-			$this->error = new IXR_Error(404, __('The requested topic does not exist.'));
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
 			return $this->error;
 		}
 
 		// The topic id may have been a slug, so make sure it's an integer here
-		$topic_id = $topic->topic_id;
+		$topic_id = (int) $topic->topic_id;
 
-		if (isset($per_page) && $per_page) {
+		// Setup an array to store arguments to pass to get_thread() function
+		$get_thread_args = array();
+
+		// Can only be an integer
+		if ( isset( $args[3] ) && $per_page = (int) $args[3] ) {
 			$get_thread_args['per_page'] = $per_page;
 		}
 
-		if (isset($page) && $page) {
+		// Can only be an integer
+		if ( isset( $args[4] ) && $page = (int) $args[4] ) {
 			$get_thread_args['page'] = $page;
 		}
 
 		// Get the posts
-		if (!$posts = get_thread($topic_id, $get_thread_args)) {
-			$this->error = new IXR_Error(404, __('No posts found.'));
+		if ( !$posts = get_thread( $topic_id, $get_thread_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'No posts found.' ) );
 			return $this->error;
 		}
 
+		// Only include "safe" data in the array
 		$_posts = array();
-		foreach ($posts as $post) {
-			// Cast to an array
-			$_post = (array) $post;
-			// Set the URI
-			$_post['post_uri'] = get_post_link($_post['post_id']);
-			// Set readable times
-			$_post['post_time_since'] = bb_since($_post['post_time']);
-			// Set the display names
-			$_post['poster_display_name'] = get_user_display_name($_post['poster_id']);
-			// Remove some sensitive data
-			unset($_post['poster_id']);
-			unset($_post['poster_ip']);
-			unset($_post['pingback_queued']);
-			// Allow plugins to add to the array
-			$_posts[] = apply_filters('bb.getPosts_sanitise', $_post, (array) $post);
+		foreach ( $posts as $post ) {
+			$_posts[] = $this->prepare_post( $post );
 		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getPosts' );
 
 		// Return the posts
 		return $_posts;
@@ -1903,58 +2183,169 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Returns details of a post
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object An array containing details of the returned post when successfully executed or an IXR_Error object on failure
-	 * @param integer $args The post's id.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer $args[2] The post's id
 	 *
 	 * XML-RPC request to get the post with id number 32
 	 * <methodCall>
 	 *     <methodName>bb.getPost</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><int>32</int></value></param>
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getPost($args)
+	function bb_getPost( $args )
 	{
-		do_action('bb_xmlrpc_call', 'bb.getPost');
+		do_action( 'bb_xmlrpc_call', 'bb.getPost' );
 
-		$this->escape($args);
+		// Escape args
+		$this->escape( $args );
 
-		// Don't accept arrays of arguments
-		if (is_array($args)) {
-			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getPost' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
-		} else {
-			// Can only be an integer
-			$post_id = (int) $args;
+		}
+
+		// Can be numeric id or slug
+		$post_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$post_id || !is_integer( $post_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'The post id is invalid.' ) );
+			return $this->error;
 		}
 
 		// Check the requested post exists
-		if (!$post_id || !$post = bb_get_post($post_id)) {
-			$this->error = new IXR_Error(404, __('The requested post does not exist.'));
+		if ( !$post = bb_get_post( $post_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No post found.' ) );
 			return $this->error;
 		}
 
-		// Cast to an array
-		$_post = (array) $post;
-		// Set the URI
-		$_post['post_uri'] = get_post_link($_post['post_id']);
-		// Set readable times
-		$_post['post_time_since'] = bb_since($_post['post_time']);
-		// Set the display names
-		$_post['poster_display_name'] = get_user_display_name($_post['poster_id']);
-		// Remove some sensitive data
-		unset($_post['poster_id']);
-		unset($_post['poster_ip']);
-		unset($_post['pingback_queued']);
-		// Allow plugins to add to the array
-		$_post = apply_filters('bb.getPost_sanitise', $_post, (array) $post);
+		// Only include "safe" data in the array
+		$_post = $this->prepare_post( $post );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getPost' );
 
 		// Return the post
 		return $_post;
+	}
+
+	/**
+	 * Creates a new post in a given topic
+	 *
+	 * @since 1.0
+	 * @return integer|object The post id when successfully created or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The values for the various parameters in the new topic
+	 * @param string $args[2]['text'] The text of the topic
+	 * @param integer|string $args[2]['topic_id'] The unique id of the topic which will contain this topic, slugs are OK to use too
+	 *
+	 * XML-RPC request to create a new post in the topic with slug "totally-worth-it"
+	 * <methodCall>
+	 *     <methodName>bb.newPost</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>text</name>
+	 *                 <value><string>I agree, it is totally worth it.</string></value>
+	 *             </member>
+	 *             <member>
+	 *                 <name>topic_id</name>
+	 *                 <value><string>totally-worth-it</string></value>
+	 *             </member>
+	 *         </struct></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_newPost( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.newPost' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'write_posts', __( 'You do not have permission to write posts.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.newPost' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Make sure there is something for us to do
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The post data is invalid.' ) );
+			return $this->error;
+		}
+
+		$structure = (array) $args[2];
+
+		// Can be numeric id or slug
+		$topic_id = isset( $structure['topic_id'] ) ? $structure['topic_id'] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = (int) $topic->topic_id;
+
+		// The topic requires text
+		if ( !isset( $structure['text'] ) || !$structure['text'] ) {
+			$this->error = new IXR_Error( 400, __( 'The post text is invalid.' ) );
+			return $this->error;
+		}
+
+		// Inject structure into an array suitable for bb_insert_post()
+		$bb_insert_post_args = array(
+			'topic_id' => $topic_id,
+			'post_text' => (string) $structure['text']
+		);
+
+		// Create the post
+		if ( !$post_id = bb_insert_post( $bb_insert_post_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'The post could not be created.' ) );
+			return $this->error;
+		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.newPost' );
+
+		return (int) $post_id;
 	}
 
 
@@ -2025,19 +2416,19 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *
 	 * @since 1.0
 	 * @return array The site options in an array
-	 * @param array $options An array of options to fetch and return.
+	 * @param array $options An array of options to fetch and return
 	 */
-	function _getOptions($options)
+	function _getOptions( $options )
 	{
 		$data = array();
-		foreach ($options as $option) {
-			if (array_key_exists($option, $this->site_options)) {
+		foreach ( $options as $option ) {
+			if ( array_key_exists( $option, $this->site_options ) ) {
 				$data[$option] = $this->site_options[$option];
 
 				// Is the value static or dynamic?
-				if (isset($data[$option]['option'])) {
+				if ( isset( $data[$option]['option'] ) ) {
 					$data[$option]['value'] = bb_get_option( $data[$option]['option'] );
-					unset($data[$option]['option']);
+					unset( $data[$option]['option'] );
 				}
 			}
 		}
@@ -2048,22 +2439,28 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * Gets the specified site options
 	 *
-	 * This method does not require authentication
-	 *
 	 * @since 1.0
 	 * @return array|object An array containing the specified options when successfully executed or an IXR_Error object on failure
-	 * @param array $args The options to be retrieved, when omitted the method returns all options (optional).
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The options to be retrieved, when omitted the method returns all options (optional)
 	 *
 	 * XML-RPC request to get all site options
 	 * <methodCall>
 	 *     <methodName>bb.getOptions</methodName>
-	 *     <params></params>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
 	 * </methodCall>
 	 *
 	 * XML-RPC request to get the site name and site description
 	 * <methodCall>
 	 *     <methodName>bb.getOptions</methodName>
 	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
 	 *         <param><value><array>
 	 *             <data><value><string>site_name</string></value></data>
 	 *             <data><value><string>site_description</string></value></data>
@@ -2071,36 +2468,51 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_getOptions($args)
+	function bb_getOptions( $args )
 	{
-		$this->escape($args);
+		do_action( 'bb_xmlrpc_call', 'bb.getOptions' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getOptions' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
 
 		// If there are parameters supplied then make sure they are in an array
-		if ($args) {
-			$options = (array) $args;
-		} else {
-			$options = false;
-		}
+		$options = isset( $args[2] ) ? (array) $args[2] : false;
 
 		// If no specific options where asked for, return all of them
-		if (!$options || !count($options)) {
-			$options = array_keys($this->site_options);
+		if ( !$options || !count( $options ) ) {
+			$options = array_keys( $this->site_options );
 		}
 
-		return $this->_getOptions($options);
+		do_action( 'bb_xmlrpc_call_return', 'bb.getOptions' );
+
+		return $this->_getOptions( $options );
 	}
 
 	/**
 	 * Sets the specified site options to the specified values
 	 *
-	 * This method requires authentication
-	 *
 	 * @since 1.0
 	 * @return array|object An array containing the specified options when successfully executed or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The username for authentication.
-	 * @param string $args[1] The password for authentication.
-	 * @param array $args[2] The options to be updated along with the new value of the option.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The options to be updated along with the new value of the option
 	 *
 	 * XML-RPC request to set the site name and site description
 	 * <methodCall>
@@ -2121,61 +2533,64 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function bb_setOptions( $args ) {
-		$this->escape($args);
+	function bb_setOptions( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.setOptions' );
+
+		// Escape args
+		$this->escape( $args );
 
 		// Get the login credentials
-		$username = $args[0];
-		$password = $args[1];
+		$username = (string) $args[0];
+		$password = (string) $args[1];
 
 		// Check the user is valid
-		if( !$user_id = $this->authenticate( $username, $password ) ) {
-			// The error is set in authenticate()
+		$user = $this->authenticate( $username, $password, 'manage_options', __( 'You are not allowed to manage options.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.setOptions' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
 			return $this->error;
 		}
 
 		// Make sure there is something for us to do
-		if (!$args[2]) {
-			$this->error = new IXR_Error(404, __('You must specify the options you wish to set.'));
-			return $this->error;
-		} else {
-			$options = (array) $args[2];
-		}
-
-		// Set the current user
-		$user = bb_set_current_user( $user_id );
-
-		// Make sure they are allowed to do this
-		if(!bb_current_user_can('manage_options')) {
-			$this->error = new IXR_Error(403, __('You are not allowed to update options.'));
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The options data is invalid.' ) );
 			return $this->error;
 		}
+
+		$options = (array) $args[2];
 
 		// Update the requested options
 		foreach( $options as $o_name => $o_value ) {
 			$option_names[] = $o_name;
 
 			// If there is no value set skip it
-			if (empty($o_value)) {
+			if ( empty( $o_value ) ) {
 				continue;
 			}
 
 			// If the option doesn't exist skip it
-			if (!array_key_exists( $o_name, $this->site_options )) {
+			if ( !array_key_exists( $o_name, $this->site_options ) ) {
 				continue;
 			}
 
 			// If the option is readonly skip it
-			if ($this->site_options[$o_name]['readonly'] == true) {
+			if ( $this->site_options[$o_name]['readonly'] == true ) {
 				continue;
 			}
 
 			// Everything is good, update the option
-			bb_update_option($this->site_options[$o_name]['option'], $o_value);
+			bb_update_option( $this->site_options[$o_name]['option'], $o_value );
 		}
 
+		$_options = $this->_getOptions( $option_names );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.setOptions' );
+
 		// Now return the updated values
-		return $this->_getOptions($option_names);
+		return $_options;
 	}
 
 
@@ -2190,9 +2605,9 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @since 1.0
 	 * @link http://www.hixie.ch/specs/pingback/pingback
 	 * @return string|object A message of success or an IXR_Error object on failure
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The full URI of the post where the pingback is being sent from.
-	 * @param string $args[1] The full URI of the post where the pingback is being sent to.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The full URI of the post where the pingback is being sent from
+	 * @param string $args[1] The full URI of the post where the pingback is being sent to
 	 *
 	 * XML-RPC request to register a pingback
 	 * <methodCall>
@@ -2203,77 +2618,77 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function pingback_ping($args)
+	function pingback_ping( $args )
 	{
-		do_action('bb_xmlrpc_call', 'pingback.ping');
+		do_action( 'bb_xmlrpc_call', 'pingback.ping' );
 
-		$this->escape($args);
+		$this->escape( $args );
 
 		// No particular need to sanitise
-		$link_from = $args[0];
-		$link_to   = $args[1];
+		$link_from = (string) $args[0];
+		$link_to   = (string) $args[1];
 
 		// Tidy up ampersands in the URLs
-		$link_from = str_replace('&amp;', '&', $link_from);
-		$link_to   = str_replace('&amp;', '&', $link_to);
-		$link_to   = str_replace('&', '&amp;', $link_to);
+		$link_from = str_replace( '&amp;', '&', $link_from );
+		$link_to   = str_replace( '&amp;', '&', $link_to );
+		$link_to   = str_replace( '&', '&amp;', $link_to );
 
 		// Check if the topic linked to is in our site - a little more strict than WordPress, doesn't pull out the www if added
 		if ( !bb_match_domains( $link_to, bb_get_uri() ) ) {
 			// These are not the droids you are looking for
-			$this->error = new IXR_Error(0, __('This is not the site you are trying to pingback.'));
+			$this->error = new IXR_Error( 0, __( 'This is not the site you are trying to pingback.' ) );
 			return $this->error;
 		}
 
 		// Get the topic
-		if ( $topic_to = bb_get_topic_from_uri($link_to) ) {
+		if ( $topic_to = bb_get_topic_from_uri( $link_to ) ) {
 			// Topics shouldn't ping themselves
-			if ( $topic_from = bb_get_topic_from_uri($link_from) ) {
+			if ( $topic_from = bb_get_topic_from_uri( $link_from ) ) {
 				if ( $topic_from->topic_id === $topic_to->topic_id ) {
-					$this->error = new IXR_Error(0, __('The source URL and the target URL cannot both point to the same resource.'));
+					$this->error = new IXR_Error( 0, __( 'The source URL and the target URL cannot both point to the same resource.' ) );
 					return $this->error;
 				}
 			}
 		} else {
-			$this->error = new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+			$this->error = new IXR_Error ( 33, __( 'The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.' ) );
 			return $this->error;
 		}
 
 		// Let's check that the remote site didn't already pingback this entry
-		$query = new BB_Query( 'post', array('topic_id' => $topic_to->topic_id, 'append_meta' => true), 'get_thread' );
+		$query = new BB_Query( 'post', array( 'topic_id' => $topic_to->topic_id, 'append_meta' => true ), 'get_thread' );
 		$posts_to = $query->results;
-		unset($query);
+		unset( $query );
 
 		// Make sure we have some posts in the topic, this error should never happen really
-		if (!$posts_to || !is_array($posts_to) || !count($posts_to)) {
-			$this->error = new IXR_Error(0, __('The specified target topic does not contain any posts.'));
+		if ( !$posts_to || !is_array( $posts_to ) || !count( $posts_to ) ) {
+			$this->error = new IXR_Error( 0, __( 'The specified target topic does not contain any posts.' ) );
 			return $this->error;
 		}
 
 		// Check if we already have a pingback from this URL
-		foreach ($posts_to as $post) {
-			if (isset($post->pingback_uri) && trim($post->pingback_uri) === trim($link_from)) {
-				$this->error = new IXR_Error(48, __('The pingback has already been registered.'));
+		foreach ( $posts_to as $post ) {
+			if ( isset( $post->pingback_uri ) && trim( $post->pingback_uri ) === trim( $link_from ) ) {
+				$this->error = new IXR_Error( 48, __( 'The pingback has already been registered.' ) );
 				return $this->error;
 			}
 		}
-		unset($posts_to, $post);
+		unset( $posts_to, $post );
 
-		// Give time for the server sending the pingback to finish publishing it's post.
+		// Give time for the server sending the pingback to finish publishing it's post
 		sleep(1);
 
 		// Let's check the remote site for valid URL and content
 		$link_from_source = wp_remote_fopen( $link_from );
 		if ( !$link_from_source ) {
-			$this->error = new IXR_Error(16, __('The source URL does not exist.'));
+			$this->error = new IXR_Error( 16, __( 'The source URL does not exist.' ) );
 			return $this->error;
 		}
 
 		// Allow plugins to filter here
-		$link_from_source = apply_filters('bb_pre_remote_source', $link_from_source, $link_to);
+		$link_from_source = apply_filters( 'bb_pre_remote_source', $link_from_source, $link_to );
 
 		// Work around bug in strip_tags()
-		$link_from_source = str_replace('<!DOC', '<DOC', $link_from_source);
+		$link_from_source = str_replace( '<!DOC', '<DOC', $link_from_source );
 
 		// Normalize spaces
 		$link_from_source = preg_replace( '/[\s\r\n\t]+/', ' ', $link_from_source );
@@ -2282,10 +2697,10 @@ class BB_XMLRPC_Server extends IXR_Server
 		$link_from_source = preg_replace( "/ <(h1|h2|h3|h4|h5|h6|p|th|td|li|dt|dd|pre|caption|input|textarea|button|body)[^>]*>/", "\n\n", $link_from_source );
 
 		// Find the title of the page
-		preg_match('|<title>([^<]*?)</title>|is', $link_from_source, $link_from_title);
+		preg_match( '|<title>([^<]*?)</title>|is', $link_from_source, $link_from_title );
 		$link_from_title = $link_from_title[1];
 		if ( empty( $link_from_title ) ) {
-			$this->error = new IXR_Error(32, __('We cannot find a title on that page.'));
+			$this->error = new IXR_Error( 32, __( 'We cannot find a title on that page.' ) );
 			return $this->error;
 		}
 
@@ -2296,12 +2711,12 @@ class BB_XMLRPC_Server extends IXR_Server
 		$link_from_paragraphs = explode( "\n\n", $link_from_source );
 
 		// Prepare the link to search for in preg_match() once here
-		$preg_target = preg_quote($link_to);
+		$preg_target = preg_quote( $link_to );
 
 		// Loop through the paragraphs looking for the context for the url
 		foreach ( $link_from_paragraphs as $link_from_paragraph ) {
 			// The url exists
-			if ( strpos($link_from_paragraph, $link_to) !== false ) {
+			if ( strpos( $link_from_paragraph, $link_to ) !== false ) {
 				// But is it in an anchor tag
 				preg_match(
 					"|<a[^>]+?" . $preg_target . "[^>]*>([^>]+?)</a>|",
@@ -2309,44 +2724,44 @@ class BB_XMLRPC_Server extends IXR_Server
 					$context
 				);
 				// If the URL isn't in an anchor tag, keep looking
-				if ( empty($context) ) {
+				if ( empty( $context ) ) {
 					continue;
 				}
 
 				// We're going to use this fake tag to mark the context in a bit
 				// the marker is needed in case the link text appears more than once in the paragraph
-				$excerpt = preg_replace('|\</?wpcontext\>|', '', $link_from_paragraph);
+				$excerpt = preg_replace( '|\</?wpcontext\>|', '', $link_from_paragraph );
 
 				// Prevent really long link text
-				if ( strlen($context[1]) > 100 ) {
-					$context[1] = substr($context[1], 0, 100) . '...';
+				if ( strlen( $context[1] ) > 100 ) {
+					$context[1] = substr( $context[1], 0, 100 ) . '...';
 				}
 
 				// Set up the marker around the context
 				$marker = '<wpcontext>' . $context[1] . '</wpcontext>';
 				// Swap out the link for our marker
-				$excerpt = str_replace($context[0], $marker, $excerpt);
+				$excerpt = str_replace( $context[0], $marker, $excerpt );
 				// Strip all tags except for our context marker
-				$excerpt = trim(strip_tags($excerpt, '<wpcontext>'));
+				$excerpt = trim( strip_tags( $excerpt, '<wpcontext>' ) );
 				// Make the marker safe for use in regexp
-				$preg_marker = preg_quote($marker);
+				$preg_marker = preg_quote( $marker );
 				// Reduce the excerpt to only include 100 characters on either side of the link
-				$excerpt = preg_replace("|.*?\s(.{0,100}" . $preg_marker . "{0,100})\s.*|s", '$1', $excerpt);
+				$excerpt = preg_replace( "|.*?\s(.{0,100}" . $preg_marker . "{0,100})\s.*|s", '$1', $excerpt );
 				// Strip tags again, to remove the marker wrapper
-				$excerpt = strip_tags($excerpt);
+				$excerpt = strip_tags( $excerpt );
 				break;
 			}
 		}
 
 		 // Make sure the link to the target was found in the excerpt
-		if ( empty($context) ) {
-			$this->error = new IXR_Error(17, __('The source URL does not contain a link to the target URL, and so cannot be used as a source.'));
+		if ( empty( $context ) ) {
+			$this->error = new IXR_Error( 17, __( 'The source URL does not contain a link to the target URL, and so cannot be used as a source.' ) );
 			return $this->error;
 		}
 
 		// Add whacky prefix and suffix to the excerpt and sanitize
 		$excerpt = '[...] ' . wp_specialchars( $excerpt ) . ' [...]';
-		$this->escape($excerpt);
+		$this->escape( $excerpt );
 
 		// Build an array of post data to insert then insert a new post
 		$postdata = array(
@@ -2354,25 +2769,25 @@ class BB_XMLRPC_Server extends IXR_Server
 			'post_text' => $excerpt,
 			'poster_id' => 0,
 		);
-		if (!$post_ID = bb_insert_post($postdata)) {
-			$this->error = new IXR_Error(0, __('The pingback could not be added.'));
+		if ( !$post_ID = bb_insert_post( $postdata ) ) {
+			$this->error = new IXR_Error( 0, __( 'The pingback could not be added.' ) );
 			return $this->error;
 		}
 
 		// Add meta to let us know where the pingback came from
-		$link_from = str_replace('&', '&amp;', $link_from);
-		$this->escape($link_from);
-		bb_update_postmeta($post_ID, 'pingback_uri', $link_from);
+		$link_from = str_replace( '&', '&amp;', $link_from );
+		$this->escape( $link_from );
+		bb_update_postmeta( $post_ID, 'pingback_uri', $link_from );
 
 		// Add the title to meta
-		$this->escape($link_from_title);
-		bb_update_postmeta($post_ID, 'pingback_title', $link_from_title);
+		$this->escape( $link_from_title );
+		bb_update_postmeta( $post_ID, 'pingback_title', $link_from_title );
 
 		// Action for plugins and what not
-		do_action('bb_pingback_post', $post_ID);
+		do_action( 'bb_pingback_post', $post_ID );
 
 		// Return success message, complete with emoticon
-		return sprintf(__('Pingback from %1$s to %2$s registered. Keep the web talking! :-)'), $link_from, $link_to);
+		return sprintf( __( 'Pingback from %1$s to %2$s registered. Keep the web talking! :-)' ), $link_from, $link_to );
 	}
 
 
@@ -2383,9 +2798,9 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @since 1.0
 	 * @link http://www.aquarionics.com/misc/archives/blogite/0198.html
 	 * @return array The array of URLs that pingbacked the given topic
-	 * @param array $args Arguments passed by the XML-RPC call.
-	 * @param string $args[0] The full URI of the post where the pingback is being sent from.
-	 * @param string $args[1] The full URI of the post where the pingback is being sent to.
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The full URI of the post where the pingback is being sent from
+	 * @param string $args[1] The full URI of the post where the pingback is being sent to
 	 *
 	 * XML-RPC request to get all pingbacks on a topic
 	 * <methodCall>
@@ -2395,50 +2810,50 @@ class BB_XMLRPC_Server extends IXR_Server
 	 *     </params>
 	 * </methodCall>
 	 */
-	function pingback_extensions_getPingbacks($args)
+	function pingback_extensions_getPingbacks( $args )
 	{
-		do_action('bb_xmlrpc_call', 'pingback.extensions.getPingbacks');
+		do_action( 'bb_xmlrpc_call', 'pingback.extensions.getPingbacks' );
 
-		$this->escape($args);
+		$this->escape( $args );
 
 		// Don't accept arrays of arguments
-		if (is_array($args)) {
-			$this->error = new IXR_Error(404, __('The requested method only accepts one parameter.'));
+		if ( is_array( $args ) ) {
+			$this->error = new IXR_Error( 404, __( 'The requested method only accepts one parameter.' ) );
 			return $this->error;
 		} else {
-			$url = $args;
+			$url = (string) $args;
 		}
 
 		// Tidy up ampersands in the URI
-		$url = str_replace('&amp;', '&', $url);
-		$url = str_replace('&', '&amp;', $url);
+		$url = str_replace( '&amp;', '&', $url );
+		$url = str_replace( '&', '&amp;', $url );
 
 		// Check if the URI is in our site
 		if ( !bb_match_domains( $url, bb_get_uri() ) ) {
 			// These are not the droids you are looking for
-			$this->error = new IXR_Error(0, __('The specified target URL is not on this domain.'));
+			$this->error = new IXR_Error( 0, __( 'The specified target URL is not on this domain.' ) );
 			return $this->error;
 		}
 
 		// Make sure the specified URI is in fact associated with a topic
-		if ( !$topic = bb_get_topic_from_uri($url) ) {
-			$this->error = new IXR_Error(33, __('The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.'));
+		if ( !$topic = bb_get_topic_from_uri( $url ) ) {
+			$this->error = new IXR_Error( 33, __( 'The specified target URL cannot be used as a target. It either doesn\'t exist, or it is not a pingback-enabled resource.' ) );
 			return $this->error;
 		}
 
 		// Grab the posts from the topic
-		$query = new BB_Query( 'post', array('topic_id' => $topic_to->topic_id, 'append_meta' => true), 'get_thread' );
+		$query = new BB_Query( 'post', array( 'topic_id' => $topic_to->topic_id, 'append_meta' => true ), 'get_thread' );
 		$posts_to = $query->results;
-		unset($query);
+		unset( $query );
 
 		// Check for pingbacks in the post meta data
 		$pingbacks = array();
-		foreach ($posts_to as $post) {
-			if (isset($post->pingback_uri)) {
+		foreach ( $posts_to as $post ) {
+			if ( isset( $post->pingback_uri ) ) {
 				$pingbacks[] = $post->pingback_uri;
 			}
 		}
-		unset($post);
+		unset( $post );
 
 		// This will return an empty array on failure
 		return $pingbacks;
