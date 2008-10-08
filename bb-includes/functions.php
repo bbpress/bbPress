@@ -2522,7 +2522,16 @@ function bb_repermalink() {
 
 	switch ($location) {
 		case 'front-page':
-			$permalink = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+			$path = null;
+			$querystring = null;
+			if ($page > 1) {
+				if (bb_get_option( 'mod_rewrite' )) {
+					$path = 'page/' . $page;
+				} else {
+					$querystring = array('page' => $page);
+				}
+			}
+			$permalink = bb_get_uri($path, $querystring, BB_URI_CONTEXT_HEADER);
 			$issue_404 = true;
 			break;
 		case 'forum-page':

@@ -15,6 +15,7 @@ Options -MultiViews
 RewriteEngine On
 RewriteBase <?php bb_option( 'path' ); ?>
 
+RewriteRule ^page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>index.php?page=$1 [L,QSA]
 RewriteRule ^forum/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>forum.php?id=$1&page=$2 [L,QSA]
 RewriteRule ^forum/([^/]+)/?$ <?php bb_option( 'path' ); ?>forum.php?id=$1 [L,QSA]
 RewriteRule ^topic/([^/]+)/page/([0-9]+)/?$ <?php bb_option( 'path' ); ?>topic.php?id=$1&page=$2 [L,QSA]

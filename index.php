@@ -11,7 +11,7 @@ if ( isset($_GET['new']) && '1' == $_GET['new'] ) :
 	$forums = false;
 elseif ( !$bb_db_override ) :
 	$forums = get_forums(); // Comment to hide forums
-	$topics = get_latest_topics();
+	$topics = get_latest_topics(false, $page);
 	$super_stickies = get_sticky_topics();
 endif;
 
