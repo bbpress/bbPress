@@ -121,17 +121,17 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.getTopic'        => 'this:bb_getTopic',
 				'bb.newTopic'        => 'this:bb_newTopic',
 				'bb.editTopic'       => 'this:bb_editTopic',
-				'bb.deleteTopic'     => 'this:bb_deleteTopic',
+				'bb.deleteTopic'     => 'this:bb_deleteTopic', // Also undeletes
 				'bb.moveTopic'       => 'this:bb_moveTopic',
-				'bb.stickTopic'      => 'this:bb_stickTopic', // Also unsticks
-				'bb.closeTopic'      => 'this:bb_closeTopic', // Also opens
+				'bb.stickTopic'      => 'this:bb_stickTopic',  // Also unsticks
+				'bb.closeTopic'      => 'this:bb_closeTopic',  // Also opens
 				// - Posts (replies)
 				'bb.getPostCount'    => 'this:bb_getPostCount',
 				'bb.getPosts'        => 'this:bb_getPosts',
 				'bb.getPost'         => 'this:bb_getPost',
 				'bb.newPost'         => 'this:bb_newPost',
 				'bb.editPost'        => 'this:bb_editPost',
-				//'bb.deletePost'      => 'this:bb_deletePost',
+				'bb.deletePost'      => 'this:bb_deletePost',  // Also undeletes
 				// - Tags
 				//'bb.getTagCount'     => 'this:bb_getTagCount',
 				//'bb.getTags'         => 'this:bb_getTags',
@@ -1440,6 +1440,12 @@ class BB_XMLRPC_Server extends IXR_Server
 		// The forum id may have been a slug, so make sure it's an integer here
 		$forum_id = (int) $forum->forum_id;
 
+		// Make sure they are allowed to write topics to this forum
+		if( !bb_current_user_can( 'write_topic', $forum_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to write topics to this forum.' ) );
+			return $this->error;
+		}
+
 		// The topic requires a title
 		if ( !isset( $structure['title'] ) || !$structure['title'] ) {
 			$this->error = new IXR_Error( 400, __( 'The topic title is invalid.' ) );
@@ -1626,11 +1632,12 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Deletes a topic
 	 *
 	 * @since 1.0
-	 * @return integer|object 1 when successfully deleted or an IXR_Error object on failure
+	 * @return integer|object 0 if already changed, 1 when successfully changed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
 	 * @param integer|string $args[2] The unique id of the topic to be deleted
+	 * @param integer $args[3] 1 deletes the topic, 0 undeletes the topic
 	 *
 	 * XML-RPC request to delete a topic with id of 34
 	 * <methodCall>
@@ -1681,6 +1688,13 @@ class BB_XMLRPC_Server extends IXR_Server
 		// The topic id may have been a slug, so make sure it's an integer here
 		$topic_id = (int) $topic->topic_id;
 
+		$delete = isset( $args[3] ) ? (int) $args[3] : 1;
+
+		// Don't do anything if already set that way
+		if ( $delete === (int) $topic->topic_status ) {
+			return 0;
+		}
+
 		// Make sure they are allowed to delete this topic
 		if( !bb_current_user_can( 'delete_topic', $topic_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to delete this topic.' ) );
@@ -1688,7 +1702,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Delete the topic
-		if ( !bb_delete_topic( $topic_id, 1 ) ) {
+		if ( !bb_delete_topic( $topic_id, $delete ) ) {
 			$this->error = new IXR_Error( 500, __( 'The topic could not be deleted.' ) );
 			return $this->error;
 		}
@@ -1704,7 +1718,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Moves a topic to a different forum
 	 *
 	 * @since 1.0
-	 * @return integer|object the forum id moved to when successfully moved or an IXR_Error object on failure
+	 * @return integer|object the forum id where the topic lives after the method is called or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -1779,16 +1793,19 @@ class BB_XMLRPC_Server extends IXR_Server
 		// The forum id may have been a slug, so make sure it's an integer here
 		$forum_id = (int) $forum->forum_id;
 
-		// Make sure they are allowed to move this topic specifically to this forum
-		if ( !bb_current_user_can( 'move_topic', $topic_id, $forum_id ) ) {
-			$this->error = new IXR_Error( 403, __( 'You are not allowed to move this topic to this forum.' ) );
-			return $this->error;
-		}
+		// Only move it if it isn't already there
+		if ( $forum_id !== (int) $topic->forum_id ) {
+			// Make sure they are allowed to move this topic specifically to this forum
+			if ( !bb_current_user_can( 'move_topic', $topic_id, $forum_id ) ) {
+				$this->error = new IXR_Error( 403, __( 'You are not allowed to move this topic to this forum.' ) );
+				return $this->error;
+			}
 
-		// Move the topic
-		if ( !bb_move_topic( $topic_id, $forum_id ) ) {
-			$this->error = new IXR_Error( 500, __( 'The topic could not be moved.' ) );
-			return $this->error;
+			// Move the topic
+			if ( !bb_move_topic( $topic_id, $forum_id ) ) {
+				$this->error = new IXR_Error( 500, __( 'The topic could not be moved.' ) );
+				return $this->error;
+			}
 		}
 
 		do_action( 'bb_xmlrpc_call_return', 'bb.moveTopic' );
@@ -1867,7 +1884,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$where = isset( $args[3] ) ? (int) $args[3] : 1;
 
 		// Forget it if it's already there
-		if ( (string) $where === (string) $topic->topic_sticky ) {
+		if ( $where === (int) $topic->topic_sticky ) {
 			return 0;
 		}
 
@@ -1890,7 +1907,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Closes a topic
 	 *
 	 * @since 1.0
-	 * @return integer|object 0 when already closed, 1 when successfully closed or an IXR_Error object on failure
+	 * @return integer|object 0 when already changed, 1 when successfully changed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -1967,7 +1984,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$close = isset( $args[3] ) ? (int) $args[3] : 0;
 
 		// Forget it if it's already matching
-		if ( (string) $close === (string) $topic->topic_open ) {
+		if ( $close === (int) $topic->topic_open ) {
 			return 0;
 		}
 
@@ -2325,6 +2342,12 @@ class BB_XMLRPC_Server extends IXR_Server
 		// The topic id may have been a slug, so make sure it's an integer here
 		$topic_id = (int) $topic->topic_id;
 
+		// Make sure they are allowed to write posts to this topic
+		if( !bb_current_user_can( 'write_post', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to write posts to this topic.' ) );
+			return $this->error;
+		}
+
 		// The post requires text
 		if ( !isset( $structure['text'] ) || !$structure['text'] ) {
 			$this->error = new IXR_Error( 400, __( 'The post text is invalid.' ) );
@@ -2423,8 +2446,14 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		// The post id may have been a slug, so make sure it's an integer here
+		// Re-assign the post id
 		$post_id = (int) $post->post_id;
+
+		// Make sure they are allowed to edit this post
+		if( !bb_current_user_can( 'edit_post', $post_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit this post.' ) );
+			return $this->error;
+		}
 
 		// The post requires text
 		if ( !isset( $structure['text'] ) || !$structure['text'] ) {
@@ -2447,6 +2476,91 @@ class BB_XMLRPC_Server extends IXR_Server
 		do_action( 'bb_xmlrpc_call_return', 'bb.editPost' );
 
 		return (int) $post_id;
+	}
+
+	/**
+	 * Deletes an existing post
+	 *
+	 * @since 1.0
+	 * @return integer|object 1 when successfully deleted, 0 when already  or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The unique id of the post
+	 * @param array $args[3] 1 deletes the post, 0 undeletes the post (optional)
+	 *
+	 * XML-RPC request to delete the post with an id of 4301
+	 * <methodCall>
+	 *     <methodName>bb.editPost</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>4301</int></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_deletePost( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.deletePost' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'delete_posts', __( 'You do not have permission to delete posts.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.deletePost' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		$post_id = isset( $args[2] ) ? (int) $args[2] : false;
+
+		// Check for bad data
+		if ( !$post_id ) {
+			$this->error = new IXR_Error( 400, __( 'The post id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$post = bb_get_post( $post_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No post found.' ) );
+			return $this->error;
+		}
+
+		// Re-assign the post id
+		$post_id = (int) $post->post_id;
+
+		// Make sure they are allowed to delete this post
+		if( !bb_current_user_can( 'delete_post', $post_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to delete this post.' ) );
+			return $this->error;
+		}
+
+		$status = isset( $args[3] ) ? (int) $args[3] : 1;
+
+		if ( $status === (int) $post->post_status ) {
+			return 0;
+		}
+
+		// Delete the post
+		if ( !$post_id = bb_delete_post( $post_id, $status ) ) {
+			$this->error = new IXR_Error( 500, __( 'The post could not be edited.' ) );
+			return $this->error;
+		}
+
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.deletePost' );
+
+		return $result;
 	}
 
 
