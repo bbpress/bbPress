@@ -80,8 +80,10 @@
 <?php else : ?>
 <p><?php _e('No topics posted yet.') ?></p>
 <?php endif; endif;?>
-</div><br style="clear: both;" />
+</div>
 
+<div class="nav">
 <?php profile_pages(); ?>
+</div>
 
 <?php bb_get_footer(); ?>
