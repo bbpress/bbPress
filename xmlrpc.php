@@ -130,7 +130,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.getPosts'        => 'this:bb_getPosts',
 				'bb.getPost'         => 'this:bb_getPost',
 				'bb.newPost'         => 'this:bb_newPost',
-				//'bb.editPost'        => 'this:bb_editPost',
+				'bb.editPost'        => 'this:bb_editPost',
 				//'bb.deletePost'      => 'this:bb_deletePost',
 				// - Tags
 				//'bb.getTagCount'     => 'this:bb_getTagCount',
@@ -2224,10 +2224,10 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Can be numeric id or slug
-		$post_id = isset( $args[2] ) ? $args[2] : false;
+		$post_id = isset( $args[2] ) ? (int) $args[2] : false;
 
 		// Check for bad data
-		if ( !$post_id || !is_integer( $post_id ) ) {
+		if ( !$post_id ) {
 			$this->error = new IXR_Error( 400, __( 'The post id is invalid.' ) );
 			return $this->error;
 		}
@@ -2325,7 +2325,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		// The topic id may have been a slug, so make sure it's an integer here
 		$topic_id = (int) $topic->topic_id;
 
-		// The topic requires text
+		// The post requires text
 		if ( !isset( $structure['text'] ) || !$structure['text'] ) {
 			$this->error = new IXR_Error( 400, __( 'The post text is invalid.' ) );
 			return $this->error;
@@ -2344,6 +2344,107 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		do_action( 'bb_xmlrpc_call_return', 'bb.newPost' );
+
+		return (int) $post_id;
+	}
+
+	/**
+	 * Edits an existing post
+	 *
+	 * @since 1.0
+	 * @return integer|object The post id when successfully edited or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param array $args[2] The values for the various parameters in the new topic
+	 * @param integer $args[2]['post_id'] The unique id of the post
+	 * @param string $args[2]['text'] The text of the topic
+	 *
+	 * XML-RPC request to edit the text of the post with an id of 452
+	 * <methodCall>
+	 *     <methodName>bb.editPost</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><struct>
+	 *             <member>
+	 *                 <name>post_id</name>
+	 *                 <value><int>452</int></value>
+	 *             </member>
+	 *             <member>
+	 *                 <name>text</name>
+	 *                 <value><string>For now I will withhold my opinion.</string></value>
+	 *             </member>
+	 *         </struct></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_editPost( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.editPost' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'edit_posts', __( 'You do not have permission to edit posts.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.editPost' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Make sure there is something for us to do
+		if ( !$args[2] || !is_array( $args[2] ) || !count( $args[2] ) ) {
+			$this->error = new IXR_Error( 400, __( 'The post data is invalid.' ) );
+			return $this->error;
+		}
+
+		$structure = (array) $args[2];
+
+		// Can be numeric id or slug
+		$post_id = isset( $structure['post_id'] ) ? (int) $structure['post_id'] : false;
+
+		// Check for bad data
+		if ( !$post_id ) {
+			$this->error = new IXR_Error( 400, __( 'The post id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$post = bb_get_post( $post_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No post found.' ) );
+			return $this->error;
+		}
+
+		// The post id may have been a slug, so make sure it's an integer here
+		$post_id = (int) $post->post_id;
+
+		// The post requires text
+		if ( !isset( $structure['text'] ) || !$structure['text'] ) {
+			$this->error = new IXR_Error( 400, __( 'The post text is invalid.' ) );
+			return $this->error;
+		}
+
+		// Inject structure into an array suitable for bb_insert_post()
+		$bb_insert_post_args = array(
+			'post_id' => $post_id,
+			'post_text' => (string) $structure['text']
+		);
+
+		// Create the post
+		if ( !$post_id = bb_insert_post( $bb_insert_post_args ) ) {
+			$this->error = new IXR_Error( 500, __( 'The post could not be edited.' ) );
+			return $this->error;
+		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.editPost' );
 
 		return (int) $post_id;
 	}
