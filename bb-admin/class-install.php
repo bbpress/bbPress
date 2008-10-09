@@ -291,16 +291,12 @@ class BB_Install
 			return false;
 		}
 		
-		if (!defined('BB_INC')) {
-			// Define BB_INC
+		if (!defined('BACKPRESS_PATH')) {
+			// Define BACKPRESS_PATH
 			// Tell us to load includes because bb-settings.php was not loaded
 			// bb-settings.php is generally not loaded on steps -1, 0 and 1 but
 			// there are exceptions, so this is safer than just reading the step
 			$this->load_includes = true;
-			define('BB_INC', 'bb-includes/');
-		}
-		
-		if (!defined('BACKPRESS_PATH')) {
 			define('BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/');
 		}
 		
