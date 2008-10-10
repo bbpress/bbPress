@@ -30,9 +30,12 @@
 </tr>
 <?php endforeach; endif; ?>
 </table>
+
+<p class="rss-link"><a href="<?php bb_get_view_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for this forum'); ?></a></p>
+
 <div class="nav">
+<?php view_pages(); ?>
 </div>
 <?php endif; ?>
-<?php view_pages(); ?>
 
 <?php bb_get_footer(); ?>
