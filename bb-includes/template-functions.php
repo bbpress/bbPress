@@ -507,6 +507,10 @@ function bb_get_topics_rss_link($context = 0) {
 	return apply_filters( 'bb_get_topics_rss_link', $link, $context );
 }
 
+function bb_view_rss_link($view = null, $context = 0) {
+	echo apply_filters( 'bb_view_rss_link', bb_get_view_rss_link($view, $context), $context);
+}
+
 function bb_get_view_rss_link($view = null, $context = 0) {
 	if (!$view) {
 		global $view;

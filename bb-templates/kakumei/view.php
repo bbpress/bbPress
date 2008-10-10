@@ -31,7 +31,7 @@
 <?php endforeach; endif; ?>
 </table>
 
-<p class="rss-link"><a href="<?php bb_get_view_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for this view'); ?></a></p>
+<p class="rss-link"><a href="<?php bb_view_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for this view'); ?></a></p>
 
 <div class="nav">
 <?php view_pages(); ?>
