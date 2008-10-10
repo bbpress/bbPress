@@ -78,6 +78,7 @@ if ( !$bb_db_override ) {
 			
 			$title = $bb_views[$feed_id]['title'];
 			$link = get_view_link($feed_id);
+			$link_self = bb_get_view_rss_link($feed_id);
 			break;
 		
 		case 'topic':
@@ -87,6 +88,7 @@ if ( !$bb_db_override ) {
 				die();
 			$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('Topic') . ': ' . get_topic_title() );
 			$link = get_topic_link($feed_id);
+			$link_self = get_topic_rss_link($feed_id);
 			break;
 		
 		case 'profile':
@@ -97,6 +99,7 @@ if ( !$bb_db_override ) {
 				die();
 			$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('User Favorites') . ': ' . $user->user_login );
 			$link = bb_get_profile_link($feed_id);
+			$link_self = get_favorites_rss_link($feed_id);
 			break;
 		
 		case 'tag':
@@ -106,6 +109,7 @@ if ( !$bb_db_override ) {
 				die();
 			$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('Tag') . ': ' . bb_get_tag_name() );
 			$link = bb_get_tag_link($feed_id);
+			$link_self = bb_get_tag_rss_link($feed_id);
 			break;
 		
 		case 'forum-topics':
@@ -119,6 +123,7 @@ if ( !$bb_db_override ) {
 			
 			$title = wp_specialchars( bb_get_option( 'name' ) ) . ': ' . __('Forum') . ': ' . get_forum_name( $feed_id ) . ' - ' . __('Recent Topics');
 			$link = get_forum_link($feed_id);
+			$link_self = bb_get_forum_topics_rss_link($feed_id);
 			break;
 		
 		case 'forum-posts':
@@ -126,6 +131,7 @@ if ( !$bb_db_override ) {
 				die();
 			$title = wp_specialchars( bb_get_option( 'name' ) ) . ': ' . __('Forum') . ': ' . get_forum_name( $feed_id ) . ' - ' . __('Recent Posts');
 			$link = get_forum_link($feed_id);
+			$link_self = bb_get_forum_posts_rss_link($feed_id);
 			break;
 		
 		// Get just the first post from the latest topics
@@ -140,6 +146,7 @@ if ( !$bb_db_override ) {
 			
 			$title = wp_specialchars( bb_get_option( 'name' ) ) . ': ' . __('Recent Topics');
 			$link = bb_get_uri();
+			$link_self = bb_get_topics_rss_link();
 			break;
 		
 		// Get latest posts by default
@@ -149,6 +156,7 @@ if ( !$bb_db_override ) {
 				die();
 			$title = wp_specialchars( bb_get_option( 'name' ) ) . ': ' . __('Recent Posts');
 			$link = bb_get_uri();
+			$link_self = bb_get_posts_rss_link();
 			break;
 	}
 }
@@ -161,7 +169,8 @@ if (!$description = wp_specialchars( bb_get_option('description') )) {
 $title = apply_filters( 'bb_title_rss', $title, $feed );
 $description = apply_filters( 'bb_description_rss', $description, $feed );
 $posts = apply_filters( 'bb_posts_rss', $posts, $feed );
+$link_self = apply_filters( 'bb_link_self_rss', $link_self, $feed );
 
-bb_load_template( 'rss2.php', array('bb_db_override', 'title', 'description', 'link'), $feed );
+bb_load_template( 'rss2.php', array('bb_db_override', 'title', 'description', 'link', 'link_self'), $feed );
 
 ?>

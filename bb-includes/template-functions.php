@@ -463,7 +463,7 @@ function bb_feed_head() {
 			if ($bb_views[$view]['feed']) {
 				$feeds[] = array(
 					'title' => get_view_name(),
-					'href'  => bb_get_view_rss_link(BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
+					'href'  => bb_get_view_rss_link(null, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 			}
 			break;
@@ -507,8 +507,10 @@ function bb_get_topics_rss_link($context = 0) {
 	return apply_filters( 'bb_get_topics_rss_link', $link, $context );
 }
 
-function bb_get_view_rss_link($context = 0) {
-	global $view;
+function bb_get_view_rss_link($view = null, $context = 0) {
+	if (!$view) {
+		global $view;
+	}
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
 	}

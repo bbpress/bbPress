@@ -4,6 +4,7 @@
 <rss version="2.0"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
 >
 	<channel>
 		<title><?php echo $title; ?></title>
@@ -18,6 +19,7 @@
 			<name>q</name>
 			<link><?php bb_uri('search.php'); ?></link>
 		</textInput>
+		<atom:link href="<?php echo $link_self; ?>" rel="self" type="application/rss+xml" />
 
 <?php foreach ($posts as $bb_post) : ?>
 		<item>
