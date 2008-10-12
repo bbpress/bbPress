@@ -107,7 +107,7 @@ class BB_Install
 			require_once( BACKPRESS_PATH . 'functions.plugin-api.php');
 			require_once( BACKPRESS_PATH . 'class.wp-error.php');
 			require_once( BB_PATH . BB_INC . 'functions.wp-core.php');
-			require_once( BB_PATH . BB_INC . 'functions.php' );
+			require_once( BB_PATH . BB_INC . 'functions.bb-core.php' );
 			//require_once( BB_PATH . BB_INC . 'functions.bb-forums.php' );
 			//require_once( BB_PATH . BB_INC . 'functions.bb-topics.php' );
 			//require_once( BB_PATH . BB_INC . 'functions.bb-posts.php' );
