@@ -1,5 +1,5 @@
 <?php
-require('../bb-load.php');
+require_once('../bb-load.php');
 
 bb_auth();
 ?>

@@ -954,7 +954,9 @@ function bb_get_plugins($location = 'all', $type = 'normal') {
 			break;
 	}
 	unset($location);
-	
+
+	require_once( BB_PATH . BB_INC . 'class.bb-dir-map.php' );
+
 	$plugin_arrays = array();
 	foreach ($directories as $directory) {
 		$dir_map = new BB_Dir_Map(

@@ -2,7 +2,7 @@
 require_once('../bb-load.php');
 
 if ( !class_exists( 'WP_Ajax_Response' ) )
-	require( BACKPRESS_PATH . 'class.wp-ajax-response.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-ajax-response.php' );
 
 require_once(BB_PATH . 'bb-admin/admin-functions.php');
 

@@ -173,12 +173,12 @@ if ( defined( 'BB_LOG_FILENAME' ) )
 $bb_log->notice('Logging started');
 
 // Load core BackPress functions
-require( BACKPRESS_PATH . 'functions.core.php' );
-require( BACKPRESS_PATH . 'functions.compat.php' );
+require_once( BACKPRESS_PATH . 'functions.core.php' );
+require_once( BACKPRESS_PATH . 'functions.compat.php' );
 
 // WP_Error
 if ( !class_exists( 'WP_Error' ) )
-	require( BACKPRESS_PATH . 'class.wp-error.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-error.php' );
 
 
 
@@ -194,7 +194,7 @@ if ( !defined('BB_DATABASE_CLASS_INCLUDE') )
 
 // Load the database class
 if ( BB_DATABASE_CLASS_INCLUDE )
-	require( BB_DATABASE_CLASS_INCLUDE );
+	require_once( BB_DATABASE_CLASS_INCLUDE );
 
 /**
  * Define the name of the database class
@@ -260,9 +260,16 @@ if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) )
  * Load core bbPress libraries
  */
 
-require( BB_PATH . BB_INC . 'wp-functions.php');
-require( BB_PATH . BB_INC . 'functions.php');
-require( BB_PATH . BB_INC . 'classes.php');
+require_once( BB_PATH . BB_INC . 'functions.wp-core.php' );
+require_once( BB_PATH . BB_INC . 'functions.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-forums.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-topics.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-posts.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-topic-tags.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-users.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-meta.php' );
+require_once( BB_PATH . BB_INC . 'class.bb-query.php' );
+require_once( BB_PATH . BB_INC . 'class.bb-walker.php' );
 
 
 
@@ -272,11 +279,11 @@ require( BB_PATH . BB_INC . 'classes.php');
 
 // Plugin API
 if ( !function_exists( 'add_filter' ) )
-	require( BACKPRESS_PATH . 'functions.plugin-api.php' );
+	require_once( BACKPRESS_PATH . 'functions.plugin-api.php' );
 
 // Shortcodes API
 if ( !function_exists( 'add_shortcode' ) )
-	require( BACKPRESS_PATH . 'functions.shortcodes.php' );
+	require_once( BACKPRESS_PATH . 'functions.shortcodes.php' );
 else
 	remove_all_shortcodes();
 
@@ -290,7 +297,7 @@ if ( !defined( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE' ) )
 
 // Load the database class
 if ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE && !function_exists( 'wp_cache_init' ) )
-	require( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE );
+	require_once( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE );
 
 // Instantiate the $wp_object_cache object using wp_cache_init()
 if ( !isset( $wp_object_cache ) && function_exists( 'wp_cache_init' ) )
@@ -301,7 +308,7 @@ if ( !isset( $wp_object_cache ) && function_exists( 'wp_cache_init' ) )
 /**
  * Load mapping class for BackPress to store options
  */
-require( BB_PATH . BB_INC . 'class.bp-options.php' );
+require_once( BB_PATH . BB_INC . 'class.bp-options.php' );
 
 
 
@@ -309,7 +316,7 @@ require( BB_PATH . BB_INC . 'class.bp-options.php' );
  * Load WP_Http class
  */
 if ( !class_exists( 'WP_Http' ) )
-	require( BACKPRESS_PATH . 'class.wp-http.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-http.php' );
 
 
 
@@ -336,9 +343,9 @@ if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) { // User has se
 }
 if ( defined('BB_LANG') && '' != BB_LANG ) {
 	if ( !class_exists( 'gettext_reader' ) )
-		require( BACKPRESS_PATH . 'class.gettext-reader.php' );
+		require_once( BACKPRESS_PATH . 'class.gettext-reader.php' );
 	if ( !class_exists( 'StreamReader' ) )
-		require( BACKPRESS_PATH . 'class.streamreader.php' );
+		require_once( BACKPRESS_PATH . 'class.streamreader.php' );
 }
 
 // Is WordPress loaded
@@ -347,8 +354,8 @@ if ( !defined('BB_IS_WP_LOADED') )
 
 // Only load these if WordPress isn't loaded
 if ( !BB_IS_WP_LOADED ) {
-	require( BACKPRESS_PATH . 'functions.kses.php');
-	require( BB_PATH . BB_INC . 'l10n.php');
+	require_once( BACKPRESS_PATH . 'functions.kses.php' );
+	require_once( BB_PATH . BB_INC . 'functions.bb-l10n.php' );
 }
 
 
@@ -359,12 +366,12 @@ if ( !BB_IS_WP_LOADED ) {
 
 // Load BB_CHANNELS_INCLUDE if it exists, must be done before the install is completed
 if ( defined( 'BB_CHANNELS_INCLUDE' ) && file_exists( BB_CHANNELS_INCLUDE ) && !is_dir( BB_CHANNELS_INCLUDE ) )
-	require( BB_CHANNELS_INCLUDE );
+	require_once( BB_CHANNELS_INCLUDE );
 
 // If there is no forum table in the database then redirect to the installer
 if ( !BB_INSTALLING && !bb_is_installed() ) {
 	$link = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']) . 'bb-admin/install.php';
-	require( BB_PATH . BB_INC . 'pluggable.php');
+	require_once( BB_PATH . BB_INC . 'functions.bb-pluggable.php' );
 	wp_redirect($link);
 	die();
 }
@@ -388,11 +395,11 @@ if ( BB_INSTALLING ) {
  * Load additional bbPress libraries
  */
 
-require( BB_PATH . BB_INC . 'formatting-functions.php');
-require( BB_PATH . BB_INC . 'template-functions.php');
-require( BB_PATH . BB_INC . 'capabilities.php');
-require( BB_PATH . BB_INC . 'class.bb-pingbacks.php');
-require( BB_PATH . BB_INC . 'deprecated.php');
+require_once( BB_PATH . BB_INC . 'functions.bb-formatting.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-template.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-capabilities.php' );
+require_once( BB_PATH . BB_INC . 'class.bb-pingbacks.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-deprecated.php' );
 
 
 
@@ -408,8 +415,8 @@ if ( $bb->load_options ) {
 	$bbdb->suppress_errors(false);
 }
 
-require( BB_PATH . BB_INC . 'default-filters.php');
-require( BB_PATH . BB_INC . 'script-loader.php');
+require_once( BB_PATH . BB_INC . 'defaults.bb-filters.php' );
+require_once( BB_PATH . BB_INC . 'functions.bb-script-loader.php' );
 
 // Sanitise external input
 $_GET    = bb_global_sanitize($_GET);
@@ -700,16 +707,16 @@ $bb_default_secret_key = 'put your unique phrase here';
 
 // WP_Pass
 if ( !class_exists( 'WP_Pass' ) )
-	require( BACKPRESS_PATH . 'class.wp-pass.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-pass.php' );
 
 // WP_Users
 if ( !class_exists( 'WP_Users' ) ) {
-	require( BACKPRESS_PATH . 'class.wp-users.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-users.php' );
 	$wp_users_object = new WP_Users( $bbdb );
 }
 
 if ( !class_exists( 'BP_Roles' ) )
-	require( BACKPRESS_PATH . 'class.bp-roles.php' );
+	require_once( BACKPRESS_PATH . 'class.bp-roles.php' );
 
 /**
  * BP_Roles object
@@ -718,11 +725,11 @@ $wp_roles = new BP_Roles( $bbdb );
 
 // WP_User
 if ( !class_exists( 'WP_User' ) )
-	require( BACKPRESS_PATH . 'class.wp-user.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-user.php' );
 
 // WP_Auth
 if ( !class_exists( 'WP_Auth' ) ) {
-	require( BACKPRESS_PATH . 'class.wp-auth.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-auth.php' );
 	
 	$cookies = array();
 	
@@ -828,21 +835,21 @@ $bb_current_user =& $wp_auth_object->current;
 
 // WP_Scripts/WP_Styles
 if ( !class_exists( 'WP_Dependencies' ) )
-	require( BACKPRESS_PATH . 'class.wp-dependencies.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-dependencies.php' );
 if ( !class_exists( 'WP_Scripts' ) ) {
-	require( BACKPRESS_PATH . 'class.wp-scripts.php' );
-	require( BACKPRESS_PATH . 'functions.wp-scripts.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-scripts.php' );
+	require_once( BACKPRESS_PATH . 'functions.wp-scripts.php' );
 }
 if ( !class_exists( 'WP_Styles' ) ) {
-	require( BACKPRESS_PATH . 'class.wp-styles.php' );
-	require( BACKPRESS_PATH . 'functions.wp-styles.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-styles.php' );
+	require_once( BACKPRESS_PATH . 'functions.wp-styles.php' );
 }
 
 // WP_Taxonomy
 if ( !class_exists( 'WP_Taxonomy' ) )
-	require( BACKPRESS_PATH . 'class.wp-taxonomy.php' );
+	require_once( BACKPRESS_PATH . 'class.wp-taxonomy.php' );
 if ( !class_exists( 'BB_Taxonomy' ) )
-	require( BB_PATH . BB_INC . 'class.bb-taxonomy.php' );
+	require_once( BB_PATH . BB_INC . 'class.bb-taxonomy.php' );
 if ( !isset($wp_taxonomy_object) ) { // Clean slate
 	$wp_taxonomy_object = new BB_Taxonomy( $bbdb );
 } elseif ( !is_a($wp_taxonomy_object, 'BB_Taxonomy') ) { // exists, but it's not good enough, translate it
@@ -900,12 +907,12 @@ unset($deprecated_constants, $old, $new);
 // Autoloaded "underscore" plugins
 // First BB_CORE_PLUGIN_DIR
 foreach ( bb_glob(BB_CORE_PLUGIN_DIR . '_*.php') as $_plugin )
-	require( $_plugin );
+	require_once( $_plugin );
 unset( $_plugin );
 
 // Second BB_PLUGIN_DIR, with no name clash testing
 foreach ( bb_glob(BB_PLUGIN_DIR . '_*.php') as $_plugin )
-	require( $_plugin );
+	require_once( $_plugin );
 unset( $_plugin );
 do_action( 'bb_underscore_plugins_loaded' );
 
@@ -926,15 +933,15 @@ if ( $plugins = bb_get_option( 'active_plugins' ) ) {
 				BB_PLUGIN_DIR != $plugin &&
 				file_exists( $plugin )
 			) {
-				require( $plugin );
+				require_once( $plugin );
 			}
 		}
 	}
 }
 do_action( 'bb_plugins_loaded' );
-unset($plugins, $plugin);
+unset( $plugins, $plugin );
 
-require( BB_PATH . BB_INC . 'pluggable.php');
+require_once( BB_PATH . BB_INC . 'functions.bb-pluggable.php' );
 
 
 
@@ -946,7 +953,7 @@ require( BB_PATH . BB_INC . 'pluggable.php');
 load_default_textdomain();
 
 // Pull in locale data after loading text domain.
-require_once(BB_PATH . BB_INC . 'locale.php');
+require_once( BB_PATH . BB_INC . 'class.bb-locale.php' );
 
 /**
  * Localisation object
@@ -968,7 +975,7 @@ do_action('bb_got_roles');
  */
 $template_functions_include = bb_get_active_theme_directory() . 'functions.php';
 if ( file_exists($template_functions_include) )
-	include($template_functions_include);
+	require_once( $template_functions_include );
 unset($template_functions_include);
 
 
@@ -996,7 +1003,7 @@ bb_current_user();
  */
 
 if ( !function_exists('wp_schedule_single_event') )
-	require( BACKPRESS_PATH . 'functions.wp-cron.php' );
+	require_once( BACKPRESS_PATH . 'functions.wp-cron.php' );
 if ((!defined('DOING_CRON') || !DOING_CRON))
 	wp_cron();
 

@@ -19,7 +19,7 @@ if ( !is_bb_profile() ) {
 	exit;
 }
 
-require_once(BB_PATH . BB_INC . 'registration-functions.php');
+require_once( BB_PATH . BB_INC . 'functions.bb-registration.php' );
 
 if ( !$user->capabilities )
 	$user->capabilities = array('inactive' => true);

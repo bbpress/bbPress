@@ -1,5 +1,9 @@
-<?php require_once('admin.php'); require_once(BB_PATH . BB_INC . 'statistics-functions.php'); ?>
-<?php bb_get_admin_header(); ?>
+<?php
+require_once('admin.php');
+require_once( BB_PATH . BB_INC . 'functions.bb-statistics.php' );
+
+bb_get_admin_header();
+?>
 
 <div class="wrap">
 	<h2><?php _e('Dashboard'); ?></h2>

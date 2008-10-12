@@ -103,14 +103,20 @@ class BB_Install
 		
 		// We need to load these when bb-settings.php isn't loaded
 		if ($this->load_includes) {
-			require_once(BACKPRESS_PATH . 'functions.core.php');
-			require_once(BACKPRESS_PATH . 'functions.plugin-api.php');
-			require_once(BACKPRESS_PATH . 'class.wp-error.php');
-			require_once(BB_PATH . BB_INC . 'wp-functions.php');
-			require_once(BB_PATH . BB_INC . 'functions.php');
-			require_once(BACKPRESS_PATH . 'functions.kses.php');
-			require_once(BB_PATH . BB_INC . 'l10n.php');
-			require_once(BB_PATH . BB_INC . 'template-functions.php');
+			require_once( BACKPRESS_PATH . 'functions.core.php');
+			require_once( BACKPRESS_PATH . 'functions.plugin-api.php');
+			require_once( BACKPRESS_PATH . 'class.wp-error.php');
+			require_once( BB_PATH . BB_INC . 'functions.wp-core.php');
+			require_once( BB_PATH . BB_INC . 'functions.php' );
+			//require_once( BB_PATH . BB_INC . 'functions.bb-forums.php' );
+			//require_once( BB_PATH . BB_INC . 'functions.bb-topics.php' );
+			//require_once( BB_PATH . BB_INC . 'functions.bb-posts.php' );
+			//require_once( BB_PATH . BB_INC . 'functions.bb-topic-tags.php' );
+			//require_once( BB_PATH . BB_INC . 'functions.bb-users.php' );
+			//require_once( BB_PATH . BB_INC . 'functions.bb-meta.php' );
+			require_once( BACKPRESS_PATH . 'functions.kses.php' );
+			require_once( BB_PATH . BB_INC . 'functions.bb-l10n.php' );
+			require_once( BB_PATH . BB_INC . 'functions.bb-template.php' );
 		}
 		
 		$this->get_languages();
@@ -135,7 +141,7 @@ class BB_Install
 		
 		// Pull in locale data after loading text domain.
 		if ($this->load_includes) {
-			require_once(BB_PATH . BB_INC . 'locale.php');
+			require_once(BB_PATH . BB_INC . 'class.bb-locale.php');
 		}
 		global $bb_locale;
 		$bb_locale = new BB_Locale();
@@ -1516,7 +1522,7 @@ class BB_Install
 		$data['keymaster_user_login']['value'] = sanitize_user($data['keymaster_user_login']['value']);
 		
 		// bb_verify_email() needs this
-		require_once(BB_PATH . BB_INC . 'registration-functions.php');
+		require_once(BB_PATH . BB_INC . 'functions.bb-registration.php');
 		
 		// Check for a valid email
 		$this->strings[3]['form_errors']['keymaster_user_email'][] = empty($data['keymaster_user_email']['value']) ? 'empty' : false;
@@ -1589,7 +1595,7 @@ class BB_Install
 	function process_form_finalise_installation()
 	{
 		require_once(BB_PATH . 'bb-admin/upgrade-functions.php');
-		require_once(BB_PATH . BB_INC . 'registration-functions.php');
+		require_once(BB_PATH . BB_INC . 'functions.bb-registration.php');
 		require_once(BB_PATH . 'bb-admin/admin-functions.php');
 		
 		$this->inject_form_values_into_data(2);
