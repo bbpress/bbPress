@@ -133,11 +133,6 @@ add_action('bb_user_has_no_caps', 'bb_give_user_default_role');
 
 add_action('do_pingbacks', array('BB_Pingbacks', 'send_all'), 10, 1);
 
-function bb_register_default_views() {
-	// no posts (besides the first one), older than 2 hours
-	bb_register_view( 'no-replies', __('Topics with no replies'), array( 'post_count' => 1, 'started' => '<' . gmdate( 'YmdH', time() - 7200 ) ) );
-	bb_register_view( 'untagged'  , __('Topics with no tags')   , array( 'tag_count'  => 0 ) );
-}
 add_action( 'bb_init', 'bb_register_default_views' );
 
 if ( bb_get_option( 'wp_table_prefix' ) ) {
