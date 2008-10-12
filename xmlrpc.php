@@ -106,43 +106,45 @@ class BB_XMLRPC_Server extends IXR_Server
 		if ( bb_get_option( 'enable_xmlrpc' ) ) {
 			$this->methods = array(
 				// - Demo
-				'demo.sayHello'      => 'this:sayHello',
-				'demo.addTwoNumbers' => 'this:addTwoNumbers',
+				'demo.sayHello'       => 'this:sayHello',
+				'demo.addTwoNumbers'  => 'this:addTwoNumbers',
 				// - Forums
-				'bb.getForumCount'   => 'this:bb_getForumCount',
-				'bb.getForums'       => 'this:bb_getForums',
-				'bb.getForum'        => 'this:bb_getForum',
-				'bb.newForum'        => 'this:bb_newForum',
-				'bb.editForum'       => 'this:bb_editForum',
-				'bb.deleteForum'     => 'this:bb_deleteForum',
+				'bb.getForumCount'    => 'this:bb_getForumCount',
+				'bb.getForums'        => 'this:bb_getForums',
+				'bb.getForum'         => 'this:bb_getForum',
+				'bb.newForum'         => 'this:bb_newForum',
+				'bb.editForum'        => 'this:bb_editForum',
+				'bb.deleteForum'      => 'this:bb_deleteForum',
 				// - Topics
-				'bb.getTopicCount'   => 'this:bb_getTopicCount',
-				'bb.getTopics'       => 'this:bb_getTopics',
-				'bb.getTopic'        => 'this:bb_getTopic',
-				'bb.newTopic'        => 'this:bb_newTopic',
-				'bb.editTopic'       => 'this:bb_editTopic',
-				'bb.deleteTopic'     => 'this:bb_deleteTopic', // Also undeletes
-				'bb.moveTopic'       => 'this:bb_moveTopic',
-				'bb.stickTopic'      => 'this:bb_stickTopic',  // Also unsticks
-				'bb.closeTopic'      => 'this:bb_closeTopic',  // Also opens
+				'bb.getTopicCount'    => 'this:bb_getTopicCount',
+				'bb.getTopics'        => 'this:bb_getTopics',
+				'bb.getTopic'         => 'this:bb_getTopic',
+				'bb.newTopic'         => 'this:bb_newTopic',
+				'bb.editTopic'        => 'this:bb_editTopic',
+				'bb.deleteTopic'      => 'this:bb_deleteTopic', // Also undeletes
+				'bb.moveTopic'        => 'this:bb_moveTopic',
+				'bb.stickTopic'       => 'this:bb_stickTopic',  // Also unsticks
+				'bb.closeTopic'       => 'this:bb_closeTopic',  // Also opens
 				// - Posts (replies)
-				'bb.getPostCount'    => 'this:bb_getPostCount',
-				'bb.getPosts'        => 'this:bb_getPosts',
-				'bb.getPost'         => 'this:bb_getPost',
-				'bb.newPost'         => 'this:bb_newPost',
-				'bb.editPost'        => 'this:bb_editPost',
-				'bb.deletePost'      => 'this:bb_deletePost',  // Also undeletes
-				// - Tags
-				//'bb.getTagCount'     => 'this:bb_getTagCount',
-				//'bb.getTags'         => 'this:bb_getTags',
-				//'bb.getTag'          => 'this:bb_getTag',
-				//'bb.newTag'          => 'this:bb_newTag',
-				//'bb.editTag'         => 'this:bb_editTag',
-				//'bb.deleteTag'       => 'this:bb_deleteTag',
-				//'bb.mergeTags'       => 'this:bb_mergeTags',
+				'bb.getPostCount'     => 'this:bb_getPostCount',
+				'bb.getPosts'         => 'this:bb_getPosts',
+				'bb.getPost'          => 'this:bb_getPost',
+				'bb.newPost'          => 'this:bb_newPost',
+				'bb.editPost'         => 'this:bb_editPost',
+				'bb.deletePost'       => 'this:bb_deletePost',  // Also undeletes
+				// - Topic Tags
+				//'bb.getHotTopicTags'  => 'this:bb_getHotTopicTags',
+				'bb.getTopicTagCount' => 'this:bb_getTopicTagCount',
+				'bb.getTopicTags'     => 'this:bb_getTopicTags',
+				'bb.getTopicTag'      => 'this:bb_getTopicTag',
+				'bb.addTopicTags'     => 'this:bb_addTopicTags',
+				'bb.removeTopicTags'  => 'this:bb_removeTopicTags',
+				'bb.renameTopicTag'   => 'this:bb_renameTopicTag',
+				//'bb.mergeTopicTags'   => 'this:bb_mergeTopicTags',
+				//'bb.destroyTopicTag'  => 'this:bb_destroyTopicTag',
 				// - Options
-				'bb.getOptions'      => 'this:bb_getOptions',
-				'bb.setOptions'      => 'this:bb_setOptions'
+				'bb.getOptions'       => 'this:bb_getOptions',
+				'bb.setOptions'       => 'this:bb_setOptions'
 			);
 		}
 
@@ -273,8 +275,10 @@ class BB_XMLRPC_Server extends IXR_Server
 		$_topic['topic_poster_display_name'] = get_user_display_name( $_topic['topic_poster'] );
 		$_topic['topic_last_poster_display_name'] = get_user_display_name( $_topic['topic_last_poster'] );
 		// Remove some sensitive user ids
-		unset( $_topic['topic_poster'] );
-		unset( $_topic['topic_last_poster'] );
+		unset(
+			$_topic['topic_poster'],
+			$_topic['topic_last_poster']
+		);
 		// Allow plugins to modify the data
 		return apply_filters( 'bb_xmlrpc_prepare_topic', $_topic, (array) $topic );
 	}
@@ -297,11 +301,52 @@ class BB_XMLRPC_Server extends IXR_Server
 		// Set the display names
 		$_post['poster_display_name'] = get_user_display_name( $_post['poster_id'] );
 		// Remove some sensitive data
-		unset( $_post['poster_id'] );
-		unset( $_post['poster_ip'] );
-		unset( $_post['pingback_queued'] );
+		unset(
+			$_post['poster_id'],
+			$_post['poster_ip'],
+			$_post['pingback_queued']
+		);
 		// Allow plugins to modify the data
 		return apply_filters( 'bb_xmlrpc_prepare_post', $_post, (array) $post );
+	}
+
+	/**
+	 * Prepares topic tag data for return in an XML-RPC object
+	 *
+	 * @since 1.0
+	 * @return array The prepared topic tag data
+	 * @param array|object The unprepared topic tag data
+	 **/
+	function prepare_topic_tag( $tag )
+	{
+		// Cast to an array
+		$_tag = (array) $tag;
+		// Set the URI
+		$_tag['topic_tag_uri'] = bb_get_tag_link( $tag );
+		// Consistent nomenclature
+		$_tag['topic_tag_name'] = (string) $_tag['name'];
+		$_tag['topic_tag_slug'] = (string) $_tag['slug'];
+		$_tag['topic_tag_count'] = (int) $_tag['count'];
+		// Remove some sensitive data
+		unset(
+			$_tag['name'],
+			$_tag['slug'],
+			$_tag['count'],
+			$_tag['term_id'],
+			$_tag['term_group'],
+			$_tag['term_taxonomy_id'],
+			$_tag['taxonomy'],
+			$_tag['description'],
+			$_tag['parent'],
+			$_tag['count'],
+			$_tag['user_id'],
+			$_tag['tag_id'],
+			$_tag['tag'],
+			$_tag['raw_tag'],
+			$_tag['tag_count']
+		);
+		// Allow plugins to modify the data
+		return apply_filters( 'bb_xmlrpc_prepare_topic_tag', $_tag, (array) $tag );
 	}
 
 
@@ -1403,7 +1448,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$user = $this->authenticate( $username, $password, 'write_topics', __( 'You do not have permission to write topics.' ) );
 
 		// Additionally they need to be able to write posts
-		if( !$this->error && !bb_current_user_can( 'write_posts' ) ) {
+		if ( !$this->error && !bb_current_user_can( 'write_posts' ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to write posts.' ) );
 		}
 
@@ -1441,7 +1486,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$forum_id = (int) $forum->forum_id;
 
 		// Make sure they are allowed to write topics to this forum
-		if( !bb_current_user_can( 'write_topic', $forum_id ) ) {
+		if ( !bb_current_user_can( 'write_topic', $forum_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to write topics to this forum.' ) );
 			return $this->error;
 		}
@@ -1540,7 +1585,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$user = $this->authenticate( $username, $password, 'edit_topics', __( 'You do not have permission to edit topics.' ) );
 
 		// Additionally they need to be able to edit posts
-		if( !$this->error && !bb_current_user_can( 'edit_posts' ) ) {
+		if ( !$this->error && !bb_current_user_can( 'edit_posts' ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit posts.' ) );
 		}
 
@@ -1578,7 +1623,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$topic_id = (int) $topic->topic_id;
 
 		// Make sure they are allowed to edit this topic
-		if( !bb_current_user_can( 'edit_topic', $topic_id ) ) {
+		if ( !bb_current_user_can( 'edit_topic', $topic_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit this topic.' ) );
 			return $this->error;
 		}
@@ -1592,7 +1637,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$post_id = (int) $post->post_id;
 
 		// Make sure they are allowed to edit this post
-		if( !bb_current_user_can( 'edit_post', $post_id ) ) {
+		if ( !bb_current_user_can( 'edit_post', $post_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit this post.' ) );
 			return $this->error;
 		}
@@ -1696,7 +1741,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Make sure they are allowed to delete this topic
-		if( !bb_current_user_can( 'delete_topic', $topic_id ) ) {
+		if ( !bb_current_user_can( 'delete_topic', $topic_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to delete this topic.' ) );
 			return $this->error;
 		}
@@ -1875,7 +1920,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$topic_id = (int) $topic->topic_id;
 
 		// Make sure they are allowed to stick this topic
-		if( !bb_current_user_can( 'stick_topic', $topic_id ) ) {
+		if ( !bb_current_user_can( 'stick_topic', $topic_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to stick this topic.' ) );
 			return $this->error;
 		}
@@ -1975,7 +2020,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$topic_id = (int) $topic->topic_id;
 
 		// Make sure they are allowed to close this topic
-		if( !bb_current_user_can( 'close_topic', $topic_id ) ) {
+		if ( !bb_current_user_can( 'close_topic', $topic_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to close this topic.' ) );
 			return $this->error;
 		}
@@ -2343,7 +2388,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$topic_id = (int) $topic->topic_id;
 
 		// Make sure they are allowed to write posts to this topic
-		if( !bb_current_user_can( 'write_post', $topic_id ) ) {
+		if ( !bb_current_user_can( 'write_post', $topic_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to write posts to this topic.' ) );
 			return $this->error;
 		}
@@ -2450,7 +2495,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$post_id = (int) $post->post_id;
 
 		// Make sure they are allowed to edit this post
-		if( !bb_current_user_can( 'edit_post', $post_id ) ) {
+		if ( !bb_current_user_can( 'edit_post', $post_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to edit this post.' ) );
 			return $this->error;
 		}
@@ -2539,7 +2584,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$post_id = (int) $post->post_id;
 
 		// Make sure they are allowed to delete this post
-		if( !bb_current_user_can( 'delete_post', $post_id ) ) {
+		if ( !bb_current_user_can( 'delete_post', $post_id ) ) {
 			$this->error = new IXR_Error( 403, __( 'You do not have permission to delete this post.' ) );
 			return $this->error;
 		}
@@ -2561,6 +2606,585 @@ class BB_XMLRPC_Server extends IXR_Server
 		do_action( 'bb_xmlrpc_call_return', 'bb.deletePost' );
 
 		return $result;
+	}
+
+
+
+	/**
+	 * bbPress publishing API - Topic Tag XML-RPC methods
+	 */
+
+	/**
+	 * Returns a numerical count of tags in a given topic
+	 *
+	 * @since 1.0
+	 * @return integer|object The number of topics when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The topic id or slug
+	 *
+	 * XML-RPC request to get a count of all tags in the topic with slug "woot-frist-topic"
+	 * <methodCall>
+	 *     <methodName>bb.getTopicTagCount</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>woot-frist-topic</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getTopicTagCount( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.getTopicTagCount' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getTopicTagCount' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = (int) $topic->topic_id;
+
+		// Now get the tags
+		if ( !$tags = bb_get_topic_tags( $topic_id ) ) {
+			//return 0;
+		}
+
+		// Count the tags
+		$count = count( $tags );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getTopicTagCount' );
+
+		// Return the count of tags
+		return $count;
+	}
+
+	/**
+	 * Returns the tags in a given topic
+	 *
+	 * @since 1.0
+	 * @return integer|object The tag data when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer|string $args[2] The topic id or slug
+	 *
+	 * XML-RPC request to get all tags in the topic with slug "woot-frist-topic"
+	 * <methodCall>
+	 *     <methodName>bb.getTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>woot-frist-topic</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getTopicTags( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.getTopicTags' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getTopicTags' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = (int) $topic->topic_id;
+
+		// Now get the tags
+		if ( !$tags = bb_get_topic_tags( $topic_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'No topic tags found.' ) );
+			return $this->error;
+		}
+
+		// Only include "safe" data in the array
+		$_tags = array();
+		foreach ( $tags as $tag ) {
+			$_tags[] = $this->prepare_topic_tag( $tag );
+		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getTopicTags' );
+
+		// Return the tags
+		return $_tags;
+	}
+
+	/**
+	 * Returns the topics which are tagged with the given tag
+	 *
+	 * @since 1.0
+	 * @return integer|object The topic data when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param string $args[2] The tag name or slug
+	 * @param integer $args[3] The number of topics to return (optional)
+	 * @param integer $args[4] The number of the page to return (optional)
+	 *
+	 * XML-RPC request to get the latest 10 topics tagged with the tag "apples"
+	 * <methodCall>
+	 *     <methodName>bb.getTopicTag</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>apples</string></value></param>
+	 *         <param><value><string>10</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getTopicTag( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.getTopicTag' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getTopicTag' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can only be a string
+		$tag_id = isset( $args[2] ) ? (string) $args[2] : false;
+
+		// Check for bad data
+		if ( !$tag_id ) {
+			$this->error = new IXR_Error( 400, __( 'The tag id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$tag = bb_get_tag( $tag_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No tag found.' ) );
+			return $this->error;
+		}
+
+		// Get the numeric tag id
+		$tag_id = (int) $tag->tag_id;
+
+		// Setup an array to store arguments to pass to get_tagged_topics() function
+		$get_topics_args = array(
+			'tag_id' => false,
+			'number' => false,
+			'page' => false
+		);
+
+		// Can only be an integer
+		if ( isset( $args[3] ) && $number = (int) $args[3] ) {
+			$get_topics_args['number'] = $number;
+		}
+
+		// Can only be an integer
+		if ( isset( $args[4] ) && $page = (int) $args[4] ) {
+			$get_topics_args['page'] = $page;
+		}
+
+		// Now get the topics
+		if ( !$topics = get_tagged_topics( $tag_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'No topics found.' ) );
+			return $this->error;
+		}
+
+		// Only include "safe" data in the array
+		$_topics = array();
+		foreach ( $topics as $topic ) {
+			$_topics[] = $this->prepare_topic( $topic );
+		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.getTopicTag' );
+
+		// Return the topics
+		return $_topics;
+	}
+
+	/**
+	 * Adds the specified tags to the specified topic
+	 *
+	 * @since 1.0
+	 * @return integer|object The topic data when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param string|integer $args[2] The topic id or slug
+	 * @param string|array $args[3] The tags to add to the topic
+	 *
+	 * XML-RPC request to add the tag "banana" to the topic with id 219
+	 * <methodCall>
+	 *     <methodName>bb.addTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>219</int></value></param>
+	 *         <param><value><string>banana</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to add the tags "banana" and "man" to the topic with id 219
+	 * <methodCall>
+	 *     <methodName>bb.addTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>219</int></value></param>
+	 *         <param><value><string>banana, man</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to add the tags "banana" and "man" to the topic with id 219 using an array
+	 * <methodCall>
+	 *     <methodName>bb.addTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>219</int></value></param>
+	 *         <param><value><array>
+	 *             <data><value><string>banana</string></value></data>
+	 *             <data><value><string>man</string></value></data>
+	 *         </array></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_addTopicTags( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.addTopicTags' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'edit_tags', __( 'You do not have permission to edit tags.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.addTopicTags' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = (int) $topic->topic_id;
+
+		// Make sure they are allowed to add tags to this topic
+		if ( !bb_current_user_can( 'add_tag_to', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to add tags to this topic.' ) );
+			return $this->error;
+		}
+
+		$tags = isset( $args[3] ) ? $args[3] : false;
+
+		// Check for bad data
+		if ( !$tags || ( !is_string( $tags ) && !is_array( $tags ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The tag data is invalid.' ) );
+			return $this->error;
+		}
+
+		// Add the tags
+		if ( !$tag_ids = bb_add_topic_tags( $topic_id, $tags ) ) {
+			$this->error = new IXR_Error( 500, __( 'The tags could not be added.' ) );
+			return $this->error;
+		}
+
+		// Only include "safe" data in the array
+		$_tags = array();
+		foreach ( $tag_ids as $tag_id ) {
+			$_tags[] = $this->prepare_topic_tag( bb_get_tag( $tag_id ) );
+		}
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.addTopicTags' );
+
+		// Return the tags which were added as an array
+		return $_tags;
+	}
+
+	/**
+	 * Removes the specified tags from the specified topic
+	 *
+	 * @since 1.0
+	 * @return integer|object 1 when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param string|integer $args[2] The topic id or slug
+	 * @param string|array $args[3] The tags to remove from the topic
+	 *
+	 * XML-RPC request to remove the tag "banana" to the topic with id 219
+	 * <methodCall>
+	 *     <methodName>bb.removeTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>219</int></value></param>
+	 *         <param><value><string>banana</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to remove the tags "banana" and "man" to the topic with id 219
+	 * <methodCall>
+	 *     <methodName>bb.removeTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>219</int></value></param>
+	 *         <param><value><string>banana, man</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 *
+	 * XML-RPC request to remove the tags "banana" and "man" to the topic with id 219 using an array
+	 * <methodCall>
+	 *     <methodName>bb.removeTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>219</int></value></param>
+	 *         <param><value><array>
+	 *             <data><value><string>banana</string></value></data>
+	 *             <data><value><string>man</string></value></data>
+	 *         </array></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_removeTopicTags( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.removeTopicTags' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'edit_tags', __( 'You do not have permission to edit tags.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.removeTopicTags' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can be numeric id or slug
+		$topic_id = isset( $args[2] ) ? $args[2] : false;
+
+		// Check for bad data
+		if ( !$topic_id || ( !is_string( $topic_id ) && !is_integer( $topic_id ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The topic id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$topic = get_topic( $topic_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No topic found.' ) );
+			return $this->error;
+		}
+
+		// The topic id may have been a slug, so make sure it's an integer here
+		$topic_id = (int) $topic->topic_id;
+
+		// Make sure they are allowed to add tags to this topic
+		if ( !bb_current_user_can( 'add_tag_to', $topic_id ) ) {
+			$this->error = new IXR_Error( 403, __( 'You do not have permission to remove tags from this topic.' ) );
+			return $this->error;
+		}
+
+		$tags = isset( $args[3] ) ? $args[3] : false;
+
+		// Check for bad data
+		if ( !$tags || ( !is_string( $tags ) && !is_array( $tags ) ) ) {
+			$this->error = new IXR_Error( 400, __( 'The tag data is invalid.' ) );
+			return $this->error;
+		}
+
+		// Add the tags
+		if ( !bb_remove_topic_tags( $topic_id, $tags ) ) {
+			$this->error = new IXR_Error( 500, __( 'The tags could not be removed.' ) );
+			return $this->error;
+		}
+
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.removeTopicTags' );
+
+		// Return the result
+		return $result;
+	}
+
+	/**
+	 * Renames the specified tag to a new tag name
+	 *
+	 * @since 1.0
+	 * @return string|object The new tag slug when successfully renamed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param string $args[2] The tag name or slug
+	 * @param string $args[3] The new tag name (slug is auto-generated)
+	 *
+	 * XML-RPC request to rename the tag "banana" to "bananas"
+	 * <methodCall>
+	 *     <methodName>bb.renameTopicTag</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>banana</string></value></param>
+	 *         <param><value><string>bananas</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_renameTopicTag( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.renameTopicTag' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = (string) $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'manage_tags', __( 'You do not have permission to manage tags.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.renameTopicTag' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can only be a string
+		$tag_id = isset( $args[2] ) ? (string) $args[2] : false;
+
+		// Check for bad data
+		if ( !$tag_id ) {
+			$this->error = new IXR_Error( 400, __( 'The tag id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested topic exists
+		if ( !$tag = bb_get_tag( $tag_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No tag found.' ) );
+			return $this->error;
+		}
+
+		// Get the numeric tag id
+		$tag_id = (int) $tag->tag_id;
+
+		// Can only be a string
+		$tag_name = isset( $args[3] ) ? (string) $args[3] : false;
+
+		// Check for bad data
+		if ( !$tag_name || $tag_name == $tag->tag_name ) {
+			$this->error = new IXR_Error( 400, __( 'The tag name is invalid.' ) );
+			return $this->error;
+		}
+
+		// Leave the require until the very end
+		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
+
+		// Rename the tag
+		if ( !$new_tag = rename_tag( $tag_id, $tag_name ) ) {
+			$this->error = new IXR_Error( 500, __( 'The tag could not be renamed.' ) );
+			return $this->error;
+		}
+
+		// Only include "safe" data in the array
+		$new_tag = $this->prepare_topic_tag( $new_tag );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.renameTopicTag' );
+
+		// Return the tag
+		return $new_tag;
 	}
 
 
