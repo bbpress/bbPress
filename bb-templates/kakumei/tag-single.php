@@ -24,7 +24,7 @@
 <?php endforeach; ?>
 </table>
 
-<p class="rss-link"><a href="<?php bb_tag_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag.') ?></a></p>
+<p class="rss-link"><a href="<?php bb_tag_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag') ?></a></p>
 
 <div class="nav">
 <?php tag_pages(); ?>
