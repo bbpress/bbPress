@@ -9,7 +9,7 @@ define('BB_INSTALLING', true);
 require_once('../bb-load.php');
 
 // Instantiate the install class
-require_once(BB_PATH . 'bb-admin/class-install.php');
+require_once( BB_PATH . 'bb-admin/includes/class.bb-install.php' );
 $bb_install = new BB_Install(__FILE__);
 
 $bb_install->header();
