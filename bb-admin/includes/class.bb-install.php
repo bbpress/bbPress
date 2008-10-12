@@ -1594,9 +1594,9 @@ class BB_Install
 	
 	function process_form_finalise_installation()
 	{
-		require_once(BB_PATH . 'bb-admin/upgrade-functions.php');
-		require_once(BB_PATH . BB_INC . 'functions.bb-registration.php');
-		require_once(BB_PATH . 'bb-admin/admin-functions.php');
+		require_once( BB_PATH . 'bb-admin/includes/functions.bb-upgrade.php' );
+		require_once( BB_PATH . BB_INC . 'functions.bb-registration.php' );
+		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 		
 		$this->inject_form_values_into_data(2);
 		$this->inject_form_values_into_data(3);

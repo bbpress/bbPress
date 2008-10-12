@@ -1,7 +1,7 @@
 <?php
 
-require_once('../bb-load.php');
-require_once('admin-functions.php');
+require_once( '../bb-load.php' );
+require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 define('BB_EXPORT_USERS', 1);
 define('BB_EXPORT_FORUMS', 2);

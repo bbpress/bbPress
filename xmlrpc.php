@@ -849,7 +849,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$bb_new_forum_args = array_filter( $bb_new_forum_args );
 
 		// Leave the require until the very end
-		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
+		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 		// Create the forum
 		if ( !$forum_id = (int) bb_new_forum( $bb_new_forum_args ) ) {
@@ -996,7 +996,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$bb_update_forum_args = wp_parse_args( $bb_update_forum_args, $forum );
 
 		// Leave the require until the very end
-		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
+		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 		// Update the forum
 		if ( !bb_update_forum( $bb_update_forum_args ) ) {
@@ -1077,7 +1077,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Leave the require until the very end
-		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
+		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 		// Delete the forum
 		if ( !bb_delete_forum( $forum_id ) ) {
@@ -3170,7 +3170,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Leave the require until the very end
-		require_once( BB_PATH . 'bb-admin/admin-functions.php' );
+		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 		// Rename the tag
 		if ( !$new_tag = rename_tag( $tag_id, $tag_name ) ) {

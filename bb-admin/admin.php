@@ -12,7 +12,7 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 	die();
 }
 
-require('admin-functions.php');
+require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 if ( isset($_GET['plugin']) )
 	$bb_admin_page = $_GET['plugin'];

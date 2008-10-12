@@ -1,7 +1,7 @@
 <?php
 
 function bb_install() {
-	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
+	require_once( BB_PATH . 'bb-admin/includes/defaults.bb-schema.php' );
 	$alterations = bb_sql_delta($bb_queries);
 
 	bb_update_db_version();
@@ -24,7 +24,7 @@ function bb_upgrade_all() {
 	$bb_upgrade['messages'][] = bb_upgrade_210(); // Convert text slugs to varchar slugs
 	$bb_upgrade['messages'][] = bb_upgrade_220(); // remove bb_tagged primary key, add new column and primary key
 
-	require_once( BB_PATH . 'bb-admin/upgrade-schema.php');
+	require_once( BB_PATH . 'bb-admin/includes/defaults.bb-schema.php' );
 	$delta = bb_sql_delta($bb_queries);
 	$bb_upgrade['messages'] = array_merge($bb_upgrade['messages'], $delta['messages']);
 	$bb_upgrade['errors'] = $delta['errors'];
@@ -640,7 +640,7 @@ function bb_upgrade_160() {
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 535 )
 		return;
 
-	require_once('admin-functions.php');
+	require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 	$blocked = bb_get_ids_by_role( 'blocked' );
 	foreach ( $blocked as $b )
 		bb_break_password( $b );

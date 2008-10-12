@@ -108,7 +108,7 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 		if ( !BB_INSTALLING ) {
 			$topicmeta_exists = $bbdb->query("SELECT * FROM $bbdb->topicmeta LIMIT 1");
 			if ($topicmeta_exists) {
-				require_once(BB_PATH . 'bb-admin/upgrade-schema.php');
+				require_once( BB_PATH . 'bb-admin/includes/defaults.bb-schema.php' );
 				// Create the meta table
 				$bbdb->query($bb_queries['meta']);
 				// Copy options
