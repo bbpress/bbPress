@@ -113,7 +113,7 @@ class BB_Install
 			//require_once( BB_PATH . BB_INC . 'functions.bb-posts.php' );
 			//require_once( BB_PATH . BB_INC . 'functions.bb-topic-tags.php' );
 			//require_once( BB_PATH . BB_INC . 'functions.bb-users.php' );
-			//require_once( BB_PATH . BB_INC . 'functions.bb-meta.php' );
+			require_once( BB_PATH . BB_INC . 'functions.bb-meta.php' );
 			require_once( BACKPRESS_PATH . 'functions.kses.php' );
 			require_once( BB_PATH . BB_INC . 'functions.bb-l10n.php' );
 			require_once( BB_PATH . BB_INC . 'functions.bb-template.php' );
