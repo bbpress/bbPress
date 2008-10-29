@@ -771,7 +771,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Creates a new forum
 	 *
 	 * @since 1.0
-	 * @return integer|object The forum id when successfully created or an IXR_Error object on failure
+	 * @return array|object The forum data when successfully created or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -857,16 +857,19 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
+		// Only include "safe" data in the array
+		$forum = $this->prepare_forum( get_forum( $forum_id ) );
+
 		do_action( 'bb_xmlrpc_call_return', 'bb.newForum' );
 
-		return $forum_id;
+		return $forum;
 	}
 
 	/**
 	 * Edits an existing forum
 	 *
 	 * @since 1.0
-	 * @return integer|object The forum id when successfully edited or an IXR_Error object on failure
+	 * @return array|object The forum data when successfully edited or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -1004,9 +1007,12 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
+		// Only include "safe" data in the array
+		$forum = $this->prepare_forum( get_forum( $forum_id ) );
+
 		do_action( 'bb_xmlrpc_call_return', 'bb.editForum' );
 
-		return $forum_id;
+		return $forum;
 	}
 
 	/**
@@ -1396,7 +1402,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Creates a new topic
 	 *
 	 * @since 1.0
-	 * @return integer|object The topic id when successfully created or an IXR_Error object on failure
+	 * @return array|object The topic data when successfully created or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -1531,18 +1537,19 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		$topic_id = (int) $topic_id;
+		// Only include "safe" data in the array
+		$topic = $this->prepare_topic( get_topic( $topic_id ) );
 
 		do_action( 'bb_xmlrpc_call_return', 'bb.newTopic' );
 
-		return $topic_id;
+		return $topic;
 	}
 
 	/**
 	 * Edits an existing topic
 	 *
 	 * @since 1.0
-	 * @return integer|object The topic id when successfully edited or an IXR_Error object on failure
+	 * @return array|object The topic data when successfully edited or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -1668,9 +1675,12 @@ class BB_XMLRPC_Server extends IXR_Server
 			}
 		}
 
+		// Only include "safe" data in the array
+		$topic = $this->prepare_topic( get_topic( $topic_id ) );
+
 		do_action( 'bb_xmlrpc_call_return', 'bb.editTopic' );
 
-		return $topic_id;
+		return $topic;
 	}
 
 	/**
@@ -2313,7 +2323,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Creates a new post in a given topic
 	 *
 	 * @since 1.0
-	 * @return integer|object The post id when successfully created or an IXR_Error object on failure
+	 * @return array|object The post data when successfully created or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -2411,16 +2421,19 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
+		// Only include "safe" data in the array
+		$post = $this->prepare_forum( bb_get_post( $post_id ) );
+
 		do_action( 'bb_xmlrpc_call_return', 'bb.newPost' );
 
-		return (int) $post_id;
+		return $post;
 	}
 
 	/**
 	 * Edits an existing post
 	 *
 	 * @since 1.0
-	 * @return integer|object The post id when successfully edited or an IXR_Error object on failure
+	 * @return array|object The post data when successfully edited or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -2518,9 +2531,12 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
+		// Only include "safe" data in the array
+		$post = $this->prepare_forum( bb_get_post( $post_id ) );
+
 		do_action( 'bb_xmlrpc_call_return', 'bb.editPost' );
 
-		return (int) $post_id;
+		return $post;
 	}
 
 	/**
@@ -2871,7 +2887,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Adds the specified tags to the specified topic
 	 *
 	 * @since 1.0
-	 * @return integer|object The topic data when successfully executed or an IXR_Error object on failure
+	 * @return array|object The tags which were added when successfully executed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -3103,7 +3119,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Renames the specified tag to a new tag name
 	 *
 	 * @since 1.0
-	 * @return string|object The new tag slug when successfully renamed or an IXR_Error object on failure
+	 * @return array|object The tag data when successfully renamed or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -3708,5 +3724,3 @@ class BB_XMLRPC_Server extends IXR_Server
  * @var object The instance of the XML-RPC server class
  */
 $bb_xmlrpc_server = new BB_XMLRPC_Server();
-
-?>
