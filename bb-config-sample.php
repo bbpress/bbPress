@@ -7,7 +7,7 @@ define('BBDB_PASSWORD', 'password'); // ...and password
 define('BBDB_HOST', 'localhost');    // 99% chance you won't need to change these last few
 
 define('BBDB_CHARSET', 'utf8');      // If you are *upgrading*, and your old bb-config.php does
-define('BBDB_COLLATE', '');          // not have these two contstants in them, DO NOT define them
+define('BBDB_COLLATE', '');          // not have these two constants in them, DO NOT define them
                                      // If you are installing for the first time, leave them here
 
 // Change each KEY to a different unique phrase.  You won't have to remember the phrases later,
