@@ -14,29 +14,37 @@ class BB_Pingbacks
 	function get_endpoint_uri($url)
 	{
 		// First check for an X-pingback header
-		if ($response = wp_remote_head($url))
-			if ($content_type = wp_remote_retrieve_header($response, 'content-type'))
-				if (!preg_match('#(image|audio|video|model)/#is', $content_type))
-					if ($x_pingback = wp_remote_retrieve_header($response, 'x-pingback'))
-						return trim($x_pingback);
+		if (!$response = wp_remote_head($url))
+			return false;
+		if (!$content_type = wp_remote_retrieve_header($response, 'content-type'))
+			return false;
+		if (preg_match('#(image|audio|video|model)/#is', $content_type))
+			return false;
+		if ($x_pingback = wp_remote_retrieve_header($response, 'x-pingback'))
+			return trim($x_pingback);
 
 		// Fall back to extracting it from the HTML link
-		if ($response = wp_remote_get($url))
-			if (200 === wp_remote_retrieve_response_code($response))
-				if ('' !== $response_body = wp_remote_retrieve_body($response))
-					if (preg_match_all('@<link([^>]+)>@im', $response_body, $response_links))
-						foreach ($response_links[1] as $response_link_attributes) {
-							$_link = array('rel' => false, 'href' => false);
-							$response_link_attributes = preg_split('@\s+@im', $response_link_attributes, -1, PREG_SPLIT_NO_EMPTY);
-							foreach ($response_link_attributes as $response_link_attribute) {
-								if ($_link['rel'] == 'pingback' && $_link['href'])
-									return $_link['href'];
-								if (strpos($response_link_attribute, '=', 1) !== false) {
-									list($_key, $_value) = explode('=', $response_link_attribute, 2);
-									$_link[strtolower($_key)] = trim($_value, "'\"");
-								}
-							}
-						}
+		if (!$response = wp_remote_get($url))
+			return false;
+		if (200 !== wp_remote_retrieve_response_code($response))
+			return false;
+		if ('' === $response_body = wp_remote_retrieve_body($response))
+			return false;
+		if (!preg_match_all('@<link([^>]+)>@im', $response_body, $response_links))
+			return false;
+
+		foreach ($response_links[1] as $response_link_attributes) {
+			$_link = array('rel' => false, 'href' => false);
+			$response_link_attributes = preg_split('@\s+@im', $response_link_attributes, -1, PREG_SPLIT_NO_EMPTY);
+			foreach ($response_link_attributes as $response_link_attribute) {
+				if ($_link['rel'] == 'pingback' && $_link['href'])
+					return $_link['href'];
+				if (strpos($response_link_attribute, '=', 1) !== false) {
+					list($_key, $_value) = explode('=', $response_link_attribute, 2);
+					$_link[strtolower($_key)] = trim($_value, "'\"");
+				}
+			}
+		}
 
 		// Fail
 		return false;
@@ -96,21 +104,19 @@ class BB_Pingbacks
 			return 0;
 
 		// Get all links in the text and add them to an array
-		if (preg_match_all('@<a ([^>]+)>@im', make_clickable($post_text), $post_links)) {
-			$_links = array();
-			foreach ($post_links[1] as $post_link_attributes) {
-				$post_link_attributes = preg_split('@\s+@im', $post_link_attributes, -1, PREG_SPLIT_NO_EMPTY);
-				foreach ($post_link_attributes as $post_link_attribute) {
-					if (strpos($post_link_attribute, '=', 1) !== false) {
-						list($_key, $_value) = explode('=', $post_link_attribute, 2);
-						if (strtolower($_key) === 'href')
-							$_links[] = trim($_value, "'\"");
-					}
+		if (!preg_match_all('@<a ([^>]+)>@im', make_clickable($post_text), $post_links))
+			return 0;
+
+		$_links = array();
+		foreach ($post_links[1] as $post_link_attributes) {
+			$post_link_attributes = preg_split('@\s+@im', $post_link_attributes, -1, PREG_SPLIT_NO_EMPTY);
+			foreach ($post_link_attributes as $post_link_attribute) {
+				if (strpos($post_link_attribute, '=', 1) !== false) {
+					list($_key, $_value) = explode('=', $post_link_attribute, 2);
+					if (strtolower($_key) === 'href')
+						$_links[] = trim($_value, "'\"");
 				}
 			}
-		} else {
-			// No links in the post text
-			return 0;
 		}
 
 		// Get pingbacks which have already been performed from this topic
