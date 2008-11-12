@@ -489,7 +489,9 @@ function bb_new_user( $user_login, $user_email, $user_url, $user_status = 1 ) {
 	
 	$user_url = $user_url ? bb_fix_link( $user_url ) : '';
 
-	$user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url', 'user_nicename', 'user_status' ) );
+	$user_pass = wp_generate_password();
+
+	$user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url', 'user_nicename', 'user_status', 'user_pass' ) );
 	if ( is_wp_error($user) ) {
 		if ( 'user_nicename' == $user->get_error_code() )
 			return new WP_Error( 'user_login', $user->get_error_message() );
@@ -498,7 +500,7 @@ function bb_new_user( $user_login, $user_email, $user_url, $user_status = 1 ) {
 
 	if (BB_INSTALLING) {
 		bb_update_usermeta( $user['ID'], $bbdb->prefix . 'capabilities', array('keymaster' => true) );
-	} else {		
+	} else {
 		bb_update_usermeta( $user['ID'], $bbdb->prefix . 'capabilities', array('member' => true) );
 		bb_send_pass( $user['ID'], $user['plain_pass'] );
 	}
