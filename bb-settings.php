@@ -904,42 +904,45 @@ unset($deprecated_constants, $old, $new);
  * Load Plugins
  */
 
-// Autoloaded "underscore" plugins
-// First BB_CORE_PLUGIN_DIR
-foreach ( bb_glob(BB_CORE_PLUGIN_DIR . '_*.php') as $_plugin )
-	require_once( $_plugin );
-unset( $_plugin );
+// Skip plugin loading in "safe" mode
+if ( !isset( $bb->safemode ) || $bb->safemode !== true ) {
+	// Autoloaded "underscore" plugins
+	// First BB_CORE_PLUGIN_DIR
+	foreach ( bb_glob(BB_CORE_PLUGIN_DIR . '_*.php') as $_plugin )
+		require_once( $_plugin );
+	unset( $_plugin );
 
-// Second BB_PLUGIN_DIR, with no name clash testing
-foreach ( bb_glob(BB_PLUGIN_DIR . '_*.php') as $_plugin )
-	require_once( $_plugin );
-unset( $_plugin );
-do_action( 'bb_underscore_plugins_loaded' );
+	// Second BB_PLUGIN_DIR, with no name clash testing
+	foreach ( bb_glob(BB_PLUGIN_DIR . '_*.php') as $_plugin )
+		require_once( $_plugin );
+	unset( $_plugin );
+	do_action( 'bb_underscore_plugins_loaded' );
 
-// Normal plugins
-if ( $plugins = bb_get_option( 'active_plugins' ) ) {
-	foreach ( (array) $plugins as $plugin ) {
-		if ( strpos($plugin, 'core#') === 0 || strpos($plugin, 'user#') === 0 ) {
-			if ( validate_file($plugin) ) // $plugin has .., :, etc.
-				continue;
+	// Normal plugins
+	if ( $plugins = bb_get_option( 'active_plugins' ) ) {
+		foreach ( (array) $plugins as $plugin ) {
+			if ( strpos($plugin, 'core#') === 0 || strpos($plugin, 'user#') === 0 ) {
+				if ( validate_file($plugin) ) // $plugin has .., :, etc.
+					continue;
 
-			$plugin = str_replace(
-				array('core#', 'user#'),
-				array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
-				$plugin
-			);
-			if (
-				BB_CORE_PLUGIN_DIR != $plugin &&
-				BB_PLUGIN_DIR != $plugin &&
-				file_exists( $plugin )
-			) {
-				require_once( $plugin );
+				$plugin = str_replace(
+					array('core#', 'user#'),
+					array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
+					$plugin
+				);
+				if (
+					BB_CORE_PLUGIN_DIR != $plugin &&
+					BB_PLUGIN_DIR != $plugin &&
+					file_exists( $plugin )
+				) {
+					require_once( $plugin );
+				}
 			}
 		}
 	}
+	do_action( 'bb_plugins_loaded' );
+	unset( $plugins, $plugin );
 }
-do_action( 'bb_plugins_loaded' );
-unset( $plugins, $plugin );
 
 require_once( BB_PATH . BB_INC . 'functions.bb-pluggable.php' );
 

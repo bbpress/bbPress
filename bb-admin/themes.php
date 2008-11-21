@@ -68,6 +68,10 @@ function bb_admin_theme_row( $theme ) {
 <?php
 }
 
+if ( isset( $bb->safemode ) && $bb->safemode === true ) {
+	bb_admin_notice( __('"Safe mode" is on, the default theme will be used instead of the active theme indicated below.'), 'error' );
+}
+
 bb_get_admin_header();
 ?>
 

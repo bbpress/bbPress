@@ -22,8 +22,11 @@ function bb_load_template( $file, $globals = false, $action_arg = null ) {
 }
 
 function bb_get_template( $file ) {
-	if ( file_exists( bb_get_active_theme_directory() .  $file) )
-		return bb_get_active_theme_directory() .  $file;
+	global $bb;
+	// Skip theme loading in "safe" mode
+	if ( !isset( $bb->safemode ) || $bb->safemode !== true )
+		if ( file_exists( bb_get_active_theme_directory() .  $file) )
+			return bb_get_active_theme_directory() .  $file;
 	return BB_DEFAULT_THEME_DIR . $file;
 }
 
@@ -68,7 +71,11 @@ function bb_active_theme_uri() {
 }
 
 function bb_get_active_theme_uri() {
-	if ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
+	global $bb;
+	// Skip theme loading in "safe" mode
+	if ( isset( $bb->safemode ) && $bb->safemode === true )
+		$active_theme_uri = BB_DEFAULT_THEME_URL;
+	elseif ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
 		$active_theme_uri = BB_DEFAULT_THEME_URL;
 	else
 		$active_theme_uri = bb_get_theme_uri( $active_theme );

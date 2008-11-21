@@ -104,6 +104,10 @@ if ( isset($_GET['message']) ) {
 	}
 }
 
+if ( isset( $bb->safemode ) && $bb->safemode === true ) {
+	bb_admin_notice( __('"Safe mode" is on, all plugins are disabled even if they are listed as active.'), 'error' );
+}
+
 bb_get_admin_header();
 ?>
 
