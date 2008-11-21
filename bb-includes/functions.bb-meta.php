@@ -528,7 +528,7 @@ function bb_delete_topicmeta( $topic_id, $meta_key, $meta_value = '' ) {
 }
 
 function bb_get_postmeta( $post_id, $meta_key ) {
-	if ( !$post = get_post( $post_id ) )
+	if ( !$post = bb_get_post( $post_id ) )
 		return;
 
 	$meta_key = preg_replace('|[^a-z0-9_]|i', '', $meta_key);
