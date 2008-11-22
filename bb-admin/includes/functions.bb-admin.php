@@ -370,7 +370,7 @@ class BB_User_Search {
 		global $bb_current_submenu;
 		if ( $this->total_users_for_query > $this->users_per_page ) { // have to page the results
 		$pagenow = bb_get_admin_tab_link($bb_current_submenu);
-			$this->paging_text = paginate_links( array(
+			$this->paging_text = bb_paginate_links( array(
 				'total' => ceil($this->total_users_for_query / $this->users_per_page),
 				'current' => $this->page,
 				'prev_text' => '&laquo; Previous Page',

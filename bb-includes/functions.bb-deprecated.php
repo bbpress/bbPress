@@ -840,3 +840,10 @@ function new_topic( $args = null ) {
 function bb_upgrade_1060() {
 	bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
 }
+
+if ( !function_exists( 'paginate_links' ) ) : // Deprecated in bbPress not WordPress - use bb_paginate_links()
+function paginate_links( $args = '' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_paginate_links' );
+	return bb_paginate_links( $args );
+}
+endif;

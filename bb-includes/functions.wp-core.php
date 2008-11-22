@@ -2,9 +2,18 @@
 
 /* Formatting */
 
-if ( !function_exists('clean_pre') ) : // [WP6102] - current at [WP8525]
-// Accepts matches array from preg_replace_callback in wpautop()
-// or a string
+if ( !function_exists( 'clean_pre' ) ) : // Current at [WP9840]
+/**
+ * Accepts matches array from preg_replace_callback in wpautop() or a string.
+ *
+ * Ensures that the contents of a <<pre>>...<</pre>> HTML block are not
+ * converted into paragraphs or line-breaks.
+ *
+ * @since WP 1.2.0
+ *
+ * @param array|string $matches The array or string
+ * @return string The pre block without paragraph/line-break conversion.
+ */
 function clean_pre($matches) {
 	if ( is_array($matches) )
 		$text = $matches[1] . $matches[2] . "</pre>";
@@ -19,8 +28,17 @@ function clean_pre($matches) {
 }
 endif;
 
-if ( !function_exists('js_escape') ) : // [WP5734] - current at [WP8525]
-// Escape single quotes, specialchar double quotes, and fix line endings.
+if ( !function_exists( 'js_escape' ) ) : // Current at [WP9840]
+/**
+ * Escape single quotes, specialchar double quotes, and fix line endings.
+ *
+ * The filter 'js_escape' is also applied here.
+ *
+ * @since WP 2.0.4
+ *
+ * @param string $text The text to be escaped.
+ * @return string Escaped text.
+ */
 function js_escape($text) {
 	$safe_text = wp_specialchars($text, 'double');
 	$safe_text = preg_replace('/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes($safe_text));
@@ -29,35 +47,40 @@ function js_escape($text) {
 }
 endif;
 
-if ( !function_exists('attribute_escape') ) : // [WP4660] - current at [WP8525]
-// Escaping for HTML attributes
+if ( !function_exists( 'attribute_escape' ) ) : // Current at [WP9840]
+/**
+ * Escaping for HTML attributes.
+ *
+ * @since WP 2.0.6
+ *
+ * @param string $text
+ * @return string
+ */
 function attribute_escape($text) {
 	$safe_text = wp_specialchars($text, true);
 	return apply_filters('attribute_escape', $safe_text, $text);
 }
 endif;
 
-if ( !function_exists( 'force_balance_tags' ) ) : // [WP5805] - current at [WP8525]
-/*
- force_balance_tags
-
- Balances Tags of string using a modified stack.
-
- @param text      Text to be balanced
- @param force     Forces balancing, ignoring the value of the option
- @return          Returns balanced text
- @author          Leonard Lin (leonard@acm.org)
- @version         v1.1
- @date            November 4, 2001
- @license         GPL v2.0
- @notes
- @changelog
- ---  Modified by Scott Reilly (coffee2code) 02 Aug 2004
-	1.2  ***TODO*** Make better - change loop condition to $text
-	1.1  Fixed handling of append/stack pop order of end text
-	     Added Cleaning Hooks
-	1.0  First Version
-*/
+if ( !function_exists( 'force_balance_tags' ) ) : // Current at [WP9840]
+/**
+ * Balances tags of string using a modified stack.
+ *
+ * @since WP 2.0.4
+ *
+ * @author Leonard Lin <leonard@acm.org>
+ * @license GPL v2.0
+ * @copyright November 4, 2001
+ * @version 1.1
+ * @todo Make better - change loop condition to $text in 1.2
+ * @internal Modified by Scott Reilly (coffee2code) 02 Aug 2004
+ *		1.1  Fixed handling of append/stack pop order of end text
+ *			 Added Cleaning Hooks
+ *		1.0  First Version
+ *
+ * @param string $text Text to be balanced.
+ * @return string Balanced text.
+ */
 function force_balance_tags( $text ) {
 	$tagstack = array(); $stacksize = 0; $tagqueue = ''; $newtext = '';
 	$single_tags = array('br', 'hr', 'img', 'input'); //Known single-entity/self-closing tags
@@ -158,7 +181,19 @@ function force_balance_tags( $text ) {
 }
 endif;
 
-if ( !function_exists('_make_url_clickable_cb') ) : // current at [WP8525]
+if ( !function_exists( '_make_url_clickable_cb' ) ) : // Current at [WP9840]
+/**
+ * Callback to convert URI match to HTML A element.
+ *
+ * This function was backported from 2.5.0 to 2.3.2. Regex callback for {@link
+ * make_clickable()}.
+ *
+ * @since WP 2.3.2
+ * @access private
+ *
+ * @param array $matches Single Regex Match.
+ * @return string HTML A element with URI address.
+ */
 function _make_url_clickable_cb($matches) {
 	$ret = '';
 	$url = $matches[2];
@@ -174,7 +209,19 @@ function _make_url_clickable_cb($matches) {
 }
 endif;
 
-if ( !function_exists('_make_web_ftp_clickable_cb') ) : // current at [WP8525]
+if ( !function_exists( '_make_web_ftp_clickable_cb' ) ) : // Current at [WP9840]
+/**
+ * Callback to convert URL match to HTML A element.
+ *
+ * This function was backported from 2.5.0 to 2.3.2. Regex callback for {@link
+ * make_clickable()}.
+ *
+ * @since WP 2.3.2
+ * @access private
+ *
+ * @param array $matches Single Regex Match.
+ * @return string HTML A element with URL address.
+ */
 function _make_web_ftp_clickable_cb($matches) {
 	$ret = '';
 	$dest = $matches[2];
@@ -191,14 +238,37 @@ function _make_web_ftp_clickable_cb($matches) {
 }
 endif;
 
-if ( !function_exists('_make_email_clickable_cb') ) : // current at [WP8525]
+if ( !function_exists( '_make_email_clickable_cb' ) ) : // Current at [WP9840]
+/**
+ * Callback to convert email address match to HTML A element.
+ *
+ * This function was backported from 2.5.0 to 2.3.2. Regex callback for {@link
+ * make_clickable()}.
+ *
+ * @since WP 2.3.2
+ * @access private
+ *
+ * @param array $matches Single Regex Match.
+ * @return string HTML A element with email address.
+ */
 function _make_email_clickable_cb($matches) {
 	$email = $matches[2] . '@' . $matches[3];
 	return $matches[1] . "<a href=\"mailto:$email\">$email</a>";
 }
 endif;
 
-if ( !function_exists('make_clickable') ) : // [WP8525] - current at [WP8525]
+if ( !function_exists( 'make_clickable' ) ) : // Current at [WP9840]
+/**
+ * Convert plaintext URI to HTML links.
+ *
+ * Converts URI, www and ftp, and email addresses. Finishes by fixing links
+ * within links.
+ *
+ * @since WP 0.71
+ *
+ * @param string $ret Content to convert URIs.
+ * @return string Content with converted URIs.
+ */
 function make_clickable($ret) {
 	$ret = ' ' . $ret;
 	// in testing, using arrays here was found to be faster
@@ -214,7 +284,20 @@ endif;
 
 /* Forms */
 
-if ( !function_exists('wp_referer_field') ) : // current at [WP8525]
+if ( !function_exists( 'wp_referer_field' ) ) : // Current at [WP9840]
+/**
+ * Retrieve or display referer hidden field for forms.
+ *
+ * The referer link is the current Request URI from the server super global. The
+ * input name is '_wp_http_referer', in case you wanted to check manually.
+ *
+ * @package WordPress
+ * @subpackage Security
+ * @since WP 2.0.4
+ *
+ * @param bool $echo Whether to echo or return the referer field.
+ * @return string Referer field.
+ */
 function wp_referer_field( $echo = true) {
 	$ref = attribute_escape( $_SERVER['REQUEST_URI'] );
 	$referer_field = '<input type="hidden" name="_wp_http_referer" value="'. $ref . '" />';
@@ -225,7 +308,22 @@ function wp_referer_field( $echo = true) {
 }
 endif;
 
-if ( !function_exists('wp_original_referer_field') ) : // current at [WP8525]
+if ( !function_exists( 'wp_original_referer_field' ) ) : // Current at [WP9840]
+/**
+ * Retrieve or display original referer hidden field for forms.
+ *
+ * The input name is '_wp_original_http_referer' and will be either the same
+ * value of {@link wp_referer_field()}, if that was posted already or it will
+ * be the current page, if it doesn't exist.
+ *
+ * @package WordPress
+ * @subpackage Security
+ * @since WP 2.0.4
+ *
+ * @param bool $echo Whether to echo the original http referer
+ * @param string $jump_back_to Optional, default is 'current'. Can be 'previous' or page you want to jump back to.
+ * @return string Original referer field.
+ */
 function wp_original_referer_field( $echo = true, $jump_back_to = 'current' ) {
 	$jump_back_to = ( 'previous' == $jump_back_to ) ? wp_get_referer() : $_SERVER['REQUEST_URI'];
 	$ref = ( wp_get_original_referer() ) ? wp_get_original_referer() : $jump_back_to;
@@ -236,8 +334,18 @@ function wp_original_referer_field( $echo = true, $jump_back_to = 'current' ) {
 }
 endif;
 
-if ( !function_exists('wp_get_referer') ) : // current at [WP8525]
+if ( !function_exists( 'wp_get_referer' ) ) : // Current at [WP9840]
+/**
+ * Retrieve referer from '_wp_http_referer', HTTP referer, or current page respectively.
+ *
+ * @package WordPress
+ * @subpackage Security
+ * @since WP 2.0.4
+ *
+ * @return string|bool False on failure. Referer URL on success.
+ */
 function wp_get_referer() {
+	$ref = '';
 	if ( ! empty( $_REQUEST['_wp_http_referer'] ) )
 		$ref = $_REQUEST['_wp_http_referer'];
 	else if ( ! empty( $_SERVER['HTTP_REFERER'] ) )
@@ -249,7 +357,16 @@ function wp_get_referer() {
 }
 endif;
 
-if ( !function_exists('wp_get_original_referer') ) :  // [WP3908] - current at [WP8525]
+if ( !function_exists( 'wp_get_original_referer' ) ) :  // Current at [WP9840]
+/**
+ * Retrieve original referer that was posted, if it exists.
+ *
+ * @package WordPress
+ * @subpackage Security
+ * @since WP 2.0.4
+ *
+ * @return string|bool False if no original referer or original referer if set.
+ */
 function wp_get_original_referer() {
 	if ( !empty( $_REQUEST['_wp_original_http_referer'] ) )
 		return $_REQUEST['_wp_original_http_referer'];
@@ -257,7 +374,7 @@ function wp_get_original_referer() {
 }
 endif;
 
-if ( !function_exists('build_query') ) : // current at [WP8525]
+if ( !function_exists( 'build_query' ) ) : // Current at [WP9840]
 /**
  * Build URL query based on an associative and, or indexed array.
  *
@@ -268,17 +385,17 @@ if ( !function_exists('build_query') ) : // current at [WP8525]
  * @link http://us2.php.net/manual/en/function.http-build-query.php more on what
  *		http_build_query() does.
  *
- * @since unknown
+ * @since WP 2.3.0
  *
  * @param array $data URL-encode key/value pairs.
  * @return string URL encoded string
  */
 function build_query( $data ) {
-	return _http_build_query( $data, NULL, '&', '', false );
+	return _http_build_query( $data, null, '&', '', false );
 }
 endif;
 
-if ( !function_exists('add_query_arg') ) : // current at [WP8525]
+if ( !function_exists( 'add_query_arg' ) ) : // Current at [WP9840]
 /**
  * Retrieve a modified URL query string.
  *
@@ -289,12 +406,12 @@ if ( !function_exists('add_query_arg') ) : // current at [WP8525]
  * emptystring removes the key. Omitting oldquery_or_uri uses the $_SERVER
  * value.
  *
- * @since 1.5.0
+ * @since WP 1.5.0
  *
  * @param mixed $param1 Either newkey or an associative_array
  * @param mixed $param2 Either newvalue or oldquery or uri
  * @param mixed $param3 Optional. Old query or uri
- * @return unknown
+ * @return string New URL query string.
  */
 function add_query_arg() {
 	$ret = '';
@@ -348,7 +465,7 @@ function add_query_arg() {
 		$qs[func_get_arg( 0 )] = func_get_arg( 1 );
 	}
 
-	foreach ( $qs as $k => $v ) {
+	foreach ( (array) $qs as $k => $v ) {
 		if ( $v === false )
 			unset( $qs[$k] );
 	}
@@ -362,19 +479,19 @@ function add_query_arg() {
 }
 endif;
 
-if ( !function_exists('remove_query_arg') ) : // current at [WP8525]
+if ( !function_exists( 'remove_query_arg' ) ) : // Current at [WP9840]
 /**
  * Removes an item or list from the query string.
  *
- * @since 1.5.0
+ * @since WP 1.5.0
  *
  * @param string|array $key Query key or keys to remove.
  * @param bool $query When false uses the $_SERVER value.
- * @return unknown
+ * @return string New URL query string.
  */
 function remove_query_arg( $key, $query=false ) {
 	if ( is_array( $key ) ) { // removing multiple keys
-		foreach ( (array) $key as $k )
+		foreach ( $key as $k )
 			$query = add_query_arg( $k, false, $query );
 		return $query;
 	}
@@ -382,11 +499,11 @@ function remove_query_arg( $key, $query=false ) {
 }
 endif;
 
-if ( !function_exists('get_status_header_desc') ) : // current at [WP8525]
+if ( !function_exists( 'get_status_header_desc' ) ) : // Current at [WP9840]
 /**
  * Retrieve the description for the HTTP status.
  *
- * @since 2.3.0
+ * @since WP 2.3.0
  *
  * @param int $code HTTP status code.
  * @return string Empty string if not found, or description if found.
@@ -451,11 +568,11 @@ function get_status_header_desc( $code ) {
 }
 endif;
 
-if ( !function_exists('status_header') ) : // current at [WP8525]
+if ( !function_exists( 'status_header' ) ) : // Current at [WP9840]
 /**
  * Set HTTP status header.
  *
- * @since unknown
+ * @since WP 2.0.0
  * @uses apply_filters() Calls 'status_header' on status header string, HTTP
  *		HTTP code, HTTP code description, and protocol string as separate
  *		parameters.
@@ -483,14 +600,14 @@ function status_header( $header ) {
 }
 endif;
 
-if ( !function_exists('nocache_headers') ) : // current at [WP8525]
+if ( !function_exists( 'nocache_headers' ) ) : // Current at [WP9840]
 /**
  * Sets the headers to prevent caching for the different browsers.
  *
  * Different browsers support different nocache headers, so several headers must
  * be sent so that all of them get the point that no caching should occur.
  *
- * @since 2.0.0
+ * @since WP 2.0.0
  */
 function nocache_headers() {
 	// why are these @-silenced when other header calls aren't?
@@ -501,108 +618,15 @@ function nocache_headers() {
 }
 endif;
 
-if ( !function_exists('cache_javascript_headers') ) : // current at [WP8525] - Not verbatim WP. Charset hardcoded.
+if ( !function_exists( 'ent2ncr' ) ) : // Current at [WP9840]
 /**
- * Set the headers for caching for 10 days with JavaScript content type.
+ * Converts named entities into numbered entities.
  *
- * @since 2.1.0
+ * @since WP 1.5.1
+ *
+ * @param string $text The text within which entities will be converted.
+ * @return string Text with converted entities.
  */
-function cache_javascript_headers() {
-	$expiresOffset = 864000; // 10 days
-	header( "Content-Type: text/javascript; charset=utf-8" );
-	header( "Vary: Accept-Encoding" ); // Handle proxies
-	header( "Expires: " . gmdate( "D, d M Y H:i:s", time() + $expiresOffset ) . " GMT" );
-}
-endif;
-
-/* Templates */
-
-if ( !function_exists('paginate_links') ) : // [WP6026] - current at [WP8525]
-function paginate_links( $args = '' ) {
-	$defaults = array(
-		'base' => '%_%', // http://example.com/all_posts.php%_% : %_% is replaced by format (below)
-		'format' => '?page=%#%', // ?page=%#% : %#% is replaced by the page number
-		'total' => 1,
-		'current' => 0,
-		'show_all' => false,
-		'prev_next' => true,
-		'prev_text' => __('&laquo; Previous'),
-		'next_text' => __('Next &raquo;'),
-		'end_size' => 1, // How many numbers on either end including the end
-		'mid_size' => 2, // How many numbers to either side of current not including current
-		'type' => 'plain',
-		'add_args' => false, // array of query args to aadd
-		'n_title' => __('Page %d'), // Not WP
-		'prev_title' => __('Previous page'), // Not WP
-		'next_title' => __('Next page') // Not WP
-	);
-
-	$args = wp_parse_args( $args, $defaults );
-	extract($args, EXTR_SKIP);
-
-	// Who knows what else people pass in $args
-	$total    = (int) $total;
-	if ( $total < 2 )
-		return;
-	$current  = (int) $current;
-	$end_size = 0  < (int) $end_size ? (int) $end_size : 1; // Out of bounds?  Make it the default.
-	$mid_size = 0 <= (int) $mid_size ? (int) $mid_size : 2;
-	$add_args = is_array($add_args) ? $add_args : false;
-	$r = '';
-	$page_links = array();
-	$n = 0;
-	$dots = false;
-
-	if ( $prev_next && $current && 1 < $current ) :
-		$link = str_replace('%_%', 2 == $current ? '' : $format, $base);
-		$link = str_replace('%#%', $current - 1, $link);
-		if ( $add_args )
-			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='prev page-numbers' href='" . clean_url($link) . "' title='" . attribute_escape($prev_title) . "'>$prev_text</a>";
-	endif;
-	for ( $n = 1; $n <= $total; $n++ ) :
-		if ( $n == $current ) :
-			$page_links[] = "<span class='page-numbers current' title='" . attribute_escape(sprintf($n_title, $n)) . "'>$n</span>";
-			$dots = true;
-		else :
-			if ( $show_all || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) :
-				$link = str_replace('%_%', 1 == $n ? '' : $format, $base);
-				$link = str_replace('%#%', $n, $link);
-				if ( $add_args )
-					$link = add_query_arg( $add_args, $link );
-				$page_links[] = "<a class='page-numbers' href='" . clean_url($link) . "' title='" . attribute_escape(sprintf($n_title, $n)) . "'>$n</a>";
-				$dots = true;
-			elseif ( $dots && !$show_all ) :
-				$page_links[] = "<span class='page-numbers dots'>&hellip;</span>";
-				$dots = false;
-			endif;
-		endif;
-	endfor;
-	if ( $prev_next && $current && ( $current < $total || -1 == $total ) ) :
-		$link = str_replace('%_%', $format, $base);
-		$link = str_replace('%#%', $current + 1, $link);
-		if ( $add_args )
-			$link = add_query_arg( $add_args, $link );
-		$page_links[] = "<a class='next page-numbers' href='" . clean_url($link) . "' title='" . attribute_escape($next_title) . "'>$next_text</a>";
-	endif;
-	switch ( $type ) :
-		case 'array' :
-			return $page_links;
-			break;
-		case 'list' :
-			$r .= "<ul class='page-numbers'>\n\t<li>";
-			$r .= join("</li>\n\t<li>", $page_links);
-			$r .= "</li>\n</ul>\n";
-			break;
-		default :
-			$r = join("\n", $page_links);
-			break;
-	endswitch;
-	return $r;
-}
-endif;
-
-if ( !function_exists('ent2ncr') ) : // [WP3641] - current at [WP8525]
 function ent2ncr($text) {
 	$to_ncr = array(
 		'&quot;' => '&#34;',
@@ -868,23 +892,56 @@ function ent2ncr($text) {
 }
 endif;
 
-if ( !function_exists('urlencode_deep') ) : // [WP5261] - current at [WP8525]
+if ( !function_exists( 'urlencode_deep' ) ) : // Current at [WP9840]
+/**
+ * Navigates through an array and encodes the values to be used in a URL.
+ *
+ * Uses a callback to pass the value of the array back to the function as a 
+ * string. 
+ *
+ * @since WP 2.2.0
+ *
+ * @param array|string $value The array or string to be encoded.
+ * @return array|string $value The encoded array (or string from the callback).
+ */
 function urlencode_deep($value) {
-	 $value = is_array($value) ?
-		 array_map('urlencode_deep', $value) :
-		 urlencode($value);
-
-	 return $value;
+	$value = is_array($value) ? array_map('urlencode_deep', $value) : urlencode($value);
+	return $value;
 }
 endif;
 
-if ( !function_exists( 'zeroise' ) ) : // [WP3855] - current at [WP8525]
-function zeroise($number,$threshold) { // function to add leading zeros when necessary
+if ( !function_exists( 'zeroise' ) ) : // Current at [WP9840]
+/**
+ * Add leading zeros when necessary.
+ *
+ * If you set the threshold to '4' and the number is '10', then you will get
+ * back '0010'. If you set the number to '4' and the number is '5000', then you
+ * will get back '5000'.
+ *
+ * Uses sprintf to append the amount of zeros based on the $threshold parameter
+ * and the size of the number. If the number is large enough, then no zeros will
+ * be appended.
+ *
+ * @since WP 0.71
+ *
+ * @param mixed $number Number to append zeros to if not greater than threshold.
+ * @param int $threshold Digit places number needs to be to not have zeros added.
+ * @return string Adds leading zeros to number if needed.
+ */
+function zeroise($number, $threshold) {
 	return sprintf('%0'.$threshold.'s', $number);
 }
 endif;
 
-if ( !function_exists( 'backslashit' ) ) : // [WP3855] - current at [WP8525]
+if ( !function_exists( 'backslashit' ) ) : // Current at [WP9840]
+/**
+ * Adds backslashes before letters and before a number at the start of a string.
+ *
+ * @since WP 0.71
+ *
+ * @param string $string Value to which backslashes will be added.
+ * @return string String with backslashes inserted.
+ */
 function backslashit($string) {
 	$string = preg_replace('/^([0-9])/', '\\\\\\\\\1', $string);
 	$string = preg_replace('/([a-z])/i', '\\\\\1', $string);
@@ -892,55 +949,37 @@ function backslashit($string) {
 }
 endif;
 
-if ( !function_exists( 'wp_remote_fopen' ) ) : // current at [WP8525]
+if ( !function_exists( 'wp_remote_fopen' ) ) : // Current at [WP9840]
 /**
  * HTTP request for URI to retrieve content.
  *
  * Tries to retrieve the HTTP content with fopen first and then using cURL, if
  * fopen can't be used.
  *
- * @since unknown
+ * @since WP unknown
  *
  * @param string $uri URI/URL of web page to retrieve.
  * @return string HTTP content.
  */
 function wp_remote_fopen( $uri ) {
-	$timeout = 10;
 	$parsed_url = @parse_url( $uri );
 
 	if ( !$parsed_url || !is_array( $parsed_url ) )
 		return false;
 
-	if ( !isset( $parsed_url['scheme'] ) || !in_array( $parsed_url['scheme'], array( 'http','https' ) ) )
-		$uri = 'http://' . $uri;
+	$options = array();
+	$options['timeout'] = 10;
 
-	if ( ini_get( 'allow_url_fopen' ) ) {
-		$fp = @fopen( $uri, 'r' );
-		if ( !$fp )
-			return false;
+	$response = wp_remote_get( $uri, $options );
 
-		//stream_set_timeout($fp, $timeout); // Requires php 4.3
-		$linea = '';
-		while ( $remote_read = fread( $fp, 4096 ) )
-			$linea .= $remote_read;
-		fclose( $fp );
-		return $linea;
-	} elseif ( function_exists( 'curl_init' ) ) {
-		$handle = curl_init();
-		curl_setopt( $handle, CURLOPT_URL, $uri);
-		curl_setopt( $handle, CURLOPT_CONNECTTIMEOUT, 1 );
-		curl_setopt( $handle, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $handle, CURLOPT_TIMEOUT, $timeout );
-		$buffer = curl_exec( $handle );
-		curl_close( $handle );
-		return $buffer;
-	} else {
+	if ( is_wp_error( $response ) )
 		return false;
-	}
+
+	return $response['body'];
 }
 endif;
 
-if ( !function_exists( 'validate_file' ) ) : // [WP8372] - current at [WP8525]
+if ( !function_exists( 'validate_file' ) ) : // Current at [WP9840]
 /**
  * File validates against allowed set of defined rules.
  *
@@ -949,7 +988,7 @@ if ( !function_exists( 'validate_file' ) ) : // [WP8372] - current at [WP8525]
  * character. A return value of '3' means that the file is not in the allowed
  * files list.
  *
- * @since 2.6
+ * @since WP 1.2.0
  *
  * @param string $file File path.
  * @param array $allowed_files List of allowed files.

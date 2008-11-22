@@ -953,7 +953,7 @@ function get_topic_page_links( $id = 0, $args = null ) {
 
 	$per_page = apply_filters( 'get_topic_page_links_per_page', bb_get_option('page_topics') );
 
-	$_links = paginate_links(
+	$_links = bb_paginate_links(
 		array(
 			'base' => $uri,
 			'format' => bb_get_option('mod_rewrite') ? '/page/%#%' : '%#%',
@@ -1123,7 +1123,7 @@ function get_page_number_links($page, $total) {
 	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
 		$args['view'] = $_GET['view'];
 
-	$links = paginate_links( array(
+	$links = bb_paginate_links( array(
 		'base' => $uri,
 		'format' => $format,
 		'total' => ceil($total/bb_get_option('page_topics')),

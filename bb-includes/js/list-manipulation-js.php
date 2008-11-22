@@ -1,4 +1,4 @@
-<?php @require_once('../../bb-load.php'); cache_javascript_headers(); ?>
+<?php @require_once('../../bb-load.php'); bb_cache_javascript_headers(); ?>
 addLoadEvent(function(){theList=new listMan();});
 function deleteSomething(what,id,message,obj){if(!obj)obj=theList;if(!message)message="<?php printf(__('Are you sure you want to delete this %s?'),"'+what+'"); ?>";if(confirm(message))return obj.ajaxDelete(what,id);else return false;}
 function dimSomething(what,id,dimClass,obj){if(!obj)obj=theList;return obj.ajaxDimmer(what,id,dimClass);}
