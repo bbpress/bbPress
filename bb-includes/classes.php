@@ -30,7 +30,7 @@ class BB_Query {
 		if ( false === $this->query_vars )
 			return;
 
-		if ( 'post' == $type )
+		if ( 'post' == $this->type )
 			$this->generate_post_sql();
 		else
 			$this->generate_topic_sql();
