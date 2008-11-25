@@ -1602,32 +1602,34 @@ function bb_append_meta( $object, $type ) {
 		$field = $id = 'topic_id';
 		break;
 	endswitch;
-	if ( is_array($object) && $object ) :
+	if ( is_array($object) && $object ) {
 		$trans = array();
 		foreach ( array_keys($object) as $i )
 			$trans[$object[$i]->$id] =& $object[$i];
 		$ids = join(',', array_map('intval', array_keys($trans)));
-		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") )
+		if ( $metas = $bbdb->get_results("SELECT $field, meta_key, meta_value FROM $table WHERE $field IN ($ids)") ) {
 			usort( $metas, '_bb_append_meta_sort' );
-			foreach ( $metas as $meta ) :
+			foreach ( $metas as $meta ) {
 				$trans[$meta->$field]->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
 					$trans[$meta->$field]->{substr($meta->meta_key, strlen($bbdb->prefix))} = bb_maybe_unserialize( $meta->meta_value );
-			endforeach;
+			}
+		}
 		foreach ( array_keys($trans) as $i )
 			$cache[$i] = $trans[$i];
 		return $object;
-	elseif ( $object ) :
-		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $table WHERE $field = %d", $object->$id ) ) )
+	} elseif ( $object ) {
+		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT meta_key, meta_value FROM $table WHERE $field = %d", $object->$id ) ) ) {
 			usort( $metas, '_bb_append_meta_sort' );
-			foreach ( $metas as $meta ) :
+			foreach ( $metas as $meta ) {
 				$object->{$meta->meta_key} = bb_maybe_unserialize( $meta->meta_value );
 				if ( strpos($meta->meta_key, $bbdb->prefix) === 0 )
 					$object->{substr($meta->meta_key, strlen($bbdb->prefix))} = bb_maybe_unserialize( $meta->meta_value );
-			endforeach;
+			}
+		}
 		$cache[$object->$id] = $object;
 		return $object;
-	endif;
+	}
 }
 
 /** 
