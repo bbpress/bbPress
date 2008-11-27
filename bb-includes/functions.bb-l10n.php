@@ -73,6 +73,17 @@ function translate($text, $domain = 'default') {
 }
 
 /**
+ * @since 1.0
+ */
+function before_last_bar( $string ) {
+	$last_bar = strrpos( $string, '|' );
+	if ( false == $last_bar )
+		return $string;
+	else
+		return substr( $string, 0, $last_bar );
+}
+
+/**
  * Retrieve the translated text and strip context.
  *
  * If the domain is set in the $l10n global, then the text is run through the
@@ -82,6 +93,7 @@ function translate($text, $domain = 'default') {
  * If the domain is not set, the $text is just returned.
  *
  * @since 1.0
+ * @uses before_last_bar()
  * @uses translate()
  *
  * @param string $text Text to translate
@@ -89,13 +101,7 @@ function translate($text, $domain = 'default') {
  * @return string Translated text
  */
 function translate_with_context($text, $domain = 'default') {
-	$whole = translate($text, $domain);
-	$last_bar = strrpos($whole, '|');
-	if ( false == $last_bar ) {
-		return $whole;
-	} else {
-		return substr($whole, 0, $last_bar);
-	}
+	return before_last_bar( translate( $text, $domain ) );
 }
 
 /**
@@ -184,6 +190,24 @@ function __ngettext($single, $plural, $number, $domain = 'default') {
 }
 
 /**
+ * @see __ngettext() An alias of __ngettext
+ * @since 1.0
+ */
+function _n() {
+	$args = func_get_args();
+	return call_user_func_array('__ngettext', $args);
+}
+
+/**
+ * @see _n() A version of _n(), which supports contexts --
+ * strips everything from the translation after the last bar
+ * @since 1.0
+ */
+function _nc( $single, $plural, $number, $domain = 'default' ) {
+	return before_last_bar( __ngettext( $single, $plural, $number, $domain ) );
+}
+
+/**
  * Register plural strings in POT file, but don't translate them.
  *
  * Used when you want to keep structures with translatable plural strings and
@@ -207,6 +231,15 @@ function __ngettext($single, $plural, $number, $domain = 'default') {
  */
 function __ngettext_noop($single, $plural, $number=1, $domain = 'default') {
 	return array($single, $plural);
+}
+
+/**
+ * @see __ngettext_noop() An alias of __ngettext_noop()
+ * @since 1.0
+ */
+function _n_noop() {
+	$args = func_get_args();
+	return call_user_func_array('__ngettext_noop', $args);
 }
 
 /**
