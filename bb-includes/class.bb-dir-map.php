@@ -14,7 +14,7 @@ class BB_Dir_Map {
 	var $_current_root;
 	var $_current_file;
 
-	function BB_DIR_MAP( $root, $args = '' ) {
+	function BB_Dir_Map( $root, $args = '' ) {
 		if ( !is_dir( $root ) ) {
 			$this->error = new WP_Error( 'bb_dir_map', __('Not a valid directory') );
 			return;
