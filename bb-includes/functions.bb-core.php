@@ -228,7 +228,7 @@ function bb_paginate_links( $args = '' ) {
 	}
 
 	for ( $n = 1; $n <= $total; $n++ ) {
-		$n_display = number_format_i18n( $n );
+		$n_display = bb_number_format_i18n( $n );
 		$n_display_title =  attribute_escape( sprintf( $n_title, $n ) );
 		if ( $n == $current ) {
 			$page_links[] = '<span class="page-numbers current" title="' . $n_display_title . '">' . $n_display . '</span>';
