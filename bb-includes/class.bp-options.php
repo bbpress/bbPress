@@ -25,6 +25,9 @@ class BP_Options
 			case 'wp_http_version':
 				return 'bbPress/' . bb_get_option('version');
 				break;
+			case 'hash_function_name':
+				return 'wp_hash';
+				break;
 			default:
 				return bb_get_option(BP_Options::prefix() . $option);
 				break;
