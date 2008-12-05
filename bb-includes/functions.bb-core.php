@@ -254,7 +254,7 @@ function bb_paginate_links( $args = '' ) {
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
 		$link .= $add_fragment;
-		$page_links[] = '<a class="next page-numbers" href="' . clean_url( $link ) . '" title="' . attribute_escape( $next_title ) . '">$next_text</a>';
+		$page_links[] = '<a class="next page-numbers" href="' . clean_url( $link ) . '" title="' . attribute_escape( $next_title ) . '">' . $next_text . '</a>';
 	}
 	switch ( $type ) {
 		case 'array':
