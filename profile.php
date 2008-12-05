@@ -12,7 +12,7 @@ if ( $self ) {
 	return;
 }
 
-$reg_time = strtotime( $user->user_registered );
+$reg_time = bb_gmtstrtotime( $user->user_registered );
 $profile_info_keys = get_profile_info_keys();
 
 if ( !isset( $_GET['updated'] ) )
