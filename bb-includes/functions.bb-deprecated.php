@@ -137,8 +137,9 @@ function get_topic_start_timestamp( $id = 0 ) {
 
 // Use bb_post_time
 function post_date( $format ) {
-	bb_log_deprecated('function', __FUNCTION__, 'bb_gmdate_i18n( $format, get_post_timestamp() )');
-	echo bb_gmdate_i18n( $format, get_post_timestamp() );
+	bb_log_deprecated('function', __FUNCTION__, 'bb_gmdate_i18n( $format, bb_gmtstrtotime( $bb_post->post_time ) )');
+	global $bb_post;
+	echo bb_gmdate_i18n( $format, bb_gmtstrtotime( $bb_post->post_time ) );
 }
 function get_post_timestamp() {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_gmtstrtotime( $bb_post->post_time )');
