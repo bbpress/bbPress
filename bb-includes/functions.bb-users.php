@@ -125,8 +125,8 @@ function bb_apply_wp_role_map_to_user( $user ) {
 		$bbpress_roles = bb_get_usermeta($user_id, $bbdb->prefix . 'capabilities');
 		
 		$wordpress_table_prefix = bb_get_option('wp_table_prefix');
-		if ( isset( $bb->wordpress_mu_primary_blog_id ) ) {
-			$wordpress_table_prefix .= $bb->wordpress_mu_primary_blog_id . '_';
+		if ( $wordpress_mu_primary_blog_id = bb_get_option('wordpress_mu_primary_blog_id') ) {
+			$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
 		}
 		
 		$wordpress_roles = bb_get_usermeta($user_id, $wordpress_table_prefix . 'capabilities');
@@ -164,6 +164,10 @@ function bb_apply_wp_role_map_to_user( $user ) {
 
 function bb_apply_wp_role_map_to_orphans() {
 	if ( $wp_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
+		
+		if ( $wordpress_mu_primary_blog_id = bb_get_option('wordpress_mu_primary_blog_id') ) {
+			$wp_table_prefix .= $wordpress_mu_primary_blog_id . '_';
+		}
 		
 		$role_query = <<<EOQ
 			SELECT
