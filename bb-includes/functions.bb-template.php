@@ -243,17 +243,18 @@ function bb_location() {
 }
 
 function bb_get_location() { // Not for display.  Do not internationalize.
-	static $location;
-	
-	if ( isset($location) )
-		return $location;
-	
-	$file = '';
-	foreach ( array($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['SCRIPT_NAME']) as $name )
-		if ( false !== strpos($name, '.php') )
-			$file = $name;
+	static $filename;
 
-	switch ( bb_find_filename( $file ) ) {
+	if ( !isset($filename) ) {
+		$file = '';
+		foreach ( array($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['SCRIPT_NAME']) as $name )
+			if ( false !== strpos($name, '.php') )
+				$file = $name;
+
+		$filename = bb_find_filename( $file );
+	}
+
+	switch ( $filename ) {
 		case 'index.php' :
 			$location = 'front-page';
 			break;
@@ -297,7 +298,7 @@ function bb_get_location() { // Not for display.  Do not internationalize.
 			$location = apply_filters( 'bb_get_location', '', $file );
 			break;
 	}
-	
+
 	return $location;
 }
 
