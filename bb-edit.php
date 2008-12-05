@@ -20,10 +20,18 @@ bb_check_admin_referer( 'edit-post_' . $post_id );
 if ( 0 != $bb_post->post_status && 'all' == $_GET['view'] ) // We're trying to edit a deleted post
 	add_filter('bb_is_first_where', 'no_where');
 
-if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_post->topic_id ) )
-	bb_update_topic( $_POST['topic'], $bb_post->topic_id);
+if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_post->topic_id ) ) {
+	bb_insert_topic( array(
+		'topic_title' => stripslashes( $_POST['topic'] ),
+		'topic_id' => $topic_id
+	) );
+}
 
-bb_update_post( $_POST['post_content'], $post_id, $bb_post->topic_id );
+bb_insert_post( array(
+	'post_text' => stripslashes( $_POST['post_content'] ),
+	'post_id' => $post_id,
+	'topic_id' => $bb_post->topic_id
+) );
 
 if ( $post_id ) {
 	if ( $_REQUEST['view'] === 'all' ) {
