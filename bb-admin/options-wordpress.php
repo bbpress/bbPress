@@ -80,11 +80,11 @@ function bb_get_roles_dropdown($id = 'roles', $name = 'roles', $set = false) {
 }
 
 $wpRoles = array(
-	'administrator' => 'WordPress Administrator',
-	'editor'        => 'WordPress Editor',
-	'author'        => 'WordPress Author',
-	'contributor'   => 'WordPress Contributor',
-	'subscriber'    => 'WordPress Subscriber'
+	'administrator' => __('WordPress Administrator'),
+	'editor'        => __('WordPress Editor'),
+	'author'        => __('WordPress Author'),
+	'contributor'   => __('WordPress Contributor'),
+	'subscriber'    => __('WordPress Subscriber')
 );
 
 $wpRolesMap = bb_get_option('wp_roles_map');
@@ -96,7 +96,7 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 ?>
 		<div>
 			<label for="wp_roles_map_<?php echo $wpRole; ?>">
-				<?php _e($wpRoleName); ?>
+				<?php echo $wpRoleName; ?>
 			</label>
 			<div>
 				<?php echo bb_get_roles_dropdown( 'wp_roles_map_' . $wpRole, 'wp_roles_map[' . $wpRole . ']', $wpRolesMap[$wpRole]); ?>
