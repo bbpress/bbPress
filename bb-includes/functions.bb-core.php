@@ -218,9 +218,15 @@ function bb_paginate_links( $args = '' ) {
 	$n = 0;
 	$dots = false;
 
+	$empty_format = '';
+	if ( strpos( $format, '?' ) === 0 ) {
+		$empty_format = '?';
+	}
+
 	if ( $prev_next && $current && 1 < $current ) {
-		$link = str_replace( '%_%', 2 == $current ? '' : $format, $base );
+		$link = str_replace( '%_%', 2 == $current ? $empty_format : $format, $base );
 		$link = str_replace( '%#%', $current - 1, $link );
+		$link = str_replace( '?&', '?', $link );
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
 		$link .= $add_fragment;
@@ -235,8 +241,9 @@ function bb_paginate_links( $args = '' ) {
 			$dots = true;
 		} else {
 			if ( $show_all || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) {
-				$link = str_replace( '%_%', 1 == $n ? '' : $format, $base );
+				$link = str_replace( '%_%', 1 == $n ? $empty_format : $format, $base );
 				$link = str_replace( '%#%', $n, $link );
+				$link = str_replace( '?&', '?', $link );
 				if ( $add_args )
 					$link = add_query_arg( $add_args, $link );
 				$link .= $add_fragment;

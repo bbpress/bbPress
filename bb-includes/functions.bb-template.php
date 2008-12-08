@@ -1115,7 +1115,7 @@ function get_page_number_links($page, $total) {
 				$uri = preg_replace('!&page=[0-9]+!', '%_%', $uri );
 				$format = '&page=%#%';
 			} else {
-				$uri = preg_replace('!?page=[0-9]+!', '%_%', $uri );
+				$uri = preg_replace('!\?page=[0-9]+!', '%_%', $uri );
 				$format = '?page=%#%';
 			}
 		}
