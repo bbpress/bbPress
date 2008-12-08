@@ -72,11 +72,19 @@ bb_timer_start();
 
 
 
+// Server detection
+
+/**
+ * Whether the server software is Apache or something else
+ * @global bool $is_apache
+ */
+$is_apache = ((strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false) || (strpos($_SERVER['SERVER_SOFTWARE'], 'LiteSpeed') !== false)) ? true : false;
+
 /**
  * Whether the server software is IIS or something else
  * @global bool $is_IIS
  */
-$is_IIS = strstr($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') ? 1 : 0;
+$is_IIS = (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) ? true : false;
 
 
 
