@@ -1176,7 +1176,7 @@ endif;
 
 if ( !function_exists( 'selected' ) ) :
 function selected( $selected, $current) {
-	if ( $selected == $current)
+	if ( $selected === $current)
 		echo ' selected="selected"';
 }
 endif;
