@@ -677,6 +677,12 @@ class BB_Install
 						'note'         => __('This should be a unique and secret phrase, it will be used to make your bbPress "logged in" cookie unique and harder for an attacker to decipher.'),
 						'prerequisite' => 'toggle_1'
 					),
+					'bb_nonce_key' => array(
+						'value'        => $_bb_default_secret_key,
+						'label'        => __('bbPress "nonce" key'),
+						'note'         => __('This should be a unique and secret phrase, it will be used to make form submission harder for an attacker to spoof.'),
+						'prerequisite' => 'toggle_1'
+					),
 					'bb_table_prefix' => array(
 						'value'        => 'bb_',
 						'label'        => __('Table name prefix'),
@@ -1173,6 +1179,7 @@ class BB_Install
 			$data['bb_auth_key']['value']        = addslashes(stripslashes($data['bb_auth_key']['value']));
 			$data['bb_secure_auth_key']['value'] = addslashes(stripslashes($data['bb_secure_auth_key']['value']));
 			$data['bb_logged_in_key']['value']   = addslashes(stripslashes($data['bb_logged_in_key']['value']));
+			$data['bb_nonce_key']['value']       = addslashes(stripslashes($data['bb_nonce_key']['value']));
 		}
 		
 		// Stop here if we are going backwards
@@ -1223,6 +1230,7 @@ class BB_Install
 				"define('BB_AUTH_KEY'"  => array("'put your unique phrase here'", "'" . $data['bb_auth_key']['value'] . "'"),
 				"define('BB_SECURE_AU"  => array("'put your unique phrase here'", "'" . $data['bb_secure_auth_key']['value'] . "'"),
 				"define('BB_LOGGED_IN"  => array("'put your unique phrase here'", "'" . $data['bb_logged_in_key']['value'] . "'"),
+				"define('BB_NONCE_KEY"  => array("'put your unique phrase here'", "'" . $data['bb_nonce_key']['value'] . "'"),
 				"\$bb_table_prefix = '" => array("'bb_'",                         "'" . $data['bb_table_prefix']['value'] . "'"),
 				"define('BB_LANG', ''"  => array("''",                            "'" . $data['bb_lang']['value'] . "'")
 			)

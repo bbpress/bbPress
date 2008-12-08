@@ -18,6 +18,7 @@ define('BBDB_COLLATE', '');          // not have these two constants in them, DO
 define('BB_AUTH_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
 define('BB_SECURE_AUTH_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
 define('BB_LOGGED_IN_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
+define('BB_NONCE_KEY', 'put your unique phrase here'); // Change this to a unique phrase.
 
 // If you are running multiple bbPress installations in a single database,
 // you will probably want to change this.

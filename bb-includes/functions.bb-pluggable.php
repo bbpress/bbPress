@@ -271,18 +271,46 @@ function bb_safe_redirect($location, $status = 302) {
 }
 endif;
 
+if ( !function_exists('wp_nonce_tick') ) :
+/**
+ * Get the time-dependent variable for nonce creation.
+ *
+ * A nonce has a lifespan of two ticks. Nonces in their second tick may be
+ * updated, e.g. by autosave.
+ *
+ * @since 1.0
+ *
+ * @return int
+ */
+function bb_nonce_tick() {
+	$nonce_life = apply_filters('bb_nonce_life', 86400);
+
+	return ceil(time() / ( $nonce_life / 2 ));
+}
+endif;
+
 if ( !function_exists('bb_verify_nonce') ) :
+/**
+ * Verify that correct nonce was used with time limit.
+ *
+ * The user is given an amount of time to use the token, so therefore, since the
+ * UID and $action remain the same, the independent variable is the time.
+ *
+ * @param string $nonce Nonce that was used in the form to verify
+ * @param string|int $action Should give context to what is taking place and be the same when nonce was created.
+ * @return bool Whether the nonce check passed or failed.
+ */
 function bb_verify_nonce($nonce, $action = -1) {
 	$user = bb_get_current_user();
-	$uid = $user->ID;
+	$uid = (int) $user->ID;
 
-	$i = ceil(time() / 43200);
+	$i = bb_nonce_tick();
 
 	// Nonce generated 0-12 hours ago
-	if ( substr(wp_hash($i . $action . $uid), -12, 10) == $nonce )
+	if ( substr(wp_hash($i . $action . $uid, 'nonce'), -12, 10) == $nonce )
 		return 1;
 	// Nonce generated 12-24 hours ago
-	if ( substr(wp_hash(($i - 1) . $action . $uid), -12, 10) == $nonce )
+	if ( substr(wp_hash(($i - 1) . $action . $uid, 'nonce'), -12, 10) == $nonce )
 		return 2;
 	// Invalid nonce
 	return false;
@@ -290,75 +318,96 @@ function bb_verify_nonce($nonce, $action = -1) {
 endif;
 
 if ( !function_exists('bb_create_nonce') ) :
+/**
+ * Creates a random, one time use token.
+ *
+ * @since 2.0.4
+ *
+ * @param string|int $action Scalar value to add context to the nonce.
+ * @return string The one use form token
+ */
 function bb_create_nonce($action = -1) {
 	$user = bb_get_current_user();
-	$uid = $user->ID;
+	$uid = (int) $user->ID;
 
-	$i = ceil(time() / 43200);
+	$i = bb_nonce_tick();
 	
-	return substr(wp_hash($i . $action . $uid), -12, 10);
+	return substr(wp_hash($i . $action . $uid, 'nonce'), -12, 10);
 }
 endif;
 
-// Not verbatim WP,  constants have different names.
+function _bb_get_key( $key, $default_key = false ) {
+	if ( !$default_key ) {
+		global $bb_default_secret_key;
+		$default_key = $bb_default_secret_key;
+	}
+
+	if ( defined( $key ) && '' != constant( $key ) && $default_key != constant( $key ) ) {
+		return $key;
+	}
+
+	return $default_key;
+}
+
+function _bb_get_salt( $constants, $option = false ) {
+	if ( !is_array( $constants ) ) {
+		$constants = array( $constants );
+	}
+
+	foreach ($constants as $constant ) {
+		if ( defined( $constant ) ) {
+			return constant( $constant );
+		}
+	}
+
+	if ( !defined( 'BB_INSTALLING' ) || !BB_INSTALLING ) {
+		if ( !$option ) {
+			$option = strtolower( $constants[0] );
+		}
+		$salt = bb_get_option( $option );
+		if ( empty( $salt ) ) {
+			$salt = wp_generate_password();
+			bb_update_option( $option, $salt );
+		}
+		return $salt;
+	}
+
+	return '';
+}
+
+// Not verbatim WP, constants have different names, uses helper functions.
 if ( !function_exists('wp_salt') ) :
 function wp_salt($scheme = 'auth') {
-	global $bb_default_secret_key;
-	
-	$secret_key = '';
-	if ( defined('BB_SECRET_KEY') && ('' != BB_SECRET_KEY) && ($bb_default_secret_key != BB_SECRET_KEY) )
-		$secret_key = BB_SECRET_KEY;
-	
+	$secret_key = _bb_get_key( 'BB_SECRET_KEY' );
+
 	switch ($scheme) {
 		case 'auth':
-			if ( defined('BB_AUTH_KEY') && ('' != BB_AUTH_KEY) && ( $bb_default_secret_key != BB_AUTH_KEY) )
-				$secret_key = BB_AUTH_KEY;
-			
-			if ( defined('BB_AUTH_SALT') ) {
-				$salt = BB_AUTH_SALT;
-			} elseif ( defined('BB_SECRET_SALT') ) {
-				$salt = BB_SECRET_SALT;
-			} elseif ( !BB_INSTALLING ) {
-				$salt = bb_get_option('bb_auth_salt');
-				if ( empty($salt) ) {
-					$salt = wp_generate_password();
-					bb_update_option('bb_auth_salt', $salt);
-				}
-			}
+			$secret_key = _bb_get_key( 'BB_AUTH_KEY', $secret_key );
+			$salt = _bb_get_salt( array( 'BB_AUTH_SALT', 'BB_SECRET_SALT' ) );
 			break;
-		
+
 		case 'secure_auth':
-			if ( defined('BB_SECURE_AUTH_KEY') && ('' != BB_SECURE_AUTH_KEY) && ( $bb_default_secret_key != BB_SECURE_AUTH_KEY) )
-				$secret_key = BB_SECURE_AUTH_KEY;
-			
-			if ( defined('BB_SECURE_AUTH_SALT') ) {
-				$salt = BB_SECURE_AUTH_SALT;
-			} else {
-				$salt = bb_get_option('bb_secure_auth_salt');
-				if ( empty($salt) ) {
-					$salt = wp_generate_password();
-					bb_update_option('bb_secure_auth_salt', $salt);
-				}
-			}
+			$secret_key = _bb_get_key( 'BB_SECURE_AUTH_KEY', $secret_key );
+			$salt = _bb_get_salt( 'BB_SECURE_AUTH_SALT' );
 			break;
-		
+
 		case 'logged_in':
-			if ( defined('BB_LOGGED_IN_KEY') && ('' != BB_LOGGED_IN_KEY) && ( $bb_default_secret_key != BB_LOGGED_IN_KEY) )
-				$secret_key = BB_LOGGED_IN_KEY;
-			
-			if ( defined('BB_LOGGED_IN_SALT') ) {
-				$salt = BB_LOGGED_IN_SALT;
-			} else {
-				$salt = bb_get_option('bb_logged_in_salt');
-				if ( empty($salt) && ( !defined( 'BB_INSTALLING' ) || !BB_INSTALLING ) ) {
-					$salt = wp_generate_password();
-					bb_update_option('bb_logged_in_salt', $salt);
-				}
-			}
+			$secret_key = _bb_get_key( 'BB_LOGGED_IN_KEY', $secret_key );
+			$salt = _bb_get_salt( 'BB_LOGGED_IN_SALT' );
+			break;
+
+		case 'nonce':
+			$secret_key = _bb_get_key( 'BB_NONCE_KEY', $secret_key );
+			$salt = _bb_get_salt( 'BB_NONCE_SALT' );
+			break;
+
+		default:
+			// ensure each auth scheme has its own unique salt
+			$salt = hash_hmac( 'md5', $scheme, $secret_key );
 			break;
 	}
-	
-	return apply_filters('salt', $secret_key . $salt, $scheme);
+
+	return apply_filters( 'salt', $secret_key . $salt, $scheme );
 }
 endif;
 
