@@ -26,8 +26,6 @@ if ( bb_current_user_can('edit_users') ) {
 	$profile_admin_keys = get_profile_admin_keys();
 	$assignable_caps = get_assignable_caps();
 }
-$updated = false;
-$user_email = true;
 
 $errors = new WP_Error;
 
@@ -48,16 +46,17 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		}
 	}
 
+	// Find out if we have a valid email address
+	if ( !$user_email = bb_verify_email( $user_email ) ) {
+		$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
+	}
+
 	if ( bb_current_user_can('edit_users') ) {
 		if ( isset($_POST['delete-user']) && $_POST['delete-user'] && $bb_current_id != $user->ID ) {
 			bb_delete_user( $user->ID );
 			wp_redirect( bb_get_option( 'uri' ) );
 			exit;
 		}
-
-		if ( isset($_POST['user_email']) )
-			if ( !$user_email = bb_verify_email( $_POST['user_email'] ) )
-				$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
 
 		$user_obj = new BB_User( $user->ID );
 
@@ -95,15 +94,10 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 			$errors->add( 'pass', __( "You are not allowed to change this user's password." ) );
 	}
 
-	$updated = true;
-
-	if ( $user_email && !$errors->get_error_codes() ) {
+	if ( !$errors->get_error_codes() ) {
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) {
-			if ( is_string($user_email) ) {
-				bb_update_user( $user->ID, $user_email, $user_url );
-			} else {
-				bb_update_user( $user->ID, $user->user_email, $user_url );
-			}
+			bb_update_user( $user->ID, $user_email, $user_url );
+
 			foreach( $profile_info_keys as $key => $label )
 				if ( strpos($key, 'user_') !== 0 )
 					if ( $$key != '' || isset($user->$key) )
@@ -137,10 +131,10 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		do_action('profile_edited', $user->ID);
 
 		wp_redirect( add_query_arg( 'updated', 'true', get_user_profile_link( $user->ID ) ) );
-		exit;
+		exit;	
 	}
 }
 
-bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'updated', 'user_email', 'bb_roles', 'errors') );
+bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'user_email', 'bb_roles', 'errors') );
 
 ?>
