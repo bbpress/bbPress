@@ -1,46 +1,59 @@
 <?php
-require_once('./bb-load.php');
+require_once( './bb-load.php' );
 
+// Redirect if we require SSL and it isn't
 bb_ssl_redirect();
 
-bb_auth('logged_in');
+// Authenticate against the "logged_in" cookie
+bb_auth( 'logged_in' );
 
+// Check that the current user can do this, if not kick them to the front page
 if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
-	$sendto = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+	$sendto = bb_get_uri( null, null, BB_URI_CONTEXT_HEADER );
 	wp_redirect( $sendto );
 	exit;
 }
 
+// Store the current user id
 $bb_current_id = bb_get_current_user_info( 'id' );
 
+// I don't know how this would ever get triggered
 if ( !is_bb_profile() ) {
 	$sendto = get_profile_tab_link( $bb_current_id, 'edit' );
 	wp_redirect( $sendto );
 	exit;
 }
 
+// Grab the registration functions
 require_once( BB_PATH . BB_INC . 'functions.bb-registration.php' );
 
-if ( !$user->capabilities )
-	$user->capabilities = array('inactive' => true);
+// Set some low capabilities if the current user has none
+if ( !isset( $user->capabilities ) ) {
+	$user->capabilities = array( 'inactive' => true );
+}
+
+// Store the profile info keys
 $profile_info_keys = get_profile_info_keys();
+
+// Store additional keys if the current user has access to them
 if ( bb_current_user_can('edit_users') ) {
 	$profile_admin_keys = get_profile_admin_keys();
 	$assignable_caps = get_assignable_caps();
 }
-$updated = false;
-$user_email = true;
 
+// Instantiate the error object
 $errors = new WP_Error;
 
 if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	$_POST = stripslashes_deep( $_POST );
 	bb_check_admin_referer( 'edit-profile_' . $user_id );
 
-	$user_url = bb_fix_link( $_POST['user_url'] );
+	// Fix the URL before sanitizing it
+	$user_url = bb_fix_link( $user_url );
 
+	// Sanitize the profile info keys and check for missing required data
 	foreach ( $profile_info_keys as $key => $label ) {
-		if ( isset($$key) )
+		if ( isset( $$key ) )
 			continue;
 
 		$$key = apply_filters( 'sanitize_profile_info', $_POST[$key], $key, $_POST[$key] );
@@ -50,32 +63,40 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		}
 	}
 
+	// Find out if we have a valid email address
+	if ( !$user_email = bb_verify_email( $user_email ) ) {
+		$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
+	}
+
+	// Deal with errors for users who can edit others data
 	if ( bb_current_user_can('edit_users') ) {
+		// If we are deleting just do it and redirect
 		if ( isset($_POST['delete-user']) && $_POST['delete-user'] && $bb_current_id != $user->ID ) {
 			bb_delete_user( $user->ID );
 			wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 			exit;
 		}
 
-		if ( isset($_POST['user_email']) )
-			if ( !$user_email = bb_verify_email( $_POST['user_email'] ) )
-				$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
-
+		// Get the user object
 		$user_obj = new WP_User( $user->ID );
 
+		// Store the new role
 		$role = $_POST['role'];
 
-		$can_keep_gate = bb_current_user_can( 'keep_gate' );
-		if ( !isset($wp_roles->role_objects[$role]) )
+		// Deal with errors with the role
+		if ( !isset($wp_roles->role_objects[$role]) ) {
 			$errors->add( 'role', __( 'Invalid Role' ) );
-		elseif ( !$can_keep_gate && ( 'keymaster' == $role || 'keymaster' == $user_obj->roles[0] ) )
+		} elseif ( !bb_current_user_can( 'keep_gate' ) && ( 'keymaster' == $role || 'keymaster' == $user_obj->roles[0] ) ) {
 			$errors->add( 'role', __( 'You are not the Gate Keeper.' ) );
-		elseif ( 'keymaster' == $user_obj->roles[0] && 'keymaster' != $role && $bb_current_id == $user->ID )
-			$errors->add( 'role', __( 'You, Keymaster, may not demote yourself.' ) );
+		} elseif ( 'keymaster' == $user_obj->roles[0] && 'keymaster' != $role && $bb_current_id == $user->ID ) {
+			$errors->add( 'role', __( 'You are Keymaster, so you may not demote yourself.' ) );
+		}
 
+		// Sanitize the profile admin keys and check for missing required data
 		foreach ( $profile_admin_keys as $key => $label ) {
-			if ( isset($$key) )
+			if ( isset( $$key ) )
 				continue;
+
 			$$key = apply_filters( 'sanitize_profile_admin', $_POST[$key], $key, $_POST[$key] );
 			if ( !$$key && $label[0] == 1 ) {
 				$errors->add( $key, sprintf( __( '%s is required.' ), wp_specialchars( $label[1] ) ) );
@@ -83,29 +104,31 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 			}
 		}
 
+		// Create variable for the requested roles
 		foreach ( $assignable_caps as $cap => $label ) {
 			if ( isset($$cap) )
 				continue;
+
 			$$cap = ( isset($_POST[$cap]) && $_POST[$cap] ) ? 1 : 0;
 		}
 	}
 
+	// Deal with errors generated from the password form
 	if ( bb_current_user_can( 'change_user_password', $user->ID ) ) {
-		if ( ( !empty($_POST['pass1']) || !empty($_POST['pass2']) ) && $_POST['pass1'] !== $_POST['pass2'] )
+		if ( ( !empty($_POST['pass1']) || !empty($_POST['pass2']) ) && $_POST['pass1'] !== $_POST['pass2'] ) {
 			$errors->add( 'pass', __( 'You must enter the same password twice.' ) );
-		elseif( !empty($_POST['pass1']) && !bb_current_user_can( 'change_user_password', $user->ID ) )
+		} elseif( !empty($_POST['pass1']) && !bb_current_user_can( 'change_user_password', $user->ID ) ) {
 			$errors->add( 'pass', __( "You are not allowed to change this user's password." ) );
+		}
 	}
 
-	$updated = true;
-
-	if ( $user_email && !$errors->get_error_codes() ) {
+	// If there are no errors then update the records
+	if ( !$errors->get_error_codes() ) {
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) {
-			if ( is_string($user_email) ) {
-				bb_update_user( $user->ID, $user_email, $user_url, $display_name );
-			} else {
-				bb_update_user( $user->ID, $user->user_email, $user_url, $display_name );
-			}
+			// All these are always set at this point
+			bb_update_user( $user->ID, $user_email, $user_url, $display_name );
+
+			// Add user meta data
 			foreach( $profile_info_keys as $key => $label ) {
 				if ( 'display_name' == $key || 'ID' == $key || strpos($key, 'user_') === 0 )
 					continue;
@@ -145,6 +168,6 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	}
 }
 
-bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'updated', 'user_email', 'bb_roles', 'errors', 'self') );
+bb_load_template( 'profile-edit.php', array('profile_info_keys', 'profile_admin_keys', 'assignable_caps', 'user_email', 'bb_roles', 'errors', 'self') );
 
 ?>
