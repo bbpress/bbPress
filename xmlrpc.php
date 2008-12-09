@@ -38,18 +38,17 @@ require_once( './bb-load.php' );
 if ( isset( $_GET['rsd'] ) ) {
 	header( 'Content-Type: text/xml; charset=UTF-8', true );
 	echo '<?xml version="1.0" encoding="UTF-8"?'.'>' . "\n";
-?>
-<rsd version="1.0" xmlns="http://archipelago.phrasewise.com/rsd">
-	<service>
-		<engineName>bbPress</engineName>
-		<engineLink>http://bbpress.org/</engineLink>
-		<homePageLink><?php bb_uri() ?></homePageLink>
-		<apis>
-			<api name="bbPress" blogID="" preferred="true" apiLink="<?php bb_uri( 'xmlrpc.php' ) ?>" />
-		</apis>
-	</service>
-</rsd>
-<?php
+	echo '<rsd version="1.0" xmlns="http://archipelago.phrasewise.com/rsd">' . "\n";
+	echo '	<service>' . "\n";
+	echo '		<engineName>bbPress</engineName>' . "\n";
+	echo '		<engineLink>http://bbpress.org/</engineLink>' . "\n";
+	echo '		<homePageLink>' . bb_get_uri() . '</homePageLink>' . "\n";
+	echo '		<apis>' . "\n";
+	echo '			<api name="bbPress" blogID="" preferred="true" apiLink="' . bb_get_uri( 'xmlrpc.php' ) . '" />' . "\n";
+	//echo '			<api name="WordPress" blogID="1" preferred="false" apiLink="' . bb_get_uri( 'xmlrpc.php' ) . '" />' . "\n";
+	echo '		</apis>' . "\n";
+	echo '	</service>' . "\n";
+	echo '</rsd>' . "\n";
 	exit;
 }
 
@@ -152,7 +151,37 @@ class BB_XMLRPC_Server extends IXR_Server
 				//'bb.destroyTopicTag'  => 'this:bb_destroyTopicTag',
 				// - Options
 				'bb.getOptions'       => 'this:bb_getOptions',
-				'bb.setOptions'       => 'this:bb_setOptions'
+				'bb.setOptions'       => 'this:bb_setOptions',
+
+				// - WordPress API
+				/*
+				'wp.getUsersBlogs'        => 'this:wp_getUsersBlogs', // Returns one "blog", the current site
+				'wp.getPage'              => 'this:wp_getPage', // Retrieves a topic
+				'wp.getPages'             => 'this:wp_getPages', // Retrieves multiple topics
+				'wp.newPage'              => 'this:wp_newPage', // Creates a new topic
+				'wp.deletePage'           => 'this:wp_deletePage', // Deletes a topic
+				'wp.editPage'             => 'this:wp_editPage', // Edits a topic
+				'wp.getPageList'          => 'this:wp_getPageList', // Returns a list of all topics (???)
+				//'wp.getAuthors'           => 'this:wp_getAuthors', // Not implemented
+				'wp.getCategories'        => 'this:wp_getCategories', // Returns a list of forums
+				'wp.getTags'              => 'this:wp_getTags', // Returns the topic tags
+				'wp.newCategory'          => 'this:wp_newCategory', // Create a new forum
+				'wp.deleteCategory'       => 'this:wp_deleteCategory', // Deletes a forum
+				//'wp.suggestCategories'    => 'this:wp_suggestCategories', // Not implemented
+				//'wp.uploadFile'           => 'this:wp_newMediaObject', // Not imlpemented
+				'wp.getCommentCount'      => 'this:wp_getCommentCount', // Returns a count of posts
+				'wp.getPostStatusList'    => 'this:wp_getPostStatusList', // Returns available topic statuses
+				'wp.getPageStatusList'    => 'this:wp_getPageStatusList', // Returns available topic statuses
+				//'wp.getPageTemplates'     => 'this:wp_getPageTemplates', // Not implemented
+				'wp.getOptions'           => 'this:wp_getOptions', // Gets site options
+				'wp.setOptions'           => 'this:wp_setOptions', // Sets site options
+				'wp.getComment'           => 'this:wp_getComment', // Retreives a single post
+				'wp.getComments'          => 'this:wp_getComments', // Retreives all posts in a topic
+				'wp.deleteComment'        => 'this:wp_deleteComment', // Deletes a post
+				'wp.editComment'          => 'this:wp_editComment', // Edits a post
+				'wp.newComment'           => 'this:wp_newComment', // Creates a new post
+				'wp.getCommentStatusList' => 'this:wp_getCommentStatusList' // Returns available post statuses
+				*/
 			);
 		}
 
