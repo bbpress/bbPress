@@ -7,10 +7,10 @@
 		); ?></p>
 	<div>
 		<label><?php _e('Username:'); ?><br />
-			<input name="user_login" type="text" id="user_login" size="13" maxlength="40" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" tabindex="1" />
+			<input name="user_login" type="text" id="quick_user_login" size="13" maxlength="40" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" tabindex="1" />
 		</label>
 		<label><?php _e('Password:'); ?><br />
-			<input name="password" type="password" id="password" size="13" maxlength="40" tabindex="2" />
+			<input name="password" type="password" id="quick_password" size="13" maxlength="40" tabindex="2" />
 		</label>
 		<input name="re" type="hidden" value="<?php echo $re; ?>" />
 		<?php wp_referer_field(); ?>
@@ -18,7 +18,7 @@
 	</div>
 	<div class="remember">
 		<label>
-			<input name="remember" type="checkbox" id="remember" value="1" tabindex="3"<?php echo $remember_checked; ?> />
+			<input name="remember" type="checkbox" id="quick_remember" value="1" tabindex="3"<?php echo $remember_checked; ?> />
 			<?php _e('Remember me'); ?>
 		</label>
 	</div>
