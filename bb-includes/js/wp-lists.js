@@ -26,7 +26,7 @@ var wpList = {
 		var c = [], cl;
 		try {
 			cl = $(e).attr('class') || '';
-			cl = cl.match(new RegExp(t+':[A-Za-z0-9:_=-]+'));
+			cl = cl.match(new RegExp(t+':[\\S]+'));
 			if ( cl ) { c = cl[0].split(':'); }
 		} catch(r) {}
 		return c;
@@ -54,11 +54,11 @@ var wpList = {
 	ajaxAdd: function( e, s ) {
 		var list = this; e = $(e); s = s || {};
 		var cls = wpList.parseClass(e,'add');
+		s = wpList.pre.call( list, e, s, 'add' );
+
 		s.element = cls[2] || e.attr( 'id' ) || s.element || null;
 		if ( cls[3] ) { s.addColor = '#' + cls[3]; }
 		else { s.addColor = s.addColor || '#FFFF33'; }
-
-		s = wpList.pre.call( list, e, s, 'add' );
 
 		if ( !s ) { return false; }
 
@@ -117,11 +117,11 @@ var wpList = {
 	ajaxDel: function( e, s ) {
 		var list = this; e = $(e); s = s || {};
 		var cls = wpList.parseClass(e,'delete');
+		s = wpList.pre.call( list, e, s, 'delete' );
+
 		s.element = cls[2] || s.element || null;
 		if ( cls[3] ) { s.delColor = '#' + cls[3]; }
 		else { s.delColor = s.delColor || '#FF3333'; }
-
-		s = wpList.pre.call( list, e, s, 'delete' );
 
 		if ( !s || !s.element ) { return false; }
 
@@ -175,8 +175,11 @@ var wpList = {
 	},
 
 	ajaxDim: function( e, s ) {
+		if ( $(e).parent().css('display') == 'none' ) // Prevent hidden links from being clicked by hotkeys
+			return false;
 		var list = this; e = $(e); s = s || {};
 		var cls = wpList.parseClass(e,'dim');
+		s = wpList.pre.call( list, e, s, 'dim' );
 
 		s.element = cls[2] || s.element || null;
 		s.dimClass =  cls[3] || s.dimClass || null;
@@ -184,8 +187,6 @@ var wpList = {
 		else { s.dimAddColor = s.dimAddColor || '#FFFF33'; }
 		if ( cls[5] ) { s.dimDelColor = '#' + cls[5]; }
 		else { s.dimDelColor = s.dimDelColor || '#FF3333'; }
-
-		s = wpList.pre.call( list, e, s, 'dim' );
 
 		if ( !s || !s.element || !s.dimClass ) { return true; }
 
@@ -236,8 +237,7 @@ var wpList = {
 		};
 
 		$.ajax( s );
-		if ( element.is( 'a, :submit, :button' ) )
-			return false;
+		return false;
 	},
 
 	// From jquery.color.js: jQuery Color Animation by John Resig
@@ -272,9 +272,6 @@ var wpList = {
 			if ( '-' == s.pos.substr(0,1) ) {
 				s.pos = s.pos.substr(1);
 				ba = 'before';
-			} else if ( '+' == s.pos.substr(0,1) ) {
-				s.pos = s.pos.substr(1);
-				ba = 'append';
 			}
 			var ref = list.find( '#' + s.pos );
 			if ( 1 === ref.size() ) { ref[ba](e); }
