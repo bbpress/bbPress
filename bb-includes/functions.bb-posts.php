@@ -242,9 +242,8 @@ function bb_insert_post( $args = null ) {
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 
-	if ( !defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST )
-		if ( !$user = bb_get_user( $poster_id ) )
-			return false;
+	if ( !$user = bb_get_user( $poster_id ) )
+		return false;
 
 	$topic_id = (int) $topic->topic_id;
 	$forum_id = (int) $topic->forum_id;

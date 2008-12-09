@@ -95,6 +95,14 @@ class BB_XMLRPC_Server extends IXR_Server
 	var $auth_readonly = false;
 
 	/**
+	 * Whether user switching is allowed
+	 *
+	 * @since 1.0
+	 * @var boolean
+	 **/
+	var $allow_user_switching = false;
+
+	/**
 	 * Initialises the XML-RPC server
 	 *
 	 * @since 1.0
@@ -159,6 +167,9 @@ class BB_XMLRPC_Server extends IXR_Server
 		// Tells read-only methods whether they require authentication or not
 		$this->auth_readonly = apply_filters( 'bb_xmlrpc_auth_readonly', $this->auth_readonly );
 
+		// Whether or not to allow user switching
+		$this->allow_user_switching = bb_get_option( 'bb_xmlrpc_allow_user_switching' );
+
 		$this->initialise_site_option_info();
 		$this->methods = apply_filters( 'bb_xmlrpc_methods', $this->methods );
 		$this->IXR_Server( $this->methods );
@@ -180,10 +191,47 @@ class BB_XMLRPC_Server extends IXR_Server
 	 */
 	function authenticate( $user_login, $user_pass, $capability = 'read', $message = false )
 	{
+		if ( is_array( $user_login ) ) {
+			$auth_user_login = (string) $user_login[0];
+			$switch_user_login = (string) $user_login[1];
+		} else {
+			$auth_user_login = (string) $user_login;
+			$switch_user_login = false;
+		}
+		
 		// Check the login
-		$user = bb_check_login( $user_login, $user_pass );
+		$user = bb_check_login( $auth_user_login, $user_pass );
 		if ( !$user || is_wp_error( $user ) ) {
 			$this->error = new IXR_Error( 403, __( 'Authentication failed.' ) );
+			return false;
+		}
+
+		// Set the current user
+		$user = bb_set_current_user( $user->ID );
+
+		// Make sure they are allowed to do this
+		if ( !bb_current_user_can( $capability ) ) {
+			if ( !$message ) {
+				$message = __( 'You do not have permission to read this.' );
+			}
+			$this->error = new IXR_Error( 403, $message );
+			return false;
+		}
+
+		// Switch the user if requested and allowed
+		if ( $switch_user_login && $this->allow_user_switching && bb_current_user_can( 'edit_users' ) ) {
+			$user = $this->switch_user( $switch_user_login, $capability, $message );
+		}
+
+		return $user;
+	}
+
+	function switch_user( $user_login, $capability = 'read', $message = false )
+	{
+		// Just get the user, authentication has already been established by the 
+		$user = bb_get_user( $user_login );
+		if ( !$user || is_wp_error( $user ) ) {
+			$this->error = new IXR_Error( 400, __( 'User switching failed, the requested user does not exist.' ) );
 			return false;
 		}
 
@@ -379,7 +427,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -418,7 +466,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -497,7 +545,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -541,7 +589,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$depth = (int) $args[3];
 
 		if ( $depth > 0 ) {
-			// Add the depth to traverse to to the arguments
+			// Add the depth to traverse to the arguments
 			$get_forums_args['depth'] = $depth;
 			// Only make it hierarchical if the depth > 1
 			if ( $depth > 1 ) {
@@ -618,7 +666,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		do_action( 'bb_xmlrpc_call', 'bb.getForums' );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -728,7 +776,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -809,7 +857,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -909,7 +957,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1043,7 +1091,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1151,7 +1199,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1255,7 +1303,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1359,7 +1407,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1447,7 +1495,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1585,7 +1633,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1712,7 +1760,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1799,7 +1847,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1898,7 +1946,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -1998,7 +2046,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2096,7 +2144,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2188,7 +2236,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2280,7 +2328,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2358,7 +2406,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2468,7 +2516,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2568,7 +2616,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2658,7 +2706,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2733,7 +2781,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2815,7 +2863,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -2938,7 +2986,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -3056,7 +3104,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -3145,7 +3193,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -3331,7 +3379,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
@@ -3396,7 +3444,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$this->escape( $args );
 
 		// Get the login credentials
-		$username = (string) $args[0];
+		$username = $args[0];
 		$password = (string) $args[1];
 
 		// Check the user is valid
