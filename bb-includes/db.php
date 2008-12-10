@@ -471,7 +471,7 @@ HEAD;
 	 * @global $wp_version
 	 */
 	function check_database_version() {
-		$bb_version = function_exists( 'bb_get_option' ) ? bb_get_option( 'bb_version' ) : '';
+		$bb_version = function_exists( 'bb_get_option' ) ? bb_get_option( 'version' ) : '';
 		// Make sure the server has MySQL 4.0
 		$mysql_version = $this->db_version();
 		if ( version_compare($mysql_version, '4.0.0', '<') )
