@@ -377,6 +377,16 @@ function _bb_get_salt( $constants, $option = false ) {
 
 // Not verbatim WP, constants have different names, uses helper functions.
 if ( !function_exists('wp_salt') ) :
+/**
+ * Get salt to add to hashes to help prevent attacks.
+ *
+ * @since 0.9
+ * @link http://api.wordpress.org/secret-key/1.1/bbpress/ Create a set of keys for bb-config.php
+ * @uses _bb_get_key()
+ * @uses _bb_get_salt()
+ *
+ * @return string Salt value for the given scheme
+ */
 function wp_salt($scheme = 'auth') {
 	$secret_key = _bb_get_key( 'BB_SECRET_KEY' );
 
