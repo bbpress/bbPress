@@ -22,7 +22,7 @@
 
 <?php if ( $super_stickies ) : foreach ( $super_stickies as $topic ) : ?>
 <tr<?php topic_class(); ?>>
-	<td><?php bb_topic_labels(); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big></td>
+	<td><?php bb_topic_labels(); ?> <big><a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></big><?php topic_page_links(); ?></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><?php topic_last_poster(); ?></td>
 	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
