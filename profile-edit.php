@@ -124,6 +124,8 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 
 	// If there are no errors then update the records
 	if ( !$errors->get_error_codes() ) {
+		do_action('before_profile_edited', $user->ID);
+		
 		if ( bb_current_user_can( 'edit_user', $user->ID ) ) {
 			// All these are always set at this point
 			bb_update_user( $user->ID, $user_email, $user_url, $display_name );
@@ -149,10 +151,11 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 				if ( $$key != ''  || isset($user->$key) )
 					bb_update_usermeta( $user->ID, $key, $$key );
 			foreach( $assignable_caps as $cap => $label ) {
-				if ( ( !$already = array_key_exists($cap, $user->capabilities) ) && $$cap)
+				if ( ( !$already = array_key_exists($cap, $user->capabilities) ) && $$cap) {
 					$user_obj->add_cap($cap);
-				elseif ( !$$cap && $already )
+				} elseif ( !$$cap && $already ) {
 					$user_obj->remove_cap($cap);
+				}
 			}
 		}
 
