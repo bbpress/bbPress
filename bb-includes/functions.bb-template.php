@@ -1087,7 +1087,7 @@ function topic_pages_add( $id = 0 ) {
 	return apply_filters( 'topic_pages_add', $add, isset($topic->topic_id) ? $topic->topic_id : 0 );
 }
 
-function get_page_number_links($page, $total) {
+function get_page_number_links( $page, $total, $per_page = '' ) {
 	$args = array();
 	$uri = $_SERVER['REQUEST_URI'];
 	if ( bb_get_option('mod_rewrite') ) {
@@ -1124,10 +1124,14 @@ function get_page_number_links($page, $total) {
 	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
 		$args['view'] = $_GET['view'];
 
+	if ( empty( $per_page ) ) {
+		$per_page = bb_get_option( 'page_topics' );
+	}
+
 	$links = bb_paginate_links( array(
 		'base' => $uri,
 		'format' => $format,
-		'total' => ceil($total/bb_get_option('page_topics')),
+		'total' => ceil( $total/$per_page ),
 		'current' => $page,
 		'add_args' => $args,
 		'type' => 'array',
