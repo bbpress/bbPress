@@ -61,6 +61,11 @@ function bb_bozo_pre_permalink() {
 		add_filter( 'get_topic_where', 'bb_bozo_topics' );
 }
 
+function bb_bozo_post_permalink() {
+	if ( is_topic() )
+		remove_filter( 'get_topic_where', 'bb_bozo_topics' );
+}
+
 function bb_bozo_latest_filter() {
 	global $bb_current_user;
 	if ( isset($bb_current_user->data->bozo_topics) && $bb_current_user->data->bozo_topics )
@@ -309,6 +314,7 @@ add_action( 'bb_new_post', 'bb_bozo_new_post', 5 );
 add_action( 'bb_delete_post', 'bb_bozo_delete_post', 5, 3 );
 
 add_action( 'pre_permalink', 'bb_bozo_pre_permalink' );
+add_action( 'post_permalink', 'bb_bozo_post_permalink' );
 add_action( 'bb_index.php_pre_db', 'bb_bozo_latest_filter' );
 add_action( 'bb_forum.php_pre_db', 'bb_bozo_latest_filter' );
 add_action( 'bb_topic.php_pre_db', 'bb_bozo_topic_db_filter' );
