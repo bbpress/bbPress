@@ -39,6 +39,11 @@ function bb_add_topic_tags( $topic_id, $tags ) {
 	$tt_ids = $wp_taxonomy_object->set_object_terms( $topic->topic_id, $tags, 'bb_topic_tag', array( 'append' => true, 'user_id' => $user_id ) );
 
 	if ( is_array($tt_ids) ) {
+		global $bbdb;
+		$bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->topics SET tag_count = tag_count + %d WHERE topic_id = %d", count( $tt_ids ), $topic->topic_id
+		) );
+		wp_cache_delete( $topic->topic_id, 'bb_topic' );
 		foreach ( $tt_ids as $tt_id )
 			do_action('bb_tag_added', $tt_id, $user_id, $topic_id);
 		return $tt_ids;
@@ -96,10 +101,17 @@ function bb_remove_topic_tag( $tt_id, $user_id, $topic_id ) {
 
 	unset($current_tag_ids[$pos]);
 
-	$return = $wp_taxonomy_object->set_object_terms( $topic_id, array_values($current_tag_ids), 'bb_topic_tag', array( 'user_id' => $user_id ) );
-	if ( is_wp_error( $return ) )
+	$tt_ids = $wp_taxonomy_object->set_object_terms( $topic_id, array_values($current_tag_ids), 'bb_topic_tag', array( 'user_id' => $user_id ) );
+	if ( is_array( $tt_ids ) ) {
+		global $bbdb;
+		$bbdb->query( $bbdb->prepare(
+			"UPDATE $bbdb->topics SET tag_count = %d WHERE topic_id = %d", count( $tt_ids ), $topic_id
+		) );
+		wp_cache_delete( $topic_id, 'bb_topic' );
+	} elseif ( is_wp_error( $tt_ids ) ) {
 		return false;
-	return $return;
+	}
+	return $tt_ids;
 }
 
 /**
@@ -117,6 +129,13 @@ function bb_remove_topic_tags( $topic_id ) {
 	do_action( 'bb_pre_remove_topic_tags', $topic_id );
 
 	$wp_taxonomy_object->delete_object_term_relationships( $topic_id, 'bb_topic_tag' );
+
+	global $bbdb;
+	$bbdb->query( $bbdb->prepare(
+		"UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = %d", $topic_id
+	) );
+	wp_cache_delete( $topic_id, 'bb_topic' );
+
 	return true;
 }
 
@@ -134,10 +153,22 @@ function bb_destroy_tag( $tt_id, $recount_topics = true ) {
 	if ( !$tag = bb_get_tag( $tt_id ) )
 		return false;
 
+	$topic_ids = bb_get_tagged_topic_ids( $tag->term_id );
+
 	$return = $wp_taxonomy_object->delete_term( $tag->term_id, 'bb_topic_tag' );
 
 	if ( is_wp_error($return) )
 		return false;
+
+	if ( !is_wp_error( $topic_ids ) && is_array( $topic_ids ) ) {
+		global $bbdb;
+		$bbdb->query(
+			"UPDATE $bbdb->topics SET tag_count = tag_count - 1 WHERE topic_id IN (" . join( ',', $topic_ids ) . ")"
+		);
+		foreach ( $topic_ids as $topic_id ) {
+			wp_cache_delete( $topic_id, 'bb_topic' );
+		}
+	}
 
 	return $return;
 }

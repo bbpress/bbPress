@@ -80,22 +80,30 @@ if ( isset($_POST['topics-replied']) && 1 == $_POST['topics-replied'] ) :
 	echo "\n\t</li>\n";
 endif;
 
-if ( isset($_POST['topic-tag-count']) && 1 == $_POST['topic-tag-count'] ) :
+if ( isset($_POST['topic-tag-count']) && 1 == $_POST['topic-tag-count'] ) {
+	// Reset tag count to zero
+	$bbdb->query( "UPDATE $bbdb->topics SET tag_count = 0" );
+
+	// Get all tags
+	$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag' );
+
 	echo "\t<li>\n";
-	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(DISTINCT tag_id) AS count FROM $bbdb->tagged GROUP BY topic_id") ) :
+	if ( !is_wp_error( $terms ) && is_array( $terms ) ) {
 		echo "\t\t" . __('Counting topic tags...') . "<br />\n";
-		$topic_col = array_flip( (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topics") );
-		foreach ( $topics as $topic ) {
-			$bbdb->query("UPDATE $bbdb->topics SET tag_count = '$topic->count' WHERE topic_id = '$topic->topic_id'");
-			unset($topic_col[$topic->topic_id]);
+		foreach ( $terms as $term ) {
+			$topic_ids = bb_get_tagged_topic_ids( $term->term_id );
+			if ( !is_wp_error( $topic_ids ) && is_array( $topic_ids ) ) {
+				$bbdb->query(
+					"UPDATE $bbdb->topics SET tag_count = tag_count + 1 WHERE topic_id IN (" . join( ',', $topic_ids ) . ")"
+				);
+			}
+			unset( $topic_ids );
 		}
-		foreach ( $topic_col as $id => $i )
-			$bbdb->query("UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = '$id'");
-		unset($topics, $topic, $topic_col, $id, $i);
-	endif;
+	}
+	unset( $terms );
 	echo "\t\t" . __('Done counting topic tags.');
 	echo "\n\t</li>\n";
-endif;
+}
 
 if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 	echo "\t<li>\n";
