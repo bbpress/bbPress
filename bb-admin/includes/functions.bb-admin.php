@@ -1001,7 +1001,11 @@ function bb_get_plugin_data($plugin_file) {
 			$plugin_file
 		);
 	}
-	$plugin_data = implode('', file($plugin_file));
+	$plugin_code = implode('', file($plugin_file));
+	// Grab just the first commented area from the file
+	if ( !preg_match( '|/\*(.*)\*/|msU', $plugin_code, $plugin_block ) )
+		return false;
+	$plugin_data = trim( $plugin_block[1] );
 	if ( !preg_match("|Plugin Name:(.*)|i", $plugin_data, $plugin_name) )
 		return false;
 	preg_match("|Plugin URI:(.*)|i", $plugin_data, $plugin_uri);
@@ -1104,8 +1108,11 @@ function bb_get_current_theme_data( $property = 'all' ) {
 function bb_get_theme_data( $theme_file ) {
 	if ( strpos($theme_file, '#') !== false )
 		$theme_file = bb_get_theme_directory( $theme_file ) . 'style.css';
-	$theme_data = implode( '', file( $theme_file ) );
-	$theme_data = str_replace ( '\r', '\n', $theme_data ); 
+	$theme_code = implode( '', file( $theme_file ) );
+	$theme_code = str_replace ( '\r', '\n', $theme_code );
+	// Grab just the first commented area from the file
+	preg_match( '|/\*(.*)\*/|msU', $theme_code, $theme_block );
+	$theme_data = trim( $theme_block[1] );
 	preg_match( '|Theme Name:(.*)|i', $theme_data, $theme_name );
 	preg_match( '|Theme URI:(.*)|i', $theme_data, $theme_uri );
 	preg_match( '|Description:(.*)|i', $theme_data, $description );
