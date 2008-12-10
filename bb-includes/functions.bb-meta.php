@@ -172,7 +172,8 @@ function bb_cache_all_options() { // Don't use the return value; use the API.  O
 		'wp_plugins_cookie_path' => '',
 		'enable_xmlrpc' => 0,
 		'enable_pingback' => 0,
-		'throttle_time' => 30
+		'throttle_time' => 30,
+		'bb_xmlrpc_allow_user_switching' => false
 	);
 	
 	foreach ( $base_options as $base_option => $base_option_default )
