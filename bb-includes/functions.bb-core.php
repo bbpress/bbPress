@@ -582,7 +582,7 @@ function bb_repermalink() {
 	$bb_log->debug($_SERVER['PATH_INFO'], 'bb_repermalink() ' . __('PATH_INFO'));
 
 	if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
-		if ( $issue_404 ) {
+		if ( $issue_404 && rtrim( $check, '/' ) !== rtrim( $uri, '/' ) ) {
 			status_header( 404 );
 			bb_load_template( '404.php' );
 		} else {
