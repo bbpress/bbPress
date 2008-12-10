@@ -528,7 +528,7 @@ class BB_Query {
 			elseif ( $q['topic'] ) :
 				if ( !$q['topic_id'] = bb_get_id_from_slug( 'topic', $q['topic'] ) )
 					$this->error( 'query_var:topic', 'No topic by that name' );
-				$where .= " AND p.topic_id = $q[topic_id]";
+				$where .= " AND p.topic_id = " . $q['topic_id'];
 			endif;
 
 			if ( $q['forum_id'] ) :
@@ -536,7 +536,7 @@ class BB_Query {
 			elseif ( $q['forum'] ) :
 				if ( !$q['forum_id'] = bb_get_id_from_slug( 'forum', $q['forum'] ) )
 					$this->error( 'query_var:forum', 'No forum by that name' );
-				$where .= " AND p.forum_id = $q[forum_id]";
+				$where .= " AND p.forum_id = " . $q['forum_id'];
 			endif;
 
 			if ( $q['tag'] && !is_int($q['tag_id']) )
