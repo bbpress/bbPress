@@ -284,7 +284,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 				bb_remove_topic_tags( $topic_id );
 				$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status, 'tag_count' => 0 ), compact( 'topic_id' ) );
 				$bbdb->query( $bbdb->prepare(
-					"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->posts, $topic->forum_id
+					"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->topic_posts, $topic->forum_id
 				) );
 				break;
 		}
