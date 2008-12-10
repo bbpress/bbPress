@@ -251,6 +251,8 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			_bb_delete_post( $post->post_id, $new_status );
 			$poster_ids[] = $post->poster_id;
 		}
+		if ( 0 != $old_status && 0 == $new_status )
+			remove_filter('get_thread_where', 'no_where');
 
 		foreach ( array_unique( $poster_ids ) as $id )
 			if ( $user = bb_get_user( $id ) )
@@ -260,29 +262,33 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			foreach ( $ids as $id )
 				bb_remove_user_favorite( $id, $topic_id );
 
-		if ( $new_status ) {
-			bb_remove_topic_tags( $topic_id );
-			$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status, 'tag_count' => 0 ), compact( 'topic_id' ) );
-			$bbdb->query( $bbdb->prepare(
-				"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->topic->posts, $topic->forum_id
-			) );
-		} else {
-			$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status ), compact( 'topic_id' ) );
-			$topic_posts = (int) $bbdb->get_var( $bbdb->prepare(
-				"SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0", $topic_id
-			) );
-			$all_posts = (int) $bbdb->get_var( $bbdb->prepare(
-				"SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d", $topic_id
-			) );
-			bb_update_topicmeta( $topic_id, 'deleted_posts', $all_posts - $topic_posts );
-			$bbdb->query( $bbdb->prepare(
-				"UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + %d WHERE forum_id = %d", $topic_posts, $topic->forum_id
-			) );
-			$bbdb->update( $bbdb->topics, compact( 'topic_posts' ), compact( 'topic_id' ) );
-			bb_topic_set_last_post( $topic_id );
-			update_post_positions( $topic_id );
+		switch ( $new_status ) {
+			case 0: // Undeleting
+				$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status ), compact( 'topic_id' ) );
+				$topic_posts = (int) $bbdb->get_var( $bbdb->prepare(
+					"SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0", $topic_id
+				) );
+				$all_posts = (int) $bbdb->get_var( $bbdb->prepare(
+					"SELECT COUNT(*) FROM $bbdb->posts WHERE topic_id = %d", $topic_id
+				) );
+				bb_update_topicmeta( $topic_id, 'deleted_posts', $all_posts - $topic_posts );
+				$bbdb->query( $bbdb->prepare(
+					"UPDATE $bbdb->forums SET topics = topics + 1, posts = posts + %d WHERE forum_id = %d", $topic_posts, $topic->forum_id
+				) );
+				$bbdb->update( $bbdb->topics, compact( 'topic_posts' ), compact( 'topic_id' ) );
+				bb_topic_set_last_post( $topic_id );
+				update_post_positions( $topic_id );
+				break;
+
+			default: // Other statuses (like Delete and Bozo)
+				bb_remove_topic_tags( $topic_id );
+				$bbdb->update( $bbdb->topics, array( 'topic_status' => $new_status, 'tag_count' => 0 ), compact( 'topic_id' ) );
+				$bbdb->query( $bbdb->prepare(
+					"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->posts, $topic->forum_id
+				) );
+				break;
 		}
-			
+
 		do_action( 'bb_delete_topic', $topic_id, $new_status, $old_status );
 		wp_cache_delete( $topic_id, 'bb_topic' );
 		wp_cache_delete( $topic->topic_slug, 'bb_topic_slug' );
