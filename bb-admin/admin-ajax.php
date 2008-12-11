@@ -106,17 +106,15 @@ case 'delete-post' : // $id is post_id
 
 	bb_check_ajax_referer( "delete-post_$id" );
 
-	$page = (int) $_POST['page'];
-	$last_mod = (int) $_POST['last_mod'];
+	$status = (int) $_POST['status'];
 
-	$bb_post = bb_get_post( $id );
-
-	if ( !$bb_post )
+	if ( !$bb_post = bb_get_post( $id ) )
 		die('0');
 
-	$topic = get_topic( $bb_post->topic_id );
+	if ( $status == $bb_post->post_status )
+		die('1'); // We're already there
 
-	if ( bb_delete_post( $id, 1 ) )
+	if ( bb_delete_post( $id, $status ) )
 		die('1');
 	break;
 /*

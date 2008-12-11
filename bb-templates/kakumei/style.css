@@ -407,7 +407,8 @@ a.next.page-numbers:hover {
 
 #thread li.alt.deleted .threadpost { background-color: #ff9999; }
 
-
+#thread li .undelete-post, #thread li.deleted .delete-post { display: none; }
+#thread li.deleted .undelete-post { display: inline; }
 
 #thread li.pingback {
 	margin-left: 140px;

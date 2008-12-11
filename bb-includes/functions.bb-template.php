@@ -1576,16 +1576,27 @@ function bb_get_post_delete_link( $post_id = 0 ) {
 	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
 		return;
 
-	if ( 1 == $bb_post->post_status ) {
-		$query = array('id' => $bb_post->post_id, 'status' => 0, 'view' => 'all');
-		$display = __('Undelete');
-	} else {
-		$query = array('id' => $bb_post->post_id, 'status' => 1);
-		$display = __('Delete');
-	}
-	$uri = bb_get_uri('bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = attribute_escape( bb_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
-	$r = '<a href="' . $uri . '" class="delete:thread:post-' . $bb_post->post_id . '">' . $display . '</a>';
+	$undelete_uri = bb_get_uri('bb-admin/delete-post.php', array(
+		'id' => $bb_post->post_id,
+		'status' => 0,
+		'view' => 'all'
+	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$undelete_uri = clean_url( bb_nonce_url( $undelete_uri, 'delete-post_' . $bb_post->post_id ) );
+
+	$delete_uri = bb_get_uri('bb-admin/delete-post.php', array(
+		'id' => $bb_post->post_id,
+		'status' => 1
+	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$delete_uri = clean_url( bb_nonce_url( $delete_uri, 'delete-post_' . $bb_post->post_id ) );
+
+	$ajax_undelete_class = "dim:thread:post-{$bb_post->post_id}:deleted:FF3333:FFFF33:action=delete-post&amp;status=0";
+
+	if ( isset($_GET['view']) && 'all' == $_GET['view'] )
+		$ajax_delete_class = "dim:thread:post-{$bb_post->post_id}:deleted:FF3333:FFFF33:action=delete-post&amp;status=1";
+	else
+		$ajax_delete_class = "delete:thread:post-{$bb_post->post_id}::status=1";
+
+	$r = "<a href='$delete_uri' class='$ajax_delete_class delete-post'>" . __( 'Delete' ) . "</a> <a href='$undelete_uri' class='$ajax_undelete_class undelete-post'>" . __( 'Undelete' ). '</a>';
 	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
 	return $r;
 }
