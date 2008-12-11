@@ -206,7 +206,7 @@ define('BB_URI_CONTEXT_LINK_STYLESHEET_HREF', 32);
 define('BB_URI_CONTEXT_LINK_ALTERNATE_HREF',  64);
 define('BB_URI_CONTEXT_LINK_OTHER',           128);
 define('BB_URI_CONTEXT_SCRIPT_SRC',           256);
-//define('BB_URI_CONTEXT_*',                    512);    // Reserved for future definitions
+define('BB_URI_CONTEXT_IFRAME_SRC',           512);
 define('BB_URI_CONTEXT_BB_FEED',              1024);
 define('BB_URI_CONTEXT_BB_USER_FORMS',        2048);
 define('BB_URI_CONTEXT_BB_ADMIN',             4096);

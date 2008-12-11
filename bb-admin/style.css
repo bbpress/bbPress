@@ -350,6 +350,14 @@ div.error {
 	border-color: #c00;
 }
 
+iframe.error {
+	margin: 0 0 1em 0;
+	height: 70px;
+	width: 100%;
+	background-color: #ffebe8;
+	border: 0.1em dotted #c00;
+}
+
 div.updated p,
 div.error p {
 	line-height: 1.1em;

@@ -14,9 +14,11 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 
 require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
-if ( isset($_GET['plugin']) )
+$bb_admin_page = bb_find_filename( $_SERVER['PHP_SELF'] );
+
+if ( $bb_admin_page == 'admin-base.php' ) {
 	$bb_admin_page = $_GET['plugin'];
-else	$bb_admin_page = bb_find_filename($_SERVER['PHP_SELF']);
+}
 
 bb_admin_menu_generator();
 bb_get_current_admin_menu();
