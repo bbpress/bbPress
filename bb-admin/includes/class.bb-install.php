@@ -271,7 +271,7 @@ class BB_Install
 			}
 		}
 		
-		if (defined('DB_NAME') && defined('WP_BB') && WP_BB) {
+		if (defined('DB_NAME')) {
 			$this->strings[-1]['messages']['error'][] = __('Please complete your installation before attempting to include WordPress within bbPress');
 			$this->step = -1;
 		}
