@@ -317,6 +317,7 @@ if ( !isset( $wp_object_cache ) && function_exists( 'wp_cache_init' ) )
  * Load mapping class for BackPress to store options
  */
 require_once( BB_PATH . BB_INC . 'class.bp-options.php' );
+require_once( BACKPRESS_PATH . 'functions.bp-options.php' );
 
 
 
