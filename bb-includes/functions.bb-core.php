@@ -884,9 +884,31 @@ function bb_install_footer() {
 
 function bb_die( $message, $title = '', $header = 0 ) {
 	global $bb_locale;
-	
+
 	if ( $header && !headers_sent() )
 		status_header( $header );
+
+	if ( function_exists( 'is_wp_error' ) && is_wp_error( $message ) ) {
+		if ( empty( $title ) ) {
+			$error_data = $message->get_error_data();
+			if ( is_array( $error_data ) && isset( $error_data['title'] ) )
+				$title = $error_data['title'];
+		}
+		$errors = $message->get_error_messages();
+		switch ( count( $errors ) ) :
+		case 0 :
+			$message = '';
+			break;
+		case 1 :
+			$message = "<p>{$errors[0]}</p>";
+			break;
+		default :
+			$message = "<ul>\n\t\t<li>" . join( "</li>\n\t\t<li>", $errors ) . "</li>\n\t</ul>";
+			break;
+		endswitch;
+	} elseif ( is_string( $message ) ) {
+		$message = "<p>$message</p>";
+	}
 
 	if ( empty($title) )
 		$title = __('bbPress &rsaquo; Error');
@@ -1033,6 +1055,27 @@ function bb_get_plugin_uri( $plugin = false ) {
 		$plugin_uri = dirname($plugin_uri) . '/';
 	}
 	return apply_filters( 'bb_get_plugin_uri', $plugin_uri, $plugin );
+}
+
+function bb_get_plugin_directory( $plugin = false, $path = false ) {
+	if ( !$plugin ) {
+		$plugin_directory = BB_PLUGIN_DIR;
+	} else {
+		$plugin_directory = str_replace(
+			array('core#', 'user#'),
+			array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
+			$plugin
+		);
+		if ( !$path ) {
+			$plugin_directory = dirname($plugin_directory) . '/';
+		}
+	}
+	return apply_filters( 'bb_get_plugin_directory', $plugin_directory, $plugin, $path );
+}
+
+function bb_get_plugin_path( $plugin = false ) {
+	$plugin_path = bb_get_plugin_directory( $plugin, true );
+	return apply_filters( 'bb_get_plugin_path', $plugin_path, $plugin );
 }
 
 /* Themes / Templates */
