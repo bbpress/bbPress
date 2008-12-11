@@ -84,7 +84,7 @@ if ( !empty( $action ) ) {
 if ( isset($_GET['message']) ) {
 	switch ( $_GET['message'] ) {
 		case 'error' :
-			bb_admin_notice( __( 'Plugin could not be activated; it produced a <strong>Fatal Error</strong>. The error produced by the plugin is printed below.' ), 'error' );
+			bb_admin_notice( __( 'Plugin could not be activated, it produced a <strong>Fatal Error</strong>. The error is shown below.' ), 'error' );
 			break;
 		case 'activate' :
 			$plugin_data = bb_get_plugin_data( $plugin );
