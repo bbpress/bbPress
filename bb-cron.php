@@ -21,7 +21,7 @@ define('DOING_CRON', true);
 /** Setup bbPress environment */
 require_once('./bb-load.php');
 
-if ( $_GET['check'] != BP_Options::get('cron_check') )
+if ( $_GET['check'] != backpress_get_option('cron_check') )
 	exit;
 
 if ( bb_get_option('doing_cron') > time() )
