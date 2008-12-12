@@ -266,7 +266,7 @@ function bb_deactivate_plugins( $plugins, $silent = false ) {
 		}
 	}
 
-	bb_update_option('active_plugins', $current);
+	bb_update_option( 'active_plugins', $active_plugins );
 }
 
 /**
