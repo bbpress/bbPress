@@ -38,10 +38,10 @@ function bb_current_user_can($capability) {
  *
  * @since 0.7.2
  *
- * @param WP_User $user User object to give default role to
+ * @param BP_User $user User object to give default role to
  */
 function bb_give_user_default_role( $user ) {
-	if ( !( is_object($user) && is_a($user, 'WP_User') ) )
+	if ( !( is_object($user) && is_a($user, 'BP_User') ) )
 		return;
 	$user->set_role('member');
 }

@@ -634,7 +634,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	if ( $viewer_id == bb_get_current_user_info( 'id' ) )
 		$viewer =& $bb_current_user;
 	else
-		$viewer = new WP_User( $viewer_id );
+		$viewer = new BP_User( $viewer_id );
 	if ( !$viewer )
 		return '' === $profile_tab[2];
 

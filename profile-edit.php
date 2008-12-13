@@ -78,7 +78,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		}
 
 		// Get the user object
-		$user_obj = new WP_User( $user->ID );
+		$user_obj = new BP_User( $user->ID );
 
 		// Store the new role
 		$role = $_POST['role'];

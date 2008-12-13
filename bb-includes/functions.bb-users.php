@@ -78,10 +78,10 @@ function bb_trusted_roles() {
 
 function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
 	if ( is_numeric($user) || is_string($user) )
-		$user = new WP_User( $user );
-	elseif ( is_object($user) && is_a($user, 'WP_User') ); // Intentional
+		$user = new BP_User( $user );
+	elseif ( is_object($user) && is_a($user, 'BP_User') ); // Intentional
 	elseif ( is_object($user) && isset($user->ID) && isset($user->user_login) ) // Make sure it's actually a user object
-		$user = new WP_User( $user->ID );
+		$user = new BP_User( $user->ID );
 	else
 		return;
 

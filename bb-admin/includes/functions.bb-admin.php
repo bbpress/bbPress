@@ -407,7 +407,7 @@ class BB_User_Search {
 		$r = '';
 		// Make the user objects
 		foreach ( $this->get_results() as $user_id ) {
-			$tmp_user = new WP_User($user_id);
+			$tmp_user = new BP_User($user_id);
 			$roles = $tmp_user->roles;
 			$role = array_shift($roles);
 			$roleclasses[$role][$tmp_user->data->user_login] = $tmp_user;

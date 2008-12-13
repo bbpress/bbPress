@@ -125,7 +125,7 @@ function bb_reset_password( $key ) {
 		return new WP_Error('key_not_found', __('Key not found.'));
 	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )
 		return new WP_Error('key_not_found', __('Key not found.'));
-	if ( $user = new WP_User( $user_id ) ) {
+	if ( $user = new BP_User( $user_id ) ) {
 		if ( bb_has_broken_pass( $user->ID ) )
 			bb_block_current_user();
 		if ( !$user->has_cap( 'change_user_password', $user->ID ) )

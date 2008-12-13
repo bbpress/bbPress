@@ -17,7 +17,7 @@ class BP_Options
 				return bb_get_uri('bb-cron.php', array('check' => BP_Options::get('cron_check')), BB_URI_CONTEXT_WP_HTTP_REQUEST);
 				break;
 			case 'cron_check':
-				return wp_hash('187425');
+				return bb_hash('187425');
 				break;
 			case 'charset':
 				return bb_get_option($option);
@@ -26,7 +26,7 @@ class BP_Options
 				return 'bbPress/' . bb_get_option('version');
 				break;
 			case 'hash_function_name':
-				return 'wp_hash';
+				return 'bb_hash';
 				break;
 			default:
 				return bb_get_option(BP_Options::prefix() . $option);

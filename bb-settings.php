@@ -159,6 +159,18 @@ if ( !defined( 'BB_INSTALLING' ) )
 
 
 /**
+ * Remove filters and action that have been set by an included WordPress install
+ */
+if ( defined( 'ABSPATH' ) ) {
+	$wp_filter = array();
+	$wp_actions = array();
+	$merged_filters = array();
+	$wp_current_filter = array();
+}
+
+
+
+/**
  * Define include paths and load core BackPress libraries
  */
 
@@ -732,9 +744,9 @@ if ( !class_exists( 'BP_Roles' ) )
  */
 $wp_roles = new BP_Roles( $bbdb );
 
-// WP_User
-if ( !class_exists( 'WP_User' ) )
-	require_once( BACKPRESS_PATH . 'class.wp-user.php' );
+// BP_User
+if ( !class_exists( 'BP_User' ) )
+	require_once( BACKPRESS_PATH . 'class.bp-user.php' );
 
 // WP_Auth
 if ( !class_exists( 'WP_Auth' ) ) {
@@ -843,16 +855,21 @@ if ( !class_exists( 'WP_Auth' ) ) {
 $bb_current_user =& $wp_auth_object->current;
 
 // WP_Scripts/WP_Styles
-if ( !class_exists( 'WP_Dependencies' ) )
+if ( !class_exists( 'WP_Dependencies' ) ) {
 	require_once( BACKPRESS_PATH . 'class.wp-dependencies.php' );
+}
+
 if ( !class_exists( 'WP_Scripts' ) ) {
 	require_once( BACKPRESS_PATH . 'class.wp-scripts.php' );
 	require_once( BACKPRESS_PATH . 'functions.wp-scripts.php' );
 }
+
 if ( !class_exists( 'WP_Styles' ) ) {
 	require_once( BACKPRESS_PATH . 'class.wp-styles.php' );
 	require_once( BACKPRESS_PATH . 'functions.wp-styles.php' );
 }
+
+
 
 // WP_Taxonomy
 if ( !class_exists( 'WP_Taxonomy' ) )

@@ -834,17 +834,81 @@ class BB_Cache {
 }
 
 function new_topic( $args = null ) {
-	bb_log_deprecated('function', __FUNCTION__, 'bb_new_topic_link');
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_new_topic_link' );
 	bb_new_topic_link( $args );
 }
 
 function bb_upgrade_1060() {
-	bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'no alternative');
+	bb_log_deprecated( 'function', __FUNCTION__, 'no alternative' );
 }
 
-if ( !function_exists( 'paginate_links' ) ) : // Deprecated in bbPress not WordPress - use bb_paginate_links()
+if ( !function_exists( 'paginate_links' ) ) : // Deprecated in bbPress not WordPress
 function paginate_links( $args = '' ) {
 	bb_log_deprecated( 'function', __FUNCTION__, 'bb_paginate_links' );
 	return bb_paginate_links( $args );
+}
+endif;
+
+if ( !function_exists('wp_clear_auth_cookie') ) : // Deprecated in bbPress not WordPress
+function wp_clear_auth_cookie() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_clear_auth_cookie' );
+	bb_clear_auth_cookie();
+}
+endif;
+
+if ( !function_exists( 'wp_validate_auth_cookie' ) ) : // Deprecated in bbPress not WordPress
+function wp_validate_auth_cookie( $cookie = '', $scheme = 'auth' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_validate_auth_cookie' );
+	return bb_validate_auth_cookie( $cookie, $scheme );
+}
+endif;
+
+if ( !function_exists( 'wp_set_auth_cookie' ) ) : // Deprecated in bbPress not WordPress
+function wp_set_auth_cookie( $user_id, $remember = false, $secure = '' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_set_auth_cookie' );
+	bb_set_auth_cookie( $user_id, $remember, $secure );
+}
+endif;
+
+if ( !function_exists( 'wp_salt' ) ) : // Deprecated in bbPress not WordPress
+function wp_salt( $scheme = 'auth' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_salt' );
+	return bb_salt( $scheme );
+}
+endif;
+
+if ( !function_exists( 'wp_hash' ) ) : // Deprecated in bbPress not WordPress
+function wp_hash( $data, $scheme = 'auth' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_hash' );
+	return bb_hash( $data, $scheme );
+}
+endif;
+
+if ( !function_exists( 'wp_hash_password' ) ) : // Deprecated in bbPress not WordPress
+function wp_hash_password( $password ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_hash_password' );
+	return bb_hash_password( $password );
+}
+endif;
+
+if ( !function_exists( 'wp_check_password') ) : // Deprecated in bbPress not WordPress
+function wp_check_password( $password, $hash, $user_id = '' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_check_password' );
+	return bb_check_password( $password, $hash, $user_id );
+}
+endif;
+
+if ( !function_exists( 'wp_generate_password' ) ) : // Deprecated in bbPress not WordPress
+function wp_generate_password( $length = 12, $special_chars = true ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_generate_password' );
+	return bb_generate_password( $length, $special_chars );
+}
+endif;
+
+if ( !class_exists( 'WP_User' ) ) : // Deprecated in BackPress not WordPress
+class WP_User extends BP_User {
+	function WP_User( $id, $name = '' ) {
+		return parent::BP_User( $id, $name );
+	}
 }
 endif;
