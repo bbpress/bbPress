@@ -420,14 +420,8 @@ require_once( BB_PATH . BB_INC . 'functions.bb-formatting.php' );
 require_once( BB_PATH . BB_INC . 'functions.bb-template.php' );
 require_once( BB_PATH . BB_INC . 'functions.bb-capabilities.php' );
 require_once( BB_PATH . BB_INC . 'class.bb-pingbacks.php' );
-require_once( BB_PATH . BB_INC . 'functions.bb-deprecated.php' );
 
 
-
-/**
- * Old cache global object for backwards compatibility
- */
-$bb_cache = new BB_Cache();
 
 // Cache options from the database
 if ( $bb->load_options ) {
@@ -923,6 +917,16 @@ foreach ( $deprecated_constants as $old => $new )
 	if ( !defined($old) )
 		define($old, $new);
 unset($deprecated_constants, $old, $new);
+
+/**
+ * Load deprecated functions
+ */
+require_once( BB_PATH . BB_INC . 'functions.bb-deprecated.php' );
+
+/**
+ * Old cache global object for backwards compatibility
+ */
+$bb_cache = new BB_Cache();
 
 
 
