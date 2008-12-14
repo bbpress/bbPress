@@ -135,8 +135,6 @@ add_action('do_pingbacks', array('BB_Pingbacks', 'send_all'), 10, 1);
 
 add_action( 'bb_init', 'bb_register_default_views' );
 
-if ( bb_get_option( 'wp_table_prefix' ) ) {
-	add_action( 'bb_user_login', 'bb_apply_wp_role_map_to_user' );
-}
+add_action( 'set_current_user', 'bb_apply_wp_role_map_to_user' );
 
 unset($filters);

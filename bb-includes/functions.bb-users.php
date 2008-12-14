@@ -92,20 +92,32 @@ function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
 }
 
 function bb_apply_wp_role_map_to_user( $user ) {
-	if ( is_numeric($user) || is_string($user) ) {
-		$user_id = (integer) $user;
-	} elseif ( is_object($user) ) {
-		$user_id = $user->ID;
-	} else {
+	// Expects only user ids
+	if ( !is_numeric( $user ) ) {
 		return;
 	}
-	
-	if ( $wordpress_roles_map = bb_get_option('wp_roles_map') ) {
-		
-		global $bbdb;
-		global $wp_roles;
-		global $bb;
-		
+
+	$user = (int) $user;
+
+	if ( !$wordpress_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
+		return;
+	}
+
+	if ( $wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
+		$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
+	}
+
+	if ( !$wordpress_roles_map = bb_get_option( 'wp_roles_map' ) ) {
+		return;
+	}
+
+	global $bbdb;
+	global $wp_roles;
+	global $bb;
+
+	static $bbpress_roles_map = false;
+
+	if ( !$bbpress_roles_map ) {
 		$bbpress_roles_map = array();
 		foreach ( $wp_roles->get_names() as $_bbpress_role => $_bbpress_rolename ) {
 			$bbpress_roles_map[$_bbpress_role] = 'subscriber';
@@ -113,91 +125,85 @@ function bb_apply_wp_role_map_to_user( $user ) {
 		unset( $_bbpress_role, $_bbpress_rolename );
 		$bbpress_roles_map = array_merge( $bbpress_roles_map, array_flip( $wordpress_roles_map ) );
 		unset( $bbpress_roles_map['inactive'], $bbpress_roles_map['blocked'] );
-		
-		$wordpress_userlevel_map = array(
-			'administrator' => 10,
-			'editor' => 7,
-			'author' => 2,
-			'contributor' => 1,
-			'subscriber' => 0
-		);
-		
-		$bbpress_roles = bb_get_usermeta($user_id, $bbdb->prefix . 'capabilities');
-		
-		$wordpress_table_prefix = bb_get_option('wp_table_prefix');
-		if ( $wordpress_mu_primary_blog_id = bb_get_option('wordpress_mu_primary_blog_id') ) {
-			$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
+	}
+
+	static $wordpress_userlevel_map = array(
+		'administrator' => 10,
+		'editor' => 7,
+		'author' => 2,
+		'contributor' => 1,
+		'subscriber' => 0
+	);
+
+	$bbpress_roles = bb_get_usermeta( $user_id, $bbdb->prefix . 'capabilities' );
+	$wordpress_roles = bb_get_usermeta( $user_id, $wordpress_table_prefix . 'capabilities' );
+
+	if ( !$bbpress_roles && is_array( $wordpress_roles ) ) {
+		$bbpress_roles_new = array();
+
+		foreach ( $wordpress_roles as $wordpress_role => $wordpress_role_value ) {
+			if ( $wordpress_roles_map[strtolower( $wordpress_role )] && $wordpress_role_value ) {
+				$bbpress_roles_new[$wordpress_roles_map[strtolower( $wordpress_role )]] = true;
+			}
 		}
-		
-		$wordpress_roles = bb_get_usermeta($user_id, $wordpress_table_prefix . 'capabilities');
-		
-		if (!$bbpress_roles && is_array($wordpress_roles)) {
-			$bbpress_roles_new = array();
-			
-			foreach ($wordpress_roles as $wordpress_role => $wordpress_role_value) {
-				if ($wordpress_roles_map[strtolower($wordpress_role)] && $wordpress_role_value) {
-					$bbpress_roles_new[$wordpress_roles_map[strtolower($wordpress_role)]] = true;
-				}
+
+		if ( count( $bbpress_roles_new ) ) {
+			bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', $bbpress_roles_new );
+		}
+	} elseif ( !$wordpress_roles && is_array( $bbpress_roles ) ) {
+		$wordpress_roles_new = array();
+
+		foreach ( $bbpress_roles as $bbpress_role => $bbpress_role_value ) {
+			if ( $bbpress_roles_map[strtolower( $bbpress_role )] && $bbpress_role_value ) {
+				$wordpress_roles_new[$bbpress_roles_map[strtolower( $bbpress_role )]] = true;
+				$wordpress_userlevels_new[] = $wordpress_userlevel_map[$bbpress_roles_map[strtolower( $bbpress_role )]];
 			}
-			
-			if (count($bbpress_roles_new)) {
-				bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', $bbpress_roles_new );
-			}
-			
-		} elseif (!$wordpress_roles && is_array($bbpress_roles)) {
-			$wordpress_roles_new = array();
-			
-			foreach ($bbpress_roles as $bbpress_role => $bbpress_role_value) {
-				if ($bbpress_roles_map[strtolower($bbpress_role)] && $bbpress_role_value) {
-					$wordpress_roles_new[$bbpress_roles_map[strtolower($bbpress_role)]] = true;
-					$wordpress_userlevels_new[] = $wordpress_userlevel_map[$bbpress_roles_map[strtolower($bbpress_role)]];
-				}
-			}
-			
-			if (count($wordpress_roles_new)) {
-				bb_update_usermeta( $user_id, $wordpress_table_prefix . 'capabilities', $wordpress_roles_new );
-				bb_update_usermeta( $user_id, $wordpress_table_prefix . 'user_level', max($wordpress_userlevels_new) );
-			}
+		}
+
+		if ( count( $wordpress_roles_new ) ) {
+			bb_update_usermeta( $user_id, $wordpress_table_prefix . 'capabilities', $wordpress_roles_new );
+			bb_update_usermeta( $user_id, $wordpress_table_prefix . 'user_level', max( $wordpress_userlevels_new ) );
 		}
 	}
 }
 
 function bb_apply_wp_role_map_to_orphans() {
-	if ( $wp_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
-		
-		if ( $wordpress_mu_primary_blog_id = bb_get_option('wordpress_mu_primary_blog_id') ) {
-			$wp_table_prefix .= $wordpress_mu_primary_blog_id . '_';
-		}
-		
-		$role_query = <<<EOQ
-			SELECT
-				ID
-			FROM
-				`%1\$s`
-			LEFT JOIN `%2\$s` AS bbrole
-				ON ID = bbrole.user_id
-				AND bbrole.meta_key = '%3\$scapabilities'
-			LEFT JOIN `%2\$s` AS wprole
-				ON ID = wprole.user_id
-				AND wprole.meta_key = '%4\$scapabilities'
-			WHERE
-				bbrole.meta_key IS NULL OR
-				bbrole.meta_value IS NULL OR
-				wprole.meta_key IS NULL OR
-				wprole.meta_value IS NULL
-			ORDER BY
-				ID
+	if ( !$wp_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
+		return;
+	}
+
+	if ( $wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
+		$wp_table_prefix .= $wordpress_mu_primary_blog_id . '_';
+	}
+
+	$role_query = <<<EOQ
+		SELECT
+			ID
+		FROM
+			`%1\$s`
+		LEFT JOIN `%2\$s` AS bbrole
+			ON ID = bbrole.user_id
+			AND bbrole.meta_key = '%3\$scapabilities'
+		LEFT JOIN `%2\$s` AS wprole
+			ON ID = wprole.user_id
+			AND wprole.meta_key = '%4\$scapabilities'
+		WHERE
+			bbrole.meta_key IS NULL OR
+			bbrole.meta_value IS NULL OR
+			wprole.meta_key IS NULL OR
+			wprole.meta_value IS NULL
+		ORDER BY
+			ID
 EOQ;
-		global $bbdb;
-		
-		$role_query = $bbdb->prepare($role_query, $bbdb->users, $bbdb->usermeta, $bbdb->prefix, $wp_table_prefix);
-		
-		if ( $user_ids = $bbdb->get_col($role_query) ) {
-			foreach ( $user_ids as $user_id ) {
-				bb_apply_wp_role_map_to_user( $user_id );
-			}
+
+	global $bbdb;
+
+	$role_query = $bbdb->prepare( $role_query, $bbdb->users, $bbdb->usermeta, $bbdb->prefix, $wp_table_prefix );
+
+	if ( $user_ids = $bbdb->get_col( $role_query ) ) {
+		foreach ( $user_ids as $user_id ) {
+			bb_apply_wp_role_map_to_user( $user_id );
 		}
-		
 	}
 }
 
