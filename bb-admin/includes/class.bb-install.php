@@ -946,7 +946,7 @@ class BB_Install
 			$uri = preg_replace('|/bb-admin/.*|i', '/', $schema . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
 		}
 		
-		return rtrim($uri, '/') . '/';
+		return rtrim($uri, " \t\n\r\0\x0B/") . '/';
 	}
 	
 	/**
@@ -1284,7 +1284,7 @@ class BB_Install
 				$data['toggle_2_1']['display'] = 'block';
 				
 				// Check the wp_siteurl URL for errors
-				$data['wp_siteurl']['value'] = $data['wp_siteurl']['value'] ? rtrim($data['wp_siteurl']['value'], '/') . '/' : '';
+				$data['wp_siteurl']['value'] = $data['wp_siteurl']['value'] ? rtrim($data['wp_siteurl']['value'], " \t\n\r\0\x0B/") . '/' : '';
 				$this->strings[2]['form_errors']['wp_siteurl'][] = empty($data['wp_siteurl']['value']) ? 'empty' : false;
 				if ($parsed = parse_url($data['wp_siteurl']['value'])) {
 					$this->strings[2]['form_errors']['wp_siteurl'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
@@ -1294,7 +1294,7 @@ class BB_Install
 				}
 				
 				// Check the wp_home URL for errors
-				$data['wp_home']['value'] = $data['wp_home']['value'] ? rtrim($data['wp_home']['value'], '/') . '/' : '';
+				$data['wp_home']['value'] = $data['wp_home']['value'] ? rtrim($data['wp_home']['value'], " \t\n\r\0\x0B/") . '/' : '';
 				$this->strings[2]['form_errors']['wp_home'][] = empty($data['wp_home']['value']) ? 'empty' : false;
 				if ($parsed = parse_url($data['wp_home']['value'])) {
 					$this->strings[2]['form_errors']['wp_home'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
@@ -1514,7 +1514,7 @@ class BB_Install
 		
 		$this->strings[3]['form_errors']['name'][] = empty($data['name']['value']) ? 'empty' : false;
 		
-		$data['uri']['value'] = $data['uri']['value'] ? rtrim($data['uri']['value'], '/') . '/' : '';
+		$data['uri']['value'] = $data['uri']['value'] ? rtrim($data['uri']['value'], " \t\n\r\0\x0B/") . '/' : '';
 		$this->strings[3]['form_errors']['uri'][] = empty($data['uri']['value']) ? 'empty' : false;
 		if ($parsed = parse_url($data['uri']['value'])) {
 			$this->strings[3]['form_errors']['uri'][] = preg_match('/https?/i', $parsed['scheme']) ? false : 'urlscheme';
