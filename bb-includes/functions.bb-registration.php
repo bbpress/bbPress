@@ -81,7 +81,7 @@ function bb_reset_email( $user_login ) {
 	if ( !$user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user_login ) ) )
 		return new WP_Error('user_does_not_exist', __('The specified user does not exist.'));
 
-	$resetkey = substr(md5(wp_generate_password()), 0, 15);
+	$resetkey = substr(md5(bb_generate_password()), 0, 15);
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 
 	$message = sprintf(
@@ -130,7 +130,7 @@ function bb_reset_password( $key ) {
 			bb_block_current_user();
 		if ( !$user->has_cap( 'change_user_password', $user->ID ) )
 			return new WP_Error('permission_denied', __('You are not allowed to change your password.'));
-		$newpass = wp_generate_password();
+		$newpass = bb_generate_password();
 		bb_update_user_password( $user->ID, $newpass );
 		if (!bb_send_pass( $user->ID, $newpass )) {
 			return new WP_Error('sending_mail_failed', __('The email containing the new password could not be sent.'));

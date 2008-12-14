@@ -343,7 +343,7 @@ function _bb_get_key( $key, $default_key = false ) {
 	}
 
 	if ( defined( $key ) && '' != constant( $key ) && $default_key != constant( $key ) ) {
-		return $key;
+		return constant( $key );
 	}
 
 	return $default_key;
@@ -366,7 +366,7 @@ function _bb_get_salt( $constants, $option = false ) {
 		}
 		$salt = bb_get_option( $option );
 		if ( empty( $salt ) ) {
-			$salt = wp_generate_password();
+			$salt = bb_generate_password();
 			bb_update_option( $option, $salt );
 		}
 		return $salt;
@@ -548,7 +548,7 @@ function bb_new_user( $user_login, $user_email, $user_url, $user_status = 1 ) {
 	
 	$user_url = $user_url ? bb_fix_link( $user_url ) : '';
 
-	$user_pass = wp_generate_password();
+	$user_pass = bb_generate_password();
 
 	$user = $wp_users_object->new_user( compact( 'user_login', 'user_email', 'user_url', 'user_nicename', 'user_status', 'user_pass' ) );
 	if ( is_wp_error($user) ) {

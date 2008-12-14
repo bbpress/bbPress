@@ -663,7 +663,7 @@ $bb->cookiepath = bb_get_option('cookiepath');
 if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
-$bb->cookiepath = rtrim($bb->cookiepath, '/');
+$bb->cookiepath = rtrim($bb->cookiepath, '/') . '/';
 
 $bb->admin_cookie_path = bb_get_option('admin_cookie_path');
 if ( !$bb->admin_cookie_path ) {
@@ -692,7 +692,7 @@ if ( !$bb->sitecookiepath && $bb->wp_cookies_integrated ) {
 		$bb->sitecookiepath = $bb->cookiepath;
 	}
 }
-$bb->sitecookiepath = rtrim($bb->sitecookiepath, '/');
+$bb->sitecookiepath = rtrim($bb->sitecookiepath, '/') . '/';
 
 $bb->wp_admin_cookie_path = bb_get_option('wp_admin_cookie_path');
 if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
