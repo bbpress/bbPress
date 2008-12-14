@@ -443,7 +443,7 @@ $_SERVER = bb_global_sanitize($_SERVER);
  * Set the URI and derivitaves
  */
 if ( $bb->uri = bb_get_option('uri') ) {
-	$bb->uri = rtrim($bb->uri, '/') . '/';
+	$bb->uri = rtrim($bb->uri, " \t\n\r\0\x0B/") . '/';
 	
 	if ( preg_match( '@^(https?://[^/]+)((?:/.*)*/{1,1})$@i', $bb->uri, $matches ) ) {
 		// Used when setting up cookie domain
@@ -457,7 +457,7 @@ if ( $bb->uri = bb_get_option('uri') ) {
 	// These were never set in the database
 	// TODO: Completely remove old constants on version 1.0
 	if ( isset($bb->domain) ) {
-		$bb->domain = rtrim( trim( $bb->domain ), '/' );
+		$bb->domain = rtrim( trim( $bb->domain ), " \t\n\r\0\x0B/" );
 	}
 	if ( isset($bb->path) ) {
 		$bb->path = trim($bb->path);
@@ -602,12 +602,12 @@ if (isset($bb->custom_tables)) {
 
 $bb->wp_siteurl = bb_get_option('wp_siteurl');
 if ( $bb->wp_siteurl ) {
-	$bb->wp_siteurl = rtrim($bb->wp_siteurl, '/');
+	$bb->wp_siteurl = rtrim( $bb->wp_siteurl, " \t\n\r\0\x0B/" );
 }
 
 $bb->wp_home = bb_get_option('wp_home');
 if ( $bb->wp_home ) {
-	$bb->wp_home = rtrim($bb->wp_home, '/');
+	$bb->wp_home = rtrim( $bb->wp_home, " \t\n\r\0\x0B/" );
 }
 
 $bb->wp_cookies_integrated = false;
@@ -663,25 +663,25 @@ $bb->cookiepath = bb_get_option('cookiepath');
 if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace('|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
-$bb->cookiepath = rtrim($bb->cookiepath, '/') . '/';
+$bb->cookiepath = rtrim( $bb->cookiepath, " \t\n\r\0\x0B/" ) . '/';
 
 $bb->admin_cookie_path = bb_get_option('admin_cookie_path');
 if ( !$bb->admin_cookie_path ) {
 	$bb->admin_cookie_path = $bb->path . 'bb-admin';
 }
-$bb->admin_cookie_path = rtrim($bb->admin_cookie_path, '/');
+$bb->admin_cookie_path = rtrim( $bb->admin_cookie_path, " \t\n\r\0\x0B/" );
 
 $bb->core_plugins_cookie_path = bb_get_option('core_plugins_cookie_path');
 if ( !$bb->core_plugins_cookie_path ) {
 	$bb->core_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL);
 }
-$bb->core_plugins_cookie_path = rtrim($bb->core_plugins_cookie_path, '/');
+$bb->core_plugins_cookie_path = rtrim( $bb->core_plugins_cookie_path, " \t\n\r\0\x0B/" );
 
 $bb->user_plugins_cookie_path = bb_get_option('user_plugins_cookie_path');
 if ( !$bb->user_plugins_cookie_path ) {
 	$bb->user_plugins_cookie_path = preg_replace('|https?://[^/]+|i', '', BB_PLUGIN_URL);
 }
-$bb->user_plugins_cookie_path = rtrim($bb->user_plugins_cookie_path, '/');
+$bb->user_plugins_cookie_path = rtrim( $bb->user_plugins_cookie_path, " \t\n\r\0\x0B/" );
 
 $bb->sitecookiepath = bb_get_option('sitecookiepath');
 $_bb_sitecookiepath = $bb->sitecookiepath;
@@ -692,20 +692,20 @@ if ( !$bb->sitecookiepath && $bb->wp_cookies_integrated ) {
 		$bb->sitecookiepath = $bb->cookiepath;
 	}
 }
-$bb->sitecookiepath = rtrim($bb->sitecookiepath, '/') . '/';
+$bb->sitecookiepath = rtrim( $bb->sitecookiepath, " \t\n\r\0\x0B/" ) . '/';
 
 $bb->wp_admin_cookie_path = bb_get_option('wp_admin_cookie_path');
 if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
 	$bb->wp_admin_cookie_path = $_bb_sitecookiepath . '/wp-admin';
 }
-$bb->wp_admin_cookie_path = rtrim($bb->wp_admin_cookie_path, '/');
+$bb->wp_admin_cookie_path = rtrim( $bb->wp_admin_cookie_path, " \t\n\r\0\x0B/" );
 
 $bb->wp_plugins_cookie_path = bb_get_option('wp_plugins_cookie_path');
 if ( !$bb->wp_plugins_cookie_path && $bb->wp_cookies_integrated ) {
 	// This is a best guess only, should be manually set to match WP_PLUGIN_URL
 	$bb->wp_plugins_cookie_path = $_bb_sitecookiepath . '/wp-content/plugins';
 }
-$bb->wp_plugins_cookie_path = rtrim($bb->wp_plugins_cookie_path, '/');
+$bb->wp_plugins_cookie_path = rtrim( $bb->wp_plugins_cookie_path, " \t\n\r\0\x0B/" );
 unset($_bb_sitecookiepath);
 
 /**

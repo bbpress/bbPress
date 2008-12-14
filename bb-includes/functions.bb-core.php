@@ -398,9 +398,9 @@ function get_path( $level = 1, $base = false, $request = false ) {
 	if ( !is_array($request) || !isset($request['path']) )
 		return '';
 
-	$path = rtrim($request['path'], '/');
+	$path = rtrim($request['path'], " \t\n\r\0\x0B/");
 	if ( !$base )
-		$base = rtrim(bb_get_option('path'), '/');
+		$base = rtrim(bb_get_option('path'), " \t\n\r\0\x0B/");
 	$path = preg_replace('|' . preg_quote($base, '|') . '/?|','',$path,1);
 	if ( !$path )
 		return '';
@@ -573,7 +573,7 @@ function bb_repermalink() {
 	$domain = bb_get_option('domain');
 	$domain = preg_replace('/^https?/', '', $domain);
 	$check = preg_replace( '|^.*' . trim($domain, ' /' ) . '|', '', $permalink, 1 );
-	$uri = rtrim( $uri, '?' );
+	$uri = rtrim( $uri, " \t\n\r\0\x0B?" );
 
 	global $bb_log;
 	$bb_log->debug($uri, 'bb_repermalink() ' . __('REQUEST_URI'));
@@ -582,7 +582,7 @@ function bb_repermalink() {
 	$bb_log->debug($_SERVER['PATH_INFO'], 'bb_repermalink() ' . __('PATH_INFO'));
 
 	if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
-		if ( $issue_404 && rtrim( $check, '/' ) !== rtrim( $uri, '/' ) ) {
+		if ( $issue_404 && rtrim( $check, " \t\n\r\0\x0B/" ) !== rtrim( $uri, " \t\n\r\0\x0B/" ) ) {
 			status_header( 404 );
 			bb_load_template( '404.php' );
 		} else {

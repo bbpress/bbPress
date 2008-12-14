@@ -20,7 +20,7 @@ if ( in_array( $action, array('update-users', 'update-options') ) ) {
 			$value = is_array( $value ) ? $value : trim( $value );
 			$value = stripslashes_deep( $value );
 			if (($option == 'wp_siteurl' || $option == 'wp_home') && !empty($value)) {
-				$value = rtrim($value, '/') . '/';
+				$value = rtrim($value, " \t\n\r\0\x0B/") . '/';
 			}
 			if ( $value ) {
 				bb_update_option( $option, $value );
