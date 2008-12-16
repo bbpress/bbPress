@@ -308,7 +308,7 @@ class BB_Install
 		
 		// Define the language file directory
 		if ( !defined('BB_LANG_DIR') ) {
-			define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/');
+			define('BB_LANG_DIR', BB_PATH . 'my-languages/');
 		}
 		
 		return true;

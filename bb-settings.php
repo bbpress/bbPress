@@ -353,7 +353,7 @@ if ( !defined('BB_LANG_DIR') )
 		// TODO: Completely remove old constants on version 1.0
 		define('BB_LANG_DIR', BBLANGDIR);
 	else
-		define('BB_LANG_DIR', BB_PATH . BB_INC . 'languages/'); // absolute path with trailing slash
+		define('BB_LANG_DIR', BB_PATH . 'my-languages/'); // absolute path with trailing slash
 
 /**
  * The language in which to display bbPress
