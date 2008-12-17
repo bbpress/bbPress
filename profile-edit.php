@@ -64,7 +64,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	}
 
 	// Find out if we have a valid email address
-	if ( !$user_email = bb_verify_email( $user_email ) ) {
+	if ( isset( $user_email ) && !$user_email = bb_verify_email( $user_email ) ) {
 		$errors->add( 'user_email', __( 'Invalid email address' ), array( 'data' => $_POST['user_email'] ) );
 	}
 
