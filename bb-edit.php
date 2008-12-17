@@ -23,7 +23,7 @@ if ( 0 != $bb_post->post_status && 'all' == $_GET['view'] ) // We're trying to e
 if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_post->topic_id ) ) {
 	bb_insert_topic( array(
 		'topic_title' => stripslashes( $_POST['topic'] ),
-		'topic_id' => $topic_id
+		'topic_id' => $bb_post->topic_id
 	) );
 }
 
