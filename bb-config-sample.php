@@ -56,9 +56,9 @@ $bb_table_prefix = 'bb_';
  * bbPress Localized Language, defaults to English.
  *
  * Change this to localize bbPress. A corresponding MO file for the chosen
- * language must be installed to bb-includes/languages. For example, install
- * de.mo to bb-includes/languages and set BB_LANG to 'de' to enable German
- * language support.
+ * language must be installed to a directory called "my-languages" in the root
+ * directory of bbPress. For example, install de.mo to "my-languages" and set
+ * BB_LANG to 'de' to enable German language support.
  */
 define('BB_LANG', '');
 ?>
