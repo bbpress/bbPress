@@ -26,8 +26,12 @@ function bb_upgrade_all() {
 
 	require_once( BB_PATH . 'bb-admin/includes/defaults.bb-schema.php' );
 	$delta = bb_sql_delta($bb_queries);
-	$bb_upgrade['messages'] = array_merge($bb_upgrade['messages'], $delta['messages']);
-	$bb_upgrade['errors'] = $delta['errors'];
+	if ( is_array( $delta ) ) {
+		$bb_upgrade['messages'] = array_merge($bb_upgrade['messages'], $delta['messages']);
+		$bb_upgrade['errors'] = $delta['errors'];
+	} else {
+		$bb_upgrade['errors'] = array();
+	}
 
 	// Post DB Delta
 	$bb_upgrade['messages'][] = bb_upgrade_1000(); // Make forum and topic slugs
