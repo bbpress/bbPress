@@ -35,7 +35,6 @@ function bb_get_plugins($location = 'all', $type = 'normal') {
 	}
 
 	if ( isset( $plugin_cache[$location][$type] ) ) {
-		error_log('hit static!');
 		return $plugin_cache[$location][$type];
 	}
 
