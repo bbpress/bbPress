@@ -912,3 +912,34 @@ class WP_User extends BP_User {
 	}
 }
 endif;
+
+function bb_sql_get_column_definition( $column_data ) {
+	require_once( BACKPRESS_PATH . 'class.bp-sql-schema-parser.php' );
+	bb_log_deprecated( 'function', __FUNCTION__, 'BP_SQL_Schema_Parser::get_column_definition' );
+	return BP_SQL_Schema_Parser::get_column_definition( $column_data );
+}
+
+function bb_sql_get_index_definition( $index_data ) {
+	require_once( BACKPRESS_PATH . 'class.bp-sql-schema-parser.php' );
+	bb_log_deprecated( 'function', __FUNCTION__, 'BP_SQL_Schema_Parser::get_index_definition' );
+	return BP_SQL_Schema_Parser::get_index_definition( $index_data );
+}
+
+function bb_sql_describe_table( $query ) {
+	require_once( BACKPRESS_PATH . 'class.bp-sql-schema-parser.php' );
+	bb_log_deprecated( 'function', __FUNCTION__, 'BP_SQL_Schema_Parser::describe_table' );
+	return BP_SQL_Schema_Parser::describe_table( $query );
+}
+
+function bb_sql_parse( $sql ) {
+	require_once( BACKPRESS_PATH . 'class.bp-sql-schema-parser.php' );
+	bb_log_deprecated( 'function', __FUNCTION__, 'BP_SQL_Schema_Parser::parse' );
+	return BP_SQL_Schema_Parser::parse( $sql );
+}
+
+function bb_sql_delta( $queries, $execute = true ) {
+	require_once( BACKPRESS_PATH . 'class.bp-sql-schema-parser.php' );
+	bb_log_deprecated( 'function', __FUNCTION__, 'BP_SQL_Schema_Parser::delta' );
+	global $bbdb;
+	return BP_SQL_Schema_Parser::delta( $bbdb, $queries, false, $execute );
+}

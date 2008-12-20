@@ -112,7 +112,7 @@ $bb_queries['topics'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topics` (
 	KEY `stickies` (`topic_status`, `topic_sticky`, `topic_time`)
 );";
 
-// users - 'user_login' and 'user_nicename' indices are inconsistent with WordPress
+// users - 'user_login', 'user_nicename' and 'user_registered' indices are inconsistent with WordPress
 $bb_queries['users'] = "CREATE TABLE IF NOT EXISTS `$bbdb->users` (
 	`ID` bigint(20) unsigned NOT NULL auto_increment,
 	`user_login` varchar(60) NOT NULL default '',
@@ -125,7 +125,8 @@ $bb_queries['users'] = "CREATE TABLE IF NOT EXISTS `$bbdb->users` (
 	`display_name` varchar(250) NOT NULL default '',
 	PRIMARY KEY (`ID`),
 	UNIQUE KEY `user_login` (`user_login`),
-	UNIQUE KEY `user_nicename` (`user_nicename`)
+	UNIQUE KEY `user_nicename` (`user_nicename`),
+	KEY `user_registered` (`user_registered`)
 );";
 
 // usermeta
@@ -192,6 +193,25 @@ foreach ($bb_queries as $_table_name => $_sql) {
 unset($_table_name, $_sql);
 
 $bb_queries = apply_filters( 'bb_schema', $bb_queries );
+
+// These elements in the schema may need to be ignored when doing comparisons due to inconsistencies with WordPress
+if ( bb_get_option('wp_table_prefix') ) {
+	$bb_schema_ignore = array(
+		'tables' => array(),
+		'columns' => array(),
+		'indices' => array(
+			$bbdb->users => array(
+				'user_login',
+				'user_nicename',
+				'user_registered'
+			)
+		)
+	);
+} else {
+	$bb_schema_ignore = false;
+}
+
+$bb_schema_ignore = apply_filters( 'bb_schema_ignore', $bb_schema_ignore );
 
 do_action( 'bb_schema_defined' );
 
