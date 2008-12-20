@@ -285,8 +285,20 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit =
 		$and_where = "meta_value LIKE '%$role%'";
 	$bb_last_countable_query = "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = '$key' AND $and_where ORDER BY user_id $sort LIMIT $limit";
 
-	if ( $ids = (array) $bbdb->get_col( $bb_last_countable_query ) )
+	$ids = false;
+
+	$_tuple = compact( 'ids', 'role', 'sort', 'page', 'key', 'limit', 'bb_last_countable_query' );
+	$_tuple = apply_filters( 'bb_get_ids_by_role', $_tuple );
+	extract( $_tuple, EXTR_OVERWRITE );
+
+	if ( !$ids ) {
+		$ids = (array) $bbdb->get_col( $bb_last_countable_query );
+	}
+
+	if ( $ids ) {
 		bb_cache_users( $ids );
+	}
+
 	return $ids;
 }
 
