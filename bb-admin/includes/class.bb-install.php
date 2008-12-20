@@ -791,7 +791,7 @@ class BB_Install
 						'value' => 'wp_',
 						'default_value' => '', // Used when setting is ignored
 						'label' => __('User database table prefix'),
-						'note'  => __('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$wp_table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.'),
+						'note'  => __('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.'),
 						'prerequisite' => 'toggle_2_2'
 					),
 					'toggle_2_3' => array(
