@@ -30,10 +30,9 @@ function bb_set_custom_user_tables() {
 	global $bb;
 	
 	// Check for older style custom user table
-	// TODO: Completely remove old constants on version 1.0
 	if ( !isset($bb->custom_tables['users']) ) { // Don't stomp new setting style
 		if ( !$bb->custom_user_table = bb_get_option('custom_user_table') ) // Maybe get from database or old config setting
-			if ( defined('CUSTOM_USER_TABLE') ) // Maybe user has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('CUSTOM_USER_TABLE') ) // Maybe user has set old constant
 				$bb->custom_user_table = CUSTOM_USER_TABLE;
 		if ( $bb->custom_user_table ) {
 			if ( !isset($bb->custom_tables) )
@@ -43,10 +42,9 @@ function bb_set_custom_user_tables() {
 	}
 
 	// Check for older style custom user meta table
-	// TODO: Completely remove old constants on version 1.0
 	if ( !isset($bb->custom_tables['usermeta']) ) { // Don't stomp new setting style
 		if ( !$bb->custom_user_meta_table = bb_get_option('custom_user_meta_table') ) // Maybe get from database or old config setting
-			if ( defined('CUSTOM_USER_META_TABLE') ) // Maybe user has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('CUSTOM_USER_META_TABLE') ) // Maybe user has set old constant
 				$bb->custom_user_meta_table = CUSTOM_USER_META_TABLE;
 		if ( $bb->custom_user_meta_table ) {
 			if ( !isset($bb->custom_tables) )
@@ -56,7 +54,6 @@ function bb_set_custom_user_tables() {
 	}
 
 	// Check for older style wp_table_prefix
-	// TODO: Completely remove old constants on version 1.0
 	if ( $bb->wp_table_prefix = bb_get_option('wp_table_prefix') ) { // User has set old constant
 		if ( !isset($bb->custom_tables) ) {
 			$bb->custom_tables = array(
@@ -72,42 +69,41 @@ function bb_set_custom_user_tables() {
 	}
 
 	// Check for older style user database
-	// TODO: Completely remove old constants on version 1.0
 	if ( !isset($bb->custom_databases) )
 		$bb->custom_databases = array();
 	if ( !isset($bb->custom_databases['user']) ) {
 		if ( !$bb->user_bbdb_name = bb_get_option('user_bbdb_name') )
-			if ( defined('USER_BBDB_NAME') ) // User has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_NAME') ) // User has set old constant
 				$bb->user_bbdb_name = USER_BBDB_NAME;
 		if ( $bb->user_bbdb_name )
 			$bb->custom_databases['user']['name'] = $bb->user_bbdb_name;
 
 		if ( !$bb->user_bbdb_user = bb_get_option('user_bbdb_user') )
-			if ( defined('USER_BBDB_USER') ) // User has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_USER') ) // User has set old constant
 				$bb->user_bbdb_user = USER_BBDB_USER;
 		if ( $bb->user_bbdb_user )
 			$bb->custom_databases['user']['user'] = $bb->user_bbdb_user;
 
 		if ( !$bb->user_bbdb_password = bb_get_option('user_bbdb_password') )
-			if ( defined('USER_BBDB_PASSWORD') ) // User has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_PASSWORD') ) // User has set old constant
 				$bb->user_bbdb_password = USER_BBDB_PASSWORD;
 		if ( $bb->user_bbdb_password )
 			$bb->custom_databases['user']['password'] = $bb->user_bbdb_password;
 
 		if ( !$bb->user_bbdb_host = bb_get_option('user_bbdb_host') )
-			if ( defined('USER_BBDB_HOST') ) // User has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_HOST') ) // User has set old constant
 				$bb->user_bbdb_host = USER_BBDB_HOST;
 		if ( $bb->user_bbdb_host )
 			$bb->custom_databases['user']['host'] = $bb->user_bbdb_host;
 
 		if ( !$bb->user_bbdb_charset = bb_get_option('user_bbdb_charset') )
-			if ( defined('USER_BBDB_CHARSET') ) // User has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_CHARSET') ) // User has set old constant
 				$bb->user_bbdb_charset = USER_BBDB_CHARSET;
 		if ( $bb->user_bbdb_charset )
 			$bb->custom_databases['user']['charset'] = $bb->user_bbdb_charset;
 
 		if ( !$bb->user_bbdb_collate = bb_get_option('user_bbdb_collate') )
-			if ( defined('USER_BBDB_COLLATE') ) // User has set old constant
+			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_COLLATE') ) // User has set old constant
 				$bb->user_bbdb_collate = USER_BBDB_COLLATE;
 		if ( $bb->user_bbdb_collate )
 			$bb->custom_databases['user']['collate'] = $bb->user_bbdb_collate;

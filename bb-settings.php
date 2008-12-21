@@ -156,6 +156,13 @@ if ( !defined( 'BB_IS_ADMIN' ) )
 if ( !defined( 'BB_INSTALLING' ) )
 	define( 'BB_INSTALLING', false );
 
+/**
+ * Whether to load deprecated routines, constants and functions
+ * @since 1.0
+ */
+if ( !defined( 'BB_LOAD_DEPRECATED' ) )
+	define( 'BB_LOAD_DEPRECATED', true );
+
 
 
 /**
@@ -257,7 +264,7 @@ $bbdb->tables = array(
 );
 
 /**
- * Define BackPress Database errors if not already done - no internationalisation at this stage
+ * Define BackPress Database errors if not already done - no localisation at this stage
  */
 if (!defined('BPDB__CONNECT_ERROR_MESSAGE'))
 	define(BPDB__CONNECT_ERROR_MESSAGE, 'ERROR: Error establishing a database connection');
@@ -349,8 +356,7 @@ if ( !class_exists( 'WP_Http' ) )
  * The full path to the directory containing language files
  */
 if ( !defined('BB_LANG_DIR') )
-	if ( defined('BBLANGDIR') ) // User has set old constant
-		// TODO: Completely remove old constants on version 1.0
+	if ( BB_LOAD_DEPRECATED && defined('BBLANGDIR') ) // User has set old constant
 		define('BB_LANG_DIR', BBLANGDIR);
 	else
 		define('BB_LANG_DIR', BB_PATH . 'my-languages/'); // absolute path with trailing slash
@@ -358,8 +364,7 @@ if ( !defined('BB_LANG_DIR') )
 /**
  * The language in which to display bbPress
  */
-if ( !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) { // User has set old constant
-	// TODO: Completely remove old constants on version 1.0
+if ( BB_LOAD_DEPRECATED && !defined('BB_LANG') && defined('BBLANG') && '' != BBLANG ) { // User has set old constant
 	define('BB_LANG', BBLANG);
 }
 if ( defined('BB_LANG') && '' != BB_LANG ) {
@@ -452,10 +457,9 @@ if ( $bb->uri = bb_get_option('uri') ) {
 		$bb->path = $matches[2];
 	}
 	unset($matches);
-} else {
+} elseif ( BB_LOAD_DEPRECATED ) {
 	// Backwards compatibility
 	// These were never set in the database
-	// TODO: Completely remove old constants on version 1.0
 	if ( isset($bb->domain) ) {
 		$bb->domain = rtrim( trim( $bb->domain ), " \t\n\r\0\x0B/" );
 	}
@@ -535,8 +539,7 @@ define('BB_DEFAULT_THEME_URL', BB_CORE_THEME_URL . 'kakumei/');
  * Full path to the location of the user plugins directory
  */
 if ( !defined('BB_PLUGIN_DIR') )
-	if ( defined('BBPLUGINDIR') ) // User has set old constant
-		// TODO: Completely remove old constants on version 1.0
+	if ( BB_LOAD_DEPRECATED && defined('BBPLUGINDIR') ) // User has set old constant
 		define('BB_PLUGIN_DIR', BBPLUGINDIR);
 	else
 		define('BB_PLUGIN_DIR', BB_PATH . 'my-plugins/');
@@ -545,8 +548,7 @@ if ( !defined('BB_PLUGIN_DIR') )
  * Full URL of the user plugins directory
  */
 if ( !defined('BB_PLUGIN_URL') )
-	if ( defined('BBPLUGINURL') ) // User has set old constant
-		// TODO: Completely remove old constants on version 1.0
+	if ( BB_LOAD_DEPRECATED && defined('BBPLUGINURL') ) // User has set old constant
 		define('BB_PLUGIN_URL', BBPLUGINURL);
 	else
 		define('BB_PLUGIN_URL', $bb->uri . 'my-plugins/');
@@ -555,8 +557,7 @@ if ( !defined('BB_PLUGIN_URL') )
  * Full path to the location of the user themes directory
  */
 if ( !defined('BB_THEME_DIR') )
-	if ( defined('BBTHEMEDIR') ) // User has set old constant
-		// TODO: Completely remove old constants on version 1.0
+	if ( BB_LOAD_DEPRECATED && defined('BBTHEMEDIR') ) // User has set old constant
 		define('BB_THEME_DIR', BBTHEMEDIR);
 	else
 		define('BB_THEME_DIR', BB_PATH . 'my-templates/');
@@ -565,8 +566,7 @@ if ( !defined('BB_THEME_DIR') )
  * Full URL of the user themes directory
  */
 if ( !defined('BB_THEME_URL') )
-	if ( defined('BBTHEMEURL') ) // User has set old constant
-		// TODO: Completely remove old constants on version 1.0
+	if ( BB_LOAD_DEPRECATED && defined('BBTHEMEURL') ) // User has set old constant
 		define('BB_THEME_URL', BBTHEMEURL);
 	else
 		define('BB_THEME_URL', $bb->uri . 'my-templates/');
@@ -630,18 +630,19 @@ if ( $bb->wp_siteurl && $bb->wp_home ) {
 }
 
 define('BB_HASH', $bb->wp_cookies_integrated ? md5($bb->wp_siteurl) : md5($bb->uri));
-// Deprecated setting
-// TODO: Completely remove old constants on version 1.0
-$bb->usercookie = bb_get_option('usercookie');
-if ( !$bb->usercookie ) {
-	$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BB_HASH;
-}
 
-// Deprecated setting
-// TODO: Completely remove old constants on version 1.0
-$bb->passcookie = bb_get_option('passcookie');
-if ( !$bb->passcookie ) {
-	$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BB_HASH;
+if ( BB_LOAD_DEPRECATED ) {
+	// Deprecated setting
+	$bb->usercookie = bb_get_option('usercookie');
+	if ( !$bb->usercookie ) {
+		$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BB_HASH;
+	}
+
+	// Deprecated setting
+	$bb->passcookie = bb_get_option('passcookie');
+	if ( !$bb->passcookie ) {
+		$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BB_HASH;
+	}
 }
 
 $bb->authcookie = bb_get_option('authcookie');
@@ -885,48 +886,54 @@ do_action( 'bb_options_loaded' );
 
 
 /**
- * Define deprecated constants for plugin compatibility
- * TODO: Completely remove old constants on version 1.0
- * $deprecated_constants below is a complete array of old constants and their replacements
+ * Load deprecated constants and functions
  */
-$deprecated_constants = array(
-	'BBPATH'                 => 'BB_PATH',
-	'BBINC'                  => 'BB_INC',
-	'BBLANG'                 => 'BB_LANG',
-	'BBLANGDIR'              => 'BB_LANG_DIR',
-	'BBPLUGINDIR'            => 'BB_PLUGIN_DIR',
-	'BBPLUGINURL'            => 'BB_PLUGIN_URL',
-	'BBTHEMEDIR'             => 'BB_THEME_DIR',
-	'BBTHEMEURL'             => 'BB_THEME_URL',
-	'BBHASH'                 => 'BB_HASH'
-);
-foreach ( $deprecated_constants as $old => $new )
-	if ( !defined($old) && defined($new)) // only define if new one is defined
-		define($old, constant($new));
 
-$deprecated_constants = array(
-	'USER_BBDB_NAME'         => $bb->user_bbdb_name,
-	'USER_BBDB_USER'         => $bb->user_bbdb_user,
-	'USER_BBDB_PASSWORD'     => $bb->user_bbdb_password,
-	'USER_BBDB_HOST'         => $bb->user_bbdb_host,
-	'USER_BBDB_CHARSET'      => $bb->user_bbdb_charset,
-	'CUSTOM_USER_TABLE'      => $bb->custom_user_table,
-	'CUSTOM_USER_META_TABLE' => $bb->custom_user_meta_table,
-);
-foreach ( $deprecated_constants as $old => $new )
-	if ( !defined($old) )
-		define($old, $new);
-unset($deprecated_constants, $old, $new);
+// Skip loading of deprecated stuff unless specifically requested
+if ( BB_LOAD_DEPRECATED ) {
+	/**
+	 * Define deprecated constants for plugin compatibility
+	 * $deprecated_constants below is a complete array of old constants and their replacements
+	 */
+	$deprecated_constants = array(
+		'BBPATH'                 => 'BB_PATH',
+		'BBINC'                  => 'BB_INC',
+		'BBLANG'                 => 'BB_LANG',
+		'BBLANGDIR'              => 'BB_LANG_DIR',
+		'BBPLUGINDIR'            => 'BB_PLUGIN_DIR',
+		'BBPLUGINURL'            => 'BB_PLUGIN_URL',
+		'BBTHEMEDIR'             => 'BB_THEME_DIR',
+		'BBTHEMEURL'             => 'BB_THEME_URL',
+		'BBHASH'                 => 'BB_HASH'
+	);
+	foreach ( $deprecated_constants as $old => $new )
+		if ( !defined($old) && defined($new)) // only define if new one is defined
+			define($old, constant($new));
 
-/**
- * Load deprecated functions
- */
-require_once( BB_PATH . BB_INC . 'functions.bb-deprecated.php' );
+	$deprecated_constants = array(
+		'USER_BBDB_NAME'         => $bb->user_bbdb_name,
+		'USER_BBDB_USER'         => $bb->user_bbdb_user,
+		'USER_BBDB_PASSWORD'     => $bb->user_bbdb_password,
+		'USER_BBDB_HOST'         => $bb->user_bbdb_host,
+		'USER_BBDB_CHARSET'      => $bb->user_bbdb_charset,
+		'CUSTOM_USER_TABLE'      => $bb->custom_user_table,
+		'CUSTOM_USER_META_TABLE' => $bb->custom_user_meta_table,
+	);
+	foreach ( $deprecated_constants as $old => $new )
+		if ( !defined($old) )
+			define($old, $new);
+	unset($deprecated_constants, $old, $new);
 
-/**
- * Old cache global object for backwards compatibility
- */
-$bb_cache = new BB_Cache();
+	/**
+	 * Load deprecated functions
+	 */
+	require_once( BB_PATH . BB_INC . 'functions.bb-deprecated.php' );
+
+	/**
+	 * Old cache global object for backwards compatibility
+	 */
+	$bb_cache = new BB_Cache();
+}
 
 
 
