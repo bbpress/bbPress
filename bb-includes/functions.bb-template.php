@@ -2011,15 +2011,26 @@ function bb_profile_admin_form( $id = 0 ) {
 	elseif ( !$can_keep_gate ) // only keymasters can promote others to keymaster status
 		unset($roles['keymaster']);
 
+	$selected = array( 'inactive' => ' selected="selected"' );
 ?>
 <table id="admininfo">
 <tr class='form-field<?php if ( in_array( 'role', $error_codes ) ) echo ' form-invalid'; ?>'>
 	<th scope="row"><?php _e('User Type'); ?></th>
 	<td>
 		<select name="role">
-<?php foreach( $roles as $r => $n ) : ?>
-			<option value="<?php echo $r; ?>"<?php if ( array_key_exists($r, $user->capabilities) ) echo ' selected="selected"'; ?>><?php echo $n; ?></option>
-<?php endforeach; ?>
+<?php
+	foreach( $roles as $r => $n ) {
+		if ( isset( $user->capabilities ) && is_array( $user->capabilities ) && array_key_exists( $r, $user->capabilities ) ) {
+			$selected['inactive'] = '';
+			$selected[$r] = ' selected="selected"';
+		} elseif ( $r !== 'inactive' ) {
+			$selected[$r] = '';
+		}
+?>
+			<option value="<?php echo $r; ?>"<?php echo $selected[$r]; ?>><?php echo $n; ?></option>
+<?php
+	}
+?>
 		</select>
 		<?php if ( in_array( 'role', $error_codes ) ) echo '<p class="error">' . $errors->get_error_message( 'role' ) . '</p>'; ?>
 	</td>
@@ -2033,7 +2044,10 @@ function bb_profile_admin_form( $id = 0 ) {
 <?php
 	foreach( $assignable_caps as $cap => $label ) :
 		$name = attribute_escape( $cap );
-		$checked = array_key_exists($cap, $user->capabilities) ? ' checked="checked"' : '';
+		$checked = '';
+		if ( isset( $user->capabilities ) && is_array( $user->capabilities ) && array_key_exists( $cap, $user->capabilities ) ) {
+			$checked = ' checked="checked"';
+		}
 		$label = wp_specialchars( $label );
 ?>
 
