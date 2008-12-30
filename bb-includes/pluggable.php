@@ -15,7 +15,7 @@ endif;
 if ( !function_exists('bb_check_login') ) :
 function bb_check_login($user, $pass, $already_md5 = false) {
 	global $bbdb;
-	$user = sanitize_user( $user );
+	$user = sanitize_user( $user, true );
 	if ($user == '') {
 		return false;
 	}

@@ -1174,7 +1174,7 @@ function bb_cache_users( $ids, $soft_cache = true ) {
 
 function bb_get_user_by_name( $name ) {
 	global $bbdb;
-	$name = sanitize_user( $name );
+	$name = sanitize_user( $name, true );
 	if ( $user_id = $bbdb->get_var( $bbdb->prepare( "SELECT ID FROM $bbdb->users WHERE user_login = %s", $name ) ) )
 		return bb_get_user( $user_id );
 	else
@@ -1183,7 +1183,7 @@ function bb_get_user_by_name( $name ) {
 
 function bb_get_user_by_nicename( $nicename ) {
 	global $bbdb;
-	$nicename = sanitize_user( $nicename );
+	$nicename = sanitize_user( $nicename, true );
 	if ( $user_id = $bbdb->get_var( $bbdb->prepare( "SELECT ID FROM $bbdb->users WHERE user_nicename = %s", $nicename ) ) )
 		return bb_get_user( $user_id );
 	else
@@ -1192,7 +1192,7 @@ function bb_get_user_by_nicename( $nicename ) {
 
 function bb_user_exists( $user ) {
 	global $bbdb;
-	$user = sanitize_user( $user );
+	$user = sanitize_user( $user, true );
 	return $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user ));
 }
 
