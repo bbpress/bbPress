@@ -64,7 +64,7 @@ if ( !$bb_login_error->get_error_code() )
 if ( $email_login && $bb_login_error->get_error_codes() && false !== strpos( $_POST['user_login'], '@' ) )
 	$bb_login_error = new WP_Error( 'user_login', __( 'Username and Password do not match.' ) );
 
-$user_login  = attribute_escape( sanitize_user( @$_POST['user_login'] ) );
+$user_login  = attribute_escape( sanitize_user( @$_POST['user_login'], true ) );
 $remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
 $re = clean_url( $re );
 $re = $redirect_to = attribute_escape( $re );

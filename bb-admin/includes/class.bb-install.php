@@ -1524,10 +1524,10 @@ class BB_Install
 		}
 		
 		$this->strings[3]['form_errors']['keymaster_user_login'][] = empty($data['keymaster_user_login']['value']) ? 'empty' : false;
-		if ($data['keymaster_user_login']['value'] != sanitize_user($data['keymaster_user_login']['value'])) {
+		if ( $data['keymaster_user_login']['value'] != sanitize_user( $data['keymaster_user_login']['value'], true ) ) {
 			$this->strings[3]['form_errors']['keymaster_user_login'][] = 'userlogin';
 		}
-		$data['keymaster_user_login']['value'] = sanitize_user($data['keymaster_user_login']['value']);
+		$data['keymaster_user_login']['value'] = sanitize_user( $data['keymaster_user_login']['value'], true );
 		
 		// bb_verify_email() needs this
 		require_once(BB_PATH . BB_INC . 'functions.bb-registration.php');

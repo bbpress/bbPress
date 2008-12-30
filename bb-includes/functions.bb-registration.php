@@ -76,7 +76,7 @@ function bb_update_user( $user_id, $user_email, $user_url, $display_name ) {
 function bb_reset_email( $user_login ) {
 	global $bbdb;
 
-	$user_login = sanitize_user( $user_login );
+	$user_login = sanitize_user( $user_login, true );
 
 	if ( !$user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user_login ) ) )
 		return new WP_Error('user_does_not_exist', __('The specified user does not exist.'));
@@ -120,7 +120,7 @@ function bb_reset_email( $user_login ) {
  */
 function bb_reset_password( $key ) {
 	global $bbdb;
-	$key = sanitize_user( $key );
+	$key = sanitize_user( $key, true );
 	if ( empty( $key ) )
 		return new WP_Error('key_not_found', __('Key not found.'));
 	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )

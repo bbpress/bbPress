@@ -7,7 +7,7 @@ $error = false;
 
 if ( $_POST ) {
 	$action = 'send_key';
-	$user_login = sanitize_user( $_POST['user_login'] );
+	$user_login = sanitize_user( $_POST['user_login'], true );
 	if ( empty( $user_login ) ) {
 		$error = __('No username specified');
 	} else {
