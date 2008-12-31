@@ -27,4 +27,14 @@ function hash_hmac($algo, $data, $key, $raw_output = false) {
 	return $algo($opad . pack($pack, $algo($ipad . $data)));
 }
 endif;
+
+if ( !function_exists( 'htmlspecialchars_decode' ) ) {
+	// Added in PHP 5.1.0
+	// from php.net (modified by Sam Bauers to deal with some quirks in HTML_SPECIALCHARS constant)
+	function htmlspecialchars_decode( $str, $quote_style = ENT_COMPAT ) {
+		$table = array_flip( get_html_translation_table( HTML_SPECIALCHARS, $quote_style ) );
+		$table = array_merge( array( '&#039;' => "'" ), $table, array( '&#38;' => "&", '&#038;' => "&" ) );
+		return strtr( $str, $table );
+	}
+}
 ?>
