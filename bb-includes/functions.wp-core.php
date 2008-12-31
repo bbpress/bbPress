@@ -47,7 +47,7 @@ function js_escape($text) {
 }
 endif;
 
-if ( !function_exists( 'attribute_escape' ) ) : // Current at [WP9840]
+if ( !function_exists( 'attribute_escape' ) ) : // Not like WordPress - uses wp_check_invalid_utf8() and wp_entities()
 /**
  * Escaping for HTML attributes.
  *
@@ -56,9 +56,10 @@ if ( !function_exists( 'attribute_escape' ) ) : // Current at [WP9840]
  * @param string $text
  * @return string
  */
-function attribute_escape($text) {
-	$safe_text = wp_specialchars($text, true);
-	return apply_filters('attribute_escape', $safe_text, $text);
+function attribute_escape( $text ) {
+	$safe_text = wp_check_invalid_utf8( $text );
+	$safe_text = wp_entities( $safe_text, ENT_QUOTES );
+	return apply_filters( 'attribute_escape', $safe_text, $text );
 }
 endif;
 
