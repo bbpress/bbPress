@@ -206,32 +206,33 @@ class BB_Query {
 			// Topics
 			'topic_author',	// one username
 			'topic_status',	// *normal, deleted, all, parse_int ( and - )
-			'open',		// *all, yes = open, no = closed, parse_int ( and - )
-			'sticky',	// *all, no = normal, forum, super = front, parse_int ( and - )
-			'meta_key',	// one meta_key ( and - )
+			'open',			// *all, yes = open, no = closed, parse_int ( and - )
+			'sticky',		// *all, no = normal, forum, super = front, parse_int ( and - )
+			'meta_key',		// one meta_key ( and - )
 			'meta_value',	// range
 			'topic_title',	// LIKE search.  Understands "doublequoted strings"
-			'search',	// generic search: topic_title OR post_text
-					// Can ONLY be used in a topic query
-					// Returns additional search_score and (concatenated) post_text columns
+			'search',		// generic search: topic_title OR post_text
+							// Can ONLY be used in a topic query
+							// Returns additional search_score and (concatenated) post_text columns
 
 			// Posts
 			'post_author',	// one username
 			'post_status',	// *noraml, deleted, all, parse_int ( and - )
 			'post_text',	// FULLTEXT search
-					// Returns additional search_score column (and (concatenated) post_text column if topic query)
-//			'ip',		// one IPv4 address
+							// Returns additional search_score column (and (concatenated) post_text column if topic query)
+//			'ip',			// one IPv4 address
 
 			// SQL
-			'order_by',	// fieldname
-			'order',	// *DESC, ASC
-			'count',	// *false = none, true = COUNT(*), found_rows = FOUND_ROWS()
+			'index_hint',	// A full index hint using valid index hint syntax, can be multiple hints an array
+			'order_by',		// fieldname
+			'order',		// *DESC, ASC
+			'count',		// *false = none, true = COUNT(*), found_rows = FOUND_ROWS()
 			'_join_type',	// not implemented: For benchmarking only.  Will disappear. join (1 query), in (2 queries)
 
 			// Utility
 //			'append_meta',	// *true, false: topics only
 //			'cache_users',	// *true, false
-//			'cache_topics,  // *true, false: posts only
+//			'cache_topics,	// *true, false: posts only
 			'cache_posts'	// not implemented: none, first, last
 		);
 
@@ -319,6 +320,7 @@ class BB_Query {
 		$sql_calc_found_rows = 'found_rows' === $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 't.*';
 		$join = '';
+		$index_hint = '';
 		$where = '';
 		$group_by = '';
 		$having = '';
@@ -489,12 +491,15 @@ class BB_Query {
 		if ( $where ) // Get rid of initial " AND " (this is pre-filters)
 			$where = substr($where, 5);
 
+		if ( $q['index_hint'] )
+			$index_hint = $q['index_hint'];
+
 		if ( $q['order_by'] )
 			$order_by = $q['order_by'];
 		else
 			$order_by = 't.topic_time';
 
-		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'where', 'group_by', 'having', 'order_by') );
+		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'index_hint', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->topics AS t" );
 		return $this->request;
 	}
@@ -507,6 +512,7 @@ class BB_Query {
 		$sql_calc_found_rows = 'found_rows' === $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 'p.*';
 		$join = '';
+		$index_hint = '';
 		$where = '';
 		$group_by = '';
 		$having = '';
@@ -599,12 +605,15 @@ class BB_Query {
 		if ( $where ) // Get rid of initial " AND " (this is pre-filters)
 			$where = substr($where, 5);
 
+		if ( $q['index_hint'] )
+			$index_hint = $q['index_hint'];
+
 		if ( $q['order_by'] )
 			$order_by = $q['order_by'];
 		else
 			$order_by = 'p.post_time';
 
-		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'where', 'group_by', 'having', 'order_by') );
+		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'index_hint', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->posts AS p" );
 
 		return $this->request;
@@ -646,7 +655,41 @@ class BB_Query {
 	}
 
 	function _filter_sql( $bits, $from ) {
+		global $bbdb;
+
 		$q =& $this->query_vars;
+
+		// MySQL 5.1 allows multiple index hints per query - earlier versions only get the first hint
+		if ( $bits['index_hint'] ) {
+			if ( !is_array( $bits['index_hint'] ) ) {
+				$bits['index_hint'] = array( (string) $bits['index_hint'] );
+			}
+			if ( $bbdb->has_cap( 'index_hint_for_any' ) ) {
+				// 5.1 <= MySQL
+				$_regex = '/\s*(USE|IGNORE|FORCE)\s+(INDEX|KEY)\s+(FOR\s+(JOIN|ORDER\s+BY|GROUP\s+BY)\s+)?\(\s*`?[a-z0-9_]+`?(\s*,\s*`?[a-z0-9_]+`?)*\s*\)\s*/i';
+			} elseif ( $bbdb->has_cap( 'index_hint_for_join' ) ) {
+				// 5.0 <= MySQL < 5.1
+				$_regex = '/\s*(USE|IGNORE|FORCE)\s+(INDEX|KEY)\s+(FOR\s+JOIN\s+)?\(\s*`?[a-z0-9_]+`?(\s*,\s*`?[a-z0-9_]+`?)*\s*\)\s*/i';
+			} else {
+				// MySQL < 5.0
+				$_regex = '/\s*(USE|IGNORE|FORCE)\s+(INDEX|KEY)\s+\(\s*`?[a-z0-9_]+`?(\s*,\s*`?[a-z0-9_]+`?)*\s*\)\s*/i';
+			}
+			$_index_hint = array();
+			foreach ( $bits['index_hint'] as $_hint ) {
+				if ( preg_match( $_regex, $_hint ) ) {
+					$_index_hint[] = trim( $_hint );
+				}
+			}
+			unset( $_regex, $_hint );
+			if ( $bbdb->has_cap( 'index_hint_lists' ) ) {
+				// 5.1 <= MySQL
+				$bits['index_hint'] = join( ' ', $_index_hint );
+			} else {
+				// MySQL < 5.1
+				$bits['index_hint'] = isset( $_index_hint[0] ) ? $_index_hint[0] : '';
+			}
+			unset( $_index_hint );
+		}
 
 		$q['order'] = strtoupper($q['order']);
 		if ( $q['order'] && in_array($q['order'], array('ASC', 'DESC')) )
@@ -687,7 +730,7 @@ class BB_Query {
 		if ( $limit )
 			$limit = "LIMIT $limit";
 
-		return "SELECT $distinct $sql_calc_found_rows $fields FROM $from $join $where $group_by $having $order_by $limit";
+		return "SELECT $distinct $sql_calc_found_rows $fields FROM $from $join $index_hint $where $group_by $having $order_by $limit";
 	}
 
 	function parse_value( $field, $value = '' ) {

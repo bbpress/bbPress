@@ -81,7 +81,12 @@ function get_latest_topics( $args = null ) {
 			$forum = $exclude;
 	}
 
-	$q = array('forum_id' => $forum, 'page' => $page, 'per_page' => $number);
+	$q = array(
+		'forum_id' => $forum,
+		'page' => $page,
+		'per_page' => $number,
+		'index_hint' => 'USE INDEX (`forum_time`)'
+	);
 
 	if ( is_front() )
 		$q['sticky'] = '-2';
