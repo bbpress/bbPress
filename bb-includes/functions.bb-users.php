@@ -99,9 +99,11 @@ function bb_apply_wp_role_map_to_user( $user ) {
 
 	$user = (int) $user;
 
-	if ( !$wordpress_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
+	global $wp_table_prefix;
+	if ( !$wp_table_prefix ) {
 		return;
 	}
+	$wordpress_table_prefix = $wp_table_prefix;
 
 	if ( $wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
 		$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
@@ -135,8 +137,8 @@ function bb_apply_wp_role_map_to_user( $user ) {
 		'subscriber' => 0
 	);
 
-	$bbpress_roles = bb_get_usermeta( $user_id, $bbdb->prefix . 'capabilities' );
-	$wordpress_roles = bb_get_usermeta( $user_id, $wordpress_table_prefix . 'capabilities' );
+	$bbpress_roles = bb_get_usermeta( $user, $bbdb->prefix . 'capabilities' );
+	$wordpress_roles = bb_get_usermeta( $user, $wordpress_table_prefix . 'capabilities' );
 
 	if ( !$bbpress_roles && is_array( $wordpress_roles ) ) {
 		$bbpress_roles_new = array();
@@ -148,7 +150,7 @@ function bb_apply_wp_role_map_to_user( $user ) {
 		}
 
 		if ( count( $bbpress_roles_new ) ) {
-			bb_update_usermeta( $user_id, $bbdb->prefix . 'capabilities', $bbpress_roles_new );
+			bb_update_usermeta( $user, $bbdb->prefix . 'capabilities', $bbpress_roles_new );
 		}
 	} elseif ( !$wordpress_roles && is_array( $bbpress_roles ) ) {
 		$wordpress_roles_new = array();
@@ -161,19 +163,21 @@ function bb_apply_wp_role_map_to_user( $user ) {
 		}
 
 		if ( count( $wordpress_roles_new ) ) {
-			bb_update_usermeta( $user_id, $wordpress_table_prefix . 'capabilities', $wordpress_roles_new );
-			bb_update_usermeta( $user_id, $wordpress_table_prefix . 'user_level', max( $wordpress_userlevels_new ) );
+			bb_update_usermeta( $user, $wordpress_table_prefix . 'capabilities', $wordpress_roles_new );
+			bb_update_usermeta( $user, $wordpress_table_prefix . 'user_level', max( $wordpress_userlevels_new ) );
 		}
 	}
 }
 
 function bb_apply_wp_role_map_to_orphans() {
-	if ( !$wp_table_prefix = bb_get_option( 'wp_table_prefix' ) ) {
+	global $wp_table_prefix;
+	if ( !$wp_table_prefix ) {
 		return;
 	}
+	$wordpress_table_prefix = $wp_table_prefix;
 
 	if ( $wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
-		$wp_table_prefix .= $wordpress_mu_primary_blog_id . '_';
+		$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
 	}
 
 	$role_query = <<<EOQ
