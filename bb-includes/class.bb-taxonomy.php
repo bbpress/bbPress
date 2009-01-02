@@ -10,18 +10,19 @@
 class BB_Taxonomy extends WP_Taxonomy
 {
 	/**
-	 * Return object_ids of valid taxonomy and term
+	 * Retrieve object_ids of valid taxonomy and term.
 	 *
-	 * The strings of $taxonomies must exist before this function will continue. On failure of finding
-	 * a valid taxonomy, it will return an WP_Error class, kind of like Exceptions in PHP 5, except you
-	 * can't catch them. Even so, you can still test for the WP_Error class and get the error message.
+	 * The strings of $taxonomies must exist before this function will continue. On
+	 * failure of finding a valid taxonomy, it will return an WP_Error class, kind
+	 * of like Exceptions in PHP 5, except you can't catch them. Even so, you can
+	 * still test for the WP_Error class and get the error message.
 	 *
-	 * The $terms aren't checked the same as $taxonomies, but still need to exist for $object_ids to
-	 * be returned.
+	 * The $terms aren't checked the same as $taxonomies, but still need to exist
+	 * for $object_ids to be returned.
 	 *
-	 * It is possible to change the order that object_ids is returned by either using PHP sort family
-	 * functions or using the database by using $args with either ASC or DESC array. The value should
-	 * be in the key named 'order'.
+	 * It is possible to change the order that object_ids is returned by either
+	 * using PHP sort family functions or using the database by using $args with
+	 * either ASC or DESC array. The value should be in the key named 'order'.
 	 *
 	 * @package bbPress
 	 * @subpackage Taxonomy
@@ -35,21 +36,26 @@ class BB_Taxonomy extends WP_Taxonomy
 	 * @return WP_Error|array If the taxonomy does not exist, then WP_Error will be returned. On success
 	 *	the array can be empty meaning that there are no $object_ids found or it will return the $object_ids found.
 	 */
-	function get_objects_in_term( $terms, $taxonomies, $args = array() ) {
+	function get_objects_in_term( $terms, $taxonomies, $args = null ) {
 		if ( !is_array($terms) )
 			$terms = array($terms);
 
 		if ( !is_array($taxonomies) )
 			$taxonomies = array($taxonomies);
 
-		foreach ( $taxonomies as $taxonomy ) {
+		foreach ( (array) $taxonomies as $taxonomy ) {
 			if ( !$this->is_taxonomy($taxonomy) )
 				return new WP_Error('invalid_taxonomy', __('Invalid Taxonomy'));
 		}
 
-		$defaults = array('order' => 'ASC', 'user_id' => 0);
+		$defaults = array('order' => 'ASC', 'field' => 'term_id', 'user_id' => 0);
 		$args = wp_parse_args( $args, $defaults );
 		extract($args, EXTR_SKIP);
+
+		if ( 'tt_id' == $field )
+			$field = 'tt.term_taxonomy_id';
+		else
+			$field = 'tt.term_id';
 
 		$order = ( 'desc' == strtolower($order) ) ? 'DESC' : 'ASC';
 		$user_id = (int) $user_id;
@@ -75,9 +81,9 @@ class BB_Taxonomy extends WP_Taxonomy
 	/**
 	 * Will unlink the term from the taxonomy
 	 *
-	 * Will remove the term's relationship to the taxonomy, not the term or taxonomy itself.
-	 * The term and taxonomy will still exist. Will require the term's object ID to perform
-	 * the operation.
+	 * Will remove the term's relationship to the taxonomy, not the term or taxonomy
+	 * itself. The term and taxonomy will still exist. Will require the term's
+	 * object ID to perform the operation.
 	 *
 	 * @package bbPress
 	 * @subpackage Taxonomy
@@ -93,7 +99,7 @@ class BB_Taxonomy extends WP_Taxonomy
 		if ( !is_array($taxonomies) )
 			$taxonomies = array($taxonomies);
 
-		foreach ( $taxonomies as $taxonomy ) {
+		foreach ( (array) $taxonomies as $taxonomy ) {
 			$terms = $this->get_object_terms($object_id, $taxonomy, array('fields' => 'tt_ids', 'user_id' => $user_id));
 			$in_terms = "'" . implode("', '", $terms) . "'";
 			$sql = "DELETE FROM {$this->db->term_relationships} WHERE object_id = %d AND term_taxonomy_id IN ($in_terms)";
@@ -107,22 +113,24 @@ class BB_Taxonomy extends WP_Taxonomy
 	/**
 	 * Retrieves the terms associated with the given object(s), in the supplied taxonomies.
 	 *
-	 * The following information has to do the $args parameter and for what can be contained in the string
-	 * or array of that parameter, if it exists.
+	 * The following information has to do the $args parameter and for what can be
+	 * contained in the string or array of that parameter, if it exists.
 	 *
-	 * The first argument is called, 'orderby' and has the default value of 'name'. The other value that is
-	 * supported is 'count'.
+	 * The first argument is called, 'orderby' and has the default value of 'name'.
+	 * The other value that is supported is 'count'.
 	 *
-	 * The second argument is called, 'order' and has the default value of 'ASC'. The only other value that
-	 * will be acceptable is 'DESC'.
+	 * The second argument is called, 'order' and has the default value of 'ASC'.
+	 * The only other value that will be acceptable is 'DESC'.
 	 *
-	 * The final argument supported is called, 'fields' and has the default value of 'all'. There are
-	 * multiple other options that can be used instead. Supported values are as follows: 'all', 'ids',
-	 * 'names', and finally 'all_with_object_id'.
+	 * The final argument supported is called, 'fields' and has the default value of
+	 * 'all'. There are multiple other options that can be used instead. Supported
+	 * values are as follows: 'all', 'ids', 'names', and finally
+	 * 'all_with_object_id'.
 	 *
-	 * The fields argument also decides what will be returned. If 'all' or 'all_with_object_id' is choosen or
-	 * the default kept intact, then all matching terms objects will be returned. If either 'ids' or 'names'
-	 * is used, then an array of all matching term ids or term names will be returned respectively.
+	 * The fields argument also decides what will be returned. If 'all' or
+	 * 'all_with_object_id' is choosen or the default kept intact, then all matching
+	 * terms objects will be returned. If either 'ids' or 'names' is used, then an
+	 * array of all matching term ids or term names will be returned respectively.
 	 *
 	 * @package bbPress
 	 * @subpackage Taxonomy
@@ -137,7 +145,7 @@ class BB_Taxonomy extends WP_Taxonomy
 		if ( !is_array($taxonomies) )
 			$taxonomies = array($taxonomies);
 
-		foreach ( $taxonomies as $taxonomy ) {
+		foreach ( (array) $taxonomies as $taxonomy ) {
 			if ( !$this->is_taxonomy($taxonomy) )
 				return new WP_Error('invalid_taxonomy', __('Invalid Taxonomy'));
 		}
@@ -219,13 +227,15 @@ class BB_Taxonomy extends WP_Taxonomy
 	}
 
 	/**
-	 * Create Term and Taxonomy Relationships
-	 * 
-	 * Relates an object (post, link etc) to a term and taxonomy type. Creates the term and taxonomy
-	 * relationship if it doesn't already exist. Creates a term if it doesn't exist (using the slug).
+	 * Create Term and Taxonomy Relationships.
 	 *
-	 * A relationship means that the term is grouped in or belongs to the taxonomy. A term has no
-	 * meaning until it is given context by defining which taxonomy it exists under.
+	 * Relates an object (post, link etc) to a term and taxonomy type. Creates the
+	 * term and taxonomy relationship if it doesn't already exist. Creates a term if
+	 * it doesn't exist (using the slug).
+	 *
+	 * A relationship means that the term is grouped in or belongs to the taxonomy.
+	 * A term has no meaning until it is given context by defining which taxonomy it
+	 * exists under.
 	 *
 	 * @package bbPress
 	 * @subpackage Taxonomy
@@ -260,7 +270,7 @@ class BB_Taxonomy extends WP_Taxonomy
 		$tt_ids = array();
 		$term_ids = array();
 
-		foreach ($terms as $term) {
+		foreach ( (array) $terms as $term ) {
 			if ( !strlen(trim($term)) )
 				continue;
 
