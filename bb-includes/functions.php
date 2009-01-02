@@ -1447,7 +1447,7 @@ function bb_get_option( $option ) {
 		$r = $bb_locale->text_direction;
 		break;
 	case 'version' :
-		return '0.9.0.3'; // Don't filter
+		return '0.9.0.4'; // Don't filter
 		break;
 	case 'bb_db_version' :
 		return '1467'; // Don't filter
