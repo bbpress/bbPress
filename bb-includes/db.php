@@ -486,7 +486,15 @@ HEAD;
 		switch ( $db_cap ) :
 		case 'group_concat' :
 		case 'collation' :
-			return version_compare($version, '4.1', '>=');
+		case 'subqueries' :
+			return version_compare( $version, '4.1', '>=' );
+			break;
+		case 'index_hint_for_join' :
+			return version_compare( $version, '5.0', '>=' );
+			break;
+		case 'index_hint_lists' :
+		case 'index_hint_for_any' :
+			return version_compare( $version, '5.1', '>=' );
 			break;
 		endswitch;
 

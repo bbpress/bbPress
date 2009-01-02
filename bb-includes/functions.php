@@ -158,7 +158,11 @@ function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
 			$forum = $exclude;
 	}
 
-	$q = array('forum_id' => $forum, 'page' => $page);
+	$q = array(
+		'forum_id' => $forum,
+		'page' => $page,
+		'index_hint' => 'USE INDEX (`forum_time`)'
+	);
 
 	$where = 'WHERE topic_status = 0';
 	if ( is_front() )
