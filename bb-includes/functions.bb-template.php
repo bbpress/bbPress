@@ -2006,10 +2006,11 @@ function bb_profile_admin_form( $id = 0 ) {
 	$can_keep_gate = bb_current_user_can( 'keep_gate' );
 
 	// Keymasters can't demote themselves
-	if ( ( $bb_current_id == $user->ID && $can_keep_gate ) || ( array_key_exists('keymaster', $user->capabilities) && !$can_keep_gate ) )
+	if ( ( $bb_current_id == $user->ID && $can_keep_gate ) || ( isset( $user->capabilities ) && is_array( $user->capabilities ) && array_key_exists('keymaster', $user->capabilities) && !$can_keep_gate ) ) {
 		$roles = array( 'keymaster' => $roles['keymaster'] );
-	elseif ( !$can_keep_gate ) // only keymasters can promote others to keymaster status
+	} elseif ( !$can_keep_gate ) { // only keymasters can promote others to keymaster status
 		unset($roles['keymaster']);
+	}
 
 	$selected = array( 'inactive' => ' selected="selected"' );
 ?>
