@@ -319,8 +319,8 @@ class BB_Query {
 		$distinct = '';
 		$sql_calc_found_rows = 'found_rows' === $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 't.*';
-		$join = '';
 		$index_hint = '';
+		$join = '';
 		$where = '';
 		$group_by = '';
 		$having = '';
@@ -499,7 +499,7 @@ class BB_Query {
 		else
 			$order_by = 't.topic_time';
 
-		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'index_hint', 'where', 'group_by', 'having', 'order_by') );
+		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'index_hint', 'join', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->topics AS t" );
 		return $this->request;
 	}
@@ -511,8 +511,8 @@ class BB_Query {
 		$distinct = '';
 		$sql_calc_found_rows = 'found_rows' === $q['count'] ? 'SQL_CALC_FOUND_ROWS' : ''; // unfiltered
 		$fields = 'p.*';
-		$join = '';
 		$index_hint = '';
+		$join = '';
 		$where = '';
 		$group_by = '';
 		$having = '';
@@ -613,7 +613,7 @@ class BB_Query {
 		else
 			$order_by = 'p.post_time';
 
-		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'join', 'index_hint', 'where', 'group_by', 'having', 'order_by') );
+		$bits = compact( array('distinct', 'sql_calc_found_rows', 'fields', 'index_hint', 'join', 'where', 'group_by', 'having', 'order_by') );
 		$this->request = $this->_filter_sql( $bits, "$bbdb->posts AS p" );
 
 		return $this->request;
@@ -730,7 +730,7 @@ class BB_Query {
 		if ( $limit )
 			$limit = "LIMIT $limit";
 
-		return "SELECT $distinct $sql_calc_found_rows $fields FROM $from $join $index_hint $where $group_by $having $order_by $limit";
+		return "SELECT $distinct $sql_calc_found_rows $fields FROM $from $index_hint $join $where $group_by $having $order_by $limit";
 	}
 
 	function parse_value( $field, $value = '' ) {
