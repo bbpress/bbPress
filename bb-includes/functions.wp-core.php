@@ -40,10 +40,11 @@ if ( !function_exists( 'js_escape' ) ) : // Current at [WP9840]
  * @return string Escaped text.
  */
 function js_escape($text) {
-	$safe_text = wp_specialchars($text, 'double');
-	$safe_text = preg_replace('/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes($safe_text));
-	$safe_text = preg_replace("/\r?\n/", "\\n", addslashes($safe_text));
-	return apply_filters('js_escape', $safe_text, $text);
+	$safe_text = wp_check_invalid_utf8( $text );
+	$safe_text = wp_specialchars( $safe_text, ENT_COMPAT );
+	$safe_text = preg_replace( '/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes( $safe_text ) );
+	$safe_text = preg_replace( "/\r?\n/", "\\n", addslashes( $safe_text ) );
+	return apply_filters( 'js_escape', $safe_text, $text );
 }
 endif;
 
@@ -58,7 +59,7 @@ if ( !function_exists( 'attribute_escape' ) ) : // Not like WordPress - uses wp_
  */
 function attribute_escape( $text ) {
 	$safe_text = wp_check_invalid_utf8( $text );
-	$safe_text = wp_entities( $safe_text, ENT_QUOTES );
+	$safe_text = wp_specialchars( $safe_text, ENT_QUOTES );
 	return apply_filters( 'attribute_escape', $safe_text, $text );
 }
 endif;
