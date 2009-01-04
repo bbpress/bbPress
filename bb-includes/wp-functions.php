@@ -56,42 +56,26 @@ function clean_pre($matches) {
 endif;
 
 if ( !function_exists('wp_specialchars') ) :
-function wp_specialchars( $text, $quotes = 0 ) { // [WP4451]
-	// Like htmlspecialchars except don't double-encode HTML entities
-	$text = str_replace('&&', '&#038;&', $text);
-	$text = str_replace('&&', '&#038;&', $text);
-	$text = preg_replace('/&(?:$|([^#])(?![a-z1-4]{1,8};))/', '&#038;$1', $text);
-	$text = str_replace('<', '&lt;', $text);
-	$text = str_replace('>', '&gt;', $text);
-	if ( 'double' === $quotes ) {
-		$text = str_replace('"', '&quot;', $text);
-	} elseif ( 'single' === $quotes ) {
-		$text = str_replace("'", '&#039;', $text);
-	} elseif ( $quotes ) {
-		$text = str_replace('"', '&quot;', $text);
-		$text = str_replace("'", '&#039;', $text);
-	}
-	return $text;
-}
-endif;
-
-if ( !function_exists( 'wp_entities' ) ) :
 /**
- * Converts all special characters into their HTML entities.
+ * Converts a number of special characters into their HTML entities.
+ *
+ * Specifically deals with: &, <, >, ", and '.
  *
  * $quote_style can be set to ENT_COMPAT to encode " to
  * &quot;, or ENT_QUOTES to do both. Default is ENT_NOQUOTES where no quotes are encoded.
  *
- * @since 2.8
+ * @since 1.2.2
  *
  * @param string $string The text which is to be encoded.
- * @param mixed $quote_style Optional. Converts double quotes if set to ENT_COMPAT, both single and double if set to ENT_QUOTES or none if set to ENT_NOQUOTES. Default is ENT_NOQUOTES.
+ * @param mixed $quote_style Optional. Converts double quotes if set to ENT_COMPAT, both single and double if set to ENT_QUOTES or none if set to ENT_NOQUOTES. Also compatible with old values; converting single quotes if set to 'single', double if set to 'double' or both if otherwise set. Default is ENT_NOQUOTES.
  * @param string $charset Optional. The character encoding of the string. Default is false.
  * @param boolean $double_encode Optional. Whether or not to encode existing html entities. Default is false.
  * @return string The encoded text with HTML entities.
  */
-function wp_entities( $string, $quote_style = ENT_NOQUOTES, $charset = false, $double_encode = false )
+function wp_specialchars( $string, $quote_style = ENT_NOQUOTES, $charset = false, $double_encode = false )
 {
+	$string = (string) $string;
+
 	if ( 0 === strlen( $string ) ) {
 		return '';
 	}
@@ -103,20 +87,114 @@ function wp_entities( $string, $quote_style = ENT_NOQUOTES, $charset = false, $d
 		$charset = 'UTF-8';
 	}
 
-	if ( version_compare( PHP_VERSION, '5.2.3', '>=' ) ) {
-		$string = htmlentities( $string, $quote_style, $charset, $double_encode );
-	} else {
-		// Handle double encoding for PHP versions that don't support it in htmlentities()
-		if ( !$double_encode ) {
-			// Multi-byte charsets are not supported below PHP 5.0.0
-			// 'cp866', 'cp1251', 'KOI8-R' charsets are not supported below PHP 4.3.2
-			$string = html_entity_decode( $string, $quote_style, $charset );
-		}
-		// 'cp866', 'cp1251', 'KOI8-R' charsets are not supported below PHP 4.3.2
-		$string = htmlentities( $string, $quote_style, $charset );
+	switch ( $quote_style ) {
+		case ENT_QUOTES:
+		default:
+			$quote_style = ENT_QUOTES;
+			$_quote_style = ENT_QUOTES;
+			break;
+		case ENT_COMPAT:
+		case 'double':
+			$quote_style = ENT_COMPAT;
+			$_quote_style = ENT_COMPAT;
+			break;
+		case 'single':
+			$quote_style = ENT_NOQUOTES;
+			$_quote_style = 'single';
+			break;
+		case ENT_NOQUOTES:
+		case false:
+		case 0:
+		case '':
+		case null:
+			$quote_style = ENT_NOQUOTES;
+			$_quote_style = ENT_NOQUOTES;
+			break;
+	}
+
+	// Handle double encoding ourselves
+	if ( !$double_encode ) {
+		$string = wp_specialchars_decode( $string, $_quote_style );
+		$string = preg_replace( '/&(#?x?[0-9]+|[a-z]+);/i', '|wp_entity|$1|/wp_entity|', $string );
+	}
+
+	$string = htmlspecialchars( $string, $quote_style, $charset );
+
+	// Handle double encoding ourselves
+	if ( !$double_encode ) {
+		$string = str_replace( array( '|wp_entity|', '|/wp_entity|' ), array( '&', ';' ), $string );
+	}
+
+	// Backwards compatibility
+	if ( 'single' === $_quote_style ) {
+		$string = str_replace( "'", '&#039;', $string );
 	}
 
 	return $string;
+}
+endif;
+
+if ( !function_exists( 'wp_specialchars_decode' ) ) :
+/**
+ * Converts a number of HTML entities into their special characters.
+ *
+ * Specifically deals with: &, <, >, ", and '.
+ *
+ * $quote_style can be set to ENT_COMPAT to decode " entities,
+ * or ENT_QUOTES to do both " and '. Default is ENT_NOQUOTES where no quotes are decoded.
+ *
+ * @since 2.8
+ *
+ * @param string $string The text which is to be decoded.
+ * @param mixed $quote_style Optional. Converts double quotes if set to ENT_COMPAT, both single and double if set to ENT_QUOTES or none if set to ENT_NOQUOTES. Also compatible with old wp_specialchars() values; converting single quotes if set to 'single', double if set to 'double' or both if otherwise set. Default is ENT_NOQUOTES.
+ * @return string The decoded text without HTML entities.
+ */
+function wp_specialchars_decode( $string, $quote_style = ENT_NOQUOTES )
+{
+	$string = (string) $string;
+
+	if ( 0 === strlen( $string ) ) {
+		return '';
+	}
+
+	// More complete than get_html_translation_table( HTML_SPECIALCHARS )
+	$single = array( '&#039;'  => '\'', '&#x27;' => '\'' );
+	$single_preg = array( '/&#0*39;/'  => '&#039;', '/&#x0*27;/i' => '&#x27;' );
+	$double = array( '&quot;' => '"', '&#034;'  => '"', '&#x22;' => '"' );
+	$double_preg = array( '/&#0*34;/'  => '&#034;', '/&#x0*22;/i' => '&#x22;' );
+	$others = array( '&lt;'   => '<', '&#060;'  => '<', '&gt;'   => '>', '&#062;'  => '>', '&amp;'  => '&', '&#038;'  => '&', '&#x26;' => '&' );
+	$others_preg = array( '/&#0*60;/'  => '&#060;', '/&#0*62;/'  => '&#062;', '/&#0*38;/'  => '&#038;', '/&#x0*26;/i' => '&#x26;' );
+
+	switch ( $quote_style ) {
+		case ENT_QUOTES:
+		default:
+			$translation = array_merge( $single, $double, $others );
+			$translation_preg = array_merge( $single_preg, $double_preg, $others_preg );
+			break;
+		case ENT_COMPAT:
+		case 'double':
+			$translation = array_merge( $double, $others );
+			$translation_preg = array_merge( $double_preg, $others_preg );
+			break;
+		case 'single':
+			$translation = array_merge( $single, $others );
+			$translation_preg = array_merge( $single_preg, $others_preg );
+			break;
+		case ENT_NOQUOTES:
+		case false:
+		case 0:
+		case '':
+		case null:
+			$translation = $others;
+			$translation_preg = $others_preg;
+			break;
+	}
+
+	// Remove zero padding on numeric entities
+	$string = preg_replace( array_keys( $translation_preg ), array_values( $translation_preg ), $string );
+
+	// Replace characters according to translation table
+	return strtr( $string, $translation );
 }
 endif;
 
@@ -132,6 +210,8 @@ if ( !function_exists( 'wp_check_invalid_utf8' ) ) :
  */
 function wp_check_invalid_utf8( $string, $strip = false )
 {
+	$string = (string) $string;
+
 	if ( 0 === strlen( $string ) ) {
 		return '';
 	}
@@ -140,7 +220,7 @@ function wp_check_invalid_utf8( $string, $strip = false )
 		return $string;
 	}
 
-	// preg_match fails when it encounters invalid UTF8 in $str
+	// preg_match fails when it encounters invalid UTF8 in $string
 	if ( 1 === @preg_match( '@^.@us', $string ) ) {
 		return $string;
 	}
@@ -212,22 +292,39 @@ function sanitize_user( $username, $strict = false ) {
 }
 endif;
 
-// Escape single quotes, specialchar double quotes, and fix line endings.
-if ( !function_exists('js_escape') ) : // [WP5734]
+if ( !function_exists( 'js_escape' ) ) : // Current at [WP9840]
+/**
+ * Escape single quotes, specialchar double quotes, and fix line endings.
+ *
+ * The filter 'js_escape' is also applied here.
+ *
+ * @since WP 2.0.4
+ *
+ * @param string $text The text to be escaped.
+ * @return string Escaped text.
+ */
 function js_escape($text) {
-	$safe_text = wp_specialchars($text, 'double');
-	$safe_text = preg_replace('/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes($safe_text));
-	$safe_text = preg_replace("/\r?\n/", "\\n", addslashes($safe_text));
-	return apply_filters('js_escape', $safe_text, $text);
+	$safe_text = wp_check_invalid_utf8( $text );
+	$safe_text = wp_specialchars( $safe_text, ENT_COMPAT );
+	$safe_text = preg_replace( '/&#(x)?0*(?(1)27|39);?/i', "'", stripslashes( $safe_text ) );
+	$safe_text = preg_replace( "/\r?\n/", "\\n", addslashes( $safe_text ) );
+	return apply_filters( 'js_escape', $safe_text, $text );
 }
 endif;
 
-// Escaping for HTML attributes
-if ( !function_exists('attribute_escape') ) :
-function attribute_escape($text) { // Not like WordPress - uses wp_check_invalid_utf8() and wp_entities()
+if ( !function_exists( 'attribute_escape' ) ) : // Not like WordPress - uses wp_check_invalid_utf8() and wp_entities()
+/**
+ * Escaping for HTML attributes.
+ *
+ * @since WP 2.0.6
+ *
+ * @param string $text
+ * @return string
+ */
+function attribute_escape( $text ) {
 	$safe_text = wp_check_invalid_utf8( $text );
-	$safe_text = wp_entities( $safe_text, ENT_QUOTES );
-	return apply_filters('attribute_escape', $safe_text, $text);
+	$safe_text = wp_specialchars( $safe_text, ENT_QUOTES );
+	return apply_filters( 'attribute_escape', $safe_text, $text );
 }
 endif;
 
