@@ -1871,7 +1871,7 @@ class BB_Install
 			$direction = ' dir="' . $direction . '"';
 		}
 		
-		$r .= '<input' . $direction . ' type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . ' />' . "\n";
+		$r .= '<input' . $direction . ' type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . attribute_escape( $data['value'] ) . '"' . $maxlength . ' />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -1883,7 +1883,7 @@ class BB_Install
 	
 	function input_hidden($key)
 	{
-		$r = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $this->data[$this->step]['form'][$key]['value'] . '" />' . "\n";
+		$r = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . attribute_escape( $this->data[$this->step]['form'][$key]['value'] ) . '" />' . "\n";
 		
 		echo $r;
 	}
@@ -1902,7 +1902,7 @@ class BB_Install
 			$direction = ' dir="' . $direction . '"';
 		}
 		
-		$r .= '<textarea' . $direction . ' id="' . $key . '" rows="5" cols="30">' . $data['value'] . '</textarea>' . "\n";
+		$r .= '<textarea' . $direction . ' id="' . $key . '" rows="5" cols="30">' . wp_specialchars( $data['value'] ) . '</textarea>' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -1938,7 +1938,7 @@ class BB_Install
 					$selected = '';
 				}
 				
-				$r .= '<option value="' . $value . '"' . $selected . '>' . $display . '</option>' . "\n";
+				$r .= '<option value="' . attribute_escape( $value ) . '"' . $selected . '>' . wp_specialchars( $display ) . '</option>' . "\n";
 			}
 			
 			$r .= '</select>' . "\n";
@@ -2005,12 +2005,12 @@ class BB_Install
 		
 		if ($back) {
 			$r .= '<label for="' . $back . '" class="back">' . "\n";
-			$r .= '<input type="submit" id="' . $back . '" name="' . $back . '" class="button" value="' . $data_back['value'] . '" />' . "\n";
+			$r .= '<input type="submit" id="' . $back . '" name="' . $back . '" class="button" value="' . attribute_escape( $data_back['value'] ) . '" />' . "\n";
 			$r .= '</label>' . "\n";
 		}
 		
 		$r .= '<label for="' . $forward . '" class="forward">' . "\n";
-		$r .= '<input type="submit" id="' . $forward . '" name="' . $forward . '" class="button" value="' . $data_forward['value'] . '" />' . "\n";
+		$r .= '<input type="submit" id="' . $forward . '" name="' . $forward . '" class="button" value="' . attribute_escape( $data_forward['value'] ) . '" />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		$r .= '</fieldset>' . "\n";
@@ -2032,7 +2032,7 @@ class BB_Install
 		
 		foreach ($data as $key => $value) {
 			if (substr($key, 0, 8) !== 'forward_' && substr($key, 0, 5) !== 'back_') {
-				$r .= '<input type="hidden" name="' . $key . '" value="' . $value['value'] . '" />' . "\n";
+				$r .= '<input type="hidden" name="' . $key . '" value="' . attribute_escape( $value['value'] ) . '" />' . "\n";
 			}
 		}
 		
