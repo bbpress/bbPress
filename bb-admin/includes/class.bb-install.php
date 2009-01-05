@@ -2070,7 +2070,7 @@ class BB_Install
 		if (isset($this->strings[$this->step]['form_errors'][$key])) {
 			foreach ($this->strings[$this->step]['form_errors'][$key] as $error) {
 				if (!is_bool($error)) {
-					$r .= '<span class="error">' . wp_specialchars( $error ) . '</span>' . "\n";
+					$r .= '<span class="error">' . $error . '</span>' . "\n";
 				}
 			}
 		}
