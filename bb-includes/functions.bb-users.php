@@ -76,7 +76,7 @@ function bb_trusted_roles() {
 	return apply_filters( 'bb_trusted_roles', array('moderator', 'administrator', 'keymaster') );
 }
 
-function bb_is_trusted_user( $user ) { // ID, user_login, BB_User, DB user obj
+function bb_is_trusted_user( $user ) { // ID, user_login, WP_User, DB user obj
 	if ( is_numeric($user) || is_string($user) )
 		$user = new BP_User( $user );
 	elseif ( is_object($user) && is_a($user, 'BP_User') ); // Intentional

@@ -137,4 +137,4 @@ add_action( 'bb_init', 'bb_register_default_views' );
 
 add_action( 'set_current_user', 'bb_apply_wp_role_map_to_user' );
 
-unset($filters);
+unset( $filters, $filter );
