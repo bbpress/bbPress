@@ -59,7 +59,7 @@ switch ($bb_install->step) {
 					$bb_install->select_language();
 					$bb_install->input_toggle('toggle_1');
 ?>
-						<div class="toggle" id="toggle_1_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_1']['display']; ?>;">
+						<div class="toggle" id="toggle_1_target" style="<?php echo attribute_escape( 'display:' . $bb_install->data[$bb_install->step]['form']['toggle_1']['display'] ); ?>;">
 <?php
 					$bb_install->input_text('bbdb_host');
 					$bb_install->input_text('bbdb_charset');
@@ -125,13 +125,13 @@ switch ($bb_install->step) {
 					$bb_install->input_toggle('toggle_2_0');
 ?>
 					</fieldset>
-					<div class="toggle" id="toggle_2_0_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_0']['display']; ?>;">
+					<div class="toggle" id="toggle_2_0_target" style="<?php echo attribute_escape( 'display:' . $bb_install->data[$bb_install->step]['form']['toggle_2_0']['display'] ); ?>;">
 						<fieldset>
 <?php
 					$bb_install->input_toggle('toggle_2_1');
 ?>
 						</fieldset>
-						<div class="toggle" id="toggle_2_1_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_1']['display']; ?>;">
+						<div class="toggle" id="toggle_2_1_target" style="<?php echo attribute_escape( 'display:' . $bb_install->data[$bb_install->step]['form']['toggle_2_1']['display'] ); ?>;">
 							<fieldset>
 								<legend><?php _e('Cookies'); ?></legend>
 								<p><?php _e('Integrating cookies allows you and your users to login to either your bbPress or your WordPress site and be automatically logged into both.'); ?></p>
@@ -153,7 +153,7 @@ switch ($bb_install->step) {
 					$bb_install->input_toggle('toggle_2_2');
 ?>
 						</fieldset>
-						<div class="toggle" id="toggle_2_2_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_2']['display']; ?>;">
+						<div class="toggle" id="toggle_2_2_target" style="<?php echo attribute_escape( 'display:' . $bb_install->data[$bb_install->step]['form']['toggle_2_2']['display'] ); ?>;">
 							<fieldset>
 								<legend><?php _e('User database'); ?></legend>
 								<p><?php _e('Integrating your WordPress database user tables allows you to store user data in one location, instead of having separate user data for both bbPress and WordPress.'); ?></p>
@@ -162,7 +162,7 @@ switch ($bb_install->step) {
 					$bb_install->input_toggle('toggle_2_3');
 ?>
 							</fieldset>
-							<div class="toggle" id="toggle_2_3_target" style="display:<?php echo $bb_install->data[$bb_install->step]['form']['toggle_2_3']['display']; ?>;">
+							<div class="toggle" id="toggle_2_3_target" style="<?php echo attribute_escape( 'display:' . $bb_install->data[$bb_install->step]['form']['toggle_2_3']['display'] ); ?>;">
 								<fieldset>
 									<legend><?php _e('Separate user database settings'); ?></legend>
 									<p><?php _e('Most of the time these settings are <em>not</em> required. Look before you leap!'); ?></p>
@@ -326,9 +326,9 @@ switch ($bb_install->step) {
 				<p><?php _e('You can now log in with the following details:'); ?></p>
 				<dl>
 					<dt><?php _e('Username:'); ?></dt>
-					<dd><code><?php echo $bb_install->data[3]['form']['keymaster_user_login']['value']; ?></code></dd>
+					<dd><code><?php echo wp_specialchars( $bb_install->data[3]['form']['keymaster_user_login']['value'] ); ?></code></dd>
 					<dt><?php _e('Password:'); ?></dt>
-					<dd><code><?php echo $bb_install->data[4]['form']['keymaster_user_password']['value']; ?></code></dd>
+					<dd><code><?php echo wp_specialchars( $bb_install->data[4]['form']['keymaster_user_password']['value'] ); ?></code></dd>
 					<dt><?php _e('Site address:'); ?></dt>
 					<dd dir="ltr"><a href="<?php bb_uri(); ?>"><?php bb_uri(null, null, BB_URI_CONTEXT_TEXT); ?></a></dd>
 				</dl>

@@ -2061,7 +2061,7 @@ class BB_Install
 			$class = ' class="error"';
 		}
 		
-		$r = '<label for="' . $key . '"' . $class . '>' . "\n";
+		$r = '<label for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
 		
 		if (isset($data['label'])) {
 			$r .= $data['label'] . "\n";
@@ -2070,26 +2070,26 @@ class BB_Install
 		if (isset($this->strings[$this->step]['form_errors'][$key])) {
 			foreach ($this->strings[$this->step]['form_errors'][$key] as $error) {
 				if (!is_bool($error)) {
-					$r .= '<span class="error">' . $error . '</span>' . "\n";
+					$r .= '<span class="error">' . wp_specialchars( $error ) . '</span>' . "\n";
 				}
 			}
 		}
 		
 		if (isset($data['maxlength']) && is_integer($data['maxlength'])) {
-			$maxlength = ' maxlength="' . $data['maxlength'] . '"';
+			$maxlength = ' maxlength="' . attribute_escape( $data['maxlength'] ) . '"';
 		}
 		
 		if ($direction) {
-			$direction = ' dir="' . $direction . '"';
+			$direction = ' dir="' . attribute_escape( $direction ) . '"';
 		}
 
 		if ( isset($data['autocomplete']) ) {
-			$autocomplete = ' autocomplete="' . $data['autocomplete'] . '"';
+			$autocomplete = ' autocomplete="' . attribute_escape( $data['autocomplete'] ) . '"';
 		} else {
 			$autocomplete = '';
 		}
 		
-		$r .= '<input' . $direction . ' type="' . $type . '" id="' . $key . '" name="' . $key . '" class="text" value="' . $data['value'] . '"' . $maxlength . $autocomplete . ' />' . "\n";
+		$r .= '<input' . $direction . ' type="' . attribute_escape( $type ) . '" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="text" value="' . attribute_escape( $data['value'] ) . '"' . $maxlength . $autocomplete . ' />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -2101,7 +2101,7 @@ class BB_Install
 	
 	function input_hidden($key)
 	{
-		$r = '<input type="hidden" id="' . $key . '" name="' . $key . '" value="' . $this->data[$this->step]['form'][$key]['value'] . '" />' . "\n";
+		$r = '<input type="hidden" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" value="' . attribute_escape( $this->data[$this->step]['form'][$key]['value'] ) . '" />' . "\n";
 		
 		echo $r;
 	}
@@ -2110,17 +2110,17 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 		
-		$r = '<label for="' . $key . '">' . "\n";
+		$r = '<label for="' . attribute_escape( $key ) . '">' . "\n";
 		
 		if (isset($data['label'])) {
 			$r .= $data['label'] . "\n";
 		}
 		
 		if ($direction) {
-			$direction = ' dir="' . $direction . '"';
+			$direction = ' dir="' . attribute_escape( $direction ) . '"';
 		}
 		
-		$r .= '<textarea' . $direction . ' id="' . $key . '" rows="5" cols="30">' . $data['value'] . '</textarea>' . "\n";
+		$r .= '<textarea' . $direction . ' id="' . attribute_escape( $key ) . '" rows="5" cols="30">' . wp_specialchars( $data['value'] ) . '</textarea>' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -2134,17 +2134,17 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 		
-		$r = '<label for="' . $key . '">' . "\n";
+		$r = '<label for="' . attribute_escape( $key ) . '">' . "\n";
 		
 		if (isset($data['label'])) {
 			$r .= $data['label'] . "\n";
 		}
 		
 		if (isset($data['options'])) {
-			$r .= '<select id="' . $key . '" name="' . $key . '"';
+			$r .= '<select id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '"';
 			
 			if (isset($data['onchange'])) {
-				$r .= ' onchange="' . $data['onchange'] . '"';
+				$r .= ' onchange="' . attribute_escape( $data['onchange'] ) . '"';
 			}
 			
 			$r .= '>' . "\n";
@@ -2156,7 +2156,7 @@ class BB_Install
 					$selected = '';
 				}
 				
-				$r .= '<option value="' . $value . '"' . $selected . '>' . $display . '</option>' . "\n";
+				$r .= '<option value="' . attribute_escape( $value ) . '"' . $selected . '>' . wp_specialchars( $display ) . '</option>' . "\n";
 			}
 			
 			$r .= '</select>' . "\n";
@@ -2187,9 +2187,9 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 		
-		$onclick = 'toggleBlock(this, \'' . $key . '_target\');';
+		$onclick = 'toggleBlock(this, \'' . js_escape( $key . '_target' ) . '\');';
 		if (isset($data['toggle_value'])) {
-			$onclick .= ' toggleValue(this, \'' . $data['toggle_value']['target'] . '\', \'' . $data['toggle_value']['off_value'] . '\', \'' . $data['toggle_value']['on_value'] . '\');';
+			$onclick .= ' toggleValue(this, \'' . js_escape( $data['toggle_value']['target'] ) . '\', \'' . js_escape( $data['toggle_value']['off_value'] ) . '\', \'' . js_escape( $data['toggle_value']['on_value'] ) . '\');';
 		}
 		
 		$checked = $data['checked'] ? ' ' . trim($data['checked']) : '';
@@ -2198,13 +2198,13 @@ class BB_Install
 			$class = ' class="error"';
 		}
 		
-		$r = '<label for="' . $key . '"' . $class . '>' . "\n";
+		$r = '<label for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
 		
 		if (isset($data['label'])) {
 			$r .= $data['label'] . "\n";
 		}
 		
-		$r .= '<input type="checkbox" id="' . $key . '" name="' . $key . '" class="checkbox" onclick="' . $onclick . '"' . $checked . ' value="1" />' . "\n";
+		$r .= '<input type="checkbox" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="checkbox" onclick="' . attribute_escape( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		if (isset($data['note'])) {
@@ -2222,13 +2222,13 @@ class BB_Install
 		$r = '<fieldset class="buttons">' . "\n";
 		
 		if ($back) {
-			$r .= '<label for="' . $back . '" class="back">' . "\n";
-			$r .= '<input type="submit" id="' . $back . '" name="' . $back . '" class="button" value="' . $data_back['value'] . '" />' . "\n";
+			$r .= '<label for="' . attribute_escape( $back ) . '" class="back">' . "\n";
+			$r .= '<input type="submit" id="' . attribute_escape( $back ) . '" name="' . attribute_escape( $back ) . '" class="button" value="' . attribute_escape( $data_back['value'] ) . '" />' . "\n";
 			$r .= '</label>' . "\n";
 		}
 		
-		$r .= '<label for="' . $forward . '" class="forward">' . "\n";
-		$r .= '<input type="submit" id="' . $forward . '" name="' . $forward . '" class="button" value="' . $data_forward['value'] . '" />' . "\n";
+		$r .= '<label for="' . attribute_escape( $forward ) . '" class="forward">' . "\n";
+		$r .= '<input type="submit" id="' . attribute_escape( $forward ) . '" name="' . attribute_escape( $forward ) . '" class="button" value="' . attribute_escape( $data_forward['value'] ) . '" />' . "\n";
 		$r .= '</label>' . "\n";
 		
 		$r .= '</fieldset>' . "\n";
@@ -2250,7 +2250,7 @@ class BB_Install
 		
 		foreach ($data as $key => $value) {
 			if (substr($key, 0, 8) !== 'forward_' && substr($key, 0, 5) !== 'back_') {
-				$r .= '<input type="hidden" name="' . $key . '" value="' . $value['value'] . '" />' . "\n";
+				$r .= '<input type="hidden" name="' . attribute_escape( $key ) . '" value="' . attribute_escape( $value['value'] ) . '" />' . "\n";
 			}
 		}
 		
@@ -2409,9 +2409,9 @@ EOS;
 					$i++;
 					$class = ($i === $count) ? ($class . ' last') : $class;
 					
-					$r .= '<p class="' . $class . '">' . "\n";
+					$r .= '<p class="' . attribute_escape( $class ) . '">' . "\n";
 					if ($type) {
-						$r .= '<span class="first" title="' . $title . '">' . $first_character . '</span>' . "\n";
+						$r .= '<span class="first" title="' . attribute_escape( $title ) . '">' . $first_character . '</span>' . "\n";
 					}
 					$r .= $paragraph . "\n";
 					$r .= '</p>' . "\n";
@@ -2441,7 +2441,7 @@ EOS;
 	{
 		$class = ($step == $this->step) ? 'open' : 'closed';
 		
-		$r = '<div id="step' . $step . '" class="' . $class . '"><div>' . "\n";
+		$r = '<div id="' . attribute_escape( 'step' . $step ) . '" class="' . $class . '"><div>' . "\n";
 		$r .= '<h2>' . $this->strings[$step]['h2'] . '</h2>' . "\n";
 		
 		if ($step < $this->step && $this->strings[$step]['status']) {
