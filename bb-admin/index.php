@@ -9,7 +9,7 @@ bb_get_admin_header();
 	<h2><?php _e('Dashboard'); ?></h2>
 
 	<div id="dashboard-right-now" class="dashboard">
-		<h3>Right Now</h3>
+		<h3><?php _e('Right Now'); ?></h3>
 <?php
 $forums = get_total_forums();
 $forums = sprintf(__ngettext('%d forum', '%d forums', $forums), $forums);

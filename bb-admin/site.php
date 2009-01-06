@@ -4,11 +4,7 @@
 <div class="wrap">
 
 <h2><?php _e('Recount') ?></h2>
-<p><?php _e("The following checkboxes allow you to recalculate various numbers stored in
-the database.  These numbers are used for things like counting the number of
-pages worth of posts a particular topic has.  You shouldn't need to do do any of
-this unless you're upgrading from one version to another or are seeing
-pagination oddities.") ?></p>
+<p><?php _e("The following checkboxes allow you to recalculate various numbers stored in the database. These numbers are used for things like counting the number of pages worth of posts a particular topic has.  You shouldn't need to do do any of this unless you're upgrading from one version to another or are seeing pagination oddities.") ?></p>
 
 <form method="post" action="<?php bb_uri('bb-admin/bb-do-counts.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>

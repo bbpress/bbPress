@@ -71,7 +71,7 @@ function bb_get_roles_dropdown($id = 'roles', $name = 'roles', $set = false) {
 		} else {
 			$selected = '';
 		}
-		$roles .= '<option value="' . $key . '"' . $selected . '>bbPress ' . $value . '</option>' . "\n";
+		$roles .= '<option value="' . $key . '"' . $selected . '>' . sprintf( __( 'bbPress %s' ), $value ) . '</option>' . "\n";
 	}
 	
 	$roles .= '</select>' . "\n";

@@ -215,7 +215,7 @@ bb_get_admin_header();
 					<option value="wavatar"<?php selected( bb_get_option('avatars_default'), 'wavatar' ); ?>><?php _e('Wavatar'); ?></option>
 					<option value="identicon"<?php selected( bb_get_option('avatars_default'), 'identicon' ); ?>><?php _e('Identicon'); ?></option>
 				</select>
-				<p>Select what style of avatar to display to users without a Gravatar</p>
+				<p><?php _e('Select what style of avatar to display to users without a Gravatar:'); ?></p>
 				<p class="gravatarDefault">
 					<?php echo bb_get_avatar( 'anotherexample', 30, 'default' ); ?><?php _e('Default'); ?>
 				</p>

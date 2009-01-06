@@ -2016,9 +2016,9 @@ function bb_profile_admin_form( $id = 0 ) {
 ?>
 <table id="admininfo">
 <tr class='form-field<?php if ( in_array( 'role', $error_codes ) ) echo ' form-invalid'; ?>'>
-	<th scope="row"><?php _e('User Type'); ?></th>
+	<th scope="row"><label for="admininfo_role"><?php _e('User Type'); ?></label></th>
 	<td>
-		<select name="role">
+		<select id="admininfo_role" name="role">
 <?php
 	foreach( $roles as $r => $n ) {
 		if ( isset( $user->capabilities ) && is_array( $user->capabilities ) && array_key_exists( $r, $user->capabilities ) ) {
@@ -2113,7 +2113,7 @@ function bb_profile_admin_form( $id = 0 ) {
 ?>
 
 <tr class="<?php echo $class; ?>">
-	<th scope="row"><?php echo $title ?></th>
+	<th scope="row"><label for="<?php echo $name; ?>"><?php echo $title ?></label></th>
 	<td>
 		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo "<label for='$name'>"; ?>
 		<input name="<?php echo $name; ?>" id="<?php echo $name; ?>" type="<?php echo $type; ?>"<?php echo $checked; ?> value="<?php echo $value; ?>" />
@@ -2130,9 +2130,8 @@ function bb_profile_admin_form( $id = 0 ) {
 <p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
 
 <?php endif; ?>
-<p><?php _e('Inactive users can login and look around but not do anything.
-Blocked users just see a simple error message when they visit the site.</p>
-<p><strong>Note</strong>: Blocking a user does <em>not</em> block any IP addresses.'); ?></p>
+<p><?php _e('Inactive users can login and look around but not do anything. Blocked users just see a simple error message when they visit the site.'); ?></p>
+<p><?php _e('<strong>Note</strong>: Blocking a user does <em>not</em> block any IP addresses.'); ?></p>
 <?php
 }
 

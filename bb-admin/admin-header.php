@@ -24,7 +24,7 @@
 				<p>
 					<?php printf( __('Howdy, %1$s!'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
 					| <?php bb_logout_link(); ?>
-					| <a href="http://bbpress.org/forums/">Support forums</a>
+					| <a href="http://bbpress.org/forums/"><?php _e('Support forums'); ?></a>
 				</p>
 			</div>
 
