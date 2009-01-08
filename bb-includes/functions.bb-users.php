@@ -91,7 +91,7 @@ function bb_is_trusted_user( $user ) { // ID, user_login, WP_User, DB user obj
 	return apply_filters( 'bb_is_trusted_user', (bool) array_intersect(bb_trusted_roles(), $user->roles), $user->ID );
 }
 
-function bb_apply_wp_role_map_to_user( $user ) {
+function bb_apply_wp_role_map_to_user( $user, $reload = true ) {
 	// Expects only user ids
 	if ( !is_numeric( $user ) ) {
 		return;
@@ -99,11 +99,9 @@ function bb_apply_wp_role_map_to_user( $user ) {
 
 	$user = (int) $user;
 
-	global $wp_table_prefix;
-	if ( !$wp_table_prefix ) {
+	if ( !$wordpress_table_prefix = bb_get_option('wp_table_prefix') ) {
 		return;
 	}
-	$wordpress_table_prefix = $wp_table_prefix;
 
 	if ( $wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
 		$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
@@ -151,6 +149,10 @@ function bb_apply_wp_role_map_to_user( $user ) {
 
 		if ( count( $bbpress_roles_new ) ) {
 			bb_update_usermeta( $user, $bbdb->prefix . 'capabilities', $bbpress_roles_new );
+			if ( $reload ) {
+				header( 'Location: ' . bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) );
+				exit;
+			}
 		}
 	} elseif ( !$wordpress_roles && is_array( $bbpress_roles ) ) {
 		$wordpress_roles_new = array();
@@ -170,11 +172,9 @@ function bb_apply_wp_role_map_to_user( $user ) {
 }
 
 function bb_apply_wp_role_map_to_orphans() {
-	global $wp_table_prefix;
-	if ( !$wp_table_prefix ) {
+	if ( !$wordpress_table_prefix = bb_get_option('wp_table_prefix') ) {
 		return;
 	}
-	$wordpress_table_prefix = $wp_table_prefix;
 
 	if ( $wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
 		$wordpress_table_prefix .= $wordpress_mu_primary_blog_id . '_';
@@ -206,7 +206,7 @@ EOQ;
 
 	if ( $user_ids = $bbdb->get_col( $role_query ) ) {
 		foreach ( $user_ids as $user_id ) {
-			bb_apply_wp_role_map_to_user( $user_id );
+			bb_apply_wp_role_map_to_user( $user_id, false );
 		}
 	}
 }

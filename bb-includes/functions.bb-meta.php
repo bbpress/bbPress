@@ -49,6 +49,10 @@ function bb_get_option( $option ) {
 		
 		if (!$r) {
 			switch ($option) {
+				case 'wp_table_prefix' :
+					global $wp_table_prefix;
+					return $wp_table_prefix; // Don't filter;
+					break;
 				case 'mod_rewrite':
 					$r = 0;
 					break;
