@@ -242,7 +242,7 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 			</label>
 			<div>
 				<input class="text" name="wp_table_prefix" id="wp_table_prefix" value="<?php bb_form_option('wp_table_prefix'); ?>" />
-				<p><?php _e('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$wp_table_prefix</code> in your WordPress <code>wp-config.php</code> file.'); ?></p>
+				<p><?php _e('If your bbPress and WordPress installations share the same database, then this is the same value as <code>$table_prefix</code> in your WordPress <code>wp-config.php</code> file.'); ?></p>
 				<p><?php _e('In any case, it is usually <strong>wp_</strong>'); ?></p>
 			</div>
 		</div>
