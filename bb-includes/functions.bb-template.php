@@ -929,8 +929,8 @@ function topic_page_links( $id = 0, $args = null ) {
 function get_topic_page_links( $id = 0, $args = null ) {
 
 	$defaults = array(
-		'show_all' => true,
-		'end_size' => 2,
+		'show_all' => false,
+		'end_size' => 3,
 		'before' => ' -',
 		'after' => null
 	);
