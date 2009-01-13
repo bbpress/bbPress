@@ -230,13 +230,15 @@ function bb_paginate_links( $args = '' ) {
 	}
 
 	for ( $n = 1; $n <= $total; $n++ ) {
-		$n_display = bb_number_format_i18n( $n );
-		$n_display_title =  attribute_escape( sprintf( $n_title, $n ) );
 		if ( $n == $current ) {
+			$n_display = bb_number_format_i18n( $n );
+			$n_display_title =  attribute_escape( sprintf( $n_title, $n ) );
 			$page_links[] = '<span class="page-numbers current" title="' . $n_display_title . '">' . $n_display . '</span>';
 			$dots = true;
 		} else {
 			if ( $show_all || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) {
+				$n_display = bb_number_format_i18n( $n );
+				$n_display_title =  attribute_escape( sprintf( $n_title, $n ) );
 				$link = str_replace( '%_%', 1 == $n ? $empty_format : $format, $base );
 				$link = str_replace( '%#%', $n, $link );
 				$link = str_replace( '?&', '?', $link );
