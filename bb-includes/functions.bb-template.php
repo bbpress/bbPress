@@ -2516,7 +2516,7 @@ function bb_get_tag_remove_link( $args = null ) {
 		return false;
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
-	$url = bb_get_uri('tag-remove.php', array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $tag->topic_id) );
+	$url = bb_get_uri('tag-remove.php', array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $topic->topic_id) );
 	$url = clean_url( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $topic->topic_id) );
 	$title = attribute_escape( __('Remove this tag') );
 	$list_id = attribute_escape( $list_id );
