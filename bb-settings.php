@@ -718,6 +718,23 @@ $bb_default_secret_key = 'put your unique phrase here';
 
 
 /**
+ * Initialise localisation
+ */
+
+// Load the default text localization domain.
+load_default_textdomain();
+
+// Pull in locale data after loading text domain.
+require_once( BB_PATH . BB_INC . 'class.bb-locale.php' );
+
+/**
+ * Localisation object
+ */
+$bb_locale = new BB_Locale();
+
+
+
+/**
  * Remaining BackPress
  */
 
@@ -982,23 +999,6 @@ if ( !isset( $bb->safemode ) || $bb->safemode !== true ) {
 }
 
 require_once( BB_PATH . BB_INC . 'functions.bb-pluggable.php' );
-
-
-
-/**
- * Initialise localisation
- */
-
-// Load the default text localization domain.
-load_default_textdomain();
-
-// Pull in locale data after loading text domain.
-require_once( BB_PATH . BB_INC . 'class.bb-locale.php' );
-
-/**
- * Localisation object
- */
-$bb_locale = new BB_Locale();
 
 
 
