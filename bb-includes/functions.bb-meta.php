@@ -422,7 +422,8 @@ function bb_cache_all_options()
 		'enable_xmlrpc' => 0,
 		'enable_pingback' => 0,
 		'throttle_time' => 30,
-		'bb_xmlrpc_allow_user_switching' => false
+		'bb_xmlrpc_allow_user_switching' => false,
+		'bp_bbpress_cron' => ''
 	);
 
 	foreach ( $base_options as $base_option => $base_option_default ) {
