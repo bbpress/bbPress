@@ -9,46 +9,49 @@
  * @package bbPress
  */
 
-ignore_user_abort(true);
+ignore_user_abort( true );
 
 /**
  * Tell bbPress we are doing the CRON task.
  *
  * @var bool
  */
-define('DOING_CRON', true);
+define( 'DOING_CRON', true );
 
 /** Setup bbPress environment */
-require_once('./bb-load.php');
+require_once( './bb-load.php' );
 
-if ( $_GET['check'] != backpress_get_option('cron_check') )
+if ( $_GET['check'] != backpress_get_option( 'cron_check' ) ) {
 	exit;
+}
 
-if ( bb_get_option('doing_cron') > time() )
+if ( bb_get_option( 'doing_cron' ) > time() ) {
 	exit;
+}
 
-bb_update_option('doing_cron', time() + 30);
+bb_update_option( 'doing_cron', time() + 30 );
 
 $crons = _get_cron_array();
-$keys = array_keys($crons);
-if (!is_array($crons) || $keys[0] > time())
+$keys = array_keys( $crons );
+if ( !is_array( $crons ) || $keys[0] > time() ) {
 	return;
+}
 
-foreach ($crons as $timestamp => $cronhooks) {
-	if ($timestamp > time()) break;
-	foreach ($cronhooks as $hook => $keys) {
-		foreach ($keys as $key => $args) {
+foreach ( $crons as $timestamp => $cronhooks ) {
+	if ( $timestamp > time() ) {
+		break;
+	}
+	foreach ( $cronhooks as $hook => $keys ) {
+		foreach ( $keys as $key => $args ) {
 			$schedule = $args['schedule'];
-			if ($schedule != false) {
-				$new_args = array($timestamp, $schedule, $hook, $args['args']);
-				call_user_func_array(array('BB_Cron', 'reschedule_event'), $new_args);
+			if ( $schedule != false ) {
+				$new_args = array( $timestamp, $schedule, $hook, $args['args'] );
+				call_user_func_array( 'wp_reschedule_event' , $new_args );
 			}
-			wp_unschedule_event($timestamp, $hook, $args['args']);
- 			do_action_ref_array($hook, $args['args']);
+			wp_unschedule_event( $timestamp, $hook, $args['args'] );
+ 			do_action_ref_array( $hook, $args['args'] );
 		}
 	}
 }
 
-bb_update_option('doing_cron', 0);
-
-?>
+bb_update_option( 'doing_cron', 0 );
