@@ -137,16 +137,40 @@ if ( !defined( 'BB_DATABASE_CLASS_INCLUDE' ) ) {
 	define( 'BB_DATABASE_CLASS_INCLUDE', BACKPRESS_PATH . 'class.bpdb-multi.php' );
 }
 
-// Load the database class
-if ( BB_DATABASE_CLASS_INCLUDE ) {
-	require_once( BB_DATABASE_CLASS_INCLUDE );
-}
-
 /**
  * Define the name of the database class
  */
 if ( !defined( 'BB_DATABASE_CLASS' ) ) {
 	define( 'BB_DATABASE_CLASS', 'BPDB_Multi' );
+}
+
+if ( in_array( BB_DATABASE_CLASS, array( 'BPDB', 'BPDB_Multi' ) ) ) {
+	/**
+	 * Define BackPress Database errors if not already done - no localisation at this stage
+	 */
+	if ( !defined( 'BPDB__CONNECT_ERROR_MESSAGE' ) ) {
+		define( 'BPDB__CONNECT_ERROR_MESSAGE', 'ERROR: Could not establish a database connection' );
+	}
+	if ( !defined( 'BPDB__CONNECT_ERROR_MESSAGE' ) ) {
+		define( 'BPDB__SELECT_ERROR_MESSAGE', 'ERROR: Can\'t select database.' );
+	}
+	if ( !defined( 'BPDB__ERROR_STRING' ) ) {
+		define( 'BPDB__ERROR_STRING', 'ERROR: bbPress database error - "%s" for query "%s" via caller "%s"' );
+	}
+	if ( !defined( 'BPDB__ERROR_HTML' ) ) {
+		define( 'BPDB__ERROR_HTML', '<div id="error"><p class="bpdberror"><strong>Database error:</strong> [%s]<br /><code>%s</code><br />Caller: %s</p></div>' );
+	}
+	if ( !defined( 'BPDB__DB_VERSION_ERROR' ) ) {
+		define( 'BPDB__DB_VERSION_ERROR', 'ERROR: bbPress requires MySQL 4.0.0 or higher' );
+	}
+	if ( !defined( 'BPDB__PHP_EXTENSION_MISSING' ) ) {
+		define( 'BPDB__PHP_EXTENSION_MISSING', 'ERROR: bbPress requires The MySQL PHP extension' );
+	}
+}
+
+// Load the database class
+if ( BB_DATABASE_CLASS_INCLUDE ) {
+	require_once( BB_DATABASE_CLASS_INCLUDE );
 }
 
 // Die if there is no database table prefix
@@ -183,25 +207,6 @@ $bbdb->tables = array(
 	'users'              => false,
 	'usermeta'           => false
 );
-
-/**
- * Define BackPress Database errors if not already done - no localisation at this stage
- */
-if ( !defined( 'BPDB__CONNECT_ERROR_MESSAGE' ) ) {
-	define( BPDB__CONNECT_ERROR_MESSAGE, 'ERROR: Error establishing a database connection' );
-}
-if ( !defined( 'BPDB__CONNECT_ERROR_MESSAGE' ) ) {
-	define( BPDB__SELECT_ERROR_MESSAGE, 'ERROR: Can\'t select database.' );
-}
-if ( !defined( 'BPDB__ERROR_STRING' ) ) {
-	define( BPDB__ERROR_STRING, 'ERROR: bbPress database error - "%s" for query "%s" via caller "%s"' );
-}
-if ( !defined( 'BPDB__ERROR_HTML' ) ) {
-	define( BPDB__ERROR_HTML, '<div id="error"><p class="bpdberror"><strong>Database error:</strong> [%s]<br /><code>%s</code><br />Caller: %s</p></div>' );
-}
-if ( !defined( 'BPDB__DB_VERSION_ERROR' ) ) {
-	define( BPDB__DB_VERSION_ERROR, 'ERROR: bbPress requires MySQL 4.0.0 or higher' );
-}
 
 // Set the prefix on the tables
 if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) ) {
