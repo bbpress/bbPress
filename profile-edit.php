@@ -49,13 +49,10 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	bb_check_admin_referer( 'edit-profile_' . $user_id );
 
 	// Fix the URL before sanitizing it
-	$user_url = bb_fix_link( $user_url );
+	$user_url = bb_fix_link( $_POST['user_url'] );
 
 	// Sanitize the profile info keys and check for missing required data
 	foreach ( $profile_info_keys as $key => $label ) {
-		if ( isset( $$key ) )
-			continue;
-
 		$$key = apply_filters( 'sanitize_profile_info', $_POST[$key], $key, $_POST[$key] );
 		if ( !$$key && $label[0] == 1 ) {
 			$errors->add( $key, sprintf( __( '%s is required.' ), wp_specialchars( $label[1] ) ) );
