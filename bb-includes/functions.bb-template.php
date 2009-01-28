@@ -243,55 +243,61 @@ function bb_location() {
 }
 
 function bb_get_location() { // Not for display.  Do not internationalize.
+	static $file;
 	static $filename;
 
-	if ( !isset($filename) ) {
-		$file = '';
-		foreach ( array($_SERVER['PHP_SELF'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['SCRIPT_NAME']) as $name )
-			if ( false !== strpos($name, '.php') )
-				$file = $name;
+	if ( !isset( $file ) ) {
+		$path = '';
+		foreach ( array( $_SERVER['SCRIPT_NAME'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['PHP_SELF'] ) as $_path ) {
+			if ( false !== strpos( $_path, '.php' ) ) {
+				$path = $_path;
+				break;
+			}
+		}
 
-		$filename = bb_find_filename( $file );
+		$filename = bb_find_filename( $path );
+		// Make $file relative to bbPress root directory
+		$file = str_replace( bb_get_option( 'path' ), '', $path );
 	}
 
 	switch ( $filename ) {
-		case 'index.php' :
+		case 'index.php':
 			$location = 'front-page';
 			break;
-		case 'forum.php' :
+		case 'forum.php':
 			$location = 'forum-page';
 			break;
-		case 'tags.php' :
+		case 'tags.php':
 			$location = 'tag-page';
 			break;
-		case 'edit.php' :
+		case 'edit.php':
 			$location = 'topic-edit-page';
 			break;
-		case 'topic.php' :
+		case 'topic.php':
 			$location = 'topic-page';
 			break;
-		case 'rss.php' :
+		case 'rss.php':
 			$location = 'feed-page';
 			break;
-		case 'search.php' :
+		case 'search.php':
 			$location = 'search-page';
 			break;
-		case 'profile.php' :
+		case 'profile.php':
 			$location = 'profile-page';
 			break;
-		case 'favorites.php' :
+		case 'favorites.php':
 			$location = 'favorites-page';
 			break;
-		case 'view.php' :
+		case 'view.php':
 			$location = 'view-page';
 			break;
-		case 'statistics.php' :
+		case 'statistics.php':
 			$location = 'stats-page';
 			break;
-		case 'bb-login.php' :
+		case 'bb-login.php':
 			$location = 'login-page';
 			break;
-		case 'register.php' :
+		case 'register.php':
 			$location = 'register-page';
 			break;
 		default:

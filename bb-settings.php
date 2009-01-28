@@ -384,15 +384,6 @@ if ( $bb->load_options ) {
 	$bbdb->suppress_errors( false );
 }
 
-require_once( BB_PATH . BB_INC . 'defaults.bb-filters.php' );
-require_once( BB_PATH . BB_INC . 'functions.bb-script-loader.php' );
-
-// Sanitise external input
-$_GET    = bb_global_sanitize( $_GET );
-$_POST   = bb_global_sanitize( $_POST );
-$_COOKIE = bb_global_sanitize( $_COOKIE, false );
-$_SERVER = bb_global_sanitize( $_SERVER );
-
 /**
  * Set the URI and derivitaves
  */
@@ -442,6 +433,18 @@ if ( !defined( 'BB_FORCE_SSL_ADMIN' ) ) {
 	define( 'BB_FORCE_SSL_ADMIN', false );
 }
 bb_force_ssl_admin( BB_FORCE_SSL_ADMIN );
+
+// Load default filters
+require_once( BB_PATH . BB_INC . 'defaults.bb-filters.php' );
+
+// Load default scripts
+require_once( BB_PATH . BB_INC . 'functions.bb-script-loader.php' );
+
+// Sanitise external input
+$_GET    = bb_global_sanitize( $_GET );
+$_POST   = bb_global_sanitize( $_POST );
+$_COOKIE = bb_global_sanitize( $_COOKIE, false );
+$_SERVER = bb_global_sanitize( $_SERVER );
 
 
 
