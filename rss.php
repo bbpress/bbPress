@@ -105,7 +105,7 @@ if ( !$bb_db_override ) {
 		case 'tag':
 			if ( !$tag = bb_get_tag( $feed_id ) )
 				die();
-			if ( !$posts = get_tagged_topic_posts( $tag->tag_id, 0 ) )
+			if ( !$posts = get_tagged_topic_posts( array( 'tag_id' => $tag->tag_id, 'page' => 0 ) ) )
 				die();
 			$title = wp_specialchars( bb_get_option( 'name' ) . ' ' . __('Tag') . ': ' . bb_get_tag_name() );
 			$link = bb_get_tag_link($feed_id);
