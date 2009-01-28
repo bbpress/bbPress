@@ -5,6 +5,11 @@
 
 /* Internal */
 
+function bb_sanitize_meta_key( $key )
+{
+	return preg_replace( '|[^a-z0-9_]|i', '', $key );
+}
+
 /**
  * Adds and updates meta data in the database
  *
@@ -44,7 +49,7 @@ function bb_update_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 			break;
 	}
 
-	$meta_key = preg_replace( '|[^a-z0-9_]|i', '', $meta_key );
+	$meta_key = bb_sanitize_meta_key( $meta_key );
 
 	$meta_tuple = compact( 'object_type', 'object_id', 'meta_key', 'meta_value', 'type' );
 	$meta_tuple = apply_filters( 'bb_update_meta', $meta_tuple );
@@ -60,10 +65,12 @@ function bb_update_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 		$bbdb->update( $bbdb->meta, array( 'meta_value' => $_meta_value), array( 'object_type' => $object_type, 'object_id' => $object_id, 'meta_key' => $meta_key ) );
 	}
 
-	if ( $object_type == 'bb_option' ) {
+	if ( $object_type === 'bb_option' ) {
 		$cache_object_id = $meta_key;
+		wp_cache_delete( $cache_object_id, 'bb_option_not_set' );
 	}
 	wp_cache_delete( $cache_object_id, $object_type );
+
 	if ( !$cur ) {
 		return true;
 	}
@@ -104,7 +111,7 @@ function bb_delete_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 			break;
 	}
 
-	$meta_key = preg_replace( '|[^a-z0-9_]|i', '', $meta_key );
+	$meta_key = bb_sanitize_meta_key( $meta_key );
 
 	$meta_tuple = compact( 'object_type', 'object_id', 'meta_key', 'meta_value', 'type' );
 	$meta_tuple = apply_filters( 'bb_delete_meta', $meta_tuple );
@@ -126,6 +133,7 @@ function bb_delete_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 
 	if ( $object_type == 'bb_option' ) {
 		$cache_object_id = $meta_key;
+		wp_cache_delete( $cache_object_id, 'bb_option_not_set' );
 	}
 	wp_cache_delete( $cache_object_id, $object_type );
 	return true;
@@ -272,7 +280,7 @@ function bb_get_option( $option )
 				$r = $bb->$option;
 				if ( $option === 'mod_rewrite' ) {
 					if ( is_bool( $r ) ) {
-						$r = (integer) $r;
+						$r = (int) $r;
 					}
 				}
 				break;
@@ -282,6 +290,9 @@ function bb_get_option( $option )
 
 			if ( !$r ) {
 				switch ( $option ) {
+					case 'name':
+						$r = __( 'Please give me a name!' );
+						break;
 					case 'wp_table_prefix' :
 						global $wp_table_prefix;
 						return $wp_table_prefix; // Don't filter;
@@ -301,6 +312,9 @@ function bb_get_option( $option )
 					case 'uri_ssl':
 						$r = preg_replace( '|^http://|i', 'https://', bb_get_option( 'uri' ) );
 						break;
+					case 'throttle_time':
+						$r = 30;
+						break;
 				}
 			}
 			break;
@@ -318,7 +332,12 @@ function bb_get_option( $option )
 function bb_get_option_from_db( $option )
 {
 	global $bbdb;
-	$option = preg_replace( '|[^a-z0-9_]|i', '', $option );
+	$option = bb_sanitize_meta_key( $option );
+
+	if ( wp_cache_get( $option, 'bb_option_not_set' ) ) {
+		// Null according to filters when cache was set
+		return null;
+	}
 
 	if ( false === $r = wp_cache_get( $option, 'bb_option' ) ) {
 		if ( BB_INSTALLING ) $bbdb->suppress_errors();
@@ -327,12 +346,19 @@ function bb_get_option_from_db( $option )
 
 		if ( is_object( $row ) ) {
 			$r = maybe_unserialize( $row->meta_value );
-			wp_cache_set( $option, $r, 'bb_option' );
 		} else {
 			$r = null;
 		}
 	}
-	return apply_filters( 'bb_get_option_from_db_' . $option, $r, $option );
+	$r = apply_filters( 'bb_get_option_from_db_' . $option, $r, $option );
+
+	if ( $r === null ) {
+		wp_cache_set( $option, true, 'bb_option_not_set' );
+	} else {
+		wp_cache_set( $option, $r, 'bb_option' );
+	}
+
+	return $r;
 }
 
 function bb_form_option( $option )
@@ -366,7 +392,7 @@ function bb_cache_all_options()
 				// Entries with an object_id are topic meta at this stage
 				$bbdb->query( "UPDATE `$bbdb->meta` SET `object_type` = 'bb_topic' WHERE `object_id` != 0" );
 			}
-			unset($topicmeta_exists);
+			unset( $topicmeta_exists );
 
 			return bb_cache_all_options();
 		}
@@ -374,61 +400,64 @@ function bb_cache_all_options()
 		return false;
 	} else {
 		foreach ( $results as $options ) {
-			wp_cache_set( $options->meta_key, maybe_unserialize($options->meta_value), 'bb_option' );
+			wp_cache_set( $options->meta_key, maybe_unserialize( $options->meta_value ), 'bb_option' );
 		}
 	}
 
 	$base_options = array(
-		'bb_db_version' => 0,
-		'name' => __('Please give me a name!'),
-		'description' => '',
-		'uri_ssl' => '',
-		'from_email' => '',
-		'secret' => '',
-		'page_topics' => '',
-		'edit_lock' => '',
-		'bb_active_theme' => '',
-		'active_plugins' => '',
-		'mod_rewrite' => '',
-		'datetime_format' => '',
-		'date_format' => '',
-		'avatars_show' => '',
-		'avatars_default' => '',
-		'avatars_rating' => '',
-		'wp_table_prefix' => '',
-		'user_bbdb_name' => '',
-		'user_bbdb_user' => '',
-		'user_bbdb_password' => '',
-		'user_bbdb_host' => '',
-		'user_bbdb_charset' => '',
-		'user_bbdb_collate' => '',
-		'custom_user_table' => '',
-		'custom_user_meta_table' => '',
-		'wp_siteurl' => '',
-		'wp_home' => '',
-		'cookiedomain' => '',
-		'usercookie' => '',
-		'passcookie' => '',
-		'authcookie' => '',
-		'cookiepath' => '',
-		'sitecookiepath' => '',
-		'secure_auth_cookie' => '',
-		'logged_in_cookie' => '',
-		'admin_cookie_path' => '',
-		'core_plugins_cookie_path' => '',
-		'user_plugins_cookie_path' => '',
-		'wp_admin_cookie_path' => '',
-		'wp_plugins_cookie_path' => '',
-		'enable_xmlrpc' => 0,
-		'enable_pingback' => 0,
-		'throttle_time' => 30,
-		'bb_xmlrpc_allow_user_switching' => false,
-		'bp_bbpress_cron' => ''
+		'bb_db_version',
+		'name',
+		'description',
+		'uri_ssl',
+		'from_email',
+		'bb_auth_salt',
+		'bb_secure_auth_salt',
+		'bb_logged_in_salt',
+		'bb_nonce_salt',
+		'page_topics',
+		'edit_lock',
+		'bb_active_theme',
+		'active_plugins',
+		'mod_rewrite',
+		'datetime_format',
+		'date_format',
+		'avatars_show',
+		'avatars_default',
+		'avatars_rating',
+		'wp_table_prefix',
+		'user_bbdb_name',
+		'user_bbdb_user',
+		'user_bbdb_password',
+		'user_bbdb_host',
+		'user_bbdb_charset',
+		'user_bbdb_collate',
+		'custom_user_table',
+		'custom_user_meta_table',
+		'wp_siteurl',
+		'wp_home',
+		'cookiedomain',
+		'usercookie',
+		'passcookie',
+		'authcookie',
+		'cookiepath',
+		'sitecookiepath',
+		'secure_auth_cookie',
+		'logged_in_cookie',
+		'admin_cookie_path',
+		'core_plugins_cookie_path',
+		'user_plugins_cookie_path',
+		'wp_admin_cookie_path',
+		'wp_plugins_cookie_path',
+		'enable_xmlrpc',
+		'enable_pingback',
+		'throttle_time',
+		'bb_xmlrpc_allow_user_switching',
+		'bp_bbpress_cron'
 	);
 
-	foreach ( $base_options as $base_option => $base_option_default ) {
+	foreach ( $base_options as $base_option ) {
 		if ( false === wp_cache_get( $base_option, 'bb_option' ) ) {
-			wp_cache_set( $base_option, $base_option_default, 'bb_option' );
+			wp_cache_set( $base_option, true, 'bb_option_not_set' );
 		}
 	}
 
@@ -456,7 +485,7 @@ function bb_get_usermeta( $user_id, $meta_key )
 		return;
 	}
 
-	$meta_key = preg_replace( '|[^a-z0-9_]|i', '', $meta_key );
+	$meta_key = bb_sanitize_meta_key( $meta_key );
 	if ( !isset( $user->$meta_key ) ) {
 		return;
 	}
@@ -483,7 +512,7 @@ function bb_get_forummeta( $forum_id, $meta_key )
 		return;
 	}
 
-	$meta_key = preg_replace( '|[^a-z0-9_]|i', '', $meta_key );
+	$meta_key = bb_sanitize_meta_key( $meta_key );
 	if ( !isset( $forum->$meta_key ) ) {
 		return;
 	}
@@ -510,7 +539,7 @@ function bb_get_topicmeta( $topic_id, $meta_key )
 		return;
 	}
 
-	$meta_key = preg_replace( '|[^a-z0-9_]|i', '', $meta_key );
+	$meta_key = bb_sanitize_meta_key( $meta_key );
 	if ( !isset($topic->$meta_key) ) {
 		return;
 	}
@@ -537,7 +566,7 @@ function bb_get_postmeta( $post_id, $meta_key )
 		return;
 	}
 
-	$meta_key = preg_replace( '|[^a-z0-9_]|i', '', $meta_key );
+	$meta_key = bb_sanitize_meta_key( $meta_key );
 	if ( !isset( $post->$meta_key ) ) {
 		return;
 	}
