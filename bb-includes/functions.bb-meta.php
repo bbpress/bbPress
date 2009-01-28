@@ -335,14 +335,17 @@ function bb_get_option_from_db( $option )
 	$option = bb_sanitize_meta_key( $option );
 
 	if ( wp_cache_get( $option, 'bb_option_not_set' ) ) {
-		// Null according to filters when cache was set
-		return null;
-	}
-
-	if ( false === $r = wp_cache_get( $option, 'bb_option' ) ) {
-		if ( BB_INSTALLING ) $bbdb->suppress_errors();
+		$r = null;
+	} elseif ( false !== $_r = wp_cache_get( $option, 'bb_option' ) ) {
+		$r = $_r;
+	} else {
+		if ( BB_INSTALLING ) {
+			$bbdb->suppress_errors();
+		}
 		$row = $bbdb->get_row( $bbdb->prepare( "SELECT `meta_value` FROM `$bbdb->meta` WHERE `object_type` = 'bb_option' AND `meta_key` = %s", $option ) );
-		if ( BB_INSTALLING ) $bbdb->suppress_errors(false);
+		if ( BB_INSTALLING ) {
+			$bbdb->suppress_errors( false );
+		}
 
 		if ( is_object( $row ) ) {
 			$r = maybe_unserialize( $row->meta_value );
@@ -350,7 +353,6 @@ function bb_get_option_from_db( $option )
 			$r = null;
 		}
 	}
-	$r = apply_filters( 'bb_get_option_from_db_' . $option, $r, $option );
 
 	if ( $r === null ) {
 		wp_cache_set( $option, true, 'bb_option_not_set' );
@@ -358,7 +360,7 @@ function bb_get_option_from_db( $option )
 		wp_cache_set( $option, $r, 'bb_option' );
 	}
 
-	return $r;
+	return apply_filters( 'bb_get_option_from_db_' . $option, $r, $option );
 }
 
 function bb_form_option( $option )
