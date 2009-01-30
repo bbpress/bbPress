@@ -1556,7 +1556,7 @@ function bb_get_common_parts($string1 = false, $string2 = false, $delimiter = ''
 	
 	$common_parts = array();
 	foreach ( $string1_parts as $index => $part ) {
-		if ( $string2_parts[$index] == $part ) {
+		if ( isset( $string2_parts[$index] ) && $string2_parts[$index] == $part ) {
 			$common_parts[] = $part;
 		} else {
 			break;
