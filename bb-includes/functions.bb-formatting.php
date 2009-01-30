@@ -291,7 +291,7 @@ function bb_fix_link( $link ) {
 
 function bb_sticky_label( $label ) {
 	global $topic;
-	if (is_front()) {
+	if (bb_is_front()) {
 		if ( '2' === $topic->topic_sticky ) {
 			return sprintf(__('[sticky] %s'), $label);
 		}

@@ -65,8 +65,13 @@ add_filter('pre_post', 'bb_autop', 60);
 
 add_filter('post_text', 'do_shortcode');
 
-if ( is_bb_search() )
-	add_filter('get_post_text', 'bb_post_text_context');
+function bb_contextualise_search_post_text()
+{
+	if ( bb_is_search() ) {
+		add_filter( 'get_post_text', 'bb_post_text_context' );
+	}
+}
+add_action( 'bb_init', 'bb_contextualise_search_post_text' );
 
 add_filter('post_text', 'make_clickable');
 
@@ -107,13 +112,17 @@ if ( !bb_get_option( 'mod_rewrite' ) ) {
 
 // Feed Stuff
 
-if ( is_bb_feed() ) {
-	add_filter( 'bb_title_rss', 'ent2ncr' );
-	add_filter( 'topic_title', 'ent2ncr' );
-	add_filter( 'post_link', 'wp_specialchars' );
-	add_filter( 'post_text', 'htmlspecialchars' ); // encode_bad should not be overruled by wp_specialchars
-	add_filter( 'post_text', 'ent2ncr' );
+function bb_filter_feed_content()
+{
+	if ( bb_is_feed() ) {
+		add_filter( 'bb_title_rss', 'ent2ncr' );
+		add_filter( 'topic_title', 'ent2ncr' );
+		add_filter( 'post_link', 'wp_specialchars' );
+		add_filter( 'post_text', 'htmlspecialchars' ); // encode_bad should not be overruled by wp_specialchars
+		add_filter( 'post_text', 'ent2ncr' );
+	}
 }
+add_action( 'bb_init', 'bb_filter_feed_content' );
 
 add_filter( 'init_roles', 'bb_init_roles' );
 add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );

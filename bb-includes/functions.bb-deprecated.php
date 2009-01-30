@@ -517,15 +517,15 @@ function bb_parse_args( $args, $defaults = '' ) {
 
 if ( !function_exists( 'is_tag' ) ) :
 function is_tag() {
-	bb_log_deprecated('function', __FUNCTION__, 'is_bb_tag');
-	return is_bb_tag();
+	bb_log_deprecated('function', __FUNCTION__, 'bb_is_tag');
+	return bb_is_tag();
 }
 endif;
 
 if ( !function_exists( 'is_tags' ) ) :
 function is_tags() {
-	bb_log_deprecated('function', __FUNCTION__, 'is_bb_tags');
-	return is_bb_tags();
+	bb_log_deprecated('function', __FUNCTION__, 'bb_is_tags');
+	return bb_is_tags();
 }
 endif;
 
@@ -942,4 +942,69 @@ function bb_sql_delta( $queries, $execute = true ) {
 	bb_log_deprecated( 'function', __FUNCTION__, 'BP_SQL_Schema_Parser::delta' );
 	global $bbdb;
 	return BP_SQL_Schema_Parser::delta( $bbdb, $queries, false, $execute );
+}
+
+function is_front() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_front' );
+	return bb_is_front();
+}
+
+function is_forum() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_forum' );
+	return bb_is_forum();
+}
+
+function is_bb_tags() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_tags' );
+	return bb_is_tags();
+}
+
+function is_bb_tag() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_tag' );
+	return bb_is_tag();
+}
+
+function is_topic_edit() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_topic_edit' );
+	return bb_is_topic_edit();
+}
+
+function is_topic() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_topic' );
+	return bb_is_topic();
+}
+
+function is_bb_feed() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_feed' );
+	return bb_is_feed();
+}
+
+function is_bb_search() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_search' );
+	return bb_is_search();
+}
+
+function is_bb_profile() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_profile' );
+	return bb_is_profile();
+}
+
+function is_bb_favorites() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_favorites' );
+	return bb_is_favorites();
+}
+
+function is_view() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_view' );
+	return bb_is_view();
+}
+
+function is_bb_stats() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_statistics' );
+	return bb_is_statistics();
+}
+
+function is_bb_admin() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_admin' );
+	return bb_is_admin();
 }

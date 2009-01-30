@@ -29,7 +29,7 @@ if ( isset( $_GET['fav'] ) && isset( $_GET['topic_id'] ) ) :
 	exit;
 endif;
 
-if ( !is_bb_profile() ) {
+if ( !bb_is_profile() ) {
 	$sendto = get_profile_tab_link( $user->ID, 'favorites' );
 	wp_redirect( $sendto );
 }

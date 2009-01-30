@@ -167,32 +167,32 @@ function post_form( $h2 = '' ) {
 	
 	$add = topic_pages_add();
 	if ( empty($h2) && false !== $h2 ) {
-		if ( is_topic() )
+		if ( bb_is_topic() )
 			$h2 =  __('Reply');
-		elseif ( is_forum() )
+		elseif ( bb_is_forum() )
 			$h2 = __('New Topic in this Forum');
-		elseif ( is_bb_tag() || is_front() )
+		elseif ( bb_is_tag() || bb_is_front() )
 			$h2 = __('Add New Topic');
 	}
 
 	$last_page = get_page_number( ( isset($topic->topic_posts) ? $topic->topic_posts : 0 ) + $add );
 
 	if ( !empty($h2) ) {
-		if ( is_topic() && $page != $last_page )
+		if ( bb_is_topic() && $page != $last_page )
 			$h2 = $h2 . ' <a href="' . attribute_escape( get_topic_link( 0, $last_page ) . '#postform' ) . '">&raquo;</a>';
 		echo '<h2 class="post-form">' . $h2 . '</h2>' . "\n";
 	}
 
 	do_action('pre_post_form');
 
-	if ( ( is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !is_topic() && bb_current_user_can( 'write_topic', isset($forum->forum_id) ? $forum->forum_id : 0 ) ) ) {
+	if ( ( bb_is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !bb_is_topic() && bb_current_user_can( 'write_topic', isset($forum->forum_id) ? $forum->forum_id : 0 ) ) ) {
 		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_uri('bb-post.php', null, BB_URI_CONTEXT_FORM_ACTION) . '">' . "\n";
 		echo '<fieldset>' . "\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
-		bb_nonce_field( is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
-		if ( is_forum() )
+		bb_nonce_field( bb_is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
+		if ( bb_is_forum() )
 			echo '<input type="hidden" name="forum_id" value="' . $forum->forum_id . '" />' . "\n";
-		else if ( is_topic() )
+		else if ( bb_is_topic() )
 			echo '<input type="hidden" name="topic_id" value="' . $topic->topic_id . '" />' . "\n";
 		do_action('post_form');
 		echo "\n</fieldset>\n</form>\n";
@@ -308,56 +308,56 @@ function bb_get_location() { // Not for display.  Do not internationalize.
 	return $location;
 }
 
-function is_front() {
+function bb_is_front() {
 	return 'front-page' == bb_get_location();
 }
 
-function is_forum() {
+function bb_is_forum() {
 	return 'forum-page' == bb_get_location();
 }
 
-function is_bb_tags() {
+function bb_is_tags() {
 	return 'tag-page' == bb_get_location();
 }
 
-function is_bb_tag() {
+function bb_is_tag() {
 	global $tag, $tag_name;
 	return $tag && $tag_name && is_bb_tags();
 }
 
-function is_topic_edit() {
+function bb_is_topic_edit() {
 	return 'topic-edit-page' == bb_get_location();
 }
 
-function is_topic() {
+function bb_is_topic() {
 	return 'topic-page' == bb_get_location();
 }
 
-function is_bb_feed() {
+function bb_is_feed() {
 	return 'feed-page' == bb_get_location();
 }
 
-function is_bb_search() {
+function bb_is_search() {
 	return 'search-page' == bb_get_location();
 }
 
-function is_bb_profile() {
+function bb_is_profile() {
 	return 'profile-page' == bb_get_location();
 }
 
-function is_bb_favorites() {
+function bb_is_favorites() {
 	return 'favorites-page' == bb_get_location();
 }
 
-function is_view() {
+function bb_is_view() {
 	return 'view-page' == bb_get_location();
 }
 
-function is_bb_stats() {
+function bb_is_statistics() {
 	return 'stats-page' == bb_get_location();
 }
 
-function is_bb_admin() {
+function bb_is_admin() {
 	if ( defined('BB_IS_ADMIN') )
 		return BB_IS_ADMIN;
 	return false;
@@ -392,7 +392,7 @@ function bb_get_title( $args = '' ) {
 			break;
 		
 		case 'tag-page':
-			if ( is_bb_tag() )
+			if ( bb_is_tag() )
 				$title[] = wp_specialchars( bb_get_tag_name() );
 			
 			$title[] = __('Tags');
@@ -442,7 +442,7 @@ function bb_feed_head() {
 			break;
 		
 		case 'tag-page':
-			if (is_bb_tag()) {
+			if (bb_is_tag()) {
 				$feeds[] = array(
 					'title' => sprintf(__('Tag: %s'), bb_get_tag_name()),
 					'href'  => bb_get_tag_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
@@ -737,13 +737,13 @@ function bb_get_forum_bread_crumb($args = '') {
 	$current_trail_forum_id = $trail_forum->forum_id;
 	while ( $trail_forum && $trail_forum->forum_id > 0 ) {
 		$crumb = $separator;
-		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
+		if ($current_trail_forum_id != $trail_forum->forum_id || !bb_is_forum()) {
 			$crumb .= '<a' . $class . ' href="' . get_forum_link($trail_forum->forum_id) . '">';
 		} elseif ($class) {
 			$crumb .= '<span' . $class . '>';
 		}
 		$crumb .= get_forum_name($trail_forum->forum_id);
-		if ($current_trail_forum_id != $trail_forum->forum_id || !is_forum()) {
+		if ($current_trail_forum_id != $trail_forum->forum_id || !bb_is_forum()) {
 			$crumb .= '</a>';
 		} elseif ($class) {
 			$crumb .= '</span>';
@@ -1007,7 +1007,7 @@ function get_topic_deleted_posts( $id = 0 ) {
 }
 
 function topic_noreply( $title ) {
-	if ( 1 == get_topic_posts() && ( is_front() || is_forum() ) )
+	if ( 1 == get_topic_posts() && ( bb_is_front() || bb_is_forum() ) )
 		$title = "<strong>$title</strong>";
 	return $title;
 }
@@ -1308,9 +1308,9 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 		$class[] = 'bozo';
 	if ( '0' === $topic->topic_open )
 		$class[] = 'closed';
-	if ( 1 == $topic->topic_sticky && is_forum() )
+	if ( 1 == $topic->topic_sticky && bb_is_forum() )
 		$class[] = 'sticky';
-	elseif ( 2 == $topic->topic_sticky && ( is_front() || is_forum() ) )
+	elseif ( 2 == $topic->topic_sticky && ( bb_is_front() || bb_is_forum() ) )
 		$class[] = 'sticky super-sticky';
 	$class = apply_filters( 'topic_class', $class, $topic->topic_id );
 	$class = join(' ', $class);
@@ -1329,20 +1329,20 @@ function bb_new_topic_link( $args = null ) {
 		$url = get_forum_link( $forum->forum_id ) . '#postform';
 	elseif ( $tag && $tag = bb_get_tag( $tag ) )
 		$url = bb_get_tag_link( $tag->tag ) . '#postform';
-	elseif ( is_forum() ) {
+	elseif ( bb_is_forum() ) {
 		global $forum;
 		$url = get_forum_link( $forum->forum_id ) . '#postform';
-	} elseif ( is_bb_tag() ) {
+	} elseif ( bb_is_tag() ) {
 		global $tag;
 		$url = bb_get_tag_link( $tag ) . '#postform';
-	} elseif ( is_topic() )
+	} elseif ( bb_is_topic() )
 		$url = get_forum_link() . '#postform';
-	elseif ( is_front() )
+	elseif ( bb_is_front() )
 		$url = bb_get_uri(null, array('new' => 1));
 
 	if ( !bb_is_user_logged_in() )
 		$url = bb_get_uri('bb-login.php', array('re' => $url), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS);
-	elseif ( is_forum() || is_topic() ) {
+	elseif ( bb_is_forum() || bb_is_topic() ) {
 		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
 			return;
 	} else {
@@ -2877,9 +2877,9 @@ function _bb_time_function_return( $time, $args ) {
 }
 
 function bb_template_scripts() {
-	if ( is_topic() && bb_is_user_logged_in() )
+	if ( bb_is_topic() && bb_is_user_logged_in() )
 		wp_enqueue_script( 'topic' );
-	elseif ( is_bb_profile() && bb_is_user_logged_in() ) {
+	elseif ( bb_is_profile() && bb_is_user_logged_in() ) {
 		global $self;
 		if ($self == 'profile-edit.php') {
 			wp_enqueue_script( 'profile-edit' );

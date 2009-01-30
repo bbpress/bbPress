@@ -57,12 +57,12 @@ function bb_current_user_is_bozo( $topic_id = false ) {
 }
 
 function bb_bozo_pre_permalink() {
-	if ( is_topic() )
+	if ( bb_is_topic() )
 		add_filter( 'get_topic_where', 'bb_bozo_topics' );
 }
 
 function bb_bozo_post_permalink() {
-	if ( is_topic() )
+	if ( bb_is_topic() )
 		remove_filter( 'get_topic_where', 'bb_bozo_topics' );
 }
 

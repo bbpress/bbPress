@@ -88,9 +88,9 @@ function get_latest_topics( $args = null ) {
 		'index_hint' => 'USE INDEX (`forum_time`)'
 	);
 
-	if ( is_front() )
+	if ( bb_is_front() )
 		$q['sticky'] = '-2';
-	elseif ( is_forum() || is_view() )
+	elseif ( bb_is_forum() || bb_is_view() )
 		$q['sticky'] = 0;
 
 	// Last param makes filters back compat
@@ -104,7 +104,7 @@ function get_sticky_topics( $forum = false, $display = 1 ) {
 
 	$q = array(
 		'forum_id' => $forum,
-		'sticky' => is_front() ? 'super' : 'sticky'
+		'sticky' => bb_is_front() ? 'super' : 'sticky'
 	);
 
 	$query = new BB_Query( 'topic', $q, 'get_sticky_topics' );

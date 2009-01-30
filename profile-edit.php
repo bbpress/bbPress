@@ -18,7 +18,7 @@ if ( !bb_current_user_can( 'edit_user', $user_id ) ) {
 $bb_current_id = bb_get_current_user_info( 'id' );
 
 // I don't know how this would ever get triggered
-if ( !is_bb_profile() ) {
+if ( !bb_is_profile() ) {
 	$sendto = get_profile_tab_link( $bb_current_id, 'edit' );
 	wp_redirect( $sendto );
 	exit;
