@@ -94,8 +94,8 @@ bb_get_admin_header();
 			</label>
 			<div>
 				<select name="mod_rewrite" id="mod_rewrite">
-					<option value="0"<?php selected( bb_get_option('mod_rewrite'), 0 ); ?>><?php _e('None'); ?>&nbsp;&nbsp;&nbsp;.../forums.php?id=1</option>
-					<option value="1"<?php selected( bb_get_option('mod_rewrite'), 1 ); ?>><?php _e('Numeric'); ?>&nbsp;&nbsp;&nbsp;.../forums/1</option>
+					<option value="0"<?php selected( bb_get_option('mod_rewrite'), '0' ); ?>><?php _e('None'); ?>&nbsp;&nbsp;&nbsp;.../forums.php?id=1</option>
+					<option value="1"<?php selected( bb_get_option('mod_rewrite'), '1' ); ?>><?php _e('Numeric'); ?>&nbsp;&nbsp;&nbsp;.../forums/1</option>
 					<option value="slugs"<?php selected( bb_get_option('mod_rewrite'), 'slugs' ); ?>><?php _e('Name based'); ?>&nbsp;&nbsp;&nbsp;.../forums/first-forum</option>
 				</select>
 				<p><?php printf(__('If you activate "Numeric" or "Name based" permalinks, you will need to create a file at <code>%s</code> containing the url rewriting rules <a href="%s">provided here</a>.'), BB_PATH . '.htaccess', bb_get_uri('bb-admin/rewrite-rules.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)); ?></p>
