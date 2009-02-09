@@ -167,7 +167,7 @@ function bb_append_meta( $object, $type )
 		case 'post':
 			$object_id_column = 'post_id';
 			$object_type = 'bb_post';
-			$slug = 'post_slug';
+			$slug = false;
 			break;
 	}
 
