@@ -385,7 +385,10 @@ function topic_is_sticky( $topic_id = 0 ) {
 	return '0' !== $topic->topic_sticky;
 }
 
-/* Thread */ // Thread, topic?  Guh-wah?  TODO: consistency in nomenclature
+/* Thread */
+
+// Thread, topic?  Guh-wah?
+// A topic is the container, the thread is it's contents (the posts)
 
 function get_thread( $topic_id, $args = null ) {
 	$defaults = array( 'page' => 1, 'order' => 'ASC' );
