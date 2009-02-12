@@ -28,7 +28,7 @@ if ($_POST['action'] == 'update') {
 	
 	$goback = add_query_arg('updated', 'true', wp_get_referer());
 	bb_safe_redirect($goback);
-	
+	exit;
 }
 
 if ($_GET['updated']) {

@@ -29,4 +29,5 @@ if ($post_id)
 	wp_redirect( get_post_link( $post_id ) );
 else
 	wp_redirect( bb_get_option( 'uri' ) );
+exit;
 ?>

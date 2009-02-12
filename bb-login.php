@@ -31,5 +31,6 @@ if ( !bb_is_user_logged_in() && !$user = bb_login( @$_POST['user_login'], @$_POS
 }
 
 bb_safe_redirect( $re );
+exit;
 
 ?>
