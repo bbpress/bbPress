@@ -597,8 +597,7 @@ function bb_ssl_redirect()
 	$uri = bb_get_option( 'uri_ssl' ) . substr( $uri, strlen( bb_get_option( 'uri' ) ) );
 
 	bb_safe_redirect( $uri );
-
-	return;
+	exit;
 }
 
 /**
