@@ -18,4 +18,5 @@ if ( $tag = rename_tag( $tag_id, $tag ) )
 	wp_redirect( bb_get_tag_link() );
 else
 	die(printf(__('There already exists a tag by that name or the name is invalid. <a href="%s">Try Again</a>'), wp_get_referer()));
+exit;
 ?>

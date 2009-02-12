@@ -42,4 +42,5 @@ if ( $post_id ) {
 } else {
 	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 }
+exit;
 ?>

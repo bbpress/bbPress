@@ -6,6 +6,7 @@ $user_id = bb_get_current_user_info( 'id' );
 if ( !bb_is_profile() ) {
 	$sendto = get_profile_tab_link( $user_id, 'edit' );
 	wp_redirect( $sendto );
+	exit;
 }
 
 do_action($self . '_pre_head');

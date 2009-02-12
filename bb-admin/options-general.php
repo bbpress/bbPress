@@ -38,7 +38,7 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	
 	$goback = add_query_arg('updated', 'true', wp_get_referer());
 	bb_safe_redirect($goback);
-	
+	exit;
 }
 
 if ( !empty($_GET['updated']) ) {

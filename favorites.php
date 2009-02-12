@@ -32,6 +32,7 @@ endif;
 if ( !bb_is_profile() ) {
 	$sendto = get_profile_tab_link( $user->ID, 'favorites' );
 	wp_redirect( $sendto );
+	exit;
 }
 
 $topics = get_user_favorites( $user->ID, true );
