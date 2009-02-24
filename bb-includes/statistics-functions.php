@@ -1,5 +1,6 @@
 <?php
 
+if ( !function_exists( 'get_total_users' ) ) :
 function get_total_users() {
 	global $bbdb, $bb_total_users;
 	if ( isset($bb_total_users) )
@@ -7,6 +8,7 @@ function get_total_users() {
 	$bb_total_users = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->users");
 	return $bb_total_users;
 }
+endif;
 
 function total_users() {
 	echo apply_filters('total_users', get_total_users() );
