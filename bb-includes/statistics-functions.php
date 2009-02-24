@@ -41,6 +41,7 @@ function get_popular_topics( $num = 10 ) {
 	return $query->results;
 }
 
+if ( !function_exists( 'get_recent_registrants' ) ) :
 function get_recent_registrants( $num = 10 ) {
 	global $bbdb;
 	return bb_append_meta( (array) $bbdb->get_results( $bbdb->prepare(
@@ -48,6 +49,7 @@ function get_recent_registrants( $num = 10 ) {
 		$num
 	) ), 'user');
 }
+endif;
 
 function bb_inception( $args = '' ) {
 	$args = _bb_parse_time_function_args( $args );
