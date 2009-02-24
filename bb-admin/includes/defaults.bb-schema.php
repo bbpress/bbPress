@@ -1,7 +1,7 @@
 <?php
 
 // Globalise as this file is included within the functions bb_install() and bb_upgrade_all()
-global $bb_queries, $bbdb;
+global $bb_queries, $bbdb, $bb_schema_ignore;
 
 // Die if no database class is loaded
 if ( !isset($bbdb) || ( !is_a( $bbdb, 'BPDB' ) && !is_a( $bbdb, 'db' ) ) )
