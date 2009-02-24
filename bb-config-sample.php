@@ -13,22 +13,22 @@
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for bbPress */
-define('BBDB_NAME', 'bbpress');
+define( 'BBDB_NAME', 'bbpress' );
 
 /** MySQL database username */
-define('BBDB_USER', 'username');
+define( 'BBDB_USER', 'username' );
 
 /** MySQL database password */
-define('BBDB_PASSWORD', 'password');
+define( 'BBDB_PASSWORD', 'password' );
 
 /** MySQL hostname */
-define('BBDB_HOST', 'localhost');
+define( 'BBDB_HOST', 'localhost' );
 
 /** Database Charset to use in creating database tables. */
-define('BBDB_CHARSET', 'utf8');
+define( 'BBDB_CHARSET', 'utf8' );
 
 /** The Database Collate type. Don't change this if in doubt. */
-define('BBDB_COLLATE', '');
+define( 'BBDB_COLLATE', '' );
 
 /**#@+
  * Authentication Unique Keys.
@@ -38,10 +38,10 @@ define('BBDB_COLLATE', '');
  *
  * @since 1.0
  */
-define('BB_AUTH_KEY', 'put your unique phrase here');
-define('BB_SECURE_AUTH_KEY', 'put your unique phrase here');
-define('BB_LOGGED_IN_KEY', 'put your unique phrase here');
-define('BB_NONCE_KEY', 'put your unique phrase here');
+define( 'BB_AUTH_KEY', 'put your unique phrase here' );
+define( 'BB_SECURE_AUTH_KEY', 'put your unique phrase here' );
+define( 'BB_LOGGED_IN_KEY', 'put your unique phrase here' );
+define( 'BB_NONCE_KEY', 'put your unique phrase here' );
 /**#@-*/
 
 /**
@@ -60,5 +60,5 @@ $bb_table_prefix = 'bb_';
  * directory of bbPress. For example, install de.mo to "my-languages" and set
  * BB_LANG to 'de' to enable German language support.
  */
-define('BB_LANG', '');
+define( 'BB_LANG', '' );
 ?>

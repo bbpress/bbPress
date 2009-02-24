@@ -1238,18 +1238,18 @@ class BB_Install
 			BB_PATH . 'bb-config-sample.php',
 			BB_PATH . 'bb-config.php',
 			array(
-				"define( 'BBDB_NAME', "  => array( "'bbpress'",                     "'" . $data['bbdb_name']['value'] . "'" ),
-				"define( 'BBDB_USER', "  => array( "'username'",                    "'" . $data['bbdb_user']['value'] . "'" ),
-				"define( 'BBDB_PASSWOR"  => array( "'password'",                    "'" . $data['bbdb_password']['value'] . "'" ),
-				"define( 'BBDB_HOST', "  => array( "'localhost'",                   "'" . $data['bbdb_host']['value'] . "'" ),
-				"define( 'BBDB_CHARSET"  => array( "'utf8'",                        "'" . $data['bbdb_charset']['value'] . "'" ),
-				"define( 'BBDB_COLLATE"  => array( "''",                            "'" . $data['bbdb_collate']['value'] . "'" ),
-				"define( 'BB_AUTH_KEY'"  => array( "'put your unique phrase here'", "'" . $data['bb_auth_key']['value'] . "'" ),
-				"define( 'BB_SECURE_AU"  => array( "'put your unique phrase here'", "'" . $data['bb_secure_auth_key']['value'] . "'" ),
-				"define( 'BB_LOGGED_IN"  => array( "'put your unique phrase here'", "'" . $data['bb_logged_in_key']['value'] . "'" ),
-				"define( 'BB_NONCE_KEY"  => array( "'put your unique phrase here'", "'" . $data['bb_nonce_key']['value'] . "'" ),
-				"\$bb_table_prefix = '"  => array( "'bb_'",                         "'" . $data['bb_table_prefix']['value'] . "'" ),
-				"define( 'BB_LANG', ''"  => array( "''",                            "'" . $data['bb_lang']['value'] . "'" )
+				"define( 'BBDB_NAME',"  => array( "'bbpress'",                     "'" . $data['bbdb_name']['value'] . "'" ),
+				"define( 'BBDB_USER',"  => array( "'username'",                    "'" . $data['bbdb_user']['value'] . "'" ),
+				"define( 'BBDB_PASSWO"  => array( "'password'",                    "'" . $data['bbdb_password']['value'] . "'" ),
+				"define( 'BBDB_HOST',"  => array( "'localhost'",                   "'" . $data['bbdb_host']['value'] . "'" ),
+				"define( 'BBDB_CHARSE"  => array( "'utf8'",                        "'" . $data['bbdb_charset']['value'] . "'" ),
+				"define( 'BBDB_COLLAT"  => array( "''",                            "'" . $data['bbdb_collate']['value'] . "'" ),
+				"define( 'BB_AUTH_KEY"  => array( "'put your unique phrase here'", "'" . $data['bb_auth_key']['value'] . "'" ),
+				"define( 'BB_SECURE_A"  => array( "'put your unique phrase here'", "'" . $data['bb_secure_auth_key']['value'] . "'" ),
+				"define( 'BB_LOGGED_I"  => array( "'put your unique phrase here'", "'" . $data['bb_logged_in_key']['value'] . "'" ),
+				"define( 'BB_NONCE_KE"  => array( "'put your unique phrase here'", "'" . $data['bb_nonce_key']['value'] . "'" ),
+				"\$bb_table_prefix = '" => array( "'bb_'",                         "'" . $data['bb_table_prefix']['value'] . "'" ),
+				"define( 'BB_LANG', '"  => array( "''",                            "'" . $data['bb_lang']['value'] . "'" )
 			)
 		);
 
