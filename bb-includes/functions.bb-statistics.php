@@ -124,6 +124,7 @@ function get_popular_topics( $num = 10 ) {
 	return $query->results;
 }
 
+if ( !function_exists( 'get_recent_registrants' ) ) :
 /**
  * Get the data of the latest registrants
  *
@@ -139,6 +140,7 @@ function get_recent_registrants( $num = 10 ) {
 		$num
 	) ), 'user');
 }
+endif;
 
 /**
  * Output the date when current installation was created
