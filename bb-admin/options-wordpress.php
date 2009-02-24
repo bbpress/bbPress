@@ -147,8 +147,18 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 				<?php _e('WordPress "auth" cookie salt'); ?>
 			</label>
 			<div>
+<?php
+if ( defined( 'BB_AUTH_SALT' ) ) {
+?>
+				<p><?php _e( 'You have defined the "BB_AUTH_SALT" constant which overides this setting.' ); ?></p>
+<?php
+} else {
+?>
 				<input class="text" name="bb_auth_salt" id="bb_auth_salt" value="<?php bb_form_option('bb_auth_salt'); ?>" />
 				<p><?php _e('This must match the value of the WordPress setting named "auth_salt" in your WordPress installation. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
+<?php
+}
+?>
 			</div>
 		</div>
 		<div>
@@ -156,8 +166,18 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 				<?php _e('WordPress "secure auth" cookie salt'); ?>
 			</label>
 			<div>
+<?php
+if ( defined( 'BB_SECURE_AUTH_SALT' ) ) {
+?>
+				<p><?php _e( 'You have defined the "BB_SECURE_AUTH_SALT" constant which overides this setting.' ); ?></p>
+<?php
+} else {
+?>
 				<input class="text" name="bb_secure_auth_salt" id="bb_secure_auth_salt" value="<?php bb_form_option('bb_secure_auth_salt'); ?>" />
 				<p><?php _e('This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress installation. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.'); ?></p>
+<?php
+}
+?>
 			</div>
 		</div>
 		<div>
@@ -165,8 +185,18 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 				<?php _e('WordPress "logged in" cookie salt'); ?>
 			</label>
 			<div>
+<?php
+if ( defined( 'BB_LOGGED_IN_SALT' ) ) {
+?>
+				<p><?php _e( 'You have defined the "BB_LOGGED_IN_SALT" constant which overides this setting.' ); ?></p>
+<?php
+} else {
+?>
 				<input class="text" name="bb_logged_in_salt" id="bb_logged_in_salt" value="<?php bb_form_option('bb_logged_in_salt'); ?>" />
 				<p><?php _e('This must match the value of the WordPress setting named "logged_in_salt" in your WordPress installation. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.'); ?></p>
+<?php
+}
+?>
 			</div>
 		</div>
 		<script type="text/javascript" charset="utf-8">
