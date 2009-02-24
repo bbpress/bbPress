@@ -195,7 +195,7 @@ unset($_table_name, $_sql);
 $bb_queries = apply_filters( 'bb_schema', $bb_queries );
 
 // These elements in the schema may need to be ignored when doing comparisons due to inconsistencies with WordPress
-if ( bb_get_option('wp_table_prefix') ) {
+if ( bb_get_option('wp_table_prefix') || ( defined( 'BB_SCHEMA_IGNORE_WP_USERS_KEYS' ) && BB_SCHEMA_IGNORE_WP_USERS_KEYS ) ) {
 	$bb_schema_ignore = array(
 		'tables' => array(),
 		'columns' => array(),
