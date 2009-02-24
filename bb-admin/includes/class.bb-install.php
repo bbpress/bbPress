@@ -1764,9 +1764,9 @@ class BB_Install
 					BB_PATH . 'bb-config.php',
 					false,
 					array(
-						"define( 'BB_AUTH_KEY'"  => array( "'" . BB_AUTH_KEY . "'",        "'" . $data2['wp_auth_key']['value'] . "'" ),
-						"define( 'BB_SECURE_AU"  => array( "'" . BB_SECURE_AUTH_KEY . "'", "'" . $data2['wp_secure_auth_key']['value'] . "'" ),
-						"define( 'BB_LOGGED_IN"  => array( "'" . BB_LOGGED_IN_KEY . "'",   "'" . $data2['wp_logged_in_key']['value'] . "'" ),
+						"define( 'BB_AUTH_KEY"  => array( "'" . BB_AUTH_KEY . "'",        "'" . $data2['wp_auth_key']['value'] . "'" ),
+						"define( 'BB_SECURE_A"  => array( "'" . BB_SECURE_AUTH_KEY . "'", "'" . $data2['wp_secure_auth_key']['value'] . "'" ),
+						"define( 'BB_LOGGED_I"  => array( "'" . BB_LOGGED_IN_KEY . "'",   "'" . $data2['wp_logged_in_key']['value'] . "'" ),
 					)
 				);
 
