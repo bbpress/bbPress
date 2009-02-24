@@ -150,7 +150,7 @@ foreach ($wpRoles as $wpRole => $wpRoleName) {
 <?php
 if ( defined( 'BB_AUTH_SALT' ) ) {
 ?>
-				<p><?php _e( 'You have defined the "BB_AUTH_SALT" constant which overides this setting.' ); ?></p>
+				<p><?php printf( __( 'You have defined the "%s" constant which overides this setting.' ), 'BB_AUTH_SALT' ); ?></p>
 <?php
 } else {
 ?>
@@ -169,7 +169,7 @@ if ( defined( 'BB_AUTH_SALT' ) ) {
 <?php
 if ( defined( 'BB_SECURE_AUTH_SALT' ) ) {
 ?>
-				<p><?php _e( 'You have defined the "BB_SECURE_AUTH_SALT" constant which overides this setting.' ); ?></p>
+				<p><?php printf( __( 'You have defined the "%s" constant which overides this setting.' ), 'BB_SECURE_AUTH_SALT' ); ?></p>
 <?php
 } else {
 ?>
@@ -188,7 +188,7 @@ if ( defined( 'BB_SECURE_AUTH_SALT' ) ) {
 <?php
 if ( defined( 'BB_LOGGED_IN_SALT' ) ) {
 ?>
-				<p><?php _e( 'You have defined the "BB_LOGGED_IN_SALT" constant which overides this setting.' ); ?></p>
+				<p><?php printf( __( 'You have defined the "%s" constant which overides this setting.' ), 'BB_LOGGED_IN_SALT' ); ?></p>
 <?php
 } else {
 ?>
