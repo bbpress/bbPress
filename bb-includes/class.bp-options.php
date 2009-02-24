@@ -13,6 +13,9 @@ class BP_Options
 	
 	function get($option) {
 		switch ($option) {
+			case 'application_uri':
+				return bb_get_uri(null, null, BB_URI_CONTEXT_NONE);
+				break;
 			case 'cron_uri':
 				return bb_get_uri('bb-cron.php', array('check' => BP_Options::get('cron_check')), BB_URI_CONTEXT_WP_HTTP_REQUEST);
 				break;
