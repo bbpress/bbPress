@@ -33,6 +33,7 @@ function total_forums() {
 	echo apply_filters('total_forums', get_total_forums() );
 }
 
+if ( !function_exists( 'get_total_users' ) ) :
 /**
  * Get the total number of users
  *
@@ -49,6 +50,7 @@ function get_total_users() {
 	$bb_total_users = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->users");
 	return $bb_total_users;
 }
+endif;
 
 /**
  * Output the number of users
