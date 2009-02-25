@@ -312,7 +312,7 @@ if ( BB_LOAD_DEPRECATED && !defined( 'BB_LANG' ) && defined( 'BBLANG' ) && '' !=
 	// User has set old constant
 	define( 'BB_LANG', BBLANG );
 }
-if ( defined( 'BB_LANG' ) && '' != BB_LANG && !class_exists( 'MO' ) ) {
+if ( !class_exists( 'MO' ) ) {
 	require_once( BACKPRESS_PATH . 'pomo/mo.php' );
 }
 
@@ -386,7 +386,7 @@ if ( $bb->load_options ) {
  * Set the URI and derivitaves
  */
 if ( $bb->uri = bb_get_option( 'uri' ) ) {
-	$bb->uri = rtrim( $bb->uri, " \t\n\r\0\x0B/" ) . '/';
+	$bb->uri = rtrim( trim( $bb->uri ), " \t\n\r\0\x0B/" ) . '/';
 	
 	if ( preg_match( '@^(https?://[^/]+)((?:/.*)*/{1,1})$@i', $bb->uri, $matches ) ) {
 		// Used when setting up cookie domain
@@ -403,7 +403,7 @@ if ( $bb->uri = bb_get_option( 'uri' ) ) {
 	}
 	if ( isset( $bb->path ) ) {
 		$bb->path = trim( $bb->path );
-		if ( $bb->path != '/' ) $bb->path = '/' . trim( $bb->path, '/' ) . '/';
+		if ( $bb->path != '/' ) $bb->path = '/' . trim( $bb->path, " \t\n\r\0\x0B/" ) . '/';
 	}
 	// We need both to build a uri
 	if ( $bb->domain && $bb->path ) {
@@ -533,6 +533,47 @@ if ( !defined( 'BB_THEME_URL' ) ) {
 	}
 }
 
+/**
+ * Look-up arrays provide easier access to arbitrary plugin and theme locations
+ */
+$_default_plugin_locations = array(
+	'core' => array(
+		'dir' => BB_CORE_PLUGIN_DIR,
+		'url' => BB_CORE_PLUGIN_URL,
+		'cap' => 'manage_plugins'
+	),
+	'user' => array(
+		'dir' => BB_PLUGIN_DIR,
+		'url' => BB_PLUGIN_URL,
+		'cap' => 'manage_plugins'
+	)
+);
+
+if ( isset( $bb->plugin_locations ) && is_array( $bb->plugin_locations ) ) {
+	$bb->plugin_locations = array_merge( $_default_plugin_locations, $bb->plugin_locations );
+} else {
+	$bb->plugin_locations = $_default_plugin_locations;
+}
+
+$_default_theme_locations = array(
+	'core' => array(
+		'dir' => BB_CORE_THEME_DIR,
+		'url' => BB_CORE_THEME_URL,
+		'cap' => 'manage_themes'
+	),
+	'user' => array(
+		'dir' => BB_THEME_DIR,
+		'url' => BB_THEME_URL,
+		'cap' => 'manage_themes'
+	)
+);
+
+if ( isset( $bb->theme_locations ) && is_array( $bb->theme_locations ) ) {
+	$bb->theme_locations = array_merge( $_default_theme_locations, $bb->theme_locations );
+} else {
+	$bb->theme_locations = $_default_theme_locations;
+}
+
 
 
 /**
@@ -567,12 +608,12 @@ if ( isset( $bb->custom_tables ) ) {
 
 $bb->wp_siteurl = bb_get_option( 'wp_siteurl' );
 if ( $bb->wp_siteurl ) {
-	$bb->wp_siteurl = rtrim( $bb->wp_siteurl, " \t\n\r\0\x0B/" );
+	$bb->wp_siteurl = rtrim( trim( $bb->wp_siteurl ), " \t\n\r\0\x0B/" );
 }
 
 $bb->wp_home = bb_get_option( 'wp_home' );
 if ( $bb->wp_home ) {
-	$bb->wp_home = rtrim( $bb->wp_home, " \t\n\r\0\x0B/" );
+	$bb->wp_home = rtrim( trim( $bb->wp_home ), " \t\n\r\0\x0B/" );
 }
 
 $bb->wp_cookies_integrated = false;
@@ -629,25 +670,50 @@ $bb->cookiepath = bb_get_option( 'cookiepath' );
 if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace( '|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
-$bb->cookiepath = rtrim( $bb->cookiepath, " \t\n\r\0\x0B/" ) . '/';
+$bb->cookiepath = rtrim( trim( $bb->cookiepath ), " \t\n\r\0\x0B/" ) . '/';
 
 $bb->admin_cookie_path = bb_get_option( 'admin_cookie_path' );
 if ( !$bb->admin_cookie_path ) {
 	$bb->admin_cookie_path = $bb->path . 'bb-admin';
 }
-$bb->admin_cookie_path = rtrim( $bb->admin_cookie_path, " \t\n\r\0\x0B/" );
+$bb->admin_cookie_path = rtrim( trim( $bb->admin_cookie_path ), " \t\n\r\0\x0B/" );
 
-$bb->core_plugins_cookie_path = bb_get_option( 'core_plugins_cookie_path' );
-if ( !$bb->core_plugins_cookie_path ) {
-	$bb->core_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL );
-}
-$bb->core_plugins_cookie_path = rtrim( $bb->core_plugins_cookie_path, " \t\n\r\0\x0B/" );
+if ( BB_LOAD_DEPRECATED ) {
+	$_plugin_cookie_paths = bb_get_option( 'plugin_cookie_paths' );
 
-$bb->user_plugins_cookie_path = bb_get_option( 'user_plugins_cookie_path' );
-if ( !$bb->user_plugins_cookie_path ) {
-	$bb->user_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', BB_PLUGIN_URL );
+	// Deprecated settings
+	if ( $_plugin_cookie_paths ) {
+		if ( isset( $_plugin_cookie_paths['core'] ) && $_plugin_cookie_paths['core'] ) {
+			$bb->core_plugins_cookie_path = $_plugin_cookie_paths['core'];
+		}
+		if ( isset( $_plugin_cookie_paths['user'] ) && $_plugin_cookie_paths['user'] ) {
+			$bb->user_plugins_cookie_path = $_plugin_cookie_paths['user'];
+		}
+	} else {
+		$bb->core_plugins_cookie_path = bb_get_option( 'core_plugins_cookie_path' );
+		$bb->user_plugins_cookie_path = bb_get_option( 'user_plugins_cookie_path' );
+	}
+
+	if ( !$bb->core_plugins_cookie_path ) {
+		$bb->core_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL );
+	}
+	$bb->core_plugins_cookie_path = rtrim( trim( $bb->core_plugins_cookie_path ), " \t\n\r\0\x0B/" );
+
+	if ( !$bb->user_plugins_cookie_path ) {
+		$bb->user_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', BB_PLUGIN_URL );
+	}
+	$bb->user_plugins_cookie_path = rtrim( trim( $bb->user_plugins_cookie_path ), " \t\n\r\0\x0B/" );
+
+	if ( !$_plugin_cookie_paths ) {
+		$bb->plugin_cookie_paths = array();
+	}
+	if ( !isset( $_plugin_cookie_paths['core'] ) ) {
+		$bb->plugin_cookie_paths['core'] = $bb->core_plugins_cookie_path;
+	}
+	if ( !isset( $_plugin_cookie_paths['user'] ) ) {
+		$bb->plugin_cookie_paths['user'] = $bb->user_plugins_cookie_path;
+	}
 }
-$bb->user_plugins_cookie_path = rtrim( $bb->user_plugins_cookie_path, " \t\n\r\0\x0B/" );
 
 $bb->sitecookiepath = bb_get_option( 'sitecookiepath' );
 $_bb_sitecookiepath = $bb->sitecookiepath;
@@ -658,20 +724,20 @@ if ( !$bb->sitecookiepath && $bb->wp_cookies_integrated ) {
 		$bb->sitecookiepath = $bb->cookiepath;
 	}
 }
-$bb->sitecookiepath = rtrim( $bb->sitecookiepath, " \t\n\r\0\x0B/" ) . '/';
+$bb->sitecookiepath = rtrim( trim( $bb->sitecookiepath ), " \t\n\r\0\x0B/" ) . '/';
 
 $bb->wp_admin_cookie_path = bb_get_option( 'wp_admin_cookie_path' );
 if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
 	$bb->wp_admin_cookie_path = $_bb_sitecookiepath . '/wp-admin';
 }
-$bb->wp_admin_cookie_path = rtrim( $bb->wp_admin_cookie_path, " \t\n\r\0\x0B/" );
+$bb->wp_admin_cookie_path = rtrim( trim( $bb->wp_admin_cookie_path ), " \t\n\r\0\x0B/" );
 
 $bb->wp_plugins_cookie_path = bb_get_option( 'wp_plugins_cookie_path' );
 if ( !$bb->wp_plugins_cookie_path && $bb->wp_cookies_integrated ) {
 	// This is a best guess only, should be manually set to match WP_PLUGIN_URL
 	$bb->wp_plugins_cookie_path = $_bb_sitecookiepath . '/wp-content/plugins';
 }
-$bb->wp_plugins_cookie_path = rtrim( $bb->wp_plugins_cookie_path, " \t\n\r\0\x0B/" );
+$bb->wp_plugins_cookie_path = rtrim( trim( $bb->wp_plugins_cookie_path ), " \t\n\r\0\x0B/" );
 unset( $_bb_sitecookiepath );
 
 /**
@@ -761,31 +827,29 @@ if ( !class_exists( 'WP_Auth' ) ) {
 		'secure' => true
 	);
 
-	$cookies['auth'][] = array(
-		'domain' => $bb->cookiedomain,
-		'path' => $bb->core_plugins_cookie_path,
-		'name' => $bb->authcookie
-	);
+	$_plugin_cookie_paths = bb_get_option( 'plugin_cookie_paths' );
+	foreach ( $bb->plugin_locations as $_name => $_data ) {
+		if ( !$_plugin_cookie_paths || !isset( $_plugin_cookie_paths[$_name] ) || !$_plugin_cookie_paths[$_name] ) {
+			$_cookie_path = preg_replace( '|https?://[^/]+|i', '', $_data['url'] );
+		} else {
+			$_cookie_path = $_plugin_cookie_paths[$_name];
+		}
+		$_cookie_path = rtrim( trim( $_cookie_path ), " \t\n\r\0\x0B/" );
 
-	$cookies['secure_auth'][] = array(
-		'domain' => $bb->cookiedomain,
-		'path' => $bb->core_plugins_cookie_path,
-		'name' => $bb->secure_auth_cookie,
-		'secure' => true
-	);
+		$cookies['auth'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $_cookie_path,
+			'name' => $bb->authcookie
+		);
 
-	$cookies['auth'][] = array(
-		'domain' => $bb->cookiedomain,
-		'path' => $bb->user_plugins_cookie_path,
-		'name' => $bb->authcookie
-	);
-
-	$cookies['secure_auth'][] = array(
-		'domain' => $bb->cookiedomain,
-		'path' => $bb->user_plugins_cookie_path,
-		'name' => $bb->secure_auth_cookie,
-		'secure' => true
-	);
+		$cookies['secure_auth'][] = array(
+			'domain' => $bb->cookiedomain,
+			'path' => $_cookie_path,
+			'name' => $bb->secure_auth_cookie,
+			'secure' => true
+		);
+	}
+	unset( $_plugin_cookie_paths, $_type, $_data, $_cookie_path );
 
 	if ( $bb->wp_admin_cookie_path ) {
 		$cookies['auth'][] = array(
@@ -930,51 +994,63 @@ if ( BB_LOAD_DEPRECATED ) {
 
 
 /**
+ * Load active template functions.php file
+ */
+$template_functions_include = bb_get_active_theme_directory() . 'functions.php';
+if ( file_exists( $template_functions_include ) ) {
+	require_once( $template_functions_include );
+}
+unset( $template_functions_include );
+
+
+
+/**
  * Load Plugins
  */
 
 // Skip plugin loading in "safe" mode
-if ( !isset( $bb->safemode ) || $bb->safemode !== true ) {
+if ( $bb->plugin_locations && ( !isset( $bb->safemode ) || $bb->safemode !== true ) ) {
 	// Autoloaded "underscore" plugins
-	// First BB_CORE_PLUGIN_DIR
-	foreach ( bb_glob(BB_CORE_PLUGIN_DIR . '_*.php') as $_plugin ) {
-		require_once( $_plugin );
+	foreach ( $bb->plugin_locations as $_name => $_data ) {
+		foreach ( bb_glob( $_data['dir'] . '_*.php' ) as $_plugin ) {
+			require_once( $_plugin );
+		}
+		unset( $_plugin );
 	}
-	unset( $_plugin );
-
-	// Second BB_PLUGIN_DIR, with no name clash testing
-	foreach ( bb_glob(BB_PLUGIN_DIR . '_*.php') as $_plugin ) {
-		require_once( $_plugin );
-	}
-	unset( $_plugin );
+	unset( $_name, $_data );
 	do_action( 'bb_underscore_plugins_loaded' );
 
 	// Normal plugins
-	if ( $plugins = bb_get_option( 'active_plugins' ) ) {
-		foreach ( (array) $plugins as $plugin ) {
-			if ( strpos( $plugin, 'core#' ) === 0 || strpos( $plugin, 'user#' ) === 0 ) {
-				if ( validate_file( $plugin ) ) {
-					// $plugin has .., :, etc.
-					continue;
-				}
-
-				$plugin = str_replace(
-					array( 'core#', 'user#' ),
-					array( BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR ),
-					$plugin
-				);
-				if (
-					BB_CORE_PLUGIN_DIR != $plugin &&
-					BB_PLUGIN_DIR != $plugin &&
-					file_exists( $plugin )
-				) {
-					require_once( $plugin );
-				}
+	if ( $_plugins = bb_get_option( 'active_plugins' ) ) {
+		foreach ( (array) $_plugins as $_plugin ) {
+			if ( !preg_match( '/^([a-z0-9_-]+)#((?:[a-z0-9\/\\_-]+.)+)(php)$/i', $_plugin, $_matches ) ) {
+				// The plugin entry in the database is invalid
+				continue;
 			}
+
+			$_directory = $bb->plugin_locations[$_matches[1]]['dir'];
+			$_plugin = $_matches[2] . $_matches[3];
+
+			if ( !$_plugin ) {
+				// Not likely
+				continue;
+			}
+
+			if ( validate_file( $_plugin ) ) {
+				// $plugin has .., :, etc.
+				continue;
+			}
+
+			if ( !file_exists( $_directory . $_plugin ) ) {
+				// The plugin isn't there
+				continue;
+			}
+
+			require_once( $_directory . $_plugin );
 		}
 	}
+	unset( $_plugins, $_plugin, $_directory );
 	do_action( 'bb_plugins_loaded' );
-	unset( $plugins, $plugin );
 }
 
 require_once( BB_PATH . BB_INC . 'functions.bb-pluggable.php' );
@@ -986,17 +1062,6 @@ require_once( BB_PATH . BB_INC . 'functions.bb-pluggable.php' );
  */
 $bb_roles =& $wp_roles;
 do_action( 'bb_got_roles' );
-
-
-
-/**
- * Load active template functions.php file
- */
-$template_functions_include = bb_get_active_theme_directory() . 'functions.php';
-if ( file_exists( $template_functions_include ) ) {
-	require_once( $template_functions_include );
-}
-unset( $template_functions_include );
 
 
 
