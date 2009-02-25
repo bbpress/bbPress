@@ -312,13 +312,8 @@ if ( BB_LOAD_DEPRECATED && !defined( 'BB_LANG' ) && defined( 'BBLANG' ) && '' !=
 	// User has set old constant
 	define( 'BB_LANG', BBLANG );
 }
-if ( defined( 'BB_LANG' ) && '' != BB_LANG ) {
-	if ( !class_exists( 'gettext_reader' ) ) {
-		require_once( BACKPRESS_PATH . 'class.gettext-reader.php' );
-	}
-	if ( !class_exists( 'StreamReader' ) ) {
-		require_once( BACKPRESS_PATH . 'class.streamreader.php' );
-	}
+if ( defined( 'BB_LANG' ) && '' != BB_LANG && !class_exists( 'MO' ) ) {
+	require_once( BACKPRESS_PATH . 'pomo/mo.php' );
 }
 
 // Is WordPress loaded
