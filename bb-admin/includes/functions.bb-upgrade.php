@@ -327,15 +327,8 @@ function bb_upgrade_1050() {
 	
 	// Only do this when upgrading
 	if ( defined( 'BB_UPGRADING' ) && BB_UPGRADING ) {
-		$theme = bb_get_option( 'bb_active_theme' );
-		if ($theme) {
-			$theme = str_replace(
-				array(BB_CORE_THEME_DIR, BB_THEME_DIR),
-				array('core#', 'user#'),
-				$theme
-			);
-			$theme = trim($theme, '/');
-			bb_update_option( 'bb_active_theme', $theme );
+		if ( $theme = bb_get_option( 'bb_active_theme' ) ) {
+			bb_update_option( 'bb_active_theme', bb_theme_basename( $theme ) );
 		}
 	}
 	

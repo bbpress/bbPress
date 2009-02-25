@@ -22,7 +22,7 @@ if ( isset($_GET['theme']) ) {
 	if ($theme_data['Name']) {
 		$name = $theme_data['Name'];
 	} else {
-		$name = str_replace(array('core#', 'user#'), '', $theme);
+		$name = preg_replace( '/^([a-z0-9_-]+#)/i', '', $theme);
 	}
 	if ($theme == BB_DEFAULT_THEME) {
 		bb_delete_option( 'bb_active_theme' );
@@ -62,7 +62,7 @@ function bb_admin_theme_row( $theme ) {
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<small class="author"><?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?></small>
 			<?php echo $theme_data['Description']; // Description is autop'ed ?>
-			<small class="location"><?php printf(__('All of this theme\'s files are located in %s'), str_replace(array('core#', 'user#'), array(__('Core themes -&gt; '), __('User installed themes -&gt; ')), $theme)); ?></small>
+			<small class="location"><?php printf(__('All of this theme\'s files are located in the "%s" themes directory.'), $theme_data['Location']); ?></small>
 		</div>
 	</li>
 <?php

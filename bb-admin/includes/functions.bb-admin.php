@@ -949,9 +949,11 @@ function bb_get_current_theme_data( $property = 'all' ) {
 }
 
 // Output sanitized for display
-function bb_get_theme_data( $theme_file ) {
-	if ( strpos($theme_file, '#') !== false )
+function bb_get_theme_data( $theme_file )
+{
+	if ( strpos($theme_file, '#') !== false ) {
 		$theme_file = bb_get_theme_directory( $theme_file ) . 'style.css';
+	}
 	$theme_code = implode( '', file( $theme_file ) );
 	$theme_code = str_replace ( '\r', '\n', $theme_code );
 	// Grab just the first commented area from the file
@@ -1005,7 +1007,21 @@ function bb_get_theme_data( $theme_file ) {
 		$porter = '';
 	}
 
+	global $bb;
+
+	// Normalise the path to the theme
+	$theme_file = str_replace( '\\', '/', $theme_file );
+
+	foreach ( $bb->theme_locations as $_name => $_data ) {
+		$_directory = str_replace( '\\', '/', $_data['dir'] );
+		if ( 0 === strpos( $theme_file, $_directory ) ) {
+			$location = $_name;
+			break;
+		}
+	}
+
 	return array(
+		'Location' => $location,
 		'Name' => $name,
 		'Title' => $theme,
 		'Description' => $description,
