@@ -1359,7 +1359,7 @@ function bb_get_themes()
 	foreach ( $bb->theme_locations as $_name => $_data ) {
 		if ( $themes_dir = @dir( $_data['dir'] ) ) {
 			while( ( $theme_dir = $themes_dir->read() ) !== false ) {
-				if ( is_dir( $_data['dir'] . $theme_dir ) && is_readable( $_data['dir'] . $theme_dir ) && '.' != $theme_dir{0} ) {
+				if ( is_file( $_data['dir'] . $theme_dir . '/style.css' ) && is_readable( $_data['dir'] . $theme_dir . '/style.css' ) && '.' != $theme_dir{0} ) {
 					$r[$_name . '#' . $theme_dir] = $_name . '#' . $theme_dir;
 				}
 			}
