@@ -395,6 +395,7 @@ function bb_offset_time( $time, $args = null ) {
  *
  * @since 1.0
  */
+define( 'BB_URI_CONTEXT_NONE',                 0 );
 define( 'BB_URI_CONTEXT_HEADER',               1 );
 define( 'BB_URI_CONTEXT_TEXT',                 2 );
 define( 'BB_URI_CONTEXT_A_HREF',               4 );
@@ -1255,120 +1256,141 @@ function no_where( $where ) {
 
 /* Plugins/Themes utility */
 
-function bb_basename($file, $directories) {
-	if (strpos($file, '#') !== false)
+function bb_basename( $file, $directories )
+{
+	if ( strpos( $file, '#' ) !== false ) {
 		return $file; // It's already a basename
-	foreach ($directories as $type => $directory)
-		if (strpos($file, $directory) !== false)
+	}
+
+	foreach ( $directories as $type => $directory ) {
+		if ( strpos( $file, $directory ) !== false ) {
 			break; // Keep the $file and $directory set and use them below, nifty huh?
-	list($file, $directory) = str_replace('\\','/', array($file, $directory));
-	list($file, $directory) = preg_replace('|/+|','/', array($file,$directory));
-	$file = preg_replace('|^.*' . preg_quote($directory, '|') . '|', $type . '#', $file);
+		}
+	}
+
+	list( $file, $directory ) = str_replace( '\\','/', array( $file, $directory ) );
+	list( $file, $directory ) = preg_replace( '|/+|','/', array( $file,$directory ) );
+	$file = preg_replace( '|^.*' . preg_quote( $directory, '|' ) . '|', $type . '#', $file );
+
 	return $file;
 }
 
 /* Plugins */
 
-function bb_plugin_basename($file) {
-	return bb_basename( $file, array('user' => BB_PLUGIN_DIR, 'core' => BB_CORE_PLUGIN_DIR) );
+function bb_plugin_basename( $file )
+{
+	global $bb;
+	$directories = array();
+	foreach ( $bb->plugin_locations as $_name => $_data ) {
+		$directories[$_name] = $_data['dir'];
+	}
+	return bb_basename( $file, $directories );
 }
 
-function bb_register_plugin_activation_hook($file, $function) {
-	$file = bb_plugin_basename($file);
-	add_action('bb_activate_plugin_' . $file, $function);
+function bb_register_plugin_activation_hook( $file, $function )
+{
+	$file = bb_plugin_basename( $file );
+	add_action( 'bb_activate_plugin_' . $file, $function );
 }
 
-function bb_register_plugin_deactivation_hook($file, $function) {
-	$file = bb_plugin_basename($file);
-	add_action('bb_deactivate_plugin_' . $file, $function);
+function bb_register_plugin_deactivation_hook( $file, $function )
+{
+	$file = bb_plugin_basename( $file );
+	add_action( 'bb_deactivate_plugin_' . $file, $function );
 }
 
-function bb_get_plugin_uri( $plugin = false ) {
-	if ( !$plugin ) {
-		$plugin_uri = BB_PLUGIN_URL;
+function bb_get_plugin_uri( $plugin = false )
+{
+	global $bb;
+	if ( preg_match( '/^([a-z0-9_-]+)#((?:[a-z0-9\/\\_-]+.)+)(php)$/i', $plugin, $_matches ) ) {
+		$plugin_uri = $bb->plugin_locations[$_matches[1]]['url'] . $_matches[2] . $_matches[3];
+		$plugin_uri = dirname( $plugin_uri ) . '/';
 	} else {
-		$plugin_uri = str_replace(
-			array('core#', 'user#'),
-			array(BB_CORE_PLUGIN_URL, BB_PLUGIN_URL),
-			$plugin
-		);
-		$plugin_uri = dirname($plugin_uri) . '/';
+		$plugin_uri = $bb->plugin_locations['core']['url'];
 	}
 	return apply_filters( 'bb_get_plugin_uri', $plugin_uri, $plugin );
 }
 
-function bb_get_plugin_directory( $plugin = false, $path = false ) {
-	if ( !$plugin ) {
-		$plugin_directory = BB_PLUGIN_DIR;
-	} else {
-		$plugin_directory = str_replace(
-			array('core#', 'user#'),
-			array(BB_CORE_PLUGIN_DIR, BB_PLUGIN_DIR),
-			$plugin
-		);
+function bb_get_plugin_directory( $plugin = false, $path = false )
+{
+	global $bb;
+	if ( preg_match( '/^([a-z0-9_-]+)#((?:[a-z0-9\/\\_-]+.)+)(php)$/i', $plugin, $_matches ) ) {
+		$plugin_directory = $bb->plugin_locations[$_matches[1]]['dir'] . $_matches[2] . $_matches[3];
 		if ( !$path ) {
-			$plugin_directory = dirname($plugin_directory) . '/';
+			$plugin_directory = dirname( $plugin_directory ) . '/';
 		}
+	} else {
+		$plugin_directory = $bb->plugin_locations['core']['dir'];
 	}
 	return apply_filters( 'bb_get_plugin_directory', $plugin_directory, $plugin, $path );
 }
 
-function bb_get_plugin_path( $plugin = false ) {
+function bb_get_plugin_path( $plugin = false )
+{
 	$plugin_path = bb_get_plugin_directory( $plugin, true );
 	return apply_filters( 'bb_get_plugin_path', $plugin_path, $plugin );
 }
 
 /* Themes / Templates */
 
-function bb_get_active_theme_directory() {
+function bb_get_active_theme_directory()
+{
 	return apply_filters( 'bb_get_active_theme_directory', bb_get_theme_directory() );
 }
 
-function bb_get_theme_directory($theme = false) {
-	if (!$theme) {
+function bb_get_theme_directory( $theme = false )
+{
+	global $bb;
+	if ( !$theme ) {
 		$theme = bb_get_option( 'bb_active_theme' );
 	}
-	if ( !$theme ) {
-		$theme_directory = BB_DEFAULT_THEME_DIR;
+	if ( preg_match( '/^([a-z0-9_-]+)#([a-z0-9_-]+)$/i', $plugin, $_matches ) ) {
+		$theme_directory = $bb->theme_locations[$_matches[1]]['dir'] . $_matches[2] . '/';
 	} else {
-		$theme_directory = str_replace(
-			array('core#', 'user#'),
-			array(BB_CORE_THEME_DIR, BB_THEME_DIR),
-			$theme
-		) . '/';
+		$theme_directory = BB_DEFAULT_THEME_DIR;
 	}
 	return $theme_directory;
 }
 
-function bb_get_themes() {
+function bb_get_themes()
+{
 	$r = array();
-	$theme_roots = array(
-		'core' => BB_CORE_THEME_DIR,
-		'user' => BB_THEME_DIR
-	);
-	foreach ( $theme_roots as $theme_root_name => $theme_root )
-		if ( $themes_dir = @dir($theme_root) )
-			while( ( $theme_dir = $themes_dir->read() ) !== false )
-				if ( is_dir($theme_root . $theme_dir) && is_readable($theme_root . $theme_dir) && '.' != $theme_dir{0} )
-					$r[$theme_root_name . '#' . $theme_dir] = $theme_root_name . '#' . $theme_dir;
-	ksort($r);
+	global $bb;
+	foreach ( $bb->theme_locations as $_name => $_data ) {
+		if ( $themes_dir = @dir( $_data['dir'] ) ) {
+			while( ( $theme_dir = $themes_dir->read() ) !== false ) {
+				if ( is_dir( $_data['dir'] . $theme_dir ) && is_readable( $_data['dir'] . $theme_dir ) && '.' != $theme_dir{0} ) {
+					$r[$_name . '#' . $theme_dir] = $_name . '#' . $theme_dir;
+				}
+			}
+		}
+	}
+	ksort( $r );
 	return $r;
 }
 
-function bb_theme_basename($file) {
-	$file = bb_basename( $file, array('user' => BB_THEME_DIR, 'core' => BB_CORE_THEME_DIR) );
-	$file = preg_replace('|/+.*|', '', $file);
+function bb_theme_basename( $file )
+{
+	global $bb;
+	$directories = array();
+	foreach ( $bb->theme_locations as $_name => $_data ) {
+		$directories[$_name] = $_data['dir'];
+	}
+	$file = bb_basename( $file, $directories );
+	$file = preg_replace( '|/+.*|', '', $file );
 	return $file;
 }
 
-function bb_register_theme_activation_hook($file, $function) {
-	$file = bb_theme_basename($file);
-	add_action('bb_activate_theme_' . $file, $function);
+function bb_register_theme_activation_hook( $file, $function )
+{
+	$file = bb_theme_basename( $file );
+	add_action( 'bb_activate_theme_' . $file, $function );
 }
 
-function bb_register_theme_deactivation_hook($file, $function) {
-	$file = bb_theme_basename($file);
-	add_action('bb_deactivate_theme_' . $file, $function);
+function bb_register_theme_deactivation_hook( $file, $function )
+{
+	$file = bb_theme_basename( $file );
+	add_action( 'bb_deactivate_theme_' . $file, $function );
 }
 
 /* Search Functions */
