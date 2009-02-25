@@ -309,10 +309,12 @@ function load_default_textdomain() {
 function load_plugin_textdomain($domain, $path = false) {
 	$locale = get_locale();
 
-	if ( false === $path )
-		$path = BB_PLUGIN_DIR;
+	if ( false === $path ) {
+		global $bb;
+		$path = $bb->plugin_locations['core']['dir'];
+	}
 
-	$mofile = $path . '/'. $domain . '-' . $locale . '.mo';
+	$mofile = rtrim( trim( $path ), " \t\n\r\0\x0B/" ) . '/'. $domain . '-' . $locale . '.mo';
 	load_textdomain($domain, $mofile);
 }
 
