@@ -555,6 +555,11 @@ if ( isset( $bb->plugin_locations ) && is_array( $bb->plugin_locations ) ) {
 	$bb->plugin_locations = $_default_plugin_locations;
 }
 
+// Don't accept a plugin location called "all". Unlikely, but really not desirable.
+if ( isset( $bb->plugin_locations['all'] ) ) {
+	unset( $bb->plugin_locations['all'] );
+}
+
 $_default_theme_locations = array(
 	'core' => array(
 		'dir' => BB_CORE_THEME_DIR,
@@ -694,13 +699,13 @@ if ( BB_LOAD_DEPRECATED ) {
 		$bb->user_plugins_cookie_path = bb_get_option( 'user_plugins_cookie_path' );
 	}
 
-	if ( !$bb->core_plugins_cookie_path ) {
-		$bb->core_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', BB_CORE_PLUGIN_URL );
+	if ( !$bb->core_plugins_cookie_path && isset( $bb->plugin_locations['core']['url'] ) && $bb->plugin_locations['core']['url'] ) {
+		$bb->core_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', $bb->plugin_locations['core']['url'] );
 	}
 	$bb->core_plugins_cookie_path = rtrim( trim( $bb->core_plugins_cookie_path ), " \t\n\r\0\x0B/" );
 
-	if ( !$bb->user_plugins_cookie_path ) {
-		$bb->user_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', BB_PLUGIN_URL );
+	if ( !$bb->user_plugins_cookie_path && isset( $bb->plugin_locations['user']['url'] ) && $bb->plugin_locations['user']['url'] ) {
+		$bb->user_plugins_cookie_path = preg_replace( '|https?://[^/]+|i', '', $bb->plugin_locations['user']['url'] );
 	}
 	$bb->user_plugins_cookie_path = rtrim( trim( $bb->user_plugins_cookie_path ), " \t\n\r\0\x0B/" );
 
