@@ -1,106 +1,159 @@
 <?php
 
-function bb_load_template( $file, $globals = false, $action_arg = null ) {
+function bb_load_template( $files, $globals = false, $action_arg = null )
+{
 	global $bb, $bbdb, $bb_current_user, $page, $bb_cache,
 		$posts, $bb_post, $post_id, $topics, $topic, $topic_id,
 		$forums, $forum, $forum_id, $tags, $tag, $tag_name, $user, $user_id, $view,
 		$del_class, $bb_alt;
 
-	if ( $globals )
-		foreach ( $globals as $global => $v )
-			if ( !is_numeric($global) )
+	if ( $globals ) {
+		foreach ( $globals as $global => $v ) {
+			if ( !is_numeric($global) ) {
 				$$global = $v;
-			else
+			} else {
 				global $$v;
+			}
+		}
+	}
 
-	do_action( "bb_$file", $action_arg );
+	$files = (array) $files;
+	$template = false;
+	$default_template = false;
+	$file_used = false;
+	$default_file_used = false;
 
-	$template = apply_filters( 'bb_template', bb_get_template( $file ), $file );
-	include($template);
+	foreach ( $files as $file ) {
+		do_action( 'bb_' . $file, $action_arg );
+		if ( false !== $template = bb_get_template( $file, false ) ) {
+			$file_used = $file;
+			break;
+		}
+		if ( !$default_template ) {
+			if ( false !== $default_template = bb_get_default_template( $file ) ) {
+				$default_file_used = $file;
+			}
+		}
+	}
 
-	do_action( "bb_after_$file", $action_arg );
+	if ( !$template && $default_template ) {
+		$template = $default_template;
+		$file_used = $default_file_used;
+	}
+
+	$template = apply_filters( 'bb_template', $template, $file_used );
+	include( $template );
+
+	do_action( 'bb_after_' . $file_used, $action_arg );
 }
 
-function bb_get_template( $file ) {
+function bb_get_template( $file, $default = true )
+{
 	global $bb;
 	// Skip theme loading in "safe" mode
-	if ( !isset( $bb->safemode ) || $bb->safemode !== true )
-		if ( file_exists( bb_get_active_theme_directory() .  $file) )
+	if ( !isset( $bb->safemode ) || $bb->safemode !== true ) {
+		if ( file_exists( bb_get_active_theme_directory() .  $file ) ) {
 			return bb_get_active_theme_directory() .  $file;
-	return BB_DEFAULT_THEME_DIR . $file;
+		}
+	}
+
+	if ( !$default ) {
+		return false;
+	}
+
+	return bb_get_default_template( $file );
 }
 
-function bb_get_header() {
+function bb_get_default_template( $file )
+{
+	if ( file_exists( BB_DEFAULT_THEME_DIR . $file ) ) {
+		return BB_DEFAULT_THEME_DIR . $file;
+	}
+}
+
+function bb_get_header()
+{
 	bb_load_template( 'header.php' );
 }
 
-function bb_language_attributes( $xhtml = 0 ) {
+function bb_language_attributes( $xhtml = 0 )
+{
 	$output = '';
-	if ( $dir = bb_get_option('text_direction') )
-		$output = "dir=\"$dir\" ";
-	if ( $lang = bb_get_option('language') ) {
-		$output .= "xml:lang=\"$lang\" ";
-		if ( $xhtml < '1.1' )
-			$output .= "lang=\"$lang\"";
+	if ( $dir = bb_get_option( 'text_direction' ) ) {
+		$output = 'dir="' . $dir . '" ';
+	}
+	if ( $lang = bb_get_option( 'language' ) ) {
+		$output .= 'xml:lang="' . $lang . '" ';
+		if ( $xhtml < '1.1' ) {
+			$output .= 'lang="' . $lang . '"';
+		}
 	}
 
-	echo ' ' . rtrim($output);
+	echo ' ' . rtrim( $output );
 }
 
-function bb_stylesheet_uri( $stylesheet = '' ) {
+function bb_stylesheet_uri( $stylesheet = '' )
+{
 	echo wp_specialchars( bb_get_stylesheet_uri( $stylesheet ) );
 }
 
-function bb_get_stylesheet_uri( $stylesheet = '' ) {
-	if ( 'rtl' == $stylesheet )
+function bb_get_stylesheet_uri( $stylesheet = '' )
+{
+	if ( 'rtl' == $stylesheet ) {
 		$css_file = 'style-rtl.css';
-	else
+	} else {
 		$css_file = 'style.css';
+	}
 
 	$active_theme = bb_get_active_theme_directory();
 
-	if ( file_exists( $active_theme . 'style.css' ) )
+	if ( file_exists( $active_theme . $css_file ) ) {
 		$r = bb_get_active_theme_uri() . $css_file;
-	else
+	} else {
 		$r = BB_DEFAULT_THEME_URL . $css_file;
+	}
+
 	return apply_filters( 'bb_get_stylesheet_uri', $r, $stylesheet );
 }
 
-function bb_active_theme_uri() {
+function bb_active_theme_uri()
+{
 	echo bb_get_active_theme_uri();
 }
 
-function bb_get_active_theme_uri() {
+function bb_get_active_theme_uri()
+{
 	global $bb;
 	// Skip theme loading in "safe" mode
-	if ( isset( $bb->safemode ) && $bb->safemode === true )
+	if ( isset( $bb->safemode ) && $bb->safemode === true ) {
 		$active_theme_uri = BB_DEFAULT_THEME_URL;
-	elseif ( !$active_theme = bb_get_option( 'bb_active_theme' ) )
+	} elseif ( !$active_theme = bb_get_option( 'bb_active_theme' ) ) {
 		$active_theme_uri = BB_DEFAULT_THEME_URL;
-	else
+	} else {
 		$active_theme_uri = bb_get_theme_uri( $active_theme );
+	}
 	return apply_filters( 'bb_get_active_theme_uri', $active_theme_uri );
 }
 
-function bb_get_theme_uri( $theme = false ) {
-	if ( !$theme ) {
-		$theme_uri = BB_THEME_URL;
+function bb_get_theme_uri( $theme = false )
+{
+	global $bb;
+	if ( preg_match( '/^([a-z0-9_-]+)#([a-z0-9_-]+)$/i', $theme, $_matches ) ) {
+		$theme_uri = $bb->theme_locations[$_matches[1]]['url'] . $_matches[2] . '/';
 	} else {
-		$theme_uri = str_replace(
-			array('core#', 'user#'),
-			array(BB_CORE_THEME_URL, BB_THEME_URL),
-			$theme
-		) . '/';
+		$theme_uri = $bb->theme_locations['core']['url'];
 	}
 	return apply_filters( 'bb_get_theme_uri', $theme_uri, $theme );
 }
 
-function bb_get_footer() {
+function bb_get_footer()
+{
 	bb_load_template( 'footer.php' );
 }
 
-function bb_head() {
-        do_action('bb_head');
+function bb_head()
+{
+	do_action('bb_head');
 }
 
 /**
