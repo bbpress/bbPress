@@ -609,7 +609,25 @@ function bb_ssl_redirect()
  */
 function bb_is_ssl()
 {
-	return ( 'on' == strtolower( @$_SERVER['HTTPS'] ) ) ? true : false;
+	static $is_ssl;
+
+	if ( isset( $is_ssl ) ) {
+		return $is_ssl;
+	}
+
+	$is_ssl = false;
+
+	if ( isset($_SERVER['HTTPS']) ) {
+		if ( 'on' == strtolower( $_SERVER['HTTPS'] ) ) {
+			$is_ssl = true;
+		} elseif ( '1' == $_SERVER['HTTPS'] ) {
+			$is_ssl = true;
+		}
+	} elseif ( isset( $_SERVER['SERVER_PORT'] ) && ( '443' == $_SERVER['SERVER_PORT'] ) ) {
+		$is_ssl = true;
+	}
+
+	return $is_ssl;
 }
 
 function get_path( $level = 1, $base = false, $request = false ) {
