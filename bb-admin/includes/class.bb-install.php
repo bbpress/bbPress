@@ -125,11 +125,8 @@ class BB_Install
 			$locale = $this->language;
 			unset( $l10n['default'] );
 
-			if ( !class_exists( 'gettext_reader' ) ) {
-				require_once( BACKPRESS_PATH . 'class.gettext-reader.php' );
-			}
-			if ( !class_exists( 'StreamReader' ) ) {
-				require( BACKPRESS_PATH . 'class.streamreader.php' );
+			if ( !class_exists( 'MO' ) ) {
+				require_once( BACKPRESS_PATH . 'pomo/mo.php' );
 			}
 		}
 
