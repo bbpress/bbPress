@@ -599,7 +599,7 @@ unset( $connection, $database );
 // Add custom tables if required
 if ( isset( $bb->custom_tables ) ) {
 	$bbdb->tables = array_merge( $bbdb->tables, $bb->custom_tables );
-	if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) ) {
+	if ( is_wp_error( $bbdb->set_prefix( $bbdb->prefix ) ) ) {
 		die( __( 'Your user table prefix may only contain letters, numbers and underscores.' ) );
 	}
 }
@@ -623,17 +623,23 @@ if ( $bb->wp_home ) {
 
 $bb->wp_cookies_integrated = false;
 $bb->cookiedomain = bb_get_option( 'cookiedomain' );
+$bb->cookiepath = bb_get_option( 'cookiepath' );
+
 if ( $bb->wp_siteurl && $bb->wp_home ) {
 	if ( $bb->cookiedomain ) {
 		$bb->wp_cookies_integrated = true;
 	} else {
 		$cookiedomain = bb_get_common_domains( $bb->uri, $bb->wp_home );
 		if ( bb_match_domains( $bb->uri, $bb->wp_home ) ) {
-			$bb->cookiepath = bb_get_common_paths( $bb->uri, $bb->wp_home );
+			if ( !$bb->cookiepath ) {
+				$bb->cookiepath = bb_get_common_paths( $bb->uri, $bb->wp_home );
+			}
 			$bb->wp_cookies_integrated = true;
 		} elseif ( $cookiedomain && strpos( $cookiedomain, '.' ) !== false ) {
 			$bb->cookiedomain = '.' . $cookiedomain;
-			$bb->cookiepath = bb_get_common_paths( $bb->uri, $bb->wp_home );
+			if ( !$bb->cookiepath ) {
+				$bb->cookiepath = bb_get_common_paths( $bb->uri, $bb->wp_home );
+			}
 			$bb->wp_cookies_integrated = true;
 		}
 		unset( $cookiedomain );
@@ -671,7 +677,7 @@ if ( !$bb->logged_in_cookie ) {
 	$bb->logged_in_cookie = ( $bb->wp_cookies_integrated ? 'wordpress_logged_in_' : 'bbpress_logged_in_' ) . BB_HASH;
 }
 
-$bb->cookiepath = bb_get_option( 'cookiepath' );
+// Cookie path was set before integration logic above
 if ( !$bb->cookiepath ) {
 	$bb->cookiepath = $bb->wp_cookies_integrated ? preg_replace( '|https?://[^/]+|i', '', $bb->wp_home ) : $bb->path;
 }
