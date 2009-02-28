@@ -64,10 +64,10 @@ switch ($bb_install->step) {
 					$bb_install->input_text('bbdb_host');
 					$bb_install->input_text('bbdb_charset');
 					$bb_install->input_text('bbdb_collate');
-					$bb_install->input_text('bb_auth_key');
-					$bb_install->input_text('bb_secure_auth_key');
-					$bb_install->input_text('bb_logged_in_key');
-					$bb_install->input_text('bb_nonce_key');
+					//$bb_install->input_text('bb_auth_key');
+					//$bb_install->input_text('bb_secure_auth_key');
+					//$bb_install->input_text('bb_logged_in_key');
+					//$bb_install->input_text('bb_nonce_key');
 					$bb_install->input_text('bb_table_prefix', 'ltr');
 ?>
 						</div>
