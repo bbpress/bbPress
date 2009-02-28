@@ -128,6 +128,9 @@ switch ($step) {
 						</fieldset>
 					</div>
 					<fieldset class="buttons">
+						<label for="upgrade_next" class="back">
+							<input class="button" id="upgrade_back" type="button" value="<?php _e('&laquo; Go back to forums'); ?>" onclick="location.href='<?php echo js_escape( bb_get_uri() ); ?>'; return false;" />
+						</label>
 						<label for="upgrade_next" class="forward">
 							<input class="button" id="upgrade_next" type="submit" value="<?php _e('Go to admin &raquo;'); ?>" />
 						</label>
@@ -173,7 +176,7 @@ switch ($step) {
 					</div>
 					<fieldset class="buttons">
 						<label for="upgrade_next" class="back">
-							<input class="button" id="upgrade_back" type="button" value="<?php _e('&laquo; Go back to forums'); ?>" onclick="location.href='<?php bb_form_option('uri'); ?>'; return false;" />
+							<input class="button" id="upgrade_back" type="button" value="<?php _e('&laquo; Go back to forums'); ?>" onclick="location.href='<?php echo js_escape( bb_get_uri() ); ?>'; return false;" />
 						</label>
 						<label for="upgrade_next" class="forward">
 							<input class="button" id="upgrade_next" type="submit" value="<?php _e('Try again &raquo;'); ?>" />
