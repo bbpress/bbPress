@@ -8,32 +8,76 @@
 
 
 /**
- * Verifies that an email is valid
+ * Verifies that an email is valid.
  *
- * {@internal Missing Long Description}}
+ * Does not grok i18n domains. Not RFC compliant.
  *
  * @since 0.7.2
- * @param string $email Email address to verify
- * @return string|bool
+ * @param string $email Email address to verify.
+ * @param boolean $check_dns Whether to check the DNS for the domain using checkdnsrr().
+ * @return string|bool Either false or the valid email address.
  */
-function bb_verify_email( $email, $check_domain = false ) {
-	if (ereg('^[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'.'@'.
-		'[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.'.
-		'[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$', $email)) {
-		if ( $check_domain && function_exists('checkdnsrr') ) {
-			list (, $domain)  = explode('@', $email);
-			if ( checkdnsrr($domain . '.', 'MX') || checkdnsrr($domain . '.', 'A') ) {
-				$r = $email;
-			} else {
-				$r = false;
-			}
-		} else {
-			$r = $email;
-		}
-	} else {
-		$r = false;
+function bb_verify_email( $email, $check_dns = false )
+{
+	// Test for the minimum length the email can be
+	if ( strlen( $email ) < 3 ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'email_too_short' );
 	}
-	return apply_filters( 'bb_verify_email', $r, $email );
+
+	// Test for an @ character after the first position
+	if ( strpos( $email, '@', 1 ) === false ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'email_no_at' );
+	}
+
+	// Split out the local and domain parts
+	list( $local, $domain ) = explode( '@', $email, 2 );
+
+	// LOCAL PART
+	// Test for invalid characters
+	if ( !preg_match('/^[a-zA-Z0-9!#$%&\'*+\/=?^_`{|}~\.-]+$/', $local ) ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'local_invalid_chars' );
+	}
+
+	// DOMAIN PART
+	// Test for sequences of periods
+	if ( preg_match( '/\.{2,}/', $domain ) ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'domain_period_sequence' );
+	}
+
+	// Test for leading and trailing periods
+	if ( trim( $domain, '.' ) !== $domain ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'domain_period_limits' );
+	}
+
+	// Split the domain into subs
+	$subs = explode( '.', $domain );
+
+	// Assume the domain will have at least two subs
+	if ( !count( $subs ) ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'domain_no_periods' );
+	}
+
+	// Loop through each sub
+	foreach ( $subs as $sub ) {
+		// Test for leading and trailing hyphens
+		if ( trim( $sub, '-' ) !== $sub ) {
+			return apply_filters( 'bb_verify_email', false, $email, 'sub_hyphen_limits' );
+		}
+
+		// Test for invalid characters
+		if ( !preg_match('/^[a-z0-9-]+$/i', $sub ) ) {
+			return apply_filters( 'bb_verify_email', false, $email, 'sub_invalid_chars' );
+		}
+	}
+
+	// DNS
+	// Check the domain has a valid MX or A resource record
+	if ( $check_dns && function_exists( 'checkdnsrr' ) && !( checkdnsrr( $domain . '.', 'MX' ) || checkdnsrr( $domain . '.', 'A' ) ) ) {
+		return apply_filters( 'bb_verify_email', false, $email, 'dns_no_rr' );
+	}
+
+	// Congratulations your email made it!
+	return apply_filters( 'bb_verify_email', $email, $email, null );
 }
 
 /**
