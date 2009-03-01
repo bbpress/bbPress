@@ -315,6 +315,9 @@ function bb_get_option( $option )
 					case 'throttle_time':
 						$r = 30;
 						break;
+					case 'email_login':
+						$r = false;
+						break;
 				}
 			}
 			break;
@@ -454,7 +457,9 @@ function bb_cache_all_options()
 		'enable_pingback',
 		'throttle_time',
 		'bb_xmlrpc_allow_user_switching',
-		'bp_bbpress_cron'
+		'bp_bbpress_cron',
+		'email_login',
+		'static_title'
 	);
 
 	foreach ( $base_options as $base_option ) {

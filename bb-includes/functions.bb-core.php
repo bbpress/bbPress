@@ -1,121 +1,159 @@
 <?php
-/* INIT */
+/**
+ * Core bbPress functions.
+ *
+ * @package bbPress
+ */
 
-function bb_global_sanitize( $array, $trim = true ) {
-	foreach ($array as $k => $v) {
-		if ( is_array($v) ) {
-			$array[$k] = bb_global_sanitize($v);
+
+
+/**
+ * Initialization functions mostly called in bb-settings.php
+ */
+
+/**
+ * Marks things as deprecated and informs when they have been used.
+ *
+ * @since 0.9
+ *
+ * @param string $type The type of thing that was attempted: function, class::function, constant, variable or page.
+ * @param string $name The thing that was called.
+ * @param string $replacement Optional. The thing that should have been called.
+ * @uses $bb_log BP_Log logging object.
+ */
+function bb_log_deprecated( $type, $name, $replacement = 'none' ) {
+	global $bb_log;
+	$bb_log->notice( sprintf( __( 'Using deprecated bbPress %1$s - %2$s - replace with - %3$s' ), $type, $name, $replacement ) );
+}
+
+/**
+ * Sanitizes user input en-masse.
+ *
+ * @param mixed $array The array of values or a single value to sanitize, usually a global variable like $_GET or $_POST.
+ * @param boolean $trim Optional. Whether to trim the value or not. Default is true.
+ * @return mixed The sanitized data.
+ */
+function bb_global_sanitize( $array, $trim = true )
+{
+	foreach ( $array as $k => $v ) {
+		if ( is_array( $v ) ) {
+			$array[$k] = bb_global_sanitize( $v );
 		} else {
-			if ( !get_magic_quotes_gpc() )
-				$array[$k] = addslashes($v);
-			if ( $trim )
-				$array[$k] = trim($array[$k]);
+			if ( !get_magic_quotes_gpc() ) {
+				$array[$k] = addslashes( $v );
+			}
+			if ( $trim ) {
+				$array[$k] = trim( $array[$k] );
+			}
 		}
 	}
+
 	return $array;
 }
 
-function bb_is_installed() { // Maybe grab all the forums and cache them
+/**
+ * Reports whether bbPress is installed by getting forums.
+ *
+ * @return boolean True if there are forums, otherwise false.
+ */
+function bb_is_installed()
+{
+	// Maybe grab all the forums and cache them
 	global $bbdb;
 	$bbdb->suppress_errors();
 	$forums = (array) @get_forums();
 	$bbdb->suppress_errors(false);
-	if ( !$forums )
+
+	if ( !$forums ) {
 		return false;
+	}
 
 	return true;
 }
 
-function bb_set_custom_user_tables() {
+/**
+ * Sets the required variables to connect to custom user tables.
+ *
+ * @return boolean Always returns true.
+ */
+function bb_set_custom_user_tables()
+{
 	global $bb;
-	
+
 	// Check for older style custom user table
-	if ( !isset($bb->custom_tables['users']) ) { // Don't stomp new setting style
-		if ( !$bb->custom_user_table = bb_get_option('custom_user_table') ) // Maybe get from database or old config setting
-			if ( BB_LOAD_DEPRECATED && defined('CUSTOM_USER_TABLE') ) // Maybe user has set old constant
-				$bb->custom_user_table = CUSTOM_USER_TABLE;
-		if ( $bb->custom_user_table ) {
-			if ( !isset($bb->custom_tables) )
+	if ( !isset( $bb->custom_tables['users'] ) ) { // Don't stomp new setting style
+		if ( $bb->custom_user_table = bb_get_option( 'custom_user_table' ) ) {
+			if ( !isset( $bb->custom_tables ) ) {
 				$bb->custom_tables = array();
+			}
 			$bb->custom_tables['users'] = $bb->custom_user_table;
 		}
 	}
 
 	// Check for older style custom user meta table
-	if ( !isset($bb->custom_tables['usermeta']) ) { // Don't stomp new setting style
-		if ( !$bb->custom_user_meta_table = bb_get_option('custom_user_meta_table') ) // Maybe get from database or old config setting
-			if ( BB_LOAD_DEPRECATED && defined('CUSTOM_USER_META_TABLE') ) // Maybe user has set old constant
-				$bb->custom_user_meta_table = CUSTOM_USER_META_TABLE;
-		if ( $bb->custom_user_meta_table ) {
-			if ( !isset($bb->custom_tables) )
+	if ( !isset( $bb->custom_tables['usermeta'] ) ) { // Don't stomp new setting style
+		if ( $bb->custom_user_meta_table = bb_get_option( 'custom_user_meta_table' ) ) {
+			if ( !isset( $bb->custom_tables ) ) {
 				$bb->custom_tables = array();
+			}
 			$bb->custom_tables['usermeta'] = $bb->custom_user_meta_table;
 		}
 	}
 
 	// Check for older style wp_table_prefix
-	if ( $bb->wp_table_prefix = bb_get_option('wp_table_prefix') ) { // User has set old constant
-		if ( !isset($bb->custom_tables) ) {
+	if ( $bb->wp_table_prefix = bb_get_option( 'wp_table_prefix' ) ) { // User has set old constant
+		if ( !isset( $bb->custom_tables ) ) {
 			$bb->custom_tables = array(
 				'users'    => $bb->wp_table_prefix . 'users',
 				'usermeta' => $bb->wp_table_prefix . 'usermeta'
 			);
 		} else {
-			if ( !isset($bb->custom_tables['users']) ) // Don't stomp new setting style
+			if ( !isset( $bb->custom_tables['users'] ) ) { // Don't stomp new setting style
 				$bb->custom_tables['users'] = $bb->wp_table_prefix . 'users';
-			if ( !isset($bb->custom_tables['usermeta']) )
+			}
+			if ( !isset( $bb->custom_tables['usermeta'] ) ) {
 				$bb->custom_tables['usermeta'] = $bb->wp_table_prefix . 'usermeta';
+			}
 		}
 	}
 
 	// Check for older style user database
-	if ( !isset($bb->custom_databases) )
+	if ( !isset( $bb->custom_databases ) ) {
 		$bb->custom_databases = array();
-	if ( !isset($bb->custom_databases['user']) ) {
-		if ( !$bb->user_bbdb_name = bb_get_option('user_bbdb_name') )
-			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_NAME') ) // User has set old constant
-				$bb->user_bbdb_name = USER_BBDB_NAME;
-		if ( $bb->user_bbdb_name )
+	}
+	if ( !isset( $bb->custom_databases['user'] ) ) {
+		if ( $bb->user_bbdb_name = bb_get_option( 'user_bbdb_name' ) ) {
 			$bb->custom_databases['user']['name'] = $bb->user_bbdb_name;
-
-		if ( !$bb->user_bbdb_user = bb_get_option('user_bbdb_user') )
-			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_USER') ) // User has set old constant
-				$bb->user_bbdb_user = USER_BBDB_USER;
-		if ( $bb->user_bbdb_user )
+		}
+		if ( $bb->user_bbdb_user = bb_get_option( 'user_bbdb_user' ) ) {
 			$bb->custom_databases['user']['user'] = $bb->user_bbdb_user;
-
-		if ( !$bb->user_bbdb_password = bb_get_option('user_bbdb_password') )
-			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_PASSWORD') ) // User has set old constant
-				$bb->user_bbdb_password = USER_BBDB_PASSWORD;
-		if ( $bb->user_bbdb_password )
+		}
+		if ( $bb->user_bbdb_password = bb_get_option( 'user_bbdb_password' ) ) {
 			$bb->custom_databases['user']['password'] = $bb->user_bbdb_password;
-
-		if ( !$bb->user_bbdb_host = bb_get_option('user_bbdb_host') )
-			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_HOST') ) // User has set old constant
-				$bb->user_bbdb_host = USER_BBDB_HOST;
-		if ( $bb->user_bbdb_host )
+		}
+		if ( $bb->user_bbdb_host = bb_get_option( 'user_bbdb_host' ) ) {
 			$bb->custom_databases['user']['host'] = $bb->user_bbdb_host;
-
-		if ( !$bb->user_bbdb_charset = bb_get_option('user_bbdb_charset') )
-			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_CHARSET') ) // User has set old constant
-				$bb->user_bbdb_charset = USER_BBDB_CHARSET;
-		if ( $bb->user_bbdb_charset )
+		}
+		if ( $bb->user_bbdb_charset = bb_get_option( 'user_bbdb_charset' ) ) {
 			$bb->custom_databases['user']['charset'] = $bb->user_bbdb_charset;
-
-		if ( !$bb->user_bbdb_collate = bb_get_option('user_bbdb_collate') )
-			if ( BB_LOAD_DEPRECATED && defined('USER_BBDB_COLLATE') ) // User has set old constant
-				$bb->user_bbdb_collate = USER_BBDB_COLLATE;
-		if ( $bb->user_bbdb_collate )
+		}
+		if ( $bb->user_bbdb_collate = bb_get_option( 'user_bbdb_collate' ) ) {
 			$bb->custom_databases['user']['collate'] = $bb->user_bbdb_collate;
-
+		}
 		if ( isset( $bb->custom_databases['user'] ) ) {
-			if ( isset($bb->custom_tables['users']) )
-				$bb->custom_tables['users'] = array('user', $bb->custom_tables['users']);
-			if ( isset($bb->custom_tables['usermeta']) )
-				$bb->custom_tables['usermeta'] = array('user', $bb->custom_tables['usermeta']);
+			if ( isset( $bb->custom_tables['users'] ) ) {
+				$bb->custom_tables['users'] = array( 'user', $bb->custom_tables['users'] );
+			}
+			if ( isset( $bb->custom_tables['usermeta'] ) ) {
+				$bb->custom_tables['usermeta'] = array( 'user', $bb->custom_tables['usermeta'] );
+			}
 		}
 	}
+
+	return true;
 }
+
+
 
 /* HTTP Helpers */
 
@@ -130,6 +168,8 @@ function bb_cache_javascript_headers() {
 	header( "Vary: Accept-Encoding" ); // Handle proxies
 	header( "Expires: " . gmdate( "D, d M Y H:i:s", time() + $expiresOffset ) . " GMT" );
 }
+
+
 
 /* Pagination */
 
@@ -301,6 +341,8 @@ function get_page_number( $item, $per_page = 0 ) {
 		$per_page = bb_get_option('page_topics');
 	return intval( ceil( $item / $per_page ) ); // page 1 is the first page
 }
+
+
 
 /* Time */
 

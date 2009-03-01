@@ -10,27 +10,6 @@
 
 
 
-/**
- * Marks a function as deprecated and informs when it has been used.
- *
- * The current behavior is to trigger an user error if BB_LOG_DEPRECATED is
- * defined and is true.
- *
- * This function is to be used in every function in this file
- *
- * @access private
- * @since 0.9
- *
- * @param string $type The type of function call that was attempted: function or class::function
- * @param string $name The function that was called
- * @param string $replacement Optional. The function that should have been called
- * @uses $bb_log BP_Log logging object
- */
-function bb_log_deprecated($type, $name, $replacement = 'none') {
-	global $bb_log;
-	$bb_log->notice(sprintf('Using deprecated bbPress %1$s - %2$s - replace with - %3$s', $type, $name, $replacement));
-}
-
 function bb_specialchars( $text, $quotes = 0 ) {
 	bb_log_deprecated('function', __FUNCTION__, 'wp_specialchars');
 	return wp_specialchars( $text, $quotes );

@@ -299,6 +299,7 @@ if ( !class_exists( 'WP_Http' ) ) {
 if ( !defined( 'BB_LANG_DIR' ) ) {
 	if ( BB_LOAD_DEPRECATED && defined( 'BBLANGDIR' ) ) {
 		// User has set old constant
+		bb_log_deprecated( 'constant', 'BBLANGDIR', 'BB_LANG_DIR' );
 		define( 'BB_LANG_DIR', BBLANGDIR );
 	} else {
 		define( 'BB_LANG_DIR', BB_PATH . 'my-languages/' ); // absolute path with trailing slash
@@ -310,6 +311,7 @@ if ( !defined( 'BB_LANG_DIR' ) ) {
  */
 if ( BB_LOAD_DEPRECATED && !defined( 'BB_LANG' ) && defined( 'BBLANG' ) && '' != BBLANG ) {
 	// User has set old constant
+	bb_log_deprecated( 'constant', 'BBLANG', 'BB_LANG' );
 	define( 'BB_LANG', BBLANG );
 }
 if ( !class_exists( 'MO' ) ) {
@@ -347,12 +349,16 @@ if ( !BB_INSTALLING && !bb_is_installed() ) {
 }
 
 // Setup some variables in the $bb class if they don't exist - some of these are deprecated
-foreach ( array( 'use_cache' => false, 'debug' => false, 'static_title' => false, 'load_options' => true, 'email_login' => false ) as $o => $oo ) {
-	if ( !isset( $bb->$o ) ) {
-		$bb->$o = $oo;
+if ( BB_LOAD_DEPRECATED ) {
+	foreach ( array( 'use_cache' => false, 'debug' => false ) as $o => $oo ) {
+		if ( !isset( $bb->$o ) ) {
+			$bb->$o = $oo;
+		} else {
+			bb_log_deprecated( 'variable', '$bb->' . $o );
+		}
 	}
+	unset( $o, $oo );
 }
-unset( $o, $oo );
 
 // Disable plugins during installation
 if ( BB_INSTALLING ) {
@@ -376,6 +382,9 @@ require_once( BB_PATH . BB_INC . 'class.bb-pingbacks.php' );
 
 
 // Cache options from the database
+if ( !isset( $bb->load_options ) ) {
+	$bb->load_options = true;
+}
 if ( $bb->load_options ) {
 	$bbdb->suppress_errors();
 	bb_cache_all_options();
@@ -399,9 +408,11 @@ if ( $bb->uri = bb_get_option( 'uri' ) ) {
 	// Backwards compatibility
 	// These were never set in the database
 	if ( isset( $bb->domain ) ) {
+		bb_log_deprecated( 'variable', '$bb->domain', '$bb->uri' );
 		$bb->domain = rtrim( trim( $bb->domain ), " \t\n\r\0\x0B/" );
 	}
 	if ( isset( $bb->path ) ) {
+		bb_log_deprecated( 'variable', '$bb->path', '$bb->uri' );
 		$bb->path = trim( $bb->path );
 		if ( $bb->path != '/' ) $bb->path = '/' . trim( $bb->path, " \t\n\r\0\x0B/" ) . '/';
 	}
@@ -491,6 +502,7 @@ define( 'BB_DEFAULT_THEME_URL', BB_CORE_THEME_URL . 'kakumei/' );
 if ( !defined( 'BB_PLUGIN_DIR' ) ) {
 	if ( BB_LOAD_DEPRECATED && defined( 'BBPLUGINDIR' ) ) {
 		// User has set old constant
+		bb_log_deprecated( 'constant', 'BBPLUGINDIR', 'BB_PLUGIN_DIR' );
 		define( 'BB_PLUGIN_DIR', BBPLUGINDIR );
 	} else {
 		define( 'BB_PLUGIN_DIR', BB_PATH . 'my-plugins/' );
@@ -503,6 +515,7 @@ if ( !defined( 'BB_PLUGIN_DIR' ) ) {
 if ( !defined( 'BB_PLUGIN_URL' ) ) {
 	if ( BB_LOAD_DEPRECATED && defined( 'BBPLUGINURL' ) ) {
 		// User has set old constant
+		bb_log_deprecated( 'constant', 'BBPLUGINURL', 'BB_PLUGIN_URL' );
 		define( 'BB_PLUGIN_URL', BBPLUGINURL );
 	} else {
 		define( 'BB_PLUGIN_URL', $bb->uri . 'my-plugins/' );
@@ -515,6 +528,7 @@ if ( !defined( 'BB_PLUGIN_URL' ) ) {
 if ( !defined( 'BB_THEME_DIR' ) ) {
 	if ( BB_LOAD_DEPRECATED && defined( 'BBTHEMEDIR' ) ) {
 		// User has set old constant
+		bb_log_deprecated( 'constant', 'BBTHEMEDIR', 'BB_THEME_DIR' );
 		define( 'BB_THEME_DIR', BBTHEMEDIR );
 	} else {
 		define( 'BB_THEME_DIR', BB_PATH . 'my-templates/' );
@@ -527,6 +541,7 @@ if ( !defined( 'BB_THEME_DIR' ) ) {
 if ( !defined( 'BB_THEME_URL' ) ) {
 	if ( BB_LOAD_DEPRECATED && defined( 'BBTHEMEURL' ) ) {
 		// User has set old constant
+		bb_log_deprecated( 'constant', 'BBTHEMEURL', 'BB_THEME_URL' );
 		define( 'BB_THEME_URL', BBTHEMEURL );
 	} else {
 		define( 'BB_THEME_URL', $bb->uri . 'my-templates/' );
@@ -653,12 +668,16 @@ if ( BB_LOAD_DEPRECATED ) {
 	$bb->usercookie = bb_get_option( 'usercookie' );
 	if ( !$bb->usercookie ) {
 		$bb->usercookie = ( $bb->wp_cookies_integrated ? 'wordpressuser_' : 'bb_user_' ) . BB_HASH;
+	} else {
+		bb_log_deprecated( 'variable', '$bb->usercookie' );
 	}
 
 	// Deprecated setting
 	$bb->passcookie = bb_get_option( 'passcookie' );
 	if ( !$bb->passcookie ) {
 		$bb->passcookie = ( $bb->wp_cookies_integrated ? 'wordpresspass_' : 'bb_pass_' ) . BB_HASH;
+	} else {
+		bb_log_deprecated( 'variable', '$bb->passcookie' );
 	}
 }
 
@@ -701,8 +720,12 @@ if ( BB_LOAD_DEPRECATED ) {
 			$bb->user_plugins_cookie_path = $_plugin_cookie_paths['user'];
 		}
 	} else {
-		$bb->core_plugins_cookie_path = bb_get_option( 'core_plugins_cookie_path' );
-		$bb->user_plugins_cookie_path = bb_get_option( 'user_plugins_cookie_path' );
+		if ( $bb->core_plugins_cookie_path = bb_get_option( 'core_plugins_cookie_path' ) ) {
+			bb_log_deprecated( 'variable', '$bb->core_plugins_cookie_path', '$bb->plugin_cookie_paths[\'core\']' );
+		}
+		if ( $bb->user_plugins_cookie_path = bb_get_option( 'user_plugins_cookie_path' ) ) {
+			bb_log_deprecated( 'variable', '$bb->core_plugins_cookie_path', '$bb->plugin_cookie_paths[\'user\']' );
+		}
 	}
 
 	if ( !$bb->core_plugins_cookie_path && isset( $bb->plugin_locations['core']['url'] ) && $bb->plugin_locations['core']['url'] ) {
@@ -972,21 +995,25 @@ if ( BB_LOAD_DEPRECATED ) {
 		// only define if new one is defined
 		if ( !defined( $old ) && defined( $new ) ) {
 			define( $old, constant( $new ) );
+		} elseif ( defined( $old ) ) {
+			bb_log_deprecated( 'constant', $old, $new );
 		}
 	}
 
 	$deprecated_constants = array(
-		'USER_BBDB_NAME'         => $bb->user_bbdb_name,
-		'USER_BBDB_USER'         => $bb->user_bbdb_user,
-		'USER_BBDB_PASSWORD'     => $bb->user_bbdb_password,
-		'USER_BBDB_HOST'         => $bb->user_bbdb_host,
-		'USER_BBDB_CHARSET'      => $bb->user_bbdb_charset,
-		'CUSTOM_USER_TABLE'      => $bb->custom_user_table,
-		'CUSTOM_USER_META_TABLE' => $bb->custom_user_meta_table,
+		'USER_BBDB_NAME'         => 'user_bbdb_name',
+		'USER_BBDB_USER'         => 'user_bbdb_user',
+		'USER_BBDB_PASSWORD'     => 'user_bbdb_password',
+		'USER_BBDB_HOST'         => 'user_bbdb_host',
+		'USER_BBDB_CHARSET'      => 'user_bbdb_charset',
+		'CUSTOM_USER_TABLE'      => 'custom_user_table',
+		'CUSTOM_USER_META_TABLE' => 'custom_user_meta_table',
 	);
 	foreach ( $deprecated_constants as $old => $new ) {
 		if ( !defined( $old ) ) {
-			define( $old, $new );
+			define( $old, $bb->$new );
+		} else {
+			bb_log_deprecated( 'constant', $old, '$bb->' . $new );
 		}
 	}
 	unset($deprecated_constants, $old, $new);
