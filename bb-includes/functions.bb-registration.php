@@ -53,7 +53,7 @@ function bb_verify_email( $email, $check_dns = false )
 	$subs = explode( '.', $domain );
 
 	// Assume the domain will have at least two subs
-	if ( !count( $subs ) ) {
+	if ( 2 > count( $subs ) ) {
 		return apply_filters( 'bb_verify_email', false, $email, 'domain_no_periods' );
 	}
 
