@@ -1080,14 +1080,20 @@ function bb_send_304( $bb_last_modified ) {
 /* Nonce */
 
 function bb_nonce_url($actionurl, $action = -1) {
-	return add_query_arg( '_wpnonce', bb_create_nonce( $action ), $actionurl );
+	$actionurl = str_replace( '&amp;', '&', $actionurl );
+	return wp_specialchars( add_query_arg( '_wpnonce', bb_create_nonce( $action ), $actionurl ) );
 }
 
-function bb_nonce_field($action = -1, $name = "_wpnonce", $referer = true) {
-	$name = attribute_escape($name);
-	echo '<input type="hidden" name="' . $name . '" value="' . bb_create_nonce($action) . '" />';
+function bb_nonce_field( $action = -1, $name = "_wpnonce", $referer = true , $echo = true ) {
+	$name = attribute_escape( $name );
+	$nonce_field = '<input type="hidden" id="' . $name . '" name="' . $name . '" value="' . bb_create_nonce( $action ) . '" />';
+	if ( $echo )
+		echo $nonce_field;
+
 	if ( $referer )
-		wp_referer_field();
+		wp_referer_field( $echo, 'previous' );
+
+	return $nonce_field;
 }
 
 function bb_nonce_ays( $action ) {
