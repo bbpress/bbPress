@@ -375,7 +375,7 @@ function bb_is_tags() {
 
 function bb_is_tag() {
 	global $tag, $tag_name;
-	return $tag && $tag_name && is_bb_tags();
+	return $tag && $tag_name && bb_is_tags();
 }
 
 function bb_is_topic_edit() {
