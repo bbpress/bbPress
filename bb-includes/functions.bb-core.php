@@ -597,9 +597,9 @@ function bb_force_ssl_admin( $force = '' )
  */
 function bb_ssl_redirect()
 {
-	do_action( 'bb_ssl_redirect' );
-
 	$page = bb_get_location();
+
+	do_action( 'bb_ssl_redirect' );
 
 	if ( BB_IS_ADMIN && !bb_force_ssl_admin() ) {
 		return;
