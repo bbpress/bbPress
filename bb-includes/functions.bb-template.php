@@ -1805,6 +1805,9 @@ function get_profile_tab_link( $id = 0, $tab, $page = 1, $context = BB_URI_CONTE
 
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF;
+		if ( $tab === 'edit' ) {
+			$context += BB_URI_CONTEXT_BB_USER_FORMS;
+		}
 	}
 
 	$rewrite = bb_get_option( 'mod_rewrite' );
