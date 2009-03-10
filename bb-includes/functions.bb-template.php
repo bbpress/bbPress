@@ -592,14 +592,20 @@ function bb_get_view_rss_link($view = null, $context = 0) {
 	return apply_filters( 'bb_get_view_rss_link', $link, $context );
 }
 
-function bb_latest_topics_pages() {
+function bb_latest_topics_pages( $args = null )
+{
+	$defaults = array( 'before' => '', 'after' => '' );
+	$args = wp_parse_args( $args, $defaults );
+
 	global $page;
 	static $bb_latest_topics_count;
-	if (!$bb_latest_topics_count) {
+	if ( !$bb_latest_topics_count) {
 		global $bbdb;
 		$bb_latest_topics_count = $bbdb->get_var('SELECT COUNT(`topic_id`) FROM `' . $bbdb->topics . '` WHERE `topic_open` = 1 AND `topic_status` = 0 AND `topic_sticky` != 2;');
 	}
-	echo apply_filters( 'bb_latest_topics_pages', get_page_number_links( $page, $bb_latest_topics_count ), $bb_latest_topics_count );
+	if ( $pages = apply_filters( 'bb_latest_topics_pages', get_page_number_links( $page, $bb_latest_topics_count ), $bb_latest_topics_count ) ) {
+		echo $args['before'] . $pages . $args['after'];
+	}
 }
 
 // FORUMS
@@ -711,10 +717,20 @@ function get_forum_posts( $forum_id = 0 ) {
 	return apply_filters( 'get_forum_posts', $forum->posts, $forum->forum_id );
 }
 
-function forum_pages( $forum_id = 0 ) {
+function forum_pages( $args = null )
+{
+	// Compatibility
+	if ( $args && is_numeric( $args ) ) {
+		$args = array( 'id' => $args );
+	}
+	$defaults = array( 'id' => 0, 'before' => '', 'after' => '' );
+	$args = wp_parse_args( $args, $defaults );
+
 	global $page;
-	$forum = get_forum( get_forum_id( $forum_id ) );
-	echo apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->topics );
+	$forum = get_forum( get_forum_id( $args['id'] ) );
+	if ( $pages = apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->topics ) ) {
+		echo $args['before'] . $pages . $args['after'];
+	}
 }
 
 function bb_forum_posts_rss_link( $forum_id = 0, $context = 0 ) {
@@ -1130,11 +1146,21 @@ function get_topic_last_post_link( $id = 0 ){
 	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
 }
 
-function topic_pages( $id = 0 ) {
+function topic_pages( $args = null )
+{
+	// Compatibility
+	if ( $args && is_numeric( $args ) ) {
+		$args = array( 'id' => $args );
+	}
+	$defaults = array( 'id' => 0, 'before' => '', 'after' => '' );
+	$args = wp_parse_args( $args, $defaults );
+
 	global $page;
-	$topic = get_topic( get_topic_id( $id ) );
+	$topic = get_topic( get_topic_id( $args['id'] ) );
 	$add = topic_pages_add( $topic->topic_id );
-	echo apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ), $topic->topic_id );
+	if ( $pages = apply_filters( 'topic_pages', get_page_number_links( $page, $topic->topic_posts + $add ), $topic->topic_id ) ) {
+		echo $args['before'] . $pages . $args['after'];
+	}
 }
 
 function topic_pages_add( $id = 0 ) {
@@ -1898,11 +1924,16 @@ function get_user_title( $id = 0 ) {
 	return empty( $user->title ) ? get_user_type( $id ) : apply_filters( 'get_user_title', $user->title, $user->ID );
 }
 
-function profile_pages() {
-	global $user, $page;
-	$add = 0;
+function profile_pages( $args = null )
+{
+	$defaults = array( 'before' => '', 'after' => '' );
+	$args = wp_parse_args( $args, $defaults );
+
+	global $page, $user;
 	$add = apply_filters( 'profile_pages_add', $add );
-	echo apply_filters( 'topic_pages', get_page_number_links( $page, $user->topics_replied + $add ) );
+	if ( $pages = apply_filters( 'profile_pages', get_page_number_links( $page, $user->topics_replied + $add ), $user->user_id ) ) {
+		echo $args['before'] . $pages . $args['after'];
+	}
 }
 
 function bb_profile_data( $id = 0 ) {
@@ -2688,9 +2719,15 @@ function bb_sort_tag_heat_map( &$tag_counts ) {
 	uksort($tag_counts, 'strnatcasecmp');
 }
 
-function tag_pages() {
+function tag_pages( $args = null )
+{
+	$defaults = array( 'before' => '', 'after' => '' );
+	$args = wp_parse_args( $args, $defaults );
+
 	global $page, $tagged_topic_count;
-	echo apply_filters( 'topic_pages', get_page_number_links( $page, $tagged_topic_count ) );
+	if ( $pages = apply_filters( 'tag_pages', get_page_number_links( $page, $tagged_topic_count ) ) ) {
+		echo $args['before'] . $pages . $args['after'];
+	}
 }
 
 function bb_forum_dropdown( $args = '' ) {
@@ -2848,9 +2885,15 @@ function get_favorites_rss_link( $id = 0, $context = 0 ) {
 	return apply_filters( 'get_favorites_rss_link', $link, $user->ID, $context );
 }
 
-function favorites_pages() {
+function favorites_pages( $args = null )
+{
+	$defaults = array( 'before' => '', 'after' => '' );
+	$args = wp_parse_args( $args, $defaults );
+
 	global $page, $user, $favorites_total;
-	echo apply_filters( 'favorites_pages', get_page_number_links( $page, $favorites_total ), $user->user_id );
+	if ( $pages = apply_filters( 'favorites_pages', get_page_number_links( $page, $favorites_total ), $user->user_id ) ) {
+		echo $args['before'] . $pages . $args['after'];
+	}
 }
 
 //VIEWS

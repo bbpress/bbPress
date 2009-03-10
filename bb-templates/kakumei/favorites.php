@@ -30,9 +30,7 @@
 <?php endforeach; ?>
 </table>
 
-<div class="nav">
-<?php favorites_pages(); ?>
-</div>
+<?php favorites_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 
 <?php else: if ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
 

@@ -31,9 +31,7 @@
 <?php endforeach; endif; ?>
 </table>
 <p class="rss-link"><a href="<?php bb_forum_posts_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for this forum'); ?></a></p>
-<div class="nav">
-<?php forum_pages(); ?>
-</div>
+<?php forum_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 <?php endif; ?>
 
 <?php if ( bb_forums( $forum_id ) ) : ?>

@@ -26,9 +26,8 @@
 
 <p class="rss-link"><a href="<?php bb_tag_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> link for this tag') ?></a></p>
 
-<div class="nav">
-<?php tag_pages(); ?>
-</div>
+<?php tag_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
+
 <?php endif; ?>
 
 <?php post_form(); ?>

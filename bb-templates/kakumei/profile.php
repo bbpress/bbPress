@@ -82,8 +82,6 @@
 <?php endif; endif;?>
 </div>
 
-<div class="nav">
-<?php profile_pages(); ?>
-</div>
+<?php profile_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 
 <?php bb_get_footer(); ?>

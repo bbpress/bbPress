@@ -25,9 +25,7 @@
 </div>
 <?php do_action('under_title'); ?>
 <?php if ($posts) : ?>
-<div class="nav">
-<?php topic_pages(); ?>
-</div>
+<?php topic_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 <div id="ajax-response"></div>
 <ol id="thread" class="list:post">
 
@@ -40,9 +38,7 @@
 </ol>
 <div class="clearit"><br style=" clear: both;" /></div>
 <p class="rss-link"><a href="<?php topic_rss_link(); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for this topic') ?></a></p>
-<div class="nav">
-<?php topic_pages(); ?>
-</div>
+<?php topic_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 <?php endif; ?>
 <?php if ( topic_is_open( $bb_post->topic_id ) ) : ?>
 <?php post_form(); ?>

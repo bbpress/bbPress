@@ -38,6 +38,7 @@
 </tr>
 <?php endforeach; endif; // $topics ?>
 </table>
+<?php bb_latest_topics_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 <?php endif; // $topics or $super_stickies ?>
 
 <?php if ( bb_forums() ) : ?>
