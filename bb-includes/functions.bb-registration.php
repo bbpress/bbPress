@@ -71,7 +71,7 @@ function bb_verify_email( $email, $check_dns = false )
 	}
 
 	// DNS
-	// Check the domain has a valid MX or A resource record
+	// Check the domain has a valid MX and A resource record
 	if ( $check_dns && function_exists( 'checkdnsrr' ) && !( checkdnsrr( $domain . '.', 'MX' ) || checkdnsrr( $domain . '.', 'A' ) ) ) {
 		return apply_filters( 'bb_verify_email', false, $email, 'dns_no_rr' );
 	}
