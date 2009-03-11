@@ -24,9 +24,6 @@ if ( !bb_is_profile() ) {
 	exit;
 }
 
-// Grab the registration functions
-require_once( BB_PATH . BB_INC . 'functions.bb-registration.php' );
-
 // Set some low capabilities if the current user has none
 if ( !isset( $user->capabilities ) ) {
 	$user->capabilities = array( 'inactive' => true );

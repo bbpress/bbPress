@@ -1,8 +1,6 @@
 <?php
 require('./bb-load.php');
 
-require_once( BB_PATH . BB_INC . 'functions.bb-registration.php');
-
 $error = false;
 
 if ( $_POST ) {

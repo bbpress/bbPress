@@ -3,8 +3,6 @@ require('./bb-load.php');
 
 bb_ssl_redirect();
 
-require_once( BB_PATH . BB_INC . 'functions.bb-registration.php');
-
 $profile_info_keys = get_profile_info_keys();
 
 unset($profile_info_keys['first_name']);
