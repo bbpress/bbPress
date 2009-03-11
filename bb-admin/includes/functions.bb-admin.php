@@ -541,7 +541,7 @@ function bb_new_forum( $args ) {
 	$forum_parent = (int) $forum_parent;
 	$forum_is_category = (int) $forum_is_category;
 
-	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name) );
+	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes( wp_specialchars_decode( $forum_name, ENT_QUOTES ) ) );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc) );
 
 	if ( strlen($forum_name) < 1 )
@@ -591,7 +591,7 @@ function bb_update_forum( $args ) {
 	$forum_parent = (int) $forum_parent;
 	$forum_is_category = (int) $forum_is_category;
 
-	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes($forum_name), $forum_id );
+	$forum_name = apply_filters( 'bb_pre_forum_name', stripslashes( wp_specialchars_decode( $forum_name, ENT_QUOTES ) ), $forum_id );
 	$forum_desc = apply_filters( 'bb_pre_forum_desc', stripslashes($forum_desc), $forum_id );
 
 	if ( strlen($forum_name) < 1 )

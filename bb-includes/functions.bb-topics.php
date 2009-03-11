@@ -194,7 +194,7 @@ function bb_insert_topic( $args = null ) {
 			"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s AND topic_id != %d" :
 			"SELECT topic_slug FROM $bbdb->topics WHERE topic_slug = %s";
 
-		$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : $topic_title );
+		$topic_slug = $_topic_slug = bb_slug_sanitize( $topic_slug ? $topic_slug : wp_specialchars_decode( $topic_title, ENT_QUOTES ) );
 		if ( strlen( $_topic_slug ) < 1 )
 			$topic_slug = $_topic_slug = '0';
 

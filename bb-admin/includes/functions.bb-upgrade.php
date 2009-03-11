@@ -62,7 +62,7 @@ function bb_upgrade_process_all_slugs() {
 
 	$slugs = array();
 	foreach ( $forums as $forum ) :
-		$slug = bb_slug_sanitize( $forum->forum_name );
+		$slug = bb_slug_sanitize( wp_specialchars_decode( $forum->forum_name, ENT_QUOTES ) );
 		$slugs[$slug][] = $forum->forum_id;
 	endforeach;
 
@@ -83,7 +83,7 @@ function bb_upgrade_process_all_slugs() {
 
 	$slugs = array();
 	foreach ( $topics as $topic) :
-		$slug = bb_slug_sanitize( $topic->topic_title );
+		$slug = bb_slug_sanitize( wp_specialchars_decode( $topic->topic_title, ENT_QUOTES ) );
 		$slugs[$slug][] = $topic->topic_id;
 	endforeach;
 
