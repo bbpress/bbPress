@@ -86,8 +86,8 @@ if ( !$bb_login_error->get_error_code() ) {
 }
 
 // If trying to log in with email address, don't leak whether or not email address exists in the db.
-// bb_verify_email() is not perfect, usernames can be valid email addresses potentially.
-if ( $email_login && $bb_login_error->get_error_codes() && false !== bb_verify_email( $_POST['user_login'] ) ) {
+// is_email() is not perfect, usernames can be valid email addresses potentially.
+if ( $email_login && $bb_login_error->get_error_codes() && false !== is_email( $_POST['user_login'] ) ) {
 	$bb_login_error = new WP_Error( 'user_login', __( 'Username and Password do not match.' ) );
 }
 

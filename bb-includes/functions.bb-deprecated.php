@@ -987,3 +987,9 @@ function is_bb_admin() {
 	bb_log_deprecated( 'function', __FUNCTION__, 'bb_is_admin' );
 	return bb_is_admin();
 }
+
+function bb_verify_email( $email, $check_dns = false )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'is_email' );
+	return is_email( $email, $check_dns );
+}

@@ -1569,12 +1569,9 @@ class BB_Install
 		}
 		$data['keymaster_user_login']['value'] = sanitize_user( $data['keymaster_user_login']['value'], true );
 
-		// bb_verify_email() needs this
-		require_once( BB_PATH . BB_INC . 'functions.bb-registration.php' );
-
 		// Check for a valid email
 		$this->strings[3]['form_errors']['keymaster_user_email'][] = empty( $data['keymaster_user_email']['value'] ) ? 'empty' : false;
-		$this->strings[3]['form_errors']['keymaster_user_email'][] = !bb_verify_email( $data['keymaster_user_email']['value'] ) ? 'email' : false;
+		$this->strings[3]['form_errors']['keymaster_user_email'][] = !is_email( $data['keymaster_user_email']['value'] ) ? 'email' : false;
 
 		// Check for a forum name
 		if ( !$this->database_tables_are_installed() ) {

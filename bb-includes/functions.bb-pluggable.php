@@ -528,7 +528,7 @@ function bb_new_user( $user_login, $user_email, $user_url, $user_status = 1 ) {
 	global $wp_users_object, $bbdb;
 
 	// is_email check + dns
-	if ( !$user_email = bb_verify_email( $user_email ) )
+	if ( !$user_email = is_email( $user_email ) )
 		return new WP_Error( 'user_email', __( 'Invalid email address' ), $user_email );
 
 	if ( !$user_login = sanitize_user( $user_login, true ) )
