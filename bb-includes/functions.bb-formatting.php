@@ -29,6 +29,7 @@ function bb_encodeit( $matches ) {
 	$text = htmlspecialchars($text, ENT_QUOTES);
 	$text = str_replace(array("\r\n", "\r"), "\n", $text);
 	$text = preg_replace("|\n\n\n+|", "\n\n", $text);
+	$text = str_replace('&amp;amp;', '&amp;', $text);
 	$text = str_replace('&amp;lt;', '&lt;', $text);
 	$text = str_replace('&amp;gt;', '&gt;', $text);
 	$text = "<code>$text</code>";
@@ -44,7 +45,7 @@ function bb_decodeit( $matches ) {
 	$text = str_replace('<br />', '<coded_br />', $text);
 	$text = str_replace('<p>', '<coded_p>', $text);
 	$text = str_replace('</p>', '</coded_p>', $text);
-	$text = str_replace('&#38;', '&', $text);
+	$text = str_replace(array('&#38;','&amp;'), '&', $text);
 	$text = str_replace('&#39;', "'", $text);
 	if ( '<pre><code>' == $matches[1] )
 		$text = "\n$text\n";
