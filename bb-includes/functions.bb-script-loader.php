@@ -3,7 +3,9 @@
 function bb_default_scripts( &$scripts ) {
 	$scripts->base_url = bb_get_uri(BB_INC, null, BB_URI_CONTEXT_SCRIPT_SRC);
 	$scripts->base_url_admin = bb_get_uri('bb-admin/', null, BB_URI_CONTEXT_SCRIPT_SRC + BB_URI_CONTEXT_BB_ADMIN);
+	$scripts->content_url = ''; // May not work - might need to specify plugin and theme urls
 	$scripts->default_version = bb_get_option( 'version' );
+	$scripts->default_dirs = array('/bb-admin/js/', '/bb-includes/js/');
 	
 	$scripts->add( 'fat',              $scripts->base_url . 'js/fat.js', array('add-load-event'), '1.0-RC1_3660' );
 	$scripts->add( 'prototype',        $scripts->base_url . 'js/prototype.js', false, '1.5.0' );
@@ -39,11 +41,17 @@ function bb_default_scripts( &$scripts ) {
 	));
 }
 
+/**
+ * Reorder JavaScript scripts array to place prototype before jQuery.
+ *
+ * @param array $js_array JavaScript scripst array
+ * @return array Reordered array, if needed.
+ */
 function bb_prototype_before_jquery( $js_array ) {
-	if ( false === $jquery = array_search( 'jquery', $js_array ) )
+	if ( false === $jquery = array_search( 'jquery', $js_array, true ) )
 		return $js_array;
 
-	if ( false === $prototype = array_search( 'prototype', $js_array ) )
+	if ( false === $prototype = array_search( 'prototype', $js_array, true ) )
 		return $js_array;
 
 	if ( $prototype < $jquery )
@@ -56,6 +64,11 @@ function bb_prototype_before_jquery( $js_array ) {
 	return $js_array;
 }
 
+/**
+ * Load localized script just in time for MCE.
+ *
+ * These localizations require information that may not be loaded even by init.
+ */
 function bb_just_in_time_script_localization() {
 	wp_localize_script( 'topic', 'bbTopicJS', array(
 		'currentUserId' => bb_get_current_user_info( 'id' ),
