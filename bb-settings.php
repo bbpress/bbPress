@@ -257,9 +257,12 @@ if ( !defined( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE' ) ) {
 	define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', BACKPRESS_PATH . 'functions.wp-object-cache.php' );
 }
 
-// Load the database class
+// Load the object cache class
 if ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE && !function_exists( 'wp_cache_init' ) ) {
 	require_once( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE );
+	$_bb_using_ext_object_cache = true;
+} else {
+	$_bb_using_ext_object_cache = false;
 }
 
 // Instantiate the $wp_object_cache object using wp_cache_init()

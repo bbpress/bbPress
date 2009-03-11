@@ -3,49 +3,84 @@
  * BP_Options allows storage of options for BackPress
  * in the bbPress database
  *
+ * @see BP_Options_Interface
  * @package bbPress
  */
 class BP_Options
 {
-	function prefix() {
+	function prefix()
+	{
 		return 'bp_bbpress_';
 	}
 	
-	function get($option) {
-		switch ($option) {
+	function get( $option )
+	{
+		switch ( $option ) {
 			case 'application_uri':
-				return bb_get_uri(null, null, BB_URI_CONTEXT_NONE);
+				return bb_get_uri( null, null, BB_URI_CONTEXT_NONE );
 				break;
 			case 'cron_uri':
-				return bb_get_uri('bb-cron.php', array('check' => BP_Options::get('cron_check')), BB_URI_CONTEXT_WP_HTTP_REQUEST);
+				return bb_get_uri( 'bb-cron.php', array( 'check' => BP_Options::get( 'cron_check' ) ), BB_URI_CONTEXT_WP_HTTP_REQUEST );
 				break;
 			case 'cron_check':
-				return bb_hash('187425');
+				return bb_hash( '187425' );
 				break;
 			case 'charset':
-				return bb_get_option($option);
+				return bb_get_option( $option );
 				break;
 			case 'wp_http_version':
-				return 'bbPress/' . bb_get_option('version');
+				return 'bbPress/' . bb_get_option( 'version' );
 				break;
 			case 'hash_function_name':
 				return 'bb_hash';
 				break;
 			default:
-				return bb_get_option(BP_Options::prefix() . $option);
+				return bb_get_option( BP_Options::prefix() . $option );
 				break;
 		}
 	}
 	
-	function add($option, $value) {
-		return BP_Options::update($option, $value);
+	function add( $option, $value )
+	{
+		return BP_Options::update( $option, $value );
 	}
 	
-	function update($option, $value) {
-		return bb_update_option(BP_Options::prefix() . $option, $value);
+	function update( $option, $value )
+	{
+		return bb_update_option( BP_Options::prefix() . $option, $value );
 	}
 	
-	function delete($option) {
-		return bb_delete_option(BP_Options::prefix() . $option);
+	function delete( $option )
+	{
+		return bb_delete_option( BP_Options::prefix() . $option );
 	}
 } // END class BP_Options
+
+/**
+ * Allows storage of transients for BackPress
+ *
+ * @see BP_Transients_Interface
+ * @package bbPress
+ */
+class BP_Transients
+{
+	function prefix()
+	{
+		return 'bp_bbpress_';
+	}
+	
+	function get( $transient )
+	{
+		return bb_get_transient( BP_Options::prefix() . $transient );
+	}
+	
+	function set( $transient, $value, $expiration = 0 )
+	{
+		return bb_set_transient( BP_Options::prefix() . $transient, $value, $expiration );
+	}
+	
+	function delete( $transient )
+	{
+		return bb_delete_transient( BP_Options::prefix() . $transient );
+	}
+} // END class BP_Transients

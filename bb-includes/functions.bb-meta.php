@@ -482,6 +482,94 @@ function bb_delete_option( $option, $value = '' )
 	return bb_delete_meta( 0, $option, $value, 'option', true );
 }
 
+/**
+ * Delete a transient
+ *
+ * @since 1.0
+ * @package bbPress
+ * @subpackage Transient
+ *
+ * @param string $transient Transient name. Expected to not be SQL-escaped
+ * @return bool true if successful, false otherwise
+ */
+function bb_delete_transient( $transient )
+{
+	global $_bb_using_ext_object_cache, $bbdb;
+
+	if ( $_bb_using_ext_object_cache ) {
+		return wp_cache_delete( $transient, 'transient' );
+	} else {
+		$transient = '_transient_' . $bbdb->escape( $transient );
+		return bb_delete_option( $transient );
+	}
+}
+
+/**
+ * Get the value of a transient
+ *
+ * If the transient does not exist or does not have a value, then the return value
+ * will be false.
+ * 
+ * @since 1.0
+ * @package bbPress
+ * @subpackage Transient
+ *
+ * @param string $transient Transient name. Expected to not be SQL-escaped
+ * @return mixed Value of transient
+ */
+function bb_get_transient( $transient )
+{
+	global $_bb_using_ext_object_cache, $bbdb;
+
+	if ( $_bb_using_ext_object_cache ) {
+		$value = wp_cache_get( $transient, 'transient' );
+	} else {
+		$transient_option = '_transient_' . $bbdb->escape( $transient );
+		$transient_timeout = '_transient_timeout_' . $bbdb->escape( $transient );
+		$timeout = bb_get_option( $transient_timeout );
+		if ( $timeout && $timeout < time() ) {
+			bb_delete_option( $transient_option );
+			bb_delete_option( $transient_timeout );
+			return false;
+		}
+
+		$value = bb_get_option( $transient_option );
+	}
+
+	return apply_filters( 'transient_' . $transient, $value );
+}
+
+/**
+ * Set/update the value of a transient
+ *
+ * You do not need to serialize values, if the value needs to be serialize, then
+ * it will be serialized before it is set.
+ *
+ * @since 1.0
+ * @package bbPress
+ * @subpackage Transient
+ *
+ * @param string $transient Transient name. Expected to not be SQL-escaped
+ * @param mixed $value Transient value.
+ * @param int $expiration Time until expiration in seconds, default 0
+ * @return bool False if value was not set and true if value was set.
+ */
+function bb_set_transient( $transient, $value, $expiration = 0 )
+{
+	global $_bb_using_ext_object_cache, $bbdb;
+
+	if ( $_bb_using_ext_object_cache ) {
+		return wp_cache_set( $transient, $value, 'transient', $expiration );
+	} else {
+		$transient_timeout = '_transient_timeout_' . $bbdb->escape( $transient );
+		$transient = '_transient_' . $bbdb->escape( $transient );
+		if ( 0 != $expiration ) {
+			bb_update_option( $transient_timeout, time() + $expiration );
+		}
+		return bb_update_option( $transient, $value );
+	}
+}
+
 
 
 /* User meta */
