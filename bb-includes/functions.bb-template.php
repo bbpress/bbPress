@@ -2288,11 +2288,16 @@ function bb_get_logout_link( $args = '' ) {
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'text' => $args );
 
-	$defaults = array('text' => __('Log Out'), 'before' => '', 'after' => '');
+	$defaults = array('text' => __('Log Out'), 'before' => '', 'after' => '', 'redirect' => '');
 	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
-	$uri = attribute_escape( bb_get_uri('bb-login.php', array('logout' => 1), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS) );
+	$query = array( 'logout' => 1 );
+	if ( $redirect ) {
+		$query['re'] = $redirect;
+	}
+
+	$uri = attribute_escape( bb_get_uri('bb-login.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS) );
 
 	return apply_filters( 'bb_get_logout_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
 }

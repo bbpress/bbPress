@@ -23,7 +23,7 @@
 			<div id="bbUserMenu">
 				<p>
 					<?php printf( __('Howdy, %1$s!'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
-					| <?php bb_logout_link(); ?>
+					| <?php bb_logout_link( array( 'redirect' => bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) ) ); ?>
 					| <a href="http://bbpress.org/forums/"><?php _e('Support forums'); ?></a>
 				</p>
 			</div>
