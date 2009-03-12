@@ -633,14 +633,8 @@ function bb_ssl_redirect()
 		return;
 	}
 
-	if ( 0 === strpos( $_SERVER['REQUEST_URI'], bb_get_option( 'uri' ) ) ) {
-		$uri = $_SERVER['REQUEST_URI'];
-	} else {
-		$uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-	}
-
-	$uri = bb_get_option( 'uri_ssl' ) . substr( $uri, strlen( bb_get_option( 'uri' ) ) );
-
+	$uri_ssl = parse_url( bb_get_option( 'uri_ssl' ) );
+	$uri = $uri_ssl['scheme'] . '://' . $uri_ssl['host'] . $_SERVER['REQUEST_URI'];
 	bb_safe_redirect( $uri );
 	exit;
 }
