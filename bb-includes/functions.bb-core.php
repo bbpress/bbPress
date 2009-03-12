@@ -937,7 +937,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 }
 
 //meta_key => (required?, Label, hCard property).  Don't use user_{anything} as the name of your meta_key.
-function get_profile_info_keys() {
+function get_profile_info_keys( $context = null ) {
 	return apply_filters( 'get_profile_info_keys', array(
 		'first_name' => array(0, __('First name')),
 		'last_name' => array(0, __('Last name')),
@@ -947,14 +947,14 @@ function get_profile_info_keys() {
 		'from' => array(0, __('Location')),
 		'occ' => array(0, __('Occupation'), 'role'),
 		'interest' => array(0, __('Interests')),
-	) );
+	), $context );
 }
 
-function get_profile_admin_keys() {
+function get_profile_admin_keys( $context = null ) {
 	global $bbdb;
 	return apply_filters( 'get_profile_admin_keys', array(
 		$bbdb->prefix . 'title' => array(0, __('Custom Title'))
-	) );
+	), $context );
 }
 
 function get_assignable_caps() {
