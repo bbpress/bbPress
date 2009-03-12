@@ -601,30 +601,32 @@ function bb_ssl_redirect()
 
 	do_action( 'bb_ssl_redirect' );
 
-	if ( BB_IS_ADMIN && !bb_force_ssl_admin() ) {
-		return;
-	}
-
-	switch ( $page ) {
-		case 'login-page':
-		case 'register-page':
-			if ( !bb_force_ssl_user_forms() ) {
-				return;
-			}
-			break;
-		case 'profile-page':
-			global $self;
-			if ( $self == 'profile-edit.php' ) {
+	if ( BB_IS_ADMIN ) {
+		if ( !bb_force_ssl_admin() ) {
+			return;
+		}
+	} else {
+		switch ( $page ) {
+			case 'login-page':
+			case 'register-page':
 				if ( !bb_force_ssl_user_forms() ) {
 					return;
 				}
-			} else {
+				break;
+			case 'profile-page':
+				global $self;
+				if ( $self == 'profile-edit.php' ) {
+					if ( !bb_force_ssl_user_forms() ) {
+						return;
+					}
+				} else {
+					return;
+				}
+				break;
+			default:
 				return;
-			}
-			break;
-		default:
-			return;
-			break;
+				break;
+		}
 	}
 
 	if ( bb_is_ssl() ) {
