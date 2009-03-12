@@ -84,7 +84,8 @@ $bb_queries['term_taxonomy'] = "CREATE TABLE IF NOT EXISTS `$bbdb->term_taxonomy
 	`parent` bigint(20) NOT NULL default 0,
 	`count` bigint(20) NOT NULL default 0,
 	PRIMARY KEY (`term_taxonomy_id`),
-	UNIQUE KEY `term_id_taxonomy` (`term_id`, `taxonomy`)
+	UNIQUE KEY `term_id_taxonomy` (`term_id`, `taxonomy`),
+	KEY `taxonomy` (`taxonomy`)
 );";
 
 // topics
