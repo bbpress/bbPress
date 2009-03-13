@@ -832,3 +832,20 @@ div.list-block {
 #bbBody div.dashboard ul li {
 	margin-bottom: 0.6em;
 }
+
+form.search-form fieldset {
+	display: inline;
+	margin: .5em 1em .5em 0;
+}
+
+#bbBody form.search-form p.submit {
+	margin: 0;
+}
+
+form.forum-form table {
+	font-size: 1.3em;
+}
+
+form.forum-form th, form.forum-form td {
+	padding: 0.3em;
+}

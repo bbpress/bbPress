@@ -700,7 +700,7 @@ function bb_forum_form( $forum_id = 0 ) {
 		return;
 	$action = $forum_id ? 'update' : 'add';
 ?>
-<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:forum-list:">
+<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:forum-list: forum-form">
 	<fieldset>
 	<table><col /><col style="width: 80%" />
 		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>
