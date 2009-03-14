@@ -89,6 +89,8 @@ function bb_remove_topic_tag( $tt_id, $user_id, $topic_id ) {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $user_id, $topic_id ) )
 		return false;
 
+	$_tag = bb_get_tag( $tt_id );
+
 	do_action('bb_pre_tag_removed', $tt_id, $user_id, $topic_id);
 	$current_tag_ids = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', array( 'user_id' => $user_id, 'fields' => 'tt_ids' ) );
 	if ( !is_array($current_tag_ids) )
@@ -108,6 +110,11 @@ function bb_remove_topic_tag( $tt_id, $user_id, $topic_id ) {
 			"UPDATE $bbdb->topics SET tag_count = %d WHERE topic_id = %d", count( $tt_ids ), $topic_id
 		) );
 		wp_cache_delete( $topic_id, 'bb_topic' );
+
+		// Count is updated at set_object_terms()
+		if ( $_tag && 2 > $_tag->tag_count ) {
+			bb_destroy_tag( $_tag->term_taxonomy_id );
+		}
 	} elseif ( is_wp_error( $tt_ids ) ) {
 		return false;
 	}
@@ -126,6 +133,8 @@ function bb_remove_topic_tags( $topic_id ) {
 	if ( !$topic_id || !get_topic( $topic_id ) )
 		return false;
 
+	$_tags = bb_get_topic_tags( $topic_id );
+
 	do_action( 'bb_pre_remove_topic_tags', $topic_id );
 
 	$wp_taxonomy_object->delete_object_term_relationships( $topic_id, 'bb_topic_tag' );
@@ -135,6 +144,15 @@ function bb_remove_topic_tags( $topic_id ) {
 		"UPDATE $bbdb->topics SET tag_count = 0 WHERE topic_id = %d", $topic_id
 	) );
 	wp_cache_delete( $topic_id, 'bb_topic' );
+
+	if ( $_tags ) {
+		foreach ( $_tags as $_tag ) {
+			// Count is updated at delete_object_term_relationships()
+			if ( 2 > $_tag->tag_count ) {
+				bb_destroy_tag( $_tag->term_taxonomy_id );
+			}
+		}
+	}
 
 	return true;
 }

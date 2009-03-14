@@ -9,6 +9,8 @@ if ( bb_current_user_can('recount') ) :
 
 bb_check_admin_referer( 'do-counts' ); ?>
 
+<div class="wrap">
+
 <h2><?php _e('Recounting'); ?></h2>
 <ul>
 
@@ -100,35 +102,50 @@ if ( isset($_POST['topic-tag-count']) && 1 == $_POST['topic-tag-count'] ) {
 			unset( $topic_ids );
 		}
 	}
-	unset( $terms );
+	unset( $terms, $term );
 	echo "\t\t" . __('Done counting topic tags.');
 	echo "\n\t</li>\n";
 }
 
 if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
+	// Get all tags
+	$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', array( 'hide_empty' => false ) );
+
 	echo "\t<li>\n";
-	if ( $tags = (array) $bbdb->get_results("SELECT tag_id, COUNT(DISTINCT topic_id) AS count FROM $bbdb->tagged GROUP BY tag_id") ) :
+	if ( !is_wp_error( $terms ) && is_array( $terms ) ) {
 		echo "\t\t" . __('Counting tagged topics...') . "<br />\n";
-		$tag_col = array_flip( (array) $bbdb->get_col("SELECT tag_id FROM $bbdb->tags") );
-		foreach ( $tags as $tag ) {
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = '$tag->count' WHERE tag_id = '$tag->tag_id'");
-			unset($tag_col[$tag->tag_id]);
+		$_terms = array();
+		foreach ( $terms as $term ) {
+			$_terms[] = $term->term_id;
 		}
-		foreach ( $tag_col as $id => $i )
-			$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0 WHERE tag_id = '$id'");
-		unset($tags, $tag, $tag_col, $id, $i);
-	else :
-		$bbdb->query("UPDATE $bbdb->tags SET tag_count = 0");
-	endif;
+		if ( count( $_terms ) ) {
+			$wp_taxonomy_object->update_term_count( $_terms, 'bb_topic_tag' );
+		}
+	}
+	unset( $term, $_terms );
 	echo "\t\t" . __('Done counting tagged topics.');
 	echo "\n\t</li>\n";
+endif;
 
-	if ( isset($_POST['zap-tags']) && 1 == $_POST['zap-tags'] ) :
-		echo "\t<li>\n\t\t";
-		$bbdb->query("DELETE FROM $bbdb->tags WHERE tag_count = 0");
-		_e('Deleted tags with no topics.');
-		echo "\n\t</li>\n";
-	endif;
+if ( isset($_POST['zap-tags']) && 1 == $_POST['zap-tags'] ):
+	// Get all tags
+	if ( !isset( $terms ) ) {
+		$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', array( 'hide_empty' => false ) );
+	}
+
+	echo "\t<li>\n";
+	if ( !is_wp_error( $terms ) && is_array( $terms ) ) {
+		echo "\t\t" . __('Deleting tags with no topics...') . "<br />\n";
+		foreach ( $terms as $term ) {
+			$topic_ids = bb_get_tagged_topic_ids( $term->term_id );
+			if ( false === $topic_ids || ( is_array( $topic_ids ) && !count( $topic_ids ) ) ) {
+				bb_destroy_tag( $term->term_taxonomy_id );
+			}
+			unset( $topic_ids );
+		}
+	}
+	unset( $terms, $term );
+	echo "\t\t" . __('Done deleting tags with no topics.');
 	echo "\n\t</li>\n";
 endif;
 
@@ -161,5 +178,8 @@ echo "\n</p>";
 wp_cache_flush();
 
 endif;
+?>
 
-bb_get_admin_footer(); ?>
+</div>
+
+<?php bb_get_admin_footer(); ?>
