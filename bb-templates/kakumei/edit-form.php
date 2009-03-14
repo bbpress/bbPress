@@ -6,7 +6,7 @@
   <input name="topic" type="text" id="topic" size="50" maxlength="80"  value="<?php echo attribute_escape( get_topic_title() ); ?>" />
 </label>
 </p>
-<?php endif; ?>
+<?php endif; do_action( 'edit_form_pre_post' ); ?>
 <p><label><?php _e('Post:'); ?><br />
   <textarea name="post_content" cols="50" rows="8" id="post_content"><?php echo apply_filters('edit_text', get_post_text() ); ?></textarea>
   </label>
