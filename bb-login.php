@@ -67,7 +67,7 @@ $error_data = $bb_login_error->get_error_data();
 if ( isset( $error_data['unique'] ) && false === $error_data['unique'] ) {
 	$user_exists = true;
 } else {
-	$user_exists = isset( $_POST['user_login'] ) && $_POST['user_login'] && (bool) bb_get_user( $_POST['user_login'] );
+	$user_exists = isset( $_POST['user_login'] ) && $_POST['user_login'] && (bool) bb_get_user( $_POST['user_login'], array( 'by' => 'login' ) );
 }
 unset( $error_data );
 

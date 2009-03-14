@@ -434,7 +434,7 @@ class BB_Query {
 		if ( $q['topic_author_id'] ) :
 			$where .= $this->parse_value( 't.topic_poster', $q['topic_author_id'] );
 		elseif ( $q['topic_author'] ) :
-			$user = bb_get_user( $q['topic_author'] );
+			$user = bb_get_user( $q['topic_author'], array( 'by' => 'login' ) );
 			if ( !$q['topic_author_id'] = (int) $user->ID )
 				$this->error( 'query_var:user', 'No user by that name' );
 			$where .= " AND t.topic_poster = $q[topic_author_id]";
@@ -576,7 +576,7 @@ class BB_Query {
 		if ( $q['post_author_id'] ) :
 			$where .= $this->parse_value( 'p.poster_id', $q['post_author_id'] );
 		elseif ( $q['post_author'] ) :
-			$user = bb_get_user( $q['post_author'] );
+			$user = bb_get_user( $q['post_author'], array( 'by' => 'login' ) );
 			if ( !$q['post_author_id'] = (int) $user->ID )
 				$this->error( 'query_var:user', 'No user by that name' );
 			$where .= " AND p.poster_id = $q[post_author_id]";

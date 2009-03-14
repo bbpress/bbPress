@@ -97,11 +97,17 @@ if ( !$bb_db_override ) {
 			break;
 		
 		case 'profile':
-			if ( !$user = bb_get_user( $feed_id ) )
-				if ( !$user = bb_get_user_by_nicename( $feed_id ) )
-					die();
-			if ( !$posts = get_user_favorites( $user->ID ) )
+			if ( bb_get_option( 'mod_rewrite' ) === 'slugs' ) {
+				$user = bb_get_user_by_nicename( $feed_id );
+			} else {
+				$user = bb_get_user( $feed_id );
+			}
+			if ( !$user ) {
 				die();
+			}
+			if ( !$posts = get_user_favorites( $user->ID ) ) {
+				die();
+			}
 			$title = wp_specialchars( sprintf( __( '%1$s User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_login ) );
 			$link = bb_get_profile_link($feed_id);
 			$link_self = get_favorites_rss_link($feed_id);

@@ -20,10 +20,10 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 	global $wp_users_object;
 
 	if ( !bb_get_option( 'email_login' ) || false === strpos( $user, '@' ) ) { // user_login
-		$user = $wp_users_object->get_user( $user );
+		$user = $wp_users_object->get_user( $user, array( 'by' => 'login' ) );
 	} else { // maybe an email
 		$email_user = $wp_users_object->get_user( $user, array( 'by' => 'email' ) );
-		$user = $wp_users_object->get_user( $user );
+		$user = $wp_users_object->get_user( $user, array( 'by' => 'login' ) );
 		// 9 cases.  each can be FALSE, USER, or WP_ERROR
 		if (
 			( !$email_user && $user ) // FALSE && USER, FALSE && WP_ERROR

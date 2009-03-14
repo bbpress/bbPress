@@ -1908,7 +1908,7 @@ class BB_Install
 			case 'new':
 
 				// Check to see if the user login already exists
-				if ( $keymaster_user = bb_get_user( $data3['keymaster_user_login']['value'] ) ) {
+				if ( $keymaster_user = bb_get_user( $data3['keymaster_user_login']['value'], array( 'by' => 'login' ) ) ) {
 					// The keymaster is an existing bbPress user
 					$installation_log[] = '>>> ' . __( 'Key master could not be created!' );
 					$installation_log[] = '>>>>>> ' . __( 'That login is already taken!' );
@@ -1916,7 +1916,7 @@ class BB_Install
 
 					if ( $keymaster_user->bb_capabilities['keymaster'] ) {
 						// The existing user is a key master - continue
-						$bb_current_user = bb_set_current_user( $keymaster_user->ID);
+						$bb_current_user = bb_set_current_user( $keymaster_user->ID );
 						$installation_log[] = '>>>>>> ' . __( 'Existing key master entered!' );
 						$data4['keymaster_user_password']['value'] = __( 'Your bbPress password' );
 						$data3['keymaster_user_email']['value'] = $keymaster_user->user_email;
@@ -1973,7 +1973,7 @@ class BB_Install
 				break;
 
 			case 'old':
-				if ( $keymaster_user = bb_get_user( $data3['keymaster_user_login']['value'] ) ) {
+				if ( $keymaster_user = bb_get_user( $data3['keymaster_user_login']['value'], array( 'by' => 'login' ) ) ) {
 					// The keymaster is an existing bbPress or WordPress user
 					$bb_current_user = bb_set_current_user( $keymaster_user->ID );
 					$bb_current_user->set_role( 'keymaster' );

@@ -677,12 +677,12 @@ function bb_enqueue_script( $handle, $src = false, $deps = array(), $ver = false
 
 function bb_get_user_by_name( $name ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_get_user');
-	return bb_get_user( $name );
+	return bb_get_user( $name, array( 'by' => 'login' ) );
 }
 
 function bb_user_exists( $user ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_get_user');
-	return bb_get_user( $name );
+	return bb_get_user( $user );
 }
 
 function bb_maybe_serialize( $string ) {

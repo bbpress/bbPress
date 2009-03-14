@@ -258,7 +258,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	function switch_user( $user_login, $capability = 'read', $message = false )
 	{
 		// Just get the user, authentication has already been established by the 
-		$user = bb_get_user( $user_login );
+		$user = bb_get_user( $user_login, array( 'by' => 'login' ) );
 		if ( !$user || is_wp_error( $user ) ) {
 			$this->error = new IXR_Error( 400, __( 'User switching failed, the requested user does not exist.' ) );
 			return false;

@@ -151,10 +151,10 @@ function bb_insert_topic( $args = null ) {
 			'topic_id' => false, // accepts ids or slugs
 			'topic_title' => '',
 			'topic_slug' => '',
-			'topic_poster' => $current_user_id, // accepts ids or names
-			'topic_poster_name' => '', // useless
-			'topic_last_poster' => $current_user_id,
-			'topic_last_poster_name' => '', // useless
+			'topic_poster' => $current_user_id, // accepts ids
+			'topic_poster_name' => '', // accept names
+			'topic_last_poster' => $current_user_id, // accepts ids
+			'topic_last_poster_name' => '', // accept names
 			'topic_start_time' => $now,
 			'topic_time' => $now,
 			'topic_open' => 1,
@@ -174,12 +174,14 @@ function bb_insert_topic( $args = null ) {
 	$forum_id = (int) $forum->forum_id;
 
 	if ( !$user = bb_get_user( $topic_poster ) )
-		return false;
+		if ( !$user = bb_get_user( $topic_poster_name, array( 'by' => 'login' ) ) )
+			return false;
 	$topic_poster = $user->ID;
 	$topic_poster_name = $user->user_login;
 
 	if ( !$last_user = bb_get_user( $topic_last_poster ) )
-		return false;
+		if ( !$last_user = bb_get_user( $topic_last_poster_name, array( 'by' => 'login' ) ) )
+			return false;
 	$topic_last_poster = $last_user->ID;
 	$topic_last_poster_name = $last_user->user_login;
 

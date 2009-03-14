@@ -1783,7 +1783,7 @@ function bb_get_user_id( $id = 0 ) {
 	elseif ( !$id )
 		return $user->ID;
 
-	$_user = bb_get_user( $id );
+	$_user = bb_get_user( (int) $id );
 	return isset($_user->ID) ? $_user->ID : 0;
 }
 
@@ -2397,7 +2397,7 @@ function bb_get_current_user_info( $key = '' ) {
 }
 
 function bb_get_user_email( $id ) {
-	if ( !$user = bb_get_user( $id ) )
+	if ( !$user = bb_get_user( bb_get_user_id( $id ) ) )
 		return false;
 
 	return apply_filters( 'bb_get_user_email', $user->user_email, $id );
@@ -2874,7 +2874,7 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 	if ( $user_id ) :
 		if ( !bb_current_user_can( 'edit_favorites_of', (int) $user_id ) )
 			return false;
-		if ( !$user = bb_get_user( $user_id ) ) :
+		if ( !$user = bb_get_user( bb_get_user_id( $user_id ) ) ) :
 			return false;
 		endif;
 	else :
