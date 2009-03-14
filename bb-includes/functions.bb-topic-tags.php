@@ -230,7 +230,14 @@ function bb_get_tag( $id, $user_id = 0, $topic_id = 0 ) {
 	}
 
 	if ( $user_id && $topic_id ) {
-		$tt_ids = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', array( 'user_id' => $user_id, 'fields' => 'tt_ids' ) );
+		$args = array( 'user_id' => $user_id, 'fields' => 'tt_ids' );
+		$cache_id = $topic_id . serialize( $args );
+
+		$tt_ids = wp_cache_get( $cache_id, 'bb_topic_tag_terms' );
+		if ( empty( $tt_ids ) ) {
+			$tt_ids = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', $args );
+			wp_cache_set( $cache_id, $tt_ids, 'bb_topic_tag_terms' );
+		}
 		if ( !in_array( $tt_id, $tt_ids ) )
 			return false;
 	}
@@ -257,8 +264,15 @@ function bb_get_topic_tags( $topic_id = 0, $args = null ) {
 		return false;
 
 	$topic_id = (int) $topic->topic_id;
-	
-	$terms = $wp_taxonomy_object->get_object_terms( (int) $topic->topic_id, 'bb_topic_tag', $args );
+
+	$cache_id = $topic_id . serialize( $args );
+
+	$terms = wp_cache_get( $cache_id, 'bb_topic_tag_terms' );
+	if ( empty( $terms ) ) {
+		$terms = $wp_taxonomy_object->get_object_terms( (int) $topic->topic_id, 'bb_topic_tag', $args );
+		wp_cache_set( $cache_id, $terms, 'bb_topic_tag_terms' );
+	}
+
 	if ( is_wp_error( $terms ) )
 		return false;
 

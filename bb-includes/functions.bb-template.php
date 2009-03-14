@@ -2580,8 +2580,8 @@ function bb_list_tags( $args = null ) {
 }
 
 function _bb_list_tag_item( $tag, $args ) {
-	$url = clean_url( bb_get_tag_link( $tag->tag ) );
-	$name = wp_specialchars( bb_get_tag_name( $tag->tag_id ) );
+	$url = clean_url( bb_get_tag_link( $tag ) );
+	$name = wp_specialchars( bb_get_tag_name( $tag ) );
 	if ( 'list' == $args['format'] )
 		return "\t<li id='tag-{$tag->tag_id}_{$tag->user_id}'><a href='$url' rel='tag'>$name</a> " . bb_get_tag_remove_link( array( 'tag' => $tag, 'list_id' => $args['list_id'] ) ) . "</li>\n";
 }
