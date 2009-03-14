@@ -252,16 +252,20 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		if ( 0 != $old_status && 0 == $new_status )
 			add_filter('get_thread_where', 'no_where');
 		$poster_ids = array();
-		foreach ( get_thread( $topic_id, array( 'per_page' => -1, 'order' => 'DESC' ) ) as $post ) {
-			_bb_delete_post( $post->post_id, $new_status );
-			$poster_ids[] = $post->poster_id;
+		$posts = get_thread( $topic_id, array( 'per_page' => -1, 'order' => 'DESC' ) );
+		if ( $posts && count( $posts ) ) {
+			foreach ( $posts as $post ) {
+				_bb_delete_post( $post->post_id, $new_status );
+				$poster_ids[] = $post->poster_id;
+			}
 		}
 		if ( 0 != $old_status && 0 == $new_status )
 			remove_filter('get_thread_where', 'no_where');
 
-		foreach ( array_unique( $poster_ids ) as $id )
-			if ( $user = bb_get_user( $id ) )
-				bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
+		if ( count( $poster_ids ) )
+			foreach ( array_unique( $poster_ids ) as $id )
+				if ( $user = bb_get_user( $id ) )
+					bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
 
 		if ( $ids = $bbdb->get_col( "SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = 'favorites' and FIND_IN_SET('$topic_id', meta_value) > 0" ) )
 			foreach ( $ids as $id )
