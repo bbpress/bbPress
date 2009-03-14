@@ -327,6 +327,13 @@ function bb_get_uri_page() {
 		if ( !$path = strtok($_SERVER['REQUEST_URI'], '?') )
 			return 1;
 
+	if ( preg_match( '/^\/([0-9]+)\/?$/', $path, $matches ) ) {
+		$page = (int) $matches[1];
+		if ( 1 < $page ) {
+			return $page;
+		}
+	}
+
 	if ( $page = strstr($path, '/page/') ) {
 		$page = (int) substr($page, 6);
 		if ( 1 < $page )

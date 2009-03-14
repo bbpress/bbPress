@@ -315,6 +315,7 @@ function bb_get_location() { // Not for display.  Do not internationalize.
 
 	switch ( $filename ) {
 		case 'index.php':
+		case 'page.php':
 			$location = 'front-page';
 			break;
 		case 'forum.php':
@@ -1178,7 +1179,7 @@ function topic_pages_add( $id = 0 ) {
 
 function get_page_number_links( $page, $total, $per_page = '' ) {
 	$args = array();
-	$uri = $_SERVER['REQUEST_URI'];
+	$uri = rtrim( $_SERVER['REQUEST_URI'], '?&' );
 	if ( bb_get_option('mod_rewrite') ) {
 		$format = '/page/%#%';
 		if ( 1 == $page ) {
@@ -1202,9 +1203,11 @@ function get_page_number_links( $page, $total, $per_page = '' ) {
 		} else {
 			if ( false === strpos($uri, '?page=') ) {
 				$uri = preg_replace('!&page=[0-9]+!', '%_%', $uri );
+				$uri = str_replace( '&page=', '', $uri );
 				$format = '&page=%#%';
 			} else {
 				$uri = preg_replace('!\?page=[0-9]+!', '%_%', $uri );
+				$uri = str_replace( '?page=', '', $uri );
 				$format = '?page=%#%';
 			}
 		}
