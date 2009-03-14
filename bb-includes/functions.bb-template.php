@@ -1662,6 +1662,14 @@ function post_delete_link( $post_id = 0 ) {
 
 function bb_get_post_delete_link( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	if ( bb_is_first( $bb_post->post_id ) ) {
+		$topic = get_topic( $bb_post->topic_id );
+		if ( 2 > $topic->topic_posts ) {
+			// Should delete the whole topic
+			return;
+		}
+	}
+	
 	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
 		return;
 
