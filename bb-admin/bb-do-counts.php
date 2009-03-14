@@ -134,7 +134,8 @@ endif;
 
 if ( isset($_POST['clean-favorites']) && 1 == $_POST['clean-favorites'] ):
 	echo "\t<li>\n";
-	if ( $users = $bbdb->get_results("SELECT user_id AS id, meta_value AS favorites FROM $bbdb->usermeta WHERE meta_key = 'favorites'") ) :
+	$favorites_key = $bbdb->prefix . 'favorites';
+	if ( $users = $bbdb->get_results("SELECT user_id AS id, meta_value AS favorites FROM $bbdb->usermeta WHERE meta_key = '" . $favorites_key . "'") ) :
 		echo "\t\t" . __('Removing deleted topics from users\' favorites...') . "<br />\n";
 		$topics = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE topic_status = '0'");
 		foreach ( $users as $user ) {
