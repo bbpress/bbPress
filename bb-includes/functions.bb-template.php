@@ -2596,12 +2596,15 @@ function tag_form( $args = null ) {
 
 	if ( !bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
 		return false;
+
+	global $page;
 ?>
 
 <form id="tag-form" method="post" action="<?php bb_uri('tag-add.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:<?php echo attribute_escape( $list_id ); ?>:">
 	<p>
 		<input name="tag" type="text" id="tag" />
 		<input type="hidden" name="id" value="<?php echo $topic->topic_id; ?>" />
+		<input type="hidden" name="page" value="<?php echo $page; ?>" />
 		<?php bb_nonce_field( 'add-tag_' . $topic->topic_id ); ?>
 		<input type="submit" name="submit" id="tagformsub" value="<?php echo attribute_escape( $submit ); ?>" />
 	</p>

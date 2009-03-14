@@ -1,6 +1,6 @@
 <?php if ( !bb_is_topic() ) : ?>
 <p>
-	<label for="topic"><?php _e('Topic title: (be brief and descriptive)'); ?>
+	<label for="topic"><?php _e('Title:'); ?>
 		<input name="topic" type="text" id="topic" size="50" maxlength="80" tabindex="1" />
 	</label>
 </p>
@@ -10,13 +10,11 @@
 		<textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="3"></textarea>
 	</label>
 </p>
-<?php if ( !bb_is_topic() ) : ?>
 <p>
-	<label for="tags-input"><?php printf(__('Enter a few words (called <a href="%s">tags</a>) separated by commas to help someone find your topic:'), bb_get_tag_page_link()) ?>
+	<label for="tags-input"><?php printf(__('Tags (comma seperated):'), bb_get_tag_page_link()) ?>
 		<input id="tags-input" name="tags" type="text" size="50" maxlength="100" value="<?php bb_tag_name(); ?>" tabindex="4" />
 	</label>
 </p>
-<?php endif; ?>
 <?php if ( bb_is_tag() || bb_is_front() ) : ?>
 <p>
 	<label for="forum-id"><?php _e('Pick a section:'); ?>

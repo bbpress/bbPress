@@ -364,7 +364,7 @@ a.next.page-numbers:hover {
 
 #thread {
 	list-style: none;
-	margin: 0;
+	margin: 2em 0 0 0;
 	padding: 0;
 }
 
@@ -504,10 +504,21 @@ a.next.page-numbers:hover {
 	margin: 5px 0;
 	padding: 5px;
 	width: 720px;
+	max-width: 720px;
+	border: 1px solid #ccc;
 	display: block;
 }
 
 .postform label { display: block; }
+
+.postform #topic,
+.postform #tags-input {
+	margin: 5px 0;
+	padding: 5px;
+	width: 720px;
+	border: 1px solid #ccc;
+	display: block;
+}
 
 #manage-tags {
 	margin: 10px 0;

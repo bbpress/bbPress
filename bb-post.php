@@ -40,6 +40,9 @@ if ( !topic_is_open( $topic_id ) )
 
 $post_id = bb_new_post( $topic_id, $_POST['post_content'] );
 
+$tags  = trim( $_POST['tags']  );
+bb_add_topic_tags( $topic_id, $tags );
+
 $link = get_post_link($post_id);
 
 $topic = get_topic( $topic_id, false );
