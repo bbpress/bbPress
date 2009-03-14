@@ -424,15 +424,15 @@ endif;
 
 if ( !function_exists( 'get_tag_rss_link' ) ) :
 function get_tag_rss_link( $id = 0 ) {
-	bb_log_deprecated('function', __FUNCTION__, 'bb_get_tag_rss_link');
-	return bb_get_tag_rss_link( $id );
+	bb_log_deprecated('function', __FUNCTION__, 'bb_get_tag_posts_rss_link');
+	return bb_get_tag_posts_rss_link( $id );
 }
 endif;
 
 if ( !function_exists( 'tag_rss_link' ) ) :
 function tag_rss_link( $id = 0 ) {
-	bb_log_deprecated('function', __FUNCTION__, 'bb_tag_rss_link');
-	bb_tag_rss_link( $id );
+	bb_log_deprecated('function', __FUNCTION__, 'bb_tag_posts_rss_link');
+	bb_tag_posts_rss_link( $id );
 }
 endif;
 
@@ -992,4 +992,16 @@ function bb_verify_email( $email, $check_dns = false )
 {
 	bb_log_deprecated( 'function', __FUNCTION__, 'is_email' );
 	return is_email( $email, $check_dns );
+}
+
+function bb_tag_rss_link( $tag_id = 0, $context = 0 )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_tag_posts_rss_link' );
+	return bb_tag_posts_rss_link( $tag_id, $context );
+}
+
+function bb_get_tag_rss_link( $tag_id = 0, $context = 0 )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_tag_posts_rss_link' );
+	return bb_get_tag_posts_rss_link( $tag_id, $context );
 }

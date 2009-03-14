@@ -497,8 +497,12 @@ function bb_feed_head() {
 		case 'tag-page':
 			if (bb_is_tag()) {
 				$feeds[] = array(
-					'title' => sprintf(__('Tag: %s'), bb_get_tag_name()),
-					'href'  => bb_get_tag_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
+					'title' => sprintf(__('Tag: %s - Recent Posts'), bb_get_tag_name()),
+					'href'  => bb_get_tag_posts_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
+				);
+				$feeds[] = array(
+					'title' => sprintf(__('Tag: %s - Recent Topics'), bb_get_tag_name()),
+					'href'  => bb_get_tag_topics_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 			}
 			break;
@@ -2467,14 +2471,14 @@ function bb_get_tag_name( $id = 0 ) {
 	return '';
 }
 
-function bb_tag_rss_link( $id = 0, $context = 0 ) {
+function bb_tag_posts_rss_link( $id = 0, $context = 0 ) {
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
 	}
-	echo apply_filters( 'tag_rss_link', bb_get_tag_rss_link($id, $context), $id, $context );
+	echo apply_filters( 'tag_posts_rss_link', bb_get_tag_posts_rss_link($id, $context), $id, $context );
 }
 
-function bb_get_tag_rss_link( $tag_id = 0, $context = 0 ) {
+function bb_get_tag_posts_rss_link( $tag_id = 0, $context = 0 ) {
 	global $tag;
 	$tag_id = (int) $tag_id;
 	if ( $tag_id )
@@ -2494,7 +2498,37 @@ function bb_get_tag_rss_link( $tag_id = 0, $context = 0 ) {
 	else
 		$link = bb_get_uri('rss.php', array('tag' => $_tag->tag), $context);
 
-	return apply_filters( 'get_tag_rss_link', $link, $tag_id, $context );
+	return apply_filters( 'get_tag_posts_rss_link', $link, $tag_id, $context );
+}
+
+function bb_tag_topics_rss_link( $id = 0, $context = 0 ) {
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+	echo apply_filters( 'tag_topics_rss_link', bb_get_tag_topics_rss_link($id, $context), $id, $context );
+}
+
+function bb_get_tag_topics_rss_link( $tag_id = 0, $context = 0 ) {
+	global $tag;
+	$tag_id = (int) $tag_id;
+	if ( $tag_id )
+		if ( is_object($tag_id) )
+			$_tag = $tag_id;
+		else
+			$_tag = bb_get_tag( $tag_id );
+	else
+		$_tag =& $tag;
+
+	if (!$context || !is_integer($context)) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+
+	if ( bb_get_option('mod_rewrite') )
+		$link = bb_get_uri('rss/tags/' . $_tag->tag . '/topics', null, $context);
+	else
+		$link = bb_get_uri('rss.php', array('tag' => $_tag->tag, 'topics' => 1), $context);
+
+	return apply_filters( 'get_tag_topics_rss_link', $link, $tag_id, $context );
 }
 
 function bb_list_tags( $args = null ) {
