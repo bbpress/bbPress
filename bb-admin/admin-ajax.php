@@ -41,9 +41,11 @@ case 'add-tag' : // $id is topic_id
 	$tag_name = rawurldecode($tag_name);
 	$x = new WP_Ajax_Response();
 	foreach ( bb_add_topic_tags( $id, $tag_name ) as $tag_id ) {
-		if ( !is_numeric($tag_id) || !$tag = bb_get_tag( $tag_id, bb_get_current_user_info( 'id' ), $topic->topic_id ) )
-			if ( !$tag = bb_get_tag( $tag_id ) )
+		if ( !is_numeric($tag_id) || !$tag = bb_get_tag( (int) $tag_id, bb_get_current_user_info( 'id' ), $topic->topic_id ) ) {
+			if ( !$tag = bb_get_tag( $tag_id ) ) {
 				continue;
+			}
+		}
 		$tag->user_id = bb_get_current_user_info( 'id' );
 		$tag_id_val = $tag->tag_id . '_' . $tag->user_id;
 		$tag->raw_tag = attribute_escape( $tag->raw_tag );
