@@ -793,19 +793,20 @@ function bb_repermalink() {
 			$user_id = $user->ID;
 			global_profile_menu_structure();
 			$valid = false;
-			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
-				foreach ( $profile_hooks as $valid_tab => $valid_file )
+			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) ) {
+				foreach ( $profile_hooks as $valid_tab => $valid_file ) {
 					if ( $tab == $valid_tab ) {
 						$valid = true;
 						$self = $valid_file;
 					}
-			if ( $valid ) :
+				}
+			}
+			if ( $valid ) {
 				$permalink = get_profile_tab_link( $user->ID, $tab, $page );
-			else :
+			} else {
 				$permalink = get_user_profile_link( $user->ID, $page );
 				unset($self, $tab);
-			endif;
-			break;
+			}
 		case 'favorites-page':
 			$permalink = get_favorites_link();
 			break;
