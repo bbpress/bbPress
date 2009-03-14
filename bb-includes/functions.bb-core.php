@@ -807,6 +807,7 @@ function bb_repermalink() {
 				$permalink = get_user_profile_link( $user->ID, $page );
 				unset($self, $tab);
 			}
+			break;
 		case 'favorites-page':
 			$permalink = get_favorites_link();
 			break;
