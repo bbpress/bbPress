@@ -404,7 +404,7 @@ function get_tagged_topic_ids( $tag_id ) {
 if ( !function_exists( 'get_top_tags' ) ) :
 function get_top_tags( $recent = true, $limit = 40 ) {
 	bb_log_deprecated('function', __FUNCTION__, 'bb_get_top_tags');
-	return bb_get_top_tags( $recent, $limit );
+	return bb_get_top_tags( array( 'number' => $limit ) );
 }
 endif;
 

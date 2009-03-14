@@ -2665,7 +2665,7 @@ function bb_get_tag_remove_link( $args = null ) {
 }
 
 function bb_tag_heat_map( $args = '' ) {
-	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
+	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 40, 'format' => 'flat' );
 	$args = wp_parse_args( $args, $defaults );
 
 	if ( 1 < $fn = func_num_args() ) : // For back compat
@@ -2677,7 +2677,7 @@ function bb_tag_heat_map( $args = '' ) {
 
 	extract($args, EXTR_SKIP);
 
-	$tags = bb_get_top_tags( false, $limit );
+	$tags = bb_get_top_tags( array( 'number' => $limit ) );
 
 	if ( empty($tags) )
 		return;
