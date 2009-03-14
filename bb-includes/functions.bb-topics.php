@@ -134,6 +134,7 @@ function bb_insert_topic( $args = null ) {
 		// Get from db, not cache.  Good idea?  Prevents trying to update meta_key names in the topic table (get_topic() returns appended topic obj)
 		$topic = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->topics WHERE topic_id = %d", $topic_id ) );
 		$defaults = get_object_vars( $topic );
+		unset($defaults['topic_id']);
 
 		// Only update the args we passed
 		$fields = array_intersect( $fields, array_keys($defaults) );
@@ -142,13 +143,13 @@ function bb_insert_topic( $args = null ) {
 		if ( in_array( 'topic_last_poster', $fields ) )
 			$fields[] = 'topic_last_poster_name';
 	} else {
+		$topic_id = false;
 		$update = false;
 
 		$now = bb_current_time('mysql');
 		$current_user_id = bb_get_current_user_info( 'id' );
 
 		$defaults = array(
-			'topic_id' => false, // accepts ids or slugs
 			'topic_title' => '',
 			'topic_slug' => '',
 			'topic_poster' => $current_user_id, // accepts ids
@@ -167,7 +168,7 @@ function bb_insert_topic( $args = null ) {
 
 	$defaults['tags'] = false; // accepts array or comma delimited string
 	extract( wp_parse_args( $args, $defaults ) );
-	unset($defaults['topic_id'], $defaults['tags']);
+	unset($defaults['tags']);
 
 	if ( !$forum = get_forum( $forum_id ) )
 		return false;

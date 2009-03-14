@@ -203,6 +203,7 @@ function bb_insert_post( $args = null ) {
 		// Get from db, not cache.  Good idea?
 		$post = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->posts WHERE post_id = %d", $post_id ) );
 		$defaults = get_object_vars( $post );
+		unset( $defaults['post_id'] );
 
 		// Only update the args we passed
 		$fields = array_intersect( $fields, array_keys($defaults) );
@@ -213,13 +214,13 @@ function bb_insert_post( $args = null ) {
 		// bb_new_post() and bb_update_post() will always run filters
 		$run_filters = (bool) array_intersect( array( 'post_status', 'post_text' ), $fields );
 	} else {
+		$post_id = false;
 		$update = false;
 		$now = bb_current_time( 'mysql' );
 		$current_user_id = bb_get_current_user_info( 'id' );
 		$ip_address = $_SERVER['REMOTE_ADDR'];
 
 		$defaults = array(
-			'post_id' => false,
 			'topic_id' => 0,
 			'post_text' => '',
 			'post_time' => $now,
@@ -260,7 +261,7 @@ function bb_insert_post( $args = null ) {
 	if ( false === $post_position )
 		$post_position = $topic_posts = intval( ( 0 == $post_status ) ? $topic->topic_posts + 1 : $topic->topic_posts );
 
-	unset($defaults['post_id'], $defaults['throttle']);
+	unset($defaults['throttle']);
 
 	if ( $update ) {
 		$bbdb->update( $bbdb->posts, compact( $fields ), compact( 'post_id' ) );
