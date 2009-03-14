@@ -865,6 +865,7 @@ function bb_repermalink() {
 	$domain = preg_replace('/^https?/', '', $domain);
 	$check = preg_replace( '|^.*' . trim($domain, ' /' ) . '|', '', $permalink, 1 );
 	$uri = rtrim( $uri, " \t\n\r\0\x0B?" );
+	$uri = str_replace( '/index.php', '/', $uri );
 
 	global $bb_log;
 	$bb_log->debug($uri, 'bb_repermalink() ' . __('REQUEST_URI'));
