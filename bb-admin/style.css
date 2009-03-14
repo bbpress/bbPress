@@ -239,6 +239,13 @@ strong {
 	margin-right: 1.5em;
 }
 
+* html #bbAdminSideMenu {
+	position: absolute;
+	z-index: 100;
+	right: 0;
+	top: 130px;
+}
+
 #bbAdminSideMenu li {
 	display: inline;
 }
@@ -479,7 +486,7 @@ form.settings div {
 }
 
 form.settings div label {
-	position: absolute;
+	float: left;
 	width: 16em;
 	font-size: 1.3em;
 	font-weight: bold;

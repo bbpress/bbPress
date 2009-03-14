@@ -38,6 +38,11 @@
 	margin-right: 0;
 }
 
+* html #bbAdminSideMenu {
+	left: 0;
+	right: auto;
+}
+
 #bbAdminSubMenu {
 	margin-right: 1.7em;
 	margin-left: 0;
@@ -55,6 +60,10 @@
 
 .widefat th {
 	text-align: right;
+}
+
+form.settings div label {
+	float: right;
 }
 
 form.settings div div {
