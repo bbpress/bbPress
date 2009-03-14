@@ -30,7 +30,7 @@ if ( isset($_GET['theme']) ) {
 		bb_update_option( 'bb_active_theme', $theme );
 	}
 	do_action( 'bb_activate_theme_' . $theme );
-	wp_redirect( bb_get_uri('bb-admin/themes.php', array('activated' => 1, 'name' => $name ), BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_ADMIN ) );
+	wp_redirect( bb_get_uri('bb-admin/themes.php', array('activated' => 1, 'name' => urlencode( $name ) ), BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_ADMIN ) );
 	exit;
 }
 
