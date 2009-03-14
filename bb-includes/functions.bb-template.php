@@ -1543,7 +1543,7 @@ function get_post_author( $post_id = 0 ) {
 	elseif ( $title = bb_get_post_meta( 'pingback_title' ) )
 		return apply_filters( 'bb_get_pingback_title', $title );
 	else
-		return __('Anonymous');
+		return apply_filters( 'get_post_author', __('Anonymous'), 0 );
 }
 
 function post_author_link( $post_id = 0 ) {
