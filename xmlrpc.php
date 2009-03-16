@@ -147,8 +147,8 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.addTopicTags'     => 'this:bb_addTopicTags',
 				'bb.removeTopicTags'  => 'this:bb_removeTopicTags',
 				'bb.renameTopicTag'   => 'this:bb_renameTopicTag',
-				//'bb.mergeTopicTags'   => 'this:bb_mergeTopicTags',
-				//'bb.destroyTopicTag'  => 'this:bb_destroyTopicTag',
+				'bb.mergeTopicTags'   => 'this:bb_mergeTopicTags',
+				'bb.destroyTopicTag'  => 'this:bb_destroyTopicTag',
 				// - Options
 				'bb.getOptions'       => 'this:bb_getOptions',
 				'bb.setOptions'       => 'this:bb_setOptions',
@@ -2620,7 +2620,7 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * Deletes an existing post
 	 *
 	 * @since 1.0
-	 * @return integer|object 1 when successfully deleted, 0 when already  or an IXR_Error object on failure
+	 * @return integer|object 1 when successfully deleted, 0 when already deleted or an IXR_Error object on failure
 	 * @param array $args Arguments passed by the XML-RPC call
 	 * @param string $args[0] The username for authentication
 	 * @param string $args[1] The password for authentication
@@ -3244,7 +3244,7 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		// Check the requested topic exists
+		// Check the requested tag exists
 		if ( !$tag = bb_get_tag( $tag_id ) ) {
 			$this->error = new IXR_Error( 400, __( 'No tag found.' ) );
 			return $this->error;
@@ -3262,9 +3262,6 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		// Leave the require until the very end
-		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
-
 		// Rename the tag
 		if ( !$new_tag = bb_rename_tag( $tag_id, $tag_name ) ) {
 			$this->error = new IXR_Error( 500, __( 'The tag could not be renamed.' ) );
@@ -3278,6 +3275,168 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Return the tag
 		return $new_tag;
+	}
+
+	/**
+	 * Merges the specified tags
+	 *
+	 * @since 1.0
+	 * @return array|object The tag data when successfully merged or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param string $args[2] The old tag name or slug to be destroyed
+	 * @param string $args[3] The new tag name or slug where the old tag will be merged to
+	 *
+	 * XML-RPC request to merge the tag "banana" into the tag "apple"
+	 * <methodCall>
+	 *     <methodName>bb.mergeTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>banana</string></value></param>
+	 *         <param><value><string>apple</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_mergeTopicTags( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.mergeTopicTags' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'manage_tags', __( 'You do not have permission to manage tags.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.mergeTopicTags' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can only be strings
+		$old_tag_id = isset( $args[2] ) ? (string) $args[2] : false;
+		$new_tag_id = isset( $args[3] ) ? (string) $args[3] : false;
+
+		// Check for bad data
+		if ( !$old_tag_id ) {
+			$this->error = new IXR_Error( 400, __( 'The old tag id is invalid.' ) );
+			return $this->error;
+		}
+		if ( !$new_tag_id ) {
+			$this->error = new IXR_Error( 400, __( 'The new tag id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested tags exist
+		if ( !$old_tag = bb_get_tag( $old_tag_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No old tag found.' ) );
+			return $this->error;
+		}
+		if ( !$new_tag = bb_get_tag( $new_tag_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No new tag found.' ) );
+			return $this->error;
+		}
+
+		// Get the numeric tag ids
+		$old_tag_id = (int) $old_tag->tag_id;
+		$new_tag_id = (int) $new_tag->tag_id;
+
+		// Rename the tag
+		if ( !$result = bb_rename_tag( $old_tag_id, $new_tag_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'The tags could not be merged.' ) );
+			return $this->error;
+		}
+
+		// Get the merged tag
+		$new_tag = bb_get_tag( $new_tag_id );
+
+		// Only include "safe" data in the array
+		$new_tag = $this->prepare_topic_tag( $new_tag );
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.mergeTopicTags' );
+
+		// Return the tag
+		return $new_tag;
+	}
+
+	/**
+	 * Destroys the specified tag
+	 *
+	 * @since 1.0
+	 * @return integer|object 1 when successfully deleted or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param string $args[2] The tag name or slug to be destroyed
+	 *
+	 * XML-RPC request to destroy the tag "banana"
+	 * <methodCall>
+	 *     <methodName>bb.destroyTopicTag</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><string>banana</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_destroyTopicTag( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.destroyTopicTag' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password, 'manage_tags', __( 'You do not have permission to manage tags.' ) );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.destroyTopicTag' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Can only be a string
+		$tag_id = isset( $args[2] ) ? (string) $args[2] : false;
+
+		// Check for bad data
+		if ( !$tag_id ) {
+			$this->error = new IXR_Error( 400, __( 'The tag id is invalid.' ) );
+			return $this->error;
+		}
+
+		// Check the requested tag exists
+		if ( !$tag = bb_get_tag( $tag_id ) ) {
+			$this->error = new IXR_Error( 400, __( 'No tag found.' ) );
+			return $this->error;
+		}
+
+		// Get the numeric tag id
+		$tag_id = (int) $tag->tag_id;
+
+		// Destroy the tag
+		if ( !$result = bb_destroy_tag( $tag_id ) ) {
+			$this->error = new IXR_Error( 500, __( 'The tag could not be destroyed.' ) );
+			return $this->error;
+		}
+
+		$result = 1;
+
+		do_action( 'bb_xmlrpc_call_return', 'bb.destroyTopicTag' );
+
+		// Return the tag
+		return $result;
 	}
 
 
