@@ -3965,6 +3965,76 @@ class BB_XMLRPC_Server extends IXR_Server
 		return $authors;
 	}
 
+	/**
+	 * Retrieves a list of all tags.
+	 *
+	 * @since 1.0
+	 * @return array|object An array containing tag information or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param integer $args[0] The "blog" id
+	 * @param string $args[1] The username for authentication
+	 * @param string $args[2] The password for authentication
+	 *
+	 * XML-RPC request to get all tags
+	 * <methodCall>
+	 *     <methodName>wp.getTags</methodName>
+	 *     <params>
+	 *         <param><value><int>1</int></value></param>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function wp_getTags( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'wp.getTags' );
+
+		// Escape args
+		$this->escape( $args );
+
+		$blog_id = (int) $args[0];
+
+		// Get the login credentials
+		$username = $args[1];
+		$password = (string) $args[2];
+
+		// Check the user is valid
+		$user = $this->authenticate( $username, $password );
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'wp.getTags' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Get the tags. Return an error when no tags exist
+		if ( !$tags = bb_get_top_tags( array( 'get' => 'all', 'number' => '' ) ) ) {
+			// Emulate WordPress behaviour when no categories found
+			return array();
+		}
+
+		// Only include "safe" data in the array
+		$_tags = array();
+		foreach ( $tags as $tag ) {
+			$_tag = $this->prepare_topic_tag( $tag );
+
+			$struct = array();
+			$struct['tag_id']   = (int) $tag->term_id;
+			$struct['name']     = $_tag['topic_tag_name'];
+			$struct['count']    = $_tag['topic_tag_count'];
+			$struct['slug']     = $_tag['topic_tag_slug'];
+			$struct['html_url'] = wp_specialchars( bb_get_tag_link( $tag->slug ) );
+			$struct['rss_url']  = wp_specialchars( bb_get_tag_posts_rss_link( $tag->slug ) );
+
+			$_tags[] = $struct;
+		}
+
+		do_action( 'bb_xmlrpc_call', 'wp.getTags' );
+
+		return $_tags;
+	}
+
 
 
 	/**
