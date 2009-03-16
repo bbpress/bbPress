@@ -257,6 +257,8 @@ class BB_XMLRPC_Server extends IXR_Server
 	 * @return integer|boolean The user id if the user is valid, otherwise false
 	 * @param string $user_login The users login
 	 * @param string $user_pass The users password in plain text
+	 * @param string $capability The capability to check (optional)
+	 * @param string $message The message to pass back in the error if the capability check fails (optional)
 	 */
 	function authenticate( $user_login, $user_pass, $capability = 'read', $message = false )
 	{
@@ -295,6 +297,15 @@ class BB_XMLRPC_Server extends IXR_Server
 		return $user;
 	}
 
+	/**
+	 * Switches the currently active user for incognito actions
+	 *
+	 * @since 1.0
+	 * @return integer|boolean The user id if the user is valid, otherwise false
+	 * @param string $user_login The users login
+	 * @param string $capability The capability to check (optional)
+	 * @param string $message The message to pass back in the error if the capability check fails (optional)
+	 */
 	function switch_user( $user_login, $capability = 'read', $message = false )
 	{
 		// Just get the user, authentication has already been established by the 
