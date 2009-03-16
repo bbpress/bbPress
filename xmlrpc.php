@@ -146,7 +146,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				'bb.deletePost'        => 'this:bb_deletePost',          // Also undeletes
 				'bb.getPostStatusList' => 'this:bb_getPostStatusList',
 				// - Topic Tags
-// TODO				'bb.getHotTopicTags'   => 'this:bb_getHotTopicTags',
+				'bb.getHotTopicTags'   => 'this:bb_getHotTopicTags',
 				'bb.getTopicTagCount'  => 'this:bb_getTopicTagCount',
 				'bb.getTopicTags'      => 'this:bb_getTopicTags',
 				'bb.getTopicTag'       => 'this:bb_getTopicTag',
@@ -457,6 +457,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		$_tag['topic_tag_count'] = (int) $_tag['count'];
 		// Remove some sensitive data
 		unset(
+			$_tag['object_id'],
 			$_tag['name'],
 			$_tag['slug'],
 			$_tag['count'],
@@ -2757,6 +2758,127 @@ class BB_XMLRPC_Server extends IXR_Server
 	/**
 	 * bbPress publishing API - Topic Tag XML-RPC methods
 	 */
+
+	/**
+	 * Returns the hot tags in order of hotness in a given forum or all hot tags
+	 *
+	 * @since 1.0
+	 * @return integer|object The tag data when successfully executed or an IXR_Error object on failure
+	 * @param array $args Arguments passed by the XML-RPC call
+	 * @param string $args[0] The username for authentication
+	 * @param string $args[1] The password for authentication
+	 * @param integer $args[2] The number of tags to return (optional)
+	 * @param integer|string $args[3] The forum id or slug (optional)
+	 *
+	 * XML-RPC request to get the 20 hottest tags in the forum with slug "hawtness"
+	 * <methodCall>
+	 *     <methodName>bb.getTopicTags</methodName>
+	 *     <params>
+	 *         <param><value><string>joeblow</string></value></param>
+	 *         <param><value><string>123password</string></value></param>
+	 *         <param><value><int>20</int></value></param>
+	 *         <param><value><string>hawtness</string></value></param>
+	 *     </params>
+	 * </methodCall>
+	 */
+	function bb_getHotTopicTags( $args )
+	{
+		do_action( 'bb_xmlrpc_call', 'bb.getHotTopicTags' );
+
+		// Escape args
+		$this->escape( $args );
+
+		// Get the login credentials
+		$username = $args[0];
+		$password = (string) $args[1];
+
+		// Check the user is valid
+		if ( $this->auth_readonly ) {
+			$user = $this->authenticate( $username, $password );
+		}
+
+		do_action( 'bb_xmlrpc_call_authenticated', 'bb.getHotTopicTags' );
+
+		// If an error was raised by authentication or by an action then return it
+		if ( $this->error ) {
+			return $this->error;
+		}
+
+		// Must be a number
+		$per_page = isset( $args[2] ) ? (integer) $args[2] : false;
+
+		// Can be numeric id or slug
+		$forum_id = isset( $args[3] ) ? $args[3] : false;
+
+		if ( $forum_id ) {
+			// Check for bad data
+			if ( !is_string( $forum_id ) && !is_integer( $forum_id ) ) {
+				$this->error = new IXR_Error( 400, __( 'The forum id is invalid.' ) );
+				return $this->error;
+			}
+
+			// Check the requested forum exists
+			if ( !$forum = get_forum( $forum_id ) ) {
+				$this->error = new IXR_Error( 404, __( 'No forum found.' ) );
+				return $this->error;
+			}
+
+			global $bbdb;
+			$topic_ids = $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM `" . $bbdb->topics . "` WHERE `topic_status` = 0 AND `topic_open` = 1 AND `tag_count` > 0 AND `forum_id` = %s;", $forum_id ) );
+
+			if ( !count( $topic_ids ) ) {
+				$this->error = new IXR_Error( 400, __( 'No topics found.' ) );
+				return $this->error;
+			}
+
+			global $wp_taxonomy_object;
+			$tags = $wp_taxonomy_object->get_object_terms( $topic_ids, 'bb_topic_tag', array( 'fields' => 'all_with_object_id', 'orderby' => 'count', 'order' => 'DESC' ) );
+
+			if ( !$tags || is_wp_error( $tags ) ) {
+				$this->error = new IXR_Error( 500, __( 'Could not retrieve hot topic tags.' ) );
+				return $this->error;
+			}
+			if ( !count( $tags ) ) {
+				$this->error = new IXR_Error( 500, __( 'No hot topic tags found.' ) );
+				return $this->error;
+			}
+			global $bb_log;
+			$bb_log->debug($tags);
+
+			for ( $i = 0; isset( $tags[$i] ); $i++ ) {
+				_bb_make_tag_compat( $tags[$i] );
+			}
+			$bb_log->debug($tags);
+
+			// Only include "safe" data in the array
+			$_tags = array();
+			foreach ( $tags as $tag ) {
+				$_tag = $this->prepare_topic_tag( $tag );
+				if ( !in_array( $_tag, $_tags ) ) {
+					$_tags[] = $_tag;
+				}
+			}
+
+			if ( $per_page ) {
+				$_tags = array_slice( $_tags, 0, $per_page );
+			}
+		} else {
+			if ( !$tags = bb_get_top_tags( array( 'get' => 'all', 'number' => $per_page ) ) ) {
+				$this->error = new IXR_Error( 500, __( 'No hot topic tags found.' ) );
+				return $this->error;
+			}
+
+			// Only include "safe" data in the array
+			$_tags = array();
+			foreach ( $tags as $tag ) {
+				$_tags[] = $this->prepare_topic_tag( $tag );
+			}
+		}
+
+		do_action( 'bb_xmlrpc_call', 'bb.getHotTopicTags' );
+
+		return $_tags;
+	}
 
 	/**
 	 * Returns a numerical count of tags in a given topic or all tags
