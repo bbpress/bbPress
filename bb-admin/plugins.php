@@ -216,7 +216,7 @@ if ( $autoload_plugins ) :
 	foreach ( $autoload_plugins as $plugin => $plugin_data ) :
 ?>
 
-			<tr<?php alt_class( 'autoload_plugin' ); ?>>
+			<tr<?php alt_class( 'autoload_plugin', 'active' ); ?>>
 
 <?php
 		if ( is_array( $plugin_data ) ) :
