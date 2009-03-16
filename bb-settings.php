@@ -919,6 +919,16 @@ if ( !class_exists( 'WP_Auth' ) ) {
 	}
 
 	/**
+	 * The current cookie version
+	 *
+	 * Version 1 is for WordPress >= 2.6 and < 2.8
+	 * Version 2 is for Wordpress >= 2.8
+	 */
+	if ( !defined( 'WP_AUTH_COOKIE_VERSION' ) ) {
+		define( 'WP_AUTH_COOKIE_VERSION', 2 );
+	}
+
+	/**
 	 * WP_Auth object
 	 */
 	$wp_auth_object = new WP_Auth( $bbdb, $wp_users_object, $cookies );
