@@ -15,7 +15,7 @@ if ( ! $tag = bb_get_tag( $tag ) )
 if ( ! bb_get_tag( $old_id ) )
 	bb_die(__('Tag to be merged not found.'));
 
-if ( $merged = merge_tags( $old_id, $tag->tag_id ) ) {
+if ( $merged = bb_merge_tags( $old_id, $tag->tag_id ) ) {
 	printf(__("Number of topics from which the old tag was removed: %d <br />\n"),  $merged['old_count']);
     printf(__("Number of topics to which the new tag was added: %d <br />\n"),$merged['diff_count']);
 	printf(__("Number of rows deleted from tags table:%d <br />\n"),$merged['destroyed']['tags']);

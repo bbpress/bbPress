@@ -413,6 +413,83 @@ function _bb_make_tag_compat( &$tag ) {
 	}
 }
 
+function bb_rename_tag( $tag_id, $tag_name ) {
+	if ( !bb_current_user_can( 'manage_tags' ) ) {
+		return false;
+	}
+
+	$tag_id = (int) $tag_id;
+	$raw_tag = bb_trim_for_db( $tag_name, 50 );
+	$tag_name = tag_sanitize( $tag_name ); 
+
+	if ( empty( $tag_name ) ) {
+		return false;
+	}
+
+	if ( $existing_tag = bb_get_tag( $tag_name ) ) {
+		if ( $existing_tag->term_id !== $tag_id ) {
+			return false;
+		}
+	}
+
+	if ( !$old_tag = bb_get_tag( $tag_id ) ) {
+		return false;
+	}
+
+	global $wp_taxonomy_object;
+	$ret = $wp_taxonomy_object->update_term( $tag_id, 'bb_topic_tag', array( 'name' => $raw_tag, 'slug' => $tag_name ) );
+
+	if ( $ret && !is_wp_error( $ret ) ) {
+		do_action( 'bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
+		return bb_get_tag( $tag_id );
+	}
+	return false;
+}
+
+// merge $old_id into $new_id.
+function bb_merge_tags( $old_id, $new_id ) {
+	if ( !bb_current_user_can( 'manage_tags' ) ) {
+		return false;
+	}
+
+	$old_id = (int) $old_id;
+	$new_id = (int) $new_id;
+
+	if ( $old_id == $new_id ) {
+		return false;
+	}
+
+	do_action( 'bb_pre_merge_tags', $old_id, $new_id );
+
+	// Get all topics tagged with old tag
+	$old_topics = bb_get_tagged_topic_ids( $old_id );
+
+	// Get all toics tagged with new tag
+	$new_topics = bb_get_tagged_topic_ids( $new_id );
+
+	// Get intersection of those topics
+	$both_topics = array_intersect( $old_topics, $new_topics );
+
+	// Discard the intersection from the old tags topics
+	$old_topics = array_diff( $old_topics, $both_topics );
+
+	// Add the remainder of the old tag topics to the new tag
+	if ( count( $old_topics ) ) {
+		$new_tag = bb_get_tag( $new_id );
+		foreach ( $old_topics as $old_topic ) {
+			bb_add_topic_tag( $old_topic, $new_tag->slug );
+		}
+	}
+	
+	// Destroy the old tag
+	$old_tag = bb_destroy_tag( $old_id );
+
+	return array( 'destroyed' => $old_tag, 'old_count' => count( $old_topics ), 'diff_count' => count( $both_topics ) );
+}
+
+
+
+
 
 
 

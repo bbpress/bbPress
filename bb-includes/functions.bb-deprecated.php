@@ -1005,3 +1005,15 @@ function bb_get_tag_rss_link( $tag_id = 0, $context = 0 )
 	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_tag_posts_rss_link' );
 	return bb_get_tag_posts_rss_link( $tag_id, $context );
 }
+
+function rename_tag( $tag_id, $tag_name )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_rename_tag' );
+	return bb_rename_tag( $tag_id, $tag_name );
+}
+
+function merge_tags( $old_id, $new_id )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_merge_tags' );
+	return bb_merge_tags( $old_id, $new_id );
+}

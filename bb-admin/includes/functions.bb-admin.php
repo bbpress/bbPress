@@ -775,75 +775,7 @@ class BB_Walker_ForumAdminlistitems extends BB_Walker {
 	}
 }
 
-/* Tags */
 
-// TODO
-function rename_tag( $tag_id, $tag ) {
-	return false;
-	global $bbdb;
-	if ( !bb_current_user_can( 'manage_tags' ) )
-		return false;
-
-	$tag_id = (int) $tag_id;
-	$raw_tag = bb_trim_for_db( $tag, 50 );
-	$tag     = tag_sanitize( $tag ); 
-
-	if ( empty( $tag ) )
-		return false;
-	if ( $bbdb->get_var( $bbdb->prepare( "SELECT tag_id FROM $bbdb->tags WHERE tag = %s AND tag_id <> %d", $tag, $tag_id ) ) )
-		return false;
-
-	$old_tag = bb_get_tag( $tag_id );
-
-	if ( $bbdb->update( $bbdb->tags, compact( 'tag', 'raw_tag' ), compact( 'tag_id' ) ) ) {
-		do_action('bb_tag_renamed', $tag_id, $old_tag->raw_tag, $raw_tag );
-		return bb_get_tag( $tag_id );
-	}
-	return false;
-}
-
-// merge $old_id into $new_id.  MySQL 4.0 can't do IN on tuples!
-// NOT bbdb::prepared
-// TODO
-function merge_tags( $old_id, $new_id ) {
-	return false;
-	global $bbdb;
-	if ( !bb_current_user_can( 'manage_tags' ) )
-		return false;
-
-	$old_id = (int) $old_id;
-	$new_id = (int) $new_id;
-
-	if ( $old_id == $new_id )
-		return false;
-
-	do_action('bb_pre_merge_tags', $old_id, $new_id);
-
-	$tagged_del = 0;
-	if ( $old_topic_ids = (array) $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->tagged WHERE tag_id = %d", $old_id ) ) ) {
-		$old_topic_ids = join(',', array_map('intval', $old_topic_ids));
-		$shared_topics = (array) $bbdb->get_results( "SELECT user_id, topic_id FROM $bbdb->tagged WHERE tag_id = '$new_id' AND topic_id IN ($old_topic_ids)" );
-		foreach ( $shared_topics as $st ) {
-			$tagged_del += $bbdb->query( $bbdb->prepare(
-				"DELETE FROM $bbdb->tagged WHERE tag_id = %d AND user_id = %d AND topic_id = %d",
-				$old_id, $st->user_id, $st->topic_id
-			) );
-			$count = (int) $bbdb->get_var( $bbdb->prepare(
-				"SELECT COUNT(DISTINCT tag_id) FROM $bbdb->tagged WHERE topic_id = %d GROUP BY topic_id",
-				$st->topic_id
-			) );
-			$bbdb->update( $bbdb->topics, array( 'tag_count' => $count ), array( 'topic_id' => $st->topic_id ) );
-		}
-	}
-
-	if ( $diff_count = $bbdb->update( $bbdb->tagged, array( 'tag_id' => $new_id ), array( 'tag_id' => $old_id ) ) ) {
-		$count = (int) $bbdb->get_var( $bbdb->prepare( "SELECT COUNT(DISTINCT topic_id) FROM $bbdb->tagged WHERE tag_id = %d GROUP BY tag_id", $new_id ) );
-		$bbdb->update( $bbdb->tags, array( 'tag_count' => $count ), array( 'tag_id' => $new_id ) );
-	}
-
-	// return values and destroy the old tag
-	return array( 'destroyed' => bb_destroy_tag( $old_id, false ), 'old_count' => $diff_count + $tagged_del, 'diff_count' => $diff_count );
-}
 
 /* Topics */
 

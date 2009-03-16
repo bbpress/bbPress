@@ -3266,7 +3266,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 		// Rename the tag
-		if ( !$new_tag = rename_tag( $tag_id, $tag_name ) ) {
+		if ( !$new_tag = bb_rename_tag( $tag_id, $tag_name ) ) {
 			$this->error = new IXR_Error( 500, __( 'The tag could not be renamed.' ) );
 			return $this->error;
 		}

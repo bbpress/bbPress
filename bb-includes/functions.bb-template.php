@@ -2407,17 +2407,21 @@ function bb_get_user_email( $id ) {
 }
 
 //TAGS
-function topic_tags() {
+function topic_tags()
+{
 	global $tags, $tag, $topic_tag_cache, $user_tags, $other_tags, $topic;
-	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
+	if ( is_array( $tags ) || bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) ) {
 		bb_load_template( 'topic-tags.php', array('user_tags', 'other_tags', 'public_tags') );
+	}
 }
 
-function bb_tag_page_link() {
+function bb_tag_page_link()
+{
 	echo bb_get_tag_page_link();
 }
 
-function bb_get_tag_page_link( $context = BB_URI_CONTEXT_A_HREF ) {
+function bb_get_tag_page_link( $context = BB_URI_CONTEXT_A_HREF )
+{
 	if ( bb_get_option( 'mod_rewrite' ) ) {
 		$r = bb_get_uri( 'tags/', null, $context );
 	} else {
@@ -2426,26 +2430,34 @@ function bb_get_tag_page_link( $context = BB_URI_CONTEXT_A_HREF ) {
 	return apply_filters( 'bb_get_tag_page_link', $r, $context );
 }
 
-function bb_tag_link( $id = 0, $page = 1 ) {
-	echo apply_filters( 'bb_tag_link', bb_get_tag_link( $id ), $id, $page );
+function bb_tag_link( $tag_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF )
+{
+	echo apply_filters( 'bb_tag_link', bb_get_tag_link( $tag_id, $page, $context ), $tag_id, $page, $context );
 }
 
-function bb_get_tag_link( $tag_name = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
+function bb_get_tag_link( $tag_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF )
+{
 	global $tag;
 
-	if (!$context || !is_integer($context)) {
+	if ( $tag_id ) {
+		if ( is_object( $tag_id ) ) {
+			$_tag = $tag_id;
+		} else {
+			$_tag = bb_get_tag( $tag_id );
+		}
+	} else {
+		$_tag =& $tag;
+	}
+
+	if ( !is_object( $_tag ) ) {
+		return '';
+	}
+
+	if ( !$context || !is_integer( $context ) ) {
 		$context = BB_URI_CONTEXT_A_HREF;
 	}
 
-	if ( $tag_name )
-		if ( is_object($tag_name) )
-			$_tag = $tag_name;
-		else
-			$_tag = bb_get_tag( $tag_name );
-	else
-		$_tag =& $tag;
-
-	if ( bb_get_option('mod_rewrite') ) {
+	if ( bb_get_option( 'mod_rewrite' ) ) {
 		$page = (1 < $page) ? '/page/' . $page : '';
 		$r = bb_get_uri( 'tags/' . $_tag->tag . $page, null, $context );
 	} else {
@@ -2455,94 +2467,127 @@ function bb_get_tag_link( $tag_name = 0, $page = 1, $context = BB_URI_CONTEXT_A_
 		);
 		$r = bb_get_uri( 'tags.php', $query, $context );
 	}
+
 	return apply_filters( 'bb_get_tag_link', $r, $_tag->tag, $page, $context );
 }
 
-function bb_tag_link_base() {
+function bb_tag_link_base()
+{
 	echo bb_get_tag_link_base();
 }
 
-function bb_get_tag_link_base() {
+function bb_get_tag_link_base()
+{
 	return bb_get_tag_page_link() . ( bb_get_option( 'mod_rewrite' ) ? '' : '?tag=' );
 }
 
-function bb_tag_name( $id = 0 ) {
-	echo wp_specialchars( bb_get_tag_name( $id ) );
+function bb_tag_name( $tag_id = 0 )
+{
+	echo wp_specialchars( bb_get_tag_name( $tag_id ) );
 }
 
-function bb_get_tag_name( $id = 0 ) {
+function bb_get_tag_name( $tag_id = 0 ) {
 	global $tag;
-	$id = (int) $id;
-	if ( $id )
-		$_tag = bb_get_tag( $id );
-	else
-		$_tag =& $tag;
-	if ( is_object($_tag) )
-		return $_tag->raw_tag;
-	return '';
-}
 
-function bb_tag_posts_rss_link( $id = 0, $context = 0 ) {
-	if (!$context || !is_integer($context)) {
-		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
-	}
-	echo apply_filters( 'tag_posts_rss_link', bb_get_tag_posts_rss_link($id, $context), $id, $context );
-}
-
-function bb_get_tag_posts_rss_link( $tag_id = 0, $context = 0 ) {
-	global $tag;
-	$tag_id = (int) $tag_id;
-	if ( $tag_id )
-		if ( is_object($tag_id) )
+	if ( $tag_id ) {
+		if ( is_object( $tag_id ) ) {
 			$_tag = $tag_id;
-		else
+		} else {
 			$_tag = bb_get_tag( $tag_id );
-	else
+		}
+	} else {
 		$_tag =& $tag;
+	}
 
-	if (!$context || !is_integer($context)) {
+	if ( !is_object( $_tag ) ) {
+		return '';
+	}
+
+	return $_tag->raw_tag;
+}
+
+function bb_tag_posts_rss_link( $tag_id = 0, $context = 0 )
+{
+	if ( !$context || !is_integer( $context ) ) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
 	}
 
-	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_uri('rss/tags/' . $_tag->tag, null, $context);
-	else
-		$link = bb_get_uri('rss.php', array('tag' => $_tag->tag), $context);
+	echo apply_filters( 'tag_posts_rss_link', bb_get_tag_posts_rss_link( $tagid, $context ), $tag_id, $context );
+}
+
+function bb_get_tag_posts_rss_link( $tag_id = 0, $context = 0 )
+{
+	global $tag;
+
+	if ( $tag_id ) {
+		if ( is_object( $tag_id ) ) {
+			$_tag = $tag_id;
+		} else {
+			$_tag = bb_get_tag( $tag_id );
+		}
+	} else {
+		$_tag =& $tag;
+	}
+
+	if ( !is_object( $_tag ) ) {
+		return '';
+	}
+
+	if ( !$context || !is_integer( $context ) ) {
+		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
+	}
+
+	if ( bb_get_option( 'mod_rewrite' ) ) {
+		$link = bb_get_uri( 'rss/tags/' . $_tag->tag, null, $context );
+	} else {
+		$link = bb_get_uri( 'rss.php', array( 'tag' => $_tag->tag ), $context );
+	}
 
 	return apply_filters( 'get_tag_posts_rss_link', $link, $tag_id, $context );
 }
 
-function bb_tag_topics_rss_link( $id = 0, $context = 0 ) {
-	if (!$context || !is_integer($context)) {
+function bb_tag_topics_rss_link( $tag_id = 0, $context = 0 )
+{
+	if ( !$context || !is_integer( $context ) ) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
 	}
-	echo apply_filters( 'tag_topics_rss_link', bb_get_tag_topics_rss_link($id, $context), $id, $context );
+
+	echo apply_filters( 'tag_topics_rss_link', bb_get_tag_topics_rss_link( $tag_id, $context ), $tag_id, $context );
 }
 
-function bb_get_tag_topics_rss_link( $tag_id = 0, $context = 0 ) {
+function bb_get_tag_topics_rss_link( $tag_id = 0, $context = 0 )
+{
 	global $tag;
-	$tag_id = (int) $tag_id;
-	if ( $tag_id )
-		if ( is_object($tag_id) )
-			$_tag = $tag_id;
-		else
-			$_tag = bb_get_tag( $tag_id );
-	else
-		$_tag =& $tag;
 
-	if (!$context || !is_integer($context)) {
+	if ( $tag_id ) {
+		if ( is_object( $tag_id ) ) {
+			$_tag = $tag_id;
+		} else {
+			$_tag = bb_get_tag( $tag_id );
+		}
+	} else {
+		$_tag =& $tag;
+	}
+
+	if ( !is_object( $_tag ) ) {
+		return '';
+	}
+
+	if ( !$context || !is_integer( $context ) ) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
 	}
 
-	if ( bb_get_option('mod_rewrite') )
-		$link = bb_get_uri('rss/tags/' . $_tag->tag . '/topics', null, $context);
-	else
-		$link = bb_get_uri('rss.php', array('tag' => $_tag->tag, 'topics' => 1), $context);
+	if ( bb_get_option( 'mod_rewrite' ) ) {
+		$link = bb_get_uri( 'rss/tags/' . $_tag->tag . '/topics', null, $context );
+	} else {
+		$link = bb_get_uri( 'rss.php', array('tag' => $_tag->tag, 'topics' => 1 ), $context );
+	}
 
 	return apply_filters( 'get_tag_topics_rss_link', $link, $tag_id, $context );
 }
 
-function bb_list_tags( $args = null ) {
+function bb_list_tags( $args = null )
+{
 	$defaults = array(
 		'tags' => false,
 		'format' => 'list',
@@ -2553,49 +2598,62 @@ function bb_list_tags( $args = null ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
-	if ( !$topic = get_topic( get_topic_id( $topic ) ) )
+	if ( !$topic = get_topic( get_topic_id( $topic ) ) ) {
 		return false;
+	}
 
-	if ( !is_array($tags) )
+	if ( !is_array( $tags ) ) {
 		$tags = bb_get_topic_tags( $topic->topic_id );
+	}
 
-	if ( !$tags )
+	if ( !$tags ) {
 		return false;
+	}
 
 	$list_id = attribute_escape( $list_id );
 
 	$r = '';
-	switch ( strtolower($format) ) :
-	case 'table' :
-		break;
-	case 'list' :
-	default :
-		$args['format'] = 'list';
-		$r .= "<ul id='$list_id' class='tags-list list:tag'>\n";
-		foreach ( $tags as $tag )
-			$r .= _bb_list_tag_item( $tag, $args );
-		$r .= "</ul>";
-	endswitch;
+	switch ( strtolower( $format ) ) {
+		case 'table' :
+			break;
+
+		case 'list' :
+		default :
+			$args['format'] = 'list';
+			$r .= '<ul id="' . $list_id . '" class="tags-list list:tag">' . "\n";
+			foreach ( $tags as $tag ) {
+				$r .= _bb_list_tag_item( $tag, $args );
+			}
+			$r .= '</ul>';
+			break;
+	}
+
 	echo $r;
 }
 
-function _bb_list_tag_item( $tag, $args ) {
+function _bb_list_tag_item( $tag, $args )
+{
 	$url = clean_url( bb_get_tag_link( $tag ) );
 	$name = wp_specialchars( bb_get_tag_name( $tag ) );
-	if ( 'list' == $args['format'] )
-		return "\t<li id='tag-{$tag->tag_id}_{$tag->user_id}'><a href='$url' rel='tag'>$name</a> " . bb_get_tag_remove_link( array( 'tag' => $tag, 'list_id' => $args['list_id'] ) ) . "</li>\n";
+	if ( 'list' == $args['format'] ) {
+		$id = 'tag-' . $tag->tag_id . '_' . $tag->user_id;
+		return "\t" . '<li id="' . $id . '"><a href="' . $url . '" rel="tag">' . $name . '</a> ' . bb_get_tag_remove_link( array( 'tag' => $tag, 'list_id' => $args['list_id'] ) ) . '</li>' . "\n";
+	}
 }
 	
-function tag_form( $args = null ) {
+function tag_form( $args = null )
+{
 	$defaults = array( 'topic' => 0, 'submit' => __('Add &raquo;'), 'list_id' => 'tags-list' );
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
-	if ( !$topic = get_topic( get_topic_id( $topic ) ) )
+	if ( !$topic = get_topic( get_topic_id( $topic ) ) ) {
 		return false;
+	}
 
-	if ( !bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) )
+	if ( !bb_current_user_can( 'edit_tag_by_on', bb_get_current_user_info( 'id' ), $topic->topic_id ) ) {
 		return false;
+	}
 
 	global $page;
 ?>
@@ -2613,15 +2671,18 @@ function tag_form( $args = null ) {
 <?php
 }
 
-function manage_tags_forms() {
+function manage_tags_forms()
+{
 	global $tag;
-	if ( !bb_current_user_can('manage_tags') )
+	if ( !bb_current_user_can( 'manage_tags' ) ) {
 		return false;
-	$form  = "<ul id='manage-tags'>\n ";
-	$form .= "<li id='tag-rename'>" . __('Rename tag:') . "\n\t";
-	$form .= "<form method='post' action='" . bb_get_uri('bb-admin/tag-rename.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . "'><div>\n\t";
-	$form .= "<input type='text' name='tag' size='10' maxlength='30' />\n\t";
-	$form .= "<input type='hidden' name='id' value='$tag->tag_id' />\n\t";
+	}
+
+	$form  = '<ul id="manage-tags">' . "\n";
+	$form .= '<li id="tag-rename">' . __('Rename tag:') . "\n\t";
+	$form .= '<form method="post" action="' . bb_get_uri( 'bb-admin/tag-rename.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ) . '"><div>' . "\n\t";
+	$form .= '<input type="text" name="tag" size="10" maxlength="30" />' . "\n\t";
+	$form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n\t";
 	$form .= "<input type='submit' name='Submit' value='" . __('Rename') . "' />\n\t";
 	echo $form;
 	bb_nonce_field( 'rename-tag_' . $tag->tag_id );
