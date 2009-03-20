@@ -850,7 +850,8 @@ function bb_admin_list_posts() {
 			<span class="post-time"><?php printf( __( 'Posted %s' ), '<a href="' . clean_url( get_post_link() ) . '">' . bb_get_post_time( bb_get_datetime_formatstring_i18n() ) . '</a>' ); ?></span>
 			<div class="post"><?php post_text(); ?></div>
 			<p class="row-actions">
-				<?php post_edit_link(); ?>
+				<a href="<?php echo clean_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a> |
+				<?php post_edit_link(); ?> |
 				<?php post_delete_link();?>
 			</p>
 		</td>
