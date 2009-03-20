@@ -1288,7 +1288,7 @@ function topic_close_link( $args = '' ) {
 }
 
 function bb_get_topic_close_link( $args = '' ) {
-	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']', 'close_text' => false, 'open_text' => false );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
@@ -1297,7 +1297,11 @@ function bb_get_topic_close_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'close_topic', $topic->topic_id ) )
 		return;
 
-	$display = topic_is_open( $topic->topic_id ) ? __('Close topic') : __('Open topic');
+	if ( topic_is_open( $topic->topic_id ) )
+		$display = $close_text ? $close_text : __( 'Close topic' );
+	else
+		$display = $open_text ? $open_text : __( 'Open topic' );
+
 	$uri = bb_get_uri('bb-admin/topic-toggle.php', array('id' => $topic->topic_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$uri = attribute_escape( bb_nonce_url( $uri, 'close-topic_' . $topic->topic_id ) );
 	

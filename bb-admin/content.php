@@ -63,7 +63,8 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 		<p class="row-actions">
 			<a href="<?php topic_link(); ?>"><?php _e( 'View' ); ?></a> |
 			<?php if ( $first_post ) : post_edit_link( $first_post->post_id ); ?> |
-			<?php endif; topic_delete_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'delete_text' => __( 'Delete' ), 'undelete_text' => __( 'Undelete' ) ) ); ?>
+			<?php endif; topic_close_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'close_text' => __( 'Close' ), 'open_text' => __( 'Open' ) ) ); ?> |
+			<?php topic_delete_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'delete_text' => __( 'Delete' ), 'undelete_text' => __( 'Undelete' ) ) ); ?>
 		</p>
 	</td>
 	<td class="author">
