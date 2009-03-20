@@ -1421,7 +1421,14 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 	alt_class( $key, $class );
 }
 
-function bb_new_topic_link( $args = null ) {
+/**
+ * bb_get_new_topic_link() - Get the link to the form for a new topic
+ *
+ * @since 1.0
+ * @param mixed The arguments for this function.
+ * @return string The link to the new topic form
+ */
+function bb_get_new_topic_link( $args = null ) {
 	$defaults = array( 'text' => __('Add New &raquo;'), 'forum' => 0, 'tag' => '' );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'text' => $args );
@@ -1455,7 +1462,11 @@ function bb_new_topic_link( $args = null ) {
 	}
 
 	if ( $url = attribute_escape( apply_filters( 'new_topic_url', $url ) ) )
-		echo '<a href="' . $url . '" class="new-topic">' . $text . '</a>' . "\n";
+		return '<a href="' . $url . '" class="new-topic">' . $text . '</a>' . "\n";
+}
+
+function bb_new_topic_link( $args = null ) {
+	echo bb_get_new_topic_link($args);
 }
 
 function bb_new_topic_forum_dropdown() {
