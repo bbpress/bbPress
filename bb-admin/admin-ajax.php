@@ -1,4 +1,8 @@
 <?php
+
+define( 'BB_IS_ADMIN', true );
+define( 'DOING_AJAX', true );
+
 require_once('../bb-load.php');
 
 if ( !class_exists( 'WP_Ajax_Response' ) )
@@ -8,8 +12,6 @@ require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 if ( !$bb_current_id = bb_get_current_user_info( 'id' ) )
 	die('-1');
-
-define('DOING_AJAX', true);
 
 function bb_grab_results() {
 	global $ajax_results;
