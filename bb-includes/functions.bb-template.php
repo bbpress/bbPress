@@ -1259,7 +1259,7 @@ function topic_delete_link( $args = '' ) {
 }
 
 function bb_get_topic_delete_link( $args = '' ) {
-	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']', 'delete_text' => false, 'undelete_text' => false );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
@@ -1271,11 +1271,11 @@ function bb_get_topic_delete_link( $args = '' ) {
 	if ( 0 == $topic->topic_status ) {
 		$query   = array('id' => $topic->topic_id);
 		$confirm = __('Are you sure you wanna delete that?');
-		$display = __('Delete entire topic');
+		$display = $delete_text ? $delete_text : __('Delete entire topic');
 	} else {
 		$query   = array('id' => $topic->topic_id, 'view' => 'all');
 		$confirm = __('Are you sure you wanna undelete that?');
-		$display = __('Undelete entire topic');
+		$display = $undelete_text ? $undelete_text : __('Undelete entire topic');
 	}
 	$uri = bb_get_uri('bb-admin/delete-topic.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$uri = attribute_escape( bb_nonce_url( $uri, 'delete-topic_' . $topic->topic_id ) );
@@ -1340,13 +1340,19 @@ function topic_show_all_link( $id = 0 ) {
 }
 
 function topic_posts_link( $id = 0 ) {
+	echo get_topic_posts_link( $id );
+}
+
+function get_topic_posts_link( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
 	$post_num = get_topic_posts( $id );
 	$posts = sprintf(__ngettext( '%s post', '%s posts', $post_num ), $post_num);
-	if ( 'all' == @$_GET['view'] && bb_current_user_can('browse_deleted') )
-		echo "<a href='" . attribute_escape( get_topic_link( $id ) ) . "'>$posts</a>";
+	$r = '';
+
+	if ( ( 'all' == @$_GET['view'] || bb_is_admin() ) && bb_current_user_can('browse_deleted') )
+		$r .= "<a href='" . attribute_escape( get_topic_link( $id ) ) . "'>$posts</a>";
 	else
-		echo $posts;
+		$r .= $posts;
 
 	if ( bb_current_user_can( 'browse_deleted' ) ) {
 		$user_id = bb_get_current_user_info( 'id' );
@@ -1355,11 +1361,13 @@ function topic_posts_link( $id = 0 ) {
 		if ( $deleted = get_topic_deleted_posts( $id ) ) {
 			$extra = sprintf(__('+%d more'), $deleted);
 			if ( 'all' == @$_GET['view'] )
-				echo " $extra";
+				$r .= " $extra";
 			else
-				echo " <a href='" . attribute_escape( add_query_arg( 'view', 'all', get_topic_link( $id ) ) ) . "'>$extra</a>";
+				$r .= " <a href='" . attribute_escape( add_query_arg( 'view', 'all', get_topic_link( $id ) ) ) . "'>$extra</a>";
 		}
 	}
+
+	return $r;
 }
 
 function topic_move_dropdown( $id = 0 ) {
@@ -1691,7 +1699,7 @@ function bb_get_post_delete_link( $post_id = 0 ) {
 
 	$ajax_undelete_class = "dim:thread:post-{$bb_post->post_id}:deleted:FF3333:FFFF33:action=delete-post&amp;status=0";
 
-	if ( isset($_GET['view']) && 'all' == $_GET['view'] )
+	if ( ( bb_is_admin() || isset($_GET['view']) && 'all' == $_GET['view'] ) )
 		$ajax_delete_class = "dim:thread:post-{$bb_post->post_id}:deleted:FF3333:FFFF33:action=delete-post&amp;status=1";
 	else
 		$ajax_delete_class = "delete:thread:post-{$bb_post->post_id}::status=1";

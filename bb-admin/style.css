@@ -438,8 +438,8 @@ div.error a:hover {
 	border-bottom-style: solid;
 	border-bottom-color: #ccc;
 	font-size: 1.2em;
-	padding: 1em 1em 2em;
-	vertical-align: text-top;
+	padding: 1em;
+	vertical-align: top;
 }
 
 .widefat th {
@@ -855,4 +855,46 @@ form.forum-form table {
 
 form.forum-form th, form.forum-form td {
 	padding: 0.3em;
+}
+
+table p.row-actions {
+	padding: 0.3em 0 0 0;
+	visibility: hidden;
+}
+
+table tr:hover p.row-actions {
+	visibility: visible;
+}
+
+#posts-list .post {
+	margin: .5em 0;
+}
+
+.author-link img.avatar {
+	float: left;
+	margin: .25em .5em 1em 0;
+}
+
+.author-data {
+	clear: both;
+}
+
+.deleted.alt {
+	background-color: #faa;
+}
+
+.deleted {
+	background-color: #fcc;
+}
+
+.deleted .delete-post {
+	display: none;
+}
+
+.undelete-post {
+	display: none;
+}
+
+.deleted .undelete-post {
+	display: inline;
 }

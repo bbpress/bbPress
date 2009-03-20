@@ -44,21 +44,45 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 
 <br class="clear" />
 
-<table class="widefat">
+<table id="topics-list" class="widefat">
 <thead>
 <tr>
-	<th><?php _e('Topic') ?></th>
-	<th><?php _e('Last Poster') ?></th>
-	<th><?php _e('Freshness') ?></th>
+	<th scope="col"><?php _e('Topic') ?></th>
+	<th scope="col"><?php _e('Posts') ?></th>
+	<th scope="col"><?php _e('Created By') ?></th>
+	<th scope="col"><?php _e('Date') ?></th>
+	<th scope="col"><?php _e('Freshness') ?></th>
 </tr>
 </thead>
 
 <tbody>
-<?php if ( $topics ) : foreach ( $topics as $topic ) : ?>
-<tr<?php alt_class('topic'); ?>>
-	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
-	<td class="num"><?php topic_last_poster(); ?></td>
-	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
+<?php if ( $topics ) : bb_cache_first_posts( $topics ); foreach ( $topics as $topic ) : $first_post = bb_get_first_post( $topic ); ?>
+<tr id="topic-<?php echo $topic->topic_id; ?>"<?php topic_class(); ?>>
+	<td class="topic">
+		<strong class="row-title"><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></strong>
+		<p class="row-actions">
+			<a href="<?php topic_link(); ?>"><?php _e( 'View' ); ?></a> |
+			<?php post_edit_link( $first_post->post_id ); ?> |
+			<?php topic_delete_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'delete_text' => __( 'Delete' ), 'undelete_text' => __( 'Undelete' ) ) ); ?>
+		</p>
+	</td>
+	<td class="posts num"><?php echo strip_tags( get_topic_posts_link() ); ?></td>
+	<td class="created-by">
+		<a class="author-link" href="<?php user_profile_link( $topic->topic_poster ); ?>">
+			<?php echo bb_get_avatar( $topic->topic_poster, '32' ); ?>
+			<?php topic_author(); ?><br />
+			<?php user_type( $topic->topic_poster ); ?>
+		</a>
+
+		<p class="author-data">
+		<?php if ( bb_current_user_can( 'edit_users' ) ) : ?>
+			<a href="<?php echo clean_url( 'mailto:' . bb_get_user_email( $topic->topic_poster ) ); ?>"><?php echo wp_specialchars( bb_get_user_email( $topic->topic_poster ) ); ?></a><br />
+		<?php endif; ?>
+			<?php post_ip_link( $first_post->post_id ); ?>
+		</p>
+	</td>
+	<td class="date num"><?php topic_start_time( bb_get_datetime_formatstring_i18n() ); ?></td>
+	<td class="freshness num"><a href="<?php topic_last_post_link(); ?>" title="<?php echo attribute_escape( sprintf( __( 'Last post by %s' ), get_topic_last_poster() ) ); ?>"><?php topic_time( bb_get_datetime_formatstring_i18n() ); ?></a></td>
 </tr>
 <?php endforeach; else : ?>
 <tr>

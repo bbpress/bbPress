@@ -819,24 +819,50 @@ function bb_admin_list_posts() {
 	global $bb_posts, $bb_post;
 	if ( $bb_posts ) {
 ?>
-<ol id="the-list">
+<table id="posts-list" class="widefat">
+<thead>
+	<tr>
+		<th scope="col"><?php _e( 'Author' ); ?></th>
+		<th scope="col"><?php _e( 'Post' ); ?></th>
+		<th scope="col"><?php _e( 'Topic' ); ?></th>
+	</tr>
+</thead>
+
+<tbody>
 <?php foreach ( $bb_posts as $bb_post ) : ?>
-	<li<?php alt_class('post'); ?>>
-		<div class="threadauthor">
-			<p>
-				<strong><?php post_author_link(); ?></strong><br />
-				<small><?php post_author_type(); ?></small>
+	<tr id="post-<?php post_id(); ?>"<?php alt_class('post', post_del_class()); ?>>
+		<td class="author">
+			<a class="author-link" href="<?php user_profile_link( get_post_author_id() ); ?>">
+				<?php post_author_avatar( '32' ); ?>
+				<?php post_author(); ?><br />
+				<?php user_type( get_post_author_id() ); ?>
+			</a>
+
+			<p class="author-data">
+			<?php if ( bb_current_user_can( 'edit_users' ) ) : ?>
+				<a href="<?php echo clean_url( 'mailto:' . bb_get_user_email( get_post_author_id() ) ); ?>"><?php echo wp_specialchars( bb_get_user_email( get_post_author_id() ) ); ?></a><br />
+			<?php endif; ?>
+				<?php post_ip_link(); ?>
 			</p>
-		</div>
-		<div class="threadpost">
+		</td>
+
+		<td class="post">
+			<span class="post-time"><?php printf( __( 'Posted %s' ), '<a href="' . clean_url( get_post_link() ) . '">' . bb_get_post_time( bb_get_datetime_formatstring_i18n() ) . '</a>' ); ?></span>
 			<div class="post"><?php post_text(); ?></div>
-			<div class="poststuff">
-				<?php printf(__('Posted: %1$s in <a href="%2$s">%3$s</a>'), bb_get_post_time(), get_topic_link( $bb_post->topic_id ), get_topic_title( $bb_post->topic_id ));?> IP: <?php post_ip_link(); ?> <?php post_edit_link(); ?> <?php post_delete_link();?>
-			</div>
-		</div>
-	</li>
+			<p class="row-actions">
+				<?php post_edit_link(); ?>
+				<?php post_delete_link();?>
+			</p>
+		</td>
+
+		<td class="topic">
+			<a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a><br />
+			<?php echo strip_tags( get_topic_posts_link( $bb_post->topic_id ) ); ?>
+		</td>
+	</tr>
 <?php endforeach; ?>
-</ol>
+</tbody>
+</table>
 <?php
 	}
 }
