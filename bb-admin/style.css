@@ -870,9 +870,14 @@ table tr:hover p.row-actions {
 	margin: .5em 0;
 }
 
+.author-link {
+	display: block;
+	margin-bottom: 1em;
+}
+
 .author-link img.avatar {
 	float: left;
-	margin: .25em .5em 1em 0;
+	margin: .25em 0.5em 0 0;
 }
 
 .author-data {

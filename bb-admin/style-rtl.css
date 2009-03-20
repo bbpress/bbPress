@@ -137,3 +137,9 @@ ul.theme-list.active li div.description {
 ul.list-block {
 	padding: 0 3em 0 0;
 }
+
+.author-link img.avatar {
+        float: right;
+        margin: .25em 0 0 0.5em;
+}
+
