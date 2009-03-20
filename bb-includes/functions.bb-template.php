@@ -1259,7 +1259,7 @@ function topic_delete_link( $args = '' ) {
 }
 
 function bb_get_topic_delete_link( $args = '' ) {
-	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']', 'delete_text' => false, 'undelete_text' => false );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']', 'delete_text' => false, 'undelete_text' => false, 'redirect' => true );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
@@ -1268,14 +1268,17 @@ function bb_get_topic_delete_link( $args = '' ) {
 	if ( !$topic || !bb_current_user_can( 'delete_topic', $topic->topic_id ) )
 		return;
 
+	if ( true === $redirect )
+		$redirect = $_SERVER['REQUEST_URI'];
+
 	if ( 0 == $topic->topic_status ) {
-		$query   = array('id' => $topic->topic_id);
+		$query   = array( 'id' => $topic->topic_id, '_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false );
 		$confirm = __('Are you sure you wanna delete that?');
-		$display = $delete_text ? $delete_text : __('Delete entire topic');
+		$display = wp_specialchars( $delete_text ? $delete_text : __('Delete entire topic') );
 	} else {
-		$query   = array('id' => $topic->topic_id, 'view' => 'all');
+		$query   = array('id' => $topic->topic_id, 'view' => 'all', '_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false );
 		$confirm = __('Are you sure you wanna undelete that?');
-		$display = $undelete_text ? $undelete_text : __('Undelete entire topic');
+		$display = wp_specialchars( $undelete_text ? $undelete_text : __('Undelete entire topic') );
 	}
 	$uri = bb_get_uri('bb-admin/delete-topic.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$uri = attribute_escape( bb_nonce_url( $uri, 'delete-topic_' . $topic->topic_id ) );
@@ -1288,7 +1291,7 @@ function topic_close_link( $args = '' ) {
 }
 
 function bb_get_topic_close_link( $args = '' ) {
-	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']', 'close_text' => false, 'open_text' => false );
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']', 'close_text' => false, 'open_text' => false, 'redirect' => true );
 	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
 	$id = (int) $id;
 
@@ -1298,11 +1301,14 @@ function bb_get_topic_close_link( $args = '' ) {
 		return;
 
 	if ( topic_is_open( $topic->topic_id ) )
-		$display = $close_text ? $close_text : __( 'Close topic' );
+		$display = wp_specialchars( $close_text ? $close_text : __( 'Close topic' ) );
 	else
-		$display = $open_text ? $open_text : __( 'Open topic' );
+		$display = wp_specialchars( $open_text ? $open_text : __( 'Open topic' ) );
 
-	$uri = bb_get_uri('bb-admin/topic-toggle.php', array('id' => $topic->topic_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	if ( true === $redirect )
+		$redirect = $_SERVER['REQUEST_URI'];
+
+	$uri = bb_get_uri('bb-admin/topic-toggle.php', array( 'id' => $topic->topic_id, '_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$uri = attribute_escape( bb_nonce_url( $uri, 'close-topic_' . $topic->topic_id ) );
 	
 	return $before . '<a href="' . $uri . '">' . $display . '</a>' . $after;
@@ -1675,8 +1681,15 @@ function post_delete_link( $post_id = 0 ) {
 	echo bb_get_post_delete_link( $post_id );
 }
 
-function bb_get_post_delete_link( $post_id = 0 ) {
-	$bb_post = bb_get_post( get_post_id( $post_id ) );
+function bb_get_post_delete_link( $args = null ) {
+	$defaults = array( 'id' => 0, 'before' => '', 'after' => '', 'delete_text' => false, 'undelete_text' => false, 'redirect' => true );
+	if ( is_numeric( $args ) || is_object( $args ) )
+		$args = array( 'id' => $args );
+
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	$bb_post = bb_get_post( get_post_id( $id ) );
 	if ( bb_is_first( $bb_post->post_id ) ) {
 		$topic = get_topic( $bb_post->topic_id );
 		if ( 2 > $topic->topic_posts ) {
@@ -1688,16 +1701,21 @@ function bb_get_post_delete_link( $post_id = 0 ) {
 	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
 		return;
 
+	if ( true === $redirect )
+		$redirect = $_SERVER['REQUEST_URI'];
+
 	$undelete_uri = bb_get_uri('bb-admin/delete-post.php', array(
 		'id' => $bb_post->post_id,
 		'status' => 0,
-		'view' => 'all'
+		'view' => 'all',
+		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
 	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$undelete_uri = clean_url( bb_nonce_url( $undelete_uri, 'delete-post_' . $bb_post->post_id ) );
 
 	$delete_uri = bb_get_uri('bb-admin/delete-post.php', array(
 		'id' => $bb_post->post_id,
-		'status' => 1
+		'status' => 1,
+		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
 	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$delete_uri = clean_url( bb_nonce_url( $delete_uri, 'delete-post_' . $bb_post->post_id ) );
 
@@ -1708,8 +1726,11 @@ function bb_get_post_delete_link( $post_id = 0 ) {
 	else
 		$ajax_delete_class = "delete:thread:post-{$bb_post->post_id}::status=1";
 
-	$r = "<a href='$delete_uri' class='$ajax_delete_class delete-post'>" . __( 'Delete' ) . "</a> <a href='$undelete_uri' class='$ajax_undelete_class undelete-post'>" . __( 'Undelete' ). '</a>';
-	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id );
+	$delete_text = wp_specialchars( $delete_text ? $delete_text : __( 'Delete' ) );
+	$undelete_text = wp_specialchars( $undelete_text ? $undelete_text : __( 'Undelete' ) );
+
+	$r = "$before<a href='$delete_uri' class='$ajax_delete_class delete-post'>$delete_text</a> <a href='$undelete_uri' class='$ajax_undelete_class undelete-post'>$undelete_text</a>$after";
+	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id, $args );
 	return $r;
 }
 

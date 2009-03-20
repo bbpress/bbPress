@@ -24,5 +24,3 @@ if ( !$redirect = wp_get_referer() )
 
 bb_safe_redirect( $redirect );
 exit;
-
-?>

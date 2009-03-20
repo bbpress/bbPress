@@ -17,12 +17,11 @@ if ( !$topic )
 
 bb_delete_topic( $topic->topic_id, $topic->topic_status ? 0 : 1 );
 
-if ( 0 == $topic->topic_status )
+if ( $sendto = wp_get_referer() ); //sic
+elseif ( 0 == $topic->topic_status )
 	$sendto = get_forum_link( $topic->forum_id );
 else
 	$sendto = get_topic_link( $topic_id );
 	
 wp_redirect( $sendto );
 exit;
-
-?>
