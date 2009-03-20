@@ -435,7 +435,7 @@ class BB_User_Search {
 
 		if ( $show_search ) {
 			$r .= "<form action='' method='get' id='search'>\n\t<p>";
-			$r .= "<label class='hidden' for='usersearch'>" . _e('Search:') . "</label>";
+			$r .= "<label class='hidden' for='usersearch'>" . __('Search:') . "</label>";
 			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . wp_specialchars( $this->search_term, 1) . "' />\n";
 			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
 			$r .= "</form>\n\n";
