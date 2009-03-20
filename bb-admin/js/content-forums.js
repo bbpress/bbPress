@@ -130,7 +130,6 @@ bbSortForums.init();
 
 var options = $('#forum-parent').get(0).options;
 var addAfter = function( r, settings ) {
-console.debug( settings );
 	var name = $("<span>" + $('name', r).text() + "</span>").html();
 	var id = $('forum', r).attr('id');
 	options[options.length] = new Option(name, id);

@@ -10,7 +10,7 @@ function bb_default_scripts( &$scripts ) {
 	// These are our enqueued scripts
 	$scripts->add( 'topic', $scripts->base_url . 'js/topic.js', array('wp-lists'), '20080506' );
 	$scripts->add( 'profile-edit', $scripts->base_url . 'js/profile-edit.js', array('password-strength-meter'), '20080721' );
-	$scripts->add( 'content-forums', $scripts->base_url_admin . 'js/content-forums.js', array('wp-lists', 'interface'), '20080826b' );
+	$scripts->add( 'content-forums', $scripts->base_url_admin . 'js/content-forums.js', array('wp-lists', 'interface'), '20090320' );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
 		'saveText'   => __('Save Forum Order &#187;'),
