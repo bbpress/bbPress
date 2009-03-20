@@ -48,8 +48,8 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 <thead>
 <tr>
 	<th scope="col"><?php _e('Topic') ?></th>
+	<th scope="col"><?php _e('Author') ?></th>
 	<th scope="col"><?php _e('Posts') ?></th>
-	<th scope="col"><?php _e('Created By') ?></th>
 	<th scope="col"><?php _e('Date') ?></th>
 	<th scope="col"><?php _e('Freshness') ?></th>
 </tr>
@@ -66,8 +66,7 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 			<?php topic_delete_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'delete_text' => __( 'Delete' ), 'undelete_text' => __( 'Undelete' ) ) ); ?>
 		</p>
 	</td>
-	<td class="posts num"><?php echo strip_tags( get_topic_posts_link() ); ?></td>
-	<td class="created-by">
+	<td class="author">
 		<a class="author-link" href="<?php user_profile_link( $topic->topic_poster ); ?>">
 			<?php echo bb_get_avatar( $topic->topic_poster, '32' ); ?>
 			<?php topic_author(); ?><br />
@@ -81,12 +80,13 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 			<?php post_ip_link( $first_post->post_id ); ?>
 		</p>
 	</td>
+	<td class="posts num"><?php echo strip_tags( get_topic_posts_link() ); ?></td>
 	<td class="date num"><?php topic_start_time( bb_get_datetime_formatstring_i18n() ); ?></td>
 	<td class="freshness num"><a href="<?php topic_last_post_link(); ?>" title="<?php echo attribute_escape( sprintf( __( 'Last post by %s' ), get_topic_last_poster() ) ); ?>"><?php topic_time( bb_get_datetime_formatstring_i18n() ); ?></a></td>
 </tr>
 <?php endforeach; else : ?>
 <tr>
-	<td colspan="3"><?php _e('No Topics Found'); ?></td>
+	<td colspan="5"><?php _e('No topics found'); ?></td>
 </tr>
 <?php endif; ?>
 </tbody>

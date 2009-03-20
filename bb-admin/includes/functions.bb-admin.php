@@ -817,7 +817,6 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 
 function bb_admin_list_posts() {
 	global $bb_posts, $bb_post;
-	if ( $bb_posts ) {
 ?>
 <table id="posts-list" class="widefat">
 <thead>
@@ -829,7 +828,7 @@ function bb_admin_list_posts() {
 </thead>
 
 <tbody>
-<?php foreach ( $bb_posts as $bb_post ) : ?>
+<?php if ( $bb_posts ) : foreach ( $bb_posts as $bb_post ) : ?>
 	<tr id="post-<?php post_id(); ?>"<?php alt_class('post', post_del_class()); ?>>
 		<td class="author">
 			<a class="author-link" href="<?php user_profile_link( get_post_author_id() ); ?>">
@@ -861,11 +860,14 @@ function bb_admin_list_posts() {
 			<?php echo strip_tags( get_topic_posts_link( $bb_post->topic_id ) ); ?>
 		</td>
 	</tr>
-<?php endforeach; ?>
+<?php endforeach; else :?>
+	<tr>
+		<td colspan="3"><?php _e('No posts found'); ?></td>
+	</tr>
+<?php endif; ?>
 </tbody>
 </table>
 <?php
-	}
 }
 
 /* Recounts */
