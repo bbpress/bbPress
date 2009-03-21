@@ -29,4 +29,3 @@ $posts = get_recent_user_replies( $user_id );
 $topics = get_recent_user_threads( $user_id );
 
 bb_load_template( 'profile.php', array('reg_time', 'profile_info_keys', 'updated', 'threads'), $user_id );
-?>
