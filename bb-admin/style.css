@@ -96,7 +96,7 @@ strong {
 #bbHead h1 {
 	float: left;
 	font-size: 3.6em;
-	font-family: Georgia, 'Times New Roman', Times, serif;
+	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 	padding: 0.32em 0 0 0.35em;
 	margin: 0px;
 }
@@ -385,7 +385,7 @@ div.error a:hover {
 #bbBody h2 {
 	border-bottom: 0.05em solid rgb(218, 218, 218);
 	font-size: 2.4em;
-	font-family: Georgia, 'Times New Roman', Times, serif;
+	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 	color: rgb(90, 90, 90);
 	padding: 0.24em 0 0.3em 0;
 	margin-left: -0.2em;
@@ -902,4 +902,83 @@ table tr:hover p.row-actions {
 
 .deleted .undelete-post {
 	display: inline;
+}
+
+/* Table Nav */
+
+.tablenav select[name="action"],
+.tablenav select[name="action2"] {
+	width: 120px;
+}
+
+.tablenav a.button-secondary {
+	display: block;
+	margin: 3px 8px 0 0;
+}
+
+.tablenav {
+	clear: both;
+	height: 30px;
+	margin: 6px 0 4px;
+	vertical-align: middle;
+}
+
+.tablenav .tablenav-pages {
+	float: right;
+	display: block;
+	cursor: default;
+	height: 30px;
+	line-height: 30px;
+	font-size: 11px;
+}
+
+.tablenav .tablenav-pages a,
+.tablenav-pages span.current  {
+	text-decoration: none;
+	border: none;
+	padding: 3px 6px;
+	border-width: 1px;
+	border-style: solid;
+	-moz-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	margin: 0 .25em;
+}
+
+.tablenav .displaying-num {
+	margin-right: 10px;
+	font-size: 12px;
+	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+	font-style: italic;
+}
+
+.tablenav .actions {
+	padding: 2px 8px 0 0;
+}
+
+.tablenav .dots {
+	border-color: transparent;
+}
+
+.tablenav .displaying-num {
+	color: #777;
+}
+
+.tablenav .tablenav-pages {
+	color: #555;
+}
+
+.tablenav .tablenav-pages a {
+	border-color: #e3e3e3;
+	background: #eee;
+}
+
+.tablenav .tablenav-pages a:hover {
+	border-color: rgb(230, 145, 0);
+}
+
+.tablenav .tablenav-pages .current {
+	background: #dfdfdf;
+	border-color: #d3d3d3;
 }

@@ -7,7 +7,7 @@
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
 	add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
-	$post_query = new BB_Query_Form( 'post', array( 'post_status' => 1, 'count' => true ) );
+	$post_query = new BB_Query_Form( 'post', array( 'post_status' => 1, 'count' => true, 'per_page' => 20 ) );
 	$bb_posts =& $post_query->results;
 	$total = $post_query->found_rows;
 ?>
@@ -41,9 +41,30 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 
 <br class="clear" />
 
+<div class="tablenav">
+<?php if ( $total ) : ?>
+	<div class="tablenav-pages">
+		<span class="displaying-num"><?php echo $displaying_num = sprintf(
+			__( 'Displaying %s-%s of %s' ),
+			bb_number_format_i18n( ( $page - 1 ) * $post_query->get( 'per_page' ) + 1 ),
+			$page * $post_query->get( 'per_page' ) < $total ? bb_number_format_i18n( $page * $post_query->get( 'per_page' ) ) : '<span class="total-type-count">' . bb_number_format_i18n( $total ) . '</span>',
+			'<span class="total-type-count">' . bb_number_format_i18n( $total ) . '</span>'
+		); ?></span>
+		<?php echo $page_number_links = get_page_number_links( $page, $total, $post_query->get( 'per_page' ) ); ?>
+	</div>
+<?php endif; ?>
+</div>
+
 <?php bb_admin_list_posts(); ?>
 
-<?php echo get_page_number_links( $page, $total ); ?>
+<div class="tablenav">
+<?php if ( $total ) : ?>
+	<div class="tablenav-pages">
+		<span class="displaying-num"><?php echo $displaying_num; ?></span>
+		<?php echo $page_number_links; ?>
+	</div>
+<?php endif; ?>
+</div>
 
 </div>
 

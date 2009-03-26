@@ -6,7 +6,7 @@
 		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
 	add_filter( 'topic_link', 'bb_make_link_view_all' );
 	add_filter( 'topic_last_post_link', 'bb_make_link_view_all' );
-	$topic_query_vars = array('topic_status' => 1, 'open' => 'all', 'count' => true);
+	$topic_query_vars = array( 'topic_status' => 1, 'open' => 'all', 'count' => true, 'per_page' => 20 );
 	if ( isset($_REQUEST['search']) && $_REQUEST['search'] )
 		$topic_query_vars['post_status'] = 'all';
 	$topic_query = new BB_Query_Form( 'topic', $topic_query_vars );
@@ -43,6 +43,20 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 <?php $topic_query->form( array('tag' => true, 'topic_author' => true, 'topic_status' => true, 'open' => true, 'submit' => __('Filter &#187;')) ); ?>
 
 <br class="clear" />
+
+<div class="tablenav">
+<?php if ( $topic_query->found_rows ) : ?>
+	<div class="tablenav-pages">
+		<span class="displaying-num"><?php echo $displaying_num = sprintf(
+			__( 'Displaying %s-%s of %s' ),
+			bb_number_format_i18n( ( $page - 1 ) * $topic_query->get( 'per_page' ) + 1 ),
+			$page * $topic_query->get( 'per_page' ) < $topic_query->found_rows ? bb_number_format_i18n( $page * $topic_query->get( 'per_page' ) ) : '<span class="total-type-count">' . bb_number_format_i18n( $topic_query->found_rows ) . '</span>',
+			'<span class="total-type-count">' . bb_number_format_i18n( $topic_query->found_rows ) . '</span>'
+		); ?></span>
+		<?php echo $page_number_links = get_page_number_links( $page, $topic_query->found_rows, $topic_query->get( 'per_page' ) ); ?>
+	</div>
+<?php endif; ?>
+</div>
 
 <table id="topics-list" class="widefat">
 <thead>
@@ -93,7 +107,14 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 </tbody>
 </table>
 
-<?php echo get_page_number_links( $page, $topic_query->found_rows ); ?>
+<div class="tablenav">
+<?php if ( $topic_query->found_rows ) : ?>
+	<div class="tablenav-pages">
+		<span class="displaying-num"><?php echo $displaying_num; ?></span>
+		<?php echo $page_number_links; ?>
+	</div>
+<?php endif; ?>
+</div>
 
 </div>
 

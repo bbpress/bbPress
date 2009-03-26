@@ -380,18 +380,14 @@ class BB_User_Search {
 
 	function do_paging() {
 		global $bb_current_submenu;
-		if ( $this->total_users_for_query > $this->users_per_page ) { // have to page the results
-		$pagenow = bb_get_admin_tab_link($bb_current_submenu);
-			$this->paging_text = bb_paginate_links( array(
-				'total' => ceil($this->total_users_for_query / $this->users_per_page),
-				'current' => $this->page,
-				'prev_text' => '&laquo; Previous Page',
-				'next_text' => 'Next Page &raquo;',
-				'base' => $pagenow . ( false === strpos($pagenow, '?') ? '?%_%' : '&amp;%_%' ),
-				'format' => 'userspage=%#%',
-				'add_args' => array( 'usersearch' => urlencode($this->search_term) )
-			) );
-		}
+		$displaying_num = sprintf(
+			__( 'Displaying %s-%s of %s' ),
+			bb_number_format_i18n( ( $this->page - 1 ) * $this->users_per_page + 1 ),
+			$this->page * $this->users_per_page < $this->total_users_for_query ? bb_number_format_i18n( $this->page * $this->users_per_page ) : '<span class="total-type-count">' . bb_number_format_i18n( $this->total_users_for_query ) . '</span>',
+			'<span class="total-type-count">' . bb_number_format_i18n( $this->total_users_for_query ) . '</span>'
+		);
+		$page_number_links = $this->total_users_for_query > $this->users_per_page ? get_page_number_links( $this->page, $this->total_users_for_query, $this->users_per_page ) : '';
+		$this->paging_text = "<div class='tablenav-pages'><span class='displaying-num'>$displaying_num</span>$page_number_links</div>\n";
 	}
 
 	function get_results() {
@@ -445,10 +441,8 @@ class BB_User_Search {
 			if ( $this->is_search() )
 				$r .= "<p>\n\t<a href='users.php'>" . __('&laquo; Back to All Users') . "</a>\n</p>\n\n";
 
-			$r .= '<h3>' . sprintf(__('%1$s &#8211; %2$s of %3$s shown below'), $this->first_user + 1, min($this->first_user + $this->users_per_page, $this->total_users_for_query), $this->total_users_for_query) . "</h3>\n";
-
 			if ( $this->results_are_paged() )
-				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
+				$r .= "<div class='tablenav'>\n" . $this->paging_text . "</div>\n\n";
 
 			foreach($roleclasses as $role => $roleclass) {
 				ksort($roleclass);
@@ -480,8 +474,8 @@ class BB_User_Search {
 				$r .= "</table>\n\n";
 			}
 
-		 	if ( $this->results_are_paged() )
-				$r .= "<div class='user-paging-text'>\n" . $this->paging_text . "</div>\n\n";
+			if ( $this->results_are_paged() )
+				$r .= "<div class='tablenav'>\n" . $this->paging_text . "</div>\n\n";
 		}
 		echo $r;
 	}
