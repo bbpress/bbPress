@@ -58,6 +58,8 @@ bb_unregister_GLOBALS();
  */
 if ( !defined( 'BB_IS_ADMIN' ) ) {
 	define( 'BB_IS_ADMIN', false );
+} elseif ( BB_IS_ADMIN ) {
+	$bb_hardcoded = (array) $bb;
 }
 
 /**

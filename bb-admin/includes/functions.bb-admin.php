@@ -1003,4 +1003,90 @@ function selected( $selected, $current) {
 }
 endif;
 
+/* Options */
+
+function bb_option_form_element( $name = 'name', $args = null ) {
+	global $bb_hardcoded;
+
+	$defaults = array(
+		'title' => 'title',
+		'type' => 'text',
+		'value' => false,
+		'options' => false,
+		'class' => false,
+		'default' => false,
+		'before' => '',
+		'after' => '',
+		'note' => false,
+		'attributes' => false,
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+
+	$id = str_replace( array( '_', '[', ']' ), array( '-', '-', '' ), $name );
+	if ( false !== strpos( $name, '[' ) ) {
+		list( $option_name, $option_key ) = preg_split( '/[\[\]]/', $name, -1, PREG_SPLIT_NO_EMPTY );
+		$option = bb_get_option( $option_name );
+		$value = false === $args['value'] ? attribute_escape( $option[$option_key] ) : attribute_escape( $args['value'] );
+		$hardcoded = isset( $bb_hardcoded[$option][$option_key] );
+	} else {
+		$value = false === $args['value'] ? bb_get_form_option( $name ) : attribute_escape( $args['value'] );
+		$hardcoded = isset( $bb_hardcoded[$name] );
+
+	}
+
+	$class = $args['class'] ? (array) $args['class'] : array();
+	array_unshift( $class, $args['type'] );
+	$disabled = $hardcoded ? ' disabled="disabled"' : '';
+
+	if ( $args['attributes'] ) {
+		$attributes = array();
+		foreach ( $args['attributes'] as $k => $v )
+			$attributes[] = "$k='$v'";
+		$attributes = ' ' . join( ' ', $attributes );
+	} else {
+		$attributes = '';
+	}
+
 ?>
+
+		<div id="option-<?php echo $id; ?>"<?php if ( $hardcoded ) echo ' class="disabled"'; ?>>
+			<label for="<?php echo $id; ?>">
+				<?php echo $args['title']; ?>
+			</label>
+			<div>
+
+<?php
+			echo $args['before'];
+			switch ( $args['type'] ) {
+			case 'select' :
+				echo "<select$disabled class='" . join( ' ', $class ) . "' name='$name' id='$id'$attributes>\n";
+				foreach ( $args['options'] as $option => $label )
+					echo "\t<option value='$option'" . ( $value == $option ? " selected='selected'" : '' ) . ">$label</option>\n";
+				echo "</select>\n";
+				break;
+			case 'checkbox' :
+				$value = false === $args['value'] ? 1 : attribute_escape( $args['value'] );
+				$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
+				echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
+				break;
+			case 'message' :
+				break;
+			default :
+				echo "<input$disabled type='$args[type]' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'$attributes />\n";
+				break;
+			}
+			echo $args['after'];
+
+			if ( $args['note'] ) : foreach ( (array) $args['note'] as $note ) :
+?>
+
+				<p><?php echo $note; ?></p>
+
+<?php			endforeach; endif; ?>
+
+			</div>
+		</div>
+
+<?php
+}

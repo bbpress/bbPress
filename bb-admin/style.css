@@ -485,6 +485,14 @@ form.settings div {
 	margin-bottom: 0.8em;
 }
 
+form.settings div.disabled {
+	background-color: rgb(215, 215, 215);
+}
+
+form.settings div div {
+	background-color: transparent;
+}
+
 form.settings div label {
 	float: left;
 	width: 16em;
@@ -556,17 +564,17 @@ table.block td {
 	padding: 0.4em 3em 0.4em 0.4em;
 }
 
-#bbBody form.settings div p.gravatarRating {
+#bbBody form.settings div#option-avatars-rating p {
 	clear: both;
 	width: 60%;
 	padding-top: 0.4em;
 }
 
-p.gravatarDefault {
+#option-avatars-default p {
 	line-height: 30px;
 }
 
-p.gravatarDefault img {
+#option-avatars-default p img {
 	vertical-align: top;
 	height:30px;
 	width:30px;
@@ -574,7 +582,7 @@ p.gravatarDefault img {
 	border: 1px solid rgb(110, 180, 105);
 }
 
-p.gravatarRating img {
+#option-avatars-rating p img {
 	height:30px;
 	width:30px;
 	float:left;
