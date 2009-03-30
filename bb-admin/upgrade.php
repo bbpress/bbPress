@@ -18,16 +18,16 @@ require( BB_PATH . 'bb-admin/includes/functions.bb-upgrade.php' );
 
 $step = 'unrequired';
 
-if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) || $_GET['force'] == 1 ) {
+if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) || ( isset( $_REQUEST['force'] ) && 1 == $_REQUEST['force'] ) ) {
 	
-	$form_action_querystring = '';
-	if ($_GET['force'] == 1) {
-		$form_action_querystring = '?force=1';
+	$forced_input = '';
+	if ( isset( $_REQUEST['force'] ) && 1 == $_REQUEST['force'] ) {
+		$forced_input = '<input type="hidden" name="force" value="1" />';
 	}
 	
 	$step = 'required';
 	
-	if ( strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
+	if ( strtolower( $_SERVER['REQUEST_METHOD']) == 'post' ) {
 		
 		bb_check_admin_referer( 'bbpress-upgrader' );
 		
@@ -92,9 +92,10 @@ switch ($step) {
 				<p class="error">
 					<span class="first">!</span> <?php _e('It looks like your database is out-of-date.<br />You can update it here.'); ?>
 				</p>
-				<form action="upgrade.php<?php echo $form_action_querystring; ?>" method="post">
+				<form action="<?php bb_uri('bb-admin/upgrade.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" method="post">
 					<fieldset class="buttons">
 						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
+						<?php echo $forced_input; ?>
 						<label for="upgrade_next" class="forward">
 							<input class="button" id="upgrade_next" type="submit" value="<?php _e('Upgrade database &raquo;'); ?>" />
 						</label>
@@ -150,8 +151,9 @@ switch ($step) {
 				<p class="error">
 					<span class="first">!</span> <?php _e('The upgrade process seems to have failed. Check the upgrade messages below for more information.<br /><br />Attempting to go to the admin area without resolving the listed errors will return you to this upgrade page.'); ?>
 				</p>
-				<form action="upgrade.php<?php echo $form_action_querystring; ?>" method="post">
+				<form action="<?php bb_uri('bb-admin/upgrade.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" method="post">
 					<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
+					<?php echo $forced_input; ?>
 					<label for="upgrade_log_container_toggle">
 						<?php _e('Show upgrade messages:'); ?>
 						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
