@@ -35,9 +35,20 @@ $bb_install->header();
 <?php
 switch ($bb_install->step) {
 	case -1:
+		$bb_install->messages();
+		$bb_install->intro();
+		break;
+	
 	case 0:
 		$bb_install->messages();
 		$bb_install->intro();
+?>
+				<form action="install.php" method="post">
+<?php
+		$bb_install->input_buttons('forward_0_0', false, 1);
+?>
+				</form>
+<?php
 		break;
 	
 	default:
@@ -50,7 +61,7 @@ switch ($bb_install->step) {
 			switch($bb_install->step_status[1]) {
 				case 'incomplete':
 ?>
-				<form action="install.php?step=1" method="post">
+				<form action="install.php" method="post">
 					<fieldset>
 <?php
 					$bb_install->input_text('bbdb_name');
@@ -81,7 +92,7 @@ switch ($bb_install->step) {
 				
 				case 'manual':
 ?>
-				<form action="install.php?step=1" method="post">
+				<form action="install.php" method="post">
 <?php
 					$bb_install->hidden_step_inputs();
 ?>
@@ -99,9 +110,9 @@ switch ($bb_install->step) {
 				
 				case 'complete':
 ?>
-				<form action="install.php?step=2" method="post">
+				<form action="install.php" method="post">
 <?php
-					$bb_install->input_buttons('forward_1_2');
+					$bb_install->input_buttons('forward_1_2', false, 2);
 ?>
 				</form>
 <?php
@@ -118,7 +129,7 @@ switch ($bb_install->step) {
 			switch ($bb_install->step_status[2]) {
 				case 'incomplete':
 ?>
-				<form action="install.php?step=2" method="post">
+				<form action="install.php" method="post">
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -224,7 +235,7 @@ switch ($bb_install->step) {
 				
 				case 'complete':
 ?>
-				<form action="install.php?step=3" method="post">
+				<form action="install.php" method="post">
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -232,7 +243,7 @@ switch ($bb_install->step) {
 					</fieldset>
 <?php
 					$bb_install->hidden_step_inputs();
-					$bb_install->input_buttons('forward_2_1', 'back_2_1');
+					$bb_install->input_buttons('forward_2_1', 'back_2_1', 3);
 ?>
 				</form>
 <?php
@@ -249,7 +260,7 @@ switch ($bb_install->step) {
 			switch($bb_install->step_status[3]) {
 				case 'incomplete':
 ?>
-				<form action="install.php?step=3" method="post">
+				<form action="install.php" method="post">
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -298,7 +309,7 @@ switch ($bb_install->step) {
 				
 				case 'complete':
 ?>
-				<form action="install.php?step=4" method="post">
+				<form action="install.php" method="post">
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -307,7 +318,7 @@ switch ($bb_install->step) {
 <?php
 					$bb_install->hidden_step_inputs(2);
 					$bb_install->hidden_step_inputs(); // The current step (3) is assumed here
-					$bb_install->input_buttons('forward_3_1', 'back_3_1');
+					$bb_install->input_buttons('forward_3_1', 'back_3_1', 4);
 ?>
 				</form>
 <?php

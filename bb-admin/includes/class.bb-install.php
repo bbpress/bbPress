@@ -144,7 +144,7 @@ class BB_Install
 		$this->check_prerequisites();
 		$this->check_configs();
 
-		if ( $this->step > 0 ) {
+		if ( $this->step > -1 ) {
 			$this->set_step();
 			$this->prepare_data();
 			$this->process_form();
@@ -156,14 +156,14 @@ class BB_Install
 	/**
 	 * Set initial step
 	 *
-	 * Sets the step from the querystring and keeps it within range
+	 * Sets the step from the post data and keeps it within range
 	 *
 	 * @return integer The calculated step
 	 */
 	function set_initial_step()
 	{
-		// Set the step based on the $_GET value or 0
-		$this->step = $_GET['step'] ? (integer) $_GET['step'] : 0;
+		// Set the step based on the $_POST value or 0
+		$this->step = $_POST['step'] ? (integer) $_POST['step'] : 0;
 
 		// Make sure the requested step is from 0-4
 		if ( 0 > $this->step || 4 < $this->step ) {
@@ -193,7 +193,7 @@ class BB_Install
 				'intro'       => array(
 					__( 'We\'re now going to go through a few steps to get you up and running.' ),
 					$this->get_language_selector(),
-					sprintf( __( 'Ready? Then <a href="%s">let\'s get started!</a>' ), 'install.php?step=1' )
+					__( 'Ready? Then let\'s get started!' )
 				)
 			),
 			1 => array(
@@ -329,7 +329,7 @@ class BB_Install
 		$r .= "\t\t" . 'location.href = "install.php?language=" + selectedLanguage;' . "\n";
 		$r .= "\t" . '}' . "\n";
 		$r .= '</script>' . "\n";
-		$r .= '<form id="lang" action="install.php?step=' . $this->step . '">' . "\n";
+		$r .= '<form id="lang" action="install.php">' . "\n";
 		$r .= "\t" . '<label>' . "\n";
 		$r .= "\t" . __( 'Please select the language you wish to use during installation -' ) . "\n";
 		$r .= "\t\t" . '<select onchange="changeLanguage(this);" name="language">' . "\n";
@@ -592,6 +592,13 @@ class BB_Install
 		$_bb_default_secret_key = 'put your unique phrase here';
 
 		$this->data = array(
+			0 => array(
+				'form' => array(
+					'forward_0_0' => array(
+						'value' => __( 'Go to step 1 &raquo;' )
+					)
+				)
+			),
 			1 => array(
 				'form' => array(
 					'bbdb_name' => array(
@@ -1044,6 +1051,12 @@ class BB_Install
 	{
 		if ( $this->is_posted() ) {
 			switch ( $this->step ) {
+				case 1:
+					if ( $_POST['forward_0_0'] ) {
+						$this->stop_process = 1;
+					}
+					break;
+
 				case 2:
 					if ( $_POST['forward_1_2'] ) {
 						$this->stop_process = 1;
@@ -1177,14 +1190,9 @@ class BB_Install
 		$this->inject_form_values_into_data( 1 );
 
 		$data =& $this->data[1]['form'];
-
+		
 		if ( 'en_US' == $data['bb_lang']['value'] ) {
 			$data['bb_lang']['value'] = '';
-		}
-
-		$data['bb_table_prefix']['value'] = preg_replace( '/[^0-9a-zA-Z_]/', '', $data['bb_table_prefix']['value'] );
-		if ( empty( $data['bb_table_prefix']['value'] ) ) {
-			$data['bb_table_prefix']['value'] = 'bb_';
 		}
 
 		if ( $data['toggle_1']['value'] ) {
@@ -1196,6 +1204,22 @@ class BB_Install
 			//$data['bb_secure_auth_key']['value'] = addslashes( stripslashes( $data['bb_secure_auth_key']['value'] ) );
 			//$data['bb_logged_in_key']['value']   = addslashes( stripslashes( $data['bb_logged_in_key']['value'] ) );
 			//$data['bb_nonce_key']['value']       = addslashes( stripslashes( $data['bb_nonce_key']['value'] ) );
+		}
+
+		$requested_prefix = $data['bb_table_prefix']['value'];
+		$data['bb_table_prefix']['value'] = preg_replace( '/[^0-9a-zA-Z_]/', '', $data['bb_table_prefix']['value'] );
+		if ( $requested_prefix !== $data['bb_table_prefix']['value'] ) {
+			$this->step_status[1] = 'incomplete';
+			$this->strings[1]['messages']['error'][] = __( 'The table prefix can only contain letters, numbers and underscores.<br />Please review the suggestion below.' );
+			$this->strings[1]['form_errors']['bb_table_prefix'][] = __( '&bull; Based on your input the following prefix is suggested.' );
+			return 'incomplete';
+		}
+		if ( empty( $data['bb_table_prefix']['value'] ) ) {
+			$data['bb_table_prefix']['value'] = 'bb_';
+			$this->step_status[1] = 'incomplete';
+			$this->strings[1]['messages']['error'][] = __( 'The table prefix can not be blank.<br />Please review the suggestion below.' );
+			$this->strings[1]['form_errors']['bb_table_prefix'][] = __( '&bull; The default prefix has been inserted.' );
+			return 'incomplete';
 		}
 
 		// Stop here if we are going backwards
@@ -1221,10 +1245,10 @@ class BB_Install
 			'password' => BBDB_PASSWORD,
 			'host'     => BBDB_HOST,
 			'charset'  => defined( 'BBDB_CHARSET' ) ? BBDB_CHARSET : false,
-			'collate'  => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false
+			'collate'  => defined( 'BBDB_COLLATE' ) ? BBDB_COLLATE : false,
+			'errors'   => 'suppress'
 		) );
 
-		$bbdb->suppress_errors();
 		if ( !$bbdb->db_connect( 'SHOW TABLES;' ) ) {
 			$bbdb->suppress_errors( false );
 			$this->step_status[1] = 'incomplete';
@@ -2306,12 +2330,17 @@ class BB_Install
 	 * @param string $back Optional. The HTML element ID of the back button.
 	 * @return void
 	 **/
-	function input_buttons( $forward, $back = false )
+	function input_buttons( $forward, $back = false, $step = false )
 	{
 		$data_back = $back ? $this->data[$this->step]['form'][$back] : false;
 		$data_forward = $this->data[$this->step]['form'][$forward];
 
 		$r = '<fieldset class="buttons">' . "\n";
+
+		if ( !$step ) {
+			$step = $this->step;
+		}
+		$r .= "\t" . '<input type="hidden" id="step" name="step" value="' . (int) $step . '" />' . "\n";
 
 		if ( $back) {
 			$r .= "\t" . '<label for="' . attribute_escape( $back ) . '" class="back">' . "\n";
