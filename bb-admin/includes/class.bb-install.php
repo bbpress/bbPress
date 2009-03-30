@@ -1209,6 +1209,8 @@ class BB_Install
 		$requested_prefix = $data['bb_table_prefix']['value'];
 		$data['bb_table_prefix']['value'] = preg_replace( '/[^0-9a-zA-Z_]/', '', $data['bb_table_prefix']['value'] );
 		if ( $requested_prefix !== $data['bb_table_prefix']['value'] ) {
+			$data['toggle_1']['checked'] = 'checked="checked"';
+			$data['toggle_1']['display'] = 'block';
 			$this->step_status[1] = 'incomplete';
 			$this->strings[1]['messages']['error'][] = __( 'The table prefix can only contain letters, numbers and underscores.<br />Please review the suggestion below.' );
 			$this->strings[1]['form_errors']['bb_table_prefix'][] = __( '&bull; Based on your input the following prefix is suggested.' );
@@ -1216,6 +1218,8 @@ class BB_Install
 		}
 		if ( empty( $data['bb_table_prefix']['value'] ) ) {
 			$data['bb_table_prefix']['value'] = 'bb_';
+			$data['toggle_1']['checked'] = 'checked="checked"';
+			$data['toggle_1']['display'] = 'block';
 			$this->step_status[1] = 'incomplete';
 			$this->strings[1]['messages']['error'][] = __( 'The table prefix can not be blank.<br />Please review the suggestion below.' );
 			$this->strings[1]['form_errors']['bb_table_prefix'][] = __( '&bull; The default prefix has been inserted.' );
