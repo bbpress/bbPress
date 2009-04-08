@@ -38,21 +38,25 @@ switch ($bb_install->step) {
 		$bb_install->messages();
 		$bb_install->intro();
 		break;
-	
-	case 0:
-		$bb_install->messages();
-		$bb_install->intro();
+
+	default:
+		$bb_install->step_header(0);
+
+		if ($bb_install->step === 0) {
 ?>
 				<form action="install.php" method="post">
 <?php
-		$bb_install->input_buttons('forward_0_0', false, 1);
+			$bb_install->messages();
+			$bb_install->get_language_selector();
+			$bb_install->input_buttons('forward_0_0', false, 1);
 ?>
 				</form>
 <?php
-		break;
-	
-	default:
-		$bb_install->sanitize_form_data();
+		} else {
+			$bb_install->sanitize_form_data();
+		}
+		
+		$bb_install->step_footer();
 		
 		$bb_install->step_header(1);
 		
@@ -62,6 +66,9 @@ switch ($bb_install->step) {
 				case 'incomplete':
 ?>
 				<form action="install.php" method="post">
+<?php
+					$bb_install->messages();
+?>
 					<fieldset>
 <?php
 					$bb_install->input_text('bbdb_name');
@@ -94,6 +101,7 @@ switch ($bb_install->step) {
 ?>
 				<form action="install.php" method="post">
 <?php
+					$bb_install->messages();
 					$bb_install->hidden_step_inputs();
 ?>
 					<fieldset>
@@ -112,6 +120,7 @@ switch ($bb_install->step) {
 ?>
 				<form action="install.php" method="post">
 <?php
+					$bb_install->messages();
 					$bb_install->input_buttons('forward_1_2', false, 2);
 ?>
 				</form>
@@ -130,6 +139,9 @@ switch ($bb_install->step) {
 				case 'incomplete':
 ?>
 				<form action="install.php" method="post">
+<?php
+					$bb_install->messages();
+?>
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -236,6 +248,9 @@ switch ($bb_install->step) {
 				case 'complete':
 ?>
 				<form action="install.php" method="post">
+<?php
+					$bb_install->messages();
+?>
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -261,6 +276,9 @@ switch ($bb_install->step) {
 				case 'incomplete':
 ?>
 				<form action="install.php" method="post">
+<?php
+					$bb_install->messages();
+?>
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -273,11 +291,7 @@ switch ($bb_install->step) {
 <?php
 					$bb_install->input_text('name');
 					$bb_install->input_text('uri', 'ltr');
-?>
-					</fieldset>
-					<fieldset>
-						<legend><?php _e('"Key master" account'); ?></legend>
-<?php
+
 					if ($bb_install->populate_keymaster_user_login_from_user_tables()) {
 						echo $bb_install->strings[3]['scripts']['changeKeymasterEmail'];
 						$bb_install->select('keymaster_user_login');
@@ -287,20 +301,13 @@ switch ($bb_install->step) {
 						$bb_install->input_text('keymaster_user_email', 'ltr');
 					}
 					$bb_install->input_hidden('keymaster_user_type');
-?>
-					</fieldset>
-<?php
+
 					if (!$bb_install->database_tables_are_installed()) {
-?>
-					<fieldset>
-						<legend><?php _e('First forum'); ?></legend>
-<?php
 						$bb_install->input_text('forum_name');
+					}
 ?>
 					</fieldset>
 <?php
-					}
-					
 					$bb_install->input_buttons('forward_3_0');
 ?>
 				</form>
@@ -310,6 +317,9 @@ switch ($bb_install->step) {
 				case 'complete':
 ?>
 				<form action="install.php" method="post">
+<?php
+					$bb_install->messages();
+?>
 					<fieldset>
 <?php
 					bb_nonce_field('bbpress-installer');
@@ -331,7 +341,8 @@ switch ($bb_install->step) {
 		if ($bb_install->step === 4) {
 		
 			$bb_install->step_header(4);
-			
+			$bb_install->messages();
+
 			if ($bb_install->step_status[4] == 'complete') {
 ?>
 				<p><?php _e('You can now log in with the following details:'); ?></p>
@@ -370,9 +381,9 @@ switch ($bb_install->step) {
 			$bb_install->step_footer();
 			
 		} else {
-?>
-			<div id="step4" class="closed"></div>
-<?php
+//? >
+//			<div id="step4" class="closed"></div>
+//<?php
 		}
 		
 		break;

@@ -3,28 +3,30 @@ Start with some basic resets
 */
 
 /*
-Copyright (c) 2008, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.5.1
+version: 2.7.0
 */
 html{color:#000;background:#FFF;}
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}
 table{border-collapse:collapse;border-spacing:0;}
 fieldset,img{border:0;}
-address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
+address,caption,cite,code,dfn,em,strong,th,var,optgroup{font-style:inherit;font-weight:inherit;}
+del,ins{text-decoration:none;}
 li{list-style:none;}
 caption,th{text-align:left;}
 h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
 q:before,q:after{content:'';}
-abbr,acronym {border:0;font-variant:normal;}
-sup {vertical-align:text-top;}
-sub {vertical-align:text-bottom;}
-input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}
-input,textarea,select{*font-size:100%;}
+abbr,acronym{border:0;font-variant:normal;}
+sup{vertical-align:baseline;}
+sub{vertical-align:baseline;}
 legend{color:#000;}
-body {font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
-table {font-size:inherit;font:100%;}
+input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}
+input,button,textarea,select{*font-size:100%;}
+body{font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
+select,input,button,textarea,button{font:99% arial,helvetica,clean,sans-serif;}
+table{font-size:inherit;font:100%;}
 pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
 
 /*
@@ -32,34 +34,31 @@ Now for our own code
 */
 
 html {
-	background-color: rgb(220, 220, 220);
+	background-color: rgb(247, 247, 247);
 }
 
 body {
-	background-image: url('images/install-body-background.gif');
-	background-repeat: repeat-x;
-	background-attachment: fixed;
 	text-align: center;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 1em;
 	color: rgb(255, 255, 255);
 }
 
 div#container {
-	margin: 0 auto;
-	padding: 2.5em;
-	width: 35em;
-	background-image: url('images/install-container-background.gif');
-	background-repeat: repeat-x;
-	background-color: rgb(30, 71, 13);
+	margin: 2em auto 1em auto;
+	padding: 1em 32px;
+	width: 700px;
+	background-color: rgb(255, 255, 255);
 	text-align: left;
-	-khtml-border-bottom-left-radius: 1em;
-	-khtml-border-bottom-right-radius: 1em;
-	border-bottom-left-radius: 1em;
-	border-bottom-right-radius: 1em;
+	-khtml-border-radius: 11px;
+	-webkit-border-radius: 11px;
+	border-radius: 11px;
+	border: 1px solid rgb(223, 223, 223);
+	color: rgb(51, 51, 51);
 }
 
 a {
-	color: rgb(235, 184, 45);
+	color: rgb(50, 140, 0);
 	text-decoration: none;
 }
 
@@ -75,45 +74,43 @@ em {
 	font-style: italic;
 }
 
-div.logo {
-	text-align: center;
-}
-
 div.logo img {
-	height: 83px;
+	margin: 12px 0 27px 0;
+	width: 300px;
+	height: 57px;
 	display: block;
-	margin: 0 auto;
 }
 
 h1 {
-	margin: 1em 0 2.5em 0;
-	font-size: 0.8em;
-	text-align: center;
+	margin: 0 0 2em 0;
+	font-size: 0.75em;
+	font-weight: bold;
 }
 
 p {
-	margin: 1.5em 0;
-	font-size: 0.8em;
+	margin: 0 0 1em 0;
+	font-size: 0.75em;
+	line-height: 1.4em;
 }
 
 dl {
 	border-left: 1px solid rgb(125, 125, 125);
-	padding-left: 0.6em;
-	margin: 1.5em 0;
-	font-size: 0.8em;
+	margin: 1.5em 0 1.5em 2.5em;
+	font-size: 0.75em;
 }
 
 dl code {
-	font-size: 1.1em;
+	font-size: 1.4em;
 }
 
 dt {
-	margin: 1.2em 0 0 0;
+	font-size: 1em;
+	padding: 0.6em 0 0.2em 0.6em;
 }
 
 dd {
-	font-size: 1.2em;
-	margin: 0.2em 0 0 3em;
+	font-size: 1em;
+	padding: 0 0 0.6em 3.6em;
 }
 
 dd a {
@@ -123,34 +120,45 @@ dd a {
 p.status {
 	position: absolute;
 	right: 0;
-	top: 0;
-	margin: 1.25em;
+	top: -2.4em;
+	margin: 0;
+	padding: 0.5em 1em;
+	line-height: 1.4em;
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+	color: rgb(70, 70, 70);
 }
 
 p code {
-	font-size: 1.1em;
+	font-size: 1.25em;
 }
 
-p.last {
-	margin-bottom: 0;
-	padding-bottom: 0;
+div.open div p.error.last,
+div.open div p.message.last {
+	margin-bottom: 1.4em;
 }
 
 h2 {
-	font-size: 0.8em;
-}
-
-div#step1 {
-	margin-top: 2.5em;
+	font-size: 0.75em;
+	background-color: rgb(236, 236, 236);
+	padding: 0.5em 1em;
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+	color: rgb(70, 70, 70);
+	font-weight: bold;
+	line-height: 1.4em;
 }
 
 div.open,
 div.closed {
-	border-top: 1px solid rgb(255, 255, 255);
+	border: 1px solid rgb(223, 223, 223);
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	margin-bottom: 1em;
+	xbackground-color: rgb(250, 250, 250);
+	background-color: rgb(247, 247, 247);
 }
 
-div.open div,
-div.closed div {
+div.open div {
 	padding: 1em;
 }
 
@@ -160,15 +168,20 @@ div.closed div {
 
 div.open div {
 	margin: 1px 0;
-	background-color: rgb(255, 255, 255);
-	color: rgb(0, 0, 0);
+	xpadding: 0.5em;
 }
 
 p.error {
-	border: 1px solid rgb(125, 125, 125);
-	background-color: rgb(153, 0, 0);
+	border: 1px solid rgb(204, 0, 0);
+	background-color: rgb(255, 235, 232);
 	padding: 0.6em;
-	color: rgb(255, 255, 255);
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+p.error a {
+	color: #c00;
 }
 
 dl.error {
@@ -176,27 +189,12 @@ dl.error {
 }
 
 p.message {
-	border: 1px solid rgb(125, 125, 125);
-	background-color: rgb(46, 110, 21);
+	border: 1px solid rgb(230, 219, 85);
+	background-color: rgb(255, 251, 204);
 	padding: 0.6em;
-	color: rgb(255, 255, 255);
-}
-
-p span.first {
-	display: block;
-	float: left;
-	height: 1.2em;
-	width: 1.2em;
-	line-height: 1.1em;
-	font-size: 2em;
-	text-align: center;
-	-khtml-border-radius: 0.6em;
-	border-radius: 0.6em;
-	margin: -1px 0.4em 0.5em -1px;
-	font-weight: bold;
-	background-color: rgb(235, 184, 45);
-	color: rgb(0, 0, 0);
-	border: 1px solid rgb(255, 255, 255);
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 div.open div.toggle {
@@ -205,19 +203,19 @@ div.open div.toggle {
 }
 
 div.open h2 {
-	font-weight: bold;
+	color: rgb(0, 0, 0);
 }
 
 form {
 	clear: both;
-}
-
-fieldset {
-	margin-top: 2em;
+	border: 1px solid rgb(223, 223, 223);
+	background-color: rgb(255, 255, 255);
+	-webkit-border-radius: 3px;
+	padding: 1em 1em 1em 1em;
 }
 
 legend {
-	font-size: 0.8em;
+	font-size: 0.75em;
 	font-weight: bold;
 	padding-bottom: 0.5em;
 	font-style: italic;
@@ -225,24 +223,28 @@ legend {
 
 label {
 	display: block;
-	margin: 1em 0 0 0;
-	font-size: 0.8em;
+	margin: 0 0 1.8em 0;
+	font-size: 0.75em;
+	color: rgb(34, 34, 34);
+	cursor: pointer;
 }
 
 label.error {
-	padding: 0.3em;
-	background-color: rgb(153, 0, 0);
-	color: rgb(255, 255, 255);
-	border: 1px solid rgb(125, 125, 125);
+	border: 1px solid rgb(204, 0, 0);
+	background-color: rgb(255, 235, 232);
+	padding: 0.6em;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 label span.error {
 	display: block;
-	margin: 0.4em 0.4em 0.4em 4em;
+	margin: 0.4em 0.4em 0.4em 3em;
 }
 
 label code {
-	font-size: 1.1em;
+	font-size: 1.25em;
 }
 
 fieldset.buttons label.forward {
@@ -257,47 +259,39 @@ fieldset.buttons label.back {
 
 p.note {
 	margin: 0 0 0 2.5em;
-	color: rgb(125, 125, 125);
-	border-left: 1px solid rgb(125, 125, 125);
+	color: rgb(102, 102, 102);
+	border-left: 1px solid rgb(223, 223, 223);
 	padding: 0.6em;
-	font-size: 0.7em;
-}
-
-p.note a {
-	color: rgb(46, 110, 21);
+	font-size: 0.9em;
+	font-style: italic;
 }
 
 input.text {
-	font-size: 1.4em;
-	padding: 0.3em;
-	border: 1px solid rgb(125, 125, 125);
-	background-color: rgb(240, 240, 240);
-	width: 28.8em;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 1.2em;
+	padding: 4px;
+	border: 1px solid rgb(187, 187, 187);
+	width: 400px;
 	display: block;
-	margin-top: 0.2em;
-}
-
-label.error input.text {
-	width: 28.2em;
+	margin-top: 0.4em;
 }
 
 select {
-	font-size: 1.4em;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 1.2em;
 	padding: 0;
-	border: 1px solid rgb(125, 125, 125);
-	background-color: rgb(240, 240, 240);
-	width: 100%;
+	border: 1px solid rgb(187, 187, 187);
 	display: block;
-	margin-top: 0.2em;
+	margin-top: 0.4em;
 }
 
 textarea {
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
 	font-size: 0.9em;
-	padding: 0em;
-	border: 1px solid rgb(125, 125, 125);
-	background-color: rgb(240, 240, 240);
-	width: 45.7em;
+	padding: 0;
+	border: 1px solid rgb(187, 187, 187);
+	width: 630px;
+	max-width: 630px;
 	height: 38em;
 	display: block;
 	margin-top: 0.4em;
@@ -321,45 +315,34 @@ input.checkbox {
 	font-size: 1.25em;
 }
 
-input:focus,
-textarea:focus {
-	background-color: rgb(210, 210, 210);
+input.button {
+	background: url('images/white-grad.png') repeat-x scroll 0% 0% rgb(242, 242, 242);
+	-webkit-border-radius: 15px;
+	border: 1px solid rgb(187, 187, 187);
+	color: rgb(70, 70, 70);
+	cursor: pointer;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 1.2em;
+	line-height: 1.2em;
+	padding: 0.45em 0.9em;
+	text-decoration: none;
 }
 
-input.button {
-	font-size: 1.2em;
-	background: url('images/fade-butt.png');
-	border: 3px double rgb(125, 125, 125);
-	border-left-color: rgb(210, 210, 210);
-	border-top-color: rgb(210, 210, 210);
-	padding: 0.4em;
+input.button:hover {
+	border-color: rgb(102, 102, 102);
+	color: black;
 }
 
 input.button:active {
-	background: rgb(240, 240, 240);
-	border: 3px double rgb(210, 210, 210);
-	border-left-color: rgb(125, 125, 125);
-	border-top-color: rgb(125, 125, 125);
+	background-image: url('images/white-grad-active.png');
 }
 
-form#lang {
-	display: inline;
+label#label-toggle_4 {
+	margin-bottom: 0;
 }
 
-form#lang label {
-	display: inline;
-}
-
-form#lang label select {
-	display: inline;
-	width: auto;
-	font-size: 1em;
-}
-
-p#footer {
-	color: rgb(0, 0, 0);
-}
-
-p#footer a {
-	color: rgb(46, 110, 21);
+label#label-error_log,
+label#label-installation_log {
+	margin-top: 1.8em;
+	margin-bottom: 0;
 }

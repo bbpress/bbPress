@@ -1115,7 +1115,7 @@ function bb_nonce_ays( $action ) {
 	bb_die( $html, $title );
 }
 
-function bb_install_header( $title = '', $header = false ) {
+function bb_install_header( $title = '', $header = false, $logo = false ) {
 	if ( empty($title) )
 		if ( function_exists('__') )
 			$title = __('bbPress');
@@ -1127,14 +1127,14 @@ function bb_install_header( $title = '', $header = false ) {
 			$uri = bb_get_uri();
 			$uri_stylesheet = bb_get_uri('bb-admin/install.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_INSTALLER);
 			$uri_stylesheet_rtl = bb_get_uri('bb-admin/install-rtl.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_INSTALLER);
-			$uri_logo = bb_get_uri('bb-admin/images/install-logo.gif', null, BB_URI_CONTEXT_IMG_SRC + BB_URI_CONTEXT_BB_INSTALLER);
+			$uri_logo = bb_get_uri('bb-admin/images/bbpress-logo.png', null, BB_URI_CONTEXT_IMG_SRC + BB_URI_CONTEXT_BB_INSTALLER);
 		}
 		
 		if (!$uri) {
 			$uri = preg_replace('|(/bb-admin)?/[^/]+?$|', '/', $_SERVER['PHP_SELF']);
 			$uri_stylesheet = $uri . 'bb-admin/install.css';
 			$uri_stylesheet_rtl = $uri . 'bb-admin/install-rtl.css';
-			$uri_logo = $uri . 'bb-admin/images/install-logo.gif';
+			$uri_logo = $uri . 'bb-admin/images/bbpress-logo.png';
 		}
 	
 	header('Content-Type: text/html; charset=utf-8');
@@ -1156,10 +1156,15 @@ function bb_install_header( $title = '', $header = false ) {
 </head>
 <body>
 	<div id="container">
+<?php
+	if ( $logo ) {
+?>
 		<div class="logo">
-			<img src="<?php echo $uri_logo; ?>" alt="bbPress Installation" />
+			<img src="<?php echo $uri_logo; ?>" alt="bbPress" />
 		</div>
 <?php
+	}
+
 	if ( !empty($header) ) {
 ?>
 		<h1>
@@ -1172,9 +1177,6 @@ function bb_install_header( $title = '', $header = false ) {
 function bb_install_footer() {
 ?>
 	</div>
-	<p id="footer">
-		<?php _e('<a href="http://bbpress.org/">bbPress</a> - simple, fast, elegant'); ?>
-	</p>
 </body>
 </html>
 <?php

@@ -61,7 +61,7 @@ if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' )
 	
 }
 
-bb_install_header( __('bbPress database upgrade'), __('bbPress database upgrade') );
+bb_install_header( __('bbPress database upgrade'), false, true );
 ?>
 		<script type="text/javascript" charset="utf-8">
 			function toggleAdvanced(toggle, target) {
@@ -87,107 +87,108 @@ switch ($step) {
 	case 'required'
 ?>
 		<div class="open">
+			<h2><?php _e('Database upgrade required'); ?></h2>
 			<div>
-				<h2><?php _e('Database upgrade required'); ?></h2>
-				<p class="error">
-					<span class="first">!</span> <?php _e('It looks like your database is out-of-date.<br />You can update it here.'); ?>
-				</p>
 				<form action="<?php bb_uri('bb-admin/upgrade.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" method="post">
+					<p class="error">
+						<?php _e('It looks like your database is out-of-date. You can upgrade it here.'); ?>
+					</p>
 					<fieldset class="buttons">
 						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 						<?php echo $forced_input; ?>
 						<label for="upgrade_next" class="forward">
-							<input class="button" id="upgrade_next" type="submit" value="<?php _e('Upgrade database &raquo;'); ?>" />
+							<input class="button" id="upgrade_next" type="submit" value="<?php _e( 'Upgrade database' ); ?>" />
 						</label>
 					</fieldset>
 				</form>
 			</div>
 		</div>
-		<div class="open"></div>
 <?php
 		break;
 	
 	case 'complete':
 ?>
 		<div class="open">
+			<h2><?php _e('Database upgrade complete'); ?></h2>
 			<div>
-				<h2><?php _e('Database upgrade complete'); ?></h2>
-				<p class="message">
-					<span class="first">!</span> <?php _e('Your database has been successfully updated.<br />Enjoy!'); ?>
-				</p>
 				<form action="<?php bb_uri('bb-admin/', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" method="get">
-					<label for="upgrade_log_container_toggle">
-						<?php _e('Show upgrade log:'); ?>
-						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
-					</label>
+					<p class="message">
+						<?php _e('Your database has been successfully upgraded, enjoy!'); ?>
+					</p>
+					<fieldset>
+						<label for="upgrade_log_container_toggle">
+							<?php _e('Show upgrade messages'); ?>
+							<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
+						</label>
+					</fieldset>
 					<div class="toggle" id="upgrade_log_container" style="display:none;">
 						<fieldset>
 							<label for="upgrade_log">
-								<?php _e('Upgrade log:'); ?>
+								<?php _e('Upgrade log'); ?>
 								<textarea id="upgrade_log" class="short"><?php echo(join("\n", $upgrade_log)); ?></textarea>
 							</label>
 						</fieldset>
 					</div>
 					<fieldset class="buttons">
 						<label for="upgrade_next" class="back">
-							<input class="button" id="upgrade_back" type="button" value="<?php _e('&laquo; Go back to forums'); ?>" onclick="location.href='<?php echo js_escape( bb_get_uri() ); ?>'; return false;" />
+							<input class="button" id="upgrade_back" type="button" value="<?php _e( '&laquo; Go back to forums' ); ?>" onclick="location.href='<?php echo js_escape( bb_get_uri() ); ?>'; return false;" />
 						</label>
 						<label for="upgrade_next" class="forward">
-							<input class="button" id="upgrade_next" type="submit" value="<?php _e('Go to admin &raquo;'); ?>" />
+							<input class="button" id="upgrade_next" type="submit" value="<?php _e( 'Go to admin' ); ?>" />
 						</label>
 					</fieldset>
 				</form>
 			</div>
 		</div>
-		<div class="open"></div>
 <?php
 		break;
 	
 	case 'error':
 ?>
 		<div class="open">
+			<h2><?php _e('Database upgrade failed'); ?></h2>
 			<div>
-				<h2><?php _e('Database upgrade failed'); ?></h2>
-				<p class="error">
-					<span class="first">!</span> <?php _e('The upgrade process seems to have failed. Check the upgrade messages below for more information.<br /><br />Attempting to go to the admin area without resolving the listed errors will return you to this upgrade page.'); ?>
-				</p>
 				<form action="<?php bb_uri('bb-admin/upgrade.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" method="post">
-					<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
-					<?php echo $forced_input; ?>
-					<label for="upgrade_log_container_toggle">
-						<?php _e('Show upgrade messages:'); ?>
-						<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
-					</label>
+					<p class="error">
+						<?php _e('The upgrade process seems to have failed. Check the upgrade messages below for more information.<br /><br />Attempting to go to the admin area without resolving the listed errors will return you to this upgrade page.'); ?>
+					</p>
+					<fieldset>
+						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
+						<?php echo $forced_input; ?>
+						<label for="upgrade_log_container_toggle" style="margin-bottom: 1.9em;">
+							<?php _e('Show upgrade messages'); ?>
+							<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
+						</label>
+					</fieldset>
 					<div class="toggle" id="upgrade_log_container" style="display:none;">
 						<fieldset>
 <?php
 		if (count($error_log)) {
 ?>
-							<label for="error_log">
-								<?php _e('Error log:'); ?>
+							<label for="error_log" style="margin-bottom: 1.9em;">
+								<?php _e('Error log'); ?>
 								<textarea id="error_log" class="short"><?php echo(join("\n", $error_log)); ?></textarea>
 							</label>
 <?php
 		}
 ?>
-							<label for="upgrade_log">
-								<?php _e('Upgrade log:'); ?>
+							<label for="upgrade_log" style="margin-bottom: 1.9em;">
+								<?php _e('Upgrade log'); ?>
 								<textarea id="upgrade_log" class="short"><?php echo(join("\n", $upgrade_log)); ?></textarea>
 							</label>
 						</fieldset>
 					</div>
 					<fieldset class="buttons">
 						<label for="upgrade_next" class="back">
-							<input class="button" id="upgrade_back" type="button" value="<?php _e('&laquo; Go back to forums'); ?>" onclick="location.href='<?php echo js_escape( bb_get_uri() ); ?>'; return false;" />
+							<input class="button" id="upgrade_back" type="button" value="<?php _e( '&laquo; Go back to forums' ); ?>" onclick="location.href='<?php echo js_escape( bb_get_uri() ); ?>'; return false;" />
 						</label>
 						<label for="upgrade_next" class="forward">
-							<input class="button" id="upgrade_next" type="submit" value="<?php _e('Try again &raquo;'); ?>" />
+							<input class="button" id="upgrade_next" type="submit" value="<?php _e( 'Try again' ); ?>" />
 						</label>
 					</fieldset>
 				</form>
 			</div>
 		</div>
-		<div class="open"></div>
 <?php
 		break;
 }

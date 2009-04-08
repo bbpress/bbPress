@@ -188,39 +188,36 @@ class BB_Install
 			),
 			0 => array(
 				'title'       => sprintf( __( '%1$s &rsaquo; %2$s' ), __( 'bbPress installer' ), __( 'Welcome' ) ),
-				'h1'          => __( 'Welcome to the bbPress installer' ),
+				'h2'          => __( 'Welcome to the bbPress installer' ),
+				'status'      => '',
 				'messages'    => array(),
 				'intro'       => array(
 					__( 'We\'re now going to go through a few steps to get you up and running.' ),
-					$this->get_language_selector(),
 					__( 'Ready? Then let\'s get started!' )
 				)
 			),
 			1 => array(
 				'title'       => sprintf( __( '%1$s &rsaquo; %2$s' ), __( 'bbPress installer' ), __( 'Step 1' ) ),
-				'h1'          => __( 'Welcome to the bbPress installer' ),
 				'h2'          => sprintf( __( '%1$s - %2$s' ), __( 'Step 1' ), __( 'Database configuration' ) ),
 				'status'      => '',
 				'intro'       => array(
-					__( 'Here you need to enter your database connection details. The installer will attempt to create a file called <code>bb-config.php</code> in the root directory of your bbPress installation.' ),
+					__( 'In this step you need to enter your database connection details. The installer will attempt to create a file called <code>bb-config.php</code> in the root directory of your bbPress installation.' ),
 					__( 'If you\'re not sure what to put here, contact your web hosting provider.' )
 				),
 				'messages'    => array()
 			),
 			2 => array(
 				'title'       => sprintf( __( '%1$s &rsaquo; %2$s' ), __( 'bbPress installer' ), __( 'Step 2' ) ),
-				'h1'          => __( 'Welcome to the bbPress installer' ),
 				'h2'          => sprintf( __( '%1$s - %2$s' ), __( 'Step 2' ), __( 'WordPress integration (optional)' ) ),
 				'status'      => __( '&laquo; skipped' ),
 				'intro'       => array(
-					__( 'bbPress can integrate login and user data seamlessly with WordPress. You can safely skip this section if you do not wish to integrate with an existing WordPress install.' )
+					__( 'bbPress can integrate login and user data seamlessly with WordPress. You can safely skip this step if you do not wish to integrate with an existing WordPress install.' )
 				),
 				'messages'    => array(),
 				'form_errors' => array()
 			),
 			3 => array(
 				'title'       => sprintf( __( '%1$s &rsaquo; %2$s' ), __( 'bbPress installer' ), __( 'Step 3' ) ),
-				'h1'          => __( 'Welcome to the bbPress installer' ),
 				'h2'          => sprintf( __( '%1$s - %2$s' ), __( 'Step 3' ), __( 'Site settings' ) ),
 				'status'      => '',
 				'intro'       => array(
@@ -232,7 +229,6 @@ class BB_Install
 			),
 			4 => array(
 				'title'       => sprintf( __( '%1$s &rsaquo; %2$s' ), __( 'bbPress installer' ), __( 'Finished' ) ),
-				'h1'          => __( 'Welcome to the bbPress installer' ),
 				'h2'          => __( 'Installation complete!' ),
 				'messages'    => array()
 			)
@@ -308,6 +304,7 @@ class BB_Install
 			$language = str_replace( '.mo', '', basename( $language ) );
 			$this->languages[$language] = $language;
 		}
+		
 		return $this->languages;
 	}
 
@@ -329,22 +326,25 @@ class BB_Install
 		$r .= "\t\t" . 'location.href = "install.php?language=" + selectedLanguage;' . "\n";
 		$r .= "\t" . '}' . "\n";
 		$r .= '</script>' . "\n";
-		$r .= '<form id="lang" action="install.php">' . "\n";
-		$r .= "\t" . '<label>' . "\n";
-		$r .= "\t" . __( 'Please select the language you wish to use during installation -' ) . "\n";
-		$r .= "\t\t" . '<select onchange="changeLanguage(this);" name="language">' . "\n";
+		//$r .= '<form id="lang" action="install.php">' . "\n";
+		$r .= "\t" . '<fieldset>' . "\n";
+		$r .= "\t\t" . '<label>' . "\n";
+		$r .= "\t\t\t" . __( 'Installation language' ) . "\n";
+		$r .= "\t\t\t" . '<select onchange="changeLanguage(this);" name="language">' . "\n";
 		foreach ( $this->languages as $language ) {
 			$selected = '';
 			if ( $language == $this->language ) {
 				$selected = ' selected="selected"';
 			}
-			$r .= "\t\t\t" . '<option value="' . $language . '"' . $selected . '>' . $language . '</option>' . "\n";
+			$r .= "\t\t\t\t" . '<option value="' . $language . '"' . $selected . '>' . $language . '</option>' . "\n";
 		}
-		$r .= "\t\t" . '</select>' . "\n";
-		$r .= "\t" . '</label>' . "\n";
-		$r .= '</form>' . "\n";
+		$r .= "\t\t\t" . '</select>' . "\n";
+		$r .= "\t\t\t" . '<p class="note">' . __( 'Sets the language to be used during the installation process only.' ) . '</p>' . "\n";
+		$r .= "\t\t" . '</label>' . "\n";
+		$r .= "\t" . '</fieldset>' . "\n";
+		//$r .= '</form>' . "\n";
 
-		return $r;
+		echo $r;
 	}
 
 	/**
@@ -360,9 +360,9 @@ class BB_Install
 			}
 		}
 
-		if ( $_GET['language'] && 1 < count( $this->languages ) ) {
-			if ( in_array( $_GET['language'], $this->languages ) ) {
-				$this->language = $_GET['language'];
+		if ( $_REQUEST['language'] && 1 < count( $this->languages ) ) {
+			if ( in_array( $_REQUEST['language'], $this->languages ) ) {
+				$this->language = $_REQUEST['language'];
 				setcookie( 'bb_install_language', $this->language );
 			}
 		}
@@ -493,8 +493,8 @@ class BB_Install
 					$this->step = -1;
 				} else {
 					// Redirect to the base url
-					bb_safe_redirect( bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) );
-					die();
+					//bb_safe_redirect( bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) );
+					//die();
 				}
 			}
 
@@ -508,7 +508,7 @@ class BB_Install
 
 			if ( 1 !== $this->step ) {
 				// There is no config file, go back to the beginning
-				$this->strings[0]['messages']['error'][] = __( 'There doesn\'t seem to be a <code>bb-config.php</code> file. This usually means that you want to install bbPress.' );
+				$this->strings[0]['messages']['message'][] = __( 'There doesn\'t seem to be a <code>bb-config.php</code> file. This usually means that you want to install bbPress.' );
 				$this->step = 0;
 			}
 
@@ -595,7 +595,7 @@ class BB_Install
 			0 => array(
 				'form' => array(
 					'forward_0_0' => array(
-						'value' => __( 'Go to step 1 &raquo;' )
+						'value' => __( 'Go to step 1' )
 					)
 				)
 			),
@@ -622,7 +622,7 @@ class BB_Install
 					'bb_lang' => array(
 						'value' => '',
 						'label' => __( 'Language' ),
-						'note' => sprintf( __( 'The language which bbPress will be presented in once installed. Your current language choice (%s) will remain for the rest of the install process.' ), $this->language )
+						'note' => sprintf( __( 'The language which bbPress will be presented in once installed. Your current installer language choice (%s) will be the same for the rest of the install process.' ), $this->language )
 					),
 					'toggle_1' => array(
 						'value'   => 0,
@@ -696,7 +696,7 @@ class BB_Install
 						'value' => __( 'Check for configuration file' )
 					),
 					'forward_1_2' => array(
-						'value' => __( 'Go to step 2 &raquo;' )
+						'value' => __( 'Go to step 2' )
 					)
 				)
 			),
@@ -711,7 +711,7 @@ class BB_Install
 						'display'      => 'none',
 						'toggle_value' => array(
 							'target'    => 'forward_2_0',
-							'off_value' => __( 'Skip WordPress integration &raquo;' ),
+							'off_value' => __( 'Skip WordPress integration' ),
 							'on_value'  => __( 'Save WordPress integration settings' )
 						)
 					),
@@ -739,37 +739,43 @@ class BB_Install
 						'value' => '',
 						'label' => __( 'WordPress "auth" cookie key' ),
 						'note'  => __( 'This value must match the value of the constant named "AUTH_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress "auth" cookie key set in the first step.' ),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_1',
+						'autocomplete' => 'off'
 					),
 					'wp_auth_salt' => array(
 						'value' => '',
 						'label' => __( 'WordPress "auth" cookie salt' ),
 						'note'  => __( 'This must match the value of the WordPress setting named "auth_salt" in your WordPress installation. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.' ),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_1',
+						'autocomplete' => 'off'
 					),
 					'wp_secure_auth_key' => array(
 						'value' => '',
 						'label' => __( 'WordPress "secure auth" cookie key' ),
 						'note'  => __( 'This value must match the value of the constant named "SECURE_AUTH_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress "secure auth" cookie key set in the first step.' ),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_1',
+						'autocomplete' => 'off'
 					),
 					'wp_secure_auth_salt' => array(
 						'value' => '',
 						'label' => __( 'WordPress "secure auth" cookie salt' ),
 						'note'  => __( 'This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress installation. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.' ),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_1',
+						'autocomplete' => 'off'
 					),
 					'wp_logged_in_key' => array(
 						'value' => '',
 						'label' => __( 'WordPress "logged in" cookie key' ),
 						'note'  => __( 'This value must match the value of the constant named "LOGGED_IN_KEY" in your WordPress <code>wp-config.php</code> file. This will replace the bbPress "logged in" cookie key set in the first step.' ),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_1',
+						'autocomplete' => 'off'
 					),
 					'wp_logged_in_salt' => array(
 						'value' => '',
 						'label' => __( 'WordPress "logged in" cookie salt' ),
 						'note'  => __( 'This must match the value of the WordPress setting named "logged_in_salt" in your WordPress installation. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.' ),
-						'prerequisite' => 'toggle_2_1'
+						'prerequisite' => 'toggle_2_1',
+						'autocomplete' => 'off'
 					),
 					'toggle_2_2' => array(
 						'value'   => 0,
@@ -804,14 +810,16 @@ class BB_Install
 						'value' => '',
 						'label' => __( 'User database user' ),
 						'note'  => __( 'The database user that has access to that database.' ),
-						'prerequisite' => 'toggle_2_3'
+						'prerequisite' => 'toggle_2_3',
+						'autocomplete' => 'off'
 					),
 					'user_bbdb_password' => array(
 						'type'  => 'password',
 						'value' => '',
 						'label' => __( 'User database password' ),
 						'note'  => __( 'That database user\'s password.' ),
-						'prerequisite' => 'toggle_2_3'
+						'prerequisite' => 'toggle_2_3',
+						'autocomplete' => 'off'
 					),
 					'user_bbdb_host' => array(
 						'value' => '',
@@ -844,13 +852,13 @@ class BB_Install
 						'prerequisite' => 'toggle_2_3'
 					),
 					'forward_2_0' => array(
-						'value' => __( 'Skip WordPress integration &raquo;' )
+						'value' => __( 'Skip WordPress integration' )
 					),
 					'back_2_1' => array(
 						'value' => __( '&laquo; Go back' )
 					),
 					'forward_2_1' => array(
-						'value' => __( 'Go to step 3 &raquo;' )
+						'value' => __( 'Go to step 3' )
 					)
 				)
 			),
@@ -870,14 +878,16 @@ class BB_Install
 					'keymaster_user_login' => array(
 						'value'     => '',
 						'maxlength' => 60,
-						'label'     => __( 'Username' ),
-						'note'      => __( 'This is the user login for the initial bbPress administrator (known as a "key master").' )
+						'label'     => __( '"Key Master" Username' ),
+						'note'      => __( 'This is the user login for the initial bbPress administrator (known as a "Key Master").' ),
+						'autocomplete' => 'off'
 					),
 					'keymaster_user_email' => array(
 						'value'     => '',
 						'maxlength' => 100,
-						'label'     => __( 'Email address' ),
-						'note'      => __( 'The login details will be emailed to this address.' )
+						'label'     => __( '"Key Master" Email address' ),
+						'note'      => __( 'The login details will be emailed to this address.' ),
+						'autocomplete' => 'off'
 					),
 					'keymaster_user_type' => array(
 						'value' => 'new'
@@ -885,7 +895,7 @@ class BB_Install
 					'forum_name' => array(
 						'value'     => '',
 						'maxlength' => 150,
-						'label'     => __( 'Forum name' ),
+						'label'     => __( 'First forum name' ),
 						'note'      => __( 'This can be changed after installation, so don\'t worry about it too much.' )
 					),
 					'forward_3_0' => array(
@@ -895,7 +905,7 @@ class BB_Install
 						'value' => __( '&laquo; Go back' )
 					),
 					'forward_3_1' => array(
-						'value' => __( 'Complete the installation &raquo;' )
+						'value' => __( 'Complete the installation' )
 					)
 				)
 			),
@@ -1052,6 +1062,7 @@ class BB_Install
 		if ( $this->is_posted() ) {
 			switch ( $this->step ) {
 				case 1:
+					$this->set_language();
 					if ( $_POST['forward_0_0'] ) {
 						$this->stop_process = 1;
 					}
@@ -2111,7 +2122,7 @@ class BB_Install
 			$this->strings[4]['messages']['error'][] = __( 'Your installation completed with some minor errors. See the error log below for more specific information.' );
 			$installation_log[] = "\n" . __( 'There were some errors encountered during installation!' );
 		} else {
-			$this->strings[4]['messages']['message'][] = __( 'Your installation completed successfully.<br />Check below for login details.' );
+			$this->strings[4]['messages']['message'][] = __( 'Your installation completed successfully.' );
 			$installation_log[] = "\n" . __( 'Installation complete!' );
 		}
 
@@ -2144,10 +2155,10 @@ class BB_Install
 			$class = ' class="error"';
 		}
 
-		$r = "\t" . '<label for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
 
 		if ( isset( $data['label'] ) ) {
-			$r .= $data['label'] . "\n";
+			$r .= '<span>' . $data['label'] . '</span>' . "\n";
 		}
 
 		if ( isset( $this->strings[$this->step]['form_errors'][$key] ) ) {
@@ -2173,11 +2184,12 @@ class BB_Install
 		}
 
 		$r .= "\t\t" . '<input' . $direction . ' type="' . attribute_escape( $type ) . '" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="text" value="' . attribute_escape( $data['value'] ) . '"' . $maxlength . $autocomplete . ' />' . "\n";
-		$r .= "\t" . '</label>' . "\n";
 
 		if ( isset( $data['note'] ) ) {
 			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
 		}
+
+		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
 	}
@@ -2206,7 +2218,7 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 
-		$r = "\t" . '<label for="' . attribute_escape( $key ) . '">' . "\n";
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '">' . "\n";
 
 		if ( isset( $data['label'] ) ) {
 			$r .= $data['label'] . "\n";
@@ -2217,11 +2229,12 @@ class BB_Install
 		}
 
 		$r .= "\t\t" . '<textarea' . $direction . ' id="' . attribute_escape( $key ) . '" rows="5" cols="30">' . wp_specialchars( $data['value'] ) . '</textarea>' . "\n";
-		$r .= "\t" . '</label>' . "\n";
 
 		if ( isset( $data['note'] ) ) {
 			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
 		}
+
+		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
 	}
@@ -2236,7 +2249,7 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 
-		$r = "\t" . '<label for="' . attribute_escape( $key ) . '">' . "\n";
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '">' . "\n";
 
 		if ( isset( $data['label'] ) ) {
 			$r .= $data['label'] . "\n";
@@ -2264,11 +2277,11 @@ class BB_Install
 			$r .= "\t\t" . '</select>' . "\n";
 		}
 
-		$r .= "\t" . '</label>' . "\n";
-
 		if ( isset( $data['note'] ) ) {
 			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
 		}
+
+		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
 	}
@@ -2311,18 +2324,19 @@ class BB_Install
 			$class = ' class="error"';
 		}
 
-		$r = "\t" . '<label for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
 
 		if ( isset( $data['label'] ) ) {
 			$r .= $data['label'] . "\n";
 		}
 
 		$r .= "\t\t" . '<input type="checkbox" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="checkbox" onclick="' . attribute_escape( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
-		$r .= "\t" . '</label>' . "\n";
 
 		if ( isset( $data['note'] ) ) {
 			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
 		}
+
+		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
 	}
@@ -2347,12 +2361,12 @@ class BB_Install
 		$r .= "\t" . '<input type="hidden" id="step" name="step" value="' . (int) $step . '" />' . "\n";
 
 		if ( $back) {
-			$r .= "\t" . '<label for="' . attribute_escape( $back ) . '" class="back">' . "\n";
+			$r .= "\t" . '<label id="label-' . attribute_escape( $back ) . '" for="' . attribute_escape( $back ) . '" class="back">' . "\n";
 			$r .= "\t\t" . '<input type="submit" id="' . attribute_escape( $back ) . '" name="' . attribute_escape( $back ) . '" class="button" value="' . attribute_escape( $data_back['value'] ) . '" />' . "\n";
 			$r .= "\t" . '</label>' . "\n";
 		}
 
-		$r .= "\t" . '<label for="' . attribute_escape( $forward ) . '" class="forward">' . "\n";
+		$r .= "\t" . '<label id="label-' . attribute_escape( $forward ) . '" for="' . attribute_escape( $forward ) . '" class="forward">' . "\n";
 		$r .= "\t\t" . '<input type="submit" id="' . attribute_escape( $forward ) . '" name="' . attribute_escape( $forward ) . '" class="button" value="' . attribute_escape( $data_forward['value'] ) . '" />' . "\n";
 		$r .= "\t" . '</label>' . "\n";
 
@@ -2535,7 +2549,7 @@ EOS;
 	{
 		nocache_headers();
 
-		bb_install_header( $this->strings[$this->step]['title'], $this->strings[$this->step]['h1'] );
+		bb_install_header( $this->strings[$this->step]['title'], $this->strings[$this->step]['h1'], true );
 	}
 
 	/**
@@ -2564,19 +2578,11 @@ EOS;
 			$r = '';
 			foreach ( $messages as $type => $paragraphs ) {
 				$class = $type ? $type : '';
-				$title = ( 'error' == $type ) ? __( 'Warning' ) : __( 'Message' );
-				$first_character = ( 'error' == $type ) ? '!' : '&raquo;';
 
 				foreach ( $paragraphs as $paragraph ) {
 					$i++;
 					$class = ( $i === $count ) ? ( $class . ' last' ) : $class;
-
-					$r .= '<p class="' . attribute_escape( $class ) . '">' . "\n";
-					if ( $type ) {
-						$r .= '<span class="first" title="' . attribute_escape( $title ) . '">' . $first_character . '</span>' . "\n";
-					}
-					$r .= $paragraph . "\n";
-					$r .= '</p>' . "\n";
+					$r .= '<p class="' . attribute_escape( $class ) . '">' . $paragraph . '</p>' . "\n";
 				}
 			}
 			echo $r;
@@ -2614,8 +2620,9 @@ EOS;
 	{
 		$class = ( $step == $this->step ) ? 'open' : 'closed';
 
-		$r = '<div id="' . attribute_escape( 'step' . $step ) . '" class="' . $class . '"><div>' . "\n";
-		$r .= '<h2>' . $this->strings[$step]['h2'] . '</h2>' . "\n";
+		$r = '<div id="' . attribute_escape( 'step' . $step ) . '" class="' . $class . '">' . "\n";
+		$r .= '<h2 class="' . $class . '">' . $this->strings[$step]['h2'] . '</h2>' . "\n";
+		$r .= '<div>' . "\n";
 
 		if ( $step < $this->step && $this->strings[$step]['status'] ) {
 			$r .= '<p class="status">' . $this->strings[$step]['status'] . '</p>' . "\n";
@@ -2625,7 +2632,6 @@ EOS;
 
 		if ( $step == $this->step ) {
 			$this->intro();
-			$this->messages();
 		}
 	}
 
