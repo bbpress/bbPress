@@ -48,22 +48,6 @@ function js_escape($text) {
 }
 endif;
 
-if ( !function_exists( 'attribute_escape' ) ) : // Not like WordPress - uses wp_check_invalid_utf8() and wp_entities()
-/**
- * Escaping for HTML attributes.
- *
- * @since WP 2.0.6
- *
- * @param string $text
- * @return string
- */
-function attribute_escape( $text ) {
-	$safe_text = wp_check_invalid_utf8( $text );
-	$safe_text = wp_specialchars( $safe_text, ENT_QUOTES );
-	return apply_filters( 'attribute_escape', $safe_text, $text );
-}
-endif;
-
 if ( !function_exists( 'force_balance_tags' ) ) : // Current at [WP9840]
 /**
  * Balances tags of string using a modified stack.
