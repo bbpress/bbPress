@@ -182,10 +182,15 @@ function bb_get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 	$fp = fopen($plugin_file, 'r');
 
 	// Pull only the first 8kiB of the file in.
-	$plugin_data = fread( $fp, 8192 );
+	$plugin_code = fread( $fp, 8192 );
 
 	// PHP will close file handle, but we are good citizens.
 	fclose($fp);
+
+	// Grab just the first commented area from the file
+	if ( !preg_match( '|/\*(.*?Plugin Name:.*?)\*/|ims', $plugin_code, $plugin_block ) )
+		return false;
+        $plugin_data = trim( $plugin_block[1] );
 
 	preg_match( '|Plugin Name:(.*)$|mi', $plugin_data, $name );
 	preg_match( '|Plugin URI:(.*)$|mi', $plugin_data, $uri );
