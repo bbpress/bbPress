@@ -113,10 +113,6 @@ dd {
 	padding: 0 0 0.6em 3.6em;
 }
 
-dd a {
-	color: rgb(46, 110, 21);
-}
-
 p.status {
 	position: absolute;
 	right: 0;
@@ -154,7 +150,6 @@ div.closed {
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
 	margin-bottom: 1em;
-	xbackground-color: rgb(250, 250, 250);
 	background-color: rgb(247, 247, 247);
 }
 
@@ -168,7 +163,6 @@ div.closed div {
 
 div.open div {
 	margin: 1px 0;
-	xpadding: 0.5em;
 }
 
 p.error {
@@ -181,7 +175,7 @@ p.error {
 }
 
 p.error a {
-	color: #c00;
+	color: rgb(204, 0, 0);
 }
 
 dl.error {
