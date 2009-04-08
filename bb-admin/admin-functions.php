@@ -847,13 +847,18 @@ function bb_get_plugin_data($plugin_file) {
 			$plugin_file
 		);
 	}
-	$plugin_code = implode('', file($plugin_file));
+
+	// Pull only the first 8kiB of the file in.
+	$fp = fopen( $plugin_file, 'r' );
+	$plugin_code = fread( $fp, 8192 );
+	fclose($fp);
+
 	// Grab just the first commented area from the file
-	if ( !preg_match( '|/\*(.*)\*/|msU', $plugin_code, $plugin_block ) )
+	if ( !preg_match( '|/\*(.*?Plugin Name:.*?)\*/|ims', $plugin_code, $plugin_block ) )
 		return false;
 	$plugin_data = trim( $plugin_block[1] );
-	if ( !preg_match("|Plugin Name:(.*)|i", $plugin_data, $plugin_name) )
-		return false;
+
+	preg_match("|Plugin Name:(.*)|i", $plugin_data, $plugin_name);
 	preg_match("|Plugin URI:(.*)|i", $plugin_data, $plugin_uri);
 	preg_match("|Description:(.*)|i", $plugin_data, $description);
 	preg_match("|Author:(.*)|i", $plugin_data, $author_name);
