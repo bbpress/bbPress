@@ -31,7 +31,7 @@ function bb_get_user_by_nicename( $nicename ) {
 }
 
 function bb_delete_user( $user_id, $reassign = 0 ) {
-	global $wp_users_object;
+	global $wp_users_object, $bbdb;
 
 	if ( !$user = bb_get_user( $user_id ) )
 		return false;
