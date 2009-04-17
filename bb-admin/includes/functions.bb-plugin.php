@@ -209,7 +209,7 @@ function bb_get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 	foreach ( $bb->plugin_locations as $_name => $_data ) {
 		$_directory = str_replace( '\\', '/', $_data['dir'] );
 		if ( 0 === strpos( $plugin_file, $_directory ) ) {
-			$location = $_name;
+			$location = array( 1 => $_name );
 			break;
 		}
 	}
