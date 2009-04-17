@@ -1,18 +1,19 @@
-<?php header('Content-Type: text/xml; charset=UTF-8'); ?>
-<?php echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
-<!-- generator="bbPress" -->
+<?php
+header( 'Content-Type: text/xml; charset=UTF-8' );
+echo '<' . '?xml version="1.0" encoding="UTF-8"?' . '>' . "/n";
+bb_generator( 'comment' );
+?>
 <rss version="2.0"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
-	xmlns:atom="http://www.w3.org/2005/Atom"
->
+	xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title><?php echo $title; ?></title>
 		<link><?php echo $link; ?></link>
 		<description><?php echo $description; ?></description>
 		<language><?php wp_specialchars( bb_option('language') ); ?></language>
 		<pubDate><?php echo gmdate('D, d M Y H:i:s +0000'); ?></pubDate>
-		<generator>bbpress <?php bb_option('version'); ?></generator>
+		<?php bb_generator( 'rss2' ); ?>
 		<textInput>
 			<title><![CDATA[<?php _e('Search'); ?>]]></title>
 			<description><![CDATA[<?php _e('Search all topics from these forums.'); ?>]]></description>
