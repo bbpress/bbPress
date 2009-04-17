@@ -1028,7 +1028,7 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 		list( $option_name, $option_key ) = preg_split( '/[\[\]]/', $name, -1, PREG_SPLIT_NO_EMPTY );
 		$option = bb_get_option( $option_name );
 		$value = false === $args['value'] ? attribute_escape( $option[$option_key] ) : attribute_escape( $args['value'] );
-		$hardcoded = isset( $bb_hardcoded[$option][$option_key] );
+		$hardcoded = isset( $bb_hardcoded[$option_name][$option_key] );
 	} else {
 		$value = false === $args['value'] ? bb_get_form_option( $name ) : attribute_escape( $args['value'] );
 		$hardcoded = isset( $bb_hardcoded[$name] );
