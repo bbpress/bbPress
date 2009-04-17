@@ -92,6 +92,45 @@ function bb_language_attributes( $xhtml = 0 )
 	echo ' ' . rtrim( $output );
 }
 
+function bb_generator( $type = 'xhtml' )
+{
+	if ( !$type ) {
+		$type = 'xhtml';
+	}
+	echo apply_filters( 'bb_generator', bb_get_generator( $type ) . "\n", $type );
+}
+
+function bb_get_generator( $type = 'xhtml' )
+{
+	if ( !$type ) {
+		$type = 'xhtml';
+	}
+	switch ( $type ) {
+		case 'html':
+			$gen = '<meta name="generator" content="bbPress ' . bb_get_option( 'version' ) . '">';
+			break;
+		case 'xhtml':
+			$gen = '<meta name="generator" content="bbPress ' . bb_get_option( 'version' ) . '" />';
+			break;
+		case 'atom':
+			$gen = '<generator uri="http://bbpress.org/" version="' . bb_get_option( 'version' ) . '">bbPress</generator>';
+			break;
+		case 'rss2':
+			$gen = '<generator>http://bbpress.org/?v=' . bb_get_option( 'version' ) . '</generator>';
+			break;
+		case 'rdf':
+			$gen = '<admin:generatorAgent rdf:resource="http://bbpress.org/?v=' . bb_get_option( 'version' ) . '" />';
+			break;
+		case 'comment':
+			$gen = '<!-- generator="bbPress/' . bb_get_option( 'version' ) . '" -->';
+			break;
+		case 'export':
+			$gen = '<!-- generator="bbPress/' . bb_get_option( 'version' ) . '" created="'. date( 'Y-m-d H:i' ) . '"-->';
+			break;
+	}
+	return apply_filters( 'bb_get_generator', $gen, $type );
+}
+
 function bb_stylesheet_uri( $stylesheet = '' )
 {
 	echo wp_specialchars( bb_get_stylesheet_uri( $stylesheet ) );
@@ -932,7 +971,7 @@ function get_topic_id( $id = 0 ) {
 }
 
 function topic_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
-	echo apply_filters( 'topic_link', get_topic_link( $id ), $id, $context );
+	echo apply_filters( 'topic_link', get_topic_link( $id, $page, $context ), $id, $page, $context );
 }
 
 function get_topic_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
