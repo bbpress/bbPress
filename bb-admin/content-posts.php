@@ -7,7 +7,7 @@
 	add_filter( 'get_topic_where', 'no_where' );
 	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
 	add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
-	$post_query = new BB_Query_Form( 'post', array( 'post_status' => 1, 'count' => true, 'per_page' => 20 ) );
+	$post_query = new BB_Query_Form( 'post', array( 'post_status' => 'all', 'count' => true, 'per_page' => 20 ) );
 	$bb_posts =& $post_query->results;
 	$total = $post_query->found_rows;
 ?>
