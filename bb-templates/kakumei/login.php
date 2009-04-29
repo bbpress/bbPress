@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Log in'); ?></h3>
 
-<h2 id="userlogin"><?php isset($_POST['user_login']) ? _e('Log in Failed') : _e('Log in') ; ?></h2>
+<h2 id="userlogin" role="main"><?php isset($_POST['user_login']) ? _e('Log in Failed') : _e('Log in') ; ?></h2>
 
 <form method="post" action="<?php bb_uri('bb-login.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS); ?>">
 <fieldset>

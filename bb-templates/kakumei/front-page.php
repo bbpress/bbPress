@@ -2,7 +2,7 @@
 
 <?php if ( $forums ) : ?>
 
-<div id="hottags">
+<div id="hottags" role="main">
 <h2><?php _e('Hot Tags'); ?></h2>
 <p class="frontpageheatmap"><?php bb_tag_heat_map(); ?></p>
 </div>

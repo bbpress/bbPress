@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Profile') ?></h3>
 
-<div class="vcard">
+<div class="vcard" role="main">
 
 <?php if ( $avatar = bb_get_avatar( $user->ID ) ) : ?>
 <div id="useravatar"><?php echo $avatar; ?></div>

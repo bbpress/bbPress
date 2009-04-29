@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Statistics'); ?></h3>
 
-<dl>
+<dl role="main">
 	<dt><?php _e('Registered Users'); ?></dt>
 	<dd><strong><?php total_users(); ?></strong></dd>
 	<dt><?php _e('Posts'); ?></dt>

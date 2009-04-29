@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Register'); ?></h3>
 
-<h2 id="register"><?php _e('Registration'); ?></h2>
+<h2 id="register" role="main"><?php _e('Registration'); ?></h2>
 
 <?php if ( !bb_is_user_logged_in() ) : ?>
 

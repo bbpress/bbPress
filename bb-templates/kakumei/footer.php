@@ -7,7 +7,7 @@
 
 	</div>
 
-	<div id="footer">
+	<div id="footer" role="contentinfo">
 		<p><?php printf(__('%1$s is proudly powered by <a href="%2$s">bbPress</a>.'), bb_option('name'), "http://bbpress.org") ?></p>
 	</div>
 

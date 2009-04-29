@@ -1,6 +1,6 @@
 
 <?php if ( $topic_title ) : ?>
-<p>
+<p role="main">
   <label><?php _e('Topic:'); ?><br />
 
   <input name="topic" type="text" id="topic" size="50" maxlength="80"  value="<?php echo attribute_escape( get_topic_title() ); ?>" />

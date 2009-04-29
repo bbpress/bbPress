@@ -4,7 +4,7 @@
 
 <?php if ( $topics || $stickies ) : ?>
 
-<table id="latest">
+<table id="latest" role="main">
 <tr>
 	<th><?php _e('Topic'); ?></th>
 	<th><?php _e('Posts'); ?></th>

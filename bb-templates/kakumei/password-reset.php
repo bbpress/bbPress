@@ -2,7 +2,7 @@
 
 <h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Log in'); ?></h3>
 
-<h2><?php _e('Password Reset'); ?></h2>
+<h2 role="main"><?php _e('Password Reset'); ?></h2>
 
 <?php if ( $error ) : ?>
 <p class="notice error"><?php echo $error; ?></p>

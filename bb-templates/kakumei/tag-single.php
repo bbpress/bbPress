@@ -6,7 +6,7 @@
 
 <?php if ( $topics ) : ?>
 
-<table id="latest">
+<table id="latest" role="main">
 <tr>
 	<th><?php _e('Topic'); ?> &#8212; <?php bb_new_topic_link(); ?></th>
 	<th><?php _e('Posts'); ?></th>
