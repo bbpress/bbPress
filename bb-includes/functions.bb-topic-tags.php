@@ -33,6 +33,8 @@ function bb_add_topic_tags( $topic_id, $tags ) {
 
 	$user_id = bb_get_current_user_info( 'id' );
 
+	$tags = apply_filters( 'bb_add_topic_tags', $tags, $topic_id );
+
 	if ( !is_array( $tags ) )
 		$tags = explode(',', (string) $tags);
 
