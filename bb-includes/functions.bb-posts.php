@@ -91,8 +91,10 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 function bb_cache_posts( $query ) {
 	global $bbdb;
 	if ( $posts = (array) $bbdb->get_results( $query ) )
-		foreach( $posts as $bb_post )
+		foreach( $posts as $bb_post ) {
+			$bb_post = bb_append_meta( $bb_post, 'post' );
 			wp_cache_add( $bb_post->post_id, $bb_post, 'bb_post' );
+		}
 	return $posts;
 }
 
