@@ -66,25 +66,25 @@ $cookie_options = array(
 	'wp_siteurl' => array(
 		'title' => __( 'WordPress address (URL)' ),
 		'class' => 'long',
-		'note' => __( 'This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general settings.' ),
+		'note' => __( 'This value should exactly match the <strong>WordPress address (URL)</strong> setting in your WordPress general settings.' )
 	),
 	'wp_home' => array(
 		'title' => __( 'Blog address (URL)' ),
 		'class' => 'long',
-		'note' => __( 'This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.' ),
+		'note' => __( 'This value should exactly match the <strong>Blog address (URL)</strong> setting in your WordPress general settings.' )
 	),
 	'bb_auth_salt' => array(
 		'title' => __( 'WordPress "auth" cookie salt' ),
-		'note' => __( 'This must match the value of the WordPress setting named "auth_salt" in your WordPress installation. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.' ),
+		'note' => __( 'This must match the value of the WordPress setting named "auth_salt" in your WordPress site. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.' )
 	),
 	'bb_secure_auth_salt' => array(
 		'title' => __( 'WordPress "secure auth" cookie salt' ),
-		'note' => __( 'This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress installation. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.' ),
+		'note' => __( 'This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress site. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.' )
 	),
 	'bb_logged_in_salt' => array(
 		'title' => __( 'WordPress "logged in" cookie salt' ),
-		'note' => __( 'This must match the value of the WordPress setting named "logged_in_salt" in your WordPress installation. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.' ),
-	),
+		'note' => __( 'This must match the value of the WordPress setting named "logged_in_salt" in your WordPress site. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>.' )
+	)
 );
 
 foreach ( array( 'bb_auth_salt', 'bb_secure_auth_salt', 'bb_logged_in_salt' ) as $salt_constant ) {
@@ -101,44 +101,45 @@ foreach ( array( 'bb_auth_salt', 'bb_secure_auth_salt', 'bb_logged_in_salt' ) as
 $user_db_options = array(
 	'wp_table_prefix' => array(
 		'title' => __( 'User database table prefix' ),
-		'note' => array(
-			__( 'If your bbPress and WordPress installations share the same database, then this is the same value as <code>$table_prefix</code> in your WordPress <code>wp-config.php</code> file.' ),
-			__( 'In any case, it is usually <strong>wp_</strong>' ),
-		),
+		'note'  => __( 'If your bbPress and WordPress sites share the same database, then this is the same value as <code>$table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.' )
+	),
+	'wordpress_mu_primary_blog_id' => array(
+		'title' => __( 'WordPress MU primary blog ID' ),
+		'note'  => __( 'If you are integrating with a WordPress MU site you need to specify the primary blog ID for that site. It is usually <strong>1</strong>. You should probably leave this blank if you are integrating with a standard WordPress site' )
 	),
 	'user_bbdb_advanced' => array(
 		'title' => __( 'Show advanced database settings' ),
 		'type' => 'checkbox',
 		'attributes' => array( 'onclick' => 'toggleAdvanced(this);' ),
-		'note' => __( 'If your bbPress and WordPress installations do not share the same database, then you will need to add advanced settings.' ),
-	),
+		'note'    => __( 'If your bbPress and WordPress site do not share the same database, then you will need to add advanced settings.' )
+	)
 );
 
 $advanced_user_db_options = array(
 	'user_bbdb_name' => array(
 		'title' => __( 'User database name' ),
-		'note' => __( 'The name of the database in which your user tables reside.' ),
+		'note' => __( 'The name of the database in which your user tables reside.' )
 	),
 	'user_bbdb_user' => array(
 		'title' => __( 'User database user' ),
-		'note' => __( 'The database user that has access to that database.' ),
+		'note' => __( 'The database user that has access to that database.' )
 	),
 	'user_bbdb_password' => array(
 		'title' => __( 'User database password' ),
-		'note' => __( 'That database user\'s password.' ),
+		'note' => __( 'That database user\'s password.' )
 	),
 	'user_bbdb_host' => array(
 		'title' => __( 'User database host' ),
-		'note' => __( 'The domain name or IP address of the server where the database is located. If the database is on the same server as the web site, then this probably should remain <strong>localhost</strong>.' ),
+		'note' => __( 'The domain name or IP address of the server where the database is located. If the database is on the same server as the web site, then this probably should be <strong>localhost</strong>.' )
 	),
 	'user_bbdb_charset' => array(
 		'title' => __( 'User database character set' ),
-		'note' => __( 'The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.' ),
+		'note' => __( 'The best choice is <strong>utf8</strong>, but you will need to match the character set which you created the database with.' )
 	),
 	'user_bbdb_collate' => array(
 		'title' => __( 'User database character collation' ),
-		'note' => __( 'The character collation value set when the user database was created.' ),
-	),
+		'note' => __( 'The character collation value set when the user database was created.' )
+	)
 );
 
 $custom_table_options = array(
@@ -296,6 +297,7 @@ $cookie_settings = array(
 	'',
 	'// WordPress database integration speedup',
 	'wp_table_prefix',
+	'wordpress_mu_primary_blog_id',
 	'user_bbdb_name',
 	'user_bbdb_user',
 	'user_bbdb_password',
