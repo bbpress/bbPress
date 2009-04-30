@@ -1590,6 +1590,29 @@ function post_anchor_link( $force_full = false ) {
 		echo '#post-' . get_post_id();
 }
 
+function post_position( $post_id = 0 ) {
+	echo apply_filters( 'post_position', get_post_position( $post_id ), get_post_id( $post_id ) );
+}
+
+function get_post_position( $post_id = 0 ) {
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+	return apply_filters( 'get_post_position', $bb_post->post_position, $bb_post->post_id );
+}
+
+function post_position_link( $topic_id = 0, $position = 1 ) {
+	echo apply_filters( 'post_position_link', get_post_position_link( $topic_id, $position ), get_topic_id( $topic_id ), (integer) $position );
+}
+
+function get_post_position_link( $topic_id = 0, $position = 1 ) {
+	$position = (integer) $position;
+	$bb_topic = get_topic( get_topic_id( $topic_id ) );
+	if ( $bb_topic->topic_posts < $position ) {
+		return;
+	}
+	$page = get_page_number( $position );
+	return apply_filters( 'get_post_position_link', get_topic_link( $bb_post->topic_id, $page ) . "#position-$position", $bb_topic->topic_id, $position );
+}
+
 function bb_post_meta( $key, $post_id = 0 ) {
 	echo bb_get_post_meta( $key, $post_id );
 }
