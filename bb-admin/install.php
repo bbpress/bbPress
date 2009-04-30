@@ -182,6 +182,7 @@ switch ($bb_install->step) {
 								<p><?php _e('Integrating your WordPress database user tables allows you to store user data in one location, instead of having separate user data for both bbPress and WordPress.'); ?></p>
 <?php
 					$bb_install->input_text('wp_table_prefix', 'ltr');
+					$bb_install->input_text('wordpress_mu_primary_blog_id', 'ltr');
 					$bb_install->input_toggle('toggle_2_3');
 ?>
 							</fieldset>

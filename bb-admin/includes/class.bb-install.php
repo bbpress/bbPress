@@ -678,7 +678,7 @@ class BB_Install
 					'bb_table_prefix' => array(
 						'value'        => 'bb_',
 						'label'        => __( 'Table name prefix' ),
-						'note'         => __( 'If you are running multiple bbPress installations in a single database, you will probably want to change this.' ),
+						'note'         => __( 'If you are running multiple bbPress sites in a single database, you will probably want to change this.' ),
 						'prerequisite' => 'toggle_1'
 					),
 					'config' => array(
@@ -706,7 +706,7 @@ class BB_Install
 					'toggle_2_0' => array(
 						'value'        => 0,
 						'label'        => __( 'Add integration settings' ),
-						'note'         => __( 'If you want to integrate bbPress with an existing WordPress installation.' ),
+						'note'         => __( 'If you want to integrate bbPress with an existing WordPress site.' ),
 						'checked'      => '',
 						'display'      => 'none',
 						'toggle_value' => array(
@@ -718,7 +718,7 @@ class BB_Install
 					'toggle_2_1' => array(
 						'value'   => 0,
 						'label'   => __( 'Add cookie integration settings' ),
-						'note'    => __( 'If you want to allow shared logins with an existing WordPress installation.' ),
+						'note'    => __( 'If you want to allow shared logins with an existing WordPress site.' ),
 						'checked' => '',
 						'display' => 'none',
 						'prerequisite' => 'toggle_2_0'
@@ -745,7 +745,7 @@ class BB_Install
 					'wp_auth_salt' => array(
 						'value' => '',
 						'label' => __( 'WordPress "auth" cookie salt' ),
-						'note'  => __( 'This must match the value of the WordPress setting named "auth_salt" in your WordPress installation. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.' ),
+						'note'  => __( 'This must match the value of the WordPress setting named "auth_salt" in your WordPress site. Look for the option labeled "auth_salt" in <a href="#" id="getAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.' ),
 						'prerequisite' => 'toggle_2_1',
 						'autocomplete' => 'off'
 					),
@@ -759,7 +759,7 @@ class BB_Install
 					'wp_secure_auth_salt' => array(
 						'value' => '',
 						'label' => __( 'WordPress "secure auth" cookie salt' ),
-						'note'  => __( 'This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress installation. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.' ),
+						'note'  => __( 'This must match the value of the WordPress setting named "secure_auth_salt" in your WordPress site. Look for the option labeled "secure_auth_salt" in <a href="#" id="getSecureAuthSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings. Sometimes this value is not set in WordPress, in that case you can leave this setting blank as well.' ),
 						'prerequisite' => 'toggle_2_1',
 						'autocomplete' => 'off'
 					),
@@ -773,14 +773,14 @@ class BB_Install
 					'wp_logged_in_salt' => array(
 						'value' => '',
 						'label' => __( 'WordPress "logged in" cookie salt' ),
-						'note'  => __( 'This must match the value of the WordPress setting named "logged_in_salt" in your WordPress installation. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.' ),
+						'note'  => __( 'This must match the value of the WordPress setting named "logged_in_salt" in your WordPress site. Look for the option labeled "logged_in_salt" in <a href="#" id="getLoggedInSaltOption" onclick="window.open(this.href); return false;">this WordPress admin page</a>. If you leave this blank the installer will try to fetch the value based on your WordPress database integration settings.' ),
 						'prerequisite' => 'toggle_2_1',
 						'autocomplete' => 'off'
 					),
 					'toggle_2_2' => array(
 						'value'   => 0,
 						'label'   => __( 'Add user database integration settings' ),
-						'note'    => __( 'If you want to share user data with an existing WordPress installation.' ),
+						'note'    => __( 'If you want to share user data with an existing WordPress site.' ),
 						'checked' => '',
 						'display' => 'none',
 						'prerequisite' => 'toggle_2_0'
@@ -789,13 +789,20 @@ class BB_Install
 						'value' => 'wp_',
 						'default_value' => '', // Used when setting is ignored
 						'label' => __( 'User database table prefix' ),
-						'note'  => __( 'If your bbPress and WordPress installations share the same database, then this is the same value as <code>$table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.' ),
+						'note'  => __( 'If your bbPress and WordPress sites share the same database, then this is the same value as <code>$table_prefix</code> in your WordPress <code>wp-config.php</code> file. It is usually <strong>wp_</strong>.' ),
+						'prerequisite' => 'toggle_2_2'
+					),
+					'wordpress_mu_primary_blog_id' => array(
+						'value' => '',
+						'default_value' => '',
+						'label' => __( 'WordPress MU primary blog ID' ),
+						'note'  => __( 'If you are integrating with a WordPress MU site you need to specify the primary blog ID for that site. It is usually <strong>1</strong>. You should probably leave this blank if you are integrating with a standard WordPress site' ),
 						'prerequisite' => 'toggle_2_2'
 					),
 					'toggle_2_3' => array(
 						'value'   => 0,
 						'label'   => __( 'Show advanced database settings' ),
-						'note'    => __( 'If your bbPress and WordPress installation do not share the same database, then you will need to add advanced settings.' ),
+						'note'    => __( 'If your bbPress and WordPress site do not share the same database, then you will need to add advanced settings.' ),
 						'checked' => '',
 						'display' => 'none',
 						'prerequisite' => 'toggle_2_2'
@@ -868,7 +875,7 @@ class BB_Install
 					'name' => array(
 						'value' => '',
 						'label' => __( 'Site name' ),
-						'note'  => __( 'This is what you are going to call your bbPress installation.' )
+						'note'  => __( 'This is what you are going to call your bbPress site.' )
 					),
 					'uri' => array(
 						'value' => $this->guess_uri(),
@@ -1393,6 +1400,9 @@ class BB_Install
 				$data['wp_table_prefix']['value'] = preg_replace( '/[^0-9a-zA-Z_]/', '', $data['wp_table_prefix']['value'] );
 				$data['wp_table_prefix']['value'] = empty( $data['wp_table_prefix']['value'] ) ? 'wp_' : $data['wp_table_prefix']['value'];
 
+				// Make the wordpress_mu_primary_blog_id valid
+				$data['wordpress_mu_primary_blog_id']['value'] = preg_replace( '/[^0-9]/', '', $data['wordpress_mu_primary_blog_id']['value'] );
+
 				// If advanced database integration is selected
 				if ( $data['toggle_2_3']['value'] ) {
 					$data['toggle_2_3']['checked'] = 'checked="checked"';
@@ -1840,11 +1850,18 @@ class BB_Install
 				) {
 					$installation_log[] = '>>> ' . __( 'Fetching missing WordPress cookie salts.' );
 
-					if ( isset( $bb->custom_databases['user'] ) ) {
-						$bbdb->tables['options'] = array( 'user', $bb->wp_table_prefix . 'options' );
-					} else {
-						$bbdb->tables['options'] = $bb->wp_table_prefix . 'options';
+					$_prefix = $bb->wp_table_prefix;
+					if ( !empty( $data2['wordpress_mu_primary_blog_id']['value'] ) ) {
+						$_prefix .= $data2['wordpress_mu_primary_blog_id']['value'] . '_';
 					}
+
+					if ( isset( $bb->custom_databases['user'] ) ) {
+						$bbdb->tables['options'] = array( 'user', $_prefix . 'options' );
+					} else {
+						$bbdb->tables['options'] = $_prefix . 'options';
+					}
+
+					unset( $_prefix );
 
 					$bbdb->set_prefix( $bb_table_prefix );
 
@@ -1889,6 +1906,11 @@ class BB_Install
 				if ( !empty( $data2['wp_table_prefix']['value'] ) ) {
 					bb_update_option( 'wp_table_prefix', $data2['wp_table_prefix']['value'] );
 					$installation_log[] = '>>> ' . __( 'User database table prefix:' ) . ' ' . $data2['wp_table_prefix']['value'];
+				}
+
+				if ( !empty( $data2['wordpress_mu_primary_blog_id']['value'] ) ) {
+					bb_update_option( 'wordpress_mu_primary_blog_id', $data2['wordpress_mu_primary_blog_id']['value'] );
+					$installation_log[] = '>>> ' . __( 'WordPress MU primary blog ID:' ) . ' ' . $data2['wordpress_mu_primary_blog_id']['value'];
 				}
 
 				if ( $data2['toggle_2_3']['value'] ) {
@@ -2465,7 +2487,10 @@ class BB_Install
 
 		$bb_keymaster_meta_key       = $bbdb->escape( $bb_table_prefix . 'capabilities' );
 		$wp_administrator_meta_key   = $bbdb->escape( $bb->wp_table_prefix . 'capabilities' );
-		$wpmu_administrator_meta_key = $bbdb->escape( $bb->wp_table_prefix . '1_capabilities' ); // TODO - Handle WPMU integration better
+		if ( !empty( $this->data[2]['form']['wordpress_mu_primary_blog_id']['value'] ) ) {
+			$wp_administrator_meta_key .= $this->data[2]['form']['wordpress_mu_primary_blog_id']['value'] . '_';
+		}
+
 		$keymaster_query = <<<EOQ
 			SELECT
 				user_login, user_email, display_name
@@ -2476,10 +2501,6 @@ class BB_Install
 				$bbdb->users.ID = $bbdb->usermeta.user_id
 			WHERE
 				(
-					(
-						meta_key = '$wpmu_administrator_meta_key' AND
-						meta_value LIKE '%administrator%'
-					) OR
 					(
 						meta_key = '$wp_administrator_meta_key' AND
 						meta_value LIKE '%administrator%'
