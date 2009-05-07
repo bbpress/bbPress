@@ -50,7 +50,7 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 			$page * $post_query->get( 'per_page' ) < $total ? bb_number_format_i18n( $page * $post_query->get( 'per_page' ) ) : '<span class="total-type-count">' . bb_number_format_i18n( $total ) . '</span>',
 			'<span class="total-type-count">' . bb_number_format_i18n( $total ) . '</span>'
 		); ?></span>
-		<?php echo $page_number_links = get_page_number_links( $page, $total, $post_query->get( 'per_page' ) ); ?>
+		<?php echo $page_number_links = get_page_number_links( $page, $total, $post_query->get( 'per_page' ), false ); ?>
 	</div>
 <?php endif; ?>
 </div>

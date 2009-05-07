@@ -386,7 +386,7 @@ class BB_User_Search {
 			$this->page * $this->users_per_page < $this->total_users_for_query ? bb_number_format_i18n( $this->page * $this->users_per_page ) : '<span class="total-type-count">' . bb_number_format_i18n( $this->total_users_for_query ) . '</span>',
 			'<span class="total-type-count">' . bb_number_format_i18n( $this->total_users_for_query ) . '</span>'
 		);
-		$page_number_links = $this->total_users_for_query > $this->users_per_page ? get_page_number_links( $this->page, $this->total_users_for_query, $this->users_per_page ) : '';
+		$page_number_links = $this->total_users_for_query > $this->users_per_page ? get_page_number_links( $this->page, $this->total_users_for_query, $this->users_per_page, false ) : '';
 		$this->paging_text = "<div class='tablenav-pages'><span class='displaying-num'>$displaying_num</span>$page_number_links</div>\n";
 	}
 

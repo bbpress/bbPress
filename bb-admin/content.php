@@ -53,7 +53,7 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 			$page * $topic_query->get( 'per_page' ) < $topic_query->found_rows ? bb_number_format_i18n( $page * $topic_query->get( 'per_page' ) ) : '<span class="total-type-count">' . bb_number_format_i18n( $topic_query->found_rows ) . '</span>',
 			'<span class="total-type-count">' . bb_number_format_i18n( $topic_query->found_rows ) . '</span>'
 		); ?></span>
-		<?php echo $page_number_links = get_page_number_links( $page, $topic_query->found_rows, $topic_query->get( 'per_page' ) ); ?>
+		<?php echo $page_number_links = get_page_number_links( $page, $topic_query->found_rows, $topic_query->get( 'per_page' ), false ); ?>
 	</div>
 <?php endif; ?>
 </div>

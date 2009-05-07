@@ -286,7 +286,7 @@ function bb_ksd_admin_page() {
 <?php bb_admin_list_posts(); ?>
 
 <?php
-	echo get_page_number_links( $page, $total );
+	echo get_page_number_links( $page, $total, '', false );
 }
 
 function bb_ksd_post_delete_link($link, $post_status) {

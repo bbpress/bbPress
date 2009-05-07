@@ -1216,10 +1216,15 @@ function topic_pages_add( $id = 0 ) {
 	return apply_filters( 'topic_pages_add', $add, isset($topic->topic_id) ? $topic->topic_id : 0 );
 }
 
-function get_page_number_links( $page, $total, $per_page = '' ) {
+function get_page_number_links( $page, $total, $per_page = '', $mod_rewrite = 'use_option' ) {
 	$args = array();
 	$uri = rtrim( $_SERVER['REQUEST_URI'], '?&' );
-	if ( bb_get_option('mod_rewrite') ) {
+
+	if ( $mod_rewrite === 'use_option' ) {
+		$mod_rewrite = bb_get_option( 'mod_rewrite' );
+	}
+
+	if ( $mod_rewrite ) {
 		$format = '/page/%#%';
 		if ( 1 == $page ) {
 			if ( false === $pos = strpos($uri, '?') )
