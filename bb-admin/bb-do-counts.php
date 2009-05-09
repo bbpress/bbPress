@@ -15,17 +15,19 @@ bb_check_admin_referer( 'do-counts' ); ?>
 <ul>
 
 <?php
-if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
+if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ) {
 	echo "\t<li>\n";
-	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :
+	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) {
 		echo "\t\t" . __('Counting posts...') . "<br />\n";
-		foreach ($topics as $topic)
-			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$topic->count' WHERE topic_id = '$topic->topic_id'");
-		unset($topics, $topic);
-	endif;
+		foreach ($topics as $topic) {
+			$topic_id = (int) $topic->topic_id;
+			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->topics SET topic_posts = %s WHERE topic_id = %s" ), $topic->count, $topic_id );
+		}
+		unset($topics, $topic, $topic_id);
+	}
 	echo "\t\t" . __('Done counting posts.');
 	echo "\n\t</li>\n";
-endif;
+}
 
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
 	echo "\t<li>\n";
@@ -33,10 +35,10 @@ if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] 
 	$old = array_flip($old);
 	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
 		echo "\t\t" . __('Counting deleted posts...') . "<br />\n";
-		foreach ( $topics as $topic ) :
+		foreach ( $topics as $topic ) {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', $topic->count );
 			unset($old[$topic->topic_id]);
-		endforeach;
+		}
 		unset($topics, $topic);
 	endif;
 	if ( $old ) :
@@ -138,8 +140,10 @@ if ( isset($_POST['zap-tags']) && 1 == $_POST['zap-tags'] ):
 		echo "\t\t" . __('Deleting tags with no topics...') . "<br />\n";
 		foreach ( $terms as $term ) {
 			$topic_ids = bb_get_tagged_topic_ids( $term->term_id );
-			if ( false === $topic_ids || ( is_array( $topic_ids ) && !count( $topic_ids ) ) ) {
-				bb_destroy_tag( $term->term_taxonomy_id );
+			if ( !is_wp_error( $topic_ids ) && is_array( $topic_ids ) ) {
+				if ( false === $topic_ids || ( is_array( $topic_ids ) && !count( $topic_ids ) ) ) {
+					bb_destroy_tag( $term->term_taxonomy_id );
+				}
 			}
 			unset( $topic_ids );
 		}
