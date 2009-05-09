@@ -44,6 +44,10 @@ function bb_delete_user( $user_id, $reassign = 0 ) {
 		$bbdb->update( $bbdb->topics, array( 'topic_poster' => $new_user->ID, 'topic_poster_name' => $new_user->user_login), array( 'topic_poster' => $user->ID ) );
 		$bbdb->update( $bbdb->topics, array( 'topic_last_poster' => $new_user->ID, 'topic_last_poster_name' => $new_user->user_login ), array( 'topic_last_poster' => $user->ID ) );
 		bb_update_topics_replied( $new_user->ID );
+		wp_cache_flush( 'bb_post' );
+		wp_cache_flush( 'bb_thread' );
+		wp_cache_flush( 'bb_topic_tag' );
+		wp_cache_flush( 'bb_topic' );
 	}
 
 	do_action( 'bb_delete_user', $user->ID, $reassign );

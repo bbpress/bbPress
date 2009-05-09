@@ -211,6 +211,7 @@ function bb_insert_topic( $args = null ) {
 		wp_cache_delete( $topic_id, 'bb_topic' );
 		if ( in_array( 'topic_slug', $fields ) )
 			wp_cache_delete( $topic->topic_slug, 'bb_topic_slug' );
+		wp_cache_flush( 'bb_query' );
 		do_action( 'bb_update_topic', $topic_id );
 	} else {
 		$bbdb->insert( $bbdb->topics, compact( $fields ) );
@@ -218,6 +219,7 @@ function bb_insert_topic( $args = null ) {
 		$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = %d", $forum_id ) );
 		wp_cache_delete( $forum_id, 'bb_forum' );
 		wp_cache_flush( 'bb_forums' );
+		wp_cache_flush( 'bb_query' );
 		do_action( 'bb_new_topic', $topic_id );
 	}
 
@@ -306,6 +308,9 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		wp_cache_delete( $topic_id, 'bb_topic' );
 		wp_cache_delete( $topic->topic_slug, 'bb_topic_slug' );
 		wp_cache_delete( $topic_id, 'bb_thread' );
+		wp_cache_delete( $topic->forum_id, 'bb_forum' );
+		wp_cache_flush( 'bb_forums' );
+		wp_cache_flush( 'bb_query' );
 		return $topic_id;
 	} else {
 		return false;
@@ -328,9 +333,11 @@ function bb_move_topic( $topic_id, $forum_id ) {
 		$bbdb->query( $bbdb->prepare( 
 			"UPDATE $bbdb->forums SET topics = topics - 1, posts = posts - %d WHERE forum_id = %d", $topic->topic_posts, $topic->forum_id
 		) );
+		wp_cache_flush( 'bb_post' );
 		wp_cache_delete( $topic_id, 'bb_topic' );
 		wp_cache_delete( $forum_id, 'bb_forum' );
 		wp_cache_flush( 'bb_forums' );
+		wp_cache_flush( 'bb_query' );
 		return $forum_id;
 	}
 	return false;
@@ -343,8 +350,9 @@ function bb_topic_set_last_post( $topic_id ) {
 		"SELECT post_id, poster_id, post_time FROM $bbdb->posts WHERE topic_id = %d AND post_status = 0 ORDER BY post_time DESC LIMIT 1", $topic_id
 	) );
 	$old_poster = bb_get_user( $old_post->poster_id );
+	wp_cache_delete( $topic_id, 'bb_topic' );
 	return $bbdb->update( $bbdb->topics, array( 'topic_time' => $old_post->post_time, 'topic_last_poster' => $old_post->poster_id, 'topic_last_poster_name' => $old_poster->login_name, 'topic_last_post_id' => $old_post->post_id ), compact( 'topic_id' ) );
-}	
+}
 
 function bb_close_topic( $topic_id ) {
 	global $bbdb;

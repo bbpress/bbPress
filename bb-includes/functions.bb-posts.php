@@ -267,6 +267,7 @@ function bb_insert_post( $args = null ) {
 
 	if ( $update ) {
 		$bbdb->update( $bbdb->posts, compact( $fields ), compact( 'post_id' ) );
+		wp_cache_delete( $post_id, 'bb_post' );
 	} else {
 		$bbdb->insert( $bbdb->posts, compact( $fields ) );
 		$post_id = $topic_last_post_id = (int) $bbdb->insert_id;
@@ -298,6 +299,7 @@ function bb_insert_post( $args = null ) {
 	wp_cache_delete( $topic_id, 'bb_thread' );
 	wp_cache_delete( $forum_id, 'bb_forum' );
 	wp_cache_flush( 'bb_forums' );
+	wp_cache_flush( 'bb_query' );
 
 	if ( $update ) // fire actions after cache is flushed
 		do_action( 'bb_update_post', $post_id );
@@ -331,9 +333,12 @@ function update_post_positions( $topic_id ) {
 	$topic_id = (int) $topic_id;
 	$posts = get_thread( $topic_id, array( 'per_page' => '-1' ) );
 	if ( $posts ) {
-		foreach ( $posts as $i => $post )
+		foreach ( $posts as $i => $post ) {
 			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->posts SET post_position = %d WHERE post_id = %d", $i + 1, $post->post_id ) );
+			wp_cache_delete( (int) $post->post_id, 'bb_post' );
+		}
 		wp_cache_delete( $topic_id, 'bb_thread' );
+		wp_cache_flush( 'bb_query' );
 		return true;
 	} else {
 		return false;
@@ -384,6 +389,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 		wp_cache_delete( $topic_id, 'bb_topic' );
 		wp_cache_delete( $topic_id, 'bb_thread' );
 		wp_cache_flush( 'bb_forums' );
+		wp_cache_flush( 'bb_query' );
 		do_action( 'bb_delete_post', $post_id, $new_status, $old_status );
 		return $post_id;
 	} else {
@@ -396,6 +402,7 @@ function _bb_delete_post( $post_id, $post_status ) {
 	$post_id = (int) $post_id;
 	$post_status = (int) $post_status;
 	$bbdb->update( $bbdb->posts, compact( 'post_status' ), compact( 'post_id' ) );
+	wp_cache_delete( $post_id, 'bb_post' );
 }
 
 function topics_replied_on_undelete_post( $post_id ) {

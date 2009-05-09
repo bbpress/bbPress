@@ -47,6 +47,7 @@ function bb_upgrade_all() {
 	$bb_upgrade['messages'][] = bb_upgrade_1100(); // Replace forum_stickies index with stickies (#876)
 
 	bb_update_db_version();
+	wp_cache_flush();
 
 	$bb_upgrade['messages'] = array_filter($bb_upgrade['messages']);
 	$bb_upgrade['errors'] = array_filter($bb_upgrade['errors']);

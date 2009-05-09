@@ -646,6 +646,8 @@ function bb_delete_forum( $forum_id ) {
 
 	$return = $bbdb->query( $bbdb->prepare( "DELETE FROM $bbdb->forums WHERE forum_id = %d", $forum_id ) );
 
+	wp_cache_flush( 'bb_post' );
+
 	if ( $topic_ids )
 		foreach ( $topic_ids as $topic_id ) {
 			// should maybe just flush these groups instead
@@ -793,6 +795,9 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	$bbdb->update( $bbdb->posts, array( 'forum_id' => $to_forum_id ), array( 'forum_id' => $from_forum_id ) );
 	$topic_ids = $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->topics WHERE forum_id = %d", $from_forum_id ) );
 	$return = $bbdb->update( $bbdb->topics, array( 'forum_id' => $to_forum_id ), array( 'forum_id' => $from_forum_id ) );
+
+	wp_cache_flush( 'bb_post' );
+
 	if ( $topic_ids )
 		foreach ( $topic_ids as $topic_id ) {
 			// should maybe just flush these groups
