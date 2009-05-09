@@ -338,6 +338,9 @@ function bb_move_topic( $topic_id, $forum_id ) {
 		wp_cache_delete( $forum_id, 'bb_forum' );
 		wp_cache_flush( 'bb_forums' );
 		wp_cache_flush( 'bb_query' );
+
+		do_action( 'bb_move_topic', $topic_id, $forum_id, $topic->forum_id );
+
 		return $forum_id;
 	}
 	return false;
