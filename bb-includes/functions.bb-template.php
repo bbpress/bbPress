@@ -2909,7 +2909,7 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$fontspread = $largest - $smallest;
 	if ( $fontspread <= 0 )
 		$fontspread = 1;
-	$fontstep = $fontspread / $spread;
+	$fontstep = round( $fontspread / $spread, 1 );
 
 	do_action_ref_array( 'sort_tag_heat_map', array(&$counts) );
 
