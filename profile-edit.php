@@ -156,6 +156,11 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 		if ( bb_current_user_can( 'change_user_password', $user->ID ) && !empty($_POST['pass1']) ) {
 			$_POST['pass1'] = addslashes($_POST['pass1']);
 			bb_update_user_password( $user->ID, $_POST['pass1'] );
+
+			if ( bb_get_current_user_info( 'ID' ) == $user->ID ) {
+				bb_clear_auth_cookie();
+				bb_set_auth_cookie( $user->ID );
+			}
 		}
 		
 		do_action('profile_edited', $user->ID);
