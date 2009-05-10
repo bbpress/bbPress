@@ -45,6 +45,8 @@ function bb_upgrade_all() {
 	$bb_upgrade['messages'][] = bb_upgrade_1080(); // Convert tags to taxonomy
 	$bb_upgrade['messages'][] = bb_upgrade_1090(); // Add display names
 	$bb_upgrade['messages'][] = bb_upgrade_1100(); // Replace forum_stickies index with stickies (#876)
+	$bb_upgrade['messages'][] = bb_upgrade_1110(); // Create plugin directory (#1083)
+	$bb_upgrade['messages'][] = bb_upgrade_1120(); // Create theme directory (#1083)
 
 	bb_update_db_version();
 	wp_cache_flush();
@@ -421,6 +423,61 @@ function bb_upgrade_1100() {
 	bb_update_option( 'bb_db_version', 1638 );
 
 	return 'Index forum_stickies dropped: ' . __FUNCTION__;
+}
+
+function bb_upgrade_1110() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 2077 )
+		return;
+
+	// No matter what happens, update the db version
+	bb_update_option( 'bb_db_version', 2077 );
+
+	if ( !defined( 'BB_PLUGIN_DIR' ) ) {
+		return;
+	}
+
+	if ( !BB_PLUGIN_DIR ) {
+		return;
+	}
+
+	if ( file_exists( BB_PLUGIN_DIR ) ) {
+		return;
+	}
+
+	// Just suppress errors as this is not critical
+	if ( @mkdir( BB_PLUGIN_DIR, 0750 ) ) {
+		return 'Making plugin directory at ' . BB_PLUGIN_DIR . ': ' . __FUNCTION__;
+	}
+
+	return;
+}
+
+function bb_upgrade_1120() {
+	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 2078 ) {
+		return;
+	}
+
+	// No matter what happens, update the db version
+	bb_update_option( 'bb_db_version', 2078 );
+
+	if ( !defined( 'BB_THEME_DIR' ) ) {
+		return;
+	}
+
+	if ( !BB_THEME_DIR ) {
+		return;
+	}
+
+	if ( file_exists( BB_THEME_DIR ) ) {
+		return;
+	}
+
+	// Just suppress errors as this is not critical
+	if ( @mkdir( BB_THEME_DIR, 0750 ) ) {
+		return 'Making theme directory at ' . BB_THEME_DIR . ': ' . __FUNCTION__;
+	}
+
+	return;
 }
 
 function bb_deslash($content) {

@@ -2123,6 +2123,20 @@ class BB_Install
 			$error_log[] = __( 'Forums already exist!' );
 		}
 
+		if ( defined( 'BB_PLUGIN_DIR' ) && BB_PLUGIN_DIR && !file_exists( BB_PLUGIN_DIR ) ) {
+			// Just suppress errors as this is not critical
+			if ( @mkdir( BB_PLUGIN_DIR, 0750 ) ) {
+				$installation_log[] = '>>> ' . sprintf( __( 'Making plugin directory at %s.' ),  BB_PLUGIN_DIR );
+			}
+		}
+
+		if ( defined( 'BB_THEME_DIR' ) && BB_THEME_DIR && !file_exists( BB_THEME_DIR ) ) {
+			// Just suppress errors as this is not critical
+			if ( @mkdir( BB_THEME_DIR, 0750 ) ) {
+				$installation_log[] = '>>> ' . sprintf( __( 'Making theme directory at %s.' ),  BB_THEME_DIR );
+			}
+		}
+
 		if ( $keymaster_created ) {
 			$keymaster_email_message = sprintf(
 				__( "Your new bbPress site has been successfully set up at:\n\n%1\$s\n\nYou can log in to the key master account with the following information:\n\nUsername: %2\$s\nPassword: %3\$s\n\nWe hope you enjoy your new forums. Thanks!\n\n--The bbPress Team\nhttp://bbpress.org/" ),
