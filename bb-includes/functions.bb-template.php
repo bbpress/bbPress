@@ -2864,31 +2864,6 @@ function bb_tag_heat_map( $args = '' ) {
 	echo apply_filters( 'tag_heat_map', $r, $args );
 }
 
-function bb_related_tags_heat_map( $args = '' ) {
-	if ( $args && is_string($args) && false === strpos($args, '=') || is_numeric($args) )
-		$args = array( 'tag' => $args );
-
-	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat', 'tag' => false );
-	$args = wp_parse_args( $args, $defaults );
-
-	if ( 1 < $fn = func_num_args() ) : // For back compat
-		$args['smallest'] = func_get_arg(0);
-		$args['largest']  = func_get_arg(1);
-		$args['unit']     = 2 < $fn ? func_get_arg(2) : $unit;
-		$args['limit']    = 3 < $fn ? func_get_arg(3) : $limit;
-	endif;
-
-	extract($args, EXTR_SKIP);
-
-	$tags = bb_related_tags( $tag, $limit );
-
-	if ( empty($tags) )
-		return;
-
-	$r = bb_get_tag_heat_map( $tags, $args );
-	echo apply_filters( 'bb_related_tags_heat_map', $r, $args );
-}
-
 function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$defaults = array( 'smallest' => 8, 'largest' => 22, 'unit' => 'pt', 'limit' => 45, 'format' => 'flat' );
 	$args = wp_parse_args( $args, $defaults );

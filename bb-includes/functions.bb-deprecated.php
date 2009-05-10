@@ -1017,3 +1017,15 @@ function merge_tags( $old_id, $new_id )
 	bb_log_deprecated( 'function', __FUNCTION__, 'bb_merge_tags' );
 	return bb_merge_tags( $old_id, $new_id );
 }
+
+function bb_related_tags( $_tag = false, $number = 0 )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'no alternative' );
+	return false;
+}
+
+function bb_related_tags_heat_map( $args = '' )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'no alternative' );
+	return;
+}
