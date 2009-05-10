@@ -32,7 +32,7 @@ if( isset( $_REQUEST['action'] ) && !empty( $_REQUEST['action'] ) ) {
 }
 
 // Set the plugin
-$plugin = isset( $_REQUEST['plugin'] ) ? trim( $_REQUEST['plugin'] ) : '';
+$plugin = isset( $_REQUEST['plugin'] ) ? trim( stripslashes( $_REQUEST['plugin'] ) ) : '';
 
 // Deal with user actions
 if ( !empty( $action ) ) {
