@@ -206,7 +206,7 @@ EOQ;
 
 	global $bbdb;
 
-	$role_query = $bbdb->prepare( $role_query, $bbdb->users, $bbdb->usermeta, $bbdb->prefix, $wp_table_prefix );
+	$role_query = $bbdb->prepare( $role_query, $bbdb->users, $bbdb->usermeta, $bbdb->prefix, $wordpress_table_prefix );
 
 	if ( $user_ids = $bbdb->get_col( $role_query ) ) {
 		foreach ( $user_ids as $user_id ) {

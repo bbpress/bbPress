@@ -294,7 +294,7 @@ function bb_get_option( $option )
 						$r = __( 'Please give me a name!' );
 						break;
 					case 'wp_table_prefix' :
-						global $wp_table_prefix;
+						global $wp_table_prefix; // This global is deprecated
 						return $wp_table_prefix; // Don't filter;
 						break;
 					case 'mod_rewrite':
