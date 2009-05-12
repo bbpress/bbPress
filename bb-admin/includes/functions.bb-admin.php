@@ -174,7 +174,7 @@ function bb_get_current_admin_menu() {
 
 function bb_admin_title() {
 	global $bb_current_menu, $bb_current_submenu;
-	$title = bb_get_option('name') . ' &#8250; ' . $bb_current_menu[0] . ( $bb_current_submenu ? ' &raquo; ' . $bb_current_submenu[0] : '' ) . ' &#8212; bbPress';
+	$title = ( $bb_current_submenu ? $bb_current_submenu[0] . ' &lsaquo; ' : '' ) . $bb_current_menu[0] . ' &lsaquo; ' . bb_get_option( 'name' ) . ' &#8212; bbPress';
 	echo wp_specialchars( $title );
 }
 
