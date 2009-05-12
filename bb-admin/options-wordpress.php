@@ -331,7 +331,11 @@ foreach ($cookie_settings as $bb_setting) {
 	} elseif (substr($bb_setting, 0, 2) == '//') {
 		$bb_settings .= $bb_setting . "\n";
 	} elseif ( isset($bb->$bb_setting) ) {
-		$bb_settings .= '$bb->' . $bb_setting . ' = \'' . $bb->$bb_setting . '\';' . "\n";
+		if ( is_numeric( $bb->$bb_setting ) ) {
+			$bb_settings .= '$bb->' . $bb_setting . ' = ' . $bb->$bb_setting . ';' . "\n";
+		} else {
+			$bb_settings .= '$bb->' . $bb_setting . ' = \'' . $bb->$bb_setting . '\';' . "\n";
+		}
 	}
 }
 ?>

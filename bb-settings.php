@@ -763,7 +763,7 @@ if ( !$bb->sitecookiepath && $bb->wp_cookies_integrated ) {
 		$bb->sitecookiepath = $bb->cookiepath;
 	}
 }
-$bb->sitecookiepath = rtrim( trim( $bb->sitecookiepath ), " \t\n\r\0\x0B/" ) . '/';
+$bb->sitecookiepath = rtrim( trim( $bb->sitecookiepath ), " \t\n\r\0\x0B/" );
 
 $bb->wp_admin_cookie_path = bb_get_option( 'wp_admin_cookie_path' );
 if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {

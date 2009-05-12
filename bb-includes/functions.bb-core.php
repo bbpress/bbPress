@@ -117,6 +117,10 @@ function bb_set_custom_user_tables()
 		}
 	}
 
+	if ( bb_get_option( 'wordpress_mu_primary_blog_id' ) ) {
+		$bb->wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' );
+	}
+
 	// Check for older style user database
 	if ( !isset( $bb->custom_databases ) ) {
 		$bb->custom_databases = array();
