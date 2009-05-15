@@ -937,18 +937,33 @@ function bb_forum_pad( $pad, $offset = 0 ) {
 }
 
 function bb_forum_class( $args = null ) {
-	if ( is_numeric($args) ) // Not used
+	echo apply_filters( 'bb_forum_class', get_alt_class( 'forum', bb_get_forum_class_names( $args ) ), $args );
+}
+
+function bb_get_forum_class_names( $args = null ) {
+	if ( is_numeric( $args ) ) { // Not used
 		$args = array( 'id' => $args );
-	elseif ( $args && is_string($args) && false === strpos($args, '=') )
+	} elseif ( $args && is_string( $args ) && false === strpos( $args, '=' ) ) {
 		$args = array( 'class' => $args );
-	$defaults = array( 'id' => 0, 'key' => 'forum', 'class' => '' );
+	}
+	$defaults = array( 'id' => 0, 'key' => 'forum', 'class' => '', 'output' => 'string' );
 	$args = wp_parse_args( $args, $defaults );
 
-	global $bb_forums_loop;
-	if ( is_object($bb_forums_loop) && is_a($bb_forums_loop, 'BB_Loop') )
-		$args['class'] .= ' ' . $bb_forums_loop->classes();
+	$classes = array();
+	if ( $args['class'] ) {
+		$classes[] = $args['class'];
+	}
 
-	echo apply_filters( 'bb_forum_class', get_alt_class( 'forum', $args['class'] ) );
+	global $bb_forums_loop;
+	if ( is_object( $bb_forums_loop ) && is_a( $bb_forums_loop, 'BB_Loop' ) ) {
+		$classes = array_merge( $classes, $bb_forums_loop->classes( 'array' ) );
+	}
+
+	if ( $args['output'] === 'string' ) {
+		$classes = join( ' ', $classes );
+	}
+
+	return apply_filters( 'bb_get_forum_class', $classes, $args );
 }
 
 // TOPICS

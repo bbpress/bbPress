@@ -208,7 +208,7 @@ class BB_Loop {
 			$GLOBALS[$key] = $value;
 	}
 
-	function classes() {
+	function classes( $output = 'string' ) {
 		if ( !is_array($this->elements) || !is_object($this->walker) )
 			return false;
 		$classes = array();
@@ -244,7 +244,9 @@ class BB_Loop {
 		else
 			$classes[] = 'bb-root';
 
-		$classes = join(' ', $classes);
+		if ( $output === 'string' )
+			$classes = join(' ', $classes);
+
 		return $classes;
 	}
 
