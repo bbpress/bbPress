@@ -2145,24 +2145,40 @@ function bb_profile_data_form( $id = 0 ) {
 				$title = attribute_escape( $label[1] );
 			}
 
-
 			$name = attribute_escape( $key );
 			$type = isset($label[2]) ? attribute_escape( $label[2] ) : 'text';
 
+			$checked = false;
 			if ( in_array( $key, $error_codes ) ) {
 				$class .= ' form-invalid';
 				$data = $errors->get_error_data( $key );
-				if ( isset($data['data']) )
-					$value = $data['data'];
-				else
-					$value = $_POST[$key];
+				if ( 'checkbox' == $type ) {
+					if ( isset($data['data']) )
+						$checked = $data['data'];
+					else
+						$checked = $_POST[$key];
+					$value = $label[3];
+					$checked = $checked == $value;
+				} else {
+					if ( isset($data['data']) )
+						$value = $data['data'];
+					else
+						$value = $_POST[$key];
+				}
 
 				$message = wp_specialchars( $errors->get_error_message( $key ) );
 				$message = "<p class='error'>$message</p>";
 			} else {
-				$value = isset( $user->$key ) ? $user->$key : '';
+				if ( 'checkbox' == $type ) {
+					$checked = $user->$key == $label[3] || $label[4] == $label[3];
+					$value = $label[3];
+				} else {
+					$value = isset($user->$key) ? $user->$key : '';
+				}
 				$message = '';
 			}
+
+			$checked = $checked ? ' checked="checked"' : '';
 			$value = attribute_escape( $value );
 
 ?>
@@ -2201,7 +2217,9 @@ function bb_profile_data_form( $id = 0 ) {
 <?php
 			} else {
 ?>
-		<input name="<?php echo $name; ?>" type="<?php echo $type; ?>" id="<?php echo $name; ?>" value="<?php echo $value; ?>" />
+		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo "<label for='$name'>"; ?>
+		<input name="<?php echo $name; ?>" id="<?php echo $name; ?>" type="<?php echo $type; ?>"<?php echo $checked; ?> value="<?php echo $value; ?>" />
+		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo wp_specialchars( $label[5] ) . "</label>"; ?>
 <?php
 			}
 ?>
@@ -2307,7 +2325,6 @@ function bb_profile_admin_form( $id = 0 ) {
 				$class = 'form-field';
 				$title = attribute_escape( $label[1] );
 			}
-
 
 			$name = attribute_escape( $key );
 			$type = isset($label[2]) ? attribute_escape( $label[2] ) : 'text';
