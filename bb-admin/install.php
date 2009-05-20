@@ -194,7 +194,7 @@ switch ($bb_install->step) {
 <?php
 					$bb_install->input_text('user_bbdb_name');
 					$bb_install->input_text('user_bbdb_user');
-					$bb_install->input_text('user_bbdb_password', 'password');
+					$bb_install->input_text('user_bbdb_password');
 					$bb_install->input_text('user_bbdb_host');
 					$bb_install->input_text('user_bbdb_charset');
 					$bb_install->input_text('user_bbdb_collate');
