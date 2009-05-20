@@ -1142,24 +1142,24 @@ function topic_noreply( $title ) {
 
 function topic_last_poster( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	echo apply_filters( 'topic_last_poster', get_topic_last_poster( $id ), $topic->topic_last_poster ); // Last arg = user ID
+	echo apply_filters( 'topic_last_poster', get_topic_last_poster( $id ), $topic->topic_last_poster, $topic->topic_id ); // $topic->topic_last_poster = user ID
 }
 
 function get_topic_last_poster( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
 	$user_display_name = get_user_display_name($topic->topic_last_poster);
-	return apply_filters( 'get_topic_last_poster', $user_display_name, $topic->topic_last_poster ); // Last arg = user ID
+	return apply_filters( 'get_topic_last_poster', $user_display_name, $topic->topic_last_poster, $topic->topic_id ); // $topic->topic_last_poster = user ID
 }
 
 function topic_author( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	echo apply_filters( 'topic_author', get_topic_author( $id ), $topic->topic_poster ); // Last arg = user ID
+	echo apply_filters( 'topic_author', get_topic_author( $id ), $topic->topic_poster, $topic->topic_id ); // $topic->topic_poster = user ID
 }
 
 function get_topic_author( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
 	$user_display_name = get_user_display_name($topic->topic_poster);
-	return apply_filters( 'get_topic_author', $user_display_name, $topic->topic_poster ); // Last arg = user ID
+	return apply_filters( 'get_topic_author', $user_display_name, $topic->topic_poster, $topic->topic_id ); // $topic->topic_poster = user ID
 }
 
 // Filters expect the format to by mysql on both topic_time and get_topic_time
@@ -1190,19 +1190,19 @@ function get_topic_start_time( $args = '' ) {
 
 	$topic = get_topic( get_topic_id( $args['id'] ) );
 
-	$time = apply_filters( 'get_topic_start_time', $topic->topic_start_time, $args );
+	$time = apply_filters( 'get_topic_start_time', $topic->topic_start_time, $args, $topic->topic_id );
 
 	return _bb_time_function_return( $time, $args );
 }
 
 function topic_last_post_link( $id = 0 ) {
-	echo apply_filters( 'topic_last_post_link', get_topic_last_post_link( $id ));
+	echo apply_filters( 'topic_last_post_link', get_topic_last_post_link( $id ), $id);
 }
 
 function get_topic_last_post_link( $id = 0 ){
 	$topic = get_topic( get_topic_id( $id ) );
 	$page = get_page_number( $topic->topic_posts );
-	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id );
+	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id, $topic->topic_id );
 }
 
 function topic_pages( $args = null )
@@ -1520,7 +1520,7 @@ function bb_get_new_topic_link( $args = null ) {
 			return;
 	}
 
-	if ( $url = attribute_escape( apply_filters( 'new_topic_url', $url ) ) )
+	if ( $url = attribute_escape( apply_filters( 'new_topic_url', $url, $args ) ) )
 		return '<a href="' . $url . '" class="new-topic">' . $text . '</a>' . "\n";
 }
 
@@ -1645,16 +1645,16 @@ function bb_get_post_meta( $key, $post_id = 0 ) {
 
 
 function post_author( $post_id = 0 ) {
-	echo apply_filters('post_author', get_post_author( $post_id ) );
+	echo apply_filters('post_author', get_post_author( $post_id ), $post_id );
 }
 
 function get_post_author( $post_id = 0 ) {
 	if ( $user = bb_get_user( get_post_author_id( $post_id ) ) )
-		return apply_filters( 'get_post_author', $user->display_name, $user->ID );
+		return apply_filters( 'get_post_author', $user->display_name, $user->ID, $post_id );
 	elseif ( $title = bb_get_post_meta( 'pingback_title' ) )
-		return apply_filters( 'bb_get_pingback_title', $title );
+		return apply_filters( 'bb_get_pingback_title', $title, $post_id );
 	else
-		return apply_filters( 'get_post_author', __('Anonymous'), 0 );
+		return apply_filters( 'get_post_author', __('Anonymous'), 0, $post_id );
 }
 
 function post_author_link( $post_id = 0 ) {
@@ -1876,7 +1876,7 @@ function post_author_type( $post_id = 0 ) {
 	} else
 		$r = '<a href="' . attribute_escape( get_user_profile_link( $id ) ) . '">' . $type . '</a>';
 
-	echo apply_filters( 'post_author_type', $r );
+	echo apply_filters( 'post_author_type', $r, $post_id );
 }
 
 function allowed_markup( $args = '' ) {
@@ -2034,7 +2034,7 @@ function get_user_type_label( $type ) {
 }
 
 function user_type( $id = 0 ) {
-	echo apply_filters( 'user_type', get_user_type( $id ) );
+	echo apply_filters( 'user_type', get_user_type( $id ), $id );
 }
 
 function get_user_type( $id = 0 ) {
@@ -3097,7 +3097,7 @@ function favorites_rss_link( $id = 0, $context = 0 ) {
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
 	}
-	echo apply_filters('favorites_rss_link', get_favorites_rss_link( $id, $context ), $context);
+	echo apply_filters('favorites_rss_link', get_favorites_rss_link( $id, $context ), $context, $id);
 }
 
 function get_favorites_rss_link( $id = 0, $context = 0 ) {
