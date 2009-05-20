@@ -27,12 +27,12 @@ unset( $update, $index, $plugin );
 
 // Set the action
 $action = '';
-if( isset( $_REQUEST['action'] ) && !empty( $_REQUEST['action'] ) ) {
-	$action = trim( $_REQUEST['action'] );
+if( isset( $_GET['action'] ) && !empty( $_GET['action'] ) ) {
+	$action = trim( $_GET['action'] );
 }
 
 // Set the plugin
-$plugin = isset( $_REQUEST['plugin'] ) ? trim( stripslashes( $_REQUEST['plugin'] ) ) : '';
+$plugin = isset( $_GET['plugin'] ) ? trim( stripslashes( $_GET['plugin'] ) ) : '';
 
 // Deal with user actions
 if ( !empty( $action ) ) {
