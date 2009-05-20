@@ -1760,14 +1760,18 @@ function bb_get_post_edit_link( $post_id = 0 ) {
 function post_del_class( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	$classes = array();
-	if ( bb_get_post_meta( 'pingback_uri', $post_id ) )
+	if ( bb_get_post_meta( 'pingback_uri', $post_id ) ) {
 		$classes[] = 'pingback';
-	if ( $bb_post->post_status == 1 )
+	}
+	if ( $bb_post->post_status == 1 ) {
 		$classes[] = 'deleted';
-	if (count($classes))
-		return join(' ', $classes);
-	elseif ( $bb_post->post_status != 0 )
-		return apply_filters( 'post_del_class', $bb_post->post_status, $bb_post->post_id );
+	} elseif ( $bb_post->post_status != 0 ) {
+		$classes[] = $bb_post->post_status;
+	}
+	if ( count( $classes ) ) {
+		$classes = join( ' ', $classes );
+	}
+	return apply_filters( 'post_del_class', $classes, $bb_post->post_id );
 }
 
 function post_delete_link( $post_id = 0 ) {
