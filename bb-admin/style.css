@@ -1,4 +1,8 @@
 /*
+Start with some basic resets
+*/
+
+/*
 Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
@@ -25,970 +29,528 @@ select,input,button,textarea,button{font:99% arial,helvetica,clean,sans-serif;}
 table{font-size:inherit;font:100%;}
 pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
 
-/*
-There are six graduations of green
-	         Dark - rgb(5, 50, 0)
-	          Mid - rgb(10, 100, 0)
-	         Link - rgb(40, 140, 60)
-	        Light - rgb(110, 180, 105)
-	Input Borders - rgb(180, 220, 170)
-	    Highlight - rgb(200, 250, 200)
-
-One deep yellow
-		   Yellow - rgb(230, 145, 0)
-*/
 
 html {
 	height: 100%;
+	background-color: rgb(249, 249, 249);
 }
 
-body.bbAdmin {
+body {
 	height: 100%;
-	font: normal normal normal 0.625em/normal 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Verdana, sans-serif;
+	min-width: 785px;
+	color: rgb(51, 51, 51);
+	line-height: 1.4em;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 0.8em;
 }
 
-strong {
-	font-weight: bold;
-}
-
-#bbWrap {
-	position: relative;
+div#bbWrap {
+	height: auto;
 	min-height: 100%;
+	width: 100%;
 }
 
-#bbContent {
-	padding-bottom: 9.5em;
+div#bbContent {
+	height: 100%;
+	padding-bottom: 50px;
 }
 
-#bbFooter {
+
+/* Header */
+
+div#bbHead {
 	position: relative;
-	height: 5.9em;
-	margin-top: -7.5em;
-	padding: 1.6em 0 0 6em;
 	background-color: rgb(70, 70, 70);
-	background-image: url('images/admin-footer-logo.gif');
-	background-repeat: no-repeat;
-	background-position: 2em 1em;
+}
+
+div#bbHead h1 {
+	padding: 10px 0 5px 55px;
+	min-height: 31px;
+	background: transparent url('images/admin-header-logo.gif') no-repeat 16px 7px;
+	font: normal normal normal 22px/normal Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	color: white;
+}
+
+div#bbHead h1 a {
+	text-decoration: none;
+}
+
+div#bbHead h1 a span {
+	color: rgb(255, 255, 255);
+}
+
+div#bbHead h1 a:hover span {
+	text-decoration: underline;
+}
+
+div#bbHead h1 a em {
+	background: rgb(88, 88, 88) url('images/visit-site-button-grad.gif') repeat-x 0 0;
+	color: rgb(170, 170, 170);
+	text-shadow: rgb(63, 63, 63) 0px -1px 0px;
+	-webkit-border-radius: 3px 3px;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 0.5em;
+	font-style: normal;
+	line-height: 17px;
+	margin-left: 5px;
+	padding: 0px 6px;
+	vertical-align: middle;
+}
+
+div#bbHead h1 a:hover em {
+	color: rgb(255, 255, 255);
+}
+
+div#bbHead h1 a:active em {
+	background-position: 0 -27px;
+}
+
+div#bbUserInfo {
+	position: absolute;
+	top: 14px;
+	right: 15px;
+	font-size: 0.95em;
 	color: rgb(153, 153, 153);
-	line-height: 1.8em;
-	clear: both;
 }
 
-#bbFooter p {
-	font-size: 1.2em;
-	clear: both;
-}
-
-#bbFooter p a {
-	color: rgb(255, 255, 255);
-	text-decoration: none;
-}
-
-#bbFooter p a:hover {
-	text-decoration: underline;
-}
-
-#bbHead {
-	border-top: 3em solid rgb(5, 50, 0);
-	background-color: rgb(10, 100, 0);
-	color: rgb(200, 250, 200);
-	height: 6.8em;
-}
-
-#bbHead h1 {
-	float: left;
-	font-size: 3.6em;
-	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
-	padding: 0.32em 0 0 0.35em;
-	margin: 0px;
-}
-
-#bbVisitSite {
-	float: left;
-	margin: 2.3em 0 0 1em;
-}
-
-#bbVisitSite a {
-	padding: 0.3em 0.4em;
-	display: block;
-	background-color: rgb(110, 180, 105);
-	color: rgb(255, 255, 255);
-	text-decoration: none;
-	-moz-border-radius: 0.3em;
-	-khtml-border-radius: 0.3em;
-	-webkit-border-radius: 0.3em;
-	border-radius: 0.3em;
-	border: 0.1em solid rgb(5, 50, 0);
-}
-
-#bbVisitSite a span {
-	font-size: 1.2em;
-}
-
-#bbVisitSite a:hover {
-	color: rgb(5, 50, 0);
-}
-
-#bbUserMenu {
-	position: absolute;
-	top: 0.8em;
-	right: 1.5em;
-	height: 2.2em;
-	line-height: 2.2em;
-}
-
-#bbUserMenu p {
+div#bbUserInfo a {
 	color: rgb(204, 204, 204);
-	font-size: 1.1em;
-}
-
-#bbUserMenu p a {
-	color: rgb(255, 255, 255);
 	text-decoration: none;
 }
 
-#bbUserMenu p a:hover {
+div#bbUserInfo a:hover {
+	color: rgb(255, 255, 255);
 	text-decoration: underline;
 }
 
-#bbAdminDashboardMenu {
-	position: absolute;
-	top: 0.7em;
-	left: 0.9em;
-	line-height: 2.5em;
+
+
+
+/* Body */
+
+div#bbBody {
+	margin-left: 175px;
 }
 
-#bbAdminDashboardMenu li {
-	display: inline;
+body.bb-menu-folded div#bbBody {
+	margin-left: 59px;
 }
 
-#bbAdminDashboardMenu li a {
-	color: rgb(200, 250, 200);
+
+
+
+/* Menu */
+ul#bbAdminMenu * {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+}
+
+ul#bbAdminMenu {
+	float: left;
+	margin: 15px 5px 15px -160px;
+	position: relative;
+	width: 145px;
+}
+
+body.bb-menu-folded ul#bbAdminMenu {
+	margin-left: -44px;
+	width: auto;
+}
+
+ul#bbAdminMenu li.bb-menu {
+	
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu {
+	position: relative;
+}
+
+ul#bbAdminMenu li.bb-menu a {
+	display: block;
+	color: rgb(33, 117, 155);
+	background: rgb(241, 241, 241) url('images/menu-bits.gif') repeat-x 0 -379px;
+	border: 1px solid rgb(227, 227, 227);
+	width: 133px;
+	padding: 5px;
+	font: normal normal normal 1em/1.4em Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
 	text-decoration: none;
-	line-height: 1.2em;
-	padding: 0.6em;
-	-moz-border-radius-topleft: 0.3em;
-	-moz-border-radius-topright: 0.3em;
-	-khtml-border-top-left-radius: 0.3em;
-	-khtml-border-top-right-radius: 0.3em;
-	-webkit-border-top-left-radius: 0.3em;
-	-webkit-border-top-right-radius: 0.3em;
-	border-top-left-radius: 0.3em;
-	border-top-right-radius: 0.3em;
+	border-bottom-width: 0;
 }
 
-#bbAdminDashboardMenu li a span {
-	font-size: 1.1em;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu a {
+	height: 17px;
+	width: 17px;
+	background-image: none;
 }
 
-#bbAdminDashboardMenu li a:hover {
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu a span {
+	display: none;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-current a {
+	background-position: 0 0;
+	border-color: rgb(109, 109, 109);
+	color: rgb(255, 255, 255);
+	text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0px;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current a {
+	background-color: rgb(230, 230, 230);
+	background-image: none;
+	border-color: rgb(227, 227, 227);
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-current a:hover {
+	border-color: rgb(181, 181, 181);
 	color: rgb(255, 255, 255);
 }
 
-#bbAdminDashboardMenu li.current a {
-	background-color: rgb(10, 100, 0);
+ul#bbAdminMenu li.bb-menu.bb-menu-first a {
+	-moz-border-radius-topleft: 6px;
+	-moz-border-radius-topright: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
 }
 
-#bbAdminMainMenu {
-	background-color: rgb(10, 100, 0);
-	border-bottom: 0.1em solid rgb(5, 50, 0);
-	padding-left: 1.1em;
-	height: 3em;
+ul#bbAdminMenu li.bb-menu.bb-menu-last a {
+	-moz-border-radius-bottomleft: 6px;
+	-moz-border-radius-bottomright: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-width: 1px;
 }
 
-#bbAdminMainMenu li {
-	display: inline;
-	margin-right: 0.1em;
-	margin-top: 0.2em;
+ul#bbAdminMenu li.bb-menu.bb-menu-open.bb-menu-has-submenu a,
+ul#bbAdminMenu li.bb-menu.bb-menu-open a {
+	-moz-border-radius-bottomleft: 0;
+	-moz-border-radius-bottomright: 0;
+	-khtml-border-bottom-left-radius: 0;
+	-khtml-border-bottom-right-radius: 0;
+	-webkit-border-bottom-left-radius: 0;
+	-webkit-border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
-#bbAdminMainMenu li a {
-	color: rgb(200, 250, 200);
-	text-decoration: none;
-	line-height: 3em;
-	padding: 1em 0.7em 0.8em 0.7em;
-	-moz-border-radius-topleft: 0.33em;
-	-moz-border-radius-topright: 0.33em;
-	-khtml-border-top-left-radius: 0.4em;
-	-khtml-border-top-right-radius: 0.4em;
-	-webkit-border-top-left-radius: 0.4em;
-	-webkit-border-top-right-radius: 0.4em;
-	border-top-left-radius: 0.4em;
-	border-top-right-radius: 0.4em;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-last a {
+	-moz-border-radius-bottomleft: 6px;
+	-moz-border-radius-bottomright: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	border-bottom-width: 1px;
 }
 
-#bbAdminMainMenu li a span {
-	font-size: 1.6em;
-}
-
-#bbAdminMainMenu li a:hover {
-	color: rgb(230, 145, 0);
-}
-
-#bbAdminMainMenu li.current a {
-	color: rgb(230, 145, 0);
-	background-color: rgb(255, 255, 255);
-	border: 0.1em solid rgb(5, 50, 0);
-	padding-right: 0.6em;
-	padding-left: 0.6em;
+ul#bbAdminMenu li.bb-menu.bb-menu-open a {
 	border-bottom-width: 0;
-	font-weight: bold;
 }
 
-#bbAdminSideMenu {
+ul#bbAdminMenu li.bb-menu.bb-menu-current.bb-menu-has-submenu a:hover {
+	border-color: rgb(109, 109, 109);
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current.bb-menu-has-submenu a:hover {
+	border-color: rgb(227, 227, 227);
+}
+
+ul#bbAdminMenu li.bb-menu div.bb-menu-toggle {
 	float: right;
-	margin-top: -2.8em;
-	margin-right: 1.5em;
+	height: 27px;
+	width: 24px;
+	display: none;
+	background-image: url('images/menu-bits.gif');
+	background-repeat: no-repeat;
+	background-position: 0 -110px;
+	margin-top: -27px;
 }
 
-* html #bbAdminSideMenu {
-	position: absolute;
-	z-index: 100;
-	right: 0;
-	top: 130px;
+ul#bbAdminMenu li.bb-menu.bb-menu-last div.bb-menu-toggle {
+	margin-top: -28px;
 }
 
-#bbAdminSideMenu li {
-	display: inline;
+ul#bbAdminMenu li.bb-menu.bb-menu-last.bb-menu-open div.bb-menu-toggle {
+	margin-top: -27px;
 }
 
-#bbAdminSideMenu li a {
-	color: rgb(200, 250, 200);
-	text-decoration: none;
-	line-height: 2.6em;
-	padding: 0.8em 0.6em 0.9em 0.6em;
-	-moz-border-radius-topleft: 0.3em;
-	-moz-border-radius-topright: 0.3em;
-	-khtml-border-top-left-radius: 0.4em;
-	-khtml-border-top-right-radius: 0.4em;
-	-webkit-border-top-left-radius: 0.4em;
-	-webkit-border-top-right-radius: 0.4em;
-	border-top-left-radius: 0.4em;
-	border-top-right-radius: 0.4em;
+ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu:hover div.bb-menu-toggle,
+ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu.bb-menu-open div.bb-menu-toggle {
+	display: block;
 }
 
-#bbAdminSideMenu li a span {
-	font-size: 1.2em;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu:hover div.bb-menu-toggle,
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu.bb-menu-open div.bb-menu-toggle {
+	display: none;
 }
 
-#bbAdminSideMenu li a:hover {
-	color: rgb(230, 145, 0);
+ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu.bb-menu-current div.bb-menu-toggle {
+	background-position: 0 -208px;
 }
 
-#bbAdminSideMenu li.current a {
-	color: rgb(230, 145, 0);
-	background-color: rgb(255, 255, 255);
-	border: 0.1em solid rgb(5, 50, 0);
-	padding-right: 0.6em;
-	padding-left: 0.6em;
+ul#bbAdminMenu li.bb-menu a:hover,
+ul#bbAdminMenu li.bb-menu a:active,
+ul#bbAdminMenu li.bb-menu a:focus {
+	color: rgb(213, 78, 33);
+}
+
+ul#bbAdminMenu li.bb-menu a div.bb-menu-icon {
+	height: 22px;
+	width: 22px;
+	float: left;
+	background: transparent url('images/menu.png') no-repeat -337px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-dashboard a div.bb-menu-icon {
+	background-position: -67px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-dashboard.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-dashboard a:hover div.bb-menu-icon {
+	background-position: -67px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-manage a div.bb-menu-icon {
+	background-position: -277px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-manage.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-manage a:hover div.bb-menu-icon {
+	background-position: -277px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-appearance a div.bb-menu-icon {
+	background-position: -6px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-appearance.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-appearance a:hover div.bb-menu-icon {
+	background-position: -6px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-plugins a div.bb-menu-icon {
+	background-position: -186px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-plugins.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-plugins a:hover div.bb-menu-icon {
+	background-position: -186px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-users a div.bb-menu-icon {
+	background-position: -308px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-users.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-users a:hover div.bb-menu-icon {
+	background-position: -308px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-tools a div.bb-menu-icon {
+	background-position: -217px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-tools.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-tools a:hover div.bb-menu-icon {
+	background-position: -217px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-settings a div.bb-menu-icon {
+	background-position: -246px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-settings.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-settings a:hover div.bb-menu-icon {
+	background-position: -246px -7px;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-separator {
+	
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-separator a {
+	background: transparent url('images/menu-arrows.gif') no-repeat 0 5px;
+	border-width: 0;
+	padding: 0;
+	height: 21px;
+	cursor: w-resize;
+	width: 145px;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-separator a {
+	background: transparent url('images/menu-arrows.gif') no-repeat -171px -34px;
+	height: 21px;
+	cursor: e-resize;
+	width: 29px;
+}
+
+ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap {
+	display: none;
+	border: 1px solid rgb(227, 227, 227);
 	border-bottom-width: 0;
-	font-weight: bold;
+	border-left-width: 0;
 }
 
-#bbAdminSubMenu {
-	margin-top: 1.1em;
-	margin-left: 1.7em;
-	margin-bottom: 0.8em;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap {
+	display: none;
+	position: absolute;
+	left: 36px;
+	top: 0;
+	width: 145px;
 }
 
-#bbAdminSubMenu li {
-	display: inline;
-	margin-right: 1.8em;
+ul#bbAdminMenu li.bb-menu.bb-menu-current div.bb-menu-sub-wrap {
+	border-color: rgb(170, 170, 170);
+	border-bottom-width: 1px;
 }
 
-#bbAdminSubMenu li a {
-	text-decoration: none;
-	color: rgb(40, 140, 60);
-	line-height: 1.6em;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap {
+	border-width: 0;
+	border-color: rgb(227, 227, 227);
+	border-style: solid;
+	border-bottom-width: 1px;
 }
 
-#bbAdminSubMenu li a span {
-	font-size: 1.4em;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current div.bb-menu-sub-wrap {
+	border-color: rgb(170, 170, 170);
 }
 
-#bbAdminSubMenu li a:hover {
-	color: rgb(230, 145, 0);
+ul#bbAdminMenu li.bb-menu.bb-menu-open div.bb-menu-sub-wrap {
+	display: block;
 }
 
-#bbAdminSubMenu li.current a {
-	color: rgb(230, 145, 0);
+ul#bbAdminMenu li.bb-menu.bb-menu-last div.bb-menu-sub-wrap {
+	border-bottom-width: 1px;
 }
 
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap.bb-menu-sub-open {
+	display: block;
+	border-bottom-width: 1px;
+}
 
+ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap span {
+	display: none;
+	font: normal normal normal 1em/1.45em Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	background-color: rgb(241, 241, 241);
+	border: 1px solid rgb(227, 227, 227);
+	-moz-border-radius-topleft: 6px;
+	-moz-border-radius-topright: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding: 5px 5px 4px 10px;
+	cursor: default;
+}
 
+ul#bbAdminMenu li.bb-menu.bb-menu-current div.bb-menu-sub-wrap span {
+	background-color: rgb(234, 234, 234);
+	border-color: rgb(170, 170, 170);
+}
 
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap span {
+	display: block;
+}
 
+ul#bbAdminMenu li.bb-menu li.bb-menu-sub a {
+	width: 127px !important;
+	-moz-border-radius: 0 !important;
+	-khtml-border-radius: 0 !important;
+	-webkit-border-radius: 0 !important;
+	border-radius: 0 !important;
+	border-width: 0 !important;
+	font: normal normal normal 0.85em/1.7em 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	padding: 1px 5px 3px 12px;
+	color: rgb(33, 117, 155);
+	text-shadow: none;
+	background: rgb(255, 255, 255) url('images/menu-bits.gif') no-repeat 0 -306px;
+}
 
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu li.bb-menu-sub a {
+	height: auto;
+	background: rgb(255, 255, 255) url('images/menu-bits.gif') no-repeat 0 -306px;
+	border-right-width: 1px !important;
+}
 
-
-#bbBody {
+ul#bbAdminMenu li.bb-menu li.bb-menu-sub a:hover {
+	background-color: rgb(234, 242, 250) !important;
 	color: rgb(51, 51, 51);
 }
 
-#bbBody a {
-	color: rgb(40, 140, 60);
+ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub a {
+	background-image: url('images/menu-dark.gif');
+	background-position: 0 -20px !important;
 }
 
-#bbBody a:hover {
-	color: rgb(230, 145, 0);
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub a {
+	background-image: url('images/menu-dark.gif');
+	background-position: 0 -20px !important;
+	border-color: rgb(170, 170, 170) !important;
 }
 
-div.updated,
-div.error,
-div.wrap {
-	margin: 0 1.5em;
-	max-width: 98em;
-}
-
-div.updated,
-div.error {
-	border-width: 0.1em;
-	border-style: solid;
-	padding: 1.5em;
-	margin-bottom: 1em;
-	max-width: 94.8em;
-}
-
-div.updated {
-	background-color: #ffffe0;
-	border-color: rgb(230, 219, 85);
-}
-
-div.error {
-	background-color: #ffebe8;
-	border-color: #c00;
-}
-
-iframe.error {
-	margin: 0 0 1em 0;
-	height: 70px;
-	width: 100%;
-	background-color: #ffebe8;
-	border: 0.1em dotted #c00;
-}
-
-div.updated p,
-div.error p {
-	line-height: 1.1em;
-	font-size: 1.3em;
-}
-
-div.updated a,
-div.error a {
-	color: rgb(40, 140, 60);
-	text-decoration: none;
-}
-
-div.updated a:hover,
-div.error a:hover {
-	color: rgb(230, 145, 0);
-}
-
-#bbBody h2 {
-	border-bottom: 0.05em solid rgb(218, 218, 218);
-	font-size: 2.4em;
-	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
-	color: rgb(90, 90, 90);
-	padding: 0.24em 0 0.3em 0;
-	margin-left: -0.2em;
-	clear: both;
-}
-
-#bbBody h2.after {
-	margin-top: 1.6em;
-}
-
-#bbBody h3 {
-	font-size: 1.5em;
-	font-weight: bold;
-	padding: 1em 0;
+ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub.bb-menu-sub-current a {
 	color: rgb(51, 51, 51);
-}
-
-#bbBody p {
-	font-size: 1.3em;
-	margin: 1em 0;
-}
-
-#bbBody p code {
-	font-size: 1.2em;
-}
-
-.widefat {
-	border-width: 0.12em;
-	border-style: solid;
-	border-collapse: collapse;
-	width: 100%;
-	clear: both;
-}
-
-.widefat {
-	border-color: #ccc;
-}
-
-.widefat a {
-	text-decoration: none;
-}
-
-.widefat th {
 	font-weight: bold;
+	background-color: rgb(245, 245, 245) !important;
+	background-position: 0 0 !important;
 }
 
-.widefat td,
-.widefat th {
-	border-bottom-width: 0.1em;
-	border-bottom-style: solid;
-	border-bottom-color: #ccc;
-	font-size: 1.2em;
-	padding: 1em;
-	vertical-align: top;
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub.bb-menu-sub-current a {
+	background-position: 0 0 !important;
 }
 
-.widefat th {
-	padding-bottom: 8px;
-	padding-top: 10px;
-	text-align: left;
+ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
+	background-position: 0 -306px;
 }
 
-.widefat thead, .widefat .thead {
-	background-color: #464646;
-	color: #d7d7d7;
-}
 
-#bbBody .widefat td p {
-	font-size: 1em;
-	margin: 0;
-}
 
-.widefat cite {
+/* Footer */
+
+div#bbFoot {
+	background: rgb(70, 70, 70);
+	color: rgb(153, 153, 153);
+	margin-top: -45px;
+	clear: both;
+	position: relative;
+	width: 100%;
+	font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	font-size: 0.9em;
 	font-style: italic;
 }
 
-form.settings fieldset {
-	margin-top: 1.3em;
-	border-bottom: 0.1em solid rgb(218, 218, 218);
+div#bbFoot p {
+	line-height: 15px;
+	padding: 15px;
 }
 
-form.settings fieldset.submit {
-	margin-top: 0;
-	border-bottom-width: 0;
+div#bbFoot p a {
+	color: rgb(204, 204, 204);
+	text-decoration: none;
 }
 
-form.settings legend {
-	font-size: 1.5em;
-	font-weight: bold;
-	padding: 1em 0;
-	color: rgb(51, 51, 51);
-}
-
-form.settings div {
-	background-color: rgb(200, 250, 200);
-	padding: 1em;
-	margin-bottom: 0.8em;
-}
-
-form.settings div.disabled {
-	background-color: rgb(215, 215, 215);
-}
-
-form.settings div div {
-	background-color: transparent;
-}
-
-form.settings div label {
+p#bbThanks {
 	float: left;
-	width: 16em;
-	font-size: 1.3em;
-	font-weight: bold;
 }
 
-form.settings div div {
-	margin: 0 0 0 22em;
-	padding: 0;
-}
-
-form.settings div input,
-form.settings div select {
-	color: rgb(0, 0, 0);
-	font-size: 1.3em;
-	border: 0.08em solid rgb(180, 220, 170);
-}
-
-form.settings div input.text {
-	color: rgb(0, 0, 0);
-	font-size: 1.3em;
-	padding: 0.25em;
-	margin: 0;
-	width: 30%;
-}
-
-form.settings div input.text.long {
-	width: 90%;
-}
-
-form.settings div input.text.short {
-	width: 10%;
-}
-
-#bbBody form.settings div p {
-	margin: 0.8em 0 0.2em 0;
-}
-
-pre.block {
-	margin: 0.2em;
-	padding: 1em;
-	line-height: 1.4em;
-	font-size: 1.3em;
-	display: block;
-	border: 1px dotted rgb(51, 51, 51);
-	background-color: rgb(218, 218, 218);
-	overflow: auto;
-	overflow-y: hidden;
-}
-
-table.block {
-	font-family:monospace;
-	margin: 0.2em;
-	padding: 1em;
-	display: block;
-	border: 1px dotted rgb(51, 51, 51);
-	background-color: rgb(218, 218, 218);
-}
-
-table.block th {
-	border-bottom: 1px solid rgb(51, 51, 51);
-}
-
-table.block th,
-table.block td {
-	line-height: 1.4em;
-	font-size: 1.3em;
-	padding: 0.4em 3em 0.4em 0.4em;
-}
-
-#bbBody form.settings div#option-avatars-rating p {
-	clear: both;
-	width: 60%;
-	padding-top: 0.4em;
-}
-
-#option-avatars-default p {
-	line-height: 30px;
-}
-
-#option-avatars-default p img {
-	vertical-align: top;
-	height:30px;
-	width:30px;
-	margin-right:1em;
-	border: 1px solid rgb(110, 180, 105);
-}
-
-#option-avatars-rating p img {
-	height:30px;
-	width:30px;
-	float:left;
-	margin-right:1em;
-	border: 1px solid rgb(110, 180, 105);
-}
-
-form.settings input.submit {
-	font-size: 1.3em;
-	padding: 0.3em 0.4em;
-	color: rgb(40, 140, 60);
-	background-color: rgb(229, 229, 229);
-	border: 0.08em solid rgb(163, 163, 163);
-	margin-top: 1.6em;
-	-moz-border-radius: 0.25em;
-	-khtml-border-radius: 0.25em;
-	-webkit-border-radius: 0.25em;
-	border-radius: 0.25em;
-}
-
-form.settings input.submit:hover {
-	border-color: rgb(83, 83, 83);
-	color: rgb(230, 145, 0);
-}
-
-div.theme-list {
-	width: 848px;
-	margin: 30px auto;
-	border-top: 1px solid rgb(204, 204, 204);
-	border-bottom: 1px solid rgb(204, 204, 204);
-	border-right: 1px solid rgb(255, 255, 255);
+p#bbVersion {
+	text-align: right;
 }
 
 div.clear {
 	clear: both;
-	height: 0;
-}
-
-ul.theme-list li {
-	float: left;
-	width: 242px;
-	height: 330px;
-	overflow: hidden;
-	padding: 20px;
-	border-bottom: 1px solid rgb(238, 238, 238);
-	border-right: 1px solid rgb(238, 238, 238);
-}
-
-ul.theme-list li:nth-child(3n),
-ul.theme-list li:last-child {
-	border-right: none;
-}
-
-ul.theme-list li:nth-last-child(-n+3) {
-	border-bottom-color: rgb(255, 255, 255);
-}
-
-ul.theme-list li div.screen-shot {
-	border: 1px solid rgb(204, 204, 204);
-	width: 240px;
-	height: 180px;
-}
-
-ul.theme-list li div.screen-shot img {
-	width: 240px;
-	height: 180px;
-}
-
-#bbBody ul.theme-list li div.description h3 {
-	padding-bottom: 0;
-}
-
-ul.theme-list li div.description small.version,
-ul.theme-list li div.description small.author {
-	display: none;
-}
-
-ul.theme-list li div.description p {
-	font-size: 1.2em;
-}
-
-ul.theme-list li div.description small.location {
-	display: none;
-}
-
-ul.theme-list.active {
-	margin: 15px 0;
-	background-color: transparent;
-}
-
-ul.theme-list.active li {
-	width: auto;
-	height: auto;
-	margin: 0 0 20px;
-	padding: 0;
-	border: none;
-}
-
-ul.theme-list.active li div.screen-shot {
-	border: 1px solid rgb(102, 102, 102);
-	width: 150px;
-	height: 112px;
-	float: left;
-	margin-right: 15px;
-}
-
-ul.theme-list.active li div.screen-shot img {
-	width: 150px;
-	height: 112px;
-}
-
-ul.theme-list.active li div.description {
-	float: left;
-}
-
-#bbBody ul.theme-list.active li div.description h3 {
-	margin-top: 0;
-	padding: 0;
-	font-size: 1.7em;
-}
-
-#bbBody ul.theme-list.active li div.description h3 a {
-	color: inherit;
-	text-decoration: none;
-	font-weight: normal;
-}
-
-ul.theme-list.active li div.description small.version,
-ul.theme-list.active li div.description small.author {
-	display: inline;
-	font-size: 1.1em;
-}
-
-ul.theme-list.active li div.description p {
-	font-size: 1.4em;
-}
-
-ul.theme-list.active li div.description small.location {
-	display: inline;
-	font-size: 1.1em;
-}
-
-div.post-theme {
-	clear: both;
-	height: 30px;
-}
-
-/* Layout classes */
-
-.absleft {
-	position: absolute;
-	left: 0;
-}
-
-.absright {
-	position: absolute;
-	right: 0;
-}
-
-.abstop {
-	position: absolute;
-	top: 0;
-}
-
-.posrel {
-	position: relative;
-}
-
-.alignleft {
-	float: left;
-}
-
-.alignright {
-	float: right;
-}
-
-.alternate, .alt {
-	background: #f1f1f1;
-}
-
-.active {
-	background-color: rgb(200, 250, 200);
-}
-
-.hidden {
-	display: none;
-}
-
-.helper {
-	border: 2px dashed #777;
-}
-
-.sort-handle {
-	cursor: move;
-}
-
-/* List Blocks */
-
-ul.list-block {
-	margin: 0;
-	padding: 0 0 0 3em;
-	background-color: #fff;
-}
-
-ul#the-list.list-block, ul#forum-list.list-block {
-	padding: 0;
-}
-
-li.list-block {
-	list-style: none;
-	margin: 0;
-	padding: 8px 0 0;
-}
-
-div.list-block {
-	padding: 0 8px 8px;
-}
-
-/* Dashboard */
-
-#bbBody div.dashboard {
-	border: 0.1em solid rgb(218, 218, 218);
-	padding: 0.2em;
-	margin-top: 1em;
-}
-
-#bbBody div.dashboard.left {
-	width: 48%;
-	float: left;
-}
-
-#bbBody div.dashboard.right {
-	width: 48%;
-	float: left;
-	margin-left: 2%;
-}
-
-#bbBody div.dashboard h3 {
-	margin: 0;
-	padding: 0 0.6em;
-	font-size: 1.4em;
-	line-height: 2;
-	background-color: rgb(200, 250, 200);
-	clear: none;
-}
-
-#bbBody div#dashboard-right-now h3 {
-	color: rgb(255, 255, 255);
-	background-color: rgb(10, 100, 0);
-}
-
-#bbBody div.dashboard p {
-	margin: 0.8em;
-	font-size: 1.3em;
-}
-
-#bbBody div.dashboard ul {
-	margin: 0.8em;
-	font-size: 1.3em;
-}
-
-#bbBody div.dashboard ul li {
-	margin-bottom: 0.6em;
-}
-
-form.search-form fieldset {
-	display: inline;
-	margin: .5em 1em .5em 0;
-}
-
-#bbBody form.search-form p.submit {
-	margin: 0;
-}
-
-form.forum-form table {
-	font-size: 1.3em;
-}
-
-form.forum-form th, form.forum-form td {
-	padding: 0.3em;
-}
-
-table p.row-actions {
-	padding: 0.3em 0 0 0;
-	visibility: hidden;
-}
-
-table tr:hover p.row-actions {
-	visibility: visible;
-}
-
-#posts-list .post {
-	margin: .5em 0;
-}
-
-.author-link {
-	display: block;
-	margin-bottom: 1em;
-}
-
-.author-link img.avatar {
-	float: left;
-	margin: .25em 0.5em 0 0;
-}
-
-.author-data {
-	clear: both;
-}
-
-.deleted.alt {
-	background-color: #faa;
-}
-
-.deleted {
-	background-color: #fcc;
-}
-
-.deleted .delete-post {
-	display: none;
-}
-
-.undelete-post {
-	display: none;
-}
-
-.deleted .undelete-post {
-	display: inline;
-}
-
-/* Table Nav */
-
-.tablenav select[name="action"],
-.tablenav select[name="action2"] {
-	width: 120px;
-}
-
-.tablenav a.button-secondary {
-	display: block;
-	margin: 3px 8px 0 0;
-}
-
-.tablenav {
-	clear: both;
-	height: 30px;
-	margin: 6px 0 4px;
-	vertical-align: middle;
-}
-
-.tablenav .tablenav-pages {
-	float: right;
-	display: block;
-	cursor: default;
-	height: 30px;
-	line-height: 30px;
-	font-size: 11px;
-}
-
-.tablenav .tablenav-pages a,
-.tablenav-pages span.current  {
-	text-decoration: none;
-	border: none;
-	padding: 3px 6px;
-	border-width: 1px;
-	border-style: solid;
-	-moz-border-radius: 5px;
-	-khtml-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	margin: 0 .25em;
-}
-
-.tablenav .displaying-num {
-	margin-right: 10px;
-	font-size: 12px;
-	font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
-	font-style: italic;
-}
-
-.tablenav .actions {
-	padding: 2px 8px 0 0;
-}
-
-.tablenav .dots {
-	border-color: transparent;
-}
-
-.tablenav .displaying-num {
-	color: #777;
-}
-
-.tablenav .tablenav-pages {
-	color: #555;
-}
-
-.tablenav .tablenav-pages a {
-	border-color: #e3e3e3;
-	background: #eee;
-}
-
-.tablenav .tablenav-pages a:hover {
-	border-color: rgb(230, 145, 0);
-}
-
-.tablenav .tablenav-pages .current {
-	background: #dfdfdf;
-	border-color: #d3d3d3;
 }

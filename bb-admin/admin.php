@@ -20,6 +20,9 @@ if ( $bb_admin_page == 'admin-base.php' ) {
 	$bb_admin_page = $_GET['plugin'];
 }
 
+wp_enqueue_script( 'common' );
+
+bb_user_settings();
 bb_admin_menu_generator();
 bb_get_current_admin_menu();
 ?>

@@ -7,29 +7,34 @@
 <?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_uri('bb-admin/style-rtl.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" type="text/css" />
 <?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
+	<script type="text/javascript">
+		//<![CDATA[
+		var userSettings = {'url':'<?php echo $bb->cookie_path; ?>','uid':'<?php if ( ! isset($bb_current_user) ) $bb_current_user = bb_get_current_user(); echo $bb_current_user->ID; ?>','time':'<?php echo time(); ?>'};
+		//]]>
+	</script>
 </head>
 
-<body class="bbAdmin">
+<?php
+if ( bb_get_user_setting('mfold') == 'f' ) {
+	$bb_admin_body_class = ' bb-menu-folded';
+}
+?>
+
+<body class="bbAdmin<?php echo $bb_admin_body_class ?>">
 	<div id="bbWrap">
 		<div id="bbContent">
 			<div id="bbHead">
-				<h1>
-					<?php bb_option('name'); ?>
-				</h1>
-				<div id="bbVisitSite">
-					<a href="<?php bb_uri(); ?>"><span><?php _e('Visit Site'); ?></span></a>
+				<h1><a href="<?php bb_uri(); ?>"><span><?php bb_option('name'); ?></span> <em><?php _e('Visit Site'); ?></em></a></h1>
+				<div id="bbUserInfo">
+					<p>
+						<?php printf( __('Howdy, %1$s'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
+						| <?php bb_logout_link( array( 'redirect' => bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) ) ); ?>
+					</p>
 				</div>
 			</div>
-			<div id="bbUserMenu">
-				<p>
-					<?php printf( __('Howdy, %1$s!'), bb_get_profile_link( array( 'text' => bb_get_current_user_info( 'name' ) ) ) );?>
-					| <?php bb_logout_link( array( 'redirect' => bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) ) ); ?>
-					| <a href="http://bbpress.org/forums/"><?php _e('Support forums'); ?></a>
-				</p>
-			</div>
+
+			<div id="bbBody">
 
 <?php bb_admin_menu(); ?>
 
 <?php do_action( 'bb_admin_notices' ); ?>
-
-			<div id="bbBody">

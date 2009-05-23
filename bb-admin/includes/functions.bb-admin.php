@@ -1,40 +1,43 @@
 <?php
 
-function bb_get_admin_header() {
-	do_action('bb_admin-header.php');
-	include('admin-header.php');
-	do_action('bb_get_admin_header');
+function bb_get_admin_header()
+{
+	do_action( 'bb_admin-header.php' );
+	include( 'admin-header.php' );
+	do_action( 'bb_get_admin_header' );
 }
 
-function bb_get_admin_footer() {
-	do_action('bb_admin-footer.php');
-	include('admin-footer.php');
+function bb_get_admin_footer()
+{
+	do_action( 'bb_admin-footer.php' );
+	include( 'admin-footer.php' );
 }
 
-function bb_admin_notice( $message, $class = false ) {
-	if ( is_string($message) ) {
-		$message = "<p>$message</p>";
+function bb_admin_notice( $message, $class = false )
+{
+	if ( is_string( $message ) ) {
+		$message = '<p>' . $message . '</p>';
 		$class = $class ? $class : 'updated';
-	} elseif ( is_wp_error($message) ) {
+	} elseif ( is_wp_error( $message ) ) {
 		$errors = $message->get_error_messages();
-		switch ( count($errors) ) :
-		case 0 :
-			return false;
-			break;
-		case 1 :
-			$message = "<p>{$errors[0]}</p>";
-			break;
-		default :
-			$message = "<ul>\n\t<li>" . join( "</li>\n\t<li>", $errors ) . "</li>\n</ul>";
-			break;
-		endswitch;
+		switch ( count( $errors ) ) {
+			case 0:
+				return false;
+				break;
+			case 1:
+				$message = '<p>' . $errors[0] . '</p>';
+				break;
+			default:
+				$message = '<ul>' . "\n\t" . '<li>' . join( '</li>' . "\n\t" . '<li>', $errors ) . '</li>' . "\n" . '</ul>';
+				break;
+		}
 		$class = $class ? $class : 'error';
 	} else {
 		return false;
 	}
 
-	$message = "<div class='$class'>$message</div>";
-	$message = str_replace("'", "\'", $message);
+	$message = '<div class="' . attribute_escape( $class ) . '">' . wp_specialchars( $message ) . '</div>';
+	$message = str_replace( "'", "\'", $message );
 	$lambda = create_function( '', "echo '$message';" );
 	add_action( 'bb_admin_notices', $lambda );
 	return $lambda;
@@ -42,48 +45,65 @@ function bb_admin_notice( $message, $class = false ) {
 
 /* Menu */
 
-function bb_admin_menu_generator() {
+function bb_admin_menu_generator()
+{
 	global $bb_menu, $bb_submenu;
 	$bb_menu = array();
+	$bb_submenu = array();
 
 	// Dashboard menu items < 50
-	$bb_menu[0]  = array(__('Dashboard'), 'moderate',       'index.php');
+	$bb_menu[0]  = array( __( 'Dashboard' ), 'moderate', 'index.php', '', 'bb-menu-dashboard' );
+		$bb_submenu['index.php'][5]   = array(__('Dashboard'), 'moderate', 'index.php');
 
-	// 50 < Plugin added menu items < 100
+	// 50 < Plugin added menu items < 75
 
-	// 100 < Main menu items < 200
-	$bb_menu[100] = array(__('Users'),     'moderate',       'users.php');
-	$bb_menu[105] = array(__('Manage'),    'moderate',       'content.php');
-	$bb_menu[110] = array(__('Design'),    'manage_themes',  'themes.php');
+	$bb_menu[75] = array( '', 'read', 'separator' );
 
-	// 200 < Plugin added menu items < 300
+	// 75 < Plugin added menu items < 100
 
-	// 300 < Side menu items < 400
-	$bb_menu[300] = array(__('Settings'),  'manage_options', 'options-general.php');
-	$bb_menu[305] = array(__('Plugins'),   'use_keys',       'plugins.php');
+	// 100 < First menu items < 200
+	$bb_menu[105] = array( __( 'Manage' ), 'moderate', 'content.php', '', 'bb-menu-manage');
+		$bb_submenu['content.php'][5]  = array( __( 'Topics' ), 'moderate', 'content.php' );
+		$bb_submenu['content.php'][10] = array( __( 'Posts' ), 'moderate', 'content-posts.php' );
+		$bb_submenu['content.php'][15] = array( __( 'Forums' ), 'manage_forums', 'content-forums.php' );
 
-	// 400 < Plugin added menu items < 500
+	// 200 < Plugin added menu items < 250
 
-	// Sub menu items
-	$bb_submenu = array();
-	$bb_submenu['users.php'][5]  = array(__('Find'),       'moderate',   'users.php');
-	$bb_submenu['users.php'][10] = array(__('Moderators'), 'moderate',   'users-moderators.php');
-	$bb_submenu['users.php'][15] = array(__('Blocked'),    'edit_users', 'users-blocked.php');
+	$bb_menu[250] = array( '', 'read', 'separator' );
 
-	$bb_submenu['content.php'][5]  = array(__('Topics'),  'moderate',      'content.php');
-	$bb_submenu['content.php'][10] = array(__('Posts'),   'moderate',      'content-posts.php');
-	$bb_submenu['content.php'][15] = array(__('Forums'),  'manage_forums', 'content-forums.php');
-	$bb_submenu['content.php'][20] = array(__('Recount'), 'recount',       'site.php');
+	// 250 < Plugin added menu items < 300
 
-	$bb_submenu['themes.php'][5]   = array(__('Themes'), 'manage_themes', 'themes.php');
+	// 300 < Second menu items < 400
+	$bb_menu[300] = array( __( 'Appearance' ), 'manage_themes', 'themes.php', '', 'bb-menu-appearance' );
+		$bb_submenu['themes.php'][5]   = array(__('Themes'), 'manage_themes', 'themes.php');
+	$bb_menu[305] = array( __( 'Plugins' ), 'use_keys', 'plugins.php', '', 'bb-menu-plugins' );
+		$bb_submenu['plugins.php'][5]  = array( __( 'Plugins' ), 'manage_plugins', 'plugins.php' );
+	$bb_menu[310] = array( __( 'Users' ), 'moderate', 'users.php', '', 'bb-menu-users' );
+		$bb_submenu['users.php'][5]  = array( __( 'Find' ), 'moderate', 'users.php' );
+		$bb_submenu['users.php'][10] = array( __( 'Moderators' ), 'moderate', 'users-moderators.php' );
+		$bb_submenu['users.php'][15] = array( __( 'Blocked' ), 'edit_users', 'users-blocked.php' );
+	$bb_menu[315] = array( __( 'Tools' ), 'recount', 'site.php', '', 'bb-menu-tools' );
+		$bb_submenu['site.php'][20] = array( __( 'Recount' ), 'recount', 'site.php' );
+	$bb_menu[320] = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'bb-menu-settings' );
+		$bb_submenu['options-general.php'][5]  = array( __( 'General' ), 'manage_options', 'options-general.php' );
+		$bb_submenu['options-general.php'][10] = array( __( 'WordPress Integration' ), 'manage_options', 'options-wordpress.php' );
 
-	$bb_submenu['plugins.php'][5]  = array(__('Plugins'), 'manage_plugins', 'plugins.php');
-	
-	$bb_submenu['options-general.php'][5]  = array(__('General'),               'manage_options', 'options-general.php');
-	$bb_submenu['options-general.php'][10] = array(__('WordPress Integration'), 'manage_options', 'options-wordpress.php');
+	// 400 < Plugin added menu items
 
-	do_action('bb_admin_menu_generator');
-	ksort($bb_menu);
+	do_action( 'bb_admin_menu_generator' );
+	ksort( $bb_menu );
+
+	$last_key = false;
+	foreach ( $bb_menu as $key => $m ) {
+		if ( $last_key === false || $bb_menu[$last_key][2] === 'separator' ) {
+			$bb_menu[$key][3] .= ' bb-menu-first';
+		}
+		if ( $bb_menu[$key][2] === 'separator' ) {
+			$bb_menu[$last_key][3] .= ' bb-menu-last';
+		}
+		$last_key = $key;
+	}
+	$bb_menu[$last_key][3] .= ' bb-menu-last';
 }
 
 function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group = 'main')
@@ -144,7 +164,8 @@ function bb_admin_add_submenu($display_name, $capability, $file_name, $parent = 
 	}
 }
 
-function bb_get_current_admin_menu() {
+function bb_get_current_admin_menu()
+{
 	global $bb_menu, $bb_submenu, $bb_admin_page, $bb_current_menu, $bb_current_submenu;
 	foreach ( $bb_submenu as $m => $b ) {
 		foreach ( $b as $s ) {
@@ -155,95 +176,137 @@ function bb_get_current_admin_menu() {
 			}
 		}
 	}
-	if ( !isset($bb_current_menu) ) :
+	if ( !isset($bb_current_menu) ) {
 		$bb_current_menu = $bb_menu[0];	// Dashboard is currently the only supported top with no subs
 		$bb_current_submenu = false;
-	else :
+	} else {
 		foreach ( $bb_menu as $m ) {
 			if ( $m[2] == $bb_current_menu ) {
 				$bb_current_menu = $m;
 				break;
 			}
 		}
-	endif;
+	}
 	if ( $bb_current_submenu && !bb_current_user_can( $bb_current_submenu[1] ) || !bb_current_user_can( $bb_current_menu[1] ) ) {
 		wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 		exit;
 	}
 }
 
-function bb_admin_title() {
+function bb_admin_title()
+{
 	global $bb_current_menu, $bb_current_submenu;
 	$title = ( $bb_current_submenu ? $bb_current_submenu[0] . ' &lsaquo; ' : '' ) . $bb_current_menu[0] . ' &lsaquo; ' . bb_get_option( 'name' ) . ' &#8212; bbPress';
 	echo wp_specialchars( $title );
 }
 
-function bb_admin_menu() {
+function bb_admin_menu()
+{
 	global $bb_menu, $bb_submenu, $bb_current_menu, $bb_current_submenu;
 	
-	$r = '';
+	if ( !is_array( $bb_menu ) || !count( $bb_menu ) ) {
+		return '';
+	}
 	
-	$is_menu = array(
-		'dash' => false,
-		'main' => false,
-		'side' => false
-	);
+	$r = "\t\t\t" . '<ul id="bbAdminMenu">' . "\n";
 	
 	foreach ( $bb_menu as $key => $m ) {
-		if ( $key < 100 && !$is_menu['dash'] ) {
-			$r .= "\t\t\t" . '<ul id="bbAdminDashboardMenu">' . "\n";
-			$is_menu['dash'] = true;
+		if ( !bb_current_user_can( $m[1] ) ) {
+			continue;
 		}
-		if ( $key >= 100 && $key < 300 && !$is_menu['main'] ) {
-			$r .= "\t\t\t" . '</ul>' . "\n";
-			$r .= "\t\t\t" . '<ul id="bbAdminMainMenu">' . "\n";
-			$is_menu['main'] = true;
+		$class = 'bb-menu';
+		if ( isset( $m[3] ) ) {
+			$class .= ' ' . $m[3];
 		}
-		if ( $key >= 300 && !$is_menu['side'] ) {
-			$r .= "\t\t\t" . '</ul>' . "\n";
-			$r .= "\t\t\t" . '<ul id="bbAdminSideMenu">' . "\n";
-			$is_menu['side'] = true;
+		$id = '';
+		if ( isset( $m[4] ) ) {
+			$id .= ' id="' . $m[4] . '"';
 		}
-		if ( bb_current_user_can($m[1]) ) {
-			$class = ( $m[2] == $bb_current_menu[2] ) ? ' class="current"' : '';
-			if (strpos($m[2], 'http://') === 0 || strpos($m[2], 'https://') === 0)
-				$href = $m[2];
-			else
-				$href = bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m[2]);
-			$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . $href . '"><span>' . $m[0] . '</span></a></li>' . "\n";
+		$m[0] = wp_specialchars( $m[0] );
+		if ( $m[2] === 'separator' ) {
+			$href = '?unfoldmenu=1';
+			$m[0] = '<br />';
+			$class .= ' bb-menu-separator';
+		} elseif ( strpos( $m[2], 'http://' ) === 0 || strpos( $m[2], 'https://' ) === 0 ) {
+			$href = $m[2];
+			$class .= ' bb-menu-external';
+		} else {
+			$href = bb_get_option( 'path' ) . 'bb-admin/' . bb_get_admin_tab_link( $m[2] );
 		}
+		if ( $m[2] == $bb_current_menu[2] ) {
+			$class .= ' bb-menu-current';
+		}
+
+		$sr = '';
+		if ( $m[2] !== 'separator' && isset( $bb_submenu[$m[2]] ) && is_array( $bb_submenu[$m[2]] ) && count( $bb_submenu[$m[2]] ) ) {
+			$sr .= "\t\t\t\t\t" . '<div class="bb-menu-sub-wrap"><span>' . $m[0] . '</span>' . "\n";
+			$sr .= "\t\t\t\t\t\t" . '<ul>' . "\n";
+			$sc = 0;
+			foreach ( $bb_submenu[$m[2]] as $skey => $sm ) {
+				if ( $sc === 0 && $sm[2] === $m[2] ) {
+					$no_submenu = true;
+				}
+				if ( $sc > 0 ) {
+					$no_submenu = false;
+				}
+				$sc++;
+				$sclass = 'bb-menu-sub';
+				if ( isset( $sm[3] ) ) {
+					$sclass .= ' ' . $sm[3];
+				}
+				if ( strpos( $sm[2], 'http://' ) === 0 || strpos( $sm[2], 'https://' ) === 0 ) {
+					$shref = $sm[2];
+					$sclass .= ' bb-menu-external';
+				} else {
+					$shref = bb_get_option( 'path' ) . 'bb-admin/' . bb_get_admin_tab_link( $sm[2] );
+				}
+				if ( $sm[2] == $bb_current_submenu[2] ) {
+					$sclass .= ' bb-menu-sub-current';
+				}
+				$sr .= "\t\t\t\t\t\t\t" . '<li class="' . attribute_escape( trim( $sclass ) ) . '"><a href="' . clean_url( $shref ) . '">' . wp_specialchars( $sm[0] ) . '</a></li>' . "\n";
+			}
+			$sr .= "\t\t\t\t\t\t" . '</ul>' . "\n";
+			$sr .= "\t\t\t\t\t" . '</div>' . "\n";
+		}
+		
+		if ( $sr && !$no_submenu ) {
+			$class .= ' bb-menu-has-submenu';
+			if ( $m[2] == $bb_current_menu[2] ) {
+				$class .= ' bb-menu-open';
+			}
+		}
+
+		$r .= "\t\t\t\t" . '<li' . $id . ' class="' . attribute_escape( trim( $class ) ) . '"><a href="' . clean_url( $href ) . '">';
+		
+		if ( $m[2] !== 'separator' ) {
+			$r .= '<div class="bb-menu-icon"></div>';
+		}
+		
+		$r .= '<span>' . $m[0] . '</span></a>' . "\n";
+		
+		if ( $sr && !$no_submenu ) {
+			$r .= '<div class="bb-menu-toggle"></div>';
+			$r .= $sr;
+		}
+		
+		$r .= "\t\t\t\t" . '</li>' . "\n";
 	}
 	
 	$r .= "\t\t\t" . '</ul>' . "\n";
 	
-	if ( $bb_current_submenu ) {
-		$r .= "\t\t\t" . '<ul id="bbAdminSubMenu">' . "\n";
-		ksort($bb_submenu[$bb_current_menu[2]]);
-		foreach ( $bb_submenu[$bb_current_menu[2]] as $m ) {
-			if ( bb_current_user_can($m[1]) ) {
-				$class = ( $m[2] == $bb_current_submenu[2] ) ? ' class="current"' : '';
-				if (strpos($m[2], 'http://') === 0 || strpos($m[2], 'https://') === 0)
-					$href = $m[2];
-				else
-					$href = bb_get_option('path') . 'bb-admin/' . bb_get_admin_tab_link($m[2]);
-				$r .= "\t\t\t\t" . '<li' . $class . '><a href="' . $href . '"><span>' . $m[0] . '</span></a></li>' . "\n";
-			}
-		}
-		$r .= "\t\t\t" . '</ul>' . "\n";
-	} else {
-		$r .= "\t\t\t" . '<div id="bbAdminSubMenu"></div>' . "\n";
-	}
-	
 	echo $r;
 }
 
-function bb_get_admin_tab_link( $tab ) {
-	if ( is_array($tab) )
+function bb_get_admin_tab_link( $tab )
+{
+	if ( is_array( $tab ) ) {
 		$tab = $tab[2];
-	if ( strpos($tab, '.php') !== false )
+	}
+	if ( strpos( $tab, '.php' ) !== false ) {
 		return $tab;
-	else
+	} else {
 		return 'admin-base.php?plugin=' . $tab;
+	}
 }
 
 /* Stats */

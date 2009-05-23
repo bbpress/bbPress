@@ -597,6 +597,157 @@ function bb_delete_usermeta( $user_id, $meta_key, $meta_value = '' )
 	return bb_delete_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
 
+/**
+ * Saves and restores user interface settings stored in a cookie.
+ *
+ * Checks if the current user-settings cookie is updated and stores it. When no
+ * cookie exists (different browser used), adds the last saved cookie restoring
+ * the settings.
+ *
+ * @package bbPress
+ * @subpackage Meta
+ * @since 1.0
+ */
+function bb_user_settings()
+{
+	if ( !defined( 'BB_IS_ADMIN' ) || !BB_IS_ADMIN ) {
+		return;
+	}
+
+	if ( defined( 'DOING_AJAX' ) ) {
+		return;
+	}
+
+	if ( ! $user = bb_get_current_user() ) {
+		return;
+	}
+
+	$settings = bb_get_usermeta( 'bb-user-settings', $user->ID );
+
+	if ( isset( $_COOKIE['bb-user-settings-' . $user->ID] ) ) {
+		$cookie = preg_replace( '/[^A-Za-z0-9=&_]/', '', $_COOKIE['bb-user-settings-' . $user->ID] );
+
+		if ( ! empty( $cookie ) && strpos( $cookie, '=' ) ) {
+			if ( $cookie == $settings ) {
+				return;
+			}
+
+			$last_time = (int) bb_get_usermeta( 'bb-user-settings-time', $user->ID );
+			$saved = isset( $_COOKIE['bb-user-settings-time-' . $user->ID] ) ? preg_replace( '/[^0-9]/', '', $_COOKIE['bb-user-settings-time-' . $user->ID] ) : 0;
+
+			if ( $saved > $last_time ) {
+				bb_update_usermeta( $user->ID, 'bb-user-settings', $cookie );
+				bb_update_usermeta( $user->ID, 'bb-user-settings-time', time() - 5 );
+				return;
+			}
+		}
+	}
+
+	setcookie( 'bb-user-settings-' . $user->ID, $settings, time() + 31536000, $bb->cookiepath );
+	setcookie( 'bb-user-settings-time-' . $user->ID, time(), time() + 31536000, $bb->cookiepath );
+}
+
+/**
+ * Retrieve user interface setting value based on setting name.
+ *
+ * @package bbPress
+ * @subpackage Meta
+ * @since 1.0
+ *
+ * @param string $name The name of the setting.
+ * @param string $default Optional default value to return when $name is not set.
+ * @return mixed the last saved user setting or the default value/false if it doesn't exist.
+ */
+function bb_get_user_setting( $name, $default = false )
+{
+	$arr = bb_get_all_user_settings();
+
+	return isset( $arr[$name] ) ? $arr[$name] : $default;
+}
+
+/**
+ * Delete user interface settings.
+ *
+ * Deleting settings would reset them to the defaults.
+ *
+ * @package bbPress
+ * @subpackage Meta
+ * @since 1.0
+ *
+ * @param mixed $names The name or array of names of the setting to be deleted.
+ */
+function bb_delete_user_setting( $names )
+{
+	global $current_user;
+
+	$arr = bb_get_all_user_settings();
+	$names = (array) $names;
+
+	foreach ( $names as $name ) {
+		if ( isset( $arr[$name] ) ) {
+			unset( $arr[$name] );
+			$settings = '';
+		}
+	}
+
+	if ( isset( $settings ) ) {
+		foreach ( $arr as $k => $v ) {
+			$settings .= $k . '=' . $v . '&';
+		}
+		$settings = rtrim( $settings, '&' );
+
+		bb_update_usermeta( $current_user->ID, 'bb-user-settings', $settings );
+		setcookie( 'bb-user-settings-' . $current_user->ID, $settings, time() + 31536000, $bb->cookiepath );
+	}
+}
+
+/**
+ * Retrieve all user interface settings.
+ *
+ * @package bbPress
+ * @subpackage Meta
+ * @since 1.0
+ *
+ * @return array the last saved user settings or empty array.
+ */
+function bb_get_all_user_settings()
+{
+	if ( ! $user = bb_get_current_user() ) {
+		return array();
+	}
+
+	$arr = array();
+	if ( isset( $_COOKIE['bb-user-settings-' . $user->ID] ) ) {
+		$cookie = preg_replace( '/[^A-Za-z0-9=&_]/', '', $_COOKIE['bb-user-settings-' . $user->ID] );
+
+		if ( $cookie && strpos( $cookie, '=' ) ) { // the '=' cannot be 1st char
+			parse_str( $cookie, $arr );
+		}
+	} elseif ( isset( $user->bb_usersettings ) && is_string( $user->bb_usersettings ) ) {
+		parse_str( $user->bb_usersettings, $arr );
+	}
+
+	return $arr;
+}
+
+/**
+ * Delete the user settings of the current user.
+ *
+ * @package bbPress
+ * @subpackage Meta
+ * @since 1.0
+ */
+function bb_delete_all_user_settings()
+{
+	if ( ! $user = bb_get_current_user() ) {
+		return;
+	}
+
+	bb_delete_usermeta( $user->ID, 'bb-user-settings' );
+	setcookie( 'bb-user-settings-'.$user->ID, ' ', time() - 31536000, $bb->cookiepath );
+}
+
+
 
 
 /* Forum meta */

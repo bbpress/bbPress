@@ -1,0 +1,83 @@
+var showNotice, adminMenu, columns;
+(function($){
+// sidebar admin menu
+adminMenu = {
+
+	init : function() {
+		$('ul#bbAdminMenu li.bb-menu div.bb-menu-toggle').each( function() {
+			if ( $(this).siblings('div.bb-menu-sub-wrap').length )
+				$(this).click(function(){ adminMenu.toggle( $(this).siblings('div.bb-menu-sub-wrap') ); });
+			else
+				$(this).hide();
+		});
+
+		$('#bbAdminMenu li.bb-menu.bb-menu-separator a').click(function(){
+			if ( $('body').hasClass('bb-menu-folded') ) {
+				adminMenu.fold(1);
+				deleteUserSetting( 'mfold' );
+			} else {
+				adminMenu.fold();
+				setUserSetting( 'mfold', 'f' );
+			}
+			return false;
+		});
+
+		if ( $('body').hasClass('bb-menu-folded') ) {
+			this.fold();
+		} else {
+			this.restoreMenuState();
+		}
+	},
+
+	restoreMenuState : function() {
+		$('ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu').each(function(i, e) {
+			var v = getUserSetting( 'm'+i );
+			if ( $(e).hasClass('bb-menu-current') ) return true; // leave the current parent open
+
+			if ( 'o' == v ) $(e).addClass('bb-menu-open');
+			else if ( 'c' == v ) $(e).removeClass('bb-menu-open');
+		});
+	},
+
+	toggle : function(el) {
+
+		el['slideToggle'](150, function(){el.css('display','');}).parent().toggleClass( 'bb-menu-open' );
+
+		$('ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu').each(function(i, e) {
+			var v = $(e).hasClass('bb-menu-open') ? 'o' : 'c';
+			setUserSetting( 'm'+i, v );
+		});
+
+		return false;
+	},
+
+	fold : function(off) {
+		if (off) {
+			$('body').removeClass('bb-menu-folded');
+			$('#bbAdminMenu li.bb-menu.bb-menu-has-submenu').unbind();
+		} else {
+			$('body').addClass('bb-menu-folded');
+			$('#bbAdminMenu li.bb-menu.bb-menu-has-submenu').hoverIntent({
+				over: function(e){
+					var m = $(this).find('div.bb-menu-sub-wrap'), t = e.clientY, H = $(window).height(), h = m.height(), o;
+
+					if ( (t+h+10) > H ) {
+						o = (t+h+10) - H;
+						m.css({'marginTop':'-'+o+'px'});
+					} else if ( m.css('marginTop') ) {
+						m.css({'marginTop':''});
+					}
+					m.addClass('bb-menu-sub-open');
+				},
+				out: function(){ $(this).find('div.bb-menu-sub-wrap').removeClass('bb-menu-sub-open').css({'marginTop':''}); },
+				timeout: 220,
+				sensitivity: 8,
+				interval: 100
+			});
+		}
+	}
+};
+
+$(document).ready(function(){adminMenu.init();});
+
+})(jQuery);
