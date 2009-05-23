@@ -251,52 +251,70 @@ function bb_post_template() {
 	bb_load_template( 'post.php' );
 }
 
-function post_form( $h2 = '' ) {
+function post_form( $args = array() ) {
 	global $page, $topic, $forum;
-	
-	if ( isset($forum->forum_is_category) && $forum->forum_is_category )
+
+	if ( is_string( $args ) ) {
+		$args['h2'] = $args;
+	}
+	$defaults = array(
+		'h2' => '',
+		'last_page_only' => true
+	);
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	if ( isset( $forum->forum_is_category ) && $forum->forum_is_category ) {
 		return;
-	
-	$add = topic_pages_add();
-	if ( empty($h2) && false !== $h2 ) {
-		if ( bb_is_topic() )
-			$h2 =  __('Reply');
-		elseif ( bb_is_forum() )
-			$h2 = __('New Topic in this Forum');
-		elseif ( bb_is_tag() || bb_is_front() )
-			$h2 = __('Add New Topic');
 	}
 
-	$last_page = get_page_number( ( isset($topic->topic_posts) ? $topic->topic_posts : 0 ) + $add );
+	$add = topic_pages_add();
+	if ( empty( $h2 ) && false !== $h2 ) {
+		if ( bb_is_topic() ) {
+			$h2 = __( 'Reply' );
+		} elseif ( bb_is_forum() ) {
+			$h2 = __( 'New Topic in this Forum' );
+		} elseif ( bb_is_tag() || bb_is_front() ) {
+			$h2 = __( 'Add New Topic' );
+		}
+	}
 
-	if ( !empty($h2) ) {
-		if ( bb_is_topic() && $page != $last_page )
+	$last_page = get_page_number( ( isset( $topic->topic_posts ) ? $topic->topic_posts : 0 ) + $add );
+
+	if ( !empty( $h2 ) ) {
+		if ( bb_is_topic() && ( $page != $last_page && $last_page_only ) ) {
 			$h2 = $h2 . ' <a href="' . attribute_escape( get_topic_link( 0, $last_page ) . '#postform' ) . '">&raquo;</a>';
+		}
 		echo '<h2 class="post-form">' . $h2 . '</h2>' . "\n";
 	}
 
-	do_action('pre_post_form');
+	do_action( 'pre_post_form' );
 
-	if ( ( bb_is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && $page == $last_page ) || ( !bb_is_topic() && bb_current_user_can( 'write_topic', isset($forum->forum_id) ? $forum->forum_id : 0 ) ) ) {
-		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_uri('bb-post.php', null, BB_URI_CONTEXT_FORM_ACTION) . '">' . "\n";
+	if (
+		( bb_is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && ( $page == $last_page || !$last_page_only ) ) ||
+		( !bb_is_topic() && bb_current_user_can( 'write_topic', isset( $forum->forum_id ) ? $forum->forum_id : 0 ) )
+	) {
+		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_uri( 'bb-post.php', null, BB_URI_CONTEXT_FORM_ACTION ) . '">' . "\n";
 		echo '<fieldset>' . "\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
 		bb_nonce_field( bb_is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
-		if ( bb_is_forum() )
+		if ( bb_is_forum() ) {
 			echo '<input type="hidden" name="forum_id" value="' . $forum->forum_id . '" />' . "\n";
-		else if ( bb_is_topic() )
+		} elseif ( bb_is_topic() ) {
 			echo '<input type="hidden" name="topic_id" value="' . $topic->topic_id . '" />' . "\n";
-		do_action('post_form');
+		}
+		do_action( 'post_form' );
 		echo "\n</fieldset>\n</form>\n";
 	} elseif ( !bb_is_user_logged_in() ) {
 		echo '<p>';
 		printf(
 			__('You must <a href="%s">log in</a> to post.'),
-			attribute_escape( bb_get_uri('bb-login.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS) )
+			attribute_escape( bb_get_uri( 'bb-login.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS ) )
 		);
 		echo '</p>';
 	}
-	do_action('post_post_form');
+
+	do_action( 'post_post_form' );
 }
 
 function edit_form() {
