@@ -72,18 +72,24 @@ if ( isset( $bb->safemode ) && $bb->safemode === true ) {
 	bb_admin_notice( __('"Safe mode" is on, the default theme will be used instead of the active theme indicated below.'), 'error' );
 }
 
+$bb_admin_body_class = ' bb-admin-appearance';
+
 bb_get_admin_header();
 ?>
 
 <div class="wrap">
 
-<h2><?php _e('Current Theme'); ?></h2>
+<h2><?php _e('Manage Themes'); ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
+
+<h3><?php _e('Current Theme'); ?></h3>
+
 <ul class="theme-list active">
 <?php bb_admin_theme_row( $themes[$activetheme] ); unset($themes[$activetheme] ); ?>
 </ul>
 <?php if ( !empty($themes) ) : ?>
 
-<h2><?php _e('Available Themes'); ?></h2>
+<h3><?php _e('Available Themes'); ?></h3>
 <div class="theme-list">
 <ul class="theme-list">
 <?php foreach ( $themes as $theme ) bb_admin_theme_row( $theme ); ?>

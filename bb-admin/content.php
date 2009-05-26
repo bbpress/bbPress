@@ -1,16 +1,19 @@
-<?php require_once('admin.php'); ?>
-<?php bb_get_admin_header(); ?>
-
 <?php
-	if ( !bb_current_user_can('browse_deleted') )
-		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
-	add_filter( 'topic_link', 'bb_make_link_view_all' );
-	add_filter( 'topic_last_post_link', 'bb_make_link_view_all' );
-	$topic_query_vars = array( 'topic_status' => 'all', 'open' => 'all', 'count' => true, 'per_page' => 20 );
-	if ( isset($_REQUEST['search']) && $_REQUEST['search'] )
-		$topic_query_vars['post_status'] = 'all';
-	$topic_query = new BB_Query_Form( 'topic', $topic_query_vars );
-	$topics = $topic_query->results;
+require_once('admin.php');
+
+$bb_admin_body_class = ' bb-admin-topics';
+
+bb_get_admin_header();
+
+if ( !bb_current_user_can('browse_deleted') )
+	die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
+add_filter( 'topic_link', 'bb_make_link_view_all' );
+add_filter( 'topic_last_post_link', 'bb_make_link_view_all' );
+$topic_query_vars = array( 'topic_status' => 'all', 'open' => 'all', 'count' => true, 'per_page' => 20 );
+if ( isset($_REQUEST['search']) && $_REQUEST['search'] )
+	$topic_query_vars['post_status'] = 'all';
+$topic_query = new BB_Query_Form( 'topic', $topic_query_vars );
+$topics = $topic_query->results;
 ?>
 
 <div class="wrap">
@@ -39,6 +42,7 @@ else
 printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, $h2_author );
 
 ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
 
 <?php $topic_query->form( array('tag' => true, 'topic_author' => true, 'topic_status' => true, 'open' => true, 'submit' => __('Filter &#187;')) ); ?>
 

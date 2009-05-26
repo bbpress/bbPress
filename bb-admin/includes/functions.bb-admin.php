@@ -36,7 +36,7 @@ function bb_admin_notice( $message, $class = false )
 		return false;
 	}
 
-	$message = '<div class="' . attribute_escape( $class ) . '">' . wp_specialchars( $message ) . '</div>';
+	$message = '<div class="' . attribute_escape( $class ) . '">' . $message . '</div>';
 	$message = str_replace( "'", "\'", $message );
 	$lambda = create_function( '', "echo '$message';" );
 	add_action( 'bb_admin_notices', $lambda );
@@ -53,7 +53,7 @@ function bb_admin_menu_generator()
 
 	// Dashboard menu items < 50
 	$bb_menu[0]  = array( __( 'Dashboard' ), 'moderate', 'index.php', '', 'bb-menu-dashboard' );
-		$bb_submenu['index.php'][5]   = array(__('Dashboard'), 'moderate', 'index.php');
+		$bb_submenu['index.php'][5]   = array( __( 'Dashboard' ), 'moderate', 'index.php' );
 
 	// 50 < Plugin added menu items < 75
 
@@ -62,10 +62,12 @@ function bb_admin_menu_generator()
 	// 75 < Plugin added menu items < 100
 
 	// 100 < First menu items < 200
-	$bb_menu[105] = array( __( 'Manage' ), 'moderate', 'content.php', '', 'bb-menu-manage');
-		$bb_submenu['content.php'][5]  = array( __( 'Topics' ), 'moderate', 'content.php' );
-		$bb_submenu['content.php'][10] = array( __( 'Posts' ), 'moderate', 'content-posts.php' );
-		$bb_submenu['content.php'][15] = array( __( 'Forums' ), 'manage_forums', 'content-forums.php' );
+	$bb_menu[100] = array( __( 'Forums' ), 'manage_forums', 'content-forums.php', '', 'bb-menu-forums' );
+		$bb_submenu['content-forums.php'][5]   = array( __( 'Edit' ), 'manage_forums', 'content-forums.php' );
+	$bb_menu[105] = array( __( 'Topics' ), 'moderate', 'content.php', '', 'bb-menu-topics' );
+		$bb_submenu['content.php'][5]   = array( __( 'Edit' ), 'moderate', 'content.php' );
+	$bb_menu[110] = array( __( 'Posts' ), 'moderate', 'content-posts.php', '', 'bb-menu-posts' );
+		$bb_submenu['content-posts.php'][5]   = array( __( 'Edit' ), 'moderate', 'content-posts.php' );
 
 	// 200 < Plugin added menu items < 250
 
@@ -77,16 +79,20 @@ function bb_admin_menu_generator()
 	$bb_menu[300] = array( __( 'Appearance' ), 'manage_themes', 'themes.php', '', 'bb-menu-appearance' );
 		$bb_submenu['themes.php'][5]   = array(__('Themes'), 'manage_themes', 'themes.php');
 	$bb_menu[305] = array( __( 'Plugins' ), 'use_keys', 'plugins.php', '', 'bb-menu-plugins' );
-		$bb_submenu['plugins.php'][5]  = array( __( 'Plugins' ), 'manage_plugins', 'plugins.php' );
+		$bb_submenu['plugins.php'][5]  = array( __( 'Installed' ), 'manage_plugins', 'plugins.php' );
 	$bb_menu[310] = array( __( 'Users' ), 'moderate', 'users.php', '', 'bb-menu-users' );
 		$bb_submenu['users.php'][5]  = array( __( 'Find' ), 'moderate', 'users.php' );
 		$bb_submenu['users.php'][10] = array( __( 'Moderators' ), 'moderate', 'users-moderators.php' );
 		$bb_submenu['users.php'][15] = array( __( 'Blocked' ), 'edit_users', 'users-blocked.php' );
 	$bb_menu[315] = array( __( 'Tools' ), 'recount', 'site.php', '', 'bb-menu-tools' );
-		$bb_submenu['site.php'][20] = array( __( 'Recount' ), 'recount', 'site.php' );
+		$bb_submenu['site.php'][5] = array( __( 'Recount' ), 'recount', 'site.php' );
 	$bb_menu[320] = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'bb-menu-settings' );
 		$bb_submenu['options-general.php'][5]  = array( __( 'General' ), 'manage_options', 'options-general.php' );
-		$bb_submenu['options-general.php'][10] = array( __( 'WordPress Integration' ), 'manage_options', 'options-wordpress.php' );
+		$bb_submenu['options-general.php'][10] = array( __( 'Date and Time' ), 'manage_options', 'options-time.php' );
+		$bb_submenu['options-general.php'][15] = array( __( 'Writing' ), 'manage_options', 'options-writing.php' );
+		$bb_submenu['options-general.php'][20] = array( __( 'Discussion' ), 'manage_options', 'options-discussion.php' );
+		$bb_submenu['options-general.php'][25] = array( __( 'Permalinks' ), 'manage_options', 'options-permalinks.php' );
+		$bb_submenu['options-general.php'][30] = array( __( 'WordPress Integration' ), 'manage_options', 'options-wordpress.php' );
 
 	// 400 < Plugin added menu items
 
@@ -177,8 +183,8 @@ function bb_get_current_admin_menu()
 		}
 	}
 	if ( !isset($bb_current_menu) ) {
-		$bb_current_menu = $bb_menu[0];	// Dashboard is currently the only supported top with no subs
-		$bb_current_submenu = false;
+		$bb_current_menu = $bb_menu[0];
+		$bb_current_submenu = $bb_submenu['index.php'][5];
 	} else {
 		foreach ( $bb_menu as $m ) {
 			if ( $m[2] == $bb_current_menu ) {
@@ -490,7 +496,8 @@ class BB_User_Search {
 			$title = sprintf(__('Users Matching "%s" by Role'), wp_specialchars( $this->search_term ));
 		else
 			$title = __('User List by Role');
-		$r .= "<h2 class=\"first\">$title</h2>\n";
+		echo "<h2 class=\"first\">$title</h2>\n";
+		do_action( 'bb_admin_notices' );
 
 		if ( $show_search ) {
 			$r .= "<form action='' method='get' id='search'>\n\t<p>";

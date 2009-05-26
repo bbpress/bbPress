@@ -1,17 +1,17 @@
 			</div>
 			<div class="clear"></div>
-		</div>
-		<!-- If you like showing off the fact that your server rocks -->
-		<!-- <p>
+			<!-- If you like showing off the fact that your server rocks -->
+			<!--<p id="bbShowOff">
 <?php
 global $bbdb;
 printf(
-	__( 'This page generated in %s seconds, using %d queries' ),
-	bb_number_format_i18n( bb_timer_stop(), 2 ),
-	bb_number_format_i18n( $bbdb->num_queries )
+__( 'This page generated in %s seconds, using %d queries' ),
+bb_number_format_i18n( bb_timer_stop(), 2 ),
+bb_number_format_i18n( $bbdb->num_queries )
 );
 ?>
-		</p> -->
+			</p>-->
+		</div>
 	</div>
 	<div id="bbFoot">
 		<p id="bbThanks">

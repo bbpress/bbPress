@@ -16,6 +16,7 @@ bb_get_admin_header();
 <div class="wrap">
 
 <h2><?php _e('IP Information'); ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
 
 <h3><?php _e('Last 30 posts'); ?></h3>
 

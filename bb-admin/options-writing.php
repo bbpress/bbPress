@@ -4,7 +4,12 @@ require_once('admin.php');
 
 if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update') {
 	
-	bb_check_admin_referer( 'options-general-update' );
+	bb_check_admin_referer( 'options-writing-update' );
+	
+	// Deal with xmlrpc checkbox when it isn't checked
+	if (!isset($_POST['enable_xmlrpc'])) {
+		$_POST['enable_xmlrpc'] = false;
+	}
 	
 	foreach ( (array) $_POST as $option => $value ) {
 		if ( !in_array( $option, array('_wpnonce', '_wp_http_referer', 'action', 'submit') ) ) {
@@ -32,27 +37,19 @@ if ( !empty($_GET['updated']) ) {
 }
 
 $general_options = array(
-	'name' => array(
-		'title' => __( 'Site title' ),
-		'class' => 'long',
-	),
-	'description' => array(
-		'title' => __( 'Site description' ),
-		'class' => 'long',
-	),
-	'uri' => array(
-		'title' => __( 'bbPress address (URL)' ),
-		'class' => 'long',
-		'note' => __( 'The full URL of your bbPress install.' ),
-	),
-	'from_email' => array(
-		'title' => __( 'E-mail address' ),
-		'note' => __( 'Emails sent by the site will appear to come from this address.' ),
-	),
-	'page_topics' => array(
-		'title' => __( 'Items per page' ),
+	'edit_lock' => array(
+		'title' => __( 'Lock post editing after' ),
 		'class' => 'short',
-		'note' => __( 'Number of topics, posts or tags to show per page.' ),
+		'after' => __( 'minutes' ),
+		'note' => 'A user can edit a post for this many minutes after submitting.',
+	)
+);
+
+$remote_options = array(
+	'enable_xmlrpc' => array(
+		'title' => __( 'XML-RPC' ),
+		'type' => 'checkbox',
+		'after' => __( 'Enable the bbPress <a href="http://codex.wordpress.org/Glossary#XML-RPC">XML-RPC</a> publishing protocol.' ),
 	)
 );
 
@@ -64,13 +61,20 @@ bb_get_admin_header();
 
 <div class="wrap">
 
-<h2><?php _e('General Settings'); ?></h2>
+<h2><?php _e('Writing Settings'); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-general.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+<form class="settings" method="post" action="<?php bb_uri( 'bb-admin/options-writing.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ); ?>">
 	<fieldset><?php foreach ( $general_options as $option => $args ) bb_option_form_element( $option, $args ); ?></fieldset>
+	<fieldset>
+		<legend><?php _e('Remote publishing'); ?></legend>
+		<p>
+			<?php _e( 'To interact with bbPress from a desktop client or remote website that uses the XML-RPC publishing interface you must enable it below.' ); ?>
+		</p>
+<?php		foreach ( $remote_options as $option => $args ) bb_option_form_element( $option, $args ); ?>
+	</fieldset>
 	<fieldset class="submit">
-		<?php bb_nonce_field( 'options-general-update' ); ?>
+		<?php bb_nonce_field( 'options-writing-update' ); ?>
 		<input type="hidden" name="action" value="update" />
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>

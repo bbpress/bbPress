@@ -155,14 +155,18 @@ $custom_table_options = array(
 
 $advanced_display = bb_get_option( 'user_bbdb_advanced' ) ? 'block' : 'none';
 
+$bb_admin_body_class = ' bb-admin-settings';
+
 bb_get_admin_header();
 
 ?>
 
 <div class="wrap">
 
-<h2><?php _e('User Role Map'); ?></h2>
+<h2><?php _e( 'WordPress Integration Settings' ); ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
 
+<h3><?php _e('User Role Map'); ?></h3>
 <p><?php _e('Here you can match WordPress roles to bbPress roles.'); ?></p>
 <p><?php _e('This will have no effect until your user tables are integrated below. Only standard WordPress roles are supported. Changes do not affect users with existing roles in both WordPress and bbPress.'); ?></p>
 
@@ -177,8 +181,7 @@ bb_get_admin_header();
 	</fieldset>
 </form>
 
-<h2 class="after"><?php _e('User Integration'); ?></h2>
-
+<h3 class="after"><?php _e('User Integration'); ?></h3>
 <p><?php _e('Usually, you will have to specify both cookie sharing and user database sharing settings.'); ?></p>
 <p><?php _e('Make sure you have a "User role map" setup above before trying to add user integration.'); ?></p>
 <p><?php _e('<strong>Note:</strong> updating these settings may cause you to be logged out!'); ?></p>
@@ -290,7 +293,7 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 	</fieldset>
 </form>
 
-<h2 class="after"><?php _e('Manual bbPress config file settings'); ?></h2>
+<h3 class="after"><?php _e('Manual bbPress config file settings'); ?></h3>
 <?php
 $cookie_settings = array(
 	'// Start integration speedups',

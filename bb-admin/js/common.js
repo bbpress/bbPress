@@ -79,5 +79,3 @@ adminMenu = {
 };
 
 $(document).ready(function(){adminMenu.init();});
-
-})(jQuery);

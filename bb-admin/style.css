@@ -44,6 +44,10 @@ body {
 	font-size: 0.8em;
 }
 
+a {
+	outline: none;
+}
+
 div#bbWrap {
 	height: auto;
 	min-height: 100%;
@@ -87,7 +91,10 @@ div#bbHead h1 a em {
 	background: rgb(88, 88, 88) url('images/visit-site-button-grad.gif') repeat-x 0 0;
 	color: rgb(170, 170, 170);
 	text-shadow: rgb(63, 63, 63) 0px -1px 0px;
-	-webkit-border-radius: 3px 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 	cursor: pointer;
 	display: inline-block;
 	font-size: 0.5em;
@@ -136,6 +143,70 @@ div#bbBody {
 body.bb-menu-folded div#bbBody {
 	margin-left: 59px;
 }
+
+h2 {
+	display: block;
+	color: rgb(70, 70, 70);
+	font: italic normal normal 1.9em/1.45em Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	padding: 14px 15px 3px 0;
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+	background: transparent none no-repeat 0 0;
+}
+
+body.bb-admin-dashboard h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -172px;
+}
+
+body.bb-admin-forums h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -802px;
+}
+
+body.bb-admin-topics h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -802px;
+}
+
+body.bb-admin-posts h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -802px;
+}
+
+body.bb-admin-appearance h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 8px;
+}
+
+body.bb-admin-plugins h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -532px;
+}
+
+body.bb-admin-users h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -891px;
+}
+
+body.bb-admin-tools h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -621px;
+}
+
+body.bb-admin-settings h2 {
+	padding-left: 47px;
+	background-image: url('images/icons32.png');
+	background-position: 0 -712px;
+}
+
 
 
 
@@ -322,12 +393,30 @@ ul#bbAdminMenu li#bb-menu-dashboard a:hover div.bb-menu-icon {
 	background-position: -67px -7px;
 }
 
-ul#bbAdminMenu li#bb-menu-manage a div.bb-menu-icon {
+ul#bbAdminMenu li#bb-menu-forums a div.bb-menu-icon {
 	background-position: -277px -39px;
 }
 
-ul#bbAdminMenu li#bb-menu-manage.bb-menu-current a div.bb-menu-icon,
-ul#bbAdminMenu li#bb-menu-manage a:hover div.bb-menu-icon {
+ul#bbAdminMenu li#bb-menu-forums.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-forums a:hover div.bb-menu-icon {
+	background-position: -277px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-topics a div.bb-menu-icon {
+	background-position: -277px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-topics.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-topics a:hover div.bb-menu-icon {
+	background-position: -277px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-posts a div.bb-menu-icon {
+	background-position: -277px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-posts.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-posts a:hover div.bb-menu-icon {
 	background-position: -277px -7px;
 }
 
@@ -521,8 +610,24 @@ ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 
 /* Footer */
 
+p#bbShowOff {
+	margin: 0 15px 15px 15px;
+	padding: 9px;
+	border: 1px solid rgb(153, 153, 153);
+	color: rgb(153, 153, 153);
+	background-color: rgb(255, 255, 255);
+	font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	font-size: 0.9em;
+	font-style: italic;
+	width: 125px;
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+}
+
 div#bbFoot {
-	background: rgb(70, 70, 70);
+	background-color: rgb(70, 70, 70);
 	color: rgb(153, 153, 153);
 	margin-top: -45px;
 	clear: both;

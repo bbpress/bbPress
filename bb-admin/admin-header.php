@@ -9,18 +9,33 @@
 <?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
 	<script type="text/javascript">
 		//<![CDATA[
+//		addLoadEvent = function(func){
+//			if (typeof jQuery!="undefined") jQuery(document).ready(func);
+//			else if (typeof wpOnload!='function'){
+//				wpOnload=func;
+//			}else{
+//				var oldonload=wpOnload;
+//				wpOnload=function(){
+//					oldonload();
+//					func();
+//				}
+//			}
+//		};
 		var userSettings = {'url':'<?php echo $bb->cookie_path; ?>','uid':'<?php if ( ! isset($bb_current_user) ) $bb_current_user = bb_get_current_user(); echo $bb_current_user->ID; ?>','time':'<?php echo time(); ?>'};
+//		var ajaxurl = '<?php // echo admin_url('admin-ajax.php'); ?>';
+//		var pagenow = '<?php // echo substr($pagenow, 0, -4); ?>';
 		//]]>
 	</script>
 </head>
 
 <?php
+global $bb_admin_body_class;
 if ( bb_get_user_setting('mfold') == 'f' ) {
-	$bb_admin_body_class = ' bb-menu-folded';
+	$bb_admin_body_class .= ' bb-menu-folded';
 }
 ?>
 
-<body class="bbAdmin<?php echo $bb_admin_body_class ?>">
+<body class="bb-admin<?php echo $bb_admin_body_class ?>">
 	<div id="bbWrap">
 		<div id="bbContent">
 			<div id="bbHead">
@@ -36,5 +51,3 @@ if ( bb_get_user_setting('mfold') == 'f' ) {
 			<div id="bbBody">
 
 <?php bb_admin_menu(); ?>
-
-<?php do_action( 'bb_admin_notices' ); ?>

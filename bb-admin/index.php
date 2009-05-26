@@ -2,11 +2,14 @@
 require_once('admin.php');
 require_once( BB_PATH . BB_INC . 'functions.bb-statistics.php' );
 
+$bb_admin_body_class = ' bb-admin-dashboard';
+
 bb_get_admin_header();
 ?>
 
 <div class="wrap">
 	<h2><?php _e('Dashboard'); ?></h2>
+	<?php do_action( 'bb_admin_notices' ); ?>
 
 	<div id="dashboard-right-now" class="dashboard">
 		<h3><?php _e('Right Now'); ?></h3>

@@ -1,15 +1,18 @@
-<?php require_once('admin.php'); ?>
+<?php
+require_once('admin.php');
 
-<?php bb_get_admin_header(); ?>
+$bb_admin_body_class = ' bb-admin-posts';
 
-<?php	if ( !bb_current_user_can('browse_deleted') )
-		die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
-	add_filter( 'get_topic_where', 'no_where' );
-	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
-	add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
-	$post_query = new BB_Query_Form( 'post', array( 'post_status' => 'all', 'count' => true, 'per_page' => 20 ) );
-	$bb_posts =& $post_query->results;
-	$total = $post_query->found_rows;
+bb_get_admin_header();
+
+if ( !bb_current_user_can('browse_deleted') )
+	die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
+add_filter( 'get_topic_where', 'no_where' );
+add_filter( 'get_topic_link', 'bb_make_link_view_all' );
+add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
+$post_query = new BB_Query_Form( 'post', array( 'post_status' => 'all', 'count' => true, 'per_page' => 20 ) );
+$bb_posts =& $post_query->results;
+$total = $post_query->found_rows;
 ?>
 
 <div class="wrap">
@@ -36,6 +39,7 @@ else
 printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, $h2_author );
 
 ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
 
 <?php $post_query->form( array('tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __('Filter &#187;')) ); ?>
 

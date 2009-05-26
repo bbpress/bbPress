@@ -30,12 +30,15 @@ if ( isset($_GET['message']) ) {
 if ( !isset($_GET['action']) )
 	wp_enqueue_script( 'content-forums' );
 
+$bb_admin_body_class = ' bb-admin-forums';
+
 bb_get_admin_header();
 ?>
 
 <div class="wrap">
 
-<h2><?php _e('Forum Management'); ?></h2>
+<h2><?php _e('Edit Forums'); ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
 <?php switch ( @$_GET['action'] ) : ?>
 <?php case 'edit' : ?>
 <h3><?php _e('Update Forum'); ?></h3>

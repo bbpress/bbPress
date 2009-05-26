@@ -1,7 +1,10 @@
 <?php
 require_once('admin.php');
-$bb_current_menu = $bb_menu[15];
+$bb_current_menu = $bb_menu[315];
 $bb_current_submenu = $bb_submenu['site.php'][5];
+
+$bb_admin_body_class = ' bb-admin-tools';
+
 bb_get_admin_header();
 
 
@@ -12,6 +15,7 @@ bb_check_admin_referer( 'do-counts' ); ?>
 <div class="wrap">
 
 <h2><?php _e('Recounting'); ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
 <ul>
 
 <?php

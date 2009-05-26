@@ -101,6 +101,8 @@ if ( isset( $bb->safemode ) && $bb->safemode === true ) {
 	bb_admin_notice( __( '"Safe mode" is on, all plugins are disabled even if they are listed as active.' ), 'error' );
 }
 
+$bb_admin_body_class = ' bb-admin-plugins';
+
 bb_get_admin_header();
 ?>
 
@@ -129,7 +131,8 @@ if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 }
 ?>
 
-	<h2><?php _e( 'Plugin Management' ); ?></h2>
+	<h2><?php _e( 'Manage Plugins' ); ?></h2>
+	<?php do_action( 'bb_admin_notices' ); ?>
 
 	<p><?php _e( 'Plugins extend and expand the functionality of bbPress. Once a plugin is installed, you may activate it or deactivate it here.' ); ?></p>
 
@@ -263,7 +266,7 @@ if ( !$normal_plugins && !$autoload_plugins ) :
 endif;
 ?>
 
-	<h2 class="after"><?php _e( 'Get More Plugins' ); ?></h2>
+	<h3 class="after"><?php _e( 'Get More Plugins' ); ?></h3>
 
 	<p><?php printf( __( 'You can find additional plugins for your site in the <a href="%s">bbPress plugin directory</a>.' ), 'http://bbpress.org/plugins/' ); ?></p>
 
