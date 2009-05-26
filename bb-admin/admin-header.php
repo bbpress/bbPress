@@ -9,21 +9,7 @@
 <?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
 	<script type="text/javascript">
 		//<![CDATA[
-//		addLoadEvent = function(func){
-//			if (typeof jQuery!="undefined") jQuery(document).ready(func);
-//			else if (typeof wpOnload!='function'){
-//				wpOnload=func;
-//			}else{
-//				var oldonload=wpOnload;
-//				wpOnload=function(){
-//					oldonload();
-//					func();
-//				}
-//			}
-//		};
 		var userSettings = {'url':'<?php echo $bb->cookie_path; ?>','uid':'<?php if ( ! isset($bb_current_user) ) $bb_current_user = bb_get_current_user(); echo $bb_current_user->ID; ?>','time':'<?php echo time(); ?>'};
-//		var ajaxurl = '<?php // echo admin_url('admin-ajax.php'); ?>';
-//		var pagenow = '<?php // echo substr($pagenow, 0, -4); ?>';
 		//]]>
 	</script>
 </head>
