@@ -14,10 +14,10 @@ adminMenu = {
 		$('#bbAdminMenu li.bb-menu.bb-menu-separator a').click(function(){
 			if ( $('body').hasClass('bb-menu-folded') ) {
 				adminMenu.fold(1);
-				deleteUserSetting( 'mfold' );
+				deleteUserSetting( 'fm' );
 			} else {
 				adminMenu.fold();
-				setUserSetting( 'mfold', 'f' );
+				setUserSetting( 'fm', 'f' );
 			}
 			return false;
 		});
@@ -39,7 +39,6 @@ adminMenu = {
 	},
 
 	toggle : function(el) {
-
 		el['slideToggle'](150, function(){el.css('display','');}).parent().toggleClass( 'bb-menu-open' );
 
 		$('ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu').each(function(i, e) {

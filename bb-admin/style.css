@@ -56,7 +56,7 @@ div#bbWrap {
 
 div#bbContent {
 	height: 100%;
-	padding-bottom: 50px;
+	padding-bottom: 45px;
 }
 
 
@@ -611,19 +611,18 @@ ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 /* Footer */
 
 p#bbShowOff {
-	margin: 0 15px 15px 15px;
-	padding: 9px;
-	border: 1px solid rgb(153, 153, 153);
-	color: rgb(153, 153, 153);
-	background-color: rgb(255, 255, 255);
+	margin: 0 8px 8px 0;
+	padding: 6px 8px;
+	color: rgb(255, 255, 255);
+	background-color: rgb(170, 170, 170);
 	font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
 	font-size: 0.9em;
 	font-style: italic;
-	width: 125px;
 	-moz-border-radius: 6px;
 	-khtml-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
+	float: right;
 }
 
 div#bbFoot {

@@ -21,7 +21,16 @@ if ( 'f' == bb_get_user_setting( 'fm' ) ) {
 }
 ?>
 
-<body class="bb-admin<?php echo $bb_admin_body_class ?>">
+<body class="bb-admin no-js <?php echo trim( $bb_admin_body_class ); ?>">
+	<script type="text/javascript">
+		//<![CDATA[
+		(function(){
+			var c = document.body.className;
+			c = c.replace(/no-js/, 'js');
+			document.body.className = c;
+		})();
+		//]]>
+	</script>
 	<div id="bbWrap">
 		<div id="bbContent">
 			<div id="bbHead">
