@@ -1788,6 +1788,8 @@ function post_del_class( $post_id = 0 ) {
 	}
 	if ( count( $classes ) ) {
 		$classes = join( ' ', $classes );
+	} else {
+		$classes = '';
 	}
 	return apply_filters( 'post_del_class', $classes, $bb_post->post_id );
 }
