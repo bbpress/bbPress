@@ -618,26 +618,26 @@ function bb_user_settings()
 		return;
 	}
 
-	if ( ! $user = bb_get_current_user() ) {
+	if ( !$user = bb_get_current_user() ) {
 		return;
 	}
 
-	$settings = bb_get_usermeta( 'bb-user-settings', $user->ID );
+	$settings = bb_get_usermeta( $user->ID, 'bb_user_settings' );
 
 	if ( isset( $_COOKIE['bb-user-settings-' . $user->ID] ) ) {
 		$cookie = preg_replace( '/[^A-Za-z0-9=&_]/', '', $_COOKIE['bb-user-settings-' . $user->ID] );
 
-		if ( ! empty( $cookie ) && strpos( $cookie, '=' ) ) {
+		if ( !empty( $cookie ) && strpos( $cookie, '=' ) ) {
 			if ( $cookie == $settings ) {
 				return;
 			}
 
-			$last_time = (int) bb_get_usermeta( 'bb-user-settings-time', $user->ID );
+			$last_time = (int) bb_get_usermeta( $user->ID, 'bb_user_settings_time' );
 			$saved = isset( $_COOKIE['bb-user-settings-time-' . $user->ID] ) ? preg_replace( '/[^0-9]/', '', $_COOKIE['bb-user-settings-time-' . $user->ID] ) : 0;
 
 			if ( $saved > $last_time ) {
-				bb_update_usermeta( $user->ID, 'bb-user-settings', $cookie );
-				bb_update_usermeta( $user->ID, 'bb-user-settings-time', time() - 5 );
+				bb_update_usermeta( $user->ID, 'bb_user_settings', $cookie );
+				bb_update_usermeta( $user->ID, 'bb_user_settings_time', time() - 5 );
 				return;
 			}
 		}
@@ -666,6 +666,44 @@ function bb_get_user_setting( $name, $default = false )
 }
 
 /**
+ * Adds or updates a user interface setting value based on setting name.
+ *
+ * @package bbPress
+ * @subpackage Meta
+ * @since 1.0
+ *
+ * @param string $name The name of the setting.
+ * @param string $value The value of the setting.
+ */
+function bb_update_user_setting( $name, $value )
+{
+	if ( is_null( $value ) || $value === '' ) {
+		return;
+	}
+
+	if ( !$user = bb_get_current_user() ) {
+		return;
+	}
+
+	$name = (string) $name;
+	$name = preg_replace( '/[^A-Za-z0-9_]/', '', $name );
+
+	$value = (string) $value;
+	$value = preg_replace( '/[^A-Za-z0-9_]/', '', $value );
+
+	$arr = bb_get_all_user_settings();
+	$arr[$name] = $value;
+
+	foreach ( $arr as $k => $v ) {
+		$settings .= $k . '=' . $v . '&';
+	}
+	$settings = rtrim( $settings, '&' );
+
+	bb_update_usermeta( $user->ID, 'bb_user_settings', $settings );
+	setcookie( 'bb-user-settings-' . $user->ID, $settings, time() + 31536000, $bb->cookiepath );
+}
+
+/**
  * Delete user interface settings.
  *
  * Deleting settings would reset them to the defaults.
@@ -678,10 +716,12 @@ function bb_get_user_setting( $name, $default = false )
  */
 function bb_delete_user_setting( $names )
 {
-	global $current_user;
-
 	$arr = bb_get_all_user_settings();
 	$names = (array) $names;
+
+	if ( !$user = bb_get_current_user() ) {
+		return;
+	}
 
 	foreach ( $names as $name ) {
 		if ( isset( $arr[$name] ) ) {
@@ -696,8 +736,8 @@ function bb_delete_user_setting( $names )
 		}
 		$settings = rtrim( $settings, '&' );
 
-		bb_update_usermeta( $current_user->ID, 'bb-user-settings', $settings );
-		setcookie( 'bb-user-settings-' . $current_user->ID, $settings, time() + 31536000, $bb->cookiepath );
+		bb_update_usermeta( $user->ID, 'bb_user_settings', $settings );
+		setcookie( 'bb-user-settings-' . $user->ID, $settings, time() + 31536000, $bb->cookiepath );
 	}
 }
 
@@ -723,8 +763,8 @@ function bb_get_all_user_settings()
 		if ( $cookie && strpos( $cookie, '=' ) ) { // the '=' cannot be 1st char
 			parse_str( $cookie, $arr );
 		}
-	} elseif ( isset( $user->bb_usersettings ) && is_string( $user->bb_usersettings ) ) {
-		parse_str( $user->bb_usersettings, $arr );
+	} elseif ( isset( $user->bb_user_settings ) && is_string( $user->bb_user_settings ) ) {
+		parse_str( $user->bb_user_settings, $arr );
 	}
 
 	return $arr;
@@ -739,12 +779,12 @@ function bb_get_all_user_settings()
  */
 function bb_delete_all_user_settings()
 {
-	if ( ! $user = bb_get_current_user() ) {
+	if ( !$user = bb_get_current_user() ) {
 		return;
 	}
 
-	bb_delete_usermeta( $user->ID, 'bb-user-settings' );
-	setcookie( 'bb-user-settings-'.$user->ID, ' ', time() - 31536000, $bb->cookiepath );
+	bb_delete_usermeta( $user->ID, 'bb_user_settings' );
+	setcookie( 'bb-user-settings-' . $user->ID, ' ', time() - 31536000, $bb->cookiepath );
 }
 
 

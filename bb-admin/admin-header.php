@@ -16,7 +16,7 @@
 
 <?php
 global $bb_admin_body_class;
-if ( bb_get_user_setting('mfold') == 'f' ) {
+if ( 'f' == bb_get_user_setting( 'fm' ) ) {
 	$bb_admin_body_class .= ' bb-menu-folded';
 }
 ?>

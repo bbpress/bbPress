@@ -24,9 +24,8 @@ adminMenu = {
 
 		if ( $('body').hasClass('bb-menu-folded') ) {
 			this.fold();
-		} else {
-			this.restoreMenuState();
 		}
+		this.restoreMenuState();
 	},
 
 	restoreMenuState : function() {
@@ -79,3 +78,5 @@ adminMenu = {
 };
 
 $(document).ready(function(){adminMenu.init();});
+
+})(jQuery);

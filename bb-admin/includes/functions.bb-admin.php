@@ -108,6 +108,9 @@ function bb_admin_menu_generator()
 			$bb_menu[$last_key][3] .= ' bb-menu-last';
 		}
 		$last_key = $key;
+		if ( isset( $bb_submenu[$m[2]] ) ) {
+			ksort( $bb_submenu[$m[2]] );
+		}
 	}
 	$bb_menu[$last_key][3] .= ' bb-menu-last';
 }
@@ -209,13 +212,13 @@ function bb_admin_title()
 function bb_admin_menu()
 {
 	global $bb_menu, $bb_submenu, $bb_current_menu, $bb_current_submenu;
-	
+
 	if ( !is_array( $bb_menu ) || !count( $bb_menu ) ) {
 		return '';
 	}
-	
+
 	$r = "\t\t\t" . '<ul id="bbAdminMenu">' . "\n";
-	
+
 	foreach ( $bb_menu as $key => $m ) {
 		if ( !bb_current_user_can( $m[1] ) ) {
 			continue;
@@ -230,14 +233,18 @@ function bb_admin_menu()
 		}
 		$m[0] = wp_specialchars( $m[0] );
 		if ( $m[2] === 'separator' ) {
-			$href = '?unfoldmenu=1';
+			if ( 'f' == bb_get_user_setting( 'fm' ) ) {
+				$href = '?foldmenu=0';
+			} else {
+				$href = '?foldmenu=1';
+			}
 			$m[0] = '<br />';
 			$class .= ' bb-menu-separator';
 		} elseif ( strpos( $m[2], 'http://' ) === 0 || strpos( $m[2], 'https://' ) === 0 ) {
-			$href = $m[2];
+			$href = clean_url( $m[2] );
 			$class .= ' bb-menu-external';
 		} else {
-			$href = bb_get_option( 'path' ) . 'bb-admin/' . bb_get_admin_tab_link( $m[2] );
+			$href = clean_url( bb_get_option( 'path' ) . 'bb-admin/' . bb_get_admin_tab_link( $m[2] ) );
 		}
 		if ( $m[2] == $bb_current_menu[2] ) {
 			$class .= ' bb-menu-current';
@@ -274,7 +281,7 @@ function bb_admin_menu()
 			$sr .= "\t\t\t\t\t\t" . '</ul>' . "\n";
 			$sr .= "\t\t\t\t\t" . '</div>' . "\n";
 		}
-		
+
 		if ( $sr && !$no_submenu ) {
 			$class .= ' bb-menu-has-submenu';
 			if ( $m[2] == $bb_current_menu[2] ) {
@@ -282,24 +289,24 @@ function bb_admin_menu()
 			}
 		}
 
-		$r .= "\t\t\t\t" . '<li' . $id . ' class="' . attribute_escape( trim( $class ) ) . '"><a href="' . clean_url( $href ) . '">';
-		
+		$r .= "\t\t\t\t" . '<li' . $id . ' class="' . attribute_escape( trim( $class ) ) . '"><a href="' . $href . '">';
+
 		if ( $m[2] !== 'separator' ) {
 			$r .= '<div class="bb-menu-icon"></div>';
 		}
-		
+
 		$r .= '<span>' . $m[0] . '</span></a>' . "\n";
-		
+
 		if ( $sr && !$no_submenu ) {
 			$r .= '<div class="bb-menu-toggle"></div>';
 			$r .= $sr;
 		}
-		
+
 		$r .= "\t\t\t\t" . '</li>' . "\n";
 	}
-	
+
 	$r .= "\t\t\t" . '</ul>' . "\n";
-	
+
 	echo $r;
 }
 
