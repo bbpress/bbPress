@@ -1,145 +1,302 @@
-#bbFooter {
-	padding: 1.6em 6em 0 0;
+body {
+	font-family: Tahoma, "Times New Roman";
 }
 
-#bbHead h1 {
-	float: right;
-	padding: 0.32em 0.35em 0 0;
-}
 
-#bbVisitSite {
-	float: right;
-	margin: 2.3em 1em 0 0;
-}
 
-#bbUserMenu {
-	right: auto;
-	left: 1.5em;
-}
+/* Header */
 
-#bbAdminDashboardMenu {
-	right: 0.9em;
-	left: auto;
-}
-
-#bbAdminMainMenu {
-	padding-right: 1.1em;
+div#bbHead h1 {
+	padding-right: 39px;
 	padding-left: 0;
+	margin-right: 16px;
+	margin-left: 0;
+	background-position: 100% 7px;
+	font-family: "Times New Roman", Tahoma;
 }
 
-#bbAdminMainMenu li {
-	margin-left: 0.1em;
-	margin-right: 0;
+div#bbHead h1 a em {
+	margin-left: auto;
+	margin-right: 5px;
 }
 
-#bbAdminSideMenu {
-	float: left;
-	margin-left: 1.5em;
-	margin-right: 0;
-}
-
-* html #bbAdminSideMenu {
-	left: 0;
+div#bbUserInfo {
 	right: auto;
+	left: 15px;
 }
 
-#bbAdminSubMenu {
-	margin-right: 1.7em;
-	margin-left: 0;
+
+
+/* Body */
+
+div#bbBody {
+	margin-left: auto;
+	margin-right: 175px;
 }
 
-#bbAdminSubMenu li {
-	margin-left: 1.8em;
-	margin-right: 0;
+body.bb-menu-folded div#bbBody {
+	margin-left: auto;
+	margin-right: 59px;
 }
 
-#bbBody h2 {
-	margin-right: -0.2em;
-	margin-left: 0;
+h2 {
+	padding-right: 0;
+	padding-left: 15px;
+	font-family: "Times New Roman", Tahoma;
 }
 
-.widefat th {
-	text-align: right;
+body.bb-admin-dashboard h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -172px;
 }
 
-form.settings div label {
+body.bb-admin-forums h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -802px;
+}
+
+body.bb-admin-topics h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -802px;
+}
+
+body.bb-admin-posts h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -802px;
+}
+
+body.bb-admin-appearance h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% 8px;
+}
+
+body.bb-admin-plugins h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -532px;
+}
+
+body.bb-admin-users h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -891px;
+}
+
+body.bb-admin-tools h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -621px;
+}
+
+body.bb-admin-settings h2 {
+	padding-left: auto;
+	padding-right: 47px;
+	background-position: 100% -712px;
+}
+
+
+
+
+
+/* Menu */
+ul#bbAdminMenu {
 	float: right;
+	margin-right: -160px;
+	margin-left: 5px;
 }
 
-form.settings div div {
-	margin: 0 22em 0 0;
+body.bb-menu-folded ul#bbAdminMenu {
+	margin-left: 5px;
+	margin-right: -44px;
 }
 
-table.block th,
-table.block td {
-	padding: 0.4em 0.4em 0.4em 3em;
+ul#bbAdminMenu li.bb-menu a {
+	font-family: "Times New Roman", Tahoma;
 }
 
-p.gravatarDefault img {
-	margin-left:1em;
-	margin-right:0;
+ul#bbAdminMenu li.bb-menu div.bb-menu-toggle {
+	float: left;
+	background-image: url('images/menu-bits-rtl.gif');
+	background-position: 100% -110px;
 }
 
-p.gravatarRating img {
-	float:right;
-	margin-left:1em;
-	margin-right:0;
+ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu.bb-menu-current div.bb-menu-toggle {
+	background-position: 100% -208px;
 }
 
-div.theme-list {
-	border-right: none;
-	border-left: 1px solid rgb(255, 255, 255);
-}
-
-ul.theme-list li {
+ul#bbAdminMenu li.bb-menu a div.bb-menu-icon {
 	float: right;
-	border-left: 1px solid rgb(238, 238, 238);
-	border-right: none;
+	background-position: -337px -39px;
 }
 
-ul.theme-list li:nth-child(3n),
-ul.theme-list li:last-child {
-	border-left: none;
+ul#bbAdminMenu li#bb-menu-dashboard a div.bb-menu-icon {
+	background-position: -62px -39px;
 }
 
-ul.theme-list.active li div.screen-shot {
-	float: right;
-	margin-right: 0;
-	margin-left: 15px;
+ul#bbAdminMenu li#bb-menu-dashboard.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-dashboard a:hover div.bb-menu-icon {
+	background-position: -62px -7px;
 }
 
-ul.theme-list.active li div.description {
-	float: right;
+ul#bbAdminMenu li#bb-menu-forums a div.bb-menu-icon {
+	background-position: -272px -39px;
 }
 
-/* Layout classes */
+ul#bbAdminMenu li#bb-menu-forums.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-forums a:hover div.bb-menu-icon {
+	background-position: -272px -7px;
+}
 
-.absleft {
+ul#bbAdminMenu li#bb-menu-topics a div.bb-menu-icon {
+	background-position: -272px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-topics.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-topics a:hover div.bb-menu-icon {
+	background-position: -272px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-posts a div.bb-menu-icon {
+	background-position: -272px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-posts.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-posts a:hover div.bb-menu-icon {
+	background-position: -272px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-appearance a div.bb-menu-icon {
+	background-position: -1px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-appearance.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-appearance a:hover div.bb-menu-icon {
+	background-position: -1px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-plugins a div.bb-menu-icon {
+	background-position: -181px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-plugins.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-plugins a:hover div.bb-menu-icon {
+	background-position: -181px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-users a div.bb-menu-icon {
+	background-position: -303px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-users.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-users a:hover div.bb-menu-icon {
+	background-position: -303px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-tools a div.bb-menu-icon {
+	background-position: -212px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-tools.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-tools a:hover div.bb-menu-icon {
+	background-position: -212px -7px;
+}
+
+ul#bbAdminMenu li#bb-menu-settings a div.bb-menu-icon {
+	background-position: -241px -39px;
+}
+
+ul#bbAdminMenu li#bb-menu-settings.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li#bb-menu-settings a:hover div.bb-menu-icon {
+	background-position: -241px -7px;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-separator a {
+	background-position: -55px -34px;
+	cursor: e-resize;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-separator a {
+	background-position: 0 5px;
+	cursor: w-resize;
+}
+
+ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap {
+	border-left-width: 1px;
+	border-right-width: 0;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap {
 	left: auto;
-	right: 0;
+	right: 36px;
 }
 
-.absright {
-	left: 0;
-	right: auto;
+ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap span {
+	font-family: "Times New Roman", Tahoma;
+	padding-right: 10px;
+	padding-left: 5px;
 }
 
-.alignleft {
+ul#bbAdminMenu li.bb-menu li.bb-menu-sub a {
+	font-family: Tahoma, "Times New Roman";
+	padding-right:12px;
+	padding-left: 5px;
+	background-image: url('images/menu-bits-rtl.gif');
+	background-position: 100% -306px;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu li.bb-menu-sub a {
+	background-image: url('images/menu-bits-rtl.gif');
+	background-position: 100% -306px;
+	border-right-width: 0 !important;
+	border-left-width: 1px !important;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub a {
+	background-image: url('images/menu-dark-rtl.gif');
+	background-position: 100% -20px !important;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub a {
+	background-image: url('images/menu-dark-rtl.gif');
+	background-position: 100% -20px !important;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub.bb-menu-sub-current a {
+	background-position: 100% 0 !important;
+}
+
+body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub.bb-menu-sub-current a {
+	background-position: 100% 0 !important;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
+	background-position: 100% -306px;
+}
+
+
+
+/* Footer */
+
+p#bbShowOff {
+	margin-right: 0;
+	margin-left: 8px;
+	float: left;
+	font-family: "Times New Roman", Tahoma;
+}
+
+div#bbFoot {
+	font-family: "Times New Roman", Tahoma;
+}
+
+p#bbThanks {
 	float: right;
 }
 
-.alignright {
-	float: left;
+p#bbVersion {
+	text-align: left;
 }
-
-/* List Blocks */
-
-ul.list-block {
-	padding: 0 3em 0 0;
-}
-
-.author-link img.avatar {
-        float: right;
-        margin: .25em 0 0 0.5em;
-}
-

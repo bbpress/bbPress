@@ -68,9 +68,10 @@ div#bbHead {
 }
 
 div#bbHead h1 {
-	padding: 10px 0 5px 55px;
+	padding: 10px 0 5px 39px;
+	margin-left: 16px;
 	min-height: 31px;
-	background: transparent url('images/admin-header-logo.gif') no-repeat 16px 7px;
+	background: transparent url('images/admin-header-logo.gif') no-repeat 0 7px;
 	font: normal normal normal 22px/normal Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
 	color: white;
 }
@@ -498,6 +499,7 @@ body.bb-menu-folded ul#bbAdminMenu li.bb-menu div.bb-menu-sub-wrap {
 	left: 36px;
 	top: 0;
 	width: 145px;
+	z-index: 1000;
 }
 
 ul#bbAdminMenu li.bb-menu.bb-menu-current div.bb-menu-sub-wrap {
