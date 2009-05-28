@@ -58,22 +58,14 @@ adminMenu = {
 			$('#bbAdminMenu li.bb-menu.bb-menu-has-submenu').hoverIntent({
 				over: function(e){
 					var m = $(this).find('div.bb-menu-sub-wrap');
-					var t = m.parent().offset().top;
-					var S = $('body').scrollTop();
-					t = t - S;
-					b = t + m.height();
-
-					var Hw = $(window).height();
-					var Hb = $('#bbWrap').height();
-					var e = 60 - ( Hb - ( S + Hw ) );
-
-					if ( b > (Hw - 60) ) {
-						var o = (b - Hw) + e + 1;
+					var b = m.parent().offset().top + m.height() + 1; // Bottom offset of the menu
+					var h = $('#bbWrap').height(); // Height of the entire page
+					var o = 60 + b - h;
+					if (o > 1) {
 						m.css({'marginTop':'-'+o+'px'});
 					} else {
 						m.css({'marginTop':''});
 					}
-
 					m.addClass('bb-menu-sub-open');
 				},
 				out: function(){ $(this).find('div.bb-menu-sub-wrap').removeClass('bb-menu-sub-open').css({'marginTop':''}); },
