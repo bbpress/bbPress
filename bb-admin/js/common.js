@@ -63,7 +63,7 @@ adminMenu = {
 					var o = 60 + b - h;
 					if (o > 1) {
 						m.css({'marginTop':'-'+o+'px'});
-					} else {
+					} else if ( m.css('marginTop') ) {
 						m.css({'marginTop':''});
 					}
 					m.addClass('bb-menu-sub-open');
