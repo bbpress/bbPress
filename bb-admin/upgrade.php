@@ -116,15 +116,18 @@ switch ($step) {
 						<?php _e('Your database has been successfully upgraded, enjoy!'); ?>
 					</p>
 					<fieldset>
-						<label for="upgrade_log_container_toggle">
-							<?php _e('Show upgrade messages'); ?>
-							<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
+						<label class="has-label for-toggle" for="upgrade_log_container_toggle">
+							<span>
+								<?php _e('Show upgrade messages'); ?>
+								<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
+							</span>
+							<div class="clear"></div>
 						</label>
 					</fieldset>
 					<div class="toggle" id="upgrade_log_container" style="display:none;">
 						<fieldset>
-							<label for="upgrade_log">
-								<?php _e('Upgrade log'); ?>
+							<label class="has-label for-textarea" for="upgrade_log">
+								<span><?php _e('Upgrade log'); ?></span>
 								<textarea id="upgrade_log" class="short"><?php echo(join("\n", $upgrade_log)); ?></textarea>
 							</label>
 						</fieldset>
@@ -155,9 +158,12 @@ switch ($step) {
 					<fieldset>
 						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 						<?php echo $forced_input; ?>
-						<label for="upgrade_log_container_toggle" style="margin-bottom: 1.9em;">
-							<?php _e('Show upgrade messages'); ?>
-							<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
+						<label class="has-label for-toggle" for="upgrade_log_container_toggle" style="margin-bottom: 1.9em;">
+							<span>
+								<?php _e('Show upgrade messages'); ?>
+								<input class="checkbox" type="checkbox" id="upgrade_log_container_toggle" value="1" onclick="toggleAdvanced('upgrade_log_container_toggle', 'upgrade_log_container');" />
+							</span>
+							<div class="clear"></div>
 						</label>
 					</fieldset>
 					<div class="toggle" id="upgrade_log_container" style="display:none;">
@@ -165,15 +171,15 @@ switch ($step) {
 <?php
 		if (count($error_log)) {
 ?>
-							<label for="error_log" style="margin-bottom: 1.9em;">
-								<?php _e('Error log'); ?>
+							<label class="has-label for-textarea" for="error_log">
+								<span><?php _e('Error log'); ?></span>
 								<textarea id="error_log" class="short"><?php echo(join("\n", $error_log)); ?></textarea>
 							</label>
 <?php
 		}
 ?>
-							<label for="upgrade_log" style="margin-bottom: 1.9em;">
-								<?php _e('Upgrade log'); ?>
+							<label class="has-label for-textarea" for="upgrade_log">
+								<span><?php _e('Upgrade log'); ?></span>
 								<textarea id="upgrade_log" class="short"><?php echo(join("\n", $upgrade_log)); ?></textarea>
 							</label>
 						</fieldset>
