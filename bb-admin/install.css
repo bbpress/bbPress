@@ -292,6 +292,10 @@ label.for-toggle span {
 	float: left;
 }
 
+label.for-toggle span {
+	margin-bottom: 0;
+}
+
 label span.error {
 	color: rgb(204, 0, 0);
 	display: block;
@@ -421,9 +425,9 @@ label#label-installation_log {
 
 div.clear {
 	clear: both;
-	height: 1px;
-	line-height: 1px;
-	font-size: 1px;
-	margin: 0;
-	padding: 0;
+	height: 0;
+	line-height: 0;
+	font-size: 0;
+	margin: 0 !important;
+	padding: 0 !important;
 }

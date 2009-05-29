@@ -26,6 +26,11 @@ dd {
 p.status {
 	right: auto;
 	left: 0;
+	text-shadow: none;
+}
+
+h2 {
+	text-shadow: none;
 }
 
 label a.note-toggle {
