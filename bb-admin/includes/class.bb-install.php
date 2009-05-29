@@ -488,16 +488,14 @@ class BB_Install
 				if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) ) {
 					// The database needs upgrading
 					$this->strings[-1]['messages'][0][] = __( 'bbPress is already installed, but appears to require an upgrade.' );
-					$this->strings[-1]['messages'][0][] = sprintf(
-						__( 'Perhaps you meant to run the <a href="%s">upgrade script</a> instead?' ),
-						bb_get_uri( 'bb-admin/upgrade.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN )
-					);
-					$this->step = -1;
 				} else {
-					// Redirect to the base url
-					//bb_safe_redirect( bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) );
-					//die();
+					$this->strings[-1]['messages'][0][] = __( 'bbPress is already installed.' );
 				}
+				$this->strings[-1]['messages'][0][] = sprintf(
+					__( 'Perhaps you meant to run the <a href="%s">upgrade script</a> instead?' ),
+					bb_get_uri( 'bb-admin/upgrade.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN )
+				);
+				$this->step = -1;
 			}
 
 		} else {
