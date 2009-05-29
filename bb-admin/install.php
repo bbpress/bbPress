@@ -15,6 +15,14 @@ $bb_install = new BB_Install(__FILE__);
 $bb_install->header();
 ?>
 		<script type="text/javascript" charset="utf-8">
+			function toggleNote(target) {
+				var targetObj = document.getElementById(target);
+				if (targetObj.style.display == 'none') {
+					targetObj.style.display = 'block';
+				} else {
+					targetObj.style.display = 'none';
+				}
+			}
 			function toggleBlock(toggleObj, target) {
 				var targetObj = document.getElementById(target);
 				if (toggleObj.checked) {

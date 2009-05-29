@@ -50,6 +50,7 @@ div#container {
 	width: 700px;
 	background-color: rgb(255, 255, 255);
 	text-align: left;
+	-moz-border-radius: 11px;
 	-khtml-border-radius: 11px;
 	-webkit-border-radius: 11px;
 	border-radius: 11px;
@@ -146,6 +147,7 @@ h2 {
 div.open,
 div.closed {
 	border: 1px solid rgb(223, 223, 223);
+	-moz-border-radius: 6px;
 	-khtml-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	border-radius: 6px;
@@ -155,23 +157,21 @@ div.closed {
 
 div.open div {
 	padding: 1em;
+	margin: 1px 0;
 }
 
 div.closed div {
 	position: relative;
 }
 
-div.open div {
-	margin: 1px 0;
-}
-
 p.error {
 	border: 1px solid rgb(204, 0, 0);
 	background-color: rgb(255, 235, 232);
 	padding: 0.6em;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
 }
 
 p.error a {
@@ -186,9 +186,10 @@ p.message {
 	border: 1px solid rgb(230, 219, 85);
 	background-color: rgb(255, 251, 204);
 	padding: 0.6em;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
 }
 
 div.open div.toggle {
@@ -204,15 +205,17 @@ form {
 	clear: both;
 	border: 1px solid rgb(223, 223, 223);
 	background-color: rgb(255, 255, 255);
-	-webkit-border-radius: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
 	padding: 1em 1em 1em 1em;
 }
 
 legend {
-	font-size: 0.75em;
+	font-size: 0.9em;
 	font-weight: bold;
 	padding-bottom: 0.5em;
-	font-style: italic;
 }
 
 label {
@@ -221,18 +224,76 @@ label {
 	font-size: 0.75em;
 	color: rgb(34, 34, 34);
 	cursor: pointer;
+	clear: both;
+}
+
+label span {
+	display: block;
+	margin-bottom: 5px;
 }
 
 label.error {
 	border: 1px solid rgb(204, 0, 0);
 	background-color: rgb(255, 235, 232);
 	padding: 0.6em;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+label.forward {
+	clear: none;
+}
+
+label a.note-toggle {
+	background-color: rgb(223, 223, 223);
+	color: rgb(255, 255, 255);
+	display: block;
+	text-align: center;
+	float: left;
+	font-weight: bold;
+	font-size: 1.2em;
+	padding-top: 1px;
+	padding-left: 1px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+	margin-left: 6px;
+	margin-top: 4px;
+	-moz-border-radius: 9px;
+	-khtml-border-radius: 9px;
+	-webkit-border-radius: 9px;
+	border-radius: 9px;
+}
+
+label a.note-toggle:hover {
+	text-decoration: none;
+	background-color: rgb(50, 140, 0);
+}
+
+label.has-note.for-textarea a.note-toggle {
+	margin-top: -2px;
+	margin-left: 6px;
+}
+
+label.has-note.for-select a.note-toggle {
+	margin-top: 3px;
+	margin-left: 4px;
+}
+
+label.has-note.for-toggle a.note-toggle {
+	margin-top: -2px;
+	margin-left: 8px;
+}
+
+label.for-textarea span,
+label.for-toggle span {
+	float: left;
 }
 
 label span.error {
+	color: rgb(204, 0, 0);
 	display: block;
 	margin: 0.4em 0.4em 0.4em 3em;
 }
@@ -254,10 +315,11 @@ fieldset.buttons label.back {
 p.note {
 	margin: 0 0 0 2.5em;
 	color: rgb(102, 102, 102);
-	border-left: 1px solid rgb(223, 223, 223);
+	border-left: 1px solid rgb(50, 140, 0);
 	padding: 0.6em;
 	font-size: 0.9em;
 	font-style: italic;
+	clear: both;
 }
 
 input.text {
@@ -267,7 +329,13 @@ input.text {
 	border: 1px solid rgb(187, 187, 187);
 	width: 400px;
 	display: block;
-	margin-top: 0.4em;
+	float: left;
+	xmargin-top: 0.4em;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	clear: both;
 }
 
 select {
@@ -276,7 +344,7 @@ select {
 	padding: 0;
 	border: 1px solid rgb(187, 187, 187);
 	display: block;
-	margin-top: 0.4em;
+	float: left;
 }
 
 textarea {
@@ -288,7 +356,11 @@ textarea {
 	max-width: 630px;
 	height: 38em;
 	display: block;
-	margin-top: 0.4em;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	clear: both;
 }
 
 textarea#config {
@@ -311,7 +383,10 @@ input.checkbox {
 
 input.button {
 	background: url('images/white-grad.png') repeat-x scroll 0% 0% rgb(242, 242, 242);
+	-moz-border-radius: 15px;
+	-khtml-border-radius: 15px;
 	-webkit-border-radius: 15px;
+	border-radius: 15px;
 	border: 1px solid rgb(187, 187, 187);
 	color: rgb(70, 70, 70);
 	cursor: pointer;
@@ -335,8 +410,21 @@ label#label-toggle_4 {
 	margin-bottom: 0;
 }
 
+label#label-toggle_4 span {
+	margin-bottom: 0.4em;
+}
+
 label#label-error_log,
 label#label-installation_log {
 	margin-top: 1.8em;
 	margin-bottom: 0;
+}
+
+div.clear {
+	clear: both;
+	height: 1px;
+	line-height: 1px;
+	font-size: 1px;
+	margin: 0;
+	padding: 0;
 }

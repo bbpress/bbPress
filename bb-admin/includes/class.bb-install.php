@@ -328,9 +328,9 @@ class BB_Install
 		$r .= '</script>' . "\n";
 		//$r .= '<form id="lang" action="install.php">' . "\n";
 		$r .= "\t" . '<fieldset>' . "\n";
-		$r .= "\t\t" . '<label>' . "\n";
-		$r .= "\t\t\t" . __( 'Installation language' ) . "\n";
-		$r .= "\t\t\t" . '<select onchange="changeLanguage(this);" name="language">' . "\n";
+		$r .= "\t\t" . '<label class="has-note has-label for-select">' . "\n";
+		$r .= "\t\t\t" . '<span>' . __( 'Installation language' ) . '</span>' . "\n";
+		$r .= "\t\t\t" . '<select class="has-note" onchange="changeLanguage(this);" name="language">' . "\n";
 		foreach ( $this->languages as $language ) {
 			$selected = '';
 			if ( $language == $this->language ) {
@@ -339,7 +339,9 @@ class BB_Install
 			$r .= "\t\t\t\t" . '<option value="' . $language . '"' . $selected . '>' . $language . '</option>' . "\n";
 		}
 		$r .= "\t\t\t" . '</select>' . "\n";
-		$r .= "\t\t\t" . '<p class="note">' . __( 'Sets the language to be used during the installation process only.' ) . '</p>' . "\n";
+		$r .= "\t\t\t" . '<a class="note-toggle" href="javascript:void(0);" onclick="toggleNote(\'note-language\');">?</a>' . "\n";
+		$r .= "\t\t\t" . '<p id="note-language" class="note" style="display:none">' . __( 'Sets the language to be used during the installation process only.' ) . '</p>' . "\n";
+		$r .= "\t\t\t" . '<div class="clear"></div>' . "\n";
 		$r .= "\t\t" . '</label>' . "\n";
 		$r .= "\t" . '</fieldset>' . "\n";
 		//$r .= '</form>' . "\n";
@@ -2181,20 +2183,33 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 
+		$class = '';
+		$classes = array();
+		if ( isset( $data['note'] ) ) {
+			$classes[] = 'has-note';
+		}
+		if ( isset( $data['label'] ) ) {
+			$classes[] = 'has-label';
+		}
+
 		if ( isset( $this->data[$this->step]['form'][$key]['type'] ) ) {
 			$type = $this->data[$this->step]['form'][$key]['type'];
 		} else {
 			$type = 'text';
 		}
+		$classes[] = 'for-input-' . $type;
 
 		if ( isset( $this->strings[$this->step]['form_errors'][$key] ) ) {
-			$class = ' class="error"';
+			$classes[] = 'error';
+		}
+		if ( count( $classes ) ) {
+			$class = ' class="' . join( ' ', $classes ) . '"';
 		}
 
 		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
 
 		if ( isset( $data['label'] ) ) {
-			$r .= '<span>' . $data['label'] . '</span>' . "\n";
+			$r .= "\t\t" . '<span>' . $data['label'] . '</span>' . "\n";
 		}
 
 		if ( isset( $this->strings[$this->step]['form_errors'][$key] ) ) {
@@ -2219,12 +2234,14 @@ class BB_Install
 			$autocomplete = '';
 		}
 
-		$r .= "\t\t" . '<input' . $direction . ' type="' . attribute_escape( $type ) . '" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="text" value="' . attribute_escape( $data['value'] ) . '"' . $maxlength . $autocomplete . ' />' . "\n";
+		$r .= "\t\t" . '<input' . $direction . ' type="' . attribute_escape( $type ) . '" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="text' . $has_note_class . '" value="' . attribute_escape( $data['value'] ) . '"' . $maxlength . $autocomplete . ' />' . "\n";
 
 		if ( isset( $data['note'] ) ) {
-			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
+			$r .= "\t\t" . '<a class="note-toggle" href="javascript:void(0);" onclick="toggleNote(\'note-' . attribute_escape( $key ) . '\');">?</a>' . "\n";
+			$r .= "\t\t" . '<p id="note-' . attribute_escape( $key ) . '" class="note" style="display:none">' . $data['note'] . '</p>' . "\n";
 		}
 
+		$r .= "\t\t" . '<div class="clear"></div>' . "\n";
 		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
@@ -2254,21 +2271,34 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 
-		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '">' . "\n";
+		$class = '';
+		$classes = array( 'for-textarea' );
+		if ( isset( $data['note'] ) ) {
+			$classes[] = 'has-note';
+		}
+		if ( isset( $data['label'] ) ) {
+			$classes[] = 'has-label';
+		}
+		if ( count( $classes ) ) {
+			$class = ' class="' . join( ' ', $classes ) . '"';
+		}
+
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '"' . $class . ' for="' . attribute_escape( $key ) . '">' . "\n";
 
 		if ( isset( $data['label'] ) ) {
-			$r .= $data['label'] . "\n";
+			$r .= "\t\t" . '<span>' . $data['label'] . '</span>' . "\n";
+		}
+
+		if ( isset( $data['note'] ) ) {
+			$r .= "\t\t" . '<a class="note-toggle" href="javascript:void(0);" onclick="toggleNote(\'note-' . attribute_escape( $key ) . '\');">?</a>' . "\n";
+			$r .= "\t\t" . '<p id="note-' . attribute_escape( $key ) . '" class="note" style="display:none">' . $data['note'] . '</p>' . "\n";
 		}
 
 		if ( $direction && in_array( strtolower( $direction ), array( 'ltr', 'rtl' ) ) ) {
 			$direction = ' dir="' . attribute_escape( strtolower( $direction ) ) . '"';
 		}
 
-		$r .= "\t\t" . '<textarea' . $direction . ' id="' . attribute_escape( $key ) . '" rows="5" cols="30">' . wp_specialchars( $data['value'] ) . '</textarea>' . "\n";
-
-		if ( isset( $data['note'] ) ) {
-			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
-		}
+		$r .= "\t\t" . '<textarea id="' . attribute_escape( $key ) . '" rows="5" cols="30"' . $direction . '>' . wp_specialchars( $data['value'] ) . '</textarea>' . "\n";
 
 		$r .= "\t" . '</label>' . "\n";
 
@@ -2285,19 +2315,29 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 
-		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '">' . "\n";
+		$class = '';
+		$classes = array( 'for-select' );
+		if ( isset( $data['note'] ) ) {
+			$classes[] = 'has-note';
+		}
+		if ( isset( $data['label'] ) ) {
+			$classes[] = 'has-label';
+		}
+		if ( count( $classes ) ) {
+			$class = ' class="' . join( ' ', $classes ) . '"';
+		}
+
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '"' . $class . ' for="' . attribute_escape( $key ) . '">' . "\n";
 
 		if ( isset( $data['label'] ) ) {
-			$r .= $data['label'] . "\n";
+			$r .= "\t\t" . '<span>' . $data['label'] . '</span>' . "\n";
 		}
 
 		if ( isset( $data['options'] ) ) {
 			$r .= "\t\t" . '<select id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '"';
-
 			if ( isset( $data['onchange'] ) ) {
 				$r .= ' onchange="' . attribute_escape( $data['onchange'] ) . '"';
 			}
-
 			$r .= '>' . "\n";
 
 			foreach ( $data['options'] as $value => $display ) {
@@ -2310,13 +2350,15 @@ class BB_Install
 				$r .= "\t\t\t" . '<option value="' . attribute_escape( $value ) . '"' . $selected . '>' . wp_specialchars( $display ) . '</option>' . "\n";
 			}
 
-			$r .= "\t\t" . '</select>' . "\n";
+			$r .= "\t\t" . '</select>';
 		}
 
 		if ( isset( $data['note'] ) ) {
-			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
+			$r .= "\t\t" . '<a class="note-toggle" href="javascript:void(0);" onclick="toggleNote(\'note-' . attribute_escape( $key ) . '\');">?</a>' . "\n";
+			$r .= "\t\t" . '<p id="note-' . attribute_escape( $key ) . '" class="note" style="display:none">' . $data['note'] . '</p>' . "\n";
 		}
 
+		$r .= "\t\t" . '<div class="clear"></div>' . "\n";
 		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
@@ -2349,6 +2391,15 @@ class BB_Install
 	{
 		$data = $this->data[$this->step]['form'][$key];
 
+		$class = '';
+		$classes = array( 'for-toggle' );
+		if ( isset( $data['note'] ) ) {
+			$classes[] = 'has-note';
+		}
+		if ( isset( $data['label'] ) ) {
+			$classes[] = 'has-label';
+		}
+
 		$onclick = 'toggleBlock(this, \'' . js_escape( $key . '_target' ) . '\' );';
 		if ( isset( $data['toggle_value'] ) ) {
 			$onclick .= ' toggleValue(this, \'' . js_escape( $data['toggle_value']['target'] ) . '\', \'' . js_escape( $data['toggle_value']['off_value'] ) . '\', \'' . js_escape( $data['toggle_value']['on_value'] ) . '\' );';
@@ -2357,21 +2408,28 @@ class BB_Install
 		$checked = $data['checked'] ? ' ' . trim( $data['checked'] ) : '';
 
 		if ( isset( $this->strings[$this->step]['form_errors'][$key] ) ) {
-			$class = ' class="error"';
+			$classes[] = 'error';
+		}
+		if ( count( $classes ) ) {
+			$class = ' class="' . join( ' ', $classes ) . '"';
 		}
 
-		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '" for="' . attribute_escape( $key ) . '"' . $class . '>' . "\n";
+		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '"' . $class . ' for="' . attribute_escape( $key ) . '">' . "\n";
 
+		$r .= "\t\t" . '<span>' . "\n";
 		if ( isset( $data['label'] ) ) {
-			$r .= $data['label'] . "\n";
+			$r .= "\t\t\t" . $data['label'] . "\n";
 		}
 
-		$r .= "\t\t" . '<input type="checkbox" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="checkbox" onclick="' . attribute_escape( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
+		$r .= "\t\t\t" . '<input type="checkbox" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="checkbox" onclick="' . attribute_escape( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
+		$r .= "\t\t" . '</span>' . "\n";
 
 		if ( isset( $data['note'] ) ) {
-			$r .= "\t" . '<p class="note">' . $data['note'] . '</p>' . "\n";
+			$r .= "\t\t" . '<a class="note-toggle" href="javascript:void(0);" onclick="toggleNote(\'note-' . attribute_escape( $key ) . '\');">?</a>' . "\n";
+			$r .= "\t\t" . '<p id="note-' . attribute_escape( $key ) . '" class="note" style="display:none">' . $data['note'] . '</p>' . "\n";
 		}
 
+		$r .= "\t\t" . '<div class="clear"></div>' . "\n";
 		$r .= "\t" . '</label>' . "\n";
 
 		echo $r;
