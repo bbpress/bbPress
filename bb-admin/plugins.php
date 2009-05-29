@@ -254,7 +254,7 @@ if ( $autoload_plugins ) :
 endif;
 ?>
 
-	<p><?php _e( 'If something goes wrong with a plugin and you can’t use bbPress, delete or rename that file in the <code>my-plugins</code> directory and it will be automatically deactivated.' ); ?></p>
+	<p><?php _e( 'If something goes wrong with a plugin and you can\'t use bbPress, delete or rename that file in the <code>my-plugins</code> directory and it will be automatically deactivated.' ); ?></p>
 
 <?php
 if ( !$normal_plugins && !$autoload_plugins ) :
