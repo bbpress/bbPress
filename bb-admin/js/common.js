@@ -61,6 +61,10 @@ adminMenu = {
 					var b = m.parent().offset().top + m.height() + 1; // Bottom offset of the menu
 					var h = $('#bbWrap').height(); // Height of the entire page
 					var o = 60 + b - h;
+					var f = $(window).height() + $('body').scrollTop() - 15; // The fold
+					if (f < (b - o)) {
+						o = b - f;
+					}
 					if (o > 1) {
 						m.css({'marginTop':'-'+o+'px'});
 					} else if ( m.css('marginTop') ) {
