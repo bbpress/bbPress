@@ -330,7 +330,6 @@ input.text {
 	width: 400px;
 	display: block;
 	float: left;
-	xmargin-top: 0.4em;
 	-moz-border-radius: 4px;
 	-khtml-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -382,7 +381,7 @@ input.checkbox {
 }
 
 input.button {
-	background: url('images/white-grad.png') repeat-x scroll 0% 0% rgb(242, 242, 242);
+	background: transparent url('images/white-grad.png') repeat-x 0 0 rgb(242, 242, 242);
 	-moz-border-radius: 15px;
 	-khtml-border-radius: 15px;
 	-webkit-border-radius: 15px;
@@ -399,7 +398,7 @@ input.button {
 
 input.button:hover {
 	border-color: rgb(102, 102, 102);
-	color: black;
+	color: rgb(0, 0, 0);
 }
 
 input.button:active {
