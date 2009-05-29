@@ -268,7 +268,9 @@ if ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE && !function_exists( 'wp_cache_init' ) ) 
 }
 
 // Instantiate the $wp_object_cache object using wp_cache_init()
-if ( !isset( $wp_object_cache ) && function_exists( 'wp_cache_init' ) ) {
+if ( function_exists( 'wp_cache_init' ) ) {
+	// Clear WordPress cache if it exists already - maybe should save and re-load?
+	unset( $wp_object_cache );
 	wp_cache_init();
 	if ( function_exists('wp_cache_add_global_groups') ) {
 		wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta' ) );
