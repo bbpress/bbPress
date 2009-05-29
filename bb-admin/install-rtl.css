@@ -1,3 +1,11 @@
+body {
+	font-family: Tahoma, "Times New Roman";
+}
+
+div#container {
+	text-align: right;
+}
+
 dl {
 	border-left-width: 0;
 	border-right: 1px solid rgb(125, 125, 125);
@@ -23,7 +31,7 @@ p.status {
 label a.note-toggle {
 	float: right;
 	padding-left: 0;
-	padding-right: 1px;
+	width: 18px;
 	margin-left: 0;
 	margin-right: 6px;
 }
@@ -69,9 +77,19 @@ p.note {
 }
 
 input.text {
+	font-family: Tahoma, "Times New Roman";
 	float: right;
 }
 
 select {
+	font-family: Tahoma, "Times New Roman";
 	float: right;
+}
+
+textarea {
+	font-family: Tahoma, "Times New Roman";
+}
+
+input.button {
+	font-family: Tahoma, "Times New Roman";
 }

@@ -118,7 +118,7 @@ class BB_Locale {
 		include($locale_file);
 
 		foreach ( $this->locale_vars as $var ) {
-			$this->$var = $$var;	
+			$this->$var = $$var;
 		}
 	}
 
