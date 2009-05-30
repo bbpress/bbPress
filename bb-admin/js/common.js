@@ -57,11 +57,12 @@ adminMenu = {
 			$('body').addClass('bb-menu-folded');
 			$('#bbAdminMenu li.bb-menu.bb-menu-has-submenu').hoverIntent({
 				over: function(e){
-					var m = $(this).find('div.bb-menu-sub-wrap');
-					var b = m.parent().offset().top + m.height() + 1; // Bottom offset of the menu
-					var h = $('#bbWrap').height(); // Height of the entire page
-					var o = 60 + b - h;
-					var f = $(window).height() + $('body').scrollTop() - 15; // The fold
+					var m, b, h, o, f;
+					m = $(this).find('div.bb-menu-sub-wrap');
+					b = m.parent().offset().top + m.height() + 1; // Bottom offset of the menu
+					h = $('#bbWrap').height(); // Height of the entire page
+					o = 60 + b - h;
+					f = $(window).height() + $('body').scrollTop() - 15; // The fold
 					if (f < (b - o)) {
 						o = b - f;
 					}
