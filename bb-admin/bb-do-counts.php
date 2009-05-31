@@ -22,7 +22,7 @@ bb_check_admin_referer( 'do-counts' ); ?>
 if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ) {
 	echo "\t<li>\n";
 	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) {
-		echo "\t\t" . __('Counting posts...') . "<br />\n";
+		echo "\t\t" . __('Counting posts…') . "<br />\n";
 		foreach ($topics as $topic) {
 			$topic_id = (int) $topic->topic_id;
 			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->topics SET topic_posts = %s WHERE topic_id = %s" ), $topic->count, $topic_id );
@@ -38,7 +38,7 @@ if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] 
 	$old = (array) $bbdb->get_col("SELECT object_id FROM $bbdb->meta WHERE object_type = 'bb_topics' AND meta_key = 'deleted_posts'");
 	$old = array_flip($old);
 	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
-		echo "\t\t" . __('Counting deleted posts...') . "<br />\n";
+		echo "\t\t" . __('Counting deleted posts…') . "<br />\n";
 		foreach ( $topics as $topic ) {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', $topic->count );
 			unset($old[$topic->topic_id]);
@@ -58,7 +58,7 @@ endif;
 if ( isset($_POST['forums']) && 1 == $_POST['forums'] ) :
 	echo "\t<li>\n";
 	if ( $all_forums = (array) $bbdb->get_col("SELECT forum_id FROM $bbdb->forums") ) :
-		echo "\t\t" . __('Counting forum topics and posts...') . "<br />\n";
+		echo "\t\t" . __('Counting forum topics and posts…') . "<br />\n";
 		$all_forums = array_flip( $all_forums );
 		$forums = $bbdb->get_results("SELECT forum_id, COUNT(topic_id) AS topic_count, SUM(topic_posts) AS post_count FROM $bbdb->topics
 			WHERE topic_status = 0 GROUP BY forum_id");
@@ -79,7 +79,7 @@ endif;
 if ( isset($_POST['topics-replied']) && 1 == $_POST['topics-replied'] ) :
 	echo "\t<li>\n";
 	if ( $users = (array) $bbdb->get_col("SELECT ID FROM $bbdb->users") ) :
-		echo "\t\t" . __('Counting topics to which each user has replied...') . "<br />\n";
+		echo "\t\t" . __('Counting topics to which each user has replied…') . "<br />\n";
 		foreach ( $users as $user )
 			bb_update_topics_replied( $user );
 		unset($users, $user);
@@ -97,7 +97,7 @@ if ( isset($_POST['topic-tag-count']) && 1 == $_POST['topic-tag-count'] ) {
 
 	echo "\t<li>\n";
 	if ( !is_wp_error( $terms ) && is_array( $terms ) ) {
-		echo "\t\t" . __('Counting topic tags...') . "<br />\n";
+		echo "\t\t" . __('Counting topic tags…') . "<br />\n";
 		foreach ( $terms as $term ) {
 			$topic_ids = bb_get_tagged_topic_ids( $term->term_id );
 			if ( !is_wp_error( $topic_ids ) && is_array( $topic_ids ) ) {
@@ -119,7 +119,7 @@ if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 
 	echo "\t<li>\n";
 	if ( !is_wp_error( $terms ) && is_array( $terms ) ) {
-		echo "\t\t" . __('Counting tagged topics...') . "<br />\n";
+		echo "\t\t" . __('Counting tagged topics…') . "<br />\n";
 		$_terms = array();
 		foreach ( $terms as $term ) {
 			$_terms[] = $term->term_id;
@@ -141,7 +141,7 @@ if ( isset($_POST['zap-tags']) && 1 == $_POST['zap-tags'] ):
 
 	echo "\t<li>\n";
 	if ( !is_wp_error( $terms ) && is_array( $terms ) ) {
-		echo "\t\t" . __('Deleting tags with no topics...') . "<br />\n";
+		echo "\t\t" . __('Deleting tags with no topics…') . "<br />\n";
 		foreach ( $terms as $term ) {
 			$topic_ids = bb_get_tagged_topic_ids( $term->term_id );
 			if ( !is_wp_error( $topic_ids ) && is_array( $topic_ids ) ) {
@@ -161,7 +161,7 @@ if ( isset($_POST['clean-favorites']) && 1 == $_POST['clean-favorites'] ):
 	echo "\t<li>\n";
 	$favorites_key = $bbdb->prefix . 'favorites';
 	if ( $users = $bbdb->get_results("SELECT user_id AS id, meta_value AS favorites FROM $bbdb->usermeta WHERE meta_key = '" . $favorites_key . "'") ) :
-		echo "\t\t" . __('Removing deleted topics from users\' favorites...') . "<br />\n";
+		echo "\t\t" . __('Removing deleted topics from users\' favorites…') . "<br />\n";
 		$topics = $bbdb->get_col("SELECT topic_id FROM $bbdb->topics WHERE topic_status = '0'");
 		foreach ( $users as $user ) {
 			foreach ( explode(',', $user->favorites) as $favorite )

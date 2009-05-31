@@ -73,7 +73,7 @@ $users_average = sprintf(__ngettext('%d user', '%d users', $users_average), $use
 		</ul>
 		<?php else : ?>
 		<p>
-			<?php _e('No moderated posts or topics... you must have very well behaved members.'); ?>
+			<?php _e('No moderated posts or topics… you must have very well behaved members.'); ?>
 		</p>
 		<?php endif; ?>
 	</div>
