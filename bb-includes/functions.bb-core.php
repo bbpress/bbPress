@@ -900,7 +900,7 @@ function global_profile_menu_structure() {
 	// The URL of the item's file
 	// Item name for URL (nontranslated)
 	$profile_menu[0] = array(__('Edit'), 'edit_profile', 'edit_users', 'profile-edit.php', 'edit');
-	$profile_menu[5] = array(__('Favorites'), 'edit_favorites', 'edit_others_favorites', 'favorites.php', 'favorites');
+	$profile_menu[5] = array(__('Favorites'), '', '', 'favorites.php', 'favorites');
 
 	// Create list of page plugin hook names the current user can access
 	$profile_hooks = array();

@@ -1,13 +1,12 @@
 <?php bb_get_header(); ?>
 
-<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Favorites'); ?></h3>
+<h3 class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <a href="<?php user_profile_link( $user_id ); ?>"><?php echo get_user_display_name( $user_id ); ?></a> &raquo; <?php _e('Favorites'); ?></h3>
 
-<h2 id="currentfavorites" role="main"><?php _e('Current Favorites'); ?><?php if ( $topics ) echo ' (' . $favorites_total . ')'; ?></h2>
+<h2 id="userlogin" role="main"><?php echo get_user_display_name( $user->ID ); ?> <small>(<?php echo get_user_name( $user->ID ); ?>)</small> <?php _e( 'favorites' ); ?><?php if ( $topics ) printf( __( ' - %d' ), $favorites_total ); ?></h2>
 
-<p><?php _e("Your Favorites allow you to create a custom <abbr title=\"Really Simple Syndication\">RSS</abbr> feed which pulls recent replies to the topics you specify.\nTo add topics to your list of favorites, just click the \"Add to Favorites\" link found on that topic&#8217;s page."); ?></p>
-
-<?php if ( $user_id == bb_get_current_user_info( 'id' ) ) : ?>
-<p><?php printf(__('Subscribe to your favorites&#8217; <a href="%s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), attribute_escape( get_favorites_rss_link( bb_get_current_user_info( 'id' ) ) )) ?></p>
+<p><?php _e( 'Favorites allow members to create a custom <abbr title="Really Simple Syndication">RSS</abbr> feed which pulls recent replies to the topics they specify.' ); ?></p>
+<?php if ( bb_current_user_can( 'edit_favorites_of', $user_id ) ) : ?>
+<p><?php _e( 'To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic&#8217;s page.' ); ?></p>
 <?php endif; ?>
 
 <?php if ( $topics ) : ?>
@@ -17,7 +16,9 @@
 	<th><?php _e('Topic'); ?></th>
 	<th><?php _e('Posts'); ?></th>
 	<th><?php _e('Freshness'); ?></th>
+<?php if ( bb_current_user_can( 'edit_favorites_of', $user_id ) ) : ?>
 	<th><?php _e('Remove'); ?></th>
+<?php endif; ?>
 </tr>
 
 <?php foreach ( $topics as $topic ) : ?>
@@ -25,10 +26,14 @@
 	<td><?php bb_topic_labels(); ?> <a href="<?php topic_link(); ?>"><?php topic_title(); ?></a></td>
 	<td class="num"><?php topic_posts(); ?></td>
 	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
+<?php if ( bb_current_user_can( 'edit_favorites_of', $user_id ) ) : ?>
 	<td class="num">[<?php user_favorites_link('', array('mid'=>'&times;'), $user_id); ?>]</td>
+<?php endif; ?>
 </tr>
 <?php endforeach; ?>
 </table>
+
+<p class="rss-link"><a href="<?php favorites_rss_link( $user_id ); ?>" class="rss-link"><?php _e('<abbr title="Really Simple Syndication">RSS</abbr> feed for these favorites'); ?></a></p>
 
 <?php favorites_pages( array( 'before' => '<div class="nav">', 'after' => '</div>' ) ); ?>
 
