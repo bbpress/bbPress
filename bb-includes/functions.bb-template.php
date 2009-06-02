@@ -2171,6 +2171,9 @@ function bb_profile_data_form( $id = 0 ) {
 
 			$name = attribute_escape( $key );
 			$type = isset($label[2]) ? attribute_escape( $label[2] ) : 'text';
+			if ( !in_array( $type, array( 'checkbox', 'file', 'hidden', 'image', 'password', 'radio', 'text' ) ) ) {
+				$type = 'text';
+			}
 
 			$checked = false;
 			if ( in_array( $key, $error_codes ) ) {
