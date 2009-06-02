@@ -2415,11 +2415,10 @@ class BB_Install
 		$r = "\t" . '<label id="label-' . attribute_escape( $key ) . '"' . $class . ' for="' . attribute_escape( $key ) . '">' . "\n";
 
 		$r .= "\t\t" . '<span>' . "\n";
+		$r .= "\t\t\t" . '<input type="checkbox" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="checkbox" onclick="' . attribute_escape( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
 		if ( isset( $data['label'] ) ) {
 			$r .= "\t\t\t" . $data['label'] . "\n";
 		}
-
-		$r .= "\t\t\t" . '<input type="checkbox" id="' . attribute_escape( $key ) . '" name="' . attribute_escape( $key ) . '" class="checkbox" onclick="' . attribute_escape( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
 		$r .= "\t\t" . '</span>' . "\n";
 
 		if ( isset( $data['note'] ) ) {
