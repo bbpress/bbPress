@@ -71,18 +71,20 @@ if ( isset( $error_data['unique'] ) && false === $error_data['unique'] ) {
 }
 unset( $error_data );
 
-// If the user doesn't exist then add that error.
-if ( !$user_exists ) {
-	if ( isset( $_POST['user_login'] ) && $_POST['user_login'] ) {
-		$bb_login_error->add( 'user_login', __( 'User does not exist.' ) );
-	} else {
-		$bb_login_error->add( 'user_login', $email_login ? __( 'Enter a username or email address.' ) : __( 'Enter a username.' ) );
+if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
+	// If the user doesn't exist then add that error.
+	if ( !$user_exists ) {
+		if ( isset( $_POST['user_login'] ) && $_POST['user_login'] ) {
+			$bb_login_error->add( 'user_login', __( 'User does not exist.' ) );
+		} else {
+			$bb_login_error->add( 'user_login', $email_login ? __( 'Enter a username or email address.' ) : __( 'Enter a username.' ) );
+		}
 	}
-}
 
-// If the password was wrong then add that error.
-if ( !$bb_login_error->get_error_code() ) {
-	$bb_login_error->add( 'password', __( 'Incorrect password.' ) );
+	// If the password was wrong then add that error.
+	if ( !$bb_login_error->get_error_code() ) {
+		$bb_login_error->add( 'password', __( 'Incorrect password.' ) );
+	}
 }
 
 // If trying to log in with email address, don't leak whether or not email address exists in the db.
