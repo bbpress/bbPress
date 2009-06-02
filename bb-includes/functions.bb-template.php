@@ -3113,7 +3113,7 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 	$url = clean_url(  bb_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) );
 
 	if (  !is_null($is_fav) )
-		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-not-favorite'>$mid</a>$post</span>";
+		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-favorite'>$mid</a>$post</span>";
 }
 
 function favorites_rss_link( $id = 0, $context = 0 ) {

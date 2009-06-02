@@ -28,13 +28,13 @@ jQuery( function($) {
 		.wpList( { alt: '', dimAfter: favLinkSetup } );
 
 	var favoritesToggleSpan = favoritesToggle.children( 'span' )
-		[bbTopicJS.isFav ? 'removeClass' : 'addClass' ]( 'is-not-favorite' );
+		[bbTopicJS.isFav ? 'addClass' : 'removeClass' ]( 'is-favorite' );
 	
 
 	function favLinkSetup() {
-		bbTopicJS.isFav = !favoritesToggleSpan.is('.is-not-favorite');
+		bbTopicJS.isFav = favoritesToggleSpan.is('.is-favorite');
 		var aLink = "<a href='" + bbTopicJS.favoritesLink + "'>";
-		var aDim  = "<a href='" + favoritesToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:favorite-toggle:" + favoritesToggleSpan.attr( 'id' ) + ":is-not-favorite'>";
+		var aDim  = "<a href='" + favoritesToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:favorite-toggle:" + favoritesToggleSpan.attr( 'id' ) + ":is-favorite'>";
 		if ( bbTopicJS.isFav ) {
 			html = bbTopicJS.favYes
 				.replace( /%favLinkYes%/, aLink + bbTopicJS.favLinkYes + "</a>" )
@@ -45,7 +45,7 @@ jQuery( function($) {
 				.replace( /%favAdd%/, aDim + bbTopicJS.favAdd + "</a>" );
 		}
 		favoritesToggleSpan.html( html );
-		favoritesToggle.wpList.process( favoritesToggleSpan );
+		favoritesToggle.get(0).wpList.process( favoritesToggle );
 	}
 
 	// Posts

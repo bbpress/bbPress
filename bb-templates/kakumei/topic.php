@@ -13,7 +13,7 @@
 <?php if ( 1 < get_topic_posts() ) : ?>
 	<li><?php printf(__('<a href="%1$s">Latest reply</a> from %2$s'), attribute_escape( get_topic_last_post_link() ), get_topic_last_poster()) ?></li>
 <?php endif; ?>
-<?php if ( bb_is_user_logged_in() ) : $class = 0 === is_user_favorite( bb_get_current_user_info( 'id' ) ) ? ' class="is-not-favorite"' : ''; ?>
+<?php if ( bb_is_user_logged_in() ) : ?>
 	<li<?php echo $class;?> id="favorite-toggle"><?php user_favorites_link(); ?></li>
 <?php endif; do_action('topicmeta'); ?>
 </ul>
