@@ -194,7 +194,7 @@ bb_get_admin_header();
 		<script type="text/javascript" charset="utf-8">
 /* <![CDATA[ */
 			function updateWordPressOptionURL () {
-				var siteURLInputValue = document.getElementById('wp_siteurl').value;
+				var siteURLInputValue = document.getElementById('wp-siteurl').value;
 				if (siteURLInputValue && siteURLInputValue.substr(-1,1) != '/') {
 					siteURLInputValue += '/';
 				}
@@ -211,7 +211,7 @@ bb_get_admin_header();
 					loggedInSaltAnchor.href = '';
 				}
 			}
-			var siteURLInput = document.getElementById('wp_siteurl');
+			var siteURLInput = document.getElementById('wp-siteurl');
 			if (siteURLInput.value) {
 				updateWordPressOptionURL();
 			}
