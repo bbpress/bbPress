@@ -42,7 +42,7 @@ $general_options = array(
 	),
 	'uri' => array(
 		'title' => __( 'bbPress address (URL)' ),
-		'class' => 'long',
+		'class' => array('long', 'code'),
 		'note' => __( 'The full URL of your bbPress install.' ),
 	),
 	'from_email' => array(
@@ -68,7 +68,13 @@ bb_get_admin_header();
 <?php do_action( 'bb_admin_notices' ); ?>
 
 <form class="settings" method="post" action="<?php bb_uri('bb-admin/options-general.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
-	<fieldset><?php foreach ( $general_options as $option => $args ) bb_option_form_element( $option, $args ); ?></fieldset>
+	<fieldset>
+<?php
+foreach ( $general_options as $option => $args ) {
+	bb_option_form_element( $option, $args );
+}
+?>
+	</fieldset>
 	<fieldset class="submit">
 		<?php bb_nonce_field( 'options-general-update' ); ?>
 		<input type="hidden" name="action" value="update" />

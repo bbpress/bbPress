@@ -138,11 +138,11 @@ div#bbUserInfo a:hover {
 /* Body */
 
 div#bbBody {
-	margin-left: 175px;
+	margin-left: 180px;
 }
 
 body.bb-menu-folded div#bbBody {
-	margin-left: 59px;
+	margin-left: 65px;
 }
 
 h2 {
@@ -152,6 +152,7 @@ h2 {
 	padding: 14px 15px 3px 0;
 	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
 	background: transparent none no-repeat 0 0;
+	margin-left: -5px;
 }
 
 body.bb-admin-dashboard h2 {
@@ -222,13 +223,13 @@ ul#bbAdminMenu * {
 
 ul#bbAdminMenu {
 	float: left;
-	margin: 15px 5px 15px -160px;
+	margin: 15px 5px 15px -165px;
 	position: relative;
 	width: 145px;
 }
 
 body.bb-menu-folded ul#bbAdminMenu {
-	margin-left: -44px;
+	margin-left: -50px;
 	width: auto;
 }
 
@@ -610,6 +611,87 @@ ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 
 
 
+/* Options */
+
+form.settings fieldset {
+	margin-bottom: 20px;
+}
+
+form.settings div {
+	clear: both;
+	padding: 10px;
+	xmargin-bottom: 10px;
+	margin-right: 10px;
+}
+
+form.settings div label {
+	float: left;
+	display: block;
+	padding: 3px;
+	width: 200px;
+	color: rgb(34, 34, 34);
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+}
+
+form.settings div div {
+	clear: none;
+	padding: 0;
+	margin: 0 0 0 210px;
+}
+
+form.settings div input.text {
+	width: 300px;
+	padding: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	border: 1px solid rgb(223, 223, 223);
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 0.9em;
+}
+
+form.settings div input.text.code {
+	font-family: Consolas, Monaco, Courier, monospace;
+	font-size: 1.2em;
+}
+
+form.settings div p {
+	color: rgb(102, 102, 102);
+	font-style: italic;
+	font-size: 0.9em;
+	margin-left: 3em;
+	padding: 0.3em;
+	border-left: 1px solid rgb(223, 223, 223);
+}
+
+form.settings input.submit {
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	-moz-border-radius: 11px;
+	-khtml-border-radius: 11px;
+	-webkit-border-radius: 11px;
+	border-radius: 11px;
+	border: 1px solid rgb(41, 140, 186);
+	cursor: pointer;
+	font-size: 11px;
+	line-height: 16px;
+	padding: 2px 8px;
+	background: url('images/button-grad.png') 0 0 rgb(33, 117, 155);
+	color: rgb(255, 255, 255);
+	font-weight: bold;
+	text-shadow: rgba(0, 0, 0, 0.3) 0 -1px 0;
+}
+
+form.settings input.submit:hover {
+	border-color: rgb(19, 69, 91);
+}
+
+form.settings input.submit:active {
+	background-position: 0 30px;
+}
+
+
+
 /* Footer */
 
 p#bbShowOff {
@@ -658,5 +740,5 @@ p#bbVersion {
 }
 
 div.clear {
-	clear: both;
+	clear: both !important;
 }
