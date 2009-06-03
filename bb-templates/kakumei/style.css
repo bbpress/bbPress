@@ -152,6 +152,7 @@ img.avatar { border: 1px solid #ddd; }
 	font-size: 0.9em;
 	letter-spacing: 1px;
 	padding: 5px 0 20px;
+	font-weight: bold;
 }
 
 #footer {
