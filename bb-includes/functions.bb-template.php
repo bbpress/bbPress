@@ -3213,7 +3213,7 @@ function _bb_parse_time_function_args( $args ) {
 	elseif ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array('format' => $args);
 
-	$defaults = array( 'id' => 0, 'format' => 'since', 'more' => 0 );
+	$defaults = array( 'id' => 0, 'format' => 'since', 'more' => 0, 'localize' => true );
 	return wp_parse_args( $args, $defaults );
 }
 
@@ -3232,7 +3232,11 @@ function _bb_time_function_return( $time, $args ) {
 		break;
 	endswitch;
 
-	return bb_gmdate_i18n( $format, $time );
+	if ( $args['localize'] ) {
+		return bb_gmdate_i18n( $format, $time );
+	} else {
+		return gmdate( $format, $time );
+	}
 }
 
 function bb_template_scripts() {
