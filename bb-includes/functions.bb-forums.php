@@ -64,7 +64,7 @@ function get_forums( $args = null ) {
 			$args['callback_args'] = func_get_arg(1);
 	}
 
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0, 'cut_branch' => 0, 'where' => '' );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'child_of' => 0, 'hierarchical' => 0, 'depth' => 0, 'cut_branch' => 0, 'where' => '', 'order_by' => 'forum_order' );
 	$args = wp_parse_args( $args, $defaults );
 
 	extract($args, EXTR_SKIP);
@@ -73,13 +73,13 @@ function get_forums( $args = null ) {
 	$depth = (int) $depth;
 
 	$where = apply_filters( 'get_forums_where', $where );
-	$key = md5( serialize( $where ) ); // The keys that change the SQL query
+	$key = md5( serialize( $where . '|' . $order_by ) ); // The keys that change the SQL query
 	if ( false !== $forum_ids = wp_cache_get( $key, 'bb_forums' ) ) {
 		$forums = _bb_get_cached_data( $forum_ids, 'bb_forum', 'get_forum' );
 	} else {
 		$forum_ids = array();
 		$forums = array();
-		$_forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY forum_order");
+		$_forums = (array) $bbdb->get_results("SELECT * FROM $bbdb->forums $where ORDER BY `$order_by`;");
 		$_forums = bb_append_meta( $_forums, 'forum' );
 		foreach ( $_forums as $f ) {
 			$forums[(int) $f->forum_id] = $f;
