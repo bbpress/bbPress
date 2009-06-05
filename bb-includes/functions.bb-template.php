@@ -2236,7 +2236,7 @@ function bb_profile_data_form( $id = 0 ) {
 				
 				foreach($public_display as $id => $item) {
 ?>
-			<option id="<?php echo $id; ?>" value="<?php echo $item; ?>"><?php echo $item; ?></option>
+			<option id="<?php echo attribute_escape( $id ); ?>" value="<?php echo attribute_escape( $item ); ?>"><?php echo wp_specialchars( $item ); ?></option>
 <?php
 				}
 ?>
@@ -2244,9 +2244,9 @@ function bb_profile_data_form( $id = 0 ) {
 <?php
 			} else {
 ?>
-		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo "<label for='$name'>"; ?>
+		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo '<label for="' . $name . '">'; ?>
 		<input name="<?php echo $name; ?>" id="<?php echo $name; ?>" type="<?php echo $type; ?>"<?php echo $checked; ?> value="<?php echo $value; ?>" />
-		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo wp_specialchars( $label[5] ) . "</label>"; ?>
+		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo wp_specialchars( $label[5] ) . '</label>'; ?>
 <?php
 			}
 ?>
