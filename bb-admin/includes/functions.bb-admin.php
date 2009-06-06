@@ -55,18 +55,18 @@ function bb_admin_menu_generator()
 	$bb_menu[0]  = array( __( 'Dashboard' ), 'moderate', 'index.php', '', 'bb-menu-dashboard' );
 		$bb_submenu['index.php'][5]   = array( __( 'Dashboard' ), 'moderate', 'index.php' );
 
-	// 50 < Plugin added menu items < 75
+	// 50 < Plugin added menu items < 100
 
-	$bb_menu[75] = array( '', 'read', 'separator' );
+	$bb_menu[100] = array( '', 'read', 'separator' );
 
-	// 75 < Plugin added menu items < 100
+	// 100 < Plugin added menu items < 150
 
-	// 100 < First menu items < 200
-	$bb_menu[100] = array( __( 'Forums' ), 'manage_forums', 'content-forums.php', '', 'bb-menu-forums' );
+	// 150 < First menu items < 200
+	$bb_menu[150] = array( __( 'Forums' ), 'manage_forums', 'content-forums.php', '', 'bb-menu-forums' );
 		$bb_submenu['content-forums.php'][5]   = array( __( 'Edit' ), 'manage_forums', 'content-forums.php' );
-	$bb_menu[105] = array( __( 'Topics' ), 'moderate', 'content.php', '', 'bb-menu-topics' );
+	$bb_menu[155] = array( __( 'Topics' ), 'moderate', 'content.php', '', 'bb-menu-topics' );
 		$bb_submenu['content.php'][5]   = array( __( 'Edit' ), 'moderate', 'content.php' );
-	$bb_menu[110] = array( __( 'Posts' ), 'moderate', 'content-posts.php', '', 'bb-menu-posts' );
+	$bb_menu[160] = array( __( 'Posts' ), 'moderate', 'content-posts.php', '', 'bb-menu-posts' );
 		$bb_submenu['content-posts.php'][5]   = array( __( 'Edit' ), 'moderate', 'content-posts.php' );
 
 	// 200 < Plugin added menu items < 250
@@ -75,7 +75,7 @@ function bb_admin_menu_generator()
 
 	// 250 < Plugin added menu items < 300
 
-	// 300 < Second menu items < 400
+	// 300 < Second menu items < 350
 	$bb_menu[300] = array( __( 'Appearance' ), 'manage_themes', 'themes.php', '', 'bb-menu-appearance' );
 		$bb_submenu['themes.php'][5]   = array(__('Themes'), 'manage_themes', 'themes.php');
 	$bb_menu[305] = array( __( 'Plugins' ), 'use_keys', 'plugins.php', '', 'bb-menu-plugins' );
@@ -90,11 +90,12 @@ function bb_admin_menu_generator()
 		$bb_submenu['options-general.php'][5]  = array( __( 'General' ), 'manage_options', 'options-general.php' );
 		$bb_submenu['options-general.php'][10] = array( __( 'Date and Time' ), 'manage_options', 'options-time.php' );
 		$bb_submenu['options-general.php'][15] = array( __( 'Writing' ), 'manage_options', 'options-writing.php' );
-		$bb_submenu['options-general.php'][20] = array( __( 'Discussion' ), 'manage_options', 'options-discussion.php' );
-		$bb_submenu['options-general.php'][25] = array( __( 'Permalinks' ), 'manage_options', 'options-permalinks.php' );
-		$bb_submenu['options-general.php'][30] = array( __( 'WordPress Integration' ), 'manage_options', 'options-wordpress.php' );
+		$bb_submenu['options-general.php'][20] = array( __( 'Reading' ), 'manage_options', 'options-reading.php' );
+		$bb_submenu['options-general.php'][25] = array( __( 'Discussion' ), 'manage_options', 'options-discussion.php' );
+		$bb_submenu['options-general.php'][30] = array( __( 'Permalinks' ), 'manage_options', 'options-permalinks.php' );
+		$bb_submenu['options-general.php'][35] = array( __( 'WordPress Integration' ), 'manage_options', 'options-wordpress.php' );
 
-	// 400 < Plugin added menu items
+	// 350 < Plugin added menu items
 
 	do_action( 'bb_admin_menu_generator' );
 	ksort( $bb_menu );
@@ -115,61 +116,74 @@ function bb_admin_menu_generator()
 	$bb_menu[$last_key][3] .= ' bb-menu-last';
 }
 
-function bb_admin_add_menu($display_name, $capability, $file_name, $menu_group = 'main')
+function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_position = false, $class = '', $id = '' )
 {
 	global $bb_menu;
 
-	if ($display_name && $capability && $file_name) {
+	if ( $display_name && $capability && $file_name ) {
 		// Get an array of the keys
-		$menu_keys = array_keys($bb_menu);
-		
-		// Set the bounds for different menu groups (main or side)
-		switch ($menu_group) {
-			case 'dash':
-				$lower = 50;
-				$upper = 100;
-				break;
-			case 'main':
-			default:
-				$lower = 200;
-				$upper = 300;
-				break;
-			case 'side':
-				$lower = 400;
-				$upper = 500;
-				break;
-		}
-		
-		// Get an array of all plugin added keys
-		$plugin_menu_keys = array_filter($menu_keys, create_function('$v', 'if ($v >= ' . $lower . ' && $v < ' . $upper . ') { return $v; }'));
-		
-		// If there is an array of keys
-		if (is_array($plugin_menu_keys) && count($plugin_menu_keys)) {
-			// Get the highest key value and add one
-			$plugin_menu_next = max($plugin_menu_keys) + 1;
+		$menu_keys = array_keys( $bb_menu );
+
+		if ( $menu_position ) {
+			if ( is_numeric( $menu_position ) ) {
+				if ( !isset( $bb_menu[$menu_position] ) ) {
+					$plugin_menu_next = $menu_position;
+				} else {
+					return bb_admin_add_menu( $display_name, $capability, $file_name, ( $menu_position + 1 ), $class, $id );
+				}
+			} else {
+				// Set the bounds for different menu groups (main or side)
+				switch ( $menu_position ) {
+					case 'dash':
+						$lower = 50;
+						$upper = 100;
+						break;
+					case 'main':
+					default:
+						$lower = 200;
+						$upper = 250;
+						break;
+					case 'side':
+						$lower = 350;
+						$upper = 500;
+						break;
+				}
+
+				// Get an array of all plugin added keys
+				$plugin_menu_keys = array_filter( $menu_keys, create_function( '$v', 'if ($v >= ' . $lower . ' && $v < ' . $upper . ') { return $v; }' ) );
+
+				// If there is an array of keys
+				if ( is_array( $plugin_menu_keys ) && count( $plugin_menu_keys ) ) {
+					// Get the highest key value and add one
+					$plugin_menu_next = max( $plugin_menu_keys ) + 1;
+				} else {
+					// It's the first one
+					$plugin_menu_next = $lower;
+				}
+			}
 		} else {
-			// It's the first one
-			$plugin_menu_next = $lower;
+			$plugin_menu_next = max( array_keys( $bb_menu ) ) + 1;
+			$bb_menu[$plugin_menu_next] = array( '', 'read', 'separator' );
+			$plugin_menu_next++;
 		}
-		
+
 		// Add the menu item at the given key
-		$bb_menu[$plugin_menu_next] = array($display_name, $capability, $file_name);
-		
-		ksort($bb_menu);
-		
+		$bb_menu[$plugin_menu_next] = array( $display_name, $capability, $file_name, $class, $id );
+
+		ksort( $bb_menu );
+
 		return $plugin_menu_next;
 	}
-	
+
 	return false;
 }
 
-function bb_admin_add_submenu($display_name, $capability, $file_name, $parent = 'plugins.php')
+function bb_admin_add_submenu( $display_name, $capability, $file_name, $parent = 'plugins.php' )
 {
 	global $bb_submenu;
-	if ($display_name && $capability && $file_name) {
-		$bb_submenu[$parent][] = array($display_name, $capability, $file_name);
-		
-		ksort($bb_submenu);
+	if ( $display_name && $capability && $file_name ) {
+		$bb_submenu[$parent][] = array( $display_name, $capability, $file_name );
+		ksort( $bb_submenu );
 	}
 }
 
