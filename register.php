@@ -23,7 +23,11 @@ if ( $_POST && 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	$user_login = sanitize_user( $_POST['user_login'], true );
 	if ( $user_login !== $_POST['user_login'] ) {
 		$bad_input = true;
-		$bb_register_error->add( 'user_login', sprintf( __( "%s is an invalid username.  How's this one?" ), wp_specialchars( $_POST['user_login'] ) ) );
+		if ( $user_login ) {
+			$bb_register_error->add( 'user_login', sprintf( __( '%s is an invalid username. How\'s this one?' ), wp_specialchars( $_POST['user_login'] ) ) );
+		} else {
+			$bb_register_error->add( 'user_login', sprintf( __( '%s is an invalid username.' ), wp_specialchars( $_POST['user_login'] ) ) );
+		}
 	}
 
 	foreach ( $profile_info_keys as $key => $label ) {
