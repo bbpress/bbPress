@@ -1489,7 +1489,7 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 		$class[] = 'bozo';
 	if ( '0' === $topic->topic_open )
 		$class[] = 'closed';
-	if ( 1 == $topic->topic_sticky && bb_is_forum() )
+	if ( 1 == $topic->topic_sticky && ( bb_is_forum() || bb_is_view() ) )
 		$class[] = 'sticky';
 	elseif ( 2 == $topic->topic_sticky && ( bb_is_front() || bb_is_forum() ) )
 		$class[] = 'sticky super-sticky';
