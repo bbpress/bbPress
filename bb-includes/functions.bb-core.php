@@ -972,7 +972,7 @@ function bb_register_default_views() {
 function bb_send_304( $bb_last_modified ) {
 	$bb_etag = '"' . md5($bb_last_modified) . '"';
 	@header("Last-Modified: $bb_last_modified");
-	@header	("ETag: $bb_etag");
+	@header("ETag: $bb_etag");
 
 	// Support for Conditional GET
 	if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) $client_etag = stripslashes($_SERVER['HTTP_IF_NONE_MATCH']);

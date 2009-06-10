@@ -53,7 +53,7 @@ function bb_admin_theme_row( $theme ) {
 	$theme_data = file_exists( $theme_directory . 'style.css' ) ? bb_get_theme_data( $theme ) : false;
 	$screen_shot = file_exists( $theme_directory . 'screenshot.png' ) ? clean_url( bb_get_theme_uri( $theme ) . 'screenshot.png' ) : false;
 	$activation_url = bb_get_uri('bb-admin/themes.php', array('theme' => urlencode($theme)), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$activation_url = clean_url( bb_nonce_url( $activation_url, 'switch-theme' ) );
+	$activation_url = clean_url( wp_nonce_url( $activation_url, 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme' ); ?>>
 		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><img alt="<?php echo attribute_escape( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>

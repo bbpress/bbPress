@@ -175,7 +175,7 @@ bb_get_admin_header();
 <?php foreach ( $wpRoles as $wpRole => $wpRoleName ) bb_option_form_element( "wp_roles_map[$wpRole]", array( 'title' => $wpRoleName, 'type' => 'select', 'options' => $bb_role_names ) ); ?>
 	</fieldset>
 	<fieldset class="submit">
-		<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
+		<?php wp_nonce_field( 'options-wordpress-update-users' ); ?>
 		<input type="hidden" name="action" value="update-users" />
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save User Role Map') ?>" />
 	</fieldset>
@@ -287,7 +287,7 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 	<?php foreach ( $custom_table_options as $option => $args ) bb_option_form_element( $option, $args ); ?>
 	</fieldset>
 	<fieldset class="submit">
-		<?php bb_nonce_field( 'options-wordpress-update-options' ); ?>
+		<?php wp_nonce_field( 'options-wordpress-update-options' ); ?>
 		<input type="hidden" name="action" value="update-options" />
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>

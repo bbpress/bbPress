@@ -4,7 +4,7 @@ require_once('admin.php');
 
 if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update') {
 	
-	bb_check_admin_referer( 'options-general-update' );
+	bb_check_admin_referer( 'options-reading-update' );
 	
 	foreach ( (array) $_POST as $option => $value ) {
 		if ( !in_array( $option, array('_wpnonce', '_wp_http_referer', 'action', 'submit') ) ) {
@@ -31,23 +31,11 @@ if ( !empty($_GET['updated']) ) {
 	bb_admin_notice( __('Settings saved.') );
 }
 
-$general_options = array(
-	'name' => array(
-		'title' => __( 'Site title' ),
-		'class' => 'long',
-	),
-	'description' => array(
-		'title' => __( 'Site description' ),
-		'class' => 'long',
-	),
-	'uri' => array(
-		'title' => __( 'bbPress address (URL)' ),
-		'class' => array('long', 'code'),
-		'note' => __( 'The full URL of your bbPress install.' ),
-	),
-	'from_email' => array(
-		'title' => __( 'E-mail address' ),
-		'note' => __( 'Emails sent by the site will appear to come from this address.' ),
+$reading_options = array(
+	'page_topics' => array(
+		'title' => __( 'Items per page' ),
+		'class' => 'short',
+		'note' => __( 'Number of topics, posts or tags to show per page.' ),
 	)
 );
 
@@ -59,19 +47,19 @@ bb_get_admin_header();
 
 <div class="wrap">
 
-<h2><?php _e('General Settings'); ?></h2>
+<h2><?php _e('Reading Settings'); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-general.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-reading.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
 <?php
-foreach ( $general_options as $option => $args ) {
+foreach ( $reading_options as $option => $args ) {
 	bb_option_form_element( $option, $args );
 }
 ?>
 	</fieldset>
 	<fieldset class="submit">
-		<?php wp_nonce_field( 'options-general-update' ); ?>
+		<?php wp_nonce_field( 'options-reading-update' ); ?>
 		<input type="hidden" name="action" value="update" />
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>

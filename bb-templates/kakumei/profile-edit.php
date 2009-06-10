@@ -28,7 +28,7 @@
 </form>
 <form method="post" action="<?php profile_tab_link($user->ID, 'edit');  ?>">
 <p class="submit left">
-<?php bb_nonce_field( 'edit-profile_' . $user->ID ); ?>
+<?php wp_nonce_field( 'edit-profile_' . $user->ID ); ?>
 <?php user_delete_button(); ?>
 </p>
 </form>

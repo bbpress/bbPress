@@ -123,7 +123,7 @@ bb_get_admin_header();
 <?php		foreach ( $avatar_options as $option => $args ) bb_option_form_element( $option, $args ); ?>
 	</fieldset>
 	<fieldset class="submit">
-		<?php bb_nonce_field( 'options-discussion-update' ); ?>
+		<?php wp_nonce_field( 'options-discussion-update' ); ?>
 		<input type="hidden" name="action" value="update" />
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>
