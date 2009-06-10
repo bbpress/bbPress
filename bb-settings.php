@@ -330,11 +330,11 @@ if ( !defined( 'BB_IS_WP_LOADED') ) {
 	define( 'BB_IS_WP_LOADED', defined( 'DB_NAME' ) );
 }
 
-// Only load these if WordPress isn't loaded
+// Only load this if WordPress isn't loaded
 if ( !BB_IS_WP_LOADED ) {
 	require_once( BACKPRESS_PATH . 'functions.kses.php' );
-	require_once( BB_PATH . BB_INC . 'functions.bb-l10n.php' );
 }
+require_once( BB_PATH . BB_INC . 'functions.bb-l10n.php' );
 
 
 
@@ -794,7 +794,7 @@ $bb_default_secret_key = 'put your unique phrase here';
  */
 
 // Load the default text localization domain.
-load_default_textdomain();
+bb_load_default_textdomain();
 
 // Pull in locale data after loading text domain.
 require_once( BB_PATH . BB_INC . 'class.bb-locale.php' );

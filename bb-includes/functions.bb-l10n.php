@@ -25,7 +25,7 @@
  *
  * @return string The locale of the blog or from the 'locale' hook.
  */
-function get_locale() {
+function bb_get_locale() {
 	global $locale;
 
 	if (isset($locale))
@@ -41,6 +41,13 @@ function get_locale() {
 	return apply_filters('locale', $locale);
 }
 
+if ( !function_exists( 'get_locale' ) ) :
+function get_locale() {
+	return bb_get_locale();
+}
+endif;
+
+if ( !function_exists( 'translate' ) ) :
 /**
  * Retrieves the translation of $text. If there is no translation, or
  * the domain isn't loaded the original text is returned.
@@ -58,7 +65,9 @@ function translate( $text, $domain = 'default' ) {
 	$translations = &get_translations_for_domain( $domain );
 	return apply_filters('gettext', $translations->translate($text), $text, $domain);
 }
+endif;
 
+if ( !function_exists( 'before_last_bar' ) ) :
 /**
  * @since 1.0
  */
@@ -69,7 +78,9 @@ function before_last_bar( $string ) {
 	else
 		return substr( $string, 0, $last_bar );
 }
+endif;
 
+if ( !function_exists( 'translate_with_context' ) ) :
 /**
  * Translate $text like translate(), but assumes that the text
  * contains a context after its last vertical bar.
@@ -85,7 +96,9 @@ function translate_with_context( $text, $domain = 'default' ) {
 	return before_last_bar( translate( $text, $domain ) );
 
 }
+endif;
 
+if ( !function_exists( 'translate_with_gettext_context' ) ) :
 /**
  * @since 1.0
  */
@@ -93,7 +106,9 @@ function translate_with_gettext_context( $text, $context, $domain = 'default' ) 
 	$translations = &get_translations_for_domain( $domain );
 	return apply_filters( 'gettext_with_context', $translations->translate( $text, $context ), $text, $context, $domain);
 }
+endif;
 
+if ( !function_exists( '__' ) ) :
 /**
  * Retrieves the translation of $text. If there is no translation, or
  * the domain isn't loaded the original text is returned.
@@ -108,7 +123,9 @@ function translate_with_gettext_context( $text, $context, $domain = 'default' ) 
 function __( $text, $domain = 'default' ) {
 	return translate( $text, $domain );
 }
+endif;
 
+if ( !function_exists( 'esc_attr__' ) ) :
 /**
  * Retrieves the translation of $text and escapes it for safe use in an attribute.
  * If there is no translation, or the domain isn't loaded the original text is returned.
@@ -124,7 +141,9 @@ function __( $text, $domain = 'default' ) {
 function esc_attr__( $text, $domain = 'default' ) {
 	return esc_attr( translate( $text, $domain ) );
 }
+endif;
 
+if ( !function_exists( 'esc_html__' ) ) :
 /**
  * Retrieves the translation of $text and escapes it for safe use in HTML output.
  * If there is no translation, or the domain isn't loaded the original text is returned.
@@ -140,7 +159,9 @@ function esc_attr__( $text, $domain = 'default' ) {
 function esc_html__( $text, $domain = 'default' ) {
 	return esc_html( translate( $text, $domain ) );
 }
+endif;
 
+if ( !function_exists( '_e' ) ) :
 /**
  * Displays the returned translated text from translate().
  *
@@ -153,7 +174,9 @@ function esc_html__( $text, $domain = 'default' ) {
 function _e( $text, $domain = 'default' ) {
 	echo translate( $text, $domain );
 }
+endif;
 
+if ( !function_exists( 'esc_attr_e' ) ) :
 /**
  * Displays translated text that has been escaped for safe use in an attribute.
  *
@@ -167,7 +190,9 @@ function _e( $text, $domain = 'default' ) {
 function esc_attr_e( $text, $domain = 'default' ) {
 	echo esc_attr( translate( $text, $domain ) );
 }
+endif;
 
+if ( !function_exists( 'esc_html_e' ) ) :
 /**
  * Displays translated text that has been escaped for safe use in HTML output.
  *
@@ -181,7 +206,9 @@ function esc_attr_e( $text, $domain = 'default' ) {
 function esc_html_e( $text, $domain = 'default' ) {
 	echo esc_html( translate( $text, $domain ) );
 }
+endif;
 
+if ( !function_exists( '_c' ) ) :
 /**
  * Retrieve translated string with vertical bar context
  *
@@ -204,18 +231,24 @@ function esc_html_e( $text, $domain = 'default' ) {
 function _c($text, $domain = 'default') {
 	return translate_with_context($text, $domain);
 }
+endif;
 
+if ( !function_exists( '_x' ) ) :
 /**
  * @since 1.0
  */
 function _x( $single, $context, $domain = 'default' ) {
 	return translate_with_gettext_context( $single, $context, $domain );
 }
+endif;
 
+if ( !function_exists( 'esc_attr_x' ) ) :
 function esc_attr_x( $single, $context, $domain = 'default' ) {
 	return esc_attr( translate_with_gettext_context( $single, $context, $domain ) );
 }
+endif;
 
+if ( !function_exists( '__ngettext' ) ) :
 /**
  * @deprecated Use _n()
  */
@@ -224,7 +257,9 @@ function __ngettext() {
 	$args = func_get_args();
 	return call_user_func_array('_n', $args);
 }
+endif;
 
+if ( !function_exists( '_n' ) ) :
 /**
  * Retrieve the plural or single form based on the amount.
  *
@@ -252,7 +287,9 @@ function _n($single, $plural, $number, $domain = 'default') {
 	$translation = $translations->translate_plural( $single, $plural, $number );
 	return apply_filters( 'ngettext', $translation, $single, $plural, $number );
 }
+endif;
 
+if ( !function_exists( '_nc' ) ) :
 /**
  * @see _n() A version of _n(), which supports contexts --
  * strips everything from the translation after the last bar
@@ -261,7 +298,9 @@ function _n($single, $plural, $number, $domain = 'default') {
 function _nc( $single, $plural, $number, $domain = 'default' ) {
 	return before_last_bar( _n( $single, $plural, $number, $domain ) );
 }
+endif;
 
+if ( !function_exists( '_nx' ) ) :
 /**
  * @since 1.0
  */
@@ -270,7 +309,9 @@ function _nx($single, $plural, $number, $context, $domain = 'default') {
 	$translation = $translations->translate_plural( $single, $plural, $number, $context );
 	return apply_filters( 'ngettext_with_context ', $translation, $single, $plural, $number, $context );
 }
+endif;
 
+if ( !function_exists( '__ngettext_noop' ) ) :
 /**
  * @deprecated Use _n_noop()
  */
@@ -279,7 +320,9 @@ function __ngettext_noop() {
 	$args = func_get_args();
 	return call_user_func_array('_n_noop', $args);
 }
+endif;
 
+if ( !function_exists( '_n_noop' ) ) :
 /**
  * Register plural strings in POT file, but don't translate them.
  *
@@ -303,7 +346,9 @@ function __ngettext_noop() {
 function _n_noop( $single, $plural ) {
 	return array( $single, $plural );
 }
+endif;
 
+if ( !function_exists( '_nx_noop' ) ) :
 /**
  * Register plural strings with context in POT file, but don't translate them.
  *
@@ -312,7 +357,9 @@ function _n_noop( $single, $plural ) {
 function _nx_noop( $single, $plural, $context ) {
 	return array( $single, $plural, $context );
 }
+endif;
 
+if ( !function_exists( 'load_textdomain' ) ) :
 /**
  * Loads MO file into the list of domains.
  *
@@ -344,6 +391,7 @@ function load_textdomain($domain, $mofile) {
 		
 	$l10n[$domain] = &$mo;
 }
+endif;
 
 /**
  * Loads default translated strings based on locale.
@@ -353,13 +401,19 @@ function load_textdomain($domain, $mofile) {
  *
  * @since 1.5.0
  */
-function load_default_textdomain() {
-	$locale = get_locale();
+function bb_load_default_textdomain() {
+	$locale = bb_get_locale();
 
 	$mofile = BB_LANG_DIR . "/$locale.mo";
 
 	load_textdomain('default', $mofile);
 }
+
+if ( !function_exists( 'load_default_textdomain' ) ) :
+function load_default_textdomain() {
+	bb_load_default_textdomain();
+}
+endif;
 
 /**
  * Loads the plugin's translated strings.
@@ -373,8 +427,8 @@ function load_default_textdomain() {
  * @param string $domain Unique identifier for retrieving translated strings
  * @param string $path Optional. Absolute path to folder where the .mo file resides
  */
-function load_plugin_textdomain($domain, $path = false) {
-	$locale = get_locale();
+function bb_load_plugin_textdomain($domain, $path = false) {
+	$locale = bb_get_locale();
 
 	if ( false === $path ) {
 		global $bb;
@@ -384,6 +438,12 @@ function load_plugin_textdomain($domain, $path = false) {
 	$mofile = rtrim( trim( $path ), " \t\n\r\0\x0B/" ) . '/'. $domain . '-' . $locale . '.mo';
 	load_textdomain($domain, $mofile);
 }
+
+if ( !function_exists( 'load_plugin_textdomain' ) ) :
+function load_plugin_textdomain( $domain, $path = false ) {
+	bb_load_plugin_textdomain( $domain, $path );
+}
+endif;
 
 /**
  * Loads the theme's translated strings.
@@ -397,14 +457,21 @@ function load_plugin_textdomain($domain, $path = false) {
  *
  * @param string $domain Unique identifier for retrieving translated strings
  */
-function load_theme_textdomain($domain, $path = false) {
-	$locale = get_locale();
+function bb_load_theme_textdomain($domain, $path = false) {
+	$locale = bb_get_locale();
 
 	$mofile = ( empty( $path ) ) ? bb_get_template( $locale . '.mo' ) : "$path/$locale.mo";
 	
 	load_textdomain($domain, $mofile);
 }
 
+if ( !function_exists( 'load_theme_textdomain' ) ) :
+function load_theme_textdomain( $domain, $path = false ) {
+	bb_load_theme_textdomain( $domain, $path );
+}
+endif;
+
+if ( !function_exists( 'get_translations_for_domain' ) ) :
 /**
  * Returns the Translations instance for a domain. If there isn't one,
  * returns empty Translations instance.
@@ -420,3 +487,4 @@ function &get_translations_for_domain( $domain ) {
 	else
 		return $empty;
 }
+endif;

@@ -250,7 +250,7 @@ function bb_get_option( $option )
 
 	switch ( $option ) {
 		case 'language':
-			$r = str_replace( '_', '-', get_locale() );
+			$r = str_replace( '_', '-', bb_get_locale() );
 			break;
 		case 'text_direction':
 			global $bb_locale;

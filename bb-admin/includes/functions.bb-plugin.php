@@ -104,7 +104,7 @@ function bb_plugins_sort( $a, $b )
  * Requires at least: Optional.  Minimum bbPress version this plugin requires
  * Tested up to: Optional. Maximum bbPress version this plugin has been tested with
  * Text Domain: Optional. Unique identifier, should be same as the one used in
- *		load_plugin_textdomain()
+ *		bb_load_plugin_textdomain()
  * Domain Path: Optional. Only useful if the translations are located in a
  *		folder above the plugin's base path. For example, if .mo files are
  *		located in the locale folder then Domain Path will be "/locale/" and
@@ -270,9 +270,9 @@ function _bb_get_plugin_data_translate( $plugin_data ) {
 	//Translate fields
 	if( !empty($plugin_data['text_domain']) ) {
 		if( ! empty( $plugin_data['domain_path'] ) )
-			load_plugin_textdomain($plugin_data['text_domain'], dirname($plugin_file). $plugin_data['domain_path']);
+			bb_load_plugin_textdomain($plugin_data['text_domain'], dirname($plugin_file). $plugin_data['domain_path']);
 		else
-			load_plugin_textdomain($plugin_data['text_domain'], dirname($plugin_file));
+			bb_load_plugin_textdomain($plugin_data['text_domain'], dirname($plugin_file));
 
 		foreach ( array('name', 'plugin_url', 'description', 'author', 'author_uri', 'version') as $field )
 			$plugin_data[$field] = translate($plugin_data[$field], $plugin_data['text_domain']);

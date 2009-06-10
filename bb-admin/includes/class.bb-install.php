@@ -132,7 +132,7 @@ class BB_Install
 		}
 
 		// Load the default text localization domain. Doing this twice doesn't hurt too much.
-		load_default_textdomain();
+		bb_load_default_textdomain();
 
 		// Pull in locale data after loading text domain.
 		if ( $this->load_includes ) {
@@ -2067,7 +2067,7 @@ class BB_Install
 				global $locale, $l10n;
 				$locale = BB_LANG;
 				unset( $l10n['default'] );
-				load_default_textdomain();
+				bb_load_default_textdomain();
 			}
 
 			$description = __( 'Just another bbPress community' );
@@ -2076,7 +2076,7 @@ class BB_Install
 			if ( $this->language != BB_LANG) {
 				$locale = $this->language;
 				unset( $l10n['default'] );
-				load_default_textdomain();
+				bb_load_default_textdomain();
 			}
 
 			$installation_log[] = '>>> ' . __( 'Description:' ) . ' ' . $description;
@@ -2087,7 +2087,7 @@ class BB_Install
 				if ( $this->language != BB_LANG) {
 					$locale = BB_LANG;
 					unset( $l10n['default'] );
-					load_default_textdomain();
+					bb_load_default_textdomain();
 				}
 
 				$topic_title = __( 'Your first topic' );
@@ -2109,7 +2109,7 @@ class BB_Install
 				if ( $this->language != BB_LANG ) {
 					$locale = $this->language;
 					unset( $l10n['default'] );
-					load_default_textdomain();
+					bb_load_default_textdomain();
 				}
 
 				$installation_log[] = '>>>>>> ' . __( 'Topic:' ) . ' ' . $topic_title;

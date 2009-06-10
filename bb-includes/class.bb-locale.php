@@ -211,7 +211,7 @@ class BB_Locale {
 	 * @access private
 	 */
 	function _load_locale_data() {
-		$locale = get_locale();
+		$locale = bb_get_locale();
 		$locale_file = BB_LANG_DIR . $locale . '.php';
 		if ( !is_file( $locale_file ) ) {
 			return;
