@@ -256,8 +256,7 @@ function bb_ksd_pre_post_status( $post_status ) {
 }
 
 function bb_ksd_admin_menu() {
-	global $bb_submenu;
-	$bb_submenu['content.php'][] = array(__('Akismet Spam'), 'moderate', 'bb_ksd_admin_page');
+	bb_admin_add_submenu( __('Akismet Spam'), 'moderate', 'bb_ksd_admin_page', 'content-posts.php' );
 }
 
 function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
