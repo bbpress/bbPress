@@ -14,7 +14,7 @@
 		</label>
 		<input name="re" type="hidden" value="<?php echo $re; ?>" />
 		<?php wp_referer_field(); ?>
-		<input type="submit" name="Submit" class="submit" value="<?php echo esc_attr( __('Log in &raquo;') ); ?>" tabindex="4" />
+		<input type="submit" name="Submit" class="submit" value="<?php echo esc_attr__( 'Log in &raquo;' ); ?>" tabindex="4" />
 	</div>
 	<div class="remember">
 		<label>

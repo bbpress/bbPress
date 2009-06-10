@@ -66,7 +66,7 @@ endif; // profile_info_keys
 <?php do_action('extra_profile_info', $user); ?>
 
 <p class="submit">
-	<input type="submit" name="Submit" value="<?php echo esc_attr( __('Register &raquo;') ); ?>" />
+	<input type="submit" name="Submit" value="<?php echo esc_attr__( 'Register &raquo;' ); ?>" />
 </p>
 
 </form>

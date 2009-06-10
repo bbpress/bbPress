@@ -23,7 +23,7 @@
 </p>
 <?php endif; ?>
 <p class="submit">
-  <input type="submit" id="postformsub" name="Submit" value="<?php echo esc_attr( __('Send Post &raquo;') ); ?>" tabindex="4" />
+  <input type="submit" id="postformsub" name="Submit" value="<?php echo esc_attr__( 'Send Post &raquo;' ); ?>" tabindex="4" />
 </p>
 
 <p><?php _e('Allowed markup:'); ?> <code><?php allowed_markup(); ?></code>. <br /><?php _e('You can also put code in between backtick ( <code>`</code> ) characters.'); ?></p>

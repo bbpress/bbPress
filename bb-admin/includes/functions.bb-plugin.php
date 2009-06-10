@@ -257,10 +257,10 @@ function bb_get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 		$plugin_data['description'] = bb_autop( $plugin_data['description'] );
 
 	$plugin_data['plugin_link'] = ( $plugin_data['uri'] ) ?
-		"<a href='{$plugin_data['uri']}' title='" . esc_attr( __('Visit plugin homepage') ) . "'>{$plugin_data['name']}</a>" :
+		"<a href='{$plugin_data['uri']}' title='" . esc_attr__( 'Visit plugin homepage' ) . "'>{$plugin_data['name']}</a>" :
 		$plugin_data['name'];
 	$plugin_data['author_link'] = ( $plugin_data['author'] && $plugin_data['author_uri'] ) ?
-		"<a href='{$plugin_data['author_uri']}' title='" . esc_attr( __('Visit author homepage') ) . "'>{$plugin_data['author']}</a>" :
+		"<a href='{$plugin_data['author_uri']}' title='" . esc_attr__( 'Visit author homepage' ) . "'>{$plugin_data['author']}</a>" :
 		$plugin_data['author'];
 
 	return $plugin_data;

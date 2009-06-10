@@ -12,7 +12,7 @@
   </label>
 </p>
 <p class="submit">
-<input type="submit" name="Submit" value="<?php echo esc_attr( __('Edit Post &raquo;') ); ?>" />
+<input type="submit" name="Submit" value="<?php echo esc_attr__( 'Edit Post &raquo;' ); ?>" />
 <input type="hidden" name="post_id" value="<?php post_id(); ?>" />
 <input type="hidden" name="topic_id" value="<?php topic_id(); ?>" />
 </p>

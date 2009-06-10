@@ -1042,7 +1042,7 @@ function bb_get_theme_data( $theme_file )
 		if ( empty($author_uri[1]) ) {
 			$author = esc_html( trim($author_name[1]) );
 		} else {
-			$author = '<a href="' . esc_url( trim($author_uri[1]) ) . '" title="' . esc_attr( __('Visit author homepage') ) . '">' . esc_html( trim($author_name[1]) ) . '</a>';
+			$author = '<a href="' . esc_url( trim($author_uri[1]) ) . '" title="' . esc_attr__( 'Visit author homepage' ) . '">' . esc_html( trim($author_name[1]) ) . '</a>';
 		}
 	} else {
 		$author = '';
@@ -1052,7 +1052,7 @@ function bb_get_theme_data( $theme_file )
 		if ( empty($porter_uri[1]) ) {
 			$porter = esc_html( trim($porter_name[1]) );
 		} else {
-			$porter = '<a href="' . esc_url( trim($porter_uri[1]) ) . '" title="' . esc_attr( __('Visit porter homepage') ) . '">' . esc_html( trim($porter_name[1]) ) . '</a>';
+			$porter = '<a href="' . esc_url( trim($porter_uri[1]) ) . '" title="' . esc_attr__( 'Visit porter homepage' ) . '">' . esc_html( trim($porter_name[1]) ) . '</a>';
 		}
 	} else {
 		$porter = '';

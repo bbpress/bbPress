@@ -23,7 +23,7 @@
 </fieldset>
 <?php endif; ?>
 <p class="submit right">
-  <input type="submit" name="Submit" value="<?php echo esc_attr( __('Update Profile &raquo;') ); ?>" />
+  <input type="submit" name="Submit" value="<?php echo esc_attr__( 'Update Profile &raquo;' ); ?>" />
 </p>
 </form>
 <form method="post" action="<?php profile_tab_link($user->ID, 'edit');  ?>">

@@ -2896,7 +2896,7 @@ function bb_get_tag_remove_link( $args = null ) {
 		return false;
 	$url = bb_get_uri('tag-remove.php', array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $topic->topic_id) );
 	$url = esc_url( wp_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $topic->topic_id) );
-	$title = esc_attr( __('Remove this tag') );
+	$title = esc_attr__( 'Remove this tag' );
 	$list_id = esc_attr( $list_id );
 	return "[<a href='$url' class='delete:$list_id:tag-{$tag->tag_id}_{$tag->user_id}' title='$title'>&times;</a>]";
 }

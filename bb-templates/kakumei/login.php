@@ -61,7 +61,7 @@
 		<tr valign="top">
 			<th scope="row"></th>
 			<td>
-				<input type="submit" value="<?php echo esc_attr( __('Recover Password &raquo;') ); ?>" />
+				<input type="submit" value="<?php echo esc_attr__( 'Recover Password &raquo;' ); ?>" />
 			</td>
 		</tr>
 	</table>

@@ -56,9 +56,9 @@ function bb_admin_theme_row( $theme ) {
 	$activation_url = esc_url( wp_nonce_url( $activation_url, 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme' ); ?>>
-		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr( __('Click to activate') ); ?>"><img alt="<?php echo esc_attr( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
+		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr__( 'Click to activate' ); ?>"><img alt="<?php echo esc_attr( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
 		<div class="description">
-			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
+			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr__( 'Click to activate' ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<small class="author"><?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?></small>
 			<?php echo $theme_data['Description']; // Description is autop'ed ?>
