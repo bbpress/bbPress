@@ -363,9 +363,16 @@ class BB_Install
 			}
 		}
 
-		if ( $_REQUEST['language'] && 1 < count( $this->languages ) ) {
-			if ( in_array( $_REQUEST['language'], $this->languages ) ) {
-				$this->language = $_REQUEST['language'];
+		$language_requested = false;
+		if ( isset( $_POST['language'] ) && $_POST['language'] ) {
+			$language_requested = (string) $_POST['language'];
+		} elseif ( isset( $_GET['language'] ) && $_GET['language'] ) {
+			$language_requested = (string) $_GET['language'];
+		}
+
+		if ( $language_requested && 1 < count( $this->languages ) ) {
+			if ( in_array( $language_requested, $this->languages ) ) {
+				$this->language = $language_requested;
 				setcookie( 'bb_install_language', $this->language );
 			}
 		}
