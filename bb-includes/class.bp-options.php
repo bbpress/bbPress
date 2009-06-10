@@ -76,16 +76,16 @@ class BP_Transients
 	
 	function get( $transient )
 	{
-		return bb_get_transient( BP_Options::prefix() . $transient );
+		return bb_get_transient( BP_Transients::prefix() . $transient );
 	}
 	
 	function set( $transient, $value, $expiration = 0 )
 	{
-		return bb_set_transient( BP_Options::prefix() . $transient, $value, $expiration );
+		return bb_set_transient( BP_Transients::prefix() . $transient, $value, $expiration );
 	}
 	
 	function delete( $transient )
 	{
-		return bb_delete_transient( BP_Options::prefix() . $transient );
+		return bb_delete_transient( BP_Transients::prefix() . $transient );
 	}
 } // END class BP_Transients
