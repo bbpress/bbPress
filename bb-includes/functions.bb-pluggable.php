@@ -479,7 +479,13 @@ endif;
 
 if ( !function_exists('bb_check_admin_referer') ) :
 function bb_check_admin_referer( $action = -1, $query_arg = '_wpnonce' ) {
-	if ( !bb_verify_nonce($_REQUEST[$query_arg], $action) ) {
+	$nonce = '';
+	if ( isset( $_POST[$query_arg] ) && $_POST[$query_arg] ) {
+		$nonce = $_POST[$query_arg];
+	} elseif ( isset( $_GET[$query_arg] ) && $_GET[$query_arg] ) {
+		$nonce = $_GET[$query_arg];
+	}
+	if ( !bb_verify_nonce($nonce, $action) ) {
 		bb_nonce_ays($action);
 		die();
 	}
@@ -489,10 +495,23 @@ endif;
 
 if ( !function_exists('bb_check_ajax_referer') ) :
 function bb_check_ajax_referer( $action = -1, $query_arg = false, $die = true ) {
-	if ( $query_arg )
-		$nonce = $_REQUEST[$query_arg];
-	else
-		$nonce = $_REQUEST['_ajax_nonce'] ? $_REQUEST['_ajax_nonce'] : $_REQUEST['_wpnonce'];
+	$requests = array();
+	if ( $query_arg ) {
+		$requests[] = $query_arg;
+	}
+	$requests[] = '_ajax_nonce';
+	$requests[] = '_wpnonce';
+
+	$nonce = '';
+	foreach ( $requests as $request ) {
+		if ( isset( $_POST[$request] ) && $_POST[$request] ) {
+			$nonce = $_POST[$request];
+			break;
+		} elseif ( isset( $_GET[$request] ) && $_GET[$request] ) {
+			$nonce = $_GET[$request];
+			break;
+		}
+	}
 
 	$result = bb_verify_nonce( $nonce, $action );
 
