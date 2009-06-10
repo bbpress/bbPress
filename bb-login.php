@@ -31,7 +31,7 @@ if ( is_ssl() && 0 === strpos( $re, '/' ) ) {
 }
 
 // Logout requested.
-if ( isset( $_REQUEST['logout'] ) ) {
+if ( isset( $_GET['logout'] ) ) {
 	bb_logout();
 	bb_safe_redirect( $re );
 	exit;
