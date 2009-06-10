@@ -88,7 +88,7 @@ function bb_admin_menu_generator()
 		$bb_submenu['site.php'][5] = array( __( 'Recount' ), 'recount', 'site.php' );
 	$bb_menu[320] = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'bb-menu-settings' );
 		$bb_submenu['options-general.php'][5]  = array( __( 'General' ), 'manage_options', 'options-general.php' );
-		$bb_submenu['options-general.php'][10] = array( __( 'Date and Time' ), 'manage_options', 'options-time.php' );
+		//$bb_submenu['options-general.php'][10] = array( __( 'Date and Time' ), 'manage_options', 'options-time.php' );
 		$bb_submenu['options-general.php'][15] = array( __( 'Writing' ), 'manage_options', 'options-writing.php' );
 		$bb_submenu['options-general.php'][20] = array( __( 'Reading' ), 'manage_options', 'options-reading.php' );
 		$bb_submenu['options-general.php'][25] = array( __( 'Discussion' ), 'manage_options', 'options-discussion.php' );

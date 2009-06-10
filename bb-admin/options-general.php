@@ -51,6 +51,29 @@ $general_options = array(
 	)
 );
 
+$time_options = array(
+	'gmt_offset' => array(
+		'title' => __( 'Times should differ<br />from UTC by' ),
+		'class' => 'short',
+		'after' => __( 'hours' ),
+		'note' => __( 'Example: -7 for Pacific Daylight Time.' ),
+	),
+	'datetime_format' => array(
+		'title' => __( 'Date and time format' ),
+		'value' => bb_get_datetime_formatstring_i18n(),
+		'note' => sprintf( __( 'Output: <strong>%s</strong>' ), bb_datetime_format_i18n( bb_current_time() ) ),
+	),
+	'date_format' => array(
+		'title' => __( 'Date format' ),
+		'value' => bb_get_datetime_formatstring_i18n( 'date' ),
+		'note' => array(
+			sprintf( __( 'Output: <strong>%s</strong>' ), bb_datetime_format_i18n( bb_current_time(), 'date' ) ),
+			__( 'Click "Update settings" to update sample output.' ),
+			__( '<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.' ),
+		),
+	),
+);
+
 $bb_admin_body_class = ' bb-admin-settings';
 
 bb_get_admin_header();
@@ -69,6 +92,15 @@ foreach ( $general_options as $option => $args ) {
 	bb_option_form_element( $option, $args );
 }
 ?>
+		<div>
+			<label>
+				<?php _e('<abbr title="Coordinated Universal Time">UTC</abbr> time is') ?>
+			</label>
+			<div>
+				<p><?php echo gmdate(__('Y-m-d g:i:s a')); ?></p>
+			</div>
+		</div>
+<?php		foreach ( $time_options as $option => $args ) bb_option_form_element( $option, $args ); ?>
 	</fieldset>
 	<fieldset class="submit">
 		<?php wp_nonce_field( 'options-general-update' ); ?>
