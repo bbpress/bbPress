@@ -50,7 +50,7 @@ case 'add-tag' : // $id is topic_id
 		}
 		$tag->user_id = bb_get_current_user_info( 'id' );
 		$tag_id_val = $tag->tag_id . '_' . $tag->user_id;
-		$tag->raw_tag = attribute_escape( $tag->raw_tag );
+		$tag->raw_tag = esc_attr( $tag->raw_tag );
 		$x->add( array(
 			'what' => 'tag',
 			'id' => $tag_id_val,

@@ -18,12 +18,12 @@
 <?php _e('This is how your profile appears to a logged in member.'); ?>
 
 <?php if (bb_current_user_can( 'edit_user', $user->ID )) : ?>
-<?php printf(__('You may <a href="%1$s">edit this information</a>.'), attribute_escape( get_profile_tab_link( $user_id, 'edit' ) ) ); ?>
+<?php printf(__('You may <a href="%1$s">edit this information</a>.'), esc_attr( get_profile_tab_link( $user_id, 'edit' ) ) ); ?>
 <?php endif; ?>
 </p>
 
 <?php if (bb_current_user_can( 'edit_favorites_of', $user->ID )) : ?>
-<p><?php printf(__('You can also <a href="%1$s">manage your favorites</a> and subscribe to your favorites&#8217; <a href="%2$s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), attribute_escape( get_favorites_link() ), attribute_escape( get_favorites_rss_link() )); ?></p>
+<p><?php printf(__('You can also <a href="%1$s">manage your favorites</a> and subscribe to your favorites&#8217; <a href="%2$s"><abbr title="Really Simple Syndication">RSS</abbr> feed</a>.'), esc_attr( get_favorites_link() ), esc_attr( get_favorites_rss_link() )); ?></p>
 <?php endif; ?>
 <?php endif; ?>
 

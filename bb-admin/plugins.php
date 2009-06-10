@@ -88,11 +88,11 @@ if ( isset($_GET['message']) ) {
 			break;
 		case 'activate' :
 			$plugin_data = bb_get_plugin_data( $plugin );
-			bb_admin_notice( sprintf( __( '"%s" plugin <strong>activated</strong>' ), attribute_escape( $plugin_data['name'] ) ) );
+			bb_admin_notice( sprintf( __( '"%s" plugin <strong>activated</strong>' ), esc_attr( $plugin_data['name'] ) ) );
 			break;
 		case 'deactivate' :
 			$plugin_data = bb_get_plugin_data( $plugin );
-			bb_admin_notice( sprintf( __( '"%s" plugin <strong>deactivated</strong>' ), attribute_escape( $plugin_data['name'] ) ) );
+			bb_admin_notice( sprintf( __( '"%s" plugin <strong>deactivated</strong>' ), esc_attr( $plugin_data['name'] ) ) );
 			break;
 	}
 }
@@ -110,7 +110,7 @@ bb_get_admin_header();
 
 <?php
 if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
-	$scrape_src = attribute_escape(
+	$scrape_src = esc_attr(
 		wp_nonce_url(
 			bb_get_uri(
 				'bb-admin/plugins.php',
@@ -163,7 +163,7 @@ if ( $normal_plugins ) :
 			$action_class = 'delete';
 			$action_text = __( 'Deactivate' );
 		}
-		$href = attribute_escape(
+		$href = esc_attr(
 			wp_nonce_url(
 				bb_get_uri(
 					'bb-admin/plugins.php',
@@ -235,7 +235,7 @@ if ( $autoload_plugins ) :
 		else :
 ?>
 
-				<td colspan="3"><?php echo wp_specialchars( $plugin ); ?></td>
+				<td colspan="3"><?php echo esc_html( $plugin ); ?></td>
 
 <?php
 		endif;

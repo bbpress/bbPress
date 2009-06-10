@@ -52,7 +52,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	foreach ( $profile_info_keys as $key => $label ) {
 		$$key = apply_filters( 'sanitize_profile_info', $_POST[$key], $key, $_POST[$key] );
 		if ( !$$key && $label[0] == 1 ) {
-			$errors->add( $key, sprintf( __( '%s is required.' ), wp_specialchars( $label[1] ) ) );
+			$errors->add( $key, sprintf( __( '%s is required.' ), esc_html( $label[1] ) ) );
 			$$key = false;
 		}
 	}
@@ -93,7 +93,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 
 			$$key = apply_filters( 'sanitize_profile_admin', $_POST[$key], $key, $_POST[$key] );
 			if ( !$$key && $label[0] == 1 ) {
-				$errors->add( $key, sprintf( __( '%s is required.' ), wp_specialchars( $label[1] ) ) );
+				$errors->add( $key, sprintf( __( '%s is required.' ), esc_html( $label[1] ) ) );
 				$$key = false;
 			}
 		}

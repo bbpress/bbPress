@@ -36,7 +36,7 @@ function bb_admin_notice( $message, $class = false )
 		return false;
 	}
 
-	$message = '<div class="' . attribute_escape( $class ) . '">' . $message . '</div>';
+	$message = '<div class="' . esc_attr( $class ) . '">' . $message . '</div>';
 	$message = str_replace( "'", "\'", $message );
 	$lambda = create_function( '', "echo '$message';" );
 	add_action( 'bb_admin_notices', $lambda );
@@ -220,7 +220,7 @@ function bb_admin_title()
 {
 	global $bb_current_menu, $bb_current_submenu;
 	$title = ( $bb_current_submenu ? $bb_current_submenu[0] . ' &lsaquo; ' : '' ) . $bb_current_menu[0] . ' &lsaquo; ' . bb_get_option( 'name' ) . ' &#8212; bbPress';
-	echo wp_specialchars( $title );
+	echo esc_html( $title );
 }
 
 function bb_admin_menu()
@@ -245,7 +245,7 @@ function bb_admin_menu()
 		if ( isset( $m[4] ) ) {
 			$id .= ' id="' . $m[4] . '"';
 		}
-		$m[0] = wp_specialchars( $m[0] );
+		$m[0] = esc_html( $m[0] );
 		if ( $m[2] === 'separator' ) {
 			if ( 'f' == bb_get_user_setting( 'fm' ) ) {
 				$href = '?foldmenu=0';
@@ -255,10 +255,10 @@ function bb_admin_menu()
 			$m[0] = '<br />';
 			$class .= ' bb-menu-separator';
 		} elseif ( strpos( $m[2], 'http://' ) === 0 || strpos( $m[2], 'https://' ) === 0 ) {
-			$href = clean_url( $m[2] );
+			$href = esc_url( $m[2] );
 			$class .= ' bb-menu-external';
 		} else {
-			$href = clean_url( bb_get_option( 'path' ) . 'bb-admin/' . bb_get_admin_tab_link( $m[2] ) );
+			$href = esc_url( bb_get_option( 'path' ) . 'bb-admin/' . bb_get_admin_tab_link( $m[2] ) );
 		}
 		if ( $m[2] == $bb_current_menu[2] ) {
 			$class .= ' bb-menu-current';
@@ -290,7 +290,7 @@ function bb_admin_menu()
 				if ( $sm[2] == $bb_current_submenu[2] ) {
 					$sclass .= ' bb-menu-sub-current';
 				}
-				$sr .= "\t\t\t\t\t\t\t" . '<li class="' . attribute_escape( trim( $sclass ) ) . '"><a href="' . clean_url( $shref ) . '">' . wp_specialchars( $sm[0] ) . '</a></li>' . "\n";
+				$sr .= "\t\t\t\t\t\t\t" . '<li class="' . esc_attr( trim( $sclass ) ) . '"><a href="' . esc_url( $shref ) . '">' . esc_html( $sm[0] ) . '</a></li>' . "\n";
 			}
 			$sr .= "\t\t\t\t\t\t" . '</ul>' . "\n";
 			$sr .= "\t\t\t\t\t" . '</div>' . "\n";
@@ -303,7 +303,7 @@ function bb_admin_menu()
 			}
 		}
 
-		$r .= "\t\t\t\t" . '<li' . $id . ' class="' . attribute_escape( trim( $class ) ) . '"><a href="' . $href . '">';
+		$r .= "\t\t\t\t" . '<li' . $id . ' class="' . esc_attr( trim( $class ) ) . '"><a href="' . $href . '">';
 
 		if ( $m[2] !== 'separator' ) {
 			$r .= '<div class="bb-menu-icon"></div>';
@@ -405,7 +405,7 @@ function bb_user_row( $user_id, $role = '', $email = false ) {
 	$r .= "\t\t<td>" . date( 'Y-m-d H:i:s', bb_offset_time( bb_gmtstrtotime( $user->user_registered ) ) ) . "</td>\n";
 	$actions = '';
 	if ( bb_current_user_can( 'edit_user', $user_id ) )
-		$actions .= "<a href='" . attribute_escape( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
+		$actions .= "<a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
 	$r .= "\t\t<td>$actions</td>\n\t</tr>";
 	return $r;
 }
@@ -514,7 +514,7 @@ class BB_User_Search {
 		if ( isset($this->title) )
 			$title = $this->title;
 		elseif ( $this->is_search() )
-			$title = sprintf(__('Users Matching "%s" by Role'), wp_specialchars( $this->search_term ));
+			$title = sprintf(__('Users Matching "%s" by Role'), esc_html( $this->search_term ));
 		else
 			$title = __('User List by Role');
 		echo "<h2 class=\"first\">$title</h2>\n";
@@ -523,7 +523,7 @@ class BB_User_Search {
 		if ( $show_search ) {
 			$r .= "<form action='' method='get' id='search'>\n\t<p>";
 			$r .= "<label class='hidden' for='usersearch'>" . __('Search:') . "</label>";
-			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . wp_specialchars( $this->search_term, 1) . "' />\n";
+			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . esc_html( $this->search_term, 1) . "' />\n";
 			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
 			$r .= "</form>\n\n";
 		}
@@ -768,9 +768,9 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 	$r .= "\t\t<div class='list-block posrel'>\n";
 	$r .= "\t\t\t<div class='alignright'>\n";
 	if ( bb_current_user_can( 'manage_forums' ) )
-		$r .= "\t\t\t\t<a class='edit' href='" . attribute_escape( bb_get_uri('bb-admin/content-forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
+		$r .= "\t\t\t\t<a class='edit' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
 	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
-		$r .= "\t\t\t\t<a class='delete' href='" . attribute_escape( bb_get_uri('bb-admin/content-forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
+		$r .= "\t\t\t\t<a class='delete' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
 	$r .= "\t\t\t</div>\n";
 	$r .= "\t\t\t" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n\t\t</div>\n";
 	if ( $close )
@@ -791,15 +791,15 @@ function bb_forum_form( $forum_id = 0 ) {
 	<fieldset>
 	<table><col /><col style="width: 80%" />
 		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>
-			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
+			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo esc_attr( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
 		</tr>
 <?php if ( $forum_id ) : ?>
 		<tr><th scope="row"><label for="forum-slug"><?php _e('Forum Slug:'); ?></label></th>
-			<td><input type="text" name="forum_slug" id="forum-slug" value="<?php echo attribute_escape( $forum->forum_slug ); ?>" tabindex="10" class="widefat" /></td>
+			<td><input type="text" name="forum_slug" id="forum-slug" value="<?php echo esc_attr( $forum->forum_slug ); ?>" tabindex="10" class="widefat" /></td>
 		</tr>
 <?php endif; ?>
 		<tr><th scope="row"><label for="forum-desc"><?php _e('Forum Description:'); ?></label></th>
-			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo attribute_escape( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
+			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo esc_attr( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
 		</tr>
 		<tr id="forum-parent-row"><th scope="row"><label for="forum_parent"><?php _e('Forum Parent:'); ?></label></th>
 			<td><?php bb_forum_dropdown( array(
@@ -929,17 +929,17 @@ function bb_admin_list_posts() {
 
 			<p class="author-data">
 			<?php if ( bb_current_user_can( 'edit_users' ) ) : ?>
-				<a href="<?php echo clean_url( 'mailto:' . bb_get_user_email( get_post_author_id() ) ); ?>"><?php echo wp_specialchars( bb_get_user_email( get_post_author_id() ) ); ?></a><br />
+				<a href="<?php echo esc_url( 'mailto:' . bb_get_user_email( get_post_author_id() ) ); ?>"><?php echo esc_html( bb_get_user_email( get_post_author_id() ) ); ?></a><br />
 			<?php endif; ?>
 				<?php post_ip_link(); ?>
 			</p>
 		</td>
 
 		<td class="post">
-			<span class="post-time"><?php printf( __( 'Posted %s' ), '<a href="' . clean_url( get_post_link() ) . '">' . bb_get_post_time( bb_get_datetime_formatstring_i18n() ) . '</a>' ); ?></span>
+			<span class="post-time"><?php printf( __( 'Posted %s' ), '<a href="' . esc_url( get_post_link() ) . '">' . bb_get_post_time( bb_get_datetime_formatstring_i18n() ) . '</a>' ); ?></span>
 			<div class="post"><?php post_text(); ?></div>
 			<p class="row-actions">
-				<a href="<?php echo clean_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a> |
+				<a href="<?php echo esc_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a> |
 				<?php post_edit_link(); ?> |
 				<?php post_delete_link();?>
 			</p>
@@ -1019,11 +1019,11 @@ function bb_get_theme_data( $theme_file )
 	preg_match( '|Porter URI:(.*)|i', $theme_data, $porter_uri );
 //	preg_match( '|Template:(.*)|i', $theme_data, $template );
 	if ( preg_match( '|Version:(.*)|i', $theme_data, $version ) )
-		$version = wp_specialchars( trim( $version[1] ) );
+		$version = esc_html( trim( $version[1] ) );
 	else
 		$version ='';
 	if ( preg_match('|Status:(.*)|i', $theme_data, $status) )
-		$status = wp_specialchars( trim($status[1]) );
+		$status = esc_html( trim($status[1]) );
 	else
 		$status = 'publish';
 
@@ -1035,14 +1035,14 @@ function bb_get_theme_data( $theme_file )
 	$description = bb_autop( $description );
 
 	$name = $theme_name[1];
-	$name = wp_specialchars( trim($name) );
+	$name = esc_html( trim($name) );
 	$theme = $name;
 
 	if ( $author_name || $author_uri ) {
 		if ( empty($author_uri[1]) ) {
-			$author = wp_specialchars( trim($author_name[1]) );
+			$author = esc_html( trim($author_name[1]) );
 		} else {
-			$author = '<a href="' . clean_url( trim($author_uri[1]) ) . '" title="' . attribute_escape( __('Visit author homepage') ) . '">' . wp_specialchars( trim($author_name[1]) ) . '</a>';
+			$author = '<a href="' . esc_url( trim($author_uri[1]) ) . '" title="' . esc_attr( __('Visit author homepage') ) . '">' . esc_html( trim($author_name[1]) ) . '</a>';
 		}
 	} else {
 		$author = '';
@@ -1050,9 +1050,9 @@ function bb_get_theme_data( $theme_file )
 
 	if ( $porter_name || $porter_uri ) {
 		if ( empty($porter_uri[1]) ) {
-			$porter = wp_specialchars( trim($porter_name[1]) );
+			$porter = esc_html( trim($porter_name[1]) );
 		} else {
-			$porter = '<a href="' . clean_url( trim($porter_uri[1]) ) . '" title="' . attribute_escape( __('Visit porter homepage') ) . '">' . wp_specialchars( trim($porter_name[1]) ) . '</a>';
+			$porter = '<a href="' . esc_url( trim($porter_uri[1]) ) . '" title="' . esc_attr( __('Visit porter homepage') ) . '">' . esc_html( trim($porter_name[1]) ) . '</a>';
 		}
 	} else {
 		$porter = '';
@@ -1081,7 +1081,7 @@ function bb_get_theme_data( $theme_file )
 		'Version' => $version,
 //		'Template' => $template[1],
 		'Status' => $status,
-		'URI' => clean_url( $theme_uri[1] )
+		'URI' => esc_url( $theme_uri[1] )
 	);
 }
 
@@ -1123,10 +1123,10 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 	if ( false !== strpos( $name, '[' ) ) {
 		list( $option_name, $option_key ) = preg_split( '/[\[\]]/', $name, -1, PREG_SPLIT_NO_EMPTY );
 		$option = bb_get_option( $option_name );
-		$value = false === $args['value'] ? attribute_escape( $option[$option_key] ) : attribute_escape( $args['value'] );
+		$value = false === $args['value'] ? esc_attr( $option[$option_key] ) : esc_attr( $args['value'] );
 		$hardcoded = isset( $bb_hardcoded[$option_name][$option_key] );
 	} else {
-		$value = false === $args['value'] ? bb_get_form_option( $name ) : attribute_escape( $args['value'] );
+		$value = false === $args['value'] ? bb_get_form_option( $name ) : esc_attr( $args['value'] );
 		$hardcoded = isset( $bb_hardcoded[$name] );
 
 	}
@@ -1162,7 +1162,7 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 				echo "</select>\n";
 				break;
 			case 'checkbox' :
-				$value = false === $args['value'] ? 1 : attribute_escape( $args['value'] );
+				$value = false === $args['value'] ? 1 : esc_attr( $args['value'] );
 				$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
 				echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
 				break;

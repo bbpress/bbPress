@@ -87,10 +87,10 @@ $avatar_options = array(
 			'g' => __( 'G' ),
 		),
 		'note' => array(
-			'<img src="http://site.gravatar.com/images/gravatars/ratings/3.gif" alt="' . attribute_escape( __( 'Rated X' ) ) . '" /> ' . __( 'X rated gravatars may contain hardcore sexual imagery or extremely disturbing violence.' ),
-			'<img src="http://site.gravatar.com/images/gravatars/ratings/2.gif" alt="' . attribute_escape( __( 'Rated R' ) ) . '" /> ' . __( 'R rated gravatars may contain such things as harsh profanity, intense violence, nudity, or hard drug use.' ),
-			'<img src="http://site.gravatar.com/images/gravatars/ratings/1.gif" alt="' . attribute_escape( __( 'Rated PG' ) ). '" /> ' . __( 'PG rated gravatars may contain rude gestures, provocatively dressed individuals, the lesser swear words, or mild violence.' ),
-			'<img src="http://site.gravatar.com/images/gravatars/ratings/0.gif" alt="' . attribute_escape( __( 'Rated G' ) ) . '" /> ' . __( 'A G rated gravatar is suitable for display on all websites with any audience type.' ),
+			'<img src="http://site.gravatar.com/images/gravatars/ratings/3.gif" alt="' . esc_attr( __( 'Rated X' ) ) . '" /> ' . __( 'X rated gravatars may contain hardcore sexual imagery or extremely disturbing violence.' ),
+			'<img src="http://site.gravatar.com/images/gravatars/ratings/2.gif" alt="' . esc_attr( __( 'Rated R' ) ) . '" /> ' . __( 'R rated gravatars may contain such things as harsh profanity, intense violence, nudity, or hard drug use.' ),
+			'<img src="http://site.gravatar.com/images/gravatars/ratings/1.gif" alt="' . esc_attr( __( 'Rated PG' ) ). '" /> ' . __( 'PG rated gravatars may contain rude gestures, provocatively dressed individuals, the lesser swear words, or mild violence.' ),
+			'<img src="http://site.gravatar.com/images/gravatars/ratings/0.gif" alt="' . esc_attr( __( 'Rated G' ) ) . '" /> ' . __( 'A G rated gravatar is suitable for display on all websites with any audience type.' ),
 		),
 	),
 );

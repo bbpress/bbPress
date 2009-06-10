@@ -94,10 +94,10 @@ if ( $email_login && $bb_login_error->get_error_codes() && false !== is_email( $
 }
 
 // Sanitze variables for display.
-$user_login = attribute_escape( sanitize_user( @$_POST['user_login'], true ) );
+$user_login = esc_attr( sanitize_user( @$_POST['user_login'], true ) );
 $remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
-$re = clean_url( $re );
-$re = $redirect_to = attribute_escape( $re );
+$re = esc_url( $re );
+$re = $redirect_to = esc_attr( $re );
 
 // Load the template.
 bb_load_template( 'login.php', array( 'user_exists', 'user_login', 'remember_checked', 'redirect_to', 're', 'bb_login_error' ) );

@@ -307,7 +307,7 @@ function bb_ksd_post_delete_link($link, $post_status) {
 		$display = __('Spam');
 	}
 	$uri = bb_get_uri('bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = attribute_escape( wp_nonce_url( $uri, 'delete-post_' . get_post_id() ) );
+	$uri = esc_attr( wp_nonce_url( $uri, 'delete-post_' . get_post_id() ) );
 	$link .= " <a href='" . $uri . "' >" . $display ."</a>";
 	return $link;
 }

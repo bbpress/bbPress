@@ -11,8 +11,8 @@
 
 
 function bb_specialchars( $text, $quotes = 0 ) {
-	bb_log_deprecated('function', __FUNCTION__, 'wp_specialchars');
-	return wp_specialchars( $text, $quotes );
+	bb_log_deprecated('function', __FUNCTION__, 'esc_html');
+	return esc_html( $text, $quotes );
 }
 
 function bb_make_clickable( $ret ) {

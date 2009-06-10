@@ -80,7 +80,7 @@ function _bb_encode_bad_normal(&$text, $key, $preg) {
 }
 
 function bb_encode_bad( $text ) {
-	$text = wp_specialchars( $text );
+	$text = esc_html( $text );
 
 	$text = preg_split('@(`[^`]*`)@m', $text, -1, PREG_SPLIT_NO_EMPTY + PREG_SPLIT_DELIM_CAPTURE);
 
@@ -287,7 +287,7 @@ function bb_fix_link( $link ) {
 	if ( false === strpos($link, '.') ) // these are usually random words
 		return '';
 	$link = wp_kses_no_null( $link );
-	return clean_url( $link );
+	return esc_url( $link );
 }
 
 function bb_sticky_label( $label ) {
@@ -312,7 +312,7 @@ function bb_closed_label( $label ) {
 }
 
 function bb_make_link_view_all( $link ) {
-	return wp_specialchars( add_query_arg( 'view', 'all', $link ) );
+	return esc_html( add_query_arg( 'view', 'all', $link ) );
 }
 
 function bb_gmtstrtotime( $string ) {

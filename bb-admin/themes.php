@@ -35,7 +35,7 @@ if ( isset($_GET['theme']) ) {
 }
 
 if ( isset($_GET['activated']) )
-	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" <strong>activated</strong>'), attribute_escape($_GET['name'])) );
+	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" <strong>activated</strong>'), esc_attr($_GET['name'])) );
 
 if ( !in_array($activetheme, $themes) ) {
 	if ($activetheme == BB_DEFAULT_THEME) {
@@ -51,14 +51,14 @@ if ( !in_array($activetheme, $themes) ) {
 function bb_admin_theme_row( $theme ) {
 	$theme_directory = bb_get_theme_directory( $theme );
 	$theme_data = file_exists( $theme_directory . 'style.css' ) ? bb_get_theme_data( $theme ) : false;
-	$screen_shot = file_exists( $theme_directory . 'screenshot.png' ) ? clean_url( bb_get_theme_uri( $theme ) . 'screenshot.png' ) : false;
+	$screen_shot = file_exists( $theme_directory . 'screenshot.png' ) ? esc_url( bb_get_theme_uri( $theme ) . 'screenshot.png' ) : false;
 	$activation_url = bb_get_uri('bb-admin/themes.php', array('theme' => urlencode($theme)), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$activation_url = clean_url( wp_nonce_url( $activation_url, 'switch-theme' ) );
+	$activation_url = esc_url( wp_nonce_url( $activation_url, 'switch-theme' ) );
 ?>
 	<li<?php alt_class( 'theme' ); ?>>
-		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><img alt="<?php echo attribute_escape( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
+		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr( __('Click to activate') ); ?>"><img alt="<?php echo esc_attr( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
 		<div class="description">
-			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo attribute_escape( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
+			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr( __('Click to activate') ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
 			<small class="version"><?php echo $theme_data['Version']; ?></small>
 			<small class="author"><?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?></small>
 			<?php echo $theme_data['Description']; // Description is autop'ed ?>

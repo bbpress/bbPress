@@ -373,7 +373,7 @@ function bb_form_option( $option )
 
 function bb_get_form_option( $option )
 {
-	return attribute_escape( bb_get_option( $option ) );
+	return esc_attr( bb_get_option( $option ) );
 }
 
 // Don't use the return value; use the API. Only returns options stored in DB.

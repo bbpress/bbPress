@@ -26,10 +26,10 @@ $h2_author = $topic_query->get( 'topic_author_id' );
 $h2_status = $topic_query->get( 'topic_status' );
 $h2_open   = $topic_query->get( 'open' );
 
-$h2_search = $h2_search ? ' ' . sprintf( __('matching &#8220;%s&#8221;'), wp_specialchars( $h2_search ) ) : '';
+$h2_search = $h2_search ? ' ' . sprintf( __('matching &#8220;%s&#8221;'), esc_html( $h2_search ) ) : '';
 $h2_forum  = $h2_forum  ? ' ' . sprintf( __('in &#8220;%s&#8221;')      , get_forum_name( $h2_forum ) ) : '';
-$h2_tag    = $h2_tag    ? ' ' . sprintf( __('with tag &#8220;%s&#8221;'), wp_specialchars( bb_get_tag_name( $h2_tag ) ) ) : '';
-$h2_author = $h2_author ? ' ' . sprintf( __('by %s')                    , wp_specialchars( get_user_name( $h2_author ) ) ) : '';
+$h2_tag    = $h2_tag    ? ' ' . sprintf( __('with tag &#8220;%s&#8221;'), esc_html( bb_get_tag_name( $h2_tag ) ) ) : '';
+$h2_author = $h2_author ? ' ' . sprintf( __('by %s')                    , esc_html( get_user_name( $h2_author ) ) ) : '';
 
 $topic_stati = array( 0 => __('Normal') . ' ', 1 => __('Deleted') . ' ', 'all' => '' );
 $topic_open  = array( 0 => __('Closed') . ' ', 1 => __('Open') . ' '   , 'all' => '' );
@@ -94,14 +94,14 @@ printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, 
 
 		<p class="author-data">
 		<?php if ( bb_current_user_can( 'edit_users' ) ) : ?>
-			<a href="<?php echo clean_url( 'mailto:' . bb_get_user_email( $topic->topic_poster ) ); ?>"><?php echo wp_specialchars( bb_get_user_email( $topic->topic_poster ) ); ?></a><br />
+			<a href="<?php echo esc_url( 'mailto:' . bb_get_user_email( $topic->topic_poster ) ); ?>"><?php echo esc_html( bb_get_user_email( $topic->topic_poster ) ); ?></a><br />
 		<?php endif; ?>
 			<?php post_ip_link( $first_post->post_id ); ?>
 		</p>
 	</td>
 	<td class="posts num"><?php echo strip_tags( get_topic_posts_link() ); ?></td>
 	<td class="date num"><?php topic_start_time( bb_get_datetime_formatstring_i18n() ); ?></td>
-	<td class="freshness num"><a href="<?php topic_last_post_link(); ?>" title="<?php echo attribute_escape( sprintf( __( 'Last post by %s' ), get_topic_last_poster() ) ); ?>"><?php topic_time( bb_get_datetime_formatstring_i18n() ); ?></a></td>
+	<td class="freshness num"><a href="<?php topic_last_post_link(); ?>" title="<?php echo esc_attr( sprintf( __( 'Last post by %s' ), get_topic_last_poster() ) ); ?>"><?php topic_time( bb_get_datetime_formatstring_i18n() ); ?></a></td>
 </tr>
 <?php endforeach; else : ?>
 <tr>

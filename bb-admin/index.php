@@ -56,7 +56,7 @@ $users_average = sprintf(__ngettext('%d user', '%d users', $users_average), $use
 			<?php add_filter( 'get_topic_where', 'no_where' ); foreach ( $objects as $object ) : ?>
 			<?php if ( 'post' == $object['type'] ) : global $bb_post; $bb_post = $object['data']; ?>
 			<li>
-				<a href="<?php echo attribute_escape( add_query_arg( 'view', 'all', get_post_link() ) ); ?>"><?php _e('Post'); ?></a>
+				<a href="<?php echo esc_attr( add_query_arg( 'view', 'all', get_post_link() ) ); ?>"><?php _e('Post'); ?></a>
 				<?php _e('on'); ?>
 				<a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a>
 				<?php _e('by'); ?>
@@ -65,7 +65,7 @@ $users_average = sprintf(__ngettext('%d user', '%d users', $users_average), $use
 			<?php elseif ( 'topic' == $object['type'] ) : global $topic; $topic = $object['data']; ?>
 			<li>
 				<?php _e('Topic titled'); ?>
-				<a href="<?php echo attribute_escape( add_query_arg( 'view', 'all', get_topic_link() ) ); ?>"><?php topic_title(); ?></a>
+				<a href="<?php echo esc_attr( add_query_arg( 'view', 'all', get_topic_link() ) ); ?>"><?php topic_title(); ?></a>
 				<?php _e('started by'); ?>
 				<a href="<?php user_profile_link( $topic->topic_poster ); ?>"><?php topic_author(); ?></a>.
 			</li>

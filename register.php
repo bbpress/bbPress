@@ -24,17 +24,17 @@ if ( $_POST && 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 	if ( $user_login !== $_POST['user_login'] ) {
 		$bad_input = true;
 		if ( $user_login ) {
-			$bb_register_error->add( 'user_login', sprintf( __( '%s is an invalid username. How\'s this one?' ), wp_specialchars( $_POST['user_login'] ) ) );
+			$bb_register_error->add( 'user_login', sprintf( __( '%s is an invalid username. How\'s this one?' ), esc_html( $_POST['user_login'] ) ) );
 		} else {
-			$bb_register_error->add( 'user_login', sprintf( __( '%s is an invalid username.' ), wp_specialchars( $_POST['user_login'] ) ) );
+			$bb_register_error->add( 'user_login', sprintf( __( '%s is an invalid username.' ), esc_html( $_POST['user_login'] ) ) );
 		}
 	}
 
 	foreach ( $profile_info_keys as $key => $label ) {
 		if ( is_string($$key) )
-			$$key = attribute_escape( $$key );
+			$$key = esc_attr( $$key );
 		elseif ( is_null($$key) )
-			$$key = attribute_escape( $_POST[$key] );
+			$$key = esc_attr( $_POST[$key] );
 
 		if ( !$$key && $label[0] == 1 ) {
 			$bad_input = true;

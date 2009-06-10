@@ -4,7 +4,7 @@
 <?php bb_topic_search_form(); ?>
 
 <?php if ( !empty ( $q ) ) : ?>
-<h2><?php _e('Search for')?> &#8220;<?php echo wp_specialchars($q); ?>&#8221;</h2>
+<h2><?php _e('Search for')?> &#8220;<?php echo esc_html($q); ?>&#8221;</h2>
 <?php endif; ?>
 
 <?php if ( $recent ) : ?>

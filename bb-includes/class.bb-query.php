@@ -878,10 +878,10 @@ class BB_Query_Form extends BB_Query {
 		$args = wp_parse_args( $args, $defaults );
 		extract( $args, EXTR_SKIP );
 
-		$id = attribute_escape( $id );
+		$id = esc_attr( $id );
 		$method = 'get' == strtolower($method) ? 'get' : 'post';
-		$submit = attribute_escape( $submit );
-		if ( !$action = clean_url( $action ) )
+		$submit = esc_attr( $submit );
+		if ( !$action = esc_url( $action ) )
 			$action = '';
 
 		if ( $this->query_vars )
@@ -895,11 +895,11 @@ class BB_Query_Form extends BB_Query {
 
 		if ( $search ) {
 			if ( $_post ) {
-				$s_value = attribute_escape( $q_post_text );
+				$s_value = esc_attr( $q_post_text );
 				$s_name = 'post_text';
 				$s_id = 'post-text';
 			} else {
-				$s_value = attribute_escape( $q_search );
+				$s_value = esc_attr( $q_search );
 				$s_name = $s_id = 'search';
 			}
 			$r .= "\t<fieldset><legend>" . __('Search&#8230;') . "</legend>\n";
@@ -914,21 +914,21 @@ class BB_Query_Form extends BB_Query {
 		}
 
 		if ( $tag ) {
-			$q_tag = attribute_escape( $q_tag );
+			$q_tag = esc_attr( $q_tag );
 			$r .= "\t<fieldset><legend>" .  __('Tag&#8230;') . "</legend>\n";
 			$r .= "\t\t<input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
 		if ( $topic_author ) {
-			$q_topic_author = attribute_escape( $q_topic_author );
+			$q_topic_author = esc_attr( $q_topic_author );
 			$r .= "\t<fieldset><legend>" . __('Topic Author&#8230;') . "</legend>\n";
 			$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author' />";
 			$r .= "\t</fieldset>\n\n";
 		}
 
 		if ( $post_author ) {
-			$q_post_author = attribute_escape( $q_post_author );
+			$q_post_author = esc_attr( $q_post_author );
 			$r .= "\t<fieldset><legend>" . __('Post Author&#8230;') . "</legend>\n";
 			$r .= "\t\t<input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author' />";
 			$r .= "\t</fieldset>\n\n";
@@ -962,7 +962,7 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t<fieldset><legend>" . __('Open?&#8230;') . "</legend>\n";
 			$r .= "\t\t<select name='open' id='topic-open'>\n";
 			foreach ( array( 'all' => __('All'), '1' => __('Open'), '0' => __('Closed') ) as $status => $label ) {
-				$label = wp_specialchars( $label );
+				$label = esc_html( $label );
 				$selected = (string) $status == (string) $q_open ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
 			}
@@ -971,7 +971,7 @@ class BB_Query_Form extends BB_Query {
 		}
 
 		if ( $topic_title ) {
-			$q_topic_title = attribute_escape( $q_topic_title );
+			$q_topic_title = esc_attr( $q_topic_title );
 			$r .= "\t<fieldset><legend>" . __('Title&#8230;') . "</legend>\n";
 			$r .= "\t\t<input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title' />";
 			$r .= "\t</fieldset>\n\n";

@@ -37,7 +37,7 @@
 		<th scope="row">&nbsp;</th>
 		<td>
 			<input name="re" type="hidden" value="<?php echo $redirect_to; ?>" />
-			<input type="submit" value="<?php echo attribute_escape( isset($_POST['user_login']) ? __('Try Again &raquo;'): __('Log in &raquo;') ); ?>" />
+			<input type="submit" value="<?php echo esc_attr( isset($_POST['user_login']) ? __('Try Again &raquo;'): __('Log in &raquo;') ); ?>" />
 			<?php wp_referer_field(); ?>
 		</td>
 	</tr>
@@ -61,7 +61,7 @@
 		<tr valign="top">
 			<th scope="row"></th>
 			<td>
-				<input type="submit" value="<?php echo attribute_escape( __('Recover Password &raquo;') ); ?>" />
+				<input type="submit" value="<?php echo esc_attr( __('Recover Password &raquo;') ); ?>" />
 			</td>
 		</tr>
 	</table>

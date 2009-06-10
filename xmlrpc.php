@@ -3976,7 +3976,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Add whacky prefix and suffix to the excerpt and sanitize
-		$excerpt = '[...] ' . wp_specialchars( $excerpt ) . ' [...]';
+		$excerpt = '[...] ' . esc_html( $excerpt ) . ' [...]';
 		$this->escape( $excerpt );
 
 		// Build an array of post data to insert then insert a new post

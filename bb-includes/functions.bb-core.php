@@ -253,26 +253,26 @@ function bb_paginate_links( $args = '' ) {
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
 		$link .= $add_fragment;
-		$page_links[] = '<a class="prev page-numbers" href="' . clean_url( $link ) . '" title="' . attribute_escape( $prev_title ) . '">' . $prev_text . '</a>';
+		$page_links[] = '<a class="prev page-numbers" href="' . esc_url( $link ) . '" title="' . esc_attr( $prev_title ) . '">' . $prev_text . '</a>';
 	}
 
 	for ( $n = 1; $n <= $total; $n++ ) {
 		if ( $n == $current ) {
 			$n_display = bb_number_format_i18n( $n );
-			$n_display_title =  attribute_escape( sprintf( $n_title, $n ) );
+			$n_display_title =  esc_attr( sprintf( $n_title, $n ) );
 			$page_links[] = '<span class="page-numbers current" title="' . $n_display_title . '">' . $n_display . '</span>';
 			$dots = true;
 		} else {
 			if ( $show_all || ( $n <= $end_size || ( $current && $n >= $current - $mid_size && $n <= $current + $mid_size ) || $n > $total - $end_size ) ) {
 				$n_display = bb_number_format_i18n( $n );
-				$n_display_title =  attribute_escape( sprintf( $n_title, $n ) );
+				$n_display_title =  esc_attr( sprintf( $n_title, $n ) );
 				$link = str_replace( '%_%', 1 == $n ? $empty_format : $format, $base );
 				$link = str_replace( '%#%', $n, $link );
 				$link = str_replace( '?&', '?', $link );
 				if ( $add_args )
 					$link = add_query_arg( $add_args, $link );
 				$link .= $add_fragment;
-				$page_links[] = '<a class="page-numbers" href="' . clean_url( $link ) . '" title="' . $n_display_title . '">' . $n_display . '</a>';
+				$page_links[] = '<a class="page-numbers" href="' . esc_url( $link ) . '" title="' . $n_display_title . '">' . $n_display . '</a>';
 				$dots = true;
 			} elseif ( $dots && !$show_all ) {
 				$page_links[] = '<span class="page-numbers dots">&hellip;</span>';
@@ -286,7 +286,7 @@ function bb_paginate_links( $args = '' ) {
 		if ( $add_args )
 			$link = add_query_arg( $add_args, $link );
 		$link .= $add_fragment;
-		$page_links[] = '<a class="next page-numbers" href="' . clean_url( $link ) . '" title="' . attribute_escape( $next_title ) . '">' . $next_text . '</a>';
+		$page_links[] = '<a class="next page-numbers" href="' . esc_url( $link ) . '" title="' . esc_attr( $next_title ) . '">' . $next_text . '</a>';
 	}
 	switch ( $type ) {
 		case 'array':
@@ -894,7 +894,7 @@ function bb_register_view( $view, $title, $query_args = '', $feed = TRUE ) {
 	global $bb_views;
 
 	$view  = bb_slug_sanitize( $view );
-	$title = wp_specialchars( $title );
+	$title = esc_html( $title );
 
 	if ( !$view || !$title )
 		return false;
@@ -1008,9 +1008,9 @@ function bb_nonce_field( $action = -1, $name = "_wpnonce", $referer = true, $ech
 function bb_nonce_ays( $action )
 {
 	$title = __( 'bbPress Failure Notice' );
-	$html .= "\t<div id='message' class='updated fade'>\n\t<p>" . wp_specialchars( bb_explain_nonce( $action ) ) . "</p>\n\t<p>";
+	$html .= "\t<div id='message' class='updated fade'>\n\t<p>" . esc_html( bb_explain_nonce( $action ) ) . "</p>\n\t<p>";
 	if ( wp_get_referer() )
-		$html .= "<a href='" . remove_query_arg( 'updated', clean_url( wp_get_referer() ) ) . "'>" . __( 'Please try again.' ) . "</a>";
+		$html .= "<a href='" . remove_query_arg( 'updated', esc_url( wp_get_referer() ) ) . "'>" . __( 'Please try again.' ) . "</a>";
 	$html .= "</p>\n\t</div>\n";
 	$html .= "</body>\n</html>";
 	bb_die( $html, $title );
@@ -1169,7 +1169,7 @@ function bb_explain_nonce($action) {
 				$object = $matches[4];
 				if ( 'use_id' != $lookup )
 					$object = call_user_func($lookup, $object);
-				return sprintf($trans[$verb][$noun][0], wp_specialchars( $object ));
+				return sprintf($trans[$verb][$noun][0], esc_html( $object ));
 			} else {
 				return $trans[$verb][$noun][0];
 			}

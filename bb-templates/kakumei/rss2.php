@@ -11,7 +11,7 @@ bb_generator( 'comment' );
 		<title><?php echo $title; ?></title>
 		<link><?php echo $link; ?></link>
 		<description><?php echo $description; ?></description>
-		<language><?php wp_specialchars( bb_option('language') ); ?></language>
+		<language><?php esc_html( bb_option('language') ); ?></language>
 		<pubDate><?php echo gmdate('D, d M Y H:i:s +0000'); ?></pubDate>
 		<?php bb_generator( 'rss2' ); ?>
 		<textInput>
