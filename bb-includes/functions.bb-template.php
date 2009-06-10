@@ -228,7 +228,7 @@ function profile_menu() {
 			$class = ' class="current"';
 			$profile_page_title = $item[0];
 		}
-		if ( can_access_tab( $item, $id, $user_id ) )
+		if ( bb_can_access_tab( $item, $id, $user_id ) )
 			if ( file_exists($item[3]) || is_callable($item[3]) )
 				$list .= "\n\t<li$class><a href='" . esc_attr( get_profile_tab_link($user_id, $item[4]) ) . "'>{$item[0]}</a></li>";
 	}
@@ -279,7 +279,7 @@ function post_form( $args = array() ) {
 		}
 	}
 
-	$last_page = get_page_number( ( isset( $topic->topic_posts ) ? $topic->topic_posts : 0 ) + $add );
+	$last_page = bb_get_page_number( ( isset( $topic->topic_posts ) ? $topic->topic_posts : 0 ) + $add );
 
 	if ( !empty( $h2 ) ) {
 		if ( bb_is_topic() && ( $page != $last_page && $last_page_only ) ) {
@@ -535,7 +535,7 @@ function bb_feed_head() {
 	
 	switch (bb_get_location()) {
 		case 'profile-page':
-			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) )
+			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : bb_get_path(2) )
 				if ($tab != 'favorites')
 					break;
 			
@@ -1219,7 +1219,7 @@ function topic_last_post_link( $id = 0 ) {
 
 function get_topic_last_post_link( $id = 0 ){
 	$topic = get_topic( get_topic_id( $id ) );
-	$page = get_page_number( $topic->topic_posts );
+	$page = bb_get_page_number( $topic->topic_posts );
 	return apply_filters( 'get_post_link', get_topic_link( $topic->topic_id, $page ) . "#post-$topic->topic_last_post_id", $topic->topic_last_post_id, $topic->topic_id );
 }
 
@@ -1580,7 +1580,7 @@ function bb_topic_pagecount( $topic_id = 0 ) {
  */
 function bb_get_topic_pagecount( $topic_id = 0 ) {
 	$topic = get_topic( get_topic_id( $topic_id ) );
-	return get_page_number( $topic->topic_posts + topic_pages_add() );
+	return bb_get_page_number( $topic->topic_posts + topic_pages_add() );
 }
 
 /**
@@ -1617,7 +1617,7 @@ function post_link( $post_id = 0 ) {
 
 function get_post_link( $post_id = 0 ) {
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
-	$page = get_page_number( $bb_post->post_position );
+	$page = bb_get_page_number( $bb_post->post_position );
 	return apply_filters( 'get_post_link', get_topic_link( $bb_post->topic_id, $page ) . "#post-$bb_post->post_id", $bb_post->post_id );
 }
 
@@ -1647,7 +1647,7 @@ function get_post_position_link( $topic_id = 0, $position = 1 ) {
 	if ( $bb_topic->topic_posts < $position ) {
 		return;
 	}
-	$page = get_page_number( $position );
+	$page = bb_get_page_number( $position );
 	return apply_filters( 'get_post_position_link', get_topic_link( $bb_post->topic_id, $page ) . "#position-$position", $bb_topic->topic_id, $position );
 }
 
@@ -2106,7 +2106,7 @@ function bb_profile_data( $id = 0 ) {
 		return;
 
 	$reg_time = bb_gmtstrtotime( $user->user_registered );
-	$profile_info_keys = get_profile_info_keys();
+	$profile_info_keys = bb_get_profile_info_keys();
 	echo "<dl id='userinfo'>\n";
 	echo "\t<dt>" . __('Member Since') . "</dt>\n";
 	echo "\t<dd>" . bb_datetime_format_i18n($reg_time, 'date') . ' (' . bb_since($reg_time) . ")</dd>\n";
@@ -2152,7 +2152,7 @@ function bb_profile_data_form( $id = 0 ) {
 		return;
 
 	$error_codes = $errors->get_error_codes();
-	$profile_info_keys = get_profile_info_keys();
+	$profile_info_keys = bb_get_profile_info_keys();
 	$required = false;
 ?>
 <table id="userinfo">
@@ -2278,8 +2278,8 @@ function bb_profile_admin_form( $id = 0 ) {
 	$error_codes = $errors->get_error_codes();
 	$bb_current_id = bb_get_current_user_info( 'id' );
 
-	$profile_admin_keys = get_profile_admin_keys();
-	$assignable_caps = get_assignable_caps();
+	$profile_admin_keys = bb_get_profile_admin_keys();
+	$assignable_caps = bb_get_assignable_caps();
 	$required = false;
 
 	$roles = $wp_roles->role_names;

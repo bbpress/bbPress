@@ -18,7 +18,7 @@ if ( !bb_current_user_can( 'edit_post', $post_id ) )
 bb_check_admin_referer( 'edit-post_' . $post_id );
 
 if ( 0 != $bb_post->post_status && 'all' == $_GET['view'] ) // We're trying to edit a deleted post
-	add_filter('bb_is_first_where', 'no_where');
+	add_filter('bb_is_first_where', 'bb_no_where');
 
 if ( bb_is_first( $bb_post->post_id ) && bb_current_user_can( 'edit_topic', $bb_post->topic_id ) ) {
 	bb_insert_topic( array(

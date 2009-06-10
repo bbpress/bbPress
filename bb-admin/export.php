@@ -298,12 +298,12 @@ function bb_export() {
 
 add_filter( 'in_bb_export_object_topic', 'bb_export_topic_tags', 10, 2 );
 add_filter( 'in_bb_export_object_topic', 'bb_export_topic_posts', 10, 2 );
-add_filter( 'get_forum_where', 'no_where', 9999 );
-add_filter( 'get_forums_where', 'no_where', 9999 );
-add_filter( 'get_latest_topics_where', 'no_where', 9999 );
-add_filter( 'get_thread_where', 'no_where', 9999 );
-add_filter( 'get_user_where', 'no_where', 9999 );
-add_filter( 'cache_users_where', 'no_where', 9999 );
+add_filter( 'get_forum_where', 'bb_no_where', 9999 );
+add_filter( 'get_forums_where', 'bb_no_where', 9999 );
+add_filter( 'get_latest_topics_where', 'bb_no_where', 9999 );
+add_filter( 'get_thread_where', 'bb_no_where', 9999 );
+add_filter( 'get_user_where', 'bb_no_where', 9999 );
+add_filter( 'cache_users_where', 'bb_no_where', 9999 );
 
 bb_export();
 

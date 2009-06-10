@@ -4,7 +4,7 @@ $topic_id = 0;
 
 $view_deleted = false;
 if ( bb_current_user_can('browse_deleted') && 'all' == @$_GET['view'] ) {
-	add_filter('get_topic_where', 'no_where');
+	add_filter('get_topic_where', 'bb_no_where');
 	$view_deleted = true;
 }
 

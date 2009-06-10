@@ -39,8 +39,8 @@ function get_topic( $id, $cache = true ) {
 
 function bb_get_topic_from_uri( $uri ) {
 	// Extract the topic id or slug of the uri
-	if ( 'topic' === get_path(0, false, $uri) ) {
-		$topic_id_or_slug = get_path(1, false, $uri);
+	if ( 'topic' === bb_get_path(0, false, $uri) ) {
+		$topic_id_or_slug = bb_get_path(1, false, $uri);
 	} else {
 		if ($parsed_uri = parse_url($uri)) {
 			if (preg_match('@/topic\.php$@'  ,$parsed_uri['path'])) {
@@ -248,7 +248,7 @@ function bb_update_topic( $title, $topic_id ) {
 function bb_delete_topic( $topic_id, $new_status = 0 ) {
 	global $bbdb;
 	$topic_id = (int) $topic_id;
-	add_filter( 'get_topic_where', 'no_where' );
+	add_filter( 'get_topic_where', 'bb_no_where' );
 	if ( $topic = get_topic( $topic_id ) ) {
 		$new_status = (int) $new_status;
 		$old_status = (int) $topic->topic_status;
@@ -256,7 +256,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			return;
 
 		if ( 0 != $old_status && 0 == $new_status )
-			add_filter('get_thread_where', 'no_where');
+			add_filter('get_thread_where', 'bb_no_where');
 		$poster_ids = array();
 		$posts = get_thread( $topic_id, array( 'per_page' => -1, 'order' => 'DESC' ) );
 		if ( $posts && count( $posts ) ) {
@@ -266,7 +266,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			}
 		}
 		if ( 0 != $old_status && 0 == $new_status )
-			remove_filter('get_thread_where', 'no_where');
+			remove_filter('get_thread_where', 'bb_no_where');
 
 		if ( count( $poster_ids ) )
 			foreach ( array_unique( $poster_ids ) as $id )

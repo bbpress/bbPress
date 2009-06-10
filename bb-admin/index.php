@@ -53,7 +53,7 @@ $users_average = sprintf(__ngettext('%d user', '%d users', $users_average), $use
 		<h3><?php _e('Recently Moderated Items'); ?></h3>
 		<?php if ( $objects = bb_get_recently_moderated_objects() ) : ?>
 		<ul class="posts">
-			<?php add_filter( 'get_topic_where', 'no_where' ); foreach ( $objects as $object ) : ?>
+			<?php add_filter( 'get_topic_where', 'bb_no_where' ); foreach ( $objects as $object ) : ?>
 			<?php if ( 'post' == $object['type'] ) : global $bb_post; $bb_post = $object['data']; ?>
 			<li>
 				<a href="<?php echo esc_attr( add_query_arg( 'view', 'all', get_post_link() ) ); ?>"><?php _e('Post'); ?></a>
@@ -69,7 +69,7 @@ $users_average = sprintf(__ngettext('%d user', '%d users', $users_average), $use
 				<?php _e('started by'); ?>
 				<a href="<?php user_profile_link( $topic->topic_poster ); ?>"><?php topic_author(); ?></a>.
 			</li>
-			<?php endif; endforeach; remove_filter( 'get_topic_where', 'no_where' ); ?>
+			<?php endif; endforeach; remove_filter( 'get_topic_where', 'bb_no_where' ); ?>
 		</ul>
 		<?php else : ?>
 		<p>

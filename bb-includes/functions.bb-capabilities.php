@@ -272,14 +272,14 @@ function bb_map_meta_cap( $caps, $cap, $user_id, $args ) {
 			break;
 		case 'delete_topic' :
 			$caps[] = 'delete_topics';
-			add_filter( 'get_topic_where', 'no_where', 9999 );
+			add_filter( 'get_topic_where', 'bb_no_where', 9999 );
 			if ( !$topic = get_topic( $args[0] ) ) {
 				$caps[] = 'magically_provide_data_given_bad_input';
 				return $caps;
 			}
 			if ( 0 != $topic->topic_status )
 				$caps[] = 'edit_deleted';
-			remove_filter( 'get_topic_where', 'no_where', 9999 );
+			remove_filter( 'get_topic_where', 'bb_no_where', 9999 );
 			break;
 		case 'manage_topics' :
 			// back compat

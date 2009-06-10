@@ -146,7 +146,7 @@ case 'add-post' : // Can put last_modified stuff back in later
 
 		$bb_post = bb_get_post( $post_id );
 
-		$new_page = get_page_number( $bb_post->post_position );
+		$new_page = bb_get_page_number( $bb_post->post_position );
 
 		ob_start();
 			echo "<li id='post-$post_id'>";

@@ -872,7 +872,7 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	$from_forum_id = (int) $from_forum_id ;
 	$to_forum_id = (int) $to_forum_id;
 	
-	add_filter('get_forum_where', 'no_where'); // Just in case
+	add_filter('get_forum_where', 'bb_no_where'); // Just in case
 	
 	$from_forum = bb_get_forum( $from_forum_id );
 	if ( !$to_forum = bb_get_forum( $to_forum_id ) )

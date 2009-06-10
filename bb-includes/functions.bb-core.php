@@ -330,7 +330,7 @@ function bb_get_uri_page() {
 }
 
 //expects $item = 1 to be the first, not 0
-function get_page_number( $item, $per_page = 0 ) {
+function bb_get_page_number( $item, $per_page = 0 ) {
 	if ( !$per_page )
 		$per_page = bb_get_option('page_topics');
 	return intval( ceil( $item / $per_page ) ); // page 1 is the first page
@@ -583,7 +583,7 @@ function bb_ssl_redirect()
 	exit;
 }
 
-function get_path( $level = 1, $base = false, $request = false ) {
+function bb_get_path( $level = 1, $base = false, $request = false ) {
 	if ( !$request )
 		$request = $_SERVER['REQUEST_URI'];
 	if ( is_string($request) )
@@ -639,7 +639,7 @@ function bb_repermalink() {
 	if ( isset($_GET['id']) )
 		$id = $_GET['id'];
 	else
-		$id = get_path();
+		$id = bb_get_path();
 	$_original_id = $id;
 
 	do_action( 'pre_permalink', $id );
@@ -688,7 +688,7 @@ function bb_repermalink() {
 			elseif ( isset($_GET['username']) )
 				$id = $_GET['username'];
 			else
-				$id = get_path();
+				$id = bb_get_path();
 			$_original_id = $id;
 			
 			if ( !$id ) {
@@ -705,9 +705,9 @@ function bb_repermalink() {
 				bb_die(__('User not found.'), '', 404);
 
 			$user_id = $user->ID;
-			global_profile_menu_structure();
+			bb_global_profile_menu_structure();
 			$valid = false;
-			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : get_path(2) ) {
+			if ( $tab = isset($_GET['tab']) ? $_GET['tab'] : bb_get_path(2) ) {
 				foreach ( $profile_hooks as $valid_tab => $valid_file ) {
 					if ( $tab == $valid_tab ) {
 						$valid = true;
@@ -742,7 +742,7 @@ function bb_repermalink() {
 			if ( isset($_GET['view']) )
 				$id = $_GET['view'];
 			else
-				$id = get_path();
+				$id = bb_get_path();
 			$_original_id = $id;
 			global $view;
 			$view = $id;
@@ -795,7 +795,7 @@ function bb_repermalink() {
 
 /* Profile/Admin */
 
-function global_profile_menu_structure() {
+function bb_global_profile_menu_structure() {
 	global $user_id, $profile_menu, $profile_hooks;
 	// Menu item name
 	// The capability required for own user to view the tab ('' to allow non logged in access)
@@ -808,25 +808,25 @@ function global_profile_menu_structure() {
 	// Create list of page plugin hook names the current user can access
 	$profile_hooks = array();
 	foreach ($profile_menu as $profile_tab)
-		if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
+		if ( bb_can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
 			$profile_hooks[bb_sanitize_with_dashes($profile_tab[4])] = $profile_tab[3];
 
 	do_action('bb_profile_menu');
 	ksort($profile_menu);
 }
 
-function add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = false) {
+function bb_add_profile_tab($tab_title, $users_cap, $others_cap, $file, $arg = false) {
 	global $profile_menu, $profile_hooks, $user_id;
 
 	$arg = $arg ? $arg : $tab_title;
 
 	$profile_tab = array($tab_title, $users_cap, $others_cap, $file, $arg);
 	$profile_menu[] = $profile_tab;
-	if ( can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
+	if ( bb_can_access_tab( $profile_tab, bb_get_current_user_info( 'id' ), $user_id ) )
 		$profile_hooks[bb_sanitize_with_dashes($arg)] = $file;
 }
 
-function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
+function bb_can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 	global $bb_current_user;
 	$viewer_id = (int) $viewer_id;
 	$owner_id = (int) $owner_id;
@@ -851,7 +851,7 @@ function can_access_tab( $profile_tab, $viewer_id, $owner_id ) {
 }
 
 //meta_key => (required?, Label, hCard property).  Don't use user_{anything} as the name of your meta_key.
-function get_profile_info_keys( $context = null ) {
+function bb_get_profile_info_keys( $context = null ) {
 	return apply_filters( 'get_profile_info_keys', array(
 		'first_name' => array(0, __('First name')),
 		'last_name' => array(0, __('Last name')),
@@ -864,14 +864,14 @@ function get_profile_info_keys( $context = null ) {
 	), $context );
 }
 
-function get_profile_admin_keys( $context = null ) {
+function bb_get_profile_admin_keys( $context = null ) {
 	global $bbdb;
 	return apply_filters( 'get_profile_admin_keys', array(
 		$bbdb->prefix . 'title' => array(0, __('Custom Title'))
 	), $context );
 }
 
-function get_assignable_caps() {
+function bb_get_assignable_caps() {
 	$caps = array();
 	if ( $throttle_time = bb_get_option( 'throttle_time' ) )
 		$caps['throttle'] = sprintf( __('Ignore the %d second post throttling limit'), $throttle_time );
@@ -1211,7 +1211,7 @@ function bb_count_last_query( $query = '' ) {
 	return (int) $bbdb->get_var($q);
 }
 
-function no_where( $where ) {
+function bb_no_where( $where ) {
 	return;
 }
 

@@ -3,7 +3,7 @@ require('./bb-load.php');
 
 bb_ssl_redirect();
 
-$profile_info_keys = get_profile_info_keys();
+$profile_info_keys = bb_get_profile_info_keys();
 
 unset($profile_info_keys['first_name']);
 unset($profile_info_keys['last_name']);

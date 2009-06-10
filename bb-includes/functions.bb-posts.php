@@ -351,7 +351,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 	$bb_post    = bb_get_post ( $post_id );
 	$new_status = (int) $new_status;
 	$old_status = (int) $bb_post->post_status;
-	add_filter( 'get_topic_where', 'no_where' );
+	add_filter( 'get_topic_where', 'bb_no_where' );
 	$topic   = get_topic( $bb_post->topic_id );
 	$topic_id = (int) $topic->topic_id;
 

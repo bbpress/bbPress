@@ -30,12 +30,12 @@ if ( !isset( $user->capabilities ) ) {
 }
 
 // Store the profile info keys
-$profile_info_keys = get_profile_info_keys( 'profile-edit' );
+$profile_info_keys = bb_get_profile_info_keys( 'profile-edit' );
 
 // Store additional keys if the current user has access to them
 if ( bb_current_user_can('edit_users') ) {
-	$profile_admin_keys = get_profile_admin_keys( 'profile-edit' );
-	$assignable_caps = get_assignable_caps();
+	$profile_admin_keys = bb_get_profile_admin_keys( 'profile-edit' );
+	$assignable_caps = bb_get_assignable_caps();
 }
 
 // Instantiate the error object

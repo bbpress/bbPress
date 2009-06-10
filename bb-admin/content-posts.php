@@ -7,7 +7,7 @@ bb_get_admin_header();
 
 if ( !bb_current_user_can('browse_deleted') )
 	die(__("Now how'd you get here?  And what did you think you'd being doing?")); //This should never happen.
-add_filter( 'get_topic_where', 'no_where' );
+add_filter( 'get_topic_where', 'bb_no_where' );
 add_filter( 'get_topic_link', 'bb_make_link_view_all' );
 add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
 $post_query = new BB_Query_Form( 'post', array( 'post_status' => 'all', 'count' => true, 'per_page' => 20 ) );

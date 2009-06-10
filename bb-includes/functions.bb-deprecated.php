@@ -1101,3 +1101,57 @@ function get_recent_user_replies( $user_id )
 	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_recent_user_replies' );
 	return bb_get_recent_user_replies( $user_id );
 }
+
+function no_where( $where )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_no_where' );
+	return bb_no_where( $where );
+}
+
+function get_path( $level = 1, $base = false, $request = false )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_path' );
+	return bb_get_path( $level, $base, $request );
+}
+
+function add_profile_tab( $tab_title, $users_cap, $others_cap, $file, $arg = false )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_add_profile_tab' );
+	return bb_add_profile_tab( $tab_title, $users_cap, $others_cap, $file, $arg );
+}
+
+function can_access_tab( $profile_tab, $viewer_id, $owner_id )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_can_access_tab' );
+	return bb_can_access_tab( $profile_tab, $viewer_id, $owner_id );
+}
+
+function get_profile_info_keys( $context = null )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_profile_info_keys' );
+	return bb_get_profile_info_keys( $context );
+}
+
+function get_profile_admin_keys( $context = null )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_profile_admin_keys' );
+	return bb_get_profile_admin_keys( $context );
+}
+
+function get_assignable_caps()
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_assignable_caps' );
+	return bb_get_assignable_caps();
+}
+
+function get_page_number( $item, $per_page = 0 )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_page_number' );
+	return bb_get_page_number( $item, $per_page );
+}
+
+
+
+
+
+

@@ -2,49 +2,49 @@
 require('./bb-load.php');
 
 // Determine the type of feed and the id of the object
-if ( isset($_GET['view']) || get_path() == 'view' ) {
+if ( isset($_GET['view']) || bb_get_path() == 'view' ) {
 	
 	// View
 	$feed = 'view';
-	$feed_id = isset($_GET['view']) ? $_GET['view'] : get_path(2);
+	$feed_id = isset($_GET['view']) ? $_GET['view'] : bb_get_path(2);
 	
-} elseif ( isset($_GET['topic']) || get_path() == 'topic' ) {
+} elseif ( isset($_GET['topic']) || bb_get_path() == 'topic' ) {
 	
 	// Topic
 	$feed = 'topic';
-	$topic = get_topic(isset($_GET['topic']) ? $_GET['topic'] : get_path(2));
+	$topic = get_topic(isset($_GET['topic']) ? $_GET['topic'] : bb_get_path(2));
 	$feed_id = $topic->topic_id;
 	
-} elseif ( isset($_GET['profile']) || get_path() == 'profile' ) {
+} elseif ( isset($_GET['profile']) || bb_get_path() == 'profile' ) {
 	
 	// Profile
 	$feed = 'profile';
-	$feed_id = isset($_GET['profile']) ? $_GET['profile'] : get_path(2);
+	$feed_id = isset($_GET['profile']) ? $_GET['profile'] : bb_get_path(2);
 	
-} elseif ( isset($_GET['tag']) || get_path() == 'tags' ) {
+} elseif ( isset($_GET['tag']) || bb_get_path() == 'tags' ) {
 	
-	if ( isset($_GET['topics']) || get_path(3) == 'topics' ) {
+	if ( isset($_GET['topics']) || bb_get_path(3) == 'topics' ) {
 		// Tag recent topics
 		$feed = 'tag-topics';
 	} else {
 		// Tag recent posts
 		$feed = 'tag-posts';
 	}
-	$feed_id = isset($_GET['tag']) ? $_GET['tag'] : get_path(2);
+	$feed_id = isset($_GET['tag']) ? $_GET['tag'] : bb_get_path(2);
 	
-} elseif ( isset($_GET['forum']) || get_path() == 'forum' ) {
+} elseif ( isset($_GET['forum']) || bb_get_path() == 'forum' ) {
 	
-	if ( isset($_GET['topics']) || get_path(3) == 'topics' ) {
+	if ( isset($_GET['topics']) || bb_get_path(3) == 'topics' ) {
 		// Forum recent topics
 		$feed = 'forum-topics';
 	} else {
 		// Forum recent posts
 		$feed = 'forum-posts';
 	}
-	$forum = bb_get_forum(isset($_GET['forum']) ? $_GET['forum'] : get_path(2));
+	$forum = bb_get_forum(isset($_GET['forum']) ? $_GET['forum'] : bb_get_path(2));
 	$feed_id = $forum->forum_id;
 	
-} elseif ( isset($_GET['topics']) || get_path() == 'topics' ) {
+} elseif ( isset($_GET['topics']) || bb_get_path() == 'topics' ) {
 	
 	// Recent topics
 	$feed = 'all-topics';
