@@ -10,8 +10,11 @@ if ( !bb_current_user_can('browse_deleted') )
 add_filter( 'topic_link', 'bb_make_link_view_all' );
 add_filter( 'topic_last_post_link', 'bb_make_link_view_all' );
 $topic_query_vars = array( 'topic_status' => 'all', 'open' => 'all', 'count' => true, 'per_page' => 20 );
-if ( isset($_REQUEST['search']) && $_REQUEST['search'] )
+if ( isset($_POST['search']) && $_POST['search'] ) {
 	$topic_query_vars['post_status'] = 'all';
+} elseif ( isset($_GET['search']) && $_GET['search'] ) {
+	$topic_query_vars['post_status'] = 'all';
+}
 $topic_query = new BB_Query_Form( 'topic', $topic_query_vars );
 $topics = $topic_query->results;
 ?>
