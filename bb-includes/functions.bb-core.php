@@ -158,23 +158,6 @@ function bb_set_custom_user_tables()
 }
 
 
-
-/* HTTP Helpers */
-
-/**
- * Set the headers for caching for 10 days with JavaScript content type.
- *
- * @since 1.0
- */
-function bb_cache_javascript_headers() {
-	$expiresOffset = 864000; // 10 days
-	header( "Content-Type: text/javascript; charset=utf-8" );
-	header( "Vary: Accept-Encoding" ); // Handle proxies
-	header( "Expires: " . gmdate( "D, d M Y H:i:s", time() + $expiresOffset ) . " GMT" );
-}
-
-
-
 /* Pagination */
 
 /**
@@ -413,15 +396,7 @@ function bb_since( $original, $do_more = 0 ) {
 }
 
 function bb_current_time( $type = 'timestamp' ) {
-	switch ($type) {
-		case 'mysql':
-			$d = gmdate('Y-m-d H:i:s');
-			break;
-		case 'timestamp':
-			$d = time();
-			break;
-	}
-	return $d;
+	return current_time( $type, true );
 }
 
 // GMT -> Local
@@ -537,9 +512,9 @@ function bb_get_uri( $resource = null, $query = null, $context = BB_URI_CONTEXT_
 
 	// Use https?
 	if (
-		( ( $context & BB_URI_CONTEXT_BB_USER_FORMS ) && bb_force_ssl_user_forms() ) // Force https when required on user forms
+		( ( $context & BB_URI_CONTEXT_BB_USER_FORMS ) && force_ssl_login() ) // Force https when required on user forms
 	||
-		( ( $context & BB_URI_CONTEXT_BB_ADMIN ) && bb_force_ssl_admin() ) // Force https when required in admin
+		( ( $context & BB_URI_CONTEXT_BB_ADMIN ) && force_ssl_admin() ) // Force https when required in admin
 	) {
 		static $_uri_ssl;
 		if( !isset( $_uri_ssl ) ) {
@@ -558,48 +533,6 @@ function bb_get_uri( $resource = null, $query = null, $context = BB_URI_CONTEXT_
 }
 
 /**
- * Whether SSL should be forced when sensitive user data is being submitted.
- *
- * @since 1.0
- *
- * @param string|bool $force Optional.
- * @return bool True if forced, false if not forced.
- */
-function bb_force_ssl_user_forms( $force = '' )
-{
-	static $forced;
-
-	if ( '' != $force ) {
-		$old_forced = $forced;
-		$forced = $force;
-		return $old_forced;
-	}
-
-	return $forced;
-}
-
-/**
- * Whether SSL should be forced when using the admin area.
- *
- * @since 1.0
- *
- * @param string|bool $force Optional.
- * @return bool True if forced, false if not forced.
- */
-function bb_force_ssl_admin( $force = '' )
-{
-	static $forced;
-
-	if ( '' != $force ) {
-		$old_forced = $forced;
-		$forced = $force;
-		return $old_forced;
-	}
-
-	return $forced;
-}
-
-/**
  * Forces redirection to an SSL page when required
  *
  * @since 1.0
@@ -613,21 +546,21 @@ function bb_ssl_redirect()
 	do_action( 'bb_ssl_redirect' );
 
 	if ( BB_IS_ADMIN ) {
-		if ( !bb_force_ssl_admin() ) {
+		if ( !force_ssl_admin() ) {
 			return;
 		}
 	} else {
 		switch ( $page ) {
 			case 'login-page':
 			case 'register-page':
-				if ( !bb_force_ssl_user_forms() ) {
+				if ( !force_ssl_login() ) {
 					return;
 				}
 				break;
 			case 'profile-page':
 				global $self;
 				if ( $self == 'profile-edit.php' ) {
-					if ( !bb_force_ssl_user_forms() ) {
+					if ( !force_ssl_login() ) {
 						return;
 					}
 				} else {
@@ -640,7 +573,7 @@ function bb_ssl_redirect()
 		}
 	}
 
-	if ( bb_is_ssl() ) {
+	if ( is_ssl() ) {
 		return;
 	}
 
@@ -648,36 +581,6 @@ function bb_ssl_redirect()
 	$uri = $uri_ssl['scheme'] . '://' . $uri_ssl['host'] . $_SERVER['REQUEST_URI'];
 	bb_safe_redirect( $uri );
 	exit;
-}
-
-/**
- * Determine if SSL is used.
- *
- * @since 1.0
- *
- * @return bool True if SSL, false if not used.
- */
-function bb_is_ssl()
-{
-	static $is_ssl;
-
-	if ( isset( $is_ssl ) ) {
-		return $is_ssl;
-	}
-
-	$is_ssl = false;
-
-	if ( isset($_SERVER['HTTPS']) ) {
-		if ( 'on' == strtolower( $_SERVER['HTTPS'] ) ) {
-			$is_ssl = true;
-		} elseif ( '1' == $_SERVER['HTTPS'] ) {
-			$is_ssl = true;
-		}
-	} elseif ( isset( $_SERVER['SERVER_PORT'] ) && ( '443' == $_SERVER['SERVER_PORT'] ) ) {
-		$is_ssl = true;
-	}
-
-	return $is_ssl;
 }
 
 function get_path( $level = 1, $base = false, $request = false ) {
@@ -1092,24 +995,18 @@ function bb_send_304( $bb_last_modified ) {
 
 /* Nonce */
 
-function bb_nonce_url($actionurl, $action = -1) {
-	$actionurl = str_replace( '&amp;', '&', $actionurl );
-	return wp_specialchars( add_query_arg( '_wpnonce', bb_create_nonce( $action ), $actionurl ) );
+function bb_nonce_url( $actionurl, $action = -1 )
+{
+	return wp_nonce_url( $actionurl, $action );
 }
 
-function bb_nonce_field( $action = -1, $name = "_wpnonce", $referer = true , $echo = true ) {
-	$name = attribute_escape( $name );
-	$nonce_field = '<input type="hidden" id="' . $name . '" name="' . $name . '" value="' . bb_create_nonce( $action ) . '" />';
-	if ( $echo )
-		echo $nonce_field;
-
-	if ( $referer )
-		wp_referer_field( $echo, 'previous' );
-
-	return $nonce_field;
+function bb_nonce_field( $action = -1, $name = "_wpnonce", $referer = true, $echo = true )
+{
+	return wp_nonce_field( $action, $name, $referer, $echo );
 }
 
-function bb_nonce_ays( $action ) {
+function bb_nonce_ays( $action )
+{
 	$title = __( 'bbPress Failure Notice' );
 	$html .= "\t<div id='message' class='updated fade'>\n\t<p>" . wp_specialchars( bb_explain_nonce( $action ) ) . "</p>\n\t<p>";
 	if ( wp_get_referer() )
@@ -1119,7 +1016,8 @@ function bb_nonce_ays( $action ) {
 	bb_die( $html, $title );
 }
 
-function bb_install_header( $title = '', $header = false, $logo = false ) {
+function bb_install_header( $title = '', $header = false, $logo = false )
+{
 	if ( empty($title) )
 		if ( function_exists('__') )
 			$title = __('bbPress');

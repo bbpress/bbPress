@@ -25,14 +25,19 @@ class BP_Options
 			case 'cron_check':
 				return bb_hash( '187425' );
 				break;
-			case 'charset':
-				return bb_get_option( $option );
-				break;
 			case 'wp_http_version':
 				return 'bbPress/' . bb_get_option( 'version' );
 				break;
 			case 'hash_function_name':
 				return 'bb_hash';
+				break;
+			case 'create_nonce_function_name':
+				return 'bb_create_nonce';
+				break;
+			case 'charset':
+			case 'gmt_offset':
+			case 'timezone_string':
+				return bb_get_option( $option );
 				break;
 			default:
 				return bb_get_option( BP_Options::prefix() . $option );

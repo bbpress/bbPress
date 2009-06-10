@@ -102,11 +102,12 @@ class BB_Install
 		$this->define_paths();
 
 		// We need to load these when bb-settings.php isn't loaded
-		if ( $this->load_includes) {
+		if ( $this->load_includes ) {
 			require_once( BACKPRESS_PATH . 'functions.core.php' );
+			require_once( BACKPRESS_PATH . 'functions.compat.php' );
+			require_once( BACKPRESS_PATH . 'functions.formatting.php' );
 			require_once( BACKPRESS_PATH . 'functions.plugin-api.php' );
 			require_once( BACKPRESS_PATH . 'class.wp-error.php' );
-			require_once( BB_PATH . BB_INC . 'functions.wp-core.php' );
 			require_once( BB_PATH . BB_INC . 'functions.bb-core.php' );
 			require_once( BB_PATH . BB_INC . 'functions.bb-meta.php' );
 			require_once( BB_PATH . BB_INC . 'class.bp-options.php' );

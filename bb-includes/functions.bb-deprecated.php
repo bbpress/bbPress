@@ -1029,3 +1029,27 @@ function bb_related_tags_heat_map( $args = '' )
 	bb_log_deprecated( 'function', __FUNCTION__, 'no alternative' );
 	return;
 }
+
+function bb_cache_javascript_headers()
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'cache_javascript_headers' );
+	cache_javascript_headers();
+}
+
+function bb_is_ssl()
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'is_ssl' );
+	return is_ssl();
+}
+
+function bb_force_ssl_user_forms( $force = '' )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'force_ssl_login' );
+	return force_ssl_login( $force );
+}
+
+function bb_force_ssl_admin( $force = '' )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'force_ssl_admin' );
+	return force_ssl_admin( $force );
+}

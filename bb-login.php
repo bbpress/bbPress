@@ -26,7 +26,7 @@ nocache_headers();
 // If this page was accessed using SSL, make sure the redirect is a full URL
 // so that we don't end up on an SSL page again (unless the whole site is
 // under SSL).
-if ( bb_is_ssl() && 0 === strpos( $re, '/' ) ) {
+if ( is_ssl() && 0 === strpos( $re, '/' ) ) {
 	$re = bb_get_uri( $re , null, BB_URI_CONTEXT_HEADER );
 }
 

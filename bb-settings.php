@@ -120,6 +120,7 @@ $bb_log->notice('Logging started');
 // Load core BackPress functions
 require_once( BACKPRESS_PATH . 'functions.core.php' );
 require_once( BACKPRESS_PATH . 'functions.compat.php' );
+require_once( BACKPRESS_PATH . 'functions.formatting.php' );
 
 // WP_Error
 if ( !class_exists( 'WP_Error' ) ) {
@@ -221,7 +222,6 @@ if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) ) {
  * Load core bbPress libraries
  */
 
-require_once( BB_PATH . BB_INC . 'functions.wp-core.php' );
 require_once( BB_PATH . BB_INC . 'functions.bb-core.php' );
 require_once( BB_PATH . BB_INC . 'functions.bb-forums.php' );
 require_once( BB_PATH . BB_INC . 'functions.bb-topics.php' );
@@ -440,7 +440,7 @@ if ( !BB_INSTALLING && !$bb->uri ) {
 if ( !defined( 'BB_FORCE_SSL_USER_FORMS' ) ) {
 	define( 'BB_FORCE_SSL_USER_FORMS', false );
 }
-bb_force_ssl_user_forms( BB_FORCE_SSL_USER_FORMS );
+force_ssl_login( BB_FORCE_SSL_USER_FORMS );
 
 /**
  * BB_FORCE_SSL_ADMIN - Whether to force use of ssl in the admin area
@@ -448,7 +448,7 @@ bb_force_ssl_user_forms( BB_FORCE_SSL_USER_FORMS );
 if ( !defined( 'BB_FORCE_SSL_ADMIN' ) ) {
 	define( 'BB_FORCE_SSL_ADMIN', false );
 }
-bb_force_ssl_admin( BB_FORCE_SSL_ADMIN );
+force_ssl_admin( BB_FORCE_SSL_ADMIN );
 
 // Load default filters
 require_once( BB_PATH . BB_INC . 'defaults.bb-filters.php' );

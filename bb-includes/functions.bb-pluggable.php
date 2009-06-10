@@ -142,7 +142,7 @@ if ( !function_exists( 'bb_validate_auth_cookie' ) ) :
 function bb_validate_auth_cookie( $cookie = '', $scheme = 'auth' ) {
 	global $wp_auth_object;
 	if ( empty($cookie) && $scheme == 'auth' ) {
-		if ( bb_is_ssl() ) {
+		if ( is_ssl() ) {
 			$scheme = 'secure_auth';
 		} else {
 			$scheme = 'auth';
@@ -164,7 +164,7 @@ function bb_set_auth_cookie( $user_id, $remember = false, $secure = '' ) {
 	}
 	
 	if ( '' === $secure )
-		$secure = bb_is_ssl() ? true : false;
+		$secure = is_ssl() ? true : false;
 
 	if ( $secure ) {
 		$scheme = 'secure_auth';
