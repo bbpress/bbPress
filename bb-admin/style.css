@@ -756,3 +756,94 @@ p#bbVersion {
 div.clear {
 	clear: both !important;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Layout classes */
+
+.absleft {
+	position: absolute;
+	left: 0;
+}
+
+.absright {
+	position: absolute;
+	right: 0;
+}
+
+.abstop {
+	position: absolute;
+	top: 0;
+}
+
+.posrel {
+	position: relative;
+}
+
+.alignleft {
+	float: left;
+}
+
+.alignright {
+	float: right;
+}
+
+.alternate, .alt {
+	background: #f1f1f1;
+}
+
+.active {
+	background-color: rgb(200, 250, 200);
+}
+
+.hidden {
+	display: none;
+}
+
+.helper {
+	border: 2px dashed #777;
+}
+
+.sort-handle {
+	cursor: move;
+}
+
+
+/* List Blocks */
+
+ul.list-block {
+	margin: 0 20px 0 0;
+	padding: 0 0 0 3em;
+	background-color: #fff;
+	overflow: hidden;
+}
+
+ul.list-block ul.list-block {
+	margin: 0;
+	overflow: visible;
+}
+
+ul#the-list.list-block, ul#forum-list.list-block {
+	padding: 0;
+}
+
+li.list-block {
+	list-style: none;
+	margin: 0;
+	padding: 8px 0 0;
+}
+
+div.list-block {
+	padding: 0 8px 8px;
+}
