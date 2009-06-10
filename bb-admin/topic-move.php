@@ -1,8 +1,8 @@
 <?php
 require_once('admin-action.php');
 
-$topic_id = $_REQUEST['topic_id'];
-$forum_id = $_REQUEST['forum_id'];
+$topic_id = absint( $_POST['topic_id'] );
+$forum_id = absint( $_POST['forum_id'] );
 
 if ( !is_numeric($topic_id) || !is_numeric($forum_id) )
 	bb_die(__('Invalid topic or forum.'));
