@@ -292,6 +292,10 @@ class BB_Locale {
 		return $this->month[zeroise($month_number, 2)];
 	}
 
+	function get_month_initial($month_name) {
+		return $this->month_initial[$month_name];
+	}
+
 	/**
 	 * Retrieve translated version of month abbreviation string.
 	 *
@@ -319,6 +323,10 @@ class BB_Locale {
 	 */
 	function get_meridiem($meridiem) {
 		return $this->meridiem[$meridiem];
+	}
+
+	function get_datetime_formatstring($type = 'datetime') {
+		return $this->datetime_formatstring[$type];
 	}
 
 	/**
