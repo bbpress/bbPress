@@ -6,8 +6,6 @@
  * @subpackage i18n
  */
 
-
-
 /**
  * Gets the current locale.
  *
@@ -40,9 +38,7 @@ function get_locale() {
 	if (empty($locale))
 		$locale = 'en_US';
 
-	$locale = apply_filters('locale', $locale);
-
-	return $locale;
+	return apply_filters('locale', $locale);
 }
 
 /**
@@ -50,7 +46,7 @@ function get_locale() {
  * the domain isn't loaded the original text is returned.
  *
  * @see __() Don't use translate() directly, use __()
- * @since 1.0.0
+ * @since 1.0
  * @uses apply_filters() Calls 'gettext' on domain translated text
  *		with the untranslated text as second parameter.
  *
@@ -78,7 +74,7 @@ function before_last_bar( $string ) {
  * Translate $text like translate(), but assumes that the text
  * contains a context after its last vertical bar.
  *
- * @since 1.0.0
+ * @since 1.0
  * @uses translate()
  *
  * @param string $text Text to translate
@@ -91,7 +87,7 @@ function translate_with_context( $text, $domain = 'default' ) {
 }
 
 /**
- * @since 1.0.0
+ * @since 1.0
  */
 function translate_with_gettext_context( $text, $context, $domain = 'default' ) {
 	$translations = &get_translations_for_domain( $domain );
@@ -114,6 +110,38 @@ function __( $text, $domain = 'default' ) {
 }
 
 /**
+ * Retrieves the translation of $text and escapes it for safe use in an attribute.
+ * If there is no translation, or the domain isn't loaded the original text is returned.
+ *
+ * @see translate() An alias of translate()
+ * @see esc_attr()
+ * @since 1.0
+ *
+ * @param string $text Text to translate
+ * @param string $domain Optional. Domain to retrieve the translated text
+ * @return string Translated text
+ */
+function esc_attr__( $text, $domain = 'default' ) {
+	return esc_attr( translate( $text, $domain ) );
+}
+
+/**
+ * Retrieves the translation of $text and escapes it for safe use in HTML output.
+ * If there is no translation, or the domain isn't loaded the original text is returned.
+ *
+ * @see translate() An alias of translate()
+ * @see esc_html()
+ * @since 1.0
+ *
+ * @param string $text Text to translate
+ * @param string $domain Optional. Domain to retrieve the translated text
+ * @return string Translated text
+ */
+function esc_html__( $text, $domain = 'default' ) {
+	return esc_html( translate( $text, $domain ) );
+}
+
+/**
  * Displays the returned translated text from translate().
  *
  * @see translate() Echos returned translate() string
@@ -124,6 +152,34 @@ function __( $text, $domain = 'default' ) {
  */
 function _e( $text, $domain = 'default' ) {
 	echo translate( $text, $domain );
+}
+
+/**
+ * Displays translated text that has been escaped for safe use in an attribute.
+ *
+ * @see translate() Echoes returned translate() string
+ * @see esc_attr()
+ * @since 1.0
+ *
+ * @param string $text Text to translate
+ * @param string $domain Optional. Domain to retrieve the translated text
+ */
+function esc_attr_e( $text, $domain = 'default' ) {
+	echo esc_attr( translate( $text, $domain ) );
+}
+
+/**
+ * Displays translated text that has been escaped for safe use in HTML output.
+ *
+ * @see translate() Echoes returned translate() string
+ * @see esc_html()
+ * @since 1.0
+ *
+ * @param string $text Text to translate
+ * @param string $domain Optional. Domain to retrieve the translated text
+ */
+function esc_html_e( $text, $domain = 'default' ) {
+	echo esc_html( translate( $text, $domain ) );
 }
 
 /**
@@ -139,7 +195,7 @@ function _e( $text, $domain = 'default' ) {
  * including the pipe character. If there is no pipe in the translated text then
  * everything is returned.
  *
- * @since 1.0.0
+ * @since 1.0
  *
  * @param string $text Text to translate
  * @param string $domain Optional. Domain to retrieve the translated text
@@ -150,10 +206,14 @@ function _c($text, $domain = 'default') {
 }
 
 /**
- * @since 1.0.0
+ * @since 1.0
  */
 function _x( $single, $context, $domain = 'default' ) {
 	return translate_with_gettext_context( $single, $context, $domain );
+}
+
+function esc_attr_x( $single, $context, $domain = 'default' ) {
+	return esc_attr( translate_with_gettext_context( $single, $context, $domain ) );
 }
 
 /**
@@ -176,7 +236,7 @@ function __ngettext() {
  * to the 'ngettext' filter hook along with the same parameters. The expected
  * type will be a string.
  *
- * @since 1.0.0
+ * @since 1.0
  * @uses $l10n Gets list of domain translated string (gettext_reader) objects
  * @uses apply_filters() Calls 'ngettext' hook on domains text returned,
  *		along with $single, $plural, and $number parameters. Expected to return string.
@@ -196,14 +256,14 @@ function _n($single, $plural, $number, $domain = 'default') {
 /**
  * @see _n() A version of _n(), which supports contexts --
  * strips everything from the translation after the last bar
- * @since 1.0.0
+ * @since 1.0
  */
 function _nc( $single, $plural, $number, $domain = 'default' ) {
 	return before_last_bar( _n( $single, $plural, $number, $domain ) );
 }
 
 /**
- * @since 1.0.0
+ * @since 1.0
  */
 function _nx($single, $plural, $number, $context, $domain = 'default') {
 	$translations = &get_translations_for_domain( $domain );
@@ -235,15 +295,22 @@ function __ngettext_noop() {
  *  $message = $messages[$type];
  *  $usable_text = sprintf(_n($message[0], $message[1], $count), $count);
  *
- * @since 1.0.0
+ * @since 1.0
  * @param $single Single form to be i18ned
  * @param $plural Plural form to be i18ned
- * @param $number Not used, here for compatibility with _n, optional
- * @param $domain Not used, here for compatibility with _n, optional
  * @return array array($single, $plural)
  */
-function _n_noop( $single, $plural, $number = 1, $domain = 'default' ) {
+function _n_noop( $single, $plural ) {
 	return array( $single, $plural );
+}
+
+/**
+ * Register plural strings with context in POT file, but don't translate them.
+ *
+ * @see _n_noop()
+ */
+function _nx_noop( $single, $plural, $context ) {
+	return array( $single, $plural, $context );
 }
 
 /**
@@ -330,10 +397,10 @@ function load_plugin_textdomain($domain, $path = false) {
  *
  * @param string $domain Unique identifier for retrieving translated strings
  */
-function load_theme_textdomain($domain) {
+function load_theme_textdomain($domain, $path = false) {
 	$locale = get_locale();
 
-	$mofile = bb_get_template( $locale . '.mo' );
+	$mofile = ( empty( $path ) ) ? bb_get_template( $locale . '.mo' ) : "$path/$locale.mo";
 	
 	load_textdomain($domain, $mofile);
 }
@@ -342,13 +409,14 @@ function load_theme_textdomain($domain) {
  * Returns the Translations instance for a domain. If there isn't one,
  * returns empty Translations instance.
  *
- * @since 1.0.0
- *
  * @param string $domain
  * @return object A Translation instance
  */
-function get_translations_for_domain( $domain ) {
+function &get_translations_for_domain( $domain ) {
 	global $l10n;
 	$empty = &new Translations;
-	return isset($l10n[$domain])? $l10n[$domain] : $empty;
+	if ( isset($l10n[$domain]) )
+		return $l10n[$domain];
+	else
+		return $empty;
 }
