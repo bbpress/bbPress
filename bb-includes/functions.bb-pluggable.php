@@ -195,14 +195,22 @@ function bb_clear_auth_cookie() {
 }
 endif;
 
-// Cookie safe redirect.  Works around IIS Set-Cookie bug.
-// http://support.microsoft.com/kb/q176113/
-if ( !function_exists('wp_redirect') ) : // [WP6134]
+if ( !function_exists('wp_redirect') ) : // [WP11537]
+/**
+ * Redirects to another page, with a workaround for the IIS Set-Cookie bug.
+ *
+ * @link http://support.microsoft.com/kb/q176113/
+ * @since 1.5.1
+ * @uses apply_filters() Calls 'wp_redirect' hook on $location and $status.
+ *
+ * @param string $location The path to redirect to
+ * @param int $status Status code to use
+ * @return bool False if $location is not set
+ */
 function wp_redirect($location, $status = 302) {
 	global $is_IIS;
 
 	$location = apply_filters('wp_redirect', $location, $status);
-
 	$status = apply_filters('wp_redirect_status', $status, $location);
 
 	if ( !$location ) // allows the wp_redirect filter to cancel a redirect
@@ -220,13 +228,16 @@ function wp_redirect($location, $status = 302) {
 }
 endif;
 
-if ( !function_exists('wp_sanitize_redirect') ) : // [WP6134]
+if ( !function_exists('wp_sanitize_redirect') ) : // [WP11537]
 /**
- * sanitizes a URL for use in a redirect
+ * Sanitizes a URL for use in a redirect.
+ *
+ * @since 2.3
+ *
  * @return string redirect-sanitized URL
- */
+ **/
 function wp_sanitize_redirect($location) {
-	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%]|i', '', $location);
+	$location = preg_replace('|[^a-z0-9-~+_.?#=&;,/:%!]|i', '', $location);
 	$location = wp_kses_no_null($location);
 
 	// remove %0d and %0a from location
@@ -234,7 +245,7 @@ function wp_sanitize_redirect($location) {
 	$found = true;
 	while($found) {
 		$found = false;
-		foreach($strip as $val) {
+		foreach( (array) $strip as $val ) {
 			while(strpos($location, $val) !== false) {
 				$found = true;
 				$location = str_replace($val, '', $location);
@@ -247,10 +258,22 @@ endif;
 
 if ( !function_exists('bb_safe_redirect') ) : // based on [WP6145] (home is different)
 /**
- * performs a safe (local) redirect, using wp_redirect()
- * @return void
- */
-function bb_safe_redirect($location, $status = 302) {
+ * Performs a safe (local) redirect, using wp_redirect().
+ *
+ * Checks whether the $location is using an allowed host, if it has an absolute
+ * path. A plugin can therefore set or remove allowed host(s) to or from the
+ * list.
+ *
+ * If the host is not allowed, then the redirect is to the site url
+ * instead. This prevents malicious redirects which redirect to another host,
+ * but only used in a few places.
+ *
+ * @uses apply_filters() Calls 'allowed_redirect_hosts' on an array containing
+ *		bbPress host string and $location host string.
+ *
+ * @return void Does not return anything
+ **/
+function bb_safe_redirect( $location, $status = 302 ) {
 
 	// Need to look at the URL the way it will end up in wp_redirect()
 	$location = wp_sanitize_redirect($location);
@@ -259,17 +282,16 @@ function bb_safe_redirect($location, $status = 302) {
 	if ( substr($location, 0, 2) == '//' )
 		$location = 'http:' . $location;
 
-	$home = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
+	// In php 5 parse_url may fail if the URL query part contains http://, bug #38143
+	$test = ( $cut = strpos($location, '?') ) ? substr( $location, 0, $cut ) : $location;
 
-	if ( !$lp = @parse_url($location) )
-		return wp_redirect($home, $status);
+	$lp = parse_url($test);
+	$bp = parse_url(bb_get_uri());
 
-	$wpp = parse_url(bb_get_uri());
+	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($bp['host']), isset($lp['host']) ? $lp['host'] : '');
 
-	$allowed_hosts = (array) apply_filters('allowed_redirect_hosts', array($wpp['host']), isset($lp['host']) ? $lp['host'] : '');
-
-	if ( isset($lp['host']) && !in_array($lp['host'], $allowed_hosts) )
-		return wp_redirect($home, $status);
+	if ( isset($lp['host']) && ( !in_array($lp['host'], $allowed_hosts) && $lp['host'] != strtolower($bp['host'])) )
+		$location = bb_get_uri(null, null, BB_URI_CONTEXT_HEADER);
 
 	return wp_redirect($location, $status);
 }
@@ -606,11 +628,15 @@ if ( !function_exists( 'bb_mail' ) ) :
  * @param string $subject Email subject
  * @param string $message Message contents
  * @param string|array $headers Optional. Additional headers.
+ * @param string|array $attachments Optional. Files to attach.
  * @return bool Whether the email contents were sent successfully.
  */
-function bb_mail( $to, $subject, $message, $headers = '' ) {
+function bb_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
 	// Compact the input, apply the filters, and extract them back out
-	extract( apply_filters( 'bb_mail', compact( 'to', 'subject', 'message', 'headers' ) ) );
+	extract( apply_filters( 'bb_mail', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) ) );
+
+	if ( !is_array($attachments) )
+		$attachments = explode( "\n", $attachments );
 
 	global $bb_phpmailer;
 
@@ -624,18 +650,27 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	// Headers
 	if ( empty( $headers ) ) {
 		$headers = array();
-	} elseif ( !is_array( $headers ) ) {
-		// Explode the headers out, so this function can take both
-		// string headers and an array of headers.
-		$tempheaders = (array) explode( "\n", $headers );
+	} else {
+		if ( !is_array( $headers ) ) {
+			// Explode the headers out, so this function can take both
+			// string headers and an array of headers.
+			$tempheaders = (array) explode( "\n", $headers );
+		} else {
+			$tempheaders = $headers;
+		}
 		$headers = array();
 
 		// If it's actually got contents
 		if ( !empty( $tempheaders ) ) {
 			// Iterate through the raw headers
 			foreach ( (array) $tempheaders as $header ) {
-				if ( strpos($header, ':') === false )
+				if ( strpos($header, ':') === false ) {
+					if ( false !== stripos( $header, 'boundary=' ) ) {
+						$parts = preg_split('/boundary=/i', trim( $header ) );
+						$boundary = trim( str_replace( array( "'", '"' ), '', $parts[1] ) );
+					}
 					continue;
+				}
 				// Explode them out
 				list( $name, $content ) = explode( ':', trim( $header ), 2 );
 
@@ -655,13 +690,18 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 						$from_email = str_replace( '>', '', $from_email );
 						$from_email = trim( $from_email );
 					} else {
-						$from_name = trim( $content );
+						$from_email = trim( $content );
 					}
 				} elseif ( 'content-type' == strtolower($name) ) {
 					if ( strpos( $content,';' ) !== false ) {
 						list( $type, $charset ) = explode( ';', $content );
 						$content_type = trim( $type );
-						$charset = trim( str_replace( array( 'charset=', '"' ), '', $charset ) );
+						if ( false !== stripos( $charset, 'charset=' ) ) {
+							$charset = trim( str_replace( array( 'charset=', '"' ), '', $charset ) );
+						} elseif ( false !== stripos( $charset, 'boundary=' ) ) {
+							$boundary = trim( str_replace( array( 'BOUNDARY=', 'boundary=', '"' ), '', $charset ) );
+							$charset = '';
+						}
 					} else {
 						$content_type = trim( $content );
 					}
@@ -708,7 +748,7 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 		$from_email = 'bbpress@' . $sitename;
 	}
 
-	// Set the from name and email
+	// Plugin authors can override the potentially troublesome default
 	$bb_phpmailer->From = apply_filters( 'bb_mail_from', $from_email );
 	$bb_phpmailer->FromName = apply_filters( 'bb_mail_from_name', $from_name );
 
@@ -742,11 +782,11 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 
 	$content_type = apply_filters( 'bb_mail_content_type', $content_type );
 
+	$bb_phpmailer->ContentType = $content_type;
+
 	// Set whether it's plaintext or not, depending on $content_type
 	if ( $content_type == 'text/html' ) {
 		$bb_phpmailer->IsHTML( true );
-	} else {
-		$bb_phpmailer->IsHTML( false );
 	}
 
 	// If we don't have a charset from the input headers
@@ -761,6 +801,15 @@ function bb_mail( $to, $subject, $message, $headers = '' ) {
 	if ( !empty( $headers ) ) {
 		foreach( (array) $headers as $name => $content ) {
 			$bb_phpmailer->AddCustomHeader( sprintf( '%1$s: %2$s', $name, $content ) );
+		}
+		if ( false !== stripos( $content_type, 'multipart' ) && ! empty($boundary) ) {
+			$bb_phpmailer->AddCustomHeader( sprintf( "Content-Type: %s;\n\t boundary=\"%s\"", $content_type, $boundary ) );
+		}
+	}
+
+	if ( !empty( $attachments ) ) {
+		foreach ( $attachments as $attachment ) {
+			$bb_phpmailer->AddAttachment($attachment);
 		}
 	}
 
@@ -789,6 +838,11 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	if ( !bb_get_option('avatars_show') )
 		return false;
 
+	if ( false === $alt)
+		$safe_alt = '';
+	else
+		$safe_alt = esc_attr( $alt );
+
 	if ( !is_numeric($size) )
 		$size = 80;
 
@@ -805,6 +859,11 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	if ( empty($default) )
 		$default = bb_get_option('avatars_default');
 
+ 	if ( is_ssl() )
+		$host = 'https://secure.gravatar.com';
+	else
+		$host = 'http://www.gravatar.com';
+
 	switch ($default) {
 		case 'logo':
 			$default = '';
@@ -815,13 +874,12 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 			break;
 		case 'default':
 		default:
-			$default = 'http://www.gravatar.com/avatar/ad516503a11cd5ca435acc9bb6523536?s=' . $size;
+			$default = $host . '/avatar/ad516503a11cd5ca435acc9bb6523536?s=' . $size;
 			// ad516503a11cd5ca435acc9bb6523536 == md5('unknown@gravatar.com')
-			break;
 			break;
 	}
 
-	$src = 'http://www.gravatar.com/avatar/';
+	$src = $host . '/avatar/';
 	$class .= 'avatar avatar-' . $size;
 
 	if ( !empty($email) ) {
