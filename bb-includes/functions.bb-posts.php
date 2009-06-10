@@ -277,7 +277,7 @@ function bb_insert_post( $args = null ) {
 			$topic_last_poster = $poster_id;
 			$topic_last_poster_name = $user->user_login;
 
-			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = %d", $topic->forum_id ) );
+			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = %d;", $topic->forum_id ) );
 			$bbdb->update(
 				$bbdb->topics,
 				compact( 'topic_time', 'topic_last_poster', 'topic_last_poster_name', 'topic_last_post_id', 'topic_posts' ),
@@ -287,6 +287,11 @@ function bb_insert_post( $args = null ) {
 			$query = new BB_Query( 'post', array( 'post_author_id' => $poster_id, 'topic_id' => $topic_id, 'post_id' => "-$post_id" ) );
 			if ( !$query->results )
 				bb_update_usermeta( $poster_id, $bbdb->prefix . 'topics_replied', $user->topics_replied + 1 );
+
+			if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic_id ) ) ) {
+				$voices = count( $voices );
+				bb_update_topicmeta( $topic_id, 'voices_count', $voices );
+			}
 		} else {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts + 1 : 1 );
 		}

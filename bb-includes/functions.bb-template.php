@@ -1138,6 +1138,27 @@ function get_topic_page_links( $id = 0, $args = null ) {
 	return apply_filters( 'get_topic_page_links', $r, $_links, $topic->topic_id );
 }
 
+function bb_topic_voices( $id = 0 ) {
+	echo apply_filters( 'bb_topic_voices', bb_get_topic_voices( $id ), get_topic_id( $id ) );
+}
+
+function bb_get_topic_voices( $id = 0 ) {
+	$topic = get_topic( get_topic_id( $id ) );
+
+	if ( empty( $topic->voices_count ) ) {
+		global $bbdb;
+
+		if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic->topic_id ) ) ) {
+			$voices = count( $voices );
+			bb_update_topicmeta( $topic->topic_id, 'voices_count', $voices );
+		}
+	} else {
+		$voices = $topic->voices_count;
+	}
+
+	return apply_filters( 'bb_get_topic_voices', $voices, $topic->topic_id );
+}
+
 function topic_posts( $id = 0 ) {
 	echo apply_filters( 'topic_posts', get_topic_posts( $id ), get_topic_id( $id ) );
 }

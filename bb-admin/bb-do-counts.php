@@ -33,6 +33,23 @@ if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ) {
 	echo "\n\t</li>\n";
 }
 
+if ( isset($_POST['topic-voices']) && 1 == $_POST['topic-voices'] ) {
+	echo "\t<li>\n";
+	if ( $topics = (array) $bbdb->get_results("SELECT topic_id FROM $bbdb->topics ORDER BY topic_id") ) {
+		echo "\t\t" . __('Counting voices&#8230;') . "<br />\n";
+		foreach ($topics as $topic) {
+			$topic_id = (int) $topic->topic_id;
+			if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic_id ) ) ) {
+				$voices = count( $voices );
+				bb_update_topicmeta( $topic_id, 'voices_count', $voices );
+			}
+		}
+		unset($topics, $topic, $topic_id);
+	}
+	echo "\t\t" . __('Done counting voices.');
+	echo "\n\t</li>\n";
+}
+
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
 	echo "\t<li>\n";
 	$old = (array) $bbdb->get_col("SELECT object_id FROM $bbdb->meta WHERE object_type = 'bb_topics' AND meta_key = 'deleted_posts'");

@@ -966,6 +966,7 @@ function bb_recount_list() {
 	global $recount_list;
 	$recount_list = array();
 	$recount_list[5] = array('topic-posts', __('Count posts of every topic'));
+	$recount_list[6] = array('topic-voices', __('Count voices of every topic'));
 	$recount_list[10] = array('topic-deleted-posts', __('Count deleted posts on every topic'));
 	$recount_list[15] = array('forums', __('Count topics and posts in every forum (relies on the above)'));
 	$recount_list[20] = array('topics-replied', __('Count topics to which each user has replied'));
