@@ -94,7 +94,7 @@ class BB_Query {
 			if ( $this->query_vars['append_meta'] )
 				$this->results = bb_append_meta( $this->results, 'post' );
 			if ( $this->query_vars['cache_users'] )
-				post_author_cache( $this->results );
+				bb_post_author_cache( $this->results );
 			if ( $this->query_vars['cache_topics'] )
 				bb_cache_post_topics( $this->results );
 		} else {

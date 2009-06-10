@@ -11,7 +11,7 @@ function bb_get_forums_hierarchical( $root = 0, $depth = 0, $leaves = false, $_r
 	$root = (int) $root;
 
 	if ( false === $_leaves )
-		$_leaves = $leaves ? $leaves : get_forums();
+		$_leaves = $leaves ? $leaves : bb_get_forums();
 
 	if ( !$_leaves )
 		return false;
@@ -53,7 +53,7 @@ function _bb_get_cached_data( $keys, $group, $callback ) {
 }
 
 // 'where' arg provided for backward compatibility only
-function get_forums( $args = null ) {
+function bb_get_forums( $args = null ) {
 	global $bbdb;
 
 	if ( is_numeric($args) ) {
@@ -122,7 +122,7 @@ function get_forums( $args = null ) {
 	return $forums;
 }
 
-function get_forum( $id ) {
+function bb_get_forum( $id ) {
 	global $bbdb;
 
 	if ( !is_numeric($id) ) {

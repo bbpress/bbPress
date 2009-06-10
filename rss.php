@@ -41,7 +41,7 @@ if ( isset($_GET['view']) || get_path() == 'view' ) {
 		// Forum recent posts
 		$feed = 'forum-posts';
 	}
-	$forum = get_forum(isset($_GET['forum']) ? $_GET['forum'] : get_path(2));
+	$forum = bb_get_forum(isset($_GET['forum']) ? $_GET['forum'] : get_path(2));
 	$feed_id = $forum->forum_id;
 	
 } elseif ( isset($_GET['topics']) || get_path() == 'topics' ) {
@@ -154,7 +154,7 @@ if ( !$bb_db_override ) {
 			break;
 		
 		case 'forum-posts':
-			if ( !$posts = get_latest_forum_posts( $feed_id ) )
+			if ( !$posts = bb_get_latest_forum_posts( $feed_id ) )
 				die();
 			$title = wp_specialchars( sprintf( __( '%1$s Forum: %2$s - Recent Posts' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
 			$link = get_forum_link($feed_id);
@@ -179,7 +179,7 @@ if ( !$bb_db_override ) {
 		// Get latest posts by default
 		case 'all-posts':
 		default:
-			if ( !$posts = get_latest_posts( 35 ) )
+			if ( !$posts = bb_get_latest_posts( 35 ) )
 				die();
 			$title = wp_specialchars( sprintf( __( '%1$s: Recent Posts' ), bb_get_option( 'name' ) ) );
 			$link = bb_get_uri();

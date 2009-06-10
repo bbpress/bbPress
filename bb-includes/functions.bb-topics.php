@@ -171,7 +171,7 @@ function bb_insert_topic( $args = null ) {
 	extract( wp_parse_args( $args, $defaults ) );
 	unset($defaults['tags']);
 
-	if ( !$forum = get_forum( $forum_id ) )
+	if ( !$forum = bb_get_forum( $forum_id ) )
 		return false;
 	$forum_id = (int) $forum->forum_id;
 
@@ -292,7 +292,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 				) );
 				$bbdb->update( $bbdb->topics, compact( 'topic_posts' ), compact( 'topic_id' ) );
 				bb_topic_set_last_post( $topic_id );
-				update_post_positions( $topic_id );
+				bb_update_post_positions( $topic_id );
 				break;
 
 			default: // Other statuses (like Delete and Bozo)
@@ -320,7 +320,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 function bb_move_topic( $topic_id, $forum_id ) {
 	global $bbdb;
 	$topic = get_topic( $topic_id );
-	$forum = get_forum( $forum_id );
+	$forum = bb_get_forum( $forum_id );
 	$topic_id = (int) $topic->topic_id;
 	$forum_id = (int) $forum->forum_id;
 

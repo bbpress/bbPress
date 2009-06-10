@@ -670,7 +670,7 @@ function bb_update_forum( $args ) {
 
 	if ( !$forum_id = (int) $forum_id )
 		return false;
-	if ( !$forum = get_forum( $forum_id ) )
+	if ( !$forum = bb_get_forum( $forum_id ) )
 		return false;
 	$forum_order = (int) $forum_order;
 	$forum_parent = (int) $forum_parent;
@@ -720,7 +720,7 @@ function bb_delete_forum( $forum_id ) {
 	if ( !$forum_id = (int) $forum_id )
 		return false;
 
-	if ( !$forum = get_forum( $forum_id ) )
+	if ( !$forum = bb_get_forum( $forum_id ) )
 		return false;
 
 	if ( $topic_ids = $bbdb->get_col( $bbdb->prepare( "SELECT topic_id FROM $bbdb->topics WHERE forum_id = %d", $forum_id ) ) ) {
@@ -755,7 +755,7 @@ function bb_delete_forum( $forum_id ) {
 function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 	global $forum, $forums_count;
 	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
+		$_forum = bb_get_forum( $forum_id );
 	else
 		$_forum =& $forum;
 
@@ -783,7 +783,7 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 
 function bb_forum_form( $forum_id = 0 ) {
 	$forum_id = (int) $forum_id;
-	if ( $forum_id && !$forum = get_forum( $forum_id ) )
+	if ( $forum_id && !$forum = bb_get_forum( $forum_id ) )
 		return;
 	$action = $forum_id ? 'update' : 'add';
 ?>
@@ -874,8 +874,8 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 	
 	add_filter('get_forum_where', 'no_where'); // Just in case
 	
-	$from_forum = get_forum( $from_forum_id );
-	if ( !$to_forum = get_forum( $to_forum_id ) )
+	$from_forum = bb_get_forum( $from_forum_id );
+	if ( !$to_forum = bb_get_forum( $to_forum_id ) )
 		return false;
 
 	$posts = $to_forum->posts + ( $from_forum ? $from_forum->posts : 0 );

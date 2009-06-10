@@ -15,7 +15,7 @@ if ( !bb_current_user_can( 'move_topic', $topic_id, $forum_id ) ) {
 bb_check_admin_referer( 'move-topic_' . $topic_id );
 
 $topic = get_topic( $topic_id );
-$forum = get_forum( $forum_id );
+$forum = bb_get_forum( $forum_id );
 
 if ( !$topic || !$forum )
 	bb_die(__('Your topic or forum caused all manner of confusion'));

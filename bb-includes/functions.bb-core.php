@@ -61,7 +61,7 @@ function bb_is_installed()
 	// Maybe grab all the forums and cache them
 	global $bbdb;
 	$bbdb->suppress_errors();
-	$forums = (array) @get_forums();
+	$forums = (array) @bb_get_forums();
 	$bbdb->suppress_errors(false);
 
 	if ( !$forums ) {
@@ -666,7 +666,7 @@ function bb_repermalink() {
 				break;
 			}
 			global $forum_id, $forum;
-			$forum     = get_forum( $id );
+			$forum     = bb_get_forum( $id );
 			$forum_id  = $forum->forum_id;
 			$permalink = get_forum_link( $forum->forum_id, $page );
 			break;

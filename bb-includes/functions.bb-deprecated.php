@@ -771,13 +771,13 @@ class BB_Cache {
 
 	// NOT bbdb::prepared
 	function get_forums() {
-		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'get_forums');
-		return get_forums();
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_get_forums');
+		return bb_get_forums();
 	}
 
 	function get_forum( $forum_id ) {
-		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'get_forum');
-		return get_forum( $forum_id );
+		bb_log_deprecated('class::function', __CLASS__ . '::' . __FUNCTION__, 'bb_get_forum');
+		return bb_get_forum( $forum_id );
 	}
 
 	function read_cache($file) {
@@ -1052,4 +1052,52 @@ function bb_force_ssl_admin( $force = '' )
 {
 	bb_log_deprecated( 'function', __FUNCTION__, 'force_ssl_admin' );
 	return force_ssl_admin( $force );
+}
+
+function get_forums( $args = null )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_forums' );
+	return bb_get_forums( $args );
+}
+
+function get_forum( $id )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_forum' );
+	return bb_get_forum( $id );
+}
+
+function get_latest_posts( $limit = 0, $page = 1 )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_latest_posts' );
+	return bb_get_latest_posts( $limit, $page );
+}
+
+function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_latest_forum_posts' );
+	return bb_get_latest_forum_posts( $forum_id, $limit, $page );
+}
+
+function update_post_positions( $topic_id )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_update_post_positions' );
+	return bb_update_post_positions( $topic_id );
+}
+
+function topics_replied_on_undelete_post( $post_id )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_topics_replied_on_undelete_post' );
+	return bb_topics_replied_on_undelete_post( $post_id );
+}
+
+function post_author_cache( $posts )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_post_author_cache' );
+	return bb_post_author_cache( $posts );
+}
+
+function get_recent_user_replies( $user_id )
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_recent_user_replies' );
+	return bb_get_recent_user_replies( $user_id );
 }

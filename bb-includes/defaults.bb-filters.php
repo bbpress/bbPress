@@ -86,8 +86,8 @@ add_filter('get_user_link', 'bb_fix_link');
 add_filter('sanitize_profile_info', 'wp_specialchars');
 add_filter('sanitize_profile_admin', 'wp_specialchars');
 
-add_filter( 'get_recent_user_replies_fields', 'get_recent_user_replies_fields' );
-add_filter( 'get_recent_user_replies_group_by', 'get_recent_user_replies_group_by' );
+add_filter( 'get_recent_user_replies_fields', 'bb_get_recent_user_replies_fields' );
+add_filter( 'get_recent_user_replies_group_by', 'bb_get_recent_user_replies_group_by' );
 
 add_filter('sort_tag_heat_map', 'bb_sort_tag_heat_map');
 

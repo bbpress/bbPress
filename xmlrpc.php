@@ -572,7 +572,7 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		// Setup an array to store arguments to pass to get_forums() function
+		// Setup an array to store arguments to pass to bb_get_forums() function
 		$get_forums_args = array(
 			'child_of' => 0,
 			'hierarchical' => 0,
@@ -589,7 +589,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				return $this->error;
 			}
 			// Check the requested forum exists
-			if ( !$forum = get_forum( $forum_id ) ) {
+			if ( !$forum = bb_get_forum( $forum_id ) ) {
 				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
@@ -610,7 +610,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Get the forums. Return 0 when no forums exist
-		if ( !$forums = get_forums( $get_forums_args ) ) {
+		if ( !$forums = bb_get_forums( $get_forums_args ) ) {
 			$count = 0;
 		} else {
 			$count = count( $forums );
@@ -696,7 +696,7 @@ class BB_XMLRPC_Server extends IXR_Server
 			return $this->error;
 		}
 
-		// Setup an array to store arguments to pass to get_forums() function
+		// Setup an array to store arguments to pass to bb_get_forums() function
 		$get_forums_args = array(
 			'child_of' => 0,
 			'hierarchical' => 0,
@@ -713,7 +713,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				return $this->error;
 			}
 			// First check the requested forum exists
-			if ( !$forum = get_forum( $forum_id ) ) {
+			if ( !$forum = bb_get_forum( $forum_id ) ) {
 				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
@@ -734,7 +734,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Get the forums. Return an error when no forums exist
-		if ( !$forums = get_forums( $get_forums_args ) ) {
+		if ( !$forums = bb_get_forums( $get_forums_args ) ) {
 			$this->error = new IXR_Error( 404, __( 'No forums found.' ) );
 			return $this->error;
 		}
@@ -813,7 +813,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Check the requested forum exists
-		if ( !$forum = get_forum( $forum_id ) ) {
+		if ( !$forum = bb_get_forum( $forum_id ) ) {
 			$this->error = new IXR_Error( 404, __( 'No forum found.' ) );
 			return $this->error;
 		}
@@ -918,7 +918,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Only include "safe" data in the array
-		$forum = $this->prepare_forum( get_forum( $forum_id ) );
+		$forum = $this->prepare_forum( bb_get_forum( $forum_id ) );
 
 		do_action( 'bb_xmlrpc_call_return', 'bb.newForum' );
 
@@ -1000,7 +1000,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Check the requested forum exists
-		if ( !$forum = get_forum( $forum_id ) ) {
+		if ( !$forum = bb_get_forum( $forum_id ) ) {
 			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
@@ -1068,7 +1068,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Only include "safe" data in the array
-		$forum = $this->prepare_forum( get_forum( $forum_id ) );
+		$forum = $this->prepare_forum( bb_get_forum( $forum_id ) );
 
 		do_action( 'bb_xmlrpc_call_return', 'bb.editForum' );
 
@@ -1126,7 +1126,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Check the requested forum exists
-		if ( !$forum = get_forum( $forum_id ) ) {
+		if ( !$forum = bb_get_forum( $forum_id ) ) {
 			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
@@ -1234,7 +1234,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				return $this->error;
 			}
 			// Check the requested forum exists
-			if ( !$forum = get_forum( $forum_id ) ) {
+			if ( !$forum = bb_get_forum( $forum_id ) ) {
 				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
@@ -1243,7 +1243,7 @@ class BB_XMLRPC_Server extends IXR_Server
 			$count = (int) $forum->topics;
 		} else {
 			// Get all forums
-			$forums = get_forums();
+			$forums = bb_get_forums();
 	
 			// Return an error when no forums exist
 			if ( !$forums ) {
@@ -1345,7 +1345,7 @@ class BB_XMLRPC_Server extends IXR_Server
 				return $this->error;
 			}
 			// Check the requested forum exists
-			if ( !$forum = get_forum( $forum_id ) ) {
+			if ( !$forum = bb_get_forum( $forum_id ) ) {
 				$this->error = new IXR_Error( 400, __( 'The forum does not exist.' ) );
 				return $this->error;
 			}
@@ -1543,7 +1543,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Check the requested forum exists
-		if ( !$forum = get_forum( $forum_id ) ) {
+		if ( !$forum = bb_get_forum( $forum_id ) ) {
 			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
@@ -1900,7 +1900,7 @@ class BB_XMLRPC_Server extends IXR_Server
 		}
 
 		// Check the requested topic exists
-		if ( !$forum = get_forum( $forum_id ) ) {
+		if ( !$forum = bb_get_forum( $forum_id ) ) {
 			$this->error = new IXR_Error( 400, __( 'No forum found.' ) );
 			return $this->error;
 		}
@@ -2749,7 +2749,7 @@ class BB_XMLRPC_Server extends IXR_Server
 			}
 
 			// Check the requested forum exists
-			if ( !$forum = get_forum( $forum_id ) ) {
+			if ( !$forum = bb_get_forum( $forum_id ) ) {
 				$this->error = new IXR_Error( 404, __( 'No forum found.' ) );
 				return $this->error;
 			}

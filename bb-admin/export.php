@@ -126,7 +126,7 @@ function bb_export_user( $user_id ) {
 }
 
 function bb_export_forum( $forum_id ) {
-	if ( !$_forum = get_forum( $forum_id ) )
+	if ( !$_forum = bb_get_forum( $forum_id ) )
 		return;
 
 	$_forum = get_object_vars( $_forum );
@@ -275,7 +275,7 @@ function bb_export() {
 	}
 
 	if (BB_EXPORT_LEVEL & BB_EXPORT_FORUMS) {
-		$forums = get_forums();
+		$forums = bb_get_forums();
 		foreach ( $forums as $forum )
 			echo bb_export_forum( $forum->forum_id );
 		unset($forums, $forum);

@@ -680,7 +680,7 @@ function get_forum_id( $forum_id = 0 ) {
 	global $forum;
 	$forum_id = (int) $forum_id;
 	if ( $forum_id )
-		$_forum = get_forum( $forum_id );
+		$_forum = bb_get_forum( $forum_id );
 	else
 		$_forum =& $forum;
 	return $_forum->forum_id;
@@ -694,7 +694,7 @@ function forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF 
 }
 
 function get_forum_link( $forum_id = 0, $page = 1, $context = BB_URI_CONTEXT_A_HREF ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF;
@@ -725,7 +725,7 @@ function forum_name( $forum_id = 0 ) {
 }
 
 function get_forum_name( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_name', $forum->forum_name, $forum->forum_id );
 }
 
@@ -742,22 +742,22 @@ function forum_description( $args = null ) {
 }
 
 function get_forum_description( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_description', $forum->forum_desc, $forum->forum_id );
 }
 
 function get_forum_parent( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_parent', $forum->forum_parent, $forum->forum_id );
 }
 
 function get_forum_position( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_position', $forum->forum_order, $forum->forum_id );
 }
 
 function bb_get_forum_is_category( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'bb_get_forum_is_category', isset($forum->forum_is_category) ? $forum->forum_is_category : false, $forum->forum_id );
 }
 
@@ -766,7 +766,7 @@ function forum_topics( $forum_id = 0 ) {
 }
 
 function get_forum_topics( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_topics', $forum->topics, $forum->forum_id );
 }
 
@@ -775,7 +775,7 @@ function forum_posts( $forum_id = 0 ) {
 }
 
 function get_forum_posts( $forum_id = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	return apply_filters( 'get_forum_posts', $forum->posts, $forum->forum_id );
 }
 
@@ -789,7 +789,7 @@ function forum_pages( $args = null )
 	$args = wp_parse_args( $args, $defaults );
 
 	global $page;
-	$forum = get_forum( get_forum_id( $args['id'] ) );
+	$forum = bb_get_forum( get_forum_id( $args['id'] ) );
 	if ( $pages = apply_filters( 'forum_pages', get_page_number_links( $page, $forum->topics ), $forum->topics ) ) {
 		echo $args['before'] . $pages . $args['after'];
 	}
@@ -803,7 +803,7 @@ function bb_forum_posts_rss_link( $forum_id = 0, $context = 0 ) {
 }
 
 function bb_get_forum_posts_rss_link( $forum_id = 0, $context = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
@@ -831,7 +831,7 @@ function bb_forum_topics_rss_link( $forum_id = 0, $context = 0 ) {
 }
 
 function bb_get_forum_topics_rss_link( $forum_id = 0, $context = 0 ) {
-	$forum = get_forum( get_forum_id( $forum_id ) );
+	$forum = bb_get_forum( get_forum_id( $forum_id ) );
 	
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
@@ -861,7 +861,7 @@ function bb_get_forum_bread_crumb($args = '') {
 	extract($args, EXTR_SKIP);
 
 	$trail = '';
-	$trail_forum = get_forum(get_forum_id($forum_id));
+	$trail_forum = bb_get_forum(get_forum_id($forum_id));
 	if ($class) {
 		$class = ' class="' . $class . '"';
 	}
@@ -880,7 +880,7 @@ function bb_get_forum_bread_crumb($args = '') {
 			$crumb .= '</span>';
 		}
 		$trail = $crumb . $trail;
-		$trail_forum = get_forum($trail_forum->forum_parent);
+		$trail_forum = bb_get_forum($trail_forum->forum_parent);
 	}
 
 	return apply_filters('bb_get_forum_bread_crumb', $trail, $forum_id );
@@ -906,7 +906,7 @@ function &bb_forums( $args = '' ) {
 		$args = array( 'type' => $args );
 	}
 
-	// hierarchical not used here.  Sent to get_forums for proper ordering.
+	// hierarchical not used here.  Sent to bb_get_forums for proper ordering.
 	$args = wp_parse_args( $args, array('hierarchical' => true, 'type' => $default_type, 'walker' => 'BB_Walker_Blank') );
 
 	$levels = array( '', '' );
@@ -914,7 +914,7 @@ function &bb_forums( $args = '' ) {
 	if ( in_array($args['type'], array('list', 'ul')) )
 		$levels = array( '<ul>', '</ul>' );
 
-	$forums = get_forums( $args );
+	$forums = bb_get_forums( $args );
 
 	if ( !class_exists($args['walker']) )
 		$args['walker'] = 'BB_Walker_Blank';
@@ -1513,7 +1513,7 @@ function bb_get_new_topic_link( $args = null ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
-	if ( $forum && $forum = get_forum( $forum ) )
+	if ( $forum && $forum = bb_get_forum( $forum ) )
 		$url = get_forum_link( $forum->forum_id ) . '#postform';
 	elseif ( $tag && $tag = bb_get_tag( $tag ) )
 		$url = bb_get_tag_link( $tag->tag ) . '#postform';

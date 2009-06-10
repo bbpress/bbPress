@@ -83,7 +83,7 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 	}
 
 	if ( $author_cache )
-		post_author_cache( $posts );
+		bb_post_author_cache( $posts );
 
 	return $first_posts;
 }
@@ -115,7 +115,7 @@ function bb_get_last_post( $_topic = false, $author_cache = true ) {
 
 	if ( $post = bb_get_post( $_topic->topic_last_post_id ) ) {
 		if ( $author_cache )
-			post_author_cache( array($post) );
+			bb_post_author_cache( array($post) );
 		$bb_post = $post;
 	}
 
@@ -145,14 +145,14 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 		$_last_post_ids = join(',', $last_post_ids);
 		$posts = (array) bb_cache_posts( "SELECT * FROM $bbdb->posts WHERE post_id IN ($_last_post_ids) AND post_status = 0" );
 		if ( $author_cache )
-			post_author_cache( $posts );
+			bb_post_author_cache( $posts );
 	}
 
 	if ( !empty($topic_ids) ) {	
 		$_topic_ids = join(',', $topic_ids);
 		$posts = (array) bb_cache_posts( "SELECT p.* FROM $bbdb->topics AS t LEFT JOIN $bbdb->posts AS p ON ( t.topic_last_post_id = p.post_id ) WHERE t.topic_id IN ($_topic_ids) AND p.post_status = 0" );
 		if ( $author_cache )
-			post_author_cache( $posts );
+			bb_post_author_cache( $posts );
 	}
 }
 
@@ -177,13 +177,13 @@ function bb_cache_post_topics( $posts ) {
 		bb_append_meta( $topics, 'topic' );
 }
 
-function get_latest_posts( $limit = 0, $page = 1 ) {
+function bb_get_latest_posts( $limit = 0, $page = 1 ) {
 	$limit = (int) $limit;
 	$post_query = new BB_Query( 'post', array( 'page' => $page, 'per_page' => $limit ), 'get_latest_posts' );
 	return $post_query->results;
 }
 
-function get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
+function bb_get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 	$forum_id = (int) $forum_id;
 	$limit    = (int) $limit;
 	$post_query = new BB_Query( 'post', array( 'forum_id' => $forum_id, 'page' => $page, 'per_page' => $limit ), 'get_latest_forum_posts' );
@@ -328,7 +328,7 @@ function bb_update_post( $post_text, $post_id, $topic_id ) {
 	return bb_insert_post( compact( 'post_text', 'post_id', 'topic_id' ) );
 }
 
-function update_post_positions( $topic_id ) {
+function bb_update_post_positions( $topic_id ) {
 	global $bbdb;
 	$topic_id = (int) $topic_id;
 	$posts = get_thread( $topic_id, array( 'per_page' => '-1' ) );
@@ -379,7 +379,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 				$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET topics = topics + 1 WHERE forum_id = %d", $topic->forum_id ) );
 			}
 			bb_topic_set_last_post( $topic_id );
-			update_post_positions( $topic_id );
+			bb_update_post_positions( $topic_id );
 		}
 		$user = bb_get_user( $uid );
 
@@ -405,7 +405,7 @@ function _bb_delete_post( $post_id, $post_status ) {
 	wp_cache_delete( $post_id, 'bb_post' );
 }
 
-function topics_replied_on_undelete_post( $post_id ) {
+function bb_topics_replied_on_undelete_post( $post_id ) {
 	global $bbdb;
 	$bb_post = bb_get_post( $post_id );
 	$topic = get_topic( $bb_post->topic_id );
@@ -416,7 +416,7 @@ function topics_replied_on_undelete_post( $post_id ) {
 		bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', $user->topics_replied + 1 );
 }
 
-function post_author_cache($posts) {
+function bb_post_author_cache($posts) {
 	if ( !$posts )
 		return;
 
@@ -430,15 +430,15 @@ function post_author_cache($posts) {
 }
 
 // These two filters are lame.  It'd be nice if we could do this in the query parameters
-function get_recent_user_replies_fields( $fields ) {
+function bb_get_recent_user_replies_fields( $fields ) {
 	return $fields . ', MAX(post_time) as post_time';
 }
 
-function get_recent_user_replies_group_by() {
+function bb_get_recent_user_replies_group_by() {
 	return 'p.topic_id';
 }
 
-function get_recent_user_replies( $user_id ) {
+function bb_get_recent_user_replies( $user_id ) {
 	global $bbdb;
 	$user_id = (int) $user_id;
 

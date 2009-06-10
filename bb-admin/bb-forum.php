@@ -28,7 +28,7 @@ case 'add' :
 case 'update' :
 	bb_check_admin_referer( 'update-forum' );
 
-	if ( !$forums = get_forums() )
+	if ( !$forums = bb_get_forums() )
 		bb_die(__('No forums to update!'));
 	if ( (int) $_POST['forum_id'] && isset($_POST['forum_name']) && '' !== $_POST['forum_name'] )
 		bb_update_forum( $_POST );

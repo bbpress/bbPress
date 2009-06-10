@@ -1,12 +1,12 @@
 <?php
 require_once('admin.php');
 
-$forums = get_forums();
+$forums = bb_get_forums();
 $forums_count = $forums ? count($forums) : 0;
 
 if ( isset($_GET['action']) && 'delete' == $_GET['action'] ) {
 	$forum_to_delete = (int) $_GET['id'];
-	$deleted_forum = get_forum( $forum_to_delete );
+	$deleted_forum = bb_get_forum( $forum_to_delete );
 	if ( !$deleted_forum || $forums_count < 2 || !bb_current_user_can( 'delete_forum', $forum_to_delete ) ) {
 		bb_safe_redirect( add_query_arg( array('action' => false, 'id' => false) ) );
 		exit;

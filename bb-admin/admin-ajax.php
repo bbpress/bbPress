@@ -177,9 +177,9 @@ case 'add-forum' :
 
 	$data = bb_forum_row( $forum_id, false, true );
 
-	$forum = get_forum( $forum_id );
+	$forum = bb_get_forum( $forum_id );
 	if ( $forum->forum_parent ) {
-		$siblings = get_forums( $forum->forum_parent );
+		$siblings = bb_get_forums( $forum->forum_parent );
 		$last_sibling = array_pop( $siblings );
 		if ( $last_sibling->forum_id == $forum_id )
 			$last_sibling = array_pop( $siblings );
@@ -216,10 +216,10 @@ case 'order-forums' :
 
 	$forums = array();
 
-	get_forums(); // cache
+	bb_get_forums(); // cache
 
 	foreach ( $_POST['order'] as $pos => $forum_id ) :
-		$forum = $bbdb->escape_deep( get_object_vars( get_forum( $forum_id ) ) );
+		$forum = $bbdb->escape_deep( get_object_vars( bb_get_forum( $forum_id ) ) );
 		$forum['forum_order'] = $pos;
 		$forums[(int) $forum_id] = $forum;
 	endforeach;

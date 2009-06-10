@@ -17,7 +17,7 @@ if ( !$bb_post )
 	bb_die(__('There is a problem with that post, pardner.'));
 
 if ( 0 == $status && 0 != $bb_post->post_status ) // We're undeleting
-	add_filter('bb_delete_post', 'topics_replied_on_undelete_post');
+	add_filter('bb_delete_post', 'bb_topics_replied_on_undelete_post');
 
 bb_delete_post( $post_id, $status );
 

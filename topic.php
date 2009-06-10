@@ -24,7 +24,7 @@ do_action( 'bb_topic.php_pre_db', $topic_id );
 
 if ( !$bb_db_override ) :
 	$posts = get_thread( $topic_id, $page );
-	$forum = get_forum ( $topic->forum_id );
+	$forum = bb_get_forum ( $topic->forum_id );
 
 	$tags  = bb_get_topic_tags ( $topic_id );
 	if ( $tags && $bb_current_id = bb_get_current_user_info( 'id' ) ) {
@@ -41,7 +41,7 @@ if ( !$bb_db_override ) :
 
 	$list_start = ($page - 1) * bb_get_option('page_topics') + 1;
 
-	post_author_cache($posts);
+	bb_post_author_cache($posts);
 endif;
 
 bb_load_template( 'topic.php', array('bb_db_override', 'user_tags', 'other_tags', 'list_start'), $topic_id );
