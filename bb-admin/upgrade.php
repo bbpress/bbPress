@@ -18,10 +18,17 @@ require( BB_PATH . 'bb-admin/includes/functions.bb-upgrade.php' );
 
 $step = 'unrequired';
 
-if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) || ( isset( $_REQUEST['force'] ) && 1 == $_REQUEST['force'] ) ) {
+$forced = false;
+if ( isset( $_POST['force'] ) && 1 == $_POST['force'] ) {
+	$forced = true;
+} elseif ( isset( $_GET['force'] ) && 1 == $_GET['force'] ) {
+	$forced = true;
+}
+
+if ( bb_get_option( 'bb_db_version' ) > bb_get_option_from_db( 'bb_db_version' ) || $forced ) {
 	
 	$forced_input = '';
-	if ( isset( $_REQUEST['force'] ) && 1 == $_REQUEST['force'] ) {
+	if ( $forced ) {
 		$forced_input = '<input type="hidden" name="force" value="1" />';
 	}
 	
