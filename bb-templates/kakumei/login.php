@@ -12,21 +12,24 @@
 	$user_email_error = $bb_login_error->get_error_message( 'user_email' );
 	$user_password_error = $bb_login_error->get_error_message( 'password' );
 ?>
-	<tr valign="top" class="<?php if ( $user_login_error || $user_email_error ) echo 'error'; ?>">
-		<th scope="row"><label for="user_login"><?php _e('Username:'); ?></label></th>
-		<td><input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" /><?php
-		if ( $user_login_error )
-			echo "<br />$user_login_error";
-		if ( $user_email_error )
-			echo "<br />$user_email_error";
-		?></td>
+	<tr valign="top" class="<?php if ( $user_login_error || $user_email_error ) echo 'form-invalid error'; ?>">
+		<th scope="row">
+			<label for="user_login"><?php _e('Username:'); ?></label>
+			<?php if ( $user_login_error ) echo "<em>$user_login_error</em>"; ?>
+			<?php if ( $user_email_error ) echo "<em>$user_email_error</em>"; ?>
+		</th>
+		<td>
+			<input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" />
+		</td>
 	</tr>
-	<tr valign="top" class="<?php if ( $user_password_error ) echo 'error'; ?>">
-		<th scope="row"><label for="password"><?php _e('Password:'); ?></label></th>
-		<td><input name="password" id="password" type="password" /><?php
-		if ( $user_password_error )
-			echo "<br />$user_password_error";
-		?></td>
+	<tr valign="top" class="<?php if ( $user_password_error ) echo 'form-invalid error'; ?>">
+		<th scope="row">
+			<label for="password"><?php _e('Password:'); ?></label>
+			<?php if ( $user_password_error ) echo "<em>$user_password_error</em>"; ?>
+		</th>
+		<td>
+			<input name="password" id="password" type="password" />
+		</td>
 	</tr>
 
 	<tr valign="top">

@@ -2198,7 +2198,7 @@ function bb_profile_data_form( $id = 0 ) {
 
 			$checked = false;
 			if ( in_array( $key, $error_codes ) ) {
-				$class .= ' form-invalid';
+				$class .= ' form-invalid error';
 				$data = $errors->get_error_data( $key );
 				if ( 'checkbox' == $type ) {
 					if ( isset($data['data']) )
@@ -2215,7 +2215,7 @@ function bb_profile_data_form( $id = 0 ) {
 				}
 
 				$message = esc_html( $errors->get_error_message( $key ) );
-				$message = "<p class='error'>$message</p>";
+				$message = "<em>$message</em>";
 			} else {
 				if ( 'checkbox' == $type ) {
 					$checked = $user->$key == $label[3] || $label[4] == $label[3];
@@ -2232,7 +2232,10 @@ function bb_profile_data_form( $id = 0 ) {
 ?>
 
 <tr class="<?php echo $class; ?>">
-	<th scope="row"><label for="<?php echo $name; ?>"><?php echo $title; ?></label></th>
+	<th scope="row">
+		<label for="<?php echo $name; ?>"><?php echo $title; ?></label>
+		<?php echo $message; ?>
+	</th>
 	<td>
 <?php
 			if ($key == 'display_name') {
@@ -2271,7 +2274,6 @@ function bb_profile_data_form( $id = 0 ) {
 <?php
 			}
 ?>
-		<?php echo $message; ?>
 	</td>
 </tr>
 
@@ -2316,8 +2318,11 @@ function bb_profile_admin_form( $id = 0 ) {
 	$selected = array( 'inactive' => ' selected="selected"' );
 ?>
 <table id="admininfo">
-<tr class='form-field<?php if ( in_array( 'role', $error_codes ) ) echo ' form-invalid'; ?>'>
-	<th scope="row"><label for="admininfo_role"><?php _e('User Type'); ?></label></th>
+<tr class='form-field<?php if ( in_array( 'role', $error_codes ) ) echo ' form-invalid error'; ?>'>
+	<th scope="row">
+		<label for="admininfo_role"><?php _e('User Type'); ?></label>
+		<?php if ( in_array( 'role', $error_codes ) ) echo '<em>' . $errors->get_error_message( 'role' ) . '</em>'; ?>
+	</th>
 	<td>
 		<select id="admininfo_role" name="role">
 <?php
@@ -2334,7 +2339,6 @@ function bb_profile_admin_form( $id = 0 ) {
 	}
 ?>
 		</select>
-		<?php if ( in_array( 'role', $error_codes ) ) echo '<p class="error">' . $errors->get_error_message( 'role' ) . '</p>'; ?>
 	</td>
 </tr>
 <?php
@@ -2379,7 +2383,7 @@ function bb_profile_admin_form( $id = 0 ) {
 
 			$checked = false;
 			if ( in_array( $key, $error_codes ) ) {
-				$class .= ' form-invalid';
+				$class .= ' form-invalid error';
 				$data = $errors->get_error_data( $key );
 				if ( 'checkbox' == $type ) {
 					if ( isset($data['data']) )
@@ -2396,7 +2400,7 @@ function bb_profile_admin_form( $id = 0 ) {
 				}
 
 				$message = esc_html( $errors->get_error_message( $key ) );
-				$message = "<p class='error'>$message</p>";
+				$message = "<em>$message</em>";
 			} else {
 				if ( 'checkbox' == $type ) {
 					$checked = $user->$key == $label[3] || $label[4] == $label[3];
@@ -2413,12 +2417,14 @@ function bb_profile_admin_form( $id = 0 ) {
 ?>
 
 <tr class="<?php echo $class; ?>">
-	<th scope="row"><label for="<?php echo $name; ?>"><?php echo $title ?></label></th>
+	<th scope="row">
+		<label for="<?php echo $name; ?>"><?php echo $title ?></label>
+		<?php echo $message; ?>
+	</th>
 	<td>
 		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo "<label for='$name'>"; ?>
 		<input name="<?php echo $name; ?>" id="<?php echo $name; ?>" type="<?php echo $type; ?>"<?php echo $checked; ?> value="<?php echo $value; ?>" />
 		<?php if ( 'checkbox' == $type && isset($label[5]) ) echo esc_html( $label[5] ) . "</label>"; ?>
-		<?php echo $message; ?>
 	</td>
 </tr>
 
@@ -2446,20 +2452,24 @@ function bb_profile_password_form( $id = 0 ) {
 	$class = 'form-field form-required';
 
 	if ( $message = $errors->get_error_message( 'pass' ) ) {
-		$class .= ' form-invalid';
-		$message = '<p class="error">' . esc_html( $message ) . '</p>';
+		$class .= ' form-invalid error';
+		$message = '<em>' . esc_html( $message ) . '</em>';
 	}
 ?>
 
 <table>
 <tr class="<?php echo $class; ?>">
-	<th scope="row" rowspan="2"><label for="pass1"><?php _e('New password'); ?></label></th>
-	<td><input name="pass1" type="password" id="pass1" autocomplete="off" /></td>
+	<th scope="row" rowspan="2">
+		<label for="pass1"><?php _e('New password'); ?></label>
+		<?php echo $message; ?>
+	</th>
+	<td>
+		<input name="pass1" type="password" id="pass1" autocomplete="off" />
+	</td>
 </tr>
 <tr class="<?php echo $class; ?>">
 	<td>
 		<input name="pass2" type="password" id="pass2" autocomplete="off" />
-		<?php echo $message; ?>
 	</td>
 </tr>
 <tr class="pass-strength">

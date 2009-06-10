@@ -20,12 +20,14 @@ $user_login_error = $bb_register_error->get_error_message( 'user_login' );
 ?>
 
 <table width="100%">
-	<tr class="required<?php if ( $user_login_error ) echo ' error'; ?>">
-		<th scope="row"><label for="user_login"><sup class="required">*</sup> <?php _e('Username:'); ?></label></th>
-		<td><input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php echo $user_login; ?>" /><?php
-			if ( $user_login_error )
-				echo "<br />$user_login_error";
-		?></td>
+	<tr class="required<?php if ( $user_login_error ) echo ' form-invalid error'; ?>">
+		<th scope="row">
+			<label for="user_login"><sup class="required">*</sup> <?php _e('Username:'); ?></label>
+			<?php if ( $user_login_error ) echo "<em>$user_login_error</em>"; ?>
+		</th>
+		<td>
+			<input name="user_login" type="text" id="user_login" size="30" maxlength="30" value="<?php echo $user_login; ?>" />
+		</td>
 	</tr>
 
 <?php
@@ -38,16 +40,18 @@ if ( is_array($profile_info_keys) ) :
 			$label[1] = '<sup class="required">*</sup> ' . $label[1];
 		}
 		if ( $profile_info_key_error = $bb_register_error->get_error_message( $key ) )
-			$class .= ' error';
+			$class .= ' form-invalid error';
 
 ?>
 
 	<tr class="<?php echo $class; ?>">
-		<th scope="row"><label for="<?php echo $key; ?>"><?php echo $label[1]; ?>:</label></th>
-		<td><input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" /><?php
-			if ( $profile_info_key_error )
-				echo "<br />$profile_info_key_error";
-		?></td>
+		<th scope="row">
+			<label for="<?php echo $key; ?>"><?php echo $label[1]; ?>:</label>
+			<?php if ( $profile_info_key_error ) echo "<em>$profile_info_key_error</em>"; ?>
+		</th>
+		<td>
+			<input name="<?php echo $key; ?>" type="text" id="<?php echo $key; ?>" size="30" maxlength="140" value="<?php echo $$key; ?>" />
+		</td>
 	</tr>
 
 <?php

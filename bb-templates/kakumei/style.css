@@ -169,7 +169,7 @@ img.avatar { border: 1px solid #ddd; }
 }
 
 .notice {
-	border: 2px solid #4c9545;
+	border: 1px solid #4c9545;
 	background-color: #abd8a2;
 	color: #4c9545;
 	font-size: 1.1em;
@@ -706,6 +706,17 @@ tr.bb-category td {
 	padding-right: 1em;
 }
 
+#login-page fieldset table tr.error th em,
+#register-page fieldset table tr.error th em,
+#profile-page fieldset table tr.error th em {
+	position: absolute;
+	/* fieldset:padding-left + table:margin-left + table:width + td:padding-left + input:width + input:padding-right */
+	left: 458px; /* 10 + 15 + 20% * ( 95% * (760 - 10)  ) + 5 + 280 + 5 */
+	margin-left: 1em; /* th:padding-right = 1em */
+	color: red;
+	font-style: normal;
+}
+
 #login-page fieldset table td,
 #register-page fieldset table td,
 #profile-page fieldset table td {
@@ -716,6 +727,14 @@ tr.bb-category td {
 #register-page fieldset table td p,
 #profile-page fieldset table td p{
 	margin: 5px 0;
+}
+
+#login-page fieldset input[type=text],
+#register-page fieldset input[type=text],
+#profile-page fieldset input[type=text],
+#login-page fieldset input[type=password],
+#profile-page fieldset input[type=password] {
+	width: 280px;
 }
 
 #login-page fieldset p,
@@ -736,7 +755,8 @@ tr.bb-category td {
 }
 
 .form-invalid input {
-	border-color: #c00 !important;
+	padding: 1px;
+	border: 1px solid #c00 !important;
 }
 
 .form-table input, .form-table textarea {
@@ -750,7 +770,7 @@ tr.bb-category td {
 #pass-strength-result {
 	padding: 1px 3px 1px 3px;
 	text-align: center;
-	width: 140px;
+	width: 280px;
 	border: 1px solid #ccc;
 	background-color: #e3e3e3;
 }
