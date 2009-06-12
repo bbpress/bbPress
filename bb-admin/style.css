@@ -695,6 +695,10 @@ form.settings div input.text {
 	font-size: 0.9em;
 }
 
+form.settings div input.text.short {
+	width: 100px;
+}
+
 form.settings div input.text.code,
 form.settings div p code {
 	font-family: Consolas, Monaco, Courier, monospace;

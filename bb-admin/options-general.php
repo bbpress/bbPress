@@ -51,8 +51,7 @@ $general_options = array(
 	),
 	'uri' => array(
 		'title' => __( 'bbPress address (URL)' ),
-		'class' => array('long',
-			'code'),
+		'class' => array('long', 'code'),
 		'note' => __( 'The full URL of your bbPress install.' ),
 	),
 	'from_email' => array(
@@ -63,7 +62,7 @@ $general_options = array(
 
 $time_options = array(
 	'gmt_offset' => array(
-		'title' => __( 'Timezone' ),
+		'title' => __( 'Time zone' ),
 		'type' => 'select',
 		'options' => array(
 			'-12'   => '-12:00',
@@ -126,21 +125,20 @@ $time_options = array(
 	),
 	'datetime_format' => array(
 		'title' => __( 'Date and time format' ),
+		'class' => 'short',
 		'value' => bb_get_datetime_formatstring_i18n(),
-		'note' => sprintf( __( 'Output: <strong>%s</strong>' ),
-			bb_datetime_format_i18n( bb_current_time() ) ),
+		'after' => bb_datetime_format_i18n( bb_current_time() ),
+		'note' => array(
+			__( '<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.' ),
+			__( 'Click "Save changes" to update sample output.' )
+		)
 	),
 	'date_format' => array(
 		'title' => __( 'Date format' ),
+		'class' => 'short',
 		'value' => bb_get_datetime_formatstring_i18n( 'date' ),
-		'note' => array(
-			sprintf( __( 'Output: <strong>%s</strong>' ),
-			bb_datetime_format_i18n( bb_current_time(),
-			'date' ) ),
-			__( 'Click "Update settings" to update sample output.' ),
-			__( '<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.' ),
-		),
-	),
+		'after' => bb_datetime_format_i18n( bb_current_time(), 'date' )
+	)
 );
 
 if ( !$gmt_offset = bb_get_option( 'gmt_offset' ) ) {
@@ -168,11 +166,11 @@ if ( wp_timezone_supported() ) {
 	// Build the new selector
 	$_time_options = array(
 		'timezone_string' => array(
-			'title' => __( 'Timezone' ),
+			'title' => __( 'Time zone' ),
 			'type' => 'select',
 			'options' => wp_timezone_choice( $timezone_string ), // This passes a string of html, which gets used verbatim
 			'note' => array(
-				__( 'Choose a city in the same timezone as you.' ),
+				__( 'Choose a city in the same time zone as you.' ),
 				sprintf( __( '<abbr title="Coordinated Universal Time">UTC</abbr> time is <code>%s</code>' ), bb_gmdate_i18n( bb_get_datetime_formatstring_i18n(), bb_current_time() ) ),
 				sprintf( __( 'Local time is <code>%s</code>' ), bb_datetime_format_i18n( bb_current_time() ) )
 			)
@@ -181,9 +179,9 @@ if ( wp_timezone_supported() ) {
 
 	$_now = localtime( bb_current_time(), true );
 	if ( $now['tm_isdst'] ) {
-		$_time_options['timezone_string']['note'][] = __( 'This timezone is currently in daylight savings time.' );
+		$_time_options['timezone_string']['note'][] = __( 'This time zone is currently in daylight savings time.' );
 	} else {
-		$_time_options['timezone_string']['note'][] = __( 'This timezone is currently in standard time.' );
+		$_time_options['timezone_string']['note'][] = __( 'This time zone is currently in standard time.' );
 	}
 
 	if ( function_exists( 'timezone_transitions_get' ) ) {
@@ -191,7 +189,7 @@ if ( wp_timezone_supported() ) {
 		$found_transition = false;
 		foreach ( timezone_transitions_get( $timezone_object ) as $timezone_transition ) {
 			if ( $timezone_transition['ts'] > time() ) {
-				$note = $timezone_transition['isdst'] ? __('Daylight savings time begins on: <code>%s</code>') : __('Standard time begins  on: <code>%s</code>');
+				$note = $timezone_transition['isdst'] ? __('Daylight savings time begins on <code>%s</code>') : __('Standard time begins on <code>%s</code>');
 				$_time_options['timezone_string']['note'][] = sprintf( $note, bb_gmdate_i18n( bb_get_datetime_formatstring_i18n(), $timezone_transition['ts'], false ) );
 				break;
 			}
