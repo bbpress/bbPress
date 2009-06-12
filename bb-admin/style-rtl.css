@@ -30,8 +30,8 @@ div#bbUserInfo {
 /* Body */
 
 div#bbBody {
-	margin-left: auto;
 	margin-right: 175px;
+	margin-left: 15px;
 }
 
 body.bb-menu-folded div#bbBody {
