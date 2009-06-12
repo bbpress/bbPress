@@ -165,11 +165,12 @@ if ( wp_timezone_supported() ) {
 		unset( $_gmt_offset );
 	}
 
+	// Build the new selector
 	$_time_options = array(
 		'timezone_string' => array(
 			'title' => __( 'Timezone' ),
 			'type' => 'select',
-			'options' => wp_timezone_choice( $timezone_string ),
+			'options' => wp_timezone_choice( $timezone_string ), // This passes a string of html, which gets used verbatim
 			'note' => array(
 				__( 'Choose a city in the same timezone as you.' ),
 				sprintf( __( '<abbr title="Coordinated Universal Time">UTC</abbr> time is <code>%s</code>' ), bb_gmdate_i18n( bb_get_datetime_formatstring_i18n(), bb_current_time() ) ),
