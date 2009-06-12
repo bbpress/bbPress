@@ -139,7 +139,7 @@ div#bbUserInfo a:hover {
 
 div#bbBody {
 	margin-left: 180px;
-	margin-right: 15px;
+	padding-right: 15px;
 }
 
 body.bb-menu-folded div#bbBody {

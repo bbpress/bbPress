@@ -30,8 +30,10 @@ div#bbUserInfo {
 /* Body */
 
 div#bbBody {
+	margin-left: 0;
 	margin-right: 175px;
-	margin-left: 15px;
+	padding-right: 0;
+	padding-left: 15px;
 }
 
 body.bb-menu-folded div#bbBody {
@@ -276,6 +278,29 @@ body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub.bb-
 
 ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 	background-position: 100% -306px;
+}
+
+
+
+/* Options */
+
+form.settings div {
+	margin-right: 0;
+	margin-left: 10px;
+}
+
+form.settings div label {
+	float: right;
+}
+
+form.settings div div {
+	margin: 0 210px 0 0;
+}
+
+form.settings div p {
+	margin: 0 3em 0 0;
+	border-left-width: 0;
+	border-right: 1px solid rgb(223, 223, 223);
 }
 
 

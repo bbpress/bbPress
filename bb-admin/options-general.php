@@ -130,7 +130,7 @@ $time_options = array(
 		'after' => bb_datetime_format_i18n( bb_current_time() ),
 		'note' => array(
 			__( '<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date formatting</a>.' ),
-			__( 'Click "Save changes" to update sample output.' )
+			__( 'Click "Save Changes" to update sample output.' )
 		)
 	),
 	'date_format' => array(
