@@ -421,11 +421,11 @@ function bb_get_datetime_formatstring_i18n( $type = 'datetime' ) {
 	return $formatstring;
 }
 
-function bb_datetime_format_i18n( $unixtimestamp, $type = 'datetime', $formatstring = '' ) {
+function bb_datetime_format_i18n( $unixtimestamp, $type = 'datetime', $formatstring = '', $gmt = true ) {
 	if ( empty($formatstring) ) {
 		$formatstring = bb_get_datetime_formatstring_i18n( $type );
 	}
-	return bb_gmdate_i18n( $formatstring, bb_offset_time( $unixtimestamp ) );
+	return bb_gmdate_i18n( $formatstring, bb_offset_time( $unixtimestamp ), $gmt );
 }
 
 /**

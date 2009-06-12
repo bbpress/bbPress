@@ -35,16 +35,16 @@ if ( isset($_GET['theme']) ) {
 }
 
 if ( isset($_GET['activated']) )
-	$theme_notice = bb_admin_notice( sprintf(__('Theme "%s" <strong>activated</strong>'), esc_attr($_GET['name'])) );
+	$theme_notice = bb_admin_notice( sprintf( __( '<strong>Theme "%s" activated</strong>' ), esc_attr($_GET['name'])) );
 
 if ( !in_array($activetheme, $themes) ) {
 	if ($activetheme == BB_DEFAULT_THEME) {
 		remove_action( 'bb_admin_notices', $theme_notice );
-		bb_admin_notice( __('Default theme is missing.'), 'error' );
+		bb_admin_notice( __( '<strong>Default theme is missing.</strong>' ), 'error' );
 	} else {
 		bb_delete_option( 'bb_active_theme' );
 		remove_action( 'bb_admin_notices', $theme_notice );
-		bb_admin_notice( __('Theme not found.  Default theme applied.'), 'error' );
+		bb_admin_notice( __( '<strong>Theme not found.  Default theme applied.</strong>' ), 'error' );
 	}
 }
 
@@ -69,7 +69,7 @@ function bb_admin_theme_row( $theme ) {
 }
 
 if ( isset( $bb->safemode ) && $bb->safemode === true ) {
-	bb_admin_notice( __('"Safe mode" is on, the default theme will be used instead of the active theme indicated below.'), 'error' );
+	bb_admin_notice( __( '<strong>"Safe mode" is on, the default theme will be used instead of the active theme indicated below.</strong>' ), 'error' );
 }
 
 $bb_admin_body_class = ' bb-admin-appearance';

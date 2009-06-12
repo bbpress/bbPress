@@ -42,10 +42,10 @@ if ( in_array( $action, array('update-users', 'update-options') ) ) {
 
 switch (@$_GET['updated']) {
 	case 'update-users':
-		bb_admin_notice( __('User role mapping saved.') );
+		bb_admin_notice( __( '<strong>User role mapping saved.</strong>' ) );
 		break;
 	case 'update-options':
-		bb_admin_notice( __('User integration settings saved.') );
+		bb_admin_notice( __( '<strong>User integration settings saved.</strong>' ) );
 		break;
 }
 

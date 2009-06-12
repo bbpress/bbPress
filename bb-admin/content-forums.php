@@ -16,11 +16,11 @@ if ( isset($_GET['action']) && 'delete' == $_GET['action'] ) {
 if ( isset($_GET['message']) ) {
 	switch ( $_GET['message'] ) :
 	case 'updated' :
-		bb_admin_notice( __('Forum Updated.') );
+		bb_admin_notice( __( '<strong>Forum Updated.</strong>' ) );
 		break;
 	case 'deleted' :
 		bb_admin_notice( sprintf(
-			__('Forum deleted.  You should have bbPress <a href="%s">recount your site information</a>.'),
+			__( '<strong>Forum deleted.</strong>  You should have bbPress <a href="%s">recount your site information</a>.' ),
 			bb_get_uri('bb-admin/site.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)
 		) );
 		break;

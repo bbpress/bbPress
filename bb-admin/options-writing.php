@@ -33,7 +33,7 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 }
 
 if ( !empty($_GET['updated']) ) {
-	bb_admin_notice( __('Settings saved.') );
+	bb_admin_notice( __( '<strong>Settings saved.</strong>' ) );
 }
 
 $general_options = array(

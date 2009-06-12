@@ -84,21 +84,21 @@ if ( !empty( $action ) ) {
 if ( isset($_GET['message']) ) {
 	switch ( $_GET['message'] ) {
 		case 'error' :
-			bb_admin_notice( __( 'Plugin could not be activated, it produced a <strong>Fatal Error</strong>. The error is shown below.' ), 'error' );
+			bb_admin_notice( __( '<strong>Plugin could not be activated, it produced a Fatal Error</strong>. The error is shown below.' ), 'error' );
 			break;
 		case 'activate' :
 			$plugin_data = bb_get_plugin_data( $plugin );
-			bb_admin_notice( sprintf( __( '"%s" plugin <strong>activated</strong>' ), esc_attr( $plugin_data['name'] ) ) );
+			bb_admin_notice( sprintf( __( '<strong>"%s" plugin activated</strong>' ), esc_attr( $plugin_data['name'] ) ) );
 			break;
 		case 'deactivate' :
 			$plugin_data = bb_get_plugin_data( $plugin );
-			bb_admin_notice( sprintf( __( '"%s" plugin <strong>deactivated</strong>' ), esc_attr( $plugin_data['name'] ) ) );
+			bb_admin_notice( sprintf( __( '<strong>"%s" plugin deactivated</strong>' ), esc_attr( $plugin_data['name'] ) ) );
 			break;
 	}
 }
 
 if ( isset( $bb->safemode ) && $bb->safemode === true ) {
-	bb_admin_notice( __( '"Safe mode" is on, all plugins are disabled even if they are listed as active.' ), 'error' );
+	bb_admin_notice( __( '<strong>"Safe mode" is on, all plugins are disabled even if they are listed as active.</strong>' ), 'error' );
 }
 
 $bb_admin_body_class = ' bb-admin-plugins';

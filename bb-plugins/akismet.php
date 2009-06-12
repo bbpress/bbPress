@@ -64,7 +64,7 @@ function bb_ksd_configuration_page_process() {
 	}
 	
 	if ($_GET['akismet-updated']) {
-		bb_admin_notice( __('Configuration saved.') );
+		bb_admin_notice( __( '<strong>Configuration saved.</strong>' ) );
 	}
 }
 

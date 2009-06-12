@@ -611,6 +611,35 @@ ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 
 
 
+div#message {
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border-style: solid;
+	border-width: 1px;
+	margin: 5px 15px 2px 0;
+	padding: 0 0.65em;
+	font-size: 0.9em;
+}
+
+div#message.updated {
+	background-color: rgb(255, 251, 204);
+	border-color: rgb(230, 219, 85);
+}
+
+div#message p {
+	line-height: 1;
+	margin: 0.6em 0;
+	padding: 2px;
+}
+
+div#message p strong {
+	font-weight: bold;
+}
+
+
+
 /* Options */
 
 form.settings fieldset {
@@ -666,9 +695,21 @@ form.settings div input.text {
 	font-size: 0.9em;
 }
 
-form.settings div input.text.code {
+form.settings div input.text.code,
+form.settings div p code {
 	font-family: Consolas, Monaco, Courier, monospace;
 	font-size: 1.2em;
+}
+
+form.settings div p code {
+	background: rgb(234, 234, 234);
+	margin: 0px 1px;
+	padding: 1px 3px;
+	color: rgb(51, 51, 51);
+}
+
+form.settings div span.after {
+	font-size: 0.85em;
 }
 
 form.settings div p {

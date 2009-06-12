@@ -36,7 +36,7 @@ function bb_admin_notice( $message, $class = false )
 		return false;
 	}
 
-	$message = '<div class="' . esc_attr( $class ) . '">' . $message . '</div>';
+	$message = '<div id="message" class="' . esc_attr( $class ) . '">' . $message . '</div>';
 	$message = str_replace( "'", "\'", $message );
 	$lambda = create_function( '', "echo '$message';" );
 	add_action( 'bb_admin_notices', $lambda );
@@ -458,7 +458,7 @@ class BB_User_Search {
 		if ( $this->results )
 			$this->total_users_for_query = bb_count_last_query();
 		elseif ( !is_wp_error($this->search_errors) )
-			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+			$this->search_errors = new WP_Error( 'no_matching_users_found', __( '<strong>No matching users were found!</strong>' ) );
 
 		if ( is_wp_error( $this->search_errors ) )
 			bb_admin_notice( $this->search_errors );
@@ -593,7 +593,7 @@ class BB_Users_By_Role extends BB_User_Search {
 		if ( $this->results )
 			$this->total_users_for_query = bb_count_last_query();
 		else
-			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+			$this->search_errors = new WP_Error( 'no_matching_users_found', __( '<strong>No matching users were found!</strong>' ) );
 
 		if ( is_wp_error( $this->search_errors ) )
 			bb_admin_notice( $this->search_errors );
@@ -1110,6 +1110,7 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 		'type' => 'text',
 		'value' => false,
 		'options' => false,
+		'message' => false,
 		'class' => false,
 		'default' => false,
 		'before' => '',
@@ -1154,33 +1155,48 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 			<div>
 
 <?php
-			echo $args['before'];
-			switch ( $args['type'] ) {
-			case 'select' :
-				echo "<select$disabled class='" . join( ' ', $class ) . "' name='$name' id='$id'$attributes>\n";
-				foreach ( $args['options'] as $option => $label )
-					echo "\t<option value='$option'" . ( $value == $option ? " selected='selected'" : '' ) . ">$label</option>\n";
-				echo "</select>\n";
-				break;
-			case 'checkbox' :
-				$value = false === $args['value'] ? 1 : esc_attr( $args['value'] );
-				$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
-				echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
-				break;
-			case 'message' :
-				break;
-			default :
-				echo "<input$disabled type='$args[type]' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'$attributes />\n";
-				break;
+			if ( $args['before'] ) {
+				echo '<span class="before">' . $args['before'] . '</span>';
 			}
-			echo $args['after'];
+			switch ( $args['type'] ) {
+				case 'select' :
+					echo "<select$disabled class='" . join( ' ', $class ) . "' name='$name' id='$id'$attributes>\n";
+					if ( is_array( $args['options'] ) ) {
+						foreach ( $args['options'] as $option => $label )
+							echo "\t<option value='$option'" . ( $value == $option ? " selected='selected'" : '' ) . ">$label</option>\n";
+					} elseif ( is_string( $args['options'] ) ) {
+						echo $args['options'] . "\n";
+					}
+					echo "</select>\n";
+					break;
+				case 'checkbox' :
+					$value = false === $args['value'] ? 1 : esc_attr( $args['value'] );
+					$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
+					echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
+					break;
+				case 'message' :
+					if ( $args['message'] ) {
+						echo $args['message'];
+					}
+					break;
+				default :
+					echo "<input$disabled type='$args[type]' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'$attributes />\n";
+					break;
+			}
+			if ( $args['after'] ) {
+				echo '<span class="after">' . $args['after'] . '</span>';
+			}
 
-			if ( $args['note'] ) : foreach ( (array) $args['note'] as $note ) :
+			if ( $args['note'] ) {
+				foreach ( (array) $args['note'] as $note ) {
 ?>
 
 				<p><?php echo $note; ?></p>
 
-<?php			endforeach; endif; ?>
+<?php
+				}
+			}
+?>
 
 			</div>
 		</div>

@@ -298,7 +298,7 @@ function bb_bozo_admin_page() {
 			if ( $this->results )
 				$this->total_users_for_query = bb_count_last_query();
 			else
-				$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+				$this->search_errors = new WP_Error( 'no_matching_users_found', __( '<strong>No matching users were found!</strong>' ) );
 
 			if ( is_wp_error( $this->search_errors ) )
 				bb_admin_notice( $this->search_errors );

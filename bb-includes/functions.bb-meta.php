@@ -246,6 +246,11 @@ function bb_option( $option )
  */
 function bb_get_option( $option )
 {
+	// Allow plugins to short-circuit options.
+	if ( false !== $r = apply_filters( 'bb_pre_get_option_' . $option, false, $option ) ) {
+		return $r;
+	}
+
 	global $bb;
 
 	switch ( $option ) {

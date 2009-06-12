@@ -34,6 +34,12 @@ class BP_Options
 			case 'create_nonce_function_name':
 				return 'bb_create_nonce';
 				break;
+			case 'language_locale':
+				return bb_get_locale();
+				break;
+			case 'language_directory':
+				return BB_LANG_DIR;
+				break;
 			case 'charset':
 			case 'gmt_offset':
 			case 'timezone_string':

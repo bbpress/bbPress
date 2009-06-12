@@ -94,9 +94,9 @@ if ( bb_get_option( 'mod_rewrite' ) && !bb_get_option( 'mod_rewrite_writable' ) 
 
 if ( !empty( $_GET['updated'] ) ) {
 	if ( $manual_instructions ) {
-		bb_admin_notice( __('You should update your .htaccess now.') );
+		bb_admin_notice( __( '<strong>You should update your .htaccess now.</strong>' ) );
 	} else {
-		bb_admin_notice( __('Permalink structure updated.') );
+		bb_admin_notice( __( '<strong>Permalink structure updated.</strong>' ) );
 	}
 }
 
