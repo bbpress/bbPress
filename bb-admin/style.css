@@ -644,6 +644,7 @@ div#message p strong {
 
 form.settings fieldset {
 	margin-bottom: 20px;
+	margin-right: 15px;
 }
 
 form.settings legend {
@@ -651,14 +652,14 @@ form.settings legend {
 	color: rgb(51, 51, 51);
 	font-size: 1.17em;
 	font-weight: bold;
-	margin: 1em 0;
+	padding: 0 0 1em 0;
 }
 
 form.settings p {
 	float: none;
 	display: block;
 	color: rgb(51, 51, 51);
-	font-size: 1em;
+	font-size: 0.9em;
 	margin: 1em 0;
 }
 
@@ -719,7 +720,6 @@ form.settings div span.after {
 form.settings div p {
 	color: rgb(102, 102, 102);
 	font-style: italic;
-	font-size: 0.9em;
 	margin: 0 0 0 3em;
 	padding: 0.3em;
 	border-left: 1px solid rgb(223, 223, 223);

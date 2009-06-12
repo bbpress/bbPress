@@ -108,12 +108,7 @@ $permalink_options = array(
 			'0' => __( 'None&nbsp;&nbsp;&nbsp;&hellip;/forums.php?id=1' ),
 			'1' => __( 'Numeric&nbsp;&nbsp;&nbsp;.../forums/1' ),
 			'slugs' => __( 'Name based&nbsp;&nbsp;&nbsp;.../forums/first-forum' ),
-		),
-		'note' => sprintf(
-			__( 'If you activate "Numeric" or "Name based" permalinks, you will need to create a file at <code>%s</code> containing the url rewriting rules <a href="%s">provided here</a>.' ),
-			BB_PATH . '.htaccess',
-			bb_get_uri( 'bb-admin/rewrite-rules.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN )
-		),
+		)
 	)
 );
 

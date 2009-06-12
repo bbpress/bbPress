@@ -166,12 +166,11 @@ bb_get_admin_header();
 <h2><?php _e( 'WordPress Integration Settings' ); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<h3><?php _e('User Role Map'); ?></h3>
-<p><?php _e('Here you can match WordPress roles to bbPress roles.'); ?></p>
-<p><?php _e('This will have no effect until your user tables are integrated below. Only standard WordPress roles are supported. Changes do not affect users with existing roles in both WordPress and bbPress.'); ?></p>
-
 <form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
+		<legend><?php _e('User Role Map'); ?></legend>
+		<p><?php _e('Here you can match WordPress roles to bbPress roles.'); ?></p>
+		<p><?php _e('This will have no effect until your user tables are integrated below. Only standard WordPress roles are supported. Changes do not affect users with existing roles in both WordPress and bbPress.'); ?></p>
 <?php foreach ( $wpRoles as $wpRole => $wpRoleName ) bb_option_form_element( "wp_roles_map[$wpRole]", array( 'title' => $wpRoleName, 'type' => 'select', 'options' => $bb_role_names ) ); ?>
 	</fieldset>
 	<fieldset class="submit">
