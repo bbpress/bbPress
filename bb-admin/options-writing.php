@@ -49,7 +49,7 @@ $remote_options = array(
 	'enable_xmlrpc' => array(
 		'title' => __( 'XML-RPC' ),
 		'type' => 'checkbox',
-		'after' => __( 'Enable the bbPress <a href="http://codex.wordpress.org/Glossary#XML-RPC">XML-RPC</a> publishing protocol.' ),
+		'after' => __( 'Enable the bbPress XML-RPC publishing protocol.' ),
 	)
 );
 

@@ -663,6 +663,14 @@ form.settings p {
 	margin: 1em 0;
 }
 
+form.settings a {
+	color: rgb(33, 117, 155);
+}
+
+form.settings a:hover {
+	color: rgb(213, 78, 33);
+}
+
 form.settings div {
 	clear: both;
 	padding: 10px;
