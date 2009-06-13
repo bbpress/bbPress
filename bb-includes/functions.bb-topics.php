@@ -113,7 +113,7 @@ function get_sticky_topics( $forum = false, $display = 1 ) {
 
 function get_recent_user_threads( $user_id ) {
 	global $page;
-	$q = array( 'page' => $page, 'topic_author_id' => $user_id, 'order_by' => 't.topic_start_time');
+	$q = array( 'page' => $page, 'topic_author_id' => $user_id, 'order_by' => 't.topic_time');
 
 	$query = new BB_Query( 'topic', $q, 'get_recent_user_threads' );
 
