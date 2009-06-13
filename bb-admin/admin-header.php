@@ -6,12 +6,14 @@
 	<link rel="stylesheet" href="<?php bb_uri('bb-admin/style.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" type="text/css" />
 <?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_uri('bb-admin/style-rtl.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" type="text/css" />
-<?php endif; do_action('bb_admin_print_scripts'); do_action( 'bb_admin_head' ); ?>
+<?php endif; do_action('bb_admin_print_scripts'); ?>
 	<script type="text/javascript">
 		//<![CDATA[
+		addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
 		var userSettings = {'url':'<?php echo $bb->cookie_path; ?>','uid':'<?php if ( ! isset($bb_current_user) ) $bb_current_user = bb_get_current_user(); echo $bb_current_user->ID; ?>','time':'<?php echo time(); ?>'};
 		//]]>
 	</script>
+<?php do_action( 'bb_admin_head' ); ?>
 </head>
 
 <?php

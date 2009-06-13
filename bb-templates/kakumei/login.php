@@ -12,9 +12,9 @@
 	$user_email_error = $bb_login_error->get_error_message( 'user_email' );
 	$user_password_error = $bb_login_error->get_error_message( 'password' );
 ?>
-	<tr valign="top" class="<?php if ( $user_login_error || $user_email_error ) echo 'form-invalid error'; ?>">
+	<tr valign="top" class="form-field <?php if ( $user_login_error || $user_email_error ) echo ' form-invalid error'; ?>">
 		<th scope="row">
-			<label for="user_login"><?php _e('Username:'); ?></label>
+			<label for="user_login"><?php _e('Username'); ?></label>
 			<?php if ( $user_login_error ) echo "<em>$user_login_error</em>"; ?>
 			<?php if ( $user_email_error ) echo "<em>$user_email_error</em>"; ?>
 		</th>
@@ -22,9 +22,9 @@
 			<input name="user_login" id="user_login" type="text" value="<?php echo $user_login; ?>" />
 		</td>
 	</tr>
-	<tr valign="top" class="<?php if ( $user_password_error ) echo 'form-invalid error'; ?>">
+	<tr valign="top" class="form-field <?php if ( $user_password_error ) echo 'form-invalid error'; ?>">
 		<th scope="row">
-			<label for="password"><?php _e('Password:'); ?></label>
+			<label for="password"><?php _e('Password'); ?></label>
 			<?php if ( $user_password_error ) echo "<em>$user_password_error</em>"; ?>
 		</th>
 		<td>
@@ -32,8 +32,8 @@
 		</td>
 	</tr>
 
-	<tr valign="top">
-		<th scope="row"><label for="remember"><?php _e('Remember me:'); ?></label></th>
+	<tr valign="top" class="form-field">
+		<th scope="row"><label for="remember"><?php _e('Remember me'); ?></label></th>
 		<td><input name="remember" type="checkbox" id="remember" value="1"<?php echo $remember_checked; ?> /></td>
 	</tr>
 	<tr>
@@ -45,6 +45,7 @@
 		</td>
 	</tr>
 </table>
+
 </fieldset>
 </form>
 
@@ -53,9 +54,9 @@
 <fieldset>
 	<p><?php _e('To recover your password, enter your information below.'); ?></p>
 	<table>
-		<tr valign="top">
+		<tr valign="top" class="form-field">
 			<th scope="row">
-				<label for="user_login_reset_password"><?php _e( 'Username:' ); ?></label>
+				<label for="user_login_reset_password"><?php _e( 'Username' ); ?></label>
 			</th>
 			<td>
 				<input name="user_login" id="user_login_reset_password" type="text" value="<?php echo $user_login; ?>" />

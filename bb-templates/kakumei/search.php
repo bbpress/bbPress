@@ -4,31 +4,37 @@
 <?php bb_topic_search_form(); ?>
 
 <?php if ( !empty ( $q ) ) : ?>
-<h2><?php _e('Search for')?> &#8220;<?php echo esc_html($q); ?>&#8221;</h2>
+<h3 id="search-for"><?php _e('Search for')?> &#8220;<?php echo esc_html($q); ?>&#8221;</h3>
 <?php endif; ?>
 
 <?php if ( $recent ) : ?>
-<h2><?php _e('Recent Posts')?></h2>
-<ol class="results">
+<div id="results-recent" class="search-results">
+	<h4><?php _e('Recent Posts')?></h4>
+	<ol>
 <?php foreach ( $recent as $bb_post ) : ?>
-<li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
-<p><?php echo bb_show_context($q, $bb_post->post_text); ?></p>
-<p><small><?php _e('Posted') ?> <?php echo bb_datetime_format_i18n( bb_get_post_time( array( 'format' => 'timestamp' ) ) ); ?></small></p>
-</li>
+		<li<?php alt_class( 'recent' ); ?>>
+			<a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a>
+			<span class="freshness"><?php printf( __('Posted %s'), bb_datetime_format_i18n( bb_get_post_time( array( 'format' => 'timestamp' ) ) ) ); ?></span>
+			<p><?php echo bb_show_context($q, $bb_post->post_text); ?></p>
+		</li>
 <?php endforeach; ?>
-</ol>
+	</ol>
+</div>
 <?php endif; ?>
 
 <?php if ( $relevant ) : ?>
-<h2><?php _e('Relevant posts')?></h2>
-<ol class="results">
+<div id="results-relevant" class="search-results">
+	<h4><?php _e('Relevant posts')?></h4>
+	<ol>
 <?php foreach ( $relevant as $bb_post ) : ?>
-<li><h4><a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a></h4>
-<p><?php post_text(); ?></p>
-<p><small><?php _e('Posted') ?> <?php echo bb_datetime_format_i18n( bb_get_post_time( array( 'format' => 'timestamp' ) ) ); ?></small></p>
-</li>
+		<li<?php alt_class( 'relevant' ); ?>>
+			<a href="<?php post_link(); ?>"><?php topic_title($bb_post->topic_id); ?></a>
+			<span class="freshness"><?php printf( __('Posted %s'), bb_datetime_format_i18n( bb_get_post_time( array( 'format' => 'timestamp' ) ) ) ); ?></span>
+			<p><?php post_text(); ?></p>
+		</li>
 <?php endforeach; ?>
-</ol>
+	</ol>
+</div>
 <?php endif; ?>
 
 <?php if ( $q && !$recent && !$relevant ) : ?>

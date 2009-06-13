@@ -893,6 +893,8 @@ class BB_Query_Form extends BB_Query {
 
 		$r  = "<form action='$action' method='$method' id='$id' class='search-form'>\n";
 
+		$r .= "\t<fieldset>\n";
+
 		if ( $search ) {
 			if ( $_post ) {
 				$s_value = esc_attr( $q_post_text );
@@ -902,80 +904,82 @@ class BB_Query_Form extends BB_Query {
 				$s_value = esc_attr( $q_search );
 				$s_name = $s_id = 'search';
 			}
-			$r .= "\t<fieldset><legend>" . __('Search&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='$s_name' id='$s_id' type='text' class='text-input' value='$s_value' />";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t<div><label>" . __('Search term') . "</label>\n";
+			$r .= "\t\t<div><input name='$s_name' id='$s_id' type='text' class='text-input' value='$s_value' /></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $forum ) {
-			$r .= "\t<fieldset><legend>" . __('Forum&#8230;')  . "</legend>\n";
-			$r .= bb_get_forum_dropdown( array('selected' => $q_forum_id, 'none' => __('Any')) );
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t<div><label>" . __('Forum')  . "</label>\n";
+			$r .= "\t\t<div>" . bb_get_forum_dropdown( array('selected' => $q_forum_id, 'none' => __('Any')) ) . "</div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $tag ) {
 			$q_tag = esc_attr( $q_tag );
-			$r .= "\t<fieldset><legend>" .  __('Tag&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag' />";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t<div><label>" .  __('Tag') . "</label>\n";
+			$r .= "\t\t<div><input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag' /></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $topic_author ) {
 			$q_topic_author = esc_attr( $q_topic_author );
-			$r .= "\t<fieldset><legend>" . __('Topic Author&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author' />";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t<div><label>" . __('Topic Author') . "</label>\n";
+			$r .= "\t\t<div><input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author' /></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $post_author ) {
 			$q_post_author = esc_attr( $q_post_author );
-			$r .= "\t<fieldset><legend>" . __('Post Author&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author' />";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t<div><label>" . __('Post Author') . "</label>\n";
+			$r .= "\t\t<div><input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author' /></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		$stati = array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') );
 
 		if ( $topic_status ) {
-			$r .= "\t<fieldset><legend>" . __('Topic Status&#8230;') . "</legend>\n";
-			$r .= "\t\t<select name='topic_status' id='topic-status'>\n";
+			$r .= "\t<div><label>" . __('Topic Status') . "</label>\n";
+			$r .= "\t\t<div><select name='topic_status' id='topic-status'>\n";
 			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_topic_status ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
 			}
-			$r .= "\t\t</select>\n";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t\t</select></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $post_status ) {
-			$r .= "\t<fieldset><legend>" . __('Post Status&#8230;') . "</legend>\n";
-			$r .= "\t\t<select name='post_status' id='post-status'>\n";
+			$r .= "\t<div><label>" . __('Post Status') . "</label>\n";
+			$r .= "\t\t<div><select name='post_status' id='post-status'>\n";
 			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_post_status ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
 			}
-			$r .= "\t\t</select>\n";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t\t</select></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $open ) {
-			$r .= "\t<fieldset><legend>" . __('Open?&#8230;') . "</legend>\n";
-			$r .= "\t\t<select name='open' id='topic-open'>\n";
+			$r .= "\t<div><label>" . __('Open?') . "</label>\n";
+			$r .= "\t\t<div><select name='open' id='topic-open'>\n";
 			foreach ( array( 'all' => __('All'), '1' => __('Open'), '0' => __('Closed') ) as $status => $label ) {
 				$label = esc_html( $label );
 				$selected = (string) $status == (string) $q_open ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
 			}
-			$r .= "\t\t</select>\n";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t\t</select></div>\n";
+			$r .= "\t</div>\n\n";
 		}
 
 		if ( $topic_title ) {
 			$q_topic_title = esc_attr( $q_topic_title );
-			$r .= "\t<fieldset><legend>" . __('Title&#8230;') . "</legend>\n";
-			$r .= "\t\t<input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title' />";
-			$r .= "\t</fieldset>\n\n";
+			$r .= "\t<div><label>" . __('Title') . "</label>\n";
+			$r .= "\t\t<div><input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title' /></div>\n";
+			$r .= "\t</div>\n\n";
 		}
+
+		$r .= "\t</fieldset>\n\n";
 
 		$r .= "\t<p class='submit'>\n";
 		$r .= "\t\t<input type='submit' class='button submit-input' value='$submit' id='$id-submit' />\n";

@@ -12,7 +12,7 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 /* Structure
 =================================== */
 
-#header { background-position: -45px bottom; }
+#header { background-position: -43px bottom; }
 
 #header h1 {
 	font-family: Tahoma, Georgia;
@@ -21,11 +21,20 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 	right: auto;
 }
 
+#header div.search {
+	float: left;
+}
+
 #header p.description {
 	font-family: Tahoma, Georgia;
 	text-align: left;
 	left: 53px;
 	right: auto;
+}
+
+#footer {
+	font-family: Tahoma, Georgia;
+	text-align: left;
 }
 
 /* Login Form
@@ -42,7 +51,7 @@ pre, code { font-family: Tahoma, Monaco, 'Courier New', monospace; }
 	padding-right: 0;
 }
 
-form.login input#submit { float: right; }
+form.login input.submit { float: right; }
 
 
 /* Front Page
@@ -64,7 +73,7 @@ form.login input#submit { float: right; }
 /* Topic Page
 =================================== */
 
-.infobox ul { margin: 10px 12px 10px 0; }
+.infobox ul { margin: 10px 20px 10px 0; }
 
 #topic-info {
 	float: right;
@@ -102,7 +111,7 @@ form.login input#submit { float: right; }
 
 #manage-tags li { float: right; }
 
-.submit { text-align: left; }
+p.submit { text-align: left; }
 
 .rss-link {
 	background-position: 100% 50%;
@@ -118,7 +127,10 @@ form.login input#submit { float: right; }
 	padding-left: 0;
 }
 
-#latest th, #forumlist th, #favorites th { font-family: Tahoma, Verdana,Arial,Helvetica,sans-serif; }
+#latest th, #forumlist th, #favorites th {
+	text-align: right;
+	font-family: Tahoma, Verdana,Arial,Helvetica,sans-serif;
+}
 
 /* Profile Page
 =================================== */
@@ -134,6 +146,26 @@ form.login input#submit { float: right; }
 }
 
 .user-recent ol { margin: 5px 28px 0 0; }
+
+/* Search
+=================================== */
+
+#topic-search-form fieldset {
+	padding: 10px 10px 10px 0;
+}
+
+#topic-search-form div label {
+	float: right;
+	text-align: left;
+	padding-right: 0;
+	padding-left: 1em;
+}
+
+#topic-search-form div div {
+	float: right;
+}
+
+.search-results ol { margin: 5px 28px 0 0; }
 
 /* Profile Edit
 =================================== */

@@ -20,9 +20,9 @@ $user_login_error = $bb_register_error->get_error_message( 'user_login' );
 ?>
 
 <table width="100%">
-	<tr class="required<?php if ( $user_login_error ) echo ' form-invalid error'; ?>">
+	<tr class="form-field form-required required<?php if ( $user_login_error ) echo ' form-invalid error'; ?>">
 		<th scope="row">
-			<label for="user_login"><sup class="required">*</sup> <?php _e('Username:'); ?></label>
+			<label for="user_login"><?php _e('Username'); ?></label>
 			<?php if ( $user_login_error ) echo "<em>$user_login_error</em>"; ?>
 		</th>
 		<td>
@@ -34,10 +34,9 @@ $user_login_error = $bb_register_error->get_error_message( 'user_login' );
 
 if ( is_array($profile_info_keys) ) :
 	foreach ( $profile_info_keys as $key => $label ) :
-		$class = '';
+		$class = 'form-field';
 		if ( $label[0] ) {
-			$class .= 'required';
-			$label[1] = '<sup class="required">*</sup> ' . $label[1];
+			$class .= ' form-required required';
 		}
 		if ( $profile_info_key_error = $bb_register_error->get_error_message( $key ) )
 			$class .= ' form-invalid error';
@@ -46,7 +45,7 @@ if ( is_array($profile_info_keys) ) :
 
 	<tr class="<?php echo $class; ?>">
 		<th scope="row">
-			<label for="<?php echo $key; ?>"><?php echo $label[1]; ?>:</label>
+			<label for="<?php echo $key; ?>"><?php echo $label[1]; ?></label>
 			<?php if ( $profile_info_key_error ) echo "<em>$profile_info_key_error</em>"; ?>
 		</th>
 		<td>
@@ -63,7 +62,7 @@ endif; // profile_info_keys
 
 </table>
 
-<p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
+<p class="required-message"><?php _e('These items are <span class="required">required</span>.') ?></p>
 
 </fieldset>
 

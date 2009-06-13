@@ -2,9 +2,9 @@
 Theme Name: Kakumei
 Theme URI: http://bbpress.org/
 Description: The "revolutionized" new face of bbPress.
-Version: 0.01 theta-beta
-Author: Bryan Veloso
-Author URI: http://avalonstar.com
+Version: 1.0
+Author: <a href="http://avalonstar.com">Bryan Veloso</a> with updates by <a href="http://unlettered.org">Sam Bauers</a>
+Author URI: 
 */
 
 /* Globals 
@@ -38,7 +38,7 @@ pre, p { margin-bottom: 1.0em; }
 
 h1 { font-size: 2em; }
 
-h2 { font-size: 1.5em; }
+h2 { font-size: 1.3em; }
 
 fieldset {
 	border-width: 0;
@@ -104,7 +104,7 @@ img.avatar { border: 1px solid #ddd; }
 #header p { margin-bottom: 0; }
 
 #header h1 a { color: #555; text-decoration: none; }
-#header h1 a:hover, #header h1 a:visited { color: #666; }
+#header h1 a:hover { color: #666; }
 
 #header div.search {
 	float: right;
@@ -122,22 +122,34 @@ img.avatar { border: 1px solid #ddd; }
 
 #header div.search input {
 	border: 1px solid #999;
+	background-color: #fdfdfd;
 	padding: 2px;
 	line-height: 14px;
 	font-size: 12px;
 	margin: 0;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 #header div.search input.submit {
+	background-color: #ccc;
 	line-height: 15px;
 	-moz-border-radius: 4px;
 	-khtml-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
+	padding: 2px 4px;
 }
 
 #header div.search input.submit:hover {
 	background-color: #ddd;
+	color: rgb(0, 100, 0);
+}
+
+#header div.search input.submit:active {
+	border-color: rgb(0, 100, 0);
 }
 
 #main {
@@ -156,16 +168,20 @@ img.avatar { border: 1px solid #ddd; }
 }
 
 #footer {
+	font-family: Georgia;
+	font-style: italic;
 	border-top: 1px solid #ccc;
 	margin: auto;
 	color: #666;
 	font-size: 1.0em;
-	letter-spacing: 2px;
-	text-transform: uppercase;
 	padding-top: 10px;
 	clear: both;
-	text-align: center;
+	text-align: right;
 	width: 760px;
+}
+
+#footer p.showoff {
+	color: #888;
 }
 
 .notice {
@@ -204,7 +220,7 @@ form.login {
 	bottom: 15px;
 }
 
-.login p { padding: 0 0 4px; }
+.login p { padding: 0 0 8px; }
 
 .login label {
 	display: block;
@@ -219,9 +235,14 @@ form.login input {
 	line-height: 14px;
 	font-size: 12px;
 	margin: 0;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 form.login input.submit {
+	background-color: #ccc;
 	float: left;
 	margin-top: 14px;
 	margin-bottom: -10px;
@@ -231,10 +252,16 @@ form.login input.submit {
 	-khtml-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
+	padding: 2px 4px;
 }
 
 form.login input.submit:hover {
 	background-color: #ddd;
+	color: rgb(0, 100, 0);
+}
+
+form.login input.submit:active {
+	border-color: rgb(0, 100, 0);
 }
 
 div.remember label {
@@ -274,7 +301,7 @@ form.login input#remember {
 }
 
 #front-page #main h2, #forum-page #main h2, h2.post-form, #userlogin, #currentfavorites, #register, #passwordrecovery {
-	color: #333;
+	color: #555;
 	border-bottom: 1px solid #ddd;
 	margin: 0 0 10px;
 	padding: 0 0 5px;
@@ -336,12 +363,13 @@ a.next.page-numbers:hover {
 .infobox {
 	border: 1px solid #ccc;
 	border-width: 1px 0;
-	padding: 1em;
+	padding: 1em 0;
 }
 
 .infobox ul {
-	margin: 10px 0 10px 12px;
+	margin: 10px 0 10px 20px;
 	padding: 0;
+	list-style-type: disc;
 }
 
 .infobox ul li { padding-bottom: 3px; }
@@ -355,6 +383,44 @@ a.next.page-numbers:hover {
 	border-left: 1px solid #ccc;
 	float: right;
 	padding: 0 0 0 1em;
+}
+
+#tag-form p {
+	margin-bottom: 0;
+}
+
+input#tag {
+	border: 1px solid #999;
+	padding: 2px;
+	line-height: 14px;
+	font-size: 12px;
+	margin: 0;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+input#tagformsub {
+	border: 1px solid #999;
+	line-height: 14px;
+	font-size: 12px;
+	margin: 0;
+	line-height: 15px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	padding: 2px 4px;
+}
+
+input#tagformsub:hover {
+	background-color: #ddd;
+	color: rgb(0, 100, 0);
+}
+
+input#tagformsub:active {
+	border-color: rgb(0, 100, 0);
 }
 
 .nav {
@@ -495,6 +561,11 @@ a.next.page-numbers:hover {
 	white-space: nowrap;
 }
 
+h2.post-form {
+	border-bottom-width: 0;
+	margin-bottom: 2px;
+}
+
 .postform {
 	background-color: #f0f0f0;
 	padding: 1em;
@@ -509,10 +580,14 @@ a.next.page-numbers:hover {
 	height: 12em;
 	margin: 5px 0;
 	padding: 5px;
-	width: 720px;
-	max-width: 720px;
+	width: 724px;
+	max-width: 724px;
 	border: 1px solid #ccc;
 	display: block;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 .postform label { display: block; }
@@ -521,9 +596,13 @@ a.next.page-numbers:hover {
 .postform #tags-input {
 	margin: 5px 0;
 	padding: 5px;
-	width: 720px;
+	width: 724px;
 	border: 1px solid #ccc;
 	display: block;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 #manage-tags {
@@ -538,6 +617,8 @@ a.next.page-numbers:hover {
 }
 
 p.submit { text-align: right; }
+
+p.allowed { margin-bottom: 0; }
 
 .topiclink { display: block; }
 
@@ -595,11 +676,21 @@ a.rss-link {
 #latest tr:hover, #forumlist tr:hover, #favorites tr:hover { background-color: #e4f3e1; }
 
 #latest th, #forumlist th, #favorites th {
-	border-bottom: 1px solid #aaa;
-	background-color: #ddd;
+	text-align: left;
+	background-color: rgb(102, 102, 102);
 	font: 11px Verdana,Arial,Helvetica,sans-serif;
-	padding: 5px 10px;
-	text-transform: uppercase;
+	font-weight: normal;
+	padding: 5px 9px;
+	color: rgb(255, 255, 255);
+}
+
+#latest th a, #forumlist th a, #favorites th a {
+	color: rgb(200, 200, 200);
+	font-style: italic;
+}
+
+#latest th a:hover, #forumlist th a:hover, #favorites th a:hover {
+	color: rgb(255, 255, 255);
 }
 
 tr.bb-category td {
@@ -608,8 +699,17 @@ tr.bb-category td {
 
 #latest, #forumlist, #favorites {
 	background-color: #f7f7f7;
-	margin-bottom: 2em;
+	margin-bottom: 3em;
 	width: 100%;
+}
+
+#latest, #forumlist {
+	margin-top: -0.9em;
+}
+
+#discussions .nav {
+	margin-top: -2em;
+	margin-bottom: 1em;
 }
 
 /* Profile Page
@@ -669,6 +769,62 @@ tr.bb-category td {
 .user-recent ol { margin: 5px 0 0 28px; }
 
 .user-recent ol li { margin: 0 0 3px; }
+
+/* Search
+=================================== */
+
+#topic-search-form fieldset {
+	border-top: 3px double #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: none;
+	border-right: none;
+	padding: 10px 0 10px 10px;
+	margin-bottom: 15px;
+	background-color: #f6f6f6;
+}
+
+#topic-search-form div {
+	clear: both;
+}
+
+#topic-search-form div label {
+	display: block;
+	float: left;
+	padding: 5px;
+	text-align: right;
+	width: 20%;
+	vertical-align: top;
+	padding-right: 1em;
+	font-weight: bold;
+}
+
+#topic-search-form div div {
+	display: block;
+	float: left;
+	clear: none;
+	padding: 5px;
+}
+
+#topic-search-form div div input {
+	width: 280px;
+	border: 1px solid #ccc;
+	padding: 2px;
+	line-height: 14px;
+	font-size: 12px;
+	margin: 0;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+#search-for { margin: 15px 0 5px; }
+
+.search-results { margin: 0 0 10px; }
+
+.search-results ol { margin: 5px 0 0 28px; }
+
+.search-results ol li { margin: 0 0 3px; }
 
 /* Login, Register, Profile Edit
 =================================== */
@@ -740,6 +896,15 @@ tr.bb-category td {
 #login-page fieldset input[type=password],
 #profile-page fieldset input[type=password] {
 	width: 280px;
+	border: 1px solid #ccc;
+	padding: 2px;
+	line-height: 14px;
+	font-size: 12px;
+	margin: 0;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 #login-page fieldset p,
@@ -749,10 +914,13 @@ tr.bb-category td {
 	margin: 10px 16px;
 }
 
-#login-page sup.required,
-#register-page sup.required,
-#profile-page sup.required {
+#login-page tr.form-required label:before,
+#register-page tr.form-required label:before,
+#profile-page tr.form-required label:before,
+p.required-message:before {
+	content: ' * ';
 	color: red;
+	vertical-align: 10%;
 }
 
 .form-invalid {
@@ -764,20 +932,20 @@ tr.bb-category td {
 	border: 1px solid #c00 !important;
 }
 
-.form-table input, .form-table textarea {
-	border-color: #c6d9e9;
-}
-
 .hidden {
 	display: none;
 }
 
 #pass-strength-result {
-	padding: 1px 3px 1px 3px;
+	padding: 2px;
 	text-align: center;
 	width: 280px;
 	border: 1px solid #ccc;
 	background-color: #e3e3e3;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 #pass-strength-result.bad {
@@ -797,4 +965,27 @@ tr.bb-category td {
 #pass-strength-result.strong {
 	background-color: #59ef86;
 	border-color: #319f52;
+}
+
+p.submit input {
+	background-color: #ccc;
+	border: 1px solid #999;
+	padding: 2px 4px;
+	line-height: 14px;
+	font-size: 12px;
+	margin: 0;
+	line-height: 15px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+p.submit input:hover {
+	background-color: #ddd;
+	color: rgb(0, 100, 0);
+}
+
+p.submit input:active {
+	border-color: rgb(0, 100, 0);
 }

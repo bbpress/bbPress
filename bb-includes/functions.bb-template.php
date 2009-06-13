@@ -283,7 +283,7 @@ function post_form( $args = array() ) {
 
 	if ( !empty( $h2 ) ) {
 		if ( bb_is_topic() && ( $page != $last_page && $last_page_only ) ) {
-			$h2 = $h2 . ' <a href="' . esc_attr( get_topic_link( 0, $last_page ) . '#postform' ) . '">&raquo;</a>';
+			$h2 = '<a href="' . esc_attr( get_topic_link( 0, $last_page ) . '#postform' ) . '">' . $h2 . ' &raquo;</a>';
 		}
 		echo '<h2 class="post-form">' . $h2 . '</h2>' . "\n";
 	}
@@ -1083,7 +1083,7 @@ function get_topic_page_links( $id = 0, $args = null ) {
 	$defaults = array(
 		'show_all' => false,
 		'end_size' => 3,
-		'before' => ' -',
+		'before' => ' - ',
 		'after' => null
 	);
 
@@ -2343,12 +2343,11 @@ function bb_profile_data_form( $id = 0 ) {
 		foreach ( $profile_info_keys as $key => $label ) :
 			if ( $label[0] ) {
 				$class = 'form-field form-required required';
-				$title = '<sup class="required">*</sup> ' . esc_attr( $label[1] );
 				$required = true;
 			} else {
 				$class = 'form-field';
-				$title = esc_attr( $label[1] );
 			}
+			$title = esc_attr( $label[1] );
 
 			$name = esc_attr( $key );
 			$type = isset($label[2]) ? esc_attr( $label[2] ) : 'text';
@@ -2443,7 +2442,7 @@ function bb_profile_data_form( $id = 0 ) {
 
 <?php wp_nonce_field( 'edit-profile_' . $user->ID ); if ( $required ) : ?>
 
-<p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
+<p class="required-message"><?php _e('These items are <span class="required">required</span>.') ?></p>
 
 <?php
 	endif;
@@ -2531,12 +2530,11 @@ function bb_profile_admin_form( $id = 0 ) {
 		foreach ( $profile_admin_keys as $key => $label ) :
 			if ( $label[0] ) {
 				$class = 'form-field form-required required';
-				$title = '<sup class="required">*</sup> ' . esc_attr( $label[1] );
 				$required = true;
 			} else {
 				$class = 'form-field';
-				$title = esc_attr( $label[1] );
 			}
+			$title = esc_attr( $label[1] );
 
 			$name = esc_attr( $key );
 			$type = isset($label[2]) ? esc_attr( $label[2] ) : 'text';
@@ -2593,7 +2591,7 @@ function bb_profile_admin_form( $id = 0 ) {
 </table>
 
 <?php if ( $required ) : ?>
-<p><sup class="required">*</sup> <?php _e('These items are <span class="required">required</span>.') ?></p>
+<p class="required-message"><?php _e('These items are <span class="required">required</span>.') ?></p>
 
 <?php endif; ?>
 <p><?php _e('Inactive users can login and look around but not do anything. Blocked users just see a simple error message when they visit the site.'); ?></p>
@@ -2609,7 +2607,7 @@ function bb_profile_password_form( $id = 0 ) {
 	if ( !bb_current_user_can( 'change_user_password', $user->ID ) )
 		return;
 
-	$class = 'form-field form-required';
+	$class = 'form-field';
 
 	if ( $message = $errors->get_error_message( 'pass' ) ) {
 		$class .= ' form-invalid error';
