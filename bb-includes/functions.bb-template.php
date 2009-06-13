@@ -1761,42 +1761,132 @@ function get_post_ip( $post_id = 0 ) {
 	return apply_filters( 'get_post_ip', $bb_post->poster_ip, $bb_post->post_id );
 }
 
-function bb_post_admin() {
-	$parts = array(
-		'ip' => bb_get_post_ip_link(),
-		'edit' => bb_get_post_edit_link(),
-		'delete' => bb_get_post_delete_link()
+function bb_post_admin( $args = null )
+{
+	$defaults = array(
+		'post_id' => 0,
+		'before' => '',
+		'after' => '',
+		'before_each' => '',
+		'after_each' => "\n",
+		'each' => array(
+			'ip' => array(
+				'post_id' => 0
+			),
+			'edit' => array(
+				'post_id' => 0
+			),
+			'delete' => array(
+				'post_id' => 0
+			),
+			'undelete' => array(
+				'post_id' => 0
+			)
+		)
 	);
-	echo join("\n", apply_filters('bb_post_admin', $parts));
+	$args = wp_parse_args( $args, $defaults );
+
+	$parts = array();
+	if ( is_array( $args['each'] ) && count( $args['each'] ) ) {
+		foreach ( $args['each'] as $_part_name => $_part_args ) {
+			if ( $args['post_id'] && !$_part_args['post_id'] ) {
+				$_part_args['post_id'] = $args['post_id'];
+			}
+			if ( $args['before_each'] && !$_part_args['before'] ) {
+				$_part_args['before'] = $args['before_each'];
+			}
+			if ( $args['after_each'] && !$_part_args['after'] ) {
+				$_part_args['after'] = $args['after_each'];
+			}
+			$_part_function = 'bb_get_post_' . $_part_name . '_link';
+			$parts[$_part_name] = $_part_function( $_part_args );
+		}
+
+		// For the benefit of filters, mark the final part
+		$args['last_each'] = $_part_args;
+	}
+
+	echo $args['before'] . join( '', apply_filters( 'bb_post_admin', $parts, $args ) ) . $args['after'];
 }
 
-function post_ip_link( $post_id = 0 ) {
-	echo bb_get_post_ip_link( $post_id );
+function post_ip_link( $args = null )
+{
+	echo bb_get_post_ip_link( $args );
 }
 
-function bb_get_post_ip_link( $post_id = 0 ) {
-	if ( !bb_current_user_can( 'view_by_ip' ) )
+function bb_get_post_ip_link( $args = null )
+{
+	if ( !bb_current_user_can( 'view_by_ip' ) ) {
 		return;
-	
-	$uri = bb_get_uri('bb-admin/view-ip.php', array('ip' => get_post_ip($post_id)), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$link = '<a href="' . esc_attr( $uri ) . '">' . get_post_ip( $post_id ) . '</a>';
-	return apply_filters( 'post_ip_link', $link, get_post_id( $post_id ) );
+	}
+
+	$defaults = array(
+		'post_id' => 0,
+		'before' => '',
+		'after' => '',
+		'text' => '%s'
+	);
+	if ( is_numeric( $args ) ) {
+		$args = array( 'post_id' => $args );
+	}
+	$args = wp_parse_args( $args, $defaults );
+
+	$bb_post = bb_get_post( get_post_id( $args['post_id'] ) );
+
+	$uri = bb_get_uri( 'bb-admin/view-ip.php', array( 'ip' => get_post_ip( $bb_post->post_id ) ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN );
+
+	// Make sure that the last tag in $before gets a class (if it's there)
+	if ( preg_match( '/.*(<[^>]+>)[^<]*/', $args['before'], $_node ) ) {
+		if ( preg_match( '/class=(\'|")(.*)\1/U', $_node[1], $_class ) ) {
+			$args['before'] = str_replace( $_class[0], 'class=' . $_class[1] . 'before-post-ip-link ' . $_class[2] . $_class[1], $args['before'] );
+		} else {
+			$args['before'] = preg_replace( '/(.*)<([a-z0-9_-]+)(\s?)([^>]*)>([^<]*)/i', '$1<$2 class="before-post-ip-link"$3$4>$5', $args['before'], 1 );
+		}
+	}
+
+	$link = $args['before'] . '<a class="post-ip-link" href="' . esc_attr( $uri ) . '">' . esc_html( sprintf( $args['text'], get_post_ip( $bb_post->post_id ) ) ) . '</a>' . $args['after'];
+	return apply_filters( 'post_ip_link', $link, $bb_post->post_id, $args );
 }
 
-function post_edit_link( $post_id = 0 ) {
-	echo bb_get_post_edit_link( $post_id );
+function post_edit_link( $args = null )
+{
+	echo bb_get_post_edit_link( $args );
 }
 
-function bb_get_post_edit_link( $post_id = 0 ) {
-	$bb_post = bb_get_post( get_post_id( $post_id ) );
+function bb_get_post_edit_link( $args = null )
+{
+	$defaults = array(
+		'post_id' => 0,
+		'before' => '',
+		'after' => '',
+		'text' => __( 'Edit' )
+	);
+	if ( is_numeric( $args ) ) {
+		$args = array( 'post_id' => $args );
+	}
+	$args = wp_parse_args( $args, $defaults );
+
+	$bb_post = bb_get_post( get_post_id( $args['post_id'] ) );
+
 	if ( bb_current_user_can( 'edit_post', $bb_post->post_id ) ) {
-		$uri = bb_get_uri('edit.php', array('id' => $bb_post->post_id));
-		$r = "<a href='" . esc_attr( apply_filters( 'post_edit_uri', $uri, $bb_post->post_id ) ) . "'>". __('Edit') ."</a>";
-		return apply_filters('bb_get_post_edit_link', $r, get_post_id( $post_id ) );
+		$uri = bb_get_uri( 'edit.php', array( 'id' => $bb_post->post_id ) );
+
+		// Make sure that the last tag in $before gets a class (if it's there)
+		if ( preg_match( '/.*(<[^>]+>)[^<]*/', $args['before'], $_node ) ) {
+			if ( preg_match( '/class=(\'|")(.*)\1/U', $_node[1], $_class ) ) {
+				$args['before'] = str_replace( $_class[0], 'class=' . $_class[1] . 'before-post-edit-link ' . $_class[2] . $_class[1], $args['before'] );
+			} else {
+				$args['before'] = preg_replace( '/(.*)<([a-z0-9_-]+)(\s?)([^>]*)>([^<]*)/i', '$1<$2 class="before-post-edit-link"$3$4>$5', $args['before'], 1 );
+			}
+		}
+
+		$r = $args['before'] . '<a class="post-edit-link" href="' . esc_attr( apply_filters( 'post_edit_uri', $uri, $bb_post->post_id, $args ) ) . '">' . esc_html( $args['text'] ) . '</a>' . $args['after'];
+		return apply_filters( 'bb_get_post_edit_link', $r, $bb_post->post_id, $args );
 	}
 }
 
-function post_del_class( $post_id = 0 ) {
+function post_del_class( $post_id = 0 )
+{
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	$classes = array();
 	if ( bb_get_post_meta( 'pingback_uri', $post_id ) ) {
@@ -1815,19 +1905,31 @@ function post_del_class( $post_id = 0 ) {
 	return apply_filters( 'post_del_class', $classes, $bb_post->post_id );
 }
 
-function post_delete_link( $post_id = 0 ) {
-	echo bb_get_post_delete_link( $post_id );
+function post_delete_link( $args = null )
+{
+	echo bb_get_post_delete_link( $args );
 }
 
-function bb_get_post_delete_link( $args = null ) {
-	$defaults = array( 'id' => 0, 'before' => '', 'after' => '', 'delete_text' => false, 'undelete_text' => false, 'redirect' => true );
-	if ( is_numeric( $args ) || is_object( $args ) )
-		$args = array( 'id' => $args );
+function bb_get_post_delete_link( $args = null )
+{
+	$defaults = array(
+		'post_id' => 0,
+		'before' => '',
+		'after' => '',
+		'text' => __( 'Delete' ),
+		'redirect' => true
+	);
+	if ( is_numeric( $args ) || is_object( $args ) ) {
+		$args = array( 'post_id' => $args );
+	}
+	if ( isset( $args['delete_text'] ) && ( !isset( $args['text'] ) || !$args['text'] ) ) {
+		$args['text'] = $args['delete_text'];
+	}
 
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
-	$bb_post = bb_get_post( get_post_id( $id ) );
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
 	if ( bb_is_first( $bb_post->post_id ) ) {
 		$topic = get_topic( $bb_post->topic_id );
 		if ( 2 > $topic->topic_posts ) {
@@ -1836,39 +1938,97 @@ function bb_get_post_delete_link( $args = null ) {
 		}
 	}
 	
-	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) )
+	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) ) {
 		return;
+	}
 
-	if ( true === $redirect )
+	if ( true === $redirect ) {
 		$redirect = $_SERVER['REQUEST_URI'];
+	}
 
-	$undelete_uri = bb_get_uri('bb-admin/delete-post.php', array(
+	$uri = bb_get_uri('bb-admin/delete-post.php', array(
+		'id' => $bb_post->post_id,
+		'status' => 1,
+		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
+	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
+	$uri = esc_url( wp_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
+
+	if ( ( bb_is_admin() || isset( $_GET['view'] ) && 'all' == $_GET['view'] ) ) {
+		$ajax_class = 'dim:thread:post-' . $bb_post->post_id . ':deleted:FF3333:FFFF33:action=delete-post&amp;status=1';
+	} else {
+		$ajax_class = 'delete:thread:post-' . $bb_post->post_id . '::status=1';
+	}
+
+	$text = esc_html( $text );
+
+	// Make sure that the last tag in $before gets a class (if it's there)
+	if ( preg_match( '/.*(<[^>]+>)[^<]*/', $before, $_node ) ) {
+		if ( preg_match( '/class=(\'|")(.*)\1/U', $_node[1], $_class ) ) {
+			$before = str_replace( $_class[0], 'class=' . $_class[1] . 'before-post-delete-link ' . $_class[2] . $_class[1], $before );
+		} else {
+			$before = preg_replace( '/(.*)<([a-z0-9_-]+)(\s?)([^>]*)>([^<]*)/i', '$1<$2 class="before-post-delete-link"$3$4>$5', $before, 1 );
+		}
+	}
+
+	$r = $before . '<a href="' . $uri . '" class="' . $ajax_class . ' post-delete-link">' . $text . '</a>' . $after;
+	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id, $args );
+	return $r;
+}
+
+function bb_post_undelete_link( $args = null )
+{
+	echo bb_get_post_undelete_link( $args );
+}
+
+function bb_get_post_undelete_link( $args = null )
+{
+	$defaults = array(
+		'post_id' => 0,
+		'before' => '',
+		'after' => '',
+		'text' => __( 'Undelete' ),
+		'redirect' => true
+	);
+	if ( is_numeric( $args ) || is_object( $args ) ) {
+		$args = array( 'post_id' => $args );
+	}
+
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	$bb_post = bb_get_post( get_post_id( $post_id ) );
+
+	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) ) {
+		return;
+	}
+
+	if ( true === $redirect ) {
+		$redirect = $_SERVER['REQUEST_URI'];
+	}
+
+	$uri = bb_get_uri('bb-admin/delete-post.php', array(
 		'id' => $bb_post->post_id,
 		'status' => 0,
 		'view' => 'all',
 		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
 	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$undelete_uri = esc_url( wp_nonce_url( $undelete_uri, 'delete-post_' . $bb_post->post_id ) );
+	$uri = esc_url( wp_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
 
-	$delete_uri = bb_get_uri('bb-admin/delete-post.php', array(
-		'id' => $bb_post->post_id,
-		'status' => 1,
-		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
-	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$delete_uri = esc_url( wp_nonce_url( $delete_uri, 'delete-post_' . $bb_post->post_id ) );
+	$ajax_class = 'dim:thread:post-' . $bb_post->post_id . ':deleted:FF3333:FFFF33:action=delete-post&amp;status=0';
 
-	$ajax_undelete_class = "dim:thread:post-{$bb_post->post_id}:deleted:FF3333:FFFF33:action=delete-post&amp;status=0";
+	$text = esc_html( $text );
 
-	if ( ( bb_is_admin() || isset($_GET['view']) && 'all' == $_GET['view'] ) )
-		$ajax_delete_class = "dim:thread:post-{$bb_post->post_id}:deleted:FF3333:FFFF33:action=delete-post&amp;status=1";
-	else
-		$ajax_delete_class = "delete:thread:post-{$bb_post->post_id}::status=1";
+	// Make sure that the last tag in $before gets a class (if it's there)
+	if ( preg_match( '/.*(<[^>]+>)[^<]*/', $before, $_node ) ) {
+		if ( preg_match( '/class=(\'|")(.*)\1/U', $_node[1], $_class ) ) {
+			$before = str_replace( $_class[0], 'class=' . $_class[1] . 'before-post-undelete-link ' . $_class[2] . $_class[1], $before );
+		} else {
+			$before = preg_replace( '/(.*)<([a-z0-9_-]+)(\s?)([^>]*)>([^<]*)/i', '$1<$2 class="before-post-undelete-link"$3$4>$5', $before, 1 );
+		}
+	}
 
-	$delete_text = esc_html( $delete_text ? $delete_text : __( 'Delete' ) );
-	$undelete_text = esc_html( $undelete_text ? $undelete_text : __( 'Undelete' ) );
-
-	$r = "$before<a href='$delete_uri' class='$ajax_delete_class delete-post'>$delete_text</a> <a href='$undelete_uri' class='$ajax_undelete_class undelete-post'>$undelete_text</a>$after";
-	$r = apply_filters( 'post_delete_link', $r, $bb_post->post_status, $bb_post->post_id, $args );
+	$r = $before . '<a href="' . $uri . '" class="' . $ajax_class . ' post-undelete-link">' . $text . '</a>' . $after;
+	$r = apply_filters( 'post_undelete_link', $r, $bb_post->post_status, $bb_post->post_id, $args );
 	return $r;
 }
 

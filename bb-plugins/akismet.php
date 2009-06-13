@@ -288,27 +288,49 @@ function bb_ksd_admin_page() {
 	echo get_page_number_links( $page, $total, '', false );
 }
 
-function bb_ksd_post_delete_link($link, $post_status) {
-	if ( !bb_current_user_can('moderate') )
+function bb_ksd_post_delete_link( $parts, $args )
+{
+	if ( !bb_current_user_can( 'moderate' ) ) {
 		return $link;
-	if ( 2 == $post_status ) {
+	}
+	$bb_post = bb_get_post( get_post_id( $args['post_id'] ) );
+
+	if ( 2 == $bb_post->post_status ) {
 		$query = array(
-			'id'     => get_post_id(),
+			'id'     => $bb_post->post_id,
 			'status' => 0,
 			'view'   => 'all'
 		);
 		$display = __('Not Spam');
 	} else {
 		$query = array(
-			'id'     => get_post_id(),
+			'id'     => $bb_post->post_id,
 			'status' => 2
 		);
 		$display = __('Spam');
 	}
-	$uri = bb_get_uri('bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = esc_attr( wp_nonce_url( $uri, 'delete-post_' . get_post_id() ) );
-	$link .= " <a href='" . $uri . "' >" . $display ."</a>";
-	return $link;
+	$uri = bb_get_uri( 'bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN );
+	$uri = esc_attr( wp_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
+	if ( !is_array( $parts ) ) {
+		$parts = array();
+		$before = '';
+		$after = '';
+	} else {
+		$before = $args['last_each']['before'];
+		$after = $args['last_each']['after'];
+	}
+
+	// Make sure that the last tag in $before gets a class (if it's there)
+	if ( preg_match( '/.*(<[^>]+>)[^<]*/', $before, $_node ) ) {
+		if ( preg_match( '/class=(\'|")(.*)\1/U', $_node[1], $_class ) ) {
+			$before = str_replace( $_class[0], 'class=' . $_class[1] . 'before-post-spam-link ' . $_class[2] . $_class[1], $before );
+		} else {
+			$before = preg_replace( '/(.*)<([a-z0-9_-]+)(\s?)([^>]*)>([^<]*)/i', '$1<$2 class="before-post-spam-link"$3$4>$5', $before, 1 );
+		}
+	}
+
+	$parts[] = $before . '<a class="post-spam-link" href="' . $uri . '" >' . $display . '</a>' . $after;
+	return $parts;
 }
 
 add_action( 'pre_post', 'bb_ksd_check_post', 1 );
@@ -318,5 +340,4 @@ add_action( 'register_user', 'bb_ksd_check_profile', 1);
 add_action( 'profile_edited', 'bb_ksd_check_profile', 1);
 add_action( 'bb_admin_menu_generator', 'bb_ksd_admin_menu' );
 add_action( 'bb_delete_post', 'bb_ksd_delete_post', 10, 3);
-add_filter( 'post_delete_link', 'bb_ksd_post_delete_link', 10, 2 );
-?>
+add_filter( 'bb_post_admin', 'bb_ksd_post_delete_link', 10, 2 );

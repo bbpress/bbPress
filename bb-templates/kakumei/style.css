@@ -408,8 +408,13 @@ a.next.page-numbers:hover {
 
 #thread li.alt.deleted .threadpost { background-color: #ff9999; }
 
-#thread li .undelete-post, #thread li.deleted .delete-post { display: none; }
-#thread li.deleted .undelete-post { display: inline; }
+#thread li .post-undelete-link, #thread li.deleted .post-delete-link { display: none; }
+#thread li.deleted .post-undelete-link { display: inline; }
+
+#thread li.deleted .before-post-delete-link, #thread li .before-post-undelete-link { display: none; }
+#thread li.deleted span.before-post-undelete-link { display: inline; }
+#thread li.deleted div.before-post-undelete-link { display: block; }
+#thread li.deleted li.before-post-undelete-link { display: block; }
 
 #thread li.pingback {
 	margin-left: 140px;
