@@ -305,7 +305,7 @@ function bb_bozo_admin_page() {
 		}
 	}
 
-	$bozos = new BB_Bozo_Users( $_GET['userspage'] );
+	$bozos = new BB_Bozo_Users( @$_GET['page'] );
 	$bozos->display( false, bb_current_user_can( 'edit_users' ) );
 }
 

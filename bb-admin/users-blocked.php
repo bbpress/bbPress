@@ -2,7 +2,7 @@
 require_once('admin.php');
 
 // Query the users
-$bb_blocked_users = new BB_Users_By_Role( array('inactive', 'blocked'), @$_GET['userspage'] );
+$bb_blocked_users = new BB_Users_By_Role( array('inactive', 'blocked'), @$_GET['page'] );
 
 $bb_admin_body_class = ' bb-admin-users';
 
