@@ -8,23 +8,32 @@ include( $file_source );
 $file_source_rules = $_rules; // This is a string
 
 if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update') {
-	
+
 	bb_check_admin_referer( 'options-permalinks-update' );
-	
+
 	foreach ( (array) $_POST as $option => $value ) {
 		if ( !in_array( $option, array('_wpnonce', '_wp_http_referer', 'action', 'submit') ) ) {
 			$option = trim( $option );
 			$value = is_array( $value ) ? $value : trim( $value );
 			$value = stripslashes_deep( $value );
-			if ($option == 'uri' && !empty($value)) {
-				$value = rtrim( $value, " \t\n\r\0\x0B/" ) . '/';
-			}
 			if ( $value ) {
 				bb_update_option( $option, $value );
 			} else {
 				bb_delete_option( $option );
 			}
 		}
+	}
+
+	$mod_rewrite = (string) bb_get_option( 'mod_rewrite' );
+
+	// Make sure mod_rewrite is possible on the server
+	if ( '0' !== $mod_rewrite && !apache_mod_loaded( 'mod_rewrite', true ) ) {
+		bb_update_option( 'mod_rewrite', '0' );
+		bb_delete_option( 'mod_rewrite_writable' );
+		$goback = remove_query_arg( 'updated', wp_get_referer() );
+		$goback = add_query_arg( 'unsupported', 'true', $goback );
+		bb_safe_redirect( $goback );
+		exit;
 	}
 
 	$file_target_rules = array();
@@ -83,13 +92,18 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 
 	bb_update_option( 'mod_rewrite_writable', $file_target_writable );
 
-	$goback = add_query_arg( 'updated', 'true', wp_get_referer() );
+	$goback = remove_query_arg( 'unsupported', wp_get_referer() );
+	$goback = add_query_arg( 'updated', 'true', $goback );
 	bb_safe_redirect( $goback );
 	exit;
 }
 
 if ( bb_get_option( 'mod_rewrite' ) && !bb_get_option( 'mod_rewrite_writable' ) ) {
 	$manual_instructions = true;
+}
+
+if ( !empty( $_GET['unsupported'] ) ) {
+	bb_admin_notice( __( '<strong>It appears that your server does not support custom permalink structures.</strong>' ), 'error' );
 }
 
 if ( !empty( $_GET['updated'] ) ) {
@@ -102,12 +116,12 @@ if ( !empty( $_GET['updated'] ) ) {
 
 $permalink_options = array(
 	'mod_rewrite' => array(
-		'title' => __( 'Pretty permalink type' ),
-		'type' => 'select',
+		'title' => __( 'Permalink type' ),
+		'type' => 'radio',
 		'options' => array(
-			'0' => __( 'None&nbsp;&nbsp;&nbsp;&hellip;/forums.php?id=1' ),
-			'1' => __( 'Numeric&nbsp;&nbsp;&nbsp;.../forums/1' ),
-			'slugs' => __( 'Name based&nbsp;&nbsp;&nbsp;.../forums/first-forum' ),
+			'0' => sprintf( __( '<span>None</span> <code>%s</code>' ), bb_get_uri( 'forums.php', array( 'id' => 1 ), BB_URI_CONTEXT_TEXT ) ),
+			'1' => sprintf( __( '<span>Numeric</span> <code>%s</code>' ), bb_get_uri( 'forums/1', null, BB_URI_CONTEXT_TEXT ) ),
+			'slugs' => sprintf( __( '<span>Name based</span> <code>%s</code>' ), bb_get_uri( '/forums/first-forum', null, BB_URI_CONTEXT_TEXT ) )
 		)
 	)
 );
@@ -149,7 +163,7 @@ if ( $manual_instructions ) {
 		<p>
 			<?php _e( 'If your <code>.htaccess</code> file were <a href="http://codex.wordpress.org/Changing_File_Permissions">writable</a>, we could do this automatically, but it isn&#8217;t so these are the mod_rewrite rules you should have in your <code>.htaccess</code> file. Click in the field and press <kbd>CTRL + a</kbd> to select all.' ); ?>
 		</p>
-		<textarea><?php echo trim( $file_source_rules ); ?></textarea>
+		<textarea id="rewrite-rules" class="readonly" readonly="readonly" rows="6"><?php echo esc_html( trim( $file_source_rules ) ); ?></textarea>
 	</fieldset>
 </form>
 

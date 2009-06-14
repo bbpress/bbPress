@@ -1149,10 +1149,30 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 ?>
 
 		<div id="option-<?php echo $id; ?>"<?php if ( $hardcoded ) echo ' class="disabled"'; ?>>
+<?php
+			switch ( $args['type'] ) {
+				case 'radio' :
+				case 'message' :
+?>
+			<div class="label">
+				<?php echo $args['title']; ?>
+			</div>
+
+<?php
+					break;
+				case 'select' :
+				case 'checkbox' :
+				default :
+?>
 			<label for="<?php echo $id; ?>">
 				<?php echo $args['title']; ?>
 			</label>
-			<div>
+
+<?php
+					break;
+			}
+?>
+			<div class="inputs">
 
 <?php
 			if ( $args['before'] ) {
@@ -1173,6 +1193,18 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 					$value = false === $args['value'] ? 1 : esc_attr( $args['value'] );
 					$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
 					echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
+					break;
+				case 'radio' :
+					if ( is_array( $args['options'] ) ) {
+						$_id = 0;
+						foreach ( $args['options'] as $option => $label ) {
+							//echo "\t<option value='$option'" . ( $value == $option ? " selected='selected'" : '' ) . ">$label</option>\n";
+							echo "<label class=\"radios\"><input$disabled type='radio' class='" . join( ' ', $class ) . "' name='$name' id='$id-$_id' value='$option'" . ( $value == $option ? " checked='checked'" : '' ) . "{$attributes} /> $label</label>\n";
+							$_id++;
+						}
+					} elseif ( is_string( $args['options'] ) ) {
+						echo $args['options'] . "\n";
+					}
 					break;
 				case 'message' :
 					if ( $args['message'] ) {

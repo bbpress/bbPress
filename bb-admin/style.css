@@ -663,6 +663,15 @@ form.settings p {
 	margin: 1em 0;
 }
 
+form.settings code {
+	font-family: Consolas, Monaco, Courier, monospace;
+	font-size: 1.2em;
+	background: rgb(234, 234, 234);
+	margin: 0px 1px;
+	padding: 1px 3px;
+	color: rgb(51, 51, 51);
+}
+
 form.settings a {
 	color: rgb(33, 117, 155);
 }
@@ -686,13 +695,34 @@ form.settings div label {
 	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
 }
 
-form.settings div div {
+form.settings div div.label {
+	float: left;
+	display: block;
+	padding: 3px;
+	width: 200px;
+	color: rgb(34, 34, 34);
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+}
+
+form.settings div div.inputs {
 	clear: none;
 	padding: 0;
 	margin: 0 0 0 210px;
 }
 
-form.settings div input.text {
+form.settings div div.inputs label {
+	float: none;
+	display: block;
+	padding: 0;
+	margin: 0 0 6px 6px;
+	width: auto;
+	color: rgb(51, 51, 51);
+	text-shadow: none;
+	font-size: 0.85em;
+}
+
+form.settings input.text,
+form.settings textarea {
 	width: 300px;
 	padding: 3px;
 	-moz-border-radius: 4px;
@@ -701,24 +731,21 @@ form.settings div input.text {
 	border-radius: 4px;
 	border: 1px solid rgb(223, 223, 223);
 	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
-	font-size: 0.9em;
+	font-size: 1em;
 }
 
 form.settings div input.text.short {
 	width: 100px;
 }
 
-form.settings div input.text.code,
-form.settings div p code {
+form.settings div input.text.code {
 	font-family: Consolas, Monaco, Courier, monospace;
 	font-size: 1.2em;
 }
 
-form.settings div p code {
-	background: rgb(234, 234, 234);
-	margin: 0px 1px;
-	padding: 1px 3px;
-	color: rgb(51, 51, 51);
+form.settings input.readonly,
+form.settings textarea.readonly {
+	background-color: rgb(221, 221, 221);
 }
 
 form.settings div span.after {
@@ -756,6 +783,19 @@ form.settings input.submit:hover {
 
 form.settings input.submit:active {
 	background-position: 0 30px;
+}
+
+form.settings div#option-mod-rewrite div.inputs label.radios span {
+	display: inline-block;
+	width: 7em;
+}
+
+form.settings div#option-mod-rewrite div.inputs label.radios code {
+	white-space: nowrap;
+}
+
+form.settings textarea#rewrite-rules {
+	width: 99%;
 }
 
 
