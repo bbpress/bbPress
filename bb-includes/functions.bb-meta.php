@@ -458,13 +458,15 @@ function bb_cache_all_options()
 		'user_plugins_cookie_path',
 		'wp_admin_cookie_path',
 		'wp_plugins_cookie_path',
+		'wordpress_mu_primary_blog_id',
 		'enable_xmlrpc',
 		'enable_pingback',
 		'throttle_time',
 		'bb_xmlrpc_allow_user_switching',
 		'bp_bbpress_cron',
 		'email_login',
-		'static_title'
+		'static_title',
+		'plugin_cookie_paths' // deprecated
 	);
 
 	foreach ( $base_options as $base_option ) {
