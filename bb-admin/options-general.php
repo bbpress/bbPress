@@ -2,36 +2,28 @@
 
 require_once('admin.php');
 
-if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update') {
+if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update' ) {
 	
 	bb_check_admin_referer( 'options-general-update' );
 	
 	foreach ( (array) $_POST as $option => $value ) {
-		if ( !in_array( $option,
-			array('_wpnonce',
-			'_wp_http_referer',
-			'action',
-			'submit') ) ) {
+		if ( !in_array( $option, array( '_wpnonce', '_wp_http_referer', 'action', 'submit' ) ) ) {
 			$option = trim( $option );
 			$value = is_array( $value ) ? $value : trim( $value );
 			$value = stripslashes_deep( $value );
-			if ($option == 'uri' && !empty($value)) {
-				$value = rtrim( $value,
-			" \t\n\r\0\x0B/" ) . '/';
+			if ( $option == 'uri' && !empty( $value ) ) {
+				$value = rtrim( $value, " \t\n\r\0\x0B/" ) . '/';
 			}
 			if ( $value ) {
-				bb_update_option( $option,
-			$value );
+				bb_update_option( $option, $value );
 			} else {
 				bb_delete_option( $option );
 			}
 		}
 	}
 	
-	$goback = add_query_arg('updated',
-			'true',
-			wp_get_referer());
-	bb_safe_redirect($goback);
+	$goback = add_query_arg( 'updated', 'true', wp_get_referer() );
+	bb_safe_redirect( $goback );
 	exit;
 }
 

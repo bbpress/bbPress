@@ -21,9 +21,6 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 			$option = trim( $option );
 			$value = is_array( $value ) ? $value : trim( $value );
 			$value = stripslashes_deep( $value );
-			if ($option == 'uri' && !empty($value)) {
-				$value = rtrim( $value, " \t\n\r\0\x0B/" ) . '/';
-			}
 			if ( $value ) {
 				bb_update_option( $option, $value );
 			} else {
