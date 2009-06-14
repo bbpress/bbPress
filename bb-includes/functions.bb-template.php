@@ -1806,7 +1806,13 @@ function bb_post_admin( $args = null )
 		$args['last_each'] = $_part_args;
 	}
 
-	echo $args['before'] . join( '', apply_filters( 'bb_post_admin', $parts, $args ) ) . $args['after'];
+	$parts = apply_filters( 'bb_post_admin', $parts, $args );
+
+	if ( !count( $parts ) ) {
+		return;
+	}
+
+	echo $args['before'] . join( '', $parts ) . $args['after'];
 }
 
 function post_ip_link( $args = null )
