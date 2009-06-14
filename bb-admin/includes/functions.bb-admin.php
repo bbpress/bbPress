@@ -139,11 +139,10 @@ function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_positi
 						$upper = 100;
 						break;
 					case 'main':
-					default:
 						$lower = 200;
 						$upper = 250;
 						break;
-					case 'side':
+					default:
 						$lower = 350;
 						$upper = 500;
 						break;

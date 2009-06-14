@@ -387,6 +387,11 @@ ul#bbAdminMenu li.bb-menu a div.bb-menu-icon {
 	background: transparent url('images/menu.png') no-repeat -337px -39px;
 }
 
+ul#bbAdminMenu li.bb-menu.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li.bb-menu a:hover div.bb-menu-icon {
+	background-position: -337px -7px;
+}
+
 ul#bbAdminMenu li#bb-menu-dashboard a div.bb-menu-icon {
 	background-position: -67px -39px;
 }

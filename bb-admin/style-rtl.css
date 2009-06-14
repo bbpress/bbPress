@@ -133,7 +133,12 @@ ul#bbAdminMenu li.bb-menu.bb-menu-has-submenu.bb-menu-current div.bb-menu-toggle
 
 ul#bbAdminMenu li.bb-menu a div.bb-menu-icon {
 	float: right;
-	background-position: -337px -39px;
+	background-position: -331px -39px;
+}
+
+ul#bbAdminMenu li.bb-menu.bb-menu-current a div.bb-menu-icon,
+ul#bbAdminMenu li.bb-menu a:hover div.bb-menu-icon {
+	background-position: -331px -7px;
 }
 
 ul#bbAdminMenu li#bb-menu-dashboard a div.bb-menu-icon {
