@@ -887,6 +887,9 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 		case 'logo':
 			$default = '';
 			break;
+		case 'blank':
+			$default = bb_get_uri( 'bb-admin/images/blank.gif', null, BB_URI_CONTEXT_IMG_SRC );
+			break;
 		case 'monsterid':
 		case 'wavatar':
 		case 'identicon':
