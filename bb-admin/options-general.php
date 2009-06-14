@@ -155,10 +155,10 @@ if ( wp_timezone_supported() ) {
 			$timezone_string = 'Etc/UTC';
 		} elseif ( $_gmt_offset > 0 ) {
 			// Zoneinfo has these signed backwards to common convention
-			$timezone_string = 'Etc/GMT-' . $_gmt_offset;
+			$timezone_string = 'Etc/GMT-' . abs( $_gmt_offset );
 		} else {
 			// Zoneinfo has these signed backwards to common convention
-			$timezone_string = 'Etc/GMT+' . $_gmt_offset;
+			$timezone_string = 'Etc/GMT+' . abs( $_gmt_offset );
 		}
 		unset( $_gmt_offset );
 	}
