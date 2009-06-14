@@ -32,7 +32,7 @@ function bb_ksd_configuration_page() {
 		</div>
 	</fieldset>
 	<fieldset>
-		<?php wp_nonce_field( 'akismet-configuration' ); ?>
+		<?php bb_nonce_field( 'akismet-configuration' ); ?>
 		<input type="hidden" name="action" id="action" value="update-akismet-configuration" />
 		<div class="spacer">
 			<input type="submit" name="submit" id="submit" value="<?php _e('Update Configuration &raquo;') ?>" />
@@ -310,7 +310,7 @@ function bb_ksd_post_delete_link( $parts, $args )
 		$display = __('Spam');
 	}
 	$uri = bb_get_uri( 'bb-admin/delete-post.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN );
-	$uri = esc_attr( wp_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
+	$uri = esc_url( bb_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
 	if ( !is_array( $parts ) ) {
 		$parts = array();
 		$before = '';

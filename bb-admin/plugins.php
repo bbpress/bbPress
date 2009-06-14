@@ -111,7 +111,7 @@ bb_get_admin_header();
 <?php
 if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 	$scrape_src = esc_attr(
-		wp_nonce_url(
+		bb_nonce_url(
 			bb_get_uri(
 				'bb-admin/plugins.php',
 				array(
@@ -164,7 +164,7 @@ if ( $normal_plugins ) :
 			$action_text = __( 'Deactivate' );
 		}
 		$href = esc_attr(
-			wp_nonce_url(
+			bb_nonce_url(
 				bb_get_uri(
 					'bb-admin/plugins.php',
 					array(

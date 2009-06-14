@@ -63,7 +63,7 @@ bb_get_admin_header();
 			<input type="hidden" name="action" value="delete" />
 			<input type="hidden" name="forum_id" value="<?php echo $deleted_forum->forum_id; ?>" />
 		</p>
-		<?php wp_nonce_field( 'delete-forums' ); ?>
+		<?php bb_nonce_field( 'delete-forums' ); ?>
 	</form>
 	<form method="get" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 		<p class="submit alignleft">

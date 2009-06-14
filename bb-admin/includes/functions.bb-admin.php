@@ -821,8 +821,8 @@ function bb_forum_form( $forum_id = 0 ) {
 <?php if ( $forum_id ) : ?>
 		<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
 <?php endif; ?>
-		<?php wp_nonce_field( 'order-forums', 'order-nonce' ); ?>
-		<?php wp_nonce_field( "$action-forum" ); ?>
+		<?php bb_nonce_field( 'order-forums', 'order-nonce' ); ?>
+		<?php bb_nonce_field( "$action-forum" ); ?>
 		<input type="hidden" name="action" value="<?php echo $action; ?>" />
 		<input name="Submit" type="submit" value="<?php if ( $forum_id ) _e('Update Forum &#187;'); else _e('Add Forum &#187;'); ?>" tabindex="13" />
 	</p>

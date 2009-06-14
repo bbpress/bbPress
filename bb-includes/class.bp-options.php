@@ -31,9 +31,6 @@ class BP_Options
 			case 'hash_function_name':
 				return 'bb_hash';
 				break;
-			case 'create_nonce_function_name':
-				return 'bb_create_nonce';
-				break;
 			case 'language_locale':
 				return bb_get_locale();
 				break;

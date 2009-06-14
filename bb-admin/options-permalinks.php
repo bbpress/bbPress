@@ -135,7 +135,7 @@ foreach ( $permalink_options as $option => $args ) {
 ?>
 	</fieldset>
 	<fieldset class="submit">
-		<?php wp_nonce_field( 'options-permalinks-update' ); ?>
+		<?php bb_nonce_field( 'options-permalinks-update' ); ?>
 		<input type="hidden" name="action" value="update" />
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>

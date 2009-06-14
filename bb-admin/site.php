@@ -22,7 +22,7 @@ bb_get_admin_header();
 		<?php endforeach; endif; ?>
 		</ol>
 		<p class="submit alignleft"><input name="Submit" type="submit" value="<?php _e('Count!') ?>" tabindex="<?php echo $i++; ?>" /></p>
-		<?php wp_nonce_field( 'do-counts' ); ?>
+		<?php bb_nonce_field( 'do-counts' ); ?>
 	</fieldset>
 </form>
 

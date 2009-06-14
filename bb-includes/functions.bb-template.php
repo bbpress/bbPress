@@ -297,7 +297,7 @@ function post_form( $args = array() ) {
 		echo '<form class="postform post-form" id="postform" method="post" action="' . bb_get_uri( 'bb-post.php', null, BB_URI_CONTEXT_FORM_ACTION ) . '">' . "\n";
 		echo '<fieldset>' . "\n";
 		bb_load_template( 'post-form.php', array('h2' => $h2) );
-		wp_nonce_field( bb_is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
+		bb_nonce_field( bb_is_topic() ? 'create-post_' . $topic->topic_id : 'create-topic' );
 		if ( bb_is_forum() ) {
 			echo '<input type="hidden" name="forum_id" value="' . $forum->forum_id . '" />' . "\n";
 		} elseif ( bb_is_topic() ) {
@@ -323,7 +323,7 @@ function edit_form() {
 	echo '<form class="postform edit-form" method="post" action="' . bb_get_uri('bb-edit.php', null, BB_URI_CONTEXT_FORM_ACTION)  . '">' . "\n";
 	echo '<fieldset>' . "\n";
 	bb_load_template( 'edit-form.php', array('topic_title') );
-	wp_nonce_field( 'edit-post_' . $bb_post->post_id );
+	bb_nonce_field( 'edit-post_' . $bb_post->post_id );
 	do_action('edit_form');
 	if ($_REQUEST['view'] === 'all')
 		echo "\n" . '<input type="hidden" name="view" value="all" />';
@@ -1379,7 +1379,7 @@ function bb_get_topic_delete_link( $args = '' ) {
 		$display = esc_html( $undelete_text ? $undelete_text : __('Undelete entire topic') );
 	}
 	$uri = bb_get_uri('bb-admin/delete-topic.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = esc_attr( wp_nonce_url( $uri, 'delete-topic_' . $topic->topic_id ) );
+	$uri = esc_url( bb_nonce_url( $uri, 'delete-topic_' . $topic->topic_id ) );
 	
 	return $before . '<a href="' . $uri . '" onclick="return confirm(\'' . esc_js( $confirm ) . '\');">' . $display . '</a>' . $after;
 }
@@ -1407,7 +1407,7 @@ function bb_get_topic_close_link( $args = '' ) {
 		$redirect = $_SERVER['REQUEST_URI'];
 
 	$uri = bb_get_uri('bb-admin/topic-toggle.php', array( 'id' => $topic->topic_id, '_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = esc_attr( wp_nonce_url( $uri, 'close-topic_' . $topic->topic_id ) );
+	$uri = esc_url( bb_nonce_url( $uri, 'close-topic_' . $topic->topic_id ) );
 	
 	return $before . '<a href="' . $uri . '">' . $display . '</a>' . $after;
 }
@@ -1427,10 +1427,10 @@ function bb_get_topic_sticky_link( $args = '' ) {
 		return;
 
 	$uri_stick = bb_get_uri('bb-admin/sticky.php', array('id' => $topic->topic_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri_stick = esc_attr( wp_nonce_url( $uri_stick, 'stick-topic_' . $topic->topic_id ) );
+	$uri_stick = esc_url( bb_nonce_url( $uri_stick, 'stick-topic_' . $topic->topic_id ) );
 
 	$uri_super = bb_get_uri('bb-admin/sticky.php', array('id' => $topic->topic_id, 'super' => 1), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri_super = esc_attr( wp_nonce_url( $uri_super, 'stick-topic_' . $topic->topic_id ) );
+	$uri_super = esc_url( bb_nonce_url( $uri_super, 'stick-topic_' . $topic->topic_id ) );
 
 	if ( topic_is_sticky( $topic->topic_id ) )
 		return "$before<a href='" . $uri_stick . "'>". __('Unstick topic') ."</a>$after";
@@ -1497,7 +1497,7 @@ function topic_move_dropdown( $id = 0 ) {
 	echo '<label for="forum-id">'. __('Move this topic to the selected forum:') . ' ';
 	echo $dropdown;
 	echo "</label>\n\t";
-	wp_nonce_field( 'move-topic_' . $topic->topic_id );
+	bb_nonce_field( 'move-topic_' . $topic->topic_id );
 	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></fieldset></form>";
 }
 
@@ -1951,7 +1951,7 @@ function bb_get_post_delete_link( $args = null )
 		'status' => 1,
 		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
 	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = esc_url( wp_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
+	$uri = esc_url( bb_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
 
 	if ( ( bb_is_admin() || isset( $_GET['view'] ) && 'all' == $_GET['view'] ) ) {
 		$ajax_class = 'dim:thread:post-' . $bb_post->post_id . ':deleted:FF3333:FFFF33:action=delete-post&amp;status=1';
@@ -2012,7 +2012,7 @@ function bb_get_post_undelete_link( $args = null )
 		'view' => 'all',
 		'_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false
 	), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
-	$uri = esc_url( wp_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
+	$uri = esc_url( bb_nonce_url( $uri, 'delete-post_' . $bb_post->post_id ) );
 
 	$ajax_class = 'dim:thread:post-' . $bb_post->post_id . ':deleted:FF3333:FFFF33:action=delete-post&amp;status=0';
 
@@ -2440,7 +2440,7 @@ function bb_profile_data_form( $id = 0 ) {
 
 </table>
 
-<?php wp_nonce_field( 'edit-profile_' . $user->ID ); if ( $required ) : ?>
+<?php bb_nonce_field( 'edit-profile_' . $user->ID ); if ( $required ) : ?>
 
 <p class="required-message"><?php _e('These items are <span class="required">required</span>.') ?></p>
 
@@ -3022,7 +3022,7 @@ function tag_form( $args = null )
 		<input name="tag" type="text" id="tag" />
 		<input type="hidden" name="id" value="<?php echo $topic->topic_id; ?>" />
 		<input type="hidden" name="page" value="<?php echo $page; ?>" />
-		<?php wp_nonce_field( 'add-tag_' . $topic->topic_id ); ?>
+		<?php bb_nonce_field( 'add-tag_' . $topic->topic_id ); ?>
 		<input type="submit" name="submit" id="tagformsub" value="<?php echo esc_attr( $submit ); ?>" />
 	</p>
 </form>
@@ -3044,7 +3044,7 @@ function manage_tags_forms()
 	$form .= '<input type="hidden" name="id" value="' . $tag->tag_id . '" />' . "\n\t";
 	$form .= "<input type='submit' name='Submit' value='" . __('Rename') . "' />\n\t";
 	echo $form;
-	wp_nonce_field( 'rename-tag_' . $tag->tag_id );
+	bb_nonce_field( 'rename-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n ";
 	$form  = "<li id='tag-merge'>" . __('Merge this tag into:') . "\n\t";
 	$form .= "<form method='post' action='" . bb_get_uri('bb-admin/tag-merge.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . "'><div>\n\t";
@@ -3053,7 +3053,7 @@ function manage_tags_forms()
 	$form .= "<input type='submit' name='Submit' value='" . __('Merge') . "' ";
 	$form .= 'onclick="return confirm(\'' . esc_js( sprintf(__('Are you sure you want to merge the "%s" tag into the tag you specified? This is permanent and cannot be undone.'), $tag->raw_tag) ) . "');\" />\n\t";
 	echo $form;
-	wp_nonce_field( 'merge-tag_' . $tag->tag_id );
+	bb_nonce_field( 'merge-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n ";
 	$form  = "<li id='tag-destroy'>" . __('Destroy tag:') . "\n\t";
 	$form .= "<form method='post' action='" . bb_get_uri('bb-admin/tag-destroy.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . "'><div>\n\t";
@@ -3061,7 +3061,7 @@ function manage_tags_forms()
 	$form .= "<input type='submit' name='Submit' value='" . __('Destroy') . "' ";
 	$form .= 'onclick="return confirm(\'' . esc_js( sprintf(__('Are you sure you want to destroy the "%s" tag? This is permanent and cannot be undone.'), $tag->raw_tag) ) . "');\" />\n\t";
 	echo $form;
-	wp_nonce_field( 'destroy-tag_' . $tag->tag_id );
+	bb_nonce_field( 'destroy-tag_' . $tag->tag_id );
 	echo "\n\t</div></form>\n  </li>\n</ul>";
 }
 
@@ -3084,7 +3084,7 @@ function bb_get_tag_remove_link( $args = null ) {
 	if ( !bb_current_user_can( 'edit_tag_by_on', $tag->user_id, $topic->topic_id ) )
 		return false;
 	$url = bb_get_uri('tag-remove.php', array('tag' => $tag->tag_id, 'user' => $tag->user_id, 'topic' => $topic->topic_id) );
-	$url = esc_url( wp_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $topic->topic_id) );
+	$url = esc_url( bb_nonce_url( $url, 'remove-tag_' . $tag->tag_id . '|' . $topic->topic_id) );
 	$title = esc_attr__( 'Remove this tag' );
 	$list_id = esc_attr( $list_id );
 	return "[<a href='$url' class='delete:$list_id:tag-{$tag->tag_id}_{$tag->user_id}' title='$title'>&times;</a>]";
@@ -3299,7 +3299,7 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 		$post = ( is_array($add) && isset($add['post']) ) ? $add['post'] : '';
 	endif;
 
-	$url = esc_url(  wp_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) );
+	$url = esc_url(  bb_nonce_url( add_query_arg( $favs, get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->topic_id ) );
 
 	if (  !is_null($is_fav) )
 		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-favorite'>$mid</a>$post</span>";

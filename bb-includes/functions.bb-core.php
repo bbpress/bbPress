@@ -995,14 +995,67 @@ function bb_send_304( $bb_last_modified ) {
 
 /* Nonce */
 
-function bb_nonce_url( $actionurl, $action = -1 )
-{
-	return wp_nonce_url( $actionurl, $action );
+/**
+ * Retrieve URL with nonce added to URL query.
+ *
+ * @package bbPress
+ * @subpackage Security
+ * @since 1.0
+ *
+ * @param string $actionurl URL to add nonce action
+ * @param string $action Optional. Nonce action name
+ * @return string URL with nonce action added.
+ */
+function bb_nonce_url( $actionurl, $action = -1 ) {
+	$actionurl = str_replace( '&amp;', '&', $actionurl );
+	$nonce = bb_create_nonce( $action );
+	return esc_html( add_query_arg( '_wpnonce', $nonce, $actionurl ) );
 }
 
-function bb_nonce_field( $action = -1, $name = "_wpnonce", $referer = true, $echo = true )
-{
-	return wp_nonce_field( $action, $name, $referer, $echo );
+/**
+ * Retrieve or display nonce hidden field for forms.
+ *
+ * The nonce field is used to validate that the contents of the form came from
+ * the location on the current site and not somewhere else. The nonce does not
+ * offer absolute protection, but should protect against most cases. It is very
+ * important to use nonce field in forms.
+ *
+ * If you set $echo to true and set $referer to true, then you will need to
+ * retrieve the {@link wp_referer_field() wp referer field}. If you have the
+ * $referer set to true and are echoing the nonce field, it will also echo the
+ * referer field.
+ *
+ * The $action and $name are optional, but if you want to have better security,
+ * it is strongly suggested to set those two parameters. It is easier to just
+ * call the function without any parameters, because validation of the nonce
+ * doesn't require any parameters, but since crackers know what the default is
+ * it won't be difficult for them to find a way around your nonce and cause
+ * damage.
+ *
+ * The input name will be whatever $name value you gave. The input value will be
+ * the nonce creation value.
+ *
+ * @package bbPress
+ * @subpackage Security
+ * @since 1.0
+ *
+ * @param string $action Optional. Action name.
+ * @param string $name Optional. Nonce name.
+ * @param bool $referer Optional, default true. Whether to set the referer field for validation.
+ * @param bool $echo Optional, default true. Whether to display or return hidden form field.
+ * @return string Nonce field.
+ */
+function bb_nonce_field( $action = -1, $name = "_wpnonce", $referer = true , $echo = true ) {
+	$name = esc_attr( $name );
+	$nonce = bb_create_nonce( $action );
+	$nonce_field = '<input type="hidden" id="' . $name . '" name="' . $name . '" value="' . $nonce . '" />';
+	if ( $echo )
+		echo $nonce_field;
+
+	if ( $referer )
+		wp_referer_field( $echo, 'previous' );
+
+	return $nonce_field;
 }
 
 function bb_nonce_ays( $action )

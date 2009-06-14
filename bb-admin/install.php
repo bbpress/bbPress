@@ -152,7 +152,7 @@ switch ($bb_install->step) {
 ?>
 					<fieldset>
 <?php
-					wp_nonce_field('bbpress-installer');
+					bb_nonce_field('bbpress-installer');
 					$bb_install->input_toggle('toggle_2_0');
 ?>
 					</fieldset>
@@ -262,7 +262,7 @@ switch ($bb_install->step) {
 ?>
 					<fieldset>
 <?php
-					wp_nonce_field('bbpress-installer');
+					bb_nonce_field('bbpress-installer');
 ?>
 					</fieldset>
 <?php
@@ -290,7 +290,7 @@ switch ($bb_install->step) {
 ?>
 					<fieldset>
 <?php
-					wp_nonce_field('bbpress-installer');
+					bb_nonce_field('bbpress-installer');
 ?>
 					</fieldset>
 <?php
@@ -331,7 +331,7 @@ switch ($bb_install->step) {
 ?>
 					<fieldset>
 <?php
-					wp_nonce_field('bbpress-installer');
+					bb_nonce_field('bbpress-installer');
 ?>
 					</fieldset>
 <?php

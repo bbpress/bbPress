@@ -101,7 +101,7 @@ switch ($step) {
 						<?php _e('It looks like your database is out-of-date. You can upgrade it here.'); ?>
 					</p>
 					<fieldset class="buttons">
-						<?php wp_nonce_field( 'bbpress-upgrader' ); ?>
+						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 						<?php echo $forced_input; ?>
 						<label for="upgrade_next" class="forward">
 							<input class="button" id="upgrade_next" type="submit" value="<?php _e( 'Upgrade database' ); ?>" />
@@ -163,7 +163,7 @@ switch ($step) {
 						<?php _e('The upgrade process seems to have failed. Check the upgrade messages below for more information.<br /><br />Attempting to go to the admin area without resolving the listed errors will return you to this upgrade page.'); ?>
 					</p>
 					<fieldset>
-						<?php wp_nonce_field( 'bbpress-upgrader' ); ?>
+						<?php bb_nonce_field( 'bbpress-upgrader' ); ?>
 						<?php echo $forced_input; ?>
 						<label class="has-label for-toggle" for="upgrade_log_container_toggle" style="margin-bottom: 1.9em;">
 							<span>
