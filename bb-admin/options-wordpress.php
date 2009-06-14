@@ -110,8 +110,12 @@ $user_db_options = array(
 	'user_bbdb_advanced' => array(
 		'title' => __( 'Show advanced database settings' ),
 		'type' => 'checkbox',
-		'attributes' => array( 'onclick' => 'toggleAdvanced(this);' ),
-		'note'    => __( 'If your bbPress and WordPress site do not share the same database, then you will need to add advanced settings.' )
+		'options' => array(
+			1 => array(
+				'label' => __( 'If your bbPress and WordPress site do not share the same database, then you will need to add advanced settings.' ),
+				'attributes' => array( 'onclick' => 'toggleAdvanced(this);' )
+			)
+		)
 	)
 );
 

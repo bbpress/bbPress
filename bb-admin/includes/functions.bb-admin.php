@@ -1189,17 +1189,36 @@ function bb_option_form_element( $name = 'name', $args = null ) {
 					}
 					echo "</select>\n";
 					break;
-				case 'checkbox' :
-					$value = false === $args['value'] ? 1 : esc_attr( $args['value'] );
-					$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
-					echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
-					break;
+//				case 'checkbox' :
+//					$value = false === $args['value'] ? 1 : esc_attr( $args['value'] );
+//					$checked = $value == bb_get_form_option( $name ) ? " checked='checked'" : '';
+//					echo "<input$disabled type='checkbox' class='" . join( ' ', $class ) . "' name='$name' id='$id' value='$value'{$checked}{$attributes} />\n";
+//					break;
 				case 'radio' :
+				case 'checkbox' :
 					if ( is_array( $args['options'] ) ) {
 						$_id = 0;
+						if ( 'radio' === $args['type'] && !in_array( $value, array_keys( $args['options'] ) ) && empty( $value ) ) {
+							$use_first_value = true;
+						}
+						$type = $args['type'];
 						foreach ( $args['options'] as $option => $label ) {
-							//echo "\t<option value='$option'" . ( $value == $option ? " selected='selected'" : '' ) . ">$label</option>\n";
-							echo "<label class=\"radios\"><input$disabled type='radio' class='" . join( ' ', $class ) . "' name='$name' id='$id-$_id' value='$option'" . ( $value == $option ? " checked='checked'" : '' ) . "{$attributes} /> $label</label>\n";
+							if ( $use_first_value ) {
+								$use_first_value = false;
+								$value = $option;
+							}
+							if ( is_array( $label ) ) {
+								if ( $label['attributes'] ) {
+									$attributes = array();
+									foreach ( $label['attributes'] as $k => $v )
+										$attributes[] = "$k='$v'";
+									$attributes = ' ' . join( ' ', $attributes );
+								} else {
+									$attributes = '';
+								}
+								$label = $label['label'];
+							}
+							echo "<label class=\"{$type}s\"><input$disabled type='$type' class='" . join( ' ', $class ) . "' name='$name' id='$id-$_id' value='$option'" . ( $value == $option ? " checked='checked'" : '' ) . "{$attributes} /> $label</label>\n";
 							$_id++;
 						}
 					} elseif ( is_string( $args['options'] ) ) {

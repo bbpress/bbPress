@@ -45,7 +45,9 @@ $remote_options = array(
 	'enable_pingback' => array(
 		'title' => __( 'Enable Pingbacks' ),
 		'type' => 'checkbox',
-		'after' => __( 'Allow link notifications from other blogs.' ),
+		'options' => array(
+			1 => __( 'Allow link notifications from other blogs.' )
+		)
 	),
 );
 
@@ -54,12 +56,15 @@ add_filter( 'bb_get_option_avatars_show', $bb_get_option_avatars_show );
 $avatar_options = array(
 	'avatars_show' => array(
 		'title' => __( 'Avatar display' ),
-		'type' => 'checkbox',
-		'after' => __( 'Show avatars' ),
+		'type' => 'radio',
+		'options' => array(
+			0 => __( 'Don&#8217;t show avatars' ),
+			1 => __( 'Show avatars' )
+		)
 	),
 	'avatars_rating' => array(
 		'title' => __( 'Maximum rating' ),
-		'type' => 'select',
+		'type' => 'radio',
 		'options' => array(
 			'g' => __( 'G &#8212; Suitable for all audiences' ),
 			'pg' => __( 'PG &#8212; Possibly offensive, usually for audiences 13 and above' ),
@@ -68,22 +73,18 @@ $avatar_options = array(
 		)
 	),
 	'avatars_default' => array(
-		'title' => __( 'Gravatar default image' ),
-		'type' => 'select',
+		'title' => __( 'Default avatar' ),
+		'type' => 'radio',
 		'options' => array(
-			'default' => __( 'Mystery Man' ),
-			'logo' => __( 'Gravatar Logo' ),
-			'identicon' => __( 'Identicon (Generated)' ),
-			'wavatar' => __( 'Wavatar (Generated)' ),
-			'monsterid' => __( 'MonsterID  (Generated)' )
+			'default'   => bb_get_avatar( '',             32, 'default' )   . ' ' . __( 'Mystery Man' ),
+			'blank'     => bb_get_avatar( '',             32, 'blank' )     . ' ' . __( 'Blank' ),
+			'logo'      => bb_get_avatar( '',             32, 'logo' )      . ' ' . __( 'Gravatar Logo' ),
+			'identicon' => bb_get_avatar( rand( 0, 999 ), 32, 'identicon' ) . ' ' . __( 'Identicon (Generated)' ),
+			'wavatar'   => bb_get_avatar( rand( 0, 999 ), 32, 'wavatar' )   . ' ' . __( 'Wavatar (Generated)' ),
+			'monsterid' => bb_get_avatar( rand( 0, 999 ), 32, 'monsterid' ) . ' ' . __( 'MonsterID  (Generated)' )
 		),
 		'note' => array(
-			__( 'For users without a custom avatar of their own, you can either display a generic logo or a generated one based on their e-mail address.' ),
-			bb_get_avatar( 'anotherexample', 30, 'default' ) . __( 'Mystery Man' ),
-			bb_get_avatar( 'anotherexample', 30, 'logo' ) . __( 'Gravatar Logo' ),
-			bb_get_avatar( 'anotherexample', 30, 'identicon' ) . __( 'Identicon (Generated)' ),
-			bb_get_avatar( 'anotherexample', 30, 'wavatar' ) . __( 'Wavatar (Generated)' ),
-			bb_get_avatar( 'anotherexample', 30, 'monsterid' ) . __( 'MonsterID (Generated)' )
+			__( 'For users without a custom avatar of their own, you can either display a generic logo or a generated one based on their e-mail address.' )
 		),
 	)
 );

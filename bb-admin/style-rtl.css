@@ -293,7 +293,11 @@ form.settings div label {
 	float: right;
 }
 
-form.settings div div {
+form.settings div div.label {
+	float: right;
+}
+
+form.settings div div.inputs {
 	margin: 0 210px 0 0;
 }
 

@@ -26,12 +26,18 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 
 	$mod_rewrite = (string) bb_get_option( 'mod_rewrite' );
 
+	$goback = remove_query_arg( array( 'updated', 'notapache', 'notmodrewrite' ), wp_get_referer() );
+
 	// Make sure mod_rewrite is possible on the server
-	if ( '0' !== $mod_rewrite && !apache_mod_loaded( 'mod_rewrite', true ) ) {
-		bb_update_option( 'mod_rewrite', '0' );
+	if ( !$is_apache ) {
 		bb_delete_option( 'mod_rewrite_writable' );
-		$goback = remove_query_arg( 'updated', wp_get_referer() );
-		$goback = add_query_arg( 'unsupported', 'true', $goback );
+		$goback = add_query_arg( 'notapache', 'true', $goback );
+		bb_safe_redirect( $goback );
+		exit;
+	} elseif ( '0' !== $mod_rewrite && !apache_mod_loaded( 'mod_rewrite', true ) ) {
+		bb_delete_option( 'mod_rewrite_writable' );
+		bb_update_option( 'mod_rewrite', '0' );
+		$goback = add_query_arg( 'notmodrewrite', 'true', $goback );
 		bb_safe_redirect( $goback );
 		exit;
 	}
@@ -91,19 +97,23 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	}
 
 	bb_update_option( 'mod_rewrite_writable', $file_target_writable );
-
-	$goback = remove_query_arg( 'unsupported', wp_get_referer() );
 	$goback = add_query_arg( 'updated', 'true', $goback );
 	bb_safe_redirect( $goback );
 	exit;
 }
 
-if ( bb_get_option( 'mod_rewrite' ) && !bb_get_option( 'mod_rewrite_writable' ) ) {
+if ( $is_apache && bb_get_option( 'mod_rewrite' ) && !bb_get_option( 'mod_rewrite_writable' ) ) {
 	$manual_instructions = true;
 }
 
-if ( !empty( $_GET['unsupported'] ) ) {
+if ( !empty( $_GET['notmodrewrite'] ) ) {
+	$manual_instructions = false;
 	bb_admin_notice( __( '<strong>It appears that your server does not support custom permalink structures.</strong>' ), 'error' );
+}
+
+if ( !empty( $_GET['notapache'] ) ) {
+	$manual_instructions = false;
+	bb_admin_notice( __( '<strong>Rewriting on webservers other than Apache using mod_rewrite is currently unsupported, but we won&#8217;t stop you from trying.</strong>' ), 'error' );
 }
 
 if ( !empty( $_GET['updated'] ) ) {
@@ -163,7 +173,7 @@ if ( $manual_instructions ) {
 		<p>
 			<?php _e( 'If your <code>.htaccess</code> file were <a href="http://codex.wordpress.org/Changing_File_Permissions">writable</a>, we could do this automatically, but it isn&#8217;t so these are the mod_rewrite rules you should have in your <code>.htaccess</code> file. Click in the field and press <kbd>CTRL + a</kbd> to select all.' ); ?>
 		</p>
-		<textarea id="rewrite-rules" class="readonly" readonly="readonly" rows="6"><?php echo esc_html( trim( $file_source_rules ) ); ?></textarea>
+		<textarea dir="ltr" id="rewrite-rules" class="readonly" readonly="readonly" rows="6"><?php echo esc_html( trim( $file_source_rules ) ); ?></textarea>
 	</fieldset>
 </form>
 
