@@ -466,7 +466,7 @@ function bb_cache_all_options()
 		'bp_bbpress_cron',
 		'email_login',
 		'static_title',
-		'plugin_cookie_paths' // deprecated
+		'plugin_cookie_paths'
 	);
 
 	foreach ( $base_options as $base_option ) {
