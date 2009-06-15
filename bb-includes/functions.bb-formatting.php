@@ -80,7 +80,7 @@ function _bb_encode_bad_normal(&$text, $key, $preg) {
 }
 
 function bb_encode_bad( $text ) {
-	$text = esc_html( $text );
+	$text = wp_specialchars( $text, ENT_NOQUOTES );
 
 	$text = preg_split('@(`[^`]*`)@m', $text, -1, PREG_SPLIT_NO_EMPTY + PREG_SPLIT_DELIM_CAPTURE);
 
