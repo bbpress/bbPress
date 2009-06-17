@@ -21,8 +21,11 @@ function bb_is_first( $post_id ) { // First post in thread
 	$post_id = (int) $bb_post->post_id;
 	$topic_id = (int) $bb_post->topic_id;
 
-	$where = apply_filters('bb_is_first_where', 'AND post_status = 0');
-	$first_post = (int) $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_id ASC LIMIT 1");
+	static $first_post;
+	if ( !isset( $first_post ) ) {
+		$where = apply_filters('bb_is_first_where', 'AND post_status = 0');
+		$first_post = (int) $bbdb->get_var("SELECT post_id FROM $bbdb->posts WHERE topic_id = $topic_id $where ORDER BY post_id ASC LIMIT 1");
+	}
 
 	return $post_id == $first_post;
 }
@@ -90,11 +93,21 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 
 function bb_cache_posts( $query ) {
 	global $bbdb;
-	if ( $posts = (array) $bbdb->get_results( $query ) )
-		foreach( $posts as $bb_post ) {
-			$bb_post = bb_append_meta( $bb_post, 'post' );
-			wp_cache_add( $bb_post->post_id, $bb_post, 'bb_post' );
+	if ( $posts = (array) $bbdb->get_results( $query ) ) {
+		$_cache_posts = array();
+		foreach ( $posts as $bb_post ) {
+			// Don't re-append or re-cache
+			if ( false === wp_cache_get( $bb_post->post_id, 'bb_post' ) ) {
+				$_cache_posts[$bb_post->post_id] = $bb_post;
+			}
 		}
+		if ( count( $_cache_posts ) ) {
+			$_cache_posts = bb_append_meta( $_cache_posts, 'post' );
+			foreach ( $_cache_posts as $_cache_post ) {
+				wp_cache_add( $_cache_post->post_id, $_cache_post, 'bb_post' );
+			}
+		}
+	}
 	return $posts;
 }
 
