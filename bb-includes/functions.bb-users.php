@@ -378,7 +378,7 @@ function get_user_favorites( $user_id, $topics = false ) {
 	$user = bb_get_user( $user_id );
 	if ( !empty($user->favorites) ) {
 		if ( $topics )
-			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'append_meta' => 0), 'get_user_favorites' );
+			$query = new BB_Query( 'topic', array('favorites' => $user_id, 'index_hint' => 'USE INDEX (`forum_time`)'), 'get_user_favorites' );
 		else
 			$query = new BB_Query( 'post', array('favorites' => $user_id), 'get_user_favorites' );
 		return $query->results;
