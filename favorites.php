@@ -39,7 +39,10 @@ if ( !bb_is_profile() ) {
 	exit;
 }
 
-$topics = get_user_favorites( $user->ID, true );
+if ( $topics = get_user_favorites( $user->ID, true ) ) {
+	bb_cache_last_posts( $topics );
+}
+
 $favorites_total = isset( $user->favorites ) ? count( explode( ',', $user->favorites ) ) : 0;
 
 bb_load_template( 'favorites.php', array( 'favorites_total', 'self' ) );
