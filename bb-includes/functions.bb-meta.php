@@ -189,6 +189,7 @@ function bb_append_meta( $object, $type )
 		if ( !count( $query_ids ) ) {
 			return $cached_objects;
 		}
+		sort( $query_ids );
 		$_query_ids = join( ',', $query_ids );
 		if ( $metas = $bbdb->get_results( "SELECT `object_id`, `meta_key`, `meta_value` FROM `$bbdb->meta` WHERE `object_type` = '$object_type' AND `object_id` IN ($_query_ids) /* bb_append_meta */" ) ) {
 			usort( $metas, '_bb_append_meta_sort' );

@@ -184,6 +184,7 @@ function bb_cache_post_topics( $posts ) {
 	if ( !$topic_ids )
 		return;
 
+	sort( $topic_ids );
 	$topic_ids = join(',', $topic_ids);
 
 	if ( $topics = $bbdb->get_results( "SELECT * FROM $bbdb->topics WHERE topic_id IN($topic_ids)" ) )
@@ -440,11 +441,10 @@ function bb_post_author_cache($posts) {
 
 	$ids = array();
 	foreach ($posts as $bb_post)
-		if ( 0 != $bb_post->poster_id && false === wp_cache_get( $bb_post->poster_id, 'users' ) ) // Don't cache what we already have
-			$ids[] = $bb_post->poster_id;
+		$ids[] = $bb_post->poster_id;
 
 	if ( $ids )
-		bb_cache_users(array_unique($ids), false); // false since we've already checked for soft cached data.
+		bb_cache_users(array_unique($ids));
 }
 
 // These two filters are lame.  It'd be nice if we could do this in the query parameters
