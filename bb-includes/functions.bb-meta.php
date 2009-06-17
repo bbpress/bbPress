@@ -171,7 +171,7 @@ function bb_append_meta( $object, $type )
 			break;
 	}
 
-	if ( is_array( $object ) && $object ) {
+	if ( is_array( $object ) && count( $object ) ) {
 		$trans = array();
 		foreach ( array_keys( $object ) as $i ) {
 			$trans[$object[$i]->$object_id_column] =& $object[$i];
@@ -194,7 +194,7 @@ function bb_append_meta( $object, $type )
 		}
 		return $object;
 	} elseif ( $object ) {
-		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT `meta_key`, `meta_value` FROM `$bbdb->meta` WHERE `object_type` = '$object_type' AND `object_id` = %d /* bb_append_meta */", $object->$object_id_column ) ) ) {
+		if ( $metas = $bbdb->get_results( $bbdb->prepare( "SELECT `object_id`, `meta_key`, `meta_value` FROM `$bbdb->meta` WHERE `object_type` = '$object_type' AND `object_id` = %d /* bb_append_meta */", $object->$object_id_column ) ) ) {
 			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) {
 				$object->{$meta->meta_key} = maybe_unserialize( $meta->meta_value );
@@ -204,7 +204,7 @@ function bb_append_meta( $object, $type )
 			}
 		}
 		if ( $object->$object_id_column ) {
-			wp_cache_set( $object->$object_id_column, $object, $object_type );
+			wp_cache_add( $object->$object_id_column, $object, $object_type );
 			if ( $slug ) {
 				wp_cache_add( $object->$slug, $object->$object_id_column, 'bb_' . $slug );
 			}
@@ -466,7 +466,8 @@ function bb_cache_all_options()
 		'bp_bbpress_cron',
 		'email_login',
 		'static_title',
-		'plugin_cookie_paths'
+		'plugin_cookie_paths',
+		'wp_roles_map'
 	);
 
 	foreach ( $base_options as $base_option ) {
