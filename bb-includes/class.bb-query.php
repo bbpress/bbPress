@@ -55,25 +55,54 @@ class BB_Query {
 		$key = md5( $this->request );
 		if ( false === $cached_ids = wp_cache_get( $key, 'bb_query' ) ) {
 			if ( 'post' == $this->type ) {
-				$this->results = bb_cache_posts( $this->request );
+				$this->results = bb_cache_posts( $this->request ); // This always appends meta
 				$_the_id = 'post_id';
+				$this->query_vars['append_meta'] = false;
 			} else {
 				$this->results = $bbdb->get_results( $this->request );
 				$_the_id = 'topic_id';
 			}
-
 			$cached_ids = array();
 			if ( is_array($this->results) )
 				foreach ( $this->results as $object )
 					$cached_ids[] = $object->$_the_id;
 			wp_cache_set( $key, $cached_ids, 'bb_query' );
 		} else {
-			$_cached_ids = join( ',', array_map( 'intval', $cached_ids ) );
 			if ( 'post' == $this->type ) {
-				$results = $bbdb->get_results( "SELECT * FROM $bbdb->posts WHERE post_id IN($_cached_ids)" );
+				$_query_ids = array();
+				$_cached_posts = array();
+				foreach ( $cached_ids as $_cached_id ) {
+					if ( false !== $_post = wp_cache_get( $_cached_id, 'bb_post' ) ) {
+						$_cached_posts[$_post->post_id] = $_post;
+					} else {
+						$_query_ids[] = $_cached_id;
+					}
+				}
+				if ( count( $_query_ids ) ) {
+					$_query_ids = join( ',', array_map( 'intval', $_query_ids ) );
+					$results = $bbdb->get_results( "SELECT * FROM $bbdb->posts WHERE post_id IN($_query_ids)" );
+					$results = array_merge( $results, $_cached_posts );
+				} else {
+					$results = $_cached_posts;
+				}
 				$_the_id = 'post_id';
 			} else {
-				$results = $bbdb->get_results( "SELECT * FROM $bbdb->topics WHERE topic_id IN($_cached_ids)" );
+				$_query_ids = array();
+				$_cached_topics = array();
+				foreach ( $cached_ids as $_cached_id ) {
+					if ( false !== $_topic = wp_cache_get( $_cached_id, 'bb_topic' ) ) {
+						$_cached_topics[$_topic->topic_id] = $_topic;
+					} else {
+						$_query_ids[] = $_cached_id;
+					}
+				}
+				if ( count( $_query_ids ) ) {
+					$_query_ids = join( ',', array_map( 'intval', $_query_ids ) );
+					$results = $bbdb->get_results( "SELECT * FROM $bbdb->topics WHERE topic_id IN($_query_ids)" );
+					$results = array_merge( $results, $_cached_topics );
+				} else {
+					$results = $_cached_topics;
+				}
 				$_the_id = 'topic_id';
 			}
 
