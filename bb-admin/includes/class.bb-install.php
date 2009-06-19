@@ -2565,7 +2565,7 @@ class BB_Install
 		$bb_keymaster_meta_key       = $bbdb->escape( $bb_table_prefix . 'capabilities' );
 		$wp_administrator_meta_key   = $bbdb->escape( $bb->wp_table_prefix . 'capabilities' );
 		if ( !empty( $this->data[2]['form']['wordpress_mu_primary_blog_id']['value'] ) ) {
-			$wp_administrator_meta_key .= $this->data[2]['form']['wordpress_mu_primary_blog_id']['value'] . '_';
+			$wp_administrator_meta_key = $bb->wp_table_prefix . $this->data[2]['form']['wordpress_mu_primary_blog_id']['value'] . '_capabilities';
 		}
 
 		$keymaster_query = <<<EOQ
