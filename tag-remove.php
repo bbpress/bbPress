@@ -16,12 +16,12 @@ $user	=  bb_get_user( $user_id );
 if ( !$tag || !$topic )
 	bb_die(__('Invalid tag or topic.'));
 
-if ( bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) ) {
+if ( false !== bb_remove_topic_tag( $tag_id, $user_id, $topic_id ) ) {
 	if ( !$redirect = wp_get_referer() )
 		$redirect = get_topic_link( $topic_id );
 	bb_safe_redirect( $redirect );
 } else {
-	bb_die(__('The tag was not removed.  You cannot remove a tag from a closed topic.'));
+	bb_die(__('The tag was not removed.'));
 }
 exit;
 ?>
