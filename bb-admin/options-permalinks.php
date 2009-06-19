@@ -92,7 +92,7 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 			}
 			// Close the file
 			fclose( $file_target_handle );
-			chmod( $file_target, 0666 );
+			@chmod( $file_target, 0666 );
 		}
 	}
 
