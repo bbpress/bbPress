@@ -646,6 +646,7 @@ if ( $bb->wp_home ) {
 $bb->wp_cookies_integrated = false;
 $bb->cookiedomain = bb_get_option( 'cookiedomain' );
 $bb->cookiepath = bb_get_option( 'cookiepath' );
+$bb->wordpress_mu_primary_blog_id = bb_get_option( 'wordpress_mu_primary_blog_id' );
 
 if ( $bb->wp_siteurl && $bb->wp_home ) {
 	if ( $bb->cookiedomain ) {
@@ -653,6 +654,9 @@ if ( $bb->wp_siteurl && $bb->wp_home ) {
 	} else {
 		$cookiedomain = bb_get_common_domains( $bb->uri, $bb->wp_home );
 		if ( bb_match_domains( $bb->uri, $bb->wp_home ) ) {
+			if ( $bb->wordpress_mu_primary_blog_id ) {
+				$bb->cookiedomain = '.' . $cookiedomain;
+			}
 			if ( !$bb->cookiepath ) {
 				$bb->cookiepath = bb_get_common_paths( $bb->uri, $bb->wp_home );
 			}
@@ -766,7 +770,11 @@ $bb->sitecookiepath = rtrim( trim( $bb->sitecookiepath ), " \t\n\r\0\x0B/" ) . '
 
 $bb->wp_admin_cookie_path = bb_get_option( 'wp_admin_cookie_path' );
 if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
-	$bb->wp_admin_cookie_path = $_bb_sitecookiepath . '/wp-admin';
+	if ( $bb->wordpress_mu_primary_blog_id ) {
+		$bb->wp_admin_cookie_path = $_bb_sitecookiepath;
+	} else {
+		$bb->wp_admin_cookie_path = $_bb_sitecookiepath . '/wp-admin';
+	}
 }
 $bb->wp_admin_cookie_path = rtrim( trim( $bb->wp_admin_cookie_path ), " \t\n\r\0\x0B/" );
 
