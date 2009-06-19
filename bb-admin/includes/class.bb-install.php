@@ -1049,7 +1049,7 @@ class BB_Install
 		// Close the config file
 		fclose( $file_handle );
 
-		chmod( $file_target, 0666 );
+		@chmod( $file_target, 0666 );
 
 		return 1;
 	}
