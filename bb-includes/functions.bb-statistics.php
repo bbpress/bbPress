@@ -33,7 +33,6 @@ function total_forums() {
 	echo apply_filters('total_forums', get_total_forums() );
 }
 
-if ( !function_exists( 'get_total_users' ) ) :
 /**
  * Get the total number of users
  *
@@ -43,23 +42,26 @@ if ( !function_exists( 'get_total_users' ) ) :
  *
  * @return int
  */
-function get_total_users() {
+function bb_get_total_users()
+{
 	global $bbdb, $bb_total_users;
-	if ( isset($bb_total_users) )
+	if ( isset( $bb_total_users ) ) {
 		return $bb_total_users;
-	$sql = apply_filters( 'bb_get_total_users', "SELECT COUNT(*) FROM $bbdb->users" );
-	$bb_total_users = $bbdb->get_var( $sql );
+	}
+	if ( false === $bb_total_users = apply_filters( 'bb_get_total_users', false ) ) {
+		$bb_total_users = $bbdb->get_var( "SELECT COUNT(*) FROM $bbdb->users" );
+	}
 	return $bb_total_users;
 }
-endif;
 
 /**
  * Output the number of users
  *
  * @since 0.7.2
  */
-function total_users() {
-	echo apply_filters('total_users', get_total_users() );
+function bb_total_users()
+{
+	echo apply_filters( 'total_users', bb_get_total_users() );
 }
 
 /**
@@ -167,8 +169,9 @@ function bb_get_inception( $args = '' ) {
  *
  * @return int|float
  */
-function get_registrations_per_day() {
-	return get_total_users() / ceil( ( time() - bb_get_inception( 'timestamp' ) ) / 3600 / 24 );
+function get_registrations_per_day()
+{
+	return bb_get_total_users() / ceil( ( time() - bb_get_inception( 'timestamp' ) ) / 3600 / 24 );
 }
 
 /**

@@ -1156,6 +1156,16 @@ function get_recent_registrants( $num = 10 )
 	return;
 }
 
+if ( !function_exists( 'get_total_users' ) ) {
+	function get_total_users()
+	{
+		bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_total_users' );
+		return bb_get_total_users();
+	}
+}
 
-
-
+function total_users()
+{
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_total_users' );
+	bb_total_users();
+}
