@@ -1250,6 +1250,8 @@ function bb_count_last_query( $query = '' ) {
 	if ( false !== strpos($q, 'SQL_CALC_FOUND_ROWS') )
 		return (int) $bbdb->get_var( "SELECT FOUND_ROWS()" );
 
+	$q_original = $q;
+
 	$q = preg_replace(
 		array('/SELECT.*?\s+FROM/', '/LIMIT [0-9]+(\s*,\s*[0-9]+)?/', '/ORDER BY\s+.*$/', '/DESC/', '/ASC/'),
 		array('SELECT COUNT(*) FROM', ''),
@@ -1261,6 +1263,9 @@ function bb_count_last_query( $query = '' ) {
 
 	if ( !$query )
 		$bb_last_countable_query = '';
+
+	$q = apply_filters( 'bb_count_last_query', $q, $q_original );
+
 	return (int) $bbdb->get_var($q);
 }
 
