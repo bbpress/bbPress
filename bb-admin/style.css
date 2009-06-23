@@ -585,7 +585,7 @@ body.bb-menu-folded ul#bbAdminMenu li.bb-menu li.bb-menu-sub a {
 }
 
 ul#bbAdminMenu li.bb-menu li.bb-menu-sub a:hover {
-	background-color: rgb(234, 242, 250) !important;
+	background-color: rgb(222, 236, 225) !important;
 	color: rgb(51, 51, 51);
 }
 
