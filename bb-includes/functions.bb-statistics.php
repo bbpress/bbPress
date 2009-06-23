@@ -47,7 +47,8 @@ function get_total_users() {
 	global $bbdb, $bb_total_users;
 	if ( isset($bb_total_users) )
 		return $bb_total_users;
-	$bb_total_users = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->users");
+	$sql = apply_filters( 'bb_get_total_users', "SELECT COUNT(*) FROM $bbdb->users" );
+	$bb_total_users = $bbdb->get_var( $sql );
 	return $bb_total_users;
 }
 endif;
