@@ -1150,7 +1150,11 @@ function get_page_number( $item, $per_page = 0 )
 	return bb_get_page_number( $item, $per_page );
 }
 
-
+function get_recent_registrants( $num = 10 )
+{
+	bb_log_deprecated('function', __FUNCTION__, 'no aternative');
+	return;
+}
 
 
 

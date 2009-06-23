@@ -127,24 +127,6 @@ function get_popular_topics( $num = 10 ) {
 	return $query->results;
 }
 
-if ( !function_exists( 'get_recent_registrants' ) ) :
-/**
- * Get the data of the latest registrants
- *
- * @since 0.7.2
- * @uses $bbdb Database Object
- *
- * @return array
- */
-function get_recent_registrants( $num = 10 ) {
-	global $bbdb;
-	return bb_append_meta( (array) $bbdb->get_results( $bbdb->prepare(
-		"SELECT * FROM $bbdb->users ORDER BY user_registered DESC LIMIT %d",
-		$num
-	) ), 'user');
-}
-endif;
-
 /**
  * Output the date when current installation was created
  *

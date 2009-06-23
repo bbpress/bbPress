@@ -34,21 +34,6 @@ $users_average = sprintf(__ngettext('%d user', '%d users', $users_average), $use
 		<p><?php printf(__('You are using the theme <a href="%1$s">%2$s</a>. This is bbPress version %3$s'), bb_get_uri('bb-admin/themes.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN), bb_get_current_theme_data('Name'), bb_get_option('version')); ?></p>
 	</div>
 
-	<div id="dashboard-recent-user-registrations" class="dashboard left">
-		<?php if ( $users = get_recent_registrants() ) : ?>
-		<h3><?php _e('Recent User Registrations'); ?></h3>
-		<ul class="users">
-			<?php foreach ( $users as $user ) : ?>
-			<li>
-				<?php full_user_link( $user->ID ); ?>
-				(<a href="<?php user_profile_link( $user->ID ); ?>"><?php echo get_user_name( $user->ID ); ?></a>)
-				<?php printf(__('registered %s ago'), bb_since( $user->user_registered )) ?>
-			</li>
-			<?php endforeach; ?>
-		</ul>
-		<?php endif; ?>
-	</div>
-
 	<div id="dashboard-moderated" class="dashboard right">
 		<h3><?php _e('Recently Moderated Items'); ?></h3>
 		<?php if ( $objects = bb_get_recently_moderated_objects() ) : ?>
