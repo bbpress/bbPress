@@ -309,12 +309,14 @@ form.settings div {
 	margin-left: 10px;
 }
 
-form.settings div label {
+form.settings div label,
+form.settings div div.label {
 	float: right;
 }
 
-form.settings div div.label {
-	float: right;
+form.settings div.disabled label,
+form.settings div.disabled div.label {
+	background-position: 0 0;
 }
 
 form.settings div div.inputs {
