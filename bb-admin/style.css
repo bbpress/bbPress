@@ -244,7 +244,7 @@ body.bb-menu-folded ul#bbAdminMenu li.bb-menu {
 
 ul#bbAdminMenu li.bb-menu a {
 	display: block;
-	color: rgb(33, 117, 155);
+	color: rgb(0, 102, 0);
 	background: rgb(241, 241, 241) url('images/menu-bits.gif') repeat-x 0 -379px;
 	border: 1px solid rgb(227, 227, 227);
 	width: 133px;
@@ -573,7 +573,7 @@ ul#bbAdminMenu li.bb-menu li.bb-menu-sub a {
 	border-width: 0 !important;
 	font: normal normal normal 0.85em/1.7em 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
 	padding: 1px 5px 3px 12px;
-	color: rgb(33, 117, 155);
+	color: rgb(0, 102, 0);
 	text-shadow: none;
 	background: rgb(255, 255, 255) url('images/menu-bits.gif') no-repeat 0 -306px;
 }
@@ -664,7 +664,7 @@ div.dashboard {
 }
 
 div.dashboard a {
-	color: rgb(33, 117, 155);
+	color: rgb(0, 102, 0);
 }
 
 div.dashboard a:hover {
@@ -809,7 +809,7 @@ form.settings code {
 }
 
 form.settings a {
-	color: rgb(33, 117, 155);
+	color: rgb(0, 102, 0);
 }
 
 form.settings a:hover {
@@ -909,7 +909,7 @@ form.settings input.submit {
 	-khtml-border-radius: 11px;
 	-webkit-border-radius: 11px;
 	border-radius: 11px;
-	border: 1px solid rgb(41, 140, 186);
+	border: 1px solid rgb(63, 163, 50);
 	cursor: pointer;
 	font-size: 11px;
 	line-height: 16px;
@@ -921,7 +921,7 @@ form.settings input.submit {
 }
 
 form.settings input.submit:hover {
-	border-color: rgb(19, 69, 91);
+	border-color: rgb(0, 102, 0);
 }
 
 form.settings input.submit:active {
