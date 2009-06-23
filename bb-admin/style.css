@@ -651,6 +651,132 @@ div#message p strong {
 
 
 
+/* Dashboard */
+
+div.dashboard {
+	background-color: rgb(255, 255, 255);
+	border: 1px solid rgb(223, 223, 223);
+	-moz-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	margin: 10px 5px 20px 5px;
+}
+
+div.dashboard a {
+	color: rgb(33, 117, 155);
+}
+
+div.dashboard a:hover {
+	color: rgb(213, 78, 33);
+}
+
+div.dashboard h3 {
+	-moz-border-radius-topleft: 6px;
+	-moz-border-radius-topright: 6px;
+	-khtml-border-top-left-radius: 6px;
+	-khtml-border-top-right-radius: 6px;
+	-webkit-border-top-left-radius: 6px;
+	-webkit-border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	background: url('images/gray-grad.png') repeat-x rgb(223, 223, 223);
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+	color: rgb(70, 70, 70);
+	font-size: 0.9em;
+	font-weight: bold;
+	line-height: 1;
+	margin: 0px;
+	padding: 7px 9px;
+}
+
+div.dashboard div.table {
+	border-bottom: 1px solid rgb(236, 236, 236);
+	background: rgb(249, 249, 249);
+}
+
+div.dashboard div.table table {
+	width: 100%;
+}
+
+div.dashboard div.table thead th {
+	color: rgb(119, 119, 119);
+	font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	font-size: 1em;
+	font-style: italic;
+	padding: 3px 8px 4px;
+	background: rgb(255, 255, 255);
+	width: 50%;
+}
+
+div.dashboard div.table tbody td {
+	border-top: 1px solid rgb(236, 236, 236);
+	padding: 4px 16px;
+	white-space: nowrap;
+	font-size: 0.9em;
+	color: rgb(70, 70, 70);
+}
+
+div.dashboard div.table tbody td span {
+	font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+	font-size: 1.6em;
+	padding-right: 6px;
+}
+
+div.dashboard div.versions p {
+	color: rgb(51, 51, 51);
+	font-size: 0.85em;
+	margin: 8px;
+}
+
+div.dashboard div.versions p span.b {
+	font-weight: bold;
+}
+
+div.dashboard div.versions p a {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+div.dashboard div.versions p.theme a.button {
+	display: block;
+	float: right;
+	font-weight: normal;
+	-moz-border-radius: 10px;
+	-khtml-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	padding: 4px 10px;
+	background: url('images/white-grad.png') repeat-x scroll rgb(242, 242, 242);
+	border: 1px solid rgb(187, 187, 187);
+	color: rgb(70, 70, 70);
+	cursor: pointer;
+	font-size: 1em;
+	line-height: 1.2em;
+}
+
+div.dashboard div.versions p.theme a.button:hover {
+	border-color: rgb(102, 102, 102);
+	color: rgb(0, 0, 0);
+}
+
+div.dashboard div.versions p.theme a.button:active {
+	background: url('images/white-grad-active.png') repeat-x scroll rgb(238, 238, 238);
+}
+
+div.dashboard ul li {
+	color: rgb(51, 51, 51);
+	font-size: 0.85em;
+	margin: 8px;
+}
+
+div.dashboard ul li a {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+
+
 /* Options */
 
 form.settings fieldset {

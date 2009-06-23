@@ -1,3 +1,10 @@
+/*
+Start with some basic resets
+*/
+
+caption,th{text-align:right;}
+
+
 body {
 	font-family: Tahoma, "Times New Roman";
 }
@@ -283,6 +290,14 @@ body.bb-menu-folded ul#bbAdminMenu li.bb-menu.bb-menu-current li.bb-menu-sub.bb-
 
 ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 	background-position: 100% -306px;
+}
+
+
+
+/* Dashboard */
+
+div.dashboard div.versions p.theme a.button {
+	float: left;
 }
 
 

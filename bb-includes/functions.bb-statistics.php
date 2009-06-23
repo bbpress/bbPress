@@ -222,3 +222,29 @@ function get_topics_per_day() {
 function topics_per_day() {
 	echo apply_filters('topics_per_day', bb_number_format_i18n(get_topics_per_day(),3));
 }
+
+function bb_get_total_topic_tags()
+{
+	global $bb_total_topic_tags;
+	if ( isset($bb_total_topic_tags) ) {
+		return $bb_total_topic_tags;
+	}
+	global $wp_taxonomy_object;
+	$bb_total_topic_tags = $wp_taxonomy_object->count_terms( 'bb_topic_tag' );
+	return $bb_total_topic_tags;
+}
+
+function bb_total_topic_tags()
+{
+	echo apply_filters( 'bb_total_topic_tags', bb_get_total_topic_tags() );
+}
+
+function bb_get_topic_tags_per_day()
+{
+	return bb_get_total_topic_tags() / ceil( ( time() - bb_get_inception( 'timestamp' ) ) / 3600 / 24 );
+}
+
+function bb_topic_tags_per_day()
+{
+	echo apply_filters('bb_topic_tags_per_day', bb_number_format_i18n( bb_get_topic_tags_per_day(), 3 ) );
+}
