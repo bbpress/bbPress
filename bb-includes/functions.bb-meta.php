@@ -487,7 +487,9 @@ function bb_cache_all_options()
 		'email_login',
 		'static_title',
 		'plugin_cookie_paths',
-		'wp_roles_map'
+		'wp_roles_map',
+		'gmt_offset',
+		'timezone_string'
 	);
 
 	foreach ( $base_options as $base_option ) {
