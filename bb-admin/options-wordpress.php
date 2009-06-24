@@ -180,14 +180,17 @@ bb_get_admin_header();
 	<fieldset class="submit">
 		<?php bb_nonce_field( 'options-wordpress-update-users' ); ?>
 		<input type="hidden" name="action" value="update-users" />
-		<input class="submit" type="submit" name="submit" value="<?php _e('Save User Role Map') ?>" />
+		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>
 </form>
 
-<h3 class="after"><?php _e('User Integration'); ?></h3>
-<p><?php _e('Usually, you will have to specify both cookie sharing and user database sharing settings.'); ?></p>
-<p><?php _e('Make sure you have a "User role map" setup above before trying to add user integration.'); ?></p>
-<p><?php _e('<strong>Note:</strong> updating these settings may cause you to be logged out!'); ?></p>
+<hr class="settings" />
+
+<div class="settings">
+	<h3 class="after"><?php _e('User Integration'); ?></h3>
+	<p><?php _e('Usually, you will have to specify both cookie integration and user database integration settings. Make sure you have a "User role map" setup above before trying to add user integration.'); ?></p>
+	<p><?php _e('<em><strong>Note:</strong> changing the settings below may cause you to be logged out!</em>'); ?></p>
+</div>
 
 <form class="settings" method="post" action="<?php bb_uri('bb-admin/options-wordpress.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
@@ -236,28 +239,33 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 	}
 }
 ?>
+		<p><?php printf(__('To complete cookie integration, you will need to add some settings to your <code>wp-config.php</code> file in the root directory of your WordPress installation. To get those settings, you will need to install and configure the <a href="%s">"bbPress Integration" plugin for WordPress</a>.'), 'http://wordpress.org/extend/plugins/bbpress-integration/'); ?></p>
+		<p><?php _e('You will also have to manually ensure that the following constants are equivalent in WordPress\' and bbPress\' respective config files.'); ?></p>
+		<div class="table">
+			<table>
+				<tr>
+					<th><?php _e('WordPress'); ?></th>
+					<td></td>
+					<th><?php _e('bbPress'); ?></th>
+				</tr>
+				<tr>
+					<td>AUTH_KEY</td>
+					<td>&lt;=&gt;</td>
+					<td>BB_AUTH_KEY</td>
+				</tr>
+				<tr>
+					<td>SECURE_AUTH_KEY</td>
+					<td>&lt;=&gt;</td>
+					<td>BB_SECURE_AUTH_KEY</td>
+				</tr>
+				<tr>
+					<td>LOGGED_IN_KEY</td>
+					<td>&lt;=&gt;</td>
+					<td>BB_LOGGED_IN_KEY</td>
+				</tr>
+			</table>
+		</div>
 	</fieldset>
-	<p><?php _e('bbPress has automatically determined the best cookie settings for WordPress. In some cases integration may work without these settings, but if not add the following code to your <code>wp-config.php</code> file in the root directory of your WordPress installation.'); ?></p>
-	<pre class="block"><?php echo($wp_settings); ?></pre>
-	<p><?php _e('You will also have to manually ensure that the following constants are equivalent in WordPress\' and bbPress\' respective config files.'); ?></p>
-	<table class="block">
-		<tr>
-			<th><?php _e('WordPress (wp-config.php)'); ?></th>
-			<th><?php _e('bbPress (bb-config.php)'); ?></th>
-		</tr>
-		<tr>
-			<td>AUTH_KEY</td>
-			<td>BB_AUTH_KEY</td>
-		</tr>
-		<tr>
-			<td>SECURE_AUTH_KEY</td>
-			<td>BB_SECURE_AUTH_KEY</td>
-		</tr>
-		<tr>
-			<td>LOGGED_IN_KEY</td>
-			<td>BB_LOGGED_IN_KEY</td>
-		</tr>
-	</table>
 
 	<fieldset>
 		<legend><?php _e('User database'); ?></legend>
@@ -295,58 +303,6 @@ foreach ($cookie_settings as $bb_setting => $wp_setting) {
 		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
 	</fieldset>
 </form>
-
-<h3 class="after"><?php _e('Manual bbPress config file settings'); ?></h3>
-<?php
-$cookie_settings = array(
-	'// Start integration speedups',
-	'',
-	'// WordPress database integration speedup',
-	'wp_table_prefix',
-	'wordpress_mu_primary_blog_id',
-	'user_bbdb_name',
-	'user_bbdb_user',
-	'user_bbdb_password',
-	'user_bbdb_host',
-	'user_bbdb_charset',
-	'user_bbdb_collate',
-	'custom_user_table',
-	'custom_user_meta_table',
-	'',
-	'// WordPress cookie integration speedup',
-	'wp_siteurl',
-	'wp_home',
-	'cookiedomain',
-	'cookiepath',
-	'authcookie',
-	'secure_auth_cookie',
-	'logged_in_cookie',
-	'admin_cookie_path',
-	'core_plugins_cookie_path',
-	'user_plugins_cookie_path',
-	'sitecookiepath',
-	'wp_admin_cookie_path',
-	'wp_plugins_cookie_path',
-	'',
-	'// End integration speedups'
-);
-$bb_settings = '';
-foreach ($cookie_settings as $bb_setting) {
-	if ($bb_setting === '') {
-		$bb_settings .= "\n";
-	} elseif (substr($bb_setting, 0, 2) == '//') {
-		$bb_settings .= $bb_setting . "\n";
-	} elseif ( isset($bb->$bb_setting) ) {
-		if ( is_numeric( $bb->$bb_setting ) ) {
-			$bb_settings .= '$bb->' . $bb_setting . ' = ' . $bb->$bb_setting . ';' . "\n";
-		} else {
-			$bb_settings .= '$bb->' . $bb_setting . ' = \'' . $bb->$bb_setting . '\';' . "\n";
-		}
-	}
-}
-?>
-<p><?php _e('If your integration settings will not change, you can help speed up bbPress by adding the following code to your <code>bb-config.php</code> file in the root directory of your bbPress installation. Afterwards, the settings in this form will reflect the hard coded values, but you will not be able to edit them here.'); ?></p>
-<pre class="block"><?php echo($bb_settings); ?></pre>
 
 </div>
 

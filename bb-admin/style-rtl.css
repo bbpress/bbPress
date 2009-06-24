@@ -323,6 +323,10 @@ form.settings div div.inputs {
 	margin: 0 210px 0 0;
 }
 
+form.settings div.table {
+	margin: 0 220px 0 0;
+}
+
 form.settings div p {
 	margin: 0 3em 0 0;
 	border-left-width: 0;
