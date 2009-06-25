@@ -977,8 +977,8 @@ function bb_recount_list()
 		20 => array( 'topics-replied', __( 'Count topics to which each user has replied' ) ),
 		25 => array( 'topic-tag-count', __( 'Count tags for every topic' ) ),
 		30 => array( 'tags-tag-count', __( 'Count topics for every tag' ) ),
-		35 => array( 'tags-delete-empty', __( '<span>Delete</span> tags with no topics' ) ),
-		40 => array( 'clean-favorites', __( '<span>Remove</span> deleted topics from users\' favorites' ) )
+		35 => array( 'tags-delete-empty', __( 'Delete tags with no topics' ) ),
+		40 => array( 'clean-favorites', __( 'Remove deleted topics from users\' favorites' ) )
 	);
 	do_action( 'bb_recount_list' );
 	ksort( $recount_list );
