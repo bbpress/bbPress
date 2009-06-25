@@ -84,8 +84,8 @@ function bb_admin_menu_generator()
 		$bb_submenu['users.php'][5]  = array( __( 'Find' ), 'moderate', 'users.php' );
 		$bb_submenu['users.php'][10] = array( __( 'Moderators' ), 'moderate', 'users-moderators.php' );
 		$bb_submenu['users.php'][15] = array( __( 'Blocked' ), 'edit_users', 'users-blocked.php' );
-	$bb_menu[315] = array( __( 'Tools' ), 'recount', 'site.php', '', 'bb-menu-tools' );
-		$bb_submenu['site.php'][5] = array( __( 'Recount' ), 'recount', 'site.php' );
+	$bb_menu[315] = array( __( 'Tools' ), 'recount', 'tools-recount.php', '', 'bb-menu-tools' );
+		$bb_submenu['tools-recount.php'][5] = array( __( 'Re-count' ), 'recount', 'tools-recount.php' );
 	$bb_menu[320] = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'bb-menu-settings' );
 		$bb_submenu['options-general.php'][5]  = array( __( 'General' ), 'manage_options', 'options-general.php' );
 		//$bb_submenu['options-general.php'][10] = array( __( 'Date and Time' ), 'manage_options', 'options-time.php' );
