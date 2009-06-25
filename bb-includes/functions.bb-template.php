@@ -1784,7 +1784,20 @@ function bb_post_admin( $args = null )
 			)
 		)
 	);
+	if ( isset( $args['each'] ) ) {
+		$each_args = $args['each'];
+		$_each_args = $defaults['each'];
+		foreach ( $each_args as $_part_name => $_part_args ) {
+			if ( !isset( $defaults['each'][$_part_name] ) ) {
+				continue;
+			}
+			$_each_args[$_part_name] = wp_parse_args( $_part_args, $defaults['each'][$_part_name] );
+		}
+	}
 	$args = wp_parse_args( $args, $defaults );
+	if ( isset( $_each_args ) ) {
+		$args['each'] = $_each_args;
+	}
 
 	$parts = array();
 	if ( is_array( $args['each'] ) && count( $args['each'] ) ) {

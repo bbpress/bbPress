@@ -938,9 +938,8 @@ function bb_admin_list_posts() {
 			<span class="post-time"><?php printf( __( 'Posted %s' ), '<a href="' . esc_url( get_post_link() ) . '">' . bb_get_post_time( bb_get_datetime_formatstring_i18n() ) . '</a>' ); ?></span>
 			<div class="post"><?php post_text(); ?></div>
 			<p class="row-actions">
-				<a href="<?php echo esc_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a> |
-				<?php post_edit_link(); ?> |
-				<?php post_delete_link();?>
+				<a href="<?php echo esc_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a>
+				<?php bb_post_admin( array( 'before_each' => ' | ' ) ); ?>
 			</p>
 		</td>
 
