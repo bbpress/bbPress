@@ -302,6 +302,25 @@ div.dashboard div.versions p.theme a.button {
 
 
 
+/* Themes */
+
+table.theme-list td {
+	border-left: 1px solid rgb(221, 221, 221);
+	border-right-width: 0;
+}
+
+table.theme-list td.position-3 {
+	border-left: none;
+}
+
+table.theme-list-active td div.screen-shot {
+	float: right;
+	margin-right: 0;
+	margin-left: 15px;
+}
+
+
+
 /* Options */
 
 form.settings div {
