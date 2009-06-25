@@ -8,80 +8,17 @@ Version: 1.0
 Author URI: http://blogwaffe.com/
 */
 
-// Add filters for the admin area
-add_action('bb_admin_menu_generator', 'bb_ksd_configuration_page_add');
-add_action('bb_admin-header.php', 'bb_ksd_configuration_page_process');
-
-function bb_ksd_configuration_page_add() {
-	bb_admin_add_submenu(__('Akismet Configuration'), 'use_keys', 'bb_ksd_configuration_page');
-}
-
-function bb_ksd_configuration_page() {
-?>
-<h2><?php _e('Akismet Configuration'); ?></h2>
-
-<form class="options" method="post" action="">
-	<fieldset>
-		<label for="akismet_key">
-			<?php _e('Akismet Key:') ?>
-		</label>
-		<div>
-			<input class="text" name="akismet_key" id="akismet_key" value="<?php bb_form_option('akismet_key'); ?>" />
-			<p><?php _e('You do not need a key to run bbPress, but if you want to take advantage of Akismet\'s powerful spam blocking, you\'ll need one.'); ?></p>
-			<p><?php _e('You can get an Akismet key at <a href="http://wordpress.com/api-keys/">WordPress.com</a>') ?></p>
-		</div>
-	</fieldset>
-	<fieldset>
-		<?php bb_nonce_field( 'akismet-configuration' ); ?>
-		<input type="hidden" name="action" id="action" value="update-akismet-configuration" />
-		<div class="spacer">
-			<input type="submit" name="submit" id="submit" value="<?php _e('Update Configuration &raquo;') ?>" />
-		</div>
-	</fieldset>
-</form>
-<?php
-}
-
-function bb_ksd_configuration_page_process() {
-	if ($_POST['action'] == 'update-akismet-configuration') {
-		
-		bb_check_admin_referer( 'akismet-configuration' );
-		
-		if ($_POST['akismet_key']) {
-			$value = stripslashes_deep( trim( $_POST['akismet_key'] ) );
-			if ($value) {
-				bb_update_option( 'akismet_key', $value );
-			} else {
-				bb_delete_option( 'akismet_key' );
-			}
-		} else {
-			bb_delete_option( 'akismet_key' );
-		}
-		
-		$goback = add_query_arg('akismet-updated', 'true', wp_get_referer());
-		bb_safe_redirect($goback);
-		exit;
-	}
-	
-	if ($_GET['akismet-updated']) {
-		bb_admin_notice( __( '<strong>Configuration saved.</strong>' ) );
-	}
-}
-
-// Bail here if no key is set
-if (!bb_get_option( 'akismet_key' ))
-	return;
-
 
 
 $bb_ksd_api_host = bb_get_option( 'akismet_key' ) . '.rest.akismet.com';
 $bb_ksd_api_port = 80;
 $bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. bb_get_option( 'version' );
 
-function bb_akismet_verify_key( $key ) {
+function bb_akismet_verify_key( $key )
+{
 	global $bb_ksd_api_port;
 	$blog = urlencode( bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET) );
-	$response = bb_ksd_http_post("key=$key&blog=$blog", 'rest.akismet.com', '/1.1/verify-key', $bb_ksd_api_port);
+	$response = bb_ksd_http_post( "key=$key&blog=$blog", 'rest.akismet.com', '/1.1/verify-key', $bb_ksd_api_port );
 	if ( 'valid' == $response[1] )
 		return true;
 	else
@@ -110,6 +47,157 @@ function bb_ksd_http_post($request, $host, $path, $port = 80) {
 	}
 	return $response;
 }
+
+// Add filters for the admin area
+add_action('bb_admin_menu_generator', 'bb_ksd_configuration_page_add');
+add_action('bb_admin-header.php', 'bb_ksd_configuration_page_process');
+
+function bb_ksd_configuration_page_add()
+{
+	bb_admin_add_submenu( __( 'Akismet' ), 'use_keys', 'bb_ksd_configuration_page', 'options-general.php' );
+}
+
+function bb_ksd_configuration_page()
+{
+?>
+<h2><?php _e( 'Akismet Settings' ); ?></h2>
+<?php do_action( 'bb_admin_notices' ); ?>
+
+<form class="settings" method="post" action="<?php bb_uri( 'bb-admin/admin-base.php', array( 'plugin' => 'bb_ksd_configuration_page'), BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ); ?>">
+	<fieldset>
+		<p><?php printf( __( 'For many people, <a href="%s">Akismet</a> will greatly reduce or even completely eliminate the spam you get on your site. If one does happen to get through, simply mark it as "spam" and Akismet will learn from the mistakes.' ), 'http://akismet.com/' ); ?></p>
+<?php
+
+	$after = '';
+	if ( false !== $key = bb_get_option( 'akismet_key' ) ) {
+		if ( bb_akismet_verify_key( $key ) ) {
+			$after = __( 'This key is valid' );
+		} else {
+			bb_delete_option( 'akismet_key' );
+		}
+	}
+
+	bb_option_form_element( 'akismet_key', array(
+		'title' => __( 'WordPress.com API Key' ),
+		'attributes' => array( 'maxlength' => 12 ),
+		'after' => $after,
+		'note' => sprintf( __( 'If you don\'t have a WordPress.com API Key, you can get one at <a href="%s">WordPress.com</a>' ), 'http://wordpress.com/api-keys/' )
+	) );
+?>
+	</fieldset>
+	<fieldset class="submit">
+		<?php bb_nonce_field( 'options-akismet-update' ); ?>
+		<input type="hidden" name="action" value="update-akismet-settings" />
+		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
+	</fieldset>
+</form>
+<?php
+}
+
+function bb_ksd_configuration_page_process()
+{
+	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update-akismet-settings') {
+		bb_check_admin_referer( 'options-akismet-update' );
+
+		$goback = remove_query_arg( array( 'invalid-akismet', 'updated-akismet' ), wp_get_referer() );
+
+		if ( $_POST['akismet_key'] ) {
+			$value = stripslashes_deep( trim( $_POST['akismet_key'] ) );
+			if ( $value ) {
+				if ( bb_akismet_verify_key( $value ) ) {
+					bb_update_option( 'akismet_key', $value );
+				} else {
+					$goback = add_query_arg( 'invalid-akismet', 'true', $goback );
+					bb_safe_redirect( $goback );
+					exit;
+				}
+			} else {
+				bb_delete_option( 'akismet_key' );
+			}
+		} else {
+			bb_delete_option( 'akismet_key' );
+		}
+
+		$goback = add_query_arg( 'updated-akismet', 'true', $goback );
+		bb_safe_redirect( $goback );
+		exit;
+	}
+
+	if ( !empty($_GET['updated-akismet']) ) {
+		bb_admin_notice( __( '<strong>Settings saved.</strong>' ) );
+	}
+
+	if ( !empty($_GET['invalid-akismet']) ) {
+		bb_admin_notice( __( '<strong>The key you attempted to enter is invalid. Reverting to previous setting.</strong>' ), 'error' );
+	}
+
+	global $bb_admin_body_class;
+	$bb_admin_body_class = ' bb-admin-settings';
+}
+
+// Bail here if no key is set
+if (!bb_get_option( 'akismet_key' ))
+	return;
+
+add_action('bb_admin_menu_generator', 'bb_ksd_stats_page');
+
+function bb_ksd_stats_page()
+{
+	if ( function_exists( 'bb_admin_add_submenu' ) ) {
+		bb_admin_add_submenu( __( 'Akismet Stats' ), 'use_keys', 'bb_ksd_stats_display', 'index.php' );
+	}
+}
+
+function bb_ksd_stats_script() {
+?>
+<style>
+	#bb-ksd-stats-frame {
+		-moz-box-shadow: 0 0 15px rgb(255, 255, 255);
+		-webkit-box-shadow: 0 0 15px rgb(255, 255, 255);
+		box-shadow: 0 0 15px rgb(255, 255, 255);
+		margin-top: 16px;
+		width: 100%;
+		height: 700px;
+		border-width: 0;
+	}
+</style>
+<script type="text/javascript">
+	function resizeIframe() {
+		var height = document.documentElement.clientHeight;
+		height -= document.getElementById('bb-ksd-stats-frame').offsetTop;
+		height -= 60;
+		document.getElementById('bb-ksd-stats-frame').style.height = height +"px";
+	};
+	function resizeIframeInit() {
+		document.getElementById('bb-ksd-stats-frame').onload = resizeIframe;
+		window.onresize = resizeIframe;
+	}
+	addLoadEvent(resizeIframeInit);
+</script>
+<?php
+}
+
+function bb_ksd_stats_display_pre_head()
+{
+	add_action( 'bb_admin_head', 'bb_ksd_stats_script' );
+}
+
+add_action( 'bb_ksd_stats_display_pre_head', 'bb_ksd_stats_display_pre_head' );
+
+function bb_ksd_stats_display()
+{
+	$site = urlencode( bb_get_option('uri') );
+	$url = "http://".bb_get_option( 'akismet_key' ).".web.akismet.com/1.0/user-stats.php?blog={$site}&amp;type=forum";
+?>
+	<iframe src="<?php echo $url; ?>" id="bb-ksd-stats-frame"></iframe>
+<?php
+}
+
+
+
+
+
+
 
 function bb_ksd_submit( $submit, $type = false ) {
 	global $bb_ksd_api_host, $bb_ksd_api_port;
