@@ -219,18 +219,14 @@ bb_get_admin_header();
 <h2><?php _e('General Settings'); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-general.php',
-			null,
-			BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+<form class="settings" method="post" action="<?php bb_uri( 'bb-admin/options-general.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ); ?>">
 	<fieldset>
 <?php
 foreach ( $general_options as $option => $args ) {
-	bb_option_form_element( $option,
-			$args );
+	bb_option_form_element( $option, $args );
 }
 foreach ( $time_options as $option => $args ) {
-	bb_option_form_element( $option,
-			$args );
+	bb_option_form_element( $option, $args );
 }
 ?>
 	</fieldset>
