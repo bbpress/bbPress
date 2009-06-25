@@ -173,7 +173,7 @@ bb_get_admin_header();
 <h2><?php _e('Tools') ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<form class="settings" method="post" action="<?php bb_uri('bb-admin/site.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+<form class="settings" method="post" action="<?php bb_uri('bb-admin/tools-recount.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
 	<fieldset>
 		<legend><?php _e( 'Re-count' ) ?></legend>
 		<p><?php _e( 'To minimize database queries, bbPress keeps it\'s own count of various items like posts in each topic and topics in each forum. Occasionally these internal counters may become incorrect, you can manually re-count these items using this form.' ) ?></p>
