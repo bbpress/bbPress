@@ -54,7 +54,7 @@ add_action('bb_admin-header.php', 'bb_ksd_configuration_page_process');
 
 function bb_ksd_configuration_page_add()
 {
-	bb_admin_add_submenu( __( 'Akismet' ), 'use_keys', 'bb_ksd_configuration_page', 'options-general.php' );
+	bb_admin_add_submenu( __( 'Akismet' ), 'moderate', 'bb_ksd_configuration_page', 'options-general.php' );
 }
 
 function bb_ksd_configuration_page()
@@ -83,6 +83,15 @@ function bb_ksd_configuration_page()
 		'after' => $after,
 		'note' => sprintf( __( 'If you don\'t have a WordPress.com API Key, you can get one at <a href="%s">WordPress.com</a>' ), 'http://wordpress.com/api-keys/' )
 	) );
+
+	bb_option_form_element( 'akismet_stats', array(
+		'title' => __( 'Enable stats page' ),
+		'type' => 'checkbox',
+		'options' => array(
+			1 => __( 'Create a page in the admin are that shows spam statistics.' )
+		),
+		'note' => __( 'This page will be viewable by moderators or higher.' )
+	) );
 ?>
 	</fieldset>
 	<fieldset class="submit">
@@ -100,6 +109,16 @@ function bb_ksd_configuration_page_process()
 		bb_check_admin_referer( 'options-akismet-update' );
 
 		$goback = remove_query_arg( array( 'invalid-akismet', 'updated-akismet' ), wp_get_referer() );
+
+		if (!isset($_POST['akismet_stats'])) {
+			$_POST['akismet_stats'] = false;
+		}
+
+		if ( true === (bool) $_POST['akismet_stats'] ) {
+			bb_update_option( 'akismet_stats', 1 );
+		} else {
+			bb_delete_option( 'akismet_stats' );
+		}
 
 		if ( $_POST['akismet_key'] ) {
 			$value = stripslashes_deep( trim( $_POST['akismet_key'] ) );
@@ -136,17 +155,20 @@ function bb_ksd_configuration_page_process()
 }
 
 // Bail here if no key is set
-if (!bb_get_option( 'akismet_key' ))
+if ( !bb_get_option( 'akismet_key' ) ) {
 	return;
-
-add_action('bb_admin_menu_generator', 'bb_ksd_stats_page');
+}
 
 function bb_ksd_stats_page()
 {
+	if ( !bb_get_option( 'akismet_stats' ) ) {
+		return;
+	}
 	if ( function_exists( 'bb_admin_add_submenu' ) ) {
 		bb_admin_add_submenu( __( 'Akismet Stats' ), 'use_keys', 'bb_ksd_stats_display', 'index.php' );
 	}
 }
+add_action( 'bb_admin_menu_generator', 'bb_ksd_stats_page' );
 
 function bb_ksd_stats_script() {
 ?>
@@ -179,9 +201,11 @@ function bb_ksd_stats_script() {
 
 function bb_ksd_stats_display_pre_head()
 {
+	if ( !bb_get_option( 'akismet_stats' ) ) {
+		return;
+	}
 	add_action( 'bb_admin_head', 'bb_ksd_stats_script' );
 }
-
 add_action( 'bb_ksd_stats_display_pre_head', 'bb_ksd_stats_display_pre_head' );
 
 function bb_ksd_stats_display()
