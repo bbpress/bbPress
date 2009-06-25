@@ -403,7 +403,7 @@ function bb_ksd_admin_page() {
 function bb_ksd_post_delete_link( $parts, $args )
 {
 	if ( !bb_current_user_can( 'moderate' ) ) {
-		return $link;
+		return $parts;
 	}
 	$bb_post = bb_get_post( get_post_id( $args['post_id'] ) );
 
