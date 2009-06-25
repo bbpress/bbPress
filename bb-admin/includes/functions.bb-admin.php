@@ -961,21 +961,22 @@ function bb_admin_list_posts() {
 
 /* Recounts */
 
-function bb_recount_list() {
+function bb_recount_list()
+{
 	global $recount_list;
-	$recount_list = array();
-	$recount_list[5] = array('topic-posts', __('Count posts of every topic'));
-	$recount_list[6] = array('topic-voices', __('Count voices of every topic'));
-	$recount_list[10] = array('topic-deleted-posts', __('Count deleted posts on every topic'));
-	$recount_list[15] = array('forums', __('Count topics and posts in every forum (relies on the above)'));
-	$recount_list[20] = array('topics-replied', __('Count topics to which each user has replied'));
-	$recount_list[25] = array('topic-tag-count', __('Count tags for every topic'));
-	$recount_list[30] = array('tags-tag-count', __('Count topics for every tag'));
-	$recount_list[35] = array('zap-tags', __('DELETE tags with no topics.  Only functions if the above checked'));
-	$recount_list[40] = array('clean-favorites', __('REMOVE deleted topics from users\' favorites'));
-
-	do_action('bb_recount_list');
-	ksort($recount_list);
+	$recount_list = array(
+		5  => array( 'topic-posts', __( 'Count posts of every topic' ) ),
+		6  => array( 'topic-voices', __( 'Count voices of every topic' ) ),
+		10 => array( 'topic-deleted-posts', __( 'Count deleted posts on every topic' ) ),
+		15 => array( 'forums', __( 'Count topics and posts in every forum' ) ),
+		20 => array( 'topics-replied', __( 'Count topics to which each user has replied' ) ),
+		25 => array( 'topic-tag-count', __( 'Count tags for every topic' ) ),
+		30 => array( 'tags-tag-count', __( 'Count topics for every tag' ) ),
+		35 => array( 'tags-delete-empty', __( '<span>Delete</span> tags with no topics' ) ),
+		40 => array( 'clean-favorites', __( '<span>Remove</span> deleted topics from users\' favorites' ) )
+	);
+	do_action( 'bb_recount_list' );
+	ksort( $recount_list );
 	return $recount_list;
 }
 

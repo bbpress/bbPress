@@ -150,7 +150,7 @@ if ( isset($_POST['tags-tag-count']) && 1 == $_POST['tags-tag-count'] ) :
 	echo "\n\t</li>\n";
 endif;
 
-if ( isset($_POST['zap-tags']) && 1 == $_POST['zap-tags'] ):
+if ( isset($_POST['tags-delete-empty']) && 1 == $_POST['tags-delete-empty'] ):
 	// Get all tags
 	if ( !isset( $terms ) ) {
 		$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', array( 'hide_empty' => false ) );
