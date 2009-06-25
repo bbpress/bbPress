@@ -153,7 +153,7 @@ function bb_validate_auth_cookie( $cookie = '', $scheme = 'auth' ) {
 endif;
 
 if ( !function_exists( 'bb_set_auth_cookie' ) ) :
-function bb_set_auth_cookie( $user_id, $remember = false, $secure = '' ) {
+function bb_set_auth_cookie( $user_id, $remember = false, $schemes = false ) {
 	global $wp_auth_object;
 
 	if ( $remember ) {
@@ -162,18 +162,24 @@ function bb_set_auth_cookie( $user_id, $remember = false, $secure = '' ) {
 		$expiration = time() + 172800;
 		$expire = 0;
 	}
-	
-	if ( '' === $secure )
-		$secure = is_ssl() ? true : false;
 
-	if ( $secure ) {
-		$scheme = 'secure_auth';
-	} else {
-		$scheme = 'auth';
+	if ( true === $schemes ) {
+		$schemes = array( 'secure_auth', 'logged_in' );
+	} elseif ( !is_array( $schemes ) ) {
+		$schemes = array();
+		if ( force_ssl_login() || force_ssl_admin() ) {
+			$schemes[] = 'secure_auth';
+		}
+		if ( !( force_ssl_login() && force_ssl_admin() ) ) {
+			$schemes[] = 'auth';
+		}
+		$schemes[] = 'logged_in';
 	}
+	$schemes = array_unique( $schemes );
 
-	$wp_auth_object->set_auth_cookie( $user_id, $expiration, $expire, $scheme );
-	$wp_auth_object->set_auth_cookie( $user_id, $expiration, $expire, 'logged_in' );
+	foreach ( $schemes as $scheme ) {
+		$wp_auth_object->set_auth_cookie( $user_id, $expiration, $expire, $scheme );
+	}
 }
 endif;
 
