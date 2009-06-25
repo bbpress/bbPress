@@ -336,6 +336,8 @@ form.settings div div.label {
 form.settings div.disabled label,
 form.settings div.disabled div.label {
 	background-position: 0 0;
+	padding-right: 0;
+	padding-left: 20px;
 }
 
 form.settings div div.inputs {

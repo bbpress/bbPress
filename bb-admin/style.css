@@ -973,13 +973,6 @@ form.settings div label {
 	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
 }
 
-form.settings div.disabled label,
-form.settings div.disabled div.label {
-	background-image: url('images/input-lock.png');
-	background-repeat: no-repeat;
-	background-position: 100% 0;
-}
-
 form.settings div div.label {
 	float: left;
 	display: block;
@@ -987,6 +980,19 @@ form.settings div div.label {
 	width: 190px;
 	color: rgb(34, 34, 34);
 	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+}
+
+form.settings div.disabled label,
+form.settings div.disabled div.label {
+	background-image: url('images/input-lock.png');
+	background-repeat: no-repeat;
+	background-position: 100% 0;
+	padding-right: 20px;
+	width: 180px;
+}
+
+form.settings div.disabled div.label {
+	width: 170px;
 }
 
 form.settings div div.inputs {

@@ -89,11 +89,11 @@ $cookie_options = array(
 
 foreach ( array( 'bb_auth_salt', 'bb_secure_auth_salt', 'bb_logged_in_salt' ) as $salt_constant ) {
 	if ( defined( strtoupper( $salt_constant ) ) ) {
-		$cookie_options[$salt_constant]['type'] = 'message';
 		$cookie_options[$salt_constant]['note'] = array(
-			sprintf( __( 'You have defined the "%s" constant which overides this setting.' ), strtoupper( $salt_constant ) ),
+			sprintf( __( 'You have defined the "%s" constant which locks this setting.' ), strtoupper( $salt_constant ) ),
 			$cookie_options[$salt_constant]['note'],
 		);
+		$cookie_options[$salt_constant]['value'] = constant( strtoupper( $salt_constant ) );
 		$bb_hardcoded[$salt_constant] = true;
 	}
 }
