@@ -50,7 +50,6 @@ function bb_ksd_http_post($request, $host, $path, $port = 80) {
 
 // Add filters for the admin area
 add_action('bb_admin_menu_generator', 'bb_ksd_configuration_page_add');
-add_action('bb_admin-header.php', 'bb_ksd_configuration_page_process');
 
 function bb_ksd_configuration_page_add()
 {
@@ -153,6 +152,7 @@ function bb_ksd_configuration_page_process()
 	global $bb_admin_body_class;
 	$bb_admin_body_class = ' bb-admin-settings';
 }
+add_action( 'bb_ksd_configuration_page_pre_head', 'bb_ksd_configuration_page_process' );
 
 // Bail here if no key is set
 if ( !bb_get_option( 'akismet_key' ) ) {
