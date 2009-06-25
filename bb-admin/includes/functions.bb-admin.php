@@ -1046,9 +1046,9 @@ function bb_get_theme_data( $theme_file )
 
 	if ( $author_name || $author_uri ) {
 		if ( empty($author_uri[1]) ) {
-			$author = esc_html( trim($author_name[1]) );
+			$author = bb_filter_kses( trim($author_name[1]) );
 		} else {
-			$author = '<a href="' . esc_url( trim($author_uri[1]) ) . '" title="' . esc_attr__( 'Visit author homepage' ) . '">' . esc_html( trim($author_name[1]) ) . '</a>';
+			$author = '<a href="' . esc_url( trim($author_uri[1]) ) . '" title="' . esc_attr__( 'Visit author homepage' ) . '">' . bb_filter_kses( trim($author_name[1]) ) . '</a>';
 		}
 	} else {
 		$author = '';
@@ -1056,9 +1056,9 @@ function bb_get_theme_data( $theme_file )
 
 	if ( $porter_name || $porter_uri ) {
 		if ( empty($porter_uri[1]) ) {
-			$porter = esc_html( trim($porter_name[1]) );
+			$porter = bb_filter_kses( trim($porter_name[1]) );
 		} else {
-			$porter = '<a href="' . esc_url( trim($porter_uri[1]) ) . '" title="' . esc_attr__( 'Visit porter homepage' ) . '">' . esc_html( trim($porter_name[1]) ) . '</a>';
+			$porter = '<a href="' . esc_url( trim($porter_uri[1]) ) . '" title="' . esc_attr__( 'Visit porter homepage' ) . '">' . bb_filter_kses( trim($porter_name[1]) ) . '</a>';
 		}
 	} else {
 		$porter = '';

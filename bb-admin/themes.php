@@ -48,24 +48,64 @@ if ( !in_array($activetheme, $themes) ) {
 	}
 }
 
-function bb_admin_theme_row( $theme ) {
+function bb_admin_theme_row( $theme, $position ) {
 	$theme_directory = bb_get_theme_directory( $theme );
 	$theme_data = file_exists( $theme_directory . 'style.css' ) ? bb_get_theme_data( $theme ) : false;
 	$screen_shot = file_exists( $theme_directory . 'screenshot.png' ) ? esc_url( bb_get_theme_uri( $theme ) . 'screenshot.png' ) : false;
 	$activation_url = bb_get_uri('bb-admin/themes.php', array('theme' => urlencode($theme)), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);
 	$activation_url = esc_url( bb_nonce_url( $activation_url, 'switch-theme' ) );
+
+	if ( 1 === $position || 0 === $position ) {
+		echo '<tr>';
+	}
 ?>
-	<li<?php alt_class( 'theme' ); ?>>
-		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr__( 'Click to activate' ); ?>"><img alt="<?php echo esc_attr( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
+	<td class="position-<?php echo( (int) $position ); ?>">
+		<div class="screen-shot"><?php if ( $screen_shot ) : ?><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr( sprintf( __( 'Activate "%s"' ), $theme_data['Title'] ) ); ?>"><img alt="<?php echo esc_attr( $theme_data['Title'] ); ?>" src="<?php echo $screen_shot; ?>" /></a><?php endif; ?></div>
 		<div class="description">
-			<h3><a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr__( 'Click to activate' ); ?>"><?php echo $theme_data['Title']; ?></a></h3>
-			<small class="version"><?php echo $theme_data['Version']; ?></small>
-			<small class="author"><?php printf(__('by <cite>%s</cite>'), $theme_data['Author']); if ( $theme_data['Porter'] ) printf(__(', ported by <cite>%s</cite>'), $theme_data['Porter']); ?></small>
-			<?php echo $theme_data['Description']; // Description is autop'ed ?>
-			<small class="location"><?php printf(__('All of this theme\'s files are located in the "%s" themes directory.'), $theme_data['Location']); ?></small>
-		</div>
-	</li>
+			<h3 class="themes">
 <?php
+	printf(
+		__( '%1$s %2$s by <cite>%3$s</cite>' ),
+		$theme_data['Title'],
+		$theme_data['Version'],
+		$theme_data['Author']
+	);
+?>
+			</h3>
+			
+<?php
+	if ( $theme_data['Porter'] ) {
+?>
+			<p>
+<?php
+	printf(
+		__( 'Ported by <cite>%s</cite>' ),
+		$theme_data['Porter']
+	);
+?>
+			</p>
+<?php
+	}
+?>
+			
+			<?php echo $theme_data['Description']; // Description is autop'ed ?>
+<?php
+	if ( 0 !== $position ) {
+?>
+			<div class="actions">
+				<a href="<?php echo $activation_url; ?>" title="<?php echo esc_attr( sprintf( __( 'Activate "%s"' ), $theme_data['Title'] ) ); ?>"><?php _e( 'Activate' ); ?></a>
+			</div>
+<?php
+	}
+?>
+			<p class="location"><?php printf(__('All of this theme\'s files are located in the "%s" themes directory.'), $theme_data['Location']); ?></p>
+		</div>
+	</td>
+<?php
+
+	if ( 3 === $position || 0 === $position ) {
+		echo '</tr>';
+	}
 }
 
 if ( isset( $bb->safemode ) && $bb->safemode === true ) {
@@ -77,26 +117,43 @@ $bb_admin_body_class = ' bb-admin-appearance';
 bb_get_admin_header();
 ?>
 
-<div class="wrap">
-
 <h2><?php _e('Manage Themes'); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<h3><?php _e('Current Theme'); ?></h3>
-
-<ul class="theme-list active">
-<?php bb_admin_theme_row( $themes[$activetheme] ); unset($themes[$activetheme] ); ?>
-</ul>
-<?php if ( !empty($themes) ) : ?>
-
-<h3><?php _e('Available Themes'); ?></h3>
-<div class="theme-list">
-<ul class="theme-list">
-<?php foreach ( $themes as $theme ) bb_admin_theme_row( $theme ); ?>
-</ul>
-<div class="clear"></div>
+<h3 class="themes"><?php _e('Current Theme'); ?></h3>
+<div>
+<table class="theme-list-active">
+<?php bb_admin_theme_row( $themes[$activetheme], 0 ); unset($themes[$activetheme] ); ?>
+</table>
 </div>
 
+<?php if ( !empty($themes) ) : ?>
+
+<h3 class="themes"><?php _e('Available Themes'); ?></h3>
+<div>
+<table class="theme-list">
+<?php
+$i = 0;
+foreach ( $themes as $theme ) {
+	$position = 1 + ( $i % 3 );
+
+	bb_admin_theme_row( $theme, $position );
+
+	$i++;
+}
+
+switch ( $position ) {
+	case 1:
+		echo '<td class="position-2"></td><td class="position-3"></td></tr>';
+		break;
+	case 2:
+		echo '<td class="position-3"></td></tr>';
+		break;
+	case 3:
+		break;
+}
+?>
+</table>
 </div>
 
 <?php endif; bb_get_admin_footer(); ?>
