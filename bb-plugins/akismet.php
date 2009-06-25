@@ -87,7 +87,7 @@ function bb_ksd_configuration_page()
 		'title' => __( 'Enable stats page' ),
 		'type' => 'checkbox',
 		'options' => array(
-			1 => __( 'Create a page in the admin are that shows spam statistics.' )
+			1 => __( 'Create a page that shows spam statistics.' )
 		),
 		'note' => __( 'This page will be viewable by moderators or higher.' )
 	) );
