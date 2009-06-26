@@ -3,11 +3,36 @@ require_once( 'admin.php' );
 
 require_once( 'includes/functions.bb-plugin.php' );
 
-// Get all autoloaded plugins
-$autoload_plugins = bb_get_plugins( 'all', 'autoload' );
+$plugin_request = 'all';
 
-// Get all normal plugins
-$normal_plugins = bb_get_plugins();
+if ( isset( $_GET['plugin_request'] ) ) {
+	$plugin_request = (string) $_GET['plugin_request'];
+}
+
+switch ( $plugin_request ) {
+	case 'active':
+		$_plugin_type = 'normal';
+		$_plugin_status = 'active';
+		break;
+	case 'inactive':
+		$_plugin_type = 'normal';
+		$_plugin_status = 'inactive';
+		break;
+	case 'autoload':
+		$_plugin_type = 'autoload';
+		$_plugin_status = 'all';
+		break;
+	default:
+		$_plugin_type = 'all';
+		$_plugin_status = 'all';
+		break;
+}
+
+// Get plugin counts
+extract( bb_get_plugin_counts() );
+
+// Get requested plugins
+$requested_plugins = bb_get_plugins( 'all', $_plugin_type, $_plugin_status );
 
 // Get currently active 
 $active_plugins = (array) bb_get_option( 'active_plugins' );
@@ -125,7 +150,7 @@ if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 	);
 ?>
 
-<iframe class="error" src="<?php echo $scrape_src; ?>"></iframe>
+	<iframe class="error" src="<?php echo $scrape_src; ?>"></iframe>
 
 <?php
 }
@@ -134,25 +159,34 @@ if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 	<h2><?php _e( 'Manage Plugins' ); ?></h2>
 	<?php do_action( 'bb_admin_notices' ); ?>
 
-	<p><?php _e( 'Plugins extend and expand the functionality of bbPress. Once a plugin is installed, you may activate it or deactivate it here.' ); ?></p>
+	<div class="table-filter">
+		<a href="<?php bb_uri( 'bb-admin/plugins.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'All (%d)' ), $plugin_count_all ); ?></a> |
+		<a href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'active' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Active (%d)' ), $plugin_count_active ); ?></a> |
+		<a href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'inactive' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Inactive (%d)' ), $plugin_count_inactive ); ?></a> |
+		<a href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'autoload' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Autoloaded (%d)' ), $plugin_count_autoload ); ?></a>
+	</div>
 
 <?php
-if ( $normal_plugins ) :
+if ( $requested_plugins ) :
 ?> 
 
 	<table class="widefat">
 		<thead>
 			<tr>
 				<th><?php _e( 'Plugin' ); ?></th>
-				<th class="vers"><?php _e( 'Version' ); ?></th>
 				<th><?php _e( 'Description' ); ?></th>
-				<th class="action"><?php _e( 'Action' ); ?></th>
 			</tr>
 		</thead>
+		<tfoot>
+			<tr>
+				<th><?php _e( 'Plugin' ); ?></th>
+				<th><?php _e( 'Description' ); ?></th>
+			</tr>
+		</tfoot>
 		<tbody>
 
 <?php
-	foreach ( $normal_plugins as $plugin => $plugin_data ) :
+	foreach ( $requested_plugins as $plugin => $plugin_data ) :
 		$class = '';
 		$action = 'activate';
 		$action_class = 'edit';
@@ -179,14 +213,14 @@ if ( $normal_plugins ) :
 ?>
 
 			<tr<?php alt_class( 'normal_plugin', $class ); ?>>
-				<td><?php echo $plugin_data['plugin_link']; ?></td>
-				<td class="vers"><?php echo $plugin_data['version']; ?></td>
+				<td>
+					<?php echo $plugin_data['plugin_link']; ?>
+					<a class="<?php echo $action_class; ?>" href="<?php echo $href; ?>"><?php echo $action_text; ?></a>
+				</td>
 				<td>
 					<?php echo $plugin_data['description']; ?>
 					<cite><?php printf( __( 'By %s.' ), $plugin_data['author_link'] ); ?></cite>
-				</td>
-				<td class="action">
-					<a class="<?php echo $action_class; ?>" href="<?php echo $href; ?>"><?php echo $action_text; ?></a>
+					<?php echo $plugin_data['version']; ?>
 				</td>
 			</tr>
 
@@ -198,66 +232,7 @@ if ( $normal_plugins ) :
 	</table>
 
 <?php
-endif;
-
-if ( $autoload_plugins ) :
-?>
-
-	<h3><?php _e( 'Automatically loaded plugins' ); ?></h3>
-
-	<table class="widefat">
-		<thead>
-			<tr>
-				<th><?php _e( 'Plugin' ); ?></th>
-				<th class="vers"><?php _e( 'Version' ); ?></th>
-				<th><?php _e( 'Description' ); ?></th>
-			</tr>
-		</thead>
-		<tbody>
-
-<?php
-	foreach ( $autoload_plugins as $plugin => $plugin_data ) :
-?>
-
-			<tr<?php alt_class( 'autoload_plugin', 'active' ); ?>>
-
-<?php
-		if ( is_array( $plugin_data ) ) :
-?>
-
-				<td><?php echo $plugin_data['plugin_link']; ?></td>
-				<td class="vers"><?php echo $plugin_data['version']; ?></td>
-				<td><?php echo $plugin_data['description']; ?>
-					<cite><?php printf( __( 'By %s.' ), $plugin_data['author_link'] ); ?></cite>
-				</td>
-
-<?php
-		else :
-?>
-
-				<td colspan="3"><?php echo esc_html( $plugin ); ?></td>
-
-<?php
-		endif;
-?>
-
-			</tr>
-
-<?php
-	endforeach;
-?>
-
-		</tbody>
-	</table>
-
-<?php
-endif;
-?>
-
-	<p><?php _e( 'If something goes wrong with a plugin and you can\'t use bbPress, delete or rename that file in the <code>my-plugins</code> directory and it will be automatically deactivated.' ); ?></p>
-
-<?php
-if ( !$normal_plugins && !$autoload_plugins ) :
+else :
 ?>
 
 	<p><?php _e( 'No Plugins Installed' ); ?></p>
@@ -265,12 +240,6 @@ if ( !$normal_plugins && !$autoload_plugins ) :
 <?php
 endif;
 ?>
-
-	<h3 class="after"><?php _e( 'Get More Plugins' ); ?></h3>
-
-	<p><?php printf( __( 'You can find additional plugins for your site in the <a href="%s">bbPress plugin directory</a>.' ), 'http://bbpress.org/plugins/' ); ?></p>
-
-	<p><?php _e( 'To install a plugin you generally just need to upload the plugin file into your <code>my-plugins</code> directory. Once a plugin is uploaded, you may activate it here.' ); ?></p>
 
 </div>
 

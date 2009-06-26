@@ -2,28 +2,33 @@
 
 function bb_get_plugins_callback( $type = 'normal', $path, $filename )
 {
-	if ( '.php' != substr($filename, -4) )
+	if ( '.php' != substr( $filename, -4 ) ) {
 		return false;
-	
-	switch ($type) {
-		case 'all':
-			// Catch, but do nothing
-			break;
-		case 'autoload':
-			if ( '_' != substr($filename, 0, 1) )
-				return false;
-			break;
-		case 'normal':
-		default:
-			if ( '_' == substr($filename, 0, 1) )
-				return false;
-			break;
 	}
-	
-	return bb_get_plugin_data( $path );
+
+	$data = array( 'autoload' => 0 );
+
+	if ( $has_underscore = '_' === substr( $filename, 0, 1 ) ) {
+		switch ( $type ) {
+			case 'all':
+			case 'autoload':
+				$data['autoload'] = 1;
+				break;
+			case 'normal':
+			default:
+				return false;
+				break;
+		}
+	} elseif ( 'autoload' === $type ) {
+		return false;
+	}
+
+	$data = array_merge( bb_get_plugin_data( $path ), $data );
+
+	return $data;
 }
 
-function bb_get_plugins( $location = 'all', $type = 'normal' )
+function bb_get_plugins( $location = 'all', $type = 'normal', $status = 'all' )
 {
 	static $plugin_cache = array();
 
@@ -31,8 +36,12 @@ function bb_get_plugins( $location = 'all', $type = 'normal' )
 		$type = 'normal';
 	}
 
-	if ( isset( $plugin_cache[$location][$type] ) ) {
-		return $plugin_cache[$location][$type];
+	if ( 'autoload' === $type || !in_array( $status, array( 'all', 'active', 'inactive' ) ) ) {
+		$status = 'all';
+	}
+
+	if ( isset( $plugin_cache[$location][$type][$status] ) ) {
+		return $plugin_cache[$location][$type][$status];
 	}
 
 	global $bb;
@@ -67,15 +76,28 @@ function bb_get_plugins( $location = 'all', $type = 'normal' )
 	foreach ($plugin_arrays as $plugin_array) {
 		$plugins = array_merge($plugins, $plugin_array);
 	}
+
+	$active_plugins = (array) bb_get_option( 'active_plugins' );
 	
 	$adjusted_plugins = array();
 	foreach ($plugins as $plugin => $plugin_data) {
-		$adjusted_plugins[$plugin_data['location'] . '#' . $plugin] = $plugin_data;
+		$_id = $plugin_data['location'] . '#' . $plugin;
+		$plugin_data['active'] = 0;
+		if ( 'autoload' === $type || in_array( $_id, $active_plugins ) ) {
+			$plugin_data['active'] = 1;
+		}
+		if (
+			'active' === $status && $plugin_data['active'] ||
+			'inactive' === $status && !$plugin_data['active'] ||
+			'all' === $status
+		) {
+			$adjusted_plugins[$_id] = $plugin_data;
+		}
 	}
 
 	uasort( $adjusted_plugins, 'bb_plugins_sort' );
 
-	$plugin_cache[$location][$type] = $adjusted_plugins;
+	$plugin_cache[$location][$type][$status] = $adjusted_plugins;
 
 	return $adjusted_plugins;
 }
@@ -83,6 +105,26 @@ function bb_get_plugins( $location = 'all', $type = 'normal' )
 function bb_plugins_sort( $a, $b )
 {
 	return strnatcasecmp( $a['name'], $b['name'] );
+}
+
+function bb_get_plugin_counts()
+{
+	$all_plugins = bb_get_plugins( 'all', 'all' );
+	$active_plugins = (array) bb_get_option( 'active_plugins' );
+	$counts = array(
+		'plugin_count_all' => count( $all_plugins ),
+		'plugin_count_active' => count( $active_plugins ),
+		'plugin_count_inactive' => 0,
+		'plugin_count_autoload' => 0
+	);
+	foreach ( $all_plugins as $id => $all_plugin ) {
+		if ( $all_plugin['autoload'] ) {
+			$counts['plugin_count_autoload']++;
+		} elseif ( !in_array( $id, $active_plugins ) ) {
+			$counts['plugin_count_inactive']++;
+		}
+	}
+	return $counts;
 }
 
 /**
