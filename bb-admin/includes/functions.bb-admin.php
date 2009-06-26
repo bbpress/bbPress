@@ -915,7 +915,7 @@ function bb_admin_list_posts() {
 	
 	if ( !$bb_posts ) {
 ?>
-<p><?php _e('No posts found.'); ?></p>
+<p class="no-results"><?php _e('No posts found.'); ?></p>
 <?php
 	} else {
 ?>

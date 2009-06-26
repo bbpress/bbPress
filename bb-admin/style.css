@@ -620,7 +620,10 @@ ul#bbAdminMenu li.bb-menu.bb-menu-open li.bb-menu-sub a {
 	background-position: 0 -306px;
 }
 
-
+div.wrap {
+	float: left;
+	width: 100%;
+}
 
 div#message {
 	-moz-border-radius: 3px;
@@ -785,7 +788,8 @@ div.dashboard ul li a {
 /* Search forms */
 
 form.search-form fieldset {
-	margin: 10px 0 4px 0;
+	margin: 10px 0 0 0;
+	float: left;
 }
 
 form.search-form fieldset div {
@@ -870,7 +874,91 @@ form.search-form div.submit input.button:active {
 
 
 
-/* Post table */
+/* Table nav */
+
+div.tablenav {
+	float: right;
+}
+
+div.tablenav a {
+	color: rgb(0, 102, 0);
+}
+
+div.tablenav a:hover {
+	color: rgb(213, 78, 33);
+}
+
+div.tablenav-pages {
+	margin: 13px 0 0 0;
+}
+
+div.tablenav-pages.bottom {
+	margin: 0 0 16px 0;
+}
+
+span.displaying-num {
+	display: block;
+	text-align: right;
+	line-height: 1;
+	font-size: 0.8em;
+	color: rgb(70, 70, 70);
+	padding: 0 0 3px 0;
+}
+
+span.displaying-pages {
+	display: block;
+	float: right;
+	cursor: default;
+	color: rgb(85, 85, 85);
+}
+
+span.displaying-pages span,
+span.displaying-pages a {
+	display: block;
+	float: left;
+	-moz-border-radius: 5px;
+	-khtml-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	border: 1px solid rgb(211, 211, 211);
+	padding: 3px 7px;
+	text-decoration: none;
+	background-color: rgb(223, 223, 223);
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 0.85em;
+	line-height: 1.3em;
+	margin-left: 3px;
+}
+
+span.displaying-pages span.dots {
+	border-width: 0;
+	background-color: transparent;
+	padding: 4px 0 0 0;
+	font-weight: bold;
+}
+
+span.displaying-pages a {
+	font-weight: bold;
+	background: url('images/menu-bits.gif') repeat-x 0 -379px rgb(238, 238, 238);
+	border-color: rgb(227, 227, 227);
+}
+
+span.displaying-pages a:hover {
+	border-color: rgb(213, 78, 33);
+}
+
+span.displaying-pages a:active {
+	color: rgb(255, 255, 255);
+}
+
+
+
+/* Tabled info */
+
+p.no-results {
+	margin: 10px 0;
+	font-size: 0.85em;
+}
 
 table.widefat {
 	width: 100%;
@@ -880,8 +968,7 @@ table.widefat {
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
 	border-collapse: separate;
-	
-	border-spacing: 0;
+	margin: 10px 0;
 }
 
 table.widefat a {

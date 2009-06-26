@@ -46,26 +46,39 @@ if ( $h2_search || $h2_forum || $h2_tag || $h2_author ) {
 <?php if ( $total ) : ?>
 	<div class="tablenav-pages">
 		<span class="displaying-num"><?php echo $displaying_num = sprintf(
-			__( 'Displaying %s-%s of %s' ),
+			__( '%1$s to %2$s of %3$s' ),
 			bb_number_format_i18n( ( $page - 1 ) * $post_query->get( 'per_page' ) + 1 ),
 			$page * $post_query->get( 'per_page' ) < $total ? bb_number_format_i18n( $page * $post_query->get( 'per_page' ) ) : '<span class="total-type-count">' . bb_number_format_i18n( $total ) . '</span>',
 			'<span class="total-type-count">' . bb_number_format_i18n( $total ) . '</span>'
-		); ?></span>
-		<?php echo $page_number_links = get_page_number_links( $page, $total, $post_query->get( 'per_page' ), false ); ?>
+		); ?></span><span class="displaying-pages">
+<?php
+$_page_link_args = array(
+	'page' => $page,
+	'total' => $total,
+	'per_page' => 4,//$post_query->get( 'per_page' ),
+	'mod_rewrite' => false,
+	'prev_text' => __( '&laquo;' ),
+	'next_text' => __( '&raquo;' )
+);
+echo $page_number_links = get_page_number_links( $_page_link_args );
+?></span>
+		<div class="clear"></div>
 	</div>
 <?php endif; ?>
 </div>
+<div class="clear"></div>
 
 <?php bb_admin_list_posts(); ?>
 
 <div class="tablenav">
 <?php if ( $total ) : ?>
-	<div class="tablenav-pages">
-		<span class="displaying-num"><?php echo $displaying_num; ?></span>
-		<?php echo $page_number_links; ?>
+	<div class="tablenav-pages bottom">
+		<span class="displaying-pages"><?php echo $page_number_links; ?></span>
+		<div class="clear"></div>
 	</div>
 <?php endif; ?>
 </div>
+<div class="clear"></div>
 
 </div>
 

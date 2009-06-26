@@ -1270,8 +1270,28 @@ function topic_pages_add( $id = 0 ) {
 	return apply_filters( 'topic_pages_add', $add, isset($topic->topic_id) ? $topic->topic_id : 0 );
 }
 
-function get_page_number_links( $page, $total, $per_page = '', $mod_rewrite = 'use_option' ) {
-	$args = array();
+function get_page_number_links( $args ) {
+	if ( 1 < func_num_args() ) {
+		$_args = func_get_args();
+		$args = array(
+			'page' => $_args[0],
+			'total' => $_args[1],
+			'per_page' => isset( $_args[2] ) ? $_args[2] : '',
+			'mod_rewrite' => isset( $_args[3] ) ? $_args[3] : 'use_option'
+		);
+	}
+	$defaults = array(
+		'page' => 1,
+		'total' => false,
+		'per_page' => '',
+		'mod_rewrite' => 'use_option',
+		'prev_text' => __( '&laquo; Previous' ),
+		'next_text' => __( 'Next &raquo;' )
+	);
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	$add_args = array();
 	$uri = rtrim( $_SERVER['REQUEST_URI'], '?&' );
 
 	if ( $mod_rewrite === 'use_option' ) {
@@ -1312,7 +1332,7 @@ function get_page_number_links( $page, $total, $per_page = '', $mod_rewrite = 'u
 	}
 
 	if ( isset($_GET['view']) && in_array($_GET['view'], bb_get_views()) )
-		$args['view'] = $_GET['view'];
+		$add_args['view'] = $_GET['view'];
 
 	if ( empty( $per_page ) ) {
 		$per_page = bb_get_option( 'page_topics' );
@@ -1323,9 +1343,11 @@ function get_page_number_links( $page, $total, $per_page = '', $mod_rewrite = 'u
 		'format' => $format,
 		'total' => ceil( $total/$per_page ),
 		'current' => $page,
-		'add_args' => $args,
+		'add_args' => $add_args,
 		'type' => 'array',
-		'mid_size' => 1
+		'mid_size' => 1,
+		'prev_text' => $prev_text,
+		'next_text' => $next_text
 	) );
 
 	if ($links) {
