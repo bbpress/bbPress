@@ -951,6 +951,32 @@ span.displaying-pages a:active {
 	color: rgb(255, 255, 255);
 }
 
+div.table-filter {
+	color: rgb(102, 102, 102);
+	margin: 8px 0px 5px;
+	font-size: 0.85em;
+}
+
+div.table-filter a {
+	color: rgb(0, 102, 0);
+	text-decoration: none;
+}
+
+div.table-filter a.current {
+	color: rgb(0, 0, 0);
+	font-weight: bold;
+}
+
+div.table-filter a:hover {
+	color: rgb(213, 78, 33);
+}
+
+div.table-filter a span.count {
+	color: rgb(153, 153, 153);
+	font-weight: normal;
+}
+
+
 
 
 /* Tabled info */
@@ -1008,6 +1034,25 @@ table.widefat tr.spam.alt td {
 	background-color: rgb(243, 228, 218);
 }
 
+table#plugins-list.widefat tr.inactive td {
+	background-color: rgb(238, 238, 238);
+}
+
+table#plugins-list.widefat tr.active td {
+	background-color: rgb(255, 255, 255);
+}
+
+table#plugins-list.widefat tr.autoload td {
+	background-color: rgb(249, 249, 249);
+}
+
+table#plugins-list.widefat tr.autoload td.plugin-name {
+	background-image: url('images/input-lock.png');
+	background-repeat: no-repeat;
+	background-position: 100% 0;
+	padding-right: 20px;
+}
+
 table.widefat tr th {
 	background: url('images/gray-grad.png') repeat-x rgb(223, 223, 223);
 	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
@@ -1034,6 +1079,15 @@ table#topics-list.widefat tr td.topic {
 	font-size: 0.9em;
 }
 
+table#plugins-list.widefat tr td.plugin-name {
+	width: 25%;
+	font-size: 0.9em;
+}
+
+table#plugins-list.widefat tr td.plugin-description {
+	width: 75%;
+}
+
 table.widefat tr td.author img.avatar {
 	vertical-align: top;
 	border: 1px solid rgb(223, 223, 223);
@@ -1043,14 +1097,29 @@ table.widefat tr td.post p {
 	margin-bottom: 0.4em;
 }
 
+table.widefat tr td.plugin-description p {
+	margin-bottom: 0.8em;
+}
+
+table.widefat tr td.plugin-description p.meta {
+	margin-bottom: 0;
+}
+
 table.widefat tr td.topic span.row-title {
 	margin-bottom: 0.4em;
 	display: block;
 	font-weight: bold;
 }
 
+table.widefat tr td.plugin-name span.row-title {
+	margin-bottom: 0.8em;
+	display: block;
+	font-weight: bold;
+}
+
 table.widefat tr td.post div,
-table.widefat tr td.topic div {
+table.widefat tr td.topic div,
+table.widefat tr td.plugin-name div {
 	font-size: 0.85em;
 }
 
@@ -1058,8 +1127,16 @@ table.widefat tr span.row-actions {
 	display: none;
 }
 
+table#plugins-list.widefat tr span.row-actions {
+	display: inline;
+}
+
 table.widefat tr:hover span.row-actions {
 	display: inline;
+}
+
+table.widefat tr span.row-actions span.note {
+	color: rgb(102, 102, 102);
 }
 
 table.widefat tr a.post-undelete-link {
@@ -1336,8 +1413,7 @@ form.settings textarea {
 }
 
 form.settings div.disabled input.text,
-form.settings div.disabled textarea
-{
+form.settings div.disabled textarea {
 	background-color: rgb(221, 221, 221);
 }
 
@@ -1529,10 +1605,11 @@ div.clear {
 	background: #f1f1f1;
 }
 */
-
+/*
 .active {
 	background-color: rgb(200, 250, 200);
 }
+*/
 
 .hidden {
 	display: none;

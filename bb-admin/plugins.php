@@ -23,10 +23,19 @@ switch ( $plugin_request ) {
 		$_plugin_status = 'all';
 		break;
 	default:
+		$plugin_request = 'all'; // For sanitisation
 		$_plugin_type = 'all';
 		$_plugin_status = 'all';
 		break;
 }
+
+$plugin_nav_class = array(
+	'all' => '',
+	'active' => '',
+	'inactive' => '',
+	'autoload' => ''
+);
+$plugin_nav_class[$plugin_request] = ' class="current"';
 
 // Get plugin counts
 extract( bb_get_plugin_counts() );
@@ -71,7 +80,7 @@ if ( !empty( $action ) ) {
 				bb_die( $result );
 
 			// Overrides the ?message=error one above
-			wp_redirect( 'plugins.php?message=activate&plugin=' . urlencode( $plugin ) );
+			wp_redirect( 'plugins.php?plugin_request=' . $plugin_request . '&message=activate&plugin=' . urlencode( $plugin ) );
 			break;
 
 		case 'deactivate':
@@ -82,7 +91,7 @@ if ( !empty( $action ) ) {
 			bb_deactivate_plugins( $plugin );
 
 			// Redirect
-			wp_redirect( 'plugins.php?message=deactivate&plugin=' . urlencode( $plugin ) );
+			wp_redirect( 'plugins.php?plugin_request=' . $plugin_request . '&message=deactivate&plugin=' . urlencode( $plugin ) );
 			break;
 
 		case 'scrape':
@@ -160,17 +169,17 @@ if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 	<?php do_action( 'bb_admin_notices' ); ?>
 
 	<div class="table-filter">
-		<a href="<?php bb_uri( 'bb-admin/plugins.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'All (%d)' ), $plugin_count_all ); ?></a> |
-		<a href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'active' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Active (%d)' ), $plugin_count_active ); ?></a> |
-		<a href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'inactive' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Inactive (%d)' ), $plugin_count_inactive ); ?></a> |
-		<a href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'autoload' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Autoloaded (%d)' ), $plugin_count_autoload ); ?></a>
+		<a<?php echo $plugin_nav_class['all']; ?> href="<?php bb_uri( 'bb-admin/plugins.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'All <span class="count">(%d)</span>' ), $plugin_count_all ); ?></a> |
+		<a<?php echo $plugin_nav_class['active']; ?> href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'active' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Active <span class="count">(%d)</span>' ), $plugin_count_active ); ?></a> |
+		<a<?php echo $plugin_nav_class['inactive']; ?> href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'inactive' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Inactive <span class="count">(%d)</span>' ), $plugin_count_inactive ); ?></a> |
+		<a<?php echo $plugin_nav_class['autoload']; ?> href="<?php bb_uri( 'bb-admin/plugins.php', array( 'plugin_request' => 'autoload' ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'Autoloaded <span class="count">(%d)</span>' ), $plugin_count_autoload ); ?></a>
 	</div>
 
 <?php
 if ( $requested_plugins ) :
 ?> 
 
-	<table class="widefat">
+	<table id="plugins-list" class="widefat">
 		<thead>
 			<tr>
 				<th><?php _e( 'Plugin' ); ?></th>
@@ -187,12 +196,14 @@ if ( $requested_plugins ) :
 
 <?php
 	foreach ( $requested_plugins as $plugin => $plugin_data ) :
-		$class = '';
+		$class =  ' class="inactive"';
 		$action = 'activate';
 		$action_class = 'edit';
 		$action_text = __( 'Activate' );
-		if ( in_array( $plugin, $active_plugins ) ) {
-			$class =  'active';
+		if ( $plugin_data['autoload'] ) {
+			$class =  ' class="autoload"';
+		} elseif ( in_array( $plugin, $active_plugins ) ) {
+			$class =  ' class="active"';
 			$action = 'deactivate';
 			$action_class = 'delete';
 			$action_text = __( 'Deactivate' );
@@ -202,6 +213,7 @@ if ( $requested_plugins ) :
 				bb_get_uri(
 					'bb-admin/plugins.php',
 					array(
+						'plugin_request' => $plugin_request,
 						'action' => $action,
 						'plugin' => urlencode($plugin)
 					),
@@ -210,17 +222,25 @@ if ( $requested_plugins ) :
 				$action . '-plugin_' . $plugin
 			)
 		);
+		$meta = array();
+		if ( $plugin_data['version'] ) $meta[] = sprintf( __( 'Version %s' ), $plugin_data['version'] );
+		if ( $plugin_data['author_link'] ) $meta[] = sprintf( __( 'By %s' ), $plugin_data['author_link'] );
+		if ( $plugin_data['uri'] ) $meta[] = '<a href="' . $plugin_data['uri'] . '">' . esc_html__( 'Visit plugin site' ) . '</a>';
+		if ( count( $meta ) ) {
+			$meta = '<p class="meta">' . join( ' | ', $meta ) . '</p>';
+		} else {
+			$meta = '';
+		}
 ?>
 
-			<tr<?php alt_class( 'normal_plugin', $class ); ?>>
-				<td>
-					<?php echo $plugin_data['plugin_link']; ?>
-					<a class="<?php echo $action_class; ?>" href="<?php echo $href; ?>"><?php echo $action_text; ?></a>
+			<tr<?php echo $class; ?>>
+				<td class="plugin-name">
+					<span class="row-title"><?php echo $plugin_data['name']; ?></span>
+					<div><span class="row-actions"><?php if ( !$plugin_data['autoload'] ) : ?><a class="<?php echo $action_class; ?>" href="<?php echo $href; ?>"><?php echo $action_text; ?></a><?php else : ?><span class="note"><?php _e( 'Autoloaded' ); ?></span><?php endif; ?></span>&nbsp;</div>
 				</td>
-				<td>
+				<td class="plugin-description">
 					<?php echo $plugin_data['description']; ?>
-					<cite><?php printf( __( 'By %s.' ), $plugin_data['author_link'] ); ?></cite>
-					<?php echo $plugin_data['version']; ?>
+					<?php echo $meta; ?>
 				</td>
 			</tr>
 
