@@ -1,6 +1,26 @@
 <?php
 require_once('admin.php');
 
+if ( !empty( $_GET['message'] ) ) {
+	switch ( (string) $_GET['message'] ) {
+		case 'undeleted':
+			bb_admin_notice( __( '<strong>Post undeleted.</strong>' ) );
+			break;
+		case 'deleted':
+			bb_admin_notice( __( '<strong>Post deleted.</strong>' ) );
+			break;
+		case 'spammed':
+			bb_admin_notice( __( '<strong>Post spammed.</strong>' ) );
+			break;
+		case 'unspammed-normal':
+			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a normal posts.' ) );
+			break;
+		case 'unspammed-deleted':
+			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a deleted posts.' ) );
+			break;
+	}
+}
+
 $bb_admin_body_class = ' bb-admin-posts';
 
 bb_get_admin_header();

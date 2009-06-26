@@ -1,6 +1,23 @@
 <?php
 require_once('admin.php');
 
+if ( !empty( $_GET['message'] ) ) {
+	switch ( (string) $_GET['message'] ) {
+		case 'undeleted':
+			bb_admin_notice( __( '<strong>Topic undeleted.</strong>' ) );
+			break;
+		case 'deleted':
+			bb_admin_notice( __( '<strong>Topic deleted.</strong>' ) );
+			break;
+		case 'opened':
+			bb_admin_notice( __( '<strong>Topic opened.</strong>' ) );
+			break;
+		case 'closed':
+			bb_admin_notice( __( '<strong>Topic closed.</strong>' ) );
+			break;
+	}
+}
+
 $bb_admin_body_class = ' bb-admin-topics';
 
 bb_get_admin_header();

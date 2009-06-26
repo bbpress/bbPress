@@ -14,13 +14,20 @@ if ( !bb_current_user_can( 'close_topic', $topic_id ) ) {
 
 bb_check_admin_referer( 'close-topic_' . $topic_id );
 
-if ( topic_is_open( $topic_id ) )
+if ( topic_is_open( $topic_id ) ) {
 	bb_close_topic( $topic_id );
-else
+	$message = 'closed';
+} else {
 	bb_open_topic ( $topic_id );
+	$message = 'opened';
+}
 
-if ( !$redirect = wp_get_referer() )
-	$redirect = get_topic_link( $topic_id );
+if ( $sendto = wp_get_referer() ) {
+	$sendto = remove_query_arg( 'message', $sendto );
+	$sendto = add_query_arg( 'message', $message, $sendto );
+} else {
+	$sendto = get_topic_link( $topic_id );
+}
 
-bb_safe_redirect( $redirect );
+bb_safe_redirect( $sendto );
 exit;
