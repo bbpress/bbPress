@@ -255,7 +255,7 @@ if ( $requested_plugins ) :
 else :
 ?>
 
-	<p><?php _e( 'No Plugins Installed' ); ?></p>
+	<p class="no-results"><?php _e( 'No plugins found.' ); ?></p>
 
 <?php
 endif;
