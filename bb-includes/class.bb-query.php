@@ -965,7 +965,7 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</div>\n\n";
 		}
 
-		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ) );
+		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ), $this->type );
 
 		if ( $topic_status ) {
 			$r .= "\t<div><label>" . __('Topic status') . "</label>\n";
