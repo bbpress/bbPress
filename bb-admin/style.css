@@ -1016,8 +1016,13 @@ table.widefat tfoot tr th {
 	border-bottom-width: 0;
 }
 
-table.widefat tr td.post {
+table#posts-list.widefat tr td.post {
 	width: 46%;
+	font-size: 0.9em;
+}
+
+table#topics-list.widefat tr td.topic {
+	width: 28%;
 	font-size: 0.9em;
 }
 
@@ -1030,7 +1035,14 @@ table.widefat tr td.post p {
 	margin-bottom: 0.4em;
 }
 
-table.widefat tr td.post div {
+table.widefat tr td.topic span.row-title {
+	margin-bottom: 0.4em;
+	display: block;
+	font-weight: bold;
+}
+
+table.widefat tr td.post div,
+table.widefat tr td.topic div {
 	font-size: 0.85em;
 }
 

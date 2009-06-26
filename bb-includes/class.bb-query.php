@@ -953,14 +953,14 @@ class BB_Query_Form extends BB_Query {
 
 		if ( $topic_author ) {
 			$q_topic_author = esc_attr( $q_topic_author );
-			$r .= "\t<div><label>" . __('Topic Author') . "</label>\n";
+			$r .= "\t<div><label>" . __('Topic author') . "</label>\n";
 			$r .= "\t\t<div><input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
 		if ( $post_author ) {
 			$q_post_author = esc_attr( $q_post_author );
-			$r .= "\t<div><label>" . __('Post Author') . "</label>\n";
+			$r .= "\t<div><label>" . __('Post author') . "</label>\n";
 			$r .= "\t\t<div><input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
@@ -968,7 +968,7 @@ class BB_Query_Form extends BB_Query {
 		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ) );
 
 		if ( $topic_status ) {
-			$r .= "\t<div><label>" . __('Topic Status') . "</label>\n";
+			$r .= "\t<div><label>" . __('Topic status') . "</label>\n";
 			$r .= "\t\t<div><select name='topic_status' id='topic-status'>\n";
 			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_topic_status ? " selected='selected'" : '';
@@ -979,7 +979,7 @@ class BB_Query_Form extends BB_Query {
 		}
 
 		if ( $post_status ) {
-			$r .= "\t<div><label>" . __('Post Status') . "</label>\n";
+			$r .= "\t<div><label>" . __('Post status') . "</label>\n";
 			$r .= "\t\t<div><select name='post_status' id='post-status'>\n";
 			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_post_status ? " selected='selected'" : '';

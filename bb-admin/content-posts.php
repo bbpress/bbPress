@@ -55,7 +55,7 @@ if ( $h2_search || $h2_forum || $h2_tag || $h2_author ) {
 $_page_link_args = array(
 	'page' => $page,
 	'total' => $total,
-	'per_page' => 4,//$post_query->get( 'per_page' ),
+	'per_page' => $post_query->get( 'per_page' ),
 	'mod_rewrite' => false,
 	'prev_text' => __( '&laquo;' ),
 	'next_text' => __( '&raquo;' )
