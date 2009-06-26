@@ -969,11 +969,15 @@ if ( !class_exists( 'WP_Dependencies' ) ) {
 if ( !class_exists( 'WP_Scripts' ) ) {
 	require_once( BACKPRESS_PATH . 'class.wp-scripts.php' );
 	require_once( BACKPRESS_PATH . 'functions.wp-scripts.php' );
+} else {
+	unset( $wp_scripts );
 }
 
 if ( !class_exists( 'WP_Styles' ) ) {
 	require_once( BACKPRESS_PATH . 'class.wp-styles.php' );
 	require_once( BACKPRESS_PATH . 'functions.wp-styles.php' );
+} else {
+	unset( $wp_styles );
 }
 
 
