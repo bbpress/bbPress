@@ -142,6 +142,9 @@ bb_get_admin_header();
 
 <div class="wrap">
 
+	<h2><?php _e( 'Manage Plugins' ); ?></h2>
+	<?php do_action( 'bb_admin_notices' ); ?>
+
 <?php
 if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 	$scrape_src = esc_attr(
@@ -164,9 +167,6 @@ if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 <?php
 }
 ?>
-
-	<h2><?php _e( 'Manage Plugins' ); ?></h2>
-	<?php do_action( 'bb_admin_notices' ); ?>
 
 	<div class="table-filter">
 		<a<?php echo $plugin_nav_class['all']; ?> href="<?php bb_uri( 'bb-admin/plugins.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN ); ?>"><?php printf( __( 'All <span class="count">(%d)</span>' ), $plugin_count_all ); ?></a> |

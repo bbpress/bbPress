@@ -23,7 +23,10 @@ function bb_get_plugins_callback( $type = 'normal', $path, $filename )
 		return false;
 	}
 
-	$data = array_merge( bb_get_plugin_data( $path ), $data );
+	if ( $_data = bb_get_plugin_data( $path ) ) {
+		$data = array_merge( $_data , $data );
+		return $data;
+	}
 
 	return $data;
 }
