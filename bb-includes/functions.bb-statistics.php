@@ -20,7 +20,7 @@ function get_total_forums() {
 	global $bbdb, $bb_total_forums;
 	if ( isset($bb_total_forums) )
 		return $bb_total_forums;
-	$bb_total_forums = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->forums");
+	$bb_total_forums = $bbdb->get_var("SELECT COUNT(*) FROM $bbdb->forums USE INDEX (PRIMARY)");
 	return $bb_total_forums;
 }
 
@@ -49,7 +49,7 @@ function bb_get_total_users()
 		return $bb_total_users;
 	}
 	if ( false === $bb_total_users = apply_filters( 'bb_get_total_users', false ) ) {
-		$bb_total_users = $bbdb->get_var( "SELECT COUNT(*) FROM $bbdb->users" );
+		$bb_total_users = $bbdb->get_var( "SELECT COUNT(*) FROM $bbdb->users USE INDEX (PRIMARY);" );
 	}
 	return $bb_total_users;
 }
