@@ -157,9 +157,15 @@ function bb_bozo_recount_users() {
 	endif;
 }
 
-function bb_bozo_post_del_class( $status ) {
-	if ( 1 < $status && bb_current_user_can('browse_deleted') )
+function bb_bozo_post_del_class( $classes, $post_id, $post )
+{
+	if ( 1 < $post->post_status && bb_current_user_can('browse_deleted') ) {
+		if ( $classes ) {
+			return $classes . ' bozo';
+		}
 		return 'bozo';
+	}
+	return $classes;
 }
 
 function bb_bozo_add_recount_list() {
@@ -323,7 +329,7 @@ add_action( 'bb_profile.php_pre_db', 'bb_bozo_profile_db_filter' );
 add_action( 'bb_recount_list', 'bb_bozo_add_recount_list' );
 add_action( 'topic_pages_add', 'bb_bozo_topic_pages_add' );
 
-add_action( 'post_del_class', 'bb_bozo_post_del_class' );
+add_filter( 'post_del_class', 'bb_bozo_post_del_class', 10, 3 );
 add_filter( 'get_topic_posts', 'bb_bozo_get_topic_posts' );
 
 add_filter( 'get_profile_admin_keys', 'bb_bozo_profile_admin_keys' );

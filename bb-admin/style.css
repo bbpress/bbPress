@@ -1000,6 +1000,14 @@ table.widefat tr.deleted.alt td {
 	background-color: rgb(248, 233, 233);
 }
 
+table.widefat tr.spam td {
+	background-color: rgb(238, 218, 204);
+}
+
+table.widefat tr.spam.alt td {
+	background-color: rgb(243, 228, 218);
+}
+
 table.widefat tr th {
 	background: url('images/gray-grad.png') repeat-x rgb(223, 223, 223);
 	text-shadow: rgb(255, 255, 255) 0px 1px 0px;

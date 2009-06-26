@@ -1938,14 +1938,14 @@ function post_del_class( $post_id = 0 )
 	if ( $bb_post->post_status == 1 ) {
 		$classes[] = 'deleted';
 	} elseif ( $bb_post->post_status != 0 ) {
-		$classes[] = $bb_post->post_status;
+		$classes[] = 'post-status-' . $bb_post->post_status;
 	}
 	if ( count( $classes ) ) {
 		$classes = join( ' ', $classes );
 	} else {
 		$classes = '';
 	}
-	return apply_filters( 'post_del_class', $classes, $bb_post->post_id );
+	return apply_filters( 'post_del_class', $classes, $bb_post->post_id, $bb_post );
 }
 
 function post_delete_link( $args = null )

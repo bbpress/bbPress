@@ -425,6 +425,17 @@ function bb_ksd_add_post_status_to_forms( $stati )
 	return $stati;
 }
 
+function bb_ksd_post_del_class( $classes, $post_id, $post )
+{
+	if ( '2' === (string) $post->post_status ) {
+		if ( $classes ) {
+			return $classes . ' spam';
+		}
+		return 'spam';
+	}
+	return $classes;
+}
+
 add_action( 'pre_post', 'bb_ksd_check_post', 1 );
 add_filter( 'bb_new_post', 'bb_ksd_new_post' );
 add_filter( 'pre_post_status', 'bb_ksd_pre_post_status' );
@@ -433,3 +444,4 @@ add_action( 'profile_edited', 'bb_ksd_check_profile', 1);
 add_action( 'bb_delete_post', 'bb_ksd_delete_post', 10, 3);
 add_filter( 'bb_post_admin', 'bb_ksd_post_delete_link', 10, 2 );
 add_filter( 'bb_query_form_post_status', 'bb_ksd_add_post_status_to_forms' );
+add_filter( 'post_del_class', 'bb_ksd_post_del_class', 10, 3 );
