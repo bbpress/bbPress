@@ -255,24 +255,35 @@ if ( !function_exists( 'add_shortcode' ) ) {
 /**
  * Define the full path to the object cache functions include
  */
+$_internal_object_cache_functions_include = BACKPRESS_PATH . 'functions.wp-object-cache.php';
 if ( !defined( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE' ) ) {
-	define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', BACKPRESS_PATH . 'functions.wp-object-cache.php' );
+	define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', $_internal_object_cache_functions_include );
 }
 
-// Load the object cache class
-if ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE && !function_exists( 'wp_cache_init' ) ) {
+// See if a caching class is already loaded (by WordPress)
+if ( function_exists( 'wp_cache_init' ) ) {
+	if ( isset( $_wp_using_ext_object_cache ) ) {
+		$_bb_using_ext_object_cache = $_wp_using_ext_object_cache;
+	} else {
+		$_bb_using_ext_object_cache = false;
+	}
+} elseif ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE ) {
+	// Load the object cache class
 	require_once( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE );
-	$_bb_using_ext_object_cache = true;
-} else {
-	$_bb_using_ext_object_cache = false;
+	if ( BB_OBJECT_CACHE_FUNCTIONS_INCLUDE === $_internal_object_cache_functions_include ) {
+		$_bb_using_ext_object_cache = false;
+	} else {
+		$_bb_using_ext_object_cache = true;
+	}
 }
+unset( $_internal_object_cache_functions_include );
 
 // Instantiate the $wp_object_cache object using wp_cache_init()
 if ( function_exists( 'wp_cache_init' ) ) {
 	// Clear WordPress cache if it exists already - maybe should save and re-load?
 	unset( $wp_object_cache );
 	wp_cache_init();
-	if ( function_exists('wp_cache_add_global_groups') ) {
+	if ( function_exists( 'wp_cache_add_global_groups' ) ) {
 		wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta' ) );
 	}
 }
