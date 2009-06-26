@@ -17,7 +17,7 @@ $bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. 
 function bb_akismet_verify_key( $key )
 {
 	global $bb_ksd_api_port;
-	$blog = urlencode( bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET) );
+	$blog = urlencode( bb_get_uri( null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET ) );
 	$response = bb_ksd_http_post( "key=$key&blog=$blog", 'rest.akismet.com', '/1.1/verify-key', $bb_ksd_api_port );
 	if ( 'valid' == $response[1] )
 		return true;
@@ -210,7 +210,7 @@ add_action( 'bb_ksd_stats_display_pre_head', 'bb_ksd_stats_display_pre_head' );
 
 function bb_ksd_stats_display()
 {
-	$site = urlencode( bb_get_option('uri') );
+	$site = urlencode( bb_get_uri( null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET ) );
 	$url = "http://".bb_get_option( 'akismet_key' ).".web.akismet.com/1.0/user-stats.php?blog={$site}&amp;type=forum";
 ?>
 	<iframe src="<?php echo $url; ?>" id="bb-ksd-stats-frame"></iframe>
