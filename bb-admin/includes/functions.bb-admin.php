@@ -912,56 +912,85 @@ function bb_move_forum_topics( $from_forum_id, $to_forum_id ) {
 
 function bb_admin_list_posts() {
 	global $bb_posts, $bb_post;
+	
+	if ( !$bb_posts ) {
 ?>
-<table id="posts-list" class="widefat">
+<p><?php _e('No posts found.'); ?></p>
+<?php
+	} else {
+?>
+<table id="posts-list" class="widefat" cellspacing="0" cellpadding="0">
 <thead>
 	<tr>
-		<th scope="col"><?php _e( 'Author' ); ?></th>
 		<th scope="col"><?php _e( 'Post' ); ?></th>
+		<th scope="col"><?php _e( 'Author' ); ?></th>
 		<th scope="col"><?php _e( 'Topic' ); ?></th>
+		<th scope="col"><?php _e( 'Date' ); ?></th>
 	</tr>
 </thead>
-
+<tfoot>
+	<tr>
+		<th scope="col"><?php _e( 'Post' ); ?></th>
+		<th scope="col"><?php _e( 'Author' ); ?></th>
+		<th scope="col"><?php _e( 'Topic' ); ?></th>
+		<th scope="col"><?php _e( 'Date' ); ?></th>
+	</tr>
+</tfoot>
 <tbody>
-<?php if ( $bb_posts ) : foreach ( $bb_posts as $bb_post ) : ?>
+<?php
+		foreach ( $bb_posts as $bb_post ) {
+?>
 	<tr id="post-<?php post_id(); ?>"<?php alt_class('post', post_del_class()); ?>>
-		<td class="author">
-			<a class="author-link" href="<?php user_profile_link( get_post_author_id() ); ?>">
-				<?php post_author_avatar( '32' ); ?>
-				<?php post_author(); ?><br />
-				<?php user_type( get_post_author_id() ); ?>
-			</a>
-
-			<p class="author-data">
-			<?php if ( bb_current_user_can( 'edit_users' ) ) : ?>
-				<a href="<?php echo esc_url( 'mailto:' . bb_get_user_email( get_post_author_id() ) ); ?>"><?php echo esc_html( bb_get_user_email( get_post_author_id() ) ); ?></a><br />
-			<?php endif; ?>
-				<?php post_ip_link(); ?>
-			</p>
+		<td class="post">
+			<?php post_text(); ?>
+			<div>
+				<span class="row-actions">
+					<a href="<?php echo esc_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a>
+<?php
+	bb_post_admin( array(
+		'before_each' => ' | ',
+		'each' => array(
+			'undelete' => array(
+				'before' => ' '
+			)
+		),
+		'last_each' => array(
+			'before' => ' | '
+		)
+	) );
+?>
+				</span>&nbsp;
+			</div>
 		</td>
 
-		<td class="post">
-			<span class="post-time"><?php printf( __( 'Posted %s' ), '<a href="' . esc_url( get_post_link() ) . '">' . bb_get_post_time( bb_get_datetime_formatstring_i18n() ) . '</a>' ); ?></span>
-			<div class="post"><?php post_text(); ?></div>
-			<p class="row-actions">
-				<a href="<?php echo esc_url( get_post_link() ); ?>"><?php _e( 'View' ); ?></a>
-				<?php bb_post_admin( array( 'before_each' => ' | ' ) ); ?>
-			</p>
+		<td class="author">
+			<a href="<?php user_profile_link( get_post_author_id() ); ?>">
+				<?php post_author_avatar( '16' ); ?>
+				<?php post_author(); ?>
+			</a>
 		</td>
 
 		<td class="topic">
-			<a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a><br />
-			<?php echo strip_tags( get_topic_posts_link( $bb_post->topic_id ) ); ?>
+			<a href="<?php topic_link( $bb_post->topic_id ); ?>"><?php topic_title( $bb_post->topic_id ); ?></a>
+		</td>
+		
+		<td class="date">
+<?php
+	if ( bb_get_post_time( 'U' ) < ( time() - 86400 ) ) {
+		bb_post_time( 'Y/m/d<br />H:i:s' );
+	} else {
+		printf( __( '%s ago' ), bb_get_post_time( 'since' ) );
+	}
+?>
 		</td>
 	</tr>
-<?php endforeach; else :?>
-	<tr>
-		<td colspan="3"><?php _e('No posts found'); ?></td>
-	</tr>
-<?php endif; ?>
+<?php 
+		}
+?>
 </tbody>
 </table>
 <?php
+	}
 }
 
 /* Recounts */

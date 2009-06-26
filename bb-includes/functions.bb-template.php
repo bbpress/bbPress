@@ -1816,7 +1816,9 @@ function bb_post_admin( $args = null )
 		}
 
 		// For the benefit of filters, mark the final part
-		$args['last_each'] = $_part_args;
+		if ( !isset( $args['last_each'] ) ) {
+			$args['last_each'] = $_part_args;
+		}
 	}
 
 	$parts = apply_filters( 'bb_post_admin', $parts, $args );
@@ -1949,13 +1951,13 @@ function bb_get_post_delete_link( $args = null )
 	extract( $args, EXTR_SKIP );
 
 	$bb_post = bb_get_post( get_post_id( $post_id ) );
-	if ( bb_is_first( $bb_post->post_id ) ) {
-		$topic = get_topic( $bb_post->topic_id );
-		if ( 2 > $topic->topic_posts ) {
+	//if ( bb_is_first( $bb_post->post_id ) ) {
+	//	$topic = get_topic( $bb_post->topic_id );
+	//	if ( 2 > $topic->topic_posts ) {
 			// Should delete the whole topic
-			return;
-		}
-	}
+	//		return;
+	//	}
+	//}
 	
 	if ( !bb_current_user_can( 'delete_post', $bb_post->post_id ) ) {
 		return;

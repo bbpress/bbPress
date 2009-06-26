@@ -10,40 +10,37 @@ if ( !bb_current_user_can('browse_deleted') )
 add_filter( 'get_topic_where', 'bb_no_where' );
 add_filter( 'get_topic_link', 'bb_make_link_view_all' );
 add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
-$post_query = new BB_Query_Form( 'post', array( 'post_status' => 'all', 'count' => true, 'per_page' => 20 ) );
+$post_query = new BB_Query_Form( 'post', array( 'post_status' => 'normal', 'count' => true, 'per_page' => 20 ) );
 $bb_posts =& $post_query->results;
 $total = $post_query->found_rows;
 ?>
 
 <div class="wrap">
 
-<h2><?php
+<h2><?php _e( 'Posts' ); ?>
+<?php
 $h2_search = $post_query->get( 'post_text' );
 $h2_forum  = $post_query->get( 'forum_id' );
 $h2_tag    = $post_query->get( 'tag_id' );
 $h2_author = $post_query->get( 'post_author_id' );
-$h2_status = $post_query->get( 'post_status' );
 
-$h2_search = $h2_search ? ' ' . sprintf( __('matching &#8220;%s&#8221;'), esc_html( $h2_search ) ) : '';
+$h2_search = $h2_search ? ' ' . sprintf( __('containing &#8220;%s&#8221;'), esc_html( $h2_search ) ) : '';
 $h2_forum  = $h2_forum  ? ' ' . sprintf( __('in &#8220;%s&#8221;')      , get_forum_name( $h2_forum ) ) : '';
 $h2_tag    = $h2_tag    ? ' ' . sprintf( __('with tag &#8220;%s&#8221;'), esc_html( bb_get_tag_name( $h2_tag ) ) ) : '';
 $h2_author = $h2_author ? ' ' . sprintf( __('by %s')                    , esc_html( get_user_name( $h2_author ) ) ) : '';
 
-$stati = array( 0 => __('Normal') . ' ', 1 => __('Deleted') . ' ', 'all' => '' );
-
-if ( 'all' == $h2_status )
-	$h2_noun = __('Posts');
-else
-	$h2_noun = sprintf( __( '%1$sposts'), $stati[$h2_status] );
-
-printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_noun, $h2_search, $h2_forum, $h2_tag, $h2_author );
-
-?></h2>
+if ( $h2_search || $h2_forum || $h2_tag || $h2_author ) {
+	echo '<span class="subtitle">';
+	
+	printf( __( '%1$s%2$s%3$s%4$s' ), $h2_search, $h2_forum, $h2_tag, $h2_author );
+	
+	echo '</span>';
+}
+?>
+</h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<?php $post_query->form( array('tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __('Filter &#187;')) ); ?>
-
-<br class="clear" />
+<?php $post_query->form( array('tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __('Filter')) ); ?>
 
 <div class="tablenav">
 <?php if ( $total ) : ?>

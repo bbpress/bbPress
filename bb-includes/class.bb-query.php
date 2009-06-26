@@ -965,7 +965,7 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</div>\n\n";
 		}
 
-		$stati = array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') );
+		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ) );
 
 		if ( $topic_status ) {
 			$r .= "\t<div><label>" . __('Topic Status') . "</label>\n";
@@ -1008,11 +1008,11 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</div>\n\n";
 		}
 
-		$r .= "\t</fieldset>\n\n";
+		$r .= "\t<div class=\"submit\"><label>" . __('Search') . "</label>\n";
+		$r .= "\t\t<div><input type='submit' class='button submit-input' value='$submit' id='$id-submit' /></div>\n";
+		$r .= "\t</div>\n";
 
-		$r .= "\t<p class='submit'>\n";
-		$r .= "\t\t<input type='submit' class='button submit-input' value='$submit' id='$id-submit' />\n";
-		$r .= "\t</p>\n";
+		$r .= "\t</fieldset>\n\n";
 
 		do_action( 'bb_query_form', $args, $query_vars );
 

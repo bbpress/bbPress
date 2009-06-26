@@ -156,6 +156,11 @@ h2 {
 	margin-left: -5px;
 }
 
+h2 span.subtitle {
+	font-size: 0.75em;
+	padding-left: 25px;
+}
+
 body.bb-admin-dashboard h2 {
 	padding-left: 47px;
 	background-image: url('images/icons32.png');
@@ -777,6 +782,193 @@ div.dashboard ul li a {
 
 
 
+/* Search forms */
+
+form.search-form fieldset {
+	margin: 10px 0 4px 0;
+}
+
+form.search-form fieldset div {
+	float: left;
+	margin-right: 5px;
+	margin-top: 3px;
+}
+
+form.search-form fieldset div div {
+	float: none;
+	margin: 0;
+}
+
+form.search-form fieldset div label {
+	display: block;
+	line-height: 1;
+	padding: 0 0 3px 0;
+	font-size: 0.8em;
+	color: rgb(70, 70, 70);
+}
+
+form.search-form fieldset div div input.text-input {
+	width: 100px;
+	padding: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	border: 1px solid rgb(223, 223, 223);
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 0.85em;
+	line-height: 1.3em;
+}
+
+form.search-form fieldset div div select {
+	height: 2.1em;
+	margin: 0;
+	padding: 3px;
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	border: 1px solid rgb(223, 223, 223);
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 0.85em;
+}
+
+form.search-form fieldset div div option {
+	padding: 3px;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	font-size: 0.9em;
+}
+
+form.search-form div.submit label {
+	width: 0;
+	overflow: hidden;
+}
+
+form.search-form div.submit input.button {
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	-moz-border-radius: 10px;
+	-khtml-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	padding: 4px 9px 5px;
+	background: url('images/white-grad.png') repeat-x scroll rgb(242, 242, 242);
+	border: 1px solid rgb(187, 187, 187);
+	color: rgb(70, 70, 70);
+	cursor: pointer;
+	line-height: 1.1em;
+	font-size: 0.85em;
+}
+
+form.search-form div.submit input.button:hover {
+	border-color: rgb(102, 102, 102);
+	color: rgb(0, 0, 0);
+}
+
+form.search-form div.submit input.button:active {
+	background: url('images/white-grad-active.png') repeat-x scroll rgb(238, 238, 238);
+}
+
+
+
+/* Post table */
+
+table.widefat {
+	width: 100%;
+	border: 1px solid rgb(223, 223, 223);
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	border-collapse: separate;
+	
+	border-spacing: 0;
+}
+
+table.widefat a {
+	color: rgb(0, 102, 0);
+	text-decoration: none;
+}
+
+table.widefat a:hover {
+	color: rgb(213, 78, 33);
+}
+
+table.widefat tr td {
+	width: 18%;
+	vertical-align: top;
+	padding: 3px 7px;
+	font-size: 0.85em;
+	border-bottom: 1px solid rgb(223, 223, 223);
+}
+
+table.widefat tr.alt td {
+	background-color: rgb(255, 255, 255);
+}
+
+table.widefat tr.deleted td {
+	background-color: rgb(245, 224, 224);
+}
+
+table.widefat tr.deleted.alt td {
+	background-color: rgb(248, 233, 233);
+}
+
+table.widefat tr th {
+	background: url('images/gray-grad.png') repeat-x rgb(223, 223, 223);
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+	color: rgb(51, 51, 51);
+	font-weight: bold;
+	vertical-align: top;
+	padding: 7px 7px 8px;
+	font-size: 0.85em;
+	line-height: 1.3em;
+	border-bottom: 1px solid rgb(223, 223, 223);
+}
+
+table.widefat tfoot tr th {
+	border-bottom-width: 0;
+}
+
+table.widefat tr td.post {
+	width: 46%;
+	font-size: 0.9em;
+}
+
+table.widefat tr td.author img.avatar {
+	vertical-align: top;
+	border: 1px solid rgb(223, 223, 223);
+}
+
+table.widefat tr td.post p {
+	margin-bottom: 0.4em;
+}
+
+table.widefat tr td.post div {
+	font-size: 0.85em;
+}
+
+table.widefat tr span.row-actions {
+	display: none;
+}
+
+table.widefat tr:hover span.row-actions {
+	display: inline;
+}
+
+table.widefat tr a.post-undelete-link {
+	display: none;
+}
+
+table.widefat tr.deleted a.post-undelete-link {
+	display: inline;
+}
+
+table.widefat tr.deleted a.post-delete-link {
+	display: none;
+}
+
+
+
 /* Themes */
 
 h3.themes {
@@ -1184,6 +1376,9 @@ p#bbVersion {
 
 div.clear {
 	clear: both !important;
+	height: 0;
+	line-height: 0;
+	font-size: 0;
 }
 
 
@@ -1222,9 +1417,11 @@ div.clear {
 	float: right;
 }
 
+/*
 .alternate, .alt {
 	background: #f1f1f1;
 }
+*/
 
 .active {
 	background-color: rgb(200, 250, 200);

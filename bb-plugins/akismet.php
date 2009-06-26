@@ -367,37 +367,11 @@ function bb_ksd_pre_post_status( $post_status ) {
 	return $post_status;
 }
 
-function bb_ksd_admin_menu() {
-	bb_admin_add_submenu( __('Akismet Spam'), 'moderate', 'bb_ksd_admin_page', 'content-posts.php' );
-}
-
 function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
 	if ( 2 == $new_status && 2 != $old_status )
 		bb_ksd_submit_spam( $post_id );
 	else if ( 2 != $new_status && 2 == $old_status )
 		bb_ksd_submit_ham( $post_id );
-}
-
-function bb_ksd_admin_page() {
-	global $bb_posts, $page;
-	if ( !bb_akismet_verify_key( bb_get_option( 'akismet_key' ) ) ) : ?>
-<div class="error"><p><?php printf(__('The API key you have specified is invalid.  Please double check the <strong>Akismet Key</strong> set in <a href="%s">Akismet configuration</a>.  If you don\'t have an API key yet, you can get one at <a href="%s">WordPress.com</a>.'), 'admin-base.php?plugin=bb_ksd_configuration_page', 'http://wordpress.com/api-keys/'); ?></p></div>
-<?php	endif;
-
-	if ( !bb_current_user_can('browse_deleted') )
-		die(__("Now how'd you get here?  And what did you think you'd being doing?"));
-	add_filter( 'get_topic_where', 'bb_no_where' );
-	add_filter( 'get_topic_link', 'bb_make_link_view_all' );
-	add_filter( 'post_edit_uri', 'bb_make_link_view_all' );
-	$post_query = new BB_Query( 'post', array( 'post_status' => 2, 'count' => true ) );
-	$bb_posts = $post_query->results;
-	$total = $post_query->found_rows;
- ?>
-
-<?php bb_admin_list_posts(); ?>
-
-<?php
-	echo get_page_number_links( $page, $total, '', false );
 }
 
 function bb_ksd_post_delete_link( $parts, $args )
@@ -445,11 +419,17 @@ function bb_ksd_post_delete_link( $parts, $args )
 	return $parts;
 }
 
+function bb_ksd_add_post_status_to_forms( $stati )
+{
+	$stati['2'] = __( 'Spam' );
+	return $stati;
+}
+
 add_action( 'pre_post', 'bb_ksd_check_post', 1 );
 add_filter( 'bb_new_post', 'bb_ksd_new_post' );
 add_filter( 'pre_post_status', 'bb_ksd_pre_post_status' );
 add_action( 'register_user', 'bb_ksd_check_profile', 1);
 add_action( 'profile_edited', 'bb_ksd_check_profile', 1);
-add_action( 'bb_admin_menu_generator', 'bb_ksd_admin_menu' );
 add_action( 'bb_delete_post', 'bb_ksd_delete_post', 10, 3);
 add_filter( 'bb_post_admin', 'bb_ksd_post_delete_link', 10, 2 );
+add_filter( 'bb_query_form_post_status', 'bb_ksd_add_post_status_to_forms' );
