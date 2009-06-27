@@ -134,7 +134,7 @@ define( 'BB_LOG_ALL', BB_LOG_FAIL + BB_LOG_ERROR + BB_LOG_WARNING + BB_LOG_NOTIC
 
 /**
  * Define temporary $_bb_path as this files directory, then check for the special BB_PATH config file
- * which allows override of BB_PATH outside of core files
+ * which allows override of BB_PATH, but only outside of core files
  */
 $_bb_path = dirname( __FILE__ ) . '/';
 $_bb_config_path = dirname( $_bb_path ) . '/bb-config-path.php';
