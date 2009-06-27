@@ -407,30 +407,30 @@ ul#bbAdminMenu li#bb-menu-dashboard a:hover div.bb-menu-icon {
 }
 
 ul#bbAdminMenu li#bb-menu-forums a div.bb-menu-icon {
-	background-position: -277px -39px;
+	background-position: -367px -39px;
 }
 
 ul#bbAdminMenu li#bb-menu-forums.bb-menu-current a div.bb-menu-icon,
 ul#bbAdminMenu li#bb-menu-forums a:hover div.bb-menu-icon {
-	background-position: -277px -7px;
+	background-position: -367px -7px;
 }
 
 ul#bbAdminMenu li#bb-menu-topics a div.bb-menu-icon {
-	background-position: -277px -39px;
+	background-position: -397px -39px;
 }
 
 ul#bbAdminMenu li#bb-menu-topics.bb-menu-current a div.bb-menu-icon,
 ul#bbAdminMenu li#bb-menu-topics a:hover div.bb-menu-icon {
-	background-position: -277px -7px;
+	background-position: -397px -7px;
 }
 
 ul#bbAdminMenu li#bb-menu-posts a div.bb-menu-icon {
-	background-position: -277px -39px;
+	background-position: -427px -39px;
 }
 
 ul#bbAdminMenu li#bb-menu-posts.bb-menu-current a div.bb-menu-icon,
 ul#bbAdminMenu li#bb-menu-posts a:hover div.bb-menu-icon {
-	background-position: -277px -7px;
+	background-position: -427px -7px;
 }
 
 ul#bbAdminMenu li#bb-menu-appearance a div.bb-menu-icon {
