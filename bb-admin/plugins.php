@@ -162,7 +162,7 @@ if ( bb_verify_nonce( $_GET['_scrape_nonce'], 'scrape-plugin_' . $plugin ) ) {
 	);
 ?>
 
-	<iframe class="error" src="<?php echo $scrape_src; ?>"></iframe>
+	<div class="plugin-error"><iframe src="<?php echo $scrape_src; ?>"></iframe></div>
 
 <?php
 }

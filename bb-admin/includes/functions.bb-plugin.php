@@ -1,6 +1,6 @@
 <?php
 
-function bb_get_plugins_callback( $type = 'normal', $path, $filename )
+function bb_get_plugins_callback( $type = 'normal', $location, $path, $filename )
 {
 	if ( '.php' != substr( $filename, -4 ) ) {
 		return false;
@@ -25,7 +25,10 @@ function bb_get_plugins_callback( $type = 'normal', $path, $filename )
 
 	if ( $_data = bb_get_plugin_data( $path ) ) {
 		$data = array_merge( $_data , $data );
-		return $data;
+	} else {
+		global $bb;
+		$data['name'] = '<em>' . __( 'Unnamed Plugin' ) . '</em>';
+		$data['description'] = sprintf( __( 'This unnamed plugin is in the <strong>"%1$s"</strong> plugin directory at <code>%2$s</code>' ), $location, $filename );
 	}
 
 	return $data;
@@ -50,22 +53,22 @@ function bb_get_plugins( $location = 'all', $type = 'normal', $status = 'all' )
 	global $bb;
 	$directories = array();
 	if ( 'all' === $location ) {
-		foreach ( $bb->plugin_locations as $_name => $_data ) {
-			$directories[] = $_data['dir'];
+		foreach ( $bb->plugin_locations as $_location => $_data ) {
+			$directories[$_location] = $_data['dir'];
 		}
 	} elseif ( isset( $bb->plugin_locations[$location]['dir'] ) ) {
-		$directories[] = $bb->plugin_locations[$location]['dir'];
+		$directories[$location] = $bb->plugin_locations[$location]['dir'];
 	}
 
 	require_once( BB_PATH . BB_INC . 'class.bb-dir-map.php' );
 
 	$plugin_arrays = array();
-	foreach ( $directories as $directory ) {
+	foreach ( $directories as $_location => $directory ) {
 		$dir_map = new BB_Dir_Map(
 			$directory,
 			array(
 				'callback' => 'bb_get_plugins_callback',
-				'callback_args' => array( $type ),
+				'callback_args' => array( $type, $_location ),
 				'recurse' => 1
 			)
 		);
