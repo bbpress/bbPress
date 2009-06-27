@@ -133,9 +133,18 @@ define( 'BB_LOG_DEBUG',   16 );
 define( 'BB_LOG_ALL', BB_LOG_FAIL + BB_LOG_ERROR + BB_LOG_WARNING + BB_LOG_NOTICE );
 
 /**
- * Define BB_PATH as this files directory
+ * Define temporary $_bb_path as this files directory, then check for the special BB_PATH config file
+ * which allows override of BB_PATH outside of core files
  */
-define( 'BB_PATH', dirname( __FILE__ ) . '/' );
+$_bb_path = dirname( __FILE__ ) . '/';
+$_bb_config_path = dirname( $_bb_path ) . '/bb-config-path.php';
+if ( file_exists( $_bb_config_path ) ) {
+	include_once( $_bb_config_path );
+}
+if ( !defined( 'BB_PATH' ) ) {
+	define( 'BB_PATH', $_bb_path );
+}
+unset( $_bb_path, $_bb_config_path );
 
 /**
  * The bbPress includes path relative to BB_PATH
