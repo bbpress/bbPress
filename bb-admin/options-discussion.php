@@ -43,7 +43,7 @@ $remote_options = array(
 		'title' => __( 'Enable Pingbacks' ),
 		'type' => 'checkbox',
 		'options' => array(
-			1 => __( 'Allow link notifications from other blogs.' )
+			1 => __( 'Allow link notifications from other sites.' )
 		)
 	),
 );
