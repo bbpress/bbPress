@@ -255,9 +255,14 @@ if ( !function_exists( 'add_shortcode' ) ) {
 /**
  * Define the full path to the object cache functions include
  */
-$_internal_object_cache_functions_include = BACKPRESS_PATH . 'functions.wp-object-cache.php';
+$_internal_object_cache_functions_include = BACKPRESS_PATH . 'loader.wp-object-cache.php';
+$_memcached_object_cache_functions_include = BACKPRESS_PATH . 'loader.wp-object-cache-memcached.php';
 if ( !defined( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE' ) ) {
-	define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', $_internal_object_cache_functions_include );
+	if ( defined( 'BB_OBJECT_CACHE_TYPE' ) && 'memcached' === BB_OBJECT_CACHE_TYPE ) {
+		define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', $_memcached_object_cache_functions_include );
+	} else {
+		define( 'BB_OBJECT_CACHE_FUNCTIONS_INCLUDE', $_internal_object_cache_functions_include );
+	}
 }
 
 // See if a caching class is already loaded (by WordPress)
@@ -284,7 +289,7 @@ if ( function_exists( 'wp_cache_init' ) ) {
 	unset( $wp_object_cache );
 	wp_cache_init();
 	if ( function_exists( 'wp_cache_add_global_groups' ) ) {
-		wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta' ) );
+		wp_cache_add_global_groups( array( 'users', 'userlogins', 'usermeta', 'useremail', 'usernicename' ) );
 	}
 }
 
