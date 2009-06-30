@@ -93,7 +93,7 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 
 <p class="no-results"><?php _e('No topics found.'); ?></p>
 
-<?php else : bb_cache_first_posts( $topics ); ?>
+<?php else : bb_cache_first_posts( $topics ); bb_cache_last_posts( $topics ); ?>
 
 <table id="topics-list" class="widefat">
 <thead>
