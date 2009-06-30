@@ -405,6 +405,7 @@ function bb_get_form_option( $option )
 function bb_cache_all_options()
 {
 	$base_options = array(
+		'site_id',
 		'bb_db_version',
 		'name',
 		'description',
@@ -465,6 +466,9 @@ function bb_cache_all_options()
 	// Check that these aren't already in the cache
 	$query_options = array();
 	foreach ( $base_options as $base_option ) {
+		if ( isset( $bb->$base_option ) ) {
+			continue;
+		}
 		if ( wp_cache_get( $base_option, 'bb_option_not_set' ) ) {
 			continue;
 		}
