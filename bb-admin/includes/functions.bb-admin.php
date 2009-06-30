@@ -62,8 +62,8 @@ function bb_admin_menu_generator()
 	// 100 < Plugin added menu items < 150
 
 	// 150 < First menu items < 200
-	$bb_menu[150] = array( __( 'Forums' ), 'manage_forums', 'content-forums.php', '', 'bb-menu-forums' );
-		$bb_submenu['content-forums.php'][5]   = array( __( 'Forums' ), 'manage_forums', 'content-forums.php' );
+	$bb_menu[150] = array( __( 'Forums' ), 'manage_forums', 'forums.php', '', 'bb-menu-forums' );
+		$bb_submenu['forums.php'][5]   = array( __( 'Forums' ), 'manage_forums', 'forums.php' );
 	$bb_menu[155] = array( __( 'Topics' ), 'moderate', 'content.php', '', 'bb-menu-topics' );
 		$bb_submenu['content.php'][5]   = array( __( 'Topics' ), 'moderate', 'content.php' );
 	$bb_menu[160] = array( __( 'Posts' ), 'moderate', 'content-posts.php', '', 'bb-menu-posts' );
@@ -779,9 +779,9 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 	$r .= "\t\t\t<div class=\"row-actions\"><span>\n";
 		$r .= "\t\t\t\t<a class='edit' href='" . get_forum_link() . "'>" . __('View') . "</a>\n";
 	if ( bb_current_user_can( 'manage_forums' ) )
-		$r .= "\t\t\t\t| <a class='edit' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
+		$r .= "\t\t\t\t| <a class='edit' href='" . esc_attr( bb_get_uri('bb-admin/forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
 	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
-		$r .= "\t\t\t\t| <a class='delete' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
+		$r .= "\t\t\t\t| <a class='delete' href='" . esc_attr( bb_get_uri('bb-admin/forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
 	$r .= "\t\t\t</span>&nbsp;</div>\n";
 	$r .= "\t\t</div>\n";
 	if ( $close )

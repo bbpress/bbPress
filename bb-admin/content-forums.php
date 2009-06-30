@@ -76,7 +76,7 @@ bb_get_admin_header();
 		<?php bb_nonce_field( 'delete-forums' ); ?>
 		<input type="hidden" name="action" value="delete" />
 		<input type="hidden" name="forum_id" value="<?php echo $deleted_forum->forum_id; ?>" />
-		<a href="<?php bb_uri('bb-admin/content-forums.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" class="cancel"><?php _e('Cancel') ?></a>
+		<a href="<?php bb_uri('bb-admin/forums.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" class="cancel"><?php _e('Cancel') ?></a>
 		<input class="submit delete" type="submit" name="submit" value="<?php _e('Delete Forum') ?>" />
 	</fieldset>
 </form>
