@@ -132,6 +132,7 @@ add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );
 add_action( 'bb_head', 'bb_generator' );
 add_action('bb_head', 'bb_template_scripts');
 add_action('bb_head', 'wp_print_scripts');
+add_action('bb_head', 'wp_print_styles');
 add_action('bb_head', 'bb_rsd_link');
 add_action('bb_head', 'bb_pingback_link');
 if ( $bb_log->type === 'console' ) {
