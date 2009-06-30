@@ -16,6 +16,9 @@ class BP_Options
 	function get( $option )
 	{
 		switch ( $option ) {
+			case 'application_id':
+				return bb_get_option( 'site_id' );
+				break;
 			case 'application_uri':
 				return bb_get_uri( null, null, BB_URI_CONTEXT_NONE );
 				break;
