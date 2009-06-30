@@ -1447,19 +1447,16 @@ function bb_user_search( $args = '' ) {
 		if ( $$field )
 			$fields[] = $field;
 
-	if ( $query && $user_meta ) :
+	if ( $query && $user_meta ) {
 		$sql = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
-		if ( empty($fields) )
+		if ( empty($fields) ) {
 			$sql .= " LIMIT $limit";
+		}
 		$user_meta_ids = $bbdb->get_col($sql);
-		if ( empty($fields) ) :
-			bb_cache_users( $user_meta_ids );
-			$users = array();
-			foreach( $user_meta_ids as $user_id )
-				$users[] = bb_get_user( $user_id );
-			return $users;
-		endif;
-	endif;
+		if ( empty($fields) ) {
+			return bb_get_user( $user_meta_ids );
+		}
+	}
 
 	$sql = "SELECT * FROM $bbdb->users";
 

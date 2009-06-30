@@ -77,7 +77,7 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 
 	$_topic_ids = join(',', $topic_ids);
 
-	$posts = (array) bb_cache_posts( "SELECT * FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND post_position = 1 AND post_status = 0" );
+	$posts = (array) bb_cache_posts( "SELECT post_id FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND post_position = 1 AND post_status = 0", true );
 
 	$first_posts = array();
 	foreach ( $posts as $post ) {
@@ -91,24 +91,68 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 	return $first_posts;
 }
 
-function bb_cache_posts( $query ) {
+function bb_cache_posts( $query, $post_id_query = false ) {
 	global $bbdb;
-	if ( $posts = (array) $bbdb->get_results( $query ) ) {
-		$_cache_posts = array();
-		foreach ( $posts as $bb_post ) {
-			// Don't re-append or re-cache
-			if ( false === wp_cache_get( $bb_post->post_id, 'bb_post' ) ) {
-				$_cache_posts[$bb_post->post_id] = $bb_post;
+
+	$_query_post_ids = array();
+	$_query_posts = array();
+	$_cached_posts = array();
+
+	if ( $post_id_query && is_string( $query ) ) {
+		// The query is a SQL query to retrieve post_ids only
+		$key = md5( $query );
+		if ( false === $post_ids = wp_cache_get( $key, 'bb_cache_posts_post_ids' ) ) {
+			if ( !$post_ids = (array) $bbdb->get_col( $query, 0 ) ) {
+				return array();
 			}
+			wp_cache_add( $key, $post_ids, 'bb_cache_posts_post_ids' );
 		}
-		if ( count( $_cache_posts ) ) {
-			$_cache_posts = bb_append_meta( $_cache_posts, 'post' );
-			foreach ( $_cache_posts as $_cache_post ) {
-				wp_cache_add( $_cache_post->post_id, $_cache_post, 'bb_post' );
-			}
-		}
+		$query = $post_ids;
 	}
-	return $posts;
+
+	if ( is_array( $query ) ) {
+		foreach ( $query as $_post_id ) {
+			if ( false === $_post = wp_cache_get( $_post_id, 'bb_post' ) ) {
+				$_query_post_ids[] = $_post_id;
+			} else {
+				$_cached_posts[$_post->post_id] = $_post;
+			}
+		}
+
+		if ( count( $_query_post_ids ) ) {
+			// Escape the ids for the SQL query
+			$_query_post_ids = $bbdb->escape_deep( $_query_post_ids );
+
+			// Sort the ids so the MySQL will more consistently cache the query
+			sort( $_query_post_ids );
+
+			$_query = "SELECT * FROM $bbdb->posts WHERE post_id IN ('" . join( "','", $_query_post_ids ) . "')";
+		}
+	} else {
+		// The query is a full SQL query which needs to be executed
+		$_query = $query;
+	}
+
+	if ( $_query_posts = (array) $bbdb->get_results( $_query ) ) {
+		$_appendable_posts = array();
+		foreach ( $_query_posts as $_query_post ) {
+			if ( false === $_post = wp_cache_get( $_query_post->post_id, 'bb_post' ) ) {
+				$_appendable_posts[] = $_query_post;
+			} else {
+				$_cached_posts[$_query_post->post_id] = $_post;
+			}
+		}
+		if ( count( $_appendable_posts ) ) {
+			$_query_posts = bb_append_meta( $_appendable_posts, 'post' );
+			foreach( $_query_posts as $_query_post ) {
+				wp_cache_add( $_query_post->post_id, $_query_post, 'bb_post' );
+			}
+		}
+	} else {
+		$_query_posts = array();
+	}
+
+	return array_merge( $_cached_posts, $_query_posts );
 }
 
 // Globalizes the result
@@ -156,14 +200,14 @@ function bb_cache_last_posts( $_topics = false, $author_cache = true ) {
 
 	if ( !empty($last_post_ids) ) {
 		$_last_post_ids = join(',', $last_post_ids);
-		$posts = (array) bb_cache_posts( "SELECT * FROM $bbdb->posts WHERE post_id IN ($_last_post_ids) AND post_status = 0" );
+		$posts = (array) bb_cache_posts( "SELECT post_id FROM $bbdb->posts WHERE post_id IN ($_last_post_ids) AND post_status = 0", true );
 		if ( $author_cache )
 			bb_post_author_cache( $posts );
 	}
 
 	if ( !empty($topic_ids) ) {	
 		$_topic_ids = join(',', $topic_ids);
-		$posts = (array) bb_cache_posts( "SELECT p.* FROM $bbdb->topics AS t LEFT JOIN $bbdb->posts AS p ON ( t.topic_last_post_id = p.post_id ) WHERE t.topic_id IN ($_topic_ids) AND p.post_status = 0" );
+		$posts = (array) bb_cache_posts( "SELECT p.post_id FROM $bbdb->topics AS t LEFT JOIN $bbdb->posts AS p ON ( t.topic_last_post_id = p.post_id ) WHERE t.topic_id IN ($_topic_ids) AND p.post_status = 0", true );
 		if ( $author_cache )
 			bb_post_author_cache( $posts );
 	}
@@ -319,6 +363,7 @@ function bb_insert_post( $args = null ) {
 	wp_cache_delete( $forum_id, 'bb_forum' );
 	wp_cache_flush( 'bb_forums' );
 	wp_cache_flush( 'bb_query' );
+	wp_cache_flush( 'bb_cache_posts_post_ids' );
 
 	if ( $update ) // fire actions after cache is flushed
 		do_action( 'bb_update_post', $post_id );
@@ -358,6 +403,7 @@ function bb_update_post_positions( $topic_id ) {
 		}
 		wp_cache_delete( $topic_id, 'bb_thread' );
 		wp_cache_flush( 'bb_query' );
+		wp_cache_flush( 'bb_cache_posts_post_ids' );
 		return true;
 	} else {
 		return false;
@@ -409,6 +455,7 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 		wp_cache_delete( $topic_id, 'bb_thread' );
 		wp_cache_flush( 'bb_forums' );
 		wp_cache_flush( 'bb_query' );
+		wp_cache_flush( 'bb_cache_posts_post_ids' );
 		do_action( 'bb_delete_post', $post_id, $new_status, $old_status );
 		return $post_id;
 	} else {

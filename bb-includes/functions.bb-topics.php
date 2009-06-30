@@ -212,6 +212,7 @@ function bb_insert_topic( $args = null ) {
 		if ( in_array( 'topic_slug', $fields ) )
 			wp_cache_delete( $topic->topic_slug, 'bb_topic_slug' );
 		wp_cache_flush( 'bb_query' );
+		wp_cache_flush( 'bb_cache_posts_post_ids' );
 		do_action( 'bb_update_topic', $topic_id );
 	} else {
 		$bbdb->insert( $bbdb->topics, compact( $fields ) );
@@ -220,6 +221,7 @@ function bb_insert_topic( $args = null ) {
 		wp_cache_delete( $forum_id, 'bb_forum' );
 		wp_cache_flush( 'bb_forums' );
 		wp_cache_flush( 'bb_query' );
+		wp_cache_flush( 'bb_cache_posts_post_ids' );
 		do_action( 'bb_new_topic', $topic_id );
 	}
 
@@ -311,6 +313,7 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		wp_cache_delete( $topic->forum_id, 'bb_forum' );
 		wp_cache_flush( 'bb_forums' );
 		wp_cache_flush( 'bb_query' );
+		wp_cache_flush( 'bb_cache_posts_post_ids' );
 		return $topic_id;
 	} else {
 		return false;
@@ -338,6 +341,7 @@ function bb_move_topic( $topic_id, $forum_id ) {
 		wp_cache_delete( $forum_id, 'bb_forum' );
 		wp_cache_flush( 'bb_forums' );
 		wp_cache_flush( 'bb_query' );
+		wp_cache_flush( 'bb_cache_posts_post_ids' );
 
 		do_action( 'bb_move_topic', $topic_id, $forum_id, $topic->forum_id );
 

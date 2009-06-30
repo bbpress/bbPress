@@ -394,17 +394,14 @@ class BB_Query {
 				if ( in_array($op, array('>','<')) ) :
 					$post_topics = $bbdb->get_col( "SELECT DISTINCT topic_id FROM $bbdb->posts WHERE post_id $op '" . (int) substr($q['post_id'], 1) . "'" );
 				else :
-					global $bb_post_cache;
 					$posts = explode(',', $q['post_id']);
 					$get_posts = array();
-					foreach ( $posts as $post_id ) :
+					foreach ( $posts as $post_id ) {
 						$post_id = (int) $post_id;
 						$_post_id = abs($post_id);
-						if ( !isset($bb_post_cache[$_post_id]) )
-							$get_posts[] = $_post_id;
-					endforeach;
-					$get_posts = join(',', $get_posts);
-					bb_cache_posts( "SELECT * FROM $bbdb->posts WHERE post_id IN ($get_posts)" );
+						$get_posts[] = $_post_id;
+					}
+					bb_cache_posts( $get_posts );
 
 					foreach ( $posts as $post_id ) :
 						$post = bb_get_post( abs($post_id) );
