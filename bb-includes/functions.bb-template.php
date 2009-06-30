@@ -3263,10 +3263,11 @@ function bb_get_forum_dropdown( $args = '' ) {
 	$options = array();
 	while ( $depth = bb_forum() ) :
 		global $forum; // Globals + References = Pain
+		$pad_left = str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 );
 		if ( $disable_categories && isset($forum->forum_is_category) && $forum->forum_is_category ) {
 			$options[] = array(
 				'value' => 0,
-				'display' => str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . $forum->forum_name,
+				'display' => $pad_left . $forum->forum_name,
 				'disabled' => true,
 				'selected' => false
 			);
@@ -3279,7 +3280,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 		}
 		$options[] = array(
 			'value' => $forum->forum_id,
-			'display' => str_repeat( '&nbsp;&nbsp;&nbsp;', $depth - 1 ) . $forum->forum_name,
+			'display' => $pad_left . $forum->forum_name,
 			'disabled' => false,
 			'selected' => $_selected
 		);
