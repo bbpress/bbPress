@@ -64,10 +64,10 @@ function bb_admin_menu_generator()
 	// 150 < First menu items < 200
 	$bb_menu[150] = array( __( 'Forums' ), 'manage_forums', 'forums.php', '', 'bb-menu-forums' );
 		$bb_submenu['forums.php'][5]   = array( __( 'Forums' ), 'manage_forums', 'forums.php' );
-	$bb_menu[155] = array( __( 'Topics' ), 'moderate', 'content.php', '', 'bb-menu-topics' );
-		$bb_submenu['content.php'][5]   = array( __( 'Topics' ), 'moderate', 'content.php' );
-	$bb_menu[160] = array( __( 'Posts' ), 'moderate', 'content-posts.php', '', 'bb-menu-posts' );
-		$bb_submenu['content-posts.php'][5]   = array( __( 'Posts' ), 'moderate', 'content-posts.php' );
+	$bb_menu[155] = array( __( 'Topics' ), 'moderate', 'topics.php', '', 'bb-menu-topics' );
+		$bb_submenu['topics.php'][5]   = array( __( 'Topics' ), 'moderate', 'topics.php' );
+	$bb_menu[160] = array( __( 'Posts' ), 'moderate', 'posts.php', '', 'bb-menu-posts' );
+		$bb_submenu['posts.php'][5]   = array( __( 'Posts' ), 'moderate', 'posts.php' );
 
 	// 200 < Plugin added menu items < 250
 
