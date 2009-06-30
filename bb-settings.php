@@ -216,6 +216,11 @@ if ( is_wp_error( $bbdb->set_prefix( $bb_table_prefix ) ) ) {
 	die( 'Your table prefix may only contain letters, numbers and underscores.' );
 }
 
+// Set a site id if there isn't one already
+if ( !isset( $bb->site_id ) ) {
+	$bb->site_id = 1;
+}
+
 
 
 /**

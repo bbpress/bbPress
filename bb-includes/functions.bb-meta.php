@@ -274,6 +274,13 @@ function bb_get_option( $option )
 	global $bb;
 
 	switch ( $option ) {
+		case 'site_id':
+			if ( isset( $bb->site_id ) && is_numeric( $bb->site_id ) ) {
+				$r = (int) $bb->site_id;
+			} else {
+				$r = 1;
+			}
+			break;
 		case 'language':
 			$r = str_replace( '_', '-', bb_get_locale() );
 			break;
