@@ -21,7 +21,7 @@ if ( isset($_GET['message']) ) {
 	case 'deleted' :
 		bb_admin_notice( sprintf(
 			__( '<strong>Forum deleted.</strong>  You should have bbPress <a href="%s">recount your site information</a>.' ),
-			bb_get_uri('bb-admin/site.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)
+			bb_get_uri('bb-admin/tools-recount.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN)
 		) );
 		break;
 	endswitch;
@@ -37,11 +37,10 @@ bb_get_admin_header();
 
 <div class="wrap">
 
-<h2><?php _e('Edit Forums'); ?></h2>
+<h2><?php _e('Forums'); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 <?php switch ( @$_GET['action'] ) : ?>
 <?php case 'edit' : ?>
-<h3><?php _e('Update Forum'); ?></h3>
 <?php bb_forum_form( (int) $_GET['id'] ); ?>
 <?php break; case 'delete' : ?>
 <div class="ays narrow">
@@ -75,15 +74,16 @@ bb_get_admin_header();
 
 
 <?php if ( bb_forums( 'type=list&walker=BB_Walker_ForumAdminlistitems' ) ) : ?>
-<ul id="forum-list" class="list:forum list-block holder widefat">
-	<li class="thead list-block"><div class="list-block"><?php _e('Name &#8212; Description'); ?></div></li>
+<ul id="forum-list" class="list:forum list-block holder">
+	<li class="thead list-block"><?php _e('Forum'); ?></li>
 <?php while ( bb_forum() ) : ?>
 <?php bb_forum_row(); ?>
 <?php endwhile; ?>
-<?php endif; // bb_forums() ?>
 </ul>
+<?php endif; // bb_forums() ?>
 
-<h3><?php _e('Add Forum'); ?></h3>
+<hr class="settings" />
+
 <?php bb_forum_form(); ?>
 
 <?php break; endswitch; // action ?>

@@ -5,7 +5,7 @@ bbSortForums = {
 	handle: '',
 	sortCfg: {
 		accept: 'forum',
-		handle: 'strong.sort-handle',
+		handle: 'img.sort-handle',
 		opacity: .3,
 		helperclass: 'helper',
 		onStop: function() {
@@ -13,8 +13,8 @@ bbSortForums = {
 			bbSortForums.recolor();
 		}
 	},
-	editText: 'Edit Forum Order &#187;',
-	saveText: 'Save Forum Order &#187;',
+	editText: 'Edit Forum Order',
+	saveText: 'Save Forum Order',
 	place: null,  // The id of the list item it's currently hovering before
 	placed: null, // The id of the list item it's been made a child of
 	rtl: 'rtl' == $('html').attr( 'dir' ),
@@ -56,21 +56,20 @@ bbSortForums = {
 	},
 
 	init: function() {
-		this.handle = "<strong class='sort-handle'>[" + this.handleText + "]&nbsp;</strong>";
+		this.handle = "<img class='sort-handle' src='images/drag.gif' alt='" + this.handleText +  "' />";
 		var div = document.createElement('div');
 		div.innerHTML = this.saveText; // Save the raquo!
 		this.saveText = div.childNodes[0].nodeValue;
 		div.innerHTML = this.editText; // Save the raquo!
 		this.editText = div.childNodes[0].nodeValue;
 		div = null;
-		$('#forum-list').after("<p class='submit'><input type='button' id='forum-order-edit' value='" + this.editText + "' /></p>");
-
-		$('#forum-position-row').remove();
+		$('#forum-list').after("<form class='settings' action='' onsubmit='return false;'><fieldset class='submit'><input class='submit' type='submit' name='submit' id='forum-order-edit' value='" + this.editText + "' /></fieldset></form>");
 
 		$('#forum-order-edit').toggle( function() {
 			$(this).val(bbSortForums.saveText);
-			$('#forum-list li:gt(0) div.alignright').after(bbSortForums.handle);
+			$('#forum-list li:gt(0) div.row-title').before(bbSortForums.handle);
 			$('#forum-list').Sortable( bbSortForums.sortCfg );
+			$('body').addClass('sorting');
 		}, function() {
 			$(this).val(bbSortForums.editText);
 			$('.sort-handle').remove();
@@ -78,6 +77,7 @@ bbSortForums = {
 			var hash = bbSortForums.serialize();
 			hash += '&' + $.SortSerialize('forum-list').hash.replace(/forum-list/g, 'order').replace(/forum-/g, '')
 			$('#forum-list').SortableDestroy();
+			$('body').removeClass('sorting');
 
 			$.post(
 				'admin-ajax.php',

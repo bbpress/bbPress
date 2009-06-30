@@ -20,8 +20,8 @@ function bb_default_scripts( &$scripts ) {
 	) );
 	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
-		'saveText'   => __('Save Forum Order &#187;'),
-		'editText'   => __('Edit Forum Order &#187;')
+		'saveText'   => __('Save Forum Order'),
+		'editText'   => __('Edit Forum Order')
 	));
 
 	// These are non-3rd-party libraries

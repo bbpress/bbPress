@@ -302,6 +302,78 @@ div.dashboard div.versions p.theme a.button {
 
 
 
+/* Search forms */
+
+form.search-form fieldset {
+	float: right;
+}
+
+form.search-form fieldset div {
+	float: right;
+	margin-right: 0;
+	margin-left: 5px;
+}
+
+
+
+/* Table nav */
+
+div.tablenav {
+	float: left;
+}
+
+span.displaying-num {
+	text-align: left;
+}
+
+span.displaying-pages {
+	float: left;
+}
+
+span.displaying-pages span,
+span.displaying-pages a {
+	float: right;
+}
+
+
+
+/* Tabled info */
+
+table#plugins-list.widefat tr.autoload td.plugin-name {
+	background-position: 0 0;
+	padding-right: 7px;
+	padding-left: 20px;
+}
+
+
+
+/* Forums */
+
+ul#forum-list li ul li {
+	border-left-width: 0;
+	border-right: 1px dashed rgb(223, 223, 223);
+}
+
+ul#forum-list li ul.list-block {
+	padding: 0 30px 0 0;
+}
+
+ul#forum-list li img.sort-handle {
+	float: right;
+	margin: 0 -4px 0 3px;
+}
+
+#dragHelper img.sort-handle {
+	float: right;
+	margin: 0 0 0 3px;
+}
+
+#dragHelper div.row-description {
+	margin: 0 4px 0 0;
+}
+
+
+
 /* Themes */
 
 table.theme-list td {

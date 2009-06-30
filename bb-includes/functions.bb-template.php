@@ -3230,7 +3230,7 @@ function bb_forum_dropdown( $args = '' ) {
 }
 
 function bb_get_forum_dropdown( $args = '' ) {
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0, 'disable_categories' => 1 );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0, 'disable_categories' => 1, 'options_only' => false );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'callback' => $args );
 	if ( 1 < func_num_args() )
@@ -3253,7 +3253,9 @@ function bb_get_forum_dropdown( $args = '' ) {
 	if ( $none && 1 == $none )
 		$none = __('- None -');
 
-	$r = '<select name="' . $name . '" id="' . $id . '" tabindex="' . $tab . '">' . "\n";
+	$r = '';
+	if ( !$options_only )
+		$r .= '<select name="' . $name . '" id="' . $id . '" tabindex="' . $tab . '">' . "\n";
 	if ( $none )
 		$r .= "\n" . '<option value="0">' . $none . '</option>' . "\n";
 
@@ -3294,7 +3296,9 @@ function bb_get_forum_dropdown( $args = '' ) {
 	}
 	
 	$forum = $old_global;
-	$r .= '</select>' . "\n";
+	if ( !$options_only )
+		$r .= '</select>' . "\n";
+
 	return $r;
 }
 

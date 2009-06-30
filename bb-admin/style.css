@@ -1197,6 +1197,131 @@ table.widefat tr td kbd {
 
 
 
+/* Forums */
+
+body.sorting {
+	overflow-x: hidden;
+}
+
+ul#forum-list {
+	xwidth: 100%;
+	border: 1px solid rgb(223, 223, 223);
+	-moz-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	margin: 10px 0;
+}
+
+ul#forum-list a {
+	color: rgb(0, 102, 0);
+	text-decoration: none;
+}
+
+ul#forum-list a:hover {
+	color: rgb(213, 78, 33);
+}
+
+ul#forum-list li {
+	border-top: 1px solid rgb(223, 223, 223);
+	background-color: rgb(249, 249, 249);
+}
+
+ul#forum-list li.alt {
+	background-color: rgb(255, 255, 255);
+}
+
+ul#forum-list li ul li {
+	border-left: 1px dashed rgb(223, 223, 223);
+}
+
+ul#forum-list li ul.list-block {
+	padding: 0 0 0 30px;
+}
+
+ul#forum-list li.list-block {
+	padding: 3px 0 0 0;
+}
+
+ul#forum-list li div.list-block {
+	padding: 0 7px 3px 7px;
+}
+
+ul#forum-list li.thead {
+	background: url('images/gray-grad.png') repeat-x rgb(223, 223, 223);
+	text-shadow: rgb(255, 255, 255) 0px 1px 0px;
+	color: rgb(51, 51, 51);
+	font-weight: bold;
+	vertical-align: top;
+	padding: 7px 7px 8px;
+	font-size: 0.85em;
+	line-height: 1.3em;
+	border-top-width: 0;
+}
+
+ul#forum-list li img.sort-handle {
+	float: left;
+	margin: 0 3px 0 -4px;
+	cursor: move;
+}
+
+ul#forum-list li div.row-title {
+	font-size: 0.9em;
+	font-weight: bold;
+}
+
+ul#forum-list li p.row-description {
+	font-size: 0.85em;
+}
+
+ul#forum-list li div.list-block div.row-actions {
+	font-size: 0.8em;
+	margin-top: 0.4em;
+}
+
+ul#forum-list li div.list-block div.row-actions span {
+	display: none;
+}
+
+ul#forum-list li div.list-block:hover div.row-actions span {
+	display: inline;
+}
+
+ul#forum-list.sorting li div.list-block div.row-actions span {
+	display: none;
+}
+
+ul#forum-list.sorting li div.list-block div.row-actions span {
+	display: none;
+}
+
+.helper {
+	background-color: rgb(200, 250, 200);
+	outline: 1px dashed #777;
+	width: 100% !important;
+	padding: 3px 0;
+}
+
+#dragHelper {
+	xwidth: auto !important;
+	padding: 3px;
+}
+
+#dragHelper img.sort-handle {
+	float: left;
+	margin: 0 3px 0 0;
+}
+
+#dragHelper div.row-description {
+	margin: 0 0 0 4px;
+}
+
+#dragHelper div.row-actions span {
+	display: none;
+}
+
+
+
 /* Themes */
 
 h3.themes {
@@ -1616,7 +1741,7 @@ div.clear {
 
 
 /* Layout classes */
-
+/*
 .absleft {
 	position: absolute;
 	left: 0;
@@ -1643,7 +1768,7 @@ div.clear {
 .alignright {
 	float: right;
 }
-
+*/
 /*
 .alternate, .alt {
 	background: #f1f1f1;
@@ -1655,43 +1780,9 @@ div.clear {
 }
 */
 
-.hidden {
-	display: none;
-}
 
-.helper {
-	border: 2px dashed #777;
-}
-
-.sort-handle {
-	cursor: move;
-}
 
 
 /* List Blocks */
 
-ul.list-block {
-	margin: 0 20px 0 0;
-	padding: 0 0 0 3em;
-	background-color: #fff;
-	overflow: hidden;
-}
 
-ul.list-block ul.list-block {
-	margin: 0;
-	overflow: visible;
-}
-
-ul#the-list.list-block, ul#forum-list.list-block {
-	padding: 0;
-}
-
-li.list-block {
-	list-style: none;
-	margin: 0;
-	padding: 8px 0 0;
-}
-
-div.list-block {
-	padding: 0 8px 8px;
-}

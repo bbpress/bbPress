@@ -767,17 +767,23 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 	if ( !$_forum )
 		return;
 
+	$description = get_forum_description( $_forum->forum_id );
+
 	$r  = '';
 	if ( $close )
 		$r .= "\t<li id='forum-$_forum->forum_id'" . get_alt_class( 'forum', 'forum clear list-block' ) . ">\n";
 	$r .= "\t\t<div class='list-block posrel'>\n";
-	$r .= "\t\t\t<div class='alignright'>\n";
+	$r .= "\t\t\t<div class=\"row-title\">" . get_forum_name( $_forum->forum_id ) . "</div>\n";
+	if ( $description )
+		$r .= "\t\t\t<p class=\"row-description\">" . get_forum_description( $_forum->forum_id ) . "</p>\n";
+	$r .= "\t\t\t<div class=\"row-actions\"><span>\n";
+		$r .= "\t\t\t\t<a class='edit' href='" . get_forum_link() . "'>" . __('View') . "</a>\n";
 	if ( bb_current_user_can( 'manage_forums' ) )
-		$r .= "\t\t\t\t<a class='edit' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
+		$r .= "\t\t\t\t| <a class='edit' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'edit', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Edit') . "</a>\n";
 	if ( bb_current_user_can( 'delete_forum', $_forum->forum_id ) && 1 < $forums_count )
-		$r .= "\t\t\t\t<a class='delete' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
-	$r .= "\t\t\t</div>\n";
-	$r .= "\t\t\t" . get_forum_name( $_forum->forum_id ) . ' &#8212; ' . get_forum_description( $_forum->forum_id ) . "\n\t\t</div>\n";
+		$r .= "\t\t\t\t| <a class='delete' href='" . esc_attr( bb_get_uri('bb-admin/content-forums.php', array('action' => 'delete', 'id' => $_forum->forum_id), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) ) . "'>" . __('Delete') . "</a>\n";
+	$r .= "\t\t\t</span>&nbsp;</div>\n";
+	$r .= "\t\t</div>\n";
 	if ( $close )
 		$r .= "\t</li>\n";
 
@@ -788,50 +794,96 @@ function bb_forum_row( $forum_id = 0, $echo = true, $close = false ) {
 
 function bb_forum_form( $forum_id = 0 ) {
 	$forum_id = (int) $forum_id;
-	if ( $forum_id && !$forum = bb_get_forum( $forum_id ) )
+	if ( $forum_id && !$forum = bb_get_forum( $forum_id ) ) {
 		return;
-	$action = $forum_id ? 'update' : 'add';
+	}
+
+	$forum_name = '';
+	$forum_slug = '';
+	$forum_description = '';
+	$forum_position = '';
+
+	if ( $forum_id ) {
+		$forum_name = get_forum_name( $forum_id );
+		$forum_slug = $forum->forum_slug;
+		$forum_description = get_forum_description( $forum_id );
+		$forum_position = get_forum_position( $forum_id );
+		$legend = __( 'Edit Forum' );
+		$submit = __( 'Save Changes' );
+		$action = 'update';
+	} else {
+		$legend = __( 'Add Forum' );
+		$submit = __( 'Add Forum' );
+		$action = 'add';
+	}
+
+	$forum_options = array(
+		'forum_name' => array(
+			'title' => __( 'Name' ),
+			'value' => $forum_name
+		),
+		'forum_slug' => array(
+			'title' => __( 'Slug' ),
+			'value' => $forum_slug
+		),
+		'forum_desc' => array(
+			'title' => __( 'Description' ),
+			'value' => $forum_description,
+			'class' => 'long'
+		),
+		'forum_parent' => array(
+			'title' => __( 'Parent' ),
+			'type' => 'select',
+			'options' => bb_get_forum_dropdown( array(
+				'cut_branch' => $forum_id,
+				'id' => 'forum_parent',
+				'none' => true,
+				'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0,
+				'disable_categories' => 0,
+				'options_only' => true
+			) )
+		),
+		'forum_order' => array(
+			'title' => __( 'Position' ),
+			'value' => $forum_position,
+			'class' => 'short'
+		),
+		'forum_is_category' => array(
+			'title' => __( 'Category' ),
+			'type' => 'checkbox',
+			'options' => array(
+				1 => array(
+					'label' => __( 'Make this forum a category' ),
+					'value' => bb_get_forum_is_category( $forum_id ),
+				)
+			),
+			'note' => __( 'Categories are forums where new topics cannot be created. Categories usually contain a group of sub-forums.' )
+		)
+	);
+	
+	if ( !$forum_id ) {
+		unset( $forum_options['forum_slug'] );
+		unset( $forum_options['forum_order'] );
+	}
+	
 ?>
-<form method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:forum-list: forum-form">
+<form class="settings" method="post" id="<?php echo $action; ?>-forum" action="<?php bb_uri('bb-admin/bb-forum.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>" class="add:forum-list: forum-form">
 	<fieldset>
-	<table><col /><col style="width: 80%" />
-		<tr><th scope="row"><label for="forum-name"><?php _e('Forum Name:'); ?></label></th>
-			<td><input type="text" name="forum_name" id="forum-name" value="<?php if ( $forum_id ) echo esc_attr( get_forum_name( $forum_id ) ); ?>" tabindex="10" class="widefat" /></td>
-		</tr>
-<?php if ( $forum_id ) : ?>
-		<tr><th scope="row"><label for="forum-slug"><?php _e('Forum Slug:'); ?></label></th>
-			<td><input type="text" name="forum_slug" id="forum-slug" value="<?php echo esc_attr( $forum->forum_slug ); ?>" tabindex="10" class="widefat" /></td>
-		</tr>
-<?php endif; ?>
-		<tr><th scope="row"><label for="forum-desc"><?php _e('Forum Description:'); ?></label></th>
-			<td><input type="text" name="forum_desc" id="forum-desc" value="<?php if ( $forum_id ) echo esc_attr( get_forum_description( $forum_id ) ); ?>" tabindex="11" class="widefat" /></td>
-		</tr>
-		<tr id="forum-parent-row"><th scope="row"><label for="forum_parent"><?php _e('Forum Parent:'); ?></label></th>
-			<td><?php bb_forum_dropdown( array(
-					'cut_branch' => $forum_id,
-					'id' => 'forum_parent',
-					'none' => true,
-					'selected' => $forum_id ? get_forum_parent( $forum_id ) : 0,
-					'disable_categories' => 0
-			) ); ?></td>
-		</tr>
-		<tr id="forum-position-row"><th scope="row"><label for="forum-order"><?php _e('Position:'); ?></label></th>
-			<td><input type="text" name="forum_order" id="forum-order" value="<?php if ( $forum_id ) echo get_forum_position( $forum_id ); ?>" tabindex="12" maxlength="10" class="widefat" /></td>
-		</tr>
-		<tr id="forum-is-category-row"><th scope="row"><label for="forum-is-category"><?php _e('Forum is Category:'); ?></label></th>
-			<td><input type="checkbox" name="forum_is_category" id="forum-is-category" value="1" <?php if ( $forum_id && bb_get_forum_is_category($forum_id) ) : ?>checked="checked" <?php endif; ?>tabindex="13" /></td>
-		</tr>
-	</table>
-	<p class="submit">
+		<legend><?php echo $legend; ?></legend>
+<?php
+foreach ( $forum_options as $option => $args ) {
+	bb_option_form_element( $option, $args );
+}
+?>
+	<fieldset class="submit">
 <?php if ( $forum_id ) : ?>
 		<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
 <?php endif; ?>
 		<?php bb_nonce_field( 'order-forums', 'order-nonce' ); ?>
-		<?php bb_nonce_field( "$action-forum" ); ?>
+		<?php bb_nonce_field( $action . '-forum' ); ?>
 		<input type="hidden" name="action" value="<?php echo $action; ?>" />
-		<input name="Submit" type="submit" value="<?php if ( $forum_id ) _e('Update Forum &#187;'); else _e('Add Forum &#187;'); ?>" tabindex="13" />
-	</p>
-	</fieldset> 
+		<input class="submit" type="submit" name="submit" value="<?php echo $submit; ?>" />
+	</fieldset>
 </form>
 <?php
 }
