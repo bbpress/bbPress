@@ -657,6 +657,15 @@ div#message p strong {
 	font-weight: bold;
 }
 
+div#message a {
+	color: rgb(0, 102, 0);
+	text-decoration: none;
+}
+
+div#message a:hover {
+	color: rgb(213, 78, 33);
+}
+
 div.plugin-error {
 	background-color: rgb(255, 235, 232);
 	border-color: rgb(204, 0, 0);
@@ -1475,6 +1484,20 @@ div.settings p {
 	margin: 0 0 1em 0;
 }
 
+form.settings ul,
+div.settings ul {
+	float: none;
+	display: block;
+	color: rgb(51, 51, 51);
+	font-size: 0.9em;
+	margin: 0 4em 1em 4em;
+}
+
+form.settings ul li,
+div.settings ul li {
+	list-style: disc outside none;
+}
+
 form.settings strong,
 div.settings strong {
 	font-weight: bold;
@@ -1663,6 +1686,37 @@ form.settings input.submit:hover {
 
 form.settings input.submit:active {
 	background-position: 0 30px;
+}
+
+form.settings a.cancel {
+	display: block;
+	float: left;
+	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
+	-moz-border-radius: 11px;
+	-khtml-border-radius: 11px;
+	-webkit-border-radius: 11px;
+	border-radius: 11px;
+	border: 1px solid rgb(187, 187, 187);
+	cursor: pointer;
+	font-size: 11px;
+	line-height: 16px;
+	padding: 2px 8px;
+	background: url('images/white-grad.png') repeat-x scroll rgb(242, 242, 242);
+	color: rgb(70, 70, 70);
+	cursor: pointer;
+	font-weight: bold;
+	text-shadow: rgba(255, 255, 255, 0.7) 0 -1px 0;
+	margin-right: 6px;
+	text-decoration: none;
+}
+
+form.settings a.cancel:hover {
+	border-color: rgb(153, 51, 51);
+	color: rgb(204, 51, 51);
+}
+
+form.settings a.cancel:active {
+	background: url('images/white-grad-active.png') repeat-x scroll rgb(238, 238, 238);
 }
 
 form.settings div#option-mod-rewrite div.inputs label.radios span {

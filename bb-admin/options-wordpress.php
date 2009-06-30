@@ -187,7 +187,7 @@ bb_get_admin_header();
 <hr class="settings" />
 
 <div class="settings">
-	<h3 class="after"><?php _e('User Integration'); ?></h3>
+	<h3><?php _e('User Integration'); ?></h3>
 	<p><?php _e('Usually, you will have to specify both cookie integration and user database integration settings. Make sure you have a "User role map" setup above before trying to add user integration.'); ?></p>
 	<p><?php _e('<em><strong>Note:</strong> changing the settings below may cause you to be logged out!</em>'); ?></p>
 </div>

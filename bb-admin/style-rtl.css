@@ -426,6 +426,12 @@ form.settings div p {
 	border-right: 1px solid rgb(223, 223, 223);
 }
 
+form.settings a.cancel {
+	float: right;
+	margin-right: 0;
+	margin-left: 6px;
+}
+
 
 
 /* Footer */
