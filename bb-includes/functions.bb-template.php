@@ -3175,7 +3175,7 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 	$fontspread = $largest - $smallest;
 	if ( $fontspread <= 0 )
 		$fontspread = 1;
-	$fontstep = round( $fontspread / $spread, 1 );
+	$fontstep = $fontspread / $spread;
 
 	do_action_ref_array( 'sort_tag_heat_map', array(&$counts) );
 
@@ -3184,9 +3184,8 @@ function bb_get_tag_heat_map( $tags, $args = '' ) {
 	foreach ( $counts as $tag => $count ) {
 		$taglink = esc_attr($taglinks{$tag});
 		$tag = str_replace(' ', '&nbsp;', esc_html( $tag ));
-		$a[] = "<a href='$taglink' title='" . esc_attr( sprintf( __('%d topics'), $count ) ) . "' rel='tag' style='font-size: " .
-			( $smallest + ( ( $count - $min_count ) * $fontstep ) )
-			. "$unit;'>$tag</a>";
+		$fontsize = round( $smallest + ( ( $count - $min_count ) * $fontstep ), 1 );
+		$a[] = "<a href='$taglink' title='" . esc_attr( sprintf( __('%d topics'), $count ) ) . "' rel='tag' style='font-size:$fontsize$unit;'>$tag</a>";
 	}
 
 	switch ( $format ) :
