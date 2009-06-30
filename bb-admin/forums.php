@@ -28,7 +28,7 @@ if ( isset($_GET['message']) ) {
 }
 
 if ( !isset($_GET['action']) )
-	wp_enqueue_script( 'content-forums' );
+	wp_enqueue_script( 'admin-forums' );
 elseif ( 'delete' == @$_GET['action'] )
 	bb_admin_notice( sprintf( __( 'Are you sure you want to delete the "<strong>%s</strong>" forum?' ), $deleted_forum->forum_name ) );
 

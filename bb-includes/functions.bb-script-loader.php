@@ -10,7 +10,7 @@ function bb_default_scripts( &$scripts ) {
 	// These are our enqueued scripts
 	$scripts->add( 'topic', $scripts->base_url . 'js/topic.js', array('wp-lists'), '20090602' );
 	$scripts->add( 'profile-edit', $scripts->base_url . 'js/profile-edit.js', array('password-strength-meter'), '20080721' );
-	$scripts->add( 'content-forums', $scripts->base_url_admin . 'js/content-forums.js', array('wp-lists', 'interface'), '20090320' );
+	$scripts->add( 'admin-forums', $scripts->base_url_admin . 'js/admin-forums.js', array('wp-lists', 'interface'), '20090320' );
 	$scripts->add( 'utils', $scripts->base_url_admin . 'js/utils.js', false, '20090102' );
 	$scripts->add( 'common', $scripts->base_url_admin . 'js/common.js', array('jquery', 'hoverIntent', 'utils'), '20090517' );
 	$scripts->add_data( 'common', 'group', 1 );
@@ -18,7 +18,7 @@ function bb_default_scripts( &$scripts ) {
 		'warnDelete' => __("You are about to delete the selected items.\n  'Cancel' to stop, 'OK' to delete."),
 		'l10n_print_after' => 'try{convertEntities(commonL10n);}catch(e){};'
 	) );
-	$scripts->localize( 'content-forums', 'bbSortForumsL10n', array(
+	$scripts->localize( 'admin-forums', 'bbSortForumsL10n', array(
 		'handleText' => __('drag'),
 		'saveText'   => __('Save Forum Order'),
 		'editText'   => __('Edit Forum Order')
