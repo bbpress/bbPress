@@ -237,7 +237,6 @@ function bb_export_topic_tags( $r, $topic_id ) {
 }
 
 function bb_export_topic_posts( $r, $topic_id ) {
-	global $bb_post_cache;
 	if ( !get_topic( $topic_id ) )
 		return;
 
@@ -247,14 +246,13 @@ function bb_export_topic_posts( $r, $topic_id ) {
 	while ( $posts = get_thread( $topic_id, $page++ ) ) {
 		foreach ( $posts as $post )
 			$r .= bb_export_post( $post->post_id );
-		$bb_post_cache = array();
 	}
 
 	return $r;
 }
 
 function bb_export() {
-	global $bb, $bb_user_cache, $bb_topic_cache;
+	global $bb;
 
 	define( 'BB_EXPORTING', true );
 	do_action( 'bb_pre_export' );
@@ -269,7 +267,6 @@ function bb_export() {
 		while ( ( $users = bb_user_search( array('page' => $page++) ) ) && !is_wp_error( $users ) ) {
 			foreach ( $users as $user )
 				echo bb_export_user( $user->ID );
-			$bb_user_cache = array(); // For the sake of memory
 		}
 		unset($users, $user, $page);
 	}
@@ -286,7 +283,6 @@ function bb_export() {
 		while ( $topics = get_latest_topics( 0, $page++ ) ) {
 			foreach ( $topics as $topic )
 				echo bb_export_topic( $topic->topic_id );
-			$bb_topic_cache = array();
 		}
 		unset($topics, $topic, $page);
 	}
