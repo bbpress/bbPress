@@ -859,6 +859,10 @@ form.search-form fieldset div div input.text-input {
 	line-height: 1.3em;
 }
 
+form.search-form fieldset div div input.checkbox-input {
+	margin: 4px;
+}
+
 form.search-form fieldset div div select {
 	height: 2.1em;
 	margin: 0;
@@ -927,7 +931,7 @@ div.tablenav-pages {
 	margin: 13px 0 0 0;
 }
 
-div.tablenav-pages.bottom {
+div.tablenav.bottom div.tablenav-pages {
 	margin: 0 0 16px 0;
 }
 
@@ -1140,10 +1144,18 @@ table.widefat tr td.plugin-description p.meta {
 	margin-bottom: 0;
 }
 
-table.widefat tr td.topic span.row-title {
+table.widefat tr td.topic span.row-title,
+table.widefat tr td.user span.row-title {
 	margin-bottom: 0.4em;
 	display: block;
 	font-weight: bold;
+}
+
+table.widefat tr td.user img.avatar {
+	display: block;
+	float: left;
+	margin: 3px 8px 3px -1px;
+	border: 1px solid rgb(223, 223, 223);
 }
 
 table.widefat tr td.plugin-name span.row-title {

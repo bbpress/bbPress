@@ -61,7 +61,7 @@ if ( $h2_search || $h2_forum || $h2_tag || $h2_author ) {
 </h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<?php $topic_query->form( array('tag' => true, 'topic_author' => true, 'topic_status' => true, 'open' => true, 'submit' => __('Filter &#187;')) ); ?>
+<?php $topic_query->form( array('tag' => true, 'topic_author' => true, 'topic_status' => true, 'open' => true, 'submit' => __('Filter')) ); ?>
 
 <div class="tablenav">
 <?php if ( $topic_query->found_rows ) : ?>
@@ -139,7 +139,7 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 	<td class="date num">
 <?php
 	if ( get_topic_start_time( 'U' ) < ( time() - 86400 ) ) {
-		topic_start_time( 'Y/m/d<br />H:i:s' );
+		topic_start_time( 'Y/m/d\<\b\r \/\>H:i:s' );
 	} else {
 		printf( __( '%s ago' ), get_topic_start_time( 'since' ) );
 	}
@@ -148,7 +148,7 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 	<td class="freshness num"><a href="<?php topic_last_post_link(); ?>" title="<?php echo esc_attr( sprintf( __( 'Last post by %s' ), get_topic_last_poster() ) ); ?>">
 <?php
 	if ( get_topic_time( 'U' ) < ( time() - 86400 ) ) {
-		topic_time( 'Y/m/d<br />H:i:s' );
+		topic_time( 'Y/m/d\<\b\r \/\>H:i:s' );
 	} else {
 		printf( __( '%s ago' ), get_topic_time( 'since' ) );
 	}
@@ -165,9 +165,9 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 
 <?php endif; ?>
 
-<div class="tablenav">
+<div class="tablenav bottom">
 <?php if ( $topic_query->found_rows ) : ?>
-	<div class="tablenav-pages bottom">
+	<div class="tablenav-pages">
 		<span class="displaying-pages"><?php echo $page_number_links; ?></span>
 		<div class="clear"></div>
 	</div>

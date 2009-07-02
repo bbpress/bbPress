@@ -81,9 +81,7 @@ function bb_admin_menu_generator()
 	$bb_menu[305] = array( __( 'Plugins' ), 'use_keys', 'plugins.php', '', 'bb-menu-plugins' );
 		$bb_submenu['plugins.php'][5]  = array( __( 'Installed' ), 'manage_plugins', 'plugins.php' );
 	$bb_menu[310] = array( __( 'Users' ), 'moderate', 'users.php', '', 'bb-menu-users' );
-		$bb_submenu['users.php'][5]  = array( __( 'Find' ), 'moderate', 'users.php' );
-		$bb_submenu['users.php'][10] = array( __( 'Moderators' ), 'moderate', 'users-moderators.php' );
-		$bb_submenu['users.php'][15] = array( __( 'Blocked' ), 'edit_users', 'users-blocked.php' );
+		$bb_submenu['users.php'][5]  = array( __( 'Users' ), 'moderate', 'users.php' );
 	$bb_menu[315] = array( __( 'Tools' ), 'recount', 'tools-recount.php', '', 'bb-menu-tools' );
 		$bb_submenu['tools-recount.php'][5] = array( __( 'Re-count' ), 'recount', 'tools-recount.php' );
 	$bb_menu[320] = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'bb-menu-settings' );
@@ -397,21 +395,41 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit =
 	return $ids;
 }
 
-function bb_user_row( $user_id, $role = '', $email = false ) {
-	$user = bb_get_user( $user_id );
+function bb_user_row( $user, $role = '', $email = false ) {
+	$actions = "<a href='" . esc_attr( get_user_profile_link( $user->ID ) ) . "'>" . __('View') . "</a>";
+	if ( bb_current_user_can( 'edit_user', $user_id ) )
+		$actions .= " | <a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
 	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
-	$r .= "\t\t<td>$user->ID</td>\n";
-	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_name( $user->ID ) . "</a></td>\n";
+	$r .= "\t\t<td class=\"user\">" . bb_get_avatar( $user->ID, 32 ) . "<span class=\"row-title\"><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_name( $user->ID ) . "</a></span><div><span class=\"row-actions\">$actions</span>&nbsp;</div></td>\n";
 	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_display_name( $user->ID ) . "</a></td>\n";
 	if ( $email ) {
 		$email = bb_get_user_email( $user->ID );
 		$r .= "\t\t<td><a href='mailto:$email'>$email</a></td>\n";
 	}
-	$r .= "\t\t<td>" . date( 'Y-m-d H:i:s', bb_offset_time( bb_gmtstrtotime( $user->user_registered ) ) ) . "</td>\n";
-	$actions = '';
-	if ( bb_current_user_can( 'edit_user', $user_id ) )
-		$actions .= "<a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
-	$r .= "\t\t<td>$actions</td>\n\t</tr>";
+	
+	$registered_time = bb_gmtstrtotime( $user->user_registered );
+	if ( $registered_time < ( time() - 86400 ) ) {
+		$time = date( 'Y/m/d\<\b\r \/\>H:i:s', bb_offset_time( $registered_time ) );
+	} else {
+		$time = sprintf( __( '%s ago' ), bb_since( $registered_time ) );
+	}
+	
+	$r .= "\t\t<td>" . $time . "</td>\n";
+	
+	global $wp_roles;
+	$_roles = $wp_roles->get_names();
+	$role = array();
+	foreach ( $user->capabilities as $cap => $cap_set ) {
+		if (!$cap_set) {
+			continue;
+		}
+		$role[] = $_roles[$cap];
+	}
+	if ( !count( $role ) ) {
+		$role[] = __('None');
+	}
+	
+	$r .= "\t\t<td>" . join(', ', $role) . "</td>\n\t</tr>";
 	return $r;
 }
 
@@ -429,12 +447,22 @@ class BB_User_Search {
 	var $query_limit;
 	var $total_users_for_query = 0;
 	var $search_errors;
+	var $paging_text;
+	var $paging_text_bottom;
 
-	function BB_User_Search ($search_term = false, $page = 1 ) { // constructor
+	function BB_User_Search ($search_term = false, $page = 1, $roles = false ) { // constructor
 		$this->search_term = $search_term ? stripslashes($search_term) : false;
 		$this->raw_page = ( '' == $page ) ? false : (int) $page;
 		$page = (int) $page;
 		$this->page = $page < 2 ? 1 : $page;
+		$roles = (array) $roles;
+		$_roles = array();
+		foreach ( $roles as $role ) {
+			if ( false !== $role ) {
+				$_roles[] = stripslashes( $role );
+			}
+		}
+		$this->roles = empty( $_roles ) ? false : $_roles;
 
 		$this->prepare_query();
 		$this->query();
@@ -451,14 +479,16 @@ class BB_User_Search {
 				'query' => $this->search_term,
 				'user_email' => true,
 				'users_per_page' => $this->users_per_page,
-				'page' => $this->page
+				'page' => $this->page,
+				'roles' => $this->roles
 		) );
 
 		if ( is_wp_error($users) )
 			$this->search_errors = $users;
 		else if ( $users )
-			foreach ( (array) $users as $user )
-				$this->results[] = $user->ID;
+			$this->results = $users;
+		//	foreach ( (array) $users as $user )
+		//		$this->results[] = $user->ID;
 
 		if ( $this->results )
 			$this->total_users_for_query = bb_count_last_query();
@@ -476,13 +506,14 @@ class BB_User_Search {
 	function do_paging() {
 		global $bb_current_submenu;
 		$displaying_num = sprintf(
-			__( 'Displaying %s-%s of %s' ),
+			__( '%1$s to %2$s of %3$s' ),
 			bb_number_format_i18n( ( $this->page - 1 ) * $this->users_per_page + 1 ),
 			$this->page * $this->users_per_page < $this->total_users_for_query ? bb_number_format_i18n( $this->page * $this->users_per_page ) : '<span class="total-type-count">' . bb_number_format_i18n( $this->total_users_for_query ) . '</span>',
 			'<span class="total-type-count">' . bb_number_format_i18n( $this->total_users_for_query ) . '</span>'
 		);
 		$page_number_links = $this->total_users_for_query > $this->users_per_page ? get_page_number_links( $this->page, $this->total_users_for_query, $this->users_per_page, false ) : '';
-		$this->paging_text = "<div class='tablenav-pages'><span class='displaying-num'>$displaying_num</span>$page_number_links</div>\n";
+		$this->paging_text = "<div class='tablenav-pages'><span class='displaying-num'>$displaying_num</span><span class=\"displaying-pages\">$page_number_links</span><div class=\"clear\"></div></div>\n";
+		$this->paging_text_bottom = "<div class='tablenav-pages'><span class=\"displaying-pages\">$page_number_links</span><div class=\"clear\"></div></div>\n";
 	}
 
 	function get_results() {
@@ -507,71 +538,121 @@ class BB_User_Search {
 
 	function display( $show_search = true, $show_email = false ) {
 		global $wp_roles;
+
 		$r = '';
-		// Make the user objects
-		foreach ( $this->get_results() as $user_id ) {
-			$tmp_user = new BP_User($user_id);
-			$roles = $tmp_user->roles;
-			$role = array_shift($roles);
-			$roleclasses[$role][$tmp_user->data->user_login] = $tmp_user;
-		}
 
 		if ( isset($this->title) )
 			$title = $this->title;
 		elseif ( $this->is_search() )
 			$title = sprintf(__('Users Matching "%s" by Role'), esc_html( $this->search_term ));
-		else
-			$title = __('User List by Role');
-		echo "<h2 class=\"first\">$title</h2>\n";
+
+		$h2_search = $this->search_term;
+		$h2_role   = $this->roles[0];
+
+		$roles = $wp_roles->get_names();
+		if ( in_array( $h2_role, array_keys( $roles ) ) ) {
+			$h2_role = $roles[$h2_role];
+		}
+
+		$h2_search = $h2_search ? ' ' . sprintf( __('containing &#8220;%s&#8221;'), esc_html( $h2_search ) ) : '';
+		$h2_role  = $h2_role  ? ' ' . sprintf( __('with role &#8220;%s&#8221;'), esc_html( $h2_role ) ) : '';
+
+		$h2_span = '';
+		if ( $h2_search || $h2_role ) {
+			$h2_span .= '<span class="subtitle">';
+			$h2_span .= apply_filters( 'bb_user_search_description', sprintf( __( '%1$s%2$s' ), $h2_search, $h2_role ), $this );
+			$h2_span .= '</span>';
+		}
+
+		echo "<h2 class=\"first\">" . apply_filters( 'bb_user_search_title', __('Users') ) . $h2_span . "</h2>\n";
 		do_action( 'bb_admin_notices' );
 
 		if ( $show_search ) {
-			$r .= "<form action='' method='get' id='search'>\n\t<p>";
-			$r .= "<label class='hidden' for='usersearch'>" . __('Search:') . "</label>";
-			$r .= "\t\t<input type='text' name='usersearch' id='usersearch' value='" . esc_html( $this->search_term, 1) . "' />\n";
-			$r .= "\t\t<input type='submit' value='" . __('Search for users &raquo;') . "' />\n\t</p>\n";
+			$roles = apply_filters( 'bb_user_search_form_roles', $wp_roles->get_names() );
+			
+			$r .= "<form action='' method='get' id='search' class='search-form'>\n";
+			$r .= "<fieldset>\n";
+			$r .= "<div>\n";
+			$r .= "\t\t<label for='usersearch'>" . __('Search term') . "</label>";
+			$r .= "\t\t<div><input type='text' name='usersearch' id='usersearch' class='text-input' value='" . esc_html( $this->search_term, 1) . "' /></div>\n";
+			$r .= "</div>\n";
+			$r .= "<div>\n";
+			$r .= "\t\t<label for='userrole'>" . __('Role') . "</label>";
+			$r .= "\t\t<div><select name='userrole[]' id='userrole'>\n";
+			$r .= "\t\t\t<option value=''>All</option>\n";
+			
+			foreach ( $roles as $role => $display ) {
+				$selected = '';
+				if ( is_array( $this->roles ) && in_array( $role, $this->roles ) ) {
+					$selected = ' selected="selected"';
+				}
+				$value = esc_attr($role);
+				$display = esc_html(translate($display));
+				$r .= "\t\t\t<option value='$value'$selected>$display</option>\n";
+			}
+			
+			$r .= "\t\t</select></div>\n";
+			$r .= "</div>\n";
+			
+			$r = apply_filters( 'bb_user_search_form_inputs', $r, $this );
+			
+			$r .= "<div class=\"submit\">\n";
+			$r .= "\t\t<label class='hidden' for='submit'>" . __('Search') . "</label>";
+			$r .= "\t\t<div><input type='submit' id='submit' class='button submit-input' value='" . __('Filter') . "' /></div>\n";
+			$r .= "</div>\n";
+			$r .= "</fieldset>\n";
 			$r .= "</form>\n\n";
 		}
 
 		if ( $this->get_results() ) {
-			if ( $this->is_search() )
-				$r .= "<p>\n\t<a href='users.php'>" . __('&laquo; Back to All Users') . "</a>\n</p>\n\n";
-
 			if ( $this->results_are_paged() )
-				$r .= "<div class='tablenav'>\n" . $this->paging_text . "</div>\n\n";
+				$r .= "<div class='tablenav'>\n" . $this->paging_text . "</div><div class=\"clear\"></div>\n\n";
 
-			foreach($roleclasses as $role => $roleclass) {
-				ksort($roleclass);
-				if ( !empty($role) )
-					$r .= "\t\t<h3>{$wp_roles->role_names[$role]}</h3>\n";
-				else
-					$r .= "\t\t<h3><em>" . __('Users with no role in these forums') . "</h3>\n";
+			//foreach($roleclasses as $role => $roleclass) {
+				//ksort($roleclass);
+				//if ( !empty($role) )
+				//	$r .= "\t\t<h3>{$wp_roles->role_names[$role]}</h3>\n";
+				//else
+				//	$r .= "\t\t<h3><em>" . __('Users with no role in these forums') . "</h3>\n";
 				$r .= "<table class='widefat'>\n";
 				$r .= "<thead>\n";
 				$r .= "\t<tr>\n";
-				$r .= "\t\t<th style='width:10%;'>" . __('ID') . "</th>\n";
 				if ( $show_email ) {
-					$r .= "\t\t<th style='width:20%;'>" . __('Username') . "</th>\n";
-					$r .= "\t\t<th style='width:20%;'>" . __('Display name') . "</th>\n";
-					$r .= "\t\t<th style='width:20%;'>" . __('Email') . "</th>\n";
-				} else {
 					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
-					$r .= "\t\t<th style='width:30%;'>" . __('Display name') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('Name') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('E-mail') . "</th>\n";
+				} else {
+					$r .= "\t\t<th style='width:40%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:30%;'>" . __('Name') . "</th>\n";
 				}
-				$r .= "\t\t<th style='width:20%;'>" . __('Registered Since') . "</th>\n";
-				$r .= "\t\t<th style='width:10%;'>" . __('Actions') . "</th>\n";
+				$r .= "\t\t<th style='width:15%;'>" . __('Registered') . "</th>\n";
+				$r .= "\t\t<th style='width:15%;'>" . __('Role') . "</th>\n";
 				$r .= "\t</tr>\n";
 				$r .= "</thead>\n\n";
+				$r .= "<tfoot>\n";
+				$r .= "\t<tr>\n";
+				if ( $show_email ) {
+					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('Name') . "</th>\n";
+					$r .= "\t\t<th style='width:20%;'>" . __('E-mail') . "</th>\n";
+				} else {
+					$r .= "\t\t<th style='width:40%;'>" . __('Username') . "</th>\n";
+					$r .= "\t\t<th style='width:30%;'>" . __('Name') . "</th>\n";
+				}
+				$r .= "\t\t<th style='width:15%;'>" . __('Registered') . "</th>\n";
+				$r .= "\t\t<th style='width:15%;'>" . __('Role') . "</th>\n";
+				$r .= "\t</tr>\n";
+				$r .= "</tfoot>\n\n";
 
 				$r .= "<tbody id='role-$role'>\n";
-				foreach ( (array) $roleclass as $user_object )
-				$r .= bb_user_row($user_object->ID, $role, $show_email);
+				foreach ( (array) $this->get_results() as $user_object )
+					$r .= bb_user_row($user_object, $role, $show_email);
 				$r .= "</tbody>\n";
 				$r .= "</table>\n\n";
-			}
+			//}
 
 			if ( $this->results_are_paged() )
-				$r .= "<div class='tablenav'>\n" . $this->paging_text . "</div>\n\n";
+				$r .= "<div class='tablenav bottom'>\n" . $this->paging_text_bottom . "</div><div class=\"clear\"></div>\n\n";
 		}
 		echo $r;
 	}
@@ -593,11 +674,10 @@ class BB_Users_By_Role extends BB_User_Search {
 	}
 
 	function query() {
-		$this->results = bb_get_ids_by_role( $this->role, 0, $this->page, $this->users_per_page );
-
-		if ( $this->results )
+		if ( $_results = bb_get_ids_by_role( $this->role, 0, $this->page, $this->users_per_page ) ) {
+			$this->results = bb_get_user($_results);
 			$this->total_users_for_query = bb_count_last_query();
-		else
+		} else
 			$this->search_errors = new WP_Error( 'no_matching_users_found', __( '<strong>No matching users were found!</strong>' ) );
 
 		if ( is_wp_error( $this->search_errors ) )
@@ -1029,7 +1109,7 @@ function bb_admin_list_posts() {
 		<td class="date">
 <?php
 	if ( bb_get_post_time( 'U' ) < ( time() - 86400 ) ) {
-		bb_post_time( 'Y/m/d<br />H:i:s' );
+		bb_post_time( 'Y/m/d\<\b\r \/\>H:i:s' );
 	} else {
 		printf( __( '%s ago' ), bb_get_post_time( 'since' ) );
 	}

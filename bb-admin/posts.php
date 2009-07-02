@@ -90,9 +90,9 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 
 <?php bb_admin_list_posts(); ?>
 
-<div class="tablenav">
+<div class="tablenav bottom">
 <?php if ( $total ) : ?>
-	<div class="tablenav-pages bottom">
+	<div class="tablenav-pages">
 		<span class="displaying-pages"><?php echo $page_number_links; ?></span>
 		<div class="clear"></div>
 	</div>

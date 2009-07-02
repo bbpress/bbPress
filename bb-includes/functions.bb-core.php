@@ -1417,66 +1417,137 @@ function bb_register_theme_deactivation_hook( $file, $function )
 function bb_user_search( $args = '' ) {
 	global $bbdb, $bb_last_countable_query;
 
-	if ( $args && is_string($args) && false === strpos($args, '=') )
+	if ( $args && is_string( $args ) && false === strpos( $args, '=' ) ) {
 		$args = array( 'query' => $args );
+	}
 
-	$defaults = array( 'query' => '', 'append_meta' => true, 'user_login' => true, 'display_name' => true, 'user_nicename' => false, 'user_url' => true, 'user_email' => false, 'user_meta' => false, 'users_per_page' => false, 'page' => false );
+	$defaults = array(
+		'query' => '',
+		'append_meta' => true,
+		'user_login' => true,
+		'display_name' => true,
+		'user_nicename' => false,
+		'user_url' => true,
+		'user_email' => false,
+		'user_meta' => false,
+		'users_per_page' => false,
+		'page' => false,
+		'roles' => false
+	);
 
-	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
 
 	$query = trim( $query );
-	if ( $query && strlen( preg_replace('/[^a-z0-9]/i', '', $query) ) < 3 )
+	if ( $query && strlen( preg_replace( '/[^a-z0-9]/i', '', $query ) ) < 3 ) {
 		return new WP_Error( 'invalid-query', __('Your search term was too short') );
-
-	if ( !$page )
-		$page = $GLOBALS['page'];
-
-	$page = (int) $page;
-
+	}
 	$query = $bbdb->escape( $query );
 
-	$limit = 0 < (int) $users_per_page ? (int) $users_per_page : bb_get_option( 'page_topics' );
-	if ( 1 < $page )
-		$limit = ($limit * ($page - 1)) . ", $limit";
+	if ( !$page ) {
+		$page = $GLOBALS['page'];
+	}
+	$page = (int) $page;
 
-	$likeit = preg_replace('/\s+/', '%', $query);
+	$limit = 0 < (int) $users_per_page ? (int) $users_per_page : bb_get_option( 'page_topics' );
+	if ( 1 < $page ) {
+		$limit = ($limit * ($page - 1)) . ", $limit";
+	}
+
+	$likeit = preg_replace( '/\s+/', '%', like_escape( $query ) );
 
 	$fields = array();
-
-	foreach ( array('user_login', 'display_name', 'user_nicename', 'user_url', 'user_email') as $field )
-		if ( $$field )
+	foreach ( array( 'user_login', 'display_name', 'user_nicename', 'user_url', 'user_email' ) as $field ) {
+		if ( $$field ) {
 			$fields[] = $field;
+		}
+	}
 
-	if ( $query && $user_meta ) {
-		$sql = "SELECT user_id FROM $bbdb->usermeta WHERE meta_value LIKE ('%$likeit')";
-		if ( empty($fields) ) {
-			$sql .= " LIMIT $limit";
+	if ( $roles ) {
+		$roles = (array) $roles;
+	}
+
+	if ( $roles && !empty( $roles ) && false === $role_user_ids = apply_filters( 'bb_user_search_role_user_ids', false, $roles, $args ) ) {
+		$role_meta_key = $bbdb->escape( $bbdb->prefix . 'capabilities' );
+		$role_sql_terms = array();
+		foreach ( $roles as $role ) {
+			$role_sql_terms[] = "`meta_value` LIKE '%" . $bbdb->escape( like_escape( $role ) ) . "%'";
 		}
-		$user_meta_ids = $bbdb->get_col($sql);
-		if ( empty($fields) ) {
-			return bb_get_user( $user_meta_ids );
+		$role_sql_terms = join( ' OR ', $role_sql_terms );
+		$role_sql = "SELECT `user_id` FROM `$bbdb->usermeta` WHERE `meta_key` = '$role_meta_key' AND ($role_sql_terms);";
+		$role_user_ids = $bbdb->get_col( $role_sql, 0 );
+		if ( is_wp_error( $role_user_ids ) ) {
+			return false;
 		}
+	}
+
+	if ( is_array( $role_user_ids ) && empty( $role_user_ids ) ) {
+		return false;
+	}
+
+	if ( $query && $user_meta && false === $meta_user_ids = apply_filters( 'bb_user_search_meta_user_ids', false, $args ) ) {
+		$meta_sql = "SELECT `user_id` FROM `$bbdb->usermeta` WHERE `meta_value` LIKE ('%$likeit%')";
+		if ( empty( $fields ) ) {
+			$meta_sql .= " LIMIT $limit";
+		}
+		$meta_user_ids = $bbdb->get_col( $meta_sql, 0 );
+		if ( is_wp_error( $meta_user_ids ) ) {
+			$meta_user_ids = false;
+		}
+	}
+
+	$user_ids = array();
+	if ( $role_user_ids && $meta_user_ids ) {
+		$user_ids = array_intersect( (array) $role_user_ids, (array) $meta_user_ids );
+	} elseif ( $role_user_ids ) {
+		$user_ids = (array) $role_user_ids;
+	} elseif ( $meta_user_ids ) {
+		$user_ids = (array) $meta_user_ids;
 	}
 
 	$sql = "SELECT * FROM $bbdb->users";
 
 	$sql_terms = array();
-	if ( $query )
-		foreach ( $fields as $field )
+	if ( $query && count( $fields ) ) {
+		foreach ( $fields as $field ) {
 			$sql_terms[] = "$field LIKE ('%$likeit%')";
+		}
+	}
 
-	if ( isset($user_meta_ids) && $user_meta_ids )
-		$sql_terms[] = "ID IN (". join(',', $user_meta_ids) . ")";
+	$user_ids_sql = '';
+	if ( $user_ids ) {
+		$user_ids_sql = "AND ID IN (". join(',', $user_ids) . ")";
+	}
 
-	if ( $query && empty($sql_terms) )
-		return new WP_Error( 'invalid-query', __('Your query parameters are invalid') );
+	if ( $query && empty( $sql_terms ) ) {
+		return new WP_Error( 'invalid-query', __( 'Your query parameters are invalid' ) );
+	}
 
-	$sql .= ( $sql_terms ? ' WHERE ' . implode(' OR ', $sql_terms) : '' ) . " LIMIT $limit";
+	if ( count( $sql_terms ) || count( $user_ids ) ) {
+		$sql .= ' WHERE ';
+	}
+
+	if ( count( $sql_terms ) ) {
+		$sql .= '(' . implode( ' OR ', $sql_terms ) . ')';
+	}
+
+	if ( count( $sql_terms ) && count( $user_ids ) ) {
+		$sql .= ' AND ';
+	}
+
+	if ( count( $user_ids ) ) {
+		$sql .= '`ID` IN (' . join( ',', $user_ids ) . ')';
+	}
+
+	$sql .= " ORDER BY user_login LIMIT $limit";
 
 	$bb_last_countable_query = $sql;
 
-	if ( ( $users = $bbdb->get_results($sql) ) && $append_meta )
+	do_action( 'bb_user_search', $sql, $args );
+
+	if ( ( $users = $bbdb->get_results( $sql ) ) && $append_meta ) {
 		return bb_append_meta( $users, 'user' );
+	}
 
 	return $users ? $users : false;
 }

@@ -2,7 +2,7 @@
 require_once('admin.php');
 
 // Query the users
-$bb_user_search = new BB_User_Search(@$_GET['usersearch'], @$_GET['page']);
+$bb_user_search = new BB_User_Search(@$_GET['usersearch'], @$_GET['page'], @$_GET['userrole']);
 
 $bb_admin_body_class = ' bb-admin-users';
 
