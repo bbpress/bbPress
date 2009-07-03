@@ -605,6 +605,11 @@ h2.post-form {
 	border-radius: 3px;
 }
 
+.postform p#post-form-forum-container label span {
+	font-weight: bold;
+	font-style: italic;
+}
+
 #manage-tags {
 	margin: 10px 0;
 	list-style: none;
