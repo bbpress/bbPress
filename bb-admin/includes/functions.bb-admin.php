@@ -416,17 +416,25 @@ function bb_user_row( $user, $role = '', $email = false ) {
 	
 	$r .= "\t\t<td>" . $time . "</td>\n";
 	
-	global $wp_roles;
-	$_roles = $wp_roles->get_names();
-	$role = array();
-	foreach ( $user->capabilities as $cap => $cap_set ) {
-		if (!$cap_set) {
-			continue;
+	if (
+		!isset($user->capabilities) ||
+		!is_array($user->capabilities) ||
+		empty($user->capabilities)
+	) {
+		$role = array( __('Inactive (no role)') );
+	} else {
+		global $wp_roles;
+		$_roles = $wp_roles->get_names();
+		$role = array();
+		foreach ( $user->capabilities as $cap => $cap_set ) {
+			if (!$cap_set) {
+				continue;
+			}
+			$role[] = $_roles[$cap];
 		}
-		$role[] = $_roles[$cap];
-	}
-	if ( !count( $role ) ) {
-		$role[] = __('None');
+		if ( !count( $role ) ) {
+			$role[] = __('None');
+		}
 	}
 	
 	$r .= "\t\t<td>" . join(', ', $role) . "</td>\n\t</tr>";
