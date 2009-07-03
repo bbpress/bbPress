@@ -21,6 +21,13 @@ if ( !empty( $_GET['message'] ) ) {
 	}
 }
 
+$ip_available = false;
+if ( bb_current_user_can( 'view_by_ip' ) ) {
+	$ip_available = true;
+} elseif (isset($_GET['poster_ip'])) {
+	unset( $_GET['poster_ip'] );
+}
+
 $bb_admin_body_class = ' bb-admin-posts';
 
 bb_get_admin_header();
@@ -49,10 +56,17 @@ $h2_forum  = $h2_forum  ? ' ' . sprintf( __('in &#8220;%s&#8221;')      , get_fo
 $h2_tag    = $h2_tag    ? ' ' . sprintf( __('with tag &#8220;%s&#8221;'), esc_html( bb_get_tag_name( $h2_tag ) ) ) : '';
 $h2_author = $h2_author ? ' ' . sprintf( __('by %s')                    , esc_html( get_user_name( $h2_author ) ) ) : '';
 
-if ( $h2_search || $h2_forum || $h2_tag || $h2_author ) {
+if ($ip_available) {
+	$h2_ip = $post_query->get( 'poster_ip' );
+	$h2_ip = $h2_ip ? ' ' . sprintf( __('from IP address %s'), esc_html( $h2_ip ) ) : '';
+} else {
+	$h2_ip = '';
+}
+
+if ( $h2_search || $h2_forum || $h2_tag || $h2_author || $h2_ip ) {
 	echo '<span class="subtitle">';
 	
-	printf( __( '%1$s%2$s%3$s%4$s' ), $h2_search, $h2_forum, $h2_tag, $h2_author );
+	printf( __( '%1$s%2$s%3$s%4$s%5$s' ), $h2_search, $h2_forum, $h2_tag, $h2_author, $h2_ip );
 	
 	echo '</span>';
 }
@@ -60,7 +74,7 @@ if ( $h2_search || $h2_forum || $h2_tag || $h2_author ) {
 </h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<?php $post_query->form( array('tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __('Filter')) ); ?>
+<?php $post_query->form( array( 'poster_ip' => $ip_available, 'tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __( 'Filter' ) ) ); ?>
 
 <div class="tablenav">
 <?php if ( $total ) : ?>

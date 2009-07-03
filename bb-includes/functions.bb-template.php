@@ -1876,7 +1876,7 @@ function bb_get_post_ip_link( $args = null )
 
 	$bb_post = bb_get_post( get_post_id( $args['post_id'] ) );
 
-	$uri = bb_get_uri( 'bb-admin/view-ip.php', array( 'ip' => get_post_ip( $bb_post->post_id ) ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN );
+	$uri = bb_get_uri( 'bb-admin/posts.php', array( 'poster_ip' => get_post_ip( $bb_post->post_id ) ), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN );
 
 	// Make sure that the last tag in $before gets a class (if it's there)
 	if ( preg_match( '/.*(<[^>]+>)[^<]*/', $args['before'], $_node ) ) {

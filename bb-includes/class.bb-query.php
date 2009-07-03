@@ -249,7 +249,7 @@ class BB_Query {
 			'post_status',	// *noraml, deleted, all, parse_int ( and - )
 			'post_text',	// FULLTEXT search
 							// Returns additional search_score column (and (concatenated) post_text column if topic query)
-//			'ip',			// one IPv4 address
+			'poster_ip',	// one IPv4 address
 
 			// SQL
 			'index_hint',	// A full index hint using valid index hint syntax, can be multiple hints an array
@@ -300,8 +300,10 @@ class BB_Query {
 			$array['per_page'] = 1;
 
 		// Posts
-		if ( ( !$array['ip'] = isset($array['ip']) ? preg_replace('/[^0-9.]/', '', $array['ip']) : false ) && isset($this) )
-			$this->not_set[] = 'ip';
+		if ( ( !$array['poster_ip'] = isset($array['poster_ip']) ? preg_replace("@[^0-9a-f:.]@i", '', $array['poster_ip']) : false ) && isset($this) ) {
+			$this->not_set[] = 'poster_ip';
+			$array['poster_ip'] = false;
+		}
 
 		// Utility
 		$array['append_meta']  = isset($array['append_meta'])  ? (int) (bool) $array['append_meta']  : 1;
@@ -356,7 +358,7 @@ class BB_Query {
 		$order_by = '';
 
 		$post_where = '';
-		$post_queries = array('post_author_id', 'post_author', 'posted', 'post_status', 'position', 'post_text', 'ip');
+		$post_queries = array('post_author_id', 'post_author', 'posted', 'post_status', 'position', 'post_text', 'poster_ip');
 
 		if ( !$_part_of_post_query && ( $q['search'] || array_diff($post_queries, $this->not_set) ) ) :
 			$join .= " JOIN $bbdb->posts as p ON ( t.topic_id = p.topic_id )";
@@ -619,8 +621,8 @@ class BB_Query {
 		if ( false !== $q['position'] )
 			$where .= $this->parse_value( 'p.post_position', $q['position'] );
 
-		if ( false !== $q['ip'] )
-			$where .= " AND poster_ip = '$q[ip]'";
+		if ( false !== $q['poster_ip'] )
+			$where .= " AND poster_ip = '" . $q['poster_ip'] . "'";
 
 		// Just getting post part for inclusion in topic query
 		if ( $_part_of_topic_query )
@@ -894,6 +896,7 @@ class BB_Query_Form extends BB_Query {
 			'topic_status' => false,
 			'post_status'  => false,
 			'topic_title'  => false,
+			'poster_ip'  => false,
 
 			'method' => 'get',
 			'submit' => __('Search &#187;'),
@@ -930,34 +933,34 @@ class BB_Query_Form extends BB_Query {
 				$s_value = esc_attr( $q_search );
 				$s_name = $s_id = 'search';
 			}
-			$r .= "\t<div><label>" . __('Search term') . "</label>\n";
+			$r .= "\t<div><label for=\"$s_id\">" . __('Search term') . "</label>\n";
 			$r .= "\t\t<div><input name='$s_name' id='$s_id' type='text' class='text-input' value='$s_value' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
 		if ( $forum ) {
-			$r .= "\t<div><label>" . __('Forum')  . "</label>\n";
-			$r .= "\t\t<div>" . bb_get_forum_dropdown( array('selected' => $q_forum_id, 'none' => __('Any')) ) . "</div>\n";
+			$r .= "\t<div><label for=\"forum-id\">" . __('Forum')  . "</label>\n";
+			$r .= "\t\t<div>" . bb_get_forum_dropdown( array( 'selected' => $q_forum_id, 'none' => __('Any'), 'id' => 'forum-id' ) ) . "</div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
 		if ( $tag ) {
 			$q_tag = esc_attr( $q_tag );
-			$r .= "\t<div><label>" .  __('Tag') . "</label>\n";
+			$r .= "\t<div><label for=\"topic-tag\">" .  __('Tag') . "</label>\n";
 			$r .= "\t\t<div><input name='tag' id='topic-tag' type='text' class='text-input' value='$q_tag' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
 		if ( $topic_author ) {
 			$q_topic_author = esc_attr( $q_topic_author );
-			$r .= "\t<div><label>" . __('Topic author') . "</label>\n";
+			$r .= "\t<div><label for=\"topic-author\">" . __('Topic author') . "</label>\n";
 			$r .= "\t\t<div><input name='topic_author' id='topic-author' type='text' class='text-input' value='$q_topic_author' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
 		if ( $post_author ) {
 			$q_post_author = esc_attr( $q_post_author );
-			$r .= "\t<div><label>" . __('Post author') . "</label>\n";
+			$r .= "\t<div><label for=\"post-author\">" . __('Post author') . "</label>\n";
 			$r .= "\t\t<div><input name='post_author' id='post-author' type='text' class='text-input' value='$q_post_author' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
@@ -965,7 +968,7 @@ class BB_Query_Form extends BB_Query {
 		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ), $this->type );
 
 		if ( $topic_status ) {
-			$r .= "\t<div><label>" . __('Topic status') . "</label>\n";
+			$r .= "\t<div><label for=\"topic-status\">" . __('Topic status') . "</label>\n";
 			$r .= "\t\t<div><select name='topic_status' id='topic-status'>\n";
 			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_topic_status ? " selected='selected'" : '';
@@ -976,7 +979,7 @@ class BB_Query_Form extends BB_Query {
 		}
 
 		if ( $post_status ) {
-			$r .= "\t<div><label>" . __('Post status') . "</label>\n";
+			$r .= "\t<div><label for=\"post-status\">" . __('Post status') . "</label>\n";
 			$r .= "\t\t<div><select name='post_status' id='post-status'>\n";
 			foreach ( $stati as $status => $label ) {
 				$selected = (string) $status == (string) $q_post_status ? " selected='selected'" : '';
@@ -986,8 +989,14 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</div>\n\n";
 		}
 
+		if ( $poster_ip ) {
+			$r .= "\t<div><label for=\"poster-ip\">" . __('Poster IP address') . "</label>\n";
+			$r .= "\t\t<div><input name='poster_ip' id='poster-ip' type='text' class='text-input' value='$q_poster_ip' /></div>\n";
+			$r .= "\t</div>\n\n";
+		}
+
 		if ( $open ) {
-			$r .= "\t<div><label>" . __('Open?') . "</label>\n";
+			$r .= "\t<div><label for=\"topic-open\">" . __('Open?') . "</label>\n";
 			$r .= "\t\t<div><select name='open' id='topic-open'>\n";
 			foreach ( array( 'all' => __('All'), '1' => __('Open'), '0' => __('Closed') ) as $status => $label ) {
 				$label = esc_html( $label );
@@ -1000,12 +1009,12 @@ class BB_Query_Form extends BB_Query {
 
 		if ( $topic_title ) {
 			$q_topic_title = esc_attr( $q_topic_title );
-			$r .= "\t<div><label>" . __('Title') . "</label>\n";
+			$r .= "\t<div><label for=\"topic-title\">" . __('Title') . "</label>\n";
 			$r .= "\t\t<div><input name='topic_title' id='topic-title' type='text' class='text-input' value='$q_topic_title' /></div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
-		$r .= "\t<div class=\"submit\"><label>" . __('Search') . "</label>\n";
+		$r .= "\t<div class=\"submit\"><label for=\"$id-submit\">" . __('Search') . "</label>\n";
 		$r .= "\t\t<div><input type='submit' class='button submit-input' value='$submit' id='$id-submit' /></div>\n";
 		$r .= "\t</div>\n";
 
