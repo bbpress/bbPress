@@ -290,14 +290,14 @@ function bb_bozo_get_bozo_user_ids()
 	return $user_ids;
 }
 
-function bb_bozo_user_search_description( $description, $user_search_object )
+function bb_bozo_user_search_description( $description, $h2_search, $h2_role, $user_search_object )
 {
 	if ( is_array( $user_search_object->roles ) && in_array( 'bozo', $user_search_object->roles ) ) {
-		return sprintf( '%s that are bozos', $description );
+		return sprintf( '%1$s%2$s that are bozos', $h2_search, $h2_role );
 	}
 	return $description;
 }
-add_filter( 'bb_user_search_description', 'bb_bozo_user_search_description', 10, 2 );
+add_filter( 'bb_user_search_description', 'bb_bozo_user_search_description', 10, 4 );
 
 function bb_bozo_user_search_form_add_inputs( $r, $user_search_object )
 {

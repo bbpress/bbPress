@@ -565,12 +565,9 @@ class BB_User_Search {
 		$h2_search = $h2_search ? ' ' . sprintf( __('containing &#8220;%s&#8221;'), esc_html( $h2_search ) ) : '';
 		$h2_role  = $h2_role  ? ' ' . sprintf( __('with role &#8220;%s&#8221;'), esc_html( $h2_role ) ) : '';
 
-		$h2_span = '';
-		if ( $h2_search || $h2_role ) {
-			$h2_span .= '<span class="subtitle">';
-			$h2_span .= apply_filters( 'bb_user_search_description', sprintf( __( '%1$s%2$s' ), $h2_search, $h2_role ), $this );
-			$h2_span .= '</span>';
-		}
+		$h2_span = '<span class="subtitle">';
+		$h2_span .= apply_filters( 'bb_user_search_description', sprintf( __( '%1$s%2$s' ), $h2_search, $h2_role ), $h2_search, $h2_role, $this );
+		$h2_span .= '</span>';
 
 		echo "<h2 class=\"first\">" . apply_filters( 'bb_user_search_title', __('Users') ) . $h2_span . "</h2>\n";
 		do_action( 'bb_admin_notices' );
