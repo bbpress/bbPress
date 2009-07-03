@@ -3284,7 +3284,16 @@ function bb_get_forum_dropdown( $args = '' ) {
 			'selected' => $_selected
 		);
 	endwhile;
-	
+
+	if ( 1 === count( $options ) && !$none ) {
+		foreach ( $options as $option_index => $option_value ) {
+			if ( $option_value['disabled'] ) {
+				return;
+			}
+			return '<input type="hidden" name="' . $name . '" id="' . $id . '" value="' . esc_attr( $option_value['value'] ) . '" /><span>' . esc_html( $option_value['display'] ) . '</span>';
+		}
+	}
+
 	foreach ($options as $option_index => $option_value) {
 		if (!$none && !$selected && $no_option_selected && !$option_value['disabled']) {
 			$option_value['selected'] = true;
@@ -3292,7 +3301,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 		}
 		$option_disabled = $option_value['disabled'] ? ' disabled="disabled"' : '';
 		$option_selected = $option_value['selected'] ? ' selected="selected"' : '';
-		$r .= "\n" . '<option value="' . $option_value['value'] . '"' . $option_disabled . $option_selected . '>' . $option_value['display'] . '</option>' . "\n";
+		$r .= "\n" . '<option value="' . esc_attr( $option_value['value'] ) . '"' . $option_disabled . $option_selected . '>' . esc_html( $option_value['display'] ) . '</option>' . "\n";
 	}
 	
 	$forum = $old_global;
