@@ -38,7 +38,7 @@ $general_options = array(
 		'title' => __( 'Lock post editing after' ),
 		'class' => 'short',
 		'after' => __( 'minutes' ),
-		'note' => 'A user can edit a post for this many minutes after submitting.',
+		'note' => __( 'A user can edit a post for this many minutes after submitting.' ),
 	)
 );
 
