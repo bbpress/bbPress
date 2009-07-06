@@ -83,7 +83,7 @@
 
 <?php else : // $forums ?>
 
-<div class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a></div>
+<div class="bbcrumb"><a href="<?php bb_uri(); ?>"><?php bb_option('name'); ?></a> &raquo; <?php _e('Add New Topic'); ?></div>
 
 <?php post_form(); endif; // $forums ?>
 
