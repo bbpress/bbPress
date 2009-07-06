@@ -13,10 +13,10 @@ if ( !empty( $_GET['message'] ) ) {
 			bb_admin_notice( __( '<strong>Post spammed.</strong>' ) );
 			break;
 		case 'unspammed-normal':
-			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a normal posts.' ) );
+			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a normal post.' ) );
 			break;
 		case 'unspammed-deleted':
-			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a deleted posts.' ) );
+			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a deleted post.' ) );
 			break;
 	}
 }
