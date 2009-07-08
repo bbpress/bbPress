@@ -896,12 +896,18 @@ if ( !class_exists( 'WP_Auth' ) ) {
 
 	$_plugin_cookie_paths = bb_get_option( 'plugin_cookie_paths' );
 	foreach ( $bb->plugin_locations as $_name => $_data ) {
-		if ( !$_plugin_cookie_paths || !isset( $_plugin_cookie_paths[$_name] ) || !$_plugin_cookie_paths[$_name] ) {
+		if ( isset( $_data['cookie_path'] ) && !empty( $_data['cookie_path'] ) ) {
+			$_cookie_path = $_data['cookie_path'];
+		} elseif ( !$_plugin_cookie_paths || !isset( $_plugin_cookie_paths[$_name] ) || !$_plugin_cookie_paths[$_name] ) {
 			$_cookie_path = preg_replace( '|https?://[^/]+|i', '', $_data['url'] );
 		} else {
 			$_cookie_path = $_plugin_cookie_paths[$_name];
 		}
 		$_cookie_path = rtrim( trim( $_cookie_path ), " \t\n\r\0\x0B/" );
+
+		if ( !$_cookie_path ) {
+			continue;
+		}
 
 		$cookies['auth'][] = array(
 			'domain' => $bb->cookiedomain,
