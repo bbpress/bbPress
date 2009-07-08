@@ -179,18 +179,23 @@ function bb_append_meta( $object, $type )
 		$ids = array_map( 'intval', array_keys( $trans ) );
 		$query_ids = array();
 		$cached_objects = array();
+		$position = 0;
 		foreach ( $ids as $_id ) {
 			if ( false !== $_cached_object = wp_cache_get( $_id, $object_type ) ) {
-				$cached_objects[] = $_cached_object;
+				$cached_objects[$position] = $_cached_object;
 			} else {
-				$query_ids[] = $_id;
+				$query_ids[$position] = $_id;
 			}
+			$position++;
 		}
 		if ( !count( $query_ids ) ) {
 			return $cached_objects;
 		}
-		sort( $query_ids );
-		$_query_ids = join( ',', $query_ids );
+
+		$_query_ids = $query_ids;
+		sort( $_query_ids );
+		$_query_ids = join( ',', $_query_ids );
+
 		if ( $metas = $bbdb->get_results( "SELECT `object_id`, `meta_key`, `meta_value` FROM `$bbdb->meta` WHERE `object_type` = '$object_type' AND `object_id` IN ($_query_ids) /* bb_append_meta */" ) ) {
 			usort( $metas, '_bb_append_meta_sort' );
 			foreach ( $metas as $meta ) {
@@ -200,7 +205,8 @@ function bb_append_meta( $object, $type )
 				}
 			}
 		}
-		foreach ( $query_ids as $i ) {
+		foreach ( $query_ids as $position => $i ) {
+			$cached_objects[$position] = $trans[$i];
 			wp_cache_add( $i, $trans[$i], $object_type );
 			if ( $slug ) {
 				wp_cache_add( $trans[$i]->$slug, $i, 'bb_' . $slug );
@@ -209,7 +215,9 @@ function bb_append_meta( $object, $type )
 		if ( !count( $cached_objects ) ) {
 			return $object;
 		}
-		return array_merge( $cached_objects, $object );
+		ksort( $cached_objects );
+
+		return $cached_objects;
 	} elseif ( $object ) {
 		if ( false !== $cached_object = wp_cache_get( $object->$object_id_column, $object_type ) ) {
 			return $cached_object;
