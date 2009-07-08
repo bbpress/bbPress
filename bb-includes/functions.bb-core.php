@@ -1369,7 +1369,7 @@ function bb_get_theme_directory( $theme = false )
 	if ( !$theme ) {
 		$theme = bb_get_option( 'bb_active_theme' );
 	}
-	if ( preg_match( '/^([a-z0-9_-]+)#([a-z0-9_-]+)$/i', $theme, $_matches ) ) {
+	if ( preg_match( '/^([a-z0-9_-]+)#([\.a-z0-9_-]+)$/i', $theme, $_matches ) ) {
 		$theme_directory = $bb->theme_locations[$_matches[1]]['dir'] . $_matches[2] . '/';
 	} else {
 		$theme_directory = BB_DEFAULT_THEME_DIR;
