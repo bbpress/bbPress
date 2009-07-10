@@ -738,7 +738,9 @@ $bb->admin_cookie_path = bb_get_option( 'admin_cookie_path' );
 if ( !$bb->admin_cookie_path ) {
 	$bb->admin_cookie_path = $bb->path . 'bb-admin';
 }
-$bb->admin_cookie_path = rtrim( trim( $bb->admin_cookie_path ), " \t\n\r\0\x0B/" );
+if ( '/' !== $bb->admin_cookie_path = trim( $bb->admin_cookie_path ) ) {
+	$bb->admin_cookie_path = rtrim( $bb->admin_cookie_path, " \t\n\r\0\x0B/" );
+}
 
 if ( BB_LOAD_DEPRECATED ) {
 	$_plugin_cookie_paths = bb_get_option( 'plugin_cookie_paths' );
@@ -797,14 +799,18 @@ if ( !$bb->wp_admin_cookie_path && $bb->wp_cookies_integrated ) {
 		$bb->wp_admin_cookie_path = $_bb_sitecookiepath . '/wp-admin';
 	}
 }
-$bb->wp_admin_cookie_path = rtrim( trim( $bb->wp_admin_cookie_path ), " \t\n\r\0\x0B/" );
+if ( '/' !== $bb->wp_admin_cookie_path = trim( $bb->wp_admin_cookie_path ) ) {
+	$bb->wp_admin_cookie_path = rtrim( $bb->wp_admin_cookie_path, " \t\n\r\0\x0B/" );
+}
 
 $bb->wp_plugins_cookie_path = bb_get_option( 'wp_plugins_cookie_path' );
 if ( !$bb->wp_plugins_cookie_path && $bb->wp_cookies_integrated ) {
 	// This is a best guess only, should be manually set to match WP_PLUGIN_URL
 	$bb->wp_plugins_cookie_path = $_bb_sitecookiepath . '/wp-content/plugins';
 }
-$bb->wp_plugins_cookie_path = rtrim( trim( $bb->wp_plugins_cookie_path ), " \t\n\r\0\x0B/" );
+if ( '/' !== $bb->wp_plugins_cookie_path = trim( $bb->wp_plugins_cookie_path ) ) {
+	$bb->wp_plugins_cookie_path = rtrim( $bb->wp_plugins_cookie_path, " \t\n\r\0\x0B/" );
+}
 unset( $_bb_sitecookiepath );
 
 /**
@@ -903,26 +909,36 @@ if ( !class_exists( 'WP_Auth' ) ) {
 		} else {
 			$_cookie_path = $_plugin_cookie_paths[$_name];
 		}
-		$_cookie_path = rtrim( trim( $_cookie_path ), " \t\n\r\0\x0B/" );
+		if ( '/' !== $_cookie_path = trim( $_cookie_path ) ) {
+			$_cookie_path = rtrim( $_cookie_path, " \t\n\r\0\x0B/" );
+		}
 
 		if ( !$_cookie_path ) {
 			continue;
 		}
 
-		$cookies['auth'][] = array(
+		$_auth = array(
 			'domain' => $bb->cookiedomain,
 			'path' => $_cookie_path,
 			'name' => $bb->authcookie
 		);
 
-		$cookies['secure_auth'][] = array(
+		if ( !in_array( $_auth, $cookies['auth'] ) ) {
+			$cookies['auth'][] = $_auth;
+		}
+
+		$_secure_auth = array(
 			'domain' => $bb->cookiedomain,
 			'path' => $_cookie_path,
 			'name' => $bb->secure_auth_cookie,
 			'secure' => true
 		);
+
+		if ( !in_array( $_secure_auth, $cookies['secure_auth'] ) ) {
+			$cookies['secure_auth'][] = $_secure_auth;
+		}
 	}
-	unset( $_plugin_cookie_paths, $_type, $_data, $_cookie_path );
+	unset( $_plugin_cookie_paths, $_type, $_data, $_cookie_path, $_auth, $_secure_auth );
 
 	if ( $bb->wp_admin_cookie_path ) {
 		$cookies['auth'][] = array(
