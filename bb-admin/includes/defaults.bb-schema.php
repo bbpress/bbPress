@@ -113,33 +113,37 @@ $bb_queries['topics'] = "CREATE TABLE IF NOT EXISTS `$bbdb->topics` (
 	KEY `stickies` (`topic_status`, `topic_sticky`, `topic_time`)
 );";
 
-// users - 'user_login', 'user_nicename' and 'user_registered' indices are inconsistent with WordPress
-$bb_queries['users'] = "CREATE TABLE IF NOT EXISTS `$bbdb->users` (
-	`ID` bigint(20) unsigned NOT NULL auto_increment,
-	`user_login` varchar(60) NOT NULL default '',
-	`user_pass` varchar(64) NOT NULL default '',
-	`user_nicename` varchar(50) NOT NULL default '',
-	`user_email` varchar(100) NOT NULL default '',
-	`user_url` varchar(100) NOT NULL default '',
-	`user_registered` datetime NOT NULL default '0000-00-00 00:00:00',
-	`user_status` int(11) NOT NULL default 0,
-	`display_name` varchar(250) NOT NULL default '',
-	PRIMARY KEY (`ID`),
-	UNIQUE KEY `user_login` (`user_login`),
-	UNIQUE KEY `user_nicename` (`user_nicename`),
-	KEY `user_registered` (`user_registered`)
-);";
+if ( bb_get_option( 'wp_table_prefix' ) || ( defined( 'BB_SCHEMA_IGNORE_WP_USERS_TABLES' ) && BB_SCHEMA_IGNORE_WP_USERS_TABLES ) ) {
+	// Don't add user tables
+} else {
+	// users - 'user_login', 'user_nicename' and 'user_registered' indices are inconsistent with WordPress
+	$bb_queries['users'] = "CREATE TABLE IF NOT EXISTS `$bbdb->users` (
+		`ID` bigint(20) unsigned NOT NULL auto_increment,
+		`user_login` varchar(60) NOT NULL default '',
+		`user_pass` varchar(64) NOT NULL default '',
+		`user_nicename` varchar(50) NOT NULL default '',
+		`user_email` varchar(100) NOT NULL default '',
+		`user_url` varchar(100) NOT NULL default '',
+		`user_registered` datetime NOT NULL default '0000-00-00 00:00:00',
+		`user_status` int(11) NOT NULL default 0,
+		`display_name` varchar(250) NOT NULL default '',
+		PRIMARY KEY (`ID`),
+		UNIQUE KEY `user_login` (`user_login`),
+		UNIQUE KEY `user_nicename` (`user_nicename`),
+		KEY `user_registered` (`user_registered`)
+	);";
 
-// usermeta
-$bb_queries['usermeta'] = "CREATE TABLE IF NOT EXISTS `$bbdb->usermeta` (
-	`umeta_id` bigint(20) NOT NULL auto_increment,
-	`user_id` bigint(20) NOT NULL default 0,
-	`meta_key` varchar(255),
-	`meta_value` longtext,
-	PRIMARY KEY (`umeta_id`),
-	KEY `user_id` (`user_id`),
-	KEY `meta_key` (`meta_key`)
-);";
+	// usermeta
+	$bb_queries['usermeta'] = "CREATE TABLE IF NOT EXISTS `$bbdb->usermeta` (
+		`umeta_id` bigint(20) NOT NULL auto_increment,
+		`user_id` bigint(20) NOT NULL default 0,
+		`meta_key` varchar(255),
+		`meta_value` longtext,
+		PRIMARY KEY (`umeta_id`),
+		KEY `user_id` (`user_id`),
+		KEY `meta_key` (`meta_key`)
+	);";
+}
 
 $bb_queries = apply_filters( 'bb_schema_pre_charset', $bb_queries );
 
@@ -210,6 +214,18 @@ if ( bb_get_option('wp_table_prefix') || ( defined( 'BB_SCHEMA_IGNORE_WP_USERS_K
 	);
 } else {
 	$bb_schema_ignore = false;
+}
+
+if ( bb_get_option('wp_table_prefix') || ( defined( 'BB_SCHEMA_IGNORE_WP_USERS_TABLES' ) && BB_SCHEMA_IGNORE_WP_USERS_TABLES ) ) {
+	if ( $bb_schema_ignore ) {
+		$bb_schema_ignore['tables'] = array( $bbdb->users, $bbdb->usermeta );
+	} else {
+		$bb_schema_ignore = array(
+			'tables' => array( $bbdb->users, $bbdb->usermeta ),
+			'columns' => array(),
+			'indices' => array()
+		);
+	}
 }
 
 $bb_schema_ignore = apply_filters( 'bb_schema_ignore', $bb_schema_ignore );

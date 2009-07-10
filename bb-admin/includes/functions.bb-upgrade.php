@@ -9,16 +9,25 @@ function bb_install() {
 	return array_filter($alterations);
 }
 
-function bb_upgrade_all() {
-	if ( !ini_get('safe_mode') )
+function bb_upgrade_all()
+{
+	if ( !ini_get( 'safe_mode' ) ) {
 		set_time_limit(600);
+	}
+
+	$_do_user_operations = true;
+	if ( bb_get_option( 'wp_table_prefix' ) || ( defined( 'BB_SCHEMA_IGNORE_WP_USERS_TABLES' ) && BB_SCHEMA_IGNORE_WP_USERS_TABLES ) ) {
+		$_do_user_operations = false;
+	}
 
 	$bb_upgrade = array();
 
 	// Pre DB Delta
-	$bb_upgrade['messages'][] = bb_upgrade_160(); // Break blocked users
-	$bb_upgrade['messages'][] = bb_upgrade_170(); // Escaping in usermeta
-	$bb_upgrade['messages'][] = bb_upgrade_180(); // Delete users for real
+	if ( $_do_user_operations ) {
+		$bb_upgrade['messages'][] = bb_upgrade_160(); // Break blocked users
+		$bb_upgrade['messages'][] = bb_upgrade_170(); // Escaping in usermeta
+		$bb_upgrade['messages'][] = bb_upgrade_180(); // Delete users for real
+	}
 	$bb_upgrade['messages'][] = bb_upgrade_190(); // Move topic_resolved to topicmeta
 	$bb_upgrade['messages'][] = bb_upgrade_200(); // Indices
 	$bb_upgrade['messages'][] = bb_upgrade_210(); // Convert text slugs to varchar slugs
@@ -37,13 +46,17 @@ function bb_upgrade_all() {
 	// Post DB Delta
 	$bb_upgrade['messages'][] = bb_upgrade_1000(); // Make forum and topic slugs
 	$bb_upgrade['messages'][] = bb_upgrade_1010(); // Make sure all forums have a valid parent
-	$bb_upgrade['messages'][] = bb_upgrade_1020(); // Add a user_nicename to existing users
+	if ( $_do_user_operations ) {
+		$bb_upgrade['messages'][] = bb_upgrade_1020(); // Add a user_nicename to existing users
+	}
 	$bb_upgrade['messages'][] = bb_upgrade_1030(); // Move admin_email option to from_email
 	$bb_upgrade['messages'][] = bb_upgrade_1040(); // Activate Akismet and bozo plugins and convert active plugins to new convention on upgrade only
 	$bb_upgrade['messages'][] = bb_upgrade_1050(); // Update active theme if present
 	$bb_upgrade['messages'][] = bb_upgrade_1070(); // trim whitespace from raw_tag
 	$bb_upgrade['messages'][] = bb_upgrade_1080(); // Convert tags to taxonomy
-	$bb_upgrade['messages'][] = bb_upgrade_1090(); // Add display names
+	if ( $_do_user_operations ) {
+		$bb_upgrade['messages'][] = bb_upgrade_1090(); // Add display names
+	}
 	$bb_upgrade['messages'][] = bb_upgrade_1100(); // Replace forum_stickies index with stickies (#876)
 	$bb_upgrade['messages'][] = bb_upgrade_1110(); // Create plugin directory (#1083)
 	$bb_upgrade['messages'][] = bb_upgrade_1120(); // Create theme directory (#1083)
