@@ -1169,3 +1169,11 @@ function total_users()
 	bb_log_deprecated( 'function', __FUNCTION__, 'bb_total_users' );
 	bb_total_users();
 }
+
+if ( !function_exists( 'update_user_status' ) ) {
+	function update_user_status( $user_id, $user_status = 0 )
+	{
+		bb_log_deprecated( 'function', __FUNCTION__, 'bb_update_user_status' );
+		return bb_update_user_status( $user_id, $user_status );
+	}
+}

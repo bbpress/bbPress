@@ -67,7 +67,7 @@ function bb_check_login($user, $pass, $already_md5 = false) {
 
 	// User is logging in for the first time, update their user_status to normal
 	if ( 1 == $user->user_status )
-		update_user_status( $user->ID, 0 );
+		bb_update_user_status( $user->ID, 0 );
 	
 	return $user;
 }

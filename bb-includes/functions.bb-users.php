@@ -69,7 +69,7 @@ function bb_update_topics_replied( $user_id ) {
 	return bb_update_usermeta( $user_id, $bbdb->prefix . 'topics_replied', $topics_replied );
 }
 
-function update_user_status( $user_id, $user_status = 0 ) {
+function bb_update_user_status( $user_id, $user_status = 0 ) {
 	global $wp_users_object;
 	$user = bb_get_user( $user_id );
 	$user_status = (int) $user_status;
