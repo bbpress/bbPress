@@ -189,9 +189,19 @@ function wp_set_auth_cookie($user_id, $remember = false) {
 	
 	do_action('set_auth_cookie', $cookie, $expire);
 	
-	setcookie($bb->authcookie, $cookie, $expire, $bb->cookiepath, $bb->cookiedomain);
-	if ( $bb->cookiepath != $bb->sitecookiepath )
-		setcookie($bb->authcookie, $cookie, $expire, $bb->sitecookiepath, $bb->cookiedomain);
+	// Set httponly if the php version is >= 5.2.0
+	if ( version_compare( phpversion(), '5.2.0', 'ge' ) ) {
+		setcookie( $bb->authcookie, $cookie, $expire, $bb->cookiepath, $bb->cookiedomain, $secure, true );
+		if ( $bb->cookiepath != $bb->sitecookiepath ) {
+			setcookie( $bb->authcookie, $cookie, $expire, $bb->sitecookiepath, $bb->cookiedomain, $secure, true );
+		}
+	} else {
+		$_domain = ( empty( $bb->cookiedomain ) ) ? $bb->cookiedomain : $bb->cookiedomain . '; HttpOnly';
+		setcookie( $bb->authcookie, $cookie, $expire, $bb->cookiepath, $_domain, $secure );
+		if ( $bb->cookiepath != $bb->sitecookiepath ) {
+			setcookie( $bb->authcookie, $cookie, $expire, $bb->sitecookiepath, $_domain, $secure );
+		}
+	}
 }
 endif;
 
