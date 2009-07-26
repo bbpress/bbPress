@@ -849,14 +849,13 @@ endif;
 
 if ( !function_exists( 'bb_get_avatar' ) ) :
 /**
- * bb_get_avatar() - Get avatar for a user
- *
  * Retrieve the avatar for a user provided a user ID or email address
  *
  * @since 0.9
  * @param int|string $id_or_email A user ID or email address
  * @param int $size Size of the avatar image
  * @param string $default URL to a default image to use if no avatar is available
+ * @param string $alt Alternate text to use in image tag. Defaults to blank
  * @return string <img> tag for the user's avatar
 */
 function bb_get_avatar( $id_or_email, $size = 80, $default = '', $alt = false ) {
