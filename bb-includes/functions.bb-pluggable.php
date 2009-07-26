@@ -859,7 +859,7 @@ if ( !function_exists( 'bb_get_avatar' ) ) :
  * @param string $default URL to a default image to use if no avatar is available
  * @return string <img> tag for the user's avatar
 */
-function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
+function bb_get_avatar( $id_or_email, $size = 80, $default = '', $alt = false ) {
 	if ( !bb_get_option('avatars_show') )
 		return false;
 
@@ -925,8 +925,8 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '' ) {
 	if ( !empty( $rating ) )
 		$src .= '&amp;r=' . $rating;
 
-	$avatar = '<img alt="" src="' . $src . '" class="' . $class . '" style="height:' . $size . 'px; width:' . $size . 'px;" />';
+	$avatar = '<img alt="' . $safe_alt . '" src="' . $src . '" class="' . $class . '" style="height:' . $size . 'px; width:' . $size . 'px;" />';
 
-	return apply_filters('bb_get_avatar', $avatar, $id_or_email, $size, $default);
+	return apply_filters('bb_get_avatar', $avatar, $id_or_email, $size, $default, $alt);
 }
 endif;
