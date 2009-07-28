@@ -458,7 +458,7 @@ function bb_upgrade_1110() {
 	}
 
 	// Just suppress errors as this is not critical
-	if ( @mkdir( BB_PLUGIN_DIR, 0750 ) ) {
+	if ( @mkdir( BB_PLUGIN_DIR, 0755 ) ) {
 		return 'Making plugin directory at ' . BB_PLUGIN_DIR . ': ' . __FUNCTION__;
 	}
 
@@ -486,7 +486,7 @@ function bb_upgrade_1120() {
 	}
 
 	// Just suppress errors as this is not critical
-	if ( @mkdir( BB_THEME_DIR, 0750 ) ) {
+	if ( @mkdir( BB_THEME_DIR, 0755 ) ) {
 		return 'Making theme directory at ' . BB_THEME_DIR . ': ' . __FUNCTION__;
 	}
 
