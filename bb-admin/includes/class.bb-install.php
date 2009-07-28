@@ -87,6 +87,13 @@ class BB_Install
 	var $stop_process = false;
 
 	/**
+	 * Keeps track of where the tabindex is up to
+	 *
+	 * @var integer
+	 */
+	var $tabindex = 0;
+
+	/**
 	 * Constructor
 	 *
 	 * Loads everything we might need to do the business
@@ -331,7 +338,8 @@ class BB_Install
 		$r .= "\t" . '<fieldset>' . "\n";
 		$r .= "\t\t" . '<label class="has-note has-label for-select">' . "\n";
 		$r .= "\t\t\t" . '<span>' . __( 'Installation language' ) . '</span>' . "\n";
-		$r .= "\t\t\t" . '<select class="has-note" onchange="changeLanguage(this);" name="language">' . "\n";
+		$this->tabindex++;
+		$r .= "\t\t\t" . '<select class="has-note" onchange="changeLanguage(this);" name="language" tabindex="' . $this->tabindex . '">' . "\n";
 		foreach ( $this->languages as $language ) {
 			$selected = '';
 			if ( $language == $this->language ) {
@@ -2240,7 +2248,8 @@ class BB_Install
 			$autocomplete = '';
 		}
 
-		$r .= "\t\t" . '<input' . $direction . ' type="' . esc_attr( $type ) . '" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" class="text' . $has_note_class . '" value="' . esc_attr( $data['value'] ) . '"' . $maxlength . $autocomplete . ' />' . "\n";
+		$this->tabindex++;
+		$r .= "\t\t" . '<input' . $direction . ' type="' . esc_attr( $type ) . '" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" class="text' . $has_note_class . '" value="' . esc_attr( $data['value'] ) . '"' . $maxlength . $autocomplete . ' tabindex="' . $this->tabindex . '" />' . "\n";
 
 		if ( isset( $data['note'] ) ) {
 			$r .= "\t\t" . '<a class="note-toggle" href="javascript:void(0);" onclick="toggleNote(\'note-' . esc_attr( $key ) . '\');">?</a>' . "\n";
@@ -2304,7 +2313,8 @@ class BB_Install
 			$direction = ' dir="' . esc_attr( strtolower( $direction ) ) . '"';
 		}
 
-		$r .= "\t\t" . '<textarea id="' . esc_attr( $key ) . '" rows="5" cols="30"' . $direction . '>' . esc_html( $data['value'] ) . '</textarea>' . "\n";
+		$this->tabindex++;
+		$r .= "\t\t" . '<textarea id="' . esc_attr( $key ) . '" rows="5" cols="30"' . $direction . ' tabindex="' . $this->tabindex . '">' . esc_html( $data['value'] ) . '</textarea>' . "\n";
 
 		$r .= "\t" . '</label>' . "\n";
 
@@ -2344,7 +2354,8 @@ class BB_Install
 			if ( isset( $data['onchange'] ) ) {
 				$r .= ' onchange="' . esc_attr( $data['onchange'] ) . '"';
 			}
-			$r .= '>' . "\n";
+			$this->tabindex++;
+			$r .= ' tabindex="' . $this->tabindex . '">' . "\n";
 
 			foreach ( $data['options'] as $value => $display ) {
 				if ( $data['value'] == $value ) {
@@ -2423,7 +2434,8 @@ class BB_Install
 		$r = "\t" . '<label id="label-' . esc_attr( $key ) . '"' . $class . ' for="' . esc_attr( $key ) . '">' . "\n";
 
 		$r .= "\t\t" . '<span>' . "\n";
-		$r .= "\t\t\t" . '<input type="checkbox" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" class="checkbox" onclick="' . esc_attr( $onclick ) . '"' . $checked . ' value="1" />' . "\n";
+		$this->tabindex++;
+		$r .= "\t\t\t" . '<input type="checkbox" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" class="checkbox" onclick="' . esc_attr( $onclick ) . '"' . $checked . ' value="1" tabindex="' . $this->tabindex . '" />' . "\n";
 		if ( isset( $data['label'] ) ) {
 			$r .= "\t\t\t" . $data['label'] . "\n";
 		}
@@ -2461,12 +2473,14 @@ class BB_Install
 
 		if ( $back) {
 			$r .= "\t" . '<label id="label-' . esc_attr( $back ) . '" for="' . esc_attr( $back ) . '" class="back">' . "\n";
-			$r .= "\t\t" . '<input type="submit" id="' . esc_attr( $back ) . '" name="' . esc_attr( $back ) . '" class="button" value="' . esc_attr( $data_back['value'] ) . '" />' . "\n";
+			$this->tabindex++;
+			$r .= "\t\t" . '<input type="submit" id="' . esc_attr( $back ) . '" name="' . esc_attr( $back ) . '" class="button" value="' . esc_attr( $data_back['value'] ) . '" tabindex="' . $this->tabindex . '" />' . "\n";
 			$r .= "\t" . '</label>' . "\n";
 		}
 
 		$r .= "\t" . '<label id="label-' . esc_attr( $forward ) . '" for="' . esc_attr( $forward ) . '" class="forward">' . "\n";
-		$r .= "\t\t" . '<input type="submit" id="' . esc_attr( $forward ) . '" name="' . esc_attr( $forward ) . '" class="button" value="' . esc_attr( $data_forward['value'] ) . '" />' . "\n";
+		$this->tabindex++;
+		$r .= "\t\t" . '<input type="submit" id="' . esc_attr( $forward ) . '" name="' . esc_attr( $forward ) . '" class="button" value="' . esc_attr( $data_forward['value'] ) . '" tabindex="' . $this->tabindex . '" />' . "\n";
 		$r .= "\t" . '</label>' . "\n";
 
 		$r .= '</fieldset>' . "\n";
@@ -2731,6 +2745,8 @@ EOS;
 		if ( $step == $this->step ) {
 			$this->intro();
 		}
+
+		$this->tabindex = 0;
 	}
 
 	/**
