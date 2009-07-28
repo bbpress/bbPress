@@ -346,14 +346,11 @@ function bb_insert_post( $args = null ) {
 			if ( !$query->results )
 				bb_update_usermeta( $poster_id, $bbdb->prefix . 'topics_replied', $user->topics_replied + 1 );
 
-			if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic_id ) ) ) {
-				$voices = count( $voices );
-				bb_update_topicmeta( $topic_id, 'voices_count', $voices );
-			}
 		} else {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts + 1 : 1 );
 		}
 	}
+	bb_update_topic_voices( $topic_id );
 	
 	if ( $throttle && !bb_current_user_can( 'throttle' ) )
 		bb_update_usermeta( $poster_id, 'last_posted', time() );
@@ -445,7 +442,9 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 			}
 			bb_topic_set_last_post( $topic_id );
 			bb_update_post_positions( $topic_id );
+			bb_update_topic_voices( $topic_id );
 		}
+
 		$user = bb_get_user( $uid );
 
 		$user_posts = new BB_Query( 'post', array( 'post_author_id' => $user->ID, 'topic_id' => $topic_id ) );
