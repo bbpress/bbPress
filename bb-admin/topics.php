@@ -124,7 +124,7 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 		<span class="row-actions">
 			<a href="<?php topic_link(); ?>"><?php _e( 'View' ); ?></a> |
 			<?php if ( $first_post ) : post_edit_link( $first_post->post_id ); ?> |
-			<?php endif; topic_close_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'close_text' => __( 'Close' ), 'open_text' => __( 'Open' ) ) ); ?> |
+			<?php endif; topic_close_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'close_text' => __( 'Close' ), 'open_text' => _x( 'Open', 'action' ) ) ); ?> |
 			<?php topic_delete_link( array( 'id' => $topic->topic_id, 'before' => '', 'after' => '', 'delete_text' => __( 'Delete' ), 'undelete_text' => __( 'Undelete' ) ) ); ?>
 		</span>&nbsp;
 		</div>

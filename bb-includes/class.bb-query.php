@@ -998,7 +998,7 @@ class BB_Query_Form extends BB_Query {
 		if ( $open ) {
 			$r .= "\t<div><label for=\"topic-open\">" . __('Open?') . "</label>\n";
 			$r .= "\t\t<div><select name='open' id='topic-open'>\n";
-			foreach ( array( 'all' => __('All'), '1' => __('Open'), '0' => __('Closed') ) as $status => $label ) {
+			foreach ( array( 'all' => __('All'), '1' => _x( 'Open', 'posting status' ), '0' => __('Closed') ) as $status => $label ) {
 				$label = esc_html( $label );
 				$selected = (string) $status == (string) $q_open ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";
