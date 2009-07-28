@@ -4,7 +4,7 @@ Plugin Name: Akismet
 Plugin URI: http://akismet.com/
 Description: Akismet checks posts against the Akismet web service to see if they look like spam or not. You need a <a href="http://wordpress.com/api-keys/">WordPress.com API key</a> to use this service.
 Author: Michael Adams
-Version: 1.0
+Version: 1.1
 Author URI: http://blogwaffe.com/
 */
 
@@ -18,42 +18,37 @@ function bb_akismet_verify_key( $key )
 {
 	global $bb_ksd_api_port;
 	$blog = urlencode( bb_get_uri( null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET ) );
-	$response = bb_ksd_http_post( "key=$key&blog=$blog", 'rest.akismet.com', '/1.1/verify-key', $bb_ksd_api_port );
-	if ( 'valid' == $response[1] )
+	$response = bb_ksd_http_post( 'key=' . $key . '&blog=' . $blog, 'rest.akismet.com', '/1.1/verify-key', $bb_ksd_api_port );
+	if ( 'valid' == $response[1] ) {
 		return true;
-	else
+	} else {
 		return false;
+	}
 }
 
 // Returns array with headers in $response[0] and entity in $response[1]
-function bb_ksd_http_post($request, $host, $path, $port = 80) {
+function bb_ksd_http_post( $request, $host, $path, $port = 80 )
+{
 	global $bb_ksd_user_agent;
 
-	$http_request  = "POST $path HTTP/1.0\r\n";
-	$http_request .= "Host: $host\r\n";
-	$http_request .= "Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n"; // for now
-	$http_request .= "Content-Length: " . strlen($request) . "\r\n";
-	$http_request .= "User-Agent: $bb_ksd_user_agent\r\n";
+	$http_request  = 'POST ' . $path . ' HTTP/1.0' . "\r\n";
+	$http_request .= 'Host: ' . $host . "\r\n";
+	$http_request .= 'Content-Type: application/x-www-form-urlencoded; charset=utf-8' . "\r\n"; // for now
+	$http_request .= 'Content-Length: ' . strlen($request) . "\r\n";
+	$http_request .= 'User-Agent: ' . $bb_ksd_user_agent . "\r\n";
 	$http_request .= "\r\n";
 	$http_request .= $request;
 	$response = '';
-	if( false != ( $fs = @fsockopen($host, $port, $errno, $errstr, 10) ) ) {
-		fwrite($fs, $http_request);
+	if ( false != ( $fs = @fsockopen( $host, $port, $errno, $errstr, 10 ) ) ) {
+		fwrite( $fs, $http_request );
 
-		while ( !feof($fs) )
-			$response .= fgets($fs, 1160); // One TCP-IP packet
-		fclose($fs);
-		$response = explode("\r\n\r\n", $response, 2);
+		while ( !feof( $fs ) ) {
+			$response .= fgets( $fs, 1160 ); // One TCP-IP packet
+		}
+		fclose( $fs );
+		$response = explode( "\r\n\r\n", $response, 2 );
 	}
 	return $response;
-}
-
-// Add filters for the admin area
-add_action('bb_admin_menu_generator', 'bb_ksd_configuration_page_add');
-
-function bb_ksd_configuration_page_add()
-{
-	bb_admin_add_submenu( __( 'Akismet' ), 'moderate', 'bb_ksd_configuration_page', 'options-general.php' );
 }
 
 function bb_ksd_configuration_page()
@@ -65,8 +60,8 @@ function bb_ksd_configuration_page()
 <form class="settings" method="post" action="<?php bb_uri( 'bb-admin/admin-base.php', array( 'plugin' => 'bb_ksd_configuration_page'), BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ); ?>">
 	<fieldset>
 		<p><?php printf( __( 'For many people, <a href="%s">Akismet</a> will greatly reduce or even completely eliminate the spam you get on your site. If one does happen to get through, simply mark it as "spam" and Akismet will learn from the mistakes.' ), 'http://akismet.com/' ); ?></p>
-<?php
 
+<?php
 	$after = '';
 	if ( false !== $key = bb_get_option( 'akismet_key' ) ) {
 		if ( bb_akismet_verify_key( $key ) ) {
@@ -92,6 +87,7 @@ function bb_ksd_configuration_page()
 		'note' => __( 'This page will be viewable by moderators or higher.' )
 	) );
 ?>
+
 	</fieldset>
 	<fieldset class="submit">
 		<?php bb_nonce_field( 'options-akismet-update' ); ?>
@@ -102,6 +98,12 @@ function bb_ksd_configuration_page()
 <?php
 }
 
+function bb_ksd_configuration_page_add()
+{
+	bb_admin_add_submenu( __( 'Akismet' ), 'moderate', 'bb_ksd_configuration_page', 'options-general.php' );
+}
+add_action( 'bb_admin_menu_generator', 'bb_ksd_configuration_page_add' );
+
 function bb_ksd_configuration_page_process()
 {
 	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update-akismet-settings') {
@@ -109,7 +111,7 @@ function bb_ksd_configuration_page_process()
 
 		$goback = remove_query_arg( array( 'invalid-akismet', 'updated-akismet' ), wp_get_referer() );
 
-		if (!isset($_POST['akismet_stats'])) {
+		if ( !isset( $_POST['akismet_stats'] ) ) {
 			$_POST['akismet_stats'] = false;
 		}
 
@@ -141,11 +143,11 @@ function bb_ksd_configuration_page_process()
 		exit;
 	}
 
-	if ( !empty($_GET['updated-akismet']) ) {
+	if ( !empty( $_GET['updated-akismet'] ) ) {
 		bb_admin_notice( __( '<strong>Settings saved.</strong>' ) );
 	}
 
-	if ( !empty($_GET['invalid-akismet']) ) {
+	if ( !empty( $_GET['invalid-akismet'] ) ) {
 		bb_admin_notice( __( '<strong>The key you attempted to enter is invalid. Reverting to previous setting.</strong>' ), 'error' );
 	}
 
@@ -159,18 +161,8 @@ if ( !bb_get_option( 'akismet_key' ) ) {
 	return;
 }
 
-function bb_ksd_stats_page()
+function bb_ksd_stats_script()
 {
-	if ( !bb_get_option( 'akismet_stats' ) ) {
-		return;
-	}
-	if ( function_exists( 'bb_admin_add_submenu' ) ) {
-		bb_admin_add_submenu( __( 'Akismet Stats' ), 'use_keys', 'bb_ksd_stats_display', 'index.php' );
-	}
-}
-add_action( 'bb_admin_menu_generator', 'bb_ksd_stats_page' );
-
-function bb_ksd_stats_script() {
 ?>
 <style>
 	#bb-ksd-stats-frame {
@@ -217,162 +209,220 @@ function bb_ksd_stats_display()
 <?php
 }
 
+function bb_ksd_stats_page()
+{
+	if ( !bb_get_option( 'akismet_stats' ) ) {
+		return;
+	}
+	if ( function_exists( 'bb_admin_add_submenu' ) ) {
+		bb_admin_add_submenu( __( 'Akismet Stats' ), 'use_keys', 'bb_ksd_stats_display', 'index.php' );
+	}
+}
+add_action( 'bb_admin_menu_generator', 'bb_ksd_stats_page' );
 
+function bb_ksd_submit( $submit, $type = false )
+{
+	global $bb_ksd_api_host;
+	global $bb_ksd_api_port;
 
+	switch ( $type ) {
+		case 'ham':
+		case 'spam':
+			$path = '/1.1/submit-' . $type;
 
+			$bb_post = bb_get_post( $submit );
+			if ( !$bb_post ) {
+				return;
+			}
+			$user = bb_get_user( $bb_post->poster_id );
+			if ( bb_is_trusted_user( $user->ID ) ) {
+				return;
+			}
 
+			$_submit = array(
+				'blog' => bb_get_uri( null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET ),
+				'user_ip' => $bb_post->poster_ip,
+				'permalink' => get_topic_link( $bb_post->topic_id ), // First page
+				'comment_type' => 'forum',
+				'comment_author' => get_user_name( $user->ID ),
+				'comment_author_email' =>  bb_get_user_email( $user->ID ),
+				'comment_author_url' => get_user_link( $user->ID ),
+				'comment_content' => $bb_post->post_text,
+				'comment_date_gmt' => $bb_post->post_time
+			);
+			break;
 
+		case 'hammer':
+		case 'spammer':
+			$path = '/1.1/submit-' . substr( $type, 0, -3 );
 
-function bb_ksd_submit( $submit, $type = false ) {
-	global $bb_ksd_api_host, $bb_ksd_api_port;
+			$user = bb_get_user( $submit );
+			if ( !$user ) {
+				return;
+			}
+			if ( bb_is_trusted_user( $user->ID ) ) {
+				return;
+			}
 
-	switch ( $type ) :
-	case 'ham' :
-	case 'spam' :
-		$path = "/1.1/submit-$type";
+			$_submit = array(
+				'blog' => bb_get_uri( null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET ),
+				'permalink' => get_user_profile_link( $user->ID ),
+				'comment_type' => 'profile',
+				'comment_author' => get_user_name( $user->ID ),
+				'comment_author_email' =>  bb_get_user_email( $user->ID ),
+				'comment_author_url' => get_user_link( $user->ID ),
+				'comment_content' => $user->occ . ' ' . $user->interests,
+				'comment_date_gmt' => $user->user_registered
+			);
+			break;
 
-		$bb_post = bb_get_post( $submit );
-		if ( !$bb_post )
-			return;
-		$user = bb_get_user( $bb_post->poster_id );
-		if ( bb_is_trusted_user( $user->ID ) )
-			return;
+		default:
+			if ( bb_is_trusted_user( bb_get_current_user() ) ) {
+				return;
+			}
 
-		$_submit = array(
-			'blog' => bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET),
-			'user_ip' => $bb_post->poster_ip,
-			'permalink' => get_topic_link( $bb_post->topic_id ), // First page
-			'comment_type' => 'forum',
-			'comment_author' => get_user_name( $user->ID ),
-			'comment_author_email' =>  bb_get_user_email( $user->ID ),
-			'comment_author_url' => get_user_link( $user->ID ),
-			'comment_content' => $bb_post->post_text,
-			'comment_date_gmt' => $bb_post->post_time
-		);
-		break;
-	case 'hammer' :
-	case 'spammer' :
-		$path = '/1.1/submit-' . substr($type, 0, -3);
+			$path = '/1.1/comment-check';
 
-		$user = bb_get_user( $submit );
-		if ( !$user )
-			return;
-		if ( bb_is_trusted_user( $user->ID ) )
-			return;
-
-		$_submit = array(
-			'blog' => bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET),
-			'permalink' => get_user_profile_link( $user->ID ),
-			'comment_type' => 'profile',
-			'comment_author' => get_user_name( $user->ID ),
-			'comment_author_email' =>  bb_get_user_email( $user->ID ),
-			'comment_author_url' => get_user_link( $user->ID ),
-			'comment_content' => $user->occ . ' ' . $user->interests,
-			'comment_date_gmt' => $user->user_registered
-		);
-		break;
-	default :
-		if ( bb_is_trusted_user( bb_get_current_user() ) )
-			return;
-
-		$path = '/1.1/comment-check';
-
-		$_submit = array(
-			'blog' => bb_get_uri(null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET),
-			'user_ip' => preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] ),
-			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-			'referrer' => $_SERVER['HTTP_REFERER'],
-			'comment_type' => isset($_POST['topic_id']) ? 'forum' : 'profile',
-			'comment_author' => bb_get_current_user_info( 'name' ),
-			'comment_author_email' => bb_get_current_user_info( 'email' ),
-			'comment_author_url' => bb_get_current_user_info( 'url' ),
-			'comment_content' => $submit
-		);
-		if ( isset($_POST['topic_id']) )
-			$_submit['permalink'] = get_topic_link( $_POST['topic_id'] ); // First page
-		break;
-	endswitch;
+			$_submit = array(
+				'blog' => bb_get_uri( null, null, BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_AKISMET ),
+				'user_ip' => preg_replace( '/[^0-9., ]/', '', $_SERVER['REMOTE_ADDR'] ),
+				'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+				'referrer' => $_SERVER['HTTP_REFERER'],
+				'comment_type' => isset($_POST['topic_id']) ? 'forum' : 'profile',
+				'comment_author' => bb_get_current_user_info( 'name' ),
+				'comment_author_email' => bb_get_current_user_info( 'email' ),
+				'comment_author_url' => bb_get_current_user_info( 'url' ),
+				'comment_content' => $submit
+			);
+			if ( isset( $_POST['topic_id'] ) ) {
+				$_submit['permalink'] = get_topic_link( $_POST['topic_id'] ); // First page
+			}
+			break;
+	}
 
 	$query_string = '';
-	foreach ( $_submit as $key => $data )
-		$query_string .= $key . '=' . urlencode( stripslashes($data) ) . '&';
-	return bb_ksd_http_post($query_string, $bb_ksd_api_host, $path, $bb_ksd_api_port);
+	foreach ( $_submit as $key => $data ) {
+		$query_string .= $key . '=' . urlencode( stripslashes( $data ) ) . '&';
+	}
+	return bb_ksd_http_post( $query_string, $bb_ksd_api_host, $path, $bb_ksd_api_port );
 }
 
-function bb_ksd_submit_ham( $post_id ) {
+function bb_ksd_submit_ham( $post_id )
+{
 	bb_ksd_submit( $post_id, 'ham' );
 }
 
-function bb_ksd_submit_spam( $post_id ) {
+function bb_ksd_submit_spam( $post_id )
+{
 	bb_ksd_submit( $post_id, 'spam' );
 }
 
-function bb_ksd_check_post( $post_text ) {
-	global $bb_current_user, $bb_ksd_pre_post_status;
-	if ( in_array($bb_current_user->roles[0], bb_trusted_roles()) ) // Don't filter content from users with a trusted role
+function bb_ksd_check_post( $post_text )
+{
+	global $bb_current_user;
+	global $bb_ksd_pre_post_status;
+
+	// Don't filter content from users with a trusted role
+	if ( in_array( $bb_current_user->roles[0], bb_trusted_roles() ) ) {
 		return $post_text;
+	}
 
 	$response = bb_ksd_submit( $post_text );
-	if ( 'true' == $response[1] )
+	if ( 'true' == $response[1] ) {
 		$bb_ksd_pre_post_status = '2';
+	}
 	bb_akismet_delete_old();
 	return $post_text;
 }
+add_action( 'pre_post', 'bb_ksd_check_post', 1 );
 
-function bb_ksd_check_profile( $user_id ) {
+function bb_ksd_check_profile( $user_id )
+{
 	global $bb_current_user, $user_obj;
 	$bb_current_id = bb_get_current_user_info( 'id' );
 	bb_set_current_user( $user_id );
 	if ( $bb_current_id && $bb_current_id != $user_id ) {
-		if ( $user_obj->data->is_bozo && !$bb_current_user->data->is_bozo )
+		if ( $user_obj->data->is_bozo && !$bb_current_user->data->is_bozo ) {
 			bb_ksd_submit( $user_id, 'hammer' );
-		if ( !$user_obj->data->is_bozo && $bb_current_user->data->is_bozo )
+		}
+		if ( !$user_obj->data->is_bozo && $bb_current_user->data->is_bozo ) {
 			bb_ksd_submit( $user_id, 'spammer' );
+		}
 	} else {
 		$response = bb_ksd_submit( $bb_current_user->data->occ . ' ' . $bb_current_user->data->interests );
-		if ( 'true' == $response[1] && function_exists('bb_bozon') )
+		if ( 'true' == $response[1] && function_exists( 'bb_bozon' ) ) {
 			bb_bozon( bb_get_current_user_info( 'id' ) );
+		}
 	}
-	bb_set_current_user((int) $bb_current_id);
+	bb_set_current_user( (int) $bb_current_id );
 }
+add_action( 'register_user', 'bb_ksd_check_profile', 1);
+add_action( 'profile_edited', 'bb_ksd_check_profile', 1);
 
-function bb_ksd_new_post( $post_id ) {
+function bb_ksd_new_post( $post_id )
+{
 	global $bb_ksd_pre_post_status;
-	if ( '2' != $bb_ksd_pre_post_status )
+	if ( '2' != $bb_ksd_pre_post_status ) {
 		return;
+	}
 	$bb_post = bb_get_post( $post_id );
 	$topic = get_topic( $bb_post->topic_id );
-	if ( 0 == $topic->topic_posts )
+	if ( 0 == $topic->topic_posts ) {
 		bb_delete_topic( $topic->topic_id, 2 );
+	}
 }
+add_filter( 'bb_new_post', 'bb_ksd_new_post' );
 
-function bb_akismet_delete_old() { // Delete old every 20
-	$n = mt_rand(1, 20);
-	if ( $n % 20 )
+function bb_akismet_delete_old()
+{
+	// Delete old every 20
+	$n = mt_rand( 1, 20 );
+	if ( $n % 20 ) {
 		return;
+	}
 	global $bbdb;
-	$now = bb_current_time('mysql');
+	$now = bb_current_time( 'mysql' );
 	$posts = (array) $bbdb->get_col( $bbdb->prepare(
 		"SELECT post_id FROM $bbdb->posts WHERE DATE_SUB(%s, INTERVAL 15 DAY) > post_time AND post_status = '2'",
 		$now
 	) );
-	foreach ( $posts as $post )
+	foreach ( $posts as $post ) {
 		bb_delete_post( $post, 1 );
+	}
 }
 
-function bb_ksd_pre_post_status( $post_status ) {
+function bb_ksd_pre_post_status( $post_status )
+{
 	global $bb_ksd_pre_post_status;
-	if ( '2' == $bb_ksd_pre_post_status )
+	if ( '2' == $bb_ksd_pre_post_status ) {
 		$post_status = $bb_ksd_pre_post_status;
+	}
 	return $post_status;
 }
+add_filter( 'pre_post_status', 'bb_ksd_pre_post_status' );
 
-function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
-	if ( 2 == $new_status && 2 != $old_status )
+function bb_ksd_delete_post( $post_id, $new_status, $old_status )
+{
+	// Don't report post deletion
+	if ( 1 == $new_status ) {
+		return;
+	}
+	// Don't report no change in post status
+	if ( $new_status == $old_status ) {
+		return;
+	}
+	// It's being marked as spam, so report it
+	if ( 2 == $new_status ) {
 		bb_ksd_submit_spam( $post_id );
-	else if ( 2 != $new_status && 2 == $old_status )
+		return;
+	}
+	// It's not spam (and not being deleted), so it's ham now
+	if ( 2 == $old_status ) {
 		bb_ksd_submit_ham( $post_id );
+		return;
+	}
 }
+add_action( 'bb_delete_post', 'bb_ksd_delete_post', 10, 3);
 
 function bb_ksd_post_delete_link( $parts, $args )
 {
@@ -418,6 +468,7 @@ function bb_ksd_post_delete_link( $parts, $args )
 	$parts[] = $before . '<a class="post-spam-link" href="' . $uri . '" >' . $display . '</a>' . $after;
 	return $parts;
 }
+add_filter( 'bb_post_admin', 'bb_ksd_post_delete_link', 10, 2 );
 
 function bb_ksd_add_post_status_to_forms( $stati, $type )
 {
@@ -426,6 +477,7 @@ function bb_ksd_add_post_status_to_forms( $stati, $type )
 	}
 	return $stati;
 }
+add_filter( 'bb_query_form_post_status', 'bb_ksd_add_post_status_to_forms', 10, 2 );
 
 function bb_ksd_post_del_class( $classes, $post_id, $post )
 {
@@ -437,13 +489,4 @@ function bb_ksd_post_del_class( $classes, $post_id, $post )
 	}
 	return $classes;
 }
-
-add_action( 'pre_post', 'bb_ksd_check_post', 1 );
-add_filter( 'bb_new_post', 'bb_ksd_new_post' );
-add_filter( 'pre_post_status', 'bb_ksd_pre_post_status' );
-add_action( 'register_user', 'bb_ksd_check_profile', 1);
-add_action( 'profile_edited', 'bb_ksd_check_profile', 1);
-add_action( 'bb_delete_post', 'bb_ksd_delete_post', 10, 3);
-add_filter( 'bb_post_admin', 'bb_ksd_post_delete_link', 10, 2 );
-add_filter( 'bb_query_form_post_status', 'bb_ksd_add_post_status_to_forms', 10, 2 );
 add_filter( 'post_del_class', 'bb_ksd_post_del_class', 10, 3 );

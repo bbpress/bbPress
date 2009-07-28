@@ -81,7 +81,7 @@ if ( !$bb_db_override ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s View: %2$s' ), bb_get_option( 'name' ), $bb_views[$feed_id]['title'] ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; View: %2$s' ), bb_get_option( 'name' ), $bb_views[$feed_id]['title'] ) );
 			$link = get_view_link($feed_id);
 			$link_self = bb_get_view_rss_link($feed_id);
 			break;
@@ -91,7 +91,7 @@ if ( !$bb_db_override ) {
 				die();
 			if ( !$posts = get_thread( $feed_id, 0, 1 ) )
 				die();
-			$title = esc_html( sprintf( __( '%1$s Topic: %2$s' ), bb_get_option( 'name' ), get_topic_title() ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Topic: %2$s' ), bb_get_option( 'name' ), get_topic_title() ) );
 			$link = get_topic_link($feed_id);
 			$link_self = get_topic_rss_link($feed_id);
 			break;
@@ -108,7 +108,7 @@ if ( !$bb_db_override ) {
 			if ( !$posts = get_user_favorites( $user->ID ) ) {
 				die();
 			}
-			$title = esc_html( sprintf( __( '%1$s User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_login ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_login ) );
 			$link = bb_get_profile_link($feed_id);
 			$link_self = get_favorites_rss_link($feed_id);
 			break;
@@ -124,7 +124,7 @@ if ( !$bb_db_override ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s Tag: %2$s - Recent Topics' ), bb_get_option( 'name' ), bb_get_tag_name() ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Tag: %2$s - Recent Topics' ), bb_get_option( 'name' ), bb_get_tag_name() ) );
 			$link = bb_get_tag_link($feed_id);
 			$link_self = bb_get_tag_topics_rss_link($feed_id);
 			break;
@@ -134,7 +134,7 @@ if ( !$bb_db_override ) {
 				die();
 			if ( !$posts = get_tagged_topic_posts( array( 'tag_id' => $tag->tag_id, 'page' => 0 ) ) )
 				die();
-			$title = esc_html( sprintf( __( '%1$s Tag: %2$s - Recent Posts' ), bb_get_option( 'name' ), bb_get_tag_name() ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Tag: %2$s - Recent Posts' ), bb_get_option( 'name' ), bb_get_tag_name() ) );
 			$link = bb_get_tag_link($feed_id);
 			$link_self = bb_get_tag_posts_rss_link($feed_id);
 			break;
@@ -148,7 +148,7 @@ if ( !$bb_db_override ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s Forum: %2$s - Recent Topics' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Forum: %2$s - Recent Topics' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
 			$link = get_forum_link($feed_id);
 			$link_self = bb_get_forum_topics_rss_link($feed_id);
 			break;
@@ -156,7 +156,7 @@ if ( !$bb_db_override ) {
 		case 'forum-posts':
 			if ( !$posts = bb_get_latest_forum_posts( $feed_id ) )
 				die();
-			$title = esc_html( sprintf( __( '%1$s Forum: %2$s - Recent Posts' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Forum: %2$s - Recent Posts' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
 			$link = get_forum_link($feed_id);
 			$link_self = bb_get_forum_posts_rss_link($feed_id);
 			break;
@@ -171,7 +171,7 @@ if ( !$bb_db_override ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s: Recent Topics' ), bb_get_option( 'name' ) ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Recent Topics' ), bb_get_option( 'name' ) ) );
 			$link = bb_get_uri();
 			$link_self = bb_get_topics_rss_link();
 			break;
@@ -181,7 +181,7 @@ if ( !$bb_db_override ) {
 		default:
 			if ( !$posts = bb_get_latest_posts( 35 ) )
 				die();
-			$title = esc_html( sprintf( __( '%1$s: Recent Posts' ), bb_get_option( 'name' ) ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; Recent Posts' ), bb_get_option( 'name' ) ) );
 			$link = bb_get_uri();
 			$link_self = bb_get_posts_rss_link();
 			break;

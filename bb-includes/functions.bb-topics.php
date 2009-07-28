@@ -408,6 +408,21 @@ function topic_is_sticky( $topic_id = 0 ) {
 	return '0' !== $topic->topic_sticky;
 }
 
+function bb_update_topic_voices( $topic_id )
+{
+	if ( !$topic_id ) {
+		return;
+	}
+
+	$topic_id = abs( (int) $topic_id );
+
+	global $bbdb;
+	if ( $voices = $bbdb->get_col( $bbdb->prepare( "SELECT DISTINCT poster_id FROM $bbdb->posts WHERE topic_id = %s AND post_status = '0';", $topic_id ) ) ) {
+		$voices = count( $voices );
+		bb_update_topicmeta( $topic_id, 'voices_count', $voices );
+	}
+}
+
 /* Thread */
 
 // Thread, topic?  Guh-wah?

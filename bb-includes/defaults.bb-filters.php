@@ -36,13 +36,13 @@ add_filter( 'bb_pre_forum_name', 'bb_trim_for_db_150', 9999 );
 add_filter( 'pre_term_name', 'bb_trim_for_db_55', 9999 );
 
 // Format Strings for Display
-$filters = array( 'get_forum_name', 'topic_title', 'bb_title', 'bb_option_name' );
+$filters = array( 'forum_name', 'topic_title', 'bb_title', 'bb_option_name' );
 foreach ( $filters as $filter ) {
 	add_filter( $filter, 'esc_html' );
 }
 
 // Numbers
-$filters = array( 'get_forum_topics', 'get_forum_posts', 'total_posts', 'total_users' );
+$filters = array( 'forum_topics', 'forum_posts', 'total_posts', 'total_users', 'total_topics' );
 foreach ( $filters as $filter ) {
 	add_filter( $filter, 'bb_number_format_i18n' );
 }
@@ -76,7 +76,7 @@ add_action( 'bb_init', 'bb_contextualise_search_post_text' );
 add_filter('post_text', 'make_clickable');
 
 add_filter('edit_text', 'bb_code_trick_reverse');
-add_filter('edit_text', 'htmlspecialchars');
+add_filter('edit_text', 'wp_specialchars');
 add_filter('edit_text', 'trim', 15);
 
 add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8', 10, 3 );
