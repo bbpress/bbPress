@@ -76,7 +76,7 @@ add_action( 'bb_init', 'bb_contextualise_search_post_text' );
 add_filter('post_text', 'make_clickable');
 
 add_filter('edit_text', 'bb_code_trick_reverse');
-add_filter('edit_text', 'htmlspecialchars');
+add_filter('edit_text', 'wp_specialchars');
 add_filter('edit_text', 'trim', 15);
 
 add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8', 10, 3 );
