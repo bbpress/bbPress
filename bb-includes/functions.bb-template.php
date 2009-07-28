@@ -540,14 +540,14 @@ function bb_feed_head() {
 					break;
 			
 			$feeds[] = array(
-				'title' => sprintf(__('User Favorites: %s'), get_user_name()),
+				'title' => sprintf(__('%1$s &raquo; User Favorites: %2$s'), bb_get_option( 'name' ), get_user_name()),
 				'href'  => get_favorites_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
 		
 		case 'topic-page':
 			$feeds[] = array(
-				'title' => sprintf(__('Topic: %s'), get_topic_title()),
+				'title' => sprintf(__('%1$s &raquo; Topic: %2$s'), bb_get_option( 'name' ), get_topic_title()),
 				'href'  => get_topic_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
@@ -555,11 +555,11 @@ function bb_feed_head() {
 		case 'tag-page':
 			if (bb_is_tag()) {
 				$feeds[] = array(
-					'title' => sprintf(__('Tag: %s - Recent Posts'), bb_get_tag_name()),
+					'title' => sprintf(__('%1$s &raquo; Tag: %2$s - Recent Posts'), bb_get_option( 'name' ), bb_get_tag_name()),
 					'href'  => bb_get_tag_posts_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 				$feeds[] = array(
-					'title' => sprintf(__('Tag: %s - Recent Topics'), bb_get_tag_name()),
+					'title' => sprintf(__('%1$s &raquo; Tag: %2$s - Recent Topics'), bb_get_option( 'name' ), bb_get_tag_name()),
 					'href'  => bb_get_tag_topics_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 			}
@@ -567,22 +567,22 @@ function bb_feed_head() {
 		
 		case 'forum-page':
 			$feeds[] = array(
-				'title' => sprintf(__('Forum: %s - Recent Posts'), get_forum_name()),
+				'title' => sprintf(__('%1$s &raquo; Forum: %2$s - Recent Posts'), bb_get_option( 'name' ), get_forum_name()),
 				'href'  => bb_get_forum_posts_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			$feeds[] = array(
-				'title' => sprintf(__('Forum: %s - Recent Topics'), get_forum_name()),
+				'title' => sprintf(__('%1$s &raquo; Forum: %2$s - Recent Topics'), bb_get_option( 'name' ), get_forum_name()),
 				'href'  => bb_get_forum_topics_rss_link(0, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
 		
 		case 'front-page':
 			$feeds[] = array(
-				'title' => __('Recent Posts'),
+				'title' => sprintf(__('%1$s &raquo; Recent Posts'), bb_get_option( 'name' )),
 				'href'  => bb_get_posts_rss_link(BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			$feeds[] = array(
-				'title' => __('Recent Topics'),
+				'title' => sprintf(__('%1$s &raquo; Recent Topics'), bb_get_option( 'name' )),
 				'href'  => bb_get_topics_rss_link(BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 			);
 			break;
@@ -591,7 +591,7 @@ function bb_feed_head() {
 			global $bb_views, $view;
 			if ($bb_views[$view]['feed']) {
 				$feeds[] = array(
-					'title' => get_view_name(),
+					'title' => sprintf(__('%1$s &raquo; View: %2$s'), bb_get_option( 'name' ), get_view_name()),
 					'href'  => bb_get_view_rss_link(null, BB_URI_CONTEXT_LINK_ALTERNATE_HREF + BB_URI_CONTEXT_BB_FEED)
 				);
 			}
