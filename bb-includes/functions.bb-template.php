@@ -1356,22 +1356,16 @@ function get_page_number_links( $args ) {
 	return $links;
 }
 
-function bb_topic_admin( $args = '' ) {
-	
-	$id = 0;
-	
-	if ($args && is_array($args) && isset($args['id']) && !empty($args['id'])) {
-		$id = $args['id'];
-	}
-	
+function bb_topic_admin( $args = '' )
+{
 	$parts = array(
 		'delete' => bb_get_topic_delete_link( $args ),
-		'close' => bb_get_topic_close_link( $args ),
-		'sticky' => bb_get_topic_sticky_link( $args )
+		'close'  => bb_get_topic_close_link( $args ),
+		'sticky' => bb_get_topic_sticky_link( $args ),
+		'move'   => bb_get_topic_move_dropdown( $args )
 	);
-	echo join("\n", apply_filters('bb_topic_admin', $parts));
-	
-	topic_move_dropdown( $id );
+
+	echo join( "\n", apply_filters( 'bb_topic_admin', $parts ) );
 }
 
 function topic_delete_link( $args = '' ) {
@@ -1500,7 +1494,21 @@ function get_topic_posts_link( $id = 0 ) {
 	return $r;
 }
 
-function topic_move_dropdown( $id = 0 ) {
+function topic_move_dropdown( $args = '' )
+{
+	echo bb_get_topic_move_dropdown( $args );
+}
+
+function bb_get_topic_move_dropdown( $args = '' )
+{
+	if ( $args && is_numeric( $args ) ) {
+		$args = array( 'id' => (integer) $args );
+	}
+
+	$defaults = array( 'id' => 0, 'before' => '[', 'after' => ']' );
+	extract(wp_parse_args( $args, $defaults ), EXTR_SKIP);
+	$id = (int) $id;
+
 	$topic = get_topic( get_topic_id( $id ) );
 	if ( !bb_current_user_can( 'move_topic', $topic->topic_id ) )
 		return;
@@ -1508,19 +1516,26 @@ function topic_move_dropdown( $id = 0 ) {
 	$dropdown = bb_get_forum_dropdown( array(
 		'callback' => 'bb_current_user_can',
 		'callback_args' => array('move_topic', $topic->topic_id),
-		'selected' => $topic->forum_id
+		'selected' => $topic->forum_id,
+		'tab' => false
 	) );
 
 	if ( !$dropdown )
 		return;
 
-	echo '<form id="topic-move" method="post" action="' . bb_get_uri('bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN) . '"><fieldset><div>' . "\n\t";
-	echo "<input type='hidden' name='topic_id' value='$topic->topic_id' />\n\t";
-	echo '<label for="forum-id">'. __('Move this topic to the selected forum:') . ' ';
-	echo $dropdown;
-	echo "</label>\n\t";
-	bb_nonce_field( 'move-topic_' . $topic->topic_id );
-	echo "<input type='submit' name='Submit' value='". __('Move') ."' />\n</div></fieldset></form>";
+	$r = $before . '<form id="topic-move" method="post" action="' . bb_get_uri( 'bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ) . '">' . "\n";
+	$r .= '<fieldset>' . "\n";
+	$r .= '<div>' . "\n";
+	$r .= '<input type="hidden" name="topic_id" value="' . $topic->topic_id . '" />' . "\n";
+	$r .= '<label for="forum-id">'. __( 'Move to' ) . '</label>' . "\n";
+	$r .= $dropdown . "\n";
+	$r .= bb_nonce_field( 'move-topic_' . $topic->topic_id, '_wpnonce', true , false );
+	$r .= '<input type="submit" name="Submit" value="' . __( 'Move' ) . '" />' . "\n";
+	$r .= '</div>' . "\n";
+	$r .= '</fieldset>' . "\n";
+	$r .= '</form>' . $after;
+
+	return $r;
 }
 
 function topic_class( $class = '', $key = 'topic', $id = 0 ) {
@@ -1589,8 +1604,18 @@ function bb_new_topic_link( $args = null ) {
 	echo bb_get_new_topic_link($args);
 }
 
-function bb_new_topic_forum_dropdown() {
-	bb_forum_dropdown( 'bb_current_user_can', array('write_topic') );
+function bb_new_topic_forum_dropdown( $args = '' ) {
+	if ( !is_array( $args ) ) {
+		$args = array(
+			'callback' => 'bb_current_user_can',
+			'callback_args' => array( 'write_topic' )
+		);
+	}
+	if ( !isset( $args['callback'] ) && !isset( $args['callback_args'] ) ) {
+		$args['callback']      = 'bb_current_user_can';
+		$args['callback_args'] = array( 'write_topic' );
+	}
+	bb_forum_dropdown( $args );
 }
 
 function bb_topic_search_form( $args = null, $query_obj = null ) {
@@ -3039,7 +3064,7 @@ function _bb_list_tag_item( $tag, $args )
 	$name = esc_html( bb_get_tag_name( $tag ) );
 	if ( 'list' == $args['format'] ) {
 		$id = 'tag-' . $tag->tag_id . '_' . $tag->user_id;
-		return "\t" . '<li id="' . $id . '"><a href="' . $url . '" rel="tag">' . $name . '</a> ' . bb_get_tag_remove_link( array( 'tag' => $tag, 'list_id' => $args['list_id'] ) ) . '</li>' . "\n";
+		return "\t" . '<li id="' . $id . '"' . get_alt_class( 'topic-tags' ) . '><a href="' . $url . '" rel="tag">' . $name . '</a> ' . bb_get_tag_remove_link( array( 'tag' => $tag, 'list_id' => $args['list_id'] ) ) . '</li>' . "\n";
 	}
 }
 	
@@ -3229,7 +3254,7 @@ function bb_forum_dropdown( $args = '' ) {
 }
 
 function bb_get_forum_dropdown( $args = '' ) {
-	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => 5, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0, 'disable_categories' => 1, 'options_only' => false );
+	$defaults = array( 'callback' => false, 'callback_args' => false, 'id' => 'forum_id', 'none' => false, 'selected' => false, 'tab' => false, 'hierarchical' => 1, 'depth' => 0, 'child_of' => 0, 'disable_categories' => 1, 'options_only' => false );
 	if ( $args && is_string($args) && false === strpos($args, '=') )
 		$args = array( 'callback' => $args );
 	if ( 1 < func_num_args() )
@@ -3253,8 +3278,14 @@ function bb_get_forum_dropdown( $args = '' ) {
 		$none = __('- None -');
 
 	$r = '';
-	if ( !$options_only )
-		$r .= '<select name="' . $name . '" id="' . $id . '" tabindex="' . $tab . '">' . "\n";
+	if ( !$options_only ) {
+		if ( $tab ) {
+			$tab = ' tabindex="' . $tab . '"';
+		} else {
+			$tab = '';
+		}
+		$r .= '<select name="' . $name . '" id="' . $id . '"' . $tab . '">' . "\n";
+	}
 	if ( $none )
 		$r .= "\n" . '<option value="0">' . $none . '</option>' . "\n";
 
