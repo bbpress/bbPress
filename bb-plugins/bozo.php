@@ -168,8 +168,8 @@ function bb_bozo_post_del_class( $classes, $post_id, $post )
 
 function bb_bozo_add_recount_list() {
 	global $recount_list;
-	$recount_list[20] = array('topics-replied-with-bozos', __('Count each bozo user&#039;s total posts as well as the total topics to which they have replied'), 'bb_bozo_recount_users');
-	$recount_list[21] = array('topic-bozo-posts', __('Count the number of bozo posts in each topic'), 'bb_bozo_recount_topics');
+	$recount_list[21] = array('topics-replied-with-bozos', __('Count each bozo user&#039;s total posts as well as the total topics to which they have replied'), 'bb_bozo_recount_users');
+	$recount_list[22] = array('topic-bozo-posts', __('Count the number of bozo posts in each topic'), 'bb_bozo_recount_topics');
 	return;
 }
 
