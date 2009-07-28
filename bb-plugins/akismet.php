@@ -260,11 +260,26 @@ function bb_ksd_admin_menu() {
 	$bb_submenu['content.php'][] = array(__('Akismet Spam'), 'moderate', 'bb_ksd_admin_page');
 }
 
-function bb_ksd_delete_post( $post_id, $new_status, $old_status ) {
-	if ( 2 == $new_status && 2 != $old_status )
+function bb_ksd_delete_post( $post_id, $new_status, $old_status )
+{
+	// Don't report post deletion
+	if ( 1 == $new_status ) {
+		return;
+	}
+	// Don't report no change in post status
+	if ( $new_status == $old_status ) {
+		return;
+	}
+	// It's being marked as spam, so report it
+	if ( 2 == $new_status ) {
 		bb_ksd_submit_spam( $post_id );
-	else if ( 2 != $new_status && 2 == $old_status )
+		return;
+	}
+	// It's not spam (and not being deleted), so it's ham now
+	if ( 2 == $old_status ) {
 		bb_ksd_submit_ham( $post_id );
+		return;
+	}
 }
 
 function bb_ksd_admin_page() {
