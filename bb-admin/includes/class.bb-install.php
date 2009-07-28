@@ -635,7 +635,7 @@ class BB_Install
 					'toggle_1' => array(
 						'value'   => 0,
 						'label'   => __( 'Show advanced settings' ),
-						'note'    => __( '99% of the time these settings will not have to be changed.' ),
+						'note'    => __( 'These settings usually do not have to be changed.' ),
 						'checked' => '',
 						'display' => 'none'
 					),
