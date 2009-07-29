@@ -104,7 +104,7 @@ if ( !function_exists( 'mb_substr' ) ) {
 	}
 }
 
-if ( !function_exists( '_mb_strcut' ) ) {
+if ( !function_exists( '_mb_substr' ) ) {
 	function _mb_substr( $str, $start, $length = null, $encoding = null )
 	{
 		// the solution below, works only for utf-8, so in case of a different
