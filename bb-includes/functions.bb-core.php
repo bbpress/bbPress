@@ -351,16 +351,45 @@ function bb_timer_stop($display = 0, $precision = 3) { //if called like bb_timer
 }
 
 // GMT -> so many minutes ago
-function bb_since( $original, $do_more = 0 ) {
-	$today = time();
+function bb_since( $original, $args = '' )
+{
+	$defaults = array(
+		'levels'    => 1,
+		'separator' => ', '
+	);
 
-	if ( !is_numeric($original) ) {
-		if ( $today < $_original = bb_gmtstrtotime( str_replace(',', ' ', $original) ) ) // Looks like bb_since was called twice
-			return $original;
-		else
-			$original = $_original;
+	// $args used to be $do_more
+	// $do_more = 0 is equivalent to $args['levels'] = 1
+	// $do_more = 1 is equivalent to $args['levels'] = 2
+	if ( !is_array( $args ) ) {
+		$args = array(
+			'levels' => abs( (integer) $args ) + 1
+		);
 	}
-		
+
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+
+	$today = (integer) time();
+
+	if ( !is_numeric( $original ) ) {
+		if ( $today < $_original = bb_gmtstrtotime( str_replace( ',', ' ', $original ) ) ) { // Looks like bb_since was called twice
+			return $original;
+		} else {
+			$original = $_original;
+		}
+	}
+
+	$seconds = $today - ( (integer) $original );
+	if ( 0 === $seconds ) {
+		return sprintf( _n( '%d second', '%d seconds', 0 ), 0 );
+	}
+
+	$levels = abs( (integer) $levels );
+	if ( 0 === $levels ) {
+		return '';
+	}
+
 	// array of time period chunks
 	$chunks = array(
 		( 60 * 60 * 24 * 365 ), // years
@@ -372,33 +401,35 @@ function bb_since( $original, $do_more = 0 ) {
 		( 1 )                   // seconds
 	);
 
-	$since = $today - $original;
-
-	for ($i = 0, $j = count($chunks); $i < $j; $i++) {
-		$seconds = $chunks[$i];
-
-		if ( 0 != $count = floor($since / $seconds) )
+	$caught = 0;
+	$parts = array();
+	for ( $i = 0; $i < count( $chunks ); $i++ ) {
+		if ( ( $count = floor( $seconds / $chunks[$i] ) ) || $caught ) {
+			if ( $count ) {
+				$trans = array(
+					_n( '%d year', '%d years', $count ),
+					_n( '%d month', '%d months', $count ),
+					_n( '%d week', '%d weeks', $count ),
+					_n( '%d day', '%d days', $count ),
+					_n( '%d hour', '%d hours', $count ),
+					_n( '%d minute', '%d minutes', $count ),
+					_n( '%d second', '%d seconds', $count )
+				);
+				$parts[] = sprintf( $trans[$i], $count );
+			}
+			$caught++;
+			$seconds = $seconds - ( $count * $chunks[$i] );
+		}
+		if ( $caught === $levels ) {
 			break;
+		}
 	}
 
-	$trans = array(
-		_n( '%d year', '%d years', $count ),
-		_n( '%d month', '%d months', $count ),
-		_n( '%d week', '%d weeks', $count ),
-		_n( '%d day', '%d days', $count ),
-		_n( '%d hour', '%d hours', $count ),
-		_n( '%d minute', '%d minutes', $count ),
-		_n( '%d second', '%d seconds', $count )
-	);
-
-	$print = sprintf( $trans[$i], $count );
-
-	if ( $do_more && $i + 1 < $j) {
-		$seconds2 = $chunks[$i + 1];
-		if ( 0 != $count2 = floor( ($since - $seconds * $count) / $seconds2) )
-			$print .= sprintf( $trans[$i + 1], $count2 );
+	if ( empty( $parts ) ) {
+		return sprintf( _n( '%d second', '%d seconds', 0 ), 0 );
 	}
-	return $print;
+
+	return join( $separator, $parts );
 }
 
 function bb_current_time( $type = 'timestamp' ) {
