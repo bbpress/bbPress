@@ -1523,17 +1523,13 @@ function bb_get_topic_move_dropdown( $args = '' )
 	if ( !$dropdown )
 		return;
 
-	$r = $before . '<form id="topic-move" method="post" action="' . bb_get_uri( 'bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ) . '">' . "\n";
-	$r .= '<fieldset>' . "\n";
-	$r .= '<div>' . "\n";
+	$r = $before . '<form id="topic-move" method="post" action="' . bb_get_uri( 'bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ) . '"><fieldset><div>' . "\n";
 	$r .= '<input type="hidden" name="topic_id" value="' . $topic->topic_id . '" />' . "\n";
 	$r .= '<label for="forum-id">'. __( 'Move to' ) . '</label>' . "\n";
 	$r .= $dropdown . "\n";
 	$r .= bb_nonce_field( 'move-topic_' . $topic->topic_id, '_wpnonce', true , false );
 	$r .= '<input type="submit" name="Submit" value="' . __( 'Move' ) . '" />' . "\n";
-	$r .= '</div>' . "\n";
-	$r .= '</fieldset>' . "\n";
-	$r .= '</form>' . $after;
+	$r .= '</div></fieldset></form>' . $after;
 
 	return $r;
 }
