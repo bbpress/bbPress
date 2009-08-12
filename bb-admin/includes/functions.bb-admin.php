@@ -117,6 +117,10 @@ function bb_admin_menu_generator()
 function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_position = false, $class = '', $id = '' )
 {
 	global $bb_menu;
+	global $bb_registered_plugin_callbacks;
+	if ( empty( $bb_registered_plugin_callbacks ) ) {
+		$bb_registered_plugin_callbacks = array();
+	}
 
 	if ( $display_name && $capability && $file_name ) {
 		// Get an array of the keys
@@ -164,6 +168,10 @@ function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_positi
 			$plugin_menu_next++;
 		}
 
+		if ( strpos( $file_name, '.php' ) === false ) {
+			$bb_registered_plugin_callbacks[] = $file_name;
+		}
+
 		// Add the menu item at the given key
 		$bb_menu[$plugin_menu_next] = array( $display_name, $capability, $file_name, $class, $id );
 
@@ -178,7 +186,15 @@ function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_positi
 function bb_admin_add_submenu( $display_name, $capability, $file_name, $parent = 'plugins.php' )
 {
 	global $bb_submenu;
+	global $bb_registered_plugin_callbacks;
+	if ( empty( $bb_registered_plugin_callbacks ) ) {
+		$bb_registered_plugin_callbacks = array();
+	}
+
 	if ( $display_name && $capability && $file_name ) {
+		if ( strpos( $file_name, '.php' ) === false ) {
+			$bb_registered_plugin_callbacks[] = $file_name;
+		}
 		$bb_submenu[$parent][] = array( $display_name, $capability, $file_name );
 		ksort( $bb_submenu );
 	}

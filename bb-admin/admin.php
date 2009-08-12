@@ -16,8 +16,10 @@ require_once( BB_PATH . 'bb-admin/includes/functions.bb-admin.php' );
 
 $bb_admin_page = bb_find_filename( $_SERVER['PHP_SELF'] );
 
+$_check_callback = false;
 if ( $bb_admin_page == 'admin-base.php' ) {
-	$bb_admin_page = $_GET['plugin'];
+	$bb_admin_page = (string) @$_GET['plugin'];
+	$_check_callback = true;
 }
 
 wp_enqueue_script( 'common' );
@@ -34,4 +36,10 @@ if ( isset( $_GET['foldmenu'] ) ) {
 }
 bb_admin_menu_generator();
 bb_get_current_admin_menu();
+
+if ( $_check_callback ) {
+	if ( empty( $bb_registered_plugin_callbacks ) || empty( $bb_admin_page ) || !in_array( $bb_admin_page, $bb_registered_plugin_callbacks ) ) {
+		unset( $bb_admin_page );
+	}
+}
 ?>
