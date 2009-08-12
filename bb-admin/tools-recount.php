@@ -90,14 +90,6 @@ if ( $recount_list ) {
 			</div>
 		</div>
 <?php
-	bb_option_form_element( 'row_limit', array(
-		'title' => __( 'Maximum rows per query' ),
-		'class' => array( 'short' ),
-		'note' => array(
-			__( 'The maximum number of rows to retrieve in any one database query, leave blank for no limit.' ),
-			__( 'Using this will caues bbPress to make smaller queries in larger numbers, which is usually slower, but useful if recounting is causing bbPress to run out of memory.' )
-		)
-	) );
 } else {
 ?>
 		<p><?php _e( 'There are no re-count tools available.' ) ?></p>
