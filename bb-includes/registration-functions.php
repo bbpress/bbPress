@@ -52,7 +52,7 @@ function bb_reset_email( $user_login ) {
 function bb_reset_password( $key ) {
 	global $bbdb;
 	$key = sanitize_user( $key, true );
-	if ( empty( $key ) )
+	if ( empty( $key ) || !is_string( $key ) )
 		bb_die(__('Key not found.'));
 	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )
 		bb_die(__('Key not found.'));
