@@ -29,7 +29,7 @@
 	<td class="num"><?php topic_posts(); ?></td>
 	<!-- <td class="num"><?php bb_topic_voices(); ?></td> -->
 	<td class="num"><?php topic_last_poster(); ?></td>
-	<td class="num"><a href="<?php topic_last_post_link(); ?>"><?php topic_time(); ?></a></td>
+	<td class="num"><a href="<?php topic_last_post_link(); ?>" title="<?php topic_time(array('format'=>'datetime')); ?>"><?php topic_time(); ?></a></td>
 <?php if ( bb_current_user_can( 'edit_favorites_of', $user_id ) ) : ?>
 	<td class="num">[<?php user_favorites_link('', array('mid'=>'&times;'), $user_id); ?>]</td>
 <?php endif; ?>

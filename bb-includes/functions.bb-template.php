@@ -3502,6 +3502,9 @@ function _bb_time_function_return( $time, $args ) {
 	case 'mysql' :
 		$format = 'Y-m-d H:i:s';
 		break;
+	case 'datetime' :
+		$format = bb_get_option( 'datetime_format' );
+		break;
 	endswitch;
 
 	if ( $args['localize'] ) {
