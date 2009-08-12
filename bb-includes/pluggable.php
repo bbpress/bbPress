@@ -153,9 +153,15 @@ function wp_validate_auth_cookie($cookie = '') {
 	if ( $hmac != $hash )
 		return false;
 
-	$user = bb_get_user_by_name($username);
-	if ( ! $user )
+	$username = sanitize_user( $username, true );
+	global $bbdb;
+	if ( $user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $username ) ) ) {
+		bb_append_meta( $user, 'user' );
+	}
+	
+	if ( empty( $user->ID ) ) {
 		return false;
+	}
 
 	return $user->ID;
 }
