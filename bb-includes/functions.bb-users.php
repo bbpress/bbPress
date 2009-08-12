@@ -252,37 +252,48 @@ function bb_update_user( $user_id, $user_email, $user_url, $display_name ) {
  * @param string $user_login
  * @return bool
  */
-function bb_reset_email( $user_login ) {
+function bb_reset_email( $user_login )
+{
 	global $bbdb;
 
 	$user_login = sanitize_user( $user_login, true );
 
-	if ( !$user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user_login ) ) )
-		return new WP_Error('user_does_not_exist', __('The specified user does not exist.'));
+	if ( !$user = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->users WHERE user_login = %s", $user_login ) ) ) {
+		return new WP_Error( 'user_does_not_exist', __( 'The specified user does not exist.' ) );
+	}
 
-	$resetkey = substr(md5(bb_generate_password()), 0, 15);
+	$resetkey = substr( md5( bb_generate_password() ), 0, 15 );
 	bb_update_usermeta( $user->ID, 'newpwdkey', $resetkey );
 
-	$message = sprintf(
-		__("If you wanted to reset your password, you may do so by visiting the following address:\n\n%s\n\nIf you don't want to reset your password, just ignore this email. Thanks!"),
-		bb_get_uri(
-			'bb-reset-password.php',
-			array('key' => $resetkey),
-			BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_BB_USER_FORMS
-		)
+	$reseturi = bb_get_uri(
+		'bb-reset-password.php',
+		array( 'key' => $resetkey ),
+		BB_URI_CONTEXT_TEXT + BB_URI_CONTEXT_BB_USER_FORMS
 	);
+
+	$message = sprintf(
+		__( "If you wanted to reset your password, you may do so by visiting the following address:\n\n%s\n\nIf you don't want to reset your password, just ignore this email. Thanks!" ),
+		$reseturi
+	);
+	$message = apply_filters( 'bb_reset_email_message', $message, $user, $reseturi, $resetkey );
+
+	$subject = sprintf(
+		__( '%s: Password Reset' ),
+		bb_get_option( 'name' )
+	);
+	$subject = apply_filters( 'bb_reset_email_subject', $subject, $user );
 
 	$mail_result = bb_mail(
 		bb_get_user_email( $user->ID ),
-		bb_get_option('name') . ': ' . __('Password Reset'),
+		$subject,
 		$message
 	);
 
-	if (!$mail_result) {
-		return new WP_Error('sending_mail_failed', __('The email containing the password reset link could not be sent.'));
-	} else {
-		return true;
+	if ( !$mail_result ) {
+		return new WP_Error( 'sending_mail_failed', __( 'The email containing the password reset link could not be sent.' ) );
 	}
+
+	return true;
 }
 
 /**
@@ -297,29 +308,42 @@ function bb_reset_email( $user_login ) {
  * @param string $key
  * @return unknown
  */
-function bb_reset_password( $key ) {
+function bb_reset_password( $key )
+{
 	global $bbdb;
+
 	$key = sanitize_user( $key, true );
-	if ( empty( $key ) )
-		return new WP_Error('key_not_found', __('Key not found.'));
-	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) )
-		return new WP_Error('key_not_found', __('Key not found.'));
-	if ( $user = new BP_User( $user_id ) ) {
-		if ( bb_has_broken_pass( $user->ID ) )
-			bb_block_current_user();
-		if ( !$user->has_cap( 'change_user_password', $user->ID ) )
-			return new WP_Error('permission_denied', __('You are not allowed to change your password.'));
-		$newpass = bb_generate_password();
-		bb_update_user_password( $user->ID, $newpass );
-		if (!bb_send_pass( $user->ID, $newpass )) {
-			return new WP_Error('sending_mail_failed', __('The email containing the new password could not be sent.'));
-		} else {
-			bb_update_usermeta( $user->ID, 'newpwdkey', '' );
-			return true;
-		}
-	} else {
-		return new WP_Error('key_not_found', __('Key not found.'));
+
+	if ( empty( $key ) || !is_string( $key ) ) {
+		return new WP_Error( 'invalid_key', __( 'Invalid key' ) );
 	}
+
+	if ( !$user_id = $bbdb->get_var( $bbdb->prepare( "SELECT user_id FROM $bbdb->usermeta WHERE meta_key = 'newpwdkey' AND meta_value = %s", $key ) ) ) {
+		return new WP_Error( 'invalid_key', __( 'Invalid key' ) );
+	}
+
+	$user = new BP_User( $user_id );
+
+	if ( !$user || is_wp_error( $user ) ) {
+		return new WP_Error( 'invalid_key', __( 'Invalid key' ) );
+	}
+
+	if ( bb_has_broken_pass( $user->ID ) ) {
+		bb_block_current_user();
+	}
+
+	if ( !$user->has_cap( 'change_user_password', $user->ID ) ) {
+		return new WP_Error( 'permission_denied', __( 'You are not allowed to change your password.' ) );
+	}
+
+	$newpass = bb_generate_password();
+	bb_update_user_password( $user->ID, $newpass );
+	if ( !bb_send_pass( $user->ID, $newpass ) ) {
+		return new WP_Error( 'sending_mail_failed', __( 'The email containing the new password could not be sent.' ) );
+	}
+
+	bb_update_usermeta( $user->ID, 'newpwdkey', '' );
+	return true;
 }
 
 /**
@@ -357,16 +381,30 @@ function bb_update_user_password( $user_id, $password ) {
  * @param string $pass
  * @return bool
  */
-function bb_send_pass( $user, $pass ) {
-	if ( !$user = bb_get_user( $user ) )
+function bb_send_pass( $user, $pass )
+{
+	if ( !$user = bb_get_user( $user ) ) {
 		return false;
+	}
 
-	$message = __("Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!");
+	$message = sprintf(
+		__( "Your username is: %1\$s \nYour password is: %2\$s \nYou can now log in: %3\$s \n\nEnjoy!" ),
+		$user->user_login,
+		$pass,
+		bb_get_uri( null, null, BB_URI_CONTEXT_TEXT )
+	);
+	$message = apply_filters( 'bb_send_pass_message', $message, $user, $pass );
+
+	$subject = sprintf(
+		__( '%s: Password' ),
+		bb_get_option( 'name' )
+	);
+	$subject = apply_filters( 'bb_send_pass_subject', $subject, $user );
 
 	return bb_mail(
 		bb_get_user_email( $user->ID ),
-		bb_get_option('name') . ': ' . __('Password'),
-		sprintf($message, $user->user_login, $pass, bb_get_uri(null, null, BB_URI_CONTEXT_TEXT))
+		$subject,
+		$message
 	);
 }
 
