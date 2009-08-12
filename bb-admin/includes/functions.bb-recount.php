@@ -120,11 +120,14 @@ function bb_recount_user_topics_replied()
 		return sprintf( $statement, $result );
 	}
 
-	$insert_values = "\n" . join( ",\n", $insert_values );
-	$sql_insert = "INSERT INTO `$bbdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $insert_values;";
+	$insert_values = array_chunk( $insert_values, 10000 );
+	foreach ( $insert_values as $chunk ) {
+		$chunk = "\n" . join( ",\n", $chunk );
+		$sql_insert = "INSERT INTO `$bbdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 
-	if ( is_wp_error( $bbdb->query( $sql_insert ) ) ) {
-		return sprintf( $statement, $result );
+		if ( is_wp_error( $bbdb->query( $sql_insert ) ) ) {
+			return sprintf( $statement, $result );
+		}
 	}
 
 	$result = __( 'Complete!' );
@@ -242,10 +245,13 @@ function bb_recount_clean_favorites()
 		return sprintf( $statement, $result );
 	}
 
-	$values = "\n" . join( ",\n", $values );
-	$sql_insert = "INSERT INTO `$bbdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $values;";
-	if ( is_wp_error( $bbdb->query( $sql_insert ) ) ) {
-		return sprintf( $statement, $result );
+	$values = array_chunk( $values, 10000 );
+	foreach ( $values as $chunk ) {
+		$chunk = "\n" . join( ",\n", $chunk );
+		$sql_insert = "INSERT INTO `$bbdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
+		if ( is_wp_error( $bbdb->query( $sql_insert ) ) ) {
+			return sprintf( $statement, $result );
+		}
 	}
 
 	$result = __( 'Complete!' );
