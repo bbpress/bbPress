@@ -15,55 +15,29 @@ bb_check_admin_referer( 'do-counts' ); ?>
 <?php
 if ( isset($_POST['topic-posts']) && 1 == $_POST['topic-posts'] ):
 	echo "\t<li>\n";
-	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status = '0' GROUP BY topic_id") ) :
-		echo "\t\t" . __('Counting posts...') . "<br />\n";
-		foreach ($topics as $topic)
-			$bbdb->query("UPDATE $bbdb->topics SET topic_posts = '$topic->count' WHERE topic_id = '$topic->topic_id'");
-		unset($topics, $topic);
-	endif;
+	$sql = "INSERT INTO `$bbdb->topics` (`topic_id`, `topic_posts`) (SELECT `topic_id`, COUNT(`post_status`) as `topic_posts` FROM `$bbdb->posts` WHERE `post_status` = '0' GROUP BY `topic_id`) ON DUPLICATE KEY UPDATE `topic_posts` = VALUES(`topic_posts`);";
+	$bbdb->query($sql);
 	echo "\t\t" . __('Done counting posts.');
 	echo "\n\t</li>\n";
 endif;
 
 if ( isset($_POST['topic-deleted-posts']) && 1 == $_POST['topic-deleted-posts'] ):
 	echo "\t<li>\n";
-	$old = (array) $bbdb->get_col("SELECT topic_id FROM $bbdb->topicmeta WHERE meta_key = 'deleted_posts'");
-	$old = array_flip($old);
-	if ( $topics = (array) $bbdb->get_results("SELECT topic_id, COUNT(post_id) AS count FROM $bbdb->posts WHERE post_status != '0' GROUP BY topic_id") ) :
-		echo "\t\t" . __('Counting deleted posts...') . "<br />\n";
-		foreach ( $topics as $topic ) :
-			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', $topic->count );
-			unset($old[$topic->topic_id]);
-		endforeach;
-		unset($topics, $topic);
-	endif;
-	if ( $old ) :
-		$old = join(',', array_flip($old));
-		$bbdb->query("DELETE FROM $bbdb->topicmeta WHERE topic_id IN ($old) AND meta_key = 'deleted_posts'");
-		echo "\t\t" . __('Done counting deleted posts.');
-	else :
-		echo "\t\t" . __('No deleted posts to count.');
-	endif;
+	$sql_delete = "DELETE FROM `$bbdb->topicmeta` WHERE `meta_key` = 'deleted_posts';";
+	if ( $bbdb->query( $sql_delete ) ) {
+		$sql = "INSERT INTO `$bbdb->topicmeta` (`topic_id`, `meta_key`, `meta_value`) (SELECT `topic_id`, 'deleted_posts', COUNT(`post_status`) as `meta_value` FROM `$bbdb->posts` WHERE `post_status` != '0' GROUP BY `topic_id`);";
+		$bbdb->query( $sql );
+	}
+	echo "\t\t" . __('Done counting deleted posts.');
 	echo "\n\t</li>\n";
 endif;
 
 if ( isset($_POST['forums']) && 1 == $_POST['forums'] ) :
 	echo "\t<li>\n";
-	if ( $all_forums = (array) $bbdb->get_col("SELECT forum_id FROM $bbdb->forums") ) :
-		echo "\t\t" . __('Counting forum topics and posts...') . "<br />\n";
-		$all_forums = array_flip( $all_forums );
-		$forums = $bbdb->get_results("SELECT forum_id, COUNT(topic_id) AS topic_count, SUM(topic_posts) AS post_count FROM $bbdb->topics
-			WHERE topic_status = 0 GROUP BY forum_id");
-		foreach ( (array) $forums as $forum ) :
-			$bbdb->query("UPDATE $bbdb->forums SET topics = '$forum->topic_count', posts = '$forum->post_count' WHERE forum_id = '$forum->forum_id'");
-			unset($all_forums[$forum->forum_id]);
-		endforeach;
-		if ( $all_forums ) :
-			$all_forums = implode(',', array_flip( $all_forums ) );
-			$bbdb->query("UPDATE $bbdb->forums SET topics = 0, posts = 0 WHERE forum_id IN ($all_forums)");
-		endif;
-		unset($all_forums, $forums, $forum);
-	endif;
+	$sql = "INSERT INTO `$bbdb->forums` (`forum_id`, `topics`) (SELECT `forum_id`, COUNT(`topic_status`) as `topics` FROM `$bbdb->topics` WHERE `topic_status` = '0' GROUP BY `forum_id`) ON DUPLICATE KEY UPDATE `topics` = VALUES(`topics`);";
+	$bbdb->query( $sql );
+	$sql = "INSERT INTO `$bbdb->forums` (`forum_id`, `posts`) (SELECT `forum_id`, COUNT(`post_status`) as `posts` FROM `$bbdb->posts` WHERE `post_status` = '0' GROUP BY `forum_id`) ON DUPLICATE KEY UPDATE `posts` = VALUES(`posts`);";
+	$bbdb->query( $sql );
 	echo "\t\t" . __('Done counting forum topics and posts.');
 	echo "\n\t</li>\n";
 endif;
