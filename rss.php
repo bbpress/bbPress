@@ -108,7 +108,7 @@ if ( !$bb_db_override ) {
 			if ( !$posts = get_user_favorites( $user->ID ) ) {
 				die();
 			}
-			$title = esc_html( sprintf( __( '%1$s &raquo; User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_login ) );
+			$title = esc_html( sprintf( __( '%1$s &raquo; User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_nicename ) );
 			$link = bb_get_profile_link($feed_id);
 			$link_self = get_favorites_rss_link($feed_id);
 			break;
