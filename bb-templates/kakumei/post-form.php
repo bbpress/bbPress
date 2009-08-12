@@ -11,7 +11,7 @@
 	</label>
 </p>
 <p id="post-form-tags-container">
-	<label for="tags-input"><?php printf(__('Tags (comma seperated)'), bb_get_tag_page_link()) ?>
+	<label for="tags-input"><?php printf(__('Tags (comma separated)'), bb_get_tag_page_link()) ?>
 		<input id="tags-input" name="tags" type="text" size="50" maxlength="100" value="<?php bb_tag_name(); ?>" tabindex="4" />
 	</label>
 </p>
