@@ -134,6 +134,7 @@ function bb_recount_user_topics_replied()
 	return sprintf( $statement, $result );
 }
 
+// TODO - make fast - see #1146
 function bb_recount_topic_tags()
 {
 	// Reset tag count to zero
@@ -159,6 +160,7 @@ function bb_recount_topic_tags()
 	return $message;
 }
 
+// TODO - make fast - see #1146
 function bb_recount_tag_topics()
 {
 	// Get all tags
@@ -179,6 +181,7 @@ function bb_recount_tag_topics()
 	return $message;
 }
 
+// TODO - make fast - see #1146
 function bb_recount_tag_delete_empty()
 {
 	// Get all tags
