@@ -413,10 +413,13 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit =
 
 function bb_user_row( $user, $role = '', $email = false ) {
 	$actions = "<a href='" . esc_attr( get_user_profile_link( $user->ID ) ) . "'>" . __('View') . "</a>";
-	if ( bb_current_user_can( 'edit_user', $user_id ) )
+	$title = '';
+	if ( bb_current_user_can( 'edit_user', $user_id ) ) {
 		$actions .= " | <a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
+		$title = " title='" . esc_attr( sprintf( __( 'User ID: %d' ), $user->ID ) ) . "'";
+	}
 	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
-	$r .= "\t\t<td class=\"user\">" . bb_get_avatar( $user->ID, 32 ) . "<span class=\"row-title\"><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_name( $user->ID ) . "</a></span><div><span class=\"row-actions\">$actions</span>&nbsp;</div></td>\n";
+	$r .= "\t\t<td class=\"user\">" . bb_get_avatar( $user->ID, 32 ) . "<span class=\"row-title\"><a href='" . get_user_profile_link( $user->ID ) . "'" . $title . ">" . get_user_name( $user->ID ) . "</a></span><div><span class=\"row-actions\">$actions</span>&nbsp;</div></td>\n";
 	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_display_name( $user->ID ) . "</a></td>\n";
 	if ( $email ) {
 		$email = bb_get_user_email( $user->ID );
