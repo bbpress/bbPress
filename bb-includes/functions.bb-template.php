@@ -254,13 +254,13 @@ function bb_post_template() {
 function post_form( $args = array() ) {
 	global $page, $topic, $forum;
 
-	if ( is_string( $args ) ) {
-		$args['h2'] = $args;
-	}
 	$defaults = array(
 		'h2' => '',
 		'last_page_only' => true
 	);
+	if ( is_string( $args ) ) {
+		$defaults['h2'] = $args;
+	}
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
