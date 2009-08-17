@@ -1,7 +1,7 @@
 <?php if ( !bb_is_topic() ) : ?>
 <p id="post-form-title-container">
 	<label for="topic"><?php _e('Title'); ?>
-		<input name="topic" type="text" id="topic" size="50" maxlength="80" tabindex="1" />
+		<input name="topic" type="text" id="topic" size="50" maxlength="100" tabindex="1" />
 	</label>
 </p>
 <?php endif; do_action( 'post_form_pre_post' ); ?>
@@ -11,7 +11,7 @@
 	</label>
 </p>
 <p id="post-form-tags-container">
-	<label for="tags-input"><?php printf(__('Tags (comma seperated)'), bb_get_tag_page_link()) ?>
+	<label for="tags-input"><?php printf(__('Tags (comma separated)'), bb_get_tag_page_link()) ?>
 		<input id="tags-input" name="tags" type="text" size="50" maxlength="100" value="<?php bb_tag_name(); ?>" tabindex="4" />
 	</label>
 </p>

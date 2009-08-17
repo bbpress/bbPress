@@ -25,9 +25,6 @@ class BP_Options
 			case 'cron_uri':
 				return bb_get_uri( 'bb-cron.php', array( 'check' => BP_Options::get( 'cron_check' ) ), BB_URI_CONTEXT_WP_HTTP_REQUEST );
 				break;
-			case 'cron_check':
-				return bb_hash( '187425' );
-				break;
 			case 'wp_http_version':
 				return 'bbPress/' . bb_get_option( 'version' );
 				break;

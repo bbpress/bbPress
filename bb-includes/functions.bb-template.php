@@ -254,13 +254,13 @@ function bb_post_template() {
 function post_form( $args = array() ) {
 	global $page, $topic, $forum;
 
-	if ( is_string( $args ) ) {
-		$args['h2'] = $args;
-	}
 	$defaults = array(
 		'h2' => '',
 		'last_page_only' => true
 	);
+	if ( is_string( $args ) ) {
+		$defaults['h2'] = $args;
+	}
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
@@ -1523,17 +1523,13 @@ function bb_get_topic_move_dropdown( $args = '' )
 	if ( !$dropdown )
 		return;
 
-	$r = $before . '<form id="topic-move" method="post" action="' . bb_get_uri( 'bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ) . '">' . "\n";
-	$r .= '<fieldset>' . "\n";
-	$r .= '<div>' . "\n";
+	$r = $before . '<form id="topic-move" method="post" action="' . bb_get_uri( 'bb-admin/topic-move.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ) . '"><fieldset><div>' . "\n";
 	$r .= '<input type="hidden" name="topic_id" value="' . $topic->topic_id . '" />' . "\n";
 	$r .= '<label for="forum-id">'. __( 'Move to' ) . '</label>' . "\n";
 	$r .= $dropdown . "\n";
 	$r .= bb_nonce_field( 'move-topic_' . $topic->topic_id, '_wpnonce', true , false );
 	$r .= '<input type="submit" name="Submit" value="' . __( 'Move' ) . '" />' . "\n";
-	$r .= '</div>' . "\n";
-	$r .= '</fieldset>' . "\n";
-	$r .= '</form>' . $after;
+	$r .= '</div></fieldset></form>' . $after;
 
 	return $r;
 }
@@ -3505,6 +3501,9 @@ function _bb_time_function_return( $time, $args ) {
 		break;
 	case 'mysql' :
 		$format = 'Y-m-d H:i:s';
+		break;
+	case 'datetime' :
+		$format = bb_get_option( 'datetime_format' );
 		break;
 	endswitch;
 

@@ -732,9 +732,13 @@ function bb_repermalink() {
 				$user = bb_get_current_user(); // Attempt to go to the current users profile
 			} else {
 				if ( bb_get_option( 'mod_rewrite' ) === 'slugs') {
-					$user = bb_get_user_by_nicename( $id ); // Get by the user_nicename
+					if ( !$user = bb_get_user_by_nicename( $id ) ) {
+						$user = bb_get_user( $id );
+					}
 				} else {
-					$user = bb_get_user( $id ); // Get by the ID
+					if ( !$user = bb_get_user( $id ) ) {
+						$user = bb_get_user_by_nicename( $id );
+					}
 				}
 			}
 

@@ -117,6 +117,10 @@ function bb_admin_menu_generator()
 function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_position = false, $class = '', $id = '' )
 {
 	global $bb_menu;
+	global $bb_registered_plugin_callbacks;
+	if ( empty( $bb_registered_plugin_callbacks ) ) {
+		$bb_registered_plugin_callbacks = array();
+	}
 
 	if ( $display_name && $capability && $file_name ) {
 		// Get an array of the keys
@@ -164,6 +168,10 @@ function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_positi
 			$plugin_menu_next++;
 		}
 
+		if ( strpos( $file_name, '.php' ) === false ) {
+			$bb_registered_plugin_callbacks[] = $file_name;
+		}
+
 		// Add the menu item at the given key
 		$bb_menu[$plugin_menu_next] = array( $display_name, $capability, $file_name, $class, $id );
 
@@ -178,7 +186,15 @@ function bb_admin_add_menu( $display_name, $capability, $file_name, $menu_positi
 function bb_admin_add_submenu( $display_name, $capability, $file_name, $parent = 'plugins.php' )
 {
 	global $bb_submenu;
+	global $bb_registered_plugin_callbacks;
+	if ( empty( $bb_registered_plugin_callbacks ) ) {
+		$bb_registered_plugin_callbacks = array();
+	}
+
 	if ( $display_name && $capability && $file_name ) {
+		if ( strpos( $file_name, '.php' ) === false ) {
+			$bb_registered_plugin_callbacks[] = $file_name;
+		}
 		$bb_submenu[$parent][] = array( $display_name, $capability, $file_name );
 		ksort( $bb_submenu );
 	}
@@ -397,10 +413,13 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit =
 
 function bb_user_row( $user, $role = '', $email = false ) {
 	$actions = "<a href='" . esc_attr( get_user_profile_link( $user->ID ) ) . "'>" . __('View') . "</a>";
-	if ( bb_current_user_can( 'edit_user', $user_id ) )
+	$title = '';
+	if ( bb_current_user_can( 'edit_user', $user_id ) ) {
 		$actions .= " | <a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
+		$title = " title='" . esc_attr( sprintf( __( 'User ID: %d' ), $user->ID ) ) . "'";
+	}
 	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
-	$r .= "\t\t<td class=\"user\">" . bb_get_avatar( $user->ID, 32 ) . "<span class=\"row-title\"><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_name( $user->ID ) . "</a></span><div><span class=\"row-actions\">$actions</span>&nbsp;</div></td>\n";
+	$r .= "\t\t<td class=\"user\">" . bb_get_avatar( $user->ID, 32 ) . "<span class=\"row-title\"><a href='" . get_user_profile_link( $user->ID ) . "'" . $title . ">" . get_user_name( $user->ID ) . "</a></span><div><span class=\"row-actions\">$actions</span>&nbsp;</div></td>\n";
 	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_display_name( $user->ID ) . "</a></td>\n";
 	if ( $email ) {
 		$email = bb_get_user_email( $user->ID );

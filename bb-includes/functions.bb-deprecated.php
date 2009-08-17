@@ -640,8 +640,11 @@ function bb_pull_cols( $obj_array ) {
 
 // $length parameter is deprecated
 function bb_random_pass( $length ) {
-	bb_log_deprecated('function', __FUNCTION__, 'wp_generate_password');
-	return wp_generate_password();
+	bb_log_deprecated('function', __FUNCTION__, 'bb_generate_password');
+	if ( 12 < (int) $length ) {
+		$length = 12;
+	}
+	return bb_generate_password( $length );
 }
 
 // Old RSS related functions

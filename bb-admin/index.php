@@ -29,6 +29,14 @@ $rn_users_average = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> 
 $rn_topic_tags_average = bb_get_topic_tags_per_day();
 $rn_topic_tags_average = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags_average), $rn_topic_tags_average);
 
+$rn = apply_filters( 'bb_admin_right_now', array(
+	'forums'     => array( $rn_forums, '-' ),
+	'topics'     => array( $rn_topics, $rn_topics_average ),
+	'posts'      => array( $rn_posts, $rn_posts_average ),
+	'topic_tags' => array( $rn_topic_tags, $rn_topic_tags_average ),
+	'users'      => array( $rn_users, $rn_users_average )
+) );
+
 $bb_admin_body_class = ' bb-admin-dashboard';
 
 bb_get_admin_header();
@@ -48,28 +56,24 @@ bb_get_admin_header();
 						<th><?php _e( 'Per Day' ); ?></th>
 					</tr>
 				</thead>
+<?php
+if ( !empty( $rn ) && is_array( $rn ) ) {
+?>
 				<tbody>
+<?php
+	foreach ( $rn as $rn_row ) {
+?>
 					<tr>
-						<td><?php echo $rn_forums; ?></td>
-						<td>-</td>
+						<td><?php echo $rn_row[0]; ?></td>
+						<td><?php echo $rn_row[1]; ?></td>
 					</tr>
-					<tr>
-						<td><?php echo $rn_topics; ?></td>
-						<td><?php echo $rn_topics_average; ?></td>
-					</tr>
-					<tr>
-						<td><?php echo $rn_posts; ?></td>
-						<td><?php echo $rn_posts_average; ?></td>
-					</tr>
-					<tr>
-						<td><?php echo $rn_topic_tags; ?></td>
-						<td><?php echo $rn_topic_tags_average; ?></td>
-					</tr>
-					<tr>
-						<td><?php echo $rn_users; ?></td>
-						<td><?php echo $rn_users_average; ?></td>
-					</tr>
+<?php
+	}
+?>
 				</tbody>
+<?php
+}
+?>
 			</table>
 		</div>
 

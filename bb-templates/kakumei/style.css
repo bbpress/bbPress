@@ -644,7 +644,22 @@ a.rss-link {
 	background-position: 0 50%;
 }
 
-#topic-move { margin-top: 1em; }
+#topic-move,
+#topic-move fieldset,
+#topic-move fieldset div {
+	display: inline;
+}
+
+#topic-move input {
+	font-family: inherit;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: #2e6e15;
+	font-size: 1em;
+}
+
+#topic-move input:hover { color: #006400; }
 
 /* Other
 =================================== */
