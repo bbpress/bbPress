@@ -368,20 +368,19 @@ function bb_create_nonce($action = -1) {
 }
 endif;
 
-function _bb_get_key( $key, $default_key = false ) {
-	if ( !$default_key ) {
-		global $bb_default_secret_key;
-		$default_key = $bb_default_secret_key;
-	}
+function _bb_get_key( $key, $default_key = false )
+{
+	global $bb_default_secret_key;
 
-	if ( defined( $key ) && '' != constant( $key ) && $default_key != constant( $key ) ) {
+	if ( defined( $key ) && '' != constant( $key ) && $bb_default_secret_key != constant( $key ) ) {
 		return constant( $key );
 	}
 
-	return $default_key;
+	return '';
 }
 
-function _bb_get_salt( $constants, $option = false ) {
+function _bb_get_salt( $constants, $option = false )
+{
 	if ( !is_array( $constants ) ) {
 		$constants = array( $constants );
 	}
@@ -398,7 +397,7 @@ function _bb_get_salt( $constants, $option = false ) {
 		}
 		$salt = bb_get_option( $option );
 		if ( empty( $salt ) ) {
-			$salt = bb_generate_password();
+			$salt = bb_generate_password( 64 );
 			bb_update_option( $option, $salt );
 		}
 		return $salt;
@@ -419,27 +418,29 @@ if ( !function_exists( 'bb_salt' ) ) :
  *
  * @return string Salt value for the given scheme
  */
-function bb_salt($scheme = 'auth') {
+function bb_salt( $scheme = 'auth' )
+{
+	// Deprecated
 	$secret_key = _bb_get_key( 'BB_SECRET_KEY' );
 
 	switch ($scheme) {
 		case 'auth':
-			$secret_key = _bb_get_key( 'BB_AUTH_KEY', $secret_key );
+			$secret_key = _bb_get_key( 'BB_AUTH_KEY' );
 			$salt = _bb_get_salt( array( 'BB_AUTH_SALT', 'BB_SECRET_SALT' ) );
 			break;
 
 		case 'secure_auth':
-			$secret_key = _bb_get_key( 'BB_SECURE_AUTH_KEY', $secret_key );
+			$secret_key = _bb_get_key( 'BB_SECURE_AUTH_KEY' );
 			$salt = _bb_get_salt( 'BB_SECURE_AUTH_SALT' );
 			break;
 
 		case 'logged_in':
-			$secret_key = _bb_get_key( 'BB_LOGGED_IN_KEY', $secret_key );
+			$secret_key = _bb_get_key( 'BB_LOGGED_IN_KEY' );
 			$salt = _bb_get_salt( 'BB_LOGGED_IN_SALT' );
 			break;
 
 		case 'nonce':
-			$secret_key = _bb_get_key( 'BB_NONCE_KEY', $secret_key );
+			$secret_key = _bb_get_key( 'BB_NONCE_KEY' );
 			$salt = _bb_get_salt( 'BB_NONCE_SALT' );
 			break;
 
