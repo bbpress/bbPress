@@ -5,7 +5,11 @@ function bb_auth( $scheme = 'auth' ) { // Checks if a user has a valid cookie, i
 	if ( !bb_validate_auth_cookie( '', $scheme ) ) {
 		nocache_headers();
 		if ( 'auth' === $scheme && !bb_is_user_logged_in() ) {
-			wp_redirect( bb_get_uri( 'bb-login.php', array( 're' => $_SERVER['REQUEST_URI'] ), BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_USER_FORMS ) );
+			$protocol = 'http://';
+			if ( is_ssl() ) {
+				$protocol = 'https://';
+			}
+			wp_redirect( bb_get_uri( 'bb-login.php', array( 'redirect_to' => $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), BB_URI_CONTEXT_HEADER + BB_URI_CONTEXT_BB_USER_FORMS ) );
 		} else {
 			wp_redirect( bb_get_uri( null, null, BB_URI_CONTEXT_HEADER ) );
 		}
