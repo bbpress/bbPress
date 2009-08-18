@@ -44,6 +44,9 @@ if ( bb_is_user_logged_in() ) {
 }
 
 // Get the user from the login details.
+if ( isset( $_POST['remember'] ) && $_POST['remember'] ) {
+	$_POST['rememberme'] = 1;
+}
 $user = bb_login( @$_POST['user_login'], @$_POST['password'], @$_POST['rememberme'] );
 
 // User logged in successfully.
