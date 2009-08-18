@@ -44,7 +44,7 @@ if ( bb_is_user_logged_in() ) {
 }
 
 // Get the user from the login details.
-$user = bb_login( @$_POST['user_login'], @$_POST['password'], @$_POST['remember'] );
+$user = bb_login( @$_POST['user_login'], @$_POST['password'], @$_POST['rememberme'] );
 
 // User logged in successfully.
 if ( $user && !is_wp_error( $user ) ) {
@@ -95,7 +95,7 @@ if ( $email_login && $bb_login_error->get_error_codes() && false !== is_email( $
 
 // Sanitze variables for display.
 $user_login = esc_attr( sanitize_user( @$_POST['user_login'], true ) );
-$remember_checked = @$_POST['remember'] ? ' checked="checked"' : '';
+$remember_checked = @$_POST['rememberme'] ? ' checked="checked"' : '';
 $re = esc_url( $re );
 $re = $redirect_to = esc_attr( $re );
 

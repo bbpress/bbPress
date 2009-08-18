@@ -4,7 +4,7 @@
 	printf(
 		__( '<a href="%1$s">Register</a> or log in - <a href="%2$s">lost password?</a>' ),
 		bb_get_uri( 'register.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS ),
-		bb_get_uri( 'bb-login.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_USER_FORMS )
+		bb_get_uri( 'bb-login.php', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS )
 	);
 	?>
 
@@ -25,7 +25,7 @@
 	</div>
 	<div class="remember">
 		<label>
-			<input name="remember" type="checkbox" id="quick_remember" value="1" tabindex="3"<?php echo $remember_checked; ?> />
+			<input name="rememberme" type="checkbox" id="quick_remember" value="1" tabindex="3"<?php echo $remember_checked; ?> />
 			<?php _e('Remember me'); ?>
 
 		</label>

@@ -34,7 +34,7 @@
 
 	<tr valign="top" class="form-field">
 		<th scope="row"><label for="remember"><?php _e('Remember me'); ?></label></th>
-		<td><input name="remember" type="checkbox" id="remember" value="1"<?php echo $remember_checked; ?> /></td>
+		<td><input name="rememberme" type="checkbox" id="remember" value="1"<?php echo $remember_checked; ?> /></td>
 	</tr>
 	<tr>
 		<th scope="row">&nbsp;</th>
