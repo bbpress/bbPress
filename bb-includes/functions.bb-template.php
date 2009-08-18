@@ -1583,7 +1583,7 @@ function bb_get_new_topic_link( $args = null ) {
 		$url = bb_get_uri(null, array('new' => 1));
 
 	if ( !bb_is_user_logged_in() )
-		$url = bb_get_uri('bb-login.php', array('re' => $url), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS);
+		$url = bb_get_uri('bb-login.php', array('redirect_to' => $url), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS);
 	elseif ( bb_is_forum() || bb_is_topic() ) {
 		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
 			return;
@@ -2730,9 +2730,9 @@ function bb_get_logout_link( $args = '' ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract($args, EXTR_SKIP);
 
-	$query = array( 'logout' => 1 );
+	$query = array( 'action' => 'logout' );
 	if ( $redirect ) {
-		$query['re'] = $redirect;
+		$query['redirect_to'] = $redirect;
 	}
 
 	$uri = esc_attr( bb_get_uri('bb-login.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS) );

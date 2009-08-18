@@ -6,9 +6,20 @@ require('./bb-load.php');
 bb_ssl_redirect();
 
 // Get the referer.
-$ref = wp_get_referer();
-if ( !$re = $_POST['re'] ? $_POST['re'] : $_GET['re'] ) {
-	$re = $ref;
+if ( isset( $_POST['redirect_to'] ) ) {
+	$re = $_POST['redirect_to'];
+}
+if ( empty( $re ) && isset( $_GET['redirect_to'] ) ) {
+	$re = $_GET['redirect_to'];
+}
+if ( empty( $re ) && isset( $_POST['re'] ) ) {
+	$re = $_POST['re'];
+}
+if ( empty( $re ) && isset( $_GET['re'] ) ) {
+	$re = $_GET['re'];
+}
+if ( empty( $re ) ) {
+	$re = wp_get_referer();
 }
 
 // Grab the URL for comparison.
@@ -32,6 +43,9 @@ if ( is_ssl() && 0 === strpos( $re, '/' ) ) {
 
 // Logout requested.
 if ( isset( $_GET['logout'] ) ) {
+	$_GET['action'] = 'logout';
+}
+if ( isset( $_GET['action'] ) && 'logout' === $_GET['action'] ) {
 	bb_logout();
 	bb_safe_redirect( $re );
 	exit;
@@ -44,10 +58,16 @@ if ( bb_is_user_logged_in() ) {
 }
 
 // Get the user from the login details.
-if ( isset( $_POST['remember'] ) && $_POST['remember'] ) {
+if ( !empty( $_POST['user_login'] ) ) {
+	$_POST['log'] = $_POST['user_login'];
+}
+if ( !empty( $_POST['password'] ) ) {
+	$_POST['pwd'] = $_POST['password'];
+}
+if ( !empty( $_POST['remember'] ) ) {
 	$_POST['rememberme'] = 1;
 }
-$user = bb_login( @$_POST['user_login'], @$_POST['password'], @$_POST['rememberme'] );
+$user = bb_login( @$_POST['log'], @$_POST['pwd'], @$_POST['rememberme'] );
 
 // User logged in successfully.
 if ( $user && !is_wp_error( $user ) ) {
@@ -70,14 +90,14 @@ $error_data = $bb_login_error->get_error_data();
 if ( isset( $error_data['unique'] ) && false === $error_data['unique'] ) {
 	$user_exists = true;
 } else {
-	$user_exists = isset( $_POST['user_login'] ) && $_POST['user_login'] && (bool) bb_get_user( $_POST['user_login'], array( 'by' => 'login' ) );
+	$user_exists = !empty( $_POST['log'] ) && (bool) bb_get_user( $_POST['log'], array( 'by' => 'login' ) );
 }
 unset( $error_data );
 
 if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
 	// If the user doesn't exist then add that error.
 	if ( !$user_exists ) {
-		if ( isset( $_POST['user_login'] ) && $_POST['user_login'] ) {
+		if ( !empty( $_POST['log'] ) ) {
 			$bb_login_error->add( 'user_login', __( 'User does not exist.' ) );
 		} else {
 			$bb_login_error->add( 'user_login', $email_login ? __( 'Enter a username or email address.' ) : __( 'Enter a username.' ) );
@@ -92,12 +112,12 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
 
 // If trying to log in with email address, don't leak whether or not email address exists in the db.
 // is_email() is not perfect, usernames can be valid email addresses potentially.
-if ( $email_login && $bb_login_error->get_error_codes() && false !== is_email( $_POST['user_login'] ) ) {
+if ( $email_login && $bb_login_error->get_error_codes() && false !== is_email( @$_POST['log'] ) ) {
 	$bb_login_error = new WP_Error( 'user_login', __( 'Username and Password do not match.' ) );
 }
 
 // Sanitze variables for display.
-$user_login = esc_attr( sanitize_user( @$_POST['user_login'], true ) );
+$user_login = esc_attr( sanitize_user( @$_POST['log'], true ) );
 $remember_checked = @$_POST['rememberme'] ? ' checked="checked"' : '';
 $re = esc_url( $re );
 $re = $redirect_to = esc_attr( $re );

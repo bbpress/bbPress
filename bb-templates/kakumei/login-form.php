@@ -12,13 +12,13 @@
 	<div>
 		<label>
 			<?php _e('Username'); ?><br />
-			<input name="user_login" type="text" id="quick_user_login" size="13" maxlength="40" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" tabindex="1" />
+			<input name="log" type="text" id="quick_user_login" size="13" maxlength="40" value="<?php if (!is_bool($user_login)) echo $user_login; ?>" tabindex="1" />
 		</label>
 		<label>
 			<?php _e( 'Password' ); ?><br />
-			<input name="password" type="password" id="quick_password" size="13" maxlength="40" tabindex="2" />
+			<input name="pwd" type="password" id="quick_password" size="13" maxlength="40" tabindex="2" />
 		</label>
-		<input name="re" type="hidden" value="<?php echo $re; ?>" />
+		<input name="redirect_to" type="hidden" value="<?php echo $re; ?>" />
 		<?php wp_referer_field(); ?>
 
 		<input type="submit" name="Submit" class="submit" value="<?php echo esc_attr__( 'Log in &raquo;' ); ?>" tabindex="4" />
