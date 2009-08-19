@@ -1744,6 +1744,10 @@ form.settings textarea#rewrite-rules {
 	width: 99%;
 }
 
+form.settings select#timezone-string option {
+	margin-left: 1em;
+}
+
 
 /* Footer */
 

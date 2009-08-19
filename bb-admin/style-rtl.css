@@ -432,6 +432,11 @@ form.settings a.cancel {
 	margin-left: 6px;
 }
 
+form.settings select#timezone-string option {
+	margin-left: auto;
+	margin-right: 1em;
+}
+
 
 
 /* Footer */
