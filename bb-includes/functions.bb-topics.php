@@ -73,7 +73,7 @@ function get_latest_topics( $args = null ) {
 	extract( $args, EXTR_SKIP );
 
 	if ( $exclude ) {
-		$exclude = '-' . str_replace(',', '-,', $exclude);
+		$exclude = '-' . str_replace(',', ',-', $exclude);
 		$exclude = str_replace('--', '-', $exclude);
 		if ( $forum )
 			$forum = (string) $forum . ",$exclude";
