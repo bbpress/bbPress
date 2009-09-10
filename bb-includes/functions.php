@@ -150,7 +150,7 @@ function get_topic( $id, $cache = true ) {
 // $exclude is deprecated
 function get_latest_topics( $forum = false, $page = 1, $exclude = '') {
 	if ( $exclude ) {
-		$exclude = '-' . str_replace(',', '-,', $exclude);
+		$exclude = '-' . str_replace(',', ',-', $exclude);
 		$exclude = str_replace('--', '-', $exclude);
 		if ( $forum )
 			$forum = (string) $forum . ",$exclude";
