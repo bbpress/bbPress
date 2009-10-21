@@ -9,12 +9,7 @@ Author URI: http://blogwaffe.com/
 */
 
 // Add filters for the admin area
-add_action('bb_admin_menu_generator', 'bb_ksd_configuration_page_add');
 add_action('bb_admin-header.php', 'bb_ksd_configuration_page_process');
-
-function bb_ksd_configuration_page_add() {
-	bb_admin_add_submenu(__('Akismet Configuration'), 'use_keys', 'bb_ksd_configuration_page');
-}
 
 function bb_ksd_configuration_page() {
 ?>
@@ -255,10 +250,6 @@ function bb_ksd_pre_post_status( $post_status ) {
 	return $post_status;
 }
 
-function bb_ksd_admin_menu() {
-	global $bb_submenu;
-	$bb_submenu['content.php'][] = array(__('Akismet Spam'), 'moderate', 'bb_ksd_admin_page');
-}
 
 function bb_ksd_delete_post( $post_id, $new_status, $old_status )
 {
@@ -280,6 +271,11 @@ function bb_ksd_delete_post( $post_id, $new_status, $old_status )
 		bb_ksd_submit_ham( $post_id );
 		return;
 	}
+}
+
+function bb_ksd_admin_menu() {
+	bb_admin_add_submenu(__('Akismet Configuration'), 'use_keys', 'bb_ksd_configuration_page');
+	bb_admin_add_submenu(__('Akismet Spam'), 'moderate', 'bb_ksd_admin_page', 'content.php');
 }
 
 function bb_ksd_admin_page() {
@@ -321,4 +317,3 @@ add_action( 'profile_edited', 'bb_ksd_check_profile', 1);
 add_action( 'bb_admin_menu_generator', 'bb_ksd_admin_menu' );
 add_action( 'bb_delete_post', 'bb_ksd_delete_post', 10, 3);
 add_filter( 'post_delete_link', 'bb_ksd_post_delete_link', 10, 2 );
-?>
