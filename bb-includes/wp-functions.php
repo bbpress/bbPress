@@ -8,26 +8,28 @@ endif;
 
 /* Formatting */
 
-if ( !function_exists( 'clean_url' ) ) : // [WP6182]
+if ( !function_exists( 'clean_url' ) ) : // [WP11615]
 function clean_url( $url, $protocols = null, $context = 'display' ) {
 	$original_url = $url;
 
 	if ('' == $url) return $url;
-	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@]|i', '', $url);
-	$strip = array('%0d', '%0a');
-	$url = str_replace($strip, '', $url);
+	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\\x80-\\xff]|i', '', $url);
+	$strip = array('%0d', '%0a', '%0D', '%0A');
+	$url = _deep_replace($strip, $url);
 	$url = str_replace(';//', '://', $url);
 	/* If the URL doesn't appear to contain a scheme, we
 	 * presume it needs http:// appended (unless a relative
 	 * link starting with / or a php file).
-	*/
+	 */
 	if ( strpos($url, ':') === false &&
-		substr( $url, 0, 1 ) != '/' && !preg_match('/^[a-z0-9-]+?\.php/i', $url) )
+		substr( $url, 0, 1 ) != '/' && substr( $url, 0, 1 ) != '#' && !preg_match('/^[a-z0-9-]+?\.php/i', $url) )
 		$url = 'http://' . $url;
 
-	// Replace ampersands ony when displaying.
-	if ( 'display' == $context )
+	// Replace ampersands and single quotes only when displaying.
+	if ( 'display' == $context ) {
 		$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
+		$url = str_replace( "'", '&#039;', $url );
+	}
 
 	if ( !is_array($protocols) )
 		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet');
@@ -35,6 +37,29 @@ function clean_url( $url, $protocols = null, $context = 'display' ) {
 		return '';
 
 	return apply_filters('clean_url', $url, $original_url, $context);
+}
+endif;
+
+if ( !function_exists( '_deep_replace' ) ) : // [WP11615]
+function _deep_replace($search, $subject){
+	$found = true;
+	while($found) {
+		$found = false;
+		foreach( (array) $search as $val ) {
+			while(strpos($subject, $val) !== false) {
+				$found = true;
+				$subject = str_replace($val, '', $subject);
+			}
+		}
+	}
+
+	return $subject;
+}
+endif;
+
+if ( !function_exists( 'esc_url' ) ) : // [WP11383]
+function esc_url( $url, $protocols = null ) {
+	return clean_url( $url, $protocols, 'display' );
 }
 endif;
 
