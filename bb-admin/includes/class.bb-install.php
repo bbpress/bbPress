@@ -1280,7 +1280,7 @@ class BB_Install
 		// We'll fail here if the values are no good.
 		require_once( BACKPRESS_PATH . 'class.bpdb-multi.php' );
 
-		$bbdb =& new BPDB_Multi( array(
+		$bbdb = new BPDB_Multi( array(
 			'name'     => BBDB_NAME,
 			'user'     => BBDB_USER,
 			'password' => BBDB_PASSWORD,
