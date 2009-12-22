@@ -481,7 +481,7 @@ if ( !function_exists( 'get_translations_for_domain' ) ) :
  */
 function &get_translations_for_domain( $domain ) {
 	global $l10n;
-	$empty = new Translations;
+	$empty =& new Translations;
 	if ( isset($l10n[$domain]) )
 		return $l10n[$domain];
 	else

@@ -1,6 +1,6 @@
 <?php
 // Modify error reporting levels
-error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING);
 
 // Let everyone know we are installing
 define('BB_INSTALLING', true);
