@@ -3,31 +3,31 @@ require_once('admin.php');
 require_once( BB_PATH . BB_INC . 'functions.bb-statistics.php' );
 
 $rn_forums = get_total_forums();
-$rn_forums = sprintf(__ngettext('<span>%d</span> forum', '<span>%d</span> forums', $rn_forums), $rn_forums);
+$rn_forums = sprintf(__ngettext('<span>%d</span> forum', '<span>%d</span> forums', $rn_forums), number_format( $rn_forums ) );
 
 $rn_topics = get_total_topics();
-$rn_topics = sprintf(__ngettext('<span>%d</span> topic', '<span>%d</span> topics', $rn_topics), $rn_topics);
+$rn_topics = sprintf(__ngettext('<span>%d</span> topic', '<span>%d</span> topics', $rn_topics), number_format( $rn_topics ) );
 
 $rn_posts = get_total_posts();
-$rn_posts = sprintf(__ngettext('<span>%d</span> post', '<span>%d</span> posts', $rn_posts), $rn_posts);
+$rn_posts = sprintf(__ngettext('<span>%d</span> post', '<span>%d</span> posts', $rn_posts), number_format( $rn_posts ) );
 
 $rn_users = bb_get_total_users();
-$rn_users = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> users', $rn_users), $rn_users);
+$rn_users = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> users', $rn_users), number_format( $rn_users ) );
 
 $rn_topic_tags = bb_get_total_topic_tags();
-$rn_topic_tags = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags), $rn_topic_tags);
+$rn_topic_tags = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags), number_format( $rn_topic_tags ) );
 
 $rn_topics_average = get_topics_per_day();
-$rn_topics_average = sprintf(__ngettext('<span>%d</span> topic', '<span>%d</span> topics', $rn_topics_average), $rn_topics_average);
+$rn_topics_average = sprintf(__ngettext('<span>%d</span> topic', '<span>%d</span> topics', $rn_topics_average), number_format( $rn_topics_average ) );
 
 $rn_posts_average = get_posts_per_day();
-$rn_posts_average = sprintf(__ngettext('<span>%d</span> post', '<span>%d</span> posts', $rn_posts_average), $rn_posts_average);
+$rn_posts_average = sprintf(__ngettext('<span>%d</span> post', '<span>%d</span> posts', $rn_posts_average), number_format( $rn_posts_average ) );
 
 $rn_users_average = get_registrations_per_day();
-$rn_users_average = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> users', $rn_users_average), $rn_users_average);
+$rn_users_average = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> users', $rn_users_average), number_format( $rn_users_average ) );
 
 $rn_topic_tags_average = bb_get_topic_tags_per_day();
-$rn_topic_tags_average = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags_average), $rn_topic_tags_average);
+$rn_topic_tags_average = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags_average), number_format( $rn_topic_tags_average ) );
 
 $rn = apply_filters( 'bb_admin_right_now', array(
 	'forums'     => array( $rn_forums, '-' ),
