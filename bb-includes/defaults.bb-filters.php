@@ -152,4 +152,6 @@ add_action( 'set_current_user', 'bb_apply_wp_role_map_to_user' );
 
 add_filter( 'bb_pre_get_option_gmt_offset', 'wp_timezone_override_offset' );
 
+add_action( 'bb_new_post', 'bb_notify_subscribers' );
+
 unset( $filters, $filter );

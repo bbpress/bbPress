@@ -414,8 +414,6 @@ function bb_notify_subscribers( $post_id ) {
 	}
 }
 
-add_action( 'bb_new_post', 'bb_notify_subscribers' );
-
 // Deprecated: expects $post_text to be pre-escaped
 function bb_new_post( $topic_id, $post_text ) {
 	$post_text = stripslashes( $post_text );
