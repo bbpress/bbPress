@@ -377,6 +377,45 @@ function bb_insert_post( $args = null ) {
 	return $post_id;
 }
 
+function bb_notify_subscribers( $post_id ) {
+	global $bbdb, $bb_current_user;
+
+	if ( !$post = bb_get_post( $post_id ) )
+		return false;
+
+	if ( !$topic = get_topic( $post->topic_id ) )
+		return false;
+
+	if ( !$user = bb_get_user( $post->poster_id ) )
+		return false;
+
+	if ( !$term_id = $bbdb->get_var( "SELECT term_id FROM $bbdb->terms WHERE slug = 'topic-$topic->topic_id'" ) )
+		return false;
+
+	if ( !$term_taxonomy_id = $bbdb->get_var( "SELECT term_taxonomy_id FROM $bbdb->term_taxonomy WHERE term_id = $term_id AND taxonomy = 'bb_subscribe'" ) )
+		return false;
+
+	if ( !$user_ids = $bbdb->get_col( "SELECT object_id FROM $bbdb->term_relationships WHERE term_taxonomy_id = $term_taxonomy_id" ) ) // all the users subscribed to this topic
+		return false;
+
+	foreach ( $user_ids as $user_id ) {
+		if ( $user_id == $post->poster_id )
+			continue; // don't send notifications to the person who made the post
+
+		$user = bb_get_user( $user_id );
+
+		$message = __("There is a new post on: %1\$s \nReply by: %2\$s \nText: %3\$s \n\n%4\$s ");
+		bb_mail( 
+			$user->user_email, 
+			'[' . bb_get_option('name') . '] ' . get_topic_title( $topic_id ), 
+			sprintf( $message, get_topic_title( $topic_id ), get_user_name( $post->poster_id ), strip_tags( get_post_text( $post_id ) ), get_topic_link( $topic_id ) ), 
+			'From: '.bb_get_option('name').' <'.bb_get_option('from_email').'>'
+		);
+	}
+}
+
+add_action( 'bb_new_post', 'bb_notify_subscribers' );
+
 // Deprecated: expects $post_text to be pre-escaped
 function bb_new_post( $topic_id, $post_text ) {
 	$post_text = stripslashes( $post_text );

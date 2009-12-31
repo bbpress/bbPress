@@ -1033,7 +1033,10 @@ if ( !isset( $wp_taxonomy_object ) ) {
 	$wp_taxonomy_object->taxonomies =& $tax;
 	unset( $tax );
 }
+
 $wp_taxonomy_object->register_taxonomy( 'bb_topic_tag', 'bb_topic' );
+
+$wp_taxonomy_object->register_taxonomy( 'bb_subscribe', 'bb_user' );
 
 do_action( 'bb_options_loaded' );
 

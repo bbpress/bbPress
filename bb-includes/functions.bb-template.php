@@ -3388,6 +3388,27 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-favorite'>$mid</a>$post</span>";
 }
 
+function bb_user_subscribe_link() {
+	global $topic, $bb_current_user, $bbdb;
+
+	if ( !$bb_current_user )
+		return false;
+
+	$there = false;
+	if ( $term_id = $bbdb->get_var( "SELECT term_id FROM $bbdb->terms WHERE slug = 'topic-$topic->topic_id'" ) ) {
+		$term_taxonomy_ids = $bbdb->get_col( "SELECT term_taxonomy_id FROM $bbdb->term_taxonomy WHERE term_id = $term_id AND taxonomy = 'bb_subscribe'" );
+		$term_taxonomy_ids = join(',', $term_taxonomy_ids );
+		$there = $bbdb->get_var( "SELECT object_id FROM $bbdb->term_relationships WHERE object_id = $bb_current_user->ID AND term_taxonomy_id IN ( $term_taxonomy_ids )" );
+	}
+
+
+	if ( $there )
+		echo '<a href="'. bb_nonce_url( "/?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=remove", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Unsubscribe from Topic' ) . '</a>';
+	else
+		echo '<a href="'. bb_nonce_url( "/?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=add", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Subscribe to Topic' ) . '</a>';
+
+	}
+
 function favorites_rss_link( $id = 0, $context = 0 ) {
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
