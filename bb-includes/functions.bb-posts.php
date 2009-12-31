@@ -404,11 +404,11 @@ function bb_notify_subscribers( $post_id ) {
 
 		$user = bb_get_user( $user_id );
 
-		$message = __("There is a new post on: %1\$s \nReply by: %2\$s \nText: %3\$s \n\n%4\$s ");
+		$message = __( "%2\$s wrote:\n\n %3\$s\n\nTopic Link: %4\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." );
 		bb_mail( 
 			$user->user_email, 
 			'[' . bb_get_option('name') . '] ' . get_topic_title( $topic_id ), 
-			sprintf( $message, get_topic_title( $topic_id ), get_user_name( $post->poster_id ), strip_tags( get_post_text( $post_id ) ), get_topic_link( $topic_id ) ), 
+			sprintf( $message, get_topic_title( $topic_id ), get_user_name( $post->poster_id ), strip_tags( get_post_text( $post_id ) ), get_post_link( $post_id ) ), 
 			'From: '.bb_get_option('name').' <'.bb_get_option('from_email').'>'
 		);
 	}
