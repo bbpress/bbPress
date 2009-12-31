@@ -3389,7 +3389,7 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 }
 
 function bb_user_subscribe_link() {
-	global $topic, $bb_current_user, $bbdb;
+	global $topic, $bb_current_user, $bbdb, $bb;
 
 	if ( !$bb_current_user )
 		return false;
@@ -3403,9 +3403,9 @@ function bb_user_subscribe_link() {
 
 
 	if ( $there )
-		echo '<a href="'. bb_nonce_url( "/?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=remove", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Unsubscribe from Topic' ) . '</a>';
+		echo '<a href="'. bb_nonce_url( "$bb->uri?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=remove", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Unsubscribe from Topic' ) . '</a>';
 	else
-		echo '<a href="'. bb_nonce_url( "/?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=add", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Subscribe to Topic' ) . '</a>';
+		echo '<a href="'. bb_nonce_url( "$bb->uri?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=add", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Subscribe to Topic' ) . '</a>';
 
 	}
 
