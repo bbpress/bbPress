@@ -1487,7 +1487,15 @@ function bb_profile_data( $id = 0 ) {
 				&& 'http://' != $val
 			) {
 				echo "\t<dt>{$label[1]}</dt>\n";
-				echo "\t<dd>" . make_clickable( $val ) . "</dd>\n";
+
+				$val = make_clickable( $val );
+				if (isset($label[2]) && !empty($label[2]))
+					if (preg_match("#^<a#i", $val)) 
+						$val = preg_replace("#^<a#i", '<a class="' . attribute_escape($label[2]) . '"', $val);
+					else
+						$val = '<span class="' . attribute_escape($label[2]) . '">' . $val . '</span>';
+				
+				echo "\t<dd>" . $val . "</dd>\n";
 			}
 		}
 	}
@@ -1530,21 +1538,39 @@ function bb_profile_data_form( $id = 0 ) {
 
 			$name = attribute_escape( $key );
 			$type = isset($label[2]) ? attribute_escape( $label[2] ) : 'text';
+			$checked = false;
 
 			if ( in_array( $key, $error_codes ) ) {
 				$class .= ' form-invalid';
 				$data = $errors->get_error_data( $key );
-				if ( isset($data['data']) )
-					$value = $data['data'];
-				else
-					$value = $_POST[$key];
+
+				if ( 'checkbox' == $type ) {
+					if ( isset($data['data']) )
+						$checked = $data['data'];
+					else
+						$checked = $_POST[$key];
+					$value = $label[3];
+					$checked = $checked == $value;
+				} else {
+ 					if ( isset($data['data']) )
+ 						$value = $data['data'];
+ 					else
+ 						$value = $_POST[$key];
+				}
 
 				$message = wp_specialchars( $errors->get_error_message( $key ) );
 				$message = "<p class='error'>$message</p>";
 			} else {
-				$value = $user->$key;
+				if ( 'checkbox' == $type ) {
+					$checked = $user->$key == $label[3] || $label[4] == $label[3];
+					$value = $label[3];
+				} else {
+					$value = isset($user->$key) ? $user->$key : '';
+				}
 				$message = '';
 			}
+
+			$checked = $checked ? ' checked="checked"' : '';
 			$value = attribute_escape( $value );
 
 ?>
@@ -1552,7 +1578,7 @@ function bb_profile_data_form( $id = 0 ) {
 <tr class="<?php echo $class; ?>">
 	<th scope="row"><label for="<?php echo $name; ?>"><?php echo $title; ?></label></th>
 	<td>
-		<input name="<?php echo $name; ?>" type="<?php echo $type; ?>" id="<?php echo $name; ?>" value="<?php echo $value; ?>" />
+		<input name="<?php echo $name; ?>" type="<?php echo $type; ?>" id="<?php echo $name; ?>" value="<?php echo $value; ?>"<?php echo $checked; ?> />
 		<?php echo $message; ?>
 	</td>
 </tr>
