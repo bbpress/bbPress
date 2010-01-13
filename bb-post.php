@@ -1,20 +1,41 @@
 <?php
 require('./bb-load.php');
 
-bb_auth('logged_in');
+if ( bb_is_login_required() ) {
+	bb_auth('logged_in');
+}
 
-if ( $throttle_time = bb_get_option( 'throttle_time' ) )
-	if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + $throttle_time && !bb_current_user_can('throttle') )
-		bb_die(__('Slow down; you move too fast.'));
+bb_check_comment_flood();
 
 if ( !$post_content = trim($_POST['post_content']) )
 	bb_die(__('You need to actually submit some content!'));
 
+$post_author = $post_email = $post_url = '';
+
+if ( ! bb_is_user_logged_in() ) {
+	if ( bb_is_login_required() ) {
+		bb_die(__('You are not allowed to post.  Are you logged in?'));
+	} else {
+		if ( ! $post_author = trim($_POST['author']) ) {
+			bb_die(__('You need to submit your name!'));
+		} elseif ( ! $post_email = trim($_POST['email']) ) {
+			bb_die(__('You need to submit your email!'));
+		}
+
+		if ( ! empty( $_POST['url'] ) ) {
+			$post_url = trim($_POST['url']);
+		}
+	}
+}
+
+
+
+
 if ( isset($_POST['topic']) && $forum_id = (int) $_POST['forum_id'] ) {
-	if ( !bb_current_user_can('write_posts') )
+	if ( bb_is_login_required() && ! bb_current_user_can('write_posts') )
 		bb_die(__('You are not allowed to post.  Are you logged in?'));
 
-	if ( !bb_current_user_can( 'write_topic', $forum_id ) )
+	if ( bb_is_login_required() && ! bb_current_user_can( 'write_topic', $forum_id ) )
 		bb_die(__('You are not allowed to write new topics.'));
 
 	bb_check_admin_referer( 'create-topic' );
@@ -32,13 +53,24 @@ if ( isset($_POST['topic']) && $forum_id = (int) $_POST['forum_id'] ) {
 	bb_check_admin_referer( 'create-post_' . $topic_id );
 }
 
-if ( !bb_current_user_can( 'write_post', $topic_id ) )
+if ( bb_is_login_required() && ! bb_current_user_can( 'write_post', $topic_id ) )
 	bb_die(__('You are not allowed to post.  Are you logged in?'));
 
 if ( !topic_is_open( $topic_id ) )
 	bb_die(__('This topic has been closed'));
 
-$post_id = bb_new_post( $topic_id, $_POST['post_content'] );
+$post_data = array(
+	'post_text' => stripslashes($_POST['post_content']),
+	'topic_id' => $topic_id,
+);
+
+foreach( array('post_author', 'post_email', 'post_url') as $field ) {
+	if ( ! empty( $$field ) ) {
+		$post_data[$field] = $$field;
+	}
+}
+
+$post_id = bb_insert_post($post_data);
 
 $tags  = trim( $_POST['tags']  );
 bb_add_topic_tags( $topic_id, $tags );

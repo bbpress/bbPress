@@ -10,6 +10,10 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	if (!isset($_POST['enable_pingback'])) {
 		$_POST['enable_pingback'] = false;
 	}
+
+	if (!isset($_POST['enable_loginless'])) {
+		$_POST['enable_loginless'] = false;
+	}
 	
 	// Deal with avatars checkbox when it isn't checked
 	if (!isset($_POST['avatars_show'])) {
@@ -38,13 +42,21 @@ if ( !empty($_GET['updated']) ) {
 	bb_admin_notice( __( '<strong>Settings saved.</strong>' ) );
 }
 
-$remote_options = array(
+$general_options = array(
 	'enable_pingback' => array(
 		'title' => __( 'Enable Pingbacks' ),
 		'type' => 'checkbox',
 		'options' => array(
 			1 => __( 'Allow link notifications from other sites.' )
 		)
+	),
+
+	'enable_loginless' => array(
+		'title' => __( 'Enable Login-less Posting' ),
+		'type' => 'checkbox',
+		'options' => array(
+			1 => __( 'Allow users to create topics and posts without logging in.' )
+		),
 	),
 );
 
@@ -101,7 +113,7 @@ bb_get_admin_header();
 <form class="settings" method="post" action="<?php bb_uri( 'bb-admin/options-discussion.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ); ?>">
 	<fieldset>
 <?php
-foreach ( $remote_options as $option => $args ) {
+foreach ( $general_options as $option => $args ) {
 	bb_option_form_element( $option, $args );
 }
 ?>

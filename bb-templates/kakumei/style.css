@@ -592,8 +592,11 @@ h2.post-form {
 
 .postform label { display: block; }
 
+.postform #author,
+.postform #email,
 .postform #topic,
-.postform #tags-input {
+.postform #tags-input,
+.postform #url {
 	margin: 5px 0;
 	padding: 5px;
 	width: 724px;

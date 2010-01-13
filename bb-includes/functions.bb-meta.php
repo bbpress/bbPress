@@ -465,6 +465,7 @@ function bb_cache_all_options()
 		'wp_admin_cookie_path',
 		'wp_plugins_cookie_path',
 		'wordpress_mu_primary_blog_id',
+		'enable_loginless',
 		'enable_xmlrpc',
 		'enable_pingback',
 		'throttle_time',

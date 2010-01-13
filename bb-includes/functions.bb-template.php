@@ -291,6 +291,7 @@ function post_form( $args = array() ) {
 	do_action( 'pre_post_form' );
 
 	if (
+		( false === bb_is_login_required() ) ||
 		( bb_is_topic() && bb_current_user_can( 'write_post', $topic->topic_id ) && ( $page == $last_page || !$last_page_only ) ) ||
 		( !bb_is_topic() && bb_current_user_can( 'write_topic', isset( $forum->forum_id ) ? $forum->forum_id : 0 ) )
 	) {
@@ -425,6 +426,14 @@ function bb_is_front() {
 
 function bb_is_forum() {
 	return 'forum-page' == bb_get_location();
+}
+
+/**
+ * Whether a user is required to log in in order to create posts and forums.
+ * @return bool Whether a user must be logged in.
+ */
+function bb_is_login_required() {
+	return ! (bool) bb_get_option('enable_loginless');
 }
 
 function bb_is_tags() {
@@ -1735,6 +1744,8 @@ function get_post_author( $post_id = 0 ) {
 		return apply_filters( 'get_post_author', $user->display_name, $user->ID, $post_id );
 	elseif ( $title = bb_get_post_meta( 'pingback_title' ) )
 		return apply_filters( 'bb_get_pingback_title', $title, $post_id );
+	elseif ( $title = bb_get_post_meta( 'post_author' ) )
+		return apply_filters( 'get_post_author', $title, 0, $post_id );
 	else
 		return apply_filters( 'get_post_author', __('Anonymous'), 0, $post_id );
 }
@@ -1743,6 +1754,8 @@ function post_author_link( $post_id = 0 ) {
 	if ( $link = get_user_link( get_post_author_id( $post_id ) ) ) {
 		echo '<a href="' . esc_attr( $link ) . '">' . get_post_author( $post_id ) . '</a>';
 	} elseif ( $link = bb_get_post_meta( 'pingback_uri' )) {
+		echo '<a href="' . esc_attr( $link ) . '">' . get_post_author( $post_id ) . '</a>';
+	} elseif ( $link = bb_get_post_meta( 'post_url' ) ) {
 		echo '<a href="' . esc_attr( $link ) . '">' . get_post_author( $post_id ) . '</a>';
 	} else {
 		post_author( $post_id );

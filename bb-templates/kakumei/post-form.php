@@ -5,6 +5,29 @@
 	</label>
 </p>
 <?php endif; do_action( 'post_form_pre_post' ); ?>
+<?php if ( ! bb_is_user_logged_in() && ! bb_is_login_required() )  : 
+	$current_commenter = bb_get_current_commenter();
+?>
+	<p id="post-form-author-container">
+		<label for="author"><?php _e('Author (required)'); ?>
+			<input type="text" name="author" id="author" size="50" aria-required="true" value="<?php echo esc_attr($current_commenter['comment_author']); ?>" />
+		</label>
+	</p>
+
+	<p id="post-form-email-container">
+		<label for="email"><?php _e('Email (required)'); ?>
+			<input type="text" name="email" id="email" size="50" aria-required="true" value="<?php echo esc_attr($current_commenter['comment_author_email']); ?>" />
+		</label>
+	</p>
+
+	<p id="post-form-url-container">
+		<label for="url"><?php _e('URL'); ?>
+			<input type="text" name="url" id="url" size="50" aria-required="true" value="<?php echo esc_attr($current_commenter['comment_author_url']); ?>" />
+		</label>
+
+	</p>
+<?php endif; // end user not logged in but logins aren't required ?>
+
 <p id="post-form-post-container">
 	<label for="post_content"><?php _e('Post'); ?>
 		<textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="3"></textarea>

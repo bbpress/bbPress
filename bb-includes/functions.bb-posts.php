@@ -2,6 +2,62 @@
 
 /* Posts */
 
+/**
+ * Check to make sure that a user is not making too many posts in a short amount of time.
+ *
+ * @todo Add logic for users not logged in.
+ *
+ * @param string $ip Comment IP.
+ * @param string $email Comment author email address.
+ * @param string $date MySQL time string.
+ */
+function bb_check_comment_flood( $ip = '', $email = '', $date = '' ) {
+	global $bbdb;
+	$user_id = (int) $user_id;
+	$throttle_time = bb_get_option( 'throttle_time' );
+
+	if ( bb_current_user_can('manage_options') || empty( $throttle_time ) ) {
+		return;
+	}
+
+	$hour_ago = gmdate( 'Y-m-d H:i:s', time() - 3600 );
+
+	if ( bb_is_user_logged_in() ) {
+		$bb_current_user = bb_get_current_user();
+		
+		if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + $throttle_time && ! bb_current_user_can('throttle') ) {
+			if ( defined('DOING_AJAX') && DOING_AJAX ) {
+				die(__('Slow down; you move too fast.'));
+			} else {
+				bb_die(__('Slow down; you move too fast.'));
+			}
+		}
+	} else {
+		// todo: add logic for non-logged-in users
+	}
+}
+
+/**
+ * Get the current, non-logged-in commenter data.
+ * @return array The associative array of author, email, and url data.
+ */
+function bb_get_current_commenter() {
+	// Cookies should already be sanitized.
+	$comment_author = '';
+	if ( isset($_COOKIE['comment_author_'.COOKIEHASH]) )
+		$comment_author = $_COOKIE['comment_author_'.COOKIEHASH];
+
+	$comment_author_email = '';
+	if ( isset($_COOKIE['comment_author_email_'.COOKIEHASH]) )
+		$comment_author_email = $_COOKIE['comment_author_email_'.COOKIEHASH];
+
+	$comment_author_url = '';
+	if ( isset($_COOKIE['comment_author_url_'.COOKIEHASH]) )
+		$comment_author_url = $_COOKIE['comment_author_url_'.COOKIEHASH];
+
+	return compact('comment_author', 'comment_author_email', 'comment_author_url');
+}
+
 function bb_get_post( $post_id ) {
 	global $bbdb;
 	$post_id = (int) $post_id;
@@ -300,10 +356,22 @@ function bb_insert_post( $args = null ) {
 	$defaults['throttle'] = true;
 	extract( wp_parse_args( $args, $defaults ) );
 
+	if ( isset( $post_author ) ) {
+		$post_author = sanitize_user($post_author);
+	}
+
+	if ( isset( $post_email ) ) {
+		$post_email = sanitize_email($post_email);
+	}
+
+	if ( isset( $post_url ) ) {
+		$post_url = esc_url($post_url);
+	}
+
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
 
-	if ( !$user = bb_get_user( $poster_id ) )
+	if ( bb_is_login_required() && ! $user = bb_get_user( $poster_id ) )
 		return false;
 
 	$topic_id = (int) $topic->topic_id;
@@ -330,10 +398,17 @@ function bb_insert_post( $args = null ) {
 		$bbdb->insert( $bbdb->posts, compact( $fields ) );
 		$post_id = $topic_last_post_id = (int) $bbdb->insert_id;
 
+		// if user not logged in, save user data as meta data
+		if ( ! bb_is_user_logged_in() && ! bb_is_login_required() ) {
+			bb_update_meta($post_id, 'post_author', $post_author, 'post');
+			bb_update_meta($post_id, 'post_email', $post_email, 'post');
+			bb_update_meta($post_id, 'post_url', $post_url, 'post');
+		}
+
 		if ( 0 == $post_status ) {
 			$topic_time = $post_time;
-			$topic_last_poster = $poster_id;
-			$topic_last_poster_name = $user->user_login;
+			$topic_last_poster = ( ! bb_is_user_logged_in() && ! bb_is_login_required() ) ? -1 : $poster_id;
+			$topic_last_poster_name = ( ! bb_is_user_logged_in() && ! bb_is_login_required() ) ? $post_author : $user->user_login;
 
 			$bbdb->query( $bbdb->prepare( "UPDATE $bbdb->forums SET posts = posts + 1 WHERE forum_id = %d;", $topic->forum_id ) );
 			$bbdb->update(
