@@ -899,7 +899,7 @@ class BB_Install
 					'uri' => array(
 						'value' => $this->guess_uri(),
 						'label' => __( 'Site address (URL)' ),
-						'note'  => __( 'We have attempted to guess this, it\'s usually correct, but change it here if you wish.' )
+						'note'  => __( 'We have attempted to guess this; it\'s usually correct, but change it here if you wish.' )
 					),
 					'keymaster_user_login' => array(
 						'value'     => '',
