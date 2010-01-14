@@ -137,6 +137,8 @@ function bb_recount_user_topics_replied()
 // TODO - make fast - see #1146
 function bb_recount_topic_tags()
 {
+	global $bbdb, $wp_taxonomy_object;
+
 	// Reset tag count to zero
 	$bbdb->query( "UPDATE $bbdb->topics SET tag_count = 0" );
 
@@ -163,6 +165,8 @@ function bb_recount_topic_tags()
 // TODO - make fast - see #1146
 function bb_recount_tag_topics()
 {
+	global $wp_taxonomy_object;
+
 	// Get all tags
 	$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', array( 'hide_empty' => false ) );
 
@@ -184,6 +188,8 @@ function bb_recount_tag_topics()
 // TODO - make fast - see #1146
 function bb_recount_tag_delete_empty()
 {
+	global $wp_taxonomy_object;
+
 	// Get all tags
 	if ( !isset( $terms ) ) {
 		$terms = $wp_taxonomy_object->get_terms( 'bb_topic_tag', array( 'hide_empty' => false ) );
