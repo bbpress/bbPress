@@ -304,7 +304,8 @@ div.dashboard div.versions p.theme a.button {
 
 /* Search forms */
 
-form.search-form fieldset {
+form.search-form fieldset, form.bulk-form fieldset {
+	clear: right;
 	float: right;
 }
 
@@ -345,7 +346,10 @@ table#plugins-list.widefat tr.autoload td.plugin-name {
 	padding-left: 20px;
 }
 
-
+table.widefat .check-column {
+	padding-right: 7px;
+	padding-left: 0;
+}
 
 /* Forums */
 

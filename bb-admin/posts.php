@@ -1,22 +1,56 @@
 <?php
 require_once('admin.php');
 
+if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
+	bb_check_admin_referer( 'post-bulk' );
+
+	$post_ids = array_map( 'absint', $_POST['post'] );
+
+	$count = 0;
+
+	$action = trim( $_POST['action'] );
+
+	switch ( $action ) {
+	case 'delete' :
+		foreach ( $post_ids as $post_id ) {
+			$count += (int) (bool) bb_delete_post( $post_id, 1 );
+		}
+		$query_vars = array( 'message' => 'deleted', 'count' => $count );
+		break;
+	case 'undelete' :
+		foreach ( $post_ids as $post_id ) {
+			$count += (int) (bool) bb_delete_post( $post_id, 0 );
+		}
+		$query_vars = array( 'message' => 'undeleted', 'count' => $count );
+		break;
+	default :
+		if ( $action )
+			$query_vars = apply_filters( "bulk_post__$action", array(), $post_ids, $action );
+		break;
+	}
+
+	bb_safe_redirect( add_query_arg( $query_vars ) );
+	exit;
+}
+
 if ( !empty( $_GET['message'] ) ) {
+	$message_count = isset( $_GET['count'] ) ? (int) $_GET['count'] : 1;
+
 	switch ( (string) $_GET['message'] ) {
 		case 'undeleted':
-			bb_admin_notice( __( '<strong>Post undeleted.</strong>' ) );
+			bb_admin_notice( sprintf( _n( '<strong>Post undeleted.</strong>', '<strong>%s posts undeleted.</strong>', $message_count ), bb_number_format_i18n( $message_count ) ) );
 			break;
 		case 'deleted':
-			bb_admin_notice( __( '<strong>Post deleted.</strong>' ) );
+			bb_admin_notice( sprintf( _n( '<strong>Post deleted.</strong>', '<strong>%s posts deleted.</strong>', $message_count ), bb_number_format_i18n( $message_count ) ) );
 			break;
 		case 'spammed':
-			bb_admin_notice( __( '<strong>Post spammed.</strong>' ) );
+			bb_admin_notice( sprintf( _n( '<strong>Post spammed.</strong>', '<strong>%s posts spammed.</strong>', $message_count ), bb_number_format_i18n( $message_count ) ) );
 			break;
 		case 'unspammed-normal':
-			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a normal post.' ) );
+			bb_admin_notice( sprintf( _n( '<strong>Post removed from spam.</strong> It is now a normal post.', '<strong>%s posts removed from spam.</strong> They are now normal posts.', $message_count ), bb_number_format_i18n( $message_count ) ) );
 			break;
 		case 'unspammed-deleted':
-			bb_admin_notice( __( '<strong>Post removed from spam.</strong> It is now a deleted post.' ) );
+			bb_admin_notice( sprintf( _n( '<strong>Post removed from spam.</strong> It is now a deleted post.', '<strong>%s posts removed from spam.</strong> They are nowdeleted posts.', $message_count ), bb_number_format_i18n( $message_count ) ) );
 			break;
 	}
 }
@@ -72,9 +106,48 @@ if ( $h2_search || $h2_forum || $h2_tag || $h2_author || $h2_ip ) {
 }
 ?>
 </h2>
-<?php do_action( 'bb_admin_notices' ); ?>
+<?php
 
-<?php $post_query->form( array( 'poster_ip' => $ip_available, 'tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __( 'Filter' ) ) ); ?>
+do_action( 'bb_admin_notices' );
+
+$post_query->form( array( 'poster_ip' => $ip_available, 'tag' => true, 'post_author' => true, 'post_status' => true, 'submit' => __( 'Filter' ) ) );
+
+$bulk_actions = array(
+	'delete' => __( 'Delete' ),
+	'undelete' => __( 'Undelete' ),
+);
+
+if ( is_numeric( $bulk_action = $post_query->get( 'post_status' ) ) ) {
+	switch ( $bulk_action ) {
+	case 0 :
+		unset( $bulk_actions['undelete'] );
+		break;
+	case 1 : 
+		unset( $bulk_actions['delete'] );
+	}
+}
+
+unset( $bulk_action );
+
+do_action_ref_array( 'bulk_post_actions', array( &$bulk_actions, &$post_query ) );
+
+?>
+
+<div class="clear"></div>
+
+<form class="table-form bulk-form" method="post" action="">
+
+<fieldset>
+	<select name="action">
+		<option><?php _e( 'Bulk Actions' ); ?></option>
+<?php	foreach ( $bulk_actions as $value => $label ) : ?>
+
+		<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+<?php	endforeach; ?>
+	</select>
+	<input type="submit" value="<?php esc_attr_e( 'Apply' ); ?>" class="button submit-input" />
+	<?php bb_nonce_field( 'post-bulk' ); ?>
+</fieldset>
 
 <div class="tablenav">
 <?php if ( $total ) : ?>
@@ -100,9 +173,12 @@ echo $page_number_links = get_page_number_links( $_page_link_args );
 	</div>
 <?php endif; ?>
 </div>
+
 <div class="clear"></div>
 
 <?php bb_admin_list_posts(); ?>
+
+</form>
 
 <div class="tablenav bottom">
 <?php if ( $total ) : ?>

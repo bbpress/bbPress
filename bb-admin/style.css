@@ -822,8 +822,9 @@ div.dashboard ul li a {
 
 /* Search forms */
 
-form.search-form fieldset {
+form.search-form fieldset, form.bulk-form fieldset {
 	margin: 10px 0 0 0;
+	clear: left;
 	float: left;
 }
 
@@ -863,7 +864,7 @@ form.search-form fieldset div div input.checkbox-input {
 	margin: 4px;
 }
 
-form.search-form fieldset div div select {
+form.search-form select, form.bulk-form select {
 	height: 2.1em;
 	margin: 0;
 	padding: 3px;
@@ -887,7 +888,7 @@ form.search-form div.submit label {
 	overflow: hidden;
 }
 
-form.search-form div.submit input.button {
+form.search-form div.submit input.button, form.bulk-form input.button {
 	font-family: 'Lucida Grande', Verdana, Arial, 'Bitstream Vera Sans', sans-serif;
 	-moz-border-radius: 10px;
 	-khtml-border-radius: 10px;
@@ -902,12 +903,12 @@ form.search-form div.submit input.button {
 	font-size: 0.85em;
 }
 
-form.search-form div.submit input.button:hover {
+form.search-form div.submit input.button:hover, form.bulk-form input.button:hover {
 	border-color: rgb(102, 102, 102);
 	color: rgb(0, 0, 0);
 }
 
-form.search-form div.submit input.button:active {
+form.search-form div.submit input.button:active, form.bulk-form input.button:active {
 	background: url('images/white-grad-active.png') repeat-x scroll rgb(238, 238, 238);
 }
 
@@ -916,7 +917,12 @@ form.search-form div.submit input.button:active {
 /* Table nav */
 
 div.tablenav {
+	margin-top: -1em;
 	float: right;
+}
+
+div.bottom {
+	margin-top: 0;
 }
 
 div.tablenav a {
@@ -1108,6 +1114,11 @@ table.widefat tfoot tr th {
 	border-bottom-width: 0;
 }
 
+table.widefat .check-column {
+	width: 2.2em;
+	padding-right: 0;
+}
+	
 table#posts-list.widefat tr td.post {
 	width: 46%;
 	font-size: 0.9em;

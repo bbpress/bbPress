@@ -470,6 +470,40 @@ function bb_ksd_post_delete_link( $parts, $args )
 }
 add_filter( 'bb_post_admin', 'bb_ksd_post_delete_link', 10, 2 );
 
+function bb_ksd_bulk_post_actions( &$bulk_actions, &$post_query ) {
+	$status = $post_query->get( 'post_status' );
+
+	$bulk_actions['unspam'] = __( 'Not Spam' );
+	$bulk_actions['spam'] = __( 'Mark as Spam' );
+
+	if ( 2 == $status )
+		unset( $bulk_actions['undelete'], $bulk_actions['spam'] );
+	elseif ( is_numeric( $status ) )
+		unset( $bulk_actions['unspam'] );
+}
+
+add_action( 'bulk_post_actions', 'bb_ksd_bulk_post_actions', 10, 2 );
+
+function bb_ksd_bulk_post__action( $query_vars, $post_ids, $action ) {
+	$count = 0;
+
+	switch ( $action ) {
+	case 'spam' :
+		foreach ( $post_ids as $post_id ) {
+			$count += (int) (bool) bb_delete_post( $post_id, 2 );
+		}
+		return array( 'message' => 'spammed', 'count' => $count );
+	case 'unspam' :
+		foreach ( $post_ids as $post_id ) {
+			$count += (int) (bool) bb_delete_post( $post_id, 0 );
+		}
+		return array( 'message' => 'unspammed-normal', 'count' => $count );
+	}
+}
+
+add_action( 'bulk_post__spam', 'bb_ksd_bulk_post__action', 10, 3 );
+add_action( 'bulk_post__unspam', 'bb_ksd_bulk_post__action', 10, 3 );
+
 function bb_ksd_add_post_status_to_forms( $stati, $type )
 {
 	if ( 'post' === $type ) {

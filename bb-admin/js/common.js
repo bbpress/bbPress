@@ -82,6 +82,12 @@ adminMenu = {
 	}
 };
 
-$(document).ready(function(){adminMenu.init();});
+$(document).ready(function(){
+	adminMenu.init();
+	$('thead .check-column :checkbox, tfoot .check-column :checkbox').click( function() {
+		$(this).parents( 'table' ).find( '.check-column :checkbox' ).attr( 'checked', $(this).is( ':checked' ) ? 'checked' : false );
+	} );
+});
+
 
 })(jQuery);

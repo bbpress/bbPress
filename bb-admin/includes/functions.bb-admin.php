@@ -1078,6 +1078,7 @@ function bb_admin_list_posts() {
 <table id="posts-list" class="widefat" cellspacing="0" cellpadding="0">
 <thead>
 	<tr>
+		<th scope="col" class="check-column"><input type="checkbox" /></th>
 		<th scope="col"><?php _e( 'Post' ); ?></th>
 		<th scope="col"><?php _e( 'Author' ); ?></th>
 		<th scope="col"><?php _e( 'Topic' ); ?></th>
@@ -1086,6 +1087,7 @@ function bb_admin_list_posts() {
 </thead>
 <tfoot>
 	<tr>
+		<th scope="col" class="check-column"><input type="checkbox" /></th>
 		<th scope="col"><?php _e( 'Post' ); ?></th>
 		<th scope="col"><?php _e( 'Author' ); ?></th>
 		<th scope="col"><?php _e( 'Topic' ); ?></th>
@@ -1097,6 +1099,7 @@ function bb_admin_list_posts() {
 		foreach ( $bb_posts as $bb_post ) {
 ?>
 	<tr id="post-<?php post_id(); ?>"<?php alt_class('post', post_del_class()); ?>>
+		<td class="check-column"><input type="checkbox" name="post[]" value="<?php post_id(); ?>" /></td>
 		<td class="post">
 			<?php post_text(); ?>
 			<div>
