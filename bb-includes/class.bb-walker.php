@@ -200,7 +200,7 @@ class BB_Loop {
 			return false;
 
 		foreach ( $array as $key )
-			$this->_preserve[$key] = $GLOBALS[$key];
+			$this->_preserve[$key] = isset( $GLOBALS[$key] ) ? $GLOBALS[$key] : null;
 	}
 
 	function reinstate() {
