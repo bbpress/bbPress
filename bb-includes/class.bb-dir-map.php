@@ -66,7 +66,7 @@ class BB_Dir_Map {
 	function map( $root = false ) {
 		$return = array();
 		$_dir = dir($root ? $root : $this->_current_root);
-		while ( false !== ( $this->_current_file = $_dir->read() ) ) {
+		while ( $_dir && false !== ( $this->_current_file = $_dir->read() ) ) {
 			if ( in_array($this->_current_file, array('.', '..')) )
 				continue;
 			if ( !$this->dots && '.' == $this->_current_file{0} )
