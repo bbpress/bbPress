@@ -1129,12 +1129,13 @@ function get_topic_page_links( $id = 0, $args = null ) {
 
 	$links = $_links;
 
+	$r = '';
+
 	if ( $links ) {
 		if ( !$show_first ) {
 			unset( $links[0] );
 		}
 
-		$r = '';
 		if ( $args['before'] ) {
 			$r .= $args['before'];
 		}

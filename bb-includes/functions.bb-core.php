@@ -819,7 +819,7 @@ function bb_repermalink() {
 	$bb_log->debug($uri, 'bb_repermalink() ' . __('REQUEST_URI'));
 	$bb_log->debug($check, 'bb_repermalink() ' . __('should be'));
 	$bb_log->debug($permalink, 'bb_repermalink() ' . __('full permalink'));
-	$bb_log->debug($_SERVER['PATH_INFO'], 'bb_repermalink() ' . __('PATH_INFO'));
+	$bb_log->debug(isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : null, 'bb_repermalink() ' . __('PATH_INFO'));
 
 	if ( $check != $uri && $check != str_replace(urlencode($_original_id), $_original_id, $uri) ) {
 		if ( $issue_404 && rtrim( $check, " \t\n\r\0\x0B/" ) !== rtrim( $uri, " \t\n\r\0\x0B/" ) ) {
