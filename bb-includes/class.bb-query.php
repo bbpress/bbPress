@@ -1014,6 +1014,8 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</div>\n\n";
 		}
 
+		$r .= apply_filters( 'bb_query_form_inputs', '', $args, $query_vars );
+
 		$r .= "\t<div class=\"submit\"><label for=\"$id-submit\">" . __('Search') . "</label>\n";
 		$r .= "\t\t<div><input type='submit' class='button submit-input' value='$submit' id='$id-submit' /></div>\n";
 		$r .= "\t</div>\n";
