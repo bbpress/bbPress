@@ -940,7 +940,7 @@ class BB_Query_Form extends BB_Query {
 
 		if ( $forum ) {
 			$r .= "\t<div><label for=\"forum-id\">" . __('Forum')  . "</label>\n";
-			$r .= "\t\t<div>" . bb_get_forum_dropdown( array( 'selected' => $q_forum_id, 'none' => __('Any'), 'id' => 'forum-id' ) ) . "</div>\n";
+			$r .= "\t\t<div>" . bb_get_forum_dropdown( array( 'selected' => $q_forum_id, 'none' => __('Any') ) ) . "</div>\n";
 			$r .= "\t</div>\n\n";
 		}
 
