@@ -124,7 +124,7 @@ function bb_filter_feed_content()
 }
 add_action( 'bb_init', 'bb_filter_feed_content' );
 
-add_filter( 'init_roles', 'bb_init_roles' );
+add_action( 'init_roles', 'bb_init_roles' );
 add_filter( 'map_meta_cap', 'bb_map_meta_cap', 1, 4 );
 
 // Actions
