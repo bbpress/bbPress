@@ -3297,7 +3297,7 @@ function bb_get_forum_dropdown( $args = '' ) {
 		} else {
 			$tab = '';
 		}
-		$r .= '<select name="' . $name . '" id="' . $id . '"' . $tab . '">' . "\n";
+		$r .= '<select name="' . $name . '" id="' . $id . '"' . $tab . '>' . "\n";
 	}
 	if ( $none )
 		$r .= "\n" . '<option value="0">' . $none . '</option>' . "\n";
