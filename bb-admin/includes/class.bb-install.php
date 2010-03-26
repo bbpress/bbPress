@@ -2144,14 +2144,14 @@ class BB_Install
 
 		if ( defined( 'BB_PLUGIN_DIR' ) && BB_PLUGIN_DIR && !file_exists( BB_PLUGIN_DIR ) ) {
 			// Just suppress errors as this is not critical
-			if ( @mkdir( BB_PLUGIN_DIR, 0750 ) ) {
+			if ( @mkdir( BB_PLUGIN_DIR, 0755 ) ) {
 				$installation_log[] = '>>> ' . sprintf( __( 'Making plugin directory at %s.' ),  BB_PLUGIN_DIR );
 			}
 		}
 
 		if ( defined( 'BB_THEME_DIR' ) && BB_THEME_DIR && !file_exists( BB_THEME_DIR ) ) {
 			// Just suppress errors as this is not critical
-			if ( @mkdir( BB_THEME_DIR, 0750 ) ) {
+			if ( @mkdir( BB_THEME_DIR, 0755 ) ) {
 				$installation_log[] = '>>> ' . sprintf( __( 'Making theme directory at %s.' ),  BB_THEME_DIR );
 			}
 		}
