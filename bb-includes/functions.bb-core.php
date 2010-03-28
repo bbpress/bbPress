@@ -767,15 +767,13 @@ function bb_repermalink() {
 			$permalink = get_favorites_link();
 			break;
 		case 'tag-page': // It's not an integer and tags.php pulls double duty.
-			if ( isset($_GET['tag']) )
-				$id = $_GET['tag'];
-			$_original_id = $id;
-			if ( !$id )
+			$id = ( isset($_GET['tag']) ) ? $_GET['tag'] : false;
+			if ( ! $id || ! bb_get_tag( (string) $id ) )
 				$permalink = bb_get_tag_page_link();
 			else {
 				global $tag, $tag_name;
 				$tag_name = $id;
-				$tag = bb_get_tag( (string) $tag_name );
+				$tag = bb_get_tag( (string) $id );
 				$permalink = bb_get_tag_link( 0, $page ); // 0 => grabs $tag from global.
 			}
 			break;

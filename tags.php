@@ -3,11 +3,6 @@ require_once('./bb-load.php');
 
 bb_repermalink();
 
-// Temporary, refactor this!
-
-if ( !$tag && $tag_name )
-	bb_die(__('Tag not found'));
-
 if ( $tag_name && $tag ) :
 
 	if ( $topics = get_tagged_topics($tag->tag_id, $page) ) {
