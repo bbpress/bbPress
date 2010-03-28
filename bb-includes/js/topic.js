@@ -30,7 +30,6 @@ jQuery( function($) {
 	var favoritesToggleSpan = favoritesToggle.children( 'span' )
 		[bbTopicJS.isFav ? 'addClass' : 'removeClass' ]( 'is-favorite' );
 	
-
 	function favLinkSetup() {
 		bbTopicJS.isFav = favoritesToggleSpan.is('.is-favorite');
 		var aLink = "<a href='" + bbTopicJS.favoritesLink + "'>";
