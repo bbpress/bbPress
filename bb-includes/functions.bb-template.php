@@ -1397,14 +1397,14 @@ function bb_get_topic_delete_link( $args = '' ) {
 			$redirect = add_query_arg( bb_is_admin() ? array() : array( 'view' => 'all'  ) );
 
 		$query   = array( 'id' => $topic->topic_id, '_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false );
-		$confirm = __('Are you sure you wanna delete that?');
+		$confirm = __('Are you sure you want to delete that?');
 		$display = esc_html( $delete_text ? $delete_text : __('Delete entire topic') );
 	} else {
 		if ( true === $redirect )
 			$redirect = remove_query_arg( bb_is_admin() ? array() : 'view' );
 
 		$query   = array('id' => $topic->topic_id, 'view' => 'all', '_wp_http_referer' => $redirect ? rawurlencode( $redirect ) : false );
-		$confirm = __('Are you sure you wanna undelete that?');
+		$confirm = __('Are you sure you want to undelete that?');
 		$display = esc_html( $undelete_text ? $undelete_text : __('Undelete entire topic') );
 	}
 	$uri = bb_get_uri('bb-admin/delete-topic.php', $query, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN);

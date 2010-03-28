@@ -3,7 +3,7 @@ bbTopicJS = jQuery.extend( {
 	topicId: '0',
 	favoritesLink: '',
 	isFav: 0,
-	confirmPostDelete: 'Are you sure you wanna delete this post?',
+	confirmPostDelete: 'Are you sure you want to delete this post?',
 	favLinkYes: 'favorites',
 	favLinkNo: '?',
 	favYes: 'This topic is one of your %favLinkYes% [%favDel%]',
