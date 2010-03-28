@@ -100,7 +100,7 @@ function bb_ksd_configuration_page()
 
 function bb_ksd_configuration_page_add()
 {
-	bb_admin_add_submenu( __( 'Akismet' ), 'moderate', 'bb_ksd_configuration_page', 'options-general.php' );
+	bb_admin_add_submenu( __( 'Akismet' ), 'use_keys', 'bb_ksd_configuration_page', 'options-general.php' );
 }
 add_action( 'bb_admin_menu_generator', 'bb_ksd_configuration_page_add' );
 
@@ -215,7 +215,7 @@ function bb_ksd_stats_page()
 		return;
 	}
 	if ( function_exists( 'bb_admin_add_submenu' ) ) {
-		bb_admin_add_submenu( __( 'Akismet Stats' ), 'use_keys', 'bb_ksd_stats_display', 'index.php' );
+		bb_admin_add_submenu( __( 'Akismet Stats' ), 'moderate', 'bb_ksd_stats_display', 'index.php' );
 	}
 }
 add_action( 'bb_admin_menu_generator', 'bb_ksd_stats_page' );
