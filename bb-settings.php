@@ -16,7 +16,9 @@ if ( !defined( 'BB_PATH' ) ) {
 	die( 'This file cannot be called directly.' );
 }
 
-
+// Set default timezone in PHP 5.
+if ( function_exists( 'date_default_timezone_set' ) )
+        date_default_timezone_set( 'UTC' );
 
 /**
  * bb_unregister_GLOBALS() - Turn register globals off
