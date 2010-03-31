@@ -484,7 +484,7 @@ function bb_is_admin() {
 }
 
 function bb_title( $args = '' ) {
-	echo apply_filters( 'bb_title', bb_get_title( $args ) );
+	echo apply_filters( 'bb_title', bb_get_title( $args ), $args );
 }
 
 function bb_get_title( $args = '' ) {
@@ -535,7 +535,7 @@ function bb_get_title( $args = '' ) {
 	if ( 'reversed' == $args['order'] )
 		$title = array_reverse( $title );
 	
-	return apply_filters( 'bb_get_title', implode( $args['separator'], $title ) );
+	return apply_filters( 'bb_get_title', implode( $args['separator'], $title ), $args, $title );
 }
 
 function bb_feed_head() {
