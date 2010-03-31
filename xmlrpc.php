@@ -158,7 +158,7 @@ class BB_XMLRPC_Server extends IXR_Server
 
 		// Pingback
 		if ( bb_get_option( 'enable_pingback' ) ) {
-			$this->methods = array_merge( $this->methods, array(
+			$this->methods = array_merge( (array)$this->methods, array(
 				'pingback.ping' => 'this:pingback_ping',
 				'pingback.extensions.getPingbacks' => 'this:pingback_extensions_getPingbacks'
 			) );
