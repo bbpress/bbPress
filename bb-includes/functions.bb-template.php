@@ -1366,8 +1366,7 @@ function get_page_number_links( $args ) {
 	return $links;
 }
 
-function bb_topic_admin( $args = '' )
-{
+function bb_topic_admin( $args = '' ) {
 	$parts = array(
 		'delete' => bb_get_topic_delete_link( $args ),
 		'close'  => bb_get_topic_close_link( $args ),
@@ -1375,7 +1374,7 @@ function bb_topic_admin( $args = '' )
 		'move'   => bb_get_topic_move_dropdown( $args )
 	);
 
-	echo join( "\n", apply_filters( 'bb_topic_admin', $parts ) );
+	echo join( "\n", apply_filters( 'bb_topic_admin', $parts, $args ) );
 }
 
 function topic_delete_link( $args = '' ) {
