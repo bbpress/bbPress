@@ -12,7 +12,7 @@ if ( $q = stripslashes( $q ) ) {
 	$bb_query_form->BB_Query_Form( 'post', array(), array( 'order_by' => 'p.post_time', 'per_page' => 5, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
 	$recent = $bb_query_form->results;
 
-	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
+	$bb_query_form->BB_Query_Form( 'post', array( 'search' => $q ), array( 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
 	$relevant = $bb_query_form->results;
 
 	$q = $bb_query_form->get( 'search' );
