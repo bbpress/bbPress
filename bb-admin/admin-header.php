@@ -8,6 +8,11 @@
 <?php if ( 'rtl' == bb_get_option( 'text_direction' ) ) : ?>
 	<link rel="stylesheet" href="<?php bb_uri('bb-admin/style-rtl.css', null, BB_URI_CONTEXT_LINK_STYLESHEET_HREF + BB_URI_CONTEXT_BB_ADMIN); ?>" type="text/css" />
 <?php endif; do_action('bb_admin_print_scripts'); ?>
+	<!--[if IE 6]>
+	<style type="text/css">
+	ul#bbAdminMenu{ margin: 15px 5px 15px -85px; } body.bb-menu-folded div#bbBody{ margin-left: 110px; }
+	</style>
+	<![endif]-->
 	<script type="text/javascript">
 		//<![CDATA[
 		addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
