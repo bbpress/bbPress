@@ -75,9 +75,8 @@ $post_id = bb_insert_post($post_data);
 $tags  = trim( $_POST['tags']  );
 bb_add_topic_tags( $topic_id, $tags );
 
-$link = get_post_link($post_id);
-
 $topic = get_topic( $topic_id, false );
+$link = get_post_link($post_id);
 
 if ( $topic->topic_posts )
 	$link = add_query_arg( 'replies', $topic->topic_posts, $link );
