@@ -1,11 +1,11 @@
 <?php
 
 function bb_default_scripts( &$scripts ) {
-	$scripts->base_url = bb_get_uri(BB_INC, null, BB_URI_CONTEXT_SCRIPT_SRC);
-	$scripts->base_url_admin = bb_get_uri('bb-admin/', null, BB_URI_CONTEXT_SCRIPT_SRC + BB_URI_CONTEXT_BB_ADMIN);
+	$scripts->base_url = bb_get_uri( BB_INC, null, BB_URI_CONTEXT_SCRIPT_SRC );
+	$scripts->base_url_admin = bb_get_uri( 'bb-admin/', null, BB_URI_CONTEXT_SCRIPT_SRC + BB_URI_CONTEXT_BB_ADMIN );
 	$scripts->content_url = ''; // May not work - might need to specify plugin and theme urls
 	$scripts->default_version = bb_get_option( 'version' );
-	$scripts->default_dirs = array('/bb-admin/js/', '/bb-includes/js/');
+	$scripts->default_dirs = array( '/bb-admin/js/', '/bb-includes/js/' );
 
 	// These are our enqueued scripts
 	$scripts->add( 'topic', $scripts->base_url . 'js/topic.js', array('wp-lists'), '20090602' );
@@ -15,7 +15,7 @@ function bb_default_scripts( &$scripts ) {
 	$scripts->add( 'common', $scripts->base_url_admin . 'js/common.js', array('jquery', 'hoverIntent', 'utils'), '20090517' );
 	$scripts->add_data( 'common', 'group', 1 );
 	$scripts->localize( 'common', 'commonL10n', array(
-		'warnDelete' => __("You are about to delete the selected items.\n  'Cancel' to stop, 'OK' to delete."),
+		'warnDelete' => __( "You are about to delete the selected items.\n  'Cancel' to stop, 'OK' to delete." ),
 		'l10n_print_after' => 'try{convertEntities(commonL10n);}catch(e){};'
 	) );
 	$scripts->localize( 'admin-forums', 'bbSortForumsL10n', array(
@@ -36,9 +36,9 @@ function bb_default_scripts( &$scripts ) {
 	) );
 
 	// jQuery and friends
-	$scripts->add( 'jquery', $scripts->base_url . 'js/jquery/jquery.js', false, '1.2.6');
+	$scripts->add( 'jquery', $scripts->base_url . 'js/jquery/jquery.js', false, '1.4.2' );
 	$scripts->add( 'jquery-color', $scripts->base_url . 'js/jquery/jquery.color.js', array('jquery'), '2.0-4561' );
-	$scripts->add( 'interface', $scripts->base_url . 'js/jquery/interface.js', array('jquery'), '1.2.3');
+	$scripts->add( 'interface', $scripts->base_url . 'js/jquery/interface.js', array('jquery'), '1.2.3' );
 	$scripts->add( 'password-strength-meter', $scripts->base_url . 'js/jquery/password-strength-meter.js', array('jquery'), '20070405' );
 	$scripts->localize( 'password-strength-meter', 'pwsL10n', array(
 		'short' => __('Too short'),
