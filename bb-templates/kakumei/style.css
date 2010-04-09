@@ -239,6 +239,7 @@ form.login input {
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
+	background-color:#fff;
 }
 
 form.login input.submit {
@@ -588,6 +589,7 @@ h2.post-form {
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
+	background-color:#fff;
 }
 
 .postform label { display: block; }
@@ -606,6 +608,7 @@ h2.post-form {
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
+	background-color:#fff;
 }
 
 .postform p#post-form-forum-container label span {
@@ -928,6 +931,7 @@ tr.bb-category td {
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
+	background-color:#fff;
 }
 
 #login-page fieldset p,
