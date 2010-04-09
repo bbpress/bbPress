@@ -3407,7 +3407,7 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 function bb_user_subscribe_link() {
 	global $topic, $bb_current_user, $bbdb, $bb;
 
-	if ( !$bb_current_user )
+	if ( !bb_is_user_logged_in() )
 		return false;
 
 	$there = false;

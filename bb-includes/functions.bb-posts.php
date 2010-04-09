@@ -453,7 +453,10 @@ function bb_insert_post( $args = null ) {
 }
 
 function bb_notify_subscribers( $post_id ) {
-	global $bbdb, $bb_current_user;
+	global $bbdb, $bb_current_user, $bb_ksd_pre_post_status;
+
+	if ( !empty( $bb_ksd_pre_post_status ) )
+		return false;
 
 	if ( !$post = bb_get_post( $post_id ) )
 		return false;
@@ -480,11 +483,10 @@ function bb_notify_subscribers( $post_id ) {
 		$user = bb_get_user( $user_id );
 
 		$message = __( "%2\$s wrote:\n\n %3\$s\n\nTopic Link: %4\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." );
-		bb_mail( 
-			$user->user_email, 
-			'[' . bb_get_option('name') . '] ' . get_topic_title( $topic_id ), 
-			sprintf( $message, get_topic_title( $topic_id ), get_user_name( $post->poster_id ), strip_tags( get_post_text( $post_id ) ), get_post_link( $post_id ) ), 
-			'From: '.bb_get_option('name').' <'.bb_get_option('from_email').'>'
+		bb_mail(
+			$user->user_email,
+			'[' . bb_get_option('name') . '] ' . get_topic_title( $topic_id ),
+			sprintf( $message, get_topic_title( $topic_id ), get_user_name( $post->poster_id ), strip_tags( get_post_text( $post_id ) ), get_post_link( $post_id ) )
 		);
 	}
 }
