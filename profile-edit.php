@@ -64,15 +64,19 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 
 	// Deal with errors for users who can edit others data
 	if ( bb_current_user_can('edit_users') ) {
-		// If we are deleting just do it and redirect
-		if ( isset($_POST['delete-user']) && $_POST['delete-user'] && $bb_current_id != $user->ID ) {
-			bb_delete_user( $user->ID );
-			wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
-			exit;
-		}
-
 		// Get the user object
 		$user_obj = new BP_User( $user->ID );
+		
+		// If we are deleting just do it and redirect
+		if ( isset( $_POST['delete-user'] ) && $_POST['delete-user'] && $bb_current_id != $user->ID ) {
+			if ( !bb_current_user_can( 'keep_gate' ) && 'keymaster' == $user_obj->roles[0] ) { /* Only a keymaster can delete another keymaster */
+				$errors->add( 'delete', __( 'You can not delete this user!' ) );
+			} else {
+				bb_delete_user( $user->ID );
+				wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
+				exit;
+			}
+		}
 
 		// Store the new role
 		$role = $_POST['role'];

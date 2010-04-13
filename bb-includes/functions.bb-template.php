@@ -2240,6 +2240,11 @@ function get_user_profile_link( $id = 0, $page = 1, $context = BB_URI_CONTEXT_A_
 
 function user_delete_button() {
 	global $user;
+	
+	$user_obj = new BP_User( $user->ID );
+	if ( !bb_current_user_can( 'keep_gate' ) && 'keymaster' == $user_obj->roles[0] )
+		return;
+	
 	if ( bb_current_user_can( 'edit_users' ) && bb_get_current_user_info( 'id' ) != (int) $user->ID )
 		echo apply_filters( 'user_delete_button', get_user_delete_button() );
 }
@@ -2419,6 +2424,8 @@ function bb_profile_data_form( $id = 0 ) {
 	$error_codes = $errors->get_error_codes();
 	$profile_info_keys = bb_get_profile_info_keys();
 	$required = false;
+	if ( in_array( 'delete', $error_codes ) )
+		echo '<div class="form-invalid error">' . $errors->get_error_message( 'delete' ) . '</div>';
 ?>
 <table id="userinfo">
 <?php
@@ -2552,7 +2559,7 @@ function bb_profile_admin_form( $id = 0 ) {
 	$can_keep_gate = bb_current_user_can( 'keep_gate' );
 
 	// Keymasters can't demote themselves
-	if ( ( $bb_current_id == $user->ID && $can_keep_gate ) || ( isset( $user->capabilities ) && is_array( $user->capabilities ) && array_key_exists('keymaster', $user->capabilities) && !$can_keep_gate ) ) {
+	if ( ( $bb_current_id == $user->ID && $can_keep_gate ) || ( isset( $user->capabilities ) && is_array( $user->capabilities ) && array_key_exists( 'keymaster', $user->capabilities ) && !$can_keep_gate ) ) {
 		$roles = array( 'keymaster' => $roles['keymaster'] );
 	} elseif ( !$can_keep_gate ) { // only keymasters can promote others to keymaster status
 		unset($roles['keymaster']);
