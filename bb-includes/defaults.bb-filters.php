@@ -115,11 +115,18 @@ if ( !bb_get_option( 'mod_rewrite' ) ) {
 function bb_filter_feed_content()
 {
 	if ( bb_is_feed() ) {
-		add_filter( 'bb_title_rss', 'ent2ncr' );
-		add_filter( 'topic_title', 'ent2ncr' );
+		add_filter( 'bb_title_rss', 'strip_tags' );
+		add_filter( 'bb_title_rss', 'ent2ncr', 8 );
+		add_filter( 'bb_title_rss', 'esc_html' );
+
+		add_filter( 'bb_description_rss', 'strip_tags' );
+		add_filter( 'bb_description_rss', 'ent2ncr', 8 );
+		add_filter( 'bb_description_rss', 'esc_html' );
+
+		add_filter( 'post_author', 'ent2ncr', 8 );
 		add_filter( 'post_link', 'esc_html' );
-		add_filter( 'post_text', 'htmlspecialchars' ); // encode_bad should not be overruled by esc_html
-		add_filter( 'post_text', 'ent2ncr' );
+		add_filter( 'post_text_rss', 'ent2ncr', 8 );
+		add_filter( 'post_text_rss', 'esc_html' );
 	}
 }
 add_action( 'bb_init', 'bb_filter_feed_content' );

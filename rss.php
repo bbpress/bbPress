@@ -73,15 +73,13 @@ if ( !$bb_db_override ) {
 				die();
 			
 			$topics = $topics_object->results;
-			if ( !$topics || !is_array($topics) )
-				die();
 			
 			$posts = array();
-			foreach ($topics as $topic) {
+			foreach ( (array) $topics as $topic ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s &raquo; View: %2$s' ), bb_get_option( 'name' ), $bb_views[$feed_id]['title'] ) );
+			$title = sprintf( __( '%1$s &raquo; View: %2$s' ), bb_get_option( 'name' ), $bb_views[$feed_id]['title'] );
 			$link = get_view_link($feed_id);
 			$link_self = bb_get_view_rss_link($feed_id);
 			break;
@@ -90,41 +88,41 @@ if ( !$bb_db_override ) {
 			if ( !$topic = get_topic ( $feed_id ) )
 				die();
 			if ( !$posts = get_thread( $feed_id, 0, 1 ) )
-				die();
-			$title = esc_html( sprintf( __( '%1$s &raquo; Topic: %2$s' ), bb_get_option( 'name' ), get_topic_title() ) );
+				die(); /* Should die here, as the topic posts aren't there, so the topic is most probably deleted/empty */
+			$title = sprintf( __( '%1$s &raquo; Topic: %2$s' ), bb_get_option( 'name' ), get_topic_title() );
 			$link = get_topic_link($feed_id);
 			$link_self = get_topic_rss_link($feed_id);
 			break;
 		
 		case 'profile':
-			if ( bb_get_option( 'mod_rewrite' ) === 'slugs' ) {
-				$user = bb_get_user_by_nicename( $feed_id );
+			if ( bb_get_option( 'mod_rewrite' ) === 'slugs') {
+				if ( !$user = bb_get_user_by_nicename( $feed_id ) )
+					$user = bb_get_user( $feed_id );
 			} else {
-				$user = bb_get_user( $feed_id );
+ 	                        if ( !$user = bb_get_user( $feed_id ) )
+				        $user = bb_get_user_by_nicename( $feed_id ); 
 			}
 			if ( !$user ) {
 				die();
 			}
-			if ( !$posts = get_user_favorites( $user->ID ) ) {
-				die();
-			}
-			$title = esc_html( sprintf( __( '%1$s &raquo; User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_nicename ) );
-			$link = bb_get_profile_link($feed_id);
+			$posts = get_user_favorites( $user->ID );
+			
+			$title = sprintf( __( '%1$s &raquo; User Favorites: %2$s' ), bb_get_option( 'name' ), $user->user_nicename );
+			$link = get_user_profile_link($feed_id);
 			$link_self = get_favorites_rss_link($feed_id);
 			break;
 		
 		case 'tag-topics':
 			if ( !$tag = bb_get_tag( $feed_id ) )
 				die();
-			if ( !$topics = get_tagged_topics( array( 'tag_id' => $tag->tag_id, 'page' => 0 ) ) )
-				die();
+			$topics = get_tagged_topics( array( 'tag_id' => $tag->tag_id, 'page' => 0 ) );
 			
 			$posts = array();
-			foreach ($topics as $topic) {
+			foreach ( (array) $topics as $topic ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s &raquo; Tag: %2$s - Recent Topics' ), bb_get_option( 'name' ), bb_get_tag_name() ) );
+			$title = sprintf( __( '%1$s &raquo; Tag: %2$s - Recent Topics' ), bb_get_option( 'name' ), bb_get_tag_name() );
 			$link = bb_get_tag_link($feed_id);
 			$link_self = bb_get_tag_topics_rss_link($feed_id);
 			break;
@@ -132,46 +130,42 @@ if ( !$bb_db_override ) {
 		case 'tag-posts':
 			if ( !$tag = bb_get_tag( $feed_id ) )
 				die();
-			if ( !$posts = get_tagged_topic_posts( array( 'tag_id' => $tag->tag_id, 'page' => 0 ) ) )
-				die();
-			$title = esc_html( sprintf( __( '%1$s &raquo; Tag: %2$s - Recent Posts' ), bb_get_option( 'name' ), bb_get_tag_name() ) );
+			$posts = get_tagged_topic_posts( array( 'tag_id' => $tag->tag_id, 'page' => 0 ) );
+			$title = sprintf( __( '%1$s &raquo; Tag: %2$s - Recent Posts' ), bb_get_option( 'name' ), bb_get_tag_name() );
 			$link = bb_get_tag_link($feed_id);
 			$link_self = bb_get_tag_posts_rss_link($feed_id);
 			break;
 		
 		case 'forum-topics':
-			if ( !$topics = get_latest_topics( $feed_id ) )
-				die();
+			$topics = get_latest_topics( $feed_id );
 			
 			$posts = array();
-			foreach ($topics as $topic) {
+			foreach ( (array) $topics as $topic) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s &raquo; Forum: %2$s - Recent Topics' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
+			$title = sprintf( __( '%1$s &raquo; Forum: %2$s - Recent Topics' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) );
 			$link = get_forum_link($feed_id);
 			$link_self = bb_get_forum_topics_rss_link($feed_id);
 			break;
 		
 		case 'forum-posts':
-			if ( !$posts = bb_get_latest_forum_posts( $feed_id ) )
-				die();
-			$title = esc_html( sprintf( __( '%1$s &raquo; Forum: %2$s - Recent Posts' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) ) );
+			$posts = bb_get_latest_forum_posts( $feed_id );
+			$title = sprintf( __( '%1$s &raquo; Forum: %2$s - Recent Posts' ), bb_get_option( 'name' ), get_forum_name( $feed_id ) );
 			$link = get_forum_link($feed_id);
 			$link_self = bb_get_forum_posts_rss_link($feed_id);
 			break;
 		
 		// Get just the first post from the latest topics
 		case 'all-topics':
-			if ( !$topics = get_latest_topics() )
-				die();
+			$topics = get_latest_topics();
 			
 			$posts = array();
-			foreach ($topics as $topic) {
+			foreach ( (array) $topics as $topic ) {
 				$posts[] = bb_get_first_post($topic->topic_id);
 			}
 			
-			$title = esc_html( sprintf( __( '%1$s &raquo; Recent Topics' ), bb_get_option( 'name' ) ) );
+			$title = sprintf( __( '%1$s &raquo; Recent Topics' ), bb_get_option( 'name' ) );
 			$link = bb_get_uri();
 			$link_self = bb_get_topics_rss_link();
 			break;
@@ -179,18 +173,20 @@ if ( !$bb_db_override ) {
 		// Get latest posts by default
 		case 'all-posts':
 		default:
-			if ( !$posts = bb_get_latest_posts( 35 ) )
-				die();
-			$title = esc_html( sprintf( __( '%1$s &raquo; Recent Posts' ), bb_get_option( 'name' ) ) );
+			$posts = bb_get_latest_posts( 35 );
+			$title = sprintf( __( '%1$s &raquo; Recent Posts' ), bb_get_option( 'name' ) );
 			$link = bb_get_uri();
 			$link_self = bb_get_posts_rss_link();
 			break;
 	}
 }
 
-bb_send_304( $posts[0]->post_time );
+if ( !$posts ) /* We do typecasting in the template, but all themes don't have that! */
+	$posts = array();
+else /* Only send 304 if there are posts */
+	bb_send_304( $posts[0]->post_time );
 
-if (!$description = esc_html( bb_get_option('description') )) {
+if (!$description = bb_get_option( 'description' ) ) {
 	$description = $title;
 }
 $title = apply_filters( 'bb_title_rss', $title, $feed );
