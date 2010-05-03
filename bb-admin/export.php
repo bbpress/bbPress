@@ -243,7 +243,7 @@ function bb_export_topic_posts( $r, $topic_id ) {
 	$r .= "\n";
 
 	$page = 1;
-	while ( $posts = get_thread( $topic_id, $page++ ) ) {
+	while ( $posts = get_thread( $topic_id, array( 'post_status' => 'all', 'page' => $page++ ) ) ) {
 		foreach ( $posts as $post )
 			$r .= bb_export_post( $post->post_id );
 	}
@@ -297,7 +297,6 @@ add_filter( 'in_bb_export_object_topic', 'bb_export_topic_posts', 10, 2 );
 add_filter( 'get_forum_where', 'bb_no_where', 9999 );
 add_filter( 'get_forums_where', 'bb_no_where', 9999 );
 add_filter( 'get_latest_topics_where', 'bb_no_where', 9999 );
-add_filter( 'get_thread_where', 'bb_no_where', 9999 );
 add_filter( 'get_user_where', 'bb_no_where', 9999 );
 add_filter( 'cache_users_where', 'bb_no_where', 9999 );
 

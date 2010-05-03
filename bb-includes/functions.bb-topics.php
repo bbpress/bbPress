@@ -268,8 +268,6 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 				$poster_ids[] = $post->poster_id;
 			}
 		}
-		if ( 0 != $old_status && 0 == $new_status )
-			remove_filter('get_thread_where', 'bb_no_where');
 
 		if ( count( $poster_ids ) )
 			foreach ( array_unique( $poster_ids ) as $id )
