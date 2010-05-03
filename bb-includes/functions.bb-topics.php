@@ -257,10 +257,11 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 		if ( $new_status == $old_status )
 			return;
 
+		$thread_args = array( 'per_page' => -1, 'order' => 'DESC' );
 		if ( 0 != $old_status && 0 == $new_status )
-			add_filter('get_thread_where', 'bb_no_where');
+			$thread_args['post_status'] = 'all';
 		$poster_ids = array();
-		$posts = get_thread( $topic_id, array( 'per_page' => -1, 'order' => 'DESC' ) );
+		$posts = get_thread( $topic_id, $thread_args );
 		if ( $posts && count( $posts ) ) {
 			foreach ( $posts as $post ) {
 				_bb_delete_post( $post->post_id, $new_status );
