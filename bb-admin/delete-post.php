@@ -67,7 +67,10 @@ $topic = get_topic( $bb_post->topic_id );
 if ( $sendto = wp_get_referer() ) {
 	$sendto = remove_query_arg( 'message', $sendto );
 	$sendto = add_query_arg( 'message', $message, $sendto );
-} elseif ( $topic->topic_posts == 0 ) {
+	$send_to_topic = bb_get_topic_from_uri( $sendto );
+	if ( $send_to_topic && $topic->topic_id == $send_to_topic->topic_id )
+		$sendto = add_query_arg( 'view', 'all', $sendto );
+} else if ( $topic->topic_posts == 0 ) {
 	$sendto = get_forum_link( $topic->forum_id );
 } else {
 	$the_page = bb_get_page_number( $bb_post->post_position );

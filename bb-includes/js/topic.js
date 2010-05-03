@@ -55,5 +55,10 @@ jQuery( function($) {
 		return confirm( bbTopicJS[ $('#' + s.element).is('.deleted') ? 'confirmPostUnDelete' : 'confirmPostDelete'] );
 	};
 
-	$('#thread').addClass( 'list:post' ).wpList( { alt: 'alt', altOffset: 1, confirm: postConfirm } );
+	$('#thread').addClass( 'list:post' ).wpList( { alt: 'alt', altOffset: 1, confirm: postConfirm, delAfter: function( r, s ) {
+		try {
+			// If we deleted the only post, we got an WP AJAX Response object back with a URL to redirect to
+			document.location = s.parsed.responses[0].data;
+		} catch ( e ) {}
+	} } );
 } );
