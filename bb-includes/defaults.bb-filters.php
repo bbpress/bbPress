@@ -29,6 +29,7 @@ foreach ( $filters as $filter ) {
 
 // Slugs
 add_filter( 'pre_term_slug', 'bb_pre_term_slug' );
+add_filter( 'editable_slug', 'urldecode');
 
 // DB truncations
 add_filter( 'pre_topic_title', 'bb_trim_for_db_150', 9999 );
