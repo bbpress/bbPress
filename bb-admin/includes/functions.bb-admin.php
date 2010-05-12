@@ -411,19 +411,17 @@ function bb_get_ids_by_role( $role = 'moderator', $sort = 0, $page = 1, $limit =
 	return $ids;
 }
 
-function bb_user_row( $user, $role = '', $ed = false ) {
+function bb_user_row( $user, $role = '', $email = false ) {
 	$actions = "<a href='" . esc_attr( get_user_profile_link( $user->ID ) ) . "'>" . __('View') . "</a>";
 	$title = '';
-	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
-	if ( bb_current_user_can( 'edit_user', $user_id ) && $ed ) {
-		$actions .= " | <a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __( 'Edit' ) . "</a>";
-		$actions .= bb_get_user_delete_link( array( 'id' => $user->ID, 'before' => ' | ', 'after' => '', 'delete_text' => __( 'Delete' ) ) );
+	if ( bb_current_user_can( 'edit_user', $user_id ) ) {
+		$actions .= " | <a href='" . esc_attr( get_profile_tab_link( $user->ID, 'edit' ) ) . "'>" . __('Edit') . "</a>";
 		$title = " title='" . esc_attr( sprintf( __( 'User ID: %d' ), $user->ID ) ) . "'";
-		$r .= "\t\t<td class=\"check-column\"><input type=\"checkbox\" name=\"user[]\" value=\"" . $user->ID . "\" /></td> \n";
 	}
+	$r  = "\t<tr id='user-$user->ID'" . get_alt_class("user-$role") . ">\n";
 	$r .= "\t\t<td class=\"user\">" . bb_get_avatar( $user->ID, 32 ) . "<span class=\"row-title\"><a href='" . get_user_profile_link( $user->ID ) . "'" . $title . ">" . get_user_name( $user->ID ) . "</a></span><div><span class=\"row-actions\">$actions</span>&nbsp;</div></td>\n";
 	$r .= "\t\t<td><a href='" . get_user_profile_link( $user->ID ) . "'>" . get_user_display_name( $user->ID ) . "</a></td>\n";
-	if ( $ed ) {
+	if ( $email ) {
 		$email = bb_get_user_email( $user->ID );
 		$r .= "\t\t<td><a href='mailto:$email'>$email</a></td>\n";
 	}
@@ -448,7 +446,7 @@ function bb_user_row( $user, $role = '', $ed = false ) {
 		$_roles = $wp_roles->get_names();
 		$role = array();
 		foreach ( $user->capabilities as $cap => $cap_set ) {
-			if ( !$cap_set || !$_roles[$cap] ) {
+			if (!$cap_set) {
 				continue;
 			}
 			$role[] = $_roles[$cap];
@@ -565,13 +563,7 @@ class BB_User_Search {
 		return false;
 	}
 
-	/**
-	 * Displays the controls for users
-	 *
-	 * @param bool $show_search Show Search or not. Default true
-	 * @param bool $show_ed Show Email of the user and delete options or not. Default false. Probable input could be `bb_current_user_can('edit_users')
-	 */
-	function display( $show_search = true, $show_ed = false ) {
+	function display( $show_search = true, $show_email = false ) {
 		global $wp_roles;
 
 		$r = '';
@@ -635,36 +627,7 @@ class BB_User_Search {
 			$r .= "</fieldset>\n";
 			$r .= "</form>\n\n";
 		}
-		
-		if( $show_ed ) {
-			$bulk_actions = array(
-				'delete' => __( 'Delete' ),
-			);
-		}else{
-			$bulk_actions = array(); //for plugins
-		}
-		
-		do_action_ref_array( 'bulk_user_actions', array( &$bulk_actions, &$bb_user_search ) );
-		
-		$show_bulk = ( is_array( $bulk_actions ) && count( $bulk_actions ) > 0 ) ? true : false;
-		
-		if( $show_bulk ){
-			$r .= "<div class='clear'></div>\n\n";
-			$r .= "<form class='table-form bulk-form' method='post' action=''>\n";
-			$r .= "\t<fieldset>\n";
-			$r .= "\t\t<select name='action'>\n";
-			$r .= "\t\t\t<option>" . __( 'Bulk Actions' ) . "</option>\n";
-			
-			foreach ( $bulk_actions as $value => $label ) {
-				$r .= "\t\t\t<option value='" . esc_attr( $value ) . "'>" . esc_html( $label ) . "</option>\n";
-			}
-			
-			$r .= "\t\t</select>\n";
-			$r .= "\t\t<input type='submit' value='" . esc_attr__( 'Apply' ) . "' class='button submit-input' />\n";
-			$r .= "\t\t" . bb_nonce_field( 'user-bulk', '_wpnonce', true, false ) . "\n";
-			$r .= "\t</fieldset>\n";
-		}
-		
+
 		if ( $this->get_results() ) {
 			if ( $this->results_are_paged() )
 				$r .= "<div class='tablenav'>\n" . $this->paging_text . "</div><div class=\"clear\"></div>\n\n";
@@ -678,10 +641,7 @@ class BB_User_Search {
 				$r .= "<table class='widefat'>\n";
 				$r .= "<thead>\n";
 				$r .= "\t<tr>\n";
-				if ( $show_bulk ) {
-					$r .= "\t\t<th scope='col' class='check-column'><input type='checkbox' /></th>\n";
-				}
-				if ( $show_ed ) {
+				if ( $show_email ) {
 					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
 					$r .= "\t\t<th style='width:20%;'>" . __('Name') . "</th>\n";
 					$r .= "\t\t<th style='width:20%;'>" . __('E-mail') . "</th>\n";
@@ -695,10 +655,7 @@ class BB_User_Search {
 				$r .= "</thead>\n\n";
 				$r .= "<tfoot>\n";
 				$r .= "\t<tr>\n";
-				if ( $show_bulk ) {
-					$r .= "\t\t<th scope='col' class='check-column'><input type='checkbox' /></th>\n";
-				}
-				if ( $show_ed ) {
+				if ( $show_email ) {
 					$r .= "\t\t<th style='width:30%;'>" . __('Username') . "</th>\n";
 					$r .= "\t\t<th style='width:20%;'>" . __('Name') . "</th>\n";
 					$r .= "\t\t<th style='width:20%;'>" . __('E-mail') . "</th>\n";
@@ -713,10 +670,9 @@ class BB_User_Search {
 
 				$r .= "<tbody id='role-$role'>\n";
 				foreach ( (array) $this->get_results() as $user_object )
-					$r .= bb_user_row( $user_object, $role, $show_ed );
+					$r .= bb_user_row($user_object, $role, $show_email);
 				$r .= "</tbody>\n";
 				$r .= "</table>\n\n";
-				$r .= "</form>\n\n";
 			//}
 
 			if ( $this->results_are_paged() )
@@ -953,7 +909,7 @@ function bb_forum_form( $forum_id = 0 ) {
 
 	if ( $forum_id ) {
 		$forum_name = get_forum_name( $forum_id );
-	    $forum_slug = apply_filters('editable_slug', $forum->forum_slug); 
+	    	$forum_slug = apply_filters('editable_slug', $forum->forum_slug); 
 		$forum_description = get_forum_description( $forum_id );
 		$forum_position = get_forum_position( $forum_id );
 		$legend = __( 'Edit Forum' );
