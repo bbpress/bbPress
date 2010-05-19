@@ -476,7 +476,8 @@ function bb_cache_all_options()
 		'plugin_cookie_paths',
 		'wp_roles_map',
 		'gmt_offset',
-		'timezone_string'
+		'timezone_string',
+		'name_link_profile'
 	);
 
 	// Check that these aren't already in the cache

@@ -1754,7 +1754,7 @@ function get_post_author( $post_id = 0 ) {
 }
 
 function post_author_link( $post_id = 0 ) {
-	if ( $link = get_user_link( get_post_author_id( $post_id ) ) ) {
+	if ( $link = ( bb_get_option( 'name_link_profile' ) ? get_user_profile_link( get_post_author_id( $post_id ) ) : get_user_link( get_post_author_id( $post_id ) ) ) ) {
 		echo '<a href="' . esc_attr( $link ) . '">' . get_post_author( $post_id ) . '</a>';
 	} elseif ( $link = bb_get_post_meta( 'pingback_uri' )) {
 		echo '<a href="' . esc_attr( $link ) . '">' . get_post_author( $post_id ) . '</a>';
@@ -2140,8 +2140,12 @@ function get_post_author_title_link( $post_id = 0 ) {
 			$r = __('PingBack');
 		else
 			$r = __('Unregistered'); // This should never happen
-	} else
-		$r = '<a href="' . esc_attr( get_user_profile_link( get_post_author_id( $post_id ) ) ) . '">' . $title . '</a>';
+	} else {
+		if ( $link = bb_get_option( 'name_link_profile' ) ? get_user_link( get_post_author_id( $post_id ) ) : get_user_profile_link( get_post_author_id( $post_id ) ) )
+			$r = '<a href="' . esc_attr( $link ) . '">' . $title . '</a>';
+		else
+			$r = $title;
+	}
 
 	return apply_filters( 'get_post_author_title_link', $r, get_post_id( $post_id ) );
 }

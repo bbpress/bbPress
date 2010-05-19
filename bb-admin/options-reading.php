@@ -1,6 +1,6 @@
 <?php
 
-require_once('admin.php');
+require_once( 'admin.php' );
 
 if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == 'update') {
 	
@@ -24,15 +24,23 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	exit;
 }
 
-if ( !empty($_GET['updated']) ) {
-	bb_admin_notice( __( '<strong>Settings saved.</strong>' ) );
-}
+if ( !empty( $_GET['updated'] ) )
+	bb_admin_notice( '<strong>' . __( 'Settings saved.' ) . '</strong>' );
 
 $reading_options = array(
 	'page_topics' => array(
 		'title' => __( 'Items per page' ),
 		'class' => 'short',
-		'note' => __( 'Number of topics, posts or tags to show per page.' ),
+		'note' => __( 'Number of topics, posts or tags to show per page.' )
+	),
+	'name_link_profile' => array(
+		'title' => __( 'Link name to' ),
+		'type' => 'radio',
+		'options' => array(
+			0 => __( 'Website' ),
+			1 => __( 'Profile' )
+		),
+		'note' => __( 'What should the user\'s name link to on the topic page? The user\'s title would automatically get linked to the option you don\'t choose. By default, the user\'s name is linked to his/her website.' )
 	)
 );
 
@@ -44,10 +52,10 @@ bb_get_admin_header();
 
 <div class="wrap">
 
-<h2><?php _e('Reading Settings'); ?></h2>
+<h2><?php _e( 'Reading Settings' ); ?></h2>
 <?php do_action( 'bb_admin_notices' ); ?>
 
-<form class="settings" method="post" action="<?php bb_uri('bb-admin/options-reading.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN); ?>">
+<form class="settings" method="post" action="<?php bb_uri( 'bb-admin/options-reading.php', null, BB_URI_CONTEXT_FORM_ACTION + BB_URI_CONTEXT_BB_ADMIN ); ?>">
 	<fieldset>
 <?php
 foreach ( $reading_options as $option => $args ) {
@@ -58,7 +66,7 @@ foreach ( $reading_options as $option => $args ) {
 	<fieldset class="submit">
 		<?php bb_nonce_field( 'options-reading-update' ); ?>
 		<input type="hidden" name="action" value="update" />
-		<input class="submit" type="submit" name="submit" value="<?php _e('Save Changes') ?>" />
+		<input class="submit" type="submit" name="submit" value="<?php _e( 'Save Changes' ) ?>" />
 	</fieldset>
 </form>
 
