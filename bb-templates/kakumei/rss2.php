@@ -26,8 +26,7 @@ bb_generator( 'comment' );
 			<pubDate><?php bb_post_time( 'D, d M Y H:i:s +0000', array( 'localize' => false ) ); ?></pubDate>
 			<dc:creator><?php post_author(); ?></dc:creator>
 			<guid isPermaLink="false"><?php post_id(); ?>@<?php bb_uri(); ?></guid>
-			<description><?php post_text_rss(); ?></description>
-			<content:encoded><![CDATA[<?php post_text_rss(); ?>]]></content:encoded>
+			<description><![CDATA[<?php post_text(); ?>]]></description>
 			<?php do_action( 'bb_rss2_item' ); ?>
 		</item>
 <?php endforeach; ?>

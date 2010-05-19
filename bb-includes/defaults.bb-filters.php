@@ -126,8 +126,8 @@ function bb_filter_feed_content()
 
 		add_filter( 'post_author', 'ent2ncr', 8 );
 		add_filter( 'post_link', 'esc_html' );
-		add_filter( 'post_text_rss', 'ent2ncr', 8 );
-		add_filter( 'post_text_rss', 'esc_html' );
+		add_filter( 'post_text', 'ent2ncr', 8 );
+		add_filter( 'post_text', 'bb_convert_chars' );
 	}
 }
 add_action( 'bb_init', 'bb_filter_feed_content' );

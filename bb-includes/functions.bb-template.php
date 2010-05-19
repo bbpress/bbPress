@@ -1785,10 +1785,6 @@ function post_author_avatar_link( $size = '48', $default = '', $post_id = 0 ) {
 	}
 }
 
-function post_text_rss( $post_id = 0 ) {
-	echo apply_filters( 'post_text_rss', get_post_text( $post_id ), get_post_id( $post_id ) );
-}
-
 function post_text( $post_id = 0 ) {
 	echo apply_filters( 'post_text', get_post_text( $post_id ), get_post_id( $post_id ) );
 }
