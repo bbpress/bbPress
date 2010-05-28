@@ -672,7 +672,7 @@ function bb_latest_topics_pages( $args = null )
 	static $bb_latest_topics_count;
 	if ( !$bb_latest_topics_count) {
 		global $bbdb;
-		$bb_latest_topics_count = $bbdb->get_var('SELECT COUNT(`topic_id`) FROM `' . $bbdb->topics . '` WHERE `topic_open` = 1 AND `topic_status` = 0 AND `topic_sticky` != 2;');
+		$bb_latest_topics_count = $bbdb->get_var('SELECT COUNT(`topic_id`) FROM `' . $bbdb->topics . '` WHERE `topic_status` = 0 AND `topic_sticky` != 2;');
 	}
 	if ( $pages = apply_filters( 'bb_latest_topics_pages', get_page_number_links( $page, $bb_latest_topics_count ), $bb_latest_topics_count ) ) {
 		echo $args['before'] . $pages . $args['after'];
