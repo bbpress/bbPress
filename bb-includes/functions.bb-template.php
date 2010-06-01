@@ -3556,7 +3556,7 @@ function _bb_time_function_return( $time, $args ) {
 	endswitch;
 
 	if ( $args['localize'] ) {
-		return bb_gmdate_i18n( $format, $time );
+		return bb_gmdate_i18n( $format, $time, false );
 	} else {
 		return gmdate( $format, $time );
 	}
