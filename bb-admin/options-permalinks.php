@@ -129,9 +129,9 @@ $permalink_options = array(
 		'title' => __( 'Permalink type' ),
 		'type' => 'radio',
 		'options' => array(
-			'0' => sprintf( __( '<span>None</span> <code>%s</code>' ), bb_get_uri( 'forums.php', array( 'id' => 1 ), BB_URI_CONTEXT_TEXT ) ),
-			'1' => sprintf( __( '<span>Numeric</span> <code>%s</code>' ), bb_get_uri( 'forums/1', null, BB_URI_CONTEXT_TEXT ) ),
-			'slugs' => sprintf( __( '<span>Name based</span> <code>%s</code>' ), bb_get_uri( '/forums/first-forum', null, BB_URI_CONTEXT_TEXT ) )
+			'0' => sprintf( __( '<span>None</span> <code>%s</code>' ), bb_get_uri( 'forum.php', array( 'id' => 1 ), BB_URI_CONTEXT_TEXT ) ),
+			'1' => sprintf( __( '<span>Numeric</span> <code>%s</code>' ), bb_get_uri( 'forum/1', null, BB_URI_CONTEXT_TEXT ) ),
+			'slugs' => sprintf( __( '<span>Name based</span> <code>%s</code>' ), bb_get_uri( '/forum/first-forum', null, BB_URI_CONTEXT_TEXT ) )
 		)
 	)
 );
