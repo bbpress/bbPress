@@ -271,15 +271,24 @@ function bb_pre_sanitize_with_dashes_utf8( $text, $_text = '', $length = 0 ) {
 	return $text;
 }
 
+function bb_show_topic_context( $term, $text ) {
+	$text = strip_tags( $text );
+	$term = preg_quote( $term );
+	$text = preg_replace( "|.*?(.{0,80})$term(.{0,80}).*|is", "$1<strong>$term</strong>$2", $text, 1 );
+	$text = substr( $text, 0, 210 );
+	return $text;
+}
+
 function bb_post_text_context( $post_text ) {
 	return bb_show_context( $GLOBALS['q'], $post_text );
 }
 
 function bb_show_context( $term, $text ) {
-	$text = strip_tags($text);
-	$term = preg_quote($term);
-	$text = preg_replace("|.*?(.{0,80})$term(.{0,80}).*|is", "... $1<strong>$term</strong>$2 ...", $text, 1);
-	$text = substr($text, 0, 210);
+	$text = strip_shortcodes( $text );
+	$text = strip_tags( $text );
+	$term = preg_quote( $term );
+	$text = preg_replace( "|.*?(.{0,80})$term(.{0,80}).*|is", "... $1<strong>$term</strong>$2 ...", $text, 1 );
+	$text = substr( $text, 0, 210 );
 	return $text;
 }
 

@@ -1,5 +1,5 @@
 <?php
-require_once('./bb-load.php');
+require_once( './bb-load.php' );
 
 if ( !$q = trim( @$_GET['search'] ) )
 	$q = trim( @$_GET['q'] );
@@ -7,16 +7,36 @@ if ( !$q = trim( @$_GET['search'] ) )
 $bb_query_form = new BB_Query_Form;
 
 if ( $q = stripslashes( $q ) ) {
+	/* Paging hack */
+	global $page;
+	if ( !$page ) $page = 1;
+	$search_start = 5 * ( $page - 1);
+	$search_stop = 5;
+	
+	/* Recent */
 	add_filter( 'bb_recent_search_fields',   create_function( '$f', 'return $f . ", MAX(post_time) AS post_time";' ) );
 	add_filter( 'bb_recent_search_group_by', create_function( '', 'return "t.topic_id";' ) );
-	$bb_query_form->BB_Query_Form( 'post', array(), array( 'order_by' => 'p.post_time', 'per_page' => 5, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
+	$bb_query_form->BB_Query_Form( 'post', array(), array( 'order_by' => 'p.post_time', 'page' => 1, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
 	$recent = $bb_query_form->results;
-
-	$bb_query_form->BB_Query_Form( 'post', array( 'search' => $q ), array( 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
-	$relevant = $bb_query_form->results;
+	if ( $recent ) {
+		$recent_count = isset( $bb_query_form->count ) ? $bb_query_form->count : count( $recent );
+		$recent = array_slice( $recent, $search_start, $search_stop );
+	} else {
+		$recent_count = 0;
+	}
 	
-	$bb_query_form->type = 'topic';
-
+	/* Relevant */
+	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'page' => 1, 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
+	$relevant = $bb_query_form->results;
+	if ( $recent ) {
+		$relevant_count = isset( $bb_query_form->count ) ? $bb_query_form->count : count( $relevant );
+		$relevant = array_slice( $relevant, $search_start, $search_stop );
+	} else {
+		$relevant_count = 0;
+	}
+	
+	$search_count = max( $recent_count, $relevant_count );
+	
 	$q = $bb_query_form->get( 'search' );
 }
 
@@ -34,6 +54,6 @@ if ( $recent ) :
 		$topics = bb_append_meta( $topics, 'topic' );
 endif;
 
-bb_load_template( 'search.php', array('q', 'recent', 'relevant'), $q );
+bb_load_template( 'search.php', array( 'q', 'recent', 'relevant', 'page', 'search_count' ), $q );
 
 ?>

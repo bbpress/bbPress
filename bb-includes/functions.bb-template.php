@@ -497,6 +497,12 @@ function bb_get_title( $args = '' ) {
 	$title = array();
 	
 	switch ( bb_get_location() ) {
+		case 'search-page':
+			if ( !$q = trim( @$_GET['search'] ) )
+				if ( !$q = trim( @$_GET['q'] ) )
+					break;
+			$title[] = sprintf( __( 'Search for %s' ), esc_html( $q ) );
+			break;
 		case 'front-page':
 			if ( !empty( $args['front'] ) )
 				$title[] = $args['front'];
@@ -515,7 +521,7 @@ function bb_get_title( $args = '' ) {
 			if ( bb_is_tag() )
 				$title[] = esc_html( bb_get_tag_name() );
 			
-			$title[] = __('Tags');
+			$title[] = __( 'Tags' );
 			break;
 		
 		case 'profile-page':
@@ -1634,6 +1640,11 @@ function bb_topic_search_form( $args = null, $query_obj = null ) {
 		$query_obj =& $bb_query_form;
 
 	$query_obj->form( $args );
+}
+
+function bb_search_pages() {
+	global $page, $search_count;
+	echo apply_filters( 'bb_search_pages', get_page_number_links( array( 'page' => $page, 'total' => $search_count, 'per_page' => 5, 'mod_rewrite' => false ) ) );
 }
 
 /**

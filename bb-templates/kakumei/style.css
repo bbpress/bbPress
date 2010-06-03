@@ -846,11 +846,21 @@ tr.bb-category td {
 
 #search-for { margin: 15px 0 5px; }
 
+ul#search-suggestions { margin-left: 25px; }
+
 .search-results { margin: 0 0 10px; }
 
 .search-results ol { margin: 5px 0 0 28px; }
 
-.search-results ol li { margin: 0 0 3px; }
+.search-results ol li { border-bottom: 1px solid #ccc; padding: 2px 5px 0 5px; min-height: 50px; }
+
+.search-results ol li.alt { background-color: #f8f8f8; }
+
+.search-results ol li:hover { background-color: #e4f3e1; }
+
+.search-results ol li a.result { font-size: 15px; }
+
+.search-results ol li span.freshness { float: right; font-style: italic; }
 
 /* Login, Register, Profile Edit
 =================================== */
