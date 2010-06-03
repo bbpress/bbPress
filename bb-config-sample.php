@@ -61,4 +61,3 @@ $bb_table_prefix = 'bb_';
  * BB_LANG to 'de' to enable German language support.
  */
 define( 'BB_LANG', '' );
-?>
