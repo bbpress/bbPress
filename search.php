@@ -10,13 +10,14 @@ if ( $q = stripslashes( $q ) ) {
 	/* Paging hack */
 	global $page;
 	if ( !$page ) $page = 1;
-	$search_start = 5 * ( $page - 1);
-	$search_stop = 5;
+	$per_page = ceil( (int) bb_get_option( 'page_topics' ) / 2 );
+	$search_start = $per_page * ( $page - 1 );
+	$search_stop = $per_page;
 	
 	/* Recent */
 	add_filter( 'bb_recent_search_fields',   create_function( '$f', 'return $f . ", MAX(post_time) AS post_time";' ) );
 	add_filter( 'bb_recent_search_group_by', create_function( '', 'return "t.topic_id";' ) );
-	$bb_query_form->BB_Query_Form( 'post', array(), array( 'order_by' => 'p.post_time', 'page' => 1, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
+	$bb_query_form->BB_Query_Form( 'post', array(), array( 'order_by' => 'p.post_time', 'page' => 1, 'per_page' => -1, 'post_status' => 0, 'topic_status' => 0, 'post_text' => $q, 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_recent_search' );
 	$recent = $bb_query_form->results;
 	if ( $recent ) {
 		$recent_count = isset( $bb_query_form->count ) ? $bb_query_form->count : count( $recent );
@@ -26,9 +27,9 @@ if ( $q = stripslashes( $q ) ) {
 	}
 	
 	/* Relevant */
-	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'page' => 1, 'post_status' => 0, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
+	$bb_query_form->BB_Query_Form( 'topic', array( 'search' => $q ), array( 'page' => 1, 'post_status' => 0, 'per_page' => -1, 'topic_status' => 0, 'search', 'forum_id', 'tag', 'topic_author', 'post_author' ), 'bb_relevant_search' );
 	$relevant = $bb_query_form->results;
-	if ( $recent ) {
+	if ( $relevant ) {
 		$relevant_count = isset( $bb_query_form->count ) ? $bb_query_form->count : count( $relevant );
 		$relevant = array_slice( $relevant, $search_start, $search_stop );
 	} else {
@@ -54,6 +55,6 @@ if ( $recent ) :
 		$topics = bb_append_meta( $topics, 'topic' );
 endif;
 
-bb_load_template( 'search.php', array( 'q', 'recent', 'relevant', 'page', 'search_count' ), $q );
+bb_load_template( 'search.php', array( 'q', 'recent', 'relevant', 'page', 'per_page', 'search_count' ), $q );
 
 ?>

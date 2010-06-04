@@ -1642,9 +1642,14 @@ function bb_topic_search_form( $args = null, $query_obj = null ) {
 	$query_obj->form( $args );
 }
 
-function bb_search_pages() {
-	global $page, $search_count;
-	echo apply_filters( 'bb_search_pages', get_page_number_links( array( 'page' => $page, 'total' => $search_count, 'per_page' => 5, 'mod_rewrite' => false ) ) );
+function bb_search_pages( $args = null ) {
+	global $page, $search_count, $per_page;
+	
+	$defaults = array( 'before' => '', 'after' => '' );
+ 	$args = wp_parse_args( $args, $defaults );
+	
+	if ( $pages = apply_filters( 'bb_search_pages', get_page_number_links( array( 'page' => $page, 'total' => $search_count, 'per_page' => $per_page, 'mod_rewrite' => false ) ) ) )
+		echo $args['before'] . $pages . $args['after'];
 }
 
 /**
