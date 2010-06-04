@@ -9,46 +9,61 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
 	$messages = array();
 
 	if ( !empty( $_POST['topic-posts'] ) ) {
-		$messages[] = bb_recount_topic_posts();
+		$message = bb_recount_topic_posts();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['topic-voices'] ) ) {
-		$messages[] = bb_recount_topic_voices();
+		$message = bb_recount_topic_voices();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['topic-deleted-posts'] ) ) {
-		$messages[] = bb_recount_topic_deleted_posts();
+		$message = bb_recount_topic_deleted_posts();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['forums'] ) ) {
-		$messages[] = bb_recount_forum_topics();
-		$messages[] = bb_recount_forum_posts();
+		$message = bb_recount_forum_topics();
+		$messages[] = $message[1];
+		$message = bb_recount_forum_posts();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['topics-replied'] ) ) {
-		$messages[] = bb_recount_user_topics_replied();
+		$message = bb_recount_user_topics_replied();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['topic-tag-count'] ) ) {
-		$messages[] = bb_recount_topic_tags();
+		$message = bb_recount_topic_tags();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['tags-tag-count'] ) ) {
-		$messages[] = bb_recount_tag_topics();
+		$message = bb_recount_tag_topics();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['tags-delete-empty'] ) ) {
-		$messages[] = bb_recount_tag_delete_empty();
+		$message = bb_recount_tag_delete_empty();
+		$messages[] = $message[1];
 	}
 
 	if ( !empty( $_POST['clean-favorites'] ) ) {
-		$messages[] = bb_recount_clean_favorites();
+		$message = bb_recount_clean_favorites();
+		$messages[] = $message[1];
 	}
 
 	bb_recount_list();
 	foreach ( (array) $recount_list as $item ) {
 		if ( isset($item[2]) && isset($_POST[$item[0]]) && 1 == $_POST[$item[0]] && is_callable($item[2]) ) {
-			$messages[] = call_user_func( $item[2] );
+			$message = call_user_func( $item[2] );
+			if ( is_array( $message ) ) {
+				$messages[] = $message[1];
+			} else {
+				$messages[] = $message;
+			}
 		}
 	}
 
