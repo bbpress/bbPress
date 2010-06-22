@@ -319,19 +319,10 @@ function bb_ksd_submit_spam( $post_id )
 
 function bb_ksd_check_post( $post_text )
 {
-	global $bb_current_user;
-	global $bb_ksd_pre_post_status;
+	global $bb_ksd_pre_post_status, $bb_ksd_pre_post;
 
-	// Don't filter content from users with a trusted role
-	if ( in_array( $bb_current_user->roles[0], bb_trusted_roles() ) ) {
-		return $post_text;
-	}
+	$bb_ksd_pre_post = $post_text;
 
-	$response = bb_ksd_submit( $post_text );
-	if ( 'true' == $response[1] ) {
-		$bb_ksd_pre_post_status = '2';
-	}
-	bb_akismet_delete_old();
 	return $post_text;
 }
 add_action( 'pre_post', 'bb_ksd_check_post', 1 );
@@ -393,9 +384,17 @@ function bb_akismet_delete_old()
 
 function bb_ksd_pre_post_status( $post_status )
 {
-	global $bb_ksd_pre_post_status;
-	if ( '2' == $bb_ksd_pre_post_status ) {
-		$post_status = $bb_ksd_pre_post_status;
+	global $bb_current_user, $bb_ksd_pre_post_status, $bb_ksd_pre_post;
+
+	// Don't filter content from users with a trusted role
+	if ( in_array( $bb_current_user->roles[0], bb_trusted_roles() ) ) {
+		return $post_status;
+	}
+
+	$response = bb_ksd_submit( $bb_ksd_pre_post );
+	if ( 'true' == $response[1] ) {
+		$bb_ksd_pre_post_status = '2';
+		return $bb_ksd_pre_post_status;
 	}
 	return $post_status;
 }
