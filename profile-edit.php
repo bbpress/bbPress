@@ -142,7 +142,7 @@ if ( 'post' == strtolower($_SERVER['REQUEST_METHOD']) ) {
 				$user_obj->set_role($role); // Only support one role for now
 				if ( 'blocked' == $role && 'blocked' != $old_role )
 					bb_break_password( $user->ID );
-				elseif ( 'blocked' != $role && 'blocked' == $old_role )
+				elseif ( 'blocked' != $role && array_key_exists( 'blocked', $user->capabilities ) )
 					bb_fix_password( $user->ID );
 			}
 			foreach( $profile_admin_keys as $key => $label )

@@ -6,6 +6,7 @@ function bb_block_current_user() {
 	global $bbdb;
 	if ( $id = bb_get_current_user_info( 'id' ) )
 		bb_update_usermeta( $id, $bbdb->prefix . 'been_blocked', 1 ); // Just for logging.
+	bb_logout();
 	bb_die(__("You've been blocked.  If you think a mistake has been made, contact this site's administrator."));
 }
 
