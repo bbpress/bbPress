@@ -1201,7 +1201,7 @@ function bb_die( $message, $title = '', $header = 0 ) {
 			break;
 		endswitch;
 	} elseif ( is_string( $message ) ) {
-		$message = "<p>$message</p>";
+		$message = bb_autop( $message );
 	}
 
 	if ( empty($title) )
@@ -1209,7 +1209,7 @@ function bb_die( $message, $title = '', $header = 0 ) {
 	
 	bb_install_header( $title );
 ?>
-	<p><?php echo $message; ?></p>
+	<?php echo $message; ?>
 <?php
 	if ($uri = bb_get_uri()) {
 ?>
