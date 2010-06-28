@@ -479,12 +479,14 @@ require_once( BB_PATH . BB_INC . 'defaults.bb-filters.php' );
 // Load default scripts
 require_once( BB_PATH . BB_INC . 'functions.bb-script-loader.php' );
 
-// Sanitise external input
-$_GET    = bb_global_sanitize( $_GET );
-$_POST   = bb_global_sanitize( $_POST );
-$_COOKIE = bb_global_sanitize( $_COOKIE, false );
-$_SERVER = bb_global_sanitize( $_SERVER );
-
+/* Check if the globals have been sanitized by WordPress or not (else there would be extra slashes while deep integration) */
+if ( !function_exists( 'wp_magic_quotes' ) ) {
+	// Sanitise external input
+	$_GET    = bb_global_sanitize( $_GET );
+	$_POST   = bb_global_sanitize( $_POST );
+	$_COOKIE = bb_global_sanitize( $_COOKIE, false );
+	$_SERVER = bb_global_sanitize( $_SERVER );
+}
 
 
 /**
