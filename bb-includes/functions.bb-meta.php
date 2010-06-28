@@ -297,7 +297,7 @@ function bb_get_option( $option )
 			$r = $bb_locale->text_direction;
 			break;
 		case 'version':
-			return '1.1-alpha-2446'; // Don't filter
+			return '1.1-alpha-2447'; // Don't filter
 			break;
 		case 'bb_db_version' :
 			return '2078'; // Don't filter
