@@ -270,7 +270,7 @@ function bb_get_topic_tags( $topic_id = 0, $args = null ) {
 	$cache_id = $topic_id . serialize( $args );
 
 	$terms = wp_cache_get( $cache_id, 'bb_topic_tag_terms' );
-	if ( empty( $terms ) ) {
+	if ( false === $terms ) {
 		$terms = $wp_taxonomy_object->get_object_terms( (int) $topic->topic_id, 'bb_topic_tag', $args );
 		wp_cache_set( $cache_id, $terms, 'bb_topic_tag_terms' );
 	}
