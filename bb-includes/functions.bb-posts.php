@@ -203,12 +203,24 @@ function bb_cache_posts( $query, $post_id_query = false ) {
 			foreach( $_query_posts as $_query_post ) {
 				wp_cache_add( $_query_post->post_id, $_query_post, 'bb_post' );
 			}
+		} else {
+			$_query_posts = array();
 		}
 	} else {
 		$_query_posts = array();
 	}
 
-	return array_merge( $_cached_posts, $_query_posts );
+	$the_posts = array_merge( $_cached_posts, $_query_posts );
+
+	usort( $the_posts, '_bb_cache_posts_sort' );
+	if ( isset( $_query ) && strpos( $_query, 'DESC' ) !== false )
+		$the_posts = array_reverse( $the_posts );
+
+	return $the_posts;
+}
+
+function _bb_cache_posts_sort( $a, $b ) {
+	return (int) $a->post_id - (int) $b->post_id;
 }
 
 // Globalizes the result
