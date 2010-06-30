@@ -24,6 +24,20 @@
 function bb_log_deprecated( $type, $name, $replacement = 'none' ) {
 	global $bb_log;
 	$bb_log->notice( sprintf( __( 'Using deprecated bbPress %1$s - %2$s - replace with - %3$s' ), $type, $name, $replacement ) );
+
+	if ( $bb_log->level & BP_LOG_DEBUG && $bb_log->level & BP_LOG_NOTICE ) { // Only compute the location if we're going to log it.
+		$backtrace = debug_backtrace();
+
+		$file = $backtrace[2]['file'];
+
+		if ( substr( $file, 0, strlen( BB_PATH ) - 1 ) == rtrim( BB_PATH, '\\/') )
+			$file = substr( $file, strlen( BB_PATH ) );
+
+		$file = str_replace( '\\', '/', $file );
+
+		// 0 = this function, 1 = the deprecated function
+		$bb_log->notice( '    ' . sprintf( __( 'on line %1$d of file %2$s' ), $backtrace[2]['line'], $file ) );
+	}
 }
 
 /**
