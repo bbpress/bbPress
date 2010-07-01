@@ -5,8 +5,6 @@
 /**
  * Check to make sure that a user is not making too many posts in a short amount of time.
  *
- * @todo Add logic for users not logged in.
- *
  * @param string $ip Comment IP.
  * @param string $email Comment author email address.
  * @param string $date MySQL time string.
@@ -20,8 +18,6 @@ function bb_check_comment_flood( $ip = '', $email = '', $date = '' ) {
 		return;
 	}
 
-	$hour_ago = gmdate( 'Y-m-d H:i:s', time() - 3600 );
-
 	if ( bb_is_user_logged_in() ) {
 		$bb_current_user = bb_get_current_user();
 		
@@ -33,29 +29,35 @@ function bb_check_comment_flood( $ip = '', $email = '', $date = '' ) {
 			}
 		}
 	} else {
-		// todo: add logic for non-logged-in users
+		if ( ( $last_posted = bb_get_transient($_SERVER['REMOTE_ADDR'] . '_last_posted') ) && time() < $last_posted + $throttle_time ) {
+			if ( defined('DOING_AJAX') && DOING_AJAX ) {
+				die(__('Slow down; you move too fast.'));
+			} else {
+				bb_die(__('Slow down; you move too fast.'));
+			}
+		}
 	}
 }
 
 /**
- * Get the current, non-logged-in commenter data.
+ * Get the current, non-logged-in poster data.
  * @return array The associative array of author, email, and url data.
  */
-function bb_get_current_commenter() {
+function bb_get_current_poster() {
 	// Cookies should already be sanitized.
-	$comment_author = '';
-	if ( isset($_COOKIE['comment_author_'.COOKIEHASH]) )
-		$comment_author = $_COOKIE['comment_author_'.COOKIEHASH];
+	$post_author = '';
+	if ( isset( $_COOKIE['post_author_'.COOKIEHASH] ) )
+		$post_author = $_COOKIE['post_author_'.COOKIEHASH];
 
-	$comment_author_email = '';
-	if ( isset($_COOKIE['comment_author_email_'.COOKIEHASH]) )
-		$comment_author_email = $_COOKIE['comment_author_email_'.COOKIEHASH];
+	$post_author_email = '';
+	if ( isset( $_COOKIE['post_author_email_'.COOKIEHASH] ) )
+		$post_author_email = $_COOKIE['post_author_email_'.COOKIEHASH];
 
-	$comment_author_url = '';
-	if ( isset($_COOKIE['comment_author_url_'.COOKIEHASH]) )
-		$comment_author_url = $_COOKIE['comment_author_url_'.COOKIEHASH];
+	$post_author_url = '';
+	if ( isset( $_COOKIE['post_author_url_'.COOKIEHASH] ) )
+		$post_author_url = $_COOKIE['post_author_url_'.COOKIEHASH];
 
-	return compact('comment_author', 'comment_author_email', 'comment_author_url');
+	return compact( 'post_author', 'post_author_email', 'post_author_url' );
 }
 
 function bb_get_post( $post_id ) {
@@ -411,7 +413,7 @@ function bb_insert_post( $args = null ) {
 		$post_id = $topic_last_post_id = (int) $bbdb->insert_id;
 
 		// if user not logged in, save user data as meta data
-		if ( ! bb_is_user_logged_in() && ! bb_is_login_required() ) {
+		if ( !$user ) {
 			bb_update_meta($post_id, 'post_author', $post_author, 'post');
 			bb_update_meta($post_id, 'post_email', $post_email, 'post');
 			bb_update_meta($post_id, 'post_url', $post_url, 'post');
@@ -439,8 +441,12 @@ function bb_insert_post( $args = null ) {
 	}
 	bb_update_topic_voices( $topic_id );
 	
-	if ( $throttle && !bb_current_user_can( 'throttle' ) )
-		bb_update_usermeta( $poster_id, 'last_posted', time() );
+	if ( $throttle && !bb_current_user_can( 'throttle' ) ) {
+		if ( $user )
+			bb_update_usermeta( $poster_id, 'last_posted', time() );
+		else
+			bb_set_transient( $_SERVER['REMOTE_ADDR'] . '_last_posted', time() );
+	}
 
 	wp_cache_delete( $topic_id, 'bb_topic' );
 	wp_cache_delete( $topic_id, 'bb_thread' );

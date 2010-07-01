@@ -1180,3 +1180,9 @@ if ( !function_exists( 'update_user_status' ) ) {
 		return bb_update_user_status( $user_id, $user_status );
 	}
 }
+
+function bb_get_current_commenter() {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_get_current_poster' );
+	extract( bb_get_current_poster() );
+	return array( 'comment_author' => $post_author, 'comment_email' => $post_author_email, 'comment_author_url' => $post_author_url );
+}

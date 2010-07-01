@@ -175,17 +175,19 @@ function bb_insert_topic( $args = null ) {
 		return false;
 	$forum_id = (int) $forum->forum_id;
 
-	if ( !$user = bb_get_user( $topic_poster ) )
-		if ( !$user = bb_get_user( $topic_poster_name, array( 'by' => 'login' ) ) )
-			return false;
-	$topic_poster = $user->ID;
-	$topic_poster_name = $user->user_login;
+	if ( bb_is_user_logged_in() || bb_is_login_required() ) {
+		if ( !$user = bb_get_user( $topic_poster ) )
+			if ( !$user = bb_get_user( $topic_poster_name, array( 'by' => 'login' ) ) )
+				return false;
+		$topic_poster = $user->ID;
+		$topic_poster_name = $user->user_login;
 
-	if ( !$last_user = bb_get_user( $topic_last_poster ) )
-		if ( !$last_user = bb_get_user( $topic_last_poster_name, array( 'by' => 'login' ) ) )
-			return false;
-	$topic_last_poster = $last_user->ID;
-	$topic_last_poster_name = $last_user->user_login;
+		if ( !$last_user = bb_get_user( $topic_last_poster ) )
+			if ( !$last_user = bb_get_user( $topic_last_poster_name, array( 'by' => 'login' ) ) )
+				return false;
+		$topic_last_poster = $last_user->ID;
+		$topic_last_poster_name = $last_user->user_login;
+	}
 
 	if ( in_array( 'topic_title', $fields ) ) {
 		$topic_title = apply_filters( 'pre_topic_title', $topic_title, $topic_id );
@@ -234,11 +236,11 @@ function bb_insert_topic( $args = null ) {
 }
 
 // Deprecated: expects $title to be pre-escaped
-function bb_new_topic( $title, $forum, $tags = '' ) {
+function bb_new_topic( $title, $forum, $tags = '', $args = '' ) {
 	$title = stripslashes( $title );
 	$tags  = stripslashes( $tags );
 	$forum = (int) $forum;
-	return bb_insert_topic( array( 'topic_title' => $title, 'forum_id' => $forum, 'tags' => $tags ) );
+	return bb_insert_topic( wp_parse_args( $args ) + array( 'topic_title' => $title, 'forum_id' => $forum, 'tags' => $tags ) );
 }
 
 // Deprecated: expects $title to be pre-escaped

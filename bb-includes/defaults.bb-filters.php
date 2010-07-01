@@ -162,4 +162,6 @@ add_filter( 'bb_pre_get_option_gmt_offset', 'wp_timezone_override_offset' );
 
 add_action( 'bb_new_post', 'bb_notify_subscribers' );
 
+add_action( 'post_form_pre_post', 'bb_anonymous_post_form' );
+
 unset( $filters, $filter );

@@ -46,7 +46,12 @@ if ( isset($_POST['topic']) && $forum_id = (int) $_POST['forum_id'] ) {
 	if ('' == $topic)
 		bb_die(__('Please enter a topic title'));
 
-	$topic_id = bb_new_topic( $topic, $forum_id, $tags );
+	$args = array();
+
+	if ( isset( $post_author ) )
+		$args['topic_poster_name'] = $args['topic_last_poster_name'] = $post_author;
+
+	$topic_id = bb_new_topic( $topic, $forum_id, $tags, $args );
 
 } elseif ( isset($_POST['topic_id'] ) ) {
 	$topic_id = (int) $_POST['topic_id'];
@@ -88,5 +93,3 @@ if ($post_id)
 else
 	wp_redirect( bb_get_uri(null, null, BB_URI_CONTEXT_HEADER) );
 exit;
-
-?>

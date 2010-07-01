@@ -332,6 +332,11 @@ function edit_form() {
 	do_action('post_edit_form');
 }
 
+function bb_anonymous_post_form() {
+	if ( !bb_is_user_logged_in() && !bb_is_login_required() )
+		bb_load_template( 'post-form-anonymous.php' );
+}
+
 function alt_class( $key, $others = '' ) {
 	echo get_alt_class( $key, $others );
 }
@@ -1202,7 +1207,7 @@ function topic_last_poster( $id = 0 ) {
 
 function get_topic_last_poster( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	$user_display_name = get_user_display_name($topic->topic_last_poster);
+	$user_display_name = get_post_author( $topic->topic_last_post_id );
 	return apply_filters( 'get_topic_last_poster', $user_display_name, $topic->topic_last_poster, $topic->topic_id ); // $topic->topic_last_poster = user ID
 }
 
@@ -1213,7 +1218,8 @@ function topic_author( $id = 0 ) {
 
 function get_topic_author( $id = 0 ) {
 	$topic = get_topic( get_topic_id( $id ) );
-	$user_display_name = get_user_display_name($topic->topic_poster);
+	$first_post = bb_get_first_post( $topic );
+	$user_display_name = get_post_author( $first_post->post_id );
 	return apply_filters( 'get_topic_author', $user_display_name, $topic->topic_poster, $topic->topic_id ); // $topic->topic_poster = user ID
 }
 
@@ -1600,7 +1606,7 @@ function bb_get_new_topic_link( $args = null ) {
 	elseif ( bb_is_front() )
 		$url = bb_get_uri(null, array('new' => 1));
 
-	if ( !bb_is_user_logged_in() )
+	if ( !bb_is_user_logged_in() && bb_is_login_required() )
 		$url = bb_get_uri('bb-login.php', array('redirect_to' => $url), BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_USER_FORMS);
 	elseif ( bb_is_forum() || bb_is_topic() ) {
 		if ( !bb_current_user_can( 'write_topic', get_forum_id() ) )
@@ -1761,9 +1767,9 @@ function post_author( $post_id = 0 ) {
 function get_post_author( $post_id = 0 ) {
 	if ( $user = bb_get_user( get_post_author_id( $post_id ) ) )
 		return apply_filters( 'get_post_author', $user->display_name, $user->ID, $post_id );
-	elseif ( $title = bb_get_post_meta( 'pingback_title' ) )
+	elseif ( $title = bb_get_post_meta( 'pingback_title', $post_id ) )
 		return apply_filters( 'bb_get_pingback_title', $title, $post_id );
-	elseif ( $title = bb_get_post_meta( 'post_author' ) )
+	elseif ( $title = bb_get_post_meta( 'post_author', $post_id ) )
 		return apply_filters( 'get_post_author', $title, 0, $post_id );
 	else
 		return apply_filters( 'get_post_author', __('Anonymous'), 0, $post_id );
