@@ -62,6 +62,8 @@ $wpRoles = array(
 	'subscriber'    => __('WordPress Subscriber')
 );
 
+$wpRoles = apply_filters( 'role_map_wp_roles', $wpRoles );
+
 $cookie_options = array(
 	'wp_siteurl' => array(
 		'title' => __( 'WordPress address (URL)' ),
