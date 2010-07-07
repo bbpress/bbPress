@@ -2,7 +2,6 @@
 
 /* Options/Meta */
 
-
 /* Internal */
 
 function bb_sanitize_meta_key( $key )
@@ -95,7 +94,7 @@ function bb_delete_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 		case 'user':
 			global $wp_users_object;
 			$id = $object_id;
-			return $wp_users_object->update_meta( compact( 'id', 'meta_key', 'meta_value' ) );
+			return $wp_users_object->delete_meta( compact( 'id', 'meta_key', 'meta_value' ) );
 			break;
 		case 'forum':
 			$object_type = 'bb_forum';
@@ -297,7 +296,7 @@ function bb_get_option( $option )
 			$r = $bb_locale->text_direction;
 			break;
 		case 'version':
-			return '1.1-alpha-2457'; // Don't filter
+			return '1.1-alpha-2458'; // Don't filter
 			break;
 		case 'bb_db_version' :
 			return '2078'; // Don't filter
