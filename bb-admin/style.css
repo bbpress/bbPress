@@ -60,6 +60,15 @@ div#bbContent {
 }
 
 
+pre {
+	/* http://www.longren.org/2006/09/27/wrapping-text-inside-pre-tags/ */
+	white-space: pre-wrap; /* css-3 */
+	white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
 /* Header */
 
 div#bbHead {
@@ -1221,6 +1230,7 @@ table.widefat tr td code,
 table.widefat tr td kbd {
 	font-family: Consolas, Monaco, Courier, monospace;
 	font-size: 1.2em;
+	line-height: 1.4;
 	background: rgb(234, 234, 234);
 	margin: 0px 1px;
 	padding: 1px 3px;
