@@ -505,7 +505,7 @@ function bb_cache_all_options()
 
 	if ( count( $base_options ) === count( $query_options ) && ( !$results || !is_array( $results ) || !count( $results ) ) ) {
 		// Let's assume that the options haven't been populated from the old topicmeta table
-		if ( !BB_INSTALLING ) {
+		if ( !BB_INSTALLING && ( !defined( 'BB_DO_NOT_UPGRADE_TOPICMETA' ) || !BB_DO_NOT_UPGRADE_TOPICMETA ) ) {
 			$topicmeta_exists = $bbdb->query( "SELECT * FROM $bbdb->topicmeta LIMIT 1" );
 			if ($topicmeta_exists) {
 				require_once( BB_PATH . 'bb-admin/includes/defaults.bb-schema.php' );
