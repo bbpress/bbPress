@@ -83,15 +83,15 @@ class BBP_Loader {
 
 		// Default slug for topics post type
 		if ( !defined( 'BBP_FORUM_SLUG' ) )
-			define( 'BBP_FORUM_SLUG', apply_filters( 'bbp_forums_slug', 'forum' ) );
+			define( 'BBP_FORUM_SLUG', apply_filters( 'bbp_forum_slug', 'forum' ) );
 
 		// Default slug for topics post type
 		if ( !defined( 'BBP_TOPIC_SLUG' ) )
-			define( 'BBP_TOPIC_SLUG', apply_filters( 'bbp_topics_slug', 'topic' ) );
+			define( 'BBP_TOPIC_SLUG', apply_filters( 'bbp_topic_slug', 'topic' ) );
 
 		// Default slug for topic reply post type
 		if ( !defined( 'BBP_REPLY_SLUG' ) )
-			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_topics_slug', 'reply' ) );
+			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_topic_slug', 'reply' ) );
 			
 		define( 'BBP_DIR', WP_PLUGIN_DIR . '/bbpress' );
 		define( 'BBP_URL', plugins_url( $path = '/bbpress' ) );
