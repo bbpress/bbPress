@@ -23,10 +23,10 @@ add_action( 'plugins_loaded',  array( 'BBP_Loader', 'loaded' ) );
 // Attach the bbPress initilization to the WordPress init action.
 add_action( 'init',            array( 'BBP_Loader', 'init' ) );
 
-// Attach the bbPress loader to our own trusted bbPress loaded action.
+// Attach the bbPress constants to our own trusted bbPress loaded action.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'constants' ) );
 
-// Attach the bbPress loader to our own trusted bbPress loaded action.
+// Attach the bbPress includes to our own trusted bbPress loaded action.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'includes' ) );
 
 // Attach the bbPress post type registration to our own trusted bbPress init.
