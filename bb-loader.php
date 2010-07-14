@@ -77,11 +77,15 @@ class BBP_Loader {
 		if ( !defined( 'BBP_TOPIC_TAG_ID' ) )
 			define( 'BBP_TOPIC_TAG_ID', apply_filters( 'bbp_topic_tag_id', 'bbp_topic_tag' ) );
 
-		// Default slug for component
-		if ( !defined( 'BBP_SLUG' ) )
-			define( 'BBP_SLUG', apply_filters( 'bbp_slug', 'forums' ) );
+		// Default slug for root component
+		if ( !defined( 'BBP_ROOT_SLUG' ) )
+			define( 'BBP_ROOT_SLUG', apply_filters( 'bbp_root_slug', 'forums' ) );
 
-		// Default slug for component
+		// Default slug for topics post type
+		if ( !defined( 'BBP_FORUMS_SLUG' ) )
+			define( 'BBP_FORUMS_SLUG', apply_filters( 'bbp_forums_slug', 'forums' ) );
+
+		// Default slug for topics post type
 		if ( !defined( 'BBP_TOPICS_SLUG' ) )
 			define( 'BBP_TOPICS_SLUG', apply_filters( 'bbp_topics_slug', 'topics' ) );
 
