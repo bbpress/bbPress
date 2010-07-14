@@ -91,7 +91,7 @@ class BBP_Loader {
 
 		// Default slug for topic reply post type
 		if ( !defined( 'BBP_REPLY_SLUG' ) )
-			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_topic_slug', 'reply' ) );
+			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_reply_slug', 'reply' ) );
 			
 		define( 'BBP_DIR', WP_PLUGIN_DIR . '/bbpress' );
 		define( 'BBP_URL', plugins_url( $path = '/bbpress' ) );
