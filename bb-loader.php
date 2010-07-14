@@ -82,13 +82,17 @@ class BBP_Loader {
 			define( 'BBP_ROOT_SLUG', apply_filters( 'bbp_root_slug', 'forums' ) );
 
 		// Default slug for topics post type
-		if ( !defined( 'BBP_FORUMS_SLUG' ) )
-			define( 'BBP_FORUMS_SLUG', apply_filters( 'bbp_forums_slug', 'forums' ) );
+		if ( !defined( 'BBP_FORUM_SLUG' ) )
+			define( 'BBP_FORUM_SLUG', apply_filters( 'bbp_forums_slug', 'forum' ) );
 
 		// Default slug for topics post type
-		if ( !defined( 'BBP_TOPICS_SLUG' ) )
-			define( 'BBP_TOPICS_SLUG', apply_filters( 'bbp_topics_slug', 'topics' ) );
+		if ( !defined( 'BBP_TOPIC_SLUG' ) )
+			define( 'BBP_TOPIC_SLUG', apply_filters( 'bbp_topics_slug', 'topic' ) );
 
+		// Default slug for topic reply post type
+		if ( !defined( 'BBP_REPLY_SLUG' ) )
+			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_topics_slug', 'reply' ) );
+			
 		define( 'BBP_DIR', WP_PLUGIN_DIR . '/bbpress' );
 		define( 'BBP_URL', plugins_url( $path = '/bbpress' ) );
 
@@ -187,7 +191,7 @@ class BBP_Loader {
 					'capability_type'   => 'post',
 					'hierarchical'      => true,
 					'rewrite'           => array (
-						'slug'              => 'forum',
+						'slug'              => BBP_FORUM_SLUG,
 						'with_front'        => false
 					),
 					'query_var'     => true,
@@ -234,7 +238,7 @@ class BBP_Loader {
 					'capability_type'   => 'post',
 					'hierarchical'      => false,
 					'rewrite'           => array (
-						'slug'              => 'topic',
+						'slug'              => BBP_TOPIC_SLUG,
 						'with_front'        => false
 					),
 					'query_var'         => true,
@@ -281,7 +285,7 @@ class BBP_Loader {
 					'capability_type'   => 'post',
 					'hierarchical'      => false,
 					'rewrite'           => array (
-						'slug'              => 'reply',
+						'slug'              => BBP_REPLY_SLUG,
 						'with_front'        => false
 					),
 					'query_var'         => true,
