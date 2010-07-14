@@ -83,7 +83,7 @@ class BBP_Loader {
 
 		// Default slug for component
 		if ( !defined( 'BBP_TOPICS_SLUG' ) )
-			define( 'BBP_TOPICS_SLUG', apply_filters( 'bbp_topics_slug', 'topic_tag' ) );
+			define( 'BBP_TOPICS_SLUG', apply_filters( 'bbp_topics_slug', 'topics' ) );
 
 		define( 'BBP_DIR', WP_PLUGIN_DIR . '/bbpress' );
 		define( 'BBP_URL', plugins_url( $path = '/bbpress' ) );
