@@ -3437,27 +3437,6 @@ function user_favorites_link($add = array(), $rem = array(), $user_id = 0) {
 		echo "<span id='favorite-$topic->topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->topic_id:is-favorite'>$mid</a>$post</span>";
 }
 
-function bb_user_subscribe_link() {
-	global $topic, $bb_current_user, $bbdb, $bb;
-
-	if ( !bb_is_user_logged_in() )
-		return false;
-
-	$there = false;
-	if ( $term_id = $bbdb->get_var( "SELECT term_id FROM $bbdb->terms WHERE slug = 'topic-$topic->topic_id'" ) ) {
-		$term_taxonomy_ids = $bbdb->get_col( "SELECT term_taxonomy_id FROM $bbdb->term_taxonomy WHERE term_id = $term_id AND taxonomy = 'bb_subscribe'" );
-		$term_taxonomy_ids = join(',', $term_taxonomy_ids );
-		$there = $bbdb->get_var( "SELECT object_id FROM $bbdb->term_relationships WHERE object_id = $bb_current_user->ID AND term_taxonomy_id IN ( $term_taxonomy_ids )" );
-	}
-
-
-	if ( $there )
-		echo '<a href="'. bb_nonce_url( "$bb->uri?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=remove", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Unsubscribe from Topic' ) . '</a>';
-	else
-		echo '<a href="'. bb_nonce_url( "$bb->uri?doit=bb-subscribe&amp;topic_id=$topic->topic_id&amp;and=add", 'toggle-subscribe_' . $topic->topic_id ) .'">' . __( 'Subscribe to Topic' ) . '</a>';
-
-	}
-
 function favorites_rss_link( $id = 0, $context = 0 ) {
 	if (!$context || !is_integer($context)) {
 		$context = BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_FEED;
@@ -3495,6 +3474,97 @@ function favorites_pages( $args = null )
 	if ( $pages = apply_filters( 'favorites_pages', get_page_number_links( $page, $favorites_total ), $user->user_id ) ) {
 		echo $args['before'] . $pages . $args['after'];
 	}
+}
+
+//SUBSCRIPTION
+
+/** 
+ * Checks if subscription is enabled.
+ * 
+ * @since 1.1 
+ *  
+ * @return bool is subscription enabled or not 
+ */
+function bb_is_subscriptions_active() { 
+	return (bool) bb_get_option( 'enable_subscriptions' ); 
+}
+
+/**
+ * Checks if user is subscribed to current topic.
+ *
+ * @since 1.1
+ *
+ * @return bool is user subscribed or not
+ */
+function bb_is_user_subscribed( $args = null ) {
+	global $bbdb;
+	
+	$defaults = array(
+		'user_id' => bb_get_current_user_info( 'id' ),
+		'topic_id' => get_topic_id()
+	);
+	$args = wp_parse_args( $args, $defaults );
+	extract( $args, EXTR_SKIP );
+	
+	$there = $bbdb->get_var( $bbdb->prepare( "SELECT `$bbdb->term_relationships`.`object_id`
+				FROM $bbdb->term_relationships, $bbdb->term_taxonomy, $bbdb->terms
+				WHERE `$bbdb->term_relationships`.`object_id` = %d
+				AND `$bbdb->term_relationships`.`term_taxonomy_id` = `$bbdb->term_taxonomy`.`term_taxonomy_id`
+				AND `$bbdb->term_taxonomy`.`term_id` = `$bbdb->terms`.`term_id`
+				AND `$bbdb->term_taxonomy`.`taxonomy` = 'bb_subscribe'
+				AND `$bbdb->terms`.`slug` = 'topic-%d'",
+				$user_id, $topic_id ) );
+	
+	$there = apply_filters( 'bb_is_user_subscribed', $there, $args );
+	
+	if ( $there )
+		return true;
+	
+	return false;
+}
+
+/**
+ * Outputs the subscribe/unsubscibe link.
+ *
+ * Checks if user is subscribed and outputs link based on status.
+ *
+ * @since 1.1
+ */
+function bb_user_subscribe_link() {
+	$topic_id = get_topic_id();
+
+	if ( !bb_is_user_logged_in() )
+		return false;
+
+	if ( bb_is_user_subscribed() )
+		echo '<li id="subscription-toggle"><a href="'. bb_nonce_url( bb_get_uri( null, array( 'doit' => 'bb-subscribe', 'topic_id' => $topic_id, 'and' => 'remove' ) ), 'toggle-subscribe_' . $topic_id ) .'">' . apply_filters( 'bb_user_subscribe_link_unsubscribe', __( 'Unsubscribe from Topic' ) ) . '</a></li>';
+	else
+		echo '<li id="subscription-toggle"><a href="'. bb_nonce_url( bb_get_uri( null, array( 'doit' => 'bb-subscribe', 'topic_id' => $topic_id, 'and' => 'add' ) ), 'toggle-subscribe_' . $topic_id ) .'">' . apply_filters( 'bb_user_subscribe_link_subscribe', __( 'Subscribe to Topic' ) ) . '</a></li>';
+
+}
+
+/**
+ * Outputs the post form subscription checkbox.
+ *
+ * Checks if user is subscribed and outputs checkbox based on status.
+ *
+ * @since 1.1
+ */
+function bb_user_subscribe_checkbox( $args = null ) {
+	
+	if ( !bb_is_user_logged_in() )
+		return false;
+	
+	$defaults = array( 'tab' => false );
+	$args = wp_parse_args( $args, $defaults );
+	$tab = $args['tab'] !== false ? ' tabindex="' . $args['tab'] . '"' : '';
+
+	echo '
+	<label for="subscription_checkbox">
+		<input name="subscription_checkbox" id="subscription_checkbox" type="checkbox" value="subscribe" ' . checked( true, bb_is_user_subscribed(), false ) . $tab . ' />
+		' .  apply_filters( 'bb_user_subscribe_checkbox_label', __( 'Notify me of followup posts via e-mail' ) ) . '
+	</label>';
+
 }
 
 //VIEWS
@@ -3590,3 +3660,85 @@ function bb_template_scripts() {
 		}
 	}
 }
+
+if ( !function_exists( 'checked' ) ) :
+/**
+ * Outputs the html checked attribute.
+ *
+ * Compares the first two arguments and if identical marks as checked
+ *
+ * @since 1.1
+ *
+ * @param mixed $checked One of the values to compare
+ * @param mixed $current (true) The other value to compare if not just true
+ * @param bool $echo Whether to echo or just return the string
+ * @return string html attribute or empty string
+ */
+function checked( $checked, $current = true, $echo = true ) {
+	return __checked_selected_helper( $checked, $current, $echo, 'checked' );
+}
+endif;
+
+if ( !function_exists( 'selected' ) ) :
+/**
+ * Outputs the html selected attribute.
+ *
+ * Compares the first two arguments and if identical marks as selected
+ *
+ * @since 1.1
+ *
+ * @param mixed selected One of the values to compare
+ * @param mixed $current (true) The other value to compare if not just true
+ * @param bool $echo Whether to echo or just return the string
+ * @return string html attribute or empty string
+ */
+function selected( $selected, $current = true, $echo = true ) {
+	return __checked_selected_helper( $selected, $current, $echo, 'selected' );
+}
+endif;
+
+if ( !function_exists( 'disabled' ) ) :
+/**
+ * Outputs the html disabled attribute.
+ *
+ * Compares the first two arguments and if identical marks as disabled
+ *
+ * @since 1.1
+ *
+ * @param mixed $disabled One of the values to compare
+ * @param mixed $current (true) The other value to compare if not just true
+ * @param bool $echo Whether to echo or just return the string
+ * @return string html attribute or empty string
+ */
+function disabled( $disabled, $current = true, $echo = true ) {
+	return __checked_selected_helper( $disabled, $current, $echo, 'disabled' );
+}
+endif;
+
+if ( !function_exists( '__checked_selected_helper' ) ) :
+/**
+ * Private helper function for checked, selected, and disabled.
+ *
+ * Compares the first two arguments and if identical marks as $type
+ *
+ * @since 1.1
+ * @access private
+ *
+ * @param any $helper One of the values to compare
+ * @param any $current (true) The other value to compare if not just true
+ * @param bool $echo Whether to echo or just return the string
+ * @param string $type The type of checked|selected|disabled we are doing
+ * @return string html attribute or empty string
+ */
+function __checked_selected_helper( $helper, $current, $echo, $type ) {
+	if ( (string) $helper === (string) $current )
+		$result = " $type='$type'";
+	else
+		$result = '';
+
+	if ( $echo )
+		echo $result;
+
+	return $result;
+}
+endif;

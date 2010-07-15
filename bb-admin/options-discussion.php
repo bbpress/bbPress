@@ -7,21 +7,25 @@ if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && $_POST['action'] == '
 	bb_check_admin_referer( 'options-discussion-update' );
 	
 	// Deal with pingbacks checkbox when it isn't checked
-	if (!isset($_POST['enable_pingback'])) {
+	if ( !isset( $_POST['enable_pingback'] ) ) {
 		$_POST['enable_pingback'] = false;
 	}
 
-	if (!isset($_POST['enable_loginless'])) {
+	if ( !isset( $_POST['enable_loginless'] ) ) {
 		$_POST['enable_loginless'] = false;
 	}
 	
+	if ( !isset( $_POST['enable_subscriptions'] ) ) {
+		$_POST['enable_subscriptions'] = false;
+	}
+	
 	// Deal with avatars checkbox when it isn't checked
-	if (!isset($_POST['avatars_show'])) {
+	if ( !isset( $_POST['avatars_show'] ) ) {
 		$_POST['avatars_show'] = false;
 	}
 	
 	foreach ( (array) $_POST as $option => $value ) {
-		if ( !in_array( $option, array('_wpnonce', '_wp_http_referer', 'action', 'submit') ) ) {
+		if ( !in_array( $option, array( '_wpnonce', '_wp_http_referer', 'action', 'submit' ) ) ) {
 			$option = trim( $option );
 			$value = is_array( $value ) ? $value : trim( $value );
 			$value = stripslashes_deep( $value );
@@ -56,6 +60,14 @@ $general_options = array(
 		'type' => 'checkbox',
 		'options' => array(
 			1 => __( 'Allow users to create topics and posts without logging in.' )
+		),
+	),
+	
+	'enable_subscriptions' => array(
+		'title' => __( 'Enable Subscriptions' ),
+		'type' => 'checkbox',
+		'options' => array(
+			1 => __( 'Allow users to subscribe to topics and receive new posts via e-mail.' )
 		),
 	),
 );

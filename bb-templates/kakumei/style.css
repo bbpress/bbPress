@@ -31,6 +31,8 @@ pre, p { margin-bottom: 1.0em; }
 
 .right { float: right; }
 
+.clear { clear: both; }
+
 .delete:hover {
 	background-color: #c00;
 	color: #fff;

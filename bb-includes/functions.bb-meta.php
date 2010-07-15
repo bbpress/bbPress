@@ -296,10 +296,10 @@ function bb_get_option( $option )
 			$r = $bb_locale->text_direction;
 			break;
 		case 'version':
-			return '1.1-alpha-2462'; // Don't filter
+			return '1.1-alpha-2471'; // Don't filter
 			break;
 		case 'bb_db_version' :
-			return '2078'; // Don't filter
+			return '2471'; // Don't filter
 			break;
 		case 'html_type':
 			$r = 'text/html';
@@ -465,6 +465,7 @@ function bb_cache_all_options()
 		'wp_plugins_cookie_path',
 		'wordpress_mu_primary_blog_id',
 		'enable_loginless',
+		'enable_subscriptions',
 		'enable_xmlrpc',
 		'enable_pingback',
 		'throttle_time',

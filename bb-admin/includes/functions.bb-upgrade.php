@@ -60,6 +60,7 @@ function bb_upgrade_all()
 	$bb_upgrade['messages'][] = bb_upgrade_1100(); // Replace forum_stickies index with stickies (#876)
 	$bb_upgrade['messages'][] = bb_upgrade_1110(); // Create plugin directory (#1083)
 	$bb_upgrade['messages'][] = bb_upgrade_1120(); // Create theme directory (#1083)
+	$bb_upgrade['messages'][] = bb_upgrade_1130(); // Add subscriptions option and set it to true (#1268)
 
 	bb_update_db_version();
 	wp_cache_flush();
@@ -491,6 +492,22 @@ function bb_upgrade_1120() {
 	}
 
 	return;
+}
+
+// Subscription Option
+function bb_upgrade_1130() {
+	if ( $dbv = bb_get_option_from_db( 'bb_db_version' ) && $dbv >= 2471 )
+		return;
+	
+	// If the option is already there, then return
+	if ( bb_get_option( 'enable_subscriptions' ) )
+		return;
+	
+	bb_update_option( 'enable_subscriptions', 1 );
+	
+	bb_update_option( 'bb_db_version', 2471 );
+	
+	return 'Added subscriptions option and set its value to true: ' . __FUNCTION__;
 }
 
 function bb_deslash($content) {

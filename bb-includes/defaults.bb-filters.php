@@ -160,7 +160,15 @@ add_action( 'set_current_user', 'bb_apply_wp_role_map_to_user' );
 
 add_filter( 'bb_pre_get_option_gmt_offset', 'wp_timezone_override_offset' );
 
-add_action( 'bb_new_post', 'bb_notify_subscribers' );
+// Subscriptions
+
+if ( bb_is_subscriptions_active() ) {
+	add_action( 'bb_new_post', 'bb_notify_subscribers' );
+	add_action( 'bb_insert_post', 'bb_user_subscribe_checkbox_update' );
+	add_action( 'topicmeta', 'bb_user_subscribe_link' );
+	add_action( 'edit_form', 'bb_user_subscribe_checkbox' ); 
+	add_action( 'post_form', 'bb_user_subscribe_checkbox' );
+}
 
 add_action( 'post_form_pre_post', 'bb_anonymous_post_form' );
 

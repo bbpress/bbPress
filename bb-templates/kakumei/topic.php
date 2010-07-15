@@ -16,7 +16,6 @@
 <?php endif; ?>
 <?php if ( bb_is_user_logged_in() ) : ?>
 	<li<?php echo $class;?> id="favorite-toggle"><?php user_favorites_link(); ?></li>
-	<li id="subscribe-toggle"><?php bb_user_subscribe_link(); ?></li>
 <?php endif; do_action('topicmeta'); ?>
 </ul>
 </div>

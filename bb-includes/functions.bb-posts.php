@@ -470,45 +470,6 @@ function bb_insert_post( $args = null ) {
 	return $post_id;
 }
 
-function bb_notify_subscribers( $post_id ) {
-	global $bbdb, $bb_current_user, $bb_ksd_pre_post_status;
-
-	if ( !empty( $bb_ksd_pre_post_status ) )
-		return false;
-
-	if ( !$post = bb_get_post( $post_id ) )
-		return false;
-
-	if ( !$topic = get_topic( $post->topic_id ) )
-		return false;
-
-	if ( !$user = bb_get_user( $post->poster_id ) )
-		return false;
-
-	if ( !$term_id = $bbdb->get_var( "SELECT term_id FROM $bbdb->terms WHERE slug = 'topic-$topic->topic_id'" ) )
-		return false;
-
-	if ( !$term_taxonomy_id = $bbdb->get_var( "SELECT term_taxonomy_id FROM $bbdb->term_taxonomy WHERE term_id = $term_id AND taxonomy = 'bb_subscribe'" ) )
-		return false;
-
-	if ( !$user_ids = $bbdb->get_col( "SELECT object_id FROM $bbdb->term_relationships WHERE term_taxonomy_id = $term_taxonomy_id" ) ) // all the users subscribed to this topic
-		return false;
-
-	foreach ( $user_ids as $user_id ) {
-		if ( $user_id == $post->poster_id )
-			continue; // don't send notifications to the person who made the post
-
-		$user = bb_get_user( $user_id );
-
-		$message = __( "%2\$s wrote:\n\n %3\$s\n\nTopic Link: %4\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." );
-		bb_mail(
-			$user->user_email,
-			'[' . bb_get_option('name') . '] ' . get_topic_title( $topic_id ),
-			sprintf( $message, get_topic_title( $topic_id ), get_user_name( $post->poster_id ), strip_tags( get_post_text( $post_id ) ), get_post_link( $post_id ) )
-		);
-	}
-}
-
 // Deprecated: expects $post_text to be pre-escaped
 function bb_new_post( $topic_id, $post_text ) {
 	$post_text = stripslashes( $post_text );
@@ -641,4 +602,124 @@ function bb_get_recent_user_replies( $user_id ) {
 	$post_query = new BB_Query( 'post', array( 'post_author_id' => $user_id, 'order_by' => 'post_time' ), 'get_recent_user_replies' );
 
 	return $post_query->results;
+}
+
+/**
+ * Sends notification emails for new posts.
+ *
+ * Gets new post's ID and check if there are subscribed
+ * user to that topic, and if there are, send notifications
+ *
+ * @since 1.1
+ *
+ * @param int $post_id ID of new post
+ */
+function bb_notify_subscribers( $post_id ) {
+	global $bbdb, $bb_ksd_pre_post_status;
+
+	if ( !empty( $bb_ksd_pre_post_status ) )
+		return false;
+
+	if ( !$post = bb_get_post( $post_id ) )
+		return false;
+
+	if ( !$topic = get_topic( $post->topic_id ) )
+		return false;
+	
+	$post_id = $post->post_id;
+	$topic_id = $topic->topic_id;
+
+	if ( !$poster_name = get_post_author( $post_id ) )
+		return false;
+	
+	do_action( 'bb_pre_notify_subscribers', $post_id, $topic_id );
+
+	if ( !$user_ids = $bbdb->get_col( $bbdb->prepare( "SELECT `$bbdb->term_relationships`.`object_id`
+		FROM $bbdb->term_relationships, $bbdb->term_taxonomy, $bbdb->terms
+		WHERE `$bbdb->term_relationships`.`term_taxonomy_id` = `$bbdb->term_taxonomy`.`term_taxonomy_id`
+		AND `$bbdb->term_taxonomy`.`term_id` = `$bbdb->terms`.`term_id`
+		AND `$bbdb->term_taxonomy`.`taxonomy` = 'bb_subscribe'
+		AND `$bbdb->terms`.`slug` = 'topic-%d'",
+		$topic_id ) ) )
+		return false;
+
+	foreach ( (array) $user_ids as $user_id ) {
+		if ( $user_id == $post->poster_id )
+			continue; // don't send notifications to the person who made the post
+		
+		$user = bb_get_user( $user_id );
+		
+		if ( !$message = apply_filters( 'bb_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $post_id, $topic_id ) )
+			continue; /* For plugins */
+		
+		bb_mail(
+			$user->user_email,
+			apply_filters( 'bb_subscription_mail_title', '[' . bb_get_option( 'name' ) . '] ' . $topic->topic_title, $post_id, $topic_id ),
+			sprintf( $message, $poster_name, strip_tags( $post->post_text ), get_post_link( $post_id ) )
+		);
+	}
+	
+	do_action( 'bb_post_notify_subscribers', $post_id, $topic_id );
+}
+
+/**
+ * Updates user's subscription status in database.
+ *
+ * Gets user's new subscription status for topic and
+ * adds new status to database.
+ *
+ * @since 1.1
+ *
+ * @param int $topic_id ID of topic for subscription
+ * @param string $new_status New subscription status
+ */
+function bb_subscription_management( $topic_id, $new_status ) {
+	global $bbdb, $wp_taxonomy_object;
+	
+	$topic = get_topic( $topic_id );
+	$user_id = bb_get_current_user_info( 'id' );
+	
+	do_action( 'bb_subscripton_management', $topic_id, $new_status, $user_id );
+	
+	switch ( $new_status ) {
+		case 'add':
+			$tt_ids = $wp_taxonomy_object->set_object_terms( $user_id, 'topic-' . $topic->topic_id, 'bb_subscribe', array( 'append' => true, 'user_id' => $user_id ) );
+			break;
+		case 'remove':
+			// I hate this with the passion of a thousand suns
+			$term_id = $bbdb->get_var( "SELECT term_id FROM $bbdb->terms WHERE slug = 'topic-$topic->topic_id'" );
+			$term_taxonomy_id = $bbdb->get_var( "SELECT term_taxonomy_id FROM $bbdb->term_taxonomy WHERE term_id = $term_id AND taxonomy = 'bb_subscribe'" );
+			$bbdb->query( "DELETE FROM $bbdb->term_relationships WHERE object_id = $user_id AND term_taxonomy_id = $term_taxonomy_id" );
+			$bbdb->query( "DELETE FROM $bbdb->term_taxonomy WHERE term_id = $term_id AND taxonomy = 'bb_subscribe'" );
+			break;
+	}
+	
+}
+
+/**
+ * Process subscription checkbox submission.
+ *
+ * Get ID of and new subscription status and pass values to
+ * bb_user_subscribe_checkbox_update function
+ *
+ * @since 1.1
+ *
+ * @param int $post_id ID of new/edited post
+ */
+function bb_user_subscribe_checkbox_update( $post_id ) {
+	if ( !bb_is_user_logged_in() )
+		return false;
+	
+	$post		= bb_get_post( $post_id );
+	$topic_id	= (int) $post->topic_id;
+	$subscribed	= bb_is_user_subscribed( array( 'topic_id' => $topic_id, 'user_id' => $post->poster_id ) ) ? true : false;
+	$check		= $_REQUEST['subscription_checkbox'];
+	
+	do_action( 'bb_user_subscribe_checkbox_update', $post_id, $topic_id, $subscribe, $check );
+	
+	if ( 'subscribe' == $check && !$subscribed )
+		bb_subscription_management( $topic_id, 'add' );
+	elseif ( !$check && $subscribed )
+		bb_subscription_management( $topic_id, 'remove' );
+	
 }
