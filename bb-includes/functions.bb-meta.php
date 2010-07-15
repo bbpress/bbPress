@@ -296,10 +296,10 @@ function bb_get_option( $option )
 			$r = $bb_locale->text_direction;
 			break;
 		case 'version':
-			return '1.1-alpha-2471'; // Don't filter
+			return '1.1-alpha-2472'; // Don't filter
 			break;
 		case 'bb_db_version' :
-			return '2471'; // Don't filter
+			return '2472'; // Don't filter
 			break;
 		case 'html_type':
 			$r = 'text/html';
