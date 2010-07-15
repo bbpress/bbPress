@@ -4,38 +4,29 @@
 
 /**
  * Check to make sure that a user is not making too many posts in a short amount of time.
- *
- * @param string $ip Comment IP.
- * @param string $email Comment author email address.
- * @param string $date MySQL time string.
  */
-function bb_check_comment_flood( $ip = '', $email = '', $date = '' ) {
+function bb_check_post_flood() {
 	global $bbdb;
 	$user_id = (int) $user_id;
 	$throttle_time = bb_get_option( 'throttle_time' );
 
-	if ( bb_current_user_can('manage_options') || empty( $throttle_time ) ) {
+	if ( bb_current_user_can( 'manage_options' ) || empty( $throttle_time ) )
 		return;
-	}
 
 	if ( bb_is_user_logged_in() ) {
 		$bb_current_user = bb_get_current_user();
 		
-		if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + $throttle_time && ! bb_current_user_can('throttle') ) {
-			if ( defined('DOING_AJAX') && DOING_AJAX ) {
-				die(__('Slow down; you move too fast.'));
-			} else {
-				bb_die(__('Slow down; you move too fast.'));
-			}
-		}
+		if ( isset($bb_current_user->data->last_posted) && time() < $bb_current_user->data->last_posted + $throttle_time && ! bb_current_user_can( 'throttle' ) )
+			if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
+				die( __( 'Slow down; you move too fast.' ) );
+			else
+				bb_die( __( 'Slow down; you move too fast.' ) );
 	} else {
-		if ( ( $last_posted = bb_get_transient($_SERVER['REMOTE_ADDR'] . '_last_posted') ) && time() < $last_posted + $throttle_time ) {
-			if ( defined('DOING_AJAX') && DOING_AJAX ) {
-				die(__('Slow down; you move too fast.'));
-			} else {
-				bb_die(__('Slow down; you move too fast.'));
-			}
-		}
+		if ( ( $last_posted = bb_get_transient($_SERVER['REMOTE_ADDR'] . '_last_posted') ) && time() < $last_posted + $throttle_time )
+			if ( defined('DOING_AJAX') && DOING_AJAX )
+				die( __( 'Slow down; you move too fast.' ) );
+			else
+				bb_die( __( 'Slow down; you move too fast.' ) );
 	}
 }
 
@@ -46,16 +37,16 @@ function bb_check_comment_flood( $ip = '', $email = '', $date = '' ) {
 function bb_get_current_poster() {
 	// Cookies should already be sanitized.
 	$post_author = '';
-	if ( isset( $_COOKIE['post_author_'.COOKIEHASH] ) )
-		$post_author = $_COOKIE['post_author_'.COOKIEHASH];
+	if ( isset( $_COOKIE['post_author_' . BB_HASH] ) )
+		$post_author = $_COOKIE['post_author_' . BB_HASH];
 
 	$post_author_email = '';
-	if ( isset( $_COOKIE['post_author_email_'.COOKIEHASH] ) )
-		$post_author_email = $_COOKIE['post_author_email_'.COOKIEHASH];
+	if ( isset( $_COOKIE['post_author_email_' . BB_HASH] ) )
+		$post_author_email = $_COOKIE['post_author_email_' . BB_HASH];
 
 	$post_author_url = '';
-	if ( isset( $_COOKIE['post_author_url_'.COOKIEHASH] ) )
-		$post_author_url = $_COOKIE['post_author_url_'.COOKIEHASH];
+	if ( isset( $_COOKIE['post_author_url_' . BB_HASH] ) )
+		$post_author_url = $_COOKIE['post_author_url_' . BB_HASH];
 
 	return compact( 'post_author', 'post_author_email', 'post_author_url' );
 }
@@ -319,7 +310,7 @@ function bb_get_latest_forum_posts( $forum_id, $limit = 0, $page = 1 ) {
 }
 
 function bb_insert_post( $args = null ) {
-	global $bbdb, $bb_current_user;
+	global $bbdb, $bb_current_user, $bb;
 
 	if ( !$args = wp_parse_args( $args ) )
 		return false;
@@ -370,17 +361,14 @@ function bb_insert_post( $args = null ) {
 	$defaults['throttle'] = true;
 	extract( wp_parse_args( $args, $defaults ) );
 
-	if ( isset( $post_author ) ) {
-		$post_author = sanitize_user($post_author);
-	}
+	if ( isset( $post_author ) )
+		$post_author = sanitize_user( $post_author );
 
-	if ( isset( $post_email ) ) {
-		$post_email = sanitize_email($post_email);
-	}
+	if ( isset( $post_email ) )
+		$post_email = sanitize_email( $post_email );
 
-	if ( isset( $post_url ) ) {
-		$post_url = esc_url($post_url);
-	}
+	if ( isset( $post_url ) )
+		$post_url = esc_url( $post_url );
 
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
@@ -446,6 +434,13 @@ function bb_insert_post( $args = null ) {
 			bb_update_usermeta( $poster_id, 'last_posted', time() );
 		else
 			bb_set_transient( $_SERVER['REMOTE_ADDR'] . '_last_posted', time() );
+	}
+	
+	if ( !bb_is_login_required() && !$user = bb_get_user( $poster_id ) ) {
+		$post_cookie_lifetime = apply_filters( 'bb_post_cookie_lifetime', 30000000 );
+		setcookie( 'post_author_' . BB_HASH, $post_author, time() + $post_cookie_lifetime, $bb->cookiepath, $bb->cookiedomain );
+		setcookie( 'post_author_email_' . BB_HASH, $post_email, time() + $post_cookie_lifetime, $bb->cookiepath, $bb->cookiedomain );
+		setcookie( 'post_author_url_' . BB_HASH, $post_url, time() + $post_cookie_lifetime, $bb->cookiepath, $bb->cookiedomain );
 	}
 
 	wp_cache_delete( $topic_id, 'bb_topic' );

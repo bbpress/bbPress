@@ -1,14 +1,13 @@
 <?php
-require('./bb-load.php');
+require( './bb-load.php' );
 
-if ( bb_is_login_required() ) {
-	bb_auth('logged_in');
-}
+if ( bb_is_login_required() )
+	bb_auth( 'logged_in' );
 
-bb_check_comment_flood();
+bb_check_post_flood();
 
-if ( !$post_content = trim($_POST['post_content']) )
-	bb_die(__('You need to actually submit some content!'));
+if ( !$post_content = trim( $_POST['post_content'] ) )
+	bb_die( __( 'You need to actually submit some content!' ) );
 
 $post_author = $post_email = $post_url = '';
 

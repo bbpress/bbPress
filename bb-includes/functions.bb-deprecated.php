@@ -1186,3 +1186,8 @@ function bb_get_current_commenter() {
 	extract( bb_get_current_poster() );
 	return array( 'comment_author' => $post_author, 'comment_email' => $post_author_email, 'comment_author_url' => $post_author_url );
 }
+
+function bb_check_comment_flood( $ip = '', $email = '', $date = '' ) {
+	bb_log_deprecated( 'function', __FUNCTION__, 'bb_check_post_flood' );
+	bb_check_post_flood();
+}
