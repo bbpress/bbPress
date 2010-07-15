@@ -1569,7 +1569,7 @@ function topic_class( $class = '', $key = 'topic', $id = 0 ) {
 		$class[] = 'closed';
 	if ( 1 == $topic->topic_sticky && ( bb_is_forum() || bb_is_view() ) )
 		$class[] = 'sticky';
-	elseif ( 2 == $topic->topic_sticky && ( bb_is_front() || bb_is_forum() ) )
+	elseif ( 2 == $topic->topic_sticky && ( bb_is_front() || bb_is_forum() || bb_is_view() ) )
 		$class[] = 'sticky super-sticky';
 	$class = apply_filters( 'topic_class', $class, $topic->topic_id );
 	$class = join(' ', $class);
