@@ -151,19 +151,19 @@ class BBP_Admin {
 			}
 
 			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px -32px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px -32px;
 			}
 			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px 0px;
 			}
 
 			#menu-posts-<?php echo $topic_reply_class; ?> .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px -32px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px -32px;
 			}
 			#menu-posts-<?php echo $topic_reply_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px 0px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 		/*]]>*/
 		</style>
