@@ -23,16 +23,19 @@ add_action( 'plugins_loaded',  array( 'BBP_Loader', 'loaded' ) );
 // Attach the bbPress initilization to the WordPress init action.
 add_action( 'init',            array( 'BBP_Loader', 'init' ) );
 
-// Attach the bbPress constants to our own trusted bbPress loaded action.
+// Attach the bbPress constants to our own trusted action.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'constants' ) );
 
-// Attach the bbPress includes to our own trusted bbPress loaded action.
+// Attach the bbPress includes to our own trusted action.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'includes' ) );
 
-// Attach the bbPress post type registration to our own trusted bbPress init.
+// Attach the bbPress text domain loader to our own trusted action
+add_action( 'bbp_init',        array( 'BBP_Loader', 'textdomain' ) );
+
+// Attach the bbPress post type registration to our own trusted init.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'register_post_types' ) );
 
-// Attach the bbPress topic tag registration to our own trusted bbPress init.
+// Attach the bbPress topic tag registration to our own trusted init.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'register_taxonomies' ) );
 
 /**
@@ -150,6 +153,17 @@ class BBP_Loader {
 	 */
 	function init () {
 		do_action ( 'bbp_init' );
+	}
+
+	/**
+	 * Load the translation file for current language
+	 */
+	function textdomain () {
+		$locale = apply_filters( 'bbp_textdomain', get_locale() );
+
+		$mofile = BBP_DIR . "/bbp-languages/bbpress-$locale.mo";
+
+		load_textdomain( 'bbpress', $mofile );
 	}
 
 	/**
