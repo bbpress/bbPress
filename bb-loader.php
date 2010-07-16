@@ -29,13 +29,13 @@ add_action( 'bbp_loaded',      array( 'BBP_Loader', 'constants' ) );
 // Attach the bbPress includes to our own trusted action.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'includes' ) );
 
-// Attach the bbPress text domain loader to our own trusted action
+// Attach the bbPress textdomain loader to our own trusted action
 add_action( 'bbp_init',        array( 'BBP_Loader', 'textdomain' ) );
 
-// Attach the bbPress post type registration to our own trusted init.
+// Attach the bbPress post type registration to our own trusted action.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'register_post_types' ) );
 
-// Attach the bbPress topic tag registration to our own trusted init.
+// Attach the bbPress topic tag registration to our own trusted action.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'register_taxonomies' ) );
 
 /**
@@ -156,6 +156,8 @@ class BBP_Loader {
 	}
 
 	/**
+	 * textdomain()
+	 *
 	 * Load the translation file for current language
 	 */
 	function textdomain () {
