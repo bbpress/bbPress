@@ -1,5 +1,26 @@
 <?php
 
+// Attach the bbPress admin init action to the WordPress admin init action.
+add_action( 'admin_init',               array( 'BBP_Admin', 'init' ) );
+
+// User profile edit/display actions
+add_action( 'edit_user_profile',        array( 'BBP_Admin', 'user_profile_forums' ) );
+add_action( 'show_user_profile',        array( 'BBP_Admin', 'user_profile_forums' ) );
+
+// User profile save actions
+add_action( 'personal_options_update',  array( 'BBP_Admin', 'user_profile_update' ) );
+add_action( 'edit_user_profile_update', array( 'BBP_Admin', 'user_profile_update' ) );
+
+// Add some general styling to the admin area
+add_action( 'admin_head',               array( 'BBP_Admin', 'admin_head' ) );
+
+// Topic metabox actions
+add_action( 'admin_menu',               array( 'BBP_Admin', 'topic_parent_metabox' ) );
+add_action( 'save_post',                array( 'BBP_Admin', 'topic_parent_metabox_save' ) );
+
+// Topic reply metabox actions
+add_action( 'admin_menu',               array( 'BBP_Admin', 'topic_reply_parent_metabox' ) );
+add_action( 'save_post',                array( 'BBP_Admin', 'topic_reply_parent_metabox_save' ) );
 
 /**
  * BBP_Admin
@@ -15,44 +36,41 @@ class BBP_Admin {
 	/**
 	 * init()
 	 *
-	 * Load up the plugin
+	 * bbPress's dedicated admin init action
 	 *
 	 * @uses do_action
 	 */
 	function init () {
-		add_action( 'edit_user_profile',        array( 'BBP_Admin', 'user_profile_forums' ) );
-		add_action( 'show_user_profile',        array( 'BBP_Admin', 'user_profile_forums' ) );
-
-		add_action( 'personal_options_update',  array( 'BBP_Admin', 'user_profile_update' ) );
-		add_action( 'edit_user_profile_update', array( 'BBP_Admin', 'user_profile_update' ) );
-
-		add_action( 'admin_head',               array( 'BBP_Admin', 'admin_head' ) );
-
-		add_action( 'admin_menu',               array( 'BBP_Admin', 'topic_parent_metabox' ) );
-		add_action( 'save_post',                array( 'BBP_Admin', 'topic_parent_metabox_save' ) );
-
-		add_action( 'admin_menu',               array( 'BBP_Admin', 'reply_parent_metabox' ) );
-		add_action( 'save_post',                array( 'BBP_Admin', 'reply_parent_metabox_save' ) );
-
-		/**
-		 * For developers:
-		 * ---------------------
-		 * If you want to make sure your code is loaded after this plugin
-		 * have your code load on this action
-		 */
 		do_action ( 'bbp_admin_init' );
 	}
 
+	/**
+	 * topic_parent_metabox ()
+	 *
+	 * Add the topic parent metabox
+	 *
+	 * @uses add_meta_box
+	 */
 	function topic_parent_metabox () {
-		add_meta_box(
+		add_meta_box (
 			'bbp_topic_parent_id',
 			__( 'Forum', 'bbpress' ),
 			'bbp_topic_metabox',
-			BBP_TOPIC_REPLY_POST_TYPE_ID,
+			BBP_TOPIC_POST_TYPE_ID,
 			'normal'
 		);
+
+		do_action( 'bbp_topic_parent_metabox' );
 	}
 
+	/**
+	 * topic_parent_metabox_save ()
+	 *
+	 * Pass the topic post parent id for processing
+	 *
+	 * @param int $post_id
+	 * @return int
+	 */
 	function topic_parent_metabox_save ( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
@@ -63,55 +81,37 @@ class BBP_Admin {
 		// OK, we're authenticated: we need to find and save the data
 		$parent_id = $_POST['parent_id'];
 
+		do_action( 'bbp_topic_parent_metabox_save' );
+
 		return $parent_id;
 	}
 
-	function admin_head () {
-		$forum_icon_url	= BBP_URL . '/images/admin-forum.png';
-		$topic_icon_url	= BBP_URL . '/images/admin-topic.png';
-		$reply_icon_url	= BBP_URL . '/images/admin-reply.png';
-?>
-		<style type="text/css" media="screen">
-		/*<![CDATA[*/
-			#menu-posts-forum .wp-menu-image {
-				background: url(<?php echo $forum_icon_url; ?>) no-repeat 0px -32px;
-			}
-			#menu-posts-forum:hover .wp-menu-image,
-			#menu-posts-forum.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $forum_icon_url; ?>) no-repeat 0px 0px;
-			}
-
-			#menu-posts-topic .wp-menu-image {
-				background: url(<?php echo $topic_icon_url; ?>) no-repeat 0px -32px;
-			}
-			#menu-posts-topic:hover .wp-menu-image,
-			#menu-posts-topic.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $topic_icon_url; ?>) no-repeat 0px 0px;
-			}
-
-			#menu-posts-topicreply .wp-menu-image {
-				background: url(<?php echo $reply_icon_url; ?>) no-repeat 0px -32px;
-			}
-			#menu-posts-topicreply:hover .wp-menu-image,
-			#menu-posts-topicreply.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $reply_icon_url; ?>) no-repeat 0px 0px;
-			}
-		/*]]>*/
-		</style>
-<?php
-	}
-
-	function reply_parent_metabox () {
+	/**
+	 * topic_reply_parent_metabox ()
+	 *
+	 * Add the topic reply parent metabox
+	 */
+	function topic_reply_parent_metabox () {
 		add_meta_box (
-			'bbp_reply_parent_id',
+			'bbp_topic_reply_parent_id',
 			__( 'Topic', 'bbpress' ),
-			'bbp_reply_metabox',
-			'topic_reply',
+			'bbp_topic_reply_metabox',
+			BBP_TOPIC_REPLY_POST_TYPE_ID,
 			'normal'
 		);
+
+		do_action( 'bbp_topic_reply_parent_metabox' );
 	}
 
-	function reply_parent_metabox_save ( $post_id ) {
+	/**
+	 * topic_reply_parent_metabox_save ()
+	 *
+	 * Pass the topic reply post parent id for processing
+	 *
+	 * @param int $post_id
+	 * @return int
+	 */
+	function topic_reply_parent_metabox_save ( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
 
@@ -121,16 +121,82 @@ class BBP_Admin {
 		// OK, we're authenticated: we need to find and save the data
 		$parent_id = $_POST['parent_id'];
 
+		do_action( 'bbp_topic_reply_parent_metabox_save' );
+
 		return $parent_id;
 	}
 
-	function user_profile_update( $user_id ) {
+	/**
+	 * admin_head ()
+	 *
+	 * Add some general styling to the admin area
+	 */
+	function admin_head () {
+		// Icons for top level admin menus
+		$forum_icon_url	= BBP_URL . '/images/admin-forum.png';
+		$topic_icon_url	= BBP_URL . '/images/admin-topic.png';
+		$reply_icon_url	= BBP_URL . '/images/admin-reply.png';
+
+		// Top level menu classes
+		$forum_class       = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
+		$topic_class       = sanitize_html_class( BBP_TOPIC_POST_TYPE_ID );
+		$topic_reply_class = sanitize_html_class( BBP_TOPIC_REPLY_POST_TYPE_ID );
+?>
+		<style type="text/css" media="screen">
+		/*<![CDATA[*/
+			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
+				background: url(<?php echo $forum_icon_url; ?>) no-repeat 0px -32px;
+			}
+			#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
+			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image {
+				background: url(<?php echo $forum_icon_url; ?>) no-repeat 0px 0px;
+			}
+
+			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
+				background: url(<?php echo $topic_icon_url; ?>) no-repeat 0px -32px;
+			}
+			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
+			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
+				background: url(<?php echo $topic_icon_url; ?>) no-repeat 0px 0px;
+			}
+
+			#menu-posts-<?php echo $topic_reply_class; ?> .wp-menu-image {
+				background: url(<?php echo $reply_icon_url; ?>) no-repeat 0px -32px;
+			}
+			#menu-posts-<?php echo $topic_reply_class; ?>:hover .wp-menu-image,
+			#menu-posts-<?php echo $topic_reply_class; ?>.wp-has-current-submenu .wp-menu-image {
+				background: url(<?php echo $reply_icon_url; ?>) no-repeat 0px 0px;
+			}
+		/*]]>*/
+		</style>
+<?php
+		// Add extra actions to bbPress admin header area
+		do_action( 'bbp_admin_head' );
+	}
+
+	/**
+	 * user_profile_update ()
+	 *
+	 * Responsible for showing additional profile options and settings
+	 *
+	 * @todo Everything
+	 */
+	function user_profile_update ( $user_id ) {
 		if ( !bbp_has_access() )
 			return false;
 
+		// Add extra actions to bbPress profile update
+		do_action( 'bbp_user_profile_update' );
 	}
 
-	function user_profile_forums( $profileuser ) {
+	/**
+	 * user_profile_forums ()
+	 *
+	 * Responsible for saving additional profile options and settings
+	 *
+	 * @todo Everything
+	 */
+	function user_profile_forums ( $profileuser ) {
 
 		if ( !bbp_has_access() )
 			return false;
@@ -146,6 +212,9 @@ class BBP_Admin {
 			</tr>
 		</table>
 <?php
+
+		// Add extra actions to bbPress profile update
+		do_action( 'bbp_user_profile_forums' );
 	}
 }
 
@@ -206,6 +275,8 @@ function bbp_topic_metabox () {
 		<p><label class="screen-reader-text" for="menu_order"><?php _e( 'Topic Order', 'bbpress' ) ?></label><input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" /></p>
 		<p><?php if ( 'page' == $post->post_type ) _e( 'Need help? Use the Help tab in the upper right of your screen.' ); ?></p>
 <?php
+
+	do_action( 'bbp_topic_metabox' );
 }
 
 /**
@@ -240,6 +311,8 @@ function bbp_topic_reply_metabox () {
 	);
 
 	echo $posts;
+
+	do_action( 'bbp_topic_reply_metabox' );
 }
 
 /**
