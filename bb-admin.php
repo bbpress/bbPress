@@ -139,6 +139,10 @@ class BBP_Admin {
 		$forum_class       = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
 		$topic_class       = sanitize_html_class( BBP_TOPIC_POST_TYPE_ID );
 		$topic_reply_class = sanitize_html_class( BBP_TOPIC_REPLY_POST_TYPE_ID );
+
+		// Calculate offset for screen_icon sprite
+		$icons32_offset = -90 * array_search( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+
 ?>
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -164,6 +168,10 @@ class BBP_Admin {
 			#menu-posts-<?php echo $topic_reply_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_reply_class; ?>.wp-has-current-submenu .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
+			}
+
+			#icon-edit, #icon-post {
+				background: url(<?php echo BBP_URL . '/images/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
 		/*]]>*/
 		</style>
