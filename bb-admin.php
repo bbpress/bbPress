@@ -133,9 +133,7 @@ class BBP_Admin {
 	 */
 	function admin_head () {
 		// Icons for top level admin menus
-		$forum_icon_url	= BBP_URL . '/images/admin-forum.png';
-		$topic_icon_url	= BBP_URL . '/images/admin-topic.png';
-		$reply_icon_url	= BBP_URL . '/images/admin-reply.png';
+		$menu_icon_url	= BBP_URL . '/images/menu.png';
 
 		// Top level menu classes
 		$forum_class       = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
@@ -145,27 +143,27 @@ class BBP_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
-				background: url(<?php echo $forum_icon_url; ?>) no-repeat 0px -32px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px -32px;
 			}
 			#menu-posts-<?php echo $forum_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $forum_icon_url; ?>) no-repeat 0px 0px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px 0px;
 			}
 
 			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
-				background: url(<?php echo $topic_icon_url; ?>) no-repeat 0px -32px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px -32px;
 			}
 			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $topic_icon_url; ?>) no-repeat 0px 0px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 
 			#menu-posts-<?php echo $topic_reply_class; ?> .wp-menu-image {
-				background: url(<?php echo $reply_icon_url; ?>) no-repeat 0px -32px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px -32px;
 			}
 			#menu-posts-<?php echo $topic_reply_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_reply_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url(<?php echo $reply_icon_url; ?>) no-repeat 0px 0px;
+				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px 0px;
 			}
 		/*]]>*/
 		</style>
