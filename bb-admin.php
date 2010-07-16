@@ -170,9 +170,11 @@ class BBP_Admin {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 
+			<?php if ( in_array ( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_TOPIC_REPLY_POST_TYPE_ID ) ) ) : ?>
 			#icon-edit, #icon-post {
 				background: url(<?php echo BBP_URL . '/images/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
+			<?php endif; ?>
 		/*]]>*/
 		</style>
 <?php
