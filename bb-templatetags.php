@@ -222,7 +222,7 @@ function bbp_forum_last_active ( $forum_id = '' ) {
 	}
 
 /**
- * BBP_has_access()
+ * bbp_has_access()
  *
  * Make sure user can perform special tasks
  *

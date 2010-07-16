@@ -125,14 +125,14 @@ class BBP_Admin {
 	}
 
 	function user_profile_update( $user_id ) {
-		if ( !BBP_has_access() )
+		if ( !bbp_has_access() )
 			return false;
 
 	}
 
 	function user_profile_forums( $profileuser ) {
 
-		if ( !BBP_has_access() )
+		if ( !bbp_has_access() )
 			return false;
 
 ?>
