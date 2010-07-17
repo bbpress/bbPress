@@ -1,26 +1,32 @@
 <?php
 
 // Attach the bbPress admin init action to the WordPress admin init action.
-add_action( 'admin_init',               array( 'BBP_Admin', 'init' ) );
+add_action( 'admin_init',                                      array( 'BBP_Admin', 'init' ) );
 
 // User profile edit/display actions
-add_action( 'edit_user_profile',        array( 'BBP_Admin', 'user_profile_forums' ) );
-add_action( 'show_user_profile',        array( 'BBP_Admin', 'user_profile_forums' ) );
+add_action( 'edit_user_profile',                               array( 'BBP_Admin', 'user_profile_forums' ) );
+add_action( 'show_user_profile',                               array( 'BBP_Admin', 'user_profile_forums' ) );
 
 // User profile save actions
-add_action( 'personal_options_update',  array( 'BBP_Admin', 'user_profile_update' ) );
-add_action( 'edit_user_profile_update', array( 'BBP_Admin', 'user_profile_update' ) );
+add_action( 'personal_options_update',                         array( 'BBP_Admin', 'user_profile_update' ) );
+add_action( 'edit_user_profile_update',                        array( 'BBP_Admin', 'user_profile_update' ) );
 
 // Add some general styling to the admin area
-add_action( 'admin_head',               array( 'BBP_Admin', 'admin_head' ) );
+add_action( 'admin_head',                                      array( 'BBP_Admin', 'admin_head' ) );
 
 // Topic metabox actions
-add_action( 'admin_menu',               array( 'BBP_Admin', 'topic_parent_metabox' ) );
-add_action( 'save_post',                array( 'BBP_Admin', 'topic_parent_metabox_save' ) );
+add_action( 'admin_menu',                                      array( 'BBP_Admin', 'topic_parent_metabox' ) );
+add_action( 'save_post',                                       array( 'BBP_Admin', 'topic_parent_metabox_save' ) );
 
 // Topic reply metabox actions
-add_action( 'admin_menu',               array( 'BBP_Admin', 'topic_reply_parent_metabox' ) );
-add_action( 'save_post',                array( 'BBP_Admin', 'topic_reply_parent_metabox_save' ) );
+add_action( 'admin_menu',                                      array( 'BBP_Admin', 'topic_reply_parent_metabox' ) );
+add_action( 'save_post',                                       array( 'BBP_Admin', 'topic_reply_parent_metabox_save' ) );
+
+add_filter( 'manage_'.BBP_FORUM_POST_TYPE_ID.'_posts_columns', array( 'BBP_Admin', 'filter_manage_forums_columns' ) );
+add_filter( 'page_row_actions',                                array( 'BBP_Admin', 'filter_forums_page_row_actions' ), 10, 2 );
+
+// Column handling.
+add_action( 'manage_pages_custom_column',                      array( 'BBP_Admin', 'action_manage_forums_custom_column' ), 10, 2 );
 
 /**
  * BBP_Admin
@@ -28,7 +34,7 @@ add_action( 'save_post',                array( 'BBP_Admin', 'topic_reply_parent_
  * Loads plugin admin area
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Admin
  * @since bbPress (1.2-r2464)
  */
 class BBP_Admin {
@@ -174,6 +180,8 @@ class BBP_Admin {
 			#icon-edit, #icon-post {
 				background: url(<?php echo BBP_URL . '/images/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
+			
+			.column-bbp_topics { width: 10%; }
 			<?php endif; ?>
 		/*]]>*/
 		</style>
@@ -223,6 +231,59 @@ class BBP_Admin {
 
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_forums' );
+	}
+	
+	/**
+	 * filter_manage_forums_columns ()
+	 *
+	 * Manage the column headers for the forums page
+	 *
+	 * @param array $cols
+	 * @return array $cols
+	 */
+	function filter_manage_forums_columns ( $cols ) {		
+		$cols = array(
+			'cb'         => '<input type="checkbox" />',
+			'title'      => __( 'Forum', 'bbpress' ),
+			'bbp_topics' => __( 'Topics', 'bbpress' ),
+			'author'     => __( 'Author', 'bbpress' ),
+			'date'       => __( 'Date' , 'bbpress' )
+		);
+		return $cols;
+	}
+	
+	/**
+	 * action_manage_forums_custom_column ( $col, $post_id )
+	 *
+	 * Print extra columns for the forums page
+	 *
+	 * @param string $col
+	 * @param int $post_id
+	 */
+	function action_manage_forums_custom_column ( $col, $post_id ) {
+		switch ( $col ) {
+			case 'bbp_topics' :
+				bbp_forum_topic_count();
+				break;
+		}
+	}
+
+	/**
+	 * filter_forums_page_row_actions ( $actions, $post )
+	 *
+	 * Remove the quick-edit action link and display the description under the forum title
+	 *
+	 * @param array $actions
+	 * @param array $post	
+	 * @return array $actions
+	 */	
+	function filter_forums_page_row_actions ( $actions, $post ) {
+		if ( BBP_FORUM_POST_TYPE_ID == $post->post_type )
+			unset( $actions['inline'] );
+			
+		// simple hack to show the forum description under the title
+		the_content();
+		return $actions;
 	}
 }
 
