@@ -553,10 +553,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 * @return string
 	 */
 	function bbp_get_topic_forum ( $topic_id = '' ) {
-		if ( !$topic_id )
-			$topic_id = bbp_get_topic_id();
-
-		$forum_id = get_post_field( 'post_parent', $bbp_topics_template );
+		$forum_id = bbp_get_topic_forum_ID( $topic_id );
 		return apply_filters( 'bbp_get_topic_last_active', bbp_forum_title( $forum_id ) );
 	}
 
@@ -567,7 +564,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (1.2-r2491)
 	 *
 	 * @param int $topic_id optional
 	 *
@@ -583,7 +580,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 		 *
 		 * @package bbPress
 		 * @subpackage Template Tags
-		 * @since bbPress (1.2-r2485)
+		 * @since bbPress (1.2-r2491)
 		 *
 		 * @param int $topic_id optional
 		 *
