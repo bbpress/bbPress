@@ -19,14 +19,14 @@ add_filter( 'manage_' . BBP_FORUM_POST_TYPE_ID . '_posts_columns',  array( 'BBP_
 
 // Forum columns (in page row)
 add_action( 'manage_pages_custom_column',                           array( 'BBP_Admin', 'forums_column_data' ), 10, 2 );
-add_filter( 'page_row_actions',                                     array( 'BBP_Admin', 'forums_post_row_actions' ), 10, 2 );
+add_filter( 'page_row_actions',                                     array( 'BBP_Admin', 'remove_row_actions' ), 10, 2 );
 
 // Topic column headers.
 add_filter( 'manage_' . BBP_TOPIC_POST_TYPE_ID . '_posts_columns',  array( 'BBP_Admin', 'topics_column_headers' ) );
 
 // Topic columns (in post row)
 add_action( 'manage_posts_custom_column',                           array( 'BBP_Admin', 'topics_column_data' ), 10, 2 );
-add_filter( 'page_row_actions',                                     array( 'BBP_Admin', 'topics_post_row_actions' ), 10, 2 );
+add_filter( 'post_row_actions',                                     array( 'BBP_Admin', 'remove_row_actions' ), 10, 2 );
 
 // Topic metabox actions
 add_action( 'admin_menu',                                           array( 'BBP_Admin', 'topic_parent_metabox' ) );
@@ -189,7 +189,7 @@ class BBP_Admin {
 				background: url(<?php echo BBP_IMAGES_URL . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
 			
-			.column-bbp_topics { width: 10%; }
+			.column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count { width: 10%; }
 			<?php endif; ?>
 		/*]]>*/
 		</style>
@@ -285,7 +285,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * forums_post_row_actions ( $actions, $post )
+	 * remove_row_actions ( $actions, $post )
 	 *
 	 * Remove the quick-edit action link and display the description under the forum title
 	 *
@@ -293,12 +293,13 @@ class BBP_Admin {
 	 * @param array $post	
 	 * @return array $actions
 	 */	
-	function forums_post_row_actions ( $actions, $post ) {
-		if ( BBP_FORUM_POST_TYPE_ID == $post->post_type )
+	function remove_row_actions ( $actions, $post ) {
+		if ( in_array( $post->post_type, array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID ) ) ) {
 			unset( $actions['inline'] );
-			
-		// simple hack to show the forum description under the title
-		the_content();
+
+			// simple hack to show the forum description under the title
+			the_content();
+		}
 		return $actions;
 	}
 
@@ -344,24 +345,6 @@ class BBP_Admin {
 				bbp_topic_reply_count();
 				break;
 		}
-	}
-
-	/**
-	 * topics_post_row_actions ( $actions, $post )
-	 *
-	 * Remove the quick-edit action link and display the description under the topic title
-	 *
-	 * @param array $actions
-	 * @param array $post
-	 * @return array $actions
-	 */
-	function topics_post_row_actions ( $actions, $post ) {
-		if ( BBP_TOPIC_POST_TYPE_ID == $post->post_type )
-			unset( $actions['inline'] );
-
-		// simple hack to show the forum description under the title
-		the_content();
-		return $actions;
 	}
 }
 
