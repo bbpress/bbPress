@@ -553,12 +553,12 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 * @return string
 	 */
 	function bbp_get_topic_forum ( $topic_id = '' ) {
-		$forum_id = bbp_get_topic_forum_ID( $topic_id );
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
 		return apply_filters( 'bbp_get_topic_last_active', bbp_forum_title( $forum_id ) );
 	}
 
 	/**
-	 * bbp_topic_forum_ID ()
+	 * bbp_topic_forum_id ()
 	 *
 	 * Output the forum ID a topic belongs to
 	 *
@@ -570,11 +570,11 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 *
 	 * @uses bbp_get_topic_forum()
 	 */
-	function bbp_topic_forum_ID ( $topic_id = '' ) {
-		echo bbp_get_topic_forum_ID( $topic_id );
+	function bbp_topic_forum_id ( $topic_id = '' ) {
+		echo bbp_get_topic_forum_id( $topic_id );
 	}
 		/**
-		 * bbp_get_topic_forum_ID ()
+		 * bbp_get_topic_forum_id ()
 		 *
 		 * Return the forum ID a topic belongs to
 		 *
@@ -586,7 +586,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 		 *
 		 * @return string
 		 */
-		function bbp_get_topic_forum_ID ( $topic_id = '' ) {
+		function bbp_get_topic_forum_id ( $topic_id = '' ) {
 			if ( !$topic_id )
 				$topic_id = bbp_get_topic_id();
 
