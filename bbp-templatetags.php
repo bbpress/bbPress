@@ -560,6 +560,43 @@ function bbp_topic_forum ( $topic_id = '' ) {
 		return apply_filters( 'bbp_get_topic_last_active', bbp_forum_title( $forum_id ) );
 	}
 
+	/**
+	 * bbp_topic_forum_ID ()
+	 *
+	 * Output the forum ID a topic belongs to
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2485)
+	 *
+	 * @param int $topic_id optional
+	 *
+	 * @uses bbp_get_topic_forum()
+	 */
+	function bbp_topic_forum_ID ( $topic_id = '' ) {
+		echo bbp_get_topic_forum_ID( $topic_id );
+	}
+		/**
+		 * bbp_get_topic_forum_ID ()
+		 *
+		 * Return the forum ID a topic belongs to
+		 *
+		 * @package bbPress
+		 * @subpackage Template Tags
+		 * @since bbPress (1.2-r2485)
+		 *
+		 * @param int $topic_id optional
+		 *
+		 * @return string
+		 */
+		function bbp_get_topic_forum_ID ( $topic_id = '' ) {
+			if ( !$topic_id )
+				$topic_id = bbp_get_topic_id();
+
+			$forum_id = get_post_field( 'post_parent', $bbp_topics_template );
+			return apply_filters( 'bbp_get_topic_id_last_active', $forum_id );
+		}
+
 /**
  * bbp_topic_last_active ()
  *
