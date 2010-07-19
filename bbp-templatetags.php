@@ -47,9 +47,9 @@ function bbp_has_forums ( $args = '' ) {
 	global $bbp_forums_template;
 	
 	$default = array (
-		'post_type'		=> BBP_FORUM_POST_TYPE_ID,
-		'post_parent'	=> '0',
-		'orderby'		=> 'menu_order'
+		'post_type'     => BBP_FORUM_POST_TYPE_ID,
+		'post_parent'   => '0',
+		'orderby'       => 'menu_order'
 	);
 
 	$r = wp_parse_args( $args, $default );
@@ -379,9 +379,9 @@ function bbp_has_topics ( $args = '' ) {
 	global $bbp_topics_template;
 
 	$default = array (
-		'post_type'		=> BBP_TOPIC_POST_TYPE_ID,
-		'post_parent'	=> '0',
-		'orderby'		=> 'menu_order'
+		'post_type'     => BBP_TOPIC_POST_TYPE_ID,
+		'post_parent'   => '0',
+		'orderby'       => 'menu_order'
 	);
 
 	$r = wp_parse_args( $args, $default );
