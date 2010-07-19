@@ -223,7 +223,6 @@ class BBP_Loader {
 						'editor',
 						'thumbnail',
 						'excerpt',
-						'revisions',
 						'page-attributes'
 					)
 				)
@@ -269,9 +268,7 @@ class BBP_Loader {
 						'title',
 						'editor',
 						'thumbnail',
-						'excerpt',
-						'revisions',
-						'comments'
+						'excerpt'
 					)
 				)
 			)
@@ -316,9 +313,7 @@ class BBP_Loader {
 						'title',
 						'editor',
 						'thumbnail',
-						'excerpt',
-						'revisions',
-						'comments'
+						'excerpt'
 					)
 				)
 			)
