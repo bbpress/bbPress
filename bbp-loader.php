@@ -95,9 +95,13 @@ class BBP_Loader {
 		// Default slug for topic reply post type
 		if ( !defined( 'BBP_REPLY_SLUG' ) )
 			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_reply_slug', 'reply' ) );
-			
+
+		// bbPress root directory
 		define( 'BBP_DIR', WP_PLUGIN_DIR . '/bbpress' );
 		define( 'BBP_URL', plugins_url( $path = '/bbpress' ) );
+
+		// Images URL
+		define( 'BBP_IMAGES_URL', BBP_URL . '/bbp-images' );
 
 		// All done, but you can add your own stuff here
 		do_action( 'bbp_constants' );
@@ -116,16 +120,18 @@ class BBP_Loader {
 		do_action( 'bbp_includes_pre' );
 
 		// Load the files
-		require_once ( BBP_DIR . '/bb-classes.php' );
-		require_once ( BBP_DIR . '/bb-templatetags.php' );
+		require_once ( BBP_DIR . '/bbp-filters.php' );
+		require_once ( BBP_DIR . '/bbp-classes.php' );
+		require_once ( BBP_DIR . '/bbp-functions.php' );
+		require_once ( BBP_DIR . '/bbp-templatetags.php' );
 
 		// Are we going back to 1985 to fight Biff?
 		if ( defined( 'BBP_LOAD_LEGACY' ) )
-			require_once ( BBP_DIR . '/bb-legacy.php' );
+			require_once ( BBP_DIR . '/bbp-legacy.php' );
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
-			require_once ( BBP_DIR . '/bb-admin.php' );
+			require_once ( BBP_DIR . '/bbp-admin.php' );
 
 		// All done, but you can add your own stuff here
 		do_action( 'bbp_includes' );
