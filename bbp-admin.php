@@ -339,6 +339,21 @@ class BBP_Admin {
 		switch ( $col ) {
 			case 'bbp_topic_forum' :
 				bbp_topic_forum();
+				$actions = array(
+					'edit' => '<a href="' . admin_url( '/post.php?post=' . bbp_get_topic_forum_ID() . '&action=edit' ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+					'view' => '<a href="' . bbp_get_forum_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
+				);
+					
+				$actions = apply_filters( 'topic_forum_row_actions', $actions, $category );
+				$action_count = count( $actions );
+				$i = 0;
+				echo '<div class="row-actions">';
+				foreach ( $actions as $action => $link ) {
+					++$i;
+					( $i == $action_count ) ? $sep = '' : $sep = ' | ';
+					echo "<span class='$action'>$link$sep</span>";
+				}
+				echo '</div>';
 				break;
 
 			case 'bbp_topic_reply_count' :
