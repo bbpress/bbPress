@@ -221,7 +221,7 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		return apply_filters( 'bbp_get_forum_last_active', get_post_meta( $forum_id, 'bbp_forum_last_active' ) );
+		return apply_filters( 'bbp_get_forum_last_active', get_post_meta( $forum_id, 'bbp_forum_last_active', true ) );
 	}
 
 /**
@@ -264,7 +264,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_topic_count', count( $children ) );
 
-		//return apply_filters( 'bbp_get_forum_topic_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_count' ) );
+		//return apply_filters( 'bbp_get_forum_topic_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_count', true ) );
 	}
 
 /**
@@ -329,7 +329,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $children ) );
 
-		//return apply_filters( 'bbp_get_forum_topic_reply_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_reply_count' ) );
+		//return apply_filters( 'bbp_get_forum_topic_reply_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_reply_count', true ) );
 	}
 
 /**
@@ -627,7 +627,7 @@ function bbp_topic_last_active ( $topic_id = '' ) {
 		if ( !$topic_id )
 			$topic_id = bbp_get_topic_id();
 
-		return apply_filters( 'bbp_get_topic_last_active', get_post_meta( $topic_id, 'bbp_topic_last_active' ) );
+		return apply_filters( 'bbp_get_topic_last_active', get_post_meta( $topic_id, 'bbp_topic_last_active', true ) );
 	}
 
 /**
@@ -670,7 +670,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 
 		return apply_filters( 'bbp_get_topic_reply_count', count( $children ) );
 
-		//return apply_filters( 'bbp_get_topic_topic_reply_count', (int)get_post_meta( $topic_id, 'bbp_topic_topic_reply_count' ) );
+		//return apply_filters( 'bbp_get_topic_topic_reply_count', (int)get_post_meta( $topic_id, 'bbp_topic_topic_reply_count', true ) );
 	}
 
 /**
