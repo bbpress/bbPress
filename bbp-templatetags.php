@@ -327,7 +327,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 
 		$children = get_children( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $children ) );
+		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $children, COUNT_RECURSIVE ) );
 
 		//return apply_filters( 'bbp_get_forum_topic_reply_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_reply_count', true ) );
 	}
@@ -668,7 +668,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 
 		$children = get_children( array( 'post_parent' => $topic_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_topic_reply_count', count( $children ) );
+		return apply_filters( 'bbp_get_topic_reply_count', count( $children, COUNT_RECURSIVE ) );
 
 		//return apply_filters( 'bbp_get_topic_topic_reply_count', (int)get_post_meta( $topic_id, 'bbp_topic_topic_reply_count', true ) );
 	}
