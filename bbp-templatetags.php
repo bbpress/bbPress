@@ -260,7 +260,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		$children = get_children( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+		$children = get_children( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
 
 		return apply_filters( 'bbp_get_forum_topic_count', count( $children ) );
 
