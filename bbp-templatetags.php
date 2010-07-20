@@ -554,7 +554,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 */
 	function bbp_get_topic_forum ( $topic_id = '' ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
-		return apply_filters( 'bbp_get_topic_last_active', bbp_forum_title( $forum_id ) );
+		return apply_filters( 'bbp_get_topic_forum', bbp_forum_title( $forum_id ) );
 	}
 
 	/**
@@ -591,7 +591,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 				$topic_id = bbp_get_topic_id();
 
 			$forum_id = get_post_field( 'post_parent', $bbp_topics_template );
-			return apply_filters( 'bbp_get_topic_id_last_active', $forum_id );
+			return apply_filters( 'bbp_get_topic_forum_id', $forum_id );
 		}
 
 /**
