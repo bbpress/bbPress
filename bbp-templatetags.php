@@ -554,7 +554,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 */
 	function bbp_get_topic_forum ( $topic_id = '' ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
-		return apply_filters( 'bbp_get_topic_forum', bbp_forum_title( $forum_id ) );
+		return apply_filters( 'bbp_get_topic_forum', bbp_get_forum_title( $forum_id ) );
 	}
 
 	/**
