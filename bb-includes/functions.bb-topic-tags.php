@@ -94,18 +94,26 @@ function bb_remove_topic_tag( $tt_id, $user_id, $topic_id ) {
 	$_tag = bb_get_tag( $tt_id );
 
 	do_action('bb_pre_tag_removed', $tt_id, $user_id, $topic_id);
-	$current_tag_ids = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', array( 'user_id' => $user_id, 'fields' => 'tt_ids' ) );
-	if ( !is_array($current_tag_ids) )
+	$currents = $wp_taxonomy_object->get_object_terms( $topic_id, 'bb_topic_tag', array( 'user_id' => $user_id, 'fields' => 'all' ) );
+	if ( !is_array( $currents ) )
 		return false;
 
-	$current_tag_ids = array_map( 'intval', $current_tag_ids );
+	$found_tag_to_remove = false;
+	$current_tag_term_ids = array();
+	foreach ( $currents as $current ) {
+		if ( $current->term_taxonomy_id == $tt_id ) {
+			$found_tag_to_remove = true;
+			continue;
+		}
+		$current_tag_term_ids[] = $current->term_id;
+	}
 
-	if ( false === $pos = array_search( $tt_id, $current_tag_ids ) )
+	if ( !$found_tag_to_remove )
 		return false;
 
-	unset($current_tag_ids[$pos]);
+	$current_tag_term_ids = array_map( 'intval', $current_tag_term_ids );
 
-	$tt_ids = $wp_taxonomy_object->set_object_terms( $topic_id, array_values($current_tag_ids), 'bb_topic_tag', array( 'user_id' => $user_id ) );
+	$tt_ids = $wp_taxonomy_object->set_object_terms( $topic_id, array_values($current_tag_term_ids), 'bb_topic_tag', array( 'user_id' => $user_id ) );
 	if ( is_array( $tt_ids ) ) {
 		global $bbdb;
 		$bbdb->query( $bbdb->prepare(
