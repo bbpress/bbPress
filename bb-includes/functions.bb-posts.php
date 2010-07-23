@@ -566,6 +566,7 @@ function _bb_delete_post( $post_id, $post_status ) {
 	$post_status = (int) $post_status;
 	$bbdb->update( $bbdb->posts, compact( 'post_status' ), compact( 'post_id' ) );
 	wp_cache_delete( $post_id, 'bb_post' );
+	do_action( '_bb_delete_post', $post_id, $post_status );
 }
 
 function bb_topics_replied_on_undelete_post( $post_id ) {
