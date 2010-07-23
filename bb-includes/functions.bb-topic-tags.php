@@ -403,8 +403,8 @@ function bb_get_top_tags( $args = null ) {
 	if ( is_wp_error( $terms ) )
 		return false;
 
-	for ( $i = 0; isset($terms[$i]); $i++ )
-		_bb_make_tag_compat( $terms[$i] );
+	foreach( $terms as $term )
+       	_bb_make_tag_compat( $term );
 
 	return $terms;
 }
