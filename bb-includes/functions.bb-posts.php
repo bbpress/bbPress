@@ -205,15 +205,25 @@ function bb_cache_posts( $query, $post_id_query = false ) {
 
 	$the_posts = array_merge( $_cached_posts, $_query_posts );
 
+	global $bb_cache_posts_sort_by;
+	$bb_cache_posts_sort_by = 'post_id';
+	if ( isset( $_query ) && preg_match( '/ORDER\s+BY\s+`?(?:p\.)?(.+?)(?:[`,\s]|$)/i', $_query, $order_by ) )
+		$bb_cache_posts_sort_by = $order_by[1];
 	usort( $the_posts, '_bb_cache_posts_sort' );
-	if ( isset( $_query ) && strpos( $_query, 'DESC' ) !== false )
+	if ( isset( $_query ) && stripos( $_query, 'DESC' ) !== false )
 		$the_posts = array_reverse( $the_posts );
 
 	return $the_posts;
 }
 
 function _bb_cache_posts_sort( $a, $b ) {
-	return (int) $a->post_id - (int) $b->post_id;
+	global $bb_cache_posts_sort_by;
+
+	if ( $a->$bb_cache_posts_sort_by > $b->$bb_cache_posts_sort_by )
+		return 1;
+	if ( $a->$bb_cache_posts_sort_by < $b->$bb_cache_posts_sort_by )
+		return -1;
+	return 0;
 }
 
 // Globalizes the result
