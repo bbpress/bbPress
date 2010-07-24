@@ -18,29 +18,42 @@ define( 'BBP_VERSION', '1.2-bleeding' );
 /** And now for something so unbelievable it's.... UNBELIEVABLE! */
 
 // Attach the bbp_loaded action to the WordPress plugins_loaded action.
-add_action( 'plugins_loaded',  array( 'BBP_Loader', 'loaded' ) );
+add_action( 'plugins_loaded',  array ( 'BBP_Loader', 'loaded' ) );
 
 // Attach the bbp_init to the WordPress init action.
-add_action( 'init',            array( 'BBP_Loader', 'init' ) );
+add_action( 'init',            array ( 'BBP_Loader', 'init' ) );
 
 // Attach constants to bbp_loaded.
-add_action( 'bbp_loaded',      array( 'BBP_Loader', 'constants' ) );
+add_action( 'bbp_loaded',      array ( 'BBP_Loader', 'constants' ) );
 
 // Attach includes to bbp_loaded.
-add_action( 'bbp_loaded',      array( 'BBP_Loader', 'includes' ) );
+add_action( 'bbp_loaded',      array ( 'BBP_Loader', 'includes' ) );
 
 // Attach theme directory bbp_loaded.
-add_action( 'bbp_loaded',      array( 'BBP_Loader', 'register_theme_directory' ) );
+add_action( 'bbp_loaded',      array ( 'BBP_Loader', 'register_theme_directory' ) );
 
 // Attach textdomain to bbp_init.
-add_action( 'bbp_init',        array( 'BBP_Loader', 'textdomain' ) );
+add_action( 'bbp_init',        array ( 'BBP_Loader', 'textdomain' ) );
 
 // Attach post type registration to bbp_init.
-add_action( 'bbp_init',        array( 'BBP_Loader', 'register_post_types' ) );
+add_action( 'bbp_init',        array ( 'BBP_Loader', 'register_post_types' ) );
 
 // Attach topic tag registration bbp_init.
-add_action( 'bbp_init',        array( 'BBP_Loader', 'register_taxonomies' ) );
+add_action( 'bbp_init',        array ( 'BBP_Loader', 'register_taxonomies' ) );
 
+/**
+ * Register bbPress activation sequence
+ */
+register_activation_hook( __FILE__, array( 'BBP_Loader', 'activation' ) );
+
+/**
+ * Register bbPress deactivation sequence
+ */
+register_deactivation_hook( __FILE__, array( 'BBP_Loader', 'deactivation' ) );
+
+/** The main bbPress loader class *********************************************/
+
+if ( !class_exists( 'BBP_Loader' ) ) :
 /**
  * BBP_Loader
  *
@@ -381,8 +394,6 @@ class BBP_Loader {
 	 *
 	 * Register the built in bbPress taxonomies
 	 *
-	 * @package bbPress
-	 * @subpackage Loader
 	 * @since bbPress (1.2-r2464)
 	 *
 	 * @uses register_taxonomy()
@@ -430,22 +441,51 @@ class BBP_Loader {
 		 */
 		do_action ( 'bbp_register_taxonomies' );
 	}
+
+	/**
+	 * activation ()
+	 *
+	 * Runs on bbPress activation
+	 *
+	 * @since bbPress (1.2-r2509)
+	 */
+	function activation () {
+		register_uninstall_hook( __FILE__, array( 'BBP_Loader', 'uninstall' ) );
+		/**
+		 * bbPress has been activated
+		 */
+		do_action( 'bbp_activation' );
+	}
+
+	/**
+	 * deactivation ()
+	 *
+	 * Runs on bbPress deactivation
+	 *
+	 * @since bbPress (1.2-r2509)
+	 */
+	function deactivation () {
+		/**
+		 * bbPress has been deactivated
+		 */
+		do_action( 'bbp_deactivation' );
+	}
+
+	/**
+	 * uninstall ()
+	 *
+	 * Runs when uninstalling bbPress
+	 *
+	 * @since bbPress (1.2-r2509)
+	 */
+	function uninstall () {
+		/**
+		 * Uninstall bbPress
+		 */
+		do_action( 'bbp_uninstall' );
+	}
 }
 
-/**
- * bbp_activation ()
- *
- * Placeholder for plugin activation sequence
- */
-function bbp_activation () { }
-register_activation_hook   ( __FILE__, 'bbp_activation' );
-
-/**
- * bbp_deactivation ()
- *
- * Placeholder for plugin deactivation sequence
- */
-function bbp_deactivation () { }
-register_deactivation_hook ( __FILE__, 'bbp_deactivation' );
+endif; // class_exists check
 
 ?>
