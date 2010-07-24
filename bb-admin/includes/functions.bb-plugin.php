@@ -295,7 +295,7 @@ function bb_get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 	$plugin_data = compact( array_keys( $fields ) );
 
 	if ( $translate )
-		$plugin_data = _bb_get_plugin_data_translate( $plugin_data );
+		$plugin_data = _bb_get_plugin_data_translate( $plugin_data, $plugin_file );
 
 	if ( $markup )
 		$plugin_data['description'] = bb_autop( preg_replace( '/[\r\n]+/', "\n", trim( $plugin_data['description'] ) ) );
@@ -310,7 +310,7 @@ function bb_get_plugin_data( $plugin_file, $markup = true, $translate = true ) {
 	return $plugin_data;
 }
 
-function _bb_get_plugin_data_translate( $plugin_data ) {
+function _bb_get_plugin_data_translate( $plugin_data, $plugin_file ) {
 	//Translate fields
 	if( !empty($plugin_data['text_domain']) ) {
 		if( ! empty( $plugin_data['domain_path'] ) )
