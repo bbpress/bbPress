@@ -170,6 +170,6 @@ if ( bb_is_subscriptions_active() ) {
 	add_action( 'post_form', 'bb_user_subscribe_checkbox' );
 }
 
-add_action( 'post_form_pre_post', 'bb_anonymous_post_form' );
+add_action( 'bb_post-form.php', 'bb_anonymous_post_form' );
 
 unset( $filters, $filter );

@@ -11,11 +11,15 @@
 		<textarea name="post_content" cols="50" rows="8" id="post_content" tabindex="5"></textarea>
 	</label>
 </p>
+
+<?php if ( bb_is_user_logged_in() ) : /* Display Tags box to only logged in users */ ?>
 <p id="post-form-tags-container">
 	<label for="tags-input"><?php _e( 'Tags (comma separated)' ); ?>
 		<input id="tags-input" name="tags" type="text" size="50" maxlength="100" value="<?php bb_tag_name(); ?>" tabindex="6" />
 	</label>
 </p>
+<?php endif; ?>
+
 <?php if ( bb_is_tag() || bb_is_front() ) : ?>
 <p id="post-form-forum-container">
 	<label for="forum-id"><?php _e( 'Forum' ); ?>

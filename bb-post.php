@@ -11,22 +11,19 @@ if ( !$post_content = trim( $_POST['post_content'] ) )
 
 $post_author = $post_email = $post_url = '';
 
-if ( ! bb_is_user_logged_in() ) {
+if ( !bb_is_user_logged_in() ) {
 	if ( bb_is_login_required() ) {
-		bb_die(__('You are not allowed to post.  Are you logged in?'));
+		bb_die( __( 'You are not allowed to post.  Are you logged in?' ) );
 	} else {
-		if ( ! $post_author = trim($_POST['author']) ) {
-			bb_die(__('You need to submit your name!'));
-		} elseif ( ! $post_email = trim($_POST['email']) ) {
-			bb_die(__('You need to submit your email!'));
-		}
+		if ( !$post_author = sanitize_user( trim( $_POST['author'] ) ) )
+			bb_die( __( 'You need to submit your name!' ) );
+		elseif ( !$post_email = sanitize_email( trim( $_POST['email'] ) ) )
+			bb_die( __( 'You need to submit a valid email id!' ) );
 
-		if ( ! empty( $_POST['url'] ) ) {
-			$post_url = trim($_POST['url']);
-		}
+		if ( !empty( $_POST['url'] ) )
+			$post_url = esc_url( trim( $_POST['url'] ) );
 	}
 }
-
 
 
 

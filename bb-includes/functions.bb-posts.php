@@ -370,15 +370,8 @@ function bb_insert_post( $args = null ) {
 
 	$defaults['throttle'] = true;
 	extract( wp_parse_args( $args, $defaults ) );
-
-	if ( isset( $post_author ) )
-		$post_author = sanitize_user( $post_author );
-
-	if ( isset( $post_email ) )
-		$post_email = sanitize_email( $post_email );
-
-	if ( isset( $post_url ) )
-		$post_url = esc_url( $post_url );
+	
+	// If the user is not logged in and loginless posting is ON, then this function expects $post_author, $post_email and $post_url to be sanitized (check bb-post.php for example)
 
 	if ( !$topic = get_topic( $topic_id ) )
 		return false;
