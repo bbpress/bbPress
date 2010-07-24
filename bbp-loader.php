@@ -103,6 +103,10 @@ class BBP_Loader {
 		// Images URL
 		define( 'BBP_IMAGES_URL', BBP_URL . '/bbp-images' );
 
+		// Themes directory and url
+		define( 'BBP_THEMES_DIR', BBP_DIR . '/bbp-themes' );
+		define( 'BBP_THEMES_URL', BBP_URL . '/bbp-themes' );
+
 		// All done, but you can add your own stuff here
 		do_action( 'bbp_constants' );
 	}
