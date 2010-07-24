@@ -29,6 +29,9 @@ add_action( 'bbp_loaded',      array( 'BBP_Loader', 'constants' ) );
 // Attach the bbPress includes to our own trusted action.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'includes' ) );
 
+// Attach the bbPress theme directory to our own trusted action.
+add_action( 'bbp_loaded',      array( 'BBP_Loader', 'register_theme_directory' ) );
+
 // Attach the bbPress textdomain loader to our own trusted action
 add_action( 'bbp_init',        array( 'BBP_Loader', 'textdomain' ) );
 
@@ -176,6 +179,18 @@ class BBP_Loader {
 		$mofile = BBP_DIR . "/bbp-languages/bbpress-$locale.mo";
 
 		load_textdomain( 'bbpress', $mofile );
+	}
+
+	/**
+	 * register_theme_directory ()
+	 *
+	 * Sets up the bbPress theme directory to use in WordPress
+	 *
+	 * @since bbPress (1.2-r2507)
+	 * @uses register_theme_directory
+	 */
+	function register_theme_directory () {
+		register_theme_directory( BBP_THEMES_DIR );
 	}
 
 	/**
