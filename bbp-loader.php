@@ -17,28 +17,28 @@ define( 'BBP_VERSION', '1.2-bleeding' );
 
 /** And now for something so unbelievable it's.... UNBELIEVABLE! */
 
-// Attach the bbPress loaded action to the WordPress plugins_loaded action.
+// Attach the bbp_loaded action to the WordPress plugins_loaded action.
 add_action( 'plugins_loaded',  array( 'BBP_Loader', 'loaded' ) );
 
-// Attach the bbPress initilization to the WordPress init action.
+// Attach the bbp_init to the WordPress init action.
 add_action( 'init',            array( 'BBP_Loader', 'init' ) );
 
-// Attach the bbPress constants to our own trusted action.
+// Attach constants to bbp_loaded.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'constants' ) );
 
-// Attach the bbPress includes to our own trusted action.
+// Attach includes to bbp_loaded.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'includes' ) );
 
-// Attach the bbPress theme directory to our own trusted action.
+// Attach theme directory bbp_loaded.
 add_action( 'bbp_loaded',      array( 'BBP_Loader', 'register_theme_directory' ) );
 
-// Attach the bbPress textdomain loader to our own trusted action
+// Attach textdomain to bbp_init.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'textdomain' ) );
 
-// Attach the bbPress post type registration to our own trusted action.
+// Attach post type registration to bbp_init.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'register_post_types' ) );
 
-// Attach the bbPress topic tag registration to our own trusted action.
+// Attach topic tag registration bbp_init.
 add_action( 'bbp_init',        array( 'BBP_Loader', 'register_taxonomies' ) );
 
 /**
@@ -110,7 +110,9 @@ class BBP_Loader {
 		define( 'BBP_THEMES_DIR', BBP_DIR . '/bbp-themes' );
 		define( 'BBP_THEMES_URL', BBP_URL . '/bbp-themes' );
 
-		// All done, but you can add your own stuff here
+		/**
+		 * Constants have been defined
+		 */
 		do_action( 'bbp_constants' );
 	}
 
@@ -140,12 +142,14 @@ class BBP_Loader {
 		if ( is_admin() )
 			require_once ( BBP_DIR . '/bbp-admin.php' );
 
-		// All done, but you can add your own stuff here
+		/**
+		 * Everything has been included
+		 */
 		do_action( 'bbp_includes' );
 	}
 
 	/**
-	 * loaded()
+	 * loaded ()
 	 *
 	 * A bbPress specific action to say that it has started its
 	 * boot strapping sequence. It's attached to the existing WordPress
@@ -169,7 +173,7 @@ class BBP_Loader {
 	}
 
 	/**
-	 * textdomain()
+	 * textdomain ()
 	 *
 	 * Load the translation file for current language
 	 */
@@ -179,6 +183,11 @@ class BBP_Loader {
 		$mofile = BBP_DIR . "/bbp-languages/bbpress-$locale.mo";
 
 		load_textdomain( 'bbpress', $mofile );
+
+		/**
+		 * Text domain has been loaded
+		 */
+		do_action( 'bbp_load_textdomain' );
 	}
 
 	/**
@@ -191,16 +200,21 @@ class BBP_Loader {
 	 */
 	function register_theme_directory () {
 		register_theme_directory( BBP_THEMES_DIR );
+
+		/**
+		 * Theme directory has been registered
+		 */
+		do_action( 'bbp_register_theme_directory' );
 	}
 
 	/**
-	 * register_post_types()
+	 * register_post_types ()
 	 *
 	 * Setup the post types and taxonomy for forums
 	 *
 	 * @todo Finish up the post type admin area with messages, columns, etc...*
 	 */
-	function register_post_types() {
+	function register_post_types () {
 
 		// Forum post type labels
 		$forum_labels = array (
@@ -219,36 +233,42 @@ class BBP_Loader {
 			'parent_item_colon'     => __( 'Parent Forum:', 'bbpress' )
 		);
 
+		// Forum post type rewrite
+		$forum_rewrite = array (
+			'slug'              => BBP_FORUM_SLUG,
+			'with_front'        => false
+		);
+
+		// Forum post type supports
+		$forum_supports = array (
+			'title',
+			'editor',
+			'thumbnail',
+			'excerpt',
+			'page-attributes'
+		);
+
 		// Register forum post type
 		register_post_type (
 			BBP_FORUM_POST_TYPE_ID,
 			apply_filters( 'bbp_register_forum_post_type',
 				array (
 					'labels'            => $forum_labels,
+					'rewrite'           => $forum_rewrite,
+					'supports'          => $forum_supports,
 					'menu_position'     => '100',
 					'public'            => true,
 					'show_ui'           => true,
 					'can_export'        => true,
 					'capability_type'   => 'post',
 					'hierarchical'      => true,
-					'rewrite'           => array (
-						'slug'              => BBP_FORUM_SLUG,
-						'with_front'        => false
-					),
-					'query_var'     => true,
-					'menu_icon'     => '',
-					'supports'      => array (
-						'title',
-						'editor',
-						'thumbnail',
-						'excerpt',
-						'page-attributes'
-					)
+					'query_var'         => true,
+					'menu_icon'         => ''
 				)
 			)
 		);
 
-		// Forum post type labels
+		// Topic post type labels
 		$topic_labels = array (
 			'name'                  => __( 'Topics', 'bbpress' ),
 			'singular_name'         => __( 'Topic', 'bbpress' ),
@@ -265,35 +285,41 @@ class BBP_Loader {
 			'parent_item_colon'     => __( 'Forum:', 'bbpress' )
 		);
 
+		// Topic post type rewrite
+		$topic_rewrite = array (
+			'slug'          => BBP_TOPIC_SLUG,
+			'with_front'    => false
+		);
+
+		// Topic post type supports
+		$topic_supports = array (
+			'title',
+			'editor',
+			'thumbnail',
+			'excerpt'
+		);
+
 		// Register topic post type
 		register_post_type (
 			BBP_TOPIC_POST_TYPE_ID,
 			apply_filters( 'bbp_register_topic_post_type',
 				array (
 					'labels'            => $topic_labels,
+					'rewrite'           => $topic_rewrite,
+					'supports'          => $topic_supports,
 					'menu_position'     => '100',
 					'public'            => true,
 					'show_ui'           => true,
 					'can_export'        => true,
 					'capability_type'   => 'post',
 					'hierarchical'      => false,
-					'rewrite'           => array (
-						'slug'              => BBP_TOPIC_SLUG,
-						'with_front'        => false
-					),
 					'query_var'         => true,
-					'menu_icon'         => '',
-					'supports'          => array (
-						'title',
-						'editor',
-						'thumbnail',
-						'excerpt'
-					)
+					'menu_icon'         => ''
 				)
 			)
 		);
 
-		// Topic reply labels
+		// Topic reply post type labels
 		$topic_reply_labels = array (
 			'name'                  => __( 'Replies', 'bbpress' ),
 			'singular_name'         => __( 'Reply', 'bbpress' ),
@@ -310,30 +336,36 @@ class BBP_Loader {
 			'parent_item_colon'     => __( 'Topic:', 'bbpress' ),
 		);
 
+		// Topic post type rewrite
+		$topic_reply_rewrite = array (
+			'slug'              => BBP_REPLY_SLUG,
+			'with_front'        => false
+		);
+
+		// Topic post type supports
+		$topic_reply_supports = array (
+			'title',
+			'editor',
+			'thumbnail',
+			'excerpt'
+		);
+
 		// Register topic reply post type
 		register_post_type (
 			BBP_TOPIC_REPLY_POST_TYPE_ID,
 			apply_filters( 'bbp_register_topic_reply_post_type',
 				array (
 					'labels'            => $topic_reply_labels,
+					'rewrite'           => $topic_reply_rewrite,
+					'supports'          => $topic_reply_supports,
 					'menu_position'     => '100',
 					'public'            => true,
 					'show_ui'           => true,
 					'can_export'        => true,
 					'capability_type'   => 'post',
 					'hierarchical'      => false,
-					'rewrite'           => array (
-						'slug'              => BBP_REPLY_SLUG,
-						'with_front'        => false
-					),
 					'query_var'         => true,
-					'menu_icon'         => '',
-					'supports'          => array (
-						'title',
-						'editor',
-						'thumbnail',
-						'excerpt'
-					)
+					'menu_icon'         => ''
 				)
 			)
 		);
@@ -371,6 +403,11 @@ class BBP_Loader {
 			'new_item_name'     => __( 'New Tag Name', 'bbpress' ),
 		);
 
+		// Topic tag rewrite
+		$topic_tag_rewrite = array (
+			'slug' => 'tag'
+		);
+
 		// Register the topic tag taxonomy
 		register_taxonomy (
 			BBP_TOPIC_TAG_ID,               // The topic tag ID
@@ -378,12 +415,10 @@ class BBP_Loader {
 			apply_filters( 'bbp_register_topic_tag',
 				array (
 					'labels'                => $topic_tag_labels,
-					'hierarchical'          => false,
+					'rewrite'               => $topic_tag_rewrite,
 					'update_count_callback' => '_update_post_term_count',
 					'query_var'             => 'topic-tag',
-					'rewrite'               => array (
-						'slug'                  => 'tag'
-					),
+					'hierarchical'          => false,
 					'public'                => true,
 					'show_ui'               => true,
 				)
@@ -412,6 +447,5 @@ register_activation_hook   ( __FILE__, 'bbp_activation' );
  */
 function bbp_deactivation () { }
 register_deactivation_hook ( __FILE__, 'bbp_deactivation' );
-
 
 ?>
