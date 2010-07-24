@@ -251,7 +251,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 	 * @todo stash and cache (see commented out code)
 	 *
 	 * @uses bbp_get_forum_id
-	 * @uses get_children
+	 * @uses get_pages
 	 * @uses apply_filters
 	 *
 	 * @param int $forum_id optional Forum ID to check
@@ -260,9 +260,9 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		$children = get_children( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
+		$forum_topics = get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_forum_topic_count', count( $children ) );
+		return apply_filters( 'bbp_get_forum_topic_count', count( $forum_topics ) );
 
 		//return apply_filters( 'bbp_get_forum_topic_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_count', true ) );
 	}
@@ -316,7 +316,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 	 * @todo stash and cache (see commented out code)
 	 *
 	 * @uses bbp_get_forum_id()
-	 * @uses get_children
+	 * @uses get_pages
 	 * @uses apply_filters
 	 *
 	 * @param int $forum_id optional
@@ -325,9 +325,9 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		$children = get_children( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+		$forum_topic_replies = get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $children, COUNT_RECURSIVE ) );
+		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $forum_topic_replies, COUNT_RECURSIVE ) );
 
 		//return apply_filters( 'bbp_get_forum_topic_reply_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_reply_count', true ) );
 	}
@@ -657,7 +657,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 	 * @todo stash and cache (see commented out code)
 	 *
 	 * @uses bbp_get_topic_id()
-	 * @uses get_children
+	 * @uses get_pages
 	 * @uses apply_filters
 	 *
 	 * @param int $topic_id
@@ -666,9 +666,9 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 		if ( !$topic_id )
 			$topic_id = bbp_get_topic_id();
 
-		$children = get_children( array( 'post_parent' => $topic_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+		$topic_replies = get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_topic_reply_count', count( $children, COUNT_RECURSIVE ) );
+		return apply_filters( 'bbp_get_topic_reply_count', count( $topic_replies, COUNT_RECURSIVE ) );
 
 		//return apply_filters( 'bbp_get_topic_topic_reply_count', (int)get_post_meta( $topic_id, 'bbp_topic_topic_reply_count', true ) );
 	}
