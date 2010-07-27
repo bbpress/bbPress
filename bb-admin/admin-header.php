@@ -13,6 +13,7 @@
 	ul#bbAdminMenu{ margin: 15px 5px 15px -85px; } body.bb-menu-folded div#bbBody{ margin-left: 110px; }
 	</style>
 	<![endif]-->
+	<link rel="shortcut icon" type="image/ico" href="<?php bb_uri('bb-admin/images/favicon.ico', null, BB_URI_CONTEXT_BB_ADMIN); ?>" />
 	<script type="text/javascript">
 		//<![CDATA[
 		addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
