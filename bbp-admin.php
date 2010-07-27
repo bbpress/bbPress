@@ -1,41 +1,6 @@
 <?php
 
-// Attach the bbPress admin init action to the WordPress admin init action.
-add_action( 'admin_init',                                           array( 'BBP_Admin', 'init' ) );
-
-// User profile edit/display actions
-add_action( 'edit_user_profile',                                    array( 'BBP_Admin', 'user_profile_forums' ) );
-add_action( 'show_user_profile',                                    array( 'BBP_Admin', 'user_profile_forums' ) );
-
-// User profile save actions
-add_action( 'personal_options_update',                              array( 'BBP_Admin', 'user_profile_update' ) );
-add_action( 'edit_user_profile_update',                             array( 'BBP_Admin', 'user_profile_update' ) );
-
-// Add some general styling to the admin area
-add_action( 'admin_head',                                           array( 'BBP_Admin', 'admin_head' ) );
-
-// Forum column headers.
-add_filter( 'manage_' . BBP_FORUM_POST_TYPE_ID . '_posts_columns',  array( 'BBP_Admin', 'forums_column_headers' ) );
-
-// Forum columns (in page row)
-add_action( 'manage_pages_custom_column',                           array( 'BBP_Admin', 'forums_column_data' ), 10, 2 );
-add_filter( 'page_row_actions',                                     array( 'BBP_Admin', 'forums_post_row_actions' ), 10, 2 );
-
-// Topic column headers.
-add_filter( 'manage_' . BBP_TOPIC_POST_TYPE_ID . '_posts_columns',  array( 'BBP_Admin', 'topics_column_headers' ) );
-
-// Topic columns (in post row)
-add_action( 'manage_posts_custom_column',                           array( 'BBP_Admin', 'topics_column_data' ), 10, 2 );
-add_filter( 'post_row_actions',                                     array( 'BBP_Admin', 'post_row_actions' ), 10, 2 );
-
-// Topic metabox actions
-add_action( 'admin_menu',                                           array( 'BBP_Admin', 'topic_parent_metabox' ) );
-add_action( 'save_post',                                            array( 'BBP_Admin', 'topic_parent_metabox_save' ) );
-
-// Topic reply metabox actions
-add_action( 'admin_menu',                                           array( 'BBP_Admin', 'topic_reply_parent_metabox' ) );
-add_action( 'save_post',                                            array( 'BBP_Admin', 'topic_reply_parent_metabox_save' ) );
-
+if ( !class_exists( 'BBP_Admin' ) ) :
 /**
  * BBP_Admin
  *
@@ -46,6 +11,44 @@ add_action( 'save_post',                                            array( 'BBP_
  * @since bbPress (1.2-r2464)
  */
 class BBP_Admin {
+
+	function bbp_admin () {
+		// Attach the bbPress admin init action to the WordPress admin init action.
+		add_action( 'admin_init',                                           array( $this, 'init' ) );
+
+		// User profile edit/display actions
+		add_action( 'edit_user_profile',                                    array( $this, 'user_profile_forums' ) );
+		add_action( 'show_user_profile',                                    array( $this, 'user_profile_forums' ) );
+
+		// User profile save actions
+		add_action( 'personal_options_update',                              array( $this, 'user_profile_update' ) );
+		add_action( 'edit_user_profile_update',                             array( $this, 'user_profile_update' ) );
+
+		// Add some general styling to the admin area
+		add_action( 'admin_head',                                           array( $this, 'admin_head' ) );
+
+		// Forum column headers.
+		add_filter( 'manage_' . BBP_FORUM_POST_TYPE_ID . '_posts_columns',  array( $this, 'forums_column_headers' ) );
+
+		// Forum columns (in page row)
+		add_action( 'manage_pages_custom_column',                           array( $this, 'forums_column_data' ), 10, 2 );
+		add_filter( 'page_row_actions',                                     array( $this, 'forums_post_row_actions' ), 10, 2 );
+
+		// Topic column headers.
+		add_filter( 'manage_' . BBP_TOPIC_POST_TYPE_ID . '_posts_columns',  array( $this, 'topics_column_headers' ) );
+
+		// Topic columns (in post row)
+		add_action( 'manage_posts_custom_column',                           array( $this, 'topics_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                     array( $this, 'post_row_actions' ), 10, 2 );
+
+		// Topic metabox actions
+		add_action( 'admin_menu',                                           array( $this, 'topic_parent_metabox' ) );
+		add_action( 'save_post',                                            array( $this, 'topic_parent_metabox_save' ) );
+
+		// Topic reply metabox actions
+		add_action( 'admin_menu',                                           array( $this, 'topic_reply_parent_metabox' ) );
+		add_action( 'save_post',                                            array( $this, 'topic_reply_parent_metabox_save' ) );
+	}
 
 	/**
 	 * init()
@@ -381,6 +384,7 @@ class BBP_Admin {
 		return $actions;
 	}
 }
+endif; // class_exists check
 
 /**
  * bbp_admin_separator ()
@@ -518,5 +522,8 @@ function bbp_admin_dropdown ( $title, $sub_title, $error, $args = '' ) {
 <?php
 	endif;
 }
+
+// Setup bbPress Admin
+$bbp_admin = new BBP_Admin();
 
 ?>

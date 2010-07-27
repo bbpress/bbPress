@@ -17,42 +17,6 @@ define( 'BBP_VERSION', '1.2-bleeding' );
 
 /** And now for something so unbelievable it's.... UNBELIEVABLE! */
 
-// Attach the bbp_loaded action to the WordPress plugins_loaded action.
-add_action( 'plugins_loaded',  array ( 'BBP_Loader', 'loaded' ) );
-
-// Attach the bbp_init to the WordPress init action.
-add_action( 'init',            array ( 'BBP_Loader', 'init' ) );
-
-// Attach constants to bbp_loaded.
-add_action( 'bbp_loaded',      array ( 'BBP_Loader', 'constants' ) );
-
-// Attach includes to bbp_loaded.
-add_action( 'bbp_loaded',      array ( 'BBP_Loader', 'includes' ) );
-
-// Attach theme directory bbp_loaded.
-add_action( 'bbp_loaded',      array ( 'BBP_Loader', 'register_theme_directory' ) );
-
-// Attach textdomain to bbp_init.
-add_action( 'bbp_init',        array ( 'BBP_Loader', 'textdomain' ) );
-
-// Attach post type registration to bbp_init.
-add_action( 'bbp_init',        array ( 'BBP_Loader', 'register_post_types' ) );
-
-// Attach topic tag registration bbp_init.
-add_action( 'bbp_init',        array ( 'BBP_Loader', 'register_taxonomies' ) );
-
-/**
- * Register bbPress activation sequence
- */
-register_activation_hook( __FILE__, array( 'BBP_Loader', 'activation' ) );
-
-/**
- * Register bbPress deactivation sequence
- */
-register_deactivation_hook( __FILE__, array( 'BBP_Loader', 'deactivation' ) );
-
-/** The main bbPress loader class *********************************************/
-
 if ( !class_exists( 'BBP_Loader' ) ) :
 /**
  * BBP_Loader
@@ -65,6 +29,41 @@ if ( !class_exists( 'BBP_Loader' ) ) :
  *
  */
 class BBP_Loader {
+
+	/**
+	 * The main bbPress loader
+	 */
+	function bbp_loader () {
+		// Attach the bbp_loaded action to the WordPress plugins_loaded action.
+		add_action( 'plugins_loaded',  array ( $this, 'loaded' ) );
+
+		// Attach the bbp_init to the WordPress init action.
+		add_action( 'init',            array ( $this, 'init' ) );
+
+		// Attach constants to bbp_loaded.
+		add_action( 'bbp_loaded',      array ( $this, 'constants' ) );
+
+		// Attach includes to bbp_loaded.
+		add_action( 'bbp_loaded',      array ( $this, 'includes' ) );
+
+		// Attach theme directory bbp_loaded.
+		add_action( 'bbp_loaded',      array ( $this, 'register_theme_directory' ) );
+
+		// Attach textdomain to bbp_init.
+		add_action( 'bbp_init',        array ( $this, 'textdomain' ) );
+
+		// Attach post type registration to bbp_init.
+		add_action( 'bbp_init',        array ( $this, 'register_post_types' ) );
+
+		// Attach topic tag registration bbp_init.
+		add_action( 'bbp_init',        array ( $this, 'register_taxonomies' ) );
+
+		// Register bbPress activation sequence
+		register_activation_hook( __FILE__, array( $this, 'activation' ) );
+
+		// Register bbPress deactivation sequence
+		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+	}
 
 	/**
 	 * constants ()
@@ -450,7 +449,7 @@ class BBP_Loader {
 	 * @since bbPress (1.2-r2509)
 	 */
 	function activation () {
-		register_uninstall_hook( __FILE__, array( 'BBP_Loader', 'uninstall' ) );
+		register_uninstall_hook( __FILE__, array( $this, 'uninstall' ) );
 		/**
 		 * bbPress has been activated
 		 */
@@ -487,5 +486,7 @@ class BBP_Loader {
 }
 
 endif; // class_exists check
+
+$bbp_loader = new BBP_Loader();
 
 ?>
