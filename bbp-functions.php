@@ -7,7 +7,7 @@
  *
  * @package bbPress
  * @subpackage Template Tags
- ** @since bbPress (1.2-r2464)
+ * @since bbPress (1.2-r2464)
  *
  * @uses is_super_admin ()
  * @uses apply_filters
