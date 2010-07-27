@@ -671,12 +671,15 @@ function bb_notify_subscribers( $post_id ) {
  *
  * @param int $topic_id ID of topic for subscription
  * @param string $new_status New subscription status
+ * @param int $user_id Optional. ID of user for subscription
  */
-function bb_subscription_management( $topic_id, $new_status ) {
+function bb_subscription_management( $topic_id, $new_status, $user_id = '' ) {
 	global $bbdb, $wp_taxonomy_object;
 	
 	$topic = get_topic( $topic_id );
-	$user_id = bb_get_current_user_info( 'id' );
+	if (!$user_id) {
+		$user_id = bb_get_current_user_info( 'id' );
+	}
 	
 	do_action( 'bb_subscripton_management', $topic_id, $new_status, $user_id );
 	
