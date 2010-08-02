@@ -379,15 +379,58 @@ function bbp_has_topics ( $args = '' ) {
 	global $bbp_topics_template;
 
 	$default = array (
-		'post_type'     => BBP_TOPIC_POST_TYPE_ID,
-		'post_parent'   => '0',
-		'orderby'       => 'menu_order'
+		// Narrow query down to bbPress topics
+		'post_type'        => BBP_TOPIC_POST_TYPE_ID,
+
+		// Get topics
+		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : '0',
+
+		//'author', 'date', 'title', 'modified', 'parent', rand',
+		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'date',
+
+		// 'ASC', 'DESC'
+		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'DESC',
+
+		// @todo replace 15 with setting
+		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
+
+		// Page Number
+		'paged'            => isset( $_REQUEST['tpage'] ) ? $_REQUEST['tpage'] : 1,
+
+		// Topic Search
+		's'                => empty( $_REQUEST['ts'] ) ? '' : $_REQUEST['ts'],
 	);
 
-	$r = wp_parse_args( $args, $default );
+	// Set up topic variables
+	$bbp_t = wp_parse_args( $args, $default );
+	$r     = extract( $bbp_t );
 
-	$bbp_topics_template = new WP_Query( $r );
+	// Call the query
+	$bbp_topics_template = new WP_Query( $bbp_t );
 
+	// Add pagination values to query object
+	$bbp_topics_template->posts_per_page = $posts_per_page;
+	$bbp_topics_template->paged          = $paged;
+
+	// Only add pagination if query returned results
+	if ( (int)$bbp_topics_template->found_posts && (int)$bbp_topics_template->posts_per_page ) {
+
+		// Pagination settings with filter
+		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
+			'base'      => add_query_arg( 'tpage', '%#%' ),
+			'format'    => '',
+			'total'     => ceil( (int)$bbp_topics_template->found_posts / (int)$posts_per_page ),
+			'current'   => (int)$bbp_topics_template->paged,
+			'prev_text' => '&larr;',
+			'next_text' => '&rarr;',
+			'mid_size'  => 1
+		) );
+
+		// Add pagination to query object
+		$bbp_topics_template->pagination_links = paginate_links ( $bbp_topic_pagination );
+	}
+
+	// Return object
 	return apply_filters( 'bbp_has_topics', $bbp_topics_template->have_posts(), &$bbp_topics_template );
 }
 
@@ -698,6 +741,83 @@ function bbp_update_topic_reply_count ( $new_topic_reply_count, $topic_id = '' )
 
 	return apply_filters( 'bbp_update_topic_reply_count', (int)update_post_meta( $topic_id, 'bbp_topic_reply_count', $new_topic_reply_count ) );
 }
+
+/** Topic Pagination **********************************************************/
+
+/**
+ * bbp_topic_pagination_count ()
+ *
+ * Output the pagination count
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2519)
+ *
+ * @global WP_Query $bbp_topics_template
+ */
+function bbp_topic_pagination_count () {
+	echo bbp_get_topic_pagination_count();
+}
+	/**
+	 * bbp_get_topic_pagination_count ()
+	 *
+	 * Return the pagination count
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2519)
+	 *
+	 * @global WP_Query $bbp_topics_template
+	 * @return string
+	 */
+	function bbp_get_topic_pagination_count () {
+		global $bbp_topics_template;
+
+		// Set pagination values
+		$start_num = intval( ( $bbp_topics_template->paged - 1 ) * $bbp_topics_template->posts_per_page ) + 1;
+		$from_num  = bbp_number_format( $start_num );
+		$to_num    = bbp_number_format( ( $start_num + ( $bbp_topics_template->posts_per_page - 1 ) > $bbp_topics_template->found_posts ) ? $bbp_topics_template->found_posts : $start_num + ( $bbp_topics_template->posts_per_page - 1 ) );
+		$total     = bbp_number_format( $bbp_topics_template->found_posts );
+
+		// Set return string
+		if ( $total > 1 )
+			$retstr = sprintf( __( 'Viewing %1$s to %2$s (of %3$s)', 'bbpress' ), $from_num, $to_num, $total );
+		else
+			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
+
+		// Filter and return
+		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
+	}
+
+/**
+ * bbp_topic_pagination_links ()
+ *
+ * Output pagination links
+ * 
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2519)
+ */
+function bbp_topic_pagination_links () {
+	echo bbp_get_topic_pagination_links();
+}
+	/**
+	 * bbp_get_topic_pagination_links ()
+	 *
+	 * Return pagination links
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2519)
+	 *
+	 * @global WP_Query $bbp_topics_template
+	 * @return string
+	 */
+	function bbp_get_topic_pagination_links () {
+		global $bbp_topics_template;
+
+		return apply_filters( 'bbp_get_topic_pagination_links', $bbp_topics_template->pagination_links );
+	}
 
 /** END Topic Loop Functions *************************************/
 
