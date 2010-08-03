@@ -331,8 +331,8 @@ a.button-primary {
 input.button-primary:active,
 button.button-primary:active,
 a.button-primary:active {
-	background: #21759b url(../../../../wp-admin/images/button-grad-active.png) repeat-x scroll left top;
-	color: #eaf2fa;
+	background: #21759B url(../bbp-images/button-grad.png) repeat-x scroll left bottom;
+	color: #cae8be;
 }
 
 input.button-primary:hover,
@@ -341,7 +341,7 @@ a.button-primary:hover,
 a.button-primary:focus,
 a.button-primary:active {
 	border-color: #006600;
-	color: #eaf2fa;
+	color: #cae8be;
 }
 
 .button-disabled,
@@ -1399,7 +1399,7 @@ fieldset.inline-edit-col-right .inline-edit-col {
 }
 
 #major-publishing-actions {
-	background: #eaf2fa;
+	background: #cae8be;
 }
 
 .tablenav .tablenav-pages {
