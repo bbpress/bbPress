@@ -249,11 +249,11 @@ class BBP_Admin {
 	 *
 	 * Manage the column headers for the forums page
 	 *
-	 * @param array $cols
-	 * @return array $cols
+	 * @param array $columns
+	 * @return array $columns
 	 */
-	function forums_column_headers ( $cols ) {
-		$cols = array(
+	function forums_column_headers ( $columns ) {
+		$columns = array (
 			'cb'                          => '<input type="checkbox" />',
 			'title'                       => __( 'Forum', 'bbpress' ),
 			'bbp_forum_topic_count'       => __( 'Topics', 'bbpress' ),
@@ -261,22 +261,22 @@ class BBP_Admin {
 			'author'                      => __( 'Author', 'bbpress' ),
 			'date'                        => __( 'Date' , 'bbpress' )
 		);
-		return $cols;
+		return $columns;
 	}
 	
 	/**
-	 * forums_column_data ( $col, $post_id )
+	 * forums_column_data ( $column, $post_id )
 	 *
 	 * Print extra columns for the forums page
 	 *
-	 * @param string $col
+	 * @param string $column
 	 * @param int $post_id
 	 */
-	function forums_column_data ( $col, $post_id ) {
+	function forums_column_data ( $column, $post_id ) {
 		if ( $_GET['post_type'] !== BBP_FORUM_POST_TYPE_ID )
-			return $col;
+			return $column;
 
-		switch ( $col ) {
+		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
 				bbp_forum_topic_count();
 				break;
@@ -312,11 +312,11 @@ class BBP_Admin {
 	 *
 	 * Manage the column headers for the topics page
 	 *
-	 * @param array $cols
-	 * @return array $cols
+	 * @param array $columns
+	 * @return array $columns
 	 */
-	function topics_column_headers ( $cols ) {
-		$cols = array(
+	function topics_column_headers ( $columns ) {
+		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Topics', 'bbpress' ),
 			'bbp_topic_forum'       => __( 'Forum', 'bbpress' ),
@@ -325,45 +325,49 @@ class BBP_Admin {
 			'date'                  => __( 'Date' , 'bbpress' ),
 			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
 		);
-		return $cols;
+		return $columns;
 	}
 
 	/**
-	 * topics_column_data ( $col, $post_id )
+	 * topics_column_data ( $column, $post_id )
 	 *
 	 * Print extra columns for the topics page
 	 *
-	 * @param string $col
+	 * @param string $column
 	 * @param int $post_id
 	 */
-	function topics_column_data ( $col, $post_id ) {
+	function topics_column_data ( $column, $post_id ) {
 		if ( $_GET['post_type'] !== BBP_TOPIC_POST_TYPE_ID )
-			return $col;
+			return $column;
 
-		switch ( $col ) {
+		switch ( $column ) {
 			case 'bbp_topic_forum' :
+				// Output forum name
 				bbp_topic_forum();
-				$actions = array(
-					'edit' => '<a href="' . admin_url( '/post.php?post=' . bbp_get_topic_forum_ID() . '&action=edit' ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+
+				// Link information
+				$actions = apply_filters( 'topic_forum_row_actions', array (
+					'edit' => '<a href="' . add_query_arg( array( 'post' => bbp_get_topic_forum_ID(), 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
 					'view' => '<a href="' . bbp_get_forum_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
-				);
-					
-				$actions = apply_filters( 'topic_forum_row_actions', $actions, $category );
-				$action_count = count( $actions );
+				) );
+
+				// Output forum post row links
 				$i = 0;
 				echo '<div class="row-actions">';
 				foreach ( $actions as $action => $link ) {
 					++$i;
-					( $i == $action_count ) ? $sep = '' : $sep = ' | ';
-					echo "<span class='$action'>$link$sep</span>";
+					( $i == count( $actions ) ) ? $sep = '' : $sep = ' | ';
+					echo '<span class="' . $action . '">' . $link . $sep . '</span>';
 				}
 				echo '</div>';
 				break;
 
 			case 'bbp_topic_reply_count' :
+				// Output replies count
 				bbp_topic_reply_count();
 				break;
 			case 'bbp_topic_freshness':
+				// Output last activity time and date
 				bbp_get_topic_last_active();
 				break;
 		}
@@ -381,6 +385,7 @@ class BBP_Admin {
 	function post_row_actions ( $actions, $post ) {
 		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_TOPIC_REPLY_POST_TYPE_ID ) ) )
 			unset( $actions['inline hide-if-no-js'] );
+
 		return $actions;
 	}
 }
