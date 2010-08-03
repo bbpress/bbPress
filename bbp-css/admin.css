@@ -703,7 +703,7 @@ table.widefat span.spam a,
 }
 
 #wphead {
-	border-bottom: #006600 1px solid;
+	border-bottom: #66bb66 1px solid;
 	background: #d9d9d9; /* fallback color */
 	background:-moz-linear-gradient(bottom, #9ccc85, #cae8be);
 	background:-webkit-gradient(linear, left bottom, left top, from(#9ccc85), to(#cae8be));
