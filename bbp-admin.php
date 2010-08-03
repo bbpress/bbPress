@@ -48,6 +48,9 @@ class BBP_Admin {
 		// Topic reply metabox actions
 		add_action( 'admin_menu',                                           array( $this, 'topic_reply_parent_metabox' ) );
 		add_action( 'save_post',                                            array( $this, 'topic_reply_parent_metabox_save' ) );
+
+		// Register bbPress admin style
+		add_action( 'admin_init',                                           array( $this, 'register_admin_style' ) );
 	}
 
 	/**
@@ -387,6 +390,15 @@ class BBP_Admin {
 			unset( $actions['inline hide-if-no-js'] );
 
 		return $actions;
+	}
+
+	/**
+	 * register_admin_style ()
+	 *
+	 * Registers the bbPress admin color scheme
+	 */
+	function register_admin_style () {
+		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), BBP_URL . '/bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 }
 endif; // class_exists check
