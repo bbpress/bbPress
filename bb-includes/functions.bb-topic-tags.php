@@ -347,7 +347,8 @@ function bb_get_tagged_topic_ids( $tag_id ) {
 }
 
 function get_tagged_topics( $args ) {
-	$defaults = array( 'tag_id' => false, 'page' => 1, 'number' => false );
+	global $tagged_topic_count;
+	$defaults = array( 'tag_id' => false, 'page' => 1, 'number' => false, 'count' => true );
 	if ( is_numeric( $args ) )
 		$args = array( 'tag_id' => $args );
 	else
@@ -360,9 +361,11 @@ function get_tagged_topics( $args ) {
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
 
-	$q = array('tag_id' => (int) $tag_id, 'page' => (int) $page, 'per_page' => (int) $number);
+	$q = array('tag_id' => (int) $tag_id, 'page' => (int) $page, 'per_page' => (int) $number, 'count' => $count );
 
 	$query = new BB_Query( 'topic', $q, 'get_tagged_topics' );
+	$tagged_topic_count = $query->found_rows;
+
 	return $query->results;
 }
 
