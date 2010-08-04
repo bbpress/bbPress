@@ -36,6 +36,8 @@ function bb_upgrade_all()
 	require_once( BACKPRESS_PATH . 'class.bp-sql-schema-parser.php' );
 	require_once( BB_PATH . 'bb-admin/includes/defaults.bb-schema.php' );
 	$delta = BP_SQL_Schema_Parser::delta( $bbdb, $bb_queries, $bb_schema_ignore );
+var_dump( $delta );
+exit;
 	if ( is_array( $delta ) ) {
 		$bb_upgrade['messages'] = array_merge($bb_upgrade['messages'], $delta['messages']);
 		$bb_upgrade['errors'] = $delta['errors'];
@@ -397,6 +399,7 @@ function bb_upgrade_1080() {
 			}
 			$wp_taxonomy_object->update_term_count( array( $term_taxonomy_id ), 'bb_topic_tag' );
 		}
+		echo $tags[count( $tags ) - 1]->tag_id . "\n";
 		$wp_taxonomy_object->defer_term_counting(false);
 		$offset += 100;
 	}
@@ -427,6 +430,7 @@ function bb_upgrade_1090() {
 }
 
 function bb_upgrade_1100() {
+return;
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 1638 )
 		return;
 
@@ -440,6 +444,7 @@ function bb_upgrade_1100() {
 }
 
 function bb_upgrade_1110() {
+return;
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 2077 )
 		return;
 
@@ -467,6 +472,7 @@ function bb_upgrade_1110() {
 }
 
 function bb_upgrade_1120() {
+return;
 	if ( ( $dbv = bb_get_option_from_db( 'bb_db_version' ) ) && $dbv >= 2078 ) {
 		return;
 	}

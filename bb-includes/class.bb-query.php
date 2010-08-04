@@ -434,16 +434,11 @@ class BB_Query {
 				$where .= " AND t.forum_id = $q[forum_id]";
 			endif;
 
-			/* Convert to JOIN after new taxonomy tables are in */
-
 			if ( $q['tag'] && !is_int($q['tag_id']) )
 				$q['tag_id'] = (int) bb_get_tag_id( $q['tag'] );
 
 			if ( is_numeric($q['tag_id']) ) :
-				if ( $tagged_topic_ids = bb_get_tagged_topic_ids( $q['tag_id'] ) )
-					$where .= " AND t.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
-				else
-					$where .= " AND 0 /* No such tag */";
+				$join .= " JOIN `$bbdb->term_relationships` AS tr ON ( t.`topic_id` = tr.`object_id` AND tr.`term_taxonomy_id` = $q[tag_id] )";
 			endif;
 
 			if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
@@ -577,10 +572,7 @@ class BB_Query {
 				$q['tag_id'] = (int) bb_get_tag_id( $q['tag'] );
 
 			if ( is_numeric($q['tag_id']) ) :
-				if ( $tagged_topic_ids = bb_get_tagged_topic_ids( $q['tag_id'] ) )
-					$where .= " AND p.topic_id IN (" . join(',', $tagged_topic_ids) . ")";
-				else
-					$where .= " AND 0 /* No such tag */";
+				$join .= " JOIN `$bbdb->term_relationships` AS tr ON ( p.`topic_id` = tr.`object_id` AND tr.`term_taxonomy_id` = $q[tag_id] )";
 			endif;
 
 			if ( is_numeric($q['favorites']) && $f_user = bb_get_user( $q['favorites'] ) )
