@@ -477,7 +477,8 @@ function bb_cache_all_options()
 		'wp_roles_map',
 		'gmt_offset',
 		'timezone_string',
-		'name_link_profile'
+		'name_link_profile',
+		'bp_bbpress_cron_check',
 	);
 
 	// Check that these aren't already in the cache
