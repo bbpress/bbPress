@@ -406,23 +406,33 @@ function bb_get_top_tags( $args = null ) {
 	if ( is_wp_error( $terms ) )
 		return false;
 
-	foreach( $terms as $term )
-       	_bb_make_tag_compat( $term );
+	foreach ( $terms as $term )
+	       	_bb_make_tag_compat( $term );
 
 	return $terms;
 }
 
+/**
+ * Adds some back-compat properties/elements to a term.
+ *
+ * Casting $tag->term_taxonomy_id to an integer is important since
+ * we check it against is_integer() in bb_get_tag()
+ *
+ * @internal
+ */
 function _bb_make_tag_compat( &$tag ) {
 	if ( is_object($tag) && isset($tag->term_id) ) {
+		$tag->term_taxonomy_id = (int) $tag->term_taxonomy_id;
 		$tag->tag_id    =& $tag->term_taxonomy_id;
 		$tag->tag       =& $tag->slug;
 		$tag->raw_tag   =& $tag->name;
 		$tag->tag_count =& $tag->count;
 	} elseif ( is_array($tag) && isset($tag['term_id']) ) {
-		$tag->tag_id    =& $tag['term_taxonomy_id'];
-		$tag->tag       =& $tag['slug'];
-		$tag->raw_tag   =& $tag['name'];
-		$tag->tag_count =& $tag['count'];
+		$tag['term_taxonomy_id'] = (int) $tag['term_taxonomy_id'];
+		$tag['tag_id']    =& $tag['term_taxonomy_id'];
+		$tag['tag']       =& $tag['slug'];
+		$tag['raw_tag']   =& $tag['name'];
+		$tag['tag_count'] =& $tag['count'];
 	}
 }
 
