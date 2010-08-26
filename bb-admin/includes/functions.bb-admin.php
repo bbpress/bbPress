@@ -1124,10 +1124,21 @@ function bb_admin_list_posts() {
 		</td>
 
 		<td class="author">
-			<a href="<?php user_profile_link( get_post_author_id() ); ?>">
-				<?php post_author_avatar( '16' ); ?>
-				<?php post_author(); ?>
-			</a>
+			<?php if ( get_post_author_id() ) : ?>
+
+				<a href="<?php user_profile_link( get_post_author_id() ); ?>">
+					<?php post_author_avatar( '16' ); ?>
+					<?php post_author(); ?>
+				</a>
+
+			<?php else : ?>
+
+				<span>
+					<?php post_author_avatar( '16' ); ?>
+					<?php post_author(); ?>
+				</span>
+
+			<?php endif; ?>
 		</td>
 
 		<td class="topic">
