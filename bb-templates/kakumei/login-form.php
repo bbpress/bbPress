@@ -21,11 +21,11 @@
 		<input name="redirect_to" type="hidden" value="<?php echo $re; ?>" />
 		<?php wp_referer_field(); ?>
 
-		<input type="submit" name="Submit" class="submit" value="<?php echo esc_attr__( 'Log in &raquo;' ); ?>" tabindex="12" />
+		<input type="submit" name="Submit" class="submit" value="<?php echo esc_attr__( 'Log in &raquo;' ); ?>" tabindex="13" />
 	</div>
 	<div class="remember">
 		<label>
-			<input name="rememberme" type="checkbox" id="quick_remember" value="1" tabindex="13"<?php echo $remember_checked; ?> />
+			<input name="rememberme" type="checkbox" id="quick_remember" value="1" tabindex="12"<?php echo $remember_checked; ?> />
 			<?php _e('Remember me'); ?>
 
 		</label>
