@@ -90,28 +90,47 @@ if ( !empty( $rn ) && is_array( $rn ) ) {
 			<?php add_filter( 'get_topic_where', 'bb_no_where' ); foreach ( $objects as $object ) : ?>
 			<?php if ( 'post' == $object['type'] ) : global $bb_post; $bb_post = $object['data']; ?>
 			<li>
-<?php
-					printf(
-						__( '<a href="%1$s">Post</a> on <a href="%2$s">%3$s</a> by <a href="%4$s">%5$s</a>' ),
-						esc_attr( add_query_arg( 'view', 'all', get_post_link() ) ),
-						get_topic_link( $bb_post->topic_id ),
-						get_topic_title( $bb_post->topic_id ),
-						get_user_profile_link( $bb_post->poster_id ),
-						get_post_author()
-					);
-?>
+			<?php
+					if ( $bb_post->poster_id ) {
+						printf(
+							__( '<a href="%1$s">Post</a> on <a href="%2$s">%3$s</a> by <a href="%4$s">%5$s</a>' ),
+							esc_attr( add_query_arg( 'view', 'all', get_post_link() ) ),
+							get_topic_link( $bb_post->topic_id ),
+							get_topic_title( $bb_post->topic_id ),
+							get_user_profile_link( $bb_post->poster_id ),
+							get_post_author()
+						);
+					} else {
+						printf(
+							__( '<a href="%1$s">Post</a> on <a href="%2$s">%3$s</a> by %4$s' ),
+							esc_attr( add_query_arg( 'view', 'all', get_post_link() ) ),
+							get_topic_link( $bb_post->topic_id ),
+							get_topic_title( $bb_post->topic_id ),
+							get_post_author()
+						);
+					}
+			?>
 			</li>
 			<?php elseif ( 'topic' == $object['type'] ) : global $topic; $topic = $object['data']; ?>
 			<li>
-<?php
-					printf(
-						__( 'Topic titled <a href="%1$s">%2$s</a> started by <a href="%3$s">%4$s</a>' ),
-						esc_attr( add_query_arg( 'view', 'all', get_topic_link() ) ),
-						get_topic_title(),
-						get_user_profile_link( $topic->topic_poster ),
-						get_topic_author()
-					);
-?>
+			<?php
+					if ( $topic->topic_poster ) {
+						printf(
+							__( 'Topic titled <a href="%1$s">%2$s</a> started by <a href="%3$s">%4$s</a>' ),
+							esc_attr( add_query_arg( 'view', 'all', get_topic_link() ) ),
+							get_topic_title( $topic->topic_id ),
+							get_user_profile_link( $topic->topic_poster ),
+							get_topic_author( $topic->topic_id )
+						);
+					} else {
+						printf(
+							__( 'Topic titled <a href="%1$s">%2$s</a> started by %3$s' ),
+							esc_attr( add_query_arg( 'view', 'all', get_topic_link() ) ),
+							get_topic_title( $topic->topic_id ),
+							get_topic_author( $topic->topic_id )
+						);
+					}
+			?>
 			</li>
 			<?php endif; endforeach; remove_filter( 'get_topic_where', 'bb_no_where' ); ?>
 		</ul>

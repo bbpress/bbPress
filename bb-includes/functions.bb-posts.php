@@ -126,7 +126,7 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 
 	$_topic_ids = join(',', $topic_ids);
 
-	$posts = (array) bb_cache_posts( "SELECT post_id FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND post_position = 1 AND post_status = 0", true );
+	$posts = (array) bb_cache_posts( "SELECT post_id FROM $bbdb->posts WHERE topic_id IN ($_topic_ids) AND post_position = 1", true );
 
 	$first_posts = array();
 	foreach ( $posts as $post ) {
