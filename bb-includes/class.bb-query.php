@@ -957,7 +957,7 @@ class BB_Query_Form extends BB_Query {
 			$r .= "\t</div>\n\n";
 		}
 
-		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => __('All'), '0' => __('Normal'), '1' => __('Deleted') ), $this->type );
+		$stati = apply_filters( 'bb_query_form_post_status', array( 'all' => _x( 'All', 'post status' ), '0' => __('Normal'), '1' => __('Deleted') ), $this->type );
 
 		if ( $topic_status ) {
 			$r .= "\t<div><label for=\"topic-status\">" . __('Topic status') . "</label>\n";
@@ -990,7 +990,7 @@ class BB_Query_Form extends BB_Query {
 		if ( $open ) {
 			$r .= "\t<div><label for=\"topic-open\">" . __('Open?') . "</label>\n";
 			$r .= "\t\t<div><select name='open' id='topic-open'>\n";
-			foreach ( array( 'all' => __('All'), '1' => _x( 'Open', 'posting status' ), '0' => __('Closed') ) as $status => $label ) {
+			foreach ( array( 'all' => _x( 'All', 'posting status' ), '1' => _x( 'Open', 'posting status' ), '0' => __('Closed') ) as $status => $label ) {
 				$label = esc_html( $label );
 				$selected = (string) $status == (string) $q_open ? " selected='selected'" : '';
 				$r .= "\t\t\t<option value='$status'$selected>$label</option>\n";

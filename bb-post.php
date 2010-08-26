@@ -18,7 +18,7 @@ if ( !bb_is_user_logged_in() ) {
 		if ( !$post_author = sanitize_user( trim( $_POST['author'] ) ) )
 			bb_die( __( 'You need to submit your name!' ) );
 		elseif ( !$post_email = sanitize_email( trim( $_POST['email'] ) ) )
-			bb_die( __( 'You need to submit a valid email id!' ) );
+			bb_die( __( 'You need to submit a valid email address!' ) );
 
 		if ( !empty( $_POST['url'] ) )
 			$post_url = esc_url( trim( $_POST['url'] ) );

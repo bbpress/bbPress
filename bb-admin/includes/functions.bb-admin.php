@@ -603,7 +603,7 @@ class BB_User_Search {
 			$r .= "<div>\n";
 			$r .= "\t\t<label for='userrole'>" . __('Role') . "</label>";
 			$r .= "\t\t<div><select name='userrole[]' id='userrole'>\n";
-			$r .= "\t\t\t<option value=''>All</option>\n";
+			$r .= "\t\t\t<option value=''>" . _x( 'All', 'user roles' ) . "</option>\n";
 			
 			foreach ( $roles as $role => $display ) {
 				$selected = '';
@@ -979,14 +979,15 @@ foreach ( $forum_options as $option => $args ) {
 	bb_option_form_element( $option, $args );
 }
 ?>
-	<fieldset class="submit">
+		<fieldset class="submit">
 <?php if ( $forum_id ) : ?>
-		<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
+			<input type="hidden" name="forum_id" value="<?php echo $forum_id; ?>" />
 <?php endif; ?>
-		<?php bb_nonce_field( 'order-forums', 'order-nonce' ); ?>
-		<?php bb_nonce_field( $action . '-forum' ); ?>
-		<input type="hidden" name="action" value="<?php echo $action; ?>" />
-		<input class="submit" type="submit" name="submit" value="<?php echo $submit; ?>" />
+			<?php bb_nonce_field( 'order-forums', 'order-nonce' ); ?>
+			<?php bb_nonce_field( $action . '-forum' ); ?>
+			<input type="hidden" name="action" value="<?php echo $action; ?>" />
+			<input class="submit" type="submit" name="submit" value="<?php echo $submit; ?>" />
+		</fieldset>
 	</fieldset>
 </form>
 <?php
