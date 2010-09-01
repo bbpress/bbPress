@@ -59,7 +59,11 @@ function bb_update_meta( $object_id = 0, $meta_key, $meta_value, $type, $global 
 
 	$cur = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM `$bbdb->meta` WHERE `object_type` = %s AND `object_id` = %d AND `meta_key` = %s", $object_type, $object_id, $meta_key ) );
 	if ( !$cur ) {
-		$bbdb->insert( $bbdb->meta, array( 'object_type' => $object_type, 'object_id' => $object_id, 'meta_key' => $meta_key, 'meta_value' => $_meta_value ) );
+		$bbdb->query( $bbdb->prepare(
+			"INSERT INTO `$bbdb->meta` ( `object_type`, `object_id`, `meta_key`, `meta_value` ) VALUES( %s, %d, %s, %s )
+			ON DUPLICATE KEY UPDATE `meta_value` = VALUES( `meta_value` )",
+			$object_type, $object_id, $meta_key, $_meta_value
+		) );
 	} elseif ( $cur->meta_value != $meta_value ) {
 		$bbdb->update( $bbdb->meta, array( 'meta_value' => $_meta_value), array( 'object_type' => $object_type, 'object_id' => $object_id, 'meta_key' => $meta_key ) );
 	}
@@ -296,7 +300,7 @@ function bb_get_option( $option )
 			$r = $bb_locale->text_direction;
 			break;
 		case 'version':
-			return '1.1-alpha-2536'; // Don't filter
+			return '1.1-alpha-2537'; // Don't filter
 			break;
 		case 'bb_db_version' :
 			return '2471'; // Don't filter
