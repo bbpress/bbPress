@@ -3630,7 +3630,7 @@ function _bb_parse_time_function_args( $args ) {
 }
 
 function _bb_time_function_return( $time, $args ) {
-	$time = !$args['localize'] ? strtotime( $time ) : bb_gmtstrtotime( $time );
+	$time = bb_gmtstrtotime( $time );
 
 	switch ( $format = $args['format'] ) :
 	case 'since' :
@@ -3647,7 +3647,7 @@ function _bb_time_function_return( $time, $args ) {
 		break;
 	endswitch;
 
-	return bb_gmdate_i18n( $format, $time );
+	return $args['localize'] ? bb_gmdate_i18n( $format, $time ) : gmdate( $format, $time );
 }
 
 function bb_template_scripts() {
