@@ -19,7 +19,7 @@
 						<?php the_content(); ?>
 
 					</div>
-				</div><!-- #topic-<?php bbp_forum_id(); ?> -->
+				</div><!-- #forum-<?php bbp_forum_id(); ?> -->
 
 				<?php get_template_part( 'loop', 'bbp_forums' ); ?>
 
