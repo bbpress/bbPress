@@ -49,7 +49,8 @@ function bbp_has_forums ( $args = '' ) {
 	$default = array (
 		'post_type'     => BBP_FORUM_POST_TYPE_ID,
 		'post_parent'   => '0',
-		'orderby'       => 'menu_order'
+		'orderby'       => 'menu_order',
+		'order'         => 'ASC'
 	);
 
 	$r = wp_parse_args( $args, $default );
