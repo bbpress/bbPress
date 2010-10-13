@@ -127,7 +127,7 @@ function bbp_forum_id () {
 		else
 			$bbp_forum_id = get_the_ID();
 
-		return apply_filters( 'bbp_get_forum_id', $bbp_forum_id );
+		return apply_filters( 'bbp_get_forum_id', (int)$bbp_forum_id );
 	}
 
 /**
@@ -390,7 +390,7 @@ function bbp_has_topics ( $args = '' ) {
 		'post_type'        => BBP_TOPIC_POST_TYPE_ID,
 
 		// Get topics
-		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : '0',
+		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
 
 		//'author', 'date', 'title', 'modified', 'parent', rand',
 		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'date',
@@ -509,7 +509,7 @@ function bbp_topic_id () {
 		else
 			$bbp_topic_id = get_the_ID();
 
-		return apply_filters( 'bbp_get_topic_id', $bbp_topic_id );
+		return apply_filters( 'bbp_get_topic_id', (int)$bbp_topic_id );
 	}
 
 /**
