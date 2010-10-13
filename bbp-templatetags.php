@@ -44,11 +44,16 @@ add_action( 'wp_footer', 'bbp_footer' );
  * @return object Multidimensional array of forum information
  */
 function bbp_has_forums ( $args = '' ) {
-	global $bbp_forums_template;
-	
+	global $bbp_forums_template, $wp_query;
+
+	if ( bbp_is_forum() )
+		$post_parent = bbp_get_forum_id();
+	else
+		$post_parent = 0;
+
 	$default = array (
 		'post_type'     => BBP_FORUM_POST_TYPE_ID,
-		'post_parent'   => '0',
+		'post_parent'   => $post_parent,
 		'orderby'       => 'menu_order',
 		'order'         => 'ASC'
 	);
@@ -121,10 +126,18 @@ function bbp_forum_id () {
 	 * @return string Forum id
 	 */
 	function bbp_get_forum_id () {
-		global $bbp_forums_template;
+		global $bbp_forums_template, $wp_query;
 
+		// Currently inside a forum loop
 		if ( isset( $bbp_forums_template->post ) )
 			$bbp_forum_id = $bbp_forums_template->post->ID;
+
+		// Currently viewing a forum
+		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
+			$bbp_forum_id = $wp_query->post->ID;
+
+		// Fallback
+		// @todo - experiment
 		else
 			$bbp_forum_id = get_the_ID();
 
@@ -505,8 +518,16 @@ function bbp_topic_id () {
 	function bbp_get_topic_id () {
 		global $bbp_topics_template;
 
+		// Currently inside a topic loop
 		if ( isset( $bbp_topics_template->post ) )
 			$bbp_topic_id = $bbp_topics_template->post->ID;
+
+		// Currently viewing a topic
+		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
+			$bbp_topic_id = $wp_query->post->ID;
+
+		// Fallback
+		// @todo - experiment
 		else
 			$bbp_topic_id = get_the_ID();
 
@@ -835,5 +856,41 @@ function bbp_topic_pagination_links () {
 	}
 
 /** END Topic Loop Functions *************************************/
+
+/** START is_ Functions *************************************/
+
+/**
+ * bbp_is_forum()
+ *
+ * Check if current page is a bbPress forum
+ *
+ * @global object $wp_query
+ * @return bool
+ */
+function bbp_is_forum() {
+	global $wp_query;
+
+	if ( BBP_FORUM_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+		return true;
+
+	return false;
+}
+
+/**
+ * bbp_is_topic()
+ *
+ * Check if current page is a bbPress topic
+ *
+ * @global object $wp_query
+ * @return bool
+ */
+function bbp_is_topic() {
+	global $wp_query;
+
+	if ( BBP_TOPIC_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+		return true;
+
+	return false;
+}
 
 ?>
