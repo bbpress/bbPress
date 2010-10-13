@@ -120,7 +120,14 @@ function bbp_forum_id () {
 	 * @return string Forum id
 	 */
 	function bbp_get_forum_id () {
-		return apply_filters( 'bbp_get_forum_id', get_the_ID() );
+		global $bbp_forums_template;
+
+		if ( isset( $bbp_forums_template->post ) )
+			$bbp_forum_id = $bbp_forums_template->post->ID;
+		else
+			$bbp_forum_id = get_the_ID();
+
+		return apply_filters( 'bbp_get_forum_id', $bbp_forum_id );
 	}
 
 /**
@@ -495,7 +502,14 @@ function bbp_topic_id () {
 	 * @return string Forum id
 	 */
 	function bbp_get_topic_id () {
-		return apply_filters( 'bbp_get_topic_id', get_the_ID() );
+		global $bbp_topics_template;
+
+		if ( isset( $bbp_topics_template->post ) )
+			$bbp_topic_id = $bbp_topics_template->post->ID;
+		else
+			$bbp_topic_id = get_the_ID();
+
+		return apply_filters( 'bbp_get_topic_id', $bbp_topic_id );
 	}
 
 /**
