@@ -47,6 +47,35 @@ function bbp_number_format ( $number, $decimals = false ) {
 }
 
 /**
+ * bbp_get_modified_time( $post, $d, $gmt, $translate )
+ *
+ * Retrieve the time at which the post was last modified.
+ *
+ * @package bbPress
+ * @subpackage Functions
+ * @since bbPress (1.2-r2455)
+ *
+ * @param int|object $post Optional, default is global post object. A post_id or post object
+ * @param string $d Optional, default is 'U'. Either 'G', 'U', or php date format.
+ * @param bool $gmt Optional, default is false. Whether to return the gmt time.
+ * @param bool $translate Optional, default is false. Whether to translate the result
+ *
+ * @return string Returns timestamp
+ */
+function bbp_get_modified_time( $post = null, $d = 'U', $gmt = false, $translate = false ) {
+	$post = get_post($post);
+
+	if ( $gmt )
+		$time = $post->post_modified_gmt;
+	else
+		$time = $post->post_modified;
+
+	$time = mysql2date( $d, $time, $translate );
+
+	return apply_filters( 'bbp_get_post_modified_time', $time, $d, $gmt );
+}
+
+/**
  * bbp_time_since( $time )
  *
  * Output formatted time to display human readable time difference.
@@ -72,7 +101,7 @@ function bbp_time_since( $time ) {
 	 * @param $time
 	 */
 	function bbp_get_time_since ( $time ) {
-		return apply_filters( 'bbp_get_time_since', human_time_diff( mysql2date( 'U', $time ), current_time( 'timestamp' ) ) );
+		return apply_filters( 'bbp_get_time_since', human_time_diff( $time, current_time( 'timestamp' ) ) );
 	}
 
 ?>

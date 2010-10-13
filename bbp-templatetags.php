@@ -228,7 +228,7 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		return apply_filters( 'bbp_get_forum_last_active', get_post_modified_time( 'U', false, $forum_id ) );
+		return apply_filters( 'bbp_get_forum_last_active', bbp_get_time_since( bbp_get_modified_time( $forum_id ) ) );
 	}
 
 /**
@@ -684,7 +684,7 @@ function bbp_topic_last_active ( $topic_id = '' ) {
 		if ( !$topic_id )
 			$topic_id = bbp_get_topic_id();
 
-		return apply_filters( 'bbp_get_topic_last_active', get_post_modified_time( 'U', false, $topic_id ) );
+		return apply_filters( 'bbp_get_topic_last_active', bbp_get_time_since( bbp_get_modified_time( $topic_id ) ) );
 	}
 
 /**
