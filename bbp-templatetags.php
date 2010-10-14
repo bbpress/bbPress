@@ -1,5 +1,7 @@
 <?php
 
+/** START - WordPress Add-on Actions ******************************************/
+
 /**
  * bbp_head ()
  *
@@ -28,7 +30,9 @@ function bbp_footer () {
 }
 add_action( 'wp_footer', 'bbp_footer' );
 
-/** START Forum Loop Functions ***************************************
+/** END - WordPress Add-on Actions ********************************************/
+
+/** START - Forum Loop Functions **********************************************/
 
 /**
  * bbp_has_forums()
@@ -102,7 +106,7 @@ function bbp_the_forum () {
 /**
  * bbp_forum_id()
  *
- * Echo id from bbp_forum_id()
+ * Output id from bbp_forum_id()
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -116,7 +120,7 @@ function bbp_forum_id () {
 	/**
 	 * bbp_get_forum_id()
 	 *
-	 * Get the id of the user in a forums loop
+	 * Return the forum ID
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
@@ -366,7 +370,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
  *
  * @uses bbp_get_forum_id(0
  * @uses apply_filters
- * 
+ *
  * @param int $new_topic_reply_count New post count
  * @param int $forum_id optional
  *
@@ -379,9 +383,9 @@ function bbp_update_forum_topic_reply_count ( $new_topic_reply_count, $forum_id 
 	return apply_filters( 'bbp_update_forum_topic_reply_count', (int)update_post_meta( $forum_id, 'bbp_forum_topic_reply_count', $new_topic_reply_count ) );
 }
 
-/** END Forum Loop Functions ***************************************/
+/** END - Forum Loop Functions ************************************************/
 
-/** START Topic Loop Functions *************************************/
+/** START - Topic Loop Functions **********************************************/
 
 /**
  * bbp_has_topics()
@@ -403,7 +407,7 @@ function bbp_has_topics ( $args = '' ) {
 		// Narrow query down to bbPress topics
 		'post_type'        => BBP_TOPIC_POST_TYPE_ID,
 
-		// Get topics
+		// Forum ID
 		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
 
 		//'author', 'date', 'title', 'modified', 'parent', rand',
@@ -492,7 +496,7 @@ function bbp_the_topic () {
 /**
  * bbp_topic_id()
  *
- * Echo id from bbp_topic_id()
+ * Output id from bbp_topic_id()
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -506,7 +510,7 @@ function bbp_topic_id () {
 	/**
 	 * bbp_get_topic_id()
 	 *
-	 * Get the id of the user in a topics loop
+	 * Return the topic ID
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
@@ -591,7 +595,7 @@ function bbp_topic_title ( $topic_id = 0 ) {
 	 * @package bbPress
 	 * @subpackage Template Tags
 	 * @since bbPress (1.2-r2485)
-	 * 
+	 *
 	 * @uses apply_filters
 	 * @uses get_the_title()
 	 * @param int $topic_id optional
@@ -647,7 +651,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 	 *
 	 * @param int $topic_id optional
 	 *
-	 * @uses bbp_get_topic_forum()
+	 * @uses bbp_get_topic_forum_id()
 	 */
 	function bbp_topic_forum_id ( $topic_id = '' ) {
 		echo bbp_get_topic_forum_id( $topic_id );
@@ -778,8 +782,6 @@ function bbp_update_topic_reply_count ( $new_topic_reply_count, $topic_id = '' )
 	return apply_filters( 'bbp_update_topic_reply_count', (int)update_post_meta( $topic_id, 'bbp_topic_reply_count', $new_topic_reply_count ) );
 }
 
-/** Topic Pagination **********************************************************/
-
 /**
  * bbp_topic_pagination_count ()
  *
@@ -829,7 +831,7 @@ function bbp_topic_pagination_count () {
  * bbp_topic_pagination_links ()
  *
  * Output pagination links
- * 
+ *
  * @package bbPress
  * @subpackage Template Tags
  * @since bbPress (1.2-r2519)
@@ -855,19 +857,355 @@ function bbp_topic_pagination_links () {
 		return apply_filters( 'bbp_get_topic_pagination_links', $bbp_topics_template->pagination_links );
 	}
 
-/** END Topic Loop Functions *************************************/
+/** END - Topic Loop Functions ************************************************/
 
-/** START is_ Functions *************************************/
+/** START - Reply Loop Functions **********************************************/
 
 /**
- * bbp_is_forum()
+ * bbp_has_replies ( $args )
+ *
+ * The main reply loop. WordPress makes this easy for us
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @global WP_Query $bbp_replies_template
+ * @param array $args Possible arguments to change returned replies
+ * @return object Multidimensional array of reply information
+ */
+function bbp_has_replies ( $args = '' ) {
+	global $bbp_replies_template;
+
+	$default = array(
+		// Narrow query down to bbPress topics
+		'post_type'        => BBP_TOPIC_REPLY_POST_TYPE_ID,
+
+		// Forum ID
+		'post_parent'      => isset( $_REQUEST['topic_id'] ) ? $_REQUEST['topic_id'] : bbp_get_topic_id(),
+
+		//'author', 'date', 'title', 'modified', 'parent', rand',
+		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'date',
+
+		// 'ASC', 'DESC'
+		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'DESC',
+
+		// @todo replace 15 with setting
+		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
+
+		// Page Number
+		'paged'            => isset( $_REQUEST['rpage'] ) ? $_REQUEST['rpage'] : 1,
+
+		// Reply Search
+		's'                => empty( $_REQUEST['rs'] ) ? '' : $_REQUEST['rs'],
+	);
+
+	// Set up topic variables
+	$bbp_r = wp_parse_args( $args, $default );
+	$r     = extract( $bbp_r );
+
+	// Call the query
+	$bbp_replies_template = new WP_Query( $bbp_r );
+
+	// Add pagination values to query object
+	$bbp_replies_template->posts_per_page = $posts_per_page;
+	$bbp_replies_template->paged = $paged;
+
+	// Only add pagination if query returned results
+	if ( (int)$bbp_replies_template->found_posts && (int)$bbp_replies_template->posts_per_page ) {
+
+		// Pagination settings with filter
+		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
+			'base'      => add_query_arg( 'tpage', '%#%' ),
+			'format'    => '',
+			'total'     => ceil( (int)$bbp_replies_template->found_posts / (int)$posts_per_page ),
+			'current'   => (int)$bbp_replies_template->paged,
+			'prev_text' => '&larr;',
+			'next_text' => '&rarr;',
+			'mid_size'  => 1
+		) );
+
+		// Add pagination to query object
+		$bbp_replies_template->pagination_links = paginate_links( $bbp_replies_pagination );
+	}
+
+	// Return object
+	return apply_filters( 'bbp_has_replies', $bbp_replies_template->have_posts(), &$bbp_replies_template );
+}
+
+/**
+ * bbp_replies ()
+ *
+ * Whether there are more replies available in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @global WP_Query $bbp_replies_template
+ * @return object Replies information
+ */
+function bbp_replies () {
+	global $bbp_replies_template;
+	return $bbp_replies_template->have_posts();
+}
+
+/**
+ * bbp_the_reply ()
+ *
+ * Loads up the current reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @global WP_Query $bbp_replies_template
+ * @return object Reply information
+ */
+function bbp_the_reply () {
+	global $bbp_replies_template;
+	return $bbp_replies_template->the_post();
+}
+
+/**
+ * bbp_reply_id ()
+ *
+ * Output id from bbp_get_reply_id()
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @uses bbp_get_reply_id()
+ */
+function bbp_reply_id () {
+	echo bbp_get_reply_id();
+}
+	/**
+	 * bbp_get_reply_id ()
+	 *
+	 * Return the id of the reply in a replies loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2546)
+	 *
+	 * @global object $bbp_replies_template
+	 * @return int Reply id
+	 */
+	function bbp_get_reply_id () {
+		global $bbp_replies_template;
+
+		// Currently inside a topic loop
+		if ( isset( $bbp_replies_template->post ) )
+			$bbp_reply_id = $bbp_replies_template->post->ID;
+
+		// Currently viewing a topic
+		elseif ( bbp_is_reply() && isset( $wp_query->post->ID ) )
+			$bbp_reply_id = $wp_query->post->ID;
+
+		// Fallback
+		// @todo - experiment
+		else
+			$bbp_reply_id = get_the_ID();
+
+		return apply_filters( 'bbp_get_reply_id', (int)$bbp_topic_id );
+	}
+
+/**
+ * bbp_reply_permalink ()
+ *
+ * Output the link to the reply in the reply loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @uses bbp_get_reply_permalink()
+ * @param int $reply_id optional
+ */
+function bbp_reply_permalink ( $reply_id = 0 ) {
+	echo bbp_get_reply_permalink( $reply_id );
+}
+	/**
+	 * bbp_get_reply_permalink()
+	 *
+	 * Return the link to the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2546)
+	 *
+	 * @uses apply_filters
+	 * @uses get_permalink
+	 * @param int $reply_id optional
+	 *
+	 * @return string Permanent link to reply
+	 */
+	function bbp_get_reply_permalink ( $reply_id = 0 ) {
+		return apply_filters( 'bbp_get_reply_permalink', get_permalink( $reply_id ), $reply_id );
+	}
+
+/**
+ * bbp_reply_title ()
+ *
+ * Output the title of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_title()
+ */
+function bbp_reply_title ( $reply_id = 0 ) {
+	echo bbp_get_reply_title( $reply_id );
+}
+
+	/**
+	 * bbp_get_reply_title ()
+	 *
+	 * Return the title of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2546)
+	 *
+	 * @uses apply_filters
+	 * @uses get_the_title()
+	 * @param int $reply_id optional
+	 *
+	 * @return string Title of reply
+	 */
+	function bbp_get_reply_title ( $reply_id = 0 ) {
+		return apply_filters( 'bbp_get_reply_title', get_the_title( $reply_id ), $reply_id );
+	}
+
+/**
+ * bbp_reply_content ()
+ *
+ * Output the content of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @todo Have a parameter reply_id
+ *
+ * @uses bbp_get_reply_content()
+ */
+function bbp_reply_content () {
+	echo bbp_get_reply_content();
+}
+	/**
+	 * bbp_get_reply_content ()
+	 *
+	 * Return the content of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2546)
+	 *
+	 * @uses apply_filters
+	 * @uses get_the_content()
+	 *
+	 * @return string Content of the reply
+	 */
+	function bbp_get_reply_content () {
+		return apply_filters( 'bbp_get_reply_content', get_the_content() );
+	}
+
+/**
+ * bbp_reply_topic ()
+ *
+ * Output the topic title a reply belongs to
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_topic()
+ */
+function bbp_reply_topic ( $reply_id = 0 ) {
+	echo bbp_get_reply_topic( $reply_id );
+}
+	/**
+	 * bbp_get_reply_topic ()
+	 *
+	 * Return the topic title a reply belongs to
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2546)
+	 *
+	 * @param int $reply_id optional
+	 *
+	 * @uses bbp_get_reply_topic_id ()
+	 * @uses bbp_topic_title ()
+	 *
+	 * @return string
+	 */
+	function bbp_get_reply_topic ( $reply_id = 0 ) {
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_topic', bbp_get_topic_title( $topic_id ), $reply_id, $topic_id );
+	}
+
+/**
+ * bbp_reply_topic_id ()
+ *
+ * Output the topic ID a reply belongs to
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2546)
+ *
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_topic_id ()
+ */
+function bbp_reply_topic_id ( $reply_id = 0 ) {
+	echo bbp_get_reply_topic_id( $reply_id );
+}
+	/**
+	 * bbp_get_reply_topic_id ()
+	 *
+	 * Return the topic ID a reply belongs to
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2546)
+	 *
+	 * @param int $reply_id optional
+	 *
+	 * @todo - Walk ancestors and look for topic post_type (for threaded replies)
+	 *
+	 * @return string
+	 */
+	function bbp_get_reply_topic_id ( $reply_id = 0 ) {
+		if ( !$reply_id )
+			$reply_id = bbp_get_reply_id();
+
+		$topic_id = get_post_field( 'post_parent', $bbp_replies_template );
+
+		return apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
+	}
+
+/** END reply Loop Functions **************************************************/
+
+/** START is_ Functions *******************************************************/
+
+/**
+ * bbp_is_forum ()
  *
  * Check if current page is a bbPress forum
  *
  * @global object $wp_query
  * @return bool
  */
-function bbp_is_forum() {
+function bbp_is_forum () {
 	global $wp_query;
 
 	if ( BBP_FORUM_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
@@ -877,14 +1215,14 @@ function bbp_is_forum() {
 }
 
 /**
- * bbp_is_topic()
+ * bbp_is_topic ()
  *
  * Check if current page is a bbPress topic
  *
  * @global object $wp_query
  * @return bool
  */
-function bbp_is_topic() {
+function bbp_is_topic () {
 	global $wp_query;
 
 	if ( BBP_TOPIC_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
@@ -892,5 +1230,24 @@ function bbp_is_topic() {
 
 	return false;
 }
+
+/**
+ * bbp_is_reply ()
+ *
+ * Check if current page is a bbPress topic reply
+ *
+ * @global object $wp_query
+ * @return bool
+ */
+function bbp_is_reply () {
+	global $wp_query;
+
+	if ( BBP_TOPIC_REPLY_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+		return true;
+
+	return false;
+}
+
+/** END is_ Functions *********************************************************/
 
 ?>
