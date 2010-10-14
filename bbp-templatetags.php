@@ -1009,7 +1009,7 @@ function bbp_reply_id () {
 		else
 			$bbp_reply_id = get_the_ID();
 
-		return apply_filters( 'bbp_get_reply_id', (int)$bbp_topic_id );
+		return apply_filters( 'bbp_get_reply_id', (int)$bbp_reply_id );
 	}
 
 /**
