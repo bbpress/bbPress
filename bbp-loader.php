@@ -375,7 +375,7 @@ class BBP_Loader {
 					'show_ui'           => true,
 					'can_export'        => true,
 					'capability_type'   => 'post',
-					'hierarchical'      => true,
+					'hierarchical'      => false,
 					'query_var'         => true,
 					'menu_icon'         => ''
 				)
