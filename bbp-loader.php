@@ -88,8 +88,8 @@ class BBP_Loader {
 			define( 'BBP_TOPIC_POST_TYPE_ID', apply_filters( 'bbp_topic_post_type_id', 'bbp_topic' ) );
 
 		// The default topic post type ID
-		if ( !defined( 'BBP_TOPIC_REPLY_POST_TYPE_ID' ) )
-			define( 'BBP_TOPIC_REPLY_POST_TYPE_ID', apply_filters( 'bbp_topic_reply_post_type_id', 'bbp_topic_reply' ) );
+		if ( !defined( 'BBP_REPLY_POST_TYPE_ID' ) )
+			define( 'BBP_REPLY_POST_TYPE_ID', apply_filters( 'bbp_reply_post_type_id', 'bbp_reply' ) );
 
 		// The default topic post type ID
 		if ( !defined( 'BBP_TOPIC_TAG_ID' ) )
@@ -332,7 +332,7 @@ class BBP_Loader {
 		);
 
 		// Topic reply post type labels
-		$topic_reply_labels = array (
+		$reply_labels = array (
 			'name'                  => __( 'Replies', 'bbpress' ),
 			'singular_name'         => __( 'Reply', 'bbpress' ),
 			'add_new'               => __( 'New Reply', 'bbpress' ),
@@ -349,13 +349,13 @@ class BBP_Loader {
 		);
 
 		// Topic post type rewrite
-		$topic_reply_rewrite = array (
-			'slug'              => BBP_REPLY_SLUG,
-			'with_front'        => false
+		$reply_rewrite = array (
+			'slug'        => BBP_REPLY_SLUG,
+			'with_front'  => false
 		);
 
 		// Topic post type supports
-		$topic_reply_supports = array (
+		$reply_supports = array (
 			'title',
 			'editor',
 			'thumbnail',
@@ -364,18 +364,18 @@ class BBP_Loader {
 
 		// Register topic reply post type
 		register_post_type (
-			BBP_TOPIC_REPLY_POST_TYPE_ID,
+			BBP_REPLY_POST_TYPE_ID,
 			apply_filters( 'bbp_register_topic_reply_post_type',
 				array (
-					'labels'            => $topic_reply_labels,
-					'rewrite'           => $topic_reply_rewrite,
-					'supports'          => $topic_reply_supports,
+					'labels'            => $reply_labels,
+					'rewrite'           => $reply_rewrite,
+					'supports'          => $reply_supports,
 					'menu_position'     => '100',
 					'public'            => true,
 					'show_ui'           => true,
 					'can_export'        => true,
 					'capability_type'   => 'post',
-					'hierarchical'      => false,
+					'hierarchical'      => true,
 					'query_var'         => true,
 					'menu_icon'         => ''
 				)

@@ -350,7 +350,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topic_replies = get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+		$forum_topic_replies = get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
 
 		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $forum_topic_replies, COUNT_RECURSIVE ) );
 
@@ -749,7 +749,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 		if ( !$topic_id )
 			$topic_id = bbp_get_topic_id();
 
-		$topic_replies = get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+		$topic_replies = get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
 
 		return apply_filters( 'bbp_get_topic_reply_count', count( $topic_replies, COUNT_RECURSIVE ) );
 
@@ -879,7 +879,7 @@ function bbp_has_replies ( $args = '' ) {
 
 	$default = array(
 		// Narrow query down to bbPress topics
-		'post_type'        => BBP_TOPIC_REPLY_POST_TYPE_ID,
+		'post_type'        => BBP_REPLY_POST_TYPE_ID,
 
 		// Forum ID
 		'post_parent'      => isset( $_REQUEST['topic_id'] ) ? $_REQUEST['topic_id'] : bbp_get_topic_id(),
@@ -1248,7 +1248,7 @@ function bbp_is_topic () {
 function bbp_is_reply () {
 	global $wp_query;
 
-	if ( BBP_TOPIC_REPLY_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( BBP_REPLY_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
 		return true;
 
 	return false;

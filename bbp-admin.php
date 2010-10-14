@@ -116,7 +116,7 @@ class BBP_Admin {
 			'bbp_topic_reply_parent_id',
 			__( 'Topic', 'bbpress' ),
 			'bbp_topic_reply_metabox',
-			BBP_TOPIC_REPLY_POST_TYPE_ID,
+			BBP_REPLY_POST_TYPE_ID,
 			'normal'
 		);
 
@@ -158,10 +158,10 @@ class BBP_Admin {
 		// Top level menu classes
 		$forum_class       = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
 		$topic_class       = sanitize_html_class( BBP_TOPIC_POST_TYPE_ID );
-		$topic_reply_class = sanitize_html_class( BBP_TOPIC_REPLY_POST_TYPE_ID );
+		$reply_class = sanitize_html_class( BBP_REPLY_POST_TYPE_ID );
 
 		// Calculate offset for screen_icon sprite
-		$icons32_offset = -90 * array_search( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_TOPIC_REPLY_POST_TYPE_ID ) );
+		$icons32_offset = -90 * array_search( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) );
 
 ?>
 		<style type="text/css" media="screen">
@@ -182,15 +182,15 @@ class BBP_Admin {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px 0px;
 			}
 
-			#menu-posts-<?php echo $topic_reply_class; ?> .wp-menu-image {
+			#menu-posts-<?php echo $reply_class; ?> .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px -32px;
 			}
-			#menu-posts-<?php echo $topic_reply_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $topic_reply_class; ?>.wp-has-current-submenu .wp-menu-image {
+			#menu-posts-<?php echo $reply_class; ?>:hover .wp-menu-image,
+			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 
-			<?php if ( in_array ( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_TOPIC_REPLY_POST_TYPE_ID ) ) ) : ?>
+			<?php if ( in_array ( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) : ?>
 			#icon-edit, #icon-post {
 				background: url(<?php echo BBP_IMAGES_URL . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
@@ -386,7 +386,7 @@ class BBP_Admin {
 	 * @return array $actions
 	 */	
 	function post_row_actions ( $actions, $post ) {
-		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_TOPIC_REPLY_POST_TYPE_ID ) ) )
+		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
 			unset( $actions['inline hide-if-no-js'] );
 
 		return $actions;
