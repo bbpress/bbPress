@@ -520,14 +520,14 @@ function bbp_topic_id () {
 	 * @return string Forum id
 	 */
 	function bbp_get_topic_id () {
-		global $bbp_topics_template;
+		global $bbp_topics_template, $wp_query;
 
 		// Currently inside a topic loop
 		if ( isset( $bbp_topics_template->post ) )
 			$bbp_topic_id = $bbp_topics_template->post->ID;
 
 		// Currently viewing a topic
-		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
+		elseif ( bbp_is_topic() && isset( $wp_query->post->ID ) )
 			$bbp_topic_id = $wp_query->post->ID;
 
 		// Fallback
@@ -888,7 +888,7 @@ function bbp_has_replies ( $args = '' ) {
 		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'date',
 
 		// 'ASC', 'DESC'
-		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'DESC',
+		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'ASC',
 
 		// @todo replace 15 with setting
 		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
@@ -994,7 +994,7 @@ function bbp_reply_id () {
 	 * @return int Reply id
 	 */
 	function bbp_get_reply_id () {
-		global $bbp_replies_template;
+		global $bbp_replies_template, $wp_query;
 
 		// Currently inside a topic loop
 		if ( isset( $bbp_replies_template->post ) )
