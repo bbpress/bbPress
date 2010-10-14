@@ -351,7 +351,7 @@ class BBP_Admin {
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (
 					'edit' => '<a href="' . add_query_arg( array( 'post' => bbp_get_topic_forum_ID(), 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-					'view' => '<a href="' . bbp_get_forum_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
+					'view' => '<a href="' . bbp_get_topic_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
 				) );
 
 				// Output forum post row links
