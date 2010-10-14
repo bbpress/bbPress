@@ -868,7 +868,7 @@ function bbp_topic_pagination_links () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @global WP_Query $bbp_replies_template
  * @param array $args Possible arguments to change returned replies
@@ -940,7 +940,7 @@ function bbp_has_replies ( $args = '' ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @global WP_Query $bbp_replies_template
  * @return object Replies information
@@ -957,7 +957,7 @@ function bbp_replies () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @global WP_Query $bbp_replies_template
  * @return object Reply information
@@ -974,7 +974,7 @@ function bbp_the_reply () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @uses bbp_get_reply_id()
  */
@@ -988,7 +988,7 @@ function bbp_reply_id () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2546)
+	 * @since bbPress (1.2-r2553)
 	 *
 	 * @global object $bbp_replies_template
 	 * @return int Reply id
@@ -1019,7 +1019,7 @@ function bbp_reply_id () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @uses bbp_get_reply_permalink()
  * @param int $reply_id optional
@@ -1034,7 +1034,7 @@ function bbp_reply_permalink ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2546)
+	 * @since bbPress (1.2-r2553)
 	 *
 	 * @uses apply_filters
 	 * @uses get_permalink
@@ -1053,7 +1053,7 @@ function bbp_reply_permalink ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  * @param int $reply_id optional
  *
  * @uses bbp_get_reply_title()
@@ -1069,7 +1069,7 @@ function bbp_reply_title ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2546)
+	 * @since bbPress (1.2-r2553)
 	 *
 	 * @uses apply_filters
 	 * @uses get_the_title()
@@ -1088,7 +1088,7 @@ function bbp_reply_title ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @todo Have a parameter reply_id
  *
@@ -1104,7 +1104,7 @@ function bbp_reply_content () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2546)
+	 * @since bbPress (1.2-r2553)
 	 *
 	 * @uses apply_filters
 	 * @uses get_the_content()
@@ -1122,7 +1122,7 @@ function bbp_reply_content () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @param int $reply_id optional
  *
@@ -1138,7 +1138,7 @@ function bbp_reply_topic ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2546)
+	 * @since bbPress (1.2-r2553)
 	 *
 	 * @param int $reply_id optional
 	 *
@@ -1160,7 +1160,7 @@ function bbp_reply_topic ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2546)
+ * @since bbPress (1.2-r2553)
  *
  * @param int $reply_id optional
  *
@@ -1176,7 +1176,7 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2546)
+	 * @since bbPress (1.2-r2553)
 	 *
 	 * @param int $reply_id optional
 	 *
@@ -1202,6 +1202,8 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
  *
  * Check if current page is a bbPress forum
  *
+ * @since bbPress (1.2-r2549)
+ *
  * @global object $wp_query
  * @return bool
  */
@@ -1219,6 +1221,8 @@ function bbp_is_forum () {
  *
  * Check if current page is a bbPress topic
  *
+ * @since bbPress (1.2-r2549)
+ *
  * @global object $wp_query
  * @return bool
  */
@@ -1235,6 +1239,8 @@ function bbp_is_topic () {
  * bbp_is_reply ()
  *
  * Check if current page is a bbPress topic reply
+ *
+ * @since bbPress (1.2-r2549)
  *
  * @global object $wp_query
  * @return bool
