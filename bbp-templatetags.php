@@ -766,7 +766,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (1.2-r2467)
  *
  * @todo make this not suck
  *
@@ -792,7 +792,7 @@ function bbp_update_topic_reply_count ( $new_topic_reply_count, $topic_id = '' )
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2565)
+ * @since bbPress (1.2-r2567)
  *
  * @uses bbp_get_topic_voice_count()
  * @uses apply_filters
@@ -809,7 +809,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2565)
+	 * @since bbPress (1.2-r2567)
 	 *
 	 * @uses bbp_get_topic_id()
 	 * @uses apply_filters
@@ -835,7 +835,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2565)
+ * @since bbPress (1.2-r2567)
  *
  * @uses bbp_get_topic_id()
  * @uses wpdb
