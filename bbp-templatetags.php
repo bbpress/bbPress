@@ -178,9 +178,6 @@ function bbp_forum_permalink ( $forum_id = 0 ) {
 	 * @return string Permanent link to forum
 	 */
 	function bbp_get_forum_permalink ( $forum_id = 0 ) {
-		if ( empty( $forum_id ) )
-			$forum_id = bbp_get_forum_id();
-
 		return apply_filters( 'bbp_get_forum_permalink', get_permalink( $forum_id ) );
 	}
 
@@ -215,9 +212,6 @@ function bbp_forum_title ( $forum_id = 0 ) {
 	 *
 	 */
 	function bbp_get_forum_title ( $forum_id = 0 ) {
-		if ( empty( $forum_id ) )
-			$forum_id = bbp_get_forum_id();
-
 		return apply_filters( 'bbp_get_forum_title', get_the_title( $forum_id ) );
 	}
 
@@ -575,9 +569,6 @@ function bbp_topic_permalink ( $topic_id = 0 ) {
 	 * @return string Permanent link to topic
 	 */
 	function bbp_get_topic_permalink ( $topic_id = 0 ) {
-		if ( empty( $topic_id ) )
-			$topic_id = bbp_get_topic_id();
-
 		return apply_filters( 'bbp_get_topic_permalink', get_permalink( $topic_id ) );
 	}
 
@@ -612,14 +603,11 @@ function bbp_topic_title ( $topic_id = 0 ) {
 	 * @return string Title of topic
 	 */
 	function bbp_get_topic_title ( $topic_id = 0 ) {
-		if ( empty( $topic_id ) )
-			$topic_id = bbp_get_topic_id();
-
 		return apply_filters( 'bbp_get_topic_title', get_the_title( $topic_id ) );
 	}
 
 /**
- * bbp_topic_forum_title ()
+ * bbp_topic_forum ()
  *
  * Output the forum a topic belongs to
  *
@@ -631,11 +619,11 @@ function bbp_topic_title ( $topic_id = 0 ) {
  *
  * @uses bbp_get_topic_forum()
  */
-function bbp_topic_forum_title ( $topic_id = 0 ) {
-	echo bbp_get_topic_forum_title( $topic_id );
+function bbp_topic_forum ( $topic_id = 0 ) {
+	echo bbp_get_topic_forum( $topic_id );
 }
 	/**
-	 * bbp_get_topic_forum_title ()
+	 * bbp_get_topic_forum ()
 	 *
 	 * Return the forum a topic belongs to
 	 *
@@ -647,9 +635,9 @@ function bbp_topic_forum_title ( $topic_id = 0 ) {
 	 *
 	 * @return string
 	 */
-	function bbp_get_topic_forum_title ( $topic_id = 0 ) {
+	function bbp_get_topic_forum ( $topic_id = 0 ) {
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
-		return apply_filters( 'bbp_get_topic_forum_title', bbp_get_forum_title( $forum_id ) );
+		return apply_filters( 'bbp_get_topic_forum', bbp_get_forum_title( $forum_id ) );
 	}
 
 	/**
@@ -1145,9 +1133,6 @@ function bbp_reply_permalink ( $reply_id = 0 ) {
 	 * @return string Permanent link to reply
 	 */
 	function bbp_get_reply_permalink ( $reply_id = 0 ) {
-		if ( empty( $reply_id ) )
-			$reply_id = bbp_get_reply_id();
-
 		return apply_filters( 'bbp_get_reply_permalink', get_permalink( $reply_id ), $reply_id );
 	}
 
@@ -1183,9 +1168,6 @@ function bbp_reply_title ( $reply_id = 0 ) {
 	 * @return string Title of reply
 	 */
 	function bbp_get_reply_title ( $reply_id = 0 ) {
-		if ( empty( $reply_id ) )
-			$reply_id = bbp_get_reply_id();
-
 		return apply_filters( 'bbp_get_reply_title', get_the_title( $reply_id ), $reply_id );
 	}
 
@@ -1201,10 +1183,9 @@ function bbp_reply_title ( $reply_id = 0 ) {
  * @todo Have a parameter reply_id
  *
  * @uses bbp_get_reply_content()
- * @param int $reply_id optional
  */
-function bbp_reply_content ( $reply_id = 0) {
-	echo bbp_get_reply_content( $reply_id );
+function bbp_reply_content () {
+	echo bbp_get_reply_content();
 }
 	/**
 	 * bbp_get_reply_content ()
@@ -1217,11 +1198,10 @@ function bbp_reply_content ( $reply_id = 0) {
 	 *
 	 * @uses apply_filters
 	 * @uses get_the_content()
-	 * @param int $reply_id optional
 	 *
 	 * @return string Content of the reply
 	 */
-	function bbp_get_reply_content ( $reply_id = 0 ) {
+	function bbp_get_reply_content () {
 		return apply_filters( 'bbp_get_reply_content', get_the_content() );
 	}
 
