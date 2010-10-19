@@ -911,6 +911,9 @@ function bbp_forum_pagination_count () {
 	function bbp_get_forum_pagination_count () {
 		global $bbp_topics_template;
 
+		if ( !isset( $bbp_topics_template ) )
+			return false;
+
 		// Set pagination values
 		$start_num = intval( ( $bbp_topics_template->paged - 1 ) * $bbp_topics_template->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
@@ -919,7 +922,7 @@ function bbp_forum_pagination_count () {
 
 		// Set return string
 		if ( $total > 1 )
-			$retstr = sprintf( __( 'Viewing %1$s to %2$s (of %3$s)', 'bbpress' ), $from_num, $to_num, $total );
+			$retstr = sprintf( __( 'Viewing %1$s to %2$s topics (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
 
@@ -953,6 +956,9 @@ function bbp_forum_pagination_links () {
 	 */
 	function bbp_get_forum_pagination_links () {
 		global $bbp_topics_template;
+
+		if ( !isset( $bbp_topics_template ) )
+			return false;
 
 		return apply_filters( 'bbp_get_topic_pagination_links', $bbp_topics_template->pagination_links );
 	}

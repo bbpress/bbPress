@@ -9,6 +9,8 @@
 
 <?php if ( bbp_has_topics() ) : ?>
 
+	<?php if ( bbp_is_forum() ) get_template_part( 'pagination', 'bbp_topics' ); ?>
+
 	<table class="bbp-forum-topics">
 		<thead>
 			<tr>
@@ -51,6 +53,8 @@
 		</tbody>
 
 	</table><!-- .bbp-forum-topics -->
+
+	<?php if ( bbp_is_forum() ) get_template_part( 'pagination', 'bbp_topics' ); ?>
 
 <?php else : ?>
 
