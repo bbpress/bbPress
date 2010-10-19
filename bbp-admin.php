@@ -413,7 +413,7 @@ class BBP_Admin {
 	 * Registers the bbPress admin color scheme
 	 */
 	function register_admin_style () {
-		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), BBP_URL . '/bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), BBP_URL . 'bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 }
 endif; // class_exists check

@@ -112,8 +112,8 @@ class BBP_Loader {
 			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_reply_slug', 'reply' ) );
 
 		// bbPress root directory
-		define( 'BBP_DIR', WP_PLUGIN_DIR . '/bbpress' );
-		define( 'BBP_URL', plugins_url( $path = '/bbpress' ) );
+		define( 'BBP_DIR', plugin_dir_path( __FILE__ ) );
+		define( 'BBP_URL', plugin_dir_url( __FILE__ ) );
 
 		// Images URL
 		define( 'BBP_IMAGES_URL', BBP_URL . '/bbp-images' );
