@@ -1339,7 +1339,7 @@ function bbp_topic_pagination_count () {
 		if ( $total > 1 )
 			$retstr = sprintf( __( 'Viewing %1$s to %2$s replies (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
 		else
-			return false;
+			$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
 
 		// Filter and return
 		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
