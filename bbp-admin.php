@@ -99,7 +99,7 @@ class BBP_Admin {
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = $_POST['parent_id'];
+		$parent_id = isset( $_POST['parent_id'] ) ? $_POST['parent_id'] : 0;
 
 		do_action( 'bbp_topic_parent_metabox_save' );
 
@@ -139,7 +139,7 @@ class BBP_Admin {
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = $_POST['parent_id'];
+		$parent_id = isset( $_POST['parent_id'] ) ? $_POST['parent_id'] : 0;
 
 		do_action( 'bbp_topic_reply_parent_metabox_save' );
 
@@ -152,16 +152,19 @@ class BBP_Admin {
 	 * Add some general styling to the admin area
 	 */
 	function admin_head () {
+		global $wp_query;
+
 		// Icons for top level admin menus
 		$menu_icon_url	= BBP_IMAGES_URL . '/menu.png';
 
 		// Top level menu classes
-		$forum_class       = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
-		$topic_class       = sanitize_html_class( BBP_TOPIC_POST_TYPE_ID );
+		$forum_class = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
+		$topic_class = sanitize_html_class( BBP_TOPIC_POST_TYPE_ID );
 		$reply_class = sanitize_html_class( BBP_REPLY_POST_TYPE_ID );
 
 		// Calculate offset for screen_icon sprite
-		$icons32_offset = -90 * array_search( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) );
+		if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() )
+			$icons32_offset = -90 * array_search( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) );
 
 ?>
 		<style type="text/css" media="screen">
@@ -261,10 +264,11 @@ class BBP_Admin {
 			'title'                       => __( 'Forum', 'bbpress' ),
 			'bbp_forum_topic_count'       => __( 'Topics', 'bbpress' ),
 			'bbp_forum_topic_reply_count' => __( 'Replies', 'bbpress' ),
-			'author'                      => __( 'Author', 'bbpress' ),
+			'author'                      => __( 'Creator', 'bbpress' ),
 			'date'                        => __( 'Date' , 'bbpress' )
 		);
-		return $columns;
+
+		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
 	}
 	
 	/**
@@ -287,6 +291,10 @@ class BBP_Admin {
 			case 'bbp_forum_topic_reply_count' :
 				bbp_forum_topic_reply_count();
 				break;
+
+			default:
+				do_action( 'bbp_admin_forums_column_data', $column, $post_id );
+				break;
 		}
 	}
 
@@ -306,6 +314,7 @@ class BBP_Admin {
 			// simple hack to show the forum description under the title
 			the_content();
 		}
+
 		return $actions;
 	}
 
@@ -328,7 +337,8 @@ class BBP_Admin {
 			'date'                  => __( 'Date' , 'bbpress' ),
 			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
 		);
-		return $columns;
+
+		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
 	}
 
 	/**
@@ -369,9 +379,14 @@ class BBP_Admin {
 				// Output replies count
 				bbp_topic_reply_count();
 				break;
+
 			case 'bbp_topic_freshness':
 				// Output last activity time and date
 				bbp_get_topic_last_active();
+				break;
+
+			default :
+				do_action( 'bbp_admin_topics_column_data', $column, $post_id );
 				break;
 		}
 	}

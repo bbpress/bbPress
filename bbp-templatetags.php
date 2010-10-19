@@ -66,7 +66,7 @@ function bbp_has_forums ( $args = '' ) {
 
 	$bbp_forums_template = new WP_Query( $r );
 
-	return apply_filters( 'bbp_has_forums', $bbp_forums_template->have_posts(), &$bbp_forums_template );
+	return apply_filters( 'bbp_has_forums', $bbp_forums_template->have_posts(), $bbp_forums_template );
 }
 
 /**
@@ -133,7 +133,7 @@ function bbp_forum_id () {
 		global $bbp_forums_template, $wp_query;
 
 		// Currently inside a forum loop
-		if ( isset( $bbp_forums_template->post ) )
+		if ( isset( $bbp_forums_template->post->ID ) )
 			$bbp_forum_id = $bbp_forums_template->post->ID;
 
 		// Currently viewing a forum
@@ -285,9 +285,9 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topics = get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
+		$forum_topics = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_forum_topic_count', count( $forum_topics ) );
+		return apply_filters( 'bbp_get_forum_topic_count', $forum_topics );
 
 		//return apply_filters( 'bbp_get_forum_topic_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_count', true ) );
 	}
@@ -350,9 +350,9 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 		if ( !$forum_id )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topic_replies = get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
+		$forum_topic_replies = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_forum_topic_reply_count', count( $forum_topic_replies, COUNT_RECURSIVE ) );
+		return apply_filters( 'bbp_get_forum_topic_reply_count', $forum_topic_replies );
 
 		//return apply_filters( 'bbp_get_forum_topic_reply_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_reply_count', true ) );
 	}
@@ -456,7 +456,7 @@ function bbp_has_topics ( $args = '' ) {
 	}
 
 	// Return object
-	return apply_filters( 'bbp_has_topics', $bbp_topics_template->have_posts(), &$bbp_topics_template );
+	return apply_filters( 'bbp_has_topics', $bbp_topics_template->have_posts(), $bbp_topics_template );
 }
 
 /**
@@ -523,7 +523,7 @@ function bbp_topic_id () {
 		global $bbp_topics_template, $wp_query;
 
 		// Currently inside a topic loop
-		if ( isset( $bbp_topics_template->post ) )
+		if ( isset( $bbp_topics_template->post->ID ) )
 			$bbp_topic_id = $bbp_topics_template->post->ID;
 
 		// Currently viewing a topic
@@ -670,10 +670,13 @@ function bbp_topic_forum ( $topic_id = '' ) {
 		 * @return string
 		 */
 		function bbp_get_topic_forum_id ( $topic_id = '' ) {
+			global $bbp_topics_template;
+
 			if ( !$topic_id )
 				$topic_id = bbp_get_topic_id();
 
 			$forum_id = get_post_field( 'post_parent', $bbp_topics_template );
+
 			return apply_filters( 'bbp_get_topic_forum_id', $forum_id );
 		}
 
@@ -749,9 +752,9 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 		if ( !$topic_id )
 			$topic_id = bbp_get_topic_id();
 
-		$topic_replies = get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
+		$topic_replies = 0; //get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
 
-		return apply_filters( 'bbp_get_topic_reply_count', count( $topic_replies, COUNT_RECURSIVE ) );
+		return apply_filters( 'bbp_get_topic_reply_count', $topic_replies );
 
 		//return apply_filters( 'bbp_get_topic_topic_reply_count', (int)get_post_meta( $topic_id, 'bbp_topic_topic_reply_count', true ) );
 	}
@@ -930,7 +933,7 @@ function bbp_has_replies ( $args = '' ) {
 	}
 
 	// Return object
-	return apply_filters( 'bbp_has_replies', $bbp_replies_template->have_posts(), &$bbp_replies_template );
+	return apply_filters( 'bbp_has_replies', $bbp_replies_template->have_posts(), $bbp_replies_template );
 }
 
 /**
@@ -997,7 +1000,7 @@ function bbp_reply_id () {
 		global $bbp_replies_template, $wp_query;
 
 		// Currently inside a topic loop
-		if ( isset( $bbp_replies_template->post ) )
+		if ( isset( $bbp_replies_template->post->ID ) )
 			$bbp_reply_id = $bbp_replies_template->post->ID;
 
 		// Currently viewing a topic
@@ -1210,7 +1213,10 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 function bbp_is_forum () {
 	global $wp_query;
 
-	if ( BBP_FORUM_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && BBP_FORUM_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+		return true;
+
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && BBP_FORUM_POST_TYPE_ID === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -1229,7 +1235,10 @@ function bbp_is_forum () {
 function bbp_is_topic () {
 	global $wp_query;
 
-	if ( BBP_TOPIC_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && BBP_TOPIC_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+		return true;
+
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && BBP_TOPIC_POST_TYPE_ID === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -1248,7 +1257,10 @@ function bbp_is_topic () {
 function bbp_is_reply () {
 	global $wp_query;
 
-	if ( BBP_REPLY_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && BBP_REPLY_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+		return true;
+
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && BBP_REPLY_POST_TYPE_ID === $_GET['post_type'] )
 		return true;
 
 	return false;
