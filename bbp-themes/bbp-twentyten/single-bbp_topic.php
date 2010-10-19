@@ -43,7 +43,7 @@
 										printf (
 											'<a href="%1$s" title="%2$s">%3$s</a>',
 											get_author_posts_url( get_the_author_meta( 'ID' ) ),
-											sprintf( __( 'Posts by %s' ), esc_attr( get_author_name() ) ),
+											sprintf( __( 'Posts by %s' ), esc_attr( get_the_author_meta( 'display_name' ) ) ),
 											get_avatar( get_the_author_meta( 'ID' ), 40 )
 										);
 									?>
@@ -53,7 +53,7 @@
 										printf(
 											'<a href="%1$s" title="%2$s" class="url">%3$s</a>',
 											get_author_posts_url( get_the_author_meta( 'ID' ) ),
-											sprintf( __( 'Posts by %s' ), esc_attr( get_author_name() ) ),
+											sprintf( __( 'Posts by %s' ), esc_attr( get_the_author_meta( 'display_name' ) ) ),
 											get_the_author()
 										);
 									?>
