@@ -243,7 +243,7 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
 	 * @param int $forum_id optional
 	 */
 	function bbp_get_forum_last_active ( $forum_id = 0 ) {
-		if ( !$forum_id )
+		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
 		return apply_filters( 'bbp_get_forum_last_active', bbp_get_time_since( bbp_get_modified_time( $forum_id ) ) );
@@ -282,7 +282,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 	 * @param int $forum_id optional Forum ID to check
 	 */
 	function bbp_get_forum_topic_count ( $forum_id = 0 ) {
-		if ( !$forum_id )
+		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
 		$forum_topics = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
@@ -308,7 +308,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
  * @return int
  */
 function bbp_update_forum_topic_count ( $new_topic_count, $forum_id = 0 ) {
-	if ( !$forum_id )
+	if ( empty( $forum_id ) )
 		$forum_id = bbp_get_forum_id();
 
 	return apply_filters( 'bbp_update_forum_topic_count', (int)update_post_meta( $forum_id, 'bbp_forum_topic_count', $new_topic_count ) );
@@ -347,7 +347,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 	 * @param int $forum_id optional
 	 */
 	function bbp_get_forum_topic_reply_count ( $forum_id = 0 ) {
-		if ( !$forum_id )
+		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
 		$forum_topic_replies = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
@@ -377,7 +377,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
  * @return int
  */
 function bbp_update_forum_topic_reply_count ( $new_topic_reply_count, $forum_id = 0 ) {
-	if ( !$forum_id )
+	if ( empty( $forum_id ) )
 		$forum_id = bbp_get_forum_id();
 
 	return apply_filters( 'bbp_update_forum_topic_reply_count', (int)update_post_meta( $forum_id, 'bbp_forum_topic_reply_count', $new_topic_reply_count ) );
@@ -672,7 +672,7 @@ function bbp_topic_forum ( $topic_id = '' ) {
 		function bbp_get_topic_forum_id ( $topic_id = '' ) {
 			global $bbp_topics_template;
 
-			if ( !$topic_id )
+			if ( empty( $topic_id ) )
 				$topic_id = bbp_get_topic_id();
 
 			$forum_id = get_post_field( 'post_parent', $bbp_topics_template );
@@ -710,7 +710,7 @@ function bbp_topic_last_active ( $topic_id = '' ) {
 	 * @return string
 	 */
 	function bbp_get_topic_last_active ( $topic_id = '' ) {
-		if ( !$topic_id )
+		if ( empty( $topic_id ) )
 			$topic_id = bbp_get_topic_id();
 
 		return apply_filters( 'bbp_get_topic_last_active', bbp_get_time_since( bbp_get_modified_time( $topic_id ) ) );
@@ -732,7 +732,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 	echo bbp_get_topic_reply_count( $topic_id );
 }
 	/**
-	 * bbp_topic_reply_count ()
+	 * bbp_get_topic_reply_count ()
 	 *
 	 * Return total post count of a topic
 	 *
@@ -749,7 +749,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
 	 * @param int $topic_id
 	 */
 	function bbp_get_topic_reply_count ( $topic_id = '' ) {
-		if ( !$topic_id )
+		if ( empty( $topic_id ) )
 			$topic_id = bbp_get_topic_id();
 
 		$topic_replies = 0; //get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
@@ -770,7 +770,7 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
  *
  * @todo make this not suck
  *
- * @uses bbp_get_topic_id(0
+ * @uses bbp_get_topic_id()
  * @uses apply_filters
  *
  * @param int $new_topic_reply_count New post count
@@ -779,10 +779,94 @@ function bbp_topic_reply_count ( $topic_id = '' ) {
  * @return int
  */
 function bbp_update_topic_reply_count ( $new_topic_reply_count, $topic_id = '' ) {
-	if ( !$topic_id )
+	if ( empty( $topic_id ) )
 		$topic_id = bbp_get_topic_id();
 
 	return apply_filters( 'bbp_update_topic_reply_count', (int)update_post_meta( $topic_id, 'bbp_topic_reply_count', $new_topic_reply_count ) );
+}
+
+/**
+ * bbp_topic_voice_count ()
+ *
+ * Output total voice count of a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2565)
+ *
+ * @uses bbp_get_topic_voice_count()
+ * @uses apply_filters
+ *
+ * @param int $topic_id
+ */
+function bbp_topic_voice_count ( $topic_id = 0 ) {
+	echo bbp_get_topic_voice_count( $topic_id );
+}
+	/**
+	 * bbp_get_topic_voice_count ()
+	 *
+	 * Return total voice count of a topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2565)
+	 *
+	 * @uses bbp_get_topic_id()
+	 * @uses apply_filters
+	 *
+	 * @param int $topic_id
+	 *
+	 * @return int Voice count of the topic
+	 */
+	function bbp_get_topic_voice_count ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		if ( !$voices = get_post_meta( $topic_id, 'bbp_topic_voice_count', true ) )
+			$voices = bbp_update_topic_voice_count( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_voice_count', (int)$voices, $topic_id );
+	}
+
+/**
+ * bbp_update_topic_voice_count ()
+ *
+ * Adjust the total voice count of a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2565)
+ *
+ * @uses bbp_get_topic_id()
+ * @uses wpdb
+ * @uses apply_filters
+ *
+ * @todo cache
+ *
+ * @param int $topic_id optional Topic ID to update
+ *
+ * @return bool false on failure, voice count on success
+ */
+function bbp_update_topic_voice_count ( $topic_id = 0 ) {
+	global $wpdb;
+
+	if ( empty( $topic_id ) )
+		$topic_id = bbp_get_topic_id();
+
+	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) /* If it is not a topic or reply, then we don't need it */
+		return false;
+
+	// If it's a reply, then get the parent (topic id)
+	if ( BBP_REPLY_POST_TYPE_ID == get_post_field( 'post_type', $topic_id ) )
+		$topic_id = get_post_field( 'post_parent', $topic_id );
+
+	// There should always be at least 1 voice
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . BBP_REPLY_POST_TYPE_ID . "' ) OR ( ID = %d AND post_type = '" . BBP_TOPIC_POST_TYPE_ID . "' );", $topic_id, $topic_id ) ) ) )
+		$voices = 1;
+
+	update_post_meta( $topic_id, 'bbp_topic_voice_count', $voices );
+
+	return apply_filters( 'bbp_update_topic_voice_count', (int)$voices );
 }
 
 /**
@@ -1188,7 +1272,7 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 	 * @return string
 	 */
 	function bbp_get_reply_topic_id ( $reply_id = 0 ) {
-		if ( !$reply_id )
+		if ( empty( $reply_id ) )
 			$reply_id = bbp_get_reply_id();
 
 		$topic_id = get_post_field( 'post_parent', $bbp_replies_template );

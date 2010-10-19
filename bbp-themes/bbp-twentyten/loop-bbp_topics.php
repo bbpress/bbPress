@@ -35,7 +35,7 @@
 
 					<td class="bbp-topic-replies"><?php bbp_topic_reply_count(); ?></td>
 
-					<td class="bbp-topic-voices"><?php // @todo - bbp_topic_voice_count(); ?></td>
+					<td class="bbp-topic-voices"><?php bbp_topic_voice_count(); ?></td>
 
 					<td class="bbp-topic-freshness">
 						<a href="<?php bbp_topic_permalink(); ?>"><?php bbp_topic_last_active(); ?></a>
