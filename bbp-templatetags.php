@@ -569,6 +569,9 @@ function bbp_topic_permalink ( $topic_id = 0 ) {
 	 * @return string Permanent link to topic
 	 */
 	function bbp_get_topic_permalink ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
 		return apply_filters( 'bbp_get_topic_permalink', get_permalink( $topic_id ) );
 	}
 
@@ -603,13 +606,16 @@ function bbp_topic_title ( $topic_id = 0 ) {
 	 * @return string Title of topic
 	 */
 	function bbp_get_topic_title ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
 		return apply_filters( 'bbp_get_topic_title', get_the_title( $topic_id ) );
 	}
 
 /**
- * bbp_topic_forum ()
+ * bbp_topic_forum_title ()
  *
- * Output the forum a topic belongs to
+ * Output the title of the forum a topic belongs to
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -617,15 +623,15 @@ function bbp_topic_title ( $topic_id = 0 ) {
  *
  * @param int $topic_id optional
  *
- * @uses bbp_get_topic_forum()
+ * @uses bbp_get_topic_forum_title()
  */
-function bbp_topic_forum ( $topic_id = 0 ) {
-	echo bbp_get_topic_forum( $topic_id );
+function bbp_topic_forum_title ( $topic_id = 0 ) {
+	echo bbp_get_topic_forum_title( $topic_id );
 }
 	/**
-	 * bbp_get_topic_forum ()
+	 * bbp_get_topic_forum_title ()
 	 *
-	 * Return the forum a topic belongs to
+	 * Return the title of the forum a topic belongs to
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
@@ -635,8 +641,12 @@ function bbp_topic_forum ( $topic_id = 0 ) {
 	 *
 	 * @return string
 	 */
-	function bbp_get_topic_forum ( $topic_id = 0 ) {
+	function bbp_get_topic_forum_title ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
+
 		return apply_filters( 'bbp_get_topic_forum', bbp_get_forum_title( $forum_id ) );
 	}
 
@@ -873,7 +883,7 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
 }
 
 /**
- * bbp_topic_pagination_count ()
+ * bbp_forum_pagination_count ()
  *
  * Output the pagination count
  *
@@ -883,11 +893,11 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
  *
  * @global WP_Query $bbp_topics_template
  */
-function bbp_topic_pagination_count () {
-	echo bbp_get_topic_pagination_count();
+function bbp_forum_pagination_count () {
+	echo bbp_get_forum_pagination_count();
 }
 	/**
-	 * bbp_get_topic_pagination_count ()
+	 * bbp_get_forum_pagination_count ()
 	 *
 	 * Return the pagination count
 	 *
@@ -898,7 +908,7 @@ function bbp_topic_pagination_count () {
 	 * @global WP_Query $bbp_topics_template
 	 * @return string
 	 */
-	function bbp_get_topic_pagination_count () {
+	function bbp_get_forum_pagination_count () {
 		global $bbp_topics_template;
 
 		// Set pagination values
@@ -918,7 +928,7 @@ function bbp_topic_pagination_count () {
 	}
 
 /**
- * bbp_topic_pagination_links ()
+ * bbp_forum_pagination_links ()
  *
  * Output pagination links
  *
@@ -926,11 +936,11 @@ function bbp_topic_pagination_count () {
  * @subpackage Template Tags
  * @since bbPress (1.2-r2519)
  */
-function bbp_topic_pagination_links () {
-	echo bbp_get_topic_pagination_links();
+function bbp_forum_pagination_links () {
+	echo bbp_get_forum_pagination_links();
 }
 	/**
-	 * bbp_get_topic_pagination_links ()
+	 * bbp_get_forum_pagination_links ()
 	 *
 	 * Return pagination links
 	 *
@@ -941,7 +951,7 @@ function bbp_topic_pagination_links () {
 	 * @global WP_Query $bbp_topics_template
 	 * @return string
 	 */
-	function bbp_get_topic_pagination_links () {
+	function bbp_get_forum_pagination_links () {
 		global $bbp_topics_template;
 
 		return apply_filters( 'bbp_get_topic_pagination_links', $bbp_topics_template->pagination_links );
@@ -1006,7 +1016,7 @@ function bbp_has_replies ( $args = '' ) {
 
 		// Pagination settings with filter
 		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
-			'base'      => add_query_arg( 'tpage', '%#%' ),
+			'base'      => add_query_arg( 'rpage', '%#%' ),
 			'format'    => '',
 			'total'     => ceil( (int)$bbp_replies_template->found_posts / (int)$posts_per_page ),
 			'current'   => (int)$bbp_replies_template->paged,
@@ -1283,6 +1293,85 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 		return apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
 	}
 
+
+/**
+ * bbp_topic_pagination_count ()
+ *
+ * Output the pagination count
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2519)
+ *
+ * @global WP_Query $bbp_topics_template
+ */
+function bbp_topic_pagination_count () {
+	echo bbp_get_topic_pagination_count();
+}
+	/**
+	 * bbp_get_topic_pagination_count ()
+	 *
+	 * Return the pagination count
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2519)
+	 *
+	 * @global WP_Query $bbp_replies_template
+	 * @return string
+	 */
+	function bbp_get_topic_pagination_count () {
+		global $bbp_replies_template;
+
+		// Set pagination values
+		$start_num = intval( ( $bbp_replies_template->paged - 1 ) * $bbp_replies_template->posts_per_page ) + 1;
+		$from_num  = bbp_number_format( $start_num );
+		$to_num    = bbp_number_format( ( $start_num + ( $bbp_replies_template->posts_per_page - 1 ) > $bbp_replies_template->found_posts ) ? $bbp_replies_template->found_posts : $start_num + ( $bbp_replies_template->posts_per_page - 1 ) );
+		$total     = bbp_number_format( $bbp_replies_template->found_posts );
+
+		// Set return string
+		if ( $total > 1 )
+			$retstr = sprintf( __( 'Viewing %1$s to %2$s replies (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+		else
+			return false;
+
+		// Filter and return
+		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );
+	}
+
+/**
+ * bbp_topic_pagination_links ()
+ *
+ * Output pagination links
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2519)
+ */
+function bbp_topic_pagination_links () {
+	echo bbp_get_topic_pagination_links();
+}
+	/**
+	 * bbp_get_topic_pagination_links ()
+	 *
+	 * Return pagination links
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2519)
+	 *
+	 * @global WP_Query $bbp_replies_template
+	 * @return string
+	 */
+	function bbp_get_topic_pagination_links () {
+		global $bbp_replies_template;
+
+		if ( !isset( $bbp_replies_template->pagination_links ) || empty( $bbp_replies_template->pagination_links ) )
+			return false;
+		else
+			return apply_filters( 'bbp_get_topic_pagination_links', $bbp_replies_template->pagination_links );
+	}
+
 /** END reply Loop Functions **************************************************/
 
 /** START is_ Functions *******************************************************/
@@ -1354,5 +1443,95 @@ function bbp_is_reply () {
 }
 
 /** END is_ Functions *********************************************************/
+
+/** START User Functions ******************************************************/
+
+/**
+ * bbp_current_user_id ()
+ *
+ * Output ID of current user
+ *
+ * @uses bbp_get_current_user_id()
+ */
+function bbp_current_user_id () {
+	echo bbp_get_current_user_id();
+}
+	/**
+	 * bbp_get_current_user_id ()
+	 *
+	 * Return ID of current user
+	 *
+	 * @global object $current_user
+	 * @global string $user_identity
+	 * @return int
+	 */
+	function bbp_get_current_user_id () {
+		global $current_user;
+
+		if ( is_user_logged_in() )
+			$current_user_id = $current_user->ID;
+		else
+			$current_user_id = -1;
+
+		return apply_filters( 'bbp_get_current_user_id', $current_user_id );
+	}
+
+/**
+ * bbp_current_user_name ()
+ *
+ * Output name of current user
+ *
+ * @uses bbp_get_current_user_name()
+ */
+function bbp_current_user_name () {
+	echo bbp_get_current_user_name();
+}
+	/**
+	 * bbp_get_current_user_name ()
+	 *
+	 * Return name of current user
+	 *
+	 * @global object $current_user
+	 * @global string $user_identity
+	 * @return string
+	 */
+	function bbp_get_current_user_name () {
+		global $current_user, $user_identity;
+
+		if ( is_user_logged_in() )
+			$current_user_name = $user_identity;
+		else
+			$current_user_name = __( 'Anonymous', 'bbpress' );
+
+		return apply_filters( 'bbp_get_current_user_name', $current_user_name );
+	}
+
+/**
+ * bbp_current_user_avatar ()
+ *
+ * Output avatar of current user
+ *
+ * @uses bbp_get_current_user_avatar()
+ */
+function bbp_current_user_avatar ( $size = 40 ) {
+	echo bbp_get_current_user_avatar( $size );
+}
+
+	/**
+	 * bbp_get_current_user_avatar ( $size = 40 )
+	 *
+	 * Return avatar of current user
+	 *
+	 * @global object $current_user
+	 * @param int $size
+	 * @return string
+	 */
+	function bbp_get_current_user_avatar ( $size = 40 ) {
+		global $current_user;
+
+		return apply_filters( 'bbp_get_current_user_avatar', get_avatar( bbp_get_current_user_id(), $size ) );
+	}
+
+/** END User Functions *********************************************************/
 
 ?>

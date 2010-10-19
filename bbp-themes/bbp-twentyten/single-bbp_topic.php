@@ -23,8 +23,8 @@
 
 				<table id="topic-<?php bbp_topic_id(); ?>">
 					<thead>
-						<th><?php _e( 'Author', 'bbpress' ); ?></th>
-						<th><?php _e( 'Content', 'bbpress' ); ?></th>
+						<th><?php _e( 'Creator', 'bbpress' ); ?></th>
+						<th><?php _e( 'Topic', 'bbpress' ); ?></th>
 					</thead>
 
 					<tfoot>
@@ -81,10 +81,12 @@
 
 						<?php endwhile; ?>
 
-						<?php get_template_part( 'loop', 'bbp_replies' ); ?>
-
 					</tbody>
 				</table>
+
+				<?php get_template_part( 'loop', 'bbp_replies' ); ?>
+
+				<?php get_template_part( 'form', 'bbp_reply' ); ?>
 
 			</div><!-- #content -->
 		</div><!-- #container -->

@@ -356,7 +356,7 @@ class BBP_Admin {
 		switch ( $column ) {
 			case 'bbp_topic_forum' :
 				// Output forum name
-				bbp_topic_forum();
+				bbp_topic_forum_title();
 
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (

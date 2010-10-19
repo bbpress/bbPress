@@ -1321,3 +1321,17 @@ code {
 		border: none;
 	}
 }
+
+/* =bbPress Style
+-------------------------------------------------------------- */
+.bbp-pagination-count {
+	float: left;
+}
+.bbp-pagination-links {
+	float: right;
+}
+.bbp-pagination {
+	float: left;
+	width: 100%;
+	margin-bottom: 20px;
+}
