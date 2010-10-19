@@ -822,6 +822,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
 		if ( empty( $topic_id ) )
 			$topic_id = bbp_get_topic_id();
 
+		// Look for existing count, and populate if does not exist
 		if ( !$voices = get_post_meta( $topic_id, 'bbp_topic_voice_count', true ) )
 			$voices = bbp_update_topic_voice_count( $topic_id );
 
@@ -853,7 +854,8 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
 	if ( empty( $topic_id ) )
 		$topic_id = bbp_get_topic_id();
 
-	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) /* If it is not a topic or reply, then we don't need it */
+	// If it is not a topic or reply, then we don't need it
+	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
 		return false;
 
 	// If it's a reply, then get the parent (topic id)
@@ -864,6 +866,7 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
 	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . BBP_REPLY_POST_TYPE_ID . "' ) OR ( ID = %d AND post_type = '" . BBP_TOPIC_POST_TYPE_ID . "' );", $topic_id, $topic_id ) ) ) )
 		$voices = 1;
 
+	// Update the count
 	update_post_meta( $topic_id, 'bbp_topic_voice_count', $voices );
 
 	return apply_filters( 'bbp_update_topic_voice_count', (int)$voices );
