@@ -32,14 +32,21 @@ class BBP_Admin {
 
 		// Forum columns (in page row)
 		add_action( 'manage_pages_custom_column',                           array( $this, 'forums_column_data' ), 10, 2 );
-		add_filter( 'page_row_actions',                                     array( $this, 'forums_post_row_actions' ), 10, 2 );
+		add_filter( 'page_row_actions',                                     array( $this, 'forums_row_actions' ), 10, 2 );
 
 		// Topic column headers.
 		add_filter( 'manage_' . BBP_TOPIC_POST_TYPE_ID . '_posts_columns',  array( $this, 'topics_column_headers' ) );
 
 		// Topic columns (in post row)
 		add_action( 'manage_posts_custom_column',                           array( $this, 'topics_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                     array( $this, 'post_row_actions' ), 10, 2 );
+		add_filter( 'post_row_actions',                                     array( $this, 'topics_row_actions' ), 10, 2 );
+
+		// Reply column headers.
+		add_filter( 'manage_' . BBP_REPLY_POST_TYPE_ID . '_posts_columns',  array( $this, 'replies_column_headers' ) );
+
+		// Reply columns (in post row)
+		add_action( 'manage_posts_custom_column',                           array( $this, 'replies_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                     array( $this, 'replies_row_actions' ), 10, 2 );
 
 		// Topic metabox actions
 		add_action( 'admin_menu',                                           array( $this, 'topic_parent_metabox' ) );
@@ -198,7 +205,7 @@ class BBP_Admin {
 				background: url(<?php echo BBP_IMAGES_URL . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
 			
-			.column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_freshness { width: 10%; }
+			.column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_freshness, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
 			<?php endif; ?>
 		/*]]>*/
 		</style>
@@ -299,7 +306,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * forums_post_row_actions ( $actions, $post )
+	 * forums_row_actions ( $actions, $post )
 	 *
 	 * Remove the quick-edit action link and display the description under the forum title
 	 *
@@ -307,7 +314,7 @@ class BBP_Admin {
 	 * @param array $post	
 	 * @return array $actions
 	 */	
-	function forums_post_row_actions ( $actions, $post ) {
+	function forums_row_actions ( $actions, $post ) {
 		if ( BBP_FORUM_POST_TYPE_ID == $post->post_type ) {
 			unset( $actions['inline'] );
 
@@ -334,8 +341,8 @@ class BBP_Admin {
 			'bbp_topic_forum'       => __( 'Forum', 'bbpress' ),
 			'bbp_topic_reply_count' => __( 'Replies', 'bbpress' ),
 			'author'                => __( 'Author', 'bbpress' ),
-			'date'                  => __( 'Date' , 'bbpress' ),
-			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
+			'date'                  => __( 'Created' , 'bbpress' ),
+			'bbp_topic_freshness'   => __( 'Replied', 'bbpress' )
 		);
 
 		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
@@ -380,7 +387,7 @@ class BBP_Admin {
 				bbp_topic_reply_count();
 				break;
 
-			case 'bbp_topic_freshness':
+			case 'bbp_topic_freshness' :
 				// Output last activity time and date
 				bbp_get_topic_last_active();
 				break;
@@ -392,7 +399,7 @@ class BBP_Admin {
 	}
 	
 	/** 
-	 * post_row_actions ( $actions, $post ) 
+	 * topics_row_actions ( $actions, $post )
 	 * 
 	 * Remove the quick-edit action link under the topic/reply title 
 	 *
@@ -400,10 +407,99 @@ class BBP_Admin {
 	 * @param array $post	
 	 * @return array $actions
 	 */	
-	function post_row_actions ( $actions, $post ) {
+	function topics_row_actions ( $actions, $post ) {
 		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
 			unset( $actions['inline hide-if-no-js'] );
 
+		return $actions;
+	}
+
+	/**
+	 * replies_column_headers ()
+	 *
+	 * Manage the column headers for the replies page
+	 *
+	 * @param array $columns
+	 * @return array $columns
+	 */
+	function replies_column_headers ( $columns ) {
+		$columns = array(
+			'cb'                    => '<input type="checkbox" />',
+			'title'                 => __( 'Title', 'bbpress' ),
+			'bbp_reply_topic'       => __( 'Topic', 'bbpress' ),
+			//'bbp_reply_forum'       => __( 'Forum', 'bbpress' ),
+			'author'                => __( 'Author', 'bbpress' ),
+			'date'                  => __( 'Date' , 'bbpress' ),
+			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
+		);
+
+		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
+	}
+
+	/**
+	 * replies_column_data ( $column, $post_id )
+	 *
+	 * Print extra columns for the topics page
+	 *
+	 * @param string $column
+	 * @param int $post_id
+	 */
+	function replies_column_data ( $column, $post_id ) {
+		if ( $_GET['post_type'] !== BBP_REPLY_POST_TYPE_ID )
+			return $column;
+
+		switch ( $column ) {
+			case 'bbp_reply_topic' :
+				// Output forum name
+				bbp_topic_forum_title();
+
+				// Link information
+				$actions = apply_filters( 'topic_forum_row_actions', array (
+					'edit' => '<a href="' . add_query_arg( array( 'post' => bbp_get_topic_forum_ID(), 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+					'view' => '<a href="' . bbp_get_topic_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
+				) );
+
+				// Output forum post row links
+				$i = 0;
+				echo '<div class="row-actions">';
+				foreach ( $actions as $action => $link ) {
+					++$i;
+					( $i == count( $actions ) ) ? $sep = '' : $sep = ' | ';
+					echo '<span class="' . $action . '">' . $link . $sep . '</span>';
+				}
+				echo '</div>';
+				break;
+
+			case 'bbp_reply_forum' :
+				// Output replies count
+				break;
+
+			case 'bbp_topic_freshness':
+				// Output last activity time and date
+				bbp_get_topic_last_active();
+				break;
+
+			default :
+				do_action( 'bbp_admin_replies_column_data', $column, $post_id );
+				break;
+		}
+	}
+
+	/**
+	 * replies_row_actions ( $actions, $post )
+	 *
+	 * Remove the quick-edit action link under the topic/reply title
+	 *
+	 * @param array $actions
+	 * @param array $post
+	 * @return array $actions
+	 */
+	function replies_row_actions ( $actions, $post ) {
+		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
+			unset( $actions['inline hide-if-no-js'] );
+
+		the_content();
+		
 		return $actions;
 	}
 
