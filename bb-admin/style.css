@@ -212,6 +212,12 @@ body.bb-admin-users h2 {
 	background-position: 0 -891px;
 }
 
+body.bb-admin-user-manage h2 {
+       padding-left: 47px;
+       background-image: url('images/icons32.png');
+       background-position: 0 -891px;
+}
+
 body.bb-admin-tools h2 {
 	padding-left: 47px;
 	background-image: url('images/icons32.png');
@@ -1479,6 +1485,53 @@ table.theme-list-active td a:hover {
 	color: rgb(213, 78, 33);
 }
 
+
+/* Users */
+
+.bb-admin-user-manage form {
+	width: 550px;
+}
+
+#option-pass-strength-fake-input {
+	clear: none;
+	width: 200px;
+}
+.bb-admin-user-manage #pass-strength-result {
+	clear: left;
+	float: left;
+	margin-top: -25px;
+}
+
+#pass-strength-result {
+	padding: 2px;
+	text-align: center;
+	width: 280px;
+	border: 1px solid #ccc;
+	background-color: #e3e3e3;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+#pass-strength-result.bad {
+	background-color: #ffeff7;
+	border-color: #c69;
+}
+
+#pass-strength-result.good {
+	background-color: #effff4;
+	border-color: #66cc87;
+}
+
+#pass-strength-result.short {
+	background-color: #e3e3e3;
+}
+
+#pass-strength-result.strong {
+	background-color: #59ef86;
+	border-color: #319f52;
+}
 
 
 /* Options */

@@ -2754,7 +2754,7 @@ function bb_profile_password_form( $id = 0 ) {
 			if (typeof jQuery != 'undefined') {
 				document.writeln('<div id="pass-strength-result">' + pwsL10n.short + '</div>');
 			} else {
-				document.writeln('<?php echo str_replace("'", "\'", __('Disabled (requires jQuery)')); ?>')
+				document.writeln('<?php echo str_replace("'", "\'", __('Disabled.')); ?>')
 			}
 		</script>
 	</td>
@@ -2808,6 +2808,18 @@ function bb_get_admin_link( $args = '' ) {
 	$uri = esc_attr( bb_get_uri('bb-admin/', null, BB_URI_CONTEXT_A_HREF + BB_URI_CONTEXT_BB_ADMIN) );
 
 	return apply_filters( 'bb_get_admin_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
+}
+
+function bb_get_user_admin_link( $user_id = null ) { 
+	if( !$user_id || !bb_current_user_can( 'edit_user', $user_id ) )
+		return;
+
+	if( !bb_get_user_id( $user_id ) )
+		return;
+
+	$uri = bb_get_uri( 'bb-admin/users.php', array( 'action' => 'edit', 'user_id' => $user_id ) );
+
+	return apply_filters( 'bb_get_user_admin_link', $uri, $user_id );
 }
 
 function bb_profile_link( $args = '' ) {
