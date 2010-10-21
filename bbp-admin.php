@@ -495,10 +495,11 @@ class BBP_Admin {
 	 * @return array $actions
 	 */
 	function replies_row_actions ( $actions, $post ) {
-		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
+		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) {
 			unset( $actions['inline hide-if-no-js'] );
 
-		the_content();
+			the_content();
+		}
 		
 		return $actions;
 	}
