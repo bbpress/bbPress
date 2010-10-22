@@ -146,6 +146,7 @@ function bb_cache_posts( $query, $post_id_query = false ) {
 	$_query_post_ids = array();
 	$_query_posts = array();
 	$_cached_posts = array();
+	$ordered_post_ids = array();
 
 	if ( $post_id_query && is_string( $query ) ) {
 		// The query is a SQL query to retrieve post_ids only
@@ -160,7 +161,10 @@ function bb_cache_posts( $query, $post_id_query = false ) {
 	}
 
 	if ( is_array( $query ) ) {
+		$get_order_from_query = false;
+
 		foreach ( $query as $_post_id ) {
+			$ordered_post_ids[] = $_post_id;
 			if ( false === $_post = wp_cache_get( $_post_id, 'bb_post' ) ) {
 				$_query_post_ids[] = $_post_id;
 			} else {
@@ -179,12 +183,16 @@ function bb_cache_posts( $query, $post_id_query = false ) {
 		}
 	} else {
 		// The query is a full SQL query which needs to be executed
+		$get_order_from_query = true;
 		$_query = $query;
 	}
 
 	if ( $_query_posts = (array) $bbdb->get_results( $_query ) ) {
 		$_appendable_posts = array();
 		foreach ( $_query_posts as $_query_post ) {
+			if ( $get_order_from_query ) {
+				$ordered_post_ids[] = $_query_post->post_id;
+			}
 			if ( false === $_post = wp_cache_get( $_query_post->post_id, 'bb_post' ) ) {
 				$_appendable_posts[] = $_query_post;
 			} else {
@@ -203,27 +211,16 @@ function bb_cache_posts( $query, $post_id_query = false ) {
 		$_query_posts = array();
 	}
 
-	$the_posts = array_merge( $_cached_posts, $_query_posts );
+	foreach ( array_merge( $_cached_posts, $_query_posts ) as $_post ) {
+		$keyed_posts[$_post->post_id] = $_post;
+	}
 
-	global $bb_cache_posts_sort_by;
-	$bb_cache_posts_sort_by = 'post_id';
-	if ( isset( $_query ) && preg_match( '/ORDER\s+BY\s+`?(?:p\.)?(.+?)(?:[`,\s]|$)/i', $_query, $order_by ) )
-		$bb_cache_posts_sort_by = $order_by[1];
-	usort( $the_posts, '_bb_cache_posts_sort' );
-	if ( isset( $_query ) && stripos( $_query, 'DESC' ) !== false )
-		$the_posts = array_reverse( $the_posts );
+	$the_posts = array();
+	foreach ( $ordered_post_ids as $ordered_post_id ) {
+		$the_posts[] = $keyed_posts[$ordered_post_id];
+	}
 
 	return $the_posts;
-}
-
-function _bb_cache_posts_sort( $a, $b ) {
-	global $bb_cache_posts_sort_by;
-
-	if ( $a->$bb_cache_posts_sort_by > $b->$bb_cache_posts_sort_by )
-		return 1;
-	if ( $a->$bb_cache_posts_sort_by < $b->$bb_cache_posts_sort_by )
-		return -1;
-	return 0;
 }
 
 // Globalizes the result
