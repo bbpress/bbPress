@@ -113,7 +113,7 @@ class BBP_Loader {
 
 		// Default slug for topic tag taxonomy
 		if ( !defined( 'BBP_TOPIC_TAG_SLUG' ) )
-			define( 'BBP_TOPIC_TAG_SLUG', apply_filters( 'bbp_topic_tag_slug', 'topic-tags' ) );
+			define( 'BBP_TOPIC_TAG_SLUG', apply_filters( 'bbp_topic_tag_slug', 'topic-tag' ) );
 
 		// bbPress root directory
 		define( 'BBP_DIR', plugin_dir_path( __FILE__ ) );
