@@ -132,13 +132,13 @@ function bbp_forum_id () {
 	function bbp_get_forum_id () {
 		global $bbp_forums_template, $wp_query;
 
-		// Currently viewing a forum
-		if ( bbp_is_forum() && isset( $wp_query->post->ID ) )
-			$bbp_forum_id = $wp_query->post->ID;
-
 		// Currently inside a forum loop
-		elseif ( isset( $bbp_forums_template->post->ID ) )
+		if ( !empty( $bbp_forums_template->in_the_loop ) && isset( $bbp_forums_template->post->ID ) )
 			$bbp_forum_id = $bbp_forums_template->post->ID;
+
+		// Currently viewing a forum
+		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
+			$bbp_forum_id = $wp_query->post->ID;
 
 		// Fallback
 		// @todo - experiment
@@ -212,6 +212,9 @@ function bbp_forum_title ( $forum_id = 0 ) {
 	 *
 	 */
 	function bbp_get_forum_title ( $forum_id = 0 ) {
+		if ( empty( $forum_id ) )
+			$forum_id = bbp_get_forum_id();
+
 		return apply_filters( 'bbp_get_forum_title', get_the_title( $forum_id ) );
 	}
 
@@ -522,13 +525,13 @@ function bbp_topic_id () {
 	function bbp_get_topic_id () {
 		global $bbp_topics_template, $wp_query;
 
-		// Currently viewing a topic
-		if ( bbp_is_topic() && isset( $wp_query->post->ID ) )
-			$bbp_topic_id = $wp_query->post->ID;
-
 		// Currently inside a topic loop
-		elseif ( isset( $bbp_topics_template->post->ID ) )
+		if ( !empty( $bbp_topics_template->in_the_loop ) && isset( $bbp_topics_template->post->ID ) )
 			$bbp_topic_id = $bbp_topics_template->post->ID;
+
+		// Currently viewing a topic
+		elseif ( bbp_is_topic() && isset( $wp_query->post->ID ) )
+			$bbp_topic_id = $wp_query->post->ID;
 
 		// Fallback
 		// @todo - experiment
@@ -883,6 +886,41 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
 }
 
 /**
+ * bbp_topic_tag_list ( $topic_id = 0, $args = '' )
+ *
+ * Output a the tags of a topic
+ *
+ * @param int $topic_id
+ * @param array $args
+ */
+function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
+	echo bbp_get_topic_tag_list( $topic_id, $args );
+}
+	/**
+	 * bbp_get_topic_tag_list ( $topic_id = 0, $args = '' )
+	 *
+	 * Return the tags of a topic
+	 *
+	 * @param int $topic_id
+	 * @param array $args
+	 * @return string
+	 */
+	function bbp_get_topic_tag_list ( $topic_id = 0, $args ) {
+		$defaults = array(
+			'before' => '<p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
+			'sep'    => ', ',
+			'after'  => '</p>'
+		);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		return get_the_term_list( $topic_id, BBP_TOPIC_TAG_ID, $before, $sep, $after );
+	}
+
+/**
  * bbp_forum_pagination_count ()
  *
  * Output the pagination count
@@ -922,7 +960,7 @@ function bbp_forum_pagination_count () {
 
 		// Set return string
 		if ( $total > 1 )
-			$retstr = sprintf( __( 'Viewing %1$s to %2$s topics (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+			$retstr = sprintf( __( 'Viewing topic %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
 
@@ -1336,8 +1374,10 @@ function bbp_topic_pagination_count () {
 		$total     = bbp_number_format( $bbp_replies_template->found_posts );
 
 		// Set return string
-		if ( $total > 1 )
-			$retstr = sprintf( __( 'Viewing %1$s to %2$s replies (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+		if ( $total > 1 && $from_num != $to_num )
+			$retstr = sprintf( __( 'Viewing replies %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+		elseif ( $total > 1 && $from_num == $to_num )
+			$retstr = sprintf( __( 'Viewing reply %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
 
@@ -1538,6 +1578,97 @@ function bbp_current_user_avatar ( $size = 40 ) {
 		return apply_filters( 'bbp_get_current_user_avatar', get_avatar( bbp_get_current_user_id(), $size ) );
 	}
 
-/** END User Functions *********************************************************/
+/** END User Functions ********************************************************/
+
+/** START Form Functions ******************************************************/
+
+/**
+ * bbp_new_topic_form_fields ()
+ *
+ * Output the required hidden fields when creating a new topic
+ *
+ * @uses wp_nonce_field, bbp_forum_id
+ */
+function bbp_new_topic_form_fields () { ?>
+
+	<input type="hidden" name="bbp_forum_id" id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
+	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-new-topic" />
+
+	<?php wp_nonce_field( 'bbp-new-topic' );
+}
+
+/**
+ * bbp_new_reply_form_fields ()
+ *
+ * Output the required hidden fields when creating a new reply
+ *
+ * @uses wp_nonce_field, bbp_forum_id, bbp_topic_id
+ */
+function bbp_new_reply_form_fields () { ?>
+
+	<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" />
+	<input type="hidden" name="bbp_forum_id"    id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
+	<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
+	<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
+
+	<?php wp_nonce_field( 'bbp-new-reply' );
+}
+
+/** END Form Functions ********************************************************/
+
+/** Start General Functions ***************************************************/
+
+function bbp_title_breadcrumb( $sep = '&larr;' ) {
+	echo bbp_get_title_breadcrumb( $sep );
+}
+
+	function bbp_get_title_breadcrumb( $sep = '&larr;' ) {
+		global $post;
+
+		$trail       = '';
+		$parent_id   = $post->post_parent;
+		$breadcrumbs = array();
+
+		// Loop through parents
+		while ( $parent_id ) {
+			// Parents
+			$parent = get_post( $parent_id );
+
+			// Switch through post_type to ensure correct filters are applied
+			switch ( $parent->post_type ) {
+				// Forum
+				case BBP_FORUM_POST_TYPE_ID :
+					$breadcrumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '">' . bbp_get_forum_title( $parent->ID ) . '</a>';
+					break;
+
+				// Topic
+				case BBP_TOPIC_POST_TYPE_ID :
+					$breadcrumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '">' . bbp_get_topic_title( $parent->ID ) . '</a>';
+					break;
+
+				// Reply (Note: not in most themes)
+				case BBP_REPLY_POST_TYPE_ID :
+					$breadcrumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '">' . bbp_get_reply_title( $parent->ID ) . '</a>';
+					break;
+
+				// WordPress Post/Page/Other
+				default :
+					$breadcrumbs[] = '<a href="' . get_permalink( $parent->ID ) . '">' . get_the_title( $parent->ID ) . '</a>';
+					break;
+			}
+
+			// Walk backwards up the tree
+			$parent_id = $parent->post_parent;
+		}
+
+		// Reverse the breadcrumb
+		$breadcrumbs = array_reverse( $breadcrumbs );
+
+		// Build the trail
+		foreach ( $breadcrumbs as $crumb )
+			$trail .= $crumb . ' ' . $sep . ' ';
+
+		return apply_filters( 'bbp_get_title_breadcrumb', $trail . get_the_title() );
+	}
 
 ?>

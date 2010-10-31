@@ -1,41 +1,33 @@
 
-<table id="new-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-form">
-	<thead>
-		<tr>
-			<th><?php bbp_current_user_name(); ?></th>
-			<th><?php _e( 'Reply', 'bbpress' ); ?></th>
-		</tr>
-	</thead>
+<div id="new-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-form">
+	<form id="new_post" name="new_post" method="post" action="">
+		<fieldset>
+			<legend>
+				<?php printf( __( 'Reply to: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_topic_title() ); ?>
+			</legend>
 
-	<tbody>
-		<tr>
-			<td style="vertical-align: top;">
+			<div class="alignleft">
 				<?php bbp_current_user_avatar( 80 ); ?>
-			</td>
-			<td>
-				<form id="new_post" name="new_post" method="post" action="">
-					<fieldset>
-						<p><label for="bbp_topic_tags"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_reply_description" tabindex="3" name="bbp_reply_description" cols="50" rows="6"></textarea>
-						</p>
+			</div>
 
-						<p><label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
-							<input type="text" value="" tabindex="5" size="16" name="bbp_topic_tags" id="post_tags" />
-						</p>
+			<div class="alignright">
+				<p>
+					<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
+					<textarea id="bbp_reply_content" tabindex="3" name="bbp_reply_content" cols="62" rows="6"></textarea>
+				</p>
 
-						<p align="right">
-							<button type="submit" tabindex="6" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
-						</p>
+				<p>
+					<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
+					<input id="bbp_topic_tags" type="text" value="" tabindex="5" size="40" name="bbp_topic_tags" id="post_tags" />
+				</p>
 
-						<input type="hidden" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" tabindex="1" size="20" name="bbp_reply_title" />
-						<input type="hidden" name="bbp_topic_id" id="bbp_topic_id" value="<?php bbp_topic_id(); ?>" />
-						<input type="hidden" name="action" value="post" />
+				<p align="right">
+					<button type="submit" tabindex="6" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+				</p>
+			</div>
 
-						<?php wp_nonce_field( 'new-post' ); ?>
+			<?php bbp_new_reply_form_fields(); ?>
 
-					</fieldset>
-				</form>
-			</td>
-		</tr>
-	</tbody>
-</table>
+		</fieldset>
+	</form>
+</div>

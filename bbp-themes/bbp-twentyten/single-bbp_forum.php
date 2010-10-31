@@ -12,20 +12,24 @@
 		<div id="container">
 			<div id="content" role="main">
 
-				<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
-					<h1 class="entry-title"><?php bbp_forum_title(); ?></h1>
-					<div class="entry-content">
+				<?php while ( have_posts() ) : the_post(); ?>
 
-						<?php the_content(); ?>
+					<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
+						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+						<div class="entry-content">
 
-					</div>
-				</div><!-- #forum-<?php bbp_forum_id(); ?> -->
+							<?php the_content(); ?>
 
-				<?php get_template_part( 'loop', 'bbp_forums' ); ?>
+							<?php get_template_part( 'loop', 'bbp_forums' ); ?>
 
-				<?php get_template_part( 'loop', 'bbp_topics' ); ?>
+							<?php get_template_part( 'loop', 'bbp_topics' ); ?>
 
-				<?php get_template_part( 'form', 'bbp_topic' ); ?>
+							<?php get_template_part( 'form', 'bbp_topic' ); ?>
+
+						</div>
+					</div><!-- #forum-<?php bbp_forum_id(); ?> -->
+
+				<?php endwhile; ?>
 
 			</div><!-- #content -->
 		</div><!-- #container -->

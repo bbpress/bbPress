@@ -113,33 +113,49 @@ function bbp_time_since( $time ) {
  * @todo security sweep
  */
 function bbp_new_reply_handler () {
-	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) ) {
+
+	// Only proceed if POST is a new reply
+	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-reply' === $_POST['action'] ) {
+
+		// Nonce check
+		check_admin_referer( 'bbp-new-reply' );
 
 		// Handle Title
 		if ( isset( $_POST['bbp_reply_title'] ) )
-			$reply_title = $_POST['bbp_reply_title'];
+			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
 
 		// Handle Description
-		if ( isset( $_POST['bbp_reply_description'] ) )
-			$reply_content = $_POST['bbp_reply_description'];
+		if ( isset( $_POST['bbp_reply_content'] ) )
+			$reply_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_description'] );
 
 		// Handle Topic ID to append reply to
 		if ( isset( $_POST['bbp_topic_id'] ) )
 			$topic_id = $_POST['bbp_topic_id'];
 
 		// Handle Tags
-		if ( isset( $_POST['bbp_topic_tags'] ) )
-			$tags = $_POST['bbp_topic_tags'];
+		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
+			// Escape tag input
+			$terms = esc_html( $_POST['bbp_topic_tags'] );
+
+			// Explode by comma
+			if ( strstr( $terms, ',' ) )
+				$terms = explode( ',', $terms );
+
+			// Add topic tag ID as main key
+			$terms = array( BBP_TOPIC_TAG_ID => $terms );
+
+			// @todo - Handle adding of tags from reply
+		}
 
 		// Handle insertion into posts table
 		if ( !empty( $topic_id ) && !empty( $reply_title ) && !empty( $reply_content ) ) {
 
 			// Add the content of the form to $post as an array
 			$reply_data = array(
+				'post_author'   => bbp_get_current_user_id(),
 				'post_title'    => $reply_title,
 				'post_content'  => $reply_content,
 				'post_parent'   => $topic_id,
-				//'tags_input'    => $tags,
 				'post_status'   => 'publish',
 				'post_type'     => BBP_REPLY_POST_TYPE_ID
 			);
@@ -150,15 +166,19 @@ function bbp_new_reply_handler () {
 			// Update counts, etc...
 			do_action( 'bbp_new_reply', $reply_data );
 
-			// Redirect back to new reply
-			wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#reply-' . $reply_id );
+			// Check for missing reply_id or error
+			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
-			// For good measure
-			exit();
+				// Redirect back to new reply
+				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#reply-' . $reply_id );
+
+				// For good measure
+				exit();
+			}
 		}
 	}
 }
-add_action( 'init', 'bbp_new_reply_handler' );
+add_action( 'template_redirect', 'bbp_new_reply_handler' );
 
 /**
  * bbp_new_topic_handler ()
@@ -168,33 +188,52 @@ add_action( 'init', 'bbp_new_reply_handler' );
  * @todo security sweep
  */
 function bbp_new_topic_handler () {
-	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) ) {
+
+	// Only proceed if POST is a new topic
+	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-topic' === $_POST['action'] ) {
+
+		// Nonce check
+		check_admin_referer( 'bbp-new-topic' );
 
 		// Handle Title
 		if ( isset( $_POST['bbp_topic_title'] ) )
-			$topic_title = $_POST['bbp_topic_title'];
+			$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
 
 		// Handle Description
-		if ( isset( $_POST['bbp_topic_description'] ) )
-			$topic_content = $_POST['bbp_topic_description'];
+		if ( isset( $_POST['bbp_topic_content'] ) )
+			$topic_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] );
 
 		// Handle Topic ID to append reply to
 		if ( isset( $_POST['bbp_forum_id'] ) )
 			$forum_id = $_POST['bbp_forum_id'];
 
 		// Handle Tags
-		if ( isset( $_POST['bbp_topic_tags'] ) )
-			$tags = $_POST['bbp_topic_tags'];
+		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
+			// Escape tag input
+			$terms = esc_html( $_POST['bbp_topic_tags'] );
+
+			// Explode by comma
+			if ( strstr( $terms, ',' ) )
+				$terms = explode( ',', $terms );
+
+			// Add topic tag ID as main key
+			$terms = array( BBP_TOPIC_TAG_ID => $terms );
+
+		// No tags
+		} else {
+			$terms = '';
+		}
 
 		// Handle insertion into posts table
 		if ( !empty( $forum_id ) && !empty( $topic_title ) && !empty( $topic_content ) ) {
 
 			// Add the content of the form to $post as an array
 			$topic_data = array(
+				'post_author'   => bbp_get_current_user_id(),
 				'post_title'    => $topic_title,
 				'post_content'  => $topic_content,
 				'post_parent'   => $forum_id,
-				//'tags_input'    => $tags,
+				'tax_input'     => $terms,
 				'post_status'   => 'publish',
 				'post_type'     => BBP_TOPIC_POST_TYPE_ID
 			);
@@ -205,14 +244,18 @@ function bbp_new_topic_handler () {
 			// Update counts, etc...
 			do_action( 'bbp_new_topic', $topic_data );
 
-			// Redirect back to new reply
-			wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
+			// Check for missing topic_id or error
+			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
-			// For good measure
-			exit();
+				// Redirect back to new reply
+				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
+
+				// For good measure
+				exit();
+			}
 		}
 	}
 }
-add_action( 'init', 'bbp_new_topic_handler' );
+add_action( 'template_redirect', 'bbp_new_topic_handler' );
 
 ?>
