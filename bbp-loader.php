@@ -87,11 +87,11 @@ class BBP_Loader {
 		if ( !defined( 'BBP_TOPIC_POST_TYPE_ID' ) )
 			define( 'BBP_TOPIC_POST_TYPE_ID', apply_filters( 'bbp_topic_post_type_id', 'bbp_topic' ) );
 
-		// The default topic post type ID
+		// The default reply post type ID
 		if ( !defined( 'BBP_REPLY_POST_TYPE_ID' ) )
 			define( 'BBP_REPLY_POST_TYPE_ID', apply_filters( 'bbp_reply_post_type_id', 'bbp_reply' ) );
 
-		// The default topic post type ID
+		// The default topic taxonomy ID
 		if ( !defined( 'BBP_TOPIC_TAG_ID' ) )
 			define( 'BBP_TOPIC_TAG_ID', apply_filters( 'bbp_topic_tag_id', 'bbp_topic_tag' ) );
 
@@ -110,6 +110,10 @@ class BBP_Loader {
 		// Default slug for topic reply post type
 		if ( !defined( 'BBP_REPLY_SLUG' ) )
 			define( 'BBP_REPLY_SLUG', apply_filters( 'bbp_reply_slug', 'reply' ) );
+
+		// Default slug for topic tag taxonomy
+		if ( !defined( 'BBP_TOPIC_TAG_SLUG' ) )
+			define( 'BBP_TOPIC_TAG_SLUG', apply_filters( 'bbp_topic_tag_slug', 'topic-tags' ) );
 
 		// bbPress root directory
 		define( 'BBP_DIR', plugin_dir_path( __FILE__ ) );
@@ -415,7 +419,8 @@ class BBP_Loader {
 
 		// Topic tag rewrite
 		$topic_tag_rewrite = array (
-			'slug' => 'tag'
+			'slug'       => BBP_TOPIC_TAG_SLUG,
+			'with_front' => false
 		);
 
 		// Register the topic tag taxonomy
@@ -427,7 +432,8 @@ class BBP_Loader {
 					'labels'                => $topic_tag_labels,
 					'rewrite'               => $topic_tag_rewrite,
 					'update_count_callback' => '_update_post_term_count',
-					'query_var'             => 'topic-tag',
+					'query_var'             => true,
+					'show_tagcloud'         => true,
 					'hierarchical'          => false,
 					'public'                => true,
 					'show_ui'               => true,
