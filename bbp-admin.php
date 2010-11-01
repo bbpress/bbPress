@@ -360,15 +360,20 @@ class BBP_Admin {
 		if ( $_GET['post_type'] !== BBP_TOPIC_POST_TYPE_ID )
 			return $column;
 
+		// Get topic forum ID
+		$forum_id = bbp_get_topic_forum_id();
+
+		// Populate column data
 		switch ( $column ) {
+			// Forum
 			case 'bbp_topic_forum' :
 				// Output forum name
 				bbp_topic_forum_title();
 
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (
-					'edit' => '<a href="' . add_query_arg( array( 'post' => bbp_get_topic_forum_ID(), 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-					'view' => '<a href="' . bbp_get_topic_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
+					'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+					'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
 				) );
 
 				// Output forum post row links
@@ -382,16 +387,19 @@ class BBP_Admin {
 				echo '</div>';
 				break;
 
+			// Reply Count
 			case 'bbp_topic_reply_count' :
 				// Output replies count
 				bbp_topic_reply_count();
 				break;
 
+			// Freshness
 			case 'bbp_topic_freshness' :
 				// Output last activity time and date
 				bbp_get_topic_last_active();
 				break;
 
+			// Do an action for anything else
 			default :
 				do_action( 'bbp_admin_topics_column_data', $column, $post_id );
 				break;
@@ -448,15 +456,20 @@ class BBP_Admin {
 		if ( $_GET['post_type'] !== BBP_REPLY_POST_TYPE_ID )
 			return $column;
 
+		// Get topic ID
+		$topic_id = bbp_get_topic_forum_id();
+
+		// Populate Column Data
 		switch ( $column ) {
+			// Topic
 			case 'bbp_reply_topic' :
 				// Output forum name
 				bbp_topic_forum_title();
 
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (
-					'edit' => '<a href="' . add_query_arg( array( 'post' => bbp_get_topic_forum_ID(), 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-					'view' => '<a href="' . bbp_get_topic_permalink() . '">' . __( 'View', 'bbpress' ) . '</a>'
+					'edit' => '<a href="' . add_query_arg( array( 'post' => $topic_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+					'view' => '<a href="' . bbp_get_topic_permalink( $topic_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
 				) );
 
 				// Output forum post row links
@@ -470,15 +483,18 @@ class BBP_Admin {
 				echo '</div>';
 				break;
 
+			// Forum
 			case 'bbp_reply_forum' :
 				// Output replies count
 				break;
 
+			// Freshness
 			case 'bbp_topic_freshness':
 				// Output last activity time and date
 				bbp_get_topic_last_active();
 				break;
 
+			// Do action for anything else
 			default :
 				do_action( 'bbp_admin_replies_column_data', $column, $post_id );
 				break;

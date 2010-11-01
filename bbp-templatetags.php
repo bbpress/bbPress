@@ -140,6 +140,10 @@ function bbp_forum_id () {
 		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
 			$bbp_forum_id = $wp_query->post->ID;
 
+		// Currently viewing a topic
+		elseif ( bbp_is_topic() )
+			$bbp_forum_id = bbp_get_topic_forum_id();
+
 		// Fallback
 		// @todo - experiment
 		else
@@ -178,6 +182,9 @@ function bbp_forum_permalink ( $forum_id = 0 ) {
 	 * @return string Permanent link to forum
 	 */
 	function bbp_get_forum_permalink ( $forum_id = 0 ) {
+		if ( empty( $forum_id ) )
+			$forum_id = bbp_get_forum_id();
+
 		return apply_filters( 'bbp_get_forum_permalink', get_permalink( $forum_id ) );
 	}
 
@@ -532,6 +539,10 @@ function bbp_topic_id () {
 		// Currently viewing a topic
 		elseif ( bbp_is_topic() && isset( $wp_query->post->ID ) )
 			$bbp_topic_id = $wp_query->post->ID;
+
+		// Currently viewing a singular reply
+		elseif ( bbp_is_reply() )
+			$bbp_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
 		// @todo - experiment
