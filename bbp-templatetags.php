@@ -1340,6 +1340,8 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 	 * @return string
 	 */
 	function bbp_get_reply_topic_id ( $reply_id = 0 ) {
+		global $bbp_replies_template;
+
 		if ( empty( $reply_id ) )
 			$reply_id = bbp_get_reply_id();
 
