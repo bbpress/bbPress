@@ -1631,11 +1631,37 @@ function bbp_new_reply_form_fields () { ?>
 
 /** Start General Functions ***************************************************/
 
-function bbp_title_breadcrumb( $sep = '&larr;' ) {
-	echo bbp_get_title_breadcrumb( $sep );
+/**
+ * bbp_title_breadcrumb ( $sep )
+ *
+ * Output the page title as a breadcrumb
+ *
+ * @param string $sep
+ */
+function bbp_title_breadcrumb ( $sep = '&larr;' ) {
+	echo bbp_get_breadcrumb( $sep );
 }
 
-	function bbp_get_title_breadcrumb( $sep = '&larr;' ) {
+/**
+ * bbp_breadcrumb ( $sep )
+ *
+ * Output a breadcrumb
+ *
+ * @param string $sep
+ */
+function bbp_breadcrumb ( $sep = '&larr;' ) {
+	echo bbp_get_breadcrumb( $sep );
+}
+	/**
+	 * bbp_get_breadcrumb ( $sep )
+	 *
+	 * Return a breadcrumb ( forum < topic
+	 *
+	 * @global object $post
+	 * @param string $sep
+	 * @return string
+	 */
+	function bbp_get_breadcrumb( $sep = '&larr;' ) {
 		global $post;
 
 		$trail       = '';
@@ -1681,7 +1707,7 @@ function bbp_title_breadcrumb( $sep = '&larr;' ) {
 		foreach ( $breadcrumbs as $crumb )
 			$trail .= $crumb . ' ' . $sep . ' ';
 
-		return apply_filters( 'bbp_get_title_breadcrumb', $trail . get_the_title() );
+		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
 	}
 
 ?>
