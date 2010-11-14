@@ -258,4 +258,41 @@ function bbp_new_topic_handler () {
 }
 add_action( 'template_redirect', 'bbp_new_topic_handler' );
 
+/**
+ * bbp_get_stickies()
+ *
+ * Return sticky topics from forum
+ *
+ * @since bbPress (1.2-r2592)
+ * @param int $forum_id
+ * @return array Post ID's of sticky topics
+ */
+function bbp_get_stickies ( $forum_id = 0 ) {
+	if ( empty( $forum_id ) ) {
+		$stickies = get_option( 'bbp_sticky_topics' );
+	} else {
+		if ( BBP_FORUM_POST_TYPE_ID == get_post_type( $forum_id ) ) {
+			$stickies = get_post_meta( $forum_id );
+		} else {
+			$stickies = null;
+		}
+	}
+
+	return apply_filters( 'bbp_get_stickies', $stickies, (int)$forum_id );
+}
+
+/**
+ * bbp_get_super_stickies ()
+ *
+ * Return topics stuck to front page of forums
+ *
+ * @since bbPress (1.2-r2592)
+ * @return array Post ID's of super sticky topics
+ */
+function bbp_get_super_stickies () {
+	$stickies = get_option( 'bbp_super_sticky_topics' );
+
+	return apply_filters( 'bbp_get_super_stickies', $stickies );
+}
+
 ?>
