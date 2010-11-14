@@ -13,51 +13,61 @@ if ( !class_exists( 'BBP_Admin' ) ) :
 class BBP_Admin {
 
 	function bbp_admin () {
+		/** General ***********************************************************/
+
 		// Attach the bbPress admin init action to the WordPress admin init action.
-		add_action( 'admin_init',                                           array( $this, 'init' ) );
-
-		// User profile edit/display actions
-		add_action( 'edit_user_profile',                                    array( $this, 'user_profile_forums' ) );
-		add_action( 'show_user_profile',                                    array( $this, 'user_profile_forums' ) );
-
-		// User profile save actions
-		add_action( 'personal_options_update',                              array( $this, 'user_profile_update' ) );
-		add_action( 'edit_user_profile_update',                             array( $this, 'user_profile_update' ) );
+		add_action( 'admin_init',                  array( $this, 'init' ) );
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',                                           array( $this, 'admin_head' ) );
+		add_action( 'admin_head',                  array( $this, 'admin_head' ) );
+
+		/** User **************************************************************/
+
+		// User profile edit/display actions
+		add_action( 'edit_user_profile',           array( $this, 'user_profile_forums' ) );
+		add_action( 'show_user_profile',           array( $this, 'user_profile_forums' ) );
+
+		// User profile save actions
+		add_action( 'personal_options_update',     array( $this, 'user_profile_update' ) );
+		add_action( 'edit_user_profile_update',    array( $this, 'user_profile_update' ) );
+
+		/** Forums ************************************************************/
 
 		// Forum column headers.
 		add_filter( 'manage_' . BBP_FORUM_POST_TYPE_ID . '_posts_columns',  array( $this, 'forums_column_headers' ) );
 
 		// Forum columns (in page row)
-		add_action( 'manage_pages_custom_column',                           array( $this, 'forums_column_data' ), 10, 2 );
-		add_filter( 'page_row_actions',                                     array( $this, 'forums_row_actions' ), 10, 2 );
+		add_action( 'manage_pages_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
+		add_filter( 'page_row_actions',            array( $this, 'forums_row_actions' ), 10, 2 );
+
+		/** Topics ************************************************************/
 
 		// Topic column headers.
 		add_filter( 'manage_' . BBP_TOPIC_POST_TYPE_ID . '_posts_columns',  array( $this, 'topics_column_headers' ) );
 
 		// Topic columns (in post row)
-		add_action( 'manage_posts_custom_column',                           array( $this, 'topics_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                     array( $this, 'topics_row_actions' ), 10, 2 );
+		add_action( 'manage_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',            array( $this, 'topics_row_actions' ), 10, 2 );
+
+		// Topic metabox actions
+		add_action( 'admin_menu',                  array( $this, 'topic_parent_metabox' ) );
+		add_action( 'save_post',                   array( $this, 'topic_parent_metabox_save' ) );
+
+		/** Replies ***********************************************************/
 
 		// Reply column headers.
 		add_filter( 'manage_' . BBP_REPLY_POST_TYPE_ID . '_posts_columns',  array( $this, 'replies_column_headers' ) );
 
 		// Reply columns (in post row)
-		add_action( 'manage_posts_custom_column',                           array( $this, 'replies_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                     array( $this, 'replies_row_actions' ), 10, 2 );
-
-		// Topic metabox actions
-		add_action( 'admin_menu',                                           array( $this, 'topic_parent_metabox' ) );
-		add_action( 'save_post',                                            array( $this, 'topic_parent_metabox_save' ) );
+		add_action( 'manage_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',            array( $this, 'replies_row_actions' ), 10, 2 );
 
 		// Topic reply metabox actions
-		add_action( 'admin_menu',                                           array( $this, 'topic_reply_parent_metabox' ) );
-		add_action( 'save_post',                                            array( $this, 'topic_reply_parent_metabox_save' ) );
+		add_action( 'admin_menu',                  array( $this, 'reply_parent_metabox' ) );
+		add_action( 'save_post',                   array( $this, 'reply_parent_metabox_save' ) );
 
 		// Register bbPress admin style
-		add_action( 'admin_init',                                           array( $this, 'register_admin_style' ) );
+		add_action( 'admin_init',                  array( $this, 'register_admin_style' ) );
 	}
 
 	/**
@@ -114,31 +124,31 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topic_reply_parent_metabox ()
+	 * reply_parent_metabox ()
 	 *
 	 * Add the topic reply parent metabox
 	 */
-	function topic_reply_parent_metabox () {
+	function reply_parent_metabox () {
 		add_meta_box (
-			'bbp_topic_reply_parent_id',
+			'bbp_reply_parent_id',
 			__( 'Topic', 'bbpress' ),
-			'bbp_topic_reply_metabox',
+			'bbp_reply_metabox',
 			BBP_REPLY_POST_TYPE_ID,
 			'normal'
 		);
 
-		do_action( 'bbp_topic_reply_parent_metabox' );
+		do_action( 'bbp_reply_parent_metabox' );
 	}
 
 	/**
-	 * topic_reply_parent_metabox_save ()
+	 * reply_parent_metabox_save ()
 	 *
 	 * Pass the topic reply post parent id for processing
 	 *
 	 * @param int $post_id
 	 * @return int
 	 */
-	function topic_reply_parent_metabox_save ( $post_id ) {
+	function reply_parent_metabox_save ( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
 
@@ -148,7 +158,7 @@ class BBP_Admin {
 		// OK, we're authenticated: we need to find and save the data
 		$parent_id = isset( $_POST['parent_id'] ) ? $_POST['parent_id'] : 0;
 
-		do_action( 'bbp_topic_reply_parent_metabox_save' );
+		do_action( 'bbp_reply_parent_metabox_save' );
 
 		return $parent_id;
 	}
@@ -205,7 +215,8 @@ class BBP_Admin {
 				background: url(<?php echo BBP_IMAGES_URL . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
 			
-			.column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_freshness, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
+			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
+			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted { width: 15%; }
 			<?php endif; ?>
 		/*]]>*/
 		</style>
@@ -272,7 +283,8 @@ class BBP_Admin {
 			'bbp_forum_topic_count'       => __( 'Topics', 'bbpress' ),
 			'bbp_forum_topic_reply_count' => __( 'Replies', 'bbpress' ),
 			'author'                      => __( 'Creator', 'bbpress' ),
-			'date'                        => __( 'Date' , 'bbpress' )
+			'date'                        => __( 'Created' , 'bbpress' ),
+			'bbp_forum_freshness'         => __( 'Freshness', 'bbpress' )
 		);
 
 		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
@@ -284,23 +296,23 @@ class BBP_Admin {
 	 * Print extra columns for the forums page
 	 *
 	 * @param string $column
-	 * @param int $post_id
+	 * @param int $forum_id
 	 */
-	function forums_column_data ( $column, $post_id ) {
+	function forums_column_data ( $column, $forum_id ) {
 		if ( $_GET['post_type'] !== BBP_FORUM_POST_TYPE_ID )
 			return $column;
 
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
-				bbp_forum_topic_count();
+				bbp_forum_topic_count( $forum_id );
 				break;
 
 			case 'bbp_forum_topic_reply_count' :
-				bbp_forum_topic_reply_count();
+				bbp_forum_topic_reply_count( $forum_id );
 				break;
 
 			default:
-				do_action( 'bbp_admin_forums_column_data', $column, $post_id );
+				do_action( 'bbp_admin_forums_column_data', $column, $forum_id );
 				break;
 		}
 	}
@@ -311,11 +323,11 @@ class BBP_Admin {
 	 * Remove the quick-edit action link and display the description under the forum title
 	 *
 	 * @param array $actions
-	 * @param array $post	
+	 * @param array $forum
 	 * @return array $actions
 	 */	
-	function forums_row_actions ( $actions, $post ) {
-		if ( BBP_FORUM_POST_TYPE_ID == $post->post_type ) {
+	function forums_row_actions ( $actions, $forum ) {
+		if ( BBP_FORUM_POST_TYPE_ID == $forum->post_type ) {
 			unset( $actions['inline'] );
 
 			// simple hack to show the forum description under the title
@@ -340,35 +352,35 @@ class BBP_Admin {
 			'title'                 => __( 'Topics', 'bbpress' ),
 			'bbp_topic_forum'       => __( 'Forum', 'bbpress' ),
 			'bbp_topic_reply_count' => __( 'Replies', 'bbpress' ),
+			'bbp_topic_voice_count' => __( 'Voices', 'bbpress' ),
 			'author'                => __( 'Author', 'bbpress' ),
-			'date'                  => __( 'Created' , 'bbpress' ),
-			'bbp_topic_freshness'   => __( 'Replied', 'bbpress' )
+			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
 		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
 	}
 
 	/**
-	 * topics_column_data ( $column, $post_id )
+	 * topics_column_data ( $column, $topic_id )
 	 *
 	 * Print extra columns for the topics page
 	 *
 	 * @param string $column
 	 * @param int $post_id
 	 */
-	function topics_column_data ( $column, $post_id ) {
+	function topics_column_data ( $column, $topic_id ) {
 		if ( $_GET['post_type'] !== BBP_TOPIC_POST_TYPE_ID )
 			return $column;
 
 		// Get topic forum ID
-		$forum_id = bbp_get_topic_forum_id();
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Populate column data
 		switch ( $column ) {
 			// Forum
 			case 'bbp_topic_forum' :
 				// Output forum name
-				bbp_topic_forum_title();
+				bbp_topic_forum_title( $topic_id );
 
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (
@@ -377,31 +389,31 @@ class BBP_Admin {
 				) );
 
 				// Output forum post row links
-				$i = 0;
-				echo '<div class="row-actions">';
-				foreach ( $actions as $action => $link ) {
-					++$i;
-					( $i == count( $actions ) ) ? $sep = '' : $sep = ' | ';
-					echo '<span class="' . $action . '">' . $link . $sep . '</span>';
-				}
-				echo '</div>';
+				foreach ( $actions as $action => $link )
+					$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+
+				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+
 				break;
 
 			// Reply Count
 			case 'bbp_topic_reply_count' :
-				// Output replies count
-				bbp_topic_reply_count();
+				bbp_topic_reply_count( $topic_id );
+				break;
+
+			// Reply Count
+			case 'bbp_topic_voice_count' :
+				bbp_topic_voice_count( $topic_id );
 				break;
 
 			// Freshness
 			case 'bbp_topic_freshness' :
-				// Output last activity time and date
-				bbp_get_topic_last_active();
+				bbp_get_topic_last_active( $topic_id );
 				break;
 
 			// Do an action for anything else
 			default :
-				do_action( 'bbp_admin_topics_column_data', $column, $post_id );
+				do_action( 'bbp_admin_topics_column_data', $column, $topic_id );
 				break;
 		}
 	}
@@ -412,11 +424,11 @@ class BBP_Admin {
 	 * Remove the quick-edit action link under the topic/reply title 
 	 *
 	 * @param array $actions
-	 * @param array $post	
+	 * @param array $topic
 	 * @return array $actions
 	 */	
-	function topics_row_actions ( $actions, $post ) {
-		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
+	function topics_row_actions ( $actions, $topic ) {
+		if ( in_array( $topic->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
 			unset( $actions['inline hide-if-no-js'] );
 
 		return $actions;
@@ -434,11 +446,10 @@ class BBP_Admin {
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Title', 'bbpress' ),
+			'bbp_reply_forum'       => __( 'Forum', 'bbpress' ),
 			'bbp_reply_topic'       => __( 'Topic', 'bbpress' ),
-			//'bbp_reply_forum'       => __( 'Forum', 'bbpress' ),
 			'author'                => __( 'Author', 'bbpress' ),
-			'date'                  => __( 'Date' , 'bbpress' ),
-			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
+			'bbp_reply_posted'      => __( 'Posted' , 'bbpress' ),
 		);
 
 		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
@@ -452,19 +463,19 @@ class BBP_Admin {
 	 * @param string $column
 	 * @param int $post_id
 	 */
-	function replies_column_data ( $column, $post_id ) {
+	function replies_column_data ( $column, $reply_id ) {
 		if ( $_GET['post_type'] !== BBP_REPLY_POST_TYPE_ID )
 			return $column;
 
 		// Get topic ID
-		$topic_id = bbp_get_topic_forum_id();
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
 		// Populate Column Data
 		switch ( $column ) {
 			// Topic
 			case 'bbp_reply_topic' :
 				// Output forum name
-				bbp_topic_forum_title();
+				bbp_topic_title( $topic_id );
 
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (
@@ -473,25 +484,43 @@ class BBP_Admin {
 				) );
 
 				// Output forum post row links
-				$i = 0;
-				echo '<div class="row-actions">';
-				foreach ( $actions as $action => $link ) {
-					++$i;
-					( $i == count( $actions ) ) ? $sep = '' : $sep = ' | ';
-					echo '<span class="' . $action . '">' . $link . $sep . '</span>';
-				}
-				echo '</div>';
+				foreach ( $actions as $action => $link )
+					$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+
+				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+
 				break;
 
 			// Forum
 			case 'bbp_reply_forum' :
-				// Output replies count
+				// Get Forum ID
+				$forum_id = bbp_get_topic_forum_id( $topic_id );
+
+				// Output forum name
+				bbp_forum_title( $forum_id );
+
+				// Link information
+				$actions = apply_filters( 'topic_forum_row_actions', array (
+					'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+					'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
+				) );
+
+				// Output forum post row links
+				foreach ( $actions as $action => $link )
+					$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+
+				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+
 				break;
 
 			// Freshness
-			case 'bbp_topic_freshness':
+			case 'bbp_reply_posted':
 				// Output last activity time and date
-				bbp_get_topic_last_active();
+				printf( __( '%1$s on %2$s', 'bbpress' ),
+					esc_attr( get_the_time() ),
+					get_the_date()
+				);
+
 				break;
 
 			// Do action for anything else
@@ -507,11 +536,11 @@ class BBP_Admin {
 	 * Remove the quick-edit action link under the topic/reply title
 	 *
 	 * @param array $actions
-	 * @param array $post
+	 * @param array $reply
 	 * @return array $actions
 	 */
-	function replies_row_actions ( $actions, $post ) {
-		if ( in_array( $post->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) {
+	function replies_row_actions ( $actions, $reply ) {
+		if ( in_array( $reply->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			the_content();

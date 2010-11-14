@@ -627,6 +627,219 @@ function bbp_topic_title ( $topic_id = 0 ) {
 	}
 
 /**
+ * bbp_topic_author ()
+ *
+ * Output the author of the topic in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2590)
+ * @param int $topic_id optional
+ *
+ * @uses bbp_get_topic_author()
+ */
+function bbp_topic_author ( $topic_id = 0 ) {
+	echo bbp_get_topic_author( $topic_id );
+}
+	/**
+	 * bbp_get_topic_author ()
+	 *
+	 * Return the author of the topic in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2590)
+	 *
+	 * @uses apply_filters
+	 * @param int $topic_id optional
+	 *
+	 * @return string Author of topic
+	 */
+	function bbp_get_topic_author ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		return apply_filters( 'bbp_get_topic_author', get_the_author() );
+	}
+
+/**
+ * bbp_topic_author_id ()
+ *
+ * Output the author ID of the topic in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2590)
+ * @param int $topic_id optional
+ *
+ * @uses bbp_get_topic_author()
+ */
+function bbp_topic_author_id ( $topic_id = 0 ) {
+	echo bbp_get_topic_author_id( $topic_id );
+}
+	/**
+	 * bbp_get_topic_author_id ()
+	 *
+	 * Return the author ID of the topic in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2590)
+	 *
+	 * @uses apply_filters
+	 * @param int $topic_id optional
+	 *
+	 * @return string Author of topic
+	 */
+	function bbp_get_topic_author_id ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		return apply_filters( 'bbp_get_topic_author_id', get_the_author_meta( 'ID' ) );
+	}
+
+/**
+ * bbp_topic_author_display_name ()
+ *
+ * Output the author display_name of the topic in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2590)
+ * @param int $topic_id optional
+ *
+ * @uses bbp_get_topic_author()
+ */
+function bbp_topic_author_display_name ( $topic_id = 0 ) {
+	echo bbp_get_topic_author_display_name( $topic_id );
+}
+	/**
+	 * bbp_get_topic_author_display_name ()
+	 *
+	 * Return the author display_name of the topic in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2485)
+	 *
+	 * @uses apply_filters
+	 * @param int $topic_id optional
+	 *
+	 * @return string Author of topic
+	 */
+	function bbp_get_topic_author_display_name ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		return apply_filters( 'bbp_get_topic_author_id', esc_attr( get_the_author_meta( 'display_name' ) ) );
+	}
+
+/**
+ * bbp_topic_author_avatar ()
+ *
+ * Output the author avatar of the topic in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2590)
+ * @param int $topic_id optional
+ *
+ * @uses bbp_get_topic_author()
+ */
+function bbp_topic_author_avatar ( $topic_id = 0 ) {
+	echo bbp_get_topic_author_avatar( $topic_id );
+}
+	/**
+	 * bbp_get_topic_author_avatar ()
+	 *
+	 * Return the author avatar of the topic in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2590)
+	 *
+	 * @uses apply_filters
+	 * @param int $topic_id optional
+	 *
+	 * @return string Author of topic
+	 */
+	function bbp_get_topic_author_avatar ( $topic_id = 0, $size = 40 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		return apply_filters( 'bbp_get_topic_author_avatar', get_avatar( get_the_author_meta( 'ID' ), $size ) );
+	}
+
+/**
+ * bbp_topic_author_avatar ()
+ *
+ * Output the author avatar of the topic in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (1.2-r2590)
+ * @param int $topic_id optional
+ *
+ * @uses bbp_get_topic_author()
+ */
+function bbp_topic_author_url ( $topic_id = 0 ) {
+	echo bbp_get_topic_author_url( $topic_id );
+}
+	/**
+	 * bbp_get_topic_author_url ()
+	 *
+	 * Return the author url of the topic in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (1.2-r2590)
+	 *
+	 * @uses apply_filters
+	 * @param int $topic_id optional
+	 *
+	 * @return string Author URL of topic
+	 */
+	function bbp_get_topic_author_url ( $topic_id = 0 ) {
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id();
+
+		return apply_filters( 'bbp_get_topic_author_url', get_author_posts_url( get_the_author_meta( 'ID' ) ) );
+	}
+
+/**
+ * bbp_topic_author_box ()
+ *
+ * Output the topic author information
+ *
+ * @since bbPress (1.2-r2590)
+ * @param int $topic_id
+ */
+function bbp_topic_author_box( $topic_id = 0 ) {
+	echo bbp_get_topic_author_box( $topic_id );
+}
+	/**
+	 * bbp_get_topic_author_box ( $topic_id )
+	 *
+	 * Return the topic author information
+	 *
+	 * @since bbPress (1.2-r2590)
+	 * @param int $topic_id
+	 * @return string
+	 */
+	function bbp_get_topic_author_box( $topic_id = 0 ) {
+
+		$tab = sprintf (
+			'<a href="%1$s" title="%2$s">%3$s<br />%4$s</a>',
+			bbp_get_topic_author_url(),
+			sprintf( __( 'View %s\'s profile' ), bbp_get_topic_author_display_name() ),
+			bbp_get_topic_author_avatar(),
+			bbp_get_topic_author_display_name()
+		);
+
+		return apply_filters( 'bbp_get_topic_author_box', $tab );
+	}
+
+/**
  * bbp_topic_forum_title ()
  *
  * Output the title of the forum a topic belongs to
@@ -694,14 +907,12 @@ function bbp_topic_forum_title ( $topic_id = 0 ) {
 		 * @return string
 		 */
 		function bbp_get_topic_forum_id ( $topic_id = 0 ) {
-			global $bbp_topics_template;
-
 			if ( empty( $topic_id ) )
 				$topic_id = bbp_get_topic_id();
 
-			$forum_id = get_post_field( 'post_parent', $bbp_topics_template );
+			$forum_id = get_post_field( 'post_parent', $topic_id );
 
-			return apply_filters( 'bbp_get_topic_forum_id', $forum_id );
+			return apply_filters( 'bbp_get_topic_forum_id', $forum_id, $topic_id );
 		}
 
 /**
@@ -916,12 +1127,13 @@ function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
 	 * @param array $args
 	 * @return string
 	 */
-	function bbp_get_topic_tag_list ( $topic_id = 0, $args ) {
+	function bbp_get_topic_tag_list ( $topic_id = 0, $args = '' ) {
 		$defaults = array(
 			'before' => '<p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',
 			'after'  => '</p>'
 		);
+
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
@@ -929,6 +1141,45 @@ function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
 			$topic_id = bbp_get_topic_id();
 
 		return get_the_term_list( $topic_id, BBP_TOPIC_TAG_ID, $before, $sep, $after );
+	}
+
+
+/**
+ * bbp_topic_admin_links()
+ *
+ * Output admin links for topic
+ *
+ * @param array $args
+ */
+function bbp_topic_admin_links( $args = '' ) {
+	echo bbp_get_topic_admin_links( $args );
+}
+	/**
+	 * bbp_get_topic_admin_links()
+	 *
+	 * Return admin links for topic
+	 *
+	 * @param array $args
+	 * @return string
+	 */
+	function bbp_get_topic_admin_links( $args = '' ) {
+		$defaults = array (
+			'sep'   => ' | ',
+			'links' => array (
+				'delete' => __( 'Delete' ), // bbp_get_topic_delete_link( $args ),
+				'close'  => __( 'Close' ),  // bbp_get_topic_close_link( $args ),
+				'sticky' => __( 'Sticky' ), // bbp_get_topic_sticky_link( $args ),
+				'move'   => __( 'Move' ),   // bbp_get_topic_move_dropdown( $args )
+			),
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Process the admin links
+		$links = implode( $sep, $links );
+
+		return apply_filters( 'bbp_get_topic_admin_links', $links, $args );
 	}
 
 /**
