@@ -22,7 +22,7 @@
 		</thead>
 
 		<tfoot>
-			<tr><td colspan="4">&nbsp;<?php // @todo - Moderation links ?></td></tr>
+			<tr><td colspan="4">&nbsp</td></tr>
 		</tfoot>
 
 		<tbody>
@@ -33,6 +33,7 @@
 
 					<td class="bbp-topic-title">
 						<a href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a>
+						<span class="bbp-topic-author"><?php printf( 'By: %s', bbp_get_topic_author() ); ?></span>
 					</td>
 
 					<td class="bbp-topic-replies"><?php bbp_topic_reply_count(); ?></td>
@@ -41,8 +42,6 @@
 
 					<td class="bbp-topic-freshness">
 						<a href="<?php bbp_topic_permalink(); ?>"><?php bbp_topic_last_active(); ?></a>
-
-						<?php // @todo - bbp_topic_author_permalink(); ?>
 
 					</td>
 

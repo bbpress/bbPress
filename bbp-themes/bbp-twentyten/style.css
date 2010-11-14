@@ -1335,3 +1335,8 @@ code {
 	width: 100%;
 	margin-bottom: 20px;
 }
+
+.bbp-topic-author {
+	display: block;
+	font-size: 0.7em;
+}

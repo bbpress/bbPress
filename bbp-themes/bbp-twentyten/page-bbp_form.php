@@ -12,7 +12,7 @@
 		<div id="container">
 			<div id="content" role="main">
 
-				<?php get_template_part( 'form', 'bbp_post' ); ?>
+				<?php get_template_part( 'form', 'bbp_topic' ); ?>
 
 			</div><!-- #content -->
 		</div><!-- #container -->

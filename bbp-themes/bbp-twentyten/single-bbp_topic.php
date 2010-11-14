@@ -27,7 +27,7 @@
 								</thead>
 
 								<tfoot>
-									<td colspan="2">&nbsp;<?php // @todo - Moderation links ?></td>
+									<td colspan="2"><?php bbp_topic_admin_links(); ?></td>
 								</tfoot>
 
 								<tbody>
@@ -35,25 +35,9 @@
 									<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'forum_topic' ); ?>>
 
 										<td class="bbp-topic-author">
-											<?php
-												// @todo - abstract
-												printf (
-													'<a href="%1$s" title="%2$s">%3$s</a>',
-													get_author_posts_url( get_the_author_meta( 'ID' ) ),
-													sprintf( __( 'Posts by %s' ), esc_attr( get_the_author_meta( 'display_name' ) ) ),
-													get_avatar( get_the_author_meta( 'ID' ), 40 )
-												);
-											?>
-											<br />
-											<?php
-												// @todo - abstract
-												printf(
-													'<a href="%1$s" title="%2$s" class="url">%3$s</a>',
-													get_author_posts_url( get_the_author_meta( 'ID' ) ),
-													sprintf( __( 'Posts by %s' ), esc_attr( get_the_author_meta( 'display_name' ) ) ),
-													get_the_author()
-												);
-											?>
+
+											<?php bbp_topic_author_box(); ?>
+
 										</td>
 
 										<td class="bbp-topic-content">
@@ -64,8 +48,7 @@
 
 												<?php
 													// @todo - abstract
-													printf( __( 'Posted at %2$s on %3$s', 'bbpress' ),
-														'meta-prep meta-prep-author',
+													printf( __( 'Posted at %1$s on %2$s', 'bbpress' ),
 														esc_attr( get_the_time() ),
 														get_the_date()
 													);

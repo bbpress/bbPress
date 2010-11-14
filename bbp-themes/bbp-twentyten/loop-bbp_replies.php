@@ -20,7 +20,7 @@
 		</thead>
 
 		<tfoot>
-			<td colspan="2">&nbsp;<?php // @todo - Moderation links ?></td>
+			<td colspan="2">&nbsp;</td>
 		</tfoot>
 
 		<tbody>
@@ -33,20 +33,11 @@
 						<?php
 							// @todo - abstract
 							printf (
-								'<a href="%1$s" title="%2$s">%3$s</a>',
+								'<a href="%1$s" title="%2$s">%3$s<br />%4$s</a>',
 								get_author_posts_url( get_the_author_meta( 'ID' ) ),
-								sprintf( __( 'Posts by %s' ), esc_attr( get_the_author_meta( 'display_name' ) ) ),
-								get_avatar( get_the_author_meta( 'ID' ), 40 )
-							);
-						?>
-						<br />
-						<?php
-							// @todo - abstract
-							printf(
-								'<a href="%1$s" title="%2$s" class="url">%3$s</a>',
-								get_author_posts_url( get_the_author_meta( 'ID' ) ),
-								sprintf( __( 'Posts by %s' ), esc_attr( get_the_author_meta( 'display_name' ) ) ),
-								get_the_author()
+								sprintf( __( 'View %s\'s profile' ), bbp_get_topic_author_display_name() ),
+								bbp_get_topic_author_avatar(),
+								bbp_get_topic_author_display_name()
 							);
 						?>
 					</td>
