@@ -7,7 +7,7 @@
  *
  * @package bbPress
  * @subpackage Functions
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @uses is_super_admin ()
  * @uses apply_filters
@@ -32,7 +32,7 @@ function bbp_has_access () {
  *
  * @package bbPress
  * @subpackage Functions
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @param string $number Number to format
  * @param string $decimals optional Display decimals
@@ -53,7 +53,7 @@ function bbp_number_format ( $number, $decimals = false ) {
  *
  * @package bbPress
  * @subpackage Functions
- * @since bbPress (1.2-r2455)
+ * @since bbPress (r2455)
  *
  * @param int|object $post Optional, default is global post object. A post_id or post object
  * @param string $d Optional, default is 'U'. Either 'G', 'U', or php date format.
@@ -82,7 +82,7 @@ function bbp_get_modified_time( $post = null, $d = 'U', $gmt = false, $translate
  *
  * @package bbPress
  * @subpackage Functions
- * @since bbPress (1.2-r2454)
+ * @since bbPress (r2454)
  *
  * @param $time
  */
@@ -96,7 +96,7 @@ function bbp_time_since( $time ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Functions
-	 * @since bbPress (1.2-r2454)
+	 * @since bbPress (r2454)
 	 *
 	 * @param $time
 	 */
@@ -263,7 +263,7 @@ add_action( 'template_redirect', 'bbp_new_topic_handler' );
  *
  * Return sticky topics from forum
  *
- * @since bbPress (1.2-r2592)
+ * @since bbPress (r2592)
  * @param int $forum_id
  * @return array Post ID's of sticky topics
  */
@@ -286,7 +286,7 @@ function bbp_get_stickies ( $forum_id = 0 ) {
  *
  * Return topics stuck to front page of forums
  *
- * @since bbPress (1.2-r2592)
+ * @since bbPress (r2592)
  * @return array Post ID's of super sticky topics
  */
 function bbp_get_super_stickies () {

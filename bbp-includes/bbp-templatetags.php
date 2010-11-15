@@ -9,7 +9,7 @@
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
 */
 function bbp_head () {
 	do_action( 'bbp_head' );
@@ -23,7 +23,7 @@ add_action( 'wp_head', 'bbp_head' );
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  */
 function bbp_footer () {
 	do_action( 'bbp_footer' );
@@ -41,7 +41,7 @@ add_action( 'wp_footer', 'bbp_footer' );
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @global WP_Query $bbp_forums_template
  * @param array $args Possible arguments to change returned forums
@@ -76,7 +76,7 @@ function bbp_has_forums ( $args = '' ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @global WP_Query $bbp_forums_template
  * @return object Forum information
@@ -93,7 +93,7 @@ function bbp_forums () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @global WP_Query $bbp_forums_template
  * @return object Forum information
@@ -110,7 +110,7 @@ function bbp_the_forum () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @uses bbp_get_forum_id()
  */
@@ -124,7 +124,7 @@ function bbp_forum_id () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @global object $forums_template
 	 * @return string Forum id
@@ -159,7 +159,7 @@ function bbp_forum_id () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @param int $forum_id optional
  * @uses bbp_get_forum_permalink()
@@ -174,7 +174,7 @@ function bbp_forum_permalink ( $forum_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @param int $forum_id optional
 	 * @uses apply_filters
@@ -195,7 +195,7 @@ function bbp_forum_permalink ( $forum_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @param int $forum_id optional
  * @uses bbp_get_forum_title()
@@ -210,7 +210,7 @@ function bbp_forum_title ( $forum_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @param int $forum_id optional
 	 * @uses apply_filters
@@ -232,7 +232,7 @@ function bbp_forum_title ( $forum_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @uses bbp_get_forum_last_active()
  * @param int $forum_id optional
@@ -247,7 +247,7 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @return string
 	 * @param int $forum_id optional
@@ -266,7 +266,7 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @uses bbp_get_forum_topic_count()
  * @param int $forum_id optional Forum ID to check
@@ -281,7 +281,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @todo stash and cache (see commented out code)
 	 *
@@ -309,7 +309,7 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @todo make this not suck
  *
@@ -331,7 +331,7 @@ function bbp_update_forum_topic_count ( $new_topic_count, $forum_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @uses bbp_get_forum_topic_reply_count()
  * @param int $forum_id optional
@@ -346,7 +346,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @todo stash and cache (see commented out code)
 	 *
@@ -374,7 +374,7 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @todo make this not suck
  *
@@ -404,7 +404,7 @@ function bbp_update_forum_topic_reply_count ( $new_topic_reply_count, $forum_id 
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @global WP_Query $bbp_topics_template
  * @param array $args Possible arguments to change returned topics
@@ -476,7 +476,7 @@ function bbp_has_topics ( $args = '' ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @global WP_Query $bbp_topics_template
  * @return object Forum information
@@ -493,7 +493,7 @@ function bbp_topics () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @global WP_Query $bbp_topics_template
  * @return object Forum information
@@ -510,7 +510,7 @@ function bbp_the_topic () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @uses bbp_get_topic_id()
  */
@@ -524,7 +524,7 @@ function bbp_topic_id () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @global object $topics_template
 	 * @return string Forum id
@@ -559,7 +559,7 @@ function bbp_topic_id () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @uses bbp_get_topic_permalink()
  * @param int $topic_id optional
@@ -574,7 +574,7 @@ function bbp_topic_permalink ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @uses apply_filters
 	 * @uses get_permalink
@@ -596,7 +596,7 @@ function bbp_topic_permalink ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  * @param int $topic_id optional
  *
  * @uses bbp_get_topic_title()
@@ -611,7 +611,7 @@ function bbp_topic_title ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @uses apply_filters
 	 * @uses get_the_title()
@@ -633,7 +633,7 @@ function bbp_topic_title ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2590)
+ * @since bbPress (r2590)
  * @param int $topic_id optional
  *
  * @uses bbp_get_topic_author()
@@ -648,7 +648,7 @@ function bbp_topic_author ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2590)
+	 * @since bbPress (r2590)
 	 *
 	 * @uses apply_filters
 	 * @param int $topic_id optional
@@ -669,7 +669,7 @@ function bbp_topic_author ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2590)
+ * @since bbPress (r2590)
  * @param int $topic_id optional
  *
  * @uses bbp_get_topic_author()
@@ -684,7 +684,7 @@ function bbp_topic_author_id ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2590)
+	 * @since bbPress (r2590)
 	 *
 	 * @uses apply_filters
 	 * @param int $topic_id optional
@@ -705,7 +705,7 @@ function bbp_topic_author_id ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2590)
+ * @since bbPress (r2590)
  * @param int $topic_id optional
  *
  * @uses bbp_get_topic_author()
@@ -720,7 +720,7 @@ function bbp_topic_author_display_name ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @uses apply_filters
 	 * @param int $topic_id optional
@@ -741,7 +741,7 @@ function bbp_topic_author_display_name ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2590)
+ * @since bbPress (r2590)
  * @param int $topic_id optional
  *
  * @uses bbp_get_topic_author()
@@ -756,7 +756,7 @@ function bbp_topic_author_avatar ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2590)
+	 * @since bbPress (r2590)
 	 *
 	 * @uses apply_filters
 	 * @param int $topic_id optional
@@ -777,7 +777,7 @@ function bbp_topic_author_avatar ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2590)
+ * @since bbPress (r2590)
  * @param int $topic_id optional
  *
  * @uses bbp_get_topic_author()
@@ -792,7 +792,7 @@ function bbp_topic_author_url ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2590)
+	 * @since bbPress (r2590)
 	 *
 	 * @uses apply_filters
 	 * @param int $topic_id optional
@@ -811,7 +811,7 @@ function bbp_topic_author_url ( $topic_id = 0 ) {
  *
  * Output the topic author information
  *
- * @since bbPress (1.2-r2590)
+ * @since bbPress (r2590)
  * @param int $topic_id
  */
 function bbp_topic_author_box( $topic_id = 0 ) {
@@ -822,7 +822,7 @@ function bbp_topic_author_box( $topic_id = 0 ) {
 	 *
 	 * Return the topic author information
 	 *
-	 * @since bbPress (1.2-r2590)
+	 * @since bbPress (r2590)
 	 * @param int $topic_id
 	 * @return string
 	 */
@@ -846,7 +846,7 @@ function bbp_topic_author_box( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @param int $topic_id optional
  *
@@ -862,7 +862,7 @@ function bbp_topic_forum_title ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @param int $topic_id optional
 	 *
@@ -884,7 +884,7 @@ function bbp_topic_forum_title ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2491)
+	 * @since bbPress (r2491)
 	 *
 	 * @param int $topic_id optional
 	 *
@@ -900,7 +900,7 @@ function bbp_topic_forum_title ( $topic_id = 0 ) {
 		 *
 		 * @package bbPress
 		 * @subpackage Template Tags
-		 * @since bbPress (1.2-r2491)
+		 * @since bbPress (r2491)
 		 *
 		 * @param int $topic_id optional
 		 *
@@ -922,7 +922,7 @@ function bbp_topic_forum_title ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @param int $topic_id optional
  *
@@ -938,7 +938,7 @@ function bbp_topic_last_active ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @param int $topic_id optional
 	 *
@@ -958,7 +958,7 @@ function bbp_topic_last_active ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2485)
+ * @since bbPress (r2485)
  *
  * @uses bbp_get_topic_reply_count()
  * @param int $topic_id
@@ -973,7 +973,7 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2485)
+	 * @since bbPress (r2485)
 	 *
 	 * @todo stash and cache (see commented out code)
 	 *
@@ -1001,7 +1001,7 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2467)
+ * @since bbPress (r2467)
  *
  * @todo make this not suck
  *
@@ -1027,7 +1027,7 @@ function bbp_update_topic_reply_count ( $new_topic_reply_count, $topic_id = 0 ) 
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2567)
+ * @since bbPress (r2567)
  *
  * @uses bbp_get_topic_voice_count()
  * @uses apply_filters
@@ -1044,7 +1044,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2567)
+	 * @since bbPress (r2567)
 	 *
 	 * @uses bbp_get_topic_id()
 	 * @uses apply_filters
@@ -1071,7 +1071,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2567)
+ * @since bbPress (r2567)
  *
  * @uses bbp_get_topic_id()
  * @uses wpdb
@@ -1189,7 +1189,7 @@ function bbp_topic_admin_links( $args = '' ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2519)
+ * @since bbPress (r2519)
  *
  * @global WP_Query $bbp_topics_template
  */
@@ -1203,7 +1203,7 @@ function bbp_forum_pagination_count () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2519)
+	 * @since bbPress (r2519)
 	 *
 	 * @global WP_Query $bbp_topics_template
 	 * @return string
@@ -1237,7 +1237,7 @@ function bbp_forum_pagination_count () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2519)
+ * @since bbPress (r2519)
  */
 function bbp_forum_pagination_links () {
 	echo bbp_get_forum_pagination_links();
@@ -1249,7 +1249,7 @@ function bbp_forum_pagination_links () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2519)
+	 * @since bbPress (r2519)
 	 *
 	 * @global WP_Query $bbp_topics_template
 	 * @return string
@@ -1274,7 +1274,7 @@ function bbp_forum_pagination_links () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @global WP_Query $bbp_replies_template
  * @param array $args Possible arguments to change returned replies
@@ -1346,7 +1346,7 @@ function bbp_has_replies ( $args = '' ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @global WP_Query $bbp_replies_template
  * @return object Replies information
@@ -1363,7 +1363,7 @@ function bbp_replies () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @global WP_Query $bbp_replies_template
  * @return object Reply information
@@ -1380,7 +1380,7 @@ function bbp_the_reply () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @uses bbp_get_reply_id()
  */
@@ -1394,7 +1394,7 @@ function bbp_reply_id () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2553)
+	 * @since bbPress (r2553)
 	 *
 	 * @global object $bbp_replies_template
 	 * @return int Reply id
@@ -1425,7 +1425,7 @@ function bbp_reply_id () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @uses bbp_get_reply_permalink()
  * @param int $reply_id optional
@@ -1440,7 +1440,7 @@ function bbp_reply_permalink ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2553)
+	 * @since bbPress (r2553)
 	 *
 	 * @uses apply_filters
 	 * @uses get_permalink
@@ -1459,7 +1459,7 @@ function bbp_reply_permalink ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  * @param int $reply_id optional
  *
  * @uses bbp_get_reply_title()
@@ -1475,7 +1475,7 @@ function bbp_reply_title ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2553)
+	 * @since bbPress (r2553)
 	 *
 	 * @uses apply_filters
 	 * @uses get_the_title()
@@ -1494,7 +1494,7 @@ function bbp_reply_title ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @todo Have a parameter reply_id
  *
@@ -1510,7 +1510,7 @@ function bbp_reply_content () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2553)
+	 * @since bbPress (r2553)
 	 *
 	 * @uses apply_filters
 	 * @uses get_the_content()
@@ -1528,7 +1528,7 @@ function bbp_reply_content () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @param int $reply_id optional
  *
@@ -1544,7 +1544,7 @@ function bbp_reply_topic ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2553)
+	 * @since bbPress (r2553)
 	 *
 	 * @param int $reply_id optional
 	 *
@@ -1566,7 +1566,7 @@ function bbp_reply_topic ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2553)
+ * @since bbPress (r2553)
  *
  * @param int $reply_id optional
  *
@@ -1582,7 +1582,7 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2553)
+	 * @since bbPress (r2553)
 	 *
 	 * @param int $reply_id optional
 	 *
@@ -1609,7 +1609,7 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2519)
+ * @since bbPress (r2519)
  *
  * @global WP_Query $bbp_topics_template
  */
@@ -1623,7 +1623,7 @@ function bbp_topic_pagination_count () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2519)
+	 * @since bbPress (r2519)
 	 *
 	 * @global WP_Query $bbp_replies_template
 	 * @return string
@@ -1656,7 +1656,7 @@ function bbp_topic_pagination_count () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2519)
+ * @since bbPress (r2519)
  */
 function bbp_topic_pagination_links () {
 	echo bbp_get_topic_pagination_links();
@@ -1668,7 +1668,7 @@ function bbp_topic_pagination_links () {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (1.2-r2519)
+	 * @since bbPress (r2519)
 	 *
 	 * @global WP_Query $bbp_replies_template
 	 * @return string
@@ -1691,7 +1691,7 @@ function bbp_topic_pagination_links () {
  *
  * Check if current page is a bbPress forum
  *
- * @since bbPress (1.2-r2549)
+ * @since bbPress (r2549)
  *
  * @global object $wp_query
  * @return bool
@@ -1713,7 +1713,7 @@ function bbp_is_forum () {
  *
  * Check if current page is a bbPress topic
  *
- * @since bbPress (1.2-r2549)
+ * @since bbPress (r2549)
  *
  * @global object $wp_query
  * @return bool
@@ -1735,7 +1735,7 @@ function bbp_is_topic () {
  *
  * Check if current page is a bbPress topic reply
  *
- * @since bbPress (1.2-r2549)
+ * @since bbPress (r2549)
  *
  * @global object $wp_query
  * @return bool

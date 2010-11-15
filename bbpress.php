@@ -4,7 +4,7 @@ Plugin Name: bbPress
 Plugin URI: http://bbpress.org
 Description: bbPress is forum software with a twist from the creators of WordPress.
 Author: The bbPress Community
-Version: 1.2-bleeding
+Version: plugin-bleeding
 */
 
 /**
@@ -13,11 +13,11 @@ Version: 1.2-bleeding
  *
  * Note: Loaded does NOT mean initialized
  */
-define( 'BBP_VERSION', '1.2-bleeding' );
+define( 'BBP_VERSION', 'plugin-bleeding' );
 
 /** And now for something so unbelievable it's.... UNBELIEVABLE! */
 
-if ( !class_exists( 'BBP_Loader' ) ) :
+if ( !class_exists( 'bbPress' ) ) :
 /**
  * BBP_Loader
  *
@@ -25,44 +25,30 @@ if ( !class_exists( 'BBP_Loader' ) ) :
  *
  * @package bbPress
  * @subpackage Loader
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  */
-class BBP_Loader {
+class bbPress {
 
 	/**
 	 * The main bbPress loader
 	 */
-	function bbp_loader () {
-		// Attach the bbp_loaded action to the WordPress plugins_loaded action.
-		add_action( 'plugins_loaded',  array ( $this, 'loaded' ) );
-
-		// Attach the bbp_init to the WordPress init action.
-		add_action( 'init',            array ( $this, 'init' ) );
-
-		// Attach constants to bbp_loaded.
-		add_action( 'bbp_loaded',      array ( $this, 'constants' ) );
-
-		// Attach includes to bbp_loaded.
-		add_action( 'bbp_loaded',      array ( $this, 'includes' ) );
+	function bbPress () {
+		// Load up the bbPress core
+		add_action( 'bbp_load_core',                array ( $this, 'constants' ) );
+		add_action( 'bbp_load_core',                array ( $this, 'includes' ) );
 
 		// Attach theme directory bbp_loaded.
-		add_action( 'bbp_loaded',      array ( $this, 'register_theme_directory' ) );
+		add_action( 'bbp_register_theme_directory', array ( $this, 'register_theme_directory' ), 10, 2 );
 
 		// Attach textdomain to bbp_init.
-		add_action( 'bbp_init',        array ( $this, 'textdomain' ) );
+		add_action( 'bbp_load_textdomain',          array ( $this, 'textdomain' ), 10, 2 );
 
 		// Attach post type registration to bbp_init.
-		add_action( 'bbp_init',        array ( $this, 'register_post_types' ) );
+		add_action( 'bbp_register_content_types',   array ( $this, 'register_post_types' ), 10, 2 );
 
 		// Attach topic tag registration bbp_init.
-		add_action( 'bbp_init',        array ( $this, 'register_taxonomies' ) );
-
-		// Register bbPress activation sequence
-		register_activation_hook( __FILE__, array( $this, 'activation' ) );
-
-		// Register bbPress deactivation sequence
-		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies' ), 10, 2 );
 	}
 
 	/**
@@ -120,16 +106,11 @@ class BBP_Loader {
 		define( 'BBP_URL', plugin_dir_url( __FILE__ ) );
 
 		// Images URL
-		define( 'BBP_IMAGES_URL', BBP_URL . '/bbp-images' );
+		define( 'BBP_IMAGES_URL', BBP_URL . 'bbp-images' );
 
 		// Themes directory and url
-		define( 'BBP_THEMES_DIR', BBP_DIR . '/bbp-themes' );
-		define( 'BBP_THEMES_URL', BBP_URL . '/bbp-themes' );
-
-		/**
-		 * Constants have been defined
-		 */
-		do_action( 'bbp_constants' );
+		define( 'BBP_THEMES_DIR', BBP_DIR . 'bbp-themes' );
+		define( 'BBP_THEMES_URL', BBP_URL . 'bbp-themes' );
 	}
 
 	/**
@@ -145,6 +126,7 @@ class BBP_Loader {
 		do_action( 'bbp_includes_pre' );
 
 		// Load the files
+		require_once ( BBP_DIR . '/bbp-includes/bbp-loader.php' );
 		require_once ( BBP_DIR . '/bbp-includes/bbp-caps.php' );
 		require_once ( BBP_DIR . '/bbp-includes/bbp-filters.php' );
 		require_once ( BBP_DIR . '/bbp-includes/bbp-classes.php' );
@@ -158,35 +140,6 @@ class BBP_Loader {
 		// Quick admin check and load if needed
 		if ( is_admin() )
 			require_once ( BBP_DIR . '/bbp-includes/bbp-admin.php' );
-
-		/**
-		 * Everything has been included
-		 */
-		do_action( 'bbp_includes' );
-	}
-
-	/**
-	 * loaded ()
-	 *
-	 * A bbPress specific action to say that it has started its
-	 * boot strapping sequence. It's attached to the existing WordPress
-	 * action 'plugins_loaded' because that's when all plugins have loaded. Duh. :P
-	 *
-	 * @uses do_action()
-	 */
-	function loaded () {
-		do_action( 'bbp_loaded' );
-	}
-
-	/**
-	 * init ()
-	 *
-	 * Initialize bbPress as part of the WordPress initilization process
-	 *
-	 * @uses do_action Calls custom action to allow external enhancement
-	 */
-	function init () {
-		do_action ( 'bbp_init' );
 	}
 
 	/**
@@ -200,11 +153,6 @@ class BBP_Loader {
 		$mofile = BBP_DIR . "/bbp-languages/bbpress-{$locale}.mo";
 
 		load_textdomain( 'bbpress', $mofile );
-
-		/**
-		 * Text domain has been loaded
-		 */
-		do_action( 'bbp_load_textdomain' );
 	}
 
 	/**
@@ -212,16 +160,11 @@ class BBP_Loader {
 	 *
 	 * Sets up the bbPress theme directory to use in WordPress
 	 *
-	 * @since bbPress (1.2-r2507)
+	 * @since bbPress (r2507)
 	 * @uses register_theme_directory
 	 */
 	function register_theme_directory () {
 		register_theme_directory( BBP_THEMES_DIR );
-
-		/**
-		 * Theme directory has been registered
-		 */
-		do_action( 'bbp_register_theme_directory' );
 	}
 
 	/**
@@ -389,11 +332,6 @@ class BBP_Loader {
 				)
 			)
 		);
-
-		/**
-		 * Post types have been registered
-		 */
-		do_action ( 'bbp_register_post_types' );
 	}
 
 	/**
@@ -401,7 +339,7 @@ class BBP_Loader {
 	 *
 	 * Register the built in bbPress taxonomies
 	 *
-	 * @since bbPress (1.2-r2464)
+	 * @since bbPress (r2464)
 	 *
 	 * @uses register_taxonomy()
 	 * @uses apply_filters(0
@@ -445,11 +383,6 @@ class BBP_Loader {
 				)
 			)
 		);
-
-		/**
-		 * Topic taxonomies have been registered
-		 */
-		do_action ( 'bbp_register_taxonomies' );
 	}
 
 	/**
@@ -457,7 +390,7 @@ class BBP_Loader {
 	 *
 	 * Runs on bbPress activation
 	 *
-	 * @since bbPress (1.2-r2509)
+	 * @since bbPress (r2509)
 	 */
 	function activation () {
 		register_uninstall_hook( __FILE__, array( $this, 'uninstall' ) );
@@ -510,11 +443,6 @@ class BBP_Loader {
 			// Topic tag caps
 			$default->add_cap( 'assign_topic_tags' );
 		}
-
-		/**
-		 * bbPress has been activated
-		 */
-		do_action( 'bbp_activation' );
 	}
 
 	/**
@@ -522,7 +450,7 @@ class BBP_Loader {
 	 *
 	 * Runs on bbPress deactivation
 	 *
-	 * @since bbPress (1.2-r2509)
+	 * @since bbPress (r2509)
 	 */
 	function deactivation () {
 		// Add caps to admin role
@@ -573,30 +501,14 @@ class BBP_Loader {
 			// Topic tag caps
 			$default->remove_cap( 'assign_topic_tags' );
 		}
-
-		/**
-		 * bbPress has been deactivated
-		 */
-		do_action( 'bbp_deactivation' );
-	}
-
-	/**
-	 * uninstall ()
-	 *
-	 * Runs when uninstalling bbPress
-	 *
-	 * @since bbPress (1.2-r2509)
-	 */
-	function uninstall () {
-		/**
-		 * Uninstall bbPress
-		 */
-		do_action( 'bbp_uninstall' );
 	}
 }
 
 endif; // class_exists check
 
-$bbp_loader = new BBP_Loader();
+//
+$bbp = new bbPress();
+
+do_action( 'bbp_load_core' );
 
 ?>

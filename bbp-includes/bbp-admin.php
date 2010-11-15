@@ -8,7 +8,7 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  *
  * @package bbPress
  * @subpackage Admin
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  */
 class BBP_Admin {
 
@@ -567,7 +567,7 @@ endif; // class_exists check
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  * 
  * @todo A better job at rearranging and separating top level menus
  * @global array $menu
@@ -587,7 +587,7 @@ add_action( 'admin_menu', 'bbp_admin_separator' );
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @todo Alot ;)
  * @global object $post
@@ -628,7 +628,7 @@ function bbp_topic_metabox () {
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @todo Alot ;)
  * @global object $post
@@ -664,7 +664,7 @@ function bbp_topic_reply_metabox () {
  * 
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (1.2-r2464)
+ * @since bbPress (r2464)
  *
  * @param string $title
  * @param string $sub_title

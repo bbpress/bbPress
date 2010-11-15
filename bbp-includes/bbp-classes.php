@@ -1,127 +1,24 @@
 <?php
 
-if ( !class_exists( 'BBP_Main' ) ) :
-/**
- * BBP_Main
- *
- * The main bbPress container class
- *
- * @package bbPress
- * @subpackage Loader
- * @since bbPress (1.2-r2464)
- *
- * @todo Alot ;)
- */
-class BBP_Main {
-
-	function bbp_main () {
-		// Setup globals
-		add_action ( 'bbp_setup_globals', array( $this, 'setup_globals' ) );
-
-		// wp_head
-		add_action ( 'bbp_head',          array( $this, 'enqueue_scripts' ) );
-	}
-
-	/**
-	 * setup_globals ()
-	 *
-	 * Setup all plugin global
-	 *
-	 * @global object $wpdb
-	 */
-	function setup_globals () {
-		global $wpdb;
-
-		// For internal identification
-		$this->id        = BBP_FORUM_POST_TYPE_ID;
-		$this->slug      = BBP_SLUG;
-		$this->settings  = BBP_Main::settings();
-
-		// Register this in the active components array
-		$this->active_components[$this->slug] = $this->id;
-	}
-
-	/**
-	 * settings ()
-	 *
-	 * Loads up any saved settings and filters each default value
-	 *
-	 * @return array
-	 */
-	function settings () {
-
-		// @todo site|network wide forum option? Don't see why not both?
-		$settings = get_site_option( 'bbp_settings', false );
-
-		// Set default values and allow them to be filtered
-		$defaults = array (
-			// the cake is a lie
-		);
-
-		// Allow settings array to be filtered and return
-		return apply_filters( 'bbp_settings', wp_parse_args( $settings, $defaults ) );
-	}
-
-	/**
-	 * enqueue_scripts ()
-	 *
-	 * Hooks into wp_head ()
-	 *
-	 * @return Only return if no data to display
-	 */
-	function enqueue_scripts () {
-		// Load up the JS
-		wp_enqueue_script( 'jquery' );
-
-		do_action( 'bbp_enqueue_scripts' );
-	}
-}
-endif; // class_exists check
-
-class BBP_Forum {
-	function bbp_forum() {
-
-	}
-}
-
-class BBP_Topic {
-	function bbp_topic() {
-
-	}
-}
-
-class BBP_Post {
-	function bbp_post() {
-
-	}
-}
-
-class BBP_User {
-	function bbp_user() {
-
-	}
-}
-
-
 if ( class_exists( 'Walker' ) ) :
 /**
  * Create HTML list of forums.
  *
  * @package bbPress
- * @since 1.2-r2514
+ * @since r2514
  * @uses Walker
  */
 class Walker_Forum extends Walker {
 	/**
 	 * @see Walker::$tree_type
-	 * @since 1.2-r2514
+	 * @since r2514
 	 * @var string
 	 */
 	var $tree_type = BBP_FORUM_POST_TYPE_ID;
 
 	/**
 	 * @see Walker::$db_fields
-	 * @since 1.2-r2514
+	 * @since r2514
 	 * @var array
 	 */
 	var $db_fields = array ( 'parent' => 'post_parent', 'id' => 'ID' );
@@ -129,7 +26,7 @@ class Walker_Forum extends Walker {
 	/**
 	 * @see Walker::start_lvl()
 	 *
-	 * @since 1.2-r2514
+	 * @since r2514
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param int $depth Depth of page. Used for padding.
@@ -142,7 +39,7 @@ class Walker_Forum extends Walker {
 	/**
 	 * @see Walker::end_lvl()
 	 *
-	 * @since 1.2-r2514
+	 * @since r2514
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param int $depth Depth of page. Used for padding.
@@ -155,7 +52,7 @@ class Walker_Forum extends Walker {
 	/**
 	 * @see Walker::start_el()
 	 *
-	 * @since 1.2-r2514
+	 * @since r2514
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param object $forum Page data object.
@@ -203,7 +100,7 @@ class Walker_Forum extends Walker {
 	/**
 	 * @see Walker::end_el()
 	 *
-	 * @since 1.2-r2514
+	 * @since r2514
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param object $forum Page data object. Not used.
