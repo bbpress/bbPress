@@ -58,7 +58,7 @@ class bbPress {
 		$this->includes();
 
 		// Register content types
-		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'   ), 10, 2 );
+		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
 
 		// Register taxonomies
 		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
@@ -85,13 +85,13 @@ class bbPress {
 		$this->forum_id       = apply_filters( 'bbp_forum_post_type', 'bbp_forum' );
 		$this->topic_id       = apply_filters( 'bbp_topic_post_type', 'bbp_topic' );
 		$this->reply_id       = apply_filters( 'bbp_reply_post_type', 'bbp_reply' );
-		$this->topic_tag_id   = apply_filters( 'bbp_topic_tag_id',       'bbp_topic_tag' );
+		$this->topic_tag_id   = apply_filters( 'bbp_topic_tag_id',    'bbp_topic_tag' );
 
 		// Slugs
-		$this->root_slug      = apply_filters( 'bbp_root_slug', 'forums' );
-		$this->forum_slug     = apply_filters( 'bbp_forum_slug', 'forum' );
-		$this->topic_slug     = apply_filters( 'bbp_topic_slug', 'topic' );
-		$this->reply_slug     = apply_filters( 'bbp_reply_slug', 'reply' );
+		$this->root_slug      = apply_filters( 'bbp_root_slug',      'forums'    );
+		$this->forum_slug     = apply_filters( 'bbp_forum_slug',     'forum'     );
+		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     'topic'     );
+		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     'reply'     );
 		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', 'topic-tag' );
 
 		// bbPress root directory
