@@ -124,7 +124,7 @@ class bbPress {
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-filters.php' );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-classes.php' );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-functions.php' );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-templatetags.php' );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-template.php' );
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
