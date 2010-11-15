@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: bbPress - Create Topic
+ * Template Name: bbPress - Topic Index
  *
  * @package bbPress
  * @subpackage Template
@@ -14,16 +14,16 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<div id="bbp-new-topic" class="bbp-new-topic">
+					<div id="topics-front" class="bbp-topics-front">
 						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
 						<div class="entry-content">
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'form', 'bbp_topic' ); ?>
+							<?php get_template_part( 'loop', 'bbp_topics' ); ?>
 
 						</div>
-					</div><!-- #bbp-new-topic -->
+					</div><!-- #topics-front -->
 
 				<?php endwhile; ?>
 
