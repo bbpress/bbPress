@@ -10,10 +10,10 @@
 				<?php bbp_current_user_avatar( 80 ); ?>
 			</div>
 
-			<div class="alignright">
+			<div class="alignleft">
 				<p>
 					<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-					<textarea id="bbp_reply_content" tabindex="3" name="bbp_reply_content" cols="62" rows="6"></textarea>
+					<textarea id="bbp_reply_content" tabindex="3" name="bbp_reply_content" cols="52" rows="6"></textarea>
 				</p>
 
 				<p>

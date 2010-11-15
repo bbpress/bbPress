@@ -1340,3 +1340,7 @@ code {
 	display: block;
 	font-size: 0.7em;
 }
+
+.bbp-topic-form, .bbp-reply-form {
+	clear: left;
+}

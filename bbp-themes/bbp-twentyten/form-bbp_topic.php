@@ -10,7 +10,7 @@
 
 			</div>
 
-			<div class="alignright">
+			<div class="alignleft">
 				<p>
 					<label for="bbp_topic_title"><?php _e( 'Title:', 'bbpress' ); ?></label><br />
 					<input type="text" id="bbp_topic_title" value="" tabindex="1" size="40" name="bbp_topic_title" />
@@ -18,7 +18,7 @@
 
 				<p>
 					<label for="bbp_topic_content"><?php _e( 'Topic:', 'bbpress' ); ?></label><br />
-					<textarea id="bbp_topic_content" tabindex="3" name="bbp_topic_content" cols="62" rows="6"></textarea>
+					<textarea id="bbp_topic_content" tabindex="3" name="bbp_topic_content" cols="52" rows="6"></textarea>
 				</p>
 
 				<p>
