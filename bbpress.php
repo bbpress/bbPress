@@ -15,13 +15,6 @@ Version: plugin-bleeding
  */
 define( 'BBP_VERSION', 'plugin-bleeding' );
 
-/**
- * Place your custom code (actions/filters) in a file called
- * /plugins/bbp-custom.php and it will be loaded before bbPress.
- */
-if ( file_exists( WP_PLUGIN_DIR . '/bbp-custom.php' ) )
-	require( WP_PLUGIN_DIR . '/bbp-custom.php' );
-
 if ( !class_exists( 'bbPress' ) ) :
 /**
  * BBP_Loader
