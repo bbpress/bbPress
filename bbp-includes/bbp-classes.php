@@ -1,5 +1,6 @@
 <?php
 
+if ( !class_exists( 'BBP_Main' ) ) :
 /**
  * BBP_Main
  *
@@ -13,12 +14,12 @@
  */
 class BBP_Main {
 
-	function init () {
+	function bbp_main () {
 		// Setup globals
 		add_action ( 'bbp_setup_globals', array( $this, 'setup_globals' ) );
 
 		// wp_head
-		add_action ( 'bbp_head',          array( $this, 'bbp_enqueue_scripts' ) );
+		add_action ( 'bbp_head',          array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -26,19 +27,18 @@ class BBP_Main {
 	 *
 	 * Setup all plugin global
 	 *
-	 * @global array $bbp
 	 * @global object $wpdb
 	 */
 	function setup_globals () {
-		global $bbp, $wpdb;
+		global $wpdb;
 
 		// For internal identification
-		$bbp->id        = BBP_FORUM_POST_TYPE_ID;
-		$bbp->slug      = BBP_SLUG;
-		$bbp->settings  = BBP_Main::settings();
+		$this->id        = BBP_FORUM_POST_TYPE_ID;
+		$this->slug      = BBP_SLUG;
+		$this->settings  = BBP_Main::settings();
 
 		// Register this in the active components array
-		$bbp->active_components[$bbp->slug] = $bbp->id;
+		$this->active_components[$this->slug] = $this->id;
 	}
 
 	/**
@@ -76,6 +76,7 @@ class BBP_Main {
 		do_action( 'bbp_enqueue_scripts' );
 	}
 }
+endif; // class_exists check
 
 class BBP_Forum {
 	function bbp_forum() {
