@@ -65,7 +65,7 @@ class bbPress {
 		$this->includes();
 
 		// Register content types
-		add_action( 'bbp_register_content_types',   array ( $this, 'register_content_types'   ), 10, 2 );
+		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'   ), 10, 2 );
 
 		// Register taxonomies
 		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
@@ -89,9 +89,9 @@ class bbPress {
 		do_action( 'bbp_constants_pre' );
 
 		// Unique identifiers
-		$this->forum_id       = apply_filters( 'bbp_forum_content_type', 'bbp_forum' );
-		$this->topic_id       = apply_filters( 'bbp_topic_content_type', 'bbp_topic' );
-		$this->reply_id       = apply_filters( 'bbp_reply_content_type', 'bbp_reply' );
+		$this->forum_id       = apply_filters( 'bbp_forum_post_type', 'bbp_forum' );
+		$this->topic_id       = apply_filters( 'bbp_topic_post_type', 'bbp_topic' );
+		$this->reply_id       = apply_filters( 'bbp_reply_post_type', 'bbp_reply' );
 		$this->topic_tag_id   = apply_filters( 'bbp_topic_tag_id',       'bbp_topic_tag' );
 
 		// Slugs
@@ -175,13 +175,13 @@ class bbPress {
 	}
 
 	/**
-	 * register_content_types ()
+	 * register_post_types ()
 	 *
-	 * Setup the post types and taxonomy for forums
+	 * Setup the content types and taxonomies for forums
 	 *
-	 * @todo Finish up the post type admin area with messages, columns, etc...*
+	 * @todo messages
 	 */
-	function register_content_types () {
+	function register_post_types () {
 
 		// Forum labels
 		$forum_labels = array (
@@ -218,7 +218,7 @@ class bbPress {
 		// Register Forum content type
 		register_post_type (
 			$this->forum_id,
-			apply_filters( 'bbp_register_forum_content_type',
+			apply_filters( 'bbp_register_forum_post_type',
 				array (
 					'labels'          => $forum_labels,
 					'rewrite'         => $forum_rewrite,
@@ -270,7 +270,7 @@ class bbPress {
 		// Register Topic content type
 		register_post_type (
 			$this->topic_id,
-			apply_filters( 'bbp_register_topic_content_type',
+			apply_filters( 'bbp_register_topic_post_type',
 				array (
 					'labels'          => $topic_labels,
 					'rewrite'         => $topic_rewrite,
@@ -322,7 +322,7 @@ class bbPress {
 		// Register reply content type
 		register_post_type (
 			$this->reply_id,
-			apply_filters( 'bbp_register_reply_content_type',
+			apply_filters( 'bbp_register_reply_post_type',
 				array (
 					'labels'          => $reply_labels,
 					'rewrite'         => $reply_rewrite,
@@ -376,7 +376,7 @@ class bbPress {
 		register_taxonomy (
 			$this->topic_tag_id, // The topic tag ID
 			$this->topic_id,     // The topic content type
-			apply_filters( 'bbp_register_topic_tag',
+			apply_filters( 'bbp_register_topic_taxonomy',
 				array (
 					'labels'                => $topic_tag_labels,
 					'rewrite'               => $topic_tag_rewrite,

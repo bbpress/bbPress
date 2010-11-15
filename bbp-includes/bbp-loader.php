@@ -30,7 +30,7 @@ class BBP_Loader {
 		add_action( 'bbp_loaded',     array ( $this, 'register_theme_directory' ), 10 );
 
 		// Attach to bbp_init.
-		add_action( 'bbp_init',       array ( $this, 'register_content_types'   ), 6  );
+		add_action( 'bbp_init',       array ( $this, 'register_post_types'      ), 6  );
 		add_action( 'bbp_init',       array ( $this, 'register_taxonomies'      ), 8  );
 		add_action( 'bbp_init',       array ( $this, 'register_textdomain',     ), 10 );
 
@@ -114,14 +114,14 @@ class BBP_Loader {
 	}
 
 	/**
-	 * register_content_types ()
+	 * register_post_types ()
 	 *
-	 * Setup the content types
+	 * Setup the post types
 	 *
 	 * @since bbPress (r2464)
 	 */
-	function register_content_types () {
-		do_action ( 'bbp_register_content_types' );
+	function register_post_types () {
+		do_action ( 'bbp_register_post_types' );
 	}
 
 	/**
