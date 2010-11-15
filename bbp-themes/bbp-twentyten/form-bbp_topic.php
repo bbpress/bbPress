@@ -26,6 +26,15 @@
 					<input type="text" value="" tabindex="5" size="40" name="bbp_topic_tags" id="post_tags" />
 				</p>
 
+				<?php if ( !bbp_is_forum() ) : ?>
+
+					<p>
+						<label for="bbp_forum_id"><?php _e( 'Forum:', 'bbpress' ); ?></label><br />
+						<?php bbp_forum_dropdown(); ?>
+					</p>
+
+				<?php endif; ?>
+
 				<p align="right">
 					<button type="submit" tabindex="7" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 				</p>

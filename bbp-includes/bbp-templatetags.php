@@ -1861,9 +1861,14 @@ function bbp_current_user_avatar ( $size = 40 ) {
  *
  * @uses wp_nonce_field, bbp_forum_id
  */
-function bbp_new_topic_form_fields () { ?>
+function bbp_new_topic_form_fields () { 
+	
+	if ( bbp_is_forum() ) : ?>
 
-	<input type="hidden" name="bbp_forum_id" id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
+	<input type="hidden" name="bbp_forum_id" id="bbp_forum_id" value="<?php bbp_forum_id(); ?>" />
+
+	<?php endif; ?>
+
 	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-new-topic" />
 
 	<?php wp_nonce_field( 'bbp-new-topic' );
@@ -1885,6 +1890,49 @@ function bbp_new_reply_form_fields () { ?>
 
 	<?php wp_nonce_field( 'bbp-new-reply' );
 }
+
+/**
+ * bbp_forum_dropdown ()
+ *
+ * Output a select box allowing to pick which forum a new topic belongs in.
+ *
+ * @param array $args
+ */
+function bbp_forum_dropdown ( $args = '' ) {
+	echo bbp_get_forum_dropdown( $args );
+}
+	/**
+	 * bbp_get_forum_dropdown ()
+	 *
+	 * Return a select box allowing to pick which forum a new topic belongs in.
+	 *
+	 * @global object $bbp
+	 * @param array $args
+	 * @return string
+	 */
+	function bbp_get_forum_dropdown ( $args = '' ) {
+		global $bbp;
+
+		$defaults = array (
+			'post_type'         => $bbp->forum_id,
+			'selected'          => bbp_get_forum_id(),
+			'sort_column'       => 'menu_order, post_title',
+			'child_of'          => '0',
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		if ( $forums = get_posts( $r ) ) {
+			$output = '<select name="bbp_forum_id" id="bbp_forum_id">';
+			$output .= walk_page_dropdown_tree( $forums, 0, $r );
+			$output .= '</select>';
+		} else {
+			$output = __( 'No forums to post to!', 'bbpress' );
+		}
+
+		return apply_filters( 'bbp_get_forums_dropdown', $output );
+	}
 
 /** END Form Functions ********************************************************/
 
