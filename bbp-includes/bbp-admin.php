@@ -12,7 +12,9 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  */
 class BBP_Admin {
 
-	function bbp_admin () {
+	function BBP_Admin () {
+		global $bbp;
+
 		/** General ***********************************************************/
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
@@ -34,7 +36,7 @@ class BBP_Admin {
 		/** Forums ************************************************************/
 
 		// Forum column headers.
-		add_filter( 'manage_' . BBP_FORUM_POST_TYPE_ID . '_posts_columns',  array( $this, 'forums_column_headers' ) );
+		add_filter( 'manage_' . $bbp->forum_id . '_posts_columns',  array( $this, 'forums_column_headers' ) );
 
 		// Forum columns (in page row)
 		add_action( 'manage_pages_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
@@ -43,7 +45,7 @@ class BBP_Admin {
 		/** Topics ************************************************************/
 
 		// Topic column headers.
-		add_filter( 'manage_' . BBP_TOPIC_POST_TYPE_ID . '_posts_columns',  array( $this, 'topics_column_headers' ) );
+		add_filter( 'manage_' . $bbp->topic_id . '_posts_columns',  array( $this, 'topics_column_headers' ) );
 
 		// Topic columns (in post row)
 		add_action( 'manage_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
@@ -56,7 +58,7 @@ class BBP_Admin {
 		/** Replies ***********************************************************/
 
 		// Reply column headers.
-		add_filter( 'manage_' . BBP_REPLY_POST_TYPE_ID . '_posts_columns',  array( $this, 'replies_column_headers' ) );
+		add_filter( 'manage_' . $bbp->reply_id . '_posts_columns',  array( $this, 'replies_column_headers' ) );
 
 		// Reply columns (in post row)
 		add_action( 'manage_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
@@ -89,11 +91,13 @@ class BBP_Admin {
 	 * @uses add_meta_box
 	 */
 	function topic_parent_metabox () {
+		global $bbp;
+
 		add_meta_box (
 			'bbp_topic_parent_id',
 			__( 'Forum', 'bbpress' ),
 			'bbp_topic_metabox',
-			BBP_TOPIC_POST_TYPE_ID,
+			$bbp->topic_id,
 			'normal'
 		);
 
@@ -129,11 +133,13 @@ class BBP_Admin {
 	 * Add the topic reply parent metabox
 	 */
 	function reply_parent_metabox () {
+		global $bbp;
+
 		add_meta_box (
 			'bbp_reply_parent_id',
 			__( 'Topic', 'bbpress' ),
 			'bbp_reply_metabox',
-			BBP_REPLY_POST_TYPE_ID,
+			$bbp->reply_id,
 			'normal'
 		);
 
@@ -169,19 +175,19 @@ class BBP_Admin {
 	 * Add some general styling to the admin area
 	 */
 	function admin_head () {
-		global $wp_query;
+		global $wp_query, $bbp;
 
 		// Icons for top level admin menus
-		$menu_icon_url	= BBP_IMAGES_URL . '/menu.png';
+		$menu_icon_url	= $bbp->images_url . '/menu.png';
 
 		// Top level menu classes
-		$forum_class = sanitize_html_class( BBP_FORUM_POST_TYPE_ID );
-		$topic_class = sanitize_html_class( BBP_TOPIC_POST_TYPE_ID );
-		$reply_class = sanitize_html_class( BBP_REPLY_POST_TYPE_ID );
+		$forum_class = sanitize_html_class( $bbp->forum_id );
+		$topic_class = sanitize_html_class( $bbp->topic_id );
+		$reply_class = sanitize_html_class( $bbp->reply_id );
 
 		// Calculate offset for screen_icon sprite
 		if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() )
-			$icons32_offset = -90 * array_search( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) );
+			$icons32_offset = -90 * array_search( $_GET['post_type'], array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) );
 
 ?>
 		<style type="text/css" media="screen">
@@ -210,9 +216,9 @@ class BBP_Admin {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 
-			<?php if ( in_array ( $_GET['post_type'], array( BBP_FORUM_POST_TYPE_ID, BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) : ?>
+			<?php if ( in_array ( $_GET['post_type'], array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) ) ) : ?>
 			#icon-edit, #icon-post {
-				background: url(<?php echo BBP_IMAGES_URL . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
+				background: url(<?php echo $bbp->images_url . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
 			
 			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
@@ -299,7 +305,9 @@ class BBP_Admin {
 	 * @param int $forum_id
 	 */
 	function forums_column_data ( $column, $forum_id ) {
-		if ( $_GET['post_type'] !== BBP_FORUM_POST_TYPE_ID )
+		global $bbp;
+
+		if ( $_GET['post_type'] !== $bbp->forum_id )
 			return $column;
 
 		switch ( $column ) {
@@ -327,7 +335,9 @@ class BBP_Admin {
 	 * @return array $actions
 	 */	
 	function forums_row_actions ( $actions, $forum ) {
-		if ( BBP_FORUM_POST_TYPE_ID == $forum->post_type ) {
+		global $bbp;
+
+		if ( $bbp->forum_id == $forum->post_type ) {
 			unset( $actions['inline'] );
 
 			// simple hack to show the forum description under the title
@@ -369,7 +379,9 @@ class BBP_Admin {
 	 * @param int $post_id
 	 */
 	function topics_column_data ( $column, $topic_id ) {
-		if ( $_GET['post_type'] !== BBP_TOPIC_POST_TYPE_ID )
+		global $bbp;
+
+		if ( $_GET['post_type'] !== $bbp->topic_id )
 			return $column;
 
 		// Get topic forum ID
@@ -428,7 +440,9 @@ class BBP_Admin {
 	 * @return array $actions
 	 */	
 	function topics_row_actions ( $actions, $topic ) {
-		if ( in_array( $topic->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
+		global $bbp;
+
+		if ( in_array( $topic->post_type, array( $bbp->topic_id, $bbp->reply_id ) ) )
 			unset( $actions['inline hide-if-no-js'] );
 
 		return $actions;
@@ -464,7 +478,9 @@ class BBP_Admin {
 	 * @param int $post_id
 	 */
 	function replies_column_data ( $column, $reply_id ) {
-		if ( $_GET['post_type'] !== BBP_REPLY_POST_TYPE_ID )
+		global $bbp;
+
+		if ( $_GET['post_type'] !== $bbp->reply_id )
 			return $column;
 
 		// Get topic ID
@@ -540,7 +556,9 @@ class BBP_Admin {
 	 * @return array $actions
 	 */
 	function replies_row_actions ( $actions, $reply ) {
-		if ( in_array( $reply->post_type, array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) ) {
+		global $bbp;
+
+		if ( in_array( $reply->post_type, array( $bbp->topic_id, $bbp->reply_id ) ) ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			the_content();
@@ -555,7 +573,9 @@ class BBP_Admin {
 	 * Registers the bbPress admin color scheme
 	 */
 	function register_admin_style () {
-		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), BBP_URL . 'bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+		global $bbp;
+
+		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $bbp->plugin_url . 'bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 }
 endif; // class_exists check
@@ -593,10 +613,10 @@ add_action( 'admin_menu', 'bbp_admin_separator' );
  * @global object $post
  */
 function bbp_topic_metabox () {
-	global $post;
+	global $post, $bbp;
 
 	$args = array(
-		'post_type'         => BBP_FORUM_POST_TYPE_ID,
+		'post_type'         => $bbp->forum_id,
 		'exclude_tree'      => $post->ID,
 		'selected'          => $post->post_parent,
 		'show_option_none'  => __( '(No Forum)', 'bbpress' ),
@@ -634,10 +654,10 @@ function bbp_topic_metabox () {
  * @global object $post
  */
 function bbp_topic_reply_metabox () {
-	global $post;
+	global $post, $bbp;
 
 	$args = array(
-		'post_type'         => BBP_TOPIC_POST_TYPE_ID,
+		'post_type'         => $bbp->topic_id,
 		'exclude_tree'      => $post->ID,
 		'selected'          => $post->post_parent,
 		'show_option_none'  => __( '(No Topic)', 'bbpress' ),
@@ -697,7 +717,18 @@ function bbp_admin_dropdown ( $title, $sub_title, $error, $args = '' ) {
 	endif;
 }
 
-// Setup bbPress Admin
-$bbp_admin = new BBP_Admin();
+/**
+ * bbp_admin ()
+ *
+ * Setup bbPress Admin
+ *
+ * @global <type> $bbp
+ */
+function bbp_admin() {
+	global $bbp;
+
+	$bbp->admin = new BBP_Admin();
+}
+add_action( 'bbp_init', 'bbp_admin' );
 
 ?>

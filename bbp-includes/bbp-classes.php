@@ -14,7 +14,7 @@ class Walker_Forum extends Walker {
 	 * @since r2514
 	 * @var string
 	 */
-	var $tree_type = BBP_FORUM_POST_TYPE_ID;
+	var $tree_type;
 
 	/**
 	 * @see Walker::$db_fields

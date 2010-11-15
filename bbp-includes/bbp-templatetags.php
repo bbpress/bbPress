@@ -48,7 +48,7 @@ add_action( 'wp_footer', 'bbp_footer' );
  * @return object Multidimensional array of forum information
  */
 function bbp_has_forums ( $args = '' ) {
-	global $bbp_forums_template, $wp_query;
+	global $wp_query, $bbp_forums_template, $bbp;
 
 	if ( bbp_is_forum() )
 		$post_parent = bbp_get_forum_id();
@@ -56,7 +56,7 @@ function bbp_has_forums ( $args = '' ) {
 		$post_parent = 0;
 
 	$default = array (
-		'post_type'     => BBP_FORUM_POST_TYPE_ID,
+		'post_type'     => $bbp->forum_id,
 		'post_parent'   => $post_parent,
 		'orderby'       => 'menu_order',
 		'order'         => 'ASC'
@@ -292,10 +292,12 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 	 * @param int $forum_id optional Forum ID to check
 	 */
 	function bbp_get_forum_topic_count ( $forum_id = 0 ) {
+		global $bbp;
+
 		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topics = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_TOPIC_POST_TYPE_ID ) );
+		$forum_topics = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => $bbp->topic_id ) );
 
 		return apply_filters( 'bbp_get_forum_topic_count', $forum_topics );
 
@@ -357,10 +359,12 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 	 * @param int $forum_id optional
 	 */
 	function bbp_get_forum_topic_reply_count ( $forum_id = 0 ) {
+		global $bbp;
+
 		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topic_replies = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
+		$forum_topic_replies = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => $bbp->reply_id ) );
 
 		return apply_filters( 'bbp_get_forum_topic_reply_count', $forum_topic_replies );
 
@@ -411,11 +415,11 @@ function bbp_update_forum_topic_reply_count ( $new_topic_reply_count, $forum_id 
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics ( $args = '' ) {
-	global $bbp_topics_template;
+	global $bbp_topics_template, $bbp;
 
 	$default = array (
 		// Narrow query down to bbPress topics
-		'post_type'        => BBP_TOPIC_POST_TYPE_ID,
+		'post_type'        => $bbp->topic_id,
 
 		// Forum ID
 		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
@@ -984,10 +988,12 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 	 * @param int $topic_id
 	 */
 	function bbp_get_topic_reply_count ( $topic_id = 0 ) {
+		global $bbp;
+
 		if ( empty( $topic_id ) )
 			$topic_id = bbp_get_topic_id();
 
-		$topic_replies = 0; //get_pages( array( 'post_parent' => $topic_id, 'post_type' => BBP_REPLY_POST_TYPE_ID ) );
+		$topic_replies = 0; //get_pages( array( 'post_parent' => $topic_id, 'post_type' => $bbp->reply_id ) );
 
 		return apply_filters( 'bbp_get_topic_reply_count', $topic_replies );
 
@@ -1084,21 +1090,21 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
  * @return bool false on failure, voice count on success
  */
 function bbp_update_topic_voice_count ( $topic_id = 0 ) {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	if ( empty( $topic_id ) )
 		$topic_id = bbp_get_topic_id();
 
 	// If it is not a topic or reply, then we don't need it
-	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( BBP_TOPIC_POST_TYPE_ID, BBP_REPLY_POST_TYPE_ID ) ) )
+	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( $bbp->topic_id, $bbp->reply_id ) ) )
 		return false;
 
 	// If it's a reply, then get the parent (topic id)
-	if ( BBP_REPLY_POST_TYPE_ID == get_post_field( 'post_type', $topic_id ) )
+	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
 		$topic_id = get_post_field( 'post_parent', $topic_id );
 
 	// There should always be at least 1 voice
-	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . BBP_REPLY_POST_TYPE_ID . "' ) OR ( ID = %d AND post_type = '" . BBP_TOPIC_POST_TYPE_ID . "' );", $topic_id, $topic_id ) ) ) )
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->topic_id . "' );", $topic_id, $topic_id ) ) ) )
 		$voices = 1;
 
 	// Update the count
@@ -1128,6 +1134,8 @@ function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
 	 * @return string
 	 */
 	function bbp_get_topic_tag_list ( $topic_id = 0, $args = '' ) {
+		global $bbp;
+
 		$defaults = array(
 			'before' => '<p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',
@@ -1140,7 +1148,7 @@ function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
 		if ( empty( $topic_id ) )
 			$topic_id = bbp_get_topic_id();
 
-		return get_the_term_list( $topic_id, BBP_TOPIC_TAG_ID, $before, $sep, $after );
+		return get_the_term_list( $topic_id, $bbp->topic_tag_id, $before, $sep, $after );
 	}
 
 
@@ -1281,11 +1289,11 @@ function bbp_forum_pagination_links () {
  * @return object Multidimensional array of reply information
  */
 function bbp_has_replies ( $args = '' ) {
-	global $bbp_replies_template;
+	global $bbp_replies_template, $bbp;
 
 	$default = array(
 		// Narrow query down to bbPress topics
-		'post_type'        => BBP_REPLY_POST_TYPE_ID,
+		'post_type'        => $bbp->reply_id,
 
 		// Forum ID
 		'post_parent'      => isset( $_REQUEST['topic_id'] ) ? $_REQUEST['topic_id'] : bbp_get_topic_id(),
@@ -1697,12 +1705,12 @@ function bbp_topic_pagination_links () {
  * @return bool
  */
 function bbp_is_forum () {
-	global $wp_query;
+	global $wp_query, $bbp;
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && BBP_FORUM_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->forum_id === $wp_query->query_vars['post_type'] )
 		return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && BBP_FORUM_POST_TYPE_ID === $_GET['post_type'] )
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && $bbp->forum_id === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -1719,12 +1727,12 @@ function bbp_is_forum () {
  * @return bool
  */
 function bbp_is_topic () {
-	global $wp_query;
+	global $wp_query, $bbp;
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && BBP_TOPIC_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->topic_id === $wp_query->query_vars['post_type'] )
 		return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && BBP_TOPIC_POST_TYPE_ID === $_GET['post_type'] )
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && $bbp->topic_id === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -1741,12 +1749,12 @@ function bbp_is_topic () {
  * @return bool
  */
 function bbp_is_reply () {
-	global $wp_query;
+	global $wp_query, $bbp;
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && BBP_REPLY_POST_TYPE_ID === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->reply_id === $wp_query->query_vars['post_type'] )
 		return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && BBP_REPLY_POST_TYPE_ID === $_GET['post_type'] )
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && $bbp->reply_id === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -1913,7 +1921,7 @@ function bbp_breadcrumb ( $sep = '&larr;' ) {
 	 * @return string
 	 */
 	function bbp_get_breadcrumb( $sep = '&larr;' ) {
-		global $post;
+		global $post, $bbp;
 
 		$trail       = '';
 		$parent_id   = $post->post_parent;
@@ -1927,17 +1935,17 @@ function bbp_breadcrumb ( $sep = '&larr;' ) {
 			// Switch through post_type to ensure correct filters are applied
 			switch ( $parent->post_type ) {
 				// Forum
-				case BBP_FORUM_POST_TYPE_ID :
+				case $bbp->forum_id :
 					$breadcrumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '">' . bbp_get_forum_title( $parent->ID ) . '</a>';
 					break;
 
 				// Topic
-				case BBP_TOPIC_POST_TYPE_ID :
+				case $bbp->topic_id :
 					$breadcrumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '">' . bbp_get_topic_title( $parent->ID ) . '</a>';
 					break;
 
 				// Reply (Note: not in most themes)
-				case BBP_REPLY_POST_TYPE_ID :
+				case $bbp->reply_id :
 					$breadcrumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '">' . bbp_get_reply_title( $parent->ID ) . '</a>';
 					break;
 

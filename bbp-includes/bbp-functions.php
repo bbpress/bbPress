@@ -113,6 +113,7 @@ function bbp_time_since( $time ) {
  * @todo security sweep
  */
 function bbp_new_reply_handler () {
+	global $bbp;
 
 	// Only proceed if POST is a new reply
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-reply' === $_POST['action'] ) {
@@ -142,7 +143,7 @@ function bbp_new_reply_handler () {
 				$terms = explode( ',', $terms );
 
 			// Add topic tag ID as main key
-			$terms = array( BBP_TOPIC_TAG_ID => $terms );
+			$terms = array( $bbp->topic_tag_id => $terms );
 
 			// @todo - Handle adding of tags from reply
 		}
@@ -157,7 +158,7 @@ function bbp_new_reply_handler () {
 				'post_content'  => $reply_content,
 				'post_parent'   => $topic_id,
 				'post_status'   => 'publish',
-				'post_type'     => BBP_REPLY_POST_TYPE_ID
+				'post_type'     => $bbp->reply_id
 			);
 
 			// Insert reply
@@ -188,6 +189,7 @@ add_action( 'template_redirect', 'bbp_new_reply_handler' );
  * @todo security sweep
  */
 function bbp_new_topic_handler () {
+	global $bbp;
 
 	// Only proceed if POST is a new topic
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-topic' === $_POST['action'] ) {
@@ -217,7 +219,7 @@ function bbp_new_topic_handler () {
 				$terms = explode( ',', $terms );
 
 			// Add topic tag ID as main key
-			$terms = array( BBP_TOPIC_TAG_ID => $terms );
+			$terms = array( $bbp->topic_tag_id => $terms );
 
 		// No tags
 		} else {
@@ -235,7 +237,7 @@ function bbp_new_topic_handler () {
 				'post_parent'   => $forum_id,
 				'tax_input'     => $terms,
 				'post_status'   => 'publish',
-				'post_type'     => BBP_TOPIC_POST_TYPE_ID
+				'post_type'     => $bbp->topic_id
 			);
 
 			// Insert reply
@@ -268,10 +270,12 @@ add_action( 'template_redirect', 'bbp_new_topic_handler' );
  * @return array Post ID's of sticky topics
  */
 function bbp_get_stickies ( $forum_id = 0 ) {
+	global $bbp;
+
 	if ( empty( $forum_id ) ) {
 		$stickies = get_option( 'bbp_sticky_topics' );
 	} else {
-		if ( BBP_FORUM_POST_TYPE_ID == get_post_type( $forum_id ) ) {
+		if ( $bbp->forum_id == get_post_type( $forum_id ) ) {
 			$stickies = get_post_meta( $forum_id );
 		} else {
 			$stickies = null;

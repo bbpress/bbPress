@@ -14,68 +14,71 @@ if ( !class_exists( 'BBP_Loader' ) ) :
 class BBP_Loader {
 
 	/**
-	 * The main bbPress loader
+	 * The main bbPress loader. Action priorities included within this function
+	 * are for the sake of human readability and clarification.
 	 */
-	function bbp_loader () {
-		// Attach the bbp_loaded action to the WordPress plugins_loaded action.
-		add_action( 'plugins_loaded',  array ( $this, 'loaded' ) );
+	function BBP_Loader () {
+		// Attach to WordPress actions
+		add_action( 'plugins_loaded', array ( $this, 'loaded'                   ), 10 );
+		add_action( 'init',           array ( $this, 'init'                     ), 10 );
 
-		// Attach the bbp_init to the WordPress init action.
-		add_action( 'init',            array ( $this, 'init' ) );
+		// Attach to bbp_loaded.
+		add_action( 'bbp_loaded',     array ( $this, 'constants'                ), 2  );
+		add_action( 'bbp_loaded',     array ( $this, 'boot_strap_globals'       ), 4  );
+		add_action( 'bbp_loaded',     array ( $this, 'includes'                 ), 6  );
+		add_action( 'bbp_loaded',     array ( $this, 'setup_globals'            ), 8  );
+		add_action( 'bbp_loaded',     array ( $this, 'register_theme_directory' ), 10 );
 
-		// Attach constants to bbp_loaded.
-		add_action( 'bbp_loaded',      array ( $this, 'constants' ) );
+		// Attach to bbp_init.
+		add_action( 'bbp_init',       array ( $this, 'register_content_types'   ), 6  );
+		add_action( 'bbp_init',       array ( $this, 'register_taxonomies'      ), 8  );
+		add_action( 'bbp_init',       array ( $this, 'register_textdomain',     ), 10 );
 
-		// Attach includes to bbp_loaded.
-		add_action( 'bbp_loaded',      array ( $this, 'includes' ) );
-
-		// Attach theme directory bbp_loaded.
-		add_action( 'bbp_loaded',      array ( $this, 'register_theme_directory' ) );
-
-		// Attach textdomain to bbp_init.
-		add_action( 'bbp_init',        array ( $this, 'textdomain' ) );
-
-		// Attach post type registration to bbp_init.
-		add_action( 'bbp_init',        array ( $this, 'register_content_types' ) );
-
-		// Attach topic tag registration bbp_init.
-		add_action( 'bbp_init',        array ( $this, 'register_taxonomies' ) );
-
-		// Register bbPress activation sequence
-		register_activation_hook( __FILE__, array( $this, 'activation' ) );
-
-		// Register bbPress deactivation sequence
-		register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+		// Register bbPress activation/deactivation sequences
+		register_activation_hook  ( __FILE__, array ( $this, 'activation'       ), 10 );
+		register_deactivation_hook( __FILE__, array ( $this, 'deactivation'     ), 10 );
 	}
 
 	/**
 	 * constants ()
 	 *
-	 * Default component constants that can be overridden or filtered
+	 * Setup constants
 	 */
 	function constants () {
 		do_action( 'bbp_constants' );
 	}
 
 	/**
+	 * boot_strap_globals ()
+	 * 
+	 * Setup globals BEFORE includes
+	 */
+	function boot_strap_globals () {
+		do_action( 'bbp_boot_strap_globals' );
+	}
+
+	/**
 	 * includes ()
 	 *
-	 * Include required files
-	 *
-	 * @uses is_admin If in WordPress admin, load additional file
+	 * Include files
 	 */
 	function includes () {
 		do_action( 'bbp_includes' );
 	}
 
 	/**
+	 * setup_globals ()
+	 *
+	 * Setup globals AFTER includes
+	 */
+	function setup_globals () {
+		do_action( 'bbp_setup_globals' );
+	}
+
+	/**
 	 * loaded ()
 	 *
-	 * A bbPress specific action to say that it has started its
-	 * boot strapping sequence. It's attached to the existing WordPress
-	 * action 'plugins_loaded' because that's when all plugins have loaded. Duh. :P
-	 *
-	 * @uses do_action()
+	 * Main action responsible for constants, globals, and includes
 	 */
 	function loaded () {
 		do_action( 'bbp_loaded' );
@@ -84,30 +87,27 @@ class BBP_Loader {
 	/**
 	 * init ()
 	 *
-	 * Initialize bbPress as part of the WordPress initilization process
-	 *
-	 * @uses do_action Calls custom action to allow external enhancement
+	 * Initialize any code after everything has been loaded
 	 */
 	function init () {
 		do_action ( 'bbp_init' );
 	}
 
 	/**
-	 * textdomain ()
+	 * register_textdomain ()
 	 *
-	 * Load the translation file for current language
+	 * Load translations for current language
 	 */
-	function textdomain () {
+	function register_textdomain () {
 		do_action( 'bbp_load_textdomain' );
 	}
 
 	/**
 	 * register_theme_directory ()
 	 *
-	 * Sets up the bbPress theme directory to use in WordPress
+	 * Sets up the theme directory
 	 *
 	 * @since bbPress (r2507)
-	 * @uses register_theme_directory
 	 */
 	function register_theme_directory () {
 		do_action( 'bbp_register_theme_directory' );
@@ -116,9 +116,9 @@ class BBP_Loader {
 	/**
 	 * register_content_types ()
 	 *
-	 * Setup the post types and taxonomy for forums
+	 * Setup the content types
 	 *
-	 * @todo Finish up the post type admin area with messages, columns, etc...*
+	 * @since bbPress (r2464)
 	 */
 	function register_content_types () {
 		do_action ( 'bbp_register_content_types' );
@@ -130,9 +130,6 @@ class BBP_Loader {
 	 * Register the built in bbPress taxonomies
 	 *
 	 * @since bbPress (r2464)
-	 *
-	 * @uses register_taxonomy()
-	 * @uses apply_filters(0
 	 */
 	function register_taxonomies () {
 		do_action ( 'bbp_register_taxonomies' );
@@ -172,8 +169,8 @@ class BBP_Loader {
 	}
 }
 
-endif; // class_exists check
+$bbp->loader = new BBP_Loader();
 
-$bbp_loader = new BBP_Loader();
+endif; // class_exists check
 
 ?>
