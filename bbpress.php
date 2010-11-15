@@ -11,11 +11,9 @@ Version: plugin-bleeding
  * Set the version early so other plugins have an inexpensive
  * way to check if bbPress is already loaded.
  *
- * Note: Loaded does NOT mean initialized
+ * Note: Loaded does NOT mean initialized.
  */
 define( 'BBP_VERSION', 'plugin-bleeding' );
-
-/** And now for something so unbelievable it's.... UNBELIEVABLE! */
 
 if ( !class_exists( 'bbPress' ) ) :
 /**
@@ -35,8 +33,8 @@ class bbPress {
 	 */
 	function bbPress () {
 		// Load up the bbPress core
-		add_action( 'bbp_load_core',                array ( $this, 'constants' ) );
-		add_action( 'bbp_load_core',                array ( $this, 'includes' ) );
+		$this->constants();
+		$this->includes();
 
 		// Attach theme directory bbp_loaded.
 		add_action( 'bbp_register_theme_directory', array ( $this, 'register_theme_directory' ), 10, 2 );
@@ -503,12 +501,9 @@ class bbPress {
 		}
 	}
 }
-
 endif; // class_exists check
 
-//
+// "And now here's something we hope you'll really like!"
 $bbp = new bbPress();
-
-do_action( 'bbp_load_core' );
 
 ?>
