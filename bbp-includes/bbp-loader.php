@@ -27,10 +27,6 @@ add_action( 'bbp_init',       'bbp_register_post_types'      , 6  );
 add_action( 'bbp_init',       'bbp_register_taxonomies'      , 8  );
 add_action( 'bbp_init',       'bbp_register_textdomain'      , 10 );
 
-// Register bbPress activation/deactivation sequences
-register_activation_hook  ( __FILE__, 'bbp_activation'       , 10 );
-register_deactivation_hook( __FILE__, 'bbp_deactivation'     , 10 );
-
 /**
  * bbp_bbp_constants ()
  *
@@ -125,39 +121,6 @@ function bbp_register_post_types () {
  */
 function bbp_register_taxonomies () {
 	do_action ( 'bbp_register_taxonomies' );
-}
-
-/**
- * bbp_activation ()
- *
- * Runs on bbPress activation
- *
- * @since bbPress (r2509)
- */
-function bbp_activation () {
-	do_action( 'bbp_activation' );
-}
-
-/**
- * bbp_deactivation ()
- *
- * Runs on bbPress deactivation
- *
- * @since bbPress (r2509)
- */
-function bbp_deactivation () {
-	do_action( 'bbp_deactivation' );
-}
-
-/**
- * bbp_uninstall ()
- *
- * Runs when uninstalling bbPress
- *
- * @since bbPress (r2509)
- */
-function bbp_uninstall () {
-	do_action( 'bbp_uninstall' );
 }
 
 ?>

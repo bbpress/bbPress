@@ -57,6 +57,14 @@ class bbPress {
 		$this->setup_globals();
 		$this->includes();
 
+		// Register bbPress activation/deactivation sequences
+		register_activation_hook  ( __FILE__,       'bbp_activation'   );
+		register_deactivation_hook( __FILE__,       'bbp_deactivation' );
+
+		// Register bbPress core activation and deactivation procedures
+		add_action( 'bbp_activation',               array ( $this, 'activation'   ) );
+		add_action( 'bbp_deactivation',             array ( $this, 'deactivation' ) );
+
 		// Register content types
 		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
 
@@ -97,6 +105,7 @@ class bbPress {
 		// bbPress root directory
 		$this->plugin_dir     = plugin_dir_path( __FILE__ );
 		$this->plugin_url     = plugin_dir_url( __FILE__ );
+		$this->file           = __FILE__;
 
 		// Images
 		$this->images_url     = $this->plugin_url . 'bbp-images';
@@ -393,8 +402,6 @@ class bbPress {
 	 * @since bbPress (r2509)
 	 */
 	function activation () {
-		register_uninstall_hook( __FILE__, array( $this, 'uninstall' ) );
-
 		// Add caps to admin role
 		if ( $admin =& get_role( 'administrator' ) ) {
 
@@ -508,5 +515,38 @@ class bbPress {
 $bbp = new bbPress();
 
 endif; // class_exists check
+
+/**
+ * bbp_activation ()
+ *
+ * Runs on bbPress activation
+ *
+ * @since bbPress (r2509)
+ */
+function bbp_activation () {
+	do_action( 'bbp_activation' );
+}
+
+/**
+ * bbp_deactivation ()
+ *
+ * Runs on bbPress deactivation
+ *
+ * @since bbPress (r2509)
+ */
+function bbp_deactivation () {
+	do_action( 'bbp_deactivation' );
+}
+
+/**
+ * bbp_uninstall ()
+ *
+ * Runs when uninstalling bbPress
+ *
+ * @since bbPress (r2509)
+ */
+function bbp_uninstall () {
+	do_action( 'bbp_uninstall' );
+}
 
 ?>
