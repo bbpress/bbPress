@@ -524,6 +524,8 @@ endif; // class_exists check
  * @since bbPress (r2509)
  */
 function bbp_activation () {
+	register_uninstall_hook( __FILE__, 'bbp_uninstall' );
+
 	do_action( 'bbp_activation' );
 }
 
