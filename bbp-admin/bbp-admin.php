@@ -645,7 +645,7 @@ function bbp_topic_metabox () {
 }
 
 /**
- * bbp_topic_reply_metabox ()
+ * bbp_reply_metabox ()
  *
  * The metabox that holds all of the additional topic information
  *
@@ -656,7 +656,7 @@ function bbp_topic_metabox () {
  * @todo Alot ;)
  * @global object $post
  */
-function bbp_topic_reply_metabox () {
+function bbp_reply_metabox () {
 	global $post, $bbp;
 
 	$args = array(
