@@ -26,6 +26,18 @@ function bbp_has_access () {
 }
 
 /**
+ * bbp_allow_anonymous ()
+ *
+ * Returns true|false if anonymous topic creation and replies are allowed
+ *
+ * @since bbPress (r2596)
+ * @return bool
+ */
+function bbp_allow_anonymous () {
+	return apply_filters( 'bbp_allow_anonymous', get_option( 'bbp_allow_anonymous', false ) );
+}
+
+/**
  * bbp_number_format ( $number, $decimals optional )
  *
  * A bbPress specific method of formatting numeric values
