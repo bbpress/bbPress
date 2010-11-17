@@ -15,59 +15,26 @@ function bbp_admin_tools () {
 		// Stores messages
 		$messages = array();
 
-		if ( !empty( $_POST['bbp-topic-replies'] ) )
-			$messages[] = bbp_recount_topic_replies();
-
-		if ( !empty( $_POST['bbp-topic-voices'] ) )
-			$messages[] = bbp_recount_topic_voices();
-
-		if ( !empty( $_POST['bbp-topic-deleted-replies'] ) )
-			$messages[] = bbp_recount_topic_deleted_replies();
-
-		if ( !empty( $_POST['bbp-forums'] ) ) {
-			$messages[] = bbp_recount_forum_topics();
-			$messages[] = bbp_recount_forum_replies();
-		}
-
-		if ( !empty( $_POST['bbp-topics-replied'] ) )
-			$messages[] = bbp_recount_user_topics_replied();
-
-		if ( !empty( $_POST['bbp-topic-tag-count'] ) )
-			$messages[] = bbp_recount_topic_tags();
-
-		if ( !empty( $_POST['bbp-tags-tag-count'] ) )
-			$messages[] = bbp_recount_tag_topics();
-
-		if ( !empty( $_POST['bbp-tags-delete-empty'] ) )
-			$messages[] = bbp_recount_tag_delete_empty();
-
-		if ( !empty( $_POST['bbp-clean-favorites'] ) )
-			$messages[] = bbp_recount_clean_favorites();
+		wp_cache_flush();
 
 		foreach ( (array) $recount_list as $item )
 			if ( isset( $item[2] ) && isset( $_POST[$item[0]] ) && 1 == $_POST[$item[0]] && is_callable( $item[2] ) )
 				$messages[] = call_user_func( $item[2] );
 
-		wp_cache_flush();
 
 		if ( count( $messages ) ) {
-			$messages = join( '</p>' . "\n" . '<p>', $messages );
-			bbp_admin_notice( $messages );
+			foreach ( $messages as $message ) {
+				bbp_admin_notices( $message[1] );
+			}
 		}
 	} ?>
 
 	<div class="wrap">
 
+		<?php do_action( 'admin_notices' ); ?>
+
 		<div id="icon-tools" class="icon32"><br /></div>
 		<h2><?php _e( 'bbPress Recount', 'bbpress' ) ?></h2>
-
-		<?php if ( isset( $_POST['bbp-tools'] ) ) : ?>
-
-			<div id="message" class="updated fade">
-				<p><?php _e( 'Settings Saved', 'buddypress' ) ?></p>
-			</div>
-
-		<?php endif; ?>
 
 		<p><?php _e( 'bbPress keeps a running count of things like replies to each topic and topics in each forum. In rare occasions these counts can fall out of sync. Using this form you can have bbPress manually recount these items.', 'bbpress' ); ?></p>
 		<p><?php _e( 'You can also use this form to clean out stale items like empty tags.', 'bbpress' ); ?></p>

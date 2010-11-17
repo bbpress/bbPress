@@ -224,7 +224,7 @@ class BBP_Admin {
 				background: url(<?php echo $bbp->images_url . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
 			
-			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_topic_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
+			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
 			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted { width: 15%; }
 			<?php endif; ?>
 		/*]]>*/
@@ -287,13 +287,13 @@ class BBP_Admin {
 	 */
 	function forums_column_headers ( $columns ) {
 		$columns = array (
-			'cb'                          => '<input type="checkbox" />',
-			'title'                       => __( 'Forum', 'bbpress' ),
-			'bbp_forum_topic_count'       => __( 'Topics', 'bbpress' ),
-			'bbp_forum_topic_reply_count' => __( 'Replies', 'bbpress' ),
-			'author'                      => __( 'Creator', 'bbpress' ),
-			'date'                        => __( 'Created' , 'bbpress' ),
-			'bbp_forum_freshness'         => __( 'Freshness', 'bbpress' )
+			'cb'                    => '<input type="checkbox" />',
+			'title'                 => __( 'Forum', 'bbpress' ),
+			'bbp_forum_topic_count' => __( 'Topics', 'bbpress' ),
+			'bbp_forum_reply_count' => __( 'Replies', 'bbpress' ),
+			'author'                => __( 'Creator', 'bbpress' ),
+			'date'                  => __( 'Created' , 'bbpress' ),
+			'bbp_forum_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
 		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
@@ -318,8 +318,8 @@ class BBP_Admin {
 				bbp_forum_topic_count( $forum_id );
 				break;
 
-			case 'bbp_forum_topic_reply_count' :
-				bbp_forum_topic_reply_count( $forum_id );
+			case 'bbp_forum_reply_count' :
+				bbp_forum_reply_count( $forum_id );
 				break;
 
 			default:

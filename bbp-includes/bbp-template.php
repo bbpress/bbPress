@@ -298,11 +298,12 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topics = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => $bbp->topic_id ) );
+		// Look for existing count, and populate if does not exist
+		$topics = get_post_meta( $forum_id, 'bbp_forum_topic_count', true );
+		if ( '' === $topics )
+			$topics = bbp_update_forum_topic_count( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_topic_count', $forum_topics );
-
-		//return apply_filters( 'bbp_get_forum_topic_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_count', true ) );
+		return apply_filters( 'bbp_get_forum_topic_count', $topics );
 	}
 
 /**
@@ -314,23 +315,32 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
  * @subpackage Template Tags
  * @since bbPress (r2464)
  *
- * @todo make this not suck
- *
- * @param int $new_topic_count
  * @param int $forum_id optional
  * @return int
  */
-function bbp_update_forum_topic_count ( $new_topic_count, $forum_id = 0 ) {
+function bbp_update_forum_topic_count ( $forum_id = 0 ) {
+	global $wpdb, $bbp;
+
 	if ( empty( $forum_id ) )
 		$forum_id = bbp_get_forum_id();
 
-	return apply_filters( 'bbp_update_forum_topic_count', (int)update_post_meta( $forum_id, 'bbp_forum_topic_count', $new_topic_count ) );
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = get_post_field( 'post_parent', $forum_id );
+
+	// Get topics count
+	$topics = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->topic_id . "';", $forum_id ) ) );
+
+	// Update the count
+	update_post_meta( $forum_id, 'bbp_forum_topic_count', (int)$topics );
+
+	return apply_filters( 'bbp_update_forum_topic_count', (int)$topics );
 }
 
 /**
- * bbp_forum_topic_reply_count ()
+ * bbp_forum_reply_count ()
  *
- * Output total post count of a forum
+ * Output total reply count of a forum
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -339,11 +349,11 @@ function bbp_update_forum_topic_count ( $new_topic_count, $forum_id = 0 ) {
  * @uses bbp_get_forum_topic_reply_count()
  * @param int $forum_id optional
  */
-function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
-	echo bbp_get_forum_topic_reply_count( $forum_id );
+function bbp_forum_reply_count ( $forum_id = 0 ) {
+	echo bbp_get_forum_reply_count( $forum_id );
 }
 	/**
-	 * bbp_forum_topic_reply_count ()
+	 * bbp_forum_reply_count ()
 	 *
 	 * Return total post count of a forum
 	 *
@@ -359,21 +369,22 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
 	 *
 	 * @param int $forum_id optional
 	 */
-	function bbp_get_forum_topic_reply_count ( $forum_id = 0 ) {
+	function bbp_get_forum_reply_count ( $forum_id = 0 ) {
 		global $bbp;
 
 		if ( empty( $forum_id ) )
 			$forum_id = bbp_get_forum_id();
 
-		$forum_topic_replies = 0; //get_pages( array( 'post_parent' => $forum_id, 'post_type' => $bbp->reply_id ) );
+		// Look for existing count, and populate if does not exist
+		$replies = get_post_meta( $forum_id, 'bbp_forum_reply_count', true );
+		if ( '' === $replies )
+			$replies = bbp_update_forum_reply_count( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_topic_reply_count', $forum_topic_replies );
-
-		//return apply_filters( 'bbp_get_forum_topic_reply_count', (int)get_post_meta( $forum_id, 'bbp_forum_topic_reply_count', true ) );
+		return apply_filters( 'bbp_get_forum_reply_count', (int)$replies );
 	}
 
 /**
- * bbp_update_forum_topic_reply_count ()
+ * bbp_update_forum_reply_count ()
  *
  * Adjust the total post count of a forum
  *
@@ -381,21 +392,117 @@ function bbp_forum_topic_reply_count ( $forum_id = 0 ) {
  * @subpackage Template Tags
  * @since bbPress (r2464)
  *
- * @todo make this not suck
- *
  * @uses bbp_get_forum_id(0
  * @uses apply_filters
  *
- * @param int $new_topic_reply_count New post count
  * @param int $forum_id optional
  *
  * @return int
  */
-function bbp_update_forum_topic_reply_count ( $new_topic_reply_count, $forum_id = 0 ) {
+function bbp_update_forum_reply_count ( $forum_id = 0 ) {
+	global $wpdb, $bbp;
+
 	if ( empty( $forum_id ) )
 		$forum_id = bbp_get_forum_id();
 
-	return apply_filters( 'bbp_update_forum_topic_reply_count', (int)update_post_meta( $forum_id, 'bbp_forum_topic_reply_count', $new_topic_reply_count ) );
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = get_post_field( 'post_parent', $forum_id );
+
+	// There should always be at least 1 voice
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $forum_id ) ) );
+
+	// Update the count
+	update_post_meta( $forum_id, 'bbp_forum_reply_count', (int)$replies );
+
+	return apply_filters( 'bbp_update_forum_reply_count', (int)$replies );
+}
+
+/**
+ * bbp_forum_voice_count ()
+ *
+ * Output total voice count of a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2567)
+ *
+ * @uses bbp_get_forum_voice_count()
+ * @uses apply_filters
+ *
+ * @param int $forum_id
+ */
+function bbp_forum_voice_count ( $forum_id = 0 ) {
+	echo bbp_get_forum_voice_count( $forum_id );
+}
+	/**
+	 * bbp_get_forum_voice_count ()
+	 *
+	 * Return total voice count of a forum
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2567)
+	 *
+	 * @uses bbp_get_forum_id()
+	 * @uses apply_filters
+	 *
+	 * @param int $forum_id
+	 *
+	 * @return int Voice count of the forum
+	 */
+	function bbp_get_forum_voice_count ( $forum_id = 0 ) {
+		if ( empty( $forum_id ) )
+			$forum_id = bbp_get_forum_id();
+
+		// Look for existing count, and populate if does not exist
+		if ( !$voices = get_post_meta( $forum_id, 'bbp_forum_voice_count', true ) )
+			$voices = bbp_update_forum_voice_count( $forum_id );
+
+		return apply_filters( 'bbp_get_forum_voice_count', (int)$voices, $forum_id );
+	}
+
+/**
+ * bbp_update_forum_voice_count ()
+ *
+ * Adjust the total voice count of a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2567)
+ *
+ * @uses bbp_get_forum_id()
+ * @uses wpdb
+ * @uses apply_filters
+ *
+ * @todo cache
+ *
+ * @param int $forum_id optional Topic ID to update
+ *
+ * @return bool false on failure, voice count on success
+ */
+function bbp_update_forum_voice_count ( $forum_id = 0 ) {
+	global $wpdb, $bbp;
+
+	if ( empty( $forum_id ) )
+		$forum_id = bbp_get_forum_id();
+
+	// If it is not a forum or reply, then we don't need it
+	if ( !in_array( get_post_field( 'post_type', $forum_id ), array( $bbp->forum_id, $bbp->reply_id ) ) )
+		return false;
+
+	// If it's a reply, then get the parent (forum id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = get_post_field( 'post_parent', $forum_id );
+
+	// There should always be at least 1 voice
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->forum_id . "' );", $forum_id, $forum_id ) ) ) )
+		$voices = 1;
+
+	// Update the count
+	update_post_meta( $forum_id, 'bbp_forum_voice_count', (int)$voices );
+
+	return apply_filters( 'bbp_update_forum_voice_count', (int)$voices );
 }
 
 /** END - Forum Loop Functions ************************************************/
@@ -984,8 +1091,6 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 	 * @subpackage Template Tags
 	 * @since bbPress (r2485)
 	 *
-	 * @todo stash and cache (see commented out code)
-	 *
 	 * @uses bbp_get_topic_id()
 	 * @uses get_pages
 	 * @uses apply_filters
@@ -998,11 +1103,12 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 		if ( empty( $topic_id ) )
 			$topic_id = bbp_get_topic_id();
 
-		$topic_replies = 0; //get_pages( array( 'post_parent' => $topic_id, 'post_type' => $bbp->reply_id ) );
+		// Look for existing count, and populate if does not exist
+		$replies = get_post_meta( $topic_id, 'bbp_topic_reply_count', true );
+		if ( '' === $replies )
+			$replies = bbp_update_topic_reply_count( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_reply_count', $topic_replies );
-
-		//return apply_filters( 'bbp_get_topic_topic_reply_count', (int)get_post_meta( $topic_id, 'bbp_topic_topic_reply_count', true ) );
+		return apply_filters( 'bbp_get_topic_reply_count', (int)$replies );
 	}
 
 /**
@@ -1014,21 +1120,30 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
  * @subpackage Template Tags
  * @since bbPress (r2467)
  *
- * @todo make this not suck
- *
  * @uses bbp_get_topic_id()
  * @uses apply_filters
  *
- * @param int $new_topic_reply_count New post count
  * @param int $topic_id optional Forum ID to update
  *
  * @return int
  */
-function bbp_update_topic_reply_count ( $new_topic_reply_count, $topic_id = 0 ) {
+function bbp_update_topic_reply_count ( $topic_id = 0 ) {
+	global $wpdb, $bbp;
+
 	if ( empty( $topic_id ) )
 		$topic_id = bbp_get_topic_id();
 
-	return apply_filters( 'bbp_update_topic_reply_count', (int)update_post_meta( $topic_id, 'bbp_topic_reply_count', $new_topic_reply_count ) );
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
+		$topic_id = get_post_field( 'post_parent', $topic_id );
+
+	// Get replies of topic
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
+
+	// Update the count
+	update_post_meta( $topic_id, 'bbp_topic_reply_count', (int)$replies );
+
+	return apply_filters( 'bbp_update_topic_reply_count', (int)$replies );
 }
 
 /**
@@ -1113,7 +1228,7 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
 		$voices = 1;
 
 	// Update the count
-	update_post_meta( $topic_id, 'bbp_topic_voice_count', $voices );
+	update_post_meta( $topic_id, 'bbp_topic_voice_count', (int)$voices );
 
 	return apply_filters( 'bbp_update_topic_voice_count', (int)$voices );
 }
