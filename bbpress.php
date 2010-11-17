@@ -134,7 +134,7 @@ class bbPress {
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
-			require_once ( $this->plugin_dir . '/bbp-includes/bbp-admin.php' );
+			require_once ( $this->plugin_dir . '/bbp-admin/bbp-admin.php' );
 	}
 
 	/**

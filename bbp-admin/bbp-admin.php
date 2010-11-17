@@ -1,5 +1,8 @@
 <?php
 
+require_once( 'bbp-tools.php' );
+require_once( 'bbp-functions.php' );
+
 if ( !class_exists( 'BBP_Admin' ) ) :
 /**
  * BBP_Admin
