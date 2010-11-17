@@ -52,7 +52,7 @@
 
 	<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
 		<h2 class="entry-title"><?php _e( 'Sorry!', 'bbpress' ); ?></h2>
-		<div class="entry-content"><?php _e( 'You cannot create new topics at this time.', 'bbpress' ); ?></div>
+		<div class="entry-content"><?php is_user_logged_in() ? _e( 'You cannot create new topics at this time.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></div>
 	</div>
 
 

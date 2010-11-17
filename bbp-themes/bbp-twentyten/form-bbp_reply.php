@@ -38,7 +38,7 @@
 
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
 		<h2 class="entry-title"><?php _e( 'Sorry!', 'bbpress' ); ?></h2>
-		<div class="entry-content"><?php _e( 'You cannot reply to this topic.', 'bbpress' ); ?></div>
+		<div class="entry-content"><?php is_user_logged_in() ? _e( 'You cannot reply to this topic.', 'bbpress' ) : _e( 'You must be logged in to reply to this topic.', 'bbpress' ); ?></div>
 	</div>
 
 <?php endif; ?>
