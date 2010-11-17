@@ -58,12 +58,8 @@ class bbPress {
 		$this->includes();
 
 		// Register bbPress activation/deactivation sequences
-		register_activation_hook  ( __FILE__,       'bbp_activation'   );
-		register_deactivation_hook( __FILE__,       'bbp_deactivation' );
-
-		// Register bbPress core activation and deactivation procedures
-		add_action( 'bbp_activation',               array ( $this, 'activation'   ) );
-		add_action( 'bbp_deactivation',             array ( $this, 'deactivation' ) );
+		register_activation_hook  ( $this->file,    'bbp_activation'   );
+		register_deactivation_hook( $this->file,    'bbp_deactivation' );
 
 		// Register content types
 		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
@@ -86,14 +82,29 @@ class bbPress {
 	 */
 	function setup_globals () {
 
-		// Let plugins sneak in and predefine constants
-		do_action( 'bbp_constants_pre' );
+		/** Paths *************************************************************/
+
+		// bbPress root directory
+		$this->file           = __FILE__;
+		$this->plugin_dir     = plugin_dir_path( $this->file );
+		$this->plugin_url     = plugin_dir_url ( $this->file );
+
+		// Images
+		$this->images_url     = $this->plugin_url . 'bbp-images';
+
+		// Themes
+		$this->themes_dir     = $this->plugin_dir . 'bbp-themes';
+		$this->themes_url     = $this->plugin_url . 'bbp-images';
+
+		/** Identifiers *******************************************************/
 
 		// Unique identifiers
 		$this->forum_id       = apply_filters( 'bbp_forum_post_type', 'bbp_forum' );
 		$this->topic_id       = apply_filters( 'bbp_topic_post_type', 'bbp_topic' );
 		$this->reply_id       = apply_filters( 'bbp_reply_post_type', 'bbp_reply' );
 		$this->topic_tag_id   = apply_filters( 'bbp_topic_tag_id',    'bbp_topic_tag' );
+
+		/** Slugs *************************************************************/
 
 		// Slugs
 		$this->root_slug      = apply_filters( 'bbp_root_slug',      'forums'    );
@@ -102,17 +113,6 @@ class bbPress {
 		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     'reply'     );
 		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', 'topic-tag' );
 
-		// bbPress root directory
-		$this->plugin_dir     = plugin_dir_path( __FILE__ );
-		$this->plugin_url     = plugin_dir_url( __FILE__ );
-		$this->file           = __FILE__;
-
-		// Images
-		$this->images_url     = $this->plugin_url . 'bbp-images';
-
-		// Themes
-		$this->themes_dir     = $this->plugin_dir . 'bbp-themes';
-		$this->themes_url     = $this->plugin_url . 'bbp-images';
 	}
 
 	/**
@@ -123,9 +123,6 @@ class bbPress {
 	 * @uses is_admin If in WordPress admin, load additional file
 	 */
 	function includes () {
-
-		// Let plugins sneak in and include code ahead of bbPress
-		do_action( 'bbp_includes_pre' );
 
 		// Load the files
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-loader.php' );
@@ -392,122 +389,6 @@ class bbPress {
 				)
 			)
 		);
-	}
-
-	/**
-	 * activation ()
-	 *
-	 * Runs on bbPress activation
-	 *
-	 * @since bbPress (r2509)
-	 */
-	function activation () {
-		// Add caps to admin role
-		if ( $admin =& get_role( 'administrator' ) ) {
-
-			// Forum caps
-			$admin->add_cap( 'publish_forums' );
-			$admin->add_cap( 'edit_forums' );
-			$admin->add_cap( 'edit_others_forums' );
-			$admin->add_cap( 'delete_forums' );
-			$admin->add_cap( 'delete_others_forums' );
-			$admin->add_cap( 'read_private_forums' );
-
-			// Topic caps
-			$admin->add_cap( 'publish_topics' );
-			$admin->add_cap( 'edit_topics' );
-			$admin->add_cap( 'edit_others_topics' );
-			$admin->add_cap( 'delete_topics' );
-			$admin->add_cap( 'delete_others_topics' );
-			$admin->add_cap( 'read_private_topics' );
-
-			// Reply caps
-			$admin->add_cap( 'publish_replies' );
-			$admin->add_cap( 'edit_replies' );
-			$admin->add_cap( 'edit_others_replies' );
-			$admin->add_cap( 'delete_replies' );
-			$admin->add_cap( 'delete_others_replies' );
-			$admin->add_cap( 'read_private_replies' );
-
-			// Topic tag caps
-			$admin->add_cap( 'manage_topic_tags' );
-			$admin->add_cap( 'edit_topic_tags' );
-			$admin->add_cap( 'delete_topic_tags' );
-			$admin->add_cap( 'assign_topic_tags' );
-		}
-
-		// Add caps to default role
-		if ( $default =& get_role( get_option( 'default_role' ) ) ) {
-
-			// Topic caps
-			$default->add_cap( 'publish_topics' );
-			$default->add_cap( 'edit_topics' );
-
-			// Reply caps
-			$default->add_cap( 'publish_replies' );
-			$default->add_cap( 'edit_replies' );
-
-			// Topic tag caps
-			$default->add_cap( 'assign_topic_tags' );
-		}
-	}
-
-	/**
-	 * deactivation ()
-	 *
-	 * Runs on bbPress deactivation
-	 *
-	 * @since bbPress (r2509)
-	 */
-	function deactivation () {
-		// Remove caps from admin role
-		if ( $admin =& get_role( 'administrator' ) ) {
-
-			// Forum caps
-			$admin->remove_cap( 'publish_forums' );
-			$admin->remove_cap( 'edit_forums' );
-			$admin->remove_cap( 'edit_others_forums' );
-			$admin->remove_cap( 'delete_forums' );
-			$admin->remove_cap( 'delete_others_forums' );
-			$admin->remove_cap( 'read_private_forums' );
-
-			// Topic caps
-			$admin->remove_cap( 'publish_topics' );
-			$admin->remove_cap( 'edit_topics' );
-			$admin->remove_cap( 'edit_others_topics' );
-			$admin->remove_cap( 'delete_topics' );
-			$admin->remove_cap( 'delete_others_topics' );
-			$admin->remove_cap( 'read_private_topics' );
-
-			// Reply caps
-			$admin->remove_cap( 'publish_replies' );
-			$admin->remove_cap( 'edit_replies' );
-			$admin->remove_cap( 'edit_others_replies' );
-			$admin->remove_cap( 'delete_replies' );
-			$admin->remove_cap( 'delete_others_replies' );
-			$admin->remove_cap( 'read_private_replies' );
-
-			// Topic tag caps
-			$admin->remove_cap( 'manage_topic_tags' );
-			$admin->remove_cap( 'edit_topic_tags' );
-			$admin->remove_cap( 'delete_topic_tags' );
-			$admin->remove_cap( 'assign_topic_tags' );
-		}
-
-		// Remove caps from default role
-		if ( $default =& get_role( get_option( 'default_role' ) ) ) {
-
-			// Topic caps
-			$default->remove_cap( 'publish_topics' );
-			$default->remove_cap( 'edit_topics' );
-
-			// Reply caps
-			$default->remove_cap( 'publish_replies' );
-			$default->remove_cap( 'edit_replies' );
-
-			// Topic tag caps
-			$default->remove_cap( 'assign_topic_tags' );
-		}
 	}
 }
 

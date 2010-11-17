@@ -1,6 +1,124 @@
 <?php
 
 /**
+ * bbp_add_caps ()
+ *
+ * Adds capabilities to WordPress user roles. This is called on plugin activation.
+ *
+ * @uses get_role
+ */
+function bbp_add_caps () {
+	// Add caps to admin role
+	if ( $admin =& get_role( 'administrator' ) ) {
+
+		// Forum caps
+		$admin->add_cap( 'publish_forums' );
+		$admin->add_cap( 'edit_forums' );
+		$admin->add_cap( 'edit_others_forums' );
+		$admin->add_cap( 'delete_forums' );
+		$admin->add_cap( 'delete_others_forums' );
+		$admin->add_cap( 'read_private_forums' );
+
+		// Topic caps
+		$admin->add_cap( 'publish_topics' );
+		$admin->add_cap( 'edit_topics' );
+		$admin->add_cap( 'edit_others_topics' );
+		$admin->add_cap( 'delete_topics' );
+		$admin->add_cap( 'delete_others_topics' );
+		$admin->add_cap( 'read_private_topics' );
+
+		// Reply caps
+		$admin->add_cap( 'publish_replies' );
+		$admin->add_cap( 'edit_replies' );
+		$admin->add_cap( 'edit_others_replies' );
+		$admin->add_cap( 'delete_replies' );
+		$admin->add_cap( 'delete_others_replies' );
+		$admin->add_cap( 'read_private_replies' );
+
+		// Topic tag caps
+		$admin->add_cap( 'manage_topic_tags' );
+		$admin->add_cap( 'edit_topic_tags' );
+		$admin->add_cap( 'delete_topic_tags' );
+		$admin->add_cap( 'assign_topic_tags' );
+	}
+
+	// Add caps to default role
+	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
+
+		// Topic caps
+		$default->add_cap( 'publish_topics' );
+		$default->add_cap( 'edit_topics' );
+
+		// Reply caps
+		$default->add_cap( 'publish_replies' );
+		$default->add_cap( 'edit_replies' );
+
+		// Topic tag caps
+		$default->add_cap( 'assign_topic_tags' );
+	}
+}
+add_action( 'bbp_activation', 'bbp_add_caps' );
+
+/**
+ * bbp_remove_caps ()
+ *
+ * Removes capabilities from WordPress user roles. This is called on plugin deactivation.
+ *
+ * @uses get_role
+ */
+function bbp_remove_caps () {
+	// Remove caps from admin role
+	if ( $admin =& get_role( 'administrator' ) ) {
+
+		// Forum caps
+		$admin->remove_cap( 'publish_forums' );
+		$admin->remove_cap( 'edit_forums' );
+		$admin->remove_cap( 'edit_others_forums' );
+		$admin->remove_cap( 'delete_forums' );
+		$admin->remove_cap( 'delete_others_forums' );
+		$admin->remove_cap( 'read_private_forums' );
+
+		// Topic caps
+		$admin->remove_cap( 'publish_topics' );
+		$admin->remove_cap( 'edit_topics' );
+		$admin->remove_cap( 'edit_others_topics' );
+		$admin->remove_cap( 'delete_topics' );
+		$admin->remove_cap( 'delete_others_topics' );
+		$admin->remove_cap( 'read_private_topics' );
+
+		// Reply caps
+		$admin->remove_cap( 'publish_replies' );
+		$admin->remove_cap( 'edit_replies' );
+		$admin->remove_cap( 'edit_others_replies' );
+		$admin->remove_cap( 'delete_replies' );
+		$admin->remove_cap( 'delete_others_replies' );
+		$admin->remove_cap( 'read_private_replies' );
+
+		// Topic tag caps
+		$admin->remove_cap( 'manage_topic_tags' );
+		$admin->remove_cap( 'edit_topic_tags' );
+		$admin->remove_cap( 'delete_topic_tags' );
+		$admin->remove_cap( 'assign_topic_tags' );
+	}
+
+	// Remove caps from default role
+	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
+
+		// Topic caps
+		$default->remove_cap( 'publish_topics' );
+		$default->remove_cap( 'edit_topics' );
+
+		// Reply caps
+		$default->remove_cap( 'publish_replies' );
+		$default->remove_cap( 'edit_replies' );
+
+		// Topic tag caps
+		$default->remove_cap( 'assign_topic_tags' );
+	}
+}
+add_action( 'bbp_deactivation', 'bbp_remove_caps' );
+
+/**
  * bbp_map_meta_caps ()
  *
  * Maps forum/topic/reply caps to built in WordPress caps
