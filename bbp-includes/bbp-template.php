@@ -147,7 +147,8 @@ function bbp_forum_id () {
 		// Fallback
 		// @todo - experiment
 		else
-			$bbp_forum_id = get_the_ID();
+			$bbp_forum_id = 0;
+		//	$bbp_forum_id = get_the_ID();
 
 		return apply_filters( 'bbp_get_forum_id', (int)$bbp_forum_id );
 	}
@@ -439,6 +440,10 @@ function bbp_has_topics ( $args = '' ) {
 		// Topic Search
 		's'                => empty( $_REQUEST['ts'] ) ? '' : $_REQUEST['ts'],
 	);
+
+	// Don't pass post_parent if forum_id is empty or 0
+	if ( empty( $default['post_parent'] ) )
+		unset( $default['post_parent'] );
 
 	// Set up topic variables
 	$bbp_t = wp_parse_args( $args, $default );
