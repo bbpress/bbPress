@@ -23,9 +23,10 @@ add_action( 'bbp_loaded',     'bbp_setup_globals'            , 8  );
 add_action( 'bbp_loaded',     'bbp_register_theme_directory' , 10 );
 
 // Attach to bbp_init.
-add_action( 'bbp_init',       'bbp_register_post_types'      , 6  );
-add_action( 'bbp_init',       'bbp_register_taxonomies'      , 8  );
-add_action( 'bbp_init',       'bbp_register_textdomain'      , 10 );
+add_action( 'bbp_init',       'bbp_register_post_types'      , 4  );
+add_action( 'bbp_init',       'bbp_register_taxonomies'      , 6  );
+add_action( 'bbp_init',       'bbp_register_textdomain'      , 8  );
+add_action( 'bbp_init',       'bbp_ready'                    , 10 );
 
 /**
  * bbp_bbp_constants ()
@@ -121,6 +122,15 @@ function bbp_register_post_types () {
  */
 function bbp_register_taxonomies () {
 	do_action ( 'bbp_register_taxonomies' );
+}
+
+/**
+ * bbp_ready ()
+ *
+ * bbPress has loaded and initialized everything, and is okay to go
+ */
+function bbp_ready () {
+	do_action( 'bbp_ready' );
 }
 
 ?>
