@@ -145,10 +145,8 @@ function bbp_forum_id () {
 			$bbp_forum_id = bbp_get_topic_forum_id();
 
 		// Fallback
-		// @todo - experiment
 		else
 			$bbp_forum_id = 0;
-		//	$bbp_forum_id = get_the_ID();
 
 		return apply_filters( 'bbp_get_forum_id', (int)$bbp_forum_id );
 	}
