@@ -139,7 +139,7 @@ function bbp_new_reply_handler () {
 
 		// Handle Description
 		if ( isset( $_POST['bbp_reply_content'] ) )
-			$reply_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_description'] );
+			$reply_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] );
 
 		// Handle Topic ID to append reply to
 		if ( isset( $_POST['bbp_topic_id'] ) )
