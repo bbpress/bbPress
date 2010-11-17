@@ -1335,7 +1335,8 @@ code {
 	width: 20%;
 }
 .bbp-topic-author, .bbp-reply-author {
-	width: 120px;
+	width: 80px;
+	text-align: center;
 }
 #content p.bbp-topic-meta {
 	margin-bottom: 0;
