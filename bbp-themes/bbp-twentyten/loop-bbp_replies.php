@@ -15,12 +15,16 @@
 
 	<table id="topic-<?php bbp_topic_id(); ?>">
 		<thead>
-			<th><?php _e( 'Author', 'bbpress' ); ?></th>
-			<th><?php _e( 'Replies', 'bbpress' ); ?></th>
+			<tr>
+				<th><?php _e( 'Author', 'bbpress' ); ?></th>
+				<th><?php _e( 'Replies', 'bbpress' ); ?></th>
+			</tr>
 		</thead>
 
 		<tfoot>
-			<td colspan="2">&nbsp;</td>
+			<tr>
+				<td colspan="2">&nbsp;</td>
+			</tr>
 		</tfoot>
 
 		<tbody>
