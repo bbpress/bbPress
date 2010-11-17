@@ -14,13 +14,13 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<div id="topic-<?php bbp_topic_id(); ?>" class="bbp-topic-info">
+					<div id="bbp-topic-wrapper-<?php bbp_topic_id(); ?>" class="bbp-topic-wrapper">
 						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
 						<div class="entry-content">
 
 							<?php bbp_topic_tag_list(); ?>
 
-							<table id="topic-<?php bbp_topic_id(); ?>">
+							<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
 								<thead>
 									<tr>
 										<th><?php _e( 'Creator', 'bbpress' ); ?></th>
@@ -36,7 +36,7 @@
 
 								<tbody>
 
-									<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'forum_topic' ); ?>>
+									<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
 
 										<td class="bbp-topic-author">
 
@@ -61,10 +61,10 @@
 											</div>
 										</td>
 
-									</tr><!-- #topic-<?php bbp_topic_id(); ?> -->
+									</tr><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
 
 								</tbody>
-							</table>
+							</table><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
 
 						<?php endwhile; ?>
 
@@ -73,7 +73,7 @@
 						<?php get_template_part( 'form', 'bbp_reply' ); ?>
 
 					</div>
-				</div><!-- #topic-<?php bbp_topic_id(); ?> -->
+				</div><!-- #bbp-topic-wrapper-<?php bbp_topic_id(); ?> -->
 
 			</div><!-- #content -->
 		</div><!-- #container -->

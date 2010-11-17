@@ -9,14 +9,14 @@
 
 <?php if ( bbp_has_forums() ) : ?>
 
-	<table class="forums">
+	<table class="bbp-forums">
 
 		<thead>
 			<tr>
-				<th><?php _e( 'Forums', 'bbpress' ); ?></th>
-				<th><?php _e( 'Topics', 'bbpress' ); ?></th>
-				<th><?php _e( 'Posts', 'bbpress' ); ?></th>
-				<th><?php _e( 'Freshness', 'bbpress' ); ?></th>
+				<th class="bbp-forum-info"><?php _e( 'Forums', 'bbpress' ); ?></th>
+				<th class="bbp-forum-topic-count"><?php _e( 'Topics', 'bbpress' ); ?></th>
+				<th class="bbp-forum-topic-replies"><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-forum-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
 			</tr>
 		</thead>
 
@@ -28,7 +28,7 @@
 
 			<?php while ( bbp_forums() ) : bbp_the_forum(); ?>
 
-				<tr id="forum-<?php bbp_forum_id(); ?>" <?php post_class(); ?>>
+				<tr id="bbp-forum-<?php bbp_forum_id(); ?>" <?php post_class( 'bbp-forum' ); ?>>
 
 					<td class="bbp-forum-info">
 						<a class="bbp-forum-title" href="<?php bbp_forum_permalink(); ?>" title="<?php bbp_forum_title(); ?>"><?php bbp_forum_title(); ?></a>

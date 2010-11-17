@@ -13,11 +13,11 @@
 
 	<?php get_template_part( 'pagination', 'bbp_replies' ); ?>
 
-	<table id="topic-<?php bbp_topic_id(); ?>">
+	<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>">
 		<thead>
 			<tr>
-				<th><?php _e( 'Author', 'bbpress' ); ?></th>
-				<th><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-reply-author"><?php _e( 'Author', 'bbpress' ); ?></th>
+				<th class="bbp-reply-content"><?php _e( 'Replies', 'bbpress' ); ?></th>
 			</tr>
 		</thead>
 
@@ -31,7 +31,7 @@
 
 			<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
 
-				<tr id="reply-<?php bbp_reply_id(); ?>" <?php post_class( 'topic_reply' ); ?>>
+				<tr id="reply-<?php bbp_reply_id(); ?>" <?php post_class( 'bbp-reply' ); ?>>
 
 					<td class="bbp-reply-author">
 						<?php
