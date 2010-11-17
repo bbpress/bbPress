@@ -22,12 +22,16 @@
 
 							<table id="topic-<?php bbp_topic_id(); ?>">
 								<thead>
-									<th><?php _e( 'Creator', 'bbpress' ); ?></th>
-									<th><?php _e( 'Topic', 'bbpress' ); ?></th>
+									<tr>
+										<th><?php _e( 'Creator', 'bbpress' ); ?></th>
+										<th><?php _e( 'Topic', 'bbpress' ); ?></th>
+									</tr>
 								</thead>
 
 								<tfoot>
-									<td colspan="2"><?php bbp_topic_admin_links(); ?></td>
+									<tr>
+										<td colspan="2"><?php bbp_topic_admin_links(); ?></td>
+									</tr>
 								</tfoot>
 
 								<tbody>
