@@ -49,6 +49,11 @@ class bbPress {
 	var $images_url;
 	var $themes_url;
 
+	// Current identifiers
+	var $current_forum_id;
+	var $current_topic_id;
+	var $current_reply_id;
+
 	/**
 	 * The main bbPress loader
 	 */

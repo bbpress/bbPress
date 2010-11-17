@@ -130,7 +130,7 @@ function bbp_forum_id () {
 	 * @return string Forum id
 	 */
 	function bbp_get_forum_id () {
-		global $bbp_forums_template, $wp_query;
+		global $bbp_forums_template, $wp_query, $bbp;
 
 		// Currently inside a forum loop
 		if ( !empty( $bbp_forums_template->in_the_loop ) && isset( $bbp_forums_template->post->ID ) )
@@ -147,6 +147,8 @@ function bbp_forum_id () {
 		// Fallback
 		else
 			$bbp_forum_id = 0;
+
+		$bbp->current_forum_id = $bbp_forum_id;
 
 		return apply_filters( 'bbp_get_forum_id', (int)$bbp_forum_id );
 	}
@@ -644,7 +646,7 @@ function bbp_topic_id () {
 	 * @return string Forum id
 	 */
 	function bbp_get_topic_id () {
-		global $bbp_topics_template, $wp_query;
+		global $bbp_topics_template, $wp_query, $bbp;
 
 		// Currently inside a topic loop
 		if ( !empty( $bbp_topics_template->in_the_loop ) && isset( $bbp_topics_template->post->ID ) )
@@ -659,9 +661,10 @@ function bbp_topic_id () {
 			$bbp_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
-		// @todo - experiment
 		else
-			$bbp_topic_id = get_the_ID();
+			$bbp_topic_id = 0;
+
+		$bbp->current_topic_id = $bbp_topic_id;
 
 		return apply_filters( 'bbp_get_topic_id', (int)$bbp_topic_id );
 	}
@@ -1529,7 +1532,7 @@ function bbp_reply_id () {
 	 * @return int Reply id
 	 */
 	function bbp_get_reply_id () {
-		global $bbp_replies_template, $wp_query;
+		global $bbp_replies_template, $wp_query, $bbp;
 
 		// Currently viewing a reply
 		if ( bbp_is_reply() && isset( $wp_query->post->ID ) )
@@ -1540,9 +1543,10 @@ function bbp_reply_id () {
 			$bbp_reply_id = $bbp_replies_template->post->ID;
 
 		// Fallback
-		// @todo - experiment
 		else
-			$bbp_reply_id = get_the_ID();
+			$bbp_reply_id = 0;
+
+		$bbp->current_reply_id = $bbp_reply_id;
 
 		return apply_filters( 'bbp_get_reply_id', (int)$bbp_reply_id );
 	}
