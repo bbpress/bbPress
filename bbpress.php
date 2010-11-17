@@ -153,7 +153,7 @@ class bbPress {
 	function register_textdomain () {
 		$locale        = apply_filters( 'bbpress_locale', get_locale() );
 		$mofile        = sprintf( 'bbpress-%s.mo', $locale );
-		$mofile_global = WP_LANG_DIR . '/' . $mofile;
+		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
 		$mofile_local  = $this->plugin_dir . '/bbp-languages/' . $mofile;
 
 		if ( file_exists( $mofile_global ) )
