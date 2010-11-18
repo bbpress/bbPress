@@ -59,11 +59,11 @@ function bbp_recount_topic_replies () {
 	$statement = __( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'bbp_topic_reply_count';";
+	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_topic_reply_count';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, 'bbp_topic_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_topic_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -77,11 +77,11 @@ function bbp_recount_topic_voices () {
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'bbp_topic_voice_count';";
+	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_topic_voice_count';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, 'bbp_topic_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '{$bbp->topic_id}', '{{$bbp->reply_id}}' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_topic_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '{$bbp->topic_id}', '{{$bbp->reply_id}}' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -95,11 +95,11 @@ function bbp_recount_topic_trashed_replies () {
 	$statement = __( 'Counting the number of deleted replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'bbp_deleted_replies';";
+	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_deleted_replies';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, 'bbp_deleted_replies', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'trash' GROUP BY `ID`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_deleted_replies', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'trash' GROUP BY `ID`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -113,9 +113,13 @@ function bbp_recount_forum_topics () {
 	$statement = __( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql = "INSERT INTO {$wpdb->posts} (`ID`, `comment_count`) (SELECT `post_parent`, COUNT(`post_status`) as `ID` FROM {$wpdb->posts} WHERE `post_type` = '{$bbp->topic_id}' AND `post_status` = 'publish' GROUP BY `post_parent`) ON DUPLICATE KEY UPDATE `comment_count` = VALUES(`comment_count`);";
-	if ( is_wp_error( $wpdb->query( $sql ) ) )
+	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_forum_topic_count';";
+	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
+
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_forum_topic_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->topic_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	if ( is_wp_error( $wpdb->query( $sql ) ) )
+		return array( 2, sprintf( $statement, $result ) );
 
 	$result = __( 'Complete!', 'bbpress' );
 	return array( 0, sprintf( $statement, $result ) );
@@ -127,11 +131,11 @@ function bbp_recount_forum_replies () {
 	$statement = __( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'bbp_forum_reply_count';";
+	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_forum_reply_count';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, 'bbp_forum_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_forum_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -158,12 +162,12 @@ function bbp_recount_user_topics_replied () {
 
 	$insert_values = array();
 	foreach ( $insert_rows as $insert_row )
-		$insert_values[] = "('{$insert_row->post_author}', 'bbp_topics_replied', '{$insert_row->_count}')";
+		$insert_values[] = "('{$insert_row->post_author}', '_bbp_topics_replied', '{$insert_row->_count}')";
 
 	if ( !count( $insert_values ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = 'bbp_topics_replied';";
+	$sql_delete = "DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` = '_bbp_topics_replied';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 3, sprintf( $statement, $result ) );
 
