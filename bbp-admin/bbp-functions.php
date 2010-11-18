@@ -37,11 +37,11 @@ function bbp_admin_notices( $message, $class = false ) {
 
 function bbp_recount_list () {
 	$recount_list = array(
-		5  => array( 'bbp-topic-replies',         __( 'Count replies in each topic',          'bbpress' ), 'bbp_recount_topic_replies'         ),
-		10 => array( 'bbp-topic-voices',          __( 'Count voices in each topic',           'bbpress' ), 'bbp_recount_topic_voices'          ),
-		15 => array( 'bbp-topic-trashed-replies', __( 'Count trashed replies in each topic',  'bbpress' ), 'bbp_recount_topic_trashed_replies' ),
-		20 => array( 'bbp-forum-topics',          __( 'Count topics in each forum',           'bbpress' ), 'bbp_recount_forum_topics'          ),
-		25 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',          'bbpress' ), 'bbp_recount_forum_replies'         ),
+		5  => array( 'bbp-forum-topics',          __( 'Count topics in each forum',           'bbpress' ), 'bbp_recount_forum_topics'          ),
+		10 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',          'bbpress' ), 'bbp_recount_forum_replies'         ),
+		15 => array( 'bbp-topic-replies',         __( 'Count replies in each topic',          'bbpress' ), 'bbp_recount_topic_replies'         ),
+		20 => array( 'bbp-topic-voices',          __( 'Count voices in each topic',           'bbpress' ), 'bbp_recount_topic_voices'          ),
+		25 => array( 'bbp-topic-trashed-replies', __( 'Count trashed replies in each topic',  'bbpress' ), 'bbp_recount_topic_trashed_replies' ),
 		30 => array( 'bbp-topics-replied',        __( 'Count replies for each user',          'bbpress' ), 'bbp_recount_user_topics_replied'   ),
 		//35 => array( 'bbp-topic-tag-count',       __( 'Count tags for every topic',                  'bbpress' ), 'bbp_recount_topic_tags'            ),
 		//40 => array( 'bbp-tags-tag-count',        __( 'Count topics for every tag',                  'bbpress' ), 'bbp_recount_tag_topics'            ),
