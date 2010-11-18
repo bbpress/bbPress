@@ -319,4 +319,48 @@ function bbp_get_super_stickies () {
 	return apply_filters( 'bbp_get_super_stickies', $stickies );
 }
 
+/**
+ * bbp_redirect_canonical ()
+ *
+ * Remove the canonical redirect to allow pretty pagination
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2628)
+ *
+ * @param string $redirect_url
+ */
+function bbp_redirect_canonical ( $redirect_url ) {
+	global $wp_rewrite;
+
+	if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_is_topic() && 1 < get_query_var( 'paged' ) ){
+			$redirect_url = false;
+		} elseif ( bbp_is_forum() && 1 < get_query_var( 'paged' ) ) {
+			$redirect_url = false;
+		}
+	}
+
+	return $redirect_url;
+}
+add_filter( 'redirect_canonical', 'bbp_redirect_canonical' );
+
+/**
+ * bbp_get_paged
+ *
+ * Assist pagination by returning correct page number
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2628)
+ *
+ * @return int
+ */
+function bbp_get_paged() {
+	if ( $paged = get_query_var( 'paged' ) )
+		return (int)$paged;
+	else
+		return 1;
+}
+
 ?>

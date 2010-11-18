@@ -1018,7 +1018,7 @@ function bbp_update_forum_voice_count ( $forum_id = 0 ) {
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics ( $args = '' ) {
-	global $bbp_topics_template, $bbp;
+	global $wp_rewrite, $bbp_topics_template, $bbp;
 
 	$default = array (
 		// Narrow query down to bbPress topics
@@ -1037,15 +1037,17 @@ function bbp_has_topics ( $args = '' ) {
 		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
 
 		// Page Number
-		'paged'            => isset( $_REQUEST['tpage'] ) ? $_REQUEST['tpage'] : 1,
+		'paged'            => bbp_get_paged(),
 
 		// Topic Search
 		's'                => empty( $_REQUEST['ts'] ) ? '' : $_REQUEST['ts'],
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
-	if ( empty( $default['post_parent'] ) )
+	if ( empty( $default['post_parent'] ) ) {
 		unset( $default['post_parent'] );
+		$post_parent = get_the_ID();
+	}
 
 	// Set up topic variables
 	$bbp_t = wp_parse_args( $args, $default );
@@ -1061,9 +1063,15 @@ function bbp_has_topics ( $args = '' ) {
 	// Only add pagination if query returned results
 	if ( (int)$bbp_topics_template->found_posts && (int)$bbp_topics_template->posts_per_page ) {
 
+		// If pretty permalinks are enabled, make our pagination pretty
+		if ( $wp_rewrite->using_permalinks() )
+			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
+		else
+			$base = add_query_arg( 'page', '%#%' );
+
 		// Pagination settings with filter
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
-			'base'      => add_query_arg( 'tpage', '%#%' ),
+			'base'      => $base,
 			'format'    => '',
 			'total'     => ceil( (int)$bbp_topics_template->found_posts / (int)$posts_per_page ),
 			'current'   => (int)$bbp_topics_template->paged,
@@ -1074,6 +1082,9 @@ function bbp_has_topics ( $args = '' ) {
 
 		// Add pagination to query object
 		$bbp_topics_template->pagination_links = paginate_links ( $bbp_topic_pagination );
+
+		// Remove first page from pagination
+		$bbp_topics_template->pagination_links = str_replace( 'page/1/\'', '\'', $bbp_topics_template->pagination_links );
 	}
 
 	// Return object
@@ -2042,7 +2053,7 @@ function bbp_forum_pagination_links () {
  * @return object Multidimensional array of reply information
  */
 function bbp_has_replies ( $args = '' ) {
-	global $bbp_replies_template, $bbp;
+	global $wp_rewrite, $bbp_replies_template, $bbp;
 
 	$default = array(
 		// Narrow query down to bbPress topics
@@ -2061,7 +2072,7 @@ function bbp_has_replies ( $args = '' ) {
 		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
 
 		// Page Number
-		'paged'            => isset( $_REQUEST['rpage'] ) ? $_REQUEST['rpage'] : 1,
+		'paged'            => bbp_get_paged(),
 
 		// Reply Search
 		's'                => empty( $_REQUEST['rs'] ) ? '' : $_REQUEST['rs'],
@@ -2081,9 +2092,15 @@ function bbp_has_replies ( $args = '' ) {
 	// Only add pagination if query returned results
 	if ( (int)$bbp_replies_template->found_posts && (int)$bbp_replies_template->posts_per_page ) {
 
+		// If pretty permalinks are enabled, make our pagination pretty
+		if ( $wp_rewrite->using_permalinks() )
+			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
+		else
+			$base = add_query_arg( 'page', '%#%' );
+
 		// Pagination settings with filter
 		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
-			'base'      => add_query_arg( 'rpage', '%#%' ),
+			'base'      => $base,
 			'format'    => '',
 			'total'     => ceil( (int)$bbp_replies_template->found_posts / (int)$posts_per_page ),
 			'current'   => (int)$bbp_replies_template->paged,
@@ -2094,6 +2111,9 @@ function bbp_has_replies ( $args = '' ) {
 
 		// Add pagination to query object
 		$bbp_replies_template->pagination_links = paginate_links( $bbp_replies_pagination );
+
+		// Remove first page from pagination
+		$bbp_replies_template->pagination_links = str_replace( 'page/1/\'', '\'', $bbp_replies_template->pagination_links );
 	}
 
 	// Return object
@@ -2463,6 +2483,9 @@ function bbp_topic_pagination_links () {
 function bbp_is_forum () {
 	global $wp_query, $bbp;
 
+	if ( is_singular( $bbp->forum_id ) )
+		return true;
+
 	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->forum_id === $wp_query->query_vars['post_type'] )
 		return true;
 
@@ -2485,6 +2508,9 @@ function bbp_is_forum () {
 function bbp_is_topic () {
 	global $wp_query, $bbp;
 
+	if ( is_singular( $bbp->topic_id ) )
+		return true;
+
 	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->topic_id === $wp_query->query_vars['post_type'] )
 		return true;
 
@@ -2506,6 +2532,9 @@ function bbp_is_topic () {
  */
 function bbp_is_reply () {
 	global $wp_query, $bbp;
+
+	if ( is_singular( $bbp->reply_id ) )
+		return true;
 
 	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->reply_id === $wp_query->query_vars['post_type'] )
 		return true;
