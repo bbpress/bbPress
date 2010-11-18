@@ -55,10 +55,10 @@
 
 							<?php
 								// @todo - abstract
-								printf( __( 'Posted at %2$s on %3$s', 'bbpress' ),
+								printf( __( 'Posted on %2$s at %3$s', 'bbpress' ),
 									'meta-prep meta-prep-author',
-									esc_attr( get_the_time() ),
-									get_the_date()
+									get_the_date(),
+									esc_attr( get_the_time() )
 								);
 							?>
 

@@ -52,9 +52,9 @@
 
 												<?php
 													// @todo - abstract
-													printf( __( 'Posted at %1$s on %2$s', 'bbpress' ),
-														esc_attr( get_the_time() ),
-														get_the_date()
+													printf( __( 'Posted on %1$s at %2$s', 'bbpress' ),
+														get_the_date(),
+														esc_attr( get_the_time() )
 													);
 												?>
 
