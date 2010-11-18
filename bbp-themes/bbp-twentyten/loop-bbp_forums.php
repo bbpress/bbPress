@@ -39,7 +39,7 @@
 
 					<td class="bbp-forum-topic-replies"><?php bbp_forum_reply_count(); ?></td>
 
-					<td class="bbp-forum-freshness"><?php bbp_forum_last_active(); ?></td>
+					<td class="bbp-forum-freshness"><?php bbp_forum_freshness_link(); ?></td>
 
 				</tr><!-- bbp-forum-<?php bbp_forum_id(); ?> -->
 

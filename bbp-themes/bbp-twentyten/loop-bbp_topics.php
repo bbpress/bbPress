@@ -48,10 +48,7 @@
 
 					<td class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></td>
 
-					<td class="bbp-topic-freshness">
-						<a href="<?php bbp_topic_permalink(); ?>"><?php bbp_topic_last_active(); ?></a>
-
-					</td>
+					<td class="bbp-topic-freshness"><?php bbp_topic_freshness_link(); ?></td>
 
 				</tr><!-- #topic-<?php bbp_topic_id(); ?> -->
 
