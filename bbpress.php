@@ -24,7 +24,6 @@ if ( !class_exists( 'bbPress' ) ) :
  * @package bbPress
  * @subpackage Loader
  * @since bbPress (r2464)
- *
  */
 class bbPress {
 
@@ -59,8 +58,8 @@ class bbPress {
 	 */
 	function bbPress () {
 		// Load up the bbPress core
-		$this->setup_globals();
-		$this->includes();
+		$this->_setup_globals();
+		$this->_includes();
 
 		// Register bbPress activation/deactivation sequences
 		register_activation_hook  ( $this->file,    'bbp_activation'   );
@@ -81,11 +80,11 @@ class bbPress {
 	}
 
 	/**
-	 * setup_globals ()
+	 * _setup_globals ()
 	 *
 	 * Default component constants that can be overridden or filtered
 	 */
-	function setup_globals () {
+	function _setup_globals () {
 
 		/** Paths *************************************************************/
 
@@ -99,7 +98,7 @@ class bbPress {
 
 		// Themes
 		$this->themes_dir     = $this->plugin_dir . 'bbp-themes';
-		$this->themes_url     = $this->plugin_url . 'bbp-images';
+		$this->themes_url     = $this->plugin_url . 'bbp-themes';
 
 		/** Identifiers *******************************************************/
 
@@ -121,13 +120,13 @@ class bbPress {
 	}
 
 	/**
-	 * includes ()
+	 * _includes ()
 	 *
 	 * Include required files
 	 *
 	 * @uses is_admin If in WordPress admin, load additional file
 	 */
-	function includes () {
+	function _includes () {
 
 		// Load the files
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-loader.php' );
