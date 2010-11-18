@@ -1,11 +1,11 @@
 <?php
-/*
-Plugin Name: bbPress
-Plugin URI: http://bbpress.org
-Description: bbPress is forum software with a twist from the creators of WordPress.
-Author: The bbPress Community
-Version: plugin-bleeding
-*/
+/**
+ * Plugin Name: bbPress
+ * Plugin URI: http://bbpress.org
+ * Description: bbPress is forum software with a twist from the creators of WordPress.
+ * Author: The bbPress Community
+ * Version: plugin-bleeding
+ */
 
 /**
  * Set the version early so other plugins have an inexpensive
