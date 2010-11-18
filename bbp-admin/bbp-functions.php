@@ -139,12 +139,7 @@ function bbp_recount_forum_replies () {
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-
-//	$sql = "INSERT INTO `{$wpdb->posts}` (`forum_id`, `posts`) (SELECT `forum_id`, COUNT(`post_status`) as `posts` FROM `$wpdb->posts` WHERE `post_status` = '0' GROUP BY `forum_id`) ON DUPLICATE KEY UPDATE `posts` = VALUES(`posts`);";
-//	if ( is_wp_error( $wpdb->query( $sql ) ) )
-//		return array( 1, sprintf( $statement, $result ) );
-//
-//	$result = __( 'Complete!', 'bbpress' );
+	$result = __( 'Complete!', 'bbpress' );
 	return array( 0, sprintf( $statement, $result ) );
 }
 
