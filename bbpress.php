@@ -57,6 +57,7 @@ class bbPress {
 	 * The main bbPress loader
 	 */
 	function bbPress () {
+
 		// Load up the bbPress core
 		$this->_setup_globals();
 		$this->_includes();
@@ -76,7 +77,6 @@ class bbPress {
 
 		// Load textdomain
 		add_action( 'bbp_load_textdomain',          array ( $this, 'register_textdomain'      ), 10, 2 );
-
 	}
 
 	/**
@@ -116,7 +116,6 @@ class bbPress {
 		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     'topic'     );
 		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     'reply'     );
 		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', 'topic-tag' );
-
 	}
 
 	/**
