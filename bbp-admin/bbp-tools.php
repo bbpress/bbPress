@@ -1,10 +1,5 @@
 <?php
 
-function bbp_add_tools_menu () {
-	add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools' );
-}
-add_action( 'admin_menu', 'bbp_add_tools_menu' );
-
 function bbp_admin_tools () {
 
 	$recount_list = bbp_recount_list();
@@ -32,8 +27,8 @@ function bbp_admin_tools () {
 	<div class="wrap">
 
 		<?php do_action( 'admin_notices' ); ?>
+		<?php screen_icon( 'tools' ); ?>
 
-		<div id="icon-tools" class="icon32"><br /></div>
 		<h2><?php _e( 'bbPress Recount', 'bbpress' ) ?></h2>
 
 		<p><?php _e( 'bbPress keeps a running count of things like replies to each topic and topics in each forum. In rare occasions these counts can fall out of sync. Using this form you can have bbPress manually recount these items.', 'bbpress' ); ?></p>

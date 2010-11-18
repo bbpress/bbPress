@@ -1,6 +1,7 @@
 <?php
 
 require_once( 'bbp-tools.php' );
+require_once( 'bbp-settings.php' );
 require_once( 'bbp-functions.php' );
 
 if ( !class_exists( 'BBP_Admin' ) ) :
@@ -19,6 +20,15 @@ class BBP_Admin {
 		global $bbp;
 
 		/** General ***********************************************************/
+
+		// Add notice if not using a bbPress theme
+		add_action( 'admin_notices',               array( $this, 'activation_notice' ) );
+
+		// Add link to settings page
+		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link' ),   10, 2 );
+
+		// Add menu to settings
+		add_action( 'admin_menu',                  array( $this, 'add_settings_menu' ) );
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
 		add_action( 'admin_init',                  array( $this, 'init' ) );
@@ -75,8 +85,47 @@ class BBP_Admin {
 		add_action( 'admin_init',                  array( $this, 'register_admin_style' ) );
 	}
 
+	function add_settings_menu () {
+		add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools'    );
+		add_options_page   ( __( 'Forums', 'bbpress' ),  __( 'Forums', 'bbpress' ),  'manage_options', 'bbpress',     'bbp_admin_settings' );
+	}
+
 	/**
-	 * init()
+	 * activation_notice ()
+	 *
+	 * Admin area ctivation notice. Only appears when there are no addresses.
+	 */
+	function activation_notice () {
+		$current_theme = current_theme_info();
+
+		if ( !in_array( 'bbpress', (array)$current_theme->tags ) ) { ?>
+
+			<div id="message" class="updated fade">
+				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is almost ready</strong>. First you'll need to <a href='%s'>activate a bbPress compatible theme</a>. We've bundled a child theme of Twenty Ten to get you started.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
+			</div>
+
+		<?php }
+	}
+
+	/**
+	 * add_settings_link( $links, $file )
+	 *
+	 * Add Settings link to plugins area
+	 *
+	 * @return string Links
+	 */
+	function add_settings_link( $links, $file ) {
+		global $bbp;
+
+		if ( plugin_basename( $bbp->file ) == $file ) {
+			$settings_link = '<a href="' . add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>';
+			array_unshift( $links, $settings_link );
+		}
+		return $links;
+	}
+
+	/**
+	 * init ()
 	 *
 	 * bbPress's dedicated admin init action
 	 *
