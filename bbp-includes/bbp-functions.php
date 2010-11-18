@@ -131,7 +131,7 @@ function bbp_new_reply_handler () {
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-reply' === $_POST['action'] ) {
 
 		// Check users ability to create new reply
-		if ( !current_user_can( 'public_replies' ) || ( !is_user_logged_in() && !bbp_allow_anonymous() ) )
+		if ( !current_user_can( 'publish_replies' ) || ( !is_user_logged_in() && !bbp_allow_anonymous() ) )
 			return false;
 
 		// Nonce check
@@ -211,7 +211,7 @@ function bbp_new_topic_handler () {
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-topic' === $_POST['action'] ) {
 
 		// Check users ability to create new topic
-		if ( !current_user_can( 'public_topics' ) || ( !is_user_logged_in() && !bbp_allow_anonymous() ) )
+		if ( !current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && !bbp_allow_anonymous() ) )
 			return false;
 
 		// Nonce check
