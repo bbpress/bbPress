@@ -4,6 +4,7 @@
  * Plugin URI: http://bbpress.org
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
+ * Author URI: http://bbpress.org
  * Version: plugin-bleeding
  */
 
