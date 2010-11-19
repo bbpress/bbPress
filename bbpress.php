@@ -58,11 +58,17 @@ class bbPress {
 	 * The main bbPress loader
 	 */
 	function bbPress () {
-
-		// Load up the bbPress core
 		$this->_setup_globals();
 		$this->_includes();
+		$this->_setup_actions();
+	}
 
+	/**
+	 * _setup_actions ()
+	 *
+	 * Setup the default hooks and actions
+	 */
+	function _setup_actions () {
 		// Register bbPress activation/deactivation sequences
 		register_activation_hook  ( $this->file,    'bbp_activation'   );
 		register_deactivation_hook( $this->file,    'bbp_deactivation' );
