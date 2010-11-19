@@ -64,32 +64,9 @@ class bbPress {
 	}
 
 	/**
-	 * _setup_actions ()
-	 *
-	 * Setup the default hooks and actions
-	 */
-	function _setup_actions () {
-		// Register bbPress activation/deactivation sequences
-		register_activation_hook  ( $this->file,    'bbp_activation'   );
-		register_deactivation_hook( $this->file,    'bbp_deactivation' );
-
-		// Register content types
-		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
-
-		// Register taxonomies
-		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
-
-		// Register theme directory
-		add_action( 'bbp_register_theme_directory', array ( $this, 'register_theme_directory' ), 10, 2 );
-
-		// Load textdomain
-		add_action( 'bbp_load_textdomain',          array ( $this, 'register_textdomain'      ), 10, 2 );
-	}
-
-	/**
 	 * _setup_globals ()
 	 *
-	 * Default component constants that can be overridden or filtered
+	 * Component global variables
 	 */
 	function _setup_globals () {
 
@@ -145,6 +122,29 @@ class bbPress {
 		// Quick admin check and load if needed
 		if ( is_admin() )
 			require_once ( $this->plugin_dir . '/bbp-admin/bbp-admin.php' );
+	}
+
+	/**
+	 * _setup_actions ()
+	 *
+	 * Setup the default hooks and actions
+	 */
+	function _setup_actions () {
+		// Register bbPress activation/deactivation sequences
+		register_activation_hook  ( $this->file,    'bbp_activation'   );
+		register_deactivation_hook( $this->file,    'bbp_deactivation' );
+
+		// Register content types
+		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
+
+		// Register taxonomies
+		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
+
+		// Register theme directory
+		add_action( 'bbp_register_theme_directory', array ( $this, 'register_theme_directory' ), 10, 2 );
+
+		// Load textdomain
+		add_action( 'bbp_load_textdomain',          array ( $this, 'register_textdomain'      ), 10, 2 );
 	}
 
 	/**
