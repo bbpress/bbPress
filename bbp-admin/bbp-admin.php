@@ -1,9 +1,5 @@
 <?php
 
-require_once( 'bbp-tools.php' );
-require_once( 'bbp-settings.php' );
-require_once( 'bbp-functions.php' );
-
 if ( !class_exists( 'BBP_Admin' ) ) :
 /**
  * BBP_Admin
@@ -16,10 +12,27 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  */
 class BBP_Admin {
 
+	// post_type query var
+	var $post_type;
+
+	/**
+	 * The main bbPress admin loader
+	 */
 	function BBP_Admin () {
+		$this->_setup_globals();
+		$this->_includes();
+		$this->_setup_actions();
+	}
+
+	/**
+	 * _setup_actions ()
+	 *
+	 * Setup the admin hooks and actions
+	 */
+	function _setup_actions () {
 		global $bbp;
 
-		/** General ***********************************************************/
+		/** General Actions ***************************************************/
 
 		// Add notice if not using a bbPress theme
 		add_action( 'admin_notices',               array( $this, 'activation_notice' ) );
@@ -28,7 +41,7 @@ class BBP_Admin {
 		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link' ),   10, 2 );
 
 		// Add menu to settings
-		add_action( 'admin_menu',                  array( $this, 'add_settings_menu' ) );
+		add_action( 'admin_menu',                  array( $this, 'admin_menus' ) );
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
 		add_action( 'admin_init',                  array( $this, 'init' ) );
@@ -36,7 +49,7 @@ class BBP_Admin {
 		// Add some general styling to the admin area
 		add_action( 'admin_head',                  array( $this, 'admin_head' ) );
 
-		/** User **************************************************************/
+		/** User Actions ******************************************************/
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile',           array( $this, 'user_profile_forums' ) );
@@ -85,7 +98,33 @@ class BBP_Admin {
 		add_action( 'admin_init',                  array( $this, 'register_admin_style' ) );
 	}
 
-	function add_settings_menu () {
+	/**
+	 * _includes ()
+	 *
+	 * Include required files
+	 */
+	function _includes () {
+		require_once( 'bbp-tools.php' );
+		require_once( 'bbp-settings.php' );
+		require_once( 'bbp-functions.php' );
+	}
+
+	/**
+	 * _setup_globals ()
+	 *
+	 * Admin globals
+	 */
+	function _setup_globals () {
+		// Set based on admin post_type query var
+		$this->post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+	}
+
+	/**
+	 * admin_menus ()
+	 *
+	 * Add the navigational menue elements
+	 */
+	function admin_menus () {
 		add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools'    );
 		add_options_page   ( __( 'Forums', 'bbpress' ),  __( 'Forums', 'bbpress' ),  'manage_options', 'bbpress',     'bbp_admin_settings' );
 	}
@@ -101,7 +140,7 @@ class BBP_Admin {
 		if ( !in_array( 'bbpress', (array)$current_theme->tags ) ) { ?>
 
 			<div id="message" class="updated fade">
-				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is almost ready</strong>. First you'll need to <a href='%s'>activate a bbPress compatible theme</a>. We've bundled a child theme of Twenty Ten to get you started.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
+				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is almost ready</strong>. First you'll need to <a href='%s'>activate a bbPress compatible theme</a>. We've bundled a child theme of'post_ty Twenty Ten to get you started.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
 			</div>
 
 		<?php }
@@ -230,7 +269,8 @@ class BBP_Admin {
 		global $wp_query, $bbp;
 
 		// Icons for top level admin menus
-		$menu_icon_url	= $bbp->images_url . '/menu.png';
+		$menu_icon_url = $bbp->images_url . '/menu.png';
+		$cur_post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
 
 		// Top level menu classes
 		$forum_class = sanitize_html_class( $bbp->forum_id );
@@ -239,7 +279,7 @@ class BBP_Admin {
 
 		// Calculate offset for screen_icon sprite
 		if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() )
-			$icons32_offset = -90 * array_search( $_GET['post_type'], array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) );
+			$icons32_offset = -90 * array_search( $cur_post_type, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) );
 
 ?>
 		<style type="text/css" media="screen">
@@ -268,7 +308,7 @@ class BBP_Admin {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 
-			<?php if ( in_array ( $_GET['post_type'], array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) ) ) : ?>
+			<?php if ( in_array ( $cur_post_type, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) ) ) : ?>
 			#icon-edit, #icon-post {
 				background: url(<?php echo $bbp->images_url . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
