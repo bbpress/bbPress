@@ -12,9 +12,6 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  */
 class BBP_Admin {
 
-	// post_type query var
-	var $post_type;
-
 	/**
 	 * The main bbPress admin loader
 	 */
@@ -115,8 +112,7 @@ class BBP_Admin {
 	 * Admin globals
 	 */
 	function _setup_globals () {
-		// Set based on admin post_type query var
-		$this->post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+		// Nothing to do here yet
 	}
 
 	/**
@@ -266,11 +262,10 @@ class BBP_Admin {
 	 * Add some general styling to the admin area
 	 */
 	function admin_head () {
-		global $wp_query, $bbp;
+		global $wp_query, $bbp, $typenow;
 
 		// Icons for top level admin menus
 		$menu_icon_url = $bbp->images_url . '/menu.png';
-		$cur_post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
 
 		// Top level menu classes
 		$forum_class = sanitize_html_class( $bbp->forum_id );
@@ -279,7 +274,7 @@ class BBP_Admin {
 
 		// Calculate offset for screen_icon sprite
 		if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() )
-			$icons32_offset = -90 * array_search( $cur_post_type, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) );
+			$icons32_offset = -90 * array_search( $typenow, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) );
 
 ?>
 		<style type="text/css" media="screen">
@@ -308,7 +303,7 @@ class BBP_Admin {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
 
-			<?php if ( in_array ( $cur_post_type, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) ) ) : ?>
+			<?php if ( in_array ( $typenow, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) ) ) : ?>
 			#icon-edit, #icon-post {
 				background: url(<?php echo $bbp->images_url . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
 			}
@@ -397,9 +392,9 @@ class BBP_Admin {
 	 * @param int $forum_id
 	 */
 	function forums_column_data ( $column, $forum_id ) {
-		global $bbp;
+		global $bbp, $typenow;
 
-		if ( $_GET['post_type'] !== $bbp->forum_id )
+		if ( $typenow !== $bbp->forum_id )
 			return $column;
 
 		switch ( $column ) {
@@ -427,9 +422,9 @@ class BBP_Admin {
 	 * @return array $actions
 	 */	
 	function forums_row_actions ( $actions, $forum ) {
-		global $bbp;
+		global $bbp, $typenow;
 
-		if ( $bbp->forum_id == $forum->post_type ) {
+		if ( $bbp->forum_id == $typenow ) {
 			unset( $actions['inline'] );
 
 			// simple hack to show the forum description under the title
@@ -471,9 +466,9 @@ class BBP_Admin {
 	 * @param int $post_id
 	 */
 	function topics_column_data ( $column, $topic_id ) {
-		global $bbp;
+		global $bbp, $typenow;
 
-		if ( $_GET['post_type'] !== $bbp->topic_id )
+		if ( $typenow !== $bbp->topic_id )
 			return $column;
 
 		// Get topic forum ID
@@ -532,10 +527,13 @@ class BBP_Admin {
 	 * @return array $actions
 	 */	
 	function topics_row_actions ( $actions, $topic ) {
-		global $bbp;
+		global $bbp, $typenow;
 
-		if ( in_array( $topic->post_type, array( $bbp->topic_id, $bbp->reply_id ) ) )
+		if ( $bbp->topic_id == $typenow ) {
 			unset( $actions['inline hide-if-no-js'] );
+			
+			the_content();
+		}
 
 		return $actions;
 	}
@@ -570,9 +568,9 @@ class BBP_Admin {
 	 * @param int $post_id
 	 */
 	function replies_column_data ( $column, $reply_id ) {
-		global $bbp;
+		global $bbp, $typenow;
 
-		if ( $_GET['post_type'] !== $bbp->reply_id )
+		if ( $typenow !== $bbp->reply_id )
 			return $column;
 
 		// Get topic ID
@@ -648,9 +646,9 @@ class BBP_Admin {
 	 * @return array $actions
 	 */
 	function replies_row_actions ( $actions, $reply ) {
-		global $bbp;
+		global $bbp, $typenow;
 
-		if ( in_array( $reply->post_type, array( $bbp->topic_id, $bbp->reply_id ) ) ) {
+		if ( $bbp->reply_id == $typenow ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			the_content();
