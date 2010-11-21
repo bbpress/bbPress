@@ -262,21 +262,17 @@ class BBP_Admin {
 	 * Add some general styling to the admin area
 	 */
 	function admin_head () {
-		global $wp_query, $bbp, $typenow;
+		global $bbp;
 
 		// Icons for top level admin menus
 		$menu_icon_url = $bbp->images_url . '/menu.png';
+		$icon32_url    = $bbp->images_url . '/icons32.png';
 
 		// Top level menu classes
 		$forum_class = sanitize_html_class( $bbp->forum_id );
 		$topic_class = sanitize_html_class( $bbp->topic_id );
-		$reply_class = sanitize_html_class( $bbp->reply_id );
+		$reply_class = sanitize_html_class( $bbp->reply_id ); ?>
 
-		// Calculate offset for screen_icon sprite
-		if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() )
-			$icons32_offset = -90 * array_search( $typenow, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) );
-
-?>
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
@@ -286,13 +282,19 @@ class BBP_Admin {
 			#menu-posts-<?php echo $forum_class; ?>.wp-has-current-submenu .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px 0px;
 			}
-
+			#icon-edit.icon32-posts-<?php echo $forum_class; ?> {
+				background: url(<?php echo $icon32_url; ?>) no-repeat -4px 0px;
+			}
+			
 			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px -32px;
 			}
 			#menu-posts-<?php echo $topic_class; ?>:hover .wp-menu-image,
 			#menu-posts-<?php echo $topic_class; ?>.wp-has-current-submenu .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px 0px;
+			}
+			#icon-edit.icon32-posts-<?php echo $topic_class; ?> {
+				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -90px;
 			}
 
 			#menu-posts-<?php echo $reply_class; ?> .wp-menu-image {
@@ -302,15 +304,17 @@ class BBP_Admin {
 			#menu-posts-<?php echo $reply_class; ?>.wp-has-current-submenu .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -35px 0px;
 			}
-
-			<?php if ( in_array ( $typenow, array( $bbp->forum_id, $bbp->topic_id, $bbp->reply_id ) ) ) : ?>
-			#icon-edit, #icon-post {
-				background: url(<?php echo $bbp->images_url . '/icons32.png'; ?>) no-repeat -4px <?php echo $icons32_offset; ?>px;
+			#icon-edit.icon32-posts-<?php echo $reply_class; ?> {
+				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -180px;
 			}
-			
-			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10%; }
-			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted { width: 15%; }
-			<?php endif; ?>
+
+<?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
+
+			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10% !important; }
+			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted { width: 15% !important; }
+
+<?php endif; ?>
+
 		/*]]>*/
 		</style>
 <?php
