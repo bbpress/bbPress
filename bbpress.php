@@ -81,7 +81,7 @@ class bbPress {
 		$this->images_url     = $this->plugin_url . 'bbp-images';
 
 		// Themes
-		$this->themes_dir     = $this->plugin_dir . 'bbp-themes';
+		$this->themes_dir     = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
 		$this->themes_url     = $this->plugin_url . 'bbp-themes';
 
 		/** Identifiers *******************************************************/
