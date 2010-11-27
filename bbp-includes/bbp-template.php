@@ -1993,8 +1993,10 @@ function bbp_forum_pagination_count () {
 		$total     = bbp_number_format( $bbp_topics_template->found_posts );
 
 		// Set return string
-		if ( $total > 1 )
-			$retstr = sprintf( __( 'Viewing topic %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+		if ( $total > 1 && $from_num != $to_num )
+			$retstr = sprintf( __( 'Viewing topics %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+		elseif ( $total > 1 && $from_num == $to_num )
+			$retstr = sprintf( __( 'Viewing topic %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
 
