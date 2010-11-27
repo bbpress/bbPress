@@ -363,4 +363,147 @@ function bbp_get_paged() {
 		return 1;
 }
 
+/**
+ * bbp_dim_favorite ()
+ *
+ * Add or remove a topic from a user's favorites
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @return void
+ */
+function bbp_dim_favorite () {
+	global $current_user;
+
+	wp_get_current_user();
+
+	$user_id = $current_user->ID;
+	$id = intval( $_POST['id'] );
+
+	if ( !$topic = get_post( $id ) )
+		die( '0' );
+
+	if ( !current_user_can( 'edit_user', $user_id ) )
+		die( '-1' );
+
+	check_ajax_referer( "toggle-favorite_$topic->ID" );
+
+	if ( bbp_is_user_favorite( $user_id, $topic->ID ) ) {
+		if ( bbp_remove_user_favorite( $user_id, $topic->ID ) )
+			die( '1' );
+	} else {
+		if ( bbp_add_user_favorite( $user_id, $topic->ID ) )
+			die( '1' );
+	}
+
+	die( '0' );
+
+}
+add_action( 'wp_ajax_dim-favorite', 'bbp_dim_favorite' );
+
+/**
+ * bbp_remove_topic_from_all_favorites ()
+ *
+ * Remove a deleted topic from all users' favorites
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @param int $topic_id Topic ID to remove
+ * @return void
+ */
+function bbp_remove_topic_from_all_favorites ( $topic_id = 0 ) {
+	global $wpdb;
+
+	if ( $ids = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_bbp_favorites' and FIND_IN_SET('{$topic_id}', meta_value) > 0" ) )
+		foreach ( $ids as $id )
+			bbp_remove_user_favorite( $id, $topic_id );
+}
+add_action( 'trash_post', 'bbp_remove_topic_from_all_favorites' );
+add_action( 'delete_post', 'bbp_remove_topic_from_all_favorites' );
+
+/**
+ * bbp_enqueue_topic_script ()
+ *
+ * Enqueue the topic page Javascript file
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @return void
+ */
+function bbp_enqueue_topic_script () {
+	if ( !bbp_is_topic() )
+		return;
+
+	global $bbp;
+
+	wp_enqueue_script( 'bbp_topic', $bbp->plugin_url . 'bbp-includes/js/topic.js', array( 'wp-lists' ), '20101124' );
+}
+add_filter( 'wp_enqueue_scripts', 'bbp_enqueue_topic_script' );
+
+/**
+ * bbp_scripts ()
+ *
+ * Put some scripts in the header, like AJAX url for wp-lists
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @return void
+ */
+function bbp_scripts () {
+	if ( !bbp_is_topic() )
+		return;
+
+	echo "<script type='text/javascript'>
+/* <![CDATA[ */
+var ajaxurl = '" . admin_url( 'admin-ajax.php' ) . "';
+/* ]]> */
+</script>\n";
+}
+add_filter( 'wp_head', 'bbp_scripts', -1 );
+
+/**
+ * bbp_topic_script_localization ()
+ *
+ * Load localizations for topic script.
+ *
+ * These localizations require information that may not be loaded even by init.
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @return void
+ */
+function bbp_topic_script_localization () {
+	if ( !bbp_is_topic() )
+		return;
+
+	global $current_user;
+
+	wp_get_current_user();
+	$user_id = $current_user->ID;
+
+	wp_localize_script( 'bbp_topic', 'bbpTopicJS', array(
+		'currentUserId' => $user_id,
+		'topicId'       => bbp_get_topic_id(),
+		'favoritesLink' => bbp_get_favorites_link( $user_id ),
+		'isFav'         => (int) bbp_is_user_favorite( $user_id ),
+		'favLinkYes'    => __( 'favorites', 'bbpress' ),
+		'favLinkNo'     => __( '?', 'bbpress' ),
+		'favYes'        => __( 'This topic is one of your %favLinkYes% [%favDel%]', 'bbpress' ),
+		'favNo'         => __( '%favAdd% (%favLinkNo%)', 'bbpress' ),
+		'favDel'        => __( '&times;', 'bbpress' ),
+		'favAdd'        => __( 'Add this topic to your favorites', 'bbpress' )
+	));
+}
+add_filter( 'wp_enqueue_scripts', 'bbp_topic_script_localization' );
+
 ?>

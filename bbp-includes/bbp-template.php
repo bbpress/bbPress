@@ -566,7 +566,7 @@ function bbp_forum_last_reply_permalink ( $forum_id = 0 ) {
  * @subpackage Template Tags
  * @since bbPress (r2625)
  *
- * @param int $forum_id 
+ * @param int $forum_id
  */
 function bbp_forum_freshness_link ( $forum_id = 0) {
 	echo bbp_get_forum_freshness_link( $forum_id );
@@ -2545,7 +2545,131 @@ function bbp_is_reply () {
 	return false;
 }
 
+/**
+ * bbp_is_favorites ()
+ *
+ * Check if current page is a bbPress user's favorites page (author page)
+ *
+ * @since bbPress (r2652)
+ *
+ * @return bool
+ */
+function bbp_is_favorites () {
+	return (bool) is_author();
+}
+
 /** END is_ Functions *********************************************************/
+
+/** START Favorites Functions *************************************************/
+
+/**
+ * bbp_favorites_link ()
+ *
+ * Output the link to the user's favorites page (author page)
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @param int $user_id optional
+ * @uses bbp_get_favorites_link()
+ */
+function bbp_favorites_link ( $user_id = 0 ) {
+	echo bbp_get_favorites_link( $user_id );
+}
+	/**
+	 * bbp_get_favorites_link ()
+	 *
+	 * Return the link to the user's favorites page (author page)
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2652)
+	 *
+	 * @param int $user_id optional
+	 * @uses apply_filters
+	 * @uses get_author_posts_url
+	 * @return string Permanent link to topic
+	 */
+	function bbp_get_favorites_link ( $user_id = 0 ) {
+		return apply_filters( 'bbp_get_favorites_link', get_author_posts_url( $user_id ) );
+	}
+
+/**
+ * bbp_user_favorites_link ()
+ *
+ * Output the link to the user's favorites page (author page)
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2652)
+ *
+ * @param array $add optional
+ * @param array $rem optional
+ * @param int $user_id optional
+ *
+ * @uses bbp_get_favorites_link()
+ */
+function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
+	echo bbp_get_user_favorites_link( $add, $rem, $user_id );
+}
+	/**
+	 * bbp_get_user_favorites_link ()
+	 *
+	 * Return the link to the user's favorites page (author page)
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2652)
+	 *
+	 * @param array $add optional
+	 * @param array $rem optional
+	 * @param int $user_id optional
+	 *
+	 * @uses apply_filters
+	 * @uses get_author_posts_url
+	 * @return string Permanent link to topic
+	 */
+	function bbp_get_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
+		global $current_user;
+		wp_get_current_user();
+
+		if ( !$user_id && !$user_id = $current_user->ID )
+			return;
+
+		$topic = get_post( bbp_get_topic_id() );
+
+		if ( empty( $add ) || !is_array( $add ) )
+			$add = array( 'mid' => __( 'Add this topic to your favorites', 'bbpress' ), 'post' => __( ' (%?%)', 'bbpress' ) );
+
+		if ( empty( $rem ) || !is_array( $rem ) )
+			$rem = array( 'pre' => __( 'This topic is one of your %favorites% [', 'bbpress' ), 'mid' => __( '&times;', 'bbpress' ), 'post' => __( ']', 'bbpress' ) );
+
+		if ( !current_user_can( 'edit_user', (int) $user_id ) )
+			return false;
+
+		$url = esc_url( bbp_get_favorites_link( $user_id ) );
+
+		if ( bbp_is_user_favorite( $user_id, $topic->ID ) ) {
+			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
+			$favs = array( 'fav' => '0', 'topic_id' => $topic->ID );
+			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
+			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
+			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
+		} else {
+			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
+			$favs = array( 'fav' => '1', 'topic_id' => $topic->ID );
+			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
+			$mid  = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
+			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
+		}
+
+		$url = esc_url( wp_nonce_url( add_query_arg( $favs, bbp_get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->ID ) );
+
+		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic->ID'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->ID:is-favorite'>$mid</a>$post</span></span>" );
+	}
+
+/** END Favorites Functions ***************************************************/
 
 /** START User Functions ******************************************************/
 
@@ -2646,8 +2770,8 @@ function bbp_current_user_avatar ( $size = 40 ) {
  *
  * @uses wp_nonce_field, bbp_forum_id
  */
-function bbp_new_topic_form_fields () { 
-	
+function bbp_new_topic_form_fields () {
+
 	if ( bbp_is_forum() ) : ?>
 
 	<input type="hidden" name="bbp_forum_id" id="bbp_forum_id" value="<?php bbp_forum_id(); ?>" />

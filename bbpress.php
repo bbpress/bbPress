@@ -87,9 +87,9 @@ class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Unique identifiers
-		$this->forum_id       = apply_filters( 'bbp_forum_post_type', 'bbp_forum' );
-		$this->topic_id       = apply_filters( 'bbp_topic_post_type', 'bbp_topic' );
-		$this->reply_id       = apply_filters( 'bbp_reply_post_type', 'bbp_reply' );
+		$this->forum_id       = apply_filters( 'bbp_forum_post_type', 'bbp_forum'     );
+		$this->topic_id       = apply_filters( 'bbp_topic_post_type', 'bbp_topic'     );
+		$this->reply_id       = apply_filters( 'bbp_reply_post_type', 'bbp_reply'     );
 		$this->topic_tag_id   = apply_filters( 'bbp_topic_tag_id',    'bbp_topic_tag' );
 
 		/** Slugs *************************************************************/
@@ -112,12 +112,13 @@ class bbPress {
 	function _includes () {
 
 		// Load the files
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-loader.php' );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-caps.php' );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-filters.php' );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-classes.php' );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-loader.php'    );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-caps.php'      );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-filters.php'   );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-classes.php'   );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-functions.php' );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-template.php' );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-users.php'     );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-template.php'  );
 
 		// Quick admin check and load if needed
 		if ( is_admin() )

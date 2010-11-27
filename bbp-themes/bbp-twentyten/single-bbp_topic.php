@@ -20,6 +20,10 @@
 
 							<?php bbp_topic_tag_list(); ?>
 
+							<?php bbp_user_favorites_link(); ?>
+
+							<div id="ajax-response"></div>
+
 							<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
 								<thead>
 									<tr>
