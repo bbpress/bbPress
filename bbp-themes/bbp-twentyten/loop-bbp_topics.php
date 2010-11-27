@@ -63,7 +63,7 @@ if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 
 	<div id="topic-0" class="post">
 		<div class="entry-content">
-			<p><?php _e( 'Oh bother! This forum does not have any topics yet! Perhaps searching will help.', 'bbpress' ); ?></p>
+			<p><?php _e( 'Oh bother! No topics were found here! Perhaps searching will help.', 'bbpress' ); ?></p>
 
 			<?php get_search_form(); ?>
 
