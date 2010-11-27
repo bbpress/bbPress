@@ -5,17 +5,8 @@
  * @package bbPress
  * @subpackage Twenty Ten
  */
-?>
 
-<?php
-if ( !bbp_is_favorites() ) :
-	$_bbp_query = bbp_has_topics();
-else :
-	$_bbp_query = true;
-endif;
-?>
-
-<?php if ( $_bbp_query ) : ?>
+if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 
 	<?php get_template_part( 'pagination', 'bbp_topics' ); ?>
 
