@@ -2382,7 +2382,7 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 		global $bbp_replies_template;
 
 		$reply_id = bbp_get_reply_id( $reply_id);
-		$topic_id = get_post_field( 'post_parent', $bbp_replies_template );
+		$topic_id = get_post_field( 'post_parent', $reply_id );
 
 		return apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
 	}
