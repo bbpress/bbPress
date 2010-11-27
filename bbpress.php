@@ -117,6 +117,7 @@ class bbPress {
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-filters.php'   );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-classes.php'   );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-functions.php' );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-widgets.php'   );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-users.php'     );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-template.php'  );
 
