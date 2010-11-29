@@ -244,6 +244,81 @@ function bbp_new_topic_handler () {
 add_action( 'template_redirect', 'bbp_new_topic_handler' );
 
 /**
+ * bbp_favorites_handler ()
+ *
+ * Handles the front end adding and removing of favorite topics
+ */
+function bbp_favorites_handler () {
+	global $bbp, $current_user;
+
+	// Only proceed if GET is a favorite action
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && !empty( $_GET['topic_id'] ) ) {
+
+		// Load user info
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+
+		// Check users ability to create new reply
+		if ( !current_user_can( 'edit_user', $user_id ) )
+			return false;
+
+		// What action is taking place?
+		$action       = $_GET['action'];
+
+		// Load favorite info
+		$topic_id     = intval( $_GET['topic_id'] );
+		$is_favorite  = bbp_is_user_favorite( $user_id, $topic_id );
+		$success      = false;
+
+		// Handle insertion into posts table
+		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
+
+			if ( $is_favorite && 'bbp_favorite_remove' == $action )
+				$success = bbp_remove_user_favorite( $user_id, $topic_id );
+			elseif ( !$is_favorite && 'bbp_favorite_add' == $action )
+				$success = bbp_add_user_favorite( $user_id, $topic_id );
+
+			// Do additional favorites actions
+			do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
+
+			// Check for missing reply_id or error
+			if ( true == $success ) {
+
+				// Redirect back to new reply
+				$redirect = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+				wp_redirect( $redirect );
+
+				// For good measure
+				exit();
+			}
+		}
+	}
+}
+add_action( 'template_redirect', 'bbp_favorites_handler' );
+
+/**
+ * bbp_load_template( $files )
+ *
+ *
+ * @param str $files
+ * @return On failure
+ */
+function bbp_load_template( $files ) {
+	if ( empty( $files ) )
+		return;
+
+	// Force array
+	if ( is_string( $files ) )
+		$files = (array)$files;
+
+	// Exit if file is found
+	if ( locate_template( $files, true ) )
+		exit();
+
+	return;
+}
+
+/**
  * bbp_get_stickies()
  *
  * Return sticky topics from forum

@@ -14,10 +14,9 @@
 function bbp_twentyten_dim_favorite () {
 	global $current_user;
 
-	wp_get_current_user();
-
-	$user_id = $current_user->ID;
-	$id      = intval( $_POST['id'] );
+	$current_user = wp_get_current_user();
+	$user_id      = $current_user->ID;
+	$id           = intval( $_POST['id'] );
 
 	if ( !current_user_can( 'edit_user', $user_id ) )
 		die( '-1' );
@@ -36,7 +35,6 @@ function bbp_twentyten_dim_favorite () {
 	}
 
 	die( '0' );
-
 }
 add_action( 'wp_ajax_dim-favorite', 'bbp_twentyten_dim_favorite' );
 
@@ -109,7 +107,7 @@ function bbp_twentyten_topic_script_localization () {
 	wp_localize_script( 'bbp_topic', 'bbpTopicJS', array(
 		'currentUserId' => $user_id,
 		'topicId'       => bbp_get_topic_id(),
-		'favoritesLink' => bbp_get_favorites_link( $user_id ),
+		'favoritesLink' => bbp_get_favorites_permalink( $user_id ),
 		'isFav'         => (int) bbp_is_user_favorite( $user_id ),
 		'favLinkYes'    => __( 'favorites', 'bbpress' ),
 		'favLinkNo'     => __( '?', 'bbpress' ),
@@ -117,7 +115,7 @@ function bbp_twentyten_topic_script_localization () {
 		'favNo'         => __( '%favAdd% (%favLinkNo%)', 'bbpress' ),
 		'favDel'        => __( '&times;', 'bbpress' ),
 		'favAdd'        => __( 'Add this topic to your favorites', 'bbpress' )
-	));
+	) );
 }
 add_filter( 'wp_enqueue_scripts', 'bbp_twentyten_topic_script_localization' );
 

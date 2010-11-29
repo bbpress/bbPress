@@ -17,11 +17,12 @@ if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 				<th class="bbp-topic-replie-count"><?php _e( 'Replies', 'bbpress' ); ?></th>
 				<th class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></th>
 				<th class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
+				<?php if ( bbp_is_favorites() ) : ?><th class="bbp-topic-action"><?php _e( 'Favorite', 'bbpress' ); ?></th><?php endif; ?>
 			</tr>
 		</thead>
 
 		<tfoot>
-			<tr><td colspan="4">&nbsp</td></tr>
+			<tr><td colspan="<?php echo bbp_is_favorites() ? '5' : '4'; ?>">&nbsp</td></tr>
 		</tfoot>
 
 		<tbody>
@@ -48,6 +49,16 @@ if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 					<td class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></td>
 
 					<td class="bbp-topic-freshness"><?php bbp_topic_freshness_link(); ?></td>
+
+					<?php if ( bbp_is_favorites() ) : ?>
+
+						<td class="bbp-topic-action">
+
+							<?php bbp_user_favorites_link( array( 'mid' => '+', 'post' => '' ), array( 'pre' => '', 'mid' => '&times;', 'post' => '' ) ); ?>
+
+						</td>
+
+					<?php endif; ?>
 
 				</tr><!-- #topic-<?php bbp_topic_id(); ?> -->
 

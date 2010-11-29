@@ -1056,12 +1056,15 @@ function bbp_has_topics ( $args = '' ) {
 	// Call the query
 	$bbp_topics_template = new WP_Query( $bbp_t );
 
+	if ( -1 == $posts_per_page )
+		$posts_per_page = $bbp_topics_template->post_count;
+
 	// Add pagination values to query object
 	$bbp_topics_template->posts_per_page = $posts_per_page;
 	$bbp_topics_template->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( (int)$bbp_topics_template->found_posts && (int)$bbp_topics_template->posts_per_page ) {
+	if ( (int)$bbp_topics_template->post_count && (int)$bbp_topics_template->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() )
@@ -1073,7 +1076,7 @@ function bbp_has_topics ( $args = '' ) {
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
 			'base'      => $base,
 			'format'    => '',
-			'total'     => ceil( (int)$bbp_topics_template->found_posts / (int)$posts_per_page ),
+			'total'     => $posts_per_page == $bbp_topics_template->post_count ? 1 : ceil( (int)$bbp_topics_template->found_posts / (int)$posts_per_page ),
 			'current'   => (int)$bbp_topics_template->paged,
 			'prev_text' => '&larr;',
 			'next_text' => '&rarr;',
@@ -1990,13 +1993,15 @@ function bbp_forum_pagination_count () {
 		$start_num = intval( ( $bbp_topics_template->paged - 1 ) * $bbp_topics_template->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
 		$to_num    = bbp_number_format( ( $start_num + ( $bbp_topics_template->posts_per_page - 1 ) > $bbp_topics_template->found_posts ) ? $bbp_topics_template->found_posts : $start_num + ( $bbp_topics_template->posts_per_page - 1 ) );
-		$total     = bbp_number_format( $bbp_topics_template->found_posts );
+		$total     = bbp_number_format( $bbp_topics_template->post_count );
 
 		// Set return string
-		if ( $total > 1 && $from_num != $to_num )
-			$retstr = sprintf( __( 'Viewing topics %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
-		elseif ( $total > 1 && $from_num == $to_num )
+		if ( $total > 1 && (int)$from_num == (int)$to_num )
 			$retstr = sprintf( __( 'Viewing topic %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
+		elseif ( $total > 1 && empty( $to_num ) )
+			$retstr = sprintf( __( 'Viewing %1$s topics', 'bbpress' ), $total );
+		elseif ( $total > 1 && (int)$from_num != (int)$to_num )
+			$retstr = sprintf( __( 'Viewing topics %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
 
@@ -2560,12 +2565,33 @@ function bbp_is_favorites () {
 	return (bool) is_author();
 }
 
+/**
+ * bbp_is_user_home ()
+ *
+ * Check if current page is the currently logged in users author page
+ *
+ * @global object $current_user
+ * @return bool
+ */
+function bbp_is_user_home() {
+	global $current_user;
+
+	$current_user = wp_get_current_user();
+
+	if ( $current_user->ID == get_the_author_meta( 'ID' ) )
+		$retval = true;
+	else
+		$retval = false;
+
+	return apply_filters( 'bbp_is_user_home', $retval, $current_user );
+}
+
 /** END is_ Functions *********************************************************/
 
 /** START Favorites Functions *************************************************/
 
 /**
- * bbp_favorites_link ()
+ * bbp_favorites_permalink ()
  *
  * Output the link to the user's favorites page (author page)
  *
@@ -2574,13 +2600,13 @@ function bbp_is_favorites () {
  * @since bbPress (r2652)
  *
  * @param int $user_id optional
- * @uses bbp_get_favorites_link()
+ * @uses bbp_get_favorites_permalink()
  */
-function bbp_favorites_link ( $user_id = 0 ) {
-	echo bbp_get_favorites_link( $user_id );
+function bbp_favorites_permalink ( $user_id = 0 ) {
+	echo bbp_get_favorites_permalink( $user_id );
 }
 	/**
-	 * bbp_get_favorites_link ()
+	 * bbp_get_favorites_permalink ()
 	 *
 	 * Return the link to the user's favorites page (author page)
 	 *
@@ -2593,8 +2619,8 @@ function bbp_favorites_link ( $user_id = 0 ) {
 	 * @uses get_author_posts_url
 	 * @return string Permanent link to topic
 	 */
-	function bbp_get_favorites_link ( $user_id = 0 ) {
-		return apply_filters( 'bbp_get_favorites_link', get_author_posts_url( $user_id ) );
+	function bbp_get_favorites_permalink ( $user_id = 0 ) {
+		return apply_filters( 'bbp_get_favorites_permalink', get_author_posts_url( $user_id ) );
 	}
 
 /**
@@ -2634,7 +2660,8 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 	 */
 	function bbp_get_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
 		global $current_user;
-		wp_get_current_user();
+
+		$current_user = wp_get_current_user();
 
 		if ( empty( $user_id ) && !$user_id = $current_user->ID )
 			return false;
@@ -2650,7 +2677,6 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 				'mid'  => __( 'Add this topic to your favorites', 'bbpress' ),
 				'post' => __( ' (%?%)', 'bbpress' )
 			);
-			$url = esc_url( bbp_get_topic_permalink( $topic_id ) );
 		}
 
 		if ( empty( $rem ) || !is_array( $rem ) ) {
@@ -2659,24 +2685,26 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 				'mid'  => __( '&times;', 'bbpress' ),
 				'post' => __( ']', 'bbpress' )
 			);
-			$url = esc_url( bbp_get_favorites_link( $user_id ) );
 		}
 
 		if ( bbp_is_user_favorite( $user_id, $topic_id ) ) {
+			$url  = esc_url( bbp_get_topic_permalink( $topic_id ) );
 			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
-			$favs = array( 'fav' => '0', 'topic_id' => $topic_id );
+			$favs = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
 			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
 			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
 			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
 		} else {
+			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
 			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
-			$favs = array( 'fav' => '1', 'topic_id' => $topic_id );
+			$favs = array( 'action' => 'bbp_favorite_add', 'topic_id' => $topic_id );
 			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
 			$mid  = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
 			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
 		}
 
-		$url = esc_url( wp_nonce_url( add_query_arg( $favs, bbp_get_topic_permalink( $topic_id ) ), 'toggle-favorite_' . $topic_id ) );
+		$permalink = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+		$url       = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
 
 		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic_id:is-favorite'>$mid</a>$post</span></span>" );
 	}

@@ -1344,10 +1344,12 @@ table.bbp-topic tfoot td, table.bbp-replies tfoot td {
 	font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
 }
 
-.bbp-forum-topic-count, .bbp-forum-topic-replies, .bbp-topic-reply-count, .bbp-topic-voice-count {
+.bbp-forum-topic-count, .bbp-forum-topic-replies,
+.bbp-topic-reply-count, .bbp-topic-voice-count, .bbp-topic-action {
 	width: 10%;
 	text-align: center;
 }
+
 .bbp-topic-freshness, .bbp-forum-freshness {
 	text-align: center;
 	width: 20%;

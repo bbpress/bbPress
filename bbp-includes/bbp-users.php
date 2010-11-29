@@ -80,13 +80,20 @@ function bbp_get_user_favorites_topic_ids ( $user_id = 0 ) {
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_favorites ( $user_id = 0 ) {
+	// Default to author
 	if ( empty( $user_id ) )
-		return;
+		$user_id = get_the_author_meta( 'ID' );
 
+	// If nothing passed and not an author page, return nothing
+	if ( empty( $user_id ) )
+		return false;
+
+	// Get users' favorites
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
 
+	// If user has favorites, load them
 	if ( !empty( $favorites ) ) {
-		$query = bbp_has_topics( array( 'post__in' => $favorites, 'per_page' => -1 ) );
+		$query = bbp_has_topics( array( 'post__in' => $favorites, 'posts_per_page' => -1 ) );
 		return $query;
 	}
 
@@ -110,8 +117,8 @@ function bbp_is_user_favorite ( $user_id = 0, $topic_id = 0 ) {
 	global $post, $current_user;
 
 	if ( empty( $user_id ) ) {
-		wp_get_current_user();
-		$user_id = $current_user->ID;
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
 	}
 
 	if ( empty( $user_id ) )
@@ -211,5 +218,32 @@ function bbp_remove_user_favorite ( $user_id, $topic_id ) {
 }
 
 /** END - Favorites ***********************************************************/
+
+/**
+ * bbp_get_user_topics_started ()
+ *
+ * Get the topics that a user created
+ *
+ * @package bbPress
+ * @subpackage Users
+ * @since bbPress (r2652)
+ *
+ * @param int $user_id User ID
+ * @return array|bool Results if user has favorites, otherwise false
+ */
+function bbp_get_user_topics_started ( $user_id = 0 ) {
+	// Default to author
+	if ( empty( $user_id ) )
+		$user_id = get_the_author_meta( 'ID' );
+
+	// If nothing passed and not an author page, return nothing
+	if ( empty( $user_id ) )
+		return false;
+
+	if ( $query = bbp_has_topics( array( 'author' => $user_id, 'posts_per_page' => -1 ) ) )
+		return $query;
+
+	return false;
+}
 
 ?>
