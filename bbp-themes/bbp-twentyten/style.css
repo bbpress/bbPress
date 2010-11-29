@@ -1326,6 +1326,12 @@ code {
 /* bbPress Style
 -------------------------------------------------------------- */
 
+hr { margin: 0 0 24px 0 !important; }
+#entry-author-info {
+	margin-bottom: 0;
+	border-bottom: 1px solid #fff;
+}
+
 /* tables */
 table.bbp-forums th, table.bbp-topics th,
 table.bbp-topic th, table.bbp-replies th {

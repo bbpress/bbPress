@@ -14,33 +14,25 @@
 
 				<?php if ( have_posts() ) the_post(); ?>
 
-				<h1 class="page-title author"><?php printf( __( 'Author Archives: %s', 'twentyten' ), "<span class='vcard'><a class='url fn n' href='" . get_author_posts_url( get_the_author_meta( 'ID' ) ) . "' title='" . esc_attr( get_the_author() ) . "' rel='me'>" . get_the_author() . "</a></span>" ); ?></h1>
+				<h1 class="page-title author"><?php printf( __( 'Profile: %s', 'twentyten' ), "<span class='vcard'><a class='url fn n' href='" . get_author_posts_url( get_the_author_meta( 'ID' ) ) . "' title='" . esc_attr( get_the_author() ) . "' rel='me'>" . get_the_author() . "</a></span>" ); ?></h1>
 
-				<?php if ( get_the_author_meta( 'description' ) ) : ?>
+				<div id="entry-author-info">
+					<div id="author-avatar">
 
-					<div id="entry-author-info">
-						<div id="author-avatar">
+						<?php echo get_avatar( get_the_author_meta( 'user_email' ), apply_filters( 'twentyten_author_bio_avatar_size', 60 ) ); ?>
 
-							<?php echo get_avatar( get_the_author_meta( 'user_email' ), apply_filters( 'twentyten_author_bio_avatar_size', 60 ) ); ?>
+					</div><!-- #author-avatar -->
+					<div id="author-description">
+						<h1><?php printf( __( 'About %s', 'twentyten' ), get_the_author() ); ?></h1>
 
-						</div><!-- #author-avatar -->
-						<div id="author-description">
-							<h2><?php printf( __( 'About %s', 'twentyten' ), get_the_author() ); ?></h2>
+						<?php the_author_meta( 'description' ); ?>
 
-							<?php the_author_meta( 'description' ); ?>
-
-						</div><!-- #author-description	-->
-					</div><!-- #entry-author-info -->
-
-				<?php endif; ?>
-
-				<?php rewind_posts(); ?>
-
-				<?php get_template_part( 'loop', 'author' ); ?>
+					</div><!-- #author-description	-->
+				</div><!-- #entry-author-info -->
 
 				<div id="bbp-author-favorites" class="bbp-author-favorites">
 					<hr />
-					<h1 class="entry-title"><?php _e( 'Favorite Topics', 'bbpress' ); ?></h1>
+					<h1 class="entry-title"><?php _e( 'Favorite Forum Topics', 'bbpress' ); ?></h1>
 					<div class="entry-content">
 
 						<?php if ( bbp_is_user_home() ) : ?>
@@ -64,7 +56,7 @@
 
 				<div id="bbp-author-topics-started" class="bbp-author-topics-started">
 					<hr />
-					<h1 class="entry-title"><?php _e( 'Topics Created', 'bbpress' ); ?></h1>
+					<h1 class="entry-title"><?php _e( 'Forum Topics Created', 'bbpress' ); ?></h1>
 					<div class="entry-content">
 
 						<?php if ( bbp_get_user_topics_started() ) :
@@ -78,7 +70,20 @@
 						<?php endif; ?>
 
 					</div>
-				</div><!-- #bbp-new-topic -->
+				</div><!-- #bbp-author-topics-started -->
+
+
+				<div id="bbp-author-blog-posts" class="bbp-author-blog-posts">
+					<hr />
+					<h1 class="entry-title"><?php _e( 'Blog Posts', 'bbpress' ); ?></h1>
+
+					<div class="entry-content">
+
+					<?php rewind_posts(); ?>
+
+					<?php get_template_part( 'loop', 'author' ); ?>
+					</div>
+				</div><!-- #bbp-author-blog-posts -->
 
 			</div><!-- #content -->
 		</div><!-- #container -->
