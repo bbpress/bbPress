@@ -2688,14 +2688,14 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 		}
 
 		if ( bbp_is_user_favorite( $user_id, $topic_id ) ) {
-			$url  = esc_url( bbp_get_topic_permalink( $topic_id ) );
+			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
 			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
 			$favs = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
 			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
 			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
 			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
 		} else {
-			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
+			$url  = esc_url( bbp_get_topic_permalink( $topic_id ) );
 			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
 			$favs = array( 'action' => 'bbp_favorite_add', 'topic_id' => $topic_id );
 			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
