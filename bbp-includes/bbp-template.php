@@ -1064,7 +1064,7 @@ function bbp_has_topics ( $args = '' ) {
 	$bbp_topics_template->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( (int)$bbp_topics_template->post_count && (int)$bbp_topics_template->posts_per_page ) {
+	if ( ( (int)$bbp_topics_template->post_count || (int)$bbp_topics_template->found_posts ) && (int)$bbp_topics_template->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() )
@@ -1076,7 +1076,7 @@ function bbp_has_topics ( $args = '' ) {
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
 			'base'      => $base,
 			'format'    => '',
-			'total'     => $posts_per_page == $bbp_topics_template->post_count ? 1 : ceil( (int)$bbp_topics_template->found_posts / (int)$posts_per_page ),
+			'total'     => $posts_per_page == $bbp_topics_template->found_posts ? 1 : ceil( (int)$bbp_topics_template->found_posts / (int)$posts_per_page ),
 			'current'   => (int)$bbp_topics_template->paged,
 			'prev_text' => '&larr;',
 			'next_text' => '&rarr;',
@@ -1993,7 +1993,7 @@ function bbp_forum_pagination_count () {
 		$start_num = intval( ( $bbp_topics_template->paged - 1 ) * $bbp_topics_template->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
 		$to_num    = bbp_number_format( ( $start_num + ( $bbp_topics_template->posts_per_page - 1 ) > $bbp_topics_template->found_posts ) ? $bbp_topics_template->found_posts : $start_num + ( $bbp_topics_template->posts_per_page - 1 ) );
-		$total     = bbp_number_format( $bbp_topics_template->post_count );
+		$total     = bbp_number_format( !empty( $bbp_topics_template->found_posts ) ? $bbp_topics_template->found_posts : $bbp_topics_template->post_count );
 
 		// Set return string
 		if ( $total > 1 && (int)$from_num == (int)$to_num )
