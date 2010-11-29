@@ -2636,39 +2636,49 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 		global $current_user;
 		wp_get_current_user();
 
-		if ( !$user_id && !$user_id = $current_user->ID )
-			return;
-
-		$topic = get_post( bbp_get_topic_id() );
-
-		if ( empty( $add ) || !is_array( $add ) )
-			$add = array( 'mid' => __( 'Add this topic to your favorites', 'bbpress' ), 'post' => __( ' (%?%)', 'bbpress' ) );
-
-		if ( empty( $rem ) || !is_array( $rem ) )
-			$rem = array( 'pre' => __( 'This topic is one of your %favorites% [', 'bbpress' ), 'mid' => __( '&times;', 'bbpress' ), 'post' => __( ']', 'bbpress' ) );
+		if ( empty( $user_id ) && !$user_id = $current_user->ID )
+			return false;
 
 		if ( !current_user_can( 'edit_user', (int) $user_id ) )
 			return false;
 
-		$url = esc_url( bbp_get_favorites_link( $user_id ) );
+		if ( !$topic_id = bbp_get_topic_id() )
+			return false;
 
-		if ( bbp_is_user_favorite( $user_id, $topic->ID ) ) {
+		if ( empty( $add ) || !is_array( $add ) ) {
+			$add = array(
+				'mid'  => __( 'Add this topic to your favorites', 'bbpress' ),
+				'post' => __( ' (%?%)', 'bbpress' )
+			);
+			$url = esc_url( bbp_get_topic_permalink( $topic_id ) );
+		}
+
+		if ( empty( $rem ) || !is_array( $rem ) ) {
+			$rem = array(
+				'pre'  => __( 'This topic is one of your %favorites% [', 'bbpress' ),
+				'mid'  => __( '&times;', 'bbpress' ),
+				'post' => __( ']', 'bbpress' )
+			);
+			$url = esc_url( bbp_get_favorites_link( $user_id ) );
+		}
+
+		if ( bbp_is_user_favorite( $user_id, $topic_id ) ) {
 			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
-			$favs = array( 'fav' => '0', 'topic_id' => $topic->ID );
+			$favs = array( 'fav' => '0', 'topic_id' => $topic_id );
 			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
 			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
 			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
 		} else {
 			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
-			$favs = array( 'fav' => '1', 'topic_id' => $topic->ID );
+			$favs = array( 'fav' => '1', 'topic_id' => $topic_id );
 			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
 			$mid  = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
 			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
 		}
 
-		$url = esc_url( wp_nonce_url( add_query_arg( $favs, bbp_get_favorites_link( $user_id ) ), 'toggle-favorite_' . $topic->ID ) );
+		$url = esc_url( wp_nonce_url( add_query_arg( $favs, bbp_get_topic_permalink( $topic_id ) ), 'toggle-favorite_' . $topic_id ) );
 
-		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic->ID'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic->ID:is-favorite'>$mid</a>$post</span></span>" );
+		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic_id:is-favorite'>$mid</a>$post</span></span>" );
 	}
 
 /** END Favorites Functions ***************************************************/

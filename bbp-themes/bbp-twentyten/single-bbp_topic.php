@@ -20,15 +20,16 @@
 
 							<?php bbp_topic_tag_list(); ?>
 
-							<?php bbp_user_favorites_link(); ?>
-
 							<div id="ajax-response"></div>
 
 							<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
 								<thead>
 									<tr>
 										<th><?php _e( 'Creator', 'bbpress' ); ?></th>
-										<th><?php _e( 'Topic', 'bbpress' ); ?></th>
+										<th>
+											<?php _e( 'Topic', 'bbpress' ); ?>
+											<?php bbp_user_favorites_link(); ?>
+										</th>
 									</tr>
 								</thead>
 
