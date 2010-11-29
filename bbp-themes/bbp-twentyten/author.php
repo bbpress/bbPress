@@ -35,12 +35,6 @@
 					<h2 class="entry-title"><?php _e( 'Favorite Forum Topics', 'bbpress' ); ?></h2>
 					<div class="entry-content">
 
-						<?php if ( bbp_is_user_home() ) : ?>
-
-							<p><?php _e( 'To add topics to your list of favorites, just click the "Add to Favorites" link found on that topic&#8217;s page.', 'bbpress' ); ?></p>
-
-						<?php endif; ?>
-
 						<?php if ( bbp_get_user_favorites() ) :
 
 							get_template_part( 'loop', 'bbp_topics' );
