@@ -2687,7 +2687,7 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 			);
 		}
 
-		if ( bbp_is_user_favorite( $user_id, $topic_id ) ) {
+		if ( $is_fav = bbp_is_user_favorite( $user_id, $topic_id ) ) {
 			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
 			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
 			$favs = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
@@ -2705,8 +2705,9 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 
 		$permalink = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
 		$url       = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
+		$is_fav    = $is_fav ? 'is-favorite' : '';
 
-		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic_id'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic_id:is-favorite'>$mid</a>$post</span></span>" );
+		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic_id' class='$is_fav'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic_id:is-favorite'>$mid</a>$post</span></span>" );
 	}
 
 /** END Favorites Functions ***************************************************/

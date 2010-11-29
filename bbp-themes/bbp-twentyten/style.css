@@ -1349,7 +1349,6 @@ table.bbp-topic tfoot td, table.bbp-replies tfoot td {
 	width: 10%;
 	text-align: center;
 }
-
 .bbp-topic-freshness, .bbp-forum-freshness {
 	text-align: center;
 	width: 20%;
@@ -1358,6 +1357,36 @@ table.bbp-topic tfoot td, table.bbp-replies tfoot td {
 	width: 80px;
 	text-align: center;
 }
+
+.bbp-topic-action #favorite-toggle a {
+	text-decoration: none;
+	padding: 0px 3px 1px;
+	color: #7c7;
+	border: 1px solid #aca;
+	background-color: #dfd;
+	font-weight: bold;
+	font-size: 13px;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	}
+	.bbp-topic-action #favorite-toggle a:hover {
+		color: #5a5;
+		border-color: #7c7;
+		background-color: #beb;
+	}
+	.bbp-topic-action #favorite-toggle span.is-favorite a {
+		color: #faa;
+		border: 1px solid #faa;
+		background-color: #fee;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		}
+		.bbp-topic-action #favorite-toggle span.is-favorite a:hover {
+			color: #c88;
+			border-color: #c88;
+			background-color: #fdd;
+		}
+
 #content p.bbp-topic-meta {
 	margin-bottom: 0;
 	font-size: 0.7em;
