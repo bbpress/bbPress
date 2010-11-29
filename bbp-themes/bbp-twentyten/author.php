@@ -14,7 +14,7 @@
 
 				<?php if ( have_posts() ) the_post(); ?>
 
-				<h1 class="page-title author"><?php printf( __( 'Profile: %s', 'twentyten' ), "<span class='vcard'><a class='url fn n' href='" . get_author_posts_url( get_the_author_meta( 'ID' ) ) . "' title='" . esc_attr( get_the_author() ) . "' rel='me'>" . get_the_author() . "</a></span>" ); ?></h1>
+				<span class="page-title author"><?php printf( __( 'Profile: %s', 'twentyten' ), "<span class='vcard'><a class='url fn n' href='" . get_author_posts_url( get_the_author_meta( 'ID' ) ) . "' title='" . esc_attr( get_the_author() ) . "' rel='me'>" . get_the_author() . "</a></span>" ); ?></span>
 
 				<div id="entry-author-info">
 					<div id="author-avatar">
@@ -32,7 +32,7 @@
 
 				<div id="bbp-author-favorites" class="bbp-author-favorites">
 					<hr />
-					<h1 class="entry-title"><?php _e( 'Favorite Forum Topics', 'bbpress' ); ?></h1>
+					<h2 class="entry-title"><?php _e( 'Favorite Forum Topics', 'bbpress' ); ?></h2>
 					<div class="entry-content">
 
 						<?php if ( bbp_is_user_home() ) : ?>
@@ -56,7 +56,7 @@
 
 				<div id="bbp-author-topics-started" class="bbp-author-topics-started">
 					<hr />
-					<h1 class="entry-title"><?php _e( 'Forum Topics Created', 'bbpress' ); ?></h1>
+					<h2 class="entry-title"><?php _e( 'Forum Topics Created', 'bbpress' ); ?></h2>
 					<div class="entry-content">
 
 						<?php if ( bbp_get_user_topics_started() ) :
@@ -75,7 +75,7 @@
 
 				<div id="bbp-author-blog-posts" class="bbp-author-blog-posts">
 					<hr />
-					<h1 class="entry-title"><?php _e( 'Blog Posts', 'bbpress' ); ?></h1>
+					<h2 class="entry-title"><?php _e( 'Blog Posts', 'bbpress' ); ?></h2>
 
 					<div class="entry-content">
 
