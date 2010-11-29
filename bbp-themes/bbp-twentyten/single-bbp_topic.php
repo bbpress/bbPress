@@ -25,8 +25,8 @@
 							<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
 								<thead>
 									<tr>
-										<th><?php _e( 'Creator', 'bbpress' ); ?></th>
-										<th>
+										<th class="bbp-topic-author"><?php _e( 'Creator', 'bbpress' ); ?></th>
+										<th class="bbp-topic-content">
 											<?php _e( 'Topic', 'bbpress' ); ?>
 											<?php bbp_user_favorites_link(); ?>
 										</th>
@@ -41,11 +41,32 @@
 
 								<tbody>
 
+									<tr class="bbp-topic-header">
+										<td class="bbp-topic-author">
+
+											<?php bbp_topic_author_display_name(); ?>
+
+										</td>
+										<td class="bbp-topic-content">
+											<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>">#</a>
+
+											<?php
+												// @todo - abstract
+												printf( __( 'Posted on %2$s at %3$s', 'bbpress' ),
+													'meta-prep meta-prep-author',
+													get_the_date(),
+													esc_attr( get_the_time() )
+												);
+											?>
+
+										</td>
+									</tr>
+
 									<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
 
 										<td class="bbp-topic-author">
 
-											<?php bbp_topic_author_box(); ?>
+											<?php bbp_topic_author_avatar( 0, 100 ); ?>
 
 										</td>
 
@@ -53,17 +74,6 @@
 
 											<?php the_content(); ?>
 
-											<div class="entry-meta">
-
-												<?php
-													// @todo - abstract
-													printf( __( 'Posted on %1$s at %2$s', 'bbpress' ),
-														get_the_date(),
-														esc_attr( get_the_time() )
-													);
-												?>
-
-											</div>
 										</td>
 
 									</tr><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->

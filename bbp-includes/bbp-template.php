@@ -1255,6 +1255,44 @@ function bbp_topic_title ( $topic_id = 0 ) {
 	}
 
 /**
+ * bbp_topic_status ()
+ *
+ * Output the status of the topic in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $topic_id optional
+ *
+ * @uses bbp_get_topic_status()
+ */
+function bbp_topic_status ( $topic_id = 0 ) {
+	echo bbp_get_topic_status( $topic_id );
+}
+	/**
+	 * bbp_get_topic_status ()
+	 *
+	 * Return the status of the topic in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @todo custom topic ststuses
+	 *
+	 * @uses apply_filters
+	 * @uses get_the_title()
+	 * @param int $topic_id optional
+	 *
+	 * @return string Status of topic
+	 */
+	function bbp_get_topic_status ( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_status', get_post_status( $topic_id ) );
+	}
+
+/**
  * bbp_topic_author ()
  *
  * Output the author of the topic in the loop
@@ -1321,7 +1359,7 @@ function bbp_topic_author_id ( $topic_id = 0 ) {
 	function bbp_get_topic_author_id ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_id', get_the_author_meta( 'ID' ) );
+		return apply_filters( 'bbp_get_topic_author_id', get_post_field( 'post_author', $topic_id ) );
 	}
 
 /**
@@ -1371,8 +1409,8 @@ function bbp_topic_author_display_name ( $topic_id = 0 ) {
  *
  * @uses bbp_get_topic_author()
  */
-function bbp_topic_author_avatar ( $topic_id = 0 ) {
-	echo bbp_get_topic_author_avatar( $topic_id );
+function bbp_topic_author_avatar ( $topic_id = 0, $size = 40 ) {
+	echo bbp_get_topic_author_avatar( $topic_id, $size );
 }
 	/**
 	 * bbp_get_topic_author_avatar ()
@@ -1391,7 +1429,7 @@ function bbp_topic_author_avatar ( $topic_id = 0 ) {
 	function bbp_get_topic_author_avatar ( $topic_id = 0, $size = 40 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_avatar', get_avatar( get_the_author_meta( 'ID' ), $size ) );
+		return apply_filters( 'bbp_get_topic_author_avatar', get_avatar( get_post_field( 'post_author', $topic_id ), $size ) );
 	}
 
 /**
@@ -1426,40 +1464,7 @@ function bbp_topic_author_url ( $topic_id = 0 ) {
 	function bbp_get_topic_author_url ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_url', get_author_posts_url( get_the_author_meta( 'ID' ) ) );
-	}
-
-/**
- * bbp_topic_author_box ()
- *
- * Output the topic author information
- *
- * @since bbPress (r2590)
- * @param int $topic_id
- */
-function bbp_topic_author_box ( $topic_id = 0 ) {
-	echo bbp_get_topic_author_box( $topic_id );
-}
-	/**
-	 * bbp_get_topic_author_box ( $topic_id )
-	 *
-	 * Return the topic author information
-	 *
-	 * @since bbPress (r2590)
-	 * @param int $topic_id
-	 * @return string
-	 */
-	function bbp_get_topic_author_box ( $topic_id = 0 ) {
-
-		$tab = sprintf (
-			'<a href="%1$s" title="%2$s">%3$s<br />%4$s</a>',
-			bbp_get_topic_author_url(),
-			sprintf( __( 'View %s\'s profile' ), bbp_get_topic_author_display_name() ),
-			bbp_get_topic_author_avatar(),
-			bbp_get_topic_author_display_name()
-		);
-
-		return apply_filters( 'bbp_get_topic_author_box', $tab );
+		return apply_filters( 'bbp_get_topic_author_url', get_author_posts_url( get_post_field( 'post_author', $topic_id ) ) );
 	}
 
 /**
@@ -1939,8 +1944,10 @@ function bbp_topic_admin_links( $args = '' ) {
 			return '&nbsp';
 
 		$defaults = array (
-			'sep'   => ' | ',
-			'links' => array (
+			'before' => '<span class="bbp-admin-links">',
+			'after'  => '</span>',
+			'sep'    => ' | ',
+			'links'  => array (
 				'delete' => __( 'Delete' ), // bbp_get_topic_delete_link( $args ),
 				'close'  => __( 'Close' ),  // bbp_get_topic_close_link( $args ),
 				'sticky' => __( 'Sticky' ), // bbp_get_topic_sticky_link( $args ),
@@ -1954,7 +1961,7 @@ function bbp_topic_admin_links( $args = '' ) {
 		// Process the admin links
 		$links = implode( $sep, $links );
 
-		return apply_filters( 'bbp_get_topic_admin_links', $links, $args );
+		return apply_filters( 'bbp_get_topic_admin_links', $before . $links . $after, $args );
 	}
 
 /**
@@ -2315,6 +2322,219 @@ function bbp_reply_content () {
 	}
 
 /**
+ * bbp_reply_status ()
+ *
+ * Output the status of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_status()
+ */
+function bbp_reply_status ( $reply_id = 0 ) {
+	echo bbp_get_reply_status( $reply_id );
+}
+	/**
+	 * bbp_get_reply_status ()
+	 *
+	 * Return the status of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @todo custom topic ststuses
+	 *
+	 * @uses apply_filters
+	 * @uses get_post_status()
+	 * @param int $reply_id optional
+	 *
+	 * @return string Status of reply
+	 */
+	function bbp_get_reply_status ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ) );
+	}
+
+/**
+ * bbp_reply_author ()
+ *
+ * Output the author of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_author()
+ */
+function bbp_reply_author ( $reply_id = 0 ) {
+	echo bbp_get_reply_author( $reply_id );
+}
+	/**
+	 * bbp_get_reply_author ()
+	 *
+	 * Return the author of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @uses apply_filters
+	 * @param int $reply_id optional
+	 *
+	 * @return string Author of reply
+	 */
+	function bbp_get_reply_author ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_author', get_the_author() );
+	}
+
+/**
+ * bbp_reply_author_id ()
+ *
+ * Output the author ID of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_author()
+ */
+function bbp_reply_author_id ( $reply_id = 0 ) {
+	echo bbp_get_reply_author_id( $reply_id );
+}
+	/**
+	 * bbp_get_reply_author_id ()
+	 *
+	 * Return the author ID of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @uses apply_filters
+	 * @param int $reply_id optional
+	 *
+	 * @return string Author of reply
+	 */
+	function bbp_get_reply_author_id ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_author_id', get_post_field( 'post_author', $reply_id ) );
+	}
+
+/**
+ * bbp_reply_author_display_name ()
+ *
+ * Output the author display_name of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_author()
+ */
+function bbp_reply_author_display_name ( $reply_id = 0 ) {
+	echo bbp_get_reply_author_display_name( $reply_id );
+}
+	/**
+	 * bbp_get_reply_author_display_name ()
+	 *
+	 * Return the author display_name of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @uses apply_filters
+	 * @param int $reply_id optional
+	 *
+	 * @return string Author of reply
+	 */
+	function bbp_get_reply_author_display_name ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_author_id', esc_attr( get_the_author_meta( 'display_name' ) ) );
+	}
+
+/**
+ * bbp_reply_author_avatar ()
+ *
+ * Output the author avatar of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_author()
+ */
+function bbp_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
+	echo bbp_get_reply_author_avatar( $reply_id, $size );
+}
+	/**
+	 * bbp_get_reply_author_avatar ()
+	 *
+	 * Return the author avatar of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @uses apply_filters
+	 * @param int $reply_id optional
+	 *
+	 * @return string Author of reply
+	 */
+	function bbp_get_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_author_avatar', get_avatar( get_post_field( 'post_author', $reply_id ), $size ) );
+	}
+
+/**
+ * bbp_reply_author_avatar ()
+ *
+ * Output the author avatar of the reply in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_author()
+ */
+function bbp_reply_author_url ( $reply_id = 0 ) {
+	echo bbp_get_reply_author_url( $reply_id );
+}
+	/**
+	 * bbp_get_reply_author_url ()
+	 *
+	 * Return the author url of the reply in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @uses apply_filters
+	 * @param int $reply_id optional
+	 *
+	 * @return string Author URL of reply
+	 */
+	function bbp_get_reply_author_url ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		return apply_filters( 'bbp_get_reply_author_url', get_author_posts_url( get_post_field( 'post_author', $reply_id ) ) );
+	}
+
+/**
  * bbp_reply_topic ()
  *
  * Output the topic title a reply belongs to
@@ -2392,6 +2612,46 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 		return apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
 	}
 
+/**
+ * bbp_reply_admin_links()
+ *
+ * Output admin links for reply
+ *
+ * @param array $args
+ */
+function bbp_reply_admin_links( $args = '' ) {
+	echo bbp_get_reply_admin_links( $args );
+}
+	/**
+	 * bbp_get_reply_admin_links()
+	 *
+	 * Return admin links for reply
+	 *
+	 * @param array $args
+	 * @return string
+	 */
+	function bbp_get_reply_admin_links( $args = '' ) {
+		if ( !current_user_can( 'edit_others_replies' ) )
+			return;
+
+		$defaults = array (
+			'before' => '<span class="bbp-admin-links">',
+			'after'  => '</span>',
+			'sep'    => ' | ',
+			'links'  => array (
+				'trash' => __( 'Trash', 'bbpress' ), // bbp_get_reply_delete_link( $args ),
+				'edit'  => __( 'Edit', 'bbpress' ),  // bbp_get_reply_close_link( $args ),
+			),
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Process the admin links
+		$links = implode( $sep, $links );
+
+		return apply_filters( 'bbp_get_reply_admin_links', $before . $links . $after, $args );
+	}
 
 /**
  * bbp_topic_pagination_count ()

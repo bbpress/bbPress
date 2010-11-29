@@ -23,7 +23,7 @@
 
 		<tfoot>
 			<tr>
-				<td colspan="2">&nbsp;</td>
+				<td colspan="2"><?php bbp_topic_admin_links(); ?></td>
 			</tr>
 		</tfoot>
 
@@ -31,17 +31,38 @@
 
 			<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
 
-				<tr id="reply-<?php bbp_reply_id(); ?>" <?php post_class( 'bbp-reply' ); ?>>
+				<tr class="bbp-reply-header">
+					<td class="bbp-reply-author">
+
+						<?php bbp_reply_author_display_name(); ?>
+
+					</td>
+					<td class="bbp-reply-content">
+						<a href="#reply-<?php bbp_reply_id(); ?>" title="<?php bbp_reply_title(); ?>">#</a>
+
+						<?php
+							// @todo - abstract
+							printf( __( 'Posted on %2$s at %3$s', 'bbpress' ),
+								'meta-prep meta-prep-author',
+								get_the_date(),
+								esc_attr( get_the_time() )
+							);
+						?>
+
+						<span><?php bbp_reply_admin_links(); ?></span>
+					</td>
+				</tr>
+
+				<tr id="reply-<?php bbp_reply_id(); ?>" <?php post_class( 'status-' . bbp_get_reply_status() ); ?>>
 
 					<td class="bbp-reply-author">
 						<?php
 							// @todo - abstract
 							printf (
-								'<a href="%1$s" title="%2$s">%3$s<br />%4$s</a>',
+								'<a href="%1$s" title="%2$s">%3$s</a>',
 								get_author_posts_url( get_the_author_meta( 'ID' ) ),
-								sprintf( __( 'View %s\'s profile' ), bbp_get_topic_author_display_name() ),
-								bbp_get_topic_author_avatar(),
-								bbp_get_topic_author_display_name()
+								sprintf( __( 'View %s\'s profile' ), bbp_get_reply_author_display_name() ),
+								bbp_get_reply_author_avatar( 0, 80 )
 							);
 						?>
 					</td>
@@ -50,19 +71,6 @@
 
 						<?php the_content(); // @todo - bbp_reply_content(); ?>
 
-						<div class="entry-meta">
-							<a href="#reply-<?php bbp_reply_id(); ?>" title="<?php bbp_reply_title(); ?>"><?php bbp_reply_title(); ?></a>
-
-							<?php
-								// @todo - abstract
-								printf( __( 'Posted on %2$s at %3$s', 'bbpress' ),
-									'meta-prep meta-prep-author',
-									get_the_date(),
-									esc_attr( get_the_time() )
-								);
-							?>
-
-						</div><!-- .entry-meta -->
 					</td>
 
 				</tr><!-- #topic-<?php bbp_topic_id(); ?> -->

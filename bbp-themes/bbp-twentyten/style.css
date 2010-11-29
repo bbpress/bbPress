@@ -1342,7 +1342,8 @@ table.bbp-topic th span, table.bbp-replies th span {
 	float: right;
 }
 table.bbp-forums tfoot td, table.bbp-topics tfoot td,
-table.bbp-topic tfoot td, table.bbp-replies tfoot td {
+table.bbp-topic tfoot td, table.bbp-replies tfoot td,
+tr.bbp-reply-header td, tr.bbp-topic-header td {
 	background-color: #fafafa;
 	color: #888;
 	font-size: 12px;
@@ -1360,8 +1361,17 @@ table.bbp-topic tfoot td, table.bbp-replies tfoot td {
 	width: 20%;
 }
 .bbp-topic-author, .bbp-reply-author {
-	width: 80px;
+	width: 90px;
 	text-align: center;
+	padding: 0 10px;
+}
+
+.bbp-topic-content, .bbp-reply-content {
+	vertical-align: top;
+}
+span.bbp-admin-links {
+	float: right;
+	color: #d0d0d0;
 }
 
 .bbp-topic-action #favorite-toggle a {
@@ -1393,6 +1403,9 @@ table.bbp-topic tfoot td, table.bbp-replies tfoot td {
 			background-color: #fdd;
 		}
 
+.bbp-reply-header td {
+	background-color: #fafafa;
+}
 #content p.bbp-topic-meta {
 	margin-bottom: 0;
 	font-size: 0.7em;
