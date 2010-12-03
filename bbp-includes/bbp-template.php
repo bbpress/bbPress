@@ -1965,10 +1965,11 @@ function bbp_topic_admin_links( $args = '' ) {
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array (
-				'delete' => __( 'Delete' ), // bbp_get_topic_delete_link( $args ),
-				'close'  => __( 'Close' ),  // bbp_get_topic_close_link( $args ),
-				'sticky' => __( 'Sticky' ), // bbp_get_topic_sticky_link( $args ),
-				'move'   => __( 'Move' ),   // bbp_get_topic_move_dropdown( $args )
+				'edit'   => __( 'Edit',   'bbpress' ), // bbp_get_topic_edit_link( $args )
+				'trash'  => __( 'Trash',  'bbpress' ), // bbp_get_topic_trash_link( $args ),
+				'close'  => __( 'Close',  'bbpress' ), // bbp_get_topic_close_link( $args ),
+				'sticky' => __( 'Sticky', 'bbpress' ), // bbp_get_topic_sticky_link( $args ),
+				'move'   => __( 'Move',   'bbpress' ), // bbp_get_topic_move_dropdown( $args )
 			),
 		);
 
@@ -2673,8 +2674,8 @@ function bbp_reply_admin_links( $args = '' ) {
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array (
-				'trash' => __( 'Trash', 'bbpress' ), // bbp_get_reply_delete_link( $args ),
 				'edit'  => __( 'Edit', 'bbpress' ),  // bbp_get_reply_close_link( $args ),
+				'trash' => __( 'Trash', 'bbpress' ), // bbp_get_reply_delete_link( $args ),
 			),
 		);
 
