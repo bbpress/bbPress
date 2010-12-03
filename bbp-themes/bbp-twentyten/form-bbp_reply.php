@@ -23,8 +23,17 @@
 						<input id="bbp_topic_tags" type="text" value="" tabindex="5" size="40" name="bbp_topic_tags" id="post_tags" />
 					</p>
 
+					<?php if ( bbp_is_subscriptions_active() ) : ?>
+
+						<p>
+							<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed() ); ?> tabindex="7" />
+							<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
+						</p>
+
+					<?php endif; ?>
+
 					<p align="right">
-						<button type="submit" tabindex="6" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+						<button type="submit" tabindex="9" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 					</p>
 				</div>
 

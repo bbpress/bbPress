@@ -114,17 +114,8 @@ function bbp_new_reply_handler () {
 
 		// Handle Tags
 		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
-			// Escape tag input
-			$terms = esc_html( $_POST['bbp_topic_tags'] );
-
-			// Explode by comma
-			if ( strstr( $terms, ',' ) )
-				$terms = explode( ',', $terms );
-
-			// Add topic tag ID as main key
-			$terms = array( $bbp->topic_tag_id => $terms );
-
-			// @todo - Handle adding of tags from reply
+			$terms = $_POST['bbp_topic_tags'];
+			wp_set_post_terms( $topic_id, $terms, $bbp->topic_tag_id, true );
 		}
 
 		// Handle insertion into posts table
@@ -148,6 +139,17 @@ function bbp_new_reply_handler () {
 
 			// Check for missing reply_id or error
 			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
+
+				// Handle Subscription Checkbox
+				if ( bbp_is_subscriptions_active() ) {
+					$subscribed = bbp_is_user_subscribed( $reply_data['post_author'], $topic_id ) ? true : false;
+					$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ? true : false;
+
+					if ( true == $subscribed && false == $subscheck )
+						bbp_remove_user_subscription( $reply_data['post_author'], $topic_id );
+					elseif ( false == $subscribed && true == $subscheck )
+						bbp_add_user_subscription( $reply_data['post_author'], $topic_id );
+				}
 
 				// Redirect back to new reply
 				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#reply-' . $reply_id );
@@ -232,6 +234,11 @@ function bbp_new_topic_handler () {
 			// Check for missing topic_id or error
 			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
+				if ( bbp_is_subscriptions_active() ) {
+					if ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] )
+						bbp_add_user_subscription( $topic_data['post_author'], $topic_id );
+				}
+
 				// Redirect back to new reply
 				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
 
@@ -252,18 +259,17 @@ function bbp_favorites_handler () {
 	global $bbp, $current_user;
 
 	// Only proceed if GET is a favorite action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && !empty( $_GET['topic_id'] ) ) {
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_favorite_add', 'bbp_favorite_remove' ) ) && !empty( $_GET['topic_id'] ) ) {
+		// What action is taking place?
+		$action       = $_GET['action'];
 
 		// Load user info
 		$current_user = wp_get_current_user();
 		$user_id      = $current_user->ID;
 
-		// Check users ability to create new reply
+		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
 			return false;
-
-		// What action is taking place?
-		$action       = $_GET['action'];
 
 		// Load favorite info
 		$topic_id     = intval( $_GET['topic_id'] );
@@ -295,6 +301,60 @@ function bbp_favorites_handler () {
 	}
 }
 add_action( 'template_redirect', 'bbp_favorites_handler' );
+
+/**
+ * bbp_subscriptions_handler ()
+ *
+ * Handles the front end subscribing and unsubscribing topics
+ */
+function bbp_subscriptions_handler () {
+	global $bbp, $current_user;
+
+	if ( !bbp_is_subscriptions_active() )
+		return false;
+
+	// Only proceed if GET is a favorite action
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_subscribe', 'bbp_unsubscribe' ) ) && !empty( $_GET['topic_id'] ) ) {
+		// What action is taking place?
+		$action = $_GET['action'];
+
+		// Load user info
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+
+		// Check current user's ability to edit the user
+		if ( !current_user_can( 'edit_user', $user_id ) )
+			return false;
+
+		// Load subscription info
+		$topic_id         = intval( $_GET['topic_id'] );
+		$is_subscription  = bbp_is_user_subscribed( $user_id, $topic_id );
+		$success          = false;
+
+		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
+
+			if ( $is_subscription && 'bbp_unsubscribe' == $action )
+				$success = bbp_remove_user_subscription( $user_id, $topic_id );
+			elseif ( !$is_subscription && 'bbp_subscribe' == $action )
+				$success = bbp_add_user_subscription( $user_id, $topic_id );
+
+			// Do additional subscriptions actions
+			do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
+
+			// Check for missing reply_id or error
+			if ( true == $success ) {
+
+				// Redirect back to new reply
+				$redirect = bbp_get_topic_permalink( $topic_id );
+				wp_redirect( $redirect );
+
+				// For good measure
+				exit();
+			}
+		}
+	}
+}
+add_action( 'template_redirect', 'bbp_subscriptions_handler' );
 
 /**
  * bbp_load_template( $files )
@@ -363,7 +423,7 @@ function bbp_get_super_stickies () {
  * Remove the canonical redirect to allow pretty pagination
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Functions
  * @since bbPress (r2628)
  *
  * @param string $redirect_url
@@ -389,7 +449,7 @@ add_filter( 'redirect_canonical', 'bbp_redirect_canonical' );
  * Assist pagination by returning correct page number
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Functions
  * @since bbPress (r2628)
  *
  * @return int
@@ -401,26 +461,145 @@ function bbp_get_paged() {
 		return 1;
 }
 
+/** Favorites *****************************************************************/
+
 /**
  * bbp_remove_topic_from_all_favorites ()
  *
  * Remove a deleted topic from all users' favorites
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Functions
  * @since bbPress (r2652)
  *
+ * @uses bbp_get_topic_favoriters ()
  * @param int $topic_id Topic ID to remove
  * @return void
  */
 function bbp_remove_topic_from_all_favorites ( $topic_id = 0 ) {
-	global $wpdb;
+	if ( empty( $topic_id ) )
+		return;
 
-	if ( $users = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_bbp_favorites' and FIND_IN_SET('{$topic_id}', meta_value) > 0" ) )
+	if ( $users = bbp_get_topic_favoriters( $topic_id ) )
 		foreach ( $users as $user )
 			bbp_remove_user_favorite( $user, $topic_id );
 }
 add_action( 'trash_post',  'bbp_remove_topic_from_all_favorites' );
 add_action( 'delete_post', 'bbp_remove_topic_from_all_favorites' );
+
+/** Subscriptions *************************************************************/
+
+/**
+ * bbp_remove_topic_from_all_subscriptions ()
+ *
+ * Remove a deleted topic from all users' subscriptions
+ *
+ * @package bbPress
+ * @subpackage Functions
+ * @since bbPress (r2652)
+ *
+ * @uses bbp_get_topic_subscribers ()
+ * @param int $topic_id Topic ID to remove
+ * @return void
+ */
+function bbp_remove_topic_from_all_subscriptions ( $topic_id = 0 ) {
+	if ( empty( $topic_id ) )
+		return;
+
+	if ( !bbp_is_subscriptions_active() )
+		return;
+
+	if ( $users = bbp_get_topic_subscribers( $topic_id ) ) {
+		foreach ( $users as $user ) {
+			bbp_remove_user_subscription( $user, $topic_id );
+		}
+	}
+}
+add_action( 'trash_post',  'bbp_remove_topic_from_all_subscriptions' );
+add_action( 'delete_post', 'bbp_remove_topic_from_all_subscriptions' );
+
+/**
+ * bbp_is_subscriptions_active ()
+ *
+ * Checks if subscription feature is enabled.
+ *
+ * @package bbPress
+ * @subpackage Functions
+ * @since bbPress (r2658)
+ *
+ * @return bool Is subscription enabled or not
+ */
+function bbp_is_subscriptions_active () {
+	return (bool) get_option( '_bbp_enable_subscriptions' );
+}
+
+/**
+ * bbp_notify_subscribers ()
+ *
+ * Sends notification emails for new posts.
+ *
+ * Gets new post's ID and check if there are subscribed
+ * user to that topic, and if there are, send notifications
+ *
+ * @package bbPress
+ * @subpackage Functions
+ * @since bbPress (r2668)
+ *
+ * @todo When Akismet is made to work with bbPress posts, add a check if the post is spam or not, to avoid sending out spam mails
+ *
+ * @param int $reply_id ID of the newly made reply
+ * @return bool True on success, false on failure
+ */
+function bbp_notify_subscribers ( $reply_id = 0 ) {
+	global $bbp, $wpdb;
+
+	if ( !bbp_is_subscriptions_active() )
+		return false;
+
+	if ( !$reply = get_post( $reply_id ) )
+		return false;
+
+	if ( $reply->post_type != $bbp->reply_id || empty( $reply->post_parent ) )
+		return false;
+
+	if ( !$topic = get_post( $post->post_parent ) )
+		return false;
+
+	$reply_id = $reply->ID;
+	$topic_id = $topic->ID;
+
+	if ( !$poster_name = get_the_author_meta( 'display_name', $reply->post_author ) )
+		return false;
+
+	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id );
+
+	// Get the users who have favorited the topic and have subscriptions on
+	if ( !$user_ids = bbp_get_topic_subscribers( $topic_id, true ) )
+		return false;
+
+	foreach ( (array) $user_ids as $user_id ) {
+
+		// Don't send notifications to the person who made the post
+		if ( $user_id == $reply->post_author )
+			continue;
+
+		// For plugins
+		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $reply_id, $topic_id ) )
+			continue;
+
+		$user = get_userdata( $user_id );
+
+		wp_mail(
+			$user->user_email,
+			apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . $topic->post_title, $reply_id, $topic_id ),
+			sprintf( $message, $poster_name, strip_tags( $reply->post_content ), bbp_get_reply_permalink( $reply_id ) )
+		);
+	}
+
+	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id );
+
+	return true;
+}
+add_action( 'bbp_new_reply', 'bbp_notify_subscribers' );
 
 ?>

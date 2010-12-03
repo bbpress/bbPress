@@ -1,3 +1,11 @@
+<?php
+/**
+ * Pagination for pages of topics (when viewing a forum)
+ *
+ * @package bbPress
+ * @subpackage Twenty Ten
+ */
+?>
 
 	<div class="bbp-pagination">
 		<div class="bbp-pagination-count">

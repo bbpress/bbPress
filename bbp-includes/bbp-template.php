@@ -2826,6 +2826,19 @@ function bbp_is_favorites () {
 }
 
 /**
+ * bbp_is_subscriptions ()
+ *
+ * Check if current page is a bbPress user's subscriptions page (author page)
+ *
+ * @since bbPress (r2652)
+ *
+ * @return bool
+ */
+function bbp_is_subscriptions () {
+	return (bool) is_author();
+}
+
+/**
  * bbp_is_user_home ()
  *
  * Check if current page is the currently logged in users author page
@@ -2886,7 +2899,7 @@ function bbp_favorites_permalink ( $user_id = 0 ) {
 /**
  * bbp_user_favorites_link ()
  *
- * Output the link to the user's favorites page (author page)
+ * Output the link to make a topic favorite/remove a topic from favorites
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -2896,7 +2909,7 @@ function bbp_favorites_permalink ( $user_id = 0 ) {
  * @param array $rem optional
  * @param int $user_id optional
  *
- * @uses bbp_get_favorites_link()
+ * @uses bbp_get_user_favorites_link()
  */
 function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
 	echo bbp_get_user_favorites_link( $add, $rem, $user_id );
@@ -2904,7 +2917,7 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 	/**
 	 * bbp_get_user_favorites_link ()
 	 *
-	 * Return the link to the user's favorites page (author page)
+	 * Return the link to make a topic favorite/remove a topic from favorites
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
@@ -2915,7 +2928,6 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 	 * @param int $user_id optional
 	 *
 	 * @uses apply_filters
-	 * @uses get_author_posts_url
 	 * @return string Permanent link to topic
 	 */
 	function bbp_get_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
@@ -2963,14 +2975,102 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
 		}
 
+		// Create the link based where the user is and if the topic is already the user's favorite
 		$permalink = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
 		$url       = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
 		$is_fav    = $is_fav ? 'is-favorite' : '';
+		$html      = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $post . '</span></span>';
 
-		return apply_filters( 'bbp_get_user_favorites_link', "<span id='favorite-toggle'><span id='favorite-$topic_id' class='$is_fav'>$pre<a href='$url' class='dim:favorite-toggle:favorite-$topic_id:is-favorite'>$mid</a>$post</span></span>" );
+		// Return the link
+		return apply_filters( 'bbp_get_user_favorites_link', $html, $add, $rem, $user_id, $topic_id );
 	}
 
 /** END Favorites Functions ***************************************************/
+
+/** START Subscriptions Functions *********************************************/
+
+/**
+ * bbp_user_subscribe_link ()
+ *
+ * Output the link to subscribe/unsubscribe from a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2668)
+ *
+ * @param mixed $args
+ *
+ * @uses bbp_get_user_subscribe_link()
+ */
+function bbp_user_subscribe_link ( $args = '' ) {
+	echo bbp_get_user_subscribe_link( $args );
+}
+	/**
+	 * bbp_get_user_subscribe_link ()
+	 *
+	 * Return the link to subscribe/unsubscribe from a topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2668)
+	 *
+	 * @param mixed $args
+	 *
+	 * @uses apply_filters
+	 * @return string Permanent link to topic
+	 */
+	function bbp_get_user_subscribe_link ( $args = '' ) {
+		if ( !bbp_is_subscriptions_active() )
+			return;
+
+		$defaults = array (
+			'subscribe'     => __( 'Subscribe',   'bbpress' ),
+			'unsubscribe'   => __( 'Unsubscribe', 'bbpress' ),
+			'user_id'       => 0,
+			'topic_id'      => 0,
+			'before'        => '&nbsp;|&nbsp;',
+			'after'         => ''
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+		extract( $args );
+
+		// Try to get a user_id from $current_user
+		if ( empty( $user_id ) ) {
+			global $current_user;
+			$current_user = wp_get_current_user();
+
+			// Return if not logged in
+			if ( !$user_id = $current_user->ID ) {
+				return false;
+			}
+		}
+
+		if ( !current_user_can( 'edit_user', (int) $user_id ) )
+			return false;
+
+		if ( !$topic_id = bbp_get_topic_id( $topic_id ) )
+			return false;
+
+		if ( $is_subscribed = bbp_is_user_subscribed( $user_id, $topic_id ) ) {
+			$text = $unsubscribe;
+			$query_args  = array( 'action' => 'bbp_unsubscribe', 'topic_id' => $topic_id );
+		} else {
+			$text = $subscribe;
+			$query_args = array( 'action' => 'bbp_subscribe', 'topic_id' => $topic_id );
+		}
+
+		// Create the link based where the user is and if the user is subscribed already
+		$permalink     = bbp_is_subscriptions() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+		$url           = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
+		$is_subscribed = $is_subscribed ? 'is-subscribed' : '';
+		$html          = '<span id="subscription-toggle">' . $before . '<span id="subscribe-' . $topic_id . '" class="' . $is_subscribed . '"><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $after . '</span>';
+
+		// Return the link
+		return apply_filters( 'bbp_get_user_subscribe_link', $html, $subscribe, $unsubscribe, $user_id, $topic_id );
+	}
+
+/** END Subscriptions Functions ***********************************************/
 
 /** START User Functions ******************************************************/
 

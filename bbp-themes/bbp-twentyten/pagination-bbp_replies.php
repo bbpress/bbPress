@@ -1,3 +1,11 @@
+<?php
+/**
+ * Pagination for pages of replies (when viewing a topic)
+ *
+ * @package bbPress
+ * @subpackage Twenty Ten
+ */
+?>
 
 	<div class="bbp-pagination">
 		<div class="bbp-pagination-count">

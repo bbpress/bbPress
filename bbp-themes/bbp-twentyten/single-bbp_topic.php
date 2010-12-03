@@ -28,6 +28,7 @@
 										<th class="bbp-topic-author"><?php _e( 'Creator', 'bbpress' ); ?></th>
 										<th class="bbp-topic-content">
 											<?php _e( 'Topic', 'bbpress' ); ?>
+											<?php bbp_user_subscribe_link(); ?>
 											<?php bbp_user_favorites_link(); ?>
 										</th>
 									</tr>

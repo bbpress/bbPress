@@ -1,6 +1,9 @@
 bbpTopicJS = jQuery.extend( {
+	// User and Topic
 	currentUserId: '0',
 	topicId: '0',
+
+	// Favorites
 	favoritesLink: '',
 	isFav: 0,
 	favLinkYes: 'favorites',
@@ -8,14 +11,25 @@ bbpTopicJS = jQuery.extend( {
 	favYes: 'This topic is one of your %favLinkYes% [%favDel%]',
 	favNo: '%favAdd% (%favLinkNo%)',
 	favDel: 'x',
-	favAdd: 'Add this topic to your favorites'
+	favAdd: 'Add this topic to your favorites',
+
+	// Subscriptions
+	subsLink: '',
+	subsActive: 0,
+	isSubscribed: 0,
+	subsSub: 'Subscribe',
+	subsUns: 'Unsubscribe'
 }, bbpTopicJS );
 
-bbpTopicJS.isFav = parseInt( bbpTopicJS.isFav );
+// Topic Global
+bbpTopicJS.isFav        = parseInt( bbpTopicJS.isFav );
+bbpTopicJS.subsActive   = parseInt( bbpTopicJS.subsActive );
+bbpTopicJS.isSubscribed = parseInt( bbpTopicJS.isSubscribed );
 
+// Run it
 jQuery( function($) {
-	// Favorites
-	var favoritesToggle = $('#favorite-toggle')
+	/** Favorites *************************************************************/
+	var favoritesToggle = $( '#favorite-toggle' )
 		.addClass( 'list:favorite' )
 		.wpList( { alt: '', dimAfter: favLinkSetup } );
 
@@ -38,4 +52,30 @@ jQuery( function($) {
 		favoritesToggleSpan.html( html );
 		favoritesToggle.get(0).wpList.process( favoritesToggle );
 	}
+
+	/** Subscriptions *********************************************************/
+	if ( bbpTopicJS.subsActive == 1 ) {
+		var subscriptionToggle = $( '#subscription-toggle' )
+			.addClass( 'list:subscription' )
+			.wpList( { alt: '', dimAfter: subsLinkSetup } );
+
+		var subscriptionToggleSpan = subscriptionToggle.children( 'span' )
+			[bbpTopicJS.isSubscribed ? 'addClass' : 'removeClass' ]( 'is-subscribed' );
+
+		function subsLinkSetup() {
+			bbpTopicJS.isSubscribed = subscriptionToggleSpan.is( '.is-subscribed' );
+			var aLink = "<a href='" + bbpTopicJS.subsLink + "'>";
+			var aDim  = "<a href='" + subscriptionToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:subscription-toggle:" + subscriptionToggleSpan.attr( 'id' ) + ":is-subscribed'>";
+
+			if ( bbpTopicJS.isSubscribed ) {
+				html = aDim + bbpTopicJS.subsUns + '</a>';
+			} else {
+				html = aDim + bbpTopicJS.subsSub + '</a>';
+			}
+
+			subscriptionToggleSpan.html( html );
+			subscriptionToggle.get(0).wpList.process( subscriptionToggle );
+		}
+	}
+
 } );

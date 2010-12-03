@@ -37,8 +37,17 @@
 
 					<?php endif; ?>
 
+					<?php if ( bbp_is_subscriptions_active() ) : ?>
+
+						<p>
+							<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe" tabindex="9" />
+							<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
+						</p>
+
+					<?php endif; ?>
+
 					<p align="right">
-						<button type="submit" tabindex="7" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+						<button type="submit" tabindex="11" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 					</p>
 				</div>
 
