@@ -2528,16 +2528,16 @@ function bbp_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
 	}
 
 /**
- * bbp_reply_author_avatar ()
+ * bbp_reply_author_url ()
  *
- * Output the author avatar of the reply in the loop
+ * Output the author url of the reply in the loop
  *
  * @package bbPress
  * @subpackage Template Tags
  * @since bbPress (r2667)
  * @param int $reply_id optional
  *
- * @uses bbp_get_reply_author()
+ * @uses bbp_get_reply_author_url()
  */
 function bbp_reply_author_url ( $reply_id = 0 ) {
 	echo bbp_get_reply_author_url( $reply_id );
