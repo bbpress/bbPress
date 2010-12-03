@@ -2433,7 +2433,7 @@ function bbp_reply_url ( $reply_id = 0 ) {
 			if ( $bbp_replies_template->paged < (int) $new_reply_location )
 				$reply_page = $new_reply_location;
 			else
-				$reply_page = 1;
+				$reply_page = $bbp_replies_template->paged;
 
 		// All good, so assign the reply_page to the current page
 		} else {
