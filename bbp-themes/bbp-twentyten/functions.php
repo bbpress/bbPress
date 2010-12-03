@@ -6,6 +6,9 @@
  * Load the theme CSS
  */
 function bbp_twentyten_enqueue_styles () {
+	if ( is_admin() )
+		return false;
+
 	// Default styling, taken from twentyten theme
 	wp_enqueue_style( 'bbp-twentyten-default', get_stylesheet_directory_uri() . '/css/twentyten.css', false, 20100312, 'screen' );
 
