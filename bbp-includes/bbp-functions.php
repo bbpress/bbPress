@@ -94,8 +94,9 @@ function bbp_new_reply_handler () {
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-reply' === $_POST['action'] ) {
 
 		// Check users ability to create new reply
-		if ( !current_user_can( 'publish_replies' ) || ( !is_user_logged_in() && !bbp_allow_anonymous() ) )
-			return false;
+		if ( !$is_anonymous = bbp_is_anonymous() )
+			if ( !current_user_can( 'publish_replies' ) )
+				return false;
 
 		// Nonce check
 		check_admin_referer( 'bbp-new-reply' );
@@ -132,8 +133,18 @@ function bbp_new_reply_handler () {
 			);
 
 			// Insert reply
-			$reply_id = wp_insert_post( $reply_data );
+			$reply_id         = wp_insert_post( $reply_data );
+			$reply_data['ID'] = $reply_id;
 
+			// If anonymous post, store name, email and website in post_meta
+			// @todo - validate
+			if ( true == $is_anonymous ) {
+				add_post_meta( $reply_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
+				add_post_meta( $reply_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
+				add_post_meta( $reply_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
+				add_post_meta( $reply_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
+			}
+			
 			// Update counts, etc...
 			do_action( 'bbp_new_reply', $reply_data );
 
@@ -176,8 +187,9 @@ function bbp_new_topic_handler () {
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-topic' === $_POST['action'] ) {
 
 		// Check users ability to create new topic
-		if ( !current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && !bbp_allow_anonymous() ) )
-			return false;
+		if ( !$is_anonymous = bbp_is_anonymous() )
+			if ( !current_user_can( 'publish_topics' ) )
+				return false;
 
 		// Nonce check
 		check_admin_referer( 'bbp-new-topic' );
@@ -228,6 +240,15 @@ function bbp_new_topic_handler () {
 			// Insert reply
 			$topic_id = wp_insert_post( $topic_data );
 
+			// If anonymous post, store name, email and website in post_meta
+			// @todo - validation
+			if ( true == $is_anonymous ) {
+				add_post_meta( $topic_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
+				add_post_meta( $topic_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
+				add_post_meta( $topic_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
+				add_post_meta( $topic_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
+			}
+			
 			// Update counts, etc...
 			do_action( 'bbp_new_topic', $topic_data );
 
@@ -550,13 +571,25 @@ function bbp_is_subscriptions_active () {
  * @param int $reply_id ID of the newly made reply
  * @return bool True on success, false on failure
  */
-function bbp_notify_subscribers ( $reply_id = 0 ) {
+function bbp_notify_subscribers ( $args = '' ) {
 	global $bbp, $wpdb;
 
 	if ( !bbp_is_subscriptions_active() )
 		return false;
 
-	if ( !$reply = get_post( $reply_id ) )
+	$defaults = array (
+		'ID'            => bbp_get_reply_id(),
+		'post_author'   => bbp_get_current_user_id(),
+		'post_title'    => '',
+		'post_content'  => '',
+		'post_parent'   => '',
+		'post_status'   => 'publish',
+		'post_type'     => $bbp->reply_id
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+
+	if ( !$reply = get_post( $args['ID'] ) )
 		return false;
 
 	if ( $reply->post_type != $bbp->reply_id || empty( $reply->post_parent ) )
@@ -567,9 +600,6 @@ function bbp_notify_subscribers ( $reply_id = 0 ) {
 
 	$reply_id = $reply->ID;
 	$topic_id = $topic->ID;
-
-	if ( !$poster_name = get_the_author_meta( 'display_name', $reply->post_author ) )
-		return false;
 
 	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id );
 

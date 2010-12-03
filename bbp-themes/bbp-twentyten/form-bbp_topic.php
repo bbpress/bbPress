@@ -13,19 +13,22 @@
 				</div>
 
 				<div class="alignleft">
+
+					<?php get_template_part( 'form', 'bbp_anonymous' ); ?>
+
 					<p>
 						<label for="bbp_topic_title"><?php _e( 'Title:', 'bbpress' ); ?></label><br />
-						<input type="text" id="bbp_topic_title" value="" tabindex="1" size="40" name="bbp_topic_title" />
+						<input type="text" id="bbp_topic_title" value="" tabindex="8" size="40" name="bbp_topic_title" />
 					</p>
 
 					<p>
 						<label for="bbp_topic_content"><?php _e( 'Topic:', 'bbpress' ); ?></label><br />
-						<textarea id="bbp_topic_content" tabindex="3" name="bbp_topic_content" cols="52" rows="6"></textarea>
+						<textarea id="bbp_topic_content" tabindex="10" name="bbp_topic_content" cols="52" rows="6"></textarea>
 					</p>
 
 					<p>
 						<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
-						<input type="text" value="" tabindex="5" size="40" name="bbp_topic_tags" id="post_tags" />
+						<input type="text" value="" tabindex="12" size="40" name="bbp_topic_tags" id="post_tags" />
 					</p>
 
 					<?php if ( !bbp_is_forum() ) : ?>
@@ -37,17 +40,17 @@
 
 					<?php endif; ?>
 
-					<?php if ( bbp_is_subscriptions_active() ) : ?>
+					<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() ) : ?>
 
 						<p>
-							<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe" tabindex="9" />
+							<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe" tabindex="16" />
 							<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
 						</p>
 
 					<?php endif; ?>
 
 					<p align="right">
-						<button type="submit" tabindex="11" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+						<button type="submit" tabindex="18" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 					</p>
 				</div>
 

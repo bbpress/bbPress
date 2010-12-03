@@ -67,7 +67,15 @@
 
 										<td class="bbp-topic-author">
 
-											<?php bbp_topic_author_avatar( 0, 100 ); ?>
+											<?php
+												// @todo - abstract
+												printf (
+													'<a href="%1$s" title="%2$s">%3$s</a>',
+													bbp_get_topic_author_url(),
+													sprintf( get_the_author_meta( 'ID' ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s Website' ), bbp_get_topic_author_display_name() ),
+													bbp_get_topic_author_avatar( 0, 100 )
+												);
+											?>
 
 										</td>
 

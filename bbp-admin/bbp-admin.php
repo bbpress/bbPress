@@ -310,8 +310,8 @@ class BBP_Admin {
 
 <?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
 
-			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_topic, .column-bbp_reply_forum { width: 10% !important; }
-			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted { width: 15% !important; }
+			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_forum { width: 10% !important; }
+			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted, .column-bbp_topic_author, .column-bbp_reply_author, .column-bbp_reply_topic { width: 15% !important; }
 
 <?php endif; ?>
 
@@ -454,7 +454,7 @@ class BBP_Admin {
 			'bbp_topic_forum'       => __( 'Forum', 'bbpress' ),
 			'bbp_topic_reply_count' => __( 'Replies', 'bbpress' ),
 			'bbp_topic_voice_count' => __( 'Voices', 'bbpress' ),
-			'author'                => __( 'Author', 'bbpress' ),
+			'bbp_topic_author'      => __( 'Author', 'bbpress' ),
 			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
@@ -509,6 +509,11 @@ class BBP_Admin {
 				bbp_topic_voice_count( $topic_id );
 				break;
 
+			// Author
+			case 'bbp_topic_author' :
+				bbp_topic_author_display_name ( $topic_id );
+				break;
+
 			// Freshness
 			case 'bbp_topic_freshness' :
 				bbp_get_topic_last_active( $topic_id );
@@ -556,7 +561,7 @@ class BBP_Admin {
 			'title'                 => __( 'Title', 'bbpress' ),
 			'bbp_reply_forum'       => __( 'Forum', 'bbpress' ),
 			'bbp_reply_topic'       => __( 'Topic', 'bbpress' ),
-			'author'                => __( 'Author', 'bbpress' ),
+			'bbp_reply_author'      => __( 'Author', 'bbpress' ),
 			'bbp_reply_posted'      => __( 'Posted' , 'bbpress' ),
 		);
 
@@ -621,6 +626,11 @@ class BBP_Admin {
 
 				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
 
+				break;
+
+			// Author
+			case 'bbp_reply_author' :
+				bbp_reply_author_display_name ( $reply_id );
 				break;
 
 			// Freshness

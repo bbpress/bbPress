@@ -1324,7 +1324,12 @@ function bbp_topic_author ( $topic_id = 0 ) {
 	function bbp_get_topic_author ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author', get_the_author() );
+		if ( get_post_field( 'post_author', $topic_id ) )
+			$author = get_the_author();
+		else
+			$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+
+		return apply_filters( 'bbp_get_topic_author', $author );
 	}
 
 /**
@@ -1394,7 +1399,13 @@ function bbp_topic_author_display_name ( $topic_id = 0 ) {
 	function bbp_get_topic_author_display_name ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_id', esc_attr( get_the_author_meta( 'display_name' ) ) );
+		// Check for anonymous user
+		if ( $author_id = get_post_field( 'post_author', $topic_id ) )
+			$author_name = get_the_author_meta( 'display_name', $author_id );
+		else
+			$author_name = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+
+		return apply_filters( 'bbp_get_topic_author_id', esc_attr( $author_name ) );
 	}
 
 /**
@@ -1464,7 +1475,13 @@ function bbp_topic_author_url ( $topic_id = 0 ) {
 	function bbp_get_topic_author_url ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_url', get_author_posts_url( get_post_field( 'post_author', $topic_id ) ) );
+		// Check for anonymous user
+		if ( $author_id = get_post_field( 'post_author', $topic_id ) )
+			$author_url = get_author_posts_url( $author_id );
+		else
+			$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true );
+
+		return apply_filters( 'bbp_get_topic_author_url', $author_url );
 	}
 
 /**
@@ -2391,7 +2408,12 @@ function bbp_reply_author ( $reply_id = 0 ) {
 	function bbp_get_reply_author ( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author', get_the_author() );
+		if ( get_post_field( 'post_author', $reply_id ) )
+			$author = get_the_author();
+		else
+			$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+
+		return apply_filters( 'bbp_get_reply_author', $author );
 	}
 
 /**
@@ -2461,7 +2483,13 @@ function bbp_reply_author_display_name ( $reply_id = 0 ) {
 	function bbp_get_reply_author_display_name ( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author_id', esc_attr( get_the_author_meta( 'display_name' ) ) );
+		// Check for anonymous user
+		if ( $author_id = get_post_field( 'post_author', $reply_id ) )
+			$author_name = get_the_author_meta( 'display_name', $author_id );
+		else
+			$author_name = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
+
+		return apply_filters( 'bbp_get_reply_author_id', esc_attr( $author_name ) );
 	}
 
 /**
@@ -2531,7 +2559,13 @@ function bbp_reply_author_url ( $reply_id = 0 ) {
 	function bbp_get_reply_author_url ( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author_url', get_author_posts_url( get_post_field( 'post_author', $reply_id ) ) );
+		// Check for anonymous user
+		if ( $author_id = get_post_field( 'post_author', $reply_id ) )
+			$author_url = get_author_posts_url( $author_id );
+		else
+			$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true );
+
+		return apply_filters( 'bbp_get_reply_author_url', $author_url );
 	}
 
 /**
@@ -2859,6 +2893,23 @@ function bbp_is_user_home() {
 	return apply_filters( 'bbp_is_user_home', $retval, $current_user );
 }
 
+/**
+ * bbp_is_anonymous ()
+ *
+ * Return true if anonymous is allowed and user is not logged in.
+ * Return false if anonymous is not allowed or user is logged in
+ *
+ * @return bool
+ */
+function bbp_is_anonymous () {
+	if ( !is_user_logged_in() && bbp_allow_anonymous() )
+		$is_anonymous = true;
+	else
+		$is_anonymous = false;
+
+	return apply_filters( 'bbp_is_anonymous', $is_anonymous );
+}
+
 /** END is_ Functions *********************************************************/
 
 /** START Favorites Functions *************************************************/
@@ -3099,7 +3150,7 @@ function bbp_current_user_id () {
 		if ( is_user_logged_in() )
 			$current_user_id = $current_user->ID;
 		else
-			$current_user_id = -1;
+			$current_user_id = 0;
 
 		return apply_filters( 'bbp_get_current_user_id', $current_user_id );
 	}

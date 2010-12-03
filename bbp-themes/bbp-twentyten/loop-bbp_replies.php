@@ -60,8 +60,8 @@
 							// @todo - abstract
 							printf (
 								'<a href="%1$s" title="%2$s">%3$s</a>',
-								get_author_posts_url( get_the_author_meta( 'ID' ) ),
-								sprintf( __( 'View %s\'s profile' ), bbp_get_reply_author_display_name() ),
+								bbp_get_reply_author_url(),
+								sprintf( get_the_author_meta( 'ID' ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s Website' ), bbp_get_reply_author_display_name() ),
 								bbp_get_reply_author_avatar( 0, 80 )
 							);
 						?>
