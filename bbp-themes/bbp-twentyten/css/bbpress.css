@@ -1,6 +1,8 @@
 /**
+ * bbPress specific CSS
  *
- *
+ * @package bbPress
+ * @subpackage Theme
  */
 
 /* bbPress Style
@@ -13,9 +15,27 @@ hr { margin: 0 0 24px 0 !important; }
 }
 
 /* tables */
+table tbody tr.alternate td {
+	background-color: #fbfbfb;
+}
+
+table tbody tr:hover td {
+	background-color: #f8f8f8;
+}
+
+table.bbp-topic tbody tr td,
+table.bbp-replies tbody tr td {
+	background-color: #fff;
+}
+
+table tbody tr.bbp-reply-header:hover td,
+table tbody tr.bbp-reply-header td {
+	background-color: #f8f8f8;
+}
+
 table.bbp-forums th, table.bbp-topics th,
 table.bbp-topic th, table.bbp-replies th {
-	background-color: #f5f5f5;
+	background-color: #f3f3f3;
 }
 table.bbp-forums th span, table.bbp-topics th span,
 table.bbp-topic th span, table.bbp-replies th span {
@@ -23,7 +43,7 @@ table.bbp-topic th span, table.bbp-replies th span {
 }
 table.bbp-forums tfoot td, table.bbp-topics tfoot td,
 table.bbp-topic tfoot td, table.bbp-replies tfoot td,
-tr.bbp-reply-header td, tr.bbp-topic-header td {
+table.bbp-replies tr.bbp-reply-header td, table.bbp-topic tr.bbp-topic-header td {
 	background-color: #fafafa;
 	color: #888;
 	font-size: 12px;
@@ -112,9 +132,6 @@ span.bbp-admin-links {
 			background-color: #fdd;
 		}
 
-.bbp-reply-header td {
-	background-color: #fafafa;
-}
 #content p.bbp-topic-meta {
 	margin-bottom: 0;
 	font-size: 0.7em;

@@ -29,7 +29,7 @@ if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 
 			<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
-				<tr id="topic-<?php bbp_topic_id(); ?>" <?php post_class( 'status-'  . bbp_get_topic_status() ); ?>>
+				<tr id="topic-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
 
 					<td class="bbp-topic-title">
 						<a href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a>

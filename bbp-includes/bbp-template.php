@@ -1000,6 +1000,77 @@ function bbp_update_forum_voice_count ( $forum_id = 0 ) {
 	return apply_filters( 'bbp_update_forum_voice_count', (int)$voices );
 }
 
+/**
+ * bbp_forum_status ()
+ *
+ * Output the status of the forum in the loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ * @param int $forum_id optional
+ *
+ * @uses bbp_get_forum_status()
+ */
+function bbp_forum_status ( $forum_id = 0 ) {
+	echo bbp_get_forum_status( $forum_id );
+}
+	/**
+	 * bbp_get_forum_status ()
+	 *
+	 * Return the status of the forum in the loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @uses apply_filters
+	 * @uses get_post_status()
+	 * @param int $forum_id optional
+	 *
+	 * @return string Status of forum
+	 */
+	function bbp_get_forum_status ( $forum_id = 0 ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+
+		return apply_filters( 'bbp_get_forum_status', get_post_status( $forum_id ) );
+	}
+
+/**
+ * bbp_forum_class ()
+ *
+ * Output the row class of a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ */
+function bbp_forum_class ( $forum_id = 0 ) {
+	echo bbp_get_forum_class( $forum_id );
+}
+	/**
+	 * bbp_get_forum_class ()
+	 *
+	 * Return the row class of a forum
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @global WP_Query $bbp_forums_template
+	 * @param int $forum_id
+	 * @return string
+	 */
+	function bbp_get_forum_class ( $forum_id = 0 ) {
+		global $bbp_forums_template;
+
+		$alternate = $bbp_forums_template->current_post % 2 ? '' : 'alternate';
+		$status    = 'status-'  . bbp_get_forum_status();
+		$post      = post_class( array( $alternate, $status ) );
+
+		return apply_filters( 'bbp_get_forum_class', $post );
+	}
+
 /** END - Forum Loop Functions ************************************************/
 
 /** START - Topic Loop Functions **********************************************/
@@ -1988,6 +2059,41 @@ function bbp_topic_admin_links( $args = '' ) {
 	}
 
 /**
+ * bbp_topic_class ()
+ *
+ * Output the row class of a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2667)
+ */
+function bbp_topic_class ( $topic_id = 0 ) {
+	echo bbp_get_topic_class( $topic_id );
+}
+	/**
+	 * bbp_get_topic_class ()
+	 *
+	 * Return the row class of a topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
+	 *
+	 * @global WP_Query $bbp_topics_template
+	 * @param int $topic_id
+	 * @return string
+	 */
+	function bbp_get_topic_class ( $topic_id = 0 ) {
+		global $bbp_topics_template;
+
+		$alternate = $bbp_topics_template->current_post % 2 ? '' : 'alternate';
+		$status    = 'status-'  . bbp_get_topic_status();
+		$post      = post_class( array( $alternate, $status ) );
+
+		return apply_filters( 'bbp_get_topic_class', $post );
+	}
+
+/**
  * bbp_forum_pagination_count ()
  *
  * Output the pagination count
@@ -2691,6 +2797,33 @@ function bbp_reply_admin_links( $args = '' ) {
 		$links = implode( $sep, $links );
 
 		return apply_filters( 'bbp_get_reply_admin_links', $before . $links . $after, $args );
+	}
+
+/**
+ * bbp_reply_class ()
+ *
+ * Output the row class of a reply
+ */
+function bbp_reply_class ( $reply_id = 0 ) {
+	echo bbp_get_reply_class( $reply_id );
+}
+	/**
+	 * bbp_get_reply_class ()
+	 *
+	 * Return the row class of a reply
+	 *
+	 * @global WP_Query $bbp_replys_template
+	 * @param int $reply_id
+	 * @return string
+	 */
+	function bbp_get_reply_class ( $reply_id = 0 ) {
+		global $bbp_replies_template;
+
+		$alternate = $bbp_replies_template->current_post % 2 ? '' : 'alternate';
+		$status    = 'status-'  . bbp_get_reply_status();
+		$post      = post_class( array( $alternate, $status ) );
+
+		return apply_filters( 'bbp_reply_class', $post );
 	}
 
 /**

@@ -53,7 +53,7 @@
 					</td>
 				</tr>
 
-				<tr id="reply-<?php bbp_reply_id(); ?>" <?php post_class( 'status-' . bbp_get_reply_status() ); ?>>
+				<tr id="reply-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
 					<td class="bbp-reply-author">
 						<?php
