@@ -17,6 +17,6 @@
 							<?php endif; ?>
 
 						</div>
-					</div><!-- #bbp-author-favorites -->
+					</div><!-- #bbp-author-subscriptions -->
 
 				<?php endif; ?>
