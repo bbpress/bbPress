@@ -1098,8 +1098,11 @@ function bbp_has_topics ( $args = '' ) {
 		// Forum ID
 		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
 
+		// Make sure topic has some last activity time
+		'meta_key'         => '_bbp_topic_last_active',
+
 		//'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'date',
+		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'meta_value',
 
 		// 'ASC', 'DESC'
 		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'DESC',
@@ -1710,22 +1713,6 @@ function bbp_topic_last_reply_id ( $topic_id = 0 ) {
 	}
 
 /**
- * bbp_update_topic_last_reply_id ()
- *
- * Update the topic with the most recent reply ID
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2625)
- *
- * @todo everything
- * @param int $topic_id
- */
-function bbp_update_topic_last_reply_id ( $topic_id = 0 ) {
-	$topic_id = bbp_get_topic_id( $topic_id );
-}
-
-/**
  * bbp_topic_last_reply_title ()
  *
  * Output the title of the last reply inside a topic
@@ -1860,40 +1847,6 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 	}
 
 /**
- * bbp_update_topic_reply_count ()
- *
- * Adjust the total post count of a topic
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2467)
- *
- * @uses bbp_get_topic_id()
- * @uses apply_filters
- *
- * @param int $topic_id optional Forum ID to update
- *
- * @return int
- */
-function bbp_update_topic_reply_count ( $topic_id = 0 ) {
-	global $wpdb, $bbp;
-
-	$topic_id = bbp_get_topic_id( $topic_id );
-
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
-		$topic_id = get_post_field( 'post_parent', $topic_id );
-
-	// Get replies of topic
-	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
-
-	// Update the count
-	update_post_meta( $topic_id, '_bbp_topic_reply_count', (int)$replies );
-
-	return apply_filters( 'bbp_update_topic_reply_count', (int)$replies );
-}
-
-/**
  * bbp_topic_voice_count ()
  *
  * Output total voice count of a topic
@@ -1937,46 +1890,6 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
 	}
 
 /**
- * bbp_update_topic_voice_count ()
- *
- * Adjust the total voice count of a topic
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2567)
- *
- * @uses bbp_get_topic_id()
- * @uses apply_filters
- *
- * @todo cache
- *
- * @param int $topic_id optional Topic ID to update
- * @return bool false on failure, voice count on success
- */
-function bbp_update_topic_voice_count ( $topic_id = 0 ) {
-	global $wpdb, $bbp;
-
-	$topic_id = bbp_get_topic_id( $topic_id );
-
-	// If it is not a topic or reply, then we don't need it
-	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( $bbp->topic_id, $bbp->reply_id ) ) )
-		return false;
-
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
-		$topic_id = get_post_field( 'post_parent', $topic_id );
-
-	// There should always be at least 1 voice
-	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->topic_id . "' );", $topic_id, $topic_id ) ) ) )
-		$voices = 1;
-
-	// Update the count
-	update_post_meta( $topic_id, '_bbp_topic_voice_count', (int)$voices );
-
-	return apply_filters( 'bbp_update_topic_voice_count', (int)$voices );
-}
-
-/**
  * bbp_topic_tag_list ( $topic_id = 0, $args = '' )
  *
  * Output a the tags of a topic
@@ -2012,7 +1925,6 @@ function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
 
 		return get_the_term_list( $topic_id, $bbp->topic_tag_id, $before, $sep, $after );
 	}
-
 
 /**
  * bbp_topic_admin_links()
@@ -2092,6 +2004,138 @@ function bbp_topic_class ( $topic_id = 0 ) {
 
 		return apply_filters( 'bbp_get_topic_class', $post );
 	}
+
+/** Topic Updaters ************************************************************/
+
+/**
+ * bbp_update_topic_reply_count ()
+ *
+ * Adjust the total post count of a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2467)
+ *
+ * @uses bbp_get_topic_id()
+ * @uses apply_filters
+ *
+ * @param int $topic_id optional Forum ID to update
+ *
+ * @return int
+ */
+function bbp_update_topic_reply_count ( $topic_id = 0 ) {
+	global $wpdb, $bbp;
+
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
+		$topic_id = get_post_field( 'post_parent', $topic_id );
+
+	// Get replies of topic
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
+
+	// Update the count
+	update_post_meta( $topic_id, '_bbp_topic_reply_count', (int)$replies );
+
+	return apply_filters( 'bbp_update_topic_reply_count', (int)$replies );
+}
+
+/**
+ * bbp_update_topic_last_active ()
+ *
+ * Update the topics last active date/time (aka freshness)
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2680)
+ *
+ * @param int $topic_id optional
+ *
+ * @return string
+ */
+function bbp_update_topic_last_active ( $topic_id = 0, $new_time = '' ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// Check time and use current if empty
+	if ( empty( $new_time ) )
+		$new_time = current_time( 'mysql' );
+
+	// Update the last reply ID
+	if ( !empty( $topic_id ) ) {
+		update_post_meta( $topic_id, '_bbp_topic_last_active', $new_time );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * bbp_update_topic_last_reply_id ()
+ *
+ * Update the topic with the most recent reply ID
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2625)
+ *
+ * @todo everything
+ * @param int $topic_id
+ */
+function bbp_update_topic_last_reply_id ( $topic_id = 0, $reply_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	// Update the last reply ID
+	if ( !empty( $topic_id ) ) {
+		update_post_meta( $topic_id, '_bbp_topic_last_reply_id', $reply_id );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * bbp_update_topic_voice_count ()
+ *
+ * Adjust the total voice count of a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2567)
+ *
+ * @uses bbp_get_topic_id()
+ * @uses apply_filters
+ *
+ * @todo cache
+ *
+ * @param int $topic_id optional Topic ID to update
+ * @return bool false on failure, voice count on success
+ */
+function bbp_update_topic_voice_count ( $topic_id = 0 ) {
+	global $wpdb, $bbp;
+
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// If it is not a topic or reply, then we don't need it
+	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( $bbp->topic_id, $bbp->reply_id ) ) )
+		return false;
+
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
+		$topic_id = get_post_field( 'post_parent', $topic_id );
+
+	// There should always be at least 1 voice
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->topic_id . "' );", $topic_id, $topic_id ) ) ) )
+		$voices = 1;
+
+	// Update the count
+	update_post_meta( $topic_id, '_bbp_topic_voice_count', (int)$voices );
+
+	return apply_filters( 'bbp_update_topic_voice_count', (int)$voices );
+}
+
+/** Topic Pagination **********************************************************/
 
 /**
  * bbp_forum_pagination_count ()

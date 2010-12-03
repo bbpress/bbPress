@@ -131,6 +131,10 @@ function bbp_new_reply_handler () {
 		if ( isset( $_POST['bbp_topic_id'] ) )
 			$topic_id = $_POST['bbp_topic_id'];
 
+		// Handle Forum ID to adjust counts of
+		if ( isset( $_POST['bbp_forum_id'] ) )
+			$forum_id = $_POST['bbp_forum_id'];
+
 		// Handle Tags
 		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
 			$terms = $_POST['bbp_topic_tags'];
@@ -152,33 +156,12 @@ function bbp_new_reply_handler () {
 
 			// Insert reply
 			$reply_id         = wp_insert_post( $reply_data );
-			$reply_data['ID'] = $reply_id;
-
-			// If anonymous post, store name, email and website in post_meta
-			// @todo - validate
-			if ( true == $is_anonymous ) {
-				add_post_meta( $reply_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
-				add_post_meta( $reply_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
-				add_post_meta( $reply_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
-				add_post_meta( $reply_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
-			}
-			
-			// Update counts, etc...
-			do_action( 'bbp_new_reply', $reply_data );
 
 			// Check for missing reply_id or error
 			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
-				// Handle Subscription Checkbox
-				if ( bbp_is_subscriptions_active() ) {
-					$subscribed = bbp_is_user_subscribed( $reply_data['post_author'], $topic_id ) ? true : false;
-					$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ? true : false;
-
-					if ( true == $subscribed && false == $subscheck )
-						bbp_remove_user_subscription( $reply_data['post_author'], $topic_id );
-					elseif ( false == $subscribed && true == $subscheck )
-						bbp_add_user_subscription( $reply_data['post_author'], $topic_id );
-				}
+				// Update counts, etc...
+				do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $is_anonymous, $reply_data['post_author'] );
 
 				// Redirect back to new reply
 				wp_redirect( bbp_get_reply_url( $reply_id ) );
@@ -190,6 +173,55 @@ function bbp_new_reply_handler () {
 	}
 }
 add_action( 'template_redirect', 'bbp_new_reply_handler' );
+
+/**
+ * bbp_new_reply_update_topic ()
+ *
+ * Handle all the extra meta stuff from posting a new reply
+ *
+ * @param int $reply_id
+ * @param int $topic_id
+ * @param int $forum_id
+ * @param bool $is_anonymous
+ * @param int $author_id
+ */
+function bbp_new_reply_update_topic ( $reply_id = 0, $topic_id = 0, $forum_id = 0, $is_anonymous = false, $author_id = 0 ) {
+
+	// Validate the ID's passed from 'bbp_new_reply' action
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
+	if ( empty( $author_id ) )
+		$author_id = bbp_get_current_user_id();
+
+	// If anonymous post, store name, email and website in post_meta
+	// @todo - validate
+	if ( true == $is_anonymous ) {
+		add_post_meta( $reply_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
+		add_post_meta( $reply_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
+		add_post_meta( $reply_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
+		add_post_meta( $reply_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
+	}
+
+	// Handle Subscription Checkbox
+	if ( bbp_is_subscriptions_active() ) {
+		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id ) ? true : false;
+		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ? true : false;
+
+		// Subscribed and unsubscribing
+		if ( true == $subscribed && false == $subscheck )
+			bbp_remove_user_subscription( $author_id, $topic_id );
+
+		// Subscribing
+		elseif ( false == $subscribed && true == $subscheck )
+			bbp_add_user_subscription( $author_id, $topic_id );
+	}
+
+	// Topic meta relating to most recent reply
+	bbp_update_topic_last_reply_id( $topic_id, $reply_id );
+	bbp_update_topic_last_active( $topic_id );
+}
+add_action( 'bbp_new_reply', 'bbp_new_reply_update_topic', 10, 5 );
 
 /**
  * bbp_new_topic_handler ()
@@ -258,25 +290,11 @@ function bbp_new_topic_handler () {
 			// Insert reply
 			$topic_id = wp_insert_post( $topic_data );
 
-			// If anonymous post, store name, email and website in post_meta
-			// @todo - validation
-			if ( true == $is_anonymous ) {
-				add_post_meta( $topic_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
-				add_post_meta( $topic_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
-				add_post_meta( $topic_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
-				add_post_meta( $topic_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
-			}
-			
-			// Update counts, etc...
-			do_action( 'bbp_new_topic', $topic_data );
-
 			// Check for missing topic_id or error
 			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
-				if ( bbp_is_subscriptions_active() ) {
-					if ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] )
-						bbp_add_user_subscription( $topic_data['post_author'], $topic_id );
-				}
+				// Update counts, etc...
+				do_action( 'bbp_new_topic', $topic_id, $forum_id, $is_anonymous, $topic_data['post_author'] );
 
 				// Redirect back to new reply
 				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
@@ -288,6 +306,47 @@ function bbp_new_topic_handler () {
 	}
 }
 add_action( 'template_redirect', 'bbp_new_topic_handler' );
+
+/**
+ * bbp_new_topic_update_topic ()
+ *
+ * Handle all the extra meta stuff from posting a new topic
+ *
+ * @param int $reply_id
+ * @param int $topic_id
+ * @param int $forum_id
+ * @param bool $is_anonymous
+ * @param int $author_id
+ */
+function bbp_new_topic_update_topic ( $topic_id = 0, $forum_id = 0, $is_anonymous = false, $author_id = 0 ) {
+
+	// Validate the ID's passed from 'bbp_new_reply' action
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
+	if ( empty( $author_id ) )
+		$author_id = bbp_get_current_user_id();
+
+	// If anonymous post, store name, email and website in post_meta
+	// @todo - validate
+	if ( true == $is_anonymous ) {
+		add_post_meta( $topic_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
+		add_post_meta( $topic_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
+		add_post_meta( $topic_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
+		add_post_meta( $topic_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
+	}
+
+	// Handle Subscription Checkbox
+	if ( bbp_is_subscriptions_active() ) {
+		if ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) {
+			bbp_add_user_subscription( $author_id, $topic_id );
+		}
+	}
+
+	// Topic meta relating to most recent reply
+	bbp_update_topic_last_reply_id( $topic_id, 0 );
+	bbp_update_topic_last_active( $topic_id );
+}
+add_action( 'bbp_new_topic', 'bbp_new_topic_update_topic', 10, 4 );
 
 /**
  * bbp_load_template( $files )
