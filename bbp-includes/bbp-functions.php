@@ -181,7 +181,7 @@ function bbp_new_reply_handler () {
 				}
 
 				// Redirect back to new reply
-				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#reply-' . $reply_id );
+				wp_redirect( bbp_get_reply_url( $reply_id ) );
 
 				// For good measure
 				exit();

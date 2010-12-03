@@ -2417,14 +2417,34 @@ function bbp_reply_url ( $reply_id = 0 ) {
 	function bbp_get_reply_url ( $reply_id = 0 ) {
 		global $bbp_replies_template;
 
+		// Set needed variables
 		$reply_id  = bbp_get_reply_id( $reply_id );
 		$topic_id  = bbp_get_reply_topic_id( $reply_id );
 		$topic_url = bbp_get_topic_permalink( $topic_id );
 
-		if ( 1 >= $bbp_replies_template->paged )
+		// If $bbp_replies_template isn't set, we're handling a new reply redirect
+		if ( !isset( $bbp_replies_template ) ) {
+
+			// Populate the replies global
+			bbp_has_replies();
+
+			// Do some math and see if we need to bounce to the newest page
+			$new_reply_location = ceil( $bbp_replies_template->found_posts / $bbp_replies_template->posts_per_page );
+			if ( $bbp_replies_template->paged < (int) $new_reply_location )
+				$reply_page = $new_reply_location;
+			else
+				$reply_page = 1;
+
+		// All good, so assign the reply_page to the current page
+		} else {
+			$reply_page = $bbp_replies_template->paged;
+		}
+
+		// Don't include pagination if on first page
+		if ( 1 >= $reply_page )
 			$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
 		else
-			$url = trailingslashit( $topic_url ) . "page/{$bbp_replies_template->paged}/#reply-{$reply_id}";
+			$url = trailingslashit( $topic_url ) . "page/{$reply_page}/#reply-{$reply_id}";
 
 		return apply_filters( 'bbp_get_reply_url', $url, $reply_id );
 	}
