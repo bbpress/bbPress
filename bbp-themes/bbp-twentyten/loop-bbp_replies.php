@@ -38,7 +38,7 @@
 
 					</td>
 					<td class="bbp-reply-content">
-						<a href="#reply-<?php bbp_reply_id(); ?>" title="<?php bbp_reply_title(); ?>">#</a>
+						<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>">#</a>
 
 						<?php
 							// @todo - abstract

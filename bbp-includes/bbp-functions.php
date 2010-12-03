@@ -79,6 +79,24 @@ function bbp_time_since( $time ) {
 		return apply_filters( 'bbp_get_time_since', human_time_diff( $time, current_time( 'timestamp' ) ) );
 	}
 
+/**
+ * bbp_walk_forum ()
+ *
+ * Walk the forum tree
+ *
+ * @param obj $forums
+ * @param int $depth
+ * @param int $current
+ * @param obj $r
+ * @return obj
+ */
+function bbp_walk_forum ( $forums, $depth, $current, $r ) {
+	$walker = empty( $r['walker'] ) ? new BBP_Walker_Forum : $r['walker'];
+	$args   = array( $forums, $depth, $r, $current );
+	return call_user_func_array( array( &$walker, 'walk' ), $args );
+}
+
+/** Post Form Handlers ********************************************************/
 
 /**
  * bbp_new_reply_handler ()
@@ -272,112 +290,6 @@ function bbp_new_topic_handler () {
 add_action( 'template_redirect', 'bbp_new_topic_handler' );
 
 /**
- * bbp_favorites_handler ()
- *
- * Handles the front end adding and removing of favorite topics
- */
-function bbp_favorites_handler () {
-	global $bbp, $current_user;
-
-	// Only proceed if GET is a favorite action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_favorite_add', 'bbp_favorite_remove' ) ) && !empty( $_GET['topic_id'] ) ) {
-		// What action is taking place?
-		$action       = $_GET['action'];
-
-		// Load user info
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
-
-		// Check current user's ability to edit the user
-		if ( !current_user_can( 'edit_user', $user_id ) )
-			return false;
-
-		// Load favorite info
-		$topic_id     = intval( $_GET['topic_id'] );
-		$is_favorite  = bbp_is_user_favorite( $user_id, $topic_id );
-		$success      = false;
-
-		// Handle insertion into posts table
-		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
-
-			if ( $is_favorite && 'bbp_favorite_remove' == $action )
-				$success = bbp_remove_user_favorite( $user_id, $topic_id );
-			elseif ( !$is_favorite && 'bbp_favorite_add' == $action )
-				$success = bbp_add_user_favorite( $user_id, $topic_id );
-
-			// Do additional favorites actions
-			do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
-
-			// Check for missing reply_id or error
-			if ( true == $success ) {
-
-				// Redirect back to new reply
-				$redirect = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
-				wp_redirect( $redirect );
-
-				// For good measure
-				exit();
-			}
-		}
-	}
-}
-add_action( 'template_redirect', 'bbp_favorites_handler' );
-
-/**
- * bbp_subscriptions_handler ()
- *
- * Handles the front end subscribing and unsubscribing topics
- */
-function bbp_subscriptions_handler () {
-	global $bbp, $current_user;
-
-	if ( !bbp_is_subscriptions_active() )
-		return false;
-
-	// Only proceed if GET is a favorite action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_subscribe', 'bbp_unsubscribe' ) ) && !empty( $_GET['topic_id'] ) ) {
-		// What action is taking place?
-		$action = $_GET['action'];
-
-		// Load user info
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
-
-		// Check current user's ability to edit the user
-		if ( !current_user_can( 'edit_user', $user_id ) )
-			return false;
-
-		// Load subscription info
-		$topic_id         = intval( $_GET['topic_id'] );
-		$is_subscription  = bbp_is_user_subscribed( $user_id, $topic_id );
-		$success          = false;
-
-		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
-
-			if ( $is_subscription && 'bbp_unsubscribe' == $action )
-				$success = bbp_remove_user_subscription( $user_id, $topic_id );
-			elseif ( !$is_subscription && 'bbp_subscribe' == $action )
-				$success = bbp_add_user_subscription( $user_id, $topic_id );
-
-			// Do additional subscriptions actions
-			do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
-
-			// Check for missing reply_id or error
-			if ( true == $success ) {
-
-				// Redirect back to new reply
-				$redirect = bbp_get_topic_permalink( $topic_id );
-				wp_redirect( $redirect );
-
-				// For good measure
-				exit();
-			}
-		}
-	}
-}
-add_action( 'template_redirect', 'bbp_subscriptions_handler' );
-
-/**
  * bbp_load_template( $files )
  *
  *
@@ -485,6 +397,73 @@ function bbp_get_paged() {
 /** Favorites *****************************************************************/
 
 /**
+ * bbp_favorites_handler ()
+ *
+ * Handles the front end adding and removing of favorite topics
+ */
+function bbp_favorites_handler () {
+	global $bbp, $current_user;
+
+	// Only proceed if GET is a favorite action
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_favorite_add', 'bbp_favorite_remove' ) ) && !empty( $_GET['topic_id'] ) ) {
+		// What action is taking place?
+		$action       = $_GET['action'];
+
+		// Load user info
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+
+		// Check current user's ability to edit the user
+		if ( !current_user_can( 'edit_user', $user_id ) )
+			return false;
+
+		// Load favorite info
+		$topic_id     = intval( $_GET['topic_id'] );
+		$is_favorite  = bbp_is_user_favorite( $user_id, $topic_id );
+		$success      = false;
+
+		// Handle insertion into posts table
+		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
+
+			if ( $is_favorite && 'bbp_favorite_remove' == $action )
+				$success = bbp_remove_user_favorite( $user_id, $topic_id );
+			elseif ( !$is_favorite && 'bbp_favorite_add' == $action )
+				$success = bbp_add_user_favorite( $user_id, $topic_id );
+
+			// Do additional favorites actions
+			do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
+
+			// Check for missing reply_id or error
+			if ( true == $success ) {
+
+				// Redirect back to new reply
+				$redirect = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+				wp_redirect( $redirect );
+
+				// For good measure
+				exit();
+			}
+		}
+	}
+}
+add_action( 'template_redirect', 'bbp_favorites_handler' );
+
+/**
+ * bbp_is_favorites_active ()
+ *
+ * Checks if favorites feature is enabled.
+ *
+ * @package bbPress
+ * @subpackage Functions
+ * @since bbPress (r2658)
+ *
+ * @return bool Is 'favorites' enabled or not
+ */
+function bbp_is_favorites_active () {
+	return (bool) get_option( '_bbp_enable_favorites' );
+}
+
+/**
  * bbp_remove_topic_from_all_favorites ()
  *
  * Remove a deleted topic from all users' favorites
@@ -509,6 +488,60 @@ add_action( 'trash_post',  'bbp_remove_topic_from_all_favorites' );
 add_action( 'delete_post', 'bbp_remove_topic_from_all_favorites' );
 
 /** Subscriptions *************************************************************/
+
+/**
+ * bbp_subscriptions_handler ()
+ *
+ * Handles the front end subscribing and unsubscribing topics
+ */
+function bbp_subscriptions_handler () {
+	global $bbp, $current_user;
+
+	if ( !bbp_is_subscriptions_active() )
+		return false;
+
+	// Only proceed if GET is a favorite action
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_subscribe', 'bbp_unsubscribe' ) ) && !empty( $_GET['topic_id'] ) ) {
+		// What action is taking place?
+		$action = $_GET['action'];
+
+		// Load user info
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+
+		// Check current user's ability to edit the user
+		if ( !current_user_can( 'edit_user', $user_id ) )
+			return false;
+
+		// Load subscription info
+		$topic_id         = intval( $_GET['topic_id'] );
+		$is_subscription  = bbp_is_user_subscribed( $user_id, $topic_id );
+		$success          = false;
+
+		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
+
+			if ( $is_subscription && 'bbp_unsubscribe' == $action )
+				$success = bbp_remove_user_subscription( $user_id, $topic_id );
+			elseif ( !$is_subscription && 'bbp_subscribe' == $action )
+				$success = bbp_add_user_subscription( $user_id, $topic_id );
+
+			// Do additional subscriptions actions
+			do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
+
+			// Check for missing reply_id or error
+			if ( true == $success ) {
+
+				// Redirect back to new reply
+				$redirect = bbp_get_topic_permalink( $topic_id );
+				wp_redirect( $redirect );
+
+				// For good measure
+				exit();
+			}
+		}
+	}
+}
+add_action( 'template_redirect', 'bbp_subscriptions_handler' );
 
 /**
  * bbp_remove_topic_from_all_subscriptions ()

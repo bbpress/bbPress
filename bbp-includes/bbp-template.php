@@ -2378,7 +2378,55 @@ function bbp_reply_permalink ( $reply_id = 0 ) {
 	 * @return string Permanent link to reply
 	 */
 	function bbp_get_reply_permalink ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
 		return apply_filters( 'bbp_get_reply_permalink', get_permalink( $reply_id ), $reply_id );
+	}
+/**
+ * bbp_reply_url ()
+ *
+ * Output the paginated url to the reply in the reply loop
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2679)
+ *
+ * @uses bbp_get_reply_url()
+ * @param int $reply_id optional
+ */
+function bbp_reply_url ( $reply_id = 0 ) {
+	echo bbp_get_reply_url( $reply_id );
+}
+	/**
+	 * bbp_get_reply_url()
+	 *
+	 * Return the paginated url to the reply in the reply loop
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2679)
+	 *
+	 * @uses apply_filters
+	 * @uses bbp_get_reply_id
+	 * @uses bbp_get_reply_topic_id
+	 * @uses bbp_get_topic_permalink
+	 * @param int $reply_id optional
+	 *
+	 * @return string Link to reply relative to paginated topic
+	 */
+	function bbp_get_reply_url ( $reply_id = 0 ) {
+		global $bbp_replies_template;
+
+		$reply_id  = bbp_get_reply_id( $reply_id );
+		$topic_id  = bbp_get_reply_topic_id( $reply_id );
+		$topic_url = bbp_get_topic_permalink( $topic_id );
+
+		if ( 1 >= $bbp_replies_template->paged )
+			$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
+		else
+			$url = trailingslashit( $topic_url ) . "page/{$bbp_replies_template->paged}/#reply-{$reply_id}";
+
+		return apply_filters( 'bbp_get_reply_url', $url, $reply_id );
 	}
 
 /**
@@ -2681,7 +2729,7 @@ function bbp_reply_author_url ( $reply_id = 0 ) {
 	}
 
 /**
- * bbp_reply_topic ()
+ * bbp_reply_topic_title ()
  *
  * Output the topic title a reply belongs to
  *
@@ -2693,11 +2741,11 @@ function bbp_reply_author_url ( $reply_id = 0 ) {
  *
  * @uses bbp_get_reply_topic()
  */
-function bbp_reply_topic ( $reply_id = 0 ) {
-	echo bbp_get_reply_topic( $reply_id );
+function bbp_reply_topic_title ( $reply_id = 0 ) {
+	echo bbp_get_reply_topic_title( $reply_id );
 }
 	/**
-	 * bbp_get_reply_topic ()
+	 * bbp_get_reply_topic_title ()
 	 *
 	 * Return the topic title a reply belongs to
 	 *
@@ -2712,10 +2760,11 @@ function bbp_reply_topic ( $reply_id = 0 ) {
 	 *
 	 * @return string
 	 */
-	function bbp_get_reply_topic ( $reply_id = 0 ) {
+	function bbp_get_reply_topic_title ( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_topic', bbp_get_topic_title( $topic_id ), $reply_id, $topic_id );
+		return apply_filters( 'bbp_get_reply_topic_title', bbp_get_topic_title( $topic_id ), $reply_id, $topic_id );
 	}
 
 /**
@@ -2750,12 +2799,49 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 	 * @return string
 	 */
 	function bbp_get_reply_topic_id ( $reply_id = 0 ) {
-		global $bbp_replies_template;
-
-		$reply_id = bbp_get_reply_id( $reply_id);
+		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = get_post_field( 'post_parent', $reply_id );
 
 		return apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
+	}
+
+/**
+ * bbp_reply_forum_id ()
+ *
+ * Output the forum ID a reply belongs to
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2679)
+ *
+ * @param int $reply_id optional
+ *
+ * @uses bbp_get_reply_topic_id ()
+ */
+function bbp_reply_forum_id ( $reply_id = 0 ) {
+	echo bbp_get_reply_forum_id( $reply_id );
+}
+	/**
+	 * bbp_get_reply_forum_id ()
+	 *
+	 * Return the forum ID a reply belongs to
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2679)
+	 *
+	 * @param int $reply_id optional
+	 *
+	 * @todo - Walk ancestors and look for forum post_type
+	 *
+	 * @return string
+	 */
+	function bbp_get_reply_forum_id ( $reply_id = 0 ) {
+		$reply_id = bbp_get_forum_id( $reply_id );
+		$topic_id = get_post_field( 'post_parent', $reply_id );
+		$forum_id = get_post_field( 'post_parent', $topic_id );
+
+		return apply_filters( 'bbp_get_reply_topic_id', $forum_id, $reply_id );
 	}
 
 /**
@@ -2812,7 +2898,7 @@ function bbp_reply_class ( $reply_id = 0 ) {
 	 *
 	 * Return the row class of a reply
 	 *
-	 * @global WP_Query $bbp_replys_template
+	 * @global WP_Query $bbp_replies_template
 	 * @param int $reply_id
 	 * @return string
 	 */
