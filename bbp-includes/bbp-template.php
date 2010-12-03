@@ -1053,8 +1053,13 @@ function bbp_has_topics ( $args = '' ) {
 	$bbp_t = wp_parse_args( $args, $default );
 	$r     = extract( $bbp_t );
 
-	// Call the query
-	$bbp_topics_template = new WP_Query( $bbp_t );
+	// If we're viewing a tax/term, use the existing query; if not, run our own
+	if ( !is_tax() ) {
+		$bbp_topics_template = new WP_Query( $bbp_t );
+	} else {
+		global $wp_query;
+		$bbp_topics_template = $wp_query;
+	}
 
 	if ( -1 == $posts_per_page )
 		$posts_per_page = $bbp_topics_template->post_count;
