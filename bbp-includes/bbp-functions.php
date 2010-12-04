@@ -37,14 +37,7 @@ function bbp_number_format ( $number, $decimals = false ) {
  *
  * @return string Returns timestamp
  */
-function bbp_get_modified_time( $post = null, $d = 'U', $gmt = false, $translate = false ) {
-	$post = get_post($post);
-
-	if ( $gmt )
-		$time = $post->post_modified_gmt;
-	else
-		$time = $post->post_modified;
-
+function bbp_get_modified_time( $time, $d = 'U', $gmt = false, $translate = false ) {
 	$time = mysql2date( $d, $time, $translate );
 
 	return apply_filters( 'bbp_get_post_modified_time', $time, $d, $gmt );
@@ -220,6 +213,11 @@ function bbp_new_reply_update_topic ( $reply_id = 0, $topic_id = 0, $forum_id = 
 	// Topic meta relating to most recent reply
 	bbp_update_topic_last_reply_id( $topic_id, $reply_id );
 	bbp_update_topic_last_active( $topic_id );
+
+	// Forum meta relating to most recent topic
+	bbp_update_forum_last_topic_id( $forum_id, $topic_id );
+	bbp_update_forum_last_reply_id( $forum_id, $reply_id );
+	bbp_update_forum_last_active( $forum_id );
 }
 add_action( 'bbp_new_reply', 'bbp_new_reply_update_topic', 10, 5 );
 
@@ -342,9 +340,14 @@ function bbp_new_topic_update_topic ( $topic_id = 0, $forum_id = 0, $is_anonymou
 		}
 	}
 
-	// Topic meta relating to most recent reply
+	// Topic meta relating to most recent topic
 	bbp_update_topic_last_reply_id( $topic_id, 0 );
 	bbp_update_topic_last_active( $topic_id );
+
+	// Forum meta relating to most recent topic
+	bbp_update_forum_last_topic_id( $forum_id, $topic_id );
+	bbp_update_forum_last_reply_id( $forum_id, 0 );
+	bbp_update_forum_last_active( $forum_id );
 }
 add_action( 'bbp_new_topic', 'bbp_new_topic_update_topic', 10, 4 );
 

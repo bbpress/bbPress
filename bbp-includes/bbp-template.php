@@ -256,7 +256,20 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_active ( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		return apply_filters( 'bbp_get_forum_last_active', bbp_get_time_since( bbp_get_modified_time( $forum_id ) ) );
+
+		if ( !$last_active = get_post_meta( $forum_id, '_bbp_forum_last_active', true ) ) {
+			if ( $reply_id = bbp_get_forum_last_reply_id( $forum_id ) ) {
+				$last_active = get_post_field( 'post_date', $reply_id );
+			} else {
+				if ( $topic_id = bbp_get_forum_last_topic_id( $forum_id ) ) {
+					$last_active = bbp_get_topic_last_active( $forum_id, '_bbp_forum_last_active', true );
+				}
+			}
+		}
+
+		$last_active = !empty( $last_active ) ? bbp_get_time_since( bbp_get_modified_time( $last_active ) ) : '';
+
+		return apply_filters( 'bbp_get_forum_last_active', $last_active );
 	}
 
 /**
@@ -357,27 +370,8 @@ function bbp_forum_last_topic_id ( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topic_id = get_post_meta( $forum_id, '_bbp_forum_last_topic_id', true );
 
-		if ( '' === $topic_id )
-			$topic_id = bbp_update_forum_last_topic_id( $forum_id );
-
 		return apply_filters( 'bbp_get_forum_last_topic_id', $topic_id );
 	}
-
-/**
- * bbp_update_forum_last_topic_id ()
- *
- * Update the forum last topic id
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2625)
- *
- * @todo everything
- * @param int $forum_id
- */
-function bbp_update_forum_last_topic_id ( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
-}
 
 /**
  * bbp_forum_last_topic_title ()
@@ -484,22 +478,6 @@ function bbp_forum_last_reply_id ( $forum_id = 0 ) {
 	}
 
 /**
- * bbp_update_forum_last_reply_id ()
- *
- * Update the forum last reply id
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2625)
- *
- * @todo everything
- * @param int $forum_id
- */
-function bbp_update_forum_last_reply_id ( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
-}
-
-/**
  * bbp_forum_last_reply_title ()
  *
  * Output the title of the last reply inside a forum
@@ -557,6 +535,49 @@ function bbp_forum_last_reply_permalink ( $forum_id = 0 ) {
 	}
 
 /**
+ * bbp_forum_last_reply_url ()
+ *
+ * Output the link to the last reply in a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2683)
+ *
+ * @param int $forum_id optional
+ * @uses bbp_get_forum_url()
+ */
+function bbp_forum_last_reply_url ( $forum_id = 0 ) {
+	echo bbp_get_forum_last_reply_url( $forum_id );
+}
+	/**
+	 * bbp_get_forum_last_reply_url ()
+	 *
+	 * Return the link to the last reply in a forum
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2683)
+	 *
+	 * @param int $forum_id optional
+	 * @uses apply_filters
+	 * @uses get_url
+	 * @return string Paginated URL to latest reply
+	 */
+	function bbp_get_forum_last_reply_url ( $forum_id = 0 ) {
+		$forum_id  = bbp_get_forum_id( $forum_id );
+
+		if ( $reply_id  = bbp_get_forum_last_reply_id( $forum_id ) ) {
+			$reply_url = bbp_get_reply_url( $reply_id );
+		} else {
+			if ( $topic_id = bbp_get_forum_last_topic_id( $forum_id ) ) {
+				$reply_url = bbp_get_topic_permalink( $topic_id );
+			}
+		}
+
+		return apply_filters( 'bbp_get_forum_last_reply_url', $reply_url );
+	}
+
+/**
  * bbp_forum_freshness_link ()
  *
  * Output link to the most recent activity inside a forum, complete with
@@ -585,10 +606,14 @@ function bbp_forum_freshness_link ( $forum_id = 0) {
 	 */
 	function bbp_get_forum_freshness_link ( $forum_id = 0 ) {
 		$forum_id   = bbp_get_forum_id( $forum_id );
-		$link_url   = bbp_get_forum_last_reply_permalink( $forum_id );
+		$link_url   = bbp_get_forum_last_reply_url( $forum_id );
 		$title      = bbp_get_forum_last_reply_title( $forum_id );
 		$time_since = bbp_get_forum_last_active( $forum_id );
-		$anchor     = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
+
+		if ( !empty( $time_since ) )
+			$anchor = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
+		else
+			$anchor = __( 'No Topics', 'bbpress' );
 
 		return apply_filters( 'bbp_get_forum_freshness_link', $anchor );
 	}
@@ -752,22 +777,6 @@ function bbp_forum_subforum_count ( $forum_id = 0 ) {
 	}
 
 /**
- * bbp_update_forum_subforum_count ()
- *
- * Update the forum sub-forum count
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2625)
- *
- * @todo everything
- * @param int $forum_id
- */
-function bbp_update_forum_subforum_count ( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
-}
-
-/**
  * bbp_forum_topic_count ()
  *
  * Output total topic count of a forum
@@ -808,36 +817,6 @@ function bbp_forum_topic_count ( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_topic_count', $topics );
 	}
-
-/**
- * bbp_update_forum_topic_count ()
- *
- * Adjust the total topic count of a forum
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2464)
- *
- * @param int $forum_id optional
- * @return int
- */
-function bbp_update_forum_topic_count ( $forum_id = 0 ) {
-	global $wpdb, $bbp;
-
-	$forum_id = bbp_get_forum_id( $forum_id );
-
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
-		$forum_id = get_post_field( 'post_parent', $forum_id );
-
-	// Get topics count
-	$topics = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->topic_id . "';", $forum_id ) ) );
-
-	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_topic_count', (int)$topics );
-
-	return apply_filters( 'bbp_update_forum_topic_count', (int)$topics );
-}
 
 /**
  * bbp_forum_reply_count ()
@@ -882,40 +861,6 @@ function bbp_forum_reply_count ( $forum_id = 0 ) {
 	}
 
 /**
- * bbp_update_forum_reply_count ()
- *
- * Adjust the total post count of a forum
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2464)
- *
- * @uses bbp_get_forum_id(0
- * @uses apply_filters
- *
- * @param int $forum_id optional
- *
- * @return int
- */
-function bbp_update_forum_reply_count ( $forum_id = 0 ) {
-	global $wpdb, $bbp;
-
-	$forum_id = bbp_get_forum_id( $forum_id );
-
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
-		$forum_id = get_post_field( 'post_parent', $forum_id );
-
-	// There should always be at least 1 voice
-	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $forum_id ) ) );
-
-	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_reply_count', (int)$replies );
-
-	return apply_filters( 'bbp_update_forum_reply_count', (int)$replies );
-}
-
-/**
  * bbp_forum_voice_count ()
  *
  * Output total voice count of a forum
@@ -957,48 +902,6 @@ function bbp_forum_voice_count ( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_voice_count', (int)$voices, $forum_id );
 	}
-
-/**
- * bbp_update_forum_voice_count ()
- *
- * Adjust the total voice count of a forum
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2567)
- *
- * @uses bbp_get_forum_id()
- * @uses wpdb
- * @uses apply_filters
- *
- * @todo cache
- *
- * @param int $forum_id optional Topic ID to update
- *
- * @return bool false on failure, voice count on success
- */
-function bbp_update_forum_voice_count ( $forum_id = 0 ) {
-	global $wpdb, $bbp;
-
-	$forum_id = bbp_get_forum_id( $forum_id );
-
-	// If it is not a forum or reply, then we don't need it
-	if ( !in_array( get_post_field( 'post_type', $forum_id ), array( $bbp->forum_id, $bbp->reply_id ) ) )
-		return false;
-
-	// If it's a reply, then get the parent (forum id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
-		$forum_id = get_post_field( 'post_parent', $forum_id );
-
-	// There should always be at least 1 voice
-	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->forum_id . "' );", $forum_id, $forum_id ) ) ) )
-		$voices = 1;
-
-	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_voice_count', (int)$voices );
-
-	return apply_filters( 'bbp_update_forum_voice_count', (int)$voices );
-}
 
 /**
  * bbp_forum_status ()
@@ -1070,6 +973,209 @@ function bbp_forum_class ( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_class', $post );
 	}
+
+/** Forum Updaters ************************************************************/
+
+/**
+ * bbp_update_forum_last_topic_id ()
+ *
+ * Update the forum last topic id
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2625)
+ *
+ * @todo everything
+ * @param int $forum_id
+ */
+function bbp_update_forum_last_topic_id ( $forum_id = 0, $topic_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// Update the last reply ID
+	if ( !empty( $topic_id ) ) {
+		update_post_meta( $forum_id, '_bbp_forum_last_topic_id', $topic_id );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * bbp_update_forum_last_reply_id ()
+ *
+ * Update the forum last reply id
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2625)
+ *
+ * @todo everything
+ * @param int $forum_id
+ */
+function bbp_update_forum_last_reply_id ( $forum_id = 0, $reply_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	// Update the last reply ID
+	if ( !empty( $reply_id ) ) {
+		update_post_meta( $forum_id, '_bbp_forum_last_reply_id', $reply_id );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * bbp_update_forum_last_active ()
+ *
+ * Update the forums last active date/time (aka freshness)
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2680)
+ *
+ * @param int $forum_id optional
+ *
+ * @return string
+ */
+function bbp_update_forum_last_active ( $forum_id = 0, $new_time = '' ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Check time and use current if empty
+	if ( empty( $new_time ) )
+		$new_time = current_time( 'mysql' );
+
+	// Update the last reply ID
+	if ( !empty( $forum_id ) ) {
+		update_post_meta( $forum_id, '_bbp_forum_last_active', $new_time );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * bbp_update_forum_subforum_count ()
+ *
+ * Update the forum sub-forum count
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2625)
+ *
+ * @todo everything
+ * @param int $forum_id
+ */
+function bbp_update_forum_subforum_count ( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+}
+
+/**
+ * bbp_update_forum_topic_count ()
+ *
+ * Adjust the total topic count of a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2464)
+ *
+ * @param int $forum_id optional
+ * @return int
+ */
+function bbp_update_forum_topic_count ( $forum_id = 0 ) {
+	global $wpdb, $bbp;
+
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = get_post_field( 'post_parent', $forum_id );
+
+	// Get topics count
+	$topics = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->topic_id . "';", $forum_id ) ) );
+
+	// Update the count
+	update_post_meta( $forum_id, '_bbp_forum_topic_count', (int)$topics );
+
+	return apply_filters( 'bbp_update_forum_topic_count', (int)$topics );
+}
+
+/**
+ * bbp_update_forum_reply_count ()
+ *
+ * Adjust the total post count of a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2464)
+ *
+ * @uses bbp_get_forum_id(0
+ * @uses apply_filters
+ *
+ * @param int $forum_id optional
+ *
+ * @return int
+ */
+function bbp_update_forum_reply_count ( $forum_id = 0 ) {
+	global $wpdb, $bbp;
+
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = get_post_field( 'post_parent', $forum_id );
+
+	// There should always be at least 1 voice
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $forum_id ) ) );
+
+	// Update the count
+	update_post_meta( $forum_id, '_bbp_forum_reply_count', (int)$replies );
+
+	return apply_filters( 'bbp_update_forum_reply_count', (int)$replies );
+}
+
+/**
+ * bbp_update_forum_voice_count ()
+ *
+ * Adjust the total voice count of a forum
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2567)
+ *
+ * @uses bbp_get_forum_id()
+ * @uses wpdb
+ * @uses apply_filters
+ *
+ * @todo cache
+ *
+ * @param int $forum_id optional Topic ID to update
+ *
+ * @return bool false on failure, voice count on success
+ */
+function bbp_update_forum_voice_count ( $forum_id = 0 ) {
+	global $wpdb, $bbp;
+
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// If it is not a forum or reply, then we don't need it
+	if ( !in_array( get_post_field( 'post_type', $forum_id ), array( $bbp->forum_id, $bbp->reply_id ) ) )
+		return false;
+
+	// If it's a reply, then get the parent (forum id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = get_post_field( 'post_parent', $forum_id );
+
+	// There should always be at least 1 voice
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->forum_id . "' );", $forum_id, $forum_id ) ) ) )
+		$voices = 1;
+
+	// Update the count
+	update_post_meta( $forum_id, '_bbp_forum_voice_count', (int)$voices );
+
+	return apply_filters( 'bbp_update_forum_voice_count', (int)$voices );
+}
 
 /** END - Forum Loop Functions ************************************************/
 
@@ -1668,7 +1774,10 @@ function bbp_topic_last_active ( $topic_id = 0 ) {
 	function bbp_get_topic_last_active ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_last_active', bbp_get_time_since( bbp_get_modified_time( $topic_id ) ) );
+		if ( !$last_active = get_post_meta( $topic_id, '_bbp_topic_last_active', true ) )
+			$reply_id = bbp_get_topic_last_reply_id( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_last_active', bbp_get_time_since( bbp_get_modified_time( $last_active ) ) );
 	}
 
 /** TOPIC LAST REPLY **********************************************************/
@@ -1705,9 +1814,6 @@ function bbp_topic_last_reply_id ( $topic_id = 0 ) {
 	function bbp_get_topic_last_reply_id ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = get_post_meta( $topic_id, '_bbp_topic_last_reply_id', true );
-
-		if ( '' === $reply_id )
-			$reply_id = bbp_update_topic_last_reply_id( $topic_id );
 
 		return apply_filters( 'bbp_get_topic_last_reply_id', $reply_id );
 	}
@@ -1770,6 +1876,47 @@ function bbp_topic_last_reply_permalink ( $topic_id = 0 ) {
 	}
 
 /**
+ * bbp_topic_last_reply_url ()
+ *
+ * Output the link to the last reply in a topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2683)
+ *
+ * @param int $topic_id optional
+ * @uses bbp_get_topic_url()
+ */
+function bbp_topic_last_reply_url ( $topic_id = 0 ) {
+	echo bbp_get_topic_last_reply_url( $topic_id );
+}
+	/**
+	 * bbp_get_topic_last_reply_url ()
+	 *
+	 * Return the link to the last reply in a topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2683)
+	 *
+	 * @param int $topic_id optional
+	 * @uses apply_filters
+	 * @uses get_url
+	 * @return string Permanent link to topic
+	 */
+	function bbp_get_topic_last_reply_url ( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
+
+		if ( !empty( $reply_id ) )
+			$reply_url = bbp_get_reply_url( $reply_id );
+		else
+			$reply_url = bbp_get_topic_permalink( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_last_reply_url', $reply_url );
+	}
+
+/**
  * bbp_topic_freshness_link ()
  *
  * Output link to the most recent activity inside a topic, complete with
@@ -1798,10 +1945,14 @@ function bbp_topic_freshness_link ( $topic_id = 0) {
 	 */
 	function bbp_get_topic_freshness_link ( $topic_id = 0 ) {
 		$topic_id   = bbp_get_topic_id( $topic_id );
-		$link_url   = bbp_get_topic_last_reply_permalink( $topic_id );
+		$link_url   = bbp_get_topic_last_reply_url( $topic_id );
 		$title      = bbp_get_topic_last_reply_title( $topic_id );
 		$time_since = bbp_get_topic_last_active( $topic_id );
-		$anchor     = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
+
+		if ( !empty( $time_since ) )
+			$anchor = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
+		else
+			$anchor = __( 'No Replies', 'bbpress' );
 
 		return apply_filters( 'bbp_get_topic_freshness_link', $anchor );
 	}
