@@ -22,6 +22,8 @@
 
 							<?php get_template_part( 'loop', 'bbp_forums' ); ?>
 
+							<?php get_template_part( 'form', 'bbp_topic' ); ?>
+
 						</div>
 					</div><!-- #forum-front -->
 

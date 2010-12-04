@@ -4,7 +4,7 @@
 	<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">
 		<form id="new_post" name="new_post" method="post" action="">
 			<fieldset>
-				<legend><?php printf( __( 'New Topic in: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ); ?></legend>
+				<legend><?php bbp_is_forum() ? printf( __( 'Create new topic in: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create new topic', 'bbpress' ); ?></legend>
 
 				<div class="alignleft">
 
