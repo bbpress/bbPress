@@ -34,7 +34,7 @@ function bbp_has_access () {
  * @return bool
  */
 function bbp_allow_anonymous () {
-	return apply_filters( 'bbp_allow_anonymous', get_option( 'bbp_allow_anonymous', false ) );
+	return apply_filters( 'bbp_allow_anonymous', get_option( '_bbp_allow_anonymous', false ) );
 }
 
 /** START - Favorites *********************************************************/

@@ -5,7 +5,13 @@ function bbp_admin_settings () {
 	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['action'] ) && $_POST['action'] == '_bbp_update_settings' ) {
 		check_admin_referer( '_bbp_settings' );
 
-		$options = array( '_bbp_edit_lock' => 'int', '_bbp_throttle_time' => 'int', '_bbp_enable_subscriptions' => 'bool' );
+		$options = array(
+			'_bbp_edit_lock'            => 'int',
+			'_bbp_throttle_time'        => 'int',
+			'_bbp_enable_subscriptions' => 'bool',
+			'_bbp_allow_anonymous'      => 'bool'
+		);
+
 		foreach ( array_keys( $options ) as $option ) {
 			$$option = trim( @$_POST[$option] );
 			switch ( $options[$option] ) {
@@ -48,9 +54,13 @@ function bbp_admin_settings () {
 
 				<tr valign="top">
 					<th scope="row"><label for="_bbp_enable_subscriptions"><?php _e( 'Enable subscriptions', 'bbpress' ); ?></label></th>
-					<td><input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="posts_per_rss" value="1" <?php checked( true, bbp_is_subscriptions_active() ); ?> class="small-text" /><label for="_bbp_enable_subscriptions"><?php _e( 'Allow users to subscribe to topics', 'bbpress' ); ?></label></td>
+					<td><input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( true, bbp_is_subscriptions_active() ); ?> class="small-text" /><label for="_bbp_enable_subscriptions"><?php _e( 'Allow users to subscribe to topics', 'bbpress' ); ?></label></td>
 				</tr>
 
+				<tr valign="top">
+					<th scope="row"><label for="_bbp_allow_anonymous"><?php _e( 'Allow Anonymous Posting', 'bbpress' ); ?></label></th>
+					<td><input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( true, bbp_allow_anonymous() ); ?> class="small-text" /><label for="_bbp_allow_anonymous"><?php _e( 'Allow guest users without accounts to create topics and replies', 'bbpress' ); ?></label></td>
+				</tr>
 			</table>
 
 			<p class="submit">
