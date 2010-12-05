@@ -566,14 +566,22 @@ function bbp_forum_last_reply_url ( $forum_id = 0 ) {
 	function bbp_get_forum_last_reply_url ( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
 
+		// If forum has replies, get the last reply and use its url
 		if ( $reply_id  = bbp_get_forum_last_reply_id( $forum_id ) ) {
 			$reply_url = bbp_get_reply_url( $reply_id );
+
+		// No replies, so look for topics and use last permalink
 		} else {
 			if ( $topic_id = bbp_get_forum_last_topic_id( $forum_id ) ) {
 				$reply_url = bbp_get_topic_permalink( $topic_id );
+
+			// No topics either, so set $reply_url as empty
+			} else {
+				$reply_url = '';
 			}
 		}
 
+		// Filter and return
 		return apply_filters( 'bbp_get_forum_last_reply_url', $reply_url );
 	}
 
