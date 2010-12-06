@@ -156,11 +156,8 @@
 						<fieldset class="submit">
 							<legend><?php _e( 'Save Changes', 'bbpress' ); ?></legend>
 							<div class="alignright">
-								<input type="hidden" name="action" value="bbp-update-user" />
-								<input type="hidden" name="user_id" id="user_id" value="<?php echo esc_attr( bbp_get_displayed_user_id() ); ?>" />
 
-								<?php wp_referer_field(); ?>
-								<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() ); ?>
+								<?php bbp_edit_user_form_fields(); ?>
 
 								<button type="submit" id="bbp_user_edit_submit" name="bbp_user_edit_submit"><?php bbp_is_user_home() ? _e( 'Update Profile', 'bbpress' ) : _e( 'Update User', 'bbpress' ); ?></button>
 							</div>

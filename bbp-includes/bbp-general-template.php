@@ -272,6 +272,23 @@ function bbp_new_reply_form_fields () { ?>
 }
 
 /**
+ * bbp_edit_user_form_fields ()
+ *
+ * Output the required hidden fields when editing a user
+ *
+ * @uses wp_nonce_field
+ * @uses wp_referer_field
+ */
+function bbp_edit_user_form_fields () { ?>
+
+	<input type="hidden" name="action"  id="bbp_post_action" value="bbp-update-user" />
+	<input type="hidden" name="user_id" id="user_id"         value="<?php bbp_displayed_user_id(); ?>" />
+
+	<?php wp_referer_field(); ?>
+	<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() );
+}
+
+/**
  * bbp_forum_dropdown ()
  *
  * Output a select box allowing to pick which forum a new topic belongs in.
