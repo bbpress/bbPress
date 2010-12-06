@@ -153,6 +153,9 @@ class bbPress {
 		register_activation_hook  ( $this->file,    'bbp_activation'   );
 		register_deactivation_hook( $this->file,    'bbp_deactivation' );
 
+		// Setup the currently logged in user
+		add_action( 'bbp_setup_current_user',       array ( $this, 'setup_current_user'       ), 10, 2 );
+
 		// Register content types
 		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
 
@@ -424,6 +427,24 @@ class bbPress {
 				)
 			)
 		);
+	}
+
+	/**
+	 * setup_current_user ()
+	 *
+	 * Setup the currently logged-in user global
+	 *
+	 * @global WP_User $current_user
+	 */
+	function setup_current_user () {
+		global $current_user;
+
+		// Load current user if somehow it hasn't been set yet
+		if ( !isset( $current_user ) )
+			wp_die( 'Loading the user too soon!' );
+
+		// Set bbPress current user to WordPress current user
+		$this->current_user = $current_user;
 	}
 
 	/**

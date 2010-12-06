@@ -268,9 +268,6 @@ function bbp_current_user_id () {
 	function bbp_get_current_user_id () {
 		global $bbp;
 
-		if ( !isset( $bbp->current_user ) )
-			bbp_set_current_user();
-
 		return apply_filters( 'bbp_get_current_user_id', $bbp->current_user->ID );
 	}
 

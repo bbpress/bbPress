@@ -8,7 +8,6 @@
  * @package bbPress
  * @subpackage Loader
  * @since bbPress (r2464)
- *
  */
 
 // Attach to WordPress actions
@@ -24,11 +23,14 @@ add_action( 'bbp_loaded',             'bbp_setup_globals'            , 8  );
 add_action( 'bbp_loaded',             'bbp_register_theme_directory' , 10 );
 
 // Attach to bbp_init.
+add_action( 'bbp_init',               'bbp_setup_current_user'       , 2  );
 add_action( 'bbp_init',               'bbp_register_post_types'      , 4  );
 add_action( 'bbp_init',               'bbp_register_taxonomies'      , 6  );
 add_action( 'bbp_init',               'bbp_register_textdomain'      , 8  );
 add_action( 'bbp_init',               'bbp_add_user_rewrite_tag'     , 10 );
-add_action( 'bbp_init',               'bbp_ready'                    , 14 );
+add_action( 'bbp_init',               'bbp_ready'                    , 999 );
+
+/** Main Actions **************************************************************/
 
 /**
  * bbp_bbp_constants ()
@@ -82,6 +84,19 @@ function bbp_loaded () {
  */
 function bbp_init () {
 	do_action ( 'bbp_init' );
+}
+
+/** Supplemental Actions ******************************************************/
+
+/**
+ * bbp_setup_current_user ()
+ *
+ * Setup the currently logged-in user
+ *
+ * @since bbPress (r2695)
+ */
+function bbp_setup_current_user () {
+	do_action ( 'bbp_setup_current_user' );
 }
 
 /**
@@ -149,6 +164,8 @@ function bbp_add_user_rewrite_tag () {
 function bbp_generate_rewrite_rules ( $wp_rewrite ) {
 	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
 }
+
+/** Final Action **************************************************************/
 
 /**
  * bbp_ready ()

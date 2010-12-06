@@ -18,31 +18,6 @@ function bbp_is_anonymous () {
 }
 
 /**
- * bbp_set_current_user ()
- *
- * Sets the current user in bbPress scope
- *
- * @global bbPress $bbp
- * @global WP_User $current_user
- * @return If already set
- */
-function bbp_set_current_user () {
-	global $bbp, $current_user;
-
-	// Don't set again
-	if ( isset( $bbp->current_user ) )
-		return;
-
-	// Load current user if somehow it hasn't been set yet
-	if ( !isset( $current_user ) )
-		wp_die( 'Loading the user too soon!' );
-
-	// Set bbPress current user to WordPress current user
-	$bbp->current_user = $current_user;
-}
-add_action( 'bbp_init', 'bbp_set_current_user', 2 );
-
-/**
  * bbp_allow_anonymous ()
  *
  * Returns true|false if anonymous topic creation and replies are allowed
