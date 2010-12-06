@@ -1,5 +1,7 @@
 
-				<?php if ( bbp_is_user_home() && bbp_is_subscriptions_active() ) : ?>
+			<?php if ( bbp_is_subscriptions_active() ) : ?>
+
+				<?php if ( bbp_is_user_home() || current_user_can( 'edit_users' ) ) : ?>
 
 					<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_subscriptions' ); ?>
 
@@ -14,7 +16,7 @@
 
 							<?php else : ?>
 
-								<p><?php _e( 'You are not currently subscribed to any topics.', 'bbpress' ); ?></p>
+								<p><?php bbp_is_user_home() ? _e( 'You are not currently subscribed to any topics.', 'bbpress' ) : _e( 'This user is not currently subscribed to any topics.', 'bbpress' ); ?></p>
 
 							<?php endif; ?>
 
@@ -24,3 +26,5 @@
 					<?php set_query_var( '_bbp_query_name', '' ); ?>
 
 				<?php endif; ?>
+
+			<?php endif; ?>
