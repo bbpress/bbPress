@@ -1,5 +1,5 @@
 
-				<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_topics_created' ); ?>
+				<?php bbp_set_query_name( 'bbp_user_profile_topics_created' ); ?>
 
 				<div id="bbp-author-topics-started" class="bbp-author-topics-started">
 					<hr />
@@ -19,4 +19,4 @@
 					</div>
 				</div><!-- #bbp-author-topics-started -->
 
-				<?php set_query_var( '_bbp_query_name', '' ); ?>
+				<?php bbp_reset_query_name(); ?>

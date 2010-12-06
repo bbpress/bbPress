@@ -436,4 +436,26 @@ function bbp_breadcrumb ( $sep = '&larr;' ) {
 		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
 	}
 
+/** Start Query Functions *****************************************************/
+
+/**
+ * bbp_set_query_name ()
+ *
+ * Set the '_bbp_query_name' setting to $name
+ *
+ * @param str $name
+ */
+function bbp_set_query_name ( $name )  {
+	set_query_var( '_bbp_query_name', $name );
+}
+
+/**
+ * bbp_reset_query_name ()
+ *
+ * Used to clear the '_bbp_query_name' setting
+ */
+function bbp_reset_query_name () {
+	set_query_var( '_bbp_query_name', '' );
+}
+
 ?>

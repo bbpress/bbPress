@@ -3,7 +3,7 @@
 
 				<?php if ( bbp_is_user_home() || current_user_can( 'edit_users' ) ) : ?>
 
-					<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_subscriptions' ); ?>
+					<?php bbp_set_query_name( 'bbp_user_profile_subscriptions' ); ?>
 
 					<div id="bbp-author-subscriptions" class="bbp-author-subscriptions">
 						<hr />
@@ -23,7 +23,7 @@
 						</div>
 					</div><!-- #bbp-author-subscriptions -->
 
-					<?php set_query_var( '_bbp_query_name', '' ); ?>
+					<?php bbp_reset_query_name(); ?>
 
 				<?php endif; ?>
 

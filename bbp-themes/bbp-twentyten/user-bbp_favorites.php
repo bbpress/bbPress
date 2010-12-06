@@ -1,5 +1,5 @@
 
-				<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_favorites' ); ?>
+				<?php bbp_set_query_name( 'bbp_user_profile_favorites' ); ?>
 
 				<div id="bbp-author-favorites" class="bbp-author-favorites">
 					<hr />
@@ -19,4 +19,4 @@
 					</div>
 				</div><!-- #bbp-author-favorites -->
 
-				<?php set_query_var( '_bbp_query_name', '' ); ?>
+				<?php bbp_reset_query_name(); ?>
