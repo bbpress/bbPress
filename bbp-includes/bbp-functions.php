@@ -597,10 +597,10 @@ function bbp_get_stickies ( $forum_id = 0 ) {
 	global $bbp;
 
 	if ( empty( $forum_id ) ) {
-		$stickies = get_option( 'bbp_sticky_topics' );
+		$stickies = get_option( '_bbp_super_sticky_topics' );
 	} else {
 		if ( $bbp->forum_id == get_post_type( $forum_id ) ) {
-			$stickies = get_post_meta( $forum_id );
+			$stickies = get_post_meta( '_bbp_sticky_topics', $forum_id );
 		} else {
 			$stickies = null;
 		}
@@ -618,7 +618,7 @@ function bbp_get_stickies ( $forum_id = 0 ) {
  * @return array Post ID's of super sticky topics
  */
 function bbp_get_super_stickies () {
-	$stickies = get_option( 'bbp_super_sticky_topics' );
+	$stickies = get_option( '_bbp_super_sticky_topics' );
 
 	return apply_filters( 'bbp_get_super_stickies', $stickies );
 }
