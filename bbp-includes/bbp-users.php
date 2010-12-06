@@ -157,12 +157,10 @@ function bbp_get_user_favorites ( $user_id = 0 ) {
  * @return bool True if the topic is in user's favorites, otherwise false
  */
 function bbp_is_user_favorite ( $user_id = 0, $topic_id = 0 ) {
-	global $post, $current_user;
+	global $post, $bbp;
 
-	if ( empty( $user_id ) ) {
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
-	}
+	if ( empty( $user_id ) )
+		$user = $bbp->current_user->ID;
 
 	if ( empty( $user_id ) )
 		return false;
@@ -208,7 +206,7 @@ function bbp_add_user_favorite ( $user_id = 0, $topic_id = 0 ) {
 	$favorites = (array) bbp_get_user_favorites_topic_ids( $user_id );
 	$topic     = get_post( $topic_id );
 
-	if ( empty( $favorites ) || empty( $topic ) )
+	if ( empty( $topic ) )
 		return false;
 
 	if ( !in_array( $topic_id, $favorites ) ) {
@@ -415,7 +413,7 @@ function bbp_add_user_subscription ( $user_id = 0, $topic_id = 0 ) {
 	$subscriptions = (array) bbp_get_user_subscribed_topic_ids( $user_id );
 	$topic         = get_post( $topic_id );
 
-	if ( empty( $subscriptions ) || empty( $topic ) )
+	if ( empty( $topic ) )
 		return false;
 
 	if ( !in_array( $topic_id, $subscriptions ) ) {
