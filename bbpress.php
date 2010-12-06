@@ -214,7 +214,7 @@ class bbPress {
 	/**
 	 * register_post_types ()
 	 *
-	 * Setup the content types and taxonomies for forums
+	 * Setup the post types
 	 *
 	 * @todo messages
 	 */
@@ -381,12 +381,12 @@ class bbPress {
 	/**
 	 * register_taxonomies ()
 	 *
-	 * Register the built in bbPress taxonomies
+	 * Register the topic tag taxonomies
 	 *
 	 * @since bbPress (r2464)
 	 *
 	 * @uses register_taxonomy()
-	 * @uses apply_filters(0
+	 * @uses apply_filters()
 	 */
 	function register_taxonomies () {
 
@@ -432,7 +432,7 @@ class bbPress {
 	/**
 	 * setup_current_user ()
 	 *
-	 * Setup the currently logged-in user global
+	 * Setup the currently logged-in user
 	 *
 	 * @global WP_User $current_user
 	 */
@@ -463,7 +463,7 @@ class bbPress {
 	/**
 	 * generate_rewrite_rules ()
 	 *
-	 * Generate rewrite rules for /profile/%bbp_user%/ pages
+	 * Generate rewrite rules for /user/%bbp_user%/ pages
 	 *
 	 * @since bbPress (r2688)
 	 *

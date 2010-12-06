@@ -4,8 +4,10 @@ if ( !class_exists( 'BBP_Component' ) ) :
 /**
  * BBP_Component
  *
- * The main bbPress component class is responsible for wrapping up the creation
- * of the bbPress Forum, Topic, and Reply objects.
+ * The bbPress component class is responsible for simplifying the creation
+ * of components that share similar behaviors and routines. It is used internally
+ * by bbPress to create forums, topics, and replies, but can be extended to create
+ * other really neat things.
  *
  * @since (r2688)
  */
@@ -17,7 +19,7 @@ class BBP_Component {
 	// Unique ID (Normally for custom post type)
 	var $id;
 
-	// Unique slug (should be filterable)
+	// Unique slug (Used in query string and permalinks)
 	var $slug;
 
 	// The loop for this component
@@ -77,13 +79,14 @@ class BBP_Component {
 		// Generate rewrite rules
 		add_action( 'bbp_generate_rewrite_rules',   array ( $this, 'generate_rewrite_rules'   ), 10, 2 );
 
+		// Additional actions can be attached here
 		do_action( 'bbp_' . $this->name . '_setup_actions' );
 	}
 
 	/**
 	 * register_post_types ()
 	 *
-	 * Setup the content types and taxonomies for forums
+	 * Setup the component post types
 	 *
 	 * @since bbPress (r2688)
 	 */
@@ -94,7 +97,7 @@ class BBP_Component {
 	/**
 	 * register_taxonomies ()
 	 *
-	 * Register the built in bbPress taxonomies
+	 * Register component specific taxonomies
 	 *
 	 * @since bbPress (r2688)
 	 */
@@ -105,7 +108,7 @@ class BBP_Component {
 	/**
 	 * add_rewrite_tags ()
 	 *
-	 * Add the %bbp_user% rewrite tag
+	 * Add any additional rewrite tags
 	 *
 	 * @since bbPress (r2688)
 	 */
@@ -116,7 +119,7 @@ class BBP_Component {
 	/**
 	 * generate_rewrite_rules ()
 	 *
-	 * Generate rewrite rules for /user/%bbp_user%/ pages
+	 * Generate any additional rewrite rules
 	 *
 	 * @since bbPress (r2688)
 	 */
