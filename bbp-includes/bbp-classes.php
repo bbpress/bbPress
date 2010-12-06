@@ -1,5 +1,131 @@
 <?php
 
+if ( !class_exists( 'BBP_Component' ) ) :
+/**
+ * BBP_Component
+ *
+ * The main bbPress component class is responsible for wrapping up the creation
+ * of the bbPress Forum, Topic, and Reply objects.
+ *
+ * @since (r2688)
+ */
+class BBP_Component {
+
+	// Unique name (For internal identification)
+	var $name;
+
+	// Unique ID (Normally for custom post type)
+	var $id;
+
+	// Unique slug (should be filterable)
+	var $slug;
+
+	// The loop for this component
+	var $query;
+
+	// The current ID of the queried object
+	var $current_id;
+
+	function BBP_Component ( $args = '' ) {
+		if ( empty( $args ) )
+			return;
+
+		$this->_setup_globals( $args );
+		$this->_includes();
+		$this->_setup_actions();
+	}
+
+	/**
+	 * _setup_globals ()
+	 *
+	 * Component global variables
+	 */
+	function _setup_globals ( $args = '' ) {
+		$this->name = $args['name'];
+		$this->id   = apply_filters( 'bbp_' . $this->name . '_id',   $args['id']   );
+		$this->slug = apply_filters( 'bbp_' . $this->name . '_slug', $args['slug'] );
+	}
+
+	/**
+	 * _includes ()
+	 *
+	 * Include required files
+	 *
+	 * @since bbPress (r2688)
+	 */
+	function _includes () {
+		do_action( 'bbp_' . $this->name . '_includes' );
+	}
+
+	/**
+	 * _setup_actions ()
+	 *
+	 * Setup the default hooks and actions
+	 *
+	 * @since bbPress (r2688)
+	 */
+	function _setup_actions () {
+		// Register content types
+		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
+
+		// Register taxonomies
+		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
+
+		// Add the rewrite tags
+		add_action( 'bbp_add_rewrite_tags',         array ( $this, 'add_rewrite_tags'         ), 10, 2 );
+
+		// Generate rewrite rules
+		add_action( 'bbp_generate_rewrite_rules',   array ( $this, 'generate_rewrite_rules'   ), 10, 2 );
+
+		do_action( 'bbp_' . $this->name . '_setup_actions' );
+	}
+
+	/**
+	 * register_post_types ()
+	 *
+	 * Setup the content types and taxonomies for forums
+	 *
+	 * @since bbPress (r2688)
+	 */
+	function register_post_types () {
+		do_action( 'bbp_' . $this->name . '_register_post_types' );
+	}
+
+	/**
+	 * register_taxonomies ()
+	 *
+	 * Register the built in bbPress taxonomies
+	 *
+	 * @since bbPress (r2688)
+	 */
+	function register_taxonomies () {
+		do_action( 'bbp_' . $this->name . '_register_taxonomies' );
+	}
+
+	/**
+	 * add_rewrite_tags ()
+	 *
+	 * Add the %bbp_user% rewrite tag
+	 *
+	 * @since bbPress (r2688)
+	 */
+	function add_rewrite_tags () {
+		do_action( 'bbp_' . $this->name . '_add_rewrite_tags' );
+	}
+
+	/**
+	 * generate_rewrite_rules ()
+	 *
+	 * Generate rewrite rules for /user/%bbp_user%/ pages
+	 *
+	 * @since bbPress (r2688)
+	 */
+	function generate_rewrite_rules ( $wp_rewrite ) {
+		do_action( 'bbp_' . $this->name . '_generate_rewrite_rules' );
+	}
+}
+endif; // BBP_Component
+
 if ( class_exists( 'Walker' ) ) :
 /**
  * Create HTML list of forums.

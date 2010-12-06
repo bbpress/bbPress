@@ -941,7 +941,7 @@ function bbp_forum_class ( $forum_id = 0 ) {
 	function bbp_get_forum_class ( $forum_id = 0 ) {
 		global $bbp;
 
-		$alternate = $bbp->forum_query->current_post % 2 ? '' : 'alternate';
+		$alternate = $bbp->forum_query->current_post % 2 ? 'even' : 'odd';
 		$status    = 'status-'  . bbp_get_forum_status();
 		$post      = post_class( array( $alternate, $status ) );
 

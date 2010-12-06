@@ -729,7 +729,7 @@ function bbp_reply_class ( $reply_id = 0 ) {
 	function bbp_get_reply_class ( $reply_id = 0 ) {
 		global $bbp;
 
-		$alternate = $bbp->reply_query->current_post % 2 ? '' : 'alternate';
+		$alternate = $bbp->reply_query->current_post % 2 ? 'even' : 'odd';
 		$status    = 'status-'  . bbp_get_reply_status();
 		$post      = post_class( array( $alternate, $status ) );
 

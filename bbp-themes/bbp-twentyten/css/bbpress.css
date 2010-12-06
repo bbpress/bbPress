@@ -15,11 +15,14 @@ hr { margin: 0 0 24px 0 !important; }
 }
 
 /* tables */
-table tbody tr.alternate td {
+#content table tbody tr.even td {
+	background-color: #fff;
+}
+#content table tbody tr.odd td {
 	background-color: #fbfbfb;
 }
 
-table tbody tr:hover td {
+#content table tbody tr:hover td {
 	background-color: #f8f8f8;
 }
 

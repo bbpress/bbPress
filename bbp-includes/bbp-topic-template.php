@@ -973,7 +973,7 @@ function bbp_topic_class ( $topic_id = 0 ) {
 	function bbp_get_topic_class ( $topic_id = 0 ) {
 		global $bbp;
 
-		$alternate = $bbp->topic_query->current_post % 2 ? '' : 'alternate';
+		$alternate = $bbp->topic_query->current_post % 2 ? 'even' : 'odd';
 		$status    = 'status-'  . bbp_get_topic_status();
 		$post      = post_class( array( $alternate, $status ) );
 
