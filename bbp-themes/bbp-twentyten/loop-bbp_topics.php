@@ -6,7 +6,7 @@
  * @subpackage Twenty Ten
  */
 
-if ( bbp_is_subscriptions() || bbp_is_favorites() || bbp_has_topics() ) : ?>
+if ( bbp_get_query_name() || bbp_has_topics() ) : ?>
 
 	<?php get_template_part( 'pagination', 'bbp_topics' ); ?>
 

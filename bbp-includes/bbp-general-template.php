@@ -439,6 +439,15 @@ function bbp_breadcrumb ( $sep = '&larr;' ) {
 /** Start Query Functions *****************************************************/
 
 /**
+ * bbp_get_query_name ()
+ *
+ * Get the '_bbp_query_name' setting to $name
+ */
+function bbp_get_query_name ()  {
+	return get_query_var( '_bbp_query_name' );
+}
+
+/**
  * bbp_set_query_name ()
  *
  * Set the '_bbp_query_name' setting to $name
