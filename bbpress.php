@@ -104,13 +104,18 @@ class bbPress {
 
 		/** Slugs *************************************************************/
 
-		// Slugs
-		$this->root_slug      = apply_filters( 'bbp_root_slug',      'forums'    );
-		$this->forum_slug     = apply_filters( 'bbp_forum_slug',     'forum'     );
-		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     'topic'     );
-		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     'reply'     );
-		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', 'topic-tag' );
-		$this->user_slug      = apply_filters( 'bbp_user_slug',      'user'   );
+		// Root forum slug
+		$this->root_slug      = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
+
+		// Should we include the root slug in front of component slugs
+		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
+
+		// Component slugs
+		$this->user_slug      = apply_filters( 'bbp_user_slug',      get_option( '_bbp_user_slug',      $prefix . 'user'      ) );
+		$this->forum_slug     = apply_filters( 'bbp_forum_slug',     get_option( '_bbp_forum_slug',     $prefix . 'forum'     ) );
+		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic'     ) );
+		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply'     ) );
+		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'topic_tag' ) );
 	}
 
 	/**
