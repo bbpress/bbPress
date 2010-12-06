@@ -171,7 +171,7 @@ class bbPress {
 		// Add the %bbp_user% rewrite tag
 		add_action( 'bbp_add_user_rewrite_tag',     array ( $this, 'add_user_rewrite_tag'     ), 10, 2 );
 
-		// Generate rewrite rules, particularly for /profile/%bbp_user%/ pages
+		// Generate rewrite rules, particularly for /user/%bbp_user%/ pages
 		add_action( 'bbp_generate_rewrite_rules',   array ( $this, 'generate_rewrite_rules'   ), 10, 2 );
 	}
 

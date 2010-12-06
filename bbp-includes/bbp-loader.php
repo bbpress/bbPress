@@ -155,7 +155,7 @@ function bbp_add_user_rewrite_tag () {
 /**
  * bbp_generate_rewrite_rules ()
  *
- * Generate rewrite rules, particularly for /profile/%bbp_user%/ pages
+ * Generate rewrite rules, particularly for /user/%bbp_user%/ pages
  *
  * @since bbPress (r2688)
  *

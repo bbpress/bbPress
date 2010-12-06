@@ -82,7 +82,7 @@ function bbp_get_user_favorites ( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		$user_id = get_the_author_meta( 'ID' );
 
-	// If nothing passed and not an author/profile page, return nothing
+	// If nothing passed and not an author/user page, return nothing
 	if ( empty( $user_id ) )
 		return false;
 
@@ -288,7 +288,7 @@ function bbp_get_user_subscriptions ( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		$user_id = get_the_author_meta( 'ID' );
 
-	// If nothing passed and not an author/profile page, return nothing
+	// If nothing passed and not an author/user page, return nothing
 	if ( empty( $user_id ) )
 		return false;
 
@@ -463,7 +463,7 @@ function bbp_get_user_topics_started ( $user_id = 0 ) {
 	if ( empty( $user_id ) )
 		$user_id = get_the_author_meta( 'ID' );
 
-	// If nothing passed and not an author/profile page, return nothing
+	// If nothing passed and not an author/user page, return nothing
 	if ( empty( $user_id ) )
 		return false;
 
