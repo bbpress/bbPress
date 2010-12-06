@@ -1,5 +1,7 @@
 
-				<?php if ( bbp_is_user_home() ) : ?>
+				<?php if ( bbp_is_user_home() && bbp_is_subscriptions_active() ) : ?>
+
+					<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_subscriptions' ); ?>
 
 					<div id="bbp-author-subscriptions" class="bbp-author-subscriptions">
 						<hr />
@@ -18,5 +20,7 @@
 
 						</div>
 					</div><!-- #bbp-author-subscriptions -->
+
+					<?php set_query_var( '_bbp_query_name', '' ); ?>
 
 				<?php endif; ?>

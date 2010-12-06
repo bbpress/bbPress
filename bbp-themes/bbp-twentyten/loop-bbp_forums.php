@@ -43,7 +43,7 @@
 
 				</tr><!-- bbp-forum-<?php bbp_forum_id(); ?> -->
 
-			<?php endwhile; global $bbp_forums_template; unset( $bbp_forums_template ); ?>
+			<?php endwhile; ?>
 
 	</table>
 

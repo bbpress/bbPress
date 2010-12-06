@@ -97,9 +97,9 @@ function bbp_twentyten_dim_subscription () {
 add_action( 'wp_ajax_dim-subscription', 'bbp_twentyten_dim_subscription' );
 
 /**
- * bbp_twentyten_enqueue_topic_script ()
+ * bbp_twentyten_enqueue_scripts ()
  *
- * Enqueue the topic page Javascript file
+ * Enqueue the required Javascript files
  *
  * @package bbPress
  * @subpackage bbPress TwentyTen
@@ -107,13 +107,14 @@ add_action( 'wp_ajax_dim-subscription', 'bbp_twentyten_dim_subscription' );
  *
  * @return void
  */
-function bbp_twentyten_enqueue_topic_script () {
-	if ( !bbp_is_topic() )
-		return;
+function bbp_twentyten_enqueue_scripts () {
+	if ( bbp_is_topic() )
+		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
 
-	wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
+	if ( bbp_is_user_profile_edit() )
+		wp_enqueue_script( 'user-profile' );
 }
-add_filter( 'wp_enqueue_scripts', 'bbp_twentyten_enqueue_topic_script' );
+add_action( 'wp_enqueue_scripts', 'bbp_twentyten_enqueue_scripts' );
 
 /**
  * bbp_twentyten_scripts ()
@@ -127,8 +128,7 @@ add_filter( 'wp_enqueue_scripts', 'bbp_twentyten_enqueue_topic_script' );
  * @return void
  */
 function bbp_twentyten_scripts () {
-	if ( !bbp_is_topic() )
-		return; ?>
+	if ( bbp_is_topic() ) : ?>
 
 	<script type='text/javascript'>
 		/* <![CDATA[ */
@@ -136,7 +136,16 @@ function bbp_twentyten_scripts () {
 		/* ]]> */
 	</script>
 
-<?php
+	<?php elseif ( bbp_is_user_profile_edit() ) : ?>
+
+	<script type="text/javascript" charset="utf-8">
+		if ( window.location.hash == '#password' ) {
+			document.getElementById('pass1').focus();
+		}
+	</script>
+	
+	<?php
+	endif;
 }
 add_filter( 'wp_head', 'bbp_twentyten_scripts', -1 );
 

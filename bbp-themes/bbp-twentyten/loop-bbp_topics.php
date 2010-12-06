@@ -6,7 +6,7 @@
  * @subpackage Twenty Ten
  */
 
-if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
+if ( bbp_is_subscriptions() || bbp_is_favorites() || bbp_has_topics() ) : ?>
 
 	<?php get_template_part( 'pagination', 'bbp_topics' ); ?>
 
@@ -17,12 +17,12 @@ if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 				<th class="bbp-topic-replie-count"><?php _e( 'Replies', 'bbpress' ); ?></th>
 				<th class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></th>
 				<th class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
-				<?php if ( bbp_is_favorites() ) : ?><th class="bbp-topic-action"><?php _e( 'Favorite', 'bbpress' ); ?></th><?php endif; ?>
+				<?php if ( ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ) : ?><th class="bbp-topic-action"><?php _e( 'Remove', 'bbpress' ); ?></th><?php endif; ?>
 			</tr>
 		</thead>
 
 		<tfoot>
-			<tr><td colspan="<?php echo bbp_is_favorites() ? '5' : '4'; ?>">&nbsp</td></tr>
+			<tr><td colspan="<?php echo ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ? '5' : '4'; ?>">&nbsp</td></tr>
 		</tfoot>
 
 		<tbody>
@@ -50,13 +50,25 @@ if ( bbp_is_favorites() || bbp_has_topics() ) : ?>
 
 					<td class="bbp-topic-freshness"><?php bbp_topic_freshness_link(); ?></td>
 
-					<?php if ( bbp_is_favorites() ) : ?>
+					<?php if ( bbp_is_user_home() ) : ?>
 
-						<td class="bbp-topic-action">
+						<?php if ( bbp_is_favorites() ) : ?>
 
-							<?php bbp_user_favorites_link( array( 'mid' => '+', 'post' => '' ), array( 'pre' => '', 'mid' => '&times;', 'post' => '' ) ); ?>
+							<td class="bbp-topic-action">
 
-						</td>
+								<?php bbp_user_favorites_link( array( 'mid' => '+', 'post' => '' ), array( 'pre' => '', 'mid' => '&times;', 'post' => '' ) ); ?>
+
+							</td>
+
+						<?php elseif ( bbp_is_subscriptions() ) : ?>
+
+							<td class="bbp-topic-action">
+
+								<?php bbp_user_subscribe_link( array( 'before' => '', 'subscribe' => '+', 'unsubscribe' => '&times;' ) ); ?>
+
+							</td>
+
+						<?php endif; ?>
 
 					<?php endif; ?>
 

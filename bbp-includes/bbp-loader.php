@@ -12,21 +12,23 @@
  */
 
 // Attach to WordPress actions
-add_action( 'plugins_loaded', 'bbp_loaded'                   , 10 );
-add_action( 'init',           'bbp_init'                     , 10 );
+add_action( 'plugins_loaded',         'bbp_loaded'                   , 10 );
+add_action( 'init',                   'bbp_init'                     , 10 );
+add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules'   , 12 );
 
 // Attach to bbp_loaded.
-add_action( 'bbp_loaded',     'bbp_constants'                , 2  );
-add_action( 'bbp_loaded',     'bbp_boot_strap_globals'       , 4  );
-add_action( 'bbp_loaded',     'bbp_includes'                 , 6  );
-add_action( 'bbp_loaded',     'bbp_setup_globals'            , 8  );
-add_action( 'bbp_loaded',     'bbp_register_theme_directory' , 10 );
+add_action( 'bbp_loaded',             'bbp_constants'                , 2  );
+add_action( 'bbp_loaded',             'bbp_boot_strap_globals'       , 4  );
+add_action( 'bbp_loaded',             'bbp_includes'                 , 6  );
+add_action( 'bbp_loaded',             'bbp_setup_globals'            , 8  );
+add_action( 'bbp_loaded',             'bbp_register_theme_directory' , 10 );
 
 // Attach to bbp_init.
-add_action( 'bbp_init',       'bbp_register_post_types'      , 4  );
-add_action( 'bbp_init',       'bbp_register_taxonomies'      , 6  );
-add_action( 'bbp_init',       'bbp_register_textdomain'      , 8  );
-add_action( 'bbp_init',       'bbp_ready'                    , 10 );
+add_action( 'bbp_init',               'bbp_register_post_types'      , 4  );
+add_action( 'bbp_init',               'bbp_register_taxonomies'      , 6  );
+add_action( 'bbp_init',               'bbp_register_textdomain'      , 8  );
+add_action( 'bbp_init',               'bbp_add_user_rewrite_tag'     , 10 );
+add_action( 'bbp_init',               'bbp_ready'                    , 14 );
 
 /**
  * bbp_bbp_constants ()
@@ -122,6 +124,30 @@ function bbp_register_post_types () {
  */
 function bbp_register_taxonomies () {
 	do_action ( 'bbp_register_taxonomies' );
+}
+
+/**
+ * bbp_add_user_rewrite_tag ()
+ *
+ * Add the %bbp_user% rewrite tag
+ *
+ * @since bbPress (r2688)
+ */
+function bbp_add_user_rewrite_tag () {
+	do_action ( 'bbp_add_user_rewrite_tag' );
+}
+
+/**
+ * bbp_generate_rewrite_rules ()
+ *
+ * Generate rewrite rules, particularly for /profile/%bbp_user%/ pages
+ *
+ * @since bbPress (r2688)
+ *
+ * @param object $wp_rewrite
+ */
+function bbp_generate_rewrite_rules ( $wp_rewrite ) {
+	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
 }
 
 /**

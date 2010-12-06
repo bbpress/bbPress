@@ -330,8 +330,7 @@ class BBP_Admin {
 	 * @todo Everything
 	 */
 	function user_profile_update ( $user_id ) {
-		if ( !bbp_has_access() )
-			return false;
+		return false;
 
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_update' );
@@ -345,9 +344,7 @@ class BBP_Admin {
 	 * @todo Everything
 	 */
 	function user_profile_forums ( $profileuser ) {
-
-		if ( !bbp_has_access() )
-			return false;
+		return false;
 
 ?>
 		<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>

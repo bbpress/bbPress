@@ -1,4 +1,6 @@
 
+				<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_favorites' ); ?>
+
 				<div id="bbp-author-favorites" class="bbp-author-favorites">
 					<hr />
 					<h2 class="entry-title"><?php _e( 'Favorite Forum Topics', 'bbpress' ); ?></h2>
@@ -16,3 +18,5 @@
 
 					</div>
 				</div><!-- #bbp-author-favorites -->
+
+				<?php set_query_var( '_bbp_query_name', '' ); ?>

@@ -154,3 +154,72 @@ span.bbp-admin-links {
 .bbp-topic-form, .bbp-reply-form {
 	clear: left;
 }
+
+/* edit user */
+div.bbp-edit-user fieldset {
+	margin-top: 20px;
+	padding: 20px 20px 0 20px;
+}
+	div.bbp-edit-user fieldset div {
+		margin-bottom: 20px;
+		float: left;
+		width: 100%;
+		clear: left;
+	}
+	div.bbp-edit-user fieldset textarea {
+		line-height: 0;
+	}
+	div.bbp-edit-user fieldset select {
+		margin-bottom: 0;
+	}
+	div.bbp-edit-user fieldset input,	
+	div.bbp-edit-user fieldset textarea {
+		margin-bottom: 0;
+		width: 250px;
+	}
+	div.bbp-edit-user fieldset legend {
+		display: none;
+	}
+	div.bbp-edit-user fieldset label {
+		float: left;
+		width: 150px;
+		padding-right: 20px;
+		text-align: right;
+	}
+	div.bbp-edit-user fieldset span.description {
+		margin-left: 170px;
+		font-size: 12px;
+		font-style: italic;
+		float: left;
+		clear: left;
+		width: 233px;
+		padding: 5px 10px;
+		border: #E6DB55 1px solid;
+		background-color: #FFFBCC;
+	}
+
+	div.bbp-edit-user fieldset fieldset {
+		margin: 0;
+		width: 260px;
+		border: none;
+		padding: 0;
+	}
+	div.bbp-edit-user fieldset fieldset span.description {
+		margin-left: 0;
+		margin-bottom: 20px;
+	}
+
+/* notices */
+div.bbp-template-notice {
+	border: #bbddbb 1px solid;
+	background-color: #ddffdd;
+	padding: 10px;
+	margin-top: 20px;
+	}
+	div.bbp-template-notice.important {
+		border: #E6DB55 1px solid;
+		background-color: #FFFBCC;
+	}
+	#main div.bbp-template-notice p {
+		margin: 0;
+	}

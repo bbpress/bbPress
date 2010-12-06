@@ -1,4 +1,6 @@
 
+				<?php set_query_var( '_bbp_query_name', 'bbp_user_profile_topics_created' ); ?>
+
 				<div id="bbp-author-topics-started" class="bbp-author-topics-started">
 					<hr />
 					<h2 class="entry-title"><?php _e( 'Forum Topics Created', 'bbpress' ); ?></h2>
@@ -16,3 +18,5 @@
 
 					</div>
 				</div><!-- #bbp-author-topics-started -->
+
+				<?php set_query_var( '_bbp_query_name', '' ); ?>

@@ -39,6 +39,7 @@ class bbPress {
 	var $topic_slug;
 	var $reply_slug;
 	var $topic_tag_slug;
+	var $user_slug;
 
 	// Absolute Paths
 	var $plugin_dir;
@@ -53,6 +54,15 @@ class bbPress {
 	var $current_forum_id;
 	var $current_topic_id;
 	var $current_reply_id;
+
+	// User objects
+	var $current_user;
+	var $displayed_user;
+
+	// Query objects
+	var $forum_query;
+	var $topic_query;
+	var $reply_query;
 
 	/**
 	 * The main bbPress loader
@@ -100,6 +110,7 @@ class bbPress {
 		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     'topic'     );
 		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     'reply'     );
 		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', 'topic-tag' );
+		$this->user_slug      = apply_filters( 'bbp_user_slug',      'user'   );
 	}
 
 	/**
@@ -119,7 +130,13 @@ class bbPress {
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-functions.php' );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-widgets.php'   );
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-users.php'     );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-template.php'  );
+
+		// Load template files
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-general-template.php'  );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-forum-template.php'  );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-topic-template.php'  );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-reply-template.php'  );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-user-template.php'  );
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
@@ -147,6 +164,12 @@ class bbPress {
 
 		// Load textdomain
 		add_action( 'bbp_load_textdomain',          array ( $this, 'register_textdomain'      ), 10, 2 );
+
+		// Add the %bbp_user% rewrite tag
+		add_action( 'bbp_add_user_rewrite_tag',     array ( $this, 'add_user_rewrite_tag'     ), 10, 2 );
+
+		// Generate rewrite rules, particularly for /profile/%bbp_user%/ pages
+		add_action( 'bbp_generate_rewrite_rules',   array ( $this, 'generate_rewrite_rules'   ), 10, 2 );
 	}
 
 	/**
@@ -401,6 +424,41 @@ class bbPress {
 				)
 			)
 		);
+	}
+
+	/**
+	 * add_user_rewrite_tag ()
+	 *
+	 * Add the %bbp_user% rewrite tag
+	 *
+	 * @since bbPress (r2688)
+	 * @uses add_rewrite_tag
+	 */
+	function add_user_rewrite_tag () {
+		add_rewrite_tag( '%bbp_user%',         '([^/]+)'  );
+		add_rewrite_tag( '%bbp_edit_profile%', '([1]{1})' );
+	}
+
+	/**
+	 * generate_rewrite_rules ()
+	 *
+	 * Generate rewrite rules for /profile/%bbp_user%/ pages
+	 *
+	 * @since bbPress (r2688)
+	 *
+	 * @param object $wp_rewrite
+	 */
+	function generate_rewrite_rules ( $wp_rewrite ) {
+		$user_rules = array(
+			// @todo - feeds
+			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->user_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			$this->user_slug . '/([^/]+)/edit/?$'                          => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&bbp_edit_profile=1',
+			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$'             => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$this->user_slug . '/([^/]+)/?$'                               => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 )
+		);
+
+		$wp_rewrite->rules = array_merge( $user_rules, $wp_rewrite->rules );
 	}
 }
 

@@ -306,6 +306,99 @@ function bbp_new_topic_handler () {
 add_action( 'template_redirect', 'bbp_new_topic_handler' );
 
 /**
+ * bbp_edit_user_handler ()
+ *
+ * Handles the front end user editing
+ *
+ * @since bbPress (r2688)
+ */
+function bbp_edit_user_handler () {
+
+	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-update-user' == $_POST['action'] ) {
+
+		global $errors, $bbp;
+
+		// Execute confirmed email change. See send_confirmation_on_profile_email().
+		if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) && $bbp->displayed_user->ID ) {
+
+			$new_email = get_option( $bbp->displayed_user->ID . '_new_email' );
+
+			if ( $new_email['hash'] == $_GET['newuseremail'] ) {
+				$user->ID         = $bbp->displayed_user->ID;
+				$user->user_email = esc_html( trim( $new_email['newemail'] ) );
+
+				if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $bbp->displayed_user->user_login ) ) )
+					$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, $bbp->displayed_user->user_login ) );
+
+				wp_update_user( get_object_vars( $user ) );
+				delete_option( $bbp->displayed_user->ID . '_new_email' );
+
+				wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
+				exit;
+			}
+
+		} elseif ( is_multisite() && bbp_is_user_home() && !empty( $_GET['dismiss'] ) && $bbp->displayed_user->ID . '_new_email' == $_GET['dismiss'] ) {
+
+			delete_option( $bbp->displayed_user->ID . '_new_email' );
+			wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
+			exit;
+
+		}
+
+		check_admin_referer( 'update-user_' . $bbp->displayed_user->ID );
+
+		if ( !current_user_can( 'edit_user', $bbp->displayed_user->ID ) )
+			wp_die( __( 'What are you doing here? You don\'t have the permission to edit this user!', 'bbpress' ) );
+
+		if ( bbp_is_user_home() )
+			do_action( 'personal_options_update', $bbp->displayed_user->ID );
+		else
+			do_action( 'edit_user_profile_update', $bbp->displayed_user->ID );
+
+		if ( !is_multisite() ) {
+			$errors = edit_user( $bbp->displayed_user->ID ); // Handles the trouble for us ;)
+		} else {
+			$user   = get_userdata( $bbp->displayed_user->ID );
+
+			// Update the email address in signups, if present.
+			if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email' ]) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) )
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $_POST['email'], $user_login ) );
+
+			// WPMU must delete the user from the current blog if WP added him after editing.
+			$delete_role = false;
+			$blog_prefix = $wpdb->get_blog_prefix();
+
+			if ( $bbp->displayed_user->ID != $bbp->displayed_user->ID ) {
+				$cap = $wpdb->get_var( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id = '{$bbp->displayed_user->ID}' AND meta_key = '{$blog_prefix}capabilities' AND meta_value = 'a:0:{}'" );
+				if ( !is_network_admin() && null == $cap && $_POST['role'] == '' ) {
+					$_POST['role'] = 'contributor';
+					$delete_role = true;
+				}
+			}
+
+			if ( !isset( $errors ) || ( isset( $errors ) && is_object( $errors ) && false == $errors->get_error_codes() ) )
+				$errors = edit_user( $bbp->displayed_user->ID );
+
+			if ( $delete_role ) // stops users being added to current blog when they are edited
+				delete_user_meta( $bbp->displayed_user->ID, $blog_prefix . 'capabilities' );
+
+			if ( is_multisite() && is_network_admin() & !bbp_is_user_home() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $bbp->displayed_user->ID ) )
+				empty( $_POST['super_admin'] ) ? revoke_super_admin( $bbp->displayed_user->ID ) : grant_super_admin( $bbp->displayed_user->ID );
+		}
+
+		if ( !is_wp_error( $errors ) ) {
+			$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) );
+
+			wp_redirect( $redirect );
+			exit;
+		}
+
+	}
+
+}
+add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
+
+/**
  * bbp_new_topic_update_topic ()
  *
  * Handle all the extra meta stuff from posting a new topic
@@ -350,6 +443,124 @@ function bbp_new_topic_update_topic ( $topic_id = 0, $forum_id = 0, $is_anonymou
 	bbp_update_forum_last_active( $forum_id );
 }
 add_action( 'bbp_new_topic', 'bbp_new_topic_update_topic', 10, 4 );
+
+/**
+ * bbp_check_for_profile_page ()
+ *
+ * Add checks for a user page. If it is, then locate the user page template.
+ *
+ * @since bbPress (r2688)
+ */
+function bbp_check_for_profile_page ( $template = '' ) {
+
+	// Viewing a profile
+	if ( bbp_is_user_profile_page() ) {
+		$template = array( 'user.php', 'author.php', 'index.php' );
+
+	// Editing a profile
+	} elseif ( bbp_is_user_profile_edit() ) {
+		$template = array( 'user-edit.php', 'user.php', 'author.php', 'index.php' );
+	}	
+
+	if ( !$template = apply_filters( 'bbp_check_for_profile_page', $template ) )
+		return false;
+
+	// Try to load a template file
+	bbp_load_template( $template );
+}
+add_action( 'template_redirect', 'bbp_check_for_profile_page', 2 );
+
+/**
+ * bbp_pre_get_posts ()
+ *
+ * Add checks for a user page. If it is, then locate the user page template.
+ *
+ * @since bbPress (r2688)
+ */
+function bbp_pre_get_posts ( $wp_query ) {
+	global $bbp;
+
+	$bbp_user     = get_query_var( 'bbp_user'         );
+	$is_user_edit = get_query_var( 'bbp_edit_profile' );
+
+	if ( empty( $bbp_user ) )
+		return;
+
+	// Create new user
+	$user = new WP_User( $bbp_user );
+
+	// Stop if no user
+	if ( !isset( $user ) || empty( $user ) || empty( $user->ID ) ) {
+		$wp_query->set_404();
+		return;
+	}
+
+	// Confirmed existence of the bbPress user
+
+	// Define new query variable
+	if ( !empty( $is_user_edit ) ) {
+
+		// Only allow super admins on multisite to edit every user.
+		if ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && $user_id != $current_user->ID && ! apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) )
+			wp_die( __( 'You do not have the permission to edit this user.', 'bbpress' ) );
+
+		$wp_query->bbp_is_user_profile_edit = true;
+
+		// Load the required user editing functions
+		include_once( ABSPATH . 'wp-includes/registration.php' );
+		require_once( ABSPATH . 'wp-admin/includes/user.php' );
+
+	} else {
+		$wp_query->bbp_is_user_profile_page = true;
+	}
+
+	// Set query variables
+	$wp_query->is_home = false;                                     // Correct is_home variable
+	$wp_query->query_vars['bbp_user_id'] = $user->ID;               // Set bbp_user_id for future reference
+	$wp_query->query_vars['author_name'] = $user->user_nicename;    // Set author_name as current user's nicename to get correct posts
+
+	// Set the displayed user global to this user
+	$bbp->displayed_user = $user;
+
+	add_filter( 'wp_title', 'bbp_profile_page_title', 10, 3 );      // Correct wp_title
+}
+add_action( 'pre_get_posts', 'bbp_pre_get_posts', 100 );
+
+	/**
+	 * bbp_profile_page_title ()
+	 *
+	 * Custom wp_title for bbPress User Profile Pages
+	 *
+	 * @since bbPress (r2688)
+	 *
+	 * @param string $title Optional. The title (not used).
+	 * @param string $sep Optional, default is '&raquo;'. How to separate the various items within the page title.
+	 * @param string $seplocation Optional. Direction to display title, 'right'.
+	 * @return string The tite
+	 */
+	function bbp_profile_page_title ( $title = '', $sep = '&raquo;', $seplocation = '' ) {
+		$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
+		$title    = apply_filters( 'bbp_profile_page_wp_raw_title', $userdata->display_name, $sep, $seplocation );
+		$t_sep    = '%WP_TITILE_SEP%'; // Temporary separator, for accurate flipping, if necessary
+
+		$prefix = '';
+		if ( !empty( $title ) )
+			$prefix = " $sep ";
+
+		// Determines position of the separator and direction of the breadcrumb
+		if ( 'right' == $seplocation ) { // sep on right, so reverse the order
+			$title_array = explode( $t_sep, $title );
+			$title_array = array_reverse( $title_array );
+			$title       = implode( " $sep ", $title_array ) . $prefix;
+		} else {
+			$title_array = explode( $t_sep, $title );
+			$title       = $prefix . implode( " $sep ", $title_array );
+		}
+
+		$title = apply_filters( 'bbp_profile_page_wp_title', $title, $sep, $seplocation );
+
+		return $title;
+	}
 
 /**
  * bbp_load_template( $files )
@@ -472,8 +683,12 @@ function bbp_favorites_handler () {
 		$action       = $_GET['action'];
 
 		// Load user info
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
+		if ( bbp_is_favorites( false ) ) {
+			$user_id = get_query_var( 'bbp_user_id' );
+		} else {
+			$current_user = wp_get_current_user();
+			$user_id      = $current_user->ID;
+		}
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
@@ -499,7 +714,7 @@ function bbp_favorites_handler () {
 			if ( true == $success ) {
 
 				// Redirect back to new reply
-				$redirect = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+				$redirect = bbp_is_favorites( false ) ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
 				wp_redirect( $redirect );
 
 				// For good measure
@@ -508,7 +723,7 @@ function bbp_favorites_handler () {
 		}
 	}
 }
-add_action( 'template_redirect', 'bbp_favorites_handler' );
+add_action( 'template_redirect', 'bbp_favorites_handler', 1 );
 
 /**
  * bbp_is_favorites_active ()
@@ -568,8 +783,12 @@ function bbp_subscriptions_handler () {
 		$action = $_GET['action'];
 
 		// Load user info
-		$current_user = wp_get_current_user();
-		$user_id      = $current_user->ID;
+		if ( bbp_is_subscriptions( false ) ) {
+			$user_id = get_query_var( 'bbp_user_id' );
+		} else {
+			$current_user = wp_get_current_user();
+			$user_id      = $current_user->ID;
+		}
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
@@ -594,7 +813,7 @@ function bbp_subscriptions_handler () {
 			if ( true == $success ) {
 
 				// Redirect back to new reply
-				$redirect = bbp_get_topic_permalink( $topic_id );
+				$redirect = bbp_is_subscriptions( false ) ? bbp_get_subscriptions_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
 				wp_redirect( $redirect );
 
 				// For good measure
@@ -603,7 +822,7 @@ function bbp_subscriptions_handler () {
 		}
 	}
 }
-add_action( 'template_redirect', 'bbp_subscriptions_handler' );
+add_action( 'template_redirect', 'bbp_subscriptions_handler', 1 );
 
 /**
  * bbp_remove_topic_from_all_subscriptions ()

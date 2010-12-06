@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: bbPress - Author
+ * Template Name: bbPress - User Profile
  *
  * @package bbPress
  * @subpackage Template
@@ -14,19 +14,17 @@
 
 				<?php
 					// Profile details
-					get_template_part( 'profile', 'bbp_details' );
+					get_template_part( 'user', 'bbp_details' );
 
 					// Subsciptions
-					get_template_part( 'profile', 'bbp_subscriptions' );
+					get_template_part( 'user', 'bbp_subscriptions' );
 
 					// Favorite topics
-					get_template_part( 'profile', 'bbp_favorites' );
+					get_template_part( 'user', 'bbp_favorites' );
 
 					// Topics created
-					get_template_part( 'profile', 'bbp_topics_created' );
+					get_template_part( 'user', 'bbp_topics_created' );
 
-					// Blog posts
-					get_template_part( 'profile', 'posts' );
 				?>
 
 			</div><!-- #content -->
