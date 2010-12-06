@@ -140,6 +140,23 @@ span.bbp-admin-links {
 	font-size: 0.7em;
 }
 
+/* forums */
+#content table tbody tr .bbp-forum-description p {
+	margin-bottom: 0;
+	font-size: 13px;
+	font-style: italic;
+}
+#content table tbody tr ul.bbp-forums {
+	list-style: none;
+	font-size: 12px;
+	margin: 0 0 0 10px;
+	padding: 0 0 0 10px;
+	border-left: 1px solid #aaa;
+}
+#content table tbody tr ul.bbp-forums li {
+	display: inline;
+}
+
 /* pagination */
 .bbp-pagination-count {
 	float: left;

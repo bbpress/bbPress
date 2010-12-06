@@ -64,6 +64,9 @@ class bbPress {
 	var $topic_query;
 	var $reply_query;
 
+	// Arrays
+	var $sub_forums;
+
 	/**
 	 * The main bbPress loader
 	 */

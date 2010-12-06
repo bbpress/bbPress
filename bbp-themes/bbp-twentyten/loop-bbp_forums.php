@@ -32,6 +32,9 @@
 
 					<td class="bbp-forum-info">
 						<a class="bbp-forum-title" href="<?php bbp_forum_permalink(); ?>" title="<?php bbp_forum_title(); ?>"><?php bbp_forum_title(); ?></a>
+
+						<?php bbp_list_forums(); ?>
+
 						<div class="bbp-forum-description"><?php the_content(); ?></div>
 					</td>
 

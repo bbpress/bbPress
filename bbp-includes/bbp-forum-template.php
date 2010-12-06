@@ -286,23 +286,82 @@ function bbp_get_forum_ancestors ( $forum_id = 0 ) {
 /**
  * bbp_forum_has_sub_forums ()
  *
- * Return if forum has sub forums
+ * Return sub forums of given forum
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (r2625)
+ * @since bbPress (r2705)
  *
  * @param int $forum_id
  * @return false if none, array of subs if yes
  */
-function bbp_forum_has_sub_forums( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
-	$has_subs = false;
+function bbp_forum_has_sub_forums ( $forum_id = 0 ) {
+	global $bbp;
 
+	$forum_id   = bbp_get_forum_id( $forum_id );
+	$sub_forums = '';
+
+	// No forum passed
 	if ( !empty( $forum_id ) )
-		$has_subs = bbp_get_sub_forums( $forum_id );
+		$sub_forums = get_pages( array( 'parent' => $forum_id, 'post_type' => $bbp->forum_id, 'child_of' => $forum_id, 'sort_column' => 'menu_order' ) );
 
-	return apply_filters( 'bbp_forum_has_sub_forums', $has_subs );
+	return apply_filters( 'bbp_forum_has_sub_forums', (array)$sub_forums, $forum_id );
+}
+
+/**
+ * bbp_list_forums ()
+ *
+ * Output a list of forums (can be used to list sub forums)
+ *
+ * @param int $forum_id
+ */
+function bbp_list_forums ( $args = '' ) {
+	global $bbp;
+
+	// Define used variables
+	$output = $sub_forums = $topic_count = $reply_count = '';
+	$i = 0;
+
+	// Defaults and arguments
+	$defaults = array (
+		'before'            => '<ul class="bbp-forums">',
+		'after'             => '</ul>',
+		'link_before'       => '<li class="bbp-forum"> ',
+		'link_after'        => '</li>',
+		'separator'         => ', ',
+		'forum_id'          => '',
+		'show_topic_count'  => true,
+		'show_reply_count'  => true,
+	);
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r, EXTR_SKIP );
+
+	// Loop through forums and create a list
+	if ( $sub_forums = bbp_forum_has_sub_forums( $forum_id ) ) {
+		// Total count (for separator)
+		$total_subs = count( $sub_forums );
+		foreach( $sub_forums as $sub_forum ) {
+			$i++; // Separator count
+
+			// Get forum details
+			$show_sep  = $total_subs > $i ? $separator : '';
+			$permalink = bbp_get_forum_permalink( $sub_forum->ID );
+			$title     = bbp_get_forum_title( $sub_forum->ID );
+
+			// Show topic and reply counts
+			if ( !empty( $show_topic_count ) )
+				$topic_count = ' (' . bbp_get_forum_topic_count( $sub_forum->ID ) . ')';
+
+			// @todo - Walk tree and update counts
+			//if ( !empty( $show_reply_count ) )
+			//	$reply_count = ' (' . bbp_get_forum_reply_count( $sub_forum->ID ) . ')';
+
+			$output .= $link_before . '<a href="' . $permalink . '" class="bbp-forum-link">' . $title . $topic_count . $reply_count . '</a>' . $show_sep . $link_after;
+		}
+		
+		// Output the list
+		echo $before . $output . $after;
+	}	
 }
 
 /** FORUM LAST TOPIC **********************************************************/
