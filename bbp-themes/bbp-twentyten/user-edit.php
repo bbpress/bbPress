@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: bbPress - Edit User Profile
+ * bbPress user profile edit
  *
  * @package bbPress
  * @subpackage Template

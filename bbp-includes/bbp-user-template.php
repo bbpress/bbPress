@@ -268,7 +268,9 @@ function bbp_current_user_id () {
 	function bbp_get_current_user_id () {
 		global $bbp;
 
-		return apply_filters( 'bbp_get_current_user_id', $bbp->current_user->ID );
+		$retval = isset( $bbp->current_user ) ? $bbp->current_user->ID : 0;
+
+		return apply_filters( 'bbp_get_current_user_id', $retval );
 	}
 
 /**
@@ -293,10 +295,9 @@ function bbp_displayed_user_id () {
 	function bbp_get_displayed_user_id () {
 		global $bbp;
 
-		if ( !isset( $bbp->displayed_user ) )
-			bbp_set_displayed_user();
+		$retval = isset( $bbp->displayed_user ) ? $bbp->displayed_user->ID : 0;
 
-		return apply_filters( 'bbp_get_displayed_user_id', $bbp->displayed_user->ID );
+		return apply_filters( 'bbp_get_displayed_user_id', $retval );
 	}
 
 /**
@@ -449,8 +450,9 @@ function bbp_user_profile_url ( $user_id = 0, $user_nicename = '' ) {
 	function bbp_get_user_profile_url ( $user_id = 0, $user_nicename = '' ) {
 		global $wp_rewrite, $bbp;
 
+		// Use displayed user ID if there is one, and one isn't requested
 		if ( empty( $user_id ) )
-			$user_id = $bbp->displayed_user->ID;
+			$user_id = isset( $bbp->displayed_user ) ? $bbp->displayed_user->ID : 0;
 
 		$url = !empty( $wp_rewrite->permalink_structure ) ? $wp_rewrite->front . $bbp->user_slug . '/%bbp_user%' : '';
 
