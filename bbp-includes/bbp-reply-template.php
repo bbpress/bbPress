@@ -238,27 +238,11 @@ function bbp_reply_url ( $reply_id = 0 ) {
 		global $bbp;
 
 		// Set needed variables
-		$reply_id  = bbp_get_reply_id( $reply_id );
-		$topic_id  = bbp_get_reply_topic_id( $reply_id );
-		$topic_url = bbp_get_topic_permalink( $topic_id );
-
-		// If $bbp->reply_query isn't set, we're handling a new reply redirect
-		if ( !isset( $bbp->reply_query ) ) {
-
-			// Populate the replies global
-			bbp_has_replies();
-
-			// Do some math and see if we need to bounce to the newest page
-			$new_reply_location = ceil( $bbp->reply_query->found_posts / $bbp->reply_query->posts_per_page );
-			if ( $bbp->reply_query->paged < (int) $new_reply_location )
-				$reply_page = $new_reply_location;
-			else
-				$reply_page = $bbp->reply_query->paged;
-
-		// All good, so assign the reply_page to the current page
-		} else {
-			$reply_page = $bbp->reply_query->paged;
-		}
+		$reply_id      = bbp_get_reply_id( $reply_id );
+		$topic_id      = bbp_get_reply_topic_id( $reply_id );
+		$topic_url     = bbp_get_topic_permalink( $topic_id );
+		$topic_replies = bbp_get_topic_reply_count( $topic_id );
+		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page )
