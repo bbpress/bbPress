@@ -1156,7 +1156,7 @@ function bbp_forum_pagination_count () {
 		elseif ( $total > 1 && empty( $to_num ) )
 			$retstr = sprintf( __( 'Viewing %1$s topics', 'bbpress' ), $total );
 		elseif ( $total > 1 && (int)$from_num != (int)$to_num )
-			$retstr = sprintf( __( 'Viewing topics %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
+			$retstr = sprintf( __( 'Viewing %1$s topics - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->topic_query->post_count, $from_num, $to_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s topic', 'bbpress' ), $total );
 

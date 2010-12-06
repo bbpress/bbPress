@@ -772,10 +772,12 @@ function bbp_topic_pagination_count () {
 		$total     = bbp_number_format( $bbp->reply_query->found_posts );
 
 		// Set return string
-		if ( $total > 1 && $from_num != $to_num )
-			$retstr = sprintf( __( 'Viewing replies %1$s through %2$s (of %3$s total)', 'bbpress' ), $from_num, $to_num, $total );
-		elseif ( $total > 1 && $from_num == $to_num )
+		if ( $total > 1 && (int)$from_num == (int)$to_num )
 			$retstr = sprintf( __( 'Viewing reply %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
+		elseif ( $total > 1 && empty( $to_num ) )
+			$retstr = sprintf( __( 'Viewing %1$s replies', 'bbpress' ), $total );
+		if ( $total > 1 && (int)$from_num != (int)$to_num )
+			$retstr = sprintf( __( 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
 
