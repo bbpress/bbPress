@@ -204,9 +204,8 @@ function bbp_add_user_favorite ( $user_id = 0, $topic_id = 0 ) {
 		return false;
 
 	$favorites = (array) bbp_get_user_favorites_topic_ids( $user_id );
-	$topic     = get_post( $topic_id );
 
-	if ( empty( $topic ) )
+	if ( !$topic = get_post( $topic_id ) )
 		return false;
 
 	if ( !in_array( $topic_id, $favorites ) ) {
@@ -411,9 +410,8 @@ function bbp_add_user_subscription ( $user_id = 0, $topic_id = 0 ) {
 		return false;
 
 	$subscriptions = (array) bbp_get_user_subscribed_topic_ids( $user_id );
-	$topic         = get_post( $topic_id );
 
-	if ( empty( $topic ) )
+	if ( !$topic = get_post( $topic_id ) )
 		return false;
 
 	if ( !in_array( $topic_id, $subscriptions ) ) {
