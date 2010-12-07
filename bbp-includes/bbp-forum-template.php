@@ -326,7 +326,7 @@ function bbp_list_forums ( $args = '' ) {
 	$defaults = array (
 		'before'            => '<ul class="bbp-forums">',
 		'after'             => '</ul>',
-		'link_before'       => '<li class="bbp-forum"> ',
+		'link_before'       => '<li class="bbp-forum">',
 		'link_after'        => '</li>',
 		'separator'         => ', ',
 		'forum_id'          => '',
