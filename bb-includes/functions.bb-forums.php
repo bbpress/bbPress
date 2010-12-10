@@ -151,7 +151,7 @@ function bb_get_forum( $id ) {
 	$forum = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->forums WHERE $sql", $id ) );
 	$forum = bb_append_meta( $forum, 'forum' );
 	wp_cache_set( $forum->forum_id, $forum, 'bb_forum' );
-	wp_cache_add( $forum->forum_slug, $forum, 'bb_forum_slug' );
+	wp_cache_add( $forum->forum_slug, $forum->forum_id, 'bb_forum_slug' );
 
 	return $forum;
 }
