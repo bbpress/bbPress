@@ -131,6 +131,9 @@ class BBP_Admin {
 	 * Admin area ctivation notice. Only appears when there are no addresses.
 	 */
 	function activation_notice () {
+		if ( !current_user_can( 'switch_themes' ) )
+			return;
+
 		$current_theme = current_theme_info();
 
 		if ( !in_array( 'bbpress', (array)$current_theme->tags ) ) { ?>
