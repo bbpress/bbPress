@@ -13,10 +13,10 @@
 
 	<?php get_template_part( 'pagination', 'bbp_replies' ); ?>
 
-	<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>">
+	<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>-replies">
 		<thead>
 			<tr>
-				<th class="bbp-reply-author"><?php _e( 'Author', 'bbpress' ); ?></th>
+				<th class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></th>
 				<th class="bbp-reply-content"><?php _e( 'Replies', 'bbpress' ); ?></th>
 			</tr>
 		</thead>
@@ -73,7 +73,7 @@
 
 					</td>
 
-				</tr><!-- #topic-<?php bbp_topic_id(); ?> -->
+				</tr><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
 
 			<?php endwhile; ?>
 
