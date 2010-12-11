@@ -11,10 +11,17 @@ function bb_block_current_user() {
 }
 
 function bb_get_user( $user_id, $args = null ) {
-	global $wp_users_object;
+	global $bbdb, $wp_users_object;
 	$user = $wp_users_object->get_user( $user_id, $args );
 	if ( is_wp_error($user) )
 		return false;
+	$prefix_length = strlen( $bbdb->prefix );
+	// Re calculate the user's meta in case we're pulling from a value cached on another site
+	foreach ( get_object_vars( $user ) as $k => $v ) {
+		if ( 0 === strpos( $k, $bbdb->prefix ) ) {
+			$user->{substr( $k, $prefix_length )} = $v;
+		}
+	}
 	return $user;
 }
 
