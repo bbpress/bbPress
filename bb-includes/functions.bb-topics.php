@@ -271,10 +271,14 @@ function bb_delete_topic( $topic_id, $new_status = 0 ) {
 			}
 		}
 
-		if ( count( $poster_ids ) )
-			foreach ( array_unique( $poster_ids ) as $id )
-				if ( $user = bb_get_user( $id ) )
-					bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', ( $old_status ? $user->topics_replied + 1 : $user->topics_replied - 1 ) );
+		if ( count( $poster_ids ) ) {
+			foreach ( array_unique( $poster_ids ) as $id ) {
+				if ( $user = bb_get_user( $id ) ) {
+					$topics_replied_key = $bbdb->prefix . 'topics_replied';
+					bb_update_usermeta( $user->ID, $topics_replied_key, ( $old_status ? $user->$topics_replied_key + 1 : $user->$topics_replied_key - 1 ) );
+				}
+			}
+		}
 
 		if ( $ids = $bbdb->get_col( "SELECT user_id, meta_value FROM $bbdb->usermeta WHERE meta_key = 'favorites' and FIND_IN_SET('$topic_id', meta_value) > 0" ) )
 			foreach ( $ids as $id )

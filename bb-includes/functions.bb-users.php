@@ -450,11 +450,12 @@ function bb_add_user_favorite( $user_id, $topic_id ) {
 	if ( !$user || !$topic )
 		return false;
 
-	$fav = $user->favorites ? explode(',', $user->favorites) : array();
+	$favorites_key = $bbdb->prefix . 'favorites';
+	$fav = $user->$favorites_key ? explode(',', $user->$favorites_key) : array();
 	if ( ! in_array( $topic_id, $fav ) ) {
 		$fav[] = $topic_id;
 		$fav = implode(',', $fav);
-		bb_update_usermeta( $user->ID, $bbdb->prefix . 'favorites', $fav);
+		bb_update_usermeta( $user->ID, $favorites_key, $fav );
 	}
 	do_action('bb_add_user_favorite', $user_id, $topic_id);
 	return true;
@@ -468,11 +469,12 @@ function bb_remove_user_favorite( $user_id, $topic_id ) {
 	if ( !$user )
 		return false;
 
-	$fav = explode(',', $user->favorites);
+	$favorites_key = $bbdb->prefix . 'favorites';
+	$fav = explode(',', $user->$favorites_key);
 	if ( is_int( $pos = array_search($topic_id, $fav) ) ) {
 		array_splice($fav, $pos, 1);
 		$fav = implode(',', $fav);
-		bb_update_usermeta( $user->ID, $bbdb->prefix . 'favorites', $fav);
+		bb_update_usermeta( $user->ID, $favorites_key, $fav);
 	}
 	do_action('bb_remove_user_favorite', $user_id, $topic_id);
 	return true;

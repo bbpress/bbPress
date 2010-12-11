@@ -420,8 +420,10 @@ function bb_insert_post( $args = null ) {
 			);
 
 			$query = new BB_Query( 'post', array( 'post_author_id' => $poster_id, 'topic_id' => $topic_id, 'post_id' => "-$post_id" ) );
-			if ( !$query->results )
-				bb_update_usermeta( $poster_id, $bbdb->prefix . 'topics_replied', $user->topics_replied + 1 );
+			if ( !$query->results ) {
+				$topics_replied_key = $bbdb->prefix . 'topics_replied';
+				bb_update_usermeta( $poster_id, $topics_replied_key, $user->$topics_replied_key + 1 );
+			}
 
 		} else {
 			bb_update_topicmeta( $topic->topic_id, 'deleted_posts', isset($topic->deleted_posts) ? $topic->deleted_posts + 1 : 1 );
@@ -536,8 +538,10 @@ function bb_delete_post( $post_id, $new_status = 0 ) {
 		$user = bb_get_user( $uid );
 
 		$user_posts = new BB_Query( 'post', array( 'post_author_id' => $user->ID, 'topic_id' => $topic_id ) );
-		if ( $new_status && !$user_posts->results )
-			bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', $user->topics_replied - 1 );
+		if ( $new_status && !$user_posts->results ) {
+			$topics_replied_key = $bbdb->prefix . 'topics_replied';
+			bb_update_usermeta( $user->ID, $topics_replied_key, $user->$topics_replied_key - 1 );
+		}
 		wp_cache_delete( $topic_id, 'bb_topic' );
 		wp_cache_delete( $topic_id, 'bb_thread' );
 		wp_cache_flush( 'bb_forums' );
@@ -566,8 +570,10 @@ function bb_topics_replied_on_undelete_post( $post_id ) {
 
 	$user_posts = new BB_Query( 'post', array( 'post_author_id' => $bb_post->poster_id, 'topic_id' => $topic->topic_id ) );
 
-	if ( 1 == count($user_posts) && $user = bb_get_user( $bb_post->poster_id ) )
-		bb_update_usermeta( $user->ID, $bbdb->prefix . 'topics_replied', $user->topics_replied + 1 );
+	if ( 1 == count($user_posts) && $user = bb_get_user( $bb_post->poster_id ) ) {
+		$topics_replied_key = $bbdb->prefix . 'topics_replied';
+		bb_update_usermeta( $user->ID, $topics_replied_key, $user->$topics_replied_key + 1 );
+	}
 }
 
 function bb_post_author_cache($posts) {
