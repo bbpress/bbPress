@@ -920,7 +920,7 @@ function bbp_topic_admin_links( $args = '' ) {
 	 * @return string
 	 */
 	function bbp_get_topic_admin_links( $args = '' ) {
-		if ( !current_user_can( 'edit_others_topics' ) )
+		if ( !bbp_is_topic() || !current_user_can( 'edit_others_topics' ) )
 			return '&nbsp';
 
 		$defaults = array (
