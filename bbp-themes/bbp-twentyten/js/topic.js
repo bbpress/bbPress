@@ -54,6 +54,21 @@ jQuery( function($) {
 	}
 
 	/** Subscriptions *********************************************************/
+	function subsLinkSetup() {
+		bbpTopicJS.isSubscribed = subscriptionToggleSpan.is( '.is-subscribed' );
+		var aLink = "<a href='" + bbpTopicJS.subsLink + "'>";
+		var aDim  = "<a href='" + subscriptionToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:subscription-toggle:" + subscriptionToggleSpan.attr( 'id' ) + ":is-subscribed'>";
+
+		if ( bbpTopicJS.isSubscribed ) {
+			html = aDim + bbpTopicJS.subsUns + '</a>';
+		} else {
+			html = aDim + bbpTopicJS.subsSub + '</a>';
+		}
+
+		subscriptionToggleSpan.html( html );
+		subscriptionToggle.get(0).wpList.process( subscriptionToggle );
+	}
+
 	if ( bbpTopicJS.subsActive == 1 ) {
 		var subscriptionToggle = $( '#subscription-toggle' )
 			.addClass( 'list:subscription' )
@@ -61,21 +76,5 @@ jQuery( function($) {
 
 		var subscriptionToggleSpan = subscriptionToggle.children( 'span' )
 			[bbpTopicJS.isSubscribed ? 'addClass' : 'removeClass' ]( 'is-subscribed' );
-
-		function subsLinkSetup() {
-			bbpTopicJS.isSubscribed = subscriptionToggleSpan.is( '.is-subscribed' );
-			var aLink = "<a href='" + bbpTopicJS.subsLink + "'>";
-			var aDim  = "<a href='" + subscriptionToggleSpan.find( 'a[class^="dim:"]' ).attr( 'href' ) + "' class='dim:subscription-toggle:" + subscriptionToggleSpan.attr( 'id' ) + ":is-subscribed'>";
-
-			if ( bbpTopicJS.isSubscribed ) {
-				html = aDim + bbpTopicJS.subsUns + '</a>';
-			} else {
-				html = aDim + bbpTopicJS.subsSub + '</a>';
-			}
-
-			subscriptionToggleSpan.html( html );
-			subscriptionToggle.get(0).wpList.process( subscriptionToggle );
-		}
 	}
-
 } );
