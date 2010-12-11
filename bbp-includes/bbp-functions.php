@@ -885,31 +885,25 @@ function bbp_is_subscriptions_active () {
  * @param int $reply_id ID of the newly made reply
  * @return bool True on success, false on failure
  */
-function bbp_notify_subscribers ( $args = '' ) {
+function bbp_notify_subscribers ( $reply_id = 0 ) {
 	global $bbp, $wpdb;
 
 	if ( !bbp_is_subscriptions_active() )
 		return false;
 
-	$defaults = array (
-		'ID'            => bbp_get_reply_id(),
-		'post_author'   => bbp_get_current_user_id(),
-		'post_title'    => '',
-		'post_content'  => '',
-		'post_parent'   => '',
-		'post_status'   => 'publish',
-		'post_type'     => $bbp->reply_id
-	);
+	if ( empty( $reply_id ) )
+		return false;
 
-	$args = wp_parse_args( $args, $defaults );
-
-	if ( !$reply = get_post( $args['ID'] ) )
+	if ( !$reply = get_post( $reply_id ) )
 		return false;
 
 	if ( $reply->post_type != $bbp->reply_id || empty( $reply->post_parent ) )
 		return false;
 
 	if ( !$topic = get_post( $post->post_parent ) )
+		return false;
+
+	if ( !$poster_name = get_the_author_meta( 'display_name', $reply->post_author ) )
 		return false;
 
 	$reply_id = $reply->ID;
@@ -928,7 +922,7 @@ function bbp_notify_subscribers ( $args = '' ) {
 			continue;
 
 		// For plugins
-		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $reply_id, $topic_id ) )
+		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $reply_id, $topic_id, $user_id ) )
 			continue;
 
 		$user = get_userdata( $user_id );
@@ -944,6 +938,6 @@ function bbp_notify_subscribers ( $args = '' ) {
 
 	return true;
 }
-add_action( 'bbp_new_reply', 'bbp_notify_subscribers' );
+add_action( 'bbp_new_reply', 'bbp_notify_subscribers', 1, 1 );
 
 ?>
