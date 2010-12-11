@@ -38,7 +38,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		if ( bbp_has_forums( $default ) ) :
 			echo "<ul>";
-			while ( bbp_forums ( ) ) : bbp_the_forum();
+			while ( bbp_forums() ) : bbp_the_forum();
 ?>
 
 				<li><a class="bbp-forum-title" href="<?php bbp_forum_permalink(); ?>" title="<?php bbp_forum_title(); ?>"><?php bbp_forum_title(); ?></a></li>
@@ -101,18 +101,20 @@ class BBP_Topics_Widget extends WP_Widget {
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 
-		if ( ($pop_check < $max_shown) && bbp_has_topics( $default ) ) :
+		if ( $pop_check < $max_shown && bbp_has_topics( $default ) ) :
 			echo "<ul>";
-			while ( bbp_topics ( ) ) : bbp_the_topic();
+			while ( bbp_topics() ) : bbp_the_topic();
 ?>
+
 				<li><a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' )
 					_e( ', ' . bbp_get_topic_last_active() . ' ago' ); ?></li>
+
 <?php
 			endwhile;
 			echo "</ul>";
 		endif;
 
-		if ( ($pop_check >= $max_shown) && bbp_has_topics( $default ) ) :
+		if ( $pop_check >= $max_shown && bbp_has_topics( $default ) ) :
 			echo "<ul>";
 			while ( bbp_topics ( ) ) : bbp_the_topic();
 				$topics[bbp_get_topic_id()] = bbp_get_topic_reply_count();
@@ -121,8 +123,10 @@ class BBP_Topics_Widget extends WP_Widget {
 			$topic_count = 1;
 			foreach ( $topics as $topic_id => $topic_reply_count ) {
 ?>
+
 				<li><a class="bbp-forum-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' )
 					_e( ', ' . bbp_get_topic_last_active( $topic_id ) . ' ago' ); ?></li>
+
 <?php
 				$topic_count++;
 				if ( $topic_count > $max_shown ) {
@@ -144,11 +148,12 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	function form( $instance ) {
-		$title     = esc_attr( $instance['title'] );
-		$max_shown = esc_attr( $instance['max_shown'] );
-		$show_date = esc_attr( $instance['show_date'] );
-		$pop_check = esc_attr( $instance['pop_check'] );
+		$title     = !empty( $instance['title'] )     ? esc_attr( $instance['title'] )     : '';
+		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
+		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
+		$pop_check = !empty( $instance['pop_check'] ) ? esc_attr( $instance['pop_check'] ) : '';
 ?>
+
 		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php echo ($show_date == 'on') ? 'checked="checked"' : ''; ?>/></label></p>
@@ -191,14 +196,16 @@ class BBP_Replies_Widget extends WP_Widget {
 		if ( bbp_has_replies( $default ) ) :
 			echo "<ul>";
 
-			while ( bbp_replies ( ) ) : bbp_the_reply();
+			while ( bbp_replies() ) : bbp_the_reply();
 ?>
+
 				<li>
 					<a class="bbp-forum-title" href="<?php bbp_reply_permalink(); ?>" title="<?php bbp_reply_title(); ?>"><?php bbp_reply_title(); ?></a>
 
 					<?php if ( $show_date == 'on' ) _e( ', ' . get_the_date() . ', ' . get_the_time() ); ?>
 
 				</li>
+
 <?php
 			endwhile;
 			echo "</ul>";
@@ -220,6 +227,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
 ?>
+
 		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php echo ($show_date == 'on') ? 'checked="checked"' : ''; ?>/></label></p>
@@ -229,8 +237,8 @@ class BBP_Replies_Widget extends WP_Widget {
 
 }
 
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Forums_Widget");' ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");' ) );
+add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Forums_Widget");'  ) );
+add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");'  ) );
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
 
 ?>
