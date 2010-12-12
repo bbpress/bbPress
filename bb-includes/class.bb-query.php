@@ -55,7 +55,7 @@ class BB_Query {
 		$key = md5( $this->request );
 		if ( false === $cached_ids = wp_cache_get( $key, 'bb_query' ) ) {
 			if ( 'post' == $this->type ) {
-				$this->results = bb_cache_posts( $this->request ); // This always appends meta
+				$this->results = bb_cache_posts( $this->request, $this->query_vars['post_id_only'] ); // This always appends meta
 				$_the_id = 'post_id';
 				$this->query_vars['append_meta'] = false;
 			} else {
@@ -262,7 +262,8 @@ class BB_Query {
 //			'append_meta',	// *true, false: topics only
 //			'cache_users',	// *true, false
 //			'cache_topics,	// *true, false: posts only
-			'cache_posts'	// not implemented: none, first, last
+//			'post_id_only', // true, *false: this query is only returning post IDs
+			'cache_posts'	 // not implemented: none, first, last
 		);
 
 		foreach ( $ints as $key )
@@ -309,6 +310,7 @@ class BB_Query {
 		$array['append_meta']  = isset($array['append_meta'])  ? (int) (bool) $array['append_meta']  : 1;
 		$array['cache_users']  = isset($array['cache_users'])  ? (int) (bool) $array['cache_users']  : 1;
 		$array['cache_topics'] = isset($array['cache_topics']) ? (int) (bool) $array['cache_topics'] : 1;
+		$array['post_id_only'] = isset($array['post_id_only']) ? (int) (bool) $array['post_id_only'] : 1;
 
 		// Only one FULLTEXT search per query please
 		if ( $array['search'] )

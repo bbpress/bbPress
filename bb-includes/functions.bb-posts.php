@@ -590,7 +590,7 @@ function bb_post_author_cache($posts) {
 
 // These two filters are lame.  It'd be nice if we could do this in the query parameters
 function bb_get_recent_user_replies_fields( $fields ) {
-	return $fields . ', MAX(post_time) as post_time';
+	return 'MAX( p.post_id ) AS post_id';
 }
 
 function bb_get_recent_user_replies_group_by() {
@@ -601,7 +601,15 @@ function bb_get_recent_user_replies( $user_id ) {
 	global $bbdb;
 	$user_id = (int) $user_id;
 
-	$post_query = new BB_Query( 'post', array( 'post_author_id' => $user_id, 'order_by' => 'post_time' ), 'get_recent_user_replies' );
+	$post_query = new BB_Query(
+		'post',
+		array(
+			'post_author_id' => $user_id,
+			'order_by' => 'post_id',
+			'post_id_only' => true,
+		),
+		'get_recent_user_replies'
+	);
 
 	return $post_query->results;
 }
