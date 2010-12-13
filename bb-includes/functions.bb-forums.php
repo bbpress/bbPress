@@ -45,7 +45,7 @@ function _bb_get_cached_data( $keys, $group, $callback ) {
 	foreach ( $keys as $key ) {
 		// should use wp_cache_get_multi if available
 		if ( false === $value = wp_cache_get( $key, $group ) )
-			if ( !$value = call_user_func( $group, $key ) )
+			if ( !$value = call_user_func( $callback, $key ) )
 				continue;
 		$return[$key] = $value;
 	}
