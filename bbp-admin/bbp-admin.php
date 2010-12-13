@@ -313,8 +313,8 @@ class BBP_Admin {
 
 <?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
 
-			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_forum { width: 10% !important; }
-			.column-bbp_forum_freshness, .column-bbp_topic_freshness, .column-bbp_reply_posted, .column-bbp_topic_author, .column-bbp_reply_author, .column-bbp_reply_topic { width: 15% !important; }
+			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_forum, .column-bbp_forum_freshness, .column-bbp_topic_freshness { width: 10% !important; }
+			.column-bbp_forum_created, .column-bbp_topic_created, .column-bbp_reply_created, .column-bbp_topic_author, .column-bbp_reply_author, .column-bbp_reply_topic { width: 15% !important; }
 
 <?php endif; ?>
 
@@ -380,7 +380,7 @@ class BBP_Admin {
 			'bbp_forum_topic_count' => __( 'Topics', 'bbpress' ),
 			'bbp_forum_reply_count' => __( 'Replies', 'bbpress' ),
 			'author'                => __( 'Creator', 'bbpress' ),
-			'date'                  => __( 'Created' , 'bbpress' ),
+			'bbp_forum_created'     => __( 'Created' , 'bbpress' ),
 			'bbp_forum_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
@@ -408,6 +408,22 @@ class BBP_Admin {
 
 			case 'bbp_forum_reply_count' :
 				bbp_forum_reply_count( $forum_id );
+				break;
+
+			case 'bbp_forum_created':
+				printf( __( '%1$s <br /> %2$s', 'bbpress' ),
+					get_the_date(),
+					esc_attr( get_the_time() )
+				);
+
+				break;
+
+			case 'bbp_forum_freshness' :
+				if ( $last_active = bbp_get_forum_last_active( $forum_id, false ) )
+					printf( __( '%s ago', 'bbpress' ), $last_active );
+				else
+					_e( 'No Topics', 'bbpress' );
+
 				break;
 
 			default:
@@ -455,6 +471,7 @@ class BBP_Admin {
 			'bbp_topic_reply_count' => __( 'Replies', 'bbpress' ),
 			'bbp_topic_voice_count' => __( 'Voices', 'bbpress' ),
 			'bbp_topic_author'      => __( 'Author', 'bbpress' ),
+			'bbp_topic_created'     => __( 'Created', 'bbpress' ),
 			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
@@ -515,8 +532,21 @@ class BBP_Admin {
 				break;
 
 			// Freshness
+			case 'bbp_topic_created':
+				printf( __( '%1$s <br /> %2$s', 'bbpress' ),
+					get_the_date(),
+					esc_attr( get_the_time() )
+				);
+
+				break;
+
+			// Freshness
 			case 'bbp_topic_freshness' :
-				bbp_topic_last_active( $topic_id, false );
+				if ( $last_active = bbp_get_topic_last_active( $topic_id, false ) )
+					printf( __( '%s ago', 'bbpress' ), $last_active );
+				else
+					_e( 'No Replies', 'bbpress' ); // This should never happen
+
 				break;
 
 			// Do an action for anything else
@@ -562,7 +592,7 @@ class BBP_Admin {
 			'bbp_reply_forum'       => __( 'Forum', 'bbpress' ),
 			'bbp_reply_topic'       => __( 'Topic', 'bbpress' ),
 			'bbp_reply_author'      => __( 'Author', 'bbpress' ),
-			'bbp_reply_posted'      => __( 'Posted' , 'bbpress' ),
+			'bbp_reply_created'     => __( 'Created' , 'bbpress' ),
 		);
 
 		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
@@ -634,11 +664,11 @@ class BBP_Admin {
 				break;
 
 			// Freshness
-			case 'bbp_reply_posted':
+			case 'bbp_reply_created':
 				// Output last activity time and date
-				printf( __( '%1$s on %2$s', 'bbpress' ),
-					esc_attr( get_the_time() ),
-					get_the_date()
+				printf( __( '%1$s <br /> %2$s', 'bbpress' ),
+					get_the_date(),
+					esc_attr( get_the_time() )
 				);
 
 				break;
