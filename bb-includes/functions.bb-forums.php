@@ -44,9 +44,11 @@ function _bb_get_cached_data( $keys, $group, $callback ) {
 	$return = array();
 	foreach ( $keys as $key ) {
 		// should use wp_cache_get_multi if available
-		if ( false === $value = wp_cache_get( $key, $group ) )
-			if ( !$value = call_user_func( $callback, $key ) )
+		if ( false === $value = wp_cache_get( $key, $group ) ) {
+			if ( !$value = call_user_func( $callback, $key ) ) {
 				continue;
+			}
+		}
 		$return[$key] = $value;
 	}
 	return $return;
@@ -75,7 +77,7 @@ function bb_get_forums( $args = null ) {
 	$where = apply_filters( 'get_forums_where', $where );
 	$key = md5( serialize( $where . '|' . $order_by ) ); // The keys that change the SQL query
 	if ( false !== $forum_ids = wp_cache_get( $key, 'bb_forums' ) ) {
-		$forums = _bb_get_cached_data( $forum_ids, 'bb_forum', 'get_forum' );
+		$forums = _bb_get_cached_data( $forum_ids, 'bb_forum', 'bb_get_forum' );
 	} else {
 		$forum_ids = array();
 		$forums = array();
