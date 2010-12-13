@@ -22,7 +22,7 @@ function bbp_number_format ( $number, $decimals = false ) {
 }
 
 /**
- * bbp_get_modified_time( $post, $d, $gmt, $translate )
+ * bbp_convert_date( $post, $d, $gmt, $translate )
  *
  * Retrieve the time at which the post was last modified.
  *
@@ -32,15 +32,14 @@ function bbp_number_format ( $number, $decimals = false ) {
  *
  * @param int|object $post Optional, default is global post object. A post_id or post object
  * @param string $d Optional, default is 'U'. Either 'G', 'U', or php date format.
- * @param bool $gmt Optional, default is false. Whether to return the gmt time.
  * @param bool $translate Optional, default is false. Whether to translate the result
  *
  * @return string Returns timestamp
  */
-function bbp_get_modified_time( $time, $d = 'U', $gmt = false, $translate = false ) {
+function bbp_convert_date( $time, $d = 'U', $translate = false ) {
 	$time = mysql2date( $d, $time, $translate );
 
-	return apply_filters( 'bbp_get_post_modified_time', $time, $d, $gmt );
+	return apply_filters( 'bbp_convert_date', $time, $d );
 }
 
 /**

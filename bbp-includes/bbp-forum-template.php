@@ -235,7 +235,7 @@ function bbp_forum_last_active ( $forum_id = 0 ) {
 			}
 		}
 
-		$last_active = !empty( $last_active ) ? bbp_get_time_since( bbp_get_modified_time( $last_active ) ) : '';
+		$last_active = !empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
 
 		return apply_filters( 'bbp_get_forum_last_active', $last_active );
 	}

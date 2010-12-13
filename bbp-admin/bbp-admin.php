@@ -516,7 +516,7 @@ class BBP_Admin {
 
 			// Freshness
 			case 'bbp_topic_freshness' :
-				bbp_get_topic_last_active( $topic_id );
+				bbp_topic_last_active( $topic_id, false );
 				break;
 
 			// Do an action for anything else

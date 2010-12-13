@@ -674,10 +674,19 @@ function bbp_topic_last_active ( $topic_id = 0 ) {
 	function bbp_get_topic_last_active ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		if ( !$last_active = get_post_meta( $topic_id, '_bbp_topic_last_active', true ) )
-			$reply_id = bbp_get_topic_last_reply_id( $topic_id );
+		// Try to get the most accurate freshness time possible
+		if ( !$last_active = get_post_meta( $topic_id, '_bbp_topic_last_active', true ) ) {
+			if ( $reply_id = bbp_get_topic_last_reply_id( $topic_id ) ) {
+				$last_active = get_post_field( 'post_date', $reply_id );
+			} else {
+				$last_active = get_post_field( 'post_date', $topic_id );
+			}
+		}
 
-		return apply_filters( 'bbp_get_topic_last_active', bbp_get_time_since( bbp_get_modified_time( $last_active ) ) );
+		$last_active = !empty( $last_active ) ? bbp_get_time_since( bbp_convert_date( $last_active ) ) : '';
+
+		// Return the time since
+		return apply_filters( 'bbp_get_topic_last_active', $last_active );
 	}
 
 /** TOPIC LAST REPLY **********************************************************/
