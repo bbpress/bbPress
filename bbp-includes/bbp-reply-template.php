@@ -20,25 +20,25 @@ function bbp_has_replies ( $args = '' ) {
 
 	$default = array(
 		// Narrow query down to bbPress topics
-		'post_type'        => $bbp->reply_id,
+		'post_type'      => $bbp->reply_id,
 
 		// Forum ID
-		'post_parent'      => isset( $_REQUEST['topic_id'] ) ? $_REQUEST['topic_id'] : bbp_get_topic_id(),
+		'post_parent'    => isset( $_REQUEST['topic_id'] ) ? $_REQUEST['topic_id'] : bbp_get_topic_id(),
 
 		//'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'date',
+		'orderby'        => isset( $_REQUEST['orderby']  ) ? $_REQUEST['orderby']  : 'date',
 
 		// 'ASC', 'DESC'
-		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'ASC',
+		'order'          => isset( $_REQUEST['order']    ) ? $_REQUEST['order']    : 'ASC',
 
 		// @todo replace 15 with setting
-		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
-
-		// Page Number
-		'paged'            => bbp_get_paged(),
+		'posts_per_page' => isset( $_REQUEST['posts']    ) ? $_REQUEST['posts']    : 15,
 
 		// Reply Search
-		's'                => empty( $_REQUEST['rs'] ) ? '' : $_REQUEST['rs'],
+		's'              => !empty( $_REQUEST['rs']      ) ? $_REQUEST['rs']       : '',
+
+		// Page Number
+		'paged'          => bbp_get_paged(),
 	);
 
 	// Set up topic variables
@@ -50,10 +50,10 @@ function bbp_has_replies ( $args = '' ) {
 
 	// Add pagination values to query object
 	$bbp->reply_query->posts_per_page = $posts_per_page;
-	$bbp->reply_query->paged = $paged;
+	$bbp->reply_query->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( (int)$bbp->reply_query->found_posts && (int)$bbp->reply_query->posts_per_page ) {
+	if ( (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() )
@@ -65,8 +65,8 @@ function bbp_has_replies ( $args = '' ) {
 		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
 			'base'      => $base,
 			'format'    => '',
-			'total'     => ceil( (int)$bbp->reply_query->found_posts / (int)$posts_per_page ),
-			'current'   => (int)$bbp->reply_query->paged,
+			'total'     => ceil( (int) $bbp->reply_query->found_posts / (int) $posts_per_page ),
+			'current'   => (int) $bbp->reply_query->paged,
 			'prev_text' => '&larr;',
 			'next_text' => '&rarr;',
 			'mid_size'  => 1
@@ -395,7 +395,7 @@ function bbp_reply_author ( $reply_id = 0 ) {
 		if ( get_post_field( 'post_author', $reply_id ) )
 			$author = get_the_author();
 		else
-			$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+			$author = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 
 		return apply_filters( 'bbp_get_reply_author', $author );
 	}
@@ -473,7 +473,7 @@ function bbp_reply_author_display_name ( $reply_id = 0 ) {
 		else
 			$author_name = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 
-		return apply_filters( 'bbp_get_reply_author_id', esc_attr( $author_name ) );
+		return apply_filters( 'bbp_get_reply_author_display_name', esc_attr( $author_name ) );
 	}
 
 /**
@@ -486,7 +486,7 @@ function bbp_reply_author_display_name ( $reply_id = 0 ) {
  * @since bbPress (r2667)
  * @param int $reply_id optional
  *
- * @uses bbp_get_reply_author()
+ * @uses bbp_get_reply_author_avatar()
  */
 function bbp_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
 	echo bbp_get_reply_author_avatar( $reply_id, $size );
@@ -503,54 +503,129 @@ function bbp_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
 	 * @uses apply_filters
 	 * @param int $reply_id optional
 	 *
-	 * @return string Author of reply
+	 * @return string Avatar of author of the reply
 	 */
 	function bbp_get_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author_avatar', get_avatar( get_post_field( 'post_author', $reply_id ), $size ) );
+		// Check for anonymous user
+		if ( $author_id = get_post_field( 'post_author', $reply_id ) )
+			$author_avatar = get_avatar( $author_id );
+		else
+			$author_avatar = get_avatar( get_post_meta( $reply_id, '_bbp_anonymous_email', true ) );
+
+		return apply_filters( 'bbp_get_reply_author_avatar', $author_avatar, $reply_id, $size );
 	}
 
 /**
- * bbp_reply_author_url ()
+ * bbp_reply_author_link ()
  *
- * Output the author url of the reply in the loop
+ * Output the author link of the reply in the loop
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (r2667)
- * @param int $reply_id optional
+ * @since bbPress (r2717)
  *
- * @uses bbp_get_reply_author_url()
+ * @param mixed|int $args If it is an integer, it is used as reply_id. Optional.
+ * @uses bbp_get_reply_author_link()
  */
-function bbp_reply_author_url ( $reply_id = 0 ) {
-	echo bbp_get_reply_author_url( $reply_id );
+function bbp_reply_author_link ( $args = '' ) {
+	echo bbp_get_reply_author_link( $args );
 }
 	/**
-	 * bbp_get_reply_author_url ()
+	 * bbp_get_reply_author_link ()
 	 *
-	 * Return the author url of the reply in the loop
+	 * Return the author link of the reply in the loop
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (r2667)
+	 * @since bbPress (r2717)
 	 *
-	 * @uses apply_filters
-	 * @param int $reply_id optional
+	 * @uses bbp_get_reply_author_url()
+	 * @uses bbp_get_reply_author()
 	 *
-	 * @return string Author URL of reply
+	 * @param mixed|int $args If it is an integer, it is used as reply_id. Optional.
+	 * @return string Author link of reply
 	 */
-	function bbp_get_reply_author_url ( $reply_id = 0 ) {
-		$reply_id = bbp_get_reply_id( $reply_id );
+	function bbp_get_reply_author_link ( $args = '' ) {
+		// Used as reply_id
+		if ( is_int( $args ) ) {
+			$reply_id = bbp_get_reply_id( $args );
+		} else {
+			$defaults = array (
+				'reply_id'   => 0,
+				'link_title' => '',
+				'link_text'  => ''
+			);
+
+			$r = wp_parse_args( $args, $defaults );
+			extract( $r );
+		}
+
+		if ( empty( $reply_id ) )
+			$reply_id   = bbp_get_reply_id( $reply_id );
+
+		if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_reply() ) )
+			$link_title = sprintf( get_the_author_meta( 'ID' ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author( $reply_id ) );
+
+		if ( empty( $link_text ) && ( bbp_is_topic() || bbp_is_reply() ) )
+			$link_text  = bbp_get_reply_author_avatar( $reply_id, 80 );
+		else
+			$link_text  = bbp_get_reply_author( $reply_id );
+
+		$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
 
 		// Check for anonymous user
-		if ( $author_id = get_post_field( 'post_author', $reply_id ) )
-			$author_url = bbp_get_user_profile_url( $author_id );
+		if ( $author_url = bbp_get_reply_author_url( $reply_id ) )
+			$author_link = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
 		else
-			$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true );
+			$author_link = $link_text; // Still return $link_text
 
-		return apply_filters( 'bbp_get_reply_author_url', $author_url );
+		return apply_filters( 'bbp_get_reply_author_link', $author_link, $args );
 	}
+
+		/**
+		 * bbp_reply_author_url ()
+		 *
+		 * Output the author url of the reply in the loop
+		 *
+		 * @package bbPress
+		 * @subpackage Template Tags
+		 * @since bbPress (r2667)
+		 * @param int $reply_id optional
+		 *
+		 * @uses bbp_get_reply_author_url()
+		 */
+		function bbp_reply_author_url ( $reply_id = 0 ) {
+			echo bbp_get_reply_author_url( $reply_id );
+		}
+			/**
+			 * bbp_get_reply_author_url ()
+			 *
+			 * Return the author url of the reply in the loop
+			 *
+			 * @package bbPress
+			 * @subpackage Template Tags
+			 * @since bbPress (r22667)
+			 *
+			 * @uses bbp_get_user_profile_url()
+			 * @uses get_post_meta()
+			 *
+			 * @param int $reply_id optional
+			 * @return string Author URL of reply
+			 */
+			function bbp_get_reply_author_url ( $reply_id = 0 ) {
+				$reply_id = bbp_get_reply_id( $reply_id );
+
+				// Check for anonymous user
+				if ( $author_id = get_post_field( 'post_author', $reply_id ) )
+					$author_url = bbp_get_user_profile_url( $author_id );
+				else
+					if ( !$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true ) )
+						$author_url = '';
+
+				return apply_filters( 'bbp_get_reply_author_url', $author_url, $reply_id );
+			}
 
 /**
  * bbp_reply_topic_title ()
@@ -729,7 +804,8 @@ function bbp_reply_class ( $reply_id = 0 ) {
 	function bbp_get_reply_class ( $reply_id = 0 ) {
 		global $bbp;
 
-		$alternate = $bbp->reply_query->current_post % 2 ? 'even' : 'odd';
+		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
+		$alternate = (int) $count % 2 ? 'even' : 'odd';
 		$status    = 'status-'  . bbp_get_reply_status();
 		$post      = post_class( array( $alternate, $status ) );
 

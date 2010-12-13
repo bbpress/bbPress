@@ -40,14 +40,7 @@
 					<td class="bbp-reply-content">
 						<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>">#</a>
 
-						<?php
-							// @todo - abstract
-							printf( __( 'Posted on %2$s at %3$s', 'bbpress' ),
-								'meta-prep meta-prep-author',
-								get_the_date(),
-								esc_attr( get_the_time() )
-							);
-						?>
+						<?php printf( __( 'Posted on %1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
 						<span><?php bbp_reply_admin_links(); ?></span>
 					</td>
@@ -55,21 +48,11 @@
 
 				<tr id="reply-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
-					<td class="bbp-reply-author">
-						<?php
-							// @todo - abstract
-							printf (
-								'<a href="%1$s" title="%2$s">%3$s</a>',
-								bbp_get_reply_author_url(),
-								sprintf( get_the_author_meta( 'ID' ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s Website' ), bbp_get_reply_author_display_name() ),
-								bbp_get_reply_author_avatar( 0, 80 )
-							);
-						?>
-					</td>
+					<td class="bbp-reply-author"><?php bbp_reply_author_link(); ?></td>
 
 					<td class="bbp-reply-content">
 
-						<?php the_content(); // @todo - bbp_reply_content(); ?>
+						<?php the_content(); ?>
 
 					</td>
 

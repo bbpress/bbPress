@@ -20,28 +20,28 @@ function bbp_has_topics ( $args = '' ) {
 
 	$default = array (
 		// Narrow query down to bbPress topics
-		'post_type'        => $bbp->topic_id,
+		'post_type'      => $bbp->topic_id,
 
 		// Forum ID
-		'post_parent'      => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
+		'post_parent'    => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
 
 		// Make sure topic has some last activity time
-		'meta_key'         => '_bbp_topic_last_active',
+		'meta_key'       => '_bbp_topic_last_active',
 
 		//'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'          => isset( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : 'meta_value',
+		'orderby'        => isset( $_REQUEST['orderby']  ) ? $_REQUEST['orderby']  : 'meta_value',
 
 		// 'ASC', 'DESC'
-		'order'            => isset( $_REQUEST['order'] ) ? $_REQUEST['order'] : 'DESC',
+		'order'          => isset( $_REQUEST['order']    ) ? $_REQUEST['order']    : 'DESC',
 
 		// @todo replace 15 with setting
-		'posts_per_page'   => isset( $_REQUEST['posts'] ) ? $_REQUEST['posts'] : 15,
-
-		// Page Number
-		'paged'            => bbp_get_paged(),
+		'posts_per_page' => isset( $_REQUEST['posts']    ) ? $_REQUEST['posts']    : 15,
 
 		// Topic Search
-		's'                => empty( $_REQUEST['ts'] ) ? '' : $_REQUEST['ts'],
+		's'              => !empty( $_REQUEST['ts']      ) ? $_REQUEST['ts']       : '',
+
+		// Page Number
+		'paged'          => bbp_get_paged(),
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
@@ -427,7 +427,7 @@ function bbp_topic_author_display_name ( $topic_id = 0 ) {
  * @since bbPress (r2590)
  * @param int $topic_id optional
  *
- * @uses bbp_get_topic_author()
+ * @uses bbp_get_topic_author_avatar()
  */
 function bbp_topic_author_avatar ( $topic_id = 0, $size = 40 ) {
 	echo bbp_get_topic_author_avatar( $topic_id, $size );
@@ -441,57 +441,133 @@ function bbp_topic_author_avatar ( $topic_id = 0, $size = 40 ) {
 	 * @subpackage Template Tags
 	 * @since bbPress (r2590)
 	 *
-	 * @uses apply_filters
-	 * @param int $topic_id optional
+	 * @uses get_avatar()
+	 * @uses get_post_meta()
 	 *
-	 * @return string Author of topic
+	 * @param int $topic_id optional
+	 * @return string Avatar of the author of the topic
 	 */
 	function bbp_get_topic_author_avatar ( $topic_id = 0, $size = 40 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_avatar', get_avatar( get_post_field( 'post_author', $topic_id ), $size ) );
+		// Check for anonymous user
+		if ( $author_id = get_post_field( 'post_author', $topic_id ) )
+			$author_avatar = get_avatar( $author_id );
+		else
+			$author_avatar = get_avatar( get_post_meta( $topic_id, '_bbp_anonymous_email', true ) );
+
+		return apply_filters( 'bbp_get_topic_author_avatar', $author_avatar, $topic_id, $size );
 	}
 
 /**
- * bbp_topic_author_avatar ()
+ * bbp_topic_author_link ()
  *
- * Output the author avatar of the topic in the loop
+ * Output the author link of the topic in the loop
  *
  * @package bbPress
  * @subpackage Template Tags
- * @since bbPress (r2590)
- * @param int $topic_id optional
+ * @since bbPress (r2717)
  *
- * @uses bbp_get_topic_author()
+ * @param mixed|int $args If it is an integer, it is used as topic_id. Optional.
+ * @uses bbp_get_topic_author_link()
  */
-function bbp_topic_author_url ( $topic_id = 0 ) {
-	echo bbp_get_topic_author_url( $topic_id );
+function bbp_topic_author_link ( $args = '' ) {
+	echo bbp_get_topic_author_link( $args );
 }
 	/**
-	 * bbp_get_topic_author_url ()
+	 * bbp_get_topic_author_link ()
 	 *
-	 * Return the author url of the topic in the loop
+	 * Return the author link of the topic in the loop
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (r2590)
+	 * @since bbPress (r2717)
 	 *
-	 * @uses apply_filters
-	 * @param int $topic_id optional
+	 * @uses bbp_get_topic_author_url()
+	 * @uses bbp_get_topic_author()
 	 *
-	 * @return string Author URL of topic
+	 * @param mixed|int $args If it is an integer, it is used as topic_id. Optional.
+	 * @return string Author link of topic
 	 */
-	function bbp_get_topic_author_url ( $topic_id = 0 ) {
-		$topic_id = bbp_get_topic_id( $topic_id );
+	function bbp_get_topic_author_link ( $args = '' ) {
+		// Used as topic_id
+		if ( is_int( $args ) ) {
+			$topic_id = bbp_get_topic_id( $args );
+		} else {
+			$defaults = array (
+				'topic_id'   => 0,
+				'link_title' => '',
+				'link_text'  => ''
+			);
+
+			$r = wp_parse_args( $args, $defaults );
+			extract( $r );
+		}
+
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_topic_id( $topic_id );
+
+		if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_topic() ) )
+			$link_title = sprintf( get_the_author_meta( 'ID' ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author( $topic_id ) );
+
+		if ( empty( $link_text ) && ( bbp_is_topic() || bbp_is_topic() ) )
+			$link_text = bbp_get_topic_author_avatar( $topic_id, 80 );
+		else
+			$link_text = bbp_get_topic_author( $topic_id );
+
+		$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
 
 		// Check for anonymous user
-		if ( $author_id = get_post_field( 'post_author', $topic_id ) )
-			$author_url = bbp_get_user_profile_url( $author_id );
+		if ( $author_url = bbp_get_topic_author_url( $topic_id ) )
+			$author_link = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
 		else
-			$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true );
+			$author_link = $link_text;
 
-		return apply_filters( 'bbp_get_topic_author_url', $author_url );
+		return apply_filters( 'bbp_get_topic_author_link', $author_link, $topic_id );
 	}
+
+		/**
+		 * bbp_topic_author_url ()
+		 *
+		 * Output the author url of the topic in the loop
+		 *
+		 * @package bbPress
+		 * @subpackage Template Tags
+		 * @since bbPress (r2590)
+		 * @param int $topic_id optional
+		 *
+		 * @uses bbp_get_topic_author_url()
+		 */
+		function bbp_topic_author_url ( $topic_id = 0 ) {
+			echo bbp_get_topic_author_url( $topic_id );
+		}
+			/**
+			 * bbp_get_topic_author_url ()
+			 *
+			 * Return the author url of the topic in the loop
+			 *
+			 * @package bbPress
+			 * @subpackage Template Tags
+			 * @since bbPress (r2590)
+			 *
+			 * @uses bbp_get_user_profile_url()
+			 * @uses get_post_meta()
+			 *
+			 * @param int $topic_id optional
+			 * @return string Author URL of topic
+			 */
+			function bbp_get_topic_author_url ( $topic_id = 0 ) {
+				$topic_id = bbp_get_topic_id( $topic_id );
+
+				// Check for anonymous user
+				if ( $author_id = get_post_field( 'post_author', $topic_id ) )
+					$author_url = bbp_get_user_profile_url( $author_id );
+				else
+					if ( !$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true ) )
+						$author_url = '';
+
+				return apply_filters( 'bbp_get_topic_author_url', $author_url, $topic_id );
+			}
 
 /**
  * bbp_topic_forum_title ()
@@ -858,7 +934,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Look for existing count, and populate if does not exist
-		if ( !$voices = get_post_meta( $topic_id, '_bbp_topic_voice_count', true ) )
+		if ( !$voices   = get_post_meta( $topic_id, '_bbp_topic_voice_count', true ) )
 			$voices = bbp_update_topic_voice_count( $topic_id );
 
 		return apply_filters( 'bbp_get_topic_voice_count', (int)$voices, $topic_id );
