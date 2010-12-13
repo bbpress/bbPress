@@ -24,7 +24,7 @@ function bbp_number_format ( $number, $decimals = false ) {
 /**
  * bbp_convert_date( $post, $d, $gmt, $translate )
  *
- * Retrieve the time at which the post was last modified.
+ * Convert time supplied from database query into specified date format.
  *
  * @package bbPress
  * @subpackage Functions
