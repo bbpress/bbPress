@@ -454,6 +454,11 @@ function bbp_user_profile_url ( $user_id = 0, $user_nicename = '' ) {
 		if ( empty( $user_id ) )
 			$user_id = isset( $bbp->displayed_user ) ? $bbp->displayed_user->ID : 0;
 
+		// No user ID so return false
+		if ( empty( $user_id ) )
+			return false;
+
+		// URL for pretty permalinks
 		$url = !empty( $wp_rewrite->permalink_structure ) ? $wp_rewrite->front . $bbp->user_slug . '/%bbp_user%' : '';
 
 		// No pretty permalinks
