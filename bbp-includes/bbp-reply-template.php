@@ -23,22 +23,22 @@ function bbp_has_replies ( $args = '' ) {
 		'post_type'      => $bbp->reply_id,
 
 		// Forum ID
-		'post_parent'    => isset( $_REQUEST['topic_id'] ) ? $_REQUEST['topic_id'] : bbp_get_topic_id(),
+		'post_parent'    => bbp_get_topic_id(),
 
-		//'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'        => isset( $_REQUEST['orderby']  ) ? $_REQUEST['orderby']  : 'date',
+		// 'author', 'date', 'title', 'modified', 'parent', rand',
+		'orderby'        => 'date',
 
 		// 'ASC', 'DESC'
-		'order'          => isset( $_REQUEST['order']    ) ? $_REQUEST['order']    : 'ASC',
+		'order'          => 'ASC',
 
 		// @todo replace 15 with setting
-		'posts_per_page' => isset( $_REQUEST['posts']    ) ? $_REQUEST['posts']    : 15,
-
-		// Reply Search
-		's'              => !empty( $_REQUEST['rs']      ) ? $_REQUEST['rs']       : '',
+		'posts_per_page' => 15,
 
 		// Page Number
 		'paged'          => bbp_get_paged(),
+
+		// Reply Search
+		's'              => !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : '',
 	);
 
 	// Set up topic variables

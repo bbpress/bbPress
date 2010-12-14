@@ -459,7 +459,7 @@ function bbp_check_for_profile_page ( $template = '' ) {
 	// Editing a profile
 	} elseif ( bbp_is_user_profile_edit() ) {
 		$template = array( 'user-edit.php', 'user.php', 'author.php', 'index.php' );
-	}	
+	}
 
 	if ( !$template = apply_filters( 'bbp_check_for_profile_page', $template ) )
 		return false;
@@ -507,7 +507,7 @@ function bbp_pre_get_posts ( $wp_query ) {
 
 		// Load the required user editing functions
 		include_once( ABSPATH . 'wp-includes/registration.php' );
-		require_once( ABSPATH . 'wp-admin/includes/user.php' );
+		require_once( ABSPATH . 'wp-admin/includes/user.php'   );
 
 	} else {
 		$wp_query->bbp_is_user_profile_page = true;
@@ -665,6 +665,100 @@ function bbp_get_paged() {
 	else
 		return 1;
 }
+
+/** Topics Actions ************************************************************/
+
+/**
+ * bbp_toggle_topic_handler ()
+ *
+ * Handles the front end opening/closing, spamming/unspamming and trashing/untrashing/deleting of topics
+ *
+ * @since bbPress (r2727)
+ */
+function bbp_toggle_topic_handler () {
+
+	// Only proceed if GET is a topic toggle action
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['topic_id'] ) && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_trash' ) ) ) {
+		global $bbp;
+
+		$action    = $_GET['action'];            // What action is taking place?
+		$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
+		$success   = false;                      // Flag
+		$post_data = array( 'ID' => $topic_id ); // Prelim array
+
+		if ( !$topic = get_post( $topic_id ) )   // Does topic exist?
+			return;
+
+		// What is the user doing here?
+		if ( !current_user_can( 'edit_topic', $topic_id ) || ( 'bbp_toggle_topic_trash' == $action && !current_user_can( 'delete_topic', $topic_id ) ) )
+			return;
+
+		switch ( $action ) {
+			case 'bbp_toggle_topic_close' :
+				check_ajax_referer( 'close-topic_' . $topic_id );
+
+				$post_data['post_status'] = bbp_is_topic_open( $topic_id ) ? $bbp->closed_status_id : 'publish';
+				$success                  = wp_update_post( $post_data );
+
+				break;
+
+			case 'bbp_toggle_topic_spam' :
+				check_ajax_referer( 'spam-topic_' . $topic_id ); // Trying to bypass security, huh?
+
+				$post_data['post_status'] = bbp_is_topic_spam( $topic_id ) ? 'publish' : $bbp->spam_status_id;
+				$success                  = wp_update_post( $post_data );
+
+				break;
+
+			case 'bbp_toggle_topic_trash' :
+
+				$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ) ) ? $_GET['sub_action'] : false;
+
+				if ( empty( $sub_action ) )
+					break;
+
+				switch ( $sub_action ) {
+					case 'trash':
+						check_ajax_referer( 'trash-' . $bbp->topic_id . '_' . $topic_id );
+
+						$success = wp_trash_post( $topic_id );
+
+						break;
+
+					case 'untrash':
+						check_ajax_referer( 'untrash-' . $bbp->topic_id . '_' . $topic_id );
+
+						$success = wp_untrash_post( $topic_id );
+
+						break;
+
+					case 'delete':
+						check_ajax_referer( 'delete-' . $bbp->topic_id . '_' . $topic_id );
+
+						$success = wp_delete_post( $post_id );
+
+						break;
+				}
+
+				break;
+		}
+
+		// Do additional topic toggle actions
+		do_action( 'bbp_toggle_topic_handler', $success, $post_data, $action );
+
+		// Check for errors
+		if ( true == $success ) {
+
+			// Redirect back to the topic
+			$redirect = bbp_get_topic_permalink( $topic_id );
+			wp_redirect( $redirect );
+
+			// For good measure
+			exit();
+		}
+	}
+}
+add_action( 'template_redirect', 'bbp_toggle_topic_handler', 1 );
 
 /** Favorites *****************************************************************/
 

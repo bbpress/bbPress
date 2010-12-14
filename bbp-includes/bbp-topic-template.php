@@ -23,25 +23,25 @@ function bbp_has_topics ( $args = '' ) {
 		'post_type'      => $bbp->topic_id,
 
 		// Forum ID
-		'post_parent'    => isset( $_REQUEST['forum_id'] ) ? $_REQUEST['forum_id'] : bbp_get_forum_id(),
+		'post_parent'    => bbp_get_forum_id(),
 
 		// Make sure topic has some last activity time
 		'meta_key'       => '_bbp_topic_last_active',
 
-		//'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'        => isset( $_REQUEST['orderby']  ) ? $_REQUEST['orderby']  : 'meta_value',
+		// 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
+		'orderby'        => 'meta_value',
 
 		// 'ASC', 'DESC'
-		'order'          => isset( $_REQUEST['order']    ) ? $_REQUEST['order']    : 'DESC',
+		'order'          => 'DESC',
 
 		// @todo replace 15 with setting
-		'posts_per_page' => isset( $_REQUEST['posts']    ) ? $_REQUEST['posts']    : 15,
-
-		// Topic Search
-		's'              => !empty( $_REQUEST['ts']      ) ? $_REQUEST['ts']       : '',
+		'posts_per_page' => 15,
 
 		// Page Number
 		'paged'          => bbp_get_paged(),
+
+		// Topic Search
+		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
@@ -300,6 +300,50 @@ function bbp_topic_status ( $topic_id = 0 ) {
 
 		return apply_filters( 'bbp_get_topic_status', get_post_status( $topic_id ) );
 	}
+
+/**
+ * bbp_is_topic_open ()
+ *
+ * Is the topic open to new replies?
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_id()
+ * @uses bbp_get_topic_status()
+ *
+ * @param int $topic_id optional
+ * @return bool True if open, false if closed.
+ */
+function bbp_is_topic_open ( $topic_id = 0 ) {
+	global $bbp;
+
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
+	return $bbp->closed_status_id != $topic_status;
+}
+
+/**
+ * bbp_is_topic_spam ()
+ *
+ * Is the topic marked as spam?
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_id()
+ * @uses bbp_get_topic_status()
+ *
+ * @param int $topic_id optional
+ * @return bool True if open, false if closed.
+ */
+function bbp_is_topic_spam ( $topic_id = 0 ) {
+	global $bbp;
+
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
+	return $bbp->spam_status_id == $topic_status;
+}
 
 /**
  * bbp_topic_author ()
@@ -987,50 +1031,6 @@ function bbp_topic_tag_list ( $topic_id = 0, $args = '' ) {
 	}
 
 /**
- * bbp_topic_admin_links()
- *
- * Output admin links for topic
- *
- * @param array $args
- */
-function bbp_topic_admin_links( $args = '' ) {
-	echo bbp_get_topic_admin_links( $args );
-}
-	/**
-	 * bbp_get_topic_admin_links()
-	 *
-	 * Return admin links for topic
-	 *
-	 * @param array $args
-	 * @return string
-	 */
-	function bbp_get_topic_admin_links( $args = '' ) {
-		if ( !bbp_is_topic() || !current_user_can( 'edit_others_topics' ) )
-			return '&nbsp';
-
-		$defaults = array (
-			'before' => '<span class="bbp-admin-links">',
-			'after'  => '</span>',
-			'sep'    => ' | ',
-			'links'  => array (
-				'edit'   => __( 'Edit',   'bbpress' ), // bbp_get_topic_edit_link( $args )
-				'trash'  => __( 'Trash',  'bbpress' ), // bbp_get_topic_trash_link( $args ),
-				'close'  => __( 'Close',  'bbpress' ), // bbp_get_topic_close_link( $args ),
-				'sticky' => __( 'Sticky', 'bbpress' ), // bbp_get_topic_sticky_link( $args ),
-				'move'   => __( 'Move',   'bbpress' ), // bbp_get_topic_move_dropdown( $args )
-			),
-		);
-
-		$r = wp_parse_args( $args, $defaults );
-		extract( $r );
-
-		// Process the admin links
-		$links = implode( $sep, $links );
-
-		return apply_filters( 'bbp_get_topic_admin_links', $before . $links . $after, $args );
-	}
-
-/**
  * bbp_topic_class ()
  *
  * Output the row class of a topic
@@ -1063,6 +1063,356 @@ function bbp_topic_class ( $topic_id = 0 ) {
 		$post      = post_class( array( $alternate, $status ) );
 
 		return apply_filters( 'bbp_get_topic_class', $post );
+	}
+
+/** Topic Admin Links *********************************************************/
+
+/**
+ * bbp_topic_admin_links ()
+ *
+ * Output admin links for topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ *
+ * @param mixed $args
+ */
+function bbp_topic_admin_links ( $args = '' ) {
+	echo bbp_get_topic_admin_links( $args );
+}
+	/**
+	 * bbp_get_topic_admin_links ()
+	 *
+	 * Return admin links for topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 *
+	 * @uses bbp_get_topic_edit_link ()
+	 * @uses bbp_get_topic_trash_link ()
+	 * @uses bbp_get_topic_close_link ()
+	 * @uses bbp_get_topic_sticky_link ()
+	 * @uses bbp_get_topic_move_dropdown ()
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_topic_admin_links ( $args = '' ) {
+		if ( !bbp_is_topic() )
+			return '&nbsp';
+
+		$defaults = array (
+			'id'     => bbp_get_topic_id(),
+			'before' => '<span class="bbp-admin-links">',
+			'after'  => '</span>',
+			'sep'    => ' | ',
+			'links'  => array (
+				'edit'   => bbp_get_topic_edit_link(),
+				'trash'  => bbp_get_topic_trash_link(),
+				'close'  => bbp_get_topic_close_link(),
+				'spam'   => bbp_get_topic_spam_link(),
+				'sticky' => bbp_get_topic_sticky_link(),
+				'move'   => bbp_get_topic_move_dropdown()
+			)
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+
+		if ( !current_user_can( 'edit_topic', $r['id'] ) )
+			return '&nbsp';
+
+		if ( !current_user_can( 'delete_topic', $r['id'] ) )
+			unset( $r['links']['trash'] );
+
+		// Process the admin links
+		$links = implode( $r['sep'], $r['links'] );
+
+		return apply_filters( 'bbp_get_topic_admin_links', $r['before'] . $links . $r['after'], $args );
+	}
+
+/**
+ * bbp_topic_edit_link ()
+ *
+ * Output the edit link of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_edit_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_topic_edit_link ( $args = '' ) {
+	echo bbp_get_topic_edit_link( $args );
+}
+
+	/**
+	 * bbp_get_topic_edit_link ()
+	 *
+	 * Return the edit link of the topic
+	 *
+	 * @todo Add topic edit page and correct this function.
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2727)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_topic_edit_link ( $args = '' ) {
+		return apply_filters( 'bbp_get_topic_edit_link', __( 'Edit', 'bbpress' ), $args );
+	}
+
+/**
+ * bbp_topic_trash_link ()
+ *
+ * Output the trash link of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_trash_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_topic_trash_link ( $args = '' ) {
+	echo bbp_get_topic_trash_link( $args );
+}
+
+	/**
+	 * bbp_get_topic_trash_link ()
+	 *
+	 * Return the trash link of the topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2727)
+	 *
+	 * @param mixed $args
+	 * @return bool|string
+	 */
+	function bbp_get_topic_trash_link ( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'sep'          => ' | ',
+			'trash_text'   => __( 'Trash',                'bbpress' ),
+			'restore_text' => __( 'Restore',              'bbpress' ),
+			'delete_text'  => __( 'Delete Permanentatly', 'bbpress' )
+		);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$actions = array();
+		$topic   = get_post( bbp_get_topic_id( (int) $id ) );
+
+		if ( empty( $topic ) || !current_user_can( 'delete_topic', $topic->ID ) )
+			return;
+
+		$topic_status = bbp_get_topic_status( $topic->ID );
+
+		if ( 'trash' == $topic_status )
+			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to restore that?", "bbpress" ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
+		elseif ( EMPTY_TRASH_DAYS )
+			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to trash that?", "bbpress" ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
+
+		if ( 'trash' == $topic->post_status || !EMPTY_TRASH_DAYS )
+			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to delete that permanentaly?", "bbpress" ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
+
+		// Process the admin links
+		$actions = implode( $sep, $actions );
+
+		return apply_filters( 'bbp_get_topic_trash_link', $link_before . $actions . $link_after, $args );
+	}
+
+/**
+ * bbp_topic_close_link ()
+ *
+ * Output the close link of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_close_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_topic_close_link ( $args = '' ) {
+	echo bbp_get_topic_close_link( $args );
+}
+
+	/**
+	 * bbp_get_topic_close_link ()
+	 *
+	 * Return the close link of the topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2727)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_topic_close_link ( $args = '' ) {
+		$defaults = array (
+			'id'          => 0,
+			'link_before' => '',
+			'link_after'  => '',
+			'sep'         => ' | ',
+			'close_text'  => __( 'Close', 'bbpress' ),
+			'open_text'   => __( 'Open',  'bbpress' )
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+
+		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
+			return;
+
+		$display  = bbp_is_topic_open() ? $close_text : $open_text;
+
+		$uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_close', 'topic_id' => $topic->ID ) );
+		$uri = esc_url( wp_nonce_url( $uri, 'close-topic_' . $topic->ID ) );
+
+		return apply_filters( 'bbp_get_topic_close_link', $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after, $args );
+	}
+
+/**
+ * bbp_topic_spam_link ()
+ *
+ * Output the spam link of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_spam_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_topic_spam_link ( $args = '' ) {
+	echo bbp_get_topic_spam_link( $args );
+}
+
+	/**
+	 * bbp_get_topic_spam_link ()
+	 *
+	 * Return the spam link of the topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2727)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_topic_spam_link ( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'sep'          => ' | ',
+			'spam_text'    => __( 'Spam',   'bbpress' ),
+			'unspam_text'  => __( 'Unspam', 'bbpress' )
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+
+		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
+			return;
+
+		$display  = bbp_is_topic_spam() ? $unspam_text : $spam_text;
+
+		$uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_spam', 'topic_id' => $topic->ID ) );
+		$uri = esc_url( wp_nonce_url( $uri, 'spam-topic_' . $topic->ID ) );
+
+		return apply_filters( 'bbp_get_topic_spam_link', $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after, $args );
+	}
+
+/**
+ * bbp_topic_sticky_link ()
+ *
+ * Output the sticky link of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_sticky_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_topic_sticky_link ( $args = '' ) {
+	echo bbp_get_topic_sticky_link( $args );
+}
+
+	/**
+	 * bbp_get_topic_sticky_link ()
+	 *
+	 * Return the sticky link of the topic
+	 *
+	 * @todo Add topic sticky functionality.
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2727)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_topic_sticky_link ( $args = '' ) {
+		return apply_filters( 'bbp_get_topic_sticky_link', __( 'Sticky', 'bbpress' ), $args );
+	}
+
+/**
+ * bbp_topic_move_dropdown ()
+ *
+ * Output the move dropdown HTML of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2727)
+ *
+ * @uses bbp_get_topic_move_dropdown ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_topic_move_dropdown ( $args = '' ) {
+	echo bbp_get_topic_move_dropdown( $args );
+}
+
+	/**
+	 * bbp_get_topic_move_dropdown ()
+	 *
+	 * Return the move dropdown HTML of the topic
+	 *
+	 * @todo Add the move dropdown functionality.
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2727)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_topic_move_dropdown ( $args = '' ) {
+		return apply_filters( 'bbp_get_topic_move_dropdown', __( 'Move', 'bbpress' ), $args );
 	}
 
 /** Topic Updaters ************************************************************/

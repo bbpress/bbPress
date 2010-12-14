@@ -33,6 +33,8 @@ class bbPress {
 	var $topic_id;
 	var $reply_id;
 	var $topic_tag_id;
+	var $spam_status_id;
+	var $closed_status_id;
 
 	// Slugs
 	var $forum_slug;
@@ -83,42 +85,46 @@ class bbPress {
 	 */
 	function _setup_globals () {
 
-		/** Paths *************************************************************/
+		/** Paths *****************************************************/
 
 		// bbPress root directory
-		$this->file           = __FILE__;
-		$this->plugin_dir     = plugin_dir_path( $this->file );
-		$this->plugin_url     = plugin_dir_url ( $this->file );
+		$this->file            = __FILE__;
+		$this->plugin_dir      = plugin_dir_path( $this->file );
+		$this->plugin_url      = plugin_dir_url ( $this->file );
 
 		// Images
-		$this->images_url     = $this->plugin_url . 'bbp-images';
+		$this->images_url      = $this->plugin_url . 'bbp-images';
 
 		// Themes
-		$this->themes_dir     = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
-		$this->themes_url     = $this->plugin_url . 'bbp-themes';
+		$this->themes_dir      = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
+		$this->themes_url      = $this->plugin_url . 'bbp-themes';
 
-		/** Identifiers *******************************************************/
+		/** Identifiers ***********************************************/
 
-		// Unique identifiers
-		$this->forum_id       = apply_filters( 'bbp_forum_post_type', 'bbp_forum'     );
-		$this->topic_id       = apply_filters( 'bbp_topic_post_type', 'bbp_topic'     );
-		$this->reply_id       = apply_filters( 'bbp_reply_post_type', 'bbp_reply'     );
-		$this->topic_tag_id   = apply_filters( 'bbp_topic_tag_id',    'bbp_topic_tag' );
+		// Post type identifiers
+		$this->forum_id         = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
+		$this->topic_id         = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
+		$this->reply_id         = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
+		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
 
-		/** Slugs *************************************************************/
+		// Post status identifiers
+		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'        );
+		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed'      );
+
+		/** Slugs *****************************************************/
 
 		// Root forum slug
-		$this->root_slug      = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
+		$this->root_slug        = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
 
 		// Should we include the root slug in front of component slugs
 		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
 
 		// Component slugs
-		$this->user_slug      = apply_filters( 'bbp_user_slug',      get_option( '_bbp_user_slug',      $prefix . 'user'  ) );
-		$this->forum_slug     = apply_filters( 'bbp_forum_slug',     get_option( '_bbp_forum_slug',     $prefix . 'forum' ) );
-		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic' ) );
-		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply' ) );
-		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'tag'   ) );
+		$this->user_slug        = apply_filters( 'bbp_user_slug',      get_option( '_bbp_user_slug',      $prefix . 'user'  ) );
+		$this->forum_slug       = apply_filters( 'bbp_forum_slug',     get_option( '_bbp_forum_slug',     $prefix . 'forum' ) );
+		$this->topic_slug       = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic' ) );
+		$this->reply_slug       = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply' ) );
+		$this->topic_tag_slug   = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'tag'   ) );
 	}
 
 	/**
@@ -140,11 +146,11 @@ class bbPress {
 		require_once ( $this->plugin_dir . '/bbp-includes/bbp-users.php'     );
 
 		// Load template files
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-general-template.php'  );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-forum-template.php'  );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-topic-template.php'  );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-reply-template.php'  );
-		require_once ( $this->plugin_dir . '/bbp-includes/bbp-user-template.php'  );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-general-template.php' );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-forum-template.php'   );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-topic-template.php'   );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-reply-template.php'   );
+		require_once ( $this->plugin_dir . '/bbp-includes/bbp-user-template.php'    );
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
@@ -166,6 +172,9 @@ class bbPress {
 
 		// Register content types
 		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
+
+		// Register post statuses
+		add_action( 'bbp_register_post_statuses',   array ( $this, 'register_post_statuses'   ), 10, 2 );
 
 		// Register taxonomies
 		add_action( 'bbp_register_taxonomies',      array ( $this, 'register_taxonomies'      ), 10, 2 );
@@ -381,6 +390,44 @@ class bbPress {
 					'hierarchical'    => false,
 					'query_var'       => true,
 					'menu_icon'       => ''
+				)
+			)
+		);
+	}
+
+	/**
+	 * register_post_statuses ()
+	 *
+	 * Register the post statuses
+	 *
+	 * @since bbPress (r2727)
+	 */
+	function register_post_statuses () {
+		// Closed
+		register_post_status (
+			$this->closed_status_id,
+			apply_filters( 'bbp_register_closed_post_status',
+				array(
+					'label'                     => __( 'Closed', 'bbpress' ),
+					'label_count'               => _n_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>' ),
+					'public'                    => true,
+					'show_in_admin_all'         => true
+				)
+			)
+		);
+
+		// Spam
+		register_post_status (
+			$this->spam_status_id,
+			apply_filters( 'bbp_register_spam_post_status',
+				array(
+					'label'                     => __( 'Spam', 'bbpress' ),
+					'label_count'               => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>' ),
+					'internal'                  => true,
+					'show_in_admin_status_list' => true,
+					'show_in_admin_all'         => false,
+					'show_in_admin_all_list'    => false,
+					'single_view_cap'           => 'edit_others_topics'
 				)
 			)
 		);

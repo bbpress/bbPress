@@ -78,6 +78,10 @@ class BBP_Admin {
 		add_action( 'admin_menu',                  array( $this, 'topic_parent_metabox' ) );
 		add_action( 'save_post',                   array( $this, 'topic_parent_metabox_save' ) );
 
+		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
+		add_action( 'bbp_admin_init',              array( $this, 'toggle_topic' ) );
+		add_action( 'admin_notices',               array( $this, 'toggle_topic_notice' ) );
+
 		/** Replies ***********************************************************/
 
 		// Reply column headers.
@@ -122,7 +126,7 @@ class BBP_Admin {
 	 */
 	function admin_menus () {
 		add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools'    );
-		add_options_page   ( __( 'Forums', 'bbpress' ),  __( 'Forums', 'bbpress' ),  'manage_options', 'bbpress',     'bbp_admin_settings' );
+		add_options_page   ( __( 'Forums',  'bbpress' ), __( 'Forums',  'bbpress' ), 'manage_options', 'bbpress',     'bbp_admin_settings' );
 	}
 
 	/**
@@ -288,7 +292,7 @@ class BBP_Admin {
 			#icon-edit.icon32-posts-<?php echo $forum_class; ?> {
 				background: url(<?php echo $icon32_url; ?>) no-repeat -4px 0px;
 			}
-			
+
 			#menu-posts-<?php echo $topic_class; ?> .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat -70px -32px;
 			}
@@ -316,6 +320,8 @@ class BBP_Admin {
 			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_forum, .column-bbp_forum_freshness, .column-bbp_topic_freshness { width: 10% !important; }
 			.column-bbp_forum_created, .column-bbp_topic_created, .column-bbp_reply_created, .column-bbp_topic_author, .column-bbp_reply_author, .column-bbp_reply_topic { width: 15% !important; }
 
+			.status-closed { background-color: #eaeaea; }
+			.status-spam { background-color: #faeaea; }
 <?php endif; ?>
 
 		/*]]>*/
@@ -355,7 +361,7 @@ class BBP_Admin {
 			<tr valign="top">
 				<th scope="row"><?php _e( 'Forums', 'bbpress' ); ?></th>
 				<td>
-					
+
 				</td>
 			</tr>
 		</table>
@@ -364,7 +370,7 @@ class BBP_Admin {
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_forums' );
 	}
-	
+
 	/**
 	 * forums_column_headers ()
 	 *
@@ -386,7 +392,7 @@ class BBP_Admin {
 
 		return apply_filters( 'bbp_admin_forums_column_headers', $columns );
 	}
-	
+
 	/**
 	 * forums_column_data ( $column, $post_id )
 	 *
@@ -440,7 +446,7 @@ class BBP_Admin {
 	 * @param array $actions
 	 * @param array $forum
 	 * @return array $actions
-	 */	
+	 */
 	function forums_row_actions ( $actions, $forum ) {
 		global $bbp, $typenow;
 
@@ -454,6 +460,119 @@ class BBP_Admin {
 		return $actions;
 	}
 
+	/**
+	 * toggle_topic ()
+	 *
+	 * Handles the admin-side opening/closing and spamming/unspamming of topics
+	 *
+	 * @since bbPress (r2727)
+	 */
+	function toggle_topic () {
+		// Only proceed if GET is a topic toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
+			global $bbp;
+
+			$action    = $_GET['action'];            // What action is taking place?
+			$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
+			$success   = false;                      // Flag
+			$post_data = array( 'ID' => $topic_id ); // Prelim array
+
+			if ( !$topic = get_post( $topic_id ) ) // Which topic dude?
+				wp_die( __( 'The topic was not found!', 'bbpress' ) );
+
+			if ( !current_user_can( 'edit_topic', $topic->ID ) ) // What is the user doing here?
+				wp_die( __( 'You don\'t have the permission to do that!', 'bbpress' ) );
+
+			switch ( $action ) {
+				case 'bbp_toggle_topic_close' :
+					check_admin_referer( 'close-topic_' . $topic_id ); // Trying to bypass security, huh?
+
+					$is_open                  = bbp_is_topic_open( $topic_id );
+					$post_data['post_status'] = $is_open ? $bbp->closed_status_id : 'publish';
+					$message                  = $is_open ? 'closed' : 'opened';
+
+					break;
+
+				case 'bbp_toggle_topic_spam' :
+					check_admin_referer( 'spam-topic_' . $topic_id ); // Trying to bypass security, huh?
+
+					$is_spam                  = bbp_is_topic_spam( $topic_id );
+					$post_data['post_status'] = $is_spam ? 'publish' : $bbp->spam_status_id;
+					$message                  = $is_spam ? 'unspammed' : 'spammed';
+
+					break;
+			}
+
+			$success = wp_update_post( $post_data );
+			$message = array( 'bbp_topic_toggle_notice' => $message, 'topic_id' => $topic->ID );
+
+			if ( true != $success )
+				$message['failed'] = '1';
+
+			// Do additional topic toggle actions (admin side)
+			do_action( 'bbp_toggle_topic_admin', $success, $post_data, $action, $message );
+
+			// Redirect back to the topic
+			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'topic_id' ) ) );
+			wp_redirect( $redirect );
+
+			// For good measure
+			exit();
+
+		}
+	}
+
+	/**
+	 * toggle_topic_notice ()
+	 *
+	 * Display the success notices from toggle_topic()
+	 *
+	 * @since bbPress (r2727)
+	 */
+	function toggle_topic_notice () {
+		// Only proceed if GET is a topic toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
+			global $bbp;
+
+			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
+			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
+			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+
+			if ( !$topic = get_post( $topic_id ) ) // Which topic dude?
+				return;
+
+			$topic_title = esc_html( bbp_get_topic_title( $topic->ID ) );
+
+			switch ( $notice ) {
+				case 'opened' :
+					$message = $is_failure ? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully opened.', 'bbpress' ), $topic_title );
+					break;
+
+				case 'closed' :
+					$message = $is_failure ? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully closed.', 'bbpress' ), $topic_title );
+					break;
+
+				case 'spammed' :
+					$message = $is_failure ? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully marked as spam.', 'bbpress' ), $topic_title );
+					break;
+
+				case 'unspammed' :
+					$message = $is_failure ? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully unmarking as spam.', 'bbpress' ), $topic_title );
+					break;
+			}
+
+			// Do additional topic toggle notice filters (admin side)
+			$message = apply_filters( 'bbp_toggle_topic_notice_admin', $message, $topic->ID, $notice, $is_failure );
+
+			?>
+
+			<div id="message" class="<?php echo $is_failure == true ? 'error' : 'updated'; ?> fade">
+				<p style="line-height: 150%"><?php echo $message; ?></p>
+			</div>
+
+			<?php
+		}
+	}
 
 	/**
 	 * topics_column_headers ()
@@ -555,23 +674,42 @@ class BBP_Admin {
 				break;
 		}
 	}
-	
-	/** 
-	 * topics_row_actions ( $actions, $post )
-	 * 
-	 * Remove the quick-edit action link under the topic/reply title 
+
+	/**
+	 * topics_row_actions ( $actions, $topic )
+	 *
+	 * Remove the quick-edit action link under the topic/reply title
 	 *
 	 * @param array $actions
 	 * @param array $topic
 	 * @return array $actions
-	 */	
+	 */
 	function topics_row_actions ( $actions, $topic ) {
-		global $bbp, $typenow;
+		global $bbp;
 
-		if ( $bbp->topic_id == $typenow ) {
+		/* Spamming/closing/etc trashed topics will remove the trash post_status from them.
+		 * Same type of complexities can be there with other post statuses too.
+		 * Hence, these actions are only shown on all, published, closed and spam post status pages.
+		 */
+		if ( $bbp->topic_id == $topic->post_type && ( empty( $_GET['post_status'] ) || in_array( $_GET['post_status'], array( 'publish', $bbp->spam_status_id, $bbp->closed_status_id ) ) ) ) {
 			unset( $actions['inline hide-if-no-js'] );
-			
+
 			the_content();
+
+			if ( current_user_can( 'edit_topic', $topic->ID ) ) {
+				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'close-topic_' . $topic->ID ) );
+				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
+
+				if ( bbp_is_topic_open( $topic->ID ) )
+					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
+				else
+					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic', 'bbpress'  ) . '">' . __( 'Open',  'bbpress' ) . '</a>';
+
+				if ( bbp_is_topic_spam( $topic->ID ) )
+					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+				else
+					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+			}
 		}
 
 		return $actions;
@@ -697,7 +835,7 @@ class BBP_Admin {
 
 			the_content();
 		}
-		
+
 		return $actions;
 	}
 
@@ -722,7 +860,7 @@ endif; // class_exists check
  * @package bbPress
  * @subpackage Template Tags
  * @since bbPress (r2464)
- * 
+ *
  * @todo A better job at rearranging and separating top level menus
  * @global array $menu
  */
@@ -798,7 +936,7 @@ function bbp_reply_metabox () {
 		'sort_column'       => 'menu_order, post_title',
 		'child_of'          => '0',
 	);
-	
+
 	$posts = bbp_admin_dropdown(
 		__( 'Topic', 'bbpress' ),
 		__( 'Topic', 'bbpress' ),
@@ -815,7 +953,7 @@ function bbp_reply_metabox () {
  * bbp_admin_dropdown ()
  *
  * General wrapper for creating a drop down of selectable parents
- * 
+ *
  * @package bbPress
  * @subpackage Template Tags
  * @since bbPress (r2464)

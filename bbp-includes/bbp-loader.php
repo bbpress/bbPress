@@ -25,9 +25,10 @@ add_action( 'bbp_loaded',             'bbp_register_theme_directory' , 10 );
 // Attach to bbp_init.
 add_action( 'bbp_init',               'bbp_setup_current_user'       , 2  );
 add_action( 'bbp_init',               'bbp_register_post_types'      , 4  );
-add_action( 'bbp_init',               'bbp_register_taxonomies'      , 6  );
-add_action( 'bbp_init',               'bbp_register_textdomain'      , 8  );
-add_action( 'bbp_init',               'bbp_add_user_rewrite_tag'     , 10 );
+add_action( 'bbp_init',               'bbp_register_post_statuses'   , 6  );
+add_action( 'bbp_init',               'bbp_register_taxonomies'      , 8  );
+add_action( 'bbp_init',               'bbp_register_textdomain'      , 10 );
+add_action( 'bbp_init',               'bbp_add_user_rewrite_tag'     , 12 );
 add_action( 'bbp_init',               'bbp_ready'                    , 999 );
 
 /** Main Actions **************************************************************/
@@ -128,6 +129,17 @@ function bbp_register_theme_directory () {
  */
 function bbp_register_post_types () {
 	do_action ( 'bbp_register_post_types' );
+}
+
+/**
+ * bbp_register_post_statuses ()
+ *
+ * Setup the post statuses
+ *
+ * @since bbPress (r2727)
+ */
+function bbp_register_post_statuses () {
+	do_action ( 'bbp_register_post_statuses' );
 }
 
 /**
