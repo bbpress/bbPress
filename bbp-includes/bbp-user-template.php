@@ -563,7 +563,7 @@ function bbp_user_profile_edit_url ( $user_id = 0, $user_nicename = '' ) {
 
 		if ( empty( $url ) ) {
 			$file = home_url( '/' );
-			$url  = $file . '?bbp_user=' . $user_id . '&bbp_edit_proifle=1';
+			$url  = $file . '?bbp_user=' . $user_id . '&bbp_edit_profile=1';
 		} else {
 			if ( empty( $user_nicename ) ) {
 				$user = get_userdata( $user_id );
