@@ -125,7 +125,7 @@ function bbp_get_user_favorites ( $user_id = 0 ) {
 function bbp_is_user_favorite ( $user_id = 0, $topic_id = 0 ) {
 	global $post, $bbp;
 
-	if ( !$user_id = bbp_get_user_id( $user_id, true ) )
+	if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 		return false;
 
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
@@ -320,7 +320,7 @@ function bbp_get_user_subscriptions ( $user_id = 0 ) {
 function bbp_is_user_subscribed ( $user_id = 0, $topic_id = 0 ) {
 	global $bbp, $post;
 
-	if ( !$user_id = bbp_get_user_id( $user_id ) )
+	if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 		return false;
 
 	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );

@@ -32,7 +32,7 @@ function bbp_user_id ( $user_id = 0, $displayed_user_fallback = true, $current_u
 			$bbp_user_id = $user_id;
 	
 		// Currently viewing or editing a user
-		elseif (( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) && isset( $bbp->displayed_user->ID ) )
+		elseif ( ( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) && isset( $bbp->displayed_user->ID ) )
 			$bbp_user_id = $bbp->displayed_user->ID;
 
 		// Maybe fallback on the current_user ID
@@ -43,7 +43,6 @@ function bbp_user_id ( $user_id = 0, $displayed_user_fallback = true, $current_u
 		else
 			$bbp_user_id = get_query_var( 'bbp_user_id' );
 
-		// Cast as integer in the event no user_id could be validated
 		return apply_filters( 'bbp_get_user_id', (int) $bbp_user_id );
 	}
 
@@ -119,7 +118,7 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 	function bbp_get_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
 		global $bbp;
 
-		if ( !$user_id = bbp_get_user_id( $bbp->current_user->ID ) )
+		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 			return false;
 
 		if ( !current_user_can( 'edit_user', (int) $user_id ) )
@@ -254,8 +253,8 @@ function bbp_user_subscribe_link ( $args = '' ) {
 		$args = wp_parse_args( $args, $defaults );
 		extract( $args );
 
-		// Try to get a user_id from $current_user
-		if ( !$user_id = bbp_get_user_id( $user_id, true ) )
+		// Try to get a user_id
+		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 			return false;
 		
 		// No link if you can't edit yourself
