@@ -76,7 +76,10 @@ function bbp_has_replies ( $args = '' ) {
 		$bbp->reply_query->pagination_links = paginate_links( $bbp_replies_pagination );
 
 		// Remove first page from pagination
-		$bbp->reply_query->pagination_links = str_replace( 'page/1/\'', '\'', $bbp->reply_query->pagination_links );
+		if ( $wp_rewrite->using_permalinks() )
+			$bbp->reply_query->pagination_links = str_replace( 'page/1/\'', '\'', $bbp->reply_query->pagination_links );
+		else
+			$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );			
 	}
 
 	// Return object
