@@ -74,16 +74,7 @@ function bbp_get_topic_favoriters ( $topic_id = 0 ) {
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_favorites ( $user_id = 0 ) {
-	// Default to the query var set before (if it is a profile page)
-	if ( empty( $user_id ) && bbp_is_user_profile_page() )
-		$user_id = get_query_var( 'bbp_user_id' );
-
-	// Default to author
-	if ( empty( $user_id ) )
-		$user_id = get_the_author_meta( 'ID' );
-
-	// If nothing passed and not an author/user page, return nothing
-	if ( empty( $user_id ) )
+	if ( !$user_id = bbp_get_user_id( $user_id ) )
 		return false;
 
 	// If user has favorites, load them
@@ -108,8 +99,8 @@ function bbp_get_user_favorites ( $user_id = 0 ) {
 	 * @return array|bool Results if user has favorites, otherwise false
 	 */
 	function bbp_get_user_favorites_topic_ids ( $user_id = 0 ) {
-		if ( empty( $user_id ) )
-			return;
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
+			return false;
 
 		$favorites = (string) get_user_meta( $user_id, '_bbp_favorites', true );
 		$favorites = (array) explode( ',', $favorites );
@@ -134,10 +125,7 @@ function bbp_get_user_favorites ( $user_id = 0 ) {
 function bbp_is_user_favorite ( $user_id = 0, $topic_id = 0 ) {
 	global $post, $bbp;
 
-	if ( empty( $user_id ) )
-		$user = $bbp->current_user->ID;
-
-	if ( empty( $user_id ) )
+	if ( !$user_id = bbp_get_user_id( $user_id, true ) )
 		return false;
 
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
@@ -281,15 +269,7 @@ function bbp_get_topic_subscribers ( $topic_id = 0 ) {
 function bbp_get_user_subscriptions ( $user_id = 0 ) {
 
 	// Default to the displayed user
-	if ( empty( $user_id ) && bbp_is_user_profile_page() )
-		$user_id = bbp_get_displayed_user_id();
-
-	// Default to author
-	if ( empty( $user_id ) )
-		$user_id = get_the_author_meta( 'ID' );
-
-	// If nothing passed and not an author/user page, return nothing
-	if ( empty( $user_id ) )
+	if ( !$user_id = bbp_get_user_id( $user_id ) )
 		return false;
 
 	// If user has subscriptions, load them
@@ -314,8 +294,8 @@ function bbp_get_user_subscriptions ( $user_id = 0 ) {
 	 * @return array|bool Results if user has subscriptions, otherwise false
 	 */
 	function bbp_get_user_subscribed_topic_ids ( $user_id = 0 ) {
-		if ( empty( $user_id ) )
-			return;
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
+			return false;
 
 		$subscriptions = (string) get_user_meta( $user_id, '_bbp_subscriptions', true );
 		$subscriptions = (array) explode( ',', $subscriptions );
@@ -340,10 +320,7 @@ function bbp_get_user_subscriptions ( $user_id = 0 ) {
 function bbp_is_user_subscribed ( $user_id = 0, $topic_id = 0 ) {
 	global $bbp, $post;
 
-	if ( empty( $user_id ) )
-		$user_id = $bbp->current_user->ID;
-
-	if ( empty( $user_id ) )
+	if ( !$user_id = bbp_get_user_id( $user_id ) )
 		return false;
 
 	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
@@ -455,16 +432,7 @@ function bbp_remove_user_subscription ( $user_id, $topic_id ) {
  * @return array|bool Results if user has favorites, otherwise false
  */
 function bbp_get_user_topics_started ( $user_id = 0 ) {
-	// Default to the query var set before (if it is a profile page)
-	if ( empty( $user_id ) && bbp_is_user_profile_page() )
-		$user_id = get_query_var( 'bbp_user_id' );
-
-	// Default to author
-	if ( empty( $user_id ) )
-		$user_id = get_the_author_meta( 'ID' );
-
-	// If nothing passed and not an author/user page, return nothing
-	if ( empty( $user_id ) )
+	if ( !$user_id = bbp_get_user_id( $user_id ) )
 		return false;
 
 	if ( $query = bbp_has_topics( array( 'author' => $user_id, 'posts_per_page' => -1 ) ) )

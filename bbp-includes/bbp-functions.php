@@ -768,20 +768,15 @@ add_action( 'template_redirect', 'bbp_toggle_topic_handler', 1 );
  * Handles the front end adding and removing of favorite topics
  */
 function bbp_favorites_handler () {
-	global $bbp, $current_user;
 
 	// Only proceed if GET is a favorite action
 	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_favorite_add', 'bbp_favorite_remove' ) ) && !empty( $_GET['topic_id'] ) ) {
-		// What action is taking place?
-		$action       = $_GET['action'];
 
-		// Load user info
-		if ( bbp_is_favorites( false ) ) {
-			$user_id = get_query_var( 'bbp_user_id' );
-		} else {
-			$current_user = wp_get_current_user();
-			$user_id      = $current_user->ID;
-		}
+		// What action is taking place?
+		$action  = $_GET['action'];
+
+		// Get user_id
+		$user_id = bbp_get_user_id( 0, true );
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
@@ -865,7 +860,7 @@ add_action( 'delete_post', 'bbp_remove_topic_from_all_favorites' );
  * Handles the front end subscribing and unsubscribing topics
  */
 function bbp_subscriptions_handler () {
-	global $bbp, $current_user;
+	global $bbp;
 
 	if ( !bbp_is_subscriptions_active() )
 		return false;
@@ -875,13 +870,8 @@ function bbp_subscriptions_handler () {
 		// What action is taking place?
 		$action = $_GET['action'];
 
-		// Load user info
-		if ( bbp_is_subscriptions( false ) ) {
-			$user_id = get_query_var( 'bbp_user_id' );
-		} else {
-			$current_user = wp_get_current_user();
-			$user_id      = $current_user->ID;
-		}
+		// Get user_id
+		$user_id = bbp_get_user_id( 0, true );
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )

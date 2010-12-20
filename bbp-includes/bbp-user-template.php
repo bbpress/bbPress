@@ -2,6 +2,51 @@
 
 /** START User Functions ******************************************************/
 
+/**
+ * bbp_user_id ()
+ * 
+ * Output a validated user_id
+ * 
+ * @param int $user_id
+ * @param bool $current_user_fallback 
+ */
+function bbp_user_id ( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
+	echo bbp_get_user_id( $user_id, $displayed_user_fallback, $current_user_fallback );
+}
+	/**
+	 * bbp_get_user_id ()
+	 *
+	 * Return a validated user_id
+	 *
+	 * @global bbPress $bbp
+	 * @param int $user_id
+	 * @param bool $displayed_user_fallback
+	 * @param bool $current_user_fallback
+	 * @return int
+	 */
+	function bbp_get_user_id ( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
+		global $bbp;
+
+		// Easy empty checking
+		if ( !empty( $user_id ) && is_numeric( $user_id ) )
+			$bbp_user_id = $user_id;
+	
+		// Currently viewing or editing a user
+		elseif (( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) && isset( $bbp->displayed_user->ID ) )
+			$bbp_user_id = $bbp->displayed_user->ID;
+
+		// Maybe fallback on the current_user ID
+		elseif ( ( true == $current_user_fallback ) && !empty( $bbp->current_user->ID ) && isset( $bbp->current_user->ID ) )
+			$bbp_user_id = $bbp->current_user->ID;
+
+		// Failsafe
+		else
+			$bbp_user_id = get_query_var( 'bbp_user_id' );
+
+		// Cast as integer in the event no user_id could be validated
+		return apply_filters( 'bbp_get_user_id', (int) $bbp_user_id );
+	}
+
 /** START Favorites Functions *************************************************/
 
 /**
@@ -74,7 +119,7 @@ function bbp_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 
 	function bbp_get_user_favorites_link ( $add = array(), $rem = array(), $user_id = 0 ) {
 		global $bbp;
 
-		if ( empty( $user_id ) && !$user_id = $bbp->current_user->ID )
+		if ( !$user_id = bbp_get_user_id( $bbp->current_user->ID ) )
 			return false;
 
 		if ( !current_user_can( 'edit_user', (int) $user_id ) )
@@ -210,13 +255,9 @@ function bbp_user_subscribe_link ( $args = '' ) {
 		extract( $args );
 
 		// Try to get a user_id from $current_user
-		if ( empty( $user_id ) )
-			$user_id = $bbp->current_user->ID;
-
-		// No link if not logged in
-		if ( empty( $user_id ) )
+		if ( !$user_id = bbp_get_user_id( $user_id, true ) )
 			return false;
-
+		
 		// No link if you can't edit yourself
 		if ( !current_user_can( 'edit_user', (int) $user_id ) )
 			return false;
@@ -407,7 +448,7 @@ function bbp_user_profile_link ( $user_id = 0 ) {
 	 * @return string
 	 */
 	function bbp_get_user_profile_link ( $user_id = 0 ) {
-		if ( empty( $user_id ) )
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
 			return false;
 
 		$user      = get_userdata( $user_id );
@@ -451,13 +492,9 @@ function bbp_user_profile_url ( $user_id = 0, $user_nicename = '' ) {
 		global $wp_rewrite, $bbp;
 
 		// Use displayed user ID if there is one, and one isn't requested
-		if ( empty( $user_id ) )
-			$user_id = isset( $bbp->displayed_user ) ? $bbp->displayed_user->ID : 0;
-
-		// No user ID so return false
-		if ( empty( $user_id ) )
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
 			return false;
-
+		
 		// URL for pretty permalinks
 		$url = !empty( $wp_rewrite->permalink_structure ) ? $wp_rewrite->front . $bbp->user_slug . '/%bbp_user%' : '';
 
@@ -512,7 +549,7 @@ function bbp_user_profile_edit_link ( $user_id = 0 ) {
 	 * @return string
 	 */
 	function bbp_get_user_profile_edit_link ( $user_id = 0 ) {
-		if ( empty( $user_id ) )
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
 			return false;
 
 		$user      = get_userdata( $user_id );
@@ -554,16 +591,13 @@ function bbp_user_profile_edit_url ( $user_id = 0, $user_nicename = '' ) {
 	function bbp_get_user_profile_edit_url ( $user_id = 0, $user_nicename = '' ) {
 		global $wp_rewrite, $bbp;
 
-		if ( empty( $user_id ) )
-			$user_id = bbp_get_displayed_user_id();
-		else
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
 			return;
 
 		$url = !empty( $wp_rewrite->permalink_structure ) ? $wp_rewrite->front . $bbp->user_slug . '/%bbp_user%/edit' : '';
 
 		if ( empty( $url ) ) {
-			$file = home_url( '/' );
-			$url  = $file . '?bbp_user=' . $user_id . '&bbp_edit_profile=1';
+			$url  = add_query_arg( array( 'bbp_user' => $user_id, 'bbp_edit_profile' => '1' ), home_url( '/' ) );
 		} else {
 			if ( empty( $user_nicename ) ) {
 				$user = get_userdata( $user_id );
