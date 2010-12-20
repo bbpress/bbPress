@@ -391,9 +391,7 @@ function bbp_edit_user_handler () {
 			wp_redirect( $redirect );
 			exit;
 		}
-
 	}
-
 }
 add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
 
@@ -776,7 +774,7 @@ function bbp_favorites_handler () {
 		$action  = $_GET['action'];
 
 		// Get user_id
-		$user_id = bbp_get_user_id( 0, true );
+		$user_id = bbp_get_user_id( 0, true, true );
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
@@ -871,7 +869,7 @@ function bbp_subscriptions_handler () {
 		$action = $_GET['action'];
 
 		// Get user_id
-		$user_id = bbp_get_user_id( 0, true );
+		$user_id = bbp_get_user_id( 0, true, true );
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )

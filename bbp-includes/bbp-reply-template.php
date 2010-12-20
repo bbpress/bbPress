@@ -59,7 +59,7 @@ function bbp_has_replies ( $args = '' ) {
 		if ( $wp_rewrite->using_permalinks() )
 			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
 		else
-			$base = add_query_arg( 'page', '%#%' );
+			$base = add_query_arg( 'paged', '%#%' );
 
 		// Pagination settings with filter
 		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
@@ -235,7 +235,7 @@ function bbp_reply_url ( $reply_id = 0 ) {
 	 * @return string Link to reply relative to paginated topic
 	 */
 	function bbp_get_reply_url ( $reply_id = 0 ) {
-		global $bbp;
+		global $bbp, $wp_rewrite;
 
 		// Set needed variables
 		$reply_id      = bbp_get_reply_id( $reply_id );
@@ -245,10 +245,17 @@ function bbp_reply_url ( $reply_id = 0 ) {
 		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
 
 		// Don't include pagination if on first page
-		if ( 1 >= $reply_page )
-			$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
-		else
-			$url = trailingslashit( $topic_url ) . "page/{$reply_page}/#reply-{$reply_id}";
+		if ( 1 >= $reply_page ) {
+			if ( $wp_rewrite->using_permalinks() ) {
+				$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
+			}
+		} else {
+			if ( $wp_rewrite->using_permalinks() ) {
+				$url = trailingslashit( $topic_url ) . "page/{$reply_page}/#reply-{$reply_id}";
+			} else {
+				$url = add_query_arg( 'paged', $reply_page, $topic_url ) . '#reply-' . $reply_id;
+			}
+		}
 
 		return apply_filters( 'bbp_get_reply_url', $url, $reply_id );
 	}

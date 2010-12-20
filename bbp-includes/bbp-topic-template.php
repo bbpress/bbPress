@@ -79,7 +79,7 @@ function bbp_has_topics ( $args = '' ) {
 		elseif ( $wp_rewrite->using_permalinks() )
 			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
 		else
-			$base = add_query_arg( 'page', '%#%' );
+			$base = add_query_arg( 'paged', '%#%' );
 
 		// Pagination settings with filter
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
