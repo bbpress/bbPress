@@ -22,9 +22,17 @@
 
 							<?php bbp_set_query_name( 'bbp_no_replies' ); ?>
 
-							<?php bbp_has_topics( array( 'meta_key' => '_bbp_topic_reply_count', 'meta_value' => 1, 'meta_compare' => '<', 'orderby' => '' ) ); ?>
+							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_topic_reply_count', 'meta_value' => 1, 'meta_compare' => '<', 'orderby' => '' ) ) ) : ?>
 
-							<?php get_template_part( 'loop', 'bbp_topics' ); ?>
+								<?php get_template_part( 'loop', 'bbp_topics' ); ?>
+							
+							<?php else : ?>
+
+								<p><?php _e( 'Oh bother! No topics were found here! Perhaps searching will help.', 'bbpress' ); ?></p>
+
+								<?php get_search_form(); ?>
+
+							<?php endif; ?>
 
 							<?php bbp_reset_query_name(); ?>
 
