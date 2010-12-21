@@ -5,7 +5,7 @@
  *
  * Main settings description for the settings page
  *
- * @since bbPress (r2735)
+ * @since bbPress (r2737)
  */
 function bbp_admin_setting_callback_section () {
 ?>
@@ -20,7 +20,7 @@ function bbp_admin_setting_callback_section () {
  *
  * Edit lock setting field
  *
- * @since bbPress (r2735)
+ * @since bbPress (r2737)
  */
 function bbp_admin_setting_callback_editlock () {
 ?>
@@ -36,7 +36,7 @@ function bbp_admin_setting_callback_editlock () {
  *
  * Throttle setting field
  *
- * @since bbPress (r2735)
+ * @since bbPress (r2737)
  */
 function bbp_admin_setting_callback_throttle () {
 ?>
@@ -52,7 +52,7 @@ function bbp_admin_setting_callback_throttle () {
  *
  * Allow subscriptions setting field
  *
- * @since bbPress (r2735)
+ * @since bbPress (r2737)
  */
 function bbp_admin_setting_callback_subscriptions () {
 ?>
@@ -68,7 +68,7 @@ function bbp_admin_setting_callback_subscriptions () {
  *
  * Allow anonymous posting setting field
  *
- * @since bbPress (r2735)
+ * @since bbPress (r2737)
  */
 function bbp_admin_setting_callback_anonymous () {
 ?>
