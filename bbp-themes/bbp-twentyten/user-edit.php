@@ -20,10 +20,10 @@
 
 					<form id="your-profile" action="<?php bbp_user_profile_edit_url( bbp_get_displayed_user_id() ); ?>" method="post">
 
-						<h2 class="entry-title"><?php _e( 'Name' ) ?></h2>
+						<h2 class="entry-title"><?php _e( 'Name', 'bbpress' ) ?></h2>
 
 						<fieldset>
-							<legend><?php _e( 'Name' ) ?></legend>
+							<legend><?php _e( 'Name', 'bbpress' ) ?></legend>
 
 							<div>
 								<label for="first_name"><?php _e( 'First Name', 'bbpress' ) ?></label>
@@ -36,7 +36,7 @@
 							</div>
 
 							<div>
-								<label for="nickname"><?php _e( 'Nickname', 'bbpress' ); ?></span></label>
+								<label for="nickname"><?php _e( 'Nickname', 'bbpress' ); ?></label>
 								<input type="text" name="nickname" id="nickname" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'nickname' ) ); ?>" class="regular-text" />
 							</div>
 

@@ -192,10 +192,16 @@ div.bbp-edit-user fieldset {
 	div.bbp-edit-user fieldset select {
 		margin-bottom: 0;
 	}
-	div.bbp-edit-user fieldset input,	
+	div.bbp-edit-user fieldset input,
 	div.bbp-edit-user fieldset textarea {
 		margin-bottom: 0;
-		width: 250px;
+		width: 400px;
+		background: #f9f9f9;
+		border: 1px solid #ccc;
+		box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+		-moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+		-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
+		padding: 2px;
 	}
 	div.bbp-edit-user fieldset legend {
 		display: none;
@@ -207,12 +213,12 @@ div.bbp-edit-user fieldset {
 		text-align: right;
 	}
 	div.bbp-edit-user fieldset span.description {
-		margin-left: 170px;
+		margin: 5px 0 0 170px;
 		font-size: 12px;
 		font-style: italic;
 		float: left;
 		clear: left;
-		width: 233px;
+		width: 383px;
 		padding: 5px 10px;
 		border: #E6DB55 1px solid;
 		background-color: #FFFBCC;
@@ -231,15 +237,32 @@ div.bbp-edit-user fieldset {
 
 /* notices */
 div.bbp-template-notice {
-	border: #bbddbb 1px solid;
-	background-color: #ddffdd;
-	padding: 10px;
-	margin-top: 20px;
-	}
+	border-width: 1px;
+	border-style: solid;
+	padding: 0 0.6em;
+	margin: 5px 0 15px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	background-color: #ffffe0;
+	border-color: #e6db55;
+	color: #000;
+}
 	div.bbp-template-notice.important {
-		border: #E6DB55 1px solid;
-		background-color: #FFFBCC;
+		border: #e6db55 1px solid;
+		background-color: #fffbcc;
 	}
-	#main div.bbp-template-notice p {
-		margin: 0;
+	div.bbp-template-notice.error {
+		background-color: #ffebe8;
+		border-color: #c00;
+	}
+	div.bbp-template-notice.error a {
+		color: #c00;
+	}
+	div.bbp-template-notice p {
+		margin: 0.5em 0 6px 0 !important;
+		padding: 2px;
+		font-size: 12px;
+		line-height: 140%;
 	}

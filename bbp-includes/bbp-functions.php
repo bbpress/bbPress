@@ -98,68 +98,95 @@ function bbp_walk_forum ( $forums, $depth, $current, $r ) {
  * @todo security sweep
  */
 function bbp_new_reply_handler () {
-	global $bbp;
-
 	// Only proceed if POST is a new reply
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-reply' === $_POST['action'] ) {
-
-		// Check users ability to create new reply
-		if ( !$is_anonymous = bbp_is_anonymous() )
-			if ( !current_user_can( 'publish_replies' ) )
-				return false;
+		global $bbp;
 
 		// Nonce check
 		check_admin_referer( 'bbp-new-reply' );
 
-		// Handle Title
+		// Check users ability to create new reply
+		if ( !bbp_is_anonymous() ) {
+			if ( !current_user_can( 'publish_replies' ) )
+				$bbp->errors->add( 'bbp_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to reply.', 'bbpress' ) );
+
+			$anonymous_data = false;
+			$reply_author   = bbp_get_current_user_id();
+
+		// It is an anonymous post
+		} else {
+			$anonymous_data = bbp_filter_anonymous_post_data(); // Filter anonymous data
+			$reply_author   = 0;
+
+			if ( !is_wp_error( $bbp->errors ) )
+				bbp_set_current_anonymous_poster_data( $anonymous_data );
+		}
+
+		// Handle Title (optional for replies)
 		if ( isset( $_POST['bbp_reply_title'] ) )
 			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
 
 		// Handle Description
 		if ( isset( $_POST['bbp_reply_content'] ) )
-			$reply_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] );
+			if ( !$reply_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) )
+				$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 
 		// Handle Topic ID to append reply to
 		if ( isset( $_POST['bbp_topic_id'] ) )
-			$topic_id = $_POST['bbp_topic_id'];
+			if ( !$topic_id = $_POST['bbp_topic_id'] )
+				$bbp->errors->add( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
 
 		// Handle Forum ID to adjust counts of
 		if ( isset( $_POST['bbp_forum_id'] ) )
-			$forum_id = $_POST['bbp_forum_id'];
+			if ( !$forum_id = $_POST['bbp_forum_id'] )
+				$bbp->errors->add( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+		// Check for flood
+		if ( !bbp_check_for_flood( $anonymous_data, $reply_author ) )
+			$bbp->errors->add( 'bbp_reply_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 
 		// Handle Tags
 		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
-			$terms = $_POST['bbp_topic_tags'];
-			wp_set_post_terms( $topic_id, $terms, $bbp->topic_tag_id, true );
+			$tags = $_POST['bbp_topic_tags'];
+			$tags = wp_set_post_terms( $topic_id, $tags, $bbp->topic_tag_id, true );
+
+			if ( is_wp_error( $tags ) || false == $tags ) {
+				$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
+			}
 		}
 
 		// Handle insertion into posts table
-		if ( !empty( $topic_id ) && !empty( $reply_title ) && !empty( $reply_content ) ) {
+		if ( !empty( $topic_id ) && !empty( $reply_title ) && !empty( $reply_content ) && ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) ) {
 
 			// Add the content of the form to $post as an array
 			$reply_data = array(
-				'post_author'   => bbp_get_current_user_id(),
-				'post_title'    => $reply_title,
-				'post_content'  => $reply_content,
-				'post_parent'   => $topic_id,
-				'post_status'   => 'publish',
-				'post_type'     => $bbp->reply_id
+				'post_author'  => $reply_author,
+				'post_title'   => $reply_title,
+				'post_content' => $reply_content,
+				'post_parent'  => $topic_id,
+				'post_status'  => 'publish',
+				'post_type'    => $bbp->reply_id
 			);
 
 			// Insert reply
-			$reply_id         = wp_insert_post( $reply_data );
+			$reply_id = wp_insert_post( $reply_data );
 
 			// Check for missing reply_id or error
 			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
 				// Update counts, etc...
-				do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $is_anonymous, $reply_data['post_author'] );
+				do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 
 				// Redirect back to new reply
 				wp_redirect( bbp_get_reply_url( $reply_id ) );
 
 				// For good measure
 				exit();
+
+			// Errors to report
+			} else {
+				$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
+				$bbp->errors->add( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
 			}
 		}
 	}
@@ -174,10 +201,11 @@ add_action( 'template_redirect', 'bbp_new_reply_handler' );
  * @param int $reply_id
  * @param int $topic_id
  * @param int $forum_id
- * @param bool $is_anonymous
+ * @param bool|array $anonymous_data Optional. If it is an array, it is extracted and anonymous user info is saved, otherwise nothing happens.
  * @param int $author_id
  */
-function bbp_new_reply_update_topic ( $reply_id = 0, $topic_id = 0, $forum_id = 0, $is_anonymous = false, $author_id = 0 ) {
+function bbp_new_reply_update_topic ( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0 ) {
+	global $bbp;
 
 	// Validate the ID's passed from 'bbp_new_reply' action
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -186,17 +214,27 @@ function bbp_new_reply_update_topic ( $reply_id = 0, $topic_id = 0, $forum_id = 
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();
 
-	// If anonymous post, store name, email and website in post_meta
-	// @todo - validate
-	if ( true == $is_anonymous ) {
-		add_post_meta( $reply_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
-		add_post_meta( $reply_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
-		add_post_meta( $reply_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
-		add_post_meta( $reply_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
+	// If anonymous post, store name, email, website and ip in post_meta. It expects anonymous_data to be sanitized. Check bbp_filter_anonymous_post_data() for sanitization.
+	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
+		extract( $anonymous_data );
+
+		add_post_meta( $reply_id, '_bbp_anonymous_name',  $bbp_anonymous_name,  false );
+		add_post_meta( $reply_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
+		add_post_meta( $reply_id, '_bbp_anonymous_ip',    $bbp_anonymous_ip,    false );
+
+		// Website is optional
+		if ( !empty( $bbp_anonymous_website ) )
+			add_post_meta( $reply_id, '_bbp_anonymous_website', $bbp_anonymous_website, false );
+
+		// Throttle check
+		set_transient( '_bbp_' . $anonymous_data['bbp_anonymous_ip'] . '_last_posted', time() );
+	} else {
+		if ( !current_user_can( 'throttle' ) )
+			update_user_meta( $author_id, '_bbp_last_posted', time() );
 	}
 
 	// Handle Subscription Checkbox
-	if ( bbp_is_subscriptions_active() ) {
+	if ( bbp_is_subscriptions_active() && !empty( $author_id ) ) {
 		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id ) ? true : false;
 		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ? true : false;
 
@@ -211,12 +249,12 @@ function bbp_new_reply_update_topic ( $reply_id = 0, $topic_id = 0, $forum_id = 
 
 	// Topic meta relating to most recent reply
 	bbp_update_topic_last_reply_id( $topic_id, $reply_id );
-	bbp_update_topic_last_active( $topic_id );
+	bbp_update_topic_last_active  ( $topic_id            );
 
 	// Forum meta relating to most recent topic
 	bbp_update_forum_last_topic_id( $forum_id, $topic_id );
 	bbp_update_forum_last_reply_id( $forum_id, $reply_id );
-	bbp_update_forum_last_active( $forum_id );
+	bbp_update_forum_last_active  ( $forum_id            );
 }
 add_action( 'bbp_new_reply', 'bbp_new_reply_update_topic', 10, 5 );
 
@@ -228,30 +266,48 @@ add_action( 'bbp_new_reply', 'bbp_new_reply_update_topic', 10, 5 );
  * @todo security sweep
  */
 function bbp_new_topic_handler () {
-	global $bbp;
-
 	// Only proceed if POST is a new topic
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-new-topic' === $_POST['action'] ) {
-
-		// Check users ability to create new topic
-		if ( !$is_anonymous = bbp_is_anonymous() )
-			if ( !current_user_can( 'publish_topics' ) )
-				return false;
+		global $bbp;
 
 		// Nonce check
 		check_admin_referer( 'bbp-new-topic' );
 
+		// Check users ability to create new topic
+		if ( !bbp_is_anonymous() ) {
+			if ( !current_user_can( 'publish_topics' ) )
+				$bbp->errors->add( 'bbp_topic_permissions', __( '<strong>ERROR</strong>: You do not have permission to create new topics.', 'bbpress' ) );
+
+			$anonymous_data = false;
+			$topic_author   = bbp_get_current_user_id();
+
+		// It is an anonymous post
+		} else {
+			$anonymous_data = bbp_filter_anonymous_post_data(); // Filter anonymous data
+			$topic_author   = 0;
+
+			if ( !is_wp_error( $bbp->errors ) )
+				bbp_set_current_anonymous_poster_data( $anonymous_data );
+		}
+
 		// Handle Title
 		if ( isset( $_POST['bbp_topic_title'] ) )
-			$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
+			if ( !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
+				$bbp->errors->add( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
 		// Handle Description
 		if ( isset( $_POST['bbp_topic_content'] ) )
-			$topic_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] );
+			if ( !$topic_content = current_user_can( 'unfiltered_html' ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
+				$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic needs some content.', 'bbpress' ) );
 
 		// Handle Topic ID to append reply to
 		if ( isset( $_POST['bbp_forum_id'] ) )
-			$forum_id = $_POST['bbp_forum_id'];
+			if ( !$forum_id = $_POST['bbp_forum_id'] )
+				$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+		// Check for flood
+		if ( !bbp_check_for_flood( $anonymous_data, $topic_author ) )
+			$bbp->errors->add( 'bbp_topic_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 
 		// Handle Tags
 		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
@@ -271,17 +327,17 @@ function bbp_new_topic_handler () {
 		}
 
 		// Handle insertion into posts table
-		if ( !empty( $forum_id ) && !empty( $topic_title ) && !empty( $topic_content ) ) {
+		if ( !empty( $forum_id ) && !empty( $topic_title ) && !empty( $topic_content ) && ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) ) {
 
 			// Add the content of the form to $post as an array
 			$topic_data = array(
-				'post_author'   => bbp_get_current_user_id(),
-				'post_title'    => $topic_title,
-				'post_content'  => $topic_content,
-				'post_parent'   => $forum_id,
-				'tax_input'     => $terms,
-				'post_status'   => 'publish',
-				'post_type'     => $bbp->topic_id
+				'post_author'  => $topic_author,
+				'post_title'   => $topic_title,
+				'post_content' => $topic_content,
+				'post_parent'  => $forum_id,
+				'tax_input'    => $terms,
+				'post_status'  => 'publish',
+				'post_type'    => $bbp->topic_id
 			);
 
 			// Insert reply
@@ -291,13 +347,18 @@ function bbp_new_topic_handler () {
 			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
 				// Update counts, etc...
-				do_action( 'bbp_new_topic', $topic_id, $forum_id, $is_anonymous, $topic_data['post_author'] );
+				do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
 				// Redirect back to new reply
 				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
 
 				// For good measure
 				exit();
+
+			// Errors to report
+			} else {
+				$append_error = ( is_wp_error( $topic_id ) && $topic_id->get_error_message() ) ? $topic_id->get_error_message() . ' ' : '';
+				$bbp->errors->add( 'bbp_topic_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your topic:' . $append_error, 'bbpress' ) );
 			}
 		}
 	}
@@ -315,7 +376,7 @@ function bbp_edit_user_handler () {
 
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-update-user' == $_POST['action'] ) {
 
-		global $errors, $bbp;
+		global $bbp, $wpdb;
 
 		// Execute confirmed email change. See send_confirmation_on_profile_email().
 		if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) && $bbp->displayed_user->ID ) {
@@ -347,7 +408,7 @@ function bbp_edit_user_handler () {
 		check_admin_referer( 'update-user_' . $bbp->displayed_user->ID );
 
 		if ( !current_user_can( 'edit_user', $bbp->displayed_user->ID ) )
-			wp_die( __( 'What are you doing here? You don\'t have the permission to edit this user!', 'bbpress' ) );
+			wp_die( __( 'What are you doing here? You do not have the permission to edit this user.', 'bbpress' ) );
 
 		if ( bbp_is_user_home() )
 			do_action( 'personal_options_update', $bbp->displayed_user->ID );
@@ -355,9 +416,9 @@ function bbp_edit_user_handler () {
 			do_action( 'edit_user_profile_update', $bbp->displayed_user->ID );
 
 		if ( !is_multisite() ) {
-			$errors = edit_user( $bbp->displayed_user->ID ); // Handles the trouble for us ;)
+			$bbp->errors = edit_user( $bbp->displayed_user->ID ); // Handles the trouble for us ;)
 		} else {
-			$user   = get_userdata( $bbp->displayed_user->ID );
+			$user        = get_userdata( $bbp->displayed_user->ID );
 
 			// Update the email address in signups, if present.
 			if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email' ]) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) )
@@ -375,8 +436,7 @@ function bbp_edit_user_handler () {
 				}
 			}
 
-			if ( !isset( $errors ) || ( isset( $errors ) && is_object( $errors ) && false == $errors->get_error_codes() ) )
-				$errors = edit_user( $bbp->displayed_user->ID );
+			$bbp->errors = edit_user( $bbp->displayed_user->ID );
 
 			if ( $delete_role ) // stops users being added to current blog when they are edited
 				delete_user_meta( $bbp->displayed_user->ID, $blog_prefix . 'capabilities' );
@@ -385,7 +445,7 @@ function bbp_edit_user_handler () {
 				empty( $_POST['super_admin'] ) ? revoke_super_admin( $bbp->displayed_user->ID ) : grant_super_admin( $bbp->displayed_user->ID );
 		}
 
-		if ( !is_wp_error( $errors ) ) {
+		if ( !is_wp_error( $bbp->errors ) ) {
 			$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) );
 
 			wp_redirect( $redirect );
@@ -403,24 +463,33 @@ add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
  * @param int $reply_id
  * @param int $topic_id
  * @param int $forum_id
- * @param bool $is_anonymous
+ * @param bool|array $anonymous_data Optional. If it is an array, it is extracted and anonymous user info is saved, otherwise nothing happens.
  * @param int $author_id
  */
-function bbp_new_topic_update_topic ( $topic_id = 0, $forum_id = 0, $is_anonymous = false, $author_id = 0 ) {
-
+function bbp_new_topic_update_topic ( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0 ) {
 	// Validate the ID's passed from 'bbp_new_reply' action
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();
 
-	// If anonymous post, store name, email and website in post_meta
-	// @todo - validate
-	if ( true == $is_anonymous ) {
-		add_post_meta( $topic_id, '_bbp_anonymous_name',    $_POST['bbp_anonymous_name'],    false );
-		add_post_meta( $topic_id, '_bbp_anonymous_email',   $_POST['bbp_anonymous_email'],   false );
-		add_post_meta( $topic_id, '_bbp_anonymous_website', $_POST['bbp_anonymous_website'], false );
-		add_post_meta( $topic_id, '_bbp_anonymous_ip',      $_POST['bbp_anonymous_ip'],      false );
+	// If anonymous post, store name, email, website and ip in post_meta. It expects anonymous_data to be sanitized. Check bbp_filter_anonymous_post_data() for sanitization.
+	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
+		extract( $anonymous_data );
+
+		add_post_meta( $topic_id, '_bbp_anonymous_name',    $bbp_anonymous_name,    false );
+		add_post_meta( $topic_id, '_bbp_anonymous_email',   $bbp_anonymous_email,   false );
+		add_post_meta( $topic_id, '_bbp_anonymous_ip',      $bbp_anonymous_ip,      false );
+
+		// Website is optional
+		if ( !empty( $bbp_anonymous_website ) )
+			add_post_meta( $topic_id, '_bbp_anonymous_website', $bbp_anonymous_website, false );
+
+		// Throttle check
+		set_transient( '_bbp_' . $anonymous_data['bbp_anonymous_ip'] . '_last_posted', time() );
+	} else {
+		if ( !current_user_can( 'throttle' ) )
+			bb_update_usermeta( $author_id, '_bbp_last_posted', time() );
 	}
 
 	// Handle Subscription Checkbox
@@ -440,6 +509,85 @@ function bbp_new_topic_update_topic ( $topic_id = 0, $forum_id = 0, $is_anonymou
 	bbp_update_forum_last_active( $forum_id );
 }
 add_action( 'bbp_new_topic', 'bbp_new_topic_update_topic', 10, 4 );
+
+/**
+ * bbp_filter_anonymous_post_data ()
+ *
+ * Filter anonymous post data.
+ *
+ * We use REMOTE_ADDR here directly. If you are behind a proxy, you should
+ * ensure that it is properly set, such as in wp-config.php, for your
+ * environment. See {@link http://core.trac.wordpress.org/ticket/9235}
+ *
+ * @since bbPress (r2734)
+ *
+ * @param mixed $args Optional. If no args are there, then $_POST values are used.
+ */
+function bbp_filter_anonymous_post_data ( $args = '' ) {
+	global $bbp;
+
+	// Assign variables
+	$defaults = array (
+		'bbp_anonymous_name'    => $_POST['bbp_anonymous_name'],
+		'bbp_anonymous_email'   => $_POST['bbp_anonymous_email'],
+		'bbp_anonymous_website' => $_POST['bbp_anonymous_website'],
+		'bbp_anonymous_ip'      => $_SERVER['REMOTE_ADDR']
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Filter variables and add errors if necessary
+	if ( !$bbp_anonymous_name  = apply_filters( 'bbp_pre_anonymous_post_author_name',  $bbp_anonymous_name  ) )
+		$bbp->errors->add( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name submitted!',          'bbpress' ) );
+
+	if ( !$bbp_anonymous_email = apply_filters( 'bbp_pre_anonymous_post_author_email', $bbp_anonymous_email ) )
+		$bbp->errors->add( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!',             'bbpress' ) );
+
+	if ( !$bbp_anonymous_ip    = apply_filters( 'bbp_pre_anonymous_post_author_ip',    preg_replace( '/[^0-9a-fA-F:., ]/', '', $bbp_anonymous_ip ) ) )
+		$bbp->errors->add( 'bbp_anonymous_ip',    __( '<strong>ERROR</strong>: Invalid IP address! Where are you from?', 'bbpress' ) );
+
+	// Website is optional
+	$bbp_anonymous_website     = apply_filters( 'bbp_pre_anonymous_post_author_website', $bbp_anonymous_website );
+
+	if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
+		$retval = compact( 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website', 'bbp_anonymous_ip' );
+	else
+		$retval = false;
+
+	// Finally, return sanitized data or false
+	return apply_filters( 'bbp_filter_anonymous_post_data', $retval, $args );
+}
+
+/**
+ * Check to make sure that a user is not making too many posts in a short amount of time.
+ *
+ * @since bbPress (r2734)
+ *
+ * @param false|array $anonymous_data Optional - do not supply if supplying $author_id. If it's a anonymous post. With key 'bbp_anonymous_ip'. Should be sanitized (see bbp_filter_anonymous_post_data() for sanitization)
+ * @param int $author_id Optional - do not supply if supplying $anonymous_data. If it's a post by logged in user.
+ */
+function bbp_check_for_flood ( $anonymous_data = false, $author_id = 0 ) {
+
+	// Option disabled. No flood checks.
+	if ( !$throttle_time = get_option( '_bbp_throttle_time' ) )
+		return true;
+
+	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) && !empty( $anonymous_data['bbp_anonymous_ip'] ) ) {
+		if ( ( $last_posted = get_transient( '_bbp_' . $anonymous_data['bbp_anonymous_ip'] . '_last_posted') ) && time() < $last_posted + $throttle_time )
+			return false;
+	} elseif ( !empty( $author_id ) ) {
+		$author_id   = (int) $author_id;
+		$last_posted = get_user_meta( $author_id, '_bbp_last_posted', true );
+
+		if ( isset( $last_posted ) && time() < $last_posted + $throttle_time && !current_user_can( 'throttle' ) )
+			return false;
+	} else {
+		return false;
+	}
+
+	return true;
+}
 
 /**
  * bbp_check_for_profile_page ()
@@ -496,6 +644,7 @@ function bbp_pre_get_posts ( $wp_query ) {
 
 	// Define new query variable
 	if ( !empty( $is_user_edit ) ) {
+		global $wp_version;
 
 		// Only allow super admins on multisite to edit every user.
 		if ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && $user_id != $current_user->ID && ! apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) )
@@ -504,7 +653,9 @@ function bbp_pre_get_posts ( $wp_query ) {
 		$wp_query->bbp_is_user_profile_edit = true;
 
 		// Load the required user editing functions
-		include_once( ABSPATH . 'wp-includes/registration.php' );
+		if ( version_compare( $wp_version, '3.1', '<=' ) ) // registration.php is not required in wp 3.1+
+			include_once( ABSPATH . 'wp-includes/registration.php' );
+
 		require_once( ABSPATH . 'wp-admin/includes/user.php'   );
 
 	} else {
@@ -512,7 +663,7 @@ function bbp_pre_get_posts ( $wp_query ) {
 	}
 
 	// Set query variables
-	$wp_query->is_home = false;                                     // Correct is_home variable
+	$wp_query->is_home                   = false;                   // Correct is_home variable
 	$wp_query->query_vars['bbp_user_id'] = $user->ID;               // Set bbp_user_id for future reference
 	$wp_query->query_vars['author_name'] = $user->user_nicename;    // Set author_name as current user's nicename to get correct posts
 
@@ -659,7 +810,7 @@ add_filter( 'redirect_canonical', 'bbp_redirect_canonical' );
  */
 function bbp_get_paged() {
 	if ( $paged = get_query_var( 'paged' ) )
-		return (int)$paged;
+		return (int) $paged;
 	else
 		return 1;
 }
@@ -676,7 +827,7 @@ function bbp_get_paged() {
 function bbp_toggle_topic_handler () {
 
 	// Only proceed if GET is a topic toggle action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['topic_id'] ) && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_trash' ) ) ) {
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_trash' ) ) && !empty( $_GET['topic_id'] ) ) {
 		global $bbp;
 
 		$action    = $_GET['action'];            // What action is taking place?
@@ -684,27 +835,32 @@ function bbp_toggle_topic_handler () {
 		$success   = false;                      // Flag
 		$post_data = array( 'ID' => $topic_id ); // Prelim array
 
-		if ( !$topic = get_post( $topic_id ) )   // Does topic exist?
+		// Make sure topic exists
+		if ( !$topic = get_post( $topic_id ) )
 			return;
 
 		// What is the user doing here?
-		if ( !current_user_can( 'edit_topic', $topic_id ) || ( 'bbp_toggle_topic_trash' == $action && !current_user_can( 'delete_topic', $topic_id ) ) )
+		if ( !current_user_can( 'edit_topic', $topic->ID ) || ( 'bbp_toggle_topic_trash' == $action && !current_user_can( 'delete_topic', $topic->ID ) ) )
 			return;
 
 		switch ( $action ) {
 			case 'bbp_toggle_topic_close' :
 				check_ajax_referer( 'close-topic_' . $topic_id );
 
-				$post_data['post_status'] = bbp_is_topic_open( $topic_id ) ? $bbp->closed_status_id : 'publish';
+				$is_open                  = bbp_is_topic_open( $topic_id );
+				$post_data['post_status'] = $is_open == true ? $bbp->closed_status_id : 'publish';
 				$success                  = wp_update_post( $post_data );
+				$failure                  = $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic!', 'bbpress' );
 
 				break;
 
 			case 'bbp_toggle_topic_spam' :
-				check_ajax_referer( 'spam-topic_' . $topic_id ); // Trying to bypass security, huh?
+				check_ajax_referer( 'spam-topic_' . $topic_id );
 
-				$post_data['post_status'] = bbp_is_topic_spam( $topic_id ) ? 'publish' : $bbp->spam_status_id;
+				$is_spam                  = bbp_is_topic_spam( $topic_id );
+				$post_data['post_status'] = $is_spam ? 'publish' : $bbp->spam_status_id;
 				$success                  = wp_update_post( $post_data );
+				$failure                  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam!', 'bbpress' );
 
 				break;
 
@@ -720,6 +876,7 @@ function bbp_toggle_topic_handler () {
 						check_ajax_referer( 'trash-' . $bbp->topic_id . '_' . $topic_id );
 
 						$success = wp_trash_post( $topic_id );
+						$failure = __( '<strong>ERROR</strong>: There was a problem trashing the topic!', 'bbpress' );
 
 						break;
 
@@ -727,6 +884,7 @@ function bbp_toggle_topic_handler () {
 						check_ajax_referer( 'untrash-' . $bbp->topic_id . '_' . $topic_id );
 
 						$success = wp_untrash_post( $topic_id );
+						$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the topic!', 'bbpress' );
 
 						break;
 
@@ -734,6 +892,7 @@ function bbp_toggle_topic_handler () {
 						check_ajax_referer( 'delete-' . $bbp->topic_id . '_' . $topic_id );
 
 						$success = wp_delete_post( $post_id );
+						$failure = __( '<strong>ERROR</strong>: There was a problem deleting the topic!', 'bbpress' );
 
 						break;
 				}
@@ -753,6 +912,10 @@ function bbp_toggle_topic_handler () {
 
 			// For good measure
 			exit();
+
+		// Handle errors
+		} else {
+			$bbp->errors->add( 'bbp_toggle_topic', $failure );
 		}
 	}
 }
@@ -778,15 +941,17 @@ function bbp_favorites_handler () {
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
-			return false;
+			$bbp->errors->add( 'bbp_favorite_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 
 		// Load favorite info
-		$topic_id     = intval( $_GET['topic_id'] );
-		$is_favorite  = bbp_is_user_favorite( $user_id, $topic_id );
-		$success      = false;
+		if ( !$topic_id = intval( $_GET['topic_id'] ) )
+			$bbp->errors->add( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
+
+		$is_favorite    = bbp_is_user_favorite( $user_id, $topic_id );
+		$success        = false;
 
 		// Handle insertion into posts table
-		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
+		if ( !empty( $topic_id ) && !empty( $user_id ) && ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) ) {
 
 			if ( $is_favorite && 'bbp_favorite_remove' == $action )
 				$success = bbp_remove_user_favorite( $user_id, $topic_id );
@@ -805,6 +970,13 @@ function bbp_favorites_handler () {
 
 				// For good measure
 				exit();
+
+			// Handle errors
+			} else {
+				if ( $is_favorite && 'bbp_favorite_remove' == $action )
+					$bbp->errors->add( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
+				elseif ( !$is_favorite && 'bbp_favorite_add' == $action )
+					$bbp->errors->add( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
 			}
 		}
 	}
@@ -873,14 +1045,16 @@ function bbp_subscriptions_handler () {
 
 		// Check current user's ability to edit the user
 		if ( !current_user_can( 'edit_user', $user_id ) )
-			return false;
+			$bbp->errors->add( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 
 		// Load subscription info
-		$topic_id         = intval( $_GET['topic_id'] );
-		$is_subscription  = bbp_is_user_subscribed( $user_id, $topic_id );
-		$success          = false;
+		if ( !$topic_id  = intval( $_GET['topic_id'] ) )
+			$bbp->errors->add( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
 
-		if ( !empty( $topic_id ) && !empty( $user_id ) ) {
+		$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
+		$success         = false;
+
+		if ( !empty( $topic_id ) && !empty( $user_id ) && ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) ) {
 
 			if ( $is_subscription && 'bbp_unsubscribe' == $action )
 				$success = bbp_remove_user_subscription( $user_id, $topic_id );
@@ -899,6 +1073,13 @@ function bbp_subscriptions_handler () {
 
 				// For good measure
 				exit();
+
+			// Handle errors
+			} else {
+				if ( $is_subscription && 'bbp_unsubscribe' == $action )
+					$bbp->errors->add( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
+				elseif ( !$is_subscription && 'bbp_subscribe' == $action )
+					$bbp->errors->add( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
 			}
 		}
 	}
@@ -1020,5 +1201,42 @@ function bbp_notify_subscribers ( $reply_id = 0 ) {
 	return true;
 }
 add_action( 'bbp_new_reply', 'bbp_notify_subscribers', 1, 1 );
+
+/**
+ * bbp_fix_post_author ()
+ *
+ * When a logged in user changes the status of an anonymous reply or topic,
+ * the post_author field is set to the logged in user's id. This function
+ * fixes that.
+ *
+ * @package bbPress
+ * @subpackage Functions
+ * @since bbPress (r2734)
+ *
+ * @param array $data Post data
+ * @param array $postarr Original post array (includes post id)
+ * @return array Filtered data
+ */
+function bbp_fix_post_author ( $data = array(), $postarr = array() ) {
+	global $bbp;
+
+	// Post is not being updated, return
+	if ( empty( $postarr['ID'] ) )
+		return $data;
+
+	// Post is not a topic or reply, return
+	if ( !in_array( $data['post_type'], array( $bbp->topic_id, $bbp->reply_id ) ) )
+		return $data;
+
+	// The post is not anonymous
+	if ( get_post_field( 'post_author', $postarr['ID'] ) )
+		return $data;
+
+	// The post is being updated. It is a topic or a reply and is written by an anonymous user.
+	// Set the post_author back to 0
+	$data['post_author'] = 0;
+
+	return $data;
+}
 
 ?>

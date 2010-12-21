@@ -242,12 +242,12 @@ function bbp_user_subscribe_link ( $args = '' ) {
 			return;
 
 		$defaults = array (
-			'subscribe'     => __( 'Subscribe',   'bbpress' ),
-			'unsubscribe'   => __( 'Unsubscribe', 'bbpress' ),
-			'user_id'       => 0,
-			'topic_id'      => 0,
-			'before'        => '&nbsp;|&nbsp;',
-			'after'         => ''
+			'subscribe'   => __( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
+			'user_id'     => 0,
+			'topic_id'    => 0,
+			'before'      => '&nbsp;|&nbsp;',
+			'after'       => ''
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -617,18 +617,18 @@ function bbp_user_profile_edit_url ( $user_id = 0, $user_nicename = '' ) {
  * bbp_edit_user_success ()
  */
 function bbp_notice_edit_user_success () {
-	if ( isset( $_GET['updated'] ) ) : ?>
+	if ( isset( $_GET['updated'] ) && ( bbp_is_user_profile_page() || bbp_is_user_profile_edit() ) ) : ?>
 
 	<div class="bbp-template-notice updated">
-		<p><?php _e( 'User updated.', 'bbpress' ) ?></p>
+		<p><?php _e( 'User updated.', 'bbpress' ); ?></p>
 	</div>
 
-<?php endif;
+	<?php endif;
 }
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success' );
 
 function bbp_notice_edit_user_is_super_admin () {
-	if ( is_multisite() && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
+	if ( is_multisite() && ( bbp_is_user_profile_page() || bbp_is_user_profile_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
 
 	<div class="bbp-template-notice important">
 		<p><?php bbp_is_user_home() ? _e( 'You have super admin privileges.', 'bbpress' ) : _e( 'This user has super admin privileges.', 'bbpress' ); ?></p>
@@ -714,7 +714,7 @@ function bbp_edit_user_role () {
 		if ( $user_role == $role )
 			$p = "\n\t<option selected='selected' value='" . esc_attr( $role ) . "'>{$name}</option>";
 		else
-			$r .= "\n\t<option value='" . esc_attr($role) . "'>{$name}</option>";
+			$r .= "\n\t<option value='" . esc_attr( $role ) . "'>{$name}</option>";
 	}
 
 	// Output result

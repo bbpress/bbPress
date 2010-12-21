@@ -12,6 +12,8 @@
 		<div id="container">
 			<div id="content" role="main">
 
+				<?php do_action( 'bbp_template_notices' ); ?>
+
 				<?php
 					// Profile details
 					get_template_part( 'user', 'bbp_details' );

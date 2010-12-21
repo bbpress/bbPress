@@ -69,6 +69,9 @@ class bbPress {
 	// Arrays
 	var $sub_forums;
 
+	// Errors
+	var $errors;
+
 	/**
 	 * The main bbPress loader
 	 */
@@ -125,6 +128,11 @@ class bbPress {
 		$this->topic_slug       = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic' ) );
 		$this->reply_slug       = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply' ) );
 		$this->topic_tag_slug   = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'tag'   ) );
+
+		/** Misc ******************************************************/
+
+		// Errors
+		$this->errors = new WP_Error();
 	}
 
 	/**
@@ -195,10 +203,11 @@ class bbPress {
 	/**
 	 * register_textdomain ()
 	 *
-	 * Load the translation file for current language. Checks both the languages
-	 * folder inside the bbPress plugin and the default WordPress languages
-	 * folder. Note that languages inside the bbPress plugin folder will be
-	 * removed on bbPress updates, and using the WordPress default folder is safer.
+	 * Load the translation file for current language. Checks both the
+	 * languages folder inside the bbPress plugin and the default WordPress
+	 * languages folder. Note that languages inside the bbPress plugin
+	 * folder will be removed on bbPress updates, and using the WordPress
+	 * default folder is safer.
 	 */
 	function register_textdomain () {
 		$locale        = apply_filters( 'bbpress_locale', get_locale() );
@@ -239,19 +248,19 @@ class bbPress {
 
 		// Forum labels
 		$forum_labels = array (
-			'name'               => __( 'Forums', 'bbpress' ),
-			'singular_name'      => __( 'Forum', 'bbpress' ),
-			'add_new'            => __( 'New Forum', 'bbpress' ),
-			'add_new_item'       => __( 'Create New Forum', 'bbpress' ),
-			'edit'               => __( 'Edit', 'bbpress' ),
-			'edit_item'          => __( 'Edit Forum', 'bbpress' ),
-			'new_item'           => __( 'New Forum', 'bbpress' ),
-			'view'               => __( 'View Forum', 'bbpress' ),
-			'view_item'          => __( 'View Forum', 'bbpress' ),
-			'search_items'       => __( 'Search Forums', 'bbpress' ),
-			'not_found'          => __( 'No forums found', 'bbpress' ),
+			'name'               => __( 'Forums',                   'bbpress' ),
+			'singular_name'      => __( 'Forum',                    'bbpress' ),
+			'add_new'            => __( 'New Forum',                'bbpress' ),
+			'add_new_item'       => __( 'Create New Forum',         'bbpress' ),
+			'edit'               => __( 'Edit',                     'bbpress' ),
+			'edit_item'          => __( 'Edit Forum',               'bbpress' ),
+			'new_item'           => __( 'New Forum',                'bbpress' ),
+			'view'               => __( 'View Forum',               'bbpress' ),
+			'view_item'          => __( 'View Forum',               'bbpress' ),
+			'search_items'       => __( 'Search Forums',            'bbpress' ),
+			'not_found'          => __( 'No forums found',          'bbpress' ),
 			'not_found_in_trash' => __( 'No forums found in Trash', 'bbpress' ),
-			'parent_item_colon'  => __( 'Parent Forum:', 'bbpress' )
+			'parent_item_colon'  => __( 'Parent Forum:',            'bbpress' )
 		);
 
 		// Forum rewrite
@@ -292,19 +301,19 @@ class bbPress {
 
 		// Topic labels
 		$topic_labels = array (
-			'name'               => __( 'Topics', 'bbpress' ),
-			'singular_name'      => __( 'Topic', 'bbpress' ),
-			'add_new'            => __( 'New Topic', 'bbpress' ),
-			'add_new_item'       => __( 'Create New Topic', 'bbpress' ),
-			'edit'               => __( 'Edit', 'bbpress' ),
-			'edit_item'          => __( 'Edit Topic', 'bbpress' ),
-			'new_item'           => __( 'New Topic', 'bbpress' ),
-			'view'               => __( 'View Topic', 'bbpress' ),
-			'view_item'          => __( 'View Topic', 'bbpress' ),
-			'search_items'       => __( 'Search Topics', 'bbpress' ),
-			'not_found'          => __( 'No topics found', 'bbpress' ),
+			'name'               => __( 'Topics',                   'bbpress' ),
+			'singular_name'      => __( 'Topic',                    'bbpress' ),
+			'add_new'            => __( 'New Topic',                'bbpress' ),
+			'add_new_item'       => __( 'Create New Topic',         'bbpress' ),
+			'edit'               => __( 'Edit',                     'bbpress' ),
+			'edit_item'          => __( 'Edit Topic',               'bbpress' ),
+			'new_item'           => __( 'New Topic',                'bbpress' ),
+			'view'               => __( 'View Topic',               'bbpress' ),
+			'view_item'          => __( 'View Topic',               'bbpress' ),
+			'search_items'       => __( 'Search Topics',            'bbpress' ),
+			'not_found'          => __( 'No topics found',          'bbpress' ),
 			'not_found_in_trash' => __( 'No topics found in Trash', 'bbpress' ),
-			'parent_item_colon'  => __( 'Forum:', 'bbpress' )
+			'parent_item_colon'  => __( 'Forum:',                   'bbpress' )
 		);
 
 		// Topic rewrite
@@ -344,19 +353,19 @@ class bbPress {
 
 		// Reply labels
 		$reply_labels = array (
-			'name'               => __( 'Replies', 'bbpress' ),
-			'singular_name'      => __( 'Reply', 'bbpress' ),
-			'add_new'            => __( 'New Reply', 'bbpress' ),
-			'add_new_item'       => __( 'Create New Reply', 'bbpress' ),
-			'edit'               => __( 'Edit', 'bbpress' ),
-			'edit_item'          => __( 'Edit Reply', 'bbpress' ),
-			'new_item'           => __( 'New Reply', 'bbpress' ),
-			'view'               => __( 'View Reply', 'bbpress' ),
-			'view_item'          => __( 'View Reply', 'bbpress' ),
-			'search_items'       => __( 'Search Replies', 'bbpress' ),
-			'not_found'          => __( 'No replies found', 'bbpress' ),
+			'name'               => __( 'Replies',                   'bbpress' ),
+			'singular_name'      => __( 'Reply',                     'bbpress' ),
+			'add_new'            => __( 'New Reply',                 'bbpress' ),
+			'add_new_item'       => __( 'Create New Reply',          'bbpress' ),
+			'edit'               => __( 'Edit',                      'bbpress' ),
+			'edit_item'          => __( 'Edit Reply',                'bbpress' ),
+			'new_item'           => __( 'New Reply',                 'bbpress' ),
+			'view'               => __( 'View Reply',                'bbpress' ),
+			'view_item'          => __( 'View Reply',                'bbpress' ),
+			'search_items'       => __( 'Search Replies',            'bbpress' ),
+			'not_found'          => __( 'No replies found',          'bbpress' ),
 			'not_found_in_trash' => __( 'No replies found in Trash', 'bbpress' ),
-			'parent_item_colon'  => __( 'Topic:', 'bbpress' )
+			'parent_item_colon'  => __( 'Topic:',                    'bbpress' )
 		);
 
 		// Reply rewrite
@@ -447,14 +456,14 @@ class bbPress {
 
 		// Topic tag labels
 		$topic_tag_labels = array (
-			'name'          => __( 'Topic Tags', 'bbpress' ),
-			'singular_name' => __( 'Topic Tag', 'bbpress' ),
-			'search_items'  => __( 'Search Tags', 'bbpress' ),
+			'name'          => __( 'Topic Tags',   'bbpress' ),
+			'singular_name' => __( 'Topic Tag',    'bbpress' ),
+			'search_items'  => __( 'Search Tags',  'bbpress' ),
 			'popular_items' => __( 'Popular Tags', 'bbpress' ),
-			'all_items'     => __( 'All Tags', 'bbpress' ),
-			'edit_item'     => __( 'Edit Tag', 'bbpress' ),
-			'update_item'   => __( 'Update Tag', 'bbpress' ),
-			'add_new_item'  => __( 'Add New Tag', 'bbpress' ),
+			'all_items'     => __( 'All Tags',     'bbpress' ),
+			'edit_item'     => __( 'Edit Tag',     'bbpress' ),
+			'update_item'   => __( 'Update Tag',   'bbpress' ),
+			'add_new_item'  => __( 'Add New Tag',  'bbpress' ),
 			'new_item_name' => __( 'New Tag Name', 'bbpress' )
 		);
 

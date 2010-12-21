@@ -29,6 +29,80 @@ function bbp_allow_anonymous () {
 	return apply_filters( 'bbp_allow_anonymous', get_option( '_bbp_allow_anonymous', false ) );
 }
 
+/**
+ * bbp_current_anonymous_user_data ()
+ *
+ * Echoes the values for current poster (uses WP comment cookies).
+ *
+ * @since bbPress (r2734)
+ *
+ * @uses bbp_get_current_anonymous_user_data() To get the current poster data
+ *
+ * @param string $key Which value to echo?
+ */
+function bbp_current_anonymous_user_data ( $key = '' ) {
+	echo bbp_get_current_anonymous_user_data( $key );
+}
+
+	/**
+	 * bbp_get_current_anonymous_user_data ()
+	 *
+	 * Get the cookies for current poster (uses WP comment cookies).
+	 *
+	 * @since bbPress (r2734)
+	 *
+	 * @uses sanitize_comment_cookies() To sanitize the current poster data
+	 * @uses wp_get_current_commenter() To get the current poster data
+	 *
+	 * @param string $key Optional. Which value to get? If not given, then an array is returned.
+	 *
+	 * @return string|array
+	 */
+	function bbp_get_current_anonymous_user_data ( $key = '' ) {
+		$cookie_names = array(
+			'name'    => 'comment_author',
+			'email'   => 'comment_author_email',
+			'website' => 'comment_author_url',
+
+			// Here just for the sake of them, use the above ones
+			'comment_author'       => 'comment_author',
+			'comment_author_email' => 'comment_author_email',
+			'comment_author_url'   => 'comment_author_url',
+		);
+
+		sanitize_comment_cookies();
+
+		$bbp_current_poster = wp_get_current_commenter();
+
+		if ( !empty( $key ) && in_array( $key, array_keys( $cookie_names ) ) )
+			return $bbp_current_poster[$cookie_names[$key]];
+
+		return $bbp_current_poster;
+	}
+
+/**
+ * bbp_set_current_anonymous_user_data ()
+ *
+ * Set the cookies for current poster (uses WP comment cookies)
+ *
+ * @since bbPress (r2734)
+ *
+ * @uses apply_filters() 'comment_cookie_lifetime' for cookie lifetime. Defaults to 30000000.
+ * @uses setcookie()     To set the cookies.
+ *
+ * @param array $anonymous_data With keys 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website'. Should be sanitized (see bbp_filter_anonymous_post_data() for sanitization)
+ */
+function bbp_set_current_anonymous_user_data ( $anonymous_data = array() ) {
+	if ( empty( $anonymous_data ) || !is_array( $anonymous_data ) )
+		return;
+
+	$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+
+	setcookie( 'comment_author_'       . COOKIEHASH, $anonymous_data['bbp_anonymous_name'],    time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+	setcookie( 'comment_author_email_' . COOKIEHASH, $anonymous_data['bbp_anonymous_email'],   time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+	setcookie( 'comment_author_url_'   . COOKIEHASH, $anonymous_data['bbp_anonymous_website'], time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+}
+
 /** START - Favorites *********************************************************/
 
 /**
@@ -79,7 +153,7 @@ function bbp_get_user_favorites ( $user_id = 0 ) {
 
 	// If user has favorites, load them
 	if ( $favorites = bbp_get_user_favorites_topic_ids( $user_id ) ) {
-		$query = bbp_has_topics( array( 'post__in' => $favorites ) );
+		$query  = bbp_has_topics( array( 'post__in' => $favorites ) );
 		return apply_filters( 'bbp_get_user_favorites', $query, $user_id );
 	}
 
@@ -274,7 +348,7 @@ function bbp_get_user_subscriptions ( $user_id = 0 ) {
 
 	// If user has subscriptions, load them
 	if ( $subscriptions = bbp_get_user_subscribed_topic_ids( $user_id ) ) {
-		$query = bbp_has_topics( array( 'post__in' => $subscriptions ) );
+		$query      = bbp_has_topics( array( 'post__in' => $subscriptions ) );
 		return apply_filters( 'bbp_get_user_subscriptions', $query, $user_id );
 	}
 
@@ -435,7 +509,7 @@ function bbp_get_user_topics_started ( $user_id = 0 ) {
 	if ( !$user_id = bbp_get_user_id( $user_id ) )
 		return false;
 
-	if ( $query = bbp_has_topics( array( 'author' => $user_id, 'posts_per_page' => -1 ) ) )
+	if ( $query = bbp_has_topics( array( 'author' => $user_id ) ) )
 		return $query;
 
 	return false;

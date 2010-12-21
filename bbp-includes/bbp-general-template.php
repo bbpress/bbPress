@@ -311,21 +311,21 @@ function bbp_forum_dropdown ( $args = '' ) {
 		global $bbp;
 
 		$defaults = array (
-			'post_type'         => $bbp->forum_id,
-			'selected'          => bbp_get_forum_id(),
-			'sort_column'       => 'menu_order, post_title',
-			'child_of'          => '0',
+			'post_type'   => $bbp->forum_id,
+			'selected'    => bbp_get_forum_id(),
+			'sort_column' => 'menu_order, post_title',
+			'child_of'    => '0',
 		);
 
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
 		if ( $forums = get_posts( $r ) ) {
-			$output = '<select name="bbp_forum_id" id="bbp_forum_id">';
+			$output  = '<select name="bbp_forum_id" id="bbp_forum_id">';
 			$output .= walk_page_dropdown_tree( $forums, 0, $r );
 			$output .= '</select>';
 		} else {
-			$output = __( 'No forums to post to!', 'bbpress' );
+			$output  = __( 'No forums to post to!', 'bbpress' );
 		}
 
 		return apply_filters( 'bbp_get_forums_dropdown', $output );
@@ -340,16 +340,16 @@ function bbp_forum_dropdown ( $args = '' ) {
  *
  * Display possible error messages inside a template file
  *
- * @global WP_Error $errors
+ * @global WP_Error $bbp->errors
  */
 function bbp_error_messages () {
-	global $errors;
+	global $bbp;
 
-	if ( isset( $errors ) && is_wp_error( $errors ) ) : ?>
+	if ( isset( $bbp->errors ) && is_wp_error( $bbp->errors ) && $bbp->errors->get_error_codes() ) : ?>
 
-		<div class="bp-messages error">
+		<div class="bbp-template-notice error">
 			<p>
-				<?php echo implode( "</p>\n<p>", $errors->get_error_messages() ); ?>
+				<?php echo implode( "</p>\n<p>", $bbp->errors->get_error_messages() ); ?>
 			</p>
 		</div>
 
@@ -381,7 +381,7 @@ function bbp_breadcrumb ( $sep = '&larr;' ) {
 	/**
 	 * bbp_get_breadcrumb ( $sep )
 	 *
-	 * Return a breadcrumb ( forum < topic
+	 * Return a breadcrumb ( forum < topic )
 	 *
 	 * @global object $post
 	 * @param string $sep
