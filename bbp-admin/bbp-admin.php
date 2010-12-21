@@ -32,19 +32,22 @@ class BBP_Admin {
 		/** General Actions ***************************************************/
 
 		// Add notice if not using a bbPress theme
-		add_action( 'admin_notices',               array( $this, 'activation_notice' ) );
+		add_action( 'admin_notices',               array( $this, 'activation_notice'       )        );
 
 		// Add link to settings page
-		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link' ),   10, 2 );
+		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link'       ), 10, 2 );
 
-		// Add menu to settings
-		add_action( 'admin_menu',                  array( $this, 'admin_menus' ) );
+		// Add menu item to settings menu
+		add_action( 'admin_menu',                  array( $this, 'admin_menus'             )        );
+
+		// Add the settings
+		add_action( 'admin_init',                  array( $this, 'register_admin_settings' )        );
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
-		add_action( 'admin_init',                  array( $this, 'init' ) );
+		add_action( 'admin_init',                  array( $this, 'init'                    )        );
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',                  array( $this, 'admin_head' ) );
+		add_action( 'admin_head',                  array( $this, 'admin_head'              )        );
 
 		/** User Actions ******************************************************/
 
@@ -75,7 +78,7 @@ class BBP_Admin {
 		add_filter( 'post_row_actions',            array( $this, 'topics_row_actions' ), 10, 2 );
 
 		// Topic metabox actions
-		add_action( 'admin_menu',                  array( $this, 'topic_parent_metabox' ) );
+		add_action( 'admin_menu',                  array( $this, 'topic_parent_metabox'      ) );
 		add_action( 'save_post',                   array( $this, 'topic_parent_metabox_save' ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
@@ -92,7 +95,7 @@ class BBP_Admin {
 		add_filter( 'post_row_actions',            array( $this, 'replies_row_actions' ), 10, 2 );
 
 		// Topic reply metabox actions
-		add_action( 'admin_menu',                  array( $this, 'reply_parent_metabox' ) );
+		add_action( 'admin_menu',                  array( $this, 'reply_parent_metabox'      ) );
 		add_action( 'save_post',                   array( $this, 'reply_parent_metabox_save' ) );
 
 		// Register bbPress admin style
@@ -105,8 +108,8 @@ class BBP_Admin {
 	 * Include required files
 	 */
 	function _includes () {
-		require_once( 'bbp-tools.php' );
-		require_once( 'bbp-settings.php' );
+		require_once( 'bbp-tools.php'     );
+		require_once( 'bbp-settings.php'  );
 		require_once( 'bbp-functions.php' );
 	}
 
@@ -122,11 +125,40 @@ class BBP_Admin {
 	/**
 	 * admin_menus ()
 	 *
-	 * Add the navigational menue elements
+	 * Add the navigational menu elements
 	 */
 	function admin_menus () {
 		add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools'    );
 		add_options_page   ( __( 'Forums',  'bbpress' ), __( 'Forums',  'bbpress' ), 'manage_options', 'bbpress',     'bbp_admin_settings' );
+	}
+
+	/**
+	 * register_admin_settings ()
+	 *
+	 * Register the settings
+	 */
+	function register_admin_settings () {
+
+		// Add the main section
+		add_settings_section( 'bbp_main', __( 'Main Settings', 'bbpress' ), 'bbp_admin_setting_callback_section', 'bbpress' );
+
+		// Edit lock setting
+		add_settings_field( '_bbp_edit_lock',            __( 'Lock post editing after', 'bbpress' ), 'bbp_admin_setting_callback_editlock',      'bbpress', 'bbp_main' );
+	 	register_setting  ( 'bbpress',                   '_bbp_edit_lock',                           'intval'                                                          );
+
+		// Throttle setting
+		add_settings_field( '_bbp_throttle_time',        __( 'Throttle time',           'bbpress' ), 'bbp_admin_setting_callback_throttle',      'bbpress', 'bbp_main' );
+	 	register_setting  ( 'bbpress',                   '_bbp_throttle_time',                       'intval'                                                          );
+
+		// Allow subscriptions setting
+		add_settings_field( '_bbp_enable_subscriptions', __( 'Allow Subscriptions',     'bbpress' ), 'bbp_admin_setting_callback_subscriptions', 'bbpress', 'bbp_main' );
+	 	register_setting  ( 'bbpress',                   '_bbp_enable_subscriptions',                'intval'                                                          );
+
+		// Allow anonymous posting setting
+		add_settings_field( '_bbp_allow_anonymous',      __( 'Allow Anonymous Posting', 'bbpress' ), 'bbp_admin_setting_callback_anonymous',     'bbpress', 'bbp_main' );
+	 	register_setting  ( 'bbpress',                   '_bbp_allow_anonymous',                     'intval'                                                          );
+
+		do_action( 'bbp_register_admin_settings' );
 	}
 
 	/**
@@ -140,7 +172,7 @@ class BBP_Admin {
 
 		$current_theme = current_theme_info();
 
-		if ( !in_array( 'bbpress', (array)$current_theme->tags ) ) { ?>
+		if ( !in_array( 'bbpress', (array) $current_theme->tags ) ) { ?>
 
 			<div id="message" class="updated fade">
 				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is almost ready</strong>. First you'll need to <a href='%s'>activate a bbPress compatible theme</a>. We've bundled a child theme of Twenty Ten to get you started.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
@@ -150,13 +182,13 @@ class BBP_Admin {
 	}
 
 	/**
-	 * add_settings_link( $links, $file )
+	 * add_settings_link ()
 	 *
 	 * Add Settings link to plugins area
 	 *
 	 * @return string Links
 	 */
-	function add_settings_link( $links, $file ) {
+	function add_settings_link ( $links, $file ) {
 		global $bbp;
 
 		if ( plugin_basename( $bbp->file ) == $file ) {
@@ -174,7 +206,7 @@ class BBP_Admin {
 	 * @uses do_action
 	 */
 	function init () {
-		do_action ( 'bbp_admin_init' );
+		do_action( 'bbp_admin_init' );
 	}
 
 	/**
@@ -276,9 +308,9 @@ class BBP_Admin {
 		$icon32_url    = $bbp->images_url . '/icons32.png';
 
 		// Top level menu classes
-		$forum_class = sanitize_html_class( $bbp->forum_id );
-		$topic_class = sanitize_html_class( $bbp->topic_id );
-		$reply_class = sanitize_html_class( $bbp->reply_id ); ?>
+		$forum_class   = sanitize_html_class( $bbp->forum_id );
+		$topic_class   = sanitize_html_class( $bbp->topic_id );
+		$reply_class   = sanitize_html_class( $bbp->reply_id ); ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -525,7 +557,7 @@ class BBP_Admin {
 	/**
 	 * toggle_topic_notice ()
 	 *
-	 * Display the success notices from toggle_topic()
+	 * Display the success/error notices from toggle_topic()
 	 *
 	 * @since bbPress (r2727)
 	 */
@@ -585,12 +617,12 @@ class BBP_Admin {
 	function topics_column_headers ( $columns ) {
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
-			'title'                 => __( 'Topics', 'bbpress' ),
-			'bbp_topic_forum'       => __( 'Forum', 'bbpress' ),
-			'bbp_topic_reply_count' => __( 'Replies', 'bbpress' ),
-			'bbp_topic_voice_count' => __( 'Voices', 'bbpress' ),
-			'bbp_topic_author'      => __( 'Author', 'bbpress' ),
-			'bbp_topic_created'     => __( 'Created', 'bbpress' ),
+			'title'                 => __( 'Topics',    'bbpress' ),
+			'bbp_topic_forum'       => __( 'Forum',     'bbpress' ),
+			'bbp_topic_reply_count' => __( 'Replies',   'bbpress' ),
+			'bbp_topic_voice_count' => __( 'Voices',    'bbpress' ),
+			'bbp_topic_author'      => __( 'Author',    'bbpress' ),
+			'bbp_topic_created'     => __( 'Created',   'bbpress' ),
 			'bbp_topic_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
@@ -678,7 +710,8 @@ class BBP_Admin {
 	/**
 	 * topics_row_actions ( $actions, $topic )
 	 *
-	 * Remove the quick-edit action link under the topic/reply title
+	 * Remove the quick-edit action link under the topic/reply title and
+	 * add the spam/close links
 	 *
 	 * @param array $actions
 	 * @param array $topic
@@ -687,16 +720,17 @@ class BBP_Admin {
 	function topics_row_actions ( $actions, $topic ) {
 		global $bbp;
 
-		/* Spamming/closing/etc trashed topics will remove the trash post_status from them.
-		 * Same type of complexities can be there with other post statuses too.
-		 * Hence, these actions are only shown on all, published, closed and spam post status pages.
-		 */
-		if ( $bbp->topic_id == $topic->post_type && ( empty( $_GET['post_status'] ) || in_array( $_GET['post_status'], array( 'publish', $bbp->spam_status_id, $bbp->closed_status_id ) ) ) ) {
+		if ( $bbp->topic_id == $topic->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			the_content();
 
-			if ( current_user_can( 'edit_topic', $topic->ID ) ) {
+			/**
+			 * Spamming/closing/etc trashed topics will remove the trash post_status from them.
+			 * Same type of complexities can be there with other post statuses too.
+			 * Hence, these actions are only shown on all, published, closed and spam post status pages.
+			 */
+			if ( ( empty( $_GET['post_status'] ) || in_array( $_GET['post_status'], array( 'publish', $bbp->spam_status_id, $bbp->closed_status_id ) ) ) && current_user_can( 'edit_topic', $topic->ID ) ) {
 				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'close-topic_' . $topic->ID ) );
 				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
 
@@ -726,11 +760,11 @@ class BBP_Admin {
 	function replies_column_headers ( $columns ) {
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
-			'title'                 => __( 'Title', 'bbpress' ),
-			'bbp_reply_forum'       => __( 'Forum', 'bbpress' ),
-			'bbp_reply_topic'       => __( 'Topic', 'bbpress' ),
-			'bbp_reply_author'      => __( 'Author', 'bbpress' ),
-			'bbp_reply_created'     => __( 'Created' , 'bbpress' ),
+			'title'                 => __( 'Title',   'bbpress' ),
+			'bbp_reply_forum'       => __( 'Forum',   'bbpress' ),
+			'bbp_reply_topic'       => __( 'Topic',   'bbpress' ),
+			'bbp_reply_author'      => __( 'Author',  'bbpress' ),
+			'bbp_reply_created'     => __( 'Created', 'bbpress' ),
 		);
 
 		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
@@ -819,7 +853,7 @@ class BBP_Admin {
 	}
 
 	/**
-	 * replies_row_actions ( $actions, $post )
+	 * replies_row_actions ()
 	 *
 	 * Remove the quick-edit action link under the topic/reply title
 	 *
@@ -828,9 +862,9 @@ class BBP_Admin {
 	 * @return array $actions
 	 */
 	function replies_row_actions ( $actions, $reply ) {
-		global $bbp, $typenow;
+		global $bbp;
 
-		if ( $bbp->reply_id == $typenow ) {
+		if ( $bbp->reply_id == $reply->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			the_content();
@@ -888,12 +922,12 @@ function bbp_topic_metabox () {
 	global $post, $bbp;
 
 	$args = array(
-		'post_type'         => $bbp->forum_id,
-		'exclude_tree'      => $post->ID,
-		'selected'          => $post->post_parent,
-		'show_option_none'  => __( '(No Forum)', 'bbpress' ),
-		'sort_column'       => 'menu_order, post_title',
-		'child_of'          => '0',
+		'post_type'        => $bbp->forum_id,
+		'exclude_tree'     => $post->ID,
+		'selected'         => $post->post_parent,
+		'show_option_none' => __( '(No Forum)', 'bbpress' ),
+		'sort_column'      => 'menu_order, post_title',
+		'child_of'         => '0',
 	);
 
 	$posts = bbp_admin_dropdown (
@@ -929,12 +963,12 @@ function bbp_reply_metabox () {
 	global $post, $bbp;
 
 	$args = array(
-		'post_type'         => $bbp->topic_id,
-		'exclude_tree'      => $post->ID,
-		'selected'          => $post->post_parent,
-		'show_option_none'  => __( '(No Topic)', 'bbpress' ),
-		'sort_column'       => 'menu_order, post_title',
-		'child_of'          => '0',
+		'post_type'        => $bbp->topic_id,
+		'exclude_tree'     => $post->ID,
+		'selected'         => $post->post_parent,
+		'show_option_none' => __( '(No Topic)', 'bbpress' ),
+		'sort_column'      => 'menu_order, post_title',
+		'child_of'         => '0',
 	);
 
 	$posts = bbp_admin_dropdown(
@@ -969,7 +1003,7 @@ function bbp_admin_dropdown ( $title, $sub_title, $error, $args = '' ) {
 	$posts = get_posts( $args );
 
 	if ( !empty( $posts ) ) {
-		$output = '<select name="parent_id" id="parent_id">';
+		$output  = '<select name="parent_id" id="parent_id">';
 		$output .= '<option value="">' . __( '(No Parent)', 'bbpress' ) . '</option>';
 		$output .= walk_page_dropdown_tree( $posts, 0, $args );
 		$output .= '</select>';
