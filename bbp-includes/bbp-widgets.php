@@ -52,7 +52,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		function update( $new_instance, $old_instance ) {
 			$instance                 = $old_instance;
-			$instance['title']        = strip_tags( $new_instance['title'] );
+			$instance['title']        = strip_tags( $new_instance['title']        );
 			$instance['parent_forum'] = strip_tags( $new_instance['parent_forum'] );
 			return $instance;
 		}
@@ -86,16 +86,16 @@ class BBP_Topics_Widget extends WP_Widget {
 		extract( $args );
 
 		$title        = apply_filters( 'widget_title', $instance['title'] );
-		$max_shown    = !empty( $instance['max_shown'] ) ? $instance['max_shown'] : '5';
-		$show_date    = !empty( $instance['show_date'] ) ? 'on' : false;
+		$max_shown    = !empty( $instance['max_shown']    ) ? $instance['max_shown']    : '5';
+		$show_date    = !empty( $instance['show_date']    ) ? 'on'                      : false;
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : '';
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
 		$default = array(
 			'post_parent'    => $parent_forum,
-			'posts_per_page' => ( $max_shown > $pop_check ) ? $max_shown : $pop_check,
+			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
 			'orderby'        => 'modified',
-			'order'          => 'ASC'
+			'order'          => 'DESC'
 		);
 
 		echo $before_widget;
@@ -116,7 +116,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		if ( $pop_check >= $max_shown && bbp_has_topics( $default ) ) :
 			echo "<ul>";
-			while ( bbp_topics ( ) ) : bbp_the_topic();
+			while ( bbp_topics () ) : bbp_the_topic();
 				$topics[bbp_get_topic_id()] = bbp_get_topic_reply_count();
 			endwhile;
 			arsort( $topics );
@@ -140,7 +140,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 	function update( $new_instance, $old_instance ) {
 		$instance              = $old_instance;
-		$instance['title']     = strip_tags( $new_instance['title'] );
+		$instance['title']     = strip_tags( $new_instance['title']     );
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
 		$instance['pop_check'] = strip_tags( $new_instance['pop_check'] );
@@ -148,18 +148,17 @@ class BBP_Topics_Widget extends WP_Widget {
 	}
 
 	function form( $instance ) {
-		$title     = !empty( $instance['title'] )     ? esc_attr( $instance['title'] )     : '';
+		$title     = !empty( $instance['title'] )     ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
 		$pop_check = !empty( $instance['pop_check'] ) ? esc_attr( $instance['pop_check'] ) : '';
 ?>
-
-		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php echo ($show_date == 'on') ? 'checked="checked"' : ''; ?>/></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:', 'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php echo ($show_date == 'on') ? 'checked="checked"' : ''; ?>/></label></p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'pop_check' ); ?>"><?php _e( 'Popularity check:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'pop_check' ); ?>" name="<?php echo $this->get_field_name( 'pop_check' ); ?>" type="text" value="<?php echo $pop_check; ?>" /></label>
-			<br /><small><?php _e( 'Number of topics back to check reply count to determine popularity. A number less than the maximum number of topics to show disables the check.' ); ?></small>
+			<label for="<?php echo $this->get_field_id( 'pop_check' ); ?>"><?php _e( 'Popularity check:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'pop_check' ); ?>" name="<?php echo $this->get_field_name( 'pop_check' ); ?>" type="text" value="<?php echo $pop_check; ?>" /></label>
+			<br /><small><?php _e( 'Number of topics back to check reply count to determine popularity. A number less than the maximum number of topics to show disables the check.', 'bbpress' ); ?></small>
 		</p>
 
 <?php
@@ -171,7 +170,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	function BBP_Replies_Widget() {
 		$widget_ops = array(
 			'classname'   => 'widget_display_replies',
-			'description' => __( "A list of bbPress recent replies." )
+			'description' => __( 'A list of bbPress recent replies.', 'bbpress' )
 		);
 		parent::WP_Widget( false, $name = 'bbPress Reply List', $widget_ops );
 	}
@@ -181,13 +180,13 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		$title     = apply_filters( 'widget_title', $instance['title'] );
 		$max_shown = !empty( $instance['max_shown'] ) ? $instance['max_shown'] : '5';
-		$show_date = !empty( $instance['show_date'] ) ? 'on' : false;
+		$show_date = !empty( $instance['show_date'] ) ? 'on'                   : false;
 
 		$default = array(
 			'post_parent'    => null,
 			'posts_per_page' => $max_shown,
 			'orderby'        => 'modified',
-			'order'          => 'ASC'
+			'order'          => 'DESC'
 		);
 
 		echo $before_widget;
@@ -216,21 +215,20 @@ class BBP_Replies_Widget extends WP_Widget {
 
 	function update( $new_instance, $old_instance ) {
 		$instance              = $old_instance;
-		$instance['title']     = strip_tags( $new_instance['title'] );
+		$instance['title']     = strip_tags( $new_instance['title']     );
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
 		return $instance;
 	}
 
 	function form( $instance ) {
-		$title     = !empty( $instance['title'] )     ? esc_attr( $instance['title'] ) : '';
+		$title     = !empty( $instance['title']     ) ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
 ?>
-
-		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
-		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php echo ($show_date == 'on') ? 'checked="checked"' : ''; ?>/></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
+		<p><label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e( 'Show post date:', 'bbpress' ); ?> <input type="checkbox" id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" <?php echo ($show_date == 'on') ? 'checked="checked"' : ''; ?>/></label></p>
 
 <?php
 	}
