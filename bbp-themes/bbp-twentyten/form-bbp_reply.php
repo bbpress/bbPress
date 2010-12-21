@@ -11,7 +11,9 @@
 
 					<?php if ( !bbp_is_topic_open() ) : ?>
 
-						<div class="entry-content"><?php _e( 'This topic has been closed to new replies, but as you are a moderator or an administrator, you can still reply to this topic.', 'bbpress' ); ?></div>
+						<div class="bbp-template-notice">
+							<p><?php _e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></p>
+						</div>
 
 					<?php endif; ?>
 
