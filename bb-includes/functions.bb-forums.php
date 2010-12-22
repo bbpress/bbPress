@@ -133,24 +133,22 @@ function bb_get_forum( $id ) {
 	}
 
 	// not else
-	if ( is_numeric($id) ) {
-		$id = (int) $id;
-		$sql = "forum_id = $id";
-	}
+	if ( is_numeric($id) )
+		$sql = $bbdb->prepare( "forum_id = %d", $id );
 
-	if ( 0 === $id || !$sql )
+	if ( 0 === $id || empty( $sql ) )
 		return false;
 
 	// $where is NOT bbdb:prepared
 	if ( $where = apply_filters( 'get_forum_where', '' ) ) {
-		$forum = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->forums WHERE forum_id = %d", $id ) . " $where" );
+		$forum = $bbdb->get_row( "SELECT * FROM $bbdb->forums WHERE $sql $where" );
 		return bb_append_meta( $forum, 'forum' );
 	}
 
 	if ( is_numeric($id) && false !== $forum = wp_cache_get( $id, 'bb_forum' ) )
 		return $forum;
 
-	$forum = $bbdb->get_row( $bbdb->prepare( "SELECT * FROM $bbdb->forums WHERE $sql", $id ) );
+	$forum = $bbdb->get_row( "SELECT * FROM $bbdb->forums WHERE $sql" );
 	$forum = bb_append_meta( $forum, 'forum' );
 	wp_cache_set( $forum->forum_id, $forum, 'bb_forum' );
 	wp_cache_add( $forum->forum_slug, $forum->forum_id, 'bb_forum_slug' );
