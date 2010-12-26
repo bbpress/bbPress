@@ -1,9 +1,28 @@
 <?php
 
 /**
+ * bbp_add_roles ()
+ *
+ * Adds bbPress-specific user roles. This is called on plugin activation.
+ *
+ * @uses get_role
+ *
+ * @since bbPress (r2741)
+ */
+function bbp_add_roles () {
+	// Add the Moderator role and add the default role caps. Mod caps are added by the bbp_add_caps () function
+	$default =& get_role( get_option( 'default_role' ) );
+	add_role( 'bbp_moderator', __( 'Forum Moderator', 'bbpress' ), $default->capabilities );
+
+	do_action( 'bbp_add_roles' );
+}
+add_action( 'bbp_activation', 'bbp_add_roles', 1 );
+
+/**
  * bbp_add_caps ()
  *
- * Adds capabilities to WordPress user roles. This is called on plugin activation.
+ * Adds capabilities to WordPress user roles. This is called on plugin
+ * activation.
  *
  * @uses get_role
  */
@@ -43,6 +62,7 @@ function bbp_add_caps () {
 
 		// Misc
 		$admin->add_cap( 'throttle'              );
+		$admin->add_cap( 'view_trash'            );
 	}
 
 	// Add caps to default role
@@ -59,13 +79,50 @@ function bbp_add_caps () {
 		// Topic tag caps
 		$default->add_cap( 'assign_topic_tags' );
 	}
+
+	// Add caps to moderator role
+	if ( $mod =& get_role( 'bbp_moderator' ) ) {
+
+		// Topic caps
+		$mod->add_cap( 'publish_topics'        );
+		$mod->add_cap( 'edit_topics'           );
+		$mod->add_cap( 'edit_others_topics'    );
+		$mod->add_cap( 'delete_topics'         );
+		$mod->add_cap( 'delete_others_topics'  );
+		$mod->add_cap( 'read_private_topics'   );
+
+		// Reply caps
+		$mod->add_cap( 'publish_replies'       );
+		$mod->add_cap( 'edit_replies'          );
+		$mod->add_cap( 'edit_others_replies'   );
+		$mod->add_cap( 'delete_replies'        );
+		$mod->add_cap( 'delete_others_replies' );
+		$mod->add_cap( 'read_private_replies'  );
+
+		// Topic tag caps
+		$mod->add_cap( 'manage_topic_tags'     );
+		$mod->add_cap( 'edit_topic_tags'       );
+		$mod->add_cap( 'delete_topic_tags'     );
+		$mod->add_cap( 'assign_topic_tags'     );
+
+		// Users
+		$mod->add_cap( 'edit_users'            );
+
+		// Misc
+		$mod->add_cap( 'moderate'              );
+		$mod->add_cap( 'throttle'              );
+		$mod->add_cap( 'view_trash'            );
+	}
+
+	do_action( 'bbp_add_caps' );
 }
-add_action( 'bbp_activation', 'bbp_add_caps' );
+add_action( 'bbp_activation', 'bbp_add_caps', 2 );
 
 /**
  * bbp_remove_caps ()
  *
- * Removes capabilities from WordPress user roles. This is called on plugin deactivation.
+ * Removes capabilities from WordPress user roles. This is called on plugin
+ * deactivation.
  *
  * @uses get_role
  */
@@ -105,6 +162,7 @@ function bbp_remove_caps () {
 
 		// Misc
 		$admin->remove_cap( 'throttle'              );
+		$admin->remove_cap( 'view_trash'            );
 	}
 
 	// Remove caps from default role
@@ -121,8 +179,27 @@ function bbp_remove_caps () {
 		// Topic tag caps
 		$default->remove_cap( 'assign_topic_tags' );
 	}
+
+	do_action( 'bbp_remove_caps' );
 }
-add_action( 'bbp_deactivation', 'bbp_remove_caps' );
+add_action( 'bbp_deactivation', 'bbp_remove_caps', 1 );
+
+/**
+ * bbp_remove_roles ()
+ *
+ * Removes bbPress-specific user roles. This is called on plugin deactivation.
+ *
+ * @uses remove_role
+ *
+ * @since bbPress (r2741)
+ */
+function bbp_remove_roles () {
+	// Remove the Moderator role
+	remove_role( 'bbp_moderator' );
+
+	do_action( 'bbp_remove_roles' );
+}
+add_action( 'bbp_deactivation', 'bbp_remove_roles', 2 );
 
 /**
  * bbp_map_meta_caps ()
