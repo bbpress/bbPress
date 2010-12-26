@@ -32,13 +32,16 @@ function bbp_has_replies ( $args = '' ) {
 		'order'          => 'ASC',
 
 		// @todo replace 15 with setting
-		'posts_per_page' => 15,
+		'posts_per_page' => get_option( '_bbp_replies_per_page', 15 ),
 
 		// Page Number
 		'paged'          => bbp_get_paged(),
 
 		// Reply Search
 		's'              => !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : '',
+
+		// Post Status
+		'post_status'    => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) ? join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) ) : 'publish',
 	);
 
 	// Set up topic variables
@@ -69,7 +72,8 @@ function bbp_has_replies ( $args = '' ) {
 			'current'   => (int) $bbp->reply_query->paged,
 			'prev_text' => '&larr;',
 			'next_text' => '&rarr;',
-			'mid_size'  => 1
+			'mid_size'  => 1,
+			'add_args'  => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] ) ? array( 'view' => 'all' ) : false
 		) );
 
 		// Add pagination to query object
@@ -77,9 +81,9 @@ function bbp_has_replies ( $args = '' ) {
 
 		// Remove first page from pagination
 		if ( $wp_rewrite->using_permalinks() )
-			$bbp->reply_query->pagination_links = str_replace( 'page/1/\'', '\'', $bbp->reply_query->pagination_links );
+			$bbp->reply_query->pagination_links = str_replace( 'page/1/\'',     '\'', $bbp->reply_query->pagination_links );
 		else
-			$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );			
+			$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '',   $bbp->reply_query->pagination_links );
 	}
 
 	// Return object
@@ -225,6 +229,8 @@ function bbp_reply_url ( $reply_id = 0 ) {
 	 *
 	 * Return the paginated url to the reply in the reply loop
 	 *
+	 * @todo If pages > 1, the last page is returned in the url - fix that.
+	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
 	 * @since bbPress (r2679)
@@ -233,18 +239,24 @@ function bbp_reply_url ( $reply_id = 0 ) {
 	 * @uses bbp_get_reply_id
 	 * @uses bbp_get_reply_topic_id
 	 * @uses bbp_get_topic_permalink
-	 * @param int $reply_id optional
+	 * @param int $reply_id Optional.
+	 * @param bool $count_hidden Optional. Count hidden (trashed/spammed) replies? If $_GET['view'] == all, it is automatically set to true. To override this, set $count_hidden = (int) -1
 	 *
 	 * @return string Link to reply relative to paginated topic
 	 */
-	function bbp_get_reply_url ( $reply_id = 0 ) {
+	function bbp_get_reply_url ( $reply_id = 0, $count_hidden = false ) {
 		global $bbp, $wp_rewrite;
+
+		if ( $count_hidden !== -1 && !empty( $_GET['view'] ) && 'all' == 'view' )
+			$count_hidden = true;
 
 		// Set needed variables
 		$reply_id      = bbp_get_reply_id( $reply_id );
 		$topic_id      = bbp_get_reply_topic_id( $reply_id );
 		$topic_url     = bbp_get_topic_permalink( $topic_id );
 		$topic_replies = bbp_get_topic_reply_count( $topic_id );
+		if ( $count_hidden == true )
+			$topic_replies += bbp_get_topic_hidden_reply_count( $topic_id );
 		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
 
 		// Don't include pagination if on first page
@@ -369,6 +381,28 @@ function bbp_reply_status ( $reply_id = 0 ) {
 
 		return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ) );
 	}
+
+/**
+ * bbp_is_reply_spam ()
+ *
+ * Is the reply marked as spam?
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_reply_id()
+ * @uses bbp_get_reply_status()
+ *
+ * @param int $reply_id optional
+ * @return bool True if spam, false if not.
+ */
+function bbp_is_reply_spam ( $reply_id = 0 ) {
+	global $bbp;
+
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
+	return $bbp->spam_status_id == $reply_status;
+}
 
 /**
  * bbp_reply_author ()
@@ -753,45 +787,222 @@ function bbp_reply_forum_id ( $reply_id = 0 ) {
 		return apply_filters( 'bbp_get_reply_topic_id', $forum_id, $reply_id );
 	}
 
+/** Reply Admin Links *********************************************************/
+
 /**
- * bbp_reply_admin_links()
+ * bbp_reply_admin_links ()
  *
  * Output admin links for reply
  *
- * @param array $args
+ * @package bbPress
+ * @subpackage Template Tags
+ *
+ * @param mixed $args
  */
-function bbp_reply_admin_links( $args = '' ) {
+function bbp_reply_admin_links ( $args = '' ) {
 	echo bbp_get_reply_admin_links( $args );
 }
 	/**
-	 * bbp_get_reply_admin_links()
+	 * bbp_get_reply_admin_links ()
 	 *
 	 * Return admin links for reply
 	 *
-	 * @param array $args
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 *
+	 * @uses bbp_get_reply_edit_link ()
+	 * @uses bbp_get_reply_trash_link ()
+	 * @uses bbp_get_reply_spam_link ()
+	 *
+	 * @param mixed $args
 	 * @return string
 	 */
-	function bbp_get_reply_admin_links( $args = '' ) {
-		if ( !current_user_can( 'edit_others_replies' ) )
-			return;
+	function bbp_get_reply_admin_links ( $args = '' ) {
+		if ( !bbp_is_topic() && !bbp_is_reply() )
+			return '&nbsp';
 
 		$defaults = array (
+			'id'     => bbp_get_reply_id(),
 			'before' => '<span class="bbp-admin-links">',
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array (
-				'edit'  => __( 'Edit', 'bbpress' ),  // bbp_get_reply_close_link( $args ),
-				'trash' => __( 'Trash', 'bbpress' ), // bbp_get_reply_delete_link( $args ),
-			),
+				'edit'   => bbp_get_reply_edit_link ( $args ),
+				'trash'  => bbp_get_reply_trash_link( $args ),
+				'spam'   => bbp_get_reply_spam_link ( $args )
+			)
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+
+		if ( !current_user_can( 'edit_reply', $r['id'] ) )
+			return '&nbsp';
+
+		if ( !current_user_can( 'delete_reply', $r['id'] ) )
+			unset( $r['links']['trash'] );
+
+		// Process the admin links
+		$links = implode( $r['sep'], $r['links'] );
+
+		return apply_filters( 'bbp_get_reply_admin_links', $r['before'] . $links . $r['after'], $args );
+	}
+
+/**
+ * bbp_reply_edit_link ()
+ *
+ * Output the edit link of the reply
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_reply_edit_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_reply_edit_link ( $args = '' ) {
+	echo bbp_get_reply_edit_link( $args );
+}
+
+	/**
+	 * bbp_get_reply_edit_link ()
+	 *
+	 * Return the edit link of the reply
+	 *
+	 * @todo Add reply edit page and correct this function.
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2740)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_reply_edit_link ( $args = '' ) {
+		return apply_filters( 'bbp_get_reply_edit_link', __( 'Edit', 'bbpress' ), $args );
+	}
+
+/**
+ * bbp_reply_trash_link ()
+ *
+ * Output the trash link of the reply
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_reply_trash_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_reply_trash_link ( $args = '' ) {
+	echo bbp_get_reply_trash_link( $args );
+}
+
+	/**
+	 * bbp_get_reply_trash_link ()
+	 *
+	 * Return the trash link of the reply
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2740)
+	 *
+	 * @param mixed $args
+	 * @return bool|string
+	 */
+	function bbp_get_reply_trash_link ( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'sep'          => ' | ',
+			'trash_text'   => __( 'Trash',   'bbpress' ),
+			'restore_text' => __( 'Restore', 'bbpress' ),
+			'delete_text'  => __( 'Delete',  'bbpress' )
 		);
 
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		// Process the admin links
-		$links = implode( $sep, $links );
+		$actions = array();
+		$reply   = get_post( bbp_get_reply_id( (int) $id ) );
 
-		return apply_filters( 'bbp_get_reply_admin_links', $before . $links . $after, $args );
+		if ( empty( $reply ) || !current_user_can( 'delete_reply', $reply->ID ) )
+			return;
+
+		$reply_status = bbp_get_reply_status( $reply->ID );
+
+		if ( 'trash' == $reply_status )
+			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to restore that?", "bbpress" ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
+		elseif ( EMPTY_TRASH_DAYS )
+			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash', 'reply_id' => $reply->ID ) ), 'trash-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to trash that?", "bbpress" ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
+
+		if ( 'trash' == $reply->post_status || !EMPTY_TRASH_DAYS )
+			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete', 'reply_id' => $reply->ID ) ), 'delete-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to delete that permanentaly?", "bbpress" ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
+
+		// Process the admin links
+		$actions = implode( $sep, $actions );
+
+		return apply_filters( 'bbp_get_reply_trash_link', $link_before . $actions . $link_after, $args );
+	}
+
+/**
+ * bbp_reply_spam_link ()
+ *
+ * Output the spam link of the reply
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_reply_spam_link ()
+ *
+ * @param mixed $args
+ * @return string
+ */
+function bbp_reply_spam_link ( $args = '' ) {
+	echo bbp_get_reply_spam_link( $args );
+}
+
+	/**
+	 * bbp_get_reply_spam_link ()
+	 *
+	 * Return the spam link of the reply
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2740)
+	 *
+	 * @param mixed $args
+	 * @return string
+	 */
+	function bbp_get_reply_spam_link ( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'sep'          => ' | ',
+			'spam_text'    => __( 'Spam',   'bbpress' ),
+			'unspam_text'  => __( 'Unspam', 'bbpress' )
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$reply = get_post( bbp_get_reply_id( (int) $id ) );
+
+		if ( empty( $reply ) || !current_user_can( 'edit_reply', $reply->ID ) )
+			return;
+
+		$display  = bbp_is_reply_spam( $reply->ID ) ? $unspam_text : $spam_text;
+
+		$uri = add_query_arg( array( 'action' => 'bbp_toggle_reply_spam', 'reply_id' => $reply->ID ) );
+		$uri = esc_url( wp_nonce_url( $uri, 'spam-reply_' . $reply->ID ) );
+
+		return apply_filters( 'bbp_get_reply_spam_link', $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after, $args );
 	}
 
 /**
@@ -904,6 +1115,72 @@ function bbp_topic_pagination_links () {
 			return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
 	}
 
-/** END reply Loop Functions **************************************************/
+/** END Reply Loop Functions **************************************************/
+
+/** Reply Actions *************************************************************/
+
+/**
+ * bbp_spam_reply ()
+ *
+ * Marks a reply as spam
+ *
+ * @since bbPress (r2740)
+ *
+ * @param int $reply_id reply ID.
+ * @return mixed False on failure
+ */
+function bbp_spam_reply ( $reply_id = 0 ) {
+	global $bbp;
+
+	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
+		return $reply;
+
+	if ( $reply['post_status'] == $bbp->spam_status_id )
+		return false;
+
+	do_action( 'bbp_spam_reply', $reply_id );
+
+	add_post_meta( $reply_id, '_bbp_spam_meta_status', $reply['post_status'] );
+
+	$reply['post_status'] = $bbp->spam_status_id;
+	wp_insert_post( $reply );
+
+	do_action( 'bbp_spammed_reply', $reply_id );
+
+	return $reply;
+}
+
+/**
+ * bbp_unspam_reply ()
+ *
+ * unspams a reply
+ *
+ * @since bbPress (r2740)
+ *
+ * @param int $reply_id reply ID.
+ * @return mixed False on failure
+ */
+function bbp_unspam_reply ( $reply_id = 0 ) {
+	global $bbp;
+
+	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
+		return $reply;
+
+	if ( $reply['post_status'] != $bbp->spam_status_id )
+		return false;
+
+	do_action( 'bbp_unspam_reply', $reply_id );
+
+	$reply_status         = get_post_meta( $reply_id, '_bbp_spam_meta_status', true );
+	$reply['post_status'] = $reply_status;
+
+	delete_post_meta( $reply_id, '_bbp_spam_meta_status' );
+
+	wp_insert_post( $reply );
+
+	do_action( 'bbp_unspammed_reply', $reply_id );
+
+	return $reply;
+}
 
 ?>

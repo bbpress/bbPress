@@ -143,7 +143,7 @@ function bbp_twentyten_scripts () {
 			document.getElementById('pass1').focus();
 		}
 	</script>
-	
+
 	<?php
 	endif;
 }
@@ -176,12 +176,12 @@ function bbp_twentyten_topic_script_localization () {
 		'topicId'       => bbp_get_topic_id(),
 		'favoritesLink' => bbp_get_favorites_permalink( $user_id ),
 		'isFav'         => (int) bbp_is_user_favorite( $user_id ),
-		'favLinkYes'    => __( 'favorites', 'bbpress' ),
-		'favLinkNo'     => __( '?', 'bbpress' ),
+		'favLinkYes'    => __( 'favorites',                                         'bbpress' ),
+		'favLinkNo'     => __( '?',                                                 'bbpress' ),
 		'favYes'        => __( 'This topic is one of your %favLinkYes% [%favDel%]', 'bbpress' ),
-		'favNo'         => __( '%favAdd% (%favLinkNo%)', 'bbpress' ),
-		'favDel'        => __( '&times;', 'bbpress' ),
-		'favAdd'        => __( 'Add this topic to your favorites', 'bbpress' )
+		'favNo'         => __( '%favAdd% (%favLinkNo%)',                            'bbpress' ),
+		'favDel'        => __( '&times;',                                           'bbpress' ),
+		'favAdd'        => __( 'Add this topic to your favorites',                  'bbpress' )
 	);
 
 	if ( bbp_is_subscriptions_active() ) {

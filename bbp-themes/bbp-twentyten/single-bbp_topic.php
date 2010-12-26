@@ -42,7 +42,11 @@
 
 								<tfoot>
 									<tr>
-										<td colspan="2"><?php bbp_topic_admin_links(); ?></td>
+										<td colspan="2">
+											<span class="bbp-topic_replies"><?php bbp_topic_replies_link(); ?></span>
+											<span class="bbp-topic_voices"><?php printf( _n( '(%s voice)', '(%s voices)', bbp_get_topic_voice_count(), 'bbpress' ), bbp_get_topic_voice_count() ); ?></span>
+											<span class="bbp-admin-links"><?php bbp_topic_admin_links(); ?><span>
+										</td>
 									</tr>
 								</tfoot>
 

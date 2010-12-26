@@ -26,6 +26,15 @@ hr { margin: 0 0 24px 0 !important; }
 	background-color: #f8f8f8;
 }
 
+#content table tbody tr.status-trash.even td,
+#content table tbody tr.status-spam.even td {
+	background-color: #fee;
+}
+#content table tbody tr.status-trash.odd td,
+#content table tbody tr.status-spam.odd td {
+	background-color: #fdd;
+}
+
 table.bbp-topic tbody tr td,
 table.bbp-replies tbody tr td {
 	background-color: #fff;
@@ -75,6 +84,10 @@ table.bbp-replies tr.bbp-reply-header td, table.bbp-topic tr.bbp-topic-header td
 span.bbp-admin-links {
 	float: right;
 	color: #d0d0d0;
+}
+td.bbp-topic-admin-links,
+td.bbp-topic-counts {
+	width: 50%;
 }
 
 .bbp-topic-action #favorite-toggle a {

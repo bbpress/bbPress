@@ -1,6 +1,6 @@
 <?php
 
-function bbp_admin_notices( $message, $class = false ) {
+function bbp_admin_notices ( $message, $class = false ) {
 	if ( is_string( $message ) ) {
 		$message = '<p>' . $message . '</p>';
 		$class = $class ? $class : 'updated';
@@ -45,9 +45,9 @@ function bbp_recount_list () {
 		30 => array( 'bbp-topics-replied',        __( 'Count replies for each user',                   'bbpress' ), 'bbp_recount_user_topics_replied'   ),
 		35 => array( 'bbp-clean-favorites',       __( 'Remove trashed topics from user favorites',     'bbpress' ), 'bbp_recount_clean_favorites'       ),
 		40 => array( 'bbp-clean-subscriptions',   __( 'Remove trashed topics from user subscriptions', 'bbpress' ), 'bbp_recount_clean_subscriptions'   )
-		//45 => array( 'bbp-topic-tag-count',       __( 'Count tags for every topic',                'bbpress' ), 'bbp_recount_topic_tags'            ),
-		//50 => array( 'bbp-tags-tag-count',        __( 'Count topics for every tag',                'bbpress' ), 'bbp_recount_tag_topics'            ),
-		//55 => array( 'bbp-tags-delete-empty',     __( 'Delete tags with no topics',                'bbpress' ), 'bbp_recount_tag_delete_empty'      )
+		//45 => array( 'bbp-topic-tag-count',       __( 'Count tags for every topic',                    'bbpress' ), 'bbp_recount_topic_tags'            ),
+		//50 => array( 'bbp-tags-tag-count',        __( 'Count topics for every tag',                    'bbpress' ), 'bbp_recount_tag_topics'            ),
+		//55 => array( 'bbp-tags-delete-empty',     __( 'Delete tags with no topics',                    'bbpress' ), 'bbp_recount_tag_delete_empty'      )
 	);
 
 	ksort( $recount_list );

@@ -336,7 +336,7 @@ function bbp_is_topic_open ( $topic_id = 0 ) {
  * @uses bbp_get_topic_status()
  *
  * @param int $topic_id optional
- * @return bool True if open, false if closed.
+ * @return bool True if spam, false if not.
  */
 function bbp_is_topic_spam ( $topic_id = 0 ) {
 	global $bbp;
@@ -911,9 +911,61 @@ function bbp_topic_freshness_link ( $topic_id = 0) {
 	}
 
 /**
+ * bbp_topic_replies_link ()
+ *
+ * Output the replies link of the topic
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_topic_replies_link()
+ * @param int $topic_id
+ */
+function bbp_topic_replies_link ( $topic_id = 0 ) {
+	echo bbp_get_topic_replies_link( $topic_id );
+}
+
+	/**
+	 * bbp_get_topic_replies_link ()
+	 *
+	 * Return the replies link of the topic
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2740)
+	 *
+	 * @param int $topic_id
+	 */
+	function bbp_get_topic_replies_link ( $topic_id = 0 ) {
+		global $bbp;
+
+		$topic    = get_post( bbp_get_topic_id( (int) $topic_id ) );
+		$topic_id = $topic->ID;
+		$replies  = bbp_get_topic_reply_count( $topic_id );
+		$replies  = sprintf( _n( '%s reply', '%s replies', $replies, 'bbpress' ), $replies );
+		$retval   = '';
+
+		if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) )
+			$retval .= "<a href='" . esc_url( remove_query_arg( array( 'view' => 'all' ),  bbp_get_topic_permalink( $topic_id ) ) ) . "'>$replies</a>";
+		else
+			$retval .= $replies;
+
+		if ( current_user_can( 'edit_others_replies' ) && $deleted = bbp_get_topic_hidden_reply_count( $topic_id ) ) {
+			$extra = sprintf( __( ' + %d more', 'bbpress' ), $deleted );
+			if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] )
+				$retval .= " $extra";
+			else
+				$retval .= " <a href='" . esc_url( add_query_arg( array( 'view' => 'all' ) ) ) . "'>$extra</a>";
+		}
+
+		return apply_filters( 'bbp_get_topic_replies_link', $retval );
+	}
+
+/**
  * bbp_topic_reply_count ()
  *
- * Output total post count of a topic
+ * Output total reply count of a topic
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -928,15 +980,15 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 	/**
 	 * bbp_get_topic_reply_count ()
 	 *
-	 * Return total post count of a topic
+	 * Return total reply count of a topic
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
 	 * @since bbPress (r2485)
 	 *
 	 * @uses bbp_get_topic_id()
-	 * @uses get_pages
-	 * @uses apply_filters
+	 * @uses get_post_meta()
+	 * @uses apply_filters()
 	 *
 	 * @param int $topic_id
 	 */
@@ -947,7 +999,47 @@ function bbp_topic_reply_count ( $topic_id = 0 ) {
 		if ( '' === $replies )
 			$replies = bbp_update_topic_reply_count( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_reply_count', (int)$replies );
+		return apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
+	}
+
+/**
+ * bbp_topic_hidden_reply_count ()
+ *
+ * Output total hidden reply count of a topic (hidden includes trashed and spammed replies)
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_topic_hidden_reply_count()
+ * @param int $topic_id
+ */
+function bbp_topic_hidden_reply_count ( $topic_id = 0 ) {
+	echo bbp_get_topic_hidden_reply_count( $topic_id );
+}
+	/**
+	 * bbp_get_topic_hidden_reply_count ()
+	 *
+	 * Return total hidden reply count of a topic (hidden includes trashed and spammed replies)
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2740)
+	 *
+	 * @uses bbp_get_topic_id()
+	 * @uses get_post_meta()
+	 * @uses apply_filters()
+	 *
+	 * @param int $topic_id
+	 */
+	function bbp_get_topic_hidden_reply_count ( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$replies  = get_post_meta( $topic_id, '_bbp_topic_hidden_reply_count', true );
+
+		if ( '' === $replies )
+			$replies = bbp_update_topic_hidden_reply_count( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_hidden_reply_count', (int) $replies, $topic_id );
 	}
 
 /**
@@ -990,7 +1082,7 @@ function bbp_topic_voice_count ( $topic_id = 0 ) {
 		if ( !$voices   = get_post_meta( $topic_id, '_bbp_topic_voice_count', true ) )
 			$voices = bbp_update_topic_voice_count( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_voice_count', (int)$voices, $topic_id );
+		return apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
 	}
 
 /**
@@ -1091,6 +1183,7 @@ function bbp_topic_admin_links ( $args = '' ) {
 	 * @uses bbp_get_topic_edit_link ()
 	 * @uses bbp_get_topic_trash_link ()
 	 * @uses bbp_get_topic_close_link ()
+	 * @uses bbp_get_topic_spam_link ()
 	 * @uses bbp_get_topic_sticky_link ()
 	 * @uses bbp_get_topic_move_dropdown ()
 	 *
@@ -1107,12 +1200,12 @@ function bbp_topic_admin_links ( $args = '' ) {
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array (
-				'edit'   => bbp_get_topic_edit_link(),
-				'trash'  => bbp_get_topic_trash_link(),
-				'close'  => bbp_get_topic_close_link(),
-				'spam'   => bbp_get_topic_spam_link(),
-				'sticky' => bbp_get_topic_sticky_link(),
-				'move'   => bbp_get_topic_move_dropdown()
+				'edit'   => bbp_get_topic_edit_link    ( $args ),
+				'trash'  => bbp_get_topic_trash_link   ( $args ),
+				'close'  => bbp_get_topic_close_link   ( $args ),
+				'spam'   => bbp_get_topic_spam_link    ( $args ),
+				'sticky' => bbp_get_topic_sticky_link  ( $args ),
+				'move'   => bbp_get_topic_move_dropdown( $args )
 			)
 		);
 
@@ -1279,7 +1372,7 @@ function bbp_topic_close_link ( $args = '' ) {
 		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
 			return;
 
-		$display  = bbp_is_topic_open() ? $close_text : $open_text;
+		$display  = bbp_is_topic_open( $topic->ID ) ? $close_text : $open_text;
 
 		$uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_close', 'topic_id' => $topic->ID ) );
 		$uri = esc_url( wp_nonce_url( $uri, 'close-topic_' . $topic->ID ) );
@@ -1335,7 +1428,7 @@ function bbp_topic_spam_link ( $args = '' ) {
 		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
 			return;
 
-		$display  = bbp_is_topic_spam() ? $unspam_text : $spam_text;
+		$display  = bbp_is_topic_spam( $topic->ID ) ? $unspam_text : $spam_text;
 
 		$uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_spam', 'topic_id' => $topic->ID ) );
 		$uri = esc_url( wp_nonce_url( $uri, 'spam-topic_' . $topic->ID ) );
@@ -1420,7 +1513,7 @@ function bbp_topic_move_dropdown ( $args = '' ) {
 /**
  * bbp_update_topic_reply_count ()
  *
- * Adjust the total post count of a topic
+ * Adjust the total reply count of a topic
  *
  * @package bbPress
  * @subpackage Template Tags
@@ -1440,7 +1533,7 @@ function bbp_update_topic_reply_count ( $topic_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
 	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
-		$topic_id = get_post_field( 'post_parent', $topic_id );
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 
 	// Get replies of topic
 	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
@@ -1448,7 +1541,41 @@ function bbp_update_topic_reply_count ( $topic_id = 0 ) {
 	// Update the count
 	update_post_meta( $topic_id, '_bbp_topic_reply_count', (int)$replies );
 
-	return apply_filters( 'bbp_update_topic_reply_count', (int)$replies );
+	return apply_filters( 'bbp_update_topic_reply_count', (int) $replies, $topic_id );
+}
+
+/**
+ * bbp_update_topic_hidden_reply_count ()
+ *
+ * Adjust the total hidden reply count of a topic (hidden includes trashed and spammed replies)
+ *
+ * @package bbPress
+ * @subpackage Template Tags
+ * @since bbPress (r2740)
+ *
+ * @uses bbp_get_topic_id()
+ * @uses apply_filters
+ *
+ * @param int $topic_id optional Forum ID to update
+ *
+ * @return int
+ */
+function bbp_update_topic_hidden_reply_count ( $topic_id = 0 ) {
+	global $wpdb, $bbp;
+
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// If it's a reply, then get the parent (topic id)
+	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
+
+	// Get replies of topic
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( 'trash', $bbp->spam_status_id ) ) . "') AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
+
+	// Update the count
+	update_post_meta( $topic_id, '_bbp_topic_hidden_reply_count', (int) $replies );
+
+	return apply_filters( 'bbp_update_topic_hidden_reply_count', (int) $replies, $topic_id );
 }
 
 /**
@@ -1533,16 +1660,16 @@ function bbp_update_topic_voice_count ( $topic_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
 	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
-		$topic_id = get_post_field( 'post_parent', $topic_id );
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 
 	// There should always be at least 1 voice
 	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->topic_id . "' );", $topic_id, $topic_id ) ) ) )
 		$voices = 1;
 
 	// Update the count
-	update_post_meta( $topic_id, '_bbp_topic_voice_count', (int)$voices );
+	update_post_meta( $topic_id, '_bbp_topic_voice_count', (int) $voices );
 
-	return apply_filters( 'bbp_update_topic_voice_count', (int)$voices );
+	return apply_filters( 'bbp_update_topic_voice_count', (int) $voices, $topic_id );
 }
 
 /** Topic Pagination **********************************************************/
@@ -1629,9 +1756,139 @@ function bbp_forum_pagination_links () {
 		if ( !isset( $bbp->topic_query ) )
 			return false;
 
-		return apply_filters( 'bbp_get_topic_pagination_links', $bbp->topic_query->pagination_links );
+		return apply_filters( 'bbp_get_forum_pagination_links', $bbp->topic_query->pagination_links );
 	}
 
 /** END - Topic Loop Functions ************************************************/
+
+/** Topic Actions *************************************************************/
+
+/**
+ * bbp_close_topic ()
+ *
+ * Closes a topic
+ *
+ * @since bbPress (r2740)
+ *
+ * @param int $topic_id Topic ID.
+ * @return mixed False on failure
+ */
+function bbp_close_topic ( $topic_id = 0 ) {
+	global $bbp;
+
+	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+		return $topic;
+
+	if ( $topic['post_status'] == $bbp->closed_status_id )
+		return false;
+
+	do_action( 'bbp_close_topic', $topic_id );
+
+	add_post_meta( $topic_id, '_bbp_close_meta_status', $topic['post_status'] );
+
+	$topic['post_status'] = $bbp->closed_status_id;
+	wp_insert_post( $topic );
+
+	do_action( 'bbp_closed_topic', $topic_id );
+
+	return $topic;
+}
+
+/**
+ * bbp_open_topic ()
+ *
+ * Opens a topic
+ *
+ * @since bbPress (r2740)
+ *
+ * @param int $topic_id Topic ID.
+ * @return mixed False on failure
+ */
+function bbp_open_topic ( $topic_id = 0 ) {
+	global $bbp;
+
+	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+		return $topic;
+
+	if ( $topic['post_status'] != $bbp->closed_status_id )
+		return false;
+
+	do_action( 'bbp_open_topic', $topic_id );
+
+	$topic_status         = get_post_meta( $topic_id, '_bbp_close_meta_status', true );
+	$topic['post_status'] = $topic_status;
+
+	delete_post_meta( $topic_id, '_bbp_close_meta_status' );
+
+	wp_insert_post( $topic );
+
+	do_action( 'bbp_opend_topic', $topic_id );
+
+	return $topic;
+}
+
+/**
+ * bbp_spam_topic ()
+ *
+ * Marks a topic as spam
+ *
+ * @since bbPress (r2740)
+ *
+ * @param int $topic_id Topic ID.
+ * @return mixed False on failure
+ */
+function bbp_spam_topic ( $topic_id = 0 ) {
+	global $bbp;
+
+	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+		return $topic;
+
+	if ( $topic['post_status'] == $bbp->spam_status_id )
+		return false;
+
+	do_action( 'bbp_spam_topic', $topic_id );
+
+	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic['post_status'] );
+
+	$topic['post_status'] = $bbp->spam_status_id;
+	wp_insert_post( $topic );
+
+	do_action( 'bbp_spammed_topic', $topic_id );
+
+	return $topic;
+}
+
+/**
+ * bbp_unspam_topic ()
+ *
+ * unspams a topic
+ *
+ * @since bbPress (r2740)
+ *
+ * @param int $topic_id Topic ID.
+ * @return mixed False on failure
+ */
+function bbp_unspam_topic ( $topic_id = 0 ) {
+	global $bbp;
+
+	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
+		return $topic;
+
+	if ( $topic['post_status'] != $bbp->spam_status_id )
+		return false;
+
+	do_action( 'bbp_unspam_topic', $topic_id );
+
+	$topic_status         = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
+	$topic['post_status'] = $topic_status;
+
+	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
+
+	wp_insert_post( $topic );
+
+	do_action( 'bbp_unspammed_topic', $topic_id );
+
+	return $topic;
+}
 
 ?>

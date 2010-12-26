@@ -100,6 +100,10 @@ class BBP_Admin {
 
 		// Register bbPress admin style
 		add_action( 'admin_init',                  array( $this, 'register_admin_style' ) );
+
+		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
+		add_action( 'bbp_admin_init',              array( $this, 'toggle_reply' ) );
+		add_action( 'admin_notices',               array( $this, 'toggle_reply_notice' ) );
 	}
 
 	/**
@@ -349,8 +353,11 @@ class BBP_Admin {
 
 <?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
 
-			.column-author, .column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_forum, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count, .column-bbp_reply_forum, .column-bbp_forum_freshness, .column-bbp_topic_freshness { width: 10% !important; }
-			.column-bbp_forum_created, .column-bbp_topic_created, .column-bbp_reply_created, .column-bbp_topic_author, .column-bbp_reply_author, .column-bbp_reply_topic { width: 15% !important; }
+			.column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count { width: 8% !important; }
+			.column-author,  .column-bbp_reply_author, .column-bbp_topic_author { width: 10% !important; }
+			.column-bbp_topic_forum, .column-bbp_reply_forum, .column-bbp_reply_topic { width: 10% !important; }
+			.column-bbp_forum_freshness, .column-bbp_topic_freshness { width: 10% !important; }
+			.column-bbp_forum_created, .column-bbp_topic_created, .column-bbp_reply_created { width: 15% !important; }
 
 			.status-closed { background-color: #eaeaea; }
 			.status-spam { background-color: #faeaea; }
@@ -509,36 +516,35 @@ class BBP_Admin {
 			$success   = false;                      // Flag
 			$post_data = array( 'ID' => $topic_id ); // Prelim array
 
-			if ( !$topic = get_post( $topic_id ) ) // Which topic dude?
+			if ( !$topic = get_post( $topic_id ) ) // Which topic?
 				wp_die( __( 'The topic was not found!', 'bbpress' ) );
 
 			if ( !current_user_can( 'edit_topic', $topic->ID ) ) // What is the user doing here?
-				wp_die( __( 'You don\'t have the permission to do that!', 'bbpress' ) );
+				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
 
 			switch ( $action ) {
 				case 'bbp_toggle_topic_close' :
-					check_admin_referer( 'close-topic_' . $topic_id ); // Trying to bypass security, huh?
+					check_admin_referer( 'close-topic_' . $topic_id );
 
-					$is_open                  = bbp_is_topic_open( $topic_id );
-					$post_data['post_status'] = $is_open ? $bbp->closed_status_id : 'publish';
-					$message                  = $is_open ? 'closed' : 'opened';
+					$is_open = bbp_is_topic_open( $topic_id );
+					$message = $is_open ? 'closed' : 'opened';
+					$success = $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
 
 					break;
 
 				case 'bbp_toggle_topic_spam' :
-					check_admin_referer( 'spam-topic_' . $topic_id ); // Trying to bypass security, huh?
+					check_admin_referer( 'spam-topic_' . $topic_id );
 
-					$is_spam                  = bbp_is_topic_spam( $topic_id );
-					$post_data['post_status'] = $is_spam ? 'publish' : $bbp->spam_status_id;
-					$message                  = $is_spam ? 'unspammed' : 'spammed';
+					$is_spam = bbp_is_topic_spam( $topic_id );
+					$message = $is_spam ? 'unspammed' : 'spammed';
+					$success = $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
 
 					break;
 			}
 
-			$success = wp_update_post( $post_data );
 			$message = array( 'bbp_topic_toggle_notice' => $message, 'topic_id' => $topic->ID );
 
-			if ( true != $success )
+			if ( false == $success || is_wp_error( $success ) )
 				$message['failed'] = '1';
 
 			// Do additional topic toggle actions (admin side)
@@ -570,26 +576,27 @@ class BBP_Admin {
 			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
-			if ( !$topic = get_post( $topic_id ) ) // Which topic dude?
+			// Empty? No topic?
+			if ( empty( $notice ) || empty( $topic_id ) || !$topic = get_post( $topic_id ) )
 				return;
 
 			$topic_title = esc_html( bbp_get_topic_title( $topic->ID ) );
 
 			switch ( $notice ) {
 				case 'opened' :
-					$message = $is_failure ? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully opened.', 'bbpress' ), $topic_title );
+					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully opened.', 'bbpress' ), $topic_title );
 					break;
 
 				case 'closed' :
-					$message = $is_failure ? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully closed.', 'bbpress' ), $topic_title );
+					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully closed.', 'bbpress' ), $topic_title );
 					break;
 
 				case 'spammed' :
-					$message = $is_failure ? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully marked as spam.', 'bbpress' ), $topic_title );
+					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully marked as spam.', 'bbpress' ), $topic_title );
 					break;
 
 				case 'unspammed' :
-					$message = $is_failure ? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully unmarking as spam.', 'bbpress' ), $topic_title );
+					$message = $is_failure == true ? sprintf( __( 'There was a problem unmarking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully unmarked as spam.', 'bbpress' ), $topic_title );
 					break;
 			}
 
@@ -710,8 +717,8 @@ class BBP_Admin {
 	/**
 	 * topics_row_actions ( $actions, $topic )
 	 *
-	 * Remove the quick-edit action link under the topic/reply title and
-	 * add the spam/close links
+	 * Remove the quick-edit action link under the topic title and add the
+	 * spam/close links
 	 *
 	 * @param array $actions
 	 * @param array $topic
@@ -725,28 +732,132 @@ class BBP_Admin {
 
 			the_content();
 
-			/**
-			 * Spamming/closing/etc trashed topics will remove the trash post_status from them.
-			 * Same type of complexities can be there with other post statuses too.
-			 * Hence, these actions are only shown on all, published, closed and spam post status pages.
-			 */
-			if ( ( empty( $_GET['post_status'] ) || in_array( $_GET['post_status'], array( 'publish', $bbp->spam_status_id, $bbp->closed_status_id ) ) ) && current_user_can( 'edit_topic', $topic->ID ) ) {
+			// Show the 'close' and 'open' link on published posts only
+			if ( 'publish' == $topic->post_status ) {
 				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'close-topic_' . $topic->ID ) );
-				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
-
 				if ( bbp_is_topic_open( $topic->ID ) )
 					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
 				else
 					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic', 'bbpress'  ) . '">' . __( 'Open',  'bbpress' ) . '</a>';
+			}
 
-				if ( bbp_is_topic_spam( $topic->ID ) )
-					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
-				else
-					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
+			if ( bbp_is_topic_spam( $topic->ID ) )
+				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+			else
+				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+
+			if ( current_user_can( 'delete_topic', $topic->ID ) ) {
+				if ( 'trash' == $topic->post_status ) {
+					$post_type_object = get_post_type_object( $topic->post_type );
+					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
+				} elseif ( EMPTY_TRASH_DAYS ) {
+					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
+				}
+				if ( 'trash' == $topic->post_status || !EMPTY_TRASH_DAYS )
+					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
 			}
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * toggle_reply ()
+	 *
+	 * Handles the admin-side opening/closing and spamming/unspamming of replies
+	 *
+	 * @since bbPress (r2740)
+	 */
+	function toggle_reply () {
+		// Only proceed if GET is a reply toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
+			global $bbp;
+
+			$action    = $_GET['action'];            // What action is taking place?
+			$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
+			$success   = false;                      // Flag
+			$post_data = array( 'ID' => $reply_id ); // Prelim array
+
+			if ( !$reply = get_post( $reply_id ) ) // Which reply?
+				wp_die( __( 'The reply was not found!', 'bbpress' ) );
+
+			if ( !current_user_can( 'edit_reply', $reply->ID ) ) // What is the user doing here?
+				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
+
+			switch ( $action ) {
+				case 'bbp_toggle_reply_spam' :
+					check_admin_referer( 'spam-reply_' . $reply_id );
+
+					$is_spam = bbp_is_reply_spam( $reply_id );
+					$message = $is_spam ? 'unspammed' : 'spammed';
+					$success = $is_spam ? bbp_unspam_reply( $reply_id ) : bbp_spam_reply( $reply_id );
+
+					break;
+			}
+
+			$success = wp_update_post( $post_data );
+			$message = array( 'bbp_reply_toggle_notice' => $message, 'reply_id' => $reply->ID );
+
+			if ( false == $success || is_wp_error( $success ) )
+				$message['failed'] = '1';
+
+			// Do additional reply toggle actions (admin side)
+			do_action( 'bbp_toggle_reply_admin', $success, $post_data, $action, $message );
+
+			// Redirect back to the reply
+			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'reply_id' ) ) );
+			wp_redirect( $redirect );
+
+			// For good measure
+			exit();
+
+		}
+	}
+
+	/**
+	 * toggle_reply_notice ()
+	 *
+	 * Display the success/error notices from toggle_reply()
+	 *
+	 * @since bbPress (r2740)
+	 */
+	function toggle_reply_notice () {
+		// Only proceed if GET is a reply toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
+			global $bbp;
+
+			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
+			$reply_id   = (int) $_GET['reply_id'];                  // What's the reply id?
+			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+
+			// Empty? No reply?
+			if ( empty( $notice ) || empty( $reply_id ) || !$reply = get_post( $reply_id ) )
+				return;
+
+			$reply_title = esc_html( bbp_get_reply_title( $reply->ID ) );
+
+			switch ( $notice ) {
+				case 'spammed' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the reply "%1$s" as spam.', 'bbpress' ), $reply_title ) : sprintf( __( 'Reply "%1$s" successfully marked as spam.', 'bbpress' ), $reply_title );
+					break;
+
+				case 'unspammed' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem unmarking the reply "%1$s" as spam.', 'bbpress' ), $reply_title ) : sprintf( __( 'Reply "%1$s" successfully unmarked as spam.', 'bbpress' ), $reply_title );
+					break;
+			}
+
+			// Do additional reply toggle notice filters (admin side)
+			$message = apply_filters( 'bbp_toggle_reply_notice_admin', $message, $reply->ID, $notice, $is_failure );
+
+			?>
+
+			<div id="message" class="<?php echo $is_failure == true ? 'error' : 'updated'; ?> fade">
+				<p style="line-height: 150%"><?php echo $message; ?></p>
+			</div>
+
+			<?php
+		}
 	}
 
 	/**
@@ -855,7 +966,8 @@ class BBP_Admin {
 	/**
 	 * replies_row_actions ()
 	 *
-	 * Remove the quick-edit action link under the topic/reply title
+	 * Remove the quick-edit action link under the reply title and add the
+	 * spam link
 	 *
 	 * @param array $actions
 	 * @param array $reply
@@ -868,6 +980,24 @@ class BBP_Admin {
 			unset( $actions['inline hide-if-no-js'] );
 
 			the_content();
+
+			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam'  ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed' ) ) ), 'spam-reply_'  . $reply->ID ) );
+
+			if ( bbp_is_reply_spam( $reply->ID ) )
+				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+			else
+				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+
+			if ( current_user_can( 'delete_reply', $reply->ID ) ) {
+				if ( 'trash' == $reply->post_status ) {
+					$post_type_object = get_post_type_object( $reply->post_type );
+					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
+				} elseif ( EMPTY_TRASH_DAYS ) {
+					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
+				}
+				if ( 'trash' == $reply->post_status || !EMPTY_TRASH_DAYS )
+					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
+			}
 		}
 
 		return $actions;

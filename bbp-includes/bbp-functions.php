@@ -840,27 +840,27 @@ function bbp_toggle_topic_handler () {
 			return;
 
 		// What is the user doing here?
-		if ( !current_user_can( 'edit_topic', $topic->ID ) || ( 'bbp_toggle_topic_trash' == $action && !current_user_can( 'delete_topic', $topic->ID ) ) )
+		if ( !current_user_can( 'edit_topic', $topic->ID ) || ( 'bbp_toggle_topic_trash' == $action && !current_user_can( 'delete_topic', $topic->ID ) ) ) {
+			$bbp->errors->add( 'bbp_toggle_topic_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
 			return;
+		}
 
 		switch ( $action ) {
 			case 'bbp_toggle_topic_close' :
 				check_ajax_referer( 'close-topic_' . $topic_id );
 
-				$is_open                  = bbp_is_topic_open( $topic_id );
-				$post_data['post_status'] = $is_open == true ? $bbp->closed_status_id : 'publish';
-				$success                  = wp_update_post( $post_data );
-				$failure                  = $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic!', 'bbpress' );
+				$is_open = bbp_is_topic_open( $topic_id );
+				$success = $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
+				$failure = $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic!', 'bbpress' );
 
 				break;
 
 			case 'bbp_toggle_topic_spam' :
 				check_ajax_referer( 'spam-topic_' . $topic_id );
 
-				$is_spam                  = bbp_is_topic_spam( $topic_id );
-				$post_data['post_status'] = $is_spam ? 'publish' : $bbp->spam_status_id;
-				$success                  = wp_update_post( $post_data );
-				$failure                  = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam!', 'bbpress' );
+				$is_spam = bbp_is_topic_spam( $topic_id );
+				$success = $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
+				$failure = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the topic as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the topic as spam!', 'bbpress' );
 
 				break;
 
@@ -891,7 +891,7 @@ function bbp_toggle_topic_handler () {
 					case 'delete':
 						check_ajax_referer( 'delete-' . $bbp->topic_id . '_' . $topic_id );
 
-						$success = wp_delete_post( $post_id );
+						$success = wp_delete_post( $topic_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem deleting the topic!', 'bbpress' );
 
 						break;
@@ -904,7 +904,7 @@ function bbp_toggle_topic_handler () {
 		do_action( 'bbp_toggle_topic_handler', $success, $post_data, $action );
 
 		// Check for errors
-		if ( true == $success ) {
+		if ( false != $success && !is_wp_error( $success ) ) {
 
 			// Redirect back to the topic
 			$redirect = bbp_get_topic_permalink( $topic_id );
@@ -920,6 +920,104 @@ function bbp_toggle_topic_handler () {
 	}
 }
 add_action( 'template_redirect', 'bbp_toggle_topic_handler', 1 );
+
+/** Reply Actions *************************************************************/
+
+/**
+ * bbp_toggle_reply_handler ()
+ *
+ * Handles the front end spamming/unspamming and trashing/untrashing/deleting of replies
+ *
+ * @since bbPress (r2740)
+ */
+function bbp_toggle_reply_handler () {
+
+	// Only proceed if GET is a reply toggle action
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam', 'bbp_toggle_reply_trash' ) ) && !empty( $_GET['reply_id'] ) ) {
+		global $bbp;
+
+		$action    = $_GET['action'];            // What action is taking place?
+		$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
+		$success   = false;                      // Flag
+		$post_data = array( 'ID' => $reply_id ); // Prelim array
+
+		// Make sure reply exists
+		if ( !$reply = get_post( $reply_id ) )
+			return;
+
+		// What is the user doing here?
+		if ( !current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' == $action && !current_user_can( 'delete_reply', $reply->ID ) ) ) {
+			$bbp->errors->add( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
+			return;
+		}
+
+		switch ( $action ) {
+
+			case 'bbp_toggle_reply_spam' :
+				check_ajax_referer( 'spam-reply_' . $reply_id );
+
+				$is_spam = bbp_is_reply_spam( $reply_id );
+				$success = $is_spam ? bbp_unspam_reply( $reply_id ) : bbp_spam_reply( $reply_id );
+				$failure = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam!', 'bbpress' );
+
+				break;
+
+			case 'bbp_toggle_reply_trash' :
+
+				$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ) ) ? $_GET['sub_action'] : false;
+
+				if ( empty( $sub_action ) )
+					break;
+
+				switch ( $sub_action ) {
+					case 'trash':
+						check_ajax_referer( 'trash-' . $bbp->reply_id . '_' . $reply_id );
+
+						$success = wp_trash_post( $reply_id );
+						$failure = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
+
+						break;
+
+					case 'untrash':
+						check_ajax_referer( 'untrash-' . $bbp->reply_id . '_' . $reply_id );
+
+						$success = wp_untrash_post( $reply_id );
+						$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
+
+						break;
+
+					case 'delete':
+						check_ajax_referer( 'delete-' . $bbp->reply_id . '_' . $reply_id );
+
+						$success = wp_delete_post( $reply_id );
+						$failure = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );
+
+						break;
+				}
+
+				break;
+		}
+
+		// Do additional reply toggle actions
+		do_action( 'bbp_toggle_reply_handler', $success, $post_data, $action );
+
+		// Check for errors
+		if ( false != $success && !is_wp_error( $success ) ) {
+
+			// Redirect back to the reply
+			$redirect = add_query_arg( array( 'view' => 'all' ), bbp_get_reply_url( $reply_id, true ) );
+			wp_redirect( $redirect );
+
+			// For good measure
+			exit();
+
+		// Handle errors
+		} else {
+			$bbp->errors->add( 'bbp_toggle_reply', $failure );
+		}
+	}
+}
+add_action( 'template_redirect', 'bbp_toggle_reply_handler', 1 );
 
 /** Favorites *****************************************************************/
 
