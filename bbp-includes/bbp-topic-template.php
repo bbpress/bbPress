@@ -1220,9 +1220,21 @@ function bbp_topic_admin_links ( $args = '' ) {
 		if ( !current_user_can( 'delete_topic', $r['id'] ) )
 			unset( $r['links']['trash'] );
 
-		// Close link shouldn't be there on trashed/spammed topics, as closing/opening would change their status
-		if ( in_array( bbp_get_topic_status( $r['id'] ), array( $bbp->spam_status_id, $bbp->trash_status_id ) ) )
+		// See if links need to be unset
+		$topic_status = bbp_get_topic_status( $r['id'] );
+		if ( in_array( $topic_status, array( $bbp->spam_status_id, $bbp->trash_status_id ) ) ) {
+
+			// Close link shouldn't be visible on trashed/spammed topics
 			unset( $r['links']['close'] );
+
+			// Spam link shouldn't be visible on trashed topics
+			if ( $topic_status == $bbp->trash_status_id )
+				unset( $r['links']['spam'] );
+			
+			// Trash link shouldn't be visible on spam topics
+			elseif ( $topic_status == $bbp->spam_status_id )
+				unset( $r['links']['trash'] );
+		}
 
 		// Process the admin links
 		$links = implode( $r['sep'], $r['links'] );

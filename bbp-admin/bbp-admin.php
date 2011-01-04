@@ -732,30 +732,35 @@ class BBP_Admin {
 
 			the_content();
 
-			// Show the 'close' and 'open' link on published posts only
-			if ( 'publish' == $topic->post_status ) {
+			// Show the 'close' and 'open' link on published topics only
+			if ( in_array( $topic->post_status, array( 'publish', $bbp->spam_status_id ) ) ) {
 				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'close-topic_' . $topic->ID ) );
 				if ( bbp_is_topic_open( $topic->ID ) )
 					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
 				else
 					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic', 'bbpress'  ) . '">' . __( 'Open',  'bbpress' ) . '</a>';
+
+				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
+				if ( bbp_is_topic_spam( $topic->ID ) )
+					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+				else
+					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
 			}
 
-			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
-			if ( bbp_is_topic_spam( $topic->ID ) )
-				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
-			else
-				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
-
+			// Do not show trash links for spam topics, or spam links for trashed topics
 			if ( current_user_can( 'delete_topic', $topic->ID ) ) {
-				if ( 'trash' == $topic->post_status ) {
-					$post_type_object = get_post_type_object( $topic->post_type );
+				if ( $bbp->trash_status_id == $topic->post_status ) {
+					$post_type_object   = get_post_type_object( $topic->post_type );
 					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
 					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
 				}
-				if ( 'trash' == $topic->post_status || !EMPTY_TRASH_DAYS )
+
+				if ( $bbp->trash_status_id == $topic->post_status || !EMPTY_TRASH_DAYS ) {
 					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
+				} elseif ( $bbp->spam_status_id == $topic->post_status ) {
+					unset( $actions['trash'] );
+				}
 			}
 		}
 
@@ -983,20 +988,26 @@ class BBP_Admin {
 
 			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam'  ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed' ) ) ), 'spam-reply_'  . $reply->ID ) );
 
-			if ( bbp_is_reply_spam( $reply->ID ) )
-				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
-			else
-				$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+			if ( in_array( $reply->post_status, array( 'publish', $bbp->spam_status_id ) ) ) {
+				if ( bbp_is_reply_spam( $reply->ID ) )
+					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+				else
+					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+			}
 
 			if ( current_user_can( 'delete_reply', $reply->ID ) ) {
-				if ( 'trash' == $reply->post_status ) {
+				if ( $bbp->trash_status_id == $reply->post_status ) {
 					$post_type_object = get_post_type_object( $reply->post_type );
 					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
 					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
 				}
-				if ( 'trash' == $reply->post_status || !EMPTY_TRASH_DAYS )
+
+				if ( $bbp->trash_status_id == $reply->post_status || !EMPTY_TRASH_DAYS ) {
 					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
+				} elseif ( $bbp->spam_status_id == $reply->post_status ) {
+					unset( $actions['trash'] );
+				}
 			}
 		}
 

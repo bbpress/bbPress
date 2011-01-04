@@ -818,6 +818,8 @@ function bbp_reply_admin_links ( $args = '' ) {
 	 * @return string
 	 */
 	function bbp_get_reply_admin_links ( $args = '' ) {
+		global $bbp;
+
 		if ( !bbp_is_topic() && !bbp_is_reply() )
 			return '&nbsp';
 
@@ -840,6 +842,19 @@ function bbp_reply_admin_links ( $args = '' ) {
 
 		if ( !current_user_can( 'delete_reply', $r['id'] ) )
 			unset( $r['links']['trash'] );
+
+		// See if links need to be unset
+		$reply_status = bbp_get_reply_status( $r['id'] );
+		if ( in_array( $reply_status, array( $bbp->spam_status_id, $bbp->trash_status_id ) ) ) {
+
+			// Spam link shouldn't be visible on trashed topics
+			if ( $reply_status == $bbp->trash_status_id )
+				unset( $r['links']['spam'] );
+
+			// Trash link shouldn't be visible on spam topics
+			elseif ( isset( $r['links']['trash'] ) && $reply_status == $bbp->spam_status_id )
+				unset( $r['links']['trash'] );
+		}
 
 		// Process the admin links
 		$links = implode( $r['sep'], $r['links'] );
