@@ -35,6 +35,7 @@ class bbPress {
 	var $topic_tag_id;
 	var $spam_status_id;
 	var $closed_status_id;
+	var $trash_status_id;
 
 	// Slugs
 	var $forum_slug;
@@ -113,6 +114,7 @@ class bbPress {
 		// Post status identifiers
 		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'        );
 		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed'      );
+		$this->trash_status_id  = 'trash';
 
 		/** Slugs *****************************************************/
 
@@ -246,8 +248,10 @@ class bbPress {
 	 */
 	function register_post_types () {
 
+		/** FORUMS ************************************************************/
+
 		// Forum labels
-		$forum_labels = array (
+		$forum['labels'] = array (
 			'name'               => __( 'Forums',                   'bbpress' ),
 			'singular_name'      => __( 'Forum',                    'bbpress' ),
 			'add_new'            => __( 'New Forum',                'bbpress' ),
@@ -264,13 +268,13 @@ class bbPress {
 		);
 
 		// Forum rewrite
-		$forum_rewrite = array (
+		$forum['rewrite'] = array (
 			'slug'       => $this->forum_slug,
 			'with_front' => false
 		);
 
 		// Forum supports
-		$forum_supports = array (
+		$forum['supports'] = array (
 			'title',
 			'editor',
 			'thumbnail',
@@ -278,29 +282,29 @@ class bbPress {
 			'page-attributes'
 		);
 
+		// Forum filter
+		$bbp_cpt['forum'] = apply_filters( 'bbp_register_forum_post_type', array (
+			'labels'          => $forum['labels'],
+			'rewrite'         => $forum['rewrite'],
+			'supports'        => $forum['supports'],
+			'capabilities'    => bbp_get_forum_caps(),
+			'capability_type' => 'forum',
+			'menu_position'   => '100',
+			'public'          => true,
+			'show_ui'         => true,
+			'can_export'      => true,
+			'hierarchical'    => true,
+			'query_var'       => true,
+			'menu_icon'       => ''
+		) );
+
 		// Register Forum content type
-		register_post_type (
-			$this->forum_id,
-			apply_filters( 'bbp_register_forum_post_type',
-				array (
-					'labels'          => $forum_labels,
-					'rewrite'         => $forum_rewrite,
-					'supports'        => $forum_supports,
-					'capabilities'    => bbp_get_forum_caps(),
-					'capability_type' => 'forum',
-					'menu_position'   => '100',
-					'public'          => true,
-					'show_ui'         => true,
-					'can_export'      => true,
-					'hierarchical'    => true,
-					'query_var'       => true,
-					'menu_icon'       => ''
-				)
-			)
-		);
+		register_post_type ( $this->forum_id, $bbp_cpt['forum'] );
+
+		/** TOPICS ************************************************************/
 
 		// Topic labels
-		$topic_labels = array (
+		$topic['labels'] = array (
 			'name'               => __( 'Topics',                   'bbpress' ),
 			'singular_name'      => __( 'Topic',                    'bbpress' ),
 			'add_new'            => __( 'New Topic',                'bbpress' ),
@@ -317,42 +321,42 @@ class bbPress {
 		);
 
 		// Topic rewrite
-		$topic_rewrite = array (
+		$topic['rewrite'] = array (
 			'slug'       => $this->topic_slug,
 			'with_front' => false
 		);
 
 		// Topic supports
-		$topic_supports = array (
+		$topic['supports'] = array (
 			'title',
 			'editor',
 			'thumbnail',
 			'excerpt'
 		);
 
+		// Topic Filter
+		$bbp_cpt['topic'] = apply_filters( 'bbp_register_topic_post_type', array (
+			'labels'          => $topic['labels'],
+			'rewrite'         => $topic['rewrite'],
+			'supports'        => $topic['supports'],
+			'capabilities'    => bbp_get_topic_caps(),
+			'capability_type' => 'topic',
+			'menu_position'   => '100',
+			'public'          => true,
+			'show_ui'         => true,
+			'can_export'      => true,
+			'hierarchical'    => false,
+			'query_var'       => true,
+			'menu_icon'       => ''
+		) );
+
 		// Register Topic content type
-		register_post_type (
-			$this->topic_id,
-			apply_filters( 'bbp_register_topic_post_type',
-				array (
-					'labels'          => $topic_labels,
-					'rewrite'         => $topic_rewrite,
-					'supports'        => $topic_supports,
-					'capabilities'    => bbp_get_topic_caps(),
-					'capability_type' => 'topic',
-					'menu_position'   => '100',
-					'public'          => true,
-					'show_ui'         => true,
-					'can_export'      => true,
-					'hierarchical'    => false,
-					'query_var'       => true,
-					'menu_icon'       => ''
-				)
-			)
-		);
+		register_post_type ( $this->topic_id, $bbp_cpt['topic'] );
+
+		/** REPLIES ***********************************************************/
 
 		// Reply labels
-		$reply_labels = array (
+		$reply['labels'] = array (
 			'name'               => __( 'Replies',                   'bbpress' ),
 			'singular_name'      => __( 'Reply',                     'bbpress' ),
 			'add_new'            => __( 'New Reply',                 'bbpress' ),
@@ -369,39 +373,37 @@ class bbPress {
 		);
 
 		// Reply rewrite
-		$reply_rewrite = array (
+		$reply['rewrite'] = array (
 			'slug'       => $this->reply_slug,
 			'with_front' => false
 		);
 
 		// Reply supports
-		$reply_supports = array (
+		$reply['supports'] = array (
 			'title',
 			'editor',
 			'thumbnail',
 			'excerpt'
 		);
 
+		// Reply filter
+		$bbp_cpt['reply'] = apply_filters( 'bbp_register_reply_post_type', array (
+			'labels'          => $reply['labels'],
+			'rewrite'         => $reply['rewrite'],
+			'supports'        => $reply['supports'],
+			'capabilities'    => bbp_get_reply_caps(),
+			'capability_type' => 'reply',
+			'menu_position'   => '100',
+			'public'          => true,
+			'show_ui'         => true,
+			'can_export'      => true,
+			'hierarchical'    => false,
+			'query_var'       => true,
+			'menu_icon'       => ''
+		) );
+
 		// Register reply content type
-		register_post_type (
-			$this->reply_id,
-			apply_filters( 'bbp_register_reply_post_type',
-				array (
-					'labels'          => $reply_labels,
-					'rewrite'         => $reply_rewrite,
-					'supports'        => $reply_supports,
-					'capabilities'    => bbp_get_reply_caps(),
-					'capability_type' => 'reply',
-					'menu_position'   => '100',
-					'public'          => true,
-					'show_ui'         => true,
-					'can_export'      => true,
-					'hierarchical'    => false,
-					'query_var'       => true,
-					'menu_icon'       => ''
-				)
-			)
-		);
+		register_post_type ( $this->reply_id, $bbp_cpt['reply'] );
 	}
 
 	/**
@@ -412,34 +414,49 @@ class bbPress {
 	 * @since bbPress (r2727)
 	 */
 	function register_post_statuses () {
+
 		// Closed
-		register_post_status (
-			$this->closed_status_id,
-			apply_filters( 'bbp_register_closed_post_status',
-				array(
-					'label'                     => __( 'Closed', 'bbpress' ),
-					'label_count'               => _n_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>' ),
-					'public'                    => true,
-					'show_in_admin_all'         => true
-				)
-			)
-		);
+		$status = apply_filters( 'bbp_register_closed_post_status', array (
+			'label'             => _x( 'Closed', 'post', 'bbpress' ),
+			'label_count'       => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
+			'public'            => true,
+			'show_in_admin_all' => true
+		) );
+		register_post_status ( $this->closed_status_id, $status );
 
 		// Spam
-		register_post_status (
-			$this->spam_status_id,
-			apply_filters( 'bbp_register_spam_post_status',
-				array(
-					'label'                     => __( 'Spam', 'bbpress' ),
-					'label_count'               => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>' ),
-					'internal'                  => true,
-					'show_in_admin_status_list' => true,
-					'show_in_admin_all'         => false,
-					'show_in_admin_all_list'    => false,
-					'single_view_cap'           => 'edit_others_topics'
-				)
-			)
-		);
+		$status = apply_filters( 'bbp_register_spam_post_status', array (
+			'label'                     => _x( 'Spam', 'post', 'bbpress' ),
+			'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
+			'protected'                 => true,
+			'exclude_from_search'       => true,
+			'show_in_admin_status_list' => true,
+			'show_in_admin_all_list'    => false
+		) );
+		register_post_status ( $this->spam_status_id, $status );
+
+
+		// Trash
+		if ( current_user_can( 'view_trash' ) ) {
+			/**
+			 * We need to remove the internal arg and change that to
+			 * protected so that the users with 'view_trash' cap can view
+			 * single trashed topics/replies in the front-end as wp_query
+			 * doesn't allow any hack for the trashed topics to be viewed.
+			 */
+
+			$status = apply_filters( 'bbp_register_trash_post_status', array (
+				'label'                     => _x( 'Trash', 'post', 'bbpress' ),
+				'label_count'               => _nx_noop( 'Trash <span class="count">(%s)</span>', 'Trash <span class="count">(%s)</span>', 'bbpress' ),
+				//'internal'                  => true, // Changed to protected
+				'protected'                 => true,
+				'_builtin'                  => true, // Internal use only.
+				'exclude_from_search'       => true,
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => false
+			) );
+			register_post_status( $this->trash_status_id, $status );
+		}
 	}
 
 	/**
@@ -455,7 +472,7 @@ class bbPress {
 	function register_taxonomies () {
 
 		// Topic tag labels
-		$topic_tag_labels = array (
+		$topic_tag['labels'] = array (
 			'name'          => __( 'Topic Tags',   'bbpress' ),
 			'singular_name' => __( 'Topic Tag',    'bbpress' ),
 			'search_items'  => __( 'Search Tags',  'bbpress' ),
@@ -468,28 +485,29 @@ class bbPress {
 		);
 
 		// Topic tag rewrite
-		$topic_tag_rewrite = array (
+		$topic_tag['rewrite'] = array (
 			'slug'       => $this->topic_tag_slug,
 			'with_front' => false
 		);
+
+		// Topic tag filter
+		$bbp_tt = apply_filters( 'bbp_register_topic_taxonomy', array (
+			'labels'                => $topic_tag['labels'],
+			'rewrite'               => $topic_tag['rewrite'],
+			'capabilities'          => bbp_get_topic_tag_caps(),
+			'update_count_callback' => '_update_post_term_count',
+			'query_var'             => true,
+			'show_tagcloud'         => true,
+			'hierarchical'          => false,
+			'public'                => true,
+			'show_ui'               => true
+		) );
 
 		// Register the topic tag taxonomy
 		register_taxonomy (
 			$this->topic_tag_id, // The topic tag ID
 			$this->topic_id,     // The topic content type
-			apply_filters( 'bbp_register_topic_taxonomy',
-				array (
-					'labels'                => $topic_tag_labels,
-					'rewrite'               => $topic_tag_rewrite,
-					'capabilities'          => bbp_get_topic_tag_caps(),
-					'update_count_callback' => '_update_post_term_count',
-					'query_var'             => true,
-					'show_tagcloud'         => true,
-					'hierarchical'          => false,
-					'public'                => true,
-					'show_ui'               => true
-				)
-			)
+			$bbp_tt
 		);
 	}
 

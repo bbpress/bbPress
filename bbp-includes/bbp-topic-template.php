@@ -1191,6 +1191,8 @@ function bbp_topic_admin_links ( $args = '' ) {
 	 * @return string
 	 */
 	function bbp_get_topic_admin_links ( $args = '' ) {
+		global $bbp;
+
 		if ( !bbp_is_topic() )
 			return '&nbsp';
 
@@ -1214,8 +1216,13 @@ function bbp_topic_admin_links ( $args = '' ) {
 		if ( !current_user_can( 'edit_topic', $r['id'] ) )
 			return '&nbsp';
 
+		// Check caps for trashing the topic
 		if ( !current_user_can( 'delete_topic', $r['id'] ) )
 			unset( $r['links']['trash'] );
+
+		// Close link shouldn't be there on trashed/spammed topics, as closing/opening would change their status
+		if ( in_array( bbp_get_topic_status( $r['id'] ), array( $bbp->spam_status_id, $bbp->trash_status_id ) ) )
+			unset( $r['links']['close'] );
 
 		// Process the admin links
 		$links = implode( $r['sep'], $r['links'] );
@@ -1290,6 +1297,8 @@ function bbp_topic_trash_link ( $args = '' ) {
 	 * @return bool|string
 	 */
 	function bbp_get_topic_trash_link ( $args = '' ) {
+		global $bbp;
+
 		$defaults = array (
 			'id'           => 0,
 			'link_before'  => '',
@@ -1310,12 +1319,12 @@ function bbp_topic_trash_link ( $args = '' ) {
 
 		$topic_status = bbp_get_topic_status( $topic->ID );
 
-		if ( 'trash' == $topic_status )
+		if ( $bbp->trash_status_id == $topic_status )
 			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to restore that?", "bbpress" ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
 		elseif ( EMPTY_TRASH_DAYS )
 			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to trash that?", "bbpress" ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
 
-		if ( 'trash' == $topic->post_status || !EMPTY_TRASH_DAYS )
+		if ( $bbp->trash_status_id == $topic->post_status || !EMPTY_TRASH_DAYS )
 			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to delete that permanentaly?", "bbpress" ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
 
 		// Process the admin links
@@ -1570,7 +1579,7 @@ function bbp_update_topic_hidden_reply_count ( $topic_id = 0 ) {
 		$topic_id = bbp_get_reply_topic_id( $topic_id );
 
 	// Get replies of topic
-	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( 'trash', $bbp->spam_status_id ) ) . "') AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
 
 	// Update the count
 	update_post_meta( $topic_id, '_bbp_topic_hidden_reply_count', (int) $replies );
@@ -1890,5 +1899,30 @@ function bbp_unspam_topic ( $topic_id = 0 ) {
 
 	return $topic;
 }
+
+/**
+ * bbp_edit_user_success ()
+ */
+function bbp_topic_notices () {
+	global $bbp;
+
+	if ( bbp_is_topic() ) {
+
+		$topic_status = bbp_get_topic_status();
+
+		if ( in_array( $topic_status, array( $bbp->spam_status_id, $bbp->trash_status_id ) ) ) {
+
+			$notice_text = ( $bbp->spam_status_id == $topic_status ) ? __( 'This topic is marked as spam.', 'bbpress' ) : __( 'This topic is currently trashed.', 'bbpress' ); ?>
+
+	<div class="bbp-template-notice error">
+		<p><?php echo $notice_text; ?></p>
+	</div>
+
+<?php
+
+		}
+	}
+}
+add_action( 'bbp_template_notices', 'bbp_topic_notices' );
 
 ?>
