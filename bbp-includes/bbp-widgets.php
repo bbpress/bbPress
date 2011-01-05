@@ -434,8 +434,4 @@ class BBP_Replies_Widget extends WP_Widget {
 
 }
 
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Forums_Widget");'  ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");'  ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
-
 ?>

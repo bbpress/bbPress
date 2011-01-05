@@ -2,34 +2,42 @@
 
 if ( !class_exists( 'BBP_Admin' ) ) :
 /**
- * BBP_Admin
- *
- * Loads plugin admin area
+ * Loads bbPress plugin admin area
  *
  * @package bbPress
- * @subpackage Admin
+ * @subpackage Administration
  * @since bbPress (r2464)
  */
 class BBP_Admin {
 
 	/**
 	 * The main bbPress admin loader
+	 *
+	 * @since bbPress (r2515)
+	 *
+	 * @uses BBP_Admin::_setup_globals() Setup the globals needed
+	 * @uses BBP_Admin::_includes() Include the required files
+	 * @uses BBP_Admin::_setup_actions() Setup the hooks and actions
 	 */
-	function BBP_Admin () {
+	function BBP_Admin() {
 		$this->_setup_globals();
 		$this->_includes();
 		$this->_setup_actions();
 	}
 
 	/**
-	 * _setup_actions ()
+	 * Setup the admin hooks, actions and filters
 	 *
-	 * Setup the admin hooks and actions
+	 * @since bbPress (r2646)
+	 * @access private
+	 *
+	 * @uses add_action() To add various actions
+	 * @uses add_filter() To add various filters
 	 */
-	function _setup_actions () {
+	function _setup_actions() {
 		global $bbp;
 
-		/** General Actions ***************************************************/
+		/** General Actions *******************************************/
 
 		// Add notice if not using a bbPress theme
 		add_action( 'admin_notices',               array( $this, 'activation_notice'       )        );
@@ -49,7 +57,10 @@ class BBP_Admin {
 		// Add some general styling to the admin area
 		add_action( 'admin_head',                  array( $this, 'admin_head'              )        );
 
-		/** User Actions ******************************************************/
+		// Register bbPress admin style
+		add_action( 'admin_init',                  array( $this, 'register_admin_style'    )        );
+
+		/** User Actions **********************************************/
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile',           array( $this, 'user_profile_forums' ) );
@@ -59,7 +70,7 @@ class BBP_Admin {
 		add_action( 'personal_options_update',     array( $this, 'user_profile_update' ) );
 		add_action( 'edit_user_profile_update',    array( $this, 'user_profile_update' ) );
 
-		/** Forums ************************************************************/
+		/** Forums ****************************************************/
 
 		// Forum column headers.
 		add_filter( 'manage_' . $bbp->forum_id . '_posts_columns',  array( $this, 'forums_column_headers' ) );
@@ -72,7 +83,7 @@ class BBP_Admin {
 		add_action( 'manage_pages_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
 		add_filter( 'page_row_actions',            array( $this, 'forums_row_actions' ), 10, 2 );
 
-		/** Topics ************************************************************/
+		/** Topics ****************************************************/
 
 		// Topic column headers.
 		add_filter( 'manage_' . $bbp->topic_id . '_posts_columns',  array( $this, 'topics_column_headers' ) );
@@ -89,7 +100,7 @@ class BBP_Admin {
 		add_action( 'bbp_admin_init',              array( $this, 'toggle_topic'        ) );
 		add_action( 'admin_notices',               array( $this, 'toggle_topic_notice' ) );
 
-		/** Replies ***********************************************************/
+		/** Replies ***************************************************/
 
 		// Reply column headers.
 		add_filter( 'manage_' . $bbp->reply_id . '_posts_columns',  array( $this, 'replies_column_headers' ) );
@@ -102,50 +113,58 @@ class BBP_Admin {
 		add_action( 'add_meta_boxes',              array( $this, 'reply_attributes_metabox'      ) );
 		add_action( 'save_post',                   array( $this, 'reply_attributes_metabox_save' ) );
 
-		// Register bbPress admin style
-		add_action( 'admin_init',                  array( $this, 'register_admin_style' ) );
-
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
 		add_action( 'bbp_admin_init',              array( $this, 'toggle_reply'        ) );
 		add_action( 'admin_notices',               array( $this, 'toggle_reply_notice' ) );
 	}
 
 	/**
-	 * _includes ()
-	 *
 	 * Include required files
+	 *
+	 * @since bbPress (r2646)
+	 * @access private
 	 */
-	function _includes () {
+	function _includes() {
 		require_once( 'bbp-tools.php'     );
 		require_once( 'bbp-settings.php'  );
 		require_once( 'bbp-functions.php' );
 	}
 
 	/**
-	 * _setup_globals ()
-	 *
 	 * Admin globals
+	 *
+	 * @since bbPress (r2646)
+	 * @access private
 	 */
-	function _setup_globals () {
+	function _setup_globals() {
 		// Nothing to do here yet
 	}
 
 	/**
-	 * admin_menus ()
-	 *
 	 * Add the navigational menu elements
+	 *
+	 * @since bbPress (r2646)
+	 *
+	 * @uses add_management_page() To add the Recount page in Tools section
+	 * @uses add_options_page() To add the Forums settings page in Settings
+	 *                           section
 	 */
-	function admin_menus () {
+	function admin_menus() {
 		add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools'    );
 		add_options_page   ( __( 'Forums',  'bbpress' ), __( 'Forums',  'bbpress' ), 'manage_options', 'bbpress',     'bbp_admin_settings' );
 	}
 
 	/**
-	 * register_admin_settings ()
-	 *
 	 * Register the settings
+	 *
+	 * @since bbPress (r2737)
+	 *
+	 * @uses add_settings_section() To add our own settings section
+	 * @uses add_settings_field() To add various settings fields
+	 * @uses register_setting() To register various settings
+	 * @uses do_action() Calls 'bbp_register_admin_settings'
 	 */
-	function register_admin_settings () {
+	function register_admin_settings() {
 
 		// Add the main section
 		add_settings_section( 'bbp_main', __( 'Main Settings', 'bbpress' ), 'bbp_admin_setting_callback_section', 'bbpress' );
@@ -170,11 +189,19 @@ class BBP_Admin {
 	}
 
 	/**
-	 * activation_notice ()
+	 * Admin area activation notice
 	 *
-	 * Admin area ctivation notice. Only appears when there are no addresses.
+	 * Shows the message of activating a bbPress-compatible theme to
+	 * capable users.
+	 *
+	 * @since bbPress (r2743)
+	 *
+	 * @uses current_user_can() To check if we need to show the message to
+	 *                           the current user.
+	 * @uses current_theme_info() To get the current theme info for checking
+	 *                             if it's bbPress-compatible or not
 	 */
-	function activation_notice () {
+	function activation_notice() {
 		if ( !current_user_can( 'switch_themes' ) )
 			return;
 
@@ -190,41 +217,45 @@ class BBP_Admin {
 	}
 
 	/**
-	 * add_settings_link ()
-	 *
 	 * Add Settings link to plugins area
 	 *
-	 * @return string Links
+	 * @since bbPress (r2737)
+	 *
+	 * @param array $links Links array in which we would prepend our link
+	 * @param string $file Current plugin basename
+	 * @return array Processed links
 	 */
-	function add_settings_link ( $links, $file ) {
+	function add_settings_link( $links, $file ) {
 		global $bbp;
 
 		if ( plugin_basename( $bbp->file ) == $file ) {
 			$settings_link = '<a href="' . add_query_arg( array( 'page' => 'bbpress' ), admin_url( 'options-general.php' ) ) . '">' . __( 'Settings', 'bbpress' ) . '</a>';
 			array_unshift( $links, $settings_link );
 		}
+
 		return $links;
 	}
 
 	/**
-	 * init ()
-	 *
 	 * bbPress's dedicated admin init action
 	 *
-	 * @uses do_action
+	 * @since bbPress (r2464)
+	 *
+	 * @uses do_action() Calls 'bbp_admin_init'
 	 */
-	function init () {
+	function init() {
 		do_action( 'bbp_admin_init' );
 	}
 
 	/**
-	 * forum_attributes_metabox ()
-	 *
 	 * Add the forum attributes metabox
 	 *
-	 * @uses add_meta_box
+	 * @since bbPress (r2746)
+	 *
+	 * @uses add_meta_box() To add the metabox
+	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
-	function forum_attributes_metabox () {
+	function forum_attributes_metabox() {
 		global $bbp;
 
 		add_meta_box (
@@ -240,14 +271,28 @@ class BBP_Admin {
 	}
 
 	/**
-	 * forum_attributes_metabox_save ()
-	 *
 	 * Pass the forum attributes for processing
 	 *
-	 * @param int $forum_id
-	 * @return int
+	 * @since bbPress (r2746)
+	 *
+	 * @param int $forum_id Forum id
+	 * @uses current_user_can() To check if the current user is capable of
+	 *                           editing the forum
+	 * @uses get_post_field() To get the post type of the supplied id and
+	 *                         check if it's a forum
+	 * @uses bbp_is_forum_closed() To check if the forum is closed
+	 * @uses bbp_is_forum_category() To check if the forum is a category
+	 * @uses bbp_is_forum_private() To check if the forum is private
+	 * @uses bbp_close_forum() To close the forum
+	 * @uses bbp_open_forum() To open the forum
+	 * @uses bbp_categorize_forum() To make the forum a category
+	 * @uses bbp_normalize_forum() To make the forum normal (not category)
+	 * @uses bbp_privatize_forum() To mark the forum as private
+	 * @uses bbp_publicize_forum() To mark the forum as public
+	 * @uses do_action() Calls 'bbp_forum_attributes_metabox_save'
+	 * @return int Forum id
 	 */
-	function forum_attributes_metabox_save ( $forum_id ) {
+	function forum_attributes_metabox_save( $forum_id ) {
 		global $bbp;
 
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
@@ -289,13 +334,14 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topic_attributes_metabox ()
-	 *
 	 * Add the topic attributes metabox
 	 *
-	 * @uses add_meta_box
+	 * @since bbPress (r2744)
+	 *
+	 * @uses add_meta_box() To add the metabox
+	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
-	function topic_attributes_metabox () {
+	function topic_attributes_metabox() {
 		global $bbp;
 
 		add_meta_box (
@@ -311,14 +357,17 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topic_attributes_metabox_save ()
-	 *
 	 * Pass the topic attributes for processing
 	 *
-	 * @param int $topic_id
-	 * @return int
+	 * @since bbPress (r2746)
+	 *
+	 * @param int $topic_id Topic id
+	 * @uses current_user_can() To check if the current user is capable of
+	 *                           editing the topic
+	 * @uses do_action() Calls 'bbp_topic_attributes_metabox_save'
+	 * @return int Parent id
 	 */
-	function topic_attributes_metabox_save ( $topic_id ) {
+	function topic_attributes_metabox_save( $topic_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $topic_id;
 
@@ -334,11 +383,14 @@ class BBP_Admin {
 	}
 
 	/**
-	 * reply_attributes_metabox ()
-	 *
 	 * Add the reply attributes metabox
+	 *
+	 * @since bbPress (r2746)
+	 *
+	 * @uses add_meta_box() To add the metabox
+	 * @uses do_action() Calls 'bbp_reply_attributes_metabox'
 	 */
-	function reply_attributes_metabox () {
+	function reply_attributes_metabox() {
 		global $bbp;
 
 		add_meta_box (
@@ -354,14 +406,17 @@ class BBP_Admin {
 	}
 
 	/**
-	 * reply_attributes_metabox_save ()
-	 *
 	 * Pass the reply attributes for processing
 	 *
-	 * @param int $reply_id
-	 * @return int
+	 * @since bbPress (r2746)
+	 *
+	 * @param int $reply_id Reply id
+	 * @uses current_user_can() To check if the current user is capable of
+	 *                           editing the reply
+	 * @uses do_action() Calls 'bbp_reply_attributes_metabox_save'
+	 * @return int Parent id
 	 */
-	function reply_attributes_metabox_save ( $reply_id ) {
+	function reply_attributes_metabox_save( $reply_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $reply_id;
 
@@ -377,11 +432,17 @@ class BBP_Admin {
 	}
 
 	/**
-	 * admin_head ()
-	 *
 	 * Add some general styling to the admin area
+	 *
+	 * @since bbPress (r2464)
+	 *
+	 * @uses sanitize_html_class() To sanitize the classes
+	 * @uses bbp_is_forum() To check if it is a forum page
+	 * @uses bbp_is_topic() To check if it is a topic page
+	 * @uses bbp_is_reply() To check if it is a reply page
+	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
-	function admin_head () {
+	function admin_head() {
 		global $bbp, $post;
 
 		// Icons for top level admin menus
@@ -456,13 +517,17 @@ class BBP_Admin {
 	}
 
 	/**
-	 * user_profile_update ()
-	 *
-	 * Responsible for showing additional profile options and settings
+	 * Responsible for saving additional profile options and settings
 	 *
 	 * @todo Everything
+	 *
+	 * @since bbPress (r2464)
+	 *
+	 * @param $user_id The user id
+	 * @uses do_action() Calls 'bbp_user_profile_update'
+	 * @return bool Always false
 	 */
-	function user_profile_update ( $user_id ) {
+	function user_profile_update( $user_id ) {
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_update' );
 
@@ -470,13 +535,17 @@ class BBP_Admin {
 	}
 
 	/**
-	 * user_profile_forums ()
-	 *
 	 * Responsible for saving additional profile options and settings
 	 *
 	 * @todo Everything
+	 *
+	 * @since bbPress (r2464)
+	 *
+	 * @param WP_User $profileuser User data
+	 * @uses do_action() Calls 'bbp_user_profile_forums'
+	 * @return bool Always false
 	 */
-	function user_profile_forums ( $profileuser ) {
+	function user_profile_forums( $profileuser ) {
 		return false;
 
 ?>
@@ -496,21 +565,23 @@ class BBP_Admin {
 	}
 
 	/**
-	 * forums_column_headers ()
-	 *
 	 * Manage the column headers for the forums page
 	 *
-	 * @param array $columns
-	 * @return array $columns
+	 * @since bbPress (r2485)
+	 *
+	 * @param array $columns The columns
+	 * @uses apply_filters() Calls 'bbp_admin_forums_column_headers' with
+	 *                        the columns
+	 * @return array $columns bbPress forum columns
 	 */
-	function forums_column_headers ( $columns ) {
+	function forums_column_headers( $columns ) {
 		$columns = array (
 			'cb'                    => '<input type="checkbox" />',
-			'title'                 => __( 'Forum', 'bbpress' ),
-			'bbp_forum_topic_count' => __( 'Topics', 'bbpress' ),
-			'bbp_forum_reply_count' => __( 'Replies', 'bbpress' ),
-			'author'                => __( 'Creator', 'bbpress' ),
-			'bbp_forum_created'     => __( 'Created' , 'bbpress' ),
+			'title'                 => __( 'Forum',     'bbpress' ),
+			'bbp_forum_topic_count' => __( 'Topics',    'bbpress' ),
+			'bbp_forum_reply_count' => __( 'Replies',   'bbpress' ),
+			'author'                => __( 'Creator',   'bbpress' ),
+			'bbp_forum_created'     => __( 'Created' ,  'bbpress' ),
 			'bbp_forum_freshness'   => __( 'Freshness', 'bbpress' )
 		);
 
@@ -518,14 +589,23 @@ class BBP_Admin {
 	}
 
 	/**
-	 * forums_column_data ( $column, $post_id )
-	 *
 	 * Print extra columns for the forums page
 	 *
-	 * @param string $column
-	 * @param int $forum_id
+	 * @since bbPress (r2485)
+	 *
+	 * @param string $column Column
+	 * @param int $forum_id Forum id
+	 * @uses bbp_forum_topic_count() To output the forum topic count
+	 * @uses bbp_forum_reply_count() To output the forum reply count
+	 * @uses get_the_date() Get the forum creation date
+	 * @uses get_the_time() Get the forum creation time
+	 * @uses esc_attr() To sanitize the forum creation time
+	 * @uses bbp_get_forum_last_active() To get the time when the forum was
+	 *                                    last active
+	 * @uses do_action() Calls 'bbp_admin_forums_column_data' with the
+	 *                    column and forum id
 	 */
-	function forums_column_data ( $column, $forum_id ) {
+	function forums_column_data( $column, $forum_id ) {
 		global $bbp, $typenow;
 
 		if ( $typenow !== $bbp->forum_id )
@@ -563,19 +643,23 @@ class BBP_Admin {
 	}
 
 	/**
-	 * forums_row_actions ( $actions, $post )
+	 * Forum Row actions
 	 *
-	 * Remove the quick-edit action link and display the description under the forum title
+	 * Remove the quick-edit action link and display the description under
+	 * the forum title
 	 *
-	 * @param array $actions
-	 * @param array $forum
-	 * @return array $actions
+	 * @since bbPress (r2577)
+	 *
+	 * @param array $actions Actions
+	 * @param array $forum Forum object
+	 * @uses the_content() To output forum description
+	 * @return array $actions Actions
 	 */
-	function forums_row_actions ( $actions, $forum ) {
-		global $bbp, $typenow;
+	function forums_row_actions( $actions, $forum ) {
+		global $bbp;
 
-		if ( $bbp->forum_id == $typenow ) {
-			unset( $actions['inline'] );
+		if ( $bbp->forum_id == $forum->post_type ) {
+			unset( $actions['inline hide-if-no-js'] );
 
 			// simple hack to show the forum description under the title
 			the_content();
@@ -585,15 +669,37 @@ class BBP_Admin {
 	}
 
 	/**
-	 * toggle_topic ()
+	 * Toggle topic
 	 *
-	 * Handles the admin-side opening/closing and spamming/unspamming of topics
+	 * Handles the admin-side opening/closing, sticking/unsticking and
+	 * spamming/unspamming of topics
 	 *
 	 * @since bbPress (r2727)
+	 *
+	 * @uses get_post() To get the topic
+	 * @uses current_user_can() To check if the user is capable of editing
+	 *                           the topic
+	 * @uses wp_die() To die if the user isn't capable or the post wasn't
+	 *                 found
+	 * @uses check_admin_referer() To verify the nonce and check referer
+	 * @uses bbp_is_topic_open() To check if the topic is open
+	 * @uses bbp_close_topic() To close the topic
+	 * @uses bbp_open_topic() To open the topic
+	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky or
+	 *                              super sticky
+	 * @uses bbp_unstick_topic() To unstick the topic
+	 * @uses bbp_stick_topic() To stick the topic
+	 * @uses bbp_is_topic_spam() To check if the topic is marked as spam
+	 * @uses bbp_unspam_topic() To unmark the topic as spam
+	 * @uses bbp_spam_topic() To mark the topic as spam
+	 * @uses do_action() Calls 'bbp_toggle_topic_admin' with success, post
+	 *                    data, action and message
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_redirect() Redirect the page to custom url
 	 */
-	function toggle_topic () {
+	function toggle_topic() {
 		// Only proceed if GET is a topic toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
 			global $bbp;
 
 			$action    = $_GET['action'];            // What action is taking place?
@@ -612,17 +718,28 @@ class BBP_Admin {
 					check_admin_referer( 'close-topic_' . $topic_id );
 
 					$is_open = bbp_is_topic_open( $topic_id );
-					$message = $is_open ? 'closed' : 'opened';
-					$success = $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
+					$message = true == $is_open ? 'closed' : 'opened';
+					$success = true == $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
 
 					break;
 
-				case 'bbp_toggle_topic_spam' :
+				case 'bbp_toggle_topic_stick' :
+					check_admin_referer( 'stick-topic_' . $topic_id );
+
+					$is_sticky = bbp_is_topic_sticky( $topic_id );
+					$is_super  = ( empty( $is_sticky ) && !empty( $_GET['super'] ) && 1 == (int) $_GET['super'] ) ? true : false;
+					$message   = true == $is_sticky ? 'unsticked'     : 'sticked';
+					$message   = true == $is_super  ? 'super_sticked' : $message;
+					$success   = true == $is_sticky ? bbp_unstick_topic( $topic_id ) : bbp_stick_topic( $topic_id, $is_super );
+
+					break;
+
+				case 'bbp_toggle_topic_spam'  :
 					check_admin_referer( 'spam-topic_' . $topic_id );
 
 					$is_spam = bbp_is_topic_spam( $topic_id );
-					$message = $is_spam ? 'unspammed' : 'spammed';
-					$success = $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
+					$message = true == $is_spam ? 'unspammed' : 'spammed';
+					$success = true == $is_spam ? bbp_unspam_topic( $topic_id ) : bbp_spam_topic( $topic_id );
 
 					break;
 			}
@@ -646,15 +763,21 @@ class BBP_Admin {
 	}
 
 	/**
-	 * toggle_topic_notice ()
+	 * Toggle topic notices
 	 *
-	 * Display the success/error notices from toggle_topic()
+	 * Display the success/error notices from
+	 * {@link BBP_Admin::toggle_topic()}
 	 *
 	 * @since bbPress (r2727)
+	 *
+	 * @uses bbp_get_topic_title() To get the topic title of the topic
+	 * @uses esc_html() To sanitize the topic title
+	 * @uses apply_filters() Calls 'bbp_toggle_topic_notice_admin' with
+	 *                        message, topic id, notice and is it a failure
 	 */
-	function toggle_topic_notice () {
+	function toggle_topic_notice() {
 		// Only proceed if GET is a topic toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
 			global $bbp;
 
 			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
@@ -668,16 +791,28 @@ class BBP_Admin {
 			$topic_title = esc_html( bbp_get_topic_title( $topic->ID ) );
 
 			switch ( $notice ) {
-				case 'opened' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully opened.', 'bbpress' ), $topic_title );
+				case 'opened'    :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the topic "%1$s".',           'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully opened.',           'bbpress' ), $topic_title );
 					break;
 
-				case 'closed' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the topic "%1$s".', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully closed.', 'bbpress' ), $topic_title );
+				case 'closed'    :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the topic "%1$s".',           'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully closed.',           'bbpress' ), $topic_title );
 					break;
 
-				case 'spammed' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully marked as spam.', 'bbpress' ), $topic_title );
+				case 'super_sticked' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem sticking the topic "%1$s" to front.', 'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully sticked to front.', 'bbpress' ), $topic_title );
+					break;
+
+				case 'sticked'   :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem sticking the topic "%1$s".',          'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully sticked.',          'bbpress' ), $topic_title );
+					break;
+
+				case 'unsticked' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem unsticking the topic "%1$s".',        'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully unsticked.',        'bbpress' ), $topic_title );
+					break;
+
+				case 'spammed'   :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the topic "%1$s" as spam.',   'bbpress' ), $topic_title ) : sprintf( __( 'Topic "%1$s" successfully marked as spam.',   'bbpress' ), $topic_title );
 					break;
 
 				case 'unspammed' :
@@ -699,14 +834,16 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topics_column_headers ()
-	 *
 	 * Manage the column headers for the topics page
 	 *
-	 * @param array $columns
-	 * @return array $columns
+	 * @since bbPress (r2485)
+	 *
+	 * @param array $columns The columns
+	 * @uses apply_filters() Calls 'bbp_admin_topics_column_headers' with
+	 *                        the columns
+	 * @return array $columns bbPress topic columns
 	 */
-	function topics_column_headers ( $columns ) {
+	function topics_column_headers( $columns ) {
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Topics',    'bbpress' ),
@@ -722,14 +859,31 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topics_column_data ( $column, $topic_id )
-	 *
 	 * Print extra columns for the topics page
 	 *
-	 * @param string $column
-	 * @param int $post_id
+	 * @since bbPress (r2485)
+	 *
+	 * @param string $column Column
+	 * @param int $topic_id Topic id
+	 * @uses bbp_get_topic_forum_id() To get the forum id of the topic
+	 * @uses bbp_forum_title() To output the topic's forum title
+	 * @uses apply_filters() Calls 'topic_forum_row_actions' with an array
+	 *                        of topic forum actions
+	 * @uses bbp_get_forum_permalink() To get the forum permalink
+	 * @uses admin_url() To get the admin url of post.php
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses bbp_topic_reply_count() To output the topic reply count
+	 * @uses bbp_topic_voice_count() To output the topic voice count
+	 * @uses bbp_topic_author_display_name() To output the topic author name
+	 * @uses get_the_date() Get the topic creation date
+	 * @uses get_the_time() Get the topic creation time
+	 * @uses esc_attr() To sanitize the topic creation time
+	 * @uses bbp_get_topic_last_active() To get the time when the topic was
+	 *                                    last active
+	 * @uses do_action() Calls 'bbp_admin_topics_column_data' with the
+	 *                    column and topic id
 	 */
-	function topics_column_data ( $column, $topic_id ) {
+	function topics_column_data( $column, $topic_id ) {
 		global $bbp, $typenow;
 
 		if ( $typenow !== $bbp->topic_id )
@@ -743,7 +897,7 @@ class BBP_Admin {
 			// Forum
 			case 'bbp_topic_forum' :
 				// Output forum name
-				bbp_topic_forum_title( $topic_id );
+				bbp_forum_title( $forum_id );
 
 				// Link information
 				$actions = apply_filters( 'topic_forum_row_actions', array (
@@ -771,7 +925,7 @@ class BBP_Admin {
 
 			// Author
 			case 'bbp_topic_author' :
-				bbp_topic_author_display_name ( $topic_id );
+				bbp_topic_author_display_name( $topic_id );
 				break;
 
 			// Freshness
@@ -800,16 +954,32 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topics_row_actions ( $actions, $topic )
+	 * Topic Row actions
 	 *
 	 * Remove the quick-edit action link under the topic title and add the
-	 * spam/close links
+	 * content and close/stick/spam links
 	 *
-	 * @param array $actions
-	 * @param array $topic
-	 * @return array $actions
+	 * @since bbPress (r2485)
+	 *
+	 * @param array $actions Actions
+	 * @param array $topic Topic object
+	 * @uses the_content() To output topic content
+	 * @uses bbp_get_topic_permalink() To get the topic link
+	 * @uses bbp_get_topic_title() To get the topic title
+	 * @uses current_user_can() To check if the current user can edit or
+	 *                           delete the topic
+	 * @uses bbp_is_topic_open() To check if the topic is open
+	 * @uses bbp_is_topic_spam() To check if the topic is marked as spam
+	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky or a
+	 *                              super sticky
+	 * @uses get_post_type_object() To get the topic post type object
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses remove_query_arg() To remove custom args from the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses get_delete_post_link() To get the delete post link of the topic
+	 * @return array $actions Actions
 	 */
-	function topics_row_actions ( $actions, $topic ) {
+	function topics_row_actions( $actions, $topic ) {
 		global $bbp;
 
 		if ( $bbp->topic_id == $topic->post_type ) {
@@ -821,19 +991,35 @@ class BBP_Admin {
 			if ( empty( $actions['view'] ) && 'trash' == $topic->post_status && current_user_can( 'view_trash' ) )
 				$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
-			// Show the 'close' and 'open' link on published and closed posts only
-			if ( in_array( $topic->post_status, array( 'publish', $bbp->closed_status_id ) ) ) {
-				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'close-topic_' . $topic->ID ) );
-				if ( bbp_is_topic_open( $topic->ID ) )
-					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
-				else
-					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic', 'bbpress'  ) . '">' . __( 'Open',  'bbpress' ) . '</a>';
+			// Only show the actions if the user is capable of viewing them :)
+			if ( current_user_can( 'edit_topic', $topic->ID ) ) {
 
-				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam'  ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'spam-topic_'  . $topic->ID ) );
+				// Close
+				// Show the 'close' and 'open' link on published and closed posts only
+				if ( in_array( $topic->post_status, array( 'publish', $bbp->closed_status_id ) ) ) {
+					$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID ) );
+					if ( bbp_is_topic_open( $topic->ID ) )
+						$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
+					else
+						$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this topic',  'bbpress' ) . '">' . __( 'Open',  'bbpress' ) . '</a>';
+				}
+
+				// Sticky
+				$stick_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
+				if ( bbp_is_topic_sticky( $topic->ID ) ) {
+					$actions['stick'] = '<a href="' . $stick_uri . '" title="' . esc_attr__( 'Unstick this topic', 'bbpress' ) . '">' . __( 'Unstick', 'bbpress' ) . '</a>';
+				} else {
+					$super_uri        = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_stick', 'super' => '1' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'stick-topic_'  . $topic->ID ) );
+					$actions['stick'] = '<a href="' . $stick_uri . '" title="' . esc_attr__( 'Stick this topic to its forum', 'bbpress' ) . '">' . __( 'Stick', 'bbpress' ) . '</a> (<a href="' . $super_uri . '" title="' . esc_attr__( 'Stick this topic to front', 'bbpress' ) . '">' . __( 'to front', 'bbpress' ) . '</a>)';
+				}
+
+				// Spam
+				$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_spam' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'spam-topic_'  . $topic->ID ) );
 				if ( bbp_is_topic_spam( $topic->ID ) )
 					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the topic as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
 				else
 					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this topic as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+
 			}
 
 			// Do not show trash links for spam topics, or spam links for trashed topics
@@ -857,13 +1043,27 @@ class BBP_Admin {
 	}
 
 	/**
-	 * toggle_reply ()
+	 * Toggle reply
 	 *
-	 * Handles the admin-side opening/closing and spamming/unspamming of replies
+	 * Handles the admin-side spamming/unspamming of replies
 	 *
 	 * @since bbPress (r2740)
+	 *
+	 * @uses get_post() To get the reply
+	 * @uses current_user_can() To check if the user is capable of editing
+	 *                           the reply
+	 * @uses wp_die() To die if the user isn't capable or the post wasn't
+	 *                 found
+	 * @uses check_admin_referer() To verify the nonce and check referer
+	 * @uses bbp_is_reply_spam() To check if the reply is marked as spam
+	 * @uses bbp_unspam_reply() To unmark the reply as spam
+	 * @uses bbp_spam_reply() To mark the reply as spam
+	 * @uses do_action() Calls 'bbp_toggle_reply_admin' with success, post
+	 *                    data, action and message
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_redirect() Redirect the page to custom url
 	 */
-	function toggle_reply () {
+	function toggle_reply() {
 		// Only proceed if GET is a reply toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
 			global $bbp;
@@ -910,13 +1110,19 @@ class BBP_Admin {
 	}
 
 	/**
-	 * toggle_reply_notice ()
+	 * Toggle reply notices
 	 *
-	 * Display the success/error notices from toggle_reply()
+	 * Display the success/error notices from
+	 * {@link BBP_Admin::toggle_reply()}
 	 *
 	 * @since bbPress (r2740)
+	 *
+	 * @uses bbp_get_reply_title() To get the reply title of the reply
+	 * @uses esc_html() To sanitize the reply title
+	 * @uses apply_filters() Calls 'bbp_toggle_reply_notice_admin' with
+	 *                        message, reply id, notice and is it a failure
 	 */
-	function toggle_reply_notice () {
+	function toggle_reply_notice() {
 		// Only proceed if GET is a reply toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
 			global $bbp;
@@ -955,14 +1161,16 @@ class BBP_Admin {
 	}
 
 	/**
-	 * replies_column_headers ()
-	 *
 	 * Manage the column headers for the replies page
 	 *
-	 * @param array $columns
-	 * @return array $columns
+	 * @since bbPress (r2577)
+	 *
+	 * @param array $columns The columns
+	 * @uses apply_filters() Calls 'bbp_admin_replies_column_headers' with
+	 *                        the columns
+	 * @return array $columns bbPress reply columns
 	 */
-	function replies_column_headers ( $columns ) {
+	function replies_column_headers( $columns ) {
 		$columns = array(
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Title',   'bbpress' ),
@@ -972,18 +1180,38 @@ class BBP_Admin {
 			'bbp_reply_created'     => __( 'Created', 'bbpress' ),
 		);
 
-		return apply_filters( 'bbp_admin_topics_column_headers', $columns );
+		return apply_filters( 'bbp_admin_replies_column_headers', $columns );
 	}
 
 	/**
-	 * replies_column_data ( $column, $post_id )
+	 * Print extra columns for the replies page
 	 *
-	 * Print extra columns for the topics page
+	 * @since bbPress (r2577)
 	 *
-	 * @param string $column
-	 * @param int $post_id
+	 * @param string $column Column
+	 * @param int $reply_id reply id
+	 * @uses bbp_get_reply_topic_id() To get the topic id of the reply
+	 * @uses bbp_topic_title() To output the reply's topic title
+	 * @uses apply_filters() Calls 'reply_topic_row_actions' with an array
+	 *                        of reply topic actions
+	 * @uses bbp_get_topic_permalink() To get the topic permalink
+	 * @uses bbp_get_topic_forum_id() To get the forum id of the topic of
+	 *                                 the reply
+	 * @uses bbp_get_forum_permalink() To get the forum permalink
+	 * @uses admin_url() To get the admin url of post.php
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses apply_filters() Calls 'reply_topic_forum_row_actions' with an
+	 *                        array of reply topic forum actions
+	 * @uses bbp_reply_author_display_name() To output the reply author name
+	 * @uses get_the_date() Get the reply creation date
+	 * @uses get_the_time() Get the reply creation time
+	 * @uses esc_attr() To sanitize the reply creation time
+	 * @uses bbp_get_reply_last_active() To get the time when the reply was
+	 *                                    last active
+	 * @uses do_action() Calls 'bbp_admin_replies_column_data' with the
+	 *                    column and reply id
 	 */
-	function replies_column_data ( $column, $reply_id ) {
+	function replies_column_data( $column, $reply_id ) {
 		global $bbp, $typenow;
 
 		if ( $typenow !== $bbp->reply_id )
@@ -1000,7 +1228,7 @@ class BBP_Admin {
 				bbp_topic_title( $topic_id );
 
 				// Link information
-				$actions = apply_filters( 'topic_forum_row_actions', array (
+				$actions = apply_filters( 'reply_topic_row_actions', array (
 					'edit' => '<a href="' . add_query_arg( array( 'post' => $topic_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
 					'view' => '<a href="' . bbp_get_topic_permalink( $topic_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
 				) );
@@ -1022,7 +1250,7 @@ class BBP_Admin {
 				bbp_forum_title( $forum_id );
 
 				// Link information
-				$actions = apply_filters( 'topic_forum_row_actions', array (
+				$actions = apply_filters( 'reply_topic_forum_row_actions', array (
 					'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
 					'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
 				) );
@@ -1052,22 +1280,35 @@ class BBP_Admin {
 
 			// Do action for anything else
 			default :
-				do_action( 'bbp_admin_replies_column_data', $column, $post_id );
+				do_action( 'bbp_admin_replies_column_data', $column, $reply_id );
 				break;
 		}
 	}
 
 	/**
-	 * replies_row_actions ()
+	 * Reply Row actions
 	 *
 	 * Remove the quick-edit action link under the reply title and add the
-	 * spam link
+	 * content and spam link
 	 *
-	 * @param array $actions
-	 * @param array $reply
-	 * @return array $actions
+	 * @since bbPress (r2577)
+	 *
+	 * @param array $actions Actions
+	 * @param array $reply Reply object
+	 * @uses the_content() To output reply content
+	 * @uses bbp_get_reply_permalink() To get the reply link
+	 * @uses bbp_get_reply_title() To get the reply title
+	 * @uses current_user_can() To check if the current user can edit or
+	 *                           delete the reply
+	 * @uses bbp_is_reply_spam() To check if the reply is marked as spam
+	 * @uses get_post_type_object() To get the reply post type object
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses remove_query_arg() To remove custom args from the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses get_delete_post_link() To get the delete post link of the reply
+	 * @return array $actions Actions
 	 */
-	function replies_row_actions ( $actions, $reply ) {
+	function replies_row_actions( $actions, $reply ) {
 		global $bbp;
 
 		if ( $bbp->reply_id == $reply->post_type ) {
@@ -1079,15 +1320,17 @@ class BBP_Admin {
 
 			the_content();
 
-			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam'  ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed' ) ) ), 'spam-reply_'  . $reply->ID ) );
-
-			if ( in_array( $reply->post_status, array( 'publish', $bbp->spam_status_id ) ) ) {
-				if ( bbp_is_reply_spam( $reply->ID ) )
-					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
-				else
-					$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+			// Only show the actions if the user is capable of viewing them
+			if ( current_user_can( 'edit_reply', $reply->ID ) ) {
+				if ( in_array( $reply->post_status, array( 'publish', $bbp->spam_status_id ) ) ) {
+					if ( bbp_is_reply_spam( $reply->ID ) )
+						$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
+					else
+						$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark this reply as spam',    'bbpress' ) . '">' . __( 'Spam',     'bbpress' ) . '</a>';
+				}
 			}
 
+			// Trash
 			if ( current_user_can( 'delete_reply', $reply->ID ) ) {
 				if ( $bbp->trash_status_id == $reply->post_status ) {
 					$post_type_object = get_post_type_object( $reply->post_type );
@@ -1108,9 +1351,11 @@ class BBP_Admin {
 	}
 
 	/**
-	 * register_admin_style ()
-	 *
 	 * Registers the bbPress admin color scheme
+	 *
+	 * @since bbPress (r2521)
+	 *
+	 * @uses wp_admin_css_color() To register the color scheme
 	 */
 	function register_admin_style () {
 		global $bbp;
@@ -1121,16 +1366,11 @@ class BBP_Admin {
 endif; // class_exists check
 
 /**
- * bbp_admin_separator ()
- *
- * Forces a separator between bbPress top level menus, and WordPress content menus
- *
- * @package bbPress
- * @subpackage Admin
- * @since bbPress (r2464)
+ * Forces a separator between bbPress top level menus & WordPress content menus
  *
  * @todo A better job at rearranging and separating top level menus
- * @global array $menu
+ *
+ * @since bbPress (r2464)
  */
 function bbp_admin_separator () {
 	global $menu;
@@ -1138,18 +1378,21 @@ function bbp_admin_separator () {
 	$menu[24] = $menu[25];
 	$menu[25] = array( '', 'read', 'separator1', '', 'wp-menu-separator' );
 }
-add_action( 'admin_menu', 'bbp_admin_separator' );
 
 /**
- * bbp_forum_metabox ()
+ * Forum metabox
  *
  * The metabox that holds all of the additional forum information
  *
- * @package bbPress
- * @subpackage Admin
- * @since bbPress (r2746)
+ * @since bbPress (r2744)
+ *
+ * @uses bbp_is_forum_closed() To check if a forum is closed or not
+ * @uses bbp_is_forum_category() To check if a forum is a category or not
+ * @uses bbp_is_forum_private() To check if a forum is private or not
+ * @uses bbp_dropdown() To show a dropdown of the forums for forum parent
+ * @uses do_action() Calls 'bbp_forum_metabox'
  */
-function bbp_forum_metabox () {
+function bbp_forum_metabox() {
 	global $bbp, $post;
 
 	/** TYPE ******************************************************************/
@@ -1231,23 +1474,23 @@ function bbp_forum_metabox () {
 			<label class="screen-reader-text" for="menu_order"><?php _e( 'Forum Order', 'bbpress' ); ?></label>
 			<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" />
 		</p>
+
 <?php
 
 	do_action( 'bbp_forum_metabox' );
 }
 
 /**
- * bbp_topic_metabox ()
+ * Topic metabox
  *
  * The metabox that holds all of the additional topic information
  *
- * @package bbPress
- * @subpackage Admin
  * @since bbPress (r2464)
  *
- * @global object $post
+ * @uses bbp_dropdown() To show a dropdown of the forums for topic parent
+ * @uses do_action() Calls 'bbp_topic_metabox'
  */
-function bbp_topic_metabox () {
+function bbp_topic_metabox() {
 	global $post, $bbp;
 
 	$args = array(
@@ -1280,26 +1523,23 @@ function bbp_topic_metabox () {
 }
 
 /**
- * bbp_reply_metabox ()
+ * Reply metabox
  *
  * The metabox that holds all of the additional reply information
  *
- * @package bbPress
- * @subpackage Admin
  * @since bbPress (r2464)
  *
- * @global object $post
+ * @uses bbp_dropdown() To show a dropdown of the topics for reply parent
+ * @uses do_action() Calls 'bbp_reply_metabox'
  */
-function bbp_reply_metabox () {
+function bbp_reply_metabox() {
 	global $post, $bbp;
 
 	$args = array(
 		'post_type' => $bbp->topic_id,
 		'selected'  => $post->post_parent,
 		'select_id' => 'parent_id'
-	);
-
-	?>
+	); ?>
 
 	<p>
 		<strong><?php _e( 'Topic', 'bbpress' ); ?></strong>
@@ -1310,23 +1550,22 @@ function bbp_reply_metabox () {
 		<?php bbp_dropdown( $args ); ?>
 	</p>
 
-	<?php
+<?php
 
 	do_action( 'bbp_reply_metabox' );
 }
 
 /**
- * bbp_admin ()
- *
  * Setup bbPress Admin
  *
- * @global object $bbp
+ * @since bbPress (r2596)
+ *
+ * @uses BBP_Admin
  */
 function bbp_admin() {
 	global $bbp;
 
 	$bbp->admin = new BBP_Admin();
 }
-add_action( 'bbp_init', 'bbp_admin' );
 
 ?>

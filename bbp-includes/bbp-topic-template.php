@@ -19,6 +19,8 @@
  * @uses is_page() To check if it's a page
  * @uses bbp_is_forum() To check if it's a forum
  * @uses bbp_get_paged() To get the current page value
+ * @uses bbp_get_super_stickies() To get the super stickies
+ * @uses bbp_get_stickies() To get the forum stickies
  * @uses wpdb::get_results() To execute our query and get the results
  * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
  * @uses get_permalink() To get the permalink
@@ -56,7 +58,10 @@ function bbp_has_topics( $args = '' ) {
 		'paged'                => bbp_get_paged(),
 
 		// Topic Search
-		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
+		's'                    => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
+
+		// Ignore sticky topics?
+		'ignore_sticky_topics' => false,
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
@@ -76,6 +81,65 @@ function bbp_has_topics( $args = '' ) {
 	} else {
 		global $wp_query;
 		$bbp->topic_query = $wp_query;
+	}
+
+	// Put sticky posts at the top of the posts array, much part of code taken from query.php in wp-includes
+	if ( empty( $ignore_sticky_topics ) && ( is_page() || bbp_is_forum() ) && bbp_get_paged() <= 1 ) {
+		$stickies = bbp_get_super_stickies();
+		$stickies = !empty( $post_parent ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
+		$stickies = array_unique( $stickies );
+
+		if ( is_array( $stickies ) && !empty( $stickies ) ) {
+
+			$num_topics    = count( $bbp->topic_query->posts );
+			$sticky_offset = 0;
+
+			// Loop over topics and relocate stickies to the front.
+			for ( $i = 0; $i < $num_topics; $i++ ) {
+
+				if ( in_array( $bbp->topic_query->posts[$i]->ID, $stickies ) ) {
+					$sticky = $bbp->topic_query->posts[$i];
+
+					// Remove sticky from current position
+					array_splice( $bbp->topic_query->posts, $i, 1 );
+
+					// Move to front, after other stickies
+					array_splice( $bbp->topic_query->posts, $sticky_offset, 0, array( $sticky ) );
+
+					// Increment the sticky offset.  The next sticky will be placed at this offset.
+					$sticky_offset++;
+
+					// Remove post from sticky posts array
+					$offset = array_search( $sticky->ID, $stickies );
+
+					unset( $stickies[$offset] );
+				}
+
+			}
+
+			// If any posts have been excluded specifically, Ignore those that are sticky.
+			if ( !empty( $stickies ) && !empty( $post__not_in ) )
+				$stickies = array_diff( $stickies, $post__not_in );
+
+			// Fetch sticky posts that weren't in the query results
+			if ( !empty( $stickies ) ) {
+				global $wpdb;
+
+				$stickies__in   = implode( ',', array_map( 'absint', $stickies ) );
+				$stickies_where = "AND $wpdb->posts.post_type = '$bbp->topic_id'";
+				$stickies       = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.ID IN ($stickies__in) $stickies_where" );
+
+				foreach ( $stickies as $sticky ) {
+
+					// Ignore sticky posts the current user cannot read or are not published.
+					if ( 'publish' != $sticky->post_status )
+						continue;
+
+					array_splice( $bbp->topic_query->posts, $sticky_offset, 0, array( $sticky ) );
+					$sticky_offset++;
+				}
+			}
+		}
 	}
 
 	if ( -1 == $posts_per_page )
@@ -315,6 +379,49 @@ function bbp_is_topic_open( $topic_id = 0 ) {
 
 		return false;
 	}
+
+/**
+ * Is the topic a sticky or super sticky?
+ *
+ * @since bbPress (r2754)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @param int $check_super Optional. If set to true and if the topic is not a
+ *                           normal sticky, it is checked if it is a super
+ *                           sticky or not. Defaults to true.
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_stickies() To get the stickies
+ * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
+ * @return bool True if sticky or super sticky, false if not.
+ */
+function bbp_is_topic_sticky( $topic_id = 0, $check_super = true ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$forum_id = bbp_get_topic_forum_id( $topic_id );
+	$stickies = bbp_get_stickies( $forum_id );
+
+	if ( in_array( $topic_id, $stickies ) || ( !empty( $check_super ) && bbp_is_topic_super_sticky( $topic_id ) ) )
+		return true;
+
+	return false;
+}
+
+/**
+ * Is the topic a super sticky?
+ *
+ * @since bbPress (r2754)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_super_stickies() To get the super stickies
+ * @return bool True if super sticky, false if not.
+ */
+function bbp_is_topic_super_sticky( $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$stickies = bbp_get_super_stickies( $topic_id );
+
+	return in_array( $topic_id, $stickies );
+}
 
 /**
  * Is the topic marked as spam?
@@ -1103,6 +1210,9 @@ function bbp_topic_class( $topic_id = 0 ) {
 	 * @since bbPress (r2667)
 	 *
 	 * @param int $topic_id Optional. Topic id
+	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky
+	 * @uses bbp_is_topic_super_sticky() To check if the topic is a super
+	 *                                    sticky
 	 * @uses post_class() To get the topic classes
 	 * @uses apply_filters() Calls 'bbp_get_topic_class' with the classes
 	 *                        and topic id
@@ -1113,6 +1223,8 @@ function bbp_topic_class( $topic_id = 0 ) {
 
 		$classes   = array();
 		$classes[] = $bbp->topic_query->current_post % 2     ? 'even'         : 'odd';
+		$classes[] = bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '';
+		$classes[] = bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '';
 		$classes   = array_filter( $classes );
 		$post      = post_class( $classes, $topic_id );
 
@@ -1148,6 +1260,8 @@ function bbp_topic_admin_links( $args = '' ) {
 	 * @uses bbp_get_topic_trash_link() To get the topic trash link
 	 * @uses bbp_get_topic_close_link() To get the topic close link
 	 * @uses bbp_get_topic_spam_link() To get the topic spam link
+	 * @uses bbp_get_topic_stick_link() To get the topic stick link
+	 * @uses bbp_get_topic_merge_link() To get the topic merge link
 	 * @uses bbp_get_topic_status() To get the topic status
 	 * @uses apply_filters() Calls 'bbp_get_topic_admin_links' with the
 	 *                        topic admin links and args
@@ -1177,10 +1291,11 @@ function bbp_topic_admin_links( $args = '' ) {
 				'edit'  => bbp_get_topic_edit_link ( $r ),
 				'trash' => bbp_get_topic_trash_link( $r ),
 				'close' => bbp_get_topic_close_link( $r ),
+				'stick' => bbp_get_topic_stick_link( $r ),
 				'spam'  => bbp_get_topic_spam_link ( $r ),
 			);
 		}
-		
+
 		// Check caps for trashing the topic
 		if ( !current_user_can( 'delete_topic', $r['id'] ) && !empty( $r['links']['trash'] ) )
 			unset( $r['links']['trash'] );
@@ -1434,6 +1549,80 @@ function bbp_topic_close_link( $args = '' ) {
 		$uri = esc_url( wp_nonce_url( $uri, 'close-topic_' . $topic->ID ) );
 
 		return apply_filters( 'bbp_get_topic_close_link', $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after, $args );
+	}
+
+/**
+ * Output the stick link of the topic
+ *
+ * @since bbPress (r2745)
+ *
+ * @param mixed $args See {@link bbp_get_topic_stick_link()}
+ * @uses bbp_get_topic_stick_link() To get the topic stick link
+ */
+function bbp_topic_stick_link( $args = '' ) {
+	echo bbp_get_topic_stick_link( $args );
+}
+
+	/**
+	 * Return the stick link of the topic
+	 *
+	 * @since bbPress (r2745)
+	 *
+	 * @param mixed $args This function supports these args:
+	 *  - id: Optional. Topic id
+	 *  - link_before: Before the link
+	 *  - link_after: After the link
+	 *  - stick_text: Stick text
+	 *  - unstick_text: Unstick text
+	 *  - super_text: Stick to front text
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses get_post() To get the topic
+	 * @uses current_user_can() To check if the current user can edit the
+	 *                           topic
+	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses apply_filters() Calls 'bbp_get_topic_stick_link' with the link
+	 *                        and args
+	 * @return string Topic stick link
+	 */
+	function bbp_get_topic_stick_link( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'stick_text'   => __( 'Stick',    'bbpress' ),
+			'unstick_text' => __( 'Unstick',  'bbpress' ),
+			'super_text'   => __( 'to front', 'bbpress' ),
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+
+		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
+			return;
+
+		$is_sticky = bbp_is_topic_sticky( $topic->ID );
+
+		$stick_uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic->ID ) );
+		$stick_uri = esc_url( wp_nonce_url( $stick_uri, 'stick-topic_' . $topic->ID ) );
+
+		$stick_display = true == $is_sticky ? $unstick_text : $stick_text;
+		$stick_display = '<a href="' . $stick_uri . '">' . $stick_display . '</a>';
+
+		if ( empty( $is_sticky ) ) {
+			$super_uri = add_query_arg( array( 'action' => 'bbp_toggle_topic_stick', 'topic_id' => $topic->ID, 'super' => 1 ) );
+			$super_uri = esc_url( wp_nonce_url( $super_uri, 'stick-topic_' . $topic->ID ) );
+
+			$super_display = ' (<a href="' . $super_uri . '">' . $super_text . '</a>)';
+		} else {
+			$super_display = '';
+		}
+
+		return apply_filters( 'bbp_get_topic_stick_link', $link_before . $stick_display . $super_display . $link_after, $args );
 	}
 
 /**
@@ -1879,6 +2068,89 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	return $topic_id;
 }
 
+/**
+ * Sticks a topic to a forum or front
+ *
+ * @since bbPress (r2754)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @param int $super Should we make the topic a super sticky?
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_stickies() To get the stickies
+ * @uses do_action() 'bbp_stick_topic' with topic id and bool super
+ * @uses update_option() To update the super stickies option
+ * @uses update_post_meta() To update the forum stickies meta
+ * @uses do_action() Calls 'bbp_sticked_topic' with the topic id, bool super
+ *                    and success
+ * @return bool True on success, false on failure
+ */
+function bbp_stick_topic( $topic_id = 0, $super = false ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$forum_id = empty( $super ) ? bbp_get_topic_forum_id( $topic_id ) : 0;
+	$stickies = bbp_get_stickies( $forum_id );
+
+	do_action( 'bbp_stick_topic', $topic_id, $super );
+
+	if ( !is_array( $stickies ) )
+		$stickies   = array( $topic_id );
+	else
+		$stickies[] = $topic_id;
+
+	$stickies = array_unique( array_filter( $stickies ) );
+
+	$success = !empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
+
+	do_action( 'bbp_sticked_topic', $topic_id, $super, $success );
+
+	return $success;
+}
+
+/**
+ * Unsticks a topic both from front and it's forum
+ *
+ * @since bbPress (r2754)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_stickies() To get the forum stickies
+ * @uses do_action() Calls 'bbp_unstick_topic' with the topic id
+ * @uses delete_option() To delete the super stickies option
+ * @uses update_option() To update the super stickies option
+ * @uses delete_post_meta() To delete the forum stickies meta
+ * @uses update_post_meta() To update the forum stickies meta
+ * @uses do_action() Calls 'bbp_unsticked_topic' with the topic id and success
+ * @return bool Always true.
+ */
+function bbp_unstick_topic( $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$super    = bbp_is_topic_super_sticky( $topic_id );
+	$forum_id = empty( $super ) ? bbp_get_topic_forum_id( $topic_id ) : 0;
+	$stickies = bbp_get_stickies( $forum_id );
+	$offset   = array_search( $topic_id, $stickies );
+
+	do_action( 'bbp_unstick_topic', $topic_id );
+
+	if ( empty( $stickies ) ) {
+		$success = true;
+	} elseif ( !in_array( $topic_id, $stickies ) ) {
+		$success = true;
+	} elseif ( false === $offset ) {
+		$success = true;
+	} else {
+		array_splice( $stickies, $offset, 1 );
+		if ( empty( $stickies ) )
+			$success = !empty( $super ) ? delete_option( '_bbp_super_sticky_topics'            ) : delete_post_meta( $forum_id, '_bbp_sticky_topics'            );
+		else
+			$success = !empty( $super ) ? update_option( '_bbp_super_sticky_topics', $stickies ) : update_post_meta( $forum_id, '_bbp_sticky_topics', $stickies );
+	}
+
+	do_action( 'bbp_unsticked_topic', $topic_id, $success );
+
+	return true;
+}
 /**
  * Displays topic notices
  *

@@ -987,6 +987,9 @@ function bbp_custom_template() {
 	} elseif ( bbp_is_topic_edit() ) {
 		$template = array( 'page-bbp_edit.php', 'single-' . $bbp->topic_id, 'single.php', 'index.php' );
 
+		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) )
+			array_unshift( $template, 'page-bbp_split-merge.php' );
+
 	// Editing a reply
 	} elseif ( bbp_is_reply_edit() ) {
 		$template = array( 'page-bbp_edit.php', 'single-' . $bbp->reply_id, 'single.php', 'index.php' );
@@ -1147,40 +1150,35 @@ function bbp_load_template( $files ) {
 }
 
 /**
- * bbp_get_stickies()
- *
- * Return sticky topics from forum
+ * Return sticky topics of a forum
  *
  * @since bbPress (r2592)
- * @param int $forum_id
- * @return array Post ID's of sticky topics
+ *
+ * @param int $forum_id Optional. If not passed, super stickies are returned.
+ * @uses bbp_get_super_stickies() To get the super stickies
+ * @uses get_post_meta() To get the forum stickies
+ * @uses apply_filters() Calls 'bbp_get_stickies' with the stickies and forum id
+ * @return array IDs of sticky topics of a forum or super stickies
  */
-function bbp_get_stickies ( $forum_id = 0 ) {
-	global $bbp;
+function bbp_get_stickies( $forum_id = 0 ) {
+	$stickies = empty( $forum_id ) ? bbp_get_super_stickies() : get_post_meta( $forum_id, '_bbp_sticky_topics', true );
+	$stickies = ( empty( $stickies ) || !is_array( $stickies ) ) ? array() : $stickies;
 
-	if ( empty( $forum_id ) ) {
-		$stickies = get_option( '_bbp_super_sticky_topics' );
-	} else {
-		if ( $bbp->forum_id == get_post_type( $forum_id ) ) {
-			$stickies = get_post_meta( '_bbp_sticky_topics', $forum_id );
-		} else {
-			$stickies = null;
-		}
-	}
-
-	return apply_filters( 'bbp_get_stickies', $stickies, (int)$forum_id );
+	return apply_filters( 'bbp_get_stickies', $stickies, (int) $forum_id );
 }
 
 /**
- * bbp_get_super_stickies ()
- *
- * Return topics stuck to front page of forums
+ * Return topics stuck to front page of the forums
  *
  * @since bbPress (r2592)
- * @return array Post ID's of super sticky topics
+ *
+ * @uses get_option() To get super sticky topics
+ * @uses apply_filters() Calls 'bbp_get_super_stickies' with the stickies
+ * @return array IDs of super sticky topics
  */
-function bbp_get_super_stickies () {
-	$stickies = get_option( '_bbp_super_sticky_topics' );
+function bbp_get_super_stickies() {
+	$stickies = get_option( '_bbp_super_sticky_topics', array() );
+	$stickies = ( empty( $stickies ) || !is_array( $stickies ) ) ? array() : $stickies;
 
 	return apply_filters( 'bbp_get_super_stickies', $stickies );
 }
@@ -1229,8 +1227,8 @@ function bbp_get_paged() {
 /** Topics Actions ************************************************************/
 
 /**
- * Handles the front end opening/closing, spamming/unspamming and
- * trashing/untrashing/deleting of topics
+ * Handles the front end opening/closing, spamming/unspamming,
+ * sticking/unsticking and trashing/untrashing/deleting of topics
  *
  * @since bbPress (r2727)
  *
@@ -1241,6 +1239,9 @@ function bbp_get_paged() {
  * @uses bbp_is_topic_open() To check if the topic is open
  * @uses bbp_close_topic() To close the topic
  * @uses bbp_open_topic() To open the topic
+ * @uses bbp_is_topic_sticky() To check if the topic is a sticky
+ * @uses bbp_unstick_topic() To unstick the topic
+ * @uses bbp_stick_topic() To stick the topic
  * @uses bbp_is_topic_spam() To check if the topic is marked as spam
  * @uses bbp_spam_topic() To make the topic as spam
  * @uses bbp_unspam_topic() To unmark the topic as spam
@@ -1256,7 +1257,7 @@ function bbp_get_paged() {
 function bbp_toggle_topic_handler() {
 
 	// Only proceed if GET is a topic toggle action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_trash' ) ) && !empty( $_GET['topic_id'] ) ) {
+	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam', 'bbp_toggle_topic_trash' ) ) && !empty( $_GET['topic_id'] ) ) {
 		global $bbp;
 
 		$action    = $_GET['action'];            // What action is taking place?
@@ -1281,6 +1282,16 @@ function bbp_toggle_topic_handler() {
 				$is_open = bbp_is_topic_open( $topic_id );
 				$success = $is_open ? bbp_close_topic( $topic_id ) : bbp_open_topic( $topic_id );
 				$failure = $is_open ? __( '<strong>ERROR</strong>: There was a problem closing the topic!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem opening the topic!', 'bbpress' );
+
+				break;
+
+			case 'bbp_toggle_topic_stick' :
+				check_ajax_referer( 'stick-topic_' . $topic_id );
+
+				$is_sticky = bbp_is_topic_sticky( $topic_id );
+				$is_super  = ( empty( $is_sticky ) && !empty( $_GET['super'] ) && 1 == (int) $_GET['super'] ) ? true : false;
+				$success   = $is_sticky ? bbp_unstick_topic( $topic_id ) : bbp_stick_topic( $topic_id, $is_super );
+				$failure   = $is_sticky ? __( '<strong>ERROR</strong>: There was a problem unsticking the topic!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem sticking the topic!', 'bbpress' );
 
 				break;
 

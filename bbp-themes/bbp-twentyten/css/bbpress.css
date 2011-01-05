@@ -284,3 +284,10 @@ div.bbp-template-notice {
 		font-size: 12px;
 		line-height: 140%;
 	}
+
+/* stickies */
+tr.super-sticky td,
+tr.sticky td {
+	background-color: #ffffe0 !important;
+	font-size: 1.1em;
+}

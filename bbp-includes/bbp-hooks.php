@@ -64,11 +64,16 @@ if ( is_admin() ) {
 	add_action( 'admin_menu', 'bbp_admin_separator' );
 }
 
+// Widgets
+add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Forums_Widget");'  ) );
+add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");'  ) );
+add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
+
 // Template - Head, foot, errors and notices
 add_action( 'wp_head',              'bbp_head'           );
 add_action( 'wp_footer',            'bbp_footer'         );
 add_action( 'bbp_template_notices', 'bbp_error_messages' );
-add_action( 'bbp_template_notices', 'bbp_topic_notices' );
+add_action( 'bbp_template_notices', 'bbp_topic_notices'  );
 
 // Caps & Roles
 add_filter( 'map_meta_cap',     'bbp_map_meta_caps', 10, 4 );
@@ -97,6 +102,12 @@ add_action( 'template_redirect', 'bbp_new_topic_handler'             );
 add_action( 'template_redirect', 'bbp_edit_topic_handler',     1     );
 add_action( 'bbp_new_topic',     'bbp_new_topic_update_topic', 10, 5 );
 add_action( 'bbp_edit_topic',    'bbp_new_topic_update_topic', 10, 5 );
+
+// Split/Merge Topic
+//add_action( 'template_redirect',    'bbp_merge_topic_handler', 1    );
+//add_action( 'template_redirect',    'bbp_split_topic_handler', 1    );
+add_action( 'bbp_merged_topic',     'bbp_merge_topic_count',   1, 3 );
+add_action( 'bbp_post_split_topic', 'bbp_split_topic_count',   1, 3 );
 
 // Topic/Reply Actions
 add_action( 'template_redirect', 'bbp_toggle_topic_handler', 1 );
