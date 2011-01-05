@@ -1,21 +1,30 @@
 <?php
-
+/**
+ * bbPress Reply Template Tags
+ *
+ * @package bbPress
+ * @subpackage TemplateTags
+ */
 /** START - Reply Loop Functions **********************************************/
 
 /**
- * bbp_has_replies ( $args )
- *
  * The main reply loop. WordPress makes this easy for us
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @global WP_Query $bbp->reply_query
- * @param array $args Possible arguments to change returned replies
+ * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @uses WP_Query To make query and get the replies
+ * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
+ * @uses get_permalink() To get the permalink
+ * @uses add_query_arg() To add custom args to the url
+ * @uses apply_filters() Calls 'bbp_replies_pagination' with the pagination args
+ * @uses paginate_links() To paginate the links
+ * @uses apply_filters() Calls 'bbp_has_replies' with
+ *                        bbPres::reply_query::have_posts()
+ *                        and bbPres::reply_query
  * @return object Multidimensional array of reply information
  */
-function bbp_has_replies ( $args = '' ) {
+function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite, $bbp;
 
 	$default = array(
@@ -91,66 +100,56 @@ function bbp_has_replies ( $args = '' ) {
 }
 
 /**
- * bbp_replies ()
- *
  * Whether there are more replies available in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @global WP_Query $bbp->reply_query
+ * @uses WP_Query bbPress::reply_query::have_posts() To check if there are more
+ *                                                    replies available
  * @return object Replies information
  */
-function bbp_replies () {
+function bbp_replies() {
 	global $bbp;
 	return $bbp->reply_query->have_posts();
 }
 
 /**
- * bbp_the_reply ()
- *
  * Loads up the current reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @global WP_Query $bbp->reply_query
+ * @uses WP_Query bbPress::reply_query::the_post() To get the current reply
  * @return object Reply information
  */
-function bbp_the_reply () {
+function bbp_the_reply() {
 	global $bbp;
 	return $bbp->reply_query->the_post();
 }
 
 /**
- * bbp_reply_id ()
+ * Output reply id
  *
- * Output id from bbp_get_reply_id()
- *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @uses bbp_get_reply_id()
+ * @param $reply_id Optional. Used to check emptiness
+ * @uses bbp_get_reply_id() To get the reply id
  */
-function bbp_reply_id () {
-	echo bbp_get_reply_id();
+function bbp_reply_id( $reply_id = 0 ) {
+	echo bbp_get_reply_id( $reply_id );
 }
 	/**
-	 * bbp_get_reply_id ()
-	 *
 	 * Return the id of the reply in a replies loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2553)
 	 *
-	 * @global object $bbp->reply_query
-	 * @return int Reply id
+	 * @param $reply_id Optional. Used to check emptiness
+	 * @uses bbPress::reply_query::post::ID To get the reply id
+	 * @uses bbp_is_reply() To check if it's a reply page
+	 * @uses bbp_is_reply_edit() To check if it's a reply edit page
+	 * @uses WP_Query::post::ID To get the reply id
+	 * @uses apply_filters() Calls 'bbp_get_reply_id' with the reply id
 	 */
-	function bbp_get_reply_id ( $reply_id = 0 ) {
+	function bbp_get_reply_id( $reply_id = 0 ) {
 		global $bbp, $wp_query, $bbp;
 
 		// Easy empty checking
@@ -158,7 +157,7 @@ function bbp_reply_id () {
 			$bbp_reply_id = $reply_id;
 
 		// Currently viewing a reply
-		elseif ( bbp_is_reply() && isset( $wp_query->post->ID ) )
+		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
 			$bbp_reply_id = $wp_query->post->ID;
 
 		// Currently inside a replies loop
@@ -171,80 +170,75 @@ function bbp_reply_id () {
 
 		$bbp->current_reply_id = $bbp_reply_id;
 
-		return apply_filters( 'bbp_get_reply_id', (int)$bbp_reply_id );
+		return apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id );
 	}
 
 /**
- * bbp_reply_permalink ()
- *
  * Output the link to the reply in the reply loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @uses bbp_get_reply_permalink()
- * @param int $reply_id optional
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_permalink() To get the reply permalink
  */
-function bbp_reply_permalink ( $reply_id = 0 ) {
+function bbp_reply_permalink( $reply_id = 0 ) {
 	echo bbp_get_reply_permalink( $reply_id );
 }
 	/**
-	 * bbp_get_reply_permalink()
-	 *
 	 * Return the link to the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2553)
 	 *
-	 * @uses apply_filters
-	 * @uses get_permalink
-	 * @param int $reply_id optional
-	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_permalink() To get the permalink of the reply
+	 * @uses apply_filters() Calls 'bbp_get_reply_permalink' with the link
+	 *                        and reply id
 	 * @return string Permanent link to reply
 	 */
-	function bbp_get_reply_permalink ( $reply_id = 0 ) {
+	function bbp_get_reply_permalink( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		return apply_filters( 'bbp_get_reply_permalink', get_permalink( $reply_id ), $reply_id );
 	}
 /**
- * bbp_reply_url ()
- *
  * Output the paginated url to the reply in the reply loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2679)
  *
- * @uses bbp_get_reply_url()
- * @param int $reply_id optional
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_url() To get the reply url
  */
-function bbp_reply_url ( $reply_id = 0 ) {
+function bbp_reply_url( $reply_id = 0 ) {
 	echo bbp_get_reply_url( $reply_id );
 }
 	/**
-	 * bbp_get_reply_url()
-	 *
 	 * Return the paginated url to the reply in the reply loop
 	 *
 	 * @todo If pages > 1, the last page is returned in the url - fix that.
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2679)
 	 *
-	 * @uses apply_filters
-	 * @uses bbp_get_reply_id
-	 * @uses bbp_get_reply_topic_id
-	 * @uses bbp_get_topic_permalink
-	 * @param int $reply_id Optional.
-	 * @param bool $count_hidden Optional. Count hidden (trashed/spammed) replies? If $_GET['view'] == all, it is automatically set to true. To override this, set $count_hidden = (int) -1
-	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @param bool $count_hidden Optional. Count hidden (trashed/spammed)
+	 *                            replies? If $_GET['view'] == all, it is
+	 *                            automatically set to true. To override
+	 *                            this, set $count_hidden = (int) -1
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_topic_id() To get the reply topic id
+	 * @uses bbp_get_topic_permalink() To get the topic permalink
+	 * @uses bbp_get_topic_reply_count() To get the topic reply count
+	 * @uses bbp_get_topic_hidden_reply_count() To get the topic hidden
+	 *                                           reply count
+	 * @uses get_option() To get the replies per page option
+	 * @uses WP_Rewrite::using_permalinks() To check if the blog uses
+	 *                                       permalinks
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses apply_filters() Calls 'bbp_get_reply_url' with the reply url,
+	 *                        reply id and bool count hidden
 	 * @return string Link to reply relative to paginated topic
 	 */
-	function bbp_get_reply_url ( $reply_id = 0, $count_hidden = false ) {
+	function bbp_get_reply_url( $reply_id = 0, $count_hidden = false ) {
 		global $bbp, $wp_rewrite;
 
 		if ( $count_hidden !== -1 && !empty( $_GET['view'] ) && 'all' == 'view' )
@@ -261,9 +255,7 @@ function bbp_reply_url ( $reply_id = 0 ) {
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
-			if ( $wp_rewrite->using_permalinks() ) {
-				$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
-			}
+			$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
 		} else {
 			if ( $wp_rewrite->using_permalinks() ) {
 				$url = trailingslashit( $topic_url ) . "page/{$reply_page}/#reply-{$reply_id}";
@@ -272,75 +264,61 @@ function bbp_reply_url ( $reply_id = 0 ) {
 			}
 		}
 
-		return apply_filters( 'bbp_get_reply_url', $url, $reply_id );
+		return apply_filters( 'bbp_get_reply_url', $url, $reply_id, $count_hidden );
 	}
 
 /**
- * bbp_reply_title ()
- *
  * Output the title of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
- * @param int $reply_id optional
  *
- * @uses bbp_get_reply_title()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_title() To get the reply title
  */
-function bbp_reply_title ( $reply_id = 0 ) {
+function bbp_reply_title( $reply_id = 0 ) {
 	echo bbp_get_reply_title( $reply_id );
 }
 
 	/**
-	 * bbp_get_reply_title ()
-	 *
 	 * Return the title of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2553)
 	 *
-	 * @uses apply_filters
-	 * @uses get_the_title()
-	 * @param int $reply_id optional
-	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_the_title() To get the reply title
+	 * @uses apply_filters() Calls 'bbp_get_reply_title' with the title and
+	 *                        reply id
 	 * @return string Title of reply
 	 */
-	function bbp_get_reply_title ( $reply_id = 0 ) {
+	function bbp_get_reply_title( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
 		return apply_filters( 'bbp_get_reply_title', get_the_title( $reply_id ), $reply_id );
 	}
 
 /**
- * bbp_reply_content ()
- *
  * Output the content of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
  * @todo Have a parameter reply_id
  *
- * @uses bbp_get_reply_content()
+ * @uses bbp_get_reply_content() To get the reply content
  */
-function bbp_reply_content () {
+function bbp_reply_content() {
 	echo bbp_get_reply_content();
 }
 	/**
-	 * bbp_get_reply_content ()
-	 *
 	 * Return the content of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2553)
 	 *
-	 * @uses apply_filters
-	 * @uses get_the_content()
-	 *
+	 * @uses apply_filters() Calls 'bbp_get_reply_content' with the content
+	 * @uses get_the_content() To get the reply content
 	 * @return string Content of the reply
 	 */
-	function bbp_get_reply_content () {
+	function bbp_get_reply_content() {
 		return apply_filters( 'bbp_get_reply_content', get_the_content() );
 	}
 
@@ -388,59 +366,44 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	}
 
 /**
- * bbp_reply_status ()
- *
  * Output the status of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2667)
- * @param int $reply_id optional
  *
- * @uses bbp_get_reply_status()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_status() To get the reply status
  */
-function bbp_reply_status ( $reply_id = 0 ) {
+function bbp_reply_status( $reply_id = 0 ) {
 	echo bbp_get_reply_status( $reply_id );
 }
 	/**
-	 * bbp_get_reply_status ()
-	 *
 	 * Return the status of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2667)
 	 *
-	 * @todo custom topic ststuses
-	 *
-	 * @uses apply_filters
-	 * @uses get_post_status()
-	 * @param int $reply_id optional
-	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post_status() To get the reply status
+	 * @uses apply_filters() Calls 'bbp_get_reply_status' with the reply id
 	 * @return string Status of reply
 	 */
-	function bbp_get_reply_status ( $reply_id = 0 ) {
+	function bbp_get_reply_status( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ) );
+		return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ), $reply_id );
 	}
 
 /**
- * bbp_is_reply_spam ()
- *
  * Is the reply marked as spam?
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2740)
  *
- * @uses bbp_get_reply_id()
- * @uses bbp_get_reply_status()
- *
- * @param int $reply_id optional
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_status() To get the reply status
  * @return bool True if spam, false if not.
  */
-function bbp_is_reply_spam ( $reply_id = 0 ) {
+function bbp_is_reply_spam( $reply_id = 0 ) {
 	global $bbp;
 
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
@@ -448,193 +411,209 @@ function bbp_is_reply_spam ( $reply_id = 0 ) {
 }
 
 /**
- * bbp_reply_author ()
+ * Is the reply by an anonymous user?
  *
+ * @since bbPress (r2753)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_author_id() To get the reply author id
+ * @uses get_post_meta() To get the anonymous name and email metas
+ * @return bool True if the post is by an anonymous user, false if not.
+ */
+function bbp_is_reply_anonymous( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( 0 != bbp_get_reply_author_id( $reply_id ) )
+		return false;
+
+	if ( false == get_post_meta( $reply_id, '_bbp_anonymous_name', true ) )
+		return false;
+
+	if ( false == get_post_meta( $reply_id, '_bbp_anonymous_email', true ) )
+		return false;
+
+	// The reply is by an anonymous user
+
+	return true;
+}
+
+/**
  * Output the author of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2667)
- * @param int $reply_id optional
  *
- * @uses bbp_get_reply_author()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_author() To get the reply author
  */
-function bbp_reply_author ( $reply_id = 0 ) {
+function bbp_reply_author( $reply_id = 0 ) {
 	echo bbp_get_reply_author( $reply_id );
 }
 	/**
-	 * bbp_get_reply_author ()
-	 *
 	 * Return the author of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2667)
 	 *
-	 * @uses apply_filters
-	 * @param int $reply_id optional
-	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses get_the_author() To get the reply author
+	 * @uses get_post_meta() To get the anonymous poster name
+	 * @uses apply_filters() Calls 'bbp_get_reply_author' with the reply
+	 *                        author and reply id
 	 * @return string Author of reply
 	 */
-	function bbp_get_reply_author ( $reply_id = 0 ) {
+	function bbp_get_reply_author( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		if ( get_post_field( 'post_author', $reply_id ) )
+		if ( !bbp_is_reply_anonymous( $reply_id ) )
 			$author = get_the_author();
 		else
 			$author = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 
-		return apply_filters( 'bbp_get_reply_author', $author );
+		return apply_filters( 'bbp_get_reply_author', $author, $reply_id );
 	}
 
 /**
- * bbp_reply_author_id ()
- *
  * Output the author ID of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2667)
- * @param int $reply_id optional
  *
- * @uses bbp_get_reply_author()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_author_id() To get the reply author id
  */
-function bbp_reply_author_id ( $reply_id = 0 ) {
+function bbp_reply_author_id( $reply_id = 0 ) {
 	echo bbp_get_reply_author_id( $reply_id );
 }
 	/**
-	 * bbp_get_reply_author_id ()
-	 *
 	 * Return the author ID of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2667)
 	 *
-	 * @uses apply_filters
-	 * @param int $reply_id optional
-	 *
-	 * @return string Author of reply
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post_field() To get the reply author id
+	 * @uses apply_filters() Calls 'bbp_get_reply_author_id' with the author
+	 *                        id and reply id
+	 * @return string Author id of reply
 	 */
-	function bbp_get_reply_author_id ( $reply_id = 0 ) {
+	function bbp_get_reply_author_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author_id', get_post_field( 'post_author', $reply_id ) );
+		return apply_filters( 'bbp_get_reply_author_id', get_post_field( 'post_author', $reply_id ), $reply_id );
 	}
 
 /**
- * bbp_reply_author_display_name ()
- *
  * Output the author display_name of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2667)
- * @param int $reply_id optional
  *
- * @uses bbp_get_reply_author()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_author_display_name()
  */
-function bbp_reply_author_display_name ( $reply_id = 0 ) {
+function bbp_reply_author_display_name( $reply_id = 0 ) {
 	echo bbp_get_reply_author_display_name( $reply_id );
 }
 	/**
-	 * bbp_get_reply_author_display_name ()
-	 *
 	 * Return the author display_name of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2667)
 	 *
-	 * @uses apply_filters
-	 * @param int $reply_id optional
-	 *
-	 * @return string Author of reply
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses bbp_get_reply_author_id() To get the reply author id
+	 * @uses get_the_author_meta() To get the reply author's display name
+	 * @uses get_post_meta() To get the anonymous poster's name
+	 * @uses apply_filters() Calls 'bbp_get_reply_author_display_name' with
+	 *                        the author display name and reply id
+	 * @return string Reply's author's display name
 	 */
-	function bbp_get_reply_author_display_name ( $reply_id = 0 ) {
+	function bbp_get_reply_author_display_name( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		// Check for anonymous user
-		if ( $author_id = get_post_field( 'post_author', $reply_id ) )
-			$author_name = get_the_author_meta( 'display_name', $author_id );
+		if ( !bbp_is_reply_anonymous( $reply_id ) )
+			$author_name = get_the_author_meta( 'display_name', bbp_get_reply_author_id( $reply_id ) );
 		else
 			$author_name = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 
-		return apply_filters( 'bbp_get_reply_author_display_name', esc_attr( $author_name ) );
+		return apply_filters( 'bbp_get_reply_author_display_name', esc_attr( $author_name ), $reply_id );
 	}
 
 /**
- * bbp_reply_author_avatar ()
- *
  * Output the author avatar of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2667)
- * @param int $reply_id optional
  *
- * @uses bbp_get_reply_author_avatar()
+ * @param int $reply_id Optional. Reply id
+ * @param int $size Optional. Size of the avatar. Defaults to 40
+ * @uses bbp_get_reply_author_avatar() To get the reply author id
  */
-function bbp_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
+function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	echo bbp_get_reply_author_avatar( $reply_id, $size );
 }
 	/**
-	 * bbp_get_reply_author_avatar ()
-	 *
 	 * Return the author avatar of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2667)
 	 *
-	 * @uses apply_filters
-	 * @param int $reply_id optional
-	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @param int $size Optional. Size of the avatar. Defaults to 40
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses bbp_get_reply_author_id() To get the reply author id
+	 * @uses get_post_meta() To get the anonymous poster's email id
+	 * @uses get_avatar() To get the avatar
+	 * @uses apply_filters() Calls 'bbp_get_reply_author_avatar' with the
+	 *                        author avatar, reply id and size
 	 * @return string Avatar of author of the reply
 	 */
-	function bbp_get_reply_author_avatar ( $reply_id = 0, $size = 40 ) {
+	function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		// Check for anonymous user
-		if ( $author_id = get_post_field( 'post_author', $reply_id ) )
-			$author_avatar = get_avatar( $author_id );
+		if ( !bbp_is_reply_anonymous( $reply_id ) )
+			$author_avatar = get_avatar( bbp_get_reply_author_id( $reply_id ), $size );
 		else
-			$author_avatar = get_avatar( get_post_meta( $reply_id, '_bbp_anonymous_email', true ) );
+			$author_avatar = get_avatar( get_post_meta( $reply_id, '_bbp_anonymous_email', true ), $size );
 
 		return apply_filters( 'bbp_get_reply_author_avatar', $author_avatar, $reply_id, $size );
 	}
 
 /**
- * bbp_reply_author_link ()
- *
  * Output the author link of the reply in the loop
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2717)
  *
- * @param mixed|int $args If it is an integer, it is used as reply_id. Optional.
- * @uses bbp_get_reply_author_link()
+ * @param mixed $args Optional. If it is an integer, it is used as reply id.
+ * @uses bbp_get_reply_author_link() To get the reply author link
  */
-function bbp_reply_author_link ( $args = '' ) {
+function bbp_reply_author_link( $args = '' ) {
 	echo bbp_get_reply_author_link( $args );
 }
 	/**
-	 * bbp_get_reply_author_link ()
-	 *
 	 * Return the author link of the reply in the loop
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2717)
 	 *
-	 * @uses bbp_get_reply_author_url()
-	 * @uses bbp_get_reply_author()
-	 *
-	 * @param mixed|int $args If it is an integer, it is used as reply_id. Optional.
+	 * @param mixed $args Optional. If an integer, it is used as reply id.
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_topic() To check if it's a topic page
+	 * @uses bbp_is_reply() To check if it's a reply page
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses bbp_get_reply_author() To get the reply author name
+	 * @uses bbp_get_reply_author_url() To get the reply author url
+	 * @uses bbp_get_reply_author_avatar() To get the reply author avatar
+	 * @uses apply_filters() Calls 'bbp_get_reply_author_link' with the
+	 *                        author link and args
 	 * @return string Author link of reply
 	 */
-	function bbp_get_reply_author_link ( $args = '' ) {
+	function bbp_get_reply_author_link( $args = '' ) {
 		// Used as reply_id
 		if ( is_int( $args ) ) {
 			$reply_id = bbp_get_reply_id( $args );
@@ -653,12 +632,14 @@ function bbp_reply_author_link ( $args = '' ) {
 			$reply_id   = bbp_get_reply_id( $reply_id );
 
 		if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_reply() ) )
-			$link_title = sprintf( get_the_author_meta( 'ID' ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author( $reply_id ) );
+			$link_title = sprintf( !bbp_is_reply_anonymous( $reply_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author( $reply_id ) );
 
-		if ( empty( $link_text ) && ( bbp_is_topic() || bbp_is_reply() ) )
-			$link_text  = bbp_get_reply_author_avatar( $reply_id, 80 );
-		else
-			$link_text  = bbp_get_reply_author( $reply_id );
+		if ( empty( $link_text ) ) {
+			if ( bbp_is_topic() || bbp_is_reply() )
+				$link_text = bbp_get_reply_author_avatar( $reply_id, 80 );
+			else
+				$link_text = bbp_get_reply_author( $reply_id );
+		}
 
 		$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
 
@@ -672,41 +653,42 @@ function bbp_reply_author_link ( $args = '' ) {
 	}
 
 		/**
-		 * bbp_reply_author_url ()
-		 *
 		 * Output the author url of the reply in the loop
 		 *
-		 * @package bbPress
-		 * @subpackage Template Tags
 		 * @since bbPress (r2667)
-		 * @param int $reply_id optional
 		 *
-		 * @uses bbp_get_reply_author_url()
+		 * @param int $reply_id Optional. Reply id
+		 * @uses bbp_get_reply_author_url() To get the reply author url
 		 */
-		function bbp_reply_author_url ( $reply_id = 0 ) {
+		function bbp_reply_author_url( $reply_id = 0 ) {
 			echo bbp_get_reply_author_url( $reply_id );
 		}
 			/**
-			 * bbp_get_reply_author_url ()
-			 *
 			 * Return the author url of the reply in the loop
 			 *
-			 * @package bbPress
-			 * @subpackage Template Tags
 			 * @since bbPress (r22667)
 			 *
-			 * @uses bbp_get_user_profile_url()
-			 * @uses get_post_meta()
-			 *
-			 * @param int $reply_id optional
-			 * @return string Author URL of reply
+			 * @param int $reply_id Optional. Reply id
+			 * @uses bbp_get_reply_id() To get the reply id
+			 * @uses bbp_is_reply_anonymous() To check if the reply
+			 *                                 is by an anonymous
+			 *                                 user
+			 * @uses bbp_get_reply_author_id() To get the reply
+			 *                                  author id
+			 * @uses bbp_get_user_profile_url() To get the user
+			 *                                   profile url
+			 * @uses get_post_meta() To get the anonymous poster's
+			 *                        website url
+			 * @uses apply_filters() Calls bbp_get_reply_author_url
+			 *                        with the author url & reply id
+			 * @return string Author URL of the reply
 			 */
-			function bbp_get_reply_author_url ( $reply_id = 0 ) {
+			function bbp_get_reply_author_url( $reply_id = 0 ) {
 				$reply_id = bbp_get_reply_id( $reply_id );
 
 				// Check for anonymous user
-				if ( $author_id = get_post_field( 'post_author', $reply_id ) )
-					$author_url = bbp_get_user_profile_url( $author_id );
+				if ( !bbp_is_reply_anonymous( $reply_id ) )
+					$author_url = bbp_get_user_profile_url( bbp_get_reply_author_id( $reply_id ) );
 				else
 					if ( !$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true ) )
 						$author_url = '';
@@ -715,76 +697,63 @@ function bbp_reply_author_link ( $args = '' ) {
 			}
 
 /**
- * bbp_reply_topic_title ()
- *
  * Output the topic title a reply belongs to
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @param int $reply_id optional
- *
- * @uses bbp_get_reply_topic()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_topic_title() To get the reply topic title
  */
-function bbp_reply_topic_title ( $reply_id = 0 ) {
+function bbp_reply_topic_title( $reply_id = 0 ) {
 	echo bbp_get_reply_topic_title( $reply_id );
 }
 	/**
-	 * bbp_get_reply_topic_title ()
-	 *
 	 * Return the topic title a reply belongs to
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2553)
 	 *
-	 * @param int $reply_id optional
-	 *
-	 * @uses bbp_get_reply_topic_id ()
-	 * @uses bbp_topic_title ()
-	 *
-	 * @return string
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_topic_id() To get the reply topic id
+	 * @uses bbp_get_topic_title() To get the reply topic title
+	 * @uses apply_filters() Calls 'bbp_get_reply_topic_title' with the
+	 *                        topic title and reply id
+	 * @return string Reply's topic's title
 	 */
-	function bbp_get_reply_topic_title ( $reply_id = 0 ) {
+	function bbp_get_reply_topic_title( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-		return apply_filters( 'bbp_get_reply_topic_title', bbp_get_topic_title( $topic_id ), $reply_id, $topic_id );
+		return apply_filters( 'bbp_get_reply_topic_title', bbp_get_topic_title( $topic_id ), $reply_id );
 	}
 
 /**
- * bbp_reply_topic_id ()
+ * Output the topic id a reply belongs to
  *
- * Output the topic ID a reply belongs to
- *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2553)
  *
- * @param int $reply_id optional
- *
- * @uses bbp_get_reply_topic_id ()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
  */
-function bbp_reply_topic_id ( $reply_id = 0 ) {
+function bbp_reply_topic_id( $reply_id = 0 ) {
 	echo bbp_get_reply_topic_id( $reply_id );
 }
 	/**
-	 * bbp_get_reply_topic_id ()
+	 * Return the topic id a reply belongs to
 	 *
-	 * Return the topic ID a reply belongs to
-	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2553)
 	 *
-	 * @param int $reply_id optional
+	 * @todo Walk ancestors and look for topic post_type (for threaded
+	 *        replies)
 	 *
-	 * @todo - Walk ancestors and look for topic post_type (for threaded replies)
-	 *
-	 * @return string
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post_field() To get the reply's parent i.e. topic id
+	 * @uses apply_filters() Calls 'bbp_get_reply_topic_id' with the topic
+	 *                        id and reply id
+	 * @return int Reply's topic id
 	 */
-	function bbp_get_reply_topic_id ( $reply_id = 0 ) {
+	function bbp_get_reply_topic_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = get_post_field( 'post_parent', $reply_id );
 
@@ -792,40 +761,35 @@ function bbp_reply_topic_id ( $reply_id = 0 ) {
 	}
 
 /**
- * bbp_reply_forum_id ()
+ * Output the forum id a reply belongs to
  *
- * Output the forum ID a reply belongs to
- *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2679)
  *
- * @param int $reply_id optional
- *
- * @uses bbp_get_reply_topic_id ()
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_topic_id() To get the reply forum id
  */
-function bbp_reply_forum_id ( $reply_id = 0 ) {
+function bbp_reply_forum_id( $reply_id = 0 ) {
 	echo bbp_get_reply_forum_id( $reply_id );
 }
 	/**
-	 * bbp_get_reply_forum_id ()
+	 * Return the forum id a reply belongs to
 	 *
-	 * Return the forum ID a reply belongs to
-	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2679)
 	 *
-	 * @param int $reply_id optional
+	 * @todo Walk ancestors and look for forum post type
 	 *
-	 * @todo - Walk ancestors and look for forum post_type
-	 *
-	 * @return string
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_topic_id() To get the reply topic id
+	 * @uses bbp_get_topic_forum_id() To get the topic forum id
+	 * @uses apply_filters() Calls 'bbp_get_reply_topic_id' with the forum
+	 *                        id and reply id
+	 * @return int Reply's forum id
 	 */
-	function bbp_get_reply_forum_id ( $reply_id = 0 ) {
-		$reply_id = bbp_get_forum_id( $reply_id );
-		$topic_id = get_post_field( 'post_parent', $reply_id );
-		$forum_id = get_post_field( 'post_parent', $topic_id );
+	function bbp_get_reply_forum_id( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id      ( $reply_id );
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		return apply_filters( 'bbp_get_reply_topic_id', $forum_id, $reply_id );
 	}
@@ -833,57 +797,71 @@ function bbp_reply_forum_id ( $reply_id = 0 ) {
 /** Reply Admin Links *********************************************************/
 
 /**
- * bbp_reply_admin_links ()
- *
  * Output admin links for reply
  *
- * @package bbPress
- * @subpackage Template Tags
+ * @since bbPress (r2667)
  *
- * @param mixed $args
+ * @param mixed $args See {@link bbp_get_reply_admin_links()}
+ * @uses bbp_get_reply_admin_links() To get the reply admin links
  */
-function bbp_reply_admin_links ( $args = '' ) {
+function bbp_reply_admin_links( $args = '' ) {
 	echo bbp_get_reply_admin_links( $args );
 }
 	/**
-	 * bbp_get_reply_admin_links ()
-	 *
 	 * Return admin links for reply
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
+	 * @since bbPress (r2667)
 	 *
-	 * @uses bbp_get_reply_edit_link ()
-	 * @uses bbp_get_reply_trash_link ()
-	 * @uses bbp_get_reply_spam_link ()
-	 *
-	 * @param mixed $args
-	 * @return string
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Optional. Reply id
+	 *  - before: HTML before the links. Defaults to
+	 *             '<span class="bbp-admin-links">'
+	 *  - after: HTML after the links. Defaults to '</span>'
+	 *  - sep: Separator. Defaults to ' | '
+	 *  - links: Array of the links to display. By default, edit, trash,
+	 *            spam links are displayed
+	 * @uses bbp_is_topic() To check if it's the topic page
+	 * @uses bbp_is_reply() To check if it's the reply page
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_edit_link() To get the reply edit link
+	 * @uses bbp_get_reply_trash_link() To get the reply trash link
+	 * @uses bbp_get_reply_spam_link() To get the reply spam link
+	 * @uses current_user_can() To check if the current user can edit or
+	 *                           delete the reply
+	 * @uses apply_filters() Calls 'bbp_get_reply_admin_links' with the
+	 *                        reply admin links and args
+	 * @return string Reply admin links
 	 */
-	function bbp_get_reply_admin_links ( $args = '' ) {
+	function bbp_get_reply_admin_links( $args = '' ) {
 		global $bbp;
 
 		if ( !bbp_is_topic() && !bbp_is_reply() )
 			return '&nbsp;';
 
 		$defaults = array (
-			'id'     => bbp_get_reply_id(),
+			'id'     => 0,
 			'before' => '<span class="bbp-admin-links">',
 			'after'  => '</span>',
 			'sep'    => ' | ',
-			'links'  => array (
-				'edit'   => bbp_get_reply_edit_link ( $args ),
-				'trash'  => bbp_get_reply_trash_link( $args ),
-				'spam'   => bbp_get_reply_spam_link ( $args )
-			)
+			'links'  => array()
 		);
 
 		$r = wp_parse_args( $args, $defaults );
 
+		$r['id'] = bbp_get_reply_id( (int) $r['id'] );
+
 		if ( !current_user_can( 'edit_reply', $r['id'] ) )
 			return '&nbsp;';
 
-		if ( !current_user_can( 'delete_reply', $r['id'] ) )
+		if ( empty( $r['links'] ) ) {
+			$r['links'] = array (
+				'edit'  => bbp_get_reply_edit_link ( $r ),
+				'trash' => bbp_get_reply_trash_link( $r ),
+				'spam'  => bbp_get_reply_spam_link ( $r )
+			);
+		}
+
+		if ( !current_user_can( 'delete_reply', $r['id'] ) && !empty( $r['links']['trash'] ) )
 			unset( $r['links']['trash'] );
 
 		// See if links need to be unset
@@ -900,78 +878,144 @@ function bbp_reply_admin_links ( $args = '' ) {
 		}
 
 		// Process the admin links
-		$links = implode( $r['sep'], $r['links'] );
+		$links = implode( $r['sep'], array_filter( $r['links'] ) );
 
 		return apply_filters( 'bbp_get_reply_admin_links', $r['before'] . $links . $r['after'], $args );
 	}
 
 /**
- * bbp_reply_edit_link ()
- *
  * Output the edit link of the reply
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2740)
  *
- * @uses bbp_get_reply_edit_link ()
- *
- * @param mixed $args
- * @return string
+ * @param mixed $args See {@link bbp_get_reply_edit_link()}
+ * @uses bbp_get_reply_edit_link() To get the reply edit link
  */
-function bbp_reply_edit_link ( $args = '' ) {
+function bbp_reply_edit_link( $args = '' ) {
 	echo bbp_get_reply_edit_link( $args );
 }
 
 	/**
-	 * bbp_get_reply_edit_link ()
-	 *
 	 * Return the edit link of the reply
 	 *
-	 * @todo Add reply edit page and correct this function.
-	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2740)
 	 *
-	 * @param mixed $args
-	 * @return string
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Reply id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - edit_text: Edit text. Defaults to 'Edit'
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post() To get the reply
+	 * @uses current_user_can() To check if the current user can edit the
+	 *                           reply
+	 * @uses bbp_get_reply_edit_url() To get the reply edit url
+	 * @uses apply_filters() Calls 'bbp_get_reply_edit_link' with the reply
+	 *                        edit link and args
+	 * @return string Reply edit link
 	 */
-	function bbp_get_reply_edit_link ( $args = '' ) {
-		return apply_filters( 'bbp_get_reply_edit_link', __( 'Edit', 'bbpress' ), $args );
+	function bbp_get_reply_edit_link( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'edit_text'    => __( 'Edit', 'bbpress' )
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$reply = get_post( bbp_get_reply_id( (int) $id ) );
+
+		if ( empty( $reply ) || !current_user_can( 'edit_reply', $reply->ID ) )
+			return;
+
+		if ( !$uri = bbp_get_reply_edit_url( $id ) )
+			return;
+
+		return apply_filters( 'bbp_get_reply_edit_link', $link_before . '<a href="' . $uri . '">' . $edit_text . '</a>' . $link_after, $args );
 	}
 
 /**
- * bbp_reply_trash_link ()
+ * Output URL to the reply edit page
  *
+ * @since bbPress (r2753)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_edit_url() To get the reply edit url
+ */
+function bbp_reply_edit_url( $reply_id = 0 ) {
+	echo bbp_get_reply_edit_url( $reply_id );
+}
+	/**
+	 * Return URL to the reply edit page
+	 *
+	 * @since bbPress (r2753)
+	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post() To get the reply
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses home_url() To get the home url
+	 * @uses apply_filters() Calls 'bbp_get_reply_edit_url' with the edit
+	 *                        url and reply id
+	 * @return string Reply edit url
+	 */
+	function bbp_get_reply_edit_url( $reply_id = 0 ) {
+		global $wp_rewrite, $bbp;
+
+		if ( !$reply = get_post( bbp_get_reply_id( $reply_id ) ) )
+			return;
+
+		if ( empty( $wp_rewrite->permalink_structure ) ) {
+			$url = add_query_arg( array( $bbp->reply_id => $reply->post_name, 'edit' => '1' ), home_url( '/' ) );
+		} else {
+			$url = $wp_rewrite->front . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
+			$url = home_url( user_trailingslashit( $url ) );
+		}
+
+		return apply_filters( 'bbp_get_reply_edit_url', $url, $reply_id );
+	}
+
+/**
  * Output the trash link of the reply
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2740)
  *
- * @uses bbp_get_reply_trash_link ()
- *
- * @param mixed $args
- * @return string
+ * @param mixed $args See {@link bbp_get_reply_trash_link()}
+ * @uses bbp_get_reply_trash_link() To get the reply trash link
  */
-function bbp_reply_trash_link ( $args = '' ) {
+function bbp_reply_trash_link( $args = '' ) {
 	echo bbp_get_reply_trash_link( $args );
 }
 
 	/**
-	 * bbp_get_reply_trash_link ()
-	 *
 	 * Return the trash link of the reply
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2740)
 	 *
-	 * @param mixed $args
-	 * @return bool|string
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Reply id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - sep: Separator
+	 *  - trash_text: Trash text
+	 *  - restore_text: Restore text
+	 *  - delete_text: Delete text
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post() To get the reply
+	 * @uses current_user_can() To check if the current user can delete the
+	 *                           reply
+	 * @uses bbp_get_reply_status() To get the reply status
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses bbp_get_reply_edit_url() To get the reply edit url
+	 * @uses apply_filters() Calls 'bbp_get_reply_trash_link' with the reply
+	 *                        trash link and args
+	 * @return string Reply trash link
 	 */
-	function bbp_get_reply_trash_link ( $args = '' ) {
+	function bbp_get_reply_trash_link( $args = '' ) {
 		$defaults = array (
 			'id'           => 0,
 			'link_before'  => '',
@@ -1008,41 +1052,46 @@ function bbp_reply_trash_link ( $args = '' ) {
 	}
 
 /**
- * bbp_reply_spam_link ()
- *
  * Output the spam link of the reply
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2740)
  *
- * @uses bbp_get_reply_spam_link ()
- *
- * @param mixed $args
- * @return string
+ * @param mixed $args See {@link bbp_get_reply_spam_link()}
+ * @uses bbp_get_reply_spam_link() To get the reply spam link
  */
-function bbp_reply_spam_link ( $args = '' ) {
+function bbp_reply_spam_link( $args = '' ) {
 	echo bbp_get_reply_spam_link( $args );
 }
 
 	/**
-	 * bbp_get_reply_spam_link ()
-	 *
 	 * Return the spam link of the reply
 	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2740)
 	 *
-	 * @param mixed $args
-	 * @return string
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Reply id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - spam_text: Spam text
+	 *  - unspam_text: Unspam text
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post() To get the reply
+	 * @uses current_user_can() To check if the current user can edit the
+	 *                           reply
+	 * @uses bbp_is_reply_spam() To check if the reply is marked as spam
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses bbp_get_reply_edit_url() To get the reply edit url
+	 * @uses apply_filters() Calls 'bbp_get_reply_spam_link' with the reply
+	 *                        spam link and args
+	 * @return string Reply spam link
 	 */
-	function bbp_get_reply_spam_link ( $args = '' ) {
+	function bbp_get_reply_spam_link( $args = '' ) {
 		$defaults = array (
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'sep'          => ' | ',
 			'spam_text'    => __( 'Spam',   'bbpress' ),
 			'unspam_text'  => __( 'Unspam', 'bbpress' )
 		);
@@ -1064,60 +1113,53 @@ function bbp_reply_spam_link ( $args = '' ) {
 	}
 
 /**
- * bbp_reply_class ()
- *
  * Output the row class of a reply
+ *
+ * @since bbPress (r2678)
  */
-function bbp_reply_class ( $reply_id = 0 ) {
-	echo bbp_get_reply_class( $reply_id );
+function bbp_reply_class() {
+	echo bbp_get_reply_class();
 }
 	/**
-	 * bbp_get_reply_class ()
-	 *
 	 * Return the row class of a reply
 	 *
-	 * @global WP_Query $bbp->reply_query
-	 * @param int $reply_id
-	 * @return string
+	 * @since bbPress (r2678)
+	 *
+	 * @uses post_class() To get all the classes including ours
+	 * @uses apply_filters() Calls 'bbp_get_reply_class' with the classes
+	 * @return string Row class of the reply
 	 */
-	function bbp_get_reply_class ( $reply_id = 0 ) {
+	function bbp_get_reply_class() {
 		global $bbp;
 
 		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
 		$alternate = (int) $count % 2 ? 'even' : 'odd';
-		$status    = 'status-'  . bbp_get_reply_status();
-		$post      = post_class( array( $alternate, $status ) );
+		$post      = post_class( array( $alternate ) );
 
 		return apply_filters( 'bbp_reply_class', $post );
 	}
 
 /**
- * bbp_topic_pagination_count ()
+ * Output the topic pagination count
  *
- * Output the pagination count
- *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2519)
  *
- * @global WP_Query $bbp->topic_query
+ * @uses bbp_get_topic_pagination_count() To get the topic pagination count
  */
-function bbp_topic_pagination_count () {
+function bbp_topic_pagination_count() {
 	echo bbp_get_topic_pagination_count();
 }
 	/**
-	 * bbp_get_topic_pagination_count ()
+	 * Return the topic pagination count
 	 *
-	 * Return the pagination count
-	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2519)
 	 *
-	 * @global WP_Query $bbp->reply_query
-	 * @return string
+	 * @uses bbp_number_format() To format the number value
+	 * @uses apply_filters() Calls 'bbp_get_topic_pagination_count' with the
+	 *                        pagination count
+	 * @return string Topic pagination count
 	 */
-	function bbp_get_topic_pagination_count () {
+	function bbp_get_topic_pagination_count() {
 		global $bbp;
 
 		// Set pagination values
@@ -1127,11 +1169,11 @@ function bbp_topic_pagination_count () {
 		$total     = bbp_number_format( $bbp->reply_query->found_posts );
 
 		// Set return string
-		if ( $total > 1 && (int)$from_num == (int)$to_num )
+		if ( $total > 1 && (int) $from_num == (int) $to_num )
 			$retstr = sprintf( __( 'Viewing reply %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
 		elseif ( $total > 1 && empty( $to_num ) )
 			$retstr = sprintf( __( 'Viewing %1$s replies', 'bbpress' ), $total );
-		if ( $total > 1 && (int)$from_num != (int)$to_num )
+		if ( $total > 1 && (int) $from_num != (int) $to_num )
 			$retstr = sprintf( __( 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
 		else
 			$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
@@ -1141,36 +1183,31 @@ function bbp_topic_pagination_count () {
 	}
 
 /**
- * bbp_topic_pagination_links ()
+ * Output topic pagination links
  *
- * Output pagination links
- *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2519)
+ *
+ * @uses bbp_get_topic_pagination_links() To get the topic pagination links
  */
-function bbp_topic_pagination_links () {
+function bbp_topic_pagination_links() {
 	echo bbp_get_topic_pagination_links();
 }
 	/**
-	 * bbp_get_topic_pagination_links ()
+	 * Return topic pagination links
 	 *
-	 * Return pagination links
-	 *
-	 * @package bbPress
-	 * @subpackage Template Tags
 	 * @since bbPress (r2519)
 	 *
-	 * @global WP_Query $bbp->reply_query
-	 * @return string
+	 * @uses apply_filters() Calls 'bbp_get_topic_pagination_links' with the
+	 *                        pagination links
+	 * @return string Topic pagination links
 	 */
-	function bbp_get_topic_pagination_links () {
+	function bbp_get_topic_pagination_links() {
 		global $bbp;
 
 		if ( !isset( $bbp->reply_query->pagination_links ) || empty( $bbp->reply_query->pagination_links ) )
 			return false;
-		else
-			return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
+
+		return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
 	}
 
 /** END Reply Loop Functions **************************************************/
@@ -1178,16 +1215,21 @@ function bbp_topic_pagination_links () {
 /** Reply Actions *************************************************************/
 
 /**
- * bbp_spam_reply ()
- *
  * Marks a reply as spam
  *
  * @since bbPress (r2740)
  *
- * @param int $reply_id reply ID.
- * @return mixed False on failure
+ * @param int $reply_id Reply id
+ * @uses wp_get_single_post() To get the reply
+ * @uses do_action() Calls 'bbp_spam_reply' with the reply id before marking
+ *                    the reply as spam
+ * @uses add_post_meta() To add the previous status to a meta
+ * @uses wp_insert_post() To insert the updated post
+ * @uses do_action() Calls 'bbp_spammed_reply' with the reply id after marking
+ *                    the reply as spam
+ * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
-function bbp_spam_reply ( $reply_id = 0 ) {
+function bbp_spam_reply( $reply_id = 0 ) {
 	global $bbp;
 
 	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
@@ -1201,24 +1243,30 @@ function bbp_spam_reply ( $reply_id = 0 ) {
 	add_post_meta( $reply_id, '_bbp_spam_meta_status', $reply['post_status'] );
 
 	$reply['post_status'] = $bbp->spam_status_id;
-	wp_insert_post( $reply );
+	$reply_id = wp_insert_post( $reply );
 
 	do_action( 'bbp_spammed_reply', $reply_id );
 
-	return $reply;
+	return $reply_id;
 }
 
 /**
- * bbp_unspam_reply ()
- *
- * unspams a reply
+ * Unspams a reply
  *
  * @since bbPress (r2740)
  *
- * @param int $reply_id reply ID.
- * @return mixed False on failure
+ * @param int $reply_id Reply id
+ * @uses wp_get_single_post() To get the reply
+ * @uses do_action() Calls 'bbp_unspam_reply' with the reply id before unmarking
+ *                    the reply as spam
+ * @uses get_post_meta() To get the previous status meta
+ * @uses delete_post_meta() To delete the previous status meta
+ * @uses wp_insert_post() To insert the updated post
+ * @uses do_action() Calls 'bbp_unspammed_reply' with the reply id after
+ *                    unmarking the reply as spam
+ * @return mixed False or {@link WP_Error} on failure, reply id on success
  */
-function bbp_unspam_reply ( $reply_id = 0 ) {
+function bbp_unspam_reply( $reply_id = 0 ) {
 	global $bbp;
 
 	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
@@ -1234,11 +1282,11 @@ function bbp_unspam_reply ( $reply_id = 0 ) {
 
 	delete_post_meta( $reply_id, '_bbp_spam_meta_status' );
 
-	wp_insert_post( $reply );
+	$reply_id = wp_insert_post( $reply );
 
 	do_action( 'bbp_unspammed_reply', $reply_id );
 
-	return $reply;
+	return $reply_id;
 }
 
 ?>

@@ -1,21 +1,28 @@
-
-					<?php if ( bbp_is_anonymous() ) : ?>
+<?php
+/**
+ * Anonymous user form
+ *
+ * @package bbPress
+ * @subpackage Themes
+ */
+?>
+					<?php if ( bbp_is_anonymous() || ( bbp_is_topic_edit() && bbp_is_topic_anonymous() ) || ( bbp_is_reply_edit() && bbp_is_reply_anonymous() ) ) : ?>
 
 						<fieldset>
-							<legend><?php _e( 'Your information:', 'bbpress' ); ?></legend>
+							<legend><?php ( bbp_is_topic_edit() || bbp_is_reply_edit() ) ? _e( 'Author information', 'bbpress' ) : _e( 'Your information:', 'bbpress' ); ?></legend>
 							<p>
 								<label for="bbp_anonymous_author"><?php _e( 'Name (required):', 'bbpress' ); ?></label><br />
-								<input type="text" id="bbp_anonymous_author" value="<?php bbp_current_anonymous_user_data( 'name' ); ?>" tabindex="4" size="40" name="bbp_anonymous_name" />
+								<input type="text" id="bbp_anonymous_author" value="<?php bbp_is_topic_edit() ? bbp_topic_author() : bbp_is_reply_edit() ? bbp_reply_author() : bbp_current_anonymous_user_data( 'name' ); ?>" tabindex="4" size="40" name="bbp_anonymous_name" />
 							</p>
 
 							<p>
 								<label for="bbp_anonymous_email"><?php _e( 'Mail (will not be published) (required):', 'bbpress' ); ?></label><br />
-								<input type="text" id="bbp_anonymous_email" value="<?php bbp_current_anonymous_user_data( 'email' ); ?>" tabindex="6" size="40" name="bbp_anonymous_email" />
+								<input type="text" id="bbp_anonymous_email" value="<?php echo ( bbp_is_topic_edit() || bbp_is_reply_edit() ) ? get_post_meta( $post->ID, '_bbp_anonymous_email', true ) : bbp_get_current_anonymous_user_data( 'email' ); ?>" tabindex="6" size="40" name="bbp_anonymous_email" />
 							</p>
 
 							<p>
 								<label for="bbp_anonymous_website"><?php _e( 'Website:', 'bbpress' ); ?></label><br />
-								<input type="text" id="bbp_anonymous_website" value="<?php bbp_current_anonymous_user_data( 'website' ); ?>" tabindex="8" size="40" name="bbp_anonymous_website" />
+								<input type="text" id="bbp_anonymous_website" value="<?php bbp_is_topic_edit() ? bbp_topic_author_url() : bbp_is_reply_edit() ? bbp_reply_author_url() : bbp_current_anonymous_user_data( 'website' ); ?>" tabindex="8" size="40" name="bbp_anonymous_website" />
 							</p>
 						</fieldset>
 

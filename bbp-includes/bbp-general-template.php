@@ -1,50 +1,47 @@
 <?php
-
+/**
+ * bbPress General Template Tags
+ *
+ * @package bbPress
+ * @subpackage TemplateTags
+ */
 /** START - WordPress Add-on Actions ******************************************/
 
 /**
- * bbp_head ()
- *
  * Add our custom head action to wp_head
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2464)
+ *
+ * @uses do_action() Calls 'bbp_head'
 */
-function bbp_head () {
+function bbp_head() {
 	do_action( 'bbp_head' );
 }
-add_action( 'wp_head', 'bbp_head' );
 
 /**
- * bbp_head ()
- *
  * Add our custom head action to wp_head
  *
- * @package bbPress
- * @subpackage Template Tags
  * @since bbPress (r2464)
+ *
+ * @uses do_action() Calls 'bbp_footer'
  */
-function bbp_footer () {
+function bbp_footer() {
 	do_action( 'bbp_footer' );
 }
-add_action( 'wp_footer', 'bbp_footer' );
 
 /** END - WordPress Add-on Actions ********************************************/
 
 /** START is_ Functions *******************************************************/
 
 /**
- * bbp_is_forum ()
- *
  * Check if current page is a bbPress forum
  *
  * @since bbPress (r2549)
  *
- * @global object $wp_query
+ * @uses WP_Query
  * @return bool
  */
-function bbp_is_forum () {
+function bbp_is_forum() {
 	global $wp_query, $bbp;
 
 	if ( is_singular( $bbp->forum_id ) )
@@ -60,17 +57,20 @@ function bbp_is_forum () {
 }
 
 /**
- * bbp_is_topic ()
- *
  * Check if current page is a bbPress topic
  *
  * @since bbPress (r2549)
  *
- * @global object $wp_query
+ * @uses WP_Query
+ * @uses bbp_is_topic_edit() To check if it's a topic edit page
  * @return bool
  */
-function bbp_is_topic () {
+function bbp_is_topic() {
 	global $wp_query, $bbp;
+
+	// Return false if it's a edit topic page
+	if ( bbp_is_topic_edit() )
+		return false;
 
 	if ( is_singular( $bbp->topic_id ) )
 		return true;
@@ -85,17 +85,38 @@ function bbp_is_topic () {
 }
 
 /**
- * bbp_is_reply ()
+ * Check if current page is a topic edit page
  *
- * Check if current page is a bbPress topic reply
+ * @since bbPress (r2753)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_topic_edit is true
+ * @return bool
+ */
+function bbp_is_topic_edit() {
+	global $wp_query;
+
+	if ( !empty( $wp_query->bbp_is_topic_edit ) && $wp_query->bbp_is_topic_edit == true )
+		return true;
+
+	return false;
+}
+
+
+/**
+ * Check if current page is a bbPress reply
  *
  * @since bbPress (r2549)
  *
- * @global object $wp_query
+ * @uses WP_Query
+ * @uses bbp_is_reply_edit() To check if it's a reply edit page
  * @return bool
  */
-function bbp_is_reply () {
+function bbp_is_reply() {
 	global $wp_query, $bbp;
+
+	// Return false if it's a edit reply page
+	if ( bbp_is_reply_edit() )
+		return false;
 
 	if ( is_singular( $bbp->reply_id ) )
 		return true;
@@ -110,124 +131,141 @@ function bbp_is_reply () {
 }
 
 /**
- * bbp_is_favorites ()
+ * Check if current page is a reply edit page
  *
+ * @since bbPress (r2753)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_reply_edit is true
+ * @return bool
+ */
+function bbp_is_reply_edit() {
+	global $wp_query;
+
+	if ( !empty( $wp_query->bbp_is_reply_edit ) && $wp_query->bbp_is_reply_edit == true )
+		return true;
+
+	return false;
+}
+
+/**
  * Check if current page is a bbPress user's favorites page (profile page)
  *
  * @since bbPress (r2652)
  *
- * @param bool $query_name_check Optional. Check the query name (_bbp_query_name query var), if it is 'bbp_user_profile_favorites' or not. Defaults to true.
+ * @param bool $query_name_check Optional. Check the query name
+ *                                (_bbp_query_name query var), if it is
+ *                                'bbp_user_profile_favorites' or not. Defaults
+ *                                to true.
+ * @uses bbp_is_user_profile_page() To check if it's the user profile page
+ * @uses bbp_get_query_name() To get the query name
  * @return bool
  */
-function bbp_is_favorites ( $query_name_check = true ) {
+function bbp_is_favorites( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && 'bbp_user_profile_favorites' != get_query_var( '_bbp_query_name' ) )
+	if ( !empty( $query_name_check ) && 'bbp_user_profile_favorites' != bbp_get_query_name() )
 		return false;
 
 	return true;
 }
 
 /**
- * bbp_is_subscriptions ()
- *
  * Check if current page is a bbPress user's subscriptions page (profile page)
  *
  * @since bbPress (r2652)
  *
- * @param bool $query_name_check Optional. Check the query name (_bbp_query_name query var), if it is 'bbp_user_profile_subscriptions' or not. Defaults to true.
+ * @param bool $query_name_check Optional. Check the query name
+ *                                (_bbp_query_name query var), if it is
+ *                                'bbp_user_profile_favorites' or not. Defaults
+ *                                to true.
+ * @uses bbp_is_user_profile_page() To check if it's the user profile page
+ * @uses bbp_get_query_name() To get the query name
  * @return bool
  */
-function bbp_is_subscriptions ( $query_name_check = true ) {
+function bbp_is_subscriptions( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && 'bbp_user_profile_subscriptions' != get_query_var( '_bbp_query_name' ) )
+	if ( !empty( $query_name_check ) && 'bbp_user_profile_subscriptions' != bbp_get_query_name() )
 		return false;
 
 	return true;
 }
 
 /**
- * bbp_is_topics_created ()
- *
- * Check if current page shows the topics created by a bbPress user (profile page)
+ * Check if current page shows the topics created by a bbPress user (profile
+ * page)
  *
  * @since bbPress (r2688)
  *
- * @param bool $query_name_check Optional. Check the query name (_bbp_query_name query var), if it is 'bbp_user_profile_subscriptions' or not. Defaults to true.
+ * @param bool $query_name_check Optional. Check the query name
+ *                                (_bbp_query_name query var), if it is
+ *                                'bbp_user_profile_favorites' or not. Defaults
+ *                                to true.
+ * @uses bbp_is_user_profile_page() To check if it's the user profile page
+ * @uses bbp_get_query_name() To get the query name
  * @return bool
  */
-function bbp_is_topics_created ( $query_name_check = true ) {
+function bbp_is_topics_created( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && 'bbp_user_profile_topics_created' != get_query_var( '_bbp_query_name' ) )
+	if ( !empty( $query_name_check ) && 'bbp_user_profile_topics_created' != bbp_get_query_name() )
 		return false;
 
 	return true;
 }
 
 /**
- * bbp_is_user_home ()
- *
  * Check if current page is the currently logged in users author page
  *
- * @global object $current_user
+ * @uses bbPres Checks if bbPress::displayed_user is set and if
+ *               bbPress::displayed_user::ID equals bbPress::current_user::ID
+ *               or not
  * @return bool
  */
-function bbp_is_user_home () {
+function bbp_is_user_home() {
 	global $bbp;
 
 	if ( !isset( $bbp->displayed_user ) )
-		$retval = false;
-	else
-		$retval = $bbp->current_user->ID == $bbp->displayed_user->ID ? true : false;
+		return false;
 
-	return apply_filters( 'bbp_is_user_home', $retval );
+	return $bbp->current_user->ID == $bbp->displayed_user->ID;
 }
 
 /**
- * bbp_is_user_profile_page ()
- *
  * Check if current page is a user profile page
  *
  * @since bbPress (r2688)
  *
- * @global object $wp_query
+ * @uses WP_Query Checks if WP_Query::bbp_is_user_profile_page is set to true
  * @return bool
  */
-function bbp_is_user_profile_page () {
+function bbp_is_user_profile_page() {
 	global $wp_query;
 
 	if ( !empty( $wp_query->bbp_is_user_profile_page ) && $wp_query->bbp_is_user_profile_page == true )
 		return true;
-	else
-		return false;
 
-	return apply_filters( 'bbp_is_user_profile_page', $retval, $wp_query );
+	return false;
 }
 
 /**
- * bbp_is_user_profile_edit ()
- *
  * Check if current page is a user profile edit page
  *
  * @since bbPress (r2688)
  *
- * @global object $wp_query
+ * @uses WP_Query Checks if WP_Query::bbp_is_user_profile_edit is set to true
  * @return bool
  */
-function bbp_is_user_profile_edit () {
+function bbp_is_user_profile_edit() {
 	global $wp_query;
 
 	if ( !empty( $wp_query->bbp_is_user_profile_edit ) && $wp_query->bbp_is_user_profile_edit == true )
 		return true;
-	else
-		return false;
 
-	return apply_filters( 'bbp_is_user_profile_edit', $retval, $wp_query );
+	return false;
 }
 
 /** END is_ Functions *********************************************************/
@@ -371,51 +409,83 @@ function bbp_dropdown( $args = '' ) {
 	}
 
 /**
- * bbp_new_topic_form_fields ()
+ * Output the required hidden fields when creating/editing a topic
  *
- * Output the required hidden fields when creating a new topic
+ * @since bbPress (r2753)
  *
- * @uses wp_nonce_field, bbp_forum_id
+ * @uses bbp_is_topic_edit() To check if it's the topic edit page
+ * @uses wp_nonce_field() To generate hidden nonce fields
+ * @uses bbp_topic_id() To output the topic id
+ * @uses bbp_is_forum() To check if it's a forum page
+ * @uses bbp_forum_id() To output the forum id
  */
-function bbp_new_topic_form_fields () {
+function bbp_topic_form_fields() {
 
-	if ( bbp_is_forum() ) : ?>
+	if ( bbp_is_topic_edit() ) : ?>
 
-	<input type="hidden" name="bbp_forum_id" id="bbp_forum_id" value="<?php bbp_forum_id(); ?>" />
+		<input type="hidden" name="action"       id="bbp_post_action" value="bbp-edit-topic" />
+		<input type="hidden" name="bbp_topic_id" id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
 
-	<?php endif; ?>
+		<?php wp_nonce_field( 'bbp-edit-topic_' . bbp_get_topic_id() );
 
-	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-new-topic" />
+	else :
 
-	<?php wp_nonce_field( 'bbp-new-topic' );
+		if ( bbp_is_forum() ) : ?>
+
+			<input type="hidden" name="bbp_forum_id" id="bbp_forum_id" value="<?php bbp_forum_id(); ?>" />
+
+		<?php endif; ?>
+
+		<input type="hidden" name="action" id="bbp_post_action" value="bbp-new-topic" />
+
+		<?php wp_nonce_field( 'bbp-new-topic' );
+
+	endif;
 }
 
 /**
- * bbp_new_reply_form_fields ()
+ * Output the required hidden fields when creating/editing a reply
  *
- * Output the required hidden fields when creating a new reply
+ * @since bbPress (r2753)
  *
- * @uses wp_nonce_field, bbp_forum_id, bbp_topic_id
+ * @uses bbp_is_reply_edit() To check if it's the reply edit page
+ * @uses wp_nonce_field() To generate hidden nonce fields
+ * @uses bbp_reply_id() To output the reply id
+ * @uses bbp_topic_id() To output the topic id
+ * @uses bbp_forum_id() To output the forum id
  */
-function bbp_new_reply_form_fields () { ?>
+function bbp_reply_form_fields() {
 
-	<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" />
-	<input type="hidden" name="bbp_forum_id"    id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
-	<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
-	<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
+	if ( bbp_is_reply_edit() ) { ?>
 
-	<?php wp_nonce_field( 'bbp-new-reply' );
+		<input type="hidden" name="action"       id="bbp_post_action" value="bbp-edit-reply" />
+		<input type="hidden" name="bbp_reply_id" id="bbp_reply_id"    value="<?php bbp_reply_id(); ?>" />
+
+		<?php wp_nonce_field( 'bbp-edit-reply_' . bbp_get_reply_id() );
+
+	} else {
+
+	?>
+
+		<input type="hidden" name="bbp_reply_title" id="bbp_reply_title" value="<?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" />
+		<input type="hidden" name="bbp_forum_id"    id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
+		<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
+		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
+
+		<?php wp_nonce_field( 'bbp-new-reply' );
+	}
 }
 
 /**
- * bbp_edit_user_form_fields ()
- *
  * Output the required hidden fields when editing a user
  *
- * @uses wp_nonce_field
- * @uses wp_referer_field
+ * @since bbPress (r2690)
+ *
+ * @uses bbp_displayed_user_id() To output the displayed user id
+ * @uses wp_nonce_field() To generate a hidden nonce field
+ * @uses wp_referer_field() To generate a hidden referer field
  */
-function bbp_edit_user_form_fields () { ?>
+function bbp_edit_user_form_fields() { ?>
 
 	<input type="hidden" name="action"  id="bbp_post_action" value="bbp-update-user" />
 	<input type="hidden" name="user_id" id="user_id"         value="<?php bbp_displayed_user_id(); ?>" />
@@ -424,18 +494,22 @@ function bbp_edit_user_form_fields () { ?>
 	<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() );
 }
 
+
 /** END Form Functions ********************************************************/
 
 /** Start General Functions ***************************************************/
 
 /**
- * bbp_error_messages ()
- *
  * Display possible error messages inside a template file
  *
- * @global WP_Error $bbp->errors
+ * @since bbPress (r2688)
+ *
+ * @uses WP_Error bbPress::errors::get_error_codes() To get the error codes
+ * @uses WP_Error bbPress::errors::get_error_messages() To get the error
+ *                                                       messages
+ * @uses is_wp_error() To check if it's a {@link WP_Error}
  */
-function bbp_error_messages () {
+function bbp_error_messages() {
 	global $bbp;
 
 	if ( isset( $bbp->errors ) && is_wp_error( $bbp->errors ) && $bbp->errors->get_error_codes() ) : ?>
@@ -448,37 +522,47 @@ function bbp_error_messages () {
 
 <?php endif;
 }
-add_action( 'bbp_template_notices', 'bbp_error_messages' );
 
 /**
- * bbp_title_breadcrumb ( $sep )
- *
  * Output the page title as a breadcrumb
  *
- * @param string $sep
+ * @since bbPress (r2589)
+ *
+ * @param string $sep Separator. Defaults to '&larr;'
+ * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_title_breadcrumb ( $sep = '&larr;' ) {
+function bbp_title_breadcrumb( $sep = '&larr;' ) {
 	echo bbp_get_breadcrumb( $sep );
 }
 
 /**
- * bbp_breadcrumb ( $sep )
- *
  * Output a breadcrumb
  *
- * @param string $sep
+ * @since bbPress (r2589)
+ *
+ * @param string $sep Separator. Defaults to '&larr;'
+ * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_breadcrumb ( $sep = '&larr;' ) {
+function bbp_breadcrumb( $sep = '&larr;' ) {
 	echo bbp_get_breadcrumb( $sep );
 }
 	/**
-	 * bbp_get_breadcrumb ( $sep )
+	 * Return a breadcrumb ( forum -> topic -> reply )
 	 *
-	 * Return a breadcrumb ( forum < topic )
+	 * @since bbPress (r2589)
 	 *
-	 * @global object $post
-	 * @param string $sep
-	 * @return string
+	 * @param string $sep Separator. Defaults to '&larr;'
+	 * @uses get_post() To get the post
+	 * @uses bbp_get_forum_permalink() To get the forum link
+	 * @uses bbp_get_topic_permalink() To get the topic link
+	 * @uses bbp_get_reply_permalink() To get the reply link
+	 * @uses get_permalink() To get the permalink
+	 * @uses bbp_get_forum_title() To get the forum title
+	 * @uses bbp_get_topic_title() To get the topic title
+	 * @uses bbp_get_reply_title() To get the reply title
+	 * @uses get_the_title() To get the title
+	 * @uses apply_filters() Calls 'bbp_get_breadcrumb' with the crumbs
+	 * @return string Breadcrumbs
 	 */
 	function bbp_get_breadcrumb( $sep = '&larr;' ) {
 		global $post, $bbp;
@@ -532,32 +616,38 @@ function bbp_breadcrumb ( $sep = '&larr;' ) {
 /** Start Query Functions *****************************************************/
 
 /**
- * bbp_get_query_name ()
+ * Get the '_bbp_query_name' setting
  *
- * Get the '_bbp_query_name' setting to $name
+ * @since bbPress (r2695)
+ *
+ * @uses get_query_var() To get the query var '_bbp_query_name'
+ * @return string To return the query var value
  */
-function bbp_get_query_name ()  {
+function bbp_get_query_name()  {
 	return get_query_var( '_bbp_query_name' );
 }
 
 /**
- * bbp_set_query_name ()
- *
  * Set the '_bbp_query_name' setting to $name
  *
- * @param str $name
+ * @since bbPress (r2692)
+ *
+ * @param string $name What to set the query var to
+ * @uses set_query_var() To set the query var '_bbp_query_name'
  */
-function bbp_set_query_name ( $name )  {
+function bbp_set_query_name( $name = '' )  {
 	set_query_var( '_bbp_query_name', $name );
 }
 
 /**
- * bbp_reset_query_name ()
- *
  * Used to clear the '_bbp_query_name' setting
+ *
+ * @since bbPress (r2692)
+ *
+ * @uses bbp_set_query_name() To set the query var '_bbp_query_name' to ''
  */
-function bbp_reset_query_name () {
-	set_query_var( '_bbp_query_name', '' );
+function bbp_reset_query_name() {
+	bbp_set_query_name();
 }
 
 ?>
