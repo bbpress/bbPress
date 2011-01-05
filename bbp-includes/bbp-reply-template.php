@@ -1198,4 +1198,47 @@ function bbp_unspam_reply ( $reply_id = 0 ) {
 	return $reply;
 }
 
+/**
+ * Output the excerpt of the reply in the loop
+ *
+ * @since bbPress (r2751)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @param int $length Optional. Length of the excerpt. Defaults to 100 letters
+ * @uses bbp_get_reply_excerpt() To get the reply excerpt
+ */
+function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
+	echo bbp_get_reply_excerpt( $reply_id, $length );
+}
+	/**
+	 * Return the excerpt of the reply in the loop
+	 *
+	 * @since bbPress (r2751)
+	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @param int $length Optional. Length of the excerpt. Defaults to 100
+	 *                     letters
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post_field() To get the excerpt
+	 * @uses bbp_get_reply_content() To get the reply content
+	 * @uses apply_filters() Calls 'bbp_get_reply_excerpt' with the excerpt,
+	 *                        reply id and length
+	 * @return string Reply Excerpt
+	 */
+	function bbp_get_reply_excerpt( $reply_id = 0, $length = 100 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+		$length   = (int) $length;
+		$excerpt  = get_post_field( $reply_id, 'post_excerpt' );
+
+		if ( empty( $excerpt ) )
+			$excerpt = bbp_get_reply_content( $reply_id );
+
+		if ( !empty( $length ) && strlen( $excerpt ) > $length ) {
+			$excerpt  = substr( $excerpt, 0, $length - 4 );
+			$excerpt .= '...';
+		}
+
+		return apply_filters( 'bbp_get_reply_excerpt', $excerpt, $reply_id, $length );
+	}
+
 ?>
