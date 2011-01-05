@@ -69,12 +69,12 @@ function bbp_add_caps () {
 	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
 
 		// Topic caps
-		$default->add_cap( 'publish_topics' );
-		$default->add_cap( 'edit_topics' );
+		$default->add_cap( 'publish_topics'    );
+		$default->add_cap( 'edit_topics'       );
 
 		// Reply caps
-		$default->add_cap( 'publish_replies' );
-		$default->add_cap( 'edit_replies' );
+		$default->add_cap( 'publish_replies'   );
+		$default->add_cap( 'edit_replies'      );
 
 		// Topic tag caps
 		$default->add_cap( 'assign_topic_tags' );
@@ -169,8 +169,8 @@ function bbp_remove_caps () {
 	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
 
 		// Topic caps
-		$default->remove_cap( 'publish_topics'   );
-		$default->remove_cap( 'edit_topics'      );
+		$default->remove_cap( 'publish_topics'    );
+		$default->remove_cap( 'edit_topics'       );
 
 		// Reply caps
 		$default->remove_cap( 'publish_replies'   );

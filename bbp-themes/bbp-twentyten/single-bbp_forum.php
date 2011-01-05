@@ -16,20 +16,41 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
-						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
-						<div class="entry-content">
+					<?php if ( !bbp_is_forum_private() || current_user_can( 'edit_others_forums' ) ) : ?>
 
-							<?php the_content(); ?>
+						<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
+							<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+							<div class="entry-content">
 
-							<?php get_template_part( 'loop', 'bbp_forums' ); ?>
+								<?php the_content(); ?>
 
-							<?php get_template_part( 'loop', 'bbp_topics' ); ?>
+								<?php get_template_part( 'loop', 'bbp_forums' ); ?>
 
-							<?php get_template_part( 'form', 'bbp_topic' ); ?>
+								<?php if ( !bbp_is_forum_category() ) : ?>
 
-						</div>
-					</div><!-- #forum-<?php bbp_forum_id(); ?> -->
+									<?php get_template_part( 'loop', 'bbp_topics' ); ?>
+
+									<?php get_template_part( 'form', 'bbp_topic' ); ?>
+
+								<?php endif; ?>
+
+							</div>
+						</div><!-- #forum-<?php bbp_forum_id(); ?> -->
+
+					<?php else : ?>
+
+						<div id="forum-private" class="bbp-forum-info">
+							<h1 class="entry-title"><?php _e( 'Private Forum!', 'bbpress' ); ?></h1>
+							<div class="entry-content">
+
+								<div class="bbp-template-notice">
+									<p><?php _e( 'This forum is marked as private, and you do not have permission to view it.', 'bbpress' ); ?></p>
+								</div>
+
+							</div>
+						</div><!-- #forum-private -->
+
+					<?php endif; ?>
 
 				<?php endwhile; ?>
 

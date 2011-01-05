@@ -63,7 +63,7 @@ table.bbp-replies tr.bbp-reply-header td, table.bbp-topic tr.bbp-topic-header td
 	font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
 }
 
-.bbp-forum-topic-count, .bbp-forum-topic-replies,
+.bbp-forum-topic-count, .bbp-forum-reply-count,
 .bbp-topic-reply-count, .bbp-topic-voice-count, .bbp-topic-action {
 	width: 10%;
 	text-align: center;
@@ -188,6 +188,10 @@ td.bbp-topic-counts {
 	clear: left;
 }
 
+p#bbp_topic_submit_container {
+	float: right;
+}
+
 /* edit user */
 div.bbp-edit-user fieldset {
 	margin-top: 20px;
@@ -261,6 +265,7 @@ div.bbp-template-notice {
 	background-color: #ffffe0;
 	border-color: #e6db55;
 	color: #000;
+	clear: both;
 }
 	div.bbp-template-notice.important {
 		border: #e6db55 1px solid;

@@ -34,7 +34,7 @@
 
 						<p>
 							<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
-							<input id="bbp_topic_tags" type="text" value="" tabindex="10" size="40" name="bbp_topic_tags" id="post_tags" />
+							<input id="bbp_topic_tags" type="text" value="" tabindex="10" size="40" name="bbp_topic_tags" />
 						</p>
 
 						<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() ) : ?>
@@ -46,7 +46,7 @@
 
 						<?php endif; ?>
 
-						<p align="right">
+						<p id="bbp_topic_submit_container">
 							<button type="submit" tabindex="14" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 						</p>
 					</div>

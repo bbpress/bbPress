@@ -20,6 +20,11 @@
 						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
 						<div class="entry-content">
 
+							<p class="topic_counts">
+								<span class="topic_replies"><?php printf( __( '(%s)', 'bbpress' ), bbp_get_topic_replies_link() ); ?></span>
+								<span class="topic_voices"><?php printf( _n( '(%s voice)', '(%s voices)', bbp_get_topic_voice_count(), 'bbpress' ), bbp_get_topic_voice_count() ); ?></span>
+							</p>
+
 							<?php bbp_topic_tag_list(); ?>
 
 							<div id="ajax-response"></div>

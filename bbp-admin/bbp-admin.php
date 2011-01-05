@@ -64,6 +64,10 @@ class BBP_Admin {
 		// Forum column headers.
 		add_filter( 'manage_' . $bbp->forum_id . '_posts_columns',  array( $this, 'forums_column_headers' ) );
 
+		// Forum metabox actions
+		add_action( 'add_meta_boxes',              array( $this, 'forum_attributes_metabox'      ) );
+		add_action( 'save_post',                   array( $this, 'forum_attributes_metabox_save' ) );
+
 		// Forum columns (in page row)
 		add_action( 'manage_pages_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
 		add_filter( 'page_row_actions',            array( $this, 'forums_row_actions' ), 10, 2 );
@@ -78,11 +82,11 @@ class BBP_Admin {
 		add_filter( 'post_row_actions',            array( $this, 'topics_row_actions' ), 10, 2 );
 
 		// Topic metabox actions
-		add_action( 'admin_menu',                  array( $this, 'topic_parent_metabox'      ) );
-		add_action( 'save_post',                   array( $this, 'topic_parent_metabox_save' ) );
+		add_action( 'add_meta_boxes',              array( $this, 'topic_attributes_metabox'      ) );
+		add_action( 'save_post',                   array( $this, 'topic_attributes_metabox_save' ) );
 
 		// Check if there are any bbp_toggle_topic_* requests on admin_init, also have a message displayed
-		add_action( 'bbp_admin_init',              array( $this, 'toggle_topic' ) );
+		add_action( 'bbp_admin_init',              array( $this, 'toggle_topic'        ) );
 		add_action( 'admin_notices',               array( $this, 'toggle_topic_notice' ) );
 
 		/** Replies ***********************************************************/
@@ -94,15 +98,15 @@ class BBP_Admin {
 		add_action( 'manage_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
 		add_filter( 'post_row_actions',            array( $this, 'replies_row_actions' ), 10, 2 );
 
-		// Topic reply metabox actions
-		add_action( 'admin_menu',                  array( $this, 'reply_parent_metabox'      ) );
-		add_action( 'save_post',                   array( $this, 'reply_parent_metabox_save' ) );
+		// Reply metabox actions
+		add_action( 'add_meta_boxes',              array( $this, 'reply_attributes_metabox'      ) );
+		add_action( 'save_post',                   array( $this, 'reply_attributes_metabox_save' ) );
 
 		// Register bbPress admin style
 		add_action( 'admin_init',                  array( $this, 'register_admin_style' ) );
 
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
-		add_action( 'bbp_admin_init',              array( $this, 'toggle_reply' ) );
+		add_action( 'bbp_admin_init',              array( $this, 'toggle_reply'        ) );
 		add_action( 'admin_notices',               array( $this, 'toggle_reply_notice' ) );
 	}
 
@@ -214,87 +218,160 @@ class BBP_Admin {
 	}
 
 	/**
-	 * topic_parent_metabox ()
+	 * forum_attributes_metabox ()
 	 *
-	 * Add the topic parent metabox
+	 * Add the forum attributes metabox
 	 *
 	 * @uses add_meta_box
 	 */
-	function topic_parent_metabox () {
+	function forum_attributes_metabox () {
 		global $bbp;
 
 		add_meta_box (
-			'bbp_topic_parent_id',
-			__( 'Forum', 'bbpress' ),
-			'bbp_topic_metabox',
-			$bbp->topic_id,
-			'normal'
+			'bbp_forum_attributes',
+			__( 'Forum Attributes', 'bbpress' ),
+			'bbp_forum_metabox',
+			$bbp->forum_id,
+			'side',
+			'high'
 		);
 
-		do_action( 'bbp_topic_parent_metabox' );
+		do_action( 'bbp_forum_attributes_metabox' );
 	}
 
 	/**
-	 * topic_parent_metabox_save ()
+	 * forum_attributes_metabox_save ()
 	 *
-	 * Pass the topic post parent id for processing
+	 * Pass the forum attributes for processing
 	 *
-	 * @param int $post_id
+	 * @param int $forum_id
 	 * @return int
 	 */
-	function topic_parent_metabox_save ( $post_id ) {
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			return $post_id;
+	function forum_attributes_metabox_save ( $forum_id ) {
+		global $bbp;
 
-		if ( !current_user_can( 'edit_post', $post_id ) )
-			return $post_id;
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			return $forum_id;
+
+		if ( $bbp->forum_id != get_post_field( 'post_type', $forum_id ) )
+			return $forum_id;
+
+		if ( !current_user_can( 'edit_forum', $forum_id ) )
+			return $forum_id;
+
+		// Closed?
+		if ( !empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
+			if ( 'closed' == $_POST['bbp_forum_status'] && !bbp_is_forum_closed( $forum_id, false ) )
+				bbp_close_forum( $forum_id );
+			elseif ( 'open' == $_POST['bbp_forum_status'] && bbp_is_forum_closed( $forum_id, false ) )
+				bbp_open_forum( $forum_id );
+		}
+
+		// Category?
+		if ( !empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
+			if ( 'category' == $_POST['bbp_forum_type'] && !bbp_is_forum_category( $forum_id ) )
+				bbp_categorize_forum( $forum_id );
+			elseif ( 'forum' == $_POST['bbp_forum_type'] && bbp_is_forum_category( $forum_id ) )
+				bbp_normalize_forum( $forum_id );
+		}
+
+		// Private?
+		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( 'public', 'private' ) ) ) {
+			if ( 'private' == $_POST['bbp_forum_visibility'] && !bbp_is_forum_private( $forum_id, false ) )
+				bbp_privatize_forum( $forum_id );
+			elseif ( 'public' == $_POST['bbp_forum_visibility'] )
+				bbp_publicize_forum( $forum_id );
+		}
+
+		do_action( 'bbp_forum_attributes_metabox_save' );
+
+		return $forum_id;
+	}
+
+	/**
+	 * topic_attributes_metabox ()
+	 *
+	 * Add the topic attributes metabox
+	 *
+	 * @uses add_meta_box
+	 */
+	function topic_attributes_metabox () {
+		global $bbp;
+
+		add_meta_box (
+			'bbp_topic_attributes',
+			__( 'Topic Attributes', 'bbpress' ),
+			'bbp_topic_metabox',
+			$bbp->topic_id,
+			'side',
+			'high'
+		);
+
+		do_action( 'bbp_topic_attributes_metabox' );
+	}
+
+	/**
+	 * topic_attributes_metabox_save ()
+	 *
+	 * Pass the topic attributes for processing
+	 *
+	 * @param int $topic_id
+	 * @return int
+	 */
+	function topic_attributes_metabox_save ( $topic_id ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			return $topic_id;
+
+		if ( !current_user_can( 'edit_topic', $topic_id ) )
+			return $topic_id;
 
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $_POST['parent_id'] ) ? $_POST['parent_id'] : 0;
+		$parent_id = isset( $_topic['parent_id'] ) ? $_topic['parent_id'] : 0;
 
-		do_action( 'bbp_topic_parent_metabox_save' );
+		do_action( 'bbp_topic_attributes_metabox_save' );
 
 		return $parent_id;
 	}
 
 	/**
-	 * reply_parent_metabox ()
+	 * reply_attributes_metabox ()
 	 *
-	 * Add the topic reply parent metabox
+	 * Add the reply attributes metabox
 	 */
-	function reply_parent_metabox () {
+	function reply_attributes_metabox () {
 		global $bbp;
 
 		add_meta_box (
-			'bbp_reply_parent_id',
-			__( 'Topic', 'bbpress' ),
+			'bbp_reply_attributes',
+			__( 'Reply Attributes', 'bbpress' ),
 			'bbp_reply_metabox',
 			$bbp->reply_id,
-			'normal'
+			'side',
+			'high'
 		);
 
-		do_action( 'bbp_reply_parent_metabox' );
+		do_action( 'bbp_reply_attributes_metabox' );
 	}
 
 	/**
-	 * reply_parent_metabox_save ()
+	 * reply_attributes_metabox_save ()
 	 *
-	 * Pass the topic reply post parent id for processing
+	 * Pass the reply attributes for processing
 	 *
-	 * @param int $post_id
+	 * @param int $reply_id
 	 * @return int
 	 */
-	function reply_parent_metabox_save ( $post_id ) {
+	function reply_attributes_metabox_save ( $reply_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			return $post_id;
+			return $reply_id;
 
-		if ( !current_user_can( 'edit_post', $post_id ) )
-			return $post_id;
+		if ( !current_user_can( 'edit_reply', $reply_id ) )
+			return $reply_id;
 
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $_POST['parent_id'] ) ? $_POST['parent_id'] : 0;
+		$parent_id = isset( $_reply['parent_id'] ) ? $_reply['parent_id'] : 0;
 
-		do_action( 'bbp_reply_parent_metabox_save' );
+		do_action( 'bbp_reply_attributes_metabox_save' );
 
 		return $parent_id;
 	}
@@ -305,7 +382,7 @@ class BBP_Admin {
 	 * Add some general styling to the admin area
 	 */
 	function admin_head () {
-		global $bbp;
+		global $bbp, $post;
 
 		// Icons for top level admin menus
 		$menu_icon_url = $bbp->images_url . '/menu.png';
@@ -351,6 +428,14 @@ class BBP_Admin {
 				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -180px;
 			}
 
+<?php if ( $post->post_type == $bbp->forum_id ) : ?>
+
+			#misc-publishing-actions, #save-post { display: none; }
+			strong.label { display: inline-block; width: 60px; }
+			#bbp_forum_attributes hr { border-style: solid; border-width: 1px; border-color: #ccc #fff #fff #ccc; }
+
+<?php endif; ?>
+
 <?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
 
 			.column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count { width: 8% !important; }
@@ -378,10 +463,10 @@ class BBP_Admin {
 	 * @todo Everything
 	 */
 	function user_profile_update ( $user_id ) {
-		return false;
-
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_update' );
+
+		return false;
 	}
 
 	/**
@@ -732,8 +817,12 @@ class BBP_Admin {
 
 			the_content();
 
-			// Show the 'close' and 'open' link on published topics only
-			if ( in_array( $topic->post_status, array( 'publish', $bbp->spam_status_id ) ) ) {
+			// Show view link if it's not set, the topic is trashed and the user can view trashed topics
+			if ( empty( $actions['view'] ) && 'trash' == $topic->post_status && current_user_can( 'view_trash' ) )
+				$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
+
+			// Show the 'close' and 'open' link on published and closed posts only
+			if ( in_array( $topic->post_status, array( 'publish', $bbp->closed_status_id ) ) ) {
 				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed' ) ) ), 'close-topic_' . $topic->ID ) );
 				if ( bbp_is_topic_open( $topic->ID ) )
 					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
@@ -984,6 +1073,10 @@ class BBP_Admin {
 		if ( $bbp->reply_id == $reply->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
+			// Show view link if it's not set, the reply is trashed and the user can view trashed replies
+			if ( empty( $actions['view'] ) && 'trash' == $reply->post_status && current_user_can( 'view_trash' ) )
+				$actions['view'] = '<a href="' . bbp_get_reply_permalink( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
+
 			the_content();
 
 			$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam'  ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed' ) ) ), 'spam-reply_'  . $reply->ID ) );
@@ -1033,7 +1126,7 @@ endif; // class_exists check
  * Forces a separator between bbPress top level menus, and WordPress content menus
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Admin
  * @since bbPress (r2464)
  *
  * @todo A better job at rearranging and separating top level menus
@@ -1048,41 +1141,139 @@ function bbp_admin_separator () {
 add_action( 'admin_menu', 'bbp_admin_separator' );
 
 /**
+ * bbp_forum_metabox ()
+ *
+ * The metabox that holds all of the additional forum information
+ *
+ * @package bbPress
+ * @subpackage Admin
+ * @since bbPress (r2744)
+ */
+function bbp_forum_metabox () {
+	global $bbp, $post;
+
+	/** TYPE ******************************************************************/
+	$forum['type'] = array(
+		'forum'    => __( 'Forum',    'bbpress' ),
+		'category' => __( 'Category', 'bbpress' )
+	);
+	$type_output = '<select name="bbp_forum_type" id="bbp_forum_type_select">' . "\n";
+
+	foreach( $forum['type'] as $value => $label )
+		$type_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_is_forum_category( $post->ID ) ? 'category' : 'forum', $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+	$type_output .= '</select>';
+
+	/** STATUS ****************************************************************/
+	$forum['status']   = array(
+		'open'   => __( 'Open',   'bbpress' ),
+		'closed' => __( 'Closed', 'bbpress' )
+	);
+	$status_output = '<select name="bbp_forum_status" id="bbp_forum_status_select">' . "\n";
+
+	foreach( $forum['status'] as $value => $label )
+		$status_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_is_forum_closed( $post->ID, false ) ? 'closed' : 'open', $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+	$status_output .= '</select>';
+
+	/** VISIBILITY ************************************************************/
+	$forum['visibility']  = array(
+		'public'  => __( 'Public',  'bbpress' ),
+		'private' => __( 'Private', 'bbpress' )
+	);
+	$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
+
+	foreach( $forum['visibility'] as $value => $label )
+		$visibility_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_is_forum_private( $post->ID, false ) ? 'private' : 'public', $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+	$visibility_output .= '</select>';
+
+	/** OUTPUT ****************************************************************/ ?>
+
+		<p>
+			<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_forum_type_select"><?php _e( 'Type:', 'bbpress' ) ?></label>
+			<?php echo $type_output; ?>
+		</p>
+
+		<p>
+			<strong class="label"><?php _e( 'Status:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_forum_status_select"><?php _e( 'Status:', 'bbpress' ) ?></label>
+			<?php echo $status_output; ?>
+		</p>
+
+		<p>
+			<strong class="label"><?php _e( 'Visibility:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php _e( 'Visibility:', 'bbpress' ) ?></label>
+			<?php echo $visibility_output; ?>
+		</p>
+
+		<hr />
+		
+		<p>
+			<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
+
+			<?php
+				bbp_dropdown( array(
+					'exclude'            => $post->ID,
+					'selected'           => $post->post_parent,
+					'show_none'          => __( '(No Parent)', 'bbpress' ),
+					'select_id'          => 'parent_id',
+					'disable_categories' => false
+				) );
+			?>
+
+		</p>
+
+		<p>
+			<strong class="label"><?php _e( 'Order:', 'bbpress' ); ?></strong>
+			<label class="screen-reader-text" for="menu_order"><?php _e( 'Forum Order', 'bbpress' ); ?></label>
+			<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" />
+		</p>
+<?php
+
+	do_action( 'bbp_forum_metabox' );
+}
+
+/**
  * bbp_topic_metabox ()
  *
  * The metabox that holds all of the additional topic information
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Admin
  * @since bbPress (r2464)
  *
- * @todo Alot ;)
  * @global object $post
  */
 function bbp_topic_metabox () {
 	global $post, $bbp;
 
 	$args = array(
-		'post_type'        => $bbp->forum_id,
-		'exclude_tree'     => $post->ID,
-		'selected'         => $post->post_parent,
-		'show_option_none' => __( '(No Forum)', 'bbpress' ),
-		'sort_column'      => 'menu_order, post_title',
-		'child_of'         => '0',
+		'selected'  => $post->post_parent,
+		'select_id' => 'parent_id'
 	);
 
-	$posts = bbp_admin_dropdown (
-		__( 'Forum', 'bbpress' ),
-		__( 'Forum', 'bbpress' ),
-		__( 'There are no forums to reply to.', 'bbpress' ),
-		$args
-	);
+	?>
 
-	echo $posts;
-?>
-		<p><strong><?php _e( 'Topic Order', 'bbpress' ); ?></strong></p>
-		<p><label class="screen-reader-text" for="menu_order"><?php _e( 'Topic Order', 'bbpress' ) ?></label><input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" /></p>
-		<p><?php if ( 'page' == $post->post_type ) _e( 'Need help? Use the Help tab in the upper right of your screen.' ); ?></p>
+		<p>
+			<strong><?php _e( 'Forum', 'bbpress' ); ?></strong>
+		</p>
+
+		<p>
+			<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
+			<?php bbp_dropdown( $args ); ?>
+		</p>
+
+		<p>
+			<strong><?php _e( 'Topic Order', 'bbpress' ); ?></strong>
+		</p>
+
+		<p>
+			<label class="screen-reader-text" for="menu_order"><?php _e( 'Topic Order', 'bbpress' ); ?></label>
+			<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" />
+		</p>
 <?php
 
 	do_action( 'bbp_topic_metabox' );
@@ -1091,77 +1282,37 @@ function bbp_topic_metabox () {
 /**
  * bbp_reply_metabox ()
  *
- * The metabox that holds all of the additional topic information
+ * The metabox that holds all of the additional reply information
  *
  * @package bbPress
- * @subpackage Template Tags
+ * @subpackage Admin
  * @since bbPress (r2464)
  *
- * @todo Alot ;)
  * @global object $post
  */
 function bbp_reply_metabox () {
 	global $post, $bbp;
 
 	$args = array(
-		'post_type'        => $bbp->topic_id,
-		'exclude_tree'     => $post->ID,
-		'selected'         => $post->post_parent,
-		'show_option_none' => __( '(No Topic)', 'bbpress' ),
-		'sort_column'      => 'menu_order, post_title',
-		'child_of'         => '0',
+		'post_type' => $bbp->topic_id,
+		'selected'  => $post->post_parent,
+		'select_id' => 'parent_id'
 	);
 
-	$posts = bbp_admin_dropdown(
-		__( 'Topic', 'bbpress' ),
-		__( 'Topic', 'bbpress' ),
-		__( 'There are no topics to reply to.', 'bbpress' ),
-		$args
-	);
+	?>
 
-	echo $posts;
+	<p>
+		<strong><?php _e( 'Topic', 'bbpress' ); ?></strong>
+	</p>
 
-	do_action( 'bbp_topic_reply_metabox' );
-}
+	<p>
+		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
+		<?php bbp_dropdown( $args ); ?>
+	</p>
 
-/**
- * bbp_admin_dropdown ()
- *
- * General wrapper for creating a drop down of selectable parents
- *
- * @package bbPress
- * @subpackage Template Tags
- * @since bbPress (r2464)
- *
- * @param string $title
- * @param string $sub_title
- * @param mixed $error
- * @param array $args
- */
-function bbp_admin_dropdown ( $title, $sub_title, $error, $args = '' ) {
+	<?php
 
-	// The actual fields for data entry
-	$posts = get_posts( $args );
-
-	if ( !empty( $posts ) ) {
-		$output  = '<select name="parent_id" id="parent_id">';
-		$output .= '<option value="">' . __( '(No Parent)', 'bbpress' ) . '</option>';
-		$output .= walk_page_dropdown_tree( $posts, 0, $args );
-		$output .= '</select>';
-	}
-
-	$output = apply_filters( 'wp_dropdown_pages', $output );
-
-	if ( !empty( $output ) ) : ?>
-		<p><strong><?php echo $title; ?></strong></p>
-		<label class="screen-reader-text" for="parent_id"><?php echo $sub_title; ?></label>
-<?php
-		echo $output;
-	else :
-?>
-		<p><strong><?php echo $error; ?></strong></p>
-<?php
-	endif;
+	do_action( 'bbp_reply_metabox' );
 }
 
 /**
@@ -1169,7 +1320,7 @@ function bbp_admin_dropdown ( $title, $sub_title, $error, $args = '' ) {
  *
  * Setup bbPress Admin
  *
- * @global <type> $bbp
+ * @global object $bbp
  */
 function bbp_admin() {
 	global $bbp;

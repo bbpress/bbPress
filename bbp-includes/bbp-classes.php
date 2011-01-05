@@ -245,6 +245,75 @@ class BBP_Walker_Forum extends Walker {
 	}
 }
 
+/**
+ * Create HTML dropdown list of bbPress forums/topics.
+ *
+ * @package bbPress
+ * @subpackage Classes
+ *
+ * @since bbPress (r2744)
+ * @uses Walker
+ */
+class BBP_Walker_Dropdown extends Walker {
+	/**
+	 * @see Walker::$tree_type
+	 *
+	 * @since bbPress (r2744)
+	 *
+	 * @var string
+	 */
+	var $tree_type;
+
+	/**
+	 * @see Walker::$db_fields
+	 *
+	 * @since bbPress (r2744)
+	 *
+	 * @var array
+	 */
+	var $db_fields = array( 'parent' => 'post_parent', 'id' => 'ID' );
+
+	/**
+	 * Set the tree_type
+	 *
+	 * @since bbPress (r2744)
+	 */
+	function BBP_Walker_Dropdown() {
+		global $bbp;
+
+		$this->tree_type = $bbp->forum_id;
+	}
+
+	/**
+	 * @see Walker::start_el()
+	 *
+	 * @since bbPress (r2744)
+	 *
+	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param object $post Post data object.
+	 * @param int $depth Depth of post in reference to parent posts. Used for padding.
+	 * @param array $args Uses 'selected' argument for selected post to set selected HTML attribute for option element.
+	 */
+	function start_el( &$output, $post, $depth, $args ) {
+		global $bbp;
+
+		$pad     = str_repeat( '&nbsp;', $depth * 3 );
+		$output .= "\t<option class=\"level-$depth\"";
+
+		// Disable the <option> if we're told to do so, the post type is bbp_forum and the forum is a category
+		if ( $args['disable_categories'] == true && $post->post_type == $bbp->forum_id && bbp_is_forum_category( $post->ID ) )
+			$output .= ' disabled="disabled" value=""';
+		else
+			$output .= ' value="' .$post->ID .'"' . selected( $args['selected'], $post->ID, false );
+
+		$output .= '>';
+		$title   = esc_html( $post->post_title );
+		$title   = apply_filters( 'bbp_walker_dropdown_post_title', $post->post_title, $output, $post, $depth, $args );
+		$output .= $pad . $title;
+		$output .= "</option>\n";
+	}
+}
+
 endif; // class_exists check
 
 ?>

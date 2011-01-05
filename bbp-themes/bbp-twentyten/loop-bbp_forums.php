@@ -40,7 +40,7 @@
 
 					<td class="bbp-forum-topic-count"><?php bbp_forum_topic_count(); ?></td>
 
-					<td class="bbp-forum-topic-replies"><?php bbp_forum_reply_count(); ?></td>
+					<td class="bbp-forum-reply-count"><?php bbp_forum_reply_count(); ?></td>
 
 					<td class="bbp-forum-freshness"><?php bbp_forum_freshness_link(); ?></td>
 

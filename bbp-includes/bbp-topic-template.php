@@ -310,18 +310,37 @@ function bbp_topic_status ( $topic_id = 0 ) {
  * @subpackage Template Tags
  * @since bbPress (r2727)
  *
- * @uses bbp_get_topic_id()
- * @uses bbp_get_topic_status()
+ * @uses bbp_is_topic_closed()
  *
  * @param int $topic_id optional
  * @return bool True if open, false if closed.
  */
 function bbp_is_topic_open ( $topic_id = 0 ) {
-	global $bbp;
-
-	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return $bbp->closed_status_id != $topic_status;
+	return !bbp_is_topic_closed( $topic_id );
 }
+
+	/**
+	 * bbp_is_topic_closed ()
+	 *
+	 * Is the topic closed to new replies?
+	 *
+	 * @package bbPress
+	 * @subpackage Template Tags
+	 * @since bbPress (r2744)
+	 *
+	 * @uses bbp_get_topic_status()
+	 *
+	 * @param int $topic_id optional
+	 * @return bool True if closed, false if not.
+	 */
+	function bbp_is_topic_closed ( $topic_id = 0 ) {
+		global $bbp;
+
+		if ( $bbp->closed_status_id == bbp_get_topic_status( $topic_id ) )
+			return true;
+
+		return false;
+	}
 
 /**
  * bbp_is_topic_spam ()
@@ -1194,7 +1213,7 @@ function bbp_topic_admin_links ( $args = '' ) {
 		global $bbp;
 
 		if ( !bbp_is_topic() )
-			return '&nbsp';
+			return '&nbsp;';
 
 		$defaults = array (
 			'id'     => bbp_get_topic_id(),
@@ -1214,7 +1233,7 @@ function bbp_topic_admin_links ( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 
 		if ( !current_user_can( 'edit_topic', $r['id'] ) )
-			return '&nbsp';
+			return '&nbsp;';
 
 		// Check caps for trashing the topic
 		if ( !current_user_can( 'delete_topic', $r['id'] ) )
@@ -1316,9 +1335,9 @@ function bbp_topic_trash_link ( $args = '' ) {
 			'link_before'  => '',
 			'link_after'   => '',
 			'sep'          => ' | ',
-			'trash_text'   => __( 'Trash',                'bbpress' ),
-			'restore_text' => __( 'Restore',              'bbpress' ),
-			'delete_text'  => __( 'Delete Permanentatly', 'bbpress' )
+			'trash_text'   => __( 'Trash',   'bbpress' ),
+			'restore_text' => __( 'Restore', 'bbpress' ),
+			'delete_text'  => __( 'Delete',  'bbpress' )
 		);
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
@@ -1805,7 +1824,7 @@ function bbp_close_topic ( $topic_id = 0 ) {
 
 	do_action( 'bbp_close_topic', $topic_id );
 
-	add_post_meta( $topic_id, '_bbp_close_meta_status', $topic['post_status'] );
+	add_post_meta( $topic_id, '_bbp_topic_status', $topic['post_status'] );
 
 	$topic['post_status'] = $bbp->closed_status_id;
 	wp_insert_post( $topic );
@@ -1836,10 +1855,10 @@ function bbp_open_topic ( $topic_id = 0 ) {
 
 	do_action( 'bbp_open_topic', $topic_id );
 
-	$topic_status         = get_post_meta( $topic_id, '_bbp_close_meta_status', true );
+	$topic_status         = get_post_meta( $topic_id, '_bbp_topic_status', true );
 	$topic['post_status'] = $topic_status;
 
-	delete_post_meta( $topic_id, '_bbp_close_meta_status' );
+	delete_post_meta( $topic_id, '_bbp_topic_status' );
 
 	wp_insert_post( $topic );
 

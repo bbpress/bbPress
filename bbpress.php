@@ -28,21 +28,25 @@ if ( !class_exists( 'bbPress' ) ) :
  */
 class bbPress {
 
-	// Content type and taxonomy identifiers
+	// Post type
 	var $forum_id;
 	var $topic_id;
 	var $reply_id;
-	var $topic_tag_id;
-	var $spam_status_id;
+
+	// Post status identifiers
 	var $closed_status_id;
+	var $spam_status_id;
 	var $trash_status_id;
 
+	// Taxonomy identifier
+	var $topic_tag_id;
+
 	// Slugs
+	var $user_slug;
 	var $forum_slug;
 	var $topic_slug;
 	var $reply_slug;
 	var $topic_tag_slug;
-	var $user_slug;
 
 	// Absolute Paths
 	var $plugin_dir;
@@ -92,44 +96,44 @@ class bbPress {
 		/** Paths *****************************************************/
 
 		// bbPress root directory
-		$this->file            = __FILE__;
-		$this->plugin_dir      = plugin_dir_path( $this->file );
-		$this->plugin_url      = plugin_dir_url ( $this->file );
+		$this->file              = __FILE__;
+		$this->plugin_dir        = plugin_dir_path( $this->file );
+		$this->plugin_url        = plugin_dir_url ( $this->file );
 
 		// Images
-		$this->images_url      = $this->plugin_url . 'bbp-images';
+		$this->images_url        = $this->plugin_url . 'bbp-images';
 
 		// Themes
-		$this->themes_dir      = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
-		$this->themes_url      = $this->plugin_url . 'bbp-themes';
+		$this->themes_dir        = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
+		$this->themes_url        = $this->plugin_url . 'bbp-themes';
 
 		/** Identifiers ***********************************************/
 
 		// Post type identifiers
-		$this->forum_id         = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
-		$this->topic_id         = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
-		$this->reply_id         = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
-		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
+		$this->forum_id           = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
+		$this->topic_id           = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
+		$this->reply_id           = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
+		$this->topic_tag_id       = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
 
-		// Post status identifiers
-		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'        );
-		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed'      );
-		$this->trash_status_id  = 'trash';
+		// Status identifiers
+		$this->spam_status_id     = apply_filters( 'bbp_spam_post_status',     'spam'      );
+		$this->closed_status_id   = apply_filters( 'bbp_closed_post_status',   'closed'    );
+		$this->trash_status_id    = 'trash';
 
 		/** Slugs *****************************************************/
 
 		// Root forum slug
-		$this->root_slug        = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
+		$this->root_slug          = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
 
 		// Should we include the root slug in front of component slugs
 		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
 
 		// Component slugs
-		$this->user_slug        = apply_filters( 'bbp_user_slug',      get_option( '_bbp_user_slug',      $prefix . 'user'  ) );
-		$this->forum_slug       = apply_filters( 'bbp_forum_slug',     get_option( '_bbp_forum_slug',     $prefix . 'forum' ) );
-		$this->topic_slug       = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic' ) );
-		$this->reply_slug       = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply' ) );
-		$this->topic_tag_slug   = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'tag'   ) );
+		$this->user_slug          = apply_filters( 'bbp_user_slug',      get_option( '_bbp_user_slug',      $prefix . 'user'  ) );
+		$this->forum_slug         = apply_filters( 'bbp_forum_slug',     get_option( '_bbp_forum_slug',     $prefix . 'forum' ) );
+		$this->topic_slug         = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic' ) );
+		$this->reply_slug         = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply' ) );
+		$this->topic_tag_slug     = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'tag'   ) );
 
 		/** Misc ******************************************************/
 
@@ -278,8 +282,7 @@ class bbPress {
 			'title',
 			'editor',
 			'thumbnail',
-			'excerpt',
-			'page-attributes'
+			'excerpt'
 		);
 
 		// Forum filter
@@ -414,49 +417,59 @@ class bbPress {
 	 * @since bbPress (r2727)
 	 */
 	function register_post_statuses () {
+		global $wp_post_statuses;
 
-		// Closed
-		$status = apply_filters( 'bbp_register_closed_post_status', array (
-			'label'             => _x( 'Closed', 'post', 'bbpress' ),
-			'label_count'       => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
-			'public'            => true,
-			'show_in_admin_all' => true
-		) );
-		register_post_status ( $this->closed_status_id, $status );
+		// Closed (for forums and topics)
+		register_post_status (
+			$this->closed_status_id,
+			apply_filters( 'bbp_register_closed_post_status',
+				array(
+					'label'                     => _x( 'Closed', 'post', 'bbpress' ),
+					'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
+					'public'                    => true,
+					'show_in_admin_all'         => true
+				)
+			)
+		);
 
-		// Spam
-		$status = apply_filters( 'bbp_register_spam_post_status', array (
-			'label'                     => _x( 'Spam', 'post', 'bbpress' ),
-			'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
-			'protected'                 => true,
-			'exclude_from_search'       => true,
-			'show_in_admin_status_list' => true,
-			'show_in_admin_all_list'    => false
-		) );
-		register_post_status ( $this->spam_status_id, $status );
-
+		// Spam (for topics and replies)
+		register_post_status (
+			$this->spam_status_id,
+			apply_filters( 'bbp_register_spam_post_status',
+				array(
+					'label'                     => _x( 'Spam', 'post', 'bbpress' ),
+					'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
+					'protected'                 => true,
+					'exclude_from_search'       => true,
+					'show_in_admin_status_list' => true,
+					'show_in_admin_all_list'    => false
+				)
+			)
+		);
 
 		// Trash
-		if ( current_user_can( 'view_trash' ) ) {
-			/**
-			 * We need to remove the internal arg and change that to
-			 * protected so that the users with 'view_trash' cap can view
-			 * single trashed topics/replies in the front-end as wp_query
-			 * doesn't allow any hack for the trashed topics to be viewed.
-			 */
 
-			$status = apply_filters( 'bbp_register_trash_post_status', array (
-				'label'                     => _x( 'Trash', 'post', 'bbpress' ),
-				'label_count'               => _nx_noop( 'Trash <span class="count">(%s)</span>', 'Trash <span class="count">(%s)</span>', 'bbpress' ),
-				//'internal'                  => true, // Changed to protected
-				'protected'                 => true,
-				'_builtin'                  => true, // Internal use only.
-				'exclude_from_search'       => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => false
-			) );
-			register_post_status( $this->trash_status_id, $status );
+		/* We need to remove the internal arg and change that to
+		 * protected so that the users with 'view_trash' cap can view
+		 * single trashed topics/replies in the front-end as wp_query
+		 * doesn't allow any hack for the trashed topics to be viewed.
+		 */
+		if ( !empty( $wp_post_statuses['trash'] ) && current_user_can( 'view_trash' ) ) {
+			$wp_post_statuses['trash']->internal  = false; /* changed to protected */
+			$wp_post_statuses['trash']->protected = true;
 		}
+
+		// Private
+
+		/* Similarly, we need to remove the internal arg and change that
+		 * to protected so that the users with 'read_private_forums' cap
+		 * can view private forums in the front-end.
+		 */
+		if ( !empty( $wp_post_statuses['private'] ) && current_user_can( 'read_private_forums' ) ) {
+			$wp_post_statuses['private']->internal  = false; /* changed to protected */
+			$wp_post_statuses['private']->protected = true;
+		}
+
 	}
 
 	/**

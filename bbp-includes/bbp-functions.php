@@ -305,6 +305,15 @@ function bbp_new_topic_handler () {
 			if ( !$forum_id = $_POST['bbp_forum_id'] )
 				$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 
+		if ( bbp_is_forum_category( $forum_id ) )
+			$bbp->errors->add( 'bbp_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum!', 'bbpress' ) );
+
+		if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
+			$bbp->errors->add( 'bbp_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics!', 'bbpress' ) );
+
+		if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
+			$bbp->errors->add( 'bbp_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in this forum!', 'bbpress' ) );
+
 		// Check for flood
 		if ( !bbp_check_for_flood( $anonymous_data, $topic_author ) )
 			$bbp->errors->add( 'bbp_topic_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
@@ -623,7 +632,7 @@ add_action( 'template_redirect', 'bbp_check_for_profile_page', 2 );
  * @since bbPress (r2688)
  */
 function bbp_pre_get_posts ( $wp_query ) {
-	global $bbp;
+	global $bbp, $wp_version;
 
 	$bbp_user     = get_query_var( 'bbp_user'         );
 	$is_user_edit = get_query_var( 'bbp_edit_profile' );
@@ -644,8 +653,6 @@ function bbp_pre_get_posts ( $wp_query ) {
 
 	// Define new query variable
 	if ( !empty( $is_user_edit ) ) {
-		global $wp_version;
-
 		// Only allow super admins on multisite to edit every user.
 		if ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && $user_id != $current_user->ID && ! apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) )
 			wp_die( __( 'You do not have the permission to edit this user.', 'bbpress' ) );

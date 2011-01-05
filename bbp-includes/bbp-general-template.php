@@ -235,6 +235,142 @@ function bbp_is_user_profile_edit () {
 /** START Form Functions ******************************************************/
 
 /**
+ * Output a select box allowing to pick which forum/topic a new topic/reply
+ * belongs in.
+ *
+ * Can be used for any post type, but is mostly used for topics and forums.
+ *
+ * @since bbPress (r2744)
+ *
+ * @param mixed $args See {@link bbp_get_dropdown()} for arguments
+ */
+function bbp_dropdown( $args = '' ) {
+	echo bbp_get_dropdown( $args );
+}
+	/**
+	 * Output a select box allowing to pick which forum/topic a new
+	 * topic/reply belongs in.
+	 *
+	 * @since bbPress (r2744)
+	 *
+	 * @param mixed $args The function supports these args:
+	 *  - post_type: Post type, defaults to $bbp->forum_id (bbp_forum)
+	 *  - selected: Selected ID, to not have any value as selected, pass
+	 *               anything smaller than 0 (due to the nature of select
+	 *               box, the first value would of course be selected -
+	 *               though you can have that as none (pass 'show_none' arg))
+	 *  - sort_column: Sort by? Defaults to 'menu_order, post_title'
+	 *  - child_of: Child of. Defaults to 0
+	 *  - post_status: Which all post_statuses to find in? Can be an array
+	 *                  or CSV of publish, category, closed, private, spam,
+	 *                  trash (based on post type) - if not set, these are
+	 *                  automatically determined based on the post_type
+	 *  - posts_per_page: Retrieve all forums/topics. Defaults to -1 to get
+	 *                     all posts
+	 *  - walker: Which walker to use? Defaults to
+	 *             {@link BBP_Walker_Dropdown}
+	 *  - select_id: ID of the select box. Defaults to 'bbp_forum_id'
+	 *  - tab: Tabindex value. False or integer
+	 *  - options_only: Show only <options>? No <select>?
+	 *  - show_none: False or something like __( '(No Forum)', 'bbpress' ), will have value=""
+	 *  - none_found: False or something like __( 'No forums to post to!', 'bbpress' )
+	 *  - disable_categories: Disable forum categories? Defaults to true. Only for forums and when the category option is displayed.
+	 * @return string
+	 */
+	function bbp_get_dropdown( $args = '' ) {
+		global $bbp;
+
+		$defaults = array (
+			'post_type'          => $bbp->forum_id,
+			'selected'           => 0,
+			'sort_column'        => 'post_title',
+			'child_of'           => '0',
+			'post_status'        => 'publish',
+			'numberposts'        => -1,
+			'orderby'            => 'menu_order',
+			'walker'             => '',
+
+			// Output-related
+			'select_id'          => 'bbp_forum_id',
+			'tab'                => false,
+			'options_only'       => false,
+			'show_none'          => false,
+			'none_found'         => false,
+			'disable_categories' => true
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+
+		if ( empty( $r['walker'] ) ) {
+			$r['walker']            = new BBP_Walker_Dropdown();
+			$r['walker']->tree_type = $r['post_type'];
+		}
+
+		// Determine a selected value
+		if ( empty( $r['selected'] ) ) {
+
+			// We're getting forums
+			if ( $r['post_type'] == $bbp->forum_id ) {
+				$r['selected'] = bbp_get_forum_id();
+
+			// We're getting topics
+			} elseif ( $r['post_type'] == $bbp->topic_id ) {
+				$r['selected'] = bbp_get_topic_id();
+			}
+		}
+
+		// Force 0
+		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
+			$r['selected'] = 0;
+
+		// Don't show private forums to normal users
+		if ( !current_user_can( 'edit_others_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
+			$r['meta_key']     = '_bbp_forum_visibility';
+			$r['meta_value']   = 'public';
+			$r['meta_compare'] = '==';
+		}
+
+		extract( $r );
+
+		// Unset the args not needed for WP_Query to avoid any possible conflicts.
+		// Note: walker and disable_categories are not unset
+		unset( $r['select_id'], $r['tab'], $r['options_only'], $r['show_none'], $r['none_found'] );
+
+		// Setup variables
+		$name      = esc_attr( $select_id );
+		$select_id = $name;
+		$tab       = (int) $tab;
+		$retval    = '';
+
+		// @todo - write a better get_ function
+		if ( $r['post_type'] == $bbp->forum_id )
+			$posts = get_pages( $r );
+		elseif ( $r['post_type'] == $bbp->topic_id )
+			$posts = get_posts( $r );
+
+		// Make a drop down if we found posts
+		if ( !empty( $posts ) ) {
+			if ( empty( $options_only ) ) {
+				$tab     = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
+				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab . '>' . "\n";
+			}
+
+			$retval .= !empty( $show_none ) ? "\t<option value=\"\" class=\"level-0\">" . $show_none . '</option>' : '';
+			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
+
+			if ( empty( $options_only ) )
+				$retval .= '</select>';
+
+		// Display feedback
+		} else {
+			// Long short hand
+			$retval .= !empty( $none_found ) ? $none_found : $post_type == $bbp->topic_id ? __( 'No topics to post to!', 'bbpress' ) : $post_type == $bbp->forum_id ? __( 'No forums to post to!', 'bbpress' ) : __( 'No posts found!', 'bbpress' );
+		}
+
+		return apply_filters( 'bbp_get_dropdown', $retval, $args );
+	}
+
+/**
  * bbp_new_topic_form_fields ()
  *
  * Output the required hidden fields when creating a new topic
@@ -287,49 +423,6 @@ function bbp_edit_user_form_fields () { ?>
 	<?php wp_referer_field(); ?>
 	<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() );
 }
-
-/**
- * bbp_forum_dropdown ()
- *
- * Output a select box allowing to pick which forum a new topic belongs in.
- *
- * @param array $args
- */
-function bbp_forum_dropdown ( $args = '' ) {
-	echo bbp_get_forum_dropdown( $args );
-}
-	/**
-	 * bbp_get_forum_dropdown ()
-	 *
-	 * Return a select box allowing to pick which forum a new topic belongs in.
-	 *
-	 * @global object $bbp
-	 * @param array $args
-	 * @return string
-	 */
-	function bbp_get_forum_dropdown ( $args = '' ) {
-		global $bbp;
-
-		$defaults = array (
-			'post_type'   => $bbp->forum_id,
-			'selected'    => bbp_get_forum_id(),
-			'sort_column' => 'menu_order, post_title',
-			'child_of'    => '0',
-		);
-
-		$r = wp_parse_args( $args, $defaults );
-		extract( $r );
-
-		if ( $forums = get_posts( $r ) ) {
-			$output  = '<select name="bbp_forum_id" id="bbp_forum_id">';
-			$output .= walk_page_dropdown_tree( $forums, 0, $r );
-			$output .= '</select>';
-		} else {
-			$output  = __( 'No forums to post to!', 'bbpress' );
-		}
-
-		return apply_filters( 'bbp_get_forums_dropdown', $output );
-	}
 
 /** END Form Functions ********************************************************/
 

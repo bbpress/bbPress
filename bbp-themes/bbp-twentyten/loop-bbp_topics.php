@@ -22,7 +22,7 @@ if ( bbp_get_query_name() || bbp_has_topics() ) : ?>
 		</thead>
 
 		<tfoot>
-			<tr><td colspan="<?php echo ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ? '5' : '4'; ?>">&nbsp</td></tr>
+			<tr><td colspan="<?php echo ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ? '5' : '4'; ?>">&nbsp;</td></tr>
 		</tfoot>
 
 		<tbody>

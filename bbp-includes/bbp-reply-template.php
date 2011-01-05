@@ -821,7 +821,7 @@ function bbp_reply_admin_links ( $args = '' ) {
 		global $bbp;
 
 		if ( !bbp_is_topic() && !bbp_is_reply() )
-			return '&nbsp';
+			return '&nbsp;';
 
 		$defaults = array (
 			'id'     => bbp_get_reply_id(),
@@ -838,7 +838,7 @@ function bbp_reply_admin_links ( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 
 		if ( !current_user_can( 'edit_reply', $r['id'] ) )
-			return '&nbsp';
+			return '&nbsp;';
 
 		if ( !current_user_can( 'delete_reply', $r['id'] ) )
 			unset( $r['links']['trash'] );
