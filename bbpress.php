@@ -419,57 +419,38 @@ class bbPress {
 	function register_post_statuses () {
 		global $wp_post_statuses;
 
-		// Closed (for forums and topics)
-		register_post_status (
-			$this->closed_status_id,
-			apply_filters( 'bbp_register_closed_post_status',
-				array(
-					'label'                     => _x( 'Closed', 'post', 'bbpress' ),
-					'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
-					'public'                    => true,
-					'show_in_admin_all'         => true
-				)
-			)
-		);
+		// Closed
+		$status = apply_filters( 'bbp_register_closed_post_status', array (
+			'label'             => _x( 'Closed', 'post', 'bbpress' ),
+			'label_count'       => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'bbpress' ),
+			'public'            => true,
+			'show_in_admin_all' => true
+		) );
+		register_post_status ( $this->closed_status_id, $status );
 
-		// Spam (for topics and replies)
-		register_post_status (
-			$this->spam_status_id,
-			apply_filters( 'bbp_register_spam_post_status',
-				array(
-					'label'                     => _x( 'Spam', 'post', 'bbpress' ),
-					'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
-					'protected'                 => true,
-					'exclude_from_search'       => true,
-					'show_in_admin_status_list' => true,
-					'show_in_admin_all_list'    => false
-				)
-			)
-		);
+		// Spam
+		$status = apply_filters( 'bbp_register_spam_post_status', array (
+			'label'                     => _x( 'Spam', 'post', 'bbpress' ),
+			'label_count'               => _nx_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'bbpress' ),
+			'protected'                 => true,
+			'exclude_from_search'       => true,
+			'show_in_admin_status_list' => true,
+			'show_in_admin_all_list'    => false
+		) );
+		register_post_status ( $this->spam_status_id, $status );
 
-		// Trash
-
-		/* We need to remove the internal arg and change that to
+		/**
+		 * Trash fix
+		 *
+		 * We need to remove the internal arg and change that to
 		 * protected so that the users with 'view_trash' cap can view
 		 * single trashed topics/replies in the front-end as wp_query
 		 * doesn't allow any hack for the trashed topics to be viewed.
 		 */
 		if ( !empty( $wp_post_statuses['trash'] ) && current_user_can( 'view_trash' ) ) {
-			$wp_post_statuses['trash']->internal  = false; /* changed to protected */
+			$wp_post_statuses['trash']->internal  = false; // changed to protected
 			$wp_post_statuses['trash']->protected = true;
 		}
-
-		// Private
-
-		/* Similarly, we need to remove the internal arg and change that
-		 * to protected so that the users with 'read_private_forums' cap
-		 * can view private forums in the front-end.
-		 */
-		if ( !empty( $wp_post_statuses['private'] ) && current_user_can( 'read_private_forums' ) ) {
-			$wp_post_statuses['private']->internal  = false; /* changed to protected */
-			$wp_post_statuses['private']->protected = true;
-		}
-
 	}
 
 	/**

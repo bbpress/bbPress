@@ -1147,7 +1147,7 @@ add_action( 'admin_menu', 'bbp_admin_separator' );
  *
  * @package bbPress
  * @subpackage Admin
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  */
 function bbp_forum_metabox () {
 	global $bbp, $post;

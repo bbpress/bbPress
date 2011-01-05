@@ -240,7 +240,7 @@ function bbp_is_user_profile_edit () {
  *
  * Can be used for any post type, but is mostly used for topics and forums.
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param mixed $args See {@link bbp_get_dropdown()} for arguments
  */
@@ -251,7 +251,7 @@ function bbp_dropdown( $args = '' ) {
 	 * Output a select box allowing to pick which forum/topic a new
 	 * topic/reply belongs in.
 	 *
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 *
 	 * @param mixed $args The function supports these args:
 	 *  - post_type: Post type, defaults to $bbp->forum_id (bbp_forum)
@@ -324,7 +324,7 @@ function bbp_dropdown( $args = '' ) {
 			$r['selected'] = 0;
 
 		// Don't show private forums to normal users
-		if ( !current_user_can( 'edit_others_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
+		if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
 			$r['meta_key']     = '_bbp_forum_visibility';
 			$r['meta_value']   = 'public';
 			$r['meta_compare'] = '==';

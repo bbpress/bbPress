@@ -16,7 +16,7 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<?php if ( !bbp_is_forum_private() || current_user_can( 'edit_others_forums' ) ) : ?>
+					<?php if ( !bbp_is_forum_private() || current_user_can( 'read_private_forums' ) ) : ?>
 
 						<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
 							<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>

@@ -29,7 +29,7 @@ function bbp_has_forums ( $args = '' ) {
 	$r = wp_parse_args( $args, $default );
 
 	// Don't show private forums to normal users
-	if ( !current_user_can( 'edit_others_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
+	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
 		$r['meta_key']     = '_bbp_forum_visibility';
 		$r['meta_value']   = 'public';
 		$r['meta_compare'] = '==';
@@ -319,7 +319,7 @@ function bbp_forum_has_sub_forums ( $args = '' ) {
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
 
 	// Don't show private forums to normal users
-	if ( !current_user_can( 'edit_others_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
+	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
 		$r['meta_key']     = '_bbp_forum_visibility';
 		$r['meta_value']   = 'public';
 		$r['meta_compare'] = '==';
@@ -998,7 +998,7 @@ function bbp_forum_status ( $forum_id = 0 ) {
 /**
  * Closes a forum
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id forum id
  * @uses wp_get_single_post() To get the forum
@@ -1026,7 +1026,7 @@ function bbp_close_forum( $forum_id = 0 ) {
 /**
  * Opens a forum
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id forum id
  * @uses wp_get_single_post() To get the forum
@@ -1055,7 +1055,7 @@ function bbp_open_forum( $forum_id = 0 ) {
 /**
  * Make the forum a category
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @uses update_post_meta() To update the forum category meta
@@ -1068,7 +1068,7 @@ function bbp_categorize_forum( $forum_id = 0 ) {
 /**
  * Remove the category status from a forum
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @uses delete_post_meta() To delete the forum category meta
@@ -1081,7 +1081,7 @@ function bbp_normalize_forum( $forum_id = 0 ) {
 /**
  * Mark the forum as private
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @uses update_post_meta() To update the forum private meta
@@ -1094,7 +1094,7 @@ function bbp_privatize_forum( $forum_id = 0 ) {
 /**
  * Unmark the forum as private
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @uses delete_post_meta() To delete the forum private meta
@@ -1107,7 +1107,7 @@ function bbp_publicize_forum( $forum_id = 0 ) {
 /**
  * Is the forum a category?
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @uses get_post_meta() To get the forum category meta
@@ -1126,7 +1126,7 @@ function bbp_is_forum_category( $forum_id = 0 ) {
 /**
  * Is the forum open?
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  * @param int $forum_id Optional. Forum id
  *
  * @param int $forum_id Optional. Forum id
@@ -1140,7 +1140,7 @@ function bbp_is_forum_open( $forum_id = 0 ) {
 	/**
 	 * Is the forum closed?
 	 *
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $check_ancestors Check if the ancestors are closed (only
@@ -1174,7 +1174,7 @@ function bbp_is_forum_open( $forum_id = 0 ) {
 /**
  * Is the forum private?
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
  * @param bool $check_ancestors Check if the ancestors are private (only if

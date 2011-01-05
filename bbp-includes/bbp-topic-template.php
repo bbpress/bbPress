@@ -326,7 +326,7 @@ function bbp_is_topic_open ( $topic_id = 0 ) {
 	 *
 	 * @package bbPress
 	 * @subpackage Template Tags
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 *
 	 * @uses bbp_get_topic_status()
 	 *

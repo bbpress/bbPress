@@ -251,14 +251,14 @@ class BBP_Walker_Forum extends Walker {
  * @package bbPress
  * @subpackage Classes
  *
- * @since bbPress (r2744)
+ * @since bbPress (r2746)
  * @uses Walker
  */
 class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::$tree_type
 	 *
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 *
 	 * @var string
 	 */
@@ -267,7 +267,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::$db_fields
 	 *
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 *
 	 * @var array
 	 */
@@ -276,7 +276,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * Set the tree_type
 	 *
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 */
 	function BBP_Walker_Dropdown() {
 		global $bbp;
@@ -287,7 +287,7 @@ class BBP_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::start_el()
 	 *
-	 * @since bbPress (r2744)
+	 * @since bbPress (r2746)
 	 *
 	 * @param string $output Passed by reference. Used to append additional content.
 	 * @param object $post Post data object.
