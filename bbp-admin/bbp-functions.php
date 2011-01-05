@@ -41,7 +41,7 @@ function bbp_recount_list () {
 		10 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',                   'bbpress' ), 'bbp_recount_forum_replies'         ),
 		15 => array( 'bbp-topic-replies',         __( 'Count replies in each topic',                   'bbpress' ), 'bbp_recount_topic_replies'         ),
 		20 => array( 'bbp-topic-voices',          __( 'Count voices in each topic',                    'bbpress' ), 'bbp_recount_topic_voices'          ),
-		25 => array( 'bbp-topic-trashed-replies', __( 'Count trashed replies in each topic',           'bbpress' ), 'bbp_recount_topic_trashed_replies' ),
+		25 => array( 'bbp-topic-hidden-replies',  __( 'Count spammed & trashed replies in each topic', 'bbpress' ), 'bbp_recount_topic_hidden_replies'  ),
 		30 => array( 'bbp-topics-replied',        __( 'Count replies for each user',                   'bbpress' ), 'bbp_recount_user_topics_replied'   ),
 		35 => array( 'bbp-clean-favorites',       __( 'Remove trashed topics from user favorites',     'bbpress' ), 'bbp_recount_clean_favorites'       ),
 		40 => array( 'bbp-clean-subscriptions',   __( 'Remove trashed topics from user subscriptions', 'bbpress' ), 'bbp_recount_clean_subscriptions'   )
@@ -90,17 +90,26 @@ function bbp_recount_topic_voices () {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_topic_trashed_replies () {
+/**
+ * Recount topic hidden replies (spammed/trashed)
+ *
+ * @since bbPress (r2747)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_topic_hidden_replies() {
 	global $wpdb, $bbp;
 
-	$statement = __( 'Counting the number of deleted replies in each topic&hellip; %s', 'bbpress' );
+	$statement = __( 'Counting the number of spammed and trashed replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_deleted_replies';";
+	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_bbp_topic_hidden_reply_count';";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_deleted_replies', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'trash' GROUP BY `ID`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_topic_hidden_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` IN ( '" . join( "','", array( 'trash', $bbp->spam_status_id ) ) . "') GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
