@@ -290,7 +290,7 @@ class BB_Install
 			// bb-settings.php is generally not loaded on steps -1, 0 and 1 but
 			// there are exceptions, so this is safer than just reading the step
 			$this->load_includes = true;
-			define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/includes/' );
+			define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/' );
 		}
 
 		// Define the language file directory

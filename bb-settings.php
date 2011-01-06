@@ -100,7 +100,7 @@ if ( defined( 'ABSPATH' ) ) {
  * The full path to the BackPress libraries
  */
 if ( !defined( 'BACKPRESS_PATH' ) ) {
-	define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/includes/' );
+	define( 'BACKPRESS_PATH', BB_PATH . BB_INC . 'backpress/' );
 }
 
 // Load logging class
