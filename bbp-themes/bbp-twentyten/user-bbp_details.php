@@ -1,4 +1,13 @@
+<?php
 
+/**
+ * User details
+ *
+ * @package bbPress
+ * @subpackage Themes
+ */
+
+?>
 				<span class="page-title author">
 					<?php printf( __( 'Profile: %s', 'bbpress' ), "<span class='vcard'><a class='url fn n' href='" . bbp_get_user_profile_url() . "' title='" . esc_attr( bbp_get_displayed_user_field( 'display_name' ) ) . "' rel='me'>" . bbp_get_displayed_user_field( 'display_name' ) . "</a></span>" ); ?>
 

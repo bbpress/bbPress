@@ -1,10 +1,12 @@
 <?php
+
 /**
- * bbPress user profile edit
+ * bbPress user profile edit page
  *
  * @package bbPress
- * @subpackage Template
+ * @subpackage Themes
  */
+
 ?>
 
 <?php get_header(); ?>

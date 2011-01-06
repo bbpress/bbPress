@@ -1,10 +1,12 @@
 <?php
+
 /**
  * bbPress General Template Tags
  *
  * @package bbPress
  * @subpackage TemplateTags
  */
+
 /** START - WordPress Add-on Actions ******************************************/
 
 /**

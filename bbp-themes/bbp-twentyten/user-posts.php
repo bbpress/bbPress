@@ -1,4 +1,13 @@
+<?php
 
+/**
+ * User blog posts loop
+ *
+ * @package bbPress
+ * @subpackage Themes
+ */
+
+?>
 				<div id="bbp-author-blog-posts" class="bbp-author-blog-posts">
 					<hr />
 					<h2 class="entry-title"><?php _e( 'Blog Posts', 'bbpress' ); ?></h2>

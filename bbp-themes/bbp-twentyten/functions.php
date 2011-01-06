@@ -1,9 +1,17 @@
 <?php
 
 /**
- * bbp_twentyten_enqueue_styles ()
+ * bbPress Theme Functions
  *
+ * @package bbPress
+ * @subpackage Theme
+ */
+
+/**
  * Load the theme CSS
+ *
+ * @uses is_admin() To check if it's the admin section
+ * @uses wp_enqueue_style() To enqueue the styles
  */
 function bbp_twentyten_enqueue_styles () {
 	if ( is_admin() )
@@ -15,25 +23,23 @@ function bbp_twentyten_enqueue_styles () {
 	// bbPress specific
 	wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress.css', 'bbp-twentyten-default', 20100312, 'screen' );
 }
-add_action( 'init', 'bbp_twentyten_enqueue_styles' );
 
 /**
- * bbp_twentyten_dim_favorite ()
- *
  * Add or remove a topic from a user's favorites
  *
- * @package bbPress
- * @subpackage bbPress TwentyTen
  * @since bbPress (r2652)
  *
- * @return void
+ * @uses bbp_get_current_user_id() To get the current user id
+ * @uses current_user_can() To check if the current user can edit the user
+ * @uses get_post() To get the topic
+ * @uses check_ajax_referer() To verify the nonce & check the referer
+ * @uses bbp_is_user_favorite() To check if the topic is user's favorite
+ * @uses bbp_remove_user_favorite() To remove the topic from user's favorites
+ * @uses bbp_add_user_favorite() To add the topic from user's favorites
  */
 function bbp_twentyten_dim_favorite () {
-	global $current_user;
-
-	$current_user = wp_get_current_user();
-	$user_id      = $current_user->ID;
-	$id           = intval( $_POST['id'] );
+	$user_id = bbp_get_current_user_id();
+	$id      = intval( $_POST['id'] );
 
 	if ( !current_user_can( 'edit_user', $user_id ) )
 		die( '-1' );
@@ -53,28 +59,29 @@ function bbp_twentyten_dim_favorite () {
 
 	die( '0' );
 }
-add_action( 'wp_ajax_dim-favorite', 'bbp_twentyten_dim_favorite' );
 
 /**
- * bbp_twentyten_dim_subscription ()
- *
  * Subscribe/Unsubscribe a user from a topic
  *
- * @package bbPress
- * @subpackage bbPress TwentyTen
  * @since bbPress (r2668)
  *
- * @return void
+ * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
+ * @uses bbp_get_current_user_id() To get the current user id
+ * @uses current_user_can() To check if the current user can edit the user
+ * @uses get_post() To get the topic
+ * @uses check_ajax_referer() To verify the nonce & check the referer
+ * @uses bbp_is_user_subscribed() To check if the topic is in user's
+ *                                 subscriptions
+ * @uses bbp_remove_user_subscriptions() To remove the topic from user's
+ *                                        subscriptions
+ * @uses bbp_add_user_subscriptions() To add the topic from user's subscriptions
  */
 function bbp_twentyten_dim_subscription () {
-	global $current_user;
-
 	if ( !bbp_is_subscriptions_active() )
 		return;
 
-	$current_user = wp_get_current_user();
-	$user_id      = $current_user->ID;
-	$id           = intval( $_POST['id'] );
+	$user_id = bbp_get_current_user_id();
+	$id      = intval( $_POST['id'] );
 
 	if ( !current_user_can( 'edit_user', $user_id ) )
 		die( '-1' );
@@ -94,18 +101,16 @@ function bbp_twentyten_dim_subscription () {
 
 	die( '0' );
 }
-add_action( 'wp_ajax_dim-subscription', 'bbp_twentyten_dim_subscription' );
 
 /**
- * bbp_twentyten_enqueue_scripts ()
- *
  * Enqueue the required Javascript files
  *
- * @package bbPress
- * @subpackage bbPress TwentyTen
  * @since bbPress (r2652)
  *
- * @return void
+ * @uses bbp_is_topic() To check if it's the topic page
+ * @uses get_stylesheet_directory_uri() To get the stylesheet directory uri
+ * @uses bbp_is_user_profile_edit() To check if it's the profile edit page
+ * @uses wp_enqueue_script() To enqueue the scripts
  */
 function bbp_twentyten_enqueue_scripts () {
 	if ( bbp_is_topic() )
@@ -114,18 +119,15 @@ function bbp_twentyten_enqueue_scripts () {
 	if ( bbp_is_user_profile_edit() )
 		wp_enqueue_script( 'user-profile' );
 }
-add_action( 'wp_enqueue_scripts', 'bbp_twentyten_enqueue_scripts' );
 
 /**
- * bbp_twentyten_scripts ()
- *
  * Put some scripts in the header, like AJAX url for wp-lists
  *
- * @package bbPress
- * @subpackage bbPress TwentyTen
  * @since bbPress (r2652)
  *
- * @return void
+ * @uses bbp_is_topic() To check if it's the topic page
+ * @uses admin_url() To get the admin url
+ * @uses bbp_is_user_profile_edit() To check if it's the profile edit page
  */
 function bbp_twentyten_scripts () {
 	if ( bbp_is_topic() ) : ?>
@@ -147,29 +149,29 @@ function bbp_twentyten_scripts () {
 	<?php
 	endif;
 }
-add_filter( 'wp_head', 'bbp_twentyten_scripts', -1 );
 
 /**
- * bbp_twentyten_topic_script_localization ()
- *
  * Load localizations for topic script.
  *
  * These localizations require information that may not be loaded even by init.
  *
- * @package bbPress
- * @subpackage bbPress TwentyTen
  * @since bbPress (r2652)
  *
- * @return void
+ * @uses bbp_is_topic() To check if it's the topic page
+ * @uses bbp_get_current_user_id() To get the current user id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_favorites_permalink() To get the favorites permalink
+ * @uses bbp_is_user_favorite() To check if the topic is in user's favorites
+ * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
+ * @uses bbp_is_user_subscribed() To check if the user is subscribed to topic
+ * @uses bbp_get_topic_permalink() To get the topic permalink
+ * @uses wp_localize_script() To localize the script
  */
 function bbp_twentyten_topic_script_localization () {
 	if ( !bbp_is_topic() )
 		return;
 
-	global $current_user;
-
-	$current_user = wp_get_current_user();
-	$user_id      = $current_user->ID;
+	$user_id = bbp_get_current_user_id();
 
 	$localizations = array(
 		'currentUserId' => $user_id,
@@ -196,6 +198,13 @@ function bbp_twentyten_topic_script_localization () {
 
 	wp_localize_script( 'bbp_topic', 'bbpTopicJS', $localizations );
 }
-add_filter( 'wp_enqueue_scripts', 'bbp_twentyten_topic_script_localization' );
+
+/* Actions */
+add_action( 'init',                     'bbp_twentyten_enqueue_styles'               );
+add_action( 'wp_ajax_dim-favorite',     'bbp_twentyten_dim_favorite'                 );
+add_action( 'wp_ajax_dim-subscription', 'bbp_twentyten_dim_subscription'             );
+add_action( 'wp_enqueue_scripts',       'bbp_twentyten_enqueue_scripts'              );
+add_filter( 'wp_head',                  'bbp_twentyten_scripts',                  -1 );
+add_filter( 'wp_enqueue_scripts',       'bbp_twentyten_topic_script_localization'    );
 
 ?>

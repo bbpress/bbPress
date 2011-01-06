@@ -1,4 +1,13 @@
+<?php
 
+/**
+ * User subscriptions loop
+ *
+ * @package bbPress
+ * @subpackage Themes
+ */
+
+?>
 			<?php if ( bbp_is_subscriptions_active() ) : ?>
 
 				<?php if ( bbp_is_user_home() || current_user_can( 'edit_users' ) ) : ?>

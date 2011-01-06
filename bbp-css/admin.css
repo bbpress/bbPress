@@ -1,9 +1,5 @@
-/* 
- Document   : admin.css
- Created on : Aug 3, 2010, 3:11:16 AM
- Author     : John
- Description: wp-admin area stylesheet with a bbPress twist
- */
+/* =wp-admin area stylesheet with a bbPress twist
+-------------------------------------------------------------- */
 
 html {
 	background-color: #f9f9f9;
@@ -1693,7 +1689,8 @@ div.widgets-sortables,
 	background-color: #f1f1f1;
 }
 
-#nav-menu-header, .menu-item-handle {
+#nav-menu-header,
+.menu-item-handle {
 	background: url("../../../../wp-admin/images/gray-grad.png") repeat-x scroll left top #dfdfdf;
 }
 

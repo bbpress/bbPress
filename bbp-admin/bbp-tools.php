@@ -1,6 +1,25 @@
 <?php
 
-function bbp_admin_tools () {
+/**
+ * bbPress Admin Tools Page
+ *
+ * @package bbPress
+ * @subpackage Administration
+ */
+
+/**
+ * Admin tools page
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses bbp_recount_list() To get the recount list
+ * @uses check_admin_referer() To verify the nonce and the referer
+ * @uses wp_cache_flush() To flush the cache
+ * @uses do_action() Calls 'admin_notices' to display the notices
+ * @uses screen_icon() To display the screen icon
+ * @uses wp_nonce_field() To add a hidden nonce field
+ */
+function bbp_admin_tools() {
 
 	$recount_list = bbp_recount_list();
 

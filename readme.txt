@@ -1,8 +1,8 @@
 === bbPress ===
 Contributors: matt, mdawaffe, johnjamesjacoby, petemall
-Tags: bbpress, forums, discussion, post type, content type, theme
+Tags: bbpress, forums, discussion, post type, theme
 Requires at least: 3.0
-Tested up to: 3.0.1
+Tested up to: 3.1
 
 bbPress is forum software with a twist from the creators of WordPress.
 
@@ -15,10 +15,9 @@ We're keeping things as small and light as possible while still allowing for gre
 == Installation ==
 
 1. Place 'bbpress' folder in your plugins directory.
-1. Activate bbPress.
-1. Visit your Forums settings and configure your forums.
-1. Activate a bbPress compatible theme
-
+2. Activate bbPress.
+3. Visit your Forums settings and configure your forums.
+4. Activate a bbPress compatible theme
 
 == Changelog ==
 

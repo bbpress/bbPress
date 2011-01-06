@@ -4,7 +4,7 @@
  * bbPress Filters & Actions
  *
  * @package bbPress
- * @subpackage Filters
+ * @subpackage Hooks
  *
  * This file contains the actions and filters that are used through-out bbPress.
  * They are consolidated here to make searching for them easier, and to help
@@ -12,9 +12,11 @@
  *
  * There are a few common places that additional actions can currently be found
  *
- * bbPress - In bbPress::_setup_actions() in bbpress.php
- * Component - In BBP_Component::_setup_actions() in bbp-includes/bbp-classes.php
- * Admin - More in BBP_Admin::_setup_actions() in bbp-admin/bbp-admin.php
+ *  - bbPress: In {@link bbPress::_setup_actions()} in bbpress.php
+ *  - Component: In {@link BBP_Component::_setup_actions()} in
+ *                bbp-includes/bbp-classes.php
+ *  - Admin: More in {@link BBP_Admin::_setup_actions()} in
+ *            bbp-admin/bbp-admin.php
  */
 
 /** ACTIONS *******************************************************************/

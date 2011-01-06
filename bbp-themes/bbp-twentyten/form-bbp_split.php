@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Split topic form
  *
  * @package bbPress
  * @subpackage Themes
  */
+
 ?>
 <?php if ( is_user_logged_in() && current_user_can( 'edit_topic', bbp_get_topic_id() ) ) : ?>
 

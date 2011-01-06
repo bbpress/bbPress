@@ -2,33 +2,63 @@
 
 if ( !class_exists( 'BBP_Component' ) ) :
 /**
- * BBP_Component
+ * bbPress Component Class
  *
  * The bbPress component class is responsible for simplifying the creation
- * of components that share similar behaviors and routines. It is used internally
- * by bbPress to create forums, topics, and replies, but can be extended to create
- * other really neat things.
+ * of components that share similar behaviors and routines. It is used
+ * internally by bbPress to create forums, topics and replies, but can be
+ * extended to create other really neat things.
  *
- * @since (r2688)
+ * @package bbpress
+ * @subpackage Classes
+ *
+ * @since bbPress (r2688)
  */
 class BBP_Component {
 
-	// Unique name (For internal identification)
+	/**
+	 * @var string Unique name (for internal identification)
+	 * @internal
+	 */
 	var $name;
 
-	// Unique ID (Normally for custom post type)
+	/**
+	 * @var Unique ID (normally for custom post type)
+	 */
 	var $id;
 
-	// Unique slug (Used in query string and permalinks)
+	/**
+	 * @var string Unique slug (used in query string and permalinks)
+	 */
 	var $slug;
 
-	// The loop for this component
+	/**
+	 * @var WP_Query The loop for this component
+	 */
 	var $query;
 
-	// The current ID of the queried object
+	/**
+	 * @var string The current ID of the queried object
+	 */
 	var $current_id;
 
-	function BBP_Component ( $args = '' ) {
+
+	/**
+	 * bbPress Component loader
+	 *
+	 * @since bbPress (r2700)
+	 *
+	 * @param mixed $args Required. Supports these args:
+	 *  - name: Unique name (for internal identification)
+	 *  - id: Unique ID (normally for custom post type)
+	 *  - slug: Unique slug (used in query string and permalinks)
+	 *  - query: The loop for this component (WP_Query)
+	 *  - current_id: The current ID of the queried object
+	 * @uses BBP_Component::_setup_globals() Setup the globals needed
+	 * @uses BBP_Component::_includes() Include the required files
+	 * @uses BBP_Component::_setup_actions() Setup the hooks and actions
+	 */
+	function BBP_Component( $args = '' ) {
 		if ( empty( $args ) )
 			return;
 
@@ -38,36 +68,44 @@ class BBP_Component {
 	}
 
 	/**
-	 * _setup_globals ()
-	 *
 	 * Component global variables
+	 *
+	 * @since bbPress (r2700)
+	 * @access private
+	 *
+	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_id'
+	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_slug'
 	 */
-	function _setup_globals ( $args = '' ) {
+	function _setup_globals( $args = '' ) {
 		$this->name = $args['name'];
 		$this->id   = apply_filters( 'bbp_' . $this->name . '_id',   $args['id']   );
 		$this->slug = apply_filters( 'bbp_' . $this->name . '_slug', $args['slug'] );
 	}
 
 	/**
-	 * _includes ()
-	 *
 	 * Include required files
 	 *
-	 * @since bbPress (r2688)
+	 * @since bbPress (r2700)
+	 * @access private
+	 *
+	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_includes'
 	 */
-	function _includes () {
+	function _includes() {
 		do_action( 'bbp_' . $this->name . '_includes' );
 	}
 
 	/**
-	 * _setup_actions ()
+	 * Setup the actions
 	 *
-	 * Setup the default hooks and actions
+	 * @since bbPress (r2700)
+	 * @access private
 	 *
-	 * @since bbPress (r2688)
+	 * @uses add_action() To add various actions
+	 * @uses do_action() Calls
+	 *                    'bbp_{@link BBP_Component::name}_setup_actions'
 	 */
-	function _setup_actions () {
-		// Register content types
+	function _setup_actions() {
+		// Register post types
 		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
 
 		// Register taxonomies
@@ -84,44 +122,44 @@ class BBP_Component {
 	}
 
 	/**
-	 * register_post_types ()
-	 *
 	 * Setup the component post types
 	 *
-	 * @since bbPress (r2688)
+	 * @since bbPress (r2700)
+	 *
+	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_register_post_types'
 	 */
-	function register_post_types () {
+	function register_post_types() {
 		do_action( 'bbp_' . $this->name . '_register_post_types' );
 	}
 
 	/**
-	 * register_taxonomies ()
-	 *
 	 * Register component specific taxonomies
 	 *
-	 * @since bbPress (r2688)
+	 * @since bbPress (r2700)
+	 *
+	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_register_taxonomies'
 	 */
-	function register_taxonomies () {
+	function register_taxonomies() {
 		do_action( 'bbp_' . $this->name . '_register_taxonomies' );
 	}
 
 	/**
-	 * add_rewrite_tags ()
-	 *
 	 * Add any additional rewrite tags
 	 *
-	 * @since bbPress (r2688)
+	 * @since bbPress (r2700)
+	 *
+	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_add_rewrite_tags'
 	 */
-	function add_rewrite_tags () {
+	function add_rewrite_tags() {
 		do_action( 'bbp_' . $this->name . '_add_rewrite_tags' );
 	}
 
 	/**
-	 * generate_rewrite_rules ()
-	 *
 	 * Generate any additional rewrite rules
 	 *
-	 * @since bbPress (r2688)
+	 * @since bbPress (r2700)
+	 *
+	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_generate_rewrite_rules'
 	 */
 	function generate_rewrite_rules ( $wp_rewrite ) {
 		do_action( 'bbp_' . $this->name . '_generate_rewrite_rules' );
@@ -134,30 +172,37 @@ if ( class_exists( 'Walker' ) ) :
  * Create HTML list of forums.
  *
  * @package bbPress
- * @since r2514
+ * @subpackage Classes
+ *
+ * @since bbPress (r2514)
+ *
  * @uses Walker
  */
 class BBP_Walker_Forum extends Walker {
 	/**
 	 * @see Walker::$tree_type
-	 * @since r2514
+	 *
+	 * @since bbPress (r2514)
+	 *
 	 * @var string
 	 */
 	var $tree_type;
 
 	/**
 	 * @see Walker::$db_fields
-	 * @since r2514
+	 *
+	 * @since bbPress (r2514)
+	 *
 	 * @var array
 	 */
-	var $db_fields = array ( 'parent' => 'post_parent', 'id' => 'ID' );
+	var $db_fields = array( 'parent' => 'post_parent', 'id' => 'ID' );
 
 	/**
 	 * Set the tree_type
 	 *
-	 * @global bbPress $bbp
+	 * @since bbPress (r2514)
 	 */
-	function BBP_Walker_Forum () {
+	function BBP_Walker_Forum() {
 		global $bbp;
 
 		$this->tree_type = $bbp->forum_id;
@@ -166,35 +211,38 @@ class BBP_Walker_Forum extends Walker {
 	/**
 	 * @see Walker::start_lvl()
 	 *
-	 * @since r2514
+	 * @since bbPress (r2514)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param string $output Passed by reference. Used to append additional
+	 *                        content.
 	 * @param int $depth Depth of page. Used for padding.
 	 */
 	function start_lvl( &$output, $depth ) {
-		$indent = str_repeat( "\t", $depth );
+		$indent  = str_repeat( "\t", $depth );
 		$output .= "\n$indent<ul class='children'>\n";
 	}
 
 	/**
 	 * @see Walker::end_lvl()
 	 *
-	 * @since r2514
+	 * @since bbPress (r2514)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param string $output Passed by reference. Used to append additional
+	 *                        content.
 	 * @param int $depth Depth of page. Used for padding.
 	 */
 	function end_lvl( &$output, $depth ) {
-		$indent = str_repeat( "\t", $depth );
+		$indent  = str_repeat( "\t", $depth );
 		$output .= "$indent</ul>\n";
 	}
 
 	/**
 	 * @see Walker::start_el()
 	 *
-	 * @since r2514
+	 * @since bbPress (r2514)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param string $output Passed by reference. Used to append additional
+	 *                        content.
 	 * @param object $forum Page data object.
 	 * @param int $depth Depth of page. Used for padding.
 	 * @param int $current_forum Page ID.
@@ -234,9 +282,10 @@ class BBP_Walker_Forum extends Walker {
 	/**
 	 * @see Walker::end_el()
 	 *
-	 * @since r2514
+	 * @since bbPress (r2514)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param string $output Passed by reference. Used to append additional
+	 *                        content.
 	 * @param object $forum Page data object. Not used.
 	 * @param int $depth Depth of page. Not Used.
 	 */

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * bbPress Topic Template Tags
  *
  * @package bbPress
  * @subpackage TemplateTags
  */
+
 /** START - Topic Loop Functions **********************************************/
 
 /**

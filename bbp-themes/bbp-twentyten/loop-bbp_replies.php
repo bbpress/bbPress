@@ -1,12 +1,14 @@
 <?php
+
 /**
  * The loop that displays bbPress replies.
  *
  * @package bbPress
- * @subpackage Twenty Ten
+ * @subpackage Themes
  *
  * @todo - Not use table rows
  */
+
 ?>
 
 <?php if ( bbp_has_replies() ) : ?>

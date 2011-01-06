@@ -1,10 +1,12 @@
 <?php
+
 /**
  * bbPress Reply Template Tags
  *
  * @package bbPress
  * @subpackage TemplateTags
  */
+
 /** START - Reply Loop Functions **********************************************/
 
 /**

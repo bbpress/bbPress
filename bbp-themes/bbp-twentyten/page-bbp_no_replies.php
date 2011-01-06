@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Template Name: bbPress - Topics (No Replies)
  *
  * @package bbPress
- * @subpackage Template
+ * @subpackage Theme
  */
+
 ?>
 
 <?php get_header(); ?>
@@ -27,7 +29,7 @@
 							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_topic_reply_count', 'meta_value' => 1, 'meta_compare' => '<', 'orderby' => '' ) ) ) : ?>
 
 								<?php get_template_part( 'loop', 'bbp_topics' ); ?>
-							
+
 							<?php else : ?>
 
 								<p><?php _e( 'Oh bother! No topics were found here! Perhaps searching will help.', 'bbpress' ); ?></p>

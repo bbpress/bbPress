@@ -1,13 +1,18 @@
 <?php
 
 /**
- * bbp_admin_setting_callback_section ()
+ * bbPress Admin Settings
  *
- * Main settings description for the settings page
+ * @package bbPress
+ * @subpackage Administration
+ */
+
+/**
+ * Main settings section description for the settings page
  *
  * @since bbPress (r2737)
  */
-function bbp_admin_setting_callback_section () {
+function bbp_admin_setting_callback_section() {
 ?>
 
 			<p><?php _e( 'Main settings for the bbPress plugin', 'bbpress' ); ?></p>
@@ -16,11 +21,11 @@ function bbp_admin_setting_callback_section () {
 }
 
 /**
- * bbp_admin_setting_callback_editlock ()
- *
  * Edit lock setting field
  *
  * @since bbPress (r2737)
+ *
+ * @uses form_option() To output the option value
  */
 function bbp_admin_setting_callback_editlock () {
 ?>
@@ -32,13 +37,13 @@ function bbp_admin_setting_callback_editlock () {
 }
 
 /**
- * bbp_admin_setting_callback_throttle ()
- *
  * Throttle setting field
  *
  * @since bbPress (r2737)
+ *
+ * @uses form_option() To output the option value
  */
-function bbp_admin_setting_callback_throttle () {
+function bbp_admin_setting_callback_throttle() {
 ?>
 
 			<input name="_bbp_throttle_time" type="text" id="_bbp_throttle_time" value="<?php form_option( '_bbp_throttle_time' ); ?>" class="small-text" />
@@ -48,13 +53,13 @@ function bbp_admin_setting_callback_throttle () {
 }
 
 /**
- * bbp_admin_setting_callback_subscriptions ()
- *
  * Allow subscriptions setting field
  *
  * @since bbPress (r2737)
+ *
+ * @uses checked() To display the checked attribute
  */
-function bbp_admin_setting_callback_subscriptions () {
+function bbp_admin_setting_callback_subscriptions() {
 ?>
 
 			<input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( true, bbp_is_subscriptions_active() ); ?> />
@@ -64,13 +69,13 @@ function bbp_admin_setting_callback_subscriptions () {
 }
 
 /**
- * bbp_admin_setting_callback_anonymous ()
- *
  * Allow anonymous posting setting field
  *
  * @since bbPress (r2737)
+ *
+ * @uses checked() To display the checked attribute
  */
-function bbp_admin_setting_callback_anonymous () {
+function bbp_admin_setting_callback_anonymous() {
 ?>
 
 			<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( true, bbp_allow_anonymous() ); ?> />
@@ -80,16 +85,15 @@ function bbp_admin_setting_callback_anonymous () {
 }
 
 /**
- * bbp_admin_settings ()
- *
  * The main settings page
  *
- * @uses settings_fields() To output the hidden fields
- * @uses do_settings_sections() To output the settings sections
- *
  * @since bbPress (r2643)
+ *
+ * @uses screen_icon() To display the screen icon
+ * @uses settings_fields() To output the hidden fields for the form
+ * @uses do_settings_sections() To output the settings sections
  */
-function bbp_admin_settings () {
+function bbp_admin_settings() {
 ?>
 	<div class="wrap">
 

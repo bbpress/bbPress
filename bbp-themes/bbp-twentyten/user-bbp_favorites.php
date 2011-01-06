@@ -1,4 +1,13 @@
+<?php
 
+/**
+ * User favorites loop
+ *
+ * @package bbPress
+ * @subpackage Themes
+ */
+
+?>
 				<?php bbp_set_query_name( 'bbp_user_profile_favorites' ); ?>
 
 				<div id="bbp-author-favorites" class="bbp-author-favorites">

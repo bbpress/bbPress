@@ -1,10 +1,12 @@
 <?php
+
 /**
  * The loop that displays bbPress forums.
  *
  * @package bbPress
- * @subpackage Twenty Ten
+ * @subpackage Themes
  */
+
 ?>
 
 <?php if ( bbp_has_forums() ) : ?>

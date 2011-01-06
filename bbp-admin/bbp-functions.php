@@ -1,6 +1,24 @@
 <?php
 
-function bbp_admin_notices ( $message, $class = false ) {
+/**
+ * bbPress Admin Functions
+ *
+ * @package bbPress
+ * @subpackage Administration
+ */
+
+/**
+ * Display the admin notices
+ *
+ * @since bbPress (r2613)
+ *
+ * @param string|WP_Error $message A message to be displayed or {@link WP_Error}
+ * @param string $class Optional. A class to be added to the message div
+ * @uses WP_Error::get_error_messages() To get the error messages of $message
+ * @uses add_action() Adds the admin notice action with the message HTML
+ * @return string The message HTML
+ */
+function bbp_admin_notices( $message, $class = false ) {
 	if ( is_string( $message ) ) {
 		$message = '<p>' . $message . '</p>';
 		$class = $class ? $class : 'updated';
@@ -35,7 +53,15 @@ function bbp_admin_notices ( $message, $class = false ) {
 	return $lambda;
 }
 
-function bbp_recount_list () {
+/**
+ * Get the array of the recount list
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses apply_filters() Calls 'bbp_recount_list' with the recount list array
+ * @return array Recount list
+ */
+function bbp_recount_list() {
 	$recount_list = array(
 		5  => array( 'bbp-forum-topics',          __( 'Count topics in each forum',                    'bbpress' ), 'bbp_recount_forum_topics'          ),
 		10 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',                   'bbpress' ), 'bbp_recount_forum_replies'         ),
@@ -54,7 +80,16 @@ function bbp_recount_list () {
 	return apply_filters( 'bbp_recount_list', $recount_list );
 }
 
-function bbp_recount_topic_replies () {
+/**
+ * Recount topic replies
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_topic_replies() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
@@ -72,7 +107,16 @@ function bbp_recount_topic_replies () {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_topic_voices () {
+/**
+ * Recount topic voices
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_topic_voices() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
@@ -82,7 +126,7 @@ function bbp_recount_topic_voices () {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_topic_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '{$bbp->topic_id}', '{{$bbp->reply_id}}' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_topic_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '{$bbp->topic_id}', '{$bbp->reply_id}' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -117,7 +161,16 @@ function bbp_recount_topic_hidden_replies() {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_forum_topics () {
+/**
+ * Recount forum topics
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_forum_topics() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
@@ -135,7 +188,16 @@ function bbp_recount_forum_topics () {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_forum_replies () {
+/**
+ * Recount forum replies
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_forum_replies() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
@@ -153,7 +215,16 @@ function bbp_recount_forum_replies () {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_user_topics_replied () {
+/**
+ * Recount topic replied by the users
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_user_topics_replied() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
@@ -190,7 +261,16 @@ function bbp_recount_user_topics_replied () {
 }
 
 // This function bypasses the taxonomy API
-function bbp_recount_topic_tags () {
+/**
+ * Recount topic tags in each topic
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_topic_tags() {
 	global $wpdb;
 
 	$statement = __( 'Counting the number of topic tags in each topic&hellip; %s', 'bbpress' );
@@ -260,7 +340,16 @@ function bbp_recount_topic_tags () {
 }
 
 // This function bypasses the taxonomy API
-function bbp_recount_tag_topics () {
+/**
+ * Recount the number of topics in each topic tag
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_tag_topics() {
 	global $wpdb;
 
 	$statement = __( 'Counting the number of topics in each topic tag&hellip; %s', 'bbpress' );
@@ -333,7 +422,16 @@ function bbp_recount_tag_topics () {
 }
 
 // This function bypasses the taxonomy API
-function bbp_recount_tag_delete_empty () {
+/**
+ * Recount topic tags with no topics
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_tag_delete_empty() {
 	global $wpdb;
 
 	$statement = __( 'Deleting topic tags with no topics&hellip; %s', 'bbpress' );
@@ -455,7 +553,16 @@ function bbp_recount_tag_delete_empty () {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_clean_favorites () {
+/**
+ * Clean the users' favorites
+ *
+ * @since bbPress (r2613)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_clean_favorites() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
@@ -504,7 +611,16 @@ function bbp_recount_clean_favorites () {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
-function bbp_recount_clean_subscriptions () {
+/**
+ * Clean the users' subscriptions
+ *
+ * @since bbPress (r2668)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_clean_subscriptions() {
 	global $wpdb, $bbp;
 
 	$statement = __( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );

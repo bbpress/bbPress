@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Pagination for pages of replies (when viewing a topic)
  *
  * @package bbPress
- * @subpackage Twenty Ten
+ * @subpackage Themes
  */
+
 ?>
 
 	<div class="bbp-pagination">

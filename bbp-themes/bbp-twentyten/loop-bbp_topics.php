@@ -1,9 +1,10 @@
 <?php
+
 /**
  * The loop that displays bbPress topics.
  *
  * @package bbPress
- * @subpackage Twenty Ten
+ * @subpackage Themes
  */
 
 if ( bbp_get_query_name() || bbp_has_topics() ) : ?>

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Template Name: bbPress - Forum Index
  *
  * @package bbPress
- * @subpackage Template
+ * @subpackage Theme
  */
+
 ?>
 
 <?php get_header(); ?>

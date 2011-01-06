@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Split/merge topic page
  *
  * @package bbPress
  * @subpackage Themes
  */
+
 ?>
 <?php get_header(); ?>
 

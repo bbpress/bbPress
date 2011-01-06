@@ -1,10 +1,12 @@
 <?php
+
 /**
  * bbPress General Functions
  *
  * @package bbPress
  * @subpackage Functions
  */
+
 /**
  * A bbPress specific method of formatting numeric values
  *
