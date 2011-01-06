@@ -15,11 +15,14 @@
 			<form id="new_post" name="new_post" method="post" action="">
 				<fieldset>
 					<legend>
+
 						<?php
-						if ( bbp_is_topic_edit() )
-							printf( __( 'Edit topic "%s"', 'bbpress' ), bbp_get_topic_title() );
-						else
-							bbp_is_forum() ? printf( __( 'Create new topic in: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create new topic', 'bbpress' ); ?>
+							if ( bbp_is_topic_edit() )
+								printf( __( 'Edit topic "%s"', 'bbpress' ), bbp_get_topic_title() );
+							else
+								bbp_is_forum() ? printf( __( 'Create new topic in: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create new topic', 'bbpress' );
+						?>
+
 					</legend>
 
 					<?php if ( !bbp_is_topic_edit() && bbp_is_forum_closed() ) : ?>
@@ -29,6 +32,8 @@
 						</div>
 
 					<?php endif; ?>
+
+					<?php do_action( 'bbp_template_notices' ); ?>
 
 					<div class="alignleft">
 

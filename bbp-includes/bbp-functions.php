@@ -110,6 +110,7 @@ function bbp_walk_forum( $forums, $depth, $current, $r ) {
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses esc_attr() For sanitization
  * @uses bbp_check_for_flood() To check for flooding
+ * @uses bbp_check_for_duplicate() To check for duplicates
  * @uses author_can() To check if the author of the reply can post unfiltered
  *                     html or not
  * @uses wp_filter_post_kses() To filter the post content
@@ -149,36 +150,38 @@ function bbp_new_reply_handler() {
 		}
 
 		// Handle Title (optional for replies)
-		if ( isset( $_POST['bbp_reply_title'] ) )
+		if ( !empty( $_POST['bbp_reply_title'] ) )
 			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
 
 		// Handle Content
-		if ( isset( $_POST['bbp_reply_content'] ) )
-			if ( !$reply_content = ( !bbp_is_anonymous() && author_can( $reply_author, 'unfiltered_html' ) ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) )
-				$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = ( !bbp_is_anonymous() && author_can( $reply_author, 'unfiltered_html' ) ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) ) {
+			$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+			$reply_content = '';
+		}
 
 		// Handle Topic ID to append reply to
-		if ( isset( $_POST['bbp_topic_id'] ) )
-			if ( !$topic_id = $_POST['bbp_topic_id'] )
-				$bbp->errors->add( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_topic_id'] ) || !$topic_id = $_POST['bbp_topic_id'] )
+			$bbp->errors->add( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
 
 		// Handle Forum ID to adjust counts of
-		if ( isset( $_POST['bbp_forum_id'] ) )
-			if ( !$forum_id = $_POST['bbp_forum_id'] )
-				$bbp->errors->add( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] )
+			$bbp->errors->add( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 
 		// Check for flood
 		if ( !bbp_check_for_flood( $anonymous_data, $reply_author ) )
 			$bbp->errors->add( 'bbp_reply_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 
+		// Check for duplicate
+		if ( !bbp_check_for_duplicate( array( 'post_type' => $bbp->reply_id, 'post_author' => $reply_author, 'post_content' => $reply_content, 'post_parent' => $topic_id, 'anonymous_data' => $anonymous_data ) ) )
+			$bbp->errors->add( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
+
 		// Handle Tags
-		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
+		if ( !empty( $_POST['bbp_topic_tags'] ) ) {
 			$tags = $_POST['bbp_topic_tags'];
 			$tags = wp_set_post_terms( $topic_id, $tags, $bbp->topic_tag_id, true );
 
-			if ( is_wp_error( $tags ) || false == $tags ) {
+			if ( is_wp_error( $tags ) || false == $tags )
 				$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
-			}
 		}
 
 		// Handle insertion into posts table
@@ -247,37 +250,36 @@ function bbp_edit_reply_handler() {
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-edit-reply' === $_POST['action'] ) {
 		global $bbp;
 
-		if ( !$reply_id = (int) $_POST['bbp_reply_id'] )
+		if ( empty( $_POST['bbp_reply_id'] ) || !$reply_id = (int) $_POST['bbp_reply_id'] ) {
 			$bbp->errors->add( 'bbp_edit_reply_id', __( '<strong>ERROR</strong>: Reply ID not found!', 'bbpress' ) );
-
-		if ( !$reply = get_post( $reply_id ) )
+		} elseif ( !$reply = get_post( $reply_id ) ) {
 			$bbp->errors->add( 'bbp_edit_reply_not_found', __( '<strong>ERROR</strong>: The reply you want to edit was not found!', 'bbpress' ) );
-
-		// Nonce check
-		check_admin_referer( 'bbp-edit-reply_' . $reply_id );
-
-		// Check users ability to create new reply
-		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
-			if ( !current_user_can( 'edit_reply', $reply_id ) )
-				$bbp->errors->add( 'bbp_edit_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that reply!', 'bbpress' ) );
-
-			$anonymous_data = false;
-
-		// It is an anonymous post
 		} else {
-			$anonymous_data = bbp_filter_anonymous_post_data( array(), true ); // Filter anonymous data
+
+			// Nonce check
+			check_admin_referer( 'bbp-edit-reply_' . $reply_id );
+
+			// Check users ability to create new reply
+			if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+				if ( !current_user_can( 'edit_reply', $reply_id ) ) {
+					$bbp->errors->add( 'bbp_edit_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that reply!', 'bbpress' ) );
+				}
+
+				$anonymous_data = false;
+
+			// It is an anonymous post
+			} else {
+				$anonymous_data = bbp_filter_anonymous_post_data( array(), true ); // Filter anonymous data
+			}
+
 		}
 
 		// Handle Title (optional for replies)
-		if ( isset( $_POST['bbp_reply_title'] ) )
-			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
-		else
-			$reply_title = $reply->post_title;
+		$reply_title = !empty( $_POST['bbp_reply_title'] ) ? esc_attr( strip_tags( $_POST['bbp_reply_title'] ) ) : $reply_title = $reply->post_title;
 
 		// Handle Content
-		if ( isset( $_POST['bbp_reply_content'] ) )
-			if ( !$reply_content = ( !bbp_is_reply_anonymous( $reply_id ) && author_can( $reply->post_author, 'unfiltered_html' ) ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) )
-				$bbp->errors->add( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = ( !bbp_is_reply_anonymous( $reply_id ) && author_can( $reply->post_author, 'unfiltered_html' ) ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) )
+			$bbp->errors->add( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
@@ -416,6 +418,7 @@ function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
  * @uses bbp_check_for_flood() To check for flooding
+ * @uses bbp_check_for_duplicate() To check for duplicates
  * @uses wp_filter_post_kses() To filter the post content
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_insert_post() To insert the topic
@@ -452,35 +455,37 @@ function bbp_new_topic_handler() {
 		}
 
 		// Handle Title
-		if ( isset( $_POST['bbp_topic_title'] ) )
-			if ( !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
-				$bbp->errors->add( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_topic_title'] ) || !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
+			$bbp->errors->add( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
 		// Handle Content
-		if ( isset( $_POST['bbp_topic_content'] ) )
-			if ( !$topic_content = ( !bbp_is_anonymous() && author_can( $topic_author, 'unfiltered_html' ) ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
-				$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic needs some content.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = ( !bbp_is_anonymous() && author_can( $topic_author, 'unfiltered_html' ) ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
+			$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic needs some content.', 'bbpress' ) );
 
-		// Handle Forum ID to append topic to
-		if ( isset( $_POST['bbp_forum_id'] ) )
-			if ( !$forum_id = $_POST['bbp_forum_id'] )
-				$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+		// Handle Forum id to append topic to
+		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] ) {
+			$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+		} else {
+			if ( bbp_is_forum_category( $forum_id ) )
+				$bbp->errors->add( 'bbp_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum!', 'bbpress' ) );
 
-		if ( bbp_is_forum_category( $forum_id ) )
-			$bbp->errors->add( 'bbp_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum!', 'bbpress' ) );
+			if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
+				$bbp->errors->add( 'bbp_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics!', 'bbpress' ) );
 
-		if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
-			$bbp->errors->add( 'bbp_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics!', 'bbpress' ) );
-
-		if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
-			$bbp->errors->add( 'bbp_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in this forum!', 'bbpress' ) );
+			if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
+				$bbp->errors->add( 'bbp_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in this forum!', 'bbpress' ) );
+		}
 
 		// Check for flood
 		if ( !bbp_check_for_flood( $anonymous_data, $topic_author ) )
 			$bbp->errors->add( 'bbp_topic_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 
+		// Check for duplicate
+		if ( !bbp_check_for_duplicate( array( 'post_type' => $bbp->topic_id, 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) )
+			$bbp->errors->add( 'bbp_topic_duplicate', __( '<strong>ERROR</strong>: Duplicate topic detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
+
 		// Handle Tags
-		if ( isset( $_POST['bbp_topic_tags'] ) && !empty( $_POST['bbp_topic_tags'] ) ) {
+		if ( !empty( $_POST['bbp_topic_tags'] ) ) {
 			// Escape tag input
 			$terms = esc_html( $_POST['bbp_topic_tags'] );
 
@@ -567,50 +572,48 @@ function bbp_edit_topic_handler() {
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-edit-topic' === $_POST['action'] ) {
 		global $bbp;
 
-		if ( !$topic_id = (int) $_POST['bbp_topic_id'] )
+		if ( !$topic_id = (int) $_POST['bbp_topic_id'] ) {
 			$bbp->errors->add( 'bbp_edit_topic_id', __( '<strong>ERROR</strong>: Topic ID not found!', 'bbpress' ) );
-
-		if ( !$topic = get_post( $topic_id ) )
+		} elseif ( !$topic = get_post( $topic_id ) ) {
 			$bbp->errors->add( 'bbp_edit_topic_not_found', __( '<strong>ERROR</strong>: The topic you want to edit was not found!', 'bbpress' ) );
-
-		// Nonce check
-		check_admin_referer( 'bbp-edit-topic_' . $topic_id );
-
-		// Check users ability to create new topic
-		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
-			if ( !current_user_can( 'edit_topic', $topic_id ) )
-				$bbp->errors->add( 'bbp_edit_topic_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that topic!', 'bbpress' ) );
-
-			$anonymous_data = false;
-
-		// It is an anonymous post
 		} else {
-			$anonymous_data = bbp_filter_anonymous_post_data( array(), true ); // Filter anonymous data
+			// Nonce check
+			check_admin_referer( 'bbp-edit-topic_' . $topic_id );
+
+			// Check users ability to create new topic
+			if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+				if ( !current_user_can( 'edit_topic', $topic_id ) )
+					$bbp->errors->add( 'bbp_edit_topic_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that topic!', 'bbpress' ) );
+
+				$anonymous_data = false;
+
+			// It is an anonymous post
+			} else {
+				$anonymous_data = bbp_filter_anonymous_post_data( array(), true ); // Filter anonymous data
+			}
 		}
 
-		// Handle Forum ID to append topic to
-		if ( isset( $_POST['bbp_forum_id'] ) )
-			if ( !$forum_id = $_POST['bbp_forum_id'] )
-				$bbp->errors->add( 'bbp_edit_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+		// Handle Forum id to append topic to
+		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] ) {
+			$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+		} elseif ( $forum_id != $topic->post_parent ) {
+			if ( bbp_is_forum_category( $forum_id ) )
+				$bbp->errors->add( 'bbp_edit_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum!', 'bbpress' ) );
 
-		if ( bbp_is_forum_category( $forum_id ) )
-			$bbp->errors->add( 'bbp_edit_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum!', 'bbpress' ) );
+			if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
+				$bbp->errors->add( 'bbp_edit_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics!', 'bbpress' ) );
 
-		if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
-			$bbp->errors->add( 'bbp_edit_topic_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics!', 'bbpress' ) );
-
-		if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
-			$bbp->errors->add( 'bbp_edit_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in this forum!', 'bbpress' ) );
+			if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
+				$bbp->errors->add( 'bbp_edit_topic_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new topics in this forum!', 'bbpress' ) );
+		}
 
 		// Handle Title
-		if ( isset( $_POST['bbp_topic_title'] ) )
-			if ( !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
-				$bbp->errors->add( 'bbp_edit_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_topic_title'] ) || !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
+			$bbp->errors->add( 'bbp_edit_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
 		// Handle Content
-		if ( isset( $_POST['bbp_topic_content'] ) )
-			if ( !$topic_content = ( !bbp_is_topic_anonymous( $topic_id ) && author_can( $topic->post_author, 'unfiltered_html' ) ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
-				$bbp->errors->add( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
+		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = ( !bbp_is_topic_anonymous( $topic_id ) && author_can( $topic->post_author, 'unfiltered_html' ) ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
+			$bbp->errors->add( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
@@ -803,6 +806,58 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
 }
 
 /**
+ * Check for duplicate topics/replies
+ *
+ * Check to make sure that a user is not making a duplicate post
+ *
+ * @since bbPress (r2763)
+ *
+ * @param array $post_data Contains information about the comment
+ * @uses current_user_can() To check if the current user can throttle
+ * @uses _get_meta_sql() To generate the meta sql for checking anonymous email
+ * @uses apply_filters() Calls 'bbp_check_for_duplicate_query' with the
+ *                        duplicate check query and post data
+ * @uses wpdb::get_var() To execute our query and get the var back
+ * @uses get_post_meta() To get the anonymous user email post meta
+ * @uses do_action() Calls 'bbp_post_duplicate_trigger' with the post data when
+ *                    it is found that it is a duplicate
+ * @return bool True if it is not a duplicate, false if it is
+ */
+function bbp_check_for_duplicate( $post_data ) {
+
+	// No duplicate checks for those who can throttle
+	if ( current_user_can( 'throttle' ) )
+		return true;
+
+	global $bbp, $wpdb;
+
+	extract( $post_data, EXTR_SKIP );
+
+	// Check for anonymous post
+	if ( empty( $post_author ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) {
+		$clauses = _get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
+		$join    = $clauses['join'];
+		$where   = $clauses['where'];
+	} else{
+		$join    = $where = '';
+	}
+
+	// Simple duplicate check
+	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
+	$dupe  = "SELECT ID FROM $wpdb->posts $join WHERE post_type = '$post_type' AND post_status != '$bbp->trash_status_id' AND post_author = $post_author AND post_content = '$post_content' $where";
+	$dupe .= !empty( $post_parent ) ? " AND post_parent = '$post_parent'" : '';
+	$dupe .= " LIMIT 1";
+	$dupe  = apply_filters( 'bbp_check_for_duplicate_query', $dupe, $post_data );
+
+	if ( $wpdb->get_var( $dupe ) ) {
+		do_action( 'bbp_check_for_duplicate_trigger', $post_data );
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Check for flooding
  *
  * Check to make sure that a user is not making too many posts in a short amount
@@ -821,6 +876,7 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
  * @uses get_option() To get the throttle time
  * @uses get_transient() To get the last posted transient of the ip
  * @uses get_user_meta() To get the last posted meta of the user
+ * @uses current_user_can() To check if the current user can throttle
  * @return bool True if there is no flooding, true if there is
  */
 function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {

@@ -255,14 +255,16 @@ function bbp_reply_url( $reply_id = 0 ) {
 			$topic_replies += bbp_get_topic_hidden_reply_count( $topic_id );
 		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
 
+		$reply_hash    = !empty( $bbp->errors ) ? "#reply-{$reply_id}" : '';
+
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
-			$url = untrailingslashit( $topic_url ) . "/#reply-{$reply_id}";
+			$url = trailingslashit( $topic_url ) . $reply_hash;
 		} else {
 			if ( $wp_rewrite->using_permalinks() ) {
-				$url = trailingslashit( $topic_url ) . "page/{$reply_page}/#reply-{$reply_id}";
+				$url = trailingslashit( $topic_url ) . trailingslashit( "page/{$reply_page}" ) . $reply_hash;
 			} else {
-				$url = add_query_arg( 'paged', $reply_page, $topic_url ) . '#reply-' . $reply_id;
+				$url = add_query_arg( 'paged', $reply_page, $topic_url ) . $reply_hash;
 			}
 		}
 

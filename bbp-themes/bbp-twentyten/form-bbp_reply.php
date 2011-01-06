@@ -24,6 +24,8 @@
 
 					<?php endif; ?>
 
+					<?php do_action( 'bbp_template_notices' ); ?>
+
 					<div class="alignleft">
 
 						<?php bbp_is_reply_edit() ? bbp_reply_author_avatar( bbp_get_reply_id(), 80 ) : bbp_current_user_avatar( 80 ); ?>
