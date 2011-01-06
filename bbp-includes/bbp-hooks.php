@@ -104,8 +104,8 @@ add_action( 'bbp_new_topic',     'bbp_new_topic_update_topic', 10, 5 );
 add_action( 'bbp_edit_topic',    'bbp_new_topic_update_topic', 10, 5 );
 
 // Split/Merge Topic
-//add_action( 'template_redirect',    'bbp_merge_topic_handler', 1    );
-//add_action( 'template_redirect',    'bbp_split_topic_handler', 1    );
+add_action( 'template_redirect',    'bbp_merge_topic_handler', 1    );
+add_action( 'template_redirect',    'bbp_split_topic_handler', 1    );
 add_action( 'bbp_merged_topic',     'bbp_merge_topic_count',   1, 3 );
 add_action( 'bbp_post_split_topic', 'bbp_split_topic_count',   1, 3 );
 
@@ -123,6 +123,10 @@ add_action( 'template_redirect', 'bbp_subscriptions_handler',              1    
 add_action( 'trash_post',        'bbp_remove_topic_from_all_subscriptions'      );
 add_action( 'delete_post',       'bbp_remove_topic_from_all_subscriptions'      );
 add_action( 'bbp_new_reply',     'bbp_notify_subscribers',                 1, 1 );
+
+// Sticky
+add_action( 'trash_post',  'bbp_unstick_topic' );
+add_action( 'delete_post', 'bbp_unstick_topic' );
 
 // Update forum topic counts
 add_action( 'trashed_post',        'bbp_update_forum_topic_count' );

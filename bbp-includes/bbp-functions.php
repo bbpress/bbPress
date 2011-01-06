@@ -845,6 +845,412 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 }
 
 /**
+ * Merge topic handler
+ *
+ * Handles the front end merge topic submission
+ *
+ * @since bbPress (r2755)
+ *
+ * @uses bbPress:errors::add() To log various error messages
+ * @uses get_post() To get the topics
+ * @uses check_admin_referer() To verify the nonce and check the referer
+ * @uses current_user_can() To check if the current user can edit the topics
+ * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
+ * @uses do_action() Calls 'bbp_merge_topic' with the destination and source
+ *                    topic ids
+ * @uses bbp_get_topic_subscribers() To get the source topic subscribers
+ * @uses bbp_add_user_subscription() To add the user subscription
+ * @uses bbp_remove_user_subscription() To remove the user subscription
+ * @uses bbp_get_topic_favoriters() To get the source topic favoriters
+ * @uses bbp_add_user_favorite() To add the user favorite
+ * @uses bbp_remove_user_favorite() To remove the user favorite
+ * @uses wp_get_post_terms() To get the source topic tags
+ * @uses wp_set_post_terms() To set the topic tags
+ * @uses wp_delete_object_term_relationships() To delete the topic tags
+ * @uses bbp_open_topic() To open the topic
+ * @uses bbp_unstick_topic() To unstick the topic
+ * @uses get_posts() To get the replies
+ * @uses wp_update_post() To update the topic
+ * @uses do_action() Calls 'bbp_merged_topic' with the destination and source
+ *                    topic ids and source topic's forum id
+ * @uses bbp_get_topic_permalink() To get the topic permalink
+ * @uses wp_redirect() To redirect to the topic link
+ */
+function bbp_merge_topic_handler() {
+	// Only proceed if POST is an merge topic request
+	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-merge-topic' === $_POST['action'] ) {
+		global $bbp;
+
+		if ( !$source_topic_id = (int) $_POST['bbp_topic_id'] )
+			$bbp->errors->add( 'bbp_merge_topic_source_id', __( '<strong>ERROR</strong>: Topic ID not found!', 'bbpress' ) );
+
+		// Nonce check
+		check_admin_referer( 'bbp-merge-topic_' . $source_topic_id );
+
+		if ( !$source_topic = get_post( $source_topic_id ) )
+			$bbp->errors->add( 'bbp_merge_topic_source_not_found', __( '<strong>ERROR</strong>: The topic you want to merge was not found!', 'bbpress' ) );
+
+		if ( !current_user_can( 'edit_topic', $source_topic->ID ) )
+			$bbp->errors->add( 'bbp_merge_topic_source_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the source topic!', 'bbpress' ) );
+
+		if ( !$destination_topic_id = (int) $_POST['bbp_destination_topic'] )
+			$bbp->errors->add( 'bbp_merge_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
+
+		if ( !$destination_topic = get_post( $destination_topic_id ) )
+			$bbp->errors->add( 'bbp_merge_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to merge to was not found!', 'bbpress' ) );
+
+		if ( !current_user_can( 'edit_topic', $destination_topic->ID ) )
+			$bbp->errors->add( 'bbp_merge_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic!', 'bbpress' ) );
+
+		// Handle the merge
+		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+
+			// Update counts, etc...
+			do_action( 'bbp_merge_topic', $destination_topic->ID, $source_topic->ID );
+
+			// Remove the topic from everybody's subscriptions
+			$subscribers = bbp_get_topic_subscribers( $source_topic->ID );
+			foreach ( (array) $subscribers as $subscriber ) {
+
+				// Shift the subscriber if told to
+				if ( !empty( $_POST['bbp_topic_subscribers'] ) && 1 == $_POST['bbp_topic_subscribers'] && bbp_is_subscriptions_active() )
+					bbp_add_user_subscription( $subscriber, $destination_topic->ID );
+
+				bbp_remove_user_subscription( $subscriber, $source_topic->ID );
+			}
+
+			// Remove the topic from everybody's favorites
+			$favoriters = bbp_get_topic_favoriters( $source_topic->ID );
+			foreach ( (array) $favoriters as $favoriter ) {
+
+				// Shift the favoriter if told to
+				if ( !empty( $_POST['bbp_topic_favoriters'] ) && 1 == $_POST['bbp_topic_favoriters'] )
+					bbp_add_user_favorite( $favoriter, $destination_topic->ID );
+
+				bbp_remove_user_favorite( $favoriter, $source_topic->ID );
+			}
+
+			// Get the source topic tags
+			$source_topic_tags = wp_get_post_terms( $source_topic->ID, $bbp->topic_tag_id, array( 'fields' => 'names' ) );
+			if ( !empty( $source_topic_tags ) && !is_wp_error( $source_topic_tags ) ) {
+
+				// Shift the tags if told to
+				if ( !empty( $_POST['bbp_topic_tags'] ) && 1 == $_POST['bbp_topic_tags'] )
+					wp_set_post_terms( $destination_topic->ID, $source_topic_tags, $bbp->topic_tag_id, true );
+
+				// Delete the tags from the source topic
+				wp_delete_object_term_relationships( $source_topic->ID, $bbp->topic_tag_id );
+			}
+
+			// Attempt to revert the closed/sticky status
+			bbp_open_topic   ( $source_topic->ID );
+			bbp_unstick_topic( $source_topic->ID );
+
+			// Get the replies of the source topic
+			$replies = (array) get_posts( array( 'post_parent' => $source_topic->ID, 'post_type' => $bbp->reply_id, 'posts_per_page' => -1, 'order' => 'ASC' ) );
+
+			// Prepend the source topic to its replies array for processing
+			array_unshift( $replies, $source_topic );
+
+			// Change the post_parent of each reply to the destination topic id
+			foreach ( $replies as $reply ) {
+				$postarr = array(
+					'ID'          => $reply->ID,
+					'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+					'post_name'   => false, // will be automatically generated
+					'post_type'   => $bbp->reply_id,
+					'post_parent' => $destination_topic->ID,
+					'guid'        => '' // @todo Make this work somehow
+				);
+
+				wp_update_post( $postarr );
+			}
+
+			// And we're done! ;)
+			// Whew! Run the action and redirect!
+
+			// Update counts, etc...
+			// We sent the post parent of the source topic because the source topic has been actually shifted (and might be to a new forum), so we need to update the counts of the old forum too!
+			do_action( 'bbp_merged_topic', $destination_topic->ID, $source_topic->ID, $source_topic->post_parent );
+
+			// Redirect back to new topic
+			wp_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
+
+			// For good measure
+			exit();
+		}
+	}
+}
+
+/**
+ * Fix counts on topic merge
+ *
+ * When a topic is merged, update the counts of source and destination topic
+ * and their forums.
+ *
+ * @since bbPress (r2755)
+ *
+ * @param int $destination_topic_id Destination topic id
+ * @param int $source_topic_id Source topic id
+ * @param int $source_topic_forum Source topic's forum id
+ * @uses bbp_update_forum_topic_count() To update the forum topic counts
+ * @uses bbp_update_forum_reply_count() To update the forum reply counts
+ * @uses bbp_update_forum_voice_count() To update the forum voice counts
+ * @uses bbp_update_topic_reply_count() To update the topic reply counts
+ * @uses bbp_update_topic_voice_count() To update the topic voice counts
+ * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
+ *                                              count
+ * @uses do_action() Calls 'bbp_merge_topic_count' with the destination topic
+ *                    id, source topic id & source topic forum id
+ */
+function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source_topic_forum_id ) {
+
+	// Forum Topic Counts
+	bbp_update_forum_topic_count( $source_topic_forum_id );
+	bbp_update_forum_topic_count( $destination_topic_id  );
+
+	// Forum Reply Counts
+	bbp_update_forum_reply_count( $source_topic_forum_id );
+	bbp_update_forum_reply_count( $destination_topic_id  );
+
+	// Forum Voice Counts
+	bbp_update_forum_voice_count( $source_topic_forum_id );
+	bbp_update_forum_voice_count( $destination_topic_id  );
+
+	// Topic Reply Counts
+	bbp_update_topic_reply_count( $destination_topic_id );
+
+	// Topic Hidden Reply Counts
+	bbp_update_topic_hidden_reply_count( $destination_topic_id );
+
+	// Topic Voice Counts
+	bbp_update_topic_voice_count( $destination_topic_id );
+
+	do_action( 'bbp_merge_topic_count', $destination_topic_id, $source_topic_id, $source_topic_forum_id );
+}
+
+/**
+ * Split topic handler
+ *
+ * Handles the front end split topic submission
+ *
+ * @since bbPress (r2755)
+ *
+ * @uses bbPress:errors::add() To log various error messages
+ * @uses get_post() To get the reply and topics
+ * @uses check_admin_referer() To verify the nonce and check the referer
+ * @uses current_user_can() To check if the current user can edit the topics
+ * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
+ * @uses do_action() Calls 'bbp_pre_split_topic' with the from reply id, source
+ *                    and destination topic ids
+ * @uses bbp_get_topic_subscribers() To get the source topic subscribers
+ * @uses bbp_add_user_subscription() To add the user subscription
+ * @uses bbp_get_topic_favoriters() To get the source topic favoriters
+ * @uses bbp_add_user_favorite() To add the user favorite
+ * @uses wp_get_post_terms() To get the source topic tags
+ * @uses wp_set_post_terms() To set the topic tags
+ * @uses wpdb::prepare() To prepare our sql query
+ * @uses wpdb::get_results() To execute the sql query and get results
+ * @uses wp_update_post() To update the replies
+ * @uses bbp_update_topic_last_reply_id() To update the topic last reply id
+ * @uses bbp_update_topic_last_active() To update the topic last active meta
+ * @uses do_action() Calls 'bbp_post_split_topic' with the destination and
+ *                    source topic ids and source topic's forum id
+ * @uses bbp_get_topic_permalink() To get the topic permalink
+ * @uses wp_redirect() To redirect to the topic link
+ */
+function bbp_split_topic_handler() {
+	// Only proceed if POST is an split topic request
+	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-split-topic' === $_POST['action'] ) {
+		global $wpdb, $bbp;
+
+		if ( !$from_reply_id = (int) $_POST['bbp_reply_id'] )
+			$bbp->errors->add( 'bbp_split_topic_reply_id', __( '<strong>ERROR</strong>: Reply ID to split the topic from not found!', 'bbpress' ) );
+
+		if ( !$from_reply = get_post( $from_reply_id ) )
+			$bbp->errors->add( 'bbp_split_topic_r_not_found', __( '<strong>ERROR</strong>: The reply you want to split from was not found!', 'bbpress' ) );
+
+		if ( !$source_topic = get_post( $from_reply->post_parent ) )
+			$bbp->errors->add( 'bbp_split_topic_source_not_found', __( '<strong>ERROR</strong>: The topic you want to split was not found!', 'bbpress' ) );
+
+		// Nonce check
+		check_admin_referer( 'bbp-split-topic_' . $source_topic->ID );
+
+		if ( !current_user_can( 'edit_topic', $source_topic->ID ) )
+			$bbp->errors->add( 'bbp_split_topic_source_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the source topic!', 'bbpress' ) );
+
+		$split_option = !empty( $_POST['bbp_topic_split_option'] ) ? (string) trim( $_POST['bbp_topic_split_option'] ) : false;
+		if ( empty( $split_option ) || !in_array( $split_option, array( 'existing', 'reply' ) ) )
+			$bbp->errors->add( 'bbp_split_topic_option', __( '<strong>ERROR</strong>: You need to choose a valid split option!', 'bbpress' ) );
+
+		switch ( $split_option ) {
+			case 'existing' :
+				if ( !$destination_topic_id = (int) $_POST['bbp_destination_topic'] )
+					$bbp->errors->add( 'bbp_split_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
+
+				if ( !$destination_topic = get_post( $destination_topic_id ) )
+					$bbp->errors->add( 'bbp_split_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to split to was not found!', 'bbpress' ) );
+
+				if ( !current_user_can( 'edit_topic', $destination_topic->ID ) )
+					$bbp->errors->add( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to edit the destination topic!', 'bbpress' ) );
+
+				break;
+
+			case 'reply' :
+			default :
+				if ( current_user_can( 'publish_topics' ) ) {
+
+					if ( !$destination_topic_title = esc_attr( strip_tags( $_POST['bbp_topic_split_destination_title'] ) ) )
+						$destination_topic_title = $source_topic->post_title;
+
+					$postarr = array(
+						'ID'          => $from_reply->ID,
+						'post_title'  => $destination_topic_title,
+						'post_name'   => false, // will be automatically generated
+						'post_type'   => $bbp->topic_id,
+						'post_parent' => $source_topic->post_parent,
+						'guid'        => '' // @todo Make this work somehow
+					);
+
+					$destination_topic_id = wp_update_post( $postarr );
+
+					// Shouldn't happen
+					if ( false == $destination_topic_id || is_wp_error( $destination_topic_id ) || !$destination_topic = get_post( $destination_topic_id ) )
+						$bbp->errors->add( 'bbp_split_topic_destination_reply', __( '<strong>ERROR</strong>: There was a problem converting the reply into the topic, please try again!', 'bbpress' ) );
+
+				} else {
+					$bbp->errors->add( 'bbp_split_topic_destination_permission', __( '<strong>ERROR</strong>: You do not have the permissions to create new topics and hence the reply could not be converted into a topic!', 'bbpress' ) );
+				}
+
+				break;
+		}
+
+		// We should have the from reply, source topic & destination topic by now.
+
+		// Handle the split
+		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+
+			// Update counts, etc...
+			do_action( 'bbp_pre_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
+
+			// Copy the subscribers if told to
+			if ( !empty( $_POST['bbp_topic_subscribers'] ) && 1 == $_POST['bbp_topic_subscribers'] && bbp_is_subscriptions_active() ) {
+				$subscribers = bbp_get_topic_subscribers( $source_topic->ID );
+
+				foreach ( (array) $subscribers as $subscriber ) {
+					bbp_add_user_subscription( $subscriber, $destination_topic->ID );
+				}
+			}
+
+			// Copy the favoriters if told to
+			if ( !empty( $_POST['bbp_topic_favoriters'] ) && 1 == $_POST['bbp_topic_favoriters'] ) {
+				$favoriters = bbp_get_topic_favoriters( $source_topic->ID );
+
+				foreach ( (array) $favoriters as $favoriter ) {
+					bbp_add_user_favorite( $favoriter, $destination_topic->ID );
+				}
+			}
+
+			// Copy the tags if told to
+			if ( !empty( $_POST['bbp_topic_tags'] ) && 1 == $_POST['bbp_topic_tags'] ) {
+				// Get the source topic tags
+				$source_topic_tags = wp_get_post_terms( $source_topic->ID, $bbp->topic_tag_id, array( 'fields' => 'names' ) );
+
+				wp_set_post_terms( $destination_topic->ID, $source_topic_tags, $bbp->topic_tag_id, true );
+			}
+
+			// Get the replies of the source topic
+			// get_posts() is not used because it doesn't allow us to use '>=' comparision without a filter
+			$replies = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_date >= %s AND $wpdb->posts.post_parent = %d AND $wpdb->posts.post_type = %s ORDER BY $wpdb->posts.post_date ASC", $from_reply->post_date, $source_topic->ID, $bbp->reply_id ) );
+
+			// Change the post_parent of each reply to the destination topic id
+			foreach ( $replies as $reply ) {
+				$postarr = array(
+					'ID'          => $reply->ID,
+					'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
+					'post_name'   => false, // will be automatically generated
+					'post_parent' => $destination_topic->ID,
+					'guid'        => '' // @todo Make this work somehow
+				);
+
+				wp_update_post( $postarr );
+			}
+
+			// It is a new topic and we need to set some default metas to make the topic display in bbp_has_topics() list
+			if ( 'reply' == $split_option ) {
+				$last_reply_id = ( empty( $reply ) || empty( $reply->ID        ) ) ? 0  : $reply->ID;
+				$freshness     = ( empty( $reply ) || empty( $reply->post_date ) ) ? '' : $reply->post_date;
+
+				bbp_update_topic_last_reply_id( $destination_topic->ID, $last_reply_id );
+				bbp_update_topic_last_active  ( $destination_topic->ID, $freshness     );
+			}
+
+			// And we're done! ;)
+			// Whew! Run the action and redirect!
+
+			// Update counts, etc...
+			do_action( 'bbp_post_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
+
+			// Redirect back to the topic
+			wp_redirect( bbp_get_topic_permalink( $destination_topic->ID ) );
+
+			// For good measure
+			exit();
+		}
+	}
+}
+
+/**
+ * Fix counts on topic split
+ *
+ * When a topic is split, update the counts of source and destination topic
+ * and their forums.
+ *
+ * @since bbPress (r2755)
+ *
+ * @param int $from_reply_id From reply id
+ * @param int $source_topic_id Source topic id
+ * @param int $destination_topic_id Destination topic id
+ * @uses bbp_update_forum_topic_count() To update the forum topic counts
+ * @uses bbp_update_forum_reply_count() To update the forum reply counts
+ * @uses bbp_update_forum_voice_count() To update the forum voice counts
+ * @uses bbp_update_topic_reply_count() To update the topic reply counts
+ * @uses bbp_update_topic_voice_count() To update the topic voice counts
+ * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
+ *                                              count
+ * @uses do_action() Calls 'bbp_split_topic_count' with the from reply id,
+ *                    source topic id & destination topic id
+ */
+function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_topic_id ) {
+
+	// Forum Topic Counts
+	bbp_update_forum_topic_count( $source_topic_id      );
+	bbp_update_forum_topic_count( $destination_topic_id );
+
+	// Forum Reply Counts
+	bbp_update_forum_reply_count( $source_topic_id      );
+	bbp_update_forum_reply_count( $destination_topic_id );
+
+	// Forum Voice Counts
+	bbp_update_forum_voice_count( $source_topic_id      );
+	bbp_update_forum_voice_count( $destination_topic_id );
+
+	// Topic Reply Counts
+	bbp_update_topic_reply_count( $source_topic_id      );
+	bbp_update_topic_reply_count( $destination_topic_id );
+
+	// Topic Hidden Reply Counts
+	bbp_update_topic_hidden_reply_count( $source_topic_id      );
+	bbp_update_topic_hidden_reply_count( $destination_topic_id );
+
+	// Topic Voice Counts
+	bbp_update_topic_voice_count( $source_topic_id      );
+	bbp_update_topic_voice_count( $destination_topic_id );
+
+	do_action( 'bbp_split_topic_count', $from_reply_id, $source_topic_id, $destination_topic_id );
+}
+
+/**
  * Handles the front end user editing
  *
  * @uses is_multisite() To check if it's a multisite

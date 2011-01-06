@@ -101,6 +101,37 @@ function bbp_is_topic_edit() {
 	return false;
 }
 
+/**
+ * Check if current page is a topic merge page
+ *
+ * @since bbPress (r2755)
+ *
+ * @uses bbp_is_topic_edit() To check if it's a topic edit page
+ * @return bool
+ */
+function bbp_is_topic_merge() {
+
+	if ( bbp_is_topic_edit() && !empty( $_GET['action'] ) && 'merge' == $_GET['action'] )
+		return true;
+
+	return false;
+}
+
+/**
+ * Check if current page is a topic split page
+ *
+ * @since bbPress (r2755)
+ *
+ * @uses bbp_is_topic_edit() To check if it's a topic edit page
+ * @return bool
+ */
+function bbp_is_topic_split() {
+
+	if ( bbp_is_topic_edit() && !empty( $_GET['action'] ) && 'split' == $_GET['action'] )
+		return true;
+
+	return false;
+}
 
 /**
  * Check if current page is a bbPress reply
@@ -494,6 +525,44 @@ function bbp_edit_user_form_fields() { ?>
 	<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() );
 }
 
+/**
+ * Merge topic form fields
+ *
+ * Output the required hidden fields when merging a topic
+ *
+ * @since bbPress (r2755)
+ *
+ * @uses wp_nonce_field() To generate a hidden nonce field
+ * @uses bbp_topic_id() To output the topic id
+ */
+function bbp_merge_topic_form_fields() {
+
+	?>
+
+	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-merge-topic" />
+	<input type="hidden" name="bbp_topic_id" id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
+
+	<?php wp_nonce_field( 'bbp-merge-topic_' . bbp_get_topic_id() );
+}
+
+/**
+ * Split topic form fields
+ *
+ * Output the required hidden fields when splitting a topic
+ *
+ * @since bbPress (r2755)
+ *
+ * @uses wp_nonce_field() To generete a hidden nonce field
+ */
+function bbp_split_topic_form_fields() {
+
+	?>
+
+	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-split-topic" />
+	<input type="hidden" name="bbp_reply_id" id="bbp_reply_id"    value="<?php echo absint( $_GET['reply_id'] ); ?>" />
+
+	<?php wp_nonce_field( 'bbp-split-topic_' . bbp_get_topic_id() );
+}
 
 /** END Form Functions ********************************************************/
 

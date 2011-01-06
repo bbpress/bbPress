@@ -1292,6 +1292,7 @@ function bbp_topic_admin_links( $args = '' ) {
 				'trash' => bbp_get_topic_trash_link( $r ),
 				'close' => bbp_get_topic_close_link( $r ),
 				'stick' => bbp_get_topic_stick_link( $r ),
+				'merge' => bbp_get_topic_merge_link( $r ),
 				'spam'  => bbp_get_topic_spam_link ( $r ),
 			);
 		}
@@ -1554,7 +1555,7 @@ function bbp_topic_close_link( $args = '' ) {
 /**
  * Output the stick link of the topic
  *
- * @since bbPress (r2745)
+ * @since bbPress (r2754)
  *
  * @param mixed $args See {@link bbp_get_topic_stick_link()}
  * @uses bbp_get_topic_stick_link() To get the topic stick link
@@ -1566,7 +1567,7 @@ function bbp_topic_stick_link( $args = '' ) {
 	/**
 	 * Return the stick link of the topic
 	 *
-	 * @since bbPress (r2745)
+	 * @since bbPress (r2754)
 	 *
 	 * @param mixed $args This function supports these args:
 	 *  - id: Optional. Topic id
@@ -1623,6 +1624,51 @@ function bbp_topic_stick_link( $args = '' ) {
 		}
 
 		return apply_filters( 'bbp_get_topic_stick_link', $link_before . $stick_display . $super_display . $link_after, $args );
+	}
+
+/**
+ * Output the merge link of the topic
+ *
+ * @since bbPress (r2755)
+ *
+ * @param mixed $args
+ * @uses bbp_get_topic_merge_link() To get the topic merge link
+ */
+function bbp_topic_merge_link( $args = '' ) {
+	echo bbp_get_topic_merge_link( $args );
+}
+
+	/**
+	 * Return the merge link of the topic
+	 *
+	 * @since bbPress (r2755)
+	 *
+	 * @param mixed $args This function supports these args:
+	 *  - id: Optional. Topic id
+	 *  - link_before: Before the link
+	 *  - link_after: After the link
+	 *  - merge_text: Merge text
+	 * @uses bbp_get_topic_edit_url() To get the topic edit url
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses esc_url() To escape the url
+	 * @uses apply_filters() Calls 'bbp_get_topic_merge_link' with the link
+	 *                        and args
+	 * @return string Topic merge link
+	 */
+	function bbp_get_topic_merge_link( $args = '' ) {
+		$defaults = array (
+			'id'           => 0,
+			'link_before'  => '',
+			'link_after'   => '',
+			'merge_text'    => __( 'Merge', 'bbpress' ),
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$uri = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $id ) ) );
+
+		return apply_filters( 'bbp_get_topic_merge_link', $link_before . '<a href="' . $uri . '">' . $merge_text . '</a>' . $link_after, $args );
 	}
 
 /**

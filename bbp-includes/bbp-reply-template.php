@@ -819,13 +819,14 @@ function bbp_reply_admin_links( $args = '' ) {
 	 *  - after: HTML after the links. Defaults to '</span>'
 	 *  - sep: Separator. Defaults to ' | '
 	 *  - links: Array of the links to display. By default, edit, trash,
-	 *            spam links are displayed
+	 *            spam and topic split links are displayed
 	 * @uses bbp_is_topic() To check if it's the topic page
 	 * @uses bbp_is_reply() To check if it's the reply page
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_edit_link() To get the reply edit link
 	 * @uses bbp_get_reply_trash_link() To get the reply trash link
 	 * @uses bbp_get_reply_spam_link() To get the reply spam link
+	 * @uses bbp_get_topic_split_link() To get the topic split link
 	 * @uses current_user_can() To check if the current user can edit or
 	 *                           delete the reply
 	 * @uses apply_filters() Calls 'bbp_get_reply_admin_links' with the
@@ -857,7 +858,8 @@ function bbp_reply_admin_links( $args = '' ) {
 			$r['links'] = array (
 				'edit'  => bbp_get_reply_edit_link ( $r ),
 				'trash' => bbp_get_reply_trash_link( $r ),
-				'spam'  => bbp_get_reply_spam_link ( $r )
+				'spam'  => bbp_get_reply_spam_link ( $r ),
+				'split' => bbp_get_topic_split_link( $r )
 			);
 		}
 
@@ -1110,6 +1112,68 @@ function bbp_reply_spam_link( $args = '' ) {
 		$uri = esc_url( wp_nonce_url( $uri, 'spam-reply_' . $reply->ID ) );
 
 		return apply_filters( 'bbp_get_reply_spam_link', $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after, $args );
+	}
+
+/**
+ * Split topic link
+ *
+ * Output the split link of the topic (but is bundled with each topic)
+ *
+ * @since bbPress (r2755)
+ *
+ * @param mixed $args See {@link bbp_get_topic_split_link()}
+ * @uses bbp_get_topic_split_link() To get the topic split link
+ */
+function bbp_topic_split_link( $args = '' ) {
+	echo bbp_get_topic_split_link( $args );
+}
+
+	/**
+	 * Get split topic link
+	 *
+	 * Return the split link of the topic (but is bundled with each reply)
+	 *
+	 * @since bbPress (r2755)
+	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Reply id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - split_text: Split text
+	 *  - split_title: Split title attribute
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses get_post() To get the reply
+	 * @uses current_user_can() To check if the current user can edit the
+	 *                           topic
+	 * @uses bbp_get_reply_topic_id() To get the reply topic id
+	 * @uses bbp_get_topic_edit_url() To get the topic edit url
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses esc_url() To escape the url
+	 * @uses apply_filters() Calls 'bbp_get_topic_split_link' with the topic
+	 *                        split link and args
+	 * @return string Reply spam link
+	 */
+	function bbp_get_topic_split_link( $args = '' ) {
+		$defaults = array (
+			'id'          => 0,
+			'link_before' => '',
+			'link_after'  => '',
+			'split_text'  => __( 'Split',                           'bbpress' ),
+			'split_title' => __( 'Split the topic from this reply', 'bbpress' )
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		$reply = get_post( bbp_get_reply_id( (int) $id ) );
+
+		if ( empty( $reply ) || !current_user_can( 'edit_topic', $reply->post_parent ) )
+			return;
+
+		$uri = esc_url( add_query_arg( array( 'action' => 'split', 'reply_id' => $reply->ID ), bbp_get_topic_edit_url( bbp_get_reply_topic_id( $reply->ID ) ) ) );
+
+		return apply_filters( 'bbp_get_topic_split_link', $link_before . '<a href="' . $uri . '" title="' . esc_attr( $split_title ) . '">' . $split_text . '</a>' . $link_after, $args );
 	}
 
 /**
