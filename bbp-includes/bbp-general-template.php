@@ -104,7 +104,7 @@ function bbp_is_topic_edit() {
 /**
  * Check if current page is a topic merge page
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @uses bbp_is_topic_edit() To check if it's a topic edit page
  * @return bool
@@ -120,7 +120,7 @@ function bbp_is_topic_merge() {
 /**
  * Check if current page is a topic split page
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @uses bbp_is_topic_edit() To check if it's a topic edit page
  * @return bool
@@ -530,7 +530,7 @@ function bbp_edit_user_form_fields() { ?>
  *
  * Output the required hidden fields when merging a topic
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @uses wp_nonce_field() To generate a hidden nonce field
  * @uses bbp_topic_id() To output the topic id
@@ -550,7 +550,7 @@ function bbp_merge_topic_form_fields() {
  *
  * Output the required hidden fields when splitting a topic
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @uses wp_nonce_field() To generete a hidden nonce field
  */

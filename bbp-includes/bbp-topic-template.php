@@ -1629,7 +1629,7 @@ function bbp_topic_stick_link( $args = '' ) {
 /**
  * Output the merge link of the topic
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @param mixed $args
  * @uses bbp_get_topic_merge_link() To get the topic merge link
@@ -1641,7 +1641,7 @@ function bbp_topic_merge_link( $args = '' ) {
 	/**
 	 * Return the merge link of the topic
 	 *
-	 * @since bbPress (r2755)
+	 * @since bbPress (r2756)
 	 *
 	 * @param mixed $args This function supports these args:
 	 *  - id: Optional. Topic id

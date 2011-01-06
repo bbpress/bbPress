@@ -1119,7 +1119,7 @@ function bbp_reply_spam_link( $args = '' ) {
  *
  * Output the split link of the topic (but is bundled with each topic)
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @param mixed $args See {@link bbp_get_topic_split_link()}
  * @uses bbp_get_topic_split_link() To get the topic split link
@@ -1133,7 +1133,7 @@ function bbp_topic_split_link( $args = '' ) {
 	 *
 	 * Return the split link of the topic (but is bundled with each reply)
 	 *
-	 * @since bbPress (r2755)
+	 * @since bbPress (r2756)
 	 *
 	 * @param mixed $args This function supports these arguments:
 	 *  - id: Reply id

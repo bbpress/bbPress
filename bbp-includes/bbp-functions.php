@@ -849,7 +849,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  *
  * Handles the front end merge topic submission
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @uses bbPress:errors::add() To log various error messages
  * @uses get_post() To get the topics
@@ -988,7 +988,7 @@ function bbp_merge_topic_handler() {
  * When a topic is merged, update the counts of source and destination topic
  * and their forums.
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @param int $destination_topic_id Destination topic id
  * @param int $source_topic_id Source topic id
@@ -1034,7 +1034,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  *
  * Handles the front end split topic submission
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @uses bbPress:errors::add() To log various error messages
  * @uses get_post() To get the reply and topics
@@ -1206,7 +1206,7 @@ function bbp_split_topic_handler() {
  * When a topic is split, update the counts of source and destination topic
  * and their forums.
  *
- * @since bbPress (r2755)
+ * @since bbPress (r2756)
  *
  * @param int $from_reply_id From reply id
  * @param int $source_topic_id Source topic id
