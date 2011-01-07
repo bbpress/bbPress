@@ -28,6 +28,8 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 						<?php get_template_part( 'loop', 'bbp_topics' ); ?>
 
+						<?php get_template_part( 'form', 'bbp_topic_tag' ); ?>
+
 					</div>
 				</div><!-- #topic-tag -->
 			</div><!-- #content -->

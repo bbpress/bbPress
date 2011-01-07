@@ -1673,7 +1673,7 @@ function bbp_topic_merge_link( $args = '' ) {
 		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
 
-		$uri = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->id ) ) );
+		$uri = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->ID ) ) );
 
 		return apply_filters( 'bbp_get_topic_merge_link', $link_before . '<a href="' . $uri . '">' . $merge_text . '</a>' . $link_after, $args );
 	}

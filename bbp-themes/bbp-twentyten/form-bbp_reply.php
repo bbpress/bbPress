@@ -61,7 +61,7 @@
 
 						<?php endif; ?>
 
-						<p id="bbp_topic_submit_container">
+						<p id="bbp_reply_submit_container">
 							<button type="submit" tabindex="14" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 						</p>
 					</div>

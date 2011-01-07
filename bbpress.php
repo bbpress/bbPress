@@ -640,8 +640,8 @@ class bbPress {
 
 		// Register the topic tag taxonomy
 		register_taxonomy(
-			$this->topic_tag_id, // The topic tag ID
-			$this->topic_id,     // The topic content type
+			$this->topic_tag_id, // The topic tag id
+			$this->topic_id,     // The topic post type
 			$bbp_tt
 		);
 	}

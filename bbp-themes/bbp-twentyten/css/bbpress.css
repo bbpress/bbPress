@@ -202,11 +202,18 @@ td.bbp-topic-counts {
 -------------------------------------------------------------- */
 
 .bbp-topic-form,
-.bbp-reply-form {
+.bbp-reply-form,
+.bbp-topic-tag-form {
 	clear: left;
 }
 
-p#bbp_topic_submit_container {
+#merge_tag,
+#delete_tag {
+	display: inline;
+}
+
+p#bbp_topic_submit_container,
+p#bbp_reply_submit_container {
 	float: right;
 }
 
@@ -293,11 +300,13 @@ div.bbp-template-notice {
 		border: #e6db55 1px solid;
 		background-color: #fffbcc;
 	}
-	div.bbp-template-notice.error {
+	div.bbp-template-notice.error,
+	div.bbp-template-notice.warning {
 		background-color: #ffebe8;
 		border-color: #c00;
 	}
-	div.bbp-template-notice.error a {
+	div.bbp-template-notice.error a,
+	div.bbp-template-notice.warning a {
 		color: #c00;
 	}
 	div.bbp-template-notice p {
@@ -305,6 +314,9 @@ div.bbp-template-notice {
 		padding: 2px;
 		font-size: 12px;
 		line-height: 140%;
+	}
+	fieldset div.bbp-template-notice {
+		margin-top: -10px;
 	}
 
 /* =Stickies

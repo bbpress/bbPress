@@ -1309,6 +1309,152 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 }
 
 /**
+ * Handles the front end tag management (renaming, merging, destroying)
+ *
+ * @since bbPress (r2768)
+ *
+ * @uses check_admin_referer() To verify the nonce and check the referer
+ * @uses current_user_can() To check if the current user can edit/delete tags
+ * @uses bbPress::errors::add() To log the error messages
+ * @uses wp_update_term() To update the topic tag
+ * @uses get_term_link() To get the topic tag url
+ * @uses term_exists() To check if the topic tag already exists
+ * @uses wp_insert_term() To insert a topic tag
+ * @uses wp_delete_term() To delete the topic tag
+ * @uses home_url() To get the blog's home page url
+ * @uses do_action() Calls actions based on the actions with associated args
+ * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
+ * @uses wp_redirect() To redirect to the url
+ */
+function bbp_manage_topic_tag_handler() {
+
+	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && in_array( $_POST['action'], array( 'bbp-update-topic-tag', 'bbp-merge-topic-tag', 'bbp-delete-topic-tag' ) ) && !empty( $_POST['tag-id'] ) ) {
+
+		global $bbp;
+
+		$action = $_POST['action'];
+		$tag_id = (int) $_POST['tag-id'];
+		$tag    = get_term( $tag_id, $bbp->topic_tag_id );
+
+		if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+			$append_error = $tag->get_error_message() . ' ';
+			$bbp->errors->add( 'bbp_manage_topic_invalid_tag', __( '<strong>ERROR</strong>: The following problem(s) have been found while getting the tag:' . $append_error . 'Please try again.', 'bbpress' ) );
+			return;
+		}
+
+		switch ( $action ) {
+			case 'bbp-update-topic-tag' :
+				check_admin_referer( 'update-tag_' . $tag_id );
+
+				if ( !current_user_can( 'edit_topic_tags' ) ) {
+					$bbp->errors->add( 'bbp_manage_topic_tag_update_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to edit the topic tags!', 'bbpress' ) );
+					return;
+				}
+
+				if ( empty( $_POST['tag-name'] ) || !$name = $_POST['tag-name'] ) {
+					$bbp->errors->add( 'bbp_manage_topic_tag_update_name', __( '<strong>ERROR</strong>: You need to enter a tag name!', 'bbpress' ) );
+					return;
+				}
+
+				$slug = !empty( $_POST['tag-slug'] ) ? $_POST['tag-slug'] : '';
+
+				$tag = wp_update_term( $tag_id, $bbp->topic_tag_id, array( 'name' => $name, 'slug' => $slug ) );
+
+				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+					$append_error = $tag->get_error_message() . ' ';
+					$bbp->errors->add( 'bbp_manage_topic_tag_update_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while updating the tag:' . $append_error . 'Please try again.', 'bbpress' ) );
+					return;
+				}
+
+				$redirect = get_term_link( $tag_id, $bbp->topic_tag_id );
+
+				// Update counts, etc...
+				do_action( 'bbp_update_topic_tag', $tag_id, $tag, $name, $slug );
+
+				break;
+
+			case 'bbp-merge-topic-tag'  :
+				check_admin_referer( 'merge-tag_' . $tag_id );
+
+				if ( !current_user_can( 'edit_topic_tags' ) ) {
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to edit the topic tags!', 'bbpress' ) );
+					return;
+				}
+
+				if ( empty( $_POST['tag-name'] ) || !$name = $_POST['tag-name'] ) {
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_name', __( '<strong>ERROR</strong>: You need to enter a tag name!', 'bbpress' ) );
+					return;
+				}
+
+				// Much part of merge tags functionality taken from Scribu's Term Management Tools WordPress Plugin
+
+				if ( !$tag = term_exists( $name, $bbp->topic_tag_id ) )
+					$tag = wp_insert_term( $name, $bbp->topic_tag_id );
+
+				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+					$append_error = $tag->get_error_message() . ' ';
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while merging the tags:' . $append_error . 'Please try again.', 'bbpress' ) );
+					return;
+				}
+
+				$to_tag = $tag['term_id'];
+
+				if ( $tag_id == $to_tag ) {
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_same', __( '<strong>ERROR</strong>: The tags which are being merged can not be the same.', 'bbpress' ) );
+					return;
+				}
+
+				$tag = wp_delete_term( $tag_id, $bbp->topic_tag_id, array( 'default' => $to_tag, 'force_default' => true ) );
+
+				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+					$append_error = $tag->get_error_message() . ' ';
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while merging the tags:' . $append_error . 'Please try again.', 'bbpress' ) );
+					return;
+				}
+
+				$redirect = get_term_link( (int) $to_tag, $bbp->topic_tag_id );
+
+				// Update counts, etc...
+				do_action( 'bbp_merge_topic_tag', $tag_id, $to_tag, $tag );
+
+				break;
+
+			case 'bbp-delete-topic-tag' :
+				check_admin_referer( 'delete-tag_' . $tag_id );
+
+				if ( !current_user_can( 'delete_topic_tags' ) ) {
+					$bbp->errors->add( 'bbp_manage_topic_tag_delete_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to delete the topic tags!', 'bbpress' ) );
+					return;
+				}
+
+				$tag = wp_delete_term( $tag_id, $bbp->topic_tag_id );
+
+				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
+					$append_error = $tag->get_error_message() . ' ';
+					$bbp->errors->add( 'bbp_manage_topic_tag_delete_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while deleting the tag:' . $append_error . 'Please try again.', 'bbpress' ) );
+					return;
+				}
+
+				// We don't have any other place to go other than home! Or we may die because of the 404 disease
+				$redirect = home_url();
+
+				// Update counts, etc...
+				do_action( 'bbp_delete_topic_tag', $tag_id, $tag );
+
+				break;
+		}
+
+		// Redirect back
+		$redirect = ( !empty( $redirect ) && !is_wp_error( $redirect ) ) ? $redirect : home_url();
+		wp_redirect( $redirect );
+
+		// For good measure
+		exit();
+
+	}
+}
+
+/**
  * Handles the front end user editing
  *
  * @uses is_multisite() To check if it's a multisite
