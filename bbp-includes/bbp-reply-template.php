@@ -884,11 +884,6 @@ function bbp_reply_admin_links( $args = '' ) {
 				unset( $r['links']['trash'] );
 		}
 
-		// Remove empty links from array
-		foreach ( $r['links'] as $key => $link )
-			if ( !empty( $link ) )
-				$links[$key] = $link;
-
 		// Process the admin links
 		$links = implode( $r['sep'], array_filter( $r['links'] ) );
 
