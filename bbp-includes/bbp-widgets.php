@@ -61,7 +61,7 @@ class BBP_Forums_Widget extends WP_Widget {
 		$default = array(
 			'post_parent'    => $parent_forum,
 			'posts_per_page' => -1,
-			'orderby'        => 'menu_order, post_title',
+			'orderby'        => 'menu_order',
 			'order'          => 'ASC'
 		);
 
