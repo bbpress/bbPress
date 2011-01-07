@@ -1543,7 +1543,7 @@ function bbp_topic_close_link( $args = '' ) {
 
 		$topic = get_post( bbp_get_topic_id( (int) $id ) );
 
-		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
+		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
 
 		$display = bbp_is_topic_open( $topic->ID ) ? $close_text : $open_text;
