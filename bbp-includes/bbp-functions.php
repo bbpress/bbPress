@@ -1815,10 +1815,11 @@ function bbp_pre_get_posts( $wp_query ) {
 			$wp_query->bbp_is_user_profile_edit = true;
 
 			// Load the required user editing functions
-			if ( version_compare( $wp_version, '3.1', '<=' ) )
+			if ( !function_exists( '_wp_get_user_contactmethods' ) )
 				include_once( ABSPATH . 'wp-includes/registration.php' );
 
-			require_once( ABSPATH . 'wp-admin/includes/user.php' );
+			if ( !function_exists( 'edit_user' ) )
+				require_once( ABSPATH . 'wp-admin/includes/user.php' );
 
 		} else {
 			$wp_query->bbp_is_user_profile_page = true;
