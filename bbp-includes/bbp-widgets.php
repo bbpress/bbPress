@@ -65,10 +65,10 @@ class BBP_Forums_Widget extends WP_Widget {
 			'order'          => 'ASC'
 		);
 
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
+		if ( bbp_has_forums( $default ) ) :
 
-		if ( bbp_has_forums( $default ) ) : ?>
+			echo $before_widget;
+			echo $before_title . $title . $after_title; ?>
 
 			<ul>
 
@@ -80,11 +80,9 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			</ul>
 
-		<?php
+		<?php echo $after_widget;
 
-		endif;
-
-		echo $after_widget;
+		endif;		
 	}
 
 	/**
@@ -195,10 +193,10 @@ class BBP_Topics_Widget extends WP_Widget {
 			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check
 		);
 
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
+		if ( $pop_check < $max_shown && bbp_has_topics( $default ) ) :
 
-		if ( $pop_check < $max_shown && bbp_has_topics( $default ) ) : ?>
+			echo $before_widget;
+			echo $before_title . $title . $after_title; ?>
 
 			<ul>
 				<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
@@ -211,11 +209,14 @@ class BBP_Topics_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php
+			<?php echo $after_widget;
 
 		endif;
 
 		if ( $pop_check >= $max_shown && bbp_has_topics( $default ) ) :
+
+			echo $before_widget;
+			echo $before_title . $title . $after_title;
 
 			while ( bbp_topics() ) {
 				bbp_the_topic();
@@ -250,11 +251,10 @@ class BBP_Topics_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php
+			<?php echo $after_widget;
 
 		endif;
 
-		echo $after_widget;
 	}
 
 	/**
@@ -367,10 +367,10 @@ class BBP_Replies_Widget extends WP_Widget {
 			'order'          => 'DESC'
 		);
 
-		echo $before_widget;
-		echo $before_title . $title . $after_title;
+		if ( bbp_has_replies( $default ) ) :
 
-		if ( bbp_has_replies( $default ) ) : ?>
+			echo $before_widget;
+			echo $before_title . $title . $after_title; ?>
 
 			<ul>
 
@@ -386,11 +386,9 @@ class BBP_Replies_Widget extends WP_Widget {
 
 			</ul>
 
-			<?php
+			<?php echo $after_widget;
 
 		endif;
-
-		echo $after_widget;
 	}
 
 	/**
