@@ -517,4 +517,33 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 	return false;
 }
 
+/**
+ * Get the total number of users on the forums
+ *
+ *  - Checks for a global $bbp_total_users, if it is set, then that is returned.
+ *  - Runs the filter 'bbp_get_total_users', if we get anything other than false
+ *     (strict check ===), then that is returned.
+ *  - Runs its own query to count the users
+ *
+ * @since bbPress (r2769)
+ *
+ * @uses wp_cache_get() Check if query is in cache
+ * @uses apply_filters() Calls 'bbp_get_total_users' with bool false
+ * @uses wp_cache_set() Set the query in the cache
+ * @uses wpdb::get_var() To execute our query and get the var back
+ * @return int Total number of users
+ */
+function bbp_get_total_users() {
+	global $wpdb, $bbp_total_users;
+
+	if ( $bbp_total_users = wp_cache_get( 'bbp_total_users', 'bbpress' ) )
+		return $bbp_total_users;
+
+	$bbp_total_users = $wpdb->get_var( "SELECT COUNT(ID) FROM {$wpdb->users} USE INDEX (PRIMARY);" );
+
+	wp_cache_set( 'bbp_total_users', $bbp_total_users, 'bbpress' );
+
+	return apply_filters( 'bbp_get_total_users', (int) $bbp_total_users );
+}
+
 ?>

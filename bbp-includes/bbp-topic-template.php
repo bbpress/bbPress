@@ -64,6 +64,9 @@ function bbp_has_topics( $args = '' ) {
 
 		// Ignore sticky topics?
 		'ignore_sticky_topics' => false,
+
+		// Maximum number of pages to show
+		'max_num_pages'        => false,
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
@@ -84,6 +87,10 @@ function bbp_has_topics( $args = '' ) {
 		global $wp_query;
 		$bbp->topic_query = $wp_query;
 	}
+
+	// Limited the number of pages shown
+	if ( !empty( $max_num_pages ) )
+		$bbp->topic_query->max_num_pages = $max_num_pages;
 
 	// Put sticky posts at the top of the posts array, much part of code taken from query.php in wp-includes
 	if ( empty( $ignore_sticky_topics ) && ( is_page() || bbp_is_forum() ) && bbp_get_paged() <= 1 ) {
@@ -154,6 +161,10 @@ function bbp_has_topics( $args = '' ) {
 	// Only add pagination if query returned results
 	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
 
+		// Limited the number of topics shown based on maximum allowed pages
+		if ( ( !empty( $max_num_pages ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count )
+			$bbp->topic_query->found_posts = $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count;
+
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() && bbp_is_user_profile_page() )
 			$base = $base = user_trailingslashit( trailingslashit( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) ) . 'page/%#%/' );
@@ -161,6 +172,7 @@ function bbp_has_topics( $args = '' ) {
 			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
 		else
 			$base = add_query_arg( 'paged', '%#%' );
+
 
 		// Pagination settings with filter
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (

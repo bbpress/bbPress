@@ -61,7 +61,7 @@ class bbPress {
 	var $topic_tag_id;
 
 	/**
-	 * @var string Closed post status id. Used by forums and topics.
+	 * @var string Closed post status id. Used by topics.
 	 */
 	var $closed_status_id;
 
