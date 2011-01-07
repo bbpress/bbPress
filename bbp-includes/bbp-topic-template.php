@@ -1320,7 +1320,7 @@ function bbp_topic_admin_links( $args = '' ) {
 		}
 
 		// Process the admin links
-		$links = implode( $r['sep'], $r['links'] );
+		$links = implode( $r['sep'], array_filter( $r['links'] ) );
 
 		return apply_filters( 'bbp_get_topic_admin_links', $r['before'] . $links . $r['after'], $args );
 	}
@@ -1605,7 +1605,7 @@ function bbp_topic_stick_link( $args = '' ) {
 
 		$topic = get_post( bbp_get_topic_id( (int) $id ) );
 
-		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
+		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
 
 		$is_sticky = bbp_is_topic_sticky( $topic->ID );
@@ -1668,7 +1668,12 @@ function bbp_topic_merge_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$uri = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $id ) ) );
+		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+
+		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
+			return;
+
+		$uri = esc_url( add_query_arg( array( 'action' => 'merge' ), bbp_get_topic_edit_url( $topic->id ) ) );
 
 		return apply_filters( 'bbp_get_topic_merge_link', $link_before . '<a href="' . $uri . '">' . $merge_text . '</a>' . $link_after, $args );
 	}
@@ -1723,7 +1728,7 @@ function bbp_topic_spam_link( $args = '' ) {
 
 		$topic = get_post( bbp_get_topic_id( (int) $id ) );
 
-		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
+		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
 
 		$display = bbp_is_topic_spam( $topic->ID ) ? $unspam_text : $spam_text;

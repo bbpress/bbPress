@@ -710,7 +710,7 @@ class BBP_Admin {
 			if ( !$topic = get_post( $topic_id ) ) // Which topic?
 				wp_die( __( 'The topic was not found!', 'bbpress' ) );
 
-			if ( !current_user_can( 'edit_topic', $topic->ID ) ) // What is the user doing here?
+			if ( !current_user_can( 'moderate', $topic->ID ) ) // What is the user doing here?
 				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
 
 			switch ( $action ) {
@@ -992,7 +992,7 @@ class BBP_Admin {
 				$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
 			// Only show the actions if the user is capable of viewing them :)
-			if ( current_user_can( 'edit_topic', $topic->ID ) ) {
+			if ( current_user_can( 'moderate', $topic->ID ) ) {
 
 				// Close
 				// Show the 'close' and 'open' link on published and closed posts only
@@ -1076,7 +1076,7 @@ class BBP_Admin {
 			if ( !$reply = get_post( $reply_id ) ) // Which reply?
 				wp_die( __( 'The reply was not found!', 'bbpress' ) );
 
-			if ( !current_user_can( 'edit_reply', $reply->ID ) ) // What is the user doing here?
+			if ( !current_user_can( 'moderate', $reply->ID ) ) // What is the user doing here?
 				wp_die( __( 'You do not have the permission to do that!', 'bbpress' ) );
 
 			switch ( $action ) {
@@ -1321,8 +1321,9 @@ class BBP_Admin {
 			the_content();
 
 			// Only show the actions if the user is capable of viewing them
-			if ( current_user_can( 'edit_reply', $reply->ID ) ) {
+			if ( current_user_can( 'moderate', $reply->ID ) ) {
 				if ( in_array( $reply->post_status, array( 'publish', $bbp->spam_status_id ) ) ) {
+					$spam_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'reply_id' => $reply->ID, 'action' => 'bbp_toggle_reply_spam' ), remove_query_arg( array( 'bbp_reply_toggle_notice', 'reply_id', 'failed', 'super' ) ) ), 'spam-reply_'  . $reply->ID ) );
 					if ( bbp_is_reply_spam( $reply->ID ) )
 						$actions['spam'] = '<a href="' . $spam_uri . '" title="' . esc_attr__( 'Mark the reply as not spam', 'bbpress' ) . '">' . __( 'Not spam', 'bbpress' ) . '</a>';
 					else

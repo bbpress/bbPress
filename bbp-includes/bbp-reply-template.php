@@ -867,6 +867,7 @@ function bbp_reply_admin_links( $args = '' ) {
 			);
 		}
 
+		// Check caps for trashing the topic
 		if ( !current_user_can( 'delete_reply', $r['id'] ) && !empty( $r['links']['trash'] ) )
 			unset( $r['links']['trash'] );
 
@@ -882,6 +883,11 @@ function bbp_reply_admin_links( $args = '' ) {
 			elseif ( isset( $r['links']['trash'] ) && $reply_status == $bbp->spam_status_id )
 				unset( $r['links']['trash'] );
 		}
+
+		// Remove empty links from array
+		foreach ( $r['links'] as $key => $link )
+			if ( !empty( $link ) )
+				$links[$key] = $link;
 
 		// Process the admin links
 		$links = implode( $r['sep'], array_filter( $r['links'] ) );
@@ -1107,7 +1113,7 @@ function bbp_reply_spam_link( $args = '' ) {
 
 		$reply = get_post( bbp_get_reply_id( (int) $id ) );
 
-		if ( empty( $reply ) || !current_user_can( 'edit_reply', $reply->ID ) )
+		if ( empty( $reply ) || !current_user_can( 'moderate', $reply->ID ) )
 			return;
 
 		$display  = bbp_is_reply_spam( $reply->ID ) ? $unspam_text : $spam_text;
@@ -1172,7 +1178,7 @@ function bbp_topic_split_link( $args = '' ) {
 
 		$reply = get_post( bbp_get_reply_id( (int) $id ) );
 
-		if ( empty( $reply ) || !current_user_can( 'edit_topic', $reply->post_parent ) )
+		if ( empty( $reply ) || !current_user_can( 'moderate', $reply->post_parent ) )
 			return;
 
 		$uri = esc_url( add_query_arg( array( 'action' => 'split', 'reply_id' => $reply->ID ), bbp_get_topic_edit_url( bbp_get_reply_topic_id( $reply->ID ) ) ) );
