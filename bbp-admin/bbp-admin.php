@@ -40,25 +40,28 @@ class BBP_Admin {
 		/** General Actions *******************************************/
 
 		// Add notice if not using a bbPress theme
-		add_action( 'admin_notices',               array( $this, 'activation_notice'       )        );
+		add_action( 'admin_notices',               array( $this, 'activation_notice'          )        );
 
 		// Add link to settings page
-		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link'       ), 10, 2 );
+		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link'          ), 10, 2 );
 
 		// Add menu item to settings menu
-		add_action( 'admin_menu',                  array( $this, 'admin_menus'             )        );
+		add_action( 'admin_menu',                  array( $this, 'admin_menus'                )        );
 
 		// Add the settings
-		add_action( 'admin_init',                  array( $this, 'register_admin_settings' )        );
+		add_action( 'admin_init',                  array( $this, 'register_admin_settings'    )        );
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
-		add_action( 'admin_init',                  array( $this, 'init'                    )        );
+		add_action( 'admin_init',                  array( $this, 'init'                       )        );
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',                  array( $this, 'admin_head'              )        );
+		add_action( 'admin_head',                  array( $this, 'admin_head'                 )        );
 
 		// Register bbPress admin style
-		add_action( 'admin_init',                  array( $this, 'register_admin_style'    )        );
+		add_action( 'admin_init',                  array( $this, 'register_admin_style'       )        );
+
+		// Forums 'Right now' Dashboard widget
+		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' )        );
 
 		/** User Actions **********************************************/
 
@@ -245,6 +248,17 @@ class BBP_Admin {
 	 */
 	function init() {
 		do_action( 'bbp_admin_init' );
+	}
+
+	/**
+	 * Add the 'Right now in Forums' dashboard widget
+	 *
+	 * @since bbPress (r2770)
+	 *
+	 * @uses wp_add_dashboard_widget() To add the dashboard widget
+	 */
+	function dashboard_widget_right_now() {
+		wp_add_dashboard_widget( 'bbp_dashboard_right_now', __( 'Right Now in Forums', 'bbpress' ), 'bbp_dashboard_widget_right_now' );
 	}
 
 	/**
@@ -456,6 +470,113 @@ class BBP_Admin {
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
+
+			/* =bbPress 'Right Now in Forums' Dashboard Widget
+			-------------------------------------------------------------- */
+
+			#bbp_dashboard_right_now p.sub,
+			#bbp_dashboard_right_now .table, #bbp_dashboard_right_now .versions {
+				margin: -12px;
+			}
+
+			#bbp_dashboard_right_now .inside {
+				font-size: 12px;
+				padding-top: 20px;
+			}
+
+			#bbp_dashboard_right_now p.sub {
+				font-style: italic;
+				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+				padding: 5px 10px 15px;
+				color: #777;
+				font-size: 13px;
+				position: absolute;
+				top: -17px;
+				left: 15px;
+			}
+
+			#bbp_dashboard_right_now .table {
+				margin: 0 -9px;
+				padding: 0 10px;
+				position: relative;
+			}
+
+			#bbp_dashboard_right_now .table_content {
+				float: left;
+				border-top: #ececec 1px solid;
+				width: 45%;
+			}
+
+			#bbp_dashboard_right_now .table_discussion {
+				float: right;
+				border-top: #ececec 1px solid;
+				width: 45%;
+			}
+
+			#bbp_dashboard_right_now table td {
+				padding: 3px 0;
+				white-space: nowrap;
+			}
+
+			#bbp_dashboard_right_now table tr.first td {
+				border-top: none;
+			}
+
+			#bbp_dashboard_right_now td.b {
+				padding-right: 6px;
+				text-align: right;
+				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+				font-size: 14px;
+				width: 1%;
+			}
+
+			#bbp_dashboard_right_now td.b a {
+				font-size: 18px;
+			}
+
+			#bbp_dashboard_right_now td.b a:hover {
+				color: #d54e21;
+			}
+
+			#bbp_dashboard_right_now .t {
+				font-size: 12px;
+				padding-right: 12px;
+				padding-top: 6px;
+				color: #777;
+			}
+
+			#bbp_dashboard_right_now .t a {
+				white-space: nowrap;
+			}
+
+			#bbp_dashboard_right_now .spam {
+				color: red;
+			}
+
+			#bbp_dashboard_right_now .waiting {
+				color: #e66f00;
+			}
+
+			#bbp_dashboard_right_now .approved {
+				color: green;
+			}
+
+			#bbp_dashboard_right_now .versions {
+				padding: 6px 10px 12px;
+				clear: both;
+			}
+
+			#bbp_dashboard_right_now .versions .b {
+				font-weight: bold;
+			}
+
+			#bbp_dashboard_right_now a.button {
+				float: right;
+				clear: right;
+				position: relative;
+				top: -5px;
+			}
+
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px -32px;
 			}
@@ -1380,6 +1501,227 @@ function bbp_admin_separator () {
 	$menu[25] = array( '', 'read', 'separator1', '', 'wp-menu-separator' );
 }
 
+
+/**
+ * bbPress Dashboard Right Now Widget
+ *
+ * Adds a dashboard widget with forum statistics
+ *
+ * @todo Check for updates and show notice
+ *
+ * @since bbPress (r2770)
+ *
+ * @uses bbp_get_statistics() To get the forum statistics
+ * @uses current_user_can() To check if the user is capable of doing things
+ * @uses get_admin_url() To get the administration url
+ * @uses add_query_arg() To add custom args to the url
+ * @uses do_action() Calls 'bbp_dashboard_widget_right_now_content_table_end'
+ *                    below the content table
+ * @uses do_action() Calls 'bbp_dashboard_widget_right_now_table_end'
+ *                    below the discussion table
+ * @uses do_action() Calls 'bbp_dashboard_widget_right_now_discussion_table_end'
+ *                    below the discussion table
+ * @uses do_action() Calls 'bbp_dashboard_widget_right_now_end' below the widget
+ */
+function bbp_dashboard_widget_right_now() {
+	global $bbp;
+
+	// Get the statistics and extract them
+	extract( bbp_get_statistics(), EXTR_SKIP ); ?>
+
+	<div class="table table_content">
+
+		<p class="sub"><?php _e( 'Content', 'bbpress' ); ?></p>
+
+		<table>
+
+			<tr class="first">
+
+				<?php
+					$num  = $forum_count;
+					$text = _n( 'Forum', 'Forums', $forum_count, 'bbpress' );
+					if ( current_user_can( 'publish_forums' ) ) {
+						$link = add_query_arg( array( 'post_type' => $bbp->forum_id ), get_admin_url( null, 'edit.php' ) );
+						$num  = '<a href="' . $link . '">' . $num  . '</a>';
+						$text = '<a href="' . $link . '">' . $text . '</a>';
+					}
+				?>
+
+				<td class="first b b-forums"><?php echo $num; ?></td>
+				<td class="t forums"><?php echo $text; ?></td>
+
+			</tr>
+
+			<tr>
+
+				<?php
+					$num  = $topic_count;
+					$text = _n( 'Topic', 'Topics', $topic_count, 'bbpress' );
+					if ( current_user_can( 'publish_topics' ) ) {
+						$link = add_query_arg( array( 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit.php' ) );
+						$num  = '<a href="' . $link . '">' . $num  . '</a>';
+						$text = '<a href="' . $link . '">' . $text . '</a>';
+					}
+				?>
+
+				<td class="first b b-topics"><?php echo $num; ?></td>
+				<td class="t topics"><?php echo $text; ?></td>
+
+			</tr>
+
+			<tr>
+
+				<?php
+					$num  = $reply_count;
+					$text = _n( 'Reply', 'Replies', $reply_count, 'bbpress' );
+					if ( current_user_can( 'publish_replies' ) ) {
+						$link = add_query_arg( array( 'post_type' => $bbp->reply_id ), get_admin_url( null, 'edit.php' ) );
+						$num  = '<a href="' . $link . '">' . $num  . '</a>';
+						$text = '<a href="' . $link . '">' . $text . '</a>';
+					}
+				?>
+
+				<td class="first b b-replies"><?php echo $num; ?></td>
+				<td class="t replies"><?php echo $text; ?></td>
+
+			</tr>
+
+			<tr>
+
+				<?php
+					$num  = $topic_tag_count;
+					$text = _n( 'Topic Tag', 'Topic Tags', $topic_tag_count, 'bbpress' );
+					if ( current_user_can( 'manage_topic_tags' ) ) {
+						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit-tags.php' ) );
+						$num  = '<a href="' . $link . '">' . $num  . '</a>';
+						$text = '<a href="' . $link . '">' . $text . '</a>';
+					}
+				?>
+
+				<td class="first b b-topic_tags"><span class="total-count"><?php echo $num; ?></a></td>
+				<td class="t topic_tags"><?php echo $text; ?></td>
+
+			</tr>
+
+			<?php do_action( 'bbp_dashboard_widget_right_now_content_table_end' ); ?>
+
+		</table>
+
+	</div>
+
+
+	<div class="table table_discussion">
+
+		<p class="sub"><?php _e( 'Discussion', 'bbpress' ); ?></p>
+
+		<table>
+
+			<tr class="first">
+
+				<?php
+					$num  = $user_count;
+					$text = _n( 'User', 'Users', $user_count, 'bbpress' );
+					if ( current_user_can( 'edit_users' ) ) {
+						$link = get_admin_url( null, 'users.php' );
+						$num  = '<a href="' . $link . '">' . $num  . '</a>';
+						$text = '<a href="' . $link . '">' . $text . '</a>';
+					}
+				?>
+
+				<td class="b b-users"><span class="total-count"><?php echo $num; ?></a></td>
+				<td class="last t users"><?php echo $text; ?></td>
+
+			</tr>
+
+			<?php if ( isset( $hidden_topic_count ) ) : ?>
+
+				<tr>
+
+					<?php
+						$num  = $hidden_topic_count;
+						$text = _n( 'Hidden Topic', 'Hidden Topics', $hidden_topic_count, 'bbpress' );
+						$link = add_query_arg( array( 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit.php' ) );
+						$num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $text . '</a>';
+					?>
+
+					<td class="b b-hidden-topics"><?php echo $num; ?></td>
+					<td class="last t hidden-replies"><?php echo $text; ?></td>
+
+				</tr>
+
+			<?php endif; ?>
+
+			<?php if ( isset( $hidden_reply_count ) ) : ?>
+
+				<tr>
+
+					<?php
+						$num  = $hidden_reply_count;
+						$text = _n( 'Hidden Reply', 'Hidden Replies', $hidden_reply_count, 'bbpress' );
+						$link = add_query_arg( array( 'post_type' => $bbp->reply_id ), get_admin_url( null, 'edit.php' ) );
+						$num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $text . '</a>';
+					?>
+
+					<td class="b b-hidden-replies"><?php echo $num; ?></td>
+					<td class="last t hidden-replies"><?php echo $text; ?></td>
+
+				</tr>
+
+			<?php endif; ?>
+
+			<?php if ( isset( $empty_topic_tag_count ) ) : ?>
+
+				<tr>
+
+					<?php
+						$num  = $empty_topic_tag_count;
+						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $empty_topic_tag_count, 'bbpress' );
+						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit-tags.php' ) );
+						$num  = '<a href="' . $link . '">' . $num  . '</a>';
+						$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
+					?>
+
+					<td class="b b-hidden-topic-tags"><?php echo $num; ?></td>
+					<td class="last t hidden-topic-tags"><?php echo $text; ?></td>
+
+				</tr>
+
+			<?php endif; ?>
+
+			<?php
+
+			do_action( 'bbp_dashboard_widget_right_now_table_end'            );
+			do_action( 'bbp_dashboard_widget_right_now_discussion_table_end' );
+
+			?>
+
+		</table>
+
+	</div>
+
+	<?php if ( current_user_can( 'update_plugins' ) ) : ?>
+
+		<div class="versions">
+
+			<p>
+
+				<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), BBP_VERSION ); ?>
+
+			</p>
+
+			<br class="clear" />
+
+		</div>
+
+	<?php endif; ?>
+
+	<?php
+
+	do_action( 'bbp_dashboard_widget_right_now_end' );
+}
+
 /**
  * Forum metabox
  *
@@ -1453,7 +1795,7 @@ function bbp_forum_metabox() {
 		</p>
 
 		<hr />
-		
+
 		<p>
 			<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
 			<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
