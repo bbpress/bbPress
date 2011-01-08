@@ -88,10 +88,17 @@ table.bbp-topic tr.bbp-topic-header td {
 	padding: 0 10px;
 }
 
-.bbp-topic-content,
-.bbp-reply-content {
+#content .bbp-topic-content,
+#content .bbp-reply-content {
 	vertical-align: top;
+	padding: 6px 10px;
 }
+
+#content .bbp-topic-content img,
+#content .bbp-reply-content img {
+	max-width: 100%;
+}
+
 span.bbp-admin-links {
 	float: right;
 	color: #d0d0d0;
