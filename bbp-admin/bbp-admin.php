@@ -610,7 +610,7 @@ class BBP_Admin {
 				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -180px;
 			}
 
-<?php if ( $post->post_type == $bbp->forum_id ) : ?>
+<?php if ( isset( $post ) && $post->post_type == $bbp->forum_id ) : ?>
 
 			#misc-publishing-actions, #save-post { display: none; }
 			strong.label { display: inline-block; width: 60px; }
