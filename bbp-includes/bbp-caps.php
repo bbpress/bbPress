@@ -180,6 +180,40 @@ function bbp_remove_caps() {
 		$admin->remove_cap( 'view_trash'            );
 	}
 
+	// Remove caps from moderator role
+	if ( $mod =& get_role( 'bbp_moderator' ) ) {
+
+		// Topic caps
+		$mod->remove_cap( 'publish_topics'        );
+		$mod->remove_cap( 'edit_topics'           );
+		$mod->remove_cap( 'edit_others_topics'    );
+		$mod->remove_cap( 'delete_topics'         );
+		$mod->remove_cap( 'delete_others_topics'  );
+		$mod->remove_cap( 'read_private_topics'   );
+
+		// Reply caps
+		$mod->remove_cap( 'publish_replies'       );
+		$mod->remove_cap( 'edit_replies'          );
+		$mod->remove_cap( 'edit_others_replies'   );
+		$mod->remove_cap( 'delete_replies'        );
+		$mod->remove_cap( 'delete_others_replies' );
+		$mod->remove_cap( 'read_private_replies'  );
+
+		// Topic tag caps
+		$mod->remove_cap( 'manage_topic_tags'     );
+		$mod->remove_cap( 'edit_topic_tags'       );
+		$mod->remove_cap( 'delete_topic_tags'     );
+		$mod->remove_cap( 'assign_topic_tags'     );
+
+		// Users
+		$mod->remove_cap( 'edit_users'            );
+
+		// Misc
+		$mod->remove_cap( 'moderate'              );
+		$mod->remove_cap( 'throttle'              );
+		$mod->remove_cap( 'view_trash'            );
+	}
+
 	// Remove caps from default role
 	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
 
