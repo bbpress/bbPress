@@ -55,7 +55,7 @@
 							<textarea id="bbp_topic_content" tabindex="10" name="bbp_topic_content" cols="52" rows="6"><?php echo ( bbp_is_topic_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
 						</p>
 
-						<p class="form-allowed-tags">							
+						<p class="form-allowed-tags">
 							<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
 							<code><?php bbp_allowed_tags(); ?></code>
 						</p>
@@ -78,17 +78,29 @@
 
 						<?php endif; ?>
 
+						<?php if ( current_user_can( 'moderate' ) ) : ?>
+
+							<p>
+
+								<label for="bbp_stick_topic"><?php _e( 'Topic Type:', 'bbpress' ); ?></label><br />
+
+								<?php bbp_topic_type_select( array( 'tab' => 16 ) ); ?>
+
+							</p>
+
+						<?php endif; ?>
+
 						<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_topic_edit() || ( bbp_is_topic_edit() && !bbp_is_topic_anonymous() ) ) ) : ?>
 
 							<p>
 								<?php if ( bbp_is_topic_edit() && $post->post_author != bbp_get_current_user_id() ) : ?>
 
-									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( $post->post_author ) ); ?> tabindex="16" />
+									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( $post->post_author ) ); ?> tabindex="18" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify the author of follow-up replies via email', 'bbpress' ); ?></label>
 
 								<?php else : ?>
 
-									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( bbp_get_user_id( 0, false, true ) ) ); ?> tabindex="16" />
+									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( bbp_get_user_id( 0, false, true ) ) ); ?> tabindex="18" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
 
 								<?php endif; ?>
@@ -101,20 +113,20 @@
 							<fieldset>
 								<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
 								<div>
-									<input name="bbp_log_topic_edit" id="bbp_log_topic_edit" type="checkbox" value="1" checked="checked" tabindex="18" />
-									<label for="bbp_log_topic_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />																			
+									<input name="bbp_log_topic_edit" id="bbp_log_topic_edit" type="checkbox" value="1" checked="checked" tabindex="20" />
+									<label for="bbp_log_topic_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
 								</div>
 
-								<div>									
+								<div>
 									<label for="bbp_topic_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />
-									<input type="text" value="" tabindex="20" size="40" name="bbp_topic_edit_reason" id="bbp_topic_edit_reason" />
+									<input type="text" value="" tabindex="22" size="40" name="bbp_topic_edit_reason" id="bbp_topic_edit_reason" />
 								</div>
 							</fieldset>
 
 						<?php endif; ?>
 
 						<p id="bbp_topic_submit_container">
-							<button type="submit" tabindex="22" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+							<button type="submit" tabindex="24" id="bbp_topic_submit" name="bbp_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 						</p>
 					</div>
 

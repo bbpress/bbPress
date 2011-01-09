@@ -635,6 +635,8 @@ function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0
  * @uses wp_insert_post() To insert the topic
  * @uses do_action() Calls 'bbp_new_topic' with the topic id, forum id,
  *                    anonymous data and reply author
+ * @uses bbp_stick_topic() To stick or super stick the topic
+ * @uses bbp_unstick_topic() To unstick the topic
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_redirect() To redirect to the topic link
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
@@ -742,6 +744,31 @@ function bbp_new_topic_handler() {
 			// Check for missing topic_id or error
 			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
+				// Stick status
+				if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
+
+					switch ( $_POST['bbp_stick_topic'] ) {
+
+						case 'stick'   :
+							bbp_stick_topic( $topic_id );
+
+							break;
+						case 'super'   :
+							bbp_stick_topic( $topic_id, true );
+
+							break;
+
+						case 'unstick' :
+						default        :
+
+							// We can avoid this as it is a new topic
+							// bbp_unstick_topic( $topic_id );
+
+							break;
+					}
+
+				}
+
 				// Update counts, etc...
 				do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
@@ -782,6 +809,8 @@ function bbp_new_topic_handler() {
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_save_post_revision() To save a topic revision
  * @uses bbp_update_topic_revision_log() To update the topic revision log
+ * @uses bbp_stick_topic() To stick or super stick the topic
+ * @uses bbp_unstick_topic() To unstick the topic
  * @uses wp_update_post() To update the topic
  * @uses do_action() Calls 'bbp_edit_topic' with the topic id, forum id,
  *                    anonymous data and reply author
@@ -857,6 +886,25 @@ function bbp_edit_topic_handler() {
 
 			if ( !empty( $_POST['bbp_log_topic_edit'] ) && 1 == $_POST['bbp_log_topic_edit'] && $revision_id = wp_save_post_revision( $topic_id ) )
 				bbp_update_topic_revision_log( array( 'topic_id' => $topic_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $topic_edit_reason ) );
+
+			// Stick status
+			if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
+				switch ( $_POST['bbp_stick_topic'] ) {
+
+					case 'stick'   :
+						bbp_stick_topic( $topic_id );
+						break;
+
+					case 'super'   :
+						bbp_stick_topic( $topic_id, true );
+						break;
+
+					case 'unstick' :
+					default        :
+						bbp_unstick_topic( $topic_id );
+						break;
+				}
+			}
 
 			// Add the content of the form to $post as an array
 			$topic_data = array(

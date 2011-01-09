@@ -63,7 +63,7 @@ function bbp_has_topics( $args = '' ) {
 		's'                    => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
 
 		// Ignore sticky topics?
-		'ignore_sticky_topics' => false,
+		'ignore_sticky_topics' => ( is_page() || bbp_is_forum() ) ? false : true,
 
 		// Maximum number of pages to show
 		'max_num_pages'        => false,
@@ -72,7 +72,7 @@ function bbp_has_topics( $args = '' ) {
 	// Don't pass post_parent if forum_id is empty or 0
 	if ( empty( $default['post_parent'] ) ) {
 		unset( $default['post_parent'] );
-		if ( !bbp_is_user_profile_page() )
+		if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() )
 			$post_parent = get_the_ID();
 	}
 
@@ -93,9 +93,9 @@ function bbp_has_topics( $args = '' ) {
 		$bbp->topic_query->max_num_pages = $max_num_pages;
 
 	// Put sticky posts at the top of the posts array, much part of code taken from query.php in wp-includes
-	if ( empty( $ignore_sticky_topics ) && ( is_page() || bbp_is_forum() ) && bbp_get_paged() <= 1 ) {
+	if ( empty( $ignore_sticky_topics ) && $paged <= 1 ) {
 		$stickies = bbp_get_super_stickies();
-		$stickies = !empty( $post_parent ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
+		$stickies = !empty( $bbp_t['post_parent'] ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
 		$stickies = array_unique( $stickies );
 
 		if ( is_array( $stickies ) && !empty( $stickies ) ) {
@@ -2396,6 +2396,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @param int $super Should we make the topic a super sticky?
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_unstick_topic() To unstick the topic
  * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses bbp_get_stickies() To get the stickies
  * @uses do_action() 'bbp_stick_topic' with topic id and bool super
@@ -2407,6 +2408,11 @@ function bbp_unspam_topic( $topic_id = 0 ) {
  */
 function bbp_stick_topic( $topic_id = 0, $super = false ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// We may have a super sticky to which we want to convert into a normal sticky and vice versa
+	// So, unstick the topic first to avoid any possible error
+	bbp_unstick_topic( $topic_id );
+
 	$forum_id = empty( $super ) ? bbp_get_topic_forum_id( $topic_id ) : 0;
 	$stickies = bbp_get_stickies( $forum_id );
 
@@ -2495,6 +2501,70 @@ function bbp_topic_notices() {
 	<div class="bbp-template-notice error">
 		<p><?php echo $notice_text; ?></p>
 	</div>
+
+	<?php
+}
+
+/**
+ * Displays topic type select box (normal/sticky/super sticky)
+ *
+ * @since bbPress (r2784)
+ *
+ * @param $args This function supports these arguments:
+ *  - stick_text: Sticky text
+ *  - super_text: Super Sticky text
+ *  - unstick_text: Unstick (normal) text
+ *  - select_id: Select id. Defaults to bbp_stick_topic
+ *  - tab: Tabindex
+ *  - topic_id: Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ */
+function bbp_topic_type_select( $args = '' ) {
+
+	$defaults = array (
+		'unstick_text' => __( 'Normal',       'bbpress' ),
+		'stick_text'   => __( 'Sticky',       'bbpress' ),
+		'super_text'   => __( 'Super Sticky', 'bbpress' ),
+		'select_id'    => 'bbp_stick_topic',
+		'tab'          => 0,
+		'topic_id'     => 0
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Get current topic
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// Current topic type
+	if ( !bbp_is_topic_edit() ) {
+		$sticky_current = 'unstick';
+	} else {
+		if ( bbp_is_topic_super_sticky( $topic_id ) ) {
+			$sticky_current = 'super';
+		} else {
+			$sticky_current = bbp_is_topic_sticky( $topic_id, false ) ? 'stick' : 'unstick';
+		}
+	}
+	
+	// Used variables
+	$tab             = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
+	$select_id       = esc_attr( $select_id );
+	$sticky_statuses = array (
+		'unstick' => $unstick_text,
+		'stick'   => $stick_text,
+		'super'   => $super_text,
+	); ?>
+
+	<select name="<?php echo $select_id; ?>" id="<?php echo $select_id; ?>"<?php echo $tab; ?>>
+
+		<?php foreach ( $sticky_statuses as $sticky_status => $label ) : ?>
+
+			<option value="<?php echo $sticky_status; ?>"<?php selected( $sticky_current, $sticky_status ); ?>><?php echo $label; ?></option>
+
+		<?php endforeach; ?>
+
+	</select>
 
 	<?php
 }

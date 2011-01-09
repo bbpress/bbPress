@@ -340,7 +340,7 @@ div.bbp-template-notice {
 -------------------------------------------------------------- */
 
 tr.super-sticky td,
-tr.sticky td {
+.bbp-forum-info tr.sticky td {
 	background-color: #ffffe0 !important;
 	font-size: 1.1em;
 }
