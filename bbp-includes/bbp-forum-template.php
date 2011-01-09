@@ -33,7 +33,8 @@ function bbp_has_forums( $args = '' ) {
 		'post_parent'    => bbp_get_forum_id(),
 		'posts_per_page' => -1,
 		'orderby'        => 'menu_order',
-		'order'          => 'ASC'
+		'order'          => 'ASC',
+		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 )
 	);
 
 	$r = wp_parse_args( $args, $default );
@@ -133,6 +134,45 @@ function bbp_forum_id( $forum_id = 0 ) {
 
 		return apply_filters( 'bbp_get_forum_id', (int) $bbp_forum_id );
 	}
+
+/**
+ * Gets a forum
+ *
+ * @since bbPress (r2787)
+ *
+ * @param int|object $forum forum id or forum object
+ * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
+ * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
+ * @uses get_post() To get the forum
+ * @return mixed Null if error or forum (in specified form) if success
+ */
+function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
+	global $bbp;
+
+	if ( empty( $forum ) || is_numeric( $forum ) )
+		$forum = bbp_get_forum_id( $forum );
+
+	if ( !$forum = get_post( $forum, OBJECT, $filter ) )
+		return $forum;
+
+	if ( $bbp->forum_id !== $forum->post_type )
+		return null;
+
+	if ( $output == OBJECT ) {
+		return $forum;
+
+	} elseif ( $output == ARRAY_A ) {
+		$_forum = get_object_vars( $forum );
+		return $_forum;
+
+	} elseif ( $output == ARRAY_N ) {
+		$_forum = array_values( get_object_vars( $forum ) );
+		return $_forum;
+
+	}
+
+	return apply_filters( 'bbp_get_forum', $forum );
+}
 
 /**
  * Output the link to the forum
@@ -305,7 +345,7 @@ function bbp_get_forum_parent( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_forum_id() To get the forum id
- * @uses get_post() To get the forum
+ * @uses bbp_get_forum() To get the forum
  * @uses apply_filters() Calls 'bbp_get_forum_ancestors' with the ancestors
  *                        and forum id
  * @return array Forum ancestors
@@ -313,11 +353,11 @@ function bbp_get_forum_parent( $forum_id = 0 ) {
 function bbp_get_forum_ancestors( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	if ( $forum = get_post( $forum_id ) ) {
+	if ( $forum = bbp_get_forum( $forum_id ) ) {
 		$ancestors = array();
 		while ( 0 !== $forum->post_parent ) {
 			$ancestors[] = $forum->post_parent;
-			$forum       = get_post( $forum->post_parent );
+			$forum       = bbp_get_forum( $forum->post_parent );
 		}
 	}
 

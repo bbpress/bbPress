@@ -31,7 +31,7 @@ function bbp_twentyten_enqueue_styles () {
  *
  * @uses bbp_get_current_user_id() To get the current user id
  * @uses current_user_can() To check if the current user can edit the user
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses check_ajax_referer() To verify the nonce & check the referer
  * @uses bbp_is_user_favorite() To check if the topic is user's favorite
  * @uses bbp_remove_user_favorite() To remove the topic from user's favorites
@@ -44,7 +44,7 @@ function bbp_twentyten_dim_favorite () {
 	if ( !current_user_can( 'edit_user', $user_id ) )
 		die( '-1' );
 
-	if ( !$topic = get_post( $id ) )
+	if ( !$topic = bbp_get_topic( $id ) )
 		die( '0' );
 
 	check_ajax_referer( "toggle-favorite_$topic->ID" );
@@ -68,7 +68,7 @@ function bbp_twentyten_dim_favorite () {
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_current_user_id() To get the current user id
  * @uses current_user_can() To check if the current user can edit the user
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses check_ajax_referer() To verify the nonce & check the referer
  * @uses bbp_is_user_subscribed() To check if the topic is in user's
  *                                 subscriptions
@@ -86,7 +86,7 @@ function bbp_twentyten_dim_subscription () {
 	if ( !current_user_can( 'edit_user', $user_id ) )
 		die( '-1' );
 
-	if ( !$topic = get_post( $id ) )
+	if ( !$topic = bbp_get_topic( $id ) )
 		die( '0' );
 
 	check_ajax_referer( "toggle-subscription_$topic->ID" );

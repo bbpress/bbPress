@@ -418,7 +418,7 @@ function bbp_new_reply_handler() {
  * Handles the front end edit reply submission
  *
  * @uses bbPress:errors::add() To log various error messages
- * @uses get_post() To get the reply
+ * @uses bbp_get_reply() To get the reply
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses bbp_is_reply_anonymous() To check if the reply was by an anonymous user
  * @uses current_user_can() To check if the current user can edit that reply
@@ -449,7 +449,7 @@ function bbp_edit_reply_handler() {
 
 		if ( empty( $_POST['bbp_reply_id'] ) || !$reply_id = (int) $_POST['bbp_reply_id'] ) {
 			$bbp->errors->add( 'bbp_edit_reply_id', __( '<strong>ERROR</strong>: Reply ID not found!', 'bbpress' ) );
-		} elseif ( !$reply = get_post( $reply_id ) ) {
+		} elseif ( !$reply = bbp_get_reply( $reply_id ) ) {
 			$bbp->errors->add( 'bbp_edit_reply_not_found', __( '<strong>ERROR</strong>: The reply you want to edit was not found!', 'bbpress' ) );
 		} else {
 
@@ -791,7 +791,7 @@ function bbp_new_topic_handler() {
  * Handles the front end edit topic submission
  *
  * @uses bbPress:errors::add() To log various error messages
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses bbp_is_topic_anonymous() To check if topic is by an anonymous user
  * @uses current_user_can() To check if the current user can edit the topic
@@ -828,7 +828,7 @@ function bbp_edit_topic_handler() {
 
 		if ( !$topic_id = (int) $_POST['bbp_topic_id'] ) {
 			$bbp->errors->add( 'bbp_edit_topic_id', __( '<strong>ERROR</strong>: Topic ID not found!', 'bbpress' ) );
-		} elseif ( !$topic = get_post( $topic_id ) ) {
+		} elseif ( !$topic = bbp_get_topic( $topic_id ) ) {
 			$bbp->errors->add( 'bbp_edit_topic_not_found', __( '<strong>ERROR</strong>: The topic you want to edit was not found!', 'bbpress' ) );
 		} else {
 			// Nonce check
@@ -1198,7 +1198,7 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  * @since bbPress (r2756)
  *
  * @uses bbPress:errors::add() To log various error messages
- * @uses get_post() To get the topics
+ * @uses bbp_get_topic() To get the topics
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses current_user_can() To check if the current user can edit the topics
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
@@ -1233,7 +1233,7 @@ function bbp_merge_topic_handler() {
 		// Nonce check
 		check_admin_referer( 'bbp-merge-topic_' . $source_topic_id );
 
-		if ( !$source_topic = get_post( $source_topic_id ) )
+		if ( !$source_topic = bbp_get_topic( $source_topic_id ) )
 			$bbp->errors->add( 'bbp_merge_topic_source_not_found', __( '<strong>ERROR</strong>: The topic you want to merge was not found!', 'bbpress' ) );
 
 		if ( !current_user_can( 'edit_topic', $source_topic->ID ) )
@@ -1242,7 +1242,7 @@ function bbp_merge_topic_handler() {
 		if ( !$destination_topic_id = (int) $_POST['bbp_destination_topic'] )
 			$bbp->errors->add( 'bbp_merge_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
 
-		if ( !$destination_topic = get_post( $destination_topic_id ) )
+		if ( !$destination_topic = bbp_get_topic( $destination_topic_id ) )
 			$bbp->errors->add( 'bbp_merge_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to merge to was not found!', 'bbpress' ) );
 
 		if ( !current_user_can( 'edit_topic', $destination_topic->ID ) )
@@ -1383,7 +1383,8 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @since bbPress (r2756)
  *
  * @uses bbPress:errors::add() To log various error messages
- * @uses get_post() To get the reply and topics
+ * @uses bbp_get_reply() To get the reply
+ * @uses bbp_get_topic() To get the topics
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses current_user_can() To check if the current user can edit the topics
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
@@ -1413,10 +1414,10 @@ function bbp_split_topic_handler() {
 		if ( !$from_reply_id = (int) $_POST['bbp_reply_id'] )
 			$bbp->errors->add( 'bbp_split_topic_reply_id', __( '<strong>ERROR</strong>: Reply ID to split the topic from not found!', 'bbpress' ) );
 
-		if ( !$from_reply = get_post( $from_reply_id ) )
+		if ( !$from_reply = bbp_get_reply( $from_reply_id ) )
 			$bbp->errors->add( 'bbp_split_topic_r_not_found', __( '<strong>ERROR</strong>: The reply you want to split from was not found!', 'bbpress' ) );
 
-		if ( !$source_topic = get_post( $from_reply->post_parent ) )
+		if ( !$source_topic = bbp_get_topic( $from_reply->post_parent ) )
 			$bbp->errors->add( 'bbp_split_topic_source_not_found', __( '<strong>ERROR</strong>: The topic you want to split was not found!', 'bbpress' ) );
 
 		// Nonce check
@@ -1434,7 +1435,7 @@ function bbp_split_topic_handler() {
 				if ( !$destination_topic_id = (int) $_POST['bbp_destination_topic'] )
 					$bbp->errors->add( 'bbp_split_topic_destination_id', __( '<strong>ERROR</strong>: Destination topic ID not found!', 'bbpress' ) );
 
-				if ( !$destination_topic = get_post( $destination_topic_id ) )
+				if ( !$destination_topic = bbp_get_topic( $destination_topic_id ) )
 					$bbp->errors->add( 'bbp_split_topic_destination_not_found', __( '<strong>ERROR</strong>: The topic you want to split to was not found!', 'bbpress' ) );
 
 				if ( !current_user_can( 'edit_topic', $destination_topic->ID ) )
@@ -1461,7 +1462,7 @@ function bbp_split_topic_handler() {
 					$destination_topic_id = wp_update_post( $postarr );
 
 					// Shouldn't happen
-					if ( false == $destination_topic_id || is_wp_error( $destination_topic_id ) || !$destination_topic = get_post( $destination_topic_id ) )
+					if ( false == $destination_topic_id || is_wp_error( $destination_topic_id ) || !$destination_topic = bbp_get_topic( $destination_topic_id ) )
 						$bbp->errors->add( 'bbp_split_topic_destination_reply', __( '<strong>ERROR</strong>: There was a problem converting the reply into the topic, please try again!', 'bbpress' ) );
 
 				} else {
@@ -2135,7 +2136,7 @@ function bbp_get_paged() {
  *
  * @since bbPress (r2727)
  *
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses current_user_can() To check if the user is capable of editing or
  *                           deleting the topic
  * @uses check_ajax_referer() To verify the nonce and check the referer
@@ -2169,7 +2170,7 @@ function bbp_toggle_topic_handler() {
 		$post_data = array( 'ID' => $topic_id ); // Prelim array
 
 		// Make sure topic exists
-		if ( !$topic = get_post( $topic_id ) )
+		if ( !$topic = bbp_get_topic( $topic_id ) )
 			return;
 
 		// What is the user doing here?
@@ -2271,7 +2272,7 @@ function bbp_toggle_topic_handler() {
  *
  * @since bbPress (r2740)
  *
- * @uses get_post() To get the reply
+ * @uses bbp_get_reply() To get the reply
  * @uses current_user_can() To check if the user is capable of editing or
  *                           deleting the reply
  * @uses check_ajax_referer() To verify the nonce and check the referer
@@ -2300,7 +2301,7 @@ function bbp_toggle_reply_handler() {
 		$post_data = array( 'ID' => $reply_id ); // Prelim array
 
 		// Make sure reply exists
-		if ( !$reply = get_post( $reply_id ) )
+		if ( !$reply = bbp_get_reply( $reply_id ) )
 			return;
 
 		// What is the user doing here?
@@ -2457,7 +2458,7 @@ function bbp_favorites_handler() {
  * @return bool Is favorites enabled or not
  */
 function bbp_is_favorites_active() {
-	return (bool) get_option( '_bbp_enable_favorites' );
+	return (bool) get_option( '_bbp_enable_favorites', true );
 }
 
 /**
@@ -2609,7 +2610,8 @@ function bbp_is_subscriptions_active() {
  *
  * @param int $reply_id ID of the newly made reply
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
- * @uses get_post() To get the topic and reply
+ * @uses bbp_get_reply() To get the reply
+ * @uses bbp_get_topic() To get the reply's topic
  * @uses get_the_author_meta() To get the author's display name
  * @uses do_action() Calls 'bbp_pre_notify_subscribers' with the reply id and
  *                    topic id
@@ -2631,13 +2633,13 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 	if ( empty( $reply_id ) )
 		return false;
 
-	if ( !$reply = get_post( $reply_id ) )
+	if ( !$reply = bbp_get_reply( $reply_id ) )
 		return false;
 
 	if ( $reply->post_type != $bbp->reply_id || empty( $reply->post_parent ) )
 		return false;
 
-	if ( !$topic = get_post( $reply->post_parent ) )
+	if ( !$topic = bbp_get_topic( $reply->post_parent ) )
 		return false;
 
 	if ( !$topic->post_type != $bbp->topic_id )

@@ -118,24 +118,6 @@ function bbp_admin_setting_callback_per_page_section() {
 }
 
 /**
- * Forums per page setting field
- *
- * @todo Implement
- *
- * @since bbPress (r2786)
- *
- * @uses form_option() To output the option value
- */
-function bbp_admin_setting_callback_forums_per_page() {
-?>
-
-			<input name="_bbp_forums_per_page" type="text" id="_bbp_forums_per_page" value="<?php form_option( '_bbp_forums_per_page' ); ?>" class="small-text" />
-			<label for="_bbp_forums_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
-
-<?php
-}
-
-/**
  * Topics per page setting field
  *
  * @since bbPress (r2786)
@@ -177,8 +159,7 @@ function bbp_admin_setting_callback_replies_per_page() {
 function bbp_admin_setting_callback_slugs_section() {
 ?>
 
-			<p><?php _e( 'Change the forum\'s slugs in this section.', 'bbpress' ); ?></p>
-			<p><?php printf( __( '<strong>Note</strong>: If you change any of these, all previous links would stop working. You must also go to the <a href="%s">permalinks</a> page and press the "Save Changes" button in order to make the changes take effect.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+			<p><?php printf( __( 'If you like, you may enter custom structures for your forum, topic, reply, and tag URLs here. If you change any of these, all previous links will stop working. If you leave these empty the defaults will be used.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -302,6 +283,7 @@ function bbp_admin_setting_callback_topic_tag_slug() {
  */
 function bbp_admin_settings() {
 ?>
+
 	<div class="wrap">
 
 		<?php screen_icon(); ?>

@@ -194,7 +194,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_id() To get the user id
  * @uses bbp_get_user_favorites_topic_ids() To get the user favorites
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses bbp_get_topic_id() To get the topic id
  * @uses apply_filters() Calls 'bbp_is_user_favorite' with the bool, user id,
  *                        topic id and favorites
@@ -209,8 +209,8 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	$favorites = bbp_get_user_favorites_topic_ids( $user_id );
 
 	if ( !empty( $topic_id ) ) {
-		$post = get_post( $topic_id );
-		$topic_id = $post->ID;
+		$topic    = bbp_get_topic( $topic_id );
+		$topic_id = !empty( $topic ) ? $topic->ID : 0;
 	} elseif ( !$topic_id = bbp_get_topic_id() ) {
 		if ( empty( $post ) )
 			return false;
@@ -245,7 +245,7 @@ function bbp_add_user_favorite( $user_id = 0, $topic_id = 0 ) {
 
 	$favorites = (array) bbp_get_user_favorites_topic_ids( $user_id );
 
-	if ( !$topic = get_post( $topic_id ) )
+	if ( !$topic = bbp_get_topic( $topic_id ) )
 		return false;
 
 	if ( !in_array( $topic_id, $favorites ) ) {
@@ -387,7 +387,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_id() To get the user id
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses bbp_get_topic_id() To get the topic id
  * @uses apply_filters() Calls 'bbp_is_user_subscribed' with the bool, user id,
  *                        topic id and subsriptions
@@ -402,8 +402,8 @@ function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
 	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
 
 	if ( !empty( $topic_id ) ) {
-		$post     = get_post( $topic_id );
-		$topic_id = $post->ID;
+		$topic     = bbp_get_topic( $topic_id );
+		$topic_id = !empty( $topic ) ? $topic->ID : 0;
 	} elseif ( !$topic_id = bbp_get_topic_id() ) {
 		if ( empty( $post ) )
 			return false;
@@ -428,7 +428,7 @@ function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
  * @param int $user_id Optional. User id
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_user_subscribed_topic_ids() To get the user's subscriptions
- * @uses get_post() To get the topic
+ * @uses bbp_get_topic() To get the topic
  * @uses update_user_meta() To update the user's subscriptions
  * @uses do_action() Calls 'bbp_add_user_subscription' with the user & topic id
  * @return bool Always true
@@ -439,7 +439,7 @@ function bbp_add_user_subscription( $user_id = 0, $topic_id = 0 ) {
 
 	$subscriptions = (array) bbp_get_user_subscribed_topic_ids( $user_id );
 
-	if ( !$topic = get_post( $topic_id ) )
+	if ( !$topic = bbp_get_topic( $topic_id ) )
 		return false;
 
 	if ( !in_array( $topic_id, $subscriptions ) ) {

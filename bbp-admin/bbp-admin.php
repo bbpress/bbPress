@@ -210,35 +210,35 @@ class BBP_Admin {
 		/** Slug Section **********************************************/
 
 		// Add the per page section
-		add_settings_section( 'bbp_slugs',          __( 'Slugs',         'bbpress' ), 'bbp_admin_setting_callback_slugs_section',   'bbpress'              );
+		add_settings_section( 'bbp_slugs',          __( 'Forums',        'bbpress' ), 'bbp_admin_setting_callback_slugs_section',   'bbpress'              );
 
 		// Root slug setting
-		add_settings_field( '_bbp_root_slug',       __( 'Root Slug',     'bbpress' ), 'bbp_admin_setting_callback_root_slug',       'bbpress', 'bbp_slugs' );
+		add_settings_field( '_bbp_root_slug',       __( 'Forum base',    'bbpress' ), 'bbp_admin_setting_callback_root_slug',       'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',              '_bbp_root_slug',                 'sanitize_title'                                                     );
 
 		// Include root setting
-		add_settings_field( '_bbp_include_root',    __( 'Prefix Root?',  'bbpress' ), 'bbp_admin_setting_callback_include_root',    'bbpress', 'bbp_slugs' );
+		add_settings_field( '_bbp_include_root',    __( 'Include base?', 'bbpress' ), 'bbp_admin_setting_callback_include_root',    'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',              '_bbp_include_root',              'intval'                                                             );
 
 		// User slug setting
-		add_settings_field( '_bbp_user_slug',       __( 'User Slug',     'bbpress' ), 'bbp_admin_setting_callback_user_slug',       'bbpress', 'bbp_slugs' );
+		add_settings_field( '_bbp_user_slug',       __( 'User base',     'bbpress' ), 'bbp_admin_setting_callback_user_slug',       'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',              '_bbp_user_slug',                 'sanitize_title'                                                     );
 
 		// Forum slug setting
-		add_settings_field( '_bbp_forum_slug',      __( 'Forum Slug',    'bbpress' ), 'bbp_admin_setting_callback_forum_slug',      'bbpress', 'bbp_slugs' );
+		add_settings_field( '_bbp_forum_slug',      __( 'Forum slug',    'bbpress' ), 'bbp_admin_setting_callback_forum_slug',      'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',             '_bbp_forum_slug',                 'sanitize_title'                                                     );
 
 		// Topic slug setting
-		add_settings_field( '_bbp_topic_slug',      __( 'Topic Slug',    'bbpress' ), 'bbp_admin_setting_callback_topic_slug',      'bbpress', 'bbp_slugs' );
+		add_settings_field( '_bbp_topic_slug',      __( 'Topic slug',    'bbpress' ), 'bbp_admin_setting_callback_topic_slug',      'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',             '_bbp_topic_slug',                 'sanitize_title'                                                     );
 
 		// Reply slug setting
-		add_settings_field( '_bbp_reply_slug',      __( 'Reply Slug',    'bbpress' ), 'bbp_admin_setting_callback_reply_slug',      'bbpress', 'bbp_slugs' );
+		add_settings_field( '_bbp_reply_slug',      __( 'Reply slug',    'bbpress' ), 'bbp_admin_setting_callback_reply_slug',      'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',             '_bbp_reply_slug',                 'sanitize_title'                                                     );
 
 		// Topic tag slug setting
-		add_settings_field( '_bbp_topic_tag_slug', __( 'Topic Tag Slug', 'bbpress' ), 'bbp_admin_setting_callback_topic_tag_slug',  'bbpress', 'bbp_slugs' );
-	 	register_setting  ( 'bbpress',             '_bbp_topic_tag_slug',              'sanitize_title'                                                     );
+		add_settings_field( '_bbp_topic_tag_slug', __( 'Topic tag slug', 'bbpress' ), 'bbp_admin_setting_callback_topic_tag_slug',  'bbpress', 'bbp_slugs' );
+	 	register_setting  ( 'bbpress',             '_bbp_topic_tag_slug',             'sanitize_title'                                                     );
 
 		do_action( 'bbp_register_admin_settings' );
 	}
@@ -344,8 +344,7 @@ class BBP_Admin {
 	 * @param int $forum_id Forum id
 	 * @uses current_user_can() To check if the current user is capable of
 	 *                           editing the forum
-	 * @uses get_post_field() To get the post type of the supplied id and
-	 *                         check if it's a forum
+	 * @uses bbp_get_forum() To get the forum
 	 * @uses bbp_is_forum_closed() To check if the forum is closed
 	 * @uses bbp_is_forum_category() To check if the forum is a category
 	 * @uses bbp_is_forum_private() To check if the forum is private
@@ -364,7 +363,7 @@ class BBP_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $forum_id;
 
-		if ( $bbp->forum_id != get_post_field( 'post_type', $forum_id ) )
+		if ( !$forum = bbp_get_forum( $forum_id ) )
 			return $forum_id;
 
 		if ( !current_user_can( 'edit_forum', $forum_id ) )
@@ -849,7 +848,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2727)
 	 *
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the user is capable of editing
 	 *                           the topic
 	 * @uses wp_die() To die if the user isn't capable or the post wasn't
@@ -880,7 +879,7 @@ class BBP_Admin {
 			$success   = false;                      // Flag
 			$post_data = array( 'ID' => $topic_id ); // Prelim array
 
-			if ( !$topic = get_post( $topic_id ) ) // Which topic?
+			if ( !$topic = bbp_get_topic( $topic_id ) ) // Which topic?
 				wp_die( __( 'The topic was not found!', 'bbpress' ) );
 
 			if ( !current_user_can( 'moderate', $topic->ID ) ) // What is the user doing here?
@@ -943,6 +942,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2727)
 	 *
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses bbp_get_topic_title() To get the topic title of the topic
 	 * @uses esc_html() To sanitize the topic title
 	 * @uses apply_filters() Calls 'bbp_toggle_topic_notice_admin' with
@@ -958,7 +958,7 @@ class BBP_Admin {
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
 			// Empty? No topic?
-			if ( empty( $notice ) || empty( $topic_id ) || !$topic = get_post( $topic_id ) )
+			if ( empty( $notice ) || empty( $topic_id ) || !$topic = bbp_get_topic( $topic_id ) )
 				return;
 
 			$topic_title = esc_html( bbp_get_topic_title( $topic->ID ) );
@@ -1198,7 +1198,7 @@ class BBP_Admin {
 			// Do not show trash links for spam topics, or spam links for trashed topics
 			if ( current_user_can( 'delete_topic', $topic->ID ) ) {
 				if ( $bbp->trash_status_id == $topic->post_status ) {
-					$post_type_object   = get_post_type_object( $topic->post_type );
+					$post_type_object   = get_post_type_object( $bbp->topic_id );
 					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
 					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
@@ -1222,7 +1222,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2740)
 	 *
-	 * @uses get_post() To get the reply
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the user is capable of editing
 	 *                           the reply
 	 * @uses wp_die() To die if the user isn't capable or the post wasn't
@@ -1246,7 +1246,7 @@ class BBP_Admin {
 			$success   = false;                      // Flag
 			$post_data = array( 'ID' => $reply_id ); // Prelim array
 
-			if ( !$reply = get_post( $reply_id ) ) // Which reply?
+			if ( !$reply = bbp_get_reply( $reply_id ) ) // Which reply?
 				wp_die( __( 'The reply was not found!', 'bbpress' ) );
 
 			if ( !current_user_can( 'moderate', $reply->ID ) ) // What is the user doing here?
@@ -1290,6 +1290,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2740)
 	 *
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses bbp_get_reply_title() To get the reply title of the reply
 	 * @uses esc_html() To sanitize the reply title
 	 * @uses apply_filters() Calls 'bbp_toggle_reply_notice_admin' with
@@ -1305,7 +1306,7 @@ class BBP_Admin {
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
 			// Empty? No reply?
-			if ( empty( $notice ) || empty( $reply_id ) || !$reply = get_post( $reply_id ) )
+			if ( empty( $notice ) || empty( $reply_id ) || !$reply = bbp_get_reply( $reply_id ) )
 				return;
 
 			$reply_title = esc_html( bbp_get_reply_title( $reply->ID ) );
@@ -1507,7 +1508,7 @@ class BBP_Admin {
 			// Trash
 			if ( current_user_can( 'delete_reply', $reply->ID ) ) {
 				if ( $bbp->trash_status_id == $reply->post_status ) {
-					$post_type_object = get_post_type_object( $reply->post_type );
+					$post_type_object = get_post_type_object( $bbp->reply_id );
 					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
 					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";

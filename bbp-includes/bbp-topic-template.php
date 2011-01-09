@@ -276,6 +276,45 @@ function bbp_topic_id( $topic_id = 0) {
 	}
 
 /**
+ * Gets a topic
+ *
+ * @since bbPress (r2787)
+ *
+ * @param int|object $topic Topic id or topic object
+ * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
+ * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
+ * @uses get_post() To get the topic
+ * @return mixed Null if error or topic (in specified form) if success
+ */
+function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
+	global $bbp;
+
+	if ( empty( $topic ) || is_numeric( $topic ) )
+		$topic = bbp_get_topic_id( $topic );
+
+	if ( !$topic = get_post( $topic, OBJECT, $filter ) )
+		return $topic;
+
+	if ( $bbp->topic_id !== $topic->post_type )
+		return null;
+
+	if ( $output == OBJECT ) {
+		return $topic;
+
+	} elseif ( $output == ARRAY_A ) {
+		$_topic = get_object_vars( $topic );
+		return $_topic;
+
+	} elseif ( $output == ARRAY_N ) {
+		$_topic = array_values( get_object_vars( $topic ) );
+		return $_topic;
+
+	}
+
+	return $topic;
+}
+
+/**
  * Output the link to the topic in the topic loop
  *
  * @since bbPress (r2485)
@@ -1281,7 +1320,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
 	 * @uses remove_query_arg() To remove args from the url
@@ -1296,7 +1335,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	function bbp_get_topic_replies_link( $topic_id = 0 ) {
 		global $bbp;
 
-		$topic    = get_post( bbp_get_topic_id( (int) $topic_id ) );
+		$topic    = bbp_get_topic( bbp_get_topic_id( (int) $topic_id ) );
 		$topic_id = $topic->ID;
 		$replies  = bbp_get_topic_reply_count( $topic_id );
 		$replies  = sprintf( _n( '%s reply', '%s replies', $replies, 'bbpress' ), $replies );
@@ -1615,7 +1654,7 @@ function bbp_topic_edit_link( $args = '' ) {
 	 *  - link_after: After the link
 	 *  - edit_text: Edit text
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           topic
 	 * @uses bbp_get_topic_edit_url() To get the topic edit url
@@ -1634,7 +1673,7 @@ function bbp_topic_edit_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
 		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
 			return;
@@ -1663,7 +1702,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get the home url
 	 * @uses apply_filters() Calls 'bbp_get_topic_edit_url' with the edit
@@ -1673,7 +1712,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	function bbp_get_topic_edit_url( $topic_id = 0 ) {
 		global $wp_rewrite, $bbp;
 
-		if ( !$topic = get_post( bbp_get_topic_id( $topic_id ) ) )
+		if ( !$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) ) )
 			return;
 
 		if ( empty( $wp_rewrite->permalink_structure ) ) {
@@ -1712,7 +1751,7 @@ function bbp_topic_trash_link( $args = '' ) {
 	 *  - restore_text: Restore text
 	 *  - delete_text: Delete text
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the current user can delete the
 	 *                           topic
 	 * @uses bbp_get_topic_status() To get the topic status
@@ -1739,7 +1778,7 @@ function bbp_topic_trash_link( $args = '' ) {
 		extract( $r );
 
 		$actions = array();
-		$topic   = get_post( bbp_get_topic_id( (int) $id ) );
+		$topic   = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
 		if ( empty( $topic ) || !current_user_can( 'delete_topic', $topic->ID ) )
 			return;
@@ -1784,7 +1823,7 @@ function bbp_topic_close_link( $args = '' ) {
 	 *  - close_text: Close text
 	 *  - open_text: Open text
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           topic
 	 * @uses bbp_is_topic_open() To check if the topic is open
@@ -1808,7 +1847,7 @@ function bbp_topic_close_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
 		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
@@ -1846,7 +1885,7 @@ function bbp_topic_stick_link( $args = '' ) {
 	 *  - unstick_text: Unstick text
 	 *  - super_text: Stick to front text
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           topic
 	 * @uses bbp_is_topic_sticky() To check if the topic is a sticky
@@ -1870,7 +1909,7 @@ function bbp_topic_stick_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
 		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
@@ -1917,6 +1956,8 @@ function bbp_topic_merge_link( $args = '' ) {
 	 *  - link_before: Before the link
 	 *  - link_after: After the link
 	 *  - merge_text: Merge text
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses bbp_get_topic_edit_url() To get the topic edit url
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses esc_url() To escape the url
@@ -1935,7 +1976,7 @@ function bbp_topic_merge_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
 		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;
@@ -1969,7 +2010,7 @@ function bbp_topic_spam_link( $args = '' ) {
 	 *  - spam_text: Spam text
 	 *  - unspam_text: Unspam text
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses get_post() To get the topic
+	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           topic
 	 * @uses bbp_is_topic_spam() To check if the topic is marked as spam
@@ -1993,7 +2034,7 @@ function bbp_topic_spam_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$topic = get_post( bbp_get_topic_id( (int) $id ) );
+		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
 		if ( empty( $topic ) || !current_user_can( 'moderate', $topic->ID ) )
 			return;

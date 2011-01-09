@@ -40,10 +40,10 @@ function bbp_add_options() {
 		'_bbp_allow_anonymous'      => false,
 
 		// Topics per page
-		'_bbp_topics_per_page'      => '20',
+		'_bbp_topics_per_page'      => '15',
 
 		// Replies per page
-		'_bbp_replies_per_page'     => '20',
+		'_bbp_replies_per_page'     => '15',
 
 		/** SLUGS *************************************************************/
 

@@ -176,6 +176,45 @@ function bbp_reply_id( $reply_id = 0 ) {
 	}
 
 /**
+ * Gets a reply
+ *
+ * @since bbPress (r2787)
+ *
+ * @param int|object $reply reply id or reply object
+ * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
+ * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
+ * @uses get_post() To get the reply
+ * @return mixed Null if error or reply (in specified form) if success
+ */
+function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
+	global $bbp;
+
+	if ( empty( $reply ) || is_numeric( $reply ) )
+		$reply = bbp_get_reply_id( $reply );
+
+	if ( !$reply = get_post( $reply, OBJECT, $filter ) )
+		return $reply;
+
+	if ( $bbp->reply_id !== $reply->post_type )
+		return null;
+
+	if ( $output == OBJECT ) {
+		return $reply;
+
+	} elseif ( $output == ARRAY_A ) {
+		$_reply = get_object_vars( $reply );
+		return $_reply;
+
+	} elseif ( $output == ARRAY_N ) {
+		$_reply = array_values( get_object_vars( $reply ) );
+		return $_reply;
+
+	}
+
+	return $reply;
+}
+
+/**
  * Output the link to the reply in the reply loop
  *
  * @since bbPress (r2553)
@@ -1099,7 +1138,7 @@ function bbp_reply_edit_link( $args = '' ) {
 	 *  - link_after: HTML after the link
 	 *  - edit_text: Edit text. Defaults to 'Edit'
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses get_post() To get the reply
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           reply
 	 * @uses bbp_get_reply_edit_url() To get the reply edit url
@@ -1118,7 +1157,7 @@ function bbp_reply_edit_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$reply = get_post( bbp_get_reply_id( (int) $id ) );
+		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
 
 		if ( empty( $reply ) || !current_user_can( 'edit_reply', $reply->ID ) )
 			return;
@@ -1147,7 +1186,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses get_post() To get the reply
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get the home url
 	 * @uses apply_filters() Calls 'bbp_get_reply_edit_url' with the edit
@@ -1157,7 +1196,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	function bbp_get_reply_edit_url( $reply_id = 0 ) {
 		global $wp_rewrite, $bbp;
 
-		if ( !$reply = get_post( bbp_get_reply_id( $reply_id ) ) )
+		if ( !$reply = bbp_get_reply( bbp_get_reply_id( $reply_id ) ) )
 			return;
 
 		if ( empty( $wp_rewrite->permalink_structure ) ) {
@@ -1196,7 +1235,7 @@ function bbp_reply_trash_link( $args = '' ) {
 	 *  - restore_text: Restore text
 	 *  - delete_text: Delete text
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses get_post() To get the reply
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the current user can delete the
 	 *                           reply
 	 * @uses bbp_get_reply_status() To get the reply status
@@ -1223,7 +1262,7 @@ function bbp_reply_trash_link( $args = '' ) {
 		extract( $r );
 
 		$actions = array();
-		$reply   = get_post( bbp_get_reply_id( (int) $id ) );
+		$reply   = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
 
 		if ( empty( $reply ) || !current_user_can( 'delete_reply', $reply->ID ) )
 			return;
@@ -1268,7 +1307,7 @@ function bbp_reply_spam_link( $args = '' ) {
 	 *  - spam_text: Spam text
 	 *  - unspam_text: Unspam text
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses get_post() To get the reply
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           reply
 	 * @uses bbp_is_reply_spam() To check if the reply is marked as spam
@@ -1292,7 +1331,7 @@ function bbp_reply_spam_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$reply = get_post( bbp_get_reply_id( (int) $id ) );
+		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
 
 		if ( empty( $reply ) || !current_user_can( 'moderate', $reply->ID ) )
 			return;
@@ -1333,7 +1372,7 @@ function bbp_topic_split_link( $args = '' ) {
 	 *  - split_text: Split text
 	 *  - split_title: Split title attribute
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses get_post() To get the reply
+	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           topic
 	 * @uses bbp_get_reply_topic_id() To get the reply topic id
@@ -1357,7 +1396,7 @@ function bbp_topic_split_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$reply = get_post( bbp_get_reply_id( (int) $id ) );
+		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
 
 		if ( empty( $reply ) || !current_user_can( 'moderate', $reply->post_parent ) )
 			return;

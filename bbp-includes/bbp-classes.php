@@ -256,7 +256,7 @@ class BBP_Walker_Forum extends Walker {
 		$css_class = array( 'bbp-forum-item', 'bbp-forum-item-' . $forum->ID );
 
 		if ( !empty( $current_forum ) ) {
-			$_current_page = get_post( $current_forum );
+			$_current_page = bbp_get_forum( $current_forum );
 
 			if ( isset( $_current_page->ancestors ) && in_array( $forum->ID, (array) $_current_page->ancestors ) )
 				$css_class[] = 'bbp-current-forum-ancestor';
