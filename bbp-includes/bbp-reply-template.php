@@ -382,6 +382,180 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	}
 
 /**
+ * Append revisions to the reply content
+ *
+ * @since bbPress (r2782)
+ *
+ * @param string $content Content to which we need to append the revisions to
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_revision_log() To get the reply revision log
+ * @uses apply_filters() Calls 'bbp_reply_append_revisions' with the processed
+ *                        content, original content and reply id
+ * @return string Content with the revisions appended
+ */
+function bbp_reply_content_append_revisions( $content, $reply_id ) {
+	return apply_filters( 'bbp_reply_append_revisions', $content . bbp_get_reply_revision_log( $reply_id ), $content, $reply_id );
+}
+
+/**
+ * Output the revision log of the reply in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_revision_log() To get the reply revision log
+ */
+function bbp_reply_revision_log( $reply_id = 0 ) {
+	echo bbp_get_reply_revision_log( $reply_id );
+}
+	/**
+	 * Return the formatted revision log of the reply in the loop
+	 *
+	 * @since bbPress (r2782)
+	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_revisions() To get the reply revisions
+	 * @uses bbp_get_reply_raw_revision_log() To get the raw revision log
+	 * @uses bbp_get_reply_author() To get the reply author
+	 * @uses bbp_get_reply_author_link() To get the reply author link
+	 * @uses bbp_convert_date() To convert the date
+	 * @uses bbp_get_time_since() To get the time in since format
+	 * @uses apply_filters() Calls 'bbp_get_reply_revision_log' with the
+	 *                        log and reply id
+	 * @return string Revision log of the reply
+	 */
+	function bbp_get_reply_revision_log( $reply_id = 0 ) {
+		$reply_id     = bbp_get_reply_id( $reply_id );
+		$revisions    = bbp_get_reply_revisions( $reply_id );
+		$revision_log = bbp_get_reply_raw_revision_log( $reply_id );
+
+		if ( empty( $reply_id ) || empty( $revisions ) || empty( $revision_log ) || !is_array( $revisions ) || !is_array( $revision_log ) )
+			return false;
+
+		$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . $reply_id . '" class="bbp-reply-revision-log">' . "\n\n";
+
+		foreach ( (array) $revisions as $revision ) {
+
+			if ( empty( $revision_log[$revision->ID] ) ) {
+				$author_id = $revision->post_author;
+				$reason    = '';
+			} else {
+				$author_id = $revision_log[$revision->ID]['author'];
+				$reason    = $revision_log[$revision->ID]['reason'];
+			}
+
+			$author = bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author( $revision->ID ), 'reply_id' => $revision->ID ) );
+			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
+
+			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item" class="bbp-reply-revision-log-item">' . "\n";
+				$r .= "\t\t" . sprintf( __( empty( $reason ) ? 'This reply was modified %1$s ago by %2$s.' : 'This reply was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+			$r .= "\t" . '</li>' . "\n";
+
+		}
+
+		$r .= "\n" . '</ul>' . "\n\n";
+
+		return apply_filters( 'bbp_get_reply_revision_log', $r, $reply_id );
+	}
+		/**
+		 * Return the raw revision log of the reply in the loop
+		 *
+		 * @since bbPress (r2782)
+		 *
+		 * @param int $reply_id Optional. Reply id
+		 * @uses bbp_get_reply_id() To get the reply id
+		 * @uses get_post_meta() To get the revision log meta
+		 * @uses apply_filters() Calls 'bbp_get_reply_raw_revision_log'
+		 *                        with the log and reply id
+		 * @return string Raw revision log of the reply
+		 */
+		function bbp_get_reply_raw_revision_log( $reply_id = 0 ) {
+			$reply_id = bbp_get_reply_id( $reply_id );
+
+			$revision_log = get_post_meta( $reply_id, '_bbp_revision_log', true );
+			$revision_log = empty( $revision_log ) ? array() : $revision_log;
+
+			return apply_filters( 'bbp_get_reply_raw_revision_log', $revision_log, $reply_id );
+		}
+
+/**
+ * Return the revisions of the reply in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses wp_get_post_revisions() To get the reply revisions
+ * @uses apply_filters() Calls 'bbp_get_reply_revisions'
+ *                        with the revisions and reply id
+ * @return string reply revisions
+ */
+function bbp_get_reply_revisions( $reply_id = 0 ) {
+	$reply_id  = bbp_get_reply_id( $reply_id );
+	$revisions = wp_get_post_revisions( $reply_id, array( 'order' => 'ASC' ) );
+
+	return apply_filters( 'bbp_get_reply_revisions', $revisions, $reply_id );
+}
+
+/**
+ * Return the revision count of the reply in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_revisions() To get the reply revisions
+ * @uses apply_filters() Calls 'bbp_get_reply_revision_count'
+ *                        with the revision count and reply id
+ * @return string reply revision count
+ */
+function bbp_get_reply_revision_count( $reply_id = 0 ) {
+	return apply_filters( 'bbp_get_reply_revisions', count( bbp_get_reply_revisions( $reply_id ) ), $reply_id );
+}
+
+/**
+ * Update the revision log of the reply in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param mixed $args Supports these args:
+ *  - reply_id: reply id
+ *  - author_id: Author id
+ *  - reason: Reason for editing
+ *  - revision_id: Revision id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_format_revision_reason() To format the reason
+ * @uses bbp_get_reply_raw_revision_log() To get the raw reply revision log
+ * @uses update_post_meta() To update the reply revision log meta
+ * @return mixed False on failure, true on success
+ */
+function bbp_update_reply_revision_log( $args = '' ) {
+	$defaults = array (
+		'reason'      => '',
+		'reply_id'    => 0,
+		'author_id'   => 0,
+		'revision_id' => 0
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Populate the variables
+	$reason      = bbp_format_revision_reason( $reason );
+	$reply_id    = bbp_get_reply_id( $reply_id );
+	$author_id   = bbp_get_user_id ( $author_id, false, true );
+	$revision_id = (int) $revision_id;
+
+	// Get the logs and append the new one to those
+	$revision_log               = bbp_get_reply_raw_revision_log( $reply_id );
+	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
+
+	// Finally, update
+	return update_post_meta( $reply_id, '_bbp_revision_log', $revision_log );
+}
+
+/**
  * Output the status of the reply in the loop
  *
  * @since bbPress (r2667)

@@ -242,6 +242,40 @@ function bbp_get_statistics( $args = '' ) {
 	return apply_filters( 'bbp_get_statistics', $statistics, $args );
 }
 
+/**
+ * Formats the reason for editing the topic/reply.
+ *
+ * Does these things:
+ *  - Trimming
+ *  - Removing periods from the end of the string
+ *  - Trimming again
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @return string Status of topic
+ */
+function bbp_format_revision_reason( $reason = '' ) {
+	$reason = (string) $reason;
+
+	// Format reason for proper display
+	if ( empty( $reason ) )
+		return $reason;
+
+	// Trimming
+	$reason = trim( $reason );
+
+	// We add our own full stop.
+	while ( substr( $reason, -1 ) == '.' ) {
+		$reason = substr( $reason, 0, -1 );
+	}
+
+	// Trim again
+	$reason = trim( $reason );
+
+	return $reason;
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -398,6 +432,8 @@ function bbp_new_reply_handler() {
  *                        reply id
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
+ * @uses wp_save_post_revision() To save a reply revision
+ * @uses bbp_update_topic_revision_log() To update the reply revision log
  * @uses wp_update_post() To update the reply
  * @uses do_action() Calls 'bbp_edit_reply' with the reply id, topic id, forum
  *                    id, anonymous data, reply author and bool true (for edit)
@@ -453,6 +489,11 @@ function bbp_edit_reply_handler() {
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+
+			$reply_edit_reason = !empty( $_POST['bbp_reply_edit_reason'] ) ? esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) ) : '';
+
+			if ( !empty( $_POST['bbp_log_reply_edit'] ) && 1 == $_POST['bbp_log_reply_edit'] && $revision_id = wp_save_post_revision( $reply_id ) )
+				bbp_update_reply_revision_log( array( 'reply_id' => $reply_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $reply_edit_reason ) );
 
 			// Add the content of the form to $post as an array
 			$reply_data = array(
@@ -739,6 +780,8 @@ function bbp_new_topic_handler() {
  * @uses apply_filters() Calls 'bbp_edit_topic_pre_content' with the content
  *                        and topic id
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
+ * @uses wp_save_post_revision() To save a topic revision
+ * @uses bbp_update_topic_revision_log() To update the topic revision log
  * @uses wp_update_post() To update the topic
  * @uses do_action() Calls 'bbp_edit_topic' with the topic id, forum id,
  *                    anonymous data and reply author
@@ -809,6 +852,11 @@ function bbp_edit_topic_handler() {
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+
+			$topic_edit_reason = !empty( $_POST['bbp_topic_edit_reason'] ) ? esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) ) : '';
+
+			if ( !empty( $_POST['bbp_log_topic_edit'] ) && 1 == $_POST['bbp_log_topic_edit'] && $revision_id = wp_save_post_revision( $topic_id ) )
+				bbp_update_topic_revision_log( array( 'topic_id' => $topic_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $topic_edit_reason ) );
 
 			// Add the content of the form to $post as an array
 			$topic_data = array(
@@ -1883,6 +1931,9 @@ function bbp_pre_get_posts( $wp_query ) {
 		// It is a reply edit page
 		elseif ( get_query_var( 'post_type' ) == $bbp->reply_id )
 			$wp_query->bbp_is_reply_edit = true;
+
+		// We save post revisions on our own
+		remove_action( 'pre_post_update', 'wp_save_post_revision' );
 	}
 }
 

@@ -474,7 +474,8 @@ class bbPress {
 			'title',
 			'editor',
 			'thumbnail',
-			'excerpt'
+			'excerpt',
+			'revisions'
 		);
 
 		// Topic Filter
@@ -526,7 +527,8 @@ class bbPress {
 			'title',
 			'editor',
 			'thumbnail',
-			'excerpt'
+			'excerpt',
+			'revisions'
 		);
 
 		// Reply filter

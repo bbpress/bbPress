@@ -711,22 +711,35 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
 	}
-
+	
 /**
- * Display all of the allowed tags in HTML format with attributes.
+ * Output all of the allowed tags in HTML format with attributes.
  *
  * This is useful for displaying in the post area, which elements and
  * attributes are supported. As well as any plugins which want to display it.
  *
  * @since bbPress (r2780)
  *
- * @uses allowed_tags() To get the allowed tags
- * @uses apply_filters() Calls 'bbp_allowed_tags' with the tags
- * @return string HTML allowed tags entity encoded.
+ * @uses bbp_get_allowed_tags() 
  */
 function bbp_allowed_tags() {
-	return apply_filters( 'bbp_allowed_tags', allowed_tags() );
+	echo bbp_get_allowed_tags();
 }
+	/**
+	 * Display all of the allowed tags in HTML format with attributes.
+	 *
+	 * This is useful for displaying in the post area, which elements and
+	 * attributes are supported. As well as any plugins which want to display it.
+	 *
+	 * @since bbPress (r2780)
+	 *
+	 * @uses allowed_tags() To get the allowed tags
+	 * @uses apply_filters() Calls 'bbp_allowed_tags' with the tags
+	 * @return string HTML allowed tags entity encoded.
+	 */
+	function bbp_get_allowed_tags() {
+		return apply_filters( 'bbp_get_allowed_tags', allowed_tags() );
+	}
 
 /** Start Query Functions *****************************************************/
 

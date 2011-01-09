@@ -209,6 +209,11 @@ td.bbp-topic-counts {
 /* =Forms
 -------------------------------------------------------------- */
 
+#content fieldset p,
+#content fieldset input {
+	margin: 0px 0px 10px;
+}
+
 .bbp-topic-form,
 .bbp-reply-form,
 .bbp-topic-tag-form {
@@ -338,4 +343,17 @@ tr.super-sticky td,
 tr.sticky td {
 	background-color: #ffffe0 !important;
 	font-size: 1.1em;
+}
+
+/* =Revisions
+-------------------------------------------------------------- */
+#content .bbp-topic-revision-log,
+#content .bbp-reply-revision-log {
+	border-top: 1px dotted #ddd;
+	list-style: none;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	color: #aaa;
 }

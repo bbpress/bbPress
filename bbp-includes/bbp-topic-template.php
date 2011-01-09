@@ -414,6 +414,180 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	}
 
 /**
+ * Append revisions to the topic content
+ *
+ * @since bbPress (r2782)
+ *
+ * @param string $content Content to which we need to append the revisions to
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_revision_log() To get the topic revision log
+ * @uses apply_filters() Calls 'bbp_topic_append_revisions' with the processed
+ *                        content, original content and topic id
+ * @return string Content with the revisions appended
+ */
+function bbp_topic_content_append_revisions( $content, $topic_id ) {
+	return apply_filters( 'bbp_topic_append_revisions', $content . bbp_get_topic_revision_log( $topic_id ), $content, $topic_id );
+}
+
+/**
+ * Output the revision log of the topic in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_revision_log() To get the topic revision log
+ */
+function bbp_topic_revision_log( $topic_id = 0 ) {
+	echo bbp_get_topic_revision_log( $topic_id );
+}
+	/**
+	 * Return the formatted revision log of the topic in the loop
+	 *
+	 * @since bbPress (r2782)
+	 *
+	 * @param int $topic_id Optional. Topic id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_get_topic_revisions() To get the topic revisions
+	 * @uses bbp_get_topic_raw_revision_log() To get the raw revision log
+	 * @uses bbp_get_topic_author() To get the topic author
+	 * @uses bbp_get_topic_author_link() To get the topic author link
+	 * @uses bbp_convert_date() To convert the date
+	 * @uses bbp_get_time_since() To get the time in since format
+	 * @uses apply_filters() Calls 'bbp_get_topic_revision_log' with the
+	 *                        log and topic id
+	 * @return string Revision log of the topic
+	 */
+	function bbp_get_topic_revision_log( $topic_id = 0 ) {
+		$topic_id     = bbp_get_topic_id( $topic_id );
+		$revisions    = bbp_get_topic_revisions( $topic_id );
+		$revision_log = bbp_get_topic_raw_revision_log( $topic_id );
+
+		if ( empty( $topic_id ) || empty( $revisions ) || empty( $revision_log ) || !is_array( $revisions ) || !is_array( $revision_log ) )
+			return false;
+
+		$r = "\n\n" . '<ul id="bbp-topic-revision-log-' . $topic_id . '" class="bbp-topic-revision-log">' . "\n\n";
+
+		foreach ( (array) $revisions as $revision ) {
+
+			if ( empty( $revision_log[$revision->ID] ) ) {
+				$author_id = $revision->post_author;
+				$reason    = '';
+			} else {
+				$author_id = $revision_log[$revision->ID]['author'];
+				$reason    = $revision_log[$revision->ID]['reason'];
+			}
+
+			$author = bbp_get_topic_author_link( array( 'link_text' => bbp_get_topic_author( $revision->ID ), 'topic_id' => $revision->ID ) );
+			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
+
+			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item" class="bbp-topic-revision-log-item">' . "\n";
+			$r .= "\t\t" . sprintf( __( empty( $reason ) ? 'This topic was modified %1$s ago by %2$s.' : 'This topic was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
+			$r .= "\t" . '</li>' . "\n";
+
+		}
+
+		$r .= "\n" . '</ul>' . "\n\n";
+
+		return apply_filters( 'bbp_get_topic_revision_log', $r, $topic_id );
+	}
+		/**
+		 * Return the raw revision log of the topic in the loop
+		 *
+		 * @since bbPress (r2782)
+		 *
+		 * @param int $topic_id Optional. Topic id
+		 * @uses bbp_get_topic_id() To get the topic id
+		 * @uses get_post_meta() To get the revision log meta
+		 * @uses apply_filters() Calls 'bbp_get_topic_raw_revision_log'
+		 *                        with the log and topic id
+		 * @return string Raw revision log of the topic
+		 */
+		function bbp_get_topic_raw_revision_log( $topic_id = 0 ) {
+			$topic_id = bbp_get_topic_id( $topic_id );
+
+			$revision_log = get_post_meta( $topic_id, '_bbp_revision_log', true );
+			$revision_log = empty( $revision_log ) ? array() : $revision_log;
+
+			return apply_filters( 'bbp_get_topic_raw_revision_log', $revision_log, $topic_id );
+		}
+
+/**
+ * Return the revisions of the topic in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses wp_get_post_revisions() To get the topic revisions
+ * @uses apply_filters() Calls 'bbp_get_topic_revisions'
+ *                        with the revisions and topic id
+ * @return string Topic revisions
+ */
+function bbp_get_topic_revisions( $topic_id = 0 ) {
+	$topic_id  = bbp_get_topic_id( $topic_id );
+	$revisions = wp_get_post_revisions( $topic_id, array( 'order' => 'ASC' ) );
+
+	return apply_filters( 'bbp_get_topic_revisions', $revisions, $topic_id );
+}
+
+/**
+ * Return the revision count of the topic in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_revisions() To get the topic revisions
+ * @uses apply_filters() Calls 'bbp_get_topic_revision_count'
+ *                        with the revision count and topic id
+ * @return string Topic revision count
+ */
+function bbp_get_topic_revision_count( $topic_id = 0 ) {
+	return apply_filters( 'bbp_get_topic_revisions', count( bbp_get_topic_revisions( $topic_id ) ), $topic_id );
+}
+
+/**
+ * Update the revision log of the topic in the loop
+ *
+ * @since bbPress (r2782)
+ *
+ * @param mixed $args Supports these args:
+ *  - topic_id: Topic id
+ *  - author_id: Author id
+ *  - reason: Reason for editing
+ *  - revision_id: Revision id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_format_revision_reason() To format the reason
+ * @uses bbp_get_topic_raw_revision_log() To get the raw topic revision log
+ * @uses update_post_meta() To update the topic revision log meta
+ * @return mixed False on failure, true on success
+ */
+function bbp_update_topic_revision_log( $args = '' ) {
+	$defaults = array (
+		'reason'      => '',
+		'topic_id'    => 0,
+		'author_id'   => 0,
+		'revision_id' => 0
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Populate the variables
+	$reason      = bbp_format_revision_reason( $reason );
+	$topic_id    = bbp_get_topic_id( $topic_id );
+	$author_id   = bbp_get_user_id ( $author_id, false, true );
+	$revision_id = (int) $revision_id;
+
+	// Get the logs and append the new one to those
+	$revision_log               = bbp_get_topic_raw_revision_log( $topic_id );
+	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
+
+	// Finally, update
+	return update_post_meta( $topic_id, '_bbp_revision_log', $revision_log );
+}
+
+/**
  * Output the status of the topic in the loop
  *
  * @since bbPress (r2667)
