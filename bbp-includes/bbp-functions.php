@@ -1987,32 +1987,80 @@ function bbp_pre_get_posts( $wp_query ) {
 }
 
 /**
- * Custom page title for bbPress User Profile Pages
+ * Custom page title for bbPress pages
  *
- * @since bbPress (r2688)
+ * @since bbPress (r2788)
  *
  * @param string $title Optional. The title (not used).
- * @param string $sep Optional, default is '&raquo;'. How to separate the various items within the page title.
+ * @param string $sep Optional, default is '&raquo;'. How to separate the
+ *                     various items within the page title.
  * @param string $seplocation Optional. Direction to display title, 'right'.
  * @uses bbp_is_user_profile_page() To check if it's a user profile page
  * @uses bbp_is_user_profile_edit() To check if it's a user profile edit page
  * @uses get_query_var() To get the user id
  * @uses get_userdata() To get the user data
- * @uses apply_filters() Calls 'bbp_profile_page_wp_raw_title' with the user's
- *                        display name, separator and separator location
+ * @uses apply_filters() Calls 'bbp_raw_title' with the title
  * @uses apply_filters() Calls 'bbp_profile_page_wp_title' with the title,
  *                        separator and separator location
  * @return string The tite
  */
-function bbp_profile_page_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
-	if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() )
-		return;
+function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
+	global $bbp;
 
-	$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
-	$title    = apply_filters( 'bbp_profile_page_wp_raw_title', $userdata->display_name, $sep, $seplocation );
-	$t_sep    = '%WP_TITILE_SEP%'; // Temporary separator, for accurate flipping, if necessary
+	$_title = $title;
 
+	// Profile page
+	if ( bbp_is_user_profile_page() ) {
+
+		if ( bbp_is_user_home() ) {
+			$title = __( 'Your Profile', 'bbpress' );
+		} else {
+			$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
+			$title    = sprintf( __( '%s\'s Profile', 'bbpress' ), $userdata->display_name );
+		}
+
+	// Profile edit page
+	} elseif ( bbp_is_user_profile_edit() ) {
+
+		if ( bbp_is_user_home() ) {
+			$title = __( 'Edit Your Profile', 'bbpress' );
+		} else {
+			$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
+			$title    = sprintf( __( 'Edit %s\'s Profile', 'bbpress' ), $userdata->display_name );
+		}
+
+	// Forum page
+	} elseif ( bbp_is_forum() ) {
+
+		$title = sprintf( __( 'Forum: %s', 'bbpress' ), bbp_get_forum_title() );
+
+	// Topic page
+	} elseif ( bbp_is_topic() ) {
+
+		$title = sprintf( __( 'Topic: %s', 'bbpress' ), bbp_get_topic_title() );
+
+	// Replies
+	} elseif ( bbp_is_reply() ) {
+
+		// Normal reply titles already have "Reply To: ", so we shouldn't add our own
+		$title = bbp_get_reply_title();
+
+	} elseif ( is_tax( $bbp->topic_tag_id ) ) {
+
+		$term  = get_queried_object();
+		$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
+
+	}
+
+	$title  = apply_filters( 'bbp_raw_title', $title, $sep, $seplocation );
+
+	if ( $title == $_title )
+		return $title;
+
+	// Temporary separator, for accurate flipping, if necessary
+	$t_sep  = '%WP_TITILE_SEP%';
 	$prefix = '';
+
 	if ( !empty( $title ) )
 		$prefix = " $sep ";
 
@@ -2026,7 +2074,7 @@ function bbp_profile_page_title( $title = '', $sep = '&raquo;', $seplocation = '
 		$title       = $prefix . implode( " $sep ", $title_array );
 	}
 
-	$title = apply_filters( 'bbp_profile_page_wp_title', $title, $sep, $seplocation );
+	$title = apply_filters( 'bbp_title', $title, $sep, $seplocation );
 
 	return $title;
 }

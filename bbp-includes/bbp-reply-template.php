@@ -184,6 +184,8 @@ function bbp_reply_id( $reply_id = 0 ) {
  * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
  * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
  * @uses get_post() To get the reply
+ * @uses apply_filters() Calls 'bbp_get_reply' with the reply, output type and
+ *                        sanitation filter
  * @return mixed Null if error or reply (in specified form) if success
  */
 function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
@@ -211,7 +213,7 @@ function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
 
 	}
 
-	return $reply;
+	return apply_filters( 'bbp_get_reply', $reply, $output, $filter );
 }
 
 /**

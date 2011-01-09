@@ -72,10 +72,11 @@ add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_To
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
 
 // Template - Head, foot, errors and notices
-add_action( 'wp_head',              'bbp_head'           );
-add_action( 'wp_footer',            'bbp_footer'         );
-add_action( 'bbp_template_notices', 'bbp_error_messages' );
-add_action( 'bbp_template_notices', 'bbp_topic_notices'  );
+add_action( 'wp_head',              'bbp_head'                 );
+add_filter( 'wp_title',             'bbp_title',         10, 3 );
+add_action( 'wp_footer',            'bbp_footer'               );
+add_action( 'bbp_template_notices', 'bbp_error_messages'       );
+add_action( 'bbp_template_notices', 'bbp_topic_notices'        );
 
 // Caps & Roles
 add_filter( 'map_meta_cap',     'bbp_map_meta_caps', 10, 4 );
@@ -91,9 +92,8 @@ add_action( 'bbp_activation',   'bbp_add_options',   1     );
 add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 
 // Profile Page
-add_filter( 'wp_title',          'bbp_profile_page_title',     10, 3 );
-add_action( 'pre_get_posts',     'bbp_pre_get_posts',          1     );
-add_action( 'template_redirect', 'bbp_edit_user_handler',      1     );
+add_action( 'pre_get_posts',     'bbp_pre_get_posts',     1 );
+add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
 
 // Profile Page Messages
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'           );

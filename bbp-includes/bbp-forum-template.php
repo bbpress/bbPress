@@ -144,6 +144,8 @@ function bbp_forum_id( $forum_id = 0 ) {
  * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
  * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
  * @uses get_post() To get the forum
+ * @uses apply_filters() Calls 'bbp_get_forum' with the forum, output type and
+ *                        sanitation filter
  * @return mixed Null if error or forum (in specified form) if success
  */
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
@@ -171,7 +173,7 @@ function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
 
 	}
 
-	return apply_filters( 'bbp_get_forum', $forum );
+	return apply_filters( 'bbp_get_forum', $forum, $output, $filter );
 }
 
 /**
@@ -351,10 +353,10 @@ function bbp_get_forum_parent( $forum_id = 0 ) {
  * @return array Forum ancestors
  */
 function bbp_get_forum_ancestors( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
+	$forum_id  = bbp_get_forum_id( $forum_id );
+	$ancestors = array();
 
 	if ( $forum = bbp_get_forum( $forum_id ) ) {
-		$ancestors = array();
 		while ( 0 !== $forum->post_parent ) {
 			$ancestors[] = $forum->post_parent;
 			$forum       = bbp_get_forum( $forum->post_parent );

@@ -284,6 +284,8 @@ function bbp_topic_id( $topic_id = 0) {
  * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
  * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
  * @uses get_post() To get the topic
+ * @uses apply_filters() Calls 'bbp_get_topic' with the topic, output type and
+ *                        sanitation filter
  * @return mixed Null if error or topic (in specified form) if success
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
@@ -311,7 +313,7 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 
 	}
 
-	return $topic;
+	return apply_filters( 'bbp_get_topic', $topic, $output, $filter );
 }
 
 /**
