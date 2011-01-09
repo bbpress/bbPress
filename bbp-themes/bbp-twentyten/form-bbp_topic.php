@@ -55,6 +55,10 @@
 							<textarea id="bbp_topic_content" tabindex="10" name="bbp_topic_content" cols="52" rows="6"><?php echo ( bbp_is_topic_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
 						</p>
 
+						<p class="form-allowed-tags">
+							<?php printf( __( '<label>You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:</label> %s','bbpress' ), '<code>' . bbp_allowed_tags() . '</code>' ); ?>
+						</p>
+
 						<?php if ( !bbp_is_topic_edit() ) : ?>
 							<p>
 								<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />

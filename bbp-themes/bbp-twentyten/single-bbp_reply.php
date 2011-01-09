@@ -58,7 +58,7 @@
 
 										<td class="bbp-reply-content">
 
-											<?php the_content(); ?>
+											<?php bbp_reply_content(); ?>
 
 										</td>
 

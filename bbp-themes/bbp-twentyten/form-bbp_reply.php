@@ -40,22 +40,32 @@
 							<textarea id="bbp_reply_content" tabindex="8" name="bbp_reply_content" cols="52" rows="6"><?php echo ( bbp_is_reply_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
 						</p>
 
+						<p class="form-allowed-tags">
+							<?php printf( __( '<label>You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:</label> %s','bbpress' ), '<code>' . bbp_allowed_tags() . '</code>' ); ?>
+						</p>
+
 						<?php if ( !bbp_is_reply_edit() ) : ?>
+
 							<p>
 								<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
 								<input id="bbp_topic_tags" type="text" value="" tabindex="10" size="40" name="bbp_topic_tags" />
 							</p>
+
 						<?php endif; ?>
 
 						<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_reply_edit() || ( bbp_is_reply_edit() && !bbp_is_reply_anonymous() ) ) ) : ?>
 
 							<p>
 								<?php if ( bbp_is_reply_edit() && $post->post_author != bbp_get_current_user_id() ) : ?>
+
 									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( $post->post_author, bbp_get_reply_topic_id() ) ); ?> tabindex="12" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify the author of follow-up replies via email', 'bbpress' ); ?></label>
+
 								<?php else : ?>
+
 									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( bbp_get_user_id( 0, false, true ), bbp_get_reply_topic_id() ) ); ?> tabindex="12" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
+
 								<?php endif; ?>
 							</p>
 

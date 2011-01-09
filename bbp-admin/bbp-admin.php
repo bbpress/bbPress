@@ -1084,7 +1084,7 @@ class BBP_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $topic Topic object
-	 * @uses the_content() To output topic content
+	 * @uses bbp_topic_content() To output topic content
 	 * @uses bbp_get_topic_permalink() To get the topic link
 	 * @uses bbp_get_topic_title() To get the topic title
 	 * @uses current_user_can() To check if the current user can edit or
@@ -1106,7 +1106,7 @@ class BBP_Admin {
 		if ( $bbp->topic_id == $topic->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
-			the_content();
+			bbp_topic_content();
 
 			// Show view link if it's not set, the topic is trashed and the user can view trashed topics
 			if ( empty( $actions['view'] ) && 'trash' == $topic->post_status && current_user_can( 'view_trash' ) )
@@ -1416,7 +1416,7 @@ class BBP_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $reply Reply object
-	 * @uses the_content() To output reply content
+	 * @uses bbp_reply_content() To output reply content
 	 * @uses bbp_get_reply_permalink() To get the reply link
 	 * @uses bbp_get_reply_title() To get the reply title
 	 * @uses current_user_can() To check if the current user can edit or
@@ -1439,7 +1439,7 @@ class BBP_Admin {
 			if ( empty( $actions['view'] ) && 'trash' == $reply->post_status && current_user_can( 'view_trash' ) )
 				$actions['view'] = '<a href="' . bbp_get_reply_permalink( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
-			the_content();
+			bbp_reply_content();
 
 			// Only show the actions if the user is capable of viewing them
 			if ( current_user_can( 'moderate', $reply->ID ) ) {
@@ -1598,7 +1598,7 @@ function bbp_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="first b b-topic_tags"><span class="total-count"><?php echo $num; ?></a></td>
+				<td class="first b b-topic_tags"><span class="total-count"><?php echo $num; ?></span></td>
 				<td class="t topic_tags"><?php echo $text; ?></td>
 
 			</tr>
@@ -1628,7 +1628,7 @@ function bbp_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="b b-users"><span class="total-count"><?php echo $num; ?></a></td>
+				<td class="b b-users"><span class="total-count"><?php echo $num; ?></span></td>
 				<td class="last t users"><?php echo $text; ?></td>
 
 			</tr>

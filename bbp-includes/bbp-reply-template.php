@@ -306,24 +306,36 @@ function bbp_reply_title( $reply_id = 0 ) {
  *
  * @since bbPress (r2553)
  *
- * @todo Have a parameter reply_id
- *
+ * @param int $reply_id Optional. reply id
  * @uses bbp_get_reply_content() To get the reply content
  */
-function bbp_reply_content() {
-	echo bbp_get_reply_content();
+function bbp_reply_content( $reply_id = 0 ) {
+	echo bbp_get_reply_content( $reply_id );
 }
 	/**
 	 * Return the content of the reply in the loop
 	 *
-	 * @since bbPress (r2553)
+	 * @since bbPress (r2780)
 	 *
+	 * @param int $reply_id Optional. reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses post_password_required() To check if the reply requires pass
+	 * @uses get_the_password_form() To get the password form
+	 * @uses get_post_field() To get the content post field
 	 * @uses apply_filters() Calls 'bbp_get_reply_content' with the content
-	 * @uses get_the_content() To get the reply content
+	 *                        and reply id
 	 * @return string Content of the reply
 	 */
-	function bbp_get_reply_content() {
-		return apply_filters( 'bbp_get_reply_content', get_the_content() );
+	function bbp_get_reply_content( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// Check if password is required
+		if ( post_password_required( $reply_id ) )
+			return get_the_password_form();
+
+		$content = get_post_field( 'post_content', $reply_id );
+
+		return apply_filters( 'bbp_get_reply_content', $content, $reply_id );
 	}
 
 /**

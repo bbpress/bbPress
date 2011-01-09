@@ -334,6 +334,86 @@ function bbp_topic_title( $topic_id = 0 ) {
 	}
 
 /**
+ * Output the content of the topic in the loop
+ *
+ * @since bbPress (r2780)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_content() To get the topic content
+ */
+function bbp_topic_content( $topic_id = 0 ) {
+	echo bbp_get_topic_content( $topic_id );
+}
+	/**
+	 * Return the content of the topic in the loop
+	 *
+	 * @since bbPress (r2780)
+	 *
+	 * @param int $topic_id Optional. Topic id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses post_password_required() To check if the topic requires pass
+	 * @uses get_the_password_form() To get the password form
+	 * @uses get_post_field() To get the content post field
+	 * @uses apply_filters() Calls 'bbp_get_topic_content' with the content
+	 *                        and topic id
+	 * @return string Content of the topic
+	 */
+	function bbp_get_topic_content( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		// Check if password is required
+		if ( post_password_required( $topic_id ) )
+			return get_the_password_form();
+
+		$content = get_post_field( 'post_content', $topic_id );
+
+		return apply_filters( 'bbp_get_topic_content', $content, $topic_id );
+	}
+
+/**
+ * Output the excerpt of the topic in the loop
+ *
+ * @since bbPress (r2780)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @param int $length Optional. Length of the excerpt. Defaults to 100 letters
+ * @uses bbp_get_topic_excerpt() To get the topic excerpt
+ */
+function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
+	echo bbp_get_topic_excerpt( $topic_id, $length );
+}
+	/**
+	 * Return the excerpt of the topic in the loop
+	 *
+	 * @since bbPress (r2780)
+	 *
+	 * @param int $topic_id Optional. topic id
+	 * @param int $length Optional. Length of the excerpt. Defaults to 100
+	 *                     letters
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses get_post_field() To get the excerpt
+	 * @uses bbp_get_topic_content() To get the topic content
+	 * @uses apply_filters() Calls 'bbp_get_topic_excerpt' with the excerpt,
+	 *                        topic id and length
+	 * @return string topic Excerpt
+	 */
+	function bbp_get_topic_excerpt( $topic_id = 0, $length = 100 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$length   = (int) $length;
+		$excerpt  = get_post_field( $topic_id, 'post_excerpt' );
+
+		if ( empty( $excerpt ) )
+			$excerpt = bbp_get_topic_content( $topic_id );
+
+		if ( !empty( $length ) && strlen( $excerpt ) > $length ) {
+			$excerpt  = substr( $excerpt, 0, $length - 4 );
+			$excerpt .= '...';
+		}
+
+		return apply_filters( 'bbp_get_topic_excerpt', $excerpt, $topic_id, $length );
+	}
+
+/**
  * Output the status of the topic in the loop
  *
  * @since bbPress (r2667)
@@ -352,7 +432,8 @@ function bbp_topic_status( $topic_id = 0 ) {
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_status() To get the topic status
-	 * @uses apply_filters() Calls 'bbp_get_topic_status' with the
+	 * @uses apply_filters() Calls 'bbp_get_topic_status' with the status
+	 *                        and topic id
 	 * @return string Status of topic
 	 */
 	function bbp_get_topic_status( $topic_id = 0 ) {

@@ -258,12 +258,12 @@ function bbp_get_statistics( $args = '' ) {
  * @uses bbp_set_current_anonymous_user_data() To set the anonymous user
  *                                                cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
+ * @uses remove_filter() To remove 'wp_filter_kses' filters if needed
  * @uses esc_attr() For sanitization
  * @uses bbp_check_for_flood() To check for flooding
  * @uses bbp_check_for_duplicate() To check for duplicates
- * @uses author_can() To check if the author of the reply can post unfiltered
- *                     html or not
- * @uses wp_filter_post_kses() To filter the post content
+ * @uses apply_filters() Calls 'bbp_new_reply_pre_title' with the title
+ * @uses apply_filters() Calls 'bbp_new_reply_pre_content' with the content
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_insert_post() To insert the reply
@@ -299,16 +299,6 @@ function bbp_new_reply_handler() {
 				bbp_set_current_anonymous_user_data( $anonymous_data );
 		}
 
-		// Handle Title (optional for replies)
-		if ( !empty( $_POST['bbp_reply_title'] ) )
-			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
-
-		// Handle Content
-		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = ( !bbp_is_anonymous() && author_can( $reply_author, 'unfiltered_html' ) ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) ) {
-			$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
-			$reply_content = '';
-		}
-
 		// Handle Topic ID to append reply to
 		if ( empty( $_POST['bbp_topic_id'] ) || !$topic_id = $_POST['bbp_topic_id'] )
 			$bbp->errors->add( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
@@ -316,6 +306,26 @@ function bbp_new_reply_handler() {
 		// Handle Forum ID to adjust counts of
 		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] )
 			$bbp->errors->add( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
+		if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $topic_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
+			remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses' );
+			remove_filter( 'bbp_new_reply_pre_content', 'wp_filter_kses' );
+		}
+
+		// Handle Title (optional for replies)
+		if ( !empty( $_POST['bbp_reply_title'] ) )
+			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
+
+		$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
+
+		// Handle Content
+		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = $_POST['bbp_reply_content'] ) {
+			$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+			$reply_content = '';
+		}
+
+		$reply_content = apply_filters( 'bbp_new_reply_pre_content', $reply_content );
 
 		// Check for flood
 		if ( !bbp_check_for_flood( $anonymous_data, $reply_author ) )
@@ -326,8 +336,7 @@ function bbp_new_reply_handler() {
 			$bbp->errors->add( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
 		// Handle Tags
-		if ( !empty( $_POST['bbp_topic_tags'] ) ) {
-			$tags = $_POST['bbp_topic_tags'];
+		if ( !empty( $_POST['bbp_topic_tags'] ) && $tags = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) ) ) {
 			$tags = wp_set_post_terms( $topic_id, $tags, $bbp->topic_tag_id, true );
 
 			if ( is_wp_error( $tags ) || false == $tags )
@@ -381,10 +390,12 @@ function bbp_new_reply_handler() {
  * @uses current_user_can() To check if the current user can edit that reply
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
+ * @uses remove_filter() To remove 'wp_filter_kses' filters if needed
  * @uses esc_attr() For sanitization
- * @uses author_can() To check if the author of the reply can post unfiltered
- *                     html or not
- * @uses wp_filter_post_kses() To filter the post content
+ * @uses apply_filters() Calls 'bbp_edit_reply_pre_title' with the title and
+ *                       reply id
+ * @uses apply_filters() Calls 'bbp_edit_reply_pre_content' with the content
+ *                        reply id
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_update_post() To update the reply
@@ -424,12 +435,21 @@ function bbp_edit_reply_handler() {
 
 		}
 
+		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
+		if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $reply_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
+			remove_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses' );
+			remove_filter( 'bbp_edit_reply_pre_content', 'wp_filter_kses' );
+		}
+
 		// Handle Title (optional for replies)
 		$reply_title = !empty( $_POST['bbp_reply_title'] ) ? esc_attr( strip_tags( $_POST['bbp_reply_title'] ) ) : $reply_title = $reply->post_title;
+		$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
 
 		// Handle Content
-		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = ( !bbp_is_reply_anonymous( $reply_id ) && author_can( $reply->post_author, 'unfiltered_html' ) ) ? $_POST['bbp_reply_content'] : wp_filter_post_kses( $_POST['bbp_reply_content'] ) )
+		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = $_POST['bbp_reply_content'] )
 			$bbp->errors->add( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+
+		$reply_content = apply_filters( 'bbp_edit_reply_pre_content', $reply_content, $reply_id );
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
@@ -562,14 +582,14 @@ function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0
  * @uses bbp_set_current_anonymous_user_data() To set the anonymous user cookies
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses esc_attr() For sanitization
- * @uses author_can() To check if the author of the reply can post unfiltered
- *                     html or not
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
  * @uses bbp_check_for_flood() To check for flooding
  * @uses bbp_check_for_duplicate() To check for duplicates
- * @uses wp_filter_post_kses() To filter the post content
+ * @uses remove_filter() To remove 'wp_filter_kses' filters if needed
+ * @uses apply_filters() Calls 'bbp_new_topic_pre_title' with the content
+ * @uses apply_filters() Calls 'bbp_new_topic_pre_content' with the content
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_insert_post() To insert the topic
  * @uses do_action() Calls 'bbp_new_topic' with the topic id, forum id,
@@ -604,13 +624,23 @@ function bbp_new_topic_handler() {
 				bbp_set_current_anonymous_user_data( $anonymous_data );
 		}
 
+		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
+		if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_topic'] ) && wp_create_nonce( 'bbp-unfiltered-html-topic_new' ) == $_POST['_bbp_unfiltered_html_topic'] ) {
+			remove_filter( 'bbp_new_topic_pre_title',   'wp_filter_kses' );
+			remove_filter( 'bbp_new_topic_pre_content', 'wp_filter_kses' );
+		}
+
 		// Handle Title
 		if ( empty( $_POST['bbp_topic_title'] ) || !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
 			$bbp->errors->add( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
+		$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
+
 		// Handle Content
-		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = ( !bbp_is_anonymous() && author_can( $topic_author, 'unfiltered_html' ) ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
+		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = $_POST['bbp_topic_content'] )
 			$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic needs some content.', 'bbpress' ) );
+
+		$topic_content = apply_filters( 'bbp_new_topic_pre_content', $topic_content );
 
 		// Handle Forum id to append topic to
 		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] ) {
@@ -637,7 +667,7 @@ function bbp_new_topic_handler() {
 		// Handle Tags
 		if ( !empty( $_POST['bbp_topic_tags'] ) ) {
 			// Escape tag input
-			$terms = esc_html( $_POST['bbp_topic_tags'] );
+			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 			// Explode by comma
 			if ( strstr( $terms, ',' ) )
@@ -700,12 +730,14 @@ function bbp_new_topic_handler() {
  * @uses bbp_filter_anonymous_post_data() To filter anonymous data
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses esc_attr() For sanitization
- * @uses author_can() To check if the author of the reply can post unfiltered
- *                     html or not
  * @uses bbp_is_forum_category() To check if the forum is a category
  * @uses bbp_is_forum_closed() To check if the forum is closed
  * @uses bbp_is_forum_private() To check if the forum is private
- * @uses wp_filter_post_kses() To filter the post content
+ * @uses remove_filter() To remove 'wp_filter_kses' filters if needed
+ * @uses apply_filters() Calls 'bbp_edit_topic_pre_title' with the title and
+ *                        topic id
+ * @uses apply_filters() Calls 'bbp_edit_topic_pre_content' with the content
+ *                        and topic id
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_update_post() To update the topic
  * @uses do_action() Calls 'bbp_edit_topic' with the topic id, forum id,
@@ -743,6 +775,12 @@ function bbp_edit_topic_handler() {
 			}
 		}
 
+		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
+		if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_topic'] ) && wp_create_nonce( 'bbp-unfiltered-html-topic_' . $topic_id ) == $_POST['_bbp_unfiltered_html_topic'] ) {
+			remove_filter( 'bbp_edit_topic_pre_title',   'wp_filter_kses' );
+			remove_filter( 'bbp_edit_topic_pre_content', 'wp_filter_kses' );
+		}
+
 		// Handle Forum id to append topic to
 		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] ) {
 			$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
@@ -761,9 +799,13 @@ function bbp_edit_topic_handler() {
 		if ( empty( $_POST['bbp_topic_title'] ) || !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
 			$bbp->errors->add( 'bbp_edit_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
+		$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
+
 		// Handle Content
-		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = ( !bbp_is_topic_anonymous( $topic_id ) && author_can( $topic->post_author, 'unfiltered_html' ) ) ? $_POST['bbp_topic_content'] : wp_filter_post_kses( $_POST['bbp_topic_content'] ) )
+		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = $_POST['bbp_topic_content'] )
 			$bbp->errors->add( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
+
+		$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {

@@ -197,9 +197,55 @@ add_action( 'template_redirect', 'bbp_custom_template', 999 );
 
 /** FILTERS *******************************************************************/
 
+// wp_filter_kses on new/edit topic/reply title
+add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses' );
+add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses' );
+add_filter( 'bbp_edit_reply_pre_title', 'wp_filter_kses' );
+add_filter( 'bbp_edit_topic_pre_title', 'wp_filter_kses' );
+
+// balanceTags, wp_filter_kses and wp_rel_nofollow on new/edit topic/reply text
+add_filter( 'bbp_new_reply_pre_content',  'balanceTags'     );
+add_filter( 'bbp_new_reply_pre_content',  'wp_rel_nofollow' );
+add_filter( 'bbp_new_reply_pre_content',  'wp_filter_kses'  );
+add_filter( 'bbp_new_topic_pre_content',  'balanceTags'     );
+add_filter( 'bbp_new_topic_pre_content',  'wp_rel_nofollow' );
+add_filter( 'bbp_new_topic_pre_content',  'wp_filter_kses'  );
+add_filter( 'bbp_edit_reply_pre_content', 'balanceTags'     );
+add_filter( 'bbp_edit_reply_pre_content', 'wp_rel_nofollow' );
+add_filter( 'bbp_edit_reply_pre_content', 'wp_filter_kses'  );
+add_filter( 'bbp_edit_topic_pre_content', 'balanceTags'     );
+add_filter( 'bbp_edit_topic_pre_content', 'wp_rel_nofollow' );
+add_filter( 'bbp_edit_topic_pre_content', 'wp_filter_kses'  );
+
 // Add number format filter to functions requiring numeric output
 add_filter( 'bbp_get_forum_topic_count',       'bbp_number_format' );
 add_filter( 'bbp_get_forum_topic_reply_count', 'bbp_number_format' );
+
+// Run wp_kses_data on topic/reply content in admin section
+if ( is_admin() ) {
+	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
+	add_filter( 'bbp_get_topic_content', 'wp_kses_data' );
+}
+
+// Run filters on reply content
+add_filter( 'bbp_get_reply_content', 'capital_P_dangit'                          );
+add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  1, 2 );
+add_filter( 'bbp_get_reply_content', 'wptexturize',                         3    );
+add_filter( 'bbp_get_reply_content', 'convert_chars',                       5    );
+add_filter( 'bbp_get_reply_content', 'make_clickable',                      9    );
+add_filter( 'bbp_get_reply_content', 'force_balance_tags',                 25    );
+add_filter( 'bbp_get_reply_content', 'convert_smilies',                    20    );
+add_filter( 'bbp_get_reply_content', 'wpautop',                            30    );
+
+// Run filters on topic content
+add_filter( 'bbp_get_topic_content', 'capital_P_dangit'                          );
+add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  1, 2 );
+add_filter( 'bbp_get_topic_content', 'wptexturize',                         3    );
+add_filter( 'bbp_get_topic_content', 'convert_chars',                       5    );
+add_filter( 'bbp_get_topic_content', 'make_clickable',                      9    );
+add_filter( 'bbp_get_topic_content', 'force_balance_tags',                 25    );
+add_filter( 'bbp_get_topic_content', 'convert_smilies',                    20    );
+add_filter( 'bbp_get_topic_content', 'wpautop',                            30    );
 
 // Canonical
 add_filter( 'redirect_canonical', 'bbp_redirect_canonical' );
@@ -212,6 +258,8 @@ add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
  *
  * This is used to clean-up any anonymous user data that is submitted via the
  * new topic and new reply forms.
+ *
+ * @uses add_filter() To add filters
  */
 function bbp_pre_anonymous_filters () {
 	// Post author name

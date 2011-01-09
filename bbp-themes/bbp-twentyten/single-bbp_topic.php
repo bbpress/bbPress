@@ -71,7 +71,7 @@
 
 										<td class="bbp-topic-content">
 
-											<?php the_content(); ?>
+											<?php bbp_topic_content(); ?>
 
 										</td>
 

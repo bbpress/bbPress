@@ -459,6 +459,13 @@ function bbp_topic_form_fields() {
 		<input type="hidden" name="action"       id="bbp_post_action" value="bbp-edit-topic" />
 		<input type="hidden" name="bbp_topic_id" id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
 
+		<?php
+
+		if ( current_user_can( 'unfiltered_html' ) )
+			wp_nonce_field( 'bbp-unfiltered-html-topic_' . bbp_get_topic_id(), '_bbp_unfiltered_html_topic' );
+
+		?>
+
 		<?php wp_nonce_field( 'bbp-edit-topic_' . bbp_get_topic_id() );
 
 	else :
@@ -470,6 +477,13 @@ function bbp_topic_form_fields() {
 		<?php endif; ?>
 
 		<input type="hidden" name="action" id="bbp_post_action" value="bbp-new-topic" />
+
+		<?php
+
+		if ( current_user_can( 'unfiltered_html' ) )
+			wp_nonce_field( 'bbp-unfiltered-html-topic_new', '_bbp_unfiltered_html_topic' );
+
+		?>
 
 		<?php wp_nonce_field( 'bbp-new-topic' );
 
@@ -494,6 +508,13 @@ function bbp_reply_form_fields() {
 		<input type="hidden" name="action"       id="bbp_post_action" value="bbp-edit-reply" />
 		<input type="hidden" name="bbp_reply_id" id="bbp_reply_id"    value="<?php bbp_reply_id(); ?>" />
 
+		<?php
+
+		if ( current_user_can( 'unfiltered_html' ) )
+			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_reply_id(), '_bbp_unfiltered_html_reply' );
+
+		?>
+
 		<?php wp_nonce_field( 'bbp-edit-reply_' . bbp_get_reply_id() );
 
 	} else {
@@ -504,6 +525,13 @@ function bbp_reply_form_fields() {
 		<input type="hidden" name="bbp_forum_id"    id="bbp_forum_id"    value="<?php bbp_forum_id(); ?>" />
 		<input type="hidden" name="bbp_topic_id"    id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
 		<input type="hidden" name="action"          id="bbp_post_action" value="bbp-new-reply" />
+
+		<?php
+
+		if ( current_user_can( 'unfiltered_html' ) )
+			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_topic_id(), '_bbp_unfiltered_html_reply' );
+
+		?>
 
 		<?php wp_nonce_field( 'bbp-new-reply' );
 	}
@@ -683,6 +711,22 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
 	}
+
+/**
+ * Display all of the allowed tags in HTML format with attributes.
+ *
+ * This is useful for displaying in the post area, which elements and
+ * attributes are supported. As well as any plugins which want to display it.
+ *
+ * @since bbPress (r2780)
+ *
+ * @uses allowed_tags() To get the allowed tags
+ * @uses apply_filters() Calls 'bbp_allowed_tags' with the tags
+ * @return string HTML allowed tags entity encoded.
+ */
+function bbp_allowed_tags() {
+	return apply_filters( 'bbp_allowed_tags', allowed_tags() );
+}
 
 /** Start Query Functions *****************************************************/
 
