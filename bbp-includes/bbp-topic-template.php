@@ -53,8 +53,8 @@ function bbp_has_topics( $args = '' ) {
 		// 'ASC', 'DESC'
 		'order'                => 'DESC',
 
-		// @todo replace 15 with setting
-		'posts_per_page'       => 15,
+		// Topics per page
+		'posts_per_page'       => get_option( '_bbp_topics_per_page', 15 ),
 
 		// Page Number
 		'paged'                => bbp_get_paged(),
@@ -2477,6 +2477,7 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 
 	return true;
 }
+
 /**
  * Displays topic notices
  *
@@ -2518,6 +2519,9 @@ function bbp_topic_notices() {
  *  - tab: Tabindex
  *  - topic_id: Topic id
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic_edit() To check if it is the topic edit page
+ * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
+ * @uses bbp_is_topic_sticky() To check if the topic is a sticky
  */
 function bbp_topic_type_select( $args = '' ) {
 
@@ -2533,7 +2537,7 @@ function bbp_topic_type_select( $args = '' ) {
 	$r = wp_parse_args( $args, $defaults );
 	extract( $r );
 
-	// Get current topic
+	// Get current topic id
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Current topic type
@@ -2546,7 +2550,7 @@ function bbp_topic_type_select( $args = '' ) {
 			$sticky_current = bbp_is_topic_sticky( $topic_id, false ) ? 'stick' : 'unstick';
 		}
 	}
-	
+
 	// Used variables
 	$tab             = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
 	$select_id       = esc_attr( $select_id );

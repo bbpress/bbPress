@@ -7,12 +7,14 @@
  * @subpackage Administration
  */
 
+/** Start Main Section ********************************************************/
+
 /**
  * Main settings section description for the settings page
  *
- * @since bbPress (r2737)
+ * @since bbPress (r2786)
  */
-function bbp_admin_setting_callback_section() {
+function bbp_admin_setting_callback_main_section() {
 ?>
 
 			<p><?php _e( 'Main settings for the bbPress plugin', 'bbpress' ); ?></p>
@@ -27,7 +29,7 @@ function bbp_admin_setting_callback_section() {
  *
  * @uses form_option() To output the option value
  */
-function bbp_admin_setting_callback_editlock () {
+function bbp_admin_setting_callback_editlock() {
 ?>
 
 			<input name="_bbp_edit_lock" type="text" id="_bbp_edit_lock" value="<?php form_option( '_bbp_edit_lock' ); ?>" class="small-text" />
@@ -48,6 +50,22 @@ function bbp_admin_setting_callback_throttle() {
 
 			<input name="_bbp_throttle_time" type="text" id="_bbp_throttle_time" value="<?php form_option( '_bbp_throttle_time' ); ?>" class="small-text" />
 			<label for="_bbp_throttle_time"><?php _e( 'seconds', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Allow favorites setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_favorites() {
+?>
+
+			<input id="_bbp_enable_favorites" name="_bbp_enable_favorites" type="checkbox" id="_bbp_enable_favorites" value="1" <?php checked( true, bbp_is_favorites_active() ); ?> />
+			<label for="_bbp_enable_favorites"><?php _e( 'Allow users to mark topics as favorites?', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -83,6 +101,195 @@ function bbp_admin_setting_callback_anonymous() {
 
 <?php
 }
+
+/** Start Per Page Section ****************************************************/
+
+/**
+ * Per page settings section description for the settings page
+ *
+ * @since bbPress (r2786)
+ */
+function bbp_admin_setting_callback_per_page_section() {
+?>
+
+			<p><?php _e( 'Per page settings for the bbPress plugin', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
+ * Forums per page setting field
+ *
+ * @todo Implement
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_forums_per_page() {
+?>
+
+			<input name="_bbp_forums_per_page" type="text" id="_bbp_forums_per_page" value="<?php form_option( '_bbp_forums_per_page' ); ?>" class="small-text" />
+			<label for="_bbp_forums_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Topics per page setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_topics_per_page() {
+?>
+
+			<input name="_bbp_topics_per_page" type="text" id="_bbp_topics_per_page" value="<?php form_option( '_bbp_topics_per_page' ); ?>" class="small-text" />
+			<label for="_bbp_topics_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Replies per page setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_replies_per_page() {
+?>
+
+			<input name="_bbp_replies_per_page" type="text" id="_bbp_replies_per_page" value="<?php form_option( '_bbp_replies_per_page' ); ?>" class="small-text" />
+			<label for="_bbp_replies_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/** Start Slug Section ********************************************************/
+
+/**
+ * Slugs settings section description for the settings page
+ *
+ * @since bbPress (r2786)
+ */
+function bbp_admin_setting_callback_slugs_section() {
+?>
+
+			<p><?php _e( 'Change the forum\'s slugs in this section.', 'bbpress' ); ?></p>
+			<p><?php printf( __( '<strong>Note</strong>: If you change any of these, all previous links would stop working. You must also go to the <a href="%s">permalinks</a> page and press the "Save Changes" button in order to make the changes take effect.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+
+<?php
+}
+
+/**
+ * Root slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_root_slug() {
+?>
+
+			<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" value="<?php form_option( '_bbp_root_slug' ); ?>" />
+
+<?php
+}
+
+/**
+ * Include root slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_include_root() {
+?>
+
+			<input id="_bbp_include_root" name="_bbp_include_root" type="checkbox" id="_bbp_include_root" value="1" <?php checked( true, get_option( '_bbp_include_root', true ) ); ?> />
+			<label for="_bbp_include_root"><?php _e( 'Prefix the root slug before the following slugs?', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * User slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_user_slug() {
+?>
+
+			<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" value="<?php form_option( '_bbp_user_slug' ); ?>" />
+
+<?php
+}
+
+/**
+ * Forum slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_forum_slug() {
+?>
+
+			<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" value="<?php form_option( '_bbp_forum_slug' ); ?>" />
+
+<?php
+}
+
+/**
+ * Topic slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_topic_slug() {
+?>
+
+			<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" value="<?php form_option( '_bbp_topic_slug' ); ?>" />
+
+<?php
+}
+
+/**
+ * Reply slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_reply_slug() {
+?>
+
+			<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" value="<?php form_option( '_bbp_reply_slug' ); ?>" />
+
+<?php
+}
+
+/**
+ * Topic tag slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_topic_tag_slug() {
+?>
+
+			<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" value="<?php form_option( '_bbp_topic_tag_slug' ); ?>" />
+
+<?php
+}
+
+/** Settings Page *************************************************************/
 
 /**
  * The main settings page

@@ -278,6 +278,7 @@ class bbPress {
 
 		// Load the files
 		require_once( $this->plugin_dir . '/bbp-includes/bbp-loader.php'    );
+		require_once( $this->plugin_dir . '/bbp-includes/bbp-options.php'   );
 		require_once( $this->plugin_dir . '/bbp-includes/bbp-caps.php'      );
 		require_once( $this->plugin_dir . '/bbp-includes/bbp-hooks.php'     );
 		require_once( $this->plugin_dir . '/bbp-includes/bbp-classes.php'   );

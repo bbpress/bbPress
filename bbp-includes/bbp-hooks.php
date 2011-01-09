@@ -84,6 +84,9 @@ add_action( 'bbp_activation',   'bbp_add_caps',      2     );
 add_action( 'bbp_deactivation', 'bbp_remove_caps',   1     );
 add_action( 'bbp_deactivation', 'bbp_remove_roles',  2     );
 
+// Options & Settings
+add_action( 'bbp_activation',   'bbp_add_options',   1     );
+
 // Topic Tag Page
 add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 
