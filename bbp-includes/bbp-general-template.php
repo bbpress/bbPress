@@ -301,6 +301,23 @@ function bbp_is_user_profile_edit() {
 	return false;
 }
 
+/**
+ * Check if current page is a view page
+ *
+ * @since bbPress (r2789)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_view is true
+ * @return bool Is it a view page?
+ */
+function bbp_is_view() {
+	global $wp_query;
+
+	if ( !empty( $wp_query->bbp_is_view ) && $wp_query->bbp_is_view == true )
+		return true;
+
+	return false;
+}
+
 /** END is_ Functions *********************************************************/
 
 /** START Form Functions ******************************************************/
@@ -596,6 +613,119 @@ function bbp_split_topic_form_fields() {
 
 /** END Form Functions ********************************************************/
 
+/** Start Views ***************************************************************/
+
+/**
+ * Output the view id
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view Optional. View id
+ * @uses bbp_get_view_id() To get the view id
+ */
+function bbp_view_id( $view = '' ) {
+	echo bbp_get_view_id( $view );
+}
+
+	/**
+	 * Get the view id
+	 *
+	 * If a view id is supplied, that is used. Otherwise the 'bbp_view'
+	 * query var is checked for.
+	 *
+	 * @since bbPress (r2789)
+	 *
+	 * @param string $view Optional. View id.
+	 * @uses sanitize_title() To sanitize the view id
+	 * @uses get_query_var() To get the view id from query var 'bbp_view'
+	 * @return bool|string ID on success, false on failure
+	 */
+	function bbp_get_view_id( $view = '' ) {
+		global $bbp;
+
+		$view = !empty( $view ) ? sanitize_title( $view ) : get_query_var( 'bbp_view' );
+
+		if ( array_key_exists( $view, $bbp->views ) )
+			return $view;
+
+		return false;
+	}
+
+/**
+ * Output the view name aka title
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view Optional. View id
+ * @uses bbp_get_view_title() To get the view title
+ */
+function bbp_view_title( $view = '' ) {
+	echo bbp_get_view_title( $view );
+}
+
+	/**
+	 * Get the view name aka title
+	 *
+	 * If a view id is supplied, that is used. Otherwise the bbp_view
+	 * query var is checked for.
+	 *
+	 * @since bbPress (r2789)
+	 *
+	 * @param string $view Optional. View id
+	 * @uses bbp_get_view_id() To get the view id
+	 * @return bool|string Title on success, false on failure
+	 */
+	function bbp_get_view_title( $view = '' ) {
+		global $bbp;
+
+		if ( !$view = bbp_get_view_id( $view ) )
+			return false;
+
+		return $bbp->views[$view]['title'];
+	}
+
+/**
+ * Output the view url
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view Optional. View id
+ * @uses bbp_get_view_url() To get the view url
+ */
+function bbp_view_url( $view = false ) {
+	echo bbp_get_view_url( $view );
+}
+	/**
+	 * Return the view url
+	 *
+	 * @since bbPress (r2789)
+	 *
+	 * @param string $view Optional. View id
+	 * @uses sanitize_title() To sanitize the view id
+	 * @uses home_url() To get blog home url
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses apply_filters() Calls 'bbp_get_view_url' with the view url,
+	 *                        used view id
+	 * @return string View url (or home url if the view was not found)
+	 */
+	function bbp_get_view_url( $view = false ) {
+		global $bbp, $wp_rewrite;
+
+		if ( !$view = bbp_get_view_id( $view ) )
+			return home_url();
+
+		if ( !empty( $wp_rewrite->permalink_structure ) ) {
+			$url = $wp_rewrite->front . $bbp->view_slug . '/' . $view;
+			$url = home_url( user_trailingslashit( $url ) );
+		} else {
+			$url = add_query_arg( array( 'bbp_view' => $view ), home_url( '/' ) );
+		}
+
+		return apply_filters( 'bbp_get_view_link', $url, $view );
+	}
+
+/** End Views *****************************************************************/
+
 /** Start General Functions ***************************************************/
 
 /**
@@ -711,7 +841,7 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
 	}
-	
+
 /**
  * Output all of the allowed tags in HTML format with attributes.
  *
@@ -720,7 +850,7 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
  *
  * @since bbPress (r2780)
  *
- * @uses bbp_get_allowed_tags() 
+ * @uses bbp_get_allowed_tags()
  */
 function bbp_allowed_tags() {
 	echo bbp_get_allowed_tags();

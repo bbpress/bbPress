@@ -224,6 +224,10 @@ class BBP_Admin {
 		add_settings_field( '_bbp_user_slug',       __( 'User base',     'bbpress' ), 'bbp_admin_setting_callback_user_slug',       'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',              '_bbp_user_slug',                 'sanitize_title'                                                     );
 
+		// View slug setting
+		add_settings_field( '_bbp_view_slug',       __( 'View base',     'bbpress' ), 'bbp_admin_setting_callback_view_slug',       'bbpress', 'bbp_slugs' );
+	 	register_setting  ( 'bbpress',              '_bbp_view_slug',                 'sanitize_title'                                                     );
+
 		// Forum slug setting
 		add_settings_field( '_bbp_forum_slug',      __( 'Forum slug',    'bbpress' ), 'bbp_admin_setting_callback_forum_slug',      'bbpress', 'bbp_slugs' );
 	 	register_setting  ( 'bbpress',             '_bbp_forum_slug',                 'sanitize_title'                                                     );

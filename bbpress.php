@@ -1,5 +1,14 @@
 <?php
 /**
+ * The bbPress Plugin
+ *
+ * bbPress is forum software with a twist from the creators of WordPress.
+ *
+ * @package bbPress
+ * @subpackage Main
+ */
+
+/**
  * Plugin Name: bbPress
  * Plugin URI: http://bbpress.org
  * Description: bbPress is forum software with a twist from the creators of WordPress.
@@ -8,14 +17,6 @@
  * Version: plugin-bleeding
  */
 
-/**
- * The bbPress Plugin
- *
- * bbPress is forum software with a twist from the creators of WordPress.
- *
- * @package bbPress
- * @subpackage Main
- */
 /**
  * bbPress vesion
  *
@@ -101,6 +102,11 @@ class bbPress {
 	 * @var string User slug
 	 */
 	var $user_slug;
+
+	/**
+	 * @var string View slug
+	 */
+	var $view_slug;
 
 	// Absolute Paths
 
@@ -191,6 +197,13 @@ class bbPress {
 	 */
 	var $errors;
 
+	// Views
+
+	/**
+	 * @var array An array of registered bbPress views
+	 */
+	var $views;
+
 	/**
 	 * The main bbPress loader
 	 *
@@ -221,24 +234,24 @@ class bbPress {
 		/** Paths *****************************************************/
 
 		// bbPress root directory
-		$this->file              = __FILE__;
-		$this->plugin_dir        = plugin_dir_path( $this->file );
-		$this->plugin_url        = plugin_dir_url ( $this->file );
+		$this->file             = __FILE__;
+		$this->plugin_dir       = plugin_dir_path( $this->file );
+		$this->plugin_url       = plugin_dir_url ( $this->file );
 
 		// Images
-		$this->images_url        = $this->plugin_url . 'bbp-images';
+		$this->images_url       = $this->plugin_url . 'bbp-images';
 
 		// Themes
-		$this->themes_dir        = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
-		$this->themes_url        = $this->plugin_url . 'bbp-themes';
+		$this->themes_dir       = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
+		$this->themes_url       = $this->plugin_url . 'bbp-themes';
 
 		/** Identifiers ***********************************************/
 
 		// Post type identifiers
-		$this->forum_id           = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
-		$this->topic_id           = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
-		$this->reply_id           = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
-		$this->topic_tag_id       = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
+		$this->forum_id         = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
+		$this->topic_id         = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
+		$this->reply_id         = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
+		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
 
 		// Status identifiers
 		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'   );
@@ -248,22 +261,26 @@ class bbPress {
 		/** Slugs *****************************************************/
 
 		// Root forum slug
-		$this->root_slug          = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
+		$this->root_slug        = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
 
 		// Should we include the root slug in front of component slugs
 		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
 
 		// Component slugs
-		$this->user_slug          = apply_filters( 'bbp_user_slug',      get_option( '_bbp_user_slug',      $prefix . 'user'  ) );
-		$this->forum_slug         = apply_filters( 'bbp_forum_slug',     get_option( '_bbp_forum_slug',     $prefix . 'forum' ) );
-		$this->topic_slug         = apply_filters( 'bbp_topic_slug',     get_option( '_bbp_topic_slug',     $prefix . 'topic' ) );
-		$this->reply_slug         = apply_filters( 'bbp_reply_slug',     get_option( '_bbp_reply_slug',     $prefix . 'reply' ) );
-		$this->topic_tag_slug     = apply_filters( 'bbp_topic_tag_slug', get_option( '_bbp_topic_tag_slug', $prefix . 'tag'   ) );
+		$this->user_slug        = apply_filters( 'bbp_user_slug',      $prefix . get_option( '_bbp_user_slug',      'user'  ) );
+		$this->view_slug        = apply_filters( 'bbp_view_slug',      $prefix . get_option( '_bbp_view_slug',      'view'  ) );
+		$this->forum_slug       = apply_filters( 'bbp_forum_slug',     $prefix . get_option( '_bbp_forum_slug',     'forum' ) );
+		$this->topic_slug       = apply_filters( 'bbp_topic_slug',     $prefix . get_option( '_bbp_topic_slug',     'topic' ) );
+		$this->reply_slug       = apply_filters( 'bbp_reply_slug',     $prefix . get_option( '_bbp_reply_slug',     'reply' ) );
+		$this->topic_tag_slug   = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'tag'   ) );
 
 		/** Misc ******************************************************/
 
 		// Errors
 		$this->errors = new WP_Error();
+
+		// Views
+		$this->views  = array();
 	}
 
 	/**
@@ -325,7 +342,10 @@ class bbPress {
 		// Register taxonomies
 		add_action( 'bbp_register_taxonomies',      array( $this, 'register_taxonomies'      ), 10, 2 );
 
-		// Register theme directory
+		// Register the views
+		add_action( 'bbp_register_views',           array( $this, 'register_views'           ), 10, 2 );
+
+		// Register the theme directory
 		add_action( 'bbp_register_theme_directory', array( $this, 'register_theme_directory' ), 10, 2 );
 
 		// Load textdomain
@@ -650,6 +670,27 @@ class bbPress {
 	}
 
 	/**
+	 * Register the bbPress views
+	 *
+	 * @since bbPress (r2789)
+	 *
+	 * @uses bbp_register_view() To register the views
+	 */
+	function register_views() {
+
+		// Topics with no replies
+		$no_replies = apply_filters( 'bbp_register_view_no_replies', array(
+			'meta_key'     => '_bbp_topic_reply_count',
+			'meta_value'   => 1,
+			'meta_compare' => '<',
+			'orderby'      => ''
+		) );
+
+		bbp_register_view( 'no-replies', __( 'Topics with no replies', 'bbpress' ), $no_replies );
+
+	}
+
+	/**
 	 * Setup the currently logged-in user
 	 *
 	 * @since bbPress (r2697)
@@ -679,6 +720,9 @@ class bbPress {
 		// User Profile tag
 		add_rewrite_tag( '%bbp_user%', '([^/]+)'   );
 
+		// View Page tag
+		add_rewrite_tag( '%bbp_view%', '([^/]+)'   );
+
 		// Edit Page tag
 		add_rewrite_tag( '%edit%',     '([1]{1,})' );
 	}
@@ -704,7 +748,14 @@ class bbPress {
 
 			// Profile Page
 			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 )
+			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ),
+
+			// @todo - view feeds
+			//$this->view_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+
+			// View Page
+			$this->view_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$this->view_slug . '/([^/]+)/?$'                   => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 )
 		);
 
 		$wp_rewrite->rules = array_merge( $bbp_rules, $wp_rewrite->rules );

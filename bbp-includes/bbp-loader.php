@@ -144,6 +144,17 @@ function bbp_register_taxonomies() {
 }
 
 /**
+ * Register the default bbPress views
+ *
+ * @since bbPress (r2789)
+ *
+ * @uses do_action() Calls 'bbp_register_views'
+ */
+function bbp_register_views() {
+	do_action ( 'bbp_register_views' );
+}
+
+/**
  * Add the bbPress-specific rewrite tags
  *
  * @since bbPress (r2753)

@@ -58,6 +58,7 @@ add_action( 'bbp_init', 'bbp_register_post_statuses', 6   );
 add_action( 'bbp_init', 'bbp_register_taxonomies',    8   );
 add_action( 'bbp_init', 'bbp_register_textdomain',    10  );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags',       12  );
+add_action( 'bbp_init', 'bbp_register_views',         14  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Admin

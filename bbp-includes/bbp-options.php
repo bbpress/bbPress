@@ -56,6 +56,9 @@ function bbp_add_options() {
 		// User profile slug
 		'_bbp_user_slug'            => 'users',
 
+		// View slug
+		'_bbp_view_slug'            => 'view',
+
 		// Forum slug
 		'_bbp_forum_slug'           => 'forum',
 

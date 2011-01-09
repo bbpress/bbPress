@@ -211,6 +211,21 @@ function bbp_admin_setting_callback_user_slug() {
 }
 
 /**
+ * View slug setting field
+ *
+ * @since bbPress (r2789)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_view_slug() {
+?>
+
+			<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" value="<?php form_option( '_bbp_view_slug' ); ?>" />
+
+<?php
+}
+
+/**
  * Forum slug setting field
  *
  * @since bbPress (r2786)

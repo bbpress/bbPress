@@ -276,6 +276,130 @@ function bbp_format_revision_reason( $reason = '' ) {
 	return $reason;
 }
 
+/** Views *********************************************************************/
+
+/**
+ * Get the registered views
+ *
+ * Does nothing much other than return the {@link $bbp->views} variable
+ *
+ * @since bbPress (r2789)
+ *
+ * @return array Views
+ */
+function bbp_get_views() {
+	global $bbp;
+
+	return $bbp->views;
+}
+
+/**
+ * Register a bbPress view
+ *
+ * @todo Implement feeds - See {@link http://trac.bbpress.org/ticket/1422}
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view View name
+ * @param string $title View title
+ * @param mixed $query_args {@link bbp_has_topics()} arguments.
+ * @param bool $feed Have a feed for the view? Defaults to true. NOT IMPLEMENTED
+ * @uses sanitize_title() To sanitize the view name
+ * @uses esc_html() To sanitize the view title
+ * @return array The just registered (but processed) view
+ */
+function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
+	global $bbp;
+
+	$view  = sanitize_title( $view );
+	$title = esc_html( $title );
+
+	if ( empty( $view ) || empty( $title ) )
+		return false;
+
+	$query_args = wp_parse_args( $query_args );
+
+	// Set ignore_sticky_topics to true if it wasn't supplied
+	if ( !isset( $query_args['ignore_sticky_topics'] ) )
+		$query_args['ignore_sticky_topics'] = true;
+
+	$bbp->views[$view]['title'] = $title;
+	$bbp->views[$view]['query'] = $query_args;
+	$bbp->views[$view]['feed']  = $feed;
+
+	return $bbp->views[$view];
+}
+
+/**
+ * Deregister a bbPress view
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view View name
+ * @uses sanitize_title() To sanitize the view name
+ * @return bool False if the view doesn't exist, true on success
+ */
+function bbp_deregister_view( $view ) {
+	global $bbp;
+
+	$view = sanitize_title( $view );
+
+	if ( !isset( $bbp->views[$view] ) )
+		return false;
+
+	unset( $bbp->views[$view] );
+
+	return true;
+}
+
+/**
+ * Run the view's query
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view Optional. View id
+ * @param mixed $new_args New arguments. See {@link bbp_has_topics()}
+ * @uses bbp_get_view_id() To get the view id
+ * @uses bbp_get_view_query_args() To get the view query args
+ * @uses sanitize_title() To sanitize the view name
+ * @uses bbp_has_topics() To make the topics query
+ * @return bool False if the view doesn't exist, otherwise if topics are there
+ */
+function bbp_view_query( $view = '', $new_args = '' ) {
+	global $bbp;
+
+	if ( !$view = bbp_get_view_id( $view ) )
+		return false;
+
+	$query_args = bbp_get_view_query_args( $view );
+
+	if ( !empty( $new_args ) ) {
+		$new_args   = wp_parse_args( $new_args );
+		$query_args = array_merge( $query_args, $new_args );
+	}
+
+	return bbp_has_topics( $query_args );
+}
+
+/**
+ * Run the view's query's arguments
+ *
+ * @since bbPress (r2789)
+ *
+ * @param string $view View name
+ * @uses bbp_get_view_id() To get the view id
+ * @uses sanitize_title() To sanitize the view name
+ * @return array Query arguments
+ */
+function bbp_get_view_query_args( $view ) {
+	global $bbp;
+
+	if ( !$views = bbp_get_view_id( $view ) )
+		return false;
+
+	return $bbp->views[$view]['query'];
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -1857,8 +1981,8 @@ function bbp_edit_user_handler() {
 /**
  * Load bbPress custom templates
  *
- * Loads custom templates for bbPress user profile, user edit, topic edit and
- * reply edit pages.
+ * Loads custom templates for bbPress view page, user profile, user edit, topic
+ * edit and reply edit pages.
  *
  * @since bbPress (r2753)
  *
@@ -1882,6 +2006,10 @@ function bbp_custom_template() {
 	} elseif ( bbp_is_user_profile_edit() ) {
 		$template = array( 'user-edit.php', 'user.php', 'author.php', 'index.php' );
 
+	// View page
+	} elseif ( bbp_is_view() ) {
+		$template = array( 'view-' . bbp_get_view_id(), 'view.php', 'index.php' );
+
 	// Editing a topic
 	} elseif ( bbp_is_topic_edit() ) {
 		$template = array( 'page-bbp_edit.php', 'single-' . $bbp->topic_id, 'single.php', 'index.php' );
@@ -1902,7 +2030,8 @@ function bbp_custom_template() {
 }
 
 /**
- * Add checks for user page, user edit, topic edit and reply edit pages.
+ * Add checks for view page, user page, user edit, topic edit and reply edit
+ * pages.
  *
  * If it's a user page, WP_Query::bbp_is_user_profile_page is set to true.
  * If it's a user edit page, WP_Query::bbp_is_user_profile_edit is set to true
@@ -1913,6 +2042,8 @@ function bbp_custom_template() {
  *
  * If it's a topic edit, WP_Query::bbp_is_topic_edit is set to true and
  * similarly, if it's a reply edit, WP_Query::bbp_is_reply_edit is set to true.
+ *
+ * If it's a view page, WP_Query::bbp_is_view is set to true
  *
  * @since bbPress (r2688)
  *
@@ -1928,8 +2059,10 @@ function bbp_pre_get_posts( $wp_query ) {
 	global $bbp, $wp_version;
 
 	$bbp_user = get_query_var( 'bbp_user' );
+	$bbp_view = get_query_var( 'bbp_view' );
 	$is_edit  = get_query_var( 'edit'     );
 
+	// Profile page
 	if ( !empty( $bbp_user ) ) {
 
 		// It is a user page (most probably), we'll also check if it is user edit
@@ -1971,6 +2104,22 @@ function bbp_pre_get_posts( $wp_query ) {
 
 		// Set the displayed user global to this user
 		$bbp->displayed_user = $user;
+
+	// View Page
+	} elseif ( !empty( $bbp_view ) ) {
+
+		// Check if the view exists by checking if there are query args are set or not
+		$view_args = bbp_get_view_query_args( $bbp_view );
+
+		// Stop if view args is false - means the view isn't registered
+		if ( false === $view_args ) {
+			$wp_query->set_404();
+			return;
+		}
+
+		$wp_query->bbp_is_view = true;
+
+	// Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {
 
 		// It is a topic edit page
@@ -2045,10 +2194,16 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		// Normal reply titles already have "Reply To: ", so we shouldn't add our own
 		$title = bbp_get_reply_title();
 
+	// Topic tag page
 	} elseif ( is_tax( $bbp->topic_tag_id ) ) {
 
 		$term  = get_queried_object();
 		$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
+
+	// Views
+	} elseif ( bbp_is_view() ) {
+
+		$title = sprintf( __( 'View: %s', 'bbpress' ), bbp_get_view_title() );
 
 	}
 

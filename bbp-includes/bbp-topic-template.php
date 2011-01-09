@@ -72,7 +72,7 @@ function bbp_has_topics( $args = '' ) {
 	// Don't pass post_parent if forum_id is empty or 0
 	if ( empty( $default['post_parent'] ) ) {
 		unset( $default['post_parent'] );
-		if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() )
+		if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() && !bbp_is_view() )
 			$post_parent = get_the_ID();
 	}
 
@@ -166,12 +166,16 @@ function bbp_has_topics( $args = '' ) {
 			$bbp->topic_query->found_posts = $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count;
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() && bbp_is_user_profile_page() )
-			$base = $base = user_trailingslashit( trailingslashit( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) ) . 'page/%#%/' );
-		elseif ( $wp_rewrite->using_permalinks() )
-			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
-		else
+		if ( $wp_rewrite->using_permalinks() ) {
+			if ( bbp_is_user_profile_page() )
+				$base = user_trailingslashit( trailingslashit( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) ) . 'page/%#%/' );
+			elseif ( bbp_is_view() )
+				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
+			else
+				$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
+		} else {
 			$base = add_query_arg( 'paged', '%#%' );
+		}
 
 
 		// Pagination settings with filter
