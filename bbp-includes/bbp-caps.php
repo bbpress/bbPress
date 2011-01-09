@@ -180,40 +180,6 @@ function bbp_remove_caps() {
 		$admin->remove_cap( 'view_trash'            );
 	}
 
-	// Remove caps from moderator role
-	if ( $mod =& get_role( 'bbp_moderator' ) ) {
-
-		// Topic caps
-		$mod->remove_cap( 'publish_topics'        );
-		$mod->remove_cap( 'edit_topics'           );
-		$mod->remove_cap( 'edit_others_topics'    );
-		$mod->remove_cap( 'delete_topics'         );
-		$mod->remove_cap( 'delete_others_topics'  );
-		$mod->remove_cap( 'read_private_topics'   );
-
-		// Reply caps
-		$mod->remove_cap( 'publish_replies'       );
-		$mod->remove_cap( 'edit_replies'          );
-		$mod->remove_cap( 'edit_others_replies'   );
-		$mod->remove_cap( 'delete_replies'        );
-		$mod->remove_cap( 'delete_others_replies' );
-		$mod->remove_cap( 'read_private_replies'  );
-
-		// Topic tag caps
-		$mod->remove_cap( 'manage_topic_tags'     );
-		$mod->remove_cap( 'edit_topic_tags'       );
-		$mod->remove_cap( 'delete_topic_tags'     );
-		$mod->remove_cap( 'assign_topic_tags'     );
-
-		// Users
-		$mod->remove_cap( 'edit_users'            );
-
-		// Misc
-		$mod->remove_cap( 'moderate'              );
-		$mod->remove_cap( 'throttle'              );
-		$mod->remove_cap( 'view_trash'            );
-	}
-
 	// Remove caps from default role
 	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
 
@@ -267,6 +233,24 @@ function bbp_remove_roles() {
 function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
 	switch ( $cap ) {
+		case 'read_forum' :
+		case 'read_topic' :
+		case 'read_reply' :
+
+			if ( $post = get_post( $args[0] ) ) {
+				$caps      = array();
+				$post_type = get_post_type_object( $post->post_type );
+
+				if ( 'private' != $post->post_status )
+					$caps[] = 'read';
+				elseif ( (int) $user_id == (int) $post->post_author )
+					$caps[] = 'read';
+				else
+					$caps[] = $post_type->cap->read_private_posts;
+			}
+
+			break;
+
 		case 'edit_forum' :
 		case 'edit_topic' :
 		case 'edit_reply' :
@@ -275,7 +259,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps      = array();
 				$post_type = get_post_type_object( $post->post_type );
 
-				if ( (int)$user_id == (int)$post->post_author )
+				if ( (int) $user_id == (int) $post->post_author )
 					$caps[] = $post_type->cap->edit_posts;
 				else
 					$caps[] = $post_type->cap->edit_others_posts;
@@ -289,7 +273,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps      = array();
 				$post_type = get_post_type_object( $post->post_type );
 
-				if ( (int)$user_id == (int) $post->post_author )
+				if ( (int) $user_id == (int) $post->post_author )
 					$caps[] = $post_type->cap->delete_posts;
 				else
 					$caps[] = $post_type->cap->delete_others_posts;
