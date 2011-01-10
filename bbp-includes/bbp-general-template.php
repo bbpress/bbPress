@@ -563,7 +563,8 @@ function bbp_reply_form_fields() {
  * @uses wp_nonce_field() To generate a hidden nonce field
  * @uses wp_referer_field() To generate a hidden referer field
  */
-function bbp_edit_user_form_fields() { ?>
+function bbp_edit_user_form_fields() {
+?>
 
 	<input type="hidden" name="action"  id="bbp_post_action" value="bbp-update-user" />
 	<input type="hidden" name="user_id" id="user_id"         value="<?php bbp_displayed_user_id(); ?>" />
@@ -583,8 +584,7 @@ function bbp_edit_user_form_fields() { ?>
  * @uses bbp_topic_id() To output the topic id
  */
 function bbp_merge_topic_form_fields() {
-
-	?>
+?>
 
 	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-merge-topic" />
 	<input type="hidden" name="bbp_topic_id" id="bbp_topic_id"    value="<?php bbp_topic_id(); ?>" />
@@ -602,8 +602,7 @@ function bbp_merge_topic_form_fields() {
  * @uses wp_nonce_field() To generete a hidden nonce field
  */
 function bbp_split_topic_form_fields() {
-
-	?>
+?>
 
 	<input type="hidden" name="action"       id="bbp_post_action" value="bbp-split-topic" />
 	<input type="hidden" name="bbp_reply_id" id="bbp_reply_id"    value="<?php echo absint( $_GET['reply_id'] ); ?>" />

@@ -294,21 +294,14 @@ class bbPress {
 	function _includes() {
 
 		// Load the files
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-loader.php'    );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-options.php'   );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-caps.php'      );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-hooks.php'     );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-classes.php'   );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-functions.php' );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-widgets.php'   );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-users.php'     );
+		foreach ( array( 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets' ) as $file )
+			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '.php' );
 
-		// Load template files
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-general-template.php' );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-forum-template.php'   );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-topic-template.php'   );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-reply-template.php'   );
-		require_once( $this->plugin_dir . '/bbp-includes/bbp-user-template.php'    );
+		// Load the function and template files
+		foreach ( array( 'general', 'forum', 'topic', 'reply', 'user' ) as $file ) {
+			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-functions.php' );
+			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-template.php'  );
+		}
 
 		// Quick admin check and load if needed
 		if ( is_admin() )

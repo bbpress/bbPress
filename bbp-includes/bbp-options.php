@@ -16,6 +16,7 @@
  * This is non-destructive, so existing settings will not be overridden.
  *
  * @uses add_option() Adds default options
+ * @uses do_action() Calls 'bbp_add_options'
  */
 function bbp_add_options() {
 
@@ -79,6 +80,44 @@ function bbp_add_options() {
 	// Allow previously activated plugins to append their own options.
 	// This is an extremely rare use-case.
 	do_action( 'bbp_add_options' );
+}
+
+/** Active? *******************************************************************/
+
+/**
+ * Checks if favorites feature is enabled.
+ *
+ * @since bbPress (r2658)
+ *
+ * @uses get_option() To get the favorites option
+ * @return bool Is favorites enabled or not
+ */
+function bbp_is_favorites_active() {
+	return (bool) get_option( '_bbp_enable_favorites', true );
+}
+
+/**
+ * Checks if subscription feature is enabled.
+ *
+ * @since bbPress (r2658)
+ *
+ * @uses get_option() To get the subscriptions option
+ * @return bool Is subscription enabled or not
+ */
+function bbp_is_subscriptions_active() {
+	return (bool) get_option( '_bbp_enable_subscriptions' );
+}
+
+/**
+ * Is the anonymous posting allowed?
+ *
+ * @since bbPress (r2659)
+ *
+ * @uses get_option() To get the allow anonymous option
+ * @return bool Is anonymous posting allowed?
+ */
+function bbp_allow_anonymous() {
+	return apply_filters( 'bbp_allow_anonymous', get_option( '_bbp_allow_anonymous', false ) );
 }
 
 ?>
