@@ -12,7 +12,8 @@ if ( !function_exists( 'clean_url' ) ) : // [WP11615]
 function clean_url( $url, $protocols = null, $context = 'display' ) {
 	$original_url = $url;
 
-	if ('' == $url) return $url;
+	if ( '' == $url )
+		return $url;
 	$url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\\x80-\\xff]|i', '', $url);
 	$strip = array('%0d', '%0a', '%0D', '%0A');
 	$url = _deep_replace($strip, $url);
@@ -27,12 +28,13 @@ function clean_url( $url, $protocols = null, $context = 'display' ) {
 
 	// Replace ampersands and single quotes only when displaying.
 	if ( 'display' == $context ) {
-		$url = preg_replace('/&([^#])(?![a-z]{2,8};)/', '&#038;$1', $url);
+		$url = wp_kses_normalize_entities( $url );
+		$url = str_replace( '&amp;', '&#038;', $url );
 		$url = str_replace( "'", '&#039;', $url );
 	}
 
 	if ( !is_array($protocols) )
-		$protocols = array('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet');
+		$protocols = array ('http', 'https', 'ftp', 'ftps', 'mailto', 'news', 'irc', 'gopher', 'nntp', 'feed', 'telnet', 'mms', 'rtsp', 'svn');
 	if ( wp_kses_bad_protocol( $url, $protocols ) != $url )
 		return '';
 
