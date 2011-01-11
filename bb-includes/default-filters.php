@@ -32,7 +32,7 @@ add_filter('total_posts', 'bb_number_format_i18n');
 add_filter('total_users', 'bb_number_format_i18n');
 
 add_filter('edit_text', 'bb_code_trick_reverse');
-add_filter('edit_text', 'htmlspecialchars');
+add_filter('edit_text', 'wp_specialchars_decode');
 add_filter('edit_text', 'trim', 15);
 
 add_filter('pre_sanitize_with_dashes', 'bb_pre_sanitize_with_dashes_utf8', 10, 3 );
