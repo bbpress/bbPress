@@ -175,17 +175,19 @@ function bb_insert_topic( $args = null ) {
 		return false;
 	$forum_id = (int) $forum->forum_id;
 
-	if ( bb_is_user_logged_in() || bb_is_login_required() ) {
-		if ( !$user = bb_get_user( $topic_poster ) )
-			if ( !$user = bb_get_user( $topic_poster_name, array( 'by' => 'login' ) ) )
-				return false;
-		$topic_poster = $user->ID;
-		$topic_poster_name = $user->user_login;
+	if ( !$user = bb_get_user( $topic_poster ) )
+		$user = bb_get_user( $topic_poster_name, array( 'by' => 'login' ) );
 
-		if ( !$last_user = bb_get_user( $topic_last_poster ) )
-			if ( !$last_user = bb_get_user( $topic_last_poster_name, array( 'by' => 'login' ) ) )
-				return false;
-		$topic_last_poster = $last_user->ID;
+	if ( !empty( $user ) ) {
+		$topic_poster      = $user->ID;
+		$topic_poster_name = $user->user_login;
+	}
+
+	if ( !$last_user = bb_get_user( $topic_last_poster ) )
+		$last_user = bb_get_user( $topic_last_poster_name, array( 'by' => 'login' ) );
+
+	if ( !empty( $last_user ) ) {
+		$topic_last_poster      = $last_user->ID;
 		$topic_last_poster_name = $last_user->user_login;
 	}
 
