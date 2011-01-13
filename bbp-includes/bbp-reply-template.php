@@ -427,14 +427,16 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
  *
  * @since bbPress (r2782)
  *
- * @param string $content Content to which we need to append the revisions to
+ * @param string $content Optional. Content to which we need to append the revisions to
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_reply_revision_log() To get the reply revision log
  * @uses apply_filters() Calls 'bbp_reply_append_revisions' with the processed
  *                        content, original content and reply id
  * @return string Content with the revisions appended
  */
-function bbp_reply_content_append_revisions( $content, $reply_id ) {
+function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
 	return apply_filters( 'bbp_reply_append_revisions', $content . bbp_get_reply_revision_log( $reply_id ), $content, $reply_id );
 }
 

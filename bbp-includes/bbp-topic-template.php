@@ -463,14 +463,16 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
  *
  * @since bbPress (r2782)
  *
- * @param string $content Content to which we need to append the revisions to
+ * @param string $content Optional. Content to which we need to append the revisions to
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_revision_log() To get the topic revision log
  * @uses apply_filters() Calls 'bbp_topic_append_revisions' with the processed
  *                        content, original content and topic id
  * @return string Content with the revisions appended
  */
-function bbp_topic_content_append_revisions( $content, $topic_id ) {
+function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+
 	return apply_filters( 'bbp_topic_append_revisions', $content . bbp_get_topic_revision_log( $topic_id ), $content, $topic_id );
 }
 
