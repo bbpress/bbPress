@@ -181,6 +181,9 @@ function bb_destroy_tag( $tt_id, $recount_topics = true ) {
 	if ( !$tag = bb_get_tag( $tt_id ) )
 		return false;
 
+	if ( is_wp_error($tag) )
+		return false;
+
 	$topic_ids = bb_get_tagged_topic_ids( $tag->term_id );
 
 	$return = $wp_taxonomy_object->delete_term( $tag->term_id, 'bb_topic_tag' );
@@ -253,7 +256,7 @@ function bb_get_tag( $id, $user_id = 0, $topic_id = 0 ) {
 	}
 
 	if ( !$term )
-		$term = $wp_taxonomy_object->get_term_by( 'tt_id', $tt_id, 'bb_topic_tag' );
+		$term = $wp_taxonomy_object->get_term_by( 'term_id', $tt_id, 'bb_topic_tag' );
 
 	_bb_make_tag_compat( $term );
 

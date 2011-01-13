@@ -8,8 +8,7 @@ $tag_id = (int) $_POST['id' ];
 
 bb_check_admin_referer( 'destroy-tag_' . $tag_id );
 
-$old_tag = bb_get_tag( $tag_id );
-if ( !$old_tag )
+if ( !$old_tag = bb_get_tag( $tag_id ) )
 	bb_die(__('Tag not found.'));
 
 if ( $destroyed = bb_destroy_tag( $tag_id ) ) {
