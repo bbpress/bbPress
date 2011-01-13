@@ -617,7 +617,7 @@ function bb_manage_user_fields( $edit_user = '' ) {
 			'value'    => $user_pass2,
 		),
 		'email_pass' => array(
-			'title'    => __( '' ),
+			'title'    => '',
 			'type'     => 'checkbox',
 			'options'  => array(
 				'1' => array(
