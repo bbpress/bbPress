@@ -75,16 +75,16 @@ class BBP_Admin {
 
 		/** Forums ****************************************************/
 
-		// Forum column headers.
-		add_filter( 'manage_' . $bbp->forum_id . '_posts_columns',  array( $this, 'forums_column_headers' ) );
-
 		// Forum metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'forum_attributes_metabox'      ) );
 		add_action( 'save_post',                   array( $this, 'forum_attributes_metabox_save' ) );
 
+		// Forum column headers.
+		add_filter( 'manage_' . $bbp->forum_id . '_posts_columns',  array( $this, 'forums_column_headers' ) );
+
 		// Forum columns (in page row)
-		add_action( 'manage_pages_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
-		add_filter( 'page_row_actions',            array( $this, 'forums_row_actions' ), 10, 2 );
+		add_action( 'manage_' . $bbp->forum_id . '_posts_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
+		add_filter( 'page_row_actions',                                   array( $this, 'forums_row_actions' ), 10, 2 );
 
 		/** Topics ****************************************************/
 
@@ -92,8 +92,8 @@ class BBP_Admin {
 		add_filter( 'manage_' . $bbp->topic_id . '_posts_columns',  array( $this, 'topics_column_headers' ) );
 
 		// Topic columns (in post row)
-		add_action( 'manage_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',            array( $this, 'topics_row_actions' ), 10, 2 );
+		add_action( 'manage_' . $bbp->topic_id . '_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                   array( $this, 'topics_row_actions' ), 10, 2 );
 
 		// Topic metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'topic_attributes_metabox'      ) );
@@ -109,8 +109,8 @@ class BBP_Admin {
 		add_filter( 'manage_' . $bbp->reply_id . '_posts_columns',  array( $this, 'replies_column_headers' ) );
 
 		// Reply columns (in post row)
-		add_action( 'manage_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',            array( $this, 'replies_row_actions' ), 10, 2 );
+		add_action( 'manage_' . $bbp->reply_id . '_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                   array( $this, 'replies_row_actions' ), 10, 2 );
 
 		// Reply metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'reply_attributes_metabox'      ) );
@@ -782,10 +782,7 @@ class BBP_Admin {
 	 *                    column and forum id
 	 */
 	function forums_column_data( $column, $forum_id ) {
-		global $bbp, $typenow;
-
-		if ( $typenow !== $bbp->forum_id )
-			return $column;
+		global $bbp;
 
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
@@ -834,7 +831,7 @@ class BBP_Admin {
 	function forums_row_actions( $actions, $forum ) {
 		global $bbp;
 
-		if ( $bbp->forum_id == $forum->post_type ) {
+		if ( $forum->post_type == $bbp->forum_id ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			// simple hack to show the forum description under the title
@@ -1061,10 +1058,7 @@ class BBP_Admin {
 	 *                    column and topic id
 	 */
 	function topics_column_data( $column, $topic_id ) {
-		global $bbp, $typenow;
-
-		if ( $typenow !== $bbp->topic_id )
-			return $column;
+		global $bbp;
 
 		// Get topic forum ID
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
@@ -1390,10 +1384,7 @@ class BBP_Admin {
 	 *                    column and reply id
 	 */
 	function replies_column_data( $column, $reply_id ) {
-		global $bbp, $typenow;
-
-		if ( $typenow !== $bbp->reply_id )
-			return $column;
+		global $bbp;
 
 		// Get topic ID
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
