@@ -379,7 +379,7 @@ function bbp_topic_title( $topic_id = 0 ) {
 	}
 
 /**
- * Output the content of the topic in the loop
+ * Output the content of the topic
  *
  * @since bbPress (r2780)
  *
@@ -390,7 +390,7 @@ function bbp_topic_content( $topic_id = 0 ) {
 	echo bbp_get_topic_content( $topic_id );
 }
 	/**
-	 * Return the content of the topic in the loop
+	 * Return the content of the topic
 	 *
 	 * @since bbPress (r2780)
 	 *

@@ -343,7 +343,7 @@ function bbp_reply_title( $reply_id = 0 ) {
 	}
 
 /**
- * Output the content of the reply in the loop
+ * Output the content of the reply
  *
  * @since bbPress (r2553)
  *
@@ -354,7 +354,7 @@ function bbp_reply_content( $reply_id = 0 ) {
 	echo bbp_get_reply_content( $reply_id );
 }
 	/**
-	 * Return the content of the reply in the loop
+	 * Return the content of the reply
 	 *
 	 * @since bbPress (r2780)
 	 *

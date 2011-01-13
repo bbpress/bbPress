@@ -233,6 +233,43 @@ function bbp_forum_title( $forum_id = 0 ) {
 	}
 
 /**
+ * Output the content of the forum
+ *
+ * @since bbPress (r2780)
+ *
+ * @param int $forum_id Optional. Topic id
+ * @uses bbp_get_forum_content() To get the forum content
+ */
+function bbp_forum_content( $forum_id = 0 ) {
+	echo bbp_get_forum_content( $forum_id );
+}
+	/**
+	 * Return the content of the forum
+	 *
+	 * @since bbPress (r2780)
+	 *
+	 * @param int $forum_id Optional. Topic id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses post_password_required() To check if the forum requires pass
+	 * @uses get_the_password_form() To get the password form
+	 * @uses get_post_field() To get the content post field
+	 * @uses apply_filters() Calls 'bbp_get_forum_content' with the content
+	 *                        and forum id
+	 * @return string Content of the forum
+	 */
+	function bbp_get_forum_content( $forum_id = 0 ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+
+		// Check if password is required
+		if ( post_password_required( $forum_id ) )
+			return get_the_password_form();
+
+		$content = get_post_field( 'post_content', $forum_id );
+
+		return apply_filters( 'bbp_get_forum_content', $content, $forum_id );
+	}
+
+/**
  * Output the forums last update date/time (aka freshness)
  *
  * @since bbPress (r2464)

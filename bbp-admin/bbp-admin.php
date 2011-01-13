@@ -835,7 +835,7 @@ class BBP_Admin {
 			unset( $actions['inline hide-if-no-js'] );
 
 			// simple hack to show the forum description under the title
-			the_content();
+			bbp_forum_content( $forum->ID );
 		}
 
 		return $actions;
@@ -1156,7 +1156,7 @@ class BBP_Admin {
 		if ( $bbp->topic_id == $topic->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
-			bbp_topic_content();
+			bbp_topic_content( $topic->ID );
 
 			// Show view link if it's not set, the topic is trashed and the user can view trashed topics
 			if ( empty( $actions['view'] ) && 'trash' == $topic->post_status && current_user_can( 'view_trash' ) )
@@ -1487,7 +1487,7 @@ class BBP_Admin {
 			if ( empty( $actions['view'] ) && 'trash' == $reply->post_status && current_user_can( 'view_trash' ) )
 				$actions['view'] = '<a href="' . bbp_get_reply_permalink( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
-			bbp_reply_content();
+			bbp_reply_content( $reply->ID );
 
 			// Only show the actions if the user is capable of viewing them
 			if ( current_user_can( 'moderate', $reply->ID ) ) {
