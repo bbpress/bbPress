@@ -205,7 +205,7 @@ function bbp_forum_permalink( $forum_id = 0 ) {
 	}
 
 /**
- * Output the title of the forum in the loop
+ * Output the title of the forum
  *
  * @since bbPress (r2464)
  *
@@ -216,7 +216,7 @@ function bbp_forum_title( $forum_id = 0 ) {
 	echo bbp_get_forum_title( $forum_id );
 }
 	/**
-	 * Return the title of the forum in the loop
+	 * Return the title of the forum
 	 *
 	 * @since bbPress (r2464)
 	 *

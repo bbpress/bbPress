@@ -332,7 +332,7 @@ function bbp_topic_permalink( $topic_id = 0 ) {
 	echo bbp_get_topic_permalink( $topic_id );
 }
 	/**
-	 * Return the link to the topic in the loop
+	 * Return the link to the topic
 	 *
 	 * @since bbPress (r2485)
 	 *
@@ -350,7 +350,7 @@ function bbp_topic_permalink( $topic_id = 0 ) {
 	}
 
 /**
- * Output the title of the topic in the loop
+ * Output the title of the topic
  *
  * @since bbPress (r2485)
  *
@@ -361,7 +361,7 @@ function bbp_topic_title( $topic_id = 0 ) {
 	echo bbp_get_topic_title( $topic_id );
 }
 	/**
-	 * Return the title of the topic in the loop
+	 * Return the title of the topic
 	 *
 	 * @since bbPress (r2485)
 	 *
@@ -416,7 +416,7 @@ function bbp_topic_content( $topic_id = 0 ) {
 	}
 
 /**
- * Output the excerpt of the topic in the loop
+ * Output the excerpt of the topic
  *
  * @since bbPress (r2780)
  *
@@ -428,7 +428,7 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	echo bbp_get_topic_excerpt( $topic_id, $length );
 }
 	/**
-	 * Return the excerpt of the topic in the loop
+	 * Return the excerpt of the topic
 	 *
 	 * @since bbPress (r2780)
 	 *
@@ -475,7 +475,7 @@ function bbp_topic_content_append_revisions( $content, $topic_id ) {
 }
 
 /**
- * Output the revision log of the topic in the loop
+ * Output the revision log of the topic
  *
  * @since bbPress (r2782)
  *
@@ -486,7 +486,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 	echo bbp_get_topic_revision_log( $topic_id );
 }
 	/**
-	 * Return the formatted revision log of the topic in the loop
+	 * Return the formatted revision log of the topic
 	 *
 	 * @since bbPress (r2782)
 	 *
@@ -503,6 +503,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 	 * @return string Revision log of the topic
 	 */
 	function bbp_get_topic_revision_log( $topic_id = 0 ) {
+		// Create necessary variables
 		$topic_id     = bbp_get_topic_id( $topic_id );
 		$revisions    = bbp_get_topic_revisions( $topic_id );
 		$revision_log = bbp_get_topic_raw_revision_log( $topic_id );
@@ -512,6 +513,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 
 		$r = "\n\n" . '<ul id="bbp-topic-revision-log-' . $topic_id . '" class="bbp-topic-revision-log">' . "\n\n";
 
+		// Loop through revisions
 		foreach ( (array) $revisions as $revision ) {
 
 			if ( empty( $revision_log[$revision->ID] ) ) {
@@ -536,7 +538,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 		return apply_filters( 'bbp_get_topic_revision_log', $r, $topic_id );
 	}
 		/**
-		 * Return the raw revision log of the topic in the loop
+		 * Return the raw revision log of the topic
 		 *
 		 * @since bbPress (r2782)
 		 *
@@ -557,7 +559,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 		}
 
 /**
- * Return the revisions of the topic in the loop
+ * Return the revisions of the topic
  *
  * @since bbPress (r2782)
  *
@@ -576,7 +578,7 @@ function bbp_get_topic_revisions( $topic_id = 0 ) {
 }
 
 /**
- * Return the revision count of the topic in the loop
+ * Return the revision count of the topic
  *
  * @since bbPress (r2782)
  *
@@ -591,7 +593,7 @@ function bbp_get_topic_revision_count( $topic_id = 0 ) {
 }
 
 /**
- * Update the revision log of the topic in the loop
+ * Update the revision log of the topic
  *
  * @since bbPress (r2782)
  *
@@ -633,7 +635,7 @@ function bbp_update_topic_revision_log( $args = '' ) {
 }
 
 /**
- * Output the status of the topic in the loop
+ * Output the status of the topic
  *
  * @since bbPress (r2667)
  *
@@ -644,7 +646,7 @@ function bbp_topic_status( $topic_id = 0 ) {
 	echo bbp_get_topic_status( $topic_id );
 }
 	/**
-	 * Return the status of the topic in the loop
+	 * Return the status of the topic
 	 *
 	 * @since bbPress (r2667)
 	 *
@@ -783,7 +785,7 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
 }
 
 /**
- * Output the author of the topic in the loop
+ * Output the author of the topic
  *
  * @since bbPress (r2590)
  *
@@ -794,7 +796,7 @@ function bbp_topic_author( $topic_id = 0 ) {
 	echo bbp_get_topic_author( $topic_id );
 }
 	/**
-	 * Return the author of the topic in the loop
+	 * Return the author of the topic
 	 *
 	 * @since bbPress (r2590)
 	 *
@@ -818,7 +820,7 @@ function bbp_topic_author( $topic_id = 0 ) {
 	}
 
 /**
- * Output the author ID of the topic in the loop
+ * Output the author ID of the topic
  *
  * @since bbPress (r2590)
  *
@@ -829,7 +831,7 @@ function bbp_topic_author_id( $topic_id = 0 ) {
 	echo bbp_get_topic_author_id( $topic_id );
 }
 	/**
-	 * Return the author ID of the topic in the loop
+	 * Return the author ID of the topic
 	 *
 	 * @since bbPress (r2590)
 	 *
@@ -847,7 +849,7 @@ function bbp_topic_author_id( $topic_id = 0 ) {
 	}
 
 /**
- * Output the author display_name of the topic in the loop
+ * Output the author display_name of the topic
  *
  * @since bbPress (r2590)
  *
@@ -859,7 +861,7 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 	echo bbp_get_topic_author_display_name( $topic_id );
 }
 	/**
-	 * Return the author display_name of the topic in the loop
+	 * Return the author display_name of the topic
 	 *
 	 * @since bbPress (r2485)
 	 *
@@ -887,7 +889,7 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 	}
 
 /**
- * Output the author avatar of the topic in the loop
+ * Output the author avatar of the topic
  *
  * @since bbPress (r2590)
  *
@@ -899,7 +901,7 @@ function bbp_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 	echo bbp_get_topic_author_avatar( $topic_id, $size );
 }
 	/**
-	 * Return the author avatar of the topic in the loop
+	 * Return the author avatar of the topic
 	 *
 	 * @since bbPress (r2590)
 	 *
@@ -928,7 +930,7 @@ function bbp_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 	}
 
 /**
- * Output the author link of the topic in the loop
+ * Output the author link of the topic
  *
  * @since bbPress (r2717)
  *
@@ -939,7 +941,7 @@ function bbp_topic_author_link( $args = '' ) {
 	echo bbp_get_topic_author_link( $args );
 }
 	/**
-	 * Return the author link of the topic in the loop
+	 * Return the author link of the topic
 	 *
 	 * @since bbPress (r2717)
 	 *
@@ -995,7 +997,7 @@ function bbp_topic_author_link( $args = '' ) {
 	}
 
 		/**
-		 * Output the author url of the topic in the loop
+		 * Output the author url of the topic
 		 *
 		 * @since bbPress (r2590)
 		 *
@@ -1007,7 +1009,7 @@ function bbp_topic_author_link( $args = '' ) {
 		}
 
 			/**
-			 * Return the author url of the topic in the loop
+			 * Return the author url of the topic
 			 *
 			 * @since bbPress (r2590)
 			 *

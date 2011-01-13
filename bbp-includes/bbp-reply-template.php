@@ -228,7 +228,7 @@ function bbp_reply_permalink( $reply_id = 0 ) {
 	echo bbp_get_reply_permalink( $reply_id );
 }
 	/**
-	 * Return the link to the reply in the loop
+	 * Return the link to the reply
 	 *
 	 * @since bbPress (r2553)
 	 *
@@ -313,7 +313,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 	}
 
 /**
- * Output the title of the reply in the loop
+ * Output the title of the reply
  *
  * @since bbPress (r2553)
  *
@@ -325,7 +325,7 @@ function bbp_reply_title( $reply_id = 0 ) {
 }
 
 	/**
-	 * Return the title of the reply in the loop
+	 * Return the title of the reply
 	 *
 	 * @since bbPress (r2553)
 	 *
@@ -380,7 +380,7 @@ function bbp_reply_content( $reply_id = 0 ) {
 	}
 
 /**
- * Output the excerpt of the reply in the loop
+ * Output the excerpt of the reply
  *
  * @since bbPress (r2751)
  *
@@ -392,7 +392,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 	echo bbp_get_reply_excerpt( $reply_id, $length );
 }
 	/**
-	 * Return the excerpt of the reply in the loop
+	 * Return the excerpt of the reply
 	 *
 	 * @since bbPress (r2751)
 	 *
@@ -439,7 +439,7 @@ function bbp_reply_content_append_revisions( $content, $reply_id ) {
 }
 
 /**
- * Output the revision log of the reply in the loop
+ * Output the revision log of the reply
  *
  * @since bbPress (r2782)
  *
@@ -450,7 +450,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	echo bbp_get_reply_revision_log( $reply_id );
 }
 	/**
-	 * Return the formatted revision log of the reply in the loop
+	 * Return the formatted revision log of the reply
 	 *
 	 * @since bbPress (r2782)
 	 *
@@ -467,6 +467,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	 * @return string Revision log of the reply
 	 */
 	function bbp_get_reply_revision_log( $reply_id = 0 ) {
+		// Create necessary variables
 		$reply_id     = bbp_get_reply_id( $reply_id );
 		$revisions    = bbp_get_reply_revisions( $reply_id );
 		$revision_log = bbp_get_reply_raw_revision_log( $reply_id );
@@ -476,6 +477,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 
 		$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . $reply_id . '" class="bbp-reply-revision-log">' . "\n\n";
 
+		// Loop through revisions
 		foreach ( (array) $revisions as $revision ) {
 
 			if ( empty( $revision_log[$revision->ID] ) ) {
@@ -500,7 +502,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		return apply_filters( 'bbp_get_reply_revision_log', $r, $reply_id );
 	}
 		/**
-		 * Return the raw revision log of the reply in the loop
+		 * Return the raw revision log of the reply
 		 *
 		 * @since bbPress (r2782)
 		 *
@@ -521,7 +523,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		}
 
 /**
- * Return the revisions of the reply in the loop
+ * Return the revisions of the reply
  *
  * @since bbPress (r2782)
  *
@@ -540,7 +542,7 @@ function bbp_get_reply_revisions( $reply_id = 0 ) {
 }
 
 /**
- * Return the revision count of the reply in the loop
+ * Return the revision count of the reply
  *
  * @since bbPress (r2782)
  *
@@ -555,7 +557,7 @@ function bbp_get_reply_revision_count( $reply_id = 0 ) {
 }
 
 /**
- * Update the revision log of the reply in the loop
+ * Update the revision log of the reply
  *
  * @since bbPress (r2782)
  *
@@ -597,7 +599,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
 }
 
 /**
- * Output the status of the reply in the loop
+ * Output the status of the reply
  *
  * @since bbPress (r2667)
  *
@@ -608,7 +610,7 @@ function bbp_reply_status( $reply_id = 0 ) {
 	echo bbp_get_reply_status( $reply_id );
 }
 	/**
-	 * Return the status of the reply in the loop
+	 * Return the status of the reply
 	 *
 	 * @since bbPress (r2667)
 	 *
@@ -670,7 +672,7 @@ function bbp_is_reply_anonymous( $reply_id = 0 ) {
 }
 
 /**
- * Output the author of the reply in the loop
+ * Output the author of the reply
  *
  * @since bbPress (r2667)
  *
@@ -681,7 +683,7 @@ function bbp_reply_author( $reply_id = 0 ) {
 	echo bbp_get_reply_author( $reply_id );
 }
 	/**
-	 * Return the author of the reply in the loop
+	 * Return the author of the reply
 	 *
 	 * @since bbPress (r2667)
 	 *
@@ -707,7 +709,7 @@ function bbp_reply_author( $reply_id = 0 ) {
 	}
 
 /**
- * Output the author ID of the reply in the loop
+ * Output the author ID of the reply
  *
  * @since bbPress (r2667)
  *
@@ -718,7 +720,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 	echo bbp_get_reply_author_id( $reply_id );
 }
 	/**
-	 * Return the author ID of the reply in the loop
+	 * Return the author ID of the reply
 	 *
 	 * @since bbPress (r2667)
 	 *
@@ -736,7 +738,7 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 	}
 
 /**
- * Output the author display_name of the reply in the loop
+ * Output the author display_name of the reply
  *
  * @since bbPress (r2667)
  *
@@ -747,7 +749,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 	echo bbp_get_reply_author_display_name( $reply_id );
 }
 	/**
-	 * Return the author display_name of the reply in the loop
+	 * Return the author display_name of the reply
 	 *
 	 * @since bbPress (r2667)
 	 *
@@ -775,7 +777,7 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 	}
 
 /**
- * Output the author avatar of the reply in the loop
+ * Output the author avatar of the reply
  *
  * @since bbPress (r2667)
  *
@@ -787,7 +789,7 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	echo bbp_get_reply_author_avatar( $reply_id, $size );
 }
 	/**
-	 * Return the author avatar of the reply in the loop
+	 * Return the author avatar of the reply
 	 *
 	 * @since bbPress (r2667)
 	 *
@@ -816,7 +818,7 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	}
 
 /**
- * Output the author link of the reply in the loop
+ * Output the author link of the reply
  *
  * @since bbPress (r2717)
  *
@@ -827,7 +829,7 @@ function bbp_reply_author_link( $args = '' ) {
 	echo bbp_get_reply_author_link( $args );
 }
 	/**
-	 * Return the author link of the reply in the loop
+	 * Return the author link of the reply
 	 *
 	 * @since bbPress (r2717)
 	 *
@@ -884,7 +886,7 @@ function bbp_reply_author_link( $args = '' ) {
 	}
 
 		/**
-		 * Output the author url of the reply in the loop
+		 * Output the author url of the reply
 		 *
 		 * @since bbPress (r2667)
 		 *
@@ -895,7 +897,7 @@ function bbp_reply_author_link( $args = '' ) {
 			echo bbp_get_reply_author_url( $reply_id );
 		}
 			/**
-			 * Return the author url of the reply in the loop
+			 * Return the author url of the reply
 			 *
 			 * @since bbPress (r22667)
 			 *
