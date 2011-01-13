@@ -1,34 +1,38 @@
 <?php
+
+// Get started
 require_once('admin.php');
 require_once( BB_PATH . BB_INC . 'functions.bb-statistics.php' );
 
-$rn_forums = get_total_forums();
-$rn_forums = sprintf(__ngettext('<span>%d</span> forum', '<span>%d</span> forums', $rn_forums), number_format( $rn_forums ) );
+// Get counts and format numbers
+$rn_forums             = number_format( get_total_forums() );
+$rn_forums             = sprintf(__ngettext('<span>%s</span> forum', '<span>%s</span> forums', $rn_forums), $rn_forums );
 
-$rn_topics = get_total_topics();
-$rn_topics = sprintf(__ngettext('<span>%d</span> topic', '<span>%d</span> topics', $rn_topics), number_format( $rn_topics ) );
+$rn_topics             = number_format( get_total_topics() );
+$rn_topics             = sprintf(__ngettext('<span>%s</span> topic', '<span>%s</span> topics', $rn_topics), $rn_topics );
 
-$rn_posts = get_total_posts();
-$rn_posts = sprintf(__ngettext('<span>%d</span> post', '<span>%d</span> posts', $rn_posts), number_format( $rn_posts ) );
+$rn_posts              = number_format( get_total_posts() );
+$rn_posts              = sprintf(__ngettext('<span>%s</span> post', '<span>%s</span> posts', $rn_posts), $rn_posts );
 
-$rn_users = bb_get_total_users();
-$rn_users = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> users', $rn_users), number_format( $rn_users ) );
+$rn_users              = number_format( bb_get_total_users() );
+$rn_users              = sprintf(__ngettext('<span>%s</span> user', '<span>%s</span> users', $rn_users), $rn_users );
 
-$rn_topic_tags = bb_get_total_topic_tags();
-$rn_topic_tags = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags), number_format( $rn_topic_tags ) );
+$rn_topic_tags         = number_format( bb_get_total_topic_tags() );
+$rn_topic_tags         = sprintf(__ngettext('<span>%s</span> tag', '<span>%s</span> tags', $rn_topic_tags), $rn_topic_tags );
 
-$rn_topics_average = get_topics_per_day();
-$rn_topics_average = sprintf(__ngettext('<span>%d</span> topic', '<span>%d</span> topics', $rn_topics_average), number_format( $rn_topics_average ) );
+$rn_topics_average     = number_format( get_topics_per_day() );
+$rn_topics_average     = sprintf(__ngettext('<span>%s</span> topic', '<span>%s</span> topics', $rn_topics_average), $rn_topics_average );
 
-$rn_posts_average = get_posts_per_day();
-$rn_posts_average = sprintf(__ngettext('<span>%d</span> post', '<span>%d</span> posts', $rn_posts_average), number_format( $rn_posts_average ) );
+$rn_posts_average      = number_format( get_posts_per_day() );
+$rn_posts_average      = sprintf(__ngettext('<span>%s</span> post', '<span>%s</span> posts', $rn_posts_average), $rn_posts_average );
 
-$rn_users_average = get_registrations_per_day();
-$rn_users_average = sprintf(__ngettext('<span>%d</span> user', '<span>%d</span> users', $rn_users_average), number_format( $rn_users_average ) );
+$rn_users_average      = number_format( get_registrations_per_day() );
+$rn_users_average      = sprintf(__ngettext('<span>%s</span> user', '<span>%s</span> users', $rn_users_average), $rn_users_average );
 
-$rn_topic_tags_average = bb_get_topic_tags_per_day();
-$rn_topic_tags_average = sprintf(__ngettext('<span>%d</span> tag', '<span>%d</span> tags', $rn_topic_tags_average), number_format( $rn_topic_tags_average ) );
+$rn_topic_tags_average = number_format( bb_get_topic_tags_per_day() );
+$rn_topic_tags_average = sprintf(__ngettext('<span>%s</span> tag', '<span>%s</span> tags', $rn_topic_tags_average), $rn_topic_tags_average );
 
+// Filter the numbers
 $rn = apply_filters( 'bb_admin_right_now', array(
 	'forums'     => array( $rn_forums, '-' ),
 	'topics'     => array( $rn_topics, $rn_topics_average ),
@@ -39,11 +43,11 @@ $rn = apply_filters( 'bb_admin_right_now', array(
 
 $bb_admin_body_class = ' bb-admin-dashboard';
 
-bb_get_admin_header();
-?>
+bb_get_admin_header(); ?>
 
 <div class="wrap">
 	<h2><?php _e('Dashboard'); ?></h2>
+
 	<?php do_action( 'bb_admin_notices' ); ?>
 
 	<div id="dashboard-right-now" class="dashboard">
@@ -56,24 +60,23 @@ bb_get_admin_header();
 						<th><?php _e( 'Per Day' ); ?></th>
 					</tr>
 				</thead>
-<?php
-if ( !empty( $rn ) && is_array( $rn ) ) {
-?>
+
+<?php if ( !empty( $rn ) && is_array( $rn ) ) { ?>
+
 				<tbody>
-<?php
-	foreach ( $rn as $rn_row ) {
-?>
+
+	<?php foreach ( $rn as $rn_row ) { ?>
+
 					<tr>
 						<td><?php echo $rn_row[0]; ?></td>
 						<td><?php echo $rn_row[1]; ?></td>
 					</tr>
-<?php
-	}
-?>
+	<?php } ?>
+
 				</tbody>
-<?php
-}
-?>
+
+<?php } ?>
+
 			</table>
 		</div>
 
