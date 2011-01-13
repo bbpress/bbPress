@@ -82,7 +82,7 @@ function bb_admin_menu_generator()
 		$bb_submenu['plugins.php'][5]  = array( __( 'Installed' ), 'manage_plugins', 'plugins.php' );
 	$bb_menu[310] = array( __( 'Users' ), 'moderate', 'users.php', '', 'bb-menu-users' );
 		$bb_submenu['users.php'][5]  = array( __( 'Users' ), 'moderate', 'users.php' );
-		$bb_submenu['users.php'][10]  = array( __( 'Add New' ), 'moderate', 'user-add-new.php' );
+		$bb_submenu['users.php'][10]  = array( __( 'Add New' ), 'manage_options', 'user-add-new.php' );
 	$bb_menu[315] = array( __( 'Tools' ), 'recount', 'tools-recount.php', '', 'bb-menu-tools' );
 		$bb_submenu['tools-recount.php'][5] = array( __( 'Re-count' ), 'recount', 'tools-recount.php' );
 	$bb_menu[320] = array( __( 'Settings' ), 'manage_options', 'options-general.php', '', 'bb-menu-settings' );
@@ -290,6 +290,9 @@ function bb_admin_menu()
 			$sr .= "\t\t\t\t\t\t" . '<ul>' . "\n";
 			$sc = 0;
 			foreach ( $bb_submenu[$m[2]] as $skey => $sm ) {
+				if ( !bb_current_user_can( $sm[1] ) ) {
+					continue;
+				}
 				if ( $sc === 0 && $sm[2] === $m[2] ) {
 					$no_submenu = true;
 				}
