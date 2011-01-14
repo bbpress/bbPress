@@ -478,6 +478,9 @@ function bbp_list_forums( $args = '' ) {
 		'after'             => '</ul>',
 		'link_before'       => '<li class="bbp-forum">',
 		'link_after'        => '</li>',
+		'count_before'      => ' (',
+		'count_after'       => ')',
+		'count_sep'         => ', ',
 		'separator'         => ', ',
 		'forum_id'          => '',
 		'show_topic_count'  => true,
@@ -500,12 +503,12 @@ function bbp_list_forums( $args = '' ) {
 
 			// Show topic and reply counts
 			if ( !empty( $show_topic_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
-				$topic_count = ' (' . bbp_get_forum_topic_count( $sub_forum->ID ) . ')';
+				$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
 
 			if ( !empty( $show_reply_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
-				$reply_count = ' (' . bbp_get_forum_reply_count( $sub_forum->ID ) . ')';
+				$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
 
-			$output .= $link_before . '<a href="' . $permalink . '" class="bbp-forum-link">' . $title . $topic_count . $reply_count . '</a>' . $show_sep . $link_after;
+			$output .= $link_before . '<a href="' . $permalink . '" class="bbp-forum-link">' . $title . $count_before . implode( $count_sep, $count ) . $count_after . '</a>' . $show_sep . $link_after;
 		}
 
 		// Output the list
