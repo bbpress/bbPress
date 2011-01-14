@@ -152,7 +152,7 @@ add_action( 'trashed_post',        'bbp_update_forum_reply_count' );
 add_action( 'untrashed_post',      'bbp_update_forum_reply_count' );
 add_action( 'deleted_post',        'bbp_update_forum_reply_count' );
 add_action( 'bbp_new_reply',       'bbp_update_forum_reply_count' );
-add_action( 'bbp_edit_relpy',      'bbp_update_forum_reply_count' );
+add_action( 'bbp_edit_topic',      'bbp_update_forum_reply_count' );
 add_action( 'bbp_move_topic',      'bbp_update_forum_reply_count' );
 add_action( 'bbp_spammed_reply',   'bbp_update_forum_reply_count' );
 add_action( 'bbp_unspammed_reply', 'bbp_update_forum_reply_count' );

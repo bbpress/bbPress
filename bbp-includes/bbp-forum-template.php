@@ -40,10 +40,9 @@ function bbp_has_forums( $args = '' ) {
 	$r = wp_parse_args( $args, $default );
 
 	// Don't show private forums to normal users
-	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
-		$r['meta_key']     = '_bbp_forum_visibility';
-		$r['meta_value']   = 'public';
-		$r['meta_compare'] = '==';
+	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
+		$r['meta_key']   = '_bbp_forum_visibility';
+		$r['meta_value'] = 'public';
 	}
 
 	$bbp->forum_query = new WP_Query( $r );
@@ -434,10 +433,9 @@ function bbp_forum_has_subforums( $args = '' ) {
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
 
 	// Don't show private forums to normal users
-	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
-		$r['meta_key']     = '_bbp_forum_visibility';
-		$r['meta_value']   = 'public';
-		$r['meta_compare'] = '==';
+	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
+		$r['meta_key']   = '_bbp_forum_visibility';
+		$r['meta_value'] = 'public';
 	}
 
 	// No forum passed
@@ -504,8 +502,8 @@ function bbp_list_forums( $args = '' ) {
 			if ( !empty( $show_topic_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
 				$topic_count = ' (' . bbp_get_forum_topic_count( $sub_forum->ID ) . ')';
 
-			//if ( !empty( $show_reply_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
-			//	$reply_count = ' (' . bbp_get_forum_reply_count( $sub_forum->ID ) . ')';
+			if ( !empty( $show_reply_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
+				$reply_count = ' (' . bbp_get_forum_reply_count( $sub_forum->ID ) . ')';
 
 			$output .= $link_before . '<a href="' . $permalink . '" class="bbp-forum-link">' . $title . $topic_count . $reply_count . '</a>' . $show_sep . $link_after;
 		}
@@ -903,9 +901,10 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
  * @since bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
+ * @param bool $total_count Optional. To get the total count or normal count?
  * @uses bbp_get_forum_topic_count() To get the forum topic count
  */
-function bbp_forum_topic_count( $forum_id = 0 ) {
+function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	echo bbp_get_forum_topic_count( $forum_id );
 }
 	/**
@@ -914,6 +913,8 @@ function bbp_forum_topic_count( $forum_id = 0 ) {
 	 * @since bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
+	 * @param bool $total_count Optional. To get the total count or normal
+	 *                           count?
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum topic count
 	 * @uses bbp_update_forum_topic_count() To update the topic count if
@@ -922,12 +923,12 @@ function bbp_forum_topic_count( $forum_id = 0 ) {
 	 *                        topic count and forum id
 	 * @return int Forum topic count
 	 */
-	function bbp_get_forum_topic_count( $forum_id = 0 ) {
+	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = get_post_meta( $forum_id, '_bbp_forum_topic_count', true );
+		$topics  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_topic_count' : '_bbp_forum_total_topic_count', true );
 
 		if ( '' === $topics )
-			$topics = bbp_update_forum_topic_count( $forum_id );
+			$topics = bbp_update_forum_topic_count( $forum_id, $total_count );
 
 		return apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
 	}
@@ -938,10 +939,11 @@ function bbp_forum_topic_count( $forum_id = 0 ) {
  * @since bbPress (r2464)
  *
  * @param int $forum_id Optional. Forum id
+ * @param bool $total_count Optional. To get the total count or normal count?
  * @uses bbp_get_forum_reply_count() To get the forum reply count
  */
-function bbp_forum_reply_count( $forum_id = 0 ) {
-	echo bbp_get_forum_reply_count( $forum_id );
+function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
+	echo bbp_get_forum_reply_count( $forum_id, $total_count );
 }
 	/**
 	 * Return total post count of a forum
@@ -949,6 +951,8 @@ function bbp_forum_reply_count( $forum_id = 0 ) {
 	 * @since bbPress (r2464)
 	 *
 	 * @param int $forum_id Optional. Forum id
+	 * @param bool $total_count Optional. To get the total count or normal
+	 *                           count?
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum reply count
 	 * @uses bbp_update_forum_reply_count() To update the reply count if
@@ -957,12 +961,12 @@ function bbp_forum_reply_count( $forum_id = 0 ) {
 	 *                        reply count and forum id
 	 * @return int Forum reply count
 	 */
-	function bbp_get_forum_reply_count( $forum_id = 0 ) {
+	function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$replies  = get_post_meta( $forum_id, '_bbp_forum_reply_count', true );
+		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_reply_count' : '_bbp_forum_total_reply_count', true );
 
 		if ( '' === $replies )
-			$replies = bbp_update_forum_reply_count( $forum_id );
+			$replies = bbp_update_forum_reply_count( $forum_id, $total_count );
 
 		return apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
 	}

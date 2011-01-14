@@ -493,7 +493,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 			$author = bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author( $revision->ID ), 'reply_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
-			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item" class="bbp-reply-revision-log-item">' . "\n";
+			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
 				$r .= "\t\t" . sprintf( __( empty( $reason ) ? 'This reply was modified %1$s ago by %2$s.' : 'This reply was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
 			$r .= "\t" . '</li>' . "\n";
 
@@ -870,10 +870,11 @@ function bbp_reply_author_link( $args = '' ) {
 			$link_title = sprintf( !bbp_is_reply_anonymous( $reply_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author( $reply_id ) );
 
 		if ( empty( $link_text ) ) {
-			if ( bbp_is_topic() || bbp_is_reply() )
+			if ( bbp_is_topic() || bbp_is_reply() ) {
 				$link_text = bbp_get_reply_author_avatar( $reply_id, 80 );
-			else
+			} else {
 				$link_text = bbp_get_reply_author( $reply_id );
+			}
 		}
 
 		$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';

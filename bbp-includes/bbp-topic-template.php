@@ -529,7 +529,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 			$author = bbp_get_topic_author_link( array( 'link_text' => bbp_get_topic_author( $revision->ID ), 'topic_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
-			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item" class="bbp-topic-revision-log-item">' . "\n";
+			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item-' . $revision->ID . '" class="bbp-topic-revision-log-item">' . "\n";
 			$r .= "\t\t" . sprintf( __( empty( $reason ) ? 'This topic was modified %1$s ago by %2$s.' : 'This topic was modified %1$s ago by %2$s. Reason: %3$s', 'bbpress' ), $since, $author, $reason ) . "\n";
 			$r .= "\t" . '</li>' . "\n";
 

@@ -589,11 +589,11 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
 
 	// Forum Topic Counts
 	bbp_update_forum_topic_count( $source_topic_forum_id );
-	bbp_update_forum_topic_count( $destination_topic_id  );
+	// bbp_update_forum_topic_count( $destination_topic_id  );
 
 	// Forum Reply Counts
 	bbp_update_forum_reply_count( $source_topic_forum_id );
-	bbp_update_forum_reply_count( $destination_topic_id  );
+	// bbp_update_forum_reply_count( $destination_topic_id  );
 
 	// Forum Voice Counts
 	bbp_update_forum_voice_count( $source_topic_forum_id );
@@ -807,11 +807,11 @@ function bbp_split_topic_handler() {
 function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_topic_id ) {
 
 	// Forum Topic Counts
-	bbp_update_forum_topic_count( $source_topic_id      );
+	// bbp_update_forum_topic_count( $source_topic_id      );
 	bbp_update_forum_topic_count( $destination_topic_id );
 
 	// Forum Reply Counts
-	bbp_update_forum_reply_count( $source_topic_id      );
+	// bbp_update_forum_reply_count( $source_topic_id      );
 	bbp_update_forum_reply_count( $destination_topic_id );
 
 	// Forum Voice Counts

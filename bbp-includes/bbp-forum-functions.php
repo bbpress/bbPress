@@ -236,31 +236,61 @@ function bbp_update_forum_subforum_count( $forum_id = 0 ) {
  * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
  *                       is a topic or a forum. If it's a topic, its parent,
  *                       i.e. the forum is automatically retrieved.
+ * @param bool $total_count Optional. To return the total count or normal
+ *                           count?
  * @uses get_post_field() To check whether the supplied id is a topic
  * @uses bbp_get_topic_forum_id() To get the topic's forum id
  * @uses wpdb::prepare() To prepare the sql statement
  * @uses wpdb::get_col() To execute the query and get the column back
+ * @uses bbp_get_topic_status() To get the topic status
  * @uses update_post_meta() To update the forum's topic count meta
  * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the topic
- *                        count and forum id
+ *                        count, forum id and total count bool
  * @return int Forum topic count
  */
-function bbp_update_forum_topic_count( $forum_id = 0 ) {
+function bbp_update_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	global $wpdb, $bbp;
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
+	// If it's a topic, then get the parent (forum id)
+	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) ) {
+		$topic_id = $forum_id;
 		$forum_id = bbp_get_topic_forum_id( $forum_id );
+	}
 
-	// Get topics count
-	$topics = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->topic_id . "';", $forum_id ) ) );
+	$topics   = $children_topic_count = 0;
+	$children = get_posts( array( 'post_parent' => $forum_id, 'post_type' => $bbp->forum_id, 'meta_key' => '_bbp_forum_visibility', 'meta_value' => 'public' ) );
+
+	// Loop through children and add together forum topic counts
+	foreach ( (array) $children as $child )
+		$children_topic_count += (int) bbp_get_forum_topic_count( $child->ID );
+
+	// Don't count topics if the forum is a category
+	if ( !bbp_is_forum_category( $forum_id ) ) {
+		if ( empty( $topic_id ) || !$topics = (int) get_post_meta( $forum_id, '_bbp_forum_topic_count', true ) ) {
+			$topics = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '" . $bbp->topic_id . "';", $forum_id ) );
+		} else {
+			if ( in_array( bbp_get_topic_status( $topic_id ), array( 'publish', $bbp->closed_status_id ) ) ) {
+				$topics++;
+			} else {
+				$topics--;
+			}
+		}
+	}
+
+	// Calculate total topics in this forum
+	$total_topics = $topics + $children_topic_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_topic_count', (int) $topics );
+	update_post_meta( $forum_id, '_bbp_forum_topic_count',       $topics       );
+	update_post_meta( $forum_id, '_bbp_forum_total_topic_count', $total_topics );
 
-	return apply_filters( 'bbp_update_forum_topic_count', (int) $topics, $forum_id );
+	// Walk up ancestors
+	if ( $parent_id = bbp_get_forum_parent( $forum_id ) )
+		bbp_update_forum_topic_count( $parent_id );
+
+	return apply_filters( 'bbp_update_forum_topic_count', empty( $total_count ) ? $topics : $total_topics, $forum_id, $total_count );
 }
 
 /**
@@ -270,37 +300,71 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  *
  * @since bbPress (r2464)
  *
- * @param int $forum_id Optional. Forum id or reply id. It is checked whether it
- *                       is a reply or a forum. If it's a reply, its forum is
- *                       automatically retrieved.
+ * @param int $forum_id Optional. Forum id or topic id reply id. It is checked
+ *                       whether it is a reply or a topic or a forum and the
+ *                       forum id is automatically retrieved.
+ * @param bool $total_count Optional. To return the total count or normal
+ *                           count?
  * @uses get_post_field() To check whether the supplied id is a reply
- * @uses bbp_get_reply_topic_id() To get the reply's topic id
+ * @uses bbp_get_reply_forum_id() To get the reply's forum id
  * @uses bbp_get_topic_forum_id() To get the topic's forum id
  * @uses wpdb::prepare() To prepare the sql statement
  * @uses wpdb::get_col() To execute the query and get the column back
+ * @uses wpdb::get_var() To execute the query and get the var back
+ * @uses bbp_get_reply_status() To get the reply status
  * @uses update_post_meta() To update the forum's reply count meta
  * @uses apply_filters() Calls 'bbp_update_forum_reply_count' with the reply
- *                        count and forum id
+ *                        count, forum id and total count bool
  * @return int Forum reply count
  */
-function bbp_update_forum_reply_count( $forum_id = 0 ) {
+function bbp_update_forum_reply_count( $forum_id = 0, $total_count = true ) {
 	global $wpdb, $bbp;
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// If it's a reply, then get the parent (topic id)
+	// If it's a reply, then get the grandparent (forum id)
 	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) ) {
-		$topic_id = bbp_get_reply_topic_id( $forum_id );
-		$forum_id = bbp_get_topic_forum_id( $topic_id );
+		$reply_id = $forum_id;
+		$forum_id = bbp_get_reply_forum_id( $forum_id );
 	}
 
-	// There should always be at least 1 voice
-	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $forum_id ) ) );
+	// If it's a topic, then get the parent (forum id)
+	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
+		$forum_id = bbp_get_topic_forum_id( $forum_id );
+
+	$replies  = $children_reply_count = 0;
+	$children = get_posts( array( 'post_parent' => $forum_id, 'post_type' => $bbp->forum_id, 'meta_key' => '_bbp_forum_visibility', 'meta_value' => 'public' ) );
+
+	// Loop through children and add together forum reply counts
+	foreach ( (array) $children as $child )
+		$children_reply_count += (int) bbp_get_forum_reply_count( $child->ID );
+
+	// Don't count replies if the forum is a category
+	if ( !bbp_is_forum_category( $forum_id ) ) {
+		if ( empty( $reply_id ) || !$replies = (int) get_post_meta( $forum_id, '_bbp_forum_reply_count', true ) ) {
+			$topics  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->topic_id . "';", $forum_id ) );
+			$replies = (int) !empty( $topics ) ? $wpdb->get_var( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topics ) . " ) AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';" ) : 0;
+		} else {
+			if ( 'publish' == bbp_get_reply_status( $reply_id ) ) {
+				$replies++;
+			} else {
+				$replies--;
+			}
+		}
+	}
+
+	// Calculate total replies in this forum
+	$total_replies = $replies + $children_reply_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_reply_count', (int) $replies );
+	update_post_meta( $forum_id, '_bbp_forum_reply_count',       $replies       );
+	update_post_meta( $forum_id, '_bbp_forum_total_reply_count', $total_replies );
 
-	return apply_filters( 'bbp_update_forum_reply_count', (int) $replies, $forum_id );
+	// Walk up ancestors
+	if ( $parent = bbp_get_forum_parent( $forum_id ) )
+		bbp_update_forum_reply_count( $parent );
+
+	return apply_filters( 'bbp_update_forum_reply_count', empty( $total_count ) ? $replies : $total_replies, $forum_id, $total_count );
 }
 
 /**
