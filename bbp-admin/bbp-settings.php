@@ -174,7 +174,7 @@ function bbp_admin_setting_callback_slugs_section() {
 function bbp_admin_setting_callback_root_slug() {
 ?>
 
-			<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" value="<?php form_option( '_bbp_root_slug' ); ?>" />
+			<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" class="regular-text code" value="<?php form_option( '_bbp_root_slug' ); ?>" />
 
 <?php
 }
@@ -205,7 +205,7 @@ function bbp_admin_setting_callback_include_root() {
 function bbp_admin_setting_callback_user_slug() {
 ?>
 
-			<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" value="<?php form_option( '_bbp_user_slug' ); ?>" />
+			<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php form_option( '_bbp_user_slug' ); ?>" />
 
 <?php
 }
@@ -220,7 +220,7 @@ function bbp_admin_setting_callback_user_slug() {
 function bbp_admin_setting_callback_view_slug() {
 ?>
 
-			<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" value="<?php form_option( '_bbp_view_slug' ); ?>" />
+			<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php form_option( '_bbp_view_slug' ); ?>" />
 
 <?php
 }
@@ -235,7 +235,7 @@ function bbp_admin_setting_callback_view_slug() {
 function bbp_admin_setting_callback_forum_slug() {
 ?>
 
-			<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" value="<?php form_option( '_bbp_forum_slug' ); ?>" />
+			<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" class="regular-text code" value="<?php form_option( '_bbp_forum_slug' ); ?>" />
 
 <?php
 }
@@ -250,7 +250,7 @@ function bbp_admin_setting_callback_forum_slug() {
 function bbp_admin_setting_callback_topic_slug() {
 ?>
 
-			<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" value="<?php form_option( '_bbp_topic_slug' ); ?>" />
+			<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_slug' ); ?>" />
 
 <?php
 }
@@ -265,7 +265,7 @@ function bbp_admin_setting_callback_topic_slug() {
 function bbp_admin_setting_callback_reply_slug() {
 ?>
 
-			<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" value="<?php form_option( '_bbp_reply_slug' ); ?>" />
+			<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" class="regular-text code" value="<?php form_option( '_bbp_reply_slug' ); ?>" />
 
 <?php
 }
@@ -280,7 +280,7 @@ function bbp_admin_setting_callback_reply_slug() {
 function bbp_admin_setting_callback_topic_tag_slug() {
 ?>
 
-			<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" value="<?php form_option( '_bbp_topic_tag_slug' ); ?>" />
+			<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_tag_slug' ); ?>" />
 
 <?php
 }
