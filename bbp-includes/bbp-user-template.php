@@ -404,13 +404,19 @@ function bbp_current_user_avatar( $size = 40 ) {
 	 *
 	 * @param int $size Size of the avatar. Defaults to 40
 	 * @uses bbp_get_current_user_id() To get the current user id
+	 * @uses bbp_get_current_anonymous_user_data() To get the current
+	 *                                              anonymous user's email
 	 * @uses get_avatar() To get the avatar
 	 * @uses apply_filters() Calls 'bbp_get_current_user_avatar' with the
 	 *                        avatar and size
 	 * @return string Current user avatar
 	 */
 	function bbp_get_current_user_avatar( $size = 40 ) {
-		return apply_filters( 'bbp_get_current_user_avatar', get_avatar( bbp_get_current_user_id(), $size ), $size );
+
+		if ( !$user = bbp_get_current_user_id() )
+			$user = bbp_get_current_anonymous_user_data( 'email' );
+
+		return apply_filters( 'bbp_get_current_user_avatar', get_avatar( $user, $size ), $size );
 	}
 
 /**

@@ -60,7 +60,7 @@ function bbp_new_reply_handler() {
 			$anonymous_data = bbp_filter_anonymous_post_data(); // Filter anonymous data
 			$reply_author   = 0;
 
-			if ( !is_wp_error( $bbp->errors ) )
+			if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) )
 				bbp_set_current_anonymous_user_data( $anonymous_data );
 		}
 
