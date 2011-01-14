@@ -360,10 +360,22 @@ function bbp_dropdown( $args = '' ) {
 	 *  - select_id: ID of the select box. Defaults to 'bbp_forum_id'
 	 *  - tab: Tabindex value. False or integer
 	 *  - options_only: Show only <options>? No <select>?
-	 *  - show_none: False or something like __( '(No Forum)', 'bbpress' ), will have value=""
-	 *  - none_found: False or something like __( 'No forums to post to!', 'bbpress' )
-	 *  - disable_categories: Disable forum categories? Defaults to true. Only for forums and when the category option is displayed.
-	 * @return string
+	 *  - show_none: False or something like __( '(No Forum)', 'bbpress' ),
+	 *                will have value=""
+	 *  - none_found: False or something like
+	 *                 __( 'No forums to post to!', 'bbpress' )
+	 *  - disable_categories: Disable forum categories and closed forums?
+	 *                         Defaults to true. Only for forums and when
+	 *                         the category option is displayed.
+	 * @uses BBP_Walker_Dropdown() As the default walker to generate the
+	 *                              dropdown
+	 * @uses current_user_can() To check if the current user can read
+	 *                           private forums
+	 * @uses walk_page_dropdown_tree() To generate the dropdown using the
+	 *                                  walker
+	 * @uses apply_filters() Calls 'bbp_get_dropdown' with the dropdown
+	 *                        and args
+	 * @return string The dropdown
 	 */
 	function bbp_get_dropdown( $args = '' ) {
 		global $bbp;
@@ -413,9 +425,8 @@ function bbp_dropdown( $args = '' ) {
 
 		// Don't show private forums to normal users
 		if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
-			$r['meta_key']     = '_bbp_forum_visibility';
-			$r['meta_value']   = 'public';
-			$r['meta_compare'] = '==';
+			$r['meta_key']   = '_bbp_forum_visibility';
+			$r['meta_value'] = 'public';
 		}
 
 		extract( $r );
@@ -451,8 +462,8 @@ function bbp_dropdown( $args = '' ) {
 
 		// Display feedback
 		} else {
-			// Long short hand
-			$retval .= !empty( $none_found ) ? $none_found : $post_type == $bbp->topic_id ? __( 'No topics to post to!', 'bbpress' ) : $post_type == $bbp->forum_id ? __( 'No forums to post to!', 'bbpress' ) : __( 'No posts found!', 'bbpress' );
+			// @todo - No nested ternaries
+			$retval .= !empty( $none_found ) ? $none_found : ( $post_type == $bbp->topic_id ? __( 'No topics to post to!', 'bbpress' ) : ( $post_type == $bbp->forum_id ? __( 'No forums to post to!', 'bbpress' ) : __( 'No posts found!', 'bbpress' ) ) );
 		}
 
 		return apply_filters( 'bbp_get_dropdown', $retval, $args );

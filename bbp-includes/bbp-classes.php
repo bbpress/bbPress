@@ -338,10 +338,19 @@ class BBP_Walker_Dropdown extends Walker {
 	 *
 	 * @since bbPress (r2746)
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param string $output Passed by reference. Used to append additional
+	 *                        content.
 	 * @param object $post Post data object.
-	 * @param int $depth Depth of post in reference to parent posts. Used for padding.
-	 * @param array $args Uses 'selected' argument for selected post to set selected HTML attribute for option element.
+	 * @param int $depth Depth of post in reference to parent posts. Used
+	 *                    for padding.
+	 * @param array $args Uses 'selected' argument for selected post to set
+	 *                     selected HTML attribute for option element.
+	 * @uses bbp_is_forum_category() To check if the forum is a category
+	 * @uses current_user_can() To check if the current user can post in
+	 *                           closed forums
+	 * @uses bbp_is_forum_closed() To check if the forum is closed
+	 * @uses apply_filters() Calls 'bbp_walker_dropdown_post_title' with the
+	 *                        title, output, post, depth and args
 	 */
 	function start_el( &$output, $post, $depth, $args ) {
 		global $bbp;
@@ -349,8 +358,8 @@ class BBP_Walker_Dropdown extends Walker {
 		$pad     = str_repeat( '&nbsp;', $depth * 3 );
 		$output .= "\t<option class=\"level-$depth\"";
 
-		// Disable the <option> if we're told to do so, the post type is bbp_forum and the forum is a category
-		if ( $args['disable_categories'] == true && $post->post_type == $bbp->forum_id && bbp_is_forum_category( $post->ID ) )
+		// Disable the <option> if we're told to do so, the post type is bbp_forum and the forum is a category or is closed
+		if ( true == $args['disable_categories'] && $post->post_type == $bbp->forum_id && ( bbp_is_forum_category( $post->ID ) || ( !current_user_can( 'edit_forum', $post->ID ) && bbp_is_forum_closed( $post->ID ) ) ) )
 			$output .= ' disabled="disabled" value=""';
 		else
 			$output .= ' value="' .$post->ID .'"' . selected( $args['selected'], $post->ID, false );
