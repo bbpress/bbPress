@@ -419,7 +419,7 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
 			$excerpt .= '...';
 		}
 
-		return apply_filters( 'bbp_get_reply_excerpt', $excerpt, $reply_id, $length );
+		return apply_filters( 'bbp_get_reply_excerpt', trim ( strip_tags( $excerpt ) ), $reply_id, $length );
 	}
 
 /**

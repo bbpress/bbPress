@@ -455,7 +455,7 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 			$excerpt .= '...';
 		}
 
-		return apply_filters( 'bbp_get_topic_excerpt', $excerpt, $topic_id, $length );
+		return apply_filters( 'bbp_get_topic_excerpt', trim( strip_tags( $excerpt ) ), $topic_id, $length );
 	}
 
 /**
