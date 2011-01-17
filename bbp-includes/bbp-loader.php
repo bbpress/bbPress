@@ -1,13 +1,24 @@
 <?php
 
 /**
- * The main bbPress loader.
+ * bbPress Loader Actions
  *
  * @package bbPress
  * @subpackage Loader
  */
 
 /** Main Actions **************************************************************/
+
+/**
+ * Main action responsible for constants, globals, and includes
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_loaded'
+ */
+function bbp_loaded() {
+	do_action( 'bbp_loaded' );
+}
 
 /**
  * Setup constants
@@ -51,17 +62,6 @@ function bbp_includes() {
  */
 function bbp_setup_globals() {
 	do_action( 'bbp_setup_globals' );
-}
-
-/**
- * Main action responsible for constants, globals, and includes
- *
- * @since bbPress (r2599)
- *
- * @uses do_action() Calls 'bbp_loaded'
- */
-function bbp_loaded() {
-	do_action( 'bbp_loaded' );
 }
 
 /**

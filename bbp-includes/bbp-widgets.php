@@ -97,6 +97,7 @@ class BBP_Forums_Widget extends WP_Widget {
 		$instance                 = $old_instance;
 		$instance['title']        = strip_tags( $new_instance['title']        );
 		$instance['parent_forum'] = absint    ( $new_instance['parent_forum'] );
+
 		return $instance;
 	}
 
@@ -111,9 +112,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 */
 	function form( $instance ) {
 		$title        = !empty( $instance['title']        ) ? esc_attr( $instance['title']        ) : '';
-		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : '';
-
-		?>
+		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : ''; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p>
@@ -128,7 +127,6 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		<?php
 	}
-
 }
 
 /**
@@ -199,6 +197,7 @@ class BBP_Topics_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title; ?>
 
 			<ul>
+
 				<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
 					<li>
@@ -230,24 +229,18 @@ class BBP_Topics_Widget extends WP_Widget {
 
 			<ul>
 
-				<?php
-
-				foreach ( $topics as $topic_id => $topic_reply_count ) :
-
-					?>
+				<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
 
 					<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active( $topic_id ) . ' ago' ); ?></li>
 
-					<?php
+				<?php
 
 					$topic_count++;
 
 					if ( $topic_count > $max_shown )
 						break;
 
-				endforeach;
-
-				?>
+				endforeach; ?>
 
 			</ul>
 
@@ -271,6 +264,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
 		$instance['pop_check'] = strip_tags( $new_instance['pop_check'] );
+
 		return $instance;
 	}
 
@@ -287,9 +281,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$title     = !empty( $instance['title'] )     ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
-		$pop_check = !empty( $instance['pop_check'] ) ? esc_attr( $instance['pop_check'] ) : '';
-
-		?>
+		$pop_check = !empty( $instance['pop_check'] ) ? esc_attr( $instance['pop_check'] ) : ''; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                  'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum topics to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
@@ -404,6 +396,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		$instance['title']     = strip_tags( $new_instance['title']     );
 		$instance['max_shown'] = strip_tags( $new_instance['max_shown'] );
 		$instance['show_date'] = strip_tags( $new_instance['show_date'] );
+
 		return $instance;
 	}
 
@@ -419,9 +412,7 @@ class BBP_Replies_Widget extends WP_Widget {
 	function form( $instance ) {
 		$title     = !empty( $instance['title']     ) ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
-		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
-
-		?>
+		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : ''; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title'     ); ?>"><?php _e( 'Title:',                   'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title'     ); ?>" name="<?php echo $this->get_field_name( 'title'     ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p><label for="<?php echo $this->get_field_id( 'max_shown' ); ?>"><?php _e( 'Maximum replies to show:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'max_shown' ); ?>" name="<?php echo $this->get_field_name( 'max_shown' ); ?>" type="text" value="<?php echo $max_shown; ?>" /></label></p>
@@ -429,7 +420,6 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		<?php
 	}
-
 }
 
 ?>

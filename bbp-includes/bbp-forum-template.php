@@ -7,7 +7,7 @@
  * @subpackage TemplateTags
  */
 
-/** START - Forum Loop Functions **********************************************/
+/** Forum Loop ****************************************************************/
 
 /**
  * The main forum loop.
@@ -77,7 +77,7 @@ function bbp_the_forum() {
 	return $bbp->forum_query->the_post();
 }
 
-/** FORUM *********************************************************************/
+/** Forum *********************************************************************/
 
 /**
  * Output forum id
@@ -516,7 +516,7 @@ function bbp_list_forums( $args = '' ) {
 	}
 }
 
-/** FORUM LAST TOPIC **********************************************************/
+/** Forum Last Topic **********************************************************/
 
 /**
  * Output the forum's last topic id
@@ -659,7 +659,7 @@ function bbp_forum_last_topic_author_link( $forum_id = 0 ) {
 		return apply_filters( 'bbp_get_forum_last_topic_author_link', $author_link, $forum_id );
 	}
 
-/** FORUM LAST REPLY **********************************************************/
+/** Forum Last Reply **********************************************************/
 
 /**
  * Output the forums last reply id
@@ -861,7 +861,7 @@ function bbp_forum_last_reply_author_link( $forum_id = 0 ) {
 		return apply_filters( 'bbp_get_forum_last_reply_author_link', $author_link, $forum_id );
 	}
 
-/** FORUM COUNTS **************************************************************/
+/** Forum Counts **************************************************************/
 
 /**
  * Output total sub-forum count of a forum

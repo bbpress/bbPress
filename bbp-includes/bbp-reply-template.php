@@ -7,7 +7,7 @@
  * @subpackage TemplateTags
  */
 
-/** START - Reply Loop Functions **********************************************/
+/** Reply Loop Functions ******************************************************/
 
 /**
  * The main reply loop. WordPress makes this easy for us
@@ -1510,7 +1510,5 @@ function bbp_topic_pagination_links() {
 
 		return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
 	}
-
-/** END Reply Loop Functions **************************************************/
 
 ?>

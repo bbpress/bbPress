@@ -6,6 +6,7 @@
  * @package bbPress
  * @subpackage Capabilities
  */
+
 /**
  * Adds bbPress-specific user roles.
  *

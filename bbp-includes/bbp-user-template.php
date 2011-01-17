@@ -1,13 +1,13 @@
 <?php
 
 /**
- * bbPress User Functions
+ * bbPress User Template Tags
  *
  * @package bbPress
  * @subpackage TemplateTags
  */
 
-/** START User Functions ******************************************************/
+/** Users *********************************************************************/
 
 /**
  * Output a validated user id
@@ -56,237 +56,6 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 		return apply_filters( 'bbp_get_user_id', (int) $bbp_user_id );
 	}
 
-/** START Favorites Functions *************************************************/
-
-/**
- * Output the link to the user's favorites page (profile page)
- *
- * @since bbPress (r2652)
- *
- * @param int $user_id Optional. User id
- * @uses bbp_get_favorites_permalink() To get the favorites permalink
- */
-function bbp_favorites_permalink( $user_id = 0 ) {
-	echo bbp_get_favorites_permalink( $user_id );
-}
-	/**
-	 * Return the link to the user's favorites page (profile page)
-	 *
-	 * @since bbPress (r2652)
-	 *
-	 * @param int $user_id Optional. User id
-	 * @uses bbp_get_user_profile_url() To get the user profile url
-	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
-	 *                        user profile url and user id
-	 * @return string Permanent link to user profile page
-	 */
-	function bbp_get_favorites_permalink( $user_id = 0 ) {
-		return apply_filters( 'bbp_get_favorites_permalink', bbp_get_user_profile_url( $user_id ), $user_id );
-	}
-
-/**
- * Output the link to make a topic favorite/remove a topic from favorites
- *
- * @since bbPress (r2652)
- *
- * @param array $add Optional. Add to favorites args
- * @param array $rem Optional. Remove from favorites args
- * @param int $user_id Optional. User id
- * @uses bbp_get_user_favorites_link() To get the user favorites link
- */
-function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
-	echo bbp_get_user_favorites_link( $add, $rem, $user_id );
-}
-	/**
-	 * User favorites link
-	 *
-	 * Return the link to make a topic favorite/remove a topic from
-	 * favorites
-	 *
-	 * @since bbPress (r2652)
-	 *
-	 * @param array $add Optional. Add to favorites args
-	 * @param array $rem Optional. Remove from favorites args
-	 * @param int $user_id Optional. User id
-	 * @uses bbp_get_user_id() To get the user id
-	 * @uses current_user_can() If the current user can edit the user
-	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_is_user_favorite() To check if the topic is user's favorite
-	 * @uses bbp_get_favorites_permalink() To get the favorites permalink
-	 * @uses bbp_get_topic_permalink() To get the topic permalink
-	 * @uses bbp_is_favorites() Is it the favorites page?
-	 * @uses apply_filters() Calls 'bbp_get_user_favorites_link' with the
-	 *                        html, add args, remove args, user & topic id
-	 * @return string User favorites link
-	 */
-	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
-		global $bbp;
-
-		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
-			return false;
-
-		if ( !current_user_can( 'edit_user', (int) $user_id ) )
-			return false;
-
-		if ( !$topic_id = bbp_get_topic_id() )
-			return false;
-
-		if ( empty( $add ) || !is_array( $add ) ) {
-			$add = array(
-				'mid'  => __( 'Add this topic to your favorites', 'bbpress' ),
-				'post' => __( ' (%?%)', 'bbpress' )
-			);
-		}
-
-		if ( empty( $rem ) || !is_array( $rem ) ) {
-			$rem = array(
-				'pre'  => __( 'This topic is one of your %favorites% [', 'bbpress' ),
-				'mid'  => __( '&times;', 'bbpress' ),
-				'post' => __( ']', 'bbpress' )
-			);
-		}
-
-		if ( $is_fav = bbp_is_user_favorite( $user_id, $topic_id ) ) {
-			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
-			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
-			$favs = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
-			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
-			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
-			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
-		} else {
-			$url  = esc_url( bbp_get_topic_permalink( $topic_id ) );
-			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
-			$favs = array( 'action' => 'bbp_favorite_add', 'topic_id' => $topic_id );
-			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
-			$mid  = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
-			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
-		}
-
-		// Create the link based where the user is and if the topic is already the user's favorite
-		$permalink = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
-		$url       = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
-		$is_fav    = $is_fav ? 'is-favorite' : '';
-		$html      = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $post . '</span></span>';
-
-		// Return the link
-		return apply_filters( 'bbp_get_user_favorites_link', $html, $add, $rem, $user_id, $topic_id );
-	}
-
-/** END Favorites Functions ***************************************************/
-
-/** START Subscriptions Functions *********************************************/
-
-/**
- * Output the link to the user's subscriptions page (profile page)
- *
- * @since bbPress (r2688)
- *
- * @param int $user_id Optional. User id
- * @uses bbp_get_subscriptions_permalink() To get the subscriptions link
- */
-function bbp_subscriptions_permalink( $user_id = 0 ) {
-	echo bbp_get_subscriptions_permalink( $user_id );
-}
-	/**
-	 * Return the link to the user's subscriptions page (profile page)
-	 *
-	 * @since bbPress (r2688)
-	 *
-	 * @param int $user_id Optional. User id
-	 * @uses bbp_get_user_profile_url() To get the user profile url
-	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
-	 *                        user profile url and user id
-	 * @return string Permanent link to user subscriptions page
-	 */
-	function bbp_get_subscriptions_permalink( $user_id = 0 ) {
-		return apply_filters( 'bbp_get_favorites_permalink', bbp_get_user_profile_url( $user_id ), $user_id );
-	}
-
-/**
- * Output the link to subscribe/unsubscribe from a topic
- *
- * @since bbPress (r2668)
- *
- * @param mixed $args See {@link bbp_get_user_subscribe_link()}
- * @uses bbp_get_user_subscribe_link() To get the subscribe link
- */
-function bbp_user_subscribe_link( $args = '' ) {
-	echo bbp_get_user_subscribe_link( $args );
-}
-	/**
-	 * Return the link to subscribe/unsubscribe from a topic
-	 *
-	 * @since bbPress (r2668)
-	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - subscribe: Subscribe text
-	 *  - unsubscribe: Unsubscribe text
-	 *  - user_id: User id
-	 *  - topic_id: Topic id
-	 *  - before: Before the link
-	 *  - after: After the link
-	 * @param int $user_id Optional. User id
-	 * @uses bbp_get_user_id() To get the user id
-	 * @uses current_user_can() To check if the current user can edit user
-	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_is_user_subscribed() To check if the user is subscribed
-	 * @uses bbp_is_subscriptions() To check if it's the subscriptions page
-	 * @uses bbp_get_subscriptions_permalink() To get subscriptions link
-	 * @uses bbp_get_topic_permalink() To get topic link
-	 * @uses apply_filters() Calls 'bbp_get_user_subscribe_link' with the
-	 *                        link, args, user id & topic id
-	 * @return string Permanent link to topic
-	 */
-	function bbp_get_user_subscribe_link( $args = '', $user_id = 0 ) {
-		global $bbp;
-
-		if ( !bbp_is_subscriptions_active() )
-			return;
-
-		$defaults = array (
-			'subscribe'   => __( 'Subscribe',   'bbpress' ),
-			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
-			'user_id'     => 0,
-			'topic_id'    => 0,
-			'before'      => '&nbsp;|&nbsp;',
-			'after'       => ''
-		);
-
-		$args = wp_parse_args( $args, $defaults );
-		extract( $args );
-
-		// Try to get a user_id
-		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
-			return false;
-
-		// No link if you can't edit yourself
-		if ( !current_user_can( 'edit_user', (int) $user_id ) )
-			return false;
-
-		// No link if not viewing a topic
-		if ( !$topic_id = bbp_get_topic_id( $topic_id ) )
-			return false;
-
-		// Decine which link to show
-		if ( $is_subscribed = bbp_is_user_subscribed( $user_id, $topic_id ) ) {
-			$text = $unsubscribe;
-			$query_args  = array( 'action' => 'bbp_unsubscribe', 'topic_id' => $topic_id );
-		} else {
-			$text = $subscribe;
-			$query_args = array( 'action' => 'bbp_subscribe', 'topic_id' => $topic_id );
-		}
-
-		// Create the link based where the user is and if the user is subscribed already
-		$permalink     = bbp_is_subscriptions() ? bbp_get_subscriptions_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
-		$url           = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
-		$is_subscribed = $is_subscribed ? 'is-subscribed' : '';
-		$html          = '<span id="subscription-toggle">' . $before . '<span id="subscribe-' . $topic_id . '" class="' . $is_subscribed . '"><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $after . '</span>';
-
-		// Return the link
-		return apply_filters( 'bbp_get_user_subscribe_link', $html, $args, $user_id, $topic_id );
-	}
-
-/** END Subscriptions Functions ***********************************************/
 
 /**
  * Output ID of current user
@@ -594,6 +363,235 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 	}
 
+/** Favorites *****************************************************************/
+
+/**
+ * Output the link to the user's favorites page (profile page)
+ *
+ * @since bbPress (r2652)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_favorites_permalink() To get the favorites permalink
+ */
+function bbp_favorites_permalink( $user_id = 0 ) {
+	echo bbp_get_favorites_permalink( $user_id );
+}
+	/**
+	 * Return the link to the user's favorites page (profile page)
+	 *
+	 * @since bbPress (r2652)
+	 *
+	 * @param int $user_id Optional. User id
+	 * @uses bbp_get_user_profile_url() To get the user profile url
+	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
+	 *                        user profile url and user id
+	 * @return string Permanent link to user profile page
+	 */
+	function bbp_get_favorites_permalink( $user_id = 0 ) {
+		return apply_filters( 'bbp_get_favorites_permalink', bbp_get_user_profile_url( $user_id ), $user_id );
+	}
+
+/**
+ * Output the link to make a topic favorite/remove a topic from favorites
+ *
+ * @since bbPress (r2652)
+ *
+ * @param array $add Optional. Add to favorites args
+ * @param array $rem Optional. Remove from favorites args
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_user_favorites_link() To get the user favorites link
+ */
+function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
+	echo bbp_get_user_favorites_link( $add, $rem, $user_id );
+}
+	/**
+	 * User favorites link
+	 *
+	 * Return the link to make a topic favorite/remove a topic from
+	 * favorites
+	 *
+	 * @since bbPress (r2652)
+	 *
+	 * @param array $add Optional. Add to favorites args
+	 * @param array $rem Optional. Remove from favorites args
+	 * @param int $user_id Optional. User id
+	 * @uses bbp_get_user_id() To get the user id
+	 * @uses current_user_can() If the current user can edit the user
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_is_user_favorite() To check if the topic is user's favorite
+	 * @uses bbp_get_favorites_permalink() To get the favorites permalink
+	 * @uses bbp_get_topic_permalink() To get the topic permalink
+	 * @uses bbp_is_favorites() Is it the favorites page?
+	 * @uses apply_filters() Calls 'bbp_get_user_favorites_link' with the
+	 *                        html, add args, remove args, user & topic id
+	 * @return string User favorites link
+	 */
+	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
+		global $bbp;
+
+		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
+			return false;
+
+		if ( !current_user_can( 'edit_user', (int) $user_id ) )
+			return false;
+
+		if ( !$topic_id = bbp_get_topic_id() )
+			return false;
+
+		if ( empty( $add ) || !is_array( $add ) ) {
+			$add = array(
+				'mid'  => __( 'Add this topic to your favorites', 'bbpress' ),
+				'post' => __( ' (%?%)', 'bbpress' )
+			);
+		}
+
+		if ( empty( $rem ) || !is_array( $rem ) ) {
+			$rem = array(
+				'pre'  => __( 'This topic is one of your %favorites% [', 'bbpress' ),
+				'mid'  => __( '&times;', 'bbpress' ),
+				'post' => __( ']', 'bbpress' )
+			);
+		}
+
+		if ( $is_fav = bbp_is_user_favorite( $user_id, $topic_id ) ) {
+			$url  = esc_url( bbp_get_favorites_permalink( $user_id ) );
+			$rem  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $rem );
+			$favs = array( 'action' => 'bbp_favorite_remove', 'topic_id' => $topic_id );
+			$pre  = ( is_array( $rem ) && isset( $rem['pre']  ) ) ? $rem['pre']  : '';
+			$mid  = ( is_array( $rem ) && isset( $rem['mid']  ) ) ? $rem['mid']  : ( is_string( $rem ) ? $rem : '' );
+			$post = ( is_array( $rem ) && isset( $rem['post'] ) ) ? $rem['post'] : '';
+		} else {
+			$url  = esc_url( bbp_get_topic_permalink( $topic_id ) );
+			$add  = preg_replace( '|%(.+)%|', "<a href='$url'>$1</a>", $add );
+			$favs = array( 'action' => 'bbp_favorite_add', 'topic_id' => $topic_id );
+			$pre  = ( is_array( $add ) && isset( $add['pre']  ) ) ? $add['pre']  : '';
+			$mid  = ( is_array( $add ) && isset( $add['mid']  ) ) ? $add['mid']  : ( is_string( $add ) ? $add : '' );
+			$post = ( is_array( $add ) && isset( $add['post'] ) ) ? $add['post'] : '';
+		}
+
+		// Create the link based where the user is and if the topic is already the user's favorite
+		$permalink = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+		$url       = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
+		$is_fav    = $is_fav ? 'is-favorite' : '';
+		$html      = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $post . '</span></span>';
+
+		// Return the link
+		return apply_filters( 'bbp_get_user_favorites_link', $html, $add, $rem, $user_id, $topic_id );
+	}
+
+/** Subscriptions *************************************************************/
+
+/**
+ * Output the link to the user's subscriptions page (profile page)
+ *
+ * @since bbPress (r2688)
+ *
+ * @param int $user_id Optional. User id
+ * @uses bbp_get_subscriptions_permalink() To get the subscriptions link
+ */
+function bbp_subscriptions_permalink( $user_id = 0 ) {
+	echo bbp_get_subscriptions_permalink( $user_id );
+}
+	/**
+	 * Return the link to the user's subscriptions page (profile page)
+	 *
+	 * @since bbPress (r2688)
+	 *
+	 * @param int $user_id Optional. User id
+	 * @uses bbp_get_user_profile_url() To get the user profile url
+	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
+	 *                        user profile url and user id
+	 * @return string Permanent link to user subscriptions page
+	 */
+	function bbp_get_subscriptions_permalink( $user_id = 0 ) {
+		return apply_filters( 'bbp_get_favorites_permalink', bbp_get_user_profile_url( $user_id ), $user_id );
+	}
+
+/**
+ * Output the link to subscribe/unsubscribe from a topic
+ *
+ * @since bbPress (r2668)
+ *
+ * @param mixed $args See {@link bbp_get_user_subscribe_link()}
+ * @uses bbp_get_user_subscribe_link() To get the subscribe link
+ */
+function bbp_user_subscribe_link( $args = '' ) {
+	echo bbp_get_user_subscribe_link( $args );
+}
+	/**
+	 * Return the link to subscribe/unsubscribe from a topic
+	 *
+	 * @since bbPress (r2668)
+	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - subscribe: Subscribe text
+	 *  - unsubscribe: Unsubscribe text
+	 *  - user_id: User id
+	 *  - topic_id: Topic id
+	 *  - before: Before the link
+	 *  - after: After the link
+	 * @param int $user_id Optional. User id
+	 * @uses bbp_get_user_id() To get the user id
+	 * @uses current_user_can() To check if the current user can edit user
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_is_user_subscribed() To check if the user is subscribed
+	 * @uses bbp_is_subscriptions() To check if it's the subscriptions page
+	 * @uses bbp_get_subscriptions_permalink() To get subscriptions link
+	 * @uses bbp_get_topic_permalink() To get topic link
+	 * @uses apply_filters() Calls 'bbp_get_user_subscribe_link' with the
+	 *                        link, args, user id & topic id
+	 * @return string Permanent link to topic
+	 */
+	function bbp_get_user_subscribe_link( $args = '', $user_id = 0 ) {
+		global $bbp;
+
+		if ( !bbp_is_subscriptions_active() )
+			return;
+
+		$defaults = array (
+			'subscribe'   => __( 'Subscribe',   'bbpress' ),
+			'unsubscribe' => __( 'Unsubscribe', 'bbpress' ),
+			'user_id'     => 0,
+			'topic_id'    => 0,
+			'before'      => '&nbsp;|&nbsp;',
+			'after'       => ''
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+		extract( $args );
+
+		// Try to get a user_id
+		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
+			return false;
+
+		// No link if you can't edit yourself
+		if ( !current_user_can( 'edit_user', (int) $user_id ) )
+			return false;
+
+		// No link if not viewing a topic
+		if ( !$topic_id = bbp_get_topic_id( $topic_id ) )
+			return false;
+
+		// Decine which link to show
+		if ( $is_subscribed = bbp_is_user_subscribed( $user_id, $topic_id ) ) {
+			$text = $unsubscribe;
+			$query_args  = array( 'action' => 'bbp_unsubscribe', 'topic_id' => $topic_id );
+		} else {
+			$text = $subscribe;
+			$query_args = array( 'action' => 'bbp_subscribe', 'topic_id' => $topic_id );
+		}
+
+		// Create the link based where the user is and if the user is subscribed already
+		$permalink     = bbp_is_subscriptions() ? bbp_get_subscriptions_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+		$url           = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
+		$is_subscribed = $is_subscribed ? 'is-subscribed' : '';
+		$html          = '<span id="subscription-toggle">' . $before . '<span id="subscribe-' . $topic_id . '" class="' . $is_subscribed . '"><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $after . '</span>';
+
+		// Return the link
+		return apply_filters( 'bbp_get_user_subscribe_link', $html, $args, $user_id, $topic_id );
+	}
+
+
 /** Edit User *****************************************************************/
 
 /**
@@ -726,7 +724,5 @@ function bbp_edit_user_contact_methods() {
 
 	return _wp_get_user_contactmethods( $bbp->displayed_user );
 }
-
-/** END User Functions ********************************************************/
 
 ?>

@@ -23,7 +23,7 @@ function bbp_add_options() {
 	// Default options
 	$options = array (
 
-		/** SETTINGS **********************************************************/
+		/** Settings **********************************************************/
 
 		// Lock post editing after 5 minutes
 		'_bbp_edit_lock'            => '5',
@@ -46,7 +46,7 @@ function bbp_add_options() {
 		// Replies per page
 		'_bbp_replies_per_page'     => '15',
 
-		/** SLUGS *************************************************************/
+		/** Slugs *************************************************************/
 
 		// Root slug
 		'_bbp_root_slug'            => 'forums',
@@ -93,7 +93,7 @@ function bbp_add_options() {
  * @return bool Is favorites enabled or not
  */
 function bbp_is_favorites_active() {
-	return (bool) get_option( '_bbp_enable_favorites', true );
+	return apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', true ) );
 }
 
 /**
@@ -105,7 +105,7 @@ function bbp_is_favorites_active() {
  * @return bool Is subscription enabled or not
  */
 function bbp_is_subscriptions_active() {
-	return (bool) get_option( '_bbp_enable_subscriptions' );
+	return apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions' ) );
 }
 
 /**

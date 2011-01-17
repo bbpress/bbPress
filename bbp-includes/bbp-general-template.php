@@ -7,7 +7,7 @@
  * @subpackage TemplateTags
  */
 
-/** START - WordPress Add-on Actions ******************************************/
+/** Add-on Actions ************************************************************/
 
 /**
  * Add our custom head action to wp_head
@@ -31,9 +31,7 @@ function bbp_footer() {
 	do_action( 'bbp_footer' );
 }
 
-/** END - WordPress Add-on Actions ********************************************/
-
-/** START is_ Functions *******************************************************/
+/** is_ ***********************************************************************/
 
 /**
  * Check if current page is a bbPress forum
@@ -318,9 +316,7 @@ function bbp_is_view() {
 	return false;
 }
 
-/** END is_ Functions *********************************************************/
-
-/** START Form Functions ******************************************************/
+/** Forms *********************************************************************/
 
 /**
  * Output the current tab index of a given form
@@ -618,6 +614,7 @@ function bbp_edit_user_form_fields() {
 	<input type="hidden" name="user_id" id="user_id"         value="<?php bbp_displayed_user_id(); ?>" />
 
 	<?php wp_referer_field(); ?>
+
 	<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() );
 }
 
@@ -658,9 +655,7 @@ function bbp_split_topic_form_fields() {
 	<?php wp_nonce_field( 'bbp-split-topic_' . bbp_get_topic_id() );
 }
 
-/** END Form Functions ********************************************************/
-
-/** Start Views ***************************************************************/
+/** Views *********************************************************************/
 
 /**
  * Output the view id
@@ -771,33 +766,44 @@ function bbp_view_url( $view = false ) {
 		return apply_filters( 'bbp_get_view_link', $url, $view );
 	}
 
-/** End Views *****************************************************************/
-
-/** Start General Functions ***************************************************/
+/** Query *********************************************************************/
 
 /**
- * Display possible error messages inside a template file
+ * Get the '_bbp_query_name' setting
  *
- * @since bbPress (r2688)
+ * @since bbPress (r2695)
  *
- * @uses WP_Error bbPress::errors::get_error_codes() To get the error codes
- * @uses WP_Error bbPress::errors::get_error_messages() To get the error
- *                                                       messages
- * @uses is_wp_error() To check if it's a {@link WP_Error}
+ * @uses get_query_var() To get the query var '_bbp_query_name'
+ * @return string To return the query var value
  */
-function bbp_error_messages() {
-	global $bbp;
-
-	if ( isset( $bbp->errors ) && is_wp_error( $bbp->errors ) && $bbp->errors->get_error_codes() ) : ?>
-
-		<div class="bbp-template-notice error">
-			<p>
-				<?php echo implode( "</p>\n<p>", $bbp->errors->get_error_messages() ); ?>
-			</p>
-		</div>
-
-<?php endif;
+function bbp_get_query_name()  {
+	return get_query_var( '_bbp_query_name' );
 }
+
+/**
+ * Set the '_bbp_query_name' setting to $name
+ *
+ * @since bbPress (r2692)
+ *
+ * @param string $name What to set the query var to
+ * @uses set_query_var() To set the query var '_bbp_query_name'
+ */
+function bbp_set_query_name( $name = '' )  {
+	set_query_var( '_bbp_query_name', $name );
+}
+
+/**
+ * Used to clear the '_bbp_query_name' setting
+ *
+ * @since bbPress (r2692)
+ *
+ * @uses bbp_set_query_name() To set the query var '_bbp_query_name' to ''
+ */
+function bbp_reset_query_name() {
+	bbp_set_query_name();
+}
+
+/** Breadcrumbs ***************************************************************/
 
 /**
  * Output the page title as a breadcrumb
@@ -889,6 +895,8 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
 	}
 
+/** Topic Tags ***************************************************************/
+
 /**
  * Output all of the allowed tags in HTML format with attributes.
  *
@@ -918,41 +926,30 @@ function bbp_allowed_tags() {
 		return apply_filters( 'bbp_get_allowed_tags', allowed_tags() );
 	}
 
-/** Start Query Functions *****************************************************/
+/** Errors ********************************************************************/
 
 /**
- * Get the '_bbp_query_name' setting
+ * Display possible error messages inside a template file
  *
- * @since bbPress (r2695)
+ * @since bbPress (r2688)
  *
- * @uses get_query_var() To get the query var '_bbp_query_name'
- * @return string To return the query var value
+ * @uses WP_Error bbPress::errors::get_error_codes() To get the error codes
+ * @uses WP_Error bbPress::errors::get_error_messages() To get the error
+ *                                                       messages
+ * @uses is_wp_error() To check if it's a {@link WP_Error}
  */
-function bbp_get_query_name()  {
-	return get_query_var( '_bbp_query_name' );
-}
+function bbp_error_messages() {
+	global $bbp;
 
-/**
- * Set the '_bbp_query_name' setting to $name
- *
- * @since bbPress (r2692)
- *
- * @param string $name What to set the query var to
- * @uses set_query_var() To set the query var '_bbp_query_name'
- */
-function bbp_set_query_name( $name = '' )  {
-	set_query_var( '_bbp_query_name', $name );
-}
+	if ( isset( $bbp->errors ) && is_wp_error( $bbp->errors ) && $bbp->errors->get_error_codes() ) : ?>
 
-/**
- * Used to clear the '_bbp_query_name' setting
- *
- * @since bbPress (r2692)
- *
- * @uses bbp_set_query_name() To set the query var '_bbp_query_name' to ''
- */
-function bbp_reset_query_name() {
-	bbp_set_query_name();
+		<div class="bbp-template-notice error">
+			<p>
+				<?php echo implode( "</p>\n<p>", $bbp->errors->get_error_messages() ); ?>
+			</p>
+		</div>
+
+<?php endif;
 }
 
 ?>

@@ -7,7 +7,7 @@
  * @subpackage TemplateTags
  */
 
-/** START - Topic Loop Functions **********************************************/
+/** Topic Loop ****************************************************************/
 
 /**
  * The main topic loop. WordPress makes this easy for us
@@ -1147,7 +1147,7 @@ function bbp_topic_last_active( $topic_id = 0 ) {
 		return apply_filters( 'bbp_get_topic_last_active', $last_active, $topic_id );
 	}
 
-/** TOPIC LAST REPLY **********************************************************/
+/** Topic Last Reply **********************************************************/
 
 /**
  * Output the id of the topics last reply

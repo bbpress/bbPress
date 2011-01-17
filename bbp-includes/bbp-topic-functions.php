@@ -1199,7 +1199,9 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 			bbp_remove_user_subscription( $user, $topic_id );
 		}
 	}
-}/** Topic Updaters ************************************************************/
+}
+
+/** Topic Updaters ************************************************************/
 
 /**
  * Adjust the total reply count of a topic
