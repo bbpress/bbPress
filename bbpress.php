@@ -242,7 +242,7 @@ class bbPress {
 	 */
 	function _setup_globals() {
 
-		/** Paths *****************************************************/
+		/** Paths *************************************************************/
 
 		// bbPress root directory
 		$this->file             = __FILE__;
@@ -256,7 +256,7 @@ class bbPress {
 		$this->themes_dir       = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
 		$this->themes_url       = $this->plugin_url . 'bbp-themes';
 
-		/** Identifiers ***********************************************/
+		/** Identifiers *******************************************************/
 
 		// Post type identifiers
 		$this->forum_id         = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
@@ -269,7 +269,7 @@ class bbPress {
 		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed' );
 		$this->trash_status_id  = 'trash';
 
-		/** Slugs *****************************************************/
+		/** Slugs *************************************************************/
 
 		// Root forum slug
 		$this->root_slug        = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
@@ -285,13 +285,16 @@ class bbPress {
 		$this->reply_slug       = apply_filters( 'bbp_reply_slug',     $prefix . get_option( '_bbp_reply_slug',     'reply' ) );
 		$this->topic_tag_slug   = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'tag'   ) );
 
-		/** Misc ******************************************************/
+		/** Misc **************************************************************/
 
 		// Errors
-		$this->errors = new WP_Error();
+		$this->errors           = new WP_Error();
 
 		// Views
-		$this->views  = array();
+		$this->views            = array();
+		
+		// Tab Index
+		$this->tab_index        = apply_filters( 'bbp_default_tab_index', 100 );
 	}
 
 	/**

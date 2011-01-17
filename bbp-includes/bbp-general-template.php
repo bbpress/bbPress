@@ -329,6 +329,8 @@ function bbp_is_view() {
  * template file. Calling this function will automatically increment the global
  * tab index by default.
  * 
+ * @since bbPress (r2810)
+ *
  * @param int $auto_increment Optional Default true. Set to false to prevent ++
  */
 function bbp_tab_index( $auto_increment = true) {
@@ -342,6 +344,8 @@ function bbp_tab_index( $auto_increment = true) {
 	 * template file. Calling this function will automatically increment the global
 	 * tab index by default.
 	 * 
+	 * @since bbPress (r2810)
+	 *
 	 * @uses apply_filters Allows return value to be filtered
 	 * @param int $auto_increment Optional Default true. Set to false to prevent ++
 	 * @return int $bbp->tab_index The global tab index
