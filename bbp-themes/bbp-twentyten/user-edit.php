@@ -4,7 +4,7 @@
  * bbPress user profile edit page
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>
@@ -103,12 +103,13 @@
 
 								<?php
 
+								// Handle address change requests
 								$new_email = get_option( bbp_get_displayed_user_id() . '_new_email' );
 								if ( $new_email && $new_email != bbp_get_displayed_user_field( 'user_email' ) ) : ?>
 
 									<span class="updated inline">
 
-										<?php printf( __( 'There is a pending change of your e-mail to <code>%1$s</code>. <a href="%2$s">Cancel</a>', 'bbpress' ), $new_email['newemail'], esc_url( self_admin_url( 'user.php?dismiss=' . bbp_get_current_user_id()  . '_new_email' ) ) ); ?>
+										<?php printf( __( 'There is a pending email address change to <code>%1$s</code>. <a href="%2$s">Cancel</a>', 'bbpress' ), $new_email['newemail'], esc_url( self_admin_url( 'user.php?dismiss=' . bbp_get_current_user_id()  . '_new_email' ) ) ); ?>
 
 									</span>
 

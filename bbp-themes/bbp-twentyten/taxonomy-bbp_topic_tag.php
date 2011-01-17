@@ -1,13 +1,13 @@
 <?php
 
 /**
- * bbPress Topic Tag
+ * Topic Tag
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
-
+//@todo - remove $term variable references
 $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
 
 ?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The bbPress Plugin
  *
@@ -14,18 +15,19 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
  * Author URI: http://bbpress.org
- * Version: plugin-bleeding
+ * Version: plugin-alpha
  */
 
 /**
- * bbPress vesion
+ * bbPress version
  *
  * Set the version early so other plugins have an inexpensive way to check if
  * bbPress is already loaded.
  *
- * Note: Loaded does NOT mean initialized.
+ * Note: Checking for defined( 'BBP_VERSION' ) in your code does NOT
+ *       guarantee bbPress is initialized and listening.
  */
-define( 'BBP_VERSION', 'plugin-bleeding' );
+define( 'BBP_VERSION', 'plugin-alpha' );
 
 if ( !class_exists( 'bbPress' ) ) :
 /**
@@ -34,10 +36,11 @@ if ( !class_exists( 'bbPress' ) ) :
  * Tap tap tap... Is this thing on?
  *
  * @since bbPress (r2464)
+ * @todo Use BP_Component class
  */
 class bbPress {
 
-	// Post type
+	/** Post type *************************************************************/
 
 	/**
 	 * @var string Forum post type id
@@ -54,7 +57,7 @@ class bbPress {
 	 */
 	var $reply_id;
 
-	// Post status identifiers
+	/** Post status ***********************************************************/
 
 	/**
 	 * @var string Topic tag id
@@ -76,7 +79,7 @@ class bbPress {
 	 */
 	var $trash_status_id;
 
-	// Slugs
+	/** Slugs *****************************************************************/
 
 	/**
 	 * @var string Forum slug
@@ -108,7 +111,7 @@ class bbPress {
 	 */
 	var $view_slug;
 
-	// Absolute Paths
+	/** Paths *****************************************************************/
 
 	/**
 	 * @var string Absolute path to the bbPress plugin directory
@@ -120,7 +123,7 @@ class bbPress {
 	 */
 	var $themes_dir;
 
-	// URLs
+	/** URLs ******************************************************************/
 
 	/**
 	 * @var string URL to the bbPress plugin directory
@@ -137,7 +140,7 @@ class bbPress {
 	 */
 	var $themes_url;
 
-	// Current identifiers
+	/** Current ID's **********************************************************/
 
 	/**
 	 * @var string Current forum id
@@ -154,7 +157,7 @@ class bbPress {
 	 */
 	var $current_reply_id;
 
-	// User objects
+	/** User ******************************************************************/
 
 	/**
 	 * @var object Current user
@@ -166,7 +169,7 @@ class bbPress {
 	 */
 	var $displayed_user;
 
-	// Query objects
+	/** Query *****************************************************************/
 
 	/**
 	 * @var WP_Query For forums
@@ -183,26 +186,34 @@ class bbPress {
 	 */
 	var $reply_query;
 
-	// Arrays
+	/** Arrays ****************************************************************/
 
 	/**
 	 * @var array Sub Forums
 	 */
 	var $sub_forums;
 
-	// Errors
+	/** Errors ****************************************************************/
 
 	/**
 	 * @var WP_Error Used to log and display errors
 	 */
 	var $errors;
 
-	// Views
+	/** Views *****************************************************************/
 
 	/**
 	 * @var array An array of registered bbPress views
 	 */
 	var $views;
+	
+	/** Forms *****************************************************************/
+	
+	/**
+	 * @var int The current tab index for form building
+	 */
+	var $tab_index;
+	
 
 	/**
 	 * The main bbPress loader

@@ -4,10 +4,11 @@
  * Template Name: bbPress - Statistics
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
-/** Get the statistics and extract them for later use in this template */
+// Get the statistics and extract them for later use in this template
+// @todo - remove variable references
 extract( bbp_get_statistics(), EXTR_SKIP );
 
 ?>

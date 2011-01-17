@@ -2184,7 +2184,7 @@ function bbp_topic_type_select( $args = '' ) {
 		'stick_text'   => __( 'Sticky',       'bbpress' ),
 		'super_text'   => __( 'Super Sticky', 'bbpress' ),
 		'select_id'    => 'bbp_stick_topic',
-		'tab'          => 0,
+		'tab'          => bbp_get_tab_index(),
 		'topic_id'     => 0
 	);
 

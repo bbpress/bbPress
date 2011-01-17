@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: bbPress - Forum Index
+ * Template Name: bbPress - Forums (Index)
  *
  * @package bbPress
  * @subpackage Theme

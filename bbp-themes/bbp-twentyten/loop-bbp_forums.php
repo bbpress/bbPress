@@ -1,10 +1,10 @@
 <?php
 
 /**
- * The loop that displays bbPress forums.
+ * Forums Loop
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>

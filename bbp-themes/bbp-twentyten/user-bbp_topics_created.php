@@ -1,13 +1,14 @@
 <?php
 
 /**
- * User topics created loop
+ * User Topics Created
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>
+
 				<?php bbp_set_query_name( 'bbp_user_profile_topics_created' ); ?>
 
 				<div id="bbp-author-topics-started" class="bbp-author-topics-started">

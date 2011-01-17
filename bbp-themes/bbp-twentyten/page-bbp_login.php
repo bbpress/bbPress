@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: bbPress - Topics (Newest)
+ * Template Name: bbPress - User Login
  *
  * @package bbPress
  * @subpackage Theme
@@ -18,16 +18,31 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<div id="topics-front" class="bbp-topics-front">
+					<div id="bbp-login" class="bbp-login">
 						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
 						<div class="entry-content">
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'loop', 'bbp_topics' ); ?>
+							<?php if ( !is_user_logged_in() ) : ?>
+
+								<fieldset>
+									<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
+
+									<?php do_action( 'bbp_template_notices' ); ?>
+
+									<?php wp_login_form( array( 'redirect' => $_SERVER['HTTP_REFERER'] ) ); ?>
+
+								</fieldset>
+							
+							<?php else : ?>
+
+
+
+							<?php endif; ?>
 
 						</div>
-					</div><!-- #topics-front -->
+					</div><!-- #bbp-login -->
 
 				<?php endwhile; ?>
 

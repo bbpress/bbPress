@@ -1,10 +1,10 @@
 <?php
 
 /**
- * bbPress Single Reply
+ * Single Reply
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>

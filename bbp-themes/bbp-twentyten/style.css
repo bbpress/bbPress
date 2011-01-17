@@ -9,12 +9,12 @@
  *
  **
  *
- * This file intentionally left blank. Styles are enqueued in functions.php
+ * This file intentionally left blank. Styles are enqueued in functions.php in
+ * the order you see listed below:
  *
- * Please see:
  *
- * - /css/twentyten.css
+ * 1 - ./css/twentyten.css
  *
- * - /css/bbpress.css
+ * 2 - ./css/bbpress.css
  *
  **/

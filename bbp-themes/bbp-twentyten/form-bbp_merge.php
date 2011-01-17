@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Merge topic form
+ * Merge Topic
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>
@@ -42,7 +42,7 @@
 							<label for="bbp_destination_topic"><?php _e( 'Merge with this topic:', 'bbpress' ); ?></label>
 							<?php
 								global $bbp;
-								bbp_dropdown( array( 'post_type' => $bbp->topic_id, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'selected' => -1, 'exclude' => bbp_get_topic_id(), 'select_id' => 'bbp_destination_topic', 'tab' => 4, 'none_found' => __( 'No topics were found to which the topic could be merged to!', 'bbpress' ) ) );
+								bbp_dropdown( array( 'post_type' => $bbp->topic_id, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'selected' => -1, 'exclude' => bbp_get_topic_id(), 'select_id' => 'bbp_destination_topic', 'none_found' => __( 'No topics were found to which the topic could be merged to!', 'bbpress' ) ) );
 							?>
 						</div>
 					</fieldset>
@@ -54,22 +54,22 @@
 
 							<?php if ( bbp_is_subscriptions_active() ) : ?>
 
-								<input name="bbp_topic_subscribers" id="bbp_topic_subscribers" type="checkbox" value="1" checked="checked" tabindex="6" />
+								<input name="bbp_topic_subscribers" id="bbp_topic_subscribers" type="checkbox" value="1" checked="checked" tabindex="<?php bbp_tab_index(); ?>" />
 								<label for="bbp_topic_subscribers"><?php _e( 'Merge topic subscribers', 'bbpress' ); ?></label><br />
 
 							<?php endif; ?>
 
-							<input name="bbp_topic_favoriters" id="bbp_topic_favoriters" type="checkbox" value="1" checked="checked" tabindex="8" />
+							<input name="bbp_topic_favoriters" id="bbp_topic_favoriters" type="checkbox" value="1" checked="checked" tabindex="<?php bbp_tab_index(); ?>" />
 							<label for="bbp_topic_favoriters"><?php _e( 'Merge topic favoriters', 'bbpress' ); ?></label><br />
 
-							<input name="bbp_topic_tags" id="bbp_topic_tags" type="checkbox" value="1" checked="checked" tabindex="10" />
+							<input name="bbp_topic_tags" id="bbp_topic_tags" type="checkbox" value="1" checked="checked" tabindex="<?php bbp_tab_index(); ?>" />
 							<label for="bbp_topic_tags"><?php _e( 'Merge topic tags', 'bbpress' ); ?></label><br />
 
 						</div>
 					</fieldset>
 
 					<p id="bbp_topic_submit_container">
-						<button type="submit" tabindex="12" id="bbp_merge_topic_submit" name="bbp_merge_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_merge_topic_submit" name="bbp_merge_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
 					</p>
 				</div>
 

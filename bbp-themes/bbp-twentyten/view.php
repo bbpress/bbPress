@@ -1,7 +1,7 @@
 <?php
 
 /**
- * View Page
+ * View Handler
  *
  * @package bbPress
  * @subpackage Theme

@@ -1,13 +1,15 @@
 <?php
 
 /**
- * The loop that displays bbPress topics.
+ * Topics Loop
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
-if ( bbp_get_query_name() || bbp_has_topics() ) : ?>
+?>
+
+<?php if ( bbp_get_query_name() || bbp_has_topics() ) : ?>
 
 	<?php get_template_part( 'pagination', 'bbp_topics' ); ?>
 

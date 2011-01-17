@@ -4,7 +4,7 @@
  * Pagination for pages of replies (when viewing a topic)
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>

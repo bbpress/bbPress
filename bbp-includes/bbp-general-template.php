@@ -323,6 +323,39 @@ function bbp_is_view() {
 /** START Form Functions ******************************************************/
 
 /**
+ * Output the current tab index of a given form
+ * 
+ * Use this function to handle the tab indexing of user facing forms within a
+ * template file. Calling this function will automatically increment the global
+ * tab index by default.
+ * 
+ * @param int $auto_increment Optional Default true. Set to false to prevent ++
+ */
+function bbp_tab_index( $auto_increment = true) {
+	echo bbp_get_tab_index( $auto_increment );
+}
+
+	/**
+	 * Output the current tab index of a given form
+	 * 
+	 * Use this function to handle the tab indexing of user facing forms within a
+	 * template file. Calling this function will automatically increment the global
+	 * tab index by default.
+	 * 
+	 * @uses apply_filters Allows return value to be filtered
+	 * @param int $auto_increment Optional Default true. Set to false to prevent ++
+	 * @return int $bbp->tab_index The global tab index
+	 */
+	function bbp_get_tab_index( $auto_increment = true ) {
+		global $bbp;
+
+		if ( true === $auto_increment )
+			++$bbp->tab_index;
+
+		return apply_filters( 'bbp_get_tab_index', (int) $bbp->tab_index );
+	}
+
+/**
  * Output a select box allowing to pick which forum/topic a new topic/reply
  * belongs in.
  *
@@ -392,7 +425,7 @@ function bbp_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'bbp_forum_id',
-			'tab'                => false,
+			'tab'                => bbp_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => false,
 			'none_found'         => false,

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * bbPress user profile
+ * User Profile
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
 
 ?>

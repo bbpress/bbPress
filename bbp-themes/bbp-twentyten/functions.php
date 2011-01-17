@@ -199,7 +199,7 @@ function bbp_twentyten_topic_script_localization () {
 	wp_localize_script( 'bbp_topic', 'bbpTopicJS', $localizations );
 }
 
-/* Actions */
+// Actions
 add_action( 'init',                     'bbp_twentyten_enqueue_styles'               );
 add_action( 'wp_ajax_dim-favorite',     'bbp_twentyten_dim_favorite'                 );
 add_action( 'wp_ajax_dim-subscription', 'bbp_twentyten_dim_subscription'             );

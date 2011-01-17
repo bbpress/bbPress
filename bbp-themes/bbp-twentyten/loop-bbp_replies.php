@@ -1,12 +1,10 @@
 <?php
 
 /**
- * The loop that displays bbPress replies.
+ * Replies Loop
  *
  * @package bbPress
- * @subpackage Themes
- *
- * @todo - Not use table rows
+ * @subpackage Theme
  */
 
 ?>

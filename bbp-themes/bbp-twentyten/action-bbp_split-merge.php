@@ -1,11 +1,14 @@
 <?php
+
 /**
- * Edit topic/reply page
+ * Split/merge topic page
  *
  * @package bbPress
- * @subpackage Themes
+ * @subpackage Theme
  */
+
 ?>
+
 <?php get_header(); ?>
 
 		<div id="container">
@@ -19,13 +22,13 @@
 						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
 						<div class="entry-content">
 
-							<?php if ( bbp_is_reply_edit() ) : ?>
+							<?php if ( bbp_is_topic_merge() ) : ?>
 
-								<?php get_template_part( 'form', 'bbp_reply' ); ?>
+								<?php get_template_part( 'form', 'bbp_merge' ); ?>
 
-							<?php elseif ( bbp_is_topic_edit() ) : ?>
+							<?php elseif ( bbp_is_topic_split() ) : ?>
 
-								<?php get_template_part( 'form', 'bbp_topic' ); ?>
+								<?php get_template_part( 'form', 'bbp_split' ); ?>
 
 							<?php endif; ?>
 

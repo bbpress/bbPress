@@ -668,14 +668,14 @@ function bbp_custom_template() {
 
 	// Editing a topic
 	} elseif ( bbp_is_topic_edit() ) {
-		$template = array( 'page-bbp_edit.php', 'single-' . $bbp->topic_id, 'single.php', 'index.php' );
+		$template = array( 'action-bbp_edit.php', 'single-' . $bbp->topic_id, 'single.php', 'index.php' );
 
 		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) )
-			array_unshift( $template, 'page-bbp_split-merge.php' );
+			array_unshift( $template, 'action-bbp_split-merge.php' );
 
 	// Editing a reply
 	} elseif ( bbp_is_reply_edit() ) {
-		$template = array( 'page-bbp_edit.php', 'single-' . $bbp->reply_id, 'single.php', 'index.php' );
+		$template = array( 'action-bbp_edit.php', 'single-' . $bbp->reply_id, 'single.php', 'index.php' );
 	}
 
 	if ( !$template = apply_filters( 'bbp_custom_template', $template ) )
