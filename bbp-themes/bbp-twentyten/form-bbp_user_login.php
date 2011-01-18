@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * User Login Form
+ *
+ * @package bbPress
+ * @subpackage Theme
+ */
+
+?>
+
+	<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
+		<fieldset>
+			<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
+
+			<?php do_action( 'bbp_template_notices' ); ?>
+
+			<div class="bbp-username">
+				<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
+				<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" tabindex="<?php bbp_tab_index(); ?>" />
+			</div>
+
+			<div class="bbp-password">
+				<label for="user_pass"><?php _e( 'Password', 'bbpress' ); ?>: </label>
+				<input type="password" name="pwd" value="<?php bbp_sanitize_val( 'user_pass', 'password' ); ?>" size="20" id="user_pass" tabindex="<?php bbp_tab_index(); ?>" />
+			</div>
+
+			<div class="bbp-remember-me">
+				<label for="rememberme">
+					<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ), true, true ); ?> id="rememberme" tabindex="<?php bbp_tab_index(); ?>" /><?php _e( 'Remember me', 'bbpress' ); ?>
+				</label>
+			</div>
+
+			<div class="bbp-submit-wrapper">
+
+				<?php do_action( 'login_form' ); ?>
+
+				<input type="submit" name="user-submit" value="<?php _e( 'Login', 'bbpress' ); ?>" tabindex="<?php bbp_tab_index(); ?>" class="user-submit" />
+
+				<?php bbp_user_login_fields(); ?>
+
+			</div>
+		</fieldset>
+	</form>

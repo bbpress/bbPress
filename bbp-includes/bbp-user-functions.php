@@ -1,10 +1,35 @@
 <?php
+
 /**
  * bbPress User Functions
  *
  * @package bbPress
  * @subpackage Functions
  */
+
+/**
+ * Redirect back to $url when attempting to use the login page
+ *
+ * @since bbPress (r2815)
+ *
+ * @uses wp_safe_redirect()
+ * @uses esc_url()
+ * @param str $url
+ * @param str $raw_url
+ * @param obj $user
+ */
+function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
+	if ( !empty( $url ) || !empty( $raw_url ) || is_wp_error( $user ) ) {
+		if ( empty( $url ) && !empty( $raw_url ) )
+			$url = $raw_url;
+
+		if ( $url == admin_url() )
+			$url = home_url();
+
+		wp_safe_redirect( esc_url( $url ) );
+		exit;
+	}
+}
 
 /**
  * Is an anonymous topic/reply being made?
@@ -96,7 +121,7 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 	setcookie( 'comment_author_url_'   . COOKIEHASH, $anonymous_data['bbp_anonymous_website'], time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 }
 
-/** START - Favorites *********************************************************/
+/** Favorites *****************************************************************/
 
 /**
  * Get the users who have made the topic favorite
@@ -358,9 +383,7 @@ function bbp_favorites_handler() {
 	}
 }
 
-/** END - Favorites ***********************************************************/
-
-/** START - Subscriptions *****************************************************/
+/** Subscriptions *************************************************************/
 
 /**
  * Get the users who have subscribed to the topic
@@ -631,9 +654,7 @@ function bbp_subscriptions_handler() {
 	}
 }
 
-/** END - Subscriptions *******************************************************/
-
-/** START - Edit User *********************************************************/
+/** Edit **********************************************************************/
 
 /**
  * Handles the front end user editing

@@ -7,9 +7,11 @@
  * @subpackage Theme
  */
 
-?>
+// No logged in users
+bbp_logged_in_redirect();
 
-<?php get_header(); ?>
+// Begin Template
+get_header(); ?>
 
 		<div id="container">
 			<div id="content" role="main">
@@ -24,22 +26,13 @@
 
 							<?php the_content(); ?>
 
-							<?php if ( !is_user_logged_in() ) : ?>
+							<?php //if ( !is_user_logged_in() ) : ?>
 
-								<fieldset>
-									<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
+							<?php get_template_part( 'form', 'bbp_user_login' ); ?>
 
-									<?php do_action( 'bbp_template_notices' ); ?>
+							<?php //else : ?>
 
-									<?php wp_login_form( array( 'redirect' => $_SERVER['HTTP_REFERER'] ) ); ?>
-
-								</fieldset>
-							
-							<?php else : ?>
-
-
-
-							<?php endif; ?>
+							<?php //endif; ?>
 
 						</div>
 					</div><!-- #bbp-login -->

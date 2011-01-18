@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: bbPress - User Register
+ * Template Name: bbPress - User Lost Password
  *
  * @package bbPress
  * @subpackage Theme
@@ -20,16 +20,16 @@ get_header(); ?>
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<div id="bbp-register" class="bbp-register">
+					<div id="bbp-lost-pass" class="bbp-lost-pass">
 						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
 						<div class="entry-content">
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'form', 'bbp_user_register' ); ?>
+							<?php get_template_part( 'form', 'bbp_user_lost_pass' ); ?>
 
 						</div>
-					</div><!-- #bbp-register -->
+					</div><!-- #bbp-lost-pass -->
 
 				<?php endwhile; ?>
 

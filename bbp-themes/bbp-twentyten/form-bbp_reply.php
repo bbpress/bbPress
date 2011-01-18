@@ -93,9 +93,9 @@
 							
 						<?php endif; ?>
 
-						<p id="bbp_reply_submit_container">
+						<div class="bbp-submit-wrapper">
 							<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_reply_submit" name="bbp_reply_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
-						</p>
+						</div>
 					</div>
 
 					<?php bbp_reply_form_fields(); ?>

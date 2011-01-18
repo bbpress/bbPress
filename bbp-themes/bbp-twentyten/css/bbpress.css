@@ -225,8 +225,7 @@ td.bbp-topic-counts {
 	display: inline;
 }
 
-p#bbp_topic_submit_container,
-p#bbp_reply_submit_container {
+div.bbp-submit-wrapper {
 	float: right;
 }
 

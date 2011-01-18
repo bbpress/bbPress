@@ -318,6 +318,106 @@ function bbp_is_view() {
 
 /** Forms *********************************************************************/
 
+function bbp_wp_login_action( $args = '' ) {
+	$defaults = array (
+		'action'  => '',
+		'context' => ''
+	);
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	if ( !empty( $action ) )
+		$login_url = add_query_arg( array( 'action' => $action ), 'wp-login.php' );
+	else
+		$login_url = 'wp-login.php';
+
+	$login_url = site_url( $login_url, $context );
+
+	echo apply_filters( 'bbp_wp_login_action', $login_url, $args );
+}
+
+/**
+ * Output hidden request URI field for user forms.
+ *
+ * The referer link is the current Request URI from the server super global. The
+ * input name is '_wp_http_referer', in case you wanted to check manually.
+ *
+ * @since bbPress (r2815)
+ *
+ * @uses esc_attr()
+ * @uses home_url()
+ * @uses apply_filters()
+ * @param str $url Pass a URL to redirect to
+ * @return str Hidden input to help process redirection.
+ */
+function bbp_redirect_to_field( $url = '' ) {
+	// If no URL is passed, use request
+	if ( empty( $url ) )
+		$url = esc_url( $_SERVER['HTTP_REFERER'] );
+
+	$referer_field = '<input type="hidden" name="redirect_to" value="' . $url . '" />';
+
+	echo apply_filters( 'bbp_redirect_to_field', $referer_field );
+}
+
+/**
+ * Echo sanitized $_REQUEST value.
+ * 
+ * Use the $input_type parameter to properly process the value. This
+ * ensures correct sanitization of the value for the receiving input.
+ *
+ * @since bbPress (r2815)
+ *
+ * @uses bbp_get_sanitize_val()
+ * @param str $request Name of $_REQUEST to look for
+ * @param str $input_type Type of input the value is for
+ */
+function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
+	echo bbp_get_sanitize_val( $request, $input_type );
+}
+	/**
+	 * Return sanitized $_REQUEST value.
+	 *
+	 * Use the $input_type parameter to properly process the value. This
+	 * ensures correct sanitization of the value for the receiving input.
+	 *
+	 * @since bbPress (r2815)
+	 *
+	 * @uses esc_attr()
+	 * @uses stripslashes()
+	 * @uses apply_filters()
+	 * @param str $request Name of $_REQUEST to look for
+	 * @param str $input_type Type of input the value is for
+	 * @return str Sanitized value ready for screen display
+	 */
+	function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
+
+		// Check that requested
+		if ( !isset( $_REQUEST[$request] ) || empty( $request ) )
+			return false;
+
+		// Set request varaible
+		$pre_ret_val = $_REQUEST[$request];
+
+		// Treat different kinds of fields in different ways
+		switch ( $input_type ) {
+			case 'text' :
+			case 'textarea' :
+				$retval = esc_attr( stripslashes( $pre_ret_val ) );
+				break;
+
+			case 'password' :
+			case 'select' :
+			case 'radio' :
+			case 'checkbox' :
+			default :
+				$retval = esc_attr( $pre_ret_val );
+				break;
+		}
+
+		return apply_filters( 'bbp_get_sanitize_val', $retval, $request, $input_type );
+	}
+
 /**
  * Output the current tab index of a given form
  * 
@@ -612,8 +712,6 @@ function bbp_edit_user_form_fields() {
 
 	<input type="hidden" name="action"  id="bbp_post_action" value="bbp-update-user" />
 	<input type="hidden" name="user_id" id="user_id"         value="<?php bbp_displayed_user_id(); ?>" />
-
-	<?php wp_referer_field(); ?>
 
 	<?php wp_nonce_field( 'update-user_' . bbp_get_displayed_user_id() );
 }

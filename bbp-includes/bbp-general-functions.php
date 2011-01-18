@@ -995,4 +995,48 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 	return true;
 }
 
+/** Login *********************************************************************/
+
+/**
+ * Change the login URL to /login
+ *
+ * This assumes that your login page is 'domain.com/login'
+ *
+ * @todo Make this less janky
+ *
+ * @uses apply_filters()
+ * @uses trailingslashit()
+ * @uses home_url()
+ * @return str
+ */
+function bbp_login_url( $url = '', $redirect_to = '' ) {
+	return apply_filters( 'bbp_login_url', trailingslashit( home_url( 'login' ) ) );
+}
+
+/**
+ * Change the logout URL to /login and add smart redirect
+ *
+ * This assumes that your login page is 'domain.com/login'
+ *
+ * @todo Make this less janky
+ *
+ * @uses apply_filters()
+ * @uses add_query_arg()
+ * @uses trailingslashit()
+ * @uses esc_url()
+ * @uses home_url()
+ * @return str
+ */
+function bbp_logout_url( $url = '', $redirect_to = '' ) {
+	if ( !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) )
+		$redirect_to = $_SERVER['HTTP_REFERER'];
+
+	if ( empty( $redirect_to ) )
+		$redirect_to = home_url( $_SERVER['REQUEST_URI'] );
+
+	$url = add_query_arg( array( 'redirect_to' => esc_url( $redirect_to ) ), $url );
+
+	return apply_filters( 'bbp_logout_url', $url );
+}
+
 ?>
