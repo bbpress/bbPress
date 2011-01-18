@@ -1,7 +1,7 @@
 <?php
 
 /**
- * User Sbscriptions
+ * User Subscriptions
  *
  * @package bbPress
  * @subpackage Theme
