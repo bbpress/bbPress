@@ -1028,11 +1028,11 @@ function bbp_login_url( $url = '', $redirect_to = '' ) {
  * @return str
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
-	if ( !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) )
-		$redirect_to = $_SERVER['HTTP_REFERER'];
+	if ( !isset( $_SERVER['REDIRECT_URL'] ) || !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) )
+		$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
 
 	if ( empty( $redirect_to ) )
-		$redirect_to = home_url( $_SERVER['REQUEST_URI'] );
+		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' );
 
 	$url = add_query_arg( array( 'redirect_to' => esc_url( $redirect_to ) ), $url );
 
