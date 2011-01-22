@@ -700,19 +700,23 @@ class bbPress {
 	/**
 	 * Setup the currently logged-in user
 	 *
+	 * Do not to call this prematurely, I.E. before the 'init' action has
+	 * started. This function is naturally hooked into 'init' to ensure proper
+	 * execution. get_currentuserinfo() is used to check for XMLRPC_REQUEST to
+	 * avoid xmlrpc errors.
+	 *
 	 * @since bbPress (r2697)
 	 *
+	 * @uses get_currentuserinfo()
 	 * @global WP_User Current user object
 	 */
 	function setup_current_user() {
 		global $current_user;
 
-		// Load current user if somehow it hasn't been set yet
-		// @todo Load current user somehow
 		if ( !isset( $current_user ) )
-			wp_die( 'Loading the user too soon!' );
+			$current_user = get_currentuserinfo();
 
-		// Set bbPress current user to WordPress current user
+		// Set the current user in the bbPress global
 		$this->current_user = $current_user;
 	}
 

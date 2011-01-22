@@ -42,11 +42,11 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 			$bbp_user_id = $user_id;
 
 		// Currently viewing or editing a user
-		elseif ( ( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) && isset( $bbp->displayed_user->ID ) )
+		elseif ( ( true == $displayed_user_fallback ) && !empty( $bbp->displayed_user->ID ) )
 			$bbp_user_id = $bbp->displayed_user->ID;
 
 		// Maybe fallback on the current_user ID
-		elseif ( ( true == $current_user_fallback ) && !empty( $bbp->current_user->ID ) && isset( $bbp->current_user->ID ) )
+		elseif ( ( true == $current_user_fallback ) && !empty( $bbp->current_user->ID ) )
 			$bbp_user_id = $bbp->current_user->ID;
 
 		// Failsafe
