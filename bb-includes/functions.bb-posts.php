@@ -143,6 +143,7 @@ function bb_cache_first_posts( $_topics = false, $author_cache = true ) {
 function bb_cache_posts( $query, $post_id_query = false ) {
 	global $bbdb;
 
+	$_query = '';
 	$_query_post_ids = array();
 	$_query_posts = array();
 	$_cached_posts = array();
