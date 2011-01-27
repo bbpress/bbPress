@@ -318,6 +318,16 @@ function bbp_is_view() {
 
 /** Forms *********************************************************************/
 
+/**
+ * Output the login form action url
+ *
+ * @since bbPress (r2815)
+ *
+ * @param str $url Pass a URL to redirect to
+ * @uses add_query_arg() To add a arg to the url
+ * @uses site_url() Toget the site url
+ * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
+ */
 function bbp_wp_login_action( $args = '' ) {
 	$defaults = array (
 		'action'  => '',
@@ -344,33 +354,32 @@ function bbp_wp_login_action( $args = '' ) {
  *
  * @since bbPress (r2815)
  *
- * @uses esc_attr()
- * @uses home_url()
- * @uses apply_filters()
- * @param str $url Pass a URL to redirect to
- * @return str Hidden input to help process redirection.
+ * @param string $url Pass a URL to redirect to
+ * @uses home_url() To get the url
+ * @uses apply_filters() Calls 'bbp_redirect_to_field' with the referer field
+ *                        and url
  */
 function bbp_redirect_to_field( $url = '' ) {
 	// If no URL is passed, use request
-	if ( empty( $url ) )
+	if ( empty( $url ) && !empty( $_SERVER['HTTP_REFERER'] ) )
 		$url = esc_url( $_SERVER['HTTP_REFERER'] );
 
 	$referer_field = '<input type="hidden" name="redirect_to" value="' . $url . '" />';
 
-	echo apply_filters( 'bbp_redirect_to_field', $referer_field );
+	echo apply_filters( 'bbp_redirect_to_field', $referer_field, $url );
 }
 
 /**
  * Echo sanitized $_REQUEST value.
- * 
+ *
  * Use the $input_type parameter to properly process the value. This
  * ensures correct sanitization of the value for the receiving input.
  *
  * @since bbPress (r2815)
  *
- * @uses bbp_get_sanitize_val()
- * @param str $request Name of $_REQUEST to look for
- * @param str $input_type Type of input the value is for
+ * @param string $request Name of $_REQUEST to look for
+ * @param string $input_type Type of input the value is for
+ * @uses bbp_get_sanitize_val() To sanitize the value
  */
 function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo bbp_get_sanitize_val( $request, $input_type );
@@ -383,17 +392,17 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	 *
 	 * @since bbPress (r2815)
 	 *
-	 * @uses esc_attr()
-	 * @uses stripslashes()
-	 * @uses apply_filters()
-	 * @param str $request Name of $_REQUEST to look for
-	 * @param str $input_type Type of input the value is for
-	 * @return str Sanitized value ready for screen display
+	 * @param string $request Name of $_REQUEST to look for
+	 * @param string $input_type Type of input the value is for
+	 * @uses esc_attr() To escape the string
+	 * @uses apply_filters() Calls 'bbp_get_sanitize_val' with the sanitized
+	 *                        value, request and input type
+	 * @return string Sanitized value ready for screen display
 	 */
 	function bbp_get_sanitize_val( $request = '', $input_type = 'text' ) {
 
 		// Check that requested
-		if ( !isset( $_REQUEST[$request] ) || empty( $request ) )
+		if ( empty( $_REQUEST[$request] ) )
 			return false;
 
 		// Set request varaible
@@ -420,30 +429,32 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 
 /**
  * Output the current tab index of a given form
- * 
+ *
  * Use this function to handle the tab indexing of user facing forms within a
  * template file. Calling this function will automatically increment the global
  * tab index by default.
- * 
+ *
  * @since bbPress (r2810)
  *
- * @param int $auto_increment Optional Default true. Set to false to prevent ++
+ * @param int $auto_increment Optional. Default true. Set to false to prevent
+ *                             increment
  */
-function bbp_tab_index( $auto_increment = true) {
+function bbp_tab_index( $auto_increment = true ) {
 	echo bbp_get_tab_index( $auto_increment );
 }
 
 	/**
 	 * Output the current tab index of a given form
-	 * 
-	 * Use this function to handle the tab indexing of user facing forms within a
-	 * template file. Calling this function will automatically increment the global
-	 * tab index by default.
-	 * 
+	 *
+	 * Use this function to handle the tab indexing of user facing forms
+	 * within a template file. Calling this function will automatically
+	 * increment the global tab index by default.
+	 *
 	 * @since bbPress (r2810)
 	 *
 	 * @uses apply_filters Allows return value to be filtered
-	 * @param int $auto_increment Optional Default true. Set to false to prevent ++
+	 * @param int $auto_increment Optional. Default true. Set to false to
+	 *                             prevent the increment
 	 * @return int $bbp->tab_index The global tab index
 	 */
 	function bbp_get_tab_index( $auto_increment = true ) {

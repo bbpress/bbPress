@@ -12,23 +12,27 @@
  *
  * @since bbPress (r2815)
  *
- * @uses wp_safe_redirect()
- * @uses esc_url()
- * @param str $url
- * @param str $raw_url
- * @param obj $user
+ * @param string $url The url
+ * @param string $raw_url Raw url
+ * @param object $user User object
+ * @uses is_wp_error() To check if the user param is a {@link WP_Error}
+ * @uses admin_url() To get the admin url
+ * @uses home_url() To get the home url
+ * @uses esc_url() To escape the url
+ * @uses wp_safe_redirect() To redirect
  */
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
-	if ( !empty( $url ) || !empty( $raw_url ) || is_wp_error( $user ) ) {
-		if ( empty( $url ) && !empty( $raw_url ) )
-			$url = $raw_url;
+	if ( is_wp_error( $user ) )
+		return $url;
 
-		if ( $url == admin_url() )
-			$url = home_url();
+	if ( empty( $url ) && !empty( $raw_url ) )
+		$url = $raw_url;
 
-		wp_safe_redirect( esc_url( $url ) );
-		exit;
-	}
+	if ( empty( $url ) || $url == admin_url() )
+		$url = home_url();
+
+	wp_safe_redirect( esc_url( $url ) );
+	exit;
 }
 
 /**
@@ -234,10 +238,7 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( empty( $favorites ) || empty( $topic_id ) )
 		return false;
 
-	if ( isset( $favorites ) )
-		return apply_filters( 'bbp_is_user_favorite', (bool) in_array( $topic_id, $favorites ), $user_id, $topic_id, $favorites );
-
-	return false;
+	return apply_filters( 'bbp_is_user_favorite', (bool) in_array( $topic_id, $favorites ), $user_id, $topic_id, $favorites );
 }
 
 /**
@@ -497,10 +498,7 @@ function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
 	if ( empty( $subscriptions ) || empty( $topic_id ) )
 		return false;
 
-	if ( isset( $subscriptions ) )
-		return apply_filters( 'bbp_is_user_subscribed', (bool) in_array( $topic_id, $subscriptions ), $user_id, $topic_id, $subscriptions );
-
-	return false;
+	return apply_filters( 'bbp_is_user_subscribed', (bool) in_array( $topic_id, $subscriptions ), $user_id, $topic_id, $subscriptions );
 }
 
 /**

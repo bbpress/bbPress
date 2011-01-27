@@ -1004,12 +1004,12 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
  *
  * @todo Make this less janky
  *
- * @uses apply_filters()
- * @uses trailingslashit()
- * @uses home_url()
- * @return str
+ * @uses home_url() To get the url
+ * @uses trailingslashit() To put a slash at the end of the url
+ * @uses apply_filters() Calls 'bbp_login_url' with the url
+ * @return string The url
  */
-function bbp_login_url( $url = '', $redirect_to = '' ) {
+function bbp_login_url() {
 	return apply_filters( 'bbp_login_url', trailingslashit( home_url( 'login' ) ) );
 }
 
@@ -1020,12 +1020,11 @@ function bbp_login_url( $url = '', $redirect_to = '' ) {
  *
  * @todo Make this less janky
  *
- * @uses apply_filters()
- * @uses add_query_arg()
- * @uses trailingslashit()
- * @uses esc_url()
- * @uses home_url()
- * @return str
+ * @param string $url URL
+ * @param string $redirect_to Where to redirect to?
+ * @uses add_query_arg() To add args to the url
+ * @uses apply_filters() Calls 'bbp_logout_url' with the url and redirect to
+ * @return string The url
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
 	if ( !isset( $_SERVER['REDIRECT_URL'] ) || !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) )
@@ -1036,7 +1035,7 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 
 	$url = add_query_arg( array( 'redirect_to' => esc_url( $redirect_to ) ), $url );
 
-	return apply_filters( 'bbp_logout_url', $url );
+	return apply_filters( 'bbp_logout_url', $url, $redirect_to );
 }
 
 ?>

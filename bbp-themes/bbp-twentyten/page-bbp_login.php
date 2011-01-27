@@ -26,13 +26,7 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<?php //if ( !is_user_logged_in() ) : ?>
-
 							<?php get_template_part( 'form', 'bbp_user_login' ); ?>
-
-							<?php //else : ?>
-
-							<?php //endif; ?>
 
 						</div>
 					</div><!-- #bbp-login -->

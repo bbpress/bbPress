@@ -730,17 +730,16 @@ function bbp_edit_user_contact_methods() {
 /**
  * Redirect a user back to their profile if they are already logged in.
  *
- * This should be used before get_header() is called in template files where
- * the user should never have access to the contents of that file.
+ * This should be used before {@link get_header()} is called in template files
+ * where the user should never have access to the contents of that file.
  *
  * @since bbPress (r2815)
  *
- * @param str $url The URL to redirect to
- *
+ * @param string $url The URL to redirect to
  * @uses is_user_logged_in() Check if user is logged in
- * @uses wp_safe_redirect() Safely redirect
- * @uses bbp_get_user_profile_url() Get URL of user
- * @uses bbp_get_current_user_id() Get current user ID
+ * @uses wp_safe_redirect() To safely redirect
+ * @uses bbp_get_user_profile_url() To get the profile url of the user
+ * @uses bbp_get_current_user_id() To get the current user id
  */
 function bbp_logged_in_redirect( $url = '' ) {
 	if ( is_user_logged_in() ) {
@@ -755,13 +754,13 @@ function bbp_logged_in_redirect( $url = '' ) {
  *
  * @since bbPress (r2815)
  *
- * @uses wp_referer_field() Set referer
+ * @uses bbp_redirect_to_field() To output the hidden request url field
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
 function bbp_user_login_fields() {
 ?>
 
-		<input type="hidden" name="action"      id="bbp_user_login" value="bbp-user-login" />
+		<input type="hidden" name="action"      value="bbp-user-login" id="bbp_user_login" />
 		<input type="hidden" name="user-cookie" value="1" />
 
 		<?php bbp_redirect_to_field(); ?>
@@ -769,26 +768,25 @@ function bbp_user_login_fields() {
 		<?php wp_nonce_field( 'bbp-user-login' );
 }
 
-/** Register *********************************************************************/
+/** Register ******************************************************************/
 
 /**
  * Output the required hidden fields when registering
  *
  * @since bbPress (r2815)
  *
- * @uses wp_referer_field() Set referer
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
 function bbp_user_register_fields() {
 ?>
 
-		<input type="hidden" name="action"       id="bbp_user_register" value="bbp-user-register" />
+		<input type="hidden" name="action"      value="bbp-user-register" id="bbp_user_register" />
 		<input type="hidden" name="user-cookie" value="1" />
 
 		<?php wp_nonce_field( 'bbp-user-register' );
 }
 
-/** Lost Password *********************************************************************/
+/** Lost Password *************************************************************/
 
 /**
  * Output the required hidden fields when user lost password
