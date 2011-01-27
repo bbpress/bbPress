@@ -450,12 +450,14 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 		if ( empty( $excerpt ) )
 			$excerpt = bbp_get_topic_content( $topic_id );
 
+		$excerpt = trim( strip_tags( $excerpt ) );
+
 		if ( !empty( $length ) && strlen( $excerpt ) > $length ) {
-			$excerpt  = substr( $excerpt, 0, $length - 4 );
-			$excerpt .= '...';
+			$excerpt  = substr( $excerpt, 0, $length - 1 );
+			$excerpt .= '&hellip;';
 		}
 
-		return apply_filters( 'bbp_get_topic_excerpt', trim( strip_tags( $excerpt ) ), $topic_id, $length );
+		return apply_filters( 'bbp_get_topic_excerpt', $excerpt, $topic_id, $length );
 	}
 
 /**
