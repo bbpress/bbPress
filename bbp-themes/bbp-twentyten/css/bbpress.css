@@ -100,14 +100,33 @@ table.bbp-topic th span, table.bbp-replies th span {
 	max-width: 100%;
 }
 
+/* =Admin Links
+-------------------------------------------------------------- */
+
 span.bbp-admin-links {
 	float: right;
-	color: #d0d0d0;
+	color: #ddd;
+}
+span.bbp-admin-links a {
+	color: #bbb;
+	font-weight: normal;
+	font-size: 10px;
+	text-transform: uppercase;
+	text-decoration: none;
+}
+tr:hover span.bbp-admin-links a {
+	color: #06c;
+}
+tr td span.bbp-admin-links a:hover {
+	color: #ff4b33;
 }
 td.bbp-topic-admin-links,
 td.bbp-topic-counts {
 	width: 50%;
 }
+
+/* =Toggles
+-------------------------------------------------------------- */
 
 .bbp-topic-action #favorite-toggle a {
 	text-decoration: none;
