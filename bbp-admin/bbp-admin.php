@@ -512,7 +512,7 @@ class BBP_Admin {
 	 *
 	 * Allows editing of information about an anonymous user
 	 *
-	 * @since bbPress (r)
+	 * @since bbPress (r2828)
 	 *
 	 * @uses bbp_get_topic() To get the topic
 	 * @uses bbp_get_reply() To get the reply
@@ -557,7 +557,7 @@ class BBP_Admin {
 	/**
 	 * Save the anonymous user information for the topic/reply
 	 *
-	 * @since bbPress (r)
+	 * @since bbPress (r2828)
 	 *
 	 * @param int $post_id Topic or reply id
 	 * @uses bbp_get_topic() To get the topic

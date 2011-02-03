@@ -1069,7 +1069,7 @@ function bbp_error_messages() {
 /**
  * Output the logout link
  *
- * @since bbPress (r)
+ * @since bbPress (r2827)
  *
  * @param string $redirect_to Redirect to url
  * @uses bbp_get_logout_link() To get the logout link
@@ -1080,7 +1080,7 @@ function bbp_logout_link( $redirect_to = '' ) {
 	/**
 	 * Return the logout link
 	 *
-	 * @since bbPress (r)
+	 * @since bbPress (r2827)
 	 *
 	 * @param string $redirect_to Redirect to url
 	 * @uses wp_logout_url() To get the logout url

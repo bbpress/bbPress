@@ -366,7 +366,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 /**
  * Output the link to the admin section
  *
- * @since bbPress (r)
+ * @since bbPress (r2827)
  *
  * @param mixed $args Optional. See {@link bbp_get_admin_link()}
  * @uses bbp_get_admin_link() To get the admin link
@@ -377,7 +377,7 @@ function bbp_admin_link( $args = '' ) {
 	/**
 	 * Return the link to the admin section
 	 *
-	 * @since bbPress (r)
+	 * @since bbPress (r2827)
 	 *
 	 * @param mixed $args Optional. This function supports these arguments:
 	 *  - text: The text
