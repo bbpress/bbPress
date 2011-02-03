@@ -3,9 +3,146 @@
 /**
  * bbPress Widgets
  *
+ * Contains the forum list, topic list, reply list and login form widgets.
+ *
  * @package bbPress
  * @subpackage Widgets
  */
+
+/**
+ * bbPress Login Widget
+ *
+ * Adds a widget which displays the login form
+ *
+ * @since bbPress (r2827)
+ *
+ * @uses WP_Widget
+ */
+class BBP_Login_Widget extends WP_Widget {
+
+	/**
+	 * bbPress Login Widget
+	 *
+	 * Registers the login widget
+	 *
+	 * @since bbPress (r2827)
+	 *
+	 * @uses apply_filters() Calls 'bbp_login_widget_options' with the
+	 *                        widget options
+	 */
+	function BBP_Login_Widget() {
+		$widget_ops = apply_filters( 'bbp_login_widget_options', array(
+			'classname'   => 'bbp_widget_login',
+			'description' => __( 'The login widget.', 'bbpress' )
+		) );
+
+		parent::WP_Widget( false, __( 'bbPress Login Widget', 'bbpress' ), $widget_ops );
+	}
+
+	/**
+	 * Displays the output, the login form
+	 *
+	 * @since bbPress (r2827)
+	 *
+	 * @param mixed $args Arguments
+	 * @param array $instance Instance
+	 * @uses apply_filters() Calls 'bbp_login_widget_title' with the title
+	 * @uses get_template_part() To get the login/logged in form
+	 */
+	function widget( $args, $instance ) {
+		extract( $args );
+
+		$title = apply_filters( 'bbp_login_widget_title', $instance['title'] );
+
+		echo $before_widget;
+
+		if ( !empty( $title ) )
+			echo $before_title . $title . $after_title;
+
+		if ( !is_user_logged_in() ) : ?>
+
+			<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
+				<fieldset>
+					<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
+
+					<?php do_action( 'bbp_template_notices' ); ?>
+
+					<div class="bbp-username">
+						<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
+						<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" tabindex="<?php bbp_tab_index(); ?>" />
+					</div>
+
+					<div class="bbp-password">
+						<label for="user_pass"><?php _e( 'Password', 'bbpress' ); ?>: </label>
+						<input type="password" name="pwd" value="<?php bbp_sanitize_val( 'user_pass', 'password' ); ?>" size="20" id="user_pass" tabindex="<?php bbp_tab_index(); ?>" />
+					</div>
+
+					<div class="bbp-remember-me">
+						<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ), true, true ); ?> id="rememberme" tabindex="<?php bbp_tab_index(); ?>" />
+						<label for="rememberme"><?php _e( 'Keep me signed in', 'bbpress' ); ?></label>
+					</div>
+
+					<div class="bbp-submit-wrapper">
+
+						<?php do_action( 'login_form' ); ?>
+
+						<input type="submit" name="user-submit" value="<?php _e( 'Log In', 'bbpress' ); ?>" tabindex="<?php bbp_tab_index(); ?>" class="user-submit" />
+
+						<?php bbp_user_login_fields(); ?>
+
+					</div>
+				</fieldset>
+			</form>
+
+		<?php else : ?>
+
+			<div class="bbp-logged-in">
+				<a href="<?php echo bp_loggedin_user_domain(); ?>"><?php echo get_avatar( bbp_get_current_user_id(), '40' ); ?></a>
+				<h4><?php echo bbp_get_user_profile_link( bbp_get_current_user_id() ); ?></h4>
+
+				<?php bbp_logout_link(); ?>
+			</div>
+
+		<?php endif;
+
+		echo $after_widget;
+	}
+
+	/**
+	 * Update the login widget options
+	 *
+	 * @since bbPress (r2827)
+	 *
+	 * @param array $new_instance The new instance options
+	 * @param array $old_instance The old instance options
+	 */
+	function update( $new_instance, $old_instance ) {
+		$instance          = $old_instance;
+		$instance['title'] = strip_tags( $new_instance['title'] );
+
+		return $instance;
+	}
+
+	/**
+	 * Output the login widget options form
+	 *
+	 * @since bbPress (r2827)
+	 *
+	 * @param $instance Instance
+	 * @uses BBP_Login_Widget::get_field_id() To output the field id
+	 * @uses BBP_Login_Widget::get_field_name() To output the field name
+	 */
+	function form( $instance ) {
+		$title = !empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : ''; ?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label>
+		</p>
+
+		<?php
+	}
+}
 
 /**
  * bbPress Forum Widget
@@ -82,7 +219,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		<?php echo $after_widget;
 
-		endif;		
+		endif;
 	}
 
 	/**
@@ -278,7 +415,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @uses BBP_Topics_Widget::get_field_name() To output the field name
 	 */
 	function form( $instance ) {
-		$title     = !empty( $instance['title'] )     ? esc_attr( $instance['title']     ) : '';
+		$title     = !empty( $instance['title']     ) ? esc_attr( $instance['title']     ) : '';
 		$max_shown = !empty( $instance['max_shown'] ) ? esc_attr( $instance['max_shown'] ) : '';
 		$show_date = !empty( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
 		$pop_check = !empty( $instance['pop_check'] ) ? esc_attr( $instance['pop_check'] ) : ''; ?>

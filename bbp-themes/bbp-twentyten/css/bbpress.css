@@ -386,3 +386,46 @@ div.bbp-template-notice {
 	font-size: 11px;
 	color: #aaa;
 }
+
+/* =Widgets
+-------------------------------------------------------------- */
+
+.widget-area .bbp-login-form fieldset legend {
+	display: none;
+}
+
+.widget-area .bbp-login-form .bbp-username label,
+.widget-area .bbp-login-form .bbp-password label {
+	width: 70px;
+	display: inline-block;
+}
+.widget-area .bbp-login-form .bbp-username,
+.widget-area .bbp-login-form .bbp-password,
+.widget-area .bbp-login-form .bbp-remember-me,
+.widget-area .bbp-login-form .bbp-submit-wrapper {
+	margin-top: 10px;
+}
+
+.widget-area .bbp-login-form .bbp-remember-me {
+	float: left;
+}
+
+.widget-area .bbp-login-form .bbp-submit-wrapper {
+	float: right;
+}
+
+.widget-area .bbp-logged-in img.avatar {
+	float: left;
+	margin-right: 15px;
+}
+
+.widget-area .bbp-logged-in h4 {
+	font-weight: bold;
+	font-size: 1.3em;
+	display: inline;
+	clear: none;
+}
+
+.widget-area .bbp-logged-in a.logout-link {
+	display: block;
+}

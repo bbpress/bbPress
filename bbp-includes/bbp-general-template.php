@@ -323,7 +323,7 @@ function bbp_is_view() {
  *
  * @since bbPress (r2815)
  *
- * @param str $url Pass a URL to redirect to
+ * @param string $url Pass a URL to redirect to
  * @uses add_query_arg() To add a arg to the url
  * @uses site_url() Toget the site url
  * @uses apply_filters() Calls 'bbp_wp_login_action' with the url and args
@@ -355,14 +355,17 @@ function bbp_wp_login_action( $args = '' ) {
  * @since bbPress (r2815)
  *
  * @param string $url Pass a URL to redirect to
- * @uses home_url() To get the url
+ * @uses wp_get_referer() To get the referer
+ * @uses esc_attr() To escape the url
  * @uses apply_filters() Calls 'bbp_redirect_to_field' with the referer field
  *                        and url
  */
 function bbp_redirect_to_field( $url = '' ) {
-	// If no URL is passed, use request
-	if ( empty( $url ) && !empty( $_SERVER['HTTP_REFERER'] ) )
-		$url = esc_url( $_SERVER['HTTP_REFERER'] );
+	// If no URL is passed, try to get the referer and then the request uri
+	if ( empty( $url ) && ( !$url = wp_get_referer() ) && ( !empty( $_SERVER['REQUEST_URI'] ) ) )
+		$url = $_SERVER['REQUEST_URI'];
+
+	$url = (string) esc_attr( $url );
 
 	$referer_field = '<input type="hidden" name="redirect_to" value="' . $url . '" />';
 
@@ -410,14 +413,14 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 
 		// Treat different kinds of fields in different ways
 		switch ( $input_type ) {
-			case 'text' :
+			case 'text'     :
 			case 'textarea' :
 				$retval = esc_attr( stripslashes( $pre_ret_val ) );
 				break;
 
 			case 'password' :
-			case 'select' :
-			case 'radio' :
+			case 'select'   :
+			case 'radio'    :
 			case 'checkbox' :
 			default :
 				$retval = esc_attr( $pre_ret_val );
@@ -1060,5 +1063,33 @@ function bbp_error_messages() {
 
 <?php endif;
 }
+
+/** Login/logout/register/lost pass *******************************************/
+
+/**
+ * Output the logout link
+ *
+ * @since bbPress (r)
+ *
+ * @param string $redirect_to Redirect to url
+ * @uses bbp_get_logout_link() To get the logout link
+ */
+function bbp_logout_link( $redirect_to = '' ) {
+	echo bbp_get_logout_link( $redirect_to );
+}
+	/**
+	 * Return the logout link
+	 *
+	 * @since bbPress (r)
+	 *
+	 * @param string $redirect_to Redirect to url
+	 * @uses wp_logout_url() To get the logout url
+	 * @uses apply_filters() Calls 'bbp_get_logout_link' with the logout link and
+	 *                        redirect to url
+	 * @return string The logout link
+	 */
+	function bbp_get_logout_link( $redirect_to = '' ) {
+		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url() . '" class="button logout-link">' . __( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
+	}
 
 ?>

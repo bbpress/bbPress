@@ -363,6 +363,47 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 	}
 
+/**
+ * Output the link to the admin section
+ *
+ * @since bbPress (r)
+ *
+ * @param mixed $args Optional. See {@link bbp_get_admin_link()}
+ * @uses bbp_get_admin_link() To get the admin link
+ */
+function bbp_admin_link( $args = '' ) {
+	echo bbp_get_admin_link( $args );
+}
+	/**
+	 * Return the link to the admin section
+	 *
+	 * @since bbPress (r)
+	 *
+	 * @param mixed $args Optional. This function supports these arguments:
+	 *  - text: The text
+	 *  - before: Before the lnk
+	 *  - after: After the link
+	 * @uses current_user_can() To check if the current user can moderate
+	 * @uses admin_url() To get the admin url
+	 * @uses apply_filters() Calls 'bbp_get_admin_link' with the link & args
+	 * @return The link
+	 */
+	function bbp_get_admin_link( $args = '' ) {
+		if ( !current_user_can( 'moderate' ) )
+			return;
+
+		if ( $args && is_string( $args ) && false === strpos( $args, '=' ) )
+			$args = array( 'text' => $args );
+
+		$defaults = array( 'text' => __( 'Admin', 'bbpress' ), 'before' => '', 'after' => '' );
+		$args     = wp_parse_args( $args, $defaults );
+		extract( $args, EXTR_SKIP );
+
+		$uri = admin_url();
+
+		return apply_filters( 'bbp_get_admin_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
+	}
+
 /** Favorites *****************************************************************/
 
 /**
@@ -742,11 +783,12 @@ function bbp_edit_user_contact_methods() {
  * @uses bbp_get_current_user_id() To get the current user id
  */
 function bbp_logged_in_redirect( $url = '' ) {
-	if ( is_user_logged_in() ) {
-		$redirect_to = !empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
-		wp_safe_redirect( $redirect_to );
-		exit;
-	}
+	if ( !is_user_logged_in() )
+		return;
+
+	$redirect_to = !empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
+	wp_safe_redirect( $redirect_to );
+	exit;
 }
 
 /**
