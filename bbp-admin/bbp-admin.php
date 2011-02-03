@@ -119,6 +119,10 @@ class BBP_Admin {
 		// Check if there are any bbp_toggle_reply_* requests on admin_init, also have a message displayed
 		add_action( 'bbp_admin_init',              array( $this, 'toggle_reply'        ) );
 		add_action( 'admin_notices',               array( $this, 'toggle_reply_notice' ) );
+
+		// Anonymous metabox actions
+		add_action( 'add_meta_boxes',              array( $this, 'anonymous_metabox'      ) );
+		add_action( 'save_post',                   array( $this, 'anonymous_metabox_save' ) );
 	}
 
 	/**
@@ -358,7 +362,8 @@ class BBP_Admin {
 	 * @uses bbp_normalize_forum() To make the forum normal (not category)
 	 * @uses bbp_privatize_forum() To mark the forum as private
 	 * @uses bbp_publicize_forum() To mark the forum as public
-	 * @uses do_action() Calls 'bbp_forum_attributes_metabox_save'
+	 * @uses do_action() Calls 'bbp_forum_attributes_metabox_save' with the
+	 *                    forum id
 	 * @return int Forum id
 	 */
 	function forum_attributes_metabox_save( $forum_id ) {
@@ -397,7 +402,7 @@ class BBP_Admin {
 				bbp_publicize_forum( $forum_id );
 		}
 
-		do_action( 'bbp_forum_attributes_metabox_save' );
+		do_action( 'bbp_forum_attributes_metabox_save', $forum_id );
 
 		return $forum_id;
 	}
@@ -433,7 +438,8 @@ class BBP_Admin {
 	 * @param int $topic_id Topic id
 	 * @uses current_user_can() To check if the current user is capable of
 	 *                           editing the topic
-	 * @uses do_action() Calls 'bbp_topic_attributes_metabox_save'
+	 * @uses do_action() Calls 'bbp_topic_attributes_metabox_save' with the
+	 *                    topic id and parent id
 	 * @return int Parent id
 	 */
 	function topic_attributes_metabox_save( $topic_id ) {
@@ -444,9 +450,9 @@ class BBP_Admin {
 			return $topic_id;
 
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $_topic['parent_id'] ) ? $_topic['parent_id'] : 0;
+		$parent_id = isset( $topic['parent_id'] ) ? $topic['parent_id'] : 0;
 
-		do_action( 'bbp_topic_attributes_metabox_save' );
+		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $parent_id );
 
 		return $parent_id;
 	}
@@ -482,7 +488,8 @@ class BBP_Admin {
 	 * @param int $reply_id Reply id
 	 * @uses current_user_can() To check if the current user is capable of
 	 *                           editing the reply
-	 * @uses do_action() Calls 'bbp_reply_attributes_metabox_save'
+	 * @uses do_action() Calls 'bbp_reply_attributes_metabox_save' with the
+	 *                    reply id and parent id
 	 * @return int Parent id
 	 */
 	function reply_attributes_metabox_save( $reply_id ) {
@@ -493,11 +500,107 @@ class BBP_Admin {
 			return $reply_id;
 
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $_reply['parent_id'] ) ? $_reply['parent_id'] : 0;
+		$parent_id = isset( $reply['parent_id'] ) ? $reply['parent_id'] : 0;
 
-		do_action( 'bbp_reply_attributes_metabox_save' );
+		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $parent_id );
 
 		return $parent_id;
+	}
+
+	/**
+	 * Add the anonymous user info metabox
+	 *
+	 * Allows editing of information about an anonymous user
+	 *
+	 * @since bbPress (r)
+	 *
+	 * @uses bbp_get_topic() To get the topic
+	 * @uses bbp_get_reply() To get the reply
+	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
+	 *                                 anonymous user
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses add_meta_box() To add the metabox
+	 * @uses do_action() Calls 'bbp_anonymous_metabox' with the topic/reply
+	 *                    id
+	 */
+	function anonymous_metabox() {
+		global $bbp;
+
+		$post_id = (int) $_GET['post'];
+
+		if ( $topic = bbp_get_topic( $post_id ) )
+			$topic_id = $topic->ID;
+		elseif ( $reply = bbp_get_reply( $post_id ) )
+			$reply_id = $reply->ID;
+		else
+			return;
+
+		if ( !empty( $topic_id ) && !bbp_is_topic_anonymous( $topic_id ) )
+			return;
+
+		if ( !empty( $reply_id ) && !bbp_is_reply_anonymous( $reply_id ) )
+			return;
+
+		add_meta_box(
+			'bbp_anonymous_metabox',
+			__( 'Anonymous User Information', 'bbpress' ),
+			'bbp_anonymous_metabox',
+			!empty( $topic_id ) ? $bbp->topic_id : $bbp->reply_id,
+			'side',
+			'high'
+		);
+
+		do_action( 'bbp_anonymous_metabox', $post_id );
+	}
+
+	/**
+	 * Save the anonymous user information for the topic/reply
+	 *
+	 * @since bbPress (r)
+	 *
+	 * @param int $post_id Topic or reply id
+	 * @uses bbp_get_topic() To get the topic
+	 * @uses bbp_get_reply() To get the reply
+	 * @uses current_user_can() To check if the current user can edit the
+	 *                           topic or reply
+	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
+	 *                                 anonymous user
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses bbp_filter_anonymous_post_data() To filter the anonymous user
+	 *                                         data
+	 * @uses update_post_meta() To update the anonymous user data
+	 * @uses do_action() Calls 'bbp_anonymous_metabox_save' with the topic/
+	 *                    reply id and anonymous data
+	 * @return int Topic or reply id
+	 */
+	function anonymous_metabox_save( $post_id ) {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			return $post_id;
+
+		if ( $topic = bbp_get_topic( $post_id ) )
+			$topic_id = $topic->ID;
+		elseif ( $reply = bbp_get_reply( $post_id ) )
+			$reply_id = $reply->ID;
+		else
+			return $post_id;
+
+		if ( !empty( $topic_id ) && ( !current_user_can( 'edit_topic', $topic_id ) || !bbp_is_topic_anonymous( $topic_id ) ) )
+			return $topic_id;
+
+		if ( !empty( $reply_id ) && ( !current_user_can( 'edit_reply', $reply_id ) || !bbp_is_reply_anonymous( $reply_id ) ) )
+			return $reply_id;
+
+		$anonymous_data = bbp_filter_anonymous_post_data();
+
+		update_post_meta( $post_id, '_bbp_anonymous_name',    $anonymous_data['bbp_anonymous_name']    );
+		update_post_meta( $post_id, '_bbp_anonymous_email',   $anonymous_data['bbp_anonymous_email']   );
+		update_post_meta( $post_id, '_bbp_anonymous_website', $anonymous_data['bbp_anonymous_website'] );
+
+		do_action( 'bbp_anonymous_metabox_save', $post_id, $anonymous_data );
+
+		return $post_id;
 	}
 
 	/**
@@ -1933,7 +2036,7 @@ function bbp_reply_metabox() {
 	); ?>
 
 	<p>
-		<strong><?php _e( 'Topic', 'bbpress' ); ?></strong>
+		<strong><?php _e( 'Parent Topic', 'bbpress' ); ?></strong>
 	</p>
 
 	<p>
@@ -1944,6 +2047,55 @@ function bbp_reply_metabox() {
 <?php
 
 	do_action( 'bbp_reply_metabox' );
+}
+
+/**
+ * Anonymous user information metabox
+ *
+ * @since bbPress (r)
+ *
+ * @uses get_post_meta() To get the anonymous user information
+ */
+function bbp_anonymous_metabox () {
+	global $post, $bbp; ?>
+
+	<p>
+		<strong><?php _e( 'Name', 'bbpress' ); ?></strong>
+	</p>
+
+	<p>
+		<label class="screen-reader-text" for="bbp_anonymous_name"><?php _e( 'Name', 'bbpress' ); ?></label>
+		<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_name', true ); ?>" size="38" />
+	</p>
+
+	<p>
+		<strong><?php _e( 'Email', 'bbpress' ); ?></strong>
+	</p>
+
+	<p>
+		<label class="screen-reader-text" for="bbp_anonymous_email"><?php _e( 'Email', 'bbpress' ); ?></label>
+		<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_email', true ); ?>" size="38" />
+	</p>
+
+	<p>
+		<strong><?php _e( 'Website', 'bbpress' ); ?></strong>
+	</p>
+
+	<p>
+		<label class="screen-reader-text" for="bbp_anonymous_website"><?php _e( 'Website', 'bbpress' ); ?></label>
+		<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_website', true ); ?>" size="38" />
+	</p>
+
+	<p>
+		<strong><?php _e( 'IP Address', 'bbpress' ); ?></strong>
+	</p>
+
+	<p>
+		<label class="screen-reader-text" for="bbp_anonymous_ip_address"><?php _e( 'IP Address', 'bbpress' ); ?></label>
+		<input type="text" id="bbp_anonymous_ip_address" name="bbp_anonymous_ip_address" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_ip', true ); ?>" size="38" disabled="disabled" />
+	</p>
+
+	<?php
 }
 
 /**
