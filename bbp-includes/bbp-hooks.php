@@ -138,6 +138,11 @@ add_action( 'bbp_new_reply',     'bbp_notify_subscribers',                 1, 1 
 add_action( 'trash_post',  'bbp_unstick_topic' );
 add_action( 'delete_post', 'bbp_unstick_topic' );
 
+// Update forum last active
+add_action( 'trashed_post',        'bbp_update_forum_last_active' );
+add_action( 'untrashed_post',      'bbp_update_forum_last_active' );
+add_action( 'deleted_post',        'bbp_update_forum_last_active' );
+
 // Update forum topic counts
 add_action( 'trashed_post',        'bbp_update_forum_topic_count' );
 add_action( 'untrashed_post',      'bbp_update_forum_topic_count' );

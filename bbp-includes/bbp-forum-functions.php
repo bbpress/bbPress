@@ -192,23 +192,78 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
  *
  * @param int $forum_id Optional. Forum id
  * @param string $new_time Optional. New time in mysql format
- * @uses bbp_get_forum_id() To get the forum id
- * @uses current_time() To get the current time
- * @uses update_post_meta() To update the forum's last active meta
+ * @uses bbp_forum_has_subforums() Get sub forums
+ * @uses bbp_get_topic_forum_id() Get forum_id from possible topic_id
+ * @uses get_posts() Get topics from the forum_id
+ * @uses bbp_get_forum_id() Get the forum id
+ * @uses current_time() Get the current time
+ * @uses get_post_meta() Get the last active times of topics and forums
+ * @uses update_post_meta() Update the forum's last active meta
+ * @uses delete_post_meta() Delete last active meta if no topics exist
  * @return bool True on success, false on failure
  */
 function bbp_update_forum_last_active( $forum_id = 0, $new_time = '' ) {
+	global $wpdb, $bbp;
+
 	$forum_id = bbp_get_forum_id( $forum_id );
+	$sub_forum_time = $topic_time = $calculated_time = '';
 
-	// Check time and use current if empty
-	if ( empty( $new_time ) )
-		$new_time = current_time( 'mysql' );
+	// If it's a topic, then get the parent (forum id)
+	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) ) {
+		$topic_id = $forum_id;
+		$forum_id = bbp_get_topic_forum_id( $forum_id );
+	}
 
-	// Update last active
-	if ( !empty( $forum_id ) )
-		return update_post_meta( $forum_id, '_bbp_forum_last_active', $new_time );
+	// No time was passed, so we need to do some calculating
+	if ( empty( $new_time ) ) {
 
-	return false;
+		// If forum has sub forums, loop through them and get the last active time
+		if ( $sub_forums = bbp_forum_has_subforums( $forum_id ) ) {
+
+			// Loop through sub forums
+			foreach( $sub_forums as $sub_forum ) {
+
+				// Get the sub forum last active time
+				$sub_forum_temp_time = get_post_meta( $sub_forum->ID, '_bbp_forum_last_active', true );
+
+				// Compare this sub forum time to the most recent, and assign to
+				// $sub_forum_time if it's more recent than the last
+				if ( strtotime( $sub_forum_temp_time ) > strtotime( $sub_forum_time ) ) {
+					$sub_forum_time = $sub_forum_temp_time;
+				}
+			}
+		}
+
+		// Load the most recent topic in this forum_id based on
+		// the '_bbp_topic_last_active' post_meta value
+		if ( $topics = get_posts( array( 'numberposts' => 1, 'post_parent' => $forum_id, 'post_type' => $bbp->topic_id, 'meta_key' => '_bbp_topic_last_active', 'orderby' => 'meta_value' ) ) )
+			$topic_time = get_post_meta( $topics[0]->ID, '_bbp_topic_last_active', true );
+
+		// Calculate a new time
+		if ( strtotime( $topic_time ) > strtotime( $sub_forum_time ) )
+			$calculated_time = $topic_time;
+		else
+			$calculated_time = $sub_forum_time;
+
+	// Specific time was passed, so skip calculations
+	} else {
+		$calculated_time = $new_time;
+	}
+
+	// No forums or topics in this forum_id, so delete the meta entries
+	if ( empty( $calculated_time ) ) {
+		delete_post_meta( $forum_id, '_bbp_forum_last_active'   );
+		delete_post_meta( $forum_id, '_bbp_forum_last_topic_id' );
+
+	// Update the forum last active time
+	} else
+		update_post_meta( $forum_id, '_bbp_forum_last_active', $calculated_time );
+
+	// Walk up ancestors
+	if ( $parent_id = bbp_get_forum_parent( $forum_id ) )
+		bbp_update_forum_last_active( $parent_id );
+
+	return apply_filters( 'bbp_update_forum_last_active', $calculated_time, $forum_id );
 }
 
 /**

@@ -917,7 +917,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @param bool $total_count Optional. To get the total count or normal
-	 *                           count?
+	 *                           count? Defaults to total.
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum topic count
 	 * @uses bbp_update_forum_topic_count() To update the topic count if
