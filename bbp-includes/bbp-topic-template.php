@@ -92,7 +92,8 @@ function bbp_has_topics( $args = '' ) {
 	if ( !empty( $max_num_pages ) )
 		$bbp->topic_query->max_num_pages = $max_num_pages;
 
-	// Put sticky posts at the top of the posts array, much part of code taken from query.php in wp-includes
+	// Put sticky posts at the top of the posts array, much of this code
+	// is taken from query.php in wp-includes
 	if ( empty( $ignore_sticky_topics ) && $paged <= 1 ) {
 		$stickies = bbp_get_super_stickies();
 		$stickies = !empty( $bbp_t['post_parent'] ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
@@ -105,7 +106,6 @@ function bbp_has_topics( $args = '' ) {
 
 			// Loop over topics and relocate stickies to the front.
 			for ( $i = 0; $i < $num_topics; $i++ ) {
-
 				if ( in_array( $bbp->topic_query->posts[$i]->ID, $stickies ) ) {
 					$sticky = $bbp->topic_query->posts[$i];
 
@@ -122,8 +122,8 @@ function bbp_has_topics( $args = '' ) {
 					$offset = array_search( $sticky->ID, $stickies );
 
 					unset( $stickies[$offset] );
+					unset( $sticky            );
 				}
-
 			}
 
 			// If any posts have been excluded specifically, Ignore those that are sticky.
@@ -136,17 +136,21 @@ function bbp_has_topics( $args = '' ) {
 
 				$stickies__in   = implode( ',', array_map( 'absint', $stickies ) );
 				$stickies_where = "AND $wpdb->posts.post_type = '$bbp->topic_id'";
-				$stickies       = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.ID IN ($stickies__in) $stickies_where" );
+				$stickies       = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_status = 'publish' AND $wpdb->posts.ID IN ($stickies__in) $stickies_where" );
+				$sticky_count   = count( $stickies );
 
-				foreach ( $stickies as $sticky ) {
+				foreach ( $stickies as $sticky )
+					$topics[] = $sticky;
 
-					// Ignore sticky posts the current user cannot read or are not published.
-					if ( 'publish' != $sticky->post_status )
-						continue;
+				foreach ( $bbp->topic_query->posts as $topic )
+					$topics[] = $topic;
 
-					array_splice( $bbp->topic_query->posts, $sticky_offset, 0, array( $sticky ) );
-					$sticky_offset++;
-				}
+				$bbp->topic_query->posts       = $topics;
+				$bbp->topic_query->found_posts = (int)$bbp->topic_query->found_posts + (int)$sticky_count;
+				$bbp->topic_query->post_count  = (int)$bbp->topic_query->post_count  + (int)$sticky_count;
+
+				unset( $topics   );
+				unset( $stickies );
 			}
 		}
 	}
@@ -161,7 +165,7 @@ function bbp_has_topics( $args = '' ) {
 	// Only add pagination if query returned results
 	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
 
-		// Limited the number of topics shown based on maximum allowed pages
+		// Limit the number of topics shown based on maximum allowed pages
 		if ( ( !empty( $max_num_pages ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count )
 			$bbp->topic_query->found_posts = $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count;
 
@@ -176,7 +180,6 @@ function bbp_has_topics( $args = '' ) {
 		} else {
 			$base = add_query_arg( 'paged', '%#%' );
 		}
-
 
 		// Pagination settings with filter
 		$bbp_topic_pagination = apply_filters( 'bbp_topic_pagination', array (
