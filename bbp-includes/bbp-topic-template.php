@@ -121,6 +121,7 @@ function bbp_has_topics( $args = '' ) {
 					// Remove post from sticky posts array
 					$offset = array_search( $sticky->ID, $stickies );
 
+					// Cleanup
 					unset( $stickies[$offset] );
 					unset( $sticky            );
 				}
@@ -134,27 +135,33 @@ function bbp_has_topics( $args = '' ) {
 			if ( !empty( $stickies ) ) {
 				global $wpdb;
 
+				// Get all stickies
 				$stickies__in   = implode( ',', array_map( 'absint', $stickies ) );
 				$stickies_where = "AND $wpdb->posts.post_type = '$bbp->topic_id'";
 				$stickies       = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_status = 'publish' AND $wpdb->posts.ID IN ($stickies__in) $stickies_where" );
 				$sticky_count   = count( $stickies );
 
+				// Loop through stickies and add them to beginning of array
 				foreach ( $stickies as $sticky )
 					$topics[] = $sticky;
 
+				// Loop through topics and add them to end of array
 				foreach ( $bbp->topic_query->posts as $topic )
 					$topics[] = $topic;
 
+				// Adjust loop and counts for new sticky positions
 				$bbp->topic_query->posts       = $topics;
 				$bbp->topic_query->found_posts = (int)$bbp->topic_query->found_posts + (int)$sticky_count;
 				$bbp->topic_query->post_count  = (int)$bbp->topic_query->post_count  + (int)$sticky_count;
 
+				// Cleanup
 				unset( $topics   );
 				unset( $stickies );
 			}
 		}
 	}
 
+	// If no limit to posts per page, set it to the current post_count
 	if ( -1 == $posts_per_page )
 		$posts_per_page = $bbp->topic_query->post_count;
 
