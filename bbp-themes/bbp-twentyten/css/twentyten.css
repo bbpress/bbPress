@@ -59,7 +59,7 @@ DESCRIPTION: Two-column fixed layout with one sidebar right of content
 	width: 100%;
 }
 #content {
-	margin: 0 280px 0 20px;
+	margin: 0 260px 0 20px;
 }
 #primary,
 #secondary {
