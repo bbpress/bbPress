@@ -1137,8 +1137,14 @@ function bbp_toggle_topic_handler() {
 		// Check for errors
 		if ( false != $success && !is_wp_error( $success ) ) {
 
+			// Redirect back to the topic's forum
+			if ( isset( $sub_action ) && 'delete' == $sub_action )
+				$redirect = bbp_get_forum_permalink( $success->post_parent );
+
 			// Redirect back to the topic
-			$redirect = bbp_get_topic_permalink( $topic_id );
+			else
+				$redirect = bbp_get_topic_permalink( $topic_id );
+
 			wp_redirect( $redirect );
 
 			// For good measure
