@@ -97,7 +97,7 @@ class BBP_Login_Widget extends WP_Widget {
 		<?php else : ?>
 
 			<div class="bbp-logged-in">
-				<a href="<?php echo bp_loggedin_user_domain(); ?>"><?php echo get_avatar( bbp_get_current_user_id(), '40' ); ?></a>
+				<a href="<?php bbp_user_profile_link( bbp_current_user_id() ); ?>"><?php echo get_avatar( bbp_get_current_user_id(), '40' ); ?></a>
 				<h4><?php echo bbp_get_user_profile_link( bbp_get_current_user_id() ); ?></h4>
 
 				<?php bbp_logout_link(); ?>
