@@ -29,13 +29,13 @@
 
 					<?php do_action( 'bbp_template_notices' ); ?>
 
-					<div class="alignleft">
+					<div>
 
-						<?php bbp_is_reply_edit() ? bbp_reply_author_avatar( bbp_get_reply_id(), 80 ) : bbp_current_user_avatar( 80 ); ?>
+						<div class="alignright avatar">
 
-					</div>
+							<?php bbp_is_reply_edit() ? bbp_reply_author_avatar( bbp_get_reply_id(), 80 ) : bbp_current_user_avatar( 80 ); ?>
 
-					<div class="alignleft">
+						</div>
 
 						<?php get_template_part( 'form', 'bbp_anonymous' ); ?>
 

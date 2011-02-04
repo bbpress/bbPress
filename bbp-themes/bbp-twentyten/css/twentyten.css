@@ -585,7 +585,7 @@ div.menu li {
 .entry-content fieldset {
 	border: 1px solid #e7e7e7;
 	margin: 0 0 24px 0;
-	padding: 24px;
+	padding: 10px 24px 24px;
 }
 .entry-content fieldset legend {
 	background: #fff;

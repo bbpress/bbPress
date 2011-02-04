@@ -238,6 +238,14 @@ td.bbp-topic-counts {
 .bbp-topic-tag-form {
 	clear: left;
 }
+#content .bbp-topic-form div.avatar img,
+#content .bbp-reply-form div.avatar img {
+	margin-right: 0;
+	padding: 10px;
+	border: 1px solid #ddd;
+	line-height: 0;
+	background-color: #efefef;
+}
 
 #merge_tag,
 #delete_tag {
@@ -362,9 +370,6 @@ div.bbp-template-notice {
 		padding: 2px;
 		font-size: 12px;
 		line-height: 140%;
-	}
-	fieldset div.bbp-template-notice {
-		margin-top: -10px;
 	}
 
 /* =Stickies

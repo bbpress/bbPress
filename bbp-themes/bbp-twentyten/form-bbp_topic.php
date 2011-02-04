@@ -38,13 +38,12 @@
 
 					<?php do_action( 'bbp_template_notices' ); ?>
 
-					<div class="alignleft">
+					<div>
+						<div class="alignright avatar">
 
-						<?php bbp_is_topic_edit() ? bbp_topic_author_avatar( bbp_get_topic_id(), 80 ) : bbp_current_user_avatar( 80 ); ?>
+							<?php bbp_is_topic_edit() ? bbp_topic_author_avatar( bbp_get_topic_id(), 120 ) : bbp_current_user_avatar( 120 ); ?>
 
-					</div>
-
-					<div class="alignleft">
+						</div>
 
 						<?php get_template_part( 'form', 'bbp_anonymous' ); ?>
 
