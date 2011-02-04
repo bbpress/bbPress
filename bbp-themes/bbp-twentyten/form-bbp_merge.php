@@ -19,31 +19,46 @@
 
 				<legend><?php printf( __( 'Merge topic "%s"', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
-				<div class="alignleft">
+				<div>
 
-					<p><?php _e( 'Select the topic to merge this one into. The destination topic will remain the lead topic, and this one will change into a reply.', 'bbpress' ); ?></p>
-
-					<p><?php _e( 'To keep this topic as the lead, go to the other topic and use the merge tool from there instead.', 'bbpress' ); ?></p>
+					<div class="bbp-template-notice info">
+						<p><?php _e( 'Select the topic to merge this one into. The destination topic will remain the lead topic, and this one will change into a reply.', 'bbpress' ); ?></p>
+						<p><?php _e( 'To keep this topic as the lead, go to the other topic and use the merge tool from there instead.', 'bbpress' ); ?></p>
+					</div>
 
 					<div class="bbp-template-notice">
 						<p><?php _e( '<strong>NOTE:</strong> All replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted.', 'bbpress' ); ?></p>
 					</div>
 
 					<div class="bbp-template-notice error">
-						<p><?php _e( '<strong>WARNING:</strong> This process cannot undone, so double-check everything before you .', 'bbpress' ); ?></p>
+						<p><?php _e( '<strong>WARNING:</strong> This process cannot undone.', 'bbpress' ); ?></p>
 					</div>
-
-					<?php // @todo Make a codex and add the merge topic docs. ?>
-					<?php // printf( __( 'For more information, check <a href="%s">this documentation</a>.', 'bbpress' ), 'http://codex.bbpress.org/Merge_Topics' ); ?>
 
 					<fieldset>
 						<legend><?php _e( 'Destination', 'bbpress' ); ?></legend>
 						<div>
-							<label for="bbp_destination_topic"><?php _e( 'Merge with this topic:', 'bbpress' ); ?></label>
-							<?php
-								global $bbp;
-								bbp_dropdown( array( 'post_type' => $bbp->topic_id, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'selected' => -1, 'exclude' => bbp_get_topic_id(), 'select_id' => 'bbp_destination_topic', 'none_found' => __( 'No topics were found to which the topic could be merged to!', 'bbpress' ) ) );
-							?>
+							<?php if ( bbp_has_topics( array( 'ignore_sticky_topics' => true, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'post__not_in' => array( bbp_get_topic_id() ) ) ) ) : ?>
+
+								<label for="bbp_destination_topic"><?php _e( 'Merge with this topic:', 'bbpress' ); ?></label>
+
+								<?php
+									global $bbp;
+									bbp_dropdown( array(
+										'post_type'   => $bbp->topic_id,
+										'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
+										'selected'    => -1,
+										'exclude'     => bbp_get_topic_id(),
+										'select_id'   => 'bbp_destination_topic',
+										'none_found'  => __( 'No topics were found to which the topic could be merged to!', 'bbpress' )
+									) );
+								?>
+
+							<?php else : ?>
+
+								<label><?php _e( 'There are no other topics in this forum to merge with.', 'bbpress' ); ?></label>
+
+							<?php endif; ?>
+
 						</div>
 					</fieldset>
 

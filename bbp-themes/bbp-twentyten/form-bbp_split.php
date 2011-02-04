@@ -19,42 +19,51 @@
 
 				<legend><?php printf( __( 'Split topic "%s"', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
-				<div class="alignleft">
+				<div>
 
-					<p><?php _e( 'When you split a topic, you are slicing it in half starting with the reply you just selected. Choose to use that reply as a new topic with a new title, or merge those replies into an existing topic.', 'bbpress' ); ?></p>
+					<div class="bbp-template-notice info">
+						<p><?php _e( 'When you split a topic, you are slicing it in half starting with the reply you just selected. Choose to use that reply as a new topic with a new title, or merge those replies into an existing topic.', 'bbpress' ); ?></p>
+					</div>
 
 					<div class="bbp-template-notice">
 						<p><?php _e( '<strong>NOTE:</strong> If you use the existing topic option, replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted.', 'bbpress' ); ?></p>
 					</div>
 
 					<div class="bbp-template-notice error">
-						<p><?php _e( '<strong>WARNING:</strong> This process cannot undone, so double-check everything before you .', 'bbpress' ); ?></p>
+						<p><?php _e( '<strong>WARNING:</strong> This process cannot undone.', 'bbpress' ); ?></p>
 					</div>
 
-					<?php
-					/**
-					 * @todo Make a codex and add the merge topic docs.
-					 * printf( __( 'For more information, check <a href="%s">this documentation.', 'bbpress' ), 'http://codex.bbpress.org/Merge_Topics' );
-					 */
-					?>
-
 					<fieldset>
-						<legend><?php _e( 'Split the topic by:', 'bbpress' ); ?></legend>
+						<legend><?php _e( 'Split Method', 'bbpress' ); ?></legend>
 
 						<div>
 							<input name="bbp_topic_split_option" id="bbp_topic_split_option_reply" type="radio" checked="checked" value="reply" tabindex="<?php bbp_tab_index(); ?>" />
-							<label for="bbp_topic_split_option_reply"><?php _e( 'Creating a new topic in this forum:', 'bbpress' ); ?></label>
-							<input type="text" id="bbp_topic_split_destination_title" value="<?php bbp_topic_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_split_destination_title" /><br />
-
-							<input name="bbp_topic_split_option" id="bbp_topic_split_option_existing" type="radio" value="existing" tabindex="<?php bbp_tab_index(); ?>" />
-							<label for="bbp_topic_split_option_existing"><?php _e( 'Use an existing topic in this forum:', 'bbpress' ); ?></label>
-
-							<?php
-								global $bbp;
-								bbp_dropdown( array( 'post_type' => $bbp->topic_id, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'selected' => -1, 'exclude' => bbp_get_topic_id(), 'select_id' => 'bbp_destination_topic', 'none_found' => __( 'No topics were found to which the topic could be split to!', 'bbpress' ) ) );
-							?>
-
+							<label for="bbp_topic_split_option_reply"><?php printf( __( 'New topic in <strong>%s</strong> titled:', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id( bbp_get_topic_id() ) ) ); ?></label>
+							<input type="text" id="bbp_topic_split_destination_title" value="<?php printf( __( 'Split: %s', 'bbpress' ), bbp_get_topic_title() ); ?>" tabindex="<?php bbp_tab_index(); ?>" size="35" name="bbp_topic_split_destination_title" />
 						</div>
+
+						<?php if ( bbp_has_topics( array( 'ignore_sticky_topics' => true, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'post__not_in' => array( bbp_get_topic_id() ) ) ) ) : ?>
+
+							<div>
+								<input name="bbp_topic_split_option" id="bbp_topic_split_option_existing" type="radio" value="existing" tabindex="<?php bbp_tab_index(); ?>" />
+								<label for="bbp_topic_split_option_existing"><?php _e( 'Use an existing topic in this forum:', 'bbpress' ); ?></label>
+
+								<?php
+									global $bbp;
+									bbp_dropdown( array(
+										'post_type'   => $bbp->topic_id,
+										'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
+										'selected'    => -1,
+										'exclude'     => bbp_get_topic_id(),
+										'select_id'   => 'bbp_destination_topic',
+										'none_found'  => __( 'No other topics found!', 'bbpress' )
+									) );
+								?>
+
+							</div>
+
+						<?php endif; ?>
+						
 					</fieldset>
 
 					<fieldset>

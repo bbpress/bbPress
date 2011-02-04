@@ -340,6 +340,10 @@ div.bbp-template-notice {
 	color: #000;
 	clear: both;
 }
+	div.bbp-template-notice.info {
+		border: #cee1ef 1px solid;
+		background-color: #f0f8ff;
+	}
 	div.bbp-template-notice.important {
 		border: #e6db55 1px solid;
 		background-color: #fffbcc;
