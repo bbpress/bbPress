@@ -23,11 +23,11 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 				<legend><?php _e( 'Rename', 'bbpress' ); ?></legend>
 
-				<div class="bbp-template-notice">
+				<div class="bbp-template-notice info">
 					<p><?php _e( 'Leave the slug empty to have one automatically generated.', 'bbpress' ); ?></p>
 				</div>
 
-				<div class="bbp-template-notice warning">
+				<div class="bbp-template-notice">
 					<p><?php _e( 'Changing the slug affects its permalink. Any links to the old slug will stop working.', 'bbpress' ); ?></p>
 				</div>
 
@@ -60,7 +60,7 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 				<legend><?php _e( 'Merge', 'bbpress' ); ?></legend>
 
-				<div class="bbp-template-notice warning">
+				<div class="bbp-template-notice">
 					<p><?php _e( 'Merging tags together cannot be undone.', 'bbpress' ); ?></p>
 				</div>
 
@@ -90,10 +90,10 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 					<legend><?php _e( 'Delete', 'bbpress' ); ?></legend>
 
-					<div class="bbp-template-notice">
+					<div class="bbp-template-notice info">
 						<p><?php _e( 'This does not delete your topics. Only the tag itself is deleted.', 'bbpress' ); ?></p>
 					</div>
-					<div class="bbp-template-notice warning">
+					<div class="bbp-template-notice">
 						<p><?php _e( 'Deleting a tag cannot be undone.', 'bbpress' ); ?></p>
 						<p><?php _e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></p>						
 					</div>
