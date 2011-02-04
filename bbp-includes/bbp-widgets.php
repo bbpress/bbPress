@@ -324,8 +324,9 @@ class BBP_Topics_Widget extends WP_Widget {
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
 		$default = array(
-			'post_parent'    => $parent_forum,
-			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check
+			'post_parent'          => $parent_forum,
+			'posts_per_page'       => $max_shown > $pop_check ? $max_shown : $pop_check,
+			'ignore_sticky_topics' => true
 		);
 
 		if ( $pop_check < $max_shown && bbp_has_topics( $default ) ) :
