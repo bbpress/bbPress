@@ -341,6 +341,12 @@ function bbp_update_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	update_post_meta( $forum_id, '_bbp_forum_topic_count',       $topics       );
 	update_post_meta( $forum_id, '_bbp_forum_total_topic_count', $total_topics );
 
+	// Delete meta values if there are no topics in this forum
+	if ( empty( $total_topics ) ) {
+		delete_post_meta( $forum_id, '_bbp_forum_last_active'   );
+		delete_post_meta( $forum_id, '_bbp_forum_last_topic_id' );
+	}
+
 	// Walk up ancestors
 	if ( $parent_id = bbp_get_forum_parent( $forum_id ) )
 		bbp_update_forum_topic_count( $parent_id );
