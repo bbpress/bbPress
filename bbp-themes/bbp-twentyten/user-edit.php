@@ -24,8 +24,12 @@
 
 						<h2 class="entry-title"><?php _e( 'Name', 'bbpress' ) ?></h2>
 
+						<?php do_action( 'bbp_user_edit_before' ); ?>
+
 						<fieldset>
 							<legend><?php _e( 'Name', 'bbpress' ) ?></legend>
+
+							<?php do_action( 'bbp_user_edit_before_name' ); ?>
 
 							<div>
 								<label for="first_name"><?php _e( 'First Name', 'bbpress' ) ?></label>
@@ -49,12 +53,16 @@
 
 							</div>
 
+							<?php do_action( 'bbp_user_edit_after_name' ); ?>
+
 						</fieldset>
 
 						<h2 class="entry-title"><?php _e( 'Contact Info', 'bbpress' ) ?></h2>
 
 						<fieldset>
 							<legend><?php _e( 'Contact Info', 'bbpress' ) ?></legend>
+
+							<?php do_action( 'bbp_user_edit_before_contact' ); ?>
 
 							<div>
 								<label for="url"><?php _e( 'Website', 'bbpress' ) ?></label>
@@ -70,6 +78,8 @@
 
 							<?php endforeach; ?>
 
+							<?php do_action( 'bbp_user_edit_after_contact' ); ?>
+
 						</fieldset>
 
 						<h2 class="entry-title"><?php bbp_is_user_home() ? _e( 'About Yourself', 'bbpress' ) : _e( 'About the user', 'bbpress' ); ?></h2>
@@ -77,11 +87,15 @@
 						<fieldset>
 							<legend><?php bbp_is_user_home() ? _e( 'About Yourself', 'bbpress' ) : _e( 'About the user', 'bbpress' ); ?></legend>
 
+							<?php do_action( 'bbp_user_edit_before_about' ); ?>
+
 							<div>
 								<label for="description"><?php _e( 'Biographical Info', 'bbpress' ); ?></label>
 								<textarea name="description" id="description" rows="5" cols="30"><?php echo esc_attr( bbp_get_displayed_user_field( 'description' ) ); ?></textarea>
 								<span class="description"><?php _e( 'Share a little biographical information to fill out your profile. This may be shown publicly.', 'bbpress' ); ?></span>
 							</div>
+
+							<?php do_action( 'bbp_user_edit_after_about' ); ?>
 
 						</fieldset>
 
@@ -89,6 +103,8 @@
 
 						<fieldset>
 							<legend><?php _e( 'Account' ) ?></legend>
+
+							<?php do_action( 'bbp_user_edit_before_account' ); ?>
 
 							<div>
 								<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?></label>
@@ -154,7 +170,11 @@
 
 							<?php endif; ?>
 
+							<?php do_action( 'bbp_user_edit_after_account' ); ?>
+
 						</fieldset>
+
+						<?php do_action( 'bbp_user_edit_after' ); ?>
 
 						<fieldset class="submit">
 							<legend><?php _e( 'Save Changes', 'bbpress' ); ?></legend>
