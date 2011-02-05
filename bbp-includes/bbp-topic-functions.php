@@ -417,7 +417,7 @@ function bbp_new_topic_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_da
 	if ( empty( $is_edit ) ) {
 		// Topic meta relating to most recent topic
 		bbp_update_topic_last_reply_id( $topic_id, 0 );
-		bbp_update_topic_last_active  ( $topic_id     );
+		bbp_update_topic_last_active  ( $topic_id    );
 
 		// Forum meta relating to most recent topic
 		bbp_update_forum_last_topic_id( $forum_id, $topic_id );

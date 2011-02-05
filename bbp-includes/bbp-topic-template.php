@@ -975,7 +975,7 @@ function bbp_topic_author_link( $args = '' ) {
 	 */
 	function bbp_get_topic_author_link( $args = '' ) {
 		// Used as topic_id
-		if ( is_int( $args ) ) {
+		if ( is_numeric( $args ) ) {
 			$topic_id = bbp_get_topic_id( $args );
 		} else {
 			$defaults = array (
@@ -1187,6 +1187,9 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 	function bbp_get_topic_last_reply_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = get_post_meta( $topic_id, '_bbp_topic_last_reply_id', true );
+
+		if ( empty( $reply_id ) )
+			$reply_id = $topic_id;
 
 		return apply_filters( 'bbp_get_topic_last_reply_id', $reply_id, $topic_id );
 	}

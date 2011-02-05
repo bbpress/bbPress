@@ -852,7 +852,7 @@ function bbp_reply_author_link( $args = '' ) {
 	 */
 	function bbp_get_reply_author_link( $args = '' ) {
 		// Used as reply_id
-		if ( is_int( $args ) ) {
+		if ( is_numeric( $args ) ) {
 			$reply_id = bbp_get_reply_id( $args );
 		} else {
 			$defaults = array (

@@ -295,7 +295,7 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
 	if ( !$favorites = (array) bbp_get_user_favorites_topic_ids( $user_id ) )
 		return false;
 
-	if ( is_int( $pos = array_search( $topic_id, $favorites ) ) ) {
+	if ( is_numeric( $pos = array_search( $topic_id, $favorites ) ) ) {
 		array_splice( $favorites, $pos, 1 );
 		$favorites = array_filter( $favorites );
 
@@ -559,7 +559,7 @@ function bbp_remove_user_subscription( $user_id, $topic_id ) {
 	if ( empty( $subscriptions ) )
 		return false;
 
-	if ( is_int( $pos = array_search( $topic_id, $subscriptions ) ) ) {
+	if ( is_numeric( $pos = array_search( $topic_id, $subscriptions ) ) ) {
 		array_splice( $subscriptions, $pos, 1 );
 		$subscriptions = array_filter( $subscriptions );
 

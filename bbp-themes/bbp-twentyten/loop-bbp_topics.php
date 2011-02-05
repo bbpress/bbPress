@@ -39,7 +39,7 @@
 
 						<p class="bbp-topic-meta">
 
-							<?php printf( __( 'Started by: %1$s', 'bbpress' ), bbp_get_topic_author_link() ); ?>
+							<?php printf( __( 'Started by: %1$s %2$s', 'bbpress' ), bbp_get_topic_author_avatar( bbp_get_topic_id(), 15 ), bbp_get_topic_author_link() ); ?>
 
 							<?php if ( !bbp_is_forum() ) printf( __( 'in: <a href="%1$s">%2$s</a>', 'bbpress' ), bbp_get_forum_permalink( bbp_get_topic_forum_id() ), bbp_get_forum_title( bbp_get_topic_forum_id() ) ); ?>
 
@@ -51,7 +51,17 @@
 
 					<td class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></td>
 
-					<td class="bbp-topic-freshness"><?php bbp_topic_freshness_link(); ?></td>
+					<td class="bbp-topic-freshness">
+
+						<?php bbp_topic_freshness_link(); ?>
+
+						<p class="bbp-topic-meta">
+
+							<?php bbp_reply_author_avatar( bbp_get_topic_last_reply_id(), 15 ); ?>
+							<?php bbp_reply_author_link( bbp_get_topic_last_reply_id() ); ?>
+
+						</p>
+					</td>
 
 					<?php if ( bbp_is_user_home() ) : ?>
 

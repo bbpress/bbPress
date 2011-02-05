@@ -189,6 +189,13 @@ td.bbp-topic-counts {
 #content p.bbp-topic-meta {
 	margin-bottom: 0;
 	font-size: 0.7em;
+	white-space: nowrap;
+}
+
+#content p.bbp-topic-meta img.avatar {
+	margin-bottom: -6px;
+	border: 3px double #ddd;
+
 }
 
 /* =Forums

@@ -44,7 +44,17 @@
 
 					<td class="bbp-forum-reply-count"><?php bbp_forum_reply_count(); ?></td>
 
-					<td class="bbp-forum-freshness"><?php bbp_forum_freshness_link(); ?></td>
+					<td class="bbp-forum-freshness">
+					
+						<?php bbp_forum_freshness_link(); ?>
+
+						<p class="bbp-topic-meta">
+
+							<?php bbp_reply_author_avatar( bbp_get_forum_last_reply_id(), 15 ); ?>
+							<?php bbp_reply_author_link( bbp_get_forum_last_reply_id() ); ?>
+
+						</p>
+					</td>
 
 				</tr><!-- bbp-forum-<?php bbp_forum_id(); ?> -->
 
