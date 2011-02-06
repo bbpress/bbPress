@@ -892,7 +892,7 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_subforum_count( $forum_id = 0 ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
-		$forum_count = (int) get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
+		$forum_count = get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
 
 		return apply_filters( 'bbp_get_forum_subforum_count', (int) $forum_count, $forum_id );
 	}
