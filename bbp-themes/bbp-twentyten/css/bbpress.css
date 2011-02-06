@@ -69,13 +69,14 @@ table.bbp-topic th span, table.bbp-replies th span {
 	padding: 6px 10px;
 }
 
-.bbp-forum-topic-count,
-.bbp-forum-reply-count,
-.bbp-topic-reply-count,
-.bbp-topic-voice-count,
-.bbp-topic-action {
+#content .bbp-forum-topic-count,
+#content .bbp-forum-reply-count,
+#content .bbp-topic-reply-count,
+#content .bbp-topic-voice-count,
+#content .bbp-topic-action {
 	width: 10%;
 	text-align: center;
+	padding: 6px 0px;
 }
 .bbp-topic-freshness,
 .bbp-forum-freshness {
