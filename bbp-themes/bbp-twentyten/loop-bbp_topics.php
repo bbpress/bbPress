@@ -17,7 +17,7 @@
 		<thead>
 			<tr>
 				<th class="bbp-topic-title"><?php _e( 'Topic', 'bbpress' ); ?></th>
-				<th class="bbp-topic-replie-count"><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-topic-reply-count"><?php _e( 'Replies', 'bbpress' ); ?></th>
 				<th class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></th>
 				<th class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
 				<?php if ( ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ) : ?><th class="bbp-topic-action"><?php _e( 'Remove', 'bbpress' ); ?></th><?php endif; ?>
