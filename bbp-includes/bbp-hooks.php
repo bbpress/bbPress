@@ -231,6 +231,20 @@ add_filter( 'bbp_edit_topic_pre_content', 'wp_filter_kses'  );
 add_filter( 'bbp_get_forum_topic_count',       'bbp_number_format' );
 add_filter( 'bbp_get_forum_topic_reply_count', 'bbp_number_format' );
 
+// No follow and stripslashes on user profile links
+add_filter( 'bbp_get_reply_author_link',      'wp_rel_nofollow' );
+add_filter( 'bbp_get_reply_author_link',      'stripslashes'    );
+add_filter( 'bbp_get_topic_author_link',      'wp_rel_nofollow' );
+add_filter( 'bbp_get_topic_author_link',      'stripslashes'    );
+add_filter( 'bbp_get_user_favorites_link',    'wp_rel_nofollow' );
+add_filter( 'bbp_get_user_favorites_link',    'stripslashes'    );
+add_filter( 'bbp_get_user_subscribe_link',    'wp_rel_nofollow' );
+add_filter( 'bbp_get_user_subscribe_link',    'stripslashes'    );
+add_filter( 'bbp_get_user_profile_link',      'wp_rel_nofollow' );
+add_filter( 'bbp_get_user_profile_link',      'stripslashes'    );
+add_filter( 'bbp_get_user_profile_edit_link', 'wp_rel_nofollow' );
+add_filter( 'bbp_get_user_profile_edit_link', 'stripslashes'    );
+
 // Run wp_kses_data on topic/reply content in admin section
 if ( is_admin() ) {
 	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
