@@ -857,9 +857,10 @@ function bbp_topic_author_id( $topic_id = 0 ) {
 	 * @return string Author of topic
 	 */
 	function bbp_get_topic_author_id( $topic_id = 0 ) {
-		$topic_id = bbp_get_topic_id( $topic_id );
+		$topic_id  = bbp_get_topic_id( $topic_id );
+		$author_id = get_post_field( 'post_author', $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_id', get_post_field( 'post_author', $topic_id ), $topic_id );
+		return apply_filters( 'bbp_get_topic_author_id', (int) $author_id, $topic_id );
 	}
 
 /**
@@ -1111,7 +1112,7 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = get_post_field( 'post_parent', $topic_id );
 
-		return apply_filters( 'bbp_get_topic_forum_id', $forum_id, $topic_id );
+		return apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
 	}
 
 /**
@@ -1191,7 +1192,7 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 		if ( empty( $reply_id ) )
 			$reply_id = $topic_id;
 
-		return apply_filters( 'bbp_get_topic_last_reply_id', $reply_id, $topic_id );
+		return apply_filters( 'bbp_get_topic_last_reply_id', (int) $reply_id, $topic_id );
 	}
 
 /**
@@ -1410,9 +1411,6 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_topic_reply_count', true );
 
-		if ( '' === $replies )
-			$replies = bbp_update_topic_reply_count( $topic_id );
-
 		return apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
 	}
 
@@ -1446,9 +1444,6 @@ function bbp_topic_hidden_reply_count( $topic_id = 0 ) {
 	function bbp_get_topic_hidden_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_topic_hidden_reply_count', true );
-
-		if ( '' === $replies )
-			$replies = bbp_update_topic_hidden_reply_count( $topic_id );
 
 		return apply_filters( 'bbp_get_topic_hidden_reply_count', (int) $replies, $topic_id );
 	}

@@ -1322,7 +1322,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 
 	// Update the last reply ID
 	if ( !empty( $topic_id ) )
-		return update_post_meta( $topic_id, '_bbp_topic_last_reply_id', $reply_id );
+		return update_post_meta( $topic_id, '_bbp_topic_last_reply_id', (int) $reply_id );
 
 	return false;
 }

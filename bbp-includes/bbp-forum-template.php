@@ -372,8 +372,10 @@ function bbp_forum_freshness_link( $forum_id = 0) {
  * @return int Forum parent
  */
 function bbp_get_forum_parent( $forum_id = 0 ) {
-	$forum_id = bbp_get_forum_id( $forum_id );
-	return apply_filters( 'bbp_get_forum_parent', (int) get_post_field( 'post_parent', $forum_id ), $forum_id );
+	$forum_id  = bbp_get_forum_id( $forum_id );
+	$parent_id = get_post_field( 'post_parent', $forum_id );
+
+	return apply_filters( 'bbp_get_forum_parent', (int) $parent_id, $forum_id );
 }
 
 /**
@@ -545,7 +547,7 @@ function bbp_forum_last_topic_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topic_id = get_post_meta( $forum_id, '_bbp_forum_last_topic_id', true );
 
-		return apply_filters( 'bbp_get_forum_last_topic_id', $topic_id, $forum_id );
+		return apply_filters( 'bbp_get_forum_last_topic_id', (int) $topic_id, $forum_id );
 	}
 
 /**
@@ -623,7 +625,7 @@ function bbp_forum_last_topic_permalink( $forum_id = 0 ) {
 function bbp_get_forum_last_topic_author_id( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
 	$author_id = bbp_get_topic_author_id( bbp_get_forum_last_topic_id( $forum_id ) );
-	return apply_filters( 'bbp_get_forum_last_topic_author_id', $author_id, $forum_id );
+	return apply_filters( 'bbp_get_forum_last_topic_author_id', (int) $author_id, $forum_id );
 }
 
 /**
@@ -690,10 +692,10 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$reply_id = get_post_meta( $forum_id, '_bbp_forum_last_reply_id', true );
 
-		if ( '' === $reply_id )
-			$reply_id = bbp_update_forum_last_reply_id( $forum_id );
+		if ( empty( $reply_id ) )
+			$reply_id = bbp_get_forum_last_topic_id( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_last_reply_id', $reply_id, $forum_id );
+		return apply_filters( 'bbp_get_forum_last_reply_id', (int) $reply_id, $forum_id );
 	}
 
 /**
@@ -890,10 +892,7 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_subforum_count( $forum_id = 0 ) {
 		$forum_id    = bbp_get_forum_id( $forum_id );
-		$forum_count = get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
-
-		if ( '' === $forum_count )
-			$forum_count = bbp_update_forum_subforum_count( $forum_id );
+		$forum_count = (int) get_post_meta( $forum_id, '_bbp_forum_subforum_count', true );
 
 		return apply_filters( 'bbp_get_forum_subforum_count', (int) $forum_count, $forum_id );
 	}
@@ -928,10 +927,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	 */
 	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_topic_count' : '_bbp_forum_total_topic_count', true );
-
-		if ( '' === $topics )
-			$topics = bbp_update_forum_topic_count( $forum_id, $total_count );
+		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_topic_count' : '_bbp_forum_total_topic_count', true );
 
 		return apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
 	}
@@ -968,9 +964,6 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_reply_count' : '_bbp_forum_total_reply_count', true );
 
-		if ( '' === $replies )
-			$replies = bbp_update_forum_reply_count( $forum_id, $total_count );
-
 		return apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
 	}
 
@@ -1002,9 +995,6 @@ function bbp_forum_voice_count( $forum_id = 0 ) {
 	function bbp_get_forum_voice_count( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$voices   = get_post_meta( $forum_id, '_bbp_forum_voice_count', true );
-
-		if ( '' === $voices )
-			$voices = bbp_update_forum_voice_count( $forum_id );
 
 		return apply_filters( 'bbp_get_forum_voice_count', (int) $voices, $forum_id );
 	}

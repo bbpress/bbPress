@@ -736,9 +736,10 @@ function bbp_reply_author_id( $reply_id = 0 ) {
 	 * @return string Author id of reply
 	 */
 	function bbp_get_reply_author_id( $reply_id = 0 ) {
-		$reply_id = bbp_get_reply_id( $reply_id );
+		$reply_id  = bbp_get_reply_id( $reply_id );
+		$author_id = get_post_field( 'post_author', $reply_id );
 
-		return apply_filters( 'bbp_get_reply_author_id', get_post_field( 'post_author', $reply_id ), $reply_id );
+		return apply_filters( 'bbp_get_reply_author_id', (int) $author_id, $reply_id );
 	}
 
 /**
@@ -995,7 +996,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = get_post_field( 'post_parent', $reply_id );
 
-		return apply_filters( 'bbp_get_reply_topic_id', $topic_id, $reply_id );
+		return apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
 	}
 
 /**
