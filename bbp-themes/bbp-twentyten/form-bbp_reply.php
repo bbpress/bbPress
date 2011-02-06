@@ -64,11 +64,13 @@
 
 							<p>
 								<?php if ( bbp_is_reply_edit() && $post->post_author != bbp_get_current_user_id() ) : ?>
-									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( $post->post_author, bbp_get_reply_topic_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
+
+									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( $post->post_author, bbp_get_topic_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify the author of follow-up replies via email', 'bbpress' ); ?></label>
 
 								<?php else : ?>
-									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( bbp_get_user_id( 0, false, true ), bbp_get_reply_topic_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
+
+									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( bbp_get_user_id( 0, false, true ), bbp_get_topic_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
 
 								<?php endif; ?>
