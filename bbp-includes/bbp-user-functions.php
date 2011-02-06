@@ -432,7 +432,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
 
 	// If user has subscriptions, load them
 	if ( $subscriptions = bbp_get_user_subscribed_topic_ids( $user_id ) ) {
-		$query      = bbp_has_topics( array( 'post__in' => $subscriptions ) );
+		$query = bbp_has_topics( array( 'post__in' => $subscriptions ) );
 		return apply_filters( 'bbp_get_user_subscriptions', $query, $user_id );
 	}
 
