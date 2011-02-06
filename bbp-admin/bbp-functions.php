@@ -178,13 +178,18 @@ function bbp_recount_forum_topics() {
 	$statement = __( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` IN ( '_bbp_forum_topic_count', '_bbp_forum_total_topic_count' );";
+	$sql_delete = "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ( '_bbp_forum_topic_count', '_bbp_forum_total_topic_count' );";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_forum_topic_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->topic_id}' AND `post_status` IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) GROUP BY `post_parent`);";
-	if ( is_wp_error( $wpdb->query( $sql ) ) )
+	if ( $forums = get_posts( array( 'post_type' => $bbp->forum_id, 'numberposts' => -1 ) ) ) {
+		foreach( $forums as $forum ) {
+			bbp_update_forum_topic_count( $forum->ID );
+			bbp_update_forum_topic_count( $forum->ID, true );
+		}
+	} else {
 		return array( 2, sprintf( $statement, $result ) );
+	}
 
 	$result = __( 'Complete!', 'bbpress' );
 	return array( 0, sprintf( $statement, $result ) );
@@ -211,9 +216,14 @@ function bbp_recount_forum_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_forum_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
-	if ( is_wp_error( $wpdb->query( $sql ) ) )
+	if ( $forums = get_posts( array( 'post_type' => $bbp->forum_id, 'numberposts' => -1 ) ) ) {
+		foreach( $forums as $forum ) {
+			bbp_update_forum_reply_count( $forum->ID );
+			bbp_update_forum_reply_count( $forum->ID, true );
+		}
+	} else {
 		return array( 2, sprintf( $statement, $result ) );
+	}
 
 	$result = __( 'Complete!', 'bbpress' );
 	return array( 0, sprintf( $statement, $result ) );
