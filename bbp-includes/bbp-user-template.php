@@ -56,7 +56,6 @@ function bbp_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 		return apply_filters( 'bbp_get_user_id', (int) $bbp_user_id );
 	}
 
-
 /**
  * Output ID of current user
  *
@@ -545,7 +544,7 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 	 * @return string Permanent link to user subscriptions page
 	 */
 	function bbp_get_subscriptions_permalink( $user_id = 0 ) {
-		return apply_filters( 'bbp_get_favorites_permalink', bbp_get_user_profile_url( $user_id ), $user_id );
+		return apply_filters( 'bbp_get_subscriptions_permalink', bbp_get_user_profile_url( $user_id ), $user_id );
 	}
 
 /**
