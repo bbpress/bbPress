@@ -238,7 +238,7 @@ function bbp_recount_user_topics_replied() {
 	$statement = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '{bbp_get_reply_post_type()}' AND `post_status` = 'publish' GROUP BY `post_author`;";
+	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = 'publish' GROUP BY `post_author`;";
 	$insert_rows = $wpdb->get_results( $sql_select );
 
 	if ( is_wp_error( $insert_rows ) )
@@ -580,7 +580,7 @@ function bbp_recount_clean_favorites() {
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'bbp_get_topic_post_type()' AND `post_status` = 'publish';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'publish';" );
 
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
@@ -638,7 +638,7 @@ function bbp_recount_clean_subscriptions() {
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'bbp_get_topic_post_type()' AND `post_status` = 'publish';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'publish';" );
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
 
