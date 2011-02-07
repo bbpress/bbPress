@@ -508,7 +508,10 @@ class BBP_Replies_Widget extends WP_Widget {
 
 					<li>
 
-						<?php /* translators: bbpress replies widget: 1: reply author, 2: reply link, 3: reply date, 4: reply time */ printf( _x( $show_date == 'on' ? '%1$s on %2$s, %3$s, %4$s' : '%1$s on %2$s', 'widgets', 'bbpress' ), bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author() ) ), '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url() ) . '" title="' . bbp_get_reply_excerpt( bbp_get_reply_id(), 50 ) . '">' . bbp_get_reply_topic_title() . '</a>', get_the_date(), get_the_time() ); ?>
+						<?php
+						/* translators: bbpress replies widget: 1: reply author, 2: reply link, 3: reply date, 4: reply time */
+						printf( _x( $show_date == 'on' ? '%1$s on %2$s, %3$s, %4$s' : '%1$s on %2$s', 'widgets', 'bbpress' ), bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author_display_name() ) ), '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url() ) . '" title="' . bbp_get_reply_excerpt( bbp_get_reply_id(), 50 ) . '">' . bbp_get_reply_topic_title() . '</a>', get_the_date(), get_the_time() );
+						?>
 
 					</li>
 
