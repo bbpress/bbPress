@@ -986,8 +986,6 @@ function bbp_forum_voice_count( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum voice count
-	 * @uses bbp_update_forum_voice_count() To update the voice count if
-	 *                                       needed
 	 * @uses apply_filters() Calls 'bbp_get_forum_voice_count' with the
 	 *                        voice count and forum id
 	 * @return int Forum voice count
