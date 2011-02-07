@@ -256,7 +256,7 @@ function bb_get_tag( $id, $user_id = 0, $topic_id = 0 ) {
 	}
 
 	if ( !$term )
-		$term = $wp_taxonomy_object->get_term_by( 'term_id', $tt_id, 'bb_topic_tag' );
+		$term = $wp_taxonomy_object->get_term_by( 'tt_id', $tt_id, 'bb_topic_tag' );
 
 	_bb_make_tag_compat( $term );
 
