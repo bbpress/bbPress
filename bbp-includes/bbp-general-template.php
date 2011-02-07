@@ -44,13 +44,13 @@ function bbp_footer() {
 function bbp_is_forum() {
 	global $wp_query, $bbp;
 
-	if ( is_singular( $bbp->forum_id ) )
+	if ( is_singular( bbp_get_forum_post_type() ) )
 		return true;
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->forum_id === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && bbp_get_forum_post_type() === $wp_query->query_vars['post_type'] )
 		return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && $bbp->forum_id === $_GET['post_type'] )
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_forum_post_type() === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -72,13 +72,13 @@ function bbp_is_topic() {
 	if ( bbp_is_topic_edit() )
 		return false;
 
-	if ( is_singular( $bbp->topic_id ) )
+	if ( is_singular( bbp_get_topic_post_type() ) )
 		return true;
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->topic_id === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && bbp_get_topic_post_type() === $wp_query->query_vars['post_type'] )
 		return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && $bbp->topic_id === $_GET['post_type'] )
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_topic_post_type() === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -149,13 +149,13 @@ function bbp_is_reply() {
 	if ( bbp_is_reply_edit() )
 		return false;
 
-	if ( is_singular( $bbp->reply_id ) )
+	if ( is_singular( bbp_get_reply_post_type() ) )
 		return true;
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && $bbp->reply_id === $wp_query->query_vars['post_type'] )
+	if ( isset( $wp_query->query_vars['post_type'] ) && bbp_get_reply_post_type() === $wp_query->query_vars['post_type'] )
 		return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && $bbp->reply_id === $_GET['post_type'] )
+	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_reply_post_type() === $_GET['post_type'] )
 		return true;
 
 	return false;
@@ -489,7 +489,7 @@ function bbp_dropdown( $args = '' ) {
 	 * @since bbPress (r2746)
 	 *
 	 * @param mixed $args The function supports these args:
-	 *  - post_type: Post type, defaults to $bbp->forum_id (bbp_forum)
+	 *  - post_type: Post type, defaults to bbp_get_forum_post_type() (bbp_forum)
 	 *  - selected: Selected ID, to not have any value as selected, pass
 	 *               anything smaller than 0 (due to the nature of select
 	 *               box, the first value would of course be selected -
@@ -528,7 +528,7 @@ function bbp_dropdown( $args = '' ) {
 		global $bbp;
 
 		$defaults = array (
-			'post_type'          => $bbp->forum_id,
+			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
 			'child_of'           => '0',
@@ -557,11 +557,11 @@ function bbp_dropdown( $args = '' ) {
 		if ( empty( $r['selected'] ) ) {
 
 			// We're getting forums
-			if ( $r['post_type'] == $bbp->forum_id ) {
+			if ( $r['post_type'] == bbp_get_forum_post_type() ) {
 				$r['selected'] = bbp_get_forum_id();
 
 			// We're getting topics
-			} elseif ( $r['post_type'] == $bbp->topic_id ) {
+			} elseif ( $r['post_type'] == bbp_get_topic_post_type() ) {
 				$r['selected'] = bbp_get_topic_id();
 			}
 		}
@@ -589,9 +589,9 @@ function bbp_dropdown( $args = '' ) {
 		$retval    = '';
 
 		// @todo - write a better get_ function
-		if ( $r['post_type'] == $bbp->forum_id )
+		if ( $r['post_type'] == bbp_get_forum_post_type() )
 			$posts = get_pages( $r );
-		elseif ( $r['post_type'] == $bbp->topic_id )
+		elseif ( $r['post_type'] == bbp_get_topic_post_type() )
 			$posts = get_posts( $r );
 
 		// Make a drop down if we found posts
@@ -610,7 +610,7 @@ function bbp_dropdown( $args = '' ) {
 		// Display feedback
 		} else {
 			// @todo - No nested ternaries
-			$retval .= !empty( $none_found ) ? $none_found : ( $post_type == $bbp->topic_id ? __( 'No topics to post to!', 'bbpress' ) : ( $post_type == $bbp->forum_id ? __( 'No forums to post to!', 'bbpress' ) : __( 'No posts found!', 'bbpress' ) ) );
+			$retval .= !empty( $none_found ) ? $none_found : ( $post_type == bbp_get_topic_post_type() ? __( 'No topics to post to!', 'bbpress' ) : ( $post_type == bbp_get_forum_post_type() ? __( 'No forums to post to!', 'bbpress' ) : __( 'No posts found!', 'bbpress' ) ) );
 		}
 
 		return apply_filters( 'bbp_get_dropdown', $retval, $args );
@@ -973,17 +973,17 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 			// Switch through post_type to ensure correct filters are applied
 			switch ( $parent->post_type ) {
 				// Forum
-				case $bbp->forum_id :
+				case bbp_get_forum_post_type() :
 					$breadcrumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '">' . bbp_get_forum_title( $parent->ID ) . '</a>';
 					break;
 
 				// Topic
-				case $bbp->topic_id :
+				case bbp_get_topic_post_type() :
 					$breadcrumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '">' . bbp_get_topic_title( $parent->ID ) . '</a>';
 					break;
 
 				// Reply (Note: not in most themes)
-				case $bbp->reply_id :
+				case bbp_get_reply_post_type() :
 					$breadcrumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '">' . bbp_get_reply_title( $parent->ID ) . '</a>';
 					break;
 

@@ -49,9 +49,8 @@
 								<label for="bbp_topic_split_option_existing"><?php _e( 'Use an existing topic in this forum:', 'bbpress' ); ?></label>
 
 								<?php
-									global $bbp;
 									bbp_dropdown( array(
-										'post_type'   => $bbp->topic_id,
+										'post_type'   => bbp_get_topic_post_type(),
 										'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ),
 										'selected'    => -1,
 										'exclude'     => bbp_get_topic_id(),

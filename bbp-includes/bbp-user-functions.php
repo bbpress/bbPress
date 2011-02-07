@@ -218,7 +218,7 @@ function bbp_get_user_favorites( $user_id = 0 ) {
  * @return bool True if the topic is in user's favorites, otherwise false
  */
 function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
-	global $post, $bbp;
+	global $post;
 
 	if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 		return false;
@@ -478,7 +478,7 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
  * @return bool True if the topic is in user's subscriptions, otherwise false
  */
 function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
-	global $bbp, $post;
+	global $post;
 
 	if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 		return false;

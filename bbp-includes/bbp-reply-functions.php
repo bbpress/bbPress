@@ -7,6 +7,52 @@
  * @subpackage Functions
  */
 
+/**
+ * Update the reply with its forum ID it is in
+ *
+ * @since bbPress (r2855)
+ *
+ * @param int $reply_id Optional. Reply id to update
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses update_post_meta() To update the reply forum id meta
+ * @return bool True on success, false on failure
+ */
+function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Update the last reply ID
+	if ( !empty( $reply_id ) )
+		return update_post_meta( $reply_id, '_bbp_reply_forum_id', $forum_id );
+
+	return false;
+}
+
+/**
+ * Update the reply with its topic ID it is in
+ *
+ * @since bbPress (r2855)
+ *
+ * @param int $reply_id Optional. Reply id to update
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses update_post_meta() To update the reply topic id meta
+ * @return bool True on success, false on failure
+ */
+function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// Update the last reply ID
+	if ( !empty( $reply_id ) )
+		return update_post_meta( $reply_id, '_bbp_reply_topic_id', $topic_id );
+
+	return false;
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -97,7 +143,7 @@ function bbp_new_reply_handler() {
 			$bbp->errors->add( 'bbp_reply_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 
 		// Check for duplicate
-		if ( !bbp_check_for_duplicate( array( 'post_type' => $bbp->reply_id, 'post_author' => $reply_author, 'post_content' => $reply_content, 'post_parent' => $topic_id, 'anonymous_data' => $anonymous_data ) ) )
+		if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_reply_post_type(), 'post_author' => $reply_author, 'post_content' => $reply_content, 'post_parent' => $topic_id, 'anonymous_data' => $anonymous_data ) ) )
 			$bbp->errors->add( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
 		// Handle Tags
@@ -118,7 +164,7 @@ function bbp_new_reply_handler() {
 				'post_content' => $reply_content,
 				'post_parent'  => $topic_id,
 				'post_status'  => 'publish',
-				'post_type'    => $bbp->reply_id
+				'post_type'    => bbp_get_reply_post_type()
 			);
 
 			// Insert reply
@@ -285,9 +331,7 @@ function bbp_edit_reply_handler() {
  * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
  * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
  */
-function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
-	global $bbp;
-
+function bbp_reply_updater( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
 	// Validate the ID's passed from 'bbp_new_reply' action
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -295,14 +339,17 @@ function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();
 
-	// If anonymous post, store name, email, website and ip in post_meta. It expects anonymous_data to be sanitized. Check bbp_filter_anonymous_post_data() for sanitization.
+	// If anonymous post, store name, email, website and ip in post_meta.
+	// It expects anonymous_data to be sanitized.
+	// Check bbp_filter_anonymous_post_data() for sanitization.
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
 		extract( $anonymous_data );
 
 		update_post_meta( $reply_id, '_bbp_anonymous_name',  $bbp_anonymous_name,  false );
 		update_post_meta( $reply_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
 
-		// Set transient for throttle check and update ip address meta (only when the reply is not being edited)
+		// Set transient for throttle check and update ip address meta
+		// (only when the reply is not being edited)
 		if ( empty( $is_edit ) ) {
 			update_post_meta( $reply_id, '_bbp_anonymous_ip', $bbp_anonymous_ip, false );
 			set_transient( '_bbp_' . $bbp_anonymous_ip . '_last_posted', time() );
@@ -318,7 +365,7 @@ function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0
 
 	// Handle Subscription Checkbox
 	if ( bbp_is_subscriptions_active() && !empty( $author_id ) ) {
-		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id ) ? true : false;
+		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
 		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ? true : false;
 
 		// Subscribed and unsubscribing
@@ -330,15 +377,34 @@ function bbp_new_reply_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0
 			bbp_add_user_subscription( $author_id, $topic_id );
 	}
 
+	// Update associated topic values if this is a new reply
 	if ( empty( $is_edit ) ) {
-		// Topic meta relating to most recent reply
-		bbp_update_topic_last_reply_id( $topic_id, $reply_id );
-		bbp_update_topic_last_active  ( $topic_id            );
+		// Last active time
+		$last_active = current_time( 'mysql' );
 
-		// Forum meta relating to most recent topic
-		bbp_update_forum_last_topic_id( $forum_id, $topic_id );
-		bbp_update_forum_last_reply_id( $forum_id, $reply_id );
-		bbp_update_forum_last_active  ( $forum_id            );
+		// Reply meta relating to reply position in tree
+		bbp_update_reply_forum_id   ( $reply_id, $forum_id );
+		bbp_update_reply_topic_id   ( $reply_id, $topic_id );
+
+		global $bbp;
+
+		foreach ( get_post_ancestors( $reply_id ) as $ancestor ) {
+			// Topic meta relating to most recent reply
+			if ( bbp_get_topic_post_type() == get_post_field( 'post_type', $ancestor ) ) {
+				bbp_update_topic_last_reply_id( $ancestor, $reply_id    );
+				bbp_update_topic_last_active  ( $ancestor, $last_active );
+				bbp_update_topic_reply_count  ( $ancestor               );
+				bbp_update_topic_voice_count  ( $ancestor               );
+
+			// Forum meta relating to most recent topic
+			} elseif ( bbp_get_forum_post_type() == get_post_field( 'post_type', $ancestor ) ) {
+				bbp_update_forum_last_topic_id( $ancestor, $topic_id    );
+				bbp_update_forum_last_reply_id( $ancestor, $reply_id    );
+				bbp_update_forum_last_active  ( $ancestor, $last_active );
+				bbp_update_forum_reply_count  ( $ancestor               );
+				bbp_update_forum_voice_count  ( $ancestor               );
+			}
+		}
 	}
 }
 
@@ -408,7 +474,7 @@ function bbp_toggle_reply_handler() {
 
 				switch ( $sub_action ) {
 					case 'trash':
-						check_ajax_referer( 'trash-' . $bbp->reply_id . '_' . $reply_id );
+						check_ajax_referer( 'trash-' . bbp_get_reply_post_type() . '_' . $reply_id );
 
 						$success = wp_trash_post( $reply_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
@@ -416,7 +482,7 @@ function bbp_toggle_reply_handler() {
 						break;
 
 					case 'untrash':
-						check_ajax_referer( 'untrash-' . $bbp->reply_id . '_' . $reply_id );
+						check_ajax_referer( 'untrash-' . bbp_get_reply_post_type() . '_' . $reply_id );
 
 						$success = wp_untrash_post( $reply_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
@@ -424,7 +490,7 @@ function bbp_toggle_reply_handler() {
 						break;
 
 					case 'delete':
-						check_ajax_referer( 'delete-' . $bbp->reply_id . '_' . $reply_id );
+						check_ajax_referer( 'delete-' . bbp_get_reply_post_type() . '_' . $reply_id );
 
 						$success = wp_delete_post( $reply_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );

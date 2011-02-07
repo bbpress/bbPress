@@ -7,6 +7,32 @@
  * @subpackage TemplateTags
  */
 
+/** Post Type *****************************************************************/
+
+/**
+ * Return the unique ID of the custom post type for forums
+ *
+ * @since bbPress (r2857)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_forum_post_type() {
+	echo bbp_get_forum_post_type();
+}
+	/**
+	 * Return the unique ID of the custom post type for forums
+	 *
+	 * @since bbPress (r2857)
+	 *
+	 * @global bbPress $bbp
+	 * @return string
+	 */
+	function bbp_get_forum_post_type() {
+		global $bbp;
+		return apply_filters( 'bbp_get_forum_post_type', $bbp->forum_post_type );
+	}
+
 /** Forum Loop ****************************************************************/
 
 /**
@@ -29,7 +55,7 @@ function bbp_has_forums( $args = '' ) {
 	global $wp_query, $bbp;
 
 	$default = array (
-		'post_type'      => $bbp->forum_id,
+		'post_type'      => bbp_get_forum_post_type(),
 		'post_parent'    => bbp_get_forum_id(),
 		'posts_per_page' => -1,
 		'orderby'        => 'menu_order',
@@ -148,15 +174,13 @@ function bbp_forum_id( $forum_id = 0 ) {
  * @return mixed Null if error or forum (in specified form) if success
  */
 function bbp_get_forum( $forum, $output = OBJECT, $filter = 'raw' ) {
-	global $bbp;
-
 	if ( empty( $forum ) || is_numeric( $forum ) )
 		$forum = bbp_get_forum_id( $forum );
 
 	if ( !$forum = get_post( $forum, OBJECT, $filter ) )
 		return $forum;
 
-	if ( $bbp->forum_id !== $forum->post_type )
+	if ( $forum->post_type !== bbp_get_forum_post_type() )
 		return null;
 
 	if ( $output == OBJECT ) {
@@ -419,14 +443,12 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  * @return mixed false if none, array of subs if yes
  */
 function bbp_forum_has_subforums( $args = '' ) {
-	global $bbp;
-
 	if ( is_numeric( $args ) )
 		$args = array( 'post_parent' => $args );
 
 	$default = array(
 		'post_parent' => 0,
-		'post_type'   => $bbp->forum_id,
+		'post_type'   => bbp_get_forum_post_type(),
 		'sort_column' => 'menu_order, post_title'
 	);
 
@@ -884,8 +906,6 @@ function bbp_forum_subforum_count( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the subforum count
-	 * @uses bbp_update_forum_subforum_count() To update the forum's
-	 *                                          subforum count if needed
 	 * @uses apply_filters() Calls 'bbp_get_forum_subforum_count' with the
 	 *                        subforum count and forum id
 	 * @return int Forum's subforum count

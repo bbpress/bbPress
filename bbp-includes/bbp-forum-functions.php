@@ -156,7 +156,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Update the last topic ID
-	if ( !empty( $topic_id ) )
+	if ( !empty( $forum_id ) )
 		return update_post_meta( $forum_id, '_bbp_forum_last_topic_id', $topic_id );
 
 	return false;
@@ -178,8 +178,8 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	// Update the last reply ID
-	if ( !empty( $reply_id ) )
+	// Update the last reply ID with what was passed
+	if ( !empty( $forum_id ) )
 		return update_post_meta( $forum_id, '_bbp_forum_last_reply_id', $reply_id );
 
 	return false;
@@ -190,80 +190,26 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
  *
  * @since bbPress (r2680)
  *
- * @param int $forum_id Optional. Forum id
+ * @param int $forum_id Optional. Topic id
  * @param string $new_time Optional. New time in mysql format
- * @uses bbp_forum_has_subforums() Get sub forums
- * @uses bbp_get_topic_forum_id() Get forum_id from possible topic_id
- * @uses get_posts() Get topics from the forum_id
- * @uses bbp_get_forum_id() Get the forum id
- * @uses current_time() Get the current time
- * @uses get_post_meta() Get the last active times of topics and forums
- * @uses update_post_meta() Update the forum's last active meta
- * @uses delete_post_meta() Delete last active meta if no topics exist
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_get_reply_forum_id() To get the reply forum id
+ * @uses current_time() To get the current time
+ * @uses update_post_meta() To update the forum last active meta
  * @return bool True on success, false on failure
  */
 function bbp_update_forum_last_active( $forum_id = 0, $new_time = '' ) {
-	global $wpdb, $bbp;
-
 	$forum_id = bbp_get_forum_id( $forum_id );
-	$sub_forum_time = $topic_time = $calculated_time = '';
 
-	// If it's a topic, then get the parent (forum id)
-	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) ) {
-		$topic_id = $forum_id;
-		$forum_id = bbp_get_topic_forum_id( $forum_id );
-	}
+	// Check time and use current if empty
+	if ( empty( $new_time ) )
+		$new_time = current_time( 'mysql' );
 
-	// No time was passed, so we need to do some calculating
-	if ( empty( $new_time ) ) {
+	// Update the last reply ID
+	if ( !empty( $forum_id ) )
+		update_post_meta( $forum_id, '_bbp_forum_last_active', $new_time );
 
-		// If forum has sub forums, loop through them and get the last active time
-		if ( $sub_forums = bbp_forum_has_subforums( $forum_id ) ) {
-
-			// Loop through sub forums
-			foreach( $sub_forums as $sub_forum ) {
-
-				// Get the sub forum last active time
-				$sub_forum_temp_time = get_post_meta( $sub_forum->ID, '_bbp_forum_last_active', true );
-
-				// Compare this sub forum time to the most recent, and assign to
-				// $sub_forum_time if it's more recent than the last
-				if ( strtotime( $sub_forum_temp_time ) > strtotime( $sub_forum_time ) ) {
-					$sub_forum_time = $sub_forum_temp_time;
-				}
-			}
-		}
-
-		// Load the most recent topic in this forum_id based on
-		// the '_bbp_topic_last_active' post_meta value
-		if ( $topics = get_posts( array( 'numberposts' => 1, 'post_parent' => $forum_id, 'post_type' => $bbp->topic_id, 'meta_key' => '_bbp_topic_last_active', 'orderby' => 'meta_value' ) ) )
-			$topic_time = get_post_meta( $topics[0]->ID, '_bbp_topic_last_active', true );
-
-		// Calculate a new time
-		if ( strtotime( $topic_time ) > strtotime( $sub_forum_time ) )
-			$calculated_time = $topic_time;
-		else
-			$calculated_time = $sub_forum_time;
-
-	// Specific time was passed, so skip calculations
-	} else {
-		$calculated_time = $new_time;
-	}
-
-	// No forums or topics in this forum_id, so delete the meta entries
-	if ( empty( $calculated_time ) ) {
-		delete_post_meta( $forum_id, '_bbp_forum_last_active'   );
-		delete_post_meta( $forum_id, '_bbp_forum_last_topic_id' );
-
-	// Update the forum last active time
-	} else
-		update_post_meta( $forum_id, '_bbp_forum_last_active', $calculated_time );
-
-	// Walk up ancestors
-	if ( $parent_id = bbp_get_forum_parent( $forum_id ) )
-		bbp_update_forum_last_active( $parent_id );
-
-	return apply_filters( 'bbp_update_forum_last_active', $calculated_time, $forum_id );
+	return apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
 }
 
 /**
@@ -277,8 +223,12 @@ function bbp_update_forum_last_active( $forum_id = 0, $new_time = '' ) {
  * @uses bbp_get_forum_id() To get the forum id
  * @return bool True on success, false on failure
  */
-function bbp_update_forum_subforum_count( $forum_id = 0 ) {
+function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Update the last reply ID
+	if ( !empty( $forum_id ) )
+		update_post_meta( $forum_id, '_bbp_forum_subforum_count', $subforums );
 
 	return false;
 }
@@ -301,38 +251,20 @@ function bbp_update_forum_subforum_count( $forum_id = 0 ) {
  * @uses update_post_meta() To update the forum's topic count meta
  * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the topic
  *                        count, forum id and total count bool
- * @return int Forum topic count
  */
-function bbp_update_forum_topic_count( $forum_id = 0, $total_count = true ) {
+function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	global $wpdb, $bbp;
 
 	$forum_id = bbp_get_forum_id( $forum_id );
+	$children_topic_count = 0;
 
-	// If it's a topic, then get the parent (forum id)
-	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) ) {
-		$topic_id = $forum_id;
-		$forum_id = bbp_get_topic_forum_id( $forum_id );
-	}
+	// Get total topics for this forum
+	$topics = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
 
-	$topics   = $children_topic_count = 0;
-	$children = get_posts( array( 'post_parent' => $forum_id, 'post_type' => $bbp->forum_id, 'meta_key' => '_bbp_forum_visibility', 'meta_value' => 'public' ) );
-
-	// Loop through children and add together forum topic counts
-	foreach ( (array) $children as $child )
-		$children_topic_count += (int) bbp_get_forum_topic_count( $child->ID );
-
-	// Don't count topics if the forum is a category
-	if ( !bbp_is_forum_category( $forum_id ) ) {
-		if ( empty( $topic_id ) || !$topics = (int) get_post_meta( $forum_id, '_bbp_forum_topic_count', true ) ) {
-			$topics = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '" . $bbp->topic_id . "';", $forum_id ) );
-		} else {
-			if ( in_array( bbp_get_topic_status( $topic_id ), array( 'publish', $bbp->closed_status_id ) ) ) {
-				$topics++;
-			} else {
-				$topics--;
-			}
-		}
-	}
+	// Loop through subforums and add together forum topic counts
+	if ( $children = get_posts( array( 'post_parent' => $forum_id, 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) ) )
+		foreach ( (array) $children as $child )
+			$children_topic_count += bbp_update_forum_topic_count ( $child->ID );
 
 	// Calculate total topics in this forum
 	$total_topics = $topics + $children_topic_count;
@@ -341,91 +273,54 @@ function bbp_update_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	update_post_meta( $forum_id, '_bbp_forum_topic_count',       $topics       );
 	update_post_meta( $forum_id, '_bbp_forum_total_topic_count', $total_topics );
 
-	// Delete meta values if there are no topics in this forum
-	if ( empty( $total_topics ) ) {
-		delete_post_meta( $forum_id, '_bbp_forum_last_active'   );
-		delete_post_meta( $forum_id, '_bbp_forum_last_topic_id' );
-	}
-
-	// Walk up ancestors
-	if ( $parent_id = bbp_get_forum_parent( $forum_id ) )
-		bbp_update_forum_topic_count( $parent_id );
-
-	return apply_filters( 'bbp_update_forum_topic_count', empty( $total_count ) ? $topics : $total_topics, $forum_id, $total_count );
+	return apply_filters( 'bbp_update_forum_topic_count', $total_topics );
 }
 
 /**
- * Adjust the total reply count of a forum
- *
- * @todo Make this work
+ * Adjust the total topic count of a forum
  *
  * @since bbPress (r2464)
  *
- * @param int $forum_id Optional. Forum id or topic id reply id. It is checked
- *                       whether it is a reply or a topic or a forum and the
- *                       forum id is automatically retrieved.
+ * @param int $forum_id Optional. Forum id or topic id. It is checked whether it
+ *                       is a topic or a forum. If it's a topic, its parent,
+ *                       i.e. the forum is automatically retrieved.
  * @param bool $total_count Optional. To return the total count or normal
  *                           count?
- * @uses get_post_field() To check whether the supplied id is a reply
- * @uses bbp_get_reply_forum_id() To get the reply's forum id
+ * @uses get_post_field() To check whether the supplied id is a topic
  * @uses bbp_get_topic_forum_id() To get the topic's forum id
  * @uses wpdb::prepare() To prepare the sql statement
  * @uses wpdb::get_col() To execute the query and get the column back
- * @uses wpdb::get_var() To execute the query and get the var back
- * @uses bbp_get_reply_status() To get the reply status
- * @uses update_post_meta() To update the forum's reply count meta
- * @uses apply_filters() Calls 'bbp_update_forum_reply_count' with the reply
+ * @uses bbp_get_topic_status() To get the topic status
+ * @uses update_post_meta() To update the forum's topic count meta
+ * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the topic
  *                        count, forum id and total count bool
- * @return int Forum reply count
  */
-function bbp_update_forum_reply_count( $forum_id = 0, $total_count = true ) {
+function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	global $wpdb, $bbp;
 
 	$forum_id = bbp_get_forum_id( $forum_id );
-
-	// If it's a reply, then get the grandparent (forum id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) ) {
-		$reply_id = $forum_id;
-		$forum_id = bbp_get_reply_forum_id( $forum_id );
-	}
-
-	// If it's a topic, then get the parent (forum id)
-	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
-		$forum_id = bbp_get_topic_forum_id( $forum_id );
-
-	$replies  = $children_reply_count = 0;
-	$children = get_posts( array( 'post_parent' => $forum_id, 'post_type' => $bbp->forum_id, 'meta_key' => '_bbp_forum_visibility', 'meta_value' => 'public' ) );
-
-	// Loop through children and add together forum reply counts
-	foreach ( (array) $children as $child )
-		$children_reply_count += (int) bbp_get_forum_reply_count( $child->ID );
+	$children_reply_count = 0;
 
 	// Don't count replies if the forum is a category
-	if ( !bbp_is_forum_category( $forum_id ) ) {
-		if ( empty( $reply_id ) || !$replies = (int) get_post_meta( $forum_id, '_bbp_forum_reply_count', true ) ) {
-			$topics  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->topic_id . "';", $forum_id ) );
-			$replies = (int) !empty( $topics ) ? $wpdb->get_var( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topics ) . " ) AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';" ) : 0;
-		} else {
-			if ( 'publish' == bbp_get_reply_status( $reply_id ) ) {
-				$replies++;
-			} else {
-				$replies--;
-			}
-		}
+	if ( $topics = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) ) ) {
+		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topics ) . " ) AND post_status = 'publish' AND post_type = '%s';", bbp_get_reply_post_type() ) );
+	} else {
+		$reply_count = 0;
 	}
 
+	// Loop through children and add together forum reply counts
+	if ( $children = get_posts( array( 'post_parent' => $forum_id, 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) ) )
+		foreach ( (array) $children as $child )
+			$children_reply_count += bbp_update_forum_reply_count ( $child->ID );
+
 	// Calculate total replies in this forum
-	$total_replies = $replies + $children_reply_count;
+	$total_replies = $reply_count + $children_reply_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_reply_count',       $replies       );
+	update_post_meta( $forum_id, '_bbp_forum_reply_count',       $reply_count   );
 	update_post_meta( $forum_id, '_bbp_forum_total_reply_count', $total_replies );
 
-	// Walk up ancestors
-	if ( $parent = bbp_get_forum_parent( $forum_id ) )
-		bbp_update_forum_reply_count( $parent );
-
-	return apply_filters( 'bbp_update_forum_reply_count', empty( $total_count ) ? $replies : $total_replies, $forum_id, $total_count );
+	return apply_filters( 'bbp_update_forum_reply_count', $total_replies );
 }
 
 /**
@@ -450,16 +345,8 @@ function bbp_update_forum_voice_count( $forum_id = 0 ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $forum_id ) )
-		$forum_id = bbp_get_reply_topic_id( $forum_id );
-
-	// If it's a topic, then get the parent (forum id)
-	if ( $bbp->topic_id == get_post_field( 'post_type', $forum_id ) )
-		$forum_id = bbp_get_topic_forum_id( $forum_id );
-
 	// There should always be at least 1 voice
-	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->forum_id . "' );", $forum_id, $forum_id ) ) ) )
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . bbp_get_reply_post_type() . "' ) OR ( ID = %d AND post_type = '" . bbp_get_forum_post_type() . "' );", $forum_id, $forum_id ) ) ) )
 		$voices = 1;
 
 	// Update the count

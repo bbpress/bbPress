@@ -102,7 +102,7 @@ function bbp_new_topic_handler() {
 			$bbp->errors->add( 'bbp_topic_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
 
 		// Check for duplicate
-		if ( !bbp_check_for_duplicate( array( 'post_type' => $bbp->topic_id, 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) )
+		if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) )
 			$bbp->errors->add( 'bbp_topic_duplicate', __( '<strong>ERROR</strong>: Duplicate topic detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
 		// Handle Tags
@@ -133,7 +133,7 @@ function bbp_new_topic_handler() {
 				'post_parent'  => $forum_id,
 				'tax_input'    => $terms,
 				'post_status'  => 'publish',
-				'post_type'    => $bbp->topic_id
+				'post_type'    => bbp_get_topic_post_type()
 			);
 
 			// Insert reply
@@ -151,6 +151,7 @@ function bbp_new_topic_handler() {
 							bbp_stick_topic( $topic_id );
 
 							break;
+
 						case 'super'   :
 							bbp_stick_topic( $topic_id, true );
 
@@ -360,27 +361,31 @@ function bbp_edit_topic_handler() {
  * @uses bbp_is_user_subscribed() To check if the user is subscribed
  * @uses bbp_remove_user_subscription() To remove the user's subscription
  * @uses bbp_add_user_subscription() To add the user's subscription
+ * @uses bbp_update_topic_forum_id() To update the topic's forum id
  * @uses bbp_update_topic_last_active() To update the last active topic meta
  * @uses bbp_update_forum_last_active() To update the last active forum meta
  * @uses bbp_update_topic_last_reply_id() To update the last reply id topic meta
  * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
  * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
  */
-function bbp_new_topic_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
-	// Validate the ID's passed from 'bbp_new_reply' action
+function bbp_topic_updater( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
+	// Validate the ID's passed from 'bbp_new_topic' action
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();
 
-	// If anonymous post, store name, email, website and ip in post_meta. It expects anonymous_data to be sanitized. Check bbp_filter_anonymous_post_data() for sanitization.
+	// If anonymous post, store name, email, website and ip in post_meta.
+	// It expects anonymous_data to be sanitized.
+	// Check bbp_filter_anonymous_post_data() for sanitization.
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
 		extract( $anonymous_data );
 
 		update_post_meta( $topic_id, '_bbp_anonymous_name',  $bbp_anonymous_name,  false );
 		update_post_meta( $topic_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
 
-		// Set transient for throttle check and update ip address meta (only when the topic is not being edited)
+		// Set transient for throttle check and update ip address meta
+		// (only when the topic is not being edited)
 		if ( empty( $is_edit ) ) {
 			update_post_meta( $topic_id, '_bbp_anonymous_ip', $bbp_anonymous_ip, false );
 			set_transient( '_bbp_' . $bbp_anonymous_ip . '_last_posted', time() );
@@ -395,34 +400,40 @@ function bbp_new_topic_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_da
 	}
 
 	// Handle Subscription Checkbox
-	if ( bbp_is_subscriptions_active() ) {
-		if ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) {
-			bbp_add_user_subscription( $author_id, $topic_id );
-		}
-	}
-
-	// Handle Subscription Checkbox
 	if ( bbp_is_subscriptions_active() && !empty( $author_id ) ) {
+		$subscribed = bbp_is_user_subscribed( $author_id, $topic_id );
 		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ? true : false;
 
-		// Subscribed and unsubscribing and is a topic edit
-		if ( !empty( $is_edit ) && false == $subscheck && true == bbp_is_user_subscribed( $author_id, $topic_id ) )
+		// Subscribed and unsubscribing
+		if ( true == $subscribed && false == $subscheck )
 			bbp_remove_user_subscription( $author_id, $topic_id );
 
 		// Subscribing
-		elseif ( true == $subscheck && false == bbp_is_user_subscribed( $author_id, $topic_id ) )
+		elseif ( false == $subscribed && true == $subscheck )
 			bbp_add_user_subscription( $author_id, $topic_id );
 	}
 
+	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
-		// Topic meta relating to most recent topic
-		bbp_update_topic_last_reply_id( $topic_id, 0 );
-		bbp_update_topic_last_active  ( $topic_id    );
+		// Last active time
+		$last_active = current_time( 'mysql' );
 
-		// Forum meta relating to most recent topic
-		bbp_update_forum_last_topic_id( $forum_id, $topic_id );
-		bbp_update_forum_last_reply_id( $forum_id, 0         );
-		bbp_update_forum_last_active  ( $forum_id            );
+		// Topic meta relating to the forum this topic is in
+		bbp_update_topic_forum_id     ( $topic_id, $forum_id    );
+
+		// Topic meta relating to most recent topic
+		bbp_update_topic_last_reply_id( $topic_id, $topic_id    );
+		bbp_update_topic_last_active  ( $topic_id, $last_active );
+
+		global $bbp;
+
+		foreach ( get_post_ancestors( $topic_id ) as $ancestor ) {
+			if ( bbp_get_forum_post_type() == get_post_field( 'post_type', $ancestor ) ) {
+				bbp_update_forum_last_topic_id( $ancestor, $topic_id    );
+				bbp_update_forum_last_active  ( $ancestor, $last_active );
+				bbp_update_forum_topic_count  ( $ancestor               );
+			}
+		}
 	}
 }
 
@@ -529,7 +540,7 @@ function bbp_merge_topic_handler() {
 			bbp_unstick_topic( $source_topic->ID );
 
 			// Get the replies of the source topic
-			$replies = (array) get_posts( array( 'post_parent' => $source_topic->ID, 'post_type' => $bbp->reply_id, 'posts_per_page' => -1, 'order' => 'ASC' ) );
+			$replies = (array) get_posts( array( 'post_parent' => $source_topic->ID, 'post_type' => bbp_get_reply_post_type(), 'posts_per_page' => -1, 'order' => 'ASC' ) );
 
 			// Prepend the source topic to its replies array for processing
 			array_unshift( $replies, $source_topic );
@@ -540,9 +551,9 @@ function bbp_merge_topic_handler() {
 					'ID'          => $reply->ID,
 					'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
 					'post_name'   => false, // will be automatically generated
-					'post_type'   => $bbp->reply_id,
+					'post_type'   => bbp_get_reply_post_type(),
 					'post_parent' => $destination_topic->ID,
-					'guid'        => '' // @todo Make this work somehow
+					'guid'        => ''     // @todo Make this work somehow
 				);
 
 				wp_update_post( $postarr );
@@ -690,9 +701,9 @@ function bbp_split_topic_handler() {
 						'ID'          => $from_reply->ID,
 						'post_title'  => $destination_topic_title,
 						'post_name'   => false, // will be automatically generated
-						'post_type'   => $bbp->topic_id,
+						'post_type'   => bbp_get_topic_post_type(),
 						'post_parent' => $source_topic->post_parent,
-						'guid'        => '' // @todo Make this work somehow
+						'guid'        => ''     // @todo Make this work somehow
 					);
 
 					$destination_topic_id = wp_update_post( $postarr );
@@ -744,7 +755,7 @@ function bbp_split_topic_handler() {
 
 			// Get the replies of the source topic
 			// get_posts() is not used because it doesn't allow us to use '>=' comparision without a filter
-			$replies = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_date >= %s AND $wpdb->posts.post_parent = %d AND $wpdb->posts.post_type = %s ORDER BY $wpdb->posts.post_date ASC", $from_reply->post_date, $source_topic->ID, $bbp->reply_id ) );
+			$replies = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_date >= %s AND {$wpdb->posts}.post_parent = %d AND {$wpdb->posts}.post_type = %s ORDER BY {$wpdb->posts}.post_date ASC", $from_reply->post_date, $source_topic->ID, bbp_get_reply_post_type() ) );
 
 			// Change the post_parent of each reply to the destination topic id
 			foreach ( $replies as $reply ) {
@@ -1104,7 +1115,7 @@ function bbp_toggle_topic_handler() {
 
 				switch ( $sub_action ) {
 					case 'trash':
-						check_ajax_referer( 'trash-' . $bbp->topic_id . '_' . $topic_id );
+						check_ajax_referer( 'trash-' . bbp_get_topic_post_type() . '_' . $topic_id );
 
 						$success = wp_trash_post( $topic_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem trashing the topic!', 'bbpress' );
@@ -1112,7 +1123,7 @@ function bbp_toggle_topic_handler() {
 						break;
 
 					case 'untrash':
-						check_ajax_referer( 'untrash-' . $bbp->topic_id . '_' . $topic_id );
+						check_ajax_referer( 'untrash-' . bbp_get_topic_post_type() . '_' . $topic_id );
 
 						$success = wp_untrash_post( $topic_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the topic!', 'bbpress' );
@@ -1120,7 +1131,7 @@ function bbp_toggle_topic_handler() {
 						break;
 
 					case 'delete':
-						check_ajax_referer( 'delete-' . $bbp->topic_id . '_' . $topic_id );
+						check_ajax_referer( 'delete-' . bbp_get_topic_post_type() . '_' . $topic_id );
 
 						$success = wp_delete_post( $topic_id );
 						$failure = __( '<strong>ERROR</strong>: There was a problem deleting the topic!', 'bbpress' );
@@ -1210,6 +1221,29 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 /** Topic Updaters ************************************************************/
 
 /**
+ * Update the topic's forum ID
+ *
+ * @since bbPress (r2855)
+ *
+ * @param int $topic_id Optional. Topic id to update
+ * @param int $forum_id Optional. Reply id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses update_post_meta() To update the topic last forum id meta
+ * @return bool True on success, false on failure
+ */
+function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Update the last forum ID
+	if ( !empty( $topic_id ) && !empty( $forum_id ) )
+		return update_post_meta( $topic_id, '_bbp_topic_forum_id', $forum_id );
+
+	return false;
+}
+
+/**
  * Adjust the total reply count of a topic
  *
  * @since bbPress (r2467)
@@ -1230,12 +1264,8 @@ function bbp_update_topic_reply_count( $topic_id = 0 ) {
 
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
-
 	// Get replies of topic
-	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) ) );
 
 	// Update the count
 	update_post_meta( $topic_id, '_bbp_topic_reply_count', (int) $replies );
@@ -1265,11 +1295,11 @@ function bbp_update_topic_hidden_reply_count( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
+	if ( bbp_get_reply_post_type() == get_post_field( 'post_type', $topic_id ) )
 		$topic_id = bbp_get_reply_topic_id( $topic_id );
 
 	// Get replies of topic
-	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '" . $bbp->reply_id . "';", $topic_id ) ) );
+	$replies = count( $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) ) );
 
 	// Update the count
 	update_post_meta( $topic_id, '_bbp_topic_hidden_reply_count', (int) $replies );
@@ -1321,8 +1351,8 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
 	// Update the last reply ID
-	if ( !empty( $topic_id ) )
-		return update_post_meta( $topic_id, '_bbp_topic_last_reply_id', (int) $reply_id );
+	if ( !empty( $topic_id ) && !empty( $reply_id ) )
+		return update_post_meta( $topic_id, '_bbp_topic_last_reply_id', $reply_id );
 
 	return false;
 }
@@ -1349,15 +1379,15 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// If it is not a topic or reply, then we don't need it
-	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( $bbp->topic_id, $bbp->reply_id ) ) )
+	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) )
 		return false;
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $bbp->reply_id == get_post_field( 'post_type', $topic_id ) )
+	if ( bbp_get_reply_post_type() == get_post_field( 'post_type', $topic_id ) )
 		$topic_id = bbp_get_reply_topic_id( $topic_id );
 
 	// There should always be at least 1 voice
-	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM $wpdb->posts WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '" . $bbp->reply_id . "' ) OR ( ID = %d AND post_type = '" . $bbp->topic_id . "' );", $topic_id, $topic_id ) ) ) )
+	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", bbp_get_reply_post_type(), $topic_id, $topic_id, bbp_get_topic_post_type() ) ) ) )
 		$voices = 1;
 
 	// Update the count

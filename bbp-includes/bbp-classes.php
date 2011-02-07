@@ -203,9 +203,7 @@ class BBP_Walker_Forum extends Walker {
 	 * @since bbPress (r2514)
 	 */
 	function BBP_Walker_Forum() {
-		global $bbp;
-
-		$this->tree_type = $bbp->forum_id;
+		$this->tree_type = bbp_get_forum_post_type();
 	}
 
 	/**
@@ -328,9 +326,7 @@ class BBP_Walker_Dropdown extends Walker {
 	 * @since bbPress (r2746)
 	 */
 	function BBP_Walker_Dropdown() {
-		global $bbp;
-
-		$this->tree_type = $bbp->forum_id;
+		$this->tree_type = bbp_get_forum_post_type();
 	}
 
 	/**
@@ -353,13 +349,11 @@ class BBP_Walker_Dropdown extends Walker {
 	 *                        title, output, post, depth and args
 	 */
 	function start_el( &$output, $post, $depth, $args ) {
-		global $bbp;
-
 		$pad     = str_repeat( '&nbsp;', $depth * 3 );
 		$output .= "\t<option class=\"level-$depth\"";
 
 		// Disable the <option> if we're told to do so, the post type is bbp_forum and the forum is a category or is closed
-		if ( true == $args['disable_categories'] && $post->post_type == $bbp->forum_id && ( bbp_is_forum_category( $post->ID ) || ( !current_user_can( 'edit_forum', $post->ID ) && bbp_is_forum_closed( $post->ID ) ) ) )
+		if ( true == $args['disable_categories'] && $post->post_type == bbp_get_forum_post_type() && ( bbp_is_forum_category( $post->ID ) || ( !current_user_can( 'edit_forum', $post->ID ) && bbp_is_forum_closed( $post->ID ) ) ) )
 			$output .= ' disabled="disabled" value=""';
 		else
 			$output .= ' value="' .$post->ID .'"' . selected( $args['selected'], $post->ID, false );

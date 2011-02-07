@@ -45,17 +45,17 @@ class bbPress {
 	/**
 	 * @var string Forum post type id
 	 */
-	var $forum_id;
+	var $forum_post_type;
 
 	/**
 	 * @var string Topic post type id
 	 */
-	var $topic_id;
+	var $topic_post_type;
 
 	/**
 	 * @var string Reply post type id
 	 */
-	var $reply_id;
+	var $reply_post_type;
 
 	/** Post status ***********************************************************/
 
@@ -259,9 +259,9 @@ class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
-		$this->forum_id         = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
-		$this->topic_id         = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
-		$this->reply_id         = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
+		$this->forum_post_type  = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
+		$this->topic_post_type  = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
+		$this->reply_post_type  = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
 		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
 
 		// Status identifiers
@@ -470,7 +470,7 @@ class bbPress {
 		) );
 
 		// Register Forum content type
-		register_post_type( $this->forum_id, $bbp_cpt['forum'] );
+		register_post_type( $this->forum_post_type, $bbp_cpt['forum'] );
 
 		/** TOPICS ************************************************************/
 
@@ -523,7 +523,7 @@ class bbPress {
 		) );
 
 		// Register Topic content type
-		register_post_type( $this->topic_id, $bbp_cpt['topic'] );
+		register_post_type( $this->topic_post_type, $bbp_cpt['topic'] );
 
 		/** REPLIES ***********************************************************/
 
@@ -576,7 +576,7 @@ class bbPress {
 		) );
 
 		// Register reply content type
-		register_post_type( $this->reply_id, $bbp_cpt['reply'] );
+		register_post_type( $this->reply_post_type, $bbp_cpt['reply'] );
 	}
 
 	/**
@@ -670,8 +670,8 @@ class bbPress {
 
 		// Register the topic tag taxonomy
 		register_taxonomy(
-			$this->topic_tag_id, // The topic tag id
-			$this->topic_id,     // The topic post type
+			$this->topic_tag_id,    // The topic tag id
+			$this->topic_post_type, // The topic post type
 			$bbp_tt
 		);
 	}
@@ -749,8 +749,8 @@ class bbPress {
 	function generate_rewrite_rules( $wp_rewrite ) {
 		$bbp_rules = array(
 			// Edit Pages
-			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->user_slug  . '/([^/]+)/edit/?$' => 'index.php?bbp_user='                . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// @todo - favorites feeds

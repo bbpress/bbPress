@@ -7,6 +7,32 @@
  * @subpackage TemplateTags
  */
 
+/** Post Type *****************************************************************/
+
+/**
+ * Return the unique ID of the custom post type for topics
+ *
+ * @since bbPress (r2857)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_topic_post_type() {
+	echo bbp_get_topic_post_type();
+}
+	/**
+	 * Return the unique ID of the custom post type for topics
+	 *
+	 * @since bbPress (r2857)
+	 *
+	 * @global bbPress $bbp
+	 * @return string
+	 */
+	function bbp_get_topic_post_type() {
+		global $bbp;
+		return apply_filters( 'bbp_get_topic_post_type', $bbp->topic_post_type );
+	}
+
 /** Topic Loop ****************************************************************/
 
 /**
@@ -39,7 +65,7 @@ function bbp_has_topics( $args = '' ) {
 
 	$default = array (
 		// Narrow query down to bbPress topics
-		'post_type'            => $bbp->topic_id,
+		'post_type'            => bbp_get_topic_post_type(),
 
 		// Forum ID
 		'post_parent'          => bbp_get_forum_id(),
@@ -137,7 +163,7 @@ function bbp_has_topics( $args = '' ) {
 
 				// Get all stickies
 				$stickies__in   = implode( ',', array_map( 'absint', $stickies ) );
-				$stickies_where = "AND $wpdb->posts.post_type = '$bbp->topic_id'";
+				$stickies_where = "AND $wpdb->posts.post_type = '" . bbp_get_topic_post_type() . "'";
 				$stickies       = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_status = 'publish' AND $wpdb->posts.ID IN ($stickies__in) $stickies_where" );
 				$sticky_count   = count( $stickies );
 
@@ -303,7 +329,6 @@ function bbp_topic_id( $topic_id = 0) {
  * @return mixed Null if error or topic (in specified form) if success
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
-	global $bbp;
 
 	if ( empty( $topic ) || is_numeric( $topic ) )
 		$topic = bbp_get_topic_id( $topic );
@@ -311,7 +336,7 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 	if ( !$topic = get_post( $topic, OBJECT, $filter ) )
 		return $topic;
 
-	if ( $bbp->topic_id !== $topic->post_type )
+	if ( $topic->post_type !== bbp_get_topic_post_type() )
 		return null;
 
 	if ( $output == OBJECT ) {
@@ -508,7 +533,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_revisions() To get the topic revisions
 	 * @uses bbp_get_topic_raw_revision_log() To get the raw revision log
-	 * @uses bbp_get_topic_author() To get the topic author
+	 * @uses bbp_get_topic_author_display_name() To get the topic author
 	 * @uses bbp_get_topic_author_link() To get the topic author link
 	 * @uses bbp_convert_date() To convert the date
 	 * @uses bbp_get_time_since() To get the time in since format
@@ -538,7 +563,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 				$reason    = $revision_log[$revision->ID]['reason'];
 			}
 
-			$author = bbp_get_topic_author_link( array( 'link_text' => bbp_get_topic_author( $revision->ID ), 'topic_id' => $revision->ID ) );
+			$author = bbp_get_topic_author_link( array( 'link_text' => bbp_get_topic_author_display_name( $revision->ID ), 'topic_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item-' . $revision->ID . '" class="bbp-topic-revision-log-item">' . "\n";
@@ -826,7 +851,7 @@ function bbp_topic_author( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		if ( !bbp_is_topic_anonymous( $topic_id ) )
-			$author = get_the_author();
+			$author = get_the_author_meta( 'display_name', bbp_get_topic_author_id( $topic_id ) );
 		else
 			$author = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
 
@@ -967,11 +992,10 @@ function bbp_topic_author_link( $args = '' ) {
 	 *                         Optional.
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_is_topic() To check if it's the topic page
-	 * @uses bbp_get_topic_author() To get the topic author
+	 * @uses bbp_get_topic_author_display_name() To get the topic author
 	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
 	 *                                 anonymous user
 	 * @uses bbp_get_topic_author_avatar() To get the topic author avatar
-	 * @uses bbp_get_topic_author() To get the topic author
 	 * @uses bbp_get_topic_author_url() To get the topic author url
 	 * @uses apply_filters() Calls 'bbp_get_topic_author_link' with the link
 	 *                        and args
@@ -997,12 +1021,12 @@ function bbp_topic_author_link( $args = '' ) {
 
 		if ( !empty( $topic_id ) ) {
 			if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_topic() ) )
-				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author( $topic_id ) );
+				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
 
 			if ( empty( $link_text ) && ( bbp_is_topic() || bbp_is_topic() ) )
 				$link_text = bbp_get_topic_author_avatar( $topic_id, 80 );
 			else
-				$link_text = bbp_get_topic_author( $topic_id );
+				$link_text = bbp_get_topic_author_display_name( $topic_id );
 
 			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
 
@@ -1117,7 +1141,13 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$forum_id = get_post_field( 'post_parent', $topic_id );
+		$forum_id = get_post_meta( $topic_id, '_bbp_topic_forum_id', true );
+
+		// Fallback to post_parent if no meta exists, and set post meta
+		if ( empty( $forum_id ) ) {
+			$forum_id = get_post_field( 'post_parent', $topic_id );
+			bbp_update_topic_forum_id( $topic_id, $forum_id );
+		}
 
 		return apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
 	}
@@ -1743,7 +1773,7 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 			return;
 
 		if ( empty( $wp_rewrite->permalink_structure ) ) {
-			$url = add_query_arg( array( $bbp->topic_id => $topic->post_name, 'edit' => '1' ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, 'edit' => '1' ), home_url( '/' ) );
 		} else {
 			$url = $wp_rewrite->front . $bbp->topic_slug . '/' . $topic->post_name . '/edit';
 			$url = home_url( user_trailingslashit( $url ) );

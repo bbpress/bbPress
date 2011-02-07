@@ -467,8 +467,6 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 	 * @return string User favorites link
 	 */
 	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
-		global $bbp;
-
 		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 			return false;
 
@@ -583,8 +581,6 @@ function bbp_user_subscribe_link( $args = '' ) {
 	 * @return string Permanent link to topic
 	 */
 	function bbp_get_user_subscribe_link( $args = '', $user_id = 0 ) {
-		global $bbp;
-
 		if ( !bbp_is_subscriptions_active() )
 			return;
 

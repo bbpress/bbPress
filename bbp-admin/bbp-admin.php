@@ -35,7 +35,6 @@ class BBP_Admin {
 	 * @uses add_filter() To add various filters
 	 */
 	function _setup_actions() {
-		global $bbp;
 
 		/** General Actions *******************************************/
 
@@ -80,20 +79,20 @@ class BBP_Admin {
 		add_action( 'save_post',                   array( $this, 'forum_attributes_metabox_save' ) );
 
 		// Forum column headers.
-		add_filter( 'manage_' . $bbp->forum_id . '_posts_columns',  array( $this, 'forums_column_headers' ) );
+		add_filter( 'manage_' . bbp_get_forum_post_type() . '_posts_columns',        array( $this, 'forums_column_headers' ) );
 
 		// Forum columns (in page row)
-		add_action( 'manage_' . $bbp->forum_id . '_posts_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
-		add_filter( 'page_row_actions',                                   array( $this, 'forums_row_actions' ), 10, 2 );
+		add_action( 'manage_' . bbp_get_forum_post_type() . '_posts_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
+		add_filter( 'page_row_actions',                                              array( $this, 'forums_row_actions' ), 10, 2 );
 
 		/** Topics ****************************************************/
 
 		// Topic column headers.
-		add_filter( 'manage_' . $bbp->topic_id . '_posts_columns',  array( $this, 'topics_column_headers' ) );
+		add_filter( 'manage_' . bbp_get_topic_post_type() . '_posts_columns',        array( $this, 'topics_column_headers' ) );
 
 		// Topic columns (in post row)
-		add_action( 'manage_' . $bbp->topic_id . '_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                   array( $this, 'topics_row_actions' ), 10, 2 );
+		add_action( 'manage_' . bbp_get_topic_post_type() . '_posts_custom_column',  array( $this, 'topics_column_data' ), 10, 2 );
+		add_filter( 'post_row_actions',                                              array( $this, 'topics_row_actions' ), 10, 2 );
 
 		// Topic metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'topic_attributes_metabox'      ) );
@@ -106,10 +105,10 @@ class BBP_Admin {
 		/** Replies ***************************************************/
 
 		// Reply column headers.
-		add_filter( 'manage_' . $bbp->reply_id . '_posts_columns',  array( $this, 'replies_column_headers' ) );
+		add_filter( 'manage_' . bbp_get_reply_post_type() . '_posts_columns',  array( $this, 'replies_column_headers' ) );
 
 		// Reply columns (in post row)
-		add_action( 'manage_' . $bbp->reply_id . '_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
+		add_action( 'manage_' . bbp_get_reply_post_type() . '_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
 		add_filter( 'post_row_actions',                                   array( $this, 'replies_row_actions' ), 10, 2 );
 
 		// Reply metabox actions
@@ -330,13 +329,11 @@ class BBP_Admin {
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
 	function forum_attributes_metabox() {
-		global $bbp;
-
 		add_meta_box (
 			'bbp_forum_attributes',
 			__( 'Forum Attributes', 'bbpress' ),
 			'bbp_forum_metabox',
-			$bbp->forum_id,
+			bbp_get_forum_post_type(),
 			'side',
 			'high'
 		);
@@ -416,13 +413,11 @@ class BBP_Admin {
 	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
 	function topic_attributes_metabox() {
-		global $bbp;
-
 		add_meta_box (
 			'bbp_topic_attributes',
 			__( 'Topic Attributes', 'bbpress' ),
 			'bbp_topic_metabox',
-			$bbp->topic_id,
+			bbp_get_topic_post_type(),
 			'side',
 			'high'
 		);
@@ -466,13 +461,11 @@ class BBP_Admin {
 	 * @uses do_action() Calls 'bbp_reply_attributes_metabox'
 	 */
 	function reply_attributes_metabox() {
-		global $bbp;
-
 		add_meta_box (
 			'bbp_reply_attributes',
 			__( 'Reply Attributes', 'bbpress' ),
 			'bbp_reply_metabox',
-			$bbp->reply_id,
+			bbp_get_reply_post_type(),
 			'side',
 			'high'
 		);
@@ -546,7 +539,7 @@ class BBP_Admin {
 			'bbp_anonymous_metabox',
 			__( 'Anonymous User Information', 'bbpress' ),
 			'bbp_anonymous_metabox',
-			!empty( $topic_id ) ? $bbp->topic_id : $bbp->reply_id,
+			!empty( $topic_id ) ? bbp_get_topic_post_type() : bbp_get_reply_post_type(),
 			'side',
 			'high'
 		);
@@ -622,9 +615,9 @@ class BBP_Admin {
 		$icon32_url    = $bbp->images_url . '/icons32.png';
 
 		// Top level menu classes
-		$forum_class   = sanitize_html_class( $bbp->forum_id );
-		$topic_class   = sanitize_html_class( $bbp->topic_id );
-		$reply_class   = sanitize_html_class( $bbp->reply_id ); ?>
+		$forum_class   = sanitize_html_class( bbp_get_forum_post_type() );
+		$topic_class   = sanitize_html_class( bbp_get_topic_post_type() );
+		$reply_class   = sanitize_html_class( bbp_get_reply_post_type() ); ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -768,7 +761,7 @@ class BBP_Admin {
 				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -180px;
 			}
 
-<?php if ( isset( $post ) && $post->post_type == $bbp->forum_id ) : ?>
+<?php if ( isset( $post ) && $post->post_type == bbp_get_forum_post_type() ) : ?>
 
 			#misc-publishing-actions, #save-post { display: none; }
 			strong.label { display: inline-block; width: 60px; }
@@ -885,8 +878,6 @@ class BBP_Admin {
 	 *                    column and forum id
 	 */
 	function forums_column_data( $column, $forum_id ) {
-		global $bbp;
-
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
 				bbp_forum_topic_count( $forum_id );
@@ -932,9 +923,7 @@ class BBP_Admin {
 	 * @return array $actions Actions
 	 */
 	function forums_row_actions( $actions, $forum ) {
-		global $bbp;
-
-		if ( $forum->post_type == $bbp->forum_id ) {
+		if ( $forum->post_type == bbp_get_forum_post_type() ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			// simple hack to show the forum description under the title
@@ -976,8 +965,6 @@ class BBP_Admin {
 	function toggle_topic() {
 		// Only proceed if GET is a topic toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
-			global $bbp;
-
 			$action    = $_GET['action'];            // What action is taking place?
 			$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
 			$success   = false;                      // Flag
@@ -1055,8 +1042,6 @@ class BBP_Admin {
 	function toggle_topic_notice() {
 		// Only proceed if GET is a topic toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
-			global $bbp;
-
 			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
 			$topic_id   = (int) $_GET['topic_id'];                  // What's the topic id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
@@ -1161,7 +1146,6 @@ class BBP_Admin {
 	 *                    column and topic id
 	 */
 	function topics_column_data( $column, $topic_id ) {
-		global $bbp;
 
 		// Get topic forum ID
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
@@ -1256,7 +1240,7 @@ class BBP_Admin {
 	function topics_row_actions( $actions, $topic ) {
 		global $bbp;
 
-		if ( $bbp->topic_id == $topic->post_type ) {
+		if ( $topic->post_type == bbp_get_topic_post_type() ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			bbp_topic_content( $topic->ID );
@@ -1299,14 +1283,14 @@ class BBP_Admin {
 			// Do not show trash links for spam topics, or spam links for trashed topics
 			if ( current_user_can( 'delete_topic', $topic->ID ) ) {
 				if ( $bbp->trash_status_id == $topic->post_status ) {
-					$post_type_object   = get_post_type_object( $bbp->topic_id );
-					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
+					$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
+					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
-					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
+					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
 				}
 
 				if ( $bbp->trash_status_id == $topic->post_status || !EMPTY_TRASH_DAYS ) {
-					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->topic_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
+					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
 				} elseif ( $bbp->spam_status_id == $topic->post_status ) {
 					unset( $actions['trash'] );
 				}
@@ -1340,8 +1324,6 @@ class BBP_Admin {
 	function toggle_reply() {
 		// Only proceed if GET is a reply toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
-			global $bbp;
-
 			$action    = $_GET['action'];            // What action is taking place?
 			$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
 			$success   = false;                      // Flag
@@ -1400,8 +1382,6 @@ class BBP_Admin {
 	function toggle_reply_notice() {
 		// Only proceed if GET is a reply toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
-			global $bbp;
-
 			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
 			$reply_id   = (int) $_GET['reply_id'];                  // What's the reply id?
 			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
@@ -1487,8 +1467,6 @@ class BBP_Admin {
 	 *                    column and reply id
 	 */
 	function replies_column_data( $column, $reply_id ) {
-		global $bbp;
-
 		// Get topic ID
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
@@ -1583,7 +1561,7 @@ class BBP_Admin {
 	function replies_row_actions( $actions, $reply ) {
 		global $bbp;
 
-		if ( $bbp->reply_id == $reply->post_type ) {
+		if ( bbp_get_reply_post_type() == $reply->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
 			// Show view link if it's not set, the reply is trashed and the user can view trashed replies
@@ -1606,14 +1584,14 @@ class BBP_Admin {
 			// Trash
 			if ( current_user_can( 'delete_reply', $reply->ID ) ) {
 				if ( $bbp->trash_status_id == $reply->post_status ) {
-					$post_type_object = get_post_type_object( $bbp->reply_id );
-					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
+					$post_type_object = get_post_type_object( bbp_get_reply_post_type() );
+					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
-					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
+					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
 				}
 
 				if ( $bbp->trash_status_id == $reply->post_status || !EMPTY_TRASH_DAYS ) {
-					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => $bbp->reply_id ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
+					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $reply->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
 				} elseif ( $bbp->spam_status_id == $reply->post_status ) {
 					unset( $actions['trash'] );
 				}
@@ -1692,7 +1670,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $forum_count;
 					$text = _n( 'Forum', 'Forums', $forum_count, 'bbpress' );
 					if ( current_user_can( 'publish_forums' ) ) {
-						$link = add_query_arg( array( 'post_type' => $bbp->forum_id ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_forum_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -1709,7 +1687,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $topic_count;
 					$text = _n( 'Topic', 'Topics', $topic_count, 'bbpress' );
 					if ( current_user_can( 'publish_topics' ) ) {
-						$link = add_query_arg( array( 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -1726,7 +1704,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $reply_count;
 					$text = _n( 'Reply', 'Replies', $reply_count, 'bbpress' );
 					if ( current_user_can( 'publish_replies' ) ) {
-						$link = add_query_arg( array( 'post_type' => $bbp->reply_id ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -1743,7 +1721,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $topic_tag_count;
 					$text = _n( 'Topic Tag', 'Topic Tags', $topic_tag_count, 'bbpress' );
 					if ( current_user_can( 'manage_topic_tags' ) ) {
-						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit-tags.php' ) );
+						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -1791,7 +1769,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $hidden_topic_count;
 						$text = _n( 'Hidden Topic', 'Hidden Topics', $hidden_topic_count, 'bbpress' );
-						$link = add_query_arg( array( 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $text . '</a>';
 					?>
@@ -1810,7 +1788,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $hidden_reply_count;
 						$text = _n( 'Hidden Reply', 'Hidden Replies', $hidden_reply_count, 'bbpress' );
-						$link = add_query_arg( array( 'post_type' => $bbp->reply_id ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $text . '</a>';
 					?>
@@ -1829,7 +1807,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $empty_topic_tag_count;
 						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $empty_topic_tag_count, 'bbpress' );
-						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => $bbp->topic_id ), get_admin_url( null, 'edit-tags.php' ) );
+						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
 					?>
@@ -1887,7 +1865,7 @@ function bbp_dashboard_widget_right_now() {
  * @uses do_action() Calls 'bbp_forum_metabox'
  */
 function bbp_forum_metabox() {
-	global $bbp, $post;
+	global $post;
 
 	/** TYPE ******************************************************************/
 	$forum['type'] = array(
@@ -1985,7 +1963,7 @@ function bbp_forum_metabox() {
  * @uses do_action() Calls 'bbp_topic_metabox'
  */
 function bbp_topic_metabox() {
-	global $post, $bbp;
+	global $post;
 
 	$args = array(
 		'selected'  => $post->post_parent,
@@ -2027,10 +2005,10 @@ function bbp_topic_metabox() {
  * @uses do_action() Calls 'bbp_reply_metabox'
  */
 function bbp_reply_metabox() {
-	global $post, $bbp;
+	global $post;
 
 	$args = array(
-		'post_type' => $bbp->topic_id,
+		'post_type' => bbp_get_topic_post_type(),
 		'selected'  => $post->post_parent,
 		'select_id' => 'parent_id'
 	); ?>
@@ -2057,7 +2035,7 @@ function bbp_reply_metabox() {
  * @uses get_post_meta() To get the anonymous user information
  */
 function bbp_anonymous_metabox () {
-	global $post, $bbp; ?>
+	global $post; ?>
 
 	<p>
 		<strong><?php _e( 'Name', 'bbpress' ); ?></strong>

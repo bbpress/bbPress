@@ -7,6 +7,32 @@
  * @subpackage TemplateTags
  */
 
+/** Post Type *****************************************************************/
+
+/**
+ * Return the unique ID of the custom post type for replies
+ *
+ * @since bbPress (r2857)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_reply_post_type() {
+	echo bbp_get_reply_post_type();
+}
+	/**
+	 * Return the unique ID of the custom post type for replies
+	 *
+	 * @since bbPress (r2857)
+	 *
+	 * @global bbPress $bbp
+	 * @return string
+	 */
+	function bbp_get_reply_post_type() {
+		global $bbp;
+		return apply_filters( 'bbp_get_reply_post_type', $bbp->reply_post_type );
+	}
+
 /** Reply Loop Functions ******************************************************/
 
 /**
@@ -31,7 +57,7 @@ function bbp_has_replies( $args = '' ) {
 
 	$default = array(
 		// Narrow query down to bbPress topics
-		'post_type'      => $bbp->reply_id,
+		'post_type'      => bbp_get_reply_post_type(),
 
 		// Forum ID
 		'post_parent'    => bbp_get_topic_id(),
@@ -152,7 +178,7 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 * @uses apply_filters() Calls 'bbp_get_reply_id' with the reply id
 	 */
 	function bbp_get_reply_id( $reply_id = 0 ) {
-		global $bbp, $wp_query, $bbp;
+		global $bbp, $wp_query;
 
 		// Easy empty checking
 		if ( !empty( $reply_id ) && is_numeric( $reply_id ) )
@@ -189,15 +215,13 @@ function bbp_reply_id( $reply_id = 0 ) {
  * @return mixed Null if error or reply (in specified form) if success
  */
 function bbp_get_reply( $reply, $output = OBJECT, $filter = 'raw' ) {
-	global $bbp;
-
 	if ( empty( $reply ) || is_numeric( $reply ) )
 		$reply = bbp_get_reply_id( $reply );
 
 	if ( !$reply = get_post( $reply, OBJECT, $filter ) )
 		return $reply;
 
-	if ( $bbp->reply_id !== $reply->post_type )
+	if ( $reply->post_type !== bbp_get_reply_post_type() )
 		return null;
 
 	if ( $output == OBJECT ) {
@@ -462,7 +486,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_revisions() To get the reply revisions
 	 * @uses bbp_get_reply_raw_revision_log() To get the raw revision log
-	 * @uses bbp_get_reply_author() To get the reply author
+	 * @uses bbp_get_reply_author_display_name() To get the reply author
 	 * @uses bbp_get_reply_author_link() To get the reply author link
 	 * @uses bbp_convert_date() To convert the date
 	 * @uses bbp_get_time_since() To get the time in since format
@@ -492,7 +516,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 				$reason    = $revision_log[$revision->ID]['reason'];
 			}
 
-			$author = bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author( $revision->ID ), 'reply_id' => $revision->ID ) );
+			$author = bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'reply_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
@@ -644,7 +668,8 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 	global $bbp;
 
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-	return $bbp->spam_status_id == $reply_status;
+
+	return apply_filters( 'bbp_is_reply_spam', $bbp->spam_status_id == $reply_status );
 }
 
 /**
@@ -661,18 +686,18 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 function bbp_is_reply_anonymous( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( 0 != bbp_get_reply_author_id( $reply_id ) )
-		return false;
+	$retval = false;
 
-	if ( false == get_post_meta( $reply_id, '_bbp_anonymous_name', true ) )
-		return false;
+	if ( !bbp_get_reply_author_id( $reply_id ) )
+		$retval = true;
 
-	if ( false == get_post_meta( $reply_id, '_bbp_anonymous_email', true ) )
-		return false;
+	elseif ( get_post_meta( $reply_id, '_bbp_anonymous_name', true ) )
+		$retval = true;
 
-	// The reply is by an anonymous user
+	elseif ( get_post_meta( $reply_id, '_bbp_anonymous_email', true ) )
+		$retval = true;
 
-	return true;
+	return apply_filters( 'bbp_is_reply_anonymous', $retval );
 }
 
 /**
@@ -705,7 +730,7 @@ function bbp_reply_author( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		if ( !bbp_is_reply_anonymous( $reply_id ) )
-			$author = get_the_author();
+			$author = get_the_author_meta( 'display_name', bbp_get_reply_author_id( $reply_id ) );
 		else
 			$author = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
 
@@ -812,8 +837,8 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	 */
 	function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 		$author_avatar = '';
-		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
 
+		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
 			// Check for anonymous user
 			if ( !bbp_is_reply_anonymous( $reply_id ) )
 				$author_avatar = get_avatar( bbp_get_reply_author_id( $reply_id ), $size );
@@ -866,20 +891,19 @@ function bbp_reply_author_link( $args = '' ) {
 
 			$r = wp_parse_args( $args, $defaults );
 			extract( $r );
-		}
 
-		if ( empty( $reply_id ) )
-			$reply_id   = bbp_get_reply_id( $reply_id );
+			$reply_id = bbp_get_reply_id( $reply_id );
+		}
 
 		if ( !empty( $reply_id ) ) {
 			if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_reply() ) )
-				$link_title = sprintf( !bbp_is_reply_anonymous( $reply_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author( $reply_id ) );
+				$link_title = sprintf( !bbp_is_reply_anonymous( $reply_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author_display_name( $reply_id ) );
 
 			if ( empty( $link_text ) ) {
 				if ( bbp_is_topic() || bbp_is_reply() ) {
 					$link_text = bbp_get_reply_author_avatar( $reply_id, 80 );
 				} else {
-					$link_text = bbp_get_reply_author( $reply_id );
+					$link_text = bbp_get_reply_author_display_name( $reply_id );
 				}
 			}
 
@@ -1000,7 +1024,13 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-		$topic_id = get_post_field( 'post_parent', $reply_id );
+		$topic_id = get_post_meta( $reply_id, '_bbp_reply_topic_id', true );
+
+		// Fallback to post_parent if no meta exists, and set post meta
+		if ( empty( $topic_id ) ) {
+			$topic_id = get_post_field( 'post_parent', $reply_id );
+			bbp_update_reply_topic_id( $reply_id, $topic_id );
+		}
 
 		return apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
 	}
@@ -1011,7 +1041,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
  * @since bbPress (r2679)
  *
  * @param int $reply_id Optional. Reply id
- * @uses bbp_get_reply_topic_id() To get the reply forum id
+ * @uses bbp_get_reply_forum_id() To get the reply forum id
  */
 function bbp_reply_forum_id( $reply_id = 0 ) {
 	echo bbp_get_reply_forum_id( $reply_id );
@@ -1021,22 +1051,24 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 *
 	 * @since bbPress (r2679)
 	 *
-	 * @todo Walk ancestors and look for forum post type
-	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses bbp_get_reply_topic_id() To get the reply topic id
-	 * @uses bbp_get_topic_forum_id() To get the topic forum id
-	 * @uses apply_filters() Calls 'bbp_get_reply_topic_id' with the forum
+	 * @uses get_post_meta() To get the reply forum id
+	 * @uses apply_filters() Calls 'bbp_get_reply_forum_id' with the forum
 	 *                        id and reply id
 	 * @return int Reply's forum id
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
-		$reply_id = bbp_get_reply_id      ( $reply_id );
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
-		$forum_id = bbp_get_topic_forum_id( $topic_id );
+		$reply_id = bbp_get_reply_id( $reply_id );
+		$forum_id = get_post_meta( $reply_id, '_bbp_reply_forum_id', true );
 
-		return apply_filters( 'bbp_get_reply_topic_id', $forum_id, $reply_id );
+		if ( empty( $forum_id ) ) {
+			$topic_id = bbp_get_reply_topic_id( $reply_id );
+			$forum_id = bbp_get_topic_forum_id( $topic_id );
+			bbp_update_reply_forum_id( $forum_id );
+		}
+
+		return apply_filters( 'bbp_get_reply_forum_id', (int) $forum_id, $reply_id );
 	}
 
 /** Reply Admin Links *********************************************************/
@@ -1216,7 +1248,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 			return;
 
 		if ( empty( $wp_rewrite->permalink_structure ) ) {
-			$url = add_query_arg( array( $bbp->reply_id => $reply->post_name, 'edit' => '1' ), home_url( '/' ) );
+			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, 'edit' => '1' ), home_url( '/' ) );
 		} else {
 			$url = $wp_rewrite->front . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
 			$url = home_url( user_trailingslashit( $url ) );

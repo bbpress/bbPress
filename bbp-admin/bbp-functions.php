@@ -90,7 +90,7 @@ function bbp_recount_list() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_replies() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -99,7 +99,7 @@ function bbp_recount_topic_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_topic_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_topic_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -117,7 +117,7 @@ function bbp_recount_topic_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_voices() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -126,7 +126,7 @@ function bbp_recount_topic_voices() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_topic_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '{$bbp->topic_id}', '{$bbp->reply_id}' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_topic_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '" . bbp_get_topic_post_type() . "', '" . bbp_get_reply_post_type() . "' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -144,7 +144,7 @@ function bbp_recount_topic_voices() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_hidden_replies() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of spammed and trashed replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -153,7 +153,7 @@ function bbp_recount_topic_hidden_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_topic_hidden_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` IN ( '" . join( "','", array( 'trash', $bbp->spam_status_id ) ) . "') GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_topic_hidden_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` IN ( '" . join( "','", array( 'trash', $bbp->spam_status_id ) ) . "') GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -164,8 +164,6 @@ function bbp_recount_topic_hidden_replies() {
 /**
  * Recount forum topics
  *
- * @todo Forum total topic recount
- *
  * @since bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
@@ -173,7 +171,7 @@ function bbp_recount_topic_hidden_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_forum_topics() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of topics in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -182,10 +180,9 @@ function bbp_recount_forum_topics() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	if ( $forums = get_posts( array( 'post_type' => $bbp->forum_id, 'numberposts' => -1 ) ) ) {
+	if ( $forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) ) ) {
 		foreach( $forums as $forum ) {
 			bbp_update_forum_topic_count( $forum->ID );
-			bbp_update_forum_topic_count( $forum->ID, true );
 		}
 	} else {
 		return array( 2, sprintf( $statement, $result ) );
@@ -198,8 +195,6 @@ function bbp_recount_forum_topics() {
 /**
  * Recount forum replies
  *
- * @todo Make the recounts actually work
- *
  * @since bbPress (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
@@ -207,7 +202,7 @@ function bbp_recount_forum_topics() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_forum_replies() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of replies in each forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -216,10 +211,9 @@ function bbp_recount_forum_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	if ( $forums = get_posts( array( 'post_type' => $bbp->forum_id, 'numberposts' => -1 ) ) ) {
+	if ( $forums = get_posts( array( 'post_type' => bbp_get_forum_post_type(), 'numberposts' => -1 ) ) ) {
 		foreach( $forums as $forum ) {
 			bbp_update_forum_reply_count( $forum->ID );
-			bbp_update_forum_reply_count( $forum->ID, true );
 		}
 	} else {
 		return array( 2, sprintf( $statement, $result ) );
@@ -239,12 +233,12 @@ function bbp_recount_forum_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_user_topics_replied() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '{$bbp->reply_id}' AND `post_status` = 'publish' GROUP BY `post_author`;";
+	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '{bbp_get_reply_post_type()}' AND `post_status` = 'publish' GROUP BY `post_author`;";
 	$insert_rows = $wpdb->get_results( $sql_select );
 
 	if ( is_wp_error( $insert_rows ) )
@@ -577,7 +571,7 @@ function bbp_recount_tag_delete_empty() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_clean_favorites() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -586,7 +580,7 @@ function bbp_recount_clean_favorites() {
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '$bbp->topic_id' AND `post_status` = 'publish';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'bbp_get_topic_post_type()' AND `post_status` = 'publish';" );
 
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
@@ -635,7 +629,7 @@ function bbp_recount_clean_favorites() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_clean_subscriptions() {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	$statement = __( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -644,7 +638,7 @@ function bbp_recount_clean_subscriptions() {
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '$bbp->topic_id' AND `post_status` = 'publish';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'bbp_get_topic_post_type()' AND `post_status` = 'publish';" );
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
 

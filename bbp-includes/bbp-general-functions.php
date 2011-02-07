@@ -177,12 +177,12 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 		return $data;
 
 	// Post is not a topic or reply, return
-	if ( !in_array( $data['post_type'], array( $bbp->topic_id, $bbp->reply_id ) ) )
+	if ( !in_array( $data['post_type'], array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) )
 		return $data;
 
 	// Is the post by an anonymous user?
-	if ( ( $bbp->topic_id == $data['post_type'] && !bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
-	     ( $bbp->reply_id == $data['post_type'] && !bbp_is_reply_anonymous( $postarr['ID'] ) ) )
+	if ( ( bbp_get_topic_post_type() == $data['post_type'] && !bbp_is_topic_anonymous( $postarr['ID'] ) ) ||
+	     ( bbp_get_reply_post_type() == $data['post_type'] && !bbp_is_reply_anonymous( $postarr['ID'] ) ) )
 		return $data;
 
 	// The post is being updated. It is a topic or a reply and is written by an anonymous user.
@@ -256,14 +256,14 @@ function bbp_get_statistics( $args = '' ) {
 
 	// Forums
 	if ( !empty( $count_forums ) ) {
-		$forum_count = wp_count_posts( $bbp->forum_id );
+		$forum_count = wp_count_posts( bbp_get_forum_post_type() );
 		$forum_count = $forum_count->publish;
 	}
 
 	// Topics
 	if ( !empty( $count_topics ) ) {
 
-		$all_topics     = wp_count_posts( $bbp->topic_id );
+		$all_topics     = wp_count_posts( bbp_get_topic_post_type() );
 
 		// Published (publish + closed)
 		$topic_count    = $all_topics->publish + $all_topics->{$bbp->closed_status_id};
@@ -294,7 +294,7 @@ function bbp_get_statistics( $args = '' ) {
 	// Replies
 	if ( !empty( $count_replies ) ) {
 
-		$all_replies     = wp_count_posts( $bbp->reply_id );
+		$all_replies     = wp_count_posts( bbp_get_reply_post_type() );
 
 		// Published
 		$reply_count     = $all_replies->publish;
@@ -668,14 +668,14 @@ function bbp_custom_template() {
 
 	// Editing a topic
 	} elseif ( bbp_is_topic_edit() ) {
-		$template = array( 'action-bbp_edit.php', 'single-' . $bbp->topic_id, 'single.php', 'index.php' );
+		$template = array( 'action-bbp_edit.php', 'single-' . bbp_get_topic_post_type(), 'single.php', 'index.php' );
 
 		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) )
 			array_unshift( $template, 'action-bbp_split-merge.php' );
 
 	// Editing a reply
 	} elseif ( bbp_is_reply_edit() ) {
-		$template = array( 'action-bbp_edit.php', 'single-' . $bbp->reply_id, 'single.php', 'index.php' );
+		$template = array( 'action-bbp_edit.php', 'single-' . bbp_get_reply_post_type(), 'single.php', 'index.php' );
 	}
 
 	if ( !$template = apply_filters( 'bbp_custom_template', $template ) )
@@ -801,11 +801,11 @@ function bbp_pre_get_posts( $wp_query ) {
 	} elseif ( !empty( $is_edit ) ) {
 
 		// It is a topic edit page
-		if ( get_query_var( 'post_type' ) == $bbp->topic_id )
+		if ( get_query_var( 'post_type' ) == bbp_get_topic_post_type() )
 			$wp_query->bbp_is_topic_edit = true;
 
 		// It is a reply edit page
-		elseif ( get_query_var( 'post_type' ) == $bbp->reply_id )
+		elseif ( get_query_var( 'post_type' ) == bbp_get_reply_post_type() )
 			$wp_query->bbp_is_reply_edit = true;
 
 		// We save post revisions on our own
