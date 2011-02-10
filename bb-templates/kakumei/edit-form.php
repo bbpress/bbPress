@@ -1,3 +1,8 @@
+<?php if ( !bb_get_user( get_post_author_id() ) ) : ?>
+
+	<?php bb_load_template( 'post-form-anonymous.php' ); ?>
+
+<?php endif; ?>
 
 <?php if ( $topic_title ) : ?>
 <p role="main">

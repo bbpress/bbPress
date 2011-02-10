@@ -401,13 +401,6 @@ function bb_insert_post( $args = null ) {
 		$bbdb->insert( $bbdb->posts, compact( $fields ) );
 		$post_id = $topic_last_post_id = (int) $bbdb->insert_id;
 
-		// if user not logged in, save user data as meta data
-		if ( !$user ) {
-			bb_update_meta($post_id, 'post_author', $post_author, 'post');
-			bb_update_meta($post_id, 'post_email', $post_email, 'post');
-			bb_update_meta($post_id, 'post_url', $post_url, 'post');
-		}
-
 		if ( 0 == $post_status ) {
 			$topic_time = $post_time;
 			$topic_last_poster = ( ! bb_is_user_logged_in() && ! bb_is_login_required() ) ? -1 : $poster_id;
@@ -431,6 +424,13 @@ function bb_insert_post( $args = null ) {
 		}
 	}
 	bb_update_topic_voices( $topic_id );
+
+	// if user not logged in, save user data as meta data
+	if ( !$user ) {
+		bb_update_meta($post_id, 'post_author', $post_author, 'post');
+		bb_update_meta($post_id, 'post_email', $post_email, 'post');
+		bb_update_meta($post_id, 'post_url', $post_url, 'post');
+	}
 	
 	if ( $throttle && !bb_current_user_can( 'throttle' ) ) {
 		if ( $user )
