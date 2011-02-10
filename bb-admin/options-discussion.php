@@ -67,7 +67,7 @@ $general_options = array(
 		'title' => __( 'Enable Subscriptions' ),
 		'type' => 'checkbox',
 		'options' => array(
-			1 => __( 'Allow users to subscribe to topics and receive new posts via e-mail.' )
+			1 => __( 'Allow users to subscribe to topics and receive new posts via email.' )
 		),
 	),
 );
@@ -106,7 +106,7 @@ $avatar_options = array(
 			'retro'     => bb_get_avatar( rand( 0, 999 ), 32, 'retro' )     . ' ' . __( 'Retro  (Generated)' )
 		),
 		'note' => array(
-			__( 'For users without a custom avatar of their own, you can either display a generic logo or a generated one based on their e-mail address.' )
+			__( 'For users without a custom avatar of their own, you can either display a generic logo or a generated one based on their email address.' )
 		),
 	)
 );

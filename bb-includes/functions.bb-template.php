@@ -3574,7 +3574,7 @@ function bb_user_subscribe_checkbox( $args = null ) {
 	echo '
 	<label for="subscription_checkbox">
 		<input name="subscription_checkbox" id="subscription_checkbox" type="checkbox" value="subscribe" ' . checked( true, bb_is_user_subscribed(), false ) . $tab . ' />
-		' .  apply_filters( 'bb_user_subscribe_checkbox_label', __( 'Notify me of followup posts via e-mail' ) ) . '
+		' .  apply_filters( 'bb_user_subscribe_checkbox_label', __( 'Notify me of follow-up posts via email' ) ) . '
 	</label>';
 
 }
