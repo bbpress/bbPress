@@ -102,7 +102,8 @@ $avatar_options = array(
 			'logo'      => bb_get_avatar( '',             32, 'logo' )      . ' ' . __( 'Gravatar Logo' ),
 			'identicon' => bb_get_avatar( rand( 0, 999 ), 32, 'identicon' ) . ' ' . __( 'Identicon (Generated)' ),
 			'wavatar'   => bb_get_avatar( rand( 0, 999 ), 32, 'wavatar' )   . ' ' . __( 'Wavatar (Generated)' ),
-			'monsterid' => bb_get_avatar( rand( 0, 999 ), 32, 'monsterid' ) . ' ' . __( 'MonsterID  (Generated)' )
+			'monsterid' => bb_get_avatar( rand( 0, 999 ), 32, 'monsterid' ) . ' ' . __( 'MonsterID  (Generated)' ),
+			'retro'     => bb_get_avatar( rand( 0, 999 ), 32, 'retro' )     . ' ' . __( 'Retro  (Generated)' )
 		),
 		'note' => array(
 			__( 'For users without a custom avatar of their own, you can either display a generic logo or a generated one based on their e-mail address.' )

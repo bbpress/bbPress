@@ -903,6 +903,7 @@ function bb_get_avatar( $id_or_email, $size = 80, $default = '', $alt = false ) 
 		case 'monsterid':
 		case 'wavatar':
 		case 'identicon':
+		case 'retro':
 			break;
 		case 'default':
 		default:
