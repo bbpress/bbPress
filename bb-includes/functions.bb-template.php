@@ -3512,7 +3512,7 @@ function bb_is_user_subscribed( $args = null ) {
 	global $bbdb;
 	
 	$defaults = array(
-		'user_id' => bb_get_current_user_info( 'id' ),
+		'user_id'  => bb_is_topic_edit() ? bb_get_user_id( get_post_author_id() ) : bb_get_current_user_info( 'id' ),
 		'topic_id' => get_topic_id()
 	);
 	$args = wp_parse_args( $args, $defaults );
