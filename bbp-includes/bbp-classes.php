@@ -9,7 +9,7 @@ if ( !class_exists( 'BBP_Component' ) ) :
  * internally by bbPress to create forums, topics and replies, but can be
  * extended to create other really neat things.
  *
- * @package bbpress
+ * @package bbPress
  * @subpackage Classes
  *
  * @since bbPress (r2688)
