@@ -18,7 +18,7 @@
 	</label>
 </p>
 
-<?php if ( bb_is_user_logged_in() && bb_is_subscriptions_active() ) : ?>
+<?php if ( bb_get_user( get_post_author_id() ) && bb_is_subscriptions_active() ) : ?>
 <p id="post-form-subscription-container" class="left">
 	<?php bb_user_subscribe_checkbox( 'tab=33' ); ?>
 </p>
