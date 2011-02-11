@@ -154,10 +154,14 @@ function bbp_forum_id( $forum_id = 0 ) {
 		else
 			$bbp_forum_id = 0;
 
+		// Check the post_type for good measure
+		if ( get_post_field( 'post_type', $bbp_forum_id ) != bbp_get_forum_post_type() )
+			$bbp_forum_id = 0;
+
 		// Set global
 		$bbp->current_forum_id = $bbp_forum_id;
 
-		return apply_filters( 'bbp_get_forum_id', (int) $bbp_forum_id );
+		return apply_filters( 'bbp_get_forum_id', (int) $bbp_forum_id, $forum_id );
 	}
 
 /**
@@ -293,15 +297,50 @@ function bbp_forum_content( $forum_id = 0 ) {
 	}
 
 /**
+ * Output the forums last active ID
+ *
+ * @since bbPress (r2860)
+ *
+ * @uses bbp_get_forum_last_active_id() To get the forum's last active id
+ * @param int $forum_id Optional. Forum id
+ */
+function bbp_forum_last_active_id( $forum_id = 0 ) {
+	echo bbp_get_forum_last_active_id( $forum_id );
+}
+	/**
+	 * Return the forums last active ID
+	 *
+	 * @since bbPress (r2860)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses get_post_meta() To get the forum's last active id
+	 * @uses bbp_update_forum_last_active_id() To update and get the last
+	 *                                         active id of the forum
+	 * @uses apply_filters() Calls 'bbp_get_forum_last_active_id' with
+	 *                        the last active id and forum id
+	 * @return int Forum's last active id
+	 */
+	function bbp_get_forum_last_active_id( $forum_id = 0 ) {
+		$forum_id  = bbp_get_forum_id( $forum_id );
+		$active_id = get_post_meta( $forum_id, '_bbp_forum_last_active_id', true );
+
+		if ( !get_post( $active_id ) )
+			$active_id = 0;
+
+		return apply_filters( 'bbp_get_forum_last_active_id', (int) $active_id, $forum_id );
+	}
+
+/**
  * Output the forums last update date/time (aka freshness)
  *
  * @since bbPress (r2464)
  *
- * @uses bbp_get_forum_last_active() To get the forum freshness
+ * @uses bbp_get_forum_last_active_time() To get the forum freshness
  * @param int $forum_id Optional. Forum id
  */
-function bbp_forum_last_active( $forum_id = 0 ) {
-	echo bbp_get_forum_last_active( $forum_id );
+function bbp_forum_last_active_time( $forum_id = 0 ) {
+	echo bbp_get_forum_last_active_time( $forum_id );
 }
 	/**
 	 * Return the forums last update date/time (aka freshness)
@@ -314,7 +353,7 @@ function bbp_forum_last_active( $forum_id = 0 ) {
 	 * @uses bbp_get_forum_last_reply_id() To get forum's last reply id
 	 * @uses get_post_field() To get the post date of the reply
 	 * @uses bbp_get_forum_last_topic_id() To get forum's last topic id
-	 * @uses bbp_get_topic_last_active() To get time when the topic was
+	 * @uses bbp_get_topic_last_active_time() To get time when the topic was
 	 *                                    last active
 	 * @uses bbp_convert_date() To convert the date
 	 * @uses bbp_get_time_since() To get time in since format
@@ -322,7 +361,7 @@ function bbp_forum_last_active( $forum_id = 0 ) {
 	 *                        active time and forum id
 	 * @return string Forum last update date/time (freshness)
 	 */
-	function bbp_get_forum_last_active( $forum_id = 0 ) {
+	function bbp_get_forum_last_active_time( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		if ( !$last_active = get_post_meta( $forum_id, '_bbp_forum_last_active', true ) ) {
@@ -330,7 +369,7 @@ function bbp_forum_last_active( $forum_id = 0 ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
 				if ( $topic_id = bbp_get_forum_last_topic_id( $forum_id ) ) {
-					$last_active = bbp_get_topic_last_active( $topic_id );
+					$last_active = bbp_get_topic_last_active_time( $topic_id );
 				}
 			}
 		}
@@ -365,16 +404,30 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 	 * @uses bbp_get_forum_last_reply_url() To get the forum last reply url
 	 * @uses bbp_get_forum_last_reply_title() To get the forum last reply
 	 *                                         title
-	 * @uses bbp_get_forum_last_active() To get the time when the forum was
+	 * @uses bbp_get_forum_last_active_time() To get the time when the forum was
 	 *                                    last active
 	 * @uses apply_filters() Calls 'bbp_get_forum_freshness_link' with the
 	 *                        link and forum id
 	 */
 	function bbp_get_forum_freshness_link( $forum_id = 0 ) {
 		$forum_id   = bbp_get_forum_id( $forum_id );
-		$link_url   = bbp_get_forum_last_reply_url( $forum_id );
-		$title      = bbp_get_forum_last_reply_title( $forum_id );
-		$time_since = bbp_get_forum_last_active( $forum_id );
+		$active_id  = bbp_get_forum_last_active_id( $forum_id );
+
+		if ( empty( $active_id ) )
+			$active_id = bbp_get_forum_last_reply_id( $forum_id );
+
+		if ( empty( $active_id ) )
+			$active_id = bbp_get_forum_last_topic_id( $forum_id );
+
+		if ( bbp_get_topic_id( $active_id ) ) {
+			$link_url = bbp_get_forum_last_topic_permalink( $forum_id );
+			$title    = bbp_get_forum_last_topic_title( $forum_id );
+		} elseif ( bbp_get_reply_id( $active_id ) ) {
+			$link_url = bbp_get_forum_last_reply_url( $forum_id );
+			$title    = bbp_get_forum_last_reply_title( $forum_id );
+		}
+
+		$time_since = bbp_get_forum_last_active_time( $forum_id );
 
 		if ( !empty( $time_since ) )
 			$anchor = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
@@ -547,7 +600,7 @@ function bbp_list_forums( $args = '' ) {
  *
  * @since bbPress (r2464)
  *
- * @uses bbp_get_forum_last_active() To get the forum's last topic id
+ * @uses bbp_get_forum_last_topic_id() To get the forum's last topic id
  * @param int $forum_id Optional. Forum id
  */
 function bbp_forum_last_topic_id( $forum_id = 0 ) {
@@ -1179,6 +1232,75 @@ function bbp_forum_class() {
 		$post      = post_class( $classes );
 
 		return apply_filters( 'bbp_get_forum_class', $post );
+	}
+
+/** Single Forum **************************************************************/
+
+/**
+ * Output a fancy description of the current forum, including total topics,
+ * total replies, and last activity.
+ *
+ * @since bbPress (r2860)
+ *
+ * @uses bbp_get_single_forum_description() Return the eventual output
+ *
+ * @param arr $args Arguments passed to alter output
+ */
+function bbp_single_forum_description( $args = '' ) {
+	echo bbp_get_single_forum_description( $args );
+}
+	/**
+	 * Return a fancy description of the current forum, including total topics,
+	 * total replies, and last activity.
+	 *
+	 * @since bbPress (r2860)
+	 *
+	 * @uses wp_parse_args()
+	 * @uses bbp_get_forum_id()
+	 * @uses bbp_get_forum_topic_count()
+	 * @uses bbp_get_forum_reply_count()
+	 * @uses bbp_get_forum_subforum_count()
+	 * @uses bbp_get_forum_freshness_link()
+	 * @uses bbp_get_forum_last_reply_id()
+	 * @uses bbp_get_reply_author_avatar()
+	 * @uses bbp_get_reply_author_link()
+	 * @uses apply_filters()
+	 *
+	 * @param arr $args Arguments passed to alter output
+	 *
+	 * @return string Filtered forum description
+	 */
+	function bbp_get_single_forum_description( $args = '' ) {
+		// Default arguments
+		$defaults = array (
+			'forum_id'  => 0,
+			'before'    => '<div class="bbp-template-notice info"><p class="post-meta description">',
+			'after'     => '</p></div>',
+			'size'      => 14
+		);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Validate forum_id
+		$forum_id = bbp_get_forum_id( $forum_id );
+
+		// Build the forum description
+		$topic_count     = bbp_get_forum_topic_count   ( $forum_id );
+		$reply_count     = bbp_get_forum_reply_count   ( $forum_id );
+		$subforum_count  = bbp_get_forum_subforum_count( $forum_id );
+		$time_since      = bbp_get_forum_freshness_link( $forum_id );
+		if ( $last_reply = bbp_get_forum_last_active_id( $forum_id ) ) {
+			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
+			$retstr = sprintf( __( 'This forum contains %s topics and %s replies, and was last updated by %s %s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
+		} else {
+			$retstr = sprintf( __( 'This forum contains %s topics and %s replies.', 'bbpress' ), $topic_count, $reply_count );
+		}
+
+		// Combine the elements together
+		$retstr = $before . $retstr . $after;
+
+		// Return filtered result
+		return apply_filters( 'bbp_get_single_forum_description', $retstr, $args );
 	}
 
 ?>
