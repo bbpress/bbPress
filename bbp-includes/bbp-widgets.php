@@ -310,7 +310,7 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @uses bbp_the_topic() Loads up the current topic in the loop
 	 * @uses bbp_topic_permalink() To display the topic permalink
 	 * @uses bbp_topic_title() To display the topic title
-	 * @uses bbp_get_topic_last_active() To get the topic last active time
+	 * @uses bbp_get_topic_last_active_time() To get the topic last active time
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 */
@@ -339,7 +339,7 @@ class BBP_Topics_Widget extends WP_Widget {
 				<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
 					<li>
-						<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active() . ' ago' ); ?>
+						<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time() . ' ago' ); ?>
 					</li>
 
 				<?php endwhile; ?>
@@ -369,7 +369,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 				<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
 
-					<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active( $topic_id ) . ' ago' ); ?></li>
+					<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time( $topic_id ) . ' ago' ); ?></li>
 
 				<?php
 
@@ -510,7 +510,7 @@ class BBP_Replies_Widget extends WP_Widget {
 
 						<?php
 						/* translators: bbpress replies widget: 1: reply author, 2: reply link, 3: reply date, 4: reply time */
-						printf( _x( $show_date == 'on' ? '%1$s on %2$s, %3$s, %4$s' : '%1$s on %2$s', 'widgets', 'bbpress' ), bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author_display_name() ) ), '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url() ) . '" title="' . bbp_get_reply_excerpt( bbp_get_reply_id(), 50 ) . '">' . bbp_get_reply_topic_title() . '</a>', get_the_date(), get_the_time() );
+						printf( _x( $show_date == 'on' ? '%1$s on %2$s, %3$s, %4$s' : '%1$s on %2$s', 'widgets', 'bbpress' ), bbp_get_reply_author_link( array( 'type' => 'both', 'size' => 14 ) ), '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url() ) . '" title="' . bbp_get_reply_excerpt( bbp_get_reply_id(), 50 ) . '">' . bbp_get_reply_topic_title() . '</a>', get_the_date(), get_the_time() );
 						?>
 
 					</li>
