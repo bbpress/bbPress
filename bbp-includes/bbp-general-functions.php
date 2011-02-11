@@ -574,8 +574,8 @@ function bbp_check_for_duplicate( $post_data ) {
 
 	// Simple duplicate check
 	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
-	$dupe  = "SELECT ID FROM $wpdb->posts $join WHERE post_type = '$post_type' AND post_status != '$bbp->trash_status_id' AND post_author = $post_author AND post_content = '$post_content' $where";
-	$dupe .= !empty( $post_parent ) ? " AND post_parent = '$post_parent'" : '';
+	$dupe  = "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '{$post_type}' AND post_status != '{$bbp->trash_status_id}' AND post_author = {$post_author} AND post_content = '{$post_content}' {$where}";
+	$dupe .= !empty( $post_parent ) ? " AND post_parent = '{$post_parent}'" : '';
 	$dupe .= " LIMIT 1";
 	$dupe  = apply_filters( 'bbp_check_for_duplicate_query', $dupe, $post_data );
 
@@ -1036,6 +1036,58 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 	$url = add_query_arg( array( 'redirect_to' => esc_url( $redirect_to ) ), $url );
 
 	return apply_filters( 'bbp_logout_url', $url, $redirect_to );
+}
+
+/** Queries *******************************************************************/
+
+/**
+ * Query the DB and get the last public post_id that has parent_id as post_parent
+ *
+ * @global db $wpdb
+ * @param int $parent_id
+ * @param string $post_type
+ * @return int The last active post_id
+ */
+function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
+	global $wpdb;
+
+	if ( empty( $parent_id ) )
+		return false;
+
+	// The ID of the cached query
+	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
+
+	if ( !$child_id = wp_cache_get( $cache_id ) ) {
+		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s' LIMIT 1;", $topic_id, $post_type ) );
+		wp_cache_set( $cache_id, $child_id, 'bbpress' );
+	}
+
+	return apply_filters( 'bbp_get_public_child_last_id', (int) $child_id, (int) $parent_id, $post_type );
+}
+
+/**
+ * Query the DB and get a count of active public children
+ *
+ * @global db $wpdb
+ * @param int $parent_id
+ * @param string $post_type
+ * @return int The number of children
+ */
+function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
+	global $wpdb;
+
+	if ( empty( $parent_id ) )
+		return false;
+
+	// The ID of the cached query
+	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
+
+	if ( !$child_count = wp_cache_get( $cache_id ) ) {
+		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s';", $topic_id, $post_type ) );
+		wp_cache_set( $cache_id, $child_count, 'bbpress' );
+	}
+
+	return apply_filters( 'bbp_get_public_child_count', (int) $child_count, (int) $parent_id, $post_type );
 }
 
 ?>
