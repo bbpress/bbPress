@@ -92,7 +92,11 @@
 									<input type="text" value="" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
 								</div>
 							</fieldset>
-							
+
+						<?php else : ?>
+
+							<?php bbp_topic_admin_links(); ?>
+
 						<?php endif; ?>
 
 						<div class="bbp-submit-wrapper">

@@ -54,7 +54,7 @@
 
 									<tr id="reply-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
-										<td class="bbp-reply-author"><?php bbp_reply_author_link(); ?></td>
+										<td class="bbp-reply-author"><?php bbp_reply_author_link( array( 'type' => 'avatar' ) ); ?></td>
 
 										<td class="bbp-reply-content">
 

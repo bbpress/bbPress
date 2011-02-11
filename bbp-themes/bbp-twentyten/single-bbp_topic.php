@@ -24,6 +24,8 @@
 
 							<?php bbp_topic_tag_list(); ?>
 
+							<?php bbp_single_topic_description(); ?>
+
 							<div id="ajax-response"></div>
 
 							<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
@@ -47,7 +49,9 @@
 										<td colspan="2">
 											<span class="bbp-topic_replies"><?php bbp_topic_replies_link(); ?></span>
 											<span class="bbp-topic_voices"><?php printf( _n( '(%s voice)', '(%s voices)', bbp_get_topic_voice_count(), 'bbpress' ), bbp_get_topic_voice_count() ); ?></span>
-											<span class="bbp-admin-links"><?php bbp_topic_admin_links(); ?><span>
+
+											<?php bbp_topic_admin_links(); ?>
+
 										</td>
 									</tr>
 								</tfoot>
@@ -55,7 +59,7 @@
 								<tbody>
 
 									<tr class="bbp-topic-header">
-										<td class="bbp-topic-author"><?php bbp_topic_author_display_name(); ?></td>
+										<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'name' ) ); ?></td>
 
 										<td class="bbp-topic-content">
 											<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>">#</a>
@@ -67,7 +71,7 @@
 
 									<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
 
-										<td class="bbp-topic-author"><?php bbp_topic_author_link(); ?></td>
+										<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'avatar' ) ); ?></td>
 
 										<td class="bbp-topic-content">
 

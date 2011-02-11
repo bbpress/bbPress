@@ -115,6 +115,9 @@ span.bbp-admin-links a {
 	text-transform: uppercase;
 	text-decoration: none;
 }
+fieldset span.bbp-admin-links {
+	float: left;
+}
 tr:hover span.bbp-admin-links a {
 	color: #06c;
 }
@@ -191,12 +194,6 @@ td.bbp-topic-counts {
 	margin-bottom: 0;
 	font-size: 0.7em;
 	white-space: nowrap;
-}
-
-#content p.bbp-topic-meta img.avatar {
-	margin-bottom: -6px;
-	border: 3px double #ddd;
-
 }
 
 /* =Forums
@@ -356,6 +353,13 @@ div.bbp-template-notice {
 	color: #000;
 	clear: both;
 }
+div.bbp-template-notice a {
+	color: #555;
+	text-decoration: none;
+}
+	div.bbp-template-notice a:hover {
+		color: #000;
+	}
 	div.bbp-template-notice.info {
 		border: #cee1ef 1px solid;
 		background-color: #f0f8ff;
@@ -399,7 +403,7 @@ div.bbp-template-notice {
 	list-style: none;
 	width: 100%;
 	margin: 0;
-	padding: 0;
+	padding: 5px 0 0 0;
 	font-size: 11px;
 	color: #aaa;
 }
@@ -446,3 +450,16 @@ div.bbp-template-notice {
 .widget-area .bbp-logged-in a.logout-link {
 	display: block;
 }
+
+/* =Avatars
+-------------------------------------------------------------- */
+
+#content p.bbp-topic-meta img.avatar,
+#content ul.bbp-reply-revision-log img.avatar,
+#content div.bbp-template-notice img.avatar,
+#main .widget_display_topics img.avatar,
+#main .widget_display_replies img.avatar {
+	margin-bottom: -7px;
+	border: 3px double #ddd;
+}
+
