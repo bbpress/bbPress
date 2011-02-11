@@ -1046,6 +1046,8 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 			bbp_update_reply_topic_id( $reply_id, $topic_id );
 		}
 
+		$topic_id = bbp_get_topic_id( $topic_id );
+
 		return apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
 	}
 
@@ -1081,6 +1083,8 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 			$forum_id = bbp_get_topic_forum_id( $topic_id );
 			bbp_update_reply_forum_id( $forum_id );
 		}
+
+		$forum_id = bbp_get_forum_id( $forum_id );
 
 		return apply_filters( 'bbp_get_reply_forum_id', (int) $forum_id, $reply_id );
 	}
