@@ -1058,7 +1058,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
 
 	if ( !$child_id = wp_cache_get( $cache_id ) ) {
-		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s' LIMIT 1;", $parent_id, $post_type ) );
+		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_id, 'bbpress' );
 	}
 
