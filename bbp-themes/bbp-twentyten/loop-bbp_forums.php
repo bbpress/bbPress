@@ -50,8 +50,7 @@
 
 						<p class="bbp-topic-meta">
 
-							<?php bbp_reply_author_avatar( bbp_get_forum_last_reply_id(), 15 ); ?>
-							<?php bbp_reply_author_link( bbp_get_forum_last_reply_id() ); ?>
+							<?php bbp_author_link( array( 'post_id' => bbp_get_forum_last_active_id(), 'size' => 14 ) ); ?>
 
 						</p>
 					</td>
