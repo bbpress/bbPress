@@ -39,9 +39,11 @@ function bbp_footer() {
  * @since bbPress (r2549)
  *
  * @uses WP_Query
+ *
+ * @param int $post_id Possible post_id to check
  * @return bool
  */
-function bbp_is_forum() {
+function bbp_is_forum( $post_id = 0 ) {
 	global $wp_query, $bbp;
 
 	if ( is_singular( bbp_get_forum_post_type() ) )
@@ -51,6 +53,9 @@ function bbp_is_forum() {
 		return true;
 
 	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_forum_post_type() === $_GET['post_type'] )
+		return true;
+
+	if ( !empty( $post_id ) && ( bbp_get_forum_post_type() == get_post_field( 'post_type', $post_id ) ) )
 		return true;
 
 	return false;
@@ -63,9 +68,11 @@ function bbp_is_forum() {
  *
  * @uses WP_Query
  * @uses bbp_is_topic_edit() To check if it's a topic edit page
+ *
+ * @param int $post_id Possible post_id to check
  * @return bool
  */
-function bbp_is_topic() {
+function bbp_is_topic( $post_id = 0 ) {
 	global $wp_query, $bbp;
 
 	// Return false if it's a edit topic page
@@ -79,6 +86,9 @@ function bbp_is_topic() {
 		return true;
 
 	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_topic_post_type() === $_GET['post_type'] )
+		return true;
+
+	if ( !empty( $post_id ) && ( bbp_get_topic_post_type() == get_post_field( 'post_type', $post_id ) ) )
 		return true;
 
 	return false;
@@ -140,9 +150,11 @@ function bbp_is_topic_split() {
  *
  * @uses WP_Query
  * @uses bbp_is_reply_edit() To check if it's a reply edit page
+ *
+ * @param int $post_id Possible post_id to check
  * @return bool
  */
-function bbp_is_reply() {
+function bbp_is_reply( $post_id = 0 ) {
 	global $wp_query, $bbp;
 
 	// Return false if it's a edit reply page
@@ -156,6 +168,9 @@ function bbp_is_reply() {
 		return true;
 
 	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_reply_post_type() === $_GET['post_type'] )
+		return true;
+
+	if ( !empty( $post_id ) && ( bbp_get_reply_post_type() == get_post_field( 'post_type', $post_id ) ) )
 		return true;
 
 	return false;
