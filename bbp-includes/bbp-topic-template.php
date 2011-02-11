@@ -310,9 +310,13 @@ function bbp_topic_id( $topic_id = 0) {
 		else
 			$bbp_topic_id = 0;
 
+		// Check the post_type for good measure
+		if ( get_post_field( 'post_type', $bbp_topic_id ) != bbp_get_topic_post_type() )
+			$bbp_topic_id = 0;
+
 		$bbp->current_topic_id = $bbp_topic_id;
 
-		return apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id );
+		return apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
 	}
 
 /**
@@ -1002,39 +1006,50 @@ function bbp_topic_author_link( $args = '' ) {
 	 * @return string Author link of topic
 	 */
 	function bbp_get_topic_author_link( $args = '' ) {
+		$defaults = array (
+			'post_id'    => 0,
+			'link_title' => '',
+			'type'       => 'both',
+			'size'       => 80
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
 		// Used as topic_id
-		if ( is_numeric( $args ) ) {
+		if ( is_numeric( $args ) )
 			$topic_id = bbp_get_topic_id( $args );
-		} else {
-			$defaults = array (
-				'topic_id'   => 0,
-				'link_title' => '',
-				'link_text'  => ''
-			);
-
-			$r = wp_parse_args( $args, $defaults );
-			extract( $r );
-		}
-
-		if ( empty( $topic_id ) )
-			$topic_id = bbp_get_topic_id( $topic_id );
+		else
+			$topic_id = bbp_get_topic_id( $post_id );
 
 		if ( !empty( $topic_id ) ) {
-			if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_topic() ) )
+			if ( empty( $link_title ) )
 				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
 
-			if ( empty( $link_text ) && ( bbp_is_topic() || bbp_is_topic() ) )
-				$link_text = bbp_get_topic_author_avatar( $topic_id, 80 );
-			else
-				$link_text = bbp_get_topic_author_display_name( $topic_id );
-
 			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$author_url = bbp_get_topic_author_url( $topic_id );
+			$anonymous  = bbp_is_topic_anonymous( $topic_id );
 
-			// Check for anonymous user
-			if ( $author_url = bbp_get_topic_author_url( $topic_id ) )
-				$author_link = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
-			else
-				$author_link = $link_text;
+			// Get avatar
+			if ( 'avatar' == $type || 'both' == $type )
+				$author_links[] = bbp_get_topic_author_avatar( $topic_id, $size );
+
+			// Get display name
+			if ( 'name' == $type   || 'both' == $type )
+				$author_links[] = bbp_get_topic_author_display_name( $topic_id );
+
+			// Add links if not anonymous
+			if ( empty( $anonymous ) ) {
+				foreach ( $author_links as $link_text ) {
+					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
+				}
+				$author_link = join( '&nbsp;', $author_link );
+
+			// No links if anonymous
+			} else {
+				$author_link = join( '&nbsp;', $author_links );
+			}
+
 		} else {
 			$author_link = '';
 		}
@@ -1153,15 +1168,47 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	}
 
 /**
+ * Output the topics last active ID
+ *
+ * @since bbPress (r2860)
+ *
+ * @uses bbp_get_topic_last_active_id() To get the topic's last active id
+ * @param int $topic_id Optional. Forum id
+ */
+function bbp_topic_last_active_id( $topic_id = 0 ) {
+	echo bbp_get_topic_last_active_id( $topic_id );
+}
+	/**
+	 * Return the topics last active ID
+	 *
+	 * @since bbPress (r2860)
+	 *
+	 * @param int $topic_id Optional. Forum id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses get_post_meta() To get the topic's last active id
+	 * @uses bbp_update_topic_last_active_id() To update and get the last
+	 *                                         active id of the topic
+	 * @uses apply_filters() Calls 'bbp_get_topic_last_active_id' with
+	 *                        the last active id and topic id
+	 * @return int Forum's last active id
+	 */
+	function bbp_get_topic_last_active_id( $topic_id = 0 ) {
+		$topic_id  = bbp_get_topic_id( $topic_id );
+		$active_id = get_post_meta( $topic_id, '_bbp_topic_last_active_id', true );
+
+		return apply_filters( 'bbp_get_topic_last_active_id', (int) $active_id, $topic_id );
+	}
+
+/**
  * Output the topics last update date/time (aka freshness)
  *
  * @since bbPress (r2625)
  *
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_topic_last_active() To get topic freshness
+ * @uses bbp_get_topic_last_active_time() To get topic freshness
  */
-function bbp_topic_last_active( $topic_id = 0 ) {
-	echo bbp_get_topic_last_active( $topic_id );
+function bbp_topic_last_active_time( $topic_id = 0 ) {
+	echo bbp_get_topic_last_active_time( $topic_id );
 }
 	/**
 	 * Return the topics last update date/time (aka freshness)
@@ -1179,7 +1226,7 @@ function bbp_topic_last_active( $topic_id = 0 ) {
 	 *                        freshness and topic id
 	 * @return string Topic freshness
 	 */
-	function bbp_get_topic_last_active( $topic_id = 0 ) {
+	function bbp_get_topic_last_active_time( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Try to get the most accurate freshness time possible
@@ -1315,7 +1362,7 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$reply_id = bbp_get_topic_last_reply_id( $topic_id );
 
-		if ( !empty( $reply_id ) )
+		if ( !empty( $reply_id ) && ( $reply_id != $topic_id ) )
 			$reply_url = bbp_get_reply_url( $reply_id );
 		else
 			$reply_url = bbp_get_topic_permalink( $topic_id );
@@ -1345,7 +1392,7 @@ function bbp_topic_freshness_link( $topic_id = 0) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_last_reply_url() To get the topic last reply url
 	 * @uses bbp_get_topic_last_reply_title() To get the reply title
-	 * @uses bbp_get_topic_last_active() To get the topic freshness
+	 * @uses bbp_get_topic_last_active_time() To get the topic freshness
 	 * @uses apply_filters() Calls 'bbp_get_topic_freshness_link' with the
 	 *                        link and topic id
 	 * @return string Topic freshness link
@@ -1354,7 +1401,7 @@ function bbp_topic_freshness_link( $topic_id = 0) {
 		$topic_id   = bbp_get_topic_id( $topic_id );
 		$link_url   = bbp_get_topic_last_reply_url( $topic_id );
 		$title      = bbp_get_topic_last_reply_title( $topic_id );
-		$time_since = bbp_get_topic_last_active( $topic_id );
+		$time_since = bbp_get_topic_last_active_time( $topic_id );
 
 		if ( !empty( $time_since ) )
 			$anchor = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
@@ -1439,7 +1486,6 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_meta() To get the topic reply count meta
-	 * @uses bbp_update_topic_reply_count() To update the topic reply count
 	 * @uses apply_filters() Calls 'bbp_get_topic_reply_count' with the
 	 *                        reply count and topic id
 	 * @return int Reply count
@@ -1511,10 +1557,7 @@ function bbp_topic_voice_count( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_voice_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-
-		// Look for existing count, and populate if does not exist
-		if ( !$voices   = get_post_meta( $topic_id, '_bbp_topic_voice_count', true ) )
-			$voices = bbp_update_topic_voice_count( $topic_id );
+		$voices   = get_post_meta( $topic_id, '_bbp_topic_voice_count', true );
 
 		return apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
 	}
@@ -2273,5 +2316,75 @@ function bbp_topic_type_select( $args = '' ) {
 
 	<?php
 }
+
+/** Single Topic **************************************************************/
+
+/**
+ * Output a fancy description of the current topic, including total topics,
+ * total replies, and last activity.
+ *
+ * @since bbPress (r2860)
+ *
+ * @uses bbp_get_single_topic_description() Return the eventual output
+ *
+ * @param arr $args Arguments passed to alter output
+ */
+function bbp_single_topic_description( $args = '' ) {
+	echo bbp_get_single_topic_description( $args );
+}
+	/**
+	 * Return a fancy description of the current topic, including total topics,
+	 * total replies, and last activity.
+	 *
+	 * @since bbPress (r2860)
+	 *
+	 * @uses wp_parse_args()
+	 * @uses bbp_get_topic_id()
+	 * @uses bbp_get_topic_topic_count()
+	 * @uses bbp_get_topic_reply_count()
+	 * @uses bbp_get_topic_subtopic_count()
+	 * @uses bbp_get_topic_freshness_link()
+	 * @uses bbp_get_topic_last_reply_id()
+	 * @uses bbp_get_reply_author_avatar()
+	 * @uses bbp_get_reply_author_link()
+	 * @uses apply_filters()
+	 *
+	 * @param arr $args Arguments passed to alter output
+	 *
+	 * @return string Filtered topic description
+	 */
+	function bbp_get_single_topic_description( $args = '' ) {
+		// Default arguments
+		$defaults = array (
+			'topic_id'  => 0,
+			'before'    => '<div class="bbp-template-notice info"><p class="post-meta description">',
+			'after'     => '</p></div>',
+			'size'      => 14
+		);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Validate topic_id
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		// Build the topic description
+		$forum_id        = bbp_get_topic_forum_id      ( $topic_id );
+		$voice_count     = bbp_get_topic_voice_count   ( $topic_id );
+		$reply_count     = bbp_get_topic_reply_count   ( $topic_id );
+		$time_since      = bbp_get_topic_freshness_link( $topic_id );
+		if ( $last_reply = bbp_get_topic_last_active_id( $topic_id ) ) {
+			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
+			$retstr = sprintf( __( 'This topic has %s voices, contains %s replies, and was last updated by %s %s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
+		} else {
+			$retstr = sprintf( __( 'This topic has %s voices, contains %s replies.', 'bbpress' ), $voice_count, $reply_count );
+		}
+
+		// Combine the elements together
+		$retstr = $before . $retstr . $after;
+
+		// Return filtered result
+		return apply_filters( 'bbp_get_single_topic_description', $retstr, $args );
+	}
+
 
 ?>
