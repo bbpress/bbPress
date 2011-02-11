@@ -842,4 +842,57 @@ function bbp_user_lost_pass_fields() {
 		<?php wp_nonce_field( 'bbp-user-lost-pass' );
 }
 
+/** Author Avatar *************************************************************/
+
+/**
+ * Output the author link of a post
+ *
+ * @since bbPress (r2717)
+ *
+ * @param mixed $args Optional. If it is an integer, it is used as post id.
+ * @uses bbp_get_author_link() To get the post author link
+ */
+function bbp_author_link( $args = '' ) {
+	echo bbp_get_author_link( $args );
+}
+	/**
+	 * Return the author link of the post
+	 *
+	 * @since bbPress (r2717)
+	 *
+	 * @param mixed $args Optional. If an integer, it is used as reply id.
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_topic() To check if it's a topic page
+	 * @uses bbp_is_reply() To check if it's a reply page
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
+	 *                                 anonymous user
+	 * @uses bbp_get_reply_author() To get the reply author name
+	 * @uses bbp_get_reply_author_url() To get the reply author url
+	 * @uses bbp_get_reply_author_avatar() To get the reply author avatar
+	 * @uses apply_filters() Calls 'bbp_get_reply_author_link' with the
+	 *                        author link and args
+	 * @return string Author link of reply
+	 */
+	function bbp_get_author_link( $args = '' ) {
+		$defaults = array (
+			'post_id'    => 0,
+			'link_title' => '',
+			'type'       => 'both',
+			'size'       => 80
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Used as reply_id
+		if ( is_numeric( $args ) )
+			$post_id = $args;
+
+		if ( bbp_get_topic_id( $post_id ) )
+			return bbp_get_topic_author_link( $args );
+		elseif ( bbp_get_reply_id( $post_id ) )
+			return bbp_get_reply_author_link( $args );
+
+		return false;
+	}
 ?>
