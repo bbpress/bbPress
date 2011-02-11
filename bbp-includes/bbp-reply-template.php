@@ -196,9 +196,13 @@ function bbp_reply_id( $reply_id = 0 ) {
 		else
 			$bbp_reply_id = 0;
 
+		// Check the post_type for good measure
+		if ( get_post_field( 'post_type', $bbp_reply_id) != bbp_get_reply_post_type() )
+			$bbp_reply_id = 0;
+
 		$bbp->current_reply_id = $bbp_reply_id;
 
-		return apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id );
+		return apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
 	}
 
 /**
@@ -516,7 +520,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 				$reason    = $revision_log[$revision->ID]['reason'];
 			}
 
-			$author = bbp_get_reply_author_link( array( 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'reply_id' => $revision->ID ) );
+			$author = bbp_get_reply_author_link( array( 'type' => 'both', 'reply_id' => $revision->ID, 'size' => 14 ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
@@ -879,41 +883,51 @@ function bbp_reply_author_link( $args = '' ) {
 	 * @return string Author link of reply
 	 */
 	function bbp_get_reply_author_link( $args = '' ) {
+		$defaults = array (
+			'post_id'    => 0,
+			'link_title' => '',
+			'type'       => 'both',
+			'size'       => 80
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
 		// Used as reply_id
-		if ( is_numeric( $args ) ) {
+		if ( is_numeric( $args ) )
 			$reply_id = bbp_get_reply_id( $args );
-		} else {
-			$defaults = array (
-				'reply_id'   => 0,
-				'link_title' => '',
-				'link_text'  => ''
-			);
-
-			$r = wp_parse_args( $args, $defaults );
-			extract( $r );
-
-			$reply_id = bbp_get_reply_id( $reply_id );
-		}
+		else
+			$reply_id = bbp_get_reply_id( $post_id );
 
 		if ( !empty( $reply_id ) ) {
-			if ( empty( $link_title ) && ( bbp_is_topic() || bbp_is_reply() ) )
+			if ( empty( $link_title ) )
 				$link_title = sprintf( !bbp_is_reply_anonymous( $reply_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_reply_author_display_name( $reply_id ) );
 
-			if ( empty( $link_text ) ) {
-				if ( bbp_is_topic() || bbp_is_reply() ) {
-					$link_text = bbp_get_reply_author_avatar( $reply_id, 80 );
-				} else {
-					$link_text = bbp_get_reply_author_display_name( $reply_id );
+			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$author_url = bbp_get_reply_author_url( $reply_id );
+			$anonymous  = bbp_is_reply_anonymous( $reply_id );
+
+			// Get avatar
+			if ( 'avatar' == $type || 'both' == $type )
+				$author_links[] = bbp_get_reply_author_avatar( $reply_id, $size );
+
+			// Get display name
+			if ( 'name' == $type   || 'both' == $type )
+				$author_links[] = bbp_get_reply_author_display_name( $reply_id );
+
+			// Add links if not anonymous
+			if ( empty( $anonymous ) ) {
+				foreach ( $author_links as $link_text ) {
+					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
 				}
+				$author_link = join( '&nbsp;', $author_link );
+
+			// No links if anonymous
+			} else {
+				$author_link = join( '&nbsp;', $author_links );
 			}
 
-			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
-
-			// Check for anonymous user
-			if ( $author_url = bbp_get_reply_author_url( $reply_id ) )
-				$author_link = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
-			else
-				$author_link = $link_text; // Still return $link_text
+		// No replies so link is empty
 		} else {
 			$author_link = '';
 		}
@@ -1444,12 +1458,20 @@ function bbp_topic_split_link( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
-		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
+		$reply_id = bbp_get_reply_id( $id );
+		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-		if ( empty( $reply ) || !current_user_can( 'moderate', $reply->post_parent ) )
+		if ( empty( $reply_id ) || !current_user_can( 'moderate', $topic_id ) )
 			return;
 
-		$uri = esc_url( add_query_arg( array( 'action' => 'split', 'reply_id' => $reply->ID ), bbp_get_topic_edit_url( bbp_get_reply_topic_id( $reply->ID ) ) ) );
+		$uri = esc_url(
+			add_query_arg(
+				array(
+					'action'   => 'split',
+					'reply_id' => $reply_id
+				),
+			bbp_get_topic_edit_url( $topic_id )
+		) );
 
 		return apply_filters( 'bbp_get_topic_split_link', $link_before . '<a href="' . $uri . '" title="' . esc_attr( $split_title ) . '">' . $split_text . '</a>' . $link_after, $args );
 	}
