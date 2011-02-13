@@ -93,6 +93,9 @@ function bbp_has_topics( $args = '' ) {
 
 		// Maximum number of pages to show
 		'max_num_pages'        => false,
+
+		// Post Status
+		'post_status'    => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) ) ? join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) ) : 'publish',
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
@@ -567,7 +570,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 				$reason    = $revision_log[$revision->ID]['reason'];
 			}
 
-			$author = bbp_get_topic_author_link( array( 'link_text' => bbp_get_topic_author_display_name( $revision->ID ), 'topic_id' => $revision->ID ) );
+			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_topic_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-topic-revision-log-' . $topic_id . '-item-' . $revision->ID . '" class="bbp-topic-revision-log-item">' . "\n";
@@ -1679,7 +1682,7 @@ function bbp_topic_admin_links( $args = '' ) {
 		global $bbp;
 
 		if ( !bbp_is_topic() )
-			return '&nbsp;';
+			return;
 
 		$defaults = array (
 			'id'     => bbp_get_topic_id(),
@@ -1692,7 +1695,7 @@ function bbp_topic_admin_links( $args = '' ) {
 		$r = wp_parse_args( $args, $defaults );
 
 		if ( !current_user_can( 'edit_topic', $r['id'] ) )
-			return '&nbsp;';
+			return;
 
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array(
