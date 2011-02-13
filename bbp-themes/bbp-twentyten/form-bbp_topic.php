@@ -48,12 +48,12 @@
 						<?php get_template_part( 'form', 'bbp_anonymous' ); ?>
 
 						<p>
-							<label for="bbp_topic_title"><?php _e( 'Title:', 'bbpress' ); ?></label><br />
+							<label for="bbp_topic_title"><?php _e( 'Topic Title:', 'bbpress' ); ?></label><br />
 							<input type="text" id="bbp_topic_title" value="<?php echo ( bbp_is_topic_edit() && !empty( $post->post_title ) ) ? $post->post_title : ''; ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_title" />
 						</p>
 
 						<p>
-							<label for="bbp_topic_content"><?php _e( 'Topic:', 'bbpress' ); ?></label><br />
+							<label for="bbp_topic_content"><?php _e( 'Topic Description:', 'bbpress' ); ?></label><br />
 							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="52" rows="6"><?php echo ( bbp_is_topic_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
 						</p>
 
@@ -65,7 +65,7 @@
 						<?php if ( !bbp_is_topic_edit() ) : ?>
 
 							<p>
-								<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
+								<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
 								<input type="text" value="" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" />
 							</p>
 
