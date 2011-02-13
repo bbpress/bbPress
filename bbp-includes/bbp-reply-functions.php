@@ -24,10 +24,9 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Update the last reply ID
-	if ( !empty( $reply_id ) )
-		return update_post_meta( $reply_id, '_bbp_reply_forum_id', $forum_id );
+	return update_post_meta( $reply_id, '_bbp_reply_forum_id', (int) $forum_id );
 
-	return false;
+	return apply_filters( 'bbp_update_reply_forum_id', (int) $forum_id, $reply_id );
 }
 
 /**
@@ -47,10 +46,9 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Update the last reply ID
-	if ( !empty( $reply_id ) )
-		return update_post_meta( $reply_id, '_bbp_reply_topic_id', $topic_id );
+	update_post_meta( $reply_id, '_bbp_reply_topic_id', (int) $topic_id );
 
-	return false;
+	return apply_filters( 'bbp_update_reply_topic_id', (int) $topic_id, $reply_id );
 }
 
 /** Post Form Handlers ********************************************************/
@@ -285,8 +283,12 @@ function bbp_edit_reply_handler() {
 			// Check for missing reply_id or error
 			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
+				// Get reply parent ID's
+				$topic_id = bbp_get_reply_topic_id( $reply_id );
+				$forum_id = bbp_get_topic_forum_id( $topic_id );
+
 				// Update counts, etc...
-				do_action( 'bbp_edit_reply', $reply_id, $reply->post_parent, bbp_get_topic_forum_id( $reply->post_parent ), $anonymous_data, $reply->post_author , true /* Is edit */ );
+				do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply->post_author , true /* Is edit */ );
 
 				// Redirect back to new reply
 				wp_redirect( bbp_get_reply_url( $reply_id ) );
@@ -325,13 +327,8 @@ function bbp_edit_reply_handler() {
  * @uses bbp_is_user_subscribed() To check if the user is subscribed
  * @uses bbp_remove_user_subscription() To remove the user's subscription
  * @uses bbp_add_user_subscription() To add the user's subscription
- * @uses bbp_update_topic_last_active() To update the last active topic meta
- * @uses bbp_update_forum_last_active() To update the last active forum meta
- * @uses bbp_update_topic_last_reply_id() To update the last reply id topic meta
- * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
- * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
  */
-function bbp_reply_updater( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
+function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
 	// Validate the ID's passed from 'bbp_new_reply' action
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -380,30 +377,100 @@ function bbp_reply_updater( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonym
 	// Update associated topic values if this is a new reply
 	if ( empty( $is_edit ) ) {
 		// Last active time
-		$last_active = current_time( 'mysql' );
+		$last_active_time = current_time( 'mysql' );
 
 		// Reply meta relating to reply position in tree
-		bbp_update_reply_forum_id   ( $reply_id, $forum_id );
-		bbp_update_reply_topic_id   ( $reply_id, $topic_id );
+		bbp_update_reply_forum_id( $reply_id, $forum_id );
+		bbp_update_reply_topic_id( $reply_id, $topic_id );
 
-		global $bbp;
+		// Walk up ancestors and do the dirty work
+		bbp_update_reply_walker( $reply_id, $last_active_time, $forum_id, $topic_id, false );
+	}
+}
 
-		foreach ( get_post_ancestors( $reply_id ) as $ancestor ) {
-			// Topic meta relating to most recent reply
-			if ( bbp_get_topic_post_type() == get_post_field( 'post_type', $ancestor ) ) {
-				bbp_update_topic_last_reply_id( $ancestor, $reply_id    );
-				bbp_update_topic_last_active  ( $ancestor, $last_active );
-				bbp_update_topic_reply_count  ( $ancestor               );
-				bbp_update_topic_voice_count  ( $ancestor               );
+/**
+ * Walk up the ancestor tree from the current reply, and update all the counts
+ *
+ * @since bbPress (r2884)
+ *
+ * @param int $reply_id
+ *
+ * @uses bbp_update_topic_last_active_time() To update the last active topic meta
+ * @uses bbp_update_forum_last_active_time() To update the last active forum meta
+ * @uses bbp_update_topic_last_reply_id() To update the last reply id topic meta
+ * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
+ * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
+ */
+function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
 
-			// Forum meta relating to most recent topic
-			} elseif ( bbp_get_forum_post_type() == get_post_field( 'post_type', $ancestor ) ) {
-				bbp_update_forum_last_topic_id( $ancestor, $topic_id    );
-				bbp_update_forum_last_reply_id( $ancestor, $reply_id    );
-				bbp_update_forum_last_active  ( $ancestor, $last_active );
-				bbp_update_forum_reply_count  ( $ancestor               );
-				bbp_update_forum_voice_count  ( $ancestor               );
-			}
+	// Verifiy the reply ID
+	if ( $reply_id = bbp_get_reply_id ( $reply_id ) ) {
+
+		// Get the topic ID if none was passed
+		if ( empty( $topic_id ) )
+			$topic_id = bbp_get_reply_topic_id ( $reply_id );
+
+		// Get the forum ID if none was passed
+		if ( empty( $forum_id ) )
+			$forum_id = bbp_get_reply_forum_id ( $reply_id );
+	}
+
+	// Set the active_id based on topic_id/reply_id
+	$active_id = empty( $reply_id ) ? $topic_id : $reply_id;
+
+	// Setup ancestors array to walk up
+	$ancestors = array_values( array_unique( array_merge( array( $topic_id, $forum_id ), get_post_ancestors( $topic_id ) ) ) );
+
+	// If we want a full refresh, unset any of the possibly passed variables
+	if ( true == $refresh )
+		$forum_id = $topic_id = $reply_id = $active_id = $last_active_time = 0;
+
+	// Walk up ancestors
+	foreach ( $ancestors as $ancestor ) {
+
+		// Reply meta relating to most recent reply
+		if ( bbp_get_reply_id( $ancestor ) ) {
+			// @todo - hierarchical replies
+
+		// Topic meta relating to most recent reply
+		} elseif ( bbp_get_topic_id( $ancestor ) ) {
+
+			// Last reply and active ID's
+			bbp_update_topic_last_reply_id( $ancestor, $reply_id );
+			bbp_update_topic_last_active_id ( $ancestor, $active_id );
+
+			// Get the last active time if none was passed
+			if ( empty( $last_active_time ) )
+				$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
+			else
+				$topic_last_active_time = $last_active_time;
+
+			bbp_update_topic_last_active_time   ( $ancestor, $topic_last_active_time );
+
+			// Counts
+			bbp_update_topic_voice_count        ( $ancestor );
+			bbp_update_topic_reply_count        ( $ancestor );
+			bbp_update_topic_hidden_reply_count ( $ancestor );
+
+		// Forum meta relating to most recent topic
+		} elseif ( bbp_get_forum_id( $ancestor ) ) {
+
+			// Last topic and reply ID's
+			bbp_update_forum_last_topic_id ( $ancestor, $topic_id );
+			bbp_update_forum_last_reply_id ( $ancestor, $reply_id );
+
+			// Last Active
+			bbp_update_forum_last_active_id ( $ancestor, $active_id );
+
+			if ( empty( $last_active_time ) )
+				$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
+			else
+				$forum_last_active_time = $last_active_time;
+
+			bbp_update_forum_last_active_time ( $ancestor, $forum_last_active_time );
+
+			// Counts
+			bbp_update_forum_reply_count ( $ancestor );
 		}
 	}
 }
@@ -505,7 +572,7 @@ function bbp_toggle_reply_handler() {
 		do_action( 'bbp_toggle_reply_handler', $success, $post_data, $action );
 
 		// Check for errors
-		if ( false != $success && !is_wp_error( $success ) ) {
+		if ( ( false != $success ) && !is_wp_error( $success ) ) {
 
 			// Redirect back to the reply
 			$redirect = add_query_arg( array( 'view' => 'all' ), bbp_get_reply_url( $reply_id, true ) );
@@ -597,5 +664,64 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 
 	return $reply_id;
 }
+
+/** Before Delete/Trash/Untrash ***********************************************/
+
+function bbp_delete_reply( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( empty( $reply_id ) )
+		return false;
+
+	do_action( 'bbp_delete_reply', $reply_id );
+}
+
+function bbp_trash_reply( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( empty( $reply_id ) )
+		return false;
+
+	do_action( 'bbp_trash_reply', $reply_id );
+}
+
+function bbp_untrash_reply( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( empty( $reply_id ) )
+		return false;
+
+	do_action( 'bbp_untrash_reply', $reply_id );
+}
+
+/** After Delete/Trash/Untrash ************************************************/
+
+function bbp_deleted_reply( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( empty( $reply_id ) )
+		return false;
+
+	do_action( 'bbp_deleted_reply', $reply_id );
+}
+
+function bbp_trashed_reply( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( empty( $reply_id ) )
+		return false;
+
+	do_action( 'bbp_trashed_reply', $reply_id );
+}
+
+function bbp_untrashed_reply( $reply_id = 0 ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	if ( empty( $reply_id ) )
+		return false;
+
+	do_action( 'bbp_untrashed_reply', $reply_id );
+}
+
 
 ?>
