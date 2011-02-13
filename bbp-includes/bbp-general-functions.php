@@ -1057,7 +1057,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	// The ID of the cached query
 	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
 
-	if ( !$child_id = wp_cache_get( $cache_id ) ) {
+	if ( !$child_id = wp_cache_get( $cache_id, 'bbpress' ) ) {
 		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_id, 'bbpress' );
 	}
@@ -1066,7 +1066,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Query the DB and get a count of active public children
+ * Query the DB and get a count of public children
  *
  * @global db $wpdb
  * @param int $parent_id
@@ -1074,7 +1074,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * @return int The number of children
  */
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	if ( empty( $parent_id ) )
 		return false;
@@ -1082,12 +1082,37 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	// The ID of the cached query
 	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
 
-	if ( !$child_count = wp_cache_get( $cache_id ) ) {
-		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s';", $parent_id, $post_type ) );
+	if ( !$child_count = wp_cache_get( $cache_id, 'bbpress' ) ) {
+		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'bbpress' );
 	}
 
 	return apply_filters( 'bbp_get_public_child_count', (int) $child_count, (int) $parent_id, $post_type );
+}
+
+/**
+ * Query the DB and get a the child ID's of public children
+ *
+ * @global db $wpdb
+ * @param int $parent_id
+ * @param string $post_type
+ * @return int The number of children
+ */
+function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
+	global $wpdb, $bbp;
+
+	if ( empty( $parent_id ) )
+		return false;
+
+	// The ID of the cached query
+	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_ids';
+
+	if ( !$child_ids = wp_cache_get( $cache_id, 'bbpress' ) ) {
+		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
+	}
+
+	return apply_filters( 'bbp_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
 }
 
 ?>
