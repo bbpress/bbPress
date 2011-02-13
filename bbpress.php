@@ -298,7 +298,7 @@ class bbPress {
 
 		/** Cache *************************************************************/
 
-		// Add bbPress to the global cache group
+		// Add bbPress to global cache groups
 		wp_cache_add_global_groups( 'bbpress' );
 	}
 
