@@ -295,6 +295,11 @@ class bbPress {
 		
 		// Tab Index
 		$this->tab_index        = apply_filters( 'bbp_default_tab_index', 100 );
+
+		/** Cache *************************************************************/
+
+		// Add bbPress to the global cache group
+		wp_cache_add_global_groups( 'bbpress' );
 	}
 
 	/**
