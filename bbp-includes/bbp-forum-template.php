@@ -499,9 +499,10 @@ function bbp_forum_has_subforums( $args = '' ) {
 		$args = array( 'post_parent' => $args );
 
 	$default = array(
-		'post_parent' => 0,
-		'post_type'   => bbp_get_forum_post_type(),
-		'sort_column' => 'menu_order, post_title'
+		'post_parent'    => 0,
+		'post_type'      => bbp_get_forum_post_type(),
+		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
+		'sort_column'    => 'menu_order, post_title'
 	);
 
 	$r = wp_parse_args( $args, $default );
