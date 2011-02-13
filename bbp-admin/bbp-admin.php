@@ -520,7 +520,10 @@ class BBP_Admin {
 	function anonymous_metabox() {
 		global $bbp;
 
-		$post_id = (int) $_GET['post'];
+		if ( !empty( $_GET['post'] ) )
+			$post_id = (int) $_GET['post'];
+		else
+			$post_id = 0;
 
 		if ( $topic = bbp_get_topic( $post_id ) )
 			$topic_id = $topic->ID;
