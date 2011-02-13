@@ -14,9 +14,9 @@
 		<div id="container">
 			<div id="content" role="main">
 
-				<?php get_template_part( 'user', 'bbp_details' ); ?>
-
 				<?php do_action( 'bbp_template_notices' ); ?>
+
+				<?php get_template_part( 'user', 'bbp_details' ); ?>
 
 				<div class="entry-content bbp-edit-user">
 
