@@ -30,7 +30,7 @@
 					</div>
 
 					<div class="bbp-template-notice error">
-						<p><?php _e( '<strong>WARNING:</strong> This process cannot undone.', 'bbpress' ); ?></p>
+						<p><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></p>
 					</div>
 
 					<fieldset>
