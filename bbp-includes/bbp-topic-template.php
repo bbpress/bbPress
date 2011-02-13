@@ -166,8 +166,8 @@ function bbp_has_topics( $args = '' ) {
 
 				// Get all stickies
 				$stickies__in   = implode( ',', array_map( 'absint', $stickies ) );
-				$stickies_where = "AND $wpdb->posts.post_type = '" . bbp_get_topic_post_type() . "'";
-				$stickies       = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE $wpdb->posts.post_status = 'publish' AND $wpdb->posts.ID IN ($stickies__in) $stickies_where" );
+				$stickies_sql   = $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_status = 'publish' AND {$wpdb->posts}.ID IN (%s) AND {$wpdb->posts}.post_type = '%s'", $stickies__in, bbp_get_topic_post_type() );
+				$stickies       = $wpdb->get_results( $stickies_sql );
 				$sticky_count   = count( $stickies );
 
 				// Loop through stickies and add them to beginning of array
@@ -803,6 +803,23 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
 }
 
 /**
+ * Is the topic trashed?
+ *
+ * @since bbPress (r2888)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ * @return bool True if spam, false if not.
+ */
+function bbp_is_topic_trash( $topic_id = 0 ) {
+	global $bbp;
+
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
+	return $bbp->trash_status_id == $topic_status;
+}
+
+/**
  * Is the posted by an anonymous user?
  *
  * @since bbPress (r2753)
@@ -826,7 +843,6 @@ function bbp_is_topic_anonymous( $topic_id = 0 ) {
 		return false;
 
 	// The topic is by an anonymous user
-
 	return true;
 }
 
@@ -1886,15 +1902,13 @@ function bbp_topic_trash_link( $args = '' ) {
 		if ( empty( $topic ) || !current_user_can( 'delete_topic', $topic->ID ) )
 			return;
 
-		$topic_status = bbp_get_topic_status( $topic->ID );
-
-		if ( $bbp->trash_status_id == $topic_status )
-			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to restore that?", "bbpress" ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
+		if ( bbp_is_topic_trash( $topic->ID ) )
+			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to restore that?', 'bbpress' ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
 		elseif ( EMPTY_TRASH_DAYS )
-			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to trash that?", "bbpress" ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
+			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to trash that?', 'bbpress' ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
 
-		if ( $bbp->trash_status_id == $topic->post_status || !EMPTY_TRASH_DAYS )
-			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to delete that permanentaly?", "bbpress" ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
+		if ( bbp_is_topic_trash( $topic->ID ) || !EMPTY_TRASH_DAYS )
+			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
 
 		// Process the admin links
 		$actions = implode( $sep, $actions );
@@ -2373,13 +2387,13 @@ function bbp_single_topic_description( $args = '' ) {
 		// Build the topic description
 		$forum_id        = bbp_get_topic_forum_id      ( $topic_id );
 		$voice_count     = bbp_get_topic_voice_count   ( $topic_id );
-		$reply_count     = bbp_get_topic_reply_count   ( $topic_id );
+		$reply_count     = bbp_get_topic_replies_link  ( $topic_id );
 		$time_since      = bbp_get_topic_freshness_link( $topic_id );
 		if ( $last_reply = bbp_get_topic_last_active_id( $topic_id ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
-			$retstr = sprintf( __( 'This topic has %s voices, contains %s replies, and was last updated by %s %s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
+			$retstr = sprintf( __( 'This topic has %s voices, contains %s, and was last updated by %s %s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
 		} else {
-			$retstr = sprintf( __( 'This topic has %s voices, contains %s replies.', 'bbpress' ), $voice_count, $reply_count );
+			$retstr = sprintf( __( 'This topic has %s voices, contains %s.', 'bbpress' ), $voice_count, $reply_count );
 		}
 
 		// Combine the elements together
