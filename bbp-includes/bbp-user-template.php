@@ -847,7 +847,7 @@ function bbp_user_lost_pass_fields() {
 /**
  * Output the author link of a post
  *
- * @since bbPress (r2717)
+ * @since bbPress (r2875)
  *
  * @param mixed $args Optional. If it is an integer, it is used as post id.
  * @uses bbp_get_author_link() To get the post author link
@@ -858,7 +858,7 @@ function bbp_author_link( $args = '' ) {
 	/**
 	 * Return the author link of the post
 	 *
-	 * @since bbPress (r2717)
+	 * @since bbPress (r2875)
 	 *
 	 * @param mixed $args Optional. If an integer, it is used as reply id.
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -892,7 +892,43 @@ function bbp_author_link( $args = '' ) {
 			return bbp_get_topic_author_link( $args );
 		elseif ( bbp_get_reply_id( $post_id ) )
 			return bbp_get_reply_author_link( $args );
+		else
+			$user_id = get_post_field( 'post_author', $post_id );
 
-		return false;
+		// Neither a reply nor a topic, so could be a revision
+		if ( !empty( $post_id ) ) {
+			if ( empty( $link_title ) )
+				$link_title = sprintf( !bbp_is_reply_anonymous( $post_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), get_the_author_meta( 'display_name', $user_id ) );
+
+			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$author_url = bbp_get_user_profile_url( $user_id );
+			$anonymous  = bbp_is_reply_anonymous( $post_id );
+
+			// Get avatar
+			if ( 'avatar' == $type || 'both' == $type )
+				$author_links[] = get_avatar( $user_id, $size );
+
+			// Get display name
+			if ( 'name' == $type   || 'both' == $type )
+				$author_links[] = get_the_author_meta( 'display_name', $user_id );
+
+			// Add links if not anonymous
+			if ( empty( $anonymous ) ) {
+				foreach ( $author_links as $link_text ) {
+					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
+				}
+				$author_link = join( '&nbsp;', $author_link );
+
+			// No links if anonymous
+			} else {
+				$author_link = join( '&nbsp;', $author_links );
+			}
+
+		// No post so link is empty
+		} else {
+			$author_link = '';
+		}
+
+		return apply_filters( 'bbp_get_author_link', $author_link, $args );
 	}
 ?>
