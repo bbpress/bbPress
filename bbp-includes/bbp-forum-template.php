@@ -57,10 +57,9 @@ function bbp_has_forums( $args = '' ) {
 	$default = array (
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_parent'    => bbp_get_forum_id(),
-		'posts_per_page' => -1,
+		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
 		'orderby'        => 'menu_order',
-		'order'          => 'ASC',
-		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 )
+		'order'          => 'ASC'
 	);
 
 	$r = wp_parse_args( $args, $default );
@@ -941,6 +940,62 @@ function bbp_forum_last_reply_author_link( $forum_id = 0 ) {
 /** Forum Counts **************************************************************/
 
 /**
+ * Output the topics link of the forum
+ *
+ * @since bbPress (r2883)
+ *
+ * @param int $forum_id Optional. Topic id
+ * @uses bbp_get_forum_topics_link() To get the forum topics link
+ */
+function bbp_forum_topics_link( $forum_id = 0 ) {
+	echo bbp_get_forum_topics_link( $forum_id );
+}
+
+	/**
+	 * Return the topics link of the forum
+	 *
+	 * @since bbPress (r2883)
+	 *
+	 * @param int $forum_id Optional. Topic id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses bbp_get_forum() To get the forum
+	 * @uses bbp_get_forum_topic_count() To get the forum topic count
+	 * @uses bbp_get_forum_permalink() To get the forum permalink
+	 * @uses remove_query_arg() To remove args from the url
+	 * @uses bbp_get_forum_hidden_topic_count() To get the forum hidden
+	 *                                           topic count
+	 * @uses current_user_can() To check if the current user can edit others
+	 *                           topics
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses apply_filters() Calls 'bbp_get_forum_topics_link' with the
+	 *                        topics link and forum id
+	 */
+	function bbp_get_forum_topics_link( $forum_id = 0 ) {
+		global $bbp;
+
+		$forum    = bbp_get_forum( bbp_get_forum_id( (int) $forum_id ) );
+		$forum_id = $forum->ID;
+		$topics   = bbp_get_forum_topic_count( $forum_id );
+		$topics   = sprintf( _n( '%s topic', '%s topics', $topics, 'bbpress' ), $topics );
+		$retval   = '';
+
+		if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) )
+			$retval .= "<a href='" . esc_url( remove_query_arg( array( 'view' => 'all' ),  bbp_get_forum_permalink( $forum_id ) ) ) . "'>$topics</a>";
+		else
+			$retval .= $topics;
+
+		if ( current_user_can( 'edit_others_topics' ) && $deleted = bbp_get_forum_hidden_topic_count( $forum_id ) ) {
+			$extra = sprintf( __( ' + %d more', 'bbpress' ), $deleted );
+			if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] )
+				$retval .= " $extra";
+			else
+				$retval .= " <a href='" . esc_url( add_query_arg( array( 'view' => 'all' ) ) ) . "'>$extra</a>";
+		}
+
+		return apply_filters( 'bbp_get_forum_topics_link', $retval, $forum_id );
+	}
+
+/**
  * Output total sub-forum count of a forum
  *
  * @since bbPress (r2464)
@@ -1038,6 +1093,40 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_reply_count' : '_bbp_forum_total_reply_count', true );
 
 		return apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
+	}
+
+/**
+ * Output total hidden topic count of a forum (hidden includes trashed and
+ * spammed topics)
+ *
+ * @since bbPress (r2883)
+ *
+ * @param int $forum_id Optional. Topic id
+ * @uses bbp_get_forum_hidden_topic_count() To get the forum hidden topic count
+ */
+function bbp_forum_hidden_topic_count( $forum_id = 0 ) {
+	echo bbp_get_forum_hidden_topic_count( $forum_id );
+}
+	/**
+	 * Return total hidden topic count of a forum (hidden includes trashed
+	 * and spammed topics)
+	 *
+	 * @since bbPress (r2883)
+	 *
+	 * @param int $forum_id Optional. Topic id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses get_post_meta() To get the hidden topic count
+	 * @uses bbp_update_forum_hidden_topic_count() To update the forum
+	 *                                              hidden topic count
+	 * @uses apply_filters() Calls 'bbp_get_forum_hidden_topic_count' with
+	 *                        the hidden topic count and forum id
+	 * @return int Topic hidden topic count
+	 */
+	function bbp_get_forum_hidden_topic_count( $forum_id = 0 ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+		$topics  = get_post_meta( $forum_id, '_bbp_forum_hidden_topic_count', true );
+
+		return apply_filters( 'bbp_get_forum_hidden_topic_count', (int) $topics, $forum_id );
 	}
 
 /**
@@ -1285,15 +1374,15 @@ function bbp_single_forum_description( $args = '' ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// Build the forum description
-		$topic_count     = bbp_get_forum_topic_count   ( $forum_id );
+		$topic_count     = bbp_get_forum_topics_link   ( $forum_id );
 		$reply_count     = bbp_get_forum_reply_count   ( $forum_id );
 		$subforum_count  = bbp_get_forum_subforum_count( $forum_id );
 		$time_since      = bbp_get_forum_freshness_link( $forum_id );
 		if ( $last_reply = bbp_get_forum_last_active_id( $forum_id ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
-			$retstr = sprintf( __( 'This forum contains %s topics and %s replies, and was last updated by %s %s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
+			$retstr = sprintf( __( 'This forum contains %s and %s replies, and was last updated by %s %s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
 		} else {
-			$retstr = sprintf( __( 'This forum contains %s topics and %s replies.', 'bbpress' ), $topic_count, $reply_count );
+			$retstr = sprintf( __( 'This forum contains %s and %s replies.', 'bbpress' ), $topic_count, $reply_count );
 		}
 
 		// Combine the elements together
