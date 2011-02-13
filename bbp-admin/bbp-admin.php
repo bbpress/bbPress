@@ -872,7 +872,7 @@ class BBP_Admin {
 	 * @uses get_the_date() Get the forum creation date
 	 * @uses get_the_time() Get the forum creation time
 	 * @uses esc_attr() To sanitize the forum creation time
-	 * @uses bbp_get_forum_last_active() To get the time when the forum was
+	 * @uses bbp_get_forum_last_active_time() To get the time when the forum was
 	 *                                    last active
 	 * @uses do_action() Calls 'bbp_admin_forums_column_data' with the
 	 *                    column and forum id
@@ -896,7 +896,7 @@ class BBP_Admin {
 				break;
 
 			case 'bbp_forum_freshness' :
-				if ( $last_active = bbp_get_forum_last_active( $forum_id, false ) )
+				if ( $last_active = bbp_get_forum_last_active_time( $forum_id, false ) )
 					printf( __( '%s ago', 'bbpress' ), $last_active );
 				else
 					_e( 'No Topics', 'bbpress' );
@@ -1140,7 +1140,7 @@ class BBP_Admin {
 	 * @uses get_the_date() Get the topic creation date
 	 * @uses get_the_time() Get the topic creation time
 	 * @uses esc_attr() To sanitize the topic creation time
-	 * @uses bbp_get_topic_last_active() To get the time when the topic was
+	 * @uses bbp_get_topic_last_active_time() To get the time when the topic was
 	 *                                    last active
 	 * @uses do_action() Calls 'bbp_admin_topics_column_data' with the
 	 *                    column and topic id
@@ -1197,7 +1197,7 @@ class BBP_Admin {
 
 			// Freshness
 			case 'bbp_topic_freshness' :
-				if ( $last_active = bbp_get_topic_last_active( $topic_id, false ) )
+				if ( $last_active = bbp_get_topic_last_active_time( $topic_id, false ) )
 					printf( __( '%s ago', 'bbpress' ), $last_active );
 				else
 					_e( 'No Replies', 'bbpress' ); // This should never happen
@@ -1461,7 +1461,7 @@ class BBP_Admin {
 	 * @uses get_the_date() Get the reply creation date
 	 * @uses get_the_time() Get the reply creation time
 	 * @uses esc_attr() To sanitize the reply creation time
-	 * @uses bbp_get_reply_last_active() To get the time when the reply was
+	 * @uses bbp_get_reply_last_active_time() To get the time when the reply was
 	 *                                    last active
 	 * @uses do_action() Calls 'bbp_admin_replies_column_data' with the
 	 *                    column and reply id
