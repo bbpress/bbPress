@@ -568,19 +568,6 @@ function bbp_dropdown( $args = '' ) {
 			$r['walker']->tree_type = $r['post_type'];
 		}
 
-		// Determine a selected value
-		if ( empty( $r['selected'] ) ) {
-
-			// We're getting forums
-			if ( $r['post_type'] == bbp_get_forum_post_type() ) {
-				$r['selected'] = bbp_get_forum_id();
-
-			// We're getting topics
-			} elseif ( $r['post_type'] == bbp_get_topic_post_type() ) {
-				$r['selected'] = bbp_get_topic_id();
-			}
-		}
-
 		// Force 0
 		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
 			$r['selected'] = 0;
