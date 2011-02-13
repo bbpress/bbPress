@@ -677,6 +677,23 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 }
 
 /**
+ * Is the reply trashed?
+ *
+ * @since bbPress (r2884)
+ *
+ * @param int $reply_id Optional. Topic id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_status() To get the reply status
+ * @return bool True if spam, false if not.
+ */
+function bbp_is_reply_trash( $reply_id = 0 ) {
+	global $bbp;
+
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
+	return $bbp->trash_status_id == $reply_status;
+}
+
+/**
  * Is the reply by an anonymous user?
  *
  * @since bbPress (r2753)
@@ -1132,7 +1149,7 @@ function bbp_reply_admin_links( $args = '' ) {
 		global $bbp;
 
 		if ( !bbp_is_topic() && !bbp_is_reply() )
-			return '&nbsp;';
+			return;
 
 		$defaults = array (
 			'id'     => 0,
@@ -1146,8 +1163,12 @@ function bbp_reply_admin_links( $args = '' ) {
 
 		$r['id'] = bbp_get_reply_id( (int) $r['id'] );
 
+		// If topic is trashed, do not show admin links
+		if ( bbp_is_topic_trash( bbp_get_reply_topic_id( $r['id'] ) ) )
+			return;
+
 		if ( !current_user_can( 'edit_reply', $r['id'] ) )
-			return '&nbsp;';
+			return;
 
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array (
@@ -1333,15 +1354,13 @@ function bbp_reply_trash_link( $args = '' ) {
 		if ( empty( $reply ) || !current_user_can( 'delete_reply', $reply->ID ) )
 			return;
 
-		$reply_status = bbp_get_reply_status( $reply->ID );
-
-		if ( 'trash' == $reply_status )
-			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to restore that?", "bbpress" ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
+		if ( bbp_is_reply_trash( $reply->ID ) )
+			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'untrash', 'reply_id' => $reply->ID ) ), 'untrash-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to restore that?', 'bbpress' ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
 		elseif ( EMPTY_TRASH_DAYS )
-			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash', 'reply_id' => $reply->ID ) ), 'trash-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to trash that?", "bbpress" ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
+			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'trash', 'reply_id' => $reply->ID ) ), 'trash-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to trash that?', 'bbpress' ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
 
-		if ( 'trash' == $reply->post_status || !EMPTY_TRASH_DAYS )
-			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete', 'reply_id' => $reply->ID ) ), 'delete-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( "Are you sure you want to delete that permanentaly?", "bbpress" ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
+		if ( bbp_is_reply_trash( $reply->ID ) || !EMPTY_TRASH_DAYS )
+			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_reply_trash', 'sub_action' => 'delete', 'reply_id' => $reply->ID ) ), 'delete-' . $reply->post_type . '_' . $reply->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
 
 		// Process the admin links
 		$actions = implode( $sep, $actions );
