@@ -24,7 +24,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// Update the last reply ID
-	return update_post_meta( $reply_id, '_bbp_reply_forum_id', (int) $forum_id );
+	return update_post_meta( $reply_id, '_bbp_forum_id', (int) $forum_id );
 
 	return apply_filters( 'bbp_update_reply_forum_id', (int) $forum_id, $reply_id );
 }
@@ -46,7 +46,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	// Update the last reply ID
-	update_post_meta( $reply_id, '_bbp_reply_topic_id', (int) $topic_id );
+	update_post_meta( $reply_id, '_bbp_topic_id', (int) $topic_id );
 
 	return apply_filters( 'bbp_update_reply_topic_id', (int) $topic_id, $reply_id );
 }

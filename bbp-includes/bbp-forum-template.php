@@ -66,7 +66,7 @@ function bbp_has_forums( $args = '' ) {
 
 	// Don't show private forums to normal users
 	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
-		$r['meta_key']   = '_bbp_forum_visibility';
+		$r['meta_key']   = '_bbp_visibility';
 		$r['meta_value'] = 'public';
 	}
 
@@ -322,10 +322,7 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_active_id( $forum_id = 0 ) {
 		$forum_id  = bbp_get_forum_id( $forum_id );
-		$active_id = get_post_meta( $forum_id, '_bbp_forum_last_active_id', true );
-
-		if ( !get_post( $active_id ) )
-			$active_id = 0;
+		$active_id = get_post_meta( $forum_id, '_bbp_last_active_id', true );
 
 		return apply_filters( 'bbp_get_forum_last_active_id', (int) $active_id, $forum_id );
 	}
@@ -363,7 +360,7 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
 	function bbp_get_forum_last_active_time( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
-		if ( !$last_active = get_post_meta( $forum_id, '_bbp_forum_last_active', true ) ) {
+		if ( !$last_active = get_post_meta( $forum_id, '_bbp_last_active_time', true ) ) {
 			if ( $reply_id = bbp_get_forum_last_reply_id( $forum_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
@@ -428,7 +425,7 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 
 		$time_since = bbp_get_forum_last_active_time( $forum_id );
 
-		if ( !empty( $time_since ) )
+		if ( !empty( $time_since ) && !empty( $link_url ) )
 			$anchor = '<a href="' . $link_url . '" title="' . esc_attr( $title ) . '">' . $time_since . '</a>';
 		else
 			$anchor = __( 'No Topics', 'bbpress' );
@@ -511,7 +508,7 @@ function bbp_forum_has_subforums( $args = '' ) {
 
 	// Don't show private forums to normal users
 	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
-		$r['meta_key']   = '_bbp_forum_visibility';
+		$r['meta_key']   = '_bbp_visibility';
 		$r['meta_value'] = 'public';
 	}
 
@@ -620,7 +617,7 @@ function bbp_forum_last_topic_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_topic_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topic_id = get_post_meta( $forum_id, '_bbp_forum_last_topic_id', true );
+		$topic_id = get_post_meta( $forum_id, '_bbp_last_topic_id', true );
 
 		return apply_filters( 'bbp_get_forum_last_topic_id', (int) $topic_id, $forum_id );
 	}
@@ -765,7 +762,7 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_last_reply_id( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$reply_id = get_post_meta( $forum_id, '_bbp_forum_last_reply_id', true );
+		$reply_id = get_post_meta( $forum_id, '_bbp_last_reply_id', true );
 
 		if ( empty( $reply_id ) )
 			$reply_id = bbp_get_forum_last_topic_id( $forum_id );
@@ -1056,7 +1053,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	 */
 	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_topic_count' : '_bbp_forum_total_topic_count', true );
+		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_topic_count' : '_bbp_total_topic_count', true );
 
 		return apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
 	}
@@ -1091,7 +1088,7 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 	 */
 	function bbp_get_forum_reply_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_reply_count' : '_bbp_forum_total_reply_count', true );
+		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count', true );
 
 		return apply_filters( 'bbp_get_forum_reply_count', (int) $replies, $forum_id );
 	}
@@ -1125,7 +1122,7 @@ function bbp_forum_hidden_topic_count( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_hidden_topic_count( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics  = get_post_meta( $forum_id, '_bbp_forum_hidden_topic_count', true );
+		$topics  = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
 
 		return apply_filters( 'bbp_get_forum_hidden_topic_count', (int) $topics, $forum_id );
 	}
@@ -1186,7 +1183,7 @@ function bbp_forum_status( $forum_id = 0 ) {
 	function bbp_get_forum_status( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_status', get_post_meta( $forum_id, '_bbp_forum_status', true ) );
+		return apply_filters( 'bbp_get_forum_status', get_post_meta( $forum_id, '_bbp_status', true ) );
 	}
 
 /**
@@ -1274,7 +1271,7 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 	global $bbp;
 
 	$forum_id   = bbp_get_forum_id( $forum_id );
-	$visibility = get_post_meta( $forum_id, '_bbp_forum_visibility', true );
+	$visibility = get_post_meta( $forum_id, '_bbp_visibility', true );
 
 	if ( !empty( $visibility ) && 'private' == $visibility )
 		return true;

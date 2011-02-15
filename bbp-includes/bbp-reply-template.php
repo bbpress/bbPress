@@ -1055,7 +1055,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-		$topic_id = get_post_meta( $reply_id, '_bbp_reply_topic_id', true );
+		$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
 
 		// Fallback to post_parent if no meta exists, and set post meta
 		if ( empty( $topic_id ) ) {
@@ -1093,7 +1093,7 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-		$forum_id = get_post_meta( $reply_id, '_bbp_reply_forum_id', true );
+		$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
 
 		if ( empty( $forum_id ) ) {
 			$topic_id = bbp_get_reply_topic_id( $reply_id );

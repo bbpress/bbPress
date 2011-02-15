@@ -27,7 +27,7 @@
  * Note: Checking for defined( 'BBP_VERSION' ) in your code does NOT
  *       guarantee bbPress is initialized and listening.
  */
-define( 'BBP_VERSION', 'plugin-alpha' );
+define( 'BBP_VERSION', 'plugin-alpha-2' );
 
 if ( !class_exists( 'bbPress' ) ) :
 /**
@@ -313,7 +313,7 @@ class bbPress {
 	function _includes() {
 
 		// Load the files
-		foreach ( array( 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets' ) as $file )
+		foreach ( array( 'update', 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets' ) as $file )
 			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '.php' );
 
 		// Load the function and template files
@@ -692,7 +692,7 @@ class bbPress {
 
 		// Topics with no replies
 		$no_replies = apply_filters( 'bbp_register_view_no_replies', array(
-			'meta_key'     => '_bbp_topic_reply_count',
+			'meta_key'     => '_bbp_reply_count',
 			'meta_value'   => 1,
 			'meta_compare' => '<',
 			'orderby'      => ''

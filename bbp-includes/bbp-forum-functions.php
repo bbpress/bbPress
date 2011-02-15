@@ -49,7 +49,7 @@ function bbp_close_forum( $forum_id = 0 ) {
 
 	do_action( 'bbp_close_forum', $forum_id );
 
-	update_post_meta( $forum_id, '_bbp_forum_status', 'closed' );
+	update_post_meta( $forum_id, '_bbp_status', 'closed' );
 
 	do_action( 'bbp_closed_forum', $forum_id );
 
@@ -78,7 +78,7 @@ function bbp_open_forum( $forum_id = 0 ) {
 
 	do_action( 'bbp_open_forum', $forum_id );
 
-	update_post_meta( $forum_id, '_bbp_forum_status', 'open' );
+	update_post_meta( $forum_id, '_bbp_status', 'open' );
 
 	do_action( 'bbp_opened_forum', $forum_id );
 
@@ -121,7 +121,7 @@ function bbp_normalize_forum( $forum_id = 0 ) {
  * @return bool False on failure, true on success
  */
 function bbp_privatize_forum( $forum_id = 0 ) {
-	return update_post_meta( $forum_id, '_bbp_forum_visibility', 'private' );
+	return update_post_meta( $forum_id, '_bbp_visibility', 'private' );
 }
 
 /**
@@ -134,7 +134,7 @@ function bbp_privatize_forum( $forum_id = 0 ) {
  * @return bool False on failure, true on success
  */
 function bbp_publicize_forum( $forum_id = 0 ) {
-	return update_post_meta( $forum_id, '_bbp_forum_visibility', 'public' );
+	return update_post_meta( $forum_id, '_bbp_visibility', 'public' );
 }
 
 /** Forum Updaters ************************************************************/
@@ -163,7 +163,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 				$children_last_topic = bbp_update_forum_last_topic_id ( $child );
 
 		// Get the most recent topic in this forum_id
-		if ( $recent_topic = get_posts( array( 'post_parent' => $forum_id, 'post_type' => bbp_get_topic_post_type(), 'meta_key' => '_bbp_topic_last_active', 'orderby' => 'meta_value', 'numberposts' => 1 ) ) )
+		if ( $recent_topic = get_posts( array( 'post_parent' => $forum_id, 'post_type' => bbp_get_topic_post_type(), 'meta_key' => '_bbp_last_active_time', 'orderby' => 'meta_value', 'numberposts' => 1 ) ) )
 			$topic_id = $recent_topic[0]->ID;
 	}
 
@@ -171,11 +171,8 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	if ( !empty( $children ) && ( $children_last_topic > $topic_id ) )
 		$topic_id = $children_last_topic;
 
-	// Validate before setting
-	$topic_id = bbp_get_topic_id( $topic_id );
-
 	// Update the last topic ID
-	update_post_meta( $forum_id, '_bbp_forum_last_topic_id', (int) $topic_id );
+	update_post_meta( $forum_id, '_bbp_last_topic_id', (int) $topic_id );
 
 	return apply_filters( 'bbp_update_forum_last_topic_id', (int) $topic_id, $forum_id );
 }
@@ -218,11 +215,8 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	if ( !empty( $children ) && ( $children_last_reply > $reply_id ) )
 		$reply_id = $children_last_reply;
 
-	// Validate before setting
-	$reply_id = bbp_get_reply_id( $reply_id );
-
 	// Update the last reply ID with what was passed
-	update_post_meta( $forum_id, '_bbp_forum_last_reply_id', (int) $reply_id );
+	update_post_meta( $forum_id, '_bbp_last_reply_id', (int) $reply_id );
 
 	return apply_filters( 'bbp_update_forum_last_reply_id', (int) $reply_id, $forum_id );
 }
@@ -265,7 +259,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	if ( !empty( $children ) && ( $children_last_reply > $active_id ) )
 		$active_id = $children_last_reply;
 
-	update_post_meta( $forum_id, '_bbp_forum_last_active_id', (int) $active_id );
+	update_post_meta( $forum_id, '_bbp_last_active_id', (int) $active_id );
 
 	return apply_filters( 'bbp_update_forum_last_active_id', (int) $active_id, $forum_id );
 }
@@ -290,7 +284,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 	if ( empty( $new_time ) )
 		$new_time = get_post_field( 'post_date', bbp_get_forum_last_active_id ( $forum_id ) );
 
-	update_post_meta( $forum_id, '_bbp_forum_last_active', $new_time );
+	update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
 
 	return apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
 }
@@ -353,7 +347,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 
 	// Update the count
 	update_post_meta( $forum_id, '_bbp_forum_topic_count',       (int) $topics       );
-	update_post_meta( $forum_id, '_bbp_forum_total_topic_count', (int) $total_topics );
+	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) $total_topics );
 
 	return apply_filters( 'bbp_update_forum_topic_count', (int) $total_topics, $forum_id );
 }
@@ -388,7 +382,7 @@ function bbp_update_forum_hidden_topic_count( $forum_id = 0, $topic_count = 0 ) 
 	if ( empty( $topic_count ) )
 		$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
 
-	update_post_meta( $forum_id, '_bbp_forum_hidden_topic_count', (int) $topic_count );
+	update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
 
 	return apply_filters( 'bbp_update_forum_hidden_topic_count', (int) $topic_count, $forum_id );
 }
@@ -433,8 +427,8 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	$total_replies = (int) $reply_count + $children_reply_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_reply_count',       $reply_count   );
-	update_post_meta( $forum_id, '_bbp_forum_total_reply_count', $total_replies );
+	update_post_meta( $forum_id, '_bbp_reply_count',       $reply_count   );
+	update_post_meta( $forum_id, '_bbp_total_reply_count', $total_replies );
 
 	return apply_filters( 'bbp_update_forum_reply_count', $total_replies );
 }

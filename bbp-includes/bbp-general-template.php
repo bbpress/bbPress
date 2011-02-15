@@ -574,7 +574,7 @@ function bbp_dropdown( $args = '' ) {
 
 		// Don't show private forums to normal users
 		if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
-			$r['meta_key']   = '_bbp_forum_visibility';
+			$r['meta_key']   = '_bbp_visibility';
 			$r['meta_value'] = 'public';
 		}
 

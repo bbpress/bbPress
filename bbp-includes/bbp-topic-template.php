@@ -71,7 +71,7 @@ function bbp_has_topics( $args = '' ) {
 		'post_parent'          => bbp_get_forum_id(),
 
 		// Make sure topic has some last activity time
-		'meta_key'             => '_bbp_topic_last_active',
+		'meta_key'             => '_bbp_last_active_time',
 
 		// 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
 		'orderby'              => 'meta_value',
@@ -1175,7 +1175,7 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$forum_id = get_post_meta( $topic_id, '_bbp_topic_forum_id', true );
+		$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
 
 		// Fallback to post_parent if no meta exists, and set post meta
 		if ( empty( $forum_id ) ) {
@@ -1213,7 +1213,7 @@ function bbp_topic_last_active_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_last_active_id( $topic_id = 0 ) {
 		$topic_id  = bbp_get_topic_id( $topic_id );
-		$active_id = get_post_meta( $topic_id, '_bbp_topic_last_active_id', true );
+		$active_id = get_post_meta( $topic_id, '_bbp_last_active_id', true );
 
 		return apply_filters( 'bbp_get_topic_last_active_id', (int) $active_id, $topic_id );
 	}
@@ -1249,7 +1249,7 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Try to get the most accurate freshness time possible
-		if ( !$last_active = get_post_meta( $topic_id, '_bbp_topic_last_active', true ) ) {
+		if ( !$last_active = get_post_meta( $topic_id, '_bbp_last_active_time', true ) ) {
 			if ( $reply_id = bbp_get_topic_last_reply_id( $topic_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
@@ -1290,7 +1290,7 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_last_reply_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$reply_id = get_post_meta( $topic_id, '_bbp_topic_last_reply_id', true );
+		$reply_id = get_post_meta( $topic_id, '_bbp_last_reply_id', true );
 
 		if ( empty( $reply_id ) )
 			$reply_id = $topic_id;
@@ -1511,7 +1511,7 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_topic_reply_count', true );
+		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
 
 		return apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
 	}
@@ -1545,7 +1545,7 @@ function bbp_topic_hidden_reply_count( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_hidden_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_topic_hidden_reply_count', true );
+		$replies  = get_post_meta( $topic_id, '_bbp_hidden_reply_count', true );
 
 		return apply_filters( 'bbp_get_topic_hidden_reply_count', (int) $replies, $topic_id );
 	}
@@ -1576,7 +1576,7 @@ function bbp_topic_voice_count( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_voice_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$voices   = get_post_meta( $topic_id, '_bbp_topic_voice_count', true );
+		$voices   = get_post_meta( $topic_id, '_bbp_voice_count', true );
 
 		return apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
 	}

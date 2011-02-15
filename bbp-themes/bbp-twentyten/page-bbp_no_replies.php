@@ -26,7 +26,7 @@
 
 							<?php bbp_set_query_name( 'bbp_no_replies' ); ?>
 
-							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_topic_reply_count', 'meta_value' => 1, 'meta_compare' => '<', 'orderby' => '' ) ) ) : ?>
+							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_reply_count', 'meta_value' => 1, 'meta_compare' => '<', 'orderby' => '' ) ) ) : ?>
 
 								<?php get_template_part( 'loop', 'bbp_topics' ); ?>
 
