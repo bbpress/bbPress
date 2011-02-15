@@ -66,7 +66,7 @@ table.bbp-topic th span, table.bbp-replies th span {
 	font-size: 12px;
 	font-weight: bold;
 	font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
-	padding: 6px 10px;
+	padding: 4px 10px;
 }
 
 #content .bbp-forum-topic-count,
@@ -90,8 +90,8 @@ table.bbp-topic th span, table.bbp-replies th span {
 	padding: 0 10px;
 }
 
-#content .bbp-topic-content,
-#content .bbp-reply-content {
+#content tbody .bbp-topic-content,
+#content tbody .bbp-reply-content {
 	vertical-align: top;
 	padding: 9px 10px;
 }
