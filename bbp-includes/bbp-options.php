@@ -71,6 +71,11 @@ function bbp_add_options() {
 
 		// Topic tag slug
 		'_bbp_topic_tag_slug'       => 'tag',
+
+		/** Stickies **********************************************************/
+
+		// Super stickies
+		'_bbp_super_sticky_topics'  => '',
 	);
 
 	// Add default options
