@@ -433,6 +433,51 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	return apply_filters( 'bbp_update_forum_reply_count', $total_replies );
 }
 
+/**
+ * Updates the counts of a forum. This calls a few internal functions that all run
+ * manual queries against the database to get their results. As such, this
+ * function can be costly to run but is necessary to keep everything accurate.
+ *
+ * @since bbPress (r2800)
+ * @param int $topic_id
+ *
+ * @uses bbp_update_forum_last_topic_id()
+ * @uses bbp_update_forum_last_reply_id()
+ * @uses bbp_update_forum_last_active_id()
+ * @uses bbp_update_forum_last_active_time()
+ * @uses bbp_update_forum_topic_count()
+ */
+function bbp_update_forum( $args = '' ) {
+	$defaults = array(
+		'forum_id'         => 0,
+		'last_topic_id'    => 0,
+		'last_reply_id'    => 0,
+		'last_active_id'   => 0,
+		'last_active_time' => 0,
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Last topic and reply ID's
+	bbp_update_forum_last_topic_id( $forum_id, $last_topic_id );
+	bbp_update_forum_last_reply_id( $forum_id, $last_reply_id );
+
+	// Active dance
+	$last_active_id = bbp_update_forum_last_active_id( $forum_id, $last_active_id );
+
+	// If no active time was passed, get it from the last_active_id
+	if ( empty( $last_active_time ) )
+		$last_active_time = get_post_field( 'post_date', $last_active_id );
+
+	bbp_update_forum_last_active_time( $forum_id, $last_active_time );
+
+	// Counts
+	bbp_update_forum_reply_count       ( $forum_id );
+	bbp_update_forum_topic_count       ( $forum_id );
+	bbp_update_forum_hidden_topic_count( $forum_id );
+}
+
 /** Queries *******************************************************************/
 
 function bbp_forum_query_topic_ids( $forum_id ) {

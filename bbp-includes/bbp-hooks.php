@@ -164,7 +164,6 @@ add_action( 'bbp_untrashed_topic', 'bbp_update_topic_walker' );
 add_action( 'bbp_deleted_topic',   'bbp_update_topic_walker' );
 add_action( 'bbp_spammed_topic',   'bbp_update_topic_walker' );
 add_action( 'bbp_unspammed_topic', 'bbp_update_topic_walker' );
-add_action( 'bbp_move_topic',      'bbp_update_topic_walker' );
 
 // Update reply branch
 add_action( 'bbp_trashed_reply',   'bbp_update_reply_walker' );
@@ -172,7 +171,6 @@ add_action( 'bbp_untrashed_reply', 'bbp_update_reply_walker' );
 add_action( 'bbp_deleted_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_spammed_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
-add_action( 'bbp_move_topic',      'bbp_update_reply_walker' );
 
 // Custom Template - should be called at the end
 add_action( 'template_redirect', 'bbp_custom_template', 999 );

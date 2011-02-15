@@ -319,14 +319,14 @@ function bbp_edit_topic_handler() {
 			// Check for missing topic_id or error
 			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {
 
+				// Update counts, etc...
+				do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic->post_author , true /* Is edit */ );
+
 				// If the new forum id is not equal to the old forum id, run the
 				// bbp_move_topic action and pass the topic's forum id as the
 				// first arg and topic id as the second to update counts.
 				if ( $forum_id != $topic->post_parent )
-					do_action( 'bbp_move_topic', $topic->post_parent, $topic_id );
-
-				// Update counts, etc...
-				do_action( 'bbp_edit_topic', $topic_id, $forum_id, $anonymous_data, $topic->post_author , true /* Is edit */ );
+					bbp_move_topic_handler( $topic_id, $topic->post_parent, $forum_id );
 
 				// Redirect back to new topic
 				wp_redirect( bbp_get_topic_permalink( $topic_id ) );
@@ -415,14 +415,14 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 			bbp_add_user_subscription( $author_id, $topic_id );
 	}
 
+	// Forum topic meta
+	bbp_update_topic_forum_id ( $topic_id, $forum_id    );
+
 	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
 
 		// Last active time
 		$last_active = current_time( 'mysql' );
-
-		// Forum topic meta
-		bbp_update_topic_forum_id           ( $topic_id, $forum_id    );
 
 		// Reply topic meta
 		bbp_update_topic_last_reply_id      ( $topic_id, 0            );
@@ -450,11 +450,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
  * @uses bbp_get_topic_forum_id()
  * @uses get_post_ancestors()
  * @uses bbp_is_forum()
- * @uses bbp_update_forum_last_topic_id()
- * @uses bbp_update_forum_last_reply_id()
- * @uses bbp_update_forum_last_active_id()
- * @uses bbp_update_forum_last_active_time()
- * @uses bbp_update_forum_topic_count()
+ * @uses bbp_update_forum()
  */
 function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id = 0, $reply_id = 0, $refresh = true ) {
 
@@ -482,22 +478,83 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 		// If ancestor is a forum, update counts
 		if ( bbp_is_forum( $ancestor ) ) {
 
-			// Last topic and reply ID's
-			bbp_update_forum_last_topic_id( $ancestor, $topic_id );
-			bbp_update_forum_last_reply_id( $ancestor, $reply_id );
+			// Update the forum
+			bbp_update_forum( array(
+				'forum_id'         => $ancestor,
+				'last_topic_id'    => $topic_id,
+				'last_reply_id'    => $reply_id,
+				'last_active_id'   => $active_id,
+				'last_active_time' => 0,
+			) );
+		}
+	}
+}
 
-			// Active dance
-			$active_id = bbp_update_forum_last_active_id( $ancestor, $active_id );
+/**
+ * Handle the moving of a topic from one forum to another. This includes walking
+ * up the old and new branches and updating the counts.
+ *
+ * @uses bbp_get_topic_id()
+ * @uses bbp_get_forum_id()
+ * @uses bbp_get_public_child_ids()
+ * @uses bbp_update_reply_forum_id()
+ * @uses bbp_update_topic_forum_id()
+ * @uses bbp_update_forum()
+ *
+ * @param int $topic_id
+ * @param int $old_forum_id
+ * @param int $new_forum_id
+ */
+function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
+	$topic_id     = bbp_get_topic_id( $topic_id     );
+	$old_forum_id = bbp_get_forum_id( $old_forum_id );
+	$new_forum_id = bbp_get_forum_id( $new_forum_id );
+	$replies      = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
 
-			if ( empty( $last_active_time ) )
-				$last_active_time = get_post_field( 'post_date', $active_id );
+	// Update the forum_id of all replies in the topic
+	foreach ( $replies as $reply_id )
+		bbp_update_reply_forum_id( $reply_id, $new_forum_id );
 
-			bbp_update_forum_last_active_time( $ancestor, $last_active_time );
+	// Forum topic meta
+	bbp_update_topic_forum_id ( $topic_id, $new_forum_id );
 
-			// Counts
-			bbp_update_forum_reply_count       ( $ancestor );
-			bbp_update_forum_topic_count       ( $ancestor );
-			bbp_update_forum_hidden_topic_count( $ancestor );
+	/** Old forum_id **********************************************************/
+
+	// Get topic ancestors
+	$ancestors = array_values( array_unique( array_merge( array( $old_forum_id ), get_post_ancestors( $old_forum_id ) ) ) );
+
+	// Loop through ancestors
+	foreach ( $ancestors as $ancestor ) {
+
+		// If ancestor is a forum, update counts
+		if ( bbp_is_forum( $ancestor ) ) {
+
+			// Update the forum
+			bbp_update_forum( array(
+				'forum_id' => $ancestor,
+			) );
+		}
+	}
+
+	/** New forum_id **********************************************************/
+
+	// Make sure we're not walking twice
+	if ( !in_array( $new_forum_id, $ancestors ) ) {
+
+		// Get topic ancestors
+		$ancestors = array_values( array_unique( array_merge( array( $new_forum_id ), get_post_ancestors( $new_forum_id ) ) ) );
+
+		// Loop through ancestors
+		foreach ( $ancestors as $ancestor ) {
+
+			// If ancestor is a forum, update counts
+			if ( bbp_is_forum( $ancestor ) ) {
+
+				// Update the forum
+				bbp_update_forum( array(
+					'forum_id' => $ancestor,
+				) );
+			}
 		}
 	}
 }
