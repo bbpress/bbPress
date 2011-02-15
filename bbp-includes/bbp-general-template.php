@@ -939,7 +939,7 @@ function bbp_title_breadcrumb( $sep = '&larr;' ) {
  * @param string $sep Separator. Defaults to '&larr;'
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_breadcrumb( $sep = '&larr;' ) {
+function bbp_breadcrumb( $sep = '&larr;', $current_page = true ) {
 	echo bbp_get_breadcrumb( $sep );
 }
 	/**
@@ -960,15 +960,19 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 	 * @uses apply_filters() Calls 'bbp_get_breadcrumb' with the crumbs
 	 * @return string Breadcrumbs
 	 */
-	function bbp_get_breadcrumb( $sep = '&larr;' ) {
+	function bbp_get_breadcrumb( $sep = '&larr;', $current_page = true ) {
 		global $post, $bbp;
 
-		$trail       = '';
-		$parent_id   = $post->post_parent;
-		$breadcrumbs = array();
+		// No post, no breadcrumb
+		if ( empty( $post ) )
+			return;
+
+		// Get post ancestors
+		$ancestors   = array_reverse( get_post_ancestors( $post->ID ) );
 
 		// Loop through parents
-		while ( $parent_id ) {
+		foreach( $ancestors as $parent_id ) {
+
 			// Parents
 			$parent = get_post( $parent_id );
 
@@ -994,19 +998,19 @@ function bbp_breadcrumb( $sep = '&larr;' ) {
 					$breadcrumbs[] = '<a href="' . get_permalink( $parent->ID ) . '">' . get_the_title( $parent->ID ) . '</a>';
 					break;
 			}
-
-			// Walk backwards up the tree
-			$parent_id = $parent->post_parent;
 		}
 
-		// Reverse the breadcrumb
-		$breadcrumbs = array_reverse( $breadcrumbs );
+		// Add current page to breadcrumb
+		if ( true == $current_page )
+			$breadcrumbs[] = get_the_title();
 
 		// Build the trail
-		foreach ( $breadcrumbs as $crumb )
-			$trail .= $crumb . ' ' . $sep . ' ';
+		if ( !empty( $breadcrumbs ) )
+			$trail = implode( ' ' . $sep . ' ', $breadcrumbs );
+		else
+			$trail = '';
 
-		return apply_filters( 'bbp_get_breadcrumb', $trail . get_the_title() );
+		return apply_filters( 'bbp_get_breadcrumb', $trail );
 	}
 
 /** Topic Tags ***************************************************************/
