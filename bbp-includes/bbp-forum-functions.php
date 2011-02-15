@@ -438,8 +438,8 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  * manual queries against the database to get their results. As such, this
  * function can be costly to run but is necessary to keep everything accurate.
  *
- * @since bbPress (r2800)
- * @param int $topic_id
+ * @since bbPress (r2908)
+ * @param int $args
  *
  * @uses bbp_update_forum_last_topic_id()
  * @uses bbp_update_forum_last_reply_id()
