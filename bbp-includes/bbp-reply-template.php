@@ -197,7 +197,7 @@ function bbp_reply_id( $reply_id = 0 ) {
 			$bbp_reply_id = 0;
 
 		// Check the post_type for good measure
-		if ( get_post_field( 'post_type', $bbp_reply_id) != bbp_get_reply_post_type() )
+		if ( get_post_field( 'post_type', $bbp_reply_id ) != bbp_get_reply_post_type() )
 			$bbp_reply_id = 0;
 
 		$bbp->current_reply_id = $bbp_reply_id;
