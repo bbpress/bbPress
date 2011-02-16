@@ -661,7 +661,8 @@ function bb_update_usermeta( $user_id, $meta_key, $meta_value )
 	return bb_update_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
 
-function bb_delete_usermeta( $user_id, $meta_key, $meta_value = '' )
+// $meta_value defaults to null to conform to BackPress' WP_User::delete_meta()
+function bb_delete_usermeta( $user_id, $meta_key, $meta_value = null )
 {
 	return bb_delete_meta( $user_id, $meta_key, $meta_value, 'user' );
 }
