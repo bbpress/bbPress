@@ -1357,8 +1357,8 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $reply_id = bbp_get_reply_id( $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+	if ( bbp_is_reply( $topic_id ) )
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
 	
@@ -1390,7 +1390,7 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $reply_id = bbp_get_reply_id( $topic_id ) )
+	if ( bbp_is_reply( $topic_id ) )
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
@@ -1425,8 +1425,8 @@ function bbp_update_topic_hidden_reply_count( $topic_id = 0, $reply_count = 0 ) 
 	global $wpdb, $bbp;
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $reply_id = bbp_get_reply_id( $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+	if ( bbp_is_reply( $topic_id ) )
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
 	
@@ -1454,8 +1454,8 @@ function bbp_update_topic_hidden_reply_count( $topic_id = 0, $reply_count = 0 ) 
 function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $reply_id = bbp_get_reply_id( $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+	if ( bbp_is_reply( $topic_id ) )
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -1487,7 +1487,7 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $reply_id = bbp_get_reply_id( $topic_id ) )
+	if ( bbp_is_reply( $topic_id ) )
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
@@ -1516,7 +1516,8 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
-	if ( empty( $reply_id ) && $reply_id = bbp_get_reply_id( $topic_id ) ) {
+	if ( empty( $reply_id ) && bbp_is_reply( $topic_id ) ) {
+		$reply_id = bbp_get_reply_id( $topic_id );
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 	} else {
 		$reply_id = bbp_get_reply_id( $topic_id );
@@ -1555,8 +1556,8 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	global $wpdb;
 
 	// If it's a reply, then get the parent (topic id)
-	if ( $reply_id = bbp_get_reply_id( $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+	if ( bbp_is_reply( $topic_id ) )
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
 

@@ -46,16 +46,18 @@ function bbp_footer() {
 function bbp_is_forum( $post_id = 0 ) {
 	global $wp_query, $bbp;
 
-	if ( is_singular( bbp_get_forum_post_type() ) )
-		return true;
+	if ( empty( $post_id ) ) {
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && bbp_get_forum_post_type() === $wp_query->query_vars['post_type'] )
-		return true;
+		if ( is_singular( bbp_get_forum_post_type() ) )
+			return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_forum_post_type() === $_GET['post_type'] )
-		return true;
+		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_forum_post_type() === $wp_query->query_vars['post_type'] ) )
+			return true;
 
-	if ( !empty( $post_id ) && ( bbp_get_forum_post_type() == get_post_field( 'post_type', $post_id ) ) )
+		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_forum_post_type() === $_GET['post_type'] ) )
+			return true;
+
+	} elseif ( !empty( $post_id ) && ( bbp_get_forum_post_type() == get_post_field( 'post_type', $post_id ) ) )
 		return true;
 
 	return false;
@@ -79,16 +81,18 @@ function bbp_is_topic( $post_id = 0 ) {
 	if ( bbp_is_topic_edit() )
 		return false;
 
-	if ( is_singular( bbp_get_topic_post_type() ) )
-		return true;
+	if ( empty( $post_id ) ) {
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && bbp_get_topic_post_type() === $wp_query->query_vars['post_type'] )
-		return true;
+		if ( is_singular( bbp_get_topic_post_type() ) )
+			return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_topic_post_type() === $_GET['post_type'] )
-		return true;
+		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_topic_post_type() === $wp_query->query_vars['post_type'] ) )
+			return true;
 
-	if ( !empty( $post_id ) && ( bbp_get_topic_post_type() == get_post_field( 'post_type', $post_id ) ) )
+		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_topic_post_type() === $_GET['post_type'] ) )
+			return true;
+
+	} elseif ( !empty( $post_id ) && ( bbp_get_topic_post_type() == get_post_field( 'post_type', $post_id ) ) )
 		return true;
 
 	return false;
@@ -121,7 +125,7 @@ function bbp_is_topic_edit() {
  */
 function bbp_is_topic_merge() {
 
-	if ( bbp_is_topic_edit() && !empty( $_GET['action'] ) && 'merge' == $_GET['action'] )
+	if ( bbp_is_topic_edit() && !empty( $_GET['action'] ) && ( 'merge' == $_GET['action'] ) )
 		return true;
 
 	return false;
@@ -137,7 +141,7 @@ function bbp_is_topic_merge() {
  */
 function bbp_is_topic_split() {
 
-	if ( bbp_is_topic_edit() && !empty( $_GET['action'] ) && 'split' == $_GET['action'] )
+	if ( bbp_is_topic_edit() && !empty( $_GET['action'] ) && ( 'split' == $_GET['action'] ) )
 		return true;
 
 	return false;
@@ -161,16 +165,18 @@ function bbp_is_reply( $post_id = 0 ) {
 	if ( bbp_is_reply_edit() )
 		return false;
 
-	if ( is_singular( bbp_get_reply_post_type() ) )
-		return true;
+	if ( empty( $post_id ) ) {
 
-	if ( isset( $wp_query->query_vars['post_type'] ) && bbp_get_reply_post_type() === $wp_query->query_vars['post_type'] )
-		return true;
+		if ( is_singular( bbp_get_reply_post_type() ) )
+			return true;
 
-	if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && bbp_get_reply_post_type() === $_GET['post_type'] )
-		return true;
+		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_reply_post_type() === $wp_query->query_vars['post_type'] ) )
+			return true;
 
-	if ( !empty( $post_id ) && ( bbp_get_reply_post_type() == get_post_field( 'post_type', $post_id ) ) )
+		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_reply_post_type() === $_GET['post_type'] ) )
+			return true;
+
+	} elseif ( !empty( $post_id ) && ( bbp_get_reply_post_type() == get_post_field( 'post_type', $post_id ) ) )
 		return true;
 
 	return false;
@@ -187,7 +193,7 @@ function bbp_is_reply( $post_id = 0 ) {
 function bbp_is_reply_edit() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_reply_edit ) && $wp_query->bbp_is_reply_edit == true )
+	if ( !empty( $wp_query->bbp_is_reply_edit ) && ( true == $wp_query->bbp_is_reply_edit ) )
 		return true;
 
 	return false;
@@ -210,7 +216,7 @@ function bbp_is_favorites( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && 'bbp_user_profile_favorites' != bbp_get_query_name() )
+	if ( !empty( $query_name_check ) && ( 'bbp_user_profile_favorites' != bbp_get_query_name() ) )
 		return false;
 
 	return true;
@@ -233,7 +239,7 @@ function bbp_is_subscriptions( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && 'bbp_user_profile_subscriptions' != bbp_get_query_name() )
+	if ( !empty( $query_name_check ) && ( 'bbp_user_profile_subscriptions' != bbp_get_query_name() ) )
 		return false;
 
 	return true;
@@ -257,7 +263,7 @@ function bbp_is_topics_created( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && 'bbp_user_profile_topics_created' != bbp_get_query_name() )
+	if ( !empty( $query_name_check ) && ( 'bbp_user_profile_topics_created' != bbp_get_query_name() ) )
 		return false;
 
 	return true;
@@ -291,7 +297,7 @@ function bbp_is_user_home() {
 function bbp_is_user_profile_page() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_user_profile_page ) && $wp_query->bbp_is_user_profile_page == true )
+	if ( !empty( $wp_query->bbp_is_user_profile_page ) && ( true == $wp_query->bbp_is_user_profile_page ) )
 		return true;
 
 	return false;
@@ -308,7 +314,7 @@ function bbp_is_user_profile_page() {
 function bbp_is_user_profile_edit() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_user_profile_edit ) && $wp_query->bbp_is_user_profile_edit == true )
+	if ( !empty( $wp_query->bbp_is_user_profile_edit ) && ( true == $wp_query->bbp_is_user_profile_edit ) )
 		return true;
 
 	return false;
@@ -325,7 +331,7 @@ function bbp_is_user_profile_edit() {
 function bbp_is_view() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_view ) && $wp_query->bbp_is_view == true )
+	if ( !empty( $wp_query->bbp_is_view ) && ( true == $wp_query->bbp_is_view ) )
 		return true;
 
 	return false;

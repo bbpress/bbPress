@@ -888,9 +888,9 @@ function bbp_author_link( $args = '' ) {
 		if ( is_numeric( $args ) )
 			$post_id = $args;
 
-		if ( bbp_get_topic_id( $post_id ) )
+		if ( bbp_is_topic( $post_id ) )
 			return bbp_get_topic_author_link( $args );
-		elseif ( bbp_get_reply_id( $post_id ) )
+		elseif ( bbp_is_reply( $post_id ) )
 			return bbp_get_reply_author_link( $args );
 		else
 			$user_id = get_post_field( 'post_author', $post_id );

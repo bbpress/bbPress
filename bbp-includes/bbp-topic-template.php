@@ -313,10 +313,6 @@ function bbp_topic_id( $topic_id = 0) {
 		else
 			$bbp_topic_id = 0;
 
-		// Check the post_type for good measure
-		if ( get_post_field( 'post_type', $bbp_topic_id ) != bbp_get_topic_post_type() )
-			$bbp_topic_id = 0;
-
 		$bbp->current_topic_id = $bbp_topic_id;
 
 		return apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
@@ -551,10 +547,12 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 	function bbp_get_topic_revision_log( $topic_id = 0 ) {
 		// Create necessary variables
 		$topic_id     = bbp_get_topic_id( $topic_id );
-		$revisions    = bbp_get_topic_revisions( $topic_id );
 		$revision_log = bbp_get_topic_raw_revision_log( $topic_id );
 
-		if ( empty( $topic_id ) || empty( $revisions ) || empty( $revision_log ) || !is_array( $revisions ) || !is_array( $revision_log ) )
+		if ( empty( $topic_id ) || empty( $revision_log ) || !is_array( $revision_log ) )
+			return false;
+
+		if ( !$revisions = bbp_get_topic_revisions( $topic_id ) )
 			return false;
 
 		$r = "\n\n" . '<ul id="bbp-topic-revision-log-' . $topic_id . '" class="bbp-topic-revision-log">' . "\n\n";

@@ -185,7 +185,6 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
  * @param int $forum_id Optional. Forum id
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_get_reply_id() To get the reply id
  * @uses update_post_meta() To update the forum's last reply id meta
  * @return bool True on success, false on failure
  */

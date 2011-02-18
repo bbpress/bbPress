@@ -64,6 +64,10 @@ function bbp_has_forums( $args = '' ) {
 
 	$r = wp_parse_args( $args, $default );
 
+	// Allow all forums to be queried if post_parent is set to -1
+	if ( -1 == $r['post_parent'] )
+		unset( $r['post_parent'] );
+
 	// Don't show private forums to normal users
 	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
 		$r['meta_key']   = '_bbp_visibility';
@@ -151,10 +155,6 @@ function bbp_forum_id( $forum_id = 0 ) {
 
 		// Fallback
 		else
-			$bbp_forum_id = 0;
-
-		// Check the post_type for good measure
-		if ( get_post_field( 'post_type', $bbp_forum_id ) != bbp_get_forum_post_type() )
 			$bbp_forum_id = 0;
 
 		// Set global
@@ -415,10 +415,10 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 		if ( empty( $active_id ) )
 			$active_id = bbp_get_forum_last_topic_id( $forum_id );
 
-		if ( bbp_get_topic_id( $active_id ) ) {
+		if ( bbp_is_topic( $active_id ) ) {
 			$link_url = bbp_get_forum_last_topic_permalink( $forum_id );
 			$title    = bbp_get_forum_last_topic_title( $forum_id );
-		} elseif ( bbp_get_reply_id( $active_id ) ) {
+		} elseif ( bbp_is_reply( $active_id ) ) {
 			$link_url = bbp_get_forum_last_reply_url( $forum_id );
 			$title    = bbp_get_forum_last_reply_title( $forum_id );
 		}
@@ -487,11 +487,11 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  * @uses current_user_can() To check if the current user is capable of
  *                           reading private forums
  * @uses get_posts() To get the subforums
- * @uses apply_filters() Calls 'bbp_forum_has_subforums' with the subforums
+ * @uses apply_filters() Calls 'bbp_forum_get_subforums' with the subforums
  *                        and the args
  * @return mixed false if none, array of subs if yes
  */
-function bbp_forum_has_subforums( $args = '' ) {
+function bbp_forum_get_subforums( $args = '' ) {
 	if ( is_numeric( $args ) )
 		$args = array( 'post_parent' => $args );
 
@@ -515,7 +515,7 @@ function bbp_forum_has_subforums( $args = '' ) {
 	// No forum passed
 	$sub_forums = !empty( $r['post_parent'] ) ? get_posts( $r ) : '';
 
-	return apply_filters( 'bbp_forum_has_sub_forums', (array) $sub_forums, $args );
+	return apply_filters( 'bbp_forum_get_sub_forums', (array) $sub_forums, $args );
 }
 
 /**
@@ -532,7 +532,7 @@ function bbp_forum_has_subforums( $args = '' ) {
  *  - forum_id: Forum id. Defaults to ''
  *  - show_topic_count - To show forum topic count or not. Defaults to true
  *  - show_reply_count - To show forum reply count or not. Defaults to true
- * @uses bbp_forum_has_subforums() To check if the forum has subforums or not
+ * @uses bbp_forum_get_subforums() To check if the forum has subforums or not
  * @uses bbp_get_forum_permalink() To get forum permalink
  * @uses bbp_get_forum_title() To get forum title
  * @uses bbp_is_forum_category() To check if a forum is a category
@@ -564,7 +564,7 @@ function bbp_list_forums( $args = '' ) {
 	extract( $r, EXTR_SKIP );
 
 	// Loop through forums and create a list
-	if ( $sub_forums = bbp_forum_has_subforums( $forum_id ) ) {
+	if ( $sub_forums = bbp_forum_get_subforums( $forum_id ) ) {
 		// Total count (for separator)
 		$total_subs = count( $sub_forums );
 		foreach( $sub_forums as $sub_forum ) {

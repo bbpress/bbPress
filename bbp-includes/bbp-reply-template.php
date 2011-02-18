@@ -196,10 +196,6 @@ function bbp_reply_id( $reply_id = 0 ) {
 		else
 			$bbp_reply_id = 0;
 
-		// Check the post_type for good measure
-		if ( get_post_field( 'post_type', $bbp_reply_id ) != bbp_get_reply_post_type() )
-			$bbp_reply_id = 0;
-
 		$bbp->current_reply_id = $bbp_reply_id;
 
 		return apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
@@ -501,10 +497,14 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	function bbp_get_reply_revision_log( $reply_id = 0 ) {
 		// Create necessary variables
 		$reply_id     = bbp_get_reply_id( $reply_id );
-		$revisions    = bbp_get_reply_revisions( $reply_id );
 		$revision_log = bbp_get_reply_raw_revision_log( $reply_id );
 
-		if ( empty( $reply_id ) || empty( $revisions ) || empty( $revision_log ) || !is_array( $revisions ) || !is_array( $revision_log ) )
+		// Check reply and revision log exist
+		if ( empty( $reply_id ) || empty( $revision_log ) || !is_array( $revision_log ) )
+			return false;
+
+		// Get the actual revisions
+		if ( !$revisions = bbp_get_reply_revisions( $reply_id ) )
 			return false;
 
 		$r = "\n\n" . '<ul id="bbp-reply-revision-log-' . $reply_id . '" class="bbp-reply-revision-log">' . "\n\n";
@@ -546,8 +546,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 		 * @return string Raw revision log of the reply
 		 */
 		function bbp_get_reply_raw_revision_log( $reply_id = 0 ) {
-			$reply_id = bbp_get_reply_id( $reply_id );
-
+			$reply_id     = bbp_get_reply_id( $reply_id );
 			$revision_log = get_post_meta( $reply_id, '_bbp_revision_log', true );
 			$revision_log = empty( $revision_log ) ? array() : $revision_log;
 
@@ -627,7 +626,9 @@ function bbp_update_reply_revision_log( $args = '' ) {
 	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
 
 	// Finally, update
-	return update_post_meta( $reply_id, '_bbp_revision_log', $revision_log );
+	update_post_meta( $reply_id, '_bbp_revision_log', $revision_log );
+
+	return apply_filters( 'bbp_update_reply_revision_log', $revision_log, $reply_id );
 }
 
 /**

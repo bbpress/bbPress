@@ -193,14 +193,20 @@ class BBP_Forums_Widget extends WP_Widget {
 		extract( $args );
 
 		$title        = apply_filters( 'bbp_forum_widget_title', $instance['title'] );
-		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : false;
+		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : 0;
 
 		$default = array(
 			'post_parent'    => $parent_forum,
-			'posts_per_page' => -1,
+			'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
 			'orderby'        => 'menu_order',
 			'order'          => 'ASC'
 		);
+
+		// Don't show private forums to normal users
+		if ( !current_user_can( 'read_private_forums' ) && empty( $default['meta_key'] ) && empty( $default['meta_value'] ) ) {
+			$default['meta_key']   = '_bbp_visibility';
+			$default['meta_value'] = 'public';
+		}
 
 		if ( bbp_has_forums( $default ) ) :
 
@@ -233,7 +239,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 		$instance                 = $old_instance;
 		$instance['title']        = strip_tags( $new_instance['title']        );
-		$instance['parent_forum'] = absint    ( $new_instance['parent_forum'] );
+		$instance['parent_forum'] = $new_instance['parent_forum'];
 
 		return $instance;
 	}
@@ -249,7 +255,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 */
 	function form( $instance ) {
 		$title        = !empty( $instance['title']        ) ? esc_attr( $instance['title']        ) : '';
-		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : ''; ?>
+		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : 0; ?>
 
 		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
 		<p>
@@ -259,7 +265,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 			<br />
 
-			<small><?php _e( 'Forum ID number. Blank to display all top level forums, "null" to display all forums.', 'bbpress' ); ?></small>
+			<small><?php _e( 'Forum ID number. "0" to show only root forums, "-1" to display all forums.', 'bbpress' ); ?></small>
 		</p>
 
 		<?php
@@ -320,7 +326,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'] );
 		$max_shown    = !empty( $instance['max_shown']    ) ? $instance['max_shown']    : '5';
 		$show_date    = !empty( $instance['show_date']    ) ? 'on'                      : false;
-		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : false;
+		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : 0;
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
 		$default = array(

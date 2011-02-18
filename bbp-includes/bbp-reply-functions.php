@@ -429,11 +429,11 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 	foreach ( $ancestors as $ancestor ) {
 
 		// Reply meta relating to most recent reply
-		if ( bbp_get_reply_id( $ancestor ) ) {
+		if ( bbp_is_reply( $ancestor ) ) {
 			// @todo - hierarchical replies
 
 		// Topic meta relating to most recent reply
-		} elseif ( bbp_get_topic_id( $ancestor ) ) {
+		} elseif ( bbp_is_topic( $ancestor ) ) {
 
 			// Last reply and active ID's
 			bbp_update_topic_last_reply_id( $ancestor, $reply_id );
@@ -453,7 +453,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			bbp_update_topic_hidden_reply_count ( $ancestor );
 
 		// Forum meta relating to most recent topic
-		} elseif ( bbp_get_forum_id( $ancestor ) ) {
+		} elseif ( bbp_is_forum( $ancestor ) ) {
 
 			// Last topic and reply ID's
 			bbp_update_forum_last_topic_id ( $ancestor, $topic_id );
