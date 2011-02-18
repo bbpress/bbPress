@@ -660,13 +660,13 @@ function bb_notify_subscribers( $post_id ) {
 		
 		$user = bb_get_user( $user_id );
 		
-		if ( !$message = apply_filters( 'bb_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $post_id, $topic_id ) )
+		if ( !$message = apply_filters( 'bb_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nRead this post on the forums: %3\$s\n\nYou're getting this email because you subscribed to '%4\$s.'\nPlease click the link above, login, and click 'Unsubscribe' at the top of the page to stop receiving emails from this topic." ), $post_id, $topic_id ) )
 			continue; /* For plugins */
 		
 		bb_mail(
 			$user->user_email,
 			apply_filters( 'bb_subscription_mail_title', '[' . bb_get_option( 'name' ) . '] ' . $topic->topic_title, $post_id, $topic_id ),
-			sprintf( $message, $poster_name, strip_tags( $post->post_text ), get_post_link( $post_id ) )
+			sprintf( $message, $poster_name, strip_tags( $post->post_text ), get_post_link( $post_id ), strip_tags( $topic->topic_title ) )
 		);
 	}
 	
