@@ -875,8 +875,10 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Topic tag page
 	} elseif ( is_tax( $bbp->topic_tag_id ) ) {
 
-		$term  = get_queried_object();
-		$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
+		if ( function_exists( 'get_queried_object' ) ) {
+			$term  = get_queried_object();
+			$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
+		}
 
 	// Views
 	} elseif ( bbp_is_view() ) {
