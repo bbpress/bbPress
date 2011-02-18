@@ -61,7 +61,7 @@ function bbp_topic_post_type() {
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics( $args = '' ) {
-	global $wp_rewrite, $bbp, $wpdb;
+	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
 	$default = array (
 		// Narrow query down to bbPress topics
@@ -110,12 +110,10 @@ function bbp_has_topics( $args = '' ) {
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( !is_tax() ) {
+	if ( !isset( $wp_query ) || !is_tax() )
 		$bbp->topic_query = new WP_Query( $bbp_t );
-	} else {
-		global $wp_query;
+	else
 		$bbp->topic_query = $wp_query;
-	}
 
 	// Limited the number of pages shown
 	if ( !empty( $max_num_pages ) )
