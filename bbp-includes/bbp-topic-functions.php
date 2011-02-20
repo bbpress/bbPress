@@ -897,8 +897,8 @@ function bbp_split_topic_handler() {
 				$last_reply_id = ( empty( $reply ) || empty( $reply->ID        ) ) ? 0  : $reply->ID;
 				$freshness     = ( empty( $reply ) || empty( $reply->post_date ) ) ? '' : $reply->post_date;
 
-				bbp_update_topic_last_reply_id( $destination_topic->ID, $last_reply_id );
-				bbp_update_topic_last_active  ( $destination_topic->ID, $freshness     );
+				bbp_update_topic_last_reply_id   ( $destination_topic->ID, $last_reply_id );
+				bbp_update_topic_last_active_time( $destination_topic->ID, $freshness     );
 			}
 
 			// And we're done! ;)
