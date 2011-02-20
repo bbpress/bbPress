@@ -740,10 +740,23 @@ function bbp_pre_get_posts( $wp_query ) {
 	$bbp_view = get_query_var( 'bbp_view' );
 	$is_edit  = get_query_var( 'edit'     );
 
-	// Profile page
+	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
 
-		// It is a user page (most probably), we'll also check if it is user edit
+		// Not a user_id so try email and slug
+		if ( !is_numeric( $bbp_user ) ) {
+
+			// Email was passed
+			if ( is_email( $bbp_user ) )
+				$bbp_user = get_user_by( 'email', $bbp_user );
+			// Try nicename
+			else
+				$bbp_user = get_user_by( 'slug', $bbp_user );
+
+			// If we were successful, set to ID
+			if ( is_object( $bbp_user ) )
+				$bbp_user = $bbp_user->ID;
+		}
 
 		// Create new user
 		$user = new WP_User( $bbp_user );
