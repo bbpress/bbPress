@@ -172,10 +172,10 @@ function bbp_new_topic_handler() {
 				do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
 				// Redirect back to new reply
-				//wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
+				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
 
 				// For good measure
-				//exit();
+				exit();
 
 			// Errors to report
 			} else {
@@ -1558,24 +1558,52 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) )
 		$topic_id = bbp_get_reply_topic_id( $topic_id );
-	else
+	elseif ( bbp_is_topic( $topic_id ) )
 		$topic_id = bbp_get_topic_id( $topic_id );
-
-	// If it is not a topic or reply, then we don't need it
-	if ( !in_array( get_post_field( 'post_type', $topic_id ), array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) )
-		return false;
-
-	// If it's a reply, then get the parent (topic id)
-	if ( bbp_get_reply_post_type() == get_post_field( 'post_type', $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $topic_id );
+	else
+		return;
 
 	// There should always be at least 1 voice
-	if ( !$voices = count( $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT post_author FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) ) ) )
+	if ( !$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) ) )
 		$voices = 1;
 
 	update_post_meta( $topic_id, '_bbp_voice_count', (int) $voices );
 
 	return apply_filters( 'bbp_update_topic_voice_count', (int) $voices, $topic_id );
+}
+
+/**
+ * Adjust the total anonymous reply count of a topic
+ *
+ * @since bbPress (r2567)
+ *
+ * @param int $topic_id Optional. Topic id to update
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses get_post_field() To get the post type of the supplied id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses wpdb::prepare() To prepare our sql query
+ * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses update_post_meta() To update the topic voice count meta
+ * @uses apply_filters() Calls 'bbp_update_topic_voice_count' with the voice
+ *                        count and topic id
+ * @return bool False on failure, voice count on success
+ */
+function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
+	global $wpdb;
+
+	// If it's a reply, then get the parent (topic id)
+	if ( bbp_is_reply( $topic_id ) )
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
+	elseif ( bbp_is_topic( $topic_id ) )
+		$topic_id = bbp_get_topic_id( $topic_id );
+	else
+		return;
+
+	$anonymous_replies = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( ID ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
+
+	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', (int) $anonymous_replies );
+
+	return apply_filters( 'bbp_update_topic_anonymous_reply_count', (int) $anonymous_replies, $topic_id );
 }
 
 /** Topic Actions *************************************************************/
