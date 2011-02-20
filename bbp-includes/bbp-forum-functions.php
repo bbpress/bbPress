@@ -291,8 +291,6 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 /**
  * Update the forum sub-forum count
  *
- * @todo Make this work.
- *
  * @since bbPress (r2625)
  *
  * @param int $forum_id Optional. Forum id

@@ -1033,8 +1033,6 @@ function bbp_login_url() {
  *
  * This assumes that your login page is 'domain.com/login'
  *
- * @todo Make this less janky
- *
  * @param string $url URL
  * @param string $redirect_to Where to redirect to?
  * @uses add_query_arg() To add args to the url

@@ -5,8 +5,6 @@
  *
  * @package bbPress
  * @subpackage Options
- *
- * @todo add non-admin option related functions to this file
  */
 
 /**

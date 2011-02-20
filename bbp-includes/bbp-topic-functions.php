@@ -675,7 +675,7 @@ function bbp_merge_topic_handler() {
 					'post_name'   => false, // will be automatically generated
 					'post_type'   => bbp_get_reply_post_type(),
 					'post_parent' => $destination_topic->ID,
-					'guid'        => ''     // @todo Make this work somehow
+					'guid'        => ''
 				);
 
 				wp_update_post( $postarr );
@@ -825,7 +825,7 @@ function bbp_split_topic_handler() {
 						'post_name'   => false, // will be automatically generated
 						'post_type'   => bbp_get_topic_post_type(),
 						'post_parent' => $source_topic->post_parent,
-						'guid'        => ''     // @todo Make this work somehow
+						'guid'        => ''
 					);
 
 					$destination_topic_id = wp_update_post( $postarr );

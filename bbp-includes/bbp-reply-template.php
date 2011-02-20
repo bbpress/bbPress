@@ -68,7 +68,7 @@ function bbp_has_replies( $args = '' ) {
 		// 'ASC', 'DESC'
 		'order'          => 'ASC',
 
-		// @todo replace 15 with setting
+		// Max number
 		'posts_per_page' => get_option( '_bbp_replies_per_page', 15 ),
 
 		// Page Number
@@ -1044,9 +1044,6 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 *
 	 * @since bbPress (r2553)
 	 *
-	 * @todo Walk ancestors and look for topic post_type (for threaded
-	 *        replies)
-	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses get_post_field() To get the reply's parent i.e. topic id
@@ -1060,7 +1057,13 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 
 		// Fallback to post_parent if no meta exists, and set post meta
 		if ( empty( $topic_id ) ) {
-			$topic_id = get_post_field( 'post_parent', $reply_id );
+			$ancestors = get_post_ancestors( $reply_id );
+			foreach ( $ancestors as $ancestor ) {
+				if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_topic_post_type() ) {
+					$topic_id = $ancestor;
+					continue;
+				}
+			}
 			bbp_update_reply_topic_id( $reply_id, $topic_id );
 		}
 
