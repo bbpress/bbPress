@@ -303,7 +303,7 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	if ( empty( $subforums ) )
-		$subforum_ids = count( bbp_get_forum_subforum_ids( $forum_id ) );
+		$subforums = count( bbp_forum_query_subforum_ids( $forum_id ) );
 
 	update_post_meta( $forum_id, '_bbp_forum_subforum_count', (int) $subforums );
 
@@ -472,6 +472,7 @@ function bbp_update_forum( $args = '' ) {
 	bbp_update_forum_last_active_time( $forum_id, $last_active_time );
 
 	// Counts
+	bbp_update_forum_subforum_count    ( $forum_id );
 	bbp_update_forum_reply_count       ( $forum_id );
 	bbp_update_forum_topic_count       ( $forum_id );
 	bbp_update_forum_hidden_topic_count( $forum_id );
