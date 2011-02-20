@@ -15,7 +15,7 @@
 
 		<thead>
 			<tr>
-				<th class="bbp-forum-info"><?php _e( 'Forums', 'bbpress' ); ?></th>
+				<th class="bbp-forum-info"><?php _e( 'Forum', 'bbpress' ); ?></th>
 				<th class="bbp-forum-topic-count"><?php _e( 'Topics', 'bbpress' ); ?></th>
 				<th class="bbp-forum-topic-replies"><?php _e( 'Replies', 'bbpress' ); ?></th>
 				<th class="bbp-forum-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
