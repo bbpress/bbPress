@@ -337,6 +337,95 @@ function bbp_is_view() {
 	return false;
 }
 
+/**
+ * Use the above is_() functions to output a body class for each scenario
+ *
+ * @param array $wp_classes
+ * @param array $custom_classes
+ *
+ * @uses bbp_is_forum()
+ * @uses bbp_is_topic()
+ * @uses bbp_is_topic_edit()
+ * @uses bbp_is_topic_merge()
+ * @uses bbp_is_topic_split()
+ * @uses bbp_is_reply()
+ * @uses bbp_is_reply_edit()
+ * @uses bbp_is_reply_edit()
+ * @uses bbp_is_view()
+ * @uses bbp_is_user_profile_edit()
+ * @uses bbp_is_user_profile_page()
+ * @uses bbp_is_user_home()
+ * @uses bbp_is_subscriptions()
+ * @uses bbp_is_favorites()
+ * @uses bbp_is_topics_created()
+ *
+ * @return array
+ */
+function bbp_body_class( $wp_classes, $custom_classes = false ) {
+
+	$bbp_classes = array();
+
+	/** Components ********************************************************/
+
+	if ( bbp_is_forum() )
+		$bbp_classes[] = bbp_get_forum_post_type();
+
+	if ( bbp_is_topic() )
+		$bbp_classes[] = bbp_get_topic_post_type();
+
+	if ( bbp_is_topic_edit() )
+		$bbp_classes[] = bbp_get_topic_post_type() . '-edit';
+
+	if ( bbp_is_topic_merge() )
+		$bbp_classes[] = bbp_get_topic_post_type() . '-merege';
+
+	if ( bbp_is_topic_split() )
+		$bbp_classes[] = bbp_get_topic_post_type() . '-split';
+
+	if ( bbp_is_reply() )
+		$bbp_classes[] = bbp_get_reply_post_type();
+
+	if ( bbp_is_reply_edit() )
+		$bbp_classes[] = bbp_get_reply_post_type() . '-edit';
+
+	if ( bbp_is_view() )
+		$bbp_classes[] = 'bbp-view';
+
+	/** User **************************************************************/
+
+	if ( bbp_is_user_profile_edit() )
+		$bbp_classes[] = 'bbp-user-edit';
+
+	if ( bbp_is_user_profile_page() )
+		$bbp_classes[] = 'bbp-user-page';
+
+	if ( bbp_is_user_home() )
+		$bbp_classes[] = 'bbp-user-home';
+
+	if ( bbp_is_topics_created() )
+		$bbp_classes[] = 'bbp-topics-created';
+
+	if ( bbp_is_favorites() )
+		$bbp_classes[] = 'bbp-favorites';
+
+	if ( bbp_is_subscriptions() )
+		$bbp_classes[] = 'bbp-subscriptions';
+
+	/** Clean up **********************************************************/
+
+	// Add bbPress class if we are within a bbPress page
+	if ( !empty( $bbp_classes ) )
+		$bbp_classes[] = 'bbPress';
+
+	// Merge WP classes with bbPress classes
+	$classes = array_merge( (array) $bbp_classes, (array) $wp_classes );
+
+	// Remove any duplicates
+	$classes = array_unique( $classes );
+
+	return apply_filters( 'bbp_get_the_body_class', $classes, $bbp_classes, $wp_classes, $custom_classes );
+}
+
 /** Forms *********************************************************************/
 
 /**

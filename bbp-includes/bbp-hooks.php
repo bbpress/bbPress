@@ -74,11 +74,14 @@ add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_To
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
 
 // Template - Head, foot, errors and notices
-add_action( 'wp_head',              'bbp_head'                 );
-add_filter( 'wp_title',             'bbp_title',         10, 3 );
-add_action( 'wp_footer',            'bbp_footer'               );
-add_action( 'bbp_template_notices', 'bbp_error_messages'       );
-add_action( 'bbp_template_notices', 'bbp_topic_notices'        );
+add_action( 'wp_head',              'bbp_head'                  );
+add_filter( 'wp_title',             'bbp_title',          10, 3 );
+add_action( 'wp_footer',            'bbp_footer'                );
+add_action( 'bbp_template_notices', 'bbp_error_messages'        );
+add_action( 'bbp_template_notices', 'bbp_topic_notices'         );
+
+// Add to body class
+add_filter( 'body_class', 'bbp_body_class', 10, 2 );
 
 // Caps & Roles
 add_filter( 'map_meta_cap',     'bbp_map_meta_caps', 10, 4 );
