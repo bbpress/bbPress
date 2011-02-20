@@ -340,6 +340,8 @@ function bbp_is_view() {
 /**
  * Use the above is_() functions to output a body class for each scenario
  *
+ * @since bbPress (r2926)
+ *
  * @param array $wp_classes
  * @param array $custom_classes
  *
