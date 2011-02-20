@@ -43,7 +43,8 @@
 
 						<?php printf( __( 'Posted on %1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
-						<span><?php bbp_reply_admin_links(); ?></span>
+						<?php bbp_reply_admin_links(); ?>
+
 					</td>
 				</tr>
 
