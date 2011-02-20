@@ -28,7 +28,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 		$ancestors = get_post_ancestors( $reply_id );
 		foreach ( $ancestors as $ancestor ) {
 			if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_forum_post_type() ) {
-				$topic_id = $ancestor;
+				$forum_id = $ancestor;
 				continue;
 			}
 		}
