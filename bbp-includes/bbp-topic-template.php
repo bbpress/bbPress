@@ -100,7 +100,12 @@ function bbp_has_topics( $args = '' ) {
 
 	// Don't pass post_parent if forum_id is empty or 0
 	if ( empty( $default['post_parent'] ) ) {
+
+		// Remove post_parent from possible assignments
 		unset( $default['post_parent'] );
+		unset( $args['post_parent']    );
+
+		// Reassign post_parent to current ID
 		if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() && !bbp_is_view() )
 			$post_parent = get_the_ID();
 	}
@@ -2398,6 +2403,5 @@ function bbp_single_topic_description( $args = '' ) {
 		// Return filtered result
 		return apply_filters( 'bbp_get_single_topic_description', $retstr, $args );
 	}
-
 
 ?>
