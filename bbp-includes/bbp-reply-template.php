@@ -674,7 +674,7 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
 
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
 
-	return apply_filters( 'bbp_is_reply_spam', $bbp->spam_status_id == $reply_status );
+	return apply_filters( 'bbp_is_reply_spam', $bbp->spam_status_id == $reply_status, $reply_id );
 }
 
 /**
@@ -691,7 +691,8 @@ function bbp_is_reply_trash( $reply_id = 0 ) {
 	global $bbp;
 
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-	return $bbp->trash_status_id == $reply_status;
+
+	return apply_filters( 'bbp_is_reply_trash', $bbp->trash_status_id == $reply_status, $reply_id );
 }
 
 /**
@@ -858,14 +859,14 @@ function bbp_reply_author_avatar( $reply_id = 0, $size = 40 ) {
 	 * @return string Avatar of author of the reply
 	 */
 	function bbp_get_reply_author_avatar( $reply_id = 0, $size = 40 ) {
-		$author_avatar = '';
-
 		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
 			// Check for anonymous user
 			if ( !bbp_is_reply_anonymous( $reply_id ) )
 				$author_avatar = get_avatar( bbp_get_reply_author_id( $reply_id ), $size );
 			else
 				$author_avatar = get_avatar( get_post_meta( $reply_id, '_bbp_anonymous_email', true ), $size );
+		} else {
+			$author_avatar = '';
 		}
 
 		return apply_filters( 'bbp_get_reply_author_avatar', $author_avatar, $reply_id, $size );
@@ -1052,22 +1053,25 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 * @return int Reply's topic id
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
-		$reply_id = bbp_get_reply_id( $reply_id );
-		$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
+		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
+			$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
 
-		// Fallback to post_parent if no meta exists, and set post meta
-		if ( empty( $topic_id ) ) {
-			$ancestors = get_post_ancestors( $reply_id );
-			foreach ( $ancestors as $ancestor ) {
-				if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_topic_post_type() ) {
-					$topic_id = $ancestor;
-					continue;
+			// Fallback to post_parent if no meta exists, and set post meta
+			if ( empty( $topic_id ) ) {
+				$ancestors = get_post_ancestors( $reply_id );
+				foreach ( $ancestors as $ancestor ) {
+					if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_topic_post_type() ) {
+						$topic_id = $ancestor;
+						continue;
+					}
 				}
+				bbp_update_reply_topic_id( $reply_id, $topic_id );
 			}
-			bbp_update_reply_topic_id( $reply_id, $topic_id );
-		}
 
-		$topic_id = bbp_get_topic_id( $topic_id );
+			$topic_id = bbp_get_topic_id( $topic_id );
+		} else {
+			$topic_id = 0;
+		}
 
 		return apply_filters( 'bbp_get_reply_topic_id', (int) $topic_id, $reply_id );
 	}
@@ -1096,16 +1100,19 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 * @return int Reply's forum id
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
-		$reply_id = bbp_get_reply_id( $reply_id );
-		$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
+		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
+			$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
 
-		if ( empty( $forum_id ) ) {
-			$topic_id = bbp_get_reply_topic_id( $reply_id );
-			$forum_id = bbp_get_topic_forum_id( $topic_id );
-			bbp_update_reply_forum_id( $forum_id );
+			if ( empty( $forum_id ) ) {
+				$topic_id = bbp_get_reply_topic_id( $reply_id );
+				$forum_id = bbp_get_topic_forum_id( $topic_id );
+				bbp_update_reply_forum_id( $forum_id );
+			}
+
+			$forum_id = bbp_get_forum_id( $forum_id );
+		} else {
+			$forum_id = 0;
 		}
-
-		$forum_id = bbp_get_forum_id( $forum_id );
 
 		return apply_filters( 'bbp_get_reply_forum_id', (int) $forum_id, $reply_id );
 	}
