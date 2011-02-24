@@ -321,18 +321,21 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 */
 	function widget( $args, $instance ) {
+		global $bbp;
+
 		extract( $args );
 
 		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'] );
-		$max_shown    = !empty( $instance['max_shown']    ) ? $instance['max_shown']    : '5';
+		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown']    : 5;
 		$show_date    = !empty( $instance['show_date']    ) ? 'on'                      : false;
-		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : 0;
+		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : -1;
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
 		$default = array(
 			'post_parent'          => $parent_forum,
+			'post_author'          => 0,
 			'posts_per_page'       => $max_shown > $pop_check ? $max_shown : $pop_check,
-			'ignore_sticky_topics' => true
+			'show_stickies' => true
 		);
 
 		if ( $pop_check < $max_shown && bbp_has_topics( $default ) ) :

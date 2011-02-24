@@ -72,37 +72,37 @@ function bbp_has_topics( $args = '' ) {
 	// Default arguments
 	$default = array (
 		// Narrow query down to bbPress topics
-		'post_type'            => bbp_get_topic_post_type(),
+		'post_type'      => bbp_get_topic_post_type(),
 
 		// Forum ID
-		'post_parent'          => bbp_get_forum_id(),
+		'post_parent'    => bbp_get_forum_id(),
 
 		// Make sure topic has some last activity time
-		'meta_key'             => '_bbp_last_active_time',
+		'meta_key'       => '_bbp_last_active_time',
 
 		// 'meta_value', 'author', 'date', 'title', 'modified', 'parent', rand',
-		'orderby'              => 'meta_value',
+		'orderby'        => 'meta_value',
 
 		// 'ASC', 'DESC'
-		'order'                => 'DESC',
+		'order'          => 'DESC',
 
 		// Topics per page
-		'posts_per_page'       => get_option( '_bbp_topics_per_page', 15 ),
+		'posts_per_page' => get_option( '_bbp_topics_per_page', 15 ),
 
 		// Page Number
-		'paged'                => bbp_get_paged(),
+		'paged'          => bbp_get_paged(),
 
 		// Topic Search
-		's'                    => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
+		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
 
 		// Ignore sticky topics?
-		'ignore_sticky_topics' => ( is_page() || bbp_is_forum() ) ? false : true,
+		'show_stickies'  => ( is_page() || bbp_is_forum() ),
 
 		// Maximum number of pages to show
-		'max_num_pages'        => false,
+		'max_num_pages'  => false,
 
 		// Post Status
-		'post_status'          => $default_status,
+		'post_status'    => $default_status,
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
@@ -133,7 +133,7 @@ function bbp_has_topics( $args = '' ) {
 
 	// Put sticky posts at the top of the posts array, much of this code
 	// is taken from query.php in wp-includes
-	if ( empty( $ignore_sticky_topics ) && $paged <= 1 ) {
+	if ( !empty( $show_stickies ) && $paged <= 1 ) {
 		$stickies = bbp_get_super_stickies();
 		$stickies = !empty( $bbp_t['post_parent'] ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
 		$stickies = array_unique( $stickies );

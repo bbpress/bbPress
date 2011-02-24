@@ -91,7 +91,7 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 
 							<?php bbp_set_query_name( 'bbp_popular_topics' ); ?>
 
-							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_reply_count', 'posts_per_page' => 15, 'max_num_pages' => 1, 'orderby' => 'meta_value_num', 'ignore_sticky_topics' => true ) ) ) : ?>
+							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_reply_count', 'posts_per_page' => 15, 'max_num_pages' => 1, 'orderby' => 'meta_value_num', 'show_stickies' => false ) ) ) : ?>
 
 								<h2 class="entry-title"><?php _e( 'Popular Topics', 'bbpress' ); ?></h2>
 

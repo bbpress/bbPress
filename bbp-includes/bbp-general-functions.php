@@ -387,9 +387,9 @@ function bbp_register_view( $view, $title, $query_args = '', $feed = true ) {
 
 	$query_args = wp_parse_args( $query_args );
 
-	// Set ignore_sticky_topics to true if it wasn't supplied
-	if ( !isset( $query_args['ignore_sticky_topics'] ) )
-		$query_args['ignore_sticky_topics'] = true;
+	// Set exclude_stickies to true if it wasn't supplied
+	if ( !isset( $query_args['show_stickies'] ) )
+		$query_args['show_stickies'] = false;
 
 	$bbp->views[$view]['title'] = $title;
 	$bbp->views[$view]['query'] = $query_args;
