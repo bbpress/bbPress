@@ -63,6 +63,13 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
+	// Do we show hidden topics by default?
+	if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) )
+		$default_status = join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) );
+	else
+		$default_status = 'publish';
+
+	// Default arguments
 	$default = array (
 		// Narrow query down to bbPress topics
 		'post_type'            => bbp_get_topic_post_type(),
@@ -95,7 +102,7 @@ function bbp_has_topics( $args = '' ) {
 		'max_num_pages'        => false,
 
 		// Post Status
-		'post_status'    => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) ) ? join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) ) : 'publish',
+		'post_status'          => $default_status,
 	);
 
 	// Don't pass post_parent if forum_id is empty or 0
