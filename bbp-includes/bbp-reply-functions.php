@@ -425,7 +425,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
 
-	// Verifiy the reply ID
+	// Verify the reply ID
 	if ( $reply_id = bbp_get_reply_id ( $reply_id ) ) {
 
 		// Get the topic ID if none was passed
@@ -692,7 +692,7 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 function bbp_delete_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		return false;
 
 	do_action( 'bbp_delete_reply', $reply_id );
@@ -701,7 +701,7 @@ function bbp_delete_reply( $reply_id = 0 ) {
 function bbp_trash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		return false;
 
 	do_action( 'bbp_trash_reply', $reply_id );
@@ -710,7 +710,7 @@ function bbp_trash_reply( $reply_id = 0 ) {
 function bbp_untrash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		return false;
 
 	do_action( 'bbp_untrash_reply', $reply_id );
@@ -721,7 +721,7 @@ function bbp_untrash_reply( $reply_id = 0 ) {
 function bbp_deleted_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		return false;
 
 	do_action( 'bbp_deleted_reply', $reply_id );
@@ -730,7 +730,7 @@ function bbp_deleted_reply( $reply_id = 0 ) {
 function bbp_trashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		return false;
 
 	do_action( 'bbp_trashed_reply', $reply_id );
@@ -739,7 +739,7 @@ function bbp_trashed_reply( $reply_id = 0 ) {
 function bbp_untrashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
-	if ( empty( $reply_id ) )
+	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		return false;
 
 	do_action( 'bbp_untrashed_reply', $reply_id );

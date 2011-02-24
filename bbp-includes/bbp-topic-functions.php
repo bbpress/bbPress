@@ -1847,7 +1847,7 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 function bbp_delete_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bbp_delete_topic', $topic_id );
@@ -1864,7 +1864,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
 function bbp_trash_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bbp_trash_topic', $topic_id );
@@ -1889,7 +1889,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
 function bbp_untrash_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bbp_untrash_topic', $topic_id );
@@ -1906,7 +1906,7 @@ function bbp_untrash_topic( $topic_id = 0 ) {
 function bbp_deleted_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bbp_deleted_topic', $topic_id );
@@ -1915,7 +1915,7 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 function bbp_trashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bbp_trashed_topic', $topic_id );
@@ -1924,7 +1924,7 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 function bbp_untrashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	if ( empty( $topic_id ) )
+	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
 		return false;
 
 	do_action( 'bbp_untrashed_topic', $topic_id );

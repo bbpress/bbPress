@@ -103,7 +103,7 @@ function bbp_has_topics( $args = '' ) {
 
 		// Remove post_parent from possible assignments
 		unset( $default['post_parent'] );
-		unset( $args['post_parent']    );
+		if ( isset( $args['post_parent'] ) ) unset( $args['post_parent'] );
 
 		// Reassign post_parent to current ID
 		if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() && !bbp_is_view() )
@@ -307,10 +307,6 @@ function bbp_topic_id( $topic_id = 0) {
 		// Currently viewing a topic
 		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
 			$bbp_topic_id = $wp_query->post->ID;
-
-		// Currently viewing a singular reply
-		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) )
-			$bbp_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
 		else
