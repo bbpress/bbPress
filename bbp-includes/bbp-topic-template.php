@@ -63,20 +63,11 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
-	if ( isset( $bbp->topic_query ) )
-		unset( $bbp->topic_query );
-
 	// Do we show hidden topics by default?
 	if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) )
 		$default_status = join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) );
 	else
 		$default_status = 'publish';
-
-	// Are we looking for a specific forum_id or is this a view/profile
-	if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() && !bbp_is_view() )
-		$post_parent = bbp_get_forum_id();
-	else
-		$post_parent = 'any';
 
 	// Default arguments
 	$default = array (
@@ -84,7 +75,7 @@ function bbp_has_topics( $args = '' ) {
 		'post_type'      => bbp_get_topic_post_type(),
 
 		// Forum ID
-		'post_parent'    => $post_parent,
+		'post_parent'    => bbp_is_forum() ? bbp_get_forum_id() : 'any',
 
 		// Make sure topic has some last activity time
 		'meta_key'       => '_bbp_last_active_time',
