@@ -15,7 +15,7 @@ function bbp_update() {
 	$db_version = get_option( '_bbp_db_version' );
 
 	// Update the meta key names
-	if ( 104 < (int) $db_version ) {
+	if ( 104 > (int) $db_version ) {
 
 		// _bbp_visibility
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_key = '_bbp_visibility' WHERE meta_key = '_bbp_forum_visibility'" ) );
@@ -80,7 +80,7 @@ function bbp_update() {
 	}
 
 	// Remove the 'bbp_' prefix from post types in posts table
-	if ( 105 < (int) $db_version ) {
+	if ( 105 > (int) $db_version ) {
 
 		// Update the post type slugs
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_type = 'forum' WHERE post_type = 'bbp_forum'" ) );
@@ -94,7 +94,7 @@ function bbp_update() {
 	}
 
 	// Remove the 'bbp_' prefix from post types in posts table
-	if ( 106 < (int) $db_version ) {
+	if ( 106 > (int) $db_version ) {
 
 		// Update the topic tag slug
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->term_taxonomy} SET taxonomy = 'topic-tag' WHERE taxonomy = 'bbp_topic_tag'" ) );
