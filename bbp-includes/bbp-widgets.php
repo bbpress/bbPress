@@ -332,7 +332,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'] );
 		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown'] : 5;
 		$show_date    = !empty( $instance['show_date']    ) ? 'on'                         : false;
-		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum']    : 0;
+		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum']    : 'any';
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
 		$topics_query = array(
@@ -509,7 +509,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		$show_date = !empty( $instance['show_date'] ) ? 'on'                   : false;
 
 		$default = array(
-			'post_parent'    => false,
+			'post_parent'    => 'any',
 			'posts_per_page' => $max_shown,
 			'order'          => 'DESC'
 		);
