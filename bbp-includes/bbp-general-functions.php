@@ -656,26 +656,74 @@ function bbp_custom_template() {
 
 	// Viewing a profile
 	if ( bbp_is_user_profile_page() ) {
-		$template = array( 'user.php', 'author.php', 'index.php' );
+		$template = apply_filters( 'bbp_profile_templates', array(
+			'forums/user.php',
+			'bbpress/user.php',
+			'user.php',
+			'author.php',
+			'index.php'
+		) );
 
 	// Editing a profile
 	} elseif ( bbp_is_user_profile_edit() ) {
-		$template = array( 'user-edit.php', 'user.php', 'author.php', 'index.php' );
+		$template = apply_filters( 'bbp_profile_edit_templates', array(
+			'forums/user-edit.php',
+			'bbpress/user-edit.php',
+			'user-edit.php',
+			'bbpress/user.php',
+			'user.php',
+			'author.php',
+			'index.php'
+		) );
 
 	// View page
 	} elseif ( bbp_is_view() ) {
-		$template = array( 'view-' . bbp_get_view_id(), 'view.php', 'index.php' );
+		$template = apply_filters( 'bbp_view_templates', array(
+			'forums/view-' . bbp_get_view_id(),
+			'forums/view.php',
+			'bbpress/view-' . bbp_get_view_id(),
+			'bbpress/view.php',
+			'view-' . bbp_get_view_id(),
+			'view.php',
+			'index.php'
+		) );
 
 	// Editing a topic
 	} elseif ( bbp_is_topic_edit() ) {
-		$template = array( 'action-bbp_edit.php', 'single-' . bbp_get_topic_post_type(), 'single.php', 'index.php' );
+		$template = array(
+			'forums/action-edit.php',
+			'forums/single-' . bbp_get_topic_post_type(),
+			'bbpress/action-edit.php',
+			'bbpress/single-' . bbp_get_topic_post_type(),
+			'action-bbp-edit.php',
+			'single-' . bbp_get_topic_post_type(),
+			'single.php',
+			'index.php'
+		);
 
-		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) )
-			array_unshift( $template, 'action-bbp_split-merge.php' );
+		// Add split/merge to front of array if present in _GET
+		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) ) {
+			array_unshift( $template, array(
+				'forums/action-split-merge.php',
+				'bbpress/action-split-merge.php',
+				'action-bbp-split-merge.php'
+			) );
+		}
+
+		$template = apply_filters( 'bbp_topic_edit_templates', $template );
 
 	// Editing a reply
 	} elseif ( bbp_is_reply_edit() ) {
-		$template = array( 'action-bbp_edit.php', 'single-' . bbp_get_reply_post_type(), 'single.php', 'index.php' );
+		$template = apply_filters( 'bbp_reply_edit_templates', array(
+			'forums/action-edit.php',
+			'forums/single-' . bbp_get_reply_post_type(),
+			'bbpress/action-edit.php',
+			'bbpress/single-' . bbp_get_reply_post_type(),
+			'action-bbp-edit.php',
+			'single-' . bbp_get_reply_post_type(),
+			'single.php',
+			'index.php'
+		) );
 	}
 
 	if ( !$template = apply_filters( 'bbp_custom_template', $template ) )

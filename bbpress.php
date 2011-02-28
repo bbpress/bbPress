@@ -259,10 +259,10 @@ class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
-		$this->forum_post_type  = apply_filters( 'bbp_forum_post_type',  'bbp_forum'     );
-		$this->topic_post_type  = apply_filters( 'bbp_topic_post_type',  'bbp_topic'     );
-		$this->reply_post_type  = apply_filters( 'bbp_reply_post_type',  'bbp_reply'     );
-		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'bbp_topic_tag' );
+		$this->forum_post_type  = apply_filters( 'bbp_forum_post_type',  'forum'     );
+		$this->topic_post_type  = apply_filters( 'bbp_topic_post_type',  'topic'     );
+		$this->reply_post_type  = apply_filters( 'bbp_reply_post_type',  'reply'     );
+		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'topic-tag' );
 
 		// Status identifiers
 		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'   );

@@ -9,8 +9,13 @@
  * @global DB $wpdb
  */
 function bbp_update() {
-	if ( '104' != get_option( '_bbp_db_version' ) ) {
-		global $wpdb;
+	global $wpdb;
+
+	// Get the current bbPress DB version from the DB
+	$db_version = (int) get_option( '_bbp_db_version' );
+
+	// Update the meta key names
+	if ( 104 < $db_version ) {
 
 		// _bbp_visibility
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_key = '_bbp_visibility' WHERE meta_key = '_bbp_forum_visibility'" ) );
@@ -72,6 +77,30 @@ function bbp_update() {
 
 		// Set the new DB version
 		update_option( '_bbp_db_version', '104' );
+	}
+
+	// Remove the 'bbp_' prefix from post types in posts table
+	if ( 105 < $db_version ) {
+
+		// Update the post type slugs
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_type = 'forum' WHERE post_type = 'bbp_forum'" ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_type = 'topic' WHERE post_type = 'bbp_topic'" ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->posts} SET post_type = 'reply' WHERE post_type = 'bbp_reply'" ) );
+
+		// Update the topic tag slug
+
+		// Set the new DB version
+		update_option( '_bbp_db_version', '105' );
+	}
+
+	// Remove the 'bbp_' prefix from post types in posts table
+	if ( 106 < $db_version ) {
+
+		// Update the topic tag slug
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->term_taxonomy} SET taxonomy = 'topic-tag' WHERE taxonomy = 'bbp_topic_tag'" ) );
+
+		// Set the new DB version
+		update_option( '_bbp_db_version', '106' );
 	}
 }
 add_action( 'init', 'bbp_update', 1 );
