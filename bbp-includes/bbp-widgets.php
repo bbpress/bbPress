@@ -208,6 +208,8 @@ class BBP_Forums_Widget extends WP_Widget {
 			$default['meta_value'] = 'public';
 		}
 
+		bbp_set_query_name( 'bbp_widget' );
+
 		if ( bbp_has_forums( $default ) ) :
 
 			echo $before_widget;
@@ -226,6 +228,8 @@ class BBP_Forums_Widget extends WP_Widget {
 		<?php echo $after_widget;
 
 		endif;
+
+		bbp_reset_query_name();
 	}
 
 	/**
@@ -510,6 +514,8 @@ class BBP_Replies_Widget extends WP_Widget {
 			'order'          => 'DESC'
 		);
 
+		bbp_set_query_name( 'bbp_widget' );
+
 		if ( bbp_has_replies( $default ) ) :
 
 			echo $before_widget;
@@ -535,6 +541,8 @@ class BBP_Replies_Widget extends WP_Widget {
 			<?php echo $after_widget;
 
 		endif;
+
+		bbp_reset_query_name();
 	}
 
 	/**
