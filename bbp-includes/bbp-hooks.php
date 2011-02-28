@@ -286,4 +286,24 @@ function bbp_pre_anonymous_filters () {
 }
 bbp_pre_anonymous_filters();
 
+/**
+ * On multiblog installations you must first allow themes to be activated and show
+ * up on the theme selection screen. This function will let the bbPress bundled
+ * themes show up and bypass this step.
+ *
+ * @since bbPress (r2944)
+ *
+ * @uses is_super_admin()
+ * @uses apply_filters()
+ */
+function bbp_allowed_themes( $themes ) {
+	if ( !is_super_admin() )
+		return $themes;
+
+	$themes['bbp-twentyten'] = 1;
+
+	return apply_filters( 'bbp_allowed_themes', $themes );
+}
+add_filter( 'allowed_themes', 'bbp_allowed_themes' );
+
 ?>
