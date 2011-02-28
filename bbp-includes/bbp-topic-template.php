@@ -63,11 +63,20 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
+	if ( isset( $bbp->topic_query ) )
+		unset( $bbp->topic_query );
+
 	// Do we show hidden topics by default?
 	if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) )
 		$default_status = join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) );
 	else
 		$default_status = 'publish';
+
+	// Are we looking for a specific forum_id or is this a view/profile
+	if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() && !bbp_is_view() )
+		$post_parent = bbp_get_forum_id();
+	else
+		$post_parent = 'any';
 
 	// Default arguments
 	$default = array (
@@ -75,7 +84,7 @@ function bbp_has_topics( $args = '' ) {
 		'post_type'      => bbp_get_topic_post_type(),
 
 		// Forum ID
-		'post_parent'    => bbp_get_forum_id(),
+		'post_parent'    => $post_parent,
 
 		// Make sure topic has some last activity time
 		'meta_key'       => '_bbp_last_active_time',
@@ -105,27 +114,15 @@ function bbp_has_topics( $args = '' ) {
 		'post_status'    => $default_status,
 	);
 
-	// Don't pass post_parent if forum_id is empty or 0
-	if ( empty( $default['post_parent'] ) ) {
-
-		// Remove post_parent from possible assignments
-		unset( $default['post_parent'] );
-		if ( isset( $args['post_parent'] ) ) unset( $args['post_parent'] );
-
-		// Reassign post_parent to current ID
-		if ( !bbp_is_user_profile_page() && !bbp_is_user_profile_edit() && !bbp_is_view() )
-			$post_parent = get_the_ID();
-	}
-
 	// Set up topic variables
 	$bbp_t = wp_parse_args( $args, $default );
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( !isset( $wp_query ) || !is_tax() )
-		$bbp->topic_query = new WP_Query( $bbp_t );
-	else
+	if ( is_tax() && isset( $wp_query ) )
 		$bbp->topic_query = $wp_query;
+	else
+		$bbp->topic_query = new WP_Query( $bbp_t );
 
 	// Limited the number of pages shown
 	if ( !empty( $max_num_pages ) )
@@ -175,13 +172,11 @@ function bbp_has_topics( $args = '' ) {
 				global $wpdb;
 
 				// Get all stickies
-				$stickies__in   = implode( ',', array_map( 'absint', $stickies ) );
-				$stickies_sql   = $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_status = 'publish' AND {$wpdb->posts}.ID IN (%s) AND {$wpdb->posts}.post_type = '%s'", $stickies__in, bbp_get_topic_post_type() );
-				$stickies       = $wpdb->get_results( $stickies_sql );
-				$sticky_count   = count( $stickies );
+				$sticky_posts = get_posts( array( 'post_type' => 'any', 'post_parent' => 'any', 'include' => $stickies ) );
+				$sticky_count = count( $sticky_posts );
 
 				// Loop through stickies and add them to beginning of array
-				foreach ( $stickies as $sticky )
+				foreach ( $sticky_posts as $sticky )
 					$topics[] = $sticky;
 
 				// Loop through topics and add them to end of array
@@ -190,8 +185,8 @@ function bbp_has_topics( $args = '' ) {
 
 				// Adjust loop and counts for new sticky positions
 				$bbp->topic_query->posts       = $topics;
-				$bbp->topic_query->found_posts = (int)$bbp->topic_query->found_posts + (int)$sticky_count;
-				$bbp->topic_query->post_count  = (int)$bbp->topic_query->post_count  + (int)$sticky_count;
+				$bbp->topic_query->found_posts = (int) $bbp->topic_query->found_posts + (int) $sticky_count;
+				$bbp->topic_query->post_count  = (int) $bbp->topic_query->post_count  + (int) $sticky_count;
 
 				// Cleanup
 				unset( $topics   );
