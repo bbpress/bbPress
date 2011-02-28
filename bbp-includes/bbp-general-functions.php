@@ -788,10 +788,18 @@ function bbp_pre_get_posts( $wp_query ) {
 			$wp_query->bbp_is_user_profile_page = true;
 		}
 
-		// Set query variables
-		$wp_query->is_home                   = false;                   // Correct is_home variable
-		$wp_query->query_vars['bbp_user_id'] = $user->ID;               // Set bbp_user_id for future reference
-		$wp_query->query_vars['author_name'] = $user->user_nicename;    // Set author_name as current user's nicename to get correct posts
+		// Make sure 404 is not set
+		$wp_query->is_404 = false;
+
+		// Correct is_home variable
+		$wp_query->is_home = false;
+
+		// Set bbp_user_id for future reference
+		$wp_query->query_vars['bbp_user_id'] = $user->ID;
+
+		// Set author_name as current user's nicename to get correct posts
+		if ( 'bbp_widget' != bbp_get_query_name() )
+			$wp_query->query_vars['author_name'] = $user->user_nicename;
 
 		// Set the displayed user global to this user
 		$bbp->displayed_user = $user;

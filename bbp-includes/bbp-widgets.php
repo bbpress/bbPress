@@ -326,19 +326,21 @@ class BBP_Topics_Widget extends WP_Widget {
 		extract( $args );
 
 		$title        = apply_filters( 'bbp_topic_widget_title', $instance['title'] );
-		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown']    : 5;
-		$show_date    = !empty( $instance['show_date']    ) ? 'on'                      : false;
-		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : -1;
+		$max_shown    = !empty( $instance['max_shown']    ) ? (int) $instance['max_shown'] : 5;
+		$show_date    = !empty( $instance['show_date']    ) ? 'on'                         : false;
+		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum']    : 0;
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
-		$default = array(
-			'post_parent'          => $parent_forum,
-			'post_author'          => 0,
-			'posts_per_page'       => $max_shown > $pop_check ? $max_shown : $pop_check,
-			'show_stickies' => true
+		$topics_query = array(
+			'post_parent'    => $parent_forum,
+			'post_author'    => 0,
+			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
+			'show_stickies'  => false
 		);
 
-		if ( $pop_check < $max_shown && bbp_has_topics( $default ) ) :
+		bbp_set_query_name( 'bbp_widget' );
+
+		if ( $pop_check < $max_shown && bbp_has_topics( $topics_query ) ) :
 
 			echo $before_widget;
 			echo $before_title . $title . $after_title; ?>
@@ -394,6 +396,8 @@ class BBP_Topics_Widget extends WP_Widget {
 			<?php echo $after_widget;
 
 		endif;
+
+		bbp_reset_query_name();
 
 	}
 
