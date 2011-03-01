@@ -1168,7 +1168,7 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 		$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
 
 		// Fallback to post_parent if no meta exists, and set post meta
-		if ( empty( $forum_id ) ) {
+		if ( '' === $forum_id ) {
 			$forum_id = get_post_field( 'post_parent', $topic_id );
 			bbp_update_topic_forum_id( $topic_id, $forum_id );
 		}

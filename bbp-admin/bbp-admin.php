@@ -1169,19 +1169,23 @@ class BBP_Admin {
 			// Forum
 			case 'bbp_topic_forum' :
 				// Output forum name
-				bbp_forum_title( $forum_id );
+				if ( !empty( $forum_id ) ) {
+					bbp_forum_title( $forum_id );
 
-				// Link information
-				$actions = apply_filters( 'topic_forum_row_actions', array (
-					'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-					'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-				) );
+					// Link information
+					$actions = apply_filters( 'topic_forum_row_actions', array (
+						'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+						'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
+					) );
 
-				// Output forum post row links
-				foreach ( $actions as $action => $link )
-					$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+					// Output forum post row links
+					foreach ( $actions as $action => $link )
+						$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
 
-				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+					//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+				} else {
+					_e( '(No Forum)', 'bbpress' );
+				}
 
 				break;
 
@@ -1980,8 +1984,9 @@ function bbp_topic_metabox() {
 	global $post;
 
 	$args = array(
-		'selected'  => $post->post_parent,
-		'select_id' => 'parent_id'
+		'selected'  => bbp_get_topic_forum_id( $post->ID ),
+		'select_id' => 'parent_id',
+		'show_none' => __( '(No Forum)', 'bbpress' )
 	);
 
 	?>
@@ -1995,14 +2000,6 @@ function bbp_topic_metabox() {
 			<?php bbp_dropdown( $args ); ?>
 		</p>
 
-		<p>
-			<strong><?php _e( 'Topic Order', 'bbpress' ); ?></strong>
-		</p>
-
-		<p>
-			<label class="screen-reader-text" for="menu_order"><?php _e( 'Topic Order', 'bbpress' ); ?></label>
-			<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" />
-		</p>
 <?php
 
 	do_action( 'bbp_topic_metabox' );
@@ -2024,8 +2021,11 @@ function bbp_reply_metabox() {
 	$args = array(
 		'post_type' => bbp_get_topic_post_type(),
 		'selected'  => $post->post_parent,
-		'select_id' => 'parent_id'
-	); ?>
+		'select_id' => 'parent_id',
+		'orderby'   => 'post_date'
+	);
+
+	?>
 
 	<p>
 		<strong><?php _e( 'Parent Topic', 'bbpress' ); ?></strong>

@@ -344,6 +344,35 @@ function bbp_edit_topic_handler() {
 }
 
 /**
+ * Handles new topic submission from within wp-admin
+ *
+ * @param int $post_id
+ * @param obj $post
+ *
+ * @uses bbp_get_topic_post_type()
+ * @uses bbp_update_topic()
+ */
+function bbp_new_topic_admin_handler( $post_id, $post ) {
+	global $bbp;
+
+	if (    // Check if POST action
+			'POST'                        === $_SERVER['REQUEST_METHOD'] &&
+
+			// Check Actions exist in POST
+			!empty( $_POST['action']    )                                &&
+			!empty( $_POST['post_type'] )                                &&
+
+			// Check that actions match what we need
+			'editpost'                    === $_POST['action']           &&
+			bbp_get_topic_post_type()     === $_POST['post_type']
+	) {
+
+		// Update the topic meta bidness
+		bbp_update_topic( $post_id, (int) $_POST['parent_id'] );
+	}
+}
+
+/**
  * Handle all the extra meta stuff from posting a new topic
  *
  * @param int $topic_id Optional. Topic id
@@ -371,11 +400,18 @@ function bbp_edit_topic_handler() {
  * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
  */
 function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
+
 	// Validate the ID's passed from 'bbp_new_topic' action
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Check author_id
 	if ( empty( $author_id ) )
 		$author_id = bbp_get_current_user_id();
+
+	// Check forum_id
+	if ( empty( $forum_id ) )
+		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 	// If anonymous post, store name, email, website and ip in post_meta.
 	// It expects anonymous_data to be sanitized.
@@ -1361,8 +1397,6 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
-	
-	$forum_id = bbp_get_forum_id( $forum_id );
 
 	if ( empty( $forum_id ) )
 		$forum_id = get_post_field( 'post_parent', $topic_id );
