@@ -2019,10 +2019,11 @@ function bbp_reply_metabox() {
 	global $post;
 
 	$args = array(
-		'post_type' => bbp_get_topic_post_type(),
-		'selected'  => $post->post_parent,
-		'select_id' => 'parent_id',
-		'orderby'   => 'post_date'
+		'post_type'   => bbp_get_topic_post_type(),
+		'selected'    => $post->post_parent,
+		'select_id'   => 'parent_id',
+		'orderby'     => 'post_date',
+		'numberposts' => '50'
 	);
 
 	?>
