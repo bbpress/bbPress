@@ -708,7 +708,7 @@ function bbp_merge_topic_handler() {
 				$postarr = array(
 					'ID'          => $reply->ID,
 					'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
-					'post_name'   => false, // will be automatically generated
+					'post_name'   => false,
 					'post_type'   => bbp_get_reply_post_type(),
 					'post_parent' => $destination_topic->ID,
 					'guid'        => ''
@@ -717,11 +717,9 @@ function bbp_merge_topic_handler() {
 				wp_update_post( $postarr );
 			}
 
-			// And we're done! ;)
-			// Whew! Run the action and redirect!
-
-			// Update counts, etc...
-			// We sent the post parent of the source topic because the source topic has been actually shifted (and might be to a new forum), so we need to update the counts of the old forum too!
+			// Send the post parent of the source topic as it has been shifted
+			// (possibly to a new forum) so we need to update the counts of the
+			// old forum as well as the new one
 			do_action( 'bbp_merged_topic', $destination_topic->ID, $source_topic->ID, $source_topic->post_parent );
 
 			// Redirect back to new topic
@@ -858,7 +856,7 @@ function bbp_split_topic_handler() {
 					$postarr = array(
 						'ID'          => $from_reply->ID,
 						'post_title'  => $destination_topic_title,
-						'post_name'   => false, // will be automatically generated
+						'post_name'   => false,
 						'post_type'   => bbp_get_topic_post_type(),
 						'post_parent' => $source_topic->post_parent,
 						'guid'        => ''
@@ -922,7 +920,7 @@ function bbp_split_topic_handler() {
 					'post_title'  => sprintf( __( 'Reply To: %s', 'bbpress' ), $destination_topic->post_title ),
 					'post_name'   => false, // will be automatically generated
 					'post_parent' => $destination_topic->ID,
-					'guid'        => '' // @todo Make this work somehow
+					'guid'        => ''
 				);
 
 				wp_update_post( $postarr );
@@ -936,9 +934,6 @@ function bbp_split_topic_handler() {
 				bbp_update_topic_last_reply_id   ( $destination_topic->ID, $last_reply_id );
 				bbp_update_topic_last_active_time( $destination_topic->ID, $freshness     );
 			}
-
-			// And we're done! ;)
-			// Whew! Run the action and redirect!
 
 			// Update counts, etc...
 			do_action( 'bbp_post_split_topic', $from_reply->ID, $source_topic->ID, $destination_topic->ID );
@@ -1022,44 +1017,52 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  */
 function bbp_manage_topic_tag_handler() {
 
+	// Are we managing a tag?
 	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && in_array( $_POST['action'], array( 'bbp-update-topic-tag', 'bbp-merge-topic-tag', 'bbp-delete-topic-tag' ) ) && !empty( $_POST['tag-id'] ) ) {
 
 		global $bbp;
 
+		// Setup vars
 		$action = $_POST['action'];
 		$tag_id = (int) $_POST['tag-id'];
 		$tag    = get_term( $tag_id, $bbp->topic_tag_id );
 
+		// Tag does not exist
 		if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
-			$append_error = $tag->get_error_message() . ' ';
-			$bbp->errors->add( 'bbp_manage_topic_invalid_tag', __( '<strong>ERROR</strong>: The following problem(s) have been found while getting the tag:' . $append_error . 'Please try again.', 'bbpress' ) );
+			$bbp->errors->add( 'bbp_manage_topic_invalid_tag', sprintf( __( '<strong>ERROR</strong>: The following problem(s) have been found while getting the tag: %s', 'bbpress' ), $tag->get_error_message() ) );
 			return;
 		}
 
+		// What action are we trying to perform
 		switch ( $action ) {
 			case 'bbp-update-topic-tag' :
+
+				// Nonce check
 				check_admin_referer( 'update-tag_' . $tag_id );
 
+				// Can user edit topic tags?
 				if ( !current_user_can( 'edit_topic_tags' ) ) {
 					$bbp->errors->add( 'bbp_manage_topic_tag_update_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to edit the topic tags!', 'bbpress' ) );
 					return;
 				}
 
+				// No tag name was provided
 				if ( empty( $_POST['tag-name'] ) || !$name = $_POST['tag-name'] ) {
 					$bbp->errors->add( 'bbp_manage_topic_tag_update_name', __( '<strong>ERROR</strong>: You need to enter a tag name!', 'bbpress' ) );
 					return;
 				}
 
+				// Attempt to update the tag
 				$slug = !empty( $_POST['tag-slug'] ) ? $_POST['tag-slug'] : '';
+				$tag  = wp_update_term( $tag_id, $bbp->topic_tag_id, array( 'name' => $name, 'slug' => $slug ) );
 
-				$tag = wp_update_term( $tag_id, $bbp->topic_tag_id, array( 'name' => $name, 'slug' => $slug ) );
-
+				// Cannot update tag
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
-					$append_error = $tag->get_error_message() . ' ';
-					$bbp->errors->add( 'bbp_manage_topic_tag_update_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while updating the tag:' . $append_error . 'Please try again.', 'bbpress' ) );
+					$bbp->errors->add( 'bbp_manage_topic_tag_update_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) have been found while updating the tag: %s', 'bbpress' ), $tag->get_error_message() ) );
 					return;
 				}
 
+				// Redirect
 				$redirect = get_term_link( $tag_id, $bbp->topic_tag_id );
 
 				// Update counts, etc...
@@ -1068,44 +1071,51 @@ function bbp_manage_topic_tag_handler() {
 				break;
 
 			case 'bbp-merge-topic-tag'  :
+
+				// Nonce check
 				check_admin_referer( 'merge-tag_' . $tag_id );
 
+				// Can user edit topic tags?
 				if ( !current_user_can( 'edit_topic_tags' ) ) {
 					$bbp->errors->add( 'bbp_manage_topic_tag_merge_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to edit the topic tags!', 'bbpress' ) );
 					return;
 				}
 
+				// No tag name was provided
 				if ( empty( $_POST['tag-name'] ) || !$name = $_POST['tag-name'] ) {
 					$bbp->errors->add( 'bbp_manage_topic_tag_merge_name', __( '<strong>ERROR</strong>: You need to enter a tag name!', 'bbpress' ) );
 					return;
 				}
 
-				// Much part of merge tags functionality taken from Scribu's Term Management Tools WordPress Plugin
-
+				// If term does not exist, create it
 				if ( !$tag = term_exists( $name, $bbp->topic_tag_id ) )
 					$tag = wp_insert_term( $name, $bbp->topic_tag_id );
 
+				// Problem inserting the new term
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
-					$append_error = $tag->get_error_message() . ' ';
-					$bbp->errors->add( 'bbp_manage_topic_tag_merge_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while merging the tags:' . $append_error . 'Please try again.', 'bbpress' ) );
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) have been found while merging the tags: %s', 'bbpress' ), $tag->get_error_message() ) );
 					return;
 				}
 
+				// Merging in to...
 				$to_tag = $tag['term_id'];
 
+				// Attempting to merge a tag into itself
 				if ( $tag_id == $to_tag ) {
 					$bbp->errors->add( 'bbp_manage_topic_tag_merge_same', __( '<strong>ERROR</strong>: The tags which are being merged can not be the same.', 'bbpress' ) );
 					return;
 				}
 
+				// Delete the old term
 				$tag = wp_delete_term( $tag_id, $bbp->topic_tag_id, array( 'default' => $to_tag, 'force_default' => true ) );
 
+				// Error merging the terms
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
-					$append_error = $tag->get_error_message() . ' ';
-					$bbp->errors->add( 'bbp_manage_topic_tag_merge_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while merging the tags:' . $append_error . 'Please try again.', 'bbpress' ) );
+					$bbp->errors->add( 'bbp_manage_topic_tag_merge_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) have been found while merging the tags: %s', 'bbpress' ), $tag->get_error_message() ) );
 					return;
 				}
 
+				// Redirect
 				$redirect = get_term_link( (int) $to_tag, $bbp->topic_tag_id );
 
 				// Update counts, etc...
@@ -1114,18 +1124,22 @@ function bbp_manage_topic_tag_handler() {
 				break;
 
 			case 'bbp-delete-topic-tag' :
+
+				// Nonce check
 				check_admin_referer( 'delete-tag_' . $tag_id );
 
+				// Can user delete topic tags?
 				if ( !current_user_can( 'delete_topic_tags' ) ) {
 					$bbp->errors->add( 'bbp_manage_topic_tag_delete_permissions', __( '<strong>ERROR</strong>: You do not have the permissions to delete the topic tags!', 'bbpress' ) );
 					return;
 				}
 
+				// Attempt to delete term
 				$tag = wp_delete_term( $tag_id, $bbp->topic_tag_id );
 
+				// Error deleting term
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
-					$append_error = $tag->get_error_message() . ' ';
-					$bbp->errors->add( 'bbp_manage_topic_tag_delete_error', __( '<strong>ERROR</strong>: The following problem(s) have been found while deleting the tag:' . $append_error . 'Please try again.', 'bbpress' ) );
+					$bbp->errors->add( 'bbp_manage_topic_tag_delete_error', sprintf( __( '<strong>ERROR</strong>: The following problem(s) have been found while deleting the tag: %s', 'bbpress' ), $tag->get_error_message() ) );
 					return;
 				}
 
@@ -1144,7 +1158,6 @@ function bbp_manage_topic_tag_handler() {
 
 		// For good measure
 		exit();
-
 	}
 }
 
