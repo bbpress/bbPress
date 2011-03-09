@@ -369,17 +369,26 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 function bbp_update_forum_hidden_topic_count( $forum_id = 0, $topic_count = 0 ) {
 	global $wpdb, $bbp;
 
-	// If it's a topic, then get the parent (forum id)
-	if ( $topic_id = bbp_get_topic_id( $forum_id ) )
+	// If topic_id was passed as $forum_id, then get its forum
+	if ( bbp_is_topic( $forum_id ) ) {
+		$topic_id = bbp_get_topic_id( $forum_id );
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
-	else
+
+	// $forum_id is not a topic_id, so validate and proceed
+	} else {
 		$forum_id = bbp_get_forum_id( $forum_id );
+	}
 
-	// Get topics of forum
-	if ( empty( $topic_count ) )
-		$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
+	// Can't update what isn't there
+	if ( !empty( $forum_id ) ) {
 
-	update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
+		// Get topics of forum
+		if ( empty( $topic_count ) )
+			$topic_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $forum_id, bbp_get_topic_post_type() ) );
+
+		// Update the count
+		update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
+	}
 
 	return apply_filters( 'bbp_update_forum_hidden_topic_count', (int) $topic_count, $forum_id );
 }
