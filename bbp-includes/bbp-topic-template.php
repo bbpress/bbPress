@@ -2240,15 +2240,35 @@ function bbp_forum_pagination_links() {
 function bbp_topic_notices() {
 	global $bbp;
 
+	// Bail if not viewing a topic
 	if ( !bbp_is_topic() )
 		return;
 
+	// Get the topic_status
 	$topic_status = bbp_get_topic_status();
 
-	if ( !in_array( $topic_status, array( $bbp->spam_status_id, $bbp->trash_status_id ) ) )
-		return;
+	// Get the topic status
+	switch ( $topic_status ) {
 
-	$notice_text = $bbp->spam_status_id == $topic_status ? __( 'This topic is marked as spam.', 'bbpress' ) : __( 'This topic is currently trashed.', 'bbpress' ); ?>
+		// Spam notice
+		case $bbp->spam_status_id :
+			$notice_text = __( 'This topic is marked as spam.', 'bbpress' );
+			break;
+
+		// Trashed notice
+		case $bbp->trash_status_id :
+			$notice_text = __( 'This topic is in the trash.',   'bbpress' );
+			break;
+
+		// Standard status
+		default :
+			$notice_text = '';
+			break;
+	}
+
+	// Filter notice text and bail if empty
+	if ( ! $notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() ) )
+		return; ?>
 
 	<div class="bbp-template-notice error">
 		<p><?php echo $notice_text; ?></p>
