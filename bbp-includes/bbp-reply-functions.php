@@ -351,7 +351,7 @@ function bbp_new_reply_admin_handler( $post_id, $post ) {
 			bbp_get_reply_post_type()     === $_POST['post_type']
 	) {
 
-		// Update the topic meta bidness
+		// Update the reply meta bidness
 		bbp_update_reply( $post_id, (int) $_POST['parent_id'] );
 	}
 }
