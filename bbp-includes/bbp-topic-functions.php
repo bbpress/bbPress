@@ -1653,6 +1653,48 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 	return apply_filters( 'bbp_update_topic_anonymous_reply_count', (int) $anonymous_replies, $topic_id );
 }
 
+/**
+ * Update the revision log of the topic
+ *
+ * @since bbPress (r2782)
+ *
+ * @param mixed $args Supports these args:
+ *  - topic_id: Topic id
+ *  - author_id: Author id
+ *  - reason: Reason for editing
+ *  - revision_id: Revision id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_format_revision_reason() To format the reason
+ * @uses bbp_get_topic_raw_revision_log() To get the raw topic revision log
+ * @uses update_post_meta() To update the topic revision log meta
+ * @return mixed False on failure, true on success
+ */
+function bbp_update_topic_revision_log( $args = '' ) {
+	$defaults = array (
+		'reason'      => '',
+		'topic_id'    => 0,
+		'author_id'   => 0,
+		'revision_id' => 0
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Populate the variables
+	$reason      = bbp_format_revision_reason( $reason );
+	$topic_id    = bbp_get_topic_id( $topic_id );
+	$author_id   = bbp_get_user_id ( $author_id, false, true );
+	$revision_id = (int) $revision_id;
+
+	// Get the logs and append the new one to those
+	$revision_log               = bbp_get_topic_raw_revision_log( $topic_id );
+	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
+
+	// Finally, update
+	return update_post_meta( $topic_id, '_bbp_revision_log', $revision_log );
+}
+
 /** Topic Actions *************************************************************/
 
 /**

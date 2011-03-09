@@ -314,8 +314,6 @@ function bbp_forum_last_active_id( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum's last active id
-	 * @uses bbp_update_forum_last_active_id() To update and get the last
-	 *                                         active id of the forum
 	 * @uses apply_filters() Calls 'bbp_get_forum_last_active_id' with
 	 *                        the last active id and forum id
 	 * @return int Forum's last active id
@@ -752,8 +750,6 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum's last reply id
-	 * @uses bbp_update_forum_last_reply_id() To update and get the last
-	 *                                         reply id of the forum
 	 * @uses apply_filters() Calls 'bbp_get_forum_last_reply_id' with
 	 *                        the last reply id and forum id
 	 * @return int Forum's last reply id
@@ -1043,8 +1039,6 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	 *                           count? Defaults to total.
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum topic count
-	 * @uses bbp_update_forum_topic_count() To update the topic count if
-	 *                                       needed
 	 * @uses apply_filters() Calls 'bbp_get_forum_topic_count' with the
 	 *                        topic count and forum id
 	 * @return int Forum topic count
@@ -1078,8 +1072,6 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 	 *                           count?
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum reply count
-	 * @uses bbp_update_forum_reply_count() To update the reply count if
-	 *                                       needed
 	 * @uses apply_filters() Calls 'bbp_get_forum_reply_count' with the
 	 *                        reply count and forum id
 	 * @return int Forum reply count
@@ -1112,8 +1104,6 @@ function bbp_forum_hidden_topic_count( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Topic id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the hidden topic count
-	 * @uses bbp_update_forum_hidden_topic_count() To update the forum
-	 *                                              hidden topic count
 	 * @uses apply_filters() Calls 'bbp_get_forum_hidden_topic_count' with
 	 *                        the hidden topic count and forum id
 	 * @return int Topic hidden topic count

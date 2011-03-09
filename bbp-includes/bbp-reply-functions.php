@@ -537,6 +537,50 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 	}
 }
 
+/**
+ * Update the revision log of the reply
+ *
+ * @since bbPress (r2782)
+ *
+ * @param mixed $args Supports these args:
+ *  - reply_id: reply id
+ *  - author_id: Author id
+ *  - reason: Reason for editing
+ *  - revision_id: Revision id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_user_id() To get the user id
+ * @uses bbp_format_revision_reason() To format the reason
+ * @uses bbp_get_reply_raw_revision_log() To get the raw reply revision log
+ * @uses update_post_meta() To update the reply revision log meta
+ * @return mixed False on failure, true on success
+ */
+function bbp_update_reply_revision_log( $args = '' ) {
+	$defaults = array (
+		'reason'      => '',
+		'reply_id'    => 0,
+		'author_id'   => 0,
+		'revision_id' => 0
+	);
+
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Populate the variables
+	$reason      = bbp_format_revision_reason( $reason );
+	$reply_id    = bbp_get_reply_id( $reply_id );
+	$author_id   = bbp_get_user_id ( $author_id, false, true );
+	$revision_id = (int) $revision_id;
+
+	// Get the logs and append the new one to those
+	$revision_log               = bbp_get_reply_raw_revision_log( $reply_id );
+	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
+
+	// Finally, update
+	update_post_meta( $reply_id, '_bbp_revision_log', $revision_log );
+
+	return apply_filters( 'bbp_update_reply_revision_log', $revision_log, $reply_id );
+}
+
 /** Reply Actions *************************************************************/
 
 /**

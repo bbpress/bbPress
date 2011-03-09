@@ -588,50 +588,6 @@ function bbp_get_reply_revision_count( $reply_id = 0 ) {
 }
 
 /**
- * Update the revision log of the reply
- *
- * @since bbPress (r2782)
- *
- * @param mixed $args Supports these args:
- *  - reply_id: reply id
- *  - author_id: Author id
- *  - reason: Reason for editing
- *  - revision_id: Revision id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_user_id() To get the user id
- * @uses bbp_format_revision_reason() To format the reason
- * @uses bbp_get_reply_raw_revision_log() To get the raw reply revision log
- * @uses update_post_meta() To update the reply revision log meta
- * @return mixed False on failure, true on success
- */
-function bbp_update_reply_revision_log( $args = '' ) {
-	$defaults = array (
-		'reason'      => '',
-		'reply_id'    => 0,
-		'author_id'   => 0,
-		'revision_id' => 0
-	);
-
-	$r = wp_parse_args( $args, $defaults );
-	extract( $r );
-
-	// Populate the variables
-	$reason      = bbp_format_revision_reason( $reason );
-	$reply_id    = bbp_get_reply_id( $reply_id );
-	$author_id   = bbp_get_user_id ( $author_id, false, true );
-	$revision_id = (int) $revision_id;
-
-	// Get the logs and append the new one to those
-	$revision_log               = bbp_get_reply_raw_revision_log( $reply_id );
-	$revision_log[$revision_id] = array( 'author' => $author_id, 'reason' => $reason );
-
-	// Finally, update
-	update_post_meta( $reply_id, '_bbp_revision_log', $revision_log );
-
-	return apply_filters( 'bbp_update_reply_revision_log', $revision_log, $reply_id );
-}
-
-/**
  * Output the status of the reply
  *
  * @since bbPress (r2667)
@@ -1053,10 +1009,15 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 * @return int Reply's topic id
 	 */
 	function bbp_get_reply_topic_id( $reply_id = 0 ) {
+
+		// Check that reply_id is valid
 		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
+
+			// Get topic_id from reply
 			$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
 
 			// Fallback to post_parent if no meta exists, and set post meta
+			// @todo - Prevent missing _bbp_topic_id in replies
 			if ( empty( $topic_id ) ) {
 				$ancestors = get_post_ancestors( $reply_id );
 				foreach ( $ancestors as $ancestor ) {
@@ -1069,6 +1030,8 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 			}
 
 			$topic_id = bbp_get_topic_id( $topic_id );
+
+		// reply_id is not valid, so no topic exists
 		} else {
 			$topic_id = 0;
 		}
@@ -1100,9 +1063,14 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 	 * @return int Reply's forum id
 	 */
 	function bbp_get_reply_forum_id( $reply_id = 0 ) {
+
+		// Check that reply_id is valid
 		if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
+
+			// Get forum_id from reply
 			$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
 
+			// @todo - Prevent missing _bbp_forum_id in replies
 			if ( empty( $forum_id ) ) {
 				$topic_id = bbp_get_reply_topic_id( $reply_id );
 				$forum_id = bbp_get_topic_forum_id( $topic_id );
@@ -1110,6 +1078,8 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 			}
 
 			$forum_id = bbp_get_forum_id( $forum_id );
+
+		// reply_id is not valid, so no forum exists
 		} else {
 			$forum_id = 0;
 		}
