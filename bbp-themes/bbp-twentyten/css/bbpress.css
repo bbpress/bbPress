@@ -252,6 +252,17 @@ td.bbp-topic-counts {
 	background-color: #efefef;
 }
 
+#content .bbp-reply-form code,
+#content .bbp-topic-form code {
+	font-size: 10px;
+	background-color: #f0fff8;
+	border: 1px solid #CEEFE1;
+	display: block;
+	padding: 8px;
+	margin-top: 5px;
+	width: 369px;
+}
+
 #merge_tag,
 #delete_tag {
 	display: inline;
