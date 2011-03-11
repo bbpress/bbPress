@@ -184,6 +184,12 @@ add_action( 'template_redirect', 'bbp_custom_template', 999 );
 
 /** FILTERS *******************************************************************/
 
+// Links
+add_filter( 'paginate_links',          'bbp_add_view_all' );
+add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
+add_filter( 'bbp_get_reply_permalink', 'bbp_add_view_all' );
+add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
+
 // wp_filter_kses on new/edit topic/reply title
 add_filter( 'bbp_new_reply_pre_title',  'wp_filter_kses' );
 add_filter( 'bbp_new_topic_pre_title',  'wp_filter_kses' );

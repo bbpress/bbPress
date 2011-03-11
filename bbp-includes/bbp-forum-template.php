@@ -1393,17 +1393,27 @@ function bbp_single_forum_description( $args = '' ) {
 		// Validate forum_id
 		$forum_id = bbp_get_forum_id( $forum_id );
 
+		// Unhook the 'view all' query var adder
+		remove_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
+
 		// Build the forum description
 		$topic_count     = bbp_get_forum_topics_link   ( $forum_id );
 		$reply_count     = bbp_get_forum_reply_count   ( $forum_id );
 		$subforum_count  = bbp_get_forum_subforum_count( $forum_id );
 		$time_since      = bbp_get_forum_freshness_link( $forum_id );
+
+		// Forum has posts
 		if ( $last_reply = bbp_get_forum_last_active_id( $forum_id ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
 			$retstr = sprintf( __( 'This forum contains %s and %s replies, and was last updated by %s %s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
+
+		// Forum has no last active data
 		} else {
 			$retstr = sprintf( __( 'This forum contains %s and %s replies.', 'bbpress' ), $topic_count, $reply_count );
 		}
+
+		// Add the 'view all' filter back
+		add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
 		// Combine the elements together
 		$retstr = $before . $retstr . $after;

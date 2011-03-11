@@ -155,6 +155,27 @@ function bbp_redirect_canonical( $redirect_url ) {
 }
 
 /**
+ * Append 'view=all' to query string if it's already there from referer
+ *
+ * @param string $original_link
+ * @return <type>
+ */
+function bbp_add_view_all( $original_link ) {
+
+	// Bail if empty
+	if ( empty( $original_link ) )
+		return $original_link;
+
+	// Are we appending the view=all vars?
+	if ( ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( 'moderate' ) ) )
+		$link = add_query_arg( array( 'view' => 'all' ), $original_link );
+	else
+		$link = $original_link;
+
+	return apply_filters( 'bbp_add_view_all', $link, $original_link );
+}
+
+/**
  * Assist pagination by returning correct page number
  *
  * @since bbPress (r2628)

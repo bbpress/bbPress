@@ -2377,17 +2377,27 @@ function bbp_single_topic_description( $args = '' ) {
 		// Validate topic_id
 		$topic_id = bbp_get_topic_id( $topic_id );
 
+		// Unhook the 'view all' query var adder
+		remove_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
+
 		// Build the topic description
 		$forum_id        = bbp_get_topic_forum_id      ( $topic_id );
 		$voice_count     = bbp_get_topic_voice_count   ( $topic_id );
 		$reply_count     = bbp_get_topic_replies_link  ( $topic_id );
 		$time_since      = bbp_get_topic_freshness_link( $topic_id );
+
+		// Topic has replies
 		if ( $last_reply = bbp_get_topic_last_active_id( $topic_id ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
 			$retstr = sprintf( __( 'This topic has %s voices, contains %s, and was last updated by %s %s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
+
+		// Topic has no replies
 		} else {
 			$retstr = sprintf( __( 'This topic has %s voices, contains %s.', 'bbpress' ), $voice_count, $reply_count );
 		}
+
+		// Add the 'view all' filter back
+		add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
 
 		// Combine the elements together
 		$retstr = $before . $retstr . $after;
