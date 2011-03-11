@@ -1463,6 +1463,36 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 	}
 
 /**
+ * Output total post count of a topic
+ *
+ * @since bbPress (r2954)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_post_count() To get the topic post count
+ */
+function bbp_topic_post_count( $topic_id = 0 ) {
+	echo bbp_get_topic_post_count( $topic_id );
+}
+	/**
+	 * Return total post count of a topic
+	 *
+	 * @since bbPress (r2954)
+	 *
+	 * @param int $topic_id Optional. Topic id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses get_post_meta() To get the topic post count meta
+	 * @uses apply_filters() Calls 'bbp_get_topic_post_count' with the
+	 *                        post count and topic id
+	 * @return int post count
+	 */
+	function bbp_get_topic_post_count( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
+
+		return apply_filters( 'bbp_get_topic_post_count', (int) $replies + 1, $topic_id );
+	}
+
+/**
  * Output total hidden reply count of a topic (hidden includes trashed and
  * spammed replies)
  *

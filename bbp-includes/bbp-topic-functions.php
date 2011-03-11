@@ -452,7 +452,8 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	}
 
 	// Forum topic meta
-	bbp_update_topic_forum_id ( $topic_id, $forum_id    );
+	bbp_update_topic_forum_id ( $topic_id, $forum_id );
+	bbp_update_topic_topic_id ( $topic_id, $topic_id );
 
 	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
@@ -1417,6 +1418,28 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 	update_post_meta( $topic_id, '_bbp_forum_id', (int) $forum_id );
 
 	return apply_filters( 'bbp_update_topic_forum_id', (int) $forum_id, $topic_id );
+}
+
+/**
+ * Update the topic's topic ID
+ *
+ * @since bbPress (r2954)
+ *
+ * @param int $topic_id Optional. Topic id to update
+ * @param int $topic_id Optional. Reply id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses update_post_meta() To update the topic last topic id meta
+ * @return bool True on success, false on failure
+ */
+function bbp_update_topic_topic_id( $topic_id = 0 ) {
+
+	// If it's a reply, then get the parent (topic id)
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	update_post_meta( $topic_id, '_bbp_topic_id', (int) $topic_id );
+
+	return apply_filters( 'bbp_update_topic_topic_id', (int) $topic_id, $topic_id );
 }
 
 /**

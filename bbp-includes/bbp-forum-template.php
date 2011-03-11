@@ -1084,6 +1084,40 @@ function bbp_forum_reply_count( $forum_id = 0, $total_count = true ) {
 	}
 
 /**
+ * Output total post count of a forum
+ *
+ * @since bbPress (r2954)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @param bool $total_count Optional. To get the total count or normal count?
+ * @uses bbp_get_forum_post_count() To get the forum post count
+ */
+function bbp_forum_post_count( $forum_id = 0, $total_count = true ) {
+	echo bbp_get_forum_post_count( $forum_id, $total_count );
+}
+	/**
+	 * Return total post count of a forum
+	 *
+	 * @since bbPress (r2954)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @param bool $total_count Optional. To get the total count or normal
+	 *                           count?
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses get_post_meta() To get the forum post count
+	 * @uses apply_filters() Calls 'bbp_get_forum_post_count' with the
+	 *                        post count and forum id
+	 * @return int Forum post count
+	 */
+	function bbp_get_forum_post_count( $forum_id = 0, $total_count = true ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+		$topics   = bbp_get_forum_topic_count( $forum_id, $total_count );
+		$replies  = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_reply_count' : '_bbp_total_reply_count', true );
+
+		return apply_filters( 'bbp_get_forum_post_count', (int) $replies + (int) $topics, $forum_id );
+	}
+
+/**
  * Output total hidden topic count of a forum (hidden includes trashed and
  * spammed topics)
  *

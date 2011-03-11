@@ -55,12 +55,37 @@ function bbp_reply_post_type() {
 function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite, $bbp;
 
-	$default = array(
-		// Narrow query down to bbPress topics
-		'post_type'      => bbp_get_reply_post_type(),
+	// Show the topic above all of the replies
+	if ( bbp_show_lead_topic() ) {
 
-		// Forum ID
-		'post_parent'    => bbp_get_topic_id(),
+		$parent_args = array(
+
+			// Query only by post_parent
+			'post_parent' => bbp_get_topic_id(),
+
+			// Narrow query down to bbPress replies
+			'post_type'   => bbp_get_reply_post_type()
+		);
+
+	// Show the topic in the same loop as replies
+	} else {
+
+		$parent_args = array(
+
+			// Query by post meta instead of post_parent
+			'meta_key'    => '_bbp_topic_id',
+			'meta_value'  => bbp_get_topic_id(),
+
+			// Include both topic and reply in the loop
+			'post_type'   => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
+		);
+
+		// Manually set the post_parent variable
+		$post_parent = bbp_get_topic_id();
+	}
+
+	// Default query args
+	$default = array(
 
 		// 'author', 'date', 'title', 'modified', 'parent', rand',
 		'orderby'        => 'date',
@@ -80,6 +105,9 @@ function bbp_has_replies( $args = '' ) {
 		// Post Status
 		'post_status'    => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) ? join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) ) : 'publish',
 	);
+
+	// Merge the default args and parent args together
+	$default = array_merge( $parent_args, $default );
 
 	// Set up topic variables
 	$bbp_r = wp_parse_args( $args, $default );
@@ -316,18 +344,30 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$topic_id      = bbp_get_reply_topic_id( $reply_id );
 		$topic_url     = bbp_get_topic_permalink( $topic_id );
 		$topic_replies = bbp_get_topic_reply_count( $topic_id );
+
+		// Add hidden replies to count
 		if ( $count_hidden == true )
 			$topic_replies += bbp_get_topic_hidden_reply_count( $topic_id );
-		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
 
+		// Add 1 to the count if topic is included in reply loop
+		if ( !bbp_show_lead_topic() )
+			$topic_replies++;
+
+		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
 		$reply_hash    = !empty( $bbp->errors ) ? "#reply-{$reply_id}" : '';
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
 			$url = trailingslashit( $topic_url ) . $reply_hash;
+
+		// Include pagination
 		} else {
+
+			// Pretty permalinks
 			if ( $wp_rewrite->using_permalinks() ) {
 				$url = trailingslashit( $topic_url ) . trailingslashit( "page/{$reply_page}" ) . $reply_hash;
+
+			// Yucky links
 			} else {
 				$url = add_query_arg( 'paged', $reply_page, $topic_url ) . $reply_hash;
 			}
@@ -1129,9 +1169,6 @@ function bbp_reply_admin_links( $args = '' ) {
 	function bbp_get_reply_admin_links( $args = '' ) {
 		global $bbp;
 
-		if ( !bbp_is_topic() && !bbp_is_reply() )
-			return;
-
 		$defaults = array (
 			'id'     => 0,
 			'before' => '<span class="bbp-admin-links">',
@@ -1144,13 +1181,23 @@ function bbp_reply_admin_links( $args = '' ) {
 
 		$r['id'] = bbp_get_reply_id( (int) $r['id'] );
 
+		// If post is a topic, return the topic admin links instead
+		if ( bbp_is_topic( $r['id'] ) )
+			return bbp_get_topic_admin_links( $args );
+
+		// If post is not a reply, return
+		if ( !bbp_is_reply( $r['id'] ) )
+			return;
+
+		// Make sure user can edit this reply
+		if ( !current_user_can( 'edit_reply', $r['id'] ) )
+			return;
+
 		// If topic is trashed, do not show admin links
 		if ( bbp_is_topic_trash( bbp_get_reply_topic_id( $r['id'] ) ) )
 			return;
 
-		if ( !current_user_can( 'edit_reply', $r['id'] ) )
-			return;
-
+		// If no links were passed, default to the standard
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array (
 				'edit'  => bbp_get_reply_edit_link ( $r ),
@@ -1536,15 +1583,32 @@ function bbp_topic_pagination_count() {
 		$to_num    = bbp_number_format( ( $start_num + ( $bbp->reply_query->posts_per_page - 1 ) > $bbp->reply_query->found_posts ) ? $bbp->reply_query->found_posts : $start_num + ( $bbp->reply_query->posts_per_page - 1 ) );
 		$total     = bbp_number_format( $bbp->reply_query->found_posts );
 
-		// Set return string
-		if ( $total > 1 && (int) $from_num == (int) $to_num )
-			$retstr = sprintf( __( 'Viewing reply %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
-		elseif ( $total > 1 && empty( $to_num ) )
-			$retstr = sprintf( __( 'Viewing %1$s replies', 'bbpress' ), $total );
-		if ( $total > 1 && (int) $from_num != (int) $to_num )
-			$retstr = sprintf( __( 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
-		else
-			$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
+		// We are not including the lead topic
+		if ( bbp_show_lead_topic() ) {
+
+			// Set return string
+			if ( $total > 1 && (int) $from_num == (int) $to_num )
+				$retstr = sprintf( __( 'Viewing reply %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
+			elseif ( $total > 1 && empty( $to_num ) )
+				$retstr = sprintf( __( 'Viewing %1$s replies', 'bbpress' ), $total );
+			elseif ( $total > 1 && (int) $from_num != (int) $to_num )
+				$retstr = sprintf( __( 'Viewing %1$s replies - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
+			else
+				$retstr = sprintf( __( 'Viewing %1$s reply', 'bbpress' ), $total );
+
+		// We are including the lead topic
+		} else {
+
+			// Set return string
+			if ( $total > 1 && (int) $from_num == (int) $to_num )
+				$retstr = sprintf( __( 'Viewing post %1$s (of %2$s total)', 'bbpress' ), $from_num, $total );
+			elseif ( $total > 1 && empty( $to_num ) )
+				$retstr = sprintf( __( 'Viewing %1$s posts', 'bbpress' ), $total );
+			elseif ( $total > 1 && (int) $from_num != (int) $to_num )
+				$retstr = sprintf( __( 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', 'bbpress' ), $bbp->reply_query->post_count, $from_num, $to_num, $total );
+			elseif ( $total == 1 )
+				$retstr = sprintf( __( 'Viewing %1$s post', 'bbpress' ), $total );
+		}
 
 		// Filter and return
 		return apply_filters( 'bbp_get_topic_pagination_count', $retstr );

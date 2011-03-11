@@ -41,7 +41,7 @@
 					<td class="bbp-reply-content">
 						<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>">#</a>
 
-						<?php printf( __( 'Posted on %1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+						<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
 						<?php bbp_reply_admin_links(); ?>
 

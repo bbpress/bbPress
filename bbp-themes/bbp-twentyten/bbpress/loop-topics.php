@@ -18,7 +18,7 @@
 			<tr>
 				<th class="bbp-topic-title"><?php _e( 'Topic', 'bbpress' ); ?></th>
 				<th class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></th>
-				<th class="bbp-topic-reply-count"><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></th>
 				<th class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
 				<?php if ( ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ) : ?><th class="bbp-topic-action"><?php _e( 'Remove', 'bbpress' ); ?></th><?php endif; ?>
 			</tr>
@@ -49,7 +49,7 @@
 
 					<td class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></td>
 
-					<td class="bbp-topic-reply-count"><?php bbp_topic_reply_count(); ?></td>
+					<td class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? bbp_topic_reply_count() : bbp_topic_post_count(); ?></td>
 
 					<td class="bbp-topic-freshness">
 

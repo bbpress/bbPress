@@ -28,59 +28,63 @@
 
 							<div id="ajax-response"></div>
 
-							<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
-								<thead>
-									<tr>
-										<th class="bbp-topic-author"><?php _e( 'Creator', 'bbpress' ); ?></th>
-										<th class="bbp-topic-content">
+							<?php if ( bbp_show_lead_topic() ) : ?>
 
-											<?php _e( 'Topic', 'bbpress' ); ?>
+								<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
+									<thead>
+										<tr>
+											<th class="bbp-topic-author"><?php _e( 'Creator', 'bbpress' ); ?></th>
+											<th class="bbp-topic-content">
 
-											<?php bbp_user_subscribe_link(); ?>
+												<?php _e( 'Topic', 'bbpress' ); ?>
 
-											<?php bbp_user_favorites_link(); ?>
+												<?php bbp_user_subscribe_link(); ?>
 
-										</th>
-									</tr>
-								</thead>
+												<?php bbp_user_favorites_link(); ?>
 
-								<tfoot>
-									<tr>
-										<td colspan="2">
+											</th>
+										</tr>
+									</thead>
 
-											<?php bbp_topic_admin_links(); ?>
+									<tfoot>
+										<tr>
+											<td colspan="2">
 
-										</td>
-									</tr>
-								</tfoot>
+												<?php bbp_topic_admin_links(); ?>
 
-								<tbody>
+											</td>
+										</tr>
+									</tfoot>
 
-									<tr class="bbp-topic-header">
-										<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'name' ) ); ?></td>
+									<tbody>
 
-										<td class="bbp-topic-content">
-											<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>">#</a>
+										<tr class="bbp-topic-header">
+											<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'name' ) ); ?></td>
 
-											<?php printf( __( 'Posted on %1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+											<td class="bbp-topic-content">
+												<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>">#</a>
 
-										</td>
-									</tr>
+												<?php printf( __( 'Posted on %1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
-									<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
+											</td>
+										</tr>
 
-										<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'avatar' ) ); ?></td>
+										<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
 
-										<td class="bbp-topic-content">
+											<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'avatar' ) ); ?></td>
 
-											<?php bbp_topic_content(); ?>
+											<td class="bbp-topic-content">
 
-										</td>
+												<?php bbp_topic_content(); ?>
 
-									</tr><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
+											</td>
 
-								</tbody>
-							</table><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
+										</tr><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
+
+									</tbody>
+								</table><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
+
+							<?php endif; ?>
 
 						<?php endwhile; ?>
 

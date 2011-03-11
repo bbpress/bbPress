@@ -17,7 +17,7 @@
 			<tr>
 				<th class="bbp-forum-info"><?php _e( 'Forum', 'bbpress' ); ?></th>
 				<th class="bbp-forum-topic-count"><?php _e( 'Topics', 'bbpress' ); ?></th>
-				<th class="bbp-forum-topic-replies"><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></th>
 				<th class="bbp-forum-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
 			</tr>
 		</thead>
@@ -42,7 +42,7 @@
 
 					<td class="bbp-forum-topic-count"><?php bbp_forum_topic_count(); ?></td>
 
-					<td class="bbp-forum-reply-count"><?php bbp_forum_reply_count(); ?></td>
+					<td class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? bbp_forum_reply_count() : bbp_forum_post_count(); ?></td>
 
 					<td class="bbp-forum-freshness">
 					

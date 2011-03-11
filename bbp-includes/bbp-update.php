@@ -102,6 +102,25 @@ function bbp_update() {
 		// Set the new DB version
 		update_option( '_bbp_db_version', '106' );
 	}
+
+	// Add _bbp_topic_id meta to any existing topics
+	if ( 107 > (int) $db_version ) {
+
+		// Get all topic_id's
+		if ( $existing_topic_ids = $wpdb->get_results( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s", bbp_get_topic_post_type() ), ARRAY_N ) ) {
+
+			// Make sure query is not an error
+			if ( !is_wp_error( $existing_topic_ids ) ) {
+
+				// Add the topic meta to each topic
+				foreach( $existing_topic_ids as $topic_id )
+					bbp_update_topic_topic_id ( $topic_id[0], $topic_id[0] );
+
+				// Set the new DB version
+				update_option( '_bbp_db_version', '107' );
+			}
+		}
+	}
 }
 add_action( 'init', 'bbp_update', 1 );
 
