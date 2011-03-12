@@ -63,8 +63,10 @@ add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Admin
 if ( is_admin() ) {
-	add_action( 'bbp_init',   'bbp_admin'           );
-	add_action( 'admin_menu', 'bbp_admin_separator' );
+	add_action( 'bbp_init',          'bbp_admin'                   );
+	add_action( 'admin_menu',        'bbp_admin_separator'         );
+	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
+	add_action( 'menu_order',        'bbp_admin_menu_order'        );
 }
 
 // Widgets

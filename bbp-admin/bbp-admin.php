@@ -1635,21 +1635,6 @@ class BBP_Admin {
 endif; // class_exists check
 
 /**
- * Forces a separator between bbPress top level menus & WordPress content menus
- *
- * @todo A better job at rearranging and separating top level menus
- *
- * @since bbPress (r2464)
- */
-function bbp_admin_separator () {
-	global $menu;
-
-	$menu[24] = $menu[25];
-	$menu[25] = array( '', 'read', 'separator1', '', 'wp-menu-separator' );
-}
-
-
-/**
  * bbPress Dashboard Right Now Widget
  *
  * Adds a dashboard widget with forum statistics

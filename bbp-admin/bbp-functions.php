@@ -7,6 +7,64 @@
  * @subpackage Administration
  */
 
+/** Admin Menus ***************************************************************/
+
+/**
+ * Add a separator to the WordPress admin menus
+ *
+ * @since bbPress (r2957)
+ */
+function bbp_admin_separator () {
+	global $menu;
+
+	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator' );
+}
+
+/**
+ * Tell WordPress we have a custom menu order
+ *
+ * @since bbPress (r2957)
+ *
+ * @param bool $menu_order
+ * @return bool Always true
+ */
+function bbp_admin_custom_menu_order( $menu_order ) {
+	return true;
+}
+
+/**
+ * Move our custom separator above our custom post types
+ *
+ * @since bbPress (r2957)
+ *
+ * @param array $menu_order
+ */
+function bbp_admin_menu_order( $menu_order ) {
+
+	// Initialize our custom order array
+	$bbp_menu_order = array();
+
+	// Get the index of our custom separator
+	$bbp_separator = array_search( 'separator-bbpress', $menu_order );
+
+	// Loop through menu order and do some rearranging
+	foreach ( $menu_order as $index => $item ) {
+
+		// Current item is our forum CPT, so set our separator here
+		if ( 'edit.php?post_type=forum' == $item ) {
+			$bbp_menu_order[] = 'separator-bbpress';
+			unset( $menu_order[$bbp_separator] );
+		}
+
+		// Skip our separator
+		if ( 'separator-bbpress' != $item )
+			$bbp_menu_order[] = $item;
+	}
+
+	// Return our custom order
+	return $bbp_menu_order;
+}
+
 /**
  * Display the admin notices
  *
