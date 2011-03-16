@@ -44,9 +44,6 @@ function bbp_admin_menu_order( $menu_order ) {
 	// Initialize our custom order array
 	$bbp_menu_order = array();
 
-	// Set the last item as empty string
-	$last_item = '';
-
 	// Get the index of our custom separator
 	$bbp_separator = array_search( 'separator-bbpress', $menu_order );
 
@@ -54,7 +51,7 @@ function bbp_admin_menu_order( $menu_order ) {
 	foreach ( $menu_order as $index => $item ) {
 
 		// Current item is our forum CPT, so set our separator here
-		if ( ( 'edit.php?post_type=forum' == $item ) && ( 0 === strpos( $last_item, 'separator' ) ) ) {
+		if ( ( 'edit.php?post_type=forum' == $item ) ) {
 			$bbp_menu_order[] = 'separator-bbpress';
 			unset( $menu_order[$bbp_separator] );
 		}
@@ -63,8 +60,6 @@ function bbp_admin_menu_order( $menu_order ) {
 		if ( 'separator-bbpress' != $item )
 			$bbp_menu_order[] = $item;
 
-		// Store this item as the last item
-		$last_item = $item;
 	}
 
 	// Return our custom order
