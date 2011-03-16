@@ -51,7 +51,7 @@ function bbp_admin_menu_order( $menu_order ) {
 	foreach ( $menu_order as $index => $item ) {
 
 		// Current item is our forum CPT, so set our separator here
-		if ( 'edit.php?post_type=forum' == $item ) {
+		if ( ( 'edit.php?post_type=forum' == $item ) && ( 0 === strpos( $item, 'separator' ) ) ) {
 			$bbp_menu_order[] = 'separator-bbpress';
 			unset( $menu_order[$bbp_separator] );
 		}
