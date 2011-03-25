@@ -37,6 +37,8 @@
 					<td class="bbp-topic-title">
 						<a href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a>
 
+						<?php bbp_topic_pagination(); ?>
+
 						<p class="bbp-topic-meta">
 
 							<?php printf( __( 'Started by: %1$s', 'bbpress' ), bbp_get_topic_author_link( array( 'size' => '14' ) ) ); ?>

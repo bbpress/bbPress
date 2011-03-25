@@ -235,6 +235,19 @@ td.bbp-topic-counts {
 	margin-bottom: 20px;
 }
 
+.bbp-topic-pagination {
+	display: inline-block;
+	margin-left: 5px;
+	margin-bottom: 2px;
+	}
+	.bbp-topic-pagination a {
+		font-size: 10px;
+		line-height: 10px;
+		padding: 1px 3px;
+		border: 1px solid #ddd;
+		text-decoration: none;
+	}
+
 /* =Forms
 -------------------------------------------------------------- */
 

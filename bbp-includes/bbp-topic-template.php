@@ -491,6 +491,80 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
 	}
 
 /**
+ * Output pagination links of a topic within the topic loop
+ *
+ * @since bbPress (r2966)
+ *
+ * @uses wp_parse_args()
+ * @param array $args
+ */
+function bbp_topic_pagination( $args = '' ) {
+	echo bbp_get_topic_pagination( $args );
+}
+	/**
+	 * Returns pagination links of a topic within the topic loop
+	 *
+	 * @since bbPress (r2966)
+	 *
+	 * @uses wp_parse_args()
+	 * @uses user_trailingslashit()
+	 * @uses trailingslashit()
+	 * @uses get_permalink()
+	 * @uses add_query_arg()
+	 * @uses bbp_get_topic_reply_count()
+	 * @uses get_option()
+	 * @uses paginate_links()
+	 *
+	 * @global obj $wp_rewrite
+	 * @param array $args
+	 * @return string
+	 */
+	function bbp_get_topic_pagination( $args = '' ) {
+		global $wp_rewrite;
+
+		$defaults = array(
+			'topic_id' => bbp_get_topic_id(),
+			'before'   => '<span class="bbp-topic-pagination">',
+			'after'    => '</span>',
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// If pretty permalinks are enabled, make our pagination pretty
+		if ( $wp_rewrite->using_permalinks() )
+			$base = user_trailingslashit( trailingslashit( get_permalink( $topic_id ) ) . 'page/%#%/' );
+		else
+			$base = add_query_arg( 'paged', '%#%' );
+
+		// Pagination settings
+		$pagination = array(
+			'base'      => $base,
+			'format'    => '',
+			'total'     => ceil( (int) bbp_get_topic_reply_count( $topic_id ) / (int) get_option( '_bbp_replies_per_page', 15 ) ),
+			'current'   => 0,
+			'prev_next' => false,
+			'mid_size'  => 1,
+			'add_args'  => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] ) ? array( 'view' => 'all' ) : false
+		);
+
+		// Add pagination to query object
+		if ( $pagination_links = paginate_links( $pagination ) ) {
+
+			// Remove first page from pagination
+			if ( $wp_rewrite->using_permalinks() )
+				$pagination_links = str_replace( 'page/1/',       '', $pagination_links );
+			else
+				$pagination_links = str_replace( '&#038;paged=1', '', $pagination_links );
+
+			// Add before and after to pagination links
+			$pagination_links = $before . $pagination_links . $after;
+		}
+
+		return apply_filters( 'bbp_get_topic_pagination', $pagination_links );
+	}
+
+/**
  * Append revisions to the topic content
  *
  * @since bbPress (r2782)
