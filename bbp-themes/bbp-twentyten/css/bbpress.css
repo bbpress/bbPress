@@ -39,6 +39,11 @@ hr {
 	background-color: #fdd;
 }
 
+#content table.bbp-topics tbody tr.status-closed td,
+#content table.bbp-topics tbody tr.status-closed td a {
+	color: #ccc;
+}
+
 table.bbp-topic tbody tr td,
 table.bbp-replies tbody tr td {
 	background-color: #fff;

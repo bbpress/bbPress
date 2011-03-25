@@ -63,11 +63,11 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
-	// Do we show hidden topics by default?
-	if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) )
-		$default_status = join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) );
+	// What are the default allowed statuses (based on user caps)
+	if ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) ) )
+		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
 	else
-		$default_status = 'publish';
+		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
 
 	// Default arguments
 	$default = array (

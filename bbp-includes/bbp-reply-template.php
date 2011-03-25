@@ -84,6 +84,12 @@ function bbp_has_replies( $args = '' ) {
 		$post_parent = bbp_get_topic_id();
 	}
 
+	// What are the default allowed statuses (based on user caps)
+	if ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) )
+		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
+	else
+		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
+
 	// Default query args
 	$default = array(
 
@@ -103,7 +109,7 @@ function bbp_has_replies( $args = '' ) {
 		's'              => !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : '',
 
 		// Post Status
-		'post_status'    => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) ? join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) ) : 'publish',
+		'post_status'    => $default_status
 	);
 
 	// Merge the default args and parent args together
