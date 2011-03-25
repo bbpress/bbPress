@@ -51,13 +51,13 @@ function bbp_admin_menu_order( $menu_order ) {
 	foreach ( $menu_order as $index => $item ) {
 
 		// Current item is our forum CPT, so set our separator here
-		if ( ( 'edit.php?post_type=forum' == $item ) ) {
+		if ( ( ( 'edit.php?post_type=' . bbp_get_forum_post_type() ) == $item ) ) {
 			$bbp_menu_order[] = 'separator-bbpress';
 			unset( $menu_order[$bbp_separator] );
 		}
 
 		// Skip our separator
-		if ( 'separator-bbpress' != $item )
+		if ( !in_array( $item, array( 'separator-bbpress' ) ) )
 			$bbp_menu_order[] = $item;
 
 	}
