@@ -537,14 +537,20 @@ function bbp_topic_pagination( $args = '' ) {
 		else
 			$base = add_query_arg( 'paged', '%#%' );
 
+		// Get total and add 1 if topic is included in the reply loop
+		$total = bbp_get_topic_reply_count( $topic_id );
+		if ( !bbp_show_lead_topic() )
+			$total++;
+
 		// Pagination settings
 		$pagination = array(
 			'base'      => $base,
 			'format'    => '',
-			'total'     => ceil( (int) bbp_get_topic_reply_count( $topic_id ) / (int) get_option( '_bbp_replies_per_page', 15 ) ),
+			'total'     => ceil( (int) $total / (int) get_option( '_bbp_replies_per_page', 15 ) ),
 			'current'   => 0,
 			'prev_next' => false,
-			'mid_size'  => 1,
+			'mid_size'  => 2,
+			'end_size'  => 6,
 			'add_args'  => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] ) ? array( 'view' => 'all' ) : false
 		);
 
