@@ -26,6 +26,40 @@ function bbp_walk_forum( $forums, $depth, $current, $r ) {
 	return call_user_func_array( array( &$walker, 'walk' ), $args );
 }
 
+/** Forum Handlers ************************************************************/
+
+/**
+ * Handles new forum craetion from within wp-admin
+ *
+ * @since bbPress (r2613)
+ *
+ * @param int $post_id
+ * @param obj $post
+ *
+ * @uses bbp_get_forum_post_type()
+ * @uses bbp_update_forum()
+ */
+function bbp_new_forum_admin_handler( $post_id, $post ) {
+	global $bbp;
+
+	if (    // Check if POST action
+			'POST'                        === $_SERVER['REQUEST_METHOD'] &&
+
+			// Check Actions exist in POST
+			!empty( $_POST['action']    )                                &&
+			!empty( $_POST['post_type'] )                                &&
+
+			// Check that actions match what we need
+			'editpost'                    === $_POST['action']           &&
+			bbp_get_forum_post_type()     === $_POST['post_type']
+	) {
+
+		// Update the forum meta bidness
+		bbp_update_forum( array( 'forum_id' => $post_id, 'post_parent' => (int) $_POST['parent_id'] ) );
+	}
+}
+
+
 /** Forum Actions *************************************************************/
 
 /**
@@ -456,6 +490,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 function bbp_update_forum( $args = '' ) {
 	$defaults = array(
 		'forum_id'         => 0,
+		'post_parent'      => 0,
 		'last_topic_id'    => 0,
 		'last_reply_id'    => 0,
 		'last_active_id'   => 0,
@@ -483,6 +518,13 @@ function bbp_update_forum( $args = '' ) {
 	bbp_update_forum_reply_count       ( $forum_id );
 	bbp_update_forum_topic_count       ( $forum_id );
 	bbp_update_forum_hidden_topic_count( $forum_id );
+
+	// Update the parent forum if one was passed
+	if ( !empty( $post_parent ) && is_numeric( $post_parent ) )
+		bbp_update_forum( array(
+			'forum_id'    => $post_parent,
+			'post_parent' => get_post_field( 'post_parent', $post_parent )
+		) );
 }
 
 /** Queries *******************************************************************/

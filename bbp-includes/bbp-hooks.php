@@ -106,6 +106,17 @@ add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'           );
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_is_super_admin', 2 );
 
+// New/Edit Forum
+if ( is_admin() )
+	add_action( 'wp_insert_post', 'bbp_new_forum_admin_handler', 10, 2 );
+
+// Update forum branch
+add_action( 'bbp_trashed_forum',   'bbp_update_forum_walker' );
+add_action( 'bbp_untrashed_forum', 'bbp_update_forum_walker' );
+add_action( 'bbp_deleted_forum',   'bbp_update_forum_walker' );
+add_action( 'bbp_spammed_forum',   'bbp_update_forum_walker' );
+add_action( 'bbp_unspammed_forum', 'bbp_update_forum_walker' );
+
 // New/Edit Reply
 add_action( 'template_redirect', 'bbp_new_reply_handler'         );
 add_action( 'template_redirect', 'bbp_edit_reply_handler', 1     );
