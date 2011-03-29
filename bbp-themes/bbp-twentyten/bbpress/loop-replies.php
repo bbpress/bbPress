@@ -17,14 +17,42 @@
 		<thead>
 			<tr>
 				<th class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></th>
-				<th class="bbp-reply-content"><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-reply-content">
+				
+					<?php if ( !bbp_show_lead_topic() ) : ?>
+
+						<?php _e( 'Posts', 'bbpress' ); ?>
+
+						<?php bbp_user_subscribe_link(); ?>
+
+						<?php bbp_user_favorites_link(); ?>
+
+					<?php else : ?>
+
+						<?php _e( 'Replies', 'bbpress' ); ?>
+
+					<?php endif; ?>
+
+				</th>
 			</tr>
 		</thead>
 
 		<tfoot>
 			<tr>
 				<th class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></th>
-				<th class="bbp-reply-content"><?php _e( 'Replies', 'bbpress' ); ?></th>
+				<th class="bbp-reply-content">
+
+					<?php if ( !bbp_show_lead_topic() ) : ?>
+
+						<?php _e( 'Posts', 'bbpress' ); ?>
+
+					<?php else : ?>
+
+						<?php _e( 'Replies', 'bbpress' ); ?>
+
+					<?php endif; ?>
+
+				</th>
 			</tr>
 		</tfoot>
 
