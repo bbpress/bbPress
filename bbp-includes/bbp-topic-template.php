@@ -292,7 +292,7 @@ function bbp_topic_id( $topic_id = 0) {
 	 * @return int The topic id
 	 */
 	function bbp_get_topic_id( $topic_id = 0 ) {
-		global $bbp, $wp_query, $bbp;
+		global $bbp, $wp_query;
 
 		// Easy empty checking
 		if ( !empty( $topic_id ) && is_numeric( $topic_id ) )
@@ -304,13 +304,19 @@ function bbp_topic_id( $topic_id = 0) {
 
 		// Currently viewing a topic
 		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_topic_id = $wp_query->post->ID;
+			$bbp_topic_id = $bbp->current_topic_id = $wp_query->post->ID;
+
+		// Currently viewing a topic
+		elseif ( bbp_is_reply() )
+			$bbp_topic_id = $bbp->current_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
 		else
 			$bbp_topic_id = 0;
 
-		$bbp->current_topic_id = $bbp_topic_id;
+		// Check if current_reply_id is set, and check post_type if so
+		if ( !empty( $bbp->current_topic_id ) && ( bbp_get_topic_post_type() != get_post_field( 'post_type', $bbp_topic_id ) ) )
+			$bbp->current_topic_id = null;
 
 		return apply_filters( 'bbp_get_topic_id', (int) $bbp_topic_id, $topic_id );
 	}

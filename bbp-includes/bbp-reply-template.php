@@ -220,17 +220,19 @@ function bbp_reply_id( $reply_id = 0 ) {
 
 		// Currently viewing a reply
 		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_reply_id = $wp_query->post->ID;
+			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
 
 		// Currently inside a replies loop
 		elseif ( isset( $bbp->reply_query->post->ID ) )
-			$bbp_reply_id = $bbp->reply_query->post->ID;
+			$bbp_reply_id = $bbp->current_reply_id = $bbp->reply_query->post->ID;
 
 		// Fallback
 		else
 			$bbp_reply_id = 0;
 
-		$bbp->current_reply_id = $bbp_reply_id;
+		// Check if current_reply_id is set, and check post_type if so
+		if ( !empty( $bbp->current_reply_id ) && ( bbp_get_reply_post_type() != get_post_field( 'post_type', $bbp_reply_id ) ) )
+			$bbp->current_reply_id = null;
 
 		return apply_filters( 'bbp_get_reply_id', (int) $bbp_reply_id, $reply_id );
 	}

@@ -139,26 +139,23 @@ function bbp_forum_id( $forum_id = 0 ) {
 
 		// Easy empty checking
 		if ( !empty( $forum_id ) && is_numeric( $forum_id ) )
-			$bbp_forum_id = $forum_id;
+			$bbp_forum_id = $bbp->current_forum_id = $forum_id;
 
 		// Currently inside a forum loop
 		elseif ( !empty( $bbp->forum_query->in_the_loop ) && isset( $bbp->forum_query->post->ID ) )
-			$bbp_forum_id = $bbp->forum_query->post->ID;
+			$bbp_forum_id = $bbp->current_forum_id = $bbp->forum_query->post->ID;
 
 		// Currently viewing a forum
 		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
-			$bbp_forum_id = $wp_query->post->ID;
+			$bbp_forum_id = $bbp->current_forum_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
 		elseif ( bbp_is_topic() )
-			$bbp_forum_id = bbp_get_topic_forum_id();
+			$bbp_forum_id = $bbp->current_forum_id = bbp_get_topic_forum_id();
 
 		// Fallback
 		else
 			$bbp_forum_id = 0;
-
-		// Set global
-		$bbp->current_forum_id = $bbp_forum_id;
 
 		return apply_filters( 'bbp_get_forum_id', (int) $bbp_forum_id, $forum_id );
 	}

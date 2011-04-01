@@ -145,17 +145,17 @@ class bbPress {
 	/**
 	 * @var string Current forum id
 	 */
-	var $current_forum_id;
+	var $current_forum_id = null;
 
 	/**
 	 * @var string Current topic id
 	 */
-	var $current_topic_id;
+	var $current_topic_id = null;
 
 	/**
 	 * @var string Current reply id
 	 */
-	var $current_reply_id;
+	var $current_reply_id = null;
 
 	/** User ******************************************************************/
 
