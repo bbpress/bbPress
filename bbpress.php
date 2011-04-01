@@ -761,7 +761,10 @@ class bbPress {
 	 *                                $wp_rewrite->rules
 	 */
 	function generate_rewrite_rules( $wp_rewrite ) {
+
+		// New rules to merge with existing
 		$bbp_rules = array(
+
 			// Edit Pages
 			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
@@ -783,7 +786,11 @@ class bbPress {
 			$this->view_slug . '/([^/]+)/?$'                   => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 )
 		);
 
+		// Merge bbPress rules with existing
 		$wp_rewrite->rules = array_merge( $bbp_rules, $wp_rewrite->rules );
+
+		// Return merged rules
+		return $wp_rewrite;
 	}
 }
 

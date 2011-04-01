@@ -2394,14 +2394,32 @@ function bbp_topic_type_select( $args = '' ) {
 	// Get current topic id
 	$topic_id = bbp_get_topic_id( $topic_id );
 
-	// Current topic type
-	if ( !bbp_is_topic_edit() ) {
-		$sticky_current = 'unstick';
-	} else {
-		if ( bbp_is_topic_super_sticky( $topic_id ) ) {
+	// Edit topic
+	if ( bbp_is_topic_edit() ) {
+
+		// Post value is passed
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$select_id] ) ) {
+			$sticky_current = $_POST[$select_id];
+
+		// Topic is super sticky
+		} elseif ( bbp_is_topic_super_sticky( $topic_id ) ) {
 			$sticky_current = 'super';
+
+		// Topic is sticky or normal
 		} else {
 			$sticky_current = bbp_is_topic_sticky( $topic_id, false ) ? 'stick' : 'unstick';
+		}
+
+	// New topic
+	} else {
+
+		// Post value is passed
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$select_id] ) ) {
+			$sticky_current = $_POST[$select_id];
+
+		// Default to unstick
+		} else {
+			$sticky_current = 'unstick';
 		}
 	}
 
@@ -2503,6 +2521,262 @@ function bbp_single_topic_description( $args = '' ) {
 
 		// Return filtered result
 		return apply_filters( 'bbp_get_single_topic_description', $retstr, $args );
+	}
+
+/** Forms *********************************************************************/
+
+/**
+ * Output the value of topic title field
+ *
+ * @since bbPress (r2976)
+ *
+ * @uses bbp_get_form_topic_title()
+ */
+function bbp_form_topic_title() {
+	echo bbp_get_form_topic_title();
+}
+	/**
+	 * Return the value of topic title field
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @global obj $post
+	 * @uses bbp_is_topic_edit()
+	 * @uses esc_attr()
+	 * @return string
+	 */
+	function bbp_get_form_topic_title() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_title'] ) )
+			$topic_title = $_POST['bbp_topic_title'];
+
+		// Get edit data
+		elseif ( !empty( $post->post_title ) && bbp_is_topic_edit() )
+			$topic_title = $post->post_title;
+
+		// No data
+		else
+			$topic_title = '';
+
+		return apply_filters( 'bbp_get_form_topic_title', esc_attr( $topic_title ) );
+	}
+
+/**
+ * Output the value of topic content field
+ *
+ * @since bbPress (r2976)
+ *
+ * @uses bbp_get_form_topic_content()
+ */
+function bbp_form_topic_content() {
+	echo bbp_get_form_topic_content();
+}
+	/**
+	 * Return the value of topic content field
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @global obj $post
+	 * @uses bbp_is_topic_edit()
+	 * @uses esc_textarea()
+	 * @return string
+	 */
+	function bbp_get_form_topic_content() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_content'] ) )
+			$topic_content = $_POST['bbp_topic_content'];
+
+		// Get edit data
+		elseif ( !empty( $post->post_title ) && bbp_is_topic_edit() )
+			$topic_content = $post->post_content;
+
+		// No data
+		else
+			$topic_content = '';
+
+		return apply_filters( 'bbp_get_form_topic_content', esc_textarea( $topic_content ) );
+	}
+
+/**
+ * Output value of topic tags field
+ *
+ * @since bbPress (r2976)
+ * @uses bbp_get_form_topic_tags()
+ */
+function bbp_form_topic_tags() {
+	echo bbp_get_form_topic_tags();
+}
+	/**
+	 * Return value of topic tags field
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @global obj $post
+	 * @uses bbp_is_topic_edit()
+	 * @uses esc_attr()
+	 * @return string
+	 */
+	function bbp_get_form_topic_tags() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_tags'] ) )
+			$topic_tags = $_POST['bbp_topic_tags'];
+
+		// Get edit data
+		elseif ( !empty( $post->post_title ) && bbp_is_topic_edit() )
+			$topic_tags = $post->post_tags;
+
+		// No data
+		else
+			$topic_tags = '';
+
+		return apply_filters( 'bbp_get_form_topic_tags', esc_attr( $topic_tags ) );
+	}
+
+/**
+ * Output value of topic forum
+ *
+ * @since bbPress (r2976)
+ *
+ * @uses bbp_get_form_topic_forum()
+ */
+function bbp_form_topic_forum() {
+	echo bbp_get_form_topic_forum();
+}
+	/**
+	 * Return value of topic forum
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @uses bbp_is_topic_edit()
+	 * @uses bbp_get_topic_forum_id()
+	 * @uses esc_attr()
+	 * @return string
+	 */
+	function bbp_get_form_topic_forum() {
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_id'] ) )
+			$topic_forum = $_POST['bbp_forum_id'];
+
+		// Get edit data
+		elseif ( bbp_is_topic_edit() )
+			$topic_forum = bbp_get_topic_forum_id();
+
+		// No data
+		else
+			$topic_forum = 0;
+
+		return apply_filters( 'bbp_get_form_topic_forum', esc_attr( $topic_forum ) );
+	}
+
+/**
+ * Output checked value of topic subscription
+ *
+ * @since bbPress (r2976)
+ *
+ * @uses bbp_get_form_topic_subscribed()
+ */
+function bbp_form_topic_subscribed() {
+	echo bbp_get_form_topic_subscribed();
+}
+	/**
+	 * Return checked value of topic subscription
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @global obj $post
+	 * @uses bbp_is_topic_edit()
+	 * @uses bbp_is_user_user_subscribed()
+	 * @return string
+	 */
+	function bbp_get_form_topic_subscribed() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_subscription'] ) )
+			$topic_subscribed = $_POST['bbp_topic_subscription'];
+
+		// Get edit data
+		elseif ( bbp_is_topic_edit() )
+			$topic_subscribed = bbp_is_user_subscribed( $post->post_author );
+
+		// No data
+		else
+			$topic_subscribed = 0;
+
+		return apply_filters( 'bbp_get_form_topic_subscribed', checked( 'bbp_subscribe', $topic_subscribed, false ) );
+	}
+
+/**
+ * Output checked value of topic log edit field
+ *
+ * @since bbPress (r2976)
+ *
+ * @uses bbp_get_form_topic_log_edit()
+ */
+function bbp_form_topic_log_edit() {
+	echo bbp_get_form_topic_log_edit();
+}
+	/**
+	 * Return checked value of topic log edit field
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @global obj $post
+	 * @uses checked()
+	 * @return string
+	 */
+	function bbp_get_form_topic_log_edit() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_topic_edit'] ) )
+			$topic_revision = $_POST['bbp_log_topic_edit'];
+
+		// No data
+		else
+			$topic_revision = 1;
+
+		return apply_filters( 'bbp_get_form_topic_log_edit', checked( true, $topic_revision, false ) );
+	}
+
+/**
+ * Output the value of the topic edit reason
+ *
+ * @since bbPress (r2976)
+ *
+ * @uses bbp_get_form_topic_edit_reason()
+ */
+function bbp_form_topic_edit_reason() {
+	echo bbp_get_form_topic_edit_reason();
+}
+	/**
+	 * Return the value of the topic edit reason
+	 *
+	 * @since bbPress (r2976)
+	 *
+	 * @global obj $post
+	 * @uses esc_attr()
+	 * @return string
+	 */
+	function bbp_get_form_topic_edit_reason() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_edit_reason'] ) )
+			$topic_edit_reason = $_POST['bbp_topic_edit_reason'];
+
+		// No data
+		else
+			$topic_edit_reason = '';
+
+		return apply_filters( 'bbp_get_form_topic_edit_reason', esc_attr( $topic_edit_reason ) );
 	}
 
 ?>

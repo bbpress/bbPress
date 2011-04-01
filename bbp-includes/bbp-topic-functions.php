@@ -72,19 +72,19 @@ function bbp_new_topic_handler() {
 		}
 
 		// Handle Title
-		if ( empty( $_POST['bbp_topic_title'] ) || !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
+		if ( isset( $_POST['bbp_topic_title'] ) && ( !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) ) )
 			$bbp->errors->add( 'bbp_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
 		$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
 
 		// Handle Content
-		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = $_POST['bbp_topic_content'] )
+		if ( isset( $_POST['bbp_topic_content'] ) && ( !$topic_content = $_POST['bbp_topic_content'] ) )
 			$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic needs some content.', 'bbpress' ) );
 
 		$topic_content = apply_filters( 'bbp_new_topic_pre_content', $topic_content );
 
 		// Handle Forum id to append topic to
-		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] ) {
+		if ( isset( $_POST['bbp_forum_id'] ) && ( !$forum_id = $_POST['bbp_forum_id'] ) ) {
 			$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 		} else {
 			if ( bbp_is_forum_category( $forum_id ) )
@@ -107,6 +107,7 @@ function bbp_new_topic_handler() {
 
 		// Handle Tags
 		if ( !empty( $_POST['bbp_topic_tags'] ) ) {
+
 			// Escape tag input
 			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
@@ -253,7 +254,7 @@ function bbp_edit_topic_handler() {
 		}
 
 		// Handle Forum id to append topic to
-		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] ) {
+		if ( isset( $_POST['bbp_forum_id'] ) && ( !$forum_id = $_POST['bbp_forum_id'] ) ) {
 			$bbp->errors->add( 'bbp_topic_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 		} elseif ( $forum_id != $topic->post_parent ) {
 			if ( bbp_is_forum_category( $forum_id ) )
@@ -267,13 +268,13 @@ function bbp_edit_topic_handler() {
 		}
 
 		// Handle Title
-		if ( empty( $_POST['bbp_topic_title'] ) || !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) )
+		if ( isset( $_POST['bbp_topic_title'] ) && ( !$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) ) ) )
 			$bbp->errors->add( 'bbp_edit_topic_title', __( '<strong>ERROR</strong>: Your topic needs a title.', 'bbpress' ) );
 
 		$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
 
 		// Handle Content
-		if ( empty( $_POST['bbp_topic_content'] ) || !$topic_content = $_POST['bbp_topic_content'] )
+		if ( isset( $_POST['bbp_topic_content'] ) && ( !$topic_content = $_POST['bbp_topic_content'] ) )
 			$bbp->errors->add( 'bbp_edit_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
 
 		$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
