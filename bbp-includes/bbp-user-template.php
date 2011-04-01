@@ -246,7 +246,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	 * @return string User profile url
 	 */
 	function bbp_get_user_profile_url( $user_id = 0, $user_nicename = '' ) {
-		global $wp_rewrite, $bbp;
+		global $bbp;
 
 		// Use displayed user ID if there is one, and one isn't requested
 		if ( !$user_id = bbp_get_user_id( $user_id ) )
@@ -258,7 +258,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Get URL safe user slug
 		} else {
-			$url = $wp_rewrite->front . $bbp->user_slug . '/%bbp_user%';
+			$url = $bbp->user_slug . '/%bbp_user%';
 
 			if ( empty( $user_nicename ) ) {
 				$user = get_userdata( $user_id );
