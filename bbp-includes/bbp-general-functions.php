@@ -846,7 +846,7 @@ function bbp_load_template( $files ) {
  * @uses remove_action() To remove the auto save post revision action
  */
 function bbp_pre_get_posts( $wp_query ) {
-	global $bbp, $wp_version;
+	global $bbp;
 
 	// Bail if $wp_query is empty or of incorrect class
 	if ( empty( $wp_query ) || ( 'WP_Query' != get_class( $wp_query ) ) )
@@ -884,23 +884,27 @@ function bbp_pre_get_posts( $wp_query ) {
 			return;
 		}
 
-		// Confirmed existence of the bbPress user
+		/** User Exists *******************************************************/
 
-		// Define new query variable
+		// View or edit?
 		if ( !empty( $is_edit ) ) {
+
 			// Only allow super admins on multisite to edit every user.
 			if ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && $user_id != $current_user->ID && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) )
 				wp_die( __( 'You do not have the permission to edit this user.', 'bbpress' ) );
 
+			// We are editing a profile
 			$wp_query->bbp_is_user_profile_edit = true;
 
-			// Load the required user editing functions
+			// Load the core WordPress contact methods
 			if ( !function_exists( '_wp_get_user_contactmethods' ) )
 				include_once( ABSPATH . 'wp-includes/registration.php' );
 
+			// Load the edit_user functions
 			if ( !function_exists( 'edit_user' ) )
 				require_once( ABSPATH . 'wp-admin/includes/user.php' );
 
+		// We are viewing a profile
 		} else {
 			$wp_query->bbp_is_user_profile_page = true;
 		}
@@ -924,7 +928,7 @@ function bbp_pre_get_posts( $wp_query ) {
 	// View Page
 	} elseif ( !empty( $bbp_view ) ) {
 
-		// Check if the view exists by checking if there are query args are set or not
+		// Check if the view exists by checking if there are query args are set
 		$view_args = bbp_get_view_query_args( $bbp_view );
 
 		// Stop if view args is false - means the view isn't registered
@@ -933,16 +937,17 @@ function bbp_pre_get_posts( $wp_query ) {
 			return;
 		}
 
+		// We are in a custom topic view
 		$wp_query->bbp_is_view = true;
 
 	// Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {
 
-		// It is a topic edit page
+		// We are editing a topic
 		if ( get_query_var( 'post_type' ) == bbp_get_topic_post_type() )
 			$wp_query->bbp_is_topic_edit = true;
 
-		// It is a reply edit page
+		// We are editing a reply
 		elseif ( get_query_var( 'post_type' ) == bbp_get_reply_post_type() )
 			$wp_query->bbp_is_reply_edit = true;
 
