@@ -1322,11 +1322,14 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 		if ( !$reply = bbp_get_reply( bbp_get_reply_id( $reply_id ) ) )
 			return;
 
-		if ( empty( $wp_rewrite->permalink_structure ) ) {
-			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, 'edit' => '1' ), home_url( '/' ) );
-		} else {
-			$url = $wp_rewrite->front . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
+		// Pretty permalinks
+		if ( $wp_rewrite->using_permalinks() ) {
+			$url = $wp_rewrite->root . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
 			$url = home_url( user_trailingslashit( $url ) );
+
+		// Unpretty permalinks
+		} else {
+			$url = add_query_arg( array( bbp_get_reply_post_type() => $reply->post_name, 'edit' => '1' ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_reply_edit_url', $url, $reply_id );

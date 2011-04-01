@@ -1903,11 +1903,14 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 		if ( !$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) ) )
 			return;
 
-		if ( empty( $wp_rewrite->permalink_structure ) ) {
-			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, 'edit' => '1' ), home_url( '/' ) );
-		} else {
-			$url = $wp_rewrite->front . $bbp->topic_slug . '/' . $topic->post_name . '/edit';
+		// Pretty permalinks
+		if ( $wp_rewrite->using_permalinks() ) {
+			$url = $wp_rewrite->root . $bbp->topic_slug . '/' . $topic->post_name . '/edit';
 			$url = home_url( user_trailingslashit( $url ) );
+
+		// Unpretty permalinks
+		} else {
+			$url = add_query_arg( array( bbp_get_topic_post_type() => $topic->post_name, 'edit' => '1' ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_topic_edit_url', $url, $topic_id );

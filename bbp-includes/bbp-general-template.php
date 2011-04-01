@@ -977,9 +977,12 @@ function bbp_view_url( $view = false ) {
 		if ( !$view = bbp_get_view_id( $view ) )
 			return home_url();
 
-		if ( !empty( $wp_rewrite->permalink_structure ) ) {
-			$url = $wp_rewrite->front . $bbp->view_slug . '/' . $view;
+		// Pretty permalinks
+		if ( $wp_rewrite->using_permalinks() ) {
+			$url = $wp_rewrite->root . $bbp->view_slug . '/' . $view;
 			$url = home_url( user_trailingslashit( $url ) );
+
+		// Unpretty permalinks
 		} else {
 			$url = add_query_arg( array( 'bbp_view' => $view ), home_url( '/' ) );
 		}
