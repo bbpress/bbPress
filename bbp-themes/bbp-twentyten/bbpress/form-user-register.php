@@ -9,11 +9,9 @@
 
 ?>
 
-	<form method="post" action="<?php bbp_wp_login_action( array( 'action' => 'register', 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
+	<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
 		<fieldset>
 			<legend><?php _e( 'Register', 'bbpress' ); ?></legend>
-
-			<?php do_action( 'bbp_template_notices' ); ?>
 
 			<div class="bbp-username">
 				<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
@@ -25,9 +23,11 @@
 				<input type="text" name="user_email" value="<?php bbp_sanitize_val( 'user_email' ); ?>" size="20" id="user_email" tabindex="<?php bbp_tab_index(); ?>" />
 			</div>
 
-			<div class="bbp-submit-wrapper">
+			<?php do_action( 'register_form' ); ?>
 
-				<?php do_action( 'register_form' ); ?>
+			<p id="reg_passmail"><?php _e( 'A password will be e-mailed to you.', 'bbpress' ) ?></p>
+
+			<div class="bbp-submit-wrapper">
 
 				<button type="submit" name="user-submit" tabindex="<?php bbp_tab_index(); ?>" class="user-submit"><?php _e( 'Register', 'bbpress' ); ?></button>
 

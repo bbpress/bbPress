@@ -38,10 +38,12 @@ function bbp_footer() {
  *
  * @since bbPress (r2549)
  *
- * @uses WP_Query
- *
  * @param int $post_id Possible post_id to check
- * @return bool
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses is_singular() To check if it's the single post page
+ * @uses get_post_field() To get the post type of the post id
+ * @uses WP_Query To make some checks
+ * @return bool True if it's a forum page, false if not
  */
 function bbp_is_forum( $post_id = 0 ) {
 	global $wp_query, $bbp;
@@ -68,11 +70,14 @@ function bbp_is_forum( $post_id = 0 ) {
  *
  * @since bbPress (r2549)
  *
- * @uses WP_Query
- * @uses bbp_is_topic_edit() To check if it's a topic edit page
- *
  * @param int $post_id Possible post_id to check
- * @return bool
+ *
+ * @uses bbp_is_topic_edit() To return false if it's a topic edit page
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses is_singular() To check if it's the single post page
+ * @uses get_post_field() To get the post type of the post id
+ * @uses WP_Query To make some checks
+ * @return bool True if it's a topic page, false if not
  */
 function bbp_is_topic( $post_id = 0 ) {
 	global $wp_query, $bbp;
@@ -104,7 +109,7 @@ function bbp_is_topic( $post_id = 0 ) {
  * @since bbPress (r2753)
  *
  * @uses WP_Query Checks if WP_Query::bbp_is_topic_edit is true
- * @return bool
+ * @return bool True if it's the topic edit page, false if not
  */
 function bbp_is_topic_edit() {
 	global $wp_query;
@@ -121,7 +126,7 @@ function bbp_is_topic_edit() {
  * @since bbPress (r2756)
  *
  * @uses bbp_is_topic_edit() To check if it's a topic edit page
- * @return bool
+ * @return bool True if it's the topic merge page, false if not
  */
 function bbp_is_topic_merge() {
 
@@ -137,7 +142,7 @@ function bbp_is_topic_merge() {
  * @since bbPress (r2756)
  *
  * @uses bbp_is_topic_edit() To check if it's a topic edit page
- * @return bool
+ * @return bool True if it's the topic split page, false if not
  */
 function bbp_is_topic_split() {
 
@@ -152,11 +157,13 @@ function bbp_is_topic_split() {
  *
  * @since bbPress (r2549)
  *
- * @uses WP_Query
- * @uses bbp_is_reply_edit() To check if it's a reply edit page
- *
  * @param int $post_id Possible post_id to check
- * @return bool
+ * @uses bbp_is_reply_edit() To return false if it's a reply edit page
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses is_singular() To check if it's the single post page
+ * @uses get_post_field() To get the post type of the post id
+ * @uses WP_Query To make some checks
+ * @return bool True if it's a reply page, false if not
  */
 function bbp_is_reply( $post_id = 0 ) {
 	global $wp_query, $bbp;
@@ -188,7 +195,7 @@ function bbp_is_reply( $post_id = 0 ) {
  * @since bbPress (r2753)
  *
  * @uses WP_Query Checks if WP_Query::bbp_is_reply_edit is true
- * @return bool
+ * @return bool True if it's the reply edit page, false if not
  */
 function bbp_is_reply_edit() {
 	global $wp_query;
@@ -210,7 +217,7 @@ function bbp_is_reply_edit() {
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
  * @uses bbp_get_query_name() To get the query name
- * @return bool
+ * @return bool True if it's the favorites page, false if not
  */
 function bbp_is_favorites( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
@@ -233,7 +240,7 @@ function bbp_is_favorites( $query_name_check = true ) {
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
  * @uses bbp_get_query_name() To get the query name
- * @return bool
+ * @return bool True if it's the subscriptions page, false if not
  */
 function bbp_is_subscriptions( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
@@ -257,7 +264,7 @@ function bbp_is_subscriptions( $query_name_check = true ) {
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
  * @uses bbp_get_query_name() To get the query name
- * @return bool
+ * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_topics_created( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
@@ -272,10 +279,12 @@ function bbp_is_topics_created( $query_name_check = true ) {
 /**
  * Check if current page is the currently logged in users author page
  *
+ * @since bbPress (r2688)
+ *
  * @uses bbPres Checks if bbPress::displayed_user is set and if
  *               bbPress::displayed_user::ID equals bbPress::current_user::ID
  *               or not
- * @return bool
+ * @return bool True if it's the user's home, false if not
  */
 function bbp_is_user_home() {
 	global $bbp;
@@ -292,7 +301,7 @@ function bbp_is_user_home() {
  * @since bbPress (r2688)
  *
  * @uses WP_Query Checks if WP_Query::bbp_is_user_profile_page is set to true
- * @return bool
+ * @return bool True if it's a user's profile page, false if not
  */
 function bbp_is_user_profile_page() {
 	global $wp_query;
@@ -309,7 +318,7 @@ function bbp_is_user_profile_page() {
  * @since bbPress (r2688)
  *
  * @uses WP_Query Checks if WP_Query::bbp_is_user_profile_edit is set to true
- * @return bool
+ * @return bool True if it's a user's profile edit page, false if not
  */
 function bbp_is_user_profile_edit() {
 	global $wp_query;
@@ -344,7 +353,6 @@ function bbp_is_view() {
  *
  * @param array $wp_classes
  * @param array $custom_classes
- *
  * @uses bbp_is_forum()
  * @uses bbp_is_topic()
  * @uses bbp_is_topic_edit()
@@ -360,8 +368,7 @@ function bbp_is_view() {
  * @uses bbp_is_subscriptions()
  * @uses bbp_is_favorites()
  * @uses bbp_is_topics_created()
- *
- * @return array
+ * @return array Body Classes
  */
 function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
@@ -477,7 +484,8 @@ function bbp_redirect_to_field( $url = '' ) {
 	if ( empty( $url ) && ( !$url = wp_get_referer() ) && ( !empty( $_SERVER['REQUEST_URI'] ) ) )
 		$url = $_SERVER['REQUEST_URI'];
 
-	$url = (string) esc_attr( $url );
+	// Remove loggedout query arg if it's there
+	$url = (string) esc_attr( remove_query_arg( 'loggedout', $url ) );
 
 	$referer_field = '<input type="hidden" name="redirect_to" value="' . $url . '" />';
 
@@ -630,6 +638,8 @@ function bbp_dropdown( $args = '' ) {
 	 *                              dropdown
 	 * @uses current_user_can() To check if the current user can read
 	 *                           private forums
+	 * @uses bbp_get_forum_post_type() To get the forum post type
+	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses walk_page_dropdown_tree() To generate the dropdown using the
 	 *                                  walker
 	 * @uses apply_filters() Calls 'bbp_get_dropdown' with the dropdown
@@ -1008,7 +1018,7 @@ function bbp_set_query_name( $name = '' )  {
  *
  * @since bbPress (r2692)
  *
- * @uses bbp_set_query_name() To set the query var '_bbp_query_name' to ''
+ * @uses bbp_set_query_name() To set the query var '_bbp_query_name' value to ''
  */
 function bbp_reset_query_name() {
 	bbp_set_query_name();
@@ -1050,6 +1060,9 @@ function bbp_breadcrumb( $sep = '&larr;', $current_page = true ) {
 	 * @uses bbp_get_topic_permalink() To get the topic link
 	 * @uses bbp_get_reply_permalink() To get the reply link
 	 * @uses get_permalink() To get the permalink
+	 * @uses bbp_get_forum_post_type() To get the forum post type
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses bbp_get_forum_title() To get the forum title
 	 * @uses bbp_get_topic_title() To get the topic title
 	 * @uses bbp_get_reply_title() To get the reply title
@@ -1141,10 +1154,10 @@ function bbp_allowed_tags() {
 		return apply_filters( 'bbp_get_allowed_tags', allowed_tags() );
 	}
 
-/** Errors ********************************************************************/
+/** Errors & Messages *********************************************************/
 
 /**
- * Display possible error messages inside a template file
+ * Display possible errors & messages inside a template file
  *
  * @since bbPress (r2688)
  *
@@ -1153,18 +1166,53 @@ function bbp_allowed_tags() {
  *                                                       messages
  * @uses is_wp_error() To check if it's a {@link WP_Error}
  */
-function bbp_error_messages() {
+function bbp_template_notices() {
 	global $bbp;
 
-	if ( isset( $bbp->errors ) && is_wp_error( $bbp->errors ) && $bbp->errors->get_error_codes() ) : ?>
+	// Bail if no notices or errors
+	if ( !isset( $bbp->errors ) || !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
+		return;
+
+	// Prevent debug notices
+	$errors = $messages = array();
+
+	// Loop through notices
+	foreach ( $bbp->errors->get_error_codes() as $code ) {
+
+		// Get notice severity
+		$severity = $bbp->errors->get_error_data( $code );
+
+		// Loop through notices and separate errors from messages
+		foreach ( $bbp->errors->get_error_messages( $code ) as $error ) {
+			if ( 'message' == $severity ) {
+				$messages[] = $error;
+			} else {
+				$errors[]   = $error;
+			}
+		}
+	}
+
+	// Display errors first...
+	if ( !empty( $errors ) ) : ?>
 
 		<div class="bbp-template-notice error">
 			<p>
-				<?php echo implode( "</p>\n<p>", $bbp->errors->get_error_messages() ); ?>
+				<?php echo implode( "</p>\n<p>", $errors ); ?>
 			</p>
 		</div>
 
-<?php endif;
+	<?php endif;
+
+	// ...and messages last
+	if ( !empty( $messages ) ) : ?>
+
+		<div class="bbp-template-notice">
+			<p>
+				<?php echo implode( "</p>\n<p>", $messages ); ?>
+			</p>
+		</div>
+
+	<?php endif;
 }
 
 /** Login/logout/register/lost pass *******************************************/
@@ -1192,7 +1240,7 @@ function bbp_logout_link( $redirect_to = '' ) {
 	 * @return string The logout link
 	 */
 	function bbp_get_logout_link( $redirect_to = '' ) {
-		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url() . '" class="button logout-link">' . __( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
+		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url( $redirect_to ) . '" class="button logout-link">' . __( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
 	}
 
 ?>

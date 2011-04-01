@@ -121,6 +121,16 @@ function bbp_update() {
 			}
 		}
 	}
+
+	// Rename topic postmeta keys from _bbp_topic_status to _bbp_status
+	if ( 108 > (int) $db_version ) {
+
+		// Rename topic postmeta keys from _bbp_topic_status to _bbp_status
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_key = '_bbp_status' WHERE meta_key = '_bbp_topic_status'" ) );
+
+		// Set the new DB version
+		update_option( '_bbp_db_version', '108' );
+	}
 }
 add_action( 'init', 'bbp_update', 1 );
 

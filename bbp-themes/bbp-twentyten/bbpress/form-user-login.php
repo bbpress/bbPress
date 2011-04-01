@@ -13,8 +13,6 @@
 		<fieldset>
 			<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
 
-			<?php do_action( 'bbp_template_notices' ); ?>
-
 			<div class="bbp-username">
 				<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
 				<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" tabindex="<?php bbp_tab_index(); ?>" />

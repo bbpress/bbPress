@@ -145,10 +145,7 @@ function bbp_current_user_name() {
 	function bbp_get_current_user_name() {
 		global $user_identity;
 
-		if ( is_user_logged_in() )
-			$current_user_name = $user_identity;
-		else
-			$current_user_name = __( 'Anonymous', 'bbpress' );
+		$current_user_name = is_user_logged_in() ? $user_identity : __( 'Anonymous', 'bbpress' );
 
 		return apply_filters( 'bbp_get_current_user_name', $current_user_name );
 	}
@@ -537,8 +534,8 @@ function bbp_subscriptions_permalink( $user_id = 0 ) {
 	 *
 	 * @param int $user_id Optional. User id
 	 * @uses bbp_get_user_profile_url() To get the user profile url
-	 * @uses apply_filters() Calls 'bbp_get_favorites_permalink' with the
-	 *                        user profile url and user id
+	 * @uses apply_filters() Calls 'bbp_get_subscriptions_permalink' with
+	 *                        the user profile url and user id
 	 * @return string Permanent link to user subscriptions page
 	 */
 	function bbp_get_subscriptions_permalink( $user_id = 0 ) {
@@ -758,10 +755,52 @@ function bbp_edit_user_role() {
 function bbp_edit_user_contact_methods() {
 	global $bbp;
 
-	return _wp_get_user_contactmethods( $bbp->displayed_user );
+	// Get the core WordPress contact methods
+	$contact_methods = _wp_get_user_contactmethods( $bbp->displayed_user );
+
+	return apply_filters( 'bbp_edit_user_contact_methods', $contact_methods );
 }
 
 /** Login *********************************************************************/
+
+/**
+ * Handle the login and registration template notices
+ *
+ * @since bbPress (r2970)
+ */
+function bbp_login_notices() {
+	global $bbp;
+
+	// loggedout was passed
+	if ( !empty( $_GET['loggedout'] ) && ( true == $_GET['loggedout'] ) ) {
+		$bbp->errors->add( 'loggedout', __( 'You are now logged out.', 'bbpress' ), 'message' );
+
+	// registration is disabled
+	} elseif ( !empty( $_GET['registration'] ) && ( 'disabled' == $_GET['registration'] ) ) {
+		$bbp->errors->add( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
+
+	// Prompt user to check their email
+	} elseif ( !empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ) ) ) {
+
+		switch ( $_GET['checkemail'] ) {
+
+			// Email needs confirmation
+			case 'confirm' :
+				$bbp->errors->add( 'confirm',    __( 'Check your e-mail for the confirmation link.',     'bbpress' ), 'message' );
+				break;
+
+			// User requested a new password
+			case 'newpass' :
+				$bbp->errors->add( 'newpass',    __( 'Check your e-mail for your new password.',         'bbpress' ), 'message' );
+				break;
+
+			// User is newly registered
+			case 'registered' :
+				$bbp->errors->add( 'registered', __( 'Registration complete. Please check your e-mail.', 'bbpress' ), 'message' );
+				break;
+		}
+	}
+}
 
 /**
  * Redirect a user back to their profile if they are already logged in.
@@ -778,10 +817,15 @@ function bbp_edit_user_contact_methods() {
  * @uses bbp_get_current_user_id() To get the current user id
  */
 function bbp_logged_in_redirect( $url = '' ) {
+
+	// Bail if user is not logged in
 	if ( !is_user_logged_in() )
 		return;
 
+	// Setup the profile page to redirect to
 	$redirect_to = !empty( $url ) ? $url : bbp_get_user_profile_url( bbp_get_current_user_id() );
+
+	// Do a safe redirect and exit
 	wp_safe_redirect( $redirect_to );
 	exit;
 }
@@ -812,13 +856,17 @@ function bbp_user_login_fields() {
  *
  * @since bbPress (r2815)
  *
+ * @uses bbp_login_url() To get the login url
+ * @uses bbp_redirect_to_field() To output the redirect to field
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
 function bbp_user_register_fields() {
 ?>
 
-		<input type="hidden" name="action"      value="bbp-user-register" id="bbp_user_register" />
+		<input type="hidden" name="action"      value="register" />
 		<input type="hidden" name="user-cookie" value="1" />
+
+		<?php bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), bbp_login_url() ) ); ?>
 
 		<?php wp_nonce_field( 'bbp-user-register' );
 }
@@ -861,14 +909,16 @@ function bbp_author_link( $args = '' ) {
 	 * @since bbPress (r2875)
 	 *
 	 * @param mixed $args Optional. If an integer, it is used as reply id.
-	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_is_topic() To check if it's a topic page
+	 * @uses bbp_get_topic_author_link() To get the topic author link
 	 * @uses bbp_is_reply() To check if it's a reply page
+	 * @uses bbp_get_reply_author_link() To get the reply author link
+	 * @uses get_post_field() To get the post author
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
-	 * @uses bbp_get_reply_author() To get the reply author name
-	 * @uses bbp_get_reply_author_url() To get the reply author url
-	 * @uses bbp_get_reply_author_avatar() To get the reply author avatar
+	 * @uses get_the_author_meta() To get the author name
+	 * @uses bbp_get_user_profile_url() To get the author profile url
+	 * @uses get_avatar() To get the author avatar
 	 * @uses apply_filters() Calls 'bbp_get_reply_author_link' with the
 	 *                        author link and args
 	 * @return string Author link of reply

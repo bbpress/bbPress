@@ -65,8 +65,6 @@ class BBP_Login_Widget extends WP_Widget {
 				<fieldset>
 					<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
 
-					<?php do_action( 'bbp_template_notices' ); ?>
-
 					<div class="bbp-username">
 						<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
 						<input type="text" name="log" value="<?php bbp_sanitize_val( 'user_login', 'text' ); ?>" size="20" id="user_login" tabindex="<?php bbp_tab_index(); ?>" />
@@ -182,6 +180,11 @@ class BBP_Forums_Widget extends WP_Widget {
 	 * @param mixed $args Arguments
 	 * @param array $instance Instance
 	 * @uses apply_filters() Calls 'bbp_forum_widget_title' with the title
+	 * @uses get_option() To get the forums per page option
+	 * @uses current_user_can() To check if the current user can read
+	 *                           private() To resety name
+	 * @uses bbp_set_query_name() To set the query name to 'bbp_widget'
+	 * @uses bbp_reset_query_name() To reset the query name
 	 * @uses bbp_has_forums() The main forum loop
 	 * @uses bbp_forums() To check whether there are more forums available
 	 *                     in the loop
@@ -314,13 +317,16 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @param mixed $args
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_topic_widget_title' with the title
+	 * @uses bbp_set_query_name() To set the query name to 'bbp_widget'
+	 * @uses bbp_reset_query_name() To reset the query name
 	 * @uses bbp_has_topics() The main topic loop
 	 * @uses bbp_topics() To check whether there are more topics available
 	 *                     in the loop
 	 * @uses bbp_the_topic() Loads up the current topic in the loop
 	 * @uses bbp_topic_permalink() To display the topic permalink
 	 * @uses bbp_topic_title() To display the topic title
-	 * @uses bbp_get_topic_last_active_time() To get the topic last active time
+	 * @uses bbp_get_topic_last_active_time() To get the topic last active
+	 *                                         time
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 */

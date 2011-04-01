@@ -115,14 +115,13 @@ function bbp_format_revision_reason( $reason = '' ) {
 
 /**
  * The plugin version of bbPress comes with two topic display options:
- *     ~ Traditional - Topics are included in the reply loop (default)
- *     ~ New Style   - Topics appear as "lead" posts, ahead of replies
+ * - Traditional: Topics are included in the reply loop (default)
+ * - New Style: Topics appear as "lead" posts, ahead of replies
  *
  * @since bbPress (r2954)
  *
- * @global obj $bbp
  * @param $show_lead Optional. Default false
- * @return bool
+ * @return bool Yes if the topic appears as a lead, otherwise false
  */
 function bbp_show_lead_topic( $show_lead = false ) {
 	return apply_filters( 'bbp_show_lead_topic', (bool) $show_lead );
@@ -157,8 +156,11 @@ function bbp_redirect_canonical( $redirect_url ) {
 /**
  * Append 'view=all' to query string if it's already there from referer
  *
- * @param string $original_link
- * @return <type>
+ * @param string $original_link Original Link to be modified
+ * @uses current_user_can() To check if the current user can moderate
+ * @uses add_query_arg() To add args to the url
+ * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
+ * @return string The link with 'view=all' appended if necessary
  */
 function bbp_add_view_all( $original_link ) {
 
@@ -201,6 +203,8 @@ function bbp_get_paged() {
  *
  * @param array $data Post data
  * @param array $postarr Original post array (includes post id)
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_is_topic_anonymous() To check if the topic is by an anonymous user
  * @uses bbp_is_reply_anonymous() To check if the reply is by an anonymous user
  * @return array Data
@@ -258,6 +262,9 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
  *  - count_tags: Count tags? If set to false, empty tags are also not counted
  *  - count_empty_tags: Count empty tags?
  * @uses bbp_count_users() To count the number of registered users
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wp_count_posts() To count the number of forums, topics and replies
  * @uses wp_count_terms() To count the number of topic tags
  * @uses current_user_can() To check if the user is capable of doing things
@@ -536,10 +543,10 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
 
 	// Assign variables
 	$defaults = array (
-		'bbp_anonymous_name'    => $_POST['bbp_anonymous_name'],
-		'bbp_anonymous_email'   => $_POST['bbp_anonymous_email'],
-		'bbp_anonymous_website' => $_POST['bbp_anonymous_website'],
-		'bbp_anonymous_ip'      => $_SERVER['REMOTE_ADDR']
+		'bbp_anonymous_name'    => !empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
+		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
+		'bbp_anonymous_website' => !empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
+		'bbp_anonymous_ip'      => !empty( $_SERVER['REMOTE_ADDR']         ) ? $_SERVER['REMOTE_ADDR']         : false
 	);
 
 	$r = wp_parse_args( $args, $defaults );
@@ -679,9 +686,22 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  * @since bbPress (r2753)
  *
  * @uses bbp_is_user_profile_page() To check if it's a profile page
+ * @uses apply_filters() Calls 'bbp_profile_templates' with the profile
+ *                        templates array
  * @uses bbp_is_user_profile_edit() To check if it's a profile edit page
+ * @uses apply_filters() Calls 'bbp_profile_edit_templates' with the profile
+ *                        edit templates array
+ * @uses bbp_is_view() To check if it's a view page
+ * @uses bbp_get_view_id() To get the view id
+ * @uses apply_filters() Calls 'bbp_view_templates' with the view templates array
  * @uses bbp_is_topic_edit() To check if it's a topic edit page
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses apply_filters() Calls 'bbp_topic_edit_templates' with the topic edit
+ *                        templates array
  * @uses bbp_is_reply_edit() To check if it's a reply edit page
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses apply_filters() Calls 'bbp_reply_edit_templates' with the reply edit
+ *                        templates array
  * @uses apply_filters() Calls 'bbp_custom_template' with the template array
  * @uses bbp_load_template() To load the template
  */
@@ -706,6 +726,7 @@ function bbp_custom_template() {
 			'forums/user-edit.php',
 			'bbpress/user-edit.php',
 			'user-edit.php',
+			'forums/user.php',
 			'bbpress/user.php',
 			'user.php',
 			'author.php',
@@ -716,8 +737,8 @@ function bbp_custom_template() {
 	} elseif ( bbp_is_view() ) {
 		$template = apply_filters( 'bbp_view_templates', array(
 			'forums/view-' . bbp_get_view_id(),
-			'forums/view.php',
 			'bbpress/view-' . bbp_get_view_id(),
+			'forums/view.php',
 			'bbpress/view.php',
 			'view-' . bbp_get_view_id(),
 			'view.php',
@@ -728,8 +749,8 @@ function bbp_custom_template() {
 	} elseif ( bbp_is_topic_edit() ) {
 		$template = array(
 			'forums/action-edit.php',
-			'forums/single-' . bbp_get_topic_post_type(),
 			'bbpress/action-edit.php',
+			'forums/single-' . bbp_get_topic_post_type(),
 			'bbpress/single-' . bbp_get_topic_post_type(),
 			'action-bbp-edit.php',
 			'single-' . bbp_get_topic_post_type(),
@@ -739,11 +760,11 @@ function bbp_custom_template() {
 
 		// Add split/merge to front of array if present in _GET
 		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) ) {
-			array_unshift( $template, array(
+			array_unshift( $template,
 				'forums/action-split-merge.php',
 				'bbpress/action-split-merge.php',
-				'action-bbp-split-merge.php'
-			) );
+				'action-split-merge.php'
+			);
 		}
 
 		$template = apply_filters( 'bbp_topic_edit_templates', $template );
@@ -752,8 +773,8 @@ function bbp_custom_template() {
 	} elseif ( bbp_is_reply_edit() ) {
 		$template = apply_filters( 'bbp_reply_edit_templates', array(
 			'forums/action-edit.php',
-			'forums/single-' . bbp_get_reply_post_type(),
 			'bbpress/action-edit.php',
+			'forums/single-' . bbp_get_reply_post_type(),
 			'bbpress/single-' . bbp_get_reply_post_type(),
 			'action-bbp-edit.php',
 			'single-' . bbp_get_reply_post_type(),
@@ -777,6 +798,8 @@ function bbp_custom_template() {
  * @return bool False on failure (nothing on success)
  */
 function bbp_load_template( $files ) {
+
+	// Bail if nothing passed
 	if ( empty( $files ) )
 		return;
 
@@ -787,8 +810,6 @@ function bbp_load_template( $files ) {
 	// Exit if file is found
 	if ( locate_template( $files, true ) )
 		exit();
-
-	return;
 }
 
 /**
@@ -810,16 +831,28 @@ function bbp_load_template( $files ) {
  * @since bbPress (r2688)
  *
  * @uses get_query_var() To get {@link WP_Query} query var
+ * @uses is_email() To check if the string is an email
+ * @uses get_user_by() To try to get the user by email and nicename
  * @uses WP_User to get the user data
  * @uses WP_Query::set_404() To set a 404 status
- * @uses is_multisite() To check if it's a multisite
  * @uses current_user_can() To check if the current user can edit the user
  * @uses apply_filters() Calls 'enable_edit_any_user_configuration' with true
  * @uses wp_die() To die
+ * @uses bbp_get_query_name() To get the query name and check if it's 'bbp_widget'
+ * @uses bbp_get_view_query_args() To get the view query args
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses is_multisite() To check if it's a multisite
+ * @uses remove_action() To remove the auto save post revision action
  */
 function bbp_pre_get_posts( $wp_query ) {
 	global $bbp, $wp_version;
 
+	// Bail if $wp_query is empty or of incorrect class
+	if ( empty( $wp_query ) || ( 'WP_Query' != get_class( $wp_query ) ) )
+		return $wp_query;
+
+	// Get query variables
 	$bbp_user = get_query_var( 'bbp_user' );
 	$bbp_view = get_query_var( 'bbp_view' );
 	$is_edit  = get_query_var( 'edit'     );
@@ -929,8 +962,19 @@ function bbp_pre_get_posts( $wp_query ) {
  * @param string $seplocation Optional. Direction to display title, 'right'.
  * @uses bbp_is_user_profile_page() To check if it's a user profile page
  * @uses bbp_is_user_profile_edit() To check if it's a user profile edit page
+ * @uses bbp_is_user_home() To check if the profile page is of the current user
  * @uses get_query_var() To get the user id
  * @uses get_userdata() To get the user data
+ * @uses bbp_is_forum() To check if it's a forum
+ * @uses bbp_get_forum_title() To get the forum title
+ * @uses bbp_is_topic() To check if it's a topic
+ * @uses bbp_get_topic_title() To get the topic title
+ * @uses bbp_is_reply() To check if it's a reply
+ * @uses bbp_get_reply_title() To get the reply title
+ * @uses is_tax() To check if it's the tag page
+ * @uses get_queried_object() To get the queried object
+ * @uses bbp_is_view() To check if it's a view
+ * @uses bbp_get_view_title() To get the view title
  * @uses apply_filters() Calls 'bbp_raw_title' with the title
  * @uses apply_filters() Calls 'bbp_profile_page_wp_title' with the title,
  *                        separator and separator location
@@ -1014,9 +1058,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		$title       = $prefix . implode( " $sep ", $title_array );
 	}
 
-	$title = apply_filters( 'bbp_title', $title, $sep, $seplocation );
-
-	return $title;
+	// Filter and return
+	return apply_filters( 'bbp_title', $title, $sep, $seplocation );
 }
 
 /** Subscriptions *************************************************************/
@@ -1069,15 +1112,13 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 	if ( !$poster_name = get_the_author_meta( 'display_name', $reply->post_author ) )
 		return false;
 
-	$reply_id = $reply->ID;
-	$topic_id = $topic->ID;
-
-	do_action( 'bbp_pre_notify_subscribers', $reply_id, $topic_id );
+	do_action( 'bbp_pre_notify_subscribers', $reply->ID, $topic->ID );
 
 	// Get the users who have favorited the topic and have subscriptions on
-	if ( !$user_ids = bbp_get_topic_subscribers( $topic_id, true ) )
+	if ( !$user_ids = bbp_get_topic_subscribers( $topic->ID, true ) )
 		return false;
 
+	// Loop through users
 	foreach ( (array) $user_ids as $user_id ) {
 
 		// Don't send notifications to the person who made the post
@@ -1085,19 +1126,21 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 			continue;
 
 		// For plugins
-		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $reply_id, $topic_id, $user_id ) )
+		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $reply->ID, $topic->ID, $user_id ) )
 			continue;
 
+		// Get user data of this user
 		$user = get_userdata( $user_id );
 
+		// Send notification email
 		wp_mail(
 			$user->user_email,
-			apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . $topic->post_title, $reply_id, $topic_id ),
-			sprintf( $message, $poster_name, strip_tags( $reply->post_content ), bbp_get_reply_permalink( $reply_id ) )
+			apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . $topic->post_title, $reply->ID, $topic->ID ),
+			sprintf( $message, $poster_name, strip_tags( $reply->post_content ), bbp_get_reply_permalink( $reply->ID ) )
 		);
 	}
 
-	do_action( 'bbp_post_notify_subscribers', $reply_id, $topic_id );
+	do_action( 'bbp_post_notify_subscribers', $reply->ID, $topic->ID );
 
 	return true;
 }
@@ -1132,14 +1175,20 @@ function bbp_login_url() {
  * @return string The url
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
-	if ( !isset( $_SERVER['REDIRECT_URL'] ) || !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) )
+
+	// Rejig the $redirect_to
+	if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) ) )
 		$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
 
+	// Make sure we are directing somewhere
 	if ( empty( $redirect_to ) )
 		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' );
 
-	$url = add_query_arg( array( 'redirect_to' => esc_url( $redirect_to ) ), $url );
+	// Sanitize $redirect_to and add it to full $url
+	$redirect_to = esc_url( add_query_arg( array( 'loggedout'   => 'true'       ), $redirect_to ) );
+	$url         =          add_query_arg( array( 'redirect_to' => $redirect_to ), $url           );
 
+	// Filter and return
 	return apply_filters( 'bbp_logout_url', $url, $redirect_to );
 }
 
@@ -1148,75 +1197,126 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 /**
  * Query the DB and get the last public post_id that has parent_id as post_parent
  *
- * @global db $wpdb
- * @param int $parent_id
- * @param string $post_type
+ * @param int $parent_id Parent id
+ * @param string $post_type Post type. Defaults to 'post'
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses wp_cache_get() To check if there is a cache of the last child id
+ * @uses wpdb::prepare() To prepare the query
+ * @uses wpdb::get_var() To get the result of the query in a variable
+ * @uses wp_cache_set() To set the cache for future use
+ * @uses apply_filters() Calls 'bbp_get_public_child_last_id' with the child
+ *                        id, parent id and post type
  * @return int The last active post_id
  */
 function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
+	// Bail if nothing passed
 	if ( empty( $parent_id ) )
 		return false;
 
 	// The ID of the cached query
-	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
+	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
+	$post_status = array( 'publish' );
 
+	// Add closed status if topic post type
+	if ( $post_type == bbp_get_topic_post_type() )
+		$post_status[] = $bbp->closed_status_id;
+
+	// Join post statuses together
+	$post_status = "'" . join( "', '", $post_status ) . "'";
+
+	// Check for cache and set if needed
 	if ( !$child_id = wp_cache_get( $cache_id, 'bbpress' ) ) {
-		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = 'publish' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
+		$child_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_id, 'bbpress' );
 	}
 
+	// Filter and return
 	return apply_filters( 'bbp_get_public_child_last_id', (int) $child_id, (int) $parent_id, $post_type );
 }
 
 /**
  * Query the DB and get a count of public children
  *
- * @global db $wpdb
- * @param int $parent_id
- * @param string $post_type
+ * @param int $parent_id Parent id
+ * @param string $post_type Post type. Defaults to 'post'
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses wp_cache_get() To check if there is a cache of the children count
+ * @uses wpdb::prepare() To prepare the query
+ * @uses wpdb::get_var() To get the result of the query in a variable
+ * @uses wp_cache_set() To set the cache for future use
+ * @uses apply_filters() Calls 'bbp_get_public_child_count' with the child
+ *                        count, parent id and post type
  * @return int The number of children
  */
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb, $bbp;
 
+	// Bail if nothing passed
 	if ( empty( $parent_id ) )
 		return false;
 
 	// The ID of the cached query
-	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
+	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
+	$post_status = array( 'publish' );
 
+	// Add closed status if topic post type
+	if ( $post_type == bbp_get_topic_post_type() )
+		$post_status[] = $bbp->closed_status_id;
+
+	// Join post statuses together
+	$post_status = "'" . join( "', '", $post_status ) . "'";
+
+	// Check for cache and set if needed
 	if ( !$child_count = wp_cache_get( $cache_id, 'bbpress' ) ) {
-		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '%s';", $parent_id, $post_type ) );
+		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'bbpress' );
 	}
 
+	// Filter and return
 	return apply_filters( 'bbp_get_public_child_count', (int) $child_count, (int) $parent_id, $post_type );
 }
 
 /**
- * Query the DB and get a the child ID's of public children
+ * Query the DB and get a the child id's of public children
  *
- * @global db $wpdb
- * @param int $parent_id
- * @param string $post_type
- * @return int The number of children
+ * @param int $parent_id Parent id
+ * @param string $post_type Post type. Defaults to 'post'
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses wp_cache_get() To check if there is a cache of the children
+ * @uses wpdb::prepare() To prepare the query
+ * @uses wpdb::get_col() To get the result of the query in an array
+ * @uses wp_cache_set() To set the cache for future use
+ * @uses apply_filters() Calls 'bbp_get_public_child_ids' with the child ids,
+ *                        parent id and post type
+ * @return array The array of children
  */
 function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb, $bbp;
 
+	// Bail if nothing passed
 	if ( empty( $parent_id ) )
 		return false;
 
 	// The ID of the cached query
-	$cache_id = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	$post_status = array( 'publish' );
 
+	// Add closed status if topic post type
+	if ( $post_type == bbp_get_topic_post_type() )
+		$post_status[] = $bbp->closed_status_id;
+
+	// Join post statuses together
+	$post_status = "'" . join( "', '", $post_status ) . "'";
+
+	// Check for cache and set if needed
 	if ( !$child_ids = wp_cache_get( $cache_id, 'bbpress' ) ) {
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( "', '", array( 'publish', $bbp->closed_status_id ) ) . "' ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
 	}
 
+	// Filter and return
 	return apply_filters( 'bbp_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
 }
 

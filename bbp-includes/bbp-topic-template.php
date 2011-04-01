@@ -10,12 +10,11 @@
 /** Post Type *****************************************************************/
 
 /**
- * Return the unique ID of the custom post type for topics
+ * Output the unique ID of the custom post type for topics
  *
  * @since bbPress (r2857)
  *
- * @global bbPress $bbp
- * @return string
+ * @uses bbp_get_topic_post_type() To get the topic post type
  */
 function bbp_topic_post_type() {
 	echo bbp_get_topic_post_type();
@@ -25,11 +24,13 @@ function bbp_topic_post_type() {
 	 *
 	 * @since bbPress (r2857)
 	 *
-	 * @global bbPress $bbp
-	 * @return string
+	 * @uses apply_filters() Calls 'bbp_get_topic_post_type' with the topic
+	 *                        post type id
+	 * @return string The unique topic post type id
 	 */
 	function bbp_get_topic_post_type() {
 		global $bbp;
+
 		return apply_filters( 'bbp_get_topic_post_type', $bbp->topic_post_type );
 	}
 
@@ -41,11 +42,12 @@ function bbp_topic_post_type() {
  * @since bbPress (r2485)
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
- * @uses bbp_is_user_profile_page() To check if it's the profile page
- * @uses get_the_ID() To get the id
+ * @uses current_user_can() To check if the current user can edit other's topics
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses WP_Query To make query and get the topics
  * @uses is_page() To check if it's a page
  * @uses bbp_is_forum() To check if it's a forum
+ * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_paged() To get the current page value
  * @uses bbp_get_super_stickies() To get the super stickies
  * @uses bbp_get_stickies() To get the forum stickies
@@ -283,8 +285,11 @@ function bbp_topic_id( $topic_id = 0) {
 	 * @uses bbp_is_reply() To check if it it's a reply page
 	 * @uses bbp_is_reply_edit() To check if it's a reply edit page
 	 * @uses bbp_get_reply_topic_edit() To get the reply topic id
+	 * @uses get_post_field() To get the post's post type
 	 * @uses WP_Query::post::ID To get the topic id
-	 * @uses apply_filters() Calls 'bbp_get_topic_id' with the topic id
+	 * @uses apply_filters() Calls 'bbp_get_topic_id' with the topic id and
+	 *                        supplied topic id
+	 * @return int The topic id
 	 */
 	function bbp_get_topic_id( $topic_id = 0 ) {
 		global $bbp, $wp_query, $bbp;
@@ -609,7 +614,7 @@ function bbp_topic_revision_log( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_revisions() To get the topic revisions
 	 * @uses bbp_get_topic_raw_revision_log() To get the raw revision log
 	 * @uses bbp_get_topic_author_display_name() To get the topic author
-	 * @uses bbp_get_topic_author_link() To get the topic author link
+	 * @uses bbp_get_author_link() To get the topic author link
 	 * @uses bbp_convert_date() To convert the date
 	 * @uses bbp_get_time_since() To get the time in since format
 	 * @uses apply_filters() Calls 'bbp_get_topic_revision_log' with the
@@ -838,7 +843,7 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_status() To get the topic status
- * @return bool True if spam, false if not.
+ * @return bool True if trashed, false if not.
  */
 function bbp_is_topic_trash( $topic_id = 0 ) {
 	global $bbp;
@@ -894,6 +899,9 @@ function bbp_topic_author( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
 	 *                                 anonymous user
+	 * @uses bbp_get_topic_author_id() To get the topic author id
+	 * @uses get_the_author_meta() To get the display name of the author
+	 * @uses get_post_meta() To get the name of the anonymous poster
 	 * @uses apply_filters() Calls 'bbp_get_topic_author' with the author
 	 *                        and topic id
 	 * @return string Author of topic
@@ -1196,9 +1204,11 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get topic id
-	 * @uses get_post_field() To get get topic's parent
+	 * @uses get_post_meta() To retrieve get topic's forum id meta
+	 * @uses get_post_field() To get the topic's parent, i.e. forum id
+	 * @uses bbp_update_topic_forum_id() To update the topic forum id
 	 * @uses apply_filters() Calls 'bbp_get_topic_forum_id' with the forum
-	 *  id and topic id
+	 *                        id and topic id
 	 * @return int Topic forum id
 	 */
 	function bbp_get_topic_forum_id( $topic_id = 0 ) {
@@ -1219,8 +1229,8 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
  *
  * @since bbPress (r2860)
  *
- * @uses bbp_get_topic_last_active_id() To get the topic's last active id
  * @param int $topic_id Optional. Forum id
+ * @uses bbp_get_topic_last_active_id() To get the topic's last active id
  */
 function bbp_topic_last_active_id( $topic_id = 0 ) {
 	echo bbp_get_topic_last_active_id( $topic_id );
@@ -1563,7 +1573,7 @@ function bbp_topic_post_count( $topic_id = 0 ) {
 	 * @uses get_post_meta() To get the topic post count meta
 	 * @uses apply_filters() Calls 'bbp_get_topic_post_count' with the
 	 *                        post count and topic id
-	 * @return int post count
+	 * @return int Post count
 	 */
 	function bbp_get_topic_post_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
@@ -1926,6 +1936,7 @@ function bbp_topic_trash_link( $args = '' ) {
 	 * @uses bbp_get_topic() To get the topic
 	 * @uses current_user_can() To check if the current user can delete the
 	 *                           topic
+	 * @uses bbp_is_topic_trash() To check if the topic is trashed
 	 * @uses bbp_get_topic_status() To get the topic status
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses wp_nonce_url() To nonce the url
@@ -2299,6 +2310,10 @@ function bbp_forum_pagination_links() {
  *
  * @uses bbp_is_topic() To check if it's a topic page
  * @uses bbp_get_topic_status() To get the topic status
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses apply_filters() Calls 'bbp_topic_notices' with the notice text, topic
+ *                        status and topic id
+ * @uses bbPress::errors::add() To add the notices to the error handler
  */
 function bbp_topic_notices() {
 	global $bbp;
@@ -2330,14 +2345,10 @@ function bbp_topic_notices() {
 	}
 
 	// Filter notice text and bail if empty
-	if ( ! $notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() ) )
-		return; ?>
+	if ( !$notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() ) )
+		return;
 
-	<div class="bbp-template-notice error">
-		<p><?php echo $notice_text; ?></p>
-	</div>
-
-	<?php
+	$bbp->errors->add( 'topic_notice', $notice_text, 'message' );
 }
 
 /**
@@ -2415,9 +2426,8 @@ function bbp_topic_type_select( $args = '' ) {
  *
  * @since bbPress (r2860)
  *
+ * @param array $args See {@link bbp_get_single_topic_description()}
  * @uses bbp_get_single_topic_description() Return the eventual output
- *
- * @param arr $args Arguments passed to alter output
  */
 function bbp_single_topic_description( $args = '' ) {
 	echo bbp_get_single_topic_description( $args );
@@ -2428,19 +2438,19 @@ function bbp_single_topic_description( $args = '' ) {
 	 *
 	 * @since bbPress (r2860)
 	 *
-	 * @uses wp_parse_args()
-	 * @uses bbp_get_topic_id()
-	 * @uses bbp_get_topic_topic_count()
-	 * @uses bbp_get_topic_reply_count()
-	 * @uses bbp_get_topic_subtopic_count()
-	 * @uses bbp_get_topic_freshness_link()
-	 * @uses bbp_get_topic_last_reply_id()
-	 * @uses bbp_get_reply_author_avatar()
-	 * @uses bbp_get_reply_author_link()
-	 * @uses apply_filters()
-	 *
-	 * @param arr $args Arguments passed to alter output
-	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - topic_id: Topic id
+	 *  - before: Before the text
+	 *  - after: After the text
+	 *  - size: Size of the avatar
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_get_topic_voice_count() To get the topic voice count
+	 * @uses bbp_get_topic_reply_count() To get the topic reply count
+	 * @uses bbp_get_topic_freshness_link() To get the topic freshness link
+	 * @uses bbp_get_topic_last_active_id() To get the topic last active id
+	 * @uses bbp_get_reply_author_link() To get the reply author link
+	 * @uses apply_filters() Calls 'bbp_get_single_topic_description' with
+	 *                        the description and args
 	 * @return string Filtered topic description
 	 */
 	function bbp_get_single_topic_description( $args = '' ) {

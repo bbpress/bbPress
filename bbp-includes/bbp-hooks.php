@@ -35,7 +35,7 @@ add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 12 );
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
  *
- * Attach various loader actionss to the bbp_loaded action.
+ * Attach various loader actions to the bbp_loaded action.
  * The load order helps to load code at the correct time.
  *                                                        v---Load order
  */
@@ -48,7 +48,7 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
 /**
  * bbp_init - Attached to 'init' above
  *
- * Attach various initialization actionss to the init action.
+ * Attach various initialization actions to the init action.
  * The load order helps to load code at the correct time.
  *                                                    v---Load order
  */
@@ -75,12 +75,13 @@ add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Fo
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");'  ) );
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
 
-// Template - Head, foot, errors and notices
-add_action( 'wp_head',              'bbp_head'                  );
-add_filter( 'wp_title',             'bbp_title',          10, 3 );
-add_action( 'wp_footer',            'bbp_footer'                );
-add_action( 'bbp_template_notices', 'bbp_error_messages'        );
-add_action( 'bbp_template_notices', 'bbp_topic_notices'         );
+// Template - Head, foot, errors and messages
+add_action( 'wp_head',              'bbp_head'                    );
+add_filter( 'wp_title',             'bbp_title',            10, 3 );
+add_action( 'wp_footer',            'bbp_footer'                  );
+add_action( 'bbp_loaded',           'bbp_login_notices'           );
+add_action( 'bbp_head',             'bbp_topic_notices'           );
+add_action( 'bbp_template_notices', 'bbp_template_notices'        );
 
 // Add to body class
 add_filter( 'body_class', 'bbp_body_class', 10, 2 );
@@ -310,14 +311,14 @@ function bbp_pre_anonymous_filters () {
 bbp_pre_anonymous_filters();
 
 /**
- * On multiblog installations you must first allow themes to be activated and show
- * up on the theme selection screen. This function will let the bbPress bundled
- * themes show up and bypass this step.
+ * On multiblog installations you must first allow themes to be activated and
+ * show up on the theme selection screen. This function will let the bbPress
+ * bundled themes show up and bypass this step.
  *
  * @since bbPress (r2944)
  *
- * @uses is_super_admin()
- * @uses apply_filters()
+ * @uses is_super_admin() To check if the user is site admin
+ * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
  */
 function bbp_allowed_themes( $themes ) {
 	if ( !is_super_admin() )
