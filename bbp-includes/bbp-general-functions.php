@@ -845,17 +845,17 @@ function bbp_load_template( $files ) {
  * @uses is_multisite() To check if it's a multisite
  * @uses remove_action() To remove the auto save post revision action
  */
-function bbp_pre_get_posts( $wp_query ) {
+function bbp_pre_get_posts( $posts_query ) {
 	global $bbp;
 
-	// Bail if $wp_query is empty or of incorrect class
-	if ( empty( $wp_query ) || ( 'WP_Query' != get_class( $wp_query ) ) )
-		return $wp_query;
+	// Bail if $posts_query is not an object or of incorrect class
+	if ( !is_object( $posts_query ) || ( 'WP_Query' != get_class( $posts_query ) ) )
+		return $posts_query;
 
 	// Get query variables
-	$bbp_user = get_query_var( 'bbp_user' );
-	$bbp_view = get_query_var( 'bbp_view' );
-	$is_edit  = get_query_var( 'edit'     );
+	$bbp_user = $posts_query->get( 'bbp_user' );
+	$bbp_view = $posts_query->get( 'bbp_view' );
+	$is_edit  = $posts_query->get( 'edit'     );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {
@@ -880,7 +880,7 @@ function bbp_pre_get_posts( $wp_query ) {
 
 		// Stop if no user
 		if ( !isset( $user ) || empty( $user ) || empty( $user->ID ) ) {
-			$wp_query->set_404();
+			$posts_query->set_404();
 			return;
 		}
 
@@ -894,7 +894,7 @@ function bbp_pre_get_posts( $wp_query ) {
 				wp_die( __( 'You do not have the permission to edit this user.', 'bbpress' ) );
 
 			// We are editing a profile
-			$wp_query->bbp_is_user_profile_edit = true;
+			$posts_query->bbp_is_user_profile_edit = true;
 
 			// Load the core WordPress contact methods
 			if ( !function_exists( '_wp_get_user_contactmethods' ) )
@@ -906,21 +906,21 @@ function bbp_pre_get_posts( $wp_query ) {
 
 		// We are viewing a profile
 		} else {
-			$wp_query->bbp_is_user_profile_page = true;
+			$posts_query->bbp_is_user_profile_page = true;
 		}
 
 		// Make sure 404 is not set
-		$wp_query->is_404 = false;
+		$posts_query->is_404 = false;
 
 		// Correct is_home variable
-		$wp_query->is_home = false;
+		$posts_query->is_home = false;
 
 		// Set bbp_user_id for future reference
-		$wp_query->query_vars['bbp_user_id'] = $user->ID;
+		$posts_query->query_vars['bbp_user_id'] = $user->ID;
 
 		// Set author_name as current user's nicename to get correct posts
 		if ( 'bbp_widget' != bbp_get_query_name() )
-			$wp_query->query_vars['author_name'] = $user->user_nicename;
+			$posts_query->query_vars['author_name'] = $user->user_nicename;
 
 		// Set the displayed user global to this user
 		$bbp->displayed_user = $user;
@@ -933,27 +933,29 @@ function bbp_pre_get_posts( $wp_query ) {
 
 		// Stop if view args is false - means the view isn't registered
 		if ( false === $view_args ) {
-			$wp_query->set_404();
+			$posts_query->set_404();
 			return;
 		}
 
 		// We are in a custom topic view
-		$wp_query->bbp_is_view = true;
+		$posts_query->bbp_is_view = true;
 
 	// Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {
 
 		// We are editing a topic
-		if ( get_query_var( 'post_type' ) == bbp_get_topic_post_type() )
-			$wp_query->bbp_is_topic_edit = true;
+		if ( $posts_query->get( 'post_type' ) == bbp_get_topic_post_type() )
+			$posts_query->bbp_is_topic_edit = true;
 
 		// We are editing a reply
-		elseif ( get_query_var( 'post_type' ) == bbp_get_reply_post_type() )
-			$wp_query->bbp_is_reply_edit = true;
+		elseif ( $posts_query->get( 'post_type' ) == bbp_get_reply_post_type() )
+			$posts_query->bbp_is_reply_edit = true;
 
 		// We save post revisions on our own
 		remove_action( 'pre_post_update', 'wp_save_post_revision' );
 	}
+
+	return $posts_query;
 }
 
 /**
