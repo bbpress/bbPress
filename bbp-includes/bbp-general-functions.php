@@ -186,9 +186,12 @@ function bbp_add_view_all( $original_link ) {
  * @return int Current page number
  */
 function bbp_get_paged() {
-	if ( $paged = get_query_var( 'paged' ) )
+
+	// Make sure to not paginate widget queries
+	if ( !bbp_is_query_name( 'bbp_widget' ) && ( $paged = get_query_var( 'paged' ) ) )
 		return (int) $paged;
 
+	// Default to first page
 	return 1;
 }
 
@@ -838,7 +841,7 @@ function bbp_load_template( $files ) {
  * @uses current_user_can() To check if the current user can edit the user
  * @uses apply_filters() Calls 'enable_edit_any_user_configuration' with true
  * @uses wp_die() To die
- * @uses bbp_get_query_name() To get the query name and check if it's 'bbp_widget'
+ * @uses bbp_is_query_name() Check if query name is 'bbp_widget'
  * @uses bbp_get_view_query_args() To get the view query args
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() To get the reply post type
@@ -914,7 +917,7 @@ function bbp_pre_get_posts( $posts_query ) {
 		}
 
 		// Make sure 404 is not set
-		$posts_query->is_404 = false;
+		$posts_query->is_404  = false;
 
 		// Correct is_home variable
 		$posts_query->is_home = false;
@@ -923,7 +926,7 @@ function bbp_pre_get_posts( $posts_query ) {
 		$posts_query->query_vars['bbp_user_id'] = $user->ID;
 
 		// Set author_name as current user's nicename to get correct posts
-		if ( 'bbp_widget' != bbp_get_query_name() )
+		if ( !bbp_is_query_name( 'bbp_widget' ) )
 			$posts_query->query_vars['author_name'] = $user->user_nicename;
 
 		// Set the displayed user global to this user

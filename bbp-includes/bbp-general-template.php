@@ -216,14 +216,14 @@ function bbp_is_reply_edit() {
  *                                'bbp_user_profile_favorites' or not. Defaults
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the favorites page, false if not
  */
 function bbp_is_favorites( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && ( 'bbp_user_profile_favorites' != bbp_get_query_name() ) )
+	if ( !empty( $query_name_check ) && ( !bbp_is_query_name( 'bbp_user_profile_favorites' ) ) )
 		return false;
 
 	return true;
@@ -239,14 +239,14 @@ function bbp_is_favorites( $query_name_check = true ) {
  *                                'bbp_user_profile_favorites' or not. Defaults
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the subscriptions page, false if not
  */
 function bbp_is_subscriptions( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && ( 'bbp_user_profile_subscriptions' != bbp_get_query_name() ) )
+	if ( !empty( $query_name_check ) && ( !bbp_is_query_name( 'bbp_user_profile_subscriptions' ) ) )
 		return false;
 
 	return true;
@@ -263,14 +263,14 @@ function bbp_is_subscriptions( $query_name_check = true ) {
  *                                'bbp_user_profile_favorites' or not. Defaults
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
- * @uses bbp_get_query_name() To get the query name
+ * @uses bbp_is_query_name() To get the query name
  * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_topics_created( $query_name_check = true ) {
 	if ( !bbp_is_user_profile_page() )
 		return false;
 
-	if ( !empty( $query_name_check ) && ( 'bbp_user_profile_topics_created' != bbp_get_query_name() ) )
+	if ( !empty( $query_name_check ) && ( !bbp_is_query_name( 'bbp_user_profile_topics_created' ) ) )
 		return false;
 
 	return true;
@@ -991,6 +991,28 @@ function bbp_view_url( $view = false ) {
 	}
 
 /** Query *********************************************************************/
+
+/**
+ * Check the passed parameter against the current _bbp_query_name
+ *
+ * @since bbPress (r2780)
+ *
+ * @uses bbp_get_query_name() Get the query var '_bbp_query_name'
+ * @return bool True if match, false if not
+ */
+function bbp_is_query_name( $query_name )  {
+
+	// No empties
+	if ( empty( $query_name ) )
+		return false;
+
+	// Check if query var matches
+	if ( bbp_get_query_name() == $query_name )
+		return true;
+
+	// No match
+	return false;
+}
 
 /**
  * Get the '_bbp_query_name' setting

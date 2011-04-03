@@ -61,7 +61,7 @@ function bbp_has_replies( $args = '' ) {
 		$parent_args = array(
 
 			// Query only by post_parent
-			'post_parent' => bbp_get_topic_id(),
+			'post_parent' => bbp_is_topic() ? bbp_get_topic_id() : 'any',
 
 			// Narrow query down to bbPress replies
 			'post_type'   => bbp_get_reply_post_type()
@@ -70,18 +70,20 @@ function bbp_has_replies( $args = '' ) {
 	// Show the topic in the same loop as replies
 	} else {
 
-		$parent_args = array(
+		// Skip topic_id if in the replies widget query
+		if ( !bbp_is_query_name( 'bbp_widget' ) ) {
 
 			// Query by post meta instead of post_parent
-			'meta_key'    => '_bbp_topic_id',
-			'meta_value'  => bbp_get_topic_id(),
+			$parent_args['meta_key']   = '_bbp_topic_id';
+			$parent_args['meta_value'] = bbp_get_topic_id();
 
-			// Include both topic and reply in the loop
-			'post_type'   => array( bbp_get_topic_post_type(), bbp_get_reply_post_type() )
-		);
+			// Manually set the post_parent variable
+			$post_parent = bbp_get_topic_id();
+		}
 
-		// Manually set the post_parent variable
-		$post_parent = bbp_get_topic_id();
+		// Include both topic and reply in the loop
+		$parent_args['post_type'] = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+
 	}
 
 	// What are the default allowed statuses (based on user caps)

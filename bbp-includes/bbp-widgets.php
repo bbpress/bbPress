@@ -494,6 +494,8 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @param mixed $args
 	 * @param array $instance
 	 * @uses apply_filters() Calls 'bbp_reply_widget_title' with the title
+	 * @uses bbp_set_query_name() To set the query name to 'bbp_widget'
+	 * @uses bbp_reset_query_name() To reset the query name
 	 * @uses bbp_has_replies() The main reply loop
 	 * @uses bbp_replies() To check whether there are more replies available
 	 *                     in the loop
