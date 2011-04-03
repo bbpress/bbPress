@@ -350,21 +350,17 @@ function bbp_reply_url( $reply_id = 0 ) {
 			$count_hidden = true;
 
 		// Set needed variables
-		$reply_id      = bbp_get_reply_id( $reply_id );
-		$topic_id      = bbp_get_reply_topic_id( $reply_id );
-		$topic_url     = bbp_get_topic_permalink( $topic_id );
-		$topic_replies = bbp_get_topic_reply_count( $topic_id );
+		$reply_id          = bbp_get_reply_id         ( $reply_id );
+		$topic_id          = bbp_get_reply_topic_id   ( $reply_id );
+		$topic_url         = bbp_get_topic_permalink  ( $topic_id );
+		$topic_reply_count = bbp_get_topic_reply_count( $topic_id );
+		$reply_position    = bbp_get_reply_position   ( $reply_id );
 
-		// Add hidden replies to count
-		if ( $count_hidden == true )
-			$topic_replies += bbp_get_topic_hidden_reply_count( $topic_id );
+		// Check if in query with pagination 
+		$reply_page = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
 
-		// Add 1 to the count if topic is included in reply loop
-		if ( !bbp_show_lead_topic() )
-			$topic_replies++;
-
-		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
-		$reply_hash    = !empty( $bbp->errors ) ? "#post-{$reply_id}" : '';
+		// Hash to add to end of URL
+		$reply_hash     = !empty( $bbp->errors ) ? "#post-{$reply_id}" : '';
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
@@ -1135,6 +1131,60 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 		}
 
 		return apply_filters( 'bbp_get_reply_forum_id', (int) $forum_id, $reply_id );
+	}
+
+/**
+ * Output the numeric position of a reply within a topic
+ *
+ * @since bbPress (r2984)
+ *
+ * @uses bbp_get_reply_position()
+ * @param int $reply_id
+ */
+function bbp_reply_position( $reply_id = 0 ) {
+	echo bbp_get_reply_position( $reply_id );
+}
+	/**
+	 * Return the numeric position of a reply within a topic
+	 *
+	 * @since bbPress (r2984)
+	 *
+	 * @uses bbp_get_reply_id() Get the reply id
+	 * @uses bbp_get_reply_topic_id() Get the topic id of the reply id
+	 * @uses bbp_get_public_child_ids() Get the reply ids of the topic id
+	 * @uses bbp_show_lead_topic() Bump the count if lead topic is included
+	 * @uses apply_filters() Allow position to be altered
+	 * @param int $reply_id
+	 */
+	function bbp_get_reply_position( $reply_id = 0 ) {
+
+		// Get required data
+		$reply_position  = 0;
+		$reply_id        = bbp_get_reply_id         ( $reply_id );
+		$topic_id        = bbp_get_reply_topic_id   ( $reply_id );
+
+		// Make sure the topic has replies before running another query
+		if ( $reply_count = bbp_get_topic_reply_count( $topic_id ) ) {
+
+			// Get reply id's
+			$topic_replies  = bbp_get_public_child_ids ( $topic_id, bbp_get_reply_post_type() );
+
+			// Reverse replies array and search for current reply position
+			$topic_replies  = array_reverse( $topic_replies );
+
+			// Position found
+			if ( $reply_position = array_search ( (string) $reply_id, $topic_replies ) ) {
+
+				// Bump if topic is in replies loop
+				if ( !bbp_show_lead_topic() )
+					$reply_position++;
+
+				// Bump now so we don't need to do math later
+				$reply_position++;
+			}
+		}
+
+		return apply_filters( 'bbp_get_reply_position', (int) $reply_position, $reply_id, $topic_id );
 	}
 
 /** Reply Admin Links *********************************************************/

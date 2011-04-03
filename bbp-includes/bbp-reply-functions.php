@@ -498,7 +498,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 		} elseif ( bbp_is_topic( $ancestor ) ) {
 
 			// Last reply and active ID's
-			bbp_update_topic_last_reply_id( $ancestor, $reply_id );
+			bbp_update_topic_last_reply_id  ( $ancestor, $reply_id  );
 			bbp_update_topic_last_active_id ( $ancestor, $active_id );
 
 			// Get the last active time if none was passed
