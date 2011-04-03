@@ -9,7 +9,7 @@
 
 ?>
 
-<?php if ( bbp_has_replies() ) : ?>
+<?php if ( bbp_get_query_name() || bbp_has_replies() ) : ?>
 
 	<?php get_template_part( 'bbpress/pagination', 'replies' ); ?>
 
@@ -76,7 +76,7 @@
 					</td>
 				</tr>
 
-				<tr id="reply-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
+				<tr id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
 					<td class="bbp-reply-author"><?php bbp_reply_author_link( array( 'type' => 'avatar' ) ); ?></td>
 
@@ -86,7 +86,7 @@
 
 					</td>
 
-				</tr><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
+				</tr><!-- #post-<?php bbp_topic_id(); ?> -->
 
 			<?php endwhile; ?>
 

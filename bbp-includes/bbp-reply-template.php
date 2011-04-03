@@ -364,7 +364,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 			$topic_replies++;
 
 		$reply_page    = ceil( $topic_replies / get_option( '_bbp_replies_per_page', 15 ) );
-		$reply_hash    = !empty( $bbp->errors ) ? "#reply-{$reply_id}" : '';
+		$reply_hash    = !empty( $bbp->errors ) ? "#post-{$reply_id}" : '';
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {

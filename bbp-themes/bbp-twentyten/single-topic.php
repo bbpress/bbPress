@@ -69,7 +69,7 @@
 											</td>
 										</tr>
 
-										<tr id="reply-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
+										<tr id="post-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
 
 											<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'avatar' ) ); ?></td>
 
@@ -79,7 +79,7 @@
 
 											</td>
 
-										</tr><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
+										</tr><!-- #post-<?php bbp_topic_id(); ?> -->
 
 									</tbody>
 								</table><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
