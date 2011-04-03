@@ -1141,39 +1141,9 @@ function bbp_forum_hidden_topic_count( $forum_id = 0 ) {
 	 */
 	function bbp_get_forum_hidden_topic_count( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics  = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
+		$topics   = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
 
 		return apply_filters( 'bbp_get_forum_hidden_topic_count', (int) $topics, $forum_id );
-	}
-
-/**
- * Output total voice count of a forum
- *
- * @since bbPress (r2567)
- *
- * @param int $forum_id Optional. Forum id
- * @uses bbp_get_forum_voice_count() To get the forum voice count
- */
-function bbp_forum_voice_count( $forum_id = 0 ) {
-	echo bbp_get_forum_voice_count( $forum_id );
-}
-	/**
-	 * Return total voice count of a forum
-	 *
-	 * @since bbPress (r2567)
-	 *
-	 * @param int $forum_id Optional. Forum id
-	 * @uses bbp_get_forum_id() To get the forum id
-	 * @uses get_post_meta() To get the forum voice count
-	 * @uses apply_filters() Calls 'bbp_get_forum_voice_count' with the
-	 *                        voice count and forum id
-	 * @return int Forum voice count
-	 */
-	function bbp_get_forum_voice_count( $forum_id = 0 ) {
-		$forum_id = bbp_get_forum_id( $forum_id );
-		$voices   = get_post_meta( $forum_id, '_bbp_forum_voice_count', true );
-
-		return apply_filters( 'bbp_get_forum_voice_count', (int) $voices, $forum_id );
 	}
 
 /**

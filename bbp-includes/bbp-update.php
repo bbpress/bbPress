@@ -56,7 +56,6 @@ function bbp_update() {
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_key = '_bbp_hidden_topic_count' WHERE meta_key = '_bbp_topic_count_hidden'" ) );
 
 		// _bbp_total_voice_count
-		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_key = '_bbp_voice_count' WHERE meta_key = '_bbp_forum_voice_count'" ) );
 		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->postmeta} SET meta_key = '_bbp_voice_count' WHERE meta_key = '_bbp_topic_voice_count'" ) );
 
 		// _bbp_last_active_time

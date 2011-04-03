@@ -746,7 +746,6 @@ function bbp_merge_topic_handler() {
  * @param int $source_topic_forum Source topic's forum id
  * @uses bbp_update_forum_topic_count() To update the forum topic counts
  * @uses bbp_update_forum_reply_count() To update the forum reply counts
- * @uses bbp_update_forum_voice_count() To update the forum voice counts
  * @uses bbp_update_topic_reply_count() To update the topic reply counts
  * @uses bbp_update_topic_voice_count() To update the topic voice counts
  * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
@@ -762,11 +761,6 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
 
 	// Forum Reply Counts
 	bbp_update_forum_reply_count( $source_topic_forum_id );
-	// bbp_update_forum_reply_count( $destination_topic_id  );
-
-	// Forum Voice Counts
-	bbp_update_forum_voice_count( $source_topic_forum_id );
-	bbp_update_forum_voice_count( $destination_topic_id  );
 
 	// Topic Reply Counts
 	bbp_update_topic_reply_count( $destination_topic_id );
@@ -962,7 +956,6 @@ function bbp_split_topic_handler() {
  * @param int $destination_topic_id Destination topic id
  * @uses bbp_update_forum_topic_count() To update the forum topic counts
  * @uses bbp_update_forum_reply_count() To update the forum reply counts
- * @uses bbp_update_forum_voice_count() To update the forum voice counts
  * @uses bbp_update_topic_reply_count() To update the topic reply counts
  * @uses bbp_update_topic_voice_count() To update the topic voice counts
  * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
@@ -979,10 +972,6 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 	// Forum Reply Counts
 	// bbp_update_forum_reply_count( $source_topic_id      );
 	bbp_update_forum_reply_count( $destination_topic_id );
-
-	// Forum Voice Counts
-	bbp_update_forum_voice_count( $source_topic_id      );
-	bbp_update_forum_voice_count( $destination_topic_id );
 
 	// Topic Reply Counts
 	bbp_update_topic_reply_count( $source_topic_id      );
