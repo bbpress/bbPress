@@ -329,16 +329,13 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 *                            replies? If $_GET['view'] == all, it is
 	 *                            automatically set to true. To override
 	 *                            this, set $count_hidden = (int) -1
-	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses bbp_get_reply_topic_id() To get the reply topic id
-	 * @uses bbp_get_topic_permalink() To get the topic permalink
-	 * @uses bbp_get_topic_reply_count() To get the topic reply count
-	 * @uses bbp_get_topic_hidden_reply_count() To get the topic hidden
-	 *                                           reply count
-	 * @uses get_option() To get the replies per page option
-	 * @uses WP_Rewrite::using_permalinks() To check if the blog uses
-	 *                                       permalinks
-	 * @uses add_query_arg() To add custom args to the url
+	 * @uses bbp_get_reply_id() Get the reply id
+	 * @uses bbp_get_reply_topic_id() Get the reply topic id
+	 * @uses bbp_get_topic_permalink() Get the topic permalink
+	 * @uses bbp_get_reply_position() Get the reply position
+	 * @uses get_option() Get the replies per page option
+	 * @uses WP_Rewrite::using_permalinks() Check if the blog uses permalinks
+	 * @uses add_query_arg() Add custom args to the url
 	 * @uses apply_filters() Calls 'bbp_get_reply_url' with the reply url,
 	 *                        reply id and bool count hidden
 	 * @return string Link to reply relative to paginated topic
@@ -346,21 +343,20 @@ function bbp_reply_url( $reply_id = 0 ) {
 	function bbp_get_reply_url( $reply_id = 0, $count_hidden = false ) {
 		global $bbp, $wp_rewrite;
 
-		if ( $count_hidden !== -1 && !empty( $_GET['view'] ) && 'all' == 'view' )
-			$count_hidden = true;
-
 		// Set needed variables
-		$reply_id          = bbp_get_reply_id         ( $reply_id );
-		$topic_id          = bbp_get_reply_topic_id   ( $reply_id );
-		$topic_url         = bbp_get_topic_permalink  ( $topic_id );
-		$topic_reply_count = bbp_get_topic_reply_count( $topic_id );
-		$reply_position    = bbp_get_reply_position   ( $reply_id );
+		$reply_id       = bbp_get_reply_id       ( $reply_id );
+		$topic_id       = bbp_get_reply_topic_id ( $reply_id );
+		$topic_url      = bbp_get_topic_permalink( $topic_id );
+		$reply_position = bbp_get_reply_position ( $reply_id );
 
 		// Check if in query with pagination 
-		$reply_page = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
+		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
 
 		// Hash to add to end of URL
 		$reply_hash     = !empty( $bbp->errors ) ? "#post-{$reply_id}" : '';
+
+		// Remove the topic view query arg if its set
+		$topic_url      = remove_query_arg( 'view', $topic_url );
 
 		// Don't include pagination if on first page
 		if ( 1 >= $reply_page ) {
