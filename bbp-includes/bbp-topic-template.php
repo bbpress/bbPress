@@ -121,15 +121,18 @@ function bbp_has_topics( $args = '' ) {
 	if ( !empty( $max_num_pages ) )
 		$bbp->topic_query->max_num_pages = $max_num_pages;
 
-	// Put sticky posts at the top of the posts array, much of this code
-	// is taken from query.php in wp-includes
+	// Put sticky posts at the top of the posts array
 	if ( !empty( $show_stickies ) && $paged <= 1 ) {
+
+		// Get super stickies and stickies in this forum
 		$stickies = bbp_get_super_stickies();
 		$stickies = !empty( $bbp_t['post_parent'] ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
 		$stickies = array_unique( $stickies );
 
+		// We have stickies
 		if ( is_array( $stickies ) && !empty( $stickies ) ) {
 
+			// Setup the number of stickies and reset offset to 0
 			$num_topics    = count( $bbp->topic_query->posts );
 			$sticky_offset = 0;
 
@@ -205,12 +208,20 @@ function bbp_has_topics( $args = '' ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {
+
+			// Profile page
 			if ( bbp_is_user_profile_page() )
 				$base = user_trailingslashit( trailingslashit( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) ) . 'page/%#%/' );
+
+			// View
 			elseif ( bbp_is_view() )
 				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
+
+			// Default
 			else
 				$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
+
+		// Unpretty pagination
 		} else {
 			$base = add_query_arg( 'paged', '%#%' );
 		}
@@ -234,7 +245,7 @@ function bbp_has_topics( $args = '' ) {
 	}
 
 	// Return object
-	return apply_filters( 'bbp_has_topics', $bbp->topic_query->have_posts(), $bbp );
+	return apply_filters( 'bbp_has_topics', $bbp->topic_query->have_posts(), $bbp->topic_query );
 }
 
 /**
