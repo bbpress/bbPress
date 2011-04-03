@@ -852,6 +852,10 @@ function bbp_pre_get_posts( $posts_query ) {
 	if ( !is_object( $posts_query ) || ( 'WP_Query' != get_class( $posts_query ) ) )
 		return $posts_query;
 
+	// Bail if filters are suppressed on this query
+	if ( true == $posts_query->get( 'suppress_filters' ) )
+		return $posts_query;
+
 	// Get query variables
 	$bbp_user = $posts_query->get( 'bbp_user' );
 	$bbp_view = $posts_query->get( 'bbp_view' );
