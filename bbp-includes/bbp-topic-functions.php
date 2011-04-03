@@ -1580,7 +1580,7 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $topic_id );
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 	} else {
-		$reply_id = bbp_get_reply_id( $topic_id );
+		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = bbp_get_topic_id( $topic_id );
 	}
 
