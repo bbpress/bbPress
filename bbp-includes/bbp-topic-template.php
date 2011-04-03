@@ -561,6 +561,8 @@ function bbp_topic_pagination( $args = '' ) {
 
 		// Get total and add 1 if topic is included in the reply loop
 		$total = bbp_get_topic_reply_count( $topic_id );
+
+		// Bump if topic is in loop
 		if ( !bbp_show_lead_topic() )
 			$total++;
 
@@ -572,7 +574,7 @@ function bbp_topic_pagination( $args = '' ) {
 			'current'   => 0,
 			'prev_next' => false,
 			'mid_size'  => 2,
-			'end_size'  => 6,
+			'end_size'  => 3,
 			'add_args'  => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] ) ? array( 'view' => 'all' ) : false
 		);
 
