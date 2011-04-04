@@ -700,7 +700,12 @@ function bbp_merge_topic_handler() {
 			bbp_unstick_topic( $source_topic->ID );
 
 			// Get the replies of the source topic
-			$replies = (array) get_posts( array( 'post_parent' => $source_topic->ID, 'post_type' => bbp_get_reply_post_type(), 'posts_per_page' => -1, 'order' => 'ASC' ) );
+			$replies = (array) get_posts( array(
+				'post_parent'    => $source_topic->ID,
+				'post_type'      => bbp_get_reply_post_type(),
+				'posts_per_page' => -1,
+				'order'          => 'ASC'
+			) );
 
 			// Prepend the source topic to its replies array for processing
 			array_unshift( $replies, $source_topic );
@@ -717,6 +722,13 @@ function bbp_merge_topic_handler() {
 				);
 
 				wp_update_post( $postarr );
+
+				// Adjust reply meta values
+				bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
+				bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
+
+				// Do additional actions per merged reply
+				do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
 			}
 
 			// Send the post parent of the source topic as it has been shifted
@@ -920,6 +932,13 @@ function bbp_split_topic_handler() {
 				);
 
 				wp_update_post( $postarr );
+
+				// Adjust reply meta values
+				bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
+				bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
+
+				// Do additional actions per merged reply
+				do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
 			}
 
 			// It is a new topic and we need to set some default metas to make the topic display in bbp_has_topics() list
