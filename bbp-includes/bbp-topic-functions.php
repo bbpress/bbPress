@@ -173,7 +173,7 @@ function bbp_new_topic_handler() {
 				do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
 				// Redirect back to new reply
-				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#topic-' . $topic_id );
+				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#post-' . $topic_id );
 
 				// For good measure
 				exit();
