@@ -36,7 +36,10 @@ class BBP_Admin {
 	 */
 	function _setup_actions() {
 
-		/** General Actions *******************************************/
+		/** General Actions ***************************************************/
+
+		// Add some general styling to the admin area
+		add_action( 'admin_head',                  array( $this, 'admin_head'                 )        );
 
 		// Add notice if not using a bbPress theme
 		add_action( 'admin_notices',               array( $this, 'activation_notice'          )        );
@@ -52,9 +55,6 @@ class BBP_Admin {
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
 		add_action( 'admin_init',                  array( $this, 'init'                       )        );
-
-		// Add some general styling to the admin area
-		add_action( 'admin_head',                  array( $this, 'admin_head'                 )        );
 
 		// Register bbPress admin style
 		add_action( 'admin_init',                  array( $this, 'register_admin_style'       )        );
@@ -72,7 +72,7 @@ class BBP_Admin {
 		add_action( 'personal_options_update',     array( $this, 'user_profile_update' ) );
 		add_action( 'edit_user_profile_update',    array( $this, 'user_profile_update' ) );
 
-		/** Forums ****************************************************/
+		/** Forums ************************************************************/
 
 		// Forum metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'forum_attributes_metabox'      ) );
@@ -85,7 +85,7 @@ class BBP_Admin {
 		add_action( 'manage_' . bbp_get_forum_post_type() . '_posts_custom_column',  array( $this, 'forums_column_data' ), 10, 2 );
 		add_filter( 'page_row_actions',                                              array( $this, 'forums_row_actions' ), 10, 2 );
 
-		/** Topics ****************************************************/
+		/** Topics ************************************************************/
 
 		// Topic column headers.
 		add_filter( 'manage_' . bbp_get_topic_post_type() . '_posts_columns',        array( $this, 'topics_column_headers' ) );
@@ -102,7 +102,7 @@ class BBP_Admin {
 		add_action( 'bbp_admin_init',              array( $this, 'toggle_topic'        ) );
 		add_action( 'admin_notices',               array( $this, 'toggle_topic_notice' ) );
 
-		/** Replies ***************************************************/
+		/** Replies ***********************************************************/
 
 		// Reply column headers.
 		add_filter( 'manage_' . bbp_get_reply_post_type() . '_posts_columns',  array( $this, 'replies_column_headers' ) );
@@ -122,6 +122,12 @@ class BBP_Admin {
 		// Anonymous metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'anonymous_metabox'      ) );
 		add_action( 'save_post',                   array( $this, 'anonymous_metabox_save' ) );
+
+		/** List Table Filters ************************************************/
+
+		// Add ability to filter topics and replies per forum
+		add_filter( 'restrict_manage_posts',       array( $this, 'filter_dropdown'  ) );
+		add_filter( 'request',                     array( $this, 'filter_post_rows' ) );
 	}
 
 	/**
@@ -1630,6 +1636,86 @@ class BBP_Admin {
 		global $bbp;
 
 		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $bbp->plugin_url . 'bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+	}
+
+	/**
+	 * Add forum dropdown to topic and reply list table filters
+	 *
+	 * @since bbPress (r2991)
+	 *
+	 * @uses bbp_get_reply_post_type()
+	 * @uses bbp_get_topic_post_type()
+	 * @uses bbp_dropdown()
+	 *
+	 * @return If post_type is not topic or reply
+	 */
+	function filter_dropdown() {
+
+		// Bail if not viewing the topics list
+		if (
+				// post_type exists in _GET
+				empty( $_GET['post_type'] ) ||
+
+				// post_type is reply or topic type
+				!in_array( $_GET['post_type'],
+					array(
+						bbp_get_reply_post_type(),
+						bbp_get_topic_post_type()
+					)
+				)
+			)
+			return;
+
+		// Get which forum is selected
+		$selected = !empty( $_GET['bbp_forum_id'] ) ? $_GET['bbp_forum_id'] : '';
+
+		// Show the forums dropdown
+		bbp_dropdown( array(
+			'selected'  => $selected,
+			'show_none' => __( 'In all forums', 'bbpress' )
+		) );
+	}
+
+	/**
+	 * Adjust the request query and include the forum id
+	 *
+	 * @since bbPress (r2991)
+	 *
+	 * @global $pagenow
+	 * @param array $query_vars Query variables from $wp_query
+	 * @uses is_admin()
+	 * @uses bbp_get_topic_post_type()
+	 * @return $query_vars
+	 */
+	function filter_post_rows( $query_vars ) {
+		global $pagenow;
+
+		// Avoid poisoning other requests
+		if (
+				// Only look in admin
+				!is_admin()                 ||
+
+				// Make sure the current page is for post rows
+				( 'edit.php' != $pagenow  ) ||
+
+				// Make sure we're looking for a post_type
+				empty( $_GET['post_type'] ) ||
+
+				// Make sure we're looking at bbPress topics
+				( !in_array( $_GET['post_type'], array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ) ) )
+			)
+
+			// We're in no shape to filter anything, so return
+			return $query_vars;
+
+		// Add post_parent query_var if one is present
+		if ( !empty( $_GET['bbp_forum_id'] ) ) {
+			$query_vars['meta_key']   = '_bbp_forum_id';
+			$query_vars['meta_value'] = $_GET['bbp_forum_id'];
+		}
+
+		// Return manipulated query_vars
+		return $query_vars;
 	}
 }
 endif; // class_exists check
