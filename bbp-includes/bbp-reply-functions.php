@@ -24,7 +24,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
 	// If no forum_id was passed, walk up ancestors and look for forum type
-	if ( empty( $topic_id ) ) {
+	if ( empty( $forum_id ) ) {
 		$ancestors = get_post_ancestors( $reply_id );
 		foreach ( $ancestors as $ancestor ) {
 			if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_forum_post_type() ) {
