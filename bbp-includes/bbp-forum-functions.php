@@ -228,24 +228,24 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	// Do some calculating if not manually set
 	if ( empty( $reply_id ) ) {
 
-		// Loop through children and add together forum reply counts
+		// Loop through children and get the most recent reply id
 		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
 			foreach ( (array) $children as $child )
 				$children_last_reply = bbp_update_forum_last_reply_id ( $child );
 
-		// Don't count replies if the forum is a category
+		// If this forum has topics...
 		if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) ) {
-			$reply_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
-			$reply_id = $reply_id > max( $topic_ids ) ? $reply_id : max( $topic_ids );
 
-		// Forum has no topics
-		} else {
-			$reply_id = 0;
+			// ...get the most recent reply from those topics...
+			$reply_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
+
+			// ...and compare it to the most recent topic id...
+			$reply_id = ( $reply_id > max( $topic_ids ) ) ? $reply_id : max( $topic_ids );
 		}
 	}
 
-	// If child forums have higher ID, use that instead
-	if ( !empty( $children ) && ( $children_last_reply > $reply_id ) )
+	// If child forums have higher ID, check for newer reply id
+	if ( !empty( $children ) && ( (int) $children_last_reply > (int) $reply_id ) )
 		$reply_id = $children_last_reply;
 
 	// Update the last reply ID with what was passed
