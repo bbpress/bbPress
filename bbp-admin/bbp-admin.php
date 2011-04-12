@@ -33,6 +33,9 @@ class BBP_Admin {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses add_filter() To add various filters
+	 * @uses bbp_get_forum_post_type() To get the forum post type
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
 	function _setup_actions() {
 
@@ -62,7 +65,7 @@ class BBP_Admin {
 		// Forums 'Right now' Dashboard widget
 		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' )        );
 
-		/** User Actions **********************************************/
+		/** User Actions ******************************************************/
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile',           array( $this, 'user_profile_forums' ) );
@@ -178,7 +181,7 @@ class BBP_Admin {
 	 */
 	function register_admin_settings() {
 
-		/** Main Section **********************************************/
+		/** Main Section ******************************************************/
 
 		// Add the main section
 		add_settings_section( 'bbp_main',                __( 'Main Settings',           'bbpress' ), 'bbp_admin_setting_callback_main_section',  'bbpress'             );
@@ -203,7 +206,7 @@ class BBP_Admin {
 		add_settings_field( '_bbp_allow_anonymous',      __( 'Allow Anonymous Posting', 'bbpress' ), 'bbp_admin_setting_callback_anonymous',     'bbpress', 'bbp_main' );
 	 	register_setting  ( 'bbpress',                   '_bbp_allow_anonymous',                     'intval'                                                          );
 
-		/** Per Page Section ******************************************/
+		/** Per Page Section **************************************************/
 
 		// Add the per page section
 		add_settings_section( 'bbp_per_page',        __( 'Per Page',          'bbpress' ), 'bbp_admin_setting_callback_per_page_section', 'bbpress'                 );
@@ -216,7 +219,7 @@ class BBP_Admin {
 		add_settings_field( '_bbp_replies_per_page', __( 'Replies Per Page',  'bbpress' ), 'bbp_admin_setting_callback_replies_per_page', 'bbpress', 'bbp_per_page' );
 	 	register_setting  ( 'bbpress',               '_bbp_replies_per_page',              'intval'                                                                 );
 
-		/** Slug Section **********************************************/
+		/** Slug Section ******************************************************/
 
 		// Add the per page section
 		add_settings_section( 'bbp_slugs',          __( 'Forums',        'bbpress' ), 'bbp_admin_setting_callback_slugs_section',   'bbpress'              );
@@ -331,6 +334,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2746)
 	 *
+	 * @uses bbp_get_forum_post_type() To get the forum post type
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
@@ -415,6 +419,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2744)
 	 *
+	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_topic_attributes_metabox'
 	 */
@@ -463,6 +468,7 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2746)
 	 *
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_reply_attributes_metabox'
 	 */
@@ -519,6 +525,8 @@ class BBP_Admin {
 	 *                                 anonymous user
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_anonymous_metabox' with the topic/reply
 	 *                    id
@@ -610,6 +618,9 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2464)
 	 *
+	 * @uses bbp_get_forum_post_type() To get the forum post type
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses sanitize_html_class() To sanitize the classes
 	 * @uses bbp_is_forum() To check if it is a forum page
 	 * @uses bbp_is_topic() To check if it is a topic page
@@ -1245,6 +1256,7 @@ class BBP_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $topic Topic object
+	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_topic_content() To output topic content
 	 * @uses bbp_get_topic_permalink() To get the topic link
 	 * @uses bbp_get_topic_title() To get the topic title
@@ -1569,6 +1581,7 @@ class BBP_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $reply Reply object
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses bbp_reply_content() To output reply content
 	 * @uses bbp_get_reply_permalink() To get the reply link
 	 * @uses bbp_get_reply_title() To get the reply title
@@ -1643,11 +1656,10 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2991)
 	 *
-	 * @uses bbp_get_reply_post_type()
-	 * @uses bbp_get_topic_post_type()
-	 * @uses bbp_dropdown()
-	 *
-	 * @return If post_type is not topic or reply
+	 * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_dropdown() To generate a forum dropdown
+	 * @return bool False. If post type is not topic or reply
 	 */
 	function filter_dropdown() {
 
@@ -1681,11 +1693,11 @@ class BBP_Admin {
 	 *
 	 * @since bbPress (r2991)
 	 *
-	 * @global $pagenow
-	 * @param array $query_vars Query variables from $wp_query
-	 * @uses is_admin()
-	 * @uses bbp_get_topic_post_type()
-	 * @return $query_vars
+	 * @param array $query_vars Query variables from {@link WP_Query}
+	 * @uses is_admin() To check if it's the admin section
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @return array Processed Query Vars
 	 */
 	function filter_post_rows( $query_vars ) {
 		global $pagenow;
@@ -1731,6 +1743,9 @@ endif; // class_exists check
  *
  * @uses bbp_get_statistics() To get the forum statistics
  * @uses current_user_can() To check if the user is capable of doing things
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses get_admin_url() To get the administration url
  * @uses add_query_arg() To add custom args to the url
  * @uses do_action() Calls 'bbp_dashboard_widget_right_now_content_table_end'
@@ -2048,6 +2063,7 @@ function bbp_forum_metabox() {
  *
  * @since bbPress (r2464)
  *
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses bbp_dropdown() To show a dropdown of the forums for topic parent
  * @uses do_action() Calls 'bbp_topic_metabox'
  */
@@ -2083,6 +2099,7 @@ function bbp_topic_metabox() {
  *
  * @since bbPress (r2464)
  *
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_dropdown() To show a dropdown of the topics for reply parent
  * @uses do_action() Calls 'bbp_reply_metabox'
  */

@@ -10,7 +10,7 @@
 /** Post Type *****************************************************************/
 
 /**
- * Output the unique ID of the custom post type for topics
+ * Output the unique id of the custom post type for topics
  *
  * @since bbPress (r2857)
  *
@@ -20,7 +20,7 @@ function bbp_topic_post_type() {
 	echo bbp_get_topic_post_type();
 }
 	/**
-	 * Return the unique ID of the custom post type for topics
+	 * Return the unique id of the custom post type for topics
 	 *
 	 * @since bbPress (r2857)
 	 *
@@ -298,6 +298,7 @@ function bbp_topic_id( $topic_id = 0) {
 	 * @uses bbp_get_reply_topic_edit() To get the reply topic id
 	 * @uses get_post_field() To get the post's post type
 	 * @uses WP_Query::post::ID To get the topic id
+	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses apply_filters() Calls 'bbp_get_topic_id' with the topic id and
 	 *                        supplied topic id
 	 * @return int The topic id
@@ -517,8 +518,8 @@ function bbp_topic_excerpt( $topic_id = 0, $length = 100 ) {
  *
  * @since bbPress (r2966)
  *
- * @uses wp_parse_args()
- * @param array $args
+ * @param mixed $args See {@link bbp_get_topic_pagination()}
+ * @uses bbp_get_topic_pagination() To get the topic pagination links
  */
 function bbp_topic_pagination( $args = '' ) {
 	echo bbp_get_topic_pagination( $args );
@@ -528,18 +529,24 @@ function bbp_topic_pagination( $args = '' ) {
 	 *
 	 * @since bbPress (r2966)
 	 *
-	 * @uses wp_parse_args()
-	 * @uses user_trailingslashit()
-	 * @uses trailingslashit()
-	 * @uses get_permalink()
-	 * @uses add_query_arg()
-	 * @uses bbp_get_topic_reply_count()
-	 * @uses get_option()
-	 * @uses paginate_links()
-	 *
-	 * @global obj $wp_rewrite
-	 * @param array $args
-	 * @return string
+	 * @param mixed $args This function supports these arguments:
+	 *  - topic_id: Topic id
+	 *  - before: Before the links
+	 *  - after: After the links
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses WP_Rewrite::using_permalinks() To check if the blog is using
+	 *                                       permalinks
+	 * @uses user_trailingslashit() To add a trailing slash
+	 * @uses trailingslashit() To add a trailing slash
+	 * @uses get_permalink() To get the permalink of the topic
+	 * @uses add_query_arg() To add query args
+	 * @uses bbp_get_topic_reply_count() To get topic reply count
+	 * @uses bbp_show_topic_lead() Are we showing the topic as a lead?
+	 * @uses get_option() To get replies per page option
+	 * @uses paginate_links() To paginate the links
+	 * @uses apply_filters() Calls 'bbp_get_topic_pagination' with the links
+	 *                        and arguments
+	 * @return string Pagination links
 	 */
 	function bbp_get_topic_pagination( $args = '' ) {
 		global $wp_rewrite;
@@ -591,7 +598,7 @@ function bbp_topic_pagination( $args = '' ) {
 			$pagination_links = $before . $pagination_links . $after;
 		}
 
-		return apply_filters( 'bbp_get_topic_pagination', $pagination_links );
+		return apply_filters( 'bbp_get_topic_pagination', $pagination_links, $args );
 	}
 
 /**
@@ -2543,7 +2550,7 @@ function bbp_single_topic_description( $args = '' ) {
  *
  * @since bbPress (r2976)
  *
- * @uses bbp_get_form_topic_title()
+ * @uses bbp_get_form_topic_title() To get the value of topic title field
  */
 function bbp_form_topic_title() {
 	echo bbp_get_form_topic_title();
@@ -2553,10 +2560,9 @@ function bbp_form_topic_title() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @global obj $post
-	 * @uses bbp_is_topic_edit()
-	 * @uses esc_attr()
-	 * @return string
+	 * @uses bbp_is_topic_edit() To check if it's topic edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_title' with the title
+	 * @return string Value of topic title field
 	 */
 	function bbp_get_form_topic_title() {
 		global $post;
@@ -2581,7 +2587,7 @@ function bbp_form_topic_title() {
  *
  * @since bbPress (r2976)
  *
- * @uses bbp_get_form_topic_content()
+ * @uses bbp_get_form_topic_content() To get value of topic content field
  */
 function bbp_form_topic_content() {
 	echo bbp_get_form_topic_content();
@@ -2591,10 +2597,9 @@ function bbp_form_topic_content() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @global obj $post
-	 * @uses bbp_is_topic_edit()
-	 * @uses esc_textarea()
-	 * @return string
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_content' with the content
+	 * @return string Value of topic content field
 	 */
 	function bbp_get_form_topic_content() {
 		global $post;
@@ -2618,7 +2623,7 @@ function bbp_form_topic_content() {
  * Output value of topic tags field
  *
  * @since bbPress (r2976)
- * @uses bbp_get_form_topic_tags()
+ * @uses bbp_get_form_topic_tags() To get the value of topic tags field
  */
 function bbp_form_topic_tags() {
 	echo bbp_get_form_topic_tags();
@@ -2628,10 +2633,9 @@ function bbp_form_topic_tags() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @global obj $post
-	 * @uses bbp_is_topic_edit()
-	 * @uses esc_attr()
-	 * @return string
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_tags' with the tags
+	 * @return string Value of topic tags field
 	 */
 	function bbp_get_form_topic_tags() {
 		global $post;
@@ -2656,7 +2660,7 @@ function bbp_form_topic_tags() {
  *
  * @since bbPress (r2976)
  *
- * @uses bbp_get_form_topic_forum()
+ * @uses bbp_get_form_topic_forum() To get the topic's forum id
  */
 function bbp_form_topic_forum() {
 	echo bbp_get_form_topic_forum();
@@ -2666,10 +2670,10 @@ function bbp_form_topic_forum() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @uses bbp_is_topic_edit()
-	 * @uses bbp_get_topic_forum_id()
-	 * @uses esc_attr()
-	 * @return string
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_topic_forum_id() To get the topic forum id
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_forum' with the forum
+	 * @return string Value of topic content field
 	 */
 	function bbp_get_form_topic_forum() {
 
@@ -2693,7 +2697,7 @@ function bbp_form_topic_forum() {
  *
  * @since bbPress (r2976)
  *
- * @uses bbp_get_form_topic_subscribed()
+ * @uses bbp_get_form_topic_subscribed() To get the subscribed checkbox value
  */
 function bbp_form_topic_subscribed() {
 	echo bbp_get_form_topic_subscribed();
@@ -2703,10 +2707,12 @@ function bbp_form_topic_subscribed() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @global obj $post
-	 * @uses bbp_is_topic_edit()
-	 * @uses bbp_is_user_user_subscribed()
-	 * @return string
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_is_user_subscribed() To check if the user is subscribed to
+	 *                                 the topic
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_subscribed' with the
+	 *                        option
+	 * @return string Checked value of topic subscription
 	 */
 	function bbp_get_form_topic_subscribed() {
 		global $post;
@@ -2731,7 +2737,7 @@ function bbp_form_topic_subscribed() {
  *
  * @since bbPress (r2976)
  *
- * @uses bbp_get_form_topic_log_edit()
+ * @uses bbp_get_form_topic_log_edit() To get the topic log edit value
  */
 function bbp_form_topic_log_edit() {
 	echo bbp_get_form_topic_log_edit();
@@ -2741,9 +2747,9 @@ function bbp_form_topic_log_edit() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @global obj $post
-	 * @uses checked()
-	 * @return string
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_log_edit' with the
+	 *                        log edit value
+	 * @return string Topic log edit checked value
 	 */
 	function bbp_get_form_topic_log_edit() {
 		global $post;
@@ -2764,7 +2770,7 @@ function bbp_form_topic_log_edit() {
  *
  * @since bbPress (r2976)
  *
- * @uses bbp_get_form_topic_edit_reason()
+ * @uses bbp_get_form_topic_edit_reason() To get the topic edit reason value
  */
 function bbp_form_topic_edit_reason() {
 	echo bbp_get_form_topic_edit_reason();
@@ -2774,9 +2780,9 @@ function bbp_form_topic_edit_reason() {
 	 *
 	 * @since bbPress (r2976)
 	 *
-	 * @global obj $post
-	 * @uses esc_attr()
-	 * @return string
+	 * @uses apply_filters() Calls 'bbp_get_form_topic_edit_reason' with the
+	 *                        topic edit reason value
+	 * @return string Topic edit reason value
 	 */
 	function bbp_get_form_topic_edit_reason() {
 		global $post;

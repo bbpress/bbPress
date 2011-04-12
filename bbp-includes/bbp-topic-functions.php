@@ -26,6 +26,7 @@
  * @uses bbp_is_forum_private() To check if the forum is private
  * @uses bbp_check_for_flood() To check for flooding
  * @uses bbp_check_for_duplicate() To check for duplicates
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses remove_filter() To remove 'wp_filter_kses' filters if needed
  * @uses apply_filters() Calls 'bbp_new_topic_pre_title' with the content
  * @uses apply_filters() Calls 'bbp_new_topic_pre_content' with the content
@@ -214,8 +215,8 @@ function bbp_new_topic_handler() {
  * @uses wp_update_post() To update the topic
  * @uses do_action() Calls 'bbp_edit_topic' with the topic id, forum id,
  *                    anonymous data and reply author
- * @uses do_action() Calls 'bbp_move_topic' with the forum id and topic id, if
- *                    the old forum id doesn't equal the new one
+ * @uses bbp_move_topic_handler() To handle movement of a topic from one forum
+ *                                 to another
  * @uses bbp_get_topic_permalink() To get the topic permalink
  * @uses wp_redirect() To redirect to the topic link
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
@@ -347,13 +348,12 @@ function bbp_edit_topic_handler() {
 /**
  * Handles new topic submission from within wp-admin
  *
- * @param int $post_id
- * @param obj $post
- *
- * @uses bbp_get_topic_post_type()
- * @uses bbp_update_topic()
+ * @param int $topic_id Topic id
+ * @param object $topic Topic
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_update_topic() To update the topic
  */
-function bbp_new_topic_admin_handler( $post_id, $post ) {
+function bbp_new_topic_admin_handler( $topic_id, $topic ) {
 	global $bbp;
 
 	if (    // Check if POST action
@@ -369,7 +369,7 @@ function bbp_new_topic_admin_handler( $post_id, $post ) {
 	) {
 
 		// Update the topic meta bidness
-		bbp_update_topic( $post_id, (int) $_POST['parent_id'] );
+		bbp_update_topic( $topic_id, (int) $_POST['parent_id'] );
 	}
 }
 
@@ -385,6 +385,7 @@ function bbp_new_topic_admin_handler( $post_id, $post ) {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_current_user_id() To get the current user id
+ * @yses bbp_get_topic_forum_id() To get the topic forum id
  * @uses update_post_meta() To update the topic metas
  * @uses set_transient() To update the flood check transient for the ip
  * @uses update_user_meta() To update the last posted meta for the user
@@ -394,11 +395,14 @@ function bbp_new_topic_admin_handler( $post_id, $post ) {
  * @uses bbp_remove_user_subscription() To remove the user's subscription
  * @uses bbp_add_user_subscription() To add the user's subscription
  * @uses bbp_update_topic_forum_id() To update the topic's forum id
- * @uses bbp_update_topic_last_active_time() To update the last active topic meta
- * @uses bbp_update_forum_last_active_time() To update the last active forum meta
+ * @uses bbp_update_topic_topic_id() To update the topic's topic id
  * @uses bbp_update_topic_last_reply_id() To update the last reply id topic meta
- * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
- * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
+ * @uses bbp_update_topic_last_active_id() To update the topic last active id
+ * @uses bbp_update_topic_last_active_time() To update the last active topic meta
+ * @uses bbp_update_topic_reply_count() To update the topic reply count
+ * @uses bbp_update_topic_hidden_reply_count() To udpate the topic hidden reply count
+ * @uses bbp_update_topic_voice_count() To update the topic voice count
+ * @uses bbp_update_topic_walker() To udpate the topic's ancestors
  */
 function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
 
@@ -453,8 +457,8 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	}
 
 	// Forum topic meta
-	bbp_update_topic_forum_id ( $topic_id, $forum_id );
-	bbp_update_topic_topic_id ( $topic_id, $topic_id );
+	bbp_update_topic_forum_id( $topic_id, $forum_id );
+	bbp_update_topic_topic_id( $topic_id, $topic_id );
 
 	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
@@ -482,13 +486,16 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
  * function can be costly to run but is necessary to keep everything accurate.
  *
  * @since bbPress (r2800)
- * @param int $topic_id
- *
- * @uses bbp_get_topic_id()
- * @uses bbp_get_topic_forum_id()
- * @uses get_post_ancestors()
- * @uses bbp_is_forum()
- * @uses bbp_update_forum()
+ * @param int $topic_id Topic id
+ * @param string $last_active_time Optional. Last active time
+ * @param int $forum_id Optional. Forum id
+ * @param int $reply_id Optional. Reply id
+ * @param bool $refresh Reset all the previous parameters? Defaults to true.
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses get_post_ancestors() To get the topic's ancestors
+ * @uses bbp_is_forum() To check if the ancestor is a forum
+ * @uses bbp_update_forum() To update the forum
  */
 function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id = 0, $reply_id = 0, $refresh = true ) {
 
@@ -532,16 +539,18 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * Handle the moving of a topic from one forum to another. This includes walking
  * up the old and new branches and updating the counts.
  *
- * @uses bbp_get_topic_id()
- * @uses bbp_get_forum_id()
- * @uses bbp_get_public_child_ids()
- * @uses bbp_update_reply_forum_id()
- * @uses bbp_update_topic_forum_id()
- * @uses bbp_update_forum()
- *
- * @param int $topic_id
- * @param int $old_forum_id
- * @param int $new_forum_id
+ * @param int $topic_id Topic id
+ * @param int $old_forum_id Old forum id
+ * @param int $new_forum_id New forum id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_child_ids() To get the public child ids
+ * @uses bbp_update_reply_forum_id() To update the reply forum id
+ * @uses bbp_update_topic_forum_id() To update the topic forum id
+ * @uses get_post_ancestors() To get the topic's ancestors
+ * @uses bbp_is_forum() To check if the ancestor is a forum
+ * @uses bbp_update_forum() To update the forum
  */
 function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	$topic_id     = bbp_get_topic_id( $topic_id     );
@@ -554,7 +563,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 		bbp_update_reply_forum_id( $reply_id, $new_forum_id );
 
 	// Forum topic meta
-	bbp_update_topic_forum_id ( $topic_id, $new_forum_id );
+	bbp_update_topic_forum_id( $topic_id, $new_forum_id );
 
 	/** Old forum_id **********************************************************/
 
@@ -622,8 +631,14 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
  * @uses wp_delete_object_term_relationships() To delete the topic tags
  * @uses bbp_open_topic() To open the topic
  * @uses bbp_unstick_topic() To unstick the topic
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses get_posts() To get the replies
  * @uses wp_update_post() To update the topic
+ * @uses bbp_update_reply_topic_id() To update the reply topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_update_reply_forum_id() To update the reply forum id
+ * @uses do_action() Calls 'bbp_merged_topic_reply' with the reply id and
+ *                    destination topic id
  * @uses do_action() Calls 'bbp_merged_topic' with the destination and source
  *                    topic ids and source topic's forum id
  * @uses bbp_get_topic_permalink() To get the topic permalink
@@ -798,6 +813,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @uses bbp_get_topic() To get the topics
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses current_user_can() To check if the current user can edit the topics
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses do_action() Calls 'bbp_pre_split_topic' with the from reply id, source
  *                    and destination topic ids
@@ -807,9 +823,15 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
  * @uses bbp_add_user_favorite() To add the user favorite
  * @uses wp_get_post_terms() To get the source topic tags
  * @uses wp_set_post_terms() To set the topic tags
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_results() To execute the sql query and get results
  * @uses wp_update_post() To update the replies
+ * @uses bbp_update_reply_topic_id() To update the reply topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_update_reply_forum_id() To update the reply forum id
+ * @uses do_action() Calls 'bbp_split_topic_reply' with the reply id and
+ *                    destination topic id
  * @uses bbp_update_topic_last_reply_id() To update the topic last reply id
  * @uses bbp_update_topic_last_active_time() To update the topic last active meta
  * @uses do_action() Calls 'bbp_post_split_topic' with the destination and
@@ -937,8 +959,8 @@ function bbp_split_topic_handler() {
 				bbp_update_reply_topic_id( $reply->ID, $destination_topic->ID                           );
 				bbp_update_reply_forum_id( $reply->ID, bbp_get_topic_forum_id( $destination_topic->ID ) );
 
-				// Do additional actions per merged reply
-				do_action( 'bbp_merged_topic_reply', $reply->ID, $destination_topic->ID );
+				// Do additional actions per split reply
+				do_action( 'bbp_split_topic_reply', $reply->ID, $destination_topic->ID );
 			}
 
 			// It is a new topic and we need to set some default metas to make the topic display in bbp_has_topics() list
@@ -1218,6 +1240,7 @@ function bbp_get_super_stickies() {
  * @uses bbp_get_topic() To get the topic
  * @uses current_user_can() To check if the user is capable of editing or
  *                           deleting the topic
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses check_ajax_referer() To verify the nonce and check the referer
  * @uses bbp_is_topic_open() To check if the topic is open
  * @uses bbp_close_topic() To close the topic
@@ -1233,7 +1256,9 @@ function bbp_get_super_stickies() {
  * @uses wp_delete_post() To delete the topic
  * @uses do_action() Calls 'bbp_toggle_topic_handler' with success, post data
  *                    and action
+ * @uses bbp_get_forum_permalink() To get the forum link
  * @uses bbp_get_topic_permalink() To get the topic link
+ * @uses add_query_arg() To add args to the url
  * @uses wp_redirect() To redirect to the topic
  * @uses bbPress::errors:add() To log the error messages
  */
@@ -1402,16 +1427,21 @@ function bbp_remove_topic_from_all_subscriptions( $topic_id = 0 ) {
 /** Topic Updaters ************************************************************/
 
 /**
- * Update the topic's forum ID
+ * Update the topic's forum id
  *
  * @since bbPress (r2855)
  *
  * @param int $topic_id Optional. Topic id to update
- * @param int $forum_id Optional. Reply id
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_is_reply() TO check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses get_post_field() To get the post parent of the topic id
  * @uses bbp_get_forum_id() To get the forum id
- * @uses update_post_meta() To update the topic last forum id meta
- * @return bool True on success, false on failure
+ * @uses update_post_meta() To update the topic forum id meta
+ * @uses apply_filters() Calls 'bbp_update_topic_forum_id' with the forum id
+ *                        and topic id
+ * @return int Forum id
  */
 function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 
@@ -1430,16 +1460,15 @@ function bbp_update_topic_forum_id( $topic_id = 0, $forum_id = 0 ) {
 }
 
 /**
- * Update the topic's topic ID
+ * Update the topic's topic id
  *
  * @since bbPress (r2954)
  *
  * @param int $topic_id Optional. Topic id to update
- * @param int $topic_id Optional. Reply id
  * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses update_post_meta() To update the topic last topic id meta
- * @return bool True on success, false on failure
+ * @uses update_post_meta() To update the topic's topic id meta
+ * @uses apply_filters() Calls 'bbp_update_topic_topic_id' with the topic id
+ * @return int Topic id
  */
 function bbp_update_topic_topic_id( $topic_id = 0 ) {
 
@@ -1448,7 +1477,7 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
 
 	update_post_meta( $topic_id, '_bbp_topic_id', (int) $topic_id );
 
-	return apply_filters( 'bbp_update_topic_topic_id', (int) $topic_id, $topic_id );
+	return apply_filters( 'bbp_update_topic_topic_id', (int) $topic_id );
 }
 
 /**
@@ -1458,6 +1487,8 @@ function bbp_update_topic_topic_id( $topic_id = 0 ) {
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_count Optional. Set the reply count manually.
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_public_child_count() To get the reply count
@@ -1473,7 +1504,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
-	
+
 	// Get replies of topic if not passed
 	if ( empty( $reply_count ) )
 		$reply_count = bbp_get_public_child_count( $topic_id, bbp_get_reply_post_type() );
@@ -1490,11 +1521,12 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_count Optional. Set the reply count manually
- * @uses bbp_get_topic_id() To get the topic id
- * @uses get_post_field() To get the post type of the supplied id
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
  * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_col() To execute our query and get the column back
+ * @uses wpdb::get_var() To execute our query and get the var back
  * @uses update_post_meta() To update the topic hidden reply count meta
  * @uses apply_filters() Calls 'bbp_update_topic_hidden_reply_count' with the
  *                        hidden reply count and topic id
@@ -1508,7 +1540,7 @@ function bbp_update_topic_hidden_reply_count( $topic_id = 0, $reply_count = 0 ) 
 		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
-	
+
 	// Get replies of topic
 	if ( empty( $reply_count ) )
 		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
@@ -1525,10 +1557,16 @@ function bbp_update_topic_hidden_reply_count( $topic_id = 0, $reply_count = 0 ) 
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $active_id Optional. active id
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_child_last_id() To get the last public reply id
  * @uses bbp_get_active_id() To get the active id
  * @uses update_post_meta() To update the topic last active id meta
- * @return bool True on success, false on failure
+ * @uses apply_filters() Calls 'bbp_update_topic_last_active_id' with the active
+ *                        id and topic id
+ * @return int Active id
  */
 function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 
@@ -1587,10 +1625,16 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
  *
  * @param int $topic_id Optional. Topic id to update
  * @param int $reply_id Optional. Reply id
- * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
  * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_public_child_last_id() To get the last public reply id
  * @uses update_post_meta() To update the topic last reply id meta
- * @return bool True on success, false on failure
+ * @uses apply_filters() Calls 'bbp_update_topic_last_reply_id' with the reply
+ *                        id and topic id
+ * @return int Reply id
  */
 function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 
@@ -1621,15 +1665,18 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
  * @since bbPress (r2567)
  *
  * @param int $topic_id Optional. Topic id to update
- * @uses bbp_get_topic_id() To get the topic id
- * @uses get_post_field() To get the post type of the supplied id
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
  * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_col() To execute our query and get the column back
  * @uses update_post_meta() To update the topic voice count meta
  * @uses apply_filters() Calls 'bbp_update_topic_voice_count' with the voice
  *                        count and topic id
- * @return bool False on failure, voice count on success
+ * @return int Voice count
  */
 function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	global $wpdb;
@@ -1657,15 +1704,18 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
  * @since bbPress (r2567)
  *
  * @param int $topic_id Optional. Topic id to update
- * @uses bbp_get_topic_id() To get the topic id
- * @uses get_post_field() To get the post type of the supplied id
+ * @uses bbp_is_reply() To check if the passed topic id is a reply
  * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_col() To execute our query and get the column back
- * @uses update_post_meta() To update the topic voice count meta
- * @uses apply_filters() Calls 'bbp_update_topic_voice_count' with the voice
- *                        count and topic id
- * @return bool False on failure, voice count on success
+ * @uses update_post_meta() To update the topic anonymous reply count meta
+ * @uses apply_filters() Calls 'bbp_update_topic_anonymous_reply_count' with the
+ *                        anonymous reply count and topic id
+ * @return int Anonymous reply count
  */
 function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 	global $wpdb;
@@ -1965,6 +2015,18 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 
 /** Before Delete/Trash/Untrash ***********************************************/
 
+/**
+ * Called before deleting a topic
+ *
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic() To check if the passed id is a topic
+ * @uses do_action() Calls 'bbp_delete_topic' with the topic id
+ * @uses bbp_has_replies() To check if the topic has replies
+ * @uses bbp_replies() To loop through the replies
+ * @uses bbp_the_reply() To set a reply as the current reply in the loop
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses wp_delete_post() To delete the reply
+ */
 function bbp_delete_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -1982,6 +2044,19 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	}
 }
 
+/**
+ * Called before trashing a topic
+ *
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic() To check if the passed id is a topic
+ * @uses do_action() Calls 'bbp_trash_topic' with the topic id
+ * @uses bbp_has_replies() To check if the topic has replies
+ * @uses bbp_replies() To loop through the replies
+ * @uses bbp_the_reply() To set a reply as the current reply in the loop
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses wp_trash_post() To trash the reply
+ * @uses update_post_meta() To save a list of just trashed replies for future use
+ */
 function bbp_trash_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -2007,6 +2082,16 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	}
 }
 
+/**
+ * Called before untrashing a topic
+ *
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic() To check if the passed id is a topic
+ * @uses do_action() Calls 'bbp_untrash_topic' with the topic id
+ * @uses get_post_meta() To get the list of replies which were trashed with the
+ *                        topic
+ * @uses wp_untrash_post() To untrash the reply
+ */
 function bbp_untrash_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -2024,6 +2109,13 @@ function bbp_untrash_topic( $topic_id = 0 ) {
 
 /** After Delete/Trash/Untrash ************************************************/
 
+/**
+ * Called after deleting a topic
+ *
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic() To check if the passed id is a topic
+ * @uses do_action() Calls 'bbp_deleted_topic' with the topic id
+ */
 function bbp_deleted_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -2033,6 +2125,13 @@ function bbp_deleted_topic( $topic_id = 0 ) {
 	do_action( 'bbp_deleted_topic', $topic_id );
 }
 
+/**
+ * Called after trashing a topic
+ *
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic() To check if the passed id is a topic
+ * @uses do_action() Calls 'bbp_trashed_topic' with the topic id
+ */
 function bbp_trashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -2042,6 +2141,13 @@ function bbp_trashed_topic( $topic_id = 0 ) {
 	do_action( 'bbp_trashed_topic', $topic_id );
 }
 
+/**
+ * Called after untrashing a topic
+ *
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_topic() To check if the passed id is a topic
+ * @uses do_action() Calls 'bbp_untrashed_topic' with the topic id
+ */
 function bbp_untrashed_topic( $topic_id = 0 ) {
 	$topic_id = bbp_get_topic_id( $topic_id );
 

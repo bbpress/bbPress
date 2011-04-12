@@ -239,6 +239,8 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 	 * @param int $user_id Optional. User id
 	 * @param string $user_nicename Optional. User nicename
 	 * @uses bbp_get_user_id() To get user id
+	 * @uses WP_Rewrite::using_permalinks() To check if the blog is using
+	 *                                       permalinks
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get blog home url
 	 * @uses apply_filters() Calls 'bbp_get_user_profile_url' with the user
@@ -330,6 +332,8 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 	 * @param int $user_id Optional. User id
 	 * @param string $user_nicename Optional. User nicename
 	 * @uses bbp_get_user_id() To get user id
+	 * @uses WP_Rewrite::using_permalinks() To check if the blog is using
+	 *                                       permalinks
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get blog home url
 	 * @uses apply_filters() Calls 'bbp_get_user_edit_profile_url' with the
@@ -757,7 +761,9 @@ function bbp_edit_user_role() {
  *
  * @since bbPress (r2688)
  *
- * @return string user contact methods
+ * @uses _wp_get_user_contactmethods() To get the contact methods
+ * @uses apply_filters() Calls 'bbp_edit_user_contact_methods' with the methods
+ * @return string User contact methods
  */
 function bbp_edit_user_contact_methods() {
 	global $bbp;
@@ -774,6 +780,8 @@ function bbp_edit_user_contact_methods() {
  * Handle the login and registration template notices
  *
  * @since bbPress (r2970)
+ * 
+ * @uses WP_Error bbPress::errors::add() To add an error or message
  */
 function bbp_login_notices() {
 	global $bbp;
@@ -863,6 +871,7 @@ function bbp_user_login_fields() {
  *
  * @since bbPress (r2815)
  *
+ * @uses add_query_arg() To add query args
  * @uses bbp_login_url() To get the login url
  * @uses bbp_redirect_to_field() To output the redirect to field
  * @uses wp_nonce_field() To generate hidden nonce fields

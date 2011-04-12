@@ -8,7 +8,7 @@
  */
 
 /**
- * Update the reply with its forum ID it is in
+ * Update the reply with its forum id it is in
  *
  * @since bbPress (r2855)
  *
@@ -16,8 +16,12 @@
  * @param int $forum_id Optional. Forum id
  * @uses bbp_get_reply_id() To get the reply id
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses get_post_ancestors() To get the reply's forum
+ * @uses get_post_field() To get the post type of the post
  * @uses update_post_meta() To update the reply forum id meta
- * @return bool True on success, false on failure
+ * @uses apply_filters() Calls 'bbp_update_reply_forum_id' with the forum id
+ *                        and reply id
+ * @return bool Reply's forum id
  */
 function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -27,7 +31,7 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	if ( empty( $forum_id ) ) {
 		$ancestors = get_post_ancestors( $reply_id );
 		foreach ( $ancestors as $ancestor ) {
-			if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_forum_post_type() ) {
+			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_forum_post_type() ) {
 				$forum_id = $ancestor;
 				continue;
 			}
@@ -35,13 +39,13 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
 	}
 
 	// Update the last reply ID
-	return update_post_meta( $reply_id, '_bbp_forum_id', (int) $forum_id );
+	update_post_meta( $reply_id, '_bbp_forum_id', (int) $forum_id );
 
 	return apply_filters( 'bbp_update_reply_forum_id', (int) $forum_id, $reply_id );
 }
 
 /**
- * Update the reply with its topic ID it is in
+ * Update the reply with its topic id it is in
  *
  * @since bbPress (r2855)
  *
@@ -49,8 +53,12 @@ function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_reply_id() To get the reply id
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses get_post_ancestors() To get the reply's topic
+ * @uses get_post_field() To get the post type of the post
  * @uses update_post_meta() To update the reply topic id meta
- * @return bool True on success, false on failure
+ * @uses apply_filters() Calls 'bbp_update_reply_topic_id' with the topic id
+ *                        and reply id
+ * @return bool Reply's topic id
  */
 function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
@@ -60,7 +68,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
 	if ( empty( $topic_id ) ) {
 		$ancestors = get_post_ancestors( $reply_id );
 		foreach ( $ancestors as $ancestor ) {
-			if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_topic_post_type() ) {
+			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
 				$topic_id = $ancestor;
 				continue;
 			}
@@ -95,6 +103,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
  * @uses bbp_check_for_duplicate() To check for duplicates
  * @uses apply_filters() Calls 'bbp_new_reply_pre_title' with the title
  * @uses apply_filters() Calls 'bbp_new_reply_pre_content' with the content
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wp_set_post_terms() To set the topic tags
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_insert_post() To insert the reply
@@ -232,12 +241,14 @@ function bbp_new_reply_handler() {
  * @uses wp_save_post_revision() To save a reply revision
  * @uses bbp_update_topic_revision_log() To update the reply revision log
  * @uses wp_update_post() To update the reply
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses do_action() Calls 'bbp_edit_reply' with the reply id, topic id, forum
  *                    id, anonymous data, reply author and bool true (for edit)
  * @uses bbp_get_reply_url() To get the paginated url to the reply
  * @uses wp_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
- *                                              message
+ *                                             message
  */
 function bbp_edit_reply_handler() {
 	// Only proceed if POST is an reply request
@@ -330,13 +341,12 @@ function bbp_edit_reply_handler() {
 /**
  * Handles new reply submission from within wp-admin
  *
- * @param int $post_id
- * @param obj $post
- *
- * @uses bbp_get_reply_post_type()
- * @uses bbp_update_reply()
+ * @param int $reply_id Reply id
+ * @param obj $reply Reply
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_update_reply() To update the reply
  */
-function bbp_new_reply_admin_handler( $post_id, $post ) {
+function bbp_new_reply_admin_handler( $reply_id, $reply ) {
 	global $bbp;
 
 	if (    // Check if POST action
@@ -352,7 +362,7 @@ function bbp_new_reply_admin_handler( $post_id, $post ) {
 	) {
 
 		// Update the reply meta bidness
-		bbp_update_reply( $post_id, (int) $_POST['parent_id'] );
+		bbp_update_reply( $reply_id, (int) $_POST['parent_id'] );
 	}
 }
 
@@ -370,6 +380,8 @@ function bbp_new_reply_admin_handler( $post_id, $post ) {
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_current_user_id() To get the current user id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses update_post_meta() To update the reply metas
  * @uses set_transient() To update the flood check transient for the ip
  * @uses update_user_meta() To update the last posted meta for the user
@@ -378,6 +390,9 @@ function bbp_new_reply_admin_handler( $post_id, $post ) {
  * @uses bbp_is_user_subscribed() To check if the user is subscribed
  * @uses bbp_remove_user_subscription() To remove the user's subscription
  * @uses bbp_add_user_subscription() To add the user's subscription
+ * @uses bbp_update_reply_forum_id() To update the reply forum id
+ * @uses bbp_update_reply_topic_id() To update the reply topic id
+ * @uses bbp_update_reply_walker() To update the reply's ancestors' counts
  */
 function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $author_id = 0, $is_edit = false ) {
 
@@ -455,26 +470,47 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
  *
  * @since bbPress (r2884)
  *
- * @param int $reply_id
- *
+ * @param int $reply_id Optional. Reply id
+ * @param string $last_active_time Optional. Last active time
+ * @param int $forum_id Optional. Forum id
+ * @param int $topic_id Optional. Topic id
+ * @param bool $refresh If set to true, unsets all the previous parameters.
+ *                       Defaults to true
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_topic_id() To get the reply topic id
+ * @uses bbp_get_reply_forum_id() To get the reply forum id
+ * @uses get_post_ancestors() To get the ancestors of the reply
+ * @uses bbp_is_reply() To check if the ancestor is a reply
+ * @uses bbp_is_topic() To check if the ancestor is a topic
+ * @uses bbp_update_topic_last_reply_id() To update the topic last reply id
+ * @uses bbp_update_topic_last_active_id() To update the topic last active id
+ * @uses bbp_get_topic_last_active_id() To get the topic last active id
+ * @uses get_post_field() To get the post date of the last active id
  * @uses bbp_update_topic_last_active_time() To update the last active topic meta
- * @uses bbp_update_forum_last_active_time() To update the last active forum meta
- * @uses bbp_update_topic_last_reply_id() To update the last reply id topic meta
+ * @uses bbp_update_topic_voice_count() To update the topic voice count
+ * @uses bbp_update_topic_reply_count() To update the topic reply count
+ * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
+ *                                              count
+ * @uses bbp_is_forum() To check if the ancestor is a forum
  * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
  * @uses bbp_update_forum_last_reply_id() To update the last reply id forum meta
+ * @uses bbp_update_forum_last_active_id() To update the forum last active id
+ * @uses bbp_get_forum_last_active_id() To get the forum last active id
+ * @uses bbp_update_forum_last_active_time() To update the forum last active time
+ * @uses bbp_update_forum_reply_count() To update the forum reply count
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
 
 	// Verify the reply ID
-	if ( $reply_id = bbp_get_reply_id ( $reply_id ) ) {
+	if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
 
 		// Get the topic ID if none was passed
 		if ( empty( $topic_id ) )
-			$topic_id = bbp_get_reply_topic_id ( $reply_id );
+			$topic_id = bbp_get_reply_topic_id( $reply_id );
 
 		// Get the forum ID if none was passed
 		if ( empty( $forum_id ) )
-			$forum_id = bbp_get_reply_forum_id ( $reply_id );
+			$forum_id = bbp_get_reply_forum_id( $reply_id );
 	}
 
 	// Set the active_id based on topic_id/reply_id
@@ -507,32 +543,32 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			else
 				$topic_last_active_time = $last_active_time;
 
-			bbp_update_topic_last_active_time   ( $ancestor, $topic_last_active_time );
+			bbp_update_topic_last_active_time  ( $ancestor, $topic_last_active_time );
 
 			// Counts
-			bbp_update_topic_voice_count        ( $ancestor );
-			bbp_update_topic_reply_count        ( $ancestor );
-			bbp_update_topic_hidden_reply_count ( $ancestor );
+			bbp_update_topic_voice_count       ( $ancestor );
+			bbp_update_topic_reply_count       ( $ancestor );
+			bbp_update_topic_hidden_reply_count( $ancestor );
 
 		// Forum meta relating to most recent topic
 		} elseif ( bbp_is_forum( $ancestor ) ) {
 
 			// Last topic and reply ID's
-			bbp_update_forum_last_topic_id ( $ancestor, $topic_id );
-			bbp_update_forum_last_reply_id ( $ancestor, $reply_id );
+			bbp_update_forum_last_topic_id( $ancestor, $topic_id );
+			bbp_update_forum_last_reply_id( $ancestor, $reply_id );
 
 			// Last Active
-			bbp_update_forum_last_active_id ( $ancestor, $active_id );
+			bbp_update_forum_last_active_id( $ancestor, $active_id );
 
 			if ( empty( $last_active_time ) )
 				$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
 			else
 				$forum_last_active_time = $last_active_time;
 
-			bbp_update_forum_last_active_time ( $ancestor, $forum_last_active_time );
+			bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
 
 			// Counts
-			bbp_update_forum_reply_count ( $ancestor );
+			bbp_update_forum_reply_count( $ancestor );
 		}
 	}
 }
@@ -593,6 +629,7 @@ function bbp_update_reply_revision_log( $args = '' ) {
  * @uses current_user_can() To check if the user is capable of editing or
  *                           deleting the reply
  * @uses check_ajax_referer() To verify the nonce and check the referer
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_is_reply_spam() To check if the reply is marked as spam
  * @uses bbp_spam_reply() To make the reply as spam
  * @uses bbp_unspam_reply() To unmark the reply as spam
@@ -773,6 +810,13 @@ function bbp_unspam_reply( $reply_id = 0 ) {
 
 /** Before Delete/Trash/Untrash ***********************************************/
 
+/**
+ * Called before deleting a reply
+ *
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_is_reply() To check if the passed id is a reply
+ * @uses do_action() Calls 'bbp_delete_reply' with the reply id
+ */
 function bbp_delete_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
@@ -782,6 +826,13 @@ function bbp_delete_reply( $reply_id = 0 ) {
 	do_action( 'bbp_delete_reply', $reply_id );
 }
 
+/**
+ * Called before trashing a reply
+ *
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_is_reply() To check if the passed id is a reply
+ * @uses do_action() Calls 'bbp_trash_reply' with the reply id
+ */
 function bbp_trash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
@@ -791,6 +842,13 @@ function bbp_trash_reply( $reply_id = 0 ) {
 	do_action( 'bbp_trash_reply', $reply_id );
 }
 
+/**
+ * Called before untrashing (restoring) a reply
+ *
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_is_reply() To check if the passed id is a reply
+ * @uses do_action() Calls 'bbp_unstrash_reply' with the reply id
+ */
 function bbp_untrash_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
@@ -802,6 +860,13 @@ function bbp_untrash_reply( $reply_id = 0 ) {
 
 /** After Delete/Trash/Untrash ************************************************/
 
+/**
+ * Called after deleting a reply
+ *
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_is_reply() To check if the passed id is a reply
+ * @uses do_action() Calls 'bbp_deleted_reply' with the reply id
+ */
 function bbp_deleted_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
@@ -811,6 +876,13 @@ function bbp_deleted_reply( $reply_id = 0 ) {
 	do_action( 'bbp_deleted_reply', $reply_id );
 }
 
+/**
+ * Called after trashing a reply
+ *
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_is_reply() To check if the passed id is a reply
+ * @uses do_action() Calls 'bbp_trashed_reply' with the reply id
+ */
 function bbp_trashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 
@@ -820,6 +892,13 @@ function bbp_trashed_reply( $reply_id = 0 ) {
 	do_action( 'bbp_trashed_reply', $reply_id );
 }
 
+/**
+ * Called after untrashing (restoring) a reply
+ *
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_is_reply() To check if the passed id is a reply
+ * @uses do_action() Calls 'bbp_untrashed_reply' with the reply id
+ */
 function bbp_untrashed_reply( $reply_id = 0 ) {
 	$reply_id = bbp_get_reply_id( $reply_id );
 

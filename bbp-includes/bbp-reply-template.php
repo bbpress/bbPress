@@ -10,26 +10,27 @@
 /** Post Type *****************************************************************/
 
 /**
- * Return the unique ID of the custom post type for replies
+ * Return the unique id of the custom post type for replies
  *
  * @since bbPress (r2857)
  *
- * @global bbPress $bbp
- * @return string
+ * @uses bbp_get_reply_post_type() To get the reply post type
  */
 function bbp_reply_post_type() {
 	echo bbp_get_reply_post_type();
 }
 	/**
-	 * Return the unique ID of the custom post type for replies
+	 * Return the unique id of the custom post type for replies
 	 *
 	 * @since bbPress (r2857)
 	 *
-	 * @global bbPress $bbp
-	 * @return string
+	 * @uses apply_filters() Calls 'bbp_get_forum_post_type' with the forum
+	 *                        post type id
+	 * @return string The unique reply post type id
 	 */
 	function bbp_get_reply_post_type() {
 		global $bbp;
+
 		return apply_filters( 'bbp_get_reply_post_type', $bbp->reply_post_type );
 	}
 
@@ -41,6 +42,16 @@ function bbp_reply_post_type() {
  * @since bbPress (r2553)
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
+ * @uses bbp_is_topic() To check if it's the topic page
+ * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_is_query_name() To check if we are getting replies for a widget
+ * @uses get_option() To get the replies per page option
+ * @uses bbp_get_paged() To get the current page value
+ * @uses current_user_can() To check if the current user is capable of editing
+ *                           others' replies
  * @uses WP_Query To make query and get the replies
  * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
  * @uses get_permalink() To get the permalink
@@ -210,8 +221,12 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 * @uses bbPress::reply_query::post::ID To get the reply id
 	 * @uses bbp_is_reply() To check if it's a reply page
 	 * @uses bbp_is_reply_edit() To check if it's a reply edit page
+	 * @uses get_post_field() To get the post's post type
 	 * @uses WP_Query::post::ID To get the reply id
-	 * @uses apply_filters() Calls 'bbp_get_reply_id' with the reply id
+         * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @uses apply_filters() Calls 'bbp_get_reply_id' with the reply id and
+	 *                        supplied reply id
+	 * @return int The reply id
 	 */
 	function bbp_get_reply_id( $reply_id = 0 ) {
 		global $bbp, $wp_query;
@@ -248,6 +263,7 @@ function bbp_reply_id( $reply_id = 0 ) {
  * @param string $output Optional. OBJECT, ARRAY_A, or ARRAY_N. Default = OBJECT
  * @param string $filter Optional Sanitation filter. See {@link sanitize_post()}
  * @uses get_post() To get the reply
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses apply_filters() Calls 'bbp_get_reply' with the reply, output type and
  *                        sanitation filter
  * @return mixed Null if error or reply (in specified form) if success
@@ -329,13 +345,14 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 *                            replies? If $_GET['view'] == all, it is
 	 *                            automatically set to true. To override
 	 *                            this, set $count_hidden = (int) -1
-	 * @uses bbp_get_reply_id() Get the reply id
-	 * @uses bbp_get_reply_topic_id() Get the reply topic id
-	 * @uses bbp_get_topic_permalink() Get the topic permalink
-	 * @uses bbp_get_reply_position() Get the reply position
-	 * @uses get_option() Get the replies per page option
-	 * @uses WP_Rewrite::using_permalinks() Check if the blog uses permalinks
-	 * @uses add_query_arg() Add custom args to the url
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_topic_id() To get the reply topic id
+	 * @uses bbp_get_topic_permalink() To get the topic permalink
+	 * @uses bbp_get_reply_position() To get the reply position
+	 * @uses get_option() To get the replies per page option
+	 * @uses WP_Rewrite::using_permalinks() To check if the blog uses
+	 *                                       permalinks
+	 * @uses add_query_arg() To add custom args to the url
 	 * @uses apply_filters() Calls 'bbp_get_reply_url' with the reply url,
 	 *                        reply id and bool count hidden
 	 * @return string Link to reply relative to paginated topic
@@ -741,7 +758,7 @@ function bbp_reply_author( $reply_id = 0 ) {
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
-	 * @uses get_the_author() To get the reply author
+	 * @uses get_the_author_meta() To get the reply author display name
 	 * @uses get_post_meta() To get the anonymous poster name
 	 * @uses apply_filters() Calls 'bbp_get_reply_author' with the reply
 	 *                        author and reply id
@@ -895,6 +912,8 @@ function bbp_reply_author_link( $args = '' ) {
 	 * @uses bbp_get_reply_author() To get the reply author name
 	 * @uses bbp_get_reply_author_url() To get the reply author url
 	 * @uses bbp_get_reply_author_avatar() To get the reply author avatar
+	 * bbp_get_reply_author_display_name() To get the reply author display
+	 *                                      name
 	 * @uses apply_filters() Calls 'bbp_get_reply_author_link' with the
 	 *                        author link and args
 	 * @return string Author link of reply
@@ -1045,7 +1064,12 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses get_post_field() To get the reply's parent i.e. topic id
+	 * @uses get_post_meta() To get the reply topic id from meta
+	 * @uses get_post_ancestors() To get the reply's ancestors
+	 * @uses get_post_field() To get the ancestor's post type
+	 * @uses bbp_get_topic_post_type() To get the topic post type
+	 * @uses bbp_update_reply_topic_id() To update the reply topic id
+	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses apply_filters() Calls 'bbp_get_reply_topic_id' with the topic
 	 *                        id and reply id
 	 * @return int Reply's topic id
@@ -1063,7 +1087,7 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 			if ( empty( $topic_id ) ) {
 				$ancestors = get_post_ancestors( $reply_id );
 				foreach ( $ancestors as $ancestor ) {
-					if ( get_post_field( 'post_parent', $ancestor ) == bbp_get_topic_post_type() ) {
+					if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
 						$topic_id = $ancestor;
 						continue;
 					}
@@ -1134,8 +1158,8 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
  *
  * @since bbPress (r2984)
  *
- * @uses bbp_get_reply_position()
- * @param int $reply_id
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_position() To get the reply position
  */
 function bbp_reply_position( $reply_id = 0 ) {
 	echo bbp_get_reply_position( $reply_id );
@@ -1145,31 +1169,35 @@ function bbp_reply_position( $reply_id = 0 ) {
 	 *
 	 * @since bbPress (r2984)
 	 *
-	 * @uses bbp_get_reply_id() Get the reply id
-	 * @uses bbp_get_reply_topic_id() Get the topic id of the reply id
-	 * @uses bbp_get_public_child_ids() Get the reply ids of the topic id
-	 * @uses bbp_show_lead_topic() Bump the count if lead topic is included
-	 * @uses apply_filters() Allow position to be altered
 	 * @param int $reply_id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_get_reply_topic_id() Get the topic id of the reply id
+         * @uses bbp_get_topic_reply_count() To get the topic reply count
+         * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @uses bbp_get_public_child_ids() To get the reply ids of the topic id
+	 * @uses bbp_show_lead_topic() Bump the count if lead topic is included
+	 * @uses apply_filters() Calls 'bbp_get_reply_position' with the reply
+         *                        position, reply id and topic id
+         * @return int Reply position
 	 */
 	function bbp_get_reply_position( $reply_id = 0 ) {
 
 		// Get required data
 		$reply_position  = 0;
-		$reply_id        = bbp_get_reply_id         ( $reply_id );
-		$topic_id        = bbp_get_reply_topic_id   ( $reply_id );
+		$reply_id        = bbp_get_reply_id      ( $reply_id );
+		$topic_id        = bbp_get_reply_topic_id( $reply_id );
 
 		// Make sure the topic has replies before running another query
 		if ( $reply_count = bbp_get_topic_reply_count( $topic_id ) ) {
 
 			// Get reply id's
-			$topic_replies  = bbp_get_public_child_ids ( $topic_id, bbp_get_reply_post_type() );
+			$topic_replies  = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
 
 			// Reverse replies array and search for current reply position
 			$topic_replies  = array_reverse( $topic_replies );
 
 			// Position found
-			if ( $reply_position = array_search ( (string) $reply_id, $topic_replies ) ) {
+			if ( $reply_position = array_search( (string) $reply_id, $topic_replies ) ) {
 
 				// Bump if topic is in replies loop
 				if ( !bbp_show_lead_topic() )
@@ -1358,6 +1386,7 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply() To get the reply
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses home_url() To get the home url
 	 * @uses apply_filters() Calls 'bbp_get_reply_edit_url' with the edit
@@ -1412,6 +1441,7 @@ function bbp_reply_trash_link( $args = '' ) {
 	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the current user can delete the
 	 *                           reply
+	 * @uses bbp_is_reply_trash() To check if the reply is trashed
 	 * @uses bbp_get_reply_status() To get the reply status
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses wp_nonce_url() To nonce the url
@@ -1629,6 +1659,7 @@ function bbp_topic_pagination_count() {
 	 * @since bbPress (r2519)
 	 *
 	 * @uses bbp_number_format() To format the number value
+	 * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
 	 * @uses apply_filters() Calls 'bbp_get_topic_pagination_count' with the
 	 *                        pagination count
 	 * @return string Topic pagination count

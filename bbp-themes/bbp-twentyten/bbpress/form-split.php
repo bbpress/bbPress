@@ -11,9 +11,9 @@
 
 <?php if ( is_user_logged_in() && current_user_can( 'edit_topic', bbp_get_topic_id() ) ) : ?>
 
-	<div id="merge-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-merge">
+	<div id="split-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-split">
 
-		<form id="merge_topic" name="merge_topic" method="post" action="">
+		<form id="split_topic" name="split_topic" method="post" action="">
 
 			<fieldset>
 
@@ -62,7 +62,7 @@
 							</div>
 
 						<?php endif; ?>
-						
+
 					</fieldset>
 
 					<fieldset>

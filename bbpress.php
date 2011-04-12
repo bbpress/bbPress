@@ -15,7 +15,7 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
  * Author URI: http://bbpress.org
- * Version: plugin-alpha
+ * Version: plugin-alpha-2
  */
 
 /**
@@ -206,9 +206,9 @@ class bbPress {
 	 * @var array An array of registered bbPress views
 	 */
 	var $views;
-	
+
 	/** Forms *****************************************************************/
-	
+
 	/**
 	 * @var int The current tab index for form building
 	 */
@@ -259,10 +259,10 @@ class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
-		$this->forum_post_type  = apply_filters( 'bbp_forum_post_type',  'forum'     );
-		$this->topic_post_type  = apply_filters( 'bbp_topic_post_type',  'topic'     );
-		$this->reply_post_type  = apply_filters( 'bbp_reply_post_type',  'reply'     );
-		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',     'topic-tag' );
+		$this->forum_post_type  = apply_filters( 'bbp_forum_post_type', 'forum'     );
+		$this->topic_post_type  = apply_filters( 'bbp_topic_post_type', 'topic'     );
+		$this->reply_post_type  = apply_filters( 'bbp_reply_post_type', 'reply'     );
+		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',    'topic-tag' );
 
 		// Status identifiers
 		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'   );
@@ -292,7 +292,7 @@ class bbPress {
 
 		// Views
 		$this->views            = array();
-		
+
 		// Tab Index
 		$this->tab_index        = apply_filters( 'bbp_default_tab_index', 100 );
 
@@ -768,7 +768,7 @@ class bbPress {
 			// Edit Pages
 			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			$this->user_slug  . '/([^/]+)/edit/?$' => 'index.php?bbp_user='                . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->user_slug  . '/([^/]+)/edit/?$' => 'index.php?bbp_user='                       . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// @todo - favorites feeds
 			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),

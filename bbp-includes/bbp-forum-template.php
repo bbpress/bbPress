@@ -10,26 +10,26 @@
 /** Post Type *****************************************************************/
 
 /**
- * Return the unique ID of the custom post type for forums
+ * Output the unique id of the custom post type for forums
  *
  * @since bbPress (r2857)
- *
- * @global bbPress $bbp
- * @return string
+ * @uses bbp_get_forum_post_type() To get the forum post type
  */
 function bbp_forum_post_type() {
 	echo bbp_get_forum_post_type();
 }
 	/**
-	 * Return the unique ID of the custom post type for forums
+	 * Return the unique id of the custom post type for forums
 	 *
 	 * @since bbPress (r2857)
 	 *
-	 * @global bbPress $bbp
-	 * @return string
+	 * @uses apply_filters() Calls 'bbp_get_forum_post_type' with the forum
+	 *                        post type id
+	 * @return string The unique forum post type id
 	 */
 	function bbp_get_forum_post_type() {
 		global $bbp;
+
 		return apply_filters( 'bbp_get_forum_post_type', $bbp->forum_post_type );
 	}
 
@@ -44,6 +44,9 @@ function bbp_forum_post_type() {
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
  * @uses WP_Query To make query and get the forums
+ * @uses bbp_get_forum_post_type() To get the forum post type id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses get_option() To get the forums per page option
  * @uses current_user_can() To check if the current user is capable of editing
  *                           others' forums
  * @uses apply_filters() Calls 'bbp_has_forums' with
@@ -131,8 +134,10 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 * @uses bbp_is_forum() To check if it's a forum page
 	 * @uses bbp_is_topic() To check if it's a topic page
 	 * @uses bbp_get_topic_forum_id() To get the topic forum id
-	 * @uses apply_filters() Calls 'bbp_get_forum_id' with the forum id
-	 * @return int Forum id
+	 * @uses get_post_field() To get the post's post type
+	 * @uses apply_filters() Calls 'bbp_get_forum_id' with the forum id and
+	 *                        supplied forum id
+	 * @return int The forum id
 	 */
 	function bbp_get_forum_id( $forum_id = 0 ) {
 		global $bbp, $wp_query;
@@ -392,17 +397,24 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 	 *
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses bbp_get_forum_last_active_id() To get the forum last active id
+	 * @uses bbp_get_forum_last_reply_id() To get the forum last reply id
+	 * @uses bbp_get_forum_last_topic_id() To get the forum last topic id
 	 * @uses bbp_get_forum_last_reply_url() To get the forum last reply url
 	 * @uses bbp_get_forum_last_reply_title() To get the forum last reply
 	 *                                         title
-	 * @uses bbp_get_forum_last_active_time() To get the time when the forum was
-	 *                                    last active
+	 * @uses bbp_get_forum_last_topic_permalink() To get the forum last
+	 *                                             topic permalink
+	 * @uses bbp_get_forum_last_topic_title() To get the forum last topic
+	 *                                         title
+	 * @uses bbp_get_forum_last_active_time() To get the time when the forum
+	 *                                         was last active
 	 * @uses apply_filters() Calls 'bbp_get_forum_freshness_link' with the
 	 *                        link and forum id
 	 */
 	function bbp_get_forum_freshness_link( $forum_id = 0 ) {
-		$forum_id   = bbp_get_forum_id( $forum_id );
-		$active_id  = bbp_get_forum_last_active_id( $forum_id );
+		$forum_id  = bbp_get_forum_id( $forum_id );
+		$active_id = bbp_get_forum_last_active_id( $forum_id );
 
 		if ( empty( $active_id ) )
 			$active_id = bbp_get_forum_last_reply_id( $forum_id );
@@ -747,6 +759,7 @@ function bbp_forum_last_reply_id( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Forum id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the forum's last reply id
+	 * @uses bbp_get_forum_last_topic_id() To get the forum's last topic id
 	 * @uses apply_filters() Calls 'bbp_get_forum_last_reply_id' with
 	 *                        the last reply id and forum id
 	 * @return int Forum's last reply id
@@ -1318,32 +1331,33 @@ function bbp_forum_class() {
  *
  * @since bbPress (r2860)
  *
+ * @param array $args Arguments passed to alter output
  * @uses bbp_get_single_forum_description() Return the eventual output
- *
- * @param arr $args Arguments passed to alter output
  */
 function bbp_single_forum_description( $args = '' ) {
 	echo bbp_get_single_forum_description( $args );
 }
 	/**
-	 * Return a fancy description of the current forum, including total topics,
-	 * total replies, and last activity.
+	 * Return a fancy description of the current forum, including total
+	 * topics, total replies, and last activity.
 	 *
 	 * @since bbPress (r2860)
 	 *
-	 * @uses wp_parse_args()
-	 * @uses bbp_get_forum_id()
-	 * @uses bbp_get_forum_topic_count()
-	 * @uses bbp_get_forum_reply_count()
-	 * @uses bbp_get_forum_subforum_count()
-	 * @uses bbp_get_forum_freshness_link()
-	 * @uses bbp_get_forum_last_reply_id()
-	 * @uses bbp_get_reply_author_avatar()
-	 * @uses bbp_get_reply_author_link()
-	 * @uses apply_filters()
-	 *
-	 * @param arr $args Arguments passed to alter output
-	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - topic_id: Topic id
+	 *  - before: Before the text
+	 *  - after: After the text
+	 *  - size: Size of the avatar
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses bbp_get_forum_topic_count() To get the forum topic count
+	 * @uses bbp_get_forum_reply_count() To get the forum reply count
+	 * @uses bbp_get_forum_subforum_count() To get the forum subforum count
+	 * @uses bbp_get_forum_freshness_link() To get the forum freshness link
+	 * @uses bbp_get_forum_last_active_id() To get the forum last active id
+	 * @uses bbp_get_author_link() To get the author link
+	 * @uses add_filter() To add the 'view all' filter back
+	 * @uses apply_filters() Calls 'bbp_get_single_forum_description' with
+	 *                        the description and args
 	 * @return string Filtered forum description
 	 */
 	function bbp_get_single_forum_description( $args = '' ) {

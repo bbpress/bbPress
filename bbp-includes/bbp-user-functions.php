@@ -605,7 +605,7 @@ function bbp_subscriptions_handler() {
 		global $bbp;
 
 		// What action is taking place?
-		$action = $_GET['action'];
+		$action  = $_GET['action'];
 
 		// Get user_id
 		$user_id = bbp_get_user_id( 0, true, true );
@@ -615,13 +615,13 @@ function bbp_subscriptions_handler() {
 			$bbp->errors->add( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 
 		// Load subscription info
-		if ( !$topic_id  = intval( $_GET['topic_id'] ) )
+		if ( !$topic_id = intval( $_GET['topic_id'] ) )
 			$bbp->errors->add( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
 
-		$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
-		$success         = false;
+		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
 
-		if ( !empty( $topic_id ) && !empty( $user_id ) && ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) ) {
+			$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
+			$success         = false;
 
 			if ( $is_subscription && 'bbp_unsubscribe' == $action )
 				$success = bbp_remove_user_subscription( $user_id, $topic_id );

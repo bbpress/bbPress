@@ -71,7 +71,6 @@ function bbp_is_forum( $post_id = 0 ) {
  * @since bbPress (r2549)
  *
  * @param int $post_id Possible post_id to check
- *
  * @uses bbp_is_topic_edit() To return false if it's a topic edit page
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses is_singular() To check if it's the single post page
@@ -216,7 +215,7 @@ function bbp_is_reply_edit() {
  *                                'bbp_user_profile_favorites' or not. Defaults
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
- * @uses bbp_is_query_name() To get the query name
+ * @uses bbp_get_query_name() To get the query name
  * @return bool True if it's the favorites page, false if not
  */
 function bbp_is_favorites( $query_name_check = true ) {
@@ -239,7 +238,7 @@ function bbp_is_favorites( $query_name_check = true ) {
  *                                'bbp_user_profile_favorites' or not. Defaults
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
- * @uses bbp_is_query_name() To get the query name
+ * @uses bbp_get_query_name() To get the query name
  * @return bool True if it's the subscriptions page, false if not
  */
 function bbp_is_subscriptions( $query_name_check = true ) {
@@ -263,7 +262,7 @@ function bbp_is_subscriptions( $query_name_check = true ) {
  *                                'bbp_user_profile_favorites' or not. Defaults
  *                                to true.
  * @uses bbp_is_user_profile_page() To check if it's the user profile page
- * @uses bbp_is_query_name() To get the query name
+ * @uses bbp_get_query_name() To get the query name
  * @return bool True if it's the topics created page, false if not
  */
 function bbp_is_topics_created( $query_name_check = true ) {
@@ -995,7 +994,7 @@ function bbp_view_url( $view = false ) {
 /**
  * Check the passed parameter against the current _bbp_query_name
  *
- * @since bbPress (r2780)
+ * @since bbPress (r2980)
  *
  * @uses bbp_get_query_name() Get the query var '_bbp_query_name'
  * @return bool True if match, false if not
@@ -1187,6 +1186,7 @@ function bbp_allowed_tags() {
  * @since bbPress (r2688)
  *
  * @uses WP_Error bbPress::errors::get_error_codes() To get the error codes
+ * @uses WP_Error bbPress::errors::get_error_data() To get the error data
  * @uses WP_Error bbPress::errors::get_error_messages() To get the error
  *                                                       messages
  * @uses is_wp_error() To check if it's a {@link WP_Error}

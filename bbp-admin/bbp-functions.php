@@ -25,7 +25,7 @@ function bbp_admin_separator () {
  *
  * @since bbPress (r2957)
  *
- * @param bool $menu_order
+ * @param bool $menu_order Menu order
  * @return bool Always true
  */
 function bbp_admin_custom_menu_order( $menu_order ) {
@@ -37,7 +37,9 @@ function bbp_admin_custom_menu_order( $menu_order ) {
  *
  * @since bbPress (r2957)
  *
- * @param array $menu_order
+ * @param array $menu_order Menu Order
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @return array Modified menu order
  */
 function bbp_admin_menu_order( $menu_order ) {
 
@@ -122,17 +124,17 @@ function bbp_admin_notices( $message, $class = false ) {
  */
 function bbp_recount_list() {
 	$recount_list = array(
-		5  => array( 'bbp-forum-topics',          __( 'Count topics in each forum',                    'bbpress' ), 'bbp_recount_forum_topics'          ),
-		10 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',                   'bbpress' ), 'bbp_recount_forum_replies'         ),
-		15 => array( 'bbp-topic-replies',         __( 'Count replies in each topic',                   'bbpress' ), 'bbp_recount_topic_replies'         ),
-		20 => array( 'bbp-topic-voices',          __( 'Count voices in each topic',                    'bbpress' ), 'bbp_recount_topic_voices'          ),
-		25 => array( 'bbp-topic-hidden-replies',  __( 'Count spammed & trashed replies in each topic', 'bbpress' ), 'bbp_recount_topic_hidden_replies'  ),
-		30 => array( 'bbp-topics-replied',        __( 'Count replies for each user',                   'bbpress' ), 'bbp_recount_user_topics_replied'   ),
-		35 => array( 'bbp-clean-favorites',       __( 'Remove trashed topics from user favorites',     'bbpress' ), 'bbp_recount_clean_favorites'       ),
-		40 => array( 'bbp-clean-subscriptions',   __( 'Remove trashed topics from user subscriptions', 'bbpress' ), 'bbp_recount_clean_subscriptions'   )
-		//45 => array( 'bbp-topic-tag-count',       __( 'Count tags for every topic',                    'bbpress' ), 'bbp_recount_topic_tags'            ),
-		//50 => array( 'bbp-tags-tag-count',        __( 'Count topics for every tag',                    'bbpress' ), 'bbp_recount_tag_topics'            ),
-		//55 => array( 'bbp-tags-delete-empty',     __( 'Delete tags with no topics',                    'bbpress' ), 'bbp_recount_tag_delete_empty'      )
+		5  => array( 'bbp-forum-topics',          __( 'Count topics in each forum',                    'bbpress' ), 'bbp_recount_forum_topics'         ),
+		10 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',                   'bbpress' ), 'bbp_recount_forum_replies'        ),
+		15 => array( 'bbp-topic-replies',         __( 'Count replies in each topic',                   'bbpress' ), 'bbp_recount_topic_replies'        ),
+		20 => array( 'bbp-topic-voices',          __( 'Count voices in each topic',                    'bbpress' ), 'bbp_recount_topic_voices'         ),
+		25 => array( 'bbp-topic-hidden-replies',  __( 'Count spammed & trashed replies in each topic', 'bbpress' ), 'bbp_recount_topic_hidden_replies' ),
+		30 => array( 'bbp-topics-replied',        __( 'Count replies for each user',                   'bbpress' ), 'bbp_recount_user_topics_replied'  ),
+		35 => array( 'bbp-clean-favorites',       __( 'Remove trashed topics from user favorites',     'bbpress' ), 'bbp_recount_clean_favorites'      ),
+		40 => array( 'bbp-clean-subscriptions',   __( 'Remove trashed topics from user subscriptions', 'bbpress' ), 'bbp_recount_clean_subscriptions'  )
+		//45 => array( 'bbp-topic-tag-count',       __( 'Count tags for every topic',                    'bbpress' ), 'bbp_recount_topic_tags'           ),
+		//50 => array( 'bbp-tags-tag-count',        __( 'Count topics for every tag',                    'bbpress' ), 'bbp_recount_tag_topics'           ),
+		//55 => array( 'bbp-tags-delete-empty',     __( 'Delete tags with no topics',                    'bbpress' ), 'bbp_recount_tag_delete_empty'     )
 	);
 
 	ksort( $recount_list );
@@ -144,6 +146,7 @@ function bbp_recount_list() {
  *
  * @since bbPress (r2613)
  *
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
@@ -171,6 +174,7 @@ function bbp_recount_topic_replies() {
  *
  * @since bbPress (r2613)
  *
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
@@ -227,6 +231,9 @@ function bbp_recount_topic_hidden_replies() {
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses get_posts() To get the forums
+ * @uses bbp_update_forum_topic_count() To update the forum topic count
  * @return array An array of the status code and the message
  */
 function bbp_recount_forum_topics() {
@@ -258,6 +265,9 @@ function bbp_recount_forum_topics() {
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses get_posts() To get the forums
+ * @uses bbp_update_forum_reply_count() To update the forum reply count
  * @return array An array of the status code and the message
  */
 function bbp_recount_forum_replies() {
@@ -287,6 +297,7 @@ function bbp_recount_forum_replies() {
  *
  * @since bbPress (r2613)
  *
+ * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
@@ -625,6 +636,7 @@ function bbp_recount_tag_delete_empty() {
  *
  * @since bbPress (r2613)
  *
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
@@ -683,6 +695,7 @@ function bbp_recount_clean_favorites() {
  *
  * @since bbPress (r2668)
  *
+ * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message

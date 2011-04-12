@@ -33,13 +33,12 @@ function bbp_walk_forum( $forums, $depth, $current, $r ) {
  *
  * @since bbPress (r2613)
  *
- * @param int $post_id
- * @param obj $post
- *
- * @uses bbp_get_forum_post_type()
- * @uses bbp_update_forum()
+ * @param int $forum_id
+ * @param obj $forum
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_update_forum() To update the forum
  */
-function bbp_new_forum_admin_handler( $post_id, $post ) {
+function bbp_new_forum_admin_handler( $forum_id, $forum ) {
 	global $bbp;
 
 	if (    // Check if POST action
@@ -55,7 +54,7 @@ function bbp_new_forum_admin_handler( $post_id, $post ) {
 	) {
 
 		// Update the forum meta bidness
-		bbp_update_forum( array( 'forum_id' => $post_id, 'post_parent' => (int) $_POST['parent_id'] ) );
+		bbp_update_forum( array( 'forum_id' => $forum_id, 'post_parent' => (int) $_POST['parent_id'] ) );
 	}
 }
 
@@ -181,14 +180,19 @@ function bbp_publicize_forum( $forum_id = 0 ) {
  * @param int $forum_id Optional. Forum id
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses update_post_meta() To update the forum's last topic id meta
+ * @uses bbp_forum_query_subforum_ids() To get the subforum ids
+ * @uses bbp_update_forum_last_topic_id() To update the last topic id of child
+ *                                         forums
+ * @uses get_posts() To get the most recent topic in the forum
+ * @uses update_post_meta() To update the forum's last active id meta
+ * @uses apply_filters() Calls 'bbp_update_forum_last_topic_id' with the last
+ *                        reply id and forum id
  * @return bool True on success, false on failure
  */
 function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
-	
-	// Do some calculating if not manually set
+
+	// Do some calculation if not manually set
 	if ( empty( $topic_id ) ) {
 
 		// Loop through children and add together forum reply counts
@@ -201,11 +205,11 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 			$topic_id = $recent_topic[0]->ID;
 	}
 
-	// If child forums have higher ID, use that instead
+	// If child forums have higher id, use that instead
 	if ( !empty( $children ) && ( $children_last_topic > $topic_id ) )
 		$topic_id = $children_last_topic;
 
-	// Update the last topic ID
+	// Update the last topic id
 	update_post_meta( $forum_id, '_bbp_last_topic_id', (int) $topic_id );
 
 	return apply_filters( 'bbp_update_forum_last_topic_id', (int) $topic_id, $forum_id );
@@ -219,13 +223,20 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
  * @param int $forum_id Optional. Forum id
  * @param int $reply_id Optional. Reply id
  * @uses bbp_get_forum_id() To get the forum id
- * @uses update_post_meta() To update the forum's last reply id meta
+ * @uses bbp_forum_query_subforum_ids() To get the subforum ids
+ * @uses bbp_update_forum_last_reply_id() To update the last reply id of child
+ *                                         forums
+ * @uses bbp_forum_query_topic_ids() To get the topic ids in the forum
+ * @uses bbp_forum_query_last_reply_id() To get the forum's last reply id
+ * @uses update_post_meta() To update the forum's last active id meta
+ * @uses apply_filters() Calls 'bbp_update_forum_last_reply_id' with the last
+ *                        reply id and forum id
  * @return bool True on success, false on failure
  */
 function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Do some calculating if not manually set
+	// Do some calculation if not manually set
 	if ( empty( $reply_id ) ) {
 
 		// Loop through children and get the most recent reply id
@@ -248,28 +259,34 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	if ( !empty( $children ) && ( (int) $children_last_reply > (int) $reply_id ) )
 		$reply_id = $children_last_reply;
 
-	// Update the last reply ID with what was passed
+	// Update the last reply id with what was passed
 	update_post_meta( $forum_id, '_bbp_last_reply_id', (int) $reply_id );
 
 	return apply_filters( 'bbp_update_forum_last_reply_id', (int) $reply_id, $forum_id );
 }
 
 /**
- * Update the forum last active post ID
+ * Update the forum last active post id
  *
  * @since bbPress (r2860)
  *
  * @param int $forum_id Optional. Forum id
- * @param int $active_id Optional. active id
+ * @param int $active_id Optional. Active post id
  * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_get_active_id() To get the active id
+ * @uses bbp_forum_query_subforum_ids() To get the subforum ids
+ * @uses bbp_update_forum_last_active_id() To update the last active id of
+ *                                          child forums
+ * @uses bbp_forum_query_topic_ids() To get the topic ids in the forum
+ * @uses bbp_forum_query_last_reply_id() To get the forum's last reply id
  * @uses update_post_meta() To update the forum's last active id meta
+ * @uses apply_filters() Calls 'bbp_update_forum_last_active_id' with the last
+ *                        active post id and forum id
  * @return bool True on success, false on failure
  */
 function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
-	$forum_id  = bbp_get_forum_id( $forum_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
 
-	// Do some calculating if not manually set
+	// Do some calculation if not manually set
 	if ( empty( $active_id ) ) {
 
 		// Loop through children and add together forum reply counts
@@ -279,7 +296,7 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 
 		// Don't count replies if the forum is a category
 		if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) ) {
-			$active_id  = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
+			$active_id = bbp_forum_query_last_reply_id( $forum_id, $topic_ids );
 			$active_id = $active_id > max( $topic_ids ) ? $active_id : max( $topic_ids );
 
 		// Forum has no topics
@@ -288,9 +305,9 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 		}
 	}
 
-	// If child forums have higher ID, use that instead
-	if ( !empty( $children ) && ( $children_last_reply > $active_id ) )
-		$active_id = $children_last_reply;
+	// If child forums have higher id, use that instead
+	if ( !empty( $children ) && ( $children_last_active > $active_id ) )
+		$active_id = $children_last_active;
 
 	update_post_meta( $forum_id, '_bbp_last_active_id', (int) $active_id );
 
@@ -305,9 +322,11 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
  * @param int $forum_id Optional. Topic id
  * @param string $new_time Optional. New time in mysql format
  * @uses bbp_get_forum_id() To get the forum id
- * @uses bbp_get_reply_forum_id() To get the reply forum id
- * @uses current_time() To get the current time
- * @uses update_post_meta() To update the forum last active meta
+ * @uses bbp_get_forum_last_active_id() To get the forum's last post id
+ * @uses get_post_field() To get the post date of the forum's last post
+ * @uses update_post_meta() To update the forum last active time
+ * @uses apply_filters() Calls 'bbp_update_forum_last_active' with the new time
+ *                        and forum id
  * @return bool True on success, false on failure
  */
 function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
@@ -315,7 +334,7 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 
 	// Check time and use current if empty
 	if ( empty( $new_time ) )
-		$new_time = get_post_field( 'post_date', bbp_get_forum_last_active_id ( $forum_id ) );
+		$new_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $forum_id ) );
 
 	update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
 
@@ -352,14 +371,14 @@ function bbp_update_forum_subforum_count( $forum_id = 0, $subforums = 0 ) {
  *                       i.e. the forum is automatically retrieved.
  * @param bool $total_count Optional. To return the total count or normal
  *                           count?
- * @uses get_post_field() To check whether the supplied id is a topic
- * @uses bbp_get_topic_forum_id() To get the topic's forum id
- * @uses wpdb::prepare() To prepare the sql statement
- * @uses wpdb::get_col() To execute the query and get the column back
- * @uses bbp_get_topic_status() To get the topic status
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_forum_query_subforum_ids() To get the subforum ids
+ * @uses bbp_update_forum_topic_count() To update the forum topic count
+ * @uses bbp_forum_query_topic_ids() To get the forum topic ids
  * @uses update_post_meta() To update the forum's topic count meta
  * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the topic
- *                        count, forum id and total count bool
+ *                        count and forum id
+ * @return int Forum topic count
  */
 function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
@@ -368,7 +387,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	// Loop through subforums and add together forum topic counts
 	if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
 		foreach ( (array) $children as $child )
-			$children_topic_count += bbp_update_forum_topic_count ( $child );
+			$children_topic_count += bbp_update_forum_topic_count( $child );
 
 	// Get total topics for this forum
 	$topics = (int) count( bbp_forum_query_topic_ids( $forum_id ) );
@@ -377,7 +396,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	$total_topics = $topics + $children_topic_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_topic_count',       (int) $topics       );
+	update_post_meta( $forum_id, '_bbp_forum_topic_count', (int) $topics       );
 	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) $total_topics );
 
 	return apply_filters( 'bbp_update_forum_topic_count', (int) $total_topics, $forum_id );
@@ -390,9 +409,10 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  *
  * @param int $forum_id Optional. Topic id to update
  * @param int $topic_count Optional. Set the topic count manually
- * @uses bbp_get_forum_id() To get the forum id
- * @uses get_post_field() To get the post type of the supplied id
+ * @uses bbp_is_topic() To check if the supplied id is a topic
+ * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_forum_id() To get the forum id
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_col() To execute our query and get the column back
  * @uses update_post_meta() To update the forum hidden topic count meta
@@ -428,7 +448,7 @@ function bbp_update_forum_hidden_topic_count( $forum_id = 0, $topic_count = 0 ) 
 }
 
 /**
- * Adjust the total topic count of a forum
+ * Adjust the total reply count of a forum
  *
  * @since bbPress (r2464)
  *
@@ -437,14 +457,16 @@ function bbp_update_forum_hidden_topic_count( $forum_id = 0, $topic_count = 0 ) 
  *                       i.e. the forum is automatically retrieved.
  * @param bool $total_count Optional. To return the total count or normal
  *                           count?
- * @uses get_post_field() To check whether the supplied id is a topic
- * @uses bbp_get_topic_forum_id() To get the topic's forum id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_forum_query_subforum_ids() To get the subforum ids
+ * @uses bbp_update_forum_reply_count() To update the forum reply count
+ * @uses bbp_forum_query_topic_ids() To get the forum topic ids
  * @uses wpdb::prepare() To prepare the sql statement
- * @uses wpdb::get_col() To execute the query and get the column back
- * @uses bbp_get_topic_status() To get the topic status
- * @uses update_post_meta() To update the forum's topic count meta
- * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the topic
- *                        count, forum id and total count bool
+ * @uses wpdb::get_var() To execute the query and get the var back
+ * @uses update_post_meta() To update the forum's reply count meta
+ * @uses apply_filters() Calls 'bbp_update_forum_topic_count' with the reply
+ *                        count and forum id
+ * @return int Forum reply count
  */
 function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	global $wpdb, $bbp;
@@ -455,7 +477,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	// Loop through children and add together forum reply counts
 	if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
 		foreach ( (array) $children as $child )
-			$children_reply_count += bbp_update_forum_reply_count ( $child );
+			$children_reply_count += bbp_update_forum_reply_count( $child );
 
 	// Don't count replies if the forum is a category
 	if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) )
@@ -470,22 +492,33 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
 	update_post_meta( $forum_id, '_bbp_reply_count',       $reply_count   );
 	update_post_meta( $forum_id, '_bbp_total_reply_count', $total_replies );
 
-	return apply_filters( 'bbp_update_forum_reply_count', $total_replies );
+	return apply_filters( 'bbp_update_forum_reply_count', $total_replies, $forum_id );
 }
 
 /**
- * Updates the counts of a forum. This calls a few internal functions that all run
- * manual queries against the database to get their results. As such, this
- * function can be costly to run but is necessary to keep everything accurate.
+ * Updates the counts of a forum.
+ *
+ * This calls a few internal functions that all run manual queries against the
+ * database to get their results. As such, this function can be costly to run
+ * but is necessary to keep everything accurate.
  *
  * @since bbPress (r2908)
- * @param int $args
  *
- * @uses bbp_update_forum_last_topic_id()
- * @uses bbp_update_forum_last_reply_id()
- * @uses bbp_update_forum_last_active_id()
- * @uses bbp_update_forum_last_active_time()
- * @uses bbp_update_forum_topic_count()
+ * @param mixed $args Supports these arguments:
+ *  - forum_id: Forum id
+ *  - last_topic_id: Last topic id
+ *  - last_reply_id: Last reply id
+ *  - last_active_id: Last active post id
+ *  - last_active_time: last active time
+ * @uses bbp_update_forum_last_topic_id() To update the forum last topic id
+ * @uses bbp_update_forum_last_reply_id() To update the forum last reply id
+ * @uses bbp_update_forum_last_active_id() To update the last active post id
+ * @uses get_post_field() To get the post date of the last active id
+ * @uses bbp_update_forum_last_active_time()  To update the last active time
+ * @uses bbp_update_forum_subforum_count() To update the subforum count
+ * @uses bbp_update_forum_topic_count() To update the forum topic count
+ * @uses bbp_update_forum_reply_count() To update the forum reply count
+ * @uses bbp_update_forum_hidden_topic_count() To update the hidden topic count
  */
 function bbp_update_forum( $args = '' ) {
 	$defaults = array(
@@ -529,14 +562,40 @@ function bbp_update_forum( $args = '' ) {
 
 /** Queries *******************************************************************/
 
+/**
+ * Returns the forum's topic ids
+ *
+ * Only topics with published and closed statuses are returned
+ *
+ * @since bbPress (r2908)
+ *
+ * @param int $forum_id Forum id
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_public_child_ids() To get the topic ids
+ * @uses apply_filters() Calls 'bbp_forum_query_topic_ids' with the topic ids
+ *                        and forum id
+ */
 function bbp_forum_query_topic_ids( $forum_id ) {
-	global $bbp, $wpdb;
+	global $bbp;
 
 	$topic_ids = bbp_get_public_child_ids( $forum_id, bbp_get_topic_post_type() );
 
-	return apply_filters( 'bbp_get_forum_topic_ids', $topic_ids, $forum_id );
+	return apply_filters( 'bbp_forum_query_topic_ids', $topic_ids, $forum_id );
 }
 
+/**
+ * Returns the forum's subforum ids
+ *
+ * Only forums with published status are returned
+ *
+ * @since bbPress (r2908)
+ *
+ * @param int $forum_id Forum id
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_public_child_ids() To get the forum ids
+ * @uses apply_filters() Calls 'bbp_forum_query_subforum_ids' with the subforum
+ *                        ids and forum id
+ */
 function bbp_forum_query_subforum_ids( $forum_id ) {
 	global $bbp, $wpdb;
 
@@ -545,6 +604,22 @@ function bbp_forum_query_subforum_ids( $forum_id ) {
 	return apply_filters( 'bbp_get_forum_subforum_ids', $subforum_ids, $forum_id );
 }
 
+/**
+ * Returns the forum's last reply id
+ *
+ * @since bbPress (r2908)
+ *
+ * @param int $forum_id Forum id
+ * @param int $topic_ids Optional. Topic ids
+ * @uses wp_cache_get() To check for cache and retrieve it
+ * @uses bbp_forum_query_topic_ids() To get the forum's topic ids
+ * @uses wpdb::prepare() To prepare the query
+ * @uses wpdb::get_var() To execute the query and get the var back
+ * @uses bbp_get_reply_post_type() To get the reply post type
+ * @uses wp_cache_set() To set the cache for future use
+ * @uses apply_filters() Calls 'bbp_forum_query_last_reply_id' with the reply id
+ *                        and forum id
+ */
 function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 	global $bbp, $wpdb;
 
@@ -553,9 +628,9 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 	if ( !$reply_id = (int) wp_cache_get( $cache_id, 'bbpress' ) ) {
 
 		if ( empty( $topic_ids ) )
-			$topic_ids = bbp_get_forum_topic_ids( $forum_id );
+			$topic_ids = bbp_forum_query_topic_ids( $forum_id );
 
-		if ( $reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = 'publish' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_reply_post_type() ) ) )
+		if ( !empty( $topic_ids ) && ( $reply_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $topic_ids ) . " ) AND post_status = 'publish' AND post_type = '%s' ORDER BY ID DESC LIMIT 1;", bbp_get_reply_post_type() ) ) ) )
 			wp_cache_set( $cache_id, $reply_id, 'bbpress' );
 		else
 			wp_cache_set( $cache_id, '0', 'bbpress' );
