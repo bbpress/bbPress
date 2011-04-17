@@ -20,8 +20,11 @@
  * @uses do_action() Calls 'bbp_add_roles'
  */
 function bbp_add_roles() {
+
 	// Add the Moderator role and add the default role caps. Mod caps are added by the bbp_add_caps () function
-	$default =& get_role( get_option( 'default_role' ) );
+	$default = get_role( get_option( 'default_role' ) );
+
+	// Moderators are default role + forum moderating caps in bbp_add_caps()
 	add_role( 'bbp_moderator', __( 'Forum Moderator', 'bbpress' ), $default->capabilities );
 
 	do_action( 'bbp_add_roles' );
@@ -39,92 +42,18 @@ function bbp_add_roles() {
  * @uses do_action() Calls 'bbp_add_caps'
  */
 function bbp_add_caps() {
-	// Add caps to admin role
-	if ( $admin =& get_role( 'administrator' ) ) {
+	global $wp_roles;
 
-		// Forum caps
-		$admin->add_cap( 'publish_forums'        );
-		$admin->add_cap( 'edit_forums'           );
-		$admin->add_cap( 'edit_others_forums'    );
-		$admin->add_cap( 'delete_forums'         );
-		$admin->add_cap( 'delete_others_forums'  );
-		$admin->add_cap( 'read_private_forums'   );
+	// Loop through available roles
+	foreach( $wp_roles->roles as $role => $details ) {
 
-		// Topic caps
-		$admin->add_cap( 'publish_topics'        );
-		$admin->add_cap( 'edit_topics'           );
-		$admin->add_cap( 'edit_others_topics'    );
-		$admin->add_cap( 'delete_topics'         );
-		$admin->add_cap( 'delete_others_topics'  );
-		$admin->add_cap( 'read_private_topics'   );
+		// Load this role
+		$this_role = get_role( $role );
 
-		// Reply caps
-		$admin->add_cap( 'publish_replies'       );
-		$admin->add_cap( 'edit_replies'          );
-		$admin->add_cap( 'edit_others_replies'   );
-		$admin->add_cap( 'delete_replies'        );
-		$admin->add_cap( 'delete_others_replies' );
-		$admin->add_cap( 'read_private_replies'  );
-
-		// Topic tag caps
-		$admin->add_cap( 'manage_topic_tags'     );
-		$admin->add_cap( 'edit_topic_tags'       );
-		$admin->add_cap( 'delete_topic_tags'     );
-		$admin->add_cap( 'assign_topic_tags'     );
-
-		// Misc
-		$admin->add_cap( 'moderate'              );
-		$admin->add_cap( 'throttle'              );
-		$admin->add_cap( 'view_trash'            );
-	}
-
-	// Add caps to moderator role
-	if ( $mod =& get_role( 'bbp_moderator' ) ) {
-
-		// Topic caps
-		$mod->add_cap( 'publish_topics'        );
-		$mod->add_cap( 'edit_topics'           );
-		$mod->add_cap( 'edit_others_topics'    );
-		$mod->add_cap( 'delete_topics'         );
-		$mod->add_cap( 'delete_others_topics'  );
-		$mod->add_cap( 'read_private_topics'   );
-
-		// Reply caps
-		$mod->add_cap( 'publish_replies'       );
-		$mod->add_cap( 'edit_replies'          );
-		$mod->add_cap( 'edit_others_replies'   );
-		$mod->add_cap( 'delete_replies'        );
-		$mod->add_cap( 'delete_others_replies' );
-		$mod->add_cap( 'read_private_replies'  );
-
-		// Topic tag caps
-		$mod->add_cap( 'manage_topic_tags'     );
-		$mod->add_cap( 'edit_topic_tags'       );
-		$mod->add_cap( 'delete_topic_tags'     );
-		$mod->add_cap( 'assign_topic_tags'     );
-
-		// Users
-		$mod->add_cap( 'edit_users'            );
-
-		// Misc
-		$mod->add_cap( 'moderate'              );
-		$mod->add_cap( 'throttle'              );
-		$mod->add_cap( 'view_trash'            );
-	}
-
-	// Add caps to default role
-	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
-
-		// Topic caps
-		$default->add_cap( 'publish_topics'    );
-		$default->add_cap( 'edit_topics'       );
-
-		// Reply caps
-		$default->add_cap( 'publish_replies'   );
-		$default->add_cap( 'edit_replies'      );
-
-		// Topic tag caps
-		$default->add_cap( 'assign_topic_tags' );
+		// Loop through caps for this role and remove them
+		foreach ( bbp_get_caps_for_role( $role ) as $cap ) {
+			$this_role->add_cap( $cap );
+		}
 	}
 
 	do_action( 'bbp_add_caps' );
@@ -142,58 +71,18 @@ function bbp_add_caps() {
  * @uses do_action() Calls 'bbp_remove_caps'
  */
 function bbp_remove_caps() {
-	// Remove caps from admin role
-	if ( $admin =& get_role( 'administrator' ) ) {
+	global $wp_roles;
 
-		// Forum caps
-		$admin->remove_cap( 'publish_forums'        );
-		$admin->remove_cap( 'edit_forums'           );
-		$admin->remove_cap( 'edit_others_forums'    );
-		$admin->remove_cap( 'delete_forums'         );
-		$admin->remove_cap( 'delete_others_forums'  );
-		$admin->remove_cap( 'read_private_forums'   );
+	// Loop through available roles
+	foreach( $wp_roles->roles as $role => $details ) {
+		
+		// Load this role
+		$this_role = get_role( $role );
 
-		// Topic caps
-		$admin->remove_cap( 'publish_topics'        );
-		$admin->remove_cap( 'edit_topics'           );
-		$admin->remove_cap( 'edit_others_topics'    );
-		$admin->remove_cap( 'delete_topics'         );
-		$admin->remove_cap( 'delete_others_topics'  );
-		$admin->remove_cap( 'read_private_topics'   );
-
-		// Reply caps
-		$admin->remove_cap( 'publish_replies'       );
-		$admin->remove_cap( 'edit_replies'          );
-		$admin->remove_cap( 'edit_others_replies'   );
-		$admin->remove_cap( 'delete_replies'        );
-		$admin->remove_cap( 'delete_others_replies' );
-		$admin->remove_cap( 'read_private_replies'  );
-
-		// Topic tag caps
-		$admin->remove_cap( 'manage_topic_tags'     );
-		$admin->remove_cap( 'edit_topic_tags'       );
-		$admin->remove_cap( 'delete_topic_tags'     );
-		$admin->remove_cap( 'assign_topic_tags'     );
-
-		// Misc
-		$admin->remove_cap( 'moderate'              );
-		$admin->remove_cap( 'throttle'              );
-		$admin->remove_cap( 'view_trash'            );
-	}
-
-	// Remove caps from default role
-	if ( $default =& get_role( get_option( 'default_role' ) ) ) {
-
-		// Topic caps
-		$default->remove_cap( 'publish_topics'    );
-		$default->remove_cap( 'edit_topics'       );
-
-		// Reply caps
-		$default->remove_cap( 'publish_replies'   );
-		$default->remove_cap( 'edit_replies'      );
-
-		// Topic tag caps
-		$default->remove_cap( 'assign_topic_tags' );
+		// Loop through caps for this role and remove them
+		foreach ( bbp_get_caps_for_role( $role ) as $cap ) {
+			$this_role->remove_cap( $cap );
+		}
 	}
 
 	do_action( 'bbp_remove_caps' );
@@ -210,6 +99,7 @@ function bbp_remove_caps() {
  * @uses do_action() Calls 'bbp_remove_roles'
  */
 function bbp_remove_roles() {
+
 	// Remove the Moderator role
 	remove_role( 'bbp_moderator' );
 
@@ -234,6 +124,8 @@ function bbp_remove_roles() {
 function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
 	switch ( $cap ) {
+
+		// Reading
 		case 'read_forum' :
 		case 'read_topic' :
 		case 'read_reply' :
@@ -252,6 +144,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
 			break;
 
+		// Editing
 		case 'edit_forum' :
 		case 'edit_topic' :
 		case 'edit_reply' :
@@ -268,6 +161,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
 			break;
 
+		// Deleting
 		case 'delete_forum' :
 
 			if ( $post = get_post( $args[0] ) ) {
@@ -306,6 +200,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
  * @return array Forum capabilities
  */
 function bbp_get_forum_caps() {
+
 	// Forum meta caps
 	$caps = array (
 		'delete_posts'        => 'delete_forums',
@@ -324,6 +219,7 @@ function bbp_get_forum_caps() {
  * @return array Topic capabilities
  */
 function bbp_get_topic_caps() {
+
 	// Topic meta caps
 	$caps = array (
 		'delete_posts'        => 'delete_topics',
@@ -342,6 +238,7 @@ function bbp_get_topic_caps() {
  * @return array Reply capabilities
  */
 function bbp_get_reply_caps () {
+
 	// Reply meta caps
 	$caps = array (
 		'edit_posts'          => 'edit_replies',
@@ -364,6 +261,7 @@ function bbp_get_reply_caps () {
  * @return array Topic tag capabilities
  */
 function bbp_get_topic_tag_caps () {
+
 	// Topic tag meta caps
 	$caps = array (
 		'manage_terms' => 'manage_topic_tags',
@@ -373,6 +271,128 @@ function bbp_get_topic_tag_caps () {
 	);
 
 	return apply_filters( 'bbp_get_topic_tag_caps', $caps );
+}
+
+
+/**
+ * Returns an array of capabilities based on the role that is being requested.
+ *
+ * @since bbPress (r2994)
+ *
+ * @param string $role Optional. Defaults to The role to load caps for
+ * @uses apply_filters() Allow return value to be filtered
+ *
+ * @return array Capabilities for $role
+ */
+function bbp_get_caps_for_role( $role = '' ) {
+
+	// Which role are we looking for?
+	switch ( $role ) {
+
+		// Administrator
+		case 'administrator' :
+
+			$caps = array(
+
+				// Forum caps
+				'publish_forums',
+				'edit_forums',
+				'edit_others_forums',
+				'delete_forums',
+				'delete_others_forums',
+				'read_private_forums',
+
+				// Topic caps
+				'publish_topics',
+				'edit_topics',
+				'edit_others_topics',
+				'delete_topics',
+				'delete_others_topics',
+				'read_private_topics',
+
+				// Reply caps
+				'publish_replies',
+				'edit_replies',
+				'edit_others_replies',
+				'delete_replies',
+				'delete_others_replies',
+				'read_private_replies',
+
+				// Topic tag caps
+				'manage_topic_tags',
+				'edit_topic_tags',
+				'delete_topic_tags',
+				'assign_topic_tags',
+
+				// Misc
+				'moderate',
+				'throttle',
+				'view_trash'
+			);
+
+			break;
+
+		// Moderator
+		case 'bbp_moderator' :
+
+			$caps = array(
+
+				// Topic caps
+				'publish_topics',
+				'edit_topics',
+				'edit_others_topics',
+				'delete_topics',
+				'delete_others_topics',
+				'read_private_topics',
+
+				// Reply caps
+				'publish_replies',
+				'edit_replies',
+				'edit_others_replies',
+				'delete_replies',
+				'delete_others_replies',
+				'read_private_replies',
+
+				// Topic tag caps
+				'manage_topic_tags',
+				'edit_topic_tags',
+				'delete_topic_tags',
+				'assign_topic_tags',
+
+				// Misc
+				'moderate',
+				'throttle',
+				'view_trash',
+			);
+
+			break;
+
+		// Other specific roles
+		case 'editor'      :
+		case 'author'      :
+		case 'contributor' :
+		case 'subscriber'  :
+		default            :
+
+			$caps = array(
+
+				// Topic caps
+				'publish_topics',
+				'edit_topics',
+
+				// Reply caps
+				'publish_replies',
+				'edit_replies',
+
+				// Topic tag caps
+				'assign_topic_tags',
+
+			);
+
+			break;
+	}
+
+	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
 }
 
 ?>
