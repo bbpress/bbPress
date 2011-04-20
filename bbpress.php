@@ -454,8 +454,7 @@ class bbPress {
 		$forum['supports'] = array(
 			'title',
 			'editor',
-			'thumbnail',
-			'excerpt'
+			'revisions'
 		);
 
 		// Forum filter
@@ -509,8 +508,6 @@ class bbPress {
 		$topic['supports'] = array(
 			'title',
 			'editor',
-			'thumbnail',
-			'excerpt',
 			'revisions'
 		);
 
@@ -565,8 +562,6 @@ class bbPress {
 		$reply['supports'] = array(
 			'title',
 			'editor',
-			'thumbnail',
-			'excerpt',
 			'revisions'
 		);
 
