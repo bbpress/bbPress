@@ -695,12 +695,7 @@ function bbp_dropdown( $args = '' ) {
 		$select_id = $name;
 		$tab       = (int) $tab;
 		$retval    = '';
-
-		// @todo - write a better get_ function
-		if ( $r['post_type'] == bbp_get_forum_post_type() )
-			$posts = get_pages( $r );
-		elseif ( $r['post_type'] == bbp_get_topic_post_type() )
-			$posts = get_posts( $r );
+		$posts     = get_posts( $r );
 
 		// Make a drop down if we found posts
 		if ( !empty( $posts ) ) {
