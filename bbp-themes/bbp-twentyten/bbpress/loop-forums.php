@@ -45,7 +45,7 @@
 					<td class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? bbp_forum_reply_count() : bbp_forum_post_count(); ?></td>
 
 					<td class="bbp-forum-freshness">
-					
+
 						<?php bbp_forum_freshness_link(); ?>
 
 						<p class="bbp-topic-meta">
@@ -58,6 +58,8 @@
 				</tr><!-- bbp-forum-<?php bbp_forum_id(); ?> -->
 
 			<?php endwhile; ?>
+
+		</tbody>
 
 	</table>
 
