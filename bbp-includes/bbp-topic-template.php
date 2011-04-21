@@ -168,25 +168,28 @@ function bbp_has_topics( $args = '' ) {
 				global $wpdb;
 
 				// Get all stickies
-				$sticky_posts = get_posts( array( 'post_type' => 'any', 'post_parent' => 'any', 'include' => $stickies ) );
-				$sticky_count = count( $sticky_posts );
+				if ( $sticky_posts = get_posts( array( 'post_type' => 'any', 'post_parent' => 'any', 'include' => $stickies ) ) ) {
 
-				// Loop through stickies and add them to beginning of array
-				foreach ( $sticky_posts as $sticky )
-					$topics[] = $sticky;
+					// Get a count of the visible stickies
+					$sticky_count = count( $sticky_posts );
 
-				// Loop through topics and add them to end of array
-				foreach ( $bbp->topic_query->posts as $topic )
-					$topics[] = $topic;
+					// Loop through stickies and add them to beginning of array
+					foreach ( $sticky_posts as $sticky )
+						$topics[] = $sticky;
 
-				// Adjust loop and counts for new sticky positions
-				$bbp->topic_query->posts       = $topics;
-				$bbp->topic_query->found_posts = (int) $bbp->topic_query->found_posts + (int) $sticky_count;
-				$bbp->topic_query->post_count  = (int) $bbp->topic_query->post_count  + (int) $sticky_count;
+					// Loop through topics and add them to end of array
+					foreach ( $bbp->topic_query->posts as $topic )
+						$topics[] = $topic;
 
-				// Cleanup
-				unset( $topics   );
-				unset( $stickies );
+					// Adjust loop and counts for new sticky positions
+					$bbp->topic_query->posts       = $topics;
+					$bbp->topic_query->found_posts = (int) $bbp->topic_query->found_posts + (int) $sticky_count;
+					$bbp->topic_query->post_count  = (int) $bbp->topic_query->post_count  + (int) $sticky_count;
+
+					// Cleanup
+					unset( $topics   );
+					unset( $stickies );
+				}
 			}
 		}
 	}
