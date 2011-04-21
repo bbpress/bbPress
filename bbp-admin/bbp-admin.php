@@ -402,11 +402,34 @@ class BBP_Admin {
 		}
 
 		// Private?
-		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( 'public', 'private' ) ) ) {
-			if ( 'private' == $_POST['bbp_forum_visibility'] && !bbp_is_forum_private( $forum_id, false ) )
-				bbp_privatize_forum( $forum_id );
-			elseif ( 'public' == $_POST['bbp_forum_visibility'] )
-				bbp_publicize_forum( $forum_id );
+		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( 'public', 'private', 'hidden' ) ) ) {
+
+			// Get forums current visibility
+			$visibility = bbp_get_forum_visibility( $forum_id );
+
+			// If new visibility is different, change it
+			if ( $visibility != $_POST['bbp_forum_visibility'] ) {
+
+				// What is the new forum visibility setting?
+				switch ( $_POST['bbp_forum_visibility'] ) {
+
+					// Hidden
+					case 'hidden'  :
+						bbp_hide_forum( $forum_id );
+						break;
+
+					// Private
+					case 'private' :
+						bbp_privatize_forum( $forum_id );
+						break;
+
+					// Public (default)
+					case 'public'  :
+					default        :
+						bbp_publicize_forum( $forum_id );
+						break;
+				}
+			}
 		}
 
 		do_action( 'bbp_forum_attributes_metabox_save', $forum_id );
@@ -749,9 +772,6 @@ class BBP_Admin {
 				top: -5px;
 			}
 
-			/* =bbPress Menus
-			-------------------------------------------------------------- */
-
 			#menu-posts-<?php echo $forum_class; ?> .wp-menu-image {
 				background: url(<?php echo $menu_icon_url; ?>) no-repeat 0px -32px;
 			}
@@ -787,9 +807,6 @@ class BBP_Admin {
 
 <?php if ( isset( $post ) && $post->post_type == bbp_get_forum_post_type() ) : ?>
 
-			/* =bbPress Post Form
-			-------------------------------------------------------------- */
-
 			#misc-publishing-actions, #save-post { display: none; }
 			strong.label { display: inline-block; width: 60px; }
 			#bbp_forum_attributes hr { border-style: solid; border-width: 1px; border-color: #ccc #fff #fff #ccc; }
@@ -797,9 +814,6 @@ class BBP_Admin {
 <?php endif; ?>
 
 <?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
-
-			/* =bbPress Custom columns
-			-------------------------------------------------------------- */
 
 			.column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count { width: 8% !important; }
 			.column-author,  .column-bbp_reply_author, .column-bbp_topic_author { width: 10% !important; }
@@ -1971,7 +1985,8 @@ function bbp_dashboard_widget_right_now() {
 function bbp_forum_metabox() {
 	global $post;
 
-	/** TYPE ******************************************************************/
+	/** Type ******************************************************************/
+
 	$forum['type'] = array(
 		'forum'    => __( 'Forum',    'bbpress' ),
 		'category' => __( 'Category', 'bbpress' )
@@ -1983,7 +1998,8 @@ function bbp_forum_metabox() {
 
 	$type_output .= '</select>';
 
-	/** STATUS ****************************************************************/
+	/** Status ****************************************************************/
+
 	$forum['status']   = array(
 		'open'   => __( 'Open',   'bbpress' ),
 		'closed' => __( 'Closed', 'bbpress' )
@@ -1995,19 +2011,21 @@ function bbp_forum_metabox() {
 
 	$status_output .= '</select>';
 
-	/** VISIBILITY ************************************************************/
+	/** Visibility ************************************************************/
+
 	$forum['visibility']  = array(
 		'public'  => __( 'Public',  'bbpress' ),
-		'private' => __( 'Private', 'bbpress' )
+		'private' => __( 'Private', 'bbpress' ),
+		'hidden'  => __( 'Hidden',  'bbpress' )
 	);
 	$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
 
 	foreach( $forum['visibility'] as $value => $label )
-		$visibility_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_is_forum_private( $post->ID, false ) ? 'private' : 'public', $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		$visibility_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_get_forum_visibility( $post->ID ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
 
 	$visibility_output .= '</select>';
 
-	/** OUTPUT ****************************************************************/ ?>
+	/** Output ****************************************************************/ ?>
 
 		<p>
 			<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
@@ -2053,7 +2071,7 @@ function bbp_forum_metabox() {
 
 <?php
 
-	do_action( 'bbp_forum_metabox' );
+	do_action( 'bbp_forum_metabox', $post->ID );
 }
 
 /**
@@ -2089,7 +2107,7 @@ function bbp_topic_metabox() {
 
 <?php
 
-	do_action( 'bbp_topic_metabox' );
+	do_action( 'bbp_topic_metabox', $post->ID );
 }
 
 /**
@@ -2127,7 +2145,7 @@ function bbp_reply_metabox() {
 
 <?php
 
-	do_action( 'bbp_reply_metabox' );
+	do_action( 'bbp_reply_metabox', $post->ID );
 }
 
 /**
@@ -2177,6 +2195,8 @@ function bbp_anonymous_metabox () {
 	</p>
 
 	<?php
+
+	do_action( 'bbp_anonymous_metabox', $post->ID );
 }
 
 /**
