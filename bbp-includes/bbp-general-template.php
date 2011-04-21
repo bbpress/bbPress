@@ -740,7 +740,7 @@ function bbp_topic_form_fields() {
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
-			wp_nonce_field( 'bbp-unfiltered-html-topic_' . bbp_get_topic_id(), '_bbp_unfiltered_html_topic' );
+			wp_nonce_field( 'bbp-unfiltered-html-topic_' . bbp_get_topic_id(), '_bbp_unfiltered_html_topic', false );
 
 		?>
 
@@ -759,7 +759,7 @@ function bbp_topic_form_fields() {
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
-			wp_nonce_field( 'bbp-unfiltered-html-topic_new', '_bbp_unfiltered_html_topic' );
+			wp_nonce_field( 'bbp-unfiltered-html-topic_new', '_bbp_unfiltered_html_topic', false );
 
 		?>
 
@@ -789,7 +789,7 @@ function bbp_reply_form_fields() {
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
-			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_reply_id(), '_bbp_unfiltered_html_reply' );
+			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_reply_id(), '_bbp_unfiltered_html_reply', false );
 
 		?>
 
@@ -807,7 +807,7 @@ function bbp_reply_form_fields() {
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
-			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_topic_id(), '_bbp_unfiltered_html_reply' );
+			wp_nonce_field( 'bbp-unfiltered-html-reply_' . bbp_get_topic_id(), '_bbp_unfiltered_html_reply', false );
 
 		?>
 
