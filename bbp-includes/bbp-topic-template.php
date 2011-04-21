@@ -117,6 +117,10 @@ function bbp_has_topics( $args = '' ) {
 	else
 		$bbp->topic_query = new WP_Query( $bbp_t );
 
+	// Set post_parent back to 0 if originally set to 'any'
+	if ( 'any' == $bbp_t['post_parent'] )
+		$bbp_t['post_parent'] = $post_parent = 0;
+
 	// Limited the number of pages shown
 	if ( !empty( $max_num_pages ) )
 		$bbp->topic_query->max_num_pages = $max_num_pages;
@@ -126,7 +130,7 @@ function bbp_has_topics( $args = '' ) {
 
 		// Get super stickies and stickies in this forum
 		$stickies = bbp_get_super_stickies();
-		$stickies = !empty( $bbp_t['post_parent'] ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
+		$stickies = !empty( $post_parent ) ? array_merge( $stickies, bbp_get_stickies( $post_parent ) ) : $stickies;
 		$stickies = array_unique( $stickies );
 
 		// We have stickies
