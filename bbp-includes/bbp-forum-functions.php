@@ -626,6 +626,40 @@ function bbp_update_forum( $args = '' ) {
 /** Queries *******************************************************************/
 
 /**
+ * Returns the hidden forum ids
+ *
+ * Only hidden forum ids are returned. Public and private ids are not.
+ *
+ * @since bbPress (r3007)
+ *
+ * @uses get_option() Returns the unserialized array of hidden forum ids
+ * @uses apply_filters() Calls 'bbp_forum_query_topic_ids' with the topic ids
+ *                        and forum id
+ */
+function bbp_get_hidden_forum_ids() {
+   	$forum_ids = get_option( '_bbp_hidden_forums', array() );
+
+	return apply_filters( 'bbp_get_hidden_forum_ids', $forum_ids );
+}
+
+/**
+ * Returns the private forum ids
+ *
+ * Only private forum ids are returned. Public and hidden ids are not.
+ *
+ * @since bbPress (r3007)
+ *
+ * @uses get_option() Returns the unserialized array of private forum ids
+ * @uses apply_filters() Calls 'bbp_forum_query_topic_ids' with the topic ids
+ *                        and forum id
+ */
+function bbp_get_private_forum_ids() {
+   	$forum_ids = get_option( '_bbp_private_forums', array() );
+
+	return apply_filters( 'bbp_get_private_forum_ids', $forum_ids );
+}
+
+/**
  * Returns the forum's topic ids
  *
  * Only topics with published and closed statuses are returned
@@ -641,7 +675,7 @@ function bbp_update_forum( $args = '' ) {
 function bbp_forum_query_topic_ids( $forum_id ) {
 	global $bbp;
 
-	$topic_ids = bbp_get_public_child_ids( $forum_id, bbp_get_topic_post_type() );
+   	$topic_ids = bbp_get_public_child_ids( $forum_id, bbp_get_topic_post_type() );
 
 	return apply_filters( 'bbp_forum_query_topic_ids', $topic_ids, $forum_id );
 }
@@ -720,7 +754,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
  * @uses bbp_is_forum_private() To check if the forum is private or not
  * @uses WP_Query::set_404() To set a 404 status
  */
-function bbp_check_private_forums() {
+function bbp_forum_visibility_check() {
 	global $wp_query;
 
 	// Bail if user can view private forums or if not viewing a single item
@@ -732,27 +766,23 @@ function bbp_check_private_forums() {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$public = (bool) !bbp_is_forum_private( $wp_query->post->ID );
+			$forum_id = bbp_get_forum_id( $wp_query->post->ID );
 			break;
 
 		// Topic
 		case bbp_get_topic_post_type() :
-			$public = (bool) !bbp_is_forum_private( bbp_get_topic_forum_id( $wp_query->post->ID ) );
+			$forum_id = bbp_get_topic_forum_id( $wp_query->post->ID );
 			break;
 
 		// Reply
 		case bbp_get_reply_post_type() :
-			$public = (bool) !bbp_is_forum_private( bbp_get_reply_forum_id( $wp_query->post->ID ) );
+			$forum_id = bbp_get_reply_forum_id( $wp_query->post->ID );
 			break;
-
-		// Assume forums are public
-		default :
-			$public = true;
 
 	}
 
 	// If forum is explicitly private and user not capable, set 404
-	if ( false === $public )
+	if ( !empty( $forum_id ) && bbp_is_forum_hidden( $forum_id ) )
 		$wp_query->set_404();
 }
 

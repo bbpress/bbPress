@@ -99,8 +99,11 @@ add_action( 'bbp_activation',   'bbp_add_options',   1     );
 // Topic Tag Page
 add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 
-// Profile Page
-add_action( 'pre_get_posts',     'bbp_pre_get_posts',     1 );
+// Before and After the Query
+add_action( 'pre_get_posts',     'bbp_pre_get_posts',           1 );
+add_action( 'template_redirect', 'bbp_forum_visibility_check', -1 );
+
+// Profile Edit
 add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
 
 // Profile Page Messages

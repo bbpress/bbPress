@@ -73,8 +73,11 @@ function bbp_has_forums( $args = '' ) {
 
 	// Don't show private forums to normal users
 	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
-		$r['meta_key']   = '_bbp_visibility';
-		$r['meta_value'] = 'public';
+		$r['meta_query'] = array( array(
+			'key'     => '_bbp_visibility',
+			'value'   => 'public, private',
+			'compare' => 'IN'
+		) );
 	}
 
 	$bbp->forum_query = new WP_Query( $r );
@@ -1185,7 +1188,7 @@ function bbp_forum_status( $forum_id = 0 ) {
 	function bbp_get_forum_status( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_status', get_post_meta( $forum_id, '_bbp_status', true ) );
+		return apply_filters( 'bbp_get_forum_status', get_post_meta( $forum_id, '_bbp_status', true ), $forum_id );
 	}
 
 /**
@@ -1214,7 +1217,7 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 	function bbp_get_forum_visibility( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_visibility', get_post_meta( $forum_id, '_bbp_visibility', true ) );
+		return apply_filters( 'bbp_get_forum_visibility', get_post_meta( $forum_id, '_bbp_visibility', true ), $forum_id );
 	}
 
 /**
@@ -1229,11 +1232,9 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 function bbp_is_forum_category( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 	$type     = get_post_meta( $forum_id, '_bbp_forum_type', true );
+	$retval   = ( !empty( $type ) && 'category' == $type );
 
-	if ( !empty( $type ) && 'category' == $type )
-		return true;
-
-	return false;
+	return apply_filters( 'bbp_is_forum_category', (bool) $retval, $forum_id );
 }
 
 /**
@@ -1268,20 +1269,19 @@ function bbp_is_forum_open( $forum_id = 0 ) {
 		global $bbp;
 
 		$forum_id = bbp_get_forum_id( $forum_id );
-
-		if ( $bbp->closed_status_id == bbp_get_forum_status( $forum_id ) )
-			return true;
+		$retval    = ( $bbp->closed_status_id == bbp_get_forum_status( $forum_id ) );
 
 		if ( !empty( $check_ancestors ) ) {
 			$ancestors = bbp_get_forum_ancestors( $forum_id );
 
 			foreach ( (array) $ancestors as $ancestor ) {
-				if ( bbp_is_forum_category( $ancestor, false ) && bbp_is_forum_closed( $ancestor, false ) )
-					return true;
+				if ( bbp_is_forum_category( $ancestor, false ) && bbp_is_forum_closed( $ancestor, false ) ) {
+					$retval = true;
+				}
 			}
 		}
 
-		return false;
+		return apply_filters( 'bbp_is_forum_closed', (bool) $retval, $forum_id, $check_ancestors );
 	}
 
 /**
@@ -1305,7 +1305,7 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is public, return true
-	$retval = ( 'public' == $visibility ) ? true : false;
+	$retval = ( 'public' == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1318,7 +1318,7 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 		}
 	}
 
-	return apply_filters( 'bbp_is_forum_public', (bool) $retval );
+	return apply_filters( 'bbp_is_forum_public', (bool) $retval, $forum_id, $check_ancestors );
 }
 
 /**
@@ -1342,7 +1342,7 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is private, return true
-	$retval = ( 'private' == $visibility ) ? true : false;
+	$retval = ( 'private' == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1355,7 +1355,7 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
 		}
 	}
 
-	return apply_filters( 'bbp_is_forum_private', (bool) $retval );
+	return apply_filters( 'bbp_is_forum_private', (bool) $retval, $forum_id, $check_ancestors );
 }
 
 /**
@@ -1379,7 +1379,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is private, return true
-	$retval = ( 'hidden' == $visibility ) ? true : false;
+	$retval = ( 'hidden' == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1392,8 +1392,51 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 		}
 	}
 
-	return apply_filters( 'bbp_is_forum_hidden', (bool) $retval );
+	return apply_filters( 'bbp_is_forum_hidden', (bool) $retval, $forum_id, $check_ancestors );
 }
+
+function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
+	if ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) )
+		return '-';
+
+	return $retval;
+}
+add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta', 10, 2 );
+add_filter( 'bbp_get_forum_reply_count',    'bbp_suppress_private_forum_meta', 10, 2 );
+add_filter( 'bbp_get_forum_post_count',     'bbp_suppress_private_forum_meta', 10, 2 );
+add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta', 10, 2 );
+
+function bbp_suppress_private_author_link( $author_link, $args ) {
+	if ( empty( $args['post_id'] ) || current_user_can( 'read_private_forums' ) )
+		return $author_link;
+
+	$post_type = get_post_field( 'post_type', $args['post_id'] );
+
+	switch ( $post_type ) {
+		case bbp_get_topic_post_type() :
+			if ( bbp_is_forum_private( bbp_get_topic_forum_id( $args['post_id'] ) ) )
+				return '';
+
+			break;
+
+		case bbp_get_reply_post_type() :
+			if ( bbp_is_forum_private( bbp_get_reply_forum_id( $args['post_id'] ) ) )
+				return '';
+
+			break;
+
+		default :
+			if ( bbp_is_forum_private( $args['post_id'] ) )
+				return '';
+
+			break;
+	}
+
+	return $author_link;
+}
+add_filter( 'bbp_get_author_link',       'bbp_suppress_private_author_link', 10, 2 );
+add_filter( 'bbp_get_topic_author_link', 'bbp_suppress_private_author_link', 10, 2 );
+add_filter( 'bbp_get_reply_author_link', 'bbp_suppress_private_author_link', 10, 2 );
 
 /**
  * Output the row class of a forum
