@@ -326,7 +326,7 @@ class BBP_Admin {
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
 	function dashboard_widget_right_now() {
-		wp_add_dashboard_widget( 'bbp_dashboard_right_now', __( 'Right Now in Forums', 'bbpress' ), 'bbp_dashboard_widget_right_now' );
+		wp_add_dashboard_widget( 'bbp-dashboard-right-now', __( 'Right Now in Forums', 'bbpress' ), 'bbp_dashboard_widget_right_now' );
 	}
 
 	/**
@@ -665,21 +665,18 @@ class BBP_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
-			/* =bbPress 'Right Now in Forums' Dashboard Widget
-			-------------------------------------------------------------- */
-
-			#bbp_dashboard_right_now p.sub,
-			#bbp_dashboard_right_now .table,
-			#bbp_dashboard_right_now .versions {
+			#bbp-dashboard-right-now p.sub,
+			#bbp-dashboard-right-now .table,
+			#bbp-dashboard-right-now .versions {
 				margin: -12px;
 			}
 
-			#bbp_dashboard_right_now .inside {
+			#bbp-dashboard-right-now .inside {
 				font-size: 12px;
 				padding-top: 20px;
 			}
 
-			#bbp_dashboard_right_now p.sub {
+			#bbp-dashboard-right-now p.sub {
 				font-style: italic;
 				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 				padding: 5px 10px 15px;
@@ -690,34 +687,34 @@ class BBP_Admin {
 				left: 15px;
 			}
 
-			#bbp_dashboard_right_now .table {
+			#bbp-dashboard-right-now .table {
 				margin: 0 -9px;
 				padding: 0 10px;
 				position: relative;
 			}
 
-			#bbp_dashboard_right_now .table_content {
+			#bbp-dashboard-right-now .table_content {
 				float: left;
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
 
-			#bbp_dashboard_right_now .table_discussion {
+			#bbp-dashboard-right-now .table_discussion {
 				float: right;
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
 
-			#bbp_dashboard_right_now table td {
+			#bbp-dashboard-right-now table td {
 				padding: 3px 0;
 				white-space: nowrap;
 			}
 
-			#bbp_dashboard_right_now table tr.first td {
+			#bbp-dashboard-right-now table tr.first td {
 				border-top: none;
 			}
 
-			#bbp_dashboard_right_now td.b {
+			#bbp-dashboard-right-now td.b {
 				padding-right: 6px;
 				text-align: right;
 				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
@@ -725,47 +722,47 @@ class BBP_Admin {
 				width: 1%;
 			}
 
-			#bbp_dashboard_right_now td.b a {
+			#bbp-dashboard-right-now td.b a {
 				font-size: 18px;
 			}
 
-			#bbp_dashboard_right_now td.b a:hover {
+			#bbp-dashboard-right-now td.b a:hover {
 				color: #d54e21;
 			}
 
-			#bbp_dashboard_right_now .t {
+			#bbp-dashboard-right-now .t {
 				font-size: 12px;
 				padding-right: 12px;
 				padding-top: 6px;
 				color: #777;
 			}
 
-			#bbp_dashboard_right_now .t a {
+			#bbp-dashboard-right-now .t a {
 				white-space: nowrap;
 			}
 
-			#bbp_dashboard_right_now .spam {
+			#bbp-dashboard-right-now .spam {
 				color: red;
 			}
 
-			#bbp_dashboard_right_now .waiting {
+			#bbp-dashboard-right-now .waiting {
 				color: #e66f00;
 			}
 
-			#bbp_dashboard_right_now .approved {
+			#bbp-dashboard-right-now .approved {
 				color: green;
 			}
 
-			#bbp_dashboard_right_now .versions {
+			#bbp-dashboard-right-now .versions {
 				padding: 6px 10px 12px;
 				clear: both;
 			}
 
-			#bbp_dashboard_right_now .versions .b {
+			#bbp-dashboard-right-now .versions .b {
 				font-weight: bold;
 			}
 
-			#bbp_dashboard_right_now a.button {
+			#bbp-dashboard-right-now a.button {
 				float: right;
 				clear: right;
 				position: relative;
@@ -1958,11 +1955,11 @@ function bbp_dashboard_widget_right_now() {
 
 			</p>
 
-			<br class="clear" />
-
 		</div>
 
 	<?php endif; ?>
+
+	<br class="clear" />
 
 	<?php
 
