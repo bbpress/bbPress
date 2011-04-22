@@ -30,6 +30,8 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 
 							<dl role="main">
 
+								<?php do_action( 'bbp_before_statistics' ); ?>
+
 								<dt><?php _e( 'Registered Users', 'bbpress' ); ?></dt>
 								<dd>
 									<strong><?php echo $user_count; ?></strong>
@@ -86,8 +88,11 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 
 								<?php endif; ?>
 
-								<?php do_action( 'bbp_statistics' ); ?>
+								<?php do_action( 'bbp_after_statistics' ); ?>
+
 							</dl>
+
+							<?php do_action( 'bbp_before_popular_topics' ); ?>
 
 							<?php bbp_set_query_name( 'bbp_popular_topics' ); ?>
 
@@ -100,6 +105,8 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 							<?php endif; ?>
 
 							<?php bbp_reset_query_name(); ?>
+
+							<?php do_action( 'bbp_after_popular_topics' ); ?>
 
 						</div>
 					</div><!-- #bbp-statistics -->
