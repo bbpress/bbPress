@@ -676,6 +676,22 @@ function bbp_merge_topic_handler() {
 			// Update counts, etc...
 			do_action( 'bbp_merge_topic', $destination_topic->ID, $source_topic->ID );
 
+			// Check if the destination topic is older than the source topic
+			if ( strtotime( $source_topic->post_date ) < strtotime( $destination_topic->post_date ) ) {
+
+				// Set destination topic post_date to 1 second before source topic
+				$destination_post_date = date( 'Y-m-d H:i:s', strtotime( $source_topic->post_date ) - 1 );
+
+				$postarr = array(
+					'ID'            => $destination_topic_id,
+					'post_date'     => $destination_post_date,
+					'post_date_gmt' => get_gmt_from_date( $destination_post_date )
+				);
+
+				// Update destination topic
+				wp_update_post( $postarr );
+			}
+
 			// Remove the topic from everybody's subscriptions
 			$subscribers = bbp_get_topic_subscribers( $source_topic->ID );
 			foreach ( (array) $subscribers as $subscriber ) {

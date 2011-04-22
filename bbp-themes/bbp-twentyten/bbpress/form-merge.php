@@ -27,11 +27,7 @@
 					</div>
 
 					<div class="bbp-template-notice">
-						<p><?php _e( '<strong>NOTE:</strong> All replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted.', 'bbpress' ); ?></p>
-					</div>
-
-					<div class="bbp-template-notice error">
-						<p><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></p>
+						<p><?php _e( 'All replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted. If the destination topic was created after this one, it\'s post date will be updated to second earlier than this one.', 'bbpress' ); ?></p>
 					</div>
 
 					<fieldset>
@@ -81,6 +77,10 @@
 
 						</div>
 					</fieldset>
+
+					<div class="bbp-template-notice error">
+						<p><?php _e( '<strong>WARNING:</strong> This process cannot be undone.', 'bbpress' ); ?></p>
+					</div>
 
 					<div class="bbp-submit-wrapper">
 						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_merge_topic_submit" name="bbp_merge_topic_submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
