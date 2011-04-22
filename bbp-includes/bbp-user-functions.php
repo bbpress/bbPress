@@ -781,7 +781,30 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 	if ( !$user_id = bbp_get_user_id( $user_id ) )
 		return false;
 
-	if ( $query = bbp_has_topics( array( 'author' => $user_id ) ) )
+	// Query defaults
+	$topics_query = array(
+		'post_author'    => $user_id,
+		'show_stickies'  => false,
+		'order'          => 'DESC',
+	);
+
+	// Setup a meta_query to remove hidden forums
+	if ( $hidden = bbp_get_hidden_forum_ids() ) {
+
+		// Value and compare for meta_query
+		$value   = implode( ',', bbp_get_hidden_forum_ids() );
+		$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
+
+		// Add meta_query to $replies_query
+		$topics_query['meta_query'] = array( array(
+			'key'     => '_bbp_forum_id',
+			'value'   => $value,
+			'compare' => $compare
+		) );
+		$topics_query['post_parent'] = 'any';
+	}
+
+	if ( $query = bbp_has_topics( $topics_query ) )
 		return $query;
 
 	return false;
