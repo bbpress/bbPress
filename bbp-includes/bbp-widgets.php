@@ -341,12 +341,30 @@ class BBP_Topics_Widget extends WP_Widget {
 		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum']    : 'any';
 		$pop_check    = ( $instance['pop_check'] < $max_shown || empty( $instance['pop_check'] ) ) ? -1 : $instance['pop_check'];
 
+		// Query defaults
 		$topics_query = array(
-			'post_parent'    => $parent_forum,
 			'post_author'    => 0,
 			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
-			'show_stickies'  => false
+			'show_stickies'  => false,
+			'posts_per_page' => $max_shown,
+			'order'          => 'DESC',
 		);
+
+		// Setup a meta_query to remove hidden forums
+		if ( empty( $parent_forum ) && ( $hidden = bbp_get_hidden_forum_ids() ) ) {
+
+			// Value and compare for meta_query
+			$value   = implode( ',', bbp_get_hidden_forum_ids() );
+			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
+
+			// Add meta_query to $replies_query
+			$topics_query['meta_query'] = array( array(
+				'key'     => '_bbp_forum_id',
+				'value'   => $value,
+				'compare' => $compare
+			) );
+			$topics_query['post_parent'] = 'any';
+		}
 
 		bbp_set_query_name( 'bbp_widget' );
 
@@ -510,21 +528,41 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @uses get_the_time() To get the time of the reply
 	 */
 	function widget( $args, $instance ) {
+		global $bbp;
+
 		extract( $args );
 
 		$title     = apply_filters( 'bbp_replies_widget_title', $instance['title'] );
 		$max_shown = !empty( $instance['max_shown'] ) ? $instance['max_shown'] : '5';
 		$show_date = !empty( $instance['show_date'] ) ? 'on'                   : false;
 
-		$default = array(
-			'post_parent'    => 'any',
+		// Query defaults
+		$replies_query = array(
+			'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
 			'posts_per_page' => $max_shown,
 			'order'          => 'DESC'
 		);
 
+		// Setup a meta_query to remove hidden forums
+		if ( $hidden = bbp_get_hidden_forum_ids() ) {
+
+			// Value and compare for meta_query
+			$value   = implode( ',', bbp_get_hidden_forum_ids() );
+			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
+
+			// Add meta_query to $replies_query
+			$replies_query['meta_query'] = array( array(
+				'key'     => '_bbp_forum_id',
+				'value'   => $value,
+				'compare' => $compare
+			) );
+		}
+
+		// Set the query name
 		bbp_set_query_name( 'bbp_widget' );
 
-		if ( bbp_has_replies( $default ) ) :
+		// Get replies and display them
+		if ( bbp_has_replies( $replies_query ) ) :
 
 			echo $before_widget;
 			echo $before_title . $title . $after_title; ?>
