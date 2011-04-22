@@ -112,7 +112,7 @@ class BBP_Admin {
 
 		// Reply columns (in post row)
 		add_action( 'manage_' . bbp_get_reply_post_type() . '_posts_custom_column',  array( $this, 'replies_column_data' ), 10, 2 );
-		add_filter( 'post_row_actions',                                   array( $this, 'replies_row_actions' ), 10, 2 );
+		add_filter( 'post_row_actions',                                              array( $this, 'replies_row_actions' ), 10, 2 );
 
 		// Reply metabox actions
 		add_action( 'add_meta_boxes',              array( $this, 'reply_attributes_metabox'      ) );
