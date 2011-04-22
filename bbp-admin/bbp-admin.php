@@ -415,18 +415,18 @@ class BBP_Admin {
 
 					// Hidden
 					case 'hidden'  :
-						bbp_hide_forum( $forum_id );
+						bbp_hide_forum( $forum_id, $visibility );
 						break;
 
 					// Private
 					case 'private' :
-						bbp_privatize_forum( $forum_id );
+						bbp_privatize_forum( $forum_id, $visibility );
 						break;
 
 					// Public (default)
 					case 'public'  :
 					default        :
-						bbp_publicize_forum( $forum_id );
+						bbp_publicize_forum( $forum_id, $visibility );
 						break;
 				}
 			}

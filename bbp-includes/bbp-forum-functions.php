@@ -166,7 +166,7 @@ function bbp_normalize_forum( $forum_id = 0 ) {
  * @uses update_post_meta() To update the forum private meta
  * @return bool False on failure, true on success
  */
-function bbp_publicize_forum( $forum_id = 0 ) {
+function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
@@ -188,7 +188,7 @@ function bbp_publicize_forum( $forum_id = 0 ) {
  * @uses update_post_meta() To update the forum private meta
  * @return bool False on failure, true on success
  */
-function bbp_privatize_forum( $forum_id = 0 ) {
+function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
@@ -210,7 +210,7 @@ function bbp_privatize_forum( $forum_id = 0 ) {
  * @uses update_post_meta() To update the forum private meta
  * @return bool False on failure, true on success
  */
-function bbp_hide_forum( $forum_id = 0 ) {
+function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 
 	$forum_id = bbp_get_forum_id( $forum_id );
 
