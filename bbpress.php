@@ -213,7 +213,7 @@ class bbPress {
 	 * @var int The current tab index for form building
 	 */
 	var $tab_index;
-	
+
 
 	/**
 	 * The main bbPress loader
@@ -267,6 +267,7 @@ class bbPress {
 		// Status identifiers
 		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'   );
 		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed' );
+		$this->orphan_status_id = apply_filters( 'bbp_orphan_post_status', 'orphan' );
 		$this->trash_status_id  = 'trash';
 
 		/** Slugs *************************************************************/
@@ -620,6 +621,17 @@ class bbPress {
 			'show_in_admin_all_list'    => false
 		) );
 		register_post_status( $this->spam_status_id, $status );
+
+		// Orphan
+		$status = apply_filters( 'bbp_register_orphan_post_status', array(
+			'label'                     => _x( 'Orphan', 'post', 'bbpress' ),
+			'label_count'               => _nx_noop( 'Orphan <span class="count">(%s)</span>', 'Orphans <span class="count">(%s)</span>', 'bbpress' ),
+			'protected'                 => true,
+			'exclude_from_search'       => true,
+			'show_in_admin_status_list' => true,
+			'show_in_admin_all_list'    => false
+		) );
+		register_post_status( $this->orphan_status_id, $status );
 
 		/**
 		 * Trash fix
