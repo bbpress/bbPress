@@ -66,45 +66,29 @@ function bbp_reply_post_type() {
 function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite, $bbp;
 
-	// Show the topic above all of the replies
-	if ( bbp_show_lead_topic() ) {
+	// Default status
+	$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
 
-		$parent_args = array(
-
-			// Query only by post_parent
-			'post_parent' => bbp_is_topic() ? bbp_get_topic_id() : 'any',
-
-			// Narrow query down to bbPress replies
-			'post_type'   => bbp_get_reply_post_type()
+	// Skip topic_id if in the replies widget query
+	if ( !bbp_is_query_name( 'bbp_widget' ) ) {
+		$parent_args['meta_query'] = array(
+			array(
+				'key'     => '_bbp_topic_id',
+				'value'   => bbp_get_topic_id(),
+				'compare' => '='
+			)
 		);
 
-	// Show the topic in the same loop as replies
-	} else {
-
-		// Skip topic_id if in the replies widget query
-		if ( !bbp_is_query_name( 'bbp_widget' ) ) {
-
-			// Query by post meta instead of post_parent
-			$parent_args['meta_key']   = '_bbp_topic_id';
-			$parent_args['meta_value'] = bbp_get_topic_id();
-
-			// Manually set the post_parent variable
-			$post_parent = bbp_get_topic_id();
-		}
-
-		// Include both topic and reply in the loop
-		$parent_args['post_type'] = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-
+		// What are the default allowed statuses (based on user caps)
+		if ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) )
+			$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
 	}
-
-	// What are the default allowed statuses (based on user caps)
-	if ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) )
-		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
-	else
-		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
 
 	// Default query args
 	$default = array(
+
+		// Post type(s) depending on bbp_show_lead_topic()
+		'post_type'      => bbp_show_lead_topic() ? bbp_get_reply_post_type() : array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ),
 
 		// 'author', 'date', 'title', 'modified', 'parent', rand',
 		'orderby'        => 'date',
@@ -126,7 +110,8 @@ function bbp_has_replies( $args = '' ) {
 	);
 
 	// Merge the default args and parent args together
-	$default = array_merge( $parent_args, $default );
+	if ( isset( $parent_args ) )
+		$default = array_merge( $parent_args, $default );
 
 	// Set up topic variables
 	$bbp_r = wp_parse_args( $args, $default );
@@ -144,7 +129,7 @@ function bbp_has_replies( $args = '' ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() )
-			$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
+			$base = user_trailingslashit( trailingslashit( get_permalink( bbp_get_topic_id() ) ) . 'page/%#%/' );
 		else
 			$base = add_query_arg( 'paged', '%#%' );
 
@@ -336,8 +321,6 @@ function bbp_reply_url( $reply_id = 0 ) {
 	/**
 	 * Return the paginated url to the reply in the reply loop
 	 *
-	 * @todo If pages > 1, the last page is returned in the url - fix that.
-	 *
 	 * @since bbPress (r2679)
 	 *
 	 * @param int $reply_id Optional. Reply id
@@ -366,7 +349,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$topic_url      = bbp_get_topic_permalink( $topic_id );
 		$reply_position = bbp_get_reply_position ( $reply_id );
 
-		// Check if in query with pagination 
+		// Check if in query with pagination
 		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
 
 		// Hash to add to end of URL
@@ -1081,20 +1064,6 @@ function bbp_reply_topic_id( $reply_id = 0 ) {
 
 			// Get topic_id from reply
 			$topic_id = get_post_meta( $reply_id, '_bbp_topic_id', true );
-
-			// Fallback to post_parent if no meta exists, and set post meta
-			// @todo - Prevent missing _bbp_topic_id in replies
-			if ( empty( $topic_id ) ) {
-				$ancestors = get_post_ancestors( $reply_id );
-				foreach ( $ancestors as $ancestor ) {
-					if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
-						$topic_id = $ancestor;
-						continue;
-					}
-				}
-				bbp_update_reply_topic_id( $reply_id, $topic_id );
-			}
-
 			$topic_id = bbp_get_topic_id( $topic_id );
 
 		// reply_id is not valid, so no topic exists
@@ -1135,14 +1104,6 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
 
 			// Get forum_id from reply
 			$forum_id = get_post_meta( $reply_id, '_bbp_forum_id', true );
-
-			// @todo - Prevent missing _bbp_forum_id in replies
-			if ( empty( $forum_id ) ) {
-				$topic_id = bbp_get_reply_topic_id( $reply_id );
-				$forum_id = bbp_get_topic_forum_id( $topic_id );
-				bbp_update_reply_forum_id( $forum_id );
-			}
-
 			$forum_id = bbp_get_forum_id( $forum_id );
 
 		// reply_id is not valid, so no forum exists

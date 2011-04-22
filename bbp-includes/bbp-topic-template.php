@@ -65,19 +65,23 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
+	// Are we in a forum and looking to do a forum only query?
+	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_query_name( 'bbp_widget' ) );
+
 	// What are the default allowed statuses (based on user caps)
-	if ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) ) )
+	if ( !empty( $_GET['view'] ) && ( true == $in_forum ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) ) )
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
 	else
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
 
 	// Default arguments
 	$default = array (
+
 		// Narrow query down to bbPress topics
 		'post_type'      => bbp_get_topic_post_type(),
 
 		// Forum ID
-		'post_parent'    => bbp_is_forum() ? bbp_get_forum_id() : 'any',
+		'post_parent'    => ( $in_forum ) ? bbp_get_forum_id() : 'any',
 
 		// Make sure topic has some last activity time
 		'meta_key'       => '_bbp_last_active_time',
@@ -98,7 +102,7 @@ function bbp_has_topics( $args = '' ) {
 		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
 
 		// Ignore sticky topics?
-		'show_stickies'  => ( is_page() || bbp_is_forum() ),
+		'show_stickies'  => ( is_page() || $in_forum ),
 
 		// Maximum number of pages to show
 		'max_num_pages'  => false,
@@ -112,7 +116,7 @@ function bbp_has_topics( $args = '' ) {
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( is_tax() && isset( $wp_query ) )
+	if ( is_tax() && isset( $wp_query ) && !bbp_is_query_name( 'bbp_widget' ) )
 		$bbp->topic_query = $wp_query;
 	else
 		$bbp->topic_query = new WP_Query( $bbp_t );
