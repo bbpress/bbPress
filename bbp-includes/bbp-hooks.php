@@ -52,11 +52,11 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  * The load order helps to load code at the correct time.
  *                                                    v---Load order
  */
-add_action( 'bbp_init', 'bbp_setup_current_user',     2   );
-add_action( 'bbp_init', 'bbp_register_post_types',    4   );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 6   );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    8   );
-add_action( 'bbp_init', 'bbp_register_textdomain',    10  );
+add_action( 'bbp_init', 'bbp_register_textdomain',    2   );
+add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
+add_action( 'bbp_init', 'bbp_register_post_types',    6   );
+add_action( 'bbp_init', 'bbp_register_post_statuses', 8   );
+add_action( 'bbp_init', 'bbp_register_taxonomies',    10  );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags',       12  );
 add_action( 'bbp_init', 'bbp_register_views',         14  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
