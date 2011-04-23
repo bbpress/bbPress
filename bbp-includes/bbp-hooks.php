@@ -71,6 +71,7 @@ if ( is_admin() ) {
 
 // Widgets
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Login_Widget");'   ) );
+add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Views_Widget");'   ) );
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Forums_Widget");'  ) );
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");'  ) );
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );

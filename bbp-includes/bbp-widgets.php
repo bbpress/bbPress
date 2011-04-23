@@ -143,6 +143,112 @@ class BBP_Login_Widget extends WP_Widget {
 }
 
 /**
+ * bbPress Views Widget
+ *
+ * Adds a widget which displays the view list
+ *
+ * @since bbPress (r2653)
+ *
+ * @uses WP_Widget
+ */
+class BBP_Views_Widget extends WP_Widget {
+
+	/**
+	 * bbPress View Widget
+	 *
+	 * Registers the view widget
+	 *
+	 * @since bbPress (r2653)
+	 *
+	 * @uses apply_filters() Calls 'bbp_views_widget_options' with the
+	 *                        widget options
+	 */
+	function BBP_Views_Widget() {
+		$widget_ops = apply_filters( 'bbp_views_widget_options', array(
+			'classname'   => 'widget_display_views',
+			'description' => __( 'A list of views.', 'bbpress' )
+		) );
+
+		parent::WP_Widget( false, __( 'bbPress View List', 'bbpress' ), $widget_ops );
+	}
+
+	/**
+	 * Displays the output, the view list
+	 *
+	 * @since bbPress (r2653)
+	 *
+	 * @param mixed $args Arguments
+	 * @param array $instance Instance
+	 * @uses apply_filters() Calls 'bbp_view_widget_title' with the title
+	 * @uses bbp_get_views() To get the views
+	 * @uses bbp_view_url() To output the view url
+	 * @uses bbp_view_title() To output the view title
+	 */
+	function widget( $args, $instance ) {
+
+		// Only output widget contents if views exist
+		if ( bbp_get_views() ) :
+
+			extract( $args );
+
+			$title = apply_filters( 'bbp_view_widget_title', $instance['title'] );
+
+			echo $before_widget;
+			echo $before_title . $title . $after_title; ?>
+
+			<ul>
+
+				<?php foreach ( bbp_get_views() as $view => $args ) : ?>
+
+					<li><a class="bbp-view-title" href="<?php bbp_view_url( $view ); ?>" title="<?php bbp_view_title( $view ); ?>"><?php bbp_view_title( $view ); ?></a></li>
+
+				<?php endforeach; ?>
+
+			</ul>
+
+			<?php echo $after_widget;
+
+		endif;
+	}
+
+	/**
+	 * Update the view widget options
+	 *
+	 * @since bbPress (r2653)
+	 *
+	 * @param array $new_instance The new instance options
+	 * @param array $old_instance The old instance options
+	 */
+	function update( $new_instance, $old_instance ) {
+		$instance          = $old_instance;
+		$instance['title'] = strip_tags( $new_instance['title'] );
+
+		return $instance;
+	}
+
+	/**
+	 * Output the view widget options form
+	 *
+	 * @since bbPress (r2653)
+	 *
+	 * @param $instance Instance
+	 * @uses BBP_Views_Widget::get_field_id() To output the field id
+	 * @uses BBP_Views_Widget::get_field_name() To output the field name
+	 */
+	function form( $instance ) {
+		$title = !empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : ''; ?>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?>
+				<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" />
+			</label>
+		</p>
+
+		<?php
+	}
+}
+
+/**
  * bbPress Forum Widget
  *
  * Adds a widget which displays the forum list
@@ -264,7 +370,12 @@ class BBP_Forums_Widget extends WP_Widget {
 		$title        = !empty( $instance['title']        ) ? esc_attr( $instance['title']        ) : '';
 		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : 0; ?>
 
-		<p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label></p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?>
+				<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" />
+			</label>
+		</p>
+
 		<p>
 			<label for="<?php echo $this->get_field_id( 'parent_forum' ); ?>"><?php _e( 'Parent forum:', 'bbpress' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'parent_forum' ); ?>" name="<?php echo $this->get_field_name( 'parent_forum' ); ?>" type="text" value="<?php echo $parent_forum; ?>" />
@@ -354,7 +465,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		if ( empty( $parent_forum ) && ( $hidden = bbp_get_hidden_forum_ids() ) ) {
 
 			// Value and compare for meta_query
-			$value   = implode( ',', bbp_get_hidden_forum_ids() );
+			$value   = implode( ',', $hidden );
 			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
 
 			// Add meta_query to $replies_query
@@ -547,7 +658,7 @@ class BBP_Replies_Widget extends WP_Widget {
 		if ( $hidden = bbp_get_hidden_forum_ids() ) {
 
 			// Value and compare for meta_query
-			$value   = implode( ',', bbp_get_hidden_forum_ids() );
+			$value   = implode( ',', $hidden );
 			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
 
 			// Add meta_query to $replies_query
