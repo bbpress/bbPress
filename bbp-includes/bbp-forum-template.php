@@ -76,13 +76,13 @@ function bbp_has_forums( $args = '' ) {
 
 		// Include public and private forums only
 		if ( current_user_can( 'read_private_forums' ) ) {
-			$value   = 'public, private';
+			$value   = 'public, private, hidden';
 			$compare = 'IN';
 
 		// Include public forums only
 		} else {
-			$value   = 'public';
-			$compare = '=';
+			$value   = 'hidden';
+			$compare = '!=';
 		}
 
 		// Meta query to determine visibility scope

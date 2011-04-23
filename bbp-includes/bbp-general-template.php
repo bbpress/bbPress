@@ -679,9 +679,14 @@ function bbp_dropdown( $args = '' ) {
 			$r['selected'] = 0;
 
 		// Don't show private forums to normal users
-		if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
-			$r['meta_key']   = '_bbp_visibility';
-			$r['meta_value'] = 'public';
+		if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_query'] ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
+			$r['meta_query'] = array(
+				array(
+					'key'     => '_bbp_visibility',
+					'value'   => 'public',
+					'compare' => '='
+				)
+			);
 		}
 
 		extract( $r );
