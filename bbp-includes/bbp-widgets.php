@@ -147,7 +147,7 @@ class BBP_Login_Widget extends WP_Widget {
  *
  * Adds a widget which displays the view list
  *
- * @since bbPress (r2653)
+ * @since bbPress (r3020)
  *
  * @uses WP_Widget
  */
@@ -158,7 +158,7 @@ class BBP_Views_Widget extends WP_Widget {
 	 *
 	 * Registers the view widget
 	 *
-	 * @since bbPress (r2653)
+	 * @since bbPress (r3020)
 	 *
 	 * @uses apply_filters() Calls 'bbp_views_widget_options' with the
 	 *                        widget options
@@ -175,7 +175,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Displays the output, the view list
 	 *
-	 * @since bbPress (r2653)
+	 * @since bbPress (r3020)
 	 *
 	 * @param mixed $args Arguments
 	 * @param array $instance Instance
@@ -214,7 +214,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Update the view widget options
 	 *
-	 * @since bbPress (r2653)
+	 * @since bbPress (r3020)
 	 *
 	 * @param array $new_instance The new instance options
 	 * @param array $old_instance The old instance options
@@ -229,7 +229,7 @@ class BBP_Views_Widget extends WP_Widget {
 	/**
 	 * Output the view widget options form
 	 *
-	 * @since bbPress (r2653)
+	 * @since bbPress (r3020)
 	 *
 	 * @param $instance Instance
 	 * @uses BBP_Views_Widget::get_field_id() To output the field id
