@@ -83,6 +83,9 @@ function twentyten_setup() {
 	// Add default posts and comments RSS feed links to head
 	add_theme_support( 'automatic-feed-links' );
 
+	// This theme comes bundled with bbPress template files
+	add_theme_support( 'bbpress' );
+
 	// Make theme available for translation
 	// Translations can be filed in the /languages/ directory
 	load_theme_textdomain( 'twentyten', TEMPLATEPATH . '/languages' );
