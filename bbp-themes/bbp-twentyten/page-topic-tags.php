@@ -24,8 +24,10 @@
 
 							<?php get_the_content() ? the_content() : _e( '<p>This is a collection of tags that are currently popular on our forums.</p>', 'bbpress' ); ?>
 
-							<div id="bbp_topic_hot_tags">
+							<div id="bbp-topic-hot-tags">
+
 								<?php wp_tag_cloud( array( 'smallest' => 9, 'largest' => 38, 'number' => 80, 'taxonomy' => $bbp->topic_tag_id ) ); ?>
+
 							</div>
 
 						</div>

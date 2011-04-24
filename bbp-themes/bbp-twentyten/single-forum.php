@@ -28,35 +28,36 @@
 
 								<?php bbp_single_forum_description(); ?>
 
-								<?php if ( bbp_get_forum_subforum_count() ) : ?>
+								<?php if ( bbp_get_forum_subforum_count() && bbp_has_forums() ) : ?>
 
 									<?php get_template_part( 'bbpress/loop', 'forums' ); ?>
 
 								<?php endif; ?>
 
-								<?php if ( !bbp_is_forum_category() ) : ?>
+								<?php if ( !bbp_is_forum_category() && bbp_has_topics() ) : ?>
 
-									<?php get_template_part( 'bbpress/loop', 'topics' ); ?>
+									<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-									<?php get_template_part( 'bbpress/form', 'topic' ); ?>
+									<?php get_template_part( 'bbpress/loop',       'topics' ); ?>
+
+									<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+
+									<?php get_template_part( 'bbpress/form',       'topic'  ); ?>
+
+								<?php elseif( !bbp_is_forum_category() ) : ?>
+
+									<?php get_template_part( 'bbpress/no',         'topics' ); ?>
+
+									<?php get_template_part( 'bbpress/form',       'topic'  ); ?>
 
 								<?php endif; ?>
 
 							</div>
 						</div><!-- #forum-<?php bbp_forum_id(); ?> -->
 
-					<?php else : ?>
+					<?php else : // Forum exists, user no access ?>
 
-						<div id="forum-private" class="bbp-forum-info">
-							<h1 class="entry-title"><?php _e( 'Private', 'bbpress' ); ?></h1>
-							<div class="entry-content">
-
-								<div class="bbp-template-notice info">
-									<p><?php _e( 'You do not have permission to view this forum.', 'bbpress' ); ?></p>
-								</div>
-
-							</div>
-						</div><!-- #forum-private -->
+						<?php get_template_part( 'bbpress/no', 'access' ); ?>
 
 					<?php endif; ?>
 

@@ -100,7 +100,11 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 
 								<h2 class="entry-title"><?php _e( 'Popular Topics', 'bbpress' ); ?></h2>
 
-								<?php get_template_part( 'bbpress/loop', 'topics' ); ?>
+								<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+
+								<?php get_template_part( 'bbpress/loop',       'topics' ); ?>
+
+								<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
 							<?php endif; ?>
 

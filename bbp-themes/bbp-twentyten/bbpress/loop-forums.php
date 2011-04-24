@@ -9,8 +9,6 @@
 
 ?>
 
-<?php if ( bbp_has_forums() ) : ?>
-
 	<table class="bbp-forums">
 
 		<thead>
@@ -62,5 +60,3 @@
 		</tbody>
 
 	</table>
-
-<?php endif; ?>

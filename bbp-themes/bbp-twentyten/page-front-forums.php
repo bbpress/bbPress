@@ -24,9 +24,17 @@
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'bbpress/loop', 'forums' ); ?>
+							<?php if ( bbp_has_forums() ) : ?>
 
-							<?php get_template_part( 'bbpress/form', 'topic' ); ?>
+								<?php get_template_part( 'bbpress/loop', 'forums' ); ?>
+
+								<?php get_template_part( 'bbpress/form', 'topic'  ); ?>
+
+							<?php else : ?>
+
+								<?php get_template_part( 'bbpress/no',   'forums' ); ?>
+
+							<?php endif; ?>
 
 						</div>
 					</div><!-- #forum-front -->

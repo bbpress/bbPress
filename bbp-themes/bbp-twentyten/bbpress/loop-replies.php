@@ -9,16 +9,12 @@
 
 ?>
 
-<?php if ( bbp_get_query_name() || bbp_has_replies() ) : ?>
-
-	<?php get_template_part( 'bbpress/pagination', 'replies' ); ?>
-
 	<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>-replies">
 		<thead>
 			<tr>
 				<th class="bbp-reply-author"><?php  _e( 'Author',  'bbpress' ); ?></th>
 				<th class="bbp-reply-content">
-				
+
 					<?php if ( !bbp_show_lead_topic() ) : ?>
 
 						<?php _e( 'Posts', 'bbpress' ); ?>
@@ -93,7 +89,3 @@
 		</tbody>
 
 	</table>
-
-	<?php get_template_part( 'bbpress/pagination', 'replies' ); ?>
-
-<?php endif; ?>

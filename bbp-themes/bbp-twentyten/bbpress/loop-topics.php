@@ -9,10 +9,6 @@
 
 ?>
 
-<?php if ( bbp_get_query_name() || bbp_has_topics() ) : ?>
-
-	<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
-
 	<table class="bbp-topics" id="bbp-forum-<?php bbp_topic_id(); ?>">
 		<thead>
 			<tr>
@@ -93,18 +89,3 @@
 		</tbody>
 
 	</table><!-- #bbp-forum-<?php bbp_topic_id(); ?> -->
-
-	<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
-
-<?php else : ?>
-
-	<div id="topic-0" class="post">
-		<div class="entry-content">
-			<p><?php _e( 'Oh bother! No topics were found here! Perhaps searching will help.', 'bbpress' ); ?></p>
-
-			<?php get_search_form(); ?>
-
-		</div><!-- .entry-content -->
-	</div><!-- #post-0 -->
-
-<?php endif; ?>
