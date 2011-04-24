@@ -262,26 +262,27 @@ class BBP_Admin {
 	/**
 	 * Admin area activation notice
 	 *
-	 * Shows the message of activating a bbPress-compatible theme to
-	 * capable users.
+	 * Shows a nag message in admin area about the theme not supporting bbPress
 	 *
 	 * @since bbPress (r2743)
 	 *
-	 * @uses current_user_can() To check if we need to show the message to
-	 *                           the current user.
-	 * @uses current_theme_info() To get the current theme info for checking
-	 *                             if it's bbPress-compatible or not
+	 * @global bbPress $bbp
+	 *
+	 * @uses current_user_can() To check notice should be displayed.
+	 * @uses current_theme_supports() To check theme for bbPress support
 	 */
 	function activation_notice() {
+		global $bbp;
+
+		// Bail if user cannot change the theme
 		if ( !current_user_can( 'switch_themes' ) )
 			return;
 
-		$current_theme = current_theme_info();
-
-		if ( !in_array( 'bbpress', (array) $current_theme->tags ) ) { ?>
+		// Set $bbp->theme_compat to true to bypass nag
+		if ( !empty( $bbp->theme_compat ) || !current_theme_supports( 'bbpress' ) ) { ?>
 
 			<div id="message" class="updated fade">
-				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is almost ready</strong>. First you'll need to <a href='%s'>activate a bbPress compatible theme</a>. We've bundled a child theme of Twenty Ten to get you started.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
+				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is almost ready</strong>. First you'll need to <a href='%s'>activate a bbPress compatible theme</a>. We've bundled a special version of Twenty Ten to get you started.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
 			</div>
 
 		<?php }
