@@ -377,6 +377,9 @@ class bbPress {
 
 		// Generate rewrite rules
 		add_action( 'bbp_generate_rewrite_rules',   array( $this, 'generate_rewrite_rules'   ), 10, 2 );
+
+		// Check theme compatability
+		add_action( 'bbp_setup_theme_compat',       array( $this, 'theme_compat'             ), 10, 2 );
 	}
 
 	/**
@@ -806,6 +809,30 @@ class bbPress {
 
 		// Return merged rules
 		return $wp_rewrite;
+	}
+
+	/**
+	 * If not using a bbPress compatable theme, enqueue some basic styling and js
+	 *
+	 * @since bbPress (r3029)
+	 *
+	 * @global bbPress $bbp
+	 * @uses current_theme_supports()
+	 * @uses wp_enqueue_style()
+	 * @uses wp_enqueue_script()
+	 */
+	function theme_compat() {
+		global $bbp;
+
+		// Check if current theme supports bbPress
+		if ( !current_theme_supports( 'bbpress' ) ) {
+
+			// Load up the default bbPress CSS from bbp-twentyten
+			wp_enqueue_style ( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css'       );
+
+			// Load up the default bbPress JS from bbp-twentyten
+			wp_enqueue_script( 'bbpress-topic', $bbp->themes_url . '/bbp-twentyten/js/topic.js', 'jquery' );
+		}
 	}
 }
 
