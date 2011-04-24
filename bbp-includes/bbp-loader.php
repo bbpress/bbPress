@@ -181,7 +181,7 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
 /**
  * Setup bbPress theme compatability actions
  *
- * @since bbPress (r3025)
+ * @since bbPress (r3028)
  *
  * @uses do_action() Calls 'bbp_setup_theme_compat'
  */
