@@ -313,15 +313,23 @@ class bbPress {
 	 */
 	function _includes() {
 
+		/** Individual files **************************************************/
+		$files = array( 'update', 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes' );
+
 		// Load the files
-		foreach ( array( 'update', 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets' ) as $file )
+		foreach ( $files as $file )
 			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '.php' );
 
+		/** Components ********************************************************/
+		$components = array( 'general', 'forum', 'topic', 'reply', 'user' );
+
 		// Load the function and template files
-		foreach ( array( 'general', 'forum', 'topic', 'reply', 'user' ) as $file ) {
+		foreach ( $components as $file ) {
 			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-functions.php' );
 			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-template.php'  );
 		}
+
+		/** Admin *************************************************************/
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
