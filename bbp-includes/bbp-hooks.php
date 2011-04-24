@@ -31,6 +31,7 @@
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 12 );
+add_action( 'after_setup_theme',      'bbp_setup_theme_compat',     12 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above

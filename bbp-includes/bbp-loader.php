@@ -178,6 +178,17 @@ function bbp_generate_rewrite_rules( $wp_rewrite ) {
 	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
 }
 
+/**
+ * Setup bbPress theme compatability actions
+ *
+ * @since bbPress (r3025)
+ *
+ * @uses do_action() Calls 'bbp_setup_theme_compat'
+ */
+function bbp_setup_theme_compat() {
+	do_action( 'bbp_setup_theme_compat' );
+}
+
 /** Final Action **************************************************************/
 
 /**
