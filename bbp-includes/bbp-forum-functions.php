@@ -182,13 +182,16 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 			$private = bbp_get_private_forum_ids();
 
 			// Find this forum in the array
-			$offset = array_search( $forum_id, $private );
+			if ( in_array( $forum_id, $private ) ) {
 
-			// Splice around it
-			array_splice( $private, $offset, 1 );
+				$offset = array_search( $forum_id, (array) $private );
 
-			// Update private forums minus this one
-			update_option( '_bbp_private_forums', $private );
+				// Splice around it
+				array_splice( $private, $offset, 1 );
+
+				// Update private forums minus this one
+				update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
+			}
 		}
 
 		// Remove from _bbp_hidden_forums site option
@@ -198,13 +201,16 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 			$hidden = bbp_get_hidden_forum_ids();
 
 			// Find this forum in the array
-			$offset = array_search( $forum_id, $hidden );
+			if ( in_array( $forum_id, $hidden ) ) {
 
-			// Splice around it
-			array_splice( $hidden, $offset, 1 );
+				$offset = array_search( $forum_id, (array) $hidden );
 
-			// Update hidden forums minus this one
-			update_option( '_bbp_hidden_forums', $hidden );
+				// Splice around it
+				array_splice( $hidden, $offset, 1 );
+
+				// Update hidden forums minus this one
+				update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
+			}
 		}
 
 		// Update forums visibility setting
@@ -241,19 +247,22 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 			$hidden = bbp_get_hidden_forum_ids();
 
 			// Find this forum in the array
-			$offset = array_search( $forum_id, $hidden );
+			if ( in_array( $forum_id, $hidden ) ) {
 
-			// Splice around it
-			array_splice( $hidden, $offset, 1 );
+				$offset = array_search( $forum_id, (array) $hidden );
 
-			// Update hidden forums minus this one
-			update_option( '_bbp_hidden_forums', $hidden );
+				// Splice around it
+				array_splice( $hidden, $offset, 1 );
+
+				// Update hidden forums minus this one
+				update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
+			}
 		}
 
 		// Add to '_bbp_private_forums' site option
 		$private   = bbp_get_private_forum_ids();
 		$private[] = $forum_id;
-		update_option( '_bbp_private_forums', $private );
+		update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
 
 		// Update forums visibility setting
 		update_post_meta( $forum_id, '_bbp_visibility', 'private' );
@@ -289,20 +298,22 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 			$private = bbp_get_private_forum_ids();
 
 			// Find this forum in the array
-			if ( $offset = array_search( $forum_id, $private ) ) {
+			if ( in_array( $forum_id, $private ) ) {
+
+				$offset = array_search( $forum_id, (array) $private );
 
 				// Splice around it
 				array_splice( $private, $offset, 1 );
 
 				// Update private forums minus this one
-				update_option( '_bbp_private_forums', $private );
+				update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
 			}
 		}
 
 		// Add to '_bbp_hidden_forums' site option
-		$hidden   = bbp_get_private_forum_ids();
+		$hidden   = bbp_get_hidden_forum_ids();
 		$hidden[] = $forum_id;
-		update_option( '_bbp_hidden_forums', $hidden );
+		update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
 
 		// Update forums visibility setting
 		update_post_meta( $forum_id, '_bbp_visibility', 'hidden' );
