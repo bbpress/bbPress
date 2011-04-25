@@ -138,8 +138,11 @@
 
 	<?php elseif ( bbp_is_forum_closed() ) : ?>
 
-		<div class="bbp-template-notice">
-			<p><?php _e( 'This forum is closed to new topics.', 'bbpress' ); ?></p>
+		<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
+			<h2 class="entry-title"><?php _e( 'Sorry!', 'bbpress' ); ?></h2>
+			<div class="bbp-template-notice">
+				<p><?php _e( 'This forum is closed to new topics.', 'bbpress' ); ?></p>
+			</div>
 		</div>
 
 	<?php endif; ?>
@@ -148,7 +151,9 @@
 
 	<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
 		<h2 class="entry-title"><?php _e( 'Sorry!', 'bbpress' ); ?></h2>
-		<div class="entry-content"><?php is_user_logged_in() ? _e( 'You cannot create new topics at this time.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></div>
+		<div class="bbp-template-notice">
+			<p><?php is_user_logged_in() ? _e( 'You cannot create new topics at this time.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></p>
+		</div>
 	</div>
 
 
