@@ -124,17 +124,18 @@ function bbp_admin_notices( $message, $class = false ) {
  */
 function bbp_recount_list() {
 	$recount_list = array(
-		5  => array( 'bbp-forum-topics',          __( 'Count topics in each forum',                    'bbpress' ), 'bbp_recount_forum_topics'         ),
-		10 => array( 'bbp-forum-replies',         __( 'Count replies in each forum',                   'bbpress' ), 'bbp_recount_forum_replies'        ),
-		15 => array( 'bbp-topic-replies',         __( 'Count replies in each topic',                   'bbpress' ), 'bbp_recount_topic_replies'        ),
-		20 => array( 'bbp-topic-voices',          __( 'Count voices in each topic',                    'bbpress' ), 'bbp_recount_topic_voices'         ),
-		25 => array( 'bbp-topic-hidden-replies',  __( 'Count spammed & trashed replies in each topic', 'bbpress' ), 'bbp_recount_topic_hidden_replies' ),
-		30 => array( 'bbp-topics-replied',        __( 'Count replies for each user',                   'bbpress' ), 'bbp_recount_user_topics_replied'  ),
-		35 => array( 'bbp-clean-favorites',       __( 'Remove trashed topics from user favorites',     'bbpress' ), 'bbp_recount_clean_favorites'      ),
-		40 => array( 'bbp-clean-subscriptions',   __( 'Remove trashed topics from user subscriptions', 'bbpress' ), 'bbp_recount_clean_subscriptions'  )
-		//45 => array( 'bbp-topic-tag-count',       __( 'Count tags for every topic',                    'bbpress' ), 'bbp_recount_topic_tags'           ),
-		//50 => array( 'bbp-tags-tag-count',        __( 'Count topics for every tag',                    'bbpress' ), 'bbp_recount_tag_topics'           ),
-		//55 => array( 'bbp-tags-delete-empty',     __( 'Delete tags with no topics',                    'bbpress' ), 'bbp_recount_tag_delete_empty'     )
+		5  => array( 'bbp-forum-topics',           __( 'Count topics in each forum',                        'bbpress' ), 'bbp_recount_forum_topics'         ),
+		10 => array( 'bbp-forum-replies',          __( 'Count replies in each forum',                       'bbpress' ), 'bbp_recount_forum_replies'        ),
+		15 => array( 'bbp-topic-replies',          __( 'Count replies in each topic',                       'bbpress' ), 'bbp_recount_topic_replies'        ),
+		20 => array( 'bbp-topic-voices',           __( 'Count voices in each topic',                        'bbpress' ), 'bbp_recount_topic_voices'         ),
+		25 => array( 'bbp-topic-hidden-replies',   __( 'Count spammed & trashed replies in each topic',     'bbpress' ), 'bbp_recount_topic_hidden_replies' ),
+		30 => array( 'bbp-topics-replied',         __( 'Count replies for each user',                       'bbpress' ), 'bbp_recount_user_topics_replied'  ),
+		35 => array( 'bbp-clean-favorites',        __( 'Remove trashed topics from user favorites',         'bbpress' ), 'bbp_recount_clean_favorites'      ),
+		40 => array( 'bbp-clean-subscriptions',    __( 'Remove trashed topics from user subscriptions',     'bbpress' ), 'bbp_recount_clean_subscriptions'  ),
+		//45 => array( 'bbp-topic-tag-count',        __( 'Count tags for every topic',                        'bbpress' ), 'bbp_recount_topic_tags'           ),
+		//50 => array( 'bbp-tags-tag-count',         __( 'Count topics for every tag',                        'bbpress' ), 'bbp_recount_tag_topics'           ),
+		//55 => array( 'bbp-tags-delete-empty',      __( 'Delete tags with no topics',                        'bbpress' ), 'bbp_recount_tag_delete_empty'     ),
+		60 => array( 'bbp-sync-all-topics-forums', __( 'Recalculate last activity in each topic and forum', 'bbpress' ), 'bbp_recount_rewalk'               )
 	);
 
 	ksort( $recount_list );
@@ -189,7 +190,7 @@ function bbp_recount_topic_voices() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `ID`, '_bbp_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` IN ( '" . bbp_get_topic_post_type() . "', '" . bbp_get_reply_post_type() . "' ) AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = 'publish' GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -742,6 +743,103 @@ function bbp_recount_clean_subscriptions() {
 		$sql_insert = "INSERT INTO `$wpdb->usermeta` (`user_id`, `meta_key`, `meta_value`) VALUES $chunk;";
 		if ( is_wp_error( $wpdb->query( $sql_insert ) ) )
 			return array( 5, sprintf( $statement, $result ) );
+	}
+
+	$result = __( 'Complete!', 'bbpress' );
+	return array( 0, sprintf( $statement, $result ) );
+}
+
+/**
+ * Recaches the last post in every topic and forum
+ *
+ * @since bbPress (r3040)
+ *
+ * @uses wpdb::query() To run our recount sql queries
+ * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
+ * @return array An array of the status code and the message
+ */
+function bbp_recount_rewalk() {
+	global $wpdb;
+
+	$statement = __( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
+	$result    = __( 'Failed!', 'bbpress' );
+
+	// First, delete everything.
+	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id' );" ) ) )
+		return array( 1, sprintf( $statement, $result ) );
+
+	// Next, give all the topics with replies the ID their last reply.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
+			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
+			WHERE `reply`.`post_status` IN ( 'publish' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			GROUP BY `topic`.`ID` );" ) ) )
+		return array( 2, sprintf( $statement, $result ) );
+
+	// For any remaining topics, give a reply ID of 0.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `ID`, '_bbp_last_reply_id', 0
+			FROM `$wpdb->posts` AS `topic` LEFT JOIN `$wpdb->postmeta` AS `reply`
+			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_reply_id'
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = 'topic' );" ) ) )
+		return array( 3, sprintf( $statement, $result ) );
+
+	// Now we give all the forums with topics the ID their last topic.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `forum`.`ID`, '_bbp_last_topic_id', `topic`.`ID`
+			FROM `$wpdb->posts` AS `forum` INNER JOIN `$wpdb->posts` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
+			WHERE `reply`.`post_status` IN ( 'publish' ) AND `forum`.`post_type` = 'forum' AND `topic`.`post_type` = 'topic'
+			GROUP BY `forum`.`ID` );" ) ) )
+		return array( 4, sprintf( $statement, $result ) );
+
+	// For any remaining forums, give a topic ID of 0.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `ID`, '_bbp_last_topic_id', 0
+			FROM `$wpdb->posts` AS `forum` LEFT JOIN `$wpdb->postmeta` AS `topic`
+			ON `forum`.`ID` = `topic`.`post_id` AND `topic`.`meta_key` = '_bbp_last_topic_id'
+			WHERE `topic`.`meta_id` IS NULL AND `forum`.`post_type` = 'forum' );" ) ) )
+		return array( 5, sprintf( $statement, $result ) );
+
+	// After that, we give all the topics with replies the ID their last reply (again, this time for a different reason).
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
+			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
+			WHERE `reply`.`post_status` IN ( 'publish' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			GROUP BY `topic`.`ID` );" ) ) )
+		return array( 6, sprintf( $statement, $result ) );
+
+	// For any remaining topics, give a reply ID of themself.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `ID`, '_bbp_last_active_id', `ID`
+			FROM `$wpdb->posts` AS `topic` LEFT JOIN `$wpdb->postmeta` AS `reply`
+			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_id'
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = 'topic' );" ) ) )
+		return array( 7, sprintf( $statement, $result ) );
+
+	// Give topics with replies their last update time.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
+			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
+			WHERE `reply`.`post_status` IN ( 'publish' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			GROUP BY `topic`.`ID` );" ) ) )
+		return array( 8, sprintf( $statement, $result ) );
+
+	// Give topics without replies their last update time.
+	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
+			( SELECT `ID`, '_bbp_last_active_time', `post_date`
+			FROM `$wpdb->posts` AS `topic` LEFT JOIN `$wpdb->postmeta` AS `reply`
+			ON `topic`.`ID` = `reply`.`post_id` AND `reply`.`meta_key` = '_bbp_last_active_time'
+			WHERE `reply`.`meta_id` IS NULL AND `topic`.`post_type` = 'topic' );" ) ) )
+		return array( 9, sprintf( $statement, $result ) );
+
+	// Forums need to know what their last active item is as well. Now it gets a bit more complex to do in the database.
+	$forums = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'forum';" );
+	if ( is_wp_error( $forums ) )
+		return array( 10, sprintf( $statement, $result ) );
+
+	foreach ( $forums as $forum ) {
+		bbp_update_forum_last_active_id( $forum );
+		bbp_update_forum_last_active_time( $forum );
 	}
 
 	$result = __( 'Complete!', 'bbpress' );
