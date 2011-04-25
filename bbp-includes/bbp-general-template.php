@@ -1337,7 +1337,7 @@ function bbp_template_include( $template ) {
 	if ( !current_theme_supports( 'bbpress' ) ) {
 
 		// Use the $post global to check it's post_type
-		global $post;
+		global $post, $wp_query;
 
 		// Check the post_type and possibly intercept
 		switch ( $post->post_type ) {
@@ -1348,6 +1348,11 @@ function bbp_template_include( $template ) {
 			case bbp_get_topic_post_type() :
 			// Single Reply
 			case bbp_get_reply_post_type() :
+
+				// Manually set the query is_page and is_single to false to
+				// prevent the comment form from appearing
+				$wp_query->is_page   = false;
+				$wp_query->is_single = false;
 
 				// Add a filter on the_content late, which we will later remove
 				add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
