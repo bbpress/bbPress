@@ -18,16 +18,16 @@
 
 				<?php
 					// Profile details
-					get_template_part( 'bbpress/user', 'details' );
+					bbp_get_template_part( 'bbpress/user', 'details' );
 
 					// Subsciptions
-					get_template_part( 'bbpress/user', 'subscriptions' );
+					bbp_get_template_part( 'bbpress/user', 'subscriptions' );
 
 					// Favorite topics
-					get_template_part( 'bbpress/user', 'favorites' );
+					bbp_get_template_part( 'bbpress/user', 'favorites' );
 
 					// Topics created
-					get_template_part( 'bbpress/user', 'topics-created' );
+					bbp_get_template_part( 'bbpress/user', 'topics-created' );
 
 				?>
 

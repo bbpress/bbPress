@@ -30,17 +30,17 @@
 
 								<div id="ajax-response"></div>
 
-								<?php get_template_part( 'bbpress/single', 'topic'   ); ?>
+								<?php bbp_get_template_part( 'bbpress/single', 'topic'   ); ?>
 
 								<?php if ( bbp_get_query_name() || bbp_has_replies() ) : ?>
 
-									<?php get_template_part( 'bbpress/pagination', 'replies' ); ?>
+									<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
 
-									<?php get_template_part( 'bbpress/loop',       'replies' ); ?>
+									<?php bbp_get_template_part( 'bbpress/loop',       'replies' ); ?>
 
-									<?php get_template_part( 'bbpress/pagination', 'replies' ); ?>
+									<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
 
-									<?php get_template_part( 'bbpress/form',       'reply'   ); ?>
+									<?php bbp_get_template_part( 'bbpress/form',       'reply'   ); ?>
 
 								<?php endif; ?>
 

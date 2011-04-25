@@ -43,7 +43,7 @@
 
 						</div>
 
-						<?php get_template_part( 'bbpress/form', 'anonymous' ); ?>
+						<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
 
 						<p>
 							<label for="bbp_topic_title"><?php _e( 'Topic Title:', 'bbpress' ); ?></label><br />

@@ -24,11 +24,11 @@
 
 							<?php if ( bbp_is_topic_merge() ) : ?>
 
-								<?php get_template_part( 'bbpress/form', 'merge' ); ?>
+								<?php bbp_get_template_part( 'bbpress/form', 'merge' ); ?>
 
 							<?php elseif ( bbp_is_topic_split() ) : ?>
 
-								<?php get_template_part( 'bbpress/form', 'split' ); ?>
+								<?php bbp_get_template_part( 'bbpress/form', 'split' ); ?>
 
 							<?php endif; ?>
 

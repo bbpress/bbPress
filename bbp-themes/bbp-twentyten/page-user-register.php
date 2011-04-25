@@ -26,7 +26,7 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'bbpress/form', 'user-register' ); ?>
+							<?php bbp_get_template_part( 'bbpress/form', 'user-register' ); ?>
 
 						</div>
 					</div><!-- #bbp-register -->

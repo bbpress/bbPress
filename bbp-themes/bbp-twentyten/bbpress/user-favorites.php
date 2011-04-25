@@ -18,7 +18,9 @@
 
 						<?php if ( bbp_get_user_favorites() ) :
 
-							get_template_part( 'bbpress/loop', 'topics' );
+							bbp_get_template_part( 'bbpress/pagination', 'topics' );
+							bbp_get_template_part( 'bbpress/loop',       'topics' );
+							bbp_get_template_part( 'bbpress/pagination', 'topics' );
 
 						else : ?>
 

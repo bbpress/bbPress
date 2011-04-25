@@ -40,7 +40,7 @@ if ( !class_exists( 'bbPress' ) ) :
  */
 class bbPress {
 
-	/** Post type *************************************************************/
+	/** Post types ************************************************************/
 
 	/**
 	 * @var string Forum post type id
@@ -57,7 +57,7 @@ class bbPress {
 	 */
 	var $reply_post_type;
 
-	/** Post status ***********************************************************/
+	/** Post statuses *********************************************************/
 
 	/**
 	 * @var string Topic tag id
@@ -157,7 +157,7 @@ class bbPress {
 	 */
 	var $current_reply_id = null;
 
-	/** User ******************************************************************/
+	/** Users *****************************************************************/
 
 	/**
 	 * @var object Current user
@@ -169,7 +169,7 @@ class bbPress {
 	 */
 	var $displayed_user;
 
-	/** Query *****************************************************************/
+	/** Queries ***************************************************************/
 
 	/**
 	 * @var WP_Query For forums
@@ -817,15 +817,19 @@ class bbPress {
 	 * @since bbPress (r3029)
 	 *
 	 * @global bbPress $bbp
-	 * @uses current_theme_supports()
-	 * @uses wp_enqueue_style()
-	 * @uses wp_enqueue_script()
+	 * @uses bbp_set_compat_theme() Set the compatable theme to bbp-twentyten
+	 * @uses current_theme_supports() Check bbPress theme support
+	 * @uses wp_enqueue_style() Enqueue the bbp-twentyten default CSS
+	 * @uses wp_enqueue_script() Enqueue the bbp-twentyten default topic JS
 	 */
 	function theme_compat() {
 		global $bbp;
 
 		// Check if current theme supports bbPress
 		if ( !current_theme_supports( 'bbpress' ) ) {
+
+			// Set the compat_theme global for help with loading template parts
+			bbp_set_compat_theme( $bbp->themes_dir . '/bbp-twentyten' );
 
 			// Load up the default bbPress CSS from bbp-twentyten
 			wp_enqueue_style ( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css'       );

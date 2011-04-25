@@ -28,15 +28,15 @@
 
 							<?php if ( bbp_has_topics( array( 'meta_key' => '_bbp_reply_count', 'meta_value' => '1', 'meta_compare' => '<', 'orderby' => 'date', 'show_stickies' => false ) ) ) : ?>
 
-								<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+								<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-								<?php get_template_part( 'bbpress/loop',       'topics' ); ?>
+								<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
 
-								<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+								<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
 							<?php else : ?>
 
-								<?php get_template_part( 'bbpress/no',         'topics' ); ?>
+								<?php bbp_get_template_part( 'bbpress/no',         'topics' ); ?>
 
 							<?php endif; ?>
 

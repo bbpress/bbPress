@@ -26,13 +26,13 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 						<?php term_description(); ?>
 
-						<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+						<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-						<?php get_template_part( 'bbpress/loop', 'topics' ); ?>
+						<?php bbp_get_template_part( 'bbpress/loop', 'topics' ); ?>
 
-						<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+						<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-						<?php get_template_part( 'bbpress/form', 'topic-tag' ); ?>
+						<?php bbp_get_template_part( 'bbpress/form', 'topic-tag' ); ?>
 
 					</div>
 				</div><!-- #topic-tag -->

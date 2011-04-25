@@ -530,10 +530,13 @@ function bbp_forum_get_subforums( $args = '' ) {
 
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
 
-	// Don't show private forums to normal users
-	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
-		$r['meta_key']   = '_bbp_visibility';
-		$r['meta_value'] = 'public';
+	// Don't show hidden forums to normal users
+	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_query'] ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
+		$r['meta_query'] = array( array(
+			'key'     => '_bbp_visibility',
+			'value'   => 'public, private',
+			'compare' => 'IN'
+		) );
 	}
 
 	// No forum passed

@@ -24,7 +24,7 @@
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'bbpress/form', 'topic' ); ?>
+							<?php bbp_get_template_part( 'bbpress/form', 'topic' ); ?>
 
 						</div>
 					</div><!-- #bbp-new-topic -->

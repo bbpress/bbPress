@@ -26,7 +26,7 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'bbpress/form', 'user-lost-pass' ); ?>
+							<?php bbp_get_template_part( 'bbpress/form', 'user-lost-pass' ); ?>
 
 						</div>
 					</div><!-- #bbp-lost-pass -->

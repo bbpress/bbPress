@@ -24,11 +24,11 @@
 
 							<?php if ( bbp_is_reply_edit() ) : ?>
 
-								<?php get_template_part( 'bbpress/form', 'reply' ); ?>
+								<?php bbp_get_template_part( 'bbpress/form', 'reply' ); ?>
 
 							<?php elseif ( bbp_is_topic_edit() ) : ?>
 
-								<?php get_template_part( 'bbpress/form', 'topic' ); ?>
+								<?php bbp_get_template_part( 'bbpress/form', 'topic' ); ?>
 
 							<?php endif; ?>
 

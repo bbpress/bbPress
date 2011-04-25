@@ -37,7 +37,7 @@
 
 						</div>
 
-						<?php get_template_part( 'bbpress/form', 'anonymous' ); ?>
+						<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
 
 						<p>
 							<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />

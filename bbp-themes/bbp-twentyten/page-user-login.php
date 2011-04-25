@@ -26,7 +26,7 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'bbpress/form', 'user-login' ); ?>
+							<?php bbp_get_template_part( 'bbpress/form', 'user-login' ); ?>
 
 						</div>
 					</div><!-- #bbp-login -->

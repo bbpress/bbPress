@@ -20,11 +20,13 @@
 						<h2 class="entry-title"><?php _e( 'Subscribed Forum Topics', 'bbpress' ); ?></h2>
 						<div class="entry-content">
 
-							<?php if ( bbp_get_user_subscriptions() ) : ?>
+							<?php if ( bbp_get_user_subscriptions() ) :
 
-								<?php get_template_part( 'bbpress/loop', 'topics' ); ?>
+								bbp_get_template_part( 'bbpress/pagination', 'topics' );
+								bbp_get_template_part( 'bbpress/loop',       'topics' );
+								bbp_get_template_part( 'bbpress/pagination', 'topics' );
 
-							<?php else : ?>
+							else : ?>
 
 								<p><?php bbp_is_user_home() ? _e( 'You are not currently subscribed to any topics.', 'bbpress' ) : _e( 'This user is not currently subscribed to any topics.', 'bbpress' ); ?></p>
 

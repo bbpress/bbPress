@@ -30,25 +30,25 @@
 
 								<?php if ( bbp_get_forum_subforum_count() && bbp_has_forums() ) : ?>
 
-									<?php get_template_part( 'bbpress/loop', 'forums' ); ?>
+									<?php bbp_get_template_part( 'bbpress/loop', 'forums' ); ?>
 
 								<?php endif; ?>
 
 								<?php if ( !bbp_is_forum_category() && bbp_has_topics() ) : ?>
 
-									<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+									<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-									<?php get_template_part( 'bbpress/loop',       'topics' ); ?>
+									<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
 
-									<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+									<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-									<?php get_template_part( 'bbpress/form',       'topic'  ); ?>
+									<?php bbp_get_template_part( 'bbpress/form',       'topic'  ); ?>
 
 								<?php elseif( !bbp_is_forum_category() ) : ?>
 
-									<?php get_template_part( 'bbpress/no',         'topics' ); ?>
+									<?php bbp_get_template_part( 'bbpress/no',         'topics' ); ?>
 
-									<?php get_template_part( 'bbpress/form',       'topic'  ); ?>
+									<?php bbp_get_template_part( 'bbpress/form',       'topic'  ); ?>
 
 								<?php endif; ?>
 
@@ -57,7 +57,7 @@
 
 					<?php else : // Forum exists, user no access ?>
 
-						<?php get_template_part( 'bbpress/no', 'access' ); ?>
+						<?php bbp_get_template_part( 'bbpress/no', 'access' ); ?>
 
 					<?php endif; ?>
 

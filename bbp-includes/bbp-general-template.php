@@ -56,6 +56,9 @@ function bbp_is_forum( $post_id = 0 ) {
 		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_forum_post_type() === $wp_query->query_vars['post_type'] ) )
 			return true;
 
+		if ( isset( $bbp->forum_query->post->post_type ) && ( bbp_get_forum_post_type() === $bbp->forum_query->post->post_type ) )
+			return true;
+
 		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_forum_post_type() === $_GET['post_type'] ) )
 			return true;
 
@@ -1267,5 +1270,128 @@ function bbp_logout_link( $redirect_to = '' ) {
 	function bbp_get_logout_link( $redirect_to = '' ) {
 		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url( $redirect_to ) . '" class="button logout-link">' . __( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
 	}
+
+/** Theme compat **************************************************************/
+
+/**
+ * Gets the bbPress compatable theme used in the event the currently active
+ * WordPress theme does not explicitly support bbPress. This can be filtered,
+ * or set manually. Tricky theme authors can override the default and include
+ * their own bbPress compatability layers for their themes.
+ *
+ * @since bbPress (r3032)
+ *
+ * @global bbPress $bbp
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_compat_theme() {
+	global $bbp;
+
+	return apply_filters( 'bbp_get_compat_theme', $bbp->theme_compat );
+}
+
+/**
+ * Sets the bbPress compatable theme used in the event the currently active
+ * WordPress theme does not explicitly support bbPress. This can be filtered,
+ * or set manually. Tricky theme authors can override the default and include
+ * their own bbPress compatability layers for their themes.
+ *
+ * @since bbPress (r3032)
+ *
+ * @global bbPress $bbp
+ * @param string $theme Optional. Must be full absolute path to theme
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_set_compat_theme( $theme = '' ) {
+	global $bbp;
+
+	if ( empty( $theme ) && !empty( $bbp->themes_dir ) )
+		$bbp->theme_compat = $bbp->themes_dir . '/bbp-twentyten';
+	else
+		$bbp->theme_compat = $theme;
+
+	return apply_filters( 'bbp_get_compat_theme', $bbp->theme_compat );
+}
+
+/**
+ * Possibly intercept the template being loaded
+ *
+ * Listens to the 'template_include' filter and waits for a bbPress post_type
+ * to appear. If the current theme does not explicitly support bbPress, it
+ * intercepts the page template and uses one served from the bbPress compatable
+ * theme, set as the $bbp->theme_compat global.
+ *
+ * @since bbPress (r3032)
+ *
+ * @global bbPress $bbp
+ * @global WP_Query $post
+ * @param string $template
+ * @return string
+ */
+function bbp_template_include( $template ) {
+
+	// Current theme does not support bbPress, so we need to do some heavy
+	// lifting to see if a bbPress template is needed in the current context
+	if ( !current_theme_supports( 'bbpress' ) ) {
+
+		// Use the $post global to check it's post_type
+		global $post;
+
+		// Check the post_type and possibly intercept
+		switch ( $post->post_type ) {
+
+			// Single Forum
+			case bbp_get_forum_post_type() :
+				$template = bbp_get_compat_theme() . '/single-forum.php';
+				break;
+
+			// Single Topic
+			case bbp_get_topic_post_type() :
+				$template = bbp_get_compat_theme() . '/single-topic.php';
+				break;
+
+			// Single Reply
+			case bbp_get_reply_post_type() :
+				$template = bbp_get_compat_theme() . '/single-reply.php';
+				break;
+		}
+	}
+
+	// Return $template
+	return $template;
+}
+
+/**
+ * Adds bbPress theme support to any active WordPress theme
+ *
+ * This function is really cool because it's responsible for managing the
+ * theme compatability layer when the current theme does not support bbPress.
+ * It uses the current_theme_supports() WordPress function to see if 'bbpress'
+ * is explicitly supported. If not, it will directly load the requested template
+ * part using load_template(). If so, it proceeds with using get_template_part()
+ * as per normal, and no one is the wiser.
+ *
+ * @since bbPress (r3032)
+ *
+ * @param string $slug
+ * @param string $name Optional. Default null
+ * @uses current_theme_supports()
+ * @uses load_template()
+ * @uses get_template_part()
+ */
+function bbp_get_template_part( $slug, $name = null ) {
+
+	// Current theme does not support bbPress, so we need to do some heavy
+	// lifting to see if a bbPress template is needed in the current context
+	if ( !current_theme_supports( 'bbpress' ) )
+		load_template( bbp_get_compat_theme() . '/' . $slug . '-' . $name . '.php', false );
+
+	// Current theme supports bbPress to proceed as usual
+	else
+		get_template_part( $slug, $name );
+
+}
 
 ?>

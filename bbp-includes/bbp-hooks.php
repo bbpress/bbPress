@@ -32,6 +32,7 @@ add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 12 );
 add_action( 'after_setup_theme',      'bbp_setup_theme_compat',     12 );
+add_action( 'template_include',       'bbp_template_include',       10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -58,8 +59,9 @@ add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
 add_action( 'bbp_init', 'bbp_register_post_types',    6   );
 add_action( 'bbp_init', 'bbp_register_post_statuses', 8   );
 add_action( 'bbp_init', 'bbp_register_taxonomies',    10  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       12  );
-add_action( 'bbp_init', 'bbp_register_views',         14  );
+add_action( 'bbp_init', 'bbp_register_views',         12  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',    14  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',       16  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Admin
@@ -316,7 +318,7 @@ function bbp_pre_anonymous_filters () {
 bbp_pre_anonymous_filters();
 
 /**
- * On multiblog installations you must first allow themes to be activated and
+ * On multisite installations you must first allow themes to be activated and
  * show up on the theme selection screen. This function will let the bbPress
  * bundled themes show up and bypass this step.
  *
@@ -326,6 +328,8 @@ bbp_pre_anonymous_filters();
  * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
  */
 function bbp_allowed_themes( $themes ) {
+
+	// Only force bbp-twentyten theme for super admins
 	if ( !is_super_admin() )
 		return $themes;
 

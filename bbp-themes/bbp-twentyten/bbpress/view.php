@@ -24,7 +24,7 @@
 
 						<?php if ( bbp_view_query() ) : ?>
 
-							<?php get_template_part( 'bbpress/loop', 'topics' ); ?>
+							<?php bbp_get_template_part( 'bbpress/loop', 'topics' ); ?>
 
 						<?php else : ?>
 

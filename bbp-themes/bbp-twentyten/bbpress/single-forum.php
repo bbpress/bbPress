@@ -15,23 +15,23 @@
 
 	<?php if ( bbp_get_forum_subforum_count() ) : ?>
 
-		<?php while( bbp_has_forums() ) : ?>
+		<?php if ( bbp_has_forums() ) : ?>
 
-			<?php get_template_part( 'bbpress/loop', 'forums' ); ?>
+			<?php bbp_get_template_part( 'bbpress/loop', 'forums' ); ?>
 
-		<?php endwhile; ?>
+		<?php endif; ?>
 
 	<?php endif; ?>
 
-	<?php if ( !bbp_is_forum_category() ) : ?>
+	<?php if ( !bbp_is_forum_category() && bbp_has_topics() ) : ?>
 
-		<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+		<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-		<?php get_template_part( 'bbpress/loop',       'topics' ); ?>
+		<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
 
-		<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+		<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-		<?php get_template_part( 'bbpress/form',       'topic'  ); ?>
+		<?php bbp_get_template_part( 'bbpress/form',       'topic'  ); ?>
 
 	<?php endif; ?>
 

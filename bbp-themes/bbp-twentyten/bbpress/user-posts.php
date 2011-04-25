@@ -17,7 +17,7 @@
 
 					<?php rewind_posts(); ?>
 
-					<?php get_template_part( 'bbpress/loop', 'author' ); ?>
+					<?php bbp_get_template_part( 'bbpress/loop', 'author' ); ?>
 
 					</div>
 				</div><!-- #bbp-author-blog-posts -->

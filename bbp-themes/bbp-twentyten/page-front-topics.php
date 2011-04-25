@@ -24,11 +24,11 @@
 
 							<?php the_content(); ?>
 
-							<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+							<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-							<?php get_template_part( 'bbpress/loop',       'topics' ); ?>
+							<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
 
-							<?php get_template_part( 'bbpress/pagination', 'topics' ); ?>
+							<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
 						</div>
 					</div><!-- #topics-front -->

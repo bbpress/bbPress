@@ -16,7 +16,7 @@
 
 				<?php do_action( 'bbp_template_notices' ); ?>
 
-				<?php get_template_part( 'bbpress/user', 'details' ); ?>
+				<?php bbp_get_template_part( 'bbpress/user', 'details' ); ?>
 
 				<div class="entry-content bbp-edit-user">
 
