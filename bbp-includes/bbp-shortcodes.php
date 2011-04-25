@@ -200,7 +200,8 @@ class BBP_Shortcodes {
 
 				// No topics
 				} else {
-					bbp_get_template_part( 'bbpress/no', 'topics' );
+					bbp_get_template_part( 'bbpress/no',   'topics' );
+					bbp_get_template_part( 'bbpress/form', 'topic'  );
 				}
 			}
 
