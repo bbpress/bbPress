@@ -59,6 +59,21 @@ class BBP_Shortcodes {
 		do_action( 'bbp_register_shortcodes' );
 	}
 
+	/**
+	 * Unset the global queries
+	 *
+	 * @since bbPress (r3034)
+	 *
+	 * @global bbPress $bbp
+	 */
+	function _unset_queries() {
+		global $bbp;
+
+		// Unset global queries
+		unset( $bbp->forum_query );
+		unset( $bbp->topic_query );
+	}
+
 	/** Forum shortcodes ******************************************************/
 
 	/**
@@ -85,8 +100,8 @@ class BBP_Shortcodes {
 			// Output forums
 			bbp_get_template_part( 'bbpress/loop', 'forums' );
 
-			// Unset forum_query
-			global $bbp; unset( $bbp->forum_query );
+			// Unset queries
+			$this->_unset_queries();
 
 			// Output new topic form
 			bbp_get_template_part( 'bbpress/form', 'topic'  );
@@ -155,8 +170,8 @@ class BBP_Shortcodes {
 			// Skip if forum is a category
 			if ( !bbp_is_forum_category( $forum_id ) ) {
 
-				// Clear global forum_query
-				unset( $bbp->forum_query );
+				// Unset queries
+				$this->_unset_queries();
 
 				// Reset necessary forum_query attributes for topics loop to function
 				$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
@@ -165,28 +180,12 @@ class BBP_Shortcodes {
 
 				// Query defaults
 				$topics_query = array(
+					'post_parent'    => $forum_id,
 					'post_author'    => 0,
 					'show_stickies'  => true,
-					'order'          => 'DESC',
 				);
 
 				// Setup a meta_query to remove hidden forums
-				if ( $hidden = bbp_get_hidden_forum_ids() ) {
-
-					// Value and compare for meta_query
-					$value   = implode( ',', $hidden );
-					$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
-
-					// Add meta_query to $replies_query
-					$topics_query['meta_query'] = array( array(
-						'key'     => '_bbp_forum_id',
-						'value'   => $value,
-						'compare' => $compare
-					) );
-					$topics_query['post_parent'] = $forum_id;
-					$topics_query['meta_key']    = '';
-					$topics_query['meta_value']  = '';
-				}
 
 				// Load the topic index
 				if ( bbp_has_topics( $topics_query ) ) {
@@ -204,6 +203,9 @@ class BBP_Shortcodes {
 
 		// Put output into usable variable
 		$output = ob_get_contents();
+
+		// Unset queries
+		$this->_unset_queries();
 
 		// Flush the output buffer
 		ob_end_clean();
@@ -272,6 +274,9 @@ class BBP_Shortcodes {
 			// Flush the output buffer
 			ob_end_clean();
 
+			// Unset queries
+			$this->_unset_queries();
+
 			return $output;
 		}
 	}
@@ -338,6 +343,9 @@ class BBP_Shortcodes {
 
 			// Put output into usable variable
 			$output = ob_get_contents();
+
+			// Unset queries
+			$this->_unset_queries();
 
 			// Flush the output buffer
 			ob_end_clean();

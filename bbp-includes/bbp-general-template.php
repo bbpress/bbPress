@@ -1285,10 +1285,10 @@ function bbp_logout_link( $redirect_to = '' ) {
  * @uses apply_filters()
  * @return string
  */
-function bbp_get_compat_theme() {
+function bbp_get_theme_compat() {
 	global $bbp;
 
-	return apply_filters( 'bbp_get_compat_theme', $bbp->theme_compat );
+	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
 }
 
 /**
@@ -1304,7 +1304,7 @@ function bbp_get_compat_theme() {
  * @uses apply_filters()
  * @return string
  */
-function bbp_set_compat_theme( $theme = '' ) {
+function bbp_set_theme_compat( $theme = '' ) {
 	global $bbp;
 
 	if ( empty( $theme ) && !empty( $bbp->themes_dir ) )
@@ -1312,7 +1312,7 @@ function bbp_set_compat_theme( $theme = '' ) {
 	else
 		$bbp->theme_compat = $theme;
 
-	return apply_filters( 'bbp_get_compat_theme', $bbp->theme_compat );
+	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
 }
 
 /**
@@ -1344,23 +1344,75 @@ function bbp_template_include( $template ) {
 
 			// Single Forum
 			case bbp_get_forum_post_type() :
-				$template = bbp_get_compat_theme() . '/single-forum.php';
-				break;
-
 			// Single Topic
 			case bbp_get_topic_post_type() :
-				$template = bbp_get_compat_theme() . '/single-topic.php';
-				break;
-
 			// Single Reply
 			case bbp_get_reply_post_type() :
-				$template = bbp_get_compat_theme() . '/single-reply.php';
+
+				// Add a filter on the_content late, which we will later remove
+				add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+
+				// Default to the page template
+				$template = locate_template( 'page.php', false, false );
 				break;
 		}
 	}
 
 	// Return $template
 	return $template;
+}
+
+/**
+ * Replaces the_content() if the post_type being displayed is one that would
+ * normally be handled by bbPress, but proper single page templates do not
+ * exist in the currently active theme.
+ *
+ * @since bbPress (r3034)
+ *
+ * @global bbPress $bbp
+ * @global WP_Query $post
+ * @param string $content
+ * @return type
+ */
+function bbp_replace_the_content( $content = '' ) {
+
+	// Current theme does not support bbPress, so we need to do some heavy
+	// lifting to see if a bbPress template is needed in the current context
+	if ( !current_theme_supports( 'bbpress' ) ) {
+
+		// Use the $post global to check it's post_type
+		global $bbp, $post;
+
+		// Remove the filter that was added in bbp_template_include()
+		remove_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+
+		// Bail if shortcodes are unset somehow
+		if ( empty( $bbp->shortcodes ) )
+			return content;
+
+		// Use shortcode API to display forums/topics/replies because they are
+		// already output buffered and
+		switch ( $post->post_type ) {
+
+			// Single Forum
+			case bbp_get_forum_post_type() :
+				$content = $bbp->shortcodes->display_forum( array( 'id' => $post->ID ) );
+				break;
+
+			// Single Topic
+			case bbp_get_topic_post_type() :
+				$content = $bbp->shortcodes->display_topic( array( 'id' => $post->ID ) );
+				break;
+
+			// Single Reply
+			case bbp_get_reply_post_type() :
+
+				break;
+		}
+	}
+
+	// Return possibly filtered content
+	return $content;
 }
 
 /**
@@ -1386,7 +1438,7 @@ function bbp_get_template_part( $slug, $name = null ) {
 	// Current theme does not support bbPress, so we need to do some heavy
 	// lifting to see if a bbPress template is needed in the current context
 	if ( !current_theme_supports( 'bbpress' ) )
-		load_template( bbp_get_compat_theme() . '/' . $slug . '-' . $name . '.php', false );
+		load_template( bbp_get_theme_compat() . '/' . $slug . '-' . $name . '.php', false );
 
 	// Current theme supports bbPress to proceed as usual
 	else

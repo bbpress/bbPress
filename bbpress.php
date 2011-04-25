@@ -817,7 +817,7 @@ class bbPress {
 	 * @since bbPress (r3029)
 	 *
 	 * @global bbPress $bbp
-	 * @uses bbp_set_compat_theme() Set the compatable theme to bbp-twentyten
+	 * @uses bbp_set_theme_compat() Set the compatable theme to bbp-twentyten
 	 * @uses current_theme_supports() Check bbPress theme support
 	 * @uses wp_enqueue_style() Enqueue the bbp-twentyten default CSS
 	 * @uses wp_enqueue_script() Enqueue the bbp-twentyten default topic JS
@@ -829,7 +829,7 @@ class bbPress {
 		if ( !current_theme_supports( 'bbpress' ) ) {
 
 			// Set the compat_theme global for help with loading template parts
-			bbp_set_compat_theme( $bbp->themes_dir . '/bbp-twentyten' );
+			bbp_set_theme_compat( $bbp->themes_dir . '/bbp-twentyten' );
 
 			// Load up the default bbPress CSS from bbp-twentyten
 			wp_enqueue_style ( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css'       );
