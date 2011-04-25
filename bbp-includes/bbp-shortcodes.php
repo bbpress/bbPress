@@ -91,11 +91,11 @@ class BBP_Shortcodes {
 	 */
 	function display_forum_index() {
 
+		// Start output buffer
+		ob_start();
+
 		// Load the forums index
 		if ( bbp_has_forums() ) {
-
-			// Start output buffer
-			ob_start();
 
 			// Output forums
 			bbp_get_template_part( 'bbpress/loop', 'forums' );
@@ -104,16 +104,20 @@ class BBP_Shortcodes {
 			$this->_unset_queries();
 
 			// Output new topic form
-			bbp_get_template_part( 'bbpress/form', 'topic'  );
+			bbp_get_template_part( 'bbpress/form', 'topic' );
 
-			// Put output into usable variable
-			$output = ob_get_contents();
-
-			// Flush the output buffer
-			ob_end_clean();
-
-			return $output;
+		// No forums
+		} else {
+			bbp_get_template_part( 'bbpress/no', 'forums' );
 		}
+
+		// Put output into usable variable
+		$output = ob_get_contents();
+
+		// Flush the output buffer
+		ob_end_clean();
+
+		return $output;
 	}
 
 	/**
@@ -193,6 +197,10 @@ class BBP_Shortcodes {
 					bbp_get_template_part( 'bbpress/loop',       'topics' );
 					bbp_get_template_part( 'bbpress/pagination', 'topics' );
 					bbp_get_template_part( 'bbpress/form',       'topic'  );
+
+				// No topics
+				} else {
+					bbp_get_template_part( 'bbpress/no', 'topics' );
 				}
 			}
 
@@ -256,11 +264,11 @@ class BBP_Shortcodes {
 			$topics_query['meta_value'] = '';
 		}
 
+		// Start output buffer
+		ob_start();
+
 		// Load the topic index
 		if ( bbp_has_topics( $topics_query ) ) {
-
-			// Start output buffer
-			ob_start();
 
 			// Output templates
 			bbp_get_template_part( 'bbpress/pagination', 'topics' );
@@ -268,17 +276,21 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/pagination', 'topics' );
 			bbp_get_template_part( 'bbpress/form',       'topic'  );
 
-			// Put output into usable variable
-			$output = ob_get_contents();
-
-			// Flush the output buffer
-			ob_end_clean();
-
-			// Unset queries
-			$this->_unset_queries();
-
-			return $output;
+		// No topics
+		} else {
+			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
+
+		// Put output into usable variable
+		$output = ob_get_contents();
+
+		// Flush the output buffer
+		ob_end_clean();
+
+		// Unset queries
+		$this->_unset_queries();
+
+		return $output;
 	}
 
 	/**
@@ -329,11 +341,11 @@ class BBP_Shortcodes {
 		$bbp->topic_query->in_the_loop             = true;
 		$bbp->topic_query->post                    = get_post( $topic_id );
 
+		// Start output buffer
+		ob_start();
+
 		// Load the topic
 		if ( bbp_has_replies( $replies_query ) ) {
-
-			// Start output buffer
-			ob_start();
 
 			// Output templates
 			bbp_get_template_part( 'bbpress/pagination', 'replies' );
@@ -341,17 +353,18 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/pagination', 'replies' );
 			bbp_get_template_part( 'bbpress/form',       'reply'   );
 
-			// Put output into usable variable
-			$output = ob_get_contents();
-
-			// Unset queries
-			$this->_unset_queries();
-
-			// Flush the output buffer
-			ob_end_clean();
-
-			return $output;
 		}
+
+		// Put output into usable variable
+		$output = ob_get_contents();
+
+		// Unset queries
+		$this->_unset_queries();
+
+		// Flush the output buffer
+		ob_end_clean();
+
+		return $output;
 	}
 
 	/**
