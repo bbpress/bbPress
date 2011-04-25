@@ -278,7 +278,8 @@ class BBP_Shortcodes {
 
 		// No topics
 		} else {
-			bbp_get_template_part( 'bbpress/no', 'topics' );
+			bbp_get_template_part( 'bbpress/no',   'topics' );
+			bbp_get_template_part( 'bbpress/form', 'topic'  );
 		}
 
 		// Put output into usable variable
@@ -348,11 +349,16 @@ class BBP_Shortcodes {
 		if ( bbp_has_replies( $replies_query ) ) {
 
 			// Output templates
+			bbp_get_template_part( 'bbpress/single',     'topic'   );
 			bbp_get_template_part( 'bbpress/pagination', 'replies' );
 			bbp_get_template_part( 'bbpress/loop',       'replies' );
 			bbp_get_template_part( 'bbpress/pagination', 'replies' );
 			bbp_get_template_part( 'bbpress/form',       'reply'   );
 
+		// No replies
+		} else {
+			bbp_get_template_part( 'bbpress/single',     'topic'   );
+			bbp_get_template_part( 'bbpress/form',       'reply'   );
 		}
 
 		// Put output into usable variable
