@@ -123,9 +123,6 @@ span.bbp-admin-links a {
 fieldset span.bbp-admin-links {
 	float: left;
 }
-tr:hover span.bbp-admin-links a {
-	color: #06c;
-}
 tr td span.bbp-admin-links a:hover {
 	color: #ff4b33;
 }
