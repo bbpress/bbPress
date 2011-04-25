@@ -82,8 +82,13 @@ class BBP_Shortcodes {
 			// Start output buffer
 			ob_start();
 
-			// Output templates
+			// Output forums
 			bbp_get_template_part( 'bbpress/loop', 'forums' );
+
+			// Unset forum_query
+			global $bbp; unset( $bbp->forum_query );
+
+			// Output new topic form
 			bbp_get_template_part( 'bbpress/form', 'topic'  );
 
 			// Put output into usable variable
