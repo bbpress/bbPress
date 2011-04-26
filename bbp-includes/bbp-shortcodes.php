@@ -39,21 +39,26 @@ class BBP_Shortcodes {
 		/** Forums ************************************************************/
 
 		// Forum Index
-		add_shortcode( 'bbpress-forum-index', array( $this, 'display_forum_index' ) );
+		add_shortcode( 'bbp-forum-index', array( $this, 'display_forum_index' ) );
 
 		// Specific forum - pass an 'id' attribute
-		add_shortcode( 'bbpress-forum',       array( $this, 'display_forum'       ) );
+		add_shortcode( 'bbp-forum',       array( $this, 'display_forum'       ) );
 
 		/** Topics ************************************************************/
 
 		// Topic index
-		add_shortcode( 'bbpress-topic-index',  array( $this, 'display_topic_index'  ) );
+		add_shortcode( 'bbp-topic-index', array( $this, 'display_topic_index'  ) );
 
-		// New topic form
-		add_shortcode( 'bbpress-create-topic', array( $this, 'display_create_topic' ) );
+		// Topic form
+		add_shortcode( 'bbp-topic-form',  array( $this, 'display_topic_form'   ) );
 
 		// Specific topic - pass an 'id' attribute
-		add_shortcode( 'bbpress-topic',        array( $this, 'display_topic'        ) );
+		add_shortcode( 'bbp-topic',       array( $this, 'display_topic'        ) );
+
+		/** Replies ***********************************************************/
+
+		// Reply form
+		add_shortcode( 'bbp-reply-form', array( $this, 'display_reply_form' ) );
 
 		// Custom shortcodes
 		do_action( 'bbp_register_shortcodes' );
@@ -102,9 +107,6 @@ class BBP_Shortcodes {
 
 			// Unset queries
 			$this->_unset_queries();
-
-			// Output new topic form
-			bbp_get_template_part( 'bbpress/form', 'topic' );
 
 		// No forums
 		} else {
@@ -270,17 +272,13 @@ class BBP_Shortcodes {
 
 		// Load the topic index
 		if ( bbp_has_topics( $topics_query ) ) {
-
-			// Output templates
 			bbp_get_template_part( 'bbpress/pagination', 'topics' );
 			bbp_get_template_part( 'bbpress/loop',       'topics' );
 			bbp_get_template_part( 'bbpress/pagination', 'topics' );
-			bbp_get_template_part( 'bbpress/form',       'topic'  );
 
 		// No topics
 		} else {
 			bbp_get_template_part( 'bbpress/no',   'topics' );
-			bbp_get_template_part( 'bbpress/form', 'topic'  );
 		}
 
 		// Put output into usable variable
@@ -348,8 +346,6 @@ class BBP_Shortcodes {
 
 		// Load the topic
 		if ( bbp_has_replies( $replies_query ) ) {
-
-			// Output templates
 			bbp_get_template_part( 'bbpress/single',     'topic'   );
 			bbp_get_template_part( 'bbpress/pagination', 'replies' );
 			bbp_get_template_part( 'bbpress/loop',       'replies' );
@@ -375,24 +371,49 @@ class BBP_Shortcodes {
 	}
 
 	/**
-	 * Display the new topic form in an output buffer and return to ensure
-	 * that post/page contents are displayed first.
+	 * Display the topic form in an output buffer and return to ensure
+	 * post/page contents are displayed first.
 	 *
 	 * @since bbPress (r3031)
-	 *
-	 * @global bbPress $bbp
 	 *
 	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 */
-	function display_create_topic() {
-		global $bbp;
+	function display_topic_form() {
 
 		// Start output buffer
 		ob_start();
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'topic'  );
+
+		// Put output into usable variable
+		$output = ob_get_contents();
+
+		// Flush the output buffer
+		ob_end_clean();
+
+		return $output;
+	}
+
+	/** Replies ***************************************************************/
+
+	/**
+	 * Display the reply form in an output buffer and return to ensure
+	 * post/page contents are displayed first.
+	 *
+	 * @since bbPress (r3031)
+	 *
+	 * @uses current_theme_supports()
+	 * @uses get_template_part()
+	 */
+	function display_reply_form() {
+
+		// Start output buffer
+		ob_start();
+
+		// Output templates
+		bbp_get_template_part( 'bbpress/form', 'reply'  );
 
 		// Put output into usable variable
 		$output = ob_get_contents();
