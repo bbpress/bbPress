@@ -158,8 +158,8 @@ class BBP_Shortcodes {
 
 		// Check forum caps
 		if (	bbp_is_forum_public( $forum_id, false )
-				|| bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' )
-				|| bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) {
+				|| ( bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' ) )
+				|| ( bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) ) {
 
 			/** Sub forums ****************************************************/
 
@@ -358,8 +358,8 @@ class BBP_Shortcodes {
 
 		// Check forum caps
 		if (	bbp_is_forum_public( $forum_id, false )
-				|| bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' )
-				|| bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) {
+				|| ( bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' ) )
+				|| ( bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) ) {
 
 			// Load the topic
 			if ( bbp_has_replies( $replies_query ) ) {
