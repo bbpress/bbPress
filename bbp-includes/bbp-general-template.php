@@ -1340,26 +1340,28 @@ function bbp_template_include( $template ) {
 		global $post, $wp_query;
 
 		// Check the post_type and possibly intercept
-		switch ( $post->post_type ) {
+		if ( isset( $post ) ) {
+			switch ( $post->post_type ) {
 
-			// Single Forum
-			case bbp_get_forum_post_type() :
-			// Single Topic
-			case bbp_get_topic_post_type() :
-			// Single Reply
-			case bbp_get_reply_post_type() :
+				// Single Forum
+				case bbp_get_forum_post_type() :
+				// Single Topic
+				case bbp_get_topic_post_type() :
+				// Single Reply
+				case bbp_get_reply_post_type() :
 
-				// Manually set the query is_page and is_single to false to
-				// prevent the comment form from appearing
-				$wp_query->is_page   = false;
-				$wp_query->is_single = false;
+					// Manually set the query is_page and is_single to false to
+					// prevent the comment form from appearing
+					$wp_query->is_page   = false;
+					$wp_query->is_single = false;
 
-				// Add a filter on the_content late, which we will later remove
-				add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+					// Add a filter on the_content late, which we will later remove
+					add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
 
-				// Default to the page template
-				$template = locate_template( 'page.php', false, false );
-				break;
+					// Default to the page template
+					$template = locate_template( 'page.php', false, false );
+					break;
+			}
 		}
 	}
 
