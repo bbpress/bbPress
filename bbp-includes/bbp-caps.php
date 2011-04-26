@@ -75,7 +75,7 @@ function bbp_remove_caps() {
 
 	// Loop through available roles
 	foreach( $wp_roles->roles as $role => $details ) {
-		
+
 		// Load this role
 		$this_role = get_role( $role );
 
@@ -301,6 +301,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 				'delete_forums',
 				'delete_others_forums',
 				'read_private_forums',
+				'read_hidden_forums',
 
 				// Topic caps
 				'publish_topics',
@@ -336,6 +337,10 @@ function bbp_get_caps_for_role( $role = '' ) {
 		case 'bbp_moderator' :
 
 			$caps = array(
+
+				// Forum caps
+				'read_private_forums',
+				'read_hidden_forums',
 
 				// Topic caps
 				'publish_topics',
