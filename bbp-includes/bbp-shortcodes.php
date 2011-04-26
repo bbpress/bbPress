@@ -352,6 +352,14 @@ class BBP_Shortcodes {
 
 		// Load the topic
 		if ( bbp_has_replies( $replies_query ) ) {
+
+			// Tags
+			bbp_topic_tag_list( $topic_id );
+
+			// Topic description
+			bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
+
+			// Template files
 			bbp_get_template_part( 'bbpress/single',     'topic'   );
 			bbp_get_template_part( 'bbpress/pagination', 'replies' );
 			bbp_get_template_part( 'bbpress/loop',       'replies' );
