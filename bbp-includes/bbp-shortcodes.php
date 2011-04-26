@@ -157,7 +157,9 @@ class BBP_Shortcodes {
 		ob_start();
 
 		// Check forum caps
-		if ( bbp_is_forum_public( $forum_id, false ) || current_user_can( 'read_private_forums' ) ) {
+		if (	bbp_is_forum_public( $forum_id, false )
+				|| bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' )
+				|| bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) {
 
 			/** Sub forums ****************************************************/
 
@@ -211,8 +213,12 @@ class BBP_Shortcodes {
 			}
 
 		// Forum is private and user does not have caps
-		} else {
+		} elseif ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) ) {
 			bbp_get_template_part( 'bbpress/no', 'access' );
+
+		// Forum is hidden and user does not have caps
+		} elseif ( bbp_is_forum_hidden( $forum_id, false ) && !current_user_can( 'read_hidden_forums' ) ) {
+			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
 
 		// Put output into usable variable
@@ -350,26 +356,40 @@ class BBP_Shortcodes {
 		// Start output buffer
 		ob_start();
 
-		// Load the topic
-		if ( bbp_has_replies( $replies_query ) ) {
+		// Check forum caps
+		if (	bbp_is_forum_public( $forum_id, false )
+				|| bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' )
+				|| bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) {
 
-			// Tags
-			bbp_topic_tag_list( $topic_id );
+			// Load the topic
+			if ( bbp_has_replies( $replies_query ) ) {
 
-			// Topic description
-			bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
+				// Tags
+				bbp_topic_tag_list( $topic_id );
 
-			// Template files
-			bbp_get_template_part( 'bbpress/single',     'topic'   );
-			bbp_get_template_part( 'bbpress/pagination', 'replies' );
-			bbp_get_template_part( 'bbpress/loop',       'replies' );
-			bbp_get_template_part( 'bbpress/pagination', 'replies' );
-			bbp_get_template_part( 'bbpress/form',       'reply'   );
+				// Topic description
+				bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
 
-		// No replies
-		} else {
-			bbp_get_template_part( 'bbpress/single', 'topic' );
-			bbp_get_template_part( 'bbpress/form',   'reply' );
+				// Template files
+				bbp_get_template_part( 'bbpress/single',     'topic'   );
+				bbp_get_template_part( 'bbpress/pagination', 'replies' );
+				bbp_get_template_part( 'bbpress/loop',       'replies' );
+				bbp_get_template_part( 'bbpress/pagination', 'replies' );
+				bbp_get_template_part( 'bbpress/form',       'reply'   );
+
+			// No replies
+			} else {
+				bbp_get_template_part( 'bbpress/single', 'topic' );
+				bbp_get_template_part( 'bbpress/form',   'reply' );
+			}
+
+		// Forum is private and user does not have caps
+		} elseif ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) ) {
+			bbp_get_template_part( 'bbpress/no', 'access' );
+
+		// Forum is hidden and user does not have caps
+		} elseif ( bbp_is_forum_hidden( $forum_id, false ) && !current_user_can( 'read_hidden_forums' ) ) {
+			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
 
 		// Put output into usable variable
