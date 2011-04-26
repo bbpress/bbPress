@@ -76,7 +76,7 @@ function bbp_has_forums( $args = '' ) {
 
 		// Include public and private forums only
 		if ( current_user_can( 'read_private_forums' ) ) {
-			$value   = 'public, private, hidden';
+			$value   = 'public, private';
 			$compare = 'IN';
 
 		// Include public forums only
