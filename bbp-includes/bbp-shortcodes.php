@@ -100,21 +100,18 @@ class BBP_Shortcodes {
 		ob_start();
 
 		// Load the forums index
-		if ( bbp_has_forums() ) {
-
-			// Output forums
+		if ( bbp_has_forums() )
 			bbp_get_template_part( 'bbpress/loop', 'forums' );
 
-			// Unset queries
-			$this->_unset_queries();
-
 		// No forums
-		} else {
+		else
 			bbp_get_template_part( 'bbpress/no', 'forums' );
-		}
 
 		// Put output into usable variable
 		$output = ob_get_contents();
+
+		// Unset queries
+		$this->_unset_queries();
 
 		// Flush the output buffer
 		ob_end_clean();
@@ -186,9 +183,9 @@ class BBP_Shortcodes {
 
 				// Query defaults
 				$topics_query = array(
-					'post_parent'    => $forum_id,
-					'post_author'    => 0,
-					'show_stickies'  => true,
+					'post_parent'   => $forum_id,
+					'post_author'   => 0,
+					'show_stickies' => true,
 				);
 
 				// Setup a meta_query to remove hidden forums
@@ -263,8 +260,8 @@ class BBP_Shortcodes {
 				'compare' => $compare
 			) );
 			$topics_query['post_parent'] = 'any';
-			$topics_query['meta_key'] = '';
-			$topics_query['meta_value'] = '';
+			$topics_query['meta_key']    = '';
+			$topics_query['meta_value']  = '';
 		}
 
 		// Start output buffer
@@ -278,17 +275,17 @@ class BBP_Shortcodes {
 
 		// No topics
 		} else {
-			bbp_get_template_part( 'bbpress/no',   'topics' );
+			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
 
 		// Put output into usable variable
 		$output = ob_get_contents();
 
-		// Flush the output buffer
-		ob_end_clean();
-
 		// Unset queries
 		$this->_unset_queries();
+
+		// Flush the output buffer
+		ob_end_clean();
 
 		return $output;
 	}
@@ -354,8 +351,8 @@ class BBP_Shortcodes {
 
 		// No replies
 		} else {
-			bbp_get_template_part( 'bbpress/single',     'topic'   );
-			bbp_get_template_part( 'bbpress/form',       'reply'   );
+			bbp_get_template_part( 'bbpress/single', 'topic' );
+			bbp_get_template_part( 'bbpress/form',   'reply' );
 		}
 
 		// Put output into usable variable
