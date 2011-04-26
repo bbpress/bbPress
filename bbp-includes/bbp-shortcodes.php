@@ -65,18 +65,24 @@ class BBP_Shortcodes {
 	}
 
 	/**
-	 * Unset the global queries
+	 * Unset some globals in the $bbp object that hold query related info
 	 *
 	 * @since bbPress (r3034)
 	 *
 	 * @global bbPress $bbp
 	 */
-	function _unset_queries() {
+	function _unset_globals() {
 		global $bbp;
 
 		// Unset global queries
-		unset( $bbp->forum_query );
-		unset( $bbp->topic_query );
+		$bbp->forum_query      = null;
+		$bbp->topic_query      = null;
+		$bbp->reply_query      = null;
+
+		// Unset global ID's
+		$bbp->current_forum_id = null;
+		$bbp->current_topic_id = null;
+		$bbp->current_reply_id = null;
 	}
 
 	/** Forum shortcodes ******************************************************/
@@ -110,8 +116,8 @@ class BBP_Shortcodes {
 		// Put output into usable variable
 		$output = ob_get_contents();
 
-		// Unset queries
-		$this->_unset_queries();
+		// Unset globals
+		$this->_unset_globals();
 
 		// Flush the output buffer
 		ob_end_clean();
@@ -173,8 +179,8 @@ class BBP_Shortcodes {
 			// Skip if forum is a category
 			if ( !bbp_is_forum_category( $forum_id ) ) {
 
-				// Unset queries
-				$this->_unset_queries();
+				// Unset globals
+				$this->_unset_globals();
 
 				// Reset necessary forum_query attributes for topics loop to function
 				$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
@@ -212,8 +218,8 @@ class BBP_Shortcodes {
 		// Put output into usable variable
 		$output = ob_get_contents();
 
-		// Unset queries
-		$this->_unset_queries();
+		// Unset globals
+		$this->_unset_globals();
 
 		// Flush the output buffer
 		ob_end_clean();
@@ -259,10 +265,10 @@ class BBP_Shortcodes {
 				'value'   => $value,
 				'compare' => $compare
 			) );
-			$topics_query['post_parent'] = 'any';
-			$topics_query['meta_key']    = '';
-			$topics_query['meta_value']  = '';
 		}
+
+		// Unset globals
+		$this->_unset_globals();
 
 		// Start output buffer
 		ob_start();
@@ -281,8 +287,8 @@ class BBP_Shortcodes {
 		// Put output into usable variable
 		$output = ob_get_contents();
 
-		// Unset queries
-		$this->_unset_queries();
+		// Unset globals
+		$this->_unset_globals();
 
 		// Flush the output buffer
 		ob_end_clean();
@@ -328,6 +334,9 @@ class BBP_Shortcodes {
 			)
 		);
 
+		// Unset globals
+		$this->_unset_globals();
+
 		// Reset necessary forum_query attributes for topics loop to function
 		$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
 		$bbp->forum_query->in_the_loop             = true;
@@ -358,8 +367,8 @@ class BBP_Shortcodes {
 		// Put output into usable variable
 		$output = ob_get_contents();
 
-		// Unset queries
-		$this->_unset_queries();
+		// Unset globals
+		$this->_unset_globals();
 
 		// Flush the output buffer
 		ob_end_clean();
