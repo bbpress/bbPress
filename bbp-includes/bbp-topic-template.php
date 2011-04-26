@@ -116,7 +116,7 @@ function bbp_has_topics( $args = '' ) {
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( is_tax() && isset( $wp_query ) && !bbp_is_query_name( 'bbp_widget' ) )
+	if ( is_tax() && !bbp_is_query_name( 'bbp_widget' ) )
 		$bbp->topic_query = $wp_query;
 	else
 		$bbp->topic_query = new WP_Query( $bbp_t );
@@ -315,7 +315,7 @@ function bbp_topic_id( $topic_id = 0) {
 	 * @return int The topic id
 	 */
 	function bbp_get_topic_id( $topic_id = 0 ) {
-		global $bbp, $wp_query;
+		global $bbp;
 
 		// Easy empty checking
 		if ( !empty( $topic_id ) && is_numeric( $topic_id ) )
@@ -326,8 +326,8 @@ function bbp_topic_id( $topic_id = 0) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
 		// Currently viewing a topic
-		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_topic_id = $bbp->current_topic_id = $wp_query->post->ID;
+		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && get_the_ID() )
+			$bbp_topic_id = $bbp->current_topic_id = get_the_ID();
 
 		// Currently viewing a topic
 		elseif ( bbp_is_reply() )

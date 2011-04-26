@@ -42,18 +42,17 @@ function bbp_footer() {
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses is_singular() To check if it's the single post page
  * @uses get_post_field() To get the post type of the post id
- * @uses WP_Query To make some checks
  * @return bool True if it's a forum page, false if not
  */
 function bbp_is_forum( $post_id = 0 ) {
-	global $wp_query, $bbp;
+	global $bbp;
 
 	if ( empty( $post_id ) ) {
 
 		if ( is_singular( bbp_get_forum_post_type() ) )
 			return true;
 
-		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_forum_post_type() === $wp_query->query_vars['post_type'] ) )
+		if ( ( $post_type = get_query_var( 'post_type' ) ) && ( bbp_get_forum_post_type() === $post_type ) )
 			return true;
 
 		if ( isset( $bbp->forum_query->post->post_type ) && ( bbp_get_forum_post_type() === $bbp->forum_query->post->post_type ) )
@@ -78,11 +77,10 @@ function bbp_is_forum( $post_id = 0 ) {
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses is_singular() To check if it's the single post page
  * @uses get_post_field() To get the post type of the post id
- * @uses WP_Query To make some checks
  * @return bool True if it's a topic page, false if not
  */
 function bbp_is_topic( $post_id = 0 ) {
-	global $wp_query, $bbp;
+	global $bbp;
 
 	// Return false if it's a edit topic page
 	if ( bbp_is_topic_edit() )
@@ -93,7 +91,7 @@ function bbp_is_topic( $post_id = 0 ) {
 		if ( is_singular( bbp_get_topic_post_type() ) )
 			return true;
 
-		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_topic_post_type() === $wp_query->query_vars['post_type'] ) )
+		if ( ( $post_type = get_query_var( 'post_type' ) ) && ( bbp_get_topic_post_type() === $post_type ) )
 			return true;
 
 		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_topic_post_type() === $_GET['post_type'] ) )
@@ -164,11 +162,10 @@ function bbp_is_topic_split() {
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses is_singular() To check if it's the single post page
  * @uses get_post_field() To get the post type of the post id
- * @uses WP_Query To make some checks
  * @return bool True if it's a reply page, false if not
  */
 function bbp_is_reply( $post_id = 0 ) {
-	global $wp_query, $bbp;
+	global $bbp;
 
 	// Return false if it's a edit reply page
 	if ( bbp_is_reply_edit() )
@@ -179,7 +176,7 @@ function bbp_is_reply( $post_id = 0 ) {
 		if ( is_singular( bbp_get_reply_post_type() ) )
 			return true;
 
-		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_reply_post_type() === $wp_query->query_vars['post_type'] ) )
+		if ( ( $post_type = get_query_var( 'post_type' ) ) && ( bbp_get_reply_post_type() === $post_type ) )
 			return true;
 
 		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_reply_post_type() === $_GET['post_type'] ) )
@@ -1335,33 +1332,24 @@ function bbp_template_include( $template ) {
 	// Current theme does not support bbPress, so we need to do some heavy
 	// lifting to see if a bbPress template is needed in the current context
 	if ( !current_theme_supports( 'bbpress' ) ) {
+		switch ( get_post_type() ) {
+			case bbp_get_forum_post_type() : // Single Forum
+			case bbp_get_topic_post_type() : // Single Topic
+			case bbp_get_reply_post_type() : // Single Reply
 
-		// Use the $post global to check it's post_type
-		global $post, $wp_query;
+				global $wp_query;
 
-		// Check the post_type and possibly intercept
-		if ( isset( $post ) ) {
-			switch ( $post->post_type ) {
+				// Manually set the query is_page and is_single to false to
+				// prevent the comment form from appearing
+				$wp_query->is_page   = false;
+				$wp_query->is_single = false;
 
-				// Single Forum
-				case bbp_get_forum_post_type() :
-				// Single Topic
-				case bbp_get_topic_post_type() :
-				// Single Reply
-				case bbp_get_reply_post_type() :
+				// Add a filter on the_content late, which we will later remove
+				add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
 
-					// Manually set the query is_page and is_single to false to
-					// prevent the comment form from appearing
-					$wp_query->is_page   = false;
-					$wp_query->is_single = false;
-
-					// Add a filter on the_content late, which we will later remove
-					add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
-
-					// Default to the page template
-					$template = locate_template( 'page.php', false, false );
-					break;
-			}
+				// Default to the page template
+				$template = locate_template( 'page.php', false, false );
+				break;
 		}
 	}
 
@@ -1388,7 +1376,7 @@ function bbp_replace_the_content( $content = '' ) {
 	if ( !current_theme_supports( 'bbpress' ) ) {
 
 		// Use the $post global to check it's post_type
-		global $bbp, $post;
+		global $bbp;
 
 		// Remove the filter that was added in bbp_template_include()
 		remove_filter( 'the_content', 'bbp_replace_the_content', 99999 );
@@ -1399,16 +1387,17 @@ function bbp_replace_the_content( $content = '' ) {
 
 		// Use shortcode API to display forums/topics/replies because they are
 		// already output buffered and
-		switch ( $post->post_type ) {
+		// Check the post_type
+		switch ( get_post_type() ) {
 
 			// Single Forum
 			case bbp_get_forum_post_type() :
-				$content = $bbp->shortcodes->display_forum( array( 'id' => $post->ID ) );
+				$content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
 				break;
 
 			// Single Topic
 			case bbp_get_topic_post_type() :
-				$content = $bbp->shortcodes->display_topic( array( 'id' => $post->ID ) );
+				$content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
 				break;
 
 			// Single Reply

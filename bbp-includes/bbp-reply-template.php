@@ -208,21 +208,21 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 * @uses bbp_is_reply_edit() To check if it's a reply edit page
 	 * @uses get_post_field() To get the post's post type
 	 * @uses WP_Query::post::ID To get the reply id
-         * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses apply_filters() Calls 'bbp_get_reply_id' with the reply id and
 	 *                        supplied reply id
 	 * @return int The reply id
 	 */
 	function bbp_get_reply_id( $reply_id = 0 ) {
-		global $bbp, $wp_query;
+		global $bbp;
 
 		// Easy empty checking
 		if ( !empty( $reply_id ) && is_numeric( $reply_id ) )
 			$bbp_reply_id = $reply_id;
 
 		// Currently viewing a reply
-		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
+		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && get_the_ID() )
+			$bbp_reply_id = $bbp->current_reply_id = get_the_ID();
 
 		// Currently inside a replies loop
 		elseif ( isset( $bbp->reply_query->post->ID ) )

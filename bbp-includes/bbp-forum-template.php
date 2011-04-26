@@ -55,7 +55,7 @@ function bbp_forum_post_type() {
  * @return object Multidimensional array of forum information
  */
 function bbp_has_forums( $args = '' ) {
-	global $wp_query, $bbp;
+	global $bbp;
 
 	$default = array (
 		'post_type'      => bbp_get_forum_post_type(),
@@ -157,7 +157,7 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 * @return int The forum id
 	 */
 	function bbp_get_forum_id( $forum_id = 0 ) {
-		global $bbp, $wp_query;
+		global $bbp;
 
 		// Easy empty checking
 		if ( !empty( $forum_id ) && is_numeric( $forum_id ) )
@@ -168,8 +168,8 @@ function bbp_forum_id( $forum_id = 0 ) {
 			$bbp_forum_id = $bbp->current_forum_id = $bbp->forum_query->post->ID;
 
 		// Currently viewing a forum
-		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
-			$bbp_forum_id = $bbp->current_forum_id = $wp_query->post->ID;
+		elseif ( bbp_is_forum() && get_the_ID() )
+			$bbp_forum_id = $bbp->current_forum_id = get_the_ID();
 
 		// Currently viewing a topic
 		elseif ( bbp_is_topic() )
