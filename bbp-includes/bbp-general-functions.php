@@ -154,6 +154,27 @@ function bbp_redirect_canonical( $redirect_url ) {
 }
 
 /**
+ * Sets the 404 status.
+ *
+ * Used primarily with topics/replies inside hidden forums.
+ *
+ * @since bbPress (r3051)
+ *
+ * @global WP_Query $wp_query
+ * @uses WP_Query::set_404()
+ */
+function bbp_set_404() {
+	global $wp_query;
+
+	if ( ! isset( $wp_query ) ) {
+		_doing_it_wrong( __FUNCTION__, __( 'Conditional query tags do not work before the query is run. Before then, they always return false.' ), '3.1' );
+		return false;
+	}
+
+	$wp_query->set_404();
+}
+
+/**
  * Append 'view=all' to query string if it's already there from referer
  *
  * @param string $original_link Original Link to be modified
