@@ -462,7 +462,7 @@ class BBP_Topics_Widget extends WP_Widget {
 		);
 
 		// Setup a meta_query to remove hidden forums
-		if ( empty( $parent_forum ) && ( $hidden = bbp_get_hidden_forum_ids() ) ) {
+		if ( ( empty( $parent_forum ) || ( 'any' == $parent_forum ) ) && ( $hidden = bbp_get_hidden_forum_ids() ) ) {
 
 			// Value and compare for meta_query
 			$value   = implode( ',', $hidden );
