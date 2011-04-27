@@ -1304,8 +1304,11 @@ function bbp_get_theme_compat() {
 function bbp_set_theme_compat( $theme = '' ) {
 	global $bbp;
 
+	// Set theme to bundled bbp-twentyten if nothing is passed
 	if ( empty( $theme ) && !empty( $bbp->themes_dir ) )
 		$bbp->theme_compat = $bbp->themes_dir . '/bbp-twentyten';
+
+	// Set to what is passed
 	else
 		$bbp->theme_compat = $theme;
 
@@ -1349,7 +1352,7 @@ function bbp_template_include( $template ) {
 				$forum_id = bbp_get_reply_forum_id( get_the_ID() );
 
 				// Display template
-				if ( bbp_is_forum_public( $forum_id ) || bbp_is_forum_private( $forum_id ) ) {
+				if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) || bbp_is_forum_private( $forum_id ) ) {
 					global $wp_query;
 
 					// Prevent comments form from appearing
@@ -1363,7 +1366,7 @@ function bbp_template_include( $template ) {
 					$template = locate_template( 'page.php', false, false );
 
 				// Display 404 page
-				} else {
+				} elseif ( bbp_is_forum_hidden( $forum_id ) ) {
 					bbp_set_404();
 				}
 
