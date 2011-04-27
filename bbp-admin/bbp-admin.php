@@ -556,36 +556,40 @@ class BBP_Admin {
 	 *                    id
 	 */
 	function anonymous_metabox() {
-		global $bbp;
 
-		if ( !empty( $_GET['post'] ) )
-			$post_id = (int) $_GET['post'];
-		else
-			$post_id = 0;
-
-		if ( $topic = bbp_get_topic( $post_id ) )
-			$topic_id = $topic->ID;
-		elseif ( $reply = bbp_get_reply( $post_id ) )
-			$reply_id = $reply->ID;
-		else
+		// Bail if post_type is not a topic or reply
+		if ( !in_array( get_post_type(), array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) )
 			return;
 
-		if ( !empty( $topic_id ) && !bbp_is_topic_anonymous( $topic_id ) )
-			return;
+		// What post type are we looking at
+		switch ( get_post_type() ) {
 
-		if ( !empty( $reply_id ) && !bbp_is_reply_anonymous( $reply_id ) )
-			return;
+			// Topic
+			case bbp_get_topic_post_type() :
+				if ( !bbp_is_topic_anonymous( get_the_ID() ) )
+					return;
 
+				break;
+
+			// Reply
+			case bbp_get_reply_post_type() :
+				if ( !bbp_is_reply_anonymous( get_the_ID() ) )
+					return;
+
+				break;
+		}
+
+		// Add the metabox
 		add_meta_box(
 			'bbp_anonymous_metabox',
 			__( 'Anonymous User Information', 'bbpress' ),
 			'bbp_anonymous_metabox',
-			!empty( $topic_id ) ? bbp_get_topic_post_type() : bbp_get_reply_post_type(),
+			get_post_type(),
 			'side',
 			'high'
 		);
 
-		do_action( 'bbp_anonymous_metabox', $post_id );
+		do_action( 'bbp_anonymous_metabox', get_the_ID() );
 	}
 
 	/**
