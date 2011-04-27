@@ -856,7 +856,7 @@ function bbp_load_template( $templates ) {
 		}
 
 	// Exit if file is found
-	} elseif ( locate_template( $files, true ) ) {
+	} elseif ( locate_template( $templates, true ) ) {
 		exit();
 	}
 }
