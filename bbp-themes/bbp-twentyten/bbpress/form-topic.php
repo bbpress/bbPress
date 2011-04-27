@@ -52,7 +52,7 @@
 
 						<p>
 							<label for="bbp_topic_content"><?php _e( 'Topic Description:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="52" rows="6"><?php bbp_form_topic_content(); ?></textarea>
+							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="51" rows="6"><?php bbp_form_topic_content(); ?></textarea>
 						</p>
 
 						<p class="form-allowed-tags">

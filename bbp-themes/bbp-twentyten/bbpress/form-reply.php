@@ -41,7 +41,7 @@
 
 						<p>
 							<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" cols="52" rows="6"><?php echo ( bbp_is_reply_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
+							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" cols="51" rows="6"><?php echo ( bbp_is_reply_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
 						</p>
 
 						<p class="form-allowed-tags">
