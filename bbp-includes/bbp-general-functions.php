@@ -850,8 +850,10 @@ function bbp_load_template( $templates ) {
 		}
 
 		// Template file located
-		if ( !empty( $located ) )
+		if ( !empty( $located ) ) {
 			load_template( $located, false );
+			exit();
+		}
 
 	// Exit if file is found
 	} elseif ( locate_template( $files, true ) ) {
