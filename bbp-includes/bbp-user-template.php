@@ -780,7 +780,7 @@ function bbp_edit_user_contact_methods() {
  * Handle the login and registration template notices
  *
  * @since bbPress (r2970)
- * 
+ *
  * @uses WP_Error bbPress::errors::add() To add an error or message
  */
 function bbp_login_notices() {
@@ -997,4 +997,41 @@ function bbp_author_link( $args = '' ) {
 
 		return apply_filters( 'bbp_get_author_link', $author_link, $args );
 	}
+
+/** Capabilities **************************************************************/
+
+function bbp_user_can_view_forum( $args = '' ) {
+
+	$defaults = array(
+		'user_id'         => bbp_get_current_user_id(),
+		'forum_id'        => bbp_get_forum_id(),
+		'check_ancestors' => false
+	);
+	$r = wp_parse_args( $args, $defaults );
+	extract( $r );
+
+	// Validate parsed values
+	$user_id  = bbp_get_user_id ( $user_id, false, false );
+	$forum_id = bbp_get_forum_id( $forum_id );
+	$retval   = false;
+
+	// User is a super admin
+	if ( is_super_admin() )
+		$retval = true;
+
+	// Forum is public, and user can read forums or is not logged in
+	elseif ( bbp_is_forum_public( $forum_id, $check_ancestors ) && ( !is_user_logged_in() || current_user_can( 'read_forum' ) ) )
+		$retval = true;
+
+	// Forum is private, and user can see it
+	elseif ( bbp_is_forum_private( $forum_id, $check_ancestors ) && current_user_can( 'read_private_forums' ) )
+		$retval = true;
+
+	// Forum is hidden, and user can see it
+	elseif ( bbp_is_forum_hidden ( $forum_id, $check_ancestors ) && current_user_can( 'read_hidden_forums'  ) )
+		$retval = true;
+
+	return apply_filters( 'bbp_user_can_view_forum', $retval, $forum_id, $user_id );
+}
+
 ?>

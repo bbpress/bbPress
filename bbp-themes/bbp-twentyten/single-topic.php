@@ -16,7 +16,7 @@
 
 				<?php do_action( 'bbp_template_notices' ); ?>
 
-				<?php if ( bbp_is_forum_public( bbp_get_topic_forum_id(), false ) || current_user_can( 'read_private_forums' ) ) : ?>
+				<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
 
 					<?php while ( have_posts() ) : the_post(); ?>
 
@@ -49,18 +49,9 @@
 
 					<?php endwhile; ?>
 
-				<?php else : ?>
+				<?php elseif ( bbp_is_forum_private( bbp_get_topic_forum_id(), false ) ) : ?>
 
-					<div id="forum-private" class="bbp-forum-info">
-						<h1 class="entry-title"><?php _e( 'Private', 'bbpress' ); ?></h1>
-						<div class="entry-content">
-
-							<div class="bbp-template-notice info">
-								<p><?php _e( 'You do not have permission to view this forum.', 'bbpress' ); ?></p>
-							</div>
-
-						</div>
-					</div><!-- #forum-private -->
+					<?php bbp_get_template_part( 'bbpress/no', 'access' ); ?>
 
 				<?php endif; ?>
 

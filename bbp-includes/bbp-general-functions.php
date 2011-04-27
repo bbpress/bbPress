@@ -821,19 +821,73 @@ function bbp_custom_template() {
  * @uses locate_template() To locate and include the template
  * @return bool False on failure (nothing on success)
  */
-function bbp_load_template( $files ) {
+function bbp_load_template( $templates ) {
 
 	// Bail if nothing passed
-	if ( empty( $files ) )
+	if ( empty( $templates ) )
 		return;
 
 	// Force array
-	if ( is_string( $files ) )
-		$files = (array) $files;
+	elseif ( is_string( $templates ) )
+		$templates = (array) $templates;
+
+	// Theme compat
+	if ( !current_theme_supports( 'bbpress' ) ) {
+
+		// Snippet taken from locate_template()
+		$located = '';
+		foreach ( (array) $templates as $template_name ) {
+
+			// Skip to next item in array if this one is empty
+			if ( empty( $template_name ) )
+				continue;
+
+			// File exists in compat theme so exit the loop
+			if ( file_exists( bbp_get_theme_compat() . '/' . $template_name ) ) {
+				$located = bbp_get_theme_compat() . '/' . $template_name;
+				break;
+			}
+		}
+
+		// Template file located
+		if ( !empty( $located ) )
+			load_template( $located, false );
 
 	// Exit if file is found
-	if ( locate_template( $files, true ) )
+	} elseif ( locate_template( $files, true ) ) {
 		exit();
+	}
+}
+
+/**
+ * Adds bbPress theme support to any active WordPress theme
+ *
+ * This function is really cool because it's responsible for managing the
+ * theme compatability layer when the current theme does not support bbPress.
+ * It uses the current_theme_supports() WordPress function to see if 'bbpress'
+ * is explicitly supported. If not, it will directly load the requested template
+ * part using load_template(). If so, it proceeds with using get_template_part()
+ * as per normal, and no one is the wiser.
+ *
+ * @since bbPress (r3032)
+ *
+ * @param string $slug
+ * @param string $name Optional. Default null
+ * @uses current_theme_supports()
+ * @uses load_template()
+ * @uses get_template_part()
+ */
+function bbp_get_template_part( $slug, $name = null ) {
+
+	// Current theme does not support bbPress, so we need to do some heavy
+	// lifting to see if a bbPress template is needed in the current context
+	if ( !current_theme_supports( 'bbpress' ) )
+		load_template( bbp_get_theme_compat() . '/' . $slug . '-' . $name . '.php', false );
+
+	// Current theme supports bbPress to proceed as usual
+	else
+		get_template_part( $slug, $name );
+
 }
 
 /**

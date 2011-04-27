@@ -1332,23 +1332,41 @@ function bbp_template_include( $template ) {
 	// Current theme does not support bbPress, so we need to do some heavy
 	// lifting to see if a bbPress template is needed in the current context
 	if ( !current_theme_supports( 'bbpress' ) ) {
+
+		// Are we looking at a forum/topic/reply?
 		switch ( get_post_type() ) {
-			case bbp_get_forum_post_type() : // Single Forum
-			case bbp_get_topic_post_type() : // Single Topic
-			case bbp_get_reply_post_type() : // Single Reply
 
-				global $wp_query;
+			// Single Forum
+			case bbp_get_forum_post_type() :
+				$forum_id = bbp_get_forum_id( get_the_ID() );
 
-				// Manually set the query is_page and is_single to false to
-				// prevent the comment form from appearing
-				$wp_query->is_page   = false;
-				$wp_query->is_single = false;
+			// Single Topic
+			case bbp_get_topic_post_type() :
+				$forum_id = bbp_get_topic_forum_id( get_the_ID() );
 
-				// Add a filter on the_content late, which we will later remove
-				add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+			// Single Reply
+			case bbp_get_reply_post_type() :
+				$forum_id = bbp_get_reply_forum_id( get_the_ID() );
 
-				// Default to the page template
-				$template = locate_template( 'page.php', false, false );
+				// Display template
+				if ( bbp_is_forum_public( $forum_id ) || bbp_is_forum_private( $forum_id ) ) {
+					global $wp_query;
+
+					// Prevent comments form from appearing
+					$wp_query->is_page   = false;
+					$wp_query->is_single = false;
+
+					// Add a filter on the_content late, which we will later remove
+					add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+
+					// Default to the page template
+					$template = locate_template( 'page.php', false, false );
+
+				// Display 404 page
+				} else {
+					bbp_set_404();
+				}
+
 				break;
 		}
 	}
@@ -1409,37 +1427,6 @@ function bbp_replace_the_content( $content = '' ) {
 
 	// Return possibly filtered content
 	return $content;
-}
-
-/**
- * Adds bbPress theme support to any active WordPress theme
- *
- * This function is really cool because it's responsible for managing the
- * theme compatability layer when the current theme does not support bbPress.
- * It uses the current_theme_supports() WordPress function to see if 'bbpress'
- * is explicitly supported. If not, it will directly load the requested template
- * part using load_template(). If so, it proceeds with using get_template_part()
- * as per normal, and no one is the wiser.
- *
- * @since bbPress (r3032)
- *
- * @param string $slug
- * @param string $name Optional. Default null
- * @uses current_theme_supports()
- * @uses load_template()
- * @uses get_template_part()
- */
-function bbp_get_template_part( $slug, $name = null ) {
-
-	// Current theme does not support bbPress, so we need to do some heavy
-	// lifting to see if a bbPress template is needed in the current context
-	if ( !current_theme_supports( 'bbpress' ) )
-		load_template( bbp_get_theme_compat() . '/' . $slug . '-' . $name . '.php', false );
-
-	// Current theme supports bbPress to proceed as usual
-	else
-		get_template_part( $slug, $name );
-
 }
 
 ?>

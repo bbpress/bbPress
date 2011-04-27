@@ -18,7 +18,7 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<?php if ( bbp_is_forum_public( bbp_get_forum_id(), false ) || current_user_can( 'read_private_forums' ) ) : ?>
+					<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
 
 						<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
 							<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>

@@ -157,9 +157,7 @@ class BBP_Shortcodes {
 		ob_start();
 
 		// Check forum caps
-		if (	bbp_is_forum_public( $forum_id, false )
-				|| ( bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' ) )
-				|| ( bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) ) {
+		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
 			/** Sub forums ****************************************************/
 
@@ -213,12 +211,8 @@ class BBP_Shortcodes {
 			}
 
 		// Forum is private and user does not have caps
-		} elseif ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) ) {
+		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
 			bbp_get_template_part( 'bbpress/no', 'access' );
-
-		// Forum is hidden and user does not have caps
-		} elseif ( bbp_is_forum_hidden( $forum_id, false ) && !current_user_can( 'read_hidden_forums' ) ) {
-			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
 
 		// Put output into usable variable
@@ -357,9 +351,7 @@ class BBP_Shortcodes {
 		ob_start();
 
 		// Check forum caps
-		if (	bbp_is_forum_public( $forum_id, false )
-				|| ( bbp_is_forum_private( $forum_id, false ) && current_user_can( 'read_private_forums' ) )
-				|| ( bbp_is_forum_hidden ( $forum_id, false ) && current_user_can( 'read_hidden_forums'  ) ) ) {
+		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
 			// Load the topic
 			if ( bbp_has_replies( $replies_query ) ) {
@@ -384,12 +376,8 @@ class BBP_Shortcodes {
 			}
 
 		// Forum is private and user does not have caps
-		} elseif ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) ) {
+		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
 			bbp_get_template_part( 'bbpress/no', 'access' );
-
-		// Forum is hidden and user does not have caps
-		} elseif ( bbp_is_forum_hidden( $forum_id, false ) && !current_user_can( 'read_hidden_forums' ) ) {
-			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
 
 		// Put output into usable variable
