@@ -857,12 +857,12 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
  */
 function bbp_forum_visibility_check() {
 
-	// Bail if user can view private forums or if not viewing a single item
-	if ( current_user_can( 'read_private_forums' ) || !is_singular() )
+	// Bail if not viewing a single item or if user has caps
+	if ( !is_singular() || is_super_admin() || ( current_user_can( 'read_private_forums' ) && current_user_can( 'read_hidden_forums' ) ) )
 		return;
 
 	// Check post type
-	switch ( get_post_type( 'post_type' ) ) {
+	switch ( get_post_type() ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
