@@ -194,8 +194,6 @@ class BBP_Shortcodes {
 					'show_stickies' => true,
 				);
 
-				// Setup a meta_query to remove hidden forums
-
 				// Load the topic index
 				if ( bbp_has_topics( $topics_query ) ) {
 					bbp_get_template_part( 'bbpress/pagination', 'topics' );
