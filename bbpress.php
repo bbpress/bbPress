@@ -832,10 +832,10 @@ class bbPress {
 			bbp_set_theme_compat( $bbp->themes_dir . '/bbp-twentyten' );
 
 			// Load up the default bbPress CSS from bbp-twentyten
-			wp_enqueue_style ( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css'       );
+			wp_enqueue_style ( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css' );
 
 			// Load up the default bbPress JS from bbp-twentyten
-			wp_enqueue_script( 'bbpress-topic', $bbp->themes_url . '/bbp-twentyten/js/topic.js', 'jquery' );
+			wp_enqueue_script( 'bbpress-topic', $bbp->themes_url . '/bbp-twentyten/js/topic.js', array( 'jquery' ) );
 		}
 	}
 }
