@@ -272,7 +272,11 @@ class BBP_Admin {
 	 * @uses current_theme_supports() To check theme for bbPress support
 	 */
 	function activation_notice() {
-		global $bbp;
+		global $bbp, $pagenow;
+
+		// Bail if not on admin theme page
+		if ( 'themes.php' != $pagenow )
+			return;
 
 		// Bail if user cannot change the theme
 		if ( !current_user_can( 'switch_themes' ) )
@@ -282,7 +286,7 @@ class BBP_Admin {
 		if ( !empty( $bbp->theme_compat ) && !current_theme_supports( 'bbpress' ) ) { ?>
 
 			<div id="message" class="updated fade">
-				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is in Theme Compatability Mode</strong>. Your forums are using default styling. <a href='%s'>Activate a bbPress compatible theme.</a>", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
+				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is in Theme Compatability Mode</strong>. Your forums are using default styling.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
 			</div>
 
 		<?php }
