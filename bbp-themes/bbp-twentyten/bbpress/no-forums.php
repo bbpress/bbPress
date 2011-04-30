@@ -10,7 +10,5 @@
 ?>
 
 <div class="bbp-template-notice">
-	<p><?php _e( 'Oh bother! No forums were found here! Perhaps searching will help.', 'bbpress' ); ?></p>
+	<p><?php _e( 'Oh bother! No forums were found here!', 'bbpress' ); ?></p>
 </div>
-
-<?php get_search_form(); ?>

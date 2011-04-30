@@ -28,9 +28,7 @@
 
 						<?php else : ?>
 
-							<p><?php _e( 'Oh bother! No topics were found here! Perhaps searching will help.', 'bbpress' ); ?></p>
-
-							<?php get_search_form(); ?>
+							<p><?php _e( 'Oh bother! No topics were found here!', 'bbpress' ); ?></p>
 
 						<?php endif; ?>
 
