@@ -683,6 +683,7 @@ class BBP_Admin {
 			#bbp-dashboard-right-now .inside {
 				font-size: 12px;
 				padding-top: 20px;
+				margin-bottom: 0;
 			}
 
 			#bbp-dashboard-right-now p.sub {
@@ -1959,10 +1960,10 @@ function bbp_dashboard_widget_right_now() {
 		<div class="versions">
 
 			<p>
-
-				<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), BBP_VERSION ); ?>
-
+				<?php if ( current_theme_supports( 'bbpress' ) ) : _e( 'Theme <strong>natively supports</strong> bbPress', 'bbpress' ); else : _e( 'Theme <strong>does not</strong> natively support bbPress', 'bbpress' ); endif; ?>
 			</p>
+
+			<span id="wp-version-message"><?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), BBP_VERSION ); ?></span>
 
 		</div>
 
