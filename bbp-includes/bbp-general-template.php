@@ -715,8 +715,8 @@ function bbp_dropdown( $args = '' ) {
 			if ( empty( $options_only ) )
 				$retval .= '</select>';
 
-		// Display feedback
-		} else {
+		// Display feedback if no custom message was passed
+		} elseif ( empty( $none_found ) ) {
 
 			// Switch the response based on post type
 			switch ( $post_type ) {
