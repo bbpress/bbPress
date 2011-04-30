@@ -717,8 +717,25 @@ function bbp_dropdown( $args = '' ) {
 
 		// Display feedback
 		} else {
-			// @todo - No nested ternaries
-			$retval .= !empty( $none_found ) ? $none_found : ( $post_type == bbp_get_topic_post_type() ? __( 'No topics to post to!', 'bbpress' ) : ( $post_type == bbp_get_forum_post_type() ? __( 'No forums to post to!', 'bbpress' ) : __( 'No posts found!', 'bbpress' ) ) );
+
+			// Switch the response based on post type
+			switch ( $post_type ) {
+
+				// Topics
+				case bbp_get_topic_post_type() :
+					$retval = __( 'No topics available', 'bbpress' );
+					break;
+
+				// Forums
+				case bbp_get_forum_post_type() :
+					$retval = __( 'No forums available', 'bbpress' );
+					break;
+
+				// Any other
+				default :
+					$retval = __( 'None available', 'bbpress' );
+					break;
+			}
 		}
 
 		return apply_filters( 'bbp_get_dropdown', $retval, $args );
