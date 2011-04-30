@@ -65,14 +65,14 @@ function bbp_has_forums( $args = '' ) {
 		'order'          => 'ASC'
 	);
 
-	$r = wp_parse_args( $args, $default );
+	$bbp_f = wp_parse_args( $args, $default );
 
 	// Allow all forums to be queried if post_parent is set to -1
-	if ( -1 == $r['post_parent'] )
-		unset( $r['post_parent'] );
+	if ( -1 == $bbp_f['post_parent'] )
+		unset( $bbp_f['post_parent'] );
 
 	// Don't show private forums to normal users
-	if ( empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
+	if ( empty( $bbp_f['meta_key'] ) && empty( $bbp_f['meta_value'] ) ) {
 
 		// Include public and private forums only
 		if ( current_user_can( 'read_private_forums' ) ) {
@@ -86,15 +86,18 @@ function bbp_has_forums( $args = '' ) {
 		}
 
 		// Meta query to determine visibility scope
-		$r['meta_query'] = array( array(
+		$bbp_f['meta_query'] = array( array(
 			'key'     => '_bbp_visibility',
 			'value'   => $value,
 			'compare' => $compare
 		) );
 	}
 
+	// Filter the forums query to allow just-in-time modifications
+	$bbp_f = apply_filters( 'bbp_has_forums_query', $bbp_f );
+
 	// Run the query
-	$bbp->forum_query = new WP_Query( $r );
+	$bbp->forum_query = new WP_Query( $bbp_f );
 
 	return apply_filters( 'bbp_has_forums', $bbp->forum_query->have_posts(), $bbp->forum_query );
 }

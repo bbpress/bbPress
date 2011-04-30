@@ -115,7 +115,12 @@ function bbp_has_replies( $args = '' ) {
 
 	// Set up topic variables
 	$bbp_r = wp_parse_args( $args, $default );
-	$r     = extract( $bbp_r );
+
+	// Filter the replies query to allow just-in-time modifications
+	$bbp_r = apply_filters( 'bbp_has_replies_query', $bbp_r );
+
+	// Extract the query variables
+	extract( $bbp_r );
 
 	// Call the query
 	$bbp->reply_query = new WP_Query( $bbp_r );

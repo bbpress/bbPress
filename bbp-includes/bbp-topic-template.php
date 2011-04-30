@@ -113,6 +113,11 @@ function bbp_has_topics( $args = '' ) {
 
 	// Set up topic variables
 	$bbp_t = wp_parse_args( $args, $default );
+
+	// Filter the topics query to allow just-in-time modifications
+	$bbp_t = apply_filters( 'bbp_has_topics_query', $bbp_t );
+
+	// Extract the query variables
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
