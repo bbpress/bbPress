@@ -27,7 +27,7 @@
 	background-color: #fbfbfb;
 }
 
-#content table tbody tr:hover td {
+#content table tbody tr td {
 	background-color: #f8f8f8;
 }
 
