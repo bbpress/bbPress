@@ -8,8 +8,9 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
-hr {
-	margin: 0 0 24px 0 !important;
+#content hr,
+#container hr {
+	margin: 0 0 24px 0;
 }
 #entry-author-info {
 	margin: 10px 0 0 0;
