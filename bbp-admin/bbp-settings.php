@@ -157,7 +157,10 @@ function bbp_admin_setting_callback_replies_per_page() {
  * @since bbPress (r2786)
  */
 function bbp_admin_setting_callback_slugs_section() {
-?>
+
+	// Flush rewrite rules when this section is saved
+	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
+		flush_rewrite_rules(); ?>
 
 			<p><?php printf( __( 'If you like, you may enter custom structures for your forum, topic, reply, and tag URLs here. If you change any of these, all previous links will stop working. If you leave these empty the defaults will be used.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
