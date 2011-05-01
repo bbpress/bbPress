@@ -203,6 +203,10 @@ add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 // Custom Template - should be called at the end
 add_action( 'template_redirect', 'bbp_custom_template', 999 );
 
+// Rewrite rules
+add_action( 'bbp_activation',   'flush_rewrite_rules' );
+add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
+
 /** FILTERS *******************************************************************/
 
 // Links
