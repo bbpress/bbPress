@@ -214,6 +214,18 @@ class bbPress {
 	 */
 	var $tab_index;
 
+	/** Functions *************************************************************/
+
+	/**
+	 * The main bbPress loader (PHP4 compat)
+	 *
+	 * @since bbPress (r2464)
+	 *
+	 * @uses bbPress::__construct() Setup the globals needed
+	 */
+	function bbPress() {
+		$this->__construct();
+	}
 
 	/**
 	 * The main bbPress loader
@@ -224,7 +236,7 @@ class bbPress {
 	 * @uses bbPress::_includes() Include the required files
 	 * @uses bbPress::_setup_actions() Setup the hooks and actions
 	 */
-	function bbPress() {
+	function __construct() {
 		$this->_setup_globals();
 		$this->_includes();
 		$this->_setup_actions();
@@ -245,16 +257,16 @@ class bbPress {
 		/** Paths *************************************************************/
 
 		// bbPress root directory
-		$this->file             = __FILE__;
-		$this->plugin_dir       = plugin_dir_path( $this->file );
-		$this->plugin_url       = plugin_dir_url ( $this->file );
+		$this->file       = __FILE__;
+		$this->plugin_dir = plugin_dir_path( $this->file );
+		$this->plugin_url = plugin_dir_url ( $this->file );
 
 		// Images
-		$this->images_url       = $this->plugin_url . 'bbp-images';
+		$this->images_url = $this->plugin_url . 'bbp-images';
 
 		// Themes
-		$this->themes_dir       = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
-		$this->themes_url       = $this->plugin_url . 'bbp-themes';
+		$this->themes_dir = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
+		$this->themes_url = $this->plugin_url . 'bbp-themes';
 
 		/** Identifiers *******************************************************/
 
@@ -273,29 +285,29 @@ class bbPress {
 		/** Slugs *************************************************************/
 
 		// Root forum slug
-		$this->root_slug        = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
+		$this->root_slug      = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
 
 		// Should we include the root slug in front of component slugs
 		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
 
 		// Component slugs
-		$this->user_slug        = apply_filters( 'bbp_user_slug',      $prefix . get_option( '_bbp_user_slug',      'user'  ) );
-		$this->view_slug        = apply_filters( 'bbp_view_slug',      $prefix . get_option( '_bbp_view_slug',      'view'  ) );
-		$this->forum_slug       = apply_filters( 'bbp_forum_slug',     $prefix . get_option( '_bbp_forum_slug',     'forum' ) );
-		$this->topic_slug       = apply_filters( 'bbp_topic_slug',     $prefix . get_option( '_bbp_topic_slug',     'topic' ) );
-		$this->reply_slug       = apply_filters( 'bbp_reply_slug',     $prefix . get_option( '_bbp_reply_slug',     'reply' ) );
-		$this->topic_tag_slug   = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'tag'   ) );
+		$this->user_slug      = apply_filters( 'bbp_user_slug',      $prefix . get_option( '_bbp_user_slug',      'user'  ) );
+		$this->view_slug      = apply_filters( 'bbp_view_slug',      $prefix . get_option( '_bbp_view_slug',      'view'  ) );
+		$this->forum_slug     = apply_filters( 'bbp_forum_slug',     $prefix . get_option( '_bbp_forum_slug',     'forum' ) );
+		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     $prefix . get_option( '_bbp_topic_slug',     'topic' ) );
+		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     $prefix . get_option( '_bbp_reply_slug',     'reply' ) );
+		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'tag'   ) );
 
 		/** Misc **************************************************************/
 
 		// Errors
-		$this->errors           = new WP_Error();
+		$this->errors = new WP_Error();
 
 		// Views
-		$this->views            = array();
+		$this->views = array();
 
 		// Tab Index
-		$this->tab_index        = apply_filters( 'bbp_default_tab_index', 100 );
+		$this->tab_index = apply_filters( 'bbp_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
 
@@ -314,6 +326,7 @@ class bbPress {
 	function _includes() {
 
 		/** Individual files **************************************************/
+
 		$files = array( 'update', 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes' );
 
 		// Load the files
@@ -321,6 +334,7 @@ class bbPress {
 			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '.php' );
 
 		/** Components ********************************************************/
+
 		$components = array( 'general', 'forum', 'topic', 'reply', 'user' );
 
 		// Load the function and template files
@@ -347,39 +361,40 @@ class bbPress {
 	 * @uses add_action() To add various actions
 	 */
 	function _setup_actions() {
+
 		// Register bbPress activation/deactivation sequences
 		register_activation_hook  ( $this->file,    'bbp_activation'   );
 		register_deactivation_hook( $this->file,    'bbp_deactivation' );
 
 		// Setup the currently logged in user
-		add_action( 'bbp_setup_current_user',       array( $this, 'setup_current_user'       ), 10, 2 );
+		add_action( 'bbp_setup_current_user',       array( $this, 'setup_current_user'       ), 10 );
 
 		// Register content types
-		add_action( 'bbp_register_post_types',      array( $this, 'register_post_types'      ), 10, 2 );
+		add_action( 'bbp_register_post_types',      array( $this, 'register_post_types'      ), 10 );
 
 		// Register post statuses
-		add_action( 'bbp_register_post_statuses',   array( $this, 'register_post_statuses'   ), 10, 2 );
+		add_action( 'bbp_register_post_statuses',   array( $this, 'register_post_statuses'   ), 10 );
 
 		// Register taxonomies
-		add_action( 'bbp_register_taxonomies',      array( $this, 'register_taxonomies'      ), 10, 2 );
+		add_action( 'bbp_register_taxonomies',      array( $this, 'register_taxonomies'      ), 10 );
 
 		// Register the views
-		add_action( 'bbp_register_views',           array( $this, 'register_views'           ), 10, 2 );
+		add_action( 'bbp_register_views',           array( $this, 'register_views'           ), 10 );
 
 		// Register the theme directory
-		add_action( 'bbp_register_theme_directory', array( $this, 'register_theme_directory' ), 10, 2 );
+		add_action( 'bbp_register_theme_directory', array( $this, 'register_theme_directory' ), 10 );
 
 		// Load textdomain
-		add_action( 'bbp_load_textdomain',          array( $this, 'register_textdomain'      ), 10, 2 );
+		add_action( 'bbp_load_textdomain',          array( $this, 'register_textdomain'      ), 10 );
 
 		// Add the %bbp_user% rewrite tag
-		add_action( 'bbp_add_rewrite_tags',         array( $this, 'add_rewrite_tags'         ), 10, 2 );
+		add_action( 'bbp_add_rewrite_tags',         array( $this, 'add_rewrite_tags'         ), 10 );
 
 		// Generate rewrite rules
-		add_action( 'bbp_generate_rewrite_rules',   array( $this, 'generate_rewrite_rules'   ), 10, 2 );
+		add_action( 'bbp_generate_rewrite_rules',   array( $this, 'generate_rewrite_rules'   ), 10 );
 
 		// Check theme compatability
-		add_action( 'bbp_setup_theme_compat',       array( $this, 'theme_compat'             ), 10, 2 );
+		add_action( 'bbp_setup_theme_compat',       array( $this, 'theme_compat'             ), 10 );
 	}
 
 	/**
@@ -399,16 +414,26 @@ class bbPress {
 	 * @return bool True on success, false on failure
 	 */
 	function register_textdomain() {
-		$locale        = apply_filters( 'bbpress_locale', get_locale() );
-		$mofile        = sprintf( 'bbpress-%s.mo', $locale );
+
+		// Allow locale to be filtered
+		$locale = apply_filters( 'bbpress_locale', get_locale() );
+
+		// Get mo file name
+		$mofile = sprintf( 'bbpress-%s.mo', $locale );
+
+		// Setup paths to current locale file
 		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
 		$mofile_local  = $this->plugin_dir . '/bbp-languages/' . $mofile;
 
+		// Look in global /wp-content/languages/ folder
 		if ( file_exists( $mofile_global ) )
 			return load_textdomain( 'bbpress', $mofile_global );
+
+		// Look in /wp-content/plugins/bbpress/ folder (just in case)
 		elseif ( file_exists( $mofile_local ) )
 			return load_textdomain( 'bbpress', $mofile_local );
 
+		// Nothing found
 		return false;
 	}
 
@@ -656,7 +681,6 @@ class bbPress {
 			$wp_post_statuses['trash']->internal  = false; // changed to protected
 			$wp_post_statuses['trash']->protected = true;
 		}
-
 	}
 
 	/**
@@ -726,7 +750,6 @@ class bbPress {
 		) );
 
 		bbp_register_view( 'no-replies', __( 'Topics with no replies', 'bbpress' ), $no_replies );
-
 	}
 
 	/**
@@ -760,6 +783,7 @@ class bbPress {
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	function add_rewrite_tags() {
+
 		// User Profile tag
 		add_rewrite_tag( '%bbp_user%', '([^/]+)'   );
 

@@ -11,7 +11,7 @@ if ( !class_exists( 'BBP_Admin' ) ) :
 class BBP_Admin {
 
 	/**
-	 * The main bbPress admin loader
+	 * The main bbPress admin loader (PHP4 compat)
 	 *
 	 * @since bbPress (r2515)
 	 *
@@ -20,6 +20,19 @@ class BBP_Admin {
 	 * @uses BBP_Admin::_setup_actions() Setup the hooks and actions
 	 */
 	function BBP_Admin() {
+		$this->__construct();
+	}
+
+	/**
+	 * The main bbPress admin loader
+	 *
+	 * @since bbPress (r2515)
+	 *
+	 * @uses BBP_Admin::_setup_globals() Setup the globals needed
+	 * @uses BBP_Admin::_includes() Include the required files
+	 * @uses BBP_Admin::_setup_actions() Setup the hooks and actions
+	 */
+	function __construct() {
 		$this->_setup_globals();
 		$this->_includes();
 		$this->_setup_actions();
@@ -42,44 +55,44 @@ class BBP_Admin {
 		/** General Actions ***************************************************/
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',                  array( $this, 'admin_head'                 )        );
+		add_action( 'admin_head',          array( $this, 'admin_head'                 )        );
 
 		// Add notice if not using a bbPress theme
-		add_action( 'admin_notices',               array( $this, 'activation_notice'          )        );
+		add_action( 'admin_notices',       array( $this, 'activation_notice'          )        );
 
 		// Add link to settings page
-		add_filter( 'plugin_action_links',         array( $this, 'add_settings_link'          ), 10, 2 );
+		add_filter( 'plugin_action_links', array( $this, 'add_settings_link'          ), 10, 2 );
 
 		// Add menu item to settings menu
-		add_action( 'admin_menu',                  array( $this, 'admin_menus'                )        );
+		add_action( 'admin_menu',          array( $this, 'admin_menus'                )        );
 
 		// Add the settings
-		add_action( 'admin_init',                  array( $this, 'register_admin_settings'    )        );
+		add_action( 'admin_init',          array( $this, 'register_admin_settings'    )        );
 
 		// Attach the bbPress admin init action to the WordPress admin init action.
-		add_action( 'admin_init',                  array( $this, 'init'                       )        );
+		add_action( 'admin_init',          array( $this, 'init'                       )        );
 
 		// Register bbPress admin style
-		add_action( 'admin_init',                  array( $this, 'register_admin_style'       )        );
+		add_action( 'admin_init',          array( $this, 'register_admin_style'       )        );
 
 		// Forums 'Right now' Dashboard widget
-		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' )        );
+		add_action( 'wp_dashboard_setup',  array( $this, 'dashboard_widget_right_now' )        );
 
 		/** User Actions ******************************************************/
 
 		// User profile edit/display actions
-		add_action( 'edit_user_profile',           array( $this, 'user_profile_forums' ) );
-		add_action( 'show_user_profile',           array( $this, 'user_profile_forums' ) );
+		add_action( 'edit_user_profile',        array( $this, 'user_profile_forums' ) );
+		add_action( 'show_user_profile',        array( $this, 'user_profile_forums' ) );
 
 		// User profile save actions
-		add_action( 'personal_options_update',     array( $this, 'user_profile_update' ) );
-		add_action( 'edit_user_profile_update',    array( $this, 'user_profile_update' ) );
+		add_action( 'personal_options_update',  array( $this, 'user_profile_update' ) );
+		add_action( 'edit_user_profile_update', array( $this, 'user_profile_update' ) );
 
 		/** Forums ************************************************************/
 
 		// Forum metabox actions
-		add_action( 'add_meta_boxes',              array( $this, 'forum_attributes_metabox'      ) );
-		add_action( 'save_post',                   array( $this, 'forum_attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes',           array( $this, 'forum_attributes_metabox'      ) );
+		add_action( 'save_post',                array( $this, 'forum_attributes_metabox_save' ) );
 
 		// Forum column headers.
 		add_filter( 'manage_' . bbp_get_forum_post_type() . '_posts_columns',        array( $this, 'forums_column_headers' ) );
@@ -381,13 +394,16 @@ class BBP_Admin {
 	function forum_attributes_metabox_save( $forum_id ) {
 		global $bbp;
 
+		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $forum_id;
 
-		if ( !$forum = bbp_get_forum( $forum_id ) )
+		// Bail if current user cannot edit this forum
+		if ( !current_user_can( 'edit_forum', $forum_id ) )
 			return $forum_id;
 
-		if ( !current_user_can( 'edit_forum', $forum_id ) )
+		// Load the forum
+		if ( !$forum = bbp_get_forum( $forum_id ) )
 			return $forum_id;
 
 		// Closed?
@@ -477,14 +493,21 @@ class BBP_Admin {
 	 * @return int Parent id
 	 */
 	function topic_attributes_metabox_save( $topic_id ) {
+
+		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $topic_id;
 
+		// Bail if current user cannot edit this topic
 		if ( !current_user_can( 'edit_topic', $topic_id ) )
 			return $topic_id;
 
+		// Load the topic
+		if ( !$topic = bbp_get_topic( $topic_id ) )
+			return $topic_id;
+
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $topic['parent_id'] ) ? $topic['parent_id'] : 0;
+		$parent_id = isset( $topic->parent_id ) ? $topic->parent_id : 0;
 
 		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $parent_id );
 
@@ -526,14 +549,21 @@ class BBP_Admin {
 	 * @return int Parent id
 	 */
 	function reply_attributes_metabox_save( $reply_id ) {
+
+		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $reply_id;
 
+		// Current user cannot edit this reply
 		if ( !current_user_can( 'edit_reply', $reply_id ) )
 			return $reply_id;
 
+		// Load the reply
+		if ( !$reply = bbp_get_reply( $reply_id ) )
+			return $reply_id;
+
 		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $reply['parent_id'] ) ? $reply['parent_id'] : 0;
+		$parent_id = isset( $reply->parent_id ) ? $reply->parent_id : 0;
 
 		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $parent_id );
 
@@ -610,29 +640,43 @@ class BBP_Admin {
 	 *                                 anonymous user
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
-	 * @uses bbp_filter_anonymous_post_data() To filter the anonymous user
-	 *                                         data
+	 * @uses bbp_filter_anonymous_post_data() To filter the anonymous user data
 	 * @uses update_post_meta() To update the anonymous user data
 	 * @uses do_action() Calls 'bbp_anonymous_metabox_save' with the topic/
 	 *                    reply id and anonymous data
 	 * @return int Topic or reply id
 	 */
 	function anonymous_metabox_save( $post_id ) {
+
+		// Bail if no post_id
+		if ( empty( $post_id ) )
+			return $post_id;
+
+		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $post_id;
 
-		if ( $topic = bbp_get_topic( $post_id ) )
-			$topic_id = $topic->ID;
-		elseif ( $reply = bbp_get_reply( $post_id ) )
-			$reply_id = $reply->ID;
-		else
-			return $post_id;
+		// Bail if post_type is not a topic or reply
+		if ( !in_array( get_post_type( $post_id ), array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) ) )
+			return;
 
-		if ( !empty( $topic_id ) && ( !current_user_can( 'edit_topic', $topic_id ) || !bbp_is_topic_anonymous( $topic_id ) ) )
-			return $topic_id;
+		// Only show anonymous metabox for topic/reply post_types
+		switch ( get_post_type( $post_id ) ) {
 
-		if ( !empty( $reply_id ) && ( !current_user_can( 'edit_reply', $reply_id ) || !bbp_is_reply_anonymous( $reply_id ) ) )
-			return $reply_id;
+			// Topic
+			case bbp_get_topic_post_type() :
+				if ( ( !current_user_can( 'edit_topic', $post_id ) || !bbp_is_topic_anonymous( $post_id ) ) )
+					return $post_id;
+
+				break;
+
+			// Reply
+			case bbp_get_reply_post_type() :
+				if ( ( !current_user_can( 'edit_reply', $post_id ) || !bbp_is_reply_anonymous( $post_id ) ) )
+					return $post_id;
+
+				break;
+		}
 
 		$anonymous_data = bbp_filter_anonymous_post_data();
 
@@ -660,16 +704,16 @@ class BBP_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
-		global $bbp, $post;
+		global $bbp;
 
 		// Icons for top level admin menus
 		$menu_icon_url = $bbp->images_url . '/menu.png';
 		$icon32_url    = $bbp->images_url . '/icons32.png';
 
 		// Top level menu classes
-		$forum_class   = sanitize_html_class( bbp_get_forum_post_type() );
-		$topic_class   = sanitize_html_class( bbp_get_topic_post_type() );
-		$reply_class   = sanitize_html_class( bbp_get_reply_post_type() ); ?>
+		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
+		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
+		$reply_class = sanitize_html_class( bbp_get_reply_post_type() ); ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -812,30 +856,73 @@ class BBP_Admin {
 				background: url(<?php echo $icon32_url; ?>) no-repeat -4px -180px;
 			}
 
-<?php if ( isset( $post ) && $post->post_type == bbp_get_forum_post_type() ) : ?>
+<?php if ( get_post_type() == bbp_get_forum_post_type() ) : ?>
 
-			#misc-publishing-actions, #save-post { display: none; }
-			strong.label { display: inline-block; width: 60px; }
-			#bbp_forum_attributes hr { border-style: solid; border-width: 1px; border-color: #ccc #fff #fff #ccc; }
+			#misc-publishing-actions,
+			#save-post {
+				display: none;
+			}
+
+			strong.label {
+				display: inline-block;
+				width: 60px;
+			}
+
+			#bbp_forum_attributes hr {
+				border-style: solid;
+				border-width: 1px;
+				border-color: #ccc #fff #fff #ccc;
+			}
 
 <?php endif; ?>
 
 <?php if ( bbp_is_forum() || bbp_is_topic() || bbp_is_reply() ) : ?>
 
-			.column-bbp_forum_topic_count, .column-bbp_forum_reply_count, .column-bbp_topic_reply_count, .column-bbp_topic_voice_count { width: 8% !important; }
-			.column-author,  .column-bbp_reply_author, .column-bbp_topic_author { width: 10% !important; }
-			.column-bbp_topic_forum, .column-bbp_reply_forum, .column-bbp_reply_topic { width: 10% !important; }
-			.column-bbp_forum_freshness, .column-bbp_topic_freshness { width: 10% !important; }
-			.column-bbp_forum_created, .column-bbp_topic_created, .column-bbp_reply_created { width: 15% !important; }
+			.column-bbp_forum_topic_count,
+			.column-bbp_forum_reply_count,
+			.column-bbp_topic_reply_count,
+			.column-bbp_topic_voice_count {
+				width: 8% !important;
+			}
 
-			.status-closed { background-color: #eaeaea; }
-			.status-spam { background-color: #faeaea; }
+			.column-author,
+			.column-bbp_reply_author,
+			.column-bbp_topic_author {
+				width: 10% !important;
+			}
+
+			.column-bbp_topic_forum,
+			.column-bbp_reply_forum,
+			.column-bbp_reply_topic {
+				width: 10% !important;
+			}
+
+			.column-bbp_forum_freshness,
+			.column-bbp_topic_freshness {
+				width: 10% !important;
+			}
+
+			.column-bbp_forum_created,
+			.column-bbp_topic_created,
+			.column-bbp_reply_created {
+				width: 15% !important;
+			}
+
+			.status-closed {
+				background-color: #eaeaea;
+			}
+
+			.status-spam {
+				background-color: #faeaea;
+			}
 
 <?php endif; ?>
 
 		/*]]>*/
 		</style>
-<?php
+
+		<?php
+
 		// Add extra actions to bbPress admin header area
 		do_action( 'bbp_admin_head' );
 	}
@@ -852,6 +939,7 @@ class BBP_Admin {
 	 * @return bool Always false
 	 */
 	function user_profile_update( $user_id ) {
+
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_update' );
 
@@ -870,9 +958,8 @@ class BBP_Admin {
 	 * @return bool Always false
 	 */
 	function user_profile_forums( $profileuser ) {
-		return false;
+		return false; ?>
 
-?>
 		<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
 		<table class="form-table">
 			<tr valign="top">
@@ -882,7 +969,8 @@ class BBP_Admin {
 				</td>
 			</tr>
 		</table>
-<?php
+
+		<?php
 
 		// Add extra actions to bbPress profile update
 		do_action( 'bbp_user_profile_forums' );
@@ -1015,6 +1103,7 @@ class BBP_Admin {
 	 * @uses wp_redirect() Redirect the page to custom url
 	 */
 	function toggle_topic() {
+
 		// Only proceed if GET is a topic toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_topic_close', 'bbp_toggle_topic_stick', 'bbp_toggle_topic_spam' ) ) && !empty( $_GET['topic_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
@@ -1073,7 +1162,6 @@ class BBP_Admin {
 
 			// For good measure
 			exit();
-
 		}
 	}
 
@@ -1092,6 +1180,7 @@ class BBP_Admin {
 	 *                        message, topic id, notice and is it a failure
 	 */
 	function toggle_topic_notice() {
+
 		// Only proceed if GET is a topic toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_topic_toggle_notice'] ) && in_array( $_GET['bbp_topic_toggle_notice'], array( 'opened', 'closed', 'super_sticked', 'sticked', 'unsticked', 'spammed', 'unspammed' ) ) && !empty( $_GET['topic_id'] ) ) {
 			$notice     = $_GET['bbp_topic_toggle_notice'];         // Which notice?
@@ -1204,8 +1293,10 @@ class BBP_Admin {
 
 		// Populate column data
 		switch ( $column ) {
+
 			// Forum
 			case 'bbp_topic_forum' :
+
 				// Output forum name
 				if ( !empty( $forum_id ) ) {
 					bbp_forum_title( $forum_id );
@@ -1379,6 +1470,7 @@ class BBP_Admin {
 	 * @uses wp_redirect() Redirect the page to custom url
 	 */
 	function toggle_reply() {
+
 		// Only proceed if GET is a reply toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam' ) ) && !empty( $_GET['reply_id'] ) ) {
 			$action    = $_GET['action'];            // What action is taking place?
@@ -1418,7 +1510,6 @@ class BBP_Admin {
 
 			// For good measure
 			exit();
-
 		}
 	}
 
@@ -1437,6 +1528,7 @@ class BBP_Admin {
 	 *                        message, reply id, notice and is it a failure
 	 */
 	function toggle_reply_notice() {
+
 		// Only proceed if GET is a reply toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['bbp_reply_toggle_notice'] ) && in_array( $_GET['bbp_reply_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['reply_id'] ) ) {
 			$notice     = $_GET['bbp_reply_toggle_notice'];         // Which notice?
@@ -1484,12 +1576,12 @@ class BBP_Admin {
 	 */
 	function replies_column_headers( $columns ) {
 		$columns = array(
-			'cb'                    => '<input type="checkbox" />',
-			'title'                 => __( 'Title',   'bbpress' ),
-			'bbp_reply_forum'       => __( 'Forum',   'bbpress' ),
-			'bbp_reply_topic'       => __( 'Topic',   'bbpress' ),
-			'bbp_reply_author'      => __( 'Author',  'bbpress' ),
-			'bbp_reply_created'     => __( 'Created', 'bbpress' ),
+			'cb'                => '<input type="checkbox" />',
+			'title'             => __( 'Title',   'bbpress' ),
+			'bbp_reply_forum'   => __( 'Forum',   'bbpress' ),
+			'bbp_reply_topic'   => __( 'Topic',   'bbpress' ),
+			'bbp_reply_author'  => __( 'Author',  'bbpress' ),
+			'bbp_reply_created' => __( 'Created', 'bbpress' ),
 		);
 
 		return apply_filters( 'bbp_admin_replies_column_headers', $columns );
@@ -1524,13 +1616,16 @@ class BBP_Admin {
 	 *                    column and reply id
 	 */
 	function replies_column_data( $column, $reply_id ) {
+
 		// Get topic ID
 		$topic_id = bbp_get_reply_topic_id( $reply_id );
 
 		// Populate Column Data
 		switch ( $column ) {
+
 			// Topic
 			case 'bbp_reply_topic' :
+
 				// Output forum name
 				bbp_topic_title( $topic_id );
 
@@ -1550,6 +1645,7 @@ class BBP_Admin {
 
 			// Forum
 			case 'bbp_reply_forum' :
+
 				// Get Forum ID
 				$forum_id = bbp_get_topic_forum_id( $topic_id );
 
@@ -1577,6 +1673,7 @@ class BBP_Admin {
 
 			// Freshness
 			case 'bbp_reply_created':
+
 				// Output last activity time and date
 				printf( __( '%1$s <br /> %2$s', 'bbpress' ),
 					get_the_date(),
@@ -1944,26 +2041,30 @@ function bbp_dashboard_widget_right_now() {
 
 			<?php endif; ?>
 
-			<?php
-
-			do_action( 'bbp_dashboard_widget_right_now_table_end'            );
-			do_action( 'bbp_dashboard_widget_right_now_discussion_table_end' );
-
-			?>
+			<?php do_action( 'bbp_dashboard_widget_right_now_discussion_table_end' ); ?>
 
 		</table>
 
 	</div>
+
+	<?php do_action( 'bbp_dashboard_widget_right_now_table_end' ); ?>
 
 	<?php if ( current_user_can( 'update_plugins' ) ) : ?>
 
 		<div class="versions">
 
 			<p>
-				<?php if ( current_theme_supports( 'bbpress' ) ) : _e( 'Theme <strong>natively supports</strong> bbPress', 'bbpress' ); else : _e( 'Theme <strong>does not</strong> natively support bbPress', 'bbpress' ); endif; ?>
+				<?php
+					if ( current_theme_supports( 'bbpress' ) )
+						_e( 'Theme <strong>natively supports</strong> bbPress', 'bbpress' );
+					else
+						_e( 'Theme <strong>does not</strong> natively support bbPress', 'bbpress' );
+				?>
 			</p>
 
-			<span id="wp-version-message"><?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), BBP_VERSION ); ?></span>
+			<span id="wp-version-message">
+				<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), BBP_VERSION ); ?>
+			</span>
 
 		</div>
 
@@ -2034,49 +2135,49 @@ function bbp_forum_metabox() {
 
 	/** Output ****************************************************************/ ?>
 
-		<p>
-			<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_forum_type_select"><?php _e( 'Type:', 'bbpress' ) ?></label>
-			<?php echo $type_output; ?>
-		</p>
+	<p>
+		<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_type_select"><?php _e( 'Type:', 'bbpress' ) ?></label>
+		<?php echo $type_output; ?>
+	</p>
 
-		<p>
-			<strong class="label"><?php _e( 'Status:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_forum_status_select"><?php _e( 'Status:', 'bbpress' ) ?></label>
-			<?php echo $status_output; ?>
-		</p>
+	<p>
+		<strong class="label"><?php _e( 'Status:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_status_select"><?php _e( 'Status:', 'bbpress' ) ?></label>
+		<?php echo $status_output; ?>
+	</p>
 
-		<p>
-			<strong class="label"><?php _e( 'Visibility:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php _e( 'Visibility:', 'bbpress' ) ?></label>
-			<?php echo $visibility_output; ?>
-		</p>
+	<p>
+		<strong class="label"><?php _e( 'Visibility:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php _e( 'Visibility:', 'bbpress' ) ?></label>
+		<?php echo $visibility_output; ?>
+	</p>
 
-		<hr />
+	<hr />
 
-		<p>
-			<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
+	<p>
+		<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum Parent', 'bbpress' ); ?></label>
 
-			<?php
-				bbp_dropdown( array(
-					'exclude'            => $post->ID,
-					'selected'           => $post->post_parent,
-					'show_none'          => __( '(No Parent)', 'bbpress' ),
-					'select_id'          => 'parent_id',
-					'disable_categories' => false
-				) );
-			?>
+		<?php
+			bbp_dropdown( array(
+				'exclude'            => $post->ID,
+				'selected'           => $post->post_parent,
+				'show_none'          => __( '(No Parent)', 'bbpress' ),
+				'select_id'          => 'parent_id',
+				'disable_categories' => false
+			) );
+		?>
 
-		</p>
+	</p>
 
-		<p>
-			<strong class="label"><?php _e( 'Order:', 'bbpress' ); ?></strong>
-			<label class="screen-reader-text" for="menu_order"><?php _e( 'Forum Order', 'bbpress' ); ?></label>
-			<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" />
-		</p>
+	<p>
+		<strong class="label"><?php _e( 'Order:', 'bbpress' ); ?></strong>
+		<label class="screen-reader-text" for="menu_order"><?php _e( 'Forum Order', 'bbpress' ); ?></label>
+		<input name="menu_order" type="text" size="4" id="menu_order" value="<?php echo esc_attr( $post->menu_order ); ?>" />
+	</p>
 
-<?php
+	<?php
 
 	do_action( 'bbp_forum_metabox', $post->ID );
 }
@@ -2099,20 +2200,16 @@ function bbp_topic_metabox() {
 		'selected'  => bbp_get_topic_forum_id( $post->ID ),
 		'select_id' => 'parent_id',
 		'show_none' => __( '(No Forum)', 'bbpress' )
-	);
+	); ?>
 
-	?>
+	<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
 
-		<p>
-			<strong><?php _e( 'Forum', 'bbpress' ); ?></strong>
-		</p>
+	<p>
+		<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
+		<?php bbp_dropdown( $args ); ?>
+	</p>
 
-		<p>
-			<label class="screen-reader-text" for="parent_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
-			<?php bbp_dropdown( $args ); ?>
-		</p>
-
-<?php
+	<?php
 
 	do_action( 'bbp_topic_metabox', $post->ID );
 }
@@ -2137,20 +2234,16 @@ function bbp_reply_metabox() {
 		'select_id'   => 'parent_id',
 		'orderby'     => 'post_date',
 		'numberposts' => '50'
-	);
+	); ?>
 
-	?>
-
-	<p>
-		<strong><?php _e( 'Parent Topic', 'bbpress' ); ?></strong>
-	</p>
+	<p><strong><?php _e( 'Parent Topic', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
 		<?php bbp_dropdown( $args ); ?>
 	</p>
 
-<?php
+	<?php
 
 	do_action( 'bbp_reply_metabox', $post->ID );
 }
@@ -2165,36 +2258,28 @@ function bbp_reply_metabox() {
 function bbp_anonymous_metabox () {
 	global $post; ?>
 
-	<p>
-		<strong><?php _e( 'Name', 'bbpress' ); ?></strong>
-	</p>
+	<p><strong><?php _e( 'Name', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="bbp_anonymous_name"><?php _e( 'Name', 'bbpress' ); ?></label>
 		<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_name', true ); ?>" size="38" />
 	</p>
 
-	<p>
-		<strong><?php _e( 'Email', 'bbpress' ); ?></strong>
-	</p>
+	<p><strong><?php _e( 'Email', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="bbp_anonymous_email"><?php _e( 'Email', 'bbpress' ); ?></label>
 		<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_email', true ); ?>" size="38" />
 	</p>
 
-	<p>
-		<strong><?php _e( 'Website', 'bbpress' ); ?></strong>
-	</p>
+	<p><strong><?php _e( 'Website', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="bbp_anonymous_website"><?php _e( 'Website', 'bbpress' ); ?></label>
 		<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_website', true ); ?>" size="38" />
 	</p>
 
-	<p>
-		<strong><?php _e( 'IP Address', 'bbpress' ); ?></strong>
-	</p>
+	<p><strong><?php _e( 'IP Address', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="bbp_anonymous_ip_address"><?php _e( 'IP Address', 'bbpress' ); ?></label>
