@@ -249,8 +249,19 @@ td.bbp-topic-counts {
 /* =Forms
 -------------------------------------------------------------- */
 
-#content fieldset p,
-#content fieldset input {
+body.single-forum fieldset,
+body.single-topic fieldset {
+	border: 1px solid #eee;
+	padding: 10px 20px;
+}
+
+body.single-forum fieldset legend,
+body.single-topic fieldset legend{
+	padding: 5px;
+}
+
+body.single-forum fieldset p,
+body.single-topic fieldset input {
 	margin: 0px 0px 10px;
 }
 
@@ -259,8 +270,8 @@ td.bbp-topic-counts {
 .bbp-topic-tag-form {
 	clear: left;
 }
-#content .bbp-topic-form div.avatar img,
-#content .bbp-reply-form div.avatar img {
+body.single-forum .bbp-topic-form div.avatar img,
+body.single-reply .bbp-reply-form div.avatar img {
 	margin-right: 0;
 	padding: 10px;
 	border: 1px solid #ddd;
@@ -268,8 +279,8 @@ td.bbp-topic-counts {
 	background-color: #efefef;
 }
 
-#content .bbp-reply-form code,
-#content .bbp-topic-form code {
+body.single-topic .bbp-reply-form code,
+body.single-forum .bbp-topic-form code {
 	font-size: 10px;
 	background-color: #f0fff8;
 	border: 1px solid #CEEFE1;
@@ -424,8 +435,8 @@ div.bbp-template-notice a {
 
 /* =Revisions
 -------------------------------------------------------------- */
-#content .bbp-topic-revision-log,
-#content .bbp-reply-revision-log {
+body.single-topic .bbp-topic-revision-log,
+body.single-topic .bbp-reply-revision-log {
 	border-top: 1px dotted #ddd;
 	list-style: none;
 	width: 100%;
@@ -481,12 +492,12 @@ div.bbp-template-notice a {
 /* =Avatars
 -------------------------------------------------------------- */
 
-#content p.bbp-topic-meta img.avatar,
-#content ul.bbp-reply-revision-log img.avatar,
-#content ul.bbp-topic-revision-log img.avatar,
-#content div.bbp-template-notice img.avatar,
-#main .widget_display_topics img.avatar,
-#main .widget_display_replies img.avatar {
+body.bbPress p.bbp-topic-meta img.avatar,
+body.bbPress ul.bbp-reply-revision-log img.avatar,
+body.bbPress ul.bbp-topic-revision-log img.avatar,
+body.bbPress div.bbp-template-notice img.avatar,
+body.bbPress .widget_display_topics img.avatar,
+body.bbPress .widget_display_replies img.avatar {
 	margin-bottom: -7px;
 	border: 3px double #ddd;
 }
