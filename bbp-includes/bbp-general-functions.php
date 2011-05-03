@@ -1239,22 +1239,6 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 /** Login *********************************************************************/
 
 /**
- * Change the login URL to /login
- *
- * This assumes that your login page is 'domain.com/login'
- *
- * @todo Make this less janky
- *
- * @uses home_url() To get the url
- * @uses trailingslashit() To put a slash at the end of the url
- * @uses apply_filters() Calls 'bbp_login_url' with the url
- * @return string The url
- */
-function bbp_login_url() {
-	return apply_filters( 'bbp_login_url', trailingslashit( home_url( 'login' ) ) );
-}
-
-/**
  * Change the logout URL to /login and add smart redirect
  *
  * This assumes that your login page is 'domain.com/login'

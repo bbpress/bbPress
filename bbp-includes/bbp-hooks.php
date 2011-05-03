@@ -286,7 +286,6 @@ add_filter( 'redirect_canonical',    'bbp_redirect_canonical' );
 
 // Login/Register/Lost Password
 add_filter( 'login_redirect', 'bbp_redirect_login', 2, 3 );
-add_filter( 'login_url',      'bbp_login_url',      2, 2 );
 add_filter( 'logout_url',     'bbp_logout_url',     2, 2 );
 
 // Fix post author id for anonymous posts (set it back to 0) when the post status is changed
