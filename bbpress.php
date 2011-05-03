@@ -131,11 +131,6 @@ class bbPress {
 	var $plugin_url;
 
 	/**
-	 * @var string URL to the bbPress images directory
-	 */
-	var $images_url;
-
-	/**
 	 * @var string URL to the bbPress themes directory
 	 */
 	var $themes_url;
@@ -260,9 +255,6 @@ class bbPress {
 		$this->file       = __FILE__;
 		$this->plugin_dir = plugin_dir_path( $this->file );
 		$this->plugin_url = plugin_dir_url ( $this->file );
-
-		// Images
-		$this->images_url = $this->plugin_url . 'bbp-images';
 
 		// Themes
 		$this->themes_dir = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';

@@ -10,6 +10,20 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  */
 class BBP_Admin {
 
+	/** URLs ******************************************************************/
+
+	/**
+	 * @var string URL to the bbPress images directory
+	 */
+	var $images_url;
+
+	/**
+	 * @var string URL to the bbPress admin styles directory
+	 */
+	var $styles_url;
+
+	/** Functions *************************************************************/
+
 	/**
 	 * The main bbPress admin loader (PHP4 compat)
 	 *
@@ -165,7 +179,16 @@ class BBP_Admin {
 	 * @access private
 	 */
 	function _setup_globals() {
-		// Nothing to do here yet
+		global $bbp;
+
+		// Admin url
+		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' );
+
+		// Admin images URL
+		$this->images_url = trailingslashit( $this->admin_url . 'images' );
+
+		// Admin images URL
+		$this->styles_url = trailingslashit( $this->admin_url . 'styles' );
 	}
 
 	/**
@@ -704,11 +727,10 @@ class BBP_Admin {
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
-		global $bbp;
 
 		// Icons for top level admin menus
-		$menu_icon_url = $bbp->images_url . '/menu.png';
-		$icon32_url    = $bbp->images_url . '/icons32.png';
+		$menu_icon_url = $this->images_url . 'menu.png';
+		$icon32_url    = $this->images_url . 'icons32.png';
 
 		// Top level menu classes
 		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
@@ -1764,9 +1786,7 @@ class BBP_Admin {
 	 * @uses wp_admin_css_color() To register the color scheme
 	 */
 	function register_admin_style () {
-		global $bbp;
-
-		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $bbp->plugin_url . 'bbp-css/admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 
 	/**
