@@ -83,6 +83,9 @@ class BBP_Shortcodes {
 		$bbp->current_forum_id = null;
 		$bbp->current_topic_id = null;
 		$bbp->current_reply_id = null;
+
+		// Reset the post data
+		wp_reset_postdata();
 	}
 
 	/** Output Buffers ********************************************************/
