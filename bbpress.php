@@ -79,6 +79,16 @@ class bbPress {
 	 */
 	var $trash_status_id;
 
+	/**
+	 * @var string Orphan post status id. Used by topics and replies.
+	 */
+	var $orphan_status_id;
+
+	/**
+	 * @var string Hidden post status id. Used by forums.
+	 */
+	var $hidden_status_id;
+
 	/** Slugs *****************************************************************/
 
 	/**
@@ -272,6 +282,7 @@ class bbPress {
 		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'   );
 		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed' );
 		$this->orphan_status_id = apply_filters( 'bbp_orphan_post_status', 'orphan' );
+		$this->hidden_status_id = apply_filters( 'bbp_hidden_post_status', 'hidden' );
 		$this->trash_status_id  = 'trash';
 
 		/** Slugs *************************************************************/
@@ -670,7 +681,7 @@ class bbPress {
 			'show_in_admin_status_list' => true,
 			'show_in_admin_all_list'    => false
 		) );
-		register_post_status( $this->orphan_status_id, $status );
+		register_post_status( $this->hidden_status_id, $status );
 
 		/**
 		 * Trash fix
