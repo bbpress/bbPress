@@ -661,6 +661,17 @@ class bbPress {
 		) );
 		register_post_status( $this->orphan_status_id, $status );
 
+		// Hidden
+		$status = apply_filters( 'bbp_register_hidden_post_status', array(
+			'label'                     => _x( 'Hidden', 'post', 'bbpress' ),
+			'label_count'               => _nx_noop( 'Hidden <span class="count">(%s)</span>', 'Hidden <span class="count">(%s)</span>', 'bbpress' ),
+			'protected'                 => true,
+			'exclude_from_search'       => true,
+			'show_in_admin_status_list' => true,
+			'show_in_admin_all_list'    => false
+		) );
+		register_post_status( $this->orphan_status_id, $status );
+
 		/**
 		 * Trash fix
 		 *
