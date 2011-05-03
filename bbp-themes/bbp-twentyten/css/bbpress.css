@@ -27,10 +27,6 @@
 	background-color: #fbfbfb;
 }
 
-#content table tbody tr td {
-	background-color: #f8f8f8;
-}
-
 #content table tbody tr.status-trash.even td,
 #content table tbody tr.status-spam.even td {
 	background-color: #fee;
