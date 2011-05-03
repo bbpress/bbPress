@@ -172,8 +172,14 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 
 	// If user has favorites, load them
 	if ( $favorites = bbp_get_user_favorites_topic_ids( $user_id ) ) {
-		$query  = bbp_has_topics( array( 'post__in' => $favorites ) );
-		return apply_filters( 'bbp_get_user_favorites', $query, $user_id );
+
+		// Possibly remove topics from hidden forums
+		$hidden_query = bbp_exclude_forum_ids();
+		$favs_query   = array( 'post__in' => $favorites );
+		$topics_query = array_merge( $hidden_query, $favs_query );
+		$topics_query = bbp_has_topics( $topics_query );
+
+		return apply_filters( 'bbp_get_user_favorites', $topics_query, $user_id );
 	}
 
 	return false;
@@ -782,28 +788,16 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 		return false;
 
 	// Query defaults
-	$topics_query = array(
+	$default_query = array(
 		'post_author'    => $user_id,
 		'show_stickies'  => false,
 		'order'          => 'DESC',
 	);
 
-	// Setup a meta_query to remove hidden forums
-	if ( $hidden = bbp_get_hidden_forum_ids() ) {
+	// Assume user cannot read hidden forums
+	$topics_query = bbp_exclude_forum_ids( $default_query );
 
-		// Value and compare for meta_query
-		$value   = implode( ',', bbp_get_hidden_forum_ids() );
-		$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
-
-		// Add meta_query to $replies_query
-		$topics_query['meta_query'] = array( array(
-			'key'     => '_bbp_forum_id',
-			'value'   => $value,
-			'compare' => $compare
-		) );
-		$topics_query['post_parent'] = 'any';
-	}
-
+	// Get the topics
 	if ( $query = bbp_has_topics( $topics_query ) )
 		return $query;
 

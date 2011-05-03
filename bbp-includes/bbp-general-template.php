@@ -45,14 +45,14 @@ function bbp_footer() {
  * @return bool True if it's a forum page, false if not
  */
 function bbp_is_forum( $post_id = 0 ) {
-	global $bbp;
+	global $bbp, $wp_query;
 
 	if ( empty( $post_id ) ) {
 
 		if ( is_singular( bbp_get_forum_post_type() ) )
 			return true;
 
-		if ( ( $post_type = get_query_var( 'post_type' ) ) && ( bbp_get_forum_post_type() === $post_type ) )
+		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_forum_post_type() === $wp_query->query_vars['post_type'] ) )
 			return true;
 
 		if ( isset( $bbp->forum_query->post->post_type ) && ( bbp_get_forum_post_type() === $bbp->forum_query->post->post_type ) )
@@ -80,7 +80,7 @@ function bbp_is_forum( $post_id = 0 ) {
  * @return bool True if it's a topic page, false if not
  */
 function bbp_is_topic( $post_id = 0 ) {
-	global $bbp;
+	global $bbp, $wp_query;
 
 	// Return false if it's a edit topic page
 	if ( bbp_is_topic_edit() )
@@ -91,7 +91,7 @@ function bbp_is_topic( $post_id = 0 ) {
 		if ( is_singular( bbp_get_topic_post_type() ) )
 			return true;
 
-		if ( ( $post_type = get_query_var( 'post_type' ) ) && ( bbp_get_topic_post_type() === $post_type ) )
+		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_topic_post_type() === $wp_query->query_vars['post_type'] ) )
 			return true;
 
 		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_topic_post_type() === $_GET['post_type'] ) )
@@ -165,7 +165,7 @@ function bbp_is_topic_split() {
  * @return bool True if it's a reply page, false if not
  */
 function bbp_is_reply( $post_id = 0 ) {
-	global $bbp;
+	global $bbp, $wp_query;
 
 	// Return false if it's a edit reply page
 	if ( bbp_is_reply_edit() )
@@ -176,7 +176,7 @@ function bbp_is_reply( $post_id = 0 ) {
 		if ( is_singular( bbp_get_reply_post_type() ) )
 			return true;
 
-		if ( ( $post_type = get_query_var( 'post_type' ) ) && ( bbp_get_reply_post_type() === $post_type ) )
+		if ( isset( $wp_query->query_vars['post_type'] ) && ( bbp_get_reply_post_type() === $wp_query->query_vars['post_type'] ) )
 			return true;
 
 		if ( isset( $_GET['post_type'] ) && !empty( $_GET['post_type'] ) && ( bbp_get_reply_post_type() === $_GET['post_type'] ) )
@@ -678,16 +678,7 @@ function bbp_dropdown( $args = '' ) {
 		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
 			$r['selected'] = 0;
 
-		// Don't show private forums to normal users
-		if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_query'] ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) && empty( $r['meta_compare'] ) ) {
-			$r['meta_query'] = array(
-				array(
-					'key'     => '_bbp_visibility',
-					'value'   => 'public',
-					'compare' => '='
-				)
-			);
-		}
+		$r = bbp_exclude_forum_ids( $r );
 
 		extract( $r );
 

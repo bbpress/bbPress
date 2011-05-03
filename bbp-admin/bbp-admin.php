@@ -445,8 +445,8 @@ class BBP_Admin {
 				bbp_normalize_forum( $forum_id );
 		}
 
-		// Private?
-		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( 'public', 'private', 'hidden' ) ) ) {
+		// Visibility
+		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( 'publish', 'private', 'hidden' ) ) ) {
 
 			// Get forums current visibility
 			$visibility = bbp_get_forum_visibility( $forum_id );
@@ -467,8 +467,8 @@ class BBP_Admin {
 						bbp_privatize_forum( $forum_id, $visibility );
 						break;
 
-					// Public (default)
-					case 'public'  :
+					// Publish (default)
+					case 'publish'  :
 					default        :
 						bbp_publicize_forum( $forum_id, $visibility );
 						break;
@@ -2142,7 +2142,7 @@ function bbp_forum_metabox() {
 	/** Visibility ************************************************************/
 
 	$forum['visibility']  = array(
-		'public'  => __( 'Public',  'bbpress' ),
+		'publish' => __( 'Public',  'bbpress' ),
 		'private' => __( 'Private', 'bbpress' ),
 		'hidden'  => __( 'Hidden',  'bbpress' )
 	);

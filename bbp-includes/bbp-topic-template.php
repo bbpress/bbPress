@@ -65,11 +65,14 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
+	// Make sure we're back where we started
+	wp_reset_postdata();
+
 	// Are we in a forum and looking to do a forum only query?
 	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_query_name( 'bbp_widget' ) );
 
 	// What are the default allowed statuses (based on user caps)
-	if ( !empty( $_GET['view'] ) && ( true == $in_forum ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) ) )
+	if ( current_user_can( 'moderate' ) && !bbp_is_query_name( 'bbp_widget' ) && ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) ) )
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
 	else
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
@@ -320,7 +323,7 @@ function bbp_topic_id( $topic_id = 0) {
 	 * @return int The topic id
 	 */
 	function bbp_get_topic_id( $topic_id = 0 ) {
-		global $bbp;
+		global $bbp, $wp_query;
 
 		// Easy empty checking
 		if ( !empty( $topic_id ) && is_numeric( $topic_id ) )
@@ -331,8 +334,8 @@ function bbp_topic_id( $topic_id = 0) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
 		// Currently viewing a topic
-		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && get_the_ID() )
-			$bbp_topic_id = $bbp->current_topic_id = get_the_ID();
+		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
+			$bbp_topic_id = $bbp->current_topic_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
 		elseif ( bbp_is_reply() )

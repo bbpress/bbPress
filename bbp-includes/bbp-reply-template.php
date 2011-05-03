@@ -66,6 +66,9 @@ function bbp_reply_post_type() {
 function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite, $bbp;
 
+	// Make sure we're back where we started
+	wp_reset_postdata();
+
 	// Default status
 	$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
 
@@ -219,15 +222,15 @@ function bbp_reply_id( $reply_id = 0 ) {
 	 * @return int The reply id
 	 */
 	function bbp_get_reply_id( $reply_id = 0 ) {
-		global $bbp;
+		global $bbp, $wp_query;
 
 		// Easy empty checking
 		if ( !empty( $reply_id ) && is_numeric( $reply_id ) )
 			$bbp_reply_id = $reply_id;
 
 		// Currently viewing a reply
-		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && get_the_ID() )
-			$bbp_reply_id = $bbp->current_reply_id = get_the_ID();
+		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
+			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
 
 		// Currently inside a replies loop
 		elseif ( isset( $bbp->reply_query->post->ID ) )

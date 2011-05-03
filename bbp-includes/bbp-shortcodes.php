@@ -273,7 +273,7 @@ class BBP_Shortcodes {
 		);
 
 		// Remove any topics from hidden forums
-		$topics_query = bbp_exclude_hidden_forums( $topics_query );
+		$topics_query = bbp_exclude_forum_ids( $topics_query );
 
 		// Unset globals
 		$this->_unset_globals();

@@ -57,41 +57,40 @@ function bbp_forum_post_type() {
 function bbp_has_forums( $args = '' ) {
 	global $bbp;
 
+	// Make sure we're back where we started
+	wp_reset_postdata();
+
+	// Setup possible post__not_in array
+	$post_stati[] = 'publish';
+
+	// Super admin get whitelisted post statuses
+	if ( is_super_admin() ) {
+		$post_stati = array( 'publish', 'private', 'hidden' );
+
+	// Not a super admin, so check caps
+	} else {
+
+		// Check if user can read private forums
+		if ( current_user_can( 'read_private_forums' ) )
+			$post_stati[] = 'private';
+
+		// Check if user can read hidden forums
+		if ( current_user_can( 'read_hidden_forums' ) )
+			$post_stati[] = 'hidden';
+	}
+
+	// The default forum query for most circumstances
 	$default = array (
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_parent'    => bbp_get_forum_id(),
+		'post_status'    => implode( ',', $post_stati ),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
 		'orderby'        => 'menu_order',
 		'order'          => 'ASC'
 	);
 
+	// Parse the default against what is requested
 	$bbp_f = wp_parse_args( $args, $default );
-
-	// Allow all forums to be queried if post_parent is set to -1
-	if ( -1 == $bbp_f['post_parent'] )
-		unset( $bbp_f['post_parent'] );
-
-	// Don't show private forums to normal users
-	if ( empty( $bbp_f['meta_key'] ) && empty( $bbp_f['meta_value'] ) ) {
-
-		// Include public and private forums only
-		if ( current_user_can( 'read_private_forums' ) ) {
-			$value   = 'public, private';
-			$compare = 'IN';
-
-		// Include public forums only
-		} else {
-			$value   = 'hidden';
-			$compare = '!=';
-		}
-
-		// Meta query to determine visibility scope
-		$bbp_f['meta_query'] = array( array(
-			'key'     => '_bbp_visibility',
-			'value'   => $value,
-			'compare' => $compare
-		) );
-	}
 
 	// Filter the forums query to allow just-in-time modifications
 	$bbp_f = apply_filters( 'bbp_has_forums_query', $bbp_f );
@@ -160,7 +159,7 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 * @return int The forum id
 	 */
 	function bbp_get_forum_id( $forum_id = 0 ) {
-		global $bbp;
+		global $bbp, $wp_query;
 
 		// Easy empty checking
 		if ( !empty( $forum_id ) && is_numeric( $forum_id ) )
@@ -171,8 +170,8 @@ function bbp_forum_id( $forum_id = 0 ) {
 			$bbp_forum_id = $bbp->current_forum_id = $bbp->forum_query->post->ID;
 
 		// Currently viewing a forum
-		elseif ( bbp_is_forum() && get_the_ID() )
-			$bbp_forum_id = $bbp->current_forum_id = get_the_ID();
+		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
+			$bbp_forum_id = $bbp->current_forum_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
 		elseif ( bbp_is_topic() )
@@ -519,28 +518,40 @@ function bbp_get_forum_ancestors( $forum_id = 0 ) {
  * @return mixed false if none, array of subs if yes
  */
 function bbp_forum_get_subforums( $args = '' ) {
+
+	// Use passed integer as post_parent
 	if ( is_numeric( $args ) )
 		$args = array( 'post_parent' => $args );
+
+	// Setup possible post__not_in array
+	$post_stati[] = 'publish';
+
+	// Super admin get whitelisted post statuses
+	if ( is_super_admin() ) {
+		$post_stati = array( 'publish', 'private', 'hidden' );
+
+	// Not a super admin, so check caps
+	} else {
+
+		// Check if user can read private forums
+		if ( current_user_can( 'read_private_forums' ) )
+			$post_stati[] = 'private';
+
+		// Check if user can read hidden forums
+		if ( current_user_can( 'read_hidden_forums' ) )
+			$post_stati[] = 'hidden';
+	}
 
 	$default = array(
 		'post_parent'    => 0,
 		'post_type'      => bbp_get_forum_post_type(),
+		'post_status'    => implode( ',', $post_stati ),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
 		'sort_column'    => 'menu_order, post_title'
 	);
 
 	$r = wp_parse_args( $args, $default );
-
 	$r['post_parent'] = bbp_get_forum_id( $r['post_parent'] );
-
-	// Don't show hidden forums to normal users
-	if ( !current_user_can( 'read_private_forums' ) && empty( $r['meta_query'] ) && empty( $r['meta_key'] ) && empty( $r['meta_value'] ) ) {
-		$r['meta_query'] = array( array(
-			'key'     => '_bbp_visibility',
-			'value'   => 'public, private',
-			'compare' => 'IN'
-		) );
-	}
 
 	// No forum passed
 	$sub_forums = !empty( $r['post_parent'] ) ? get_posts( $r ) : '';
@@ -1237,7 +1248,7 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 	function bbp_get_forum_visibility( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
-		return apply_filters( 'bbp_get_forum_visibility', get_post_meta( $forum_id, '_bbp_visibility', true ), $forum_id );
+		return apply_filters( 'bbp_get_forum_visibility', get_post_status( $forum_id ), $forum_id );
 	}
 
 /**
@@ -1325,7 +1336,7 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is public, return true
-	$retval = ( 'public' == $visibility );
+	$retval = ( 'publish' == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {

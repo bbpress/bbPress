@@ -302,24 +302,18 @@ class BBP_Forums_Widget extends WP_Widget {
 		extract( $args );
 
 		$title        = apply_filters( 'bbp_forum_widget_title', $instance['title'] );
-		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : 0;
+		$parent_forum = !empty( $instance['parent_forum'] ) ? $instance['parent_forum'] : '0';
 
-		$default = array(
+		$forums_query = array(
 			'post_parent'    => $parent_forum,
 			'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
 			'orderby'        => 'menu_order',
 			'order'          => 'ASC'
 		);
 
-		// Don't show private forums to normal users
-		if ( !current_user_can( 'read_private_forums' ) && empty( $default['meta_key'] ) && empty( $default['meta_value'] ) ) {
-			$default['meta_key']   = '_bbp_visibility';
-			$default['meta_value'] = 'public';
-		}
-
 		bbp_set_query_name( 'bbp_widget' );
 
-		if ( bbp_has_forums( $default ) ) :
+		if ( bbp_has_forums( $forums_query ) ) :
 
 			echo $before_widget;
 			echo $before_title . $title . $after_title; ?>
@@ -454,30 +448,18 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		// Query defaults
 		$topics_query = array(
+			'post_parent'    => $parent_forum,
 			'post_author'    => 0,
 			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
-			'show_stickies'  => false,
 			'posts_per_page' => $max_shown,
+			'show_stickies'  => false,
 			'order'          => 'DESC',
 		);
 
-		// Setup a meta_query to remove hidden forums
-		if ( ( empty( $parent_forum ) || ( 'any' == $parent_forum ) ) && ( $hidden = bbp_get_hidden_forum_ids() ) ) {
-
-			// Value and compare for meta_query
-			$value   = implode( ',', $hidden );
-			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
-
-			// Add meta_query to $replies_query
-			$topics_query['meta_query'] = array( array(
-				'key'     => '_bbp_forum_id',
-				'value'   => $value,
-				'compare' => $compare
-			) );
-			$topics_query['post_parent'] = 'any';
-		}
-
 		bbp_set_query_name( 'bbp_widget' );
+
+		// Remove any topics from hidden forums
+		$topics_query = bbp_exclude_forum_ids( $topics_query );
 
 		if ( $pop_check < $max_shown && bbp_has_topics( $topics_query ) ) :
 
@@ -654,23 +636,11 @@ class BBP_Replies_Widget extends WP_Widget {
 			'order'          => 'DESC'
 		);
 
-		// Setup a meta_query to remove hidden forums
-		if ( $hidden = bbp_get_hidden_forum_ids() ) {
-
-			// Value and compare for meta_query
-			$value   = implode( ',', $hidden );
-			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
-
-			// Add meta_query to $replies_query
-			$replies_query['meta_query'] = array( array(
-				'key'     => '_bbp_forum_id',
-				'value'   => $value,
-				'compare' => $compare
-			) );
-		}
-
 		// Set the query name
 		bbp_set_query_name( 'bbp_widget' );
+
+		// Exclude hidden forums
+		$replies_query = bbp_exclude_forum_ids( $replies_query );
 
 		// Get replies and display them
 		if ( bbp_has_replies( $replies_query ) ) :

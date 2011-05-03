@@ -173,7 +173,7 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 	do_action( 'bbp_publicize_forum',  $forum_id );
 
 	// Only run queries if visibility is changing
-	if ( 'public' != $current_visibility ) {
+	if ( 'publish' != $current_visibility ) {
 
 		// Remove from _bbp_private_forums site option
 		if ( 'private' == $current_visibility ) {
@@ -213,8 +213,10 @@ function bbp_publicize_forum( $forum_id = 0, $current_visibility = '' ) {
 			}
 		}
 
-		// Update forums visibility setting
-		update_post_meta( $forum_id, '_bbp_visibility', 'public' );
+		// Update forum post_status
+		global $wpdb;
+		$wpdb->update( $wpdb->posts, array( 'post_status' => 'publish' ), array( 'ID' => $forum_id ) );
+		wp_transition_post_status( 'publish', $current_visibility, get_post( $forum_id ) );
 	}
 
 	do_action( 'bbp_publicized_forum', $forum_id );
@@ -265,7 +267,9 @@ function bbp_privatize_forum( $forum_id = 0, $current_visibility = '' ) {
 		update_option( '_bbp_private_forums', array_unique( array_values( $private ) ) );
 
 		// Update forums visibility setting
-		update_post_meta( $forum_id, '_bbp_visibility', 'private' );
+		global $wpdb;
+		$wpdb->update( $wpdb->posts, array( 'post_status' => 'private' ), array( 'ID' => $forum_id ) );
+		wp_transition_post_status( 'private', $current_visibility, get_post( $forum_id ) );
 	}
 
 	do_action( 'bbp_privatized_forum', $forum_id );
@@ -316,7 +320,9 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 		update_option( '_bbp_hidden_forums', array_unique( array_values( $hidden ) ) );
 
 		// Update forums visibility setting
-		update_post_meta( $forum_id, '_bbp_visibility', 'hidden' );
+		global $bbp, $wpdb;
+		$wpdb->update( $wpdb->posts, array( 'post_status' => 'hidden' ), array( 'ID' => $forum_id ) );
+		wp_transition_post_status( $bbp->hidden_status_id, $current_visibility, get_post( $forum_id ) );
 	}
 
 	do_action( 'bbp_hid_forum',  $forum_id );
@@ -761,6 +767,53 @@ function bbp_get_private_forum_ids() {
 }
 
 /**
+ * Returns a meta_query that either includes or excludes hidden forum IDs
+ * from a query.
+ *
+ * @uses is_super_admin()
+ * @uses bbp_is_user_home()
+ * @uses bbp_get_hidden_forum_ids()
+ * @uses bbp_get_private_forum_ids()
+ */
+function bbp_exclude_forum_ids( $query = array() ) {
+
+	// Show hidden topics for super admins
+	if ( is_super_admin() || bbp_is_user_home() )
+		return $query;
+
+	// Setup arrays
+	$private = $hidden = array();
+
+	// Private forums
+	if ( !current_user_can( 'read_private_forums' ) )
+		$private = bbp_get_private_forum_ids();
+
+	// Hidden forums
+	if ( !current_user_can( 'read_hidden_forums' ) )
+		$hidden  = bbp_get_hidden_forum_ids();
+
+	// Merge private and hidden forums together
+	$forum_ids = array_merge( $private, $hidden );
+
+	// Setup a meta_query to remove hidden forums
+	$value   = implode( ',', $forum_ids );
+	$compare = ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!=';
+
+	// Add meta_query to $replies_query
+	$meta_query['meta_query'] = array( array(
+		'key'     => '_bbp_forum_id',
+		'value'   => $value,
+		'compare' => $compare
+	) );
+
+	// Merge the queries together
+	if ( !empty( $meta_query ) )
+		$query = array_merge( $query, $meta_query );
+
+	return apply_filters( 'bbp_exclude_forum_ids', $query, $meta_query );
+}
+
+/**
  * Returns the forum's topic ids
  *
  * Only topics with published and closed statuses are returned
@@ -856,27 +909,28 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
  * @uses bbp_set_404() To set a 404 status
  */
 function bbp_forum_visibility_check() {
+	global $wp_query;
 
 	// Bail if not viewing a single item or if user has caps
 	if ( !is_singular() || is_super_admin() || ( current_user_can( 'read_private_forums' ) && current_user_can( 'read_hidden_forums' ) ) )
 		return;
 
 	// Check post type
-	switch ( get_post_type() ) {
+	switch ( $wp_query->get( 'post_type' ) ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$forum_id = bbp_get_forum_id( get_the_ID() );
+			$forum_id = bbp_get_forum_id( $wp_query->post->ID );
 			break;
 
 		// Topic
 		case bbp_get_topic_post_type() :
-			$forum_id = bbp_get_topic_forum_id( get_the_ID() );
+			$forum_id = bbp_get_topic_forum_id( $wp_query->post->ID );
 			break;
 
 		// Reply
 		case bbp_get_reply_post_type() :
-			$forum_id = bbp_get_reply_forum_id( get_the_ID() );
+			$forum_id = bbp_get_reply_forum_id( $wp_query->post->ID );
 			break;
 
 	}

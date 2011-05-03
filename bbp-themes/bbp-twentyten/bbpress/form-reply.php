@@ -7,6 +7,9 @@
  * @subpackage Theme
  */
 
+// Make sure we're back where we started
+wp_reset_postdata();
+
 ?>
 
 <?php if ( bbp_is_reply_edit() || bbp_is_topic_open() || current_user_can( 'edit_topic', bbp_get_topic_id() ) ) : ?>
