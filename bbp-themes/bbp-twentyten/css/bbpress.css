@@ -8,6 +8,10 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
+img.avatar {
+	float: none;
+}
+
 #content hr,
 #container hr {
 	margin: 0 0 24px 0;
