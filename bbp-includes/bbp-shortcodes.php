@@ -85,6 +85,44 @@ class BBP_Shortcodes {
 		$bbp->current_reply_id = null;
 	}
 
+	/** Output Buffers ********************************************************/
+
+	/**
+	 * Start an output buffer.
+	 *
+	 * This is used to put the contents of the shortcode into a variable rather
+	 * than outputting the HTML at run-time. This allows shortcodes to appear
+	 * in the correct location in the_content() instead of when it's created.
+	 *
+	 * @since bbPress (r3079)
+	 * @uses ob_start()
+	 */
+	function _ob_start() {
+		ob_start();
+	}
+
+	/**
+	 * Return the contents of the output buffer and flush its contents.
+	 *
+	 * @since bbPress( r3079)
+	 *
+	 * @uses BBP_Shortcodes::_unset_globals() Cleans up global values
+	 * @return string Contents of output buffer.
+	 */
+	function _ob_end() {
+
+		// Put output into usable variable
+		$output = ob_get_contents();
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Flush the output buffer
+		ob_end_clean();
+
+		return $output;
+	}
+
 	/** Forum shortcodes ******************************************************/
 
 	/**
@@ -103,7 +141,7 @@ class BBP_Shortcodes {
 	function display_forum_index() {
 
 		// Start output buffer
-		ob_start();
+		$this->_ob_start();
 
 		// Load the forums index
 		if ( bbp_has_forums() )
@@ -113,16 +151,8 @@ class BBP_Shortcodes {
 		else
 			bbp_get_template_part( 'bbpress/no', 'forums' );
 
-		// Put output into usable variable
-		$output = ob_get_contents();
-
-		// Unset globals
-		$this->_unset_globals();
-
-		// Flush the output buffer
-		ob_end_clean();
-
-		return $output;
+		// Return contents of output buffer
+		return $this->_ob_end();
 	}
 
 	/**
@@ -154,7 +184,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Start output buffer
-		ob_start();
+		$this->_ob_start();
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -167,7 +197,7 @@ class BBP_Shortcodes {
 				// Forum query
 				$forum_query = array( 'post_parent' => $forum_id );
 
-				// Load the forum
+				// Load the sub forums
 				if ( bbp_has_forums( $forum_query ) ) {
 					bbp_single_forum_description( array( 'forum_id' => $forum_id ) );
 					bbp_get_template_part( 'bbpress/loop', 'forums' );
@@ -213,16 +243,8 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/no', 'access' );
 		}
 
-		// Put output into usable variable
-		$output = ob_get_contents();
-
-		// Unset globals
-		$this->_unset_globals();
-
-		// Flush the output buffer
-		ob_end_clean();
-
-		return $output;
+		// Return contents of output buffer
+		return $this->_ob_end();
 	}
 
 	/** Topic shortcodes ******************************************************/
@@ -250,20 +272,8 @@ class BBP_Shortcodes {
 			'order'          => 'DESC',
 		);
 
-		// Setup a meta_query to remove hidden forums
-		if ( $hidden = bbp_get_hidden_forum_ids() ) {
-
-			// Value and compare for meta_query
-			$value   = implode( ',', $hidden );
-			$compare = ( 1 < count( $hidden ) ) ? 'NOT IN' : '!=';
-
-			// Add meta_query to $replies_query
-			$topics_query['meta_query'] = array( array(
-				'key'     => '_bbp_forum_id',
-				'value'   => $value,
-				'compare' => $compare
-			) );
-		}
+		// Remove any topics from hidden forums
+		$topics_query = bbp_exclude_hidden_forums( $topics_query );
 
 		// Unset globals
 		$this->_unset_globals();
@@ -282,16 +292,8 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/no', 'topics' );
 		}
 
-		// Put output into usable variable
-		$output = ob_get_contents();
-
-		// Unset globals
-		$this->_unset_globals();
-
-		// Flush the output buffer
-		ob_end_clean();
-
-		return $output;
+		// Return contents of output buffer
+		return $this->_ob_end();
 	}
 
 	/**
@@ -346,7 +348,7 @@ class BBP_Shortcodes {
 		$bbp->topic_query->post                    = get_post( $topic_id );
 
 		// Start output buffer
-		ob_start();
+		$this->_ob_start();
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -378,16 +380,8 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/no', 'access' );
 		}
 
-		// Put output into usable variable
-		$output = ob_get_contents();
-
-		// Unset globals
-		$this->_unset_globals();
-
-		// Flush the output buffer
-		ob_end_clean();
-
-		return $output;
+		// Return contents of output buffer
+		return $this->_ob_end();
 	}
 
 	/**
@@ -402,18 +396,13 @@ class BBP_Shortcodes {
 	function display_topic_form() {
 
 		// Start output buffer
-		ob_start();
+		$this->_ob_start();
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'topic'  );
 
-		// Put output into usable variable
-		$output = ob_get_contents();
-
-		// Flush the output buffer
-		ob_end_clean();
-
-		return $output;
+		// Return contents of output buffer
+		return $this->_ob_end();
 	}
 
 	/** Replies ***************************************************************/
@@ -430,18 +419,13 @@ class BBP_Shortcodes {
 	function display_reply_form() {
 
 		// Start output buffer
-		ob_start();
+		$this->_ob_start();
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'reply'  );
 
-		// Put output into usable variable
-		$output = ob_get_contents();
-
-		// Flush the output buffer
-		ob_end_clean();
-
-		return $output;
+		// Return contents of output buffer
+		return $this->_ob_end();
 	}
 }
 endif;
