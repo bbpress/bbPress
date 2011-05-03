@@ -821,18 +821,18 @@ class bbPress {
 		// New rules to merge with existing
 		$bbp_rules = array(
 
-			// Edit Pages
+			// Edit Topic/Reply
 			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			$this->user_slug  . '/([^/]+)/edit/?$' => 'index.php?bbp_user='                       . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-
-			// @todo - favorites feeds
-			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
-			//$this->user_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// Profile Page
 			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
 			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ),
+			$this->user_slug  . '/([^/]+)/edit/?$'             => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+
+			// @todo - favorites feeds
+			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->user_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// @todo - view feeds
 			//$this->view_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
