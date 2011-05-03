@@ -882,7 +882,7 @@ function bbp_user_register_fields() {
 		<input type="hidden" name="action"      value="register" />
 		<input type="hidden" name="user-cookie" value="1" />
 
-		<?php bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), bbp_login_url() ) ); ?>
+		<?php bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), '' ) ); ?>
 
 		<?php wp_nonce_field( 'bbp-user-register' );
 }
