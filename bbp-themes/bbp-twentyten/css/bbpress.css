@@ -8,8 +8,9 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
-img.avatar {
+table a img.avatar {
 	float: none;
+	margin-bottom: -7px;
 }
 
 #content hr,
