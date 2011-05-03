@@ -8,11 +8,6 @@
 /* =bbPress Style
 -------------------------------------------------------------- */
 
-table a img.avatar {
-	float: none;
-	margin-bottom: -7px;
-}
-
 #content hr,
 #container hr {
 	margin: 0 0 24px 0;
@@ -497,12 +492,27 @@ body.single-topic .bbp-reply-revision-log {
 /* =Avatars
 -------------------------------------------------------------- */
 
-body.bbPress p.bbp-topic-meta img.avatar,
-body.bbPress ul.bbp-reply-revision-log img.avatar,
-body.bbPress ul.bbp-topic-revision-log img.avatar,
-body.bbPress div.bbp-template-notice img.avatar,
-body.bbPress .widget_display_topics img.avatar,
-body.bbPress .widget_display_replies img.avatar {
+#content p.bbp-topic-meta img.avatar,
+#content ul.bbp-reply-revision-log img.avatar,
+#content ul.bbp-topic-revision-log img.avatar,
+#content div.bbp-template-notice img.avatar,
+#content .widget_display_topics img.avatar,
+#content .widget_display_replies img.avatar,
+#content p.bbp-topic-meta img.avatar,
+
+#main ul.bbp-reply-revision-log img.avatar,
+#main ul.bbp-topic-revision-log img.avatar,
+#main div.bbp-template-notice img.avatar,
+#main .widget_display_topics img.avatar,
+#main .widget_display_replies img.avatar,
+#main p.bbp-topic-meta img.avatar,
+
+#container ul.bbp-reply-revision-log img.avatar,
+#container ul.bbp-topic-revision-log img.avatar,
+#container div.bbp-template-notice img.avatar,
+#container .widget_display_topics img.avatar,
+#container .widget_display_replies img.avatar {
+	float: none;
 	margin-bottom: -7px;
 	border: 3px double #ddd;
 }
