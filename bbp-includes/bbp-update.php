@@ -1,5 +1,9 @@
 <?php
 
+
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Walk through the DB and update any old meta_key's to their new names
  *

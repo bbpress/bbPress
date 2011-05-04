@@ -9,6 +9,9 @@
  * @subpackage Widgets
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * bbPress Login Widget
  *

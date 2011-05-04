@@ -7,6 +7,9 @@
  * @subpackage Functions
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Redirect back to $url when attempting to use the login page
  *

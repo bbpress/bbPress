@@ -7,6 +7,9 @@
  * @subpackage Administration
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /** Admin Menus ***************************************************************/
 
 /**
@@ -16,6 +19,9 @@
  */
 function bbp_admin_separator () {
 	global $menu;
+
+	if ( !current_user_can( 'edit_replies' ) )
+		return;
 
 	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator' );
 }
@@ -29,6 +35,9 @@ function bbp_admin_separator () {
  * @return bool Always true
  */
 function bbp_admin_custom_menu_order( $menu_order ) {
+	if ( !current_user_can( 'edit_replies' ) )
+		return false;
+
 	return true;
 }
 
@@ -49,11 +58,27 @@ function bbp_admin_menu_order( $menu_order ) {
 	// Get the index of our custom separator
 	$bbp_separator = array_search( 'separator-bbpress', $menu_order );
 
+	// Forums
+	if ( current_user_can( 'edit_forums' ) )
+		$top_menu_type = bbp_get_forum_post_type();
+
+	// Topics
+	elseif ( current_user_can( 'edit_topics' ) )
+		$top_menu_type = bbp_get_topic_post_type();
+
+	// Replies
+	elseif ( current_user_can( 'edit_replies' ) )
+		$top_menu_type = bbp_get_reply_post_type();
+
+	// Bail if there are no bbPress menus present
+	else
+		return;
+
 	// Loop through menu order and do some rearranging
 	foreach ( $menu_order as $index => $item ) {
 
-		// Current item is our forum CPT, so set our separator here
-		if ( ( ( 'edit.php?post_type=' . bbp_get_forum_post_type() ) == $item ) ) {
+		// Current item is ours, so set our separator here
+		if ( ( ( 'edit.php?post_type=' . $top_menu_type ) == $item ) ) {
 			$bbp_menu_order[] = 'separator-bbpress';
 			unset( $menu_order[$bbp_separator] );
 		}

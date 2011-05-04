@@ -7,6 +7,9 @@
  * @subpackage Shortcodes
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 if ( !class_exists( 'BBP_Shortcodes' ) ) :
 /**
  * bbPress Shortcode Class

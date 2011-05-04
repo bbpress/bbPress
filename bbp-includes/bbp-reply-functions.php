@@ -7,6 +7,9 @@
  * @subpackage Functions
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Update the reply with its forum id it is in
  *

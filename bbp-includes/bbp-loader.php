@@ -7,6 +7,9 @@
  * @subpackage Loader
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /** Main Actions **************************************************************/
 
 /**

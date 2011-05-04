@@ -7,6 +7,9 @@
  * @subpackage Administration
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Admin tools page
  *

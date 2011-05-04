@@ -18,6 +18,9 @@
  * Version: plugin-alpha-2
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * bbPress version
  *

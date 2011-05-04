@@ -7,6 +7,9 @@
  * @subpackage Functions
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /** Post Form Handlers ********************************************************/
 
 /**

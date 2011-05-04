@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * bbPress Classes
+ *
+ * @package bbPress
+ * @subpackage Classes
+ */
+
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 if ( !class_exists( 'BBP_Component' ) ) :
 /**
  * bbPress Component Class

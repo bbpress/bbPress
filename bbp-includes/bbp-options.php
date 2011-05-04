@@ -7,6 +7,9 @@
  * @subpackage Options
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Add default options
  *

@@ -7,6 +7,9 @@
  * @subpackage Capabilities
  */
 
+// Redirect if accessed directly
+if ( !defined( 'ABSPATH' ) ) exit;
+
 /**
  * Adds bbPress-specific user roles.
  *
