@@ -2740,16 +2740,25 @@ function bbp_form_topic_subscribed() {
 		global $post;
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_subscription'] ) )
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_subscription'] ) ) {
 			$topic_subscribed = $_POST['bbp_topic_subscription'];
 
 		// Get edit data
-		elseif ( bbp_is_topic_edit() )
-			$topic_subscribed = bbp_is_user_subscribed( $post->post_author );
+		} elseif ( bbp_is_topic_edit() || bbp_is_reply_edit() ) {
+
+			// Post author is not the current user
+			if ( $post->post_author != bbp_get_current_user_id() ) {
+				$topic_subscribed = bbp_is_user_subscribed( $post->post_author );
+
+			// Post author is the current user
+			} else {
+				$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+			}
 
 		// No data
-		else
+		} else {
 			$topic_subscribed = 0;
+		}
 
 		return apply_filters( 'bbp_get_form_topic_subscribed', checked( 'bbp_subscribe', $topic_subscribed, false ) );
 	}
