@@ -233,7 +233,7 @@ function bbp_recount_topic_voices() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_hidden_replies() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of spammed and trashed replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
