@@ -431,8 +431,14 @@ div.bbp-template-notice a {
 
 /* =Revisions
 -------------------------------------------------------------- */
-body.single-topic .bbp-topic-revision-log,
-body.single-topic .bbp-reply-revision-log {
+#content .bbp-topic-revision-log,
+#content .bbp-reply-revision-log,
+
+#main .bbp-topic-revision-log,
+#main .bbp-reply-revision-log,
+
+#container .bbp-topic-revision-log,
+#container .bbp-reply-revision-log {
 	border-top: 1px dotted #ddd;
 	list-style: none;
 	width: 100%;
