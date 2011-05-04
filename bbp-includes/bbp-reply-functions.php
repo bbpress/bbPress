@@ -306,7 +306,7 @@ function bbp_edit_reply_handler() {
 		$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
 
 		// Handle Content
-		if ( empty( $_POST['bbp_reply_content'] ) || ( !$reply_content = $_POST['bbp_reply_content'] ) )
+		if ( isset( $_POST['bbp_reply_content'] ) && ( !$reply_content = $_POST['bbp_reply_content'] ) )
 			$bbp->errors->add( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 
 		$reply_content = apply_filters( 'bbp_edit_reply_pre_content', $reply_content, $reply_id );
