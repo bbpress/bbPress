@@ -69,7 +69,10 @@ class BBP_Topics_Admin {
 	function _setup_actions() {
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head', array( $this, 'admin_head' ) );
+		add_action( 'admin_head',            array( $this, 'admin_head'       ) );
+
+		// Messages
+		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Topic column headers.
 		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'topics_column_headers' ) );
@@ -767,6 +770,77 @@ class BBP_Topics_Admin {
 
 		// Return manipulated query_vars
 		return $query_vars;
+	}
+
+	/**
+	 * Custom user feedback messages for topic post type
+	 *
+	 * @since bbPress (r3080)
+	 *
+	 * @global WP_Query $post
+	 * @global int $post_ID
+	 * @uses get_post_type()
+	 * @uses bbp_get_topic_permalink()
+	 * @uses wp_post_revision_title()
+	 * @uses esc_url()
+	 * @uses add_query_arg()
+	 *
+	 * @param array $messages
+	 *
+	 * @return array
+	 */
+	function updated_messages( $messages ) {
+		global $post, $post_ID;
+
+		if ( get_post_type( $post_ID ) != $this->post_type )
+			return $messages;
+
+		// URL for the current topic
+		$topic_url = bbp_get_topic_permalink( $post_ID );
+
+		// Messages array
+		$messages[$this->post_type] = array(
+			0 =>  '', // Left empty on purpose
+
+			// Updated
+			1 =>  sprintf( __( 'Topic updated. <a href="%s">View topic</a>' ), $topic_url ),
+
+			// Custom field updated
+			2 => __( 'Custom field updated.', 'bbpress' ),
+
+			// Custom field deleted
+			3 => __( 'Custom field deleted.', 'bbpress' ),
+
+			// Topic updated
+			4 => __( 'Topic updated.', 'bbpress' ),
+
+			// Restored from revision
+			// translators: %s: date and time of the revision
+			5 => isset( $_GET['revision'] )
+					? sprintf( __( 'Topic restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+					: false,
+
+			// Topic created
+			6 => sprintf( __( 'Topic created. <a href="%s">View topic</a>', 'bbpress' ), $topic_url ),
+
+			// Topic saved
+			7 => __( 'Topic saved.', 'bbpress' ),
+
+			// Topic submitted
+			8 => sprintf( __( 'Topic submitted. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
+
+			// Topic scheduled
+			9 => sprintf( __( 'Topic scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview topic</a>', 'bbpress' ),
+					// translators: Publish box date format, see http://php.net/date
+					date_i18n( __( 'M j, Y @ G:i' ),
+					strtotime( $post->post_date ) ),
+					$topic_url ),
+
+			// Topic draft updated
+			10 => sprintf( __( 'Topic draft updated. <a target="_blank" href="%s">Preview topic</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $topic_url ) ) ),
+		);
+
+		return $messages;
 	}
 }
 endif; // class_exists check

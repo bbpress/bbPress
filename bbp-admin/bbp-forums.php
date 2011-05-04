@@ -69,18 +69,21 @@ class BBP_Forums_Admin {
 	function _setup_actions() {
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head', array( $this, 'admin_head' ) );
+		add_action( 'admin_head',            array( $this, 'admin_head'              ) );
 
-		// Forum metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'forum_attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'forum_attributes_metabox_save' ) );
+		// Messages
+		add_filter( 'post_updated_messages', array( $this, 'updated_messages'        ) );
 
-		// Forum column headers.
-		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'forums_column_headers' )        );
+		// Metabox actions
+		add_action( 'add_meta_boxes',        array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',             array( $this, 'attributes_metabox_save' ) );
 
-		// Forum columns (in page row)
-		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'forums_column_data'    ), 10, 2 );
-		add_filter( 'page_row_actions',                                     array( $this, 'forums_row_actions'    ), 10, 2 );
+		// Column headers.
+		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'column_headers' )        );
+
+		// Columns (in page row)
+		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data'    ), 10, 2 );
+		add_filter( 'page_row_actions',                                     array( $this, 'row_actions'    ), 10, 2 );
 	}
 
 	/**
@@ -104,7 +107,7 @@ class BBP_Forums_Admin {
 	 * @uses add_meta_box() To add the metabox
 	 * @uses do_action() Calls 'bbp_forum_attributes_metabox'
 	 */
-	function forum_attributes_metabox() {
+	function attributes_metabox() {
 		add_meta_box (
 			'bbp_forum_attributes',
 			__( 'Forum Attributes', 'bbpress' ),
@@ -139,7 +142,7 @@ class BBP_Forums_Admin {
 	 *                    forum id
 	 * @return int Forum id
 	 */
-	function forum_attributes_metabox_save( $forum_id ) {
+	function attributes_metabox_save( $forum_id ) {
 		global $bbp;
 
 		// Bail if doing an autosave
@@ -299,7 +302,7 @@ class BBP_Forums_Admin {
 	 *                        the columns
 	 * @return array $columns bbPress forum columns
 	 */
-	function forums_column_headers( $columns ) {
+	function column_headers( $columns ) {
 		$columns = array (
 			'cb'                    => '<input type="checkbox" />',
 			'title'                 => __( 'Forum',     'bbpress' ),
@@ -330,7 +333,7 @@ class BBP_Forums_Admin {
 	 * @uses do_action() Calls 'bbp_admin_forums_column_data' with the
 	 *                    column and forum id
 	 */
-	function forums_column_data( $column, $forum_id ) {
+	function column_data( $column, $forum_id ) {
 		switch ( $column ) {
 			case 'bbp_forum_topic_count' :
 				bbp_forum_topic_count( $forum_id );
@@ -375,7 +378,7 @@ class BBP_Forums_Admin {
 	 * @uses the_content() To output forum description
 	 * @return array $actions Actions
 	 */
-	function forums_row_actions( $actions, $forum ) {
+	function row_actions( $actions, $forum ) {
 		if ( $forum->post_type == $this->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
@@ -384,6 +387,77 @@ class BBP_Forums_Admin {
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Custom user feedback messages for forum post type
+	 *
+	 * @since bbPress (r3080)
+	 *
+	 * @global WP_Query $post
+	 * @global int $post_ID
+	 * @uses get_post_type()
+	 * @uses bbp_get_forum_permalink()
+	 * @uses wp_post_revision_title()
+	 * @uses esc_url()
+	 * @uses add_query_arg()
+	 *
+	 * @param array $messages
+	 *
+	 * @return array
+	 */
+	function updated_messages( $messages ) {
+		global $post, $post_ID;
+
+		if ( get_post_type( $post_ID ) != $this->post_type )
+			return $messages;
+
+		// URL for the current forum
+		$forum_url = bbp_get_forum_permalink( $post_ID );
+
+		// Messages array
+		$messages[$this->post_type] = array(
+			0 =>  '', // Left empty on purpose
+
+			// Updated
+			1 =>  sprintf( __( 'Forum updated. <a href="%s">View forum</a>' ), $forum_url ),
+
+			// Custom field updated
+			2 => __( 'Custom field updated.', 'bbpress' ),
+
+			// Custom field deleted
+			3 => __( 'Custom field deleted.', 'bbpress' ),
+
+			// Forum updated
+			4 => __( 'Forum updated.', 'bbpress' ),
+
+			// Restored from revision
+			// translators: %s: date and time of the revision
+			5 => isset( $_GET['revision'] )
+					? sprintf( __( 'Forum restored to revision from %s', 'bbpress' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+					: false,
+
+			// Forum created
+			6 => sprintf( __( 'Forum created. <a href="%s">View forum</a>', 'bbpress' ), $forum_url ),
+
+			// Forum saved
+			7 => __( 'Forum saved.', 'bbpress' ),
+
+			// Forum submitted
+			8 => sprintf( __( 'Forum submitted. <a target="_blank" href="%s">Preview forum</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $forum_url ) ) ),
+
+			// Forum scheduled
+			9 => sprintf( __( 'Forum scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview forum</a>', 'bbpress' ),
+					// translators: Publish box date format, see http://php.net/date
+					date_i18n( __( 'M j, Y @ G:i' ),
+					strtotime( $post->post_date ) ),
+					$forum_url ),
+
+			// Forum draft updated
+			10 => sprintf( __( 'Forum draft updated. <a target="_blank" href="%s">Preview forum</a>', 'bbpress' ), esc_url( add_query_arg( 'preview', 'true', $forum_url ) ) ),
+		);
+
+		return $messages;
 	}
 }
 endif; // class_exists check
