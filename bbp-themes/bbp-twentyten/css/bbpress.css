@@ -17,6 +17,20 @@
 	border-bottom: 1px solid #fff;
 }
 
+#content table.bbp-topics,
+#content table.bbp-forums,
+#content table.bbp-replies,
+
+#container table.bbp-topics,
+#container table.bbp-forums,
+#container table.bbp-replies,
+
+#main table.bbp-topics,
+#main table.bbp-forums,
+#main table.bbp-replies {
+	clear: left;
+}
+
 /* =Tables
 -------------------------------------------------------------- */
 
