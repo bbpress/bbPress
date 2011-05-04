@@ -70,37 +70,36 @@ class BBP_Admin {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses add_filter() To add various filters
-	 * @uses bbp_get_forum_post_type() To get the forum post type
-	 * @uses bbp_get_topic_post_type() To get the topic post type
-	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
 	function _setup_actions() {
 
 		/** General Actions ***************************************************/
 
+		// Attach the bbPress admin init action to the WordPress admin init action.
+		add_action( 'admin_init',    array( $this, 'init'                    ) );
+
 		// Add some general styling to the admin area
-		add_action( 'admin_head',          array( $this, 'admin_head'                 )        );
-
-		// Add notice if not using a bbPress theme
-		add_action( 'admin_notices',       array( $this, 'activation_notice'          )        );
-
-		// Add link to settings page
-		add_filter( 'plugin_action_links', array( $this, 'add_settings_link'          ), 10, 2 );
+		add_action( 'admin_head',    array( $this, 'admin_head'              ) );
 
 		// Add menu item to settings menu
-		add_action( 'admin_menu',          array( $this, 'admin_menus'                )        );
+		add_action( 'admin_menu',    array( $this, 'admin_menus'             ) );
 
-		// Add the settings
-		add_action( 'admin_init',          array( $this, 'register_admin_settings'    )        );
-
-		// Attach the bbPress admin init action to the WordPress admin init action.
-		add_action( 'admin_init',          array( $this, 'init'                       )        );
+		// Add notice if not using a bbPress theme
+		add_action( 'admin_notices', array( $this, 'activation_notice'       ) );
 
 		// Register bbPress admin style
-		add_action( 'admin_init',          array( $this, 'register_admin_style'       )        );
+		add_action( 'admin_init',    array( $this, 'register_admin_style'    ) );
+
+		// Add the settings
+		add_action( 'admin_init',    array( $this, 'register_admin_settings' ) );
 
 		// Forums 'Right now' Dashboard widget
-		add_action( 'wp_dashboard_setup',  array( $this, 'dashboard_widget_right_now' )        );
+		add_action( 'wp_dashboard_setup', array( $this, 'dashboard_widget_right_now' ) );
+
+		/** Filters ***********************************************************/
+
+		// Add link to settings page
+		add_filter( 'plugin_action_links', array( $this, 'add_settings_link' ), 10, 2 );
 	}
 
 	/**

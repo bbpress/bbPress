@@ -74,8 +74,7 @@ class BBP_Users_Admin {
 	 * @since bbPress (r2646)
 	 * @access private
 	 */
-	function _setup_globals() {
-	}
+	function _setup_globals() { }
 
 	/**
 	 * Add some general styling to the admin area
@@ -87,26 +86,7 @@ class BBP_Users_Admin {
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses sanitize_html_class() To sanitize the classes
 	 */
-	function admin_head() {
-
-		// Icons for top level admin menus
-		$menu_icon_url = $this->images_url . 'menu.png';
-		$icon32_url    = $this->images_url . 'icons32.png';
-
-		// Top level menu classes
-		$forum_class = sanitize_html_class( bbp_get_forum_post_type() );
-		$topic_class = sanitize_html_class( bbp_get_topic_post_type() );
-		$reply_class = sanitize_html_class( bbp_get_reply_post_type() ); ?>
-
-		<style type="text/css" media="screen">
-		/*<![CDATA[*/
-
-		/*]]>*/
-		</style>
-
-		<?php
-
-	}
+	function admin_head() { }
 
 	/**
 	 * Responsible for saving additional profile options and settings
@@ -120,10 +100,6 @@ class BBP_Users_Admin {
 	 * @return bool Always false
 	 */
 	function user_profile_update( $user_id ) {
-
-		// Add extra actions to bbPress profile update
-		do_action( 'bbp_user_profile_update' );
-
 		return false;
 	}
 
@@ -139,24 +115,22 @@ class BBP_Users_Admin {
 	 * @return bool Always false
 	 */
 	function user_profile_forums( $profileuser ) {
-		return false; ?>
-
-		<h3><?php _e( 'Forums', 'bbpress' ); ?></h3>
-		<table class="form-table">
-			<tr valign="top">
-				<th scope="row"><?php _e( 'Forums', 'bbpress' ); ?></th>
-				<td>
-
-				</td>
-			</tr>
-		</table>
-
-		<?php
-
-		// Add extra actions to bbPress profile update
-		do_action( 'bbp_user_profile_forums' );
+		return false;
 	}
 }
 endif; // class exists
+
+/**
+ * Setup bbPress Users Admin
+ *
+ * @since bbPress (r2596)
+ *
+ * @uses BBP_Replies_Admin
+ */
+function bbp_users_admin() {
+	global $bbp;
+
+	$bbp->admin->users = new BBP_Users_Admin();
+}
 
 ?>
