@@ -2660,19 +2660,43 @@ function bbp_form_topic_tags() {
 	 * @return string Value of topic tags field
 	 */
 	function bbp_get_form_topic_tags() {
-		global $post;
+		global $post, $bbp;
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_tags'] ) )
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_tags'] ) ) {
 			$topic_tags = $_POST['bbp_topic_tags'];
 
 		// Get edit data
-		elseif ( !empty( $post->post_title ) && bbp_is_topic_edit() )
-			$topic_tags = $post->post_tags;
+		} elseif ( !empty( $post ) ) {
+
+			// Post is a topic
+			if ( bbp_get_topic_post_type() == $post->post_type )
+				$topic_id = $post->ID;
+
+			// Post is a reply
+			elseif ( bbp_get_reply_post_type() == $post->post_type )
+				$topic_id = bbp_get_reply_topic_id( $post->ID );
+
+			// Topic exists and has tags
+			if ( !empty( $topic_id ) && ( $terms = get_the_terms( $topic_id, $bbp->topic_tag_id ) ) ) {
+
+				// Loop through them
+				foreach( $terms as $term ) {
+					$new_terms[] = $term->name;
+				}
+
+			// Prevent debug notices
+			} else {
+				$new_terms = '';
+			}
+
+			// Set the return value
+			$topic_tags = ( !empty( $new_terms ) ) ? implode( ', ', $new_terms ) : '';
 
 		// No data
-		else
+		} else {
 			$topic_tags = '';
+		}
 
 		return apply_filters( 'bbp_get_form_topic_tags', esc_attr( $topic_tags ) );
 	}

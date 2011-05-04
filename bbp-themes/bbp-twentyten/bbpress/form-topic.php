@@ -18,7 +18,7 @@ wp_reset_postdata();
 
 		<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">
 
-			<form id="new_post" name="new_post" method="post" action="">
+			<form id="new-post" name="new-post" method="post" action="">
 				<fieldset>
 					<legend>
 
@@ -38,6 +38,8 @@ wp_reset_postdata();
 						</div>
 
 					<?php endif; ?>
+
+					<?php do_action( 'bbp_template_notices' ); ?>
 
 					<div>
 						<div class="alignright avatar">
@@ -63,14 +65,12 @@ wp_reset_postdata();
 							<code><?php bbp_allowed_tags(); ?></code>
 						</p>
 
-						<?php if ( !bbp_is_topic_edit() ) : ?>
-
-							<p>
-								<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
-								<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" />
-							</p>
-
-						<?php endif; ?>
+						<?php bbp_form_topic_tags(); ?>
+						
+						<p>
+							<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
+							<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" />
+						</p>
 
 						<?php if ( !bbp_is_forum() ) : ?>
 

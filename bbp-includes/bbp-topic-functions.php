@@ -52,6 +52,9 @@ function bbp_new_topic_handler() {
 		// Nonce check
 		check_admin_referer( 'bbp-new-topic' );
 
+		// Prevent debug notices
+		$forum_id = $topic_title = $topic_content = '';
+
 		// Check users ability to create new topic
 		if ( !bbp_is_anonymous() ) {
 			if ( !current_user_can( 'publish_topics' ) )
@@ -283,6 +286,24 @@ function bbp_edit_topic_handler() {
 
 		$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
 
+		// Handle Tags
+		if ( !empty( $_POST['bbp_topic_tags'] ) ) {
+
+			// Escape tag input
+			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+
+			// Explode by comma
+			if ( strstr( $terms, ',' ) )
+				$terms = explode( ',', $terms );
+
+			// Add topic tag ID as main key
+			$terms = array( $bbp->topic_tag_id => $terms );
+
+		// No tags
+		} else {
+			$terms = array( $bbp->topic_tag_id => array() );
+		}
+
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
 
@@ -315,7 +336,8 @@ function bbp_edit_topic_handler() {
 				'ID'           => $topic_id,
 				'post_title'   => $topic_title,
 				'post_content' => $topic_content,
-				'post_parent'  => $forum_id
+				'post_parent'  => $forum_id,
+				'tax_input'    => $terms,
 			);
 
 			// Insert topic

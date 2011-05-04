@@ -125,6 +125,9 @@ function bbp_new_reply_handler() {
 		// Nonce check
 		check_admin_referer( 'bbp-new-reply' );
 
+		// Prevent debug notices
+		$topic_id = $forum_id = $reply_content = '';
+
 		// Check users ability to create new reply
 		if ( !bbp_is_anonymous() ) {
 			if ( !current_user_can( 'publish_replies' ) )
@@ -143,11 +146,11 @@ function bbp_new_reply_handler() {
 		}
 
 		// Handle Topic ID to append reply to
-		if ( empty( $_POST['bbp_topic_id'] ) || !$topic_id = $_POST['bbp_topic_id'] )
+		if ( isset( $_POST['bbp_topic_id'] ) && ( !$topic_id = (int) $_POST['bbp_topic_id'] ) )
 			$bbp->errors->add( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
 
 		// Handle Forum ID to adjust counts of
-		if ( empty( $_POST['bbp_forum_id'] ) || !$forum_id = $_POST['bbp_forum_id'] )
+		if ( isset( $_POST['bbp_forum_id'] ) && ( !$forum_id = (int) $_POST['bbp_forum_id'] ) )
 			$bbp->errors->add( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
 
 		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
@@ -163,7 +166,7 @@ function bbp_new_reply_handler() {
 		$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
 
 		// Handle Content
-		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = $_POST['bbp_reply_content'] ) {
+		if ( isset( $_POST['bbp_reply_content'] ) && ( !$reply_content = $_POST['bbp_reply_content'] ) ) {
 			$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 			$reply_content = '';
 		}
@@ -179,11 +182,14 @@ function bbp_new_reply_handler() {
 			$bbp->errors->add( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
 		// Handle Tags
-		if ( !empty( $_POST['bbp_topic_tags'] ) && $tags = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) ) ) {
-			$tags = wp_set_post_terms( $topic_id, $tags, $bbp->topic_tag_id, true );
+		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+			if ( isset( $_POST['bbp_topic_tags'] ) ) {
+				$tags = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+				$tags = wp_set_post_terms( $topic_id, $tags, $bbp->topic_tag_id, false );
 
-			if ( is_wp_error( $tags ) || false == $tags )
-				$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
+				if ( is_wp_error( $tags ) )
+					$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
+			}
 		}
 
 		// Handle insertion into posts table
@@ -267,6 +273,13 @@ function bbp_edit_reply_handler() {
 			// Nonce check
 			check_admin_referer( 'bbp-edit-reply_' . $reply_id );
 
+			// Get reply parent ID's
+			$topic_id = bbp_get_reply_topic_id( $reply_id );
+			$forum_id = bbp_get_topic_forum_id( $topic_id );
+
+			// Prevent debug notices
+			$reply_content = '';
+
 			// Check users ability to create new reply
 			if ( !bbp_is_reply_anonymous( $reply_id ) ) {
 				if ( !current_user_can( 'edit_reply', $reply_id ) ) {
@@ -293,10 +306,21 @@ function bbp_edit_reply_handler() {
 		$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
 
 		// Handle Content
-		if ( empty( $_POST['bbp_reply_content'] ) || !$reply_content = $_POST['bbp_reply_content'] )
+		if ( empty( $_POST['bbp_reply_content'] ) || ( !$reply_content = $_POST['bbp_reply_content'] ) )
 			$bbp->errors->add( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
 
 		$reply_content = apply_filters( 'bbp_edit_reply_pre_content', $reply_content, $reply_id );
+
+		// Handle Tags
+		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+			if ( isset( $_POST['bbp_topic_tags'] ) ) {
+				$tags = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+				$tags = wp_set_post_terms( $topic_id, $tags, $bbp->topic_tag_id, false );
+
+				if ( is_wp_error( $tags ) )
+					$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
+			}
+		}
 
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
@@ -318,10 +342,6 @@ function bbp_edit_reply_handler() {
 
 			// Check for missing reply_id or error
 			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
-
-				// Get reply parent ID's
-				$topic_id = bbp_get_reply_topic_id( $reply_id );
-				$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 				// Update counts, etc...
 				do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply->post_author , true /* Is edit */ );

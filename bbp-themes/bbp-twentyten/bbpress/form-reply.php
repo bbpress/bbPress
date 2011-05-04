@@ -18,7 +18,7 @@ wp_reset_postdata();
 
 		<div id="new-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-form">
 
-			<form id="new_post" name="new_post" method="post" action="">
+			<form id="new-post" name="new-post" method="post" action="">
 				<fieldset>
 					<legend><?php printf( __( 'Reply to: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
@@ -44,7 +44,7 @@ wp_reset_postdata();
 
 						<p>
 							<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" cols="51" rows="6"><?php echo ( bbp_is_reply_edit() && !empty( $post->post_content ) ) ? $post->post_content : ''; ?></textarea>
+							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" cols="51" rows="6"><?php bbp_form_reply_content(); ?></textarea>
 						</p>
 
 						<p class="form-allowed-tags">
@@ -52,31 +52,27 @@ wp_reset_postdata();
 							<code><?php bbp_allowed_tags(); ?></code>
 						</p>
 
-
-						<?php if ( !bbp_is_reply_edit() ) : ?>
-
-							<p>
-								<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
-								<input id="bbp_topic_tags" type="text" value="" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" />
-							</p>
-
-						<?php endif; ?>
-
+						<p>
+							<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
+							<input id="bbp_topic_tags" type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" />
+						</p>
 
 						<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_reply_edit() || ( bbp_is_reply_edit() && !bbp_is_reply_anonymous() ) ) ) : ?>
 
 							<p>
+
+								<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php bbp_form_topic_subscribed(); ?> tabindex="<?php bbp_tab_index(); ?>" />
+
 								<?php if ( bbp_is_reply_edit() && $post->post_author != bbp_get_current_user_id() ) : ?>
 
-									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( $post->post_author, bbp_get_topic_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify the author of follow-up replies via email', 'bbpress' ); ?></label>
 
 								<?php else : ?>
 
-									<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php checked( true, bbp_is_user_subscribed( bbp_get_user_id( 0, false, true ), bbp_get_topic_id() ) ); ?> tabindex="<?php bbp_tab_index(); ?>" />
 									<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
 
 								<?php endif; ?>
+
 							</p>
 
 						<?php endif; ?>
@@ -86,13 +82,13 @@ wp_reset_postdata();
 							<fieldset>
 								<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
 								<div>
-									<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" checked="checked" tabindex="<?php bbp_tab_index(); ?>" />
+									<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" <?php bbp_form_reply_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />
 									<label for="bbp_log_reply_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
 								</div>
 
 								<div>
 									<label for="bbp_reply_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />
-									<input type="text" value="" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
+									<input type="text" value="<?php bbp_form_reply_edit_reason(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
 								</div>
 							</fieldset>
 

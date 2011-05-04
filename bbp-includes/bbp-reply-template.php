@@ -1704,4 +1704,109 @@ function bbp_topic_pagination_links() {
 		return apply_filters( 'bbp_get_topic_pagination_links', $bbp->reply_query->pagination_links );
 	}
 
+/** Forms *********************************************************************/
+
+/**
+ * Output the value of reply content field
+ *
+ * @since bbPress {unknown}
+ *
+ * @uses bbp_get_form_reply_content() To get value of reply content field
+ */
+function bbp_form_reply_content() {
+	echo bbp_get_form_reply_content();
+}
+	/**
+	 * Return the value of reply content field
+	 *
+	 * @since bbPress {unknown}
+	 *
+	 * @uses bbp_is_reply_edit() To check if it's the reply edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_reply_content' with the content
+	 * @return string Value of reply content field
+	 */
+	function bbp_get_form_reply_content() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_content'] ) )
+			$reply_content = $_POST['bbp_reply_content'];
+
+		// Get edit data
+		elseif ( !empty( $post->post_title ) && bbp_is_reply_edit() )
+			$reply_content = $post->post_content;
+
+		// No data
+		else
+			$reply_content = '';
+
+		return apply_filters( 'bbp_get_form_reply_content', esc_textarea( $reply_content ) );
+	}
+
+/**
+ * Output checked value of reply log edit field
+ *
+ * @since bbPress {unknown}
+ *
+ * @uses bbp_get_form_reply_log_edit() To get the reply log edit value
+ */
+function bbp_form_reply_log_edit() {
+	echo bbp_get_form_reply_log_edit();
+}
+	/**
+	 * Return checked value of reply log edit field
+	 *
+	 * @since bbPress {unknown}
+	 *
+	 * @uses apply_filters() Calls 'bbp_get_form_reply_log_edit' with the
+	 *                        log edit value
+	 * @return string Reply log edit checked value
+	 */
+	function bbp_get_form_reply_log_edit() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_reply_edit'] ) )
+			$reply_revision = $_POST['bbp_log_reply_edit'];
+
+		// No data
+		else
+			$reply_revision = 1;
+
+		return apply_filters( 'bbp_get_form_reply_log_edit', checked( true, $reply_revision, false ) );
+	}
+
+/**
+ * Output the value of the reply edit reason
+ *
+ * @since bbPress {unknown}
+ *
+ * @uses bbp_get_form_reply_edit_reason() To get the reply edit reason value
+ */
+function bbp_form_reply_edit_reason() {
+	echo bbp_get_form_reply_edit_reason();
+}
+	/**
+	 * Return the value of the reply edit reason
+	 *
+	 * @since bbPress {unknown}
+	 *
+	 * @uses apply_filters() Calls 'bbp_get_form_reply_edit_reason' with the
+	 *                        reply edit reason value
+	 * @return string Reply edit reason value
+	 */
+	function bbp_get_form_reply_edit_reason() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_edit_reason'] ) )
+			$reply_edit_reason = $_POST['bbp_reply_edit_reason'];
+
+		// No data
+		else
+			$reply_edit_reason = '';
+
+		return apply_filters( 'bbp_get_form_reply_edit_reason', esc_attr( $reply_edit_reason ) );
+	}
+
 ?>
