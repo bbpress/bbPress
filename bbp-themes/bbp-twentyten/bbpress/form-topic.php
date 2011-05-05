@@ -65,8 +65,6 @@ wp_reset_postdata();
 							<code><?php bbp_allowed_tags(); ?></code>
 						</p>
 
-						<?php bbp_form_topic_tags(); ?>
-						
 						<p>
 							<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
 							<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" />
