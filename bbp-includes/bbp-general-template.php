@@ -388,7 +388,7 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 		$bbp_classes[] = bbp_get_topic_post_type() . '-edit';
 
 	if ( bbp_is_topic_merge() )
-		$bbp_classes[] = bbp_get_topic_post_type() . '-merege';
+		$bbp_classes[] = bbp_get_topic_post_type() . '-merge';
 
 	if ( bbp_is_topic_split() )
 		$bbp_classes[] = bbp_get_topic_post_type() . '-split';
@@ -404,23 +404,41 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	/** User **************************************************************/
 
-	if ( bbp_is_user_profile_edit() )
+	if ( bbp_is_user_profile_edit() ) {
 		$bbp_classes[] = 'bbp-user-edit';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
 
-	if ( bbp_is_user_profile_page() )
+	if ( bbp_is_user_profile_page() ) {
 		$bbp_classes[] = 'bbp-user-page';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
 
-	if ( bbp_is_user_home() )
+	if ( bbp_is_user_home() ) {
 		$bbp_classes[] = 'bbp-user-home';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
 
-	if ( bbp_is_topics_created() )
+	if ( bbp_is_topics_created() ) {
 		$bbp_classes[] = 'bbp-topics-created';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
 
-	if ( bbp_is_favorites() )
+	if ( bbp_is_favorites() ) {
 		$bbp_classes[] = 'bbp-favorites';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
 
-	if ( bbp_is_subscriptions() )
+	if ( bbp_is_subscriptions() ) {
 		$bbp_classes[] = 'bbp-subscriptions';
+		$bbp_classes[] = 'single';
+		$bbp_classes[] = 'singular';
+	}
 
 	/** Clean up **********************************************************/
 
@@ -1279,52 +1297,7 @@ function bbp_logout_link( $redirect_to = '' ) {
 		return apply_filters( 'bbp_get_logout_link', '<a href="' . wp_logout_url( $redirect_to ) . '" class="button logout-link">' . __( 'Log Out', 'bbpress' ) . '</a>', $redirect_to );
 	}
 
-/** Theme compat **************************************************************/
-
-/**
- * Gets the bbPress compatable theme used in the event the currently active
- * WordPress theme does not explicitly support bbPress. This can be filtered,
- * or set manually. Tricky theme authors can override the default and include
- * their own bbPress compatability layers for their themes.
- *
- * @since bbPress (r3032)
- *
- * @global bbPress $bbp
- * @uses apply_filters()
- * @return string
- */
-function bbp_get_theme_compat() {
-	global $bbp;
-
-	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
-}
-
-/**
- * Sets the bbPress compatable theme used in the event the currently active
- * WordPress theme does not explicitly support bbPress. This can be filtered,
- * or set manually. Tricky theme authors can override the default and include
- * their own bbPress compatability layers for their themes.
- *
- * @since bbPress (r3032)
- *
- * @global bbPress $bbp
- * @param string $theme Optional. Must be full absolute path to theme
- * @uses apply_filters()
- * @return string
- */
-function bbp_set_theme_compat( $theme = '' ) {
-	global $bbp;
-
-	// Set theme to bundled bbp-twentyten if nothing is passed
-	if ( empty( $theme ) && !empty( $bbp->themes_dir ) )
-		$bbp->theme_compat = $bbp->themes_dir . '/bbp-twentyten';
-
-	// Set to what is passed
-	else
-		$bbp->theme_compat = $theme;
-
-	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
-}
+/** Title *********************************************************************/
 
 /**
  * Custom page title for bbPress pages
@@ -1437,6 +1410,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	return apply_filters( 'bbp_title', $title, $sep, $seplocation );
 }
 
+/** Template Loaders **********************************************************/
+
 /**
  * Load bbPress custom templates
  *
@@ -1467,6 +1442,10 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
  */
 function bbp_custom_template() {
 	global $bbp;
+
+	// Bail if theme does not support bbPress
+	if ( !current_theme_supports( 'bbpress' ) )
+		return;
 
 	$template = false;
 
@@ -1626,6 +1605,130 @@ function bbp_get_template_part( $slug, $name = null ) {
 	else
 		get_template_part( $slug, $name );
 
+}
+
+/** Theme compat **************************************************************/
+
+/**
+ * What follows is an attempt at intercepting the natural page load process
+ * to replace the_content() with the appropriate bbPress content.
+ *
+ * To do this, bbPress does several direct manipulations of global variables
+ * and forces them to do what they are not supposed to be doing.
+ *
+ * Don't try anything you're about to witness here, at home. Ever.
+ *
+ * @todo Make bbPress theme compat not so complicated
+ */
+
+/**
+ * Gets the bbPress compatable theme used in the event the currently active
+ * WordPress theme does not explicitly support bbPress. This can be filtered,
+ * or set manually. Tricky theme authors can override the default and include
+ * their own bbPress compatability layers for their themes.
+ *
+ * @since bbPress (r3032)
+ *
+ * @global bbPress $bbp
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_theme_compat() {
+	global $bbp;
+
+	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
+}
+
+/**
+ * Sets the bbPress compatable theme used in the event the currently active
+ * WordPress theme does not explicitly support bbPress. This can be filtered,
+ * or set manually. Tricky theme authors can override the default and include
+ * their own bbPress compatability layers for their themes.
+ *
+ * @since bbPress (r3032)
+ *
+ * @global bbPress $bbp
+ * @param string $theme Optional. Must be full absolute path to theme
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_set_theme_compat( $theme = '' ) {
+	global $bbp;
+
+	// Set theme to bundled bbp-twentyten if nothing is passed
+	if ( empty( $theme ) && !empty( $bbp->themes_dir ) )
+		$bbp->theme_compat = $bbp->themes_dir . '/bbp-twentyten';
+
+	// Set to what is passed
+	else
+		$bbp->theme_compat = $theme;
+
+	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
+}
+
+/**
+ * This fun little function fills up some WordPress globals with dummy data to
+ * stop your average page template from complaining about it missing.
+ *
+ * @since bbPress (r3108)
+ *
+ * @global WP_Query $wp_query
+ * @global object $post
+ * @param array $args
+ */
+function bbp_theme_compat_reset_post( $args = array() ) {
+	global $wp_query, $post;
+
+	// Why would you ever want to do this otherwise?
+	if ( current_theme_supports( 'bbpress' ) )
+		wp_die( __( 'Hands off, partner!', 'bbpress' ) );
+
+	// Default for current post
+	if ( isset( $wp_query->post ) ) {
+		$defaults = array(
+			'ID'           => get_the_ID(),
+			'post_title'   => get_the_title(),
+			'post_author'  => get_the_author_meta('ID'),
+			'post_date'    => get_the_date(),
+			'post_content' => get_the_content(),
+			'post_type'    => get_post_type(),
+			'post_status'  => get_post_status()
+		);
+
+	// Empty defaults
+	} else {
+		$defaults = array(
+			'ID'           => 0,
+			'post_title'   => '',
+			'post_author'  => 0,
+			'post_date'    => 0,
+			'post_content' => '',
+			'post_type'    => 'page',
+			'post_status'  => 'publish'
+		);
+	}
+	$dummy = wp_parse_args( $args, $defaults );
+
+	// Setup the dummy post object
+	$wp_query->post->ID           = $dummy['ID'];
+	$wp_query->post->post_title   = $dummy['post_title'];
+	$wp_query->post->post_author  = $dummy['post_author'];
+	$wp_query->post->post_date    = $dummy['post_date'];
+	$wp_query->post->post_content = $dummy['post_content'];
+	$wp_query->post->post_type    = $dummy['post_type'];
+	$wp_query->post->post_status  = $dummy['post_status'];
+
+	// Set the $post global
+	$post = $wp_query->post;
+
+	// Setup the dummy post loop
+	$wp_query->posts[] = $wp_query->post;
+
+	// Prevent comments form from appearing
+	$wp_query->post_count = 1;
+	$wp_query->is_404     = false;
+	$wp_query->is_page    = false;
+	$wp_query->is_single  = false;
 }
 
 /**
@@ -1799,41 +1902,100 @@ function bbp_template_include( $template ) {
 	// lifting to see if a bbPress template is needed in the current context
 	if ( !current_theme_supports( 'bbpress' ) ) {
 
-		// Are we looking at a forum/topic/reply?
-		switch ( get_post_type() ) {
+		// Assume we are not in theme compat
+		$in_theme_compat = false;
 
-			// Single Forum
-			case bbp_get_forum_post_type() :
-				$forum_id = bbp_get_forum_id( get_the_ID() );
+		/** Users *************************************************************/
 
-			// Single Topic
-			case bbp_get_topic_post_type() :
-				$forum_id = bbp_get_topic_forum_id( get_the_ID() );
+		if ( bbp_is_user_profile_page() || bbp_is_user_profile_edit() ) {
 
-			// Single Reply
-			case bbp_get_reply_post_type() :
-				$forum_id = bbp_get_reply_forum_id( get_the_ID() );
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post( array(
+				'post_title' => esc_attr( bbp_get_displayed_user_field( 'display_name' ) )
+			) );
 
-				// Display template
-				if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) || bbp_is_forum_private( $forum_id ) ) {
-					global $wp_query;
+		/** Topics ************************************************************/
 
-					// Prevent comments form from appearing
-					$wp_query->is_page   = false;
-					$wp_query->is_single = false;
+		} elseif ( bbp_is_topic_edit() || bbp_is_topic_split() || bbp_is_topic_merge() ) {
 
-					// Add a filter on the_content late, which we will later remove
-					add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post( array(
+				'ID'           => bbp_get_topic_id(),
+				'post_title'   => bbp_get_topic_title(),
+				'post_author'  => bbp_get_topic_author_id(),
+				'post_date'    => 0,
+				'post_content' => get_post_field( 'post_content', bbp_get_topic_id() ),
+				'post_type'    => bbp_get_topic_post_type(),
+				'post_status'  => bbp_get_topic_status()
+			) );
 
-					// Default to the page template
-					$template = locate_template( 'page.php', false, false );
+		/** Replies ***********************************************************/
 
-				// Display 404 page
-				} elseif ( bbp_is_forum_hidden( $forum_id ) ) {
-					bbp_set_404();
-				}
+		} elseif ( bbp_is_reply_edit() ) {
 
-				break;
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post( array(
+				'ID'           => bbp_get_reply_id(),
+				'post_title'   => bbp_get_reply_title(),
+				'post_author'  => bbp_get_reply_author_id(),
+				'post_date'    => 0,
+				'post_content' => get_post_field( 'post_content', bbp_get_reply_id() ),
+				'post_type'    => bbp_get_reply_post_type(),
+				'post_status'  => bbp_get_reply_status()
+			) );
+
+		/** Views *************************************************************/
+
+		} elseif ( bbp_is_view() ) {
+
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post();
+
+		/** Single Forums/Topics/Replies **************************************/
+		} else {
+
+			// Are we looking at a forum/topic/reply?
+			switch ( get_post_type() ) {
+
+				// Single Forum
+				case bbp_get_forum_post_type() :
+					$forum_id = bbp_get_forum_id( get_the_ID() );
+
+				// Single Topic
+				case bbp_get_topic_post_type() :
+					$forum_id = bbp_get_topic_forum_id( get_the_ID() );
+
+				// Single Reply
+				case bbp_get_reply_post_type() :
+					$forum_id = bbp_get_reply_forum_id( get_the_ID() );
+
+					// Display template
+					if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) || bbp_is_forum_private( $forum_id ) ) {
+
+						// In Theme Compat
+						$in_theme_compat = true;
+
+					// Display 404 page
+					} elseif ( bbp_is_forum_hidden( $forum_id ) ) {
+						bbp_set_404();
+					}
+
+					break;
+			}
+		}
+
+		// Are we in theme compat mode?
+		if ( true === $in_theme_compat ) {
+
+			// Add a filter on the_content late, which we will later remove
+			add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+
+			// Default to the page template
+			$template = locate_template( 'page.php', false, false );
 		}
 	}
 
@@ -1867,27 +2029,94 @@ function bbp_replace_the_content( $content = '' ) {
 
 		// Bail if shortcodes are unset somehow
 		if ( empty( $bbp->shortcodes ) )
-			return content;
+			return $content;
 
 		// Use shortcode API to display forums/topics/replies because they are
-		// already output buffered and
-		// Check the post_type
-		switch ( get_post_type() ) {
+		// already output buffered and ready to fit inside the_content
 
-			// Single Forum
-			case bbp_get_forum_post_type() :
-				$content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
-				break;
+		/** Users *************************************************************/
 
-			// Single Topic
-			case bbp_get_topic_post_type() :
-				$content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
-				break;
+		// Profile View
+		if ( bbp_is_user_profile_page() ) {
+			ob_start();
 
-			// Single Reply
-			case bbp_get_reply_post_type() :
+			bbp_get_template_part( 'bbpress/single', 'user'  );
 
-				break;
+			$content = ob_get_contents();
+
+			ob_end_clean();
+
+		// Profile Edit
+		} elseif ( bbp_is_user_profile_edit() ) {
+			ob_start();
+
+			bbp_get_template_part( 'bbpress/single', 'user'  );
+
+			$content = ob_get_contents();
+
+			ob_end_clean();
+
+
+		/** Topics ************************************************************/
+
+		} elseif ( bbp_is_topic_edit() ) {
+
+			// Split
+			if ( bbp_is_topic_split() ) {
+				ob_start();
+
+				bbp_get_template_part( 'bbpress/form', 'split' );
+
+				$content = ob_get_contents();
+
+				ob_end_clean();
+
+			// Merge
+			} elseif ( bbp_is_topic_merge() ) {
+				ob_start();
+
+				bbp_get_template_part( 'bbpress/form', 'merge' );
+
+				$content = ob_get_contents();
+
+				ob_end_clean();
+
+			// Edit
+			} else {
+				$content = $bbp->shortcodes->display_topic_form();
+			}
+
+		/** Replies ***********************************************************/
+
+		} elseif ( bbp_is_reply_edit() ) {
+			$content = $bbp->shortcodes->display_reply_form();
+
+		/** Views *************************************************************/
+
+		} elseif ( bbp_is_view() ) {
+
+
+		/** Forums/Topics/Replies *********************************************/
+		} else {
+
+			// Check the post_type
+			switch ( get_post_type() ) {
+
+				// Single Forum
+				case bbp_get_forum_post_type() :
+					$content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
+					break;
+
+				// Single Topic
+				case bbp_get_topic_post_type() :
+					$content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
+					break;
+
+				// Single Reply
+				case bbp_get_reply_post_type() :
+
+					break;
+			}
 		}
 	}
 
