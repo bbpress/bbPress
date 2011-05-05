@@ -16,20 +16,7 @@
 
 				<?php do_action( 'bbp_template_notices' ); ?>
 
-				<?php
-					// Profile details
-					bbp_get_template_part( 'bbpress/user', 'details' );
-
-					// Subsciptions
-					bbp_get_template_part( 'bbpress/user', 'subscriptions' );
-
-					// Favorite topics
-					bbp_get_template_part( 'bbpress/user', 'favorites' );
-
-					// Topics created
-					bbp_get_template_part( 'bbpress/user', 'topics-created' );
-
-				?>
+				<?php bbp_get_template_part( 'bbpress/single', 'user' ); ?>
 
 			</div><!-- #content -->
 		</div><!-- #container -->
