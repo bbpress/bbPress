@@ -337,13 +337,11 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Setup the meta_query
-		$replies_query['meta_query'] = array(
-			array(
-				'key'     => '_bbp_topic_id',
-				'value'   => $topic_id,
-				'compare' => '='
-			)
-		);
+		$replies_query['meta_query'] = array( array(
+			'key'     => '_bbp_topic_id',
+			'value'   => $topic_id,
+			'compare' => '='
+		) );
 
 		// Unset globals
 		$this->_unset_globals();
@@ -468,6 +466,13 @@ class BBP_Shortcodes {
 		// Set passed attribute to $ag_id for clarity
 		$tag_id = $attr['id'];
 
+		// Setup tax query
+		$args = array( 'tax_query' => array( array(
+			'taxonomy' => $bbp->topic_tag_id,
+			'field'    => 'id',
+			'terms'    => $tag_id
+		) ) );
+
 		// Unset globals
 		$this->_unset_globals();
 
@@ -478,7 +483,7 @@ class BBP_Shortcodes {
 		bbp_topic_tag_description();
 
 		// Load the topics
-		if ( bbp_has_topics() ) {
+		if ( bbp_has_topics( $args ) ) {
 
 			// Template files
 			bbp_get_template_part( 'bbpress/pagination', 'topics'    );

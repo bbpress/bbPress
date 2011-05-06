@@ -128,7 +128,7 @@ function bbp_has_topics( $args = '' ) {
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( is_tax() && !bbp_is_query_name( 'bbp_widget' ) )
+	if ( is_tax( $bbp->topic_tag_id ) && !bbp_is_query_name( 'bbp_widget' ) )
 		$bbp->topic_query = $wp_query;
 	else
 		$bbp->topic_query = new WP_Query( $bbp_t );
