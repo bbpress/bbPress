@@ -441,6 +441,59 @@ class BBP_Shortcodes {
 		// Return contents of output buffer
 		return $this->_ob_end();
 	}
+
+	/** Topic Tags ************************************************************/
+
+	/**
+	 * Display the contents of a specific topic tag in an output buffer
+	 * and return to ensure that post/page contents are displayed first.
+	 *
+	 * @since bbPress (r3110)
+	 *
+	 * @global bbPress $bbp
+	 *
+	 * @param array $attr
+	 * @param string $content
+	 * @uses current_theme_supports()
+	 * @uses get_template_part()
+	 * @return string
+	 */
+	function display_topic_tag( $attr, $content = '' ) {
+		global $bbp;
+
+		// Sanity check required info
+		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
+			return $content;
+
+		// Set passed attribute to $ag_id for clarity
+		$tag_id = $attr['id'];
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Tag description
+		bbp_topic_tag_description();
+
+		// Load the topics
+		if ( bbp_has_topics() ) {
+
+			// Template files
+			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
+			bbp_get_template_part( 'bbpress/loop',       'topics'    );
+			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
+			bbp_get_template_part( 'bbpress/form',       'topic-tag' );
+
+		// No topics
+		} else {
+			bbp_get_template_part( 'bbpress/no', 'topics' );
+		}
+
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
 }
 endif;
 

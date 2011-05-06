@@ -69,7 +69,8 @@ function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
 	// Make sure we're back where we started
-	wp_reset_postdata();
+	if ( !is_tax() )
+		wp_reset_postdata();
 
 	// Are we in a forum and looking to do a forum only query?
 	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_query_name( 'bbp_widget' ) );

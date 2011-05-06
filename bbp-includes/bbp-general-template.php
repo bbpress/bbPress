@@ -1729,6 +1729,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_404     = false;
 	$wp_query->is_page    = false;
 	$wp_query->is_single  = false;
+	$wp_query->is_archive = false;
+	$wp_query->is_tax     = false;
 }
 
 /**
@@ -1897,6 +1899,7 @@ function bbp_pre_get_posts( $posts_query ) {
  * @return string
  */
 function bbp_template_include( $template ) {
+	global $bbp;
 
 	// Current theme does not support bbPress, so we need to do some heavy
 	// lifting to see if a bbPress template is needed in the current context
@@ -1955,7 +1958,23 @@ function bbp_template_include( $template ) {
 			$in_theme_compat = true;
 			bbp_theme_compat_reset_post();
 
+		/** Topic Tags ********************************************************/
+
+		} elseif ( is_tax( $bbp->topic_tag_id ) ) {
+
+			// In Theme Compat
+			$in_theme_compat = true;
+
+			// Stash the current term in a new var
+			set_query_var( 'bbp_topic_tag', get_query_var( 'term' ) );
+
+			// Reset the post with our new title
+			bbp_theme_compat_reset_post( array(
+				'post_title' => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
+			) );
+
 		/** Single Forums/Topics/Replies **************************************/
+
 		} else {
 
 			// Are we looking at a forum/topic/reply?
@@ -2096,7 +2115,13 @@ function bbp_replace_the_content( $content = '' ) {
 		} elseif ( bbp_is_view() ) {
 
 
+		/** Topic Tags ********************************************************/
+
+		} elseif ( get_query_var( 'bbp_topic_tag' ) ) {
+			$content = $bbp->shortcodes->display_topic_tag( bbp_get_topic_tag_id() );
+
 		/** Forums/Topics/Replies *********************************************/
+
 		} else {
 
 			// Check the post_type
