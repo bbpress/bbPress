@@ -199,6 +199,9 @@ class BBP_Shortcodes {
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
+			// Forum description
+			bbp_single_forum_description( array( 'forum_id' => $forum_id ) );
+
 			/** Sub forums ****************************************************/
 
 			// Check if forum has subforums first
@@ -208,10 +211,8 @@ class BBP_Shortcodes {
 				$forum_query = array( 'post_parent' => $forum_id );
 
 				// Load the sub forums
-				if ( bbp_has_forums( $forum_query ) ) {
-					bbp_single_forum_description( array( 'forum_id' => $forum_id ) );
+				if ( bbp_has_forums( $forum_query ) )
 					bbp_get_template_part( 'bbpress/loop', 'forums' );
-				}
 			}
 
 			/** Topics ********************************************************/
