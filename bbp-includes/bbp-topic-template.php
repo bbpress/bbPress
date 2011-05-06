@@ -69,7 +69,7 @@ function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
 	// Make sure we're back where we started
-	if ( !is_tax() )
+	if ( !is_tax( $bbp->topic_tag_id ) )
 		wp_reset_postdata();
 
 	// Are we in a forum and looking to do a forum only query?
