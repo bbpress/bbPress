@@ -2014,7 +2014,8 @@ function bbp_template_include( $template ) {
 			add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
 
 			// Default to the page template
-			$template = locate_template( 'page.php', false, false );
+			$default_template = apply_filters( 'bbp_template_include', 'page.php' );
+			$template         = locate_template( $default_template, false, false  );
 		}
 	}
 
@@ -2061,7 +2062,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 			bbp_get_template_part( 'bbpress/single', 'user'  );
 
-			$content = ob_get_contents();
+			$new_content = ob_get_contents();
 
 			ob_end_clean();
 
@@ -2071,7 +2072,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 			bbp_get_template_part( 'bbpress/single', 'user'  );
 
-			$content = ob_get_contents();
+			$new_content = ob_get_contents();
 
 			ob_end_clean();
 
@@ -2086,7 +2087,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 				bbp_get_template_part( 'bbpress/form', 'split' );
 
-				$content = ob_get_contents();
+				$new_content = ob_get_contents();
 
 				ob_end_clean();
 
@@ -2102,13 +2103,13 @@ function bbp_replace_the_content( $content = '' ) {
 
 			// Edit
 			} else {
-				$content = $bbp->shortcodes->display_topic_form();
+				$new_content = $bbp->shortcodes->display_topic_form();
 			}
 
 		/** Replies ***********************************************************/
 
 		} elseif ( bbp_is_reply_edit() ) {
-			$content = $bbp->shortcodes->display_reply_form();
+			$new_content = $bbp->shortcodes->display_reply_form();
 
 		/** Views *************************************************************/
 
@@ -2118,7 +2119,7 @@ function bbp_replace_the_content( $content = '' ) {
 		/** Topic Tags ********************************************************/
 
 		} elseif ( get_query_var( 'bbp_topic_tag' ) ) {
-			$content = $bbp->shortcodes->display_topic_tag( array( 'id' => bbp_get_topic_tag_id() ) );
+			$new_content = $bbp->shortcodes->display_topic_tag( array( 'id' => bbp_get_topic_tag_id() ) );
 
 		/** Forums/Topics/Replies *********************************************/
 
@@ -2129,12 +2130,12 @@ function bbp_replace_the_content( $content = '' ) {
 
 				// Single Forum
 				case bbp_get_forum_post_type() :
-					$content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
+					$new_content = $bbp->shortcodes->display_forum( array( 'id' => get_the_ID() ) );
 					break;
 
 				// Single Topic
 				case bbp_get_topic_post_type() :
-					$content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
+					$new_content = $bbp->shortcodes->display_topic( array( 'id' => get_the_ID() ) );
 					break;
 
 				// Single Reply
@@ -2143,9 +2144,51 @@ function bbp_replace_the_content( $content = '' ) {
 					break;
 			}
 		}
+
+		// Juggle the content around and try to prevent unsightly comments
+		if ( $new_content != $content ) {
+
+			// Set the content to be the new content
+			$content = apply_filters( 'bbp_replace_the_content', $new_content, $content, $post );
+
+			// Clean up after ourselves
+			unset( $new_content );
+
+			/**
+			 * Supplemental hack to prevent stubborn comments_template() output.
+			 *
+			 * By this time we can safely assume that everything we needed from
+			 * the {$post} global has been rendered into the buffer, so we're
+			 * going to empty it and {$withcomments} for good measure. This has
+			 * the added benefit of preventing an incorrect "Edit" link on the
+			 * bottom of most popular page templates, at the cost of rendering
+			 * these globals useless for the remaining page output without using
+			 * wp_reset_postdata() to get that data back.
+			 *
+			 * @see comments_template() For why we're doing this :)
+			 * @see wp_reset_postdata() If you need to get $post back
+			 *
+			 * Note: If a theme uses custom code to output comments, it's
+			 *       possible all of this dancing around is for not.
+			 *
+			 * Note: If you need to keep these globals around for any special
+			 *       reason, we've provided a failsafe hook to bypass this you
+			 *       can put in your plugin or theme below ---v
+			 *
+			 *       apply_filters( 'bbp_spill_the_beans', '__return_true' );
+			 */
+			if ( !apply_filters( 'bbp_spill_the_beans', false ) ) {
+
+				// Setup the chopping block
+				global $post, $withcomments;
+
+				// Empty out globals that aren't being used in this loop anymore
+				$withcomments = $post = false;
+			}
+		}
 	}
 
-	// Return possibly filtered content
+	// Return possibly hi-jacked content
 	return $content;
 }
 
