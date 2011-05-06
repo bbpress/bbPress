@@ -19,7 +19,10 @@
 				<?php while ( have_posts() ) : the_post(); ?>
 
 					<div id="bbp-reply-wrapper-<?php bbp_reply_id(); ?>" class="bbp-reply-wrapper">
-						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+						<h1 class="entry-title"><?php bbp_reply_title(); ?></h1>
+
+						<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
+
 						<div class="entry-content">
 
 							<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>-replies">

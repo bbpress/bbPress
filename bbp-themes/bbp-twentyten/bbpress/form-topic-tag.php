@@ -7,17 +7,15 @@
  * @subpackage Theme
  */
 
-//@todo - remove $term variable references
-$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
-
 ?>
+
 <?php if ( current_user_can( 'edit_topic_tags' ) ) : ?>
 
-	<div id="edit-topic-tag-<?php echo $term->term_id; ?>" class="bbp-topic-tag-form">
+	<div id="edit-topic-tag-<?php bbp_topic_tag_id(); ?>" class="bbp-topic-tag-form">
 
 		<fieldset>
 
-			<legend><?php printf( __( 'Manage Tag: "%s"', 'bbpress' ), $term->name ); ?></legend>
+			<legend><?php printf( __( 'Manage Tag: "%s"', 'bbpress' ), bbp_get_topic_tag_name() ); ?></legend>
 
 			<fieldset id="tag-rename">
 
@@ -35,21 +33,21 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 					<div class="alignleft">
 						<label for="tag-name"><?php _e( 'Name:', 'bbpress' ); ?></label>
-						<input type="text" name="tag-name" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( $term->name ); ?>" />
+						<input type="text" name="tag-name" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( bbp_get_topic_tag_slug() ); ?>" />
 					</div>
 
 					<div class="alignleft">
 						<label for="tag-name"><?php _e( 'Slug:', 'bbpress' ); ?></label>
-						<input type="text" name="tag-slug" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( apply_filters( 'editable_slug', $term->slug ) ); ?>" />
+						<input type="text" name="tag-slug" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( apply_filters( 'editable_slug', bbp_get_topic_tag_slug() ) ); ?>" />
 					</div>
 
 					<div class="alignright">
 						<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php esc_attr_e( 'Update', 'bbpress' ); ?>" /><br />
 
-						<input type="hidden" name="tag-id" value="<?php echo esc_attr( $term->term_id ); ?>" />
+						<input type="hidden" name="tag-id" value="<?php bbp_get_topic_tag_id(); ?>" />
 						<input type="hidden" name="action" value="bbp-update-topic-tag" />
 
-						<?php wp_nonce_field( 'update-tag_' . $term->term_id ); ?>
+						<?php wp_nonce_field( 'update-tag_' . bbp_get_topic_tag_id() ); ?>
 
 					</div>
 				</form>
@@ -73,12 +71,12 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 
 					<div class="alignright">
 						<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php esc_attr_e( 'Merge', 'bbpress' ); ?>"
-							onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), $term->name ) ); ?>');" />
+							onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to merge the "%s" tag into the tag you specified?', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');" />
 
-						<input type="hidden" name="tag-id" value="<?php echo $term->term_id; ?>" />
+						<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 						<input type="hidden" name="action" value="bbp-merge-topic-tag" />
 
-						<?php wp_nonce_field( 'merge-tag_' . $term->term_id ); ?>
+						<?php wp_nonce_field( 'merge-tag_' . bbp_get_topic_tag_id() ); ?>
 					</div>
 				</form>
 
@@ -95,19 +93,19 @@ $term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' 
 					</div>
 					<div class="bbp-template-notice">
 						<p><?php _e( 'Deleting a tag cannot be undone.', 'bbpress' ); ?></p>
-						<p><?php _e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></p>						
+						<p><?php _e( 'Any links to this tag will no longer function.', 'bbpress' ); ?></p>
 					</div>
 
 					<form id="delete_tag" name="delete_tag" method="post" action="">
 
 						<div class="alignright">
 							<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php _e( 'Delete', 'bbpress' ); ?>"
-								onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), $term->name ) ); ?>');" />
+								onclick="return confirm('<?php echo esc_js( sprintf( __( 'Are you sure you want to delete the "%s" tag? This is permanent and cannot be undone.', 'bbpress' ), bbp_get_topic_tag_name() ) ); ?>');" />
 
-							<input type="hidden" name="tag-id" value="<?php echo $term->term_id; ?>" />
+							<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 							<input type="hidden" name="action" value="bbp-delete-topic-tag" />
 
-							<?php wp_nonce_field( 'delete-tag_' . $term->term_id ); ?>
+							<?php wp_nonce_field( 'delete-tag_' . bbp_get_topic_tag_id() ); ?>
 						</div>
 					</form>
 

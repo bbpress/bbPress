@@ -21,8 +21,10 @@
 					<?php while ( have_posts() ) : the_post(); ?>
 
 						<div id="bbp-topic-wrapper-<?php bbp_topic_id(); ?>" class="bbp-topic-wrapper">
-							<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+							<h1 class="entry-title"><?php bbp_topic_title(); ?></h1>
 							<div class="entry-content">
+
+								<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
 
 								<?php bbp_topic_tag_list(); ?>
 

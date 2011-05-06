@@ -31,6 +31,27 @@
 	clear: left;
 }
 
+/* =Breadcrumb and Tags
+-------------------------------------------------------------- */
+
+div.bbp-breadcrumb {
+	float: left;
+}
+
+div.bbp-breadcrumb,
+div.bbp-topic-tags {
+	font-size: 12px;
+}
+
+#content div.bbp-breadcrumb p,
+#content div.bbp-topic-tags p {
+	margin-bottom: 10px
+}
+
+div.bbp-topic-tags {
+	float: right;
+}
+
 /* =Tables
 -------------------------------------------------------------- */
 

@@ -1087,7 +1087,7 @@ function bbp_reset_query_name() {
  * @param string $sep Separator. Defaults to '&larr;'
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_title_breadcrumb( $sep = '&larr;' ) {
+function bbp_title_breadcrumb( $sep = ' &rsaquo; ' ) {
 	echo bbp_get_breadcrumb( $sep );
 }
 
@@ -1099,7 +1099,7 @@ function bbp_title_breadcrumb( $sep = '&larr;' ) {
  * @param string $sep Separator. Defaults to '&larr;'
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_breadcrumb( $sep = '&larr;', $current_page = true ) {
+function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
 	echo bbp_get_breadcrumb( $sep );
 }
 	/**
@@ -1123,7 +1123,7 @@ function bbp_breadcrumb( $sep = '&larr;', $current_page = true ) {
 	 * @uses apply_filters() Calls 'bbp_get_breadcrumb' with the crumbs
 	 * @return string Breadcrumbs
 	 */
-	function bbp_get_breadcrumb( $sep = '&larr;', $current_page = true ) {
+	function bbp_get_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
 		global $post, $bbp;
 
 		// No post, no breadcrumb
@@ -1167,11 +1167,11 @@ function bbp_breadcrumb( $sep = '&larr;', $current_page = true ) {
 		if ( true == $current_page )
 			$breadcrumbs[] = get_the_title();
 
+		// Allow the separator of the breadcrumb to be easily changed
+		$sep   = apply_filters( 'bbp_breadcrumb_separator', $sep );
+
 		// Build the trail
-		if ( !empty( $breadcrumbs ) )
-			$trail = implode( ' ' . $sep . ' ', $breadcrumbs );
-		else
-			$trail = '';
+		$trail = !empty( $breadcrumbs ) ? implode( $sep, $breadcrumbs ) : '';
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail );
 	}

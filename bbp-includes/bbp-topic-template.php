@@ -1718,9 +1718,9 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 		global $bbp;
 
 		$defaults = array(
-			'before' => '<p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
+			'before' => '<div class="bbp-topic-tags"><p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
 			'sep'    => ', ',
-			'after'  => '</p>'
+			'after'  => '</p></div>'
 		);
 
 		$r = wp_parse_args( $args, $defaults );
@@ -2563,6 +2563,164 @@ function bbp_single_topic_description( $args = '' ) {
 
 		// Return filtered result
 		return apply_filters( 'bbp_get_single_topic_description', $retstr, $args );
+	}
+
+/** Topic Tags ****************************************************************/
+
+/**
+ * Output the id of the current tag
+ *
+ * @since bbPress (r3109)
+ *
+ * @uses bbp_get_topic_tag_id()
+ */
+function bbp_topic_tag_id() {
+	echo bbp_get_topic_tag_id();
+}
+	/**
+	 * Return the id of the current tag
+	 *
+	 * @since bbPress (r3109)
+	 *
+	 * @uses get_term_by()
+	 * @uses get_query_var()
+	 * @uses apply_filters()
+	 *
+	 * @return string Term Name
+	 */
+	function bbp_get_topic_tag_id() {
+
+		// Get the term
+		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+
+		// Add before and after if description exists
+		if ( !empty( $term->term_id ) )
+			$retval = $term->term_id;
+
+		// No id
+		else
+			$retval = '';
+
+		return apply_filters( 'bbp_get_topic_tag_id', $retval );
+	}
+
+/**
+ * Output the name of the current tag
+ *
+ * @since bbPress (r3109)
+ *
+ * @uses bbp_get_topic_tag_name()
+ */
+function bbp_topic_tag_name() {
+	echo bbp_get_topic_tag_name();
+}
+	/**
+	 * Return the name of the current tag
+	 *
+	 * @since bbPress (r3109)
+	 *
+	 * @uses get_term_by()
+	 * @uses get_query_var()
+	 * @uses apply_filters()
+	 *
+	 * @return string Term Name
+	 */
+	function bbp_get_topic_tag_name() {
+
+		// Get the term
+		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+
+		// Add before and after if description exists
+		if ( !empty( $term->name ) )
+			$retval = $term->name;
+
+		// No name
+		else
+			$retval = '';
+
+		return apply_filters( 'bbp_get_topic_tag_name', $retval );
+	}
+
+/**
+ * Output the slug of the current tag
+ *
+ * @since bbPress (r3109)
+ *
+ * @uses bbp_get_topic_tag_slug()
+ */
+function bbp_topic_tag_slug() {
+	echo bbp_get_topic_tag_slug();
+}
+	/**
+	 * Return the slug of the current tag
+	 *
+	 * @since bbPress (r3109)
+	 *
+	 * @uses get_term_by()
+	 * @uses get_query_var()
+	 * @uses apply_filters()
+	 *
+	 * @return string Term Name
+	 */
+	function bbp_get_topic_tag_slug() {
+
+		// Get the term
+		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+
+		// Add before and after if description exists
+		if ( !empty( $term->slug ) )
+			$retval = $term->slug;
+
+		// No slug
+		else
+			$retval = '';
+
+		return apply_filters( 'bbp_get_topic_tag_slug', $retval );
+	}
+
+/**
+ * Output the description of the current tag
+ *
+ * @since bbPress (r3109)
+ *
+ * @uses bbp_get_topic_tag_description()
+ */
+function bbp_topic_tag_description( $args = array() ) {
+	echo bbp_get_topic_tag_description( $args );
+}
+	/**
+	 * Return the description of the current tag
+	 *
+	 * @since bbPress (r3109)
+	 *
+	 * @uses get_term_by()
+	 * @uses get_query_var()
+	 * @uses apply_filters()
+	 *
+	 * @return string Term Name
+	 */
+	function bbp_get_topic_tag_description( $args = array() ) {
+		global $bbp;
+
+		$defaults = array(
+			'before' => '<div class="bbp-topic-tag-description"><p>',
+			'after'  => '</p></div>'
+		);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Get the term
+		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+
+		// Add before and after if description exists
+		if ( !empty( $term->description ) )
+			$retval = $before . $term->description . $after;
+
+		// No description, no HTML
+		else
+			$retval = '';
+
+		return apply_filters( 'bbp_get_topic_tag_description', $retval, $args );
 	}
 
 /** Forms *********************************************************************/
