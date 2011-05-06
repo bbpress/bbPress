@@ -23,6 +23,8 @@
 
 						<?php bbp_topic_tag_description(); ?>
 
+						<?php do_action( 'bbp_template_before_topic_tag' ); ?>
+
 						<?php if ( bbp_has_topics() ) : ?>
 
 							<?php bbp_get_template_part( 'bbpress/pagination', 'topics'    ); ?>
@@ -38,6 +40,8 @@
 							<?php bbp_get_template_part( 'bbpress/no', 'topics' ); ?>
 
 						<?php endif; ?>
+
+						<?php do_action( 'bbp_template_after_topic_tag' ); ?>
 
 					</div>
 				</div><!-- #topic-tag -->

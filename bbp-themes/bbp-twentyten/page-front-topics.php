@@ -24,11 +24,23 @@
 
 							<?php the_content(); ?>
 
-							<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+							<?php do_action( 'bbp_template_before_topics_index' ); ?>
 
-							<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
+							<?php if ( bbp_has_topics() ) : ?>
 
-							<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+								<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+
+								<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
+
+								<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+
+							<?php else : ?>
+
+								<?php bbp_get_template_part( 'bbpress/no', 'topics' ); ?>
+
+							<?php endif; ?>
+
+							<?php do_action( 'bbp_template_after_topics_index' ); ?>
 
 						</div>
 					</div><!-- #topics-front -->
