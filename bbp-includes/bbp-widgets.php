@@ -451,8 +451,8 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		// Query defaults
 		$topics_query = array(
+			'author'         => 0,
 			'post_parent'    => $parent_forum,
-			'post_author'    => 0,
 			'posts_per_page' => $max_shown > $pop_check ? $max_shown : $pop_check,
 			'posts_per_page' => $max_shown,
 			'show_stickies'  => false,

@@ -230,8 +230,8 @@ class BBP_Shortcodes {
 
 				// Query defaults
 				$topics_query = array(
+					'author'        => 0,
 					'post_parent'   => $forum_id,
-					'post_author'   => 0,
 					'show_stickies' => true,
 				);
 
@@ -278,7 +278,7 @@ class BBP_Shortcodes {
 
 		// Query defaults
 		$topics_query = array(
-			'post_author'    => 0,
+			'author'         => 0,
 			'show_stickies'  => true,
 			'order'          => 'DESC',
 		);

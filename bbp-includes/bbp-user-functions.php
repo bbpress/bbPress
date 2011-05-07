@@ -792,7 +792,7 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 
 	// Query defaults
 	$default_query = array(
-		'post_author'    => $user_id,
+		'author'         => $user_id,
 		'show_stickies'  => false,
 		'order'          => 'DESC',
 	);
