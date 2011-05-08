@@ -73,6 +73,7 @@ if ( is_admin() ) {
 	add_action( 'bbp_admin_init',    'bbp_forums_admin'            );
 	add_action( 'bbp_admin_init',    'bbp_topics_admin'            );
 	add_action( 'bbp_admin_init',    'bbp_replies_admin'           );
+	add_action( 'bbp_admin_init',    'bbp_admin_settings_help'     );
 	add_action( 'admin_menu',        'bbp_admin_separator'         );
 	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
 	add_action( 'menu_order',        'bbp_admin_menu_order'        );

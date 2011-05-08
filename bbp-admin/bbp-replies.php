@@ -52,6 +52,7 @@ class BBP_Replies_Admin {
 	function __construct() {
 		$this->_setup_globals();
 		$this->_setup_actions();
+		$this->_setup_help();
 	}
 
 	/**
@@ -108,6 +109,81 @@ class BBP_Replies_Admin {
 
 		// Setup the post type for this admin component
 		$this->post_type = bbp_get_reply_post_type();
+	}
+
+	/**
+	 * Contextual help for replies
+	 *
+	 * @since bbPress (r3119)
+	 * @access private
+	 */
+	function _setup_help() {
+
+		// Prevent debug notices
+		$contextual_help = '';
+
+		/** New/Edit **********************************************************/
+
+		$bbp_contextual_help[] = __( 'The reply title field and the big reply editing area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of the box. Use the Screen Options tab to unhide more boxes (Reply Attributes, Slug) or to choose a 1- or 2-column layout for this screen.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>Title</strong> - Enter a title for your reply. After you enter a title, you will see the permalink below, which you can edit.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>Post editor</strong> - Enter the text for your reply. There are two modes of editing: Visual and HTML. Choose the mode by clicking on the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon in the row to get a second row of controls. The screen icon just before that allows you to expand the edit box to full screen. The HTML mode allows you to enter raw HTML along with your forum text. You can insert media files by clicking the icons above the post editor and following the directions.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>Reply Attributes</strong> - Select the attributes that your reply should have. The Parent Topic dropdown determines the parent topic that the reply belongs to.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>Publish</strong> - The Publish box will allow you to save your reply as Draft or Pending Review. You may Preview your reply before it is published as well. The Visibility will determine whether the reply is Public, Password protected (requiring a password on the site to view) or Private (only the author will have access to it). Replies may be published immediately by clicking the dropdown, or at a specific date and time by clicking the Edit link.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>Revisions</strong> - Revisions show past versions of the saved reply. Each revision can be compared to the current version, or another revision. Revisions can also be restored to the current version.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>For more information:</strong>', 'bbpress' );
+		$bbp_contextual_help[] =
+			'<ul>' .
+				'<li>' . __( '<a href="http://bbpress.org/documentation/">bbPress Documentation</a>', 'bbpress' ) . '</li>' .
+				'<li>' . __( '<a href="http://bbpress.org/forums/">bbPress Support Forums</a>', 'bbpress' ) . '</li>' .
+			'</ul>' ;
+
+		// Wrap each help item in paragraph tags
+		foreach( $bbp_contextual_help as $paragraph )
+			$contextual_help .= '<p>' . $paragraph . '</p>';
+
+		// Add help
+		add_contextual_help( bbp_get_reply_post_type(), $contextual_help );
+
+		// Reset
+		$contextual_help = $bbp_contextual_help = '';
+
+		/** Post Rows *********************************************************/
+
+		$bbp_contextual_help[] = __( 'This screen displays the replies created on your site.', 'bbpress' );
+		$bbp_contextual_help[] = __( 'You can customize the display of this screen in a number of ways:', 'bbpress' );
+		$bbp_contextual_help[] =
+			'<ul>' .
+				'<li>' . __( 'You can hide/display columns based on your needs (Forum, Topic, Author, and Created) and decide how many replies to list per screen using the Screen Options tab.') . '</li>' .
+				'<li>' . __( 'You can filter the list of replies by reply status using the text links in the upper left to show All, Published, Pending Review, Draft, or Trashed topics. The default view is to show all replies.') . '</li>' .
+				'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.') . '</li>' .
+				'<li>' . __( 'You can refine the list to show only replies from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection.') . '</li>' .
+				'<li>' . __( 'You can also show only replies from a specific parent forum by using the parent forum dropdown above the replies list and selecting the parent forum. Click the Filter button after making your selection.') . '</li>' .
+			'</ul>';
+
+		$bbp_contextual_help[] = __( 'Hovering over a row in the replies list will display action links that allow you to manage your reply. You can perform the following actions:', 'bbpress' );
+		$bbp_contextual_help[] =
+			'<ul>' .
+				'<li>' . __( 'Edit takes you to the editing screen for that reply. You can also reach that screen by clicking on the reply title.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'Trash removes your reply from this list and places it in the trash, from which you can permanently delete it.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'View will take you to your live reply to view the reply.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'Spam will mark the topic as spam, preventing further replies to it and removing it from the site&rsquo;s public view.', 'bbpress' ) . '</li>' .
+			'</ul>';
+
+		$bbp_contextual_help[] = __( 'You can also edit multiple replies at once. Select the replies you want to edit using the checkboxes, select Edit from the Bulk Actions menu and click Apply. You will be able to change the metadata for all selected replies at once. To remove a reply from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' );
+		$bbp_contextual_help[] = __( 'The Bulk Actions menu may also be used to delete multiple replies at once. Select Delete from the dropdown after making your selection.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>For more information:</strong>', 'bbpress' );
+		$bbp_contextual_help[] =
+			'<ul>' .
+				'<li>' . __( '<a href="http://bbpress.org/documentation/">bbPress Documentation</a>', 'bbpress' ) . '</li>' .
+				'<li>' . __( '<a href="http://bbpress.org/forums/">bbPress Support Forums</a>', 'bbpress', 'bbpress' ) . '</li>' .
+			'</ul>';
+
+		// Wrap each help item in paragraph tags
+		foreach( $bbp_contextual_help as $paragraph )
+			$contextual_help .= '<p>' . $paragraph . '</p>';
+
+		// Add help
+		add_contextual_help( 'edit-' . bbp_get_reply_post_type(), $contextual_help );
 	}
 
 	/**
