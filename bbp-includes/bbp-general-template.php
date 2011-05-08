@@ -2149,7 +2149,7 @@ function bbp_replace_the_content( $content = '' ) {
 		if ( $new_content != $content ) {
 
 			// Set the content to be the new content
-			$content = apply_filters( 'bbp_replace_the_content', $new_content, $content, $post );
+			$content = apply_filters( 'bbp_replace_the_content', $new_content, $content );
 
 			// Clean up after ourselves
 			unset( $new_content );
