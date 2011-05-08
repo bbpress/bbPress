@@ -509,7 +509,7 @@ class bbPress {
 			'capabilities'      => bbp_get_forum_caps(),
 			'capability_type'   => 'forum',
 			'menu_position'     => 56,
-			'show_in_nav_menus' => false,
+			'show_in_nav_menus' => true,
 			'has_archive'       => true,
 			'public'            => true,
 			'show_ui'           => true,
