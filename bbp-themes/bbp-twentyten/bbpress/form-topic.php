@@ -12,9 +12,9 @@ wp_reset_postdata();
 
 ?>
 
-<?php if ( ( bbp_is_topic_edit() && current_user_can( 'edit_topic', bbp_get_topic_id() ) ) || current_user_can( 'publish_topics' ) || ( bbp_allow_anonymous() && !is_user_logged_in() ) ) : ?>
+<?php if ( bbp_current_user_can_access_create_topic_form() ) : ?>
 
-	<?php if ( ( !bbp_is_forum_category() && ( !bbp_is_forum_closed() || current_user_can( 'edit_forum', bbp_get_topic_forum_id() ) ) ) || bbp_is_topic_edit() ) : ?>
+	<?php if ( bbp_current_user_can_create_topic_in_forum() ) : ?>
 
 		<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">
 

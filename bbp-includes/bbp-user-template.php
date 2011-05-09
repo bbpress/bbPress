@@ -1086,4 +1086,80 @@ function bbp_user_can_view_forum( $args = '' ) {
 	return apply_filters( 'bbp_user_can_view_forum', $retval, $forum_id, $user_id );
 }
 
+/** Forms *********************************************************************/
+
+/**
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses bbp_get_forum_post_type()
+ * @uses bbp_exclude_forum_ids()
+ * @uses get_posts()
+ *
+ * @param type $args
+ * @return type
+ */
+function bbp_get_forums_for_current_user( $args = array() ) {
+
+	$defaults = array(
+		'post_type'   => bbp_get_forum_post_type(),
+		'child_of'    => '0',
+		'numberposts' => -1,
+		'post_status' => 'publish',
+	);
+	$r = wp_parse_args( $args, $defaults );
+
+	// Exclude forums the user cannot post to
+	$r = bbp_exclude_forum_ids( $r );
+
+	// Get the forums
+	if ( ! ( $posts = get_posts( $r ) ) )
+		$posts = false;
+
+	return apply_filters( 'bbp_get_forums_for_current_user', $posts );
+}
+
+/**
+ * Performs a series of checks to ensure the current user can create topics.
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses bbp_get_forums_for_current_user()
+ * @uses bbp_is_topic_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_id()
+ * @uses bbp_allow_anonymous()
+ * @uses is_user_logged_in()
+ *
+ * @return bool
+ */
+function bbp_current_user_can_access_create_topic_form() {
+	if ( bbp_get_forums_for_current_user() && ( ( bbp_is_topic_edit() && current_user_can( 'edit_topic', bbp_get_topic_id() ) ) || current_user_can( 'publish_topics' ) || ( bbp_allow_anonymous() && !is_user_logged_in() ) ) )
+		return true;
+
+	return false;
+}
+
+/**
+ * Performs a series of checks to ensure the current user can create topics in
+ * this specific forum or scope.
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses bbp_is_forum_category()
+ * @uses bbp_is_forum_closed()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_forum_id()
+ * @uses bbp_is_topic_edit()
+ *
+ * @return bool
+ */
+function bbp_current_user_can_create_topic_in_forum() {
+	if ( ( !bbp_is_forum_category() && ( !bbp_is_forum_closed() || current_user_can( 'edit_forum', bbp_get_topic_forum_id() ) ) ) || bbp_is_topic_edit() )
+		return true;
+
+	return false;
+}
+
+
 ?>
