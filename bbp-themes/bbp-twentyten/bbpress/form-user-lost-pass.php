@@ -9,11 +9,9 @@
 
 ?>
 
-<form method="post" action="<?php bbp_wp_login_action( array( 'action' => 'lostpassword', 'context' => 'login_post' ) ); ?>" class="bbp-user-register">
+	<form method="post" action="<?php bbp_wp_login_action( array( 'action' => 'lostpassword', 'context' => 'login_post' ) ); ?>" class="bbp-user-register">
 		<fieldset>
 			<legend><?php _e( 'Lost Password', 'bbpress' ); ?></legend>
-
-			<?php do_action( 'bbp_template_notices' ); ?>
 
 			<div class="bbp-username">
 				<p>
@@ -30,7 +28,6 @@
 
 				<?php bbp_user_lost_pass_fields(); ?>
 
-				<?php $reset = $_GET['reset']; if($reset == true) { echo '<p>A message will be sent to your email address.</p>'; } ?>
 			</div>
 		</fieldset>
 	</form>

@@ -908,7 +908,6 @@ function bbp_logged_in_redirect( $url = '' ) {
 function bbp_user_login_fields() {
 ?>
 
-		<input type="hidden" name="action"      value="bbp-user-login" id="bbp_user_login" />
 		<input type="hidden" name="user-cookie" value="1" />
 
 		<?php bbp_redirect_to_field(); ?>
@@ -952,8 +951,9 @@ function bbp_user_register_fields() {
 function bbp_user_lost_pass_fields() {
 ?>
 
-		<input type="hidden" name="action"      id="bbp_user_lost_pass" value="bbp-user-lost-pass" />
 		<input type="hidden" name="user-cookie" value="1" />
+
+		<?php bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), get_permalink() ) ); ?>
 
 		<?php wp_nonce_field( 'bbp-user-lost-pass' );
 }
