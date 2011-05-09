@@ -127,8 +127,8 @@ span.bbp-author-ip {
 	text-align: center;
 	width: 20%;
 }
-td.bbp-topic-author,
-td.bbp-reply-author {
+.bbp-topic-author,
+.bbp-reply-author {
 	width: 80px;
 	text-align: center;
 }
