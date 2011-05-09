@@ -307,11 +307,6 @@ function bbp_edit_topic_handler() {
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
 
-			$topic_edit_reason = !empty( $_POST['bbp_topic_edit_reason'] ) ? esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) ) : '';
-
-			if ( !empty( $_POST['bbp_log_topic_edit'] ) && 1 == $_POST['bbp_log_topic_edit'] && $revision_id = wp_save_post_revision( $topic_id ) )
-				bbp_update_topic_revision_log( array( 'topic_id' => $topic_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $topic_edit_reason ) );
-
 			// Stick status
 			if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
 				switch ( $_POST['bbp_stick_topic'] ) {
@@ -342,6 +337,12 @@ function bbp_edit_topic_handler() {
 
 			// Insert topic
 			$topic_id = wp_update_post( $topic_data );
+
+			// Revisions
+			$topic_edit_reason = !empty( $_POST['bbp_topic_edit_reason'] ) ? esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) ) : '';
+
+			if ( !empty( $_POST['bbp_log_topic_edit'] ) && 1 == $_POST['bbp_log_topic_edit'] && $revision_id = wp_save_post_revision( $topic_id ) )
+				bbp_update_topic_revision_log( array( 'topic_id' => $topic_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $topic_edit_reason ) );
 
 			// Check for missing topic_id or error
 			if ( !empty( $topic_id ) && !is_wp_error( $topic_id ) ) {

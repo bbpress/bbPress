@@ -325,11 +325,6 @@ function bbp_edit_reply_handler() {
 		// Handle insertion into posts table
 		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
 
-			$reply_edit_reason = !empty( $_POST['bbp_reply_edit_reason'] ) ? esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) ) : '';
-
-			if ( !empty( $_POST['bbp_log_reply_edit'] ) && 1 == $_POST['bbp_log_reply_edit'] && $revision_id = wp_save_post_revision( $reply_id ) )
-				bbp_update_reply_revision_log( array( 'reply_id' => $reply_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $reply_edit_reason ) );
-
 			// Add the content of the form to $post as an array
 			$reply_data = array(
 				'ID'           => $reply_id,
@@ -339,6 +334,12 @@ function bbp_edit_reply_handler() {
 
 			// Insert reply
 			$reply_id = wp_update_post( $reply_data );
+
+			// Revisions
+			$reply_edit_reason = !empty( $_POST['bbp_reply_edit_reason'] ) ? esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) ) : '';
+
+			if ( !empty( $_POST['bbp_log_reply_edit'] ) && 1 == $_POST['bbp_log_reply_edit'] && $revision_id = wp_save_post_revision( $reply_id ) )
+				bbp_update_reply_revision_log( array( 'reply_id' => $reply_id, 'revision_id' => $revision_id, 'author_id' => bbp_get_current_user_id(), 'reason' => $reply_edit_reason ) );
 
 			// Check for missing reply_id or error
 			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
