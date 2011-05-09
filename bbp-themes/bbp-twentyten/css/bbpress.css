@@ -122,15 +122,15 @@ span.bbp-author-ip {
 	text-align: center;
 	padding: 6px 0px;
 }
+#content .bbp-topic-author,
+#content .bbp-reply-author {
+	width: 80px;
+	text-align: center;
+}
 .bbp-topic-freshness,
 .bbp-forum-freshness {
 	text-align: center;
 	width: 20%;
-}
-.bbp-topic-author,
-.bbp-reply-author {
-	width: 80px;
-	text-align: center;
 }
 
 #content tbody .bbp-topic-content,
