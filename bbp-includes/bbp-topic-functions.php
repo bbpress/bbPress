@@ -391,6 +391,7 @@ function bbp_new_topic_admin_handler( $topic_id, $topic ) {
 
 			// Check that actions match what we need
 			'editpost'                    === $_POST['action']           &&
+			'publish'                     === $_POST['post_status']      &&
 			bbp_get_topic_post_type()     === $_POST['post_type']
 	) {
 

@@ -1264,12 +1264,6 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
 
-		// Fallback to post_parent if no meta exists, and set post meta
-		if ( '' === $forum_id ) {
-			$forum_id = get_post_field( 'post_parent', $topic_id );
-			bbp_update_topic_forum_id( $topic_id, $forum_id );
-		}
-
 		return apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
 	}
 

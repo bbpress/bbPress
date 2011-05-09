@@ -382,7 +382,9 @@ function bbp_new_reply_admin_handler( $reply_id, $reply ) {
 
 			// Check that actions match what we need
 			'editpost'                    === $_POST['action']           &&
+			'publish'                     === $_POST['post_status']      &&
 			bbp_get_reply_post_type()     === $_POST['post_type']
+
 	) {
 
 		// Update the reply meta bidness

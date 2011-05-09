@@ -652,7 +652,7 @@ class BBP_Topics_Admin {
 					foreach ( $actions as $action => $link )
 						$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
 
-					//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+					echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
 				} else {
 					_e( '(No Forum)', 'bbpress' );
 				}

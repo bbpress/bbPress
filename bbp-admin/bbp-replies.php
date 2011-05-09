@@ -567,19 +567,26 @@ class BBP_Replies_Admin {
 			case 'bbp_reply_topic' :
 
 				// Output forum name
-				bbp_topic_title( $topic_id );
+				if ( !empty( $topic_id ) ) {
+					bbp_topic_title( $topic_id );
 
-				// Link information
-				$actions = apply_filters( 'reply_topic_row_actions', array (
-					'edit' => '<a href="' . add_query_arg( array( 'post' => $topic_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-					'view' => '<a href="' . bbp_get_topic_permalink( $topic_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-				) );
+					// Link information
+					$actions = apply_filters( 'reply_topic_row_actions', array (
+						'edit' => '<a href="' . add_query_arg( array( 'post' => $topic_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+						'view' => '<a href="' . bbp_get_topic_permalink( $topic_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
+					) );
 
-				// Output forum post row links
-				foreach ( $actions as $action => $link )
-					$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+					// Output forum post row links
+					foreach ( $actions as $action => $link )
+						$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
 
-				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+					if ( !empty( $topic_id ) )
+						echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+
+				// Reply has no topic
+				} else {
+					_e( '(No Topic)', 'bbpress' );
+				}
 
 				break;
 
@@ -590,19 +597,27 @@ class BBP_Replies_Admin {
 				$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 				// Output forum name
-				bbp_forum_title( $forum_id );
+				if ( !empty( $forum_id ) ) {
+					bbp_forum_title( $forum_id );
 
-				// Link information
-				$actions = apply_filters( 'reply_topic_forum_row_actions', array (
-					'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-					'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-				) );
+					// Link information
+					$actions = apply_filters( 'reply_topic_forum_row_actions', array (
+						'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+						'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
+					) );
 
-				// Output forum post row links
-				foreach ( $actions as $action => $link )
-					$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+					// Output forum post row links
+					foreach ( $actions as $action => $link )
+						$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
 
-				//echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+					// Show forum actions
+					if ( !empty( $forum_id ) )
+						echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+
+				// Reply has no forum
+				} else {
+					_e( '(No Forum)', 'bbpress' );
+				}
 
 				break;
 
