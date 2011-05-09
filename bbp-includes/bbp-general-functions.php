@@ -573,7 +573,6 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
 		'bbp_anonymous_name'    => !empty( $_POST['bbp_anonymous_name']    ) ? $_POST['bbp_anonymous_name']    : false,
 		'bbp_anonymous_email'   => !empty( $_POST['bbp_anonymous_email']   ) ? $_POST['bbp_anonymous_email']   : false,
 		'bbp_anonymous_website' => !empty( $_POST['bbp_anonymous_website'] ) ? $_POST['bbp_anonymous_website'] : false,
-		'bbp_anonymous_ip'      => !empty( $_SERVER['REMOTE_ADDR']         ) ? $_SERVER['REMOTE_ADDR']         : false
 	);
 
 	$r = wp_parse_args( $args, $defaults );
@@ -587,14 +586,14 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
 		$bbp->errors->add( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
 
 	if ( empty( $is_edit ) ) {
-		if ( !$bbp_anonymous_ip = apply_filters( 'bbp_pre_anonymous_post_author_ip', preg_replace( '/[^0-9a-fA-F:., ]/', '', $bbp_anonymous_ip ) ) )
+		if ( !$bbp_anonymous_ip = apply_filters( 'bbp_pre_anonymous_post_author_ip', bbp_current_author_ip() ) )
 			$bbp->errors->add( 'bbp_anonymous_ip', __( '<strong>ERROR</strong>: Invalid IP address! Where are you from?', 'bbpress' ) );
 	} else {
 		$bbp_anonymous_ip = false;
 	}
 
 	// Website is optional
-	$bbp_anonymous_website     = apply_filters( 'bbp_pre_anonymous_post_author_website', $bbp_anonymous_website );
+	$bbp_anonymous_website = apply_filters( 'bbp_pre_anonymous_post_author_website', $bbp_anonymous_website );
 
 	if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
 		$retval = compact( 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website', 'bbp_anonymous_ip' );
@@ -614,7 +613,7 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
  *
  * @param array $post_data Contains information about the comment
  * @uses current_user_can() To check if the current user can throttle
- * @uses _get_meta_sql() To generate the meta sql for checking anonymous email
+ * @uses get_meta_sql() To generate the meta sql for checking anonymous email
  * @uses apply_filters() Calls 'bbp_check_for_duplicate_query' with the
  *                        duplicate check query and post data
  * @uses wpdb::get_var() To execute our query and get the var back
@@ -635,7 +634,7 @@ function bbp_check_for_duplicate( $post_data ) {
 
 	// Check for anonymous post
 	if ( empty( $post_author ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) {
-		$clauses = _get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
+		$clauses = get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
 		$join    = $clauses['join'];
 		$where   = $clauses['where'];
 	} else{
@@ -667,7 +666,7 @@ function bbp_check_for_duplicate( $post_data ) {
  *
  * @param false|array $anonymous_data Optional - if it's an anonymous post. Do
  *                                     not supply if supplying $author_id.
- *                                     Should have key 'bbp_anonymous_ip'.
+ *                                     Should have key 'bbp_author_ip'.
  *                                     Should be sanitized (see
  *                                     {@link bbp_filter_anonymous_post_data()}
  *                                     for sanitization)
@@ -685,8 +684,8 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 	if ( !$throttle_time = get_option( '_bbp_throttle_time' ) )
 		return true;
 
-	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) && !empty( $anonymous_data['bbp_anonymous_ip'] ) ) {
-		$last_posted = get_transient( '_bbp_' . $anonymous_data['bbp_anonymous_ip'] . '_last_posted' );
+	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
+		$last_posted = get_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted' );
 		if ( !empty( $last_posted ) && time() < $last_posted + $throttle_time )
 			return false;
 	} elseif ( !empty( $author_id ) ) {

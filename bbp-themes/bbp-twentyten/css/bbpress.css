@@ -55,6 +55,10 @@ div.bbp-topic-tags {
 /* =Tables
 -------------------------------------------------------------- */
 
+#content table tbody td {
+	padding: 20px;
+}
+
 #content table tbody tr.even td {
 	background-color: #fff;
 }
@@ -106,6 +110,13 @@ table.bbp-topic th span, table.bbp-replies th span {
 	padding: 4px 10px;
 }
 
+span.bbp-author-ip {
+	font-family: 'Helvetica Neue', Arial, Helvetica, 'Nimbus Sans L', sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	color: #aaa;
+}
+
 #content .bbp-forum-topic-count,
 #content .bbp-forum-reply-count,
 #content .bbp-topic-reply-count,
@@ -120,17 +131,16 @@ table.bbp-topic th span, table.bbp-replies th span {
 	text-align: center;
 	width: 20%;
 }
-.bbp-topic-author,
-.bbp-reply-author {
-	width: 90px;
+td.bbp-topic-author,
+td.bbp-reply-author {
+	width: 80px;
 	text-align: center;
-	padding: 0 10px;
 }
 
 #content tbody .bbp-topic-content,
 #content tbody .bbp-reply-content {
 	vertical-align: top;
-	padding: 9px 10px;
+	padding: 15px 20px 10px 10px;
 }
 
 #content .bbp-topic-content img,

@@ -128,6 +128,19 @@ function bbp_set_current_anonymous_user_data( $anonymous_data = array() ) {
 	setcookie( 'comment_author_url_'   . COOKIEHASH, $anonymous_data['bbp_anonymous_website'], time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 }
 
+/**
+ * Get the poster IP address
+ *
+ * @since bbPress (r3120)
+ *
+ * @return string
+ */
+function bbp_current_author_ip() {
+	$retval = preg_replace( '/[^0-9a-fA-F:., ]/', '', $_SERVER['REMOTE_ADDR'] );
+
+	return apply_filters( 'bbp_current_author_ip', $retval );
+}
+
 /** Favorites *****************************************************************/
 
 /**

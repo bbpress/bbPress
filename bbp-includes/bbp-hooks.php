@@ -307,6 +307,7 @@ add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
  * @uses add_filter() To add filters
  */
 function bbp_pre_anonymous_filters () {
+
 	// Post author name
 	$filters = array(
 		'trim'                => 10,

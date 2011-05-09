@@ -414,6 +414,55 @@ function bbp_admin_link( $args = '' ) {
 		return apply_filters( 'bbp_get_admin_link', $before . '<a href="' . $uri . '">' . $text . '</a>' . $after, $args );
 	}
 
+/** User IP *******************************************************************/
+
+/**
+ * Output the author IP address of a post
+ *
+ * @since bbPress (r3120)
+ *
+ * @param mixed $args Optional. If it is an integer, it is used as post id.
+ * @uses bbp_get_author_ip() To get the post author link
+ */
+function bbp_author_ip( $args = '' ) {
+	echo bbp_get_author_ip( $args );
+}
+	/**
+	 * Return the author IP address of a post
+	 *
+	 * @since bbPress (r3120)
+	 *
+	 * @param mixed $args Optional. If an integer, it is used as reply id.
+	 * @uses get_post_meta() To check if it's a topic page
+	 * @return string Author link of reply
+	 */
+	function bbp_get_author_ip( $args = '' ) {
+
+		// Default arguments
+		$defaults = array(
+			'post_id' => 0,
+			'before'  => '<span class="bbp-author-ip">(',
+			'after'   => ')</span>'
+		);
+
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
+		// Used as post id
+		if ( is_numeric( $args ) )
+			$post_id = $args;
+
+		// Get the author IP meta value
+		if ( $author_ip = get_post_meta( $post_id, '_bbp_author_ip', true ) )
+			$author_ip = $before . $author_ip . $after;
+
+		// No IP address
+		else
+			$author_ip = '';
+
+		return apply_filters( 'bbp_get_author_ip', $author_ip, $args );
+	}
+
 /** Favorites *****************************************************************/
 
 /**

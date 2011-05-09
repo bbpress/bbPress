@@ -91,8 +91,8 @@ class BBP_Replies_Admin {
 		add_action( 'admin_notices',  array( $this, 'toggle_reply_notice' ) );
 
 		// Anonymous metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'anonymous_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'anonymous_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'author_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'author_metabox_save' ) );
 
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -243,49 +243,42 @@ class BBP_Replies_Admin {
 	}
 
 	/**
-	 * Add the anonymous user info metabox
+	 * Add the author info metabox
 	 *
-	 * Allows editing of information about an anonymous user
+	 * Allows editing of information about an authr
 	 *
 	 * @since bbPress (r2828)
 	 *
 	 * @uses bbp_get_topic() To get the topic
 	 * @uses bbp_get_reply() To get the reply
-	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
-	 *                                 anonymous user
-	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
-	 *                                 anonymous user
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses add_meta_box() To add the metabox
-	 * @uses do_action() Calls 'bbp_anonymous_metabox' with the topic/reply
+	 * @uses do_action() Calls 'bbp_author_metabox' with the topic/reply
 	 *                    id
 	 */
-	function anonymous_metabox() {
+	function author_metabox() {
+		global $current_screen;
 
-		// Bail if post_type is not a topic or reply
-		if ( get_post_type() != $this->post_type )
-			return;
-
-		// Bail if reply is not anonymous
-		if ( !bbp_is_reply_anonymous( get_the_ID() ) )
+		// Bail if post_type is not a reply
+		if ( ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) ) || ( get_post_type() != $this->post_type ) )
 			return;
 
 		// Add the metabox
 		add_meta_box(
-			'bbp_anonymous_metabox',
-			__( 'Anonymous User Information', 'bbpress' ),
-			'bbp_anonymous_metabox',
+			'bbp_author_metabox',
+			__( 'Author Information', 'bbpress' ),
+			'bbp_author_metabox',
 			$this->post_type,
 			'side',
 			'high'
 		);
 
-		do_action( 'bbp_anonymous_metabox', get_the_ID() );
+		do_action( 'bbp_author_metabox', get_the_ID() );
 	}
 
 	/**
-	 * Save the anonymous user information for the topic/reply
+	 * Save the author information for the topic/reply
 	 *
 	 * @since bbPress (r2828)
 	 *
@@ -294,17 +287,13 @@ class BBP_Replies_Admin {
 	 * @uses bbp_get_reply() To get the reply
 	 * @uses current_user_can() To check if the current user can edit the
 	 *                           topic or reply
-	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
-	 *                                 anonymous user
-	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
-	 *                                 anonymous user
 	 * @uses bbp_filter_anonymous_post_data() To filter the anonymous user data
 	 * @uses update_post_meta() To update the anonymous user data
-	 * @uses do_action() Calls 'bbp_anonymous_metabox_save' with the topic/
-	 *                    reply id and anonymous data
+	 * @uses do_action() Calls 'bbp_author_metabox_save' with the reply id and
+	 *                    anonymous data
 	 * @return int Topic or reply id
 	 */
-	function anonymous_metabox_save( $post_id ) {
+	function author_metabox_save( $post_id ) {
 
 		// Bail if no post_id
 		if ( empty( $post_id ) )
@@ -319,7 +308,7 @@ class BBP_Replies_Admin {
 			return;
 
 		// Bail if user cannot edit replies or reply is not anonymous
-		if ( ( !current_user_can( 'edit_reply', $post_id ) || !bbp_is_reply_anonymous( $post_id ) ) )
+		if ( !current_user_can( 'edit_reply', $post_id ) )
 			return $post_id;
 
 		$anonymous_data = bbp_filter_anonymous_post_data();
@@ -328,7 +317,7 @@ class BBP_Replies_Admin {
 		update_post_meta( $post_id, '_bbp_anonymous_email',   $anonymous_data['bbp_anonymous_email']   );
 		update_post_meta( $post_id, '_bbp_anonymous_website', $anonymous_data['bbp_anonymous_website'] );
 
-		do_action( 'bbp_anonymous_metabox_save', $post_id, $anonymous_data );
+		do_action( 'bbp_author_metabox_save', $post_id, $anonymous_data );
 
 		return $post_id;
 	}

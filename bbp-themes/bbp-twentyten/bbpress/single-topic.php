@@ -40,7 +40,13 @@
 		<tbody>
 
 			<tr class="bbp-topic-header">
-				<td class="bbp-topic-author"><?php bbp_topic_author_link( array( 'type' => 'name' ) ); ?></td>
+				<td class="bbp-topic-author">
+
+					<?php bbp_topic_author_link( array( 'type' => 'name' ) ); ?>
+
+					<?php if ( is_super_admin() ) bbp_author_ip( bbp_get_reply_id() ); ?>
+
+				</td>
 
 				<td class="bbp-topic-content">
 					<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>">#</a>

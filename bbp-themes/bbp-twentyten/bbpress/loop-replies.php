@@ -74,7 +74,13 @@
 
 				<tr id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
-					<td class="bbp-reply-author"><?php bbp_reply_author_link( array( 'type' => 'avatar' ) ); ?></td>
+					<td class="bbp-reply-author">
+
+						<?php bbp_reply_author_link( array( 'type' => 'avatar' ) ); ?>
+
+						<?php if ( is_super_admin() ) bbp_author_ip( bbp_get_reply_id() ); ?>
+
+					</td>
 
 					<td class="bbp-reply-content">
 

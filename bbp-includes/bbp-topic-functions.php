@@ -452,12 +452,9 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 		update_post_meta( $topic_id, '_bbp_anonymous_name',  $bbp_anonymous_name,  false );
 		update_post_meta( $topic_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
 
-		// Set transient for throttle check and update ip address meta
-		// (only when the topic is not being edited)
-		if ( empty( $is_edit ) ) {
-			update_post_meta( $topic_id, '_bbp_anonymous_ip', $bbp_anonymous_ip, false );
-			set_transient( '_bbp_' . $bbp_anonymous_ip . '_last_posted', time() );
-		}
+		// Set transient for throttle check (only on new, not edit)
+		if ( empty( $is_edit ) )
+			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
 
 		// Website is optional
 		if ( !empty( $bbp_anonymous_website ) )
@@ -487,6 +484,9 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 
 	// Update associated topic values if this is a new topic
 	if ( empty( $is_edit ) ) {
+
+		// Update poster IP if not editing
+		update_post_meta( $topic_id, '_bbp_author_ip', bbp_current_author_ip(), false );
 
 		// Last active time
 		$last_active = current_time( 'mysql' );

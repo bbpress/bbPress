@@ -445,16 +445,14 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		update_post_meta( $reply_id, '_bbp_anonymous_name',  $bbp_anonymous_name,  false );
 		update_post_meta( $reply_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
 
-		// Set transient for throttle check and update ip address meta
-		// (only when the reply is not being edited)
-		if ( empty( $is_edit ) ) {
-			update_post_meta( $reply_id, '_bbp_anonymous_ip', $bbp_anonymous_ip, false );
-			set_transient( '_bbp_' . $bbp_anonymous_ip . '_last_posted', time() );
-		}
+		// Set transient for throttle check (only on new, not edit)
+		if ( empty( $is_edit ) )
+			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
 
 		// Website is optional
 		if ( !empty( $bbp_anonymous_website ) )
 			update_post_meta( $reply_id, '_bbp_anonymous_website', $bbp_anonymous_website, false );
+
 	} else {
 		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) )
 			update_user_meta( $author_id, '_bbp_last_posted', time() );
@@ -476,6 +474,10 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 
 	// Update associated topic values if this is a new reply
 	if ( empty( $is_edit ) ) {
+
+		// Update poster IP if not editing
+		update_post_meta( $reply_id, '_bbp_author_ip', bbp_current_author_ip(), false );
+
 		// Last active time
 		$last_active_time = current_time( 'mysql' );
 
