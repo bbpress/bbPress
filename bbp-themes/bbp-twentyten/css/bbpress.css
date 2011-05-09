@@ -55,10 +55,6 @@ div.bbp-topic-tags {
 /* =Tables
 -------------------------------------------------------------- */
 
-#content table tbody td {
-	padding: 20px;
-}
-
 #content table tbody tr.even td {
 	background-color: #fff;
 }
