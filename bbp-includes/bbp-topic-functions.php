@@ -1732,10 +1732,13 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 	else
 		return;
 
-	// There should always be at least 1 voice
-	if ( !$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) ) )
-		$voices = 1;
+	// Query the DB to get voices in this topic
+	$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
 
+	// If there's an error, make sure we at least have 1 voice
+	$voices = ( empty( $voices ) || is_wp_error( $voices )) ? 1 : $voices[0];
+
+	// Update the voice count for this topic id
 	update_post_meta( $topic_id, '_bbp_voice_count', (int) $voices );
 
 	return apply_filters( 'bbp_update_topic_voice_count', (int) $voices, $topic_id );
