@@ -11,7 +11,13 @@
 
 	<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
 		<fieldset>
-			<legend><?php _e( 'Register', 'bbpress' ); ?></legend>
+			<legend><?php _e( 'Create an Account', 'bbpress' ); ?></legend>
+
+			<div class="bbp-template-notice">
+				<p><?php _e( 'Your username must be unique, and cannot be changed later.', 'bbpress' ) ?></p>
+				<p><?php _e( 'We use your email address to email you a secure password and verify your account.', 'bbpress' ) ?></p>
+
+			</div>
 
 			<div class="bbp-username">
 				<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
@@ -24,8 +30,6 @@
 			</div>
 
 			<?php do_action( 'register_form' ); ?>
-
-			<p id="reg_passmail"><?php _e( 'A password will be e-mailed to you.', 'bbpress' ) ?></p>
 
 			<div class="bbp-submit-wrapper">
 

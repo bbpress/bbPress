@@ -1085,6 +1085,8 @@ function bbp_reset_query_name() {
  * @since bbPress (r2589)
  *
  * @param string $sep Separator. Defaults to '&larr;'
+ * @param bool $current_page Include the current item
+ * @param bool $root Include the root page if one exists
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
 function bbp_title_breadcrumb( $sep = ' &rsaquo; ' ) {
@@ -1097,10 +1099,12 @@ function bbp_title_breadcrumb( $sep = ' &rsaquo; ' ) {
  * @since bbPress (r2589)
  *
  * @param string $sep Separator. Defaults to '&larr;'
+ * @param bool $current_page Include the current item
+ * @param bool $root Include the root page if one exists
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
-	echo bbp_get_breadcrumb( $sep );
+function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true ) {
+	echo bbp_get_breadcrumb( $sep, $current_page, $root );
 }
 	/**
 	 * Return a breadcrumb ( forum -> topic -> reply )
@@ -1108,6 +1112,9 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
 	 * @since bbPress (r2589)
 	 *
 	 * @param string $sep Separator. Defaults to '&larr;'
+	 * @param bool $current_page Include the current item
+	 * @param bool $root Include the root page if one exists
+	 *
 	 * @uses get_post() To get the post
 	 * @uses bbp_get_forum_permalink() To get the forum link
 	 * @uses bbp_get_topic_permalink() To get the topic link
@@ -1123,7 +1130,7 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
 	 * @uses apply_filters() Calls 'bbp_get_breadcrumb' with the crumbs
 	 * @return string Breadcrumbs
 	 */
-	function bbp_get_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
+	function bbp_get_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true ) {
 		global $post, $bbp;
 
 		// No post, no breadcrumb
@@ -1131,7 +1138,16 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true ) {
 			return;
 
 		// Get post ancestors
-		$ancestors   = array_reverse( get_post_ancestors( $post->ID ) );
+		$ancestors = array_reverse( get_post_ancestors( $post->ID ) );
+
+		// Do we want to include the forum root?
+		if ( !empty( $root ) && ( get_option( '_bbp_include_root' ) ) && ( $root_slug = get_option( '_bbp_root_slug' ) ) ) {
+
+			// Page exists at the root slug location, so add it to the breadcrumb
+			if ( $page = get_page_by_path( $root_slug ) ) {
+				$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $root_slug ) ) . '">' . get_the_title( $page->ID ) . '</a>';
+			}
+		}
 
 		// Loop through parents
 		foreach( $ancestors as $parent_id ) {

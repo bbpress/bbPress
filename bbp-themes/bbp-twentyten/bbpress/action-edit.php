@@ -17,8 +17,10 @@
 				<?php while ( have_posts() ) the_post(); ?>
 
 					<div id="bbp-edit-page" class="bbp-edit-page">
-						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+						<h1 class="entry-title"><?php the_title(); ?></h1>
 						<div class="entry-content">
+
+							<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
 
 							<?php if ( bbp_is_reply_edit() ) : ?>
 

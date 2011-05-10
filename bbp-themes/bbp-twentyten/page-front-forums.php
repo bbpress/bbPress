@@ -19,7 +19,7 @@
 				<?php while ( have_posts() ) : the_post(); ?>
 
 					<div id="forum-front" class="bbp-forum-front">
-						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+						<h1 class="entry-title"><?php the_title(); ?></h1>
 						<div class="entry-content">
 
 							<?php the_content(); ?>

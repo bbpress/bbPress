@@ -24,9 +24,7 @@
 							<h1 class="entry-title"><?php bbp_forum_title(); ?></h1>
 							<div class="entry-content">
 
-								<?php if ( bbp_get_forum_parent() ) bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
-
-								<?php the_content(); ?>
+								<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
 
 								<?php bbp_single_forum_description(); ?>
 

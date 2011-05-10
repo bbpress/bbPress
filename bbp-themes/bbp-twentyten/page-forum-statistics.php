@@ -23,7 +23,7 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 				<?php while ( have_posts() ) : the_post(); ?>
 
 					<div id="bbp-statistics" class="bbp-statistics">
-						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+						<h1 class="entry-title"><?php the_title(); ?></h1>
 						<div class="entry-content">
 
 							<?php get_the_content() ? the_content() : _e( '<p>Here are the statistics and popular topics of our forums.</p>', 'bbpress' ); ?>

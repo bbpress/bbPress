@@ -19,10 +19,12 @@
 				<?php while ( have_posts() ) : the_post(); ?>
 
 					<div id="bbp-new-topic" class="bbp-new-topic">
-						<h1 class="entry-title"><?php bbp_title_breadcrumb(); ?></h1>
+						<h1 class="entry-title"><?php the_title(); ?></h1>
 						<div class="entry-content">
 
 							<?php the_content(); ?>
+
+							<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
 
 							<?php bbp_get_template_part( 'bbpress/form', 'topic' ); ?>
 

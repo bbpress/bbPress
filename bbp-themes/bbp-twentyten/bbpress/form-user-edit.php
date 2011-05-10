@@ -167,7 +167,7 @@
 
 	<fieldset class="submit">
 		<legend><?php _e( 'Save Changes', 'bbpress' ); ?></legend>
-		<div class="alignright">
+		<div>
 
 			<?php bbp_edit_user_form_fields(); ?>
 

@@ -285,18 +285,39 @@ td.bbp-topic-counts {
 
 /* =Forms
 -------------------------------------------------------------- */
+body.page fieldset {
+	clear: left;
+}
 
+#bbp-login fieldset,
+#bbp-register fieldset,
+#bbp-lost-pass fieldset,
 body.single-forum fieldset,
 body.single-topic fieldset {
 	border: 1px solid #eee;
 	padding: 10px 20px;
 }
 
+#bbp-login fieldset legend,
+#bbp-register fieldset legend,
+#bbp-lost-pass fieldset legend,
 body.single-forum fieldset legend,
-body.single-topic fieldset legend{
+body.single-topic fieldset legend {
 	padding: 5px;
 }
 
+#bbp-login fieldset label,
+#bbp-register fieldset label,
+#bbp-lost-pass fieldset label,
+body.single-forum fieldset label,
+body.single-topic fieldset label {
+	width: 200px;
+	display: inline-block;
+}
+
+#bbp-login fieldset p,
+#bbp-register fieldset p,
+#bbp-lost-pass fieldset p,
 body.single-forum fieldset p,
 body.single-topic fieldset input {
 	margin: 0px 0px 10px;
@@ -316,6 +337,8 @@ body.single-reply .bbp-reply-form div.avatar img {
 	background-color: #efefef;
 }
 
+body.page .bbp-reply-form code,
+body.page .bbp-topic-form code,
 body.single-topic .bbp-reply-form code,
 body.single-forum .bbp-topic-form code {
 	font-size: 10px;
@@ -352,24 +375,21 @@ input[type="password"] {
 /* =Edit User
 -------------------------------------------------------------- */
 
-div.bbp-edit-user fieldset {
+#your-profile fieldset {
 	margin-top: 20px;
 	padding: 20px 20px 0 20px;
 }
-	div.bbp-edit-user fieldset div {
+	#your-profile fieldset div {
 		margin-bottom: 20px;
 		float: left;
 		width: 100%;
 		clear: left;
 	}
-	div.bbp-edit-user fieldset textarea {
-		line-height: 0;
-	}
-	div.bbp-edit-user fieldset select {
+	#your-profile fieldset select {
 		margin-bottom: 0;
 	}
-	div.bbp-edit-user fieldset input,
-	div.bbp-edit-user fieldset textarea {
+	#your-profile fieldset input,
+	#your-profile fieldset textarea {
 		margin-bottom: 0;
 		width: 400px;
 		background: #f9f9f9;
@@ -379,16 +399,16 @@ div.bbp-edit-user fieldset {
 		-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 		padding: 2px;
 	}
-	div.bbp-edit-user fieldset legend {
+	#your-profile fieldset legend {
 		display: none;
 	}
-	div.bbp-edit-user fieldset label {
+	#your-profile fieldset label {
 		float: left;
 		width: 150px;
 		padding-right: 20px;
 		text-align: right;
 	}
-	div.bbp-edit-user fieldset span.description {
+	#your-profile fieldset span.description {
 		margin: 5px 0 0 170px;
 		font-size: 12px;
 		font-style: italic;
@@ -400,15 +420,19 @@ div.bbp-edit-user fieldset {
 		background-color: #f0f8ff;
 	}
 
-	div.bbp-edit-user fieldset fieldset {
+	#your-profile fieldset fieldset {
 		margin: 0;
 		width: 260px;
 		border: none;
 		padding: 0;
 	}
-	div.bbp-edit-user fieldset fieldset span.description {
+	#your-profile fieldset fieldset span.description {
 		margin-left: 0;
 		margin-bottom: 20px;
+	}
+
+	#your-profile fieldset.submit button {
+		float: right;
 	}
 
 /* =Notices
