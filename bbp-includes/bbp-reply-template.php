@@ -1330,9 +1330,15 @@ function bbp_reply_edit_link( $args = '' ) {
 
 		$reply = bbp_get_reply( bbp_get_reply_id( (int) $id ) );
 
-		if ( empty( $reply ) || !current_user_can( 'edit_reply', $reply->ID ) )
-			return;
+		// Bypass check if user has caps
+		if ( !is_super_admin() || !current_user_can( 'edit_others_replies' ) ) {
 
+			// User cannot edit or it is past the lock time
+			if ( empty( $reply ) || !current_user_can( 'edit_reply', $reply->ID ) || bbp_past_edit_lock( $reply->post_date_gmt ) )
+				return;
+		}
+
+		// No uri to edit reply
 		if ( !$uri = bbp_get_reply_edit_url( $id ) )
 			return;
 

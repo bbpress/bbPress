@@ -259,6 +259,46 @@ function bbp_fix_post_author( $data = array(), $postarr = array() ) {
 	return $data;
 }
 
+/**
+ * Check the date against the _bbp_edit_lock setting.
+ *
+ * @since bbPress (r3133)
+ *
+ * @param string $post_date_gmt
+ *
+ * @uses get_option() Get the edit lock time
+ * @uses current_time() Get the current time
+ * @uses strtotime() Convert strings to time
+ * @uses apply_filters() Allow output to be manipulated
+ *
+ * @return bool
+ */
+function bbp_past_edit_lock( $post_date_gmt ) {
+
+	// Assume editing is allowed
+	$retval = false;
+
+	// Bail if empty date
+	if ( ! empty( $post_date_gmt ) ) {
+
+		// Period of time
+		$lockable  = '+' . get_option( '_bbp_edit_lock', '5' ) . ' minutes';
+
+		// Now
+		$cur_time  = current_time( 'timestamp', true );
+
+		// Add lockable time to post time
+		$lock_time = strtotime( $lockable, strtotime( $post_date_gmt ) );
+
+		// Compare
+		if ( $cur_time >= $lock_time ) {
+			$retval = true;
+		}
+	}
+
+	return apply_filters( 'bbp_past_edit_lock', (bool) $retval, $cur_time, $lock_time, $post_date_gmt );
+}
+
 /** Statistics ****************************************************************/
 
 /**

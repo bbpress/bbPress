@@ -1900,9 +1900,15 @@ function bbp_topic_edit_link( $args = '' ) {
 
 		$topic = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
-		if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) )
-			return;
+		// Bypass check if user has caps
+		if ( !is_super_admin() || !current_user_can( 'edit_others_topics' ) ) {
 
+			// User cannot edit or it is past the lock time
+			if ( empty( $topic ) || !current_user_can( 'edit_topic', $topic->ID ) || bbp_past_edit_lock( $topic->post_date_gmt ) )
+				return;
+		}
+
+		// No uri to edit topic
 		if ( !$uri = bbp_get_topic_edit_url( $id ) )
 			return;
 
