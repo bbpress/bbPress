@@ -749,7 +749,7 @@ function bbp_update_forum( $args = '' ) {
 function bbp_get_hidden_forum_ids() {
    	$forum_ids = get_option( '_bbp_hidden_forums', array() );
 
-	return apply_filters( 'bbp_get_hidden_forum_ids', $forum_ids );
+	return apply_filters( 'bbp_get_hidden_forum_ids', (array) $forum_ids );
 }
 
 /**
@@ -766,7 +766,7 @@ function bbp_get_hidden_forum_ids() {
 function bbp_get_private_forum_ids() {
    	$forum_ids = get_option( '_bbp_private_forums', array() );
 
-	return apply_filters( 'bbp_get_private_forum_ids', $forum_ids );
+	return apply_filters( 'bbp_get_private_forum_ids', (array) $forum_ids );
 }
 
 /**
