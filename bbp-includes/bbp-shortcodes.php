@@ -193,8 +193,7 @@ class BBP_Shortcodes {
 		$this->_ob_start();
 
 		// Display breadcrumb if a subforum
-		if ( bbp_get_forum_parent( $forum_id ) )
-			bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
