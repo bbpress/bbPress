@@ -42,21 +42,29 @@ class BBP_Shortcodes {
 		/** Forums ************************************************************/
 
 		// Forum Index
-		add_shortcode( 'bbp-forum-index', array( $this, 'display_forum_index' ) );
+		add_shortcode( 'bbp-forum-index',  array( $this, 'display_forum_index' ) );
 
 		// Specific forum - pass an 'id' attribute
-		add_shortcode( 'bbp-forum',       array( $this, 'display_forum'       ) );
+		add_shortcode( 'bbp-single-forum', array( $this, 'display_forum'       ) );
 
 		/** Topics ************************************************************/
 
 		// Topic index
-		add_shortcode( 'bbp-topic-index', array( $this, 'display_topic_index'  ) );
+		add_shortcode( 'bbp-topic-index',  array( $this, 'display_topic_index'  ) );
 
 		// Topic form
-		add_shortcode( 'bbp-topic-form',  array( $this, 'display_topic_form'   ) );
+		add_shortcode( 'bbp-topic-form',   array( $this, 'display_topic_form'   ) );
 
 		// Specific topic - pass an 'id' attribute
-		add_shortcode( 'bbp-topic',       array( $this, 'display_topic'        ) );
+		add_shortcode( 'bbp-single-topic', array( $this, 'display_topic'        ) );
+
+		/** Topic Tags ********************************************************/
+
+		// All topic tags in a cloud
+		add_shortcode( 'bbp-topic-tags', array( $this, 'display_topic_tags'    ) );
+
+		// Topics of tag Tag
+		add_shortcode( 'bbp-topic-tag',  array( $this, 'display_topics_of_tag' ) );
 
 		/** Replies ***********************************************************/
 
@@ -442,6 +450,37 @@ class BBP_Shortcodes {
 	/** Topic Tags ************************************************************/
 
 	/**
+	 * Display a tag cloud of all topic tags in an output buffer and return to
+	 * ensure that post/page contents are displayed first.
+	 *
+	 * @since bbPress (r3110)
+	 *
+	 * @global bbPress $bbp
+	 *
+	 * @return string
+	 */
+	function display_topic_tags() {
+		global $bbp;
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Output the topic tags
+		wp_tag_cloud( array(
+			'smallest' => 9,
+			'largest'  => 38,
+			'number'   => 80,
+			'taxonomy' => $bbp->topic_tag_id
+		) );
+
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
+
+	/**
 	 * Display the contents of a specific topic tag in an output buffer
 	 * and return to ensure that post/page contents are displayed first.
 	 *
@@ -455,7 +494,7 @@ class BBP_Shortcodes {
 	 * @uses get_template_part()
 	 * @return string
 	 */
-	function display_topic_tag( $attr, $content = '' ) {
+	function display_topics_of_tag( $attr, $content = '' ) {
 		global $bbp;
 
 		// Sanity check required info

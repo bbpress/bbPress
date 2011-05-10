@@ -2135,7 +2135,7 @@ function bbp_replace_the_content( $content = '' ) {
 		/** Topic Tags ********************************************************/
 
 		} elseif ( get_query_var( 'bbp_topic_tag' ) ) {
-			$new_content = $bbp->shortcodes->display_topic_tag( array( 'id' => bbp_get_topic_tag_id() ) );
+			$new_content = $bbp->shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
 
 		/** Forums/Topics/Replies *********************************************/
 
