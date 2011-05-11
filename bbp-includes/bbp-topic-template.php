@@ -1254,8 +1254,6 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get topic id
 	 * @uses get_post_meta() To retrieve get topic's forum id meta
-	 * @uses get_post_field() To get the topic's parent, i.e. forum id
-	 * @uses bbp_update_topic_forum_id() To update the topic forum id
 	 * @uses apply_filters() Calls 'bbp_get_topic_forum_id' with the forum
 	 *                        id and topic id
 	 * @return int Topic forum id
