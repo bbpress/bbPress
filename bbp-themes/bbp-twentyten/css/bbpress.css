@@ -233,6 +233,9 @@ td.bbp-topic-counts {
 #content p.bbp-topic-meta {
 	margin-bottom: 0;
 	font-size: 11px;
+}
+
+#content p.bbp-topic-meta span {
 	white-space: nowrap;
 }
 
