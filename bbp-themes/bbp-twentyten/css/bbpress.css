@@ -288,6 +288,7 @@ td.bbp-topic-counts {
 
 /* =Forms
 -------------------------------------------------------------- */
+body.single fieldset,
 body.page fieldset {
 	clear: left;
 }
