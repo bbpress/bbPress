@@ -1173,7 +1173,7 @@ function bbp_split_topic_handler() {
 						else
 							$destination_topic_title = $source_topic->post_title;
 
-						// Setup the new post parameters
+						// Setup the updated topic parameters
 						$postarr = array(
 							'ID'          => $from_reply->ID,
 							'post_title'  => $destination_topic_title,
@@ -1183,7 +1183,11 @@ function bbp_split_topic_handler() {
 							'guid'        => ''
 						);
 
+						// Update the topic
 						$destination_topic_id = wp_update_post( $postarr );
+
+						// Make sure the new topic knows its a topic
+						bbp_update_topic_topic_id( $from_reply->ID );
 
 						// Shouldn't happen
 						if ( false == $destination_topic_id || is_wp_error( $destination_topic_id ) || !$destination_topic = bbp_get_topic( $destination_topic_id ) )
