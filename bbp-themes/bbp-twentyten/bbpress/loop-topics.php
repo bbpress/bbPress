@@ -58,7 +58,7 @@
 
 						<p class="bbp-topic-meta">
 
-							<?php bbp_author_link( array( 'post_id' => bbp_get_topic_last_active_id(), 'size' => 14 ) ); ?>
+							<span class="bbp-topic-freshness-author"><?php bbp_author_link( array( 'post_id' => bbp_get_topic_last_active_id(), 'size' => 14 ) ); ?></span>
 
 						</p>
 					</td>
