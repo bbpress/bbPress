@@ -32,7 +32,7 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @uses add_action
+	 * @uses __construct()
 	 */
 	function BBP_Shortcodes() {
 		$this->__construct();
@@ -43,7 +43,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @uses add_action
+	 * @uses _setup_globals()
+	 * @uses _add_shortcodes()
 	 */
 	function __construct() {
 		$this->_setup_globals();
@@ -55,6 +56,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3143)
 	 * @access private
+	 *
+	 * @uses apply_filters()
 	 */
 	function _setup_globals() {
 
