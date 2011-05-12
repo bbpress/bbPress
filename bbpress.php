@@ -406,11 +406,9 @@ class bbPress {
 	/**
 	 * Register Textdomain
 	 *
-	 * Load the translation file for current language. Checks both the
-	 * languages folder inside the bbPress plugin and the default WordPress
-	 * languages folder. Note that languages inside the bbPress plugin
-	 * folder will be removed on bbPress updates, and using the WordPress
-	 * default folder is safer.
+	 * Load the translation file for current language. Checks only the default
+	 * WordPress languages folder to avoid language files being wiped out
+	 * with plugin updates.
 	 *
 	 * @since bbPress (r2596)
 	 *
@@ -427,17 +425,12 @@ class bbPress {
 		// Get mo file name
 		$mofile = sprintf( 'bbpress-%s.mo', $locale );
 
-		// Setup paths to current locale file
+		// Setup path to current locale file
 		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
-		$mofile_local  = $this->plugin_dir . '/bbp-languages/' . $mofile;
 
 		// Look in global /wp-content/languages/ folder
 		if ( file_exists( $mofile_global ) )
 			return load_textdomain( 'bbpress', $mofile_global );
-
-		// Look in /wp-content/plugins/bbpress/ folder (just in case)
-		elseif ( file_exists( $mofile_local ) )
-			return load_textdomain( 'bbpress', $mofile_local );
 
 		// Nothing found
 		return false;
