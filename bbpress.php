@@ -337,7 +337,7 @@ class bbPress {
 
 		// Load the files
 		foreach ( $files as $file )
-			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '.php' );
+			require_once( $this->plugin_dir . '/bbp-includes/bbp-core-' . $file . '.php' );
 
 		/** Components ********************************************************/
 
