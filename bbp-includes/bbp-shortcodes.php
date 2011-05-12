@@ -18,6 +18,15 @@ if ( !class_exists( 'BBP_Shortcodes' ) ) :
  */
 class BBP_Shortcodes {
 
+	/** Vars ******************************************************************/
+
+	/**
+	 * @var array Shortcode => function
+	 */
+	var $codes;
+
+	/** Functions *************************************************************/
+
 	/**
 	 * Add the register_shortcodes action to bbp_init
 	 *
@@ -26,7 +35,63 @@ class BBP_Shortcodes {
 	 * @uses add_action
 	 */
 	function BBP_Shortcodes() {
+		$this->__construct();
+	}
+
+	/**
+	 * Add the register_shortcodes action to bbp_init
+	 *
+	 * @since bbPress (r3031)
+	 *
+	 * @uses add_action
+	 */
+	function __construct() {
+		$this->_setup_globals();
 		$this->_add_shortcodes();
+	}
+
+	/**
+	 * Shortcode globals
+	 *
+	 * @since bbPress (r3143)
+	 * @access private
+	 */
+	function _setup_globals() {
+
+		// Setup the shortcodes
+		$this->codes = apply_filters( 'bbp_shortcodes', array(
+
+			/** Forums ********************************************************/
+
+			// Forum Index
+			'bbp-forum-index'  => array( $this, 'display_forum_index' ),
+
+			'bbp-single-forum' => array( $this, 'display_forum'       ),
+
+			/** Topics ********************************************************/
+
+			// Topic index
+			'bbp-topic-index'  => array( $this, 'display_topic_index' ),
+
+			// Topic form
+			'bbp-topic-form'   => array( $this, 'display_topic_form'  ),
+
+			// Specific topic - pass an 'id' attribute
+			'bbp-single-topic' => array( $this, 'display_topic'       ),
+
+			/** Topic Tags ****************************************************/
+
+			// All topic tags in a cloud
+			'bbp-topic-tags' => array( $this, 'display_topic_tags'    ),
+
+			// Topics of tag Tag
+			'bbp-topic-tag'  => array( $this, 'display_topics_of_tag' ),
+
+			/** Replies *******************************************************/
+
+			// Reply form
+			'bbp-reply-form' => array( $this, 'display_reply_form'    )
+		) );
 	}
 
 	/**
@@ -39,37 +104,11 @@ class BBP_Shortcodes {
 	 */
 	function _add_shortcodes() {
 
-		/** Forums ************************************************************/
+		// Loop through the shortcodes
+		foreach( $this->codes as $code => $function )
 
-		// Forum Index
-		add_shortcode( 'bbp-forum-index',  array( $this, 'display_forum_index' ) );
-
-		// Specific forum - pass an 'id' attribute
-		add_shortcode( 'bbp-single-forum', array( $this, 'display_forum'       ) );
-
-		/** Topics ************************************************************/
-
-		// Topic index
-		add_shortcode( 'bbp-topic-index',  array( $this, 'display_topic_index'  ) );
-
-		// Topic form
-		add_shortcode( 'bbp-topic-form',   array( $this, 'display_topic_form'   ) );
-
-		// Specific topic - pass an 'id' attribute
-		add_shortcode( 'bbp-single-topic', array( $this, 'display_topic'        ) );
-
-		/** Topic Tags ********************************************************/
-
-		// All topic tags in a cloud
-		add_shortcode( 'bbp-topic-tags', array( $this, 'display_topic_tags'    ) );
-
-		// Topics of tag Tag
-		add_shortcode( 'bbp-topic-tag',  array( $this, 'display_topics_of_tag' ) );
-
-		/** Replies ***********************************************************/
-
-		// Reply form
-		add_shortcode( 'bbp-reply-form', array( $this, 'display_reply_form' ) );
+			// Add each shortcode
+			add_shortcode( $code, $function );
 
 		// Custom shortcodes
 		do_action( 'bbp_register_shortcodes' );
