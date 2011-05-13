@@ -19,7 +19,7 @@ We're keeping things as small and light as possible while still allowing for gre
 3. Visit 'Settings > Forums' and adjust your configuration.
 4. Create some forums.
 5. View your site.
-5. Adjust your theme's CSS as needed to make everything look pretty.
+6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
 
