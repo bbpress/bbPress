@@ -3,14 +3,17 @@
  /**
  * @package bbPress
  * @subpackage BBP_Twenty_Ten
- * @since Twenty Ten 1.0
+ * @since Twenty Ten 1.1
  */
 
 if ( ! function_exists( 'bbp_twentyten_setup' ) ):
 /**
  * Sets up theme support for bbPress
  *
- * @since bbPress Twenty Ten 1.0
+ * If you're looking to add bbPress support into your own custom theme, you'll
+ * want to make sure to use: add_theme_support( 'bbpress' );
+ *
+ * @since bbPress (r2652)
  */
 function bbp_twentyten_setup() {
 
@@ -24,6 +27,8 @@ endif;
 if ( !function_exists( 'bbp_twentyten_enqueue_styles' ) ) :
 /**
  * Load the theme CSS
+ *
+ * @since bbPress (r2652)
  *
  * @uses is_admin() To check if it's the admin section
  * @uses wp_enqueue_style() To enqueue the styles
