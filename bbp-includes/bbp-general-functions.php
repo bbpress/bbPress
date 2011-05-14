@@ -674,7 +674,15 @@ function bbp_check_for_duplicate( $post_data ) {
 
 	// Check for anonymous post
 	if ( empty( $post_author ) && !empty( $anonymous_data['bbp_anonymous_email'] ) ) {
-		$clauses = get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
+
+		// WP 3.2
+		if ( function_exists( 'get_meta_sql' ) )
+			$clauses = get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
+
+		// WP 3.1
+		elseif ( function_exists( '_get_meta_sql' ) )
+			$clauses = _get_meta_sql( array( array( 'key' => '_bbp_anonymous_email', 'value' => $anonymous_data['bbp_anonymous_email'] ) ), 'post', $wpdb->posts, 'ID' );
+
 		$join    = $clauses['join'];
 		$where   = $clauses['where'];
 	} else{
