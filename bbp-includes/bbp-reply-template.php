@@ -573,7 +573,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 				$reason    = $revision_log[$revision->ID]['reason'];
 			}
 
-			$author = bbp_get_reply_author_link( array( 'type' => 'both', 'reply_id' => $revision->ID, 'size' => 14 ) );
+			$author = bbp_get_author_link( array( 'size' => 14, 'link_text' => bbp_get_reply_author_display_name( $revision->ID ), 'post_id' => $revision->ID ) );
 			$since  = bbp_get_time_since( bbp_convert_date( $revision->post_modified ) );
 
 			$r .= "\t" . '<li id="bbp-reply-revision-log-' . $reply_id . '-item-' . $revision->ID . '" class="bbp-reply-revision-log-item">' . "\n";
