@@ -333,7 +333,7 @@ class bbPress {
 
 		/** Individual files **************************************************/
 
-		$files = array( 'update', 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes' );
+		$files = array( 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes' );
 
 		// Load the files
 		foreach ( $files as $file )
