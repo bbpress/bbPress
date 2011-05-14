@@ -625,18 +625,11 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
 	if ( !$bbp_anonymous_email = apply_filters( 'bbp_pre_anonymous_post_author_email', $bbp_anonymous_email ) )
 		$bbp->errors->add( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
 
-	if ( empty( $is_edit ) ) {
-		if ( !$bbp_anonymous_ip = apply_filters( 'bbp_pre_anonymous_post_author_ip', bbp_current_author_ip() ) )
-			$bbp->errors->add( 'bbp_anonymous_ip', __( '<strong>ERROR</strong>: Invalid IP address! Where are you from?', 'bbpress' ) );
-	} else {
-		$bbp_anonymous_ip = false;
-	}
-
 	// Website is optional
 	$bbp_anonymous_website = apply_filters( 'bbp_pre_anonymous_post_author_website', $bbp_anonymous_website );
 
 	if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
-		$retval = compact( 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website', 'bbp_anonymous_ip' );
+		$retval = compact( 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website' );
 	else
 		$retval = false;
 
