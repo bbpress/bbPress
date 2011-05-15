@@ -26,23 +26,31 @@
 
 								<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
 
-								<?php bbp_topic_tag_list(); ?>
+								<?php if ( post_password_required() ) : ?>
 
-								<?php bbp_single_topic_description(); ?>
+									<?php bbp_get_template_part( 'bbpress/form', 'protected' ); ?>
 
-								<div id="ajax-response"></div>
+								<?php else : ?>
 
-								<?php bbp_get_template_part( 'bbpress/single', 'topic'   ); ?>
+									<?php bbp_topic_tag_list(); ?>
 
-								<?php if ( bbp_get_query_name() || bbp_has_replies() ) : ?>
+									<?php bbp_single_topic_description(); ?>
 
-									<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
+									<div id="ajax-response"></div>
 
-									<?php bbp_get_template_part( 'bbpress/loop',       'replies' ); ?>
+									<?php bbp_get_template_part( 'bbpress/single', 'topic'   ); ?>
 
-									<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
+									<?php if ( bbp_get_query_name() || bbp_has_replies() ) : ?>
 
-									<?php bbp_get_template_part( 'bbpress/form',       'reply'   ); ?>
+										<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
+
+										<?php bbp_get_template_part( 'bbpress/loop',       'replies' ); ?>
+
+										<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
+
+										<?php bbp_get_template_part( 'bbpress/form',       'reply'   ); ?>
+
+									<?php endif; ?>
 
 								<?php endif; ?>
 

@@ -245,62 +245,72 @@ class BBP_Shortcodes {
 		// Display breadcrumb if a subforum
 		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
 
-		// Check forum caps
-		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
+		// Password protected
+		if ( post_password_required() ) {
 
-			// Forum description
-			bbp_single_forum_description( array( 'forum_id' => $forum_id ) );
+			// Output the password form
+			bbp_get_template_part( 'bbpress/form', 'protected' );
 
-			/** Sub forums ****************************************************/
+		// Not password protected, or password is already approved
+		} else {
 
-			// Check if forum has subforums first
-			if ( bbp_get_forum_subforum_count( $forum_id ) ) {
+			// Check forum caps
+			if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
-				// Forum query
-				$forum_query = array( 'post_parent' => $forum_id );
+				// Forum description
+				bbp_single_forum_description( array( 'forum_id' => $forum_id ) );
 
-				// Load the sub forums
-				if ( bbp_has_forums( $forum_query ) )
-					bbp_get_template_part( 'bbpress/loop', 'forums' );
-			}
+				/** Sub forums ****************************************************/
 
-			/** Topics ********************************************************/
+				// Check if forum has subforums first
+				if ( bbp_get_forum_subforum_count( $forum_id ) ) {
 
-			// Skip if forum is a category
-			if ( !bbp_is_forum_category( $forum_id ) ) {
+					// Forum query
+					$forum_query = array( 'post_parent' => $forum_id );
 
-				// Unset globals
-				$this->_unset_globals();
-
-				// Reset necessary forum_query attributes for topics loop to function
-				$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
-				$bbp->forum_query->in_the_loop             = true;
-				$bbp->forum_query->post                    = get_post( $forum_id );
-
-				// Query defaults
-				$topics_query = array(
-					'author'        => 0,
-					'post_parent'   => $forum_id,
-					'show_stickies' => true,
-				);
-
-				// Load the topic index
-				if ( bbp_has_topics( $topics_query ) ) {
-					bbp_get_template_part( 'bbpress/pagination', 'topics' );
-					bbp_get_template_part( 'bbpress/loop',       'topics' );
-					bbp_get_template_part( 'bbpress/pagination', 'topics' );
-					bbp_get_template_part( 'bbpress/form',       'topic'  );
-
-				// No topics
-				} else {
-					bbp_get_template_part( 'bbpress/no',   'topics' );
-					bbp_get_template_part( 'bbpress/form', 'topic'  );
+					// Load the sub forums
+					if ( bbp_has_forums( $forum_query ) )
+						bbp_get_template_part( 'bbpress/loop', 'forums' );
 				}
-			}
 
-		// Forum is private and user does not have caps
-		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-			bbp_get_template_part( 'bbpress/no', 'access' );
+				/** Topics ********************************************************/
+
+				// Skip if forum is a category
+				if ( !bbp_is_forum_category( $forum_id ) ) {
+
+					// Unset globals
+					$this->_unset_globals();
+
+					// Reset necessary forum_query attributes for topics loop to function
+					$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
+					$bbp->forum_query->in_the_loop             = true;
+					$bbp->forum_query->post                    = get_post( $forum_id );
+
+					// Query defaults
+					$topics_query = array(
+						'author'        => 0,
+						'post_parent'   => $forum_id,
+						'show_stickies' => true,
+					);
+
+					// Load the topic index
+					if ( bbp_has_topics( $topics_query ) ) {
+						bbp_get_template_part( 'bbpress/pagination', 'topics' );
+						bbp_get_template_part( 'bbpress/loop',       'topics' );
+						bbp_get_template_part( 'bbpress/pagination', 'topics' );
+						bbp_get_template_part( 'bbpress/form',       'topic'  );
+
+					// No topics
+					} else {
+						bbp_get_template_part( 'bbpress/no',   'topics' );
+						bbp_get_template_part( 'bbpress/form', 'topic'  );
+					}
+				}
+
+			// Forum is private and user does not have caps
+			} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
+				bbp_get_template_part( 'bbpress/no', 'access' );
+			}
 		}
 
 		// Return contents of output buffer
@@ -411,34 +421,44 @@ class BBP_Shortcodes {
 		// Breadcrumb
 		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
 
-		// Check forum caps
-		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
+		// Password protected
+		if ( post_password_required() ) {
 
-			// Load the topic
-			if ( bbp_has_replies( $replies_query ) ) {
+			// Output the password form
+			bbp_get_template_part( 'bbpress/form', 'protected' );
 
-				// Tags
-				bbp_topic_tag_list( $topic_id );
+		// Not password protected, or password is already approved
+		} else {
 
-				// Topic description
-				bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
+			// Check forum caps
+			if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
-				// Template files
-				bbp_get_template_part( 'bbpress/single',     'topic'   );
-				bbp_get_template_part( 'bbpress/pagination', 'replies' );
-				bbp_get_template_part( 'bbpress/loop',       'replies' );
-				bbp_get_template_part( 'bbpress/pagination', 'replies' );
-				bbp_get_template_part( 'bbpress/form',       'reply'   );
+				// Load the topic
+				if ( bbp_has_replies( $replies_query ) ) {
 
-			// No replies
-			} else {
-				bbp_get_template_part( 'bbpress/single', 'topic' );
-				bbp_get_template_part( 'bbpress/form',   'reply' );
+					// Tags
+					bbp_topic_tag_list( $topic_id );
+
+					// Topic description
+					bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
+
+					// Template files
+					bbp_get_template_part( 'bbpress/single',     'topic'   );
+					bbp_get_template_part( 'bbpress/pagination', 'replies' );
+					bbp_get_template_part( 'bbpress/loop',       'replies' );
+					bbp_get_template_part( 'bbpress/pagination', 'replies' );
+					bbp_get_template_part( 'bbpress/form',       'reply'   );
+
+				// No replies
+				} else {
+					bbp_get_template_part( 'bbpress/single', 'topic' );
+					bbp_get_template_part( 'bbpress/form',   'reply' );
+				}
+
+			// Forum is private and user does not have caps
+			} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
+				bbp_get_template_part( 'bbpress/no', 'access' );
 			}
-
-		// Forum is private and user does not have caps
-		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-			bbp_get_template_part( 'bbpress/no', 'access' );
 		}
 
 		// Return contents of output buffer
