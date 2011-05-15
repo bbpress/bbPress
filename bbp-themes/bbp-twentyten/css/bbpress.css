@@ -379,21 +379,21 @@ input[type="password"] {
 /* =Edit User
 -------------------------------------------------------------- */
 
-#your-profile fieldset {
+#bbp-your-profile fieldset {
 	margin-top: 20px;
 	padding: 20px 20px 0 20px;
 }
-	#your-profile fieldset div {
+	#bbp-your-profile fieldset div {
 		margin-bottom: 20px;
 		float: left;
 		width: 100%;
 		clear: left;
 	}
-	#your-profile fieldset select {
+	#bbp-your-profile fieldset select {
 		margin-bottom: 0;
 	}
-	#your-profile fieldset input,
-	#your-profile fieldset textarea {
+	#bbp-your-profile fieldset input,
+	#bbp-your-profile fieldset textarea {
 		margin-bottom: 0;
 		width: 400px;
 		background: #f9f9f9;
@@ -403,16 +403,16 @@ input[type="password"] {
 		-webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,0.1);
 		padding: 2px;
 	}
-	#your-profile fieldset legend {
+	#bbp-your-profile fieldset legend {
 		display: none;
 	}
-	#your-profile fieldset label {
+	#bbp-your-profile fieldset label {
 		float: left;
 		width: 150px;
 		padding-right: 20px;
 		text-align: right;
 	}
-	#your-profile fieldset span.description {
+	#bbp-your-profile fieldset span.description {
 		margin: 5px 0 0 170px;
 		font-size: 12px;
 		font-style: italic;
@@ -424,18 +424,18 @@ input[type="password"] {
 		background-color: #f0f8ff;
 	}
 
-	#your-profile fieldset fieldset {
+	#bbp-your-profile fieldset fieldset {
 		margin: 0;
 		width: 260px;
 		border: none;
 		padding: 0;
 	}
-	#your-profile fieldset fieldset span.description {
+	#bbp-your-profile fieldset fieldset span.description {
 		margin-left: 0;
 		margin-bottom: 20px;
 	}
 
-	#your-profile fieldset.submit button {
+	#bbp-your-profile fieldset.submit button {
 		float: right;
 	}
 

@@ -9,7 +9,7 @@
 
 ?>
 
-<form id="your-profile" action="<?php bbp_user_profile_edit_url( bbp_get_displayed_user_id() ); ?>" method="post">
+<form id="bbp-your-profile" action="<?php bbp_user_profile_edit_url( bbp_get_displayed_user_id() ); ?>" method="post">
 
 	<h2 class="entry-title"><?php _e( 'Name', 'bbpress' ) ?></h2>
 
