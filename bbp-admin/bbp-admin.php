@@ -111,7 +111,13 @@ class BBP_Admin {
 	function _includes() {
 		global $bbp;
 
+		// Files to include
 		$files = array( 'tools', 'settings', 'functions', 'metaboxes', 'forums', 'topics', 'replies' );
+
+		// Buzz buzz
+		//if ( get_option( '_bbp_first_run' ) ) $files[] = 'first-run';
+
+		// Include the files
 		foreach ( $files as $file )
 			require_once( $bbp->plugin_dir . 'bbp-admin/bbp-' . $file . '.php' );
 	}
@@ -206,7 +212,7 @@ class BBP_Admin {
 
 		// Root slug setting
 		add_settings_field( '_bbp_root_slug',       __( 'Forum base',    'bbpress' ), 'bbp_admin_setting_callback_root_slug',       'bbpress', 'bbp_slugs' );
-	 	register_setting  ( 'bbpress',              '_bbp_root_slug',                 'sanitize_title'                                                     );
+	 	register_setting  ( 'bbpress',              '_bbp_root_slug',                 'esc_url_raw'                                                        );
 
 		// Include root setting
 		add_settings_field( '_bbp_include_root',    __( 'Include base?', 'bbpress' ), 'bbp_admin_setting_callback_include_root',    'bbpress', 'bbp_slugs' );
