@@ -212,7 +212,7 @@ class BBP_Admin {
 
 		// Root slug setting
 		add_settings_field( '_bbp_root_slug',       __( 'Forum base',    'bbpress' ), 'bbp_admin_setting_callback_root_slug',       'bbpress', 'bbp_slugs' );
-	 	register_setting  ( 'bbpress',              '_bbp_root_slug',                 'esc_url_raw'                                                        );
+	 	register_setting  ( 'bbpress',              '_bbp_root_slug',                 'esc_sql'                                                            );
 
 		// Include root setting
 		add_settings_field( '_bbp_include_root',    __( 'Include base?', 'bbpress' ), 'bbp_admin_setting_callback_include_root',    'bbpress', 'bbp_slugs' );
