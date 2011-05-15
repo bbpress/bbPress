@@ -1429,48 +1429,82 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 	return apply_filters( 'bbp_is_forum_hidden', (bool) $retval, $forum_id, $check_ancestors );
 }
 
+/**
+ * Replace forum meta details for users that cannot view them.
+ *
+ * @since bbPress (r3162)
+ *
+ * @param string $retval
+ * @param int $forum_id
+ *
+ * @uses bbp_is_forum_private()
+ * @uses current_user_can()
+ *
+ * @return string
+ */
 function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
 	if ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) )
 		return '-';
 
-	return $retval;
+	return apply_filters( 'bbp_suppress_private_forum_meta', $retval );
 }
-add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta', 10, 2 );
-add_filter( 'bbp_get_forum_reply_count',    'bbp_suppress_private_forum_meta', 10, 2 );
-add_filter( 'bbp_get_forum_post_count',     'bbp_suppress_private_forum_meta', 10, 2 );
-add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta', 10, 2 );
 
+/**
+ * Replace forum author details for users that cannot view them.
+ *
+ * @since bbPress (r3162)
+ *
+ * @param string $retval
+ * @param int $forum_id
+ *
+ * @uses bbp_is_forum_private()
+ * @uses get_post_field()
+ * @uses bbp_get_topic_post_type()
+ * @uses bbp_is_forum_private()
+ * @uses bbp_get_topic_forum_id()
+ * @uses bbp_get_reply_post_type()
+ * @uses bbp_get_reply_forum_id()
+ *
+ * @return string
+ */
 function bbp_suppress_private_author_link( $author_link, $args ) {
-	if ( empty( $args['post_id'] ) || current_user_can( 'read_private_forums' ) )
-		return $author_link;
 
-	$post_type = get_post_field( 'post_type', $args['post_id'] );
+	// Assume the author link is the return value
+	$retval = $author_link;
 
-	switch ( $post_type ) {
-		case bbp_get_topic_post_type() :
-			if ( bbp_is_forum_private( bbp_get_topic_forum_id( $args['post_id'] ) ) )
-				return '';
+	// Show the normal author link
+	if ( !empty( $args['post_id'] ) && !current_user_can( 'read_private_forums' ) ) {
 
-			break;
+		// What post type are we
+		$post_type = get_post_field( 'post_type', $args['post_id'] );
 
-		case bbp_get_reply_post_type() :
-			if ( bbp_is_forum_private( bbp_get_reply_forum_id( $args['post_id'] ) ) )
-				return '';
+		switch ( $post_type ) {
 
-			break;
+			// Topic
+			case bbp_get_topic_post_type() :
+				if ( bbp_is_forum_private( bbp_get_topic_forum_id( $args['post_id'] ) ) )
+					$retval = '';
 
-		default :
-			if ( bbp_is_forum_private( $args['post_id'] ) )
-				return '';
+				break;
 
-			break;
+			// Reply
+			case bbp_get_reply_post_type() :
+				if ( bbp_is_forum_private( bbp_get_reply_forum_id( $args['post_id'] ) ) )
+					$retval = '';
+
+				break;
+
+			// Post
+			default :
+				if ( bbp_is_forum_private( $args['post_id'] ) )
+					$retval = '';
+
+				break;
+		}
 	}
 
-	return $author_link;
+	return apply_filters( 'bbp_suppress_private_author_link', $author_link );
 }
-add_filter( 'bbp_get_author_link',       'bbp_suppress_private_author_link', 10, 2 );
-add_filter( 'bbp_get_topic_author_link', 'bbp_suppress_private_author_link', 10, 2 );
-add_filter( 'bbp_get_reply_author_link', 'bbp_suppress_private_author_link', 10, 2 );
 
 /**
  * Output the row class of a forum

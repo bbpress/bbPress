@@ -294,6 +294,15 @@ add_filter( 'logout_url',     'bbp_logout_url',     2, 2 );
 // Fix post author id for anonymous posts (set it back to 0) when the post status is changed
 add_filter( 'wp_insert_post_data', 'bbp_fix_post_author', 30, 2 );
 
+// Suppress private forum details
+add_filter( 'bbp_get_forum_topic_count',    'bbp_suppress_private_forum_meta',  10, 2 );
+add_filter( 'bbp_get_forum_reply_count',    'bbp_suppress_private_forum_meta',  10, 2 );
+add_filter( 'bbp_get_forum_post_count',     'bbp_suppress_private_forum_meta',  10, 2 );
+add_filter( 'bbp_get_forum_freshness_link', 'bbp_suppress_private_forum_meta',  10, 2 );
+add_filter( 'bbp_get_author_link',          'bbp_suppress_private_author_link', 10, 2 );
+add_filter( 'bbp_get_topic_author_link',    'bbp_suppress_private_author_link', 10, 2 );
+add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 10, 2 );
+
 /**
  * Add filters to anonymous post author data
  *
