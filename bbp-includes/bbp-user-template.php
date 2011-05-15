@@ -1101,22 +1101,40 @@ function bbp_user_can_view_forum( $args = '' ) {
  */
 function bbp_get_forums_for_current_user( $args = array() ) {
 
+	// Setup arrays
+	$private = $hidden = $post__not_in = array();
+
+	// Private forums
+	if ( !current_user_can( 'read_private_forums' ) )
+		$private = bbp_get_private_forum_ids();
+
+	// Hidden forums
+	if ( !current_user_can( 'read_hidden_forums' ) )
+		$hidden  = bbp_get_hidden_forum_ids();
+
+	// Merge private and hidden forums together
+	$forum_ids = array_merge( $private, $hidden );
+
+	// There are forums that need to be ex
+	if ( !empty( $forum_ids ) )
+		$post__not_in = implode( ',', $forum_ids );
+
 	$defaults = array(
 		'post_type'   => bbp_get_forum_post_type(),
-		'child_of'    => '0',
-		'numberposts' => -1,
 		'post_status' => 'publish',
+		'numberposts' => -1,
+		'exclude'     => $post__not_in
 	);
 	$r = wp_parse_args( $args, $defaults );
 
-	// Exclude forums the user cannot post to
-	$r = bbp_exclude_forum_ids( $r );
-
 	// Get the forums
-	if ( ! ( $posts = get_posts( $r ) ) )
-		$posts = false;
+	$forums = get_posts( $r );
 
-	return apply_filters( 'bbp_get_forums_for_current_user', $posts );
+	// No availabe forums
+	if ( empty( $forums ) )
+		$forums = false;
+
+	return apply_filters( 'bbp_get_forums_for_current_user', $forums );
 }
 
 /**
@@ -1124,7 +1142,6 @@ function bbp_get_forums_for_current_user( $args = array() ) {
  *
  * @since bbPress (r3127)
  *
- * @uses bbp_get_forums_for_current_user()
  * @uses bbp_is_topic_edit()
  * @uses current_user_can()
  * @uses bbp_get_topic_id()
@@ -1134,10 +1151,58 @@ function bbp_get_forums_for_current_user( $args = array() ) {
  * @return bool
  */
 function bbp_current_user_can_access_create_topic_form() {
-	if ( bbp_get_forums_for_current_user() && ( ( bbp_is_topic_edit() && current_user_can( 'edit_topic', bbp_get_topic_id() ) ) || current_user_can( 'publish_topics' ) || ( bbp_allow_anonymous() && !is_user_logged_in() ) ) )
+
+	// Always allow super admins
+	if ( is_super_admin() )
 		return true;
 
-	return false;
+	// Users need to earn access
+	$retval = false;
+
+	// Looking at a single forum
+	if ( bbp_is_forum() ) {
+
+		// What is the visibility of this forum
+		switch ( bbp_get_forum_visibility() ) {
+
+			// Public
+			case 'publish' :
+
+				// User cannot publish topics
+				if ( current_user_can( 'publish_topics' ) )
+					$retval = true;
+
+				// Anonymous posting is allowed
+				if ( bbp_allow_anonymous() && !is_user_logged_in() )
+					$retval = true;
+
+				break;
+
+			// Private forums
+			case 'private' :
+				if ( current_user_can( 'read_private_forums' ) )
+					$retval = true;
+
+				break;
+
+			// Hidden forums
+			case 'hidden'  :
+				if ( current_user_can( 'read_hidden_forums' ) )
+					$retval = true;
+
+				break;
+		}
+
+	// Editing a single topic
+	} elseif ( bbp_is_topic_edit() ) {
+
+		// User can edit edit this topic
+		if ( current_user_can( 'edit_topic', bbp_get_topic_id() ) )
+			$retval = true;
+	}
+
+	// Allow access to be filtered
+	return apply_filters( 'bbp_current_user_can_access_create_topic_form', $retval );
 }
 
 /**
@@ -1155,10 +1220,34 @@ function bbp_current_user_can_access_create_topic_form() {
  * @return bool
  */
 function bbp_current_user_can_create_topic_in_forum() {
-	if ( ( !bbp_is_forum_category() && ( !bbp_is_forum_closed() || current_user_can( 'edit_forum', bbp_get_topic_forum_id() ) ) ) || bbp_is_topic_edit() )
+
+	// Always allow super admins
+	if ( is_super_admin() )
 		return true;
 
-	return false;
+	// Users need to earn access
+	$retval = false;
+
+	// Looking at a single forum
+	if ( bbp_is_forum() ) {
+
+		// Forum is not a category
+		if ( !bbp_is_forum_category() ) {
+
+			// Forum is open
+			$retval = (bool) bbp_is_forum_open();
+		}
+
+	// Editing a single topic
+	} elseif ( bbp_is_topic_edit() ) {
+
+		// If you can edit this forum, you can edit topics in this forum
+		if ( current_user_can( 'edit_forum', bbp_get_topic_forum_id() ) )
+			$retval = true;
+	}
+
+	// Allow access to be filtered
+	return apply_filters( 'bbp_current_user_can_create_topic_in_forum', $retval );
 }
 
 
