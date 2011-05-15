@@ -1475,7 +1475,7 @@ function bbp_suppress_private_author_link( $author_link, $args ) {
 	// Show the normal author link
 	if ( !empty( $args['post_id'] ) && !current_user_can( 'read_private_forums' ) ) {
 
-		// What post type are we
+		// What post type are we looking at?
 		$post_type = get_post_field( 'post_type', $args['post_id'] );
 
 		switch ( $post_type ) {
@@ -1503,7 +1503,7 @@ function bbp_suppress_private_author_link( $author_link, $args ) {
 		}
 	}
 
-	return apply_filters( 'bbp_suppress_private_author_link', $author_link );
+	return apply_filters( 'bbp_suppress_private_author_link', $retval );
 }
 
 /**
