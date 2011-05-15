@@ -798,7 +798,7 @@ function bbp_exclude_forum_ids( $query = array() ) {
 	// Merge private and hidden forums together
 	$forum_ids = array_filter( array_merge( $private, $hidden ) );
 
-	// There are forums that need to be ex
+	// There are forums that need to be excluded
 	if ( !empty( $forum_ids ) ) {
 
 		// Setup a meta_query to remove hidden forums
