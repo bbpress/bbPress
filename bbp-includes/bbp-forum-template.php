@@ -1444,7 +1444,7 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
  */
 function bbp_suppress_private_forum_meta( $retval, $forum_id ) {
 	if ( bbp_is_forum_private( $forum_id, false ) && !current_user_can( 'read_private_forums' ) )
-		return '-';
+		$retval = '-';
 
 	return apply_filters( 'bbp_suppress_private_forum_meta', $retval );
 }
