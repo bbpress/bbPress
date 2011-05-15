@@ -749,7 +749,7 @@ function bbp_update_forum( $args = '' ) {
 function bbp_get_hidden_forum_ids() {
    	$forum_ids = get_option( '_bbp_hidden_forums', array() );
 
-	return apply_filters( 'bbp_get_hidden_forum_ids', (array) $forum_ids );
+	return apply_filters( 'bbp_get_hidden_forum_ids', array_filter( (array) $forum_ids ) );
 }
 
 /**
@@ -766,7 +766,7 @@ function bbp_get_hidden_forum_ids() {
 function bbp_get_private_forum_ids() {
    	$forum_ids = get_option( '_bbp_private_forums', array() );
 
-	return apply_filters( 'bbp_get_private_forum_ids', (array) $forum_ids );
+	return apply_filters( 'bbp_get_private_forum_ids', array_filter( (array) $forum_ids ) );
 }
 
 /**
@@ -796,22 +796,27 @@ function bbp_exclude_forum_ids( $query = array() ) {
 		$hidden  = bbp_get_hidden_forum_ids();
 
 	// Merge private and hidden forums together
-	$forum_ids = array_merge( $private, $hidden );
+	$forum_ids = array_filter( array_merge( $private, $hidden ) );
 
-	// Setup a meta_query to remove hidden forums
-	$value   = implode( ',', $forum_ids );
-	$compare = ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!=';
+	// There are forums that need to be ex
+	if ( !empty( $forum_ids ) ) {
 
-	// Add meta_query to $replies_query
-	$meta_query['meta_query'] = array( array(
-		'key'     => '_bbp_forum_id',
-		'value'   => $value,
-		'compare' => $compare
-	) );
+		// Setup a meta_query to remove hidden forums
+		$value   = implode( ',', $forum_ids );
+		$compare = ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!=';
 
-	// Merge the queries together
-	if ( !empty( $meta_query ) )
-		$query = array_merge( $query, $meta_query );
+		// Add meta_query to $replies_query
+		$meta_query['meta_query'] = array( array(
+			'key'     => '_bbp_forum_id',
+			'value'   => $value,
+			'compare' => $compare
+		) );
+
+		// Merge the queries together
+		if ( !empty( $meta_query ) ) {
+			$query = array_merge( $query, $meta_query );
+		}
+	}
 
 	return apply_filters( 'bbp_exclude_forum_ids', $query, $meta_query );
 }
