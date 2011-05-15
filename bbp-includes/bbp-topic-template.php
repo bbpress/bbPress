@@ -2544,14 +2544,17 @@ function bbp_single_topic_description( $args = '' ) {
 		$reply_count     = bbp_get_topic_replies_link  ( $topic_id );
 		$time_since      = bbp_get_topic_freshness_link( $topic_id );
 
+		// Singular/Plural
+		$voice_count     = sprintf( _n( '%s voice', '%s voices', $voice_count, 'bbpress' ), $voice_count );
+
 		// Topic has replies
 		if ( $last_reply = bbp_get_topic_last_active_id( $topic_id ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
-			$retstr = sprintf( __( 'This topic has %s voices, contains %s, and was last updated by %s %s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
+			$retstr = sprintf( __( 'This topic has %1$s, contains %2$s, and was last updated by %3$s %4$s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
 
 		// Topic has no replies
 		} else {
-			$retstr = sprintf( __( 'This topic has %s voices, contains %s.', 'bbpress' ), $voice_count, $reply_count );
+			$retstr = sprintf( __( 'This topic has %1$s, contains %2$s.', 'bbpress' ), $voice_count, $reply_count );
 		}
 
 		// Add the 'view all' filter back

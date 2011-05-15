@@ -1565,14 +1565,17 @@ function bbp_single_forum_description( $args = '' ) {
 		$subforum_count  = bbp_get_forum_subforum_count( $forum_id );
 		$time_since      = bbp_get_forum_freshness_link( $forum_id );
 
+		// Singlular/Plural
+		$reply_count     = sprintf( _n( '%s reply', '%s replies', $reply_count, 'bbpress' ), $reply_count );
+
 		// Forum has posts
 		if ( $last_reply = bbp_get_forum_last_active_id( $forum_id ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
-			$retstr = sprintf( __( 'This forum contains %s and %s replies, and was last updated by %s %s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
+			$retstr = sprintf( __( 'This forum contains %1$s and %2$s, and was last updated by %3$s %4$s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
 
 		// Forum has no last active data
 		} else {
-			$retstr = sprintf( __( 'This forum contains %s and %s replies.', 'bbpress' ), $topic_count, $reply_count );
+			$retstr = sprintf( __( 'This forum contains %1$s and %2$s replies.', 'bbpress' ), $topic_count, $reply_count );
 		}
 
 		// Add the 'view all' filter back
