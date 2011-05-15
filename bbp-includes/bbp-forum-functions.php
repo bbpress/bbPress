@@ -749,7 +749,7 @@ function bbp_update_forum( $args = '' ) {
 function bbp_get_hidden_forum_ids() {
    	$forum_ids = get_option( '_bbp_hidden_forums', array() );
 
-	return apply_filters( 'bbp_get_hidden_forum_ids', array_filter( (array) $forum_ids ) );
+	return apply_filters( 'bbp_get_hidden_forum_ids', (array) $forum_ids );
 }
 
 /**
@@ -766,7 +766,7 @@ function bbp_get_hidden_forum_ids() {
 function bbp_get_private_forum_ids() {
    	$forum_ids = get_option( '_bbp_private_forums', array() );
 
-	return apply_filters( 'bbp_get_private_forum_ids', array_filter( (array) $forum_ids ) );
+	return apply_filters( 'bbp_get_private_forum_ids', (array) $forum_ids );
 }
 
 /**
@@ -780,8 +780,8 @@ function bbp_get_private_forum_ids() {
  */
 function bbp_exclude_forum_ids( $query = array() ) {
 
-	// Show hidden topics for super admins
-	if ( is_super_admin() || bbp_is_user_home() )
+	// Do not exclude for super admins
+	if ( is_super_admin() )
 		return $query;
 
 	// Setup arrays
@@ -796,7 +796,7 @@ function bbp_exclude_forum_ids( $query = array() ) {
 		$hidden  = bbp_get_hidden_forum_ids();
 
 	// Merge private and hidden forums together
-	$forum_ids = array_filter( array_merge( $private, $hidden ) );
+	$forum_ids = (array) array_filter( array_merge( $private, $hidden ) );
 
 	// There are forums that need to be excluded
 	if ( !empty( $forum_ids ) ) {
