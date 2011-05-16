@@ -93,7 +93,13 @@ class BBP_Shortcodes {
 			/** Replies *******************************************************/
 
 			// Reply form
-			'bbp-reply-form' => array( $this, 'display_reply_form'    )
+			'bbp-reply-form' => array( $this, 'display_reply_form'    ),
+
+			/** Views *********************************************************/
+
+			// Single view
+			'bbp-single-view' => array( $this, 'display_view'         )
+
 		) );
 	}
 
@@ -594,6 +600,70 @@ class BBP_Shortcodes {
 		// No topics
 		} else {
 			bbp_get_template_part( 'bbpress/no', 'topics' );
+		}
+
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
+
+	/** Views *****************************************************************/
+
+	/**
+	 * Display the contents of a specific view in an output buffer and return to
+	 * ensure that post/page contents are displayed first.
+	 *
+	 * @since bbPress (r3031)
+	 *
+	 * @param array $attr
+	 * @param string $content
+	 * @uses bbp_has_topics()
+	 * @uses current_theme_supports()
+	 * @uses get_template_part()
+	 * @uses bbp_single_forum_description()
+	 * @return string
+	 */
+	function display_view( $attr, $content = '' ) {
+		global $bbp;
+
+		// Sanity check required info
+		if ( empty( $attr['id'] ) )
+			return $content;
+
+		// Set passed attribute to $view_id for clarity
+		$view_id = $attr['id'];
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Display breadcrumb if a subforum
+		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+
+		// Password protected
+		if ( post_password_required() ) {
+
+			// Output the password form
+			bbp_get_template_part( 'bbpress/form', 'protected' );
+
+		// Not password protected, or password is already approved
+		} else {
+
+			/** Topics ********************************************************/
+
+			// Unset globals
+			$this->_unset_globals();
+
+			// Load the topic index
+			if ( bbp_view_query( $view_id ) ) {
+				bbp_get_template_part( 'bbpress/pagination', 'topics' );
+				bbp_get_template_part( 'bbpress/loop',       'topics' );
+				bbp_get_template_part( 'bbpress/pagination', 'topics' );
+				bbp_get_template_part( 'bbpress/form',       'topic'  );
+
+			// No topics
+			} else {
+				bbp_get_template_part( 'bbpress/no',   'topics' );
+				bbp_get_template_part( 'bbpress/form', 'topic'  );
+			}
 		}
 
 		// Return contents of output buffer

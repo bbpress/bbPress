@@ -2060,6 +2060,9 @@ function bbp_replace_the_content( $content = '' ) {
 		// Use the $post global to check it's post_type
 		global $bbp;
 
+		// Prevent debug notice
+		$new_content = '';
+
 		// Remove the filter that was added in bbp_template_include()
 		remove_filter( 'the_content', 'bbp_replace_the_content', 99999 );
 
@@ -2130,7 +2133,7 @@ function bbp_replace_the_content( $content = '' ) {
 		/** Views *************************************************************/
 
 		} elseif ( bbp_is_view() ) {
-
+			$new_content = $bbp->shortcodes->display_view( array( 'id' => get_query_var( 'bbp_view' ) ) );
 
 		/** Topic Tags ********************************************************/
 
@@ -2162,7 +2165,7 @@ function bbp_replace_the_content( $content = '' ) {
 		}
 
 		// Juggle the content around and try to prevent unsightly comments
-		if ( $new_content != $content ) {
+		if ( !empty( $new_content ) && ( $new_content != $content ) ) {
 
 			// Set the content to be the new content
 			$content = apply_filters( 'bbp_replace_the_content', $new_content, $content );
