@@ -585,8 +585,9 @@ function bbp_list_forums( $args = '' ) {
 	global $bbp;
 
 	// Define used variables
-	$output = $sub_forums = $topic_count = $reply_count = '';
+	$output = $sub_forums = $topic_count = $reply_count = $counts = '';
 	$i = 0;
+	$count = array();
 
 	// Defaults and arguments
 	$defaults = array (
@@ -607,24 +608,32 @@ function bbp_list_forums( $args = '' ) {
 
 	// Loop through forums and create a list
 	if ( $sub_forums = bbp_forum_get_subforums( $forum_id ) ) {
+
 		// Total count (for separator)
 		$total_subs = count( $sub_forums );
-		foreach( $sub_forums as $sub_forum ) {
+		foreach ( $sub_forums as $sub_forum ) {
 			$i++; // Separator count
 
 			// Get forum details
+			$count     = array();
 			$show_sep  = $total_subs > $i ? $separator : '';
 			$permalink = bbp_get_forum_permalink( $sub_forum->ID );
 			$title     = bbp_get_forum_title( $sub_forum->ID );
 
-			// Show topic and reply counts
+			// Show topic count
 			if ( !empty( $show_topic_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
 				$count['topic'] = bbp_get_forum_topic_count( $sub_forum->ID );
 
+			// Show reply count
 			if ( !empty( $show_reply_count ) && !bbp_is_forum_category( $sub_forum->ID ) )
 				$count['reply'] = bbp_get_forum_reply_count( $sub_forum->ID );
 
-			$output .= $link_before . '<a href="' . $permalink . '" class="bbp-forum-link">' . $title . $count_before . implode( $count_sep, $count ) . $count_after . '</a>' . $show_sep . $link_after;
+			// Counts to show
+			if ( !empty( $count ) )
+				$counts = $count_before . implode( $count_sep, $count ) . $count_after;
+
+			// Build this sub forums link
+			$output .= $link_before . '<a href="' . $permalink . '" class="bbp-forum-link">' . $title . $counts . '</a>' . $show_sep . $link_after;
 		}
 
 		// Output the list
