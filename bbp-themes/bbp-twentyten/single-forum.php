@@ -18,7 +18,7 @@
 
 				<?php while ( have_posts() ) : the_post(); ?>
 
-					<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
+					<?php if ( bbp_user_can_view_forum() ) : ?>
 
 						<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
 							<h1 class="entry-title"><?php bbp_forum_title(); ?></h1>
