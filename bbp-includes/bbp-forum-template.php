@@ -1591,7 +1591,8 @@ function bbp_single_forum_description( $args = '' ) {
 			'forum_id'  => 0,
 			'before'    => '<div class="bbp-template-notice info"><p class="post-meta description">',
 			'after'     => '</p></div>',
-			'size'      => 14
+			'size'      => 14,
+			'feed'      => true
 		);
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
@@ -1621,6 +1622,9 @@ function bbp_single_forum_description( $args = '' ) {
 			$retstr = sprintf( __( 'This forum contains %1$s and %2$s replies.', 'bbpress' ), $topic_count, $reply_count );
 		}
 
+		// Add feeds
+		$feed_links = ( !empty( $feed ) ) ? bbp_get_forum_topics_feed_link ( $forum_id ) . bbp_get_forum_replies_feed_link( $forum_id ) : '';
+
 		// Add the 'view all' filter back
 		add_filter( 'bbp_get_forum_permalink', 'bbp_add_view_all' );
 
@@ -1629,6 +1633,134 @@ function bbp_single_forum_description( $args = '' ) {
 
 		// Return filtered result
 		return apply_filters( 'bbp_get_single_forum_description', $retstr, $args );
+	}
+
+/** Feeds *********************************************************************/
+
+/**
+ * Output the link for the forum feed
+ *
+ * @since bbPress (r3172)
+ *
+ * @param type $forum_id Optional. Forum ID.
+ *
+ * @uses bbp_get_forum_topics_feed_link()
+ */
+function bbp_forum_topics_feed_link( $forum_id = 0 ) {
+	echo bbp_get_forum_topics_feed_link( $forum_id );
+}
+	/**
+	 * Retrieve the link for the forum feed
+	 *
+	 * @since bbPress (r3172)
+	 *
+	 * @param int $forum_id Optional. Forum ID.
+	 *
+	 * @uses bbp_get_forum_id()
+	 * @uses get_option()
+	 * @uses trailingslashit()
+	 * @uses bbp_get_forum_permalink()
+	 * @uses user_trailingslashit()
+	 * @uses bbp_get_forum_post_type()
+	 * @uses get_post_field()
+	 * @uses apply_filters()
+	 *
+	 * @return string
+	 */
+	function bbp_get_forum_topics_feed_link( $forum_id = 0 ) {
+
+		// Validate forum id
+		$forum_id = bbp_get_forum_id( $forum_id );
+
+		// Forum is valid
+		if ( !empty( $forum_id ) ) {
+
+			// Prevent debug notices
+			$link = '';
+
+			// Pretty permalinks
+			if ( get_option( 'permalink_structure' ) ) {
+
+				// Forum link
+				$url = trailingslashit( bbp_get_forum_permalink( $forum_id ) ) . 'feed';
+				$url = user_trailingslashit( $url, 'single_feed' );
+
+			// Unpretty permalinks
+			} else {
+				$url = home_url( add_query_arg( array(
+					'feed'                    => 'rss2',
+					bbp_get_forum_post_type() => get_post_field( 'post_name', $forum_id )
+				) ) );
+			}
+
+			$link = '<a href="' . $url . '" class="bbp-forum-rss-link topics"><span>' . __( 'Topics', 'bbpress' ) . '</span></a>';
+		}
+
+		return apply_filters( 'bbp_get_forum_topics_feed_link', $link, $url, $forum_id );
+	}
+
+/**
+ * Output the link for the forum replies feed
+ *
+ * @since bbPress (r3172)
+ *
+ * @param type $forum_id Optional. Forum ID.
+ *
+ * @uses bbp_get_forum_replies_feed_link()
+ */
+function bbp_forum_replies_feed_link( $forum_id = 0 ) {
+	echo bbp_get_forum_replies_feed_link( $forum_id );
+}
+	/**
+	 * Retrieve the link for the forum replies feed
+	 *
+	 * @since bbPress (r3172)
+	 *
+	 * @param int $forum_id Optional. Forum ID.
+	 *
+	 * @uses bbp_get_forum_id()
+	 * @uses get_option()
+	 * @uses trailingslashit()
+	 * @uses bbp_get_forum_permalink()
+	 * @uses user_trailingslashit()
+	 * @uses bbp_get_forum_post_type()
+	 * @uses get_post_field()
+	 * @uses apply_filters()
+	 *
+	 * @return string
+	 */
+	function bbp_get_forum_replies_feed_link( $forum_id = 0 ) {
+
+		// Validate forum id
+		$forum_id = bbp_get_forum_id( $forum_id );
+
+		// Forum is valid
+		if ( !empty( $forum_id ) ) {
+
+			// Prevent debug notices
+			$link = '';
+
+			// Pretty permalinks
+			if ( get_option( 'permalink_structure' ) ) {
+
+				// Forum link
+				$url = trailingslashit( bbp_get_forum_permalink( $forum_id ) ) . 'feed';
+				$url = user_trailingslashit( $url, 'single_feed' );
+				$url = add_query_arg( array( 'type' => 'reply' ), $url );
+
+			// Unpretty permalinks
+			} else {
+				$url = home_url( add_query_arg( array(
+					'type'                    => 'reply',
+					'feed'                    => 'rss2',
+					bbp_get_forum_post_type() => get_post_field( 'post_name', $forum_id )
+				) ) );
+			}
+
+			$link = '<a href="' . $url . '" class="bbp-forum-rss-link replies"><span>' . __( 'Replies', 'bbpress' ) . '</span></a>';
+		}
+
+		return apply_filters( 'bbp_get_forum_replies_feed_link', $link, $url, $forum_id );
 	}
 
 ?>
