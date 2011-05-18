@@ -55,6 +55,12 @@ function bbp_add_options() {
 		// Forums per page
 		'_bbp_forums_per_page'      => '50',
 
+		// Topics per RSS page
+		'_bbp_topics_per_rss_page'  => '25',
+
+		// Replies per RSS page
+		'_bbp_replies_per_rss_page' => '25',
+
 		/** Slugs *************************************************************/
 
 		// Root slug
