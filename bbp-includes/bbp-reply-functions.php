@@ -936,5 +936,147 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
 	do_action( 'bbp_untrashed_reply', $reply_id );
 }
 
+/** Feeds *********************************************************************/
+
+/**
+ * Output an RSS2 feed of replies, based on the query passed.
+ *
+ * @since bbPress (r3171)
+ *
+ * @global bbPress $bbp
+ *
+ * @uses bbp_exclude_forum_ids()
+ * @uses bbp_is_topic()
+ * @uses bbp_user_can_view_forum()
+ * @uses bbp_get_topic_forum_id()
+ * @uses bbp_show_load_topic()
+ * @uses bbp_topic_permalink()
+ * @uses bbp_topic_title()
+ * @uses bbp_get_topic_reply_count()
+ * @uses bbp_topic_content()
+ * @uses bbp_has_replies()
+ * @uses bbp_replies()
+ * @uses bbp_the_reply()
+ * @uses bbp_reply_url()
+ * @uses bbp_reply_title()
+ * @uses bbp_reply_content()
+ * @uses get_wp_title_rss()
+ * @uses get_option()
+ * @uses bloginfo_rss
+ * @uses self_link()
+ * @uses the_author()
+ * @uses get_post_time()
+ * @uses rss_enclosure()
+ * @uses do_action()
+ * @uses apply_filters()
+ *
+ * @param array $replies_query
+ */
+function bbp_display_replies_feed_rss2( $replies_query = array() ) {
+	global $bbp;
+
+	// User cannot access forum this topic is in
+	if ( bbp_is_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
+		return;
+
+	// Remove any replies from hidden forums
+	$replies_query = bbp_exclude_forum_ids( $replies_query );
+
+	// Adjust the title based on context
+	if ( bbp_is_topic() && bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
+		$title = apply_filters( 'wp_title_rss', get_wp_title_rss( ' &#187; ' ) );
+	elseif ( !bbp_show_lead_topic() )
+		$title = ' &#187; ' .  __( 'All Posts',   'bbpress' );
+	else
+		$title = ' &#187; ' .  __( 'All Replies', 'bbpress' );
+
+	// Display the feed
+	header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ), true );
+	header( 'Status: 200 OK' );
+	echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>'; ?>
+
+	<rss version="2.0"
+		xmlns:content="http://purl.org/rss/1.0/modules/content/"
+		xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+		xmlns:dc="http://purl.org/dc/elements/1.1/"
+		xmlns:atom="http://www.w3.org/2005/Atom"
+
+		<?php do_action( 'bbp_feed' ); ?>
+	>
+
+	<channel>
+		<title><?php bloginfo_rss('name'); echo $title; ?></title>
+		<atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
+		<link><?php self_link(); ?></link>
+		<description><?php //?></description>
+		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', '', false ); ?></pubDate>
+		<generator>http://bbpress.org/?v=<?php echo BBP_VERSION; ?></generator>
+		<language><?php echo get_option( 'rss_language' ); ?></language>
+
+		<?php do_action( 'bbp_feed_head' ); ?>
+
+		<?php if ( bbp_is_topic() ) : ?>
+			<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
+				<?php if ( bbp_show_lead_topic() ) : ?>
+
+					<item>
+						<guid><?php bbp_topic_permalink(); ?></guid>
+						<title><![CDATA[<?php bbp_topic_title(); ?>]]></title>
+						<link><?php bbp_topic_permalink(); ?></link>
+						<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
+						<dc:creator><?php the_author(); ?></dc:creator>
+
+						<description>
+							<![CDATA[
+							<p><?php printf( __( 'Replies: %s', 'bbpress' ), bbp_get_topic_reply_count() ); ?></p>
+							<?php bbp_topic_content(); ?>
+							]]>
+						</description>
+
+						<?php rss_enclosure(); ?>
+
+						<?php do_action( 'bbp_feed_item' ); ?>
+
+					</item>
+
+				<?php endif; ?>
+			<?php endif; ?>
+		<?php endif; ?>
+
+		<?php if ( bbp_has_replies( $replies_query ) ) : ?>
+			<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
+
+				<item>
+					<guid><?php bbp_reply_url(); ?></guid>
+					<title><![CDATA[<?php bbp_reply_title(); ?>]]></title>
+					<link><?php bbp_reply_url(); ?></link>
+					<pubDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_post_time( 'Y-m-d H:i:s', true ), false ); ?></pubDate>
+					<dc:creator><?php the_author() ?></dc:creator>
+
+					<description>
+						<![CDATA[
+						<?php bbp_reply_content(); ?>
+						]]>
+					</description>
+
+					<?php rss_enclosure(); ?>
+
+					<?php do_action( 'bbp_feed_item' ); ?>
+
+				</item>
+
+			<?php endwhile; ?>
+		<?php endif; ?>
+
+		<?php do_action( 'bbp_feed_footer' ); ?>
+
+	</channel>
+	</rss>
+
+<?php
+
+	// We're done here
+	exit();
+}
 
 ?>

@@ -1022,4 +1022,143 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	return apply_filters( 'bbp_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
 }
 
+/** Feeds *********************************************************************/
+
+/**
+ * This function is hooked into the WordPress 'request' action and is
+ * responsible for sniffing out the query vars and serving up RSS2 feeds if
+ * the stars align and the user has requested a feed of any bbPress type.
+ *
+ * @since bbPress (r3171)
+ *
+ * @global WP_Query $wp_query
+ * @global bbPress $bbp
+ * @param array $query_vars
+ * @return array
+ */
+function bbp_request_feed_trap( $query_vars ) {
+	global $wp_query, $bbp;
+
+	// Looking at a feed
+	if ( isset( $query_vars['feed'] ) ) {
+
+		// Forum Feed
+		if ( isset( $query_vars['post_type'] ) ) {
+
+			// What bbPress post type are we looking for feeds on?
+			switch ( $query_vars['post_type'] ) {
+
+				// Forum
+				case bbp_get_forum_post_type() :
+
+					// Single forum
+					if ( isset( $query_vars[bbp_get_forum_post_type()] ) ) {
+
+						// Load up our own query
+						$wp_query = new WP_Query( array(
+							'post_type' => bbp_get_forum_post_type(),
+							'name'      => $query_vars[bbp_get_forum_post_type()]
+						) );
+
+						// Forum replies
+						if ( !empty( $_GET['type'] ) && ( bbp_get_reply_post_type() == $_GET['type'] ) ) {
+
+							// The query
+							$the_query = array(
+								'author'         => 0,
+								'post_type'      => bbp_get_reply_post_type(),
+								'post_parent'    => 'any',
+								'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
+								'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
+								'order'          => 'DESC',
+								'meta_query'     => array( array(
+									'key'        => '_bbp_forum_id',
+									'value'      => bbp_get_forum_id(),
+									'compare'    => '='
+								) )
+							);
+
+							// Output the feed
+							bbp_display_replies_feed_rss2( $the_query );
+
+						// Forum topics
+						} else {
+
+							// The query
+							$the_query = array(
+								'author'         => 0,
+								'post_type'      => bbp_get_topic_post_type(),
+								'post_parent'    => bbp_get_forum_id(),
+								'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
+								'posts_per_page' => get_option( '_bbp_topics_per_rss_page', 25 ),
+								'order'          => 'DESC',
+								'meta_query'     => array( array(
+									'key'        => '_bbp_forum_id',
+									'value'      => bbp_get_forum_id(),
+									'compare'    => '='
+								) )
+							);
+
+							// Output the feed
+							bbp_display_topics_feed_rss2( $the_query );
+						}
+					}
+
+					break;
+
+				// Topic - Show replies
+				case bbp_get_topic_post_type() :
+
+					// Single topic
+					if ( isset( $query_vars[bbp_get_topic_post_type()] ) ) {
+
+						// Load up our own query
+						$wp_query = new WP_Query( array(
+							'post_type' => bbp_get_topic_post_type(),
+							'name'      => $query_vars[bbp_get_topic_post_type()]
+						) );
+
+						// Output the feed
+						bbp_display_replies_feed_rss2();
+
+					// All topics
+					} else {
+
+						// The query
+						$the_query = array(
+							'author'         => 0,
+							'post_parent'    => 'any',
+							'posts_per_page' => get_option( '_bbp_topics_per_rss_page', 25 ),
+							'show_stickies'  => false,
+						);
+
+						// Output the feed
+						bbp_display_topics_feed_rss2( $the_query );
+					}
+
+					break;
+
+				// Replies
+				case bbp_get_reply_post_type() :
+
+					// The query
+					$the_query = array(
+						'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
+						'meta_query'     => array( array( ) )
+					);
+
+					// All replies
+					if ( !isset( $query_vars[bbp_get_reply_post_type()] ) ) {
+						bbp_display_replies_feed_rss2( $the_query );
+					}
+
+					break;
+			}
+		}
+	}
+
+	// No feed so continue on
+	return $query_vars;
+}
+
 ?>

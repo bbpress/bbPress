@@ -209,6 +209,9 @@ add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 
 /** FILTERS *******************************************************************/
 
+// Feeds
+add_filter( 'request', 'bbp_request_feed_trap' );
+
 // Links
 add_filter( 'paginate_links',          'bbp_add_view_all' );
 add_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
