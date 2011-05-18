@@ -207,9 +207,6 @@ add_action( 'bbp_deleted_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_spammed_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 
-// Custom Template - should be called at the end
-add_action( 'template_redirect', 'bbp_custom_template', 999 );
-
 /** FILTERS *******************************************************************/
 
 // Links

@@ -1429,170 +1429,6 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 /** Template Loaders **********************************************************/
 
 /**
- * Load bbPress custom templates
- *
- * Loads custom templates for bbPress view page, user profile, user edit, topic
- * edit and reply edit pages.
- *
- * @since bbPress (r2753)
- *
- * @uses bbp_is_user_profile_page() To check if it's a profile page
- * @uses apply_filters() Calls 'bbp_profile_templates' with the profile
- *                        templates array
- * @uses bbp_is_user_profile_edit() To check if it's a profile edit page
- * @uses apply_filters() Calls 'bbp_profile_edit_templates' with the profile
- *                        edit templates array
- * @uses bbp_is_view() To check if it's a view page
- * @uses bbp_get_view_id() To get the view id
- * @uses apply_filters() Calls 'bbp_view_templates' with the view templates array
- * @uses bbp_is_topic_edit() To check if it's a topic edit page
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses apply_filters() Calls 'bbp_topic_edit_templates' with the topic edit
- *                        templates array
- * @uses bbp_is_reply_edit() To check if it's a reply edit page
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses apply_filters() Calls 'bbp_reply_edit_templates' with the reply edit
- *                        templates array
- * @uses apply_filters() Calls 'bbp_custom_template' with the template array
- * @uses bbp_load_template() To load the template
- */
-function bbp_custom_template() {
-	global $bbp;
-
-	// Bail if theme does not support bbPress
-	if ( !current_theme_supports( 'bbpress' ) )
-		return;
-
-	$template = false;
-
-	// Viewing a profile
-	if ( bbp_is_user_profile_page() ) {
-		$template = apply_filters( 'bbp_profile_templates', array(
-			'forums/user.php',
-			'bbpress/user.php',
-			'user.php',
-			'author.php',
-			'index.php'
-		) );
-
-	// Editing a profile
-	} elseif ( bbp_is_user_profile_edit() ) {
-		$template = apply_filters( 'bbp_profile_edit_templates', array(
-			'forums/user-edit.php',
-			'bbpress/user-edit.php',
-			'user-edit.php',
-			'forums/user.php',
-			'bbpress/user.php',
-			'user.php',
-			'author.php',
-			'index.php'
-		) );
-
-	// View page
-	} elseif ( bbp_is_view() ) {
-		$template = apply_filters( 'bbp_view_templates', array(
-			'forums/view-' . bbp_get_view_id(),
-			'bbpress/view-' . bbp_get_view_id(),
-			'forums/view.php',
-			'bbpress/view.php',
-			'view-' . bbp_get_view_id(),
-			'view.php',
-			'index.php'
-		) );
-
-	// Editing a topic
-	} elseif ( bbp_is_topic_edit() ) {
-		$template = array(
-			'forums/action-edit.php',
-			'bbpress/action-edit.php',
-			'forums/single-' . bbp_get_topic_post_type(),
-			'bbpress/single-' . bbp_get_topic_post_type(),
-			'action-bbp-edit.php',
-			'single-' . bbp_get_topic_post_type(),
-			'single.php',
-			'index.php'
-		);
-
-		// Add split/merge to front of array if present in _GET
-		if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) ) {
-			array_unshift( $template,
-				'forums/action-split-merge.php',
-				'bbpress/action-split-merge.php',
-				'action-split-merge.php'
-			);
-		}
-
-		$template = apply_filters( 'bbp_topic_edit_templates', $template );
-
-	// Editing a reply
-	} elseif ( bbp_is_reply_edit() ) {
-		$template = apply_filters( 'bbp_reply_edit_templates', array(
-			'forums/action-edit.php',
-			'bbpress/action-edit.php',
-			'forums/single-' . bbp_get_reply_post_type(),
-			'bbpress/single-' . bbp_get_reply_post_type(),
-			'action-bbp-edit.php',
-			'single-' . bbp_get_reply_post_type(),
-			'single.php',
-			'index.php'
-		) );
-	}
-
-	if ( !$template = apply_filters( 'bbp_custom_template', $template ) )
-		return false;
-
-	// Try to load a template file
-	bbp_load_template( $template );
-}
-
-/**
- * Load custom template
- *
- * @param string|array $files
- * @uses locate_template() To locate and include the template
- * @return bool False on failure (nothing on success)
- */
-function bbp_load_template( $templates ) {
-
-	// Bail if nothing passed
-	if ( empty( $templates ) )
-		return;
-
-	// Force array
-	elseif ( is_string( $templates ) )
-		$templates = (array) $templates;
-
-	// Theme compat
-	if ( !current_theme_supports( 'bbpress' ) ) {
-
-		// Snippet taken from locate_template()
-		$located = '';
-		foreach ( (array) $templates as $template_name ) {
-
-			// Skip to next item in array if this one is empty
-			if ( empty( $template_name ) )
-				continue;
-
-			// File exists in compat theme so exit the loop
-			if ( file_exists( bbp_get_theme_compat() . '/' . $template_name ) ) {
-				$located = bbp_get_theme_compat() . '/' . $template_name;
-				break;
-			}
-		}
-
-		// Template file located
-		if ( !empty( $located ) ) {
-			load_template( $located, false );
-			exit();
-		}
-
-	// Exit if file is found
-	} elseif ( locate_template( $templates, true ) ) {
-		exit();
-	}
-}
-
-/**
  * Adds bbPress theme support to any active WordPress theme
  *
  * This function is really cool because it's responsible for managing the
@@ -1905,7 +1741,8 @@ function bbp_pre_get_posts( $posts_query ) {
  * Listens to the 'template_include' filter and waits for a bbPress post_type
  * to appear. If the current theme does not explicitly support bbPress, it
  * intercepts the page template and uses one served from the bbPress compatable
- * theme, set as the $bbp->theme_compat global.
+ * theme, set as the $bbp->theme_compat global. If the current theme does
+ * support bbPress, we'll explore the template hierarchy and try to locate one.
  *
  * @since bbPress (r3032)
  *
@@ -1914,12 +1751,101 @@ function bbp_pre_get_posts( $posts_query ) {
  * @param string $template
  * @return string
  */
-function bbp_template_include( $template ) {
+function bbp_template_include( $template = false ) {
 	global $bbp;
 
-	// Current theme does not support bbPress, so we need to do some heavy
-	// lifting to see if a bbPress template is needed in the current context
-	if ( !current_theme_supports( 'bbpress' ) ) {
+	// Prevent debug notices
+	$templates    = array();
+	$new_template = '';
+
+	// Current theme supports bbPress
+	if ( current_theme_supports( 'bbpress' ) ) {
+
+		// Viewing a profile
+		if ( bbp_is_user_profile_page() ) {
+			$templates = apply_filters( 'bbp_profile_templates', array(
+				'forums/user.php',
+				'bbpress/user.php',
+				'user.php',
+				'author.php',
+				'index.php'
+			) );
+
+		// Editing a profile
+		} elseif ( bbp_is_user_profile_edit() ) {
+			$templates = apply_filters( 'bbp_profile_edit_templates', array(
+				'forums/user-edit.php',
+				'bbpress/user-edit.php',
+				'user-edit.php',
+				'forums/user.php',
+				'bbpress/user.php',
+				'user.php',
+				'author.php',
+				'index.php'
+			) );
+
+		// View page
+		} elseif ( bbp_is_view() ) {
+			$templates = apply_filters( 'bbp_view_templates', array(
+				'forums/view-' . bbp_get_view_id(),
+				'bbpress/view-' . bbp_get_view_id(),
+				'forums/view.php',
+				'bbpress/view.php',
+				'view-' . bbp_get_view_id(),
+				'view.php',
+				'index.php'
+			) );
+
+		// Editing a topic
+		} elseif ( bbp_is_topic_edit() ) {
+			$templates = array(
+				'forums/action-edit.php',
+				'bbpress/action-edit.php',
+				'forums/single-' . bbp_get_topic_post_type(),
+				'bbpress/single-' . bbp_get_topic_post_type(),
+				'action-bbp-edit.php',
+				'single-' . bbp_get_topic_post_type(),
+				'single.php',
+				'index.php'
+			);
+
+			// Add split/merge to front of array if present in _GET
+			if ( !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'merge', 'split' ) ) ) {
+				array_unshift( $templates,
+					'forums/action-split-merge.php',
+					'bbpress/action-split-merge.php',
+					'action-split-merge.php'
+				);
+			}
+
+			$template = apply_filters( 'bbp_topic_edit_templates', $template );
+
+		// Editing a reply
+		} elseif ( bbp_is_reply_edit() ) {
+			$templates = apply_filters( 'bbp_reply_edit_templates', array(
+				'forums/action-edit.php',
+				'bbpress/action-edit.php',
+				'forums/single-' . bbp_get_reply_post_type(),
+				'bbpress/single-' . bbp_get_reply_post_type(),
+				'action-bbp-edit.php',
+				'single-' . bbp_get_reply_post_type(),
+				'single.php',
+				'index.php'
+			) );
+		}
+
+		// Custom template file exists
+		if ( !empty( $templates ) && ( $new_template = locate_template( $templates, false, false ) ) ) {
+			$template = $new_template;
+		}
+	}
+
+	/**
+	 * In this next bit, either the current theme does not support bbPress, or
+	 * the theme author has incorrectly used add_theme_support( 'bbpress' )
+	 * and we are going to help them out by silently filling in the blanks.
+	 */
+	if ( !current_theme_supports( 'bbpress' ) || ( !empty( $templates ) && empty( $new_template ) ) ) {
 
 		// Assume we are not in theme compat
 		$in_theme_compat = false;
@@ -2023,15 +1949,32 @@ function bbp_template_include( $template ) {
 			}
 		}
 
-		// Are we in theme compat mode?
+		/**
+		 * If we are relying on bbPress's built in theme compatibility to load
+		 * the proper content, we need to intercept the_content, replace the
+		 * output, and display ours instead.
+		 *
+		 * To do this, we first remove all filters from 'the_content' and hook
+		 * our own function into it, which runs a series of checks to determine
+		 * the context, and then uses the built in shortcodes to output the
+		 * correct results.
+		 *
+		 * We default to using page.php, since it's most likely to exist and
+		 * should be coded to work without superfluous elements and logic, like
+		 * prev/next navigation, comments, date/time, etc... You can hook into
+		 * the 'bbp_template_include' filter to override page.php.
+		 */
 		if ( true === $in_theme_compat ) {
 
+			// Remove all filters from the_content
+			remove_all_filters( 'the_content' );
+
 			// Add a filter on the_content late, which we will later remove
-			add_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+			add_filter( 'the_content', 'bbp_replace_the_content' );
 
 			// Default to the page template
-			$default_template = apply_filters( 'bbp_template_include', 'page.php' );
-			$template         = locate_template( $default_template, false, false  );
+			$template = apply_filters( 'bbp_template_include', 'page.php' );
+			$template = locate_template( $template, false, false );
 		}
 	}
 
@@ -2064,7 +2007,7 @@ function bbp_replace_the_content( $content = '' ) {
 		$new_content = '';
 
 		// Remove the filter that was added in bbp_template_include()
-		remove_filter( 'the_content', 'bbp_replace_the_content', 99999 );
+		remove_filter( 'the_content', 'bbp_replace_the_content' );
 
 		// Bail if shortcodes are unset somehow
 		if ( empty( $bbp->shortcodes ) )
