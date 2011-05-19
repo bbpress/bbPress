@@ -1818,7 +1818,7 @@ function bbp_template_include( $template = false ) {
 				);
 			}
 
-			$template = apply_filters( 'bbp_topic_edit_templates', $template );
+			$templates = apply_filters( 'bbp_topic_edit_templates', $templates );
 
 		// Editing a reply
 		} elseif ( bbp_is_reply_edit() ) {
