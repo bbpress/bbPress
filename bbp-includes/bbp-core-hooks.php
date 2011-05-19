@@ -35,7 +35,6 @@ add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 12 );
 add_action( 'after_setup_theme',      'bbp_setup_theme_compat',     12 );
-add_action( 'template_include',       'bbp_template_include',       10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -209,7 +208,22 @@ add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 
 /** FILTERS *******************************************************************/
 
-// Feeds
+/**
+ * Template Compatibility
+ *
+ * If you want to completely bypass this and manage your own custom bbPress
+ * template hierarchy, start here by removing this filter, then look at how
+ * bbp_template_include() works and do something similar. :)
+ */
+add_filter( 'template_include', 'bbp_template_include' );
+
+/**
+ * Feeds
+ *
+ * bbPress comes with a number of custom RSS2 feeds that get handled outside
+ * the normal scope of feeds that WordPress would normally serve. To do this,
+ * we filter every page request, listen for a feed request, and trap it.
+ */
 add_filter( 'request', 'bbp_request_feed_trap' );
 
 // Links
