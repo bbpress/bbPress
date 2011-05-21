@@ -240,6 +240,10 @@ function bbp_has_topics( $args = '' ) {
 			elseif ( bbp_is_view() )
 				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
 
+			// Topic archive
+			elseif ( is_post_type_archive( bbp_get_topic_post_type() ) )
+				$base = user_trailingslashit( trailingslashit( home_url( $bbp->topic_archive_slug ) ) . 'page/%#%/' );
+
 			// Default
 			else
 				$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
