@@ -297,7 +297,10 @@ body.page fieldset {
 #bbp-register fieldset,
 #bbp-lost-pass fieldset,
 body.single-forum fieldset,
-body.single-topic fieldset {
+body.single-topic fieldset,
+div.bbp-topic-tag-form fieldset,
+body.topic-edit fieldset,
+body.reply-edit fieldset {
 	border: 1px solid #eee;
 	padding: 10px 20px;
 }
@@ -306,16 +309,25 @@ body.single-topic fieldset {
 #bbp-register fieldset legend,
 #bbp-lost-pass fieldset legend,
 body.single-forum fieldset legend,
-body.single-topic fieldset legend {
+body.single-topic fieldset legend,
+div.bbp-topic-tag-form fieldset legend,
+body.topic-edit fieldset legend,
+body.reply-edit fieldste legend {
 	padding: 5px;
 }
 
+div.bbp-topic-tag-form fieldset label,
 #bbp-login fieldset label,
 #bbp-register fieldset label,
-#bbp-lost-pass fieldset label,
+#bbp-lost-pass fieldset label {
+	width: 100px;
+	display: inline-block;
+}
 body.single-forum fieldset label,
-body.single-topic fieldset label {
-	width: 200px;
+body.single-topic fieldset label,
+body.topic-edit fieldset label,
+body.reply-edit fieldset label {
+	width: 250px;
 	display: inline-block;
 }
 
@@ -323,7 +335,10 @@ body.single-topic fieldset label {
 #bbp-register fieldset p,
 #bbp-lost-pass fieldset p,
 body.single-forum fieldset p,
-body.single-topic fieldset input {
+body.single-topic fieldset input,
+div.bbp-topic-tag-form fieldset p,
+body.topic-edit fieldset p,
+body.reply-edit fieldset input {
 	margin: 0px 0px 10px;
 }
 
@@ -332,6 +347,8 @@ body.single-topic fieldset input {
 .bbp-topic-tag-form {
 	clear: left;
 }
+body.topic-edit .bbp-topic-form div.avatar img,
+body.reply-edit .bbp-reply-form div.avatar img,
 body.single-forum .bbp-topic-form div.avatar img,
 body.single-reply .bbp-reply-form div.avatar img {
 	margin-right: 0;
@@ -344,7 +361,9 @@ body.single-reply .bbp-reply-form div.avatar img {
 body.page .bbp-reply-form code,
 body.page .bbp-topic-form code,
 body.single-topic .bbp-reply-form code,
-body.single-forum .bbp-topic-form code {
+body.single-forum .bbp-topic-form code,
+body.topic-edit .bbp-topic-form code,
+body.reply-edit .bbp-reply-form code {
 	font-size: 10px;
 	background-color: #f0fff8;
 	border: 1px solid #CEEFE1;
