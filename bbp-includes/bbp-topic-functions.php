@@ -92,15 +92,11 @@ function bbp_new_topic_handler() {
 
 		/** Topic Title *******************************************************/
 
-		// Topic title
-		if ( !empty( $_POST['bbp_topic_title'] ) ) {
-
-			// Sanitize and strip HTML tags
+		if ( !empty( $_POST['bbp_topic_title'] ) )
 			$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
 
-			// Filter and sanitize
-			$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
-		}
+		// Filter and sanitize
+		$topic_title = apply_filters( 'bbp_new_topic_pre_title', $topic_title );
 
 		// No topic title
 		if ( empty( $topic_title ) )
@@ -108,19 +104,15 @@ function bbp_new_topic_handler() {
 
 		/** Topic Content *****************************************************/
 
-		// Topic content
-		if ( !empty( $_POST['bbp_topic_content'] ) ) {
-
-			// Set topic content
+		if ( !empty( $_POST['bbp_topic_content'] ) )
 			$topic_content = $_POST['bbp_topic_content'];
 
-			// Filter and sanitize
-			$topic_content = apply_filters( 'bbp_new_topic_pre_content', $topic_content );
-		}
+		// Filter and sanitize
+		$topic_content = apply_filters( 'bbp_new_topic_pre_content', $topic_content );
 
 		// No topic content
 		if ( empty( $topic_content ) )
-			$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic needs some content.', 'bbpress' ) );
+			$bbp->errors->add( 'bbp_topic_content', __( '<strong>ERROR</strong>: Your topic cannot be empty.', 'bbpress' ) );
 
 		/** Topic Forum *******************************************************/
 
@@ -170,9 +162,8 @@ function bbp_new_topic_handler() {
 			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 			// Explode by comma
-			if ( strstr( $terms, ',' ) ) {
+			if ( strstr( $terms, ',' ) )
 				$terms = explode( ',', $terms );
-			}
 
 			// Add topic tag ID as main key
 			$terms = array( $bbp->topic_tag_id => $terms );
@@ -353,7 +344,7 @@ function bbp_edit_topic_handler() {
 
 			// Forum is a category
 			if ( bbp_is_forum_category( $forum_id ) )
-				$bbp->errors->add( 'bbp_edit_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in this forum.', 'bbpress' ) );
+				$bbp->errors->add( 'bbp_edit_topic_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics can be created in it.', 'bbpress' ) );
 
 			// Forum is closed and user cannot access
 			if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
@@ -370,15 +361,11 @@ function bbp_edit_topic_handler() {
 
 		/** Topic Title *******************************************************/
 
-		// Topic title
-		if ( !empty( $_POST['bbp_topic_title'] ) ) {
-
-			// Sanitize and strip HTML tags
+		if ( !empty( $_POST['bbp_topic_title'] ) )
 			$topic_title = esc_attr( strip_tags( $_POST['bbp_topic_title'] ) );
 
-			// Filter and sanitize
-			$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
-		}
+		// Filter and sanitize
+		$topic_title = apply_filters( 'bbp_edit_topic_pre_title', $topic_title, $topic_id );
 
 		// No topic title
 		if ( empty( $topic_title ) )
@@ -386,15 +373,11 @@ function bbp_edit_topic_handler() {
 
 		/** Topic Content *****************************************************/
 
-		// Topic content
-		if ( !empty( $_POST['bbp_topic_content'] ) ) {
-
-			// Set topic content
+		if ( !empty( $_POST['bbp_topic_content'] ) )
 			$topic_content = $_POST['bbp_topic_content'];
 
-			// Filter and sanitize
-			$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
-		}
+		// Filter and sanitize
+		$topic_content = apply_filters( 'bbp_edit_topic_pre_content', $topic_content, $topic_id );
 
 		// No topic content
 		if ( empty( $topic_content ) )
@@ -409,9 +392,8 @@ function bbp_edit_topic_handler() {
 			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
 
 			// Explode by comma
-			if ( strstr( $terms, ',' ) ) {
+			if ( strstr( $terms, ',' ) )
 				$terms = explode( ',', $terms );
-			}
 
 			// Add topic tag ID as main key
 			$terms = array( $bbp->topic_tag_id => $terms );
@@ -467,9 +449,8 @@ function bbp_edit_topic_handler() {
 			/** Revisions *****************************************************/
 
 			// Revision Reason
-			if ( !empty( $_POST['bbp_topic_edit_reason'] ) ) {
+			if ( !empty( $_POST['bbp_topic_edit_reason'] ) )
 				$topic_edit_reason = esc_attr( strip_tags( $_POST['bbp_topic_edit_reason'] ) );
-			}
 
 			// Update revision log
 			if ( !empty( $_POST['bbp_log_topic_edit'] ) && ( 1 == $_POST['bbp_log_topic_edit'] ) && ( $revision_id = wp_save_post_revision( $topic_id ) ) ) {
@@ -507,6 +488,7 @@ function bbp_edit_topic_handler() {
 				exit();
 
 			/** Errors ********************************************************/
+
 			} else {
 				$append_error = ( is_wp_error( $topic_id ) && $topic_id->get_error_message() ) ? $topic_id->get_error_message() . ' ' : '';
 				$bbp->errors->add( 'bbp_topic_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your topic:' . $append_error . 'Please try again.', 'bbpress' ) );
@@ -1684,7 +1666,7 @@ function bbp_toggle_topic_handler() {
 		// Do additional topic toggle actions
 		do_action( 'bbp_toggle_topic_handler', $success, $post_data, $action );
 
-		// No Errors
+		// No errors
 		if ( false != $success && !is_wp_error( $success ) ) {
 
 			// Redirect back to the topic's forum
@@ -1852,7 +1834,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
 
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
 
@@ -1956,7 +1938,7 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) )
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+		$topic_id = bbp_get_reply_topic_id( $topic_id );
 	else
 		$topic_id = bbp_get_topic_id( $topic_id );
 
