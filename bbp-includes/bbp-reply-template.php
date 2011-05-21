@@ -1735,11 +1735,11 @@ function bbp_form_reply_content() {
 		global $post;
 
 		// Get _POST data
-		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_content'] ) )
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_reply_content'] ) )
 			$reply_content = $_POST['bbp_reply_content'];
 
 		// Get edit data
-		elseif ( !empty( $post->post_title ) && bbp_is_reply_edit() )
+		elseif ( !empty( $post->post_content ) && bbp_is_reply_edit() )
 			$reply_content = $post->post_content;
 
 		// No data
