@@ -799,4 +799,54 @@ function bbp_replace_the_content( $content = '' ) {
 	return $content;
 }
 
+/** Helpers *******************************************************************/
+
+/**
+ * Remove the canonical redirect to allow pretty pagination
+ *
+ * @since bbPress (r2628)
+ *
+ * @param string $redirect_url Redirect url
+ * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
+ * @uses bbp_is_topic() To check if it's a topic page
+ * @uses bbp_get_paged() To get the current page number
+ * @uses bbp_is_forum() To check if it's a forum page
+ * @return bool|string False if it's a topic/forum and their first page,
+ *                      otherwise the redirect url
+ */
+function bbp_redirect_canonical( $redirect_url ) {
+	global $wp_rewrite;
+
+	if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_is_topic() && 1 < bbp_get_paged() )
+			$redirect_url = false;
+		elseif ( bbp_is_forum() && 1 < bbp_get_paged() )
+			$redirect_url = false;
+	}
+
+	return $redirect_url;
+}
+
+/**
+ * Sets the 404 status.
+ *
+ * Used primarily with topics/replies inside hidden forums.
+ *
+ * @since bbPress (r3051)
+ *
+ * @global WP_Query $wp_query
+ * @uses WP_Query::set_404()
+ */
+function bbp_set_404() {
+	global $wp_query;
+
+	if ( ! isset( $wp_query ) ) {
+		_doing_it_wrong( __FUNCTION__, __( 'Conditional query tags do not work before the query is run. Before then, they always return false.' ), '3.1' );
+		return false;
+	}
+
+	$wp_query->set_404();
+}
+
+
 ?>
