@@ -126,6 +126,7 @@ span.bbp-author-ip {
 #content .bbp-reply-author {
 	width: 80px;
 	text-align: center;
+	vertical-align: top;
 }
 .bbp-topic-freshness,
 .bbp-forum-freshness {
