@@ -351,11 +351,11 @@ class bbPress {
 
 		/** Individual files **************************************************/
 
-		$files = array( 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes' );
+		$files = array( 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes', 'compatibility' );
 
 		// Load the files
 		foreach ( $files as $file )
-			require_once( $this->plugin_dir . '/bbp-includes/bbp-core-' . $file . '.php' );
+			require( $this->plugin_dir . '/bbp-includes/bbp-core-' . $file . '.php' );
 
 		/** Components ********************************************************/
 
@@ -363,15 +363,15 @@ class bbPress {
 
 		// Load the function and template files
 		foreach ( $components as $file ) {
-			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-functions.php' );
-			require_once( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-template.php'  );
+			require( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-functions.php' );
+			require( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-template.php'  );
 		}
 
 		/** Admin *************************************************************/
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
-			require_once( $this->plugin_dir . '/bbp-admin/bbp-admin.php' );
+			require( $this->plugin_dir . '/bbp-admin/bbp-admin.php' );
 	}
 
 	/**
