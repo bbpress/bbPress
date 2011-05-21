@@ -25,12 +25,19 @@ class BBP_Admin {
 	/**
 	 * @var string URL to the bbPress images directory
 	 */
-	var $images_url;
+	var $images_url = '';
 
 	/**
 	 * @var string URL to the bbPress admin styles directory
 	 */
-	var $styles_url;
+	var $styles_url = '';
+
+	/** URLs ******************************************************************/
+
+	/**
+	 * @var bool Enable recounts in Tools area
+	 */
+	var $enable_recounts = false;
 
 	/** Functions *************************************************************/
 
@@ -151,8 +158,13 @@ class BBP_Admin {
 	 *                           section
 	 */
 	function admin_menus() {
-		add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools'    );
-		add_options_page   ( __( 'Forums',  'bbpress' ), __( 'Forums',  'bbpress' ), 'manage_options', 'bbpress',     'bbp_admin_settings' );
+
+		// Recounts
+		if ( !empty( $this->enable_recounts ) )
+			add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools' );
+
+		// Forums settings
+		add_options_page   ( __( 'Forums',  'bbpress' ), __( 'Forums',  'bbpress' ), 'manage_options', 'bbpress', 'bbp_admin_settings' );
 	}
 
 	/**
