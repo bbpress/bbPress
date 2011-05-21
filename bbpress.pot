@@ -1,0 +1,3444 @@
+# Copyright (C) 2010 bbPress
+# This file is distributed under the same license as the bbPress package.
+msgid ""
+msgstr ""
+"Project-Id-Version: bbPress 2.0-beta-1\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/bbpress\n"
+"POT-Creation-Date: 2011-05-21 13:21:12+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: bbpress.php:486 bbp-themes/bbp-twentyten/page-forum-statistics.php:40
+#: bbp-includes/bbp-core-compatibility.php:452
+#: bbp-includes/bbp-general-template.php:1153 bbp-admin/bbp-admin.php:171
+msgid "Forums"
+msgstr ""
+
+#: bbpress.php:487 bbp-themes/bbp-twentyten/bbpress/loop-forums.php:16
+#: bbp-admin/bbp-metaboxes.php:52 bbp-admin/bbp-metaboxes.php:256
+#: bbp-admin/bbp-metaboxes.php:364 bbp-admin/bbp-metaboxes.php:367
+#: bbp-admin/bbp-forums.php:390 bbp-admin/bbp-replies.php:521
+#: bbp-admin/bbp-topics.php:594
+msgid "Forum"
+msgstr ""
+
+#: bbpress.php:488 bbpress.php:492
+msgid "New Forum"
+msgstr ""
+
+#: bbpress.php:489
+msgid "Create New Forum"
+msgstr ""
+
+#: bbpress.php:490 bbpress.php:544 bbpress.php:598
+#: bbp-includes/bbp-reply-template.php:1325
+#: bbp-includes/bbp-topic-template.php:1897 bbp-admin/bbp-replies.php:575
+#: bbp-admin/bbp-replies.php:605 bbp-admin/bbp-topics.php:647
+msgid "Edit"
+msgstr ""
+
+#: bbpress.php:491
+msgid "Edit Forum"
+msgstr ""
+
+#: bbpress.php:493 bbpress.php:494
+msgid "View Forum"
+msgstr ""
+
+#: bbpress.php:495
+msgid "Search Forums"
+msgstr ""
+
+#: bbpress.php:496
+msgid "No forums found"
+msgstr ""
+
+#: bbpress.php:497
+msgid "No forums found in Trash"
+msgstr ""
+
+#: bbpress.php:498
+msgid "Parent Forum:"
+msgstr ""
+
+#: bbpress.php:519
+msgid "bbPress Forums"
+msgstr ""
+
+#: bbpress.php:540 bbp-themes/bbp-twentyten/page-forum-statistics.php:45
+#: bbp-themes/bbp-twentyten/bbpress/loop-forums.php:17
+#: bbp-includes/bbp-core-compatibility.php:469
+#: bbp-includes/bbp-forum-template.php:1696 bbp-admin/bbp-forums.php:391
+#: bbp-admin/bbp-topics.php:593
+msgid "Topics"
+msgstr ""
+
+#: bbpress.php:541 bbp-themes/bbp-twentyten/bbpress/loop-topics.php:15
+#: bbp-themes/bbp-twentyten/bbpress/single-topic.php:20
+#: bbp-admin/bbp-metaboxes.php:69 bbp-admin/bbp-metaboxes.php:403
+#: bbp-admin/bbp-replies.php:522
+msgid "Topic"
+msgstr ""
+
+#: bbpress.php:542 bbpress.php:546
+msgid "New Topic"
+msgstr ""
+
+#: bbpress.php:543
+msgid "Create New Topic"
+msgstr ""
+
+#: bbpress.php:545
+msgid "Edit Topic"
+msgstr ""
+
+#: bbpress.php:547 bbpress.php:548
+msgid "View Topic"
+msgstr ""
+
+#: bbpress.php:549
+msgid "Search Topics"
+msgstr ""
+
+#: bbpress.php:550
+msgid "No topics found"
+msgstr ""
+
+#: bbpress.php:551
+msgid "No topics found in Trash"
+msgstr ""
+
+#: bbpress.php:552 bbp-themes/bbp-twentyten/bbpress/form-topic.php:76
+msgid "Forum:"
+msgstr ""
+
+#: bbpress.php:573
+msgid "bbPress Topics"
+msgstr ""
+
+#: bbpress.php:594 bbp-themes/bbp-twentyten/page-forum-statistics.php:50
+#: bbp-themes/bbp-twentyten/single-reply.php:32
+#: bbp-themes/bbp-twentyten/bbpress/loop-forums.php:18
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:28
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:47
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:17
+#: bbp-includes/bbp-core-compatibility.php:501
+#: bbp-includes/bbp-forum-template.php:1760 bbp-admin/bbp-forums.php:392
+#: bbp-admin/bbp-topics.php:595
+msgid "Replies"
+msgstr ""
+
+#: bbpress.php:595 bbp-admin/bbp-metaboxes.php:86
+msgid "Reply"
+msgstr ""
+
+#: bbpress.php:596 bbpress.php:600
+msgid "New Reply"
+msgstr ""
+
+#: bbpress.php:597
+msgid "Create New Reply"
+msgstr ""
+
+#: bbpress.php:599
+msgid "Edit Reply"
+msgstr ""
+
+#: bbpress.php:601 bbpress.php:602
+msgid "View Reply"
+msgstr ""
+
+#: bbpress.php:603
+msgid "Search Replies"
+msgstr ""
+
+#: bbpress.php:604
+msgid "No replies found"
+msgstr ""
+
+#: bbpress.php:605
+msgid "No replies found in Trash"
+msgstr ""
+
+#: bbpress.php:606
+msgid "Topic:"
+msgstr ""
+
+#: bbpress.php:627
+msgid "bbPress Replies"
+msgstr ""
+
+#: bbpress.php:660
+msgctxt "post"
+msgid "Closed"
+msgstr ""
+
+#: bbpress.php:661
+msgctxt "bbpress"
+msgid "Closed <span class=\"count\">(%s)</span>"
+msgid_plural "Closed <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbpress.php:669
+msgctxt "post"
+msgid "Spam"
+msgstr ""
+
+#: bbpress.php:670
+msgctxt "bbpress"
+msgid "Spam <span class=\"count\">(%s)</span>"
+msgid_plural "Spam <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbpress.php:680
+msgctxt "post"
+msgid "Orphan"
+msgstr ""
+
+#: bbpress.php:681
+msgctxt "bbpress"
+msgid "Orphan <span class=\"count\">(%s)</span>"
+msgid_plural "Orphans <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbpress.php:691
+msgctxt "post"
+msgid "Hidden"
+msgstr ""
+
+#: bbpress.php:692
+msgctxt "bbpress"
+msgid "Hidden <span class=\"count\">(%s)</span>"
+msgid_plural "Hidden <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbpress.php:725 bbp-themes/bbp-twentyten/page-forum-statistics.php:55
+msgid "Topic Tags"
+msgstr ""
+
+#: bbpress.php:726 bbp-admin/bbp-metaboxes.php:103
+msgid "Topic Tag"
+msgstr ""
+
+#: bbpress.php:727
+msgid "Search Tags"
+msgstr ""
+
+#: bbpress.php:728
+msgid "Popular Tags"
+msgstr ""
+
+#: bbpress.php:729
+msgid "All Tags"
+msgstr ""
+
+#: bbpress.php:730
+msgid "Edit Tag"
+msgstr ""
+
+#: bbpress.php:731
+msgid "Update Tag"
+msgstr ""
+
+#: bbpress.php:732
+msgid "Add New Tag"
+msgstr ""
+
+#: bbpress.php:733
+msgid "New Tag Name"
+msgstr ""
+
+#: bbpress.php:780
+msgid "Topics with no replies"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-forum-statistics.php:29
+msgid "<p>Here are the statistics and popular topics of our forums.</p>"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-forum-statistics.php:35
+msgid "Registered Users"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-forum-statistics.php:62
+msgid "Empty Topic Tags"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-forum-statistics.php:71
+msgid "Hidden Topics"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-forum-statistics.php:82
+msgid "Hidden Replies"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-forum-statistics.php:101
+msgid "Popular Topics"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/single-reply.php:31
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:15
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:38
+#: bbp-admin/bbp-replies.php:523 bbp-admin/bbp-topics.php:597
+msgid "Author"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/single-reply.php:52
+#: bbp-themes/bbp-twentyten/bbpress/single-topic.php:54
+msgid "Posted on %1$s at %2$s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-forums.php:18
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:20
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:43
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:17
+msgid "Posts"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-forums.php:19
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:18
+#: bbp-admin/bbp-forums.php:395 bbp-admin/bbp-topics.php:599
+msgid "Freshness"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/no-forums.php:13
+msgid "Oh bother! No forums were found here!"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/view.php:31
+#: bbp-themes/bbp-twentyten/bbpress/no-topics.php:13
+msgid "Oh bother! No topics were found here!"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:27
+msgid "Edit topic \"%s\""
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:29
+msgid "Create new topic in: &ldquo;%s&rdquo;"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:29
+msgid "Create new topic"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:37
+msgid ""
+"This forum is marked as closed to new topics, however your posting "
+"capabilities still allow you to do so."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:54
+msgid "Topic Title:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:59
+msgid "Topic Description:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:64
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:51
+msgid ""
+"You may use these <abbr title=\"HyperText Markup Language\">HTML</abbr> tags "
+"and attributes:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:69
+msgid "Topic Tags:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:86
+msgid "Topic Type:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:101
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:68
+msgid "Notify the author of follow-up replies via email"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:105
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:72
+msgid "Notify me of follow-up replies via email"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:115
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:83
+msgid "Revision"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:118
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:86
+msgid "Keep a log of this edit:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:122
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:90
+msgid "Optional reason for editing:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:130
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:102
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:90
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:86
+msgid "Submit"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:143
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:154
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:115
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:103
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:99
+msgid "Sorry!"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:145
+msgid "This forum is closed to new topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:156
+msgid "You cannot create new topics at this time."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic.php:156
+msgid "You must be logged in to create new topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:23
+msgid "Reply to: &ldquo;%s&rdquo;"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:28
+msgid ""
+"This topic is marked as closed to new replies, however your posting "
+"capabilities still allow you to do so."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:46
+msgid "Reply:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:56
+msgid "Tags:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:117
+msgid "You cannot reply to this topic."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:117
+msgid "You must be logged in to reply to this topic."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:126
+msgid "Topic Closed"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-reply.php:128
+msgid "This topic has been closed to new replies."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-replies.php:68
+msgid "%1$s at %2$s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-lost-pass.php:14
+msgid "Lost Password"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-lost-pass.php:18
+msgid "Username or Email"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-lost-pass.php:27
+msgid "Reset my password"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-anonymous.php:15
+msgid "Author information"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-anonymous.php:15
+msgid "Your information:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-anonymous.php:17
+msgid "Name (required):"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-anonymous.php:22
+msgid "Mail (will not be published) (required):"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-anonymous.php:27
+msgid "Website:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-topics-created.php:16
+msgid "Forum Topics Created"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-topics-created.php:27
+msgid "You have not created any topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-topics-created.php:27
+msgid "This user has not created any topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:16
+#: bbp-admin/bbp-topics.php:596
+msgid "Voices"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:19
+msgid "Remove"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:40
+msgid "Started by: %1$s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/loop-topics.php:44
+msgid "in: <a href=\"%1$s\">%2$s</a>"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-protected.php:16
+msgid "Protected"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:18
+msgid "Manage Tag: \"%s\""
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:22
+msgid "Rename"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:25
+msgid "Leave the slug empty to have one automatically generated."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:29
+msgid ""
+"Changing the slug affects its permalink. Any links to the old slug will stop "
+"working."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:35
+msgid "Name:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:40
+msgid "Slug:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:45
+msgid "Update"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:59
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:73
+#: bbp-includes/bbp-topic-template.php:2208
+msgid "Merge"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:62
+msgid "Merging tags together cannot be undone."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:68
+msgid "Existing tag:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:74
+msgid ""
+"Are you sure you want to merge the \"%s\" tag into the tag you specified?"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:89
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:102
+#: bbp-includes/bbp-reply-template.php:1440
+#: bbp-includes/bbp-topic-template.php:2012
+msgid "Delete"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:92
+msgid "This does not delete your topics. Only the tag itself is deleted."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:95
+msgid "Deleting a tag cannot be undone."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:96
+msgid "Any links to this tag will no longer function."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-topic-tag.php:103
+msgid ""
+"Are you sure you want to delete the \"%s\" tag? This is permanent and cannot "
+"be undone."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-favorites.php:16
+msgid "Favorite Forum Topics"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-favorites.php:27
+msgid "You currently have no favorite topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-favorites.php:27
+msgid "This user has no favorite topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-login.php:14
+#: bbp-themes/bbp-twentyten/bbpress/form-user-login.php:35
+#: bbp-includes/bbp-core-widgets.php:69
+msgid "Login"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-login.php:17
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:99
+#: bbp-themes/bbp-twentyten/bbpress/form-user-register.php:23
+#: bbp-includes/bbp-core-widgets.php:72
+msgid "Username"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-login.php:22
+#: bbp-includes/bbp-core-widgets.php:77
+msgid "Password"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-login.php:28
+#: bbp-includes/bbp-core-widgets.php:83
+msgid "Keep me signed in"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:14
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:19
+#: bbp-admin/bbp-metaboxes.php:427 bbp-admin/bbp-metaboxes.php:430
+msgid "Name"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:24
+msgid "First Name"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:29
+msgid "Last Name"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:34
+msgid "Nickname"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:39
+msgid "Display name publicly as"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:49
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:52
+msgid "Contact Info"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:57
+#: bbp-admin/bbp-metaboxes.php:441 bbp-admin/bbp-metaboxes.php:444
+msgid "Website"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:74
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:77
+msgid "About Yourself"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:74
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:77
+msgid "About the user"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:82
+msgid "Biographical Info"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:84
+msgid ""
+"Share a little biographical information to fill out your profile. This may "
+"be shown publicly."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:91
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:94
+msgid "Account"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:101
+msgid "Usernames cannot be changed."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:105
+msgid "E-mail"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:117
+msgid ""
+"There is a pending email address change to <code>%1$s</code>. <a href=\"%2$s"
+"\">Cancel</a>"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:126
+msgid "New Password"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:129
+msgid ""
+"If you would like to change the password type a new one. Otherwise leave "
+"this blank."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:132
+msgid "Type your new password again."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:135
+msgid ""
+"Hint: The password should be at least seven characters long. To make it "
+"stronger, use upper and lower case letters, numbers and symbols like ! \" ? "
+"$ % ^ &amp; )."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:142
+msgid "Role:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:153
+msgid "Super Admin"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:156
+msgid "Grant this user super admin privileges for the Network."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:169
+#: bbp-admin/bbp-settings.php:403
+msgid "Save Changes"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:174
+msgid "Update Profile"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-edit.php:174
+msgid "Update User"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:20
+msgid "Split topic \"%s\""
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:25
+msgid ""
+"When you split a topic, you are slicing it in half starting with the reply "
+"you just selected. Choose to use that reply as a new topic with a new title, "
+"or merge those replies into an existing topic."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:29
+msgid ""
+"If you use the existing topic option, replies within both topics will be "
+"merged chronologically. The order of the merged replies is based on the time "
+"and date they were posted."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:33
+msgid "Split Method"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:37
+msgid "New topic in <strong>%s</strong> titled:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:38
+msgid "Split: %s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:45
+msgid "Use an existing topic in this forum:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:54
+msgid "No other topics found!"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:65
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:61
+msgid "Topic Extras"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:72
+msgid "Copy subscribers to the new topic"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:77
+msgid "Copy favoriters to the new topic"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:80
+msgid "Copy topic tags to the new topic"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:86
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:82
+msgid "<strong>WARNING:</strong> This process cannot be undone."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:104
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:100
+msgid "You do not have the permissions to edit this topic!"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-split.php:104
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:100
+msgid "You cannot edit this topic."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:20
+msgid "Merge topic \"%s\""
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:25
+msgid ""
+"Select the topic to merge this one into. The destination topic will remain "
+"the lead topic, and this one will change into a reply."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:26
+msgid ""
+"To keep this topic as the lead, go to the other topic and use the merge tool "
+"from there instead."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:30
+msgid ""
+"All replies within both topics will be merged chronologically. The order of "
+"the merged replies is based on the time and date they were posted. If the "
+"destination topic was created after this one, it's post date will be updated "
+"to second earlier than this one."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:34
+msgid "Destination"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:38
+msgid "Merge with this topic:"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:47
+msgid "No topics were found to which the topic could be merged to!"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:53
+msgid "There are no other topics in this forum to merge with."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:68
+msgid "Merge topic subscribers"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:73
+msgid "Merge topic favoriters"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-merge.php:76
+msgid "Merge topic tags"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/single-topic.php:17
+#: bbp-admin/bbp-forums.php:393
+msgid "Creator"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-posts.php:14
+msgid "Blog Posts"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/no-access.php:13
+#: bbp-admin/bbp-metaboxes.php:283
+msgid "Private"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/no-access.php:16
+msgid "You do not have permission to view this forum."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-details.php:14
+msgid "Profile: %s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-details.php:18
+msgid "Edit Profile of User %s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-details.php:18
+msgid "(Edit)"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-details.php:31
+msgid "About %s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-subscriptions.php:20
+msgid "Subscribed Forum Topics"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-subscriptions.php:31
+msgid "You are not currently subscribed to any topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/user-subscriptions.php:31
+msgid "This user is not currently subscribed to any topics."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-register.php:14
+msgid "Create an Account"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-register.php:17
+msgid "Your username must be unique, and cannot be changed later."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-register.php:18
+msgid ""
+"We use your email address to email you a secure password and verify your "
+"account."
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-register.php:28
+msgid "Email Address"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/bbpress/form-user-register.php:36
+msgid "Register"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/page-topic-tags.php:25
+msgid ""
+"<p>This is a collection of tags that are currently popular on our forums.</p>"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/taxonomy-topic-tag.php:20
+#: bbp-includes/bbp-core-compatibility.php:544
+#: bbp-includes/bbp-general-template.php:1400
+msgid "Topic Tag: %s"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:216
+msgid "favorites"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:217
+msgid "?"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:218
+msgid "This topic is one of your %favLinkYes% [%favDel%]"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:219
+msgid "%favAdd% (%favLinkNo%)"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:220
+#: bbp-includes/bbp-user-template.php:549
+msgid "&times;"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:221
+#: bbp-includes/bbp-user-template.php:541
+msgid "Add this topic to your favorites"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:227
+#: bbp-includes/bbp-user-template.php:648
+msgid "Subscribe"
+msgstr ""
+
+#: bbp-themes/bbp-twentyten/functions.php:228
+#: bbp-includes/bbp-user-template.php:649
+msgid "Unsubscribe"
+msgstr ""
+
+#: bbp-includes/bbp-core-compatibility.php:116
+msgid "Hands off, partner!"
+msgstr ""
+
+#: bbp-includes/bbp-core-compatibility.php:251
+msgid "You do not have the permission to edit this user."
+msgstr ""
+
+#: bbp-includes/bbp-core-compatibility.php:844
+msgid ""
+"Conditional query tags do not work before the query is run. Before then, "
+"they always return false."
+msgstr ""
+
+#: bbp-includes/bbp-general-functions.php:402
+#: bbp-includes/bbp-general-functions.php:433
+msgid "Private: %s | "
+msgstr ""
+
+#: bbp-includes/bbp-general-functions.php:403
+#: bbp-includes/bbp-general-functions.php:434
+msgid "Spammed: %s | "
+msgstr ""
+
+#: bbp-includes/bbp-general-functions.php:404
+#: bbp-includes/bbp-general-functions.php:435
+msgid "Trashed: %s"
+msgstr ""
+
+#: bbp-includes/bbp-general-functions.php:629
+msgid "<strong>ERROR</strong>: Invalid author name submitted!"
+msgstr ""
+
+#: bbp-includes/bbp-general-functions.php:632
+msgid "<strong>ERROR</strong>: Invalid email address submitted!"
+msgstr ""
+
+#: bbp-includes/bbp-general-functions.php:815
+msgid ""
+"%1$s wrote:\n"
+"\n"
+"%2$s\n"
+"\n"
+"Post Link: %3$s\n"
+"\n"
+"You're getting this mail because you subscribed to the topic, visit the "
+"topic and login to unsubscribe."
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:934
+#: bbp-includes/bbp-topic-template.php:1135
+#: bbp-includes/bbp-user-template.php:1019
+msgid "View %s's profile"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:934
+#: bbp-includes/bbp-topic-template.php:1135
+#: bbp-includes/bbp-user-template.php:1019
+msgid "Visit %s's website"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1438
+#: bbp-includes/bbp-topic-template.php:2010 bbp-admin/bbp-replies.php:700
+#: bbp-admin/bbp-topics.php:778
+msgid "Trash"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1439
+#: bbp-includes/bbp-topic-template.php:2011 bbp-admin/bbp-replies.php:698
+#: bbp-admin/bbp-topics.php:776
+msgid "Restore"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1453
+#: bbp-includes/bbp-topic-template.php:2024 bbp-admin/bbp-replies.php:698
+#: bbp-admin/bbp-topics.php:776
+msgid "Restore this item from the Trash"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1453
+#: bbp-includes/bbp-topic-template.php:2024
+msgid "Are you sure you want to restore that?"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1455
+#: bbp-includes/bbp-topic-template.php:2026 bbp-admin/bbp-replies.php:700
+#: bbp-admin/bbp-topics.php:778
+msgid "Move this item to the Trash"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1455
+#: bbp-includes/bbp-topic-template.php:2026
+msgid "Are you sure you want to trash that?"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1458
+#: bbp-includes/bbp-topic-template.php:2029 bbp-admin/bbp-replies.php:704
+#: bbp-admin/bbp-topics.php:782
+msgid "Delete this item permanently"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1458
+#: bbp-includes/bbp-topic-template.php:2029
+msgid "Are you sure you want to delete that permanently?"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1507
+#: bbp-includes/bbp-topic-template.php:2265 bbp-admin/bbp-replies.php:690
+#: bbp-admin/bbp-topics.php:768
+msgid "Spam"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1508
+#: bbp-includes/bbp-topic-template.php:2266
+msgid "Unspam"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1572
+msgid "Split"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1573
+msgid "Split the topic from this reply"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1659
+msgid "Viewing reply %1$s (of %2$s total)"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1661
+msgid "Viewing %1$s replies"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1663
+msgid "Viewing %1$s replies - %2$s through %3$s (of %4$s total)"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1665
+msgid "Viewing %1$s reply"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1672
+msgid "Viewing post %1$s (of %2$s total)"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1674
+msgid "Viewing %1$s posts"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1676
+msgid "Viewing %1$s posts - %2$s through %3$s (of %4$s total)"
+msgstr ""
+
+#: bbp-includes/bbp-reply-template.php:1678
+msgid "Viewing %1$s post"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:39
+msgid "The login widget."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:42
+msgid "bbPress Login Widget"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:90
+msgid "Log In"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:140 bbp-includes/bbp-core-widgets.php:245
+#: bbp-includes/bbp-core-widgets.php:371 bbp-includes/bbp-core-widgets.php:561
+#: bbp-includes/bbp-core-widgets.php:709
+msgid "Title:"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:172
+msgid "A list of views."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:175
+msgid "bbPress View List"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:278
+msgid "A list of forums."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:281
+msgid "bbPress Forum List"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:377
+msgid "Parent forum:"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:383
+msgid ""
+"Forum ID number. \"0\" to show only root forums, \"-1\" to display all "
+"forums."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:414
+msgid "A list of recent topics, sorted by popularity or freshness."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:417
+msgid "bbPress Topics List"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:562
+msgid "Maximum topics to show:"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:563 bbp-includes/bbp-core-widgets.php:711
+msgid "Show post date:"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:565
+msgid "Popularity check:"
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:566
+msgid ""
+"Number of topics back to check reply count to determine popularity. A number "
+"less than the maximum number of topics to show disables the check."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:597
+msgid "A list of bbPress recent replies."
+msgstr ""
+
+#: bbp-includes/bbp-core-widgets.php:710
+msgid "Maximum replies to show:"
+msgstr ""
+
+#: bbp-includes/bbp-core-caps.php:31
+msgid "Forum Moderator"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:1509 bbp-admin/bbp-topics.php:691
+msgid "No Replies"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:1551
+#: bbp-includes/bbp-forum-template.php:1613
+msgid "%s reply"
+msgid_plural "%s replies"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-includes/bbp-topic-template.php:1560
+#: bbp-includes/bbp-forum-template.php:1036
+msgid " + %d more"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:1718
+msgid "Tagged:"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2078 bbp-admin/bbp-topics.php:749
+msgid "Close"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2079 bbp-admin/bbp-metaboxes.php:269
+#: bbp-admin/bbp-topics.php:751
+msgid "Open"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2139 bbp-admin/bbp-topics.php:760
+msgid "Stick"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2140 bbp-admin/bbp-topics.php:757
+msgid "Unstick"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2141 bbp-admin/bbp-topics.php:760
+msgid "to front"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2321
+msgid "Viewing topic %1$s (of %2$s total)"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2323
+msgid "Viewing %1$s topics"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2325
+msgid "Viewing %1$s topics - %2$s through %3$s (of %4$s total)"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2327
+msgid "Viewing %1$s topic"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2387
+msgid "This topic is marked as spam."
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2392
+msgid "This topic is in the trash."
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2428
+msgid "Normal"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2429
+msgid "Sticky"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2430
+msgid "Super Sticky"
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2552
+msgid "%s voice"
+msgid_plural "%s voices"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-includes/bbp-topic-template.php:2557
+msgid ""
+"This topic has %1$s, contains %2$s, and was last updated by %3$s %4$s ago."
+msgstr ""
+
+#: bbp-includes/bbp-topic-template.php:2561
+msgid "This topic has %1$s, contains %2$s."
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:738
+msgid "No topics available"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:743
+msgid "No forums available"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:748
+msgid "None available"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:820
+#: bbp-includes/bbp-general-template.php:837
+#: bbp-includes/bbp-topic-functions.php:949
+#: bbp-includes/bbp-topic-functions.php:1250
+#: bbp-admin/importers/bbpress.php:961
+msgid "Reply To: %s"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1320
+msgid "Log Out"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1363
+msgid "Your Profile"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1366
+msgid "%s's Profile"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1373
+msgid "Edit Your Profile"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1376
+msgid "Edit %s's Profile"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1382
+msgid "Forum: %s"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1387
+msgid "Topic: %s"
+msgstr ""
+
+#: bbp-includes/bbp-general-template.php:1406
+msgid "View: %s"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:171
+msgid "<strong>ERROR</strong>: You do not have permission to reply."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:183
+msgid "<strong>ERROR</strong>: Topic ID is missing."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:189
+#: bbp-includes/bbp-topic-functions.php:121
+#: bbp-includes/bbp-topic-functions.php:336
+msgid "<strong>ERROR</strong>: Forum ID is missing."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:209
+msgid "<strong>ERROR</strong>: Your reply needs a title."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:221
+#: bbp-includes/bbp-reply-functions.php:425
+msgid "<strong>ERROR</strong>: Your reply cannot be empty."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:226
+#: bbp-includes/bbp-topic-functions.php:150
+msgid "<strong>ERROR</strong>: Slow down; you move too fast."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:231
+msgid ""
+"<strong>ERROR</strong>: Duplicate reply detected; it looks as though "
+"you&#8217;ve already said that!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:274
+#: bbp-includes/bbp-reply-functions.php:458
+msgid ""
+"<strong>ERROR</strong>: There was some problem adding the tags to the topic."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:341
+msgid "<strong>ERROR</strong>: Reply ID not found."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:349
+msgid "<strong>ERROR</strong>: The reply you want to edit was not found."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:362
+msgid "<strong>ERROR</strong>: You do not have permission to edit that reply."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:392
+msgid ""
+"<strong>ERROR</strong>: This forum is a category. No topics or replies can "
+"be created in it."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:396
+msgid ""
+"<strong>ERROR</strong>: This forum has been closed to new topics and replies."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:400
+msgid ""
+"<strong>ERROR</strong>: This forum is private and you do not have the "
+"capability to read or create new replies in it."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:404
+msgid ""
+"<strong>ERROR</strong>: This forum is hidden and you do not have the "
+"capability to read or create new replies in it."
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:832
+msgid "<strong>ERROR:</strong> You do not have the permission to do that!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:845
+msgid ""
+"<strong>ERROR</strong>: There was a problem unmarking the reply as spam!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:845
+msgid "<strong>ERROR</strong>: There was a problem marking the reply as spam!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:862
+msgid "<strong>ERROR</strong>: There was a problem trashing the reply!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:870
+msgid "<strong>ERROR</strong>: There was a problem untrashing the reply!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:878
+msgid "<strong>ERROR</strong>: There was a problem deleting the reply!"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:1130
+msgid "All Posts"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:1132
+msgid "All Replies"
+msgstr ""
+
+#: bbp-includes/bbp-reply-functions.php:1172
+#: bbp-includes/bbp-topic-functions.php:2580
+msgid "Replies: %s"
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:151
+msgid "Anonymous"
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:408
+msgid "Admin"
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:542
+msgid " (%?%)"
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:548
+msgid "This topic is one of your %favorites% ["
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:550
+msgid "]"
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:705
+msgid "User updated."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:729
+msgid "You have super admin privileges."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:729
+msgid "This user has super admin privileges."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:794
+msgid "&mdash; No role for this site &mdash;"
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:843
+msgid "You are now logged out."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:847
+msgid "New user registration is currently not allowed."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:856
+msgid "Check your e-mail for the confirmation link."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:861
+msgid "Check your e-mail for your new password."
+msgstr ""
+
+#: bbp-includes/bbp-user-template.php:866
+msgid "Registration complete. Please check your e-mail."
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:368
+#: bbp-includes/bbp-user-functions.php:637
+msgid ""
+"<strong>ERROR</strong>: You don't have the permission to edit favorites of "
+"that user!"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:372
+msgid ""
+"<strong>ERROR</strong>: No topic was found! Which topic are you marking/"
+"unmarking as favorite?"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:401
+msgid ""
+"<strong>ERROR</strong>: There was a problem removing that topic from "
+"favorites!"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:403
+msgid "<strong>ERROR</strong>: There was a problem favoriting that topic!"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:641
+msgid ""
+"<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/"
+"unsubscribing to?"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:669
+msgid ""
+"<strong>ERROR</strong>: There was a problem unsubscribing from that topic!"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:671
+msgid "<strong>ERROR</strong>: There was a problem subscribing to that topic!"
+msgstr ""
+
+#: bbp-includes/bbp-user-functions.php:744
+msgid ""
+"What are you doing here? You do not have the permission to edit this user."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:79
+msgid ""
+"<strong>ERROR</strong>: You do not have permission to create new topics."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:103
+#: bbp-includes/bbp-topic-functions.php:372
+msgid "<strong>ERROR</strong>: Your topic needs a title."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:115
+#: bbp-includes/bbp-topic-functions.php:384
+msgid "<strong>ERROR</strong>: Your topic cannot be empty."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:132
+msgid ""
+"<strong>ERROR</strong>: This forum is a category. No topics can be created "
+"in this forum."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:136
+#: bbp-includes/bbp-topic-functions.php:351
+msgid "<strong>ERROR</strong>: This forum has been closed to new topics."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:140
+#: bbp-includes/bbp-topic-functions.php:355
+msgid ""
+"<strong>ERROR</strong>: This forum is private and you do not have the "
+"capability to read or create new topics in it."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:144
+#: bbp-includes/bbp-topic-functions.php:359
+msgid ""
+"<strong>ERROR</strong>: This forum is hidden and you do not have the "
+"capability to read or create new topics in it."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:155
+msgid ""
+"<strong>ERROR</strong>: Duplicate topic detected; it looks as though "
+"you&#8217;ve already said that!"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:294
+#: bbp-includes/bbp-topic-functions.php:816
+msgid "<strong>ERROR</strong>: Topic ID not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:302
+msgid "<strong>ERROR</strong>: The topic you want to edit was not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:315
+msgid "<strong>ERROR</strong>: You do not have permission to edit that topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:347
+msgid ""
+"<strong>ERROR</strong>: This forum is a category. No topics can be created "
+"in it."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:825
+msgid "<strong>ERROR</strong>: The topic you want to merge was not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:829
+#: bbp-includes/bbp-topic-functions.php:1104
+msgid ""
+"<strong>ERROR</strong>: You do not have the permissions to edit the source "
+"topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:835
+msgid "<strong>ERROR</strong>: Destination topic ID not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:841
+msgid "<strong>ERROR</strong>: The topic you want to merge to was not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:845
+msgid ""
+"<strong>ERROR</strong>: You do not have the permissions to edit the "
+"destination topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1080
+msgid "<strong>ERROR</strong>: Reply ID to split the topic from not found!"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1088
+msgid "<strong>ERROR</strong>: The reply you want to split from was not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1097
+msgid "<strong>ERROR</strong>: The topic you want to split was not found."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1113
+msgid "<strong>ERROR</strong>: You need to choose a valid split option."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1126
+msgid "<strong>ERROR</strong>: Destination topic ID not found!"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1135
+msgid "<strong>ERROR</strong>: The topic you want to split to was not found!"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1139
+msgid ""
+"<strong>ERROR</strong>: You do not have the permissions to edit the "
+"destination topic!"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1176
+msgid ""
+"<strong>ERROR</strong>: There was a problem converting the reply into the "
+"topic. Please try again."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1180
+msgid ""
+"<strong>ERROR</strong>: You do not have the permissions to create new "
+"topics. The reply could not be converted into a topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1367
+msgid ""
+"<strong>ERROR</strong>: The following problem(s) have been found while "
+"getting the tag: %s"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1382
+#: bbp-includes/bbp-topic-functions.php:1418
+msgid ""
+"<strong>ERROR</strong>: You do not have the permissions to edit the topic "
+"tags."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1388
+#: bbp-includes/bbp-topic-functions.php:1424
+msgid "<strong>ERROR</strong>: You need to enter a tag name."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1398
+msgid ""
+"<strong>ERROR</strong>: The following problem(s) have been found while "
+"updating the tag: %s"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1434
+#: bbp-includes/bbp-topic-functions.php:1452
+msgid ""
+"<strong>ERROR</strong>: The following problem(s) have been found while "
+"merging the tags: %s"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1443
+msgid ""
+"<strong>ERROR</strong>: The tags which are being merged can not be the same."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1472
+msgid ""
+"<strong>ERROR</strong>: You do not have the permissions to delete the topic "
+"tags."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1481
+msgid ""
+"<strong>ERROR</strong>: The following problem(s) have been found while "
+"deleting the tag: %s"
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1591
+msgid "<strong>ERROR:</strong> You do not have the permission to do that."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1604
+msgid "<strong>ERROR</strong>: There was a problem closing the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1604
+msgid "<strong>ERROR</strong>: There was a problem opening the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1615
+msgid "<strong>ERROR</strong>: There was a problem unsticking the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1615
+msgid "<strong>ERROR</strong>: There was a problem sticking the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1625
+msgid ""
+"<strong>ERROR</strong>: There was a problem unmarking the topic as spam."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1625
+msgid "<strong>ERROR</strong>: There was a problem marking the topic as spam."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1642
+msgid "<strong>ERROR</strong>: There was a problem trashing the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1650
+msgid "<strong>ERROR</strong>: There was a problem untrashing the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:1658
+msgid "<strong>ERROR</strong>: There was a problem deleting the topic."
+msgstr ""
+
+#: bbp-includes/bbp-topic-functions.php:2555
+msgid "All Topics"
+msgstr ""
+
+#: bbp-includes/bbp-forum-template.php:460 bbp-admin/bbp-forums.php:440
+msgid "No Topics"
+msgstr ""
+
+#: bbp-includes/bbp-forum-template.php:1027
+msgid "%s topic"
+msgid_plural "%s topics"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-includes/bbp-forum-template.php:1618
+msgid ""
+"This forum contains %1$s and %2$s, and was last updated by %3$s %4$s ago."
+msgstr ""
+
+#: bbp-includes/bbp-forum-template.php:1622
+msgid "This forum contains %1$s and %2$s replies."
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:44
+msgid "Content"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:125
+msgid "Discussion"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:133
+msgid "User"
+msgid_plural "Users"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-admin/bbp-metaboxes.php:152
+msgid "Hidden Topic"
+msgid_plural "Hidden Topics"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-admin/bbp-metaboxes.php:171
+msgid "Hidden Reply"
+msgid_plural "Hidden Replies"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-admin/bbp-metaboxes.php:190
+msgid "Empty Topic Tag"
+msgid_plural "Empty Topic Tags"
+msgstr[0] ""
+msgstr[1] ""
+
+#: bbp-admin/bbp-metaboxes.php:216
+msgid "Theme <strong>natively supports</strong> bbPress"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:218
+msgid "Theme <strong>does not</strong> natively support bbPress"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:223
+msgid "You are using <span class=\"b\">bbPress %s</span>."
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:257
+msgid "Category"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:270
+msgid "Closed"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:282
+msgid "Public"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:284
+msgid "Hidden"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:296 bbp-admin/bbp-metaboxes.php:297
+msgid "Type:"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:302 bbp-admin/bbp-metaboxes.php:303
+msgid "Status:"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:308 bbp-admin/bbp-metaboxes.php:309
+msgid "Visibility:"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:316
+msgid "Parent:"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:317
+msgid "Forum Parent"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:323
+msgid "(No Parent)"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:332
+msgid "Order:"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:333
+msgid "Forum Order"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:361 bbp-admin/bbp-replies.php:619
+#: bbp-admin/bbp-topics.php:657
+msgid "(No Forum)"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:400
+msgid "Parent Topic"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:434 bbp-admin/bbp-metaboxes.php:437
+msgid "Email"
+msgstr ""
+
+#: bbp-admin/bbp-metaboxes.php:450 bbp-admin/bbp-metaboxes.php:453
+msgid "IP Address"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:168 bbp-admin/bbp-tools.php:65
+msgid "Recount"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:189
+msgid "Main Settings"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:192
+msgid "Lock post editing after"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:196
+msgid "Throttle time"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:200
+msgid "Allow Favorites"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:204
+msgid "Allow Subscriptions"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:208
+msgid "Allow Anonymous Posting"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:214
+msgid "Per Page"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:217 bbp-admin/bbp-admin.php:230
+msgid "Topics Per Page"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:221 bbp-admin/bbp-admin.php:234
+msgid "Replies Per Page"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:227
+msgid "Per RSS Page"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:240
+msgid "Archive Slugs"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:243
+msgid "Forums Base"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:247
+msgid "Topics Base"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:253
+msgid "Single Slugs"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:256
+msgid "Forum Prefix"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:260
+msgid "Forum slug"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:264
+msgid "Topic slug"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:268
+msgid "Topic tag slug"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:272
+msgid "Reply slug"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:278
+msgid "User base"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:282
+msgid "View base"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:353
+msgid ""
+"<strong>bbPress is in Theme Compatability Mode</strong>. Your forums are "
+"using default styling."
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:372
+msgid "Settings"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:398
+msgid "Right Now in Forums"
+msgstr ""
+
+#: bbp-admin/bbp-admin.php:584
+msgid "Green"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:333
+msgid "bbPress Standalone Importer"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:346
+msgid "Try Again"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:431
+msgid ""
+"It looks like you attempted to convert your bbPress standalone previously "
+"and got interrupted."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:434
+msgid "Cancel &amp; start a new import"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:435
+msgid "Continue previous import"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:443
+msgid ""
+"Existing bbPress standalone installation found. See configuration section "
+"for details."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:450
+msgid ""
+"This importer allows you to convert your bbPress Standalone into the bbPress "
+"Plugin."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:452
+msgid "Instructions"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:454
+msgid ""
+"Create a <a href=\"%s\">backup</a> of your database and files. If the import "
+"process is interrupted for any reason, restore from that backup and re-run "
+"the import."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:455
+msgid ""
+"Seriously... Go back everything up, and don't come back until that's done. "
+"If things go awry, it's possible this importer will not be able to complete "
+"and your forums will be lost in limbo forever. This is serious business. No, "
+"we're not kidding."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:456
+msgid "To reduce memory overhead and avoid possible conflicts please:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:459
+msgid ""
+"Disable all plugins (except bbPress) on both your WordPress and bbPress "
+"standalone installations."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:462
+msgid "Switch to a default WordPress theme."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:466
+msgid "Notes on compatibility:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:469
+msgid ""
+"If you have the <a href=\"%s\">Subscribe to Topic</a> plugin active, please "
+"deactivate it. This script will migrate user subscriptions from that plugin."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:472
+msgid ""
+"If you are using the alpha version of bbPress 1.1 subscriptions will be "
+"ported automatically."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:475
+msgid ""
+"If you are importing an existing BuddyPress Forums installation, we should "
+"have found your previous configuration file."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:479
+msgid ""
+"This converter can be a drag on large forums with lots of existing topics "
+"and replies. If possible, do this import in a safe place (like a local "
+"installation.)"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:482
+msgid "Configuration"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:483
+msgid ""
+"Enter the path to your bbPress standalone install, where you'd find your "
+"<code>bb-config.php</code>:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:488
+msgid "bbPress Standalone Path:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:496
+msgid "Proceed"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:536
+msgid ""
+"Please enter the path to your bbPress configuration file - <code>bb-config."
+"php</code>."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:537 bbp-admin/importers/bbpress.php:555
+msgid "Go Back"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:554
+msgid ""
+"bbPress configuration file <code>bb-config.php</code> doesn't exist in the "
+"path specified! Please check the path and try again."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:586
+msgid "Configuration Options"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:592
+msgid ""
+"<strong>Auto-detected</strong>: Your WordPress and bbPress user tables are "
+"integrated. Proceed to <label for=\"step_board\">importing forums, topics "
+"and posts</label>."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:599
+msgid ""
+"Your WordPress blog is <strong>new</strong> and you don't have the fear of "
+"losing WordPress users:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:600
+msgid "Go to migrating users section."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:601
+msgid ""
+"<strong>Note</strong>: The WordPress %1$s and %2$s tables would be renamed, "
+"but not deleted so that you could restore them if something goes wrong."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:602
+msgid ""
+"Please ensure there are no tables with names %1$s and %2$s so that there is "
+"no problem in renaming."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:603
+msgid "Also, your WordPress and bbPress installs must be in the same database."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:607
+msgid ""
+"You're done with user migration or have the user tables <strong>integrated</"
+"strong>:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:608
+msgid "Proceed to importing forums, topics and posts section."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:612
+msgid ""
+"You have a well <strong>established</strong> WordPress user base, the user "
+"tables are not integrated and you can't lose your users:"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:613
+msgid ""
+"This is currently not yet supported, and will likely not be in the future "
+"also as it is highly complex to merge two user sets (which might even "
+"conflict)."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:614
+msgid ""
+"But, patches are always <a href=\"%s\" title=\"The last revision containing "
+"the custom user migration code\">welcome</a>. :)"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:622
+msgid "Migrate Users"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:625
+msgid "Import Forums, Topics & Posts"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:629
+msgid "Start!"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:665
+msgid "Importing Users"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:666
+msgid "We&#8217;re in the process of migrating your users..."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:683
+msgid ""
+"Renamed the <code>%1$s</code> and <code>%2$s</code> tables to <code>%3$s</"
+"code> and <code>%4$s</code> respectively."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:685
+msgid ""
+"There was a problem dropping the <code>%1$s</code> and <code>%2$s</code> "
+"tables. Please check and re-run the script or rename or drop the tables "
+"yourself."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:693
+msgid "Created the <code>%s</code> table and copied the users from bbPress."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:695 bbp-admin/importers/bbpress.php:703
+msgid ""
+"There was a problem duplicating the table <code>%1$s</code> to <code>%2$s</"
+"code>. Please check and re-run the script or duplicate the table yourself."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:701
+msgid ""
+"Created the <code>%s</code> table and copied the user information from "
+"bbPress."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:767
+msgid ""
+"There was a problem in getting an administrator of the blog. Now, please go "
+"to your blog, set a user as administrator, login as that user and directly "
+"go to importing forums, topics and replies section. Note that old logins "
+"won't work, you would have to edit your database (you can still try logging "
+"in as the bbPress keymaster)."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:790
+msgid ""
+"User roles have been successfully mapped based. The bbPress keymaster is "
+"WordPress administrator, bbPress administrator and moderators are moderators "
+"and rest all WordPress roles are %1$s. Now, you can only login into your "
+"WordPress blog by the bbPress credentials. For the time being, you have been "
+"logged in as the first available administrator (Username: %2$s, User ID: %3"
+"$s)."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:795
+msgid ""
+"Your users have all been imported, but wait &#8211; there&#8217;s more! Now "
+"we need to import your forums, topics and posts!"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:798
+msgid "Import by forums, topics and posts &raquo;"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:826
+msgid "Importing Forums, Topics And Posts"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:827
+msgid ""
+"We&#8217;re importing your bbPress standalone forums, topics and replies..."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:834
+msgid "No forums were found!"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:839
+msgid "Total number of forums: %s"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:845
+msgid "Processing forum #%1$s (<a href=\"%2$s\">%3$s</a>)"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:865
+msgid "Added the forum as forum #<a href=\"%1$s\">%2$s</a>"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:867
+msgid "There was a problem in adding the forum."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:886
+msgid "The forum is a category and has no topics."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:891
+msgid ""
+"The forum is a category but has topics, so it has been set as closed on the "
+"new board."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:899
+msgid "Total number of topics in the forum: %s"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:1037
+msgid ""
+"Added topic #%1$s (<a href=\"%2$s\">%3$s</a>) as topic #<a href=\"%4$s\">%5"
+"$s</a> with %6$s replies."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:1039
+msgid "There was a problem in adding topic #1$s (<a href=\"%2$s\">%3$s</a>)."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:1058
+msgid ""
+"Your forums, topics and posts have all been imported, but wait &#8211; "
+"there&#8217;s more! Now we need to do a <a href=\"%s\">recount</a> to get "
+"the counts in sync! Yes, we&#8217;re bad at Math."
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:1060
+msgid "After that it's all done. <a href=\"%s\">Have fun!</a> :)"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:1071
+msgid "bbPress Standalone"
+msgstr ""
+
+#: bbp-admin/importers/bbpress.php:1071
+msgid "Import your bbPress standalone board."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:23
+msgid "Main settings for the bbPress plugin"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:39
+msgid "minutes"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:55
+msgid "seconds"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:71
+msgid "Allow users to mark topics as favorites?"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:87
+msgid "Allow users to subscribe to topics"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:103
+msgid "Allow guest users without accounts to create topics and replies"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:118
+msgid "Per page settings for the bbPress plugin"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:134 bbp-admin/bbp-settings.php:150
+#: bbp-admin/bbp-settings.php:181 bbp-admin/bbp-settings.php:197
+msgid "per page"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:165
+msgid "Per RSS page settings for the bbPress plugin"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:215
+msgid ""
+"Include custom root slugs to prefix your forums and topics with. These can "
+"be partnered with WordPress pages to allow more flexibility."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:263
+msgid ""
+"You can enter custom slugs for your single forums, topics, replies, and tags "
+"URLs here. If you change these, existing permalinks will also change."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:279
+msgid "Incude the Forum Base slug in your single forum item links"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:394
+msgid "bbPress Settings"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:418
+msgid "This screen provides access to basic bbPress settings."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:419
+msgid "In the Main Settings you have a number of options:"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:422
+msgid ""
+"You can choose to lock a post after a certain number of minutes. \"Locking "
+"post editing\" will prevent the author from editing some amount of time "
+"after saving a post."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:423
+msgid ""
+"\"Throttle time\" is the amount of time required between posts from a single "
+"author. The higher the throttle time, the longer a user will need to wait "
+"between posting to the forum."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:424
+msgid ""
+"You may choose to allow favorites, which are a way for users to save and "
+"later return to topics they favor. This is enabled by default."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:425
+msgid ""
+"You may choose to allow subscriptions, which allows users to subscribe for "
+"notifications to topics that interest them. This is enabled by default."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:426
+msgid ""
+"You may choose to allow \"Anonymous Posting\", which will allow guest users "
+"who do not have accounts on your site to both create topics as well as "
+"replies."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:429
+msgid ""
+"Per Page settings allow you to control the number of topics and replies will "
+"appear on each of those pages. This is comparable to the WordPress \"Reading "
+"Settings\" page, where you can set the number of posts that should show on "
+"blog pages and in feeds."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:430
+msgid ""
+"The Forums section allows you to control the permalink structure for your "
+"forums. Each \"base\" is what will be displayed after your main URL and "
+"right before your permalink slug."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:431
+msgid ""
+"You must click the Save Changes button at the bottom of the screen for new "
+"settings to take effect."
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:432 bbp-admin/bbp-forums.php:130
+#: bbp-admin/bbp-forums.php:168 bbp-admin/bbp-replies.php:133
+#: bbp-admin/bbp-replies.php:174 bbp-admin/bbp-topics.php:134
+#: bbp-admin/bbp-topics.php:178
+msgid "<strong>For more information:</strong>"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:435 bbp-admin/bbp-forums.php:133
+#: bbp-admin/bbp-forums.php:171 bbp-admin/bbp-replies.php:136
+#: bbp-admin/bbp-replies.php:177 bbp-admin/bbp-topics.php:137
+#: bbp-admin/bbp-topics.php:181
+msgid "<a href=\"http://bbpress.org/documentation/\">bbPress Documentation</a>"
+msgstr ""
+
+#: bbp-admin/bbp-settings.php:436 bbp-admin/bbp-forums.php:134
+#: bbp-admin/bbp-forums.php:172 bbp-admin/bbp-replies.php:137
+#: bbp-admin/bbp-replies.php:178 bbp-admin/bbp-topics.php:138
+#: bbp-admin/bbp-topics.php:182
+msgid "<a href=\"http://bbpress.org/forums/\">bbPress Support Forums</a>"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:115
+msgid ""
+"The forum title field and the big forum editing area are fixed in place, but "
+"you can reposition all the other boxes using drag and drop, and can minimize "
+"or expand them by clicking the title bar of the box. Use the Screen Options "
+"tab to unhide more boxes (like Slug) or to choose a 1- or 2-column layout "
+"for this screen."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:116
+msgid ""
+"<strong>Title</strong> - Enter a title for your forum. After you enter a "
+"title, you will see the permalink appear below it, which is fully editable."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:117
+msgid ""
+"<strong>Post editor</strong> - Enter the description for your forum. There "
+"are two modes of editing: Visual and HTML. Choose the mode by clicking on "
+"the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last "
+"icon in the row to get a second row of controls. The screen icon just before "
+"that allows you to expand the edit box to full screen. The HTML mode allows "
+"you to enter raw HTML along with your forum text. You can insert media files "
+"by clicking the icons above the post editor and following the directions."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:118
+msgid ""
+"<strong>Forum Attributes</strong> - Select the various attributes that your "
+"forum should have:"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:121
+msgid ""
+"Forum Type determines whether it is a Forum (by default) or a Category, "
+"which means no new topics (only other forums) can be created within it."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:122
+msgid ""
+"Forum Status controls whether it is open (and thus can be posted to) or "
+"closed (thus not able to be posted to)."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:123
+msgid ""
+"Visibility can be set to either Public (by default, seen by everyone), "
+"Private (seen only by chosen users), and Hidden (hidden from all users)."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:124
+msgid ""
+"Parent turns the forum into a child forum of the selected forum/category in "
+"the dropdown."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:125
+msgid ""
+"Order determines the order that forums in the given hierarchy are displayed "
+"(lower numbers first, higher numbers last)."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:128
+msgid ""
+"<strong>Publish</strong> - The Publish box will allow you to Preview your "
+"forum before it is published, Publish your forum to your site, or Move to "
+"Trash will move your forum to the trash."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:129
+msgid ""
+"<strong>Revisions</strong> - Revisions show past versions of the saved "
+"forum. Each revision can be compared to the current version, or another "
+"revision. Revisions can also be restored to the current version."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:149
+msgid "This screen displays the forums available on your site."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:150 bbp-admin/bbp-replies.php:153
+#: bbp-admin/bbp-topics.php:154
+msgid "You can customize the display of this screen in a number of ways:"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:153
+msgid ""
+"You can hide/display columns based on your needs and decide how many forums "
+"to list per screen using the Screen Options tab."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:154
+msgid ""
+"You can filter the list of forums by forum status using the text links in "
+"the upper left to show All, Published, or Trashed forums. The default view "
+"is to show all forums."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:155
+msgid ""
+"You can refine the list to show only forums from a specific month by using "
+"the dropdown menus above the forums list. Click the Filter button after "
+"making your selection. You also can refine the list by clicking on the forum "
+"creator in the forums list."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:158
+msgid ""
+"Hovering over a row in the forums list will display action links that allow "
+"you to manage your forum. You can perform the following actions:"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:161
+msgid ""
+"Edit takes you to the editing screen for that forum. You can also reach that "
+"screen by clicking on the forum title."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:162
+msgid ""
+"Trash removes your forum from this list and places it in the trash, from "
+"which you can permanently delete it."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:163
+msgid "View will take you to your live forum to view the forum."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:166
+msgid ""
+"You can also edit multiple forums at once. Select the forums you want to "
+"edit using the checkboxes, select Edit from the Bulk Actions menu and click "
+"Apply. You will be able to change the metadata for all selected forums at "
+"once. To remove a forum from the grouping, just click the x next to its name "
+"in the Bulk Edit area that appears."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:167
+msgid ""
+"The Bulk Actions menu may also be used to delete multiple forums at once. "
+"Select Delete from the dropdown after making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:195
+msgid "Forum Attributes"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:394 bbp-admin/bbp-replies.php:524
+#: bbp-admin/bbp-topics.php:598
+msgid "Created"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:429 bbp-admin/bbp-replies.php:633
+#: bbp-admin/bbp-topics.php:679
+msgid "%1$s <br /> %2$s"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:438 bbp-admin/bbp-topics.php:689
+msgid "%s ago"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:505
+msgid "Forum updated. <a href=\"%s\">View forum</a>"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:508 bbp-admin/bbp-replies.php:822
+#: bbp-admin/bbp-topics.php:900
+msgid "Custom field updated."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:511 bbp-admin/bbp-replies.php:825
+#: bbp-admin/bbp-topics.php:903
+msgid "Custom field deleted."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:514
+msgid "Forum updated."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:519
+msgid "Forum restored to revision from %s"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:523
+msgid "Forum created. <a href=\"%s\">View forum</a>"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:526
+msgid "Forum saved."
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:529
+msgid "Forum submitted. <a target=\"_blank\" href=\"%s\">Preview forum</a>"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:532
+msgid ""
+"Forum scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
+"\">Preview forum</a>"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:534 bbp-admin/bbp-replies.php:848
+#: bbp-admin/bbp-topics.php:926
+msgid "M j, Y @ G:i"
+msgstr ""
+
+#: bbp-admin/bbp-forums.php:539
+msgid "Forum draft updated. <a target=\"_blank\" href=\"%s\">Preview forum</a>"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:127
+msgid ""
+"The reply title field and the big reply editing area are fixed in place, but "
+"you can reposition all the other boxes using drag and drop, and can minimize "
+"or expand them by clicking the title bar of the box. Use the Screen Options "
+"tab to unhide more boxes (Reply Attributes, Slug) or to choose a 1- or 2-"
+"column layout for this screen."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:128
+msgid ""
+"<strong>Title</strong> - Enter a title for your reply. After you enter a "
+"title, you will see the permalink below, which you can edit."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:129
+msgid ""
+"<strong>Post editor</strong> - Enter the text for your reply. There are two "
+"modes of editing: Visual and HTML. Choose the mode by clicking on the "
+"appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon "
+"in the row to get a second row of controls. The screen icon just before that "
+"allows you to expand the edit box to full screen. The HTML mode allows you "
+"to enter raw HTML along with your forum text. You can insert media files by "
+"clicking the icons above the post editor and following the directions."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:130
+msgid ""
+"<strong>Reply Attributes</strong> - Select the attributes that your reply "
+"should have. The Parent Topic dropdown determines the parent topic that the "
+"reply belongs to."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:131
+msgid ""
+"<strong>Publish</strong> - The Publish box will allow you to save your reply "
+"as Draft or Pending Review. You may Preview your reply before it is "
+"published as well. The Visibility will determine whether the reply is "
+"Public, Password protected (requiring a password on the site to view) or "
+"Private (only the author will have access to it). Replies may be published "
+"immediately by clicking the dropdown, or at a specific date and time by "
+"clicking the Edit link."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:132
+msgid ""
+"<strong>Revisions</strong> - Revisions show past versions of the saved "
+"reply. Each revision can be compared to the current version, or another "
+"revision. Revisions can also be restored to the current version."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:152
+msgid "This screen displays the replies created on your site."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:156
+msgid ""
+"You can hide/display columns based on your needs (Forum, Topic, Author, and "
+"Created) and decide how many replies to list per screen using the Screen "
+"Options tab."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:157
+msgid ""
+"You can filter the list of replies by reply status using the text links in "
+"the upper left to show All, Published, Pending Review, Draft, or Trashed "
+"topics. The default view is to show all replies."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:158
+msgid ""
+"You can view replies in a simple title list or with an excerpt. Choose the "
+"view you prefer by clicking on the icons at the top of the list on the right."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:159
+msgid ""
+"You can refine the list to show only replies from a specific month by using "
+"the dropdown menus above the replies list. Click the Filter button after "
+"making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:160
+msgid ""
+"You can also show only replies from a specific parent forum by using the "
+"parent forum dropdown above the replies list and selecting the parent forum. "
+"Click the Filter button after making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:163
+msgid ""
+"Hovering over a row in the replies list will display action links that allow "
+"you to manage your reply. You can perform the following actions:"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:166
+msgid ""
+"Edit takes you to the editing screen for that reply. You can also reach that "
+"screen by clicking on the reply title."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:167
+msgid ""
+"Trash removes your reply from this list and places it in the trash, from "
+"which you can permanently delete it."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:168
+msgid "View will take you to your live reply to view the reply."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:169
+msgid ""
+"Spam will mark the topic as spam, preventing further replies to it and "
+"removing it from the site&rsquo;s public view."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:172
+msgid ""
+"You can also edit multiple replies at once. Select the replies you want to "
+"edit using the checkboxes, select Edit from the Bulk Actions menu and click "
+"Apply. You will be able to change the metadata for all selected replies at "
+"once. To remove a reply from the grouping, just click the x next to its name "
+"in the Bulk Edit area that appears."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:173
+msgid ""
+"The Bulk Actions menu may also be used to delete multiple replies at once. "
+"Select Delete from the dropdown after making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:201
+msgid "Reply Attributes"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:270 bbp-admin/bbp-topics.php:296
+msgid "Author Information"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:422
+msgid "The reply was not found!"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:425 bbp-admin/bbp-topics.php:459
+msgid "You do not have the permission to do that!"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:486
+msgid "There was a problem marking the reply \"%1$s\" as spam."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:486
+msgid "Reply \"%1$s\" successfully marked as spam."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:490
+msgid "There was a problem unmarking the reply \"%1$s\" as spam."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:490
+msgid "Reply \"%1$s\" successfully unmarked as spam."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:520
+msgid "Title"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:576 bbp-admin/bbp-replies.php:606
+#: bbp-admin/bbp-replies.php:679 bbp-admin/bbp-topics.php:648
+#: bbp-admin/bbp-topics.php:739
+msgid "View"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:588
+msgid "(No Topic)"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:679 bbp-admin/bbp-topics.php:739
+msgid "View &#8220;%s&#8221;"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:688
+msgid "Mark the reply as not spam"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:688 bbp-admin/bbp-topics.php:766
+msgid "Not spam"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:690
+msgid "Mark this reply as spam"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:704 bbp-admin/bbp-topics.php:782
+msgid "Delete Permanently"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:742 bbp-admin/bbp-topics.php:820
+msgid "In all forums"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:819
+msgid "Reply updated. <a href=\"%s\">View topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:828
+msgid "Reply updated."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:833
+msgid "Reply restored to revision from %s"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:837
+msgid "Reply created. <a href=\"%s\">View topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:840
+msgid "Reply saved."
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:843
+msgid "Reply submitted. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:846
+msgid ""
+"Reply scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
+"\">Preview topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-replies.php:853
+msgid "Reply draft updated. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:152
+msgid "Count topics in each forum"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:153
+msgid "Count replies in each forum"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:154
+msgid "Count replies in each topic"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:155
+msgid "Count voices in each topic"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:156
+msgid "Count spammed & trashed replies in each topic"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:157
+msgid "Count replies for each user"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:158
+msgid "Remove trashed topics from user favorites"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:159
+msgid "Remove trashed topics from user subscriptions"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:163
+msgid "Recalculate last activity in each topic and forum"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:183
+msgid "Counting the number of replies in each topic&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:184 bbp-admin/bbp-functions.php:212
+#: bbp-admin/bbp-functions.php:239 bbp-admin/bbp-functions.php:269
+#: bbp-admin/bbp-functions.php:303 bbp-admin/bbp-functions.php:335
+#: bbp-admin/bbp-functions.php:381 bbp-admin/bbp-functions.php:460
+#: bbp-admin/bbp-functions.php:542 bbp-admin/bbp-functions.php:674
+#: bbp-admin/bbp-functions.php:733 bbp-admin/bbp-functions.php:790
+msgid "Failed!"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:194 bbp-admin/bbp-functions.php:222
+#: bbp-admin/bbp-functions.php:249 bbp-admin/bbp-functions.php:283
+#: bbp-admin/bbp-functions.php:317 bbp-admin/bbp-functions.php:363
+#: bbp-admin/bbp-functions.php:715 bbp-admin/bbp-functions.php:773
+#: bbp-admin/bbp-functions.php:870
+msgid "Complete!"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:211
+msgid "Counting the number of voices in each topic&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:238
+msgid ""
+"Counting the number of spammed and trashed replies in each topic&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:268
+msgid "Counting the number of topics in each forum&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:302
+msgid "Counting the number of replies in each forum&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:334
+msgid "Counting the number of topics to which each user has replied&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:380
+msgid "Counting the number of topic tags in each topic&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:459
+msgid "Counting the number of topics in each topic tag&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:541
+msgid "Deleting topic tags with no topics&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:673
+msgid "Removing trashed topics from user favorites&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:699 bbp-admin/bbp-functions.php:757
+msgid "Nothing to remove!"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:732
+msgid "Removing trashed topics from user subscriptions&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-functions.php:789
+msgid "Recomputing latest post in every topic and forum&hellip; %s"
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:53
+msgid "bbPress Recount"
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:55
+msgid ""
+"bbPress keeps a running count of things like replies to each topic and "
+"topics in each forum. In rare occasions these counts can fall out of sync. "
+"Using this form you can have bbPress manually recount these items."
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:56
+msgid "You can also use this form to clean out stale items like empty tags."
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:62
+msgid "Things to recount:"
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:76
+msgid "There are no recount tools available."
+msgstr ""
+
+#: bbp-admin/bbp-tools.php:87
+msgid "Recount Items"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:127
+msgid ""
+"The topic title field and the big topic editing area are fixed in place, but "
+"you can reposition all the other boxes using drag and drop, and can minimize "
+"or expand them by clicking the title bar of the box. Use the Screen Options "
+"tab to unhide more boxes (Topic Tags, Topic Attributes, or Slug) or to "
+"choose a 1- or 2-column layout for this screen."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:128
+msgid ""
+"<strong>Title</strong> - Enter a title for your topic. After you enter a "
+"title, you will see the permalink below, which you can edit."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:129
+msgid ""
+"<strong>Post editor</strong> - Enter the text for your topic. There are two "
+"modes of editing: Visual and HTML. Choose the mode by clicking on the "
+"appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon "
+"in the row to get a second row of controls. The screen icon just before that "
+"allows you to expand the edit box to full screen. The HTML mode allows you "
+"to enter raw HTML along with your forum text. You can insert media files by "
+"clicking the icons above the post editor and following the directions."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:130
+msgid ""
+"<strong>Topic Attributes</strong> - Select the attributes that your topic "
+"should have. The Forum dropdown determines the parent forum that the topic "
+"belongs to. Select the forum or category from the dropdown, or leave the "
+"default (No Forum) to post the topic without an assigned forum."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:131
+msgid ""
+"<strong>Publish</strong> - The Publish box will allow you to save your topic "
+"as Draft or Pending Review. You may Preview your topic before it is "
+"published as well. The Visibility will determine whether the topic is "
+"Public, Password protected (requiring a password on the site to view) or "
+"Private (only the author will have access to it). Topics may be published "
+"immediately by clicking the dropdown, or at a specific date and time by "
+"clicking the Edit link."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:132
+msgid ""
+"<strong>Topic Tags</strong> - You can assign keywords to your topics using "
+"Topic Tags. Unlike categories, tags have no hierarchy, meaning there is no "
+"relationship from one tag to another. Topics can be added and modified "
+"further from the Topic Tags screen."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:133
+msgid ""
+"<strong>Revisions</strong> - Revisions show past versions of the saved "
+"topic. Each revision can be compared to the current version, or another "
+"revision. Revisions can also be restored to the current version."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:153
+msgid "This screen displays the topics created on your site."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:157
+msgid ""
+"You can hide/display columns based on your needs and decide how many topics "
+"to list per screen using the Screen Options tab."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:158
+msgid ""
+"You can filter the list of topics by topics status using the text links in "
+"the upper left to show All, Published, Pending Review, Draft, or Trashed "
+"topics. The default view is to show all topics."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:159
+msgid ""
+"You can view topics in a simple title list or with an excerpt. Choose the "
+"view you prefer by clicking on the icons at the top of the list on the right."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:160
+msgid ""
+"You can refine the list to show only topics from a specific month by using "
+"the dropdown menus above the topics list. Click the Filter button after "
+"making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:161
+msgid ""
+"You can also show only topics from a specific parent forum by using the "
+"parent forum dropdown above the topics list and selecting the parent forum. "
+"Click the Filter button after making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:162
+msgid ""
+"You can refine the list by clicking on the topic creator in the topics list."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:165
+msgid ""
+"Hovering over a row in the topics list will display action links that allow "
+"you to manage your topic. You can perform the following actions:"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:168
+msgid ""
+"Edit takes you to the editing screen for that topic. You can also reach that "
+"screen by clicking on the topic title."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:169
+msgid ""
+"Trash removes your topic from this list and places it in the trash, from "
+"which you can permanently delete it."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:170
+msgid "View will take you to your live topic to view the topic."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:171
+msgid ""
+"Close will close your topic, disabling new replies within it. It will remain "
+"viewable to users, but replies will not be allowed."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:172
+msgid ""
+"Stick (to front) will pin the topic to the front page of the forum that "
+"it&rsquo;s in. New topics will begin beneath the list of \"stuck\" topics, "
+"which will always sit at the top of the list."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:173
+msgid ""
+"Spam will mark the topic as spam, closing the post to new replies and "
+"removing it from the public view."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:176
+msgid ""
+"You can also edit multiple topics at once. Select the topics you want to "
+"edit using the checkboxes, select Edit from the Bulk Actions menu and click "
+"Apply. You will be able to change the metadata for all selected topics at "
+"once. To remove a topic from the grouping, just click the x next to its name "
+"in the Bulk Edit area that appears."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:177
+msgid ""
+"The Bulk Actions menu may also be used to delete multiple topics at once. "
+"Select Delete from the dropdown after making your selection."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:197
+msgid ""
+"You can change the display of this screen using the Screen Options tab to "
+"set how many items are displayed per screen (20 by default) and to display/"
+"hide columns in the table (Description, Slug, and Topics)."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:198
+msgid ""
+"You can assign keywords to your topics using Topic Tags. Unlike categories, "
+"tags have no hierarchy, meaning there is no relationship from one tag to "
+"another."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:199
+msgid ""
+"Normally, tags are ad-hoc keywords that identify important information in "
+"your topic (names, subjects, etc) that may or may not recur in other topics. "
+"If you think of your forum like a book, the tags are like the terms in the "
+"index."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:200
+msgid ""
+"When editing a topic tag on this screen, you will fill in the following "
+"fields:"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:203
+msgid "<strong>Name</strong> - The name is how it appears on your site."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:204
+msgid ""
+"<strong>Slug</strong> - The Slug is the URL-friendly version of the name. It "
+"is usually all lowercase and contains only letters, numbers, and hyphens."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:205
+msgid ""
+"<strong>Description</strong> - The description is not prominent by default; "
+"however, some forum themes may display it."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:229
+msgid "Topic Attributes"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:456
+msgid "The topic was not found!"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:539
+msgid "There was a problem opening the topic \"%1$s\"."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:539
+msgid "Topic \"%1$s\" successfully opened."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:543
+msgid "There was a problem closing the topic \"%1$s\"."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:543
+msgid "Topic \"%1$s\" successfully closed."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:547
+msgid "There was a problem sticking the topic \"%1$s\" to front."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:547
+msgid "Topic \"%1$s\" successfully sticked to front."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:551
+msgid "There was a problem sticking the topic \"%1$s\"."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:551
+msgid "Topic \"%1$s\" successfully sticked."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:555
+msgid "There was a problem unsticking the topic \"%1$s\"."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:555
+msgid "Topic \"%1$s\" successfully unsticked."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:559
+msgid "There was a problem marking the topic \"%1$s\" as spam."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:559
+msgid "Topic \"%1$s\" successfully marked as spam."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:563
+msgid "There was a problem unmarking the topic \"%1$s\" as spam."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:563
+msgid "Topic \"%1$s\" successfully unmarked as spam."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:749
+msgid "Close this topic"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:751
+msgid "Open this topic"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:757
+msgid "Unstick this topic"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:760
+msgid "Stick this topic to its forum"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:760
+msgid "Stick this topic to front"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:766
+msgid "Mark the topic as not spam"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:768
+msgid "Mark this topic as spam"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:897
+msgid "Topic updated. <a href=\"%s\">View topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:906
+msgid "Topic updated."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:911
+msgid "Topic restored to revision from %s"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:915
+msgid "Topic created. <a href=\"%s\">View topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:918
+msgid "Topic saved."
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:921
+msgid "Topic submitted. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:924
+msgid ""
+"Topic scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s"
+"\">Preview topic</a>"
+msgstr ""
+
+#: bbp-admin/bbp-topics.php:931
+msgid "Topic draft updated. <a target=\"_blank\" href=\"%s\">Preview topic</a>"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "bbPress"
+msgstr ""
+
+#. #-#-#-#-#  plugin.pot (bbPress 2.0-beta-1)  #-#-#-#-#
+#. Plugin URI of the plugin/theme
+#. #-#-#-#-#  plugin.pot (bbPress 2.0-beta-1)  #-#-#-#-#
+#. Author URI of the plugin/theme
+msgid "http://bbpress.org"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "bbPress is forum software with a twist from the creators of WordPress."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "The bbPress Community"
+msgstr ""
