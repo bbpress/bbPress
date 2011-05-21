@@ -95,7 +95,8 @@ class BBP_Admin {
 		add_action( 'admin_notices', array( $this, 'activation_notice'       ) );
 
 		// Register bbPress admin style
-		add_action( 'admin_init',    array( $this, 'register_admin_style'    ) );
+		// @todo Refresh for 3.2 UI
+		//add_action( 'admin_init',    array( $this, 'register_admin_style'    ) );
 
 		// Add the settings
 		add_action( 'admin_init',    array( $this, 'register_admin_settings' ) );
@@ -233,15 +234,15 @@ class BBP_Admin {
 		/** Front Slugs *******************************************************/
 
 		// Add the per page section
-		add_settings_section( 'bbp_root_slug',   __( 'Archive Slugs',      'bbpress' ), 'bbp_admin_setting_callback_root_slug_section',   'bbpress'                  );
+		add_settings_section( 'bbp_root_slug',   __( 'Archive Slugs',      'bbpress' ), 'bbp_admin_setting_callback_root_slug_section',   'bbpress' );
 
 		// Root slug setting
 		add_settings_field( '_bbp_root_slug',    __( 'Forums Base', 'bbpress' ), 'bbp_admin_setting_callback_root_slug',           'bbpress', 'bbp_root_slug' );
-	 	register_setting  ( 'bbpress',           '_bbp_root_slug',                      'esc_sql'                                                                    );
+	 	register_setting  ( 'bbpress',           '_bbp_root_slug',               'esc_sql'                                                                    );
 
 		// Topic archive setting
 		add_settings_field( '_bbp_topic_archive_slug', __( 'Topics Base', 'bbpress' ), 'bbp_admin_setting_callback_topic_archive_slug', 'bbpress', 'bbp_root_slug' );
-	 	register_setting  ( 'bbpress',                 '_bbp_topic_archive_slug',              'esc_sql'                                                                   );
+	 	register_setting  ( 'bbpress',                 '_bbp_topic_archive_slug',      'esc_sql'                                                                   );
 
 		/** Single slugs ******************************************************/
 
