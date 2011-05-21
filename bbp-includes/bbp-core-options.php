@@ -69,23 +69,32 @@ function bbp_add_options() {
 		// Use root before slugs
 		'_bbp_include_root'         => true,
 
+		// Forum slug
+		'_bbp_forum_slug'           => 'forum',
+
+		// Forum archive slug
+		'_bbp_forum_archive_slug'   => 'forums',
+
+		// Topic slug
+		'_bbp_topic_slug'           => 'topic',
+
+		// Topic archive slug
+		'_bbp_topic_archive_slug'   => 'topics',
+
+		// Reply slug
+		'_bbp_reply_slug'           => 'reply',
+
+		// Reply archive slug
+		'_bbp_reply_archive_slug'   => 'replies',
+
+		// Topic tag slug
+		'_bbp_topic_tag_slug'       => 'tag',
+
 		// User profile slug
 		'_bbp_user_slug'            => 'users',
 
 		// View slug
 		'_bbp_view_slug'            => 'view',
-
-		// Forum slug
-		'_bbp_forum_slug'           => 'forum',
-
-		// Topic slug
-		'_bbp_topic_slug'           => 'topic',
-
-		// Reply slug
-		'_bbp_reply_slug'           => 'reply',
-
-		// Topic tag slug
-		'_bbp_topic_tag_slug'       => 'tag',
 
 		/** Topics ************************************************************/
 
