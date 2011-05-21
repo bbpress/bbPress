@@ -1145,9 +1145,15 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true
 		if ( !empty( $root ) && ( get_option( '_bbp_include_root' ) ) && ( $root_slug = get_option( '_bbp_root_slug' ) ) ) {
 
 			// Page exists at the root slug location, so add it to the breadcrumb
-			if ( $page = get_page_by_path( $root_slug ) ) {
-				$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $root_slug ) ) . '">' . get_the_title( $page->ID ) . '</a>';
-			}
+			if ( $page = get_page_by_path( $root_slug ) )
+				$title = get_the_title( $page->ID );
+
+			// Use generic root title
+			else
+				$title = __( 'Forums', 'bbpress' );
+
+			// Add root slug
+			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $root_slug ) ) . '">' . $title . '</a>';
 		}
 
 		// Loop through parents
