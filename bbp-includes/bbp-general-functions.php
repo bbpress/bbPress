@@ -10,6 +10,59 @@
 // Redirect if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/** Post Meta *****************************************************************/
+
+/**
+ * Update a posts forum meta ID
+ *
+ * @since bbPress (r3181)
+ *
+ * @param int $post_id The post to update
+ * @param int $forum_id The forum
+ */
+function bbp_update_forum_id( $post_id, $forum_id ) {
+
+	// Allow the forum ID to be updated 'just in time' before save
+	$forum_id = apply_filters( 'bbp_update_forum_id', $forum_id, $post_id );
+
+	// Update the post meta forum ID
+	update_post_meta( $post_id, '_bbp_forum_id', (int) $forum_id );
+}
+
+/**
+ * Update a posts topic meta ID
+ *
+ * @since bbPress (r3181)
+ *
+ * @param int $post_id The post to update
+ * @param int $forum_id The forum
+ */
+function bbp_update_topic_id( $post_id, $topic_id ) {
+
+	// Allow the topic ID to be updated 'just in time' before save
+	$topic_id = apply_filters( 'bbp_update_topic_id', $topic_id, $post_id );
+
+	// Update the post meta topic ID
+	update_post_meta( $post_id, '_bbp_topic_id', (int) $topic_id );
+}
+
+/**
+ * Update a posts reply meta ID
+ *
+ * @since bbPress (r3181)
+ *
+ * @param int $post_id The post to update
+ * @param int $forum_id The forum
+ */
+function bbp_update_reply_id( $post_id, $reply_id ) {
+
+	// Allow the reply ID to be updated 'just in time' before save
+	$reply_id = apply_filters( 'bbp_update_reply_id', $reply_id, $post_id );
+
+	// Update the post meta reply ID
+	update_post_meta( $post_id, '_bbp_reply_id',(int) $reply_id );
+}
+
 /** Formatting ****************************************************************/
 
 /**
