@@ -1,8 +1,9 @@
 === bbPress ===
-Contributors: matt, mdawaffe, johnjamesjacoby, petemall
+Contributors: matt, johnjamesjacoby, mdawaffe
 Tags: bbpress, forums, discussion, post type, theme
 Requires at least: 3.1
 Tested up to: 3.2
+Stable tag: 2.0-beta-1
 
 bbPress is forum software with a twist from the creators of WordPress
 
@@ -23,5 +24,5 @@ We're keeping things as small and light as possible while still allowing for gre
 
 == Changelog ==
 
-= Plugin =
+= 2.0-beta-1 =
 * In development
