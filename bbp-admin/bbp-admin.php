@@ -119,7 +119,7 @@ class BBP_Admin {
 
 		// Include the files
 		foreach ( $files as $file )
-			require_once( $bbp->plugin_dir . 'bbp-admin/bbp-' . $file . '.php' );
+			require( $bbp->plugin_dir . 'bbp-admin/bbp-' . $file . '.php' );
 	}
 
 	/**
@@ -218,21 +218,27 @@ class BBP_Admin {
 		add_settings_field( '_bbp_replies_per_page', __( 'Replies Per Page',  'bbpress' ), 'bbp_admin_setting_callback_replies_per_rss_page', 'bbpress', 'bbp_per_rss_page' );
 	 	register_setting  ( 'bbpress',               '_bbp_replies_per_rss_page',          'intval'                                                                         );
 
-		/** Slug Section ******************************************************/
+		/** Front Slugs *******************************************************/
 
 		// Add the per page section
-		add_settings_section( 'bbp_root_slug',   __( 'Forum Base',    'bbpress' ), 'bbp_admin_setting_callback_root_slug_section',   'bbpress'                  );
+		add_settings_section( 'bbp_root_slug',   __( 'Archive Slugs',      'bbpress' ), 'bbp_admin_setting_callback_root_slug_section',   'bbpress'                  );
 
 		// Root slug setting
-		add_settings_field( '_bbp_root_slug',    __( 'Forum base',    'bbpress' ), 'bbp_admin_setting_callback_root_slug',           'bbpress', 'bbp_root_slug' );
-	 	register_setting  ( 'bbpress',           '_bbp_root_slug',                 'esc_sql'                                                                    );
+		add_settings_field( '_bbp_root_slug',    __( 'Forums Base', 'bbpress' ), 'bbp_admin_setting_callback_root_slug',           'bbpress', 'bbp_root_slug' );
+	 	register_setting  ( 'bbpress',           '_bbp_root_slug',                      'esc_sql'                                                                    );
 
-		// Include root setting
-		add_settings_field( '_bbp_include_root', __( 'Include base?', 'bbpress' ), 'bbp_admin_setting_callback_include_root',        'bbpress', 'bbp_root_slug' );
-	 	register_setting  ( 'bbpress',           '_bbp_include_root',              'intval'                                                                     );
+		// Topic archive setting
+		add_settings_field( '_bbp_topic_archive_slug', __( 'Topics Base', 'bbpress' ), 'bbp_admin_setting_callback_topic_archive_slug', 'bbpress', 'bbp_root_slug' );
+	 	register_setting  ( 'bbpress',                 '_bbp_topic_archive_slug',              'esc_sql'                                                                   );
+
+		/** Single slugs ******************************************************/
 
 		// Add the per page section
 		add_settings_section( 'bbp_single_slugs',   __( 'Single Slugs',  'bbpress' ), 'bbp_admin_setting_callback_single_slug_section', 'bbpress'                     );
+
+		// Include root setting
+		add_settings_field( '_bbp_include_root',    __( 'Forum Prefix', 'bbpress' ),  'bbp_admin_setting_callback_include_root',        'bbpress', 'bbp_single_slugs' );
+	 	register_setting  ( 'bbpress',              '_bbp_include_root',              'intval'                                                                        );
 
 		// Forum slug setting
 		add_settings_field( '_bbp_forum_slug',      __( 'Forum slug',    'bbpress' ), 'bbp_admin_setting_callback_forum_slug',          'bbpress', 'bbp_single_slugs' );
@@ -249,6 +255,8 @@ class BBP_Admin {
 		// Reply slug setting
 		add_settings_field( '_bbp_reply_slug',      __( 'Reply slug',    'bbpress' ), 'bbp_admin_setting_callback_reply_slug',          'bbpress', 'bbp_single_slugs' );
 	 	register_setting  ( 'bbpress',             '_bbp_reply_slug',                 'sanitize_title'                                                                );
+
+		/** Other slugs *******************************************************/
 
 		// User slug setting
 		add_settings_field( '_bbp_user_slug',       __( 'User base',     'bbpress' ), 'bbp_admin_setting_callback_user_slug',           'bbpress', 'bbp_single_slugs' );

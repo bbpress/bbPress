@@ -60,12 +60,14 @@ class bbPress {
 	 */
 	var $reply_post_type;
 
-	/** Post statuses *********************************************************/
+	/** Taxonomies ************************************************************/
 
 	/**
 	 * @var string Topic tag id
 	 */
 	var $topic_tag_id;
+
+	/** Post statuses *********************************************************/
 
 	/**
 	 * @var string Closed post status id. Used by topics.
@@ -95,6 +97,11 @@ class bbPress {
 	/** Slugs *****************************************************************/
 
 	/**
+	 * @var string Root slug
+	 */
+	var $root_slug;
+
+	/**
 	 * @var string Forum slug
 	 */
 	var $forum_slug;
@@ -103,6 +110,11 @@ class bbPress {
 	 * @var string Topic slug
 	 */
 	var $topic_slug;
+
+	/**
+	 * @var string Topic archive slug
+	 */
+	var $topic_archive_slug;
 
 	/**
 	 * @var string Reply slug
@@ -291,18 +303,24 @@ class bbPress {
 		/** Slugs *************************************************************/
 
 		// Root forum slug
-		$this->root_slug      = apply_filters( 'bbp_root_slug',      get_option( '_bbp_root_slug', 'forums' ) );
+		$this->root_slug          = apply_filters( 'bbp_root_slug',          get_option( '_bbp_root_slug',          'forums' ) );
+		$this->topic_archive_slug = apply_filters( 'bbp_topic_archive_slug', get_option( '_bbp_topic_archive_slug', 'topics' ) );
 
 		// Should we include the root slug in front of component slugs
 		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
 
 		// Component slugs
-		$this->user_slug      = apply_filters( 'bbp_user_slug',      $prefix . get_option( '_bbp_user_slug',      'user'  ) );
-		$this->view_slug      = apply_filters( 'bbp_view_slug',      $prefix . get_option( '_bbp_view_slug',      'view'  ) );
-		$this->forum_slug     = apply_filters( 'bbp_forum_slug',     $prefix . get_option( '_bbp_forum_slug',     'forum' ) );
-		$this->topic_slug     = apply_filters( 'bbp_topic_slug',     $prefix . get_option( '_bbp_topic_slug',     'topic' ) );
-		$this->reply_slug     = apply_filters( 'bbp_reply_slug',     $prefix . get_option( '_bbp_reply_slug',     'reply' ) );
+		$this->forum_slug = apply_filters( 'bbp_forum_slug', $prefix . get_option( '_bbp_forum_slug', 'forum' ) );
+		$this->topic_slug = apply_filters( 'bbp_topic_slug', $prefix . get_option( '_bbp_topic_slug', 'topic' ) );
+		$this->reply_slug = apply_filters( 'bbp_reply_slug', $prefix . get_option( '_bbp_reply_slug', 'reply' ) );
+
+		// Taxonomy slugs
 		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'tag'   ) );
+
+		/** Other Slugs *******************************************************/
+
+		$this->user_slug = apply_filters( 'bbp_user_slug', $prefix . get_option( '_bbp_user_slug', 'user' ) );
+		$this->view_slug = apply_filters( 'bbp_view_slug', $prefix . get_option( '_bbp_view_slug', 'view' ) );
 
 		/** Misc **************************************************************/
 
@@ -502,8 +520,8 @@ class bbPress {
 			'capabilities'      => bbp_get_forum_caps(),
 			'capability_type'   => 'forum',
 			'menu_position'     => 56,
+			'has_archive'       => $this->root_slug,
 			'show_in_nav_menus' => true,
-			'has_archive'       => true,
 			'public'            => true,
 			'show_ui'           => true,
 			'can_export'        => true,
@@ -556,8 +574,8 @@ class bbPress {
 			'capabilities'      => bbp_get_topic_caps(),
 			'capability_type'   => 'topic',
 			'menu_position'     => 57,
+			'has_archive'       => $this->topic_archive_slug,
 			'show_in_nav_menus' => false,
-			'has_archive'       => true,
 			'public'            => true,
 			'show_ui'           => true,
 			'can_export'        => true,
@@ -610,7 +628,7 @@ class bbPress {
 			'capabilities'      => bbp_get_reply_caps(),
 			'capability_type'   => 'reply',
 			'menu_position'     => 58,
-			'has_archive'       => true,
+			'has_archive'       => false,
 			'show_in_nav_menus' => false,
 			'public'            => true,
 			'show_ui'           => true,

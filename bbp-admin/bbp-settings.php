@@ -212,7 +212,7 @@ function bbp_admin_setting_callback_root_slug_section() {
 	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
 		flush_rewrite_rules(); ?>
 
-	<p><?php printf( __( 'Include a custom root slug to prefix your forums pages with. This should be partnered with a WordPress page to act as the home of your forums.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+	<p><?php printf( __( 'Include custom root slugs to prefix your forums and topics with. These can be partnered with WordPress pages to allow more flexibility.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -228,7 +228,39 @@ function bbp_admin_setting_callback_root_slug() {
 ?>
 
 		<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" class="regular-text code" value="<?php form_option( '_bbp_root_slug' ); ?>" />
-		<p class="description"><?php _e( 'Typical installations should have a page with this same slug.', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
+ * Topic archive slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_topic_archive_slug() {
+?>
+
+	<input name="_bbp_topic_archive_slug" type="text" id="_bbp_topic_archive_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_archive_slug' ); ?>" />
+
+<?php
+}
+
+/** Single Slugs **************************************************************/
+
+/**
+ * Slugs settings section description for the settings page
+ *
+ * @since bbPress (r2786)
+ */
+function bbp_admin_setting_callback_single_slug_section() {
+
+	// Flush rewrite rules when this section is saved
+	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
+		flush_rewrite_rules(); ?>
+
+	<p><?php printf( __( 'You can enter custom slugs for your single forums, topics, replies, and tags URLs here. If you change these, existing permalinks will also change.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -244,53 +276,7 @@ function bbp_admin_setting_callback_include_root() {
 ?>
 
 	<input id="_bbp_include_root" name="_bbp_include_root" type="checkbox" id="_bbp_include_root" value="1" <?php checked( true, get_option( '_bbp_include_root', true ) ); ?> />
-	<label for="_bbp_include_root"><?php _e( 'Prefix the root slug before the following slugs?', 'bbpress' ); ?></label>
-
-<?php
-}
-
-/**
- * Slugs settings section description for the settings page
- *
- * @since bbPress (r2786)
- */
-function bbp_admin_setting_callback_single_slug_section() {
-
-	// Flush rewrite rules when this section is saved
-	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
-		flush_rewrite_rules(); ?>
-
-	<p><?php printf( __( 'You can enter custom structures for your forum, topic, reply, and tag URLs here. If you change any of these, all previous links will stop working. If you leave these empty the defaults will be used.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
-
-<?php
-}
-
-/**
- * User slug setting field
- *
- * @since bbPress (r2786)
- *
- * @uses form_option() To output the option value
- */
-function bbp_admin_setting_callback_user_slug() {
-?>
-
-	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php form_option( '_bbp_user_slug' ); ?>" />
-
-<?php
-}
-
-/**
- * View slug setting field
- *
- * @since bbPress (r2789)
- *
- * @uses form_option() To output the option value
- */
-function bbp_admin_setting_callback_view_slug() {
-?>
-
-	<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php form_option( '_bbp_view_slug' ); ?>" />
+	<label for="_bbp_include_root"><?php _e( 'Incude the Forum Base slug in your single forum item links', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -351,6 +337,38 @@ function bbp_admin_setting_callback_topic_tag_slug() {
 ?>
 
 	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_tag_slug' ); ?>" />
+
+<?php
+}
+
+/** Other Slugs ***************************************************************/
+
+/**
+ * User slug setting field
+ *
+ * @since bbPress (r2786)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_user_slug() {
+?>
+
+	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php form_option( '_bbp_user_slug' ); ?>" />
+
+<?php
+}
+
+/**
+ * View slug setting field
+ *
+ * @since bbPress (r2789)
+ *
+ * @uses form_option() To output the option value
+ */
+function bbp_admin_setting_callback_view_slug() {
+?>
+
+	<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php form_option( '_bbp_view_slug' ); ?>" />
 
 <?php
 }
