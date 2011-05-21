@@ -813,7 +813,7 @@ function bbp_recount_rewalk() {
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_last_topic_id', `topic`.`ID`
 			FROM `$wpdb->posts` AS `forum` INNER JOIN `$wpdb->posts` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
-			WHERE `reply`.`post_status` IN ( 'publish' ) AND `forum`.`post_type` = 'forum' AND `topic`.`post_type` = 'topic'
+			WHERE `topic`.`post_status` IN ( 'publish' ) AND `forum`.`post_type` = 'forum' AND `topic`.`post_type` = 'topic'
 			GROUP BY `forum`.`ID` );" ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
