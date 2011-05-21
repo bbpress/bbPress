@@ -98,6 +98,9 @@ class BBP_Admin {
 		// @todo Refresh for 3.2 UI
 		//add_action( 'admin_init',    array( $this, 'register_admin_style'    ) );
 
+		// Add the importers
+		add_action( 'admin_init',    array( $this, 'register_importers'      ) );
+
 		// Add the settings
 		add_action( 'admin_init',    array( $this, 'register_admin_settings' ) );
 
@@ -161,7 +164,7 @@ class BBP_Admin {
 	function admin_menus() {
 
 		// Recounts
-		if ( !empty( $this->enable_recounts ) )
+		if ( is_super_admin() || !empty( $this->enable_recounts ) )
 			add_management_page( __( 'Recount', 'bbpress' ), __( 'Recount', 'bbpress' ), 'manage_options', 'bbp-recount', 'bbp_admin_tools' );
 
 		// Forums settings
@@ -281,6 +284,44 @@ class BBP_Admin {
 
 		do_action( 'bbp_register_admin_settings' );
 	}
+		/**
+		 * Register the importers
+		 *
+		 * @todo Make this better
+		 *
+		 * @since bbPress (r2737)
+		 *
+		 * @uses do_action() Calls 'bbp_register_importers'
+		 */
+		function register_importers() {
+
+			// Leave if we're not in the import section
+			if ( !defined( 'WP_LOAD_IMPORTERS' ) )
+				return;
+
+			global $bbp;
+
+			// Load Importer API
+			require_once( ABSPATH . 'wp-admin/includes/import.php' );
+
+			// Load our importers
+			// The logic here needs to be improved upon
+			$importers = apply_filters( 'bbp_importers', array( 'bbpress' ) );
+
+			// Loop through included importers
+			foreach ( $importers as $importer ) {
+
+				// Compile the importer path
+				$import_file = $bbp->plugin_dir . 'bbp-admin/importers/' . $importer . '.php';
+
+				// If the file exists, include it
+				if ( file_exists( $import_file ) )
+					require( $import_file );
+			}
+
+			// Don't do anything we wouldn't do
+			do_action( 'bbp_register_importers' );
+		}
 
 	/**
 	 * Admin area activation notice
