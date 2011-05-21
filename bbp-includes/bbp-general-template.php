@@ -1861,8 +1861,41 @@ function bbp_template_include( $template = false ) {
 				'post_title' => esc_attr( bbp_get_displayed_user_field( 'display_name' ) )
 			) );
 
+		/** Forums ************************************************************/
+
+		// Forum archive
+		} elseif ( is_post_type_archive( bbp_get_forum_post_type() ) ) {
+
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post( array(
+				'ID'           => 0,
+				'post_title'   => __( 'Forums', 'bbpress' ),
+				'post_author'  => 0,
+				'post_date'    => 0,
+				'post_content' => '',
+				'post_type'    => bbp_get_forum_post_type(),
+				'post_status'  => 'publish'
+			) );
+
 		/** Topics ************************************************************/
 
+		// Topic archive
+		} elseif ( is_post_type_archive( bbp_get_topic_post_type() ) ) {
+
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post( array(
+				'ID'           => 0,
+				'post_title'   => __( 'Topics', 'bbpress' ),
+				'post_author'  => 0,
+				'post_date'    => 0,
+				'post_content' => '',
+				'post_type'    => bbp_get_topic_post_type(),
+				'post_status'  => 'publish'
+			) );
+
+		// Single topic
 		} elseif ( bbp_is_topic_edit() || bbp_is_topic_split() || bbp_is_topic_merge() ) {
 
 			// In Theme Compat
@@ -1879,6 +1912,22 @@ function bbp_template_include( $template = false ) {
 
 		/** Replies ***********************************************************/
 
+		// Reply archive
+		} elseif ( is_post_type_archive( bbp_get_reply_post_type() ) ) {
+
+			// In Theme Compat
+			$in_theme_compat = true;
+			bbp_theme_compat_reset_post( array(
+				'ID'           => 0,
+				'post_title'   => __( 'Replies', 'bbpress' ),
+				'post_author'  => 0,
+				'post_date'    => 0,
+				'post_content' => '',
+				'post_type'    => bbp_get_reply_post_type(),
+				'post_status'  => 'publish'
+			) );
+
+		// Single reply
 		} elseif ( bbp_is_reply_edit() ) {
 
 			// In Theme Compat
@@ -2040,8 +2089,19 @@ function bbp_replace_the_content( $content = '' ) {
 			ob_end_clean();
 
 
+		/** Forums ************************************************************/
+
+		// Forum archive
+		} elseif ( is_post_type_archive( bbp_get_forum_post_type() ) ) {
+			$new_content = $bbp->shortcodes->display_forum_index();
+
 		/** Topics ************************************************************/
 
+		// Topic archive
+		} elseif ( is_post_type_archive( bbp_get_topic_post_type() ) ) {
+			$new_content = $bbp->shortcodes->display_topic_index();
+
+		// Single topic
 		} elseif ( bbp_is_topic_edit() ) {
 
 			// Split
@@ -2071,6 +2131,11 @@ function bbp_replace_the_content( $content = '' ) {
 
 		/** Replies ***********************************************************/
 
+		// Reply archive
+		} elseif ( is_post_type_archive( bbp_get_reply_post_type() ) ) {
+			//$new_content = $bbp->shortcodes->display_reply_index();
+
+		// Reply Edit
 		} elseif ( bbp_is_reply_edit() ) {
 			$new_content = $bbp->shortcodes->display_reply_form();
 
