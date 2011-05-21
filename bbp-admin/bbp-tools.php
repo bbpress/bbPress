@@ -48,7 +48,6 @@ function bbp_admin_tools() {
 
 	<div class="wrap">
 
-		<?php do_action( 'admin_notices' ); ?>
 		<?php screen_icon( 'tools' ); ?>
 
 		<h2><?php _e( 'bbPress Recount', 'bbpress' ) ?></h2>
