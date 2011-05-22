@@ -96,7 +96,6 @@
 <?php else : ?>
 
 	<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
-		<h2 class="entry-title"><?php _e( 'Sorry!', 'bbpress' ); ?></h2>
 		<div class="entry-content"><?php is_user_logged_in() ? _e( 'You do not have the permissions to edit this topic!', 'bbpress' ) : _e( 'You cannot edit this topic.', 'bbpress' ); ?></div>
 	</div>
 

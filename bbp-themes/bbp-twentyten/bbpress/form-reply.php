@@ -112,7 +112,6 @@ wp_reset_postdata();
 	<?php else : ?>
 
 		<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
-			<h2 class="entry-title"><?php _e( 'Sorry!', 'bbpress' ); ?></h2>
 			<div class="bbp-template-notice">
 				<p><?php is_user_logged_in() ? _e( 'You cannot reply to this topic.', 'bbpress' ) : _e( 'You must be logged in to reply to this topic.', 'bbpress' ); ?></p>
 			</div>
@@ -123,7 +122,6 @@ wp_reset_postdata();
 <?php else : ?>
 
 	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
-		<h2 class="entry-title"><?php _e( 'Topic Closed', 'bbpress' ); ?></h2>
 		<div class="bbp-template-notice">
 			<p><?php _e( 'This topic has been closed to new replies.', 'bbpress' ); ?></p>
 		</div>
