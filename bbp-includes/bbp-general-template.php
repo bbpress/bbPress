@@ -1141,6 +1141,10 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true
 		// Get post ancestors
 		$ancestors = array_reverse( get_post_ancestors( $post->ID ) );
 
+		// Right to left support
+		if ( is_rtl() )
+			$sep = ( $sep = ' &rsaquo; ' ) ? ' &lsaquo; ' : $sep;
+
 		// Do we want to include the forum root?
 		if ( !empty( $root ) && ( get_option( '_bbp_include_root' ) ) && ( $root_slug = get_option( '_bbp_root_slug' ) ) ) {
 
@@ -1192,6 +1196,10 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true
 
 		// Allow the separator of the breadcrumb to be easily changed
 		$sep   = apply_filters( 'bbp_breadcrumb_separator', $sep );
+
+		// Right to left support
+		if ( is_rtl() )
+			$breadcrumbs = array_reverse( $breadcrumbs );
 
 		// Build the trail
 		$trail = !empty( $breadcrumbs ) ? implode( $sep, $breadcrumbs ) : '';
