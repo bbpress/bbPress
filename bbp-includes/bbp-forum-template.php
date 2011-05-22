@@ -606,6 +606,10 @@ function bbp_list_forums( $args = '' ) {
 	$r = wp_parse_args( $args, $defaults );
 	extract( $r, EXTR_SKIP );
 
+	// Bail if there are no subforums
+	if ( !bbp_get_forum_subforum_count( $forum_id ) )
+		return;
+
 	// Loop through forums and create a list
 	if ( $sub_forums = bbp_forum_get_subforums( $forum_id ) ) {
 
