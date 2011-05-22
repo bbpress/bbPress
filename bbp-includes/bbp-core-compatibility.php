@@ -428,7 +428,7 @@ function bbp_template_include( $template = false ) {
 	if ( !current_theme_supports( 'bbpress' ) || ( !empty( $templates ) && empty( $new_template ) ) ) {
 
 		// Assume we are not in theme compat
-		$in_theme_compat = false;
+		$in_theme_compat = false; $forum_id = 0;
 
 		/** Users *************************************************************/
 
@@ -553,27 +553,20 @@ function bbp_template_include( $template = false ) {
 
 				// Single Forum
 				case bbp_get_forum_post_type() :
-					$forum_id = bbp_get_forum_id( get_the_ID() );
+					$forum_id        = bbp_get_forum_id( get_the_ID() );
+					$in_theme_compat = true;
+					break;
 
 				// Single Topic
 				case bbp_get_topic_post_type() :
-					$forum_id = bbp_get_topic_forum_id( get_the_ID() );
+					$forum_id        = bbp_get_topic_forum_id( get_the_ID() );
+					$in_theme_compat = true;
+					break;
 
 				// Single Reply
 				case bbp_get_reply_post_type() :
-					$forum_id = bbp_get_reply_forum_id( get_the_ID() );
-
-					// Display template
-					if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) || bbp_is_forum_private( $forum_id ) ) {
-
-						// In Theme Compat
-						$in_theme_compat = true;
-
-					// Display 404 page
-					} elseif ( bbp_is_forum_hidden( $forum_id ) ) {
-						bbp_set_404();
-					}
-
+					$forum_id        = bbp_get_reply_forum_id( get_the_ID() );
+					$in_theme_compat = true;
 					break;
 			}
 		}
@@ -601,9 +594,17 @@ function bbp_template_include( $template = false ) {
 			// Add a filter on the_content late, which we will later remove
 			add_filter( 'the_content', 'bbp_replace_the_content' );
 
-			// Default to the page template
-			$template = apply_filters( 'bbp_template_include', 'page.php' );
-			$template = locate_template( $template, false, false );
+			// Allow just-in-time filtering of theme compat template
+			$templates = apply_filters( 'bbp_template_include', array(
+				'bbpress.php',
+				'forum.php',
+				'page.php',
+				'single.php',
+				'index.php'
+			) );
+
+			// Find the appropriate template file
+			$template  = locate_template( $templates, false, false         );
 		}
 	}
 
