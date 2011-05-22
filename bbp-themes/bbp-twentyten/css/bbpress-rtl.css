@@ -28,14 +28,14 @@
 #main table.bbp-topics,
 #main table.bbp-forums,
 #main table.bbp-replies {
-	clear: left;
+	clear: right;
 }
 
 /* =Breadcrumb and Tags
 -------------------------------------------------------------- */
 
 div.bbp-breadcrumb {
-	float: left;
+	float: right;
 }
 
 div.bbp-breadcrumb,
@@ -49,7 +49,7 @@ div.bbp-topic-tags {
 }
 
 div.bbp-topic-tags {
-	float: right;
+	float: left;
 }
 
 /* =Tables
@@ -92,7 +92,7 @@ table.bbp-topic th, table.bbp-replies th {
 }
 table.bbp-forums th span, table.bbp-topics th span,
 table.bbp-topic th span, table.bbp-replies th span {
-	float: right;
+	float: left;
 }
 #content table.bbp-forums tfoot td, #content table.bbp-topics tfoot td,
 #content table.bbp-topic tfoot td, #content table.bbp-replies tfoot td,
@@ -149,7 +149,7 @@ span.bbp-author-ip {
 -------------------------------------------------------------- */
 
 span.bbp-admin-links {
-	float: right;
+	float: left;
 	color: #ddd;
 }
 span.bbp-admin-links a {
@@ -160,7 +160,7 @@ span.bbp-admin-links a {
 	text-decoration: none;
 }
 fieldset span.bbp-admin-links {
-	float: left;
+	float: right;
 }
 tr td span.bbp-admin-links a:hover {
 	color: #ff4b33;
@@ -253,7 +253,7 @@ td.bbp-topic-counts {
 	font-size: 12px;
 	margin: 0 0 0 10px;
 	padding: 0 0 0 10px;
-	border-left: 1px solid #aaa;
+	border-right: 1px solid #aaa;
 }
 #content table tbody tr ul.bbp-forums li {
 	display: inline;
@@ -263,20 +263,20 @@ td.bbp-topic-counts {
 -------------------------------------------------------------- */
 
 .bbp-pagination-count {
-	float: left;
-}
-.bbp-pagination-links {
 	float: right;
 }
-.bbp-pagination {
+.bbp-pagination-links {
 	float: left;
+}
+.bbp-pagination {
+	float: right;
 	width: 100%;
 	margin-bottom: 20px;
 }
 
 .bbp-topic-pagination {
 	display: inline-block;
-	margin-left: 5px;
+	margin-right: 5px;
 	margin-bottom: 2px;
 	}
 	.bbp-topic-pagination a {
@@ -291,7 +291,7 @@ td.bbp-topic-counts {
 -------------------------------------------------------------- */
 body.single fieldset,
 body.page fieldset {
-	clear: left;
+	clear: right;
 }
 
 #bbp-login fieldset,
@@ -346,13 +346,13 @@ body.reply-edit fieldset input {
 .bbp-topic-form,
 .bbp-reply-form,
 .bbp-topic-tag-form {
-	clear: left;
+	clear: right;
 }
 body.topic-edit .bbp-topic-form div.avatar img,
 body.reply-edit .bbp-reply-form div.avatar img,
 body.single-forum .bbp-topic-form div.avatar img,
 body.single-reply .bbp-reply-form div.avatar img {
-	margin-right: 0;
+	margin-left: 0;
 	padding: 10px;
 	border: 1px solid #ddd;
 	line-height: 0;
@@ -380,7 +380,7 @@ body.reply-edit .bbp-reply-form code {
 }
 
 div.bbp-submit-wrapper {
-	float: right;
+	float: left;
 }
 
 p.form-allowed-tags {
@@ -405,9 +405,9 @@ input[type="password"] {
 }
 	#bbp-your-profile fieldset div {
 		margin-bottom: 20px;
-		float: left;
+		float: right;
 		width: 100%;
-		clear: left;
+		clear: right;
 	}
 	#bbp-your-profile fieldset select {
 		margin-bottom: 0;
@@ -427,17 +427,17 @@ input[type="password"] {
 		display: none;
 	}
 	#bbp-your-profile fieldset label {
-		float: left;
+		float: right;
 		width: 150px;
-		padding-right: 20px;
-		text-align: right;
+		padding-left: 20px;
+		text-align: left;
 	}
 	#bbp-your-profile fieldset span.description {
 		margin: 5px 0 0 170px;
 		font-size: 12px;
 		font-style: italic;
-		float: left;
-		clear: left;
+		float: right;
+		clear: right;
 		width: 383px;
 		padding: 5px 10px;
 		border: #cee1ef 1px solid;
@@ -451,12 +451,12 @@ input[type="password"] {
 		padding: 0;
 	}
 	#bbp-your-profile fieldset fieldset span.description {
-		margin-left: 0;
+		margin-right: 0;
 		margin-bottom: 20px;
 	}
 
 	#bbp-your-profile fieldset.submit button {
-		float: right;
+		float: left;
 	}
 
 /* =Notices
@@ -557,16 +557,16 @@ div.bbp-template-notice a {
 }
 
 .widget-area .bbp-login-form .bbp-remember-me {
-	float: left;
-}
-
-.widget-area .bbp-login-form .bbp-submit-wrapper {
 	float: right;
 }
 
-.widget-area .bbp-logged-in img.avatar {
+.widget-area .bbp-login-form .bbp-submit-wrapper {
 	float: left;
-	margin-right: 15px;
+}
+
+.widget-area .bbp-logged-in img.avatar {
+	float: right;
+	margin-left: 15px;
 }
 
 .widget-area .bbp-logged-in h4 {
@@ -609,5 +609,5 @@ div.bbp-template-notice a {
 }
 
 fieldset div.avatar {
-	float: right;
+	float: left;
 }

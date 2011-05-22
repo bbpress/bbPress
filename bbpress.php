@@ -883,8 +883,20 @@ class bbPress {
 			// Set the compat_theme global for help with loading template parts
 			bbp_set_theme_compat( $bbp->themes_dir . '/bbp-twentyten' );
 
-			// Load up the default bbPress CSS from bbp-twentyten
-			wp_enqueue_style ( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css' );
+			/** Default CSS ***************************************************/
+
+			// Do not enqueue CSS in admin
+			if ( !is_admin() ) {
+
+				// Right to left
+				if ( is_rtl() ) {
+					wp_enqueue_style( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress-rtl.css' );
+
+				// Left to right
+				} else {
+					wp_enqueue_style( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css' );
+				}
+			}
 		}
 	}
 }

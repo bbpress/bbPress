@@ -34,7 +34,7 @@ wp_reset_postdata();
 
 					<div>
 
-						<div class="alignright avatar">
+						<div class="avatar">
 
 							<?php bbp_is_reply_edit() ? bbp_reply_author_avatar( bbp_get_reply_id(), 120 ) : bbp_current_user_avatar( 120 ); ?>
 

@@ -37,11 +37,25 @@ function bbp_twentyten_enqueue_styles () {
 	if ( is_admin() )
 		return false;
 
-	// TwentyTen
-	wp_enqueue_style( 'twentyten', get_template_directory_uri() . '/style.css', 'bbp-twentyten-default', 20100503, 'screen' );
+	// Right to left
+	if ( is_rtl() ) {
 
-	// bbPress specific
-	wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress.css', 'twentyten', 20100503, 'screen' );
+		// TwentyTen
+		wp_enqueue_style( 'twentyten',     get_template_directory_uri() . '/style.css', '',          20100503, 'screen' );
+		wp_enqueue_style( 'twentyten-rtl', get_template_directory_uri() . '/rtl.css',   'twentyten', 20100503, 'screen' );
+
+		// bbPress specific
+		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress-rtl.css', 'twentyten-rtl', 20100503, 'screen' );
+
+	// Left to right
+	} else {
+
+		// TwentyTen
+		wp_enqueue_style( 'twentyten', get_template_directory_uri() . '/style.css', '', 20100503, 'screen' );
+
+		// bbPress specific
+		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress.css', 'twentyten', 20100503, 'screen' );
+	}
 }
 add_action( 'init', 'bbp_twentyten_enqueue_styles' );
 endif;

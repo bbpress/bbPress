@@ -42,7 +42,7 @@ wp_reset_postdata();
 					<?php do_action( 'bbp_template_notices' ); ?>
 
 					<div>
-						<div class="alignright avatar">
+						<div class="avatar">
 
 							<?php bbp_is_topic_edit() ? bbp_topic_author_avatar( bbp_get_topic_id(), 120 ) : bbp_current_user_avatar( 120 ); ?>
 
