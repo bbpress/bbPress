@@ -30,12 +30,12 @@ function bbp_admin_setting_callback_main_section() {
  *
  * @since bbPress (r2737)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_editlock() {
 ?>
 
-	<input name="_bbp_edit_lock" type="text" id="_bbp_edit_lock" value="<?php form_option( '_bbp_edit_lock' ); ?>" class="small-text" />
+	<input name="_bbp_edit_lock" type="text" id="_bbp_edit_lock" value="<?php bbp_form_option( '_bbp_edit_lock' ); ?>" class="small-text" />
 	<label for="_bbp_edit_lock"><?php _e( 'minutes', 'bbpress' ); ?></label>
 
 <?php
@@ -46,12 +46,12 @@ function bbp_admin_setting_callback_editlock() {
  *
  * @since bbPress (r2737)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_throttle() {
 ?>
 
-	<input name="_bbp_throttle_time" type="text" id="_bbp_throttle_time" value="<?php form_option( '_bbp_throttle_time' ); ?>" class="small-text" />
+	<input name="_bbp_throttle_time" type="text" id="_bbp_throttle_time" value="<?php bbp_form_option( '_bbp_throttle_time' ); ?>" class="small-text" />
 	<label for="_bbp_throttle_time"><?php _e( 'seconds', 'bbpress' ); ?></label>
 
 <?php
@@ -125,12 +125,12 @@ function bbp_admin_setting_callback_per_page_section() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topics_per_page() {
 ?>
 
-	<input name="_bbp_topics_per_page" type="text" id="_bbp_topics_per_page" value="<?php form_option( '_bbp_topics_per_page' ); ?>" class="small-text" />
+	<input name="_bbp_topics_per_page" type="text" id="_bbp_topics_per_page" value="<?php bbp_form_option( '_bbp_topics_per_page' ); ?>" class="small-text" />
 	<label for="_bbp_topics_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -141,12 +141,12 @@ function bbp_admin_setting_callback_topics_per_page() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_replies_per_page() {
 ?>
 
-	<input name="_bbp_replies_per_page" type="text" id="_bbp_replies_per_page" value="<?php form_option( '_bbp_replies_per_page' ); ?>" class="small-text" />
+	<input name="_bbp_replies_per_page" type="text" id="_bbp_replies_per_page" value="<?php bbp_form_option( '_bbp_replies_per_page' ); ?>" class="small-text" />
 	<label for="_bbp_replies_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -172,12 +172,12 @@ function bbp_admin_setting_callback_per_rss_page_section() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topics_per_rss_page() {
 ?>
 
-	<input name="_bbp_topics_per_rss_page" type="text" id="_bbp_topics_per_rss_page" value="<?php form_option( '_bbp_topics_per_rss_page' ); ?>" class="small-text" />
+	<input name="_bbp_topics_per_rss_page" type="text" id="_bbp_topics_per_rss_page" value="<?php bbp_form_option( '_bbp_topics_per_rss_page' ); ?>" class="small-text" />
 	<label for="_bbp_topics_per_rss_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -188,12 +188,12 @@ function bbp_admin_setting_callback_topics_per_rss_page() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_replies_per_rss_page() {
 ?>
 
-	<input name="_bbp_replies_per_rss_page" type="text" id="_bbp_replies_per_rss_page" value="<?php form_option( '_bbp_replies_per_rss_page' ); ?>" class="small-text" />
+	<input name="_bbp_replies_per_rss_page" type="text" id="_bbp_replies_per_rss_page" value="<?php bbp_form_option( '_bbp_replies_per_rss_page' ); ?>" class="small-text" />
 	<label for="_bbp_replies_per_rss_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -222,12 +222,12 @@ function bbp_admin_setting_callback_root_slug_section() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_root_slug() {
 ?>
 
-		<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" class="regular-text code" value="<?php form_option( '_bbp_root_slug' ); ?>" />
+		<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_root_slug', true ); ?>" />
 
 <?php
 }
@@ -237,12 +237,12 @@ function bbp_admin_setting_callback_root_slug() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topic_archive_slug() {
 ?>
 
-	<input name="_bbp_topic_archive_slug" type="text" id="_bbp_topic_archive_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_archive_slug' ); ?>" />
+	<input name="_bbp_topic_archive_slug" type="text" id="_bbp_topic_archive_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_archive_slug', true ); ?>" />
 
 <?php
 }
@@ -286,12 +286,12 @@ function bbp_admin_setting_callback_include_root() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_forum_slug() {
 ?>
 
-	<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" class="regular-text code" value="<?php form_option( '_bbp_forum_slug' ); ?>" />
+	<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_forum_slug', true ); ?>" />
 
 <?php
 }
@@ -301,12 +301,12 @@ function bbp_admin_setting_callback_forum_slug() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topic_slug() {
 ?>
 
-	<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_slug' ); ?>" />
+	<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_slug', true ); ?>" />
 
 <?php
 }
@@ -316,12 +316,12 @@ function bbp_admin_setting_callback_topic_slug() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_reply_slug() {
 ?>
 
-	<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" class="regular-text code" value="<?php form_option( '_bbp_reply_slug' ); ?>" />
+	<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_reply_slug', true ); ?>" />
 
 <?php
 }
@@ -331,12 +331,12 @@ function bbp_admin_setting_callback_reply_slug() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_topic_tag_slug() {
 ?>
 
-	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php form_option( '_bbp_topic_tag_slug' ); ?>" />
+	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_tag_slug', true ); ?>" />
 
 <?php
 }
@@ -348,12 +348,12 @@ function bbp_admin_setting_callback_topic_tag_slug() {
  *
  * @since bbPress (r2786)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_user_slug() {
 ?>
 
-	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php form_option( '_bbp_user_slug' ); ?>" />
+	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_slug', true ); ?>" />
 
 <?php
 }
@@ -363,12 +363,12 @@ function bbp_admin_setting_callback_user_slug() {
  *
  * @since bbPress (r2789)
  *
- * @uses form_option() To output the option value
+ * @uses bbp_form_option() To output the option value
  */
 function bbp_admin_setting_callback_view_slug() {
 ?>
 
-	<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php form_option( '_bbp_view_slug' ); ?>" />
+	<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_view_slug', true ); ?>" />
 
 <?php
 }
@@ -446,5 +446,47 @@ function bbp_admin_settings_help() {
 	// Add help
 	add_contextual_help( 'settings_page_bbpress', $contextual_help );
 }
+
+/**
+ * Output settings API option
+ *
+ * @since bbPress (r3203)
+ *
+ * @uses bbp_get_bbp_form_option()
+ *
+ * @param string $option
+ * @param bool $slug
+ */
+function bbp_form_option( $option, $slug = false ) {
+	echo bbp_get_form_option( $option, $slug );
+}
+	/**
+	 * Return settings API option
+	 *
+	 * @since bbPress (r3203)
+	 *
+	 * @uses get_option()
+	 * @uses esc_attr()
+	 * @uses apply_filters()
+	 *
+	 * @param string $option
+	 * @param bool $slug
+	 */
+	function bbp_get_form_option( $option, $slug = false ) {
+
+		// Get the option and sanitize it
+		$value = get_option( $option );
+
+		// Slug?
+		if ( true === $slug )
+			$value = esc_attr( apply_filters( 'editable_slug', $value ) );
+
+		// Not a slug
+		else
+			$value = esc_attr( $value );
+
+		// Allow plugins to further filter the output
+		return apply_filters( 'bbp_get_form_option', $value, $option );
+	}
 
 ?>
