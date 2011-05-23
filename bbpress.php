@@ -148,6 +148,11 @@ class bbPress {
 	 */
 	var $themes_dir;
 
+	/**
+	 * @var string Absolute path to the bbPress language directory
+	 */
+	var $lang_dir;
+
 	/** URLs ******************************************************************/
 
 	/**
@@ -284,6 +289,9 @@ class bbPress {
 		// Themes
 		$this->themes_dir = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
 		$this->themes_url = $this->plugin_url . 'bbp-themes';
+
+		// Languages
+		$this->lang_dir   = $this->plugin_dir . 'bbp-languages';
 
 		/** Identifiers *******************************************************/
 
@@ -424,9 +432,13 @@ class bbPress {
 	/**
 	 * Register Textdomain
 	 *
-	 * Load the translation file for current language. Checks only the default
-	 * WordPress languages folder to avoid language files being wiped out
-	 * with plugin updates.
+	 * Load the translation file for current language. Checks the languages
+	 * folder inside the bbPress plugin first, and then the default WordPress
+	 * languages folder.
+	 *
+	 * Note that custom translation files inside the bbPress plugin folder
+	 * will be removed on bbPress updates. If you're creating custom
+	 * translation files, please use the global language folder.
 	 *
 	 * @since bbPress (r2596)
 	 *
@@ -443,11 +455,16 @@ class bbPress {
 		// Get mo file name
 		$mofile = sprintf( 'bbpress-%s.mo', $locale );
 
-		// Setup path to current locale file
+		// Setup paths to current locale file
+		$mofile_local  = $this->lang_dir . '/' . $mofile;
 		$mofile_global = WP_LANG_DIR . '/bbpress/' . $mofile;
 
+		// Look in local /wp-content/plugins/bbpress/bbp-languages/ folder
+		if ( file_exists( $mofile_local ) )
+			return load_textdomain( 'bbpress', $mofile_local );
+
 		// Look in global /wp-content/languages/ folder
-		if ( file_exists( $mofile_global ) )
+		elseif ( file_exists( $mofile_global ) )
 			return load_textdomain( 'bbpress', $mofile_global );
 
 		// Nothing found
