@@ -39,6 +39,14 @@ wp_reset_postdata();
 
 					<?php endif; ?>
 
+					<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
+
+						<div class="bbp-template-notice">
+							<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
+						</div>
+
+					<?php endif; ?>
+
 					<?php do_action( 'bbp_template_notices' ); ?>
 
 					<div>
@@ -60,10 +68,14 @@ wp_reset_postdata();
 							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="51" rows="6"><?php bbp_form_topic_content(); ?></textarea>
 						</p>
 
-						<p class="form-allowed-tags">
-							<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
-							<code><?php bbp_allowed_tags(); ?></code>
-						</p>
+						<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
+
+							<p class="form-allowed-tags">
+								<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
+								<code><?php bbp_allowed_tags(); ?></code>
+							</p>
+
+						<?php endif; ?>
 
 						<p>
 							<label for="bbp_topic_tags"><?php _e( 'Topic Tags:', 'bbpress' ); ?></label><br />
