@@ -858,15 +858,15 @@ function bbp_recount_rewalk() {
 		return array( 9, sprintf( $statement, $result ) );
 
 	// Forums need to know what their last active item is as well. Now it gets a bit more complex to do in the database.
-	$forums = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'forum';" );
+	$forums = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = 'forum' and `post_status` != 'auto-draft';" );
 	if ( is_wp_error( $forums ) )
 		return array( 10, sprintf( $statement, $result ) );
 
-	foreach ( $forums as $forum ) {
-		bbp_update_forum_last_active_id( $forum );
-		bbp_update_forum_last_active_time( $forum );
-	}
+	// Loop through each forum and update them
+	foreach ( $forums as $forum_id )
+		bbp_update_forum( array( 'forum_id' => $forum_id ) );
 
+	// Complete results
 	$result = __( 'Complete!', 'bbpress' );
 	return array( 0, sprintf( $statement, $result ) );
 }
