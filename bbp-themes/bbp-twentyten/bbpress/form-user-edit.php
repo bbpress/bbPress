@@ -15,7 +15,7 @@
 
 	<?php do_action( 'bbp_user_edit_before' ); ?>
 
-	<fieldset>
+	<fieldset class="bbp-form">
 		<legend><?php _e( 'Name', 'bbpress' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_name' ); ?>
@@ -48,7 +48,7 @@
 
 	<h2 class="entry-title"><?php _e( 'Contact Info', 'bbpress' ) ?></h2>
 
-	<fieldset>
+	<fieldset class="bbp-form">
 		<legend><?php _e( 'Contact Info', 'bbpress' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_contact' ); ?>
@@ -73,7 +73,7 @@
 
 	<h2 class="entry-title"><?php bbp_is_user_home() ? _e( 'About Yourself', 'bbpress' ) : _e( 'About the user', 'bbpress' ); ?></h2>
 
-	<fieldset>
+	<fieldset class="bbp-form">
 		<legend><?php bbp_is_user_home() ? _e( 'About Yourself', 'bbpress' ) : _e( 'About the user', 'bbpress' ); ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_about' ); ?>
@@ -90,7 +90,7 @@
 
 	<h2 class="entry-title"><?php _e( 'Account' ) ?></h2>
 
-	<fieldset>
+	<fieldset class="bbp-form">
 		<legend><?php _e( 'Account' ) ?></legend>
 
 		<?php do_action( 'bbp_user_edit_before_account' ); ?>
@@ -124,7 +124,7 @@
 
 		<div id="password">
 			<label for="pass1"><?php _e( 'New Password', 'bbpress' ); ?></label>
-			<fieldset>
+			<fieldset class="bbp-form">
 				<input type="password" name="pass1" id="pass1" size="16" value="" autocomplete="off" />
 				<span class="description"><?php _e( 'If you would like to change the password type a new one. Otherwise leave this blank.', 'bbpress' ); ?></span>
 

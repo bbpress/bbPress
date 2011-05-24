@@ -19,7 +19,7 @@ wp_reset_postdata();
 		<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">
 
 			<form id="new-post" name="new-post" method="post" action="">
-				<fieldset>
+				<fieldset class="bbp-form">
 					<legend>
 
 						<?php
@@ -111,7 +111,7 @@ wp_reset_postdata();
 
 						<?php if ( bbp_is_topic_edit() ) : ?>
 
-							<fieldset>
+							<fieldset class="bbp-form">
 								<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
 								<div>
 									<input name="bbp_log_topic_edit" id="bbp_log_topic_edit" type="checkbox" value="1" <?php bbp_form_topic_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />

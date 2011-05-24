@@ -12,7 +12,7 @@ wp_reset_postdata();
 
 ?>
 
-	<fieldset id="bbp-protected">
+	<fieldset class="bbp-form" id="bbp-protected">
 		<Legend><?php _e( 'Protected', 'bbpress' ); ?></legend>
 
 		<?php echo get_the_password_form(); ?>

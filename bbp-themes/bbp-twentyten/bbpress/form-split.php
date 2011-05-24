@@ -15,7 +15,7 @@
 
 		<form id="split_topic" name="split_topic" method="post" action="">
 
-			<fieldset>
+			<fieldset class="bbp-form">
 
 				<legend><?php printf( __( 'Split topic "%s"', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
@@ -29,7 +29,7 @@
 						<p><?php _e( 'If you use the existing topic option, replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted.', 'bbpress' ); ?></p>
 					</div>
 
-					<fieldset>
+					<fieldset class="bbp-form">
 						<legend><?php _e( 'Split Method', 'bbpress' ); ?></legend>
 
 						<div>
@@ -61,7 +61,7 @@
 
 					</fieldset>
 
-					<fieldset>
+					<fieldset class="bbp-form">
 						<legend><?php _e( 'Topic Extras', 'bbpress' ); ?></legend>
 
 						<div>

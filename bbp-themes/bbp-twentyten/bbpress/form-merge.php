@@ -15,7 +15,7 @@
 
 		<form id="merge_topic" name="merge_topic" method="post" action="">
 
-			<fieldset>
+			<fieldset class="bbp-form">
 
 				<legend><?php printf( __( 'Merge topic "%s"', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
@@ -30,7 +30,7 @@
 						<p><?php _e( 'All replies within both topics will be merged chronologically. The order of the merged replies is based on the time and date they were posted. If the destination topic was created after this one, it\'s post date will be updated to second earlier than this one.', 'bbpress' ); ?></p>
 					</div>
 
-					<fieldset>
+					<fieldset class="bbp-form">
 						<legend><?php _e( 'Destination', 'bbpress' ); ?></legend>
 						<div>
 							<?php if ( bbp_has_topics( array( 'show_stickies' => false, 'post_parent' => bbp_get_topic_forum_id( bbp_get_topic_id() ), 'post__not_in' => array( bbp_get_topic_id() ) ) ) ) : ?>
@@ -57,7 +57,7 @@
 						</div>
 					</fieldset>
 
-					<fieldset>
+					<fieldset class="bbp-form">
 						<legend><?php _e( 'Topic Extras', 'bbpress' ); ?></legend>
 
 						<div>

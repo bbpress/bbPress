@@ -11,7 +11,7 @@
 
 <?php if ( bbp_is_anonymous() || ( bbp_is_topic_edit() && bbp_is_topic_anonymous() ) || ( bbp_is_reply_edit() && bbp_is_reply_anonymous() ) ) : ?>
 
-	<fieldset>
+	<fieldset class="bbp-form">
 		<legend><?php ( bbp_is_topic_edit() || bbp_is_reply_edit() ) ? _e( 'Author information', 'bbpress' ) : _e( 'Your information:', 'bbpress' ); ?></legend>
 		<p>
 			<label for="bbp_anonymous_author"><?php _e( 'Name (required):', 'bbpress' ); ?></label><br />

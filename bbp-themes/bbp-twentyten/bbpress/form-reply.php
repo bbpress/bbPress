@@ -19,7 +19,7 @@ wp_reset_postdata();
 		<div id="new-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-form">
 
 			<form id="new-post" name="new-post" method="post" action="">
-				<fieldset>
+				<fieldset class="bbp-form">
 					<legend><?php printf( __( 'Reply to: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
 					<?php if ( !bbp_is_topic_open() && !bbp_is_reply_edit() ) : ?>
@@ -79,7 +79,7 @@ wp_reset_postdata();
 
 						<?php if ( bbp_is_reply_edit() ) : ?>
 
-							<fieldset>
+							<fieldset class="bbp-form">
 								<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
 								<div>
 									<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" <?php bbp_form_reply_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />

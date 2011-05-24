@@ -13,11 +13,11 @@
 
 	<div id="edit-topic-tag-<?php bbp_topic_tag_id(); ?>" class="bbp-topic-tag-form">
 
-		<fieldset>
+		<fieldset class="bbp-form" id="bbp-edit-topic-tag">
 
 			<legend><?php printf( __( 'Manage Tag: "%s"', 'bbpress' ), bbp_get_topic_tag_name() ); ?></legend>
 
-			<fieldset id="tag-rename">
+			<fieldset class="bbp-form" id="tag-rename">
 
 				<legend><?php _e( 'Rename', 'bbpress' ); ?></legend>
 
@@ -54,7 +54,7 @@
 
 			</fieldset>
 
-			<fieldset id="tag-merge">
+			<fieldset class="bbp-form" id="tag-merge">
 
 				<legend><?php _e( 'Merge', 'bbpress' ); ?></legend>
 
@@ -84,7 +84,7 @@
 
 			<?php if ( current_user_can( 'delete_topic_tags' ) ) : ?>
 
-				<fieldset id="delete-tag">
+				<fieldset class="bbp-form" id="delete-tag">
 
 					<legend><?php _e( 'Delete', 'bbpress' ); ?></legend>
 

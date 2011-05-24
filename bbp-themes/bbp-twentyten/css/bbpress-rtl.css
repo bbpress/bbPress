@@ -289,57 +289,51 @@ td.bbp-topic-counts {
 
 /* =Forms
 -------------------------------------------------------------- */
-body.single fieldset,
-body.page fieldset {
+#content fieldset.bbp-form,
+#container fieldset.bbp-form,
+#wrapper fieldset.bbp-form {
 	clear: right;
 }
 
-#bbp-login fieldset,
-#bbp-register fieldset,
-#bbp-lost-pass fieldset,
-body.single-forum fieldset,
-body.single-topic fieldset,
-div.bbp-topic-tag-form fieldset,
-body.topic-edit fieldset,
-body.reply-edit fieldset {
+#content fieldset.bbp-form,
+#container fieldset.bbp-form,
+#wrapper fieldset.bbp-form {
 	border: 1px solid #eee;
 	padding: 10px 20px;
 }
 
-#bbp-login fieldset legend,
-#bbp-register fieldset legend,
-#bbp-lost-pass fieldset legend,
-body.single-forum fieldset legend,
-body.single-topic fieldset legend,
-div.bbp-topic-tag-form fieldset legend,
-body.topic-edit fieldset legend,
-body.reply-edit fieldste legend {
+#content fieldset.bbp-form legend,
+#container fieldset.bbp-form legend,
+#wrapper fieldset.bbp-form legend {
 	padding: 5px;
 }
 
-div.bbp-topic-tag-form fieldset label,
-#bbp-login fieldset label,
-#bbp-register fieldset label,
-#bbp-lost-pass fieldset label {
-	width: 100px;
-	display: inline-block;
-}
-body.single-forum fieldset label,
-body.single-topic fieldset label,
-body.topic-edit fieldset label,
-body.reply-edit fieldset label {
+#content fieldset.bbp-form label,
+#container fieldset.bbp-form label,
+#wrapper fieldset.bbp-form label {
 	width: 250px;
 	display: inline-block;
 }
 
-#bbp-login fieldset p,
-#bbp-register fieldset p,
-#bbp-lost-pass fieldset p,
-body.single-forum fieldset p,
-body.single-topic fieldset input,
-div.bbp-topic-tag-form fieldset p,
-body.topic-edit fieldset p,
-body.reply-edit fieldset input {
+#bbp-edit-topic-tag.bbp-form fieldset.bbp-form label,
+#bbp-login fieldset label,
+#bbp-register fieldset label,
+#bbp-lost-pass fieldset label {
+	width: 100px;
+}
+
+#content fieldset.bbp-form p,
+#container fieldset.bbp-form p,
+#wrapper fieldset.bbp-form p,
+#content fieldset.bbp-form textarea,
+#container fieldset.bbp-form textarea,
+#wrapper fieldset.bbp-form textarea,
+#content fieldset.bbp-form select,
+#container fieldset.bbp-form select,
+#wrapper fieldset.bbp-form select,
+#content fieldset.bbp-form input,
+#container fieldset.bbp-form input,
+#wrapper fieldset.bbp-form input {
 	margin: 0px 0px 10px;
 }
 

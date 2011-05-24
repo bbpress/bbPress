@@ -10,7 +10,7 @@
 ?>
 
 	<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
-		<fieldset>
+		<fieldset class="bbp-form">
 			<legend><?php _e( 'Create an Account', 'bbpress' ); ?></legend>
 
 			<div class="bbp-template-notice">
