@@ -25,17 +25,20 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses wp_safe_redirect() To redirect
  */
 function bbp_redirect_login( $url = '', $raw_url = '', $user = '' ) {
-	if ( is_wp_error( $user ) )
-		return $url;
 
-	if ( empty( $url ) && !empty( $raw_url ) )
+	// Raw redirect_to was passed, so use it
+	if ( !empty( $raw_url ) )
 		$url = $raw_url;
 
-	if ( empty( $url ) || $url == admin_url() )
+	// $url was manually set in wp-login.php to redirect to admin
+	elseif ( admin_url() == $url )
 		$url = home_url();
 
-	wp_safe_redirect( esc_url( $url ) );
-	exit;
+	// $url is empty
+	elseif ( empty( $url ) )
+		$url = home_url();
+
+	return apply_filters( 'bbp_redirect_login', $url, $raw_url, $user );
 }
 
 /**
