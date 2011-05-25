@@ -72,9 +72,6 @@ function bbp_add_options() {
 		// Forum slug
 		'_bbp_forum_slug'           => 'forum',
 
-		// Forum archive slug
-		'_bbp_forum_archive_slug'   => 'forums',
-
 		// Topic slug
 		'_bbp_topic_slug'           => 'topic',
 
@@ -83,9 +80,6 @@ function bbp_add_options() {
 
 		// Reply slug
 		'_bbp_reply_slug'           => 'reply',
-
-		// Reply archive slug
-		'_bbp_reply_archive_slug'   => 'replies',
 
 		// Topic tag slug
 		'_bbp_topic_tag_slug'       => 'tag',
