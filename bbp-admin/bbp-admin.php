@@ -442,11 +442,21 @@ class BBP_Admin {
 				font-style: italic;
 				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 				padding: 5px 10px 15px;
+
+				<?php if ( is_rtl() ) : ?>
+
+					right: 15px;
+
+				<?php else : ?>
+
+					left: 15px;
+
+				<?php endif; ?>
+
 				color: #777;
 				font-size: 13px;
 				position: absolute;
 				top: -17px;
-				left: 15px;
 			}
 
 			#bbp-dashboard-right-now .table {
@@ -456,13 +466,33 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now .table_content {
-				float: left;
+
+				<?php if ( is_rtl() ) : ?>
+
+					float: right;
+
+				<?php else : ?>
+
+					float: left;
+
+				<?php endif; ?>
+
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
 
 			#bbp-dashboard-right-now .table_discussion {
-				float: right;
+
+				<?php if ( is_rtl() ) : ?>
+
+					float: left;
+
+				<?php else : ?>
+
+					float: right;
+
+				<?php endif; ?>
+
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
@@ -477,7 +507,17 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now td.b {
-				padding-right: 6px;
+
+				<?php if ( is_rtl() ) : ?>
+
+					padding-left: 6px;
+
+				<?php else : ?>
+
+					padding-right: 6px;
+
+				<?php endif; ?>
+
 				text-align: right;
 				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 				font-size: 14px;
@@ -494,7 +534,17 @@ class BBP_Admin {
 
 			#bbp-dashboard-right-now .t {
 				font-size: 12px;
-				padding-right: 12px;
+
+				<?php if ( is_rtl() ) : ?>
+
+					padding-left: 12px;
+
+				<?php else : ?>
+
+					padding-right: 12px;
+
+				<?php endif; ?>
+
 				padding-top: 6px;
 				color: #777;
 			}
@@ -525,8 +575,19 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now a.button {
-				float: right;
-				clear: right;
+
+				<?php if ( is_rtl() ) : ?>
+
+					float: left;
+					clear: left;
+
+				<?php else : ?>
+
+					float: right;
+					clear: right;
+
+				<?php endif; ?>
+
 				position: relative;
 				top: -5px;
 			}
