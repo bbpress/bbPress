@@ -35,7 +35,7 @@ function bbp_admin_setting_callback_main_section() {
 function bbp_admin_setting_callback_editlock() {
 ?>
 
-	<input name="_bbp_edit_lock" type="text" id="_bbp_edit_lock" value="<?php bbp_form_option( '_bbp_edit_lock' ); ?>" class="small-text" />
+	<input name="_bbp_edit_lock" type="text" id="_bbp_edit_lock" value="<?php bbp_form_option( '_bbp_edit_lock', '5' ); ?>" class="small-text" />
 	<label for="_bbp_edit_lock"><?php _e( 'minutes', 'bbpress' ); ?></label>
 
 <?php
@@ -51,7 +51,7 @@ function bbp_admin_setting_callback_editlock() {
 function bbp_admin_setting_callback_throttle() {
 ?>
 
-	<input name="_bbp_throttle_time" type="text" id="_bbp_throttle_time" value="<?php bbp_form_option( '_bbp_throttle_time' ); ?>" class="small-text" />
+	<input name="_bbp_throttle_time" type="text" id="_bbp_throttle_time" value="<?php bbp_form_option( '_bbp_throttle_time', '10' ); ?>" class="small-text" />
 	<label for="_bbp_throttle_time"><?php _e( 'seconds', 'bbpress' ); ?></label>
 
 <?php
@@ -67,7 +67,7 @@ function bbp_admin_setting_callback_throttle() {
 function bbp_admin_setting_callback_favorites() {
 ?>
 
-	<input id="_bbp_enable_favorites" name="_bbp_enable_favorites" type="checkbox" id="_bbp_enable_favorites" value="1" <?php checked( true, bbp_is_favorites_active() ); ?> />
+	<input id="_bbp_enable_favorites" name="_bbp_enable_favorites" type="checkbox" id="_bbp_enable_favorites" value="1" <?php checked( true, bbp_is_favorites_active( true ) ); ?> />
 	<label for="_bbp_enable_favorites"><?php _e( 'Allow users to mark topics as favorites?', 'bbpress' ); ?></label>
 
 <?php
@@ -83,7 +83,7 @@ function bbp_admin_setting_callback_favorites() {
 function bbp_admin_setting_callback_subscriptions() {
 ?>
 
-	<input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( true, bbp_is_subscriptions_active() ); ?> />
+	<input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( true, bbp_is_subscriptions_active( true ) ); ?> />
 	<label for="_bbp_enable_subscriptions"><?php _e( 'Allow users to subscribe to topics', 'bbpress' ); ?></label>
 
 <?php
@@ -99,7 +99,7 @@ function bbp_admin_setting_callback_subscriptions() {
 function bbp_admin_setting_callback_anonymous() {
 ?>
 
-	<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( true, bbp_allow_anonymous() ); ?> />
+	<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( true, bbp_allow_anonymous( false ) ); ?> />
 	<label for="_bbp_allow_anonymous"><?php _e( 'Allow guest users without accounts to create topics and replies', 'bbpress' ); ?></label>
 
 <?php
@@ -130,7 +130,7 @@ function bbp_admin_setting_callback_per_page_section() {
 function bbp_admin_setting_callback_topics_per_page() {
 ?>
 
-	<input name="_bbp_topics_per_page" type="text" id="_bbp_topics_per_page" value="<?php bbp_form_option( '_bbp_topics_per_page' ); ?>" class="small-text" />
+	<input name="_bbp_topics_per_page" type="text" id="_bbp_topics_per_page" value="<?php bbp_form_option( '_bbp_topics_per_page', '15' ); ?>" class="small-text" />
 	<label for="_bbp_topics_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -146,7 +146,7 @@ function bbp_admin_setting_callback_topics_per_page() {
 function bbp_admin_setting_callback_replies_per_page() {
 ?>
 
-	<input name="_bbp_replies_per_page" type="text" id="_bbp_replies_per_page" value="<?php bbp_form_option( '_bbp_replies_per_page' ); ?>" class="small-text" />
+	<input name="_bbp_replies_per_page" type="text" id="_bbp_replies_per_page" value="<?php bbp_form_option( '_bbp_replies_per_page', '15' ); ?>" class="small-text" />
 	<label for="_bbp_replies_per_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -177,7 +177,7 @@ function bbp_admin_setting_callback_per_rss_page_section() {
 function bbp_admin_setting_callback_topics_per_rss_page() {
 ?>
 
-	<input name="_bbp_topics_per_rss_page" type="text" id="_bbp_topics_per_rss_page" value="<?php bbp_form_option( '_bbp_topics_per_rss_page' ); ?>" class="small-text" />
+	<input name="_bbp_topics_per_rss_page" type="text" id="_bbp_topics_per_rss_page" value="<?php bbp_form_option( '_bbp_topics_per_rss_page', '25' ); ?>" class="small-text" />
 	<label for="_bbp_topics_per_rss_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -193,7 +193,7 @@ function bbp_admin_setting_callback_topics_per_rss_page() {
 function bbp_admin_setting_callback_replies_per_rss_page() {
 ?>
 
-	<input name="_bbp_replies_per_rss_page" type="text" id="_bbp_replies_per_rss_page" value="<?php bbp_form_option( '_bbp_replies_per_rss_page' ); ?>" class="small-text" />
+	<input name="_bbp_replies_per_rss_page" type="text" id="_bbp_replies_per_rss_page" value="<?php bbp_form_option( '_bbp_replies_per_rss_page', '25' ); ?>" class="small-text" />
 	<label for="_bbp_replies_per_rss_page"><?php _e( 'per page', 'bbpress' ); ?></label>
 
 <?php
@@ -227,7 +227,7 @@ function bbp_admin_setting_callback_root_slug_section() {
 function bbp_admin_setting_callback_root_slug() {
 ?>
 
-		<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_root_slug', true ); ?>" />
+		<input name="_bbp_root_slug" type="text" id="_bbp_root_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_root_slug', 'forums', true ); ?>" />
 
 <?php
 }
@@ -242,7 +242,7 @@ function bbp_admin_setting_callback_root_slug() {
 function bbp_admin_setting_callback_topic_archive_slug() {
 ?>
 
-	<input name="_bbp_topic_archive_slug" type="text" id="_bbp_topic_archive_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_archive_slug', true ); ?>" />
+	<input name="_bbp_topic_archive_slug" type="text" id="_bbp_topic_archive_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_archive_slug', 'topics', true ); ?>" />
 
 <?php
 }
@@ -291,7 +291,7 @@ function bbp_admin_setting_callback_include_root() {
 function bbp_admin_setting_callback_forum_slug() {
 ?>
 
-	<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_forum_slug', true ); ?>" />
+	<input name="_bbp_forum_slug" type="text" id="_bbp_forum_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_forum_slug', 'forum', true ); ?>" />
 
 <?php
 }
@@ -306,7 +306,7 @@ function bbp_admin_setting_callback_forum_slug() {
 function bbp_admin_setting_callback_topic_slug() {
 ?>
 
-	<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_slug', true ); ?>" />
+	<input name="_bbp_topic_slug" type="text" id="_bbp_topic_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_slug', 'topic', true ); ?>" />
 
 <?php
 }
@@ -321,7 +321,7 @@ function bbp_admin_setting_callback_topic_slug() {
 function bbp_admin_setting_callback_reply_slug() {
 ?>
 
-	<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_reply_slug', true ); ?>" />
+	<input name="_bbp_reply_slug" type="text" id="_bbp_reply_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_reply_slug', 'reply', true ); ?>" />
 
 <?php
 }
@@ -336,7 +336,7 @@ function bbp_admin_setting_callback_reply_slug() {
 function bbp_admin_setting_callback_topic_tag_slug() {
 ?>
 
-	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_tag_slug', true ); ?>" />
+	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_tag_slug', 'tag', true ); ?>" />
 
 <?php
 }
@@ -353,7 +353,7 @@ function bbp_admin_setting_callback_topic_tag_slug() {
 function bbp_admin_setting_callback_user_slug() {
 ?>
 
-	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_slug', true ); ?>" />
+	<input name="_bbp_user_slug" type="text" id="_bbp_user_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_user_slug', 'users', true ); ?>" />
 
 <?php
 }
@@ -368,7 +368,7 @@ function bbp_admin_setting_callback_user_slug() {
 function bbp_admin_setting_callback_view_slug() {
 ?>
 
-	<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_view_slug', true ); ?>" />
+	<input name="_bbp_view_slug" type="text" id="_bbp_view_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_view_slug', 'view', true ); ?>" />
 
 <?php
 }
@@ -455,10 +455,11 @@ function bbp_admin_settings_help() {
  * @uses bbp_get_bbp_form_option()
  *
  * @param string $option
+ * @param string $default
  * @param bool $slug
  */
-function bbp_form_option( $option, $slug = false ) {
-	echo bbp_get_form_option( $option, $slug );
+function bbp_form_option( $option, $default = '' , $slug = false ) {
+	echo bbp_get_form_option( $option, $default, $slug );
 }
 	/**
 	 * Return settings API option
@@ -470,12 +471,13 @@ function bbp_form_option( $option, $slug = false ) {
 	 * @uses apply_filters()
 	 *
 	 * @param string $option
+	 * @param string $default
 	 * @param bool $slug
 	 */
-	function bbp_get_form_option( $option, $slug = false ) {
+	function bbp_get_form_option( $option, $default = '', $slug = false ) {
 
 		// Get the option and sanitize it
-		$value = get_option( $option );
+		$value = get_option( $option, $default );
 
 		// Slug?
 		if ( true === $slug )
