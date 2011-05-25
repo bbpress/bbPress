@@ -256,6 +256,9 @@ function bbp_new_reply_handler() {
 				'post_type'    => bbp_get_reply_post_type()
 			);
 
+			// Just in time manipulation of reply data before being created
+			$reply_data = apply_filters( 'bbp_new_reply_pre_insert', $reply_data );
+
 			// Insert reply
 			$reply_id = wp_insert_post( $reply_data );
 
@@ -444,6 +447,9 @@ function bbp_edit_reply_handler() {
 				'post_title'   => $reply_title,
 				'post_content' => $reply_content
 			);
+
+			// Just in time manipulation of reply data before being edited
+			$reply_data = apply_filters( 'bbp_new_reply_pre_insert', $reply_data );
 
 			// Insert reply
 			$reply_id = wp_update_post( $reply_data );

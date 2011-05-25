@@ -190,6 +190,9 @@ function bbp_new_topic_handler() {
 				'post_type'    => bbp_get_topic_post_type()
 			);
 
+			// Just in time manipulation of topic data before being created
+			$topic_data = apply_filters( 'bbp_new_topic_pre_insert', $topic_data );
+
 			// Insert topic
 			$topic_id = wp_insert_post( $topic_data );
 
@@ -442,6 +445,9 @@ function bbp_edit_topic_handler() {
 				'post_parent'  => $forum_id,
 				'tax_input'    => $terms,
 			);
+
+			// Just in time manipulation of topic data before being edited
+			$topic_data = apply_filters( 'bbp_new_topic_pre_insert', $topic_data );
 
 			// Insert topic
 			$topic_id = wp_update_post( $topic_data );
