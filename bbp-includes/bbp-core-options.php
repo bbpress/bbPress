@@ -46,6 +46,8 @@ function bbp_add_options() {
 		// Allow anonymous posting
 		'_bbp_allow_anonymous'      => false,
 
+		/** Per Page **********************************************************/
+
 		// Topics per page
 		'_bbp_topics_per_page'      => '15',
 
@@ -61,13 +63,18 @@ function bbp_add_options() {
 		// Replies per RSS page
 		'_bbp_replies_per_rss_page' => '25',
 
-		/** Slugs *************************************************************/
-
-		// Root slug
-		'_bbp_root_slug'            => 'forums',
+		/** Archive Slugs *****************************************************/
 
 		// Use root before slugs
 		'_bbp_include_root'         => true,
+
+		// Forum archive slug
+		'_bbp_root_slug'            => 'forums',
+
+		// Topic archive slug
+		'_bbp_topic_archive_slug'   => 'topics',
+
+		/** Single Slugs ******************************************************/
 
 		// Forum slug
 		'_bbp_forum_slug'           => 'forum',
@@ -75,14 +82,13 @@ function bbp_add_options() {
 		// Topic slug
 		'_bbp_topic_slug'           => 'topic',
 
-		// Topic archive slug
-		'_bbp_topic_archive_slug'   => 'topics',
-
 		// Reply slug
 		'_bbp_reply_slug'           => 'reply',
 
 		// Topic tag slug
 		'_bbp_topic_tag_slug'       => 'tag',
+
+		/** Other Slugs *******************************************************/
 
 		// User profile slug
 		'_bbp_user_slug'            => 'users',
