@@ -16,30 +16,26 @@
 
 				<?php do_action( 'bbp_template_notices' ); ?>
 
-				<?php while ( have_posts() ) : the_post(); ?>
+				<div id="forum-front" class="bbp-forum-front">
+					<h1 class="entry-title"><?php _e( 'Forums', 'bbpress' ); ?></h1>
+					<div class="entry-content">
 
-					<div id="forum-front" class="bbp-forum-front">
-						<h1 class="entry-title"><?php the_title(); ?></h1>
-						<div class="entry-content">
+						<?php do_action( 'bbp_template_before_forums_index' ); ?>
 
-							<?php do_action( 'bbp_template_before_forums_index' ); ?>
+						<?php if ( bbp_has_forums() ) : ?>
 
-							<?php if ( bbp_has_forums() ) : ?>
+							<?php bbp_get_template_part( 'bbpress/loop', 'forums' ); ?>
 
-								<?php bbp_get_template_part( 'bbpress/loop', 'forums' ); ?>
+						<?php else : ?>
 
-							<?php else : ?>
+							<?php bbp_get_template_part( 'bbpress/no',   'forums' ); ?>
 
-								<?php bbp_get_template_part( 'bbpress/no',   'forums' ); ?>
+						<?php endif; ?>
 
-							<?php endif; ?>
+						<?php do_action( 'bbp_template_after_forums_index' ); ?>
 
-							<?php do_action( 'bbp_template_after_forums_index' ); ?>
-
-						</div>
-					</div><!-- #forum-front -->
-
-				<?php endwhile; ?>
+					</div>
+				</div><!-- #forum-front -->
 
 			</div><!-- #content -->
 		</div><!-- #container -->
