@@ -449,7 +449,7 @@ function bbp_edit_reply_handler() {
 			);
 
 			// Just in time manipulation of reply data before being edited
-			$reply_data = apply_filters( 'bbp_new_reply_pre_insert', $reply_data );
+			$reply_data = apply_filters( 'bbp_edit_reply_pre_insert', $reply_data );
 
 			// Insert reply
 			$reply_id = wp_update_post( $reply_data );

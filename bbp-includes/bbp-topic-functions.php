@@ -447,7 +447,7 @@ function bbp_edit_topic_handler() {
 			);
 
 			// Just in time manipulation of topic data before being edited
-			$topic_data = apply_filters( 'bbp_new_topic_pre_insert', $topic_data );
+			$topic_data = apply_filters( 'bbp_edit_topic_pre_insert', $topic_data );
 
 			// Insert topic
 			$topic_id = wp_update_post( $topic_data );
