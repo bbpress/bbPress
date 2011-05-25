@@ -537,7 +537,7 @@ class bbPress {
 			'capabilities'      => bbp_get_forum_caps(),
 			'capability_type'   => 'forum',
 			'menu_position'     => 56,
-			'has_archive'       => get_page_by_path( $this->root_slug ) ? false : $this->root_slug,
+			'has_archive'       => !empty( $this->root_slug ) ? $this->root_slug : false,
 			'show_in_nav_menus' => true,
 			'public'            => true,
 			'show_ui'           => true,
