@@ -126,6 +126,8 @@ function bbp_add_options() {
  *
  * @since bbPress (r2658)
  *
+ * @param $default bool Optional.Default value
+ *
  * @uses get_option() To get the favorites option
  * @return bool Is favorites enabled or not
  */
@@ -138,6 +140,8 @@ function bbp_is_favorites_active( $default = true ) {
  *
  * @since bbPress (r2658)
  *
+ * @param $default bool Optional.Default value
+ *
  * @uses get_option() To get the subscriptions option
  * @return bool Is subscription enabled or not
  */
@@ -149,6 +153,8 @@ function bbp_is_subscriptions_active( $default = true ) {
  * Is the anonymous posting allowed?
  *
  * @since bbPress (r2659)
+ *
+ * @param $default bool Optional. Default value
  *
  * @uses get_option() To get the allow anonymous option
  * @return bool Is anonymous posting allowed?
