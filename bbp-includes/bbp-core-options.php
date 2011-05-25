@@ -129,8 +129,8 @@ function bbp_add_options() {
  * @uses get_option() To get the favorites option
  * @return bool Is favorites enabled or not
  */
-function bbp_is_favorites_active() {
-	return apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', true ) );
+function bbp_is_favorites_active( $default = true ) {
+	return apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', $default ) );
 }
 
 /**
@@ -141,8 +141,8 @@ function bbp_is_favorites_active() {
  * @uses get_option() To get the subscriptions option
  * @return bool Is subscription enabled or not
  */
-function bbp_is_subscriptions_active() {
-	return apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions' ) );
+function bbp_is_subscriptions_active( $default = true ) {
+	return apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions', $default ) );
 }
 
 /**
@@ -153,8 +153,8 @@ function bbp_is_subscriptions_active() {
  * @uses get_option() To get the allow anonymous option
  * @return bool Is anonymous posting allowed?
  */
-function bbp_allow_anonymous() {
-	return apply_filters( 'bbp_allow_anonymous', get_option( '_bbp_allow_anonymous', false ) );
+function bbp_allow_anonymous( $default = false ) {
+	return apply_filters( 'bbp_allow_anonymous', get_option( '_bbp_allow_anonymous', $default ) );
 }
 
 ?>
