@@ -65,9 +65,6 @@ function bbp_add_options() {
 
 		/** Archive Slugs *****************************************************/
 
-		// Use root before slugs
-		'_bbp_include_root'         => true,
-
 		// Forum archive slug
 		'_bbp_root_slug'            => 'forums',
 
@@ -75,6 +72,9 @@ function bbp_add_options() {
 		'_bbp_topic_archive_slug'   => 'topics',
 
 		/** Single Slugs ******************************************************/
+
+		// Include Forum archive before single slugs
+		'_bbp_include_root'         => true,
 
 		// Forum slug
 		'_bbp_forum_slug'           => 'forum',
