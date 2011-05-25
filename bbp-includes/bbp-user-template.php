@@ -1199,6 +1199,15 @@ function bbp_current_user_can_access_create_topic_form() {
 		// User can edit edit this topic
 		if ( current_user_can( 'edit_topic', bbp_get_topic_id() ) )
 			$retval = true;
+
+	// Fallback for shortcodes
+	} elseif ( is_page() || is_single() ) {
+
+		// Page or single post, and user can publish topics or anonymous
+		// posting is allowed.
+		if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) )
+			$retval = true;
+
 	}
 
 	// Allow access to be filtered
@@ -1244,6 +1253,15 @@ function bbp_current_user_can_create_topic_in_forum() {
 		// If you can edit this forum, you can edit topics in this forum
 		if ( current_user_can( 'edit_forum', bbp_get_topic_forum_id() ) )
 			$retval = true;
+
+	// Fallback for shortcodes
+	} elseif ( is_page() || is_single() ) {
+
+		// Page or single post, and user can publish topics or anonymous
+		// posting is allowed.
+		if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) )
+			$retval = true;
+
 	}
 
 	// Allow access to be filtered
