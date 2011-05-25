@@ -379,73 +379,81 @@ function bbp_get_statistics( $args = '' ) {
 	// Topics
 	if ( !empty( $count_topics ) ) {
 
-		$all_topics     = wp_count_posts( bbp_get_topic_post_type() );
+		$all_topics  = wp_count_posts( bbp_get_topic_post_type() );
 
 		// Published (publish + closed)
-		$topic_count    = $all_topics->publish + $all_topics->{$bbp->closed_status_id};
+		$topic_count = $all_topics->publish + $all_topics->{$bbp->closed_status_id};
 
 		if ( current_user_can( 'read_private_topics' ) || current_user_can( 'edit_others_topics' ) || current_user_can( 'view_trash' ) ) {
 
 			// Private
-			$private_topics = ( !empty( $count_private_topics ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->private                 : 0;
+			$topics['private'] = ( !empty( $count_private_topics ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->private                 : 0;
 
 			// Spam
-			$spammed_topics = ( !empty( $count_spammed_topics ) && current_user_can( 'edit_others_topics'  ) ) ? (int) $all_topics->{$bbp->spam_status_id}  : 0;
+			$topics['spammed'] = ( !empty( $count_spammed_topics ) && current_user_can( 'edit_others_topics'  ) ) ? (int) $all_topics->{$bbp->spam_status_id}  : 0;
 
 			// Trash
-			$trashed_topics = ( !empty( $count_trashed_topics ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$bbp->trash_status_id} : 0;
+			$topics['trashed'] = ( !empty( $count_trashed_topics ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$bbp->trash_status_id} : 0;
 
 			// Total hidden (private + spam + trash)
-			$hidden_topic_count = $private_topics + $spammed_topics + $trashed_topics;
+			$hidden_topic_count = $topics['private'] + $topics['spammed'] + $topics['trashed'];
 
 			// Generate the hidden topic count's title attribute
-			$hidden_topic_title  = !empty( $private_topics ) ? sprintf( __( 'Private: %s | ', 'bbpress' ), number_format_i18n( $private_topics ) ) : '';
-			$hidden_topic_title .= !empty( $spammed_topics ) ? sprintf( __( 'Spammed: %s | ', 'bbpress' ), number_format_i18n( $spammed_topics ) ) : '';
-			$hidden_topic_title .= !empty( $trashed_topics ) ? sprintf( __( 'Trashed: %s',    'bbpress' ), number_format_i18n( $trashed_topics ) ) : '';
+			$topic_titles[] = !empty( $topics['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $topics['private'] ) ) : '';
+			$topic_titles[] = !empty( $topics['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), number_format_i18n( $topics['spammed'] ) ) : '';
+			$topic_titles[] = !empty( $topics['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), number_format_i18n( $topics['trashed'] ) ) : '';
 
+			// Compile the hidden topic title
+			$hidden_topic_title = implode( ' | ', array_filter( $topic_titles ) );
 		}
-
 	}
 
 	// Replies
 	if ( !empty( $count_replies ) ) {
 
-		$all_replies     = wp_count_posts( bbp_get_reply_post_type() );
+		$all_replies = wp_count_posts( bbp_get_reply_post_type() );
 
 		// Published
-		$reply_count     = $all_replies->publish;
+		$reply_count = $all_replies->publish;
 
 		if ( current_user_can( 'read_private_replies' ) || current_user_can( 'edit_others_replies' ) || current_user_can( 'view_trash' ) ) {
 
 			// Private
-			$private_replies = ( !empty( $count_private_replies ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->private                 : 0;
+			$replies['private'] = ( !empty( $count_private_replies ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->private                 : 0;
 
 			// Spam
-			$spammed_replies = ( !empty( $count_spammed_replies ) && current_user_can( 'edit_others_replies'  ) ) ? (int) $all_replies->{$bbp->spam_status_id}  : 0;
+			$replies['spammed'] = ( !empty( $count_spammed_replies ) && current_user_can( 'edit_others_replies'  ) ) ? (int) $all_replies->{$bbp->spam_status_id}  : 0;
 
 			// Trash
-			$trashed_replies = ( !empty( $count_trashed_replies ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$bbp->trash_status_id} : 0;
+			$replies['trashed'] = ( !empty( $count_trashed_replies ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$bbp->trash_status_id} : 0;
 
 			// Total hidden (private + spam + trash)
-			$hidden_reply_count = $private_replies + $spammed_replies + $trashed_replies;
+			$hidden_reply_count = $replies['private'] + $replies['spammed'] + $replies['trashed'];
 
-			// Generate the hidden reply count's title attribute
-			$hidden_reply_title  = !empty( $private_replies ) ? sprintf( __( 'Private: %s | ', 'bbpress' ), number_format_i18n( $private_replies ) ) : '';
-			$hidden_reply_title .= !empty( $spammed_replies ) ? sprintf( __( 'Spammed: %s | ', 'bbpress' ), number_format_i18n( $spammed_replies ) ) : '';
-			$hidden_reply_title .= !empty( $trashed_replies ) ? sprintf( __( 'Trashed: %s',    'bbpress' ), number_format_i18n( $trashed_replies ) ) : '';
+			// Generate the hidden topic count's title attribute
+			$reply_titles[] = !empty( $replies['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $replies['private'] ) ) : '';
+			$reply_titles[] = !empty( $replies['spammed'] ) ? sprintf( __( 'Spammed: %s', 'bbpress' ), number_format_i18n( $replies['spammed'] ) ) : '';
+			$reply_titles[] = !empty( $replies['trashed'] ) ? sprintf( __( 'Trashed: %s', 'bbpress' ), number_format_i18n( $replies['trashed'] ) ) : '';
+
+			// Compile the hidden replies title
+			$hidden_reply_title = implode( ' | ', array_filter( $reply_titles ) );
 
 		}
-
 	}
 
 	// Topic Tags
 	if ( !empty( $count_tags ) ) {
+
+		// Get the count
 		$topic_tag_count = wp_count_terms( $bbp->topic_tag_id, array( 'hide_empty' => true ) );
 
-		if ( !empty( $count_empty_tags ) && current_user_can( 'edit_topic_tags' ) )
+		// Empty tags
+		if ( !empty( $count_empty_tags ) && current_user_can( 'edit_topic_tags' ) ) {
 			$empty_topic_tag_count = wp_count_terms( $bbp->topic_tag_id ) - $topic_tag_count;
+		}
 	}
 
+	// Tally the tallies
 	$statistics = compact( 'user_count', 'forum_count', 'topic_count', 'hidden_topic_count', 'reply_count', 'hidden_reply_count', 'topic_tag_count', 'empty_topic_tag_count' );
 	$statistics = array_map( 'absint',             $statistics );
 	$statistics = array_map( 'number_format_i18n', $statistics );
