@@ -100,7 +100,7 @@ class BPDB extends WPDB {
 endif; // class_exists
 
 if ( !function_exists( 'bb_cache_users' ) ) :
-	function bb_cache_users( $users ) {}
+	function bb_cache_users( $users ) { }
 endif;
 
 /**
@@ -116,43 +116,40 @@ endif;
  * @todo Role Mapping Options
 */
 class bbPress_Importer {
-	/**
-	 * @var string Path to bbPress standalone
-	 */
-	var $bb_path = '';
 
 	/**
-	 * @var bool Are we debugging?
+	 * @var string Path to bbPress standalone configuration file (bb-config.php)
 	 */
-	var $debug = false;
+	var $bbconfig = '';
 
 	/**
 	 * Load the bbPress environment
 	 */
 	function load_bbpress() {
+
+		// BuddyPress Install
+		if ( defined( 'BP_VERSION' ) && bp_is_active( 'forums' ) && bp_forums_is_installed_correctly() ) {
+			global $bp;
+
+			if ( !empty( $bp->forums->bbconfig ) && ( $bp->forums->bbconfig == $this->bbconfig ) )
+				bp_forums_load_bbpress();
+		}
+
 		global $wpdb, $wp_roles, $current_user, $wp_users_object, $wp_taxonomy_object;
 		global $bb, $bbdb, $bb_table_prefix, $bb_current_user, $bb_roles, $bb_queries;
 
-		/* Return if we've already run this function. */
+		// Return if we've already run this function or it is BuddyPress
 		if ( is_object( $bbdb ) )
 			return;
 
-		if ( !file_exists( $this->bb_path ) )
+		// Config file does not exist
+		if ( !file_exists( $this->bbconfig ) )
 			return false;
 
-		// BuddyPress install
-		if ( defined( 'BP_VERSION' ) ) {
-			define( 'BB_PATH',        BP_PLUGIN_DIR . '/bp-forums/bbpress/'                       );
-			define( 'BACKPRESS_PATH', BP_PLUGIN_DIR . '/bp-forums/bbpress/bb-includes/backpress/' );
-			define( 'BB_URL',         BP_PLUGIN_URL . '/bp-forums/bbpress/'                       );
-			define( 'BB_INC',                         'bb-includes/'                              );
-
-		// Normal existing install
-		} else {
-			define( 'BB_PATH',        trailingslashit( dirname( $this->bb_path ) ) );
-			define( 'BACKPRESS_PATH', BB_PATH . 'bb-includes/backpress/'           );
-			define( 'BB_INC',         'bb-includes/' );
-		}
+		// Set the path constants
+		define( 'BB_PATH',        trailingslashit( dirname( $this->bbconfig ) ) );
+		define( 'BACKPRESS_PATH', BB_PATH . 'bb-includes/backpress/'            );
+		define( 'BB_INC',         'bb-includes/'                                );
 
 		require_once( BB_PATH . BB_INC . 'class.bb-query.php'            );
 		require_once( BB_PATH . BB_INC . 'class.bb-walker.php'           );
@@ -171,12 +168,12 @@ class bbPress_Importer {
 		require_once( BB_PATH . BB_INC . 'class.bb-taxonomy.php'         );
 
 		$bb = new stdClass();
-		require_once( $this->bb_path );
+		require_once( $this->bbconfig );
 
 		// Setup the global database connection
 		$bbdb = new BPDB( BBDB_USER, BBDB_PASSWORD, BBDB_NAME, BBDB_HOST );
 
-		/* Set the table names */
+		// Set the table names
 		$bbdb->forums             = $bb_table_prefix . 'forums';
 		$bbdb->meta               = $bb_table_prefix . 'meta';
 		$bbdb->posts              = $bb_table_prefix . 'posts';
@@ -185,32 +182,40 @@ class bbPress_Importer {
 		$bbdb->term_taxonomy      = $bb_table_prefix . 'term_taxonomy';
 		$bbdb->topics             = $bb_table_prefix . 'topics';
 
+		// Users table
 		if ( isset( $bb->custom_user_table ) )
 			$bbdb->users    = $bb->custom_user_table;
 		else
 			$bbdb->users    = $bb_table_prefix . 'users';
 
+		// Users meta table
 		if ( isset( $bb->custom_user_meta_table ) )
 			$bbdb->usermeta = $bb->custom_user_meta_table;
 		else
 			$bbdb->usermeta = $bb_table_prefix . 'usermeta';
 
-		$bbdb->prefix       = $bb_table_prefix;
+		// Table prefix
+		$bbdb->prefix = $bb_table_prefix;
 
+		// Not installing
 		define( 'BB_INSTALLING', false );
 
+		// Ghetto role map
 		if ( is_object( $wp_roles ) ) {
 			$bb_roles = $wp_roles;
 			bb_init_roles( $bb_roles );
 		}
 
+		// Call the standard bbPress actions
 		do_action( 'bb_got_roles' );
 		do_action( 'bb_init'      );
 		do_action( 'init_roles'   );
 
+		// Setup required objects
 		$bb_current_user = $current_user;
 		$wp_users_object = new bbPress_Importer_BB_Auth;
 
+		// Taxonomy object
 		if ( !isset( $wp_taxonomy_object ) )
 			$wp_taxonomy_object = new BB_Taxonomy( $bbdb );
 
@@ -243,27 +248,39 @@ class bbPress_Importer {
 	 *
 	 * @return string Path, if found
 	 */
-	function autolocate_bb_path() {
+	function autolocate_bbconfig() {
 
-		$path      = '';
-		$dirs      = array( '', 'forum', 'forums', 'board', 'discussion', 'bb', 'bbpress' );
+		// BuddyPress Install
+		if ( defined( 'BP_VERSION' ) && bp_is_active( 'forums' ) && bp_forums_is_installed_correctly() ) {
+			global $bp;
+
+			if ( !empty( $bp->forums->bbconfig ) )
+				return $bp->forums->bbconfig;
+		}
+
+		// Normal install
+		$dirs      = array( 'forum', 'forums', 'board', 'discussion', 'bbpress', 'bb', '' );
 		$base      = trailingslashit( ABSPATH );
 		$base_dirs = array( $base, dirname( $base ) );
 
+		// Loop through possible directories
 		foreach ( $dirs as $dir ) {
 
+			// Loop through base dir
 			foreach ( $base_dirs as $base_dir ) {
+
+				// Path to try
 				$test_path = $base_dir . $dir . '/bb-config.php';
 
+				// File exists
 				if ( file_exists( $test_path ) ) {
-					$path = $test_path;
-					break;
+					return realpath( $test_path );
 				}
 			}
-
 		}
 
-		return $path;
+		// Nothing found
+		return '';
 	}
 
 	/**
@@ -414,9 +431,8 @@ class bbPress_Importer {
 	function greet() {
 		global $wpdb, $bbdb;
 
-		$autolocate = $this->autolocate_bb_path();
-
-		?>
+		// Attempt to autolocate config file
+		$autolocate = $this->autolocate_bbconfig(); ?>
 
 		<div class="narrow">
 
@@ -466,10 +482,10 @@ class bbPress_Importer {
 						<li><?php _e( 'Notes on compatibility:', 'bbpress' ); ?>
 							<ol>
 								<li>
-									<?php printf( __( 'If you have the <a href="%s">Subscribe to Topic</a> plugin active, please deactivate it. This script will migrate user subscriptions from that plugin.', 'bbpress' ), 'http://bbpress.org/plugins/topic/subscribe-to-topic/' ); ?>
+									<?php _e( 'If you are using the alpha version of bbPress 1.1, subscriptions will be ported automatically.', 'bbpress' ); ?>
 								</li>
 								<li>
-									<?php _e( 'If you are using the alpha version of bbPress 1.1 subscriptions will be ported automatically.', 'bbpress' ); ?>
+									<?php printf( __( 'If you have the <a href="%s">Subscribe to Topic</a> plugin active, then this script will migrate user subscriptions from that plugin.', 'bbpress' ), 'http://bbpress.org/plugins/topic/subscribe-to-topic/' ); ?>
 								</li>
 								<li>
 									<?php printf( __( 'If you are importing an existing BuddyPress Forums installation, we should have found your previous configuration file.', 'bbpress' ), 'http://bbpress.org/plugins/topic/subscribe-to-topic/' ); ?>
@@ -480,15 +496,13 @@ class bbPress_Importer {
 					</ol>
 
 					<h3><?php _e( 'Configuration', 'bbpress' ); ?></h3>
-					<p><?php _e( 'Enter the path to your bbPress standalone install, where you\'d find your <code>bb-config.php</code>:', 'bbpress' ); ?></p>
+					<p><?php _e( 'Enter the full path to your bbPress configuration file i.e. <code>bb-config.php</code>:', 'bbpress' ); ?></p>
 
 					<table class="form-table">
-
 						<tr>
 							<th scope="row"><label for="bbp_bbpress_path"><?php _e( 'bbPress Standalone Path:', 'bbpress' ); ?></label></th>
-							<td><input type="text" name="bbp_bbpress_path" id="bbp_bbpress_path" class="regular-text" value="<?php echo $autolocate; ?>" /></td>
+							<td><input type="text" name="bbp_bbpress_path" id="bbp_bbpress_path" class="regular-text" value="<?php echo !empty( $autolocate ) ? $autolocate : trailingslashit( ABSPATH ) . 'bb-config.php'; ?>" /></td>
 						</tr>
-
 					</table>
 
 					<p class="submit">
@@ -521,17 +535,23 @@ class bbPress_Importer {
 	 * @return type
 	 */
 	function setup() {
-		// Get details from form or from DB
-		if ( !empty( $_POST['bbp_bbpress_path'] ) ) {
-			// Store details for later
-			$this->bb_path = $_POST['bbp_bbpress_path'];
 
-			update_option( 'bbp_bbpress_path', $this->bb_path );
+		// Get details from _POST
+		if ( !empty( $_POST['bbp_bbpress_path'] ) ) {
+
+			// Store details for later
+			$this->bbconfig = realpath( $_POST['bbp_bbpress_path'] );
+
+			// Update path
+			update_option( 'bbp_bbpress_path', $this->bbconfig );
+
+		// Get details from DB
 		} else {
-			$this->bb_path = get_option( 'bbp_bbpress_path' );
+			$this->bbconfig = get_option( 'bbp_bbpress_path' );
 		}
 
-		if ( empty( $this->bb_path ) ) { ?>
+		// No config file found
+		if ( empty( $this->bbconfig ) ) { ?>
 
 			<p><?php _e( 'Please enter the path to your bbPress configuration file - <code>bb-config.php</code>.', 'bbpress' ); ?></p>
 			<p><a href="<?php echo esc_url( add_query_arg( array( 'import' => 'bbpress', 'step' => '-1', '_wpnonce' => wp_create_nonce( 'bbp-bbpress-import' ), '_wp_http_referer' => esc_attr( remove_query_arg( 'step', $_SERVER['REQUEST_URI'] ) ) ) ) ); ?>" class="button"><?php _e( 'Go Back', 'bbpress' ); ?></a></p>
@@ -542,19 +562,21 @@ class bbPress_Importer {
 		}
 
 		// Check if the user submitted a directory as the path by mistake
-		if ( is_dir( $this->bb_path ) && file_exists( trailingslashit( $this->bb_path ) . 'bb-config.php' ) ) {
-			$this->bb_path = trailingslashit( $this->bb_path ) . 'bb-config.php';
+		if ( is_dir( $this->bbconfig ) && file_exists( trailingslashit( $this->bbconfig ) . 'bb-config.php' ) ) {
+			$this->bbconfig = trailingslashit( $this->bbconfig ) . 'bb-config.php';
 		}
 
 		// Check if the file exists
-		if ( !file_exists( $this->bb_path ) || is_dir( $this->bb_path ) ) {
+		if ( !file_exists( $this->bbconfig ) || is_dir( $this->bbconfig ) ) {
 
 			delete_option( 'bbp_bbpress_path' ); ?>
 
-				<p><?php _e( 'bbPress configuration file <code>bb-config.php</code> doesn\'t exist in the path specified! Please check the path and try again.', 'bbpress' ); ?></p>
-				<p><a href="<?php echo esc_url( add_query_arg( array( 'import' => 'bbpress', 'step' => '-1', '_wpnonce' => wp_create_nonce( 'bbp-bbpress-import' ), '_wp_http_referer' => esc_attr( remove_query_arg( 'step', $_SERVER['REQUEST_URI'] ) ) ) ) ); ?>" class="button"><?php _e( 'Go Back', 'bbpress' ); ?></a></p>
-				<?php
-				return false;
+			<p><?php _e( 'bbPress configuration file <code>bb-config.php</code> doesn\'t exist in the path specified! Please check the path and try again.', 'bbpress' ); ?></p>
+			<p><a href="<?php echo esc_url( add_query_arg( array( 'import' => 'bbpress', 'step' => '-1', '_wpnonce' => wp_create_nonce( 'bbp-bbpress-import' ), '_wp_http_referer' => esc_attr( remove_query_arg( 'step', $_SERVER['REQUEST_URI'] ) ) ) ) ); ?>" class="button"><?php _e( 'Go Back', 'bbpress' ); ?></a></p>
+
+			<?php
+
+			return false;
 		}
 
 		$this->load_bbpress();
@@ -598,8 +620,8 @@ class bbPress_Importer {
 					<li>
 						<?php _e( 'Your WordPress blog is <strong>new</strong> and you don\'t have the fear of losing WordPress users:', 'bbpress' ); ?>
 						<label for="step_user"><?php _e( 'Go to migrating users section.', 'bbpress' ); ?></label>
-						<?php printf( __( '<strong>Note</strong>: The WordPress %1$s and %2$s tables would be renamed, but not deleted so that you could restore them if something goes wrong.', 'bbpress' ), $wpdb->users, $wpdb->usermeta ); ?>
-						<?php printf( __( 'Please ensure there are no tables with names %1$s and %2$s so that there is no problem in renaming.', 'bbpress' ), $bbdb->prefix . $wpdb->users . '_tmp', $bbdb->prefix . $wpdb->usermeta . '_tmp' ); ?>
+						<?php printf( __( '<strong>Note</strong>: The WordPress %1$s and %2$s tables will be renamed (not deleted) so that you can restore them if something goes wrong.', 'bbpress' ), '<code>' . $wpdb->users . '</code>', '<code>' . $wpdb->usermeta . '</code>' ); ?>
+						<?php printf( __( 'Please ensure there are no tables named %1$s and %2$s to avoid renaming conflicts.', 'bbpress' ), '<code>' . $bbdb->prefix . $wpdb->users . '_tmp' . '</code>', '<code>' . $bbdb->prefix . $wpdb->usermeta . '_tmp' . '</code>' ); ?>
 						<?php _e( 'Also, your WordPress and bbPress installs must be in the same database.', 'bbpress' ); ?>
 					</li>
 
@@ -611,14 +633,14 @@ class bbPress_Importer {
 					<li>
 						<?php _e( 'You have a well <strong>established</strong> WordPress user base, the user tables are not integrated and you can\'t lose your users:', 'bbpress' ); ?>
 						<?php _e( 'This is currently not yet supported, and will likely not be in the future also as it is highly complex to merge two user sets (which might even conflict).', 'bbpress' ); ?>
-						<?php printf( __( 'But, patches are always <a href="%s" title="The last revision containing the custom user migration code">welcome</a>. :)', 'bbpress' ), 'http://code.google.com/p/bbpress-standalone-to-plugin/source/browse/trunk/bbs2p.php?spec=svn13&r=13' ); ?>
+						<?php printf( __( 'Patches are always <a href="%s" title="The last revision containing the custom user migration code">welcome</a>. :)', 'bbpress' ), 'http://bbpress.trac.wordpress.org/ticket/1523' ); ?>
 					</li>
 
 				</ol>
 
 			<?php endif; ?>
 
-			<input type="radio" name="step" <?php if ( $this->is_integrated() ) : ?>disabled="disabled"<?php endif;?> value="2"<?php checked( $radio, 'user'  ); ?> id="step_user" />
+			<input type="radio" name="step"<?php disabled( $this->is_integrated() ); ?> value="2"<?php checked( $radio, 'user' ); ?> id="step_user" />
 			<label for="step_user"><?php _e( 'Migrate Users', 'bbpress' ); ?></label>
 
 			<input type="radio" name="step" value="3"<?php checked( $radio, 'board' ); ?> id="step_board" />
@@ -667,41 +689,58 @@ class bbPress_Importer {
 
 			<ol>
 
-				<?php
-
-				// Drop the old temp tables while debugging
-				if ( $this->debug == true )
-					$wpdb->query( "DROP TABLE IF EXISTS {$bbdb->prefix}{$wpdb->users}_tmp, {$bbdb->prefix}{$wpdb->usermeta}_tmp" );
-
-				// Rename the WordPress users and usermeta table
-
-				?>
+				<?php /* Rename the WordPress users and usermeta table */ ?>
 
 				<li>
 					<?php
-					if ( $wpdb->query( "RENAME TABLE $wpdb->users TO {$bbdb->prefix}{$wpdb->users}_tmp, $wpdb->usermeta TO {$bbdb->prefix}{$wpdb->usermeta}_tmp" ) !== false ) : ?>
-						<?php printf( __( 'Renamed the <code>%1$s</code> and <code>%2$s</code> tables to <code>%3$s</code> and <code>%4$s</code> respectively.', 'bbpress' ), $wpdb->users, $wpdb->usermeta, $bbdb->prefix . $wpdb->users . '_tmp', $bbdb->prefix . $wpdb->usermeta . '_tmp' ); ?>
-					<?php else : ?>
-						<?php printf( __( 'There was a problem dropping the <code>%1$s</code> and <code>%2$s</code> tables. Please check and re-run the script or rename or drop the tables yourself.', 'bbpress' ), $wpdb->users, $wpdb->usermeta ); ?></li></ol>
-					<?php break; endif; ?>
+
+					if ( $wpdb->query( "RENAME TABLE $wpdb->users TO {$bbdb->prefix}{$wpdb->users}_tmp, $wpdb->usermeta TO {$bbdb->prefix}{$wpdb->usermeta}_tmp" ) !== false ) :
+						printf( __( 'Renamed the <code>%1$s</code> and <code>%2$s</code> tables to <code>%3$s</code> and <code>%4$s</code> respectively.', 'bbpress' ), $wpdb->users, $wpdb->usermeta, $bbdb->prefix . $wpdb->users . '_tmp', $bbdb->prefix . $wpdb->usermeta . '_tmp' );
+					else :
+						printf( __( 'There was a problem dropping the <code>%1$s</code> and <code>%2$s</code> tables. Please check and re-run the script or rename or drop the tables yourself.', 'bbpress' ), $wpdb->users, $wpdb->usermeta ); ?>
+
+						</li></ol>
+
+					<?php
+						return;
+					endif; ?>
+
 				</li>
 
 				<?php /* Duplicate the WordPress users and usermeta table */ ?>
 
 				<li>
-					<?php if ( $wpdb->query( "CREATE TABLE $wpdb->users    ( `ID` BIGINT( 20 )       UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, `user_activation_key` VARCHAR( 60 ) NOT NULL DEFAULT '', KEY ( `user_login` ), KEY( `user_nicename` ) ) SELECT * FROM $bbdb->users    ORDER BY `ID`"       ) !== false ) : ?>
-						<?php printf( __( 'Created the <code>%s</code> table and copied the users from bbPress.', 'bbpress' ), $wpdb->users ); ?>
-					<?php else : ?>
-						<?php printf( __( 'There was a problem duplicating the table <code>%1$s</code> to <code>%2$s</code>. Please check and re-run the script or duplicate the table yourself.', 'bbpress' ), $bbdb->users, $wpdb->users ); ?></li></ol>
-					<?php break; endif; ?>
+					<?php
+
+					if ( $wpdb->query( "CREATE TABLE $wpdb->users    ( `ID` BIGINT( 20 )       UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, `user_activation_key` VARCHAR( 60 ) NOT NULL DEFAULT '', KEY ( `user_login` ), KEY( `user_nicename` ) ) SELECT * FROM $bbdb->users    ORDER BY `ID`"       ) !== false ) :
+						printf( __( 'Created the <code>%s</code> table and copied the users from bbPress.', 'bbpress' ), $wpdb->users );
+					else :
+						printf( __( 'There was a problem duplicating the table <code>%1$s</code> to <code>%2$s</code>. Please check and re-run the script or duplicate the table yourself.', 'bbpress' ), $bbdb->users, $wpdb->users ); ?>
+
+						</li></ol>
+
+					<?php
+
+						return;
+					endif; ?>
+
 				</li>
 
 				<li>
-					<?php if ( $wpdb->query( "CREATE TABLE $wpdb->usermeta ( `umeta_id` BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,                                                          KEY ( `user_id` ),    KEY( `meta_key` )      ) SELECT * FROM $bbdb->usermeta ORDER BY `umeta_id`" ) !== false ) : ?>
-						<?php printf( __( 'Created the <code>%s</code> table and copied the user information from bbPress.', 'bbpress' ), $wpdb->usermeta ); ?>
-					<?php else : ?>
-						<?php printf( __( 'There was a problem duplicating the table <code>%1$s</code> to <code>%2$s</code>. Please check and re-run the script or duplicate the table yourself.', 'bbpress' ), $bbdb->usermeta, $wpdb->usermeta ); ?></li></ol>
-					<?php break; endif; ?>
+					<?php
+
+					if ( $wpdb->query( "CREATE TABLE $wpdb->usermeta ( `umeta_id` BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,                                                          KEY ( `user_id` ),    KEY( `meta_key` )      ) SELECT * FROM $bbdb->usermeta ORDER BY `umeta_id`" ) !== false ) :
+						printf( __( 'Created the <code>%s</code> table and copied the user information from bbPress.', 'bbpress' ), $wpdb->usermeta );
+					else :
+						printf( __( 'There was a problem duplicating the table <code>%1$s</code> to <code>%2$s</code>. Please check and re-run the script or duplicate the table yourself.', 'bbpress' ), $bbdb->usermeta, $wpdb->usermeta ); ?>
+
+						</li></ol>
+
+					<?php
+
+						return;
+					endif; ?>
+
 				</li>
 
 				<?php
@@ -771,7 +810,7 @@ class bbPress_Importer {
 
 				<?php
 
-				break;
+				return;
 
 				endif;
 
@@ -795,7 +834,7 @@ class bbPress_Importer {
 			<p><?php _e( 'Your users have all been imported, but wait &#8211; there&#8217;s more! Now we need to import your forums, topics and posts!', 'bbpress' ); ?></p>
 			<?php
 
-			echo $this->next_step( 3, __( 'Import by forums, topics and posts &raquo;', 'bbpress' ) ); ?>
+			echo $this->next_step( 3, __( 'Import forums, topics and posts &raquo;', 'bbpress' ) ); ?>
 
 		</div>
 
@@ -832,11 +871,10 @@ class bbPress_Importer {
 
 				if ( !$forums = bb_get_forums() ) {
 					echo "<li><strong>" . __( 'No forums were found!', 'bbpress' ) . "</strong></li></ol>\n";
-					break;
+					return;
 				}
 
-				if ( $this->debug == true )
-					echo "<li>" . sprintf( __( 'Total number of forums: %s', 'bbpress' ), count( $forums ) ) . "</li>\n";
+				echo "<li>" . sprintf( __( 'Total number of forums: %s', 'bbpress' ), count( $forums ) ) . "</li>\n";
 
 				$forum_map     = array();
 				$post_statuses = array( 'publish', $bbp->trash_status_id, $bbp->spam_status_id );
@@ -895,8 +933,7 @@ class bbPress_Importer {
 
 					bb_cache_first_posts( $topics );
 
-					if ( $this->debug == true )
-						echo "<li>" . sprintf( __( 'Total number of topics in the forum: %s', 'bbpress' ), count( $topics ) ) . "</li>\n";
+					echo "<li>" . sprintf( __( 'Total number of topics in the forum: %s', 'bbpress' ), count( $topics ) ) . "</li>\n";
 
 					foreach ( (array) $topics as $topic ) {
 						$first_post         =  bb_get_first_post( $topic->topic_id );
@@ -989,10 +1026,10 @@ class bbPress_Importer {
 									bbp_update_reply_walker( $last_reply );
 								}
 
-								$replies++;
-
 								if ( $post->post_status != 0 )
 									$hidden_replies++;
+								else
+									$replies++;
 							}
 
 							// Only add favorites and subscriptions if the topic is public
@@ -1021,15 +1058,17 @@ class bbPress_Importer {
 									break;
 							}
 
-							// Last active time
-							$last_active = $post ? $post->post_time : $first_post->post_time;
+							// Last active
+							$last_active_id   = !empty( $last_reply ) ? $last_reply      : $inserted_topic;
+							$last_active_time = !empty( $post       ) ? $post->post_time : $first_post->post_time;
 
 							// Reply topic meta
-							update_post_meta( $inserted_topic, '_bbp_last_reply_id',      $last_reply                                 );
-							update_post_meta( $inserted_topic, '_bbp_last_active_id',     $last_reply ? $last_reply : $inserted_topic );
-							update_post_meta( $inserted_topic, '_bbp_last_active_time',   $topic->topic_time                          );
-							update_post_meta( $inserted_topic, '_bbp_reply_count',        $replies - $hidden_replies                  );
-							update_post_meta( $inserted_topic, '_bbp_hidden_reply_count', $hidden_replies                             );
+							update_post_meta( $inserted_topic, '_bbp_last_reply_id',      $last_reply       );
+							update_post_meta( $inserted_topic, '_bbp_last_active_id',     $last_active_id   );
+							update_post_meta( $inserted_topic, '_bbp_last_active_time',   $last_active_time );
+							update_post_meta( $inserted_topic, '_bbp_reply_count',        $replies          );
+							update_post_meta( $inserted_topic, '_bbp_hidden_reply_count', $hidden_replies   );
+
 							// Voices will be done by recount
 
 							bbp_update_topic_walker( $inserted_topic );
