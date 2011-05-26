@@ -785,7 +785,7 @@ function bbp_exclude_forum_ids( $query = array() ) {
 		return $query;
 
 	// Setup arrays
-	$private = $hidden = array();
+	$private = $hidden = $meta_query = array();
 
 	// Private forums
 	if ( !current_user_can( 'read_private_forums' ) )
