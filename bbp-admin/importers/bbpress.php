@@ -772,24 +772,26 @@ class bbPress_Importer {
 				foreach ( $users as $user ) {
 
 					// Get the bbPress roles
-					$bb_roles =& $user->{ $bbdb->prefix . 'capabilities' };
+					$bb_roles        =& $user->{ $bbdb->prefix . 'capabilities' };
 					$converted_roles = $converted_level = array();
 
 					// Loop through each role the user has
-					foreach ( $bb_roles as $bb_role => $bb_role_value ) {
+					if ( !empty( $bb_roles ) ) {
+						foreach ( $bb_roles as $bb_role => $bb_role_value ) {
 
-						// If we have one of those in our roles map, add the WP counterpart in the new roles array
-						if ( $roles_map[strtolower( $bb_role )] && !empty( $bb_role_value ) ) {
-							$converted_roles[$roles_map[strtolower( $bb_role )]] = true;
+							// If we have one of those in our roles map, add the WP counterpart in the new roles array
+							if ( $roles_map[strtolower( $bb_role )] && !empty( $bb_role_value ) ) {
+								$converted_roles[$roles_map[strtolower( $bb_role )]] = true;
 
-							// Have support for deprecated levels too
-							$converted_level[] = $wp_user_level_map[$roles_map[strtolower( $bb_role )]];
+								// Have support for deprecated levels too
+								$converted_level[] = $wp_user_level_map[$roles_map[strtolower( $bb_role )]];
 
-							// We need an admin for future use
-							if ( empty( $admin_user ) && 'administrator' == $roles_map[strtolower( $bb_role )] )
-								$admin_user = $user;
+								// We need an admin for future use
+								if ( empty( $admin_user ) && 'administrator' == $roles_map[strtolower( $bb_role )] )
+									$admin_user = $user;
+							}
+
 						}
-
 					}
 
 					// If we have new roles, then update the user meta
