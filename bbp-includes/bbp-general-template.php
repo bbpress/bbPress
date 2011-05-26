@@ -677,6 +677,7 @@ function bbp_dropdown( $args = '' ) {
 			'post_status'        => 'publish',
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order',
+			'order'              => 'ASC',
 			'walker'             => '',
 
 			// Output-related
