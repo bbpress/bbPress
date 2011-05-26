@@ -12,9 +12,7 @@ wp_reset_postdata();
 
 ?>
 
-<?php if ( bbp_current_user_can_access_create_topic_form() ) : ?>
-
-	<?php if ( bbp_current_user_can_create_topic_in_forum() ) : ?>
+	<?php if ( bbp_current_user_can_access_create_topic_form() ) : ?>
 
 		<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">
 
@@ -157,14 +155,12 @@ wp_reset_postdata();
 			</div>
 		</div>
 
-	<?php endif; ?>
+	<?php else : ?>
 
-<?php else : ?>
-
-	<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
-		<div class="bbp-template-notice">
-			<p><?php is_user_logged_in() ? _e( 'You cannot create new topics at this time.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></p>
+		<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
+			<div class="bbp-template-notice">
+				<p><?php is_user_logged_in() ? _e( 'You cannot create new topics at this time.', 'bbpress' ) : _e( 'You must be logged in to create new topics.', 'bbpress' ); ?></p>
+			</div>
 		</div>
-	</div>
 
-<?php endif; ?>
+	<?php endif; ?>

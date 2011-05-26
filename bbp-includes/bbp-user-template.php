@@ -1162,35 +1162,39 @@ function bbp_current_user_can_access_create_topic_form() {
 	// Looking at a single forum
 	if ( bbp_is_forum() ) {
 
-		// What is the visibility of this forum
-		switch ( bbp_get_forum_visibility() ) {
+		// Forum is open
+		if ( bbp_is_forum_open() ) {
 
-			// Public
-			case 'publish' :
+			// What is the visibility of this forum
+			switch ( bbp_get_forum_visibility() ) {
 
-				// User cannot publish topics
-				if ( current_user_can( 'publish_topics' ) )
-					$retval = true;
+				// Public
+				case 'publish' :
 
-				// Anonymous posting is allowed
-				if ( bbp_allow_anonymous() && !is_user_logged_in() )
-					$retval = true;
+					// User cannot publish topics
+					if ( current_user_can( 'publish_topics' ) )
+						$retval = true;
 
-				break;
+					// Anonymous posting is allowed
+					if ( bbp_allow_anonymous() && !is_user_logged_in() )
+						$retval = true;
 
-			// Private forums
-			case 'private' :
-				if ( current_user_can( 'read_private_forums' ) )
-					$retval = true;
+					break;
 
-				break;
+				// Private forums
+				case 'private' :
+					if ( current_user_can( 'read_private_forums' ) )
+						$retval = true;
 
-			// Hidden forums
-			case 'hidden'  :
-				if ( current_user_can( 'read_hidden_forums' ) )
-					$retval = true;
+					break;
 
-				break;
+				// Hidden forums
+				case 'hidden'  :
+					if ( current_user_can( 'read_hidden_forums' ) )
+						$retval = true;
+
+					break;
+			}
 		}
 
 	// Editing a single topic
@@ -1213,60 +1217,5 @@ function bbp_current_user_can_access_create_topic_form() {
 	// Allow access to be filtered
 	return apply_filters( 'bbp_current_user_can_access_create_topic_form', $retval );
 }
-
-/**
- * Performs a series of checks to ensure the current user can create topics in
- * this specific forum or scope.
- *
- * @since bbPress (r3127)
- *
- * @uses bbp_is_forum_category()
- * @uses bbp_is_forum_closed()
- * @uses current_user_can()
- * @uses bbp_get_topic_forum_id()
- * @uses bbp_is_topic_edit()
- *
- * @return bool
- */
-function bbp_current_user_can_create_topic_in_forum() {
-
-	// Always allow super admins
-	if ( is_super_admin() )
-		return true;
-
-	// Users need to earn access
-	$retval = false;
-
-	// Looking at a single forum
-	if ( bbp_is_forum() ) {
-
-		// Forum is not a category
-		if ( !bbp_is_forum_category() ) {
-
-			// Forum is open
-			$retval = (bool) bbp_is_forum_open();
-		}
-
-	// Editing a single topic
-	} elseif ( bbp_is_topic_edit() ) {
-
-		// If you can edit this forum, you can edit topics in this forum
-		if ( current_user_can( 'edit_forum', bbp_get_topic_forum_id() ) )
-			$retval = true;
-
-	// Fallback for shortcodes
-	} elseif ( is_page() || is_single() ) {
-
-		// Page or single post, and user can publish topics or anonymous
-		// posting is allowed.
-		if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) )
-			$retval = true;
-
-	}
-
-	// Allow access to be filtered
-	return apply_filters( 'bbp_current_user_can_create_topic_in_forum', $retval );
-}
-
 
 ?>
