@@ -604,7 +604,7 @@ function bbp_template_include( $template = false ) {
 			) );
 
 			// Find the appropriate template file
-			$template  = locate_template( $templates, false, false         );
+			$template = locate_template( $templates, false, false );
 		}
 	}
 
