@@ -710,7 +710,7 @@ class bbPress {
 			'protected'                 => true,
 			'exclude_from_search'       => true,
 			'show_in_admin_status_list' => true,
-			'show_in_admin_all_list'    => false
+			'show_in_admin_all_list'    => true
 		) );
 		register_post_status( $this->hidden_status_id, $status );
 
