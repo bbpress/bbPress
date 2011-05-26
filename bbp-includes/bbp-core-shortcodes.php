@@ -439,14 +439,14 @@ class BBP_Shortcodes {
 			// Check forum caps
 			if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
+				// Tags
+				bbp_topic_tag_list( $topic_id );
+
+				// Topic description
+				bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
+
 				// Load the topic
 				if ( bbp_has_replies( $replies_query ) ) {
-
-					// Tags
-					bbp_topic_tag_list( $topic_id );
-
-					// Topic description
-					bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
 
 					// Template files
 					bbp_get_template_part( 'bbpress/single',     'topic'   );
@@ -484,6 +484,21 @@ class BBP_Shortcodes {
 
 		// Start output buffer
 		$this->_ob_start();
+
+		// Breadcrumb
+		if ( bbp_is_forum() or bbp_is_topic_edit() )
+			bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+
+		// Editing a topic
+		if ( bbp_is_topic_edit() ) {
+
+			// Tags
+			bbp_topic_tag_list( get_the_ID() );
+
+			// Topic description
+			bbp_single_topic_description( array( 'topic_id' => get_the_ID() ) );
+
+		}
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'topic'  );
