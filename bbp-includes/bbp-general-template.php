@@ -669,12 +669,13 @@ function bbp_dropdown( $args = '' ) {
 	function bbp_get_dropdown( $args = '' ) {
 		global $bbp;
 
+		/** Arguments *********************************************************/
+
 		$defaults = array (
 			'post_type'          => bbp_get_forum_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
 			'child_of'           => '0',
-			'post_status'        => 'publish',
 			'numberposts'        => -1,
 			'orderby'            => 'menu_order',
 			'order'              => 'ASC',
@@ -700,22 +701,47 @@ function bbp_dropdown( $args = '' ) {
 		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
 			$r['selected'] = 0;
 
-		$r = bbp_exclude_forum_ids( $r );
-
 		extract( $r );
 
 		// Unset the args not needed for WP_Query to avoid any possible conflicts.
 		// Note: walker and disable_categories are not unset
 		unset( $r['select_id'], $r['tab'], $r['options_only'], $r['show_none'], $r['none_found'] );
 
-		// Setup variables
+		/** Post Status *******************************************************/
+
+		// Public
+		$post_stati[] = 'publish';
+
+		// Forums
+		if ( bbp_get_forum_post_type() == $post_type ) {
+
+			// Private forums
+			if ( current_user_can( 'read_private_forums' ) )
+				$post_stati[] = 'private';
+
+			// Hidden forums
+			if ( current_user_can( 'read_hidden_forums' ) )
+				$post_stati[] = $bbp->hidden_status_id;
+
+		// Topics
+		} else {
+			$r = bbp_exclude_forum_ids( $r );
+		}
+
+		// Setup the post statuses
+		$r['post_status'] = implode( ',', $post_stati );
+
+		/** Setup variables ***************************************************/
+
 		$name      = esc_attr( $select_id );
 		$select_id = $name;
 		$tab       = (int) $tab;
 		$retval    = '';
 		$posts     = get_posts( $r );
 
-		// Make a drop down if we found posts
+		/** Drop Down *********************************************************/
+
+		// Items found
 		if ( !empty( $posts ) ) {
 			if ( empty( $options_only ) ) {
 				$tab     = !empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
@@ -728,7 +754,7 @@ function bbp_dropdown( $args = '' ) {
 			if ( empty( $options_only ) )
 				$retval .= '</select>';
 
-		// Display feedback if no custom message was passed
+		// No items found - Display feedback if no custom message was passed
 		} elseif ( empty( $none_found ) ) {
 
 			// Switch the response based on post type
