@@ -700,7 +700,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 				bbp_get_template_part( 'bbpress/form', 'merge' );
 
-				$content = ob_get_contents();
+				$new_content = ob_get_contents();
 
 				ob_end_clean();
 
