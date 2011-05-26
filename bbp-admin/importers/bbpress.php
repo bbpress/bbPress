@@ -911,7 +911,9 @@ class bbPress_Importer {
 					$topics_query = new BB_Query( 'topic', array(
 						'forum_id'     => $forum->forum_id,
 						'per_page'     => -1,
-						'topic_status' => 'all'
+						'topic_status' => 'all',
+						'order_by'     => 'topic_start_time',
+						'order'        => 'ASC'
 					) );
 
 					$topics = $topics_query->results;
