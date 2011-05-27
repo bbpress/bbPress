@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby, mdawaffe
 Tags: bbpress, forums, discussion, post type, theme
 Requires at least: 3.1
 Tested up to: 3.2
-Stable tag: 2.0-beta-1
+Stable tag: 2.0-beta-2
 
 bbPress is forum software with a twist from the creators of WordPress
 
@@ -23,6 +23,19 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.0-beta-2 =
+* GlotPress integration
+* Fixes Forum archive bug
+* Fixes and improvements to importer
+* Adds home link support to breadcrumb
+* Improvements to Theme Compatibility
+* Numerous template and CSS improvements
+* RTL support
+* Improved multisite support
+* Add filters for future anti-spam support
+* Add missing breadcrumbs to various template files
+* Topic/reply trash fixes
 
 = 2.0-beta-1 =
 * In development
