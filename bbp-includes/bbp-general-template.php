@@ -7,7 +7,7 @@
  * @subpackage TemplateTags
  */
 
-// Redirect if accessed directly
+// Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /** Add-on Actions ************************************************************/

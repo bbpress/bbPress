@@ -19,7 +19,7 @@
  *            bbp-admin/bbp-admin.php
  */
 
-// Redirect if accessed directly
+// Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /** ACTIONS *******************************************************************/

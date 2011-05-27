@@ -15,10 +15,10 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
  * Author URI: http://bbpress.org
- * Version: 2.0-beta-1
+ * Version: 2.0-beta-2
  */
 
-// Redirect if accessed directly
+// Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
@@ -30,7 +30,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * Note: Checking for defined( 'BBP_VERSION' ) in your code does NOT
  *       guarantee bbPress is initialized and listening.
  */
-define( 'BBP_VERSION', '2.0-beta-1' );
+define( 'BBP_VERSION', '2.0-beta-2' );
 
 if ( !class_exists( 'bbPress' ) ) :
 /**

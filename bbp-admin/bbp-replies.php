@@ -7,7 +7,7 @@
  * @subpackage Administration
  */
 
-// Redirect if accessed directly
+// Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'BBP_Replies_Admin' ) ) :
