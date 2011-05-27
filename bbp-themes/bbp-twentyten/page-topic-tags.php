@@ -24,7 +24,7 @@
 
 							<?php get_the_content() ? the_content() : _e( '<p>This is a collection of tags that are currently popular on our forums.</p>', 'bbpress' ); ?>
 
-							<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
+							<?php bbp_breadcrumb(); ?>
 
 							<div id="bbp-topic-hot-tags">
 

@@ -248,8 +248,8 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
-		// Display breadcrumb if a subforum
-		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+		// Breadcrumb
+		bbp_breadcrumb();
 
 		// Password protected
 		if ( post_password_required() ) {
@@ -425,7 +425,7 @@ class BBP_Shortcodes {
 		$this->_ob_start();
 
 		// Breadcrumb
-		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+		bbp_breadcrumb();
 
 		// Password protected
 		if ( post_password_required() ) {
@@ -486,8 +486,8 @@ class BBP_Shortcodes {
 		$this->_ob_start();
 
 		// Breadcrumb
-		if ( bbp_is_forum() or bbp_is_topic_edit() )
-			bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+		if ( bbp_is_forum() || bbp_is_topic_edit() )
+			bbp_breadcrumb();
 
 		// Editing a topic
 		if ( bbp_is_topic_edit() ) {
@@ -522,6 +522,10 @@ class BBP_Shortcodes {
 
 		// Start output buffer
 		$this->_ob_start();
+
+		// Breadcrumb
+		if ( bbp_is_reply_edit() )
+			bbp_breadcrumb();
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'reply'  );
@@ -600,6 +604,9 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
+		// Breadcrumb
+		bbp_breadcrumb();
+
 		// Tag description
 		bbp_topic_tag_description();
 
@@ -650,8 +657,8 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
-		// Display breadcrumb if a subforum
-		bbp_get_template_part( 'bbpress/nav', 'breadcrumb' );
+		// Breadcrumb
+		bbp_breadcrumb();
 
 		// Password protected
 		if ( post_password_required() ) {

@@ -21,7 +21,7 @@
 					<div id="bbp-reply-wrapper-<?php bbp_reply_id(); ?>" class="bbp-reply-wrapper">
 						<h1 class="entry-title"><?php bbp_reply_title(); ?></h1>
 
-						<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
+						<?php bbp_breadcrumb(); ?>
 
 						<div class="entry-content">
 

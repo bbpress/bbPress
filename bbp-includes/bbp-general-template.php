@@ -1117,8 +1117,8 @@ function bbp_reset_query_name() {
  * @param bool $root Include the root page if one exists
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_title_breadcrumb( $sep = ' &rsaquo; ' ) {
-	echo bbp_get_breadcrumb( $sep );
+function bbp_title_breadcrumb( $args = array() ) {
+	echo bbp_get_breadcrumb( $args );
 }
 
 /**
@@ -1131,8 +1131,8 @@ function bbp_title_breadcrumb( $sep = ' &rsaquo; ' ) {
  * @param bool $root Include the root page if one exists
  * @uses bbp_get_breadcrumb() To get the breadcrumb
  */
-function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true ) {
-	echo bbp_get_breadcrumb( $sep, $current_page, $root );
+function bbp_breadcrumb( $args = array() ) {
+	echo bbp_get_breadcrumb( $args );
 }
 	/**
 	 * Return a breadcrumb ( forum -> topic -> reply )
@@ -1158,34 +1158,45 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true
 	 * @uses apply_filters() Calls 'bbp_get_breadcrumb' with the crumbs
 	 * @return string Breadcrumbs
 	 */
-	function bbp_get_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true ) {
-		global $post, $bbp;
+	function bbp_get_breadcrumb( $args = array() ) {
+		global $bbp;
 
-		// No post, no breadcrumb
-		if ( empty( $post ) )
+		// Turn off breadcrumbs
+		if ( apply_filters( 'bbp_no_breadcrumb', false ) )
 			return;
 
+		// Parse args
+		$defaults = array(
+
+			// HTML
+			'before'          => '<div class="bbp-breadcrumb"><p>',
+			'after'           => '</p></div>',
+			'sep'             => is_rtl() ? ' &lsaquo; ' : ' &rsaquo; ',
+
+			// Home
+			'include_home'    => true,
+			'home_text'       => ( $front = get_option( 'page_on_front' ) ) ? get_the_title( $front ) : __( 'Home' ),
+
+			// Forum root
+			'include_root'    => get_option( '_bbp_include_root' ),
+			'root_text'       => ( $page = get_page_by_path( $bbp->root_slug ) ) ? get_the_title( $page->ID ) : __( 'Forums', 'bbpress' ),
+
+			// Current
+			'include_current' => true,
+		);
+		$r = wp_parse_args( $args, $defaults );
+		extract( $r );
+
 		// Get post ancestors
-		$ancestors = array_reverse( get_post_ancestors( $post->ID ) );
+		$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
 
-		// Right to left support
-		if ( is_rtl() )
-			$sep = ( $sep = ' &rsaquo; ' ) ? ' &lsaquo; ' : $sep;
+		// Do we want to include a link to home?
+		if ( !empty( $include_home ) )
+			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
-		// Do we want to include the forum root?
-		if ( !empty( $root ) && ( get_option( '_bbp_include_root' ) ) && ( $root_slug = get_option( '_bbp_root_slug' ) ) ) {
-
-			// Page exists at the root slug location, so add it to the breadcrumb
-			if ( $page = get_page_by_path( $root_slug ) )
-				$title = get_the_title( $page->ID );
-
-			// Use generic root title
-			else
-				$title = __( 'Forums', 'bbpress' );
-
-			// Add root slug
-			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $root_slug ) ) . '">' . $title . '</a>';
-		}
+		// Do we want to include a link to the forum root?
+		if ( !empty( $include_root ) && ( !empty( $page ) && ( $front != $page->ID ) ) )
+			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
 
 		// Loop through parents
 		foreach( $ancestors as $parent_id ) {
@@ -1218,18 +1229,18 @@ function bbp_breadcrumb( $sep = ' &rsaquo; ', $current_page = true, $root = true
 		}
 
 		// Add current page to breadcrumb
-		if ( true == $current_page )
-			$breadcrumbs[] = get_the_title();
+		if ( true == $include_current )
+			$breadcrumbs[] = '<span class="bbp-breadcrumb-current">' . get_the_title() . '</span>';
 
 		// Allow the separator of the breadcrumb to be easily changed
-		$sep   = apply_filters( 'bbp_breadcrumb_separator', $sep );
+		$sep = apply_filters( 'bbp_breadcrumb_separator', $sep );
 
 		// Right to left support
 		if ( is_rtl() )
-			$breadcrumbs = array_reverse( $breadcrumbs );
+			$breadcrumbs = apply_filters( 'bbp_breadcrumbs', array_reverse( $breadcrumbs ) );
 
 		// Build the trail
-		$trail = !empty( $breadcrumbs ) ? implode( $sep, $breadcrumbs ) : '';
+		$trail = !empty( $breadcrumbs ) ? $before . implode( $sep, $breadcrumbs ) . $after: '';
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail );
 	}

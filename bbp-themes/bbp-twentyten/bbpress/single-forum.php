@@ -11,7 +11,7 @@
 
 <?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
 
-	<?php bbp_get_template_part( 'bbpress/nav', 'breadcrumb' ); ?>
+	<?php bbp_breadcrumb(); ?>
 
 	<?php bbp_single_forum_description(); ?>
 
