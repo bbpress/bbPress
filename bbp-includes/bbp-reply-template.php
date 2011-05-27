@@ -1144,13 +1144,13 @@ function bbp_reply_position( $reply_id = 0 ) {
 	 * @param int $reply_id
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_topic_id() Get the topic id of the reply id
-         * @uses bbp_get_topic_reply_count() To get the topic reply count
-         * @uses bbp_get_reply_post_type() To get the reply post type
+	 * @uses bbp_get_topic_reply_count() To get the topic reply count
+	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses bbp_get_public_child_ids() To get the reply ids of the topic id
 	 * @uses bbp_show_lead_topic() Bump the count if lead topic is included
 	 * @uses apply_filters() Calls 'bbp_get_reply_position' with the reply
-         *                        position, reply id and topic id
-         * @return int Reply position
+	 *                        position, reply id and topic id
+	 * @return int Reply position
 	 */
 	function bbp_get_reply_position( $reply_id = 0 ) {
 
@@ -1163,20 +1163,21 @@ function bbp_reply_position( $reply_id = 0 ) {
 		if ( $reply_count = bbp_get_topic_reply_count( $topic_id ) ) {
 
 			// Get reply id's
-			$topic_replies  = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
+			if ( $topic_replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() ) ) {
 
-			// Reverse replies array and search for current reply position
-			$topic_replies  = array_reverse( $topic_replies );
+				// Reverse replies array and search for current reply position
+				$topic_replies  = array_reverse( $topic_replies );
 
-			// Position found
-			if ( $reply_position = array_search( (string) $reply_id, $topic_replies ) ) {
+				// Position found
+				if ( $reply_position = array_search( (string) $reply_id, $topic_replies ) ) {
 
-				// Bump if topic is in replies loop
-				if ( !bbp_show_lead_topic() )
+					// Bump if topic is in replies loop
+					if ( !bbp_show_lead_topic() )
+						$reply_position++;
+
+					// Bump now so we don't need to do math later
 					$reply_position++;
-
-				// Bump now so we don't need to do math later
-				$reply_position++;
+				}
 			}
 		}
 

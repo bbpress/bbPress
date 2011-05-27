@@ -222,16 +222,34 @@ function bbp_new_topic_handler() {
 						default        :
 							break;
 					}
+				}
 
+				/** Trash Check ***********************************************/
+
+				// If the forum is trash, or the topic_status is switched to
+				// trash, trash it properly
+				if ( ( get_post_field( 'post_status', $forum_id ) == $bbp->trash_status_id ) || ( $topic_data['post_status'] == $bbp->trash_status_id ) ) {
+
+					// Trash the reply
+					wp_trash_post( $topic_id );
 				}
 
 				// Update counts, etc...
 				do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
+				/** Redirect **************************************************/
+
+				$topic_url = bbp_get_topic_permalink( $topic_id );
+
+				if ( $bbp->trash_status_id == $topic_data['post_status'] )
+					$topic_url = add_query_arg( array( 'view' => 'all' ), $topic_url );
+
+				$topic_url = apply_filters( 'bbp_new_topic_redirect_to', $topic_url );
+
 				/** Successful Save *******************************************/
 
-				// Redirect back to new reply
-				wp_redirect( bbp_get_topic_permalink( $topic_id ) . '#post-' . $topic_id );
+				// Redirect back to new topic
+				wp_redirect( $topic_url );
 
 				// For good measure
 				exit();
@@ -2407,10 +2425,14 @@ function bbp_trash_topic( $topic_id = 0 ) {
 
 	do_action( 'bbp_trash_topic', $topic_id );
 
-	// Topic is being permanently deleted, so its replies gotta go too
+	// Topic is being trashed, so its replies are trashed too
 	if ( bbp_has_replies( array( 'post_parent' => $topic_id, 'post_status' => 'publish', 'posts_per_page' => -1 ) ) ) {
 		global $bbp;
 
+		// Prevent debug notices
+		$pre_trashed_replies = array();
+
+		// Loop through replies, trash them, and add them to array
 		while ( bbp_replies() ) {
 			bbp_the_reply();
 			wp_trash_post( $bbp->reply_query->post->ID );

@@ -276,13 +276,41 @@ function bbp_new_reply_handler() {
 				if ( is_wp_error( $terms ) )
 					$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
 
+				/** Trash Check ***********************************************/
+
+				// If this reply starts as trash, add it to pre_trashed_replies
+				// for the topic, so it is properly restored.
+				if ( bbp_is_topic_trash( $topic_id ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) ) {
+
+					// Trash the reply
+					wp_trash_post( $reply_id );
+
+					// Get pre_trashed_replies for topic
+					$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
+
+					// Add this reply to the end of the existing replies
+					$pre_trashed_replies[] = $reply_id;
+
+					// Update the pre_trashed_reply post meta
+					update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
+				}
+
 				// Update counts, etc...
 				do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
+
+				/** Redirect **************************************************/
+
+				$reply_url = bbp_get_reply_url( $reply_id );
+
+				if ( ( !empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) )
+					$reply_url = add_query_arg( array( 'view' => 'all' ), $reply_url );
+
+				$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url );
 
 				/** Successful Save *******************************************/
 
 				// Redirect back to new reply
-				wp_redirect( bbp_get_reply_url( $reply_id ) );
+				wp_redirect( $reply_url );
 
 				// For good measure
 				exit();
@@ -675,6 +703,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
  * @uses bbp_update_forum_reply_count() To update the forum reply count
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
+	global $bbp;
 
 	// Verify the reply ID
 	if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
