@@ -81,11 +81,6 @@ table.bbp-replies tbody tr td {
 	background-color: #fff;
 }
 
-table tbody tr.bbp-reply-header:hover td,
-table tbody tr.bbp-reply-header td {
-	background-color: #f8f8f8;
-}
-
 table.bbp-forums th, table.bbp-topics th,
 table.bbp-topic th, table.bbp-replies th {
 	background-color: #f3f3f3;
@@ -93,6 +88,15 @@ table.bbp-topic th, table.bbp-replies th {
 table.bbp-forums th span, table.bbp-topics th span,
 table.bbp-topic th span, table.bbp-replies th span {
 	float: right;
+}
+#content th.bbp-topic-author,
+#content th.bbp-reply-author {
+	text-align: center;
+}
+#content th.bbp-topic-content,
+#content th.bbp-reply-content {
+	text-align: left;
+	padding: 9px 10px 9px 15px;
 }
 #content table.bbp-forums tfoot td, #content table.bbp-topics tfoot td,
 #content table.bbp-topic tfoot td, #content table.bbp-replies tfoot td,
@@ -122,9 +126,10 @@ span.bbp-author-ip {
 	text-align: center;
 	padding: 6px 0px;
 }
-#content .bbp-topic-author,
-#content .bbp-reply-author {
-	width: 80px;
+#content td.bbp-topic-author,
+#content td.bbp-reply-author {
+	padding: 20px 0 20px 20px;
+	width: 90px;
 	text-align: center;
 	vertical-align: top;
 }
@@ -137,7 +142,7 @@ span.bbp-author-ip {
 #content tbody .bbp-topic-content,
 #content tbody .bbp-reply-content {
 	vertical-align: top;
-	padding: 15px 20px 10px 10px;
+	padding: 15px 10px 10px 15px;
 }
 
 #content .bbp-topic-content img,
@@ -168,6 +173,13 @@ tr td span.bbp-admin-links a:hover {
 td.bbp-topic-admin-links,
 td.bbp-topic-counts {
 	width: 50%;
+}
+
+a.bbp-topic-permalink,
+a.bbp-reply-permalink {
+	float: right;
+	margin-left: 10px;
+	color: #ccc;
 }
 
 /* =Toggles

@@ -57,15 +57,11 @@
 			<?php while ( bbp_replies() ) : bbp_the_reply(); ?>
 
 				<tr class="bbp-reply-header">
-					<td class="bbp-reply-author">
-
-						<?php bbp_reply_author_display_name(); ?>
-
-					</td>
-					<td class="bbp-reply-content">
-						<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>">#</a>
+					<td colspan="2">
 
 						<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+
+						<a href="<?php bbp_reply_url(); ?>" title="<?php bbp_reply_title(); ?>" class="bbp-reply-permalink">#<?php bbp_reply_id(); ?></a>
 
 						<?php bbp_reply_admin_links(); ?>
 
@@ -76,9 +72,13 @@
 
 					<td class="bbp-reply-author">
 
-						<?php bbp_reply_author_link( array( 'type' => 'avatar' ) ); ?>
+						<?php bbp_reply_author_link(); ?>
 
-						<?php if ( is_super_admin() ) bbp_author_ip( bbp_get_reply_id() ); ?>
+						<?php if ( is_super_admin() ) : ?>
+						
+							<div class="bbp-reply-ip"><?php bbp_author_ip( bbp_get_reply_id() ); ?></div>
+
+						<?php endif; ?>
 
 					</td>
 
