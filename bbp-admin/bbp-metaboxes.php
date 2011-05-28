@@ -414,35 +414,40 @@ function bbp_reply_metabox() {
 /**
  * Anonymous user information metabox
  *
- * @since bbPress (r)
+ * @since bbPress (r2828)
  *
+ * @uses bbp_is_reply_anonymous() To check if reply is anonymous
+ * @uses bbp_is_topic_anonymous() To check if topic is anonymous
+ * @uses get_the_ID() To get the global post ID
  * @uses get_post_meta() To get the author user information
  */
-function bbp_author_metabox () {
-	global $post;
+function bbp_author_metabox() {
 
-	// Bail if topic/reply is not anonymous
-	if ( bbp_is_reply_anonymous( get_the_ID() ) || bbp_is_topic_anonymous( get_the_ID() ) ) : ?>
+	// Post ID
+	$post_id = get_the_ID();
+	
+	// Show extra bits if topic/reply is anonymous
+	if ( bbp_is_reply_anonymous( $post_id ) || bbp_is_topic_anonymous( $post_id ) ) : ?>
 
 		<p><strong><?php _e( 'Name', 'bbpress' ); ?></strong></p>
 
 		<p>
 			<label class="screen-reader-text" for="bbp_anonymous_name"><?php _e( 'Name', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_name', true ); ?>" size="38" />
+			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_name', true ); ?>" size="38" />
 		</p>
 
 		<p><strong><?php _e( 'Email', 'bbpress' ); ?></strong></p>
 
 		<p>
 			<label class="screen-reader-text" for="bbp_anonymous_email"><?php _e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_email', true ); ?>" size="38" />
+			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_email', true ); ?>" size="38" />
 		</p>
 
 		<p><strong><?php _e( 'Website', 'bbpress' ); ?></strong></p>
 
 		<p>
 			<label class="screen-reader-text" for="bbp_anonymous_website"><?php _e( 'Website', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo get_post_meta( $post->ID, '_bbp_anonymous_website', true ); ?>" size="38" />
+			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_website', true ); ?>" size="38" />
 		</p>
 
 	<?php endif; ?>
@@ -451,12 +456,12 @@ function bbp_author_metabox () {
 
 	<p>
 		<label class="screen-reader-text" for="bbp_author_ip_address"><?php _e( 'IP Address', 'bbpress' ); ?></label>
-		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo get_post_meta( $post->ID, '_bbp_author_ip', true ); ?>" size="38" disabled="disabled" />
+		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo get_post_meta( $post_id, '_bbp_author_ip', true ); ?>" size="38" disabled="disabled" />
 	</p>
 
 	<?php
 
-	do_action( 'bbp_author_metabox', $post->ID );
+	do_action( 'bbp_author_metabox', $post_id );
 }
 
 ?>
