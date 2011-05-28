@@ -241,7 +241,7 @@ function bbp_has_topics( $args = '' ) {
 				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
 
 			// Topic archive
-			elseif ( is_post_type_archive( bbp_get_topic_post_type() ) )
+			elseif ( bbp_is_topic_archive() )
 				$base = user_trailingslashit( trailingslashit( home_url( $bbp->topic_archive_slug ) ) . 'page/%#%/' );
 
 			// Page or single post

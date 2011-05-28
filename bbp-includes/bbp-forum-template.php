@@ -85,7 +85,7 @@ function bbp_has_forums( $args = '' ) {
 	// The default forum query for most circumstances
 	$default = array (
 		'post_type'      => bbp_get_forum_post_type(),
-		'post_parent'    => is_post_type_archive( bbp_get_forum_post_type() ) ? 0 : bbp_get_forum_id() ,
+		'post_parent'    => bbp_is_forum_archive() ? 0 : bbp_get_forum_id() ,
 		'post_status'    => implode( ',', $post_stati ),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
 		'orderby'        => 'menu_order',

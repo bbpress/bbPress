@@ -71,6 +71,29 @@ function bbp_is_forum( $post_id = 0 ) {
 }
 
 /**
+ * Check if we are viewing a forum archive.
+ *
+ * @since bbPress (r3251)
+ * 
+ * @uses is_post_type_archive() To check if we are looking at the forum archive
+ * @uses bbp_get_forum_post_type() To get the forum post type ID
+ *
+ * @return bool
+ */
+function bbp_is_forum_archive() {
+	global $bbp;
+	
+	// Default to false
+	$retval = false;
+
+	// In forum archive
+	if ( is_post_type_archive( bbp_get_forum_post_type() ) )
+		$retval = true;
+	
+	return apply_filters( 'bbp_is_forum_archive', (bool) $retval );
+}
+
+/**
  * Check if current page is a bbPress topic
  *
  * @since bbPress (r2549)
@@ -104,6 +127,29 @@ function bbp_is_topic( $post_id = 0 ) {
 		return true;
 
 	return false;
+}
+
+/**
+ * Check if we are viewing a topic archive.
+ *
+ * @since bbPress (r3251)
+ * 
+ * @uses is_post_type_archive() To check if we are looking at the topic archive
+ * @uses bbp_get_topic_post_type() To get the topic post type ID
+ *
+ * @return bool
+ */
+function bbp_is_topic_archive() {
+	global $bbp;
+
+	// Default to false
+	$retval = false;
+
+	// In topic archive
+	if ( is_post_type_archive( bbp_get_topic_post_type() ) )
+		$retval = true;
+	
+	return apply_filters( 'bbp_is_topic_archive', (bool) $retval );
 }
 
 /**
@@ -1231,7 +1277,7 @@ function bbp_breadcrumb( $args = array() ) {
 			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
 		// Do we want to include a link to the forum root?
-		if ( !empty( $include_root ) && !is_post_type_archive( bbp_get_forum_post_type() ) ) {
+		if ( !empty( $include_root ) && !bbp_is_forum_archive() ) {
 			
 			// Forum view, or home page ID != root page ID
 			if ( bbp_is_view() || empty( $page_id ) || ( $home_id != $page_id ) ) {

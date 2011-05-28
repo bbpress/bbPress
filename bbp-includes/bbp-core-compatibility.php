@@ -165,6 +165,116 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_tax     = false;
 }
 
+/** Filters *******************************************************************/
+
+/**
+ * Removes all filters from a WordPress filter, and stashes them in the $bbp
+ * global in the event they need to be restored later.
+ *
+ * @since bbPress (r3251)
+ *
+ * @global bbPress $bbp
+ * @global WP_filter $wp_filter
+ * @global array $merged_filters
+ *
+ * @param string $tag
+ * @param int $priority
+ *
+ * @return bool
+ */
+function bbp_remove_all_filters( $tag, $priority = false ) {
+	global $bbp, $wp_filter, $merged_filters;
+
+	// Filters exist
+	if ( isset( $wp_filter[$tag] ) ) {
+
+		// Filters exist in this priority
+		if ( !empty( $priority ) && isset( $wp_filter[$tag][$priority] ) ) {
+
+			// Store filters in a backup
+			$bbp->filters->wp_filter[$tag][$priority] = $wp_filter[$tag][$priority];
+
+			// Unset the filters
+			unset( $wp_filter[$tag][$priority] );
+			
+		// Priority is empty
+		} else {
+
+			// Store filters in a backup
+			$bbp->filters->wp_filter[$tag] = $wp_filter[$tag];
+
+			// Unset the filters
+			unset( $wp_filter[$tag] );
+		}
+	}
+
+	// Check merged filters
+	if ( isset( $merged_filters[$tag] ) ) {
+
+		// Store filters in a backup
+		$bbp->filters->merged_filters[$tag] = $merged_filters[$tag];
+
+		// Unset the filters
+		unset( $merged_filters[$tag] );
+	}
+
+	return true;	
+}
+
+/**
+ * Restores filters from the $bbp global that were removed using
+ * bbp_remove_all_filters()
+ *
+ * @since bbPress (r3251)
+ *
+ * @global bbPress $bbp
+ * @global WP_filter $wp_filter
+ * @global array $merged_filters
+ *
+ * @param string $tag
+ * @param int $priority
+ *
+ * @return bool
+ */
+function bbp_restore_all_filters( $tag, $priority = false ) {
+	global $bbp, $wp_filter, $merged_filters;
+	
+	// Filters exist
+	if ( isset( $bbp->filters->wp_filter[$tag] ) ) {
+
+		// Filters exist in this priority
+		if ( !empty( $priority ) && isset( $bbp->filters->wp_filter[$tag][$priority] ) ) {
+
+			// Store filters in a backup
+			$wp_filter[$tag][$priority] = $bbp->filters->wp_filter[$tag][$priority];
+
+			// Unset the filters
+			unset( $bbp->filters->wp_filter[$tag][$priority] );
+			
+		// Priority is empty
+		} else {
+
+			// Store filters in a backup
+			$wp_filter[$tag] = $bbp->filters->wp_filter[$tag];
+
+			// Unset the filters
+			unset( $bbp->filters->wp_filter[$tag] );
+		}
+	}
+
+	// Check merged filters
+	if ( isset( $bbp->filters->merged_filters[$tag] ) ) {
+
+		// Store filters in a backup
+		$merged_filters[$tag] = $bbp->filters->merged_filters[$tag];
+
+		// Unset the filters
+		unset( $bbp->filters->merged_filters[$tag] );
+	}
+
+	return true;
+}
+
 /**
  * Add checks for view page, user page, user edit, topic edit and reply edit
  * pages.
@@ -443,7 +553,7 @@ function bbp_template_include( $template = false ) {
 		/** Forums ************************************************************/
 
 		// Forum archive
-		} elseif ( is_post_type_archive( bbp_get_forum_post_type() ) ) {
+		} elseif ( bbp_is_forum_archive() ) {
 
 			// In Theme Compat
 			$in_theme_compat = true;
@@ -460,7 +570,7 @@ function bbp_template_include( $template = false ) {
 		/** Topics ************************************************************/
 
 		// Topic archive
-		} elseif ( is_post_type_archive( bbp_get_topic_post_type() ) ) {
+		} elseif ( bbp_is_topic_archive() ) {
 
 			// In Theme Compat
 			$in_theme_compat = true;
@@ -527,7 +637,16 @@ function bbp_template_include( $template = false ) {
 
 			// In Theme Compat
 			$in_theme_compat = true;
-			bbp_theme_compat_reset_post();
+			bbp_theme_compat_reset_post( array(
+				'ID'           => 0,
+				'post_title'   => bbp_get_view_title(),
+				'post_author'  => 0,
+				'post_date'    => 0,
+				'post_content' => '',
+				'post_type'    => '',
+				'post_status'  => 'publish'
+			) );
+
 
 		/** Topic Tags ********************************************************/
 
@@ -589,7 +708,7 @@ function bbp_template_include( $template = false ) {
 		if ( true === $in_theme_compat ) {
 
 			// Remove all filters from the_content
-			remove_all_filters( 'the_content' );
+			bbp_remove_all_filters( 'the_content' );
 
 			// Add a filter on the_content late, which we will later remove
 			add_filter( 'the_content', 'bbp_replace_the_content' );
@@ -672,14 +791,53 @@ function bbp_replace_the_content( $content = '' ) {
 		/** Forums ************************************************************/
 
 		// Forum archive
-		} elseif ( is_post_type_archive( bbp_get_forum_post_type() ) ) {
-			$new_content = $bbp->shortcodes->display_forum_index();
+		} elseif ( bbp_is_forum_archive() ) {
+			
+			// Page exists where this archive should be
+			if ( $page = get_page_by_path( $bbp->root_slug ) ) {
+
+				// Start output buffer
+				ob_start();
+
+				// Restore previously unset filters
+				bbp_restore_all_filters( 'the_content' );
+
+				// Grab the content of this page
+				$new_content = do_shortcode( apply_filters( 'the_content', get_post_field( 'post_content', $page->ID ) ) );
+
+				// Clean up the buffer
+				ob_end_clean();
+
+			// No page so show the archive
+			} else {
+				$new_content = $bbp->shortcodes->display_forum_index();
+			}
 
 		/** Topics ************************************************************/
 
 		// Topic archive
-		} elseif ( is_post_type_archive( bbp_get_topic_post_type() ) ) {
-			$new_content = $bbp->shortcodes->display_topic_index();
+		} elseif ( bbp_is_topic_archive() ) {
+
+			// Page exists where this archive should be
+			if ( $page = get_page_by_path( $bbp->topic_archive_slug ) ) {
+
+				// Start output buffer
+				ob_start();
+
+				// Restore previously unset filters
+				bbp_restore_all_filters( 'the_content' );
+
+				// Grab the content of this page
+				$new_content = do_shortcode( apply_filters( 'the_content', get_post_field( 'post_content', $page->ID ) ) );
+
+				// Clean up the buffer
+				ob_end_clean();
+
+
+			// No page so show the archive
+			} else {
+				$new_content = $bbp->shortcodes->display_topic_index();
+			}
 
 		// Single topic
 		} elseif ( bbp_is_topic_edit() ) {
