@@ -1208,13 +1208,14 @@ function bbp_breadcrumb( $args = array() ) {
 		global $bbp;
 
 		// Turn off breadcrumbs
-		if ( apply_filters( 'bbp_no_breadcrumb', false ) )
+		if ( apply_filters( 'bbp_no_breadcrumb', is_front_page() ) )
 			return;
 
 		// Define variables
-		$page = 0; $page_id = 0; $home_id = 0;
-		$pre_root_text = $pre_home_text = $pre_current_text= '';
-		$ancestors = array();
+		$front_id  = $root_id     = 0;
+		$ancestors = $breadcrumbs = array();
+		$pre_root_text    = $pre_front_text   = $pre_current_text    = '';
+		$pre_include_root = $pre_include_home = $pre_include_current = true;
 
 		/** Home Text *********************************************************/
 
@@ -1222,21 +1223,35 @@ function bbp_breadcrumb( $args = array() ) {
 		if ( empty( $args['home_text'] ) ) {
 			
 			// Set home text to page title
-			if ( $home_id = get_option( 'page_on_front' ) ) {
-				$pre_home_text = get_the_title( $home_id );
+			if ( $front_id = get_option( 'page_on_front' ) ) {
+				$pre_front_text = get_the_title( $front_id );
 				
 			// Default to 'Home'
 			} else {
-				$pre_home_text = __( 'Home', 'bbpress' );
+				$pre_front_text = __( 'Home', 'bbpress' );
 			}
 		}
 
 		/** Root Text *********************************************************/
 
 		// No custom root text
-		if ( empty( $args['root_text'] ) )
+		if ( empty( $args['root_text'] ) ) {
+			if ( $page = get_page_by_path( $bbp->root_slug ) ) {
+				$root_id = $page->ID;
+			}
 			$pre_root_text = bbp_get_forum_archive_title();
+		}
 		
+		/** Includes **********************************************************/
+
+		// Root slug is also the front page
+		if ( !empty( $front_id ) && ( $front_id == $root_id ) )
+			$pre_include_root = false;
+
+		// Don't show root if viewing root
+		if ( bbp_is_forum_archive() )
+			$pre_include_root = false;
+
 		/** Current Text ******************************************************/
 		
 		$pre_current_text = ( bbp_is_view() ) ? bbp_get_view_title() : get_the_title();
@@ -1252,15 +1267,15 @@ function bbp_breadcrumb( $args = array() ) {
 			'sep'             => is_rtl() ? ' &lsaquo; ' : ' &rsaquo; ',
 
 			// Home
-			'include_home'    => true,
-			'home_text'       => $pre_home_text,
+			'include_home'    => $pre_include_home,
+			'home_text'       => $pre_front_text,
 
 			// Forum root
-			'include_root'    => true,
+			'include_root'    => $pre_include_root,
 			'root_text'       => $pre_root_text,
 
 			// Current
-			'include_current' => true,
+			'include_current' => $pre_include_current,
 			'current_text'    => $pre_current_text
 		);
 		$r = wp_parse_args( $args, $defaults );
@@ -1277,13 +1292,8 @@ function bbp_breadcrumb( $args = array() ) {
 			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
 		// Do we want to include a link to the forum root?
-		if ( !empty( $include_root ) && !bbp_is_forum_archive() ) {
-			
-			// Forum view, or home page ID != root page ID
-			if ( bbp_is_view() || empty( $page_id ) || ( $home_id != $page_id ) ) {
-				$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
-			}
-		}
+		if ( !empty( $include_root ) )
+			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
 
 		// Ancestors exist
 		if ( !empty( $ancestors ) ) {
