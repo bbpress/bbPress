@@ -404,6 +404,9 @@ function bbp_pre_get_posts( $posts_query ) {
 			return;
 		}
 
+		// Correct is_home variable
+		$posts_query->is_home     = false;
+
 		// We are in a custom topic view
 		$posts_query->bbp_is_view = true;
 
