@@ -57,8 +57,8 @@ wp_reset_postdata();
 						<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
 
 						<p>
-							<label for="bbp_topic_title"><?php _e( 'Topic Title:', 'bbpress' ); ?></label><br />
-							<input type="text" id="bbp_topic_title" value="<?php bbp_form_topic_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_title" />
+							<label for="bbp_topic_title"><?php printf( __( 'Topic Title (Maximum Length: %d):', 'bbpress' ), bbp_get_title_max_length() ); ?></label><br />
+							<input type="text" id="bbp_topic_title" value="<?php bbp_form_topic_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_title" maxlength="<?php bbp_title_max_length(); ?>" />
 						</p>
 
 						<p>

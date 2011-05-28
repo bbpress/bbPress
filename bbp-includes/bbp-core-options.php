@@ -98,6 +98,9 @@ function bbp_add_options() {
 
 		/** Topics ************************************************************/
 
+		// Title Max Length
+		'_bbp_title_max_length'     => '80',
+
 		// Super stickies
 		'_bbp_super_sticky_topics'  => '',
 
@@ -160,7 +163,31 @@ function bbp_is_subscriptions_active( $default = true ) {
  * @return bool Is anonymous posting allowed?
  */
 function bbp_allow_anonymous( $default = false ) {
-	return apply_filters( 'bbp_allow_anonymous', get_option( '_bbp_allow_anonymous', $default ) );
+	return apply_filters( 'bbp_allow_anonymous', (bool) get_option( '_bbp_allow_anonymous', $default ) );
 }
+
+/**
+ * Output the maximum length of a title
+ *
+ * @since bbPress (r3246)
+ *
+ * @param $default bool Optional. Default value
+ */
+function bbp_title_max_length( $default = '80' ) {
+	echo bbp_get_title_max_length( $default );
+}
+	/**
+	 * Return the maximum length of a title
+	 *
+	 * @since bbPress (r3246)
+	 *
+	 * @param $default bool Optional. Default value
+	 *
+	 * @uses get_option() To get the maximum title length
+	 * @return int Is anonymous posting allowed?
+	 */
+	function bbp_get_title_max_length( $default = '80' ) {
+		return apply_filters( 'bbp_get_title_max_length', (int) get_option( '_bbp_title_max_length', $default ) );
+	}
 
 ?>
