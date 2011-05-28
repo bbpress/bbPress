@@ -73,7 +73,7 @@ function bbp_has_topics( $args = '' ) {
 		wp_reset_postdata();
 
 	// Are we in a forum and looking to do a forum only query?
-	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_query_name( 'bbp_widget' ) );
+	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_forum_archive() && !bbp_is_query_name( 'bbp_widget' ) );
 
 	// What are the default allowed statuses (based on user caps)
 	if ( current_user_can( 'moderate' ) && !bbp_is_query_name( 'bbp_widget' ) && ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) ) )
