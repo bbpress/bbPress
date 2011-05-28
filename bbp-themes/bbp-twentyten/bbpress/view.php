@@ -26,11 +26,15 @@
 
 						<?php if ( bbp_view_query() ) : ?>
 
-							<?php bbp_get_template_part( 'bbpress/loop', 'topics' ); ?>
+							<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+
+							<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
+
+							<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
 						<?php else : ?>
 
-							<p><?php _e( 'Oh bother! No topics were found here!', 'bbpress' ); ?></p>
+							<?php bbp_get_template_part( 'bbpress/no',         'topics' ); ?>
 
 						<?php endif; ?>
 
