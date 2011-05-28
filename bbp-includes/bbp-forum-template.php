@@ -283,6 +283,53 @@ function bbp_forum_title( $forum_id = 0 ) {
 	}
 
 /**
+ * Output the forum archive title
+ *
+ * @since bbPress (r3249)
+ *
+ * @param string $title Default text to use as title
+ */
+function bbp_forum_archive_title( $title = '' ) {
+	echo bbp_get_forum_archive_title( $title );
+}
+	/**
+	 * Return the forum archive title
+	 *
+	 * @since bbPress (r3249)
+	 *
+	 * @global bbPress $bbp The main bbPress class
+	 * @param string $title Default text to use as title
+	 *
+	 * @uses get_page_by_path() Check if page exists at root path
+	 * @uses get_the_title() Use the page title at the root path
+	 * @uses get_post_type_object() Load the post type object
+	 * @uses bbp_get_forum_post_type() Get the forum post type ID
+	 * @uses get_post_type_labels() Get labels for forum post type
+	 * @uses apply_filters() Allow output to be manipulated
+	 *
+	 * @return string The forum archive title
+	 */
+	function bbp_get_forum_archive_title( $title = '' ) {
+		global $bbp;
+
+		// If no title was passed
+		if ( empty( $title ) ) {
+
+			// Set root text to page title
+			if ( $page = get_page_by_path( $bbp->root_slug ) ) {
+				$title = get_the_title( $page->ID );
+
+			// Default to forum post type name label
+			} else {
+				$fto    = get_post_type_object( bbp_get_forum_post_type() );
+				$title  = $fto->labels->name;
+			}
+		}
+
+		return apply_filters( 'bbp_get_forum_archive_title', $title );
+	}
+
+/**
  * Output the content of the forum
  *
  * @since bbPress (r2780)

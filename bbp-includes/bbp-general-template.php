@@ -1165,6 +1165,38 @@ function bbp_breadcrumb( $args = array() ) {
 		if ( apply_filters( 'bbp_no_breadcrumb', false ) )
 			return;
 
+		// Define variables
+		$page = 0; $page_id = 0; $home_id = 0;
+		$pre_root_text = $pre_home_text = $pre_current_text= '';
+		$ancestors = array();
+
+		/** Home Text *********************************************************/
+
+		// No custom home text
+		if ( empty( $args['home_text'] ) ) {
+			
+			// Set home text to page title
+			if ( $home_id = get_option( 'page_on_front' ) ) {
+				$pre_home_text = get_the_title( $home_id );
+				
+			// Default to 'Home'
+			} else {
+				$pre_home_text = __( 'Home', 'bbpress' );
+			}
+		}
+
+		/** Root Text *********************************************************/
+
+		// No custom root text
+		if ( empty( $args['root_text'] ) )
+			$pre_root_text = bbp_get_forum_archive_title();
+		
+		/** Current Text ******************************************************/
+		
+		$pre_current_text = ( bbp_is_view() ) ? bbp_get_view_title() : get_the_title();
+		
+		/** Parse Args ********************************************************/
+
 		// Parse args
 		$defaults = array(
 
@@ -1175,62 +1207,79 @@ function bbp_breadcrumb( $args = array() ) {
 
 			// Home
 			'include_home'    => true,
-			'home_text'       => ( $front = get_option( 'page_on_front' ) ) ? get_the_title( $front ) : __( 'Home' ),
+			'home_text'       => $pre_home_text,
 
 			// Forum root
-			'include_root'    => get_option( '_bbp_include_root' ),
-			'root_text'       => ( $page = get_page_by_path( $bbp->root_slug ) ) ? get_the_title( $page->ID ) : __( 'Forums', 'bbpress' ),
+			'include_root'    => true,
+			'root_text'       => $pre_root_text,
 
 			// Current
 			'include_current' => true,
+			'current_text'    => $pre_current_text
 		);
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
+		/** Ancestors *********************************************************/
+
 		// Get post ancestors
-		$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
+		if ( is_page() || is_single() )
+			$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
 
 		// Do we want to include a link to home?
 		if ( !empty( $include_home ) )
 			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
 		// Do we want to include a link to the forum root?
-		if ( !empty( $include_root ) && ( !empty( $page ) && ( $front != $page->ID ) ) )
-			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
-
-		// Loop through parents
-		foreach( $ancestors as $parent_id ) {
-
-			// Parents
-			$parent = get_post( $parent_id );
-
-			// Switch through post_type to ensure correct filters are applied
-			switch ( $parent->post_type ) {
-				// Forum
-				case bbp_get_forum_post_type() :
-					$breadcrumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '">' . bbp_get_forum_title( $parent->ID ) . '</a>';
-					break;
-
-				// Topic
-				case bbp_get_topic_post_type() :
-					$breadcrumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '">' . bbp_get_topic_title( $parent->ID ) . '</a>';
-					break;
-
-				// Reply (Note: not in most themes)
-				case bbp_get_reply_post_type() :
-					$breadcrumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '">' . bbp_get_reply_title( $parent->ID ) . '</a>';
-					break;
-
-				// WordPress Post/Page/Other
-				default :
-					$breadcrumbs[] = '<a href="' . get_permalink( $parent->ID ) . '">' . get_the_title( $parent->ID ) . '</a>';
-					break;
+		if ( !empty( $include_root ) && !is_post_type_archive( bbp_get_forum_post_type() ) ) {
+			
+			// Forum view, or home page ID != root page ID
+			if ( bbp_is_view() || empty( $page_id ) || ( $home_id != $page_id ) ) {
+				$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
 			}
 		}
 
+		// Ancestors exist
+		if ( !empty( $ancestors ) ) {
+
+			// Loop through parents
+			foreach( (array) $ancestors as $parent_id ) {
+
+				// Parents
+				$parent = get_post( $parent_id );
+
+				// Switch through post_type to ensure correct filters are applied
+				switch ( $parent->post_type ) {
+					// Forum
+					case bbp_get_forum_post_type() :
+						$breadcrumbs[] = '<a href="' . bbp_get_forum_permalink( $parent->ID ) . '">' . bbp_get_forum_title( $parent->ID ) . '</a>';
+						break;
+
+					// Topic
+					case bbp_get_topic_post_type() :
+						$breadcrumbs[] = '<a href="' . bbp_get_topic_permalink( $parent->ID ) . '">' . bbp_get_topic_title( $parent->ID ) . '</a>';
+						break;
+
+					// Reply (Note: not in most themes)
+					case bbp_get_reply_post_type() :
+						$breadcrumbs[] = '<a href="' . bbp_get_reply_permalink( $parent->ID ) . '">' . bbp_get_reply_title( $parent->ID ) . '</a>';
+						break;
+
+					// WordPress Post/Page/Other
+					default :
+						$breadcrumbs[] = '<a href="' . get_permalink( $parent->ID ) . '">' . get_the_title( $parent->ID ) . '</a>';
+						break;
+				}
+			}
+		}
+
+		/** Current ***********************************************************/
+
 		// Add current page to breadcrumb
-		if ( true == $include_current )
-			$breadcrumbs[] = '<span class="bbp-breadcrumb-current">' . get_the_title() . '</span>';
+		if ( !empty( $include_current ) )
+			$breadcrumbs[] = '<span class="bbp-breadcrumb-current">' . $current_text . '</span>';
+
+		/** Finish Up *********************************************************/
 
 		// Allow the separator of the breadcrumb to be easily changed
 		$sep = apply_filters( 'bbp_breadcrumb_separator', $sep );
@@ -1242,7 +1291,7 @@ function bbp_breadcrumb( $args = array() ) {
 		// Build the trail
 		$trail = !empty( $breadcrumbs ) ? $before . implode( $sep, $breadcrumbs ) . $after: '';
 
-		return apply_filters( 'bbp_get_breadcrumb', $trail );
+		return apply_filters( 'bbp_get_breadcrumb', $trail, $breadcrumbs, $r );
 	}
 
 /** Topic Tags ***************************************************************/

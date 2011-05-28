@@ -449,7 +449,7 @@ function bbp_template_include( $template = false ) {
 			$in_theme_compat = true;
 			bbp_theme_compat_reset_post( array(
 				'ID'           => 0,
-				'post_title'   => __( 'Forums', 'bbpress' ),
+				'post_title'   => bbp_get_forum_archive_title(),
 				'post_author'  => 0,
 				'post_date'    => 0,
 				'post_content' => '',
@@ -466,7 +466,7 @@ function bbp_template_include( $template = false ) {
 			$in_theme_compat = true;
 			bbp_theme_compat_reset_post( array(
 				'ID'           => 0,
-				'post_title'   => __( 'Topics', 'bbpress' ),
+				'post_title'   => bbp_get_topic_archive_title(),
 				'post_author'  => 0,
 				'post_date'    => 0,
 				'post_content' => '',

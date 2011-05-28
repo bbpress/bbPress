@@ -21,7 +21,7 @@
 		</thead>
 
 		<tfoot>
-			<tr><td colspan="4">&nbsp;<?php // @todo - Moderation links ?></td></tr>
+			<tr><td colspan="4">&nbsp;</td></tr>
 		</tfoot>
 
 		<tbody>

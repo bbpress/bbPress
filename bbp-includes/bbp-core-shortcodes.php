@@ -202,8 +202,14 @@ class BBP_Shortcodes {
 	 */
 	function display_forum_index() {
 
+		// Unset globals
+		$this->_unset_globals();
+
 		// Start output buffer
 		$this->_ob_start();
+
+		// Breadcrumb
+		bbp_breadcrumb();
 
 		// Load the forums index
 		if ( bbp_has_forums() )
@@ -355,7 +361,10 @@ class BBP_Shortcodes {
 		$this->_unset_globals();
 
 		// Start output buffer
-		ob_start();
+		$this->_ob_start();
+
+		// Breadcrumb
+		bbp_breadcrumb();
 
 		// Load the topic index
 		if ( bbp_has_topics( $topics_query ) ) {

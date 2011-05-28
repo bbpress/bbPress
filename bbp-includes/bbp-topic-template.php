@@ -463,6 +463,53 @@ function bbp_topic_title( $topic_id = 0 ) {
 	}
 
 /**
+ * Output the topic archive title
+ *
+ * @since bbPress (r3249)
+ *
+ * @param string $title Default text to use as title
+ */
+function bbp_topic_archive_title( $title = '' ) {
+	echo bbp_get_topic_archive_title( $title );
+}
+	/**
+	 * Return the topic archive title
+	 *
+	 * @since bbPress (r3249)
+	 *
+	 * @global bbPress $bbp The main bbPress class
+	 * @param string $title Default text to use as title
+	 *
+	 * @uses get_page_by_path() Check if page exists at root path
+	 * @uses get_the_title() Use the page title at the root path
+	 * @uses get_post_type_object() Load the post type object
+	 * @uses bbp_get_topic_post_type() Get the topic post type ID
+	 * @uses get_post_type_labels() Get labels for topic post type
+	 * @uses apply_filters() Allow output to be manipulated
+	 *
+	 * @return string The topic archive title
+	 */
+	function bbp_get_topic_archive_title( $title = '' ) {
+		global $bbp;
+
+		// If no title was passed
+		if ( empty( $title ) ) {
+
+			// Set root text to page title
+			if ( $page = get_page_by_path( $bbp->topic_archive_slug ) ) {
+				$title = get_the_title( $page->ID );
+
+			// Default to topic post type name label
+			} else {
+				$tto    = get_post_type_object( bbp_get_topic_post_type() );
+				$title  = $tto->labels->name;
+			}
+		}
+
+		return apply_filters( 'bbp_get_topic_archive_title', $title );
+	}
+
+/**
  * Output the content of the topic
  *
  * @since bbPress (r2780)
