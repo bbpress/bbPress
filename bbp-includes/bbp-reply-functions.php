@@ -269,6 +269,9 @@ function bbp_new_reply_handler() {
 
 				/** Topic Tags ************************************************/
 
+				// Just in time manipulation of reply terms before being edited
+				$terms = apply_filters( 'bbp_new_reply_pre_set_terms', $terms, $topic_id );
+
 				// Insert terms
 				$terms = wp_set_post_terms( $topic_id, $terms, $bbp->topic_tag_id, false );
 
@@ -483,6 +486,9 @@ function bbp_edit_reply_handler() {
 			$reply_id = wp_update_post( $reply_data );
 
 			/** Topic Tags ************************************************/
+
+			// Just in time manipulation of reply terms before being edited
+			$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id );
 
 			// Insert terms
 			$terms = wp_set_post_terms( $topic_id, $terms, $bbp->topic_tag_id, false );
