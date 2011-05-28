@@ -501,7 +501,9 @@ class bbPress {
 		// Forum labels
 		$forum['labels'] = array(
 			'name'               => __( 'Forums',                   'bbpress' ),
+			'menu_name'          => __( 'Forums',                   'bbpress' ),
 			'singular_name'      => __( 'Forum',                    'bbpress' ),
+			'all_items'          => __( 'All Forums',               'bbpress' ),
 			'add_new'            => __( 'New Forum',                'bbpress' ),
 			'add_new_item'       => __( 'Create New Forum',         'bbpress' ),
 			'edit'               => __( 'Edit',                     'bbpress' ),
@@ -556,7 +558,9 @@ class bbPress {
 		// Topic labels
 		$topic['labels'] = array(
 			'name'               => __( 'Topics',                   'bbpress' ),
+			'menu_name'          => __( 'Topics',                   'bbpress' ),
 			'singular_name'      => __( 'Topic',                    'bbpress' ),
+			'all_items'          => __( 'All Topics',               'bbpress' ),
 			'add_new'            => __( 'New Topic',                'bbpress' ),
 			'add_new_item'       => __( 'Create New Topic',         'bbpress' ),
 			'edit'               => __( 'Edit',                     'bbpress' ),
@@ -611,7 +615,9 @@ class bbPress {
 		// Reply labels
 		$reply['labels'] = array(
 			'name'               => __( 'Replies',                   'bbpress' ),
+			'menu_name'          => __( 'Replies',                   'bbpress' ),
 			'singular_name'      => __( 'Reply',                     'bbpress' ),
+			'all_items'          => __( 'All Replies',               'bbpress' ),
 			'add_new'            => __( 'New Reply',                 'bbpress' ),
 			'add_new_item'       => __( 'Create New Reply',          'bbpress' ),
 			'edit'               => __( 'Edit',                      'bbpress' ),
