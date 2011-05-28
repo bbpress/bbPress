@@ -530,21 +530,22 @@ class bbPress {
 
 		// Forum filter
 		$bbp_cpt['forum'] = apply_filters( 'bbp_register_forum_post_type', array(
-			'labels'            => $forum['labels'],
-			'rewrite'           => $forum['rewrite'],
-			'supports'          => $forum['supports'],
-			'description'       => __( 'bbPress Forums', 'bbpress' ),
-			'capabilities'      => bbp_get_forum_caps(),
-			'capability_type'   => 'forum',
-			'menu_position'     => 56,
-			'has_archive'       => !empty( $this->root_slug ) ? $this->root_slug : false,
-			'show_in_nav_menus' => true,
-			'public'            => true,
-			'show_ui'           => true,
-			'can_export'        => true,
-			'hierarchical'      => true,
-			'query_var'         => true,
-			'menu_icon'         => ''
+			'labels'              => $forum['labels'],
+			'rewrite'             => $forum['rewrite'],
+			'supports'            => $forum['supports'],
+			'description'         => __( 'bbPress Forums', 'bbpress' ),
+			'capabilities'        => bbp_get_forum_caps(),
+			'capability_type'     => 'forum',
+			'menu_position'       => 56,
+			'has_archive'         => !empty( $this->root_slug ) ? $this->root_slug : false,
+			'exclude_from_search' => true,
+			'show_in_nav_menus'   => true,
+			'public'              => true,
+			'show_ui'             => true,
+			'can_export'          => true,
+			'hierarchical'        => true,
+			'query_var'           => true,
+			'menu_icon'           => ''
 		) );
 
 		// Register Forum content type
@@ -584,21 +585,22 @@ class bbPress {
 
 		// Topic Filter
 		$bbp_cpt['topic'] = apply_filters( 'bbp_register_topic_post_type', array(
-			'labels'            => $topic['labels'],
-			'rewrite'           => $topic['rewrite'],
-			'supports'          => $topic['supports'],
-			'description'       => __( 'bbPress Topics', 'bbpress' ),
-			'capabilities'      => bbp_get_topic_caps(),
-			'capability_type'   => 'topic',
-			'menu_position'     => 57,
-			'has_archive'       => get_page_by_path( $this->topic_archive_slug ) ? false : $this->topic_archive_slug,
-			'show_in_nav_menus' => false,
-			'public'            => true,
-			'show_ui'           => true,
-			'can_export'        => true,
-			'hierarchical'      => false,
-			'query_var'         => true,
-			'menu_icon'         => ''
+			'labels'              => $topic['labels'],
+			'rewrite'             => $topic['rewrite'],
+			'supports'            => $topic['supports'],
+			'description'         => __( 'bbPress Topics', 'bbpress' ),
+			'capabilities'        => bbp_get_topic_caps(),
+			'capability_type'     => 'topic',
+			'menu_position'       => 57,
+			'has_archive'         => get_page_by_path( $this->topic_archive_slug ) ? false : $this->topic_archive_slug,
+			'exclude_from_search' => true,
+			'show_in_nav_menus'   => false,
+			'public'              => true,
+			'show_ui'             => true,
+			'can_export'          => true,
+			'hierarchical'        => false,
+			'query_var'           => true,
+			'menu_icon'           => ''
 		) );
 
 		// Register Topic content type
@@ -638,21 +640,22 @@ class bbPress {
 
 		// Reply filter
 		$bbp_cpt['reply'] = apply_filters( 'bbp_register_reply_post_type', array(
-			'labels'            => $reply['labels'],
-			'rewrite'           => $reply['rewrite'],
-			'supports'          => $reply['supports'],
-			'description'       => __( 'bbPress Replies', 'bbpress' ),
-			'capabilities'      => bbp_get_reply_caps(),
-			'capability_type'   => 'reply',
-			'menu_position'     => 58,
-			'has_archive'       => false,
-			'show_in_nav_menus' => false,
-			'public'            => true,
-			'show_ui'           => true,
-			'can_export'        => true,
-			'hierarchical'      => false,
-			'query_var'         => true,
-			'menu_icon'         => ''
+			'labels'              => $reply['labels'],
+			'rewrite'             => $reply['rewrite'],
+			'supports'            => $reply['supports'],
+			'description'         => __( 'bbPress Replies', 'bbpress' ),
+			'capabilities'        => bbp_get_reply_caps(),
+			'capability_type'     => 'reply',
+			'menu_position'       => 58,
+			'exclude_from_search' => true,
+			'has_archive'         => false,
+			'show_in_nav_menus'   => false,
+			'public'              => true,
+			'show_ui'             => true,
+			'can_export'          => true,
+			'hierarchical'        => false,
+			'query_var'           => true,
+			'menu_icon'           => ''
 		) );
 
 		// Register reply content type
