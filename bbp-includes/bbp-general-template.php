@@ -1308,7 +1308,8 @@ function bbp_breadcrumb( $args = array() ) {
 			// HTML
 			'before'          => '<div class="bbp-breadcrumb"><p>',
 			'after'           => '</p></div>',
-			'sep'             => is_rtl() ? ' &lsaquo; ' : ' &rsaquo; ',
+			'sep'             => is_rtl() ? __( '&lsaquo;', 'bbpress' ) : __( '&rsaquo;', 'bbpress' ),
+			'pad_sep'         => 1,
 
 			// Home
 			'include_home'    => $pre_include_home,
@@ -1380,6 +1381,10 @@ function bbp_breadcrumb( $args = array() ) {
 			$breadcrumbs[] = '<span class="bbp-breadcrumb-current">' . $current_text . '</span>';
 
 		/** Finish Up *********************************************************/
+
+		// Pad the separator
+		if ( !empty( $pad_sep ) )
+			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $pad_sep * 2 ), ' ', STR_PAD_BOTH );
 
 		// Allow the separator of the breadcrumb to be easily changed
 		$sep = apply_filters( 'bbp_breadcrumb_separator', $sep );
