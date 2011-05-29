@@ -842,7 +842,7 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 /** Login *********************************************************************/
 
 /**
- * Change the logout URL to /login and add smart redirect
+ * Return a clean and reliable logout URL
  *
  * @param string $url URL
  * @param string $redirect_to Where to redirect to?
