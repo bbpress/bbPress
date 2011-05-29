@@ -1248,8 +1248,12 @@ function bbp_breadcrumb( $args = array() ) {
 		if ( !empty( $front_id ) && ( $front_id == $root_id ) )
 			$pre_include_root = false;
 
-		// Don't show root if viewing root
+		// Don't show root if viewing forum archive
 		if ( bbp_is_forum_archive() )
+			$pre_include_root = false;
+
+		// Don't show root if viewing page in place of forum archive
+		if ( !empty( $root_id ) && ( $root_id == get_the_ID() ) )
 			$pre_include_root = false;
 
 		/** Current Text ******************************************************/
