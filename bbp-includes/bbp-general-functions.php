@@ -880,10 +880,9 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
  * @global DB $wpdb
  * @global WP $wp
  * @param string $where
- * @param WP_Query $object
  * @return string
  */
-function bbp_query_post_parent__in( $where, $object ) {
+function bbp_query_post_parent__in( $where ) {
 	global $wpdb, $wp;
 
 	// Noop if WP core supports this already
@@ -908,7 +907,7 @@ function bbp_query_post_parent__in( $where, $object ) {
 	// Return possibly modified $where
 	return $where;
 }
-add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
+add_filter( 'posts_where', 'bbp_query_post_parent__in' );
 
 /**
  * Query the DB and get the last public post_id that has parent_id as post_parent
