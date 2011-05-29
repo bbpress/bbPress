@@ -251,6 +251,13 @@ class bbPress {
 	 */
 	var $in_theme_compat = false;
 
+	/** Plugins ***************************************************************/
+	
+	/**
+	 * @var mixed bbPress plugins that need a global data store should use this
+	 */
+	var $plugins = false;
+
 	/** Functions *************************************************************/
 
 	/**
