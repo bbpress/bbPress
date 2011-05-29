@@ -3005,12 +3005,19 @@ function bbp_form_topic_subscribed() {
 				$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
 			}
 
+		// Get current status
+		} elseif ( bbp_is_topic() ) {
+			$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
+
 		// No data
 		} else {
 			$topic_subscribed = 0;
 		}
 
-		return apply_filters( 'bbp_get_form_topic_subscribed', checked( 'bbp_subscribe', $topic_subscribed, false ) );
+		// Get checked output
+		$checked = checked( $topic_subscribed, true, false );
+
+		return apply_filters( 'bbp_get_form_topic_subscribed', $checked, $topic_subscribed );
 	}
 
 /**
