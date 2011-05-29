@@ -640,19 +640,29 @@ class BBP_Topics_Admin {
 
 				// Output forum name
 				if ( !empty( $forum_id ) ) {
-					bbp_forum_title( $forum_id );
+					
+					// Forum Title
+					if ( !$forum_title = bbp_get_forum_title( $forum_id ) )
+						$forum_title = __( 'No Forum', 'bbpress' );
 
-					// Link information
-					$actions = apply_filters( 'topic_forum_row_actions', array (
-						'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-						'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-					) );
+					// Output the title
+					echo $forum_title;
 
-					// Output forum post row links
-					foreach ( $actions as $action => $link )
-						$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+					// Show actions if forum exists
+					if ( $forum_title != __( 'No Forum', 'bbpress' ) ) {
 
-					echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+						// Link information
+						$actions = apply_filters( 'topic_forum_row_actions', array (
+							'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
+							'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
+						) );
+
+						// Output forum post row links
+						foreach ( $actions as $action => $link )
+							$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
+
+						echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
+					}
 				} else {
 					_e( '(No Forum)', 'bbpress' );
 				}
