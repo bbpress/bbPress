@@ -234,7 +234,14 @@ function bbp_new_topic_handler() {
 					wp_trash_post( $topic_id );
 				}
 
-				// Update counts, etc...
+				/** Spam Check ************************************************/
+				
+				// If reply or topic are spam, officially spam this reply
+				if ( $topic_data['post_status'] == $bbp->spam_status_id )
+					add_post_meta( $topic_id, '_bbp_spam_meta_status', 'publish' );
+
+				/** Update counts, etc... *************************************/
+
 				do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
 				/** Redirect **************************************************/

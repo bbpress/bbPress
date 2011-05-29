@@ -298,7 +298,14 @@ function bbp_new_reply_handler() {
 					update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
 				}
 
-				// Update counts, etc...
+				/** Spam Check ************************************************/
+				
+				// If reply or topic are spam, officially spam this reply
+				if ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] == $bbp->spam_status_id ) )
+					add_post_meta( $reply_id, '_bbp_spam_meta_status', 'publish' );
+
+				/** Update counts, etc... *************************************/
+
 				do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 
 				/** Redirect **************************************************/
