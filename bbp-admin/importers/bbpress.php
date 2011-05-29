@@ -640,10 +640,10 @@ class bbPress_Importer {
 
 			<?php endif; ?>
 
-			<input type="radio" name="step"<?php disabled( $this->is_integrated() ); ?> value="2"<?php checked( $radio, 'user' ); ?> id="step_user" />
+			<input type="radio" name="step"<?php disabled( $this->is_integrated() ); ?> value="2"<?php checked( 'user', $radio ); ?> id="step_user" />
 			<label for="step_user"><?php _e( 'Migrate Users', 'bbpress' ); ?></label>
 
-			<input type="radio" name="step" value="3"<?php checked( $radio, 'board' ); ?> id="step_board" />
+			<input type="radio" name="step" value="3"<?php checked( 'board', $radio ); ?> id="step_board" />
 			<label for="step_board"><?php _e( 'Import Forums, Topics & Posts', 'bbpress' ); ?></label>
 
 			<p class="submit">

@@ -3050,7 +3050,7 @@ function bbp_form_topic_log_edit() {
 		else
 			$topic_revision = 1;
 
-		return apply_filters( 'bbp_get_form_topic_log_edit', checked( true, $topic_revision, false ) );
+		return apply_filters( 'bbp_get_form_topic_log_edit', checked( $topic_revision, true, false ) );
 	}
 
 /**

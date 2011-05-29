@@ -1790,7 +1790,7 @@ function bbp_form_reply_log_edit() {
 		else
 			$reply_revision = 1;
 
-		return apply_filters( 'bbp_get_form_reply_log_edit', checked( true, $reply_revision, false ) );
+		return apply_filters( 'bbp_get_form_reply_log_edit', checked( $reply_revision, true, false ) );
 	}
 
 /**

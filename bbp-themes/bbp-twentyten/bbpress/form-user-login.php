@@ -24,7 +24,7 @@
 			</div>
 
 			<div class="bbp-remember-me">
-				<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ), true, true ); ?> id="rememberme" tabindex="<?php bbp_tab_index(); ?>" />
+				<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ) ); ?> id="rememberme" tabindex="<?php bbp_tab_index(); ?>" />
 				<label for="rememberme"><?php _e( 'Keep me signed in', 'bbpress' ); ?></label>
 			</div>
 

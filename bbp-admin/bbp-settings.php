@@ -67,7 +67,7 @@ function bbp_admin_setting_callback_throttle() {
 function bbp_admin_setting_callback_favorites() {
 ?>
 
-	<input id="_bbp_enable_favorites" name="_bbp_enable_favorites" type="checkbox" id="_bbp_enable_favorites" value="1" <?php checked( true, bbp_is_favorites_active( true ) ); ?> />
+	<input id="_bbp_enable_favorites" name="_bbp_enable_favorites" type="checkbox" id="_bbp_enable_favorites" value="1" <?php checked( bbp_is_favorites_active( true ) ); ?> />
 	<label for="_bbp_enable_favorites"><?php _e( 'Allow users to mark topics as favorites?', 'bbpress' ); ?></label>
 
 <?php
@@ -83,7 +83,7 @@ function bbp_admin_setting_callback_favorites() {
 function bbp_admin_setting_callback_subscriptions() {
 ?>
 
-	<input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( true, bbp_is_subscriptions_active( true ) ); ?> />
+	<input id="_bbp_enable_subscriptions" name="_bbp_enable_subscriptions" type="checkbox" id="_bbp_enable_subscriptions" value="1" <?php checked( bbp_is_subscriptions_active( true ) ); ?> />
 	<label for="_bbp_enable_subscriptions"><?php _e( 'Allow users to subscribe to topics', 'bbpress' ); ?></label>
 
 <?php
@@ -99,7 +99,7 @@ function bbp_admin_setting_callback_subscriptions() {
 function bbp_admin_setting_callback_anonymous() {
 ?>
 
-	<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( true, bbp_allow_anonymous( false ) ); ?> />
+	<input id="_bbp_allow_anonymous" name="_bbp_allow_anonymous" type="checkbox" id="_bbp_allow_anonymous" value="1" <?php checked( bbp_allow_anonymous( false ) ); ?> />
 	<label for="_bbp_allow_anonymous"><?php _e( 'Allow guest users without accounts to create topics and replies', 'bbpress' ); ?></label>
 
 <?php
@@ -275,7 +275,7 @@ function bbp_admin_setting_callback_single_slug_section() {
 function bbp_admin_setting_callback_include_root() {
 ?>
 
-	<input id="_bbp_include_root" name="_bbp_include_root" type="checkbox" id="_bbp_include_root" value="1" <?php checked( true, get_option( '_bbp_include_root', true ) ); ?> />
+	<input id="_bbp_include_root" name="_bbp_include_root" type="checkbox" id="_bbp_include_root" value="1" <?php checked( get_option( '_bbp_include_root', true ) ); ?> />
 	<label for="_bbp_include_root"><?php _e( 'Incude the Forum Base slug in your single forum item links', 'bbpress' ); ?></label>
 
 <?php
