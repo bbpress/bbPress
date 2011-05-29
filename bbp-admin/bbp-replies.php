@@ -692,11 +692,12 @@ class BBP_Replies_Admin {
 		if ( bbp_get_reply_post_type() == $reply->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
 
-			// Show view link if it's not set, the reply is trashed and the user can view trashed replies
-			if ( empty( $actions['view'] ) && 'trash' == $reply->post_status && current_user_can( 'view_trash' ) )
-				$actions['view'] = '<a href="' . bbp_get_reply_permalink( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
-
-			bbp_reply_content( $reply->ID );
+			// Reply view links to topic
+			$actions['view'] = '<a href="' . bbp_get_reply_url( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
+			
+			// User cannot view replies in trash
+			if ( ( 'trash' == $reply->post_status ) && !current_user_can( 'view_trash' ) )
+				unset( $actions['view'] );
 
 			// Only show the actions if the user is capable of viewing them
 			if ( current_user_can( 'moderate', $reply->ID ) ) {
