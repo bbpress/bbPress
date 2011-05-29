@@ -844,8 +844,6 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 /**
  * Change the logout URL to /login and add smart redirect
  *
- * This assumes that your login page is 'domain.com/login'
- *
  * @param string $url URL
  * @param string $redirect_to Where to redirect to?
  * @uses add_query_arg() To add args to the url
