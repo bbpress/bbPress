@@ -570,7 +570,7 @@ class BBP_Replies_Admin {
 				if ( !empty( $topic_id ) ) {
 
 					// Topic Title
-					if ( !$topic_title = bbp_topic_title( $topic_id ) )
+					if ( !$topic_title = bbp_get_topic_title( $topic_id ) )
 						$topic_title = __( 'No Topic', 'bbpress' );
 
 					// Output the title
