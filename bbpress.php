@@ -239,6 +239,18 @@ class bbPress {
 	 */
 	var $tab_index;
 
+	/** Theme Compat **********************************************************/
+
+	/**
+	 * @var string Theme to use for theme compatibility
+	 */
+	var $theme_compat = '';
+
+	/**
+	 * @var bool If we are currently in theme compatibility
+	 */
+	var $in_theme_compat = false;
+
 	/** Functions *************************************************************/
 
 	/**
@@ -424,9 +436,6 @@ class bbPress {
 
 		// Generate rewrite rules
 		add_action( 'bbp_generate_rewrite_rules',   array( $this, 'generate_rewrite_rules'   ), 10 );
-
-		// Check theme compatability
-		add_action( 'bbp_setup_theme_compat',       array( $this, 'theme_compat'             ), 10 );
 	}
 
 	/**
@@ -887,43 +896,6 @@ class bbPress {
 
 		// Return merged rules
 		return $wp_rewrite;
-	}
-
-	/**
-	 * If not using a bbPress compatable theme, enqueue some basic styling and js
-	 *
-	 * @since bbPress (r3029)
-	 *
-	 * @global bbPress $bbp
-	 * @uses bbp_set_theme_compat() Set the compatable theme to bbp-twentyten
-	 * @uses current_theme_supports() Check bbPress theme support
-	 * @uses wp_enqueue_style() Enqueue the bbp-twentyten default CSS
-	 * @uses wp_enqueue_script() Enqueue the bbp-twentyten default topic JS
-	 */
-	function theme_compat() {
-		global $bbp;
-
-		// Check if current theme supports bbPress
-		if ( !current_theme_supports( 'bbpress' ) ) {
-
-			// Set the compat_theme global for help with loading template parts
-			bbp_set_theme_compat( $bbp->themes_dir . '/bbp-twentyten' );
-
-			/** Default CSS ***************************************************/
-
-			// Do not enqueue CSS in admin
-			if ( !is_admin() ) {
-
-				// Right to left
-				if ( is_rtl() ) {
-					wp_enqueue_style( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress-rtl.css' );
-
-				// Left to right
-				} else {
-					wp_enqueue_style( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css' );
-				}
-			}
-		}
 	}
 }
 

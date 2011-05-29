@@ -421,16 +421,27 @@ function bbp_topic_permalink( $topic_id = 0 ) {
 	 * @since bbPress (r2485)
 	 *
 	 * @param int $topic_id Optional. Topic id
+	 * @param $string $redirect_to Optional. Pass a redirect value for use with
+	 *                              shortcodes and other fun things.
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_permalink() To get the topic permalink
+	 * @uses sanitize_url() To clean the redirect_to url
 	 * @uses apply_filters() Calls 'bbp_get_topic_permalink' with the link
 	 *                        and topic id
 	 * @return string Permanent link to topic
 	 */
-	function bbp_get_topic_permalink( $topic_id = 0 ) {
+	function bbp_get_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_permalink', get_permalink( $topic_id ), $topic_id );
+		// Use the redirect address
+		if ( !empty( $redirect_to ) )
+			$topic_permalink = sanitize_url( $redirect_to );
+
+		// Use the topic permalink
+		else
+			$topic_permalink = get_permalink( $topic_id );
+
+		return apply_filters( 'bbp_get_topic_permalink', $topic_permalink, $topic_id );
 	}
 
 /**

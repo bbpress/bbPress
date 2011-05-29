@@ -23,6 +23,43 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 
 /**
+ * If not using a bbPress compatable theme, enqueue some basic styling and js
+ *
+ * @since bbPress (r3029)
+ *
+ * @global bbPress $bbp
+ * @uses bbp_set_theme_compat() Set the compatable theme to bbp-twentyten
+ * @uses current_theme_supports() Check bbPress theme support
+ * @uses wp_enqueue_style() Enqueue the bbp-twentyten default CSS
+ * @uses wp_enqueue_script() Enqueue the bbp-twentyten default topic JS
+ */
+function bbp_add_theme_compat() {
+	global $bbp;
+
+	// Check if current theme supports bbPress
+	if ( !current_theme_supports( 'bbpress' ) ) {
+
+		// Set the compat_theme global for help with loading template parts
+		bbp_set_theme_compat( $bbp->themes_dir . '/bbp-twentyten' );
+
+		/** Default CSS ***************************************************/
+
+		// Do not enqueue CSS in admin
+		if ( !is_admin() ) {
+
+			// Right to left
+			if ( is_rtl() ) {
+				wp_enqueue_style( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress-rtl.css' );
+
+			// Left to right
+			} else {
+				wp_enqueue_style( 'bbpress-style', $bbp->themes_url . '/bbp-twentyten/css/bbpress.css' );
+			}
+		}
+	}
+}
+
+/**
  * Adds bbPress theme support to any active WordPress theme
  *
  * This function is really cool because it's responsible for managing the
@@ -96,6 +133,40 @@ function bbp_set_theme_compat( $theme = '' ) {
 		$bbp->theme_compat = $theme;
 
 	return apply_filters( 'bbp_get_theme_compat', $bbp->theme_compat );
+}
+
+/**
+ * Gets true/false if page is currently inside theme compatibility
+ *
+ * @since bbPress (r3265)
+ *
+ * @global bbPress $bbp
+ *
+ * @return bool
+ */
+function bbp_in_theme_compat() {
+	global $bbp;
+
+	return $bbp->in_theme_compat;
+}
+
+/**
+ * Sets true/false if page is currently inside theme compatibility
+ *
+ * @since bbPress (r3265)
+ *
+ * @global bbPress $bbp
+ *
+ * @param bool $set
+ *
+ * @return bool
+ */
+function bbp_set_in_theme_compat( $set = true ) {
+	global $bbp;
+
+	$bbp->in_theme_compat = $set;
+
+	return (bool) $bbp->in_theme_compat;
 }
 
 /**
@@ -541,14 +612,16 @@ function bbp_template_include( $template = false ) {
 	if ( !current_theme_supports( 'bbpress' ) || ( !empty( $templates ) && empty( $new_template ) ) ) {
 
 		// Assume we are not in theme compat
-		$in_theme_compat = false; $forum_id = 0;
+		$forum_id = 0;
 
 		/** Users *************************************************************/
 
 		if ( bbp_is_user_profile_page() || bbp_is_user_profile_edit() ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'post_title' => esc_attr( bbp_get_displayed_user_field( 'display_name' ) )
 			) );
@@ -559,7 +632,9 @@ function bbp_template_include( $template = false ) {
 		} elseif ( bbp_is_forum_archive() ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'ID'           => 0,
 				'post_title'   => bbp_get_forum_archive_title(),
@@ -576,7 +651,9 @@ function bbp_template_include( $template = false ) {
 		} elseif ( bbp_is_topic_archive() ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'ID'           => 0,
 				'post_title'   => bbp_get_topic_archive_title(),
@@ -591,7 +668,9 @@ function bbp_template_include( $template = false ) {
 		} elseif ( bbp_is_topic_edit() || bbp_is_topic_split() || bbp_is_topic_merge() ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'ID'           => bbp_get_topic_id(),
 				'post_title'   => bbp_get_topic_title(),
@@ -608,7 +687,9 @@ function bbp_template_include( $template = false ) {
 		} elseif ( is_post_type_archive( bbp_get_reply_post_type() ) ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'ID'           => 0,
 				'post_title'   => __( 'Replies', 'bbpress' ),
@@ -623,7 +704,9 @@ function bbp_template_include( $template = false ) {
 		} elseif ( bbp_is_reply_edit() ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'ID'           => bbp_get_reply_id(),
 				'post_title'   => bbp_get_reply_title(),
@@ -639,7 +722,9 @@ function bbp_template_include( $template = false ) {
 		} elseif ( bbp_is_view() ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
+
+			// Reset post
 			bbp_theme_compat_reset_post( array(
 				'ID'           => 0,
 				'post_title'   => bbp_get_view_title(),
@@ -656,7 +741,7 @@ function bbp_template_include( $template = false ) {
 		} elseif ( is_tax( $bbp->topic_tag_id ) ) {
 
 			// In Theme Compat
-			$in_theme_compat = true;
+			bbp_set_in_theme_compat();
 
 			// Stash the current term in a new var
 			set_query_var( 'bbp_topic_tag', get_query_var( 'term' ) );
@@ -675,20 +760,20 @@ function bbp_template_include( $template = false ) {
 
 				// Single Forum
 				case bbp_get_forum_post_type() :
-					$forum_id        = bbp_get_forum_id( get_the_ID() );
-					$in_theme_compat = true;
+					bbp_set_in_theme_compat();
+					$forum_id = bbp_get_forum_id( get_the_ID() );
 					break;
 
 				// Single Topic
 				case bbp_get_topic_post_type() :
-					$forum_id        = bbp_get_topic_forum_id( get_the_ID() );
-					$in_theme_compat = true;
+					bbp_set_in_theme_compat();
+					$forum_id = bbp_get_topic_forum_id( get_the_ID() );
 					break;
 
 				// Single Reply
 				case bbp_get_reply_post_type() :
-					$forum_id        = bbp_get_reply_forum_id( get_the_ID() );
-					$in_theme_compat = true;
+					bbp_set_in_theme_compat();
+					$forum_id = bbp_get_reply_forum_id( get_the_ID() );
 					break;
 			}
 		}
@@ -708,7 +793,7 @@ function bbp_template_include( $template = false ) {
 		 * prev/next navigation, comments, date/time, etc... You can hook into
 		 * the 'bbp_template_include' filter to override page.php.
 		 */
-		if ( true === $in_theme_compat ) {
+		if ( bbp_in_theme_compat() ) {
 
 			// Remove all filters from the_content
 			bbp_remove_all_filters( 'the_content' );

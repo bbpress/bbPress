@@ -40,7 +40,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses bbp_stick_topic() To stick or super stick the topic
  * @uses bbp_unstick_topic() To unstick the topic
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_redirect() To redirect to the topic link
+ * @uses wp_safe_redirect() To redirect to the topic link
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
  *                                              messages
  */
@@ -239,17 +239,26 @@ function bbp_new_topic_handler() {
 
 				/** Redirect **************************************************/
 
-				$topic_url = bbp_get_topic_permalink( $topic_id );
+				// Redirect to
+				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
-				if ( $bbp->trash_status_id == $topic_data['post_status'] )
+				// View all?
+				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) || ( $topic_data['post_status'] == $bbp->trash_status_id ) );
+
+				// Get the topic URL
+				$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
+
+				// Add view all?
+				if ( !empty( $count_hidden ) )
 					$topic_url = add_query_arg( array( 'view' => 'all' ), $topic_url );
 
-				$topic_url = apply_filters( 'bbp_new_topic_redirect_to', $topic_url );
+				// Allow to be filtered
+				$topic_url = apply_filters( 'bbp_new_topic_redirect_to', $topic_url, $count_hidden, $redirect_to );
 
 				/** Successful Save *******************************************/
 
 				// Redirect back to new topic
-				wp_redirect( $topic_url );
+				wp_safe_redirect( $topic_url );
 
 				// For good measure
 				exit();
@@ -293,7 +302,7 @@ function bbp_new_topic_handler() {
  * @uses bbp_move_topic_handler() To handle movement of a topic from one forum
  *                                 to another
  * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_redirect() To redirect to the topic link
+ * @uses wp_safe_redirect() To redirect to the topic link
  * @uses bbPress::errors::get_error_messages() To get the {@link WP_Error} error
  *                                              messages
  */
@@ -503,10 +512,28 @@ function bbp_edit_topic_handler() {
 
 				do_action( 'bbp_edit_topic_post_extras', $topic_id );
 
+				/** Redirect **************************************************/
+
+				// Redirect to
+				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+
+				// View all?
+				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) );
+
+				// Get the topic URL
+				$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
+
+				// Add view all?
+				if ( !empty( $count_hidden ) )
+					$topic_url = add_query_arg( array( 'view' => 'all' ), $topic_url );
+
+				// Allow to be filtered
+				$topic_url = apply_filters( 'bbp_edit_topic_redirect_to', $topic_url, $count_hidden, $redirect_to );
+
 				/** Successful Edit *******************************************/
 
 				// Redirect back to new topic
-				wp_redirect( bbp_get_topic_permalink( $topic_id ) );
+				wp_safe_redirect( $topic_url );
 
 				// For good measure
 				exit();

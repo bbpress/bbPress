@@ -420,15 +420,19 @@ class BBP_Shortcodes {
 		// Unset globals
 		$this->_unset_globals();
 
-		// Reset necessary forum_query attributes for topics loop to function
-		$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
-		$bbp->forum_query->in_the_loop             = true;
-		$bbp->forum_query->post                    = get_post( $forum_id );
+		// Reset the queries if not in theme compat
+		if ( !bbp_in_theme_compat() ) {
 
-		// Reset necessary topic_query attributes for topics loop to function
-		$bbp->topic_query->query_vars['post_type'] = bbp_get_topic_post_type();
-		$bbp->topic_query->in_the_loop             = true;
-		$bbp->topic_query->post                    = get_post( $topic_id );
+			// Reset necessary forum_query attributes for topics loop to function
+			$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
+			$bbp->forum_query->in_the_loop             = true;
+			$bbp->forum_query->post                    = get_post( $forum_id );
+
+			// Reset necessary topic_query attributes for topics loop to function
+			$bbp->topic_query->query_vars['post_type'] = bbp_get_topic_post_type();
+			$bbp->topic_query->in_the_loop             = true;
+			$bbp->topic_query->post                    = get_post( $topic_id );
+		}
 
 		// Start output buffer
 		$this->_ob_start();

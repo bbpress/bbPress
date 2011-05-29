@@ -34,7 +34,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 12 );
-add_action( 'after_setup_theme',      'bbp_setup_theme_compat',     12 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -58,13 +57,17 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  */
 add_action( 'bbp_init', 'bbp_register_textdomain',    2   );
 add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
-add_action( 'bbp_init', 'bbp_register_post_types',    6   );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 8   );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    10  );
-add_action( 'bbp_init', 'bbp_register_views',         12  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',    14  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       16  );
+add_action( 'bbp_init', 'bbp_setup_theme_compat',     6   );
+add_action( 'bbp_init', 'bbp_register_post_types',    8   );
+add_action( 'bbp_init', 'bbp_register_post_statuses', 10  );
+add_action( 'bbp_init', 'bbp_register_taxonomies',    12  );
+add_action( 'bbp_init', 'bbp_register_views',         14  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',    16  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',       18  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
+
+// Theme Compat
+add_action( 'bbp_setup_theme_compat', 'bbp_add_theme_compat' );
 
 // Admin
 if ( is_admin() ) {

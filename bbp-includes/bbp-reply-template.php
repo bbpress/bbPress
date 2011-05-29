@@ -140,7 +140,15 @@ function bbp_has_replies( $args = '' ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() )
-			$base = user_trailingslashit( trailingslashit( get_permalink( bbp_get_topic_id() ) ) . 'page/%#%/' );
+				
+			// Page or single
+			if ( is_page() || is_single() )
+				$base = user_trailingslashit( trailingslashit( get_permalink() ) . 'page/%#%/' );
+
+			// Topic
+			else
+				$base = user_trailingslashit( trailingslashit( get_permalink( bbp_get_topic_id() ) ) . 'page/%#%/' );
+
 		else
 			$base = add_query_arg( 'paged', '%#%' );
 
@@ -339,6 +347,8 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 *                            replies? If $_GET['view'] == all, it is
 	 *                            automatically set to true. To override
 	 *                            this, set $count_hidden = (int) -1
+	 * @param $string $redirect_to Optional. Pass a redirect value for use with
+	 *                              shortcodes and other fun things.
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_topic_id() To get the reply topic id
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
@@ -351,14 +361,14 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 *                        reply id and bool count hidden
 	 * @return string Link to reply relative to paginated topic
 	 */
-	function bbp_get_reply_url( $reply_id = 0, $count_hidden = false ) {
+	function bbp_get_reply_url( $reply_id = 0, $count_hidden = false, $redirect_to = '' ) {
 		global $bbp, $wp_rewrite;
 
 		// Set needed variables
-		$reply_id       = bbp_get_reply_id       ( $reply_id );
-		$topic_id       = bbp_get_reply_topic_id ( $reply_id );
-		$topic_url      = bbp_get_topic_permalink( $topic_id );
-		$reply_position = bbp_get_reply_position ( $reply_id );
+		$reply_id       = bbp_get_reply_id       ( $reply_id               );
+		$topic_id       = bbp_get_reply_topic_id ( $reply_id               );
+		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to );
+		$reply_position = bbp_get_reply_position ( $reply_id               );
 
 		// Check if in query with pagination
 		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );

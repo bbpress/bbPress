@@ -133,7 +133,7 @@ function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
  * @uses do_action() Calls 'bbp_new_reply' with the reply id, topic id, forum
  *                    id, anonymous data and reply author
  * @uses bbp_get_reply_url() To get the paginated url to the reply
- * @uses wp_redirect() To redirect to the reply url
+ * @uses wp_safe_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
  *                                              message
  */
@@ -303,17 +303,26 @@ function bbp_new_reply_handler() {
 
 				/** Redirect **************************************************/
 
-				$reply_url = bbp_get_reply_url( $reply_id );
+				// Redirect to
+				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
-				if ( ( !empty( $_GET['view'] ) && ( 'all' === $_GET['view'] ) ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) )
+				// View all?
+				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) );
+
+				// Get the reply URL
+				$reply_url = bbp_get_reply_url( $reply_id, $count_hidden, $redirect_to );
+
+				// Add view all?
+				if ( !empty( $count_hidden ) )
 					$reply_url = add_query_arg( array( 'view' => 'all' ), $reply_url );
 
-				$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url );
+				// Allow to be filtered
+				$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $count_hidden, $redirect_to );
 
 				/** Successful Save *******************************************/
 
 				// Redirect back to new reply
-				wp_redirect( $reply_url );
+				wp_safe_redirect( $reply_url );
 
 				// For good measure
 				exit();
@@ -354,7 +363,7 @@ function bbp_new_reply_handler() {
  * @uses do_action() Calls 'bbp_edit_reply' with the reply id, topic id, forum
  *                    id, anonymous data, reply author and bool true (for edit)
  * @uses bbp_get_reply_url() To get the paginated url to the reply
- * @uses wp_redirect() To redirect to the reply url
+ * @uses wp_safe_redirect() To redirect to the reply url
  * @uses bbPress::errors::get_error_message() To get the {@link WP_Error} error
  *                                             message
  */
@@ -524,10 +533,28 @@ function bbp_edit_reply_handler() {
 
 				do_action( 'bbp_edit_reply_post_extras', $reply_id );
 
+				/** Redirect **************************************************/
+
+				// Redirect to
+				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+
+				// View all?
+				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) );
+
+				// Get the reply URL
+				$reply_url = bbp_get_reply_url( $reply_id, $count_hidden, $redirect_to );
+
+				// Add view all?
+				if ( !empty( $count_hidden ) )
+					$reply_url = add_query_arg( array( 'view' => 'all' ), $reply_url );
+
+				// Allow to be filtered
+				$reply_url = apply_filters( 'bbp_edit_reply_redirect_to', $reply_url, $count_hidden, $redirect_to );
+
 				/** Successful Edit *******************************************/
 
 				// Redirect back to new reply
-				wp_redirect( bbp_get_reply_url( $reply_id ) );
+				wp_safe_redirect( $reply_url );
 
 				// For good measure
 				exit();

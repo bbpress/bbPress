@@ -545,17 +545,21 @@ function bbp_wp_login_action( $args = '' ) {
  * @uses apply_filters() Calls 'bbp_redirect_to_field' with the referer field
  *                        and url
  */
-function bbp_redirect_to_field( $url = '' ) {
-	// If no URL is passed, try to get the referer and then the request uri
-	if ( empty( $url ) && ( !$url = wp_get_referer() ) && ( !empty( $_SERVER['REQUEST_URI'] ) ) )
-		$url = $_SERVER['REQUEST_URI'];
+function bbp_redirect_to_field( $redirect_to = '' ) {
+
+	// Rejig the $redirect_to
+	if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) ) )
+		$redirect_to = wp_get_referer();
+
+	// Make sure we are directing somewhere
+	if ( empty( $redirect_to ) )
+		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' );
 
 	// Remove loggedout query arg if it's there
-	$url = (string) esc_attr( remove_query_arg( 'loggedout', $url ) );
+	$redirect_to    = (string) esc_attr( remove_query_arg( 'loggedout', $redirect_to ) );
+	$redirect_field = '<input type="hidden" name="redirect_to" value="' . $redirect_to . '" />';
 
-	$referer_field = '<input type="hidden" name="redirect_to" value="' . $url . '" />';
-
-	echo apply_filters( 'bbp_redirect_to_field', $referer_field, $url );
+	echo apply_filters( 'bbp_redirect_to_field', $redirect_field, $redirect_to );
 }
 
 /**
@@ -919,7 +923,17 @@ function bbp_reply_form_fields() {
 
 		?>
 
-		<?php wp_nonce_field( 'bbp-new-reply' );
+		<?php
+		
+		wp_nonce_field( 'bbp-new-reply' );
+
+		// Show redirect field if not viewing a specific topic
+		if ( !bbp_is_topic() ) : ?>
+
+			<input type="hidden" name="redirect_to" id="bbp_redirect_to" value="<?php the_permalink(); ?>" />
+
+		<?php endif;
+			
 	}
 }
 
@@ -1258,8 +1272,34 @@ function bbp_breadcrumb( $args = array() ) {
 
 		/** Current Text ******************************************************/
 		
-		$pre_current_text = ( bbp_is_view() ) ? bbp_get_view_title() : get_the_title();
-		
+		// Forum archive
+		if ( bbp_is_forum_archive() )
+			$pre_current_text = bbp_get_forum_archive_title();
+
+		// Topic archive
+		elseif ( bbp_is_topic_archive() )
+			$pre_current_text = bbp_get_topic_archive_title();
+
+		// View
+		elseif ( bbp_is_view() )
+			$pre_current_text = bbp_get_view_title();
+
+		// Single Forum
+		elseif ( bbp_is_forum() )
+			$pre_current_text = bbp_get_forum_title();
+
+		// Single Topic
+		elseif ( bbp_is_topic() )
+			$pre_current_text = bbp_get_topic_title();
+
+		// Single Topic
+		elseif ( bbp_is_reply() )
+			$pre_current_text = bbp_get_reply_title();
+
+		// Single
+		else
+			$pre_current_text = get_the_title();
+
 		/** Parse Args ********************************************************/
 
 		// Parse args
@@ -1288,15 +1328,15 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Ancestors *********************************************************/
 
 		// Get post ancestors
-		if ( is_page() || is_single() )
+		if ( is_page() || is_single() || bbp_is_topic_edit() || bbp_is_reply_edit() )
 			$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
 
 		// Do we want to include a link to home?
-		if ( !empty( $include_home ) )
+		if ( !empty( $include_home ) || empty( $home_text ) )
 			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
 		// Do we want to include a link to the forum root?
-		if ( !empty( $include_root ) )
+		if ( !empty( $include_root ) || empty( $root_text ) )
 			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
 
 		// Ancestors exist
@@ -1336,7 +1376,7 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Current ***********************************************************/
 
 		// Add current page to breadcrumb
-		if ( !empty( $include_current ) )
+		if ( !empty( $include_current ) || empty( $pre_current_text ) )
 			$breadcrumbs[] = '<span class="bbp-breadcrumb-current">' . $current_text . '</span>';
 
 		/** Finish Up *********************************************************/
