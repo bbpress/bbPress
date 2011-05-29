@@ -394,8 +394,12 @@ function bbp_reply_metabox() {
 		'selected'    => $post->post_parent,
 		'select_id'   => 'parent_id',
 		'orderby'     => 'post_date',
-		'numberposts' => '50'
-	); ?>
+		'numberposts' => '250'
+	);
+	
+	// Allow the dropdown to be filtered, to extend or limit the available
+	// topics to choose as the reply parent.
+	$args = apply_filters( 'bbp_reply_parent_dropdown', $args ); ?>
 
 	<p><strong><?php _e( 'Parent Topic', 'bbpress' ); ?></strong></p>
 
