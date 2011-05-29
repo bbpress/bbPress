@@ -1671,7 +1671,7 @@ function bbp_single_forum_description( $args = '' ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
 
 			// Category
-			if ( bbp_is_forum_category() )
+			if ( bbp_is_forum_category( $forum_id ) )
 				$retstr = sprintf( __( 'This category contains %1$s and %2$s, and was last updated by %3$s %4$s ago.', 'bbpress' ), $topic_count, $reply_count, $last_updated_by, $time_since );
 
 			// Forum
@@ -1682,7 +1682,7 @@ function bbp_single_forum_description( $args = '' ) {
 		} else {
 
 			// Category
-			if ( bbp_is_forum_category() )
+			if ( bbp_is_forum_category( $forum_id ) )
 				$retstr = sprintf( __( 'This category contains %1$s and %2$s replies.', 'bbpress' ), $topic_count, $reply_count );
 
 			// Forum
