@@ -147,7 +147,7 @@ function bbp_new_reply_handler() {
 		check_admin_referer( 'bbp-new-reply' );
 
 		// Set defaults to prevent debug notices
-		$topic_id = $forum_id = $topic_author = $anonymous_data = 0;
+		$topic_id = $forum_id = $reply_author = $anonymous_data = 0;
 		$reply_title = $reply_content = $terms = '';
 
 		/** Reply Author ******************************************************/
