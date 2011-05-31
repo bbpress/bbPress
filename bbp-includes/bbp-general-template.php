@@ -337,7 +337,7 @@ function bbp_is_topics_created( $query_name_check = true ) {
 function bbp_is_user_home() {
 	global $bbp;
 
-	if ( !isset( $bbp->displayed_user ) )
+	if ( empty( $bbp->displayed_user ) )
 		return false;
 
 	return $bbp->current_user->ID == $bbp->displayed_user->ID;
