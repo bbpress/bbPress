@@ -1683,11 +1683,11 @@ function bbp_single_forum_description( $args = '' ) {
 
 			// Category
 			if ( bbp_is_forum_category( $forum_id ) )
-				$retstr = sprintf( __( 'This category contains %1$s and %2$s replies.', 'bbpress' ), $topic_count, $reply_count );
+				$retstr = sprintf( __( 'This category contains %1$s and %2$s.', 'bbpress' ), $topic_count, $reply_count );
 
 			// Forum
 			else
-				$retstr = sprintf( __( 'This forum contains %1$s and %2$s replies.',    'bbpress' ), $topic_count, $reply_count );
+				$retstr = sprintf( __( 'This forum contains %1$s and %2$s.',    'bbpress' ), $topic_count, $reply_count );
 		}
 
 		// Add feeds
