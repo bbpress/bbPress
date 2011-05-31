@@ -432,7 +432,8 @@ input[type="password"] {
 	#bbp-your-profile fieldset legend {
 		display: none;
 	}
-	#bbp-your-profile fieldset label {
+	#content #bbp-your-profile fieldset label,
+	#container #bbp-your-profile fieldset label {
 		float: left;
 		width: 150px;
 		padding-right: 20px;
@@ -450,11 +451,14 @@ input[type="password"] {
 		background-color: #f0f8ff;
 	}
 
-	#bbp-your-profile fieldset fieldset {
+	#content #bbp-your-profile fieldset fieldset,
+	#container #bbp-your-profile fieldset fieldset {
 		margin: 0;
 		width: 260px;
 		border: none;
 		padding: 0;
+		clear: none;
+		float: none;
 	}
 	#bbp-your-profile fieldset fieldset span.description {
 		margin-left: 0;
