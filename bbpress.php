@@ -378,21 +378,41 @@ class bbPress {
 
 		/** Individual files **************************************************/
 
-		$files = array( 'loader', 'options', 'caps', 'hooks', 'classes', 'widgets', 'shortcodes', 'compatibility' );
+		$core = array(
+			'loader',        // Loader Actions
+			'options',       // Configuration Options
+			'caps',          // Roles and capabilities
+			'hooks',         // All filters and actions
+			'classes',       // Common classes
+			'widgets',       // Sidebar widgets
+			'shortcodes',    // Shortcodes for use with pages and posts
+			'compatibility', // Theme compatibility for existing themes
+			'akismet'        // Spam prevention for topics and replies
+		);
 
 		// Load the files
-		foreach ( $files as $file )
+		foreach ( $core as $file )
 			require( $this->plugin_dir . '/bbp-includes/bbp-core-' . $file . '.php' );
 
 		/** Components ********************************************************/
 
-		$components = array( 'general', 'forum', 'topic', 'reply', 'user' );
+		$components = array(
+			'general',       // Common functions and template tags
+			'forum',         // Forums contain subforums, topics, and replies
+			'topic',         // Topics contain replies
+			'reply',         // Replies are individual responses to topics
+			'user'           // Individual user profile view/edit pages
+		);
 
-		// Load the function and template files
-		foreach ( $components as $file ) {
-			require( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-functions.php' );
-			require( $this->plugin_dir . '/bbp-includes/bbp-' . $file . '-template.php'  );
-		}
+		$files = array(
+			'functions',     // Functions used to carry out specific tasks
+			'template'       // Functions intended for use in template files
+		);
+
+		// Load the files
+		foreach ( $components as $component )
+			foreach ( $files as $type )
+				require( $this->plugin_dir . '/bbp-includes/bbp-' . $component . '-' . $type . '.php' );
 
 		/** Admin *************************************************************/
 

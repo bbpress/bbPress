@@ -58,12 +58,13 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
 add_action( 'bbp_init', 'bbp_register_textdomain',    2   );
 add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
 add_action( 'bbp_init', 'bbp_setup_theme_compat',     6   );
-add_action( 'bbp_init', 'bbp_register_post_types',    8   );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 10  );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    12  );
-add_action( 'bbp_init', 'bbp_register_views',         14  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',    16  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       18  );
+add_action( 'bbp_init', 'bbp_setup_akismet',          8   );
+add_action( 'bbp_init', 'bbp_register_post_types',    10  );
+add_action( 'bbp_init', 'bbp_register_post_statuses', 12  );
+add_action( 'bbp_init', 'bbp_register_taxonomies',    14  );
+add_action( 'bbp_init', 'bbp_register_views',         16  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',    18  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Theme Compat
@@ -72,9 +73,9 @@ add_action( 'bbp_setup_theme_compat', 'bbp_add_theme_compat' );
 // Admin
 if ( is_admin() ) {
 	add_action( 'bbp_init',          'bbp_admin'                   );
-	add_action( 'bbp_admin_init',    'bbp_forums_admin'            );
-	add_action( 'bbp_admin_init',    'bbp_topics_admin'            );
-	add_action( 'bbp_admin_init',    'bbp_replies_admin'           );
+	add_action( 'bbp_admin_init',    'bbp_forums_admin',         9 );
+	add_action( 'bbp_admin_init',    'bbp_topics_admin',         9 );
+	add_action( 'bbp_admin_init',    'bbp_replies_admin',        9 );
 	add_action( 'bbp_admin_init',    'bbp_admin_settings_help'     );
 	add_action( 'admin_menu',        'bbp_admin_separator'         );
 	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
