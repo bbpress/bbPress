@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress General Template Tags
+ * bbPress Common Template Tags
  *
  * @package bbPress
  * @subpackage TemplateTags

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * bbPress General Functions
+ * bbPress Common Functions
  *
  * @package bbPress
  * @subpackage Functions

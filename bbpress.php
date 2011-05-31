@@ -419,7 +419,7 @@ class bbPress {
 		/** Components ********************************************************/
 
 		$components = array(
-			'general',       // Common functions and template tags
+			'common',        // Common functions and template tags
 			'forum',         // Forums contain subforums, topics, and replies
 			'topic',         // Topics contain replies
 			'reply',         // Replies are individual responses to topics
