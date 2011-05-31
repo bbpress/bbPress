@@ -1267,7 +1267,7 @@ function bbp_breadcrumb( $args = array() ) {
 			$pre_include_root = false;
 
 		// Don't show root if viewing page in place of forum archive
-		if ( !empty( $root_id ) && ( $root_id == get_the_ID() ) )
+		if ( !empty( $root_id ) && ( ( is_single() || is_page() ) && ( $root_id == get_the_ID() ) ) )
 			$pre_include_root = false;
 
 		/** Current Text ******************************************************/
@@ -1295,6 +1295,10 @@ function bbp_breadcrumb( $args = array() ) {
 		// Single Topic
 		elseif ( bbp_is_reply() )
 			$pre_current_text = bbp_get_reply_title();
+
+		// Topic Tag
+		elseif ( is_tax( $bbp->topic_tag_id ) )
+			$pre_current_text = sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() );
 
 		// Single
 		else
