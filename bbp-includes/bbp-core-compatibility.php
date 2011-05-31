@@ -391,9 +391,9 @@ function bbp_pre_get_posts( $posts_query ) {
 		return $posts_query;
 
 	// Get query variables
-	$bbp_user = $posts_query->get( 'bbp_user' );
-	$bbp_view = $posts_query->get( 'bbp_view' );
-	$is_edit  = $posts_query->get( 'edit'     );
+	$bbp_user = $posts_query->get( $bbp->user_id );
+	$bbp_view = $posts_query->get( $bbp->view_id );
+	$is_edit  = $posts_query->get( $bbp->edit_id );
 
 	// It is a user page - We'll also check if it is user edit
 	if ( !empty( $bbp_user ) ) {

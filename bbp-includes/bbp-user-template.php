@@ -259,7 +259,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->user_slug . '/%bbp_user%';
+			$url = $wp_rewrite->root . $bbp->user_slug . '/%' . $bbp->user_id . '%';
 
 			// Get username if not passed
 			if ( empty( $user_nicename ) ) {
@@ -269,12 +269,12 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 				}
 			}
 
-			$url = str_replace( '%bbp_user%', $user_nicename, $url );
+			$url = str_replace( '%' . $bbp->user_id . '%', $user_nicename, $url );
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( 'bbp_user' => $user_id ), home_url( '/' ) );
+			$url = add_query_arg( array( $bbp->user_id => $user_id ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_user_profile_url', $url, $user_id, $user_nicename );
@@ -351,7 +351,7 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->user_slug . '/%bbp_user%/edit';
+			$url = $wp_rewrite->root . $bbp->user_slug . '/%' . $bbp->user_id . '%/' . $bbp->edit_id;
 
 			// Get username if not passed
 			if ( empty( $user_nicename ) ) {
@@ -361,12 +361,12 @@ function bbp_user_profile_edit_url( $user_id = 0, $user_nicename = '' ) {
 				}
 			}
 
-			$url = str_replace( '%bbp_user%', $user_nicename, $url );
+			$url = str_replace( '%' . $bbp->user_id . '%', $user_nicename, $url );
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( 'bbp_user' => $user_id, 'edit' => '1' ), home_url( '/' ) );
+			$url = add_query_arg( array( $bbp->user_id => $user_id, $bbp->edit_id => '1' ), home_url( '/' ) );
 		}
 
 		return apply_filters( 'bbp_get_user_edit_profile_url', $url, $user_id, $user_nicename );

@@ -344,6 +344,11 @@ class bbPress {
 		$this->hidden_status_id = apply_filters( 'bbp_hidden_post_status', 'hidden' );
 		$this->trash_status_id  = 'trash';
 
+		// Other identifiers
+		$this->user_id = apply_filters( 'bbp_view_id', 'bbp_user' );
+		$this->view_id = apply_filters( 'bbp_spam_id', 'bbp_view' );
+		$this->edit_id = apply_filters( 'bbp_spam_id', 'edit'     );
+		
 		/** Slugs *************************************************************/
 
 		// Root forum slug
@@ -911,21 +916,24 @@ class bbPress {
 			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
+			// @todo Edit Topic Tag
+			//$this->topic_tag_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_tag_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+
 			// Profile Page
-			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ),
-			$this->user_slug  . '/([^/]+)/edit/?$'             => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ),
+			$this->user_slug  . '/([^/]+)/edit/?$'             => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// @todo - favorites feeds
-			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
-			//$this->user_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_user=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->user_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// @todo - view feeds
-			//$this->view_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->view_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// View Page
-			$this->view_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$this->view_slug . '/([^/]+)/?$'                   => 'index.php?bbp_view=' . $wp_rewrite->preg_index( 1 )
+			$this->view_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$this->view_slug . '/([^/]+)/?$'                   => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 )
 		);
 
 		// Merge bbPress rules with existing
