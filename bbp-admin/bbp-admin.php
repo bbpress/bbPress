@@ -96,13 +96,13 @@ class BBP_Admin {
 
 		// Register bbPress admin style
 		// @todo Refresh for 3.2 UI
-		//add_action( 'admin_init',    array( $this, 'register_admin_style'    ) );
+		//add_action( 'bbp_admin_init',    array( $this, 'register_admin_style'    ) );
 
 		// Add the importers
-		add_action( 'admin_init',    array( $this, 'register_importers'      ) );
+		add_action( 'bbp_admin_init',     array( $this, 'register_importers'      ) );
 
 		// Add the settings
-		add_action( 'admin_init',    array( $this, 'register_admin_settings' ) );
+		add_action( 'bbp_admin_init',     array( $this, 'register_admin_settings' ) );
 
 		// Forums 'Right now' Dashboard widget
 		add_action( 'wp_dashboard_setup', array( $this, 'dashboard_widget_right_now' ) );
