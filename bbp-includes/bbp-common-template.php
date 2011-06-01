@@ -780,10 +780,6 @@ function bbp_dropdown( $args = '' ) {
 			// Hidden forums
 			if ( current_user_can( 'read_hidden_forums' ) )
 				$post_stati[] = $bbp->hidden_status_id;
-
-		// Topics
-		} else {
-			$r = bbp_exclude_forum_ids( $r );
 		}
 
 		// Setup the post statuses

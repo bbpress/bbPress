@@ -771,52 +771,64 @@ function bbp_get_private_forum_ids() {
  * Returns a meta_query that either includes or excludes hidden forum IDs
  * from a query.
  *
+ * @since bbPress (r3291)
+ *
+ * @param string Optional. The type of value to return. (string|array|meta_query)
+ *
  * @uses is_super_admin()
  * @uses bbp_is_user_home()
  * @uses bbp_get_hidden_forum_ids()
  * @uses bbp_get_private_forum_ids()
+ * @uses apply_filters()
  */
-function bbp_exclude_forum_ids( $query = array() ) {
-
-	// Do not exclude for super admins
-	if ( is_super_admin() )
-		return $query;
+function bbp_exclude_forum_ids( $type = 'string' ) {
 
 	// Setup arrays
-	$private = $hidden = $meta_query = array();
+	$retval = $private = $hidden = $meta_query = $forum_ids = array();
 
-	// Private forums
-	if ( !current_user_can( 'read_private_forums' ) )
-		$private = bbp_get_private_forum_ids();
+	// Exclude for everyone but super admins
+	if ( !is_super_admin() ) {
 
-	// Hidden forums
-	if ( !current_user_can( 'read_hidden_forums' ) )
-		$hidden  = bbp_get_hidden_forum_ids();
+		// Private forums
+		if ( !current_user_can( 'read_private_forums' ) )
+			$private = bbp_get_private_forum_ids();
 
-	// Merge private and hidden forums together
-	$forum_ids = (array) array_filter( array_merge( $private, $hidden ) );
+		// Hidden forums
+		if ( !current_user_can( 'read_hidden_forums' ) )
+			$hidden  = bbp_get_hidden_forum_ids();
 
-	// There are forums that need to be excluded
-	if ( !empty( $forum_ids ) ) {
+		// Merge private and hidden forums together
+		$forum_ids = (array) array_filter( array_merge( $private, $hidden ) );
 
-		// Setup a meta_query to remove hidden forums
-		$value   = implode( ',', $forum_ids );
-		$compare = ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!=';
+		// There are forums that need to be excluded
+		if ( !empty( $forum_ids ) ) {
 
-		// Add meta_query to $replies_query
-		$meta_query['meta_query'] = array( array(
-			'key'     => '_bbp_forum_id',
-			'value'   => $value,
-			'compare' => $compare
-		) );
-
-		// Merge the queries together
-		if ( !empty( $meta_query ) ) {
-			$query = array_merge( $query, $meta_query );
+			switch ( $type ) {
+				
+				// Separate forum ID's into a comma separated string
+				case 'string' :
+					$retval = implode( ',', $forum_ids );
+					break;
+				
+				// Use forum_ids array
+				case 'array'  :
+					$retval = $forum_ids;
+					break;
+				
+				// Build a meta_query
+				case 'meta_query' :
+					$retval = array(
+						'key'     => '_bbp_forum_id',
+						'value'   => implode( ',', $forum_ids ),
+						'compare' => ( 1 < count( $forum_ids ) ) ? 'NOT IN' : '!='
+					);
+					break;
+			}
 		}
 	}
 
-	return apply_filters( 'bbp_exclude_forum_ids', $query, $meta_query );
+	// Filter and return the results
+	return apply_filters( 'bbp_exclude_forum_ids', $retval, $forum_ids, $type );
 }
 
 /**

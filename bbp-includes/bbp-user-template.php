@@ -1093,7 +1093,6 @@ function bbp_user_can_view_forum( $args = '' ) {
  * @since bbPress (r3127)
  *
  * @uses bbp_get_forum_post_type()
- * @uses bbp_exclude_forum_ids()
  * @uses get_posts()
  *
  * @param type $args

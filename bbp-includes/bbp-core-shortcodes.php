@@ -354,9 +354,6 @@ class BBP_Shortcodes {
 			'order'          => 'DESC',
 		);
 
-		// Remove any topics from hidden forums
-		$topics_query = bbp_exclude_forum_ids( $topics_query );
-
 		// Unset globals
 		$this->_unset_globals();
 

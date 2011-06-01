@@ -461,9 +461,6 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		bbp_set_query_name( 'bbp_widget' );
 
-		// Remove any topics from hidden forums
-		$topics_query = bbp_exclude_forum_ids( $topics_query );
-
 		if ( $pop_check < $max_shown && bbp_has_topics( $topics_query ) ) :
 
 			echo $before_widget;
@@ -641,9 +638,6 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		// Set the query name
 		bbp_set_query_name( 'bbp_widget' );
-
-		// Exclude hidden forums
-		$replies_query = bbp_exclude_forum_ids( $replies_query );
 
 		// Get replies and display them
 		if ( bbp_has_replies( $replies_query ) ) :

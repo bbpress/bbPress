@@ -2612,7 +2612,6 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
  *
  * @global bbPress $bbp
  *
- * @uses bbp_exclude_forum_ids()
  * @uses bbp_is_topic()
  * @uses bbp_user_can_view_forum()
  * @uses bbp_get_topic_forum_id()
@@ -2642,9 +2641,6 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 	// User cannot access forum this topic is in
 	if ( bbp_is_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
 		return;
-
-	// Remove any topics from hidden forums
-	$topics_query = bbp_exclude_forum_ids( $topics_query );
 
 	// Display the feed
 	header( 'Content-Type: text/xml; charset=' . get_option( 'blog_charset' ), true );

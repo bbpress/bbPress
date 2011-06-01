@@ -192,11 +192,8 @@ function bbp_get_user_favorites( $user_id = 0 ) {
 	// If user has favorites, load them
 	if ( $favorites = bbp_get_user_favorites_topic_ids( $user_id ) ) {
 
-		// Possibly remove topics from hidden forums
-		$hidden_query = bbp_exclude_forum_ids();
-		$favs_query   = array( 'post__in' => $favorites );
-		$topics_query = array_merge( $hidden_query, $favs_query );
-		$topics_query = bbp_has_topics( $topics_query );
+		// Setup the topics query
+		$topics_query = bbp_has_topics( array( 'post__in' => $favorites ) );
 
 		return apply_filters( 'bbp_get_user_favorites', $topics_query, $user_id );
 	}
@@ -813,11 +810,8 @@ function bbp_get_user_topics_started( $user_id = 0 ) {
 		'order'          => 'DESC',
 	);
 
-	// Assume user cannot read hidden forums
-	$topics_query = bbp_exclude_forum_ids( $default_query );
-
 	// Get the topics
-	if ( $query = bbp_has_topics( $topics_query ) )
+	if ( $query = bbp_has_topics( $default_query ) )
 		return $query;
 
 	return false;
