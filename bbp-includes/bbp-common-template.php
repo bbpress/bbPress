@@ -422,7 +422,15 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	$bbp_classes = array();
 
-	/** Components ********************************************************/
+	/** Archives **************************************************************/
+
+	if ( bbp_is_forum_archive() )
+		$bbp_classes[] = bbp_get_forum_post_type() . '-archive';
+	
+	if ( bbp_is_topic_archive() )
+		$bbp_classes[] = bbp_get_topic_post_type() . '-archive';
+	
+	/** Components ************************************************************/
 
 	if ( bbp_is_forum() )
 		$bbp_classes[] = bbp_get_forum_post_type();
@@ -448,7 +456,7 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 	if ( bbp_is_view() )
 		$bbp_classes[] = 'bbp-view';
 
-	/** User **************************************************************/
+	/** User ******************************************************************/
 
 	if ( bbp_is_user_profile_edit() ) {
 		$bbp_classes[] = 'bbp-user-edit';
@@ -486,7 +494,7 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 		$bbp_classes[] = 'singular';
 	}
 
-	/** Clean up **********************************************************/
+	/** Clean up **************************************************************/
 
 	// Add bbPress class if we are within a bbPress page
 	if ( !empty( $bbp_classes ) )
