@@ -226,6 +226,10 @@ class BBP_Replies_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $reply_id;
 
+		// Bail if not a post request
+		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+			return $reply_id;
+
 		// Current user cannot edit this reply
 		if ( !current_user_can( 'edit_reply', $reply_id ) )
 			return $reply_id;
@@ -297,6 +301,10 @@ class BBP_Replies_Admin {
 
 		// Bail if no post_id
 		if ( empty( $post_id ) )
+			return $post_id;
+
+		// Bail if not a post request
+		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $post_id;
 
 		// Bail if doing an autosave

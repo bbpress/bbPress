@@ -254,6 +254,10 @@ class BBP_Topics_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $topic_id;
 
+		// Bail if not a post request
+		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+			return $topic_id;
+
 		// Bail if current user cannot edit this topic
 		if ( !current_user_can( 'edit_topic', $topic_id ) )
 			return $topic_id;
@@ -327,6 +331,10 @@ class BBP_Topics_Admin {
 
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			return $post_id;
+
+		// Bail if not a post request
+		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $post_id;
 
 		// Bail if post_type is not a topic or reply

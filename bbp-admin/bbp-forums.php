@@ -231,6 +231,10 @@ class BBP_Forums_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return $forum_id;
 
+		// Bail if not a post request
+		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+			return $forum_id;
+
 		// Bail if current user cannot edit this forum
 		if ( !current_user_can( 'edit_forum', $forum_id ) )
 			return $forum_id;
