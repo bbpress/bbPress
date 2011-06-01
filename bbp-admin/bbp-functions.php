@@ -23,7 +23,7 @@ function bbp_admin_separator () {
 	if ( !current_user_can( 'edit_replies' ) )
 		return;
 
-	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator' );
+	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator bbpress' );
 }
 
 /**
