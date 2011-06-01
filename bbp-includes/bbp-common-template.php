@@ -1327,7 +1327,7 @@ function bbp_breadcrumb( $args = array() ) {
 			'include_current' => $pre_include_current,
 			'current_text'    => $pre_current_text
 		);
-		$r = wp_parse_args( $args, $defaults );
+		$r = apply_filters( 'bbp_get_breadcrumb_pre', wp_parse_args( $args, $defaults ) );		
 		extract( $r );
 
 		/** Ancestors *********************************************************/
