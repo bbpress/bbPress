@@ -996,22 +996,33 @@ function bbp_toggle_reply_handler() {
 function bbp_spam_reply( $reply_id = 0 ) {
 	global $bbp;
 
+	// Get reply
 	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
 		return $reply;
 
+	// Bail if already spam
 	if ( $reply['post_status'] == $bbp->spam_status_id )
 		return false;
 
+	// Execute pre spam code
 	do_action( 'bbp_spam_reply', $reply_id );
 
+	// Add the original post status as post meta for future restoration
 	add_post_meta( $reply_id, '_bbp_spam_meta_status', $reply['post_status'] );
 
+	// Set post status to spam
 	$reply['post_status'] = $bbp->spam_status_id;
 
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update the reply
 	$reply_id = wp_insert_post( $reply );
 
+	// Execute post spam code
 	do_action( 'bbp_spammed_reply', $reply_id );
 
+	// Return reply_id
 	return $reply_id;
 }
 
@@ -1032,23 +1043,36 @@ function bbp_spam_reply( $reply_id = 0 ) {
 function bbp_unspam_reply( $reply_id = 0 ) {
 	global $bbp;
 
+	// Get reply
 	if ( !$reply = wp_get_single_post( $reply_id, ARRAY_A ) )
 		return $reply;
 
+	// Bail if already not spam
 	if ( $reply['post_status'] != $bbp->spam_status_id )
 		return false;
 
+	// Execute pre unspam code
 	do_action( 'bbp_unspam_reply', $reply_id );
 
+	// Get pre spam status
 	$reply_status         = get_post_meta( $reply_id, '_bbp_spam_meta_status', true );
+	
+	// Set post status to pre spam
 	$reply['post_status'] = $reply_status;
 
+	// Delete pre spam meta
 	delete_post_meta( $reply_id, '_bbp_spam_meta_status' );
 
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update the reply
 	$reply_id = wp_insert_post( $reply );
 
+	// Execute post unspam code
 	do_action( 'bbp_unspammed_reply', $reply_id );
 
+	// Return reply_id
 	return $reply_id;
 }
 

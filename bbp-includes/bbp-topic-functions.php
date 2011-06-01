@@ -2189,22 +2189,33 @@ function bbp_update_topic_revision_log( $args = '' ) {
 function bbp_close_topic( $topic_id = 0 ) {
 	global $bbp;
 
+	// Get topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
+	// Bail if already closed
 	if ( $topic['post_status'] == $bbp->closed_status_id )
 		return false;
 
+	// Execute pre close code
 	do_action( 'bbp_close_topic', $topic_id );
 
+	// Add pre close status
 	add_post_meta( $topic_id, '_bbp_status', $topic['post_status'] );
 
+	// Set closed status
 	$topic['post_status'] = $bbp->closed_status_id;
 
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update topic
 	$topic_id = wp_insert_post( $topic );
 
+	// Execute post close code
 	do_action( 'bbp_closed_topic', $topic_id );
 
+	// Return topic_id
 	return $topic_id;
 }
 
@@ -2225,23 +2236,36 @@ function bbp_close_topic( $topic_id = 0 ) {
 function bbp_open_topic( $topic_id = 0 ) {
 	global $bbp;
 
+	// Get topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
+	// Bail if already open
 	if ( $topic['post_status'] != $bbp->closed_status_id )
 		return false;
 
+	// Execute pre open code
 	do_action( 'bbp_open_topic', $topic_id );
 
+	// Get previous status
 	$topic_status         = get_post_meta( $topic_id, '_bbp_status', true );
+	
+	// Set previous status
 	$topic['post_status'] = $topic_status;
 
+	// Remove old status meta
 	delete_post_meta( $topic_id, '_bbp_status' );
 
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update topic
 	$topic_id = wp_insert_post( $topic );
 
+	// Execute post open code
 	do_action( 'bbp_opened_topic', $topic_id );
 
+	// Return topic_id
 	return $topic_id;
 }
 
@@ -2261,22 +2285,33 @@ function bbp_open_topic( $topic_id = 0 ) {
 function bbp_spam_topic( $topic_id = 0 ) {
 	global $bbp;
 
+	// Get the topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
+	// Bail if topic is spam
 	if ( $topic['post_status'] == $bbp->spam_status_id )
 		return false;
 
+	// Execute pre spam code
 	do_action( 'bbp_spam_topic', $topic_id );
 
+	// Add the original post status as post meta for future restoration
 	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic['post_status'] );
 
+	// Set post status to spam
 	$topic['post_status'] = $bbp->spam_status_id;
 
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+	
+	// Update the topic
 	$topic_id = wp_insert_post( $topic );
 
+	// Execute post spam code
 	do_action( 'bbp_spammed_topic', $topic_id );
 
+	// Return topic_id
 	return $topic_id;
 }
 
@@ -2297,23 +2332,36 @@ function bbp_spam_topic( $topic_id = 0 ) {
 function bbp_unspam_topic( $topic_id = 0 ) {
 	global $bbp;
 
+	// Get the topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
+	// Bail if already not spam
 	if ( $topic['post_status'] != $bbp->spam_status_id )
 		return false;
 
+	// Execute pre unspam code
 	do_action( 'bbp_unspam_topic', $topic_id );
 
+	// Get pre spam status
 	$topic_status         = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
+	
+	// Set post status to pre spam
 	$topic['post_status'] = $topic_status;
 
+	// Delete pre spam meta
 	delete_post_meta( $topic_id, '_bbp_spam_meta_status' );
 
+	// No revisions
+	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Update the topic
 	$topic_id = wp_insert_post( $topic );
 
+	// Execute post unspam code
 	do_action( 'bbp_unspammed_topic', $topic_id );
 
+	// Return topic_id
 	return $topic_id;
 }
 

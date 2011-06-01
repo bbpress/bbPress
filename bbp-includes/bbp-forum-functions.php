@@ -71,8 +71,7 @@ function bbp_new_forum_admin_handler( $forum_id, $forum ) {
  * @param int $forum_id forum id
  * @uses wp_get_single_post() To get the forum
  * @uses do_action() Calls 'bbp_close_forum' with the forum id
- * @uses add_post_meta() To add the previous status to a meta
- * @uses wp_insert_post() To update the forum with the new status
+ * @uses update_post_meta() To add the previous status to a meta
  * @uses do_action() Calls 'bbp_opened_forum' with the forum id
  * @return mixed False or {@link WP_Error} on failure, forum id on success
  */
@@ -98,8 +97,7 @@ function bbp_close_forum( $forum_id = 0 ) {
  * @uses wp_get_single_post() To get the forum
  * @uses do_action() Calls 'bbp_open_forum' with the forum id
  * @uses get_post_meta() To get the previous status
- * @uses delete_post_meta() To delete the previous status meta
- * @uses wp_insert_post() To update the forum with the new status
+ * @uses update_post_meta() To delete the previous status meta
  * @uses do_action() Calls 'bbp_opened_forum' with the forum id
  * @return mixed False or {@link WP_Error} on failure, forum id on success
  */
