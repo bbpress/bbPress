@@ -1566,13 +1566,48 @@ function bbp_logout_link( $redirect_to = '' ) {
 function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	global $bbp;
 
+	// Store original title to compare
 	$_title = $title;
 
-	// Profile page
-	if ( bbp_is_user_profile_page() ) {
+	/** Archives **************************************************************/
 
+	// Forum Archive
+	if ( bbp_is_forum_archive() ) {
+		$title = bbp_get_forum_archive_title();
+
+	// Topic Archive
+	} elseif ( bbp_is_topic_archive() ) {
+		$title = bbp_get_topic_archive_title();
+
+	/** Singles ***************************************************************/
+
+	// Forum page
+	} elseif ( bbp_is_forum() ) {
+		$title = sprintf( __( 'Forum: %s', 'bbpress' ), bbp_get_forum_title() );
+
+	// Topic page
+	} elseif ( bbp_is_topic() ) {
+		$title = sprintf( __( 'Topic: %s', 'bbpress' ), bbp_get_topic_title() );
+
+	// Replies
+	} elseif ( bbp_is_reply() ) {
+		$title = bbp_get_reply_title();
+
+	// Topic tag page
+	} elseif ( is_tax( $bbp->topic_tag_id ) ) {
+		$term  = get_queried_object();
+		$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
+
+	/** Users *****************************************************************/
+
+	// Profile page
+	} elseif ( bbp_is_user_profile_page() ) {
+
+		// Current users profile
 		if ( bbp_is_user_home() ) {
 			$title = __( 'Your Profile', 'bbpress' );
+			
+		// Other users profile
 		} else {
 			$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
 			$title    = sprintf( __( '%s\'s Profile', 'bbpress' ), $userdata->display_name );
@@ -1581,46 +1616,27 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	// Profile edit page
 	} elseif ( bbp_is_user_profile_edit() ) {
 
+		// Current users profile
 		if ( bbp_is_user_home() ) {
 			$title = __( 'Edit Your Profile', 'bbpress' );
+			
+		// Other users profile
 		} else {
 			$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
 			$title    = sprintf( __( 'Edit %s\'s Profile', 'bbpress' ), $userdata->display_name );
 		}
 
-	// Forum page
-	} elseif ( bbp_is_forum() ) {
-
-		$title = sprintf( __( 'Forum: %s', 'bbpress' ), bbp_get_forum_title() );
-
-	// Topic page
-	} elseif ( bbp_is_topic() ) {
-
-		$title = sprintf( __( 'Topic: %s', 'bbpress' ), bbp_get_topic_title() );
-
-	// Replies
-	} elseif ( bbp_is_reply() ) {
-
-		// Normal reply titles already have "Reply To: ", so we shouldn't add our own
-		$title = bbp_get_reply_title();
-
-	// Topic tag page
-	} elseif ( is_tax( $bbp->topic_tag_id ) ) {
-
-		if ( function_exists( 'get_queried_object' ) ) {
-			$term  = get_queried_object();
-			$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
-		}
+	/** Views *****************************************************************/
 
 	// Views
 	} elseif ( bbp_is_view() ) {
-
 		$title = sprintf( __( 'View: %s', 'bbpress' ), bbp_get_view_title() );
-
 	}
 
-	$title  = apply_filters( 'bbp_raw_title', $title, $sep, $seplocation );
+	// Filter the raw title
+	$title = apply_filters( 'bbp_raw_title', $title, $sep, $seplocation );
 
+	// Compare new title with original title
 	if ( $title == $_title )
 		return $title;
 
@@ -1631,11 +1647,13 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	if ( !empty( $title ) )
 		$prefix = " $sep ";
 
-	// Determines position of the separator and direction of the breadcrumb
-	if ( 'right' == $seplocation ) { // sep on right, so reverse the order
+	// sep on right, so reverse the order
+	if ( 'right' == $seplocation ) {
 		$title_array = explode( $t_sep, $title );
 		$title_array = array_reverse( $title_array );
 		$title       = implode( " $sep ", $title_array ) . $prefix;
+
+	// sep on left, do not reverse
 	} else {
 		$title_array = explode( $t_sep, $title );
 		$title       = $prefix . implode( " $sep ", $title_array );
