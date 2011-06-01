@@ -110,6 +110,11 @@ add_action( 'bbp_deactivation', 'bbp_remove_roles',  2     );
 // Options & Settings
 add_action( 'bbp_activation',   'bbp_add_options',   1     );
 
+// Multisite
+add_action( 'bbp_new_site', 'bbp_add_roles',   2 );
+add_action( 'bbp_new_site', 'bbp_add_caps',    4 );
+add_action( 'bbp_new_site', 'bbp_add_options', 6 );
+
 // Topic Tag Page
 add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 
@@ -209,6 +214,32 @@ add_action( 'bbp_untrashed_reply', 'bbp_update_reply_walker' );
 add_action( 'bbp_deleted_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_spammed_reply',   'bbp_update_reply_walker' );
 add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
+
+/**
+ * When a new site is created in a multisite installation, run the activation
+ * routine on that site 
+ * 
+ * @since bbPress (r3283)
+ *
+ * @param int $blog_id
+ * @param int $user_id
+ * @param string $domain
+ * @param string $path
+ * @param int $site_id
+ * @param array() $meta 
+ */
+function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+
+	// Switch to the new blog
+	switch_to_blog( $blog_id );
+
+	// Do the bbPress activation routine
+	do_action( 'bbp_new_site' );
+
+	// restore original blog
+	restore_current_blog();
+}
+add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 
 /** FILTERS *******************************************************************/
 
@@ -358,19 +389,208 @@ bbp_pre_anonymous_filters();
  *
  * @since bbPress (r2944)
  *
- * @uses is_super_admin() To check if the user is site admin
  * @uses apply_filters() Calls 'bbp_allowed_themes' with the allowed themes list
  */
 function bbp_allowed_themes( $themes ) {
-
-	// Only force bbp-twentyten theme for super admins
-	if ( !is_super_admin() )
-		return $themes;
-
 	$themes['bbp-twentyten'] = 1;
 
 	return apply_filters( 'bbp_allowed_themes', $themes );
 }
 add_filter( 'allowed_themes', 'bbp_allowed_themes' );
+
+/** Main Actions **************************************************************/
+
+/**
+ * Main action responsible for constants, globals, and includes
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_loaded'
+ */
+function bbp_loaded() {
+	do_action( 'bbp_loaded' );
+}
+
+/**
+ * Setup constants
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_constants'
+ */
+function bbp_constants() {
+	do_action( 'bbp_constants' );
+}
+
+/**
+ * Setup globals BEFORE includes
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_boot_strap_globals'
+ */
+function bbp_boot_strap_globals() {
+	do_action( 'bbp_boot_strap_globals' );
+}
+
+/**
+ * Include files
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_includes'
+ */
+function bbp_includes() {
+	do_action( 'bbp_includes' );
+}
+
+/**
+ * Setup globals AFTER includes
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_setup_globals'
+ */
+function bbp_setup_globals() {
+	do_action( 'bbp_setup_globals' );
+}
+
+/**
+ * Initialize any code after everything has been loaded
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_init'
+ */
+function bbp_init() {
+	do_action ( 'bbp_init' );
+}
+
+/** Supplemental Actions ******************************************************/
+
+/**
+ * Setup the currently logged-in user
+ *
+ * @since bbPress (r2695)
+ *
+ * @uses do_action() Calls 'bbp_setup_current_user'
+ */
+function bbp_setup_current_user() {
+	do_action ( 'bbp_setup_current_user' );
+}
+
+/**
+ * Load translations for current language
+ *
+ * @since bbPress (r2599)
+ *
+ * @uses do_action() Calls 'bbp_load_textdomain'
+ */
+function bbp_register_textdomain() {
+	do_action( 'bbp_load_textdomain' );
+}
+
+/**
+ * Sets up the theme directory
+ *
+ * @since bbPress (r2507)
+ *
+ * @uses do_action() Calls 'bbp_register_theme_directory'
+ */
+function bbp_register_theme_directory() {
+	do_action( 'bbp_register_theme_directory' );
+}
+
+/**
+ * Setup the post types
+ *
+ * @since bbPress (r2464)
+ *
+ * @uses do_action() Calls 'bbp_register_post_type'
+ */
+function bbp_register_post_types() {
+	do_action ( 'bbp_register_post_types' );
+}
+
+/**
+ * Setup the post statuses
+ *
+ * @since bbPress (r2727)
+ *
+ * @uses do_action() Calls 'bbp_register_post_statuses'
+ */
+function bbp_register_post_statuses() {
+	do_action ( 'bbp_register_post_statuses' );
+}
+
+/**
+ * Register the built in bbPress taxonomies
+ *
+ * @since bbPress (r2464)
+ *
+ * @uses do_action() Calls 'bbp_register_taxonomies'
+ */
+function bbp_register_taxonomies() {
+	do_action ( 'bbp_register_taxonomies' );
+}
+
+/**
+ * Register the default bbPress views
+ *
+ * @since bbPress (r2789)
+ *
+ * @uses do_action() Calls 'bbp_register_views'
+ */
+function bbp_register_views() {
+	do_action ( 'bbp_register_views' );
+}
+
+/**
+ * Add the bbPress-specific rewrite tags
+ *
+ * @since bbPress (r2753)
+ *
+ * @uses do_action() Calls 'bbp_add_rewrite_tags'
+ */
+function bbp_add_rewrite_tags() {
+	do_action ( 'bbp_add_rewrite_tags' );
+}
+
+/**
+ * Generate bbPress-specific rewrite rules
+ *
+ * @since bbPress (r2688)
+ *
+ * @param WP_Rewrite $wp_rewrite
+ *
+ * @uses do_action() Calls 'bbp_generate_rewrite_rules' with {@link WP_Rewrite}
+ */
+function bbp_generate_rewrite_rules( $wp_rewrite ) {
+	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
+}
+
+/**
+ * Setup bbPress theme compatability actions
+ *
+ * @since bbPress (r3028)
+ *
+ * @uses do_action() Calls 'bbp_setup_theme_compat'
+ */
+function bbp_setup_theme_compat() {
+	do_action( 'bbp_setup_theme_compat' );
+}
+
+/** Final Action **************************************************************/
+
+/**
+ * bbPress has loaded and initialized everything, and is okay to go
+ *
+ * @since bbPress (r2618)
+ *
+ * @uses do_action() Calls 'bbp_ready'
+ */
+function bbp_ready() {
+	do_action( 'bbp_ready' );
+}
 
 ?>

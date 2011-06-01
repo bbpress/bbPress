@@ -401,10 +401,9 @@ class bbPress {
 		/** Individual files **************************************************/
 
 		$core = array(
-			'loader',        // Loader Actions
+			'hooks',         // All filters and actions
 			'options',       // Configuration Options
 			'caps',          // Roles and capabilities
-			'hooks',         // All filters and actions
 			'classes',       // Common classes
 			'widgets',       // Sidebar widgets
 			'shortcodes',    // Shortcodes for use with pages and posts
