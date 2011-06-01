@@ -915,8 +915,14 @@ function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 			// Topics and replies
 			case array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) :
 
-				// Set the meta_query to remove the hidden/private forum IDs
-				$posts_query->set( 'meta_query', array( $forum_ids ) );
+				// Get any existing meta queries
+				$meta_query   = $posts_query->get( 'meta_query' );
+				
+				// Add our meta query to existing
+				$meta_query[] = $forum_ids;
+
+				// Set the meta_query var
+				$posts_query->set( 'meta_query', $meta_query );
 
 				break;
 		}
