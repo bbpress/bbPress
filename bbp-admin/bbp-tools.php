@@ -52,6 +52,8 @@ function bbp_admin_tools() {
 
 		<h2><?php _e( 'bbPress Recount', 'bbpress' ) ?></h2>
 
+		<?php do_action( 'admin_notices' ); ?>
+
 		<p><?php _e( 'bbPress keeps a running count of things like replies to each topic and topics in each forum. In rare occasions these counts can fall out of sync. Using this form you can have bbPress manually recount these items.', 'bbpress' ); ?></p>
 		<p><?php _e( 'You can also use this form to clean out stale items like empty tags.', 'bbpress' ); ?></p>
 

@@ -94,7 +94,7 @@ function bbp_admin_menu_order( $menu_order ) {
 }
 
 /**
- * Display the admin notices
+ * Assemble the admin notices
  *
  * @since bbPress (r2613)
  *
