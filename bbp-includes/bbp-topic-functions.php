@@ -556,36 +556,6 @@ function bbp_edit_topic_handler() {
 }
 
 /**
- * Handles new topic submission from within wp-admin
- *
- * @param int $topic_id Topic id
- * @param object $topic Topic
- * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses bbp_update_topic() To update the topic
- */
-function bbp_new_topic_admin_handler( $topic_id, $topic ) {
-	global $bbp;
-
-	if (    // Check if POST action
-			'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) &&
-
-			// Check Actions exist in POST
-			!empty( $_POST['action']    )                       &&
-			!empty( $_POST['post_type'] )                       &&
-
-			// Check that actions match what we need
-			'editpost'                === $_POST['action']      &&
-			'publish'                 === $_POST['post_status'] &&
-			bbp_get_topic_post_type() === $_POST['post_type']
-	) {
-
-		// Update the topic meta bidness
-		$parent_id = !empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : 0;
-		bbp_update_topic( $topic_id, $parent_id );
-	}
-}
-
-/**
  * Handle all the extra meta stuff from posting a new topic
  *
  * @param int $topic_id Optional. Topic id
