@@ -788,9 +788,17 @@ class bbPress {
 		 * single trashed topics/replies in the front-end as wp_query
 		 * doesn't allow any hack for the trashed topics to be viewed.
 		 */
-		if ( !empty( $wp_post_statuses['trash'] ) && current_user_can( 'view_trash' ) ) {
-			$wp_post_statuses['trash']->internal  = false; // changed to protected
-			$wp_post_statuses['trash']->protected = true;
+		if ( !empty( $wp_post_statuses['trash'] ) ) {
+			
+			// User can view trash so set internal to false
+			if ( current_user_can( 'view_trash' ) ) {
+				$wp_post_statuses['trash']->internal  = false;
+				$wp_post_statuses['trash']->protected = true;
+
+			// User cannot view trash so set internal to true
+			} elseif ( !current_user_can( 'view_trash' ) ) {
+				$wp_post_statuses['trash']->internal = true;
+			}
 		}
 	}
 
