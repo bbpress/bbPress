@@ -266,12 +266,16 @@ class BBP_Topics_Admin {
 		if ( !$topic = bbp_get_topic( $topic_id ) )
 			return $topic_id;
 
-		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $topic->parent_id ) ? $topic->parent_id : 0;
+		// Get the forum ID
+		$forum_id = !empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : 0;
 
-		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $parent_id );
+		// Formally update the topic
+		bbp_update_topic( $topic_id, $forum_id );
 
-		return $parent_id;
+		// Allow other fun things to happen
+		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $forum_id );
+
+		return $topic_id;
 	}
 
 	/**
@@ -656,21 +660,6 @@ class BBP_Topics_Admin {
 					// Output the title
 					echo $forum_title;
 
-					// Show actions if forum exists
-					if ( $forum_title != __( 'No Forum', 'bbpress' ) ) {
-
-						// Link information
-						$actions = apply_filters( 'topic_forum_row_actions', array (
-							'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-							'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-						) );
-
-						// Output forum post row links
-						foreach ( $actions as $action => $link )
-							$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
-
-						echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
-					}
 				} else {
 					_e( '(No Forum)', 'bbpress' );
 				}
@@ -749,8 +738,6 @@ class BBP_Topics_Admin {
 
 		if ( $topic->post_type == $this->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
-
-			bbp_topic_content( $topic->ID );
 
 			// Show view link if it's not set, the topic is trashed and the user can view trashed topics
 			if ( empty( $actions['view'] ) && 'trash' == $topic->post_status && current_user_can( 'view_trash' ) )

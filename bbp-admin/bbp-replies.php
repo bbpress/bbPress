@@ -230,20 +230,29 @@ class BBP_Replies_Admin {
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $reply_id;
 
+		// Check action exists
+		if ( empty( $_POST['action'] ) )
+			return $reply_id;
+
+		// Bail if post_type is not a topic or reply
+		if ( get_post_type( $reply_id ) != $this->post_type )
+			return;
+
 		// Current user cannot edit this reply
 		if ( !current_user_can( 'edit_reply', $reply_id ) )
 			return $reply_id;
 
-		// Load the reply
-		if ( !$reply = bbp_get_reply( $reply_id ) )
-			return $reply_id;
+		// Get the reply meta post values
+		$topic_id = !empty( $_POST['parent_id']    ) ? (int) $_POST['parent_id']    : 0;
+		$forum_id = !empty( $_POST['bbp_forum_id'] ) ? (int) $_POST['bbp_forum_id'] : bbp_get_topic_forum_id( $topic_id );
 
-		// OK, we're authenticated: we need to find and save the data
-		$parent_id = isset( $reply->parent_id ) ? $reply->parent_id : 0;
+		// Formally update the reply
+		bbp_update_reply( $reply_id, $topic_id, $forum_id );
 
-		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $parent_id );
+		// Allow other fun things to happen
+		do_action( 'bbp_reply_attributes_metabox_save', $reply_id, $topic_id, $forum_id );
 
-		return $parent_id;
+		return $reply_id;
 	}
 
 	/**
@@ -584,22 +593,6 @@ class BBP_Replies_Admin {
 					// Output the title
 					echo $topic_title;
 
-					// Show actions if topic exists
-					if ( $topic_title != __( 'No Topic', 'bbpress' ) ) {
-
-						// Link information
-						$actions = apply_filters( 'reply_topic_row_actions', array (
-							'edit' => '<a href="' . add_query_arg( array( 'post' => $topic_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-							'view' => '<a href="' . bbp_get_topic_permalink( $topic_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-						) );
-
-						// Output forum post row links
-						foreach ( $actions as $action => $link )
-							$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
-
-						echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
-					}
-
 				// Reply has no topic
 				} else {
 					_e( 'No Topic', 'bbpress' );
@@ -610,36 +603,27 @@ class BBP_Replies_Admin {
 			// Forum
 			case 'bbp_reply_forum' :
 
-				// Get Forum ID
-				$forum_id = bbp_get_topic_forum_id( $topic_id );
+				// Get Forum ID's
+				$reply_forum_id = bbp_get_reply_forum_id( $reply_id );
+				$topic_forum_id = bbp_get_topic_forum_id( $topic_id );
 
 				// Output forum name
-				if ( !empty( $forum_id ) ) {
+				if ( !empty( $reply_forum_id ) ) {
 
 					// Forum Title
-					if ( !$forum_title = bbp_get_forum_title( $forum_id ) )
+					if ( !$forum_title = bbp_get_forum_title( $reply_forum_id ) )
 						$forum_title = __( 'No Forum', 'bbpress' );
+
+					// Alert capable users of reply forum mismatch
+					if ( $reply_forum_id != $topic_forum_id ) {
+						if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) {
+							$forum_title .= '<div class="attention">' . __( '(Mismatch)', 'bbpress' ) . '</div>';
+						}
+					}
 
 					// Output the title
 					echo $forum_title;
-
-					// Show actions if forum exists
-					if ( $forum_title != __( 'No Forum', 'bbpress' ) ) {
-
-						// Link information
-						$actions = apply_filters( 'reply_topic_forum_row_actions', array (
-							'edit' => '<a href="' . add_query_arg( array( 'post' => $forum_id, 'action' => 'edit' ), admin_url( '/post.php' ) ) . '">' . __( 'Edit', 'bbpress' ) . '</a>',
-							'view' => '<a href="' . bbp_get_forum_permalink( $forum_id ) . '">' . __( 'View', 'bbpress' ) . '</a>'
-						) );
-
-						// Output forum post row links
-						foreach ( $actions as $action => $link )
-							$formatted_actions[] = '<span class="' . $action . '">' . $link . '</span>';
-
-						// Show forum actions
-						echo '<div class="row-actions">' . implode( ' | ', $formatted_actions ) . '</div>';
-					}
-
+					
 				// Reply has no forum
 				} else {
 					_e( 'No Forum', 'bbpress' );

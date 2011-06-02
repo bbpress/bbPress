@@ -577,37 +577,6 @@ function bbp_edit_reply_handler() {
 }
 
 /**
- * Handles new reply submission from within wp-admin
- *
- * @param int $reply_id Reply id
- * @param obj $reply Reply
- * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_update_reply() To update the reply
- */
-function bbp_new_reply_admin_handler( $reply_id, $reply ) {
-	global $bbp;
-
-	if (    // Check if POST action
-			'POST'                        === $_SERVER['REQUEST_METHOD'] &&
-
-			// Check Actions exist in POST
-			!empty( $_POST['action']    )                                &&
-			!empty( $_POST['post_type'] )                                &&
-
-			// Check that actions match what we need
-			'editpost'                    === $_POST['action']           &&
-			'publish'                     === $_POST['post_status']      &&
-			bbp_get_reply_post_type()     === $_POST['post_type']
-
-	) {
-
-		// Update the reply meta bidness
-		$parent_id = !empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : 0;
-		bbp_update_topic( $reply_id, $parent_id );
-	}
-}
-
-/**
  * Handle all the extra meta stuff from posting a new reply or editing a reply
  *
  * @param int $reply_id Optional. Reply id

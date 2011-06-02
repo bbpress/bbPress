@@ -146,8 +146,6 @@ add_action( 'template_redirect', 'bbp_new_reply_handler'         );
 add_action( 'template_redirect', 'bbp_edit_reply_handler', 1     );
 add_action( 'bbp_new_reply',     'bbp_update_reply',       10, 6 );
 add_action( 'bbp_edit_reply',    'bbp_update_reply',       10, 6 );
-if ( is_admin() )
-	add_action( 'wp_insert_post', 'bbp_new_reply_admin_handler', 10, 2 );
 
 // Before Delete/Trash/Untrash Reply
 add_action( 'trash_post',   'bbp_trash_reply'   );
@@ -164,8 +162,6 @@ add_action( 'template_redirect', 'bbp_new_topic_handler'         );
 add_action( 'template_redirect', 'bbp_edit_topic_handler', 1     );
 add_action( 'bbp_new_topic',     'bbp_update_topic',       10, 5 );
 add_action( 'bbp_edit_topic',    'bbp_update_topic',       10, 5 );
-if ( is_admin() )
-	add_action( 'wp_insert_post', 'bbp_new_topic_admin_handler', 10, 2 );
 
 // Split/Merge Topic
 add_action( 'template_redirect',    'bbp_merge_topic_handler', 1    );

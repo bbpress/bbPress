@@ -358,7 +358,7 @@ function bbp_topic_metabox() {
 	$args = array(
 		'selected'  => bbp_get_topic_forum_id( $post->ID ),
 		'select_id' => 'parent_id',
-		'show_none' => __( '(No Forum)', 'bbpress' )
+		'show_none' => is_super_admin() ? __( '(No Forum)', 'bbpress' ) : '',
 	); ?>
 
 	<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
@@ -389,23 +389,53 @@ function bbp_topic_metabox() {
 function bbp_reply_metabox() {
 	global $post;
 
+	// Get some meta
+	$reply_topic_id = bbp_get_reply_topic_id( $post->ID );
+	$reply_forum_id = bbp_get_reply_forum_id( $post->ID );
+	$topic_forum_id = bbp_get_topic_forum_id( bbp_get_reply_topic_id( $post->ID ) );
+
+	// Allow individual manipulation of reply forum
+	if ( current_user_can( 'edit_others_replies' ) || current_user_can( 'moderate' ) ) :
+
+		// Forums
+		$args = array(
+			'selected'  => $reply_forum_id,
+			'select_id' => 'bbp_forum_id',
+			'show_none' => __( '(Use Forum of Topic)', 'bbpress' )
+		); ?>
+
+		<p><strong><?php _e( 'Forum', 'bbpress' ); ?></strong></p>
+
+		<p>
+			<label class="screen-reader-text" for="bbp_forum_id"><?php _e( 'Forum', 'bbpress' ); ?></label>
+
+			<?php bbp_dropdown( $args ); ?>
+
+		</p>
+
+	<?php endif;
+
+	// Topics
 	$args = array(
 		'post_type'   => bbp_get_topic_post_type(),
-		'selected'    => $post->post_parent,
+		'selected'    => $reply_topic_id,
 		'select_id'   => 'parent_id',
 		'orderby'     => 'post_date',
-		'numberposts' => '250'
+		'numberposts' => '250',
+		'show_none'   => is_super_admin() ? __( '(No Topic)', 'bbpress' ) : '',
 	);
 	
 	// Allow the dropdown to be filtered, to extend or limit the available
 	// topics to choose as the reply parent.
 	$args = apply_filters( 'bbp_reply_parent_dropdown', $args ); ?>
 
-	<p><strong><?php _e( 'Parent Topic', 'bbpress' ); ?></strong></p>
+	<p><strong><?php _e( 'Topic', 'bbpress' ); ?></strong></p>
 
 	<p>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Topic', 'bbpress' ); ?></label>
+
 		<?php bbp_dropdown( $args ); ?>
+
 	</p>
 
 	<?php
