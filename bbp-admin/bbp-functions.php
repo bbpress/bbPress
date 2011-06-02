@@ -206,7 +206,7 @@ function bbp_recount_topic_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_voices() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of voices in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -215,7 +215,23 @@ function bbp_recount_topic_voices() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_voice_count', COUNT(DISTINCT `post_author`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	// Post types and status
+	$tpt = bbp_get_topic_post_type();
+	$rpt = bbp_get_reply_post_type();
+	$pps = 'publish';
+	$cps = $bbp->closed_status_id;
+
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
+			SELECT `postmeta`.`meta_value`, '_bbp_voice_count', COUNT(DISTINCT `post_author`) as `meta_value`
+				FROM `{$wpdb->posts}` AS `posts`
+				LEFT JOIN `{$wpdb->postmeta}` AS `postmeta`
+					ON `posts`.`ID` = `postmeta`.`post_id`
+					AND `postmeta`.`meta_key` = '_bbp_topic_id'
+				WHERE `posts`.`post_type` IN ( '{$tpt}', '{$rpt}' )
+					AND `posts`.`post_status` IN ( '{$pps}', '{$cps}' )
+					AND `posts`.`post_author` != '0'
+				GROUP BY `postmeta`.`meta_value`);";
+
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
