@@ -234,7 +234,7 @@ class BBP_Replies_Admin {
 		if ( empty( $_POST['action'] ) )
 			return $reply_id;
 
-		// Bail if post_type is not a topic or reply
+		// Bail if post_type is not a reply
 		if ( get_post_type( $reply_id ) != $this->post_type )
 			return;
 

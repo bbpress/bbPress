@@ -258,12 +258,12 @@ class BBP_Topics_Admin {
 		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 			return $topic_id;
 
+		// Bail if post_type is not a topic
+		if ( get_post_type( $topic_id ) != $this->post_type )
+			return;
+
 		// Bail if current user cannot edit this topic
 		if ( !current_user_can( 'edit_topic', $topic_id ) )
-			return $topic_id;
-
-		// Load the topic
-		if ( !$topic = bbp_get_topic( $topic_id ) )
 			return $topic_id;
 
 		// Get the forum ID
