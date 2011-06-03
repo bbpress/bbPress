@@ -689,12 +689,10 @@ class BBP_Shortcodes {
 				bbp_get_template_part( 'bbpress/pagination', 'topics' );
 				bbp_get_template_part( 'bbpress/loop',       'topics' );
 				bbp_get_template_part( 'bbpress/pagination', 'topics' );
-				bbp_get_template_part( 'bbpress/form',       'topic'  );
 
 			// No topics
 			} else {
 				bbp_get_template_part( 'bbpress/no',   'topics' );
-				bbp_get_template_part( 'bbpress/form', 'topic'  );
 			}
 		}
 
