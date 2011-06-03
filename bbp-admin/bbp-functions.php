@@ -178,7 +178,7 @@ function bbp_recount_list() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_topic_replies() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of replies in each topic&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -187,7 +187,23 @@ function bbp_recount_topic_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = 'publish' GROUP BY `post_parent`);";
+	// Post types and status
+	$tpt = bbp_get_topic_post_type();
+	$rpt = bbp_get_reply_post_type();
+	$pps = 'publish';
+	$cps = $bbp->closed_status_id;
+
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
+			SELECT `topics`.`ID` AS `post_id`, '_bbp_reply_count' AS `meta_key`, COUNT(`replies`.`ID`) As `meta_value`
+				FROM `{$wpdb->posts}` AS `topics`
+					LEFT JOIN `{$wpdb->posts}` as `replies`
+						ON  `replies`.`post_parent` = `topics`.`ID`
+						AND `replies`.`post_status` = '{$pps}'
+						AND `replies`.`post_type`   = '{$rpt}'
+				WHERE `topics`.`post_type` = '{$tpt}'
+					AND `topics`.`post_status` IN ( '{$pps}', '{$cps}' )
+				GROUP BY `topics`.`ID`);";
+
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
