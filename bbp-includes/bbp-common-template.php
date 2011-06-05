@@ -259,22 +259,14 @@ function bbp_is_reply_edit() {
  *
  * @since bbPress (r2652)
  *
- * @param bool $query_name_check Optional. Check the query name
- *                                (_bbp_query_name query var), if it is
- *                                'bbp_user_profile_favorites' or not. Defaults
- *                                to true.
- * @uses bbp_is_user_profile_page() To check if it's the user profile page
  * @uses bbp_get_query_name() To get the query name
  * @return bool True if it's the favorites page, false if not
  */
-function bbp_is_favorites( $query_name_check = true ) {
-	if ( !bbp_is_user_profile_page() )
-		return false;
+function bbp_is_favorites() {
 
-	if ( !empty( $query_name_check ) && ( !bbp_is_query_name( 'bbp_user_profile_favorites' ) ) )
-		return false;
+	$retval = bbp_is_query_name( 'bbp_user_profile_favorites' );
 
-	return true;
+	return apply_filters( 'bbp_is_favorites', (bool) $retval );
 }
 
 /**
@@ -282,22 +274,14 @@ function bbp_is_favorites( $query_name_check = true ) {
  *
  * @since bbPress (r2652)
  *
- * @param bool $query_name_check Optional. Check the query name
- *                                (_bbp_query_name query var), if it is
- *                                'bbp_user_profile_favorites' or not. Defaults
- *                                to true.
- * @uses bbp_is_user_profile_page() To check if it's the user profile page
  * @uses bbp_get_query_name() To get the query name
  * @return bool True if it's the subscriptions page, false if not
  */
-function bbp_is_subscriptions( $query_name_check = true ) {
-	if ( !bbp_is_user_profile_page() )
-		return false;
+function bbp_is_subscriptions() {
 
-	if ( !empty( $query_name_check ) && ( !bbp_is_query_name( 'bbp_user_profile_subscriptions' ) ) )
-		return false;
+	$retval = bbp_is_query_name( 'bbp_user_profile_subscriptions' );
 
-	return true;
+	return apply_filters( 'bbp_is_subscriptions', (bool) $retval );
 }
 
 /**
@@ -306,22 +290,14 @@ function bbp_is_subscriptions( $query_name_check = true ) {
  *
  * @since bbPress (r2688)
  *
- * @param bool $query_name_check Optional. Check the query name
- *                                (_bbp_query_name query var), if it is
- *                                'bbp_user_profile_favorites' or not. Defaults
- *                                to true.
- * @uses bbp_is_user_profile_page() To check if it's the user profile page
  * @uses bbp_get_query_name() To get the query name
  * @return bool True if it's the topics created page, false if not
  */
-function bbp_is_topics_created( $query_name_check = true ) {
-	if ( !bbp_is_user_profile_page() )
-		return false;
+function bbp_is_topics_created() {
 
-	if ( !empty( $query_name_check ) && ( !bbp_is_query_name( 'bbp_user_profile_topics_created' ) ) )
-		return false;
+	$retval = bbp_is_query_name( 'bbp_user_profile_topics_created' );
 
-	return true;
+	return apply_filters( 'bbp_is_topics_created', (bool) $retval );
 }
 
 /**
@@ -340,7 +316,7 @@ function bbp_is_user_home() {
 	if ( empty( $bbp->displayed_user ) )
 		return false;
 
-	return $bbp->current_user->ID == $bbp->displayed_user->ID;
+	return (bool) $bbp->current_user->ID == $bbp->displayed_user->ID;
 }
 
 /**
