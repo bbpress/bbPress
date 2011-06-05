@@ -61,7 +61,7 @@
 
 				<?php elseif ( bbp_is_forum_private( bbp_get_topic_forum_id(), false ) ) : ?>
 
-					<?php bbp_get_template_part( 'bbpress/no', 'access' ); ?>
+					<?php bbp_get_template_part( 'bbpress/feedback', 'no-access' ); ?>
 
 				<?php endif; ?>
 

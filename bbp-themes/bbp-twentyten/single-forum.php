@@ -42,19 +42,19 @@
 
 									<?php if ( !bbp_is_forum_category() && bbp_has_topics() ) : ?>
 
-										<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+										<?php bbp_get_template_part( 'bbpress/pagination', 'topics'    ); ?>
 
-										<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
+										<?php bbp_get_template_part( 'bbpress/loop',       'topics'    ); ?>
 
-										<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+										<?php bbp_get_template_part( 'bbpress/pagination', 'topics'    ); ?>
 
-										<?php bbp_get_template_part( 'bbpress/form',       'topic'  ); ?>
+										<?php bbp_get_template_part( 'bbpress/form',       'topic'     ); ?>
 
 									<?php elseif( !bbp_is_forum_category() ) : ?>
 
-										<?php bbp_get_template_part( 'bbpress/no',         'topics' ); ?>
+										<?php bbp_get_template_part( 'bbpress/feedback',   'no-topics' ); ?>
 
-										<?php bbp_get_template_part( 'bbpress/form',       'topic'  ); ?>
+										<?php bbp_get_template_part( 'bbpress/form',       'topic'     ); ?>
 
 									<?php endif; ?>
 
@@ -65,7 +65,7 @@
 
 					<?php else : // Forum exists, user no access ?>
 
-						<?php bbp_get_template_part( 'bbpress/no', 'access' ); ?>
+						<?php bbp_get_template_part( 'bbpress/feedback', 'no-access' ); ?>
 
 					<?php endif; ?>
 

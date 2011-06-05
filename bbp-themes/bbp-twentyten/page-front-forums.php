@@ -28,11 +28,11 @@
 
 							<?php if ( bbp_has_forums() ) : ?>
 
-								<?php bbp_get_template_part( 'bbpress/loop', 'forums' ); ?>
+								<?php bbp_get_template_part( 'bbpress/loop',     'forums'    ); ?>
 
 							<?php else : ?>
 
-								<?php bbp_get_template_part( 'bbpress/no',   'forums' ); ?>
+								<?php bbp_get_template_part( 'bbpress/feedback', 'no-forums' ); ?>
 
 							<?php endif; ?>
 

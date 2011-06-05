@@ -85,20 +85,31 @@ class BBP_Shortcodes {
 			/** Topic Tags ****************************************************/
 
 			// All topic tags in a cloud
-			'bbp-topic-tags' => array( $this, 'display_topic_tags'    ),
+			'bbp-topic-tags'       => array( $this, 'display_topic_tags'    ),
 
 			// Topics of tag Tag
-			'bbp-topic-tag'  => array( $this, 'display_topics_of_tag' ),
+			'bbp-single-topic-tag' => array( $this, 'display_topics_of_tag' ),
 
 			/** Replies *******************************************************/
 
 			// Reply form
-			'bbp-reply-form' => array( $this, 'display_reply_form'    ),
+			'bbp-reply-form'  => array( $this, 'display_reply_form'   ),
 
 			/** Views *********************************************************/
 
 			// Single view
-			'bbp-single-view' => array( $this, 'display_view'         )
+			'bbp-single-view' => array( $this, 'display_view'         ),
+
+			/** Account *******************************************************/
+
+			// Login
+			'bbp-login'       => array( $this, 'display_login'        ),
+
+			// Register
+			'bbp-register'    => array( $this, 'display_register'     ),
+
+			// LOst Password
+			'bbp-lost-pass'   => array( $this, 'display_lost_pass'    ),
 
 		) );
 	}
@@ -213,11 +224,11 @@ class BBP_Shortcodes {
 
 		// Load the forums index
 		if ( bbp_has_forums() )
-			bbp_get_template_part( 'bbpress/loop', 'forums' );
+			bbp_get_template_part( 'bbpress/loop',     'forums'    );
 
 		// No forums
 		else
-			bbp_get_template_part( 'bbpress/no', 'forums' );
+			bbp_get_template_part( 'bbpress/feedback', 'no-forums' );
 
 		// Return contents of output buffer
 		return $this->_ob_end();
@@ -307,21 +318,21 @@ class BBP_Shortcodes {
 
 					// Load the topic index
 					if ( bbp_has_topics( $topics_query ) ) {
-						bbp_get_template_part( 'bbpress/pagination', 'topics' );
-						bbp_get_template_part( 'bbpress/loop',       'topics' );
-						bbp_get_template_part( 'bbpress/pagination', 'topics' );
-						bbp_get_template_part( 'bbpress/form',       'topic'  );
+						bbp_get_template_part( 'bbpress/pagination', 'topics'    );
+						bbp_get_template_part( 'bbpress/loop',       'topics'    );
+						bbp_get_template_part( 'bbpress/pagination', 'topics'    );
+						bbp_get_template_part( 'bbpress/form',       'topic'     );
 
 					// No topics
 					} else {
-						bbp_get_template_part( 'bbpress/no',   'topics' );
-						bbp_get_template_part( 'bbpress/form', 'topic'  );
+						bbp_get_template_part( 'bbpress/feedback',   'no-topics' );
+						bbp_get_template_part( 'bbpress/form',       'topic'     );
 					}
 				}
 
 			// Forum is private and user does not have caps
 			} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-				bbp_get_template_part( 'bbpress/no', 'access' );
+				bbp_get_template_part( 'bbpress/feedback', 'no-access' );
 			}
 		}
 
@@ -365,13 +376,13 @@ class BBP_Shortcodes {
 
 		// Load the topic index
 		if ( bbp_has_topics( $topics_query ) ) {
-			bbp_get_template_part( 'bbpress/pagination', 'topics' );
-			bbp_get_template_part( 'bbpress/loop',       'topics' );
-			bbp_get_template_part( 'bbpress/pagination', 'topics' );
+			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
+			bbp_get_template_part( 'bbpress/loop',       'topics'    );
+			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
 
 		// No topics
 		} else {
-			bbp_get_template_part( 'bbpress/no', 'topics' );
+			bbp_get_template_part( 'bbpress/feedback',   'no-topics' );
 		}
 
 		// Return contents of output buffer
@@ -473,7 +484,7 @@ class BBP_Shortcodes {
 
 			// Forum is private and user does not have caps
 			} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-				bbp_get_template_part( 'bbpress/no', 'access' );
+				bbp_get_template_part( 'bbpress/feedback', 'no-access' );
 			}
 		}
 
@@ -631,7 +642,7 @@ class BBP_Shortcodes {
 
 		// No topics
 		} else {
-			bbp_get_template_part( 'bbpress/no', 'topics' );
+			bbp_get_template_part( 'bbpress/feedback',   'no-topics' );
 		}
 
 		// Return contents of output buffer
@@ -686,15 +697,127 @@ class BBP_Shortcodes {
 
 			// Load the topic index
 			if ( bbp_view_query( $view_id ) ) {
-				bbp_get_template_part( 'bbpress/pagination', 'topics' );
-				bbp_get_template_part( 'bbpress/loop',       'topics' );
-				bbp_get_template_part( 'bbpress/pagination', 'topics' );
+				bbp_get_template_part( 'bbpress/pagination', 'topics'    );
+				bbp_get_template_part( 'bbpress/loop',       'topics'    );
+				bbp_get_template_part( 'bbpress/pagination', 'topics'    );
 
 			// No topics
 			} else {
-				bbp_get_template_part( 'bbpress/no',   'topics' );
+				bbp_get_template_part( 'bbpress/feedback',   'no-topics' );
 			}
 		}
+
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
+
+	/** Account ***************************************************************/
+
+	/**
+	 * Display a login form
+	 *
+	 * @since bbPress (r3302)
+	 *
+	 * @global bbPress $bbp
+	 *
+	 * @return string
+	 */
+	function display_login() {
+		global $bbp;
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Output templates
+		if ( !is_user_logged_in() )
+			bbp_get_template_part( 'bbpress/form',     'user-login' );
+		else
+			bbp_get_template_part( 'bbpress/feedback', 'logged-in'  );
+
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
+
+	/**
+	 * Display a register form
+	 *
+	 * @since bbPress (r3302)
+	 *
+	 * @global bbPress $bbp
+	 *
+	 * @return string
+	 */
+	function display_register() {
+		global $bbp;
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Output templates
+		if ( !is_user_logged_in() )
+			bbp_get_template_part( 'bbpress/form',     'user-register' );
+		else
+			bbp_get_template_part( 'bbpress/feedback', 'logged-in'     );
+
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
+
+	/**
+	 * Display a lost password form
+	 *
+	 * @since bbPress (r3302)
+	 *
+	 * @global bbPress $bbp
+	 *
+	 * @return string
+	 */
+	function display_lost_pass() {
+		global $bbp;
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Output templates
+		if ( !is_user_logged_in() )
+			bbp_get_template_part( 'bbpress/form',     'user-lost-pass' );
+		else
+			bbp_get_template_part( 'bbpress/feedback', 'logged-in'      );
+	
+		// Return contents of output buffer
+		return $this->_ob_end();
+	}
+
+	/** Other *****************************************************************/
+
+	/**
+	 * Display a breadcrumb
+	 *
+	 * @since bbPress (r3302)
+	 *
+	 * @global bbPress $bbp
+	 *
+	 * @return string
+	 */
+	function display_breadcrumb() {
+
+		// Unset globals
+		$this->_unset_globals();
+
+		// Start output buffer
+		$this->_ob_start();
+
+		// Output breadcrumb
+		bbp_breadcrumb();
 
 		// Return contents of output buffer
 		return $this->_ob_end();
