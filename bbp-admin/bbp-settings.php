@@ -336,7 +336,7 @@ function bbp_admin_setting_callback_reply_slug() {
 function bbp_admin_setting_callback_topic_tag_slug() {
 ?>
 
-	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_tag_slug', 'tag', true ); ?>" />
+	<input name="_bbp_topic_tag_slug" type="text" id="_bbp_topic_tag_slug" class="regular-text code" value="<?php bbp_form_option( '_bbp_topic_tag_slug', 'topic-tag', true ); ?>" />
 
 <?php
 }
