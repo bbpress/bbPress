@@ -236,6 +236,34 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_tax     = false;
 }
 
+/**
+ * Used to guess if page exists at requested path
+ *
+ * @since bbPress (r3304)
+ *
+ * @uses get_option() To see if pretty permalinks are enabled
+ * @uses get_page_by_path() To see if page exists at path
+ *
+ * @param string $path
+ * @return mixed False if no page, Page object if true
+ */
+function bbp_get_page_by_path( $path = '' ) {
+	
+	// Default to false
+	$retval = false;
+
+	// Path is not empty
+	if ( !empty( $path ) ) {
+
+		// Pretty permalinks are on so path might exist
+		if ( get_option( 'permalink_structure' ) ) {
+			$retval = get_page_by_path( $path );
+		}
+	}
+
+	return apply_filters( 'bbp_get_page_by_path', $retval, $path );
+}
+
 /** Filters *******************************************************************/
 
 /**
@@ -882,7 +910,7 @@ function bbp_replace_the_content( $content = '' ) {
 		} elseif ( bbp_is_forum_archive() ) {
 			
 			// Page exists where this archive should be
-			if ( $page = get_page_by_path( $bbp->root_slug ) ) {
+			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
 
 				// Start output buffer
 				ob_start();
@@ -907,7 +935,7 @@ function bbp_replace_the_content( $content = '' ) {
 		} elseif ( bbp_is_topic_archive() ) {
 
 			// Page exists where this archive should be
-			if ( $page = get_page_by_path( $bbp->topic_archive_slug ) ) {
+			if ( $page = bbp_get_page_by_path( $bbp->topic_archive_slug ) ) {
 
 				// Start output buffer
 				ob_start();

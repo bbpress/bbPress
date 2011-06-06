@@ -364,7 +364,7 @@ class bbPress {
 		$this->reply_slug = apply_filters( 'bbp_reply_slug', $prefix . get_option( '_bbp_reply_slug', 'reply' ) );
 
 		// Taxonomy slugs
-		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'tag'   ) );
+		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'topic-tag'   ) );
 
 		/** Other Slugs *******************************************************/
 
@@ -596,7 +596,7 @@ class bbPress {
 			'capabilities'        => bbp_get_forum_caps(),
 			'capability_type'     => 'forum',
 			'menu_position'       => 56,
-			'has_archive'         => !empty( $this->root_slug ) ? $this->root_slug : false,
+			'has_archive'         => $this->root_slug,
 			'exclude_from_search' => true,
 			'show_in_nav_menus'   => true,
 			'public'              => true,
@@ -653,7 +653,7 @@ class bbPress {
 			'capabilities'        => bbp_get_topic_caps(),
 			'capability_type'     => 'topic',
 			'menu_position'       => 57,
-			'has_archive'         => get_page_by_path( $this->topic_archive_slug ) ? false : $this->topic_archive_slug,
+			'has_archive'         => $this->topic_archive_slug,
 			'exclude_from_search' => true,
 			'show_in_nav_menus'   => false,
 			'public'              => true,

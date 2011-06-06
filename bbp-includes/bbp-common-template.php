@@ -1230,7 +1230,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// No custom root text
 		if ( empty( $args['root_text'] ) ) {
-			if ( $page = get_page_by_path( $bbp->root_slug ) ) {
+			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
 				$root_id = $page->ID;
 			}
 			$pre_root_text = bbp_get_forum_archive_title();
@@ -1321,8 +1321,20 @@ function bbp_breadcrumb( $args = array() ) {
 			$breadcrumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="bbp-breadcrumb-home">' . $home_text . '</a>';
 
 		// Do we want to include a link to the forum root?
-		if ( !empty( $include_root ) || empty( $root_text ) )
-			$breadcrumbs[] = '<a href="' . trailingslashit( home_url( $bbp->root_slug ) ) . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
+		if ( !empty( $include_root ) || empty( $root_text ) ) {
+			
+			// Page exists at root slug path, so use its permalink
+			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
+				$root_url = get_permalink( $page->ID );
+				
+			// Use the root slug
+			} else {
+				$root_url = get_post_type_archive_link( bbp_get_forum_post_type() );
+			}
+
+			// Add the breadcrumb
+			$breadcrumbs[] = '<a href="' . $root_url . '" class="bbp-breadcrumb-root">' . $root_text . '</a>';
+		}
 
 		// Ancestors exist
 		if ( !empty( $ancestors ) ) {

@@ -62,6 +62,23 @@ function bbp_add_options() {
 
 		// Replies per RSS page
 		'_bbp_replies_per_rss_page' => '25',
+		
+		/** Page For **********************************************************/
+		
+		// Page for forums
+		'_bbp_page_for_forums'      => '0',
+
+		// Page for forums
+		'_bbp_page_for_topics'      => '0',
+
+		// Page for login
+		'_bbp_page_for_login'       => '0',
+
+		// Page for register
+		'_bbp_page_for_register'    => '0',
+
+		// Page for lost-pass
+		'_bbp_page_for_lost_pass'   => '0',
 
 		/** Archive Slugs *****************************************************/
 
@@ -86,7 +103,7 @@ function bbp_add_options() {
 		'_bbp_reply_slug'           => 'reply',
 
 		// Topic tag slug
-		'_bbp_topic_tag_slug'       => 'tag',
+		'_bbp_topic_tag_slug'       => 'topic-tag',
 
 		/** Other Slugs *******************************************************/
 

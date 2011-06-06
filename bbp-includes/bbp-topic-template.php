@@ -491,7 +491,7 @@ function bbp_topic_archive_title( $title = '' ) {
 	 * @global bbPress $bbp The main bbPress class
 	 * @param string $title Default text to use as title
 	 *
-	 * @uses get_page_by_path() Check if page exists at root path
+	 * @uses bbp_get_page_by_path() Check if page exists at root path
 	 * @uses get_the_title() Use the page title at the root path
 	 * @uses get_post_type_object() Load the post type object
 	 * @uses bbp_get_topic_post_type() Get the topic post type ID
@@ -507,7 +507,7 @@ function bbp_topic_archive_title( $title = '' ) {
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			if ( $page = get_page_by_path( $bbp->topic_archive_slug ) ) {
+			if ( $page = bbp_get_page_by_path( $bbp->topic_archive_slug ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to topic post type name label

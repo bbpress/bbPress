@@ -300,7 +300,7 @@ function bbp_forum_archive_title( $title = '' ) {
 	 * @global bbPress $bbp The main bbPress class
 	 * @param string $title Default text to use as title
 	 *
-	 * @uses get_page_by_path() Check if page exists at root path
+	 * @uses bbp_get_page_by_path() Check if page exists at root path
 	 * @uses get_the_title() Use the page title at the root path
 	 * @uses get_post_type_object() Load the post type object
 	 * @uses bbp_get_forum_post_type() Get the forum post type ID
@@ -316,7 +316,7 @@ function bbp_forum_archive_title( $title = '' ) {
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			if ( $page = get_page_by_path( $bbp->root_slug ) ) {
+			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to forum post type name label
