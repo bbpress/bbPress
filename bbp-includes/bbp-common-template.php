@@ -1446,7 +1446,7 @@ function bbp_template_notices() {
 	if ( !isset( $bbp->errors ) || !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
 		return;
 
-	// Prevent debug notices
+	// Define local variable(s)
 	$errors = $messages = array();
 
 	// Loop through notices

@@ -146,7 +146,7 @@ function bbp_new_reply_handler() {
 		// Nonce check
 		check_admin_referer( 'bbp-new-reply' );
 
-		// Set defaults to prevent debug notices
+		// Define local variable(s)
 		$topic_id = $forum_id = $reply_author = $anonymous_data = 0;
 		$reply_title = $reply_content = $terms = '';
 
@@ -380,7 +380,7 @@ function bbp_edit_reply_handler() {
 	if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['action'] ) && ( 'bbp-edit-reply' === $_POST['action'] ) ) {
 		global $bbp;
 
-		// Set defaults to prevent debug notices
+		// Define local variable(s)
 		$reply = $reply_id = $topic_id = $forum_id = $anonymous_data = 0;
 		$reply_title = $reply_content = $reply_edit_reason = $terms = '';
 

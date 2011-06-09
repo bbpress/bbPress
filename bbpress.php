@@ -332,22 +332,22 @@ class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
-		$this->forum_post_type  = apply_filters( 'bbp_forum_post_type', 'forum'     );
-		$this->topic_post_type  = apply_filters( 'bbp_topic_post_type', 'topic'     );
-		$this->reply_post_type  = apply_filters( 'bbp_reply_post_type', 'reply'     );
-		$this->topic_tag_id     = apply_filters( 'bbp_topic_tag_id',    'topic-tag' );
+		$this->forum_post_type    = apply_filters( 'bbp_forum_post_type', 'forum'     );
+		$this->topic_post_type    = apply_filters( 'bbp_topic_post_type', 'topic'     );
+		$this->reply_post_type    = apply_filters( 'bbp_reply_post_type', 'reply'     );
+		$this->topic_tag_id       = apply_filters( 'bbp_topic_tag_id',    'topic-tag' );
 
 		// Status identifiers
-		$this->spam_status_id   = apply_filters( 'bbp_spam_post_status',   'spam'   );
-		$this->closed_status_id = apply_filters( 'bbp_closed_post_status', 'closed' );
-		$this->orphan_status_id = apply_filters( 'bbp_orphan_post_status', 'orphan' );
-		$this->hidden_status_id = apply_filters( 'bbp_hidden_post_status', 'hidden' );
-		$this->trash_status_id  = 'trash';
+		$this->spam_status_id     = apply_filters( 'bbp_spam_post_status',   'spam'   );
+		$this->closed_status_id   = apply_filters( 'bbp_closed_post_status', 'closed' );
+		$this->orphan_status_id   = apply_filters( 'bbp_orphan_post_status', 'orphan' );
+		$this->hidden_status_id   = apply_filters( 'bbp_hidden_post_status', 'hidden' );
+		$this->trash_status_id    = 'trash';
 
 		// Other identifiers
-		$this->user_id = apply_filters( 'bbp_view_id', 'bbp_user' );
-		$this->view_id = apply_filters( 'bbp_spam_id', 'bbp_view' );
-		$this->edit_id = apply_filters( 'bbp_spam_id', 'edit'     );
+		$this->user_id            = apply_filters( 'bbp_view_id', 'bbp_user' );
+		$this->view_id            = apply_filters( 'bbp_spam_id', 'bbp_view' );
+		$this->edit_id            = apply_filters( 'bbp_spam_id', 'edit'     );
 		
 		/** Slugs *************************************************************/
 
@@ -356,28 +356,28 @@ class bbPress {
 		$this->topic_archive_slug = apply_filters( 'bbp_topic_archive_slug', get_option( '_bbp_topic_archive_slug', 'topics' ) );
 
 		// Should we include the root slug in front of component slugs
-		$prefix = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
+		$prefix                   = !empty( $this->root_slug ) && get_option( '_bbp_include_root', true ) ? trailingslashit( $this->root_slug ) : '';
 
 		// Component slugs
-		$this->forum_slug = apply_filters( 'bbp_forum_slug', $prefix . get_option( '_bbp_forum_slug', 'forum' ) );
-		$this->topic_slug = apply_filters( 'bbp_topic_slug', $prefix . get_option( '_bbp_topic_slug', 'topic' ) );
-		$this->reply_slug = apply_filters( 'bbp_reply_slug', $prefix . get_option( '_bbp_reply_slug', 'reply' ) );
+		$this->forum_slug         = apply_filters( 'bbp_forum_slug', $prefix . get_option( '_bbp_forum_slug', 'forum' ) );
+		$this->topic_slug         = apply_filters( 'bbp_topic_slug', $prefix . get_option( '_bbp_topic_slug', 'topic' ) );
+		$this->reply_slug         = apply_filters( 'bbp_reply_slug', $prefix . get_option( '_bbp_reply_slug', 'reply' ) );
 
 		// Taxonomy slugs
-		$this->topic_tag_slug = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'topic-tag'   ) );
+		$this->topic_tag_slug     = apply_filters( 'bbp_topic_tag_slug', $prefix . get_option( '_bbp_topic_tag_slug', 'topic-tag'   ) );
 
 		/** Other Slugs *******************************************************/
 
-		$this->user_slug = apply_filters( 'bbp_user_slug', $prefix . get_option( '_bbp_user_slug', 'user' ) );
-		$this->view_slug = apply_filters( 'bbp_view_slug', $prefix . get_option( '_bbp_view_slug', 'view' ) );
+		$this->user_slug          = apply_filters( 'bbp_user_slug', $prefix . get_option( '_bbp_user_slug', 'user' ) );
+		$this->view_slug          = apply_filters( 'bbp_view_slug', $prefix . get_option( '_bbp_view_slug', 'view' ) );
 
 		/** Misc **************************************************************/
 
 		// Errors
-		$this->errors = new WP_Error();
+		$this->errors    = new WP_Error();
 
 		// Views
-		$this->views = array();
+		$this->views     = array();
 
 		// Tab Index
 		$this->tab_index = apply_filters( 'bbp_default_tab_index', 100 );

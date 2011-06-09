@@ -107,8 +107,8 @@ class BBP_Forums_Admin {
 	 */
 	function _setup_help() {
 
-		// Prevent debug notices
-		$contextual_help = '';
+		// Define local variable(s)
+		$contextual_help = array();
 
 		/** New/Edit **********************************************************/
 

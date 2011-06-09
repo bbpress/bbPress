@@ -2911,7 +2911,7 @@ function bbp_form_topic_tags() {
 					$new_terms[] = $term->name;
 				}
 
-			// Prevent debug notices
+			// Define local variable(s)
 			} else {
 				$new_terms = '';
 			}

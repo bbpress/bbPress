@@ -1743,7 +1743,7 @@ function bbp_forum_topics_feed_link( $forum_id = 0 ) {
 		// Forum is valid
 		if ( !empty( $forum_id ) ) {
 
-			// Prevent debug notices
+			// Define local variable(s)
 			$link = '';
 
 			// Pretty permalinks
@@ -1805,7 +1805,7 @@ function bbp_forum_replies_feed_link( $forum_id = 0 ) {
 		// Forum is valid
 		if ( !empty( $forum_id ) ) {
 
-			// Prevent debug notices
+			// Define local variable(s)
 			$link = '';
 
 			// Pretty permalinks

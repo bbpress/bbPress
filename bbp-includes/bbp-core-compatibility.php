@@ -546,7 +546,7 @@ function bbp_pre_get_posts( $posts_query ) {
 function bbp_template_include( $template = false ) {
 	global $bbp;
 
-	// Prevent debug notices
+	// Define local variable(s)
 	$templates    = array();
 	$new_template = '';
 
@@ -868,7 +868,7 @@ function bbp_replace_the_content( $content = '' ) {
 		// Use the $post global to check it's post_type
 		global $bbp;
 
-		// Prevent debug notice
+		// Define local variable(s)
 		$new_content = '';
 
 		// Remove the filter that was added in bbp_template_include()

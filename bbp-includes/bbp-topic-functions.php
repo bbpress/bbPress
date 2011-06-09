@@ -53,7 +53,7 @@ function bbp_new_topic_handler() {
 		// Nonce check
 		check_admin_referer( 'bbp-new-topic' );
 
-		// Set defaults to prevent debug notices
+		// Define local variable(s)
 		$forum_id = $topic_author = $anonymous_data = 0;
 		$topic_title = $topic_content = '';
 		$terms = array( $bbp->topic_tag_id => array() );
@@ -319,7 +319,7 @@ function bbp_edit_topic_handler() {
 	if ( ( 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) && ( !empty( $_POST['action'] ) && ( 'bbp-edit-topic' === $_POST['action'] ) ) ) {
 		global $bbp;
 
-		// Set defaults to prevent debug notices
+		// Define local variable(s)
 		$topic_id = $forum_id = $anonymous_data = 0;
 		$topic_title = $topic_content = $topic_edit_reason = '';
 		$terms = array( $bbp->topic_tag_id => array() );
@@ -832,7 +832,7 @@ function bbp_merge_topic_handler() {
 	if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['action'] ) && ( 'bbp-merge-topic' === $_POST['action'] ) ) {
 		global $bbp;
 
-		// Prevent debug notices
+		// Define local variable(s)
 		$source_topic_id = $destination_topic_id = 0;
 		$source_topic = $destination_topic = 0;
 		$subscribers = $favoriters = $replies = array();
