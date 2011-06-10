@@ -225,7 +225,6 @@ class BBP_Forums_Admin {
 	 * @return int Forum id
 	 */
 	function attributes_metabox_save( $forum_id ) {
-		global $bbp;
 
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
@@ -289,6 +288,15 @@ class BBP_Forums_Admin {
 				}
 			}
 		}
+
+		// Parent ID
+		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? $_POST['parent_id'] : 0;
+
+		// Update the forum meta bidness
+		bbp_update_forum( array(
+			'forum_id'    => $forum_id,
+			'post_parent' => (int) $parent_id
+		) );
 
 		do_action( 'bbp_forum_attributes_metabox_save', $forum_id );
 

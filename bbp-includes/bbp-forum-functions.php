@@ -29,38 +29,6 @@ function bbp_walk_forum( $forums, $depth, $current, $r ) {
 	return call_user_func_array( array( &$walker, 'walk' ), $args );
 }
 
-/** Forum Handlers ************************************************************/
-
-/**
- * Handles new forum craetion from within wp-admin
- *
- * @since bbPress (r2613)
- *
- * @param int $forum_id
- * @param obj $forum
- * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses bbp_update_forum() To update the forum
- */
-function bbp_new_forum_admin_handler( $forum_id, $forum ) {
-
-	if (    // Check if POST action
-			'POST'                        === $_SERVER['REQUEST_METHOD'] &&
-
-			// Check Actions exist in POST
-			!empty( $_POST['action']    )                                &&
-			!empty( $_POST['post_type'] )                                &&
-
-			// Check that actions match what we need
-			'editpost'                    === $_POST['action']           &&
-			bbp_get_forum_post_type()     === $_POST['post_type']
-	) {
-
-		// Update the forum meta bidness
-		bbp_update_forum( array( 'forum_id' => $forum_id, 'post_parent' => (int) $_POST['parent_id'] ) );
-	}
-}
-
-
 /** Forum Actions *************************************************************/
 
 /**
