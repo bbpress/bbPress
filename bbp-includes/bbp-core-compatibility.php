@@ -491,23 +491,23 @@ function bbp_get_topic_split_template() {
 	$post_type = bbp_get_topic_post_type();
 	$templates = array(
 
-		// Topic Split Split
+		// Topic Split
 		'single-'         . $post_type . '-split.php',
 		'bbpress/single-' . $post_type . '-split.php',
 		'forums/single-'  . $post_type . '-split.php',
 
-		// Action Split Split
+		// Action Split
 		'single-action-split-merge.php',
 		'bbpress/single-action-split-merge.php',
 		'forums/single-action-split-merge.php',
 
-		// Action Split Split
+		// Action Split
 		'action-split-merge.php',
 		'bbpress/action-split-merge.php',
 		'forums/action-split-merge.php'
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_edit_template', $templates );
+	$templates = apply_filters( 'bbp_get_topic_split_template', $templates );
 	$templates = bbp_set_theme_compat_templates( $templates );
 
 	$template  = locate_template( $templates, false, false );
@@ -531,23 +531,23 @@ function bbp_get_topic_merge_template() {
 	$post_type = bbp_get_topic_post_type();
 	$templates = array(
 
-		// Topic Split Merge
+		// Topic Merge
 		'single-'         . $post_type . '-merge.php',
 		'bbpress/single-' . $post_type . '-merge.php',
 		'forums/single-'  . $post_type . '-merge.php',
 
-		// Action Split Merge
+		// Action Merge
 		'single-action-split-merge.php',
 		'bbpress/single-action-split-merge.php',
 		'forums/single-action-split-merge.php',
 
-		// Action Split Merge
+		// Action Merge
 		'action-split-merge.php',
 		'bbpress/action-split-merge.php',
 		'forums/action-split-merge.php'
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_edit_template', $templates );
+	$templates = apply_filters( 'bbp_get_topic_merge_template', $templates );
 	$templates = bbp_set_theme_compat_templates( $templates );
 
 	$template  = locate_template( $templates, false, false );
