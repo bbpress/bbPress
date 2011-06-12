@@ -213,8 +213,9 @@ function bbp_has_topics( $args = '' ) {
 					$bbp->topic_query->post_count  = (int) $bbp->topic_query->post_count  + (int) $sticky_count;
 
 					// Cleanup
-					unset( $topics   );
-					unset( $stickies );
+					unset( $topics       );
+					unset( $stickies     );
+					unset( $sticky_posts );
 				}
 			}
 		}
