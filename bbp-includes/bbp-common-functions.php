@@ -830,7 +830,7 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 		wp_mail(
 			$user->user_email,
 			apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . $topic->post_title, $reply->ID, $topic->ID ),
-			sprintf( $message, $poster_name, strip_tags( $reply->post_content ), bbp_get_reply_permalink( $reply->ID ) )
+			sprintf( $message, $poster_name, strip_tags( $reply->post_content ), bbp_get_reply_url( $reply->ID ) )
 		);
 	}
 
