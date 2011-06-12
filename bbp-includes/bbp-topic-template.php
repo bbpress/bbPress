@@ -185,10 +185,16 @@ function bbp_has_topics( $args = '' ) {
 
 			// Fetch sticky posts that weren't in the query results
 			if ( !empty( $stickies ) ) {
-				global $wpdb;
+
+				// Query to use in get_posts to get sticky posts
+				$sticky_query = array(
+					'post_type'   => bbp_get_topic_post_type(),
+					'post_parent' => 'any',
+					'include'     => $stickies
+				);
 
 				// Get all stickies
-				if ( $sticky_posts = get_posts( array( 'post_type' => bbp_get_topic_post_type(), 'post_parent' => 'any', 'include' => $stickies ) ) ) {
+				if ( $sticky_posts = get_posts( $sticky_query ) ) {
 
 					// Get a count of the visible stickies
 					$sticky_count = count( $sticky_posts );
