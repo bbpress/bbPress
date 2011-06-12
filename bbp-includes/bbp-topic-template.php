@@ -233,11 +233,11 @@ function bbp_has_topics( $args = '' ) {
 		if ( $wp_rewrite->using_permalinks() ) {
 
 			// Profile page
-			if ( bbp_is_user_profile_page() )
+			if ( bbp_is_single_user() )
 				$base = user_trailingslashit( trailingslashit( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) ) . 'page/%#%/' );
 
 			// View
-			elseif ( bbp_is_view() )
+			elseif ( bbp_is_single_view() )
 				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
 
 			// Topic archive

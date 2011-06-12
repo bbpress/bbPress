@@ -202,6 +202,54 @@ function bbp_is_topic_split() {
 }
 
 /**
+ * Check if the current page is a topic tag
+ *
+ * @since bbPress (r3311)
+ *
+ * @global bbPress $bbp
+ * @return bool True if it's a topic tag, false if not 
+ */
+function bbp_is_topic_tag() {
+	global $bbp;
+
+	if ( is_tax( $bbp->topic_tag_id ) )
+		return true;
+
+	return false;
+}
+
+/**
+ * Check if the current post type is one of bbPress's
+ *
+ * @since bbPress (r3311)
+ *
+ * @uses get_post_type()
+ * @uses bbp_get_forum_post_type()
+ * @uses bbp_get_topic_post_type()
+ * @uses bbp_get_reply_post_type()
+ *
+ * @return bool
+ */
+function bbp_is_custom_post_type() {
+
+	// Current post type
+	$post_type = get_post_type();
+
+	// bbPress post types
+	$bbp_post_types = array(
+		bbp_get_forum_post_type(),
+		bbp_get_topic_post_type(),
+		bbp_get_reply_post_type()
+	);
+
+	// Viewing one of the bbPress post types
+	if ( in_array( $post_type, $bbp_post_types ) )
+		return true;
+
+	return false;
+}
+
+/**
  * Check if current page is a bbPress reply
  *
  * @since bbPress (r2549)
@@ -324,13 +372,13 @@ function bbp_is_user_home() {
  *
  * @since bbPress (r2688)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_user_profile_page is set to true
+ * @uses WP_Query Checks if WP_Query::bbp_is_single_user is set to true
  * @return bool True if it's a user's profile page, false if not
  */
-function bbp_is_user_profile_page() {
+function bbp_is_single_user() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_user_profile_page ) && ( true == $wp_query->bbp_is_user_profile_page ) )
+	if ( !empty( $wp_query->bbp_is_single_user ) && ( true == $wp_query->bbp_is_single_user ) )
 		return true;
 
 	return false;
@@ -341,13 +389,13 @@ function bbp_is_user_profile_page() {
  *
  * @since bbPress (r2688)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_user_profile_edit is set to true
+ * @uses WP_Query Checks if WP_Query::bbp_is_single_user_edit is set to true
  * @return bool True if it's a user's profile edit page, false if not
  */
-function bbp_is_user_profile_edit() {
+function bbp_is_single_user_edit() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_user_profile_edit ) && ( true == $wp_query->bbp_is_user_profile_edit ) )
+	if ( !empty( $wp_query->bbp_is_single_user_edit ) && ( true == $wp_query->bbp_is_single_user_edit ) )
 		return true;
 
 	return false;
@@ -361,7 +409,7 @@ function bbp_is_user_profile_edit() {
  * @uses WP_Query Checks if WP_Query::bbp_is_view is true
  * @return bool Is it a view page?
  */
-function bbp_is_view() {
+function bbp_is_single_view() {
 	global $wp_query;
 
 	if ( !empty( $wp_query->bbp_is_view ) && ( true == $wp_query->bbp_is_view ) )
@@ -385,9 +433,9 @@ function bbp_is_view() {
  * @uses bbp_is_reply()
  * @uses bbp_is_reply_edit()
  * @uses bbp_is_reply_edit()
- * @uses bbp_is_view()
- * @uses bbp_is_user_profile_edit()
- * @uses bbp_is_user_profile_page()
+ * @uses bbp_is_single_view()
+ * @uses bbp_is_single_user_edit()
+ * @uses bbp_is_single_user()
  * @uses bbp_is_user_home()
  * @uses bbp_is_subscriptions()
  * @uses bbp_is_favorites()
@@ -429,18 +477,18 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 	if ( bbp_is_reply_edit() )
 		$bbp_classes[] = bbp_get_reply_post_type() . '-edit';
 
-	if ( bbp_is_view() )
+	if ( bbp_is_single_view() )
 		$bbp_classes[] = 'bbp-view';
 
 	/** User ******************************************************************/
 
-	if ( bbp_is_user_profile_edit() ) {
+	if ( bbp_is_single_user_edit() ) {
 		$bbp_classes[] = 'bbp-user-edit';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
 	}
 
-	if ( bbp_is_user_profile_page() ) {
+	if ( bbp_is_single_user() ) {
 		$bbp_classes[] = 'bbp-user-page';
 		$bbp_classes[] = 'single';
 		$bbp_classes[] = 'singular';
@@ -1261,7 +1309,7 @@ function bbp_breadcrumb( $args = array() ) {
 			$pre_current_text = bbp_get_topic_archive_title();
 
 		// View
-		elseif ( bbp_is_view() )
+		elseif ( bbp_is_single_view() )
 			$pre_current_text = bbp_get_view_title();
 
 		// Single Forum
@@ -1527,8 +1575,8 @@ function bbp_logout_link( $redirect_to = '' ) {
  * @param string $sep Optional, default is '&raquo;'. How to separate the
  *                     various items within the page title.
  * @param string $seplocation Optional. Direction to display title, 'right'.
- * @uses bbp_is_user_profile_page() To check if it's a user profile page
- * @uses bbp_is_user_profile_edit() To check if it's a user profile edit page
+ * @uses bbp_is_single_user() To check if it's a user profile page
+ * @uses bbp_is_single_user_edit() To check if it's a user profile edit page
  * @uses bbp_is_user_home() To check if the profile page is of the current user
  * @uses get_query_var() To get the user id
  * @uses get_userdata() To get the user data
@@ -1540,7 +1588,7 @@ function bbp_logout_link( $redirect_to = '' ) {
  * @uses bbp_get_reply_title() To get the reply title
  * @uses is_tax() To check if it's the tag page
  * @uses get_queried_object() To get the queried object
- * @uses bbp_is_view() To check if it's a view
+ * @uses bbp_is_single_view() To check if it's a view
  * @uses bbp_get_view_title() To get the view title
  * @uses apply_filters() Calls 'bbp_raw_title' with the title
  * @uses apply_filters() Calls 'bbp_profile_page_wp_title' with the title,
@@ -1585,7 +1633,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	/** Users *****************************************************************/
 
 	// Profile page
-	} elseif ( bbp_is_user_profile_page() ) {
+	} elseif ( bbp_is_single_user() ) {
 
 		// Current users profile
 		if ( bbp_is_user_home() ) {
@@ -1598,7 +1646,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		}
 
 	// Profile edit page
-	} elseif ( bbp_is_user_profile_edit() ) {
+	} elseif ( bbp_is_single_user_edit() ) {
 
 		// Current users profile
 		if ( bbp_is_user_home() ) {
@@ -1613,7 +1661,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	/** Views *****************************************************************/
 
 	// Views
-	} elseif ( bbp_is_view() ) {
+	} elseif ( bbp_is_single_view() ) {
 		$title = sprintf( __( 'View: %s', 'bbpress' ), bbp_get_view_title() );
 	}
 

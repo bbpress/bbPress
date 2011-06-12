@@ -34,6 +34,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
+add_filter( 'template_include',       'bbp_template_include',       10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -68,7 +69,8 @@ add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Theme Compat
-add_action( 'bbp_setup_theme_compat', 'bbp_add_theme_compat' );
+add_action( 'bbp_setup_theme_compat', 'bbp_theme_compat_set_theme'   );
+add_action( 'bbp_setup_theme_compat', 'bbp_theme_compat_enqueue_css' );
 
 // Admin
 if ( is_admin() ) {
@@ -243,7 +245,8 @@ add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
  * template hierarchy, start here by removing this filter, then look at how
  * bbp_template_include() works and do something similar. :)
  */
-add_filter( 'template_include', 'bbp_template_include' );
+add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
+add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
 
 /**
  * Feeds
@@ -584,6 +587,23 @@ function bbp_setup_theme_compat() {
  */
 function bbp_ready() {
 	do_action( 'bbp_ready' );
+}
+
+/** Theme Compatibility Filter ************************************************/
+
+/**
+ * The main filter used for theme compatibility and displaying custom bbPress
+ * theme files.
+ *
+ * @since bbPress (r3311)
+ *
+ * @uses apply_filters()
+ *
+ * @param string $template
+ * @return string Template file to use
+ */
+function bbp_template_include( $template = '' ) {
+	return apply_filters( 'bbp_template_include', $template );
 }
 
 ?>

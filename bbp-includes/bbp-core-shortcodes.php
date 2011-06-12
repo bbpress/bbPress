@@ -222,6 +222,9 @@ class BBP_Shortcodes {
 		// Breadcrumb
 		bbp_breadcrumb();
 
+		// Before forums index
+		do_action( 'bbp_template_before_forums_index' );
+
 		// Load the forums index
 		if ( bbp_has_forums() )
 			bbp_get_template_part( 'bbpress/loop',     'forums'    );
@@ -229,6 +232,9 @@ class BBP_Shortcodes {
 		// No forums
 		else
 			bbp_get_template_part( 'bbpress/feedback', 'no-forums' );
+
+		// After forums index
+		do_action( 'bbp_template_after_forums_index' );
 
 		// Return contents of output buffer
 		return $this->_ob_end();
@@ -265,20 +271,23 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
-		// Breadcrumb
-		bbp_breadcrumb();
+		// Check forum caps
+		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
-		// Password protected
-		if ( post_password_required() ) {
+			// Breadcrumb
+			bbp_breadcrumb();
 
-			// Output the password form
-			bbp_get_template_part( 'bbpress/form', 'protected' );
+			// Before single forum
+			do_action( 'bbp_template_before_single_forum' );
 
-		// Not password protected, or password is already approved
-		} else {
+			// Password protected
+			if ( post_password_required() ) {
 
-			// Check forum caps
-			if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
+				// Output the password form
+				bbp_get_template_part( 'bbpress/form', 'protected' );
+
+			// Not password protected, or password is already approved
+			} else {
 
 				// Forum description
 				bbp_single_forum_description( array( 'forum_id' => $forum_id ) );
@@ -330,10 +339,13 @@ class BBP_Shortcodes {
 					}
 				}
 
-			// Forum is private and user does not have caps
-			} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-				bbp_get_template_part( 'bbpress/feedback', 'no-access' );
+				// After single forum
+				do_action( 'bbp_template_after_single_forum' );
 			}
+
+		// Forum is private and user does not have caps
+		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
+			bbp_get_template_part( 'bbpress/feedback', 'no-access' );
 		}
 
 		// Return contents of output buffer
@@ -374,6 +386,9 @@ class BBP_Shortcodes {
 		// Breadcrumb
 		bbp_breadcrumb();
 
+		// Before topics index
+		do_action( 'bbp_template_before_topics_index' );
+
 		// Load the topic index
 		if ( bbp_has_topics( $topics_query ) ) {
 			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
@@ -384,6 +399,9 @@ class BBP_Shortcodes {
 		} else {
 			bbp_get_template_part( 'bbpress/feedback',   'no-topics' );
 		}
+
+		// After topics index
+		do_action( 'bbp_template_after_topics_index' );
 
 		// Return contents of output buffer
 		return $this->_ob_end();
@@ -429,7 +447,7 @@ class BBP_Shortcodes {
 		$this->_unset_globals();
 
 		// Reset the queries if not in theme compat
-		if ( !bbp_in_theme_compat() ) {
+		if ( !bbp_is_theme_compat_active() ) {
 
 			// Reset necessary forum_query attributes for topics loop to function
 			$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
@@ -445,20 +463,23 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
-		// Breadcrumb
-		bbp_breadcrumb();
+		// Check forum caps
+		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
-		// Password protected
-		if ( post_password_required() ) {
+			// Breadcrumb
+			bbp_breadcrumb();
 
-			// Output the password form
-			bbp_get_template_part( 'bbpress/form', 'protected' );
+			// Before single topic
+			do_action( 'bbp_template_before_single_topic' );
 
-		// Not password protected, or password is already approved
-		} else {
+			// Password protected
+			if ( post_password_required() ) {
 
-			// Check forum caps
-			if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
+				// Output the password form
+				bbp_get_template_part( 'bbpress/form', 'protected' );
+
+			// Not password protected, or password is already approved
+			} else {
 
 				// Tags
 				bbp_topic_tag_list( $topic_id );
@@ -466,26 +487,32 @@ class BBP_Shortcodes {
 				// Topic description
 				bbp_single_topic_description( array( 'topic_id' => $topic_id ) );
 
+				// Template files
+				if ( bbp_show_lead_topic() )
+					bbp_get_template_part( 'bbpress/content', 'single-topic-lead' );
+
 				// Load the topic
 				if ( bbp_has_replies( $replies_query ) ) {
 
-					// Template files
-					bbp_get_template_part( 'bbpress/single',     'topic'   );
 					bbp_get_template_part( 'bbpress/pagination', 'replies' );
 					bbp_get_template_part( 'bbpress/loop',       'replies' );
 					bbp_get_template_part( 'bbpress/pagination', 'replies' );
-					bbp_get_template_part( 'bbpress/form',       'reply'   );
 
 				// No replies
 				} else {
-					bbp_get_template_part( 'bbpress/single', 'topic' );
-					bbp_get_template_part( 'bbpress/form',   'reply' );
+					bbp_get_template_part( 'bbpress/content', 'single-topic-lead' );
 				}
 
-			// Forum is private and user does not have caps
-			} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-				bbp_get_template_part( 'bbpress/feedback', 'no-access' );
+				// Reply form
+				bbp_get_template_part( 'bbpress/form', 'reply' );
 			}
+
+			// After single topic
+			do_action( 'bbp_template_after_single_topic' );
+
+		// Forum is private and user does not have caps
+		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
+			bbp_get_template_part( 'bbpress/feedback', 'no-access' );
 		}
 
 		// Return contents of output buffer
@@ -506,23 +533,8 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
-		// Breadcrumb
-		if ( bbp_is_forum() || bbp_is_topic_edit() )
-			bbp_breadcrumb();
-
-		// Editing a topic
-		if ( bbp_is_topic_edit() ) {
-
-			// Tags
-			bbp_topic_tag_list( get_the_ID() );
-
-			// Topic description
-			bbp_single_topic_description( array( 'topic_id' => get_the_ID() ) );
-
-		}
-
 		// Output templates
-		bbp_get_template_part( 'bbpress/form', 'topic'  );
+		bbp_get_template_part( 'bbpress/form', 'topic' );
 
 		// Return contents of output buffer
 		return $this->_ob_end();
@@ -544,12 +556,8 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->_ob_start();
 
-		// Breadcrumb
-		if ( bbp_is_reply_edit() )
-			bbp_breadcrumb();
-
 		// Output templates
-		bbp_get_template_part( 'bbpress/form', 'reply'  );
+		bbp_get_template_part( 'bbpress/form', 'reply' );
 
 		// Return contents of output buffer
 		return $this->_ob_end();
@@ -631,6 +639,9 @@ class BBP_Shortcodes {
 		// Tag description
 		bbp_topic_tag_description();
 
+		// Before tag topics
+		do_action( 'bbp_template_before_tag_topics' );
+
 		// Load the topics
 		if ( bbp_has_topics( $args ) ) {
 
@@ -644,6 +655,9 @@ class BBP_Shortcodes {
 		} else {
 			bbp_get_template_part( 'bbpress/feedback',   'no-topics' );
 		}
+
+		// After tag topics
+		do_action( 'bbp_template_after_tag_topics' );
 
 		// Return contents of output buffer
 		return $this->_ob_end();

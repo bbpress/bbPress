@@ -9,8 +9,6 @@
 
 ?>
 
-<?php if ( bbp_show_lead_topic() ) : ?>
-
 	<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
 		<thead>
 			<tr>
@@ -73,5 +71,3 @@
 
 		</tbody>
 	</table><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
-
-<?php endif; ?>

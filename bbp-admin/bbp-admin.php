@@ -347,7 +347,7 @@ class BBP_Admin {
 			return;
 
 		// Set $bbp->theme_compat to true to bypass nag
-		if ( !empty( $bbp->theme_compat ) && !current_theme_supports( 'bbpress' ) ) { ?>
+		if ( !empty( $bbp->theme_compat->theme ) && !current_theme_supports( 'bbpress' ) ) { ?>
 
 			<div id="message" class="updated fade">
 				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is in Theme Compatability Mode</strong>. Your forums are using default styling.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>

@@ -9,6 +9,8 @@
 
 ?>
 
+	<?php do_action( 'bbp_template_before_replies_loop' ); ?>
+
 	<table class="bbp-replies" id="topic-<?php bbp_topic_id(); ?>-replies">
 		<thead>
 			<tr>
@@ -95,3 +97,5 @@
 		</tbody>
 
 	</table>
+
+	<?php do_action( 'bbp_template_after_replies_loop' ); ?>

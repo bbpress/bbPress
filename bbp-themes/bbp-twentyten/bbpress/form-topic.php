@@ -12,6 +12,20 @@ wp_reset_postdata();
 
 ?>
 
+	<?php if ( !bbp_is_forum() ) : ?>
+
+		<?php bbp_breadcrumb(); ?>
+
+	<?php endif; ?>
+
+	<?php if ( bbp_is_topic_edit() ) : ?>
+
+		<?php bbp_topic_tag_list( bbp_get_topic_id() ); ?>
+
+		<?php bbp_single_topic_description( array( 'topic_id' => bbp_get_topic_id() ) ); ?>
+
+	<?php endif; ?>
+
 	<?php if ( bbp_current_user_can_access_create_topic_form() ) : ?>
 
 		<div id="new-topic-<?php bbp_topic_id(); ?>" class="bbp-topic-form">

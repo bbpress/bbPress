@@ -9,6 +9,8 @@
 
 ?>
 
+	<?php do_action( 'bbp_template_before_topics_loop' ); ?>
+
 	<table class="bbp-topics" id="bbp-forum-<?php bbp_topic_id(); ?>">
 		<thead>
 			<tr>
@@ -92,3 +94,6 @@
 		</tbody>
 
 	</table><!-- #bbp-forum-<?php bbp_topic_id(); ?> -->
+
+	<?php do_action( 'bbp_template_after_topics_loop' ); ?>
+

@@ -9,6 +9,8 @@
 
 ?>
 
+	<?php do_action( 'bbp_template_before_forums_loop' ); ?>
+
 	<table class="bbp-forums">
 
 		<thead>
@@ -60,3 +62,5 @@
 		</tbody>
 
 	</table>
+
+	<?php do_action( 'bbp_template_after_forums_loop' ); ?>

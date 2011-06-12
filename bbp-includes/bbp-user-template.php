@@ -695,11 +695,11 @@ function bbp_user_subscribe_link( $args = '' ) {
  *
  * @since bbPress (r2688)
  *
- * @uses bbp_is_user_profile_page() To check if it's the profile page
- * @uses bbp_is_user_profile_edit() To check if it's the profile edit page
+ * @uses bbp_is_single_user() To check if it's the profile page
+ * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  */
 function bbp_notice_edit_user_success() {
-	if ( isset( $_GET['updated'] ) && ( bbp_is_user_profile_page() || bbp_is_user_profile_edit() ) ) : ?>
+	if ( isset( $_GET['updated'] ) && ( bbp_is_single_user() || bbp_is_single_user_edit() ) ) : ?>
 
 	<div class="bbp-template-notice updated">
 		<p><?php _e( 'User updated.', 'bbpress' ); ?></p>
@@ -714,8 +714,8 @@ function bbp_notice_edit_user_success() {
  * @since bbPress (r2688)
  *
  * @uses is_multisite() To check if the blog is multisite
- * @uses bbp_is_user_profile_page() To check if it's the profile page
- * @uses bbp_is_user_profile_edit() To check if it's the profile edit page
+ * @uses bbp_is_single_user() To check if it's the profile page
+ * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  * @uses current_user_can() To check if the current user can manage network
  *                           options
  * @uses bbp_get_displayed_user_id() To get the displayed user id
@@ -723,7 +723,7 @@ function bbp_notice_edit_user_success() {
  * @uses bbp_is_user_home() To check if it's the user home
  */
 function bbp_notice_edit_user_is_super_admin() {
-	if ( is_multisite() && ( bbp_is_user_profile_page() || bbp_is_user_profile_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
+	if ( is_multisite() && ( bbp_is_single_user() || bbp_is_single_user_edit() ) && current_user_can( 'manage_network_options' ) && is_super_admin( bbp_get_displayed_user_id() ) ) : ?>
 
 	<div class="bbp-template-notice important">
 		<p><?php bbp_is_user_home() ? _e( 'You have super admin privileges.', 'bbpress' ) : _e( 'This user has super admin privileges.', 'bbpress' ); ?></p>

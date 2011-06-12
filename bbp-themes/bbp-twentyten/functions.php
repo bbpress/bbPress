@@ -152,14 +152,14 @@ if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
  *
  * @uses bbp_is_topic() To check if it's the topic page
  * @uses get_stylesheet_directory_uri() To get the stylesheet directory uri
- * @uses bbp_is_user_profile_edit() To check if it's the profile edit page
+ * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  * @uses wp_enqueue_script() To enqueue the scripts
  */
 function bbp_twentyten_enqueue_scripts () {
 	if ( bbp_is_topic() )
 		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
 
-	if ( bbp_is_user_profile_edit() )
+	if ( bbp_is_single_user_edit() )
 		wp_enqueue_script( 'user-profile' );
 }
 add_action( 'wp_enqueue_scripts', 'bbp_twentyten_enqueue_scripts' );
@@ -173,7 +173,7 @@ if ( !function_exists( 'bbp_twentyten_scripts' ) ) :
  *
  * @uses bbp_is_topic() To check if it's the topic page
  * @uses admin_url() To get the admin url
- * @uses bbp_is_user_profile_edit() To check if it's the profile edit page
+ * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  */
 function bbp_twentyten_scripts () {
 	if ( bbp_is_topic() ) : ?>
@@ -184,7 +184,7 @@ function bbp_twentyten_scripts () {
 		/* ]]> */
 	</script>
 
-	<?php elseif ( bbp_is_user_profile_edit() ) : ?>
+	<?php elseif ( bbp_is_single_user_edit() ) : ?>
 
 	<script type="text/javascript" charset="utf-8">
 		if ( window.location.hash == '#password' ) {
