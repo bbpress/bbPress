@@ -744,6 +744,13 @@ class BBP_Replies_Admin {
 			)
 			return;
 
+		// Add Empty Spam button
+		if ( !empty( $_GET['post_status'] ) && ( 'spam' == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
+			$title = esc_attr__( 'Empty Spam', 'bbpress' );
+			submit_button( $title, 'button-secondary apply', 'delete_all', false );
+		}
+
 		// Get which forum is selected
 		$selected = !empty( $_GET['bbp_forum_id'] ) ? $_GET['bbp_forum_id'] : '';
 
