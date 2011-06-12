@@ -188,7 +188,7 @@ function bbp_has_topics( $args = '' ) {
 				global $wpdb;
 
 				// Get all stickies
-				if ( $sticky_posts = get_posts( array( 'post_type' => 'any', 'post_parent' => 'any', 'include' => $stickies ) ) ) {
+				if ( $sticky_posts = get_posts( array( 'post_type' => bbp_get_topic_post_type(), 'post_parent' => 'any', 'include' => $stickies ) ) ) {
 
 					// Get a count of the visible stickies
 					$sticky_count = count( $sticky_posts );
