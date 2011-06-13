@@ -920,7 +920,7 @@ function bbp_toggle_reply_handler() {
 		if ( ( false != $success ) && !is_wp_error( $success ) ) {
 
 			// Redirect back to the reply
-			$redirect = bbp_get_reply_url( $reply_id, true );
+			$redirect = bbp_get_reply_url( $reply_id );
 			wp_redirect( $redirect );
 
 			// For good measure
