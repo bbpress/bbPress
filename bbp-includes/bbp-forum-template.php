@@ -1080,7 +1080,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 		$retval   = '';
 
 		// First link never has view=all
-		if ( bbp_get_view_all() )
+		if ( bbp_get_view_all( 'edit_others_topics' ) )
 			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_forum_permalink( $forum_id ) ) ) . "'>$topics</a>";
 		else
 			$retval .= $topics;
