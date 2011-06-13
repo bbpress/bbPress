@@ -249,18 +249,15 @@ function bbp_new_topic_handler() {
 				// Redirect to
 				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
-				// View all?
-				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) || ( $topic_data['post_status'] == $bbp->trash_status_id ) );
-
 				// Get the topic URL
 				$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
 
 				// Add view all?
-				if ( !empty( $count_hidden ) )
-					$topic_url = add_query_arg( array( 'view' => 'all' ), $topic_url );
+				if ( bbp_get_view_all() || ( $topic_data['post_status'] == $bbp->trash_status_id ) )
+					$topic_url = bbp_add_view_all( $topic_url );
 
 				// Allow to be filtered
-				$topic_url = apply_filters( 'bbp_new_topic_redirect_to', $topic_url, $count_hidden, $redirect_to );
+				$topic_url = apply_filters( 'bbp_new_topic_redirect_to', $topic_url, $redirect_to );
 
 				/** Successful Save *******************************************/
 
@@ -525,14 +522,14 @@ function bbp_edit_topic_handler() {
 				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
 				// View all?
-				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) );
+				$count_hidden = (bool) ( bbp_get_view_all() );
 
 				// Get the topic URL
 				$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
 
 				// Add view all?
 				if ( !empty( $count_hidden ) )
-					$topic_url = add_query_arg( array( 'view' => 'all' ), $topic_url );
+					$topic_url = bbp_add_view_all( $topic_url );
 
 				// Allow to be filtered
 				$topic_url = apply_filters( 'bbp_edit_topic_redirect_to', $topic_url, $count_hidden, $redirect_to );
@@ -1698,12 +1695,12 @@ function bbp_toggle_topic_handler() {
 		if ( false != $success && !is_wp_error( $success ) ) {
 
 			// Redirect back to the topic's forum
-			if ( isset( $sub_action ) && 'delete' == $sub_action )
+			if ( isset( $sub_action ) && ( 'delete' == $sub_action ) )
 				$redirect = bbp_get_forum_permalink( $success->post_parent );
 
 			// Redirect back to the topic
 			else
-				$redirect = add_query_arg( array( 'view' => 'all' ), bbp_get_topic_permalink( $topic_id ) );
+				$redirect = bbp_add_view_all( bbp_get_topic_permalink( $topic_id ) );
 
 			wp_redirect( $redirect );
 

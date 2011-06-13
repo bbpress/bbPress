@@ -313,18 +313,11 @@ function bbp_new_reply_handler() {
 				// Redirect to
 				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
-				// View all?
-				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) );
-
 				// Get the reply URL
-				$reply_url = bbp_get_reply_url( $reply_id, $count_hidden, $redirect_to );
-
-				// Add view all?
-				if ( !empty( $count_hidden ) )
-					$reply_url = add_query_arg( array( 'view' => 'all' ), $reply_url );
+				$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
 				// Allow to be filtered
-				$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $count_hidden, $redirect_to );
+				$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $redirect_to );
 
 				/** Successful Save *******************************************/
 
@@ -545,18 +538,11 @@ function bbp_edit_reply_handler() {
 				// Redirect to
 				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
-				// View all?
-				$count_hidden = (bool) ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) );
-
 				// Get the reply URL
-				$reply_url = bbp_get_reply_url( $reply_id, $count_hidden, $redirect_to );
-
-				// Add view all?
-				if ( !empty( $count_hidden ) )
-					$reply_url = add_query_arg( array( 'view' => 'all' ), $reply_url );
+				$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
 				// Allow to be filtered
-				$reply_url = apply_filters( 'bbp_edit_reply_redirect_to', $reply_url, $count_hidden, $redirect_to );
+				$reply_url = apply_filters( 'bbp_edit_reply_redirect_to', $reply_url, $redirect_to );
 
 				/** Successful Edit *******************************************/
 
@@ -934,7 +920,7 @@ function bbp_toggle_reply_handler() {
 		if ( ( false != $success ) && !is_wp_error( $success ) ) {
 
 			// Redirect back to the reply
-			$redirect = add_query_arg( array( 'view' => 'all' ), bbp_get_reply_url( $reply_id, true ) );
+			$redirect = bbp_get_reply_url( $reply_id, true );
 			wp_redirect( $redirect );
 
 			// For good measure

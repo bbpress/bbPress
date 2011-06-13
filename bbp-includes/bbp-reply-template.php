@@ -86,7 +86,7 @@ function bbp_has_replies( $args = '' ) {
 		);
 
 		// What are the default allowed statuses (based on user caps)
-		if ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) ) )
+		if ( bbp_get_view_all( 'edit_others_replies' ) )
 			$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
 	}
 
@@ -161,7 +161,7 @@ function bbp_has_replies( $args = '' ) {
 			'prev_text' => '&larr;',
 			'next_text' => '&rarr;',
 			'mid_size'  => 1,
-			'add_args'  => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] ) ? array( 'view' => 'all' ) : false
+			'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
 		) );
 
 		// Add pagination to query object
@@ -343,10 +343,6 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 * @since bbPress (r2679)
 	 *
 	 * @param int $reply_id Optional. Reply id
-	 * @param bool $count_hidden Optional. Count hidden (trashed/spammed)
-	 *                            replies? If $_GET['view'] == all, it is
-	 *                            automatically set to true. To override
-	 *                            this, set $count_hidden = (int) -1
 	 * @param $string $redirect_to Optional. Pass a redirect value for use with
 	 *                              shortcodes and other fun things.
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -361,14 +357,14 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 *                        reply id and bool count hidden
 	 * @return string Link to reply relative to paginated topic
 	 */
-	function bbp_get_reply_url( $reply_id = 0, $count_hidden = false, $redirect_to = '' ) {
+	function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
 		global $bbp, $wp_rewrite;
 
 		// Set needed variables
-		$reply_id       = bbp_get_reply_id       ( $reply_id               );
-		$topic_id       = bbp_get_reply_topic_id ( $reply_id               );
-		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to );
-		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id    );
+		$reply_id       = bbp_get_reply_id       ( $reply_id                           );
+		$topic_id       = bbp_get_reply_topic_id ( $reply_id                           );
+		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to             );
+		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id );
 
 		// Check if in query with pagination
 		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
@@ -396,7 +392,11 @@ function bbp_reply_url( $reply_id = 0 ) {
 			}
 		}
 
-		return apply_filters( 'bbp_get_reply_url', $url, $reply_id, $count_hidden );
+		// Add topic view query arg back to end if it is set
+		if ( bbp_get_view_all() )
+			$url = bbp_add_view_all( $url );
+
+		return apply_filters( 'bbp_get_reply_url', $url, $reply_id, $redirect_to );
 	}
 
 /**
@@ -1179,8 +1179,14 @@ function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
 		// Make sure the topic has replies before running another query
 		if ( $reply_count = bbp_get_topic_reply_count( $topic_id ) ) {
 
+			// Are we counting hidden replies too?
+			if ( bbp_get_view_all() )
+				$topic_replies = bbp_get_all_child_ids   ( $topic_id, bbp_get_reply_post_type() );
+			else
+				$topic_replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
+
 			// Get reply id's
-			if ( $topic_replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() ) ) {
+			if ( !empty( $topic_replies ) ) {
 
 				// Reverse replies array and search for current reply position
 				$topic_replies  = array_reverse( $topic_replies );

@@ -76,7 +76,7 @@ function bbp_has_topics( $args = '' ) {
 	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_forum_archive() && !bbp_is_query_name( 'bbp_widget' ) );
 
 	// What are the default allowed statuses (based on user caps)
-	if ( current_user_can( 'moderate' ) && !bbp_is_query_name( 'bbp_widget' ) && ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) ) )
+	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
 	else
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
@@ -678,7 +678,7 @@ function bbp_topic_pagination( $args = '' ) {
 			'prev_next' => false,
 			'mid_size'  => 2,
 			'end_size'  => 3,
-			'add_args'  => ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] ) ? array( 'view' => 'all' ) : false
+			'add_args'  => ( bbp_get_view_all() ) ? array( 'view' => 'all' ) : false
 		);
 
 		// Add pagination to query object
@@ -1620,17 +1620,25 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 		$replies  = sprintf( _n( '%s reply', '%s replies', $replies, 'bbpress' ), $replies );
 		$retval   = '';
 
-		if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_replies' ) )
-			$retval .= "<a href='" . esc_url( remove_query_arg( array( 'view' => 'all' ),  bbp_get_topic_permalink( $topic_id ) ) ) . "'>$replies</a>";
+		// First link never has view=all
+		if ( bbp_get_view_all( 'edit_others_replies' ) )
+			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_topic_permalink( $topic_id ) ) ) . "'>$replies</a>";
 		else
 			$retval .= $replies;
 
-		if ( current_user_can( 'edit_others_replies' ) && $deleted = bbp_get_topic_hidden_reply_count( $topic_id ) ) {
-			$extra = sprintf( __( ' + %d more', 'bbpress' ), $deleted );
-			if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] )
+		// This forum has hidden topics
+		if ( current_user_can( 'edit_others_replies' ) && ( $deleted = bbp_get_topic_hidden_reply_count( $topic_id ) ) ) {
+
+			// Extra text
+			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
+
+			// No link
+			if ( bbp_get_view_all() )
 				$retval .= " $extra";
+
+			// Link
 			else
-				$retval .= " <a href='" . esc_url( add_query_arg( array( 'view' => 'all' ) ) ) . "'>$extra</a>";
+				$retval .= " <a href='" . esc_url( bbp_add_view_all( bbp_get_topic_permalink( $topic_id ), true ) ) . "'>$extra</a>";
 		}
 
 		return apply_filters( 'bbp_get_topic_replies_link', $retval, $topic_id );

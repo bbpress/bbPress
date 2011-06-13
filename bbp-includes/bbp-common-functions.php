@@ -186,25 +186,59 @@ function bbp_show_lead_topic( $show_lead = false ) {
 /**
  * Append 'view=all' to query string if it's already there from referer
  *
+ * @since bbPress (r3325)
+ *
+ * @param string $original_link Original Link to be modified
+ * @param bool $force Override bbp_get_view_all() check
+ * @uses current_user_can() To check if the current user can moderate
+ * @uses add_query_arg() To add args to the url
+ * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
+ * @return string The link with 'view=all' appended if necessary
+ */
+function bbp_add_view_all( $original_link = '', $force = false ) {
+
+	// Are we appending the view=all vars?
+	if ( bbp_get_view_all() || !empty( $force ) )
+		$link = add_query_arg( array( 'view' => 'all' ), $original_link );
+	else
+		$link = $original_link;
+
+	return apply_filters( 'bbp_add_view_all', $link, $original_link );
+}
+
+/**
+ * Remove 'view=all' from query string
+ *
+ * @since bbPress (r3325)
+ *
  * @param string $original_link Original Link to be modified
  * @uses current_user_can() To check if the current user can moderate
  * @uses add_query_arg() To add args to the url
  * @uses apply_filters() Calls 'bbp_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
-function bbp_add_view_all( $original_link ) {
-
-	// Bail if empty
-	if ( empty( $original_link ) )
-		return $original_link;
+function bbp_remove_view_all( $original_link = '' ) {
 
 	// Are we appending the view=all vars?
-	if ( ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( 'moderate' ) ) )
-		$link = add_query_arg( array( 'view' => 'all' ), $original_link );
-	else
-		$link = $original_link;
+	$link = remove_query_arg( 'view', $original_link );
 
 	return apply_filters( 'bbp_add_view_all', $link, $original_link );
+}
+
+/**
+ * If current user can and is vewing all topics/replies
+ *
+ * @since bbPress (r3325)
+ *
+ * @uses current_user_can() To check if the current user can moderate
+ * @uses apply_filters() Calls 'bbp_get_view_all' with the link and original link
+ * @return bool Whether current user can and is viewing all
+ */
+function bbp_get_view_all( $cap = 'moderate' ) {
+
+	$retval = ( ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( $cap ) ) );
+
+	return apply_filters( 'bbp_get_view_all', (bool) $retval );
 }
 
 /**
@@ -1080,7 +1114,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	$cache_id    = 'bbp_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
 	$post_status = array( 'publish' );
 
 	// Add closed status if topic post type
@@ -1098,6 +1132,66 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 	// Filter and return
 	return apply_filters( 'bbp_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
+}
+/**
+ * Query the DB and get a the child id's of all children
+ *
+ * @param int $parent_id Parent id
+ * @param string $post_type Post type. Defaults to 'post'
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses wp_cache_get() To check if there is a cache of the children
+ * @uses wpdb::prepare() To prepare the query
+ * @uses wpdb::get_col() To get the result of the query in an array
+ * @uses wp_cache_set() To set the cache for future use
+ * @uses apply_filters() Calls 'bbp_get_public_child_ids' with the child ids,
+ *                        parent id and post type
+ * @return array The array of children
+ */
+function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
+	global $wpdb, $bbp;
+
+	// Bail if nothing passed
+	if ( empty( $parent_id ) )
+		return false;
+
+	// The ID of the cached query
+	$cache_id    = 'bbp_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	$post_status = array( 'publish' );
+
+	// Extra post statuses based on post type
+	switch ( $post_type ) {
+
+		// Forum
+		case bbp_get_forum_post_type() :
+			$post_status[] = 'private';
+			$post_status[] = $bbp->hidden_status_id;
+			break;
+
+		// Topic
+		case bbp_get_topic_post_type() :
+			$post_status[] = $bbp->closed_status_id;
+			$post_status[] = $bbp->trash_status_id;
+			$post_status[] = $bbp->spam_status_id;
+			break;
+
+		// Reply
+		case bbp_get_reply_post_type() :
+			$post_status[] = $bbp->trash_status_id;
+			$post_status[] = $bbp->spam_status_id;
+			break;
+	}
+
+	// Join post statuses together
+	$post_status = "'" . join( "', '", $post_status ) . "'";
+
+	// Check for cache and set if needed
+	if ( !$child_ids = wp_cache_get( $cache_id, 'bbpress' ) ) {
+		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		wp_cache_set( $cache_id, $child_ids, 'bbpress' );
+	}
+
+	// Filter and return
+	return apply_filters( 'bbp_get_all_child_ids', $child_ids, (int) $parent_id, $post_type );
 }
 
 /** Feeds *********************************************************************/

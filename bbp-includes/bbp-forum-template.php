@@ -1079,17 +1079,25 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 		$topics   = sprintf( _n( '%s topic', '%s topics', $topics, 'bbpress' ), $topics );
 		$retval   = '';
 
-		if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] && current_user_can( 'edit_others_topics' ) )
-			$retval .= "<a href='" . esc_url( remove_query_arg( array( 'view' => 'all' ),  bbp_get_forum_permalink( $forum_id ) ) ) . "'>$topics</a>";
+		// First link never has view=all
+		if ( bbp_get_view_all() )
+			$retval .= "<a href='" . esc_url( bbp_remove_view_all( bbp_get_forum_permalink( $forum_id ) ) ) . "'>$topics</a>";
 		else
 			$retval .= $topics;
 
-		if ( current_user_can( 'edit_others_topics' ) && $deleted = bbp_get_forum_hidden_topic_count( $forum_id ) ) {
-			$extra = sprintf( __( ' + %d more', 'bbpress' ), $deleted );
-			if ( !empty( $_GET['view'] ) && 'all' == $_GET['view'] )
+		// This forum has hidden topics
+		if ( current_user_can( 'edit_others_topics' ) && ( $deleted = bbp_get_forum_hidden_topic_count( $forum_id ) ) ) {
+
+			// Extra text
+			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
+
+			// No link
+			if ( bbp_get_view_all() )
 				$retval .= " $extra";
+
+			// Link
 			else
-				$retval .= " <a href='" . esc_url( add_query_arg( array( 'view' => 'all' ) ) ) . "'>$extra</a>";
+				$retval .= " <a href='" . esc_url( bbp_add_view_all( bbp_get_forum_permalink( $forum_id ), true ) ) . "'>$extra</a>";
 		}
 
 		return apply_filters( 'bbp_get_forum_topics_link', $retval, $forum_id );
