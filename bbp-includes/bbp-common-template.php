@@ -364,7 +364,7 @@ function bbp_is_user_home() {
 	if ( empty( $bbp->displayed_user ) )
 		return false;
 
-	return (bool) $bbp->current_user->ID == $bbp->displayed_user->ID;
+	return (bool) ( (int) $bbp->current_user->ID == (int) $bbp->displayed_user->ID );
 }
 
 /**
