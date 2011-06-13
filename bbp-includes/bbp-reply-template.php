@@ -368,7 +368,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$reply_id       = bbp_get_reply_id       ( $reply_id               );
 		$topic_id       = bbp_get_reply_topic_id ( $reply_id               );
 		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to );
-		$reply_position = bbp_get_reply_position ( $reply_id               );
+		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id    );
 
 		// Check if in query with pagination
 		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
@@ -1141,17 +1141,19 @@ function bbp_reply_forum_id( $reply_id = 0 ) {
  * @since bbPress (r2984)
  *
  * @param int $reply_id Optional. Reply id
+ * @param int $topic_id Optional. Topic id
  * @uses bbp_get_reply_position() To get the reply position
  */
-function bbp_reply_position( $reply_id = 0 ) {
-	echo bbp_get_reply_position( $reply_id );
+function bbp_reply_position( $reply_id = 0, $topic_id = 0 ) {
+	echo bbp_get_reply_position( $reply_id, $topic_id );
 }
 	/**
 	 * Return the numeric position of a reply within a topic
 	 *
 	 * @since bbPress (r2984)
 	 *
-	 * @param int $reply_id
+	 * @param int $reply_id Optional. Reply id
+	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_reply_id() To get the reply id
 	 * @uses bbp_get_reply_topic_id() Get the topic id of the reply id
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
@@ -1162,12 +1164,17 @@ function bbp_reply_position( $reply_id = 0 ) {
 	 *                        position, reply id and topic id
 	 * @return int Reply position
 	 */
-	function bbp_get_reply_position( $reply_id = 0 ) {
+	function bbp_get_reply_position( $reply_id = 0, $topic_id = 0 ) {
 
 		// Get required data
-		$reply_position  = 0;
-		$reply_id        = bbp_get_reply_id      ( $reply_id );
-		$topic_id        = bbp_get_reply_topic_id( $reply_id );
+		$reply_position = 0;
+		$reply_id       = bbp_get_reply_id( $reply_id );
+
+		// Get topic id
+		if ( !empty( $topic_id ) )
+			$topic_id   = bbp_get_topic_id( $topic_id );
+		else
+			$topic_id   = bbp_get_reply_topic_id( $reply_id );
 
 		// Make sure the topic has replies before running another query
 		if ( $reply_count = bbp_get_topic_reply_count( $topic_id ) ) {
