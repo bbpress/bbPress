@@ -808,15 +808,16 @@ class bbPress {
 
 		// Topic tag labels
 		$topic_tag['labels'] = array(
-			'name'          => __( 'Topic Tags',   'bbpress' ),
-			'singular_name' => __( 'Topic Tag',    'bbpress' ),
-			'search_items'  => __( 'Search Tags',  'bbpress' ),
-			'popular_items' => __( 'Popular Tags', 'bbpress' ),
-			'all_items'     => __( 'All Tags',     'bbpress' ),
-			'edit_item'     => __( 'Edit Tag',     'bbpress' ),
-			'update_item'   => __( 'Update Tag',   'bbpress' ),
-			'add_new_item'  => __( 'Add New Tag',  'bbpress' ),
-			'new_item_name' => __( 'New Tag Name', 'bbpress' )
+			'name'          => __( 'Topic Tags',     'bbpress' ),
+			'singular_name' => __( 'Topic Tag',      'bbpress' ),
+			'search_items'  => __( 'Search Tags',    'bbpress' ),
+			'popular_items' => __( 'Popular Tags',   'bbpress' ),
+			'all_items'     => __( 'All Tags',       'bbpress' ),
+			'edit_item'     => __( 'Edit Tag',       'bbpress' ),
+			'update_item'   => __( 'Update Tag',     'bbpress' ),
+			'add_new_item'  => __( 'Add New Tag',    'bbpress' ),
+			'new_item_name' => __( 'New Tag Name',   'bbpress' ),
+			'view_item'     => __( 'View Topic Tag', 'bbpress' )
 		);
 
 		// Topic tag rewrite
