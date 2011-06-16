@@ -318,7 +318,7 @@ class bbPress {
 		$this->plugin_url = plugin_dir_url ( $this->file );
 
 		// Themes
-		$this->themes_dir = WP_PLUGIN_DIR . '/' . basename( dirname( __FILE__ ) ) . '/bbp-themes';
+		$this->themes_dir = $this->plugin_dir . 'bbp-themes';
 		$this->themes_url = $this->plugin_url . 'bbp-themes';
 
 		// Languages
@@ -408,7 +408,7 @@ class bbPress {
 
 		// Load the files
 		foreach ( $core as $file )
-			require( $this->plugin_dir . '/bbp-includes/bbp-core-' . $file . '.php' );
+			require( $this->plugin_dir . 'bbp-includes/bbp-core-' . $file . '.php' );
 
 		/** Components ********************************************************/
 
@@ -428,13 +428,13 @@ class bbPress {
 		// Load the files
 		foreach ( $components as $component )
 			foreach ( $files as $type )
-				require( $this->plugin_dir . '/bbp-includes/bbp-' . $component . '-' . $type . '.php' );
+				require( $this->plugin_dir . 'bbp-includes/bbp-' . $component . '-' . $type . '.php' );
 
 		/** Admin *************************************************************/
 
 		// Quick admin check and load if needed
 		if ( is_admin() )
-			require( $this->plugin_dir . '/bbp-admin/bbp-admin.php' );
+			require( $this->plugin_dir . 'bbp-admin/bbp-admin.php' );
 	}
 
 	/**
