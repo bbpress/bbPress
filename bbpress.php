@@ -342,7 +342,7 @@ class bbPress {
 		// Other identifiers
 		$this->user_id            = apply_filters( 'bbp_view_id', 'bbp_user' );
 		$this->view_id            = apply_filters( 'bbp_spam_id', 'bbp_view' );
-		$this->edit_id            = apply_filters( 'bbp_spam_id', 'edit'     );
+		$this->edit_id            = apply_filters( 'bbp_edit_id', 'edit'     );
 		
 		/** Slugs *************************************************************/
 
@@ -453,37 +453,43 @@ class bbPress {
 		register_activation_hook  ( $this->file,    'bbp_activation'   );
 		register_deactivation_hook( $this->file,    'bbp_deactivation' );
 
-		// Setup the currently logged in user
-		add_action( 'bbp_setup_current_user',       array( $this, 'setup_current_user'       ), 10 );
+		// Array of bbPress core actions as keys, and class actions as values
+		$actions = array(
 
-		// Register content types
-		add_action( 'bbp_register_post_types',      array( $this, 'register_post_types'      ), 10 );
+			// Setup the currently logged in user
+			'bbp_setup_current_user'       => 'setup_current_user',
 
-		// Register post statuses
-		add_action( 'bbp_register_post_statuses',   array( $this, 'register_post_statuses'   ), 10 );
+			// Register content types
+			'bbp_register_post_types'      => 'register_post_types',
 
-		// Register taxonomies
-		add_action( 'bbp_register_taxonomies',      array( $this, 'register_taxonomies'      ), 10 );
+			// Register post statuses
+			'bbp_register_post_statuses'   => 'register_post_statuses',
 
-		// Register the views
-		add_action( 'bbp_register_views',           array( $this, 'register_views'           ), 10 );
+			// Register taxonomies
+			'bbp_register_taxonomies'      => 'register_taxonomies',
 
-		// Register the theme directory
-		add_action( 'bbp_register_theme_directory', array( $this, 'register_theme_directory' ), 10 );
+			// Register the views
+			'bbp_register_views'           => 'register_views',
 
-		// Load textdomain
-		add_action( 'bbp_load_textdomain',          array( $this, 'register_textdomain'      ), 10 );
+			// Register the theme directory
+			'bbp_register_theme_directory' => 'register_theme_directory',
 
-		// Add the %bbp_user% rewrite tag
-		add_action( 'bbp_add_rewrite_tags',         array( $this, 'add_rewrite_tags'         ), 10 );
+			// Load textdomain
+			'bbp_load_textdomain'          => 'load_textdomain',
 
-		// Generate rewrite rules
-		add_action( 'bbp_generate_rewrite_rules',   array( $this, 'generate_rewrite_rules'   ), 10 );
+			// Add the %bbp_user% rewrite tag
+			'bbp_add_rewrite_tags'         => 'add_rewrite_tags',
+
+			// Generate rewrite rules
+			'bbp_generate_rewrite_rules'   => 'generate_rewrite_rules'
+		);
+
+		// Add the actions
+		foreach( $actions as $bbp_core_action => $class_action )
+			add_action( $bbp_core_action, array( $this, $class_action ), 10 );
 	}
 
 	/**
-	 * Register Textdomain
-	 *
 	 * Load the translation file for current language. Checks the languages
 	 * folder inside the bbPress plugin first, and then the default WordPress
 	 * languages folder.
@@ -499,7 +505,7 @@ class bbPress {
 	 * @uses load_textdomain() To load the textdomain
 	 * @return bool True on success, false on failure
 	 */
-	function register_textdomain() {
+	function load_textdomain() {
 
 		// Allow locale to be filtered
 		$locale = apply_filters( 'bbpress_locale', get_locale() );
@@ -548,7 +554,7 @@ class bbPress {
 	 */
 	function register_post_types() {
 
-		/** FORUMS ************************************************************/
+		/** Forums ************************************************************/
 
 		// Forum labels
 		$forum['labels'] = array(
@@ -605,7 +611,7 @@ class bbPress {
 		// Register Forum content type
 		register_post_type( $this->forum_post_type, $bbp_cpt['forum'] );
 
-		/** TOPICS ************************************************************/
+		/** Topics ************************************************************/
 
 		// Topic labels
 		$topic['labels'] = array(
@@ -662,7 +668,7 @@ class bbPress {
 		// Register Topic content type
 		register_post_type( $this->topic_post_type, $bbp_cpt['topic'] );
 
-		/** REPLIES ***********************************************************/
+		/** Replies ***********************************************************/
 
 		// Reply labels
 		$reply['labels'] = array(
@@ -892,14 +898,23 @@ class bbPress {
 	 */
 	function add_rewrite_tags() {
 
+		// Pad attributes
+		$pad      = 2;
+		$wrapper  = '%';
+
+		// Setup the tags
+		$bbp_user = str_pad( $this->user_id, strlen( $this->user_id ) + $pad, $wrapper, STR_PAD_BOTH );
+		$bbp_view = str_pad( $this->view_id, strlen( $this->view_id ) + $pad, $wrapper, STR_PAD_BOTH );
+		$bbp_edit = str_pad( $this->edit_id, strlen( $this->edit_id ) + $pad, $wrapper, STR_PAD_BOTH );
+
 		// User Profile tag
-		add_rewrite_tag( '%bbp_user%', '([^/]+)'   );
+		add_rewrite_tag( $bbp_user, '([^/]+)'   );
 
 		// View Page tag
-		add_rewrite_tag( '%bbp_view%', '([^/]+)'   );
+		add_rewrite_tag( $bbp_view, '([^/]+)'   );
 
 		// Edit Page tag
-		add_rewrite_tag( '%edit%',     '([1]{1,})' );
+		add_rewrite_tag( $bbp_edit, '([1]{1,})' );
 	}
 
 	/**
@@ -925,7 +940,7 @@ class bbPress {
 			// Profile Page
 			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
 			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ),
-			$this->user_slug  . '/([^/]+)/edit/?$'             => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->user_slug . '/([^/]+)/edit/?$'              => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// @todo - favorites feeds
 			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
