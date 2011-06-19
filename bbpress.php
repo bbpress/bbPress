@@ -46,229 +46,229 @@ class bbPress {
 	/** Post types ************************************************************/
 
 	/**
-	 * @var string Forum post type id
+	 * @public string Forum post type id
 	 */
-	var $forum_post_type = '';
+	public $forum_post_type = '';
 
 	/**
-	 * @var string Topic post type id
+	 * @public string Topic post type id
 	 */
-	var $topic_post_type = '';
+	public $topic_post_type = '';
 
 	/**
-	 * @var string Reply post type id
+	 * @ string Reply post type id
 	 */
-	var $reply_post_type = '';
+	public $reply_post_type = '';
 
 	/** Taxonomies ************************************************************/
 
 	/**
-	 * @var string Topic tag id
+	 * @public string Topic tag id
 	 */
-	var $topic_tag_id = '';
+	public $topic_tag_id = '';
 
 	/** Permastructs **********************************************************/
 	
 	/**
-	 * @var string User struct
+	 * @public string User struct
 	 */
-	var $user_id = '';
+	public $user_id = '';
 	
 	/**
-	 * @var string View struct
+	 * @public string View struct
 	 */
-	var $view_id = '';
+	public $view_id = '';
 	
 	/**
-	 * @var string Edit struct
+	 * @public string Edit struct
 	 */
-	var $edit_id = '';
+	public $edit_id = '';
 	
 	/** Post statuses *********************************************************/
 
 	/**
-	 * @var string Closed post status id. Used by topics.
+	 * @public string Closed post status id. Used by topics.
 	 */
-	var $closed_status_id = '';
+	public $closed_status_id = '';
 
 	/**
-	 * @var string Spam post status id. Used by topics and replies.
+	 * @public string Spam post status id. Used by topics and replies.
 	 */
-	var $spam_status_id = '';
+	public $spam_status_id = '';
 
 	/**
-	 * @var string Trash post status id. Used by topics and replies.
+	 * @public string Trash post status id. Used by topics and replies.
 	 */
-	var $trash_status_id = '';
+	public $trash_status_id = '';
 
 	/**
-	 * @var string Orphan post status id. Used by topics and replies.
+	 * @public string Orphan post status id. Used by topics and replies.
 	 */
-	var $orphan_status_id = '';
+	public $orphan_status_id = '';
 
 	/**
-	 * @var string Hidden post status id. Used by forums.
+	 * @public string Hidden post status id. Used by forums.
 	 */
-	var $hidden_status_id = '';
+	public $hidden_status_id = '';
 
 	/** Slugs *****************************************************************/
 
 	/**
-	 * @var string Root slug
+	 * @public string Root slug
 	 */
-	var $root_slug = '';
+	public $root_slug = '';
 
 	/**
-	 * @var string Forum slug
+	 * @public string Forum slug
 	 */
-	var $forum_slug = '';
+	public $forum_slug = '';
 
 	/**
-	 * @var string Topic slug
+	 * @public string Topic slug
 	 */
-	var $topic_slug = '';
+	public $topic_slug = '';
 
 	/**
-	 * @var string Topic archive slug
+	 * @public string Topic archive slug
 	 */
-	var $topic_archive_slug = '';
+	public $topic_archive_slug = '';
 
 	/**
-	 * @var string Reply slug
+	 * @public string Reply slug
 	 */
-	var $reply_slug = '';
+	public $reply_slug = '';
 
 	/**
-	 * @var string Topic tag slug
+	 * @public string Topic tag slug
 	 */
-	var $topic_tag_slug = '';
+	public $topic_tag_slug = '';
 
 	/**
-	 * @var string User slug
+	 * @public string User slug
 	 */
-	var $user_slug = '';
+	public $user_slug = '';
 
 	/**
-	 * @var string View slug
+	 * @public string View slug
 	 */
-	var $view_slug = '';
+	public $view_slug = '';
 
 	/** Paths *****************************************************************/
 
 	/**
-	 * @var string Absolute path to the bbPress plugin directory
+	 * @public string Absolute path to the bbPress plugin directory
 	 */
-	var $plugin_dir = '';
+	public $plugin_dir = '';
 
 	/**
-	 * @var string Absolute path to the bbPress themes directory
+	 * @public string Absolute path to the bbPress themes directory
 	 */
-	var $themes_dir = '';
+	public $themes_dir = '';
 
 	/**
-	 * @var string Absolute path to the bbPress language directory
+	 * @public string Absolute path to the bbPress language directory
 	 */
-	var $lang_dir = '';
+	public $lang_dir = '';
 
 	/** URLs ******************************************************************/
 
 	/**
-	 * @var string URL to the bbPress plugin directory
+	 * @public string URL to the bbPress plugin directory
 	 */
-	var $plugin_url = '';
+	public $plugin_url = '';
 
 	/**
-	 * @var string URL to the bbPress themes directory
+	 * @public string URL to the bbPress themes directory
 	 */
-	var $themes_url = '';
+	public $themes_url = '';
 
 	/** Current ID's **********************************************************/
 
 	/**
-	 * @var string Current forum id
+	 * @public string Current forum id
 	 */
-	var $current_forum_id = null;
+	public $current_forum_id = null;
 
 	/**
-	 * @var string Current topic id
+	 * @public string Current topic id
 	 */
-	var $current_topic_id = null;
+	public $current_topic_id = null;
 
 	/**
-	 * @var string Current reply id
+	 * @public string Current reply id
 	 */
-	var $current_reply_id = null;
+	public $current_reply_id = null;
 
 	/** Users *****************************************************************/
 
 	/**
-	 * @var object Current user
+	 * @public object Current user
 	 */
-	var $current_user = array();
+	public $current_user = array();
 
 	/**
-	 * @var object Displayed user
+	 * @public object Displayed user
 	 */
-	var $displayed_user = array();
+	public $displayed_user = array();
 
 	/** Queries ***************************************************************/
 
 	/**
-	 * @var WP_Query For forums
+	 * @public WP_Query For forums
 	 */
-	var $forum_query = array();
+	public $forum_query = array();
 
 	/**
-	 * @var WP_Query For topics
+	 * @public WP_Query For topics
 	 */
-	var $topic_query = array();
+	public $topic_query = array();
 
 	/**
-	 * @var WP_Query For replies
+	 * @public WP_Query For replies
 	 */
-	var $reply_query = array();
+	public $reply_query = array();
 
 	/** Arrays ****************************************************************/
 
 	/**
-	 * @var array Sub Forums
+	 * @public array Sub Forums
 	 */
-	var $sub_forums = array();
+	public $sub_forums = array();
 
 	/** Errors ****************************************************************/
 
 	/**
-	 * @var WP_Error Used to log and display errors
+	 * @public WP_Error Used to log and display errors
 	 */
-	var $errors = array();
+	public $errors = array();
 
 	/** Views *****************************************************************/
 
 	/**
-	 * @var array An array of registered bbPress views
+	 * @public array An array of registered bbPress views
 	 */
-	var $views = array();
+	public $views = array();
 
 	/** Forms *****************************************************************/
 
 	/**
-	 * @var int The current tab index for form building
+	 * @public int The current tab index for form building
 	 */
-	var $tab_index = 0;
+	public $tab_index = 0;
 
 	/** Theme Compat **********************************************************/
 
 	/**
-	 * @var string Theme to use for theme compatibility
+	 * @public string Theme to use for theme compatibility
 	 */
-	var $theme_compat = '';
+	public $theme_compat = '';
 
 	/** Plugins ***************************************************************/
 	
 	/**
-	 * @var mixed bbPress plugins that need a global data store should use this
+	 * @public mixed bbPress plugins that need a global data store should use this
 	 */
-	var $plugins = false;
+	public $plugins = false;
 
 	/** Functions *************************************************************/
 
@@ -279,7 +279,7 @@ class bbPress {
 	 *
 	 * @uses bbPress::__construct() Setup the globals needed
 	 */
-	function bbPress() {
+	public function bbPress() {
 		$this->__construct();
 	}
 
@@ -292,10 +292,10 @@ class bbPress {
 	 * @uses bbPress::_includes() Include the required files
 	 * @uses bbPress::_setup_actions() Setup the hooks and actions
 	 */
-	function __construct() {
-		$this->_setup_globals();
-		$this->_includes();
-		$this->_setup_actions();
+	public function __construct() {
+		$this->setup_globals();
+		$this->includes();
+		$this->setup_actions();
 	}
 
 	/**
@@ -308,7 +308,7 @@ class bbPress {
 	 * @uses plugin_dir_url() To generate bbPress plugin url
 	 * @uses apply_filters() Calls various filters
 	 */
-	function _setup_globals() {
+	private function setup_globals() {
 
 		/** Paths *************************************************************/
 
@@ -391,7 +391,7 @@ class bbPress {
 	 *
 	 * @uses is_admin() If in WordPress admin, load additional file
 	 */
-	function _includes() {
+	private function includes() {
 
 		/** Individual files **************************************************/
 
@@ -447,7 +447,7 @@ class bbPress {
 	 * @uses register_deactivation_hook() To register the deactivation hook
 	 * @uses add_action() To add various actions
 	 */
-	function _setup_actions() {
+	private function setup_actions() {
 
 		// Register bbPress activation/deactivation sequences
 		register_activation_hook  ( $this->file,    'bbp_activation'   );
@@ -505,7 +505,7 @@ class bbPress {
 	 * @uses load_textdomain() To load the textdomain
 	 * @return bool True on success, false on failure
 	 */
-	function load_textdomain() {
+	public function load_textdomain() {
 
 		// Allow locale to be filtered
 		$locale = apply_filters( 'bbpress_locale', get_locale() );
@@ -537,7 +537,7 @@ class bbPress {
 	 * @uses register_theme_directory() To register the theme directory
 	 * @return bool True on success, false on failure
 	 */
-	function register_theme_directory() {
+	public function register_theme_directory() {
 		return register_theme_directory( $this->themes_dir );
 	}
 
@@ -552,7 +552,7 @@ class bbPress {
 	 * @uses apply_filters() Calls various filters to modify the arguments
 	 *                        sent to register_post_type()
 	 */
-	function register_post_types() {
+	public function register_post_types() {
 
 		/** Forums ************************************************************/
 
@@ -736,7 +736,7 @@ class bbPress {
 	 * @uses current_user_can() To check if the current user is capable &
 	 *                           modify $wp_post_statuses accordingly
 	 */
-	function register_post_statuses() {
+	public function register_post_statuses() {
 		global $wp_post_statuses;
 
 		// Closed
@@ -810,7 +810,7 @@ class bbPress {
 	 *
 	 * @uses register_taxonomy() To register the taxonomy
 	 */
-	function register_taxonomies() {
+	public function register_taxonomies() {
 
 		// Topic tag labels
 		$topic_tag['labels'] = array(
@@ -860,7 +860,7 @@ class bbPress {
 	 *
 	 * @uses bbp_register_view() To register the views
 	 */
-	function register_views() {
+	public function register_views() {
 
 		// Topics with no replies
 		$no_replies = apply_filters( 'bbp_register_view_no_replies', array(
@@ -885,7 +885,7 @@ class bbPress {
 	 *
 	 * @uses wp_get_current_user()
 	 */
-	function setup_current_user() {
+	public function setup_current_user() {
 		$this->current_user = wp_get_current_user();
 	}
 
@@ -896,7 +896,7 @@ class bbPress {
 	 *
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
-	function add_rewrite_tags() {
+	public function add_rewrite_tags() {
 
 		// Pad attributes
 		$pad      = 2;
@@ -925,7 +925,7 @@ class bbPress {
 	 * @param WP_Rewrite $wp_rewrite bbPress-sepecific rules are appended in
 	 *                                $wp_rewrite->rules
 	 */
-	function generate_rewrite_rules( $wp_rewrite ) {
+	public function generate_rewrite_rules( $wp_rewrite ) {
 
 		// New rules to merge with existing
 		$bbp_rules = array(
