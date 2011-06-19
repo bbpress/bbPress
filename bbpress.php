@@ -963,7 +963,7 @@ class bbPress {
 }
 
 // "And now here's something we hope you'll really like!"
-$bbp = new bbPress();
+$GLOBALS['bbp'] = new bbPress();
 
 endif; // class_exists check
 
