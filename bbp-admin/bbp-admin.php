@@ -111,6 +111,9 @@ class BBP_Admin {
 
 		// Add link to settings page
 		add_filter( 'plugin_action_links', array( $this, 'add_settings_link' ), 10, 2 );
+
+		// Add sample permalink filter
+		add_filter( 'post_type_link',     'bbp_filter_sample_permalink',        10, 4 );
 	}
 
 	/**

@@ -903,4 +903,29 @@ function bbp_recount_rewalk() {
 	return array( 0, sprintf( $statement, $result ) );
 }
 
+/**
+ * Filter sample permalinks so that certain languages display properly.
+ *
+ * @since bbPress (r3336)
+ *
+ * @param string $post_link Custom post type permalink
+ * @param object $post Post data object
+ * @param bool $leavename Optional, defaults to false. Whether to keep post name or page name.
+ * @param bool $sample Optional, defaults to false. Is it a sample permalink.
+ *
+ * @uses is_admin() To make sure we're on an admin page
+ * @uses bbp_is_custom_post_type() To get the forum post type
+ *
+ * @return string The custom post type permalink
+ */
+function bbp_filter_sample_permalink( $post_link, $post, $leavename, $sample ) {
+
+	// Bail if not on an admin page and not getting a sample permalink
+	if ( !empty( $sample ) && is_admin() && bbp_is_custom_post_type() )
+		return urldecode( $post_link );
+
+	// Return post link
+	return $post_link;
+}
+
 ?>
