@@ -86,8 +86,9 @@ function bbp_has_replies( $args = '' ) {
 		);
 
 		// What are the default allowed statuses (based on user caps)
-		if ( bbp_get_view_all( 'edit_others_replies' ) )
+		if ( bbp_get_view_all( 'edit_others_replies' ) ) {
 			$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
+		}
 	}
 
 	// Default query args
@@ -139,18 +140,21 @@ function bbp_has_replies( $args = '' ) {
 	if ( (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() )
+		if ( $wp_rewrite->using_permalinks() ) {
 				
 			// Page or single
-			if ( is_page() || is_single() )
+			if ( is_page() || is_single() ) {
 				$base = user_trailingslashit( trailingslashit( get_permalink() ) . 'page/%#%/' );
 
 			// Topic
-			else
+			} else {
 				$base = user_trailingslashit( trailingslashit( get_permalink( bbp_get_topic_id() ) ) . 'page/%#%/' );
+			}
 
-		else
+		// Unpretty permalinks
+		} else {
 			$base = add_query_arg( 'paged', '%#%' );
+		}
 
 		// Pagination settings with filter
 		$bbp_replies_pagination = apply_filters( 'bbp_replies_pagination', array(
