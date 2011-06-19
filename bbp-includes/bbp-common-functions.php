@@ -854,7 +854,7 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 			continue;
 
 		// For plugins
-		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe." ), $reply->ID, $topic->ID, $user_id ) )
+		if ( !$message = apply_filters( 'bbp_subscription_mail_message', __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou're getting this mail because you subscribed to the topic, visit the topic and login to unsubscribe.", 'bbpress' ), $reply->ID, $topic->ID, $user_id ) )
 			continue;
 
 		// Get user data of this user
@@ -951,7 +951,7 @@ function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 
 				// Get any existing meta queries
 				$meta_query   = $posts_query->get( 'meta_query' );
-				
+
 				// Add our meta query to existing
 				$meta_query[] = $forum_ids;
 
