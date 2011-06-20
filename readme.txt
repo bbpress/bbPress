@@ -1,5 +1,5 @@
 === bbPress ===
-Contributors: matt, johnjamesjacoby, mdawaffe
+Contributors: matt, johnjamesjacoby
 Tags: bbpress, forums, discussion, post type, theme
 Requires at least: 3.1
 Tested up to: 3.2
