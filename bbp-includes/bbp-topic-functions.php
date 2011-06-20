@@ -2630,7 +2630,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
 		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', '', false ); ?></pubDate>
-		<generator>http://bbpress.org/?v=<?php echo BBP_VERSION; ?></generator>
+		<generator>http://bbpress.org/?v=<?php echo $bbp->version; ?></generator>
 		<language><?php echo get_option( 'rss_language' ); ?></language>
 
 		<?php do_action( 'bbp_feed_head' ); ?>

@@ -220,7 +220,7 @@ function bbp_dashboard_widget_right_now() {
 		</p>
 
 		<span id="wp-version-message">
-			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), BBP_VERSION ); ?>
+			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), $bbp->version ); ?>
 		</span>
 
 	</div>

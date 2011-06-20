@@ -15,22 +15,11 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
  * Author URI: http://bbpress.org
- * Version: 2.0-beta-3
+ * Version: 2.0-rc-1
  */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
-
-/**
- * bbPress version
- *
- * Set the version early so other plugins have an inexpensive way to check if
- * bbPress is already loaded.
- *
- * Note: Checking for defined( 'BBP_VERSION' ) in your code does NOT
- *       guarantee bbPress is initialized and listening.
- */
-define( 'BBP_VERSION', '2.0-beta-3' );
 
 if ( !class_exists( 'bbPress' ) ) :
 /**
@@ -43,6 +32,13 @@ if ( !class_exists( 'bbPress' ) ) :
  */
 class bbPress {
 
+	/** Version ***************************************************************/
+	
+	/**
+	 * @public string Forum post type id
+	 */
+	public $version = '2.0-rc-1';
+	
 	/** Post types ************************************************************/
 
 	/**
