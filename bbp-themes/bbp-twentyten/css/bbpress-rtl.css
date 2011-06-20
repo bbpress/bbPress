@@ -128,7 +128,7 @@ span.bbp-author-ip {
 }
 #content .bbp-topic-author,
 #content .bbp-reply-author {
-	padding: 20px 0 20px 20px
+	padding: 20px 0 20px 20px;
 	width: 90px;
 	text-align: center;
 	vertical-align: top;
