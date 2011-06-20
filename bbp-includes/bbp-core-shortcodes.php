@@ -493,14 +493,9 @@ class BBP_Shortcodes {
 
 				// Load the topic
 				if ( bbp_has_replies( $replies_query ) ) {
-
 					bbp_get_template_part( 'bbpress/pagination', 'replies' );
 					bbp_get_template_part( 'bbpress/loop',       'replies' );
 					bbp_get_template_part( 'bbpress/pagination', 'replies' );
-
-				// No replies
-				} else {
-					bbp_get_template_part( 'bbpress/content', 'single-topic-lead' );
 				}
 
 				// Reply form
