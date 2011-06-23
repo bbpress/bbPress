@@ -312,9 +312,6 @@ class BBP_Forums_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses bbp_is_forum() To check if it is a forum page
-	 * @uses bbp_is_topic() To check if it is a topic page
-	 * @uses bbp_is_reply() To check if it is a reply page
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
@@ -563,7 +560,7 @@ endif; // class_exists check
  *
  * @uses BBP_Forums_Admin
  */
-function bbp_forums_admin() {
+function bbp_admin_forums() {
 	global $bbp;
 
 	$bbp->admin->forums = new BBP_Forums_Admin();

@@ -348,9 +348,6 @@ class BBP_Replies_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses bbp_is_forum() To check if it is a forum page
-	 * @uses bbp_is_topic() To check if it is a topic page
-	 * @uses bbp_is_reply() To check if it is a reply page
 	 * @uses do_action() Calls 'bbp_admin_head'
 	 */
 	function admin_head() {
@@ -883,7 +880,7 @@ endif; // class_exists check
  *
  * @uses BBP_Replies_Admin
  */
-function bbp_replies_admin() {
+function bbp_admin_replies() {
 	global $bbp;
 
 	$bbp->admin->replies = new BBP_Replies_Admin();
