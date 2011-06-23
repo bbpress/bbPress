@@ -49,7 +49,7 @@ function bbp_topic_post_type() {
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses WP_Query To make query and get the topics
  * @uses is_page() To check if it's a page
- * @uses bbp_is_forum() To check if it's a forum
+ * @uses bbp_is_single_forum() To check if it's a forum
  * @uses bbp_get_forum_id() To get the forum id
  * @uses bbp_get_paged() To get the current page value
  * @uses bbp_get_super_stickies() To get the super stickies
@@ -69,11 +69,8 @@ function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
 	// Make sure we're back where we started
-	if ( !is_tax( $bbp->topic_tag_id ) )
+	if ( !bbp_is_topic_tag() )
 		wp_reset_postdata();
-
-	// Are we in a forum and looking to do a forum only query?
-	$in_forum = (bool) ( bbp_is_forum() && !bbp_is_forum_archive() && !bbp_is_query_name( 'bbp_widget' ) );
 
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
@@ -88,7 +85,7 @@ function bbp_has_topics( $args = '' ) {
 		'post_type'      => bbp_get_topic_post_type(),
 
 		// Forum ID
-		'post_parent'    => ( $in_forum ) ? bbp_get_forum_id() : 'any',
+		'post_parent'    => bbp_is_single_forum() ? bbp_get_forum_id() : 'any',
 
 		// Make sure topic has some last activity time
 		'meta_key'       => '_bbp_last_active_time',
@@ -109,7 +106,7 @@ function bbp_has_topics( $args = '' ) {
 		's'              => !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : '',
 
 		// Ignore sticky topics?
-		'show_stickies'  => ( is_page() || $in_forum ),
+		'show_stickies'  => bbp_is_single_forum(),
 
 		// Maximum number of pages to show
 		'max_num_pages'  => false,
@@ -128,7 +125,7 @@ function bbp_has_topics( $args = '' ) {
 	extract( $bbp_t );
 
 	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( is_tax( $bbp->topic_tag_id ) && !bbp_is_query_name( 'bbp_widget' ) )
+	if ( bbp_is_topic_tag() && !bbp_is_query_name( 'bbp_widget' ) )
 		$bbp->topic_query = $wp_query;
 	else
 		$bbp->topic_query = new WP_Query( $bbp_t );
@@ -329,9 +326,9 @@ function bbp_topic_id( $topic_id = 0) {
 	 *
 	 * @param $topic_id Optional. Used to check emptiness
 	 * @uses bbPress::topic_query::post::ID To get the topic id
-	 * @uses bbp_is_topic() To check if it's a topic page
+	 * @uses bbp_is_single_topic() To check if it's a topic page
 	 * @uses bbp_is_topic_edit() To check if it's a topic edit page
-	 * @uses bbp_is_reply() To check if it it's a reply page
+	 * @uses bbp_is_single_reply() To check if it it's a reply page
 	 * @uses bbp_is_reply_edit() To check if it's a reply edit page
 	 * @uses bbp_get_reply_topic_edit() To get the reply topic id
 	 * @uses get_post_field() To get the post's post type
@@ -353,11 +350,11 @@ function bbp_topic_id( $topic_id = 0) {
 			$bbp_topic_id = $bbp->topic_query->post->ID;
 
 		// Currently viewing a topic
-		elseif ( ( bbp_is_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
+		elseif ( ( bbp_is_single_topic() || bbp_is_topic_edit() ) && isset( $wp_query->post->ID ) )
 			$bbp_topic_id = $bbp->current_topic_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
-		elseif ( bbp_is_reply() )
+		elseif ( bbp_is_single_reply() )
 			$bbp_topic_id = $bbp->current_topic_id = bbp_get_reply_topic_id();
 
 		// Fallback
@@ -710,6 +707,12 @@ function bbp_topic_pagination( $args = '' ) {
  * @return string Content with the revisions appended
  */
 function bbp_topic_content_append_revisions( $content = '', $topic_id = 0 ) {
+
+	// Bail if in admin
+	if ( is_admin() )
+		return;
+
+	// Validate the ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	return apply_filters( 'bbp_topic_append_revisions', $content . bbp_get_topic_revision_log( $topic_id ), $content, $topic_id );
@@ -1172,7 +1175,6 @@ function bbp_topic_author_link( $args = '' ) {
 	 * @param mixed|int $args If it is an integer, it is used as topic id.
 	 *                         Optional.
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_is_topic() To check if it's the topic page
 	 * @uses bbp_get_topic_author_display_name() To get the topic author
 	 * @uses bbp_is_topic_anonymous() To check if the topic is by an
 	 *                                 anonymous user
@@ -1234,49 +1236,49 @@ function bbp_topic_author_link( $args = '' ) {
 		return apply_filters( 'bbp_get_topic_author_link', $author_link, $args );
 	}
 
-		/**
-		 * Output the author url of the topic
-		 *
-		 * @since bbPress (r2590)
-		 *
-		 * @param int $topic_id Optional. Topic id
-		 * @uses bbp_get_topic_author_url() To get the topic author url
-		 */
-		function bbp_topic_author_url( $topic_id = 0 ) {
-			echo bbp_get_topic_author_url( $topic_id );
-		}
+/**
+ * Output the author url of the topic
+ *
+ * @since bbPress (r2590)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_author_url() To get the topic author url
+ */
+function bbp_topic_author_url( $topic_id = 0 ) {
+	echo bbp_get_topic_author_url( $topic_id );
+}
 
-			/**
-			 * Return the author url of the topic
-			 *
-			 * @since bbPress (r2590)
-			 *
-			 * @param int $topic_id Optional. Topic id
-			 * @uses bbp_get_topic_id() To get the topic id
-			 * @uses bbp_is_topic_anonymous() To check if the topic
-			 *                                 is by an anonymous
-			 *                                 user or not
-			 * @uses bbp_get_topic_author_id() To get topic author
-			 *                                  id
-			 * @uses bbp_get_user_profile_url() To get profile url
-			 * @uses get_post_meta() To get anonmous user's website
-			 * @uses apply_filters() Calls
-			 *                        'bbp_get_topic_author_url'
-			 *                        with the link & topic id
-			 * @return string Author URL of topic
-			 */
-			function bbp_get_topic_author_url( $topic_id = 0 ) {
-				$topic_id = bbp_get_topic_id( $topic_id );
+	/**
+	 * Return the author url of the topic
+	 *
+	 * @since bbPress (r2590)
+	 *
+	 * @param int $topic_id Optional. Topic id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_is_topic_anonymous() To check if the topic
+	 *                                 is by an anonymous
+	 *                                 user or not
+	 * @uses bbp_get_topic_author_id() To get topic author
+	 *                                  id
+	 * @uses bbp_get_user_profile_url() To get profile url
+	 * @uses get_post_meta() To get anonmous user's website
+	 * @uses apply_filters() Calls
+	 *                        'bbp_get_topic_author_url'
+	 *                        with the link & topic id
+	 * @return string Author URL of topic
+	 */
+	function bbp_get_topic_author_url( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
 
-				// Check for anonymous user
-				if ( !bbp_is_topic_anonymous( $topic_id ) )
-					$author_url = bbp_get_user_profile_url( bbp_get_topic_author_id( $topic_id ) );
-				else
-					if ( !$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true ) )
-						$author_url = '';
+		// Check for anonymous user
+		if ( !bbp_is_topic_anonymous( $topic_id ) )
+			$author_url = bbp_get_user_profile_url( bbp_get_topic_author_id( $topic_id ) );
+		else
+			if ( !$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true ) )
+				$author_url = '';
 
-				return apply_filters( 'bbp_get_topic_author_url', $author_url, $topic_id );
-			}
+		return apply_filters( 'bbp_get_topic_author_url', $author_url, $topic_id );
+	}
 
 /**
  * Output the title of the forum a topic belongs to
@@ -1865,7 +1867,6 @@ function bbp_topic_admin_links( $args = '' ) {
 	 *  - after: After the links
 	 *  - sep: Links separator
 	 *  - links: Topic admin links array
-	 * @uses bbp_is_topic() To check if it is a topic page
 	 * @uses current_user_can() To check if the current user can edit/delete
 	 *                           the topic
 	 * @uses bbp_get_topic_edit_link() To get the topic edit link
@@ -1882,7 +1883,7 @@ function bbp_topic_admin_links( $args = '' ) {
 	function bbp_get_topic_admin_links( $args = '' ) {
 		global $bbp;
 
-		if ( !bbp_is_topic() )
+		if ( !bbp_is_single_topic() )
 			return;
 
 		$defaults = array (
@@ -1901,10 +1902,10 @@ function bbp_topic_admin_links( $args = '' ) {
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array(
 				'edit'  => bbp_get_topic_edit_link ( $r ),
-				'trash' => bbp_get_topic_trash_link( $r ),
 				'close' => bbp_get_topic_close_link( $r ),
 				'stick' => bbp_get_topic_stick_link( $r ),
 				'merge' => bbp_get_topic_merge_link( $r ),
+				'trash' => bbp_get_topic_trash_link( $r ),
 				'spam'  => bbp_get_topic_spam_link ( $r ),
 			);
 		}
@@ -2439,7 +2440,7 @@ function bbp_forum_pagination_links() {
  *
  * @since bbPress (r2744)
  *
- * @uses bbp_is_topic() To check if it's a topic page
+ * @uses bbp_is_single_topic() To check if it's a topic page
  * @uses bbp_get_topic_status() To get the topic status
  * @uses bbp_get_topic_id() To get the topic id
  * @uses apply_filters() Calls 'bbp_topic_notices' with the notice text, topic
@@ -2450,7 +2451,7 @@ function bbp_topic_notices() {
 	global $bbp;
 
 	// Bail if not viewing a topic
-	if ( !bbp_is_topic() )
+	if ( !bbp_is_single_topic() )
 		return;
 
 	// Get the topic_status
@@ -3021,7 +3022,7 @@ function bbp_form_topic_subscribed() {
 			}
 
 		// Get current status
-		} elseif ( bbp_is_topic() ) {
+		} elseif ( bbp_is_single_topic() ) {
 			$topic_subscribed = bbp_is_user_subscribed( bbp_get_current_user_id() );
 
 		// No data

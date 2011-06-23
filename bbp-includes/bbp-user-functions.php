@@ -389,7 +389,13 @@ function bbp_favorites_handler() {
 			if ( true == $success ) {
 
 				// Redirect back to new reply
-				$redirect = bbp_is_favorites( false ) ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+				if ( bbp_is_favorites() )
+					$redirect = bbp_get_favorites_permalink( $user_id );
+				elseif ( is_singular( bbp_get_topic_post_type() ) )
+					$redirect = bbp_get_topic_permalink( $topic_id );
+				else
+					$redirect = get_permalink();
+
 				wp_redirect( $redirect );
 
 				// For good measure
@@ -657,7 +663,13 @@ function bbp_subscriptions_handler() {
 			if ( true == $success ) {
 
 				// Redirect back to new reply
-				$redirect = bbp_is_subscriptions( false ) ? bbp_get_subscriptions_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+				if ( bbp_is_subscriptions() )
+					$redirect = bbp_get_subscriptions_permalink( $user_id );
+				elseif ( is_singular( bbp_get_topic_post_type() ) )
+					$redirect = bbp_get_topic_permalink( $topic_id );
+				else
+					$redirect = get_permalink();
+
 				wp_redirect( $redirect );
 
 				// For good measure

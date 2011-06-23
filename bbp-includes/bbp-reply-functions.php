@@ -1140,7 +1140,7 @@ function bbp_untrashed_reply( $reply_id = 0 ) {
  *
  * @global bbPress $bbp
  *
- * @uses bbp_is_topic()
+ * @uses bbp_is_single_topic()
  * @uses bbp_user_can_view_forum()
  * @uses bbp_get_topic_forum_id()
  * @uses bbp_show_load_topic()
@@ -1170,11 +1170,11 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 	global $bbp;
 
 	// User cannot access forum this topic is in
-	if ( bbp_is_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
+	if ( bbp_is_single_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
 		return;
 
 	// Adjust the title based on context
-	if ( bbp_is_topic() && bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
+	if ( bbp_is_single_topic() && bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
 		$title = apply_filters( 'wp_title_rss', get_wp_title_rss( ' &#187; ' ) );
 	elseif ( !bbp_show_lead_topic() )
 		$title = ' &#187; ' .  __( 'All Posts',   'bbpress' );
@@ -1206,7 +1206,7 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 
 		<?php do_action( 'bbp_feed_head' ); ?>
 
-		<?php if ( bbp_is_topic() ) : ?>
+		<?php if ( bbp_is_single_topic() ) : ?>
 			<?php if ( bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) ) : ?>
 				<?php if ( bbp_show_lead_topic() ) : ?>
 

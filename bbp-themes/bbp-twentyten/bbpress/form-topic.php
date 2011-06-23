@@ -12,7 +12,7 @@ wp_reset_postdata();
 
 ?>
 
-	<?php if ( !bbp_is_forum() ) : ?>
+	<?php if ( !bbp_is_single_forum() ) : ?>
 
 		<?php bbp_breadcrumb(); ?>
 
@@ -38,7 +38,7 @@ wp_reset_postdata();
 							if ( bbp_is_topic_edit() )
 								printf( __( 'Edit topic "%s"', 'bbpress' ), bbp_get_topic_title() );
 							else
-								bbp_is_forum() ? printf( __( 'Create new topic in: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create new topic', 'bbpress' );
+								bbp_is_single_forum() ? printf( __( 'Create new topic in: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create new topic', 'bbpress' );
 						?>
 
 					</legend>
@@ -94,7 +94,7 @@ wp_reset_postdata();
 							<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" />
 						</p>
 
-						<?php if ( !bbp_is_forum() ) : ?>
+						<?php if ( !bbp_is_single_forum() ) : ?>
 
 							<p>
 								<label for="bbp_forum_id"><?php _e( 'Forum:', 'bbpress' ); ?></label><br />

@@ -54,6 +54,7 @@ function bbp_new_topic_handler() {
 		check_admin_referer( 'bbp-new-topic' );
 
 		// Define local variable(s)
+		$view_all = false;
 		$forum_id = $topic_author = $anonymous_data = 0;
 		$topic_title = $topic_content = '';
 		$terms = array( $bbp->topic_tag_id => array() );
@@ -232,13 +233,20 @@ function bbp_new_topic_handler() {
 
 					// Trash the reply
 					wp_trash_post( $topic_id );
+
+					// Force view=all
+					$view_all = true;
 				}
 
 				/** Spam Check ************************************************/
 				
 				// If reply or topic are spam, officially spam this reply
-				if ( $topic_data['post_status'] == $bbp->spam_status_id )
+				if ( $topic_data['post_status'] == $bbp->spam_status_id ) {
 					add_post_meta( $topic_id, '_bbp_spam_meta_status', 'publish' );
+
+					// Force view=all
+					$view_all = true;
+				}
 
 				/** Update counts, etc... *************************************/
 
@@ -253,7 +261,7 @@ function bbp_new_topic_handler() {
 				$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
 
 				// Add view all?
-				if ( bbp_get_view_all() || ( $topic_data['post_status'] == $bbp->trash_status_id ) )
+				if ( bbp_get_view_all() || ( current_user_can( 'moderate' ) && !empty( $view_all ) ) )
 					$topic_url = bbp_add_view_all( $topic_url );
 
 				// Allow to be filtered
@@ -317,6 +325,7 @@ function bbp_edit_topic_handler() {
 		global $bbp;
 
 		// Define local variable(s)
+		$view_all = false;
 		$topic_id = $forum_id = $anonymous_data = 0;
 		$topic_title = $topic_content = $topic_edit_reason = '';
 		$terms = array( $bbp->topic_tag_id => array() );
@@ -522,17 +531,17 @@ function bbp_edit_topic_handler() {
 				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
 				// View all?
-				$count_hidden = (bool) ( bbp_get_view_all() );
+				$view_all = bbp_get_view_all();
 
 				// Get the topic URL
 				$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
 
 				// Add view all?
-				if ( !empty( $count_hidden ) )
+				if ( !empty( $view_all ) )
 					$topic_url = bbp_add_view_all( $topic_url );
 
 				// Allow to be filtered
-				$topic_url = apply_filters( 'bbp_edit_topic_redirect_to', $topic_url, $count_hidden, $redirect_to );
+				$topic_url = apply_filters( 'bbp_edit_topic_redirect_to', $topic_url, $view_all, $redirect_to );
 
 				/** Successful Edit *******************************************/
 
@@ -2579,7 +2588,7 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
  *
  * @global bbPress $bbp
  *
- * @uses bbp_is_topic()
+ * @uses bbp_is_single_topic()
  * @uses bbp_user_can_view_forum()
  * @uses bbp_get_topic_forum_id()
  * @uses bbp_show_load_topic()
@@ -2606,7 +2615,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 	global $bbp;
 
 	// User cannot access forum this topic is in
-	if ( bbp_is_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
+	if ( bbp_is_single_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
 		return;
 
 	// Display the feed

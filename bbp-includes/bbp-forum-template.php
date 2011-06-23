@@ -153,8 +153,8 @@ function bbp_forum_id( $forum_id = 0 ) {
 	 * @uses bbPress::forum_query::in_the_loop To check if we're in the loop
 	 * @uses bbPress::forum_query::post::ID To get the forum id
 	 * @uses WP_Query::post::ID To get the forum id
-	 * @uses bbp_is_forum() To check if it's a forum page
-	 * @uses bbp_is_topic() To check if it's a topic page
+	 * @uses bbp_is_single_forum() To check if it's a forum page
+	 * @uses bbp_is_single_topic() To check if it's a topic page
 	 * @uses bbp_get_topic_forum_id() To get the topic forum id
 	 * @uses get_post_field() To get the post's post type
 	 * @uses apply_filters() Calls 'bbp_get_forum_id' with the forum id and
@@ -173,11 +173,11 @@ function bbp_forum_id( $forum_id = 0 ) {
 			$bbp_forum_id = $bbp->current_forum_id = $bbp->forum_query->post->ID;
 
 		// Currently viewing a forum
-		elseif ( bbp_is_forum() && isset( $wp_query->post->ID ) )
+		elseif ( bbp_is_single_forum() && isset( $wp_query->post->ID ) )
 			$bbp_forum_id = $bbp->current_forum_id = $wp_query->post->ID;
 
 		// Currently viewing a topic
-		elseif ( bbp_is_topic() )
+		elseif ( bbp_is_single_topic() )
 			$bbp_forum_id = $bbp->current_forum_id = bbp_get_topic_forum_id();
 
 		// Fallback

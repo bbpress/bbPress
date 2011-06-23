@@ -568,7 +568,13 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 		}
 
 		// Create the link based where the user is and if the topic is already the user's favorite
-		$permalink = bbp_is_favorites() ? bbp_get_favorites_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+		if ( bbp_is_favorites() )
+			$permalink = bbp_get_favorites_permalink( $user_id );
+		elseif ( is_singular( bbp_get_topic_post_type() ) )
+			$permalink = bbp_get_topic_permalink( $topic_id );
+		elseif ( bbp_is_query_name( 'bbp_single_topic' ) )
+			$permalink = get_permalink();
+
 		$url       = esc_url( wp_nonce_url( add_query_arg( $favs, $permalink ), 'toggle-favorite_' . $topic_id ) );
 		$is_fav    = $is_fav ? 'is-favorite' : '';
 		$html      = '<span id="favorite-toggle"><span id="favorite-' . $topic_id . '" class="' . $is_fav . '">' . $pre . '<a href="' . $url . '" class="dim:favorite-toggle:favorite-' . $topic_id . ':is-favorite">' . $mid . '</a>' . $post . '</span></span>';
@@ -678,7 +684,13 @@ function bbp_user_subscribe_link( $args = '' ) {
 		}
 
 		// Create the link based where the user is and if the user is subscribed already
-		$permalink     = bbp_is_subscriptions() ? bbp_get_subscriptions_permalink( $user_id ) : bbp_get_topic_permalink( $topic_id );
+		if ( bbp_is_subscriptions() )
+			$permalink = bbp_get_subscriptions_permalink( $user_id );
+		elseif ( is_singular( bbp_get_topic_post_type() ) )
+			$permalink = bbp_get_topic_permalink( $topic_id );
+		elseif ( bbp_is_query_name( 'bbp_single_topic' ) )
+			$permalink = get_permalink();
+
 		$url           = esc_url( wp_nonce_url( add_query_arg( $query_args, $permalink ), 'toggle-subscription_' . $topic_id ) );
 		$is_subscribed = $is_subscribed ? 'is-subscribed' : '';
 		$html          = '<span id="subscription-toggle">' . $before . '<span id="subscribe-' . $topic_id . '" class="' . $is_subscribed . '"><a href="' . $url . '" class="dim:subscription-toggle:subscribe-' . $topic_id . ':is-subscribed">' . $text . '</a></span>' . $after . '</span>';
@@ -1158,50 +1170,35 @@ function bbp_current_user_can_access_create_topic_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Looking at a single forum
-	if ( bbp_is_forum() ) {
+	// Looking at a single forum & forum is open
+	if ( bbp_is_single_forum() && bbp_is_forum_open() ) {
 
-		// Forum is open
-		if ( bbp_is_forum_open() ) {
+		// What is the visibility of this forum
+		switch ( bbp_get_forum_visibility() ) {
 
-			// What is the visibility of this forum
-			switch ( bbp_get_forum_visibility() ) {
+			// Public
+			case 'publish' :
 
-				// Public
-				case 'publish' :
+				// User can publish topics
+				if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) )
+					$retval = true;
 
-					// User cannot publish topics
-					if ( current_user_can( 'publish_topics' ) )
-						$retval = true;
+				break;
 
-					// Anonymous posting is allowed
-					if ( bbp_allow_anonymous() && !is_user_logged_in() )
-						$retval = true;
+			// Private forums
+			case 'private' :
+				$retval = current_user_can( 'read_private_forums' );
+				break;
 
-					break;
-
-				// Private forums
-				case 'private' :
-					if ( current_user_can( 'read_private_forums' ) )
-						$retval = true;
-
-					break;
-
-				// Hidden forums
-				case 'hidden'  :
-					if ( current_user_can( 'read_hidden_forums' ) )
-						$retval = true;
-
-					break;
-			}
+			// Hidden forums
+			case 'hidden'  :
+				$retval = current_user_can( 'read_hidden_forums' );
+				break;
 		}
 
-	// Editing a single topic
+	// User can edit this topic
 	} elseif ( bbp_is_topic_edit() ) {
-
-		// User can edit edit this topic
-		if ( current_user_can( 'edit_topic', bbp_get_topic_id() ) )
-			$retval = true;
+		$retval =  current_user_can( 'edit_topic', bbp_get_topic_id() );
 
 	// Fallback for shortcodes
 	} elseif ( is_page() || is_single() ) {

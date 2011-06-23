@@ -150,13 +150,13 @@ if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_is_topic() To check if it's the topic page
+ * @uses bbp_is_single_topic() To check if it's the topic page
  * @uses get_stylesheet_directory_uri() To get the stylesheet directory uri
  * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  * @uses wp_enqueue_script() To enqueue the scripts
  */
 function bbp_twentyten_enqueue_scripts () {
-	if ( bbp_is_topic() )
+	if ( bbp_is_single_topic() )
 		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
 
 	if ( bbp_is_single_user_edit() )
@@ -171,12 +171,12 @@ if ( !function_exists( 'bbp_twentyten_scripts' ) ) :
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_is_topic() To check if it's the topic page
+ * @uses bbp_is_single_topic() To check if it's the topic page
  * @uses admin_url() To get the admin url
  * @uses bbp_is_single_user_edit() To check if it's the profile edit page
  */
 function bbp_twentyten_scripts () {
-	if ( bbp_is_topic() ) : ?>
+	if ( bbp_is_single_topic() ) : ?>
 
 	<script type='text/javascript'>
 		/* <![CDATA[ */
@@ -206,7 +206,7 @@ if ( !function_exists( 'bbp_twentyten_topic_script_localization' ) ) :
  *
  * @since bbPress (r2652)
  *
- * @uses bbp_is_topic() To check if it's the topic page
+ * @uses bbp_is_single_topic() To check if it's the topic page
  * @uses bbp_get_current_user_id() To get the current user id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_favorites_permalink() To get the favorites permalink
@@ -217,7 +217,7 @@ if ( !function_exists( 'bbp_twentyten_topic_script_localization' ) ) :
  * @uses wp_localize_script() To localize the script
  */
 function bbp_twentyten_topic_script_localization () {
-	if ( !bbp_is_topic() )
+	if ( !bbp_is_single_topic() )
 		return;
 
 	$user_id = bbp_get_current_user_id();
@@ -238,7 +238,7 @@ function bbp_twentyten_topic_script_localization () {
 	if ( bbp_is_subscriptions_active() ) {
 		$localizations['subsActive']   = 1;
 		$localizations['isSubscribed'] = (int) bbp_is_user_subscribed( $user_id );
-		$localizations['subsSub']      = __( 'Subscribe', 'bbpress' );
+		$localizations['subsSub']      = __( 'Subscribe',   'bbpress' );
 		$localizations['subsUns']      = __( 'Unsubscribe', 'bbpress' );
 		$localizations['subsLink']     = bbp_get_topic_permalink();
 	} else {

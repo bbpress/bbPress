@@ -23,7 +23,7 @@ class BBP_Shortcodes {
 	/**
 	 * @var array Shortcode => function
 	 */
-	var $codes;
+	public $codes = array();
 
 	/** Functions *************************************************************/
 
@@ -34,7 +34,7 @@ class BBP_Shortcodes {
 	 *
 	 * @uses __construct()
 	 */
-	function BBP_Shortcodes() {
+	public function BBP_Shortcodes() {
 		$this->__construct();
 	}
 
@@ -46,9 +46,9 @@ class BBP_Shortcodes {
 	 * @uses _setup_globals()
 	 * @uses _add_shortcodes()
 	 */
-	function __construct() {
-		$this->_setup_globals();
-		$this->_add_shortcodes();
+	public function __construct() {
+		$this->setup_globals();
+		$this->add_shortcodes();
 	}
 
 	/**
@@ -59,7 +59,7 @@ class BBP_Shortcodes {
 	 *
 	 * @uses apply_filters()
 	 */
-	function _setup_globals() {
+	private function setup_globals() {
 
 		// Setup the shortcodes
 		$this->codes = apply_filters( 'bbp_shortcodes', array(
@@ -122,12 +122,10 @@ class BBP_Shortcodes {
 	 * @uses add_shortcode()
 	 * @uses do_action()
 	 */
-	function _add_shortcodes() {
+	private function add_shortcodes() {
 
-		// Loop through the shortcodes
+		// Loop through and add the shortcodes
 		foreach( $this->codes as $code => $function )
-
-			// Add each shortcode
 			add_shortcode( $code, $function );
 
 		// Custom shortcodes
@@ -141,7 +139,7 @@ class BBP_Shortcodes {
 	 *
 	 * @global bbPress $bbp
 	 */
-	function _unset_globals() {
+	private function unset_globals() {
 		global $bbp;
 
 		// Unset global queries
@@ -168,9 +166,18 @@ class BBP_Shortcodes {
 	 * in the correct location in the_content() instead of when it's created.
 	 *
 	 * @since bbPress (r3079)
+	 *
+	 * @param string $query_name
+	 *
+	 * @uses bbp_set_query_name()
 	 * @uses ob_start()
 	 */
-	function _ob_start() {
+	private function start( $query_name = '' ) {
+
+		// Set query name
+		bbp_set_query_name( $query_name );
+
+		// Start output buffer
 		ob_start();
 	}
 
@@ -179,19 +186,22 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress( r3079)
 	 *
-	 * @uses BBP_Shortcodes::_unset_globals() Cleans up global values
+	 * @uses BBP_Shortcodes::unset_globals() Cleans up global values
 	 * @return string Contents of output buffer.
 	 */
-	function _ob_end() {
+	private function end() {
 
 		// Put output into usable variable
 		$output = ob_get_contents();
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Flush the output buffer
 		ob_end_clean();
+
+		// Reset the query name
+		bbp_reset_query_name();
 
 		return $output;
 	}
@@ -211,13 +221,13 @@ class BBP_Shortcodes {
 	 * @uses get_template_part()
 	 * @return string
 	 */
-	function display_forum_index() {
+	public function display_forum_index() {
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_forum_archive' );
 
 		// Breadcrumb
 		bbp_breadcrumb();
@@ -237,7 +247,7 @@ class BBP_Shortcodes {
 		do_action( 'bbp_template_after_forums_index' );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/**
@@ -254,7 +264,7 @@ class BBP_Shortcodes {
 	 * @uses bbp_single_forum_description()
 	 * @return string
 	 */
-	function display_forum( $attr, $content = '' ) {
+	public function display_forum( $attr, $content = '' ) {
 		global $bbp;
 
 		// Sanity check required info
@@ -269,7 +279,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_single_forum' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -311,7 +321,7 @@ class BBP_Shortcodes {
 				if ( !bbp_is_forum_category( $forum_id ) ) {
 
 					// Unset globals
-					$this->_unset_globals();
+					$this->unset_globals();
 
 					// Reset necessary forum_query attributes for topics loop to function
 					$bbp->forum_query->query_vars['post_type'] = bbp_get_forum_post_type();
@@ -349,7 +359,7 @@ class BBP_Shortcodes {
 		}
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/** Topic shortcodes ******************************************************/
@@ -368,7 +378,7 @@ class BBP_Shortcodes {
 	 * @uses get_template_part()
 	 * @return string
 	 */
-	function display_topic_index() {
+	public function display_topic_index() {
 
 		// Query defaults
 		$topics_query = array(
@@ -378,10 +388,10 @@ class BBP_Shortcodes {
 		);
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_topic_archive' );
 
 		// Breadcrumb
 		bbp_breadcrumb();
@@ -404,7 +414,7 @@ class BBP_Shortcodes {
 		do_action( 'bbp_template_after_topics_index' );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/**
@@ -421,7 +431,7 @@ class BBP_Shortcodes {
 	 * @uses get_template_part()
 	 * @return string
 	 */
-	function display_topic( $attr, $content = '' ) {
+	public function display_topic( $attr, $content = '' ) {
 		global $bbp;
 
 		// Sanity check required info
@@ -444,7 +454,7 @@ class BBP_Shortcodes {
 		) );
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
@@ -461,7 +471,7 @@ class BBP_Shortcodes {
 		}
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_single_topic' );
 
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
@@ -511,7 +521,7 @@ class BBP_Shortcodes {
 		}
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/**
@@ -523,16 +533,16 @@ class BBP_Shortcodes {
 	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 */
-	function display_topic_form() {
+	public function display_topic_form() {
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_topic_form' );
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'topic' );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/** Replies ***************************************************************/
@@ -546,16 +556,16 @@ class BBP_Shortcodes {
 	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 */
-	function display_reply_form() {
+	public function display_reply_form() {
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_reply_form' );
 
 		// Output templates
 		bbp_get_template_part( 'bbpress/form', 'reply' );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/** Topic Tags ************************************************************/
@@ -570,14 +580,14 @@ class BBP_Shortcodes {
 	 *
 	 * @return string
 	 */
-	function display_topic_tags() {
+	public function display_topic_tags() {
 		global $bbp;
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_topic_tags' );
 
 		// Output the topic tags
 		wp_tag_cloud( array(
@@ -588,7 +598,7 @@ class BBP_Shortcodes {
 		) );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/**
@@ -605,7 +615,7 @@ class BBP_Shortcodes {
 	 * @uses get_template_part()
 	 * @return string
 	 */
-	function display_topics_of_tag( $attr, $content = '' ) {
+	public function display_topics_of_tag( $attr, $content = '' ) {
 		global $bbp;
 
 		// Sanity check required info
@@ -623,10 +633,10 @@ class BBP_Shortcodes {
 		) ) );
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_topics_of_tag' );
 
 		// Breadcrumb
 		bbp_breadcrumb();
@@ -655,7 +665,7 @@ class BBP_Shortcodes {
 		do_action( 'bbp_template_after_tag_topics' );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/** Views *****************************************************************/
@@ -674,7 +684,7 @@ class BBP_Shortcodes {
 	 * @uses bbp_single_forum_description()
 	 * @return string
 	 */
-	function display_view( $attr, $content = '' ) {
+	public function display_view( $attr, $content = '' ) {
 		global $bbp;
 
 		// Sanity check required info
@@ -685,7 +695,7 @@ class BBP_Shortcodes {
 		$view_id = $attr['id'];
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_single_view' );
 
 		// Breadcrumb
 		bbp_breadcrumb();
@@ -702,7 +712,7 @@ class BBP_Shortcodes {
 			/** Topics ********************************************************/
 
 			// Unset globals
-			$this->_unset_globals();
+			$this->unset_globals();
 
 			// Load the topic index
 			if ( bbp_view_query( $view_id ) ) {
@@ -717,7 +727,7 @@ class BBP_Shortcodes {
 		}
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/** Account ***************************************************************/
@@ -731,14 +741,14 @@ class BBP_Shortcodes {
 	 *
 	 * @return string
 	 */
-	function display_login() {
+	public function display_login() {
 		global $bbp;
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_login' );
 
 		// Output templates
 		if ( !is_user_logged_in() )
@@ -747,7 +757,7 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/feedback', 'logged-in'  );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/**
@@ -759,14 +769,14 @@ class BBP_Shortcodes {
 	 *
 	 * @return string
 	 */
-	function display_register() {
+	public function display_register() {
 		global $bbp;
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_register' );
 
 		// Output templates
 		if ( !is_user_logged_in() )
@@ -775,7 +785,7 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/feedback', 'logged-in'     );
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/**
@@ -787,14 +797,14 @@ class BBP_Shortcodes {
 	 *
 	 * @return string
 	 */
-	function display_lost_pass() {
+	public function display_lost_pass() {
 		global $bbp;
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->start( 'bbp_lost_pass' );
 
 		// Output templates
 		if ( !is_user_logged_in() )
@@ -803,7 +813,7 @@ class BBP_Shortcodes {
 			bbp_get_template_part( 'bbpress/feedback', 'logged-in'      );
 	
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 
 	/** Other *****************************************************************/
@@ -817,19 +827,19 @@ class BBP_Shortcodes {
 	 *
 	 * @return string
 	 */
-	function display_breadcrumb() {
+	public function display_breadcrumb() {
 
 		// Unset globals
-		$this->_unset_globals();
+		$this->unset_globals();
 
 		// Start output buffer
-		$this->_ob_start();
+		$this->ob_start();
 
 		// Output breadcrumb
 		bbp_breadcrumb();
 
 		// Return contents of output buffer
-		return $this->_ob_end();
+		return $this->end();
 	}
 }
 endif;

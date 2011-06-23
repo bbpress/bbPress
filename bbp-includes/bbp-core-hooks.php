@@ -56,7 +56,7 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  * The load order helps to load code at the correct time.
  *                                                    v---Load order
  */
-add_action( 'bbp_init', 'bbp_register_textdomain',    2   );
+add_action( 'bbp_init', 'bbp_load_textdomain',        2   );
 add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
 add_action( 'bbp_init', 'bbp_setup_theme_compat',     6   );
 add_action( 'bbp_init', 'bbp_setup_akismet',          8   );
@@ -71,18 +71,6 @@ add_action( 'bbp_init', 'bbp_ready',                  999 );
 // Theme Compat
 add_action( 'bbp_setup_theme_compat', 'bbp_theme_compat_set_theme'   );
 add_action( 'bbp_setup_theme_compat', 'bbp_theme_compat_enqueue_css' );
-
-// Admin
-if ( is_admin() ) {
-	add_action( 'bbp_init',          'bbp_admin'                   );
-	add_action( 'bbp_admin_init',    'bbp_forums_admin',         9 );
-	add_action( 'bbp_admin_init',    'bbp_topics_admin',         9 );
-	add_action( 'bbp_admin_init',    'bbp_replies_admin',        9 );
-	add_action( 'bbp_admin_init',    'bbp_admin_settings_help'     );
-	add_action( 'admin_menu',        'bbp_admin_separator'         );
-	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
-	add_action( 'menu_order',        'bbp_admin_menu_order'        );
-}
 
 // Widgets
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Login_Widget");'   ) );
@@ -301,15 +289,7 @@ add_filter( 'bbp_get_user_profile_link',      'stripslashes'    );
 add_filter( 'bbp_get_user_profile_edit_link', 'wp_rel_nofollow' );
 add_filter( 'bbp_get_user_profile_edit_link', 'stripslashes'    );
 
-// Run wp_kses_data on topic/reply content in admin section
-if ( is_admin() ) {
-	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
-	add_filter( 'bbp_get_topic_content', 'wp_kses_data' );
-}
-
 // Run filters on reply content
-if ( !is_admin() )
-	add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  1, 2 );
 add_filter( 'bbp_get_reply_content', 'capital_P_dangit'         );
 add_filter( 'bbp_get_reply_content', 'wptexturize',        3    );
 add_filter( 'bbp_get_reply_content', 'convert_chars',      5    );
@@ -319,8 +299,6 @@ add_filter( 'bbp_get_reply_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_reply_content', 'wpautop',            30   );
 
 // Run filters on topic content
-if ( !is_admin() )
-	add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  1, 2 );
 add_filter( 'bbp_get_topic_content', 'capital_P_dangit'         );
 add_filter( 'bbp_get_topic_content', 'wptexturize',        3    );
 add_filter( 'bbp_get_topic_content', 'convert_chars',      5    );
@@ -328,6 +306,10 @@ add_filter( 'bbp_get_topic_content', 'make_clickable',     9    );
 add_filter( 'bbp_get_topic_content', 'force_balance_tags', 25   );
 add_filter( 'bbp_get_topic_content', 'convert_smilies',    20   );
 add_filter( 'bbp_get_topic_content', 'wpautop',            30   );
+
+// Revisions
+add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  1, 2 );
+add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  1, 2 );
 
 // Canonical
 add_filter( 'redirect_canonical',    'bbp_redirect_canonical' );
@@ -393,6 +375,28 @@ function bbp_allowed_themes( $themes ) {
 	return apply_filters( 'bbp_allowed_themes', $themes );
 }
 add_filter( 'allowed_themes', 'bbp_allowed_themes' );
+
+/** Admin *********************************************************************/
+
+if ( is_admin() ) {
+
+	/** Actions ***************************************************************/
+
+	add_action( 'bbp_init',          'bbp_admin'                   );
+	add_action( 'bbp_admin_init',    'bbp_admin_forums',         9 );
+	add_action( 'bbp_admin_init',    'bbp_admin_topics',         9 );
+	add_action( 'bbp_admin_init',    'bbp_admin_replies',        9 );
+	add_action( 'bbp_admin_init',    'bbp_admin_settings_help'     );
+	add_action( 'admin_menu',        'bbp_admin_separator'         );
+	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
+	add_action( 'menu_order',        'bbp_admin_menu_order'        );
+
+	/** Filters ***************************************************************/
+
+	// Run wp_kses_data on topic/reply content in admin section
+	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
+	add_filter( 'bbp_get_topic_content', 'wp_kses_data' );
+}
 
 /** Main Actions **************************************************************/
 
@@ -482,7 +486,7 @@ function bbp_setup_current_user() {
  *
  * @uses do_action() Calls 'bbp_load_textdomain'
  */
-function bbp_register_textdomain() {
+function bbp_load_textdomain() {
 	do_action( 'bbp_load_textdomain' );
 }
 

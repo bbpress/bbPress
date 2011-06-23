@@ -45,7 +45,6 @@ function bbp_reply_post_type() {
  * @since bbPress (r2553)
  *
  * @param mixed $args All the arguments supported by {@link WP_Query}
- * @uses bbp_is_topic() To check if it's the topic page
  * @uses bbp_show_lead_topic() Are we showing the topic as a lead?
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_reply_post_type() To get the reply post type
@@ -244,7 +243,7 @@ function bbp_reply_id( $reply_id = 0 ) {
 			$bbp_reply_id = $reply_id;
 
 		// Currently viewing a reply
-		elseif ( ( bbp_is_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
+		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
 			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
 
 		// Currently inside a replies loop
@@ -365,10 +364,10 @@ function bbp_reply_url( $reply_id = 0 ) {
 		global $bbp, $wp_rewrite;
 
 		// Set needed variables
-		$reply_id       = bbp_get_reply_id       ( $reply_id                           );
-		$topic_id       = bbp_get_reply_topic_id ( $reply_id                           );
-		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to             );
-		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id );
+		$reply_id       = bbp_get_reply_id       ( $reply_id               );
+		$topic_id       = bbp_get_reply_topic_id ( $reply_id               );
+		$topic_url      = bbp_get_topic_permalink( $topic_id, $redirect_to );
+		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id    );
 
 		// Check if in query with pagination
 		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
@@ -528,6 +527,12 @@ function bbp_reply_excerpt( $reply_id = 0, $length = 100 ) {
  * @return string Content with the revisions appended
  */
 function bbp_reply_content_append_revisions( $content = '', $reply_id = 0 ) {
+	
+	// Bail if in admin
+	if ( is_admin() )
+		return;
+
+	// Validate the ID
 	$reply_id = bbp_get_reply_id( $reply_id );
 
 	return apply_filters( 'bbp_reply_append_revisions', $content . bbp_get_reply_revision_log( $reply_id ), $content, $reply_id );
@@ -562,6 +567,7 @@ function bbp_reply_revision_log( $reply_id = 0 ) {
 	 * @return string Revision log of the reply
 	 */
 	function bbp_get_reply_revision_log( $reply_id = 0 ) {
+
 		// Create necessary variables
 		$reply_id     = bbp_get_reply_id( $reply_id );
 		$revision_log = bbp_get_reply_raw_revision_log( $reply_id );
@@ -913,8 +919,6 @@ function bbp_reply_author_link( $args = '' ) {
 	 *
 	 * @param mixed $args Optional. If an integer, it is used as reply id.
 	 * @uses bbp_get_reply_id() To get the reply id
-	 * @uses bbp_is_topic() To check if it's a topic page
-	 * @uses bbp_is_reply() To check if it's a reply page
 	 * @uses bbp_is_reply_anonymous() To check if the reply is by an
 	 *                                 anonymous user
 	 * @uses bbp_get_reply_author() To get the reply author name
@@ -979,49 +983,49 @@ function bbp_reply_author_link( $args = '' ) {
 		return apply_filters( 'bbp_get_reply_author_link', $author_link, $args );
 	}
 
-		/**
-		 * Output the author url of the reply
-		 *
-		 * @since bbPress (r2667)
-		 *
-		 * @param int $reply_id Optional. Reply id
-		 * @uses bbp_get_reply_author_url() To get the reply author url
-		 */
-		function bbp_reply_author_url( $reply_id = 0 ) {
-			echo bbp_get_reply_author_url( $reply_id );
-		}
-			/**
-			 * Return the author url of the reply
-			 *
-			 * @since bbPress (r22667)
-			 *
-			 * @param int $reply_id Optional. Reply id
-			 * @uses bbp_get_reply_id() To get the reply id
-			 * @uses bbp_is_reply_anonymous() To check if the reply
-			 *                                 is by an anonymous
-			 *                                 user
-			 * @uses bbp_get_reply_author_id() To get the reply
-			 *                                  author id
-			 * @uses bbp_get_user_profile_url() To get the user
-			 *                                   profile url
-			 * @uses get_post_meta() To get the anonymous poster's
-			 *                        website url
-			 * @uses apply_filters() Calls bbp_get_reply_author_url
-			 *                        with the author url & reply id
-			 * @return string Author URL of the reply
-			 */
-			function bbp_get_reply_author_url( $reply_id = 0 ) {
-				$reply_id = bbp_get_reply_id( $reply_id );
+/**
+ * Output the author url of the reply
+ *
+ * @since bbPress (r2667)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_author_url() To get the reply author url
+ */
+function bbp_reply_author_url( $reply_id = 0 ) {
+	echo bbp_get_reply_author_url( $reply_id );
+}
+	/**
+	 * Return the author url of the reply
+	 *
+	 * @since bbPress (r22667)
+	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_reply_anonymous() To check if the reply
+	 *                                 is by an anonymous
+	 *                                 user
+	 * @uses bbp_get_reply_author_id() To get the reply
+	 *                                  author id
+	 * @uses bbp_get_user_profile_url() To get the user
+	 *                                   profile url
+	 * @uses get_post_meta() To get the anonymous poster's
+	 *                        website url
+	 * @uses apply_filters() Calls bbp_get_reply_author_url
+	 *                        with the author url & reply id
+	 * @return string Author URL of the reply
+	 */
+	function bbp_get_reply_author_url( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
 
-				// Check for anonymous user
-				if ( !bbp_is_reply_anonymous( $reply_id ) )
-					$author_url = bbp_get_user_profile_url( bbp_get_reply_author_id( $reply_id ) );
-				else
-					if ( !$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true ) )
-						$author_url = '';
+		// Check for anonymous user
+		if ( !bbp_is_reply_anonymous( $reply_id ) )
+			$author_url = bbp_get_user_profile_url( bbp_get_reply_author_id( $reply_id ) );
+		else
+			if ( !$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true ) )
+				$author_url = '';
 
-				return apply_filters( 'bbp_get_reply_author_url', $author_url, $reply_id );
-			}
+		return apply_filters( 'bbp_get_reply_author_url', $author_url, $reply_id );
+	}
 
 /**
  * Output the topic title a reply belongs to
@@ -1285,9 +1289,9 @@ function bbp_reply_admin_links( $args = '' ) {
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array (
 				'edit'  => bbp_get_reply_edit_link ( $r ),
+				'split' => bbp_get_topic_split_link( $r ),
 				'trash' => bbp_get_reply_trash_link( $r ),
 				'spam'  => bbp_get_reply_spam_link ( $r ),
-				'split' => bbp_get_topic_split_link( $r )
 			);
 		}
 

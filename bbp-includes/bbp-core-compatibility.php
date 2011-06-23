@@ -1100,20 +1100,30 @@ function bbp_replace_the_content( $content = '' ) {
  *
  * @param string $redirect_url Redirect url
  * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
- * @uses bbp_is_topic() To check if it's a topic page
  * @uses bbp_get_paged() To get the current page number
- * @uses bbp_is_forum() To check if it's a forum page
+ * @uses bbp_is_single_topic() To check if it's a topic page
+ * @uses bbp_is_single_forum() To check if it's a forum page
  * @return bool|string False if it's a topic/forum and their first page,
  *                      otherwise the redirect url
  */
 function bbp_redirect_canonical( $redirect_url ) {
 	global $wp_rewrite;
 
+	// Canonical is for the beautiful
 	if ( $wp_rewrite->using_permalinks() ) {
-		if ( bbp_is_topic() && 1 < bbp_get_paged() )
-			$redirect_url = false;
-		elseif ( bbp_is_forum() && 1 < bbp_get_paged() )
-			$redirect_url = false;
+
+		// Only if paginating
+		if ( 1 < bbp_get_paged() ) {
+
+			// Only on single topics...
+			if ( bbp_is_single_topic() ) {
+				$redirect_url = false;
+
+			// ...and single replies
+			} elseif ( bbp_is_single_forum() ) {
+				$redirect_url = false;
+			}
+		}
 	}
 
 	return $redirect_url;
