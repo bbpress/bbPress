@@ -44,7 +44,7 @@
 					<div class="bbp-submit-wrapper">
 						<input type="submit" name="submit" tabindex="<?php bbp_tab_index(); ?>" value="<?php esc_attr_e( 'Update', 'bbpress' ); ?>" /><br />
 
-						<input type="hidden" name="tag-id" value="<?php bbp_get_topic_tag_id(); ?>" />
+						<input type="hidden" name="tag-id" value="<?php bbp_topic_tag_id(); ?>" />
 						<input type="hidden" name="action" value="bbp-update-topic-tag" />
 
 						<?php wp_nonce_field( 'update-tag_' . bbp_get_topic_tag_id() ); ?>
