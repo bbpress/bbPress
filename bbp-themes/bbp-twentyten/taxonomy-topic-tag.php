@@ -35,13 +35,13 @@
 
 							<?php bbp_get_template_part( 'bbpress/pagination', 'topics'    ); ?>
 
-							<?php bbp_get_template_part( 'bbpress/form',       'topic-tag' ); ?>
-
 						<?php else : ?>
 
 							<?php bbp_get_template_part( 'bbpress/feedback',   'no-topics' ); ?>
 
 						<?php endif; ?>
+
+						<?php bbp_get_template_part( 'bbpress/form', 'topic-tag' ); ?>
 
 						<?php do_action( 'bbp_template_after_topic_tag' ); ?>
 
