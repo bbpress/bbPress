@@ -33,7 +33,7 @@
 
 					<div>
 						<label for="tag-name"><?php _e( 'Name:', 'bbpress' ); ?></label>
-						<input type="text" name="tag-name" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( bbp_get_topic_tag_slug() ); ?>" />
+						<input type="text" name="tag-name" size="20" maxlength="40" tabindex="<?php bbp_tab_index(); ?>" value="<?php echo esc_attr( bbp_get_topic_tag_name() ); ?>" />
 					</div>
 
 					<div>
