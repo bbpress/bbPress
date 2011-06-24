@@ -211,7 +211,7 @@ class BBP_Topics_Admin {
 
 		// Add help
 		global $bbp;
-		add_contextual_help( 'edit-' . $bbp->topic_tag_id, $contextual_help );
+		add_contextual_help( 'edit-' . bbp_get_topic_tag_tax_id(), $contextual_help );
 	}
 
 	/**

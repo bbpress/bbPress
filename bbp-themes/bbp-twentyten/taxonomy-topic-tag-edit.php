@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Topic Tag
+ * Topic Tag Edit
  *
  * @package bbPress
  * @subpackage Theme
@@ -25,23 +25,11 @@
 
 						<?php bbp_topic_tag_description(); ?>
 
-						<?php do_action( 'bbp_template_before_topic_tag' ); ?>
+						<?php do_action( 'bbp_template_before_topic_tag_edit' ); ?>
 
-						<?php if ( bbp_has_topics() ) : ?>
+						<?php bbp_get_template_part( 'bbpress/form', 'topic-tag' ); ?>
 
-							<?php bbp_get_template_part( 'bbpress/pagination', 'topics'    ); ?>
-
-							<?php bbp_get_template_part( 'bbpress/loop',       'topics'    ); ?>
-
-							<?php bbp_get_template_part( 'bbpress/pagination', 'topics'    ); ?>
-
-						<?php else : ?>
-
-							<?php bbp_get_template_part( 'bbpress/feedback',   'no-topics' ); ?>
-
-						<?php endif; ?>
-
-						<?php do_action( 'bbp_template_after_topic_tag' ); ?>
+						<?php do_action( 'bbp_template_after_topic_tag_edit' ); ?>
 
 					</div>
 				</div><!-- #topic-tag -->

@@ -576,12 +576,9 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3110)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @return string
 	 */
 	public function display_topic_tags() {
-		global $bbp;
 
 		// Unset globals
 		$this->unset_globals();
@@ -594,7 +591,7 @@ class BBP_Shortcodes {
 			'smallest' => 9,
 			'largest'  => 38,
 			'number'   => 80,
-			'taxonomy' => $bbp->topic_tag_id
+			'taxonomy' => bbp_get_topic_tag_tax_id()
 		) );
 
 		// Return contents of output buffer
@@ -607,8 +604,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3110)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @param array $attr
 	 * @param string $content
 	 * @uses current_theme_supports()
@@ -616,7 +611,6 @@ class BBP_Shortcodes {
 	 * @return string
 	 */
 	public function display_topics_of_tag( $attr, $content = '' ) {
-		global $bbp;
 
 		// Sanity check required info
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
@@ -627,7 +621,7 @@ class BBP_Shortcodes {
 
 		// Setup tax query
 		$args = array( 'tax_query' => array( array(
-			'taxonomy' => $bbp->topic_tag_id,
+			'taxonomy' => bbp_get_topic_tag_tax_id(),
 			'field'    => 'id',
 			'terms'    => $tag_id
 		) ) );
@@ -645,16 +639,13 @@ class BBP_Shortcodes {
 		bbp_topic_tag_description();
 
 		// Before tag topics
-		do_action( 'bbp_template_before_tag_topics' );
+		do_action( 'bbp_template_before_topic_tag' );
 
 		// Load the topics
 		if ( bbp_has_topics( $args ) ) {
-
-			// Template files
 			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
 			bbp_get_template_part( 'bbpress/loop',       'topics'    );
 			bbp_get_template_part( 'bbpress/pagination', 'topics'    );
-			bbp_get_template_part( 'bbpress/form',       'topic-tag' );
 
 		// No topics
 		} else {
@@ -662,7 +653,46 @@ class BBP_Shortcodes {
 		}
 
 		// After tag topics
-		do_action( 'bbp_template_after_tag_topics' );
+		do_action( 'bbp_template_after_topic_tag' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
+	/**
+	 * Display the contents of a specific topic tag in an output buffer
+	 * and return to ensure that post/page contents are displayed first.
+	 *
+	 * @since bbPress (r3346)
+	 *
+	 * @param array $attr
+	 * @param string $content
+	 * @uses current_theme_supports()
+	 * @uses get_template_part()
+	 * @return string
+	 */
+	public function display_topic_tag_form() {
+
+		// Unset globals
+		$this->unset_globals();
+
+		// Start output buffer
+		$this->start( 'bbp_topic_tag_edit' );
+
+		// Breadcrumb
+		bbp_breadcrumb();
+
+		// Tag description
+		bbp_topic_tag_description();
+
+		// Before tag topics
+		do_action( 'bbp_template_before_topic_tag_edit' );
+
+		// Tag editing form
+		bbp_get_template_part( 'bbpress/form', 'topic-tag' );
+
+		// After tag topics
+		do_action( 'bbp_template_after_topic_tag_edit' );
 
 		// Return contents of output buffer
 		return $this->end();

@@ -479,11 +479,11 @@ function bbp_get_statistics( $args = '' ) {
 	if ( !empty( $count_tags ) ) {
 
 		// Get the count
-		$topic_tag_count = wp_count_terms( $bbp->topic_tag_id, array( 'hide_empty' => true ) );
+		$topic_tag_count = wp_count_terms( bbp_get_topic_tag_tax_id(), array( 'hide_empty' => true ) );
 
 		// Empty tags
 		if ( !empty( $count_empty_tags ) && current_user_can( 'edit_topic_tags' ) ) {
-			$empty_topic_tag_count = wp_count_terms( $bbp->topic_tag_id ) - $topic_tag_count;
+			$empty_topic_tag_count = wp_count_terms( bbp_get_topic_tag_tax_id() ) - $topic_tag_count;
 		}
 	}
 

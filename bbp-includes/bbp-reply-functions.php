@@ -273,7 +273,7 @@ function bbp_new_reply_handler() {
 				$terms = apply_filters( 'bbp_new_reply_pre_set_terms', $terms, $topic_id, $reply_id );
 
 				// Insert terms
-				$terms = wp_set_post_terms( $topic_id, $terms, $bbp->topic_tag_id, false );
+				$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
 
 				// Term error
 				if ( is_wp_error( $terms ) )
@@ -500,7 +500,7 @@ function bbp_edit_reply_handler() {
 			$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id, $reply_id );
 
 			// Insert terms
-			$terms = wp_set_post_terms( $topic_id, $terms, $bbp->topic_tag_id, false );
+			$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
 
 			// Term error
 			if ( is_wp_error( $terms ) )

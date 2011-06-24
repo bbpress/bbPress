@@ -1791,7 +1791,6 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 	 * @return string Tag list of the topic
 	 */
 	function bbp_get_topic_tag_list( $topic_id = 0, $args = '' ) {
-		global $bbp;
 
 		$defaults = array(
 			'before' => '<div class="bbp-topic-tags"><p>' . __( 'Tagged:', 'bbpress' ) . '&nbsp;',
@@ -1804,7 +1803,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return get_the_term_list( $topic_id, $bbp->topic_tag_id, $before, $sep, $after );
+		return get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $before, $sep, $after );
 	}
 
 /**
@@ -2652,14 +2651,38 @@ function bbp_single_topic_description( $args = '' ) {
 /** Topic Tags ****************************************************************/
 
 /**
+ * Output the unique id of the topic tag taxonomy
+ *
+ * @since bbPress (r3348)
+ *
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ */
+function bbp_topic_tag_tax_id() {
+	echo bbp_get_topic_tag_tax_id();
+}
+	/**
+	 * Return the unique id of the topic tag taxonomy
+	 *
+	 * @since bbPress (r3348)
+	 *
+	 * @uses apply_filters() Calls 'bbp_get_topic_tag_tax_id' with the topic tax id
+	 * @return string The unique topic tag taxonomy
+	 */
+	function bbp_get_topic_tag_tax_id() {
+		global $bbp;
+
+		return apply_filters( 'bbp_get_topic_tag_tax_id', $bbp->topic_tag_tax_id );
+	}
+
+/**
  * Output the id of the current tag
  *
  * @since bbPress (r3109)
  *
  * @uses bbp_get_topic_tag_id()
  */
-function bbp_topic_tag_id() {
-	echo bbp_get_topic_tag_id();
+function bbp_topic_tag_id( $tag = '' ) {
+	echo bbp_get_topic_tag_id( $tag );
 }
 	/**
 	 * Return the id of the current tag
@@ -2672,10 +2695,11 @@ function bbp_topic_tag_id() {
 	 *
 	 * @return string Term Name
 	 */
-	function bbp_get_topic_tag_id() {
+	function bbp_get_topic_tag_id( $tag = '' ) {
 
 		// Get the term
-		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
+		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
 		if ( !empty( $term->term_id ) )
@@ -2685,7 +2709,7 @@ function bbp_topic_tag_id() {
 		else
 			$retval = '';
 
-		return apply_filters( 'bbp_get_topic_tag_id', $retval );
+		return apply_filters( 'bbp_get_topic_tag_id', (int) $retval );
 	}
 
 /**
@@ -2695,8 +2719,8 @@ function bbp_topic_tag_id() {
  *
  * @uses bbp_get_topic_tag_name()
  */
-function bbp_topic_tag_name() {
-	echo bbp_get_topic_tag_name();
+function bbp_topic_tag_name( $tag = '' ) {
+	echo bbp_get_topic_tag_name( $tag );
 }
 	/**
 	 * Return the name of the current tag
@@ -2709,10 +2733,11 @@ function bbp_topic_tag_name() {
 	 *
 	 * @return string Term Name
 	 */
-	function bbp_get_topic_tag_name() {
+	function bbp_get_topic_tag_name( $tag = '' ) {
 
 		// Get the term
-		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
+		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
 		if ( !empty( $term->name ) )
@@ -2732,8 +2757,8 @@ function bbp_topic_tag_name() {
  *
  * @uses bbp_get_topic_tag_slug()
  */
-function bbp_topic_tag_slug() {
-	echo bbp_get_topic_tag_slug();
+function bbp_topic_tag_slug( $tag = '' ) {
+	echo bbp_get_topic_tag_slug( $tag );
 }
 	/**
 	 * Return the slug of the current tag
@@ -2746,10 +2771,11 @@ function bbp_topic_tag_slug() {
 	 *
 	 * @return string Term Name
 	 */
-	function bbp_get_topic_tag_slug() {
+	function bbp_get_topic_tag_slug( $tag = '' ) {
 
 		// Get the term
-		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
+		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
 		if ( !empty( $term->slug ) )
@@ -2760,6 +2786,92 @@ function bbp_topic_tag_slug() {
 			$retval = '';
 
 		return apply_filters( 'bbp_get_topic_tag_slug', $retval );
+	}
+
+/**
+ * Output the link of the current tag
+ *
+ * @since bbPress (r3348)
+ *
+ * @uses bbp_get_topic_tag_link()
+ */
+function bbp_topic_tag_link( $tag = '' ) {
+	echo bbp_get_topic_tag_link( $tag );
+}
+	/**
+	 * Return the link of the current tag
+	 *
+	 * @since bbPress (r3348)
+	 *
+	 * @uses get_term_by()
+	 * @uses get_query_var()
+	 * @uses apply_filters()
+	 *
+	 * @return string Term Name
+	 */
+	function bbp_get_topic_tag_link( $tag = '' ) {
+
+		// Get the term
+		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
+		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+
+		// Add before and after if description exists
+		if ( !empty( $term->term_id ) )
+			$retval = get_term_link( $term->term_id, bbp_get_topic_tag_tax_id() );
+
+		// No link
+		else
+			$retval = '';
+
+		return apply_filters( 'bbp_get_topic_tag_link', $retval );
+	}
+
+/**
+ * Output the link of the current tag
+ *
+ * @since bbPress (r3348)
+ *
+ * @uses bbp_get_topic_tag_edit_link()
+ */
+function bbp_topic_tag_edit_link( $tag = '' ) {
+	echo bbp_get_topic_tag_edit_link( $tag );
+}
+	/**
+	 * Return the link of the current tag
+	 *
+	 * @since bbPress (r3348)
+	 *
+	 * @uses get_term_by()
+	 * @uses get_query_var()
+	 * @uses apply_filters()
+	 *
+	 * @return string Term Name
+	 */
+	function bbp_get_topic_tag_edit_link( $tag = '' ) {
+		global $wp_query;
+
+		// Get the term
+		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
+		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
+
+		// Add before and after if description exists
+		if ( !empty( $term->term_id ) ) {
+
+			// Pretty
+			if ( $wp_rewrite->using_permalinks() ) {
+				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . 'edit' );
+
+			// Ugly
+			} else {
+				$retval = add_query_arg( array( 'paged' => '%#%' ), bbp_get_topic_tag_link() );
+			}
+
+		// No link
+		} else {
+			$retval = '';
+		}
+
+		return apply_filters( 'bbp_get_topic_tag_edit_link', $retval );
 	}
 
 /**
@@ -2788,13 +2900,15 @@ function bbp_topic_tag_description( $args = array() ) {
 
 		$defaults = array(
 			'before' => '<div class="bbp-topic-tag-description"><p>',
-			'after'  => '</p></div>'
+			'after'  => '</p></div>',
+			'tag'    => ''
 		);
 		$r = wp_parse_args( $args, $defaults );
 		extract( $r );
 
 		// Get the term
-		$term = get_term_by( 'slug', get_query_var( 'term' ), get_query_var( 'taxonomy' ) );
+		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
+		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
 		if ( !empty( $term->description ) )
@@ -2920,7 +3034,7 @@ function bbp_form_topic_tags() {
 				$topic_id = bbp_get_reply_topic_id( $post->ID );
 
 			// Topic exists and has tags
-			if ( !empty( $topic_id ) && ( $terms = get_the_terms( $topic_id, $bbp->topic_tag_id ) ) ) {
+			if ( !empty( $topic_id ) && ( $terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) ) ) {
 
 				// Loop through them
 				foreach( $terms as $term ) {

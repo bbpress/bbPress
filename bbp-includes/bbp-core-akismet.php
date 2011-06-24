@@ -539,7 +539,7 @@ class BBP_Akismet {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Get any pre-existing terms
-		$existing_terms = wp_get_object_terms( $topic_id, $bbp->topic_tag_id, array( 'fields' => 'names' ) );
+		$existing_terms = wp_get_object_terms( $topic_id, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) );
 
 		// Save the terms for later in case the reply gets hammed
 		if ( !empty( $terms ) )

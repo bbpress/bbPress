@@ -607,6 +607,41 @@ function bbp_get_reply_edit_template() {
 }
 
 /**
+ * Get the topic edit template
+ *
+ * @since bbPress (r3311)
+ *
+ * @uses bbp_get_topic_post_type()
+ * @uses apply_filters()
+ *
+ * @return array
+ */
+function bbp_get_topic_tag_edit_template() {
+
+	$tt_id = bbp_get_topic_tag_tax_id();
+	$templates = array(
+
+		// Single Topic Tag Edit
+		'taxonomy-'         . $tt_id . '-edit.php',
+		'bbpress/taxonomy-' . $tt_id . '-edit.php',
+		'forums/taxonomy-'  . $tt_id . '-edit.php',
+
+		// Single Topic Tag
+		'taxonomy-'         . $tt_id . '.php',
+		'forums/taxonomy-'  . $tt_id . '.php',
+		'bbpress/taxonomy-' . $tt_id . '.php',
+	);
+
+	$templates = apply_filters( 'bbp_get_topic_tag_edit_template', $templates );
+	$templates = bbp_set_theme_compat_templates( $templates );
+
+	$template  = locate_template( $templates, false, false );
+	$template  = bbp_set_theme_compat_template( $template );
+
+	return $template;
+}
+
+/**
  * Get the files to fallback on to use for theme compatibility
  *
  * @since bbPress (r3311)
@@ -696,6 +731,9 @@ function bbp_template_include_theme_supports( $template = '' ) {
 
 		// Editing a reply
 		elseif ( bbp_is_reply_edit()        && ( $new_template = bbp_get_reply_edit_template()        ) ) :
+
+		// Editing a topic tag
+		elseif ( bbp_is_topic_tag_edit()    && ( $new_template = bbp_get_topic_tag_edit_template()    ) ) :
 		endif;
 
 		// Custom template file exists
@@ -817,6 +855,16 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 
 		/** Topic Tags ********************************************************/
+
+		} elseif ( bbp_is_topic_tag_edit() ) {
+
+			// Stash the current term in a new var
+			set_query_var( 'bbp_topic_tag', get_query_var( 'term' ) );
+
+			// Reset the post with our new title
+			bbp_theme_compat_reset_post( array(
+				'post_title' => sprintf( __( 'Edit Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' ),
+			) );
 
 		} elseif ( bbp_is_topic_tag() ) {
 
@@ -1018,7 +1066,15 @@ function bbp_replace_the_content( $content = '' ) {
 		/** Topic Tags ********************************************************/
 
 		} elseif ( get_query_var( 'bbp_topic_tag' ) ) {
-			$new_content = $bbp->shortcodes->display_topics_of_tag( array( 'id' => bbp_get_topic_tag_id() ) );
+
+			// Edit topic tag
+			if ( bbp_is_topic_tag_edit() ) {
+				$new_content = $bbp->shortcodes->display_topic_tag_form();
+
+			// Show topics of tag
+			} else {
+				$new_content = $bbp->shortcodes->display_topics_of_tag ( array( 'id' => bbp_get_topic_tag_id() ) );
+			}
 
 		/** Forums/Topics/Replies *********************************************/
 
@@ -1440,6 +1496,10 @@ function bbp_pre_get_posts( $posts_query ) {
 		// We are editing a reply
 		elseif ( $posts_query->get( 'post_type' ) == bbp_get_reply_post_type() )
 			$posts_query->bbp_is_reply_edit = true;
+
+		// We are editing a topic tag
+		elseif ( bbp_is_topic_tag() )
+			$posts_query->bbp_is_topic_tag_edit = true;
 
 		// We save post revisions on our own
 		remove_action( 'pre_post_update', 'wp_save_post_revision' );

@@ -102,7 +102,7 @@ function bbp_dashboard_widget_right_now() {
 					$num  = $topic_tag_count;
 					$text = _n( 'Topic Tag', 'Topic Tags', $topic_tag_count, 'bbpress' );
 					if ( current_user_can( 'manage_topic_tags' ) ) {
-						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
+						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -188,7 +188,7 @@ function bbp_dashboard_widget_right_now() {
 					<?php
 						$num  = $empty_topic_tag_count;
 						$text = _n( 'Empty Topic Tag', 'Empty Topic Tags', $empty_topic_tag_count, 'bbpress' );
-						$link = add_query_arg( array( 'taxonomy' => $bbp->topic_tag_id, 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
+						$link = add_query_arg( array( 'taxonomy' => bbp_get_topic_tag_tax_id(), 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit-tags.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
 					?>

@@ -57,7 +57,7 @@ function bbp_new_topic_handler() {
 		$view_all = false;
 		$forum_id = $topic_author = $anonymous_data = 0;
 		$topic_title = $topic_content = '';
-		$terms = array( $bbp->topic_tag_id => array() );
+		$terms = array( bbp_get_topic_tag_tax_id() => array() );
 
 		/** Topic Author ******************************************************/
 
@@ -167,7 +167,7 @@ function bbp_new_topic_handler() {
 				$terms = explode( ',', $terms );
 
 			// Add topic tag ID as main key
-			$terms = array( $bbp->topic_tag_id => $terms );
+			$terms = array( bbp_get_topic_tag_tax_id() => $terms );
 		}
 
 		/** Additional Actions (Before Save) **********************************/
@@ -328,7 +328,7 @@ function bbp_edit_topic_handler() {
 		$view_all = false;
 		$topic_id = $forum_id = $anonymous_data = 0;
 		$topic_title = $topic_content = $topic_edit_reason = '';
-		$terms = array( $bbp->topic_tag_id => array() );
+		$terms = array( bbp_get_topic_tag_tax_id() => array() );
 
 		/** Topic *************************************************************/
 
@@ -439,7 +439,7 @@ function bbp_edit_topic_handler() {
 				$terms = explode( ',', $terms );
 
 			// Add topic tag ID as main key
-			$terms = array( $bbp->topic_tag_id => $terms );
+			$terms = array( bbp_get_topic_tag_tax_id() => $terms );
 		}
 
 		/** Additional Actions (Before Save) **********************************/
@@ -940,17 +940,17 @@ function bbp_merge_topic_handler() {
 			/** Tags **********************************************************/
 
 			// Get the source topic tags
-			$source_topic_tags = wp_get_post_terms( $source_topic->ID, $bbp->topic_tag_id, array( 'fields' => 'names' ) );
+			$source_topic_tags = wp_get_post_terms( $source_topic->ID, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) );
 
 			// Tags to possibly merge
 			if ( !empty( $source_topic_tags ) && !is_wp_error( $source_topic_tags ) ) {
 
 				// Shift the tags if told to
 				if ( !empty( $_POST['bbp_topic_tags'] ) && ( 1 == $_POST['bbp_topic_tags'] ) )
-					wp_set_post_terms( $destination_topic->ID, $source_topic_tags, $bbp->topic_tag_id, true );
+					wp_set_post_terms( $destination_topic->ID, $source_topic_tags, bbp_get_topic_tag_tax_id(), true );
 
 				// Delete the tags from the source topic
-				wp_delete_object_term_relationships( $source_topic->ID, $bbp->topic_tag_id );
+				wp_delete_object_term_relationships( $source_topic->ID, bbp_get_topic_tag_tax_id() );
 			}
 
 			/** Source Topic **************************************************/
@@ -1261,8 +1261,8 @@ function bbp_split_topic_handler() {
 			if ( !empty( $_POST['bbp_topic_tags'] ) && 1 == $_POST['bbp_topic_tags'] ) {
 
 				// Get the source topic tags
-				if ( $source_topic_tags = wp_get_post_terms( $source_topic->ID, $bbp->topic_tag_id, array( 'fields' => 'names' ) ) ) {
-					wp_set_post_terms( $destination_topic->ID, $source_topic_tags, $bbp->topic_tag_id, true );
+				if ( $source_topic_tags = wp_get_post_terms( $source_topic->ID, bbp_get_topic_tag_tax_id(), array( 'fields' => 'names' ) ) ) {
+					wp_set_post_terms( $destination_topic->ID, $source_topic_tags, bbp_get_topic_tag_tax_id(), true );
 				}
 			}
 
@@ -1394,7 +1394,7 @@ function bbp_manage_topic_tag_handler() {
 		// Setup vars
 		$action = $_POST['action'];
 		$tag_id = (int) $_POST['tag-id'];
-		$tag    = get_term( $tag_id, $bbp->topic_tag_id );
+		$tag    = get_term( $tag_id, bbp_get_topic_tag_tax_id() );
 
 		// Tag does not exist
 		if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1425,7 +1425,7 @@ function bbp_manage_topic_tag_handler() {
 
 				// Attempt to update the tag
 				$slug = !empty( $_POST['tag-slug'] ) ? $_POST['tag-slug'] : '';
-				$tag  = wp_update_term( $tag_id, $bbp->topic_tag_id, array( 'name' => $name, 'slug' => $slug ) );
+				$tag  = wp_update_term( $tag_id, bbp_get_topic_tag_tax_id(), array( 'name' => $name, 'slug' => $slug ) );
 
 				// Cannot update tag
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1434,7 +1434,7 @@ function bbp_manage_topic_tag_handler() {
 				}
 
 				// Redirect
-				$redirect = get_term_link( $tag_id, $bbp->topic_tag_id );
+				$redirect = get_term_link( $tag_id, bbp_get_topic_tag_tax_id() );
 
 				// Update counts, etc...
 				do_action( 'bbp_update_topic_tag', $tag_id, $tag, $name, $slug );
@@ -1460,8 +1460,8 @@ function bbp_manage_topic_tag_handler() {
 				}
 
 				// If term does not exist, create it
-				if ( !$tag = term_exists( $name, $bbp->topic_tag_id ) )
-					$tag = wp_insert_term( $name, $bbp->topic_tag_id );
+				if ( !$tag = term_exists( $name, bbp_get_topic_tag_tax_id() ) )
+					$tag = wp_insert_term( $name, bbp_get_topic_tag_tax_id() );
 
 				// Problem inserting the new term
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1479,7 +1479,7 @@ function bbp_manage_topic_tag_handler() {
 				}
 
 				// Delete the old term
-				$tag = wp_delete_term( $tag_id, $bbp->topic_tag_id, array( 'default' => $to_tag, 'force_default' => true ) );
+				$tag = wp_delete_term( $tag_id, bbp_get_topic_tag_tax_id(), array( 'default' => $to_tag, 'force_default' => true ) );
 
 				// Error merging the terms
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1488,7 +1488,7 @@ function bbp_manage_topic_tag_handler() {
 				}
 
 				// Redirect
-				$redirect = get_term_link( (int) $to_tag, $bbp->topic_tag_id );
+				$redirect = get_term_link( (int) $to_tag, bbp_get_topic_tag_tax_id() );
 
 				// Update counts, etc...
 				do_action( 'bbp_merge_topic_tag', $tag_id, $to_tag, $tag );
@@ -1508,7 +1508,7 @@ function bbp_manage_topic_tag_handler() {
 				}
 
 				// Attempt to delete term
-				$tag = wp_delete_term( $tag_id, $bbp->topic_tag_id );
+				$tag = wp_delete_term( $tag_id, bbp_get_topic_tag_tax_id() );
 
 				// Error deleting term
 				if ( is_wp_error( $tag ) && $tag->get_error_message() ) {
@@ -1529,7 +1529,7 @@ function bbp_manage_topic_tag_handler() {
 
 		// Redirect back
 		$redirect = ( !empty( $redirect ) && !is_wp_error( $redirect ) ) ? $redirect : home_url();
-		wp_redirect( $redirect );
+		wp_safe_redirect( $redirect );
 
 		// For good measure
 		exit();

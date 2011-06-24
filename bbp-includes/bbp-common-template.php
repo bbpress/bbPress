@@ -233,9 +233,25 @@ function bbp_is_topic_split() {
  * @return bool True if it's a topic tag, false if not 
  */
 function bbp_is_topic_tag() {
-	global $bbp;
 
-	if ( is_tax( $bbp->topic_tag_id ) )
+	if ( is_tax( bbp_get_topic_tag_tax_id() ) )
+		return true;
+
+	return false;
+}
+
+/**
+ * Check if the current page is editing a topic tag
+ *
+ * @since bbPress (r3346)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_topic_tag_edit is true
+ * @return bool True if editing a topic tag, false if not
+ */
+function bbp_is_topic_tag_edit() {
+	global $wp_query;
+
+	if ( !empty( $wp_query->bbp_is_topic_tag_edit ) && ( true == $wp_query->bbp_is_topic_tag_edit ) )
 		return true;
 
 	return false;
@@ -1449,6 +1465,10 @@ function bbp_breadcrumb( $args = array() ) {
 		elseif ( bbp_is_topic_tag() )
 			$pre_current_text = sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() );
 
+		// Edit Topic Tag
+		elseif ( bbp_is_topic_tag_edit() )
+			$pre_current_text = __( 'Edit', 'bbpress' );
+
 		// Single
 		else
 			$pre_current_text = get_the_title();
@@ -1537,6 +1557,10 @@ function bbp_breadcrumb( $args = array() ) {
 						break;
 				}
 			}
+
+		// Edit topic tag
+		} elseif ( bbp_is_topic_tag_edit() ) {
+			$breadcrumbs[] = '<a href="' . get_term_link( bbp_get_topic_tag_id(), bbp_get_topic_tag_tax_id() ) . '">' . sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() ) . '</a>';
 		}
 
 		/** Current ***********************************************************/

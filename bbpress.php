@@ -61,7 +61,7 @@ class bbPress {
 	/**
 	 * @public string Topic tag id
 	 */
-	public $topic_tag_id = '';
+	public $topic_tag_tax_id = '';
 
 	/** Permastructs **********************************************************/
 	
@@ -323,10 +323,10 @@ class bbPress {
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
-		$this->forum_post_type    = apply_filters( 'bbp_forum_post_type', 'forum'     );
-		$this->topic_post_type    = apply_filters( 'bbp_topic_post_type', 'topic'     );
-		$this->reply_post_type    = apply_filters( 'bbp_reply_post_type', 'reply'     );
-		$this->topic_tag_id       = apply_filters( 'bbp_topic_tag_id',    'topic-tag' );
+		$this->forum_post_type    = apply_filters( 'bbp_forum_post_type',  'forum'     );
+		$this->topic_post_type    = apply_filters( 'bbp_topic_post_type',  'topic'     );
+		$this->reply_post_type    = apply_filters( 'bbp_reply_post_type',  'reply'     );
+		$this->topic_tag_tax_id   = apply_filters( 'bbp_topic_tag_tax_id', 'topic-tag' );
 
 		// Status identifiers
 		$this->spam_status_id     = apply_filters( 'bbp_spam_post_status',   'spam'   );
@@ -843,8 +843,8 @@ class bbPress {
 
 		// Register the topic tag taxonomy
 		register_taxonomy(
-			$this->topic_tag_id,    // The topic tag id
-			$this->topic_post_type, // The topic post type
+			$this->topic_tag_tax_id, // The topic tag id
+			$this->topic_post_type,  // The topic post type
 			$bbp_tt
 		);
 	}
@@ -927,23 +927,23 @@ class bbPress {
 		$bbp_rules = array(
 
 			// Edit Topic/Reply
-			$this->topic_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-			$this->reply_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->topic_slug     . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->reply_slug     . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
-			// @todo Edit Topic Tag
-			//$this->topic_tag_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_tag_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			// Edit Topic Tag
+			$this->topic_tag_slug . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_tag_tax_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// Profile Page
-			$this->user_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$this->user_slug . '/([^/]+)/?$'                   => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ),
-			$this->user_slug . '/([^/]+)/edit/?$'              => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
+			$this->user_slug      . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$this->user_slug      . '/([^/]+)/?$'                   => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ),
+			$this->user_slug      . '/([^/]+)/edit/?$'              => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// @todo - favorites feeds
-			//$this->user_slug . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
-			//$this->user_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->user_slug      . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->user_slug      . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// @todo - view feeds
-			//$this->view_slug . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			//$this->view_slug      . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// View Page
 			$this->view_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
