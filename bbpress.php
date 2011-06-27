@@ -32,12 +32,12 @@ if ( !class_exists( 'bbPress' ) ) :
 class bbPress {
 
 	/** Version ***************************************************************/
-	
+
 	/**
-	 * @public string Forum post type id
+	 * @public string bbPress version
 	 */
 	public $version = '2.0-rc-1';
-	
+
 	/** Post types ************************************************************/
 
 	/**
@@ -63,22 +63,22 @@ class bbPress {
 	public $topic_tag_tax_id = '';
 
 	/** Permastructs **********************************************************/
-	
+
 	/**
 	 * @public string User struct
 	 */
 	public $user_id = '';
-	
+
 	/**
 	 * @public string View struct
 	 */
 	public $view_id = '';
-	
+
 	/**
 	 * @public string Edit struct
 	 */
 	public $edit_id = '';
-	
+
 	/** Post statuses *********************************************************/
 
 	/**
@@ -259,7 +259,7 @@ class bbPress {
 	public $theme_compat = '';
 
 	/** Plugins ***************************************************************/
-	
+
 	/**
 	 * @public mixed bbPress plugins that need a global data store should use this
 	 */
@@ -338,7 +338,7 @@ class bbPress {
 		$this->user_id            = apply_filters( 'bbp_user_id', 'bbp_user' );
 		$this->view_id            = apply_filters( 'bbp_view_id', 'bbp_view' );
 		$this->edit_id            = apply_filters( 'bbp_edit_id', 'edit'     );
-		
+
 		/** Slugs *************************************************************/
 
 		// Root forum slug
@@ -783,7 +783,7 @@ class bbPress {
 		 * doesn't allow any hack for the trashed topics to be viewed.
 		 */
 		if ( !empty( $wp_post_statuses['trash'] ) ) {
-			
+
 			// User can view trash so set internal to false
 			if ( current_user_can( 'view_trash' ) ) {
 				$wp_post_statuses['trash']->internal  = false;
