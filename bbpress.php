@@ -28,7 +28,6 @@ if ( !class_exists( 'bbPress' ) ) :
  * Tap tap tap... Is this thing on?
  *
  * @since bbPress (r2464)
- * @todo Use BP_Component class
  */
 class bbPress {
 
@@ -336,8 +335,8 @@ class bbPress {
 		$this->trash_status_id    = 'trash';
 
 		// Other identifiers
-		$this->user_id            = apply_filters( 'bbp_view_id', 'bbp_user' );
-		$this->view_id            = apply_filters( 'bbp_spam_id', 'bbp_view' );
+		$this->user_id            = apply_filters( 'bbp_user_id', 'bbp_user' );
+		$this->view_id            = apply_filters( 'bbp_view_id', 'bbp_view' );
 		$this->edit_id            = apply_filters( 'bbp_edit_id', 'edit'     );
 		
 		/** Slugs *************************************************************/
@@ -539,8 +538,6 @@ class bbPress {
 
 	/**
 	 * Setup the post types for forums, topics and replies
-	 *
-	 * @todo messages
 	 *
 	 * @since bbPress (r2597)
 	 *

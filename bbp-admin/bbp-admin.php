@@ -291,8 +291,6 @@ class BBP_Admin {
 	/**
 	 * Register the importers
 	 *
-	 * @todo Make this better
-	 *
 	 * @since bbPress (r2737)
 	 *
 	 * @uses do_action() Calls 'bbp_register_importers'
@@ -309,7 +307,6 @@ class BBP_Admin {
 		require_once( ABSPATH . 'wp-admin/includes/import.php' );
 
 		// Load our importers
-		// The logic here needs to be improved upon
 		$importers = apply_filters( 'bbp_importers', array( 'bbpress' ) );
 
 		// Loop through included importers

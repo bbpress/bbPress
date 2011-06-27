@@ -800,9 +800,6 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  *
  * @since bbPress (r2668)
  *
- * @todo When Akismet is made to work with bbPress posts, add a check if the
- * post is spam or not, to avoid sending out mails for spam posts
- *
  * @param int $reply_id ID of the newly made reply
  * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
  * @uses bbp_get_reply() To get the reply

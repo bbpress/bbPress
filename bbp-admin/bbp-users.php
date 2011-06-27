@@ -91,22 +91,16 @@ class BBP_Users_Admin {
 	/**
 	 * Responsible for saving additional profile options and settings
 	 *
-	 * @todo Everything
-	 *
 	 * @since bbPress (r2464)
 	 *
 	 * @param $user_id The user id
 	 * @uses do_action() Calls 'bbp_user_profile_update'
 	 * @return bool Always false
 	 */
-	function user_profile_update( $user_id ) {
-		return false;
-	}
+	function user_profile_update( $user_id ) { }
 
 	/**
 	 * Responsible for saving additional profile options and settings
-	 *
-	 * @todo Everything
 	 *
 	 * @since bbPress (r2464)
 	 *
@@ -114,9 +108,7 @@ class BBP_Users_Admin {
 	 * @uses do_action() Calls 'bbp_user_profile_forums'
 	 * @return bool Always false
 	 */
-	function user_profile_forums( $profileuser ) {
-		return false;
-	}
+	function user_profile_forums( $profileuser ) { }
 }
 endif; // class exists
 

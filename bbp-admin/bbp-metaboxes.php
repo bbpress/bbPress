@@ -14,8 +14,6 @@
  *
  * Adds a dashboard widget with forum statistics
  *
- * @todo Check for updates and show notice
- *
  * @since bbPress (r2770)
  *
  * @uses bbp_get_statistics() To get the forum statistics

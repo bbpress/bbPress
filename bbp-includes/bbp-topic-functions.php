@@ -2682,8 +2682,8 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
 function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 	global $bbp;
 
-	// User cannot access forum this topic is in
-	if ( bbp_is_single_topic() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_topic_forum_id() ) ) )
+	// User cannot access this forum
+	if ( bbp_is_single_forum() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_forum_id() ) ) )
 		return;
 
 	// Display the feed
