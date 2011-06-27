@@ -429,7 +429,7 @@ function bbp_topic_permalink( $topic_id = 0 ) {
 	 *                              shortcodes and other fun things.
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_permalink() To get the topic permalink
-	 * @uses sanitize_url() To clean the redirect_to url
+	 * @uses esc_url_raw() To clean the redirect_to url
 	 * @uses apply_filters() Calls 'bbp_get_topic_permalink' with the link
 	 *                        and topic id
 	 * @return string Permanent link to topic
@@ -439,7 +439,7 @@ function bbp_topic_permalink( $topic_id = 0 ) {
 
 		// Use the redirect address
 		if ( !empty( $redirect_to ) )
-			$topic_permalink = sanitize_url( $redirect_to );
+			$topic_permalink = esc_url_raw( $redirect_to );
 
 		// Use the topic permalink
 		else
