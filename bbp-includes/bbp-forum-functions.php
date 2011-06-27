@@ -10,6 +10,71 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/** Insert ********************************************************************/
+
+/**
+ * A wrapper for wp_insert_post() that also includes the necessary meta values
+ * for the forum to function properly.
+ *
+ * @since bbPress (r3349)
+ *
+ * @uses wp_parse_args()
+ * @uses bbp_get_forum_post_type()
+ * @uses wp_insert_post()
+ * @uses update_post_meta()
+ *
+ * @param array $forum_data Forum post data
+ * @param arrap $forum_meta Forum meta data
+ */
+function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
+
+	// Forum
+	$default_forum = array(
+		'post_parent'   => 0, // forum ID
+		'post_status'   => 'publish',
+		'post_type'     => bbp_get_forum_post_type(),
+		'post_author'   => 0,
+		'post_password' => '',
+		'post_content'  => '',
+		'post_title'    => '',
+		'menu_order'    => 0,
+	);
+
+	// Parse args
+	$forum_data = wp_parse_args( $forum_data, $default_forum );
+
+	// Insert forum
+	$forum_id   = wp_insert_post( $forum_data );
+
+	// Bail if no forum was added
+	if ( empty( $forum_id ) )
+		return false;
+
+	// Forum meta
+	$default_meta = array(
+		'reply_count'          => 0,
+		'topic_count'          => 0,
+		'topic_count_hidden'   => 0,
+		'total_reply_count'    => 0,
+		'total_topic_count'    => 0,
+		'last_topic_id'        => 0,
+		'last_reply_id'        => 0,
+		'last_active_id'       => 0,
+		'last_active_time'     => 0,
+		'forum_subforum_count' => 0,
+	);
+
+	// Parse args
+	$forum_meta = wp_parse_args( $forum_meta, $default_meta );
+
+	// Insert forum meta
+	foreach ( $forum_meta as $meta_key => $meta_value )
+		update_post_meta( $forum_id, '_bbp_' . $meta_key, $meta_value );
+
+	// Return new forum ID
+	return $forum_id;
+}
+
 /** Walk **********************************************************************/
 
 /**
@@ -534,7 +599,7 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	$total_topics = $topics + $children_topic_count;
 
 	// Update the count
-	update_post_meta( $forum_id, '_bbp_forum_topic_count', (int) $topics       );
+	update_post_meta( $forum_id, '_bbp_topic_count',       (int) $topics       );
 	update_post_meta( $forum_id, '_bbp_total_topic_count', (int) $total_topics );
 
 	return apply_filters( 'bbp_update_forum_topic_count', (int) $total_topics, $forum_id );
@@ -554,11 +619,11 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_col() To execute our query and get the column back
  * @uses update_post_meta() To update the forum hidden topic count meta
- * @uses apply_filters() Calls 'bbp_update_forum_hidden_topic_count' with the
+ * @uses apply_filters() Calls 'bbp_update_forum_topic_count_hidden' with the
  *                        hidden topic count and forum id
  * @return int Topic hidden topic count
  */
-function bbp_update_forum_hidden_topic_count( $forum_id = 0, $topic_count = 0 ) {
+function bbp_update_forum_topic_count_hidden( $forum_id = 0, $topic_count = 0 ) {
 	global $wpdb, $bbp;
 
 	// If topic_id was passed as $forum_id, then get its forum
@@ -582,7 +647,7 @@ function bbp_update_forum_hidden_topic_count( $forum_id = 0, $topic_count = 0 ) 
 		update_post_meta( $forum_id, '_bbp_topic_count_hidden', (int) $topic_count );
 	}
 
-	return apply_filters( 'bbp_update_forum_hidden_topic_count', (int) $topic_count, $forum_id );
+	return apply_filters( 'bbp_update_forum_topic_count_hidden', (int) $topic_count, $forum_id );
 }
 
 /**
@@ -656,7 +721,7 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  * @uses bbp_update_forum_subforum_count() To update the subforum count
  * @uses bbp_update_forum_topic_count() To update the forum topic count
  * @uses bbp_update_forum_reply_count() To update the forum reply count
- * @uses bbp_update_forum_hidden_topic_count() To update the hidden topic count
+ * @uses bbp_update_forum_topic_count_hidden() To update the hidden topic count
  */
 function bbp_update_forum( $args = '' ) {
 	$defaults = array(
@@ -688,7 +753,7 @@ function bbp_update_forum( $args = '' ) {
 	bbp_update_forum_subforum_count    ( $forum_id );
 	bbp_update_forum_reply_count       ( $forum_id );
 	bbp_update_forum_topic_count       ( $forum_id );
-	bbp_update_forum_hidden_topic_count( $forum_id );
+	bbp_update_forum_topic_count_hidden( $forum_id );
 
 	// Update the parent forum if one was passed
 	if ( !empty( $post_parent ) && is_numeric( $post_parent ) ) {

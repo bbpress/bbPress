@@ -10,98 +10,66 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-/**
- * Update the reply with its forum id it is in
- *
- * @since bbPress (r2855)
- *
- * @param int $reply_id Optional. Reply id to update
- * @param int $forum_id Optional. Forum id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_forum_id() To get the forum id
- * @uses get_post_ancestors() To get the reply's forum
- * @uses get_post_field() To get the post type of the post
- * @uses update_post_meta() To update the reply forum id meta
- * @uses apply_filters() Calls 'bbp_update_reply_forum_id' with the forum id
- *                        and reply id
- * @return bool Reply's forum id
- */
-function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
-
-	// Validation
-	$reply_id = bbp_get_reply_id( $reply_id );
-	$forum_id = bbp_get_forum_id( $forum_id );
-
-	// If no forum_id was passed, walk up ancestors and look for forum type
-	if ( empty( $forum_id ) ) {
-
-		// Get ancestors
-		$ancestors = get_post_ancestors( $reply_id );
-
-		// Loop through ancestors
-		foreach ( $ancestors as $ancestor ) {
-
-			// Get first parent that is a forum
-			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_forum_post_type() ) {
-				$forum_id = $ancestor;
-
-				// Found a forum, so exit the loop and continue
-				continue;
-			}
-		}
-	}
-
-	// Update the forum ID
-	bbp_update_forum_id( $reply_id, $forum_id );
-
-	return apply_filters( 'bbp_update_reply_forum_id', (int) $forum_id, $reply_id );
-}
+/** Insert ********************************************************************/
 
 /**
- * Update the reply with its topic id it is in
+ * A wrapper for wp_insert_post() that also includes the necessary meta values
+ * for the reply to function properly.
  *
- * @since bbPress (r2855)
+ * @since bbPress (r3349)
  *
- * @param int $reply_id Optional. Reply id to update
- * @param int $topic_id Optional. Topic id
- * @uses bbp_get_reply_id() To get the reply id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses get_post_ancestors() To get the reply's topic
- * @uses get_post_field() To get the post type of the post
- * @uses update_post_meta() To update the reply topic id meta
- * @uses apply_filters() Calls 'bbp_update_reply_topic_id' with the topic id
- *                        and reply id
- * @return bool Reply's topic id
+ * @uses wp_parse_args()
+ * @uses bbp_get_reply_post_type()
+ * @uses wp_insert_post()
+ * @uses update_post_meta()
+ *
+ * @param array $reply_data Forum post data
+ * @param arrap $reply_meta Forum meta data
  */
-function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
+function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 
-	// Validation
-	$reply_id = bbp_get_reply_id( $reply_id );
-	$topic_id = bbp_get_topic_id( $topic_id );
+	// Forum
+	$default_reply = array(
+		'post_parent'   => 0, // topic ID
+		'post_status'   => 'publish',
+		'post_type'     => bbp_get_reply_post_type(),
+		'post_author'   => 0,
+		'post_password' => '',
+		'post_content'  => '',
+		'post_title'    => '',
+		'menu_order'    => 0,
+	);
 
-	// If no topic_id was passed, walk up ancestors and look for topic type
-	if ( empty( $topic_id ) ) {
+	// Parse args
+	$reply_data = wp_parse_args( $reply_data, $default_reply );
 
-		// Get ancestors
-		$ancestors = get_post_ancestors( $reply_id );
+	// Insert reply
+	$reply_id   = wp_insert_post( $reply_data );
 
-		// Loop through ancestors
-		foreach ( $ancestors as $ancestor ) {
+	// Bail if no reply was added
+	if ( empty( $reply_id ) )
+		return false;
 
-			// Get first parent that is a forum
-			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
-				$topic_id = $ancestor;
+	// Forum meta
+	$default_meta = array(
+		'author_ip' => bbp_current_author_ip(),
+		'forum_id'  => 0,
+		'topic_id'  => 0,
+	);
 
-				// Found a forum, so exit the loop and continue
-				continue;
-			}
-		}
-	}
+	// Parse args
+	$reply_meta = wp_parse_args( $reply_meta, $default_meta );
 
-	// Update the topic ID
-	bbp_update_topic_id( $reply_id, $topic_id );
+	// Insert reply meta
+	foreach ( $reply_meta as $meta_key => $meta_value )
+		update_post_meta( $reply_id, '_bbp_' . $meta_key, $meta_value );
 
-	return apply_filters( 'bbp_update_reply_topic_id', (int) $topic_id, $reply_id );
+	// Update the topic
+	if ( $topic_id = bbp_get_reply_topic_id( $reply_id ) )
+		bbp_update_topic( $topic_id );
+
+	// Return new reply ID
+	return $reply_id;
 }
 
 /** Post Form Handlers ********************************************************/
@@ -687,7 +655,7 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
  * @uses bbp_update_topic_last_active_time() To update the last active topic meta
  * @uses bbp_update_topic_voice_count() To update the topic voice count
  * @uses bbp_update_topic_reply_count() To update the topic reply count
- * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
+ * @uses bbp_update_topic_reply_count_hidden() To update the topic hidden reply
  *                                              count
  * @uses bbp_is_forum() To check if the ancestor is a forum
  * @uses bbp_update_forum_last_topic_id() To update the last topic id forum meta
@@ -747,7 +715,7 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			// Counts
 			bbp_update_topic_voice_count       ( $ancestor );
 			bbp_update_topic_reply_count       ( $ancestor );
-			bbp_update_topic_hidden_reply_count( $ancestor );
+			bbp_update_topic_reply_count_hidden( $ancestor );
 
 		// Forum meta relating to most recent topic
 		} elseif ( bbp_is_forum( $ancestor ) ) {
@@ -770,6 +738,102 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			bbp_update_forum_reply_count( $ancestor );
 		}
 	}
+}
+
+/** Reply Updaters ************************************************************/
+
+/**
+ * Update the reply with its forum id it is in
+ *
+ * @since bbPress (r2855)
+ *
+ * @param int $reply_id Optional. Reply id to update
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses get_post_ancestors() To get the reply's forum
+ * @uses get_post_field() To get the post type of the post
+ * @uses update_post_meta() To update the reply forum id meta
+ * @uses apply_filters() Calls 'bbp_update_reply_forum_id' with the forum id
+ *                        and reply id
+ * @return bool Reply's forum id
+ */
+function bbp_update_reply_forum_id( $reply_id = 0, $forum_id = 0 ) {
+
+	// Validation
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// If no forum_id was passed, walk up ancestors and look for forum type
+	if ( empty( $forum_id ) ) {
+
+		// Get ancestors
+		$ancestors = get_post_ancestors( $reply_id );
+
+		// Loop through ancestors
+		foreach ( $ancestors as $ancestor ) {
+
+			// Get first parent that is a forum
+			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_forum_post_type() ) {
+				$forum_id = $ancestor;
+
+				// Found a forum, so exit the loop and continue
+				continue;
+			}
+		}
+	}
+
+	// Update the forum ID
+	bbp_update_forum_id( $reply_id, $forum_id );
+
+	return apply_filters( 'bbp_update_reply_forum_id', (int) $forum_id, $reply_id );
+}
+
+/**
+ * Update the reply with its topic id it is in
+ *
+ * @since bbPress (r2855)
+ *
+ * @param int $reply_id Optional. Reply id to update
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses get_post_ancestors() To get the reply's topic
+ * @uses get_post_field() To get the post type of the post
+ * @uses update_post_meta() To update the reply topic id meta
+ * @uses apply_filters() Calls 'bbp_update_reply_topic_id' with the topic id
+ *                        and reply id
+ * @return bool Reply's topic id
+ */
+function bbp_update_reply_topic_id( $reply_id = 0, $topic_id = 0 ) {
+
+	// Validation
+	$reply_id = bbp_get_reply_id( $reply_id );
+	$topic_id = bbp_get_topic_id( $topic_id );
+
+	// If no topic_id was passed, walk up ancestors and look for topic type
+	if ( empty( $topic_id ) ) {
+
+		// Get ancestors
+		$ancestors = get_post_ancestors( $reply_id );
+
+		// Loop through ancestors
+		foreach ( $ancestors as $ancestor ) {
+
+			// Get first parent that is a forum
+			if ( get_post_field( 'post_type', $ancestor ) == bbp_get_topic_post_type() ) {
+				$topic_id = $ancestor;
+
+				// Found a forum, so exit the loop and continue
+				continue;
+			}
+		}
+	}
+
+	// Update the topic ID
+	bbp_update_topic_id( $reply_id, $topic_id );
+
+	return apply_filters( 'bbp_update_reply_topic_id', (int) $topic_id, $reply_id );
 }
 
 /**

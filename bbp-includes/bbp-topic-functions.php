@@ -10,6 +10,74 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/** Insert ********************************************************************/
+
+/**
+ * A wrapper for wp_insert_post() that also includes the necessary meta values
+ * for the topic to function properly.
+ *
+ * @since bbPress (r3349)
+ *
+ * @uses wp_parse_args()
+ * @uses bbp_get_topic_post_type()
+ * @uses wp_insert_post()
+ * @uses update_post_meta()
+ *
+ * @param array $topic_data Forum post data
+ * @param arrap $topic_meta Forum meta data
+ */
+function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
+
+	// Forum
+	$default_topic = array(
+		'post_parent'   => 0, // forum ID
+		'post_status'   => 'publish',
+		'post_type'     => bbp_get_topic_post_type(),
+		'post_author'   => 0,
+		'post_password' => '',
+		'post_content'  => '',
+		'post_title'    => '',
+		'menu_order'    => 0,
+	);
+
+	// Parse args
+	$topic_data = wp_parse_args( $topic_data, $default_topic );
+
+	// Insert topic
+	$topic_id   = wp_insert_post( $topic_data );
+
+	// Bail if no topic was added
+	if ( empty( $topic_id ) )
+		return false;
+
+	// Forum meta
+	$default_meta = array(
+		'author_ip'          => bbp_current_author_ip(),
+		'forum_id'           => 0,
+		'topic_id'           => $topic_id,
+		'voice_count'        => 1,
+		'reply_count'        => 0,
+		'reply_count_hidden' => 0,
+		'last_reply_id'      => 0,
+		'last_active_id'     => $topic_id,
+		'last_active_time'   => get_post_field( 'post_date', $topic_id, 'db' ),
+	);
+
+	// Parse args
+	$topic_meta = wp_parse_args( $topic_meta, $default_meta );
+
+	// Insert topic meta
+	foreach ( $topic_meta as $meta_key => $meta_value )
+		update_post_meta( $topic_id, '_bbp_' . $meta_key, $meta_value );
+
+	// Update the forum
+	if ( $forum_id = bbp_get_topic_forum_id( $topic_id ) )
+		bbp_update_forum( $forum_id );
+
+	// Return new topic ID
+	return $topic_id;
+}
+
 /** Post Form Handlers ********************************************************/
 
 /**
@@ -588,7 +656,7 @@ function bbp_edit_topic_handler() {
  * @uses bbp_update_topic_last_active_id() To update the topic last active id
  * @uses bbp_update_topic_last_active_time() To update the last active topic meta
  * @uses bbp_update_topic_reply_count() To update the topic reply count
- * @uses bbp_update_topic_hidden_reply_count() To udpate the topic hidden reply count
+ * @uses bbp_update_topic_reply_count_hidden() To udpate the topic hidden reply count
  * @uses bbp_update_topic_voice_count() To update the topic voice count
  * @uses bbp_update_topic_walker() To udpate the topic's ancestors
  */
@@ -659,7 +727,7 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 		bbp_update_topic_last_active_id     ( $topic_id, $topic_id    );
 		bbp_update_topic_last_active_time   ( $topic_id, $last_active );
 		bbp_update_topic_reply_count        ( $topic_id, 0            );
-		bbp_update_topic_hidden_reply_count ( $topic_id, 0            );
+		bbp_update_topic_reply_count_hidden ( $topic_id, 0            );
 		bbp_update_topic_voice_count        ( $topic_id               );
 
 		// Walk up ancestors and do the dirty work
@@ -1029,7 +1097,7 @@ function bbp_merge_topic_handler() {
  * @uses bbp_update_forum_reply_count() To update the forum reply counts
  * @uses bbp_update_topic_reply_count() To update the topic reply counts
  * @uses bbp_update_topic_voice_count() To update the topic voice counts
- * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
+ * @uses bbp_update_topic_reply_count_hidden() To update the topic hidden reply
  *                                              count
  * @uses do_action() Calls 'bbp_merge_topic_count' with the destination topic
  *                    id, source topic id & source topic forum id
@@ -1050,7 +1118,7 @@ function bbp_merge_topic_count( $destination_topic_id, $source_topic_id, $source
 	bbp_update_topic_reply_count( $destination_topic_id );
 
 	// Topic Hidden Reply Counts
-	bbp_update_topic_hidden_reply_count( $destination_topic_id );
+	bbp_update_topic_reply_count_hidden( $destination_topic_id );
 
 	// Topic Voice Counts
 	bbp_update_topic_voice_count( $destination_topic_id );
@@ -1338,7 +1406,7 @@ function bbp_split_topic_handler() {
  * @uses bbp_update_forum_reply_count() To update the forum reply counts
  * @uses bbp_update_topic_reply_count() To update the topic reply counts
  * @uses bbp_update_topic_voice_count() To update the topic voice counts
- * @uses bbp_update_topic_hidden_reply_count() To update the topic hidden reply
+ * @uses bbp_update_topic_reply_count_hidden() To update the topic hidden reply
  *                                              count
  * @uses do_action() Calls 'bbp_split_topic_count' with the from reply id,
  *                    source topic id & destination topic id
@@ -1356,8 +1424,8 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
 	bbp_update_topic_reply_count( $destination_topic_id );
 
 	// Topic Hidden Reply Counts
-	bbp_update_topic_hidden_reply_count( $source_topic_id      );
-	bbp_update_topic_hidden_reply_count( $destination_topic_id );
+	bbp_update_topic_reply_count_hidden( $source_topic_id      );
+	bbp_update_topic_reply_count_hidden( $destination_topic_id );
 
 	// Topic Voice Counts
 	bbp_update_topic_voice_count( $source_topic_id      );
@@ -1895,11 +1963,11 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_var() To execute our query and get the var back
  * @uses update_post_meta() To update the topic hidden reply count meta
- * @uses apply_filters() Calls 'bbp_update_topic_hidden_reply_count' with the
+ * @uses apply_filters() Calls 'bbp_update_topic_reply_count_hidden' with the
  *                        hidden reply count and topic id
  * @return int Topic hidden reply count
  */
-function bbp_update_topic_hidden_reply_count( $topic_id = 0, $reply_count = 0 ) {
+function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) {
 	global $wpdb, $bbp;
 
 	// If it's a reply, then get the parent (topic id)
@@ -1912,9 +1980,9 @@ function bbp_update_topic_hidden_reply_count( $topic_id = 0, $reply_count = 0 ) 
 	if ( empty( $reply_count ) )
 		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
 
-	update_post_meta( $topic_id, '_bbp_hidden_reply_count', (int) $reply_count );
+	update_post_meta( $topic_id, '_bbp_reply_count_hidden', (int) $reply_count );
 
-	return apply_filters( 'bbp_update_topic_hidden_reply_count', (int) $reply_count, $topic_id );
+	return apply_filters( 'bbp_update_topic_reply_count_hidden', (int) $reply_count, $topic_id );
 }
 
 /**

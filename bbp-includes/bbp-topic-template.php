@@ -1605,7 +1605,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 * @uses bbp_get_topic_permalink() To get the topic permalink
 	 * @uses remove_query_arg() To remove args from the url
-	 * @uses bbp_get_topic_hidden_reply_count() To get the topic hidden
+	 * @uses bbp_get_topic_reply_count_hidden() To get the topic hidden
 	 *                                           reply count
 	 * @uses current_user_can() To check if the current user can edit others
 	 *                           replies
@@ -1629,7 +1629,7 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 			$retval .= $replies;
 
 		// This forum has hidden topics
-		if ( current_user_can( 'edit_others_replies' ) && ( $deleted = bbp_get_topic_hidden_reply_count( $topic_id ) ) ) {
+		if ( current_user_can( 'edit_others_replies' ) && ( $deleted = bbp_get_topic_reply_count_hidden( $topic_id ) ) ) {
 
 			// Extra text
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
@@ -1713,10 +1713,10 @@ function bbp_topic_post_count( $topic_id = 0 ) {
  * @since bbPress (r2740)
  *
  * @param int $topic_id Optional. Topic id
- * @uses bbp_get_topic_hidden_reply_count() To get the topic hidden reply count
+ * @uses bbp_get_topic_reply_count_hidden() To get the topic hidden reply count
  */
-function bbp_topic_hidden_reply_count( $topic_id = 0 ) {
-	echo bbp_get_topic_hidden_reply_count( $topic_id );
+function bbp_topic_reply_count_hidden( $topic_id = 0 ) {
+	echo bbp_get_topic_reply_count_hidden( $topic_id );
 }
 	/**
 	 * Return total hidden reply count of a topic (hidden includes trashed
@@ -1727,15 +1727,15 @@ function bbp_topic_hidden_reply_count( $topic_id = 0 ) {
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses get_post_meta() To get the hidden reply count
-	 * @uses apply_filters() Calls 'bbp_get_topic_hidden_reply_count' with
+	 * @uses apply_filters() Calls 'bbp_get_topic_reply_count_hidden' with
 	 *                        the hidden reply count and topic id
 	 * @return int Topic hidden reply count
 	 */
-	function bbp_get_topic_hidden_reply_count( $topic_id = 0 ) {
+	function bbp_get_topic_reply_count_hidden( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
-		$replies  = get_post_meta( $topic_id, '_bbp_hidden_reply_count', true );
+		$replies  = get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
 
-		return apply_filters( 'bbp_get_topic_hidden_reply_count', (int) $replies, $topic_id );
+		return apply_filters( 'bbp_get_topic_reply_count_hidden', (int) $replies, $topic_id );
 	}
 
 /**

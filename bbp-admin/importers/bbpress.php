@@ -1071,7 +1071,7 @@ class bbPress_Importer {
 							update_post_meta( $inserted_topic, '_bbp_last_active_id',     $last_active_id   );
 							update_post_meta( $inserted_topic, '_bbp_last_active_time',   $last_active_time );
 							update_post_meta( $inserted_topic, '_bbp_reply_count',        $replies          );
-							update_post_meta( $inserted_topic, '_bbp_hidden_reply_count', $hidden_replies   );
+							update_post_meta( $inserted_topic, '_bbp_reply_count_hidden', $hidden_replies   );
 
 							// Voices will be done by recount
 

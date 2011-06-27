@@ -430,7 +430,7 @@ function bbp_get_statistics( $args = '' ) {
 			$topics['trashed'] = ( !empty( $count_trashed_topics ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$bbp->trash_status_id} : 0;
 
 			// Total hidden (private + spam + trash)
-			$hidden_topic_count = $topics['private'] + $topics['spammed'] + $topics['trashed'];
+			$topic_count_hidden = $topics['private'] + $topics['spammed'] + $topics['trashed'];
 
 			// Generate the hidden topic count's title attribute
 			$topic_titles[] = !empty( $topics['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $topics['private'] ) ) : '';
@@ -462,7 +462,7 @@ function bbp_get_statistics( $args = '' ) {
 			$replies['trashed'] = ( !empty( $count_trashed_replies ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$bbp->trash_status_id} : 0;
 
 			// Total hidden (private + spam + trash)
-			$hidden_reply_count = $replies['private'] + $replies['spammed'] + $replies['trashed'];
+			$reply_count_hidden = $replies['private'] + $replies['spammed'] + $replies['trashed'];
 
 			// Generate the hidden topic count's title attribute
 			$reply_titles[] = !empty( $replies['private'] ) ? sprintf( __( 'Private: %s', 'bbpress' ), number_format_i18n( $replies['private'] ) ) : '';
@@ -488,7 +488,7 @@ function bbp_get_statistics( $args = '' ) {
 	}
 
 	// Tally the tallies
-	$statistics = compact( 'user_count', 'forum_count', 'topic_count', 'hidden_topic_count', 'reply_count', 'hidden_reply_count', 'topic_tag_count', 'empty_topic_tag_count' );
+	$statistics = compact( 'user_count', 'forum_count', 'topic_count', 'topic_count_hidden', 'reply_count', 'reply_count_hidden', 'topic_tag_count', 'empty_topic_tag_count' );
 	$statistics = array_map( 'absint',             $statistics );
 	$statistics = array_map( 'number_format_i18n', $statistics );
 

@@ -143,13 +143,13 @@ function bbp_dashboard_widget_right_now() {
 
 			</tr>
 
-			<?php if ( isset( $hidden_topic_count ) ) : ?>
+			<?php if ( isset( $topic_count_hidden ) ) : ?>
 
 				<tr>
 
 					<?php
-						$num  = $hidden_topic_count;
-						$text = _n( 'Hidden Topic', 'Hidden Topics', $hidden_topic_count, 'bbpress' );
+						$num  = $topic_count_hidden;
+						$text = _n( 'Hidden Topic', 'Hidden Topics', $topic_count_hidden, 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_topic_title ) . '">' . $text . '</a>';
@@ -162,13 +162,13 @@ function bbp_dashboard_widget_right_now() {
 
 			<?php endif; ?>
 
-			<?php if ( isset( $hidden_reply_count ) ) : ?>
+			<?php if ( isset( $reply_count_hidden ) ) : ?>
 
 				<tr>
 
 					<?php
-						$num  = $hidden_reply_count;
-						$text = _n( 'Hidden Reply', 'Hidden Replies', $hidden_reply_count, 'bbpress' );
+						$num  = $reply_count_hidden;
+						$text = _n( 'Hidden Reply', 'Hidden Replies', $reply_count_hidden, 'bbpress' );
 						$link = add_query_arg( array( 'post_type' => bbp_get_reply_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $num  . '</a>';
 						$text = '<a class="waiting" href="' . $link . '" title="' . esc_attr( $hidden_reply_title ) . '">' . $text . '</a>';

@@ -1062,7 +1062,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 	 * @uses bbp_get_forum_topic_count() To get the forum topic count
 	 * @uses bbp_get_forum_permalink() To get the forum permalink
 	 * @uses remove_query_arg() To remove args from the url
-	 * @uses bbp_get_forum_hidden_topic_count() To get the forum hidden
+	 * @uses bbp_get_forum_topic_count_hidden() To get the forum hidden
 	 *                                           topic count
 	 * @uses current_user_can() To check if the current user can edit others
 	 *                           topics
@@ -1086,7 +1086,7 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 			$retval .= $topics;
 
 		// This forum has hidden topics
-		if ( current_user_can( 'edit_others_topics' ) && ( $deleted = bbp_get_forum_hidden_topic_count( $forum_id ) ) ) {
+		if ( current_user_can( 'edit_others_topics' ) && ( $deleted = bbp_get_forum_topic_count_hidden( $forum_id ) ) ) {
 
 			// Extra text
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
@@ -1161,7 +1161,7 @@ function bbp_forum_topic_count( $forum_id = 0, $total_count = true ) {
 	 */
 	function bbp_get_forum_topic_count( $forum_id = 0, $total_count = true ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_forum_topic_count' : '_bbp_total_topic_count', true );
+		$topics   = get_post_meta( $forum_id, empty( $total_count ) ? '_bbp_topic_count' : '_bbp_total_topic_count', true );
 
 		return apply_filters( 'bbp_get_forum_topic_count', (int) $topics, $forum_id );
 	}
@@ -1240,10 +1240,10 @@ function bbp_forum_post_count( $forum_id = 0, $total_count = true ) {
  * @since bbPress (r2883)
  *
  * @param int $forum_id Optional. Topic id
- * @uses bbp_get_forum_hidden_topic_count() To get the forum hidden topic count
+ * @uses bbp_get_forum_topic_count_hidden() To get the forum hidden topic count
  */
-function bbp_forum_hidden_topic_count( $forum_id = 0 ) {
-	echo bbp_get_forum_hidden_topic_count( $forum_id );
+function bbp_forum_topic_count_hidden( $forum_id = 0 ) {
+	echo bbp_get_forum_topic_count_hidden( $forum_id );
 }
 	/**
 	 * Return total hidden topic count of a forum (hidden includes trashed
@@ -1254,15 +1254,15 @@ function bbp_forum_hidden_topic_count( $forum_id = 0 ) {
 	 * @param int $forum_id Optional. Topic id
 	 * @uses bbp_get_forum_id() To get the forum id
 	 * @uses get_post_meta() To get the hidden topic count
-	 * @uses apply_filters() Calls 'bbp_get_forum_hidden_topic_count' with
+	 * @uses apply_filters() Calls 'bbp_get_forum_topic_count_hidden' with
 	 *                        the hidden topic count and forum id
 	 * @return int Topic hidden topic count
 	 */
-	function bbp_get_forum_hidden_topic_count( $forum_id = 0 ) {
+	function bbp_get_forum_topic_count_hidden( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 		$topics   = get_post_meta( $forum_id, '_bbp_topic_count_hidden', true );
 
-		return apply_filters( 'bbp_get_forum_hidden_topic_count', (int) $topics, $forum_id );
+		return apply_filters( 'bbp_get_forum_topic_count_hidden', (int) $topics, $forum_id );
 	}
 
 /**

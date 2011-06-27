@@ -66,23 +66,23 @@ extract( bbp_get_statistics(), EXTR_SKIP );
 
 								<?php endif; ?>
 
-								<?php if ( !empty( $hidden_topic_count ) ) : ?>
+								<?php if ( !empty( $topic_count_hidden ) ) : ?>
 
 									<dt><?php _e( 'Hidden Topics', 'bbpress' ); ?></dt>
 									<dd>
 										<strong>
-											<abbr title="<?php echo esc_attr( $hidden_topic_title ); ?>"><?php echo $hidden_topic_count; ?></abbr>
+											<abbr title="<?php echo esc_attr( $hidden_topic_title ); ?>"><?php echo $topic_count_hidden; ?></abbr>
 										</strong>
 									</dd>
 
 								<?php endif; ?>
 
-								<?php if ( !empty( $hidden_reply_count ) ) : ?>
+								<?php if ( !empty( $reply_count_hidden ) ) : ?>
 
 									<dt><?php _e( 'Hidden Replies', 'bbpress' ); ?></dt>
 									<dd>
 										<strong>
-											<abbr title="<?php echo esc_attr( $hidden_reply_title ); ?>"><?php echo $hidden_reply_count; ?></abbr>
+											<abbr title="<?php echo esc_attr( $hidden_reply_title ); ?>"><?php echo $reply_count_hidden; ?></abbr>
 										</strong>
 									</dd>
 
