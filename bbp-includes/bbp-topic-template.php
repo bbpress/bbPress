@@ -244,13 +244,13 @@ function bbp_has_topics( $args = '' ) {
 			elseif ( bbp_is_single_view() )
 				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
 
-			// Topic archive
-			elseif ( bbp_is_topic_archive() )
-				$base = user_trailingslashit( trailingslashit( home_url( $bbp->topic_archive_slug ) ) . 'page/%#%/' );
-
 			// Page or single post
 			elseif ( is_page() || is_single() )
 				$base = user_trailingslashit( trailingslashit( get_permalink() ) . 'page/%#%/' );
+
+			// Topic archive
+			elseif ( bbp_is_topic_archive() )
+				$base = user_trailingslashit( trailingslashit( home_url( $bbp->topic_archive_slug ) ) . 'page/%#%/' );
 
 			// Default
 			else
