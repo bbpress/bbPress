@@ -151,6 +151,11 @@ class bbPress {
 	/** Paths *****************************************************************/
 
 	/**
+	 * @public string Basename of the bbPress plugin directory
+	 */
+	public $basename = '';
+
+	/**
 	 * @public string Absolute path to the bbPress plugin directory
 	 */
 	public $plugin_dir = '';
@@ -309,6 +314,7 @@ class bbPress {
 
 		// bbPress root directory
 		$this->file       = __FILE__;
+		$this->basename   = plugin_basename( $this->file );
 		$this->plugin_dir = plugin_dir_path( $this->file );
 		$this->plugin_url = plugin_dir_url ( $this->file );
 
