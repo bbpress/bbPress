@@ -853,4 +853,83 @@ function bbp_get_total_users() {
 	return apply_filters( 'bbp_get_total_users', (int) $bbp_total_users );
 }
 
+/** User Status ***************************************************************/
+
+/**
+ * Checks if the user has been marked as a spammer.
+ *
+ * @since bbPress (r3355)
+ *
+ * @param int $user_id int The ID for the user.
+ * @return bool 1 if spammer, 0 if not.
+ */
+function bbp_core_is_user_spammer( $user_id = 0 ) {
+
+	// No user to check
+	if ( empty( $user_id ) )
+		return false;
+
+	// Assume user is not spam
+	$is_spammer = false;
+
+	// Get user data
+	$user = get_userdata( $user_id );
+
+	// No user found
+	if ( empty( $user ) ) {
+		$is_spammer = false;
+		
+	// User found
+	} else {
+
+		// Check if spam
+		if ( !empty( $user->spam ) )
+			$is_spammer = true;
+
+		if ( 'spam' == $user->user_status )
+			$is_spammer = true;
+	}
+
+	return apply_filters( 'bp_core_is_user_spammer', (bool) $is_spammer );
+}
+
+/**
+ * Checks if the user has been marked as deleted.
+ *
+ * @since bbPress (r3355)
+ *
+ * @param int $user_id int The ID for the user.
+ * @return bool 1 if deleted, 0 if not.
+ */
+function bbp_core_is_user_deleted( $user_id = 0 ) {
+
+	// No user to check
+	if ( empty( $user_id ) )
+		return false;
+
+	// Assume user is not deleted
+	$is_deleted = false;
+
+	// Get user data
+	$user = get_userdata( $user_id );
+
+	// No user found
+	if ( empty( $user ) ) {
+		$is_deleted = true;
+		
+	// User found
+	} else {
+
+		// Check if deleted
+		if ( !empty( $user->deleted ) )
+			$is_deleted = true;
+
+		if ( 'deleted' == $user->user_status )
+			$is_deleted = true;
+
+	}
+
+	return apply_filters( 'bp_core_is_user_deleted', (bool) $is_deleted );
+}
+
 ?>
