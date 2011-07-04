@@ -451,43 +451,25 @@ class bbPress {
 	private function setup_actions() {
 
 		// Register bbPress activation/deactivation sequences
-		register_activation_hook  ( $this->file,    'bbp_activation'   );
-		register_deactivation_hook( $this->file,    'bbp_deactivation' );
+		register_activation_hook  ( $this->file, 'bbp_activation'   );
+		register_deactivation_hook( $this->file, 'bbp_deactivation' );
 
-		// Array of bbPress core actions as keys, and class actions as values
+		// Array of bbPress core actions
 		$actions = array(
-
-			// Setup the currently logged in user
-			'bbp_setup_current_user'       => 'setup_current_user',
-
-			// Register content types
-			'bbp_register_post_types'      => 'register_post_types',
-
-			// Register post statuses
-			'bbp_register_post_statuses'   => 'register_post_statuses',
-
-			// Register taxonomies
-			'bbp_register_taxonomies'      => 'register_taxonomies',
-
-			// Register the views
-			'bbp_register_views'           => 'register_views',
-
-			// Register the theme directory
-			'bbp_register_theme_directory' => 'register_theme_directory',
-
-			// Load textdomain
-			'bbp_load_textdomain'          => 'load_textdomain',
-
-			// Add the %bbp_user% rewrite tag
-			'bbp_add_rewrite_tags'         => 'add_rewrite_tags',
-
-			// Generate rewrite rules
-			'bbp_generate_rewrite_rules'   => 'generate_rewrite_rules'
+			'setup_current_user',       // Setup currently logged in user
+			'register_post_types',      // Register post types (forum|topic|reply)
+			'register_post_statuses',   // Register post statuses (closed|spam|orphan|hidden)
+			'register_taxonomies',      // Register taxonomies (topic-tag)
+			'register_views',           // Register the views (no-replies)
+			'register_theme_directory', // Register the theme directory (bbp-themes)
+			'load_textdomain',          // Load textdomain (bbpress)
+			'add_rewrite_tags',         // Add rewrite tags (view|user|edit)
+			'generate_rewrite_rules'    // Generate rewrite rules (view|edit)
 		);
 
 		// Add the actions
-		foreach( $actions as $bbp_core_action => $class_action )
-			add_action( $bbp_core_action, array( $this, $class_action ), 10 );
+		foreach( $actions as $class_action )
+			add_action( 'bbp_' . $class_action, array( $this, $class_action ), 10 );
 	}
 
 	/**
@@ -940,13 +922,6 @@ class bbPress {
 			$this->user_slug      . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
 			$this->user_slug      . '/([^/]+)/?$'                   => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ),
 			$this->user_slug      . '/([^/]+)/edit/?$'              => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
-
-			// @todo - favorites feeds
-			//$this->user_slug      . '/([^/]+)/(feed|rdf|rss|rss2|atom)/?$'      => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
-			//$this->user_slug      . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->user_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
-
-			// @todo - view feeds
-			//$this->view_slug      . '/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
 
 			// View Page
 			$this->view_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
