@@ -861,7 +861,7 @@ function bbp_get_total_users() {
  * @since bbPress (r3355)
  *
  * @param int $user_id int The ID for the user.
- * @return bool 1 if spammer, 0 if not.
+ * @return bool True if spammer, False if not.
  */
 function bbp_is_user_spammer( $user_id = 0 ) {
 
@@ -899,7 +899,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  * @since bbPress (r3355)
  *
  * @param int $user_id int The ID for the user.
- * @return bool 1 if deleted, 0 if not.
+ * @return bool True if deleted, False if not.
  */
 function bbp_is_user_deleted( $user_id = 0 ) {
 
