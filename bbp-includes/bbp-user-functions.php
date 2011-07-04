@@ -863,7 +863,7 @@ function bbp_get_total_users() {
  * @param int $user_id int The ID for the user.
  * @return bool 1 if spammer, 0 if not.
  */
-function bbp_core_is_user_spammer( $user_id = 0 ) {
+function bbp_is_user_spammer( $user_id = 0 ) {
 
 	// No user to check
 	if ( empty( $user_id ) )
@@ -901,7 +901,7 @@ function bbp_core_is_user_spammer( $user_id = 0 ) {
  * @param int $user_id int The ID for the user.
  * @return bool 1 if deleted, 0 if not.
  */
-function bbp_core_is_user_deleted( $user_id = 0 ) {
+function bbp_is_user_deleted( $user_id = 0 ) {
 
 	// No user to check
 	if ( empty( $user_id ) )
