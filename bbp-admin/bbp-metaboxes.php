@@ -465,21 +465,21 @@ function bbp_author_metabox() {
 
 		<p>
 			<label class="screen-reader-text" for="bbp_anonymous_name"><?php _e( 'Name', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_name', true ); ?>" size="38" />
+			<input type="text" id="bbp_anonymous_name" name="bbp_anonymous_name" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_name', true ); ?>" size="25" />
 		</p>
 
 		<p><strong><?php _e( 'Email', 'bbpress' ); ?></strong></p>
 
 		<p>
 			<label class="screen-reader-text" for="bbp_anonymous_email"><?php _e( 'Email', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_email', true ); ?>" size="38" />
+			<input type="text" id="bbp_anonymous_email" name="bbp_anonymous_email" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_email', true ); ?>" size="25" />
 		</p>
 
 		<p><strong><?php _e( 'Website', 'bbpress' ); ?></strong></p>
 
 		<p>
 			<label class="screen-reader-text" for="bbp_anonymous_website"><?php _e( 'Website', 'bbpress' ); ?></label>
-			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_website', true ); ?>" size="38" />
+			<input type="text" id="bbp_anonymous_website" name="bbp_anonymous_website" value="<?php echo get_post_meta( $post_id, '_bbp_anonymous_website', true ); ?>" size="25" />
 		</p>
 
 	<?php endif; ?>
@@ -488,7 +488,7 @@ function bbp_author_metabox() {
 
 	<p>
 		<label class="screen-reader-text" for="bbp_author_ip_address"><?php _e( 'IP Address', 'bbpress' ); ?></label>
-		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo get_post_meta( $post_id, '_bbp_author_ip', true ); ?>" size="38" disabled="disabled" />
+		<input type="text" id="bbp_author_ip_address" name="bbp_author_ip_address" value="<?php echo get_post_meta( $post_id, '_bbp_author_ip', true ); ?>" size="25" disabled="disabled" />
 	</p>
 
 	<?php
