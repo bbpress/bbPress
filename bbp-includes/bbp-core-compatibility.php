@@ -28,18 +28,18 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @since bbPress (r3311)
  *
  * @global bbPress $bbp
- * @param string $theme 
+ * @param string $theme
  * @uses current_theme_supports()
  */
 function bbp_theme_compat_set_theme( $theme = array() ) {
-	
+
 	// Check if current theme supports bbPress
 	if ( empty( $bbp->theme_compat->theme ) && !current_theme_supports( 'bbpress' ) ) {
 
 		global $bbp;
 
 		if ( empty( $theme ) ) {
-			$theme = array( 
+			$theme = array(
 				'dir' => $bbp->themes_dir . '/bbp-twentyten',
 				'url' => $bbp->themes_url . '/bbp-twentyten'
 			);
@@ -200,9 +200,9 @@ function bbp_set_theme_compat_active( $set = true ) {
  */
 function bbp_set_theme_compat_templates( $templates = array() ) {
 	global $bbp;
-	
+
 	$bbp->theme_compat->templates = $templates;
-	
+
 	return $bbp->theme_compat->templates;
 }
 
@@ -218,9 +218,9 @@ function bbp_set_theme_compat_templates( $templates = array() ) {
  */
 function bbp_set_theme_compat_template( $template = '' ) {
 	global $bbp;
-	
+
 	$bbp->theme_compat->template = $template;
-	
+
 	return $bbp->theme_compat->template;
 }
 
@@ -289,7 +289,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_single  = false;
 	$wp_query->is_archive = false;
 	$wp_query->is_tax     = false;
-	
+
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active();
 }
@@ -599,7 +599,7 @@ function bbp_get_reply_edit_template() {
 
 	$templates = apply_filters( 'bbp_get_reply_edit_template', $templates );
 	$templates = bbp_set_theme_compat_templates( $templates );
-	
+
 	$template  = locate_template( $templates, false, false );
 	$template  = bbp_set_theme_compat_template( $template );
 
@@ -973,7 +973,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 		// Forum archive
 		} elseif ( bbp_is_forum_archive() ) {
-			
+
 			// Page exists where this archive should be
 			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
 
@@ -1218,7 +1218,7 @@ function bbp_set_404() {
  * @return mixed False if no page, Page object if true
  */
 function bbp_get_page_by_path( $path = '' ) {
-	
+
 	// Default to false
 	$retval = false;
 
@@ -1503,6 +1503,10 @@ function bbp_pre_get_posts( $posts_query ) {
 
 		// We save post revisions on our own
 		remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Topic tag page
+	} elseif ( bbp_is_topic_tag() ) {
+		$posts_query->query_vars['post_type'] = bbp_get_topic_post_type();
 	}
 
 	return $posts_query;
