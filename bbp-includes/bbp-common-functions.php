@@ -250,10 +250,25 @@ function bbp_get_view_all( $cap = 'moderate' ) {
  * @return int Current page number
  */
 function bbp_get_paged() {
+	global $wp_query;
 
 	// Make sure to not paginate widget queries
-	if ( !bbp_is_query_name( 'bbp_widget' ) && ( $paged = get_query_var( 'paged' ) ) )
-		return (int) $paged;
+	if ( !bbp_is_query_name( 'bbp_widget' ) ) {
+
+		// Check the query var
+		if ( get_query_var( 'paged' ) ) {
+			$paged = get_query_var( 'paged' );
+
+		// Check query paged
+		} elseif ( !empty( $wp_query->query[paged] ) ) {
+			$paged = $wp_query->query[paged];
+		}
+
+		// Paged found
+		if ( !empty( $paged ) ) {
+			return (int) $paged;
+		}
+	}
 
 	// Default to first page
 	return 1;

@@ -238,23 +238,26 @@ function bbp_has_topics( $args = '' ) {
 
 			// Profile page
 			if ( bbp_is_single_user() )
-				$base = user_trailingslashit( trailingslashit( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) ) . 'page/%#%/' );
+				$base = bbp_get_user_profile_url( bbp_get_displayed_user_id() );
 
 			// View
 			elseif ( bbp_is_single_view() )
-				$base = user_trailingslashit( trailingslashit( bbp_get_view_url() ) . 'page/%#%/' );
+				$base = bbp_get_view_url();
 
 			// Page or single post
 			elseif ( is_page() || is_single() )
-				$base = user_trailingslashit( trailingslashit( get_permalink() ) . 'page/%#%/' );
+				$base = get_permalink();
 
 			// Topic archive
 			elseif ( bbp_is_topic_archive() )
-				$base = user_trailingslashit( trailingslashit( home_url( $bbp->topic_archive_slug ) ) . 'page/%#%/' );
+				$base = home_url( $bbp->topic_archive_slug );
 
 			// Default
 			else
-				$base = user_trailingslashit( trailingslashit( get_permalink( $post_parent ) ) . 'page/%#%/' );
+				$base = get_permalink( $post_parent );
+
+			// Use pagination base
+			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 
 		// Unpretty pagination
 		} else {
@@ -276,7 +279,7 @@ function bbp_has_topics( $args = '' ) {
 		$bbp->topic_query->pagination_links = paginate_links ( $bbp_topic_pagination );
 
 		// Remove first page from pagination
-		$bbp->topic_query->pagination_links = str_replace( 'page/1/\'', '\'', $bbp->topic_query->pagination_links );
+		$bbp->topic_query->pagination_links = str_replace( $wp_rewrite->pagination_base . "/1/'", "'", $bbp->topic_query->pagination_links );
 	}
 
 	// Return object
@@ -655,7 +658,7 @@ function bbp_topic_pagination( $args = '' ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() )
-			$base = user_trailingslashit( trailingslashit( get_permalink( $topic_id ) ) . 'page/%#%/' );
+			$base = trailingslashit( get_permalink( $topic_id ) ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 		else
 			$base = add_query_arg( 'paged', '%#%' );
 
@@ -683,7 +686,7 @@ function bbp_topic_pagination( $args = '' ) {
 
 			// Remove first page from pagination
 			if ( $wp_rewrite->using_permalinks() )
-				$pagination_links = str_replace( 'page/1/',       '', $pagination_links );
+				$pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $pagination_links );
 			else
 				$pagination_links = str_replace( '&#038;paged=1', '', $pagination_links );
 
