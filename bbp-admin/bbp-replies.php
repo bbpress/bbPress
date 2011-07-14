@@ -153,11 +153,11 @@ class BBP_Replies_Admin {
 		$bbp_contextual_help[] = __( 'You can customize the display of this screen in a number of ways:', 'bbpress' );
 		$bbp_contextual_help[] =
 			'<ul>' .
-				'<li>' . __( 'You can hide/display columns based on your needs (Forum, Topic, Author, and Created) and decide how many replies to list per screen using the Screen Options tab.') . '</li>' .
-				'<li>' . __( 'You can filter the list of replies by reply status using the text links in the upper left to show All, Published, Pending Review, Draft, or Trashed topics. The default view is to show all replies.') . '</li>' .
-				'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.') . '</li>' .
-				'<li>' . __( 'You can refine the list to show only replies from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection.') . '</li>' .
-				'<li>' . __( 'You can also show only replies from a specific parent forum by using the parent forum dropdown above the replies list and selecting the parent forum. Click the Filter button after making your selection.') . '</li>' .
+				'<li>' . __( 'You can hide/display columns based on your needs (Forum, Topic, Author, and Created) and decide how many replies to list per screen using the Screen Options tab.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'You can filter the list of replies by reply status using the text links in the upper left to show All, Published, Pending Review, Draft, or Trashed topics. The default view is to show all replies.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'You can refine the list to show only replies from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection.', 'bbpress' ) . '</li>' .
+				'<li>' . __( 'You can also show only replies from a specific parent forum by using the parent forum dropdown above the replies list and selecting the parent forum. Click the Filter button after making your selection.', 'bbpress' ) . '</li>' .
 			'</ul>';
 
 		$bbp_contextual_help[] = __( 'Hovering over a row in the replies list will display action links that allow you to manage your reply. You can perform the following actions:', 'bbpress' );
