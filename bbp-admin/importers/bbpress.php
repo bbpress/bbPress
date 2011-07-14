@@ -893,7 +893,7 @@ class bbPress_Importer {
 						'post_status'    => 'publish',
 						'comment_status' => 'closed',
 						'ping_status'    => 'closed',
-						'post_name'      => $forum->forum_slug,
+						'post_name'      => ( strlen( $forum->forum_slug ) > 200 ) ? sanitize_title_with_dashes( $forum->forum_slug ) : $forum->forum_slug,
 						'post_parent'    => !empty( $forum->forum_parent ) ? $forum_map[$forum->forum_parent] : 0,
 						'post_type'      => bbp_get_forum_post_type(),
 						'menu_order'     => $forum->forum_order
@@ -950,7 +950,7 @@ class bbPress_Importer {
 							'post_author'   => $topic->topic_poster,
 							'post_content'  => $first_post->post_text,
 							'post_title'    => $topic->topic_title,
-							'post_name'     => $topic->topic_slug,
+							'post_name'     => ( strlen( $topic->topic_slug ) > 200 ) ? sanitize_title_with_dashes( $topic->topic_slug ) : $topic->topic_slug,
 							'post_status'   => $topic_status,
 							'post_date_gmt' => $topic->topic_start_time,
 							'post_date'     => get_date_from_gmt( $topic->topic_start_time ),
