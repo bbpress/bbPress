@@ -1064,6 +1064,26 @@ function bbp_author_link( $args = '' ) {
 
 /** Capabilities **************************************************************/
 
+/**
+ * Check if the user can access a specific forum
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses bbp_get_current_user_id()
+ * @uses bbp_get_forum_id()
+ * @uses bbp_allow_anonymous()
+ * @uses wp_parse_args()
+ * @uses bbp_get_user_id()
+ * @uses current_user_can()
+ * @uses is_super_admin()
+ * @uses bbp_is_forum_public()
+ * @uses bbp_is_forum_private()
+ * @uses bbp_is_forum_hidden()
+ * @uses current_user_can()
+ * @uses apply_filters()
+ *
+ * @return bool
+ */
 function bbp_user_can_view_forum( $args = '' ) {
 
 	$defaults = array(
@@ -1096,6 +1116,74 @@ function bbp_user_can_view_forum( $args = '' ) {
 		$retval = true;
 
 	return apply_filters( 'bbp_user_can_view_forum', $retval, $forum_id, $user_id );
+}
+
+/**
+ * Check if the current user can publish topics
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses is_super_admin()
+ * @uses is_user_logged_in()
+ * @uses bbp_allow_anonymous()
+ * @uses current_user_can()
+ * @uses apply_filters()
+ *
+ * @return bool
+ */
+function bbp_current_user_can_publish_topics() {
+
+	// Users need to earn access
+	$retval = false;
+
+	// Always allow super admins
+	if ( is_super_admin() )
+		$retval = true;
+
+	// Do not allow anonymous if not enabled
+	elseif ( !is_user_logged_in() && bbp_allow_anonymous() )
+		$retval = true;
+
+	// User is logged in
+	elseif ( current_user_can( 'publish_topics' ) )
+		$retval = true;
+
+	// Allow access to be filtered
+	return apply_filters( 'bbp_current_user_can_publish_topics', (bool) $retval );
+}
+
+/**
+ * Check if the current user can publish replies
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses is_super_admin()
+ * @uses is_user_logged_in()
+ * @uses bbp_allow_anonymous()
+ * @uses current_user_can()
+ * @uses apply_filters()
+ *
+ * @return bool
+ */
+function bbp_current_user_can_publish_replies() {
+
+	// Users need to earn access
+	$retval = false;
+
+	// Always allow super admins
+	if ( is_super_admin() )
+		$retval = true;
+
+	// Do not allow anonymous if not enabled
+	elseif ( !is_user_logged_in() && bbp_allow_anonymous() )
+		$retval = true;
+
+	// User is logged in
+	elseif ( current_user_can( 'publish_replies' ) )
+		$retval = true;
+
+	// Allow access to be filtered
+	return apply_filters( 'bbp_current_user_can_publish_replies', (bool) $retval );
 }
 
 /** Forms *********************************************************************/
@@ -1171,50 +1259,51 @@ function bbp_current_user_can_access_create_topic_form() {
 	$retval = false;
 
 	// Looking at a single forum & forum is open
-	if ( bbp_is_single_forum() && bbp_is_forum_open() ) {
-
-		// What is the visibility of this forum
-		switch ( bbp_get_forum_visibility() ) {
-
-			// Public
-			case 'publish' :
-
-				// User can publish topics
-				if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) )
-					$retval = true;
-
-				break;
-
-			// Private forums
-			case 'private' :
-				$retval = current_user_can( 'read_private_forums' );
-				break;
-
-			// Hidden forums
-			case 'hidden'  :
-				$retval = current_user_can( 'read_hidden_forums' );
-				break;
-		}
+	if ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() ) {
+		$retval = bbp_current_user_can_publish_topics();
 
 	// User can edit this topic
 	} elseif ( bbp_is_topic_edit() ) {
 		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
-
-	// Fallback for shortcodes
-	} elseif ( is_page() || is_single() ) {
-
-		// User can publish topics, or anonymous posting is allowed
-		if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) ) {
-
-			// Forum is not closed
-			if ( bbp_is_forum_open( bbp_get_topic_forum_id( bbp_get_topic_id() ) ) ) {
-				$retval = true;
-			}
-		}
 	}
 
 	// Allow access to be filtered
-	return apply_filters( 'bbp_current_user_can_access_create_topic_form', $retval );
+	return apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
+}
+
+/**
+ * Performs a series of checks to ensure the current user can create replies.
+ *
+ * @since bbPress (r3127)
+ *
+ * @uses bbp_is_topic_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_id()
+ * @uses bbp_allow_anonymous()
+ * @uses is_user_logged_in()
+ *
+ * @return bool
+ */
+function bbp_current_user_can_access_create_reply_form() {
+
+	// Always allow super admins
+	if ( is_super_admin() )
+		return true;
+
+	// Users need to earn access
+	$retval = false;
+
+	// Looking at a single topic, topic is open, and forum is open
+	if ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
+		$retval = bbp_current_user_can_publish_replies();
+
+	// User can edit this topic
+	} elseif ( bbp_is_reply_edit() ) {
+		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
+	}
+
+	// Allow access to be filtered
+	return apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
 }
 
 ?>

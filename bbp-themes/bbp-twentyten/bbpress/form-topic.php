@@ -165,7 +165,7 @@ wp_reset_postdata();
 
 		<div id="no-topic-<?php bbp_topic_id(); ?>" class="bbp-no-topic">
 			<div class="bbp-template-notice">
-				<p><?php _e( 'This forum is closed to new topics.', 'bbpress' ); ?></p>
+				<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title() ); ?></p>
 			</div>
 		</div>
 
