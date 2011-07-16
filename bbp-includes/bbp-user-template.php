@@ -1198,16 +1198,19 @@ function bbp_current_user_can_access_create_topic_form() {
 
 	// User can edit this topic
 	} elseif ( bbp_is_topic_edit() ) {
-		$retval =  current_user_can( 'edit_topic', bbp_get_topic_id() );
+		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
 
 	// Fallback for shortcodes
 	} elseif ( is_page() || is_single() ) {
 
-		// Page or single post, and user can publish topics or anonymous
-		// posting is allowed.
-		if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) )
-			$retval = true;
+		// User can publish topics, or anonymous posting is allowed
+		if ( current_user_can( 'publish_topics' ) || ( !is_user_logged_in() && bbp_allow_anonymous() ) ) {
 
+			// Forum is not closed
+			if ( bbp_is_forum_open( bbp_get_topic_forum_id( bbp_get_topic_id() ) ) ) {
+				$retval = true;
+			}
+		}
 	}
 
 	// Allow access to be filtered
