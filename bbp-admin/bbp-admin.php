@@ -352,7 +352,7 @@ class BBP_Admin {
 		if ( !empty( $bbp->theme_compat->theme ) && !current_theme_supports( 'bbpress' ) ) : ?>
 
 			<div id="message" class="updated fade">
-				<p style="line-height: 150%"><?php printf( __( "<strong>bbPress is in Theme Compatability Mode</strong>. Your forums are using default styling.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
+				<p style="line-height: 150%"><?php printf( __( "Your active theme does not include bbPress template files. Your forums are using the default styling included with bbPress.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
 			</div>
 
 		<?php endif;
