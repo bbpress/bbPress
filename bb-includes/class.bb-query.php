@@ -198,10 +198,12 @@ class BB_Query {
 		// parameters commented out are handled farther down
 
 		$ints = array(
-//			'page',		// Defaults to global or number in URI
-//			'per_page',	// Defaults to page_topics
-			'tag_id',	// one tag ID
-			'favorites'	// one user ID
+//			'page',		 // Defaults to global or number in URI
+//			'per_page',	 // Defaults to page_topics
+			'tag_id',	 // one tag ID
+			'favorites', // one user ID,
+			'offset',	 // first item to query
+			'number'	 // number of items to retrieve
 		);
 
 		$parse_ints = array(
@@ -719,15 +721,25 @@ class BB_Query {
 		else
 			$bits['order_by'] .= " DESC";
 
-		if ( !$q['per_page'] )
-			$q['per_page'] = (int) bb_get_option( 'page_topics' );
-
 		$bits['limit'] = '';
-		if ( $q['per_page'] > 0 ) :
-			if ( $q['page'] > 1 )
-				$bits['limit'] .= $q['per_page'] * ( $q['page'] - 1 ) . ", ";
-			$bits['limit'] .= $q['per_page'];
-		endif;
+
+		// When offset and number are provided, skip per_page and limit checks
+		if ( !empty( $q['offset'] ) && !empty( $q['number'] ) ) {
+			$bits['limit'] .= $q['offset'] . ", " . $q['number'];
+
+		// Else proceed as normal
+		} else {
+			if ( !$q['per_page'] ) {
+				$q['per_page'] = (int) bb_get_option( 'page_topics' );
+			}
+	
+			if ( $q['per_page'] > 0 ) {
+				if ( $q['page'] > 1 ) {
+					$bits['limit'] .= $q['per_page'] * ( $q['page'] - 1 ) . ", ";
+				}
+				$bits['limit'] .= $q['per_page'];
+			}
+		}
 
 		$name = "get_{$this->type}s_";
 
