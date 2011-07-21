@@ -52,7 +52,7 @@ $bb_queries['posts'] = "CREATE TABLE IF NOT EXISTS `$bbdb->posts` (
 	KEY `poster_time` (`poster_id`, `post_time`),
 	KEY `post_time` (`post_time`),
 	FULLTEXT KEY `post_text` (`post_text`)
-) TYPE = MYISAM;";
+) ENGINE = MYISAM;";
 
 // terms
 $bb_queries['terms'] = "CREATE TABLE IF NOT EXISTS `$bbdb->terms` (
