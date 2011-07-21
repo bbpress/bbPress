@@ -14,6 +14,30 @@ $bb_ksd_api_host = bb_get_option( 'akismet_key' ) . '.rest.akismet.com';
 $bb_ksd_api_port = 80;
 $bb_ksd_user_agent = 'bbPress/' . bb_get_option( 'version' ) . ' | bbAkismet/'. bb_get_option( 'version' );
 
+/**
+ * Allow Akismet key to be set globally
+ *
+ * The 'WPCOM_API_KEY' constant is used in the Akismet plugin for WordPress.
+ * We're using it here to allow for simple global Akismet usage anywhere in the
+ * stack, provided it's set before bb_get_option( 'akismet_key' ) is called.
+ *
+ * @package bbPress
+ * @subpackage Akismet
+ * @since 1.1
+ *
+ * @param string $key Optional | The key from bb_get_option( 'akismet_key' )
+ * @uses apply_filters() Allow global key to be filtered
+ *
+ * @return string Filtered $key
+ */
+function bb_akismet_global_key( $key = false ) {
+	if ( defined( 'WPCOM_API_KEY' ) )
+		$key = constant( 'WPCOM_API_KEY' );
+
+	return apply_filters( 'bb_akismet_global_key', $key );
+}
+add_filter( 'bb_pre_get_option_akismet_key', 'bb_akismet_global_key' );
+
 function bb_akismet_verify_key( $key )
 {
 	global $bb_ksd_api_port;
