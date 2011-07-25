@@ -31,7 +31,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @param string $theme
  * @uses current_theme_supports()
  */
-function bbp_theme_compat_set_theme( $theme = array() ) {
+function bbp_setup_theme_compat( $theme = array() ) {
 	global $bbp;
 
 	// Check if current theme supports bbPress
@@ -67,17 +67,13 @@ function bbp_theme_compat_enqueue_css() {
 
 		/** Default CSS ***************************************************/
 
-		// Do not enqueue CSS in admin
-		if ( !is_admin() ) {
+		// Right to left
+		if ( is_rtl() ) {
+			wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress-rtl.css' );
 
-			// Right to left
-			if ( is_rtl() ) {
-				wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress-rtl.css' );
-
-			// Left to right
-			} else {
-				wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress.css' );
-			}
+		// Left to right
+		} else {
+			wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress.css' );
 		}
 	}
 }

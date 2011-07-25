@@ -30,12 +30,9 @@ if ( !function_exists( 'bbp_twentyten_enqueue_styles' ) ) :
  *
  * @since bbPress (r2652)
  *
- * @uses is_admin() To check if it's the admin section
  * @uses wp_enqueue_style() To enqueue the styles
  */
 function bbp_twentyten_enqueue_styles () {
-	if ( is_admin() )
-		return false;
 
 	// Right to left
 	if ( is_rtl() ) {
@@ -57,7 +54,113 @@ function bbp_twentyten_enqueue_styles () {
 		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress.css', 'twentyten', 20100503, 'screen' );
 	}
 }
-add_action( 'init', 'bbp_twentyten_enqueue_styles' );
+add_action( 'bbp_enqueue_scripts', 'bbp_twentyten_enqueue_styles' );
+endif;
+
+if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
+/**
+ * Enqueue the required Javascript files
+ *
+ * @since bbPress (r2652)
+ *
+ * @uses bbp_is_single_topic() To check if it's the topic page
+ * @uses get_stylesheet_directory_uri() To get the stylesheet directory uri
+ * @uses bbp_is_single_user_edit() To check if it's the profile edit page
+ * @uses wp_enqueue_script() To enqueue the scripts
+ */
+function bbp_twentyten_enqueue_scripts () {
+	if ( bbp_is_single_topic() )
+		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
+
+	if ( bbp_is_single_user_edit() )
+		wp_enqueue_script( 'user-profile' );
+}
+add_action( 'bbp_setup_theme_compat', 'bbp_twentyten_enqueue_scripts' );
+endif;
+
+if ( !function_exists( 'bbp_twentyten_scripts' ) ) :
+/**
+ * Put some scripts in the header, like AJAX url for wp-lists
+ *
+ * @since bbPress (r2652)
+ *
+ * @uses bbp_is_single_topic() To check if it's the topic page
+ * @uses admin_url() To get the admin url
+ * @uses bbp_is_single_user_edit() To check if it's the profile edit page
+ */
+function bbp_twentyten_scripts () {
+	if ( bbp_is_single_topic() ) : ?>
+
+	<script type='text/javascript'>
+		/* <![CDATA[ */
+		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
+		/* ]]> */
+	</script>
+
+	<?php elseif ( bbp_is_single_user_edit() ) : ?>
+
+	<script type="text/javascript" charset="utf-8">
+		if ( window.location.hash == '#password' ) {
+			document.getElementById('pass1').focus();
+		}
+	</script>
+
+	<?php
+	endif;
+}
+add_filter( 'bbp_head', 'bbp_twentyten_scripts', -1 );
+endif;
+
+if ( !function_exists( 'bbp_twentyten_topic_script_localization' ) ) :
+/**
+ * Load localizations for topic script.
+ *
+ * These localizations require information that may not be loaded even by init.
+ *
+ * @since bbPress (r2652)
+ *
+ * @uses bbp_is_single_topic() To check if it's the topic page
+ * @uses bbp_get_current_user_id() To get the current user id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_favorites_permalink() To get the favorites permalink
+ * @uses bbp_is_user_favorite() To check if the topic is in user's favorites
+ * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
+ * @uses bbp_is_user_subscribed() To check if the user is subscribed to topic
+ * @uses bbp_get_topic_permalink() To get the topic permalink
+ * @uses wp_localize_script() To localize the script
+ */
+function bbp_twentyten_topic_script_localization () {
+	if ( !bbp_is_single_topic() )
+		return;
+
+	$user_id = bbp_get_current_user_id();
+
+	$localizations = array(
+		'currentUserId' => $user_id,
+		'topicId'       => bbp_get_topic_id(),
+		'favoritesLink' => bbp_get_favorites_permalink( $user_id ),
+		'isFav'         => (int) bbp_is_user_favorite( $user_id ),
+		'favLinkYes'    => __( 'favorites',                                         'bbpress' ),
+		'favLinkNo'     => __( '?',                                                 'bbpress' ),
+		'favYes'        => __( 'This topic is one of your %favLinkYes% [%favDel%]', 'bbpress' ),
+		'favNo'         => __( '%favAdd% (%favLinkNo%)',                            'bbpress' ),
+		'favDel'        => __( '&times;',                                           'bbpress' ),
+		'favAdd'        => __( 'Add this topic to your favorites',                  'bbpress' )
+	);
+
+	if ( bbp_is_subscriptions_active() ) {
+		$localizations['subsActive']   = 1;
+		$localizations['isSubscribed'] = (int) bbp_is_user_subscribed( $user_id );
+		$localizations['subsSub']      = __( 'Subscribe',   'bbpress' );
+		$localizations['subsUns']      = __( 'Unsubscribe', 'bbpress' );
+		$localizations['subsLink']     = bbp_get_topic_permalink();
+	} else {
+		$localizations['subsActive'] = 0;
+	}
+
+	wp_localize_script( 'bbp_topic', 'bbpTopicJS', $localizations );
+}
+add_filter( 'bbp_setup_theme_compat', 'bbp_twentyten_topic_script_localization' );
 endif;
 
 if ( !function_exists( 'bbp_twentyten_dim_favorite' ) ) :
@@ -142,112 +245,6 @@ function bbp_twentyten_dim_subscription () {
 	die( '0' );
 }
 add_action( 'wp_ajax_dim-subscription', 'bbp_twentyten_dim_subscription' );
-endif;
-
-if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
-/**
- * Enqueue the required Javascript files
- *
- * @since bbPress (r2652)
- *
- * @uses bbp_is_single_topic() To check if it's the topic page
- * @uses get_stylesheet_directory_uri() To get the stylesheet directory uri
- * @uses bbp_is_single_user_edit() To check if it's the profile edit page
- * @uses wp_enqueue_script() To enqueue the scripts
- */
-function bbp_twentyten_enqueue_scripts () {
-	if ( bbp_is_single_topic() )
-		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
-
-	if ( bbp_is_single_user_edit() )
-		wp_enqueue_script( 'user-profile' );
-}
-add_action( 'wp_enqueue_scripts', 'bbp_twentyten_enqueue_scripts' );
-endif;
-
-if ( !function_exists( 'bbp_twentyten_scripts' ) ) :
-/**
- * Put some scripts in the header, like AJAX url for wp-lists
- *
- * @since bbPress (r2652)
- *
- * @uses bbp_is_single_topic() To check if it's the topic page
- * @uses admin_url() To get the admin url
- * @uses bbp_is_single_user_edit() To check if it's the profile edit page
- */
-function bbp_twentyten_scripts () {
-	if ( bbp_is_single_topic() ) : ?>
-
-	<script type='text/javascript'>
-		/* <![CDATA[ */
-		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
-		/* ]]> */
-	</script>
-
-	<?php elseif ( bbp_is_single_user_edit() ) : ?>
-
-	<script type="text/javascript" charset="utf-8">
-		if ( window.location.hash == '#password' ) {
-			document.getElementById('pass1').focus();
-		}
-	</script>
-
-	<?php
-	endif;
-}
-add_filter( 'wp_head', 'bbp_twentyten_scripts', -1 );
-endif;
-
-if ( !function_exists( 'bbp_twentyten_topic_script_localization' ) ) :
-/**
- * Load localizations for topic script.
- *
- * These localizations require information that may not be loaded even by init.
- *
- * @since bbPress (r2652)
- *
- * @uses bbp_is_single_topic() To check if it's the topic page
- * @uses bbp_get_current_user_id() To get the current user id
- * @uses bbp_get_topic_id() To get the topic id
- * @uses bbp_get_favorites_permalink() To get the favorites permalink
- * @uses bbp_is_user_favorite() To check if the topic is in user's favorites
- * @uses bbp_is_subscriptions_active() To check if the subscriptions are active
- * @uses bbp_is_user_subscribed() To check if the user is subscribed to topic
- * @uses bbp_get_topic_permalink() To get the topic permalink
- * @uses wp_localize_script() To localize the script
- */
-function bbp_twentyten_topic_script_localization () {
-	if ( !bbp_is_single_topic() )
-		return;
-
-	$user_id = bbp_get_current_user_id();
-
-	$localizations = array(
-		'currentUserId' => $user_id,
-		'topicId'       => bbp_get_topic_id(),
-		'favoritesLink' => bbp_get_favorites_permalink( $user_id ),
-		'isFav'         => (int) bbp_is_user_favorite( $user_id ),
-		'favLinkYes'    => __( 'favorites',                                         'bbpress' ),
-		'favLinkNo'     => __( '?',                                                 'bbpress' ),
-		'favYes'        => __( 'This topic is one of your %favLinkYes% [%favDel%]', 'bbpress' ),
-		'favNo'         => __( '%favAdd% (%favLinkNo%)',                            'bbpress' ),
-		'favDel'        => __( '&times;',                                           'bbpress' ),
-		'favAdd'        => __( 'Add this topic to your favorites',                  'bbpress' )
-	);
-
-	if ( bbp_is_subscriptions_active() ) {
-		$localizations['subsActive']   = 1;
-		$localizations['isSubscribed'] = (int) bbp_is_user_subscribed( $user_id );
-		$localizations['subsSub']      = __( 'Subscribe',   'bbpress' );
-		$localizations['subsUns']      = __( 'Unsubscribe', 'bbpress' );
-		$localizations['subsLink']     = bbp_get_topic_permalink();
-	} else {
-		$localizations['subsActive'] = 0;
-	}
-
-	wp_localize_script( 'bbp_topic', 'bbpTopicJS', $localizations );
-}
-add_filter( 'wp_enqueue_scripts', 'bbp_twentyten_topic_script_localization' );
 endif;
 
 ?>

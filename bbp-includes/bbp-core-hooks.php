@@ -34,6 +34,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
+add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
 add_filter( 'template_include',       'bbp_template_include',       10 );
 
 /**
@@ -69,8 +70,7 @@ add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Theme Compat
-add_action( 'bbp_setup_theme_compat', 'bbp_theme_compat_set_theme'   );
-add_action( 'bbp_setup_theme_compat', 'bbp_theme_compat_enqueue_css' );
+add_action( 'bbp_enqueue_scripts',    'bbp_theme_compat_enqueue_css' );
 
 // Widgets
 add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Login_Widget");'   ) );
@@ -546,6 +546,17 @@ function bbp_register_views() {
 }
 
 /**
+ * Enqueue bbPress specific CSS and JS
+ *
+ * @since bbPress (r3373)
+ *
+ * @uses do_action() Calls 'bbp_enqueue_scripts'
+ */
+function bbp_enqueue_scripts() {
+	do_action ( 'bbp_enqueue_scripts' );
+}
+
+/**
  * Add the bbPress-specific rewrite tags
  *
  * @since bbPress (r2753)
@@ -567,17 +578,6 @@ function bbp_add_rewrite_tags() {
  */
 function bbp_generate_rewrite_rules( $wp_rewrite ) {
 	do_action_ref_array( 'bbp_generate_rewrite_rules', array( &$wp_rewrite ) );
-}
-
-/**
- * Setup bbPress theme compatability actions
- *
- * @since bbPress (r3028)
- *
- * @uses do_action() Calls 'bbp_setup_theme_compat'
- */
-function bbp_setup_theme_compat() {
-	do_action( 'bbp_setup_theme_compat' );
 }
 
 /** Final Action **************************************************************/
