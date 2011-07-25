@@ -30,29 +30,18 @@ class BBP_Topics_Admin {
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress topics admin loader (PHP4 compat)
-	 *
-	 * @since bbPress (r2515)
-	 *
-	 * @uses BBP_Topics_Admin::_setup_globals() Setup the globals needed
-	 * @uses BBP_Topics_Admin::_setup_actions() Setup the hooks and actions
-	 */
-	function BBP_Topics_Admin() {
-		$this->__construct();
-	}
-
-	/**
 	 * The main bbPress topics admin loader
 	 *
 	 * @since bbPress (r2515)
 	 *
-	 * @uses BBP_Topics_Admin::_setup_globals() Setup the globals needed
-	 * @uses BBP_Topics_Admin::_setup_actions() Setup the hooks and actions
+	 * @uses BBP_Topics_Admin::setup_globals() Setup the globals needed
+	 * @uses BBP_Topics_Admin::setup_actions() Setup the hooks and actions
+	 * @uses BBP_Topics_Admin::setup_help() Setup the help text
 	 */
 	function __construct() {
-		$this->_setup_globals();
-		$this->_setup_actions();
-		$this->_setup_help();
+		$this->setup_globals();
+		$this->setup_actions();
+		$this->setup_help();
 	}
 
 	/**
@@ -67,7 +56,7 @@ class BBP_Topics_Admin {
 	 * @uses bbp_get_topic_post_type() To get the topic post type
 	 * @uses bbp_get_reply_post_type() To get the reply post type
 	 */
-	function _setup_actions() {
+	function setup_actions() {
 
 		// Add some general styling to the admin area
 		add_action( 'admin_head',            array( $this, 'admin_head'       ) );
@@ -105,7 +94,7 @@ class BBP_Topics_Admin {
 	 * @since bbPress (r2646)
 	 * @access private
 	 */
-	function _setup_globals() {
+	function setup_globals() {
 
 		// Setup the post type for this admin component
 		$this->post_type = bbp_get_topic_post_type();
@@ -117,7 +106,7 @@ class BBP_Topics_Admin {
 	 * @since bbPress (r3119)
 	 * @access private
 	 */
-	function _setup_help() {
+	function setup_help() {
 
 		// Define local variable(s)
 		$contextual_help = array();

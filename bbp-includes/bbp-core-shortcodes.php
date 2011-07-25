@@ -32,19 +32,8 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @uses __construct()
-	 */
-	public function BBP_Shortcodes() {
-		$this->__construct();
-	}
-
-	/**
-	 * Add the register_shortcodes action to bbp_init
-	 *
-	 * @since bbPress (r3031)
-	 *
-	 * @uses _setup_globals()
-	 * @uses _add_shortcodes()
+	 * @uses setup_globals()
+	 * @uses add_shortcodes()
 	 */
 	public function __construct() {
 		$this->setup_globals();

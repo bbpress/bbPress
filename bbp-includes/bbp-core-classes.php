@@ -64,17 +64,17 @@ class BBP_Component {
 	 *  - slug: Unique slug (used in query string and permalinks)
 	 *  - query: The loop for this component (WP_Query)
 	 *  - current_id: The current ID of the queried object
-	 * @uses BBP_Component::_setup_globals() Setup the globals needed
-	 * @uses BBP_Component::_includes() Include the required files
-	 * @uses BBP_Component::_setup_actions() Setup the hooks and actions
+	 * @uses BBP_Component::setup_globals() Setup the globals needed
+	 * @uses BBP_Component::includes() Include the required files
+	 * @uses BBP_Component::setup_actions() Setup the hooks and actions
 	 */
 	function BBP_Component( $args = '' ) {
 		if ( empty( $args ) )
 			return;
 
-		$this->_setup_globals( $args );
-		$this->_includes();
-		$this->_setup_actions();
+		$this->setup_globals( $args );
+		$this->includes();
+		$this->setup_actions();
 	}
 
 	/**
@@ -86,7 +86,7 @@ class BBP_Component {
 	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_id'
 	 * @uses apply_filters() Calls 'bbp_{@link BBP_Component::name}_slug'
 	 */
-	function _setup_globals( $args = '' ) {
+	function setup_globals( $args = '' ) {
 		$this->name = $args['name'];
 		$this->id   = apply_filters( 'bbp_' . $this->name . '_id',   $args['id']   );
 		$this->slug = apply_filters( 'bbp_' . $this->name . '_slug', $args['slug'] );
@@ -98,10 +98,10 @@ class BBP_Component {
 	 * @since bbPress (r2700)
 	 * @access private
 	 *
-	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}_includes'
+	 * @uses do_action() Calls 'bbp_{@link BBP_Component::name}includes'
 	 */
-	function _includes() {
-		do_action( 'bbp_' . $this->name . '_includes' );
+	function includes() {
+		do_action( 'bbp_' . $this->name . 'includes' );
 	}
 
 	/**
@@ -112,9 +112,9 @@ class BBP_Component {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses do_action() Calls
-	 *                    'bbp_{@link BBP_Component::name}_setup_actions'
+	 *                    'bbp_{@link BBP_Component::name}setup_actions'
 	 */
-	function _setup_actions() {
+	function setup_actions() {
 		// Register post types
 		add_action( 'bbp_register_post_types',      array ( $this, 'register_post_types'      ), 10, 2 );
 
@@ -128,7 +128,7 @@ class BBP_Component {
 		add_action( 'bbp_generate_rewrite_rules',   array ( $this, 'generate_rewrite_rules'   ), 10, 2 );
 
 		// Additional actions can be attached here
-		do_action( 'bbp_' . $this->name . '_setup_actions' );
+		do_action( 'bbp_' . $this->name . 'setup_actions' );
 	}
 
 	/**

@@ -288,9 +288,9 @@ class bbPress {
 	 *
 	 * @since bbPress (r2464)
 	 *
-	 * @uses bbPress::_setup_globals() Setup the globals needed
-	 * @uses bbPress::_includes() Include the required files
-	 * @uses bbPress::_setup_actions() Setup the hooks and actions
+	 * @uses bbPress::setup_globals() Setup the globals needed
+	 * @uses bbPress::includes() Include the required files
+	 * @uses bbPress::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct() {
 		$this->setup_globals();

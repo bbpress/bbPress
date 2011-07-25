@@ -25,28 +25,16 @@ class BBP_Users_Admin {
 	/** Functions *************************************************************/
 
 	/**
-	 * The bbPress users admin loader (PHP4 compat)
-	 *
-	 * @since bbPress (r2515)
-	 *
-	 * @uses BBP_Users_Admin::_setup_globals() Setup the globals needed
-	 * @uses BBP_Users_Admin::_setup_actions() Setup the hooks and actions
-	 */
-	function BBP_Users_Admin() {
-		$this->__construct();
-	}
-
-	/**
 	 * The bbPress users admin loader
 	 *
 	 * @since bbPress (r2515)
 	 *
-	 * @uses BBP_Users_Admin::_setup_globals() Setup the globals needed
-	 * @uses BBP_Users_Admin::_setup_actions() Setup the hooks and actions
+	 * @uses BBP_Users_Admin::setup_globals() Setup the globals needed
+	 * @uses BBP_Users_Admin::setup_actions() Setup the hooks and actions
 	 */
 	function __construct() {
-		$this->_setup_globals();
-		$this->_setup_actions();
+		$this->setup_globals();
+		$this->setup_actions();
 	}
 
 	/**
@@ -57,7 +45,7 @@ class BBP_Users_Admin {
 	 *
 	 * @uses add_action() To add various actions
 	 */
-	function _setup_actions() {
+	function setup_actions() {
 
 		// User profile edit/display actions
 		add_action( 'edit_user_profile',        array( $this, 'user_profile_forums' ) );
@@ -74,7 +62,7 @@ class BBP_Users_Admin {
 	 * @since bbPress (r2646)
 	 * @access private
 	 */
-	function _setup_globals() { }
+	function setup_globals() { }
 
 	/**
 	 * Add some general styling to the admin area

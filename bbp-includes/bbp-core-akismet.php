@@ -22,15 +22,6 @@ if ( !class_exists( 'BBP_Akismet' ) ) :
 class BBP_Akismet {
 
 	/**
-	 * The main bbPress Akismet loader (PHP4 compat)
-	 *
-	 * @since bbPress (r3277)
-	 */
-	function BBP_Akismet() {
-		$this->__construct();
-	}
-
-	/**
 	 * The main bbPress Akismet loader
 	 *
 	 * @since bbPress (r3277)
@@ -38,7 +29,7 @@ class BBP_Akismet {
 	 * @uses add_filter()
 	 */
 	function __construct() {
-		$this->_setup_actions();
+		$this->setup_actions();
 	}
 
 	/**
@@ -50,7 +41,7 @@ class BBP_Akismet {
 	 * @uses add_filter() To add various filters
 	 * @uses add_action() To add various actions
 	 */
-	function _setup_actions() {
+	function setup_actions() {
 
 		// Bail if no akismet
 		if ( !defined( 'AKISMET_VERSION' ) ) return;

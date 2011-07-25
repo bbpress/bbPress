@@ -12,10 +12,10 @@
  *
  * There are a few common places that additional actions can currently be found
  *
- *  - bbPress: In {@link bbPress::_setup_actions()} in bbpress.php
- *  - Component: In {@link BBP_Component::_setup_actions()} in
+ *  - bbPress: In {@link bbPress::setup_actions()} in bbpress.php
+ *  - Component: In {@link BBP_Component::setup_actions()} in
  *                bbp-includes/bbp-classes.php
- *  - Admin: More in {@link BBP_Admin::_setup_actions()} in
+ *  - Admin: More in {@link BBP_Admin::setup_actions()} in
  *            bbp-admin/bbp-admin.php
  */
 

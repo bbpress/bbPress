@@ -30,7 +30,7 @@ class BPDB extends WPDB {
 		parent::__construct( $dbuser, $dbpassword, $dbname, $dbhost );
 
 		$args = func_get_args();
-		$args = call_user_func_array( array( &$this, '_init' ), $args );
+		$args = call_user_func_array( array( &$this, 'init' ), $args );
 
 		if ( $args['host'] )
 			$this->db_servers['dbh_global'] = $args;
@@ -54,7 +54,7 @@ class BPDB extends WPDB {
 	 * Initialises the class variables based on provided arguments.
 	 * Based on, and taken from, the BackPress class in turn taken from the 1.0 branch of bbPress.
 	 */
-	function _init( $args )
+	function init( $args )
 	{
 		if ( 4 == func_num_args() ) {
 			$args = array(

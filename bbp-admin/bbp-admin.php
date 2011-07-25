@@ -42,26 +42,13 @@ class BBP_Admin {
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress admin loader (PHP4 compat)
-	 *
-	 * @since bbPress (r2515)
-	 *
-	 * @uses BBP_Admin::_setup_globals() Setup the globals needed
-	 * @uses BBP_Admin::_includes() Include the required files
-	 * @uses BBP_Admin::_setup_actions() Setup the hooks and actions
-	 */
-	public function BBP_Admin() {
-		$this->__construct();
-	}
-
-	/**
 	 * The main bbPress admin loader
 	 *
 	 * @since bbPress (r2515)
 	 *
-	 * @uses BBP_Admin::_setup_globals() Setup the globals needed
-	 * @uses BBP_Admin::_includes() Include the required files
-	 * @uses BBP_Admin::_setup_actions() Setup the hooks and actions
+	 * @uses BBP_Admin::setup_globals() Setup the globals needed
+	 * @uses BBP_Admin::includes() Include the required files
+	 * @uses BBP_Admin::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct() {
 		$this->setup_globals();
