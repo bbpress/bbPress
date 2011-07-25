@@ -32,12 +32,10 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * @uses current_theme_supports()
  */
 function bbp_theme_compat_set_theme( $theme = array() ) {
+	global $bbp;
 
 	// Check if current theme supports bbPress
 	if ( empty( $bbp->theme_compat->theme ) && !current_theme_supports( 'bbpress' ) ) {
-
-		global $bbp;
-
 		if ( empty( $theme ) ) {
 			$theme = array(
 				'dir' => $bbp->themes_dir . '/bbp-twentyten',
