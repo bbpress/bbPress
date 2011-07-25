@@ -872,7 +872,7 @@ class bbPress_Importer {
 				<?php
 
 				if ( !$forums = bb_get_forums() ) {
-					echo "<li><strong>" . __( 'No forums were found!', 'bbpress' ) . "</strong></li></ol>\n";
+					echo "<li><strong>" . __( 'No forums found', 'bbpress' ) . "</strong></li></ol>\n";
 					return;
 				}
 

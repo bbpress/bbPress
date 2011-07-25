@@ -25,7 +25,7 @@
 			</div>
 
 			<div class="bbp-email">
-				<label for="user_email"><?php _e( 'Email Address', 'bbpress' ); ?>: </label>
+				<label for="user_email"><?php _e( 'Email', 'bbpress' ); ?>: </label>
 				<input type="text" name="user_email" value="<?php bbp_sanitize_val( 'user_email' ); ?>" size="20" id="user_email" tabindex="<?php bbp_tab_index(); ?>" />
 			</div>
 

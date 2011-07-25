@@ -11,7 +11,7 @@
 
 	<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
 		<fieldset class="bbp-form">
-			<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
+			<legend><?php _e( 'Log In', 'bbpress' ); ?></legend>
 
 			<div class="bbp-username">
 				<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
@@ -32,7 +32,7 @@
 
 				<?php do_action( 'login_form' ); ?>
 
-				<input type="submit" name="user-submit" value="<?php _e( 'Login', 'bbpress' ); ?>" tabindex="<?php bbp_tab_index(); ?>" class="user-submit" />
+				<input type="submit" name="user-submit" value="<?php _e( 'Log In', 'bbpress' ); ?>" tabindex="<?php bbp_tab_index(); ?>" class="user-submit" />
 
 				<?php bbp_user_login_fields(); ?>
 

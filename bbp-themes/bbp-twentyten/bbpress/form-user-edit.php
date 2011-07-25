@@ -102,7 +102,7 @@
 		</div>
 
 		<div>
-			<label for="email"><?php _e( 'E-mail', 'bbpress' ); ?></label>
+			<label for="email"><?php _e( 'Email', 'bbpress' ); ?></label>
 
 			<input type="text" name="email" id="email" value="<?php echo esc_attr( bbp_get_displayed_user_field( 'user_email' ) ); ?>" class="regular-text" />
 

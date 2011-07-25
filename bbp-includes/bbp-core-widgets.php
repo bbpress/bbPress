@@ -66,7 +66,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 			<form method="post" action="<?php bbp_wp_login_action( array( 'context' => 'login_post' ) ); ?>" class="bbp-login-form">
 				<fieldset>
-					<legend><?php _e( 'Login', 'bbpress' ); ?></legend>
+					<legend><?php _e( 'Log In', 'bbpress' ); ?></legend>
 
 					<div class="bbp-username">
 						<label for="user_login"><?php _e( 'Username', 'bbpress' ); ?>: </label>
@@ -374,7 +374,7 @@ class BBP_Forums_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'parent_forum' ); ?>"><?php _e( 'Parent forum:', 'bbpress' ); ?>
+			<label for="<?php echo $this->get_field_id( 'parent_forum' ); ?>"><?php _e( 'Parent Forum:', 'bbpress' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'parent_forum' ); ?>" name="<?php echo $this->get_field_name( 'parent_forum' ); ?>" type="text" value="<?php echo $parent_forum; ?>" />
 			</label>
 
