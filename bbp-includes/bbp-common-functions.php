@@ -260,8 +260,8 @@ function bbp_get_paged() {
 			$paged = get_query_var( 'paged' );
 
 		// Check query paged
-		} elseif ( !empty( $wp_query->query[paged] ) ) {
-			$paged = $wp_query->query[paged];
+		} elseif ( !empty( $wp_query->query['paged'] ) ) {
+			$paged = $wp_query->query['paged'];
 		}
 
 		// Paged found
