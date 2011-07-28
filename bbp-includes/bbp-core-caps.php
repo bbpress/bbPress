@@ -403,4 +403,62 @@ function bbp_get_caps_for_role( $role = '' ) {
 	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
 }
 
+/**
+ * Add the default role and mapped bbPress caps to the current user if needed
+ *
+ * This function will bail if the forum is not global in a multisite
+ * installation of WordPress, or if the user is marked as spam or deleted.
+ *
+ * @since bbPress (r3380)
+ *
+ * @uses is_multisite()
+ * @uses bbp_allow_global_access()
+ * @uses bbp_is_user_deleted()
+ * @uses bbp_is_user_spammer()
+ * @uses is_user_logged_in()
+ * @uses current_user_can()
+ * @uses get_option()
+ * @uses bbp_get_caps_for_role()
+ *
+ * @global bbPress $bbp
+ * @return If not multisite, not global, or user is deleted/spammed
+ */
+function bbp_global_access_role_mask() {
+
+	// Bail if not multisite or forum is not global
+	if ( !is_multisite() || !bbp_allow_global_access() )
+		return;
+
+	// Bail if user is marked as spam or is deleted
+	if ( bbp_is_user_deleted() || bbp_is_user_spammer() )
+		return;
+
+	// Normal user is logged in but has no caps
+	if ( is_user_logged_in() && current_user_can( 'exist' ) ) {
+		global $bbp;
+
+		// Get default role for this site
+		$default_role  = get_option( 'default_role' );
+
+		// Get bbPress caps for the default role
+		$caps_for_role = bbp_get_caps_for_role( $default_role );
+		
+		// Set all caps to true
+		foreach ( $caps_for_role as $cap ) {
+			$mapped_meta_caps[$cap] = true;
+		}
+
+		// Add 'read' cap just in case
+		$mapped_meta_caps['read'] = true;
+
+		// Allow global access caps to be manipulated
+		$mapped_meta_caps = apply_filters( 'bbp_global_access_mapped_meta_caps', $mapped_meta_caps );
+
+		// Assign the role and mapped caps to the current user
+		$bbp->current_user->roles[0] = $default_role;
+		$bbp->current_user->caps     = $mapped_meta_caps;
+		$bbp->current_user->allcaps  = $mapped_meta_caps;
+	}
+}
+
 ?>
