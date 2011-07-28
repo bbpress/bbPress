@@ -469,7 +469,7 @@ class bbPress {
 
 		// Add the actions
 		foreach( $actions as $class_action )
-			add_action( 'bbp_' . $class_action, array( $this, $class_action ), 10 );
+			add_action( 'bbp_' . $class_action, array( $this, $class_action ), 5 );
 	}
 
 	/**
@@ -867,7 +867,7 @@ class bbPress {
 	 * @uses wp_get_current_user()
 	 */
 	public function setup_current_user() {
-		$this->current_user = wp_get_current_user();
+		$this->current_user = &wp_get_current_user();
 	}
 
 	/**
