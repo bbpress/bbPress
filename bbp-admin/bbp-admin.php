@@ -198,6 +198,12 @@ class BBP_Admin {
 		add_settings_field( '_bbp_allow_anonymous',      __( 'Allow Anonymous Posting', 'bbpress' ), 'bbp_admin_setting_callback_anonymous',     'bbpress', 'bbp_main' );
 	 	register_setting  ( 'bbpress',                   '_bbp_allow_anonymous',                     'intval'                                                          );
 
+		// Allow global access setting
+		if ( is_multisite() ) {
+			add_settings_field( '_bbp_allow_global_access', __( 'Allow Global Access',  'bbpress' ), 'bbp_admin_setting_callback_global_access', 'bbpress', 'bbp_main' );
+		 	register_setting  ( 'bbpress',                  '_bbp_allow_global_access',              'intval'                                                          );
+		}
+
 		/** Per Page Section **************************************************/
 
 		// Add the per page section

@@ -46,6 +46,9 @@ function bbp_add_options() {
 		// Allow anonymous posting
 		'_bbp_allow_anonymous'      => false,
 
+		// Users from all sites can post
+		'_bbp_allow_global_access'  => false,
+
 		/** Per Page **********************************************************/
 
 		// Topics per page
@@ -181,6 +184,20 @@ function bbp_is_subscriptions_active( $default = true ) {
  */
 function bbp_allow_anonymous( $default = false ) {
 	return apply_filters( 'bbp_allow_anonymous', (bool) get_option( '_bbp_allow_anonymous', $default ) );
+}
+
+/**
+ * Is this forum available to all users on all sites in this installation?
+ *
+ * @since bbPress (r3378)
+ *
+ * @param $default bool Optional. Default value
+ *
+ * @uses get_option() To get the global access option
+ * @return bool Is global access allowed?
+ */
+function bbp_allow_global_access( $default = false ) {
+	return apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
 }
 
 /**

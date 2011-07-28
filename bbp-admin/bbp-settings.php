@@ -105,6 +105,22 @@ function bbp_admin_setting_callback_anonymous() {
 <?php
 }
 
+/**
+ * Allow global access setting field
+ *
+ * @since bbPress (r3378)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_global_access() {
+?>
+
+	<input id="_bbp_allow_global_access" name="_bbp_allow_global_access" type="checkbox" id="_bbp_allow_global_access" value="1" <?php checked( bbp_allow_global_access( false ) ); ?> />
+	<label for="_bbp_allow_global_access"><?php _e( 'Allow all users of your multisite installation to create topics and replies', 'bbpress' ); ?></label>
+
+<?php
+}
+
 /** Start Per Page Section ****************************************************/
 
 /**
