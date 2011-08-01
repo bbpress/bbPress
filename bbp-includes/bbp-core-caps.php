@@ -434,7 +434,7 @@ function bbp_global_access_role_mask() {
 		return;
 
 	// Normal user is logged in but has no caps
-	if ( is_user_logged_in() && current_user_can( 'exist' ) ) {
+	if ( is_user_logged_in() && current_user_can( 'exist' ) && !current_user_can( 'read' ) ) {
 		global $bbp;
 
 		// Get default role for this site
