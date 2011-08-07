@@ -1636,7 +1636,7 @@ function bbp_template_notices() {
 	global $bbp;
 
 	// Bail if no notices or errors
-	if ( !isset( $bbp->errors ) || !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
+	if ( !isset( $bbp->errors ) || !bbp_has_errors() )
 		return;
 
 	// Define local variable(s)

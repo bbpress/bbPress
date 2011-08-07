@@ -2097,16 +2097,19 @@ function bbp_topic_trash_link( $args = '' ) {
 		$actions = array();
 		$topic   = bbp_get_topic( bbp_get_topic_id( (int) $id ) );
 
-		if ( empty( $topic ) || !current_user_can( 'delete_topic', $topic->ID ) )
+		if ( empty( $topic ) || !current_user_can( 'delete_topic', $topic->ID ) ) {
 			return;
+		}
 
-		if ( bbp_is_topic_trash( $topic->ID ) )
-			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to restore that?', 'bbpress' ) ) . '\');">' . esc_html( $restore_text ) . '</a>';
-		elseif ( EMPTY_TRASH_DAYS )
-			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to trash that?', 'bbpress' ) ) . '\' );">' . esc_html( $trash_text ) . '</a>';
+		if ( bbp_is_topic_trash( $topic->ID ) ) {
+			$actions['untrash'] = '<a title="' . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'untrash', 'topic_id' => $topic->ID ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . esc_html( $restore_text ) . '</a>';
+		} elseif ( EMPTY_TRASH_DAYS ) {
+			$actions['trash']   = '<a title="' . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'trash', 'topic_id' => $topic->ID ) ), 'trash-' . $topic->post_type . '_' . $topic->ID ) ) . '">' . esc_html( $trash_text ) . '</a>';
+		}
 
-		if ( bbp_is_topic_trash( $topic->ID ) || !EMPTY_TRASH_DAYS )
+		if ( bbp_is_topic_trash( $topic->ID ) || !EMPTY_TRASH_DAYS ) {
 			$actions['delete']  = '<a title="' . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . '" href="' . esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'bbp_toggle_topic_trash', 'sub_action' => 'delete', 'topic_id' => $topic->ID ) ), 'delete-' . $topic->post_type . '_' . $topic->ID ) ) . '" onclick="return confirm(\'' . esc_js( __( 'Are you sure you want to delete that permanently?', 'bbpress' ) ) . '\' );">' . esc_html( $delete_text ) . '</a>';
+		}
 
 		// Process the admin links
 		$actions = implode( $sep, $actions );
@@ -2482,7 +2485,7 @@ function bbp_topic_notices() {
 	if ( !$notice_text = apply_filters( 'bbp_topic_notices', $notice_text, $topic_status, bbp_get_topic_id() ) )
 		return;
 
-	$bbp->errors->add( 'topic_notice', $notice_text, 'message' );
+	bbp_add_error( 'topic_notice', $notice_text, 'message' );
 }
 
 /**

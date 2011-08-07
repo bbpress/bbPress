@@ -852,11 +852,11 @@ function bbp_login_notices() {
 
 	// loggedout was passed
 	if ( !empty( $_GET['loggedout'] ) && ( true == $_GET['loggedout'] ) ) {
-		$bbp->errors->add( 'loggedout', __( 'You are now logged out.', 'bbpress' ), 'message' );
+		bbp_add_error( 'loggedout', __( 'You are now logged out.', 'bbpress' ), 'message' );
 
 	// registration is disabled
 	} elseif ( !empty( $_GET['registration'] ) && ( 'disabled' == $_GET['registration'] ) ) {
-		$bbp->errors->add( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
+		bbp_add_error( 'registerdisabled', __( 'New user registration is currently not allowed.', 'bbpress' ) );
 
 	// Prompt user to check their email
 	} elseif ( !empty( $_GET['checkemail'] ) && in_array( $_GET['checkemail'], array( 'confirm', 'newpass', 'registered' ) ) ) {
@@ -865,17 +865,17 @@ function bbp_login_notices() {
 
 			// Email needs confirmation
 			case 'confirm' :
-				$bbp->errors->add( 'confirm',    __( 'Check your e-mail for the confirmation link.',     'bbpress' ), 'message' );
+				bbp_add_error( 'confirm',    __( 'Check your e-mail for the confirmation link.',     'bbpress' ), 'message' );
 				break;
 
 			// User requested a new password
 			case 'newpass' :
-				$bbp->errors->add( 'newpass',    __( 'Check your e-mail for your new password.',         'bbpress' ), 'message' );
+				bbp_add_error( 'newpass',    __( 'Check your e-mail for your new password.',         'bbpress' ), 'message' );
 				break;
 
 			// User is newly registered
 			case 'registered' :
-				$bbp->errors->add( 'registered', __( 'Registration complete. Please check your e-mail.', 'bbpress' ), 'message' );
+				bbp_add_error( 'registered', __( 'Registration complete. Please check your e-mail.', 'bbpress' ), 'message' );
 				break;
 		}
 	}

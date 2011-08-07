@@ -352,61 +352,81 @@ function bbp_remove_user_favorite( $user_id, $topic_id ) {
  */
 function bbp_favorites_handler() {
 
-	// Only proceed if GET is a favorite action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_favorite_add', 'bbp_favorite_remove' ) ) && !empty( $_GET['topic_id'] ) ) {
+	if ( !bbp_is_favorites_active() )
+		return false;
 
-		global $bbp;
+	// Bail if not a GET action
+	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
 
-		// What action is taking place?
-		$action  = $_GET['action'];
+	// Bail if required GET actions aren't passed
+	if ( empty( $_GET['topic_id'] ) || empty( $_GET['action'] ) )
+		return;
 
-		// Get user_id
-		$user_id = bbp_get_user_id( 0, true, true );
+	// Setup possible get actions
+	$possible_actions = array(
+		'bbp_favorite_add',
+		'bbp_favorite_remove',
+	);
 
-		// Check current user's ability to edit the user
-		if ( !current_user_can( 'edit_user', $user_id ) )
-			$bbp->errors->add( 'bbp_favorite_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+	// Bail if actions aren't meant for this function
+	if ( !in_array( $_GET['action'], $possible_actions ) )
+		return;
 
-		// Load favorite info
-		if ( !$topic_id = intval( $_GET['topic_id'] ) )
-			$bbp->errors->add( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
+	// What action is taking place?
+	$action  = $_GET['action'];
 
-		$is_favorite    = bbp_is_user_favorite( $user_id, $topic_id );
-		$success        = false;
+	// Get user_id
+	$user_id = bbp_get_user_id( 0, true, true );
 
-		// Handle insertion into posts table
-		if ( !empty( $topic_id ) && !empty( $user_id ) && ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) ) {
+	// Check current user's ability to edit the user
+	if ( !current_user_can( 'edit_user', $user_id ) )
+		bbp_add_error( 'bbp_favorite_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 
-			if ( $is_favorite && 'bbp_favorite_remove' == $action )
-				$success = bbp_remove_user_favorite( $user_id, $topic_id );
-			elseif ( !$is_favorite && 'bbp_favorite_add' == $action )
-				$success = bbp_add_user_favorite( $user_id, $topic_id );
+	// Load favorite info
+	if ( !$topic_id = intval( $_GET['topic_id'] ) )
+		bbp_add_error( 'bbp_favorite_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you marking/unmarking as favorite?', 'bbpress' ) );
 
-			// Do additional favorites actions
-			do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
+	$is_favorite = bbp_is_user_favorite( $user_id, $topic_id );
+	$success     = false;
 
-			// Check for missing reply_id or error
-			if ( true == $success ) {
+	// Handle insertion into posts table
+	if ( !empty( $topic_id ) && !empty( $user_id ) && ( !bbp_has_errors() ) ) {
 
-				// Redirect back to new reply
-				if ( bbp_is_favorites() )
-					$redirect = bbp_get_favorites_permalink( $user_id );
-				elseif ( is_singular( bbp_get_topic_post_type() ) )
-					$redirect = bbp_get_topic_permalink( $topic_id );
-				else
-					$redirect = get_permalink();
+		if ( $is_favorite && 'bbp_favorite_remove' == $action ) {
+			$success = bbp_remove_user_favorite( $user_id, $topic_id );
+		} elseif ( !$is_favorite && 'bbp_favorite_add' == $action ) {
+			$success = bbp_add_user_favorite( $user_id, $topic_id );
+		}
 
-				wp_redirect( $redirect );
+		// Do additional favorites actions
+		do_action( 'bbp_favorites_handler', $success, $user_id, $topic_id, $action );
 
-				// For good measure
-				exit();
+		// Check for missing reply_id or error
+		if ( true == $success ) {
 
-			// Handle errors
-			} else {
-				if ( $is_favorite && 'bbp_favorite_remove' == $action )
-					$bbp->errors->add( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
-				elseif ( !$is_favorite && 'bbp_favorite_add' == $action )
-					$bbp->errors->add( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
+			// Redirect back to new reply
+			if ( bbp_is_favorites() ) {
+				$redirect = bbp_get_favorites_permalink( $user_id );
+			} elseif ( bbp_is_single_user() ) {
+				$redirect = bbp_get_user_profile_url();
+			} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
+				$redirect = bbp_get_topic_permalink( $topic_id );
+			} elseif ( is_single() || is_page() ) {
+				$redirect = get_permalink();
+			}
+
+			wp_redirect( $redirect );
+
+			// For good measure
+			exit();
+
+		// Handle errors
+		} else {
+			if ( $is_favorite && 'bbp_favorite_remove' == $action ) {
+				bbp_add_error( 'bbp_favorite_remove', __( '<strong>ERROR</strong>: There was a problem removing that topic from favorites!', 'bbpress' ) );
+			} elseif ( !$is_favorite && 'bbp_favorite_add' == $action ) {
+				bbp_add_error( 'bbp_favorite_add',    __( '<strong>ERROR</strong>: There was a problem favoriting that topic!', 'bbpress' ) );
 			}
 		}
 	}
@@ -627,60 +647,77 @@ function bbp_subscriptions_handler() {
 	if ( !bbp_is_subscriptions_active() )
 		return false;
 
-	// Only proceed if GET is a favorite action
-	if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_subscribe', 'bbp_unsubscribe' ) ) && !empty( $_GET['topic_id'] ) ) {
+	// Bail if not a GET action
+	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
 
-		global $bbp;
+	// Bail if required GET actions aren't passed
+	if ( empty( $_GET['topic_id'] ) || empty( $_GET['action'] ) )
+		return;
 
-		// What action is taking place?
-		$action  = $_GET['action'];
+	// Setup possible get actions
+	$possible_actions = array(
+		'bbp_subscribe',
+		'bbp_unsubscribe',
+	);
 
-		// Get user_id
-		$user_id = bbp_get_user_id( 0, true, true );
+	// Bail if actions aren't meant for this function
+	if ( !in_array( $_GET['action'], $possible_actions ) )
+		return;
 
-		// Check current user's ability to edit the user
-		if ( !current_user_can( 'edit_user', $user_id ) )
-			$bbp->errors->add( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
+	// What action is taking place?
+	$action  = $_GET['action'];
 
-		// Load subscription info
-		if ( !$topic_id = intval( $_GET['topic_id'] ) )
-			$bbp->errors->add( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
+	// Get user_id
+	$user_id = bbp_get_user_id( 0, true, true );
 
-		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
+	// Check current user's ability to edit the user
+	if ( !current_user_can( 'edit_user', $user_id ) )
+		bbp_add_error( 'bbp_subscription_permissions', __( '<strong>ERROR</strong>: You don\'t have the permission to edit favorites of that user!', 'bbpress' ) );
 
-			$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
-			$success         = false;
+	// Load subscription info
+	if ( !$topic_id = intval( $_GET['topic_id'] ) )
+		bbp_add_error( 'bbp_subscription_topic_id', __( '<strong>ERROR</strong>: No topic was found! Which topic are you subscribing/unsubscribing to?', 'bbpress' ) );
 
-			if ( $is_subscription && 'bbp_unsubscribe' == $action )
-				$success = bbp_remove_user_subscription( $user_id, $topic_id );
-			elseif ( !$is_subscription && 'bbp_subscribe' == $action )
-				$success = bbp_add_user_subscription( $user_id, $topic_id );
+	if ( !bbp_has_errors() ) {
 
-			// Do additional subscriptions actions
-			do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
+		$is_subscription = bbp_is_user_subscribed( $user_id, $topic_id );
+		$success         = false;
 
-			// Check for missing reply_id or error
-			if ( true == $success ) {
+		if ( $is_subscription && 'bbp_unsubscribe' == $action ) {
+			$success = bbp_remove_user_subscription( $user_id, $topic_id );
+		} elseif ( !$is_subscription && 'bbp_subscribe' == $action ) {
+			$success = bbp_add_user_subscription( $user_id, $topic_id );
+		}
 
-				// Redirect back to new reply
-				if ( bbp_is_subscriptions() )
-					$redirect = bbp_get_subscriptions_permalink( $user_id );
-				elseif ( is_singular( bbp_get_topic_post_type() ) )
-					$redirect = bbp_get_topic_permalink( $topic_id );
-				else
-					$redirect = get_permalink();
+		// Do additional subscriptions actions
+		do_action( 'bbp_subscriptions_handler', $success, $user_id, $topic_id, $action );
 
-				wp_redirect( $redirect );
+		// Check for missing reply_id or error
+		if ( true == $success ) {
 
-				// For good measure
-				exit();
+			// Redirect back to new reply
+			if ( bbp_is_subscriptions() ) {
+				$redirect = bbp_get_subscriptions_permalink( $user_id );
+			} elseif( bbp_is_single_user() ) {
+				$redirect = bbp_get_user_profile_url();
+			} elseif ( is_singular( bbp_get_topic_post_type() ) ) {
+				$redirect = bbp_get_topic_permalink( $topic_id );
+			} elseif ( is_single() || is_page() ) {
+				$redirect = get_permalink();
+			}
 
-			// Handle errors
-			} else {
-				if ( $is_subscription && 'bbp_unsubscribe' == $action )
-					$bbp->errors->add( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
-				elseif ( !$is_subscription && 'bbp_subscribe' == $action )
-					$bbp->errors->add( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
+			wp_redirect( $redirect );
+
+			// For good measure
+			exit();
+
+		// Handle errors
+		} else {
+			if ( $is_subscription && 'bbp_unsubscribe' == $action ) {
+				bbp_add_error( 'bbp_unsubscribe', __( '<strong>ERROR</strong>: There was a problem unsubscribing from that topic!', 'bbpress' ) );
+			} elseif ( !$is_subscription && 'bbp_subscribe' == $action ) {
+				bbp_add_error( 'bbp_subscribe',    __( '<strong>ERROR</strong>: There was a problem subscribing to that topic!', 'bbpress' ) );
 			}
 		}
 	}
@@ -719,83 +756,88 @@ function bbp_subscriptions_handler() {
  */
 function bbp_edit_user_handler() {
 
-	if ( 'POST' == $_SERVER['REQUEST_METHOD'] && !empty( $_POST['action'] ) && 'bbp-update-user' == $_POST['action'] ) {
+	// Bail if not a POST action
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
 
-		global $bbp, $wpdb;
+	// Bail if action is not 'bbp-update-user'
+	if ( empty( $_POST['action'] ) || ( 'bbp-update-user' == $_POST['action'] ) )
+		return;
 
-		// Execute confirmed email change. See send_confirmation_on_profile_email().
-		if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) && $bbp->displayed_user->ID ) {
+	global $bbp, $wpdb;
 
-			$new_email = get_option( $bbp->displayed_user->ID . '_new_email' );
+	// Execute confirmed email change. See send_confirmation_on_profile_email().
+	if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) && $bbp->displayed_user->ID ) {
 
-			if ( $new_email['hash'] == $_GET['newuseremail'] ) {
-				$user->ID         = $bbp->displayed_user->ID;
-				$user->user_email = esc_html( trim( $new_email['newemail'] ) );
+		$new_email = get_option( $bbp->displayed_user->ID . '_new_email' );
 
-				if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $bbp->displayed_user->user_login ) ) )
-					$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, $bbp->displayed_user->user_login ) );
+		if ( $new_email['hash'] == $_GET['newuseremail'] ) {
+			$user->ID         = $bbp->displayed_user->ID;
+			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
 
-				wp_update_user( get_object_vars( $user ) );
-				delete_option( $bbp->displayed_user->ID . '_new_email' );
+			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $bbp->displayed_user->user_login ) ) )
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, $bbp->displayed_user->user_login ) );
 
-				wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
-				exit;
-			}
-
-		} elseif ( is_multisite() && bbp_is_user_home() && !empty( $_GET['dismiss'] ) && $bbp->displayed_user->ID . '_new_email' == $_GET['dismiss'] ) {
-
+			wp_update_user( get_object_vars( $user ) );
 			delete_option( $bbp->displayed_user->ID . '_new_email' );
+
 			wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
 			exit;
-
 		}
 
-		check_admin_referer( 'update-user_' . $bbp->displayed_user->ID );
+	} elseif ( is_multisite() && bbp_is_user_home() && !empty( $_GET['dismiss'] ) && $bbp->displayed_user->ID . '_new_email' == $_GET['dismiss'] ) {
 
-		if ( !current_user_can( 'edit_user', $bbp->displayed_user->ID ) )
-			wp_die( __( 'What are you doing here? You do not have the permission to edit this user.', 'bbpress' ) );
+		delete_option( $bbp->displayed_user->ID . '_new_email' );
+		wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
+		exit;
 
-		if ( bbp_is_user_home() )
-			do_action( 'personal_options_update', $bbp->displayed_user->ID );
-		else
-			do_action( 'edit_user_profile_update', $bbp->displayed_user->ID );
+	}
 
-		if ( !is_multisite() ) {
-			$bbp->errors = edit_user( $bbp->displayed_user->ID ); // Handles the trouble for us ;)
-		} else {
-			$user        = get_userdata( $bbp->displayed_user->ID );
+	check_admin_referer( 'update-user_' . $bbp->displayed_user->ID );
 
-			// Update the email address in signups, if present.
-			if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email'] ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) )
-				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $_POST['email'], $user_login ) );
+	if ( !current_user_can( 'edit_user', $bbp->displayed_user->ID ) )
+		wp_die( __( 'What are you doing here? You do not have the permission to edit this user.', 'bbpress' ) );
 
-			// WPMU must delete the user from the current blog if WP added him after editing.
-			$delete_role = false;
-			$blog_prefix = $wpdb->get_blog_prefix();
+	if ( bbp_is_user_home() )
+		do_action( 'personal_options_update', $bbp->displayed_user->ID );
+	else
+		do_action( 'edit_user_profile_update', $bbp->displayed_user->ID );
 
-			if ( $bbp->displayed_user->ID != $bbp->displayed_user->ID ) {
-				$cap = $wpdb->get_var( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id = '{$bbp->displayed_user->ID}' AND meta_key = '{$blog_prefix}capabilities' AND meta_value = 'a:0:{}'" );
-				if ( !is_network_admin() && null == $cap && $_POST['role'] == '' ) {
-					$_POST['role'] = 'contributor';
-					$delete_role = true;
-				}
+	if ( !is_multisite() ) {
+		$bbp->errors = edit_user( $bbp->displayed_user->ID ); // Handles the trouble for us ;)
+	} else {
+		$user        = get_userdata( $bbp->displayed_user->ID );
+
+		// Update the email address in signups, if present.
+		if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email'] ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) )
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $_POST['email'], $user_login ) );
+
+		// WPMU must delete the user from the current blog if WP added him after editing.
+		$delete_role = false;
+		$blog_prefix = $wpdb->get_blog_prefix();
+
+		if ( $bbp->displayed_user->ID != $bbp->displayed_user->ID ) {
+			$cap = $wpdb->get_var( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id = '{$bbp->displayed_user->ID}' AND meta_key = '{$blog_prefix}capabilities' AND meta_value = 'a:0:{}'" );
+			if ( !is_network_admin() && null == $cap && $_POST['role'] == '' ) {
+				$_POST['role'] = 'contributor';
+				$delete_role = true;
 			}
-
-			$bbp->errors = edit_user( $bbp->displayed_user->ID );
-
-			if ( $delete_role ) // stops users being added to current blog when they are edited
-				delete_user_meta( $bbp->displayed_user->ID, $blog_prefix . 'capabilities' );
-
-			if ( is_multisite() && is_network_admin() & !bbp_is_user_home() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $bbp->displayed_user->ID ) )
-				empty( $_POST['super_admin'] ) ? revoke_super_admin( $bbp->displayed_user->ID ) : grant_super_admin( $bbp->displayed_user->ID );
 		}
 
-		if ( !is_wp_error( $bbp->errors ) ) {
-			$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) );
+		$bbp->errors = edit_user( $bbp->displayed_user->ID );
 
-			wp_redirect( $redirect );
-			exit;
-		}
+		if ( $delete_role ) // stops users being added to current blog when they are edited
+			delete_user_meta( $bbp->displayed_user->ID, $blog_prefix . 'capabilities' );
+
+		if ( is_multisite() && is_network_admin() & !bbp_is_user_home() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $bbp->displayed_user->ID ) )
+			empty( $_POST['super_admin'] ) ? revoke_super_admin( $bbp->displayed_user->ID ) : grant_super_admin( $bbp->displayed_user->ID );
+	}
+
+	if ( !bbp_has_errors() ) {
+		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) );
+
+		wp_redirect( $redirect );
+		exit;
 	}
 }
 

@@ -65,7 +65,8 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 		update_post_meta( $reply_id, '_bbp_' . $meta_key, $meta_value );
 
 	// Update the topic
-	if ( $topic_id = bbp_get_reply_topic_id( $reply_id ) )
+	$topic_id = bbp_get_reply_topic_id( $reply_id );
+	if ( !empty( $topic_id ) )
 		bbp_update_topic( $topic_id );
 
 	// Return new reply ID
@@ -107,200 +108,206 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  */
 function bbp_new_reply_handler() {
 
-	// Only proceed if POST is a new reply
-	if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['action'] ) && ( 'bbp-new-reply' === $_POST['action'] ) ) {
-		global $bbp;
+	// Bail if not a POST action
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
 
-		// Nonce check
-		check_admin_referer( 'bbp-new-reply' );
+	// Bail if action is not bbp-new-reply
+	if ( empty( $_POST['action'] ) || ( 'bbp-new-reply' !== $_POST['action'] ) )
+		return;
 
-		// Define local variable(s)
-		$topic_id = $forum_id = $reply_author = $anonymous_data = 0;
-		$reply_title = $reply_content = $terms = '';
+	global $bbp;
 
-		/** Reply Author ******************************************************/
+	// Nonce check
+	check_admin_referer( 'bbp-new-reply' );
 
-		// User is anonymous
-		if ( bbp_is_anonymous() ) {
+	// Define local variable(s)
+	$topic_id = $forum_id = $reply_author = $anonymous_data = 0;
+	$reply_title = $reply_content = $terms = '';
 
-			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data();
+	/** Reply Author ******************************************************/
 
-			// Anonymous data checks out, so set cookies, etc...
-			if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
-				bbp_set_current_anonymous_user_data( $anonymous_data );
+	// User is anonymous
+	if ( bbp_is_anonymous() ) {
+
+		// Filter anonymous data
+		$anonymous_data = bbp_filter_anonymous_post_data();
+
+		// Anonymous data checks out, so set cookies, etc...
+		if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
+			bbp_set_current_anonymous_user_data( $anonymous_data );
+		}
+
+	// User is logged in
+	} else {
+
+		// User cannot create replies
+		if ( !current_user_can( 'publish_replies' ) ) {
+			bbp_add_error( 'bbp_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to reply.', 'bbpress' ) );
+		}
+
+		// Reply author is current user
+		$reply_author = bbp_get_current_user_id();
+
+	}
+
+	/** Topic ID **********************************************************/
+
+	// Handle Topic ID to append reply to
+	if ( isset( $_POST['bbp_topic_id'] ) && ( !$topic_id = (int) $_POST['bbp_topic_id'] ) )
+		bbp_add_error( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
+
+	/** Forum ID **********************************************************/
+
+	// Handle Forum ID to adjust counts of
+	if ( isset( $_POST['bbp_forum_id'] ) && ( !$forum_id = (int) $_POST['bbp_forum_id'] ) )
+		bbp_add_error( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
+
+	/** Unfiltered HTML ***************************************************/
+
+	// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
+	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $topic_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
+		remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses' );
+		remove_filter( 'bbp_new_reply_pre_content', 'wp_filter_kses' );
+	}
+
+	/** Reply Title *******************************************************/
+
+	if ( !empty( $_POST['bbp_reply_title'] ) )
+		$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
+
+	// Filter and sanitize
+	$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
+
+	// No reply title
+	if ( empty( $reply_title ) )
+		bbp_add_error( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your reply needs a title.', 'bbpress' ) );
+
+	/** Reply Content *****************************************************/
+
+	if ( !empty( $_POST['bbp_reply_content'] ) )
+		$reply_content = $_POST['bbp_reply_content'];
+
+	// Filter and sanitize
+	$reply_content = apply_filters( 'bbp_new_reply_pre_content', $reply_content );
+
+	// No reply content
+	if ( empty( $reply_content ) )
+		bbp_add_error( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+
+	/** Reply Flooding ****************************************************/
+
+	if ( !bbp_check_for_flood( $anonymous_data, $reply_author ) )
+		bbp_add_error( 'bbp_reply_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
+
+	/** Reply Duplicate ***************************************************/
+
+	if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_reply_post_type(), 'post_author' => $reply_author, 'post_content' => $reply_content, 'post_parent' => $topic_id, 'anonymous_data' => $anonymous_data ) ) )
+		bbp_add_error( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
+
+	/** Topic Tags ********************************************************/
+
+	if ( !empty( $_POST['bbp_topic_tags'] ) )
+		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+
+	/** Additional Actions (Before Save) **********************************/
+
+	do_action( 'bbp_new_reply_pre_extras' );
+
+	/** No Errors *********************************************************/
+
+	// Handle insertion into posts table
+	if ( !bbp_has_errors() ) {
+
+		/** Create new reply **********************************************/
+
+		// Add the content of the form to $post as an array
+		$reply_data = array(
+			'post_author'  => $reply_author,
+			'post_title'   => $reply_title,
+			'post_content' => $reply_content,
+			'post_parent'  => $topic_id,
+			'post_status'  => 'publish',
+			'post_type'    => bbp_get_reply_post_type()
+		);
+
+		// Just in time manipulation of reply data before being created
+		$reply_data = apply_filters( 'bbp_new_reply_pre_insert', $reply_data );
+
+		// Insert reply
+		$reply_id = wp_insert_post( $reply_data );
+
+		/** No Errors *****************************************************/
+
+		// Check for missing reply_id or error
+		if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
+
+			/** Topic Tags ************************************************/
+
+			// Just in time manipulation of reply terms before being edited
+			$terms = apply_filters( 'bbp_new_reply_pre_set_terms', $terms, $topic_id, $reply_id );
+
+			// Insert terms
+			$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
+
+			// Term error
+			if ( is_wp_error( $terms ) ) {
+				bbp_add_error( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
 			}
 
-		// User is logged in
+			/** Trash Check ***********************************************/
+
+			// If this reply starts as trash, add it to pre_trashed_replies
+			// for the topic, so it is properly restored.
+			if ( bbp_is_topic_trash( $topic_id ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) ) {
+
+				// Trash the reply
+				wp_trash_post( $reply_id );
+
+				// Get pre_trashed_replies for topic
+				$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
+
+				// Add this reply to the end of the existing replies
+				$pre_trashed_replies[] = $reply_id;
+
+				// Update the pre_trashed_reply post meta
+				update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
+			}
+
+			/** Spam Check ************************************************/
+
+			// If reply or topic are spam, officially spam this reply
+			if ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] == $bbp->spam_status_id ) )
+				add_post_meta( $reply_id, '_bbp_spam_meta_status', 'publish' );
+
+			/** Update counts, etc... *************************************/
+
+			do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
+
+			/** Redirect **************************************************/
+
+			// Redirect to
+			$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+
+			// Get the reply URL
+			$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
+
+			// Allow to be filtered
+			$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $redirect_to );
+
+			/** Successful Save *******************************************/
+
+			// Redirect back to new reply
+			wp_safe_redirect( $reply_url );
+
+			// For good measure
+			exit();
+
+		/** Errors ********************************************************/
+
 		} else {
-
-			// User cannot create replies
-			if ( !current_user_can( 'publish_replies' ) ) {
-				$bbp->errors->add( 'bbp_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to reply.', 'bbpress' ) );
-			}
-
-			// Reply author is current user
-			$reply_author = bbp_get_current_user_id();
-
-		}
-
-		/** Topic ID **********************************************************/
-
-		// Handle Topic ID to append reply to
-		if ( isset( $_POST['bbp_topic_id'] ) && ( !$topic_id = (int) $_POST['bbp_topic_id'] ) )
-			$bbp->errors->add( 'bbp_reply_topic_id', __( '<strong>ERROR</strong>: Topic ID is missing.', 'bbpress' ) );
-
-		/** Forum ID **********************************************************/
-
-		// Handle Forum ID to adjust counts of
-		if ( isset( $_POST['bbp_forum_id'] ) && ( !$forum_id = (int) $_POST['bbp_forum_id'] ) )
-			$bbp->errors->add( 'bbp_reply_forum_id', __( '<strong>ERROR</strong>: Forum ID is missing.', 'bbpress' ) );
-
-		/** Unfiltered HTML ***************************************************/
-
-		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
-		if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $topic_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
-			remove_filter( 'bbp_new_reply_pre_title',   'wp_filter_kses' );
-			remove_filter( 'bbp_new_reply_pre_content', 'wp_filter_kses' );
-		}
-
-		/** Reply Title *******************************************************/
-
-		if ( !empty( $_POST['bbp_reply_title'] ) )
-			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
-
-		// Filter and sanitize
-		$reply_title = apply_filters( 'bbp_new_reply_pre_title', $reply_title );
-
-		// No reply title
-		if ( empty( $reply_title ) )
-			$bbp->errors->add( 'bbp_reply_title', __( '<strong>ERROR</strong>: Your reply needs a title.', 'bbpress' ) );
-
-		/** Reply Content *****************************************************/
-
-		if ( !empty( $_POST['bbp_reply_content'] ) )
-			$reply_content = $_POST['bbp_reply_content'];
-
-		// Filter and sanitize
-		$reply_content = apply_filters( 'bbp_new_reply_pre_content', $reply_content );
-
-		// No reply content
-		if ( empty( $reply_content ) )
-			$bbp->errors->add( 'bbp_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
-
-		/** Reply Flooding ****************************************************/
-
-		if ( !bbp_check_for_flood( $anonymous_data, $reply_author ) )
-			$bbp->errors->add( 'bbp_reply_flood', __( '<strong>ERROR</strong>: Slow down; you move too fast.', 'bbpress' ) );
-
-		/** Reply Duplicate ***************************************************/
-
-		if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_reply_post_type(), 'post_author' => $reply_author, 'post_content' => $reply_content, 'post_parent' => $topic_id, 'anonymous_data' => $anonymous_data ) ) )
-			$bbp->errors->add( 'bbp_reply_duplicate', __( '<strong>ERROR</strong>: Duplicate reply detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
-
-		/** Topic Tags ********************************************************/
-
-		if ( !empty( $_POST['bbp_topic_tags'] ) )
-			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
-
-		/** Additional Actions (Before Save) **********************************/
-
-		do_action( 'bbp_new_reply_pre_extras' );
-
-		/** No Errors *********************************************************/
-
-		// Handle insertion into posts table
-		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
-
-			/** Create new reply **********************************************/
-
-			// Add the content of the form to $post as an array
-			$reply_data = array(
-				'post_author'  => $reply_author,
-				'post_title'   => $reply_title,
-				'post_content' => $reply_content,
-				'post_parent'  => $topic_id,
-				'post_status'  => 'publish',
-				'post_type'    => bbp_get_reply_post_type()
-			);
-
-			// Just in time manipulation of reply data before being created
-			$reply_data = apply_filters( 'bbp_new_reply_pre_insert', $reply_data );
-
-			// Insert reply
-			$reply_id = wp_insert_post( $reply_data );
-
-			/** No Errors *****************************************************/
-
-			// Check for missing reply_id or error
-			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
-
-				/** Topic Tags ************************************************/
-
-				// Just in time manipulation of reply terms before being edited
-				$terms = apply_filters( 'bbp_new_reply_pre_set_terms', $terms, $topic_id, $reply_id );
-
-				// Insert terms
-				$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
-
-				// Term error
-				if ( is_wp_error( $terms ) )
-					$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
-
-				/** Trash Check ***********************************************/
-
-				// If this reply starts as trash, add it to pre_trashed_replies
-				// for the topic, so it is properly restored.
-				if ( bbp_is_topic_trash( $topic_id ) || ( $reply_data['post_status'] == $bbp->trash_status_id ) ) {
-
-					// Trash the reply
-					wp_trash_post( $reply_id );
-
-					// Get pre_trashed_replies for topic
-					$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
-
-					// Add this reply to the end of the existing replies
-					$pre_trashed_replies[] = $reply_id;
-
-					// Update the pre_trashed_reply post meta
-					update_post_meta( $topic_id, '_bbp_pre_trashed_replies', $pre_trashed_replies );
-				}
-
-				/** Spam Check ************************************************/
-				
-				// If reply or topic are spam, officially spam this reply
-				if ( bbp_is_topic_spam( $topic_id ) || ( $reply_data['post_status'] == $bbp->spam_status_id ) )
-					add_post_meta( $reply_id, '_bbp_spam_meta_status', 'publish' );
-
-				/** Update counts, etc... *************************************/
-
-				do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
-
-				/** Redirect **************************************************/
-
-				// Redirect to
-				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
-
-				// Get the reply URL
-				$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
-
-				// Allow to be filtered
-				$reply_url = apply_filters( 'bbp_new_reply_redirect_to', $reply_url, $redirect_to );
-
-				/** Successful Save *******************************************/
-
-				// Redirect back to new reply
-				wp_safe_redirect( $reply_url );
-
-				// For good measure
-				exit();
-
-			/** Errors ********************************************************/
-
-			} else {
-				$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
-				$bbp->errors->add( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
-			}
+			$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
+			bbp_add_error( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
 		}
 	}
 }
@@ -337,195 +344,201 @@ function bbp_new_reply_handler() {
  */
 function bbp_edit_reply_handler() {
 
-	// Only proceed if POST is an reply request
-	if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['action'] ) && ( 'bbp-edit-reply' === $_POST['action'] ) ) {
-		global $bbp;
+	// Bail if not a POST action
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
 
-		// Define local variable(s)
-		$reply = $reply_id = $topic_id = $forum_id = $anonymous_data = 0;
-		$reply_title = $reply_content = $reply_edit_reason = $terms = '';
+	// Bail if action is not bbp-edit-reply
+	if ( empty( $_POST['action'] ) || ( 'bbp-edit-reply' !== $_POST['action'] ) )
+		return;
 
-		/** Reply *************************************************************/
+	// Define local variable(s)
+	$reply = $reply_id = $topic_id = $forum_id = $anonymous_data = 0;
+	$reply_title = $reply_content = $reply_edit_reason = $terms = '';
 
-		// Reply id was not passed
-		if ( empty( $_POST['bbp_reply_id'] ) )
-			$bbp->errors->add( 'bbp_edit_reply_id', __( '<strong>ERROR</strong>: Reply ID not found.', 'bbpress' ) );
+	/** Reply *************************************************************/
 
-		// Reply id was passed
-		elseif ( is_numeric( $_POST['bbp_reply_id'] ) )
-			$reply_id = (int) $_POST['bbp_reply_id'];
+	// Reply id was not passed
+	if ( empty( $_POST['bbp_reply_id'] ) ) {
+		bbp_add_error( 'bbp_edit_reply_id', __( '<strong>ERROR</strong>: Reply ID not found.', 'bbpress' ) );
 
-		// Reply does not exist
-		if ( !$reply = bbp_get_reply( $reply_id ) ) {
-			$bbp->errors->add( 'bbp_edit_reply_not_found', __( '<strong>ERROR</strong>: The reply you want to edit was not found.', 'bbpress' ) );
+	// Reply id was passed
+	} elseif ( is_numeric( $_POST['bbp_reply_id'] ) ) {
+		$reply_id = (int) $_POST['bbp_reply_id'];
+		$reply    = bbp_get_reply( $reply_id );
+	}
 
-		// Reply exists
+	// Reply does not exist
+	if ( empty( $reply ) ) {
+		bbp_add_error( 'bbp_edit_reply_not_found', __( '<strong>ERROR</strong>: The reply you want to edit was not found.', 'bbpress' ) );
+
+	// Reply exists
+	} else {
+
+		// Nonce check
+		check_admin_referer( 'bbp-edit-reply_' . $reply_id );
+
+		// Check users ability to create new reply
+		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+
+			// User cannot edit this reply
+			if ( !current_user_can( 'edit_reply', $reply_id ) ) {
+				bbp_add_error( 'bbp_edit_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
+			}
+
+		// It is an anonymous post
 		} else {
 
-			// Nonce check
-			check_admin_referer( 'bbp-edit-reply_' . $reply_id );
+			// Filter anonymous data
+			$anonymous_data = bbp_filter_anonymous_post_data( array(), true );
+		}
+	}
 
-			// Check users ability to create new reply
-			if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+	// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
+	if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $reply_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
+		remove_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses' );
+		remove_filter( 'bbp_edit_reply_pre_content', 'wp_filter_kses' );
+	}
 
-				// User cannot edit this reply
-				if ( !current_user_can( 'edit_reply', $reply_id ) ) {
-					$bbp->errors->add( 'bbp_edit_reply_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that reply.', 'bbpress' ) );
-				}
+	/** Reply Topic *******************************************************/
 
-			// It is an anonymous post
-			} else {
+	$topic_id = bbp_get_reply_topic_id( $reply_id );
 
-				// Filter anonymous data
-				$anonymous_data = bbp_filter_anonymous_post_data( array(), true );
-			}
+	/** Topic Forum *******************************************************/
+
+	$forum_id = bbp_get_topic_forum_id( $topic_id );
+
+	// Forum exists
+	if ( !empty( $forum_id ) && ( $forum_id !== bbp_get_reply_forum_id( $reply_id ) ) ) {
+
+		// Forum is a category
+		if ( bbp_is_forum_category( $forum_id ) )
+			bbp_add_error( 'bbp_edit_reply_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics or replies can be created in it.', 'bbpress' ) );
+
+		// Forum is closed and user cannot access
+		if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
+			bbp_add_error( 'bbp_edit_reply_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics and replies.', 'bbpress' ) );
+
+		// Forum is private and user cannot access
+		if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
+			bbp_add_error( 'bbp_edit_reply_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+
+		// Forum is hidden and user cannot access
+		if ( bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
+			bbp_add_error( 'bbp_edit_reply_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+	}
+
+	/** Reply Title *******************************************************/
+
+	if ( !empty( $_POST['bbp_reply_title'] ) )
+		$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
+
+	// Filter and sanitize
+	$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
+
+	/** Reply Content *****************************************************/
+
+	if ( !empty( $_POST['bbp_reply_content'] ) )
+		$reply_content = $_POST['bbp_reply_content'];
+
+	// Filter and sanitize
+	$reply_content = apply_filters( 'bbp_edit_reply_pre_content', $reply_content, $reply_id );
+
+	// No reply content
+	if ( empty( $reply_content ) )
+		bbp_add_error( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
+
+	/** Topic Tags ********************************************************/
+
+	if ( !empty( $_POST['bbp_topic_tags'] ) )
+		$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
+
+	/** Additional Actions (Before Save) **********************************/
+
+	do_action( 'bbp_edit_reply_pre_extras', $reply_id );
+
+	/** No Errors *********************************************************/
+
+	// Handle insertion into posts table
+	if ( !bbp_has_errors() ) {
+
+		// Add the content of the form to $post as an array
+		$reply_data = array(
+			'ID'           => $reply_id,
+			'post_title'   => $reply_title,
+			'post_content' => $reply_content
+		);
+
+		// Just in time manipulation of reply data before being edited
+		$reply_data = apply_filters( 'bbp_edit_reply_pre_insert', $reply_data );
+
+		// Insert reply
+		$reply_id = wp_update_post( $reply_data );
+
+		/** Topic Tags ************************************************/
+
+		// Just in time manipulation of reply terms before being edited
+		$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id, $reply_id );
+
+		// Insert terms
+		$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
+
+		// Term error
+		if ( is_wp_error( $terms ) ) {
+			bbp_add_error( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was a problem adding the tags to the topic.', 'bbpress' ) );
 		}
 
-		// Remove wp_filter_kses filters from title and content for capable users and if the nonce is verified
-		if ( current_user_can( 'unfiltered_html' ) && !empty( $_POST['_bbp_unfiltered_html_reply'] ) && wp_create_nonce( 'bbp-unfiltered-html-reply_' . $reply_id ) == $_POST['_bbp_unfiltered_html_reply'] ) {
-			remove_filter( 'bbp_edit_reply_pre_title',   'wp_filter_kses' );
-			remove_filter( 'bbp_edit_reply_pre_content', 'wp_filter_kses' );
+		/** Revisions *****************************************************/
+
+		// Revision Reason
+		if ( !empty( $_POST['bbp_reply_edit_reason'] ) )
+			$reply_edit_reason = esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) );
+
+		// Update revision log
+		if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) && ( $revision_id = wp_save_post_revision( $reply_id ) ) ) {
+			bbp_update_reply_revision_log( array(
+				'reply_id'    => $reply_id,
+				'revision_id' => $revision_id,
+				'author_id'   => bbp_get_current_user_id(),
+				'reason'      => $reply_edit_reason
+			) );
 		}
 
-		/** Reply Topic *******************************************************/
+		/** No Errors *****************************************************/
 
-		$topic_id = bbp_get_reply_topic_id( $reply_id );
+		if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
 
-		/** Reply Forum *******************************************************/
+			// Update counts, etc...
+			do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply->post_author , true /* Is edit */ );
 
-		$forum_id = bbp_get_topic_forum_id( $topic_id );
+			/** Additional Actions (After Save) ***************************/
 
-		// Forum exists
-		if ( !empty( $forum_id ) && ( $forum_id != $reply->post_parent ) ) {
+			do_action( 'bbp_edit_reply_post_extras', $reply_id );
 
-			// Forum is a category
-			if ( bbp_is_forum_category( $forum_id ) )
-				$bbp->errors->add( 'bbp_edit_reply_forum_category', __( '<strong>ERROR</strong>: This forum is a category. No topics or replies can be created in it.', 'bbpress' ) );
+			/** Redirect **************************************************/
 
-			// Forum is closed and user cannot access
-			if ( bbp_is_forum_closed( $forum_id ) && !current_user_can( 'edit_forum', $forum_id ) )
-				$bbp->errors->add( 'bbp_edit_reply_forum_closed', __( '<strong>ERROR</strong>: This forum has been closed to new topics and replies.', 'bbpress' ) );
+			// Redirect to
+			$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
-			// Forum is private and user cannot access
-			if ( bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
-				$bbp->errors->add( 'bbp_edit_reply_forum_private', __( '<strong>ERROR</strong>: This forum is private and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
+			// Get the reply URL
+			$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
-			// Forum is hidden and user cannot access
-			if ( bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
-				$bbp->errors->add( 'bbp_edit_reply_forum_hidden', __( '<strong>ERROR</strong>: This forum is hidden and you do not have the capability to read or create new replies in it.', 'bbpress' ) );
-		}
+			// Allow to be filtered
+			$reply_url = apply_filters( 'bbp_edit_reply_redirect_to', $reply_url, $redirect_to );
 
-		/** Reply Title *******************************************************/
+			/** Successful Edit *******************************************/
 
-		if ( !empty( $_POST['bbp_reply_title'] ) )
-			$reply_title = esc_attr( strip_tags( $_POST['bbp_reply_title'] ) );
+			// Redirect back to new reply
+			wp_safe_redirect( $reply_url );
 
-		// Filter and sanitize
-		$reply_title = apply_filters( 'bbp_edit_reply_pre_title', $reply_title, $reply_id );
+			// For good measure
+			exit();
 
-		/** Reply Content *****************************************************/
+		/** Errors ********************************************************/
 
-		if ( !empty( $_POST['bbp_reply_content'] ) )
-			$reply_content = $_POST['bbp_reply_content'];
-
-		// Filter and sanitize
-		$reply_content = apply_filters( 'bbp_edit_reply_pre_content', $reply_content, $reply_id );
-
-		// No reply content
-		if ( empty( $reply_content ) )
-			$bbp->errors->add( 'bbp_edit_reply_content', __( '<strong>ERROR</strong>: Your reply cannot be empty.', 'bbpress' ) );
-
-		/** Topic Tags ********************************************************/
-
-		if ( !empty( $_POST['bbp_topic_tags'] ) )
-			$terms = esc_attr( strip_tags( $_POST['bbp_topic_tags'] ) );
-
-		/** Additional Actions (Before Save) **********************************/
-
-		do_action( 'bbp_edit_reply_pre_extras', $reply_id );
-
-		/** No Errors *********************************************************/
-
-		// Handle insertion into posts table
-		if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() ) {
-
-			// Add the content of the form to $post as an array
-			$reply_data = array(
-				'ID'           => $reply_id,
-				'post_title'   => $reply_title,
-				'post_content' => $reply_content
-			);
-
-			// Just in time manipulation of reply data before being edited
-			$reply_data = apply_filters( 'bbp_edit_reply_pre_insert', $reply_data );
-
-			// Insert reply
-			$reply_id = wp_update_post( $reply_data );
-
-			/** Topic Tags ************************************************/
-
-			// Just in time manipulation of reply terms before being edited
-			$terms = apply_filters( 'bbp_edit_reply_pre_set_terms', $terms, $topic_id, $reply_id );
-
-			// Insert terms
-			$terms = wp_set_post_terms( $topic_id, $terms, bbp_get_topic_tag_tax_id(), false );
-
-			// Term error
-			if ( is_wp_error( $terms ) )
-				$bbp->errors->add( 'bbp_reply_tags', __( '<strong>ERROR</strong>: There was some problem adding the tags to the topic.', 'bbpress' ) );
-
-			/** Revisions *****************************************************/
-
-			// Revision Reason
-			if ( !empty( $_POST['bbp_reply_edit_reason'] ) )
-				$reply_edit_reason = esc_attr( strip_tags( $_POST['bbp_reply_edit_reason'] ) );
-
-			// Update revision log
-			if ( !empty( $_POST['bbp_log_reply_edit'] ) && ( 1 == $_POST['bbp_log_reply_edit'] ) && ( $revision_id = wp_save_post_revision( $reply_id ) ) ) {
-				bbp_update_reply_revision_log( array(
-					'reply_id'    => $reply_id,
-					'revision_id' => $revision_id,
-					'author_id'   => bbp_get_current_user_id(),
-					'reason'      => $reply_edit_reason
-				) );
-			}
-
-			/** No Errors *****************************************************/
-
-			if ( !empty( $reply_id ) && !is_wp_error( $reply_id ) ) {
-
-				// Update counts, etc...
-				do_action( 'bbp_edit_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply->post_author , true /* Is edit */ );
-
-				/** Additional Actions (After Save) ***************************/
-
-				do_action( 'bbp_edit_reply_post_extras', $reply_id );
-
-				/** Redirect **************************************************/
-
-				// Redirect to
-				$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
-
-				// Get the reply URL
-				$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
-
-				// Allow to be filtered
-				$reply_url = apply_filters( 'bbp_edit_reply_redirect_to', $reply_url, $redirect_to );
-
-				/** Successful Edit *******************************************/
-
-				// Redirect back to new reply
-				wp_safe_redirect( $reply_url );
-
-				// For good measure
-				exit();
-
-			/** Errors ********************************************************/
-
-			} else {
-				$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
-				$bbp->errors->add( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
-			}
+		} else {
+			$append_error = ( is_wp_error( $reply_id ) && $reply_id->get_error_message() ) ? $reply_id->get_error_message() . ' ' : '';
+			bbp_add_error( 'bbp_reply_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your reply:' . $append_error . 'Please try again.', 'bbpress' ) );
 		}
 	}
 }
@@ -666,18 +679,22 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
  * @uses bbp_update_forum_reply_count() To update the forum reply count
  */
 function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id = 0, $topic_id = 0, $refresh = true ) {
-	global $bbp;
 
 	// Verify the reply ID
-	if ( $reply_id = bbp_get_reply_id( $reply_id ) ) {
+	$reply_id = bbp_get_reply_id( $reply_id );
+
+	// Reply was passed
+	if ( !empty( $reply_id ) ) {
 
 		// Get the topic ID if none was passed
-		if ( empty( $topic_id ) )
+		if ( empty( $topic_id ) ) {
 			$topic_id = bbp_get_reply_topic_id( $reply_id );
+		}
 
 		// Get the forum ID if none was passed
-		if ( empty( $forum_id ) )
+		if ( empty( $forum_id ) ) {
 			$forum_id = bbp_get_reply_forum_id( $reply_id );
+		}
 	}
 
 	// Set the active_id based on topic_id/reply_id
@@ -908,92 +925,113 @@ function bbp_update_reply_revision_log( $args = '' ) {
  */
 function bbp_toggle_reply_handler() {
 
-	// Only proceed if GET is a reply toggle action
-	if ( 'GET' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && !empty( $_GET['reply_id'] ) && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'bbp_toggle_reply_spam', 'bbp_toggle_reply_trash' ) ) ) {
-		global $bbp;
+	// Bail if not a GET action
+	if ( 'GET' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+		return;
 
-		$action    = $_GET['action'];            // What action is taking place?
-		$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
-		$success   = false;                      // Flag
-		$post_data = array( 'ID' => $reply_id ); // Prelim array
+	// Bail if required GET actions aren't passed
+	if ( empty( $_GET['reply_id'] ) || empty( $_GET['action'] ) )
+		return;
 
-		// Make sure reply exists
-		if ( !$reply = bbp_get_reply( $reply_id ) )
-			return;
+	// Setup possible get actions
+	$possible_actions = array(
+		'bbp_toggle_reply_spam',
+		'bbp_toggle_reply_trash'
+	);
 
-		// What is the user doing here?
-		if ( !current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' == $action && !current_user_can( 'delete_reply', $reply->ID ) ) ) {
-			$bbp->errors->add( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
-			return;
-		}
+	// Bail if actions aren't meant for this function
+	if ( !in_array( $_GET['action'], $possible_actions ) )
+		return;
 
-		// What action are we trying to perform?
-		switch ( $action ) {
+	$view_all  = false;                      // Assume not viewing all
+	$action    = $_GET['action'];            // What action is taking place?
+	$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
+	$success   = false;                      // Flag
+	$post_data = array( 'ID' => $reply_id ); // Prelim array
 
-			// Toggle spam
-			case 'bbp_toggle_reply_spam' :
-				check_ajax_referer( 'spam-reply_' . $reply_id );
+	// Make sure reply exists
+	if ( !$reply = bbp_get_reply( $reply_id ) )
+		return;
 
-				$is_spam = bbp_is_reply_spam( $reply_id );
-				$success = $is_spam ? bbp_unspam_reply( $reply_id ) : bbp_spam_reply( $reply_id );
-				$failure = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam!', 'bbpress' );
+	// What is the user doing here?
+	if ( !current_user_can( 'edit_reply', $reply->ID ) || ( 'bbp_toggle_reply_trash' == $action && !current_user_can( 'delete_reply', $reply->ID ) ) ) {
+		bbp_add_error( 'bbp_toggle_reply_permission', __( '<strong>ERROR:</strong> You do not have the permission to do that!', 'bbpress' ) );
+		return;
+	}
 
+	// What action are we trying to perform?
+	switch ( $action ) {
+
+		// Toggle spam
+		case 'bbp_toggle_reply_spam' :
+			check_ajax_referer( 'spam-reply_' . $reply_id );
+
+			$is_spam = bbp_is_reply_spam( $reply_id );
+			$success = $is_spam ? bbp_unspam_reply( $reply_id ) : bbp_spam_reply( $reply_id );
+			$failure = $is_spam ? __( '<strong>ERROR</strong>: There was a problem unmarking the reply as spam!', 'bbpress' ) : __( '<strong>ERROR</strong>: There was a problem marking the reply as spam!', 'bbpress' );
+			$view_all = !$is_spam;
+
+			break;
+
+		// Toggle trash
+		case 'bbp_toggle_reply_trash' :
+
+			$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ) ) ? $_GET['sub_action'] : false;
+
+			if ( empty( $sub_action ) )
 				break;
 
-			// Toggle trash
-			case 'bbp_toggle_reply_trash' :
+			switch ( $sub_action ) {
+				case 'trash':
+					check_ajax_referer( 'trash-' . bbp_get_reply_post_type() . '_' . $reply_id );
 
-				$sub_action = in_array( $_GET['sub_action'], array( 'trash', 'untrash', 'delete' ) ) ? $_GET['sub_action'] : false;
+					$view_all = true;
+					$success  = wp_trash_post( $reply_id );
+					$failure  = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
 
-				if ( empty( $sub_action ) )
 					break;
 
-				switch ( $sub_action ) {
-					case 'trash':
-						check_ajax_referer( 'trash-' . bbp_get_reply_post_type() . '_' . $reply_id );
+				case 'untrash':
+					check_ajax_referer( 'untrash-' . bbp_get_reply_post_type() . '_' . $reply_id );
 
-						$success = wp_trash_post( $reply_id );
-						$failure = __( '<strong>ERROR</strong>: There was a problem trashing the reply!', 'bbpress' );
+					$success = wp_untrash_post( $reply_id );
+					$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
 
-						break;
+					break;
 
-					case 'untrash':
-						check_ajax_referer( 'untrash-' . bbp_get_reply_post_type() . '_' . $reply_id );
+				case 'delete':
+					check_ajax_referer( 'delete-' . bbp_get_reply_post_type() . '_' . $reply_id );
 
-						$success = wp_untrash_post( $reply_id );
-						$failure = __( '<strong>ERROR</strong>: There was a problem untrashing the reply!', 'bbpress' );
+					$success = wp_delete_post( $reply_id );
+					$failure = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );
 
-						break;
+					break;
+			}
 
-					case 'delete':
-						check_ajax_referer( 'delete-' . bbp_get_reply_post_type() . '_' . $reply_id );
+			break;
+	}
 
-						$success = wp_delete_post( $reply_id );
-						$failure = __( '<strong>ERROR</strong>: There was a problem deleting the reply!', 'bbpress' );
+	// Do additional reply toggle actions
+	do_action( 'bbp_toggle_reply_handler', $success, $post_data, $action );
 
-						break;
-				}
+	// No errors
+	if ( ( false != $success ) && !is_wp_error( $success ) ) {
 
-				break;
-		}
+		// Redirect back to the reply
+		$redirect = bbp_get_reply_url( $reply_id );
 
-		// Do additional reply toggle actions
-		do_action( 'bbp_toggle_reply_handler', $success, $post_data, $action );
+		// Add view all if needed
+		if ( !empty( $view_all ) )
+			$redirect = bbp_add_view_all( $redirect, true );
 
-		// No errors
-		if ( ( false != $success ) && !is_wp_error( $success ) ) {
+		wp_redirect( $redirect );
 
-			// Redirect back to the reply
-			$redirect = bbp_get_reply_url( $reply_id );
-			wp_redirect( $redirect );
+		// For good measure
+		exit();
 
-			// For good measure
-			exit();
-
-		// Handle errors
-		} else {
-			$bbp->errors->add( 'bbp_toggle_reply', $failure );
-		}
+	// Handle errors
+	} else {
+		bbp_add_error( 'bbp_toggle_reply', $failure );
 	}
 }
 

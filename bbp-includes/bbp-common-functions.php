@@ -683,15 +683,15 @@ function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
 
 	// Filter variables and add errors if necessary
 	if ( !$bbp_anonymous_name  = apply_filters( 'bbp_pre_anonymous_post_author_name',  $bbp_anonymous_name  ) )
-		$bbp->errors->add( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name submitted!',   'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_name',  __( '<strong>ERROR</strong>: Invalid author name submitted!',   'bbpress' ) );
 
 	if ( !$bbp_anonymous_email = apply_filters( 'bbp_pre_anonymous_post_author_email', $bbp_anonymous_email ) )
-		$bbp->errors->add( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
+		bbp_add_error( 'bbp_anonymous_email', __( '<strong>ERROR</strong>: Invalid email address submitted!', 'bbpress' ) );
 
 	// Website is optional
 	$bbp_anonymous_website = apply_filters( 'bbp_pre_anonymous_post_author_website', $bbp_anonymous_website );
 
-	if ( !is_wp_error( $bbp->errors ) || !$bbp->errors->get_error_codes() )
+	if ( !bbp_has_errors() )
 		$retval = compact( 'bbp_anonymous_name', 'bbp_anonymous_email', 'bbp_anonymous_website' );
 	else
 		$retval = false;
@@ -1343,6 +1343,56 @@ function bbp_request_feed_trap( $query_vars ) {
 
 	// No feed so continue on
 	return $query_vars;
+}
+
+/** Errors ********************************************************************/
+
+/**
+ * Adds an error message to later be output in the theme
+ *
+ * @since bbPress (r3381)
+ *
+ * @global bbPress $bbp
+ *
+ * @see WP_Error()
+ * @uses WP_Error::add();
+ *
+ * @param string $code Unique code for the error message
+ * @param string $message Translated error message
+ * @param string $data Any additional data passed with the error message
+ */
+function bbp_add_error( $code = '', $message = '', $data = '' ) {
+	global $bbp;
+
+	$bbp->errors->add( $code, $message, $data );
+}
+
+/**
+ * Check if error messages exist in queue
+ *
+ * @since bbPress (r3381)
+ *
+ * @global bbPress $bbp
+ *
+ * @see WP_Error()
+ * 
+ * @uses is_wp_error()
+ * @usese WP_Error::get_error_codes()
+ */
+function bbp_has_errors() {
+	global $bbp;
+	
+	// Assume no errors
+	$has_errors = false;
+
+	// Check for errors
+	if ( $bbp->errors->get_error_codes() )
+		$has_errors = true;
+
+	// Filter return value
+	$has_errors = apply_filters( 'bbp_has_errors', $has_errors, $bbp->errors );
+	
+	return $has_errors;
 }
 
 ?>
