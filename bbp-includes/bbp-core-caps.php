@@ -148,6 +148,16 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 			break;
 
 		// Editing
+		case 'edit_forums' :
+		case 'edit_topics' :
+		case 'edit_replies' :
+
+			// Add do_not_allow cap if user is spam or deleted
+			if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+				$caps = array( 'do_not_allow' );
+
+			break;
+
 		case 'edit_forum' :
 		case 'edit_topic' :
 		case 'edit_reply' :
@@ -156,8 +166,15 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps      = array();
 				$post_type = get_post_type_object( $post->post_type );
 
-				if ( (int) $user_id == (int) $post->post_author )
+				// Add 'do_not_allow' cap if user is spam or deleted
+				if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+					$caps[] = 'do_not_allow';
+
+				// Map to edit_posts
+				elseif ( (int) $user_id == (int) $post->post_author )
 					$caps[] = $post_type->cap->edit_posts;
+
+				// Map to edit_others_posts
 				else
 					$caps[] = $post_type->cap->edit_others_posts;
 			}
@@ -171,8 +188,15 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps      = array();
 				$post_type = get_post_type_object( $post->post_type );
 
-				if ( (int) $user_id == (int) $post->post_author )
+				// Add 'do_not_allow' cap if user is spam or deleted
+				if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+					$caps[] = 'do_not_allow';
+
+				// Map to delete_posts
+				elseif ( (int) $user_id == (int) $post->post_author )
 					$caps[] = $post_type->cap->delete_posts;
+
+				// Map to delete_others_posts
 				else
 					$caps[] = $post_type->cap->delete_others_posts;
 			}
@@ -185,7 +209,14 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 			if ( $post = get_post( $args[0] ) ) {
 				$caps      = array();
 				$post_type = get_post_type_object( $post->post_type );
-				$caps[]    = $post_type->cap->delete_others_posts;
+
+				// Add 'do_not_allow' cap if user is spam or deleted
+				if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+					$caps[] = 'do_not_allow';
+
+				// Map to delete_others_posts
+				else
+					$caps[]    = $post_type->cap->delete_others_posts;
 			}
 
 			break;
@@ -442,7 +473,7 @@ function bbp_global_access_role_mask() {
 
 		// Get bbPress caps for the default role
 		$caps_for_role = bbp_get_caps_for_role( $default_role );
-		
+
 		// Set all caps to true
 		foreach ( $caps_for_role as $cap ) {
 			$mapped_meta_caps[$cap] = true;

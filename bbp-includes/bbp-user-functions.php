@@ -907,6 +907,10 @@ function bbp_get_total_users() {
  */
 function bbp_is_user_spammer( $user_id = 0 ) {
 
+	// Default to current user
+	if ( empty( $user_id ) && is_user_logged_in() )
+		$user_id = bbp_get_current_user_id();
+
 	// No user to check
 	if ( empty( $user_id ) )
 		return false;

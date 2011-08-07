@@ -1145,7 +1145,7 @@ function bbp_current_user_can_publish_topics() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( current_user_can( 'publish_topics' ) )
+	elseif ( !bbp_is_user_spammer() && !bbp_is_user_deleted() && current_user_can( 'publish_topics' ) )
 		$retval = true;
 
 	// Allow access to be filtered
@@ -1179,7 +1179,7 @@ function bbp_current_user_can_publish_replies() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( current_user_can( 'publish_replies' ) )
+	elseif ( !bbp_is_user_spammer() && !bbp_is_user_deleted() && current_user_can( 'publish_replies' ) )
 		$retval = true;
 
 	// Allow access to be filtered
