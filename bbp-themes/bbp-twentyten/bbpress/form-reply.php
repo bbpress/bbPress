@@ -21,7 +21,7 @@
 
 			<form id="new-post" name="new-post" method="post" action="">
 				<fieldset class="bbp-form">
-					<legend><?php printf( __( 'Reply to: &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
+					<legend><?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
 					<?php if ( !bbp_is_topic_open() && !bbp_is_reply_edit() ) : ?>
 
