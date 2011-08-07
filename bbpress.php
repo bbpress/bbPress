@@ -396,40 +396,31 @@ class bbPress {
 
 		/** Individual files **************************************************/
 
-		$core = array(
-			'hooks',         // All filters and actions
-			'options',       // Configuration Options
-			'caps',          // Roles and capabilities
-			'classes',       // Common classes
-			'widgets',       // Sidebar widgets
-			'shortcodes',    // Shortcodes for use with pages and posts
-			'compatibility', // Theme compatibility for existing themes
-			'akismet'        // Spam prevention for topics and replies
-		);
-
-		// Load the files
-		foreach ( $core as $file )
-			require( $this->plugin_dir . 'bbp-includes/bbp-core-' . $file . '.php' );
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-hooks.php'         ); // All filters and actions
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'       ); // Configuration Options
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-caps.php'          ); // Roles and capabilities
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-classes.php'       ); // Common classes
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'       ); // Sidebar widgets
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php'    ); // Shortcodes for use with pages and posts
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-compatibility.php' ); // Theme compatibility for existing themes
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-akismet.php'       ); // Spam prevention for topics and replies
 
 		/** Components ********************************************************/
 
-		$components = array(
-			'common',        // Common functions and template tags
-			'forum',         // Forums contain subforums, topics, and replies
-			'topic',         // Topics contain replies
-			'reply',         // Replies are individual responses to topics
-			'user'           // Individual user profile view/edit pages
-		);
+		require( $this->plugin_dir . 'bbp-includes/bbp-common-functions.php' ); // Common functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-common-template.php'  ); // Common template tags
 
-		$files = array(
-			'functions',     // Functions used to carry out specific tasks
-			'template'       // Functions intended for use in template files
-		);
+		require( $this->plugin_dir . 'bbp-includes/bbp-forum-functions.php'  ); // Forum functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-forum-template.php'   ); // Forum template tags
 
-		// Load the files
-		foreach ( $components as $component )
-			foreach ( $files as $type )
-				require( $this->plugin_dir . 'bbp-includes/bbp-' . $component . '-' . $type . '.php' );
+		require( $this->plugin_dir . 'bbp-includes/bbp-topic-functions.php'  ); // Topic functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-topic-template.php'   ); // Topic template tags
+
+		require( $this->plugin_dir . 'bbp-includes/bbp-reply-functions.php'  ); // Reply functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-reply-template.php'   ); // Reply template tags
+
+		require( $this->plugin_dir . 'bbp-includes/bbp-user-functions.php'   ); // User functions
+		require( $this->plugin_dir . 'bbp-includes/bbp-user-template.php'    ); // User template tags
 
 		/** Admin *************************************************************/
 
