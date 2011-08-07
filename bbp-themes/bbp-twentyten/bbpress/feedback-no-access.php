@@ -9,7 +9,7 @@
 
 ?>
 
-<div id="forum-private" class="bbp-forum-info">
+<div id="forum-private" class="bbp-forum-content">
 	<h1 class="entry-title"><?php _e( 'Private', 'bbpress' ); ?></h1>
 	<div class="entry-content">
 		<div class="bbp-template-notice info">

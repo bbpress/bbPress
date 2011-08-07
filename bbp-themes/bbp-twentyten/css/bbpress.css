@@ -532,7 +532,7 @@ div.bbp-template-notice a {
 .bbp-topics-front tr.super-sticky td,
 .bbp-topics tr.super-sticky td,
 .bbp-topics tr.sticky td,
-.bbp-forum-info tr.sticky td {
+.bbp-forum-content tr.sticky td {
 	background-color: #ffffe0 !important;
 	font-size: 1.1em;
 }

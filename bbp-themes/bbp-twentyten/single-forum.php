@@ -20,7 +20,7 @@
 
 					<?php if ( bbp_user_can_view_forum() ) : ?>
 
-						<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-info">
+						<div id="forum-<?php bbp_forum_id(); ?>" class="bbp-forum-content">
 							<h1 class="entry-title"><?php bbp_forum_title(); ?></h1>
 							<div class="entry-content">
 
