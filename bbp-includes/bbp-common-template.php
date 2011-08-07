@@ -63,21 +63,21 @@ function bbp_is_forum( $post_id = 0 ) {
  * Check if we are viewing a forum archive.
  *
  * @since bbPress (r3251)
- * 
+ *
  * @uses is_post_type_archive() To check if we are looking at the forum archive
  * @uses bbp_get_forum_post_type() To get the forum post type ID
  *
  * @return bool
  */
 function bbp_is_forum_archive() {
-	
+
 	// Default to false
 	$retval = false;
 
 	// In forum archive
 	if ( is_post_type_archive( bbp_get_forum_post_type() ) || bbp_is_query_name( 'bbp_forum_archive' ) )
 		$retval = true;
-	
+
 	return (bool) apply_filters( 'bbp_is_forum_archive', $retval );
 }
 
@@ -157,7 +157,7 @@ function bbp_is_single_topic() {
  * Check if we are viewing a topic archive.
  *
  * @since bbPress (r3251)
- * 
+ *
  * @uses is_post_type_archive() To check if we are looking at the topic archive
  * @uses bbp_get_topic_post_type() To get the topic post type ID
  *
@@ -171,7 +171,7 @@ function bbp_is_topic_archive() {
 	// In topic archive
 	if ( is_post_type_archive( bbp_get_topic_post_type() ) || bbp_is_query_name( 'bbp_topic_archive' ) )
 		$retval = true;
-	
+
 	return (bool) apply_filters( 'bbp_is_topic_archive', $retval );
 }
 
@@ -230,7 +230,7 @@ function bbp_is_topic_split() {
  * @since bbPress (r3311)
  *
  * @global bbPress $bbp
- * @return bool True if it's a topic tag, false if not 
+ * @return bool True if it's a topic tag, false if not
  */
 function bbp_is_topic_tag() {
 
@@ -501,10 +501,10 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	if ( bbp_is_forum_archive() )
 		$bbp_classes[] = bbp_get_forum_post_type() . '-archive';
-	
+
 	if ( bbp_is_topic_archive() )
 		$bbp_classes[] = bbp_get_topic_post_type() . '-archive';
-	
+
 	/** Components ************************************************************/
 
 	if ( bbp_is_single_forum() )
@@ -617,6 +617,9 @@ function is_bbpress() {
 		$retval = true;
 
 	elseif ( bbp_is_topic_archive() )
+		$retval = true;
+
+	elseif ( bbp_is_topic_tag() )
 		$retval = true;
 
 	/** Components ************************************************************/
@@ -1089,7 +1092,7 @@ function bbp_reply_form_fields() {
 		?>
 
 		<?php
-		
+
 		wp_nonce_field( 'bbp-new-reply' );
 
 		// Show redirect field if not viewing a specific topic
@@ -1098,7 +1101,7 @@ function bbp_reply_form_fields() {
 			<input type="hidden" name="redirect_to" id="bbp_redirect_to" value="<?php the_permalink(); ?>" />
 
 		<?php endif;
-			
+
 	}
 }
 
@@ -1400,11 +1403,11 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// No custom home text
 		if ( empty( $args['home_text'] ) ) {
-			
+
 			// Set home text to page title
 			if ( $front_id = get_option( 'page_on_front' ) ) {
 				$pre_front_text = get_the_title( $front_id );
-				
+
 			// Default to 'Home'
 			} else {
 				$pre_front_text = __( 'Home', 'bbpress' );
@@ -1420,7 +1423,7 @@ function bbp_breadcrumb( $args = array() ) {
 			}
 			$pre_root_text = bbp_get_forum_archive_title();
 		}
-		
+
 		/** Includes **********************************************************/
 
 		// Root slug is also the front page
@@ -1436,7 +1439,7 @@ function bbp_breadcrumb( $args = array() ) {
 			$pre_include_root = false;
 
 		/** Current Text ******************************************************/
-		
+
 		// Forum archive
 		if ( bbp_is_forum_archive() )
 			$pre_current_text = bbp_get_forum_archive_title();
@@ -1496,7 +1499,7 @@ function bbp_breadcrumb( $args = array() ) {
 			'include_current' => $pre_include_current,
 			'current_text'    => $pre_current_text
 		);
-		$r = apply_filters( 'bbp_get_breadcrumb_pre', wp_parse_args( $args, $defaults ) );		
+		$r = apply_filters( 'bbp_get_breadcrumb_pre', wp_parse_args( $args, $defaults ) );
 		extract( $r );
 
 		/** Ancestors *********************************************************/
@@ -1511,11 +1514,11 @@ function bbp_breadcrumb( $args = array() ) {
 
 		// Do we want to include a link to the forum root?
 		if ( !empty( $include_root ) || empty( $root_text ) ) {
-			
+
 			// Page exists at root slug path, so use its permalink
 			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
 				$root_url = get_permalink( $page->ID );
-				
+
 			// Use the root slug
 			} else {
 				$root_url = get_post_type_archive_link( bbp_get_forum_post_type() );
@@ -1782,7 +1785,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		// Current users profile
 		if ( bbp_is_user_home() ) {
 			$title = __( 'Your Profile', 'bbpress' );
-			
+
 		// Other users profile
 		} else {
 			$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
@@ -1795,7 +1798,7 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 		// Current users profile
 		if ( bbp_is_user_home() ) {
 			$title = __( 'Edit Your Profile', 'bbpress' );
-			
+
 		// Other users profile
 		} else {
 			$userdata = get_userdata( get_query_var( 'bbp_user_id' ) );
