@@ -34,24 +34,26 @@ if ( !function_exists( 'bbp_twentyten_enqueue_styles' ) ) :
  */
 function bbp_twentyten_enqueue_styles () {
 
+	$version = 20110807;
+
 	// Right to left
 	if ( is_rtl() ) {
 
 		// TwentyTen
-		wp_enqueue_style( 'twentyten',     get_template_directory_uri() . '/style.css', '',          20100503, 'screen' );
-		wp_enqueue_style( 'twentyten-rtl', get_template_directory_uri() . '/rtl.css',   'twentyten', 20100503, 'screen' );
+		wp_enqueue_style( 'twentyten',     get_template_directory_uri() . '/style.css', '',          $version, 'screen' );
+		wp_enqueue_style( 'twentyten-rtl', get_template_directory_uri() . '/rtl.css',   'twentyten', $version, 'screen' );
 
 		// bbPress specific
-		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress-rtl.css', 'twentyten-rtl', 20100503, 'screen' );
+		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress-rtl.css', 'twentyten-rtl', $version, 'screen' );
 
 	// Left to right
 	} else {
 
 		// TwentyTen
-		wp_enqueue_style( 'twentyten', get_template_directory_uri() . '/style.css', '', 20100503, 'screen' );
+		wp_enqueue_style( 'twentyten', get_template_directory_uri() . '/style.css', '', $version, 'screen' );
 
 		// bbPress specific
-		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress.css', 'twentyten', 20100503, 'screen' );
+		wp_enqueue_style( 'bbp-twentyten-bbpress', get_stylesheet_directory_uri() . '/css/bbpress.css', 'twentyten', $version, 'screen' );
 	}
 }
 add_action( 'bbp_enqueue_scripts', 'bbp_twentyten_enqueue_styles' );
@@ -69,13 +71,16 @@ if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
  * @uses wp_enqueue_script() To enqueue the scripts
  */
 function bbp_twentyten_enqueue_scripts () {
+
+	$version = 20110807;
+
 	if ( bbp_is_single_topic() )
-		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), '20101202' );
+		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), $version );
 
 	if ( bbp_is_single_user_edit() )
 		wp_enqueue_script( 'user-profile' );
 }
-add_action( 'bbp_setup_theme_compat', 'bbp_twentyten_enqueue_scripts' );
+add_action( 'bbp_enqueue_scripts', 'bbp_twentyten_enqueue_scripts' );
 endif;
 
 if ( !function_exists( 'bbp_twentyten_scripts' ) ) :
@@ -138,16 +143,24 @@ function bbp_twentyten_topic_script_localization () {
 	$localizations = array(
 		'currentUserId' => $user_id,
 		'topicId'       => bbp_get_topic_id(),
-		'favoritesLink' => bbp_get_favorites_permalink( $user_id ),
-		'isFav'         => (int) bbp_is_user_favorite( $user_id ),
-		'favLinkYes'    => __( 'favorites',                                         'bbpress' ),
-		'favLinkNo'     => __( '?',                                                 'bbpress' ),
-		'favYes'        => __( 'This topic is one of your %favLinkYes% [%favDel%]', 'bbpress' ),
-		'favNo'         => __( '%favAdd% (%favLinkNo%)',                            'bbpress' ),
-		'favDel'        => __( '&times;',                                           'bbpress' ),
-		'favAdd'        => __( 'Add this topic to your favorites',                  'bbpress' )
 	);
 
+	// Favorites
+	if ( bbp_is_favorites_active() ) {
+		$localizations['favoritesActive'] = 1;
+		$localizations['favoritesLink']   = bbp_get_favorites_permalink( $user_id );
+		$localizations['isFav']           = (int) bbp_is_user_favorite( $user_id );
+		$localizations['favLinkYes']      = __( 'favorites',                                         'bbpress' );
+		$localizations['favLinkNo']       = __( '?',                                                 'bbpress' );
+		$localizations['favYes']          = __( 'This topic is one of your %favLinkYes% [%favDel%]', 'bbpress' );
+		$localizations['favNo']           = __( '%favAdd% (%favLinkNo%)',                            'bbpress' );
+		$localizations['favDel']          = __( '&times;',                                           'bbpress' );
+		$localizations['favAdd']          = __( 'Add this topic to your favorites',                  'bbpress' );
+	} else {
+		$localizations['favoritesActive'] = 0;
+	}
+
+	// Subscriptions
 	if ( bbp_is_subscriptions_active() ) {
 		$localizations['subsActive']   = 1;
 		$localizations['isSubscribed'] = (int) bbp_is_user_subscribed( $user_id );
@@ -160,7 +173,7 @@ function bbp_twentyten_topic_script_localization () {
 
 	wp_localize_script( 'bbp_topic', 'bbpTopicJS', $localizations );
 }
-add_filter( 'bbp_setup_theme_compat', 'bbp_twentyten_topic_script_localization' );
+add_filter( 'bbp_enqueue_scripts', 'bbp_twentyten_topic_script_localization' );
 endif;
 
 if ( !function_exists( 'bbp_twentyten_dim_favorite' ) ) :
