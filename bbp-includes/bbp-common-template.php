@@ -233,8 +233,9 @@ function bbp_is_topic_split() {
  * @return bool True if it's a topic tag, false if not
  */
 function bbp_is_topic_tag() {
+	global $bbp;
 
-	if ( is_tax( bbp_get_topic_tag_tax_id() ) )
+	if ( is_tax( bbp_get_topic_tag_tax_id() ) || !empty( $bbp->topic_query->is_tax ) )
 		return true;
 
 	return false;

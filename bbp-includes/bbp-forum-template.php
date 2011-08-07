@@ -60,9 +60,6 @@ function bbp_forum_post_type() {
 function bbp_has_forums( $args = '' ) {
 	global $bbp;
 
-	// Make sure we're back where we started
-	wp_reset_postdata();
-
 	// Setup possible post__not_in array
 	$post_stati[] = 'publish';
 

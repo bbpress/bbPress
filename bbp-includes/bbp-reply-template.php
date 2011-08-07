@@ -68,9 +68,6 @@ function bbp_reply_post_type() {
 function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite, $bbp;
 
-	// Make sure we're back where we started
-	wp_reset_postdata();
-
 	// Default status
 	$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
 
@@ -136,7 +133,7 @@ function bbp_has_replies( $args = '' ) {
 	$bbp->reply_query->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
+	if ( !bbp_is_query_name( 'bbp_widget' ) && (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -244,13 +241,13 @@ function bbp_reply_id( $reply_id = 0 ) {
 		if ( !empty( $reply_id ) && is_numeric( $reply_id ) )
 			$bbp_reply_id = $reply_id;
 
-		// Currently viewing a reply
-		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
-			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
-
 		// Currently inside a replies loop
 		elseif ( isset( $bbp->reply_query->post->ID ) )
 			$bbp_reply_id = $bbp->current_reply_id = $bbp->reply_query->post->ID;
+
+		// Currently viewing a reply
+		elseif ( ( bbp_is_single_reply() || bbp_is_reply_edit() ) && isset( $wp_query->post->ID ) )
+			$bbp_reply_id = $bbp->current_reply_id = $wp_query->post->ID;
 
 		// Fallback
 		else

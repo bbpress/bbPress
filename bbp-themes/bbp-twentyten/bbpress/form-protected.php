@@ -7,9 +7,6 @@
  * @subpackage Theme
  */
 
-// Make sure we're back where we started
-wp_reset_postdata();
-
 ?>
 
 	<fieldset class="bbp-form" id="bbp-protected">

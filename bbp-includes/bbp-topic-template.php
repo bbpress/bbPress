@@ -68,10 +68,6 @@ function bbp_topic_post_type() {
 function bbp_has_topics( $args = '' ) {
 	global $wp_rewrite, $wp_query, $bbp, $wpdb;
 
-	// Make sure we're back where we started
-	if ( !bbp_is_topic_tag() )
-		wp_reset_postdata();
-
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
 		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
@@ -227,7 +223,7 @@ function bbp_has_topics( $args = '' ) {
 	$bbp->topic_query->paged          = $paged;
 
 	// Only add pagination if query returned results
-	if ( ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
+	if ( !bbp_is_query_name( 'bbp_widget' ) && ( (int) $bbp->topic_query->post_count || (int) $bbp->topic_query->found_posts ) && (int) $bbp->topic_query->posts_per_page ) {
 
 		// Limit the number of topics shown based on maximum allowed pages
 		if ( ( !empty( $max_num_pages ) ) && $bbp->topic_query->found_posts > $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count )
@@ -243,6 +239,10 @@ function bbp_has_topics( $args = '' ) {
 			// View
 			elseif ( bbp_is_single_view() )
 				$base = bbp_get_view_url();
+
+			// Topic tag
+			elseif ( bbp_is_topic_tag() )
+				$base = bbp_get_topic_tag_link();
 
 			// Page or single post
 			elseif ( is_page() || is_single() )
@@ -2390,7 +2390,7 @@ function bbp_forum_pagination_count() {
 	function bbp_get_forum_pagination_count() {
 		global $bbp;
 
-		if ( !isset( $bbp->topic_query ) )
+		if ( empty( $bbp->topic_query ) )
 			return false;
 
 		// Set pagination values
@@ -2434,7 +2434,7 @@ function bbp_forum_pagination_links() {
 	function bbp_get_forum_pagination_links() {
 		global $bbp;
 
-		if ( !isset( $bbp->topic_query ) )
+		if ( empty( $bbp->topic_query ) )
 			return false;
 
 		return apply_filters( 'bbp_get_forum_pagination_links', $bbp->topic_query->pagination_links );
@@ -2823,7 +2823,7 @@ function bbp_topic_tag_link( $tag = '' ) {
 
 		// Add before and after if description exists
 		if ( !empty( $term->term_id ) )
-			$retval = get_term_link( $term->term_id, bbp_get_topic_tag_tax_id() );
+			$retval = get_term_link( $term, bbp_get_topic_tag_tax_id() );
 
 		// No link
 		else

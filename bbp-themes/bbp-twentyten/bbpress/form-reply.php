@@ -7,9 +7,6 @@
  * @subpackage Theme
  */
 
-// Make sure we're back where we started
-wp_reset_postdata();
-
 ?>
 
 	<?php if ( bbp_is_reply_edit() ) : ?>

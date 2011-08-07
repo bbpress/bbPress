@@ -132,14 +132,14 @@ class BBP_Shortcodes {
 		global $bbp;
 
 		// Unset global queries
-		$bbp->forum_query      = null;
-		$bbp->topic_query      = null;
-		$bbp->reply_query      = null;
+		$bbp->forum_query      = array();
+		$bbp->topic_query      = array();
+		$bbp->reply_query      = array();
 
 		// Unset global ID's
-		$bbp->current_forum_id = null;
-		$bbp->current_topic_id = null;
-		$bbp->current_reply_id = null;
+		$bbp->current_forum_id = 0;
+		$bbp->current_topic_id = 0;
+		$bbp->current_reply_id = 0;
 
 		// Reset the post data
 		wp_reset_postdata();
