@@ -24,6 +24,17 @@ if ( !defined( 'ABSPATH' ) ) exit;
 class BBP_Login_Widget extends WP_Widget {
 
 	/**
+	 * Register the widget
+	 *
+	 * @since bbPress (r3389)
+	 *
+	 * @uses register_widget()
+	 */
+	function register_widget() {
+		register_widget( 'BBP_Login_Widget' );
+	}
+
+	/**
 	 * bbPress Login Widget
 	 *
 	 * Registers the login widget
@@ -157,6 +168,17 @@ class BBP_Login_Widget extends WP_Widget {
 class BBP_Views_Widget extends WP_Widget {
 
 	/**
+	 * Register the widget
+	 *
+	 * @since bbPress (r3389)
+	 *
+	 * @uses register_widget()
+	 */
+	function register_widget() {
+		register_widget( 'BBP_Views_Widget' );
+	}
+
+	/**
 	 * bbPress View Widget
 	 *
 	 * Registers the view widget
@@ -261,6 +283,17 @@ class BBP_Views_Widget extends WP_Widget {
  * @uses WP_Widget
  */
 class BBP_Forums_Widget extends WP_Widget {
+
+	/**
+	 * Register the widget
+	 *
+	 * @since bbPress (r3389)
+	 *
+	 * @uses register_widget()
+	 */
+	function register_widget() {
+		register_widget( 'BBP_Forums_Widget' );
+	}
 
 	/**
 	 * bbPress Forum Widget
@@ -397,6 +430,17 @@ class BBP_Forums_Widget extends WP_Widget {
  * @uses WP_Widget
  */
 class BBP_Topics_Widget extends WP_Widget {
+
+	/**
+	 * Register the widget
+	 *
+	 * @since bbPress (r3389)
+	 *
+	 * @uses register_widget()
+	 */
+	function register_widget() {
+		register_widget( 'BBP_Topics_Widget' );
+	}
 
 	/**
 	 * bbPress Topic Widget
@@ -577,6 +621,17 @@ class BBP_Topics_Widget extends WP_Widget {
  * @uses WP_Widget
  */
 class BBP_Replies_Widget extends WP_Widget {
+
+	/**
+	 * Register the widget
+	 *
+	 * @since bbPress (r3389)
+	 *
+	 * @uses register_widget()
+	 */
+	function register_widget() {
+		register_widget( 'BBP_Replies_Widget' );
+	}
 
 	/**
 	 * bbPress Replies Widget

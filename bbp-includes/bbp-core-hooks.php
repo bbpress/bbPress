@@ -33,6 +33,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
+add_action( 'widgets_init',           'bbp_widgets_init',           10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
 add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
 add_filter( 'template_include',       'bbp_template_include',       10 );
@@ -70,17 +71,17 @@ add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Multisite Global Forum Access
-add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask'  );
+add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask',  10 );
 
 // Theme Compat
-add_action( 'bbp_enqueue_scripts',    'bbp_theme_compat_enqueue_css' );
+add_action( 'bbp_enqueue_scripts',    'bbp_theme_compat_enqueue_css', 10 );
 
 // Widgets
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Login_Widget");'   ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Views_Widget");'   ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Forums_Widget");'  ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Topics_Widget");'  ) );
-add_action( 'widgets_init', create_function( '', 'return register_widget("BBP_Replies_Widget");' ) );
+add_action( 'bbp_widgets_init', array( 'BBP_Login_Widget',   'register_widget' ), 10 );
+add_action( 'bbp_widgets_init', array( 'BBP_Views_Widget',   'register_widget' ), 10 );
+add_action( 'bbp_widgets_init', array( 'BBP_Forums_Widget',  'register_widget' ), 10 );
+add_action( 'bbp_widgets_init', array( 'BBP_Topics_Widget',  'register_widget' ), 10 );
+add_action( 'bbp_widgets_init', array( 'BBP_Replies_Widget', 'register_widget' ), 10 );
 
 // Template - Head, foot, errors and messages
 add_action( 'wp_head',              'bbp_head'                    );
@@ -467,6 +468,17 @@ function bbp_setup_globals() {
  */
 function bbp_init() {
 	do_action ( 'bbp_init' );
+}
+
+/**
+ * Initialize widgets
+ *
+ * @since bbPress (r3389)
+ *
+ * @uses do_action() Calls 'bbp_widgets_init'
+ */
+function bbp_widgets_init() {
+	do_action ( 'bbp_widgets_init' );
 }
 
 /** Supplemental Actions ******************************************************/
