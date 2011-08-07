@@ -898,17 +898,20 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
  */
 function bbp_logout_url( $url = '', $redirect_to = '' ) {
 
-	// Rejig the $redirect_to
-	if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) ) )
-		$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
-
 	// Make sure we are directing somewhere
-	if ( empty( $redirect_to ) )
+	if ( empty( $redirect_to ) && !strstr( $url, 'redirect_to' ) ) {
+
+		// Rejig the $redirect_to
+		if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( $redirect_to != home_url( $_SERVER['REDIRECT_URL'] ) ) ) {
+			$redirect_to = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '';
+		}
+
 		$redirect_to = home_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' );
 
-	// Sanitize $redirect_to and add it to full $url
-	$redirect_to = esc_url( add_query_arg( array( 'loggedout'   => 'true'       ), $redirect_to ) );
-	$url         =          add_query_arg( array( 'redirect_to' => $redirect_to ), $url           );
+		// Sanitize $redirect_to and add it to full $url
+		$redirect_to = add_query_arg( array( 'loggedout'   => 'true'                    ), esc_url( $redirect_to ) );
+		$url         = add_query_arg( array( 'redirect_to' => urlencode( $redirect_to ) ), $url                    );
+	}
 
 	// Filter and return
 	return apply_filters( 'bbp_logout_url', $url, $redirect_to );
