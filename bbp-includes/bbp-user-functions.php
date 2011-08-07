@@ -761,7 +761,7 @@ function bbp_edit_user_handler() {
 		return;
 
 	// Bail if action is not 'bbp-update-user'
-	if ( empty( $_POST['action'] ) || ( 'bbp-update-user' == $_POST['action'] ) )
+	if ( empty( $_POST['action'] ) || ( 'bbp-update-user' !== $_POST['action'] ) )
 		return;
 
 	global $bbp, $wpdb;
