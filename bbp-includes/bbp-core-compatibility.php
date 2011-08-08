@@ -66,7 +66,7 @@ function bbp_theme_compat_enqueue_css() {
 		/** Default CSS ***************************************************/
 
 		// Version of CSS
-		$version = '20110808';
+		$version = '20110808b';
 
 		// Right to left
 		if ( is_rtl() ) {
