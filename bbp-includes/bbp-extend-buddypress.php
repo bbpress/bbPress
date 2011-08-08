@@ -423,7 +423,12 @@ class BBP_BuddyPress {
 		);
 
 		// Record the activity
-		$this->record_activity( $activity );
+		$activity_id = $this->record_activity( $activity );
+
+		// Add the activity entry ID as a meta value to the topic
+		if ( !empty( $activity_id ) ) {
+			update_post_meta( $topic_id, '_bbp_activity_id', $activity_id );
+		}
 	}
 
 	/** Replies ***************************************************************/
@@ -507,7 +512,12 @@ class BBP_BuddyPress {
 		);
 
 		// Record the activity
-		$this->record_activity( $activity );
+		$activity_id = $this->record_activity( $activity );
+
+		// Add the activity entry ID as a meta value to the reply
+		if ( !empty( $activity_id ) ) {
+			update_post_meta( $reply_id, '_bbp_activity_id', $activity_id );
+		}
 	}	
 }
 endif;
