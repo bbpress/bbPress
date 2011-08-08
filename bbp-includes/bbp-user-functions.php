@@ -940,6 +940,174 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 }
 
 /**
+ * Mark a users topics and replies as spam when the user is marked as spam
+ *
+ * @since bbPress (r3405)
+ *
+ * @global WPDB $wpdb
+ * @param int $user_id Optional. User ID to spam. Defaults to displayed user.
+
+ * @uses bbp_is_single_user()
+ * @uses bbp_is_user_home()
+ * @uses bbp_get_displayed_user_field()
+ * @uses is_super_admin()
+ * @uses get_blogs_of_user()
+ * @uses bbp_get_topic_post_type()
+ * @uses bbp_get_reply_post_type()
+ * @uses switch_to_blog()
+ * @uses get_post_type()
+ * @uses bbp_spam_topic()
+ * @uses bbp_spam_reply()
+ * @uses restore_current_blog()
+ * 
+ * @return If no user ID passed
+ */
+function bbp_make_spam_user( $user_id = 0 ) {
+
+	// Use displayed user if it's not yourself
+	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() )
+		$user_id = bbp_get_displayed_user_id();
+
+	// Bail if no user ID
+	if ( empty( $user_id ) )
+		return;
+
+	// Bail if user ID is super admin
+	if ( is_super_admin( $user_id ) )
+		return;
+
+	// Arm the torpedos
+	global $wpdb;
+
+	// Get the blog IDs of the user to mark as spam
+	$blogs = get_blogs_of_user( $user_id, true );
+
+	// If user has no blogs, they are a guest on this site
+	if ( empty( $blogs ) )
+		$blogs[$wpdb->blogid] = array();
+
+	// Make array of post types to mark as spam
+	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$post_types = "'" . implode( "', '", $post_types ) . "'";
+
+	// Loop through blogs and remove their posts
+	foreach ( (array) $blogs as $blog_id => $details ) {
+
+		// Switch to the blog ID
+		switch_to_blog( $blog_id );
+
+		// Get topics and replies
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_status = 'publish' AND post_type IN ({$post_types})" );
+
+		// Loop through posts and spam them
+		if ( !empty( $posts ) ) {
+			foreach ( $posts as $post_id ) {
+				
+				// The routines for topics ang replies are different, so use the
+				// correct one based on the post type
+				switch ( get_post_type( $post_id ) ) {
+
+					case bbp_get_topic_post_type() :
+						bbp_spam_topic( $post_id );
+						break;
+
+					case bbp_get_reply_post_type() :
+						bbp_spam_reply( $post_id );
+						break;
+				}
+			}
+		}
+
+		// Switch back to current blog
+		restore_current_blog();
+	}
+}
+
+/**
+ * Mark a users topics and replies as spam when the user is marked as spam
+ *
+ * @since bbPress (r3405)
+ *
+ * @global WPDB $wpdb
+ * @param int $user_id Optional. User ID to unspam. Defaults to displayed user.
+ *
+ * @uses bbp_is_single_user()
+ * @uses bbp_is_user_home()
+ * @uses bbp_get_displayed_user_field()
+ * @uses is_super_admin()
+ * @uses get_blogs_of_user()
+ * @uses bbp_get_topic_post_type()
+ * @uses bbp_get_reply_post_type()
+ * @uses switch_to_blog()
+ * @uses get_post_type()
+ * @uses bbp_unspam_topic()
+ * @uses bbp_unspam_reply()
+ * @uses restore_current_blog()
+ * 
+ * @return If no user ID passed
+ */
+function bbp_make_ham_user( $user_id = 0 ) {
+
+	// Use displayed user if it's not yourself
+	if ( empty( $user_id ) && bbp_is_single_user() && !bbp_is_user_home() )
+		$user_id = bbp_get_displayed_user_field();
+
+	// Bail if no user ID
+	if ( empty( $user_id ) )
+		return;
+
+	// Bail if user ID is super admin
+	if ( is_super_admin( $user_id ) )
+		return;
+
+	// Arm the torpedos
+	global $wpdb, $bbp;
+
+	// Get the blog IDs of the user to mark as spam
+	$blogs = get_blogs_of_user( $user_id, true );
+
+	// If user has no blogs, they are a guest on this site
+	if ( empty( $blogs ) )
+		$blogs[$wpdb->blogid] = array();
+
+	// Make array of post types to mark as spam
+	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$post_types = "'" . implode( "', '", $post_types ) . "'";
+
+	// Loop through blogs and remove their posts
+	foreach ( (array) $blogs as $blog_id => $details ) {
+
+		// Switch to the blog ID
+		switch_to_blog( $blog_id );
+
+		// Get topics and replies
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_status = '{$bbp->spam_status_id}' AND post_type IN ({$post_types})" );
+
+		// Loop through posts and spam them
+		if ( !empty( $posts ) ) {
+			foreach ( $posts as $post_id ) {
+				
+				// The routines for topics ang replies are different, so use the
+				// correct one based on the post type
+				switch ( get_post_type( $post_id ) ) {
+
+					case bbp_get_topic_post_type() :
+						bbp_unspam_topic( $post_id );
+						break;
+
+					case bbp_get_reply_post_type() :
+						bbp_unspam_reply( $post_id );
+						break;
+				}
+			}
+		}
+
+		// Switch back to current blog
+		restore_current_blog();
+	}
+}
+
+/**
  * Checks if the user has been marked as deleted.
  *
  * @since bbPress (r3355)
