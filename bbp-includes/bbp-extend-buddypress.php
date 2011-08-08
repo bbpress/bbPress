@@ -274,6 +274,10 @@ class BBP_BuddyPress {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_forum_id( $forum_id );
 
+		// Bail if forum is not public
+		if ( !bbp_is_forum_public( $forum_id ) )
+			return;
+
 		// User link for topic author
 		$user_link  = bbp_get_user_profile_link( $user_id  );
 
@@ -346,6 +350,10 @@ class BBP_BuddyPress {
 		$reply_id = bbp_get_reply_id( $reply_id );
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_forum_id( $forum_id );
+
+		// Bail if forum is not public
+		if ( !bbp_is_forum_public( $forum_id ) )
+			return;
 
 		// Setup links for activity stream
 		$user_link  = bbp_get_user_profile_link( $user_id  );
