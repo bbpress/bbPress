@@ -160,6 +160,11 @@ class BBP_BuddyPress {
 
 		// Link directly to the topic or reply
 		add_filter( 'bp_activity_get_permalink', array( $this, 'activity_get_permalink' ), 10, 2 );
+
+		/** Profiles **********************************************************/
+
+		// Override bbPress user profile URL with BuddyPress profile URL
+		add_filter( 'bbp_pre_get_user_profile_url', array( $this, 'user_profile_url' ) );
 	}
 	
 	/**
@@ -324,6 +329,23 @@ class BBP_BuddyPress {
 		}
 
 		return $link;
+	}
+
+	/**
+	 * Override bbPress profile URL with BuddyPress profile URL
+	 * 
+	 * @since bbPress (r3401)
+	 *
+	 * @param string $url
+	 * @param int $user_id
+	 * @param string $user_nicename
+	 *
+	 * @return string
+	 */
+	public function user_profile_url( $user_id ) {
+		$profile_url = bp_core_get_user_domain( $user_id );
+
+		return $profile_url;
 	}
 
 	/** Topics ****************************************************************/
