@@ -169,7 +169,6 @@ class BBP_BuddyPress {
 	 * @return type Activity ID if successful, false if not
 	 */
 	private function record_activity( $args = '' ) {
-		global $bp;
 
 		// Bail if activity is not active
 		if ( !bp_is_active( 'activity' ) )
@@ -269,6 +268,10 @@ class BBP_BuddyPress {
 		if ( !empty( $anonymous_data ) )
 			return;
 
+		// Bail if site is private
+		if ( !bbp_is_site_public() )
+			return;
+
 		// Validate activity data
 		$user_id  = $topic_author_id;
 		$topic_id = bbp_get_topic_id( $topic_id );
@@ -343,6 +346,10 @@ class BBP_BuddyPress {
 
 		// Do not log activity of anonymous users
 		if ( !empty( $anonymous_data ) )
+			return;
+
+		// Bail if site is private
+		if ( !bbp_is_site_public() )
 			return;
 
 		// Validate activity data

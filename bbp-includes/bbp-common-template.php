@@ -37,6 +37,30 @@ function bbp_footer() {
 /** is_ ***********************************************************************/
 
 /**
+ * Check if current site is public
+ *
+ * @since bbPress (r3398)
+ *
+ * @global WPDB $wpdb
+ * @param int $site_id
+ * @return bool True if site is public, false if private
+ */
+function bbp_is_site_public( $site_id = 0 ) {
+
+	// Get the current site ID
+	if ( empty( $site_id ) ) {
+		global $wpdb;
+
+		$site_id = (int) $wpdb->blogid;
+	}
+
+	// Get the site visibility setting
+	$public = get_blog_option( $site_id, 'blog_public', 1 );
+
+	return (bool) apply_filters( 'bbp_is_site_public', $public, $site_id );
+}
+
+/**
  * Check if current page is a bbPress forum
  *
  * @since bbPress (r2549)
