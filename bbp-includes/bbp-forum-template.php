@@ -112,7 +112,15 @@ function bbp_has_forums( $args = '' ) {
  */
 function bbp_forums() {
 	global $bbp;
-	return $bbp->forum_query->have_posts();
+
+	// Put into variable to check against next
+	$have_posts = $bbp->forum_query->have_posts();
+
+	// Reset the post data when finished
+	if ( empty( $have_posts ) )
+		wp_reset_postdata();
+
+	return $have_posts;
 }
 
 /**

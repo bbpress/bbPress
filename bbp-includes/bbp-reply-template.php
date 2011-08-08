@@ -191,7 +191,15 @@ function bbp_has_replies( $args = '' ) {
  */
 function bbp_replies() {
 	global $bbp;
-	return $bbp->reply_query->have_posts();
+
+	// Put into variable to check against next
+	$have_posts = $bbp->reply_query->have_posts();
+
+	// Reset the post data when finished
+	if ( empty( $have_posts ) )
+		wp_reset_postdata();
+
+	return $have_posts;
 }
 
 /**

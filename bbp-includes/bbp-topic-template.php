@@ -296,7 +296,15 @@ function bbp_has_topics( $args = '' ) {
  */
 function bbp_topics() {
 	global $bbp;
-	return $bbp->topic_query->have_posts();
+
+	// Put into variable to check against next
+	$have_posts = $bbp->topic_query->have_posts();
+
+	// Reset the post data when finished
+	if ( empty( $have_posts ) )
+		wp_reset_postdata();
+
+	return $have_posts;
 }
 
 /**
