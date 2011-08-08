@@ -34,7 +34,7 @@ if ( !function_exists( 'bbp_twentyten_enqueue_styles' ) ) :
  */
 function bbp_twentyten_enqueue_styles () {
 
-	$version = '20110807b';
+	$version = '20110808';
 
 	// Right to left
 	if ( is_rtl() ) {
@@ -72,7 +72,7 @@ if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
  */
 function bbp_twentyten_enqueue_scripts () {
 
-	$version = '20110807b';
+	$version = '20110808';
 
 	if ( bbp_is_single_topic() )
 		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), $version );
