@@ -1,9 +1,9 @@
 === bbPress ===
 Contributors: matt, johnjamesjacoby
 Tags: bbpress, forums, discussion, post type, theme
-Requires at least: 3.1
+Requires at least: 3.2
 Tested up to: 3.2
-Stable tag: 2.0-rc-1
+Stable tag: 2.0-rc-2
 
 bbPress is forum software with a twist from the creators of WordPress
 
@@ -23,6 +23,18 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.0-rc-2 =
+* BuddyPress integration
+* Multisite integration
+* Fixed a bushel of bugs
+* Fixed tag pagination again
+* Fixed ajax priority loading
+
+= 2.0-rc-1 =
+* Fixed tag pagination
+* Broke tag pagination
+* Squashed a bunch of bugs
 
 = 2.0-beta-3b =
 * Fix regression in forum index theme compatibility template
