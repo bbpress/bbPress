@@ -620,3 +620,16 @@ div.bbp-template-notice a {
 fieldset div.avatar {
 	float: left;
 }
+
+/* =BuddyPress Activity Streams
+-------------------------------------------------------------- */
+
+.activity-list li.bbp_topic_create .activity-content .activity-inner,
+.activity-list li.bbp_relsy_create .activity-content .activity-inner {
+	border-left: none;
+	margin-left: 0;
+	padding-left: 0;
+	border-right: 2px solid #EAEAEA;
+	margin-right: 5px;
+	padding-right: 10px;
+}
