@@ -105,6 +105,9 @@ class BBP_BuddyPress {
 		// The name of the BuddyPress component, used in activity streams
 		$this->component = 'bbpress';
 
+		// Forums
+		$this->forum_create = 'bbp_forum_create';
+
 		// Topics
 		$this->topic_create = 'bbp_topic_create';
 		$this->topic_edit   = 'bbp_topic_edit';
