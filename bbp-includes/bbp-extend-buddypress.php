@@ -89,10 +89,11 @@ class BBP_BuddyPress {
 	function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
+		$this->setup_filters();
 	}
 
 	/**
-	 * Component global variables
+	 * Extension variables
 	 *
 	 * @since bbPress (r3395)
 	 * @access private
@@ -116,7 +117,7 @@ class BBP_BuddyPress {
 	}
 
 	/**
-	 * Setup the admin hooks
+	 * Setup the actions
 	 *
 	 * @since bbPress (r3395)
 	 * @access private
@@ -129,13 +130,33 @@ class BBP_BuddyPress {
 		/** Activity **********************************************************/
 
 		// Register the activity stream actions
-		add_action( 'bp_register_activity_actions', array( $this, 'register_activity_actions' ) );
+		add_action( 'bp_register_activity_actions', array( $this, 'register_activity_actions' )        );
 
 		// Hook into topic creation
-		add_action( 'bbp_new_topic', array( $this, 'topic_create' ), 10, 4 );
+		add_action( 'bbp_new_topic',                array( $this, 'topic_create'              ), 10, 4 );
 
 		// Hook into reply creation
-		add_action( 'bbp_new_reply', array( $this, 'reply_create' ), 10, 5 );
+		add_action( 'bbp_new_reply',                array( $this, 'reply_create'              ), 10, 5 );
+	}
+	
+	/**
+	 * Setup the filters
+	 *
+	 * @since bbPress (r3395)
+	 * @access private
+	 *
+	 * @uses add_filter() To add various filters
+	 * @uses add_action() To add various actions
+	 */
+	private function setup_filters() {
+
+		/** Activity **********************************************************/
+
+		// Obey BuddyPress commenting rules
+		add_filter( 'bp_activity_can_comment',   array( $this, 'activity_can_comment'   )        );
+
+		// Link directly to the topic or reply
+		add_filter( 'bp_activity_get_permalink', array( $this, 'activity_get_permalink' ), 10, 2 );
 	}
 	
 	/**
@@ -237,6 +258,71 @@ class BBP_BuddyPress {
 		bp_activity_delete_by_item_id( $activity );
 	}
 	
+	/**
+	 * Maybe disable activity stream comments on select actions
+	 *
+	 * @since bbPress (r3399)
+	 *
+	 * @global BP_Activity_Template $activities_template
+	 * @global BuddyPress $bp
+	 * @param boolean $can_comment
+	 * @uses bp_get_activity_action_name()
+	 * @return boolean 
+	 */
+	public function activity_can_comment( $can_comment = true ) {
+		global $activities_template, $bp;
+
+		// Already forced off, so comply
+		if ( false === $can_comment )
+			return $can_comment;
+
+		// Check if blog & forum activity stream commenting is off
+		if ( ( false === $activities_template->disable_blogforum_replies ) || (int) $activities_template->disable_blogforum_replies ) {
+			
+			// Get the current action name
+			$action_name = bp_get_activity_action_name();
+
+			// Setup the array of possibly disabled actions
+			$disabled_actions = array(
+				$this->topic_create,
+				$this->reply_create
+			);
+
+			// Check if this activity stream action is disabled
+			if ( in_array( $action_name, $disabled_actions ) ) {
+				$can_comment = false;
+			}
+		}
+
+		return $can_comment;
+	}
+
+	/**
+	 * Maybe link directly to topics and replies in activity stream entries
+	 *
+	 * @since bbPress (r3399)
+	 *
+	 * @param string $link
+	 * @param mixed $activity_object
+	 *
+	 * @return string The link to the activity stream item
+	 */
+	public function activity_get_permalink( $link = '', $activity_object = false ) {
+
+		// Setup the array of actions to link directly to
+		$disabled_actions = array(
+			$this->topic_create,
+			$this->reply_create
+		);
+
+		// Check if this activity stream action is directly linked
+		if ( in_array( $activity_object->type, $disabled_actions ) ) {
+			$link = $activity_object->primary_link;
+		}
+
+		return $link;
+	}
+
 	/** Topics ****************************************************************/
 
 	/**
@@ -305,7 +391,7 @@ class BBP_BuddyPress {
 			'user_id'           => $user_id,
 			'action'            => $activity_action,
 			'content'           => $activity_content,
-			'primary_link'      => $topic_link,
+			'primary_link'      => $topic_permalink,
 			'type'              => $this->topic_create,
 			'item_id'           => $topic_id,
 			'secondary_item_id' => $forum_id,
