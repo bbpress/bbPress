@@ -97,6 +97,7 @@ table.bbp-topic th span, table.bbp-replies th span {
 #content th.bbp-reply-content {
 	text-align: left;
 	padding: 9px 15px 9px 10px;
+	overflow: auto;
 }
 #content table.bbp-forums tfoot td, #content table.bbp-topics tfoot td,
 #content table.bbp-topic tfoot td, #content table.bbp-replies tfoot td,

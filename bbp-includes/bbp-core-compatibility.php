@@ -53,27 +53,28 @@ function bbp_setup_theme_compat( $theme = array() ) {
  *
  * @since bbPress (r3029)
  *
- * @global bbPress $bbp
  * @uses bbp_set_compat_theme_dir() Set the compatable theme to bbp-twentyten
  * @uses current_theme_supports() Check bbPress theme support
  * @uses wp_enqueue_style() Enqueue the bbp-twentyten default CSS
  * @uses wp_enqueue_script() Enqueue the bbp-twentyten default topic JS
  */
 function bbp_theme_compat_enqueue_css() {
-	global $bbp;
 
 	// Check if current theme supports bbPress
 	if ( !current_theme_supports( 'bbpress' ) ) {
 
 		/** Default CSS ***************************************************/
 
+		// Version of CSS
+		$version = '20110808';
+
 		// Right to left
 		if ( is_rtl() ) {
-			wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress-rtl.css' );
+			wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress-rtl.css', '', $version, 'screen' );
 
 		// Left to right
 		} else {
-			wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress.css' );
+			wp_enqueue_style( 'bbpress-style', bbp_get_theme_compat_url() . '/css/bbpress.css',     '', $version, 'screen' );
 		}
 	}
 }
