@@ -62,12 +62,13 @@ add_action( 'bbp_init', 'bbp_load_textdomain',        2   );
 add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
 add_action( 'bbp_init', 'bbp_setup_theme_compat',     6   );
 add_action( 'bbp_init', 'bbp_setup_akismet',          8   );
-add_action( 'bbp_init', 'bbp_register_post_types',    10  );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 12  );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    14  );
-add_action( 'bbp_init', 'bbp_register_views',         16  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',    18  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
+add_action( 'bbp_init', 'bbp_setup_buddypress',       10  );
+add_action( 'bbp_init', 'bbp_register_post_types',    12  );
+add_action( 'bbp_init', 'bbp_register_post_statuses', 14  );
+add_action( 'bbp_init', 'bbp_register_taxonomies',    16  );
+add_action( 'bbp_init', 'bbp_register_views',         18  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',    20  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',       22  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Multisite Global Forum Access

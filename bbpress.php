@@ -187,17 +187,17 @@ class bbPress {
 	/**
 	 * @public string Current forum id
 	 */
-	public $current_forum_id = null;
+	public $current_forum_id = 0;
 
 	/**
 	 * @public string Current topic id
 	 */
-	public $current_topic_id = null;
+	public $current_topic_id = 0;
 
 	/**
 	 * @public string Current reply id
 	 */
-	public $current_reply_id = null;
+	public $current_reply_id = 0;
 
 	/** Users *****************************************************************/
 
@@ -216,17 +216,17 @@ class bbPress {
 	/**
 	 * @public WP_Query For forums
 	 */
-	public $forum_query = array();
+	public $forum_query;
 
 	/**
 	 * @public WP_Query For topics
 	 */
-	public $topic_query = array();
+	public $topic_query;
 
 	/**
 	 * @public WP_Query For replies
 	 */
-	public $reply_query = array();
+	public $reply_query;
 
 	/** Arrays ****************************************************************/
 
@@ -263,12 +263,12 @@ class bbPress {
 	 */
 	public $theme_compat = '';
 
-	/** Plugins ***************************************************************/
+	/** Extensions ************************************************************/
 
 	/**
-	 * @public mixed bbPress plugins that need a global data store should use this
+	 * @public mixed bbPress add-ons should append globals to this
 	 */
-	public $plugins = false;
+	public $extend = false;
 
 	/** Functions *************************************************************/
 
@@ -367,16 +367,22 @@ class bbPress {
 		$this->user_slug          = apply_filters( 'bbp_user_slug', $prefix . get_option( '_bbp_user_slug', 'user' ) );
 		$this->view_slug          = apply_filters( 'bbp_view_slug', $prefix . get_option( '_bbp_view_slug', 'view' ) );
 
+		/** Queries ***********************************************************/
+		
+		$this->forum_query        = new stdClass;
+		$this->topic_query        = new stdClass;
+		$this->reply_query        = new stdClass;
+
 		/** Misc **************************************************************/
 
 		// Errors
-		$this->errors    = new WP_Error();
+		$this->errors             = new WP_Error();
 
 		// Views
-		$this->views     = array();
+		$this->views              = array();
 
 		// Tab Index
-		$this->tab_index = apply_filters( 'bbp_default_tab_index', 100 );
+		$this->tab_index          = apply_filters( 'bbp_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
 
@@ -394,7 +400,7 @@ class bbPress {
 	 */
 	private function includes() {
 
-		/** Individual files **************************************************/
+		/** Core **************************************************************/
 
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-hooks.php'         ); // All filters and actions
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-options.php'       ); // Configuration Options
@@ -403,7 +409,11 @@ class bbPress {
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'       ); // Sidebar widgets
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php'    ); // Shortcodes for use with pages and posts
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-compatibility.php' ); // Theme compatibility for existing themes
-		require( $this->plugin_dir . 'bbp-includes/bbp-core-akismet.php'       ); // Spam prevention for topics and replies
+		
+		/** Extensions ********************************************************/
+		
+		require( $this->plugin_dir . 'bbp-includes/bbp-extend-akismet.php'     ); // Spam prevention for topics and replies
+		require( $this->plugin_dir . 'bbp-includes/bbp-extend-buddypress.php'  ); // Social network integration
 
 		/** Components ********************************************************/
 

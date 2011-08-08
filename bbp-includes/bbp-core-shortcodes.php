@@ -132,9 +132,9 @@ class BBP_Shortcodes {
 		global $bbp;
 
 		// Unset global queries
-		$bbp->forum_query      = array();
-		$bbp->topic_query      = array();
-		$bbp->reply_query      = array();
+		$bbp->forum_query      = new stdClass;
+		$bbp->topic_query      = new stdClass;
+		$bbp->reply_query      = new stdClass;
 
 		// Unset global ID's
 		$bbp->current_forum_id = 0;

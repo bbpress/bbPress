@@ -43,9 +43,6 @@ class BBP_Akismet {
 	 */
 	function setup_actions() {
 
-		// Bail if no akismet
-		if ( !defined( 'AKISMET_VERSION' ) ) return;
-
 		// bbPress functions to check for spam
 		$checks['check']  = array(
 			'bbp_new_topic_pre_insert' => 1,  // Topic check
@@ -544,7 +541,7 @@ class BBP_Akismet {
 endif;
 
 /**
- * Loads Akismet in bbPress global namespace
+ * Loads Akismet inside the bbPress global class
  *
  * @since bbPress (r3277)
  *
@@ -554,7 +551,11 @@ endif;
 function bbp_setup_akismet() {
 	global $bbp;
 
-	$bbp->plugins->akismet = new BBP_Akismet();
+	// Bail if no akismet
+	if ( !defined( 'AKISMET_VERSION' ) ) return;
+
+	// Instantiate Akismet for bbPress
+	$bbp->extend->akismet = new BBP_Akismet();
 }
 
 ?>
