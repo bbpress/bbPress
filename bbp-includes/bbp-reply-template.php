@@ -380,7 +380,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
 
 		// Hash to add to end of URL
-		$reply_hash     = !empty( $bbp->errors ) ? "#post-{$reply_id}" : '';
+		$reply_hash     = '#post-' . $reply_id;
 
 		// Remove the topic view query arg if its set
 		$topic_url      = remove_query_arg( 'view', $topic_url );

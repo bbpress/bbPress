@@ -764,77 +764,92 @@ function bbp_edit_user_handler() {
 	if ( empty( $_POST['action'] ) || ( 'bbp-update-user' !== $_POST['action'] ) )
 		return;
 
-	global $bbp, $wpdb;
+	// Get the displayed user ID
+	$user_id = bbp_get_displayed_user_id();
+
+	global $wpdb;
 
 	// Execute confirmed email change. See send_confirmation_on_profile_email().
-	if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) && $bbp->displayed_user->ID ) {
+	if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) ) {
 
-		$new_email = get_option( $bbp->displayed_user->ID . '_new_email' );
+		$new_email = get_option( $user_id . '_new_email' );
 
 		if ( $new_email['hash'] == $_GET['newuseremail'] ) {
-			$user->ID         = $bbp->displayed_user->ID;
+			$user->ID         = $user_id;
 			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
 
-			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $bbp->displayed_user->user_login ) ) )
-				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, $bbp->displayed_user->user_login ) );
+			if ( $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", bbp_get_displayed_user_field( 'user_login' ) ) ) )
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $user->user_email, bbp_get_displayed_user_field( 'user_login' ) ) );
 
 			wp_update_user( get_object_vars( $user ) );
-			delete_option( $bbp->displayed_user->ID . '_new_email' );
+			delete_option( $user_id . '_new_email' );
 
-			wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
+			wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 			exit;
 		}
 
-	} elseif ( is_multisite() && bbp_is_user_home() && !empty( $_GET['dismiss'] ) && $bbp->displayed_user->ID . '_new_email' == $_GET['dismiss'] ) {
+	} elseif ( is_multisite() && bbp_is_user_home() && !empty( $_GET['dismiss'] ) && ( $user_id . '_new_email' == $_GET['dismiss'] ) ) {
 
-		delete_option( $bbp->displayed_user->ID . '_new_email' );
-		wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) ) );
+		delete_option( $user_id . '_new_email' );
+		wp_redirect( add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $user_id ) ) );
 		exit;
 
 	}
 
-	check_admin_referer( 'update-user_' . $bbp->displayed_user->ID );
+	check_admin_referer( 'update-user_' . $user_id );
 
-	if ( !current_user_can( 'edit_user', $bbp->displayed_user->ID ) )
+	if ( !current_user_can( 'edit_user', $user_id ) )
 		wp_die( __( 'What are you doing here? You do not have the permission to edit this user.', 'bbpress' ) );
 
-	if ( bbp_is_user_home() )
-		do_action( 'personal_options_update', $bbp->displayed_user->ID );
-	else
-		do_action( 'edit_user_profile_update', $bbp->displayed_user->ID );
+	// Do action based on who's profile you're editing
+	$edit_action = bbp_is_user_home() ? 'personal_options_update' : 'edit_user_profile_update';
+	do_action( $edit_action, $user_id );
 
+	// Multisite handles the trouble for us ;)
 	if ( !is_multisite() ) {
-		$bbp->errors = edit_user( $bbp->displayed_user->ID ); // Handles the trouble for us ;)
+		$edit_user = edit_user( $user_id );
+
+	// Single site means we need to do some manual labor
 	} else {
-		$user        = get_userdata( $bbp->displayed_user->ID );
+		$user = get_userdata( $user_id );
 
 		// Update the email address in signups, if present.
-		if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email'] ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) )
+		if ( $user->user_login && isset( $_POST['email'] ) && is_email( $_POST['email'] ) && $wpdb->get_var( $wpdb->prepare( "SELECT user_login FROM {$wpdb->signups} WHERE user_login = %s", $user->user_login ) ) ) {
 			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->signups} SET user_email = %s WHERE user_login = %s", $_POST['email'], $user_login ) );
+		}
 
 		// WPMU must delete the user from the current blog if WP added him after editing.
 		$delete_role = false;
 		$blog_prefix = $wpdb->get_blog_prefix();
 
-		if ( $bbp->displayed_user->ID != $bbp->displayed_user->ID ) {
-			$cap = $wpdb->get_var( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id = '{$bbp->displayed_user->ID}' AND meta_key = '{$blog_prefix}capabilities' AND meta_value = 'a:0:{}'" );
+		if ( $user_id != $user_id ) {
+			$cap = $wpdb->get_var( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id = '{$user_id}' AND meta_key = '{$blog_prefix}capabilities' AND meta_value = 'a:0:{}'" );
 			if ( !is_network_admin() && null == $cap && $_POST['role'] == '' ) {
 				$_POST['role'] = 'contributor';
-				$delete_role = true;
+				$delete_role   = true;
 			}
 		}
 
-		$bbp->errors = edit_user( $bbp->displayed_user->ID );
+		$edit_user = edit_user( $user_id );
 
-		if ( $delete_role ) // stops users being added to current blog when they are edited
-			delete_user_meta( $bbp->displayed_user->ID, $blog_prefix . 'capabilities' );
+		// stops users being added to current blog when they are edited
+		if ( $delete_role ) {
+			delete_user_meta( $user_id, $blog_prefix . 'capabilities' );
+		}
 
-		if ( is_multisite() && is_network_admin() & !bbp_is_user_home() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $bbp->displayed_user->ID ) )
-			empty( $_POST['super_admin'] ) ? revoke_super_admin( $bbp->displayed_user->ID ) : grant_super_admin( $bbp->displayed_user->ID );
+		if ( is_multisite() && is_network_admin() & !bbp_is_user_home() && current_user_can( 'manage_network_options' ) && !isset( $super_admins ) && empty( $_POST['super_admin'] ) == is_super_admin( $user_id ) ) {
+			empty( $_POST['super_admin'] ) ? revoke_super_admin( $user_id ) : grant_super_admin( $user_id );
+		}
 	}
 
-	if ( !bbp_has_errors() ) {
-		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $bbp->displayed_user->ID ) );
+	// Error(s) editng the user, so copy them into the global
+	if ( is_wp_error( $edit_user ) ) {
+		global $bbp;
+		$bbp->errors = $edit_user;
+
+	// Successful edit to redirect
+	} elseif ( is_integer( $edit_user ) ) {
+		$redirect = add_query_arg( array( 'updated' => 'true' ), bbp_get_user_profile_edit_url( $edit_user ) );
 
 		wp_redirect( $redirect );
 		exit;

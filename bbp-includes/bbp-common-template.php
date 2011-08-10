@@ -440,7 +440,7 @@ function bbp_is_user_home() {
 	if ( empty( $bbp->displayed_user ) )
 		return false;
 
-	return (bool) ( (int) $bbp->current_user->ID == (int) $bbp->displayed_user->ID );
+	return (bool) ( bbp_get_current_user_id() == bbp_get_current_user_id() );
 }
 
 /**
@@ -1664,7 +1664,7 @@ function bbp_template_notices() {
 	global $bbp;
 
 	// Bail if no notices or errors
-	if ( !isset( $bbp->errors ) || !bbp_has_errors() )
+	if ( !bbp_has_errors() )
 		return;
 
 	// Define local variable(s)

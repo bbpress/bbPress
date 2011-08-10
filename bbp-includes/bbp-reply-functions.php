@@ -80,7 +80,7 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  *
  * @since bbPress (r2574)
  *
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses bbp_is_anonymous() To check if an anonymous post is being made
  * @uses current_user_can() To check if the current user can publish replies
@@ -97,7 +97,6 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
  * @uses apply_filters() Calls 'bbp_new_reply_pre_content' with the content
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses wp_set_post_terms() To set the topic tags
- * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_insert_post() To insert the reply
  * @uses do_action() Calls 'bbp_new_reply' with the reply id, topic id, forum
  *                    id, anonymous data and reply author
@@ -315,7 +314,7 @@ function bbp_new_reply_handler() {
 /**
  * Handles the front end edit reply submission
  *
- * @uses bbPress:errors::add() To log various error messages
+ * @uses bbp_add_error() To add an error message
  * @uses bbp_get_reply() To get the reply
  * @uses check_admin_referer() To verify the nonce and check the referer
  * @uses bbp_is_reply_anonymous() To check if the reply was by an anonymous user
@@ -329,7 +328,7 @@ function bbp_new_reply_handler() {
  * @uses apply_filters() Calls 'bbp_edit_reply_pre_content' with the content
  *                        reply id
  * @uses wp_set_post_terms() To set the topic tags
- * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
+ * @uses bbp_has_errors() To get the {@link WP_Error} errors
  * @uses wp_save_post_revision() To save a reply revision
  * @uses bbp_update_topic_revision_log() To update the reply revision log
  * @uses wp_update_post() To update the reply
@@ -1017,14 +1016,20 @@ function bbp_toggle_reply_handler() {
 	// No errors
 	if ( ( false != $success ) && !is_wp_error( $success ) ) {
 
-		// Redirect back to the reply
-		$redirect = bbp_get_reply_url( $reply_id );
+		/** Redirect **************************************************/
+
+		// Redirect to
+		$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+
+		// Get the reply URL
+		$reply_url = bbp_get_reply_url( $reply_id, $redirect_to );
 
 		// Add view all if needed
 		if ( !empty( $view_all ) )
-			$redirect = bbp_add_view_all( $redirect, true );
+			$reply_url = bbp_add_view_all( $reply_url, true );
 
-		wp_redirect( $redirect );
+		// Redirect back to reply
+		wp_redirect( $reply_url );
 
 		// For good measure
 		exit();
