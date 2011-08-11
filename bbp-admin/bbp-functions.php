@@ -20,7 +20,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_admin_separator () {
 	global $menu;
 
+	// Prevent duplicate separators when no new menu items exist
 	if ( !current_user_can( 'edit_replies' ) )
+		return;
+
+	// Prevent duplicate separators when no core menu items exist
+	if ( !current_user_can( 'edit_posts' ) )
 		return;
 
 	$menu[] = array( '', 'read', 'separator-bbpress', '', 'wp-menu-separator bbpress' );
