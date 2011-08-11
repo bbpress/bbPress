@@ -207,6 +207,10 @@ add_action( 'bbp_unspammed_reply', 'bbp_update_reply_walker' );
 add_action( 'make_ham_user',  'bbp_make_ham_user'  );
 add_action( 'make_spam_user', 'bbp_make_spam_user' );
 
+// User role
+add_action( 'bbp_new_topic', 'bbp_global_access_auto_role' );
+add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
+
 /**
  * When a new site is created in a multisite installation, run the activation
  * routine on that site 

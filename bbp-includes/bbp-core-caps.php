@@ -24,11 +24,19 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function bbp_add_roles() {
 
-	// Add the Moderator role and add the default role caps. Mod caps are added by the bbp_add_caps () function
-	$default = get_role( get_option( 'default_role' ) );
+	// Get new role names
+	$moderator_role   = bbp_get_moderator_role();
+	$participant_role = bbp_get_participant_role();
+
+	// Add the Moderator role and add the default role caps.
+	// Mod caps are added by the bbp_add_caps() function
+	$default = get_role( $participant_role );
 
 	// Moderators are default role + forum moderating caps in bbp_add_caps()
-	add_role( 'bbp_moderator', __( 'Forum Moderator', 'bbpress' ), $default->capabilities );
+	add_role( $moderator_role,   'Forum Moderator',   $default->capabilities );
+
+	// Forum Subscribers are auto added to sites with global forums
+	add_role( $participant_role, 'Forum Participant', array( 'read' )        );
 
 	do_action( 'bbp_add_roles' );
 }
@@ -103,8 +111,15 @@ function bbp_remove_caps() {
  */
 function bbp_remove_roles() {
 
+	// Get new role names
+	$moderator_role   = bbp_get_moderator_role();
+	$participant_role = bbp_get_participant_role();
+
 	// Remove the Moderator role
-	remove_role( 'bbp_moderator' );
+	remove_role( $moderator_role );
+
+	// Remove the Moderator role
+	remove_role( $participant_role );
 
 	do_action( 'bbp_remove_roles' );
 }
@@ -320,6 +335,10 @@ function bbp_get_topic_tag_caps () {
  */
 function bbp_get_caps_for_role( $role = '' ) {
 
+	// Get new role names
+	$moderator_role   = bbp_get_moderator_role();
+	$participant_role = bbp_get_participant_role();
+
 	// Which role are we looking for?
 	switch ( $role ) {
 
@@ -368,7 +387,7 @@ function bbp_get_caps_for_role( $role = '' ) {
 			break;
 
 		// Moderator
-		case 'bbp_moderator' :
+		case $moderator_role :
 
 			$caps = array(
 
@@ -406,12 +425,15 @@ function bbp_get_caps_for_role( $role = '' ) {
 
 			break;
 
-		// Other specific roles
-		case 'editor'      :
-		case 'author'      :
-		case 'contributor' :
-		case 'subscriber'  :
-		default            :
+		// WordPress Core Roles
+		case 'editor'          :
+		case 'author'          :
+		case 'contributor'     :
+		case 'subscriber'      :
+
+		// bbPress Participant Role
+		case $participant_role :
+		default                :
 
 			$caps = array(
 
@@ -432,6 +454,89 @@ function bbp_get_caps_for_role( $role = '' ) {
 	}
 
 	return apply_filters( 'bbp_get_caps_for_role', $caps, $role );
+}
+
+/**
+ * Give a user the default 'Forum Participant' role when creating a topic/reply
+ * on a site they do not have a role or capability on.
+ *
+ * @since bbPress (r3410)
+ *
+ * @global bbPress $bbp
+ *
+ * @uses is_multisite()
+ * @uses bbp_allow_global_access()
+ * @uses bbp_is_user_deleted()
+ * @uses bbp_is_user_spammer()
+ * @uses is_user_logged_in()
+ * @uses current_user_can()
+ * @uses WP_User::set_role()
+ *
+ * @return If user is not spam/deleted or is already capable
+ */
+function bbp_global_access_auto_role() {
+
+	// Bail if not multisite or forum is not global
+	if ( !is_multisite() || !bbp_allow_global_access() )
+		return;
+
+	// Bail if user is marked as spam or is deleted
+	if ( bbp_is_user_deleted() || bbp_is_user_spammer() )
+		return;
+
+	// Bail if user is not logged in
+	if ( !is_user_logged_in() )
+		return;
+
+	// Give the user the 'Forum Participant' role
+	if ( current_user_can( 'bbp_masked' ) ) {
+		global $bbp;
+
+		// Get the default role
+		$default_role = bbp_get_participant_role();
+
+		// Set the current users default role
+		$bbp->current_user->set_role( $default_role );
+	}
+}
+
+/**
+ * The participant role for registered users without roles
+ *
+ * This is primarily for multisite compatibility when users without roles on
+ * sites that have global forums enabled want to create topics and replies
+ *
+ * @since bbPress (r3410)
+ *
+ * @param string $role
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_participant_role() {
+
+	// Hardcoded participant role
+	$role = 'bbp_participant';
+
+	// Allow override
+	return apply_filters( 'bbp_get_participant_role', $role );
+}
+
+/**
+ * The moderator role for bbPress users
+ *
+ * @since bbPress (r3410)
+ *
+ * @param string $role
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_moderator_role() {
+
+	// Hardcoded moderated user role
+	$role = 'bbp_moderator';
+
+	// Allow override
+	return apply_filters( 'bbp_get_moderator_role', $role );
 }
 
 /**
@@ -465,11 +570,10 @@ function bbp_global_access_role_mask() {
 		return;
 
 	// Normal user is logged in but has no caps
-	if ( is_user_logged_in() && current_user_can( 'exist' ) && !current_user_can( 'read' ) ) {
-		global $bbp;
+	if ( is_user_logged_in() && !current_user_can( 'read' ) ) {
 
-		// Get default role for this site
-		$default_role  = get_option( 'default_role' );
+		// Assign user the minimal participant role to map caps to
+		$default_role  = bbp_get_participant_role();
 
 		// Get bbPress caps for the default role
 		$caps_for_role = bbp_get_caps_for_role( $default_role );
@@ -480,12 +584,14 @@ function bbp_global_access_role_mask() {
 		}
 
 		// Add 'read' cap just in case
-		$mapped_meta_caps['read'] = true;
+		$mapped_meta_caps['read']       = true;
+		$mapped_meta_caps['bbp_masked'] = true;
 
 		// Allow global access caps to be manipulated
 		$mapped_meta_caps = apply_filters( 'bbp_global_access_mapped_meta_caps', $mapped_meta_caps );
 
 		// Assign the role and mapped caps to the current user
+		global $bbp;
 		$bbp->current_user->roles[0] = $default_role;
 		$bbp->current_user->caps     = $mapped_meta_caps;
 		$bbp->current_user->allcaps  = $mapped_meta_caps;
