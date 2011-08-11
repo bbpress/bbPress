@@ -41,18 +41,14 @@ function bbp_footer() {
  *
  * @since bbPress (r3398)
  *
- * @global WPDB $wpdb
  * @param int $site_id
  * @return bool True if site is public, false if private
  */
 function bbp_is_site_public( $site_id = 0 ) {
 
 	// Get the current site ID
-	if ( empty( $site_id ) ) {
-		global $wpdb;
-
-		$site_id = (int) $wpdb->blogid;
-	}
+	if ( empty( $site_id ) )
+		$site_id = get_current_blog_id();
 
 	// Get the site visibility setting
 	$public = get_blog_option( $site_id, 'blog_public', 1 );

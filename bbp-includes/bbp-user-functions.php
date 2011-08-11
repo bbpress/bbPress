@@ -995,11 +995,12 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	global $wpdb;
 
 	// Get the blog IDs of the user to mark as spam
-	$blogs = get_blogs_of_user( $user_id, true );
+	$blogs   = get_blogs_of_user( $user_id, true );
+	$blog_id = get_current_blog_id();
 
 	// If user has no blogs, they are a guest on this site
 	if ( empty( $blogs ) )
-		$blogs[$wpdb->blogid] = array();
+		$blogs[$blog_id] = array();
 
 	// Make array of post types to mark as spam
 	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
