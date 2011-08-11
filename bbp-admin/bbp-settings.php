@@ -90,6 +90,22 @@ function bbp_admin_setting_callback_subscriptions() {
 }
 
 /**
+ * Allow topic and reply revisions
+ *
+ * @since bbPress (r3412)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_revisions() {
+?>
+
+	<input id="_bbp_allow_revisions" name="_bbp_allow_revisions" type="checkbox" id="_bbp_allow_revisions" value="1" <?php checked( bbp_allow_revisions( true ) ); ?> />
+	<label for="_bbp_allow_revisions"><?php _e( 'Allow topic and reply revision logging', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
  * Allow anonymous posting setting field
  *
  * @since bbPress (r2737)

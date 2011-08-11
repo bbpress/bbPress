@@ -186,6 +186,10 @@ class BBP_Admin {
 		add_settings_field( '_bbp_throttle_time',        __( 'Throttle time',           'bbpress' ), 'bbp_admin_setting_callback_throttle',      'bbpress', 'bbp_main' );
 	 	register_setting  ( 'bbpress',                   '_bbp_throttle_time',                       'intval'                                                          );
 
+		// Allow topic and reply revisions
+		add_settings_field( '_bbp_allow_revisions',      __( 'Allow Revisions',         'bbpress' ), 'bbp_admin_setting_callback_revisions',     'bbpress', 'bbp_main' );
+	 	register_setting  ( 'bbpress',                   '_bbp_allow_revisions',                     'intval'                                                          );
+
 		// Allow favorites setting
 		add_settings_field( '_bbp_enable_favorites',     __( 'Allow Favorites',         'bbpress' ), 'bbp_admin_setting_callback_favorites',     'bbpress', 'bbp_main' );
 	 	register_setting  ( 'bbpress',                   '_bbp_enable_favorites',                    'intval'                                                          );

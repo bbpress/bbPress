@@ -173,6 +173,20 @@ function bbp_is_subscriptions_active( $default = true ) {
 }
 
 /**
+ * Are topic and reply revisions allowed
+ *
+ * @since bbPress (r3412)
+ *
+ * @param $default bool Optional. Default value
+ *
+ * @uses get_option() To get the allow revisions
+ * @return bool Are revisions allowed?
+ */
+function bbp_allow_revisions( $default = true ) {
+	return apply_filters( 'bbp_allow_revisions', (bool) get_option( '_bbp_allow_revisions', $default ) );
+}
+
+/**
  * Is the anonymous posting allowed?
  *
  * @since bbPress (r2659)
