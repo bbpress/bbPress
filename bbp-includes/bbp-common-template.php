@@ -42,6 +42,9 @@ function bbp_footer() {
  * @since bbPress (r3398)
  *
  * @param int $site_id
+ * @uses get_current_blog_id()
+ * @uses get_blog_option()
+ * @uses apply_filters()
  * @return bool True if site is public, false if private
  */
 function bbp_is_site_public( $site_id = 0 ) {

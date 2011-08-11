@@ -967,6 +967,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  * @uses bbp_get_displayed_user_field()
  * @uses is_super_admin()
  * @uses get_blogs_of_user()
+ * @uses get_current_blog_id()
  * @uses bbp_get_topic_post_type()
  * @uses bbp_get_reply_post_type()
  * @uses switch_to_blog()
