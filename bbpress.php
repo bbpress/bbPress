@@ -38,6 +38,11 @@ class bbPress {
 	 */
 	public $version = '2.0-rc-2';
 
+	/**
+	 * @public string bbPress DB version
+	 */
+	public $db_version = '150';
+
 	/** Post types ************************************************************/
 
 	/**
@@ -409,6 +414,7 @@ class bbPress {
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-widgets.php'       ); // Sidebar widgets
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-shortcodes.php'    ); // Shortcodes for use with pages and posts
 		require( $this->plugin_dir . 'bbp-includes/bbp-core-compatibility.php' ); // Theme compatibility for existing themes
+		require( $this->plugin_dir . 'bbp-includes/bbp-core-update.php'        ); // Database updater
 		
 		/** Extensions ********************************************************/
 		

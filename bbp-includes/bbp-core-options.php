@@ -24,11 +24,6 @@ function bbp_add_options() {
 	// Default options
 	$options = array (
 
-		/** Database **********************************************************/
-
-		// DB version
-		'_bbp_db_version'           => '110',
-
 		/** Settings **********************************************************/
 
 		// Lock post editing after 5 minutes
