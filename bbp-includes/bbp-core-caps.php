@@ -30,13 +30,17 @@ function bbp_add_roles() {
 
 	// Add the Moderator role and add the default role caps.
 	// Mod caps are added by the bbp_add_caps() function
-	$default = get_role( $participant_role );
+	$default = get_role( get_option( 'default_role' ) );
+
+	// If role does not exist, default to read cap
+	if ( empty( $default->capabilities ) )
+		$default->capabilities = array( 'read' );
 
 	// Moderators are default role + forum moderating caps in bbp_add_caps()
 	add_role( $moderator_role,   'Forum Moderator',   $default->capabilities );
 
 	// Forum Subscribers are auto added to sites with global forums
-	add_role( $participant_role, 'Forum Participant', array( 'read' )        );
+	add_role( $participant_role, 'Forum Participant', $default->capabilities );
 
 	do_action( 'bbp_add_roles' );
 }
