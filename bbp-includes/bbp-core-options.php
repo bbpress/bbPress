@@ -11,18 +11,20 @@
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * Add default options
+ * Get the default site options and their values
  *
- * Hooked to bbp_activate, it is only called once when bbPress is activated.
- * This is non-destructive, so existing settings will not be overridden.
+ * @since bbPress (r3421)
  *
- * @uses add_option() Adds default options
- * @uses do_action() Calls 'bbp_add_options'
+ * @return array Filtered option names and values
  */
-function bbp_add_options() {
+function bbp_get_default_options() {
 
 	// Default options
 	$options = array (
+
+		/** DB Version ********************************************************/
+		
+		'_bbp_db_version'           => '155',
 
 		/** Settings **********************************************************/
 
@@ -127,6 +129,23 @@ function bbp_add_options() {
 		// Hidden forums
 		'_bbp_hidden_forums'        => '',
 	);
+	
+	return apply_filters( 'bbp_get_default_options', $options );
+}
+
+/**
+ * Add default options
+ *
+ * Hooked to bbp_activate, it is only called once when bbPress is activated.
+ * This is non-destructive, so existing settings will not be overridden.
+ *
+ * @uses add_option() Adds default options
+ * @uses do_action() Calls 'bbp_add_options'
+ */
+function bbp_add_options() {
+
+	// Get the default options and values
+	$options = bbp_get_default_options();
 
 	// Add default options
 	foreach ( $options as $key => $value )
@@ -135,6 +154,28 @@ function bbp_add_options() {
 	// Allow previously activated plugins to append their own options.
 	// This is an extremely rare use-case.
 	do_action( 'bbp_add_options' );
+}
+/**
+ * Delete default options
+ *
+ * Hooked to bbp_uninstall, it is only called once when bbPress is uninstalled.
+ * This is destructive, so existing settings will be destroyed.
+ *
+ * @uses delete_option() Removes default options
+ * @uses do_action() Calls 'bbp_delete_options'
+ */
+function bbp_delete_options() {
+
+	// Get the default options and values
+	$options = bbp_get_default_options();
+
+	// Add default options
+	foreach ( $options as $key => $value )
+		delete_option( $key );
+
+	// Allow previously activated plugins to append their own options.
+	// This is an extremely rare use-case.
+	do_action( 'bbp_delete_options' );
 }
 
 /** Active? *******************************************************************/

@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby
 Tags: bbpress, forums, discussion, post type, theme
 Requires at least: 3.2
 Tested up to: 3.2
-Stable tag: 2.0-rc-2
+Stable tag: 2.0-rc-3
 
 bbPress is forum software with a twist from the creators of WordPress
 
@@ -23,6 +23,10 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.0-rc-3 =
+* Fixed activation/deactivation
+* Added Forum Participant role for multisite use
 
 = 2.0-rc-2 =
 * BuddyPress integration

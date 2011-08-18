@@ -15,7 +15,7 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
  * Author URI: http://bbpress.org
- * Version: 2.0-rc-2
+ * Version: 2.0-rc-3
  */
 
 // Exit if accessed directly
@@ -36,12 +36,12 @@ class bbPress {
 	/**
 	 * @public string bbPress version
 	 */
-	public $version = '2.0-rc-2';
+	public $version = '2.0-rc-3';
 
 	/**
 	 * @public string bbPress DB version
 	 */
-	public $db_version = '150';
+	public $db_version = '155';
 
 	/** Post types ************************************************************/
 
@@ -457,9 +457,13 @@ class bbPress {
 	 */
 	private function setup_actions() {
 
-		// Register bbPress activation/deactivation sequences
-		register_activation_hook  ( $this->file, 'bbp_activation'   );
-		register_deactivation_hook( $this->file, 'bbp_deactivation' );
+		// Add actions to plugin activation and deactivation hooks
+		add_action( 'activate_'   . $this->basename, 'bbp_activation'   );
+		add_action( 'deactivate_' . $this->basename, 'bbp_deactivation' );
+
+		// If bbPress is being deactivated, do not add any actions
+		if ( bbp_is_deactivation( $this->basename ) )
+			return;
 
 		// Array of bbPress core actions
 		$actions = array(
@@ -947,41 +951,5 @@ class bbPress {
 $GLOBALS['bbp'] = new bbPress();
 
 endif; // class_exists check
-
-/**
- * Runs on bbPress activation
- *
- * @since bbPress (r2509)
- *
- * @uses register_uninstall_hook() To register our own uninstall hook
- * @uses do_action() Calls 'bbp_activation' hook
- */
-function bbp_activation() {
-	register_uninstall_hook( __FILE__, 'bbp_uninstall' );
-
-	do_action( 'bbp_activation' );
-}
-
-/**
- * Runs on bbPress deactivation
- *
- * @since bbPress (r2509)
- *
- * @uses do_action() Calls 'bbp_deactivation' hook
- */
-function bbp_deactivation() {
-	do_action( 'bbp_deactivation' );
-}
-
-/**
- * Runs when uninstalling bbPress
- *
- * @since bbPress (r2509)
- *
- * @uses do_action() Calls 'bbp_uninstall' hook
- */
-function bbp_uninstall() {
-	do_action( 'bbp_uninstall' );
-}
 
 ?>

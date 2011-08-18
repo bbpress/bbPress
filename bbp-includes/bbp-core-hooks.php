@@ -212,6 +212,10 @@ add_action( 'make_spam_user', 'bbp_make_spam_user' );
 add_action( 'bbp_new_topic', 'bbp_global_access_auto_role' );
 add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
 
+// Flush rewrite rules
+add_action( 'bbp_activation',   'flush_rewrite_rules' );
+add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
+
 /**
  * When a new site is created in a multisite installation, run the activation
  * routine on that site 
@@ -410,6 +414,57 @@ if ( is_admin() ) {
 	// Run wp_kses_data on topic/reply content in admin section
 	add_filter( 'bbp_get_reply_content', 'wp_kses_data' );
 	add_filter( 'bbp_get_topic_content', 'wp_kses_data' );
+}
+
+/**
+ * Plugin Dependency 
+ *
+ * The purpose of the following actions is to mimic the behavior of something
+ * called 'plugin dependency' which enables a plugin to have plugins of their
+ * own in a safe and reliable way.
+ * 
+ * We do this in bbPress by mirroring existing WordPress actions in many places
+ * allowing dependant plugins to hook into the bbPress specific ones, thus
+ * guaranteeing proper code execution only when bbPress is active.
+ * 
+ * The following functions are wrappers for their actions, allowing them to be
+ * manually called and/or piggy-backed on top of other actions if needed.
+ */
+
+/** Activation Actions ********************************************************/
+
+/**
+ * Runs on bbPress activation
+ *
+ * @since bbPress (r2509)
+ *
+ * @uses register_uninstall_hook() To register our own uninstall hook
+ * @uses do_action() Calls 'bbp_activation' hook
+ */
+function bbp_activation() {
+	do_action( 'bbp_activation' );
+}
+
+/**
+ * Runs on bbPress deactivation
+ *
+ * @since bbPress (r2509)
+ *
+ * @uses do_action() Calls 'bbp_deactivation' hook
+ */
+function bbp_deactivation() {
+	do_action( 'bbp_deactivation' );
+}
+
+/**
+ * Runs when uninstalling bbPress
+ *
+ * @since bbPress (r2509)
+ *
+ * @uses do_action() Calls 'bbp_uninstall' hook
+ */
+function bbp_uninstall() {
+	do_action( 'bbp_uninstall' );
 }
 
 /** Main Actions **************************************************************/

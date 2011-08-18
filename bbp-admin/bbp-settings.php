@@ -291,10 +291,7 @@ function bbp_admin_setting_callback_topic_archive_slug() {
  * @since bbPress (r2786)
  */
 function bbp_admin_setting_callback_single_slug_section() {
-
-	// Flush rewrite rules when this section is saved
-	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
-		flush_rewrite_rules(); ?>
+?>
 
 	<p><?php printf( __( 'You can enter custom slugs for your single forums, topics, replies, and tags URLs here. If you change these, existing permalinks will also change.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
