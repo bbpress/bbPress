@@ -617,11 +617,41 @@ function bbp_get_reply_edit_template() {
 }
 
 /**
+ * Get the topic template
+ *
+ * @since bbPress (r3311)
+ *
+ * @uses bbp_get_topic_tag_tax_id()
+ * @uses apply_filters()
+ *
+ * @return array
+ */
+function bbp_get_topic_tag_template() {
+
+	$tt_id = bbp_get_topic_tag_tax_id();
+	$templates = array(
+
+		// Single Topic Tag
+		'taxonomy-'         . $tt_id . '.php',
+		'forums/taxonomy-'  . $tt_id . '.php',
+		'bbpress/taxonomy-' . $tt_id . '.php',
+	);
+
+	$templates = apply_filters( 'bbp_get_topic_tag_template', $templates );
+	$templates = bbp_set_theme_compat_templates( $templates );
+
+	$template  = locate_template( $templates, false, false );
+	$template  = bbp_set_theme_compat_template( $template );
+
+	return $template;
+}
+
+/**
  * Get the topic edit template
  *
  * @since bbPress (r3311)
  *
- * @uses bbp_get_topic_post_type()
+ * @uses bbp_get_topic_tag_tax_id()
  * @uses apply_filters()
  *
  * @return array
