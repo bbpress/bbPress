@@ -59,6 +59,10 @@ function bbp_add_roles() {
 function bbp_add_caps() {
 	global $wp_roles;
 
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
 	// Loop through available roles
 	foreach( $wp_roles->roles as $role => $details ) {
 
@@ -87,6 +91,10 @@ function bbp_add_caps() {
  */
 function bbp_remove_caps() {
 	global $wp_roles;
+
+	// Load roles if not set
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
 
 	// Loop through available roles
 	foreach( $wp_roles->roles as $role => $details ) {
