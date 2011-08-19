@@ -767,8 +767,9 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
  * @since bbPress (r2815)
  *
  * @param string $request Name of $_REQUEST to look for
- * @param string $input_type Type of input the value is for
- * @uses bbp_get_sanitize_val() To sanitize the value
+ * @param string $input_type Type of input. Default: text. Accepts:
+ *                            textarea|password|select|radio|checkbox
+ * @uses bbp_get_sanitize_val() To sanitize the value. 
  */
 function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo bbp_get_sanitize_val( $request, $input_type );
@@ -782,7 +783,8 @@ function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	 * @since bbPress (r2815)
 	 *
 	 * @param string $request Name of $_REQUEST to look for
-	 * @param string $input_type Type of input the value is for
+	 * @param string $input_type Type of input. Default: text. Accepts:
+	 *                            textarea|password|select|radio|checkbox
 	 * @uses esc_attr() To escape the string
 	 * @uses apply_filters() Calls 'bbp_get_sanitize_val' with the sanitized
 	 *                        value, request and input type
