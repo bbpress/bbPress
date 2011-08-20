@@ -1687,6 +1687,9 @@ function bbp_topic_pagination_count() {
 	function bbp_get_topic_pagination_count() {
 		global $bbp;
 
+		// Define local variable(s)
+		$retstr = '';
+
 		// Set pagination values
 		$start_num = intval( ( $bbp->reply_query->paged - 1 ) * $bbp->reply_query->posts_per_page ) + 1;
 		$from_num  = bbp_number_format( $start_num );
