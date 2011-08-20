@@ -1043,7 +1043,7 @@ function bbp_forum_enforce_private() {
 	}
 
 	// If forum is explicitly hidden and user not capable, set 404
-	if ( !empty( $forum_id ) && bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
+	if ( !empty( $forum_id ) && bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_private_forums' ) )
 		bbp_set_404();
 }
 
