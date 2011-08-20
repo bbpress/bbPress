@@ -123,7 +123,10 @@ add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 // Before and After the Query
 add_action( 'pre_get_posts',     'bbp_pre_get_posts',                2 );
 add_action( 'pre_get_posts',     'bbp_pre_get_posts_exclude_forums', 4 );
-add_action( 'template_redirect', 'bbp_forum_visibility_check',      -1 );
+
+// Restrict forum access
+add_action( 'template_redirect', 'bbp_forum_enforce_hidden',        -1 );
+add_action( 'template_redirect', 'bbp_forum_enforce_private',       -1 );
 
 // Profile Edit
 add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );

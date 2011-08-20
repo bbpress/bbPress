@@ -944,7 +944,7 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
 /** Listeners *****************************************************************/
 
 /**
- * Check if it's a private forum or a topic or reply of a private forum and if
+ * Check if it's a hidden forum or a topic or reply of a hidden forum and if
  * the user can't view it, then sets a 404
  *
  * @since bbPress (r2996)
@@ -956,15 +956,19 @@ function bbp_forum_query_last_reply_id( $forum_id, $topic_ids = 0 ) {
  * @uses bbp_get_reply_post_type() TO get the reply post type
  * @uses bbp_get_topic_forum_id() To get the topic forum id
  * @uses bbp_get_reply_forum_id() To get the reply forum id
- * @uses bbp_is_forum_private() To check if the forum is private or not
+ * @uses bbp_is_forum_hidden() To check if the forum is hidden or not
  * @uses bbp_set_404() To set a 404 status
  */
-function bbp_forum_visibility_check() {
-	global $wp_query;
+function bbp_forum_enforce_hidden() {
 
 	// Bail if not viewing a single item or if user has caps
-	if ( !is_singular() || is_super_admin() || ( current_user_can( 'read_private_forums' ) && current_user_can( 'read_hidden_forums' ) ) )
+	if ( !is_singular() || is_super_admin() || current_user_can( 'read_hidden_forums' ) )
 		return;
+
+	global $wp_query;
+
+	// Define local variable
+	$forum_id = 0;	
 
 	// Check post type
 	switch ( $wp_query->get( 'post_type' ) ) {
@@ -988,6 +992,58 @@ function bbp_forum_visibility_check() {
 
 	// If forum is explicitly hidden and user not capable, set 404
 	if ( !empty( $forum_id ) && bbp_is_forum_hidden( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
+		bbp_set_404();
+}
+
+/**
+ * Check if it's a private forum or a topic or reply of a private forum and if
+ * the user can't view it, then sets a 404
+ *
+ * @since bbPress (r2996)
+ *
+ * @uses current_user_can() To check if the current user can read private forums
+ * @uses is_singular() To check if it's a singular page
+ * @uses bbp_get_forum_post_type() To get the forum post type
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_get_reply_post_type() TO get the reply post type
+ * @uses bbp_get_topic_forum_id() To get the topic forum id
+ * @uses bbp_get_reply_forum_id() To get the reply forum id
+ * @uses bbp_is_forum_private() To check if the forum is private or not
+ * @uses bbp_set_404() To set a 404 status
+ */
+function bbp_forum_enforce_private() {
+
+	// Bail if not viewing a single item or if user has caps
+	if ( !is_singular() || is_super_admin() || current_user_can( 'read_private_forums' ) )
+		return;
+
+	global $wp_query;
+
+	// Define local variable
+	$forum_id = 0;
+	
+	// Check post type
+	switch ( $wp_query->get( 'post_type' ) ) {
+
+		// Forum
+		case bbp_get_forum_post_type() :
+			$forum_id = bbp_get_forum_id( $wp_query->post->ID );
+			break;
+
+		// Topic
+		case bbp_get_topic_post_type() :
+			$forum_id = bbp_get_topic_forum_id( $wp_query->post->ID );
+			break;
+
+		// Reply
+		case bbp_get_reply_post_type() :
+			$forum_id = bbp_get_reply_forum_id( $wp_query->post->ID );
+			break;
+
+	}
+
+	// If forum is explicitly hidden and user not capable, set 404
+	if ( !empty( $forum_id ) && bbp_is_forum_private( $forum_id ) && !current_user_can( 'read_hidden_forums' ) )
 		bbp_set_404();
 }
 
