@@ -60,17 +60,23 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  */
 add_action( 'bbp_init', 'bbp_load_textdomain',        2   );
 add_action( 'bbp_init', 'bbp_setup_current_user',     4   );
-add_action( 'bbp_init', 'bbp_setup_updater',          6   );
-add_action( 'bbp_init', 'bbp_setup_theme_compat',     8   );
-add_action( 'bbp_init', 'bbp_setup_akismet',          10  );
-add_action( 'bbp_init', 'bbp_setup_buddypress',       12  );
-add_action( 'bbp_init', 'bbp_register_post_types',    14  );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 16  );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    18  );
-add_action( 'bbp_init', 'bbp_register_views',         20  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',    22  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       24  );
+add_action( 'bbp_init', 'bbp_setup_theme_compat',     6   );
+add_action( 'bbp_init', 'bbp_setup_akismet',          8   );
+add_action( 'bbp_init', 'bbp_setup_buddypress',       10  );
+add_action( 'bbp_init', 'bbp_register_post_types',    12  );
+add_action( 'bbp_init', 'bbp_register_post_statuses', 14  );
+add_action( 'bbp_init', 'bbp_register_taxonomies',    16  );
+add_action( 'bbp_init', 'bbp_register_views',         18  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',    20  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',       22  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
+
+/**
+ * Run the updater late on bbp_ready to ensure that all alterations to the
+ * permalink structure have taken place. This fixes the issue of permalinks not
+ * being flushed properly when a bbPress update occurs.
+ */
+add_action( 'bbp_ready', 'bbp_setup_updater', 999 );
 
 // Multisite Global Forum Access
 add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask',  10 );
