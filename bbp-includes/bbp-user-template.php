@@ -759,7 +759,9 @@ function bbp_edit_user_display_name() {
 
 	$public_display = array();
 	$public_display['display_username'] = $bbp->displayed_user->user_login;
-	$public_display['display_nickname'] = $bbp->displayed_user->nickname;
+
+	if ( !empty( $bbp->displayed_user->nickname ) )
+		$public_display['display_nickname']  = $bbp->displayed_user->nickname;
 
 	if ( !empty( $bbp->displayed_user->first_name ) )
 		$public_display['display_firstname'] = $bbp->displayed_user->first_name;
