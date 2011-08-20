@@ -435,9 +435,11 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now p.sub {
-				font-style: italic;
-				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
-				padding: 5px 10px 15px;
+				padding: 5px 0 15px; 
+				color: #8f8f8f; 
+				font-size: 14px; 
+				position: absolute; 
+				top: -17px; 
 
 				<?php if ( is_rtl() ) : ?>
 
@@ -449,15 +451,11 @@ class BBP_Admin {
 
 				<?php endif; ?>
 
-				color: #777;
-				font-size: 13px;
-				position: absolute;
-				top: -17px;
 			}
 
 			#bbp-dashboard-right-now .table {
-				margin: 0 -9px;
-				padding: 0 10px;
+				margin: 0;
+				padding: 0;
 				position: relative;
 			}
 

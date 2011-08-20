@@ -211,9 +211,9 @@ function bbp_dashboard_widget_right_now() {
 		<p>
 			<?php
 				if ( current_theme_supports( 'bbpress' ) )
-					_e( 'Theme <strong>natively supports</strong> bbPress', 'bbpress' );
+					_e( 'Theme is using <strong>custom bbPress</strong> styling.', 'bbpress' );
 				else
-					_e( 'Theme <strong>does not</strong> natively support bbPress', 'bbpress' );
+					_e( 'Theme is using <strong>default bbPress</strong> styling.', 'bbpress' );
 			?>
 		</p>
 
