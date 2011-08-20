@@ -1214,7 +1214,7 @@ function bbp_redirect_canonical( $redirect_url ) {
 	// Canonical is for the beautiful
 	if ( $wp_rewrite->using_permalinks() ) {
 
-		// Only if paginating
+		// If viewing beyond page 1 of several
 		if ( 1 < bbp_get_paged() ) {
 
 			// Only on single topics...
@@ -1225,6 +1225,14 @@ function bbp_redirect_canonical( $redirect_url ) {
 			} elseif ( bbp_is_single_forum() ) {
 				$redirect_url = false;
 			}
+
+		// If editing a topic
+		} elseif ( bbp_is_topic_edit() ) {
+			$redirect_url = false;
+
+		// If editing a reply
+		} elseif ( bbp_is_reply_edit() ) {
+			$redirect_url = false;
 		}
 	}
 
