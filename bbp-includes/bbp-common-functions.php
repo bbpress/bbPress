@@ -920,68 +920,6 @@ function bbp_logout_url( $url = '', $redirect_to = '' ) {
 /** Queries *******************************************************************/
 
 /**
- * Adjusts topic and reply queries to exclude items that might be contained
- * inside hidden or private forums that the user does not have the capability
- * to view.
- *
- * @since bbPress (r3291)
- *
- * @param WP_Query $posts_query
- *
- * @uses apply_filters()
- * @uses bbp_exclude_forum_ids()
- * @uses bbp_get_topic_post_type()
- * @uses bbp_get_reply_post_type()
-
- * @return WP_Query
- */
-function bbp_pre_get_posts_exclude_forums( $posts_query ) {
-
-	// Bail if all forums are explicitly allowed
-	if ( true === apply_filters( 'bbp_include_all_forums', $posts_query ) )
-		return $posts_query;
-
-	// Bail if $posts_query is not an object or of incorrect class
-	if ( !is_object( $posts_query ) || ( 'WP_Query' != get_class( $posts_query ) ) )
-		return $posts_query;
-
-	// Bail if filters are suppressed on this query
-	if ( true == $posts_query->get( 'suppress_filters' ) )
-		return $posts_query;
-
-	// There are forums that need to be excluded
-	if ( $forum_ids = bbp_exclude_forum_ids( 'meta_query' ) ) {
-
-		// Only exclude forums on bbPress queries
-		switch ( $posts_query->get( 'post_type' ) ) {
-
-			// Topics
-			case bbp_get_topic_post_type() :
-
-			// Replies
-			case bbp_get_reply_post_type() :
-
-			// Topics and replies
-			case array( bbp_get_topic_post_type(), bbp_get_reply_post_type() ) :
-
-				// Get any existing meta queries
-				$meta_query   = $posts_query->get( 'meta_query' );
-
-				// Add our meta query to existing
-				$meta_query[] = $forum_ids;
-
-				// Set the meta_query var
-				$posts_query->set( 'meta_query', $meta_query );
-
-				break;
-		}
-	}
-
-	// Return possibly adjusted query
-	return $posts_query;
-}
-
-/**
  * Adds ability to include or exclude specific post_parent ID's
  *
  * @since bbPress (r2996)
