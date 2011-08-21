@@ -1513,11 +1513,11 @@ function bbp_pre_get_posts( $posts_query ) {
 		$posts_query->is_home = false;
 
 		// Set bbp_user_id for future reference
-		$posts_query->query_vars['bbp_user_id'] = $user->ID;
+		$posts_query->set( 'bbp_user_id', $user->ID );
 
 		// Set author_name as current user's nicename to get correct posts
 		if ( !bbp_is_query_name( 'bbp_widget' ) )
-			$posts_query->query_vars['author_name'] = $user->user_nicename;
+			$posts_query->set( 'author_name', $user->user_nicename );
 
 		// Set the displayed user global to this user
 		$bbp->displayed_user = $user;
@@ -1558,10 +1558,30 @@ function bbp_pre_get_posts( $posts_query ) {
 		// We save post revisions on our own
 		remove_action( 'pre_post_update', 'wp_save_post_revision' );
 
+	// Check forum status and exclude single forums the user cannot see
+	} elseif ( bbp_get_forum_post_type() == $posts_query->get( 'post_type' ) ) {
+
+		// Define local variable
+		$status = array();
+
+		// All users can see published forums
+		$status[] = 'publish';
+
+		// Add 'private' if user is capable
+		if ( current_user_can( 'read_private_forums' ) )
+			$status[] = 'private';
+
+		// Add 'hidden' if user is capable
+		if ( current_user_can( 'read_hidden_forums' ) )
+			$status[] = $bbp->hidden_status_id;
+
+		// Implode and add the statuses
+		$posts_query->set( 'post_status', implode( ',', $status ) );
+
 	// Topic tag page
 	} elseif ( bbp_is_topic_tag() ) {
-		$posts_query->query_vars['post_type']      = bbp_get_topic_post_type();
-		$posts_query->query_vars['posts_per_page'] = get_option( '_bbp_topics_per_page', 15 );
+		$posts_query->set( 'post_type',      bbp_get_topic_post_type()                );
+		$posts_query->set( 'posts_per_page', get_option( '_bbp_topics_per_page', 15 ) );
 	}
 
 	return $posts_query;
