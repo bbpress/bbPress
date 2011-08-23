@@ -82,8 +82,7 @@ class BBP_Admin {
 		add_action( 'admin_notices', array( $this, 'activation_notice'       ) );
 
 		// Register bbPress admin style
-		// @todo Refresh for 3.2 UI
-		//add_action( 'bbp_admin_init',    array( $this, 'register_admin_style'    ) );
+		add_action( 'bbp_admin_init',     array( $this, 'register_admin_style'    ) );
 
 		// Add the importers
 		add_action( 'bbp_admin_init',     array( $this, 'register_importers'      ) );
