@@ -2666,11 +2666,18 @@ function bbp_untrash_topic( $topic_id = 0 ) {
 
 	do_action( 'bbp_untrash_topic', $topic_id );
 
-	// Loop through and restore pre trashed replies to this topic
+	// Get the replies that were not previously trashed
 	$pre_trashed_replies = get_post_meta( $topic_id, '_bbp_pre_trashed_replies', true );
 
+	// There are replies to untrash
 	if ( !empty( $pre_trashed_replies ) ) {
-		foreach ( $pre_trashed_replies as $reply ) {
+
+		// Maybe reverse the trashed replies array
+		if ( is_array( $pre_trashed_replies ) )
+			$pre_trashed_replies = array_reverse( $pre_trashed_replies );
+
+		// Loop through replies
+		foreach ( (array) $pre_trashed_replies as $reply ) {
 			wp_untrash_post( $reply );
 		}
 	}
