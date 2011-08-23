@@ -422,8 +422,13 @@ class BBP_Forums_Widget extends WP_Widget {
 	 */
 	function update( $new_instance, $old_instance ) {
 		$instance                 = $old_instance;
-		$instance['title']        = strip_tags( $new_instance['title']        );
+		$instance['title']        = strip_tags( $new_instance['title'] );
 		$instance['parent_forum'] = $new_instance['parent_forum'];
+
+		// Force to any
+		if ( !empty( $instance['parent_forum'] ) && !is_numeric( $instance['parent_forum'] ) ) {
+			$instance['parent_forum'] = 'any';
+		}
 
 		return $instance;
 	}
@@ -439,7 +444,7 @@ class BBP_Forums_Widget extends WP_Widget {
 	 */
 	function form( $instance ) {
 		$title        = !empty( $instance['title']        ) ? esc_attr( $instance['title']        ) : '';
-		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : 0; ?>
+		$parent_forum = !empty( $instance['parent_forum'] ) ? esc_attr( $instance['parent_forum'] ) : '0'; ?>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?>
@@ -448,13 +453,13 @@ class BBP_Forums_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'parent_forum' ); ?>"><?php _e( 'Parent Forum:', 'bbpress' ); ?>
+			<label for="<?php echo $this->get_field_id( 'parent_forum' ); ?>"><?php _e( 'Parent Forum ID:', 'bbpress' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'parent_forum' ); ?>" name="<?php echo $this->get_field_name( 'parent_forum' ); ?>" type="text" value="<?php echo $parent_forum; ?>" />
 			</label>
 
 			<br />
 
-			<small><?php _e( 'Forum ID number. "0" to show only root forums, "-1" to display all forums.', 'bbpress' ); ?></small>
+			<small><?php _e( '"0" to show only root - "any" to show all', 'bbpress' ); ?></small>
 		</p>
 
 		<?php
