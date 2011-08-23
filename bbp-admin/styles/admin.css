@@ -358,14 +358,14 @@ a.button-primary {
 	border-color: #555;
 	font-weight: bold;
 	color: #fff;
-	background: #060 url(../bbp-images/button-grad.png) repeat-x scroll left top;
+	background: #060 url(../images/button-grad.png) repeat-x scroll left top;
 	text-shadow: rgba(0,0,0,0.3) 0 -1px 0;
 }
 
 input.button-primary:active,
 button.button-primary:active,
 a.button-primary:active {
-	background: #060 url(../bbp-images/button-grad.png) repeat-x scroll left bottom;
+	background: #060 url(../images/button-grad.png) repeat-x scroll left bottom;
 	color: #cae8be;
 }
 
