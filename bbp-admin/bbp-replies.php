@@ -247,7 +247,7 @@ class BBP_Replies_Admin {
 	/**
 	 * Add the author info metabox
 	 *
-	 * Allows editing of information about an authr
+	 * Allows editing of information about an author
 	 *
 	 * @since bbPress (r2828)
 	 *

@@ -66,8 +66,6 @@ function bbp_is_site_public( $site_id = 0 ) {
  *
  * @param int $post_id Possible post_id to check
  * @uses bbp_get_forum_post_type() To get the forum post type
- * @uses is_singular() To check if it's the single post page
- * @uses get_post_field() To get the post type of the post id
  * @return bool True if it's a forum page, false if not
  */
 function bbp_is_forum( $post_id = 0 ) {
@@ -134,10 +132,8 @@ function bbp_is_single_forum() {
  * @since bbPress (r2549)
  *
  * @param int $post_id Possible post_id to check
- * @uses bbp_is_topic_edit() To return false if it's a topic edit page
  * @uses bbp_get_topic_post_type() To get the topic post type
- * @uses is_singular() To check if it's the single post page
- * @uses get_post_field() To get the post type of the post id
+ * @uses get_post_type() To get the post type of the post id
  * @return bool True if it's a topic page, false if not
  */
 function bbp_is_topic( $post_id = 0 ) {
@@ -318,10 +314,8 @@ function bbp_is_custom_post_type() {
  * @since bbPress (r2549)
  *
  * @param int $post_id Possible post_id to check
- * @uses bbp_is_reply_edit() To return false if it's a reply edit page
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses is_singular() To check if it's the single post page
- * @uses get_post_field() To get the post type of the post id
+ * @uses get_post_type() To get the post type of the post id
  * @return bool True if it's a reply page, false if not
  */
 function bbp_is_reply( $post_id = 0 ) {
