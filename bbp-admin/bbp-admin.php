@@ -20,7 +20,19 @@ if ( !class_exists( 'BBP_Admin' ) ) :
  */
 class BBP_Admin {
 
+	/** Directory *************************************************************/
+
+	/**
+	 * @var string Path to the bbPress admin directory
+	 */
+	public $admin_dir = '';
+
 	/** URLs ******************************************************************/
+
+	/**
+	 * @var string URL to the bbPress admin directory
+	 */
+	public $admin_url = '';
 
 	/**
 	 * @var string URL to the bbPress images directory
@@ -32,7 +44,7 @@ class BBP_Admin {
 	 */
 	public $styles_url = '';
 
-	/** URLs ******************************************************************/
+	/** Recounts **************************************************************/
 
 	/**
 	 * @var bool Enable recounts in Tools area
@@ -69,26 +81,26 @@ class BBP_Admin {
 
 		/** General Actions ***************************************************/
 
-		// Attach the bbPress admin init action to the WordPress admin init action.
-		add_action( 'admin_init',    array( $this, 'init'                    ) );
+		// Attach the bbPress admin_init action to the WordPress admin_init action.
+		add_action( 'admin_init',         array( $this, 'admin_init'                 ) );
 
 		// Add some general styling to the admin area
-		add_action( 'admin_head',    array( $this, 'admin_head'              ) );
+		add_action( 'admin_head',         array( $this, 'admin_head'                 ) );
 
 		// Add menu item to settings menu
-		add_action( 'admin_menu',    array( $this, 'admin_menus'             ) );
+		add_action( 'admin_menu',         array( $this, 'admin_menus'                ) );
 
 		// Add notice if not using a bbPress theme
-		add_action( 'admin_notices', array( $this, 'activation_notice'       ) );
+		add_action( 'admin_notices',      array( $this, 'activation_notice'          ) );
 
-		// Register bbPress admin style
-		add_action( 'bbp_admin_init',     array( $this, 'register_admin_style'    ) );
+		// Add importers
+		add_action( 'bbp_admin_init',     array( $this, 'register_importers'         ) );
 
-		// Add the importers
-		add_action( 'bbp_admin_init',     array( $this, 'register_importers'      ) );
+		// Add green admin style
+		add_action( 'bbp_admin_init',     array( $this, 'register_admin_style'       ) );
 
-		// Add the settings
-		add_action( 'bbp_admin_init',     array( $this, 'register_admin_settings' ) );
+		// Add settings
+		add_action( 'bbp_admin_init',     array( $this, 'register_admin_settings'    ) );
 
 		// Forums 'Right now' Dashboard widget
 		add_action( 'wp_dashboard_setup', array( $this, 'dashboard_widget_right_now' ) );
@@ -109,17 +121,15 @@ class BBP_Admin {
 	 * @access private
 	 */
 	private function includes() {
-		global $bbp;
-
-		// Files to include
-		$files = array( 'tools', 'settings', 'functions', 'metaboxes', 'forums', 'topics', 'replies' );
-
-		// Buzz buzz
-		//if ( get_option( '_bbp_first_run' ) ) $files[] = 'first-run';
 
 		// Include the files
-		foreach ( $files as $file )
-			require( $bbp->plugin_dir . 'bbp-admin/bbp-' . $file . '.php' );
+		require( $this->admin_dir . 'bbp-tools.php'     );
+		require( $this->admin_dir . 'bbp-settings.php'  );
+		require( $this->admin_dir . 'bbp-functions.php' );
+		require( $this->admin_dir . 'bbp-metaboxes.php' );
+		require( $this->admin_dir . 'bbp-forums.php'    );
+		require( $this->admin_dir . 'bbp-topics.php'    );
+		require( $this->admin_dir . 'bbp-replies.php'   );
 	}
 
 	/**
@@ -130,6 +140,9 @@ class BBP_Admin {
 	 */
 	private function setup_globals() {
 		global $bbp;
+
+		// Admin url
+		$this->admin_dir  = trailingslashit( $bbp->plugin_dir . 'bbp-admin' );
 
 		// Admin url
 		$this->admin_url  = trailingslashit( $bbp->plugin_url . 'bbp-admin' );
@@ -290,14 +303,14 @@ class BBP_Admin {
 	 * @since bbPress (r2737)
 	 *
 	 * @uses do_action() Calls 'bbp_register_importers'
+	 * @uses apply_filters() Calls 'bbp_importer_path' filter to allow plugins
+	 *                        to customize the importer script locations.
 	 */
 	public function register_importers() {
 
 		// Leave if we're not in the import section
 		if ( !defined( 'WP_LOAD_IMPORTERS' ) )
 			return;
-
-		global $bbp;
 
 		// Load Importer API
 		require_once( ABSPATH . 'wp-admin/includes/import.php' );
@@ -308,8 +321,11 @@ class BBP_Admin {
 		// Loop through included importers
 		foreach ( $importers as $importer ) {
 
+			// Allow custom importer directory
+			$import_dir  = apply_filters( 'bbp_importer_path', $this->admin_dir . 'importers', $importer );
+
 			// Compile the importer path
-			$import_file = $bbp->plugin_dir . 'bbp-admin/importers/' . $importer . '.php';
+			$import_file = trailingslashit( $import_dir ) . $importer . '.php';
 
 			// If the file exists, include it
 			if ( file_exists( $import_file ) ) {
@@ -381,7 +397,7 @@ class BBP_Admin {
 	 *
 	 * @uses do_action() Calls 'bbp_admin_init'
 	 */
-	public function init() {
+	public function admin_init() {
 		do_action( 'bbp_admin_init' );
 	}
 
