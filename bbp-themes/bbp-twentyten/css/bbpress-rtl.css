@@ -550,44 +550,54 @@ div.bbp-template-notice a {
 /* =Widgets
 -------------------------------------------------------------- */
 
-.widget-area .bbp-login-form fieldset legend {
+.bbp-login-form fieldset legend {
 	display: none;
 }
 
-.widget-area .bbp-login-form .bbp-username label,
-.widget-area .bbp-login-form .bbp-password label {
+.bbp-login-form .bbp-username input,
+.bbp-login-form .bbp-password input {
+	width: 90%;
+	padding: 5px;
+}
+s
+.bbp-login-form .bbp-username label,
+.bbp-login-form .bbp-password label {
 	width: 70px;
 	display: inline-block;
 }
-.widget-area .bbp-login-form .bbp-username,
-.widget-area .bbp-login-form .bbp-password,
-.widget-area .bbp-login-form .bbp-remember-me,
-.widget-area .bbp-login-form .bbp-submit-wrapper {
+.bbp-login-form .bbp-username,
+.bbp-login-form .bbp-password,
+.bbp-login-form .bbp-remember-me,
+.bbp-login-form .bbp-submit-wrapper {
 	margin-top: 10px;
 }
 
-.widget-area .bbp-login-form .bbp-remember-me {
+.bbp-login-form .bbp-remember-me {
+
+}
+
+.bbp-login-form .bbp-submit-wrapper {
+	text-align: left;
+}
+
+.bbp-login-form .bbp-login-links {
+}
+
+.bbp-login-form .bbp-login-links a {
 	float: right;
+	clear: right;
 }
 
-.widget-area .bbp-login-form .bbp-submit-wrapper {
-	float: left;
-}
-
-.widget-area .bbp-logged-in img.avatar {
+.bbp-logged-in img.avatar {
 	float: right;
 	margin-left: 15px;
 }
 
-.widget-area .bbp-logged-in h4 {
+.bbp-logged-in h4 {
 	font-weight: bold;
 	font-size: 1.3em;
-	display: inline;
 	clear: none;
-}
-
-.widget-area .bbp-logged-in a.logout-link {
-	display: block;
+	margin-bottom: 10px;
 }
 
 /* =Avatars

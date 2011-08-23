@@ -66,7 +66,9 @@ class BBP_Login_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		extract( $args );
 
-		$title = apply_filters( 'bbp_login_widget_title', $instance['title'] );
+		$title    = apply_filters( 'bbp_login_widget_title',    $instance['title']    );
+		$register = apply_filters( 'bbp_login_widget_register', $instance['register'] );
+		$lostpass = apply_filters( 'bbp_login_widget_lostpass', $instance['lostpass'] );
 
 		echo $before_widget;
 
@@ -91,7 +93,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 					<div class="bbp-remember-me">
 						<input type="checkbox" name="rememberme" value="forever" <?php checked( bbp_get_sanitize_val( 'rememberme', 'checkbox' ), true, true ); ?> id="rememberme" tabindex="<?php bbp_tab_index(); ?>" />
-						<label for="rememberme"><?php _e( 'Keep me signed in', 'bbpress' ); ?></label>
+						<label for="rememberme"><?php _e( 'Remember Me', 'bbpress' ); ?></label>
 					</div>
 
 					<div class="bbp-submit-wrapper">
@@ -103,6 +105,27 @@ class BBP_Login_Widget extends WP_Widget {
 						<?php bbp_user_login_fields(); ?>
 
 					</div>
+
+					<?php if ( !empty( $register ) || !empty( $lostpass ) ) : ?>
+
+						<div class="bbp-login-links">
+
+							<?php if ( !empty( $register ) ) : ?>
+
+								<a href="<?php echo esc_url( $register ); ?>" title="<?php _e( 'Register', 'bbpress' ); ?>" class="bbp-register-link"><?php _e( 'Register', 'bbpress' ); ?></a>
+
+							<?php endif; ?>
+
+							<?php if ( !empty( $lostpass ) ) : ?>
+
+								<a href="<?php echo esc_url( $lostpass ); ?>" title="<?php _e( 'Lost Password', 'bbpress' ); ?>" class="bbp-register-link"><?php _e( 'Lost Password', 'bbpress' ); ?></a>
+
+							<?php endif; ?>
+
+						</div>
+
+					<?php endif; ?>
+
 				</fieldset>
 			</form>
 
@@ -129,8 +152,10 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @param array $old_instance The old instance options
 	 */
 	function update( $new_instance, $old_instance ) {
-		$instance          = $old_instance;
-		$instance['title'] = strip_tags( $new_instance['title'] );
+		$instance             = $old_instance;
+		$instance['title']    = strip_tags( $new_instance['title'] );
+		$instance['register'] = esc_url( $new_instance['register'] );
+		$instance['lostpass'] = esc_url( $new_instance['lostpass'] );
 
 		return $instance;
 	}
@@ -145,11 +170,27 @@ class BBP_Login_Widget extends WP_Widget {
 	 * @uses BBP_Login_Widget::get_field_name() To output the field name
 	 */
 	function form( $instance ) {
-		$title = !empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : ''; ?>
+
+		// Form values
+		$title    = !empty( $instance['title'] )    ? esc_attr( $instance['title'] )    : '';
+		$register = !empty( $instance['register'] ) ? esc_attr( $instance['register'] ) : '';
+		$lostpass = !empty( $instance['lostpass'] ) ? esc_attr( $instance['lostpass'] ) : '';
+
+		?>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'bbpress' ); ?>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></label>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'register' ); ?>"><?php _e( 'Register URI:', 'bbpress' ); ?>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'register' ); ?>" name="<?php echo $this->get_field_name( 'register' ); ?>" type="text" value="<?php echo $register; ?>" /></label>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'lostpass' ); ?>"><?php _e( 'Lost Password URI:', 'bbpress' ); ?>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'lostpass' ); ?>" name="<?php echo $this->get_field_name( 'lostpass' ); ?>" type="text" value="<?php echo $lostpass; ?>" /></label>
 		</p>
 
 		<?php
