@@ -71,13 +71,6 @@ add_action( 'bbp_init', 'bbp_register_shortcodes',    20  );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags',       22  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
-/**
- * Run the updater late on bbp_ready to ensure that all alterations to the
- * permalink structure have taken place. This fixes the issue of permalinks not
- * being flushed properly when a bbPress update occurs.
- */
-add_action( 'bbp_ready', 'bbp_setup_updater', 999 );
-
 // Multisite Global Forum Access
 add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask',  10 );
 
@@ -417,6 +410,13 @@ if ( is_admin() ) {
 	add_action( 'admin_menu',        'bbp_admin_separator'         );
 	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
 	add_action( 'menu_order',        'bbp_admin_menu_order'        );
+
+	/**
+	 * Run the updater late on 'bbp_admin_init' to ensure that all alterations
+	 * to the permalink structure have taken place. This fixes the issue of
+	 * permalinks not being flushed properly when a bbPress update occurs.
+	 */
+	add_action( 'bbp_admin_init',    'bbp_setup_updater', 999 );
 
 	/** Filters ***************************************************************/
 
