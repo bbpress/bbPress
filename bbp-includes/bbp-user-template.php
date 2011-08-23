@@ -921,6 +921,7 @@ function bbp_logged_in_redirect( $url = '' ) {
  *
  * @since bbPress (r2815)
  *
+ * @uses apply_filters() To allow custom redirection
  * @uses bbp_redirect_to_field() To output the hidden request url field
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
@@ -929,9 +930,14 @@ function bbp_user_login_fields() {
 
 		<input type="hidden" name="user-cookie" value="1" />
 
-		<?php bbp_redirect_to_field(); ?>
+		<?php
 
-		<?php wp_nonce_field( 'bbp-user-login' );
+		// Allow custom login redirection
+		$redirect_to = apply_filters( 'bbp_user_login_redirect_to', '' );
+		bbp_redirect_to_field( $redirect_to );
+
+		// Prevent intention hi-jacking of log-in form
+		wp_nonce_field( 'bbp-user-login' );
 }
 
 /** Register ******************************************************************/
@@ -943,6 +949,7 @@ function bbp_user_login_fields() {
  *
  * @uses add_query_arg() To add query args
  * @uses bbp_login_url() To get the login url
+ * @uses apply_filters() To allow custom redirection
  * @uses bbp_redirect_to_field() To output the redirect to field
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
@@ -952,9 +959,14 @@ function bbp_user_register_fields() {
 		<input type="hidden" name="action"      value="register" />
 		<input type="hidden" name="user-cookie" value="1" />
 
-		<?php bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), '' ) ); ?>
+		<?php
 
-		<?php wp_nonce_field( 'bbp-user-register' );
+		// Allow custom registration redirection
+		$redirect_to = apply_filters( 'bbp_user_register_redirect_to', '' );
+		bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'registered' ), $redirect_to ) );
+
+		// Prevent intention hi-jacking of sign-up form
+		wp_nonce_field( 'bbp-user-register' );
 }
 
 /** Lost Password *************************************************************/
@@ -964,6 +976,7 @@ function bbp_user_register_fields() {
  *
  * @since bbPress (r2815)
  *
+ * @uses apply_filters() To allow custom redirection
  * @uses wp_referer_field() Set referer
  * @uses wp_nonce_field() To generate hidden nonce fields
  */
@@ -972,9 +985,14 @@ function bbp_user_lost_pass_fields() {
 
 		<input type="hidden" name="user-cookie" value="1" />
 
-		<?php bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), get_permalink() ) ); ?>
+		<?php
 
-		<?php wp_nonce_field( 'bbp-user-lost-pass' );
+		// Allow custom lost pass redirection
+		$redirect_to = apply_filters( 'bbp_user_lost_pass_redirect_to', get_permalink() );
+		bbp_redirect_to_field( add_query_arg( array( 'checkemail' => 'confirm' ), $redirect_to ) );
+
+		// Prevent intention hi-jacking of lost pass form
+		wp_nonce_field( 'bbp-user-lost-pass' );
 }
 
 /** Author Avatar *************************************************************/
