@@ -668,7 +668,7 @@ function bbp_topic_pagination( $args = '' ) {
 		if ( $wp_rewrite->using_permalinks() )
 			$base = trailingslashit( get_permalink( $topic_id ) ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 		else
-			$base = add_query_arg( 'paged', '%#%' );
+			$base = add_query_arg( 'paged', '%#%', get_permalink( $topic_id ) );
 
 		// Get total and add 1 if topic is included in the reply loop
 		$total = bbp_get_topic_reply_count( $topic_id );
