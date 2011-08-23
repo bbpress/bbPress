@@ -333,7 +333,7 @@ a.bbp-reply-permalink {
 #content fieldset.bbp-form label,
 #container fieldset.bbp-form label,
 #wrapper fieldset.bbp-form label {
-	width: 250px;
+	width: 200px;
 	display: inline-block;
 }
 
@@ -565,11 +565,11 @@ div.bbp-template-notice a {
 }
 
 .bbp-login-form .bbp-username input,
+.bbp-login-form .bbp-email input,
 .bbp-login-form .bbp-password input {
-	width: 90%;
 	padding: 5px;
 }
-s
+
 .bbp-login-form .bbp-username label,
 .bbp-login-form .bbp-password label {
 	width: 70px;
