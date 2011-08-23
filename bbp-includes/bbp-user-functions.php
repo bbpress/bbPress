@@ -144,6 +144,24 @@ function bbp_current_author_ip() {
 	return apply_filters( 'bbp_current_author_ip', $retval );
 }
 
+/**
+ * Get the poster user agent
+ *
+ * @since bbPress (r3446)
+ *
+ * @return string
+ */
+function bbp_current_author_ua() {
+
+	// Sanity check the user agent
+	if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) )
+		$retval = substr( $_SERVER['HTTP_USER_AGENT'], 0, 254 );
+	else
+		$retval = '';
+
+	return apply_filters( 'bbp_current_author_ua', $retval );
+}
+
 /** Favorites *****************************************************************/
 
 /**

@@ -805,6 +805,104 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
 	return true;
 }
 
+/**
+ * Checks topics and replies against the discussion blacklist of blocked keys
+ *
+ * @since bbPress (r3446)
+ *
+ * @global bbPress $bbp
+ * @param array $anonymous_data Anonymous user data
+ * @param int $author_id Topic or reply author ID
+ * @param string $title The title of the content
+ * @param string $content The content being posted
+ * @uses is_super_admin() Allow super admins to bypass blacklist
+ * @uses bbp_current_author_ip() To get current user IP address
+ * @uses bbp_current_author_ua() To get current user agent
+ * @return bool True if test is passed, false if fail
+ */
+function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $title = '', $content = '' ) {
+
+	// Bail if super admin is author
+	if ( is_super_admin( $author_id ) )
+		return true;
+
+	// Define local variable
+	$post = array();
+
+	/** Blacklist *************************************************************/
+
+	// Get the moderation keys
+	$blacklist = trim( get_option( 'blacklist_keys' ) );
+
+	// Bail if blacklist is empty
+	if ( empty( $blacklist ) )
+		return true;
+
+	/** User Data *************************************************************/
+
+	// Map anonymous user data
+	if ( !empty( $anonymous_data ) ) {
+		$post['author'] = $anonymous_data['bbp_anonymous_name'];
+		$post['email']  = $anonymous_data['bbp_anonymous_email'];
+		$post['url']    = $anonymous_data['bbp_anonymous_website'];
+
+	// Map current user data
+	} elseif ( !empty( $author_id ) ) {
+
+		// Get author data
+		$user = get_userdata( $author_id );
+
+		// If data exists, map it
+		if ( !empty( $user ) ) {
+			$post['author'] = $user->display_name;
+			$post['email']  = $user->user_email;
+			$post['url']    = $user->user_url;
+		}
+	}
+
+	// Current user IP and user agent
+	$post['user_ip'] = bbp_current_author_ip();
+	$post['user_ua'] = bbp_current_author_ua();
+
+	// Post title and content
+	$post['title']   = $title; 
+	$post['content'] = $content; 
+
+	/** Words *****************************************************************/
+
+	// Get words separated by new lines
+	$words = explode( "\n", $blacklist );
+
+	// Loop through words
+	foreach ( (array) $words as $word ) {
+
+		// Trim the whitespace from the word
+		$word = trim( $word );
+
+		// Skip empty lines
+		if ( empty( $word ) ) { continue; }
+
+		// Do some escaping magic so that '#' chars in the
+		// spam words don't break things:
+		$word    = preg_quote( $word, '#' );
+		$pattern = "#$word#i";
+
+		// Loop through post data
+		foreach( $post as $post_data ) {
+			
+			// Check each user data for current word
+			if ( preg_match( $pattern, $post_data ) ) {
+				
+				// Post does not pass
+				return false;
+			}
+		}
+	}
+
+	// Check passed successfully
+	return true;
+}
+
 /** Subscriptions *************************************************************/
 
 /**
