@@ -1282,13 +1282,68 @@ function bbp_topic_author_url( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Check for anonymous user
-		if ( !bbp_is_topic_anonymous( $topic_id ) )
+		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
 			$author_url = bbp_get_user_profile_url( bbp_get_topic_author_id( $topic_id ) );
-		else
-			if ( !$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true ) )
+		} else {
+			if ( !$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true ) ) {
 				$author_url = '';
+			}
+		}
 
 		return apply_filters( 'bbp_get_topic_author_url', $author_url, $topic_id );
+	}
+
+/**
+ * Output the topic author email address
+ *
+ * @since bbPress (r3445)
+ *
+ * @param int $topic_id Optional. Reply id
+ * @uses bbp_get_topic_author_email() To get the topic author email
+ */
+function bbp_topic_author_email( $topic_id = 0 ) {
+	echo bbp_get_topic_author_email( $topic_id );
+}
+	/**
+	 * Return the topic author email address
+	 *
+	 * @since bbPress (r3445)
+	 *
+	 * @param int $topic_id Optional. Reply id
+	 * @uses bbp_get_topic_id() To get the topic id
+	 * @uses bbp_is_topic_anonymous() To check if the topic is by an anonymous
+	 *                                 user
+	 * @uses bbp_get_topic_author_id() To get the topic author id
+	 * @uses get_userdata() To get the user data
+	 * @uses get_post_meta() To get the anonymous poster's email
+	 * @uses apply_filters() Calls bbp_get_topic_author_email with the author
+	 *                        email & topic id
+	 * @return string Topic author email address
+	 */
+	function bbp_get_topic_author_email( $topic_id = 0 ) {
+		$topic_id = bbp_get_topic_id( $topic_id );
+
+		// Not anonymous user
+		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
+
+			// Use topic author email address
+			$user_id      = bbp_get_topic_author_id( $topic_id );
+			$user         = get_userdata( $user_id );
+			$author_email = !empty( $user->user_email ) ? $user->user_email : '';
+
+		// Anonymous
+		} else {
+
+			// Get email from post meta
+			$author_email = get_post_meta( $topic_id, '_bbp_anonymous_email', true );
+
+			// Sanity check for missing email address
+			if ( empty( $author_email ) ) {
+				$author_email = '';
+			}
+		}
+
+		return apply_filters( 'bbp_get_topic_author_email', $author_email, $topic_id );
 	}
 
 /**

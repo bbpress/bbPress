@@ -1004,7 +1004,7 @@ function bbp_reply_author_url( $reply_id = 0 ) {
 	/**
 	 * Return the author url of the reply
 	 *
-	 * @since bbPress (r22667)
+	 * @since bbPress (r2667)
 	 *
 	 * @param int $reply_id Optional. Reply id
 	 * @uses bbp_get_reply_id() To get the reply id
@@ -1025,13 +1025,68 @@ function bbp_reply_author_url( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
 		// Check for anonymous user
-		if ( !bbp_is_reply_anonymous( $reply_id ) )
+		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
 			$author_url = bbp_get_user_profile_url( bbp_get_reply_author_id( $reply_id ) );
-		else
-			if ( !$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true ) )
+		} else {
+			if ( !$author_url = get_post_meta( $reply_id, '_bbp_anonymous_website', true ) ) {
 				$author_url = '';
+			}
+		}
 
 		return apply_filters( 'bbp_get_reply_author_url', $author_url, $reply_id );
+	}
+
+/**
+ * Output the reply author email address
+ *
+ * @since bbPress (r3445)
+ *
+ * @param int $reply_id Optional. Reply id
+ * @uses bbp_get_reply_author_email() To get the reply author email
+ */
+function bbp_reply_author_email( $reply_id = 0 ) {
+	echo bbp_get_reply_author_email( $reply_id );
+}
+	/**
+	 * Return the reply author email address
+	 *
+	 * @since bbPress (r3445)
+	 *
+	 * @param int $reply_id Optional. Reply id
+	 * @uses bbp_get_reply_id() To get the reply id
+	 * @uses bbp_is_reply_anonymous() To check if the reply is by an anonymous
+	 *                                 user
+	 * @uses bbp_get_reply_author_id() To get the reply author id
+	 * @uses get_userdata() To get the user data
+	 * @uses get_post_meta() To get the anonymous poster's website email
+	 * @uses apply_filters() Calls bbp_get_reply_author_email with the author
+	 *                        email & reply id
+	 * @return string Reply author email address
+	 */
+	function bbp_get_reply_author_email( $reply_id = 0 ) {
+		$reply_id = bbp_get_reply_id( $reply_id );
+
+		// Not anonymous
+		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+
+			// Use reply author email address
+			$user_id      = bbp_get_reply_author_id( $reply_id );
+			$user         = get_userdata( $user_id );
+			$author_email = !empty( $user->user_email ) ? $user->user_email : '';
+
+		// Anonymous
+		} else {
+
+			// Get email from post meta
+			$author_email = get_post_meta( $reply_id, '_bbp_anonymous_email', true );
+
+			// Sanity check for missing email address
+			if ( empty( $author_email ) ) {
+				$author_email = '';
+			}
+		}
+
+		return apply_filters( 'bbp_get_reply_author_email', $author_email, $reply_id );
 	}
 
 /**
