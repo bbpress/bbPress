@@ -118,7 +118,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 							<?php if ( !empty( $lostpass ) ) : ?>
 
-								<a href="<?php echo esc_url( $lostpass ); ?>" title="<?php _e( 'Lost Password', 'bbpress' ); ?>" class="bbp-register-link"><?php _e( 'Lost Password', 'bbpress' ); ?></a>
+								<a href="<?php echo esc_url( $lostpass ); ?>" title="<?php _e( 'Lost Password', 'bbpress' ); ?>" class="bbp-lostpass-link"><?php _e( 'Lost Password', 'bbpress' ); ?></a>
 
 							<?php endif; ?>
 
