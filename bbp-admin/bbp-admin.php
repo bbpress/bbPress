@@ -450,11 +450,11 @@ class BBP_Admin {
 			}
 
 			#bbp-dashboard-right-now p.sub {
-				padding: 5px 0 15px; 
-				color: #8f8f8f; 
-				font-size: 14px; 
-				position: absolute; 
-				top: -17px; 
+				padding: 5px 0 15px;
+				color: #8f8f8f;
+				font-size: 14px;
+				position: absolute;
+				top: -17px;
 
 				<?php if ( is_rtl() ) : ?>
 

@@ -422,7 +422,7 @@ function bbp_reply_metabox() {
 		'numberposts' => '250',
 		'show_none'   => is_super_admin() ? __( '(No Topic)', 'bbpress' ) : '',
 	);
-	
+
 	// Allow the dropdown to be filtered, to extend or limit the available
 	// topics to choose as the reply parent.
 	$args = apply_filters( 'bbp_reply_parent_dropdown', $args ); ?>
@@ -457,7 +457,7 @@ function bbp_author_metabox() {
 
 	// Post ID
 	$post_id = get_the_ID();
-	
+
 	// Show extra bits if topic/reply is anonymous
 	if ( bbp_is_reply_anonymous( $post_id ) || bbp_is_topic_anonymous( $post_id ) ) : ?>
 

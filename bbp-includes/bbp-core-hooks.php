@@ -220,8 +220,8 @@ add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
 
 /**
  * When a new site is created in a multisite installation, run the activation
- * routine on that site 
- * 
+ * routine on that site
+ *
  * @since bbPress (r3283)
  *
  * @param int $blog_id
@@ -229,7 +229,7 @@ add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
  * @param string $domain
  * @param string $path
  * @param int $site_id
- * @param array() $meta 
+ * @param array() $meta
  */
 function bbp_new_site( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
 
@@ -426,16 +426,16 @@ if ( is_admin() ) {
 }
 
 /**
- * Plugin Dependency 
+ * Plugin Dependency
  *
  * The purpose of the following actions is to mimic the behavior of something
  * called 'plugin dependency' which enables a plugin to have plugins of their
  * own in a safe and reliable way.
- * 
+ *
  * We do this in bbPress by mirroring existing WordPress actions in many places
  * allowing dependant plugins to hook into the bbPress specific ones, thus
  * guaranteeing proper code execution only when bbPress is active.
- * 
+ *
  * The following functions are wrappers for their actions, allowing them to be
  * manually called and/or piggy-backed on top of other actions if needed.
  */

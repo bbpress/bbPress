@@ -763,7 +763,7 @@ function bbp_redirect_to_field( $redirect_to = '' ) {
  * @param string $request Name of $_REQUEST to look for
  * @param string $input_type Type of input. Default: text. Accepts:
  *                            textarea|password|select|radio|checkbox
- * @uses bbp_get_sanitize_val() To sanitize the value. 
+ * @uses bbp_get_sanitize_val() To sanitize the value.
  */
 function bbp_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo bbp_get_sanitize_val( $request, $input_type );

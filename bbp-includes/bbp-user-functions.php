@@ -939,7 +939,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 	// No user found
 	if ( empty( $user ) ) {
 		$is_spammer = false;
-		
+
 	// User found
 	} else {
 
@@ -975,7 +975,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
  * @uses bbp_spam_topic()
  * @uses bbp_spam_reply()
  * @uses restore_current_blog()
- * 
+ *
  * @return If no user ID passed
  */
 function bbp_make_spam_user( $user_id = 0 ) {
@@ -1019,7 +1019,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		// Loop through posts and spam them
 		if ( !empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
-				
+
 				// The routines for topics ang replies are different, so use the
 				// correct one based on the post type
 				switch ( get_post_type( $post_id ) ) {
@@ -1060,7 +1060,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
  * @uses bbp_unspam_topic()
  * @uses bbp_unspam_reply()
  * @uses restore_current_blog()
- * 
+ *
  * @return If no user ID passed
  */
 function bbp_make_ham_user( $user_id = 0 ) {
@@ -1103,7 +1103,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		// Loop through posts and spam them
 		if ( !empty( $posts ) ) {
 			foreach ( $posts as $post_id ) {
-				
+
 				// The routines for topics ang replies are different, so use the
 				// correct one based on the post type
 				switch ( get_post_type( $post_id ) ) {
@@ -1151,7 +1151,7 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 	// No user found
 	if ( empty( $user ) ) {
 		$is_deleted = true;
-		
+
 	// User found
 	} else {
 

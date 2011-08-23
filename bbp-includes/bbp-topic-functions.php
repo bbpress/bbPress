@@ -464,7 +464,7 @@ function bbp_edit_topic_handler() {
 
 	// Current forum this topic is in
 	$current_forum_id = bbp_get_topic_forum_id( $topic_id );
-	
+
 	// Forum exists
 	if ( !empty( $forum_id ) && ( $forum_id !== $current_forum_id ) ) {
 
@@ -1196,7 +1196,7 @@ function bbp_split_topic_handler() {
 	// Bail if not a POST action
 	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 		return;
-	
+
 	// Bail if action is not 'bbp-split-topic'
 	if ( empty( $_POST['action'] ) || ( 'bbp-split-topic' !== $_POST['action'] ) )
 		return;
@@ -1498,7 +1498,7 @@ function bbp_manage_topic_tag_handler() {
 	// Bail if not a POST action
 	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 		return;
-	
+
 	// Bail if required POST actions aren't passed
 	if ( empty( $_POST['tag-id'] ) || empty( $_POST['action'] ) )
 		return;
@@ -2369,7 +2369,7 @@ function bbp_open_topic( $topic_id = 0 ) {
 
 	// Get previous status
 	$topic_status         = get_post_meta( $topic_id, '_bbp_status', true );
-	
+
 	// Set previous status
 	$topic['post_status'] = $topic_status;
 
@@ -2424,7 +2424,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
-	
+
 	// Update the topic
 	$topic_id = wp_insert_post( $topic );
 
@@ -2465,7 +2465,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// Get pre spam status
 	$topic_status         = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
-	
+
 	// Set post status to pre spam
 	$topic['post_status'] = $topic_status;
 

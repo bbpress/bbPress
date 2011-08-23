@@ -609,7 +609,7 @@ class BBP_Replies_Admin {
 
 					// Output the title
 					echo $forum_title;
-					
+
 				// Reply has no forum
 				} else {
 					_e( 'No Forum', 'bbpress' );
@@ -672,7 +672,7 @@ class BBP_Replies_Admin {
 
 			// Reply view links to topic
 			$actions['view'] = '<a href="' . bbp_get_reply_url( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
-			
+
 			// User cannot view replies in trash
 			if ( ( 'trash' == $reply->post_status ) && !current_user_can( 'view_trash' ) )
 				unset( $actions['view'] );

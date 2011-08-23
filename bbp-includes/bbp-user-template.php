@@ -261,7 +261,7 @@ function bbp_user_profile_url( $user_id = 0, $user_nicename = '' ) {
 		$early_profile_url = apply_filters( 'bbp_pre_get_user_profile_url', (int) $user_id );
 		if ( is_string( $early_profile_url ) )
 			return $early_profile_url;
-			
+
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
 			$url = $wp_rewrite->root . $bbp->user_slug . '/%' . $bbp->user_id . '%';

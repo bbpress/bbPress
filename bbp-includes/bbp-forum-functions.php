@@ -837,17 +837,17 @@ function bbp_exclude_forum_ids( $type = 'string' ) {
 		if ( !empty( $forum_ids ) ) {
 
 			switch ( $type ) {
-				
+
 				// Separate forum ID's into a comma separated string
 				case 'string' :
 					$retval = implode( ',', $forum_ids );
 					break;
-				
+
 				// Use forum_ids array
 				case 'array'  :
 					$retval = $forum_ids;
 					break;
-				
+
 				// Build a meta_query
 				case 'meta_query' :
 					$retval = array(
@@ -1030,7 +1030,7 @@ function bbp_forum_enforce_hidden() {
 	global $wp_query;
 
 	// Define local variable
-	$forum_id = 0;	
+	$forum_id = 0;
 
 	// Check post type
 	switch ( $wp_query->get( 'post_type' ) ) {
@@ -1083,7 +1083,7 @@ function bbp_forum_enforce_private() {
 
 	// Define local variable
 	$forum_id = 0;
-	
+
 	// Check post type
 	switch ( $wp_query->get( 'post_type' ) ) {
 

@@ -750,7 +750,7 @@ class BBP_Replies_Widget extends WP_Widget {
 						<?php
 						$author_link = bbp_get_reply_author_link( array( 'type' => 'both', 'size' => 14 ) );
 						$reply_link  = '<a class="bbp-reply-topic-title" href="' . esc_url( bbp_get_reply_url() ) . '" title="' . bbp_get_reply_excerpt( bbp_get_reply_id(), 50 ) . '">' . bbp_get_reply_topic_title() . '</a>';
-						
+
 						/* translators: bbpress replies widget: 1: reply author, 2: reply link, 3: reply date, 4: reply time */
 						printf( _x( $show_date == 'on' ? '%1$s on %2$s, %3$s, %4$s' : '%1$s on %2$s', 'widgets', 'bbpress' ), $author_link, $reply_link, get_the_date(), get_the_time() );
 						?>

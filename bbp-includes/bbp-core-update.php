@@ -12,7 +12,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
  * Compare the bbPress version to the DB version to determine if updating
- * 
+ *
  * @since bbPress (r3421)
  * @global bbPress $bbp
  * @uses get_option()
@@ -55,8 +55,8 @@ function bbp_is_activation( $basename = '' ) {
 	// Set basename if empty
 	if ( empty( $basename ) && !empty( $bbp->basename ) )
 		$basename = $bbp->basename;
-	
-	// Bail if no basename 
+
+	// Bail if no basename
 	if ( empty( $basename ) )
 		return false;
 
@@ -91,8 +91,8 @@ function bbp_is_deactivation( $basename = '' ) {
 	// Set basename if empty
 	if ( empty( $basename ) && !empty( $bbp->basename ) )
 		$basename = $bbp->basename;
-	
-	// Bail if no basename 
+
+	// Bail if no basename
 	if ( empty( $basename ) )
 		return false;
 
@@ -105,7 +105,7 @@ function bbp_is_deactivation( $basename = '' ) {
 
 /**
  * Update the DB to the latest version
- * 
+ *
  * @since bbPress (r3421)
  * @uses update_option()
  */

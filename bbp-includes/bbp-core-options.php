@@ -23,7 +23,7 @@ function bbp_get_default_options() {
 	$options = array (
 
 		/** DB Version ********************************************************/
-		
+
 		'_bbp_db_version'           => '155',
 
 		/** Settings **********************************************************/
@@ -62,9 +62,9 @@ function bbp_get_default_options() {
 
 		// Replies per RSS page
 		'_bbp_replies_per_rss_page' => '25',
-		
+
 		/** Page For **********************************************************/
-		
+
 		// Page for forums
 		'_bbp_page_for_forums'      => '0',
 
@@ -129,7 +129,7 @@ function bbp_get_default_options() {
 		// Hidden forums
 		'_bbp_hidden_forums'        => '',
 	);
-	
+
 	return apply_filters( 'bbp_get_default_options', $options );
 }
 

@@ -141,7 +141,7 @@ class BBP_BuddyPress {
 		// Hook into reply creation
 		add_action( 'bbp_new_reply',                array( $this, 'reply_create'              ), 10, 5 );
 	}
-	
+
 	/**
 	 * Setup the filters
 	 *
@@ -166,7 +166,7 @@ class BBP_BuddyPress {
 		// Override bbPress user profile URL with BuddyPress profile URL
 		add_filter( 'bbp_pre_get_user_profile_url', array( $this, 'user_profile_url' ) );
 	}
-	
+
 	/**
 	 * Register our activity actions with BuddyPress
 	 *
@@ -246,7 +246,7 @@ class BBP_BuddyPress {
 		// Bail if activity is not active
 		if ( !bp_is_active( 'activity' ) )
 			return;
-		
+
 		// Default activity args
 		$defaults = array(
 			'item_id'           => false,
@@ -265,7 +265,7 @@ class BBP_BuddyPress {
 		// Delete the activity
 		bp_activity_delete_by_item_id( $activity );
 	}
-	
+
 	/**
 	 * Maybe disable activity stream comments on select actions
 	 *
@@ -275,7 +275,7 @@ class BBP_BuddyPress {
 	 * @global BuddyPress $bp
 	 * @param boolean $can_comment
 	 * @uses bp_get_activity_action_name()
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public function activity_can_comment( $can_comment = true ) {
 		global $activities_template, $bp;
@@ -286,7 +286,7 @@ class BBP_BuddyPress {
 
 		// Check if blog & forum activity stream commenting is off
 		if ( ( false === $activities_template->disable_blogforum_replies ) || (int) $activities_template->disable_blogforum_replies ) {
-			
+
 			// Get the current action name
 			$action_name = bp_get_activity_action_name();
 
@@ -333,7 +333,7 @@ class BBP_BuddyPress {
 
 	/**
 	 * Override bbPress profile URL with BuddyPress profile URL
-	 * 
+	 *
 	 * @since bbPress (r3401)
 	 *
 	 * @param string $url
@@ -480,7 +480,7 @@ class BBP_BuddyPress {
 
 		// Setup links for activity stream
 		$user_link  = bbp_get_user_profile_link( $user_id  );
-		
+
 		// Reply
 		$reply_url     = bbp_get_reply_url    ( $reply_id );
 		$reply_content = bbp_get_reply_content( $reply_id );
@@ -518,7 +518,7 @@ class BBP_BuddyPress {
 		if ( !empty( $activity_id ) ) {
 			update_post_meta( $reply_id, '_bbp_activity_id', $activity_id );
 		}
-	}	
+	}
 }
 endif;
 

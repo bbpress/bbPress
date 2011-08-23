@@ -195,7 +195,7 @@ class BBP_Akismet {
 			case 'bbp_unspammed_reply' :
 				$request_type = 'ham';
 				break;
-			
+
 			// Possibly poison...
 			default :
 				return;
@@ -269,9 +269,9 @@ class BBP_Akismet {
 
 					// @todo Topic term revision history
 					break;
-				
+
 				// Possible other actions
-				default : 
+				default :
 					break;
 			}
 		}
@@ -395,7 +395,7 @@ class BBP_Akismet {
 		// wp_insert_post() might be called in other contexts. Make sure this is
 		// the same topic/reply as was checked by BBP_Akismet::check_post()
 		if ( is_object( $post ) && !empty( $this->last_post ) && is_array( $as_submitted ) ) {
-			
+
 			// More checks
 			if (	intval( $as_submitted['comment_post_ID'] )    == intval( $post->post_parent )
 					&&      $as_submitted['comment_author']       == ( $anonymous_data ? $anonymous_data['bbp_anonymous_name']  : $userdata->display_name )
