@@ -69,6 +69,7 @@ add_action( 'bbp_init', 'bbp_register_taxonomies',    16  );
 add_action( 'bbp_init', 'bbp_register_views',         18  );
 add_action( 'bbp_init', 'bbp_register_shortcodes',    20  );
 add_action( 'bbp_init', 'bbp_add_rewrite_tags',       22  );
+add_action( 'bbp_init', 'bbp_add_option_filters',     24  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
 
 // Multisite Global Forum Access

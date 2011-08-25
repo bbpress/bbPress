@@ -275,6 +275,13 @@ class bbPress {
 	 */
 	public $extend = false;
 
+	/** Option Overload *******************************************************/
+
+	/**
+	 * @var array Optional Overloads default options retrieved from get_option()
+	 */
+	public $options = array();
+
 	/** Functions *************************************************************/
 
 	/**

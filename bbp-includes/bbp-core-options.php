@@ -139,6 +139,7 @@ function bbp_get_default_options() {
  * Hooked to bbp_activate, it is only called once when bbPress is activated.
  * This is non-destructive, so existing settings will not be overridden.
  *
+ * @uses bbp_get_default_options() To get default options
  * @uses add_option() Adds default options
  * @uses do_action() Calls 'bbp_add_options'
  */
@@ -152,7 +153,6 @@ function bbp_add_options() {
 		add_option( $key, $value );
 
 	// Allow previously activated plugins to append their own options.
-	// This is an extremely rare use-case.
 	do_action( 'bbp_add_options' );
 }
 /**
@@ -161,6 +161,7 @@ function bbp_add_options() {
  * Hooked to bbp_uninstall, it is only called once when bbPress is uninstalled.
  * This is destructive, so existing settings will be destroyed.
  *
+ * @uses bbp_get_default_options() To get default options
  * @uses delete_option() Removes default options
  * @uses do_action() Calls 'bbp_delete_options'
  */
@@ -174,8 +175,57 @@ function bbp_delete_options() {
 		delete_option( $key );
 
 	// Allow previously activated plugins to append their own options.
-	// This is an extremely rare use-case.
 	do_action( 'bbp_delete_options' );
+}
+
+/**
+ * Add filters to each bbPress option and allow them to be overloaded from
+ * inside the $bbp->options array.
+ * 
+ * @since bbPress (r3451)
+ *
+ * @uses bbp_get_default_options() To get default options
+ * @uses add_filter() To add filters to 'pre_option_{$key}'
+ * @uses do_action() Calls 'bbp_add_option_filters'
+ */
+function bbp_add_option_filters() {
+	
+	// Get the default options and values
+	$options = bbp_get_default_options();
+
+	// Add filters to each bbPress option
+	foreach ( $options as $key => $value )
+		add_filter( 'pre_option_' . $key, 'bbp_pre_get_option' );
+
+	// Allow previously activated plugins to append their own options.
+	do_action( 'bbp_add_option_filters' );
+}
+
+/**
+ * Filter default options and allow them to be overloaded from inside the
+ * $bbp->options array.
+ *
+ * @since bbPress (r3451)
+ *
+ * @global bbPress $bbp
+ * @param bool $value
+ * @return mixed false if not overloaded, mixed if set
+ */
+function bbp_pre_get_option( $value = false ) {
+	global $bbp;
+
+	// Get the name of the current filter so we can manipulate it
+	$filter = current_filter();
+
+	// Remove the filter prefix
+	$option = str_replace( 'pre_option_', '', $filter );
+
+	// Check the options global for preset value
+	if ( !empty( $bbp->options[$option] ) )
+		$value = $bbp->options[$option];
+
+	// Always return a value, even if false
+	return $value;
 }
 
 /** Active? *******************************************************************/
