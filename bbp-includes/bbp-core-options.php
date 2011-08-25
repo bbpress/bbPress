@@ -188,7 +188,7 @@ function bbp_delete_options() {
  * @uses add_filter() To add filters to 'pre_option_{$key}'
  * @uses do_action() Calls 'bbp_add_option_filters'
  */
-function bbp_add_option_filters() {
+function bbp_setup_option_filters() {
 	
 	// Get the default options and values
 	$options = bbp_get_default_options();
@@ -198,7 +198,7 @@ function bbp_add_option_filters() {
 		add_filter( 'pre_option_' . $key, 'bbp_pre_get_option' );
 
 	// Allow previously activated plugins to append their own options.
-	do_action( 'bbp_add_option_filters' );
+	do_action( 'bbp_setup_option_filters' );
 }
 
 /**
