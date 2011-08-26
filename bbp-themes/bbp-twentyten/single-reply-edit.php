@@ -20,8 +20,6 @@
 						<h1 class="entry-title"><?php the_title(); ?></h1>
 						<div class="entry-content">
 
-							<?php bbp_breadcrumb(); ?>
-
 							<?php bbp_get_template_part( 'bbpress/form', 'reply' ); ?>
 
 						</div>
