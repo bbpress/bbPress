@@ -965,7 +965,7 @@ function bbp_is_user_spammer( $user_id = 0 ) {
 		if ( !empty( $user->spam ) )
 			$is_spammer = true;
 
-		if ( 'spam' == $user->user_status )
+		if ( 1 == $user->user_status )
 			$is_spammer = true;
 	}
 
@@ -1177,7 +1177,7 @@ function bbp_is_user_deleted( $user_id = 0 ) {
 		if ( !empty( $user->deleted ) )
 			$is_deleted = true;
 
-		if ( 'deleted' == $user->user_status )
+		if ( 2 == $user->user_status )
 			$is_deleted = true;
 
 	}
