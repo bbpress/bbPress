@@ -39,7 +39,7 @@ function bbp_dashboard_widget_right_now() {
 
 	<div class="table table_content">
 
-		<p class="sub"><?php _e( 'Content', 'bbpress' ); ?></p>
+		<p class="sub"><?php _e( 'Discussion', 'bbpress' ); ?></p>
 
 		<table>
 
@@ -120,7 +120,7 @@ function bbp_dashboard_widget_right_now() {
 
 	<div class="table table_discussion">
 
-		<p class="sub"><?php _e( 'Discussion', 'bbpress' ); ?></p>
+		<p class="sub"><?php _e( 'Users &amp; Moderation', 'bbpress' ); ?></p>
 
 		<table>
 
