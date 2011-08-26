@@ -333,7 +333,7 @@ a.bbp-reply-permalink {
 #content fieldset.bbp-form label,
 #container fieldset.bbp-form label,
 #wrapper fieldset.bbp-form label {
-	width: 200px;
+	width: 250px;
 	display: inline-block;
 }
 
@@ -357,6 +357,15 @@ a.bbp-reply-permalink {
 #container fieldset.bbp-form input,
 #wrapper fieldset.bbp-form input {
 	margin: 0px 0px 10px;
+}
+
+textarea#bbp_reply_content,
+textarea#bbp_topic_content {
+	width: 100%;
+	box-sizing: border-box;
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
 }
 
 .bbp-topic-form,

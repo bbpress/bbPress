@@ -48,19 +48,13 @@
 
 					<div>
 
-						<div class="avatar">
-
-							<?php bbp_is_reply_edit() ? bbp_reply_author_avatar( bbp_get_reply_id(), 120 ) : bbp_current_user_avatar( 120 ); ?>
-
-						</div>
-
 						<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
 
 						<?php do_action( 'bbp_theme_before_reply_form_content' ); ?>
 
 						<p>
 							<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" cols="51" rows="6"><?php bbp_form_reply_content(); ?></textarea>
+							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" rows="6"><?php bbp_form_reply_content(); ?></textarea>
 						</p>
 
 						<?php do_action( 'bbp_theme_after_reply_form_content' ); ?>

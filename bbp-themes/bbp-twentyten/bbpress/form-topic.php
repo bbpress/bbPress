@@ -64,11 +64,6 @@
 					<?php do_action( 'bbp_template_notices' ); ?>
 
 					<div>
-						<div class="avatar">
-
-							<?php bbp_is_topic_edit() ? bbp_topic_author_avatar( bbp_get_topic_id(), 120 ) : bbp_current_user_avatar( 120 ); ?>
-
-						</div>
 
 						<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
 
@@ -85,7 +80,7 @@
 
 						<p>
 							<label for="bbp_topic_content"><?php _e( 'Topic Description:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="51" rows="6"><?php bbp_form_topic_content(); ?></textarea>
+							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="60" rows="6"><?php bbp_form_topic_content(); ?></textarea>
 						</p>
 
 						<?php do_action( 'bbp_theme_after_topic_form_content' ); ?>
