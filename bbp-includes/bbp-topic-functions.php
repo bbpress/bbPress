@@ -2429,6 +2429,28 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	// Add the original post status as post meta for future restoration
 	add_post_meta( $topic_id, '_bbp_spam_meta_status', $topic['post_status'] );
 
+	// Get topic tags
+	$terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
+
+	// Topic has tags
+	if ( !empty( $terms ) ) {
+
+		// Loop through and collect term names
+		foreach( $terms as $term ) {
+			$term_names[] = $term->name;
+		}
+
+		// Topic terms have slugs
+		if ( !empty( $term_names ) ) {
+
+			// Add the original post status as post meta for future restoration
+			add_post_meta( $topic_id, '_bbp_spam_topic_tags', $term_names );
+
+			// Empty the topic of its tags
+			$topic['tax_input'] = array( bbp_get_topic_tag_tax_id() => '' );
+		}
+	}
+	
 	// Set post status to spam
 	$topic['post_status'] = $bbp->spam_status_id;
 
@@ -2474,7 +2496,7 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 	do_action( 'bbp_unspam_topic', $topic_id );
 
 	// Get pre spam status
-	$topic_status         = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
+	$topic_status = get_post_meta( $topic_id, '_bbp_spam_meta_status', true );
 
 	// Set post status to pre spam
 	$topic['post_status'] = $topic_status;
@@ -2484,6 +2506,19 @@ function bbp_unspam_topic( $topic_id = 0 ) {
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
+
+	// Get pre-spam topic tags
+	$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
+
+	// Topic had tags before it was spammed
+	if ( !empty( $terms ) ) {
+
+		// Set the tax_input of the topic
+		$topic['tax_input'] = array( bbp_get_topic_tag_tax_id() => $terms );
+
+		// Delete pre-spam topic tag meta
+		delete_post_meta( $topic_id, '_bbp_spam_topic_tags' );
+	}
 
 	// Update the topic
 	$topic_id = wp_insert_post( $topic );

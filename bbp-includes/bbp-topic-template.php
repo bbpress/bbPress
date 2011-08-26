@@ -1869,7 +1869,28 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 
 		$topic_id = bbp_get_topic_id( $topic_id );
 
-		return get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $before, $sep, $after );
+		// Topic is spammed, so display pre-spam terms
+		if ( bbp_is_topic_spam( $topic_id ) ) {
+			
+			// Get pre-spam terms
+			$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
+			
+			// If terms exist, explode them and compile the return value
+			if ( !empty( $terms ) ) {
+				$terms  = implode( $sep, $terms );
+				$retval = $before . $terms . $after;
+
+			// No terms so return emty string
+			} else {
+				$retval = '';
+			}
+
+		// Topic is not spam so display a clickable term list
+		} else {
+			$retval = get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $before, $sep, $after );
+		}
+			
+		return $retval;
 	}
 
 /**
@@ -3095,19 +3116,36 @@ function bbp_form_topic_tags() {
 		} elseif ( !empty( $post ) ) {
 
 			// Post is a topic
-			if ( bbp_get_topic_post_type() == $post->post_type )
+			if ( bbp_get_topic_post_type() == $post->post_type ) {
 				$topic_id = $post->ID;
 
 			// Post is a reply
-			elseif ( bbp_get_reply_post_type() == $post->post_type )
+			} elseif ( bbp_get_reply_post_type() == $post->post_type ) {
 				$topic_id = bbp_get_reply_topic_id( $post->ID );
+			}
 
-			// Topic exists and has tags
-			if ( !empty( $topic_id ) && ( $terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) ) ) {
+			// Topic exists
+			if ( !empty( $topic_id ) ) { 
+				
+				// Topic is spammed so display pre-spam terms
+				if ( bbp_is_topic_spam( $topic_id ) ) {
 
-				// Loop through them
-				foreach( $terms as $term ) {
-					$new_terms[] = $term->name;
+					// Get pre-spam terms
+					$new_terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
+
+					// If terms exist, explode them and compile the return value
+					if ( empty( $new_terms ) ) {
+						$new_terms = '';
+					}
+
+				// Topic is not spam so get real terms
+				} else {
+					$terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
+
+					// Loop through them
+					foreach( $terms as $term ) {
+						$new_terms[] = $term->name;
+					}
 				}
 
 			// Define local variable(s)
