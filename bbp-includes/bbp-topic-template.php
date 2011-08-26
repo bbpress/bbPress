@@ -1616,7 +1616,7 @@ function bbp_topic_last_reply_url( $topic_id = 0 ) {
  * @param int $topic_id Optional. Topic id
  * @uses bbp_get_topic_freshness_link() To get the topic freshness link
  */
-function bbp_topic_freshness_link( $topic_id = 0) {
+function bbp_topic_freshness_link( $topic_id = 0 ) {
 	echo bbp_get_topic_freshness_link( $topic_id );
 }
 	/**
@@ -1871,10 +1871,10 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 
 		// Topic is spammed, so display pre-spam terms
 		if ( bbp_is_topic_spam( $topic_id ) ) {
-			
+
 			// Get pre-spam terms
 			$terms = get_post_meta( $topic_id, '_bbp_spam_topic_tags', true );
-			
+
 			// If terms exist, explode them and compile the return value
 			if ( !empty( $terms ) ) {
 				$terms  = implode( $sep, $terms );
@@ -1889,7 +1889,7 @@ function bbp_topic_tag_list( $topic_id = 0, $args = '' ) {
 		} else {
 			$retval = get_the_term_list( $topic_id, bbp_get_topic_tag_tax_id(), $before, $sep, $after );
 		}
-			
+
 		return $retval;
 	}
 
@@ -3125,8 +3125,8 @@ function bbp_form_topic_tags() {
 			}
 
 			// Topic exists
-			if ( !empty( $topic_id ) ) { 
-				
+			if ( !empty( $topic_id ) ) {
+
 				// Topic is spammed so display pre-spam terms
 				if ( bbp_is_topic_spam( $topic_id ) ) {
 
@@ -3140,7 +3140,7 @@ function bbp_form_topic_tags() {
 
 				// Topic is not spam so get real terms
 				} else {
-					$terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
+					$terms = array_filter( (array) get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() ) );
 
 					// Loop through them
 					foreach( $terms as $term ) {
