@@ -551,61 +551,65 @@ class BBP_Topics_Widget extends WP_Widget {
 
 		bbp_set_query_name( 'bbp_widget' );
 
-		if ( $pop_check < $max_shown && bbp_has_topics( $topics_query ) ) :
+		// Topics exist
+		if ( bbp_has_topics( $topics_query ) ) : 
+			
+			// Sort by time
+			if ( $pop_check < $max_shown ) :
 
-			echo $before_widget;
-			echo $before_title . $title . $after_title; ?>
+				echo $before_widget;
+				echo $before_title . $title . $after_title; ?>
 
-			<ul>
+				<ul>
 
-				<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
+					<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
-					<li>
-						<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time() . ' ago' ); ?>
-					</li>
+						<li>
+							<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time() . ' ago' ); ?>
+						</li>
 
-				<?php endwhile; ?>
+					<?php endwhile; ?>
 
-			</ul>
+				</ul>
 
-			<?php echo $after_widget;
+				<?php echo $after_widget;
 
-		endif;
+			// Sort by popularity
+			elseif ( $pop_check >= $max_shown ) :
 
-		if ( $pop_check >= $max_shown && bbp_has_topics( $default ) ) :
+				echo $before_widget;
+				echo $before_title . $title . $after_title;
 
-			echo $before_widget;
-			echo $before_title . $title . $after_title;
+				while ( bbp_topics() ) {
+					bbp_the_topic();
+					$topics[bbp_get_topic_id()] = bbp_get_topic_reply_count();
+				}
 
-			while ( bbp_topics() ) {
-				bbp_the_topic();
-				$topics[bbp_get_topic_id()] = bbp_get_topic_reply_count();
-			}
+				arsort( $topics );
+				$topic_count = 1;
 
-			arsort( $topics );
-			$topic_count = 1;
+				?>
 
-			?>
+				<ul>
 
-			<ul>
+					<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
 
-				<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
+						<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time( $topic_id ) . ' ago' ); ?></li>
 
-					<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time( $topic_id ) . ' ago' ); ?></li>
+					<?php
 
-				<?php
+						$topic_count++;
 
-					$topic_count++;
+						if ( $topic_count > $max_shown )
+							break;
 
-					if ( $topic_count > $max_shown )
-						break;
+					endforeach; ?>
 
-				endforeach; ?>
+				</ul>
 
-			</ul>
+				<?php echo $after_widget;
 
-			<?php echo $after_widget;
-
+			endif;
 		endif;
 
 		bbp_reset_query_name();
