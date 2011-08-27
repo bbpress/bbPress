@@ -433,7 +433,7 @@ function bbp_is_user_home() {
 	if ( empty( $bbp->displayed_user ) )
 		return false;
 
-	return (bool) ( bbp_get_current_user_id() == bbp_get_current_user_id() );
+	return (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
 }
 
 /**
