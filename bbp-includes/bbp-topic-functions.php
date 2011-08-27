@@ -1587,7 +1587,7 @@ function bbp_manage_topic_tag_handler() {
 			}
 
 			// No tag name was provided
-			if ( empty( $_POST['tag-name'] ) || !$name = $_POST['tag-name'] ) {
+			if ( empty( $_POST['tag-existing-name'] ) || !$name = $_POST['tag-existing-name'] ) {
 				bbp_add_error( 'bbp_manage_topic_tag_merge_name', __( '<strong>ERROR</strong>: You need to enter a tag name.', 'bbpress' ) );
 				return;
 			}
