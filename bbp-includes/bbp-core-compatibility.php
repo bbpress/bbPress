@@ -772,7 +772,7 @@ function bbp_template_include_theme_supports( $template = '' ) {
 		// Editing a reply
 		elseif ( bbp_is_reply_edit()       && ( $new_template = bbp_get_reply_edit_template()       ) ) :
 
-		// Editing a topic tag
+		// Viewing a topic tag
 		elseif ( bbp_is_topic_tag()        && ( $new_template = bbp_get_topic_tag_template()        ) ) :
 
 		// Editing a topic tag
@@ -909,7 +909,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset the post with our new title
 			bbp_theme_compat_reset_post( array(
-				'post_title' => sprintf( __( 'Edit Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' )
+				'post_title' => sprintf( __( 'Topic Tag: %s', 'bbpress' ), '<span>' . bbp_get_topic_tag_name() . '</span>' )
 			) );
 
 		} elseif ( bbp_is_topic_tag() ) {

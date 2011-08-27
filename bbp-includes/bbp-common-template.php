@@ -254,6 +254,10 @@ function bbp_is_topic_split() {
 function bbp_is_topic_tag() {
 	global $bbp;
 
+	// Return false if editing a topic tag
+	if ( bbp_is_topic_tag_edit() )
+		return false;
+
 	if ( is_tax( bbp_get_topic_tag_tax_id() ) || !empty( $bbp->topic_query->is_tax ) )
 		return true;
 
@@ -637,7 +641,12 @@ function is_bbpress() {
 	elseif ( bbp_is_topic_archive() )
 		$retval = true;
 
+	/** Topic Tags ************************************************************/
+
 	elseif ( bbp_is_topic_tag() )
+		$retval = true;
+
+	elseif ( bbp_is_topic_tag_edit() )
 		$retval = true;
 
 	/** Components ************************************************************/
@@ -1461,40 +1470,51 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Current Text ******************************************************/
 
 		// Forum archive
-		if ( bbp_is_forum_archive() )
+		if ( bbp_is_forum_archive() ) {
 			$pre_current_text = bbp_get_forum_archive_title();
 
 		// Topic archive
-		elseif ( bbp_is_topic_archive() )
+		} elseif ( bbp_is_topic_archive() ) {
 			$pre_current_text = bbp_get_topic_archive_title();
 
 		// View
-		elseif ( bbp_is_single_view() )
+		} elseif ( bbp_is_single_view() ) {
 			$pre_current_text = bbp_get_view_title();
 
 		// Single Forum
-		elseif ( bbp_is_single_forum() )
+		} elseif ( bbp_is_single_forum() ) {
 			$pre_current_text = bbp_get_forum_title();
 
 		// Single Topic
-		elseif ( bbp_is_single_topic() )
+		} elseif ( bbp_is_single_topic() ) {
 			$pre_current_text = bbp_get_topic_title();
 
 		// Single Topic
-		elseif ( bbp_is_single_reply() )
+		} elseif ( bbp_is_single_reply() ) {
 			$pre_current_text = bbp_get_reply_title();
 
-		// Topic Tag
-		elseif ( bbp_is_topic_tag() )
-			$pre_current_text = sprintf( __( 'Topic Tag: %s', 'bbpress' ), bbp_get_topic_tag_name() );
+		// Topic Tag (or theme compat topic tag)
+		} elseif ( bbp_is_topic_tag() || ( get_query_var( 'bbp_topic_tag' ) && !bbp_is_topic_tag_edit() ) ) {
+
+			// Always include the tag name
+			$tag_data[] = bbp_get_topic_tag_name();
+
+			// If capable, include a link to edit the tag
+			if ( current_user_can( 'manage_topic_tags' ) ) {
+				$tag_data[] = '<a href="' . bbp_get_topic_tag_edit_link() . '" class="bbp-edit-topic-tag-link">' . __( '(Edit)', 'bbpress' ) . '</a>';
+			}
+
+			// Implode the results of the tag data
+			$pre_current_text = sprintf( __( 'Topic Tag: %s', 'bbpress' ), implode( ' ', $tag_data ) );
 
 		// Edit Topic Tag
-		elseif ( bbp_is_topic_tag_edit() )
+		} elseif ( bbp_is_topic_tag_edit() ) {
 			$pre_current_text = __( 'Edit', 'bbpress' );
 
 		// Single
-		else
+		} else {
 			$pre_current_text = get_the_title();
+		}
 
 		/** Parse Args ********************************************************/
 
@@ -1792,8 +1812,8 @@ function bbp_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 	} elseif ( bbp_is_single_reply() ) {
 		$title = bbp_get_reply_title();
 
-	// Topic tag page
-	} elseif ( bbp_is_topic_tag() ) {
+	// Topic tag page (or edit)
+	} elseif ( bbp_is_topic_tag() || bbp_is_topic_tag_edit() || get_query_var( 'bbp_topic_tag' ) ) {
 		$term  = get_queried_object();
 		$title = sprintf( __( 'Topic Tag: %s', 'bbpress' ), $term->name );
 

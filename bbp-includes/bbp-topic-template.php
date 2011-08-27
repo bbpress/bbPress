@@ -2954,7 +2954,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_edit_link( $tag = '' ) {
-		global $wp_query;
+		global $wp_query, $wp_rewrite;
 
 		// Get the term
 		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
@@ -2969,7 +2969,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 
 			// Ugly
 			} else {
-				$retval = add_query_arg( array( 'paged' => '%#%' ), bbp_get_topic_tag_link() );
+				$retval = add_query_arg( array( 'edit' => '1' ), bbp_get_topic_tag_link() );
 			}
 
 		// No link
