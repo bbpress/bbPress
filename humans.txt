@@ -39,7 +39,7 @@ Twitter: johnjamesjacoby
 Favorite Food: Pizza
 
 /* THANKS */
-Mike Adams, Gautam Gupta, Ben L, Justin Tadlock, cnorris23, anointed
+Mike Adams, Gautam Gupta, Ben L, Justin Tadlock, cnorris23, anointed, andy, nacin
 
 /* META */
 Updated: 2011/05/29
