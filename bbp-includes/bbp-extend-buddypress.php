@@ -168,13 +168,17 @@ class BBP_BuddyPress {
 
 		/** Mentions **********************************************************/
 
-		// Convert mentions into links on create
-		add_filter( 'bbp_new_topic_pre_content',  'bp_activity_at_name_filter' );
-		add_filter( 'bbp_new_reply_pre_content',  'bp_activity_at_name_filter' );
+		// Only link mentions if activity component is active
+		if ( bp_is_active( 'activity' ) ) {
 
-		// Convert mentions into links on edit
-		add_filter( 'bbp_edit_topic_pre_content', 'bp_activity_at_name_filter' );
-		add_filter( 'bbp_edit_reply_pre_content', 'bp_activity_at_name_filter' );
+			// Convert mentions into links on create
+			add_filter( 'bbp_new_topic_pre_content',  'bp_activity_at_name_filter' );
+			add_filter( 'bbp_new_reply_pre_content',  'bp_activity_at_name_filter' );
+
+			// Convert mentions into links on edit
+			add_filter( 'bbp_edit_topic_pre_content', 'bp_activity_at_name_filter' );
+			add_filter( 'bbp_edit_reply_pre_content', 'bp_activity_at_name_filter' );
+		}
 
 		// Revert links into text on edit
 		add_filter( 'bbp_get_form_topic_content', array( $this, 'strip_mentions_on_edit' ) );
