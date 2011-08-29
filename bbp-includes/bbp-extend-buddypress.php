@@ -165,6 +165,16 @@ class BBP_BuddyPress {
 
 		// Override bbPress user profile URL with BuddyPress profile URL
 		add_filter( 'bbp_pre_get_user_profile_url', array( $this, 'user_profile_url' ) );
+
+		/** Mentions **********************************************************/
+
+		// Convert mentions into links
+		add_filter( 'bbp_new_topic_pre_content',  'bp_activity_at_name_filter' );
+		add_filter( 'bbp_new_reply_pre_content',  'bp_activity_at_name_filter' );
+
+		// Revert links into text on edit
+		add_filter( 'bbp_get_form_topic_content', 'bp_forums_strip_mentions_on_post_edit' );
+		add_filter( 'bbp_get_form_reply_content', 'bp_forums_strip_mentions_on_post_edit' );
 	}
 
 	/**
