@@ -66,7 +66,7 @@ function bbp_reply_post_type() {
  * @return object Multidimensional array of reply information
  */
 function bbp_has_replies( $args = '' ) {
-	global $bbp;
+	global $wp_rewrite, $bbp;
 
 	// Default status
 	$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
@@ -136,7 +136,7 @@ function bbp_has_replies( $args = '' ) {
 	if ( !bbp_is_query_name( 'bbp_widget' ) && (int) $bbp->reply_query->found_posts && (int) $bbp->reply_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( bbp_using_permalinks() ) {
+		if ( $wp_rewrite->using_permalinks() ) {
 
 			// Page or single
 			if ( is_page() || is_single() ) {
@@ -147,7 +147,7 @@ function bbp_has_replies( $args = '' ) {
 				$base = get_permalink( bbp_get_topic_id() );
 			}
 
-			$base = trailingslashit( $base ) . user_trailingslashit( bbp_permalink_pagination_base() . '/%#%/' );
+			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
 
 		// Unpretty permalinks
 		} else {
@@ -170,8 +170,8 @@ function bbp_has_replies( $args = '' ) {
 		$bbp->reply_query->pagination_links = paginate_links( $bbp_replies_pagination );
 
 		// Remove first page from pagination
-		if ( bbp_using_permalinks() )
-			$bbp->reply_query->pagination_links = str_replace( bbp_permalink_pagination_base() . '/1/', '', $bbp->reply_query->pagination_links );
+		if ( $wp_rewrite->using_permalinks() )
+			$bbp->reply_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $bbp->reply_query->pagination_links );
 		else
 			$bbp->reply_query->pagination_links = str_replace( '&#038;paged=1', '', $bbp->reply_query->pagination_links );
 	}
@@ -368,7 +368,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 * @return string Link to reply relative to paginated topic
 	 */
 	function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
-		global $bbp;
+		global $bbp, $wp_rewrite;
 
 		// Set needed variables
 		$reply_id       = bbp_get_reply_id       ( $reply_id               );
@@ -393,8 +393,8 @@ function bbp_reply_url( $reply_id = 0 ) {
 		} else {
 
 			// Pretty permalinks
-			if ( bbp_using_permalinks() ) {
-				$url = trailingslashit( $topic_url ) . trailingslashit( bbp_permalink_pagination_base() ) . trailingslashit( $reply_page ) . $reply_hash;
+			if ( $wp_rewrite->using_permalinks() ) {
+				$url = trailingslashit( $topic_url ) . trailingslashit( $wp_rewrite->pagination_base ) . trailingslashit( $reply_page ) . $reply_hash;
 
 			// Yucky links
 			} else {
@@ -1466,14 +1466,14 @@ function bbp_reply_edit_url( $reply_id = 0 ) {
 	 * @return string Reply edit url
 	 */
 	function bbp_get_reply_edit_url( $reply_id = 0 ) {
-		global $bbp;
+		global $wp_rewrite, $bbp;
 
 		if ( !$reply = bbp_get_reply( bbp_get_reply_id( $reply_id ) ) )
 			return;
 
 		// Pretty permalinks
-		if ( bbp_using_permalinks() ) {
-			$url = bbp_permalink_root() . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
+		if ( $wp_rewrite->using_permalinks() ) {
+			$url = $wp_rewrite->root . $bbp->reply_slug . '/' . $reply->post_name . '/edit';
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
