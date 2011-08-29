@@ -51,6 +51,13 @@ class BBP_Admin {
 	 */
 	public $enable_recounts = false;
 
+	/** Admin Scheme **********************************************************/
+
+	/**
+	 * @var int Depth of custom WP_CONTENT_DIR difference
+	 */
+	public $content_depth = 0;
+
 	/** Functions *************************************************************/
 
 	/**
@@ -646,12 +653,30 @@ class BBP_Admin {
 	/**
 	 * Registers the bbPress admin color scheme
 	 *
+	 * Because wp-content can exist outside of the WordPress root there is no
+	 * way to be certain what the relative path of the admin images is.
+	 * We are including the two most common configurations here, just in case.
+	 *
 	 * @since bbPress (r2521)
 	 *
 	 * @uses wp_admin_css_color() To register the color scheme
 	 */
 	public function register_admin_style () {
-		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $this->styles_url . 'admin.css', array( '#222222', '#006600', '#deece1', '#6eb469' ) );
+
+		// Normal wp-content dir
+		if ( 0 === $this->content_depth )
+			$css_file = $this->styles_url . 'admin.css';
+
+		// Custom wp-content dir is 1 level away
+		elseif ( 1 === $this->content_depth )
+			$css_file = $this->styles_url . 'admin-1.css';
+
+		// Custom wp-content dir is 1 level away
+		elseif ( 2 === $this->content_depth )
+			$css_file = $this->styles_url . 'admin-2.css';
+
+		// Load the admin CSS styling
+		wp_admin_css_color( 'bbpress', __( 'Green', 'bbpress' ), $css_file, array( '#222222', '#006600', '#deece1', '#6eb469' ) );
 	}
 }
 endif; // class_exists check
@@ -667,6 +692,9 @@ function bbp_admin() {
 	global $bbp;
 
 	$bbp->admin = new BBP_Admin();
+
+	if ( defined( 'BBP_CONTENT_DEPTH' ) )
+		$bbp->admin->content_depth = (int) BBP_CONTENT_DEPTH;
 }
 
 ?>
