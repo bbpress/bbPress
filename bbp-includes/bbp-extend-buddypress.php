@@ -177,8 +177,29 @@ class BBP_BuddyPress {
 		add_filter( 'bbp_edit_reply_pre_content', 'bp_activity_at_name_filter' );
 
 		// Revert links into text on edit
-		add_filter( 'bbp_get_form_topic_content', 'bp_forums_strip_mentions_on_post_edit' );
-		add_filter( 'bbp_get_form_reply_content', 'bp_forums_strip_mentions_on_post_edit' );
+		add_filter( 'bbp_get_form_topic_content', array( $this, 'strip_mentions_on_edit' ) );
+		add_filter( 'bbp_get_form_reply_content', array( $this, 'strip_mentions_on_edit' ) );
+	}
+
+	/**
+	 * Strip out BuddyPress activity at-name HTML on topic/reply edit
+	 *
+	 * Copied from bp_forums_strip_mentions_on_post_edit() in case forums
+	 * component is not active or is not loaded in yet.
+	 *
+	 * @since bbPress (r3475)
+	 *
+	 * @param type $content Optional
+	 * @uses bp_get_root_domain()
+	 * @uses bp_get_members_root_slug()
+	 * @return string
+	 */
+	public function strip_mentions_on_edit( $content = '' ) {
+		$content = htmlspecialchars_decode( $content );
+		$pattern = "|<a href=&#039;" . bp_get_root_domain() . "/" . bp_get_members_root_slug() . "/[A-Za-z0-9-_\.]+/&#039; rel=&#039;nofollow&#039;>(@[A-Za-z0-9-_\.@]+)</a>|";
+		$content = preg_replace( $pattern, "$1", $content );
+
+		return $content;
 	}
 
 	/**
