@@ -2785,8 +2785,7 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
  *
  * @since bbPress (r3171)
  *
- * @global bbPress $bbp
- *
+ * @uses bbp_version()
  * @uses bbp_is_single_topic()
  * @uses bbp_user_can_view_forum()
  * @uses bbp_get_topic_forum_id()
@@ -2811,7 +2810,6 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
  * @param array $topics_query
  */
 function bbp_display_topics_feed_rss2( $topics_query = array() ) {
-	global $bbp;
 
 	// User cannot access this forum
 	if ( bbp_is_single_forum() && !bbp_user_can_view_forum( array( 'forum_id' => bbp_get_forum_id() ) ) )
@@ -2838,7 +2836,7 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 		<link><?php self_link(); ?></link>
 		<description><?php //?></description>
 		<pubDate><?php echo mysql2date( 'D, d M Y H:i:s O', '', false ); ?></pubDate>
-		<generator>http://bbpress.org/?v=<?php echo $bbp->version; ?></generator>
+		<generator>http://bbpress.org/?v=<?php bbp_version(); ?></generator>
 		<language><?php echo get_option( 'rss_language' ); ?></language>
 
 		<?php do_action( 'bbp_feed_head' ); ?>

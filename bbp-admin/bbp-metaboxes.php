@@ -16,6 +16,7 @@
  *
  * @since bbPress (r2770)
  *
+ * @uses bbp_get_version() To get the current bbPress version
  * @uses bbp_get_statistics() To get the forum statistics
  * @uses current_user_can() To check if the user is capable of doing things
  * @uses bbp_get_forum_post_type() To get the forum post type
@@ -32,7 +33,6 @@
  * @uses do_action() Calls 'bbp_dashboard_widget_right_now_end' below the widget
  */
 function bbp_dashboard_widget_right_now() {
-	global $bbp;
 
 	// Get the statistics and extract them
 	extract( bbp_get_statistics(), EXTR_SKIP ); ?>
@@ -218,7 +218,7 @@ function bbp_dashboard_widget_right_now() {
 		</p>
 
 		<span id="wp-version-message">
-			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), $bbp->version ); ?>
+			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), bbp_get_version() ); ?>
 		</span>
 
 	</div>

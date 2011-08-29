@@ -10,6 +10,50 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
+/** Versions ******************************************************************/
+
+/**
+ * Output the bbPress version
+ *
+ * @since bbPress (r3468)
+ * @uses bbp_get_version() To get the bbPress version
+ */
+function bbp_version() {
+	echo bbp_get_version();
+}
+	/**
+	 * Return the bbPress version
+	 *
+	 * @since bbPress (r3468)
+	 * @global bbPress $bbp
+	 * @retrun string The bbPress version
+	 */
+	function bbp_get_version() {
+		global $bbp;
+		return $bbp->version;
+	}
+
+/**
+ * Output the bbPress database version
+ *
+ * @since bbPress (r3468)
+ * @uses bbp_get_version() To get the bbPress version
+ */
+function bbp_db_version() {
+	echo bbp_get_db_version();
+}
+	/**
+	 * Return the bbPress database version
+	 *
+	 * @since bbPress (r3468)
+	 * @global bbPress $bbp
+	 * @retrun string The bbPress version
+	 */
+	function bbp_get_db_version() {
+		global $bbp;
+		return $bbp->db_version;
+	}
+
 /** Post Meta *****************************************************************/
 
 /**

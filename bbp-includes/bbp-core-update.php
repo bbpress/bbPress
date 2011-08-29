@@ -14,18 +14,19 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * Compare the bbPress version to the DB version to determine if updating
  *
  * @since bbPress (r3421)
- * @global bbPress $bbp
+ *
  * @uses get_option()
+ * @uses bbp_get_db_version() To get bbPress's database version
  * @return bool True if update, False if not
  */
 function bbp_is_update() {
-	global $bbp;
 
 	// Current DB version of this site (per site in a multisite network)
-	$current_db = get_option( '_bbp_db_version' );
+	$current_db   = get_option( '_bbp_db_version' );
+	$current_live = bbp_get_db_version();
 
 	// Compare versions (cast as int and bool to be safe)
-	$is_update = (bool) ( (int) $current_db < (int) $bbp->db_version );
+	$is_update = (bool) ( (int) $current_db < (int) $current_live );
 
 	// Return the product of version comparison
 	return $is_update;
@@ -35,6 +36,7 @@ function bbp_is_update() {
  * Determine if bbPress is being activated
  *
  * @since bbPress (r3421)
+ *
  * @global bbPress $bbp
  * @return bool True if activating bbPress, false if not
  */
@@ -108,11 +110,11 @@ function bbp_is_deactivation( $basename = '' ) {
  *
  * @since bbPress (r3421)
  * @uses update_option()
+ * @uses bbp_get_db_version() To get bbPress's database version
  */
 function bbp_version_bump() {
-	global $bbp;
-
-	update_option( '_bbp_db_version', $bbp->db_version );
+	$db_version = bbp_get_db_version();
+	update_option( '_bbp_db_version', $db_version );
 }
 
 /**

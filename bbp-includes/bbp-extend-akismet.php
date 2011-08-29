@@ -545,27 +545,28 @@ class BBP_Akismet {
 	 * This code is directly taken from the akismet_http_post() function and
 	 * documented to bbPress 2.0 standard.
 	 *
-	 * @since bbPress (r
-	 * @global bbPress $bbp
-	 * @param type $request
-	 * @param type $host
-	 * @param type $path
-	 * @param type $port
-	 * @param type $ip
-	 * @return type
+	 * @since bbPress (r3466)
+	 *
+	 * @param string $request The request we are sending
+	 * @param string $host The host to send our request to
+	 * @param string $path The path from the host
+	 * @param string $port The port to use
+	 * @param string $ip Optional Override $host with an IP address
+	 * @uses bbp_get_version() To get the current bbPress version
+	 * @return mixed WP_Error on error, array on success, empty on failure
 	 */
 	private function http_post( $request, $host, $path, $port = 80, $ip = '' ) {
-		global $bbp;
-
-		// Untque User Agent
-		$akismet_ua     = "bbPress/{$bbp->version} | ";
-		$akismet_ua    .= 'Akismet/' . constant( 'AKISMET_VERSION' );
 
 		// Preload required variables
+		$bbp_version    = bbp_get_version();
 		$content_length = strlen( $request );
 		$http_host      = $host;
 		$blog_charset   = get_option( 'blog_charset' );
 		$response       = '';
+
+		// Untque User Agent
+		$akismet_ua     = "bbPress/{$bbp_version} | ";
+		$akismet_ua    .= 'Akismet/' . constant( 'AKISMET_VERSION' );
 
 		// Use specific IP (if provided)
 		if ( !empty( $ip ) && long2ip( ip2long( $ip ) ) )
