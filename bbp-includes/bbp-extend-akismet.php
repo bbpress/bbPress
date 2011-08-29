@@ -28,7 +28,7 @@ class BBP_Akismet {
 	 *
 	 * @uses add_filter()
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->setup_actions();
 	}
 
@@ -41,7 +41,7 @@ class BBP_Akismet {
 	 * @uses add_filter() To add various filters
 	 * @uses add_action() To add various actions
 	 */
-	function setup_actions() {
+	private function setup_actions() {
 
 		// bbPress functions to check for spam
 		$checks['check']  = array(
@@ -86,7 +86,7 @@ class BBP_Akismet {
 	 *
 	 * @return array Array of post data
 	 */
-	function check_post( $post_data ) {
+	public function check_post( $post_data ) {
 		global $bbp;
 
 		// Post is not published
@@ -179,7 +179,7 @@ class BBP_Akismet {
 	 *
 	 * @return array Array of existing topic terms
 	 */
-	function submit_post( $post_id = 0 ) {
+	public function submit_post( $post_id = 0 ) {
 		global $bbp, $wpdb, $akismet_api_host, $akismet_api_port, $current_user, $current_site;
 
 		switch ( current_filter() ) {
@@ -296,7 +296,7 @@ class BBP_Akismet {
 	 *
 	 * @return array Array of post data
 	 */
-	function maybe_spam( $post_data, $check = 'check', $spam = 'spam' ) {
+	private function maybe_spam( $post_data, $check = 'check', $spam = 'spam' ) {
 		global $akismet_api_host, $akismet_api_port;
 
 		// Define variables
@@ -345,7 +345,7 @@ class BBP_Akismet {
 			$path = '/1.1/submit-' . $spam;
 
 		// Fire!
-		$response = akismet_http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
+		$response = $this->http_post( $query_string, $akismet_api_host, $path, $akismet_api_port );
 
 		// Check the high-speed cam
 		$post_data['bbp_akismet_result'] = $response[1];
@@ -371,7 +371,7 @@ class BBP_Akismet {
 	 * @uses update_post_meta() To update post meta with Akismet data
 	 * @uses BBP_Akismet::update_post_history() To update post Akismet history
 	 */
-	function update_post_meta( $post_id = 0, $post ) {
+	public function update_post_meta( $post_id = 0, $post = false ) {
 		global $bbp;
 
 		// Define local variable(s)
@@ -410,8 +410,9 @@ class BBP_Akismet {
 					$this->update_post_history( $post_id, __( 'Akismet caught this post as spam', 'bbpress' ), 'check-spam' );
 
 					// If post_status isn't the spam status, as expected, leave a note
-					if ( $post->post_status != $bbp->spam_status_id )
+					if ( $post->post_status != $bbp->spam_status_id ) {
 						$this->update_post_history( $post_id, sprintf( __( 'Post status was changed to %s', 'bbpress' ), $post->post_status ), 'status-changed-' . $post->post_status );
+					}
 
 				// Normal result: false
 				} elseif ( $this->last_post['bbp_akismet_result'] == 'false' ) {
@@ -436,8 +437,9 @@ class BBP_Akismet {
 				}
 
 				// Record the complete original data as submitted for checking
-				if ( isset( $this->last_post['bbp_post_as_submitted'] ) )
+				if ( isset( $this->last_post['bbp_post_as_submitted'] ) ) {
 					update_post_meta( $post_id, '_bbp_akismet_as_submitted', $this->last_post['bbp_post_as_submitted'] );
+				}
 			}
 		}
 	}
@@ -454,7 +456,7 @@ class BBP_Akismet {
 	 * @uses wp_get_current_user() To get the current_user object
 	 * @uses add_post_meta() Add Akismet post history
 	 */
-	function update_post_history( $post_id = 0, $message = null, $event = null ) {
+	private function update_post_history( $post_id = 0, $message = null, $event = null ) {
 
 		// Define local variable(s)
 		$user = '';
@@ -490,7 +492,7 @@ class BBP_Akismet {
 	 *
 	 * @return array Array of a post's Akismet history
 	 */
-	function get_post_history( $post_id = 0 ) {
+	public function get_post_history( $post_id = 0 ) {
 
 		// Retrieve any previous history
 		$history = get_post_meta( $post_id, '_bbp_akismet_history' );
@@ -519,7 +521,7 @@ class BBP_Akismet {
 	 *
 	 * @return array Array of existing topic terms
 	 */
-	function filter_post_terms( $terms = '', $topic_id = 0, $reply_id = 0 ) {
+	public function filter_post_terms( $terms = '', $topic_id = 0, $reply_id = 0 ) {
 		global $bbp;
 
 		// Validate the reply_id and topic_id
@@ -537,6 +539,101 @@ class BBP_Akismet {
 		return $existing_terms;
 	}
 
+	/**
+	 * Submit data to Akismet service with unique bbPress User Agent
+	 *
+	 * This code is directly taken from the akismet_http_post() function and
+	 * documented to bbPress 2.0 standard.
+	 *
+	 * @since bbPress (r
+	 * @global bbPress $bbp
+	 * @param type $request
+	 * @param type $host
+	 * @param type $path
+	 * @param type $port
+	 * @param type $ip
+	 * @return type
+	 */
+	private function http_post( $request, $host, $path, $port = 80, $ip = '' ) {
+		global $bbp;
+
+		// Untque User Agent
+		$akismet_ua     = "bbPress/{$bbp->version} | ";
+		$akismet_ua    .= 'Akismet/' . constant( 'AKISMET_VERSION' );
+
+		// Preload required variables
+		$content_length = strlen( $request );
+		$http_host      = $host;
+		$blog_charset   = get_option( 'blog_charset' );
+		$response       = '';
+
+		// Use specific IP (if provided)
+		if ( !empty( $ip ) && long2ip( ip2long( $ip ) ) )
+			$http_host = $ip;
+
+		// WP HTTP class is available
+		if ( function_exists( 'wp_remote_post' ) ) {
+
+			// Setup the arguments
+			$http_args = array(
+				'body'             => $request,
+				'headers'          => array(
+					'Content-Type' => 'application/x-www-form-urlencoded; charset=' . $blog_charset,
+					'Host'         => $host,
+					'User-Agent'   => $akismet_ua
+				),
+				'httpversion'      => '1.0',
+				'timeout'          => 15
+			);
+
+			// Where we are sending our request
+			$akismet_url = 'http://' . $http_host . $path;
+
+			// Send the request
+			$response    = wp_remote_post( $akismet_url, $http_args );
+
+			// Bail if the response is an error
+			if ( is_wp_error( $response ) )
+				return '';
+
+			// No errors so return response
+			return array( $response['headers'], $response['body'] );
+
+		// WP HTTP class is not available (Why not?)
+		} else {
+
+			// Header info to use with our socket
+			$http_request  = "POST {$path} HTTP/1.0\r\n";
+			$http_request .= "Host: {$host}\r\n";
+			$http_request .= "Content-Type: application/x-www-form-urlencoded; charset={$blog_charset}\r\n";
+			$http_request .= "Content-Length: {$content_length}\r\n";
+			$http_request .= "User-Agent: {$akismet_ua}\r\n";
+			$http_request .= "\r\n";
+			$http_request .= $request;
+
+			// Open a socket connection
+			if ( false != ( $fs = @fsockopen( $http_host, $port, $errno, $errstr, 10 ) ) ) {
+
+				// Write our request to the pointer
+				fwrite( $fs, $http_request );
+
+				// Loop through pointer and compile a response
+				while ( !feof( $fs ) ) {
+					// One TCP-IP packet at a time
+					$response .= fgets( $fs, 1160 );
+				}
+
+				// Close our socket
+				fclose( $fs );
+
+				// Explode the response into usable data
+				$response = explode( "\r\n\r\n", $response, 2 );
+			}
+
+			// Return the response ('' if error/empty)
+			return $response;
+		}
+	}
 }
 endif;
 
