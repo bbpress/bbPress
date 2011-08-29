@@ -383,7 +383,7 @@ class BBP_Forums_Widget extends WP_Widget {
 
 		$forums_query = array(
 			'post_parent'    => $parent_forum,
-			'posts_per_page' => get_option( '_bbp_forums_per_page', 15 ),
+			'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
 			'orderby'        => 'menu_order',
 			'order'          => 'ASC'
 		);
