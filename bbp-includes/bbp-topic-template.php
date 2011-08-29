@@ -66,7 +66,7 @@ function bbp_topic_post_type() {
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics( $args = '' ) {
-	global $wp_rewrite, $wp_query, $bbp, $wpdb;
+	global $wp_query, $bbp, $wpdb;
 
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
@@ -230,7 +230,7 @@ function bbp_has_topics( $args = '' ) {
 			$bbp->topic_query->found_posts = $bbp->topic_query->max_num_pages * $bbp->topic_query->post_count;
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() ) {
+		if ( bbp_using_permalinks() ) {
 
 			// Profile page
 			if ( bbp_is_single_user() )
@@ -257,7 +257,7 @@ function bbp_has_topics( $args = '' ) {
 				$base = get_permalink( $post_parent );
 
 			// Use pagination base
-			$base = trailingslashit( $base ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+			$base = trailingslashit( $base ) . user_trailingslashit( bbp_permalink_pagination_base() . '/%#%/' );
 
 		// Unpretty pagination
 		} else {
@@ -279,7 +279,7 @@ function bbp_has_topics( $args = '' ) {
 		$bbp->topic_query->pagination_links = paginate_links ( $bbp_topic_pagination );
 
 		// Remove first page from pagination
-		$bbp->topic_query->pagination_links = str_replace( $wp_rewrite->pagination_base . "/1/'", "'", $bbp->topic_query->pagination_links );
+		$bbp->topic_query->pagination_links = str_replace( bbp_permalink_pagination_base() . "/1/'", "'", $bbp->topic_query->pagination_links );
 	}
 
 	// Return object
@@ -653,7 +653,6 @@ function bbp_topic_pagination( $args = '' ) {
 	 * @return string Pagination links
 	 */
 	function bbp_get_topic_pagination( $args = '' ) {
-		global $wp_rewrite;
 
 		$defaults = array(
 			'topic_id' => bbp_get_topic_id(),
@@ -665,8 +664,8 @@ function bbp_topic_pagination( $args = '' ) {
 		extract( $r );
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() )
-			$base = trailingslashit( get_permalink( $topic_id ) ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+		if ( bbp_using_permalinks() )
+			$base = trailingslashit( get_permalink( $topic_id ) ) . user_trailingslashit( bbp_permalink_pagination_base() . '/%#%/' );
 		else
 			$base = add_query_arg( 'paged', '%#%', get_permalink( $topic_id ) );
 
@@ -693,8 +692,8 @@ function bbp_topic_pagination( $args = '' ) {
 		if ( $pagination_links = paginate_links( $pagination ) ) {
 
 			// Remove first page from pagination
-			if ( $wp_rewrite->using_permalinks() )
-				$pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $pagination_links );
+			if ( bbp_using_permalinks() )
+				$pagination_links = str_replace( bbp_permalink_pagination_base() . '/1/', '', $pagination_links );
 			else
 				$pagination_links = str_replace( '&#038;paged=1', '', $pagination_links );
 
@@ -2107,14 +2106,14 @@ function bbp_topic_edit_url( $topic_id = 0 ) {
 	 * @return string Topic edit url
 	 */
 	function bbp_get_topic_edit_url( $topic_id = 0 ) {
-		global $wp_rewrite, $bbp;
+		global $bbp;
 
 		if ( !$topic = bbp_get_topic( bbp_get_topic_id( $topic_id ) ) )
 			return;
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->topic_slug . '/' . $topic->post_name . '/edit';
+		if ( bbp_using_permalinks() ) {
+			$url = bbp_permalink_root() . $bbp->topic_slug . '/' . $topic->post_name . '/edit';
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
@@ -2954,7 +2953,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_edit_link( $tag = '' ) {
-		global $wp_query, $wp_rewrite;
+		global $wp_query;
 
 		// Get the term
 		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
@@ -2964,7 +2963,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 		if ( !empty( $term->term_id ) ) {
 
 			// Pretty
-			if ( $wp_rewrite->using_permalinks() ) {
+			if ( bbp_using_permalinks() ) {
 				$retval = user_trailingslashit( trailingslashit( bbp_get_topic_tag_link() ) . 'edit' );
 
 			// Ugly

@@ -1209,10 +1209,9 @@ function bbp_replace_the_content( $content = '' ) {
  *                      otherwise the redirect url
  */
 function bbp_redirect_canonical( $redirect_url ) {
-	global $wp_rewrite;
 
 	// Canonical is for the beautiful
-	if ( $wp_rewrite->using_permalinks() ) {
+	if ( bbp_using_permalinks() ) {
 
 		// If viewing beyond page 1 of several
 		if ( 1 < bbp_get_paged() ) {

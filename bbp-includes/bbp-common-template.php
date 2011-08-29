@@ -1285,14 +1285,14 @@ function bbp_view_url( $view = false ) {
 	 * @return string View url (or home url if the view was not found)
 	 */
 	function bbp_get_view_url( $view = false ) {
-		global $bbp, $wp_rewrite;
+		global $bbp;
 
 		if ( !$view = bbp_get_view_id( $view ) )
 			return home_url();
 
 		// Pretty permalinks
-		if ( $wp_rewrite->using_permalinks() ) {
-			$url = $wp_rewrite->root . $bbp->view_slug . '/' . $view;
+		if ( bbp_using_permalinks() ) {
+			$url = bbp_permalink_root() . $bbp->view_slug . '/' . $view;
 			$url = home_url( user_trailingslashit( $url ) );
 
 		// Unpretty permalinks
