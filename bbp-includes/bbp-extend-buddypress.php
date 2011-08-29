@@ -570,10 +570,10 @@ endif;
  * @return If bbPress is not active
  */
 function bbp_setup_buddypress() {
-	global $bbp;
+	global $bbp, $bp;
 
 	// Bail if no BuddyPress
-	if ( !defined( 'BP_VERSION' ) ) return;
+	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
 
 	// Instantiate BuddyPress for bbPress
 	$bbp->extend->buddypress = new BBP_BuddyPress();
