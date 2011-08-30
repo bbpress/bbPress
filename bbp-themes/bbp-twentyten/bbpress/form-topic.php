@@ -187,7 +187,7 @@
 
 						</div>
 
-						<?php do_action( 'bbp_theme_before_topic_form_submit_wrapper' ); ?>
+						<?php do_action( 'bbp_theme_after_topic_form_submit_wrapper' ); ?>
 
 					</div>
 
