@@ -15,7 +15,7 @@
  * Description: bbPress is forum software with a twist from the creators of WordPress.
  * Author: The bbPress Community
  * Author URI: http://bbpress.org
- * Version: 2.0-rc-3
+ * Version: 2.0-rc-4
  */
 
 // Exit if accessed directly
@@ -36,12 +36,12 @@ class bbPress {
 	/**
 	 * @public string bbPress version
 	 */
-	public $version = '2.0-rc-3';
+	public $version = '2.0-rc-4';
 
 	/**
 	 * @public string bbPress DB version
 	 */
-	public $db_version = '155';
+	public $db_version = '165';
 
 	/** Post types ************************************************************/
 
