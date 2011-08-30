@@ -1,10 +1,12 @@
 <?php
 
- /**
+/**
  * @package bbPress
  * @subpackage BBP_Twenty_Ten
  * @since Twenty Ten 1.1
  */
+
+/** Theme Setup ***************************************************************/
 
 if ( ! function_exists( 'bbp_twentyten_setup' ) ):
 /**
@@ -24,6 +26,8 @@ function bbp_twentyten_setup() {
 add_action( 'after_setup_theme', 'bbp_twentyten_setup' );
 endif;
 
+/** Theme CSS *****************************************************************/
+
 if ( !function_exists( 'bbp_twentyten_enqueue_styles' ) ) :
 /**
  * Load the theme CSS
@@ -34,7 +38,7 @@ if ( !function_exists( 'bbp_twentyten_enqueue_styles' ) ) :
  */
 function bbp_twentyten_enqueue_styles () {
 
-	$version = '20110808b';
+	$version = '20110830';
 
 	// Right to left
 	if ( is_rtl() ) {
@@ -59,6 +63,8 @@ function bbp_twentyten_enqueue_styles () {
 add_action( 'bbp_enqueue_scripts', 'bbp_twentyten_enqueue_styles' );
 endif;
 
+/** Theme Ajax and JS *********************************************************/
+
 if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
 /**
  * Enqueue the required Javascript files
@@ -72,7 +78,7 @@ if ( !function_exists( 'bbp_twentyten_enqueue_scripts' ) ) :
  */
 function bbp_twentyten_enqueue_scripts () {
 
-	$version = '20110808b';
+	$version = '20110830';
 
 	if ( bbp_is_single_topic() )
 		wp_enqueue_script( 'bbp_topic', get_stylesheet_directory_uri() . '/js/topic.js', array( 'wp-lists' ), $version );
@@ -200,14 +206,16 @@ function bbp_twentyten_dim_favorite () {
 	if ( !$topic = bbp_get_topic( $id ) )
 		die( '0' );
 
-	check_ajax_referer( "toggle-favorite_$topic->ID" );
+	check_ajax_referer( 'toggle-favorite_' . $topic->ID );
 
 	if ( bbp_is_user_favorite( $user_id, $topic->ID ) ) {
-		if ( bbp_remove_user_favorite( $user_id, $topic->ID ) )
+		if ( bbp_remove_user_favorite( $user_id, $topic->ID ) ) {
 			die( '1' );
+		}
 	} else {
-		if ( bbp_add_user_favorite( $user_id, $topic->ID ) )
+		if ( bbp_add_user_favorite( $user_id, $topic->ID ) ) {
 			die( '1' );
+		}
 	}
 
 	die( '0' );
@@ -245,14 +253,16 @@ function bbp_twentyten_dim_subscription () {
 	if ( !$topic = bbp_get_topic( $id ) )
 		die( '0' );
 
-	check_ajax_referer( "toggle-subscription_$topic->ID" );
+	check_ajax_referer( 'toggle-subscription_' . $topic->ID );
 
 	if ( bbp_is_user_subscribed( $user_id, $topic->ID ) ) {
-		if ( bbp_remove_user_subscription( $user_id, $topic->ID ) )
+		if ( bbp_remove_user_subscription( $user_id, $topic->ID ) ) {
 			die( '1' );
+		}
 	} else {
-		if ( bbp_add_user_subscription( $user_id, $topic->ID ) )
+		if ( bbp_add_user_subscription( $user_id, $topic->ID ) ) {
 			die( '1' );
+		}
 	}
 
 	die( '0' );
