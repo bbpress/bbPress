@@ -532,6 +532,9 @@ function bbp_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 )
 	 * @return string User favorites link
 	 */
 	function bbp_get_user_favorites_link( $add = array(), $rem = array(), $user_id = 0 ) {
+		if ( !bbp_is_favorites_active() )
+			return false;
+
 		if ( !$user_id = bbp_get_user_id( $user_id, true, true ) )
 			return false;
 
