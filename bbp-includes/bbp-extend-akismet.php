@@ -77,7 +77,8 @@ class BBP_Akismet {
 	 *
 	 * @uses get_userdata() To get the user data
 	 * @uses bbp_filter_anonymous_user_data() To get anonymous user data
-	 * @uses get_permalink() To get the permalink of the post parent
+	 * @uses bbp_get_topic_permalink() To get the permalink of the topic
+	 * @uses bbp_get_reply_url() To get the permalink of the reply
 	 * @uses bbp_current_author_ip() To get the IP address of the current user
 	 * @uses BBP_Akismet::maybe_spam() To check if post is spam
 	 * @uses akismet_get_user_roles() To get the role(s) of the current user
@@ -89,31 +90,73 @@ class BBP_Akismet {
 	public function check_post( $post_data ) {
 		global $bbp;
 
+		// Declare local variables
+		$user_data = array();
+		$post_permalink = '';
+
 		// Post is not published
 		if ( 'publish' != $post_data['post_status'] )
 			return $post_data;
 
-		// Extract post_data into variables
-		extract( $post_data );
+		// Cast the post_author to 0 if it's empty
+		if ( empty( $post_data['post_author'] ) )
+			$post_data['post_author'] = 0;
+
+		/** Author ************************************************************/
 
 		// Get user data
-		$userdata       = get_userdata( $post_author );
+		$userdata       = get_userdata( $post_data['post_author'] );
 		$anonymous_data = bbp_filter_anonymous_post_data();
+
+		// Author is anonymous
+		if ( !empty( $anonymous_data ) ) {
+			$user_data['name']    = $anonymous_data['bbp_anonymous_name'];
+			$user_data['email']   = $anonymous_data['bbp_anonymous_name'];
+			$user_data['website'] = $anonymous_data['bbp_anonymous_name'];
+
+		// Author is logged in
+		} elseif ( !empty( $userdata ) ) {
+			$user_data['name']    = $userdata->display_name;
+			$user_data['email']   = $userdata->user_email;
+			$user_data['website'] = $userdata->user_url;
+
+		// Missing author data, so set some empty strings
+		} else {
+			$user_data['name']    = '';
+			$user_data['email']   = '';
+			$user_data['website'] = '';
+		}
+
+		/** Post **************************************************************/
+
+		// Adjust the $post_permalink based on the post_type
+		switch ( $post_data['post_type'] ) {
+
+			// Topic, so use the post
+			case bbp_get_topic_post_type() :
+				$post_permalink = bbp_get_topic_permalink( $post_data['ID'] );
+				break;
+
+			// Reply, so get the post_parent
+			case bbp_get_reply_post_type() :
+				$post_permalink = bbp_get_reply_url( $post_data['ID'] );
+				break;			
+		}
 
 		// Put post_data back into usable array
 		$post = array(
-			'comment_author'       => $anonymous_data ? $anonymous_data['bbp_anonymous_name']    : $userdata->display_name,
-			'comment_author_email' => $anonymous_data ? $anonymous_data['bbp_anonymous_email']   : $userdata->user_email,
-			'comment_author_url'   => $anonymous_data ? $anonymous_data['bbp_anonymous_website'] : $userdata->user_url,
-			'comment_content'      => $post_content,
-			'comment_post_ID'      => $post_parent,
-			'comment_type'         => $post_type,
-			'permalink'            => get_permalink( $post_parent ),
+			'comment_author'       => $user_data['name'],
+			'comment_author_email' => $user_data['email'],
+			'comment_author_url'   => $user_data['website'],
+			'comment_content'      => $post_data['post_content'],
+			'comment_post_ID'      => $post_data['post_parent'],
+			'comment_type'         => $post_data['post_type'],
+			'permalink'            => $post_permalink,
 			'referrer'             => $_SERVER['HTTP_REFERER'],
 			'user_agent'           => $_SERVER['HTTP_USER_AGENT'],
-			'user_ID'              => $post_author,
+			'user_ID'              => $post_data['post_author'],
 			'user_ip'              => bbp_current_author_ip(),
-			'user_role'            => akismet_get_user_roles( $post_author ),
+			'user_role'            => akismet_get_user_roles( $post_data['post_author'] ),
 		);
 
 		// Check the post_data
@@ -182,7 +225,12 @@ class BBP_Akismet {
 	public function submit_post( $post_id = 0 ) {
 		global $bbp, $wpdb, $akismet_api_host, $akismet_api_port, $current_user, $current_site;
 
-		switch ( current_filter() ) {
+		// Innocent until proven guilty
+		$request_type   = 'ham';
+		$current_filter = current_filter();
+
+		// Check this filter and adjust the $request_type accordingly
+		switch ( $current_filter ) {
 
 			// Mysterious, and straight from the can
 			case 'bbp_spammed_topic' :
@@ -205,7 +253,10 @@ class BBP_Akismet {
 		$post_id = (int) $post_id;
 
 		// Make sure we have a post
-		if ( !$post = get_post( $post_id ) )
+		$post = get_post( $post_id );
+
+		// Bail if get_post() fails
+		if ( empty( $post ) )
 			return;
 
 		// Bail if we're spamming, but the post_status isn't spam
@@ -380,21 +431,21 @@ class BBP_Akismet {
 		// Setup some variables
 		$post_id = (int) $post_id;
 
-		// Make sure we have a post object
-		if ( !$post = get_post( $post_id ) )
-			return;
-
-		// Get user data
-		$userdata       = get_userdata( $post->post_author );
-		$anonymous_data = bbp_filter_anonymous_post_data();
+		// Ensure we have a post object
+		if ( empty( $post ) )
+			$post = get_post( $post_id );
 
 		// Set up Akismet last post data
 		if ( !empty( $this->last_post ) )
 			$as_submitted = $this->last_post['bbp_post_as_submitted'];
 
-		// wp_insert_post() might be called in other contexts. Make sure this is
+		// wp_insert_post() might be called in other contexts. Ensure this is
 		// the same topic/reply as was checked by BBP_Akismet::check_post()
 		if ( is_object( $post ) && !empty( $this->last_post ) && is_array( $as_submitted ) ) {
+
+			// Get user data
+			$userdata       = get_userdata( $post->post_author );
+			$anonymous_data = bbp_filter_anonymous_post_data();
 
 			// More checks
 			if (	intval( $as_submitted['comment_post_ID'] )    == intval( $post->post_parent )
@@ -563,6 +614,8 @@ class BBP_Akismet {
 		$http_host      = $host;
 		$blog_charset   = get_option( 'blog_charset' );
 		$response       = '';
+		$errno          = null;
+		$errstr         = null;
 
 		// Untque User Agent
 		$akismet_ua     = "bbPress/{$bbp_version} | ";
