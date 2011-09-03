@@ -1460,6 +1460,7 @@ function bb_get_option( $option ) {
 		break;
 	case 'url' :
 		$option = 'uri';
+		break;
 	case 'bb_table_prefix' :
 	case 'table_prefix' :
 		global $bbdb;
