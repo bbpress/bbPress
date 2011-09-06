@@ -833,7 +833,7 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * @uses update_post_meta() To update the old forum sticky meta
  * @uses bbp_stick_topic() To stick the topic in the new forum
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses bbp_get_public_child_ids() To get the public child ids
+ * @uses bbp_get_all_child_ids() To get the public child ids
  * @uses bbp_update_reply_forum_id() To update the reply forum id
  * @uses bbp_update_topic_forum_id() To update the topic forum id
  * @uses get_post_ancestors() To get the topic's ancestors
@@ -883,7 +883,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 	/** Topic Replies *********************************************************/
 
 	// Get the topics replies
-	$replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
+	$replies = bbp_get_all_child_ids( $topic_id, bbp_get_reply_post_type() );
 
 	// Update the forum_id of all replies in the topic
 	foreach ( $replies as $reply_id )
