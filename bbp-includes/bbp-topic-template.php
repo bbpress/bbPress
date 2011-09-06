@@ -1200,7 +1200,8 @@ function bbp_topic_author_link( $args = '' ) {
 			'post_id'    => 0,
 			'link_title' => '',
 			'type'       => 'both',
-			'size'       => 80
+			'size'       => 80,
+			'sep'        => '&nbsp;'
 		);
 
 		$r = wp_parse_args( $args, $defaults );
@@ -1222,22 +1223,26 @@ function bbp_topic_author_link( $args = '' ) {
 
 			// Get avatar
 			if ( 'avatar' == $type || 'both' == $type )
-				$author_links[] = bbp_get_topic_author_avatar( $topic_id, $size );
+				$author_links['avatar'] = bbp_get_topic_author_avatar( $topic_id, $size );
 
 			// Get display name
 			if ( 'name' == $type   || 'both' == $type )
-				$author_links[] = bbp_get_topic_author_display_name( $topic_id );
+				$author_links['name'] = bbp_get_topic_author_display_name( $topic_id );
+
+			// Link class
+			$link_class = ' class="bbp-author-' . $type . '"';
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) ) {
-				foreach ( $author_links as $link_text ) {
-					$author_link[] = sprintf( '<a href="%1$s"%2$s>%3$s</a>', $author_url, $link_title, $link_text );
+				foreach ( $author_links as $link => $link_text ) {
+					$link_class = ' class="bbp-author-' . $link . '"';
+					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
 				}
-				$author_link = join( '&nbsp;', $author_link );
+				$author_link = join( $sep, $author_link );
 
 			// No links if anonymous
 			} else {
-				$author_link = join( '&nbsp;', $author_links );
+				$author_link = join( $sep, $author_links );
 			}
 
 		} else {

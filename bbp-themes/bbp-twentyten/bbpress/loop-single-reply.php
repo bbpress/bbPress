@@ -31,7 +31,7 @@
 
 			<?php do_action( 'bbp_theme_before_reply_author_details' ); ?>
 
-			<?php bbp_reply_author_link(); ?>
+			<?php bbp_reply_author_link( array( 'sep' => '<br />' ) ); ?>
 
 			<?php if ( is_super_admin() ) : ?>
 
