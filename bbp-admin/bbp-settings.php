@@ -553,56 +553,79 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
  */
 function bbp_form_slug_conflict_check( $slug, $default ) {
 
+	// Only set the slugs once ver page load
+	static $the_core_slugs;
+
 	// Get the form value
 	$this_slug = bbp_get_form_option( $slug, $default, true );
-	
-	// Slugs to check
-	$core_slugs = apply_filters( 'bbp_slug_conflict_check', array(
-		
-		/** WordPress Core ****************************************************/
 
-		// Core Post Types
-		'post_base'       => array( 'name' => __( 'Posts'         ), 'default' => 'post'          ),
-		'page_base'       => array( 'name' => __( 'Pages'         ), 'default' => 'page'          ),
-		'revision_base'   => array( 'name' => __( 'Revisions'     ), 'default' => 'revision'      ),
-		'attachment_base' => array( 'name' => __( 'Attachments'   ), 'default' => 'attachment'    ),
-		'nav_menu_base'   => array( 'name' => __( 'Menus'         ), 'default' => 'nav_menu_item' ),
-		
-		// Post Tags
-		'tag_base'        => array( 'name' => __( 'Tag base'      ), 'default' => 'tag'           ),
-		
-		// Post Categories
-		'category_base'   => array( 'name' => __( 'Category base' ), 'default' => 'category'      ),
-		
-		/** bbPress Core ******************************************************/
+	if ( empty( $the_core_slugs ) ) {
 
-		// Forum archive slug
-		'_bbp_root_slug'          => array( 'name' => __( 'Forums base', 'bbpress' ), 'default' => 'forums' ),
+		// Slugs to check
+		$core_slugs = apply_filters( 'bbp_slug_conflict_check', array(
 
-		// Topic archive slug
-		'_bbp_topic_archive_slug' => array( 'name' => __( 'Topics base', 'bbpress' ), 'default' => 'topics' ),
+			/** WordPress Core ****************************************************/
 
-		// Forum slug
-		'_bbp_forum_slug'         => array( 'name' => __( 'Forum slug',  'bbpress' ), 'default' => 'forum'  ),
+			// Core Post Types
+			'post_base'       => array( 'name' => __( 'Posts'         ), 'default' => 'post'          ),
+			'page_base'       => array( 'name' => __( 'Pages'         ), 'default' => 'page'          ),
+			'revision_base'   => array( 'name' => __( 'Revisions'     ), 'default' => 'revision'      ),
+			'attachment_base' => array( 'name' => __( 'Attachments'   ), 'default' => 'attachment'    ),
+			'nav_menu_base'   => array( 'name' => __( 'Menus'         ), 'default' => 'nav_menu_item' ),
 
-		// Topic slug
-		'_bbp_topic_slug'         => array( 'name' => __( 'Topic slug',  'bbpress' ), 'default' => 'topic'  ),
+			// Post Tags
+			'tag_base'        => array( 'name' => __( 'Tag base'      ), 'default' => 'tag'           ),
 
-		// Reply slug
-		'_bbp_reply_slug'         => array( 'name' => __( 'Reply slug',  'bbpress' ), 'default' => 'reply'  ),
+			// Post Categories
+			'category_base'   => array( 'name' => __( 'Category base' ), 'default' => 'category'      ),
 
-		// User profile slug
-		'_bbp_user_slug'          => array( 'name' => __( 'User base',   'bbpress' ), 'default' => 'users'  ),
+			/** bbPress Core ******************************************************/
 
-		// View slug
-		'_bbp_view_slug'          => array( 'name' => __( 'View base',   'bbpress' ), 'default' => 'view'   ),
+			// Forum archive slug
+			'_bbp_root_slug'          => array( 'name' => __( 'Forums base', 'bbpress' ), 'default' => 'forums' ),
 
-		// Topic tag slug
-		'_bbp_topic_tag_slug'     => array( 'name' => __( 'Topic tag slug', 'bbpress' ), 'default' => 'topic-tag' ),
-	) );
+			// Topic archive slug
+			'_bbp_topic_archive_slug' => array( 'name' => __( 'Topics base', 'bbpress' ), 'default' => 'topics' ),
+
+			// Forum slug
+			'_bbp_forum_slug'         => array( 'name' => __( 'Forum slug',  'bbpress' ), 'default' => 'forum'  ),
+
+			// Topic slug
+			'_bbp_topic_slug'         => array( 'name' => __( 'Topic slug',  'bbpress' ), 'default' => 'topic'  ),
+
+			// Reply slug
+			'_bbp_reply_slug'         => array( 'name' => __( 'Reply slug',  'bbpress' ), 'default' => 'reply'  ),
+
+			// User profile slug
+			'_bbp_user_slug'          => array( 'name' => __( 'User base',   'bbpress' ), 'default' => 'users'  ),
+
+			// View slug
+			'_bbp_view_slug'          => array( 'name' => __( 'View base',   'bbpress' ), 'default' => 'view'   ),
+
+			// Topic tag slug
+			'_bbp_topic_tag_slug'     => array( 'name' => __( 'Topic tag slug', 'bbpress' ), 'default' => 'topic-tag' ),
+		) );
+
+		/** BuddyPress Core *******************************************************/
+
+		if ( defined( 'BP_VERSION' ) ) {
+			global $bp;
+
+			// Loop through root slugs and check for conflict
+			if ( !empty( $bp->pages ) ) {
+				foreach ( $bp->pages as $page => $page_data ) {
+					$page_base    = $page . '_base';
+					$core_slugs[$page_base] = array( 'name' => $page_data->title, 'default' => $page_data->slug );
+				}
+			}			
+		}
+
+		// Set the static
+		$the_core_slugs = $core_slugs;
+	}
 
 	// Loop through slugs to check
-	foreach( $core_slugs as $key => $value ) {
+	foreach( $the_core_slugs as $key => $value ) {
 		
 		// Get the slug
 		$slug_check = bbp_get_form_option( $key, $value['default'], true );
