@@ -1221,8 +1221,15 @@ function bbp_redirect_canonical( $redirect_url ) {
 			if ( bbp_is_single_topic() ) {
 				$redirect_url = false;
 
-			// ...and single replies
+			// ...and single replies...
 			} elseif ( bbp_is_single_forum() ) {
+				$redirect_url = false;
+			
+			// ...and any single anything else...
+			//
+			// @todo - Find a more accurate way to disable paged canonicals for
+			//          paged shortcode usage within other posts.
+			} elseif ( is_page() || is_singular() ) {
 				$redirect_url = false;
 			}
 
