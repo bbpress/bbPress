@@ -828,6 +828,10 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * @param int $new_forum_id New forum id
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_get_stickies() To get the old forums sticky topics
+ * @uses delete_post_meta() To delete the forum sticky meta
+ * @uses update_post_meta() To update the old forum sticky meta
+ * @uses bbp_stick_topic() To stick the topic in the new forum
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses bbp_get_public_child_ids() To get the public child ids
  * @uses bbp_update_reply_forum_id() To update the reply forum id
@@ -837,10 +841,49 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
  * @uses bbp_update_forum() To update the forum
  */
 function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
+
+	// Validate parameters
 	$topic_id     = bbp_get_topic_id( $topic_id     );
 	$old_forum_id = bbp_get_forum_id( $old_forum_id );
 	$new_forum_id = bbp_get_forum_id( $new_forum_id );
-	$replies      = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
+
+	/** Stickies **************************************************************/
+
+	// Get forum stickies
+	$old_stickies = bbp_get_stickies( $old_forum_id );
+
+	// Only proceed if stickies are found
+	if ( !empty( $old_stickies ) ) {
+
+		// Define local variables
+		$updated_stickies = array();
+
+		// Loop through stickies of forum
+		foreach ( $old_stickies as $sticky_topic_id ) {
+
+			// Add non-matches to the updated array
+			if ( $topic_id != $sticky_topic_id ) {
+				$updated_stickies[$k] = $v;
+			}
+		}
+
+		// No more stickies so delete the beta
+		if ( empty( $updated_stickies ) ) {
+			delete_post_meta ( $old_forum_id, '_bbp_sticky_topics' );
+
+		// Still stickies so update the meta
+		} else {
+			update_post_meta( $old_forum_id, '_bbp_sticky_topics', $updated_stickies );
+		}
+
+		// Topic was sticky, so restick in new forum
+		bbp_stick_topic( $topic_id );
+	}
+	
+	/** Topic Replies *********************************************************/
+
+	// Get the topics replies
+	$replies = bbp_get_public_child_ids( $topic_id, bbp_get_reply_post_type() );
 
 	// Update the forum_id of all replies in the topic
 	foreach ( $replies as $reply_id )
