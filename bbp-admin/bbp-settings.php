@@ -309,7 +309,7 @@ function bbp_admin_setting_callback_include_root() {
 ?>
 
 	<input id="_bbp_include_root" name="_bbp_include_root" type="checkbox" id="_bbp_include_root" value="1" <?php checked( get_option( '_bbp_include_root', true ) ); ?> />
-	<label for="_bbp_include_root"><?php _e( 'Incude the Forum Base slug in your single forum item links', 'bbpress' ); ?></label>
+	<label for="_bbp_include_root"><?php _e( 'Prefix your forum area with the Forum Base slug (Recommended)', 'bbpress' ); ?></label>
 
 <?php
 }
