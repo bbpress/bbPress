@@ -109,6 +109,9 @@ class BBP_Genesis {
 			 */
 			remove_action( 'genesis_after_post', 'genesis_do_author_box_single' );
 
+			// Remove the navigation after the post loop
+			remove_action( 'genesis_after_endwhile', 'genesis_posts_nav' );
+
 			/** Add Actions ***************************************************/
 
 			// Re add 'the_content' back onto 'genesis_post_content'
