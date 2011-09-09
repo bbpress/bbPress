@@ -30,6 +30,7 @@
 #main table.bbp-replies {
 	clear: left;
 	table-layout: fixed;
+	width: 100%;
 }
 
 /* =Breadcrumb and Tags

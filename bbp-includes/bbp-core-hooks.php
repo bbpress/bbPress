@@ -42,7 +42,7 @@ add_filter( 'template_include',       'bbp_template_include',       10 );
  * bbp_loaded - Attached to 'plugins_loaded' above
  *
  * Attach various loader actions to the bbp_loaded action.
- * The load order helps to load code at the correct time.
+ * The load order helps to execute code at the correct time.
  *                                                        v---Load order
  */
 add_action( 'bbp_loaded', 'bbp_constants',                2  );
@@ -55,22 +55,31 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  * bbp_init - Attached to 'init' above
  *
  * Attach various initialization actions to the init action.
- * The load order helps to load code at the correct time.
+ * The load order helps to execute code at the correct time.
  *                                                    v---Load order
  */
 add_action( 'bbp_init', 'bbp_load_textdomain',        2   );
 add_action( 'bbp_init', 'bbp_setup_option_filters',   4   );
 add_action( 'bbp_init', 'bbp_setup_current_user',     6   );
 add_action( 'bbp_init', 'bbp_setup_theme_compat',     8   );
-add_action( 'bbp_init', 'bbp_setup_akismet',          10  );
-add_action( 'bbp_init', 'bbp_setup_buddypress',       12  );
-add_action( 'bbp_init', 'bbp_register_post_types',    14  );
-add_action( 'bbp_init', 'bbp_register_post_statuses', 16  );
-add_action( 'bbp_init', 'bbp_register_taxonomies',    18  );
-add_action( 'bbp_init', 'bbp_register_views',         20  );
-add_action( 'bbp_init', 'bbp_register_shortcodes',    22  );
-add_action( 'bbp_init', 'bbp_add_rewrite_tags',       24  );
+add_action( 'bbp_init', 'bbp_register_post_types',    10  );
+add_action( 'bbp_init', 'bbp_register_post_statuses', 12  );
+add_action( 'bbp_init', 'bbp_register_taxonomies',    14  );
+add_action( 'bbp_init', 'bbp_register_views',         16  );
+add_action( 'bbp_init', 'bbp_register_shortcodes',    18  );
+add_action( 'bbp_init', 'bbp_add_rewrite_tags',       20  );
 add_action( 'bbp_init', 'bbp_ready',                  999 );
+
+/**
+ * bbp_ready - attached to end 'bbp_init' above
+ *
+ * Attach actions to the ready action after bbPress has fully initialized.
+ * The load order helps to execute code at the correct time.
+ *                                               v---Load order
+ */
+add_action( 'bbp_ready', 'bbp_setup_akismet',    2 ); // Spam prevention for topics and replies
+add_action( 'bbp_ready', 'bbp_setup_buddypress', 4 ); // Social network integration
+add_action( 'bbp_ready', 'bbp_setup_genesis',    6 ); // Popular theme framework
 
 // Multisite Global Forum Access
 add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask',  10 );

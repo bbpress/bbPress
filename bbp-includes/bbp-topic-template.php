@@ -2717,7 +2717,7 @@ function bbp_single_topic_description( $args = '' ) {
 		// Default arguments
 		$defaults = array (
 			'topic_id'  => 0,
-			'before'    => '<div class="bbp-template-notice info"><p class="post-meta description">',
+			'before'    => '<div class="bbp-template-notice info"><p class="bbp-topic-description">',
 			'after'     => '</p></div>',
 			'size'      => 14
 		);

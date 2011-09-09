@@ -1654,7 +1654,7 @@ function bbp_single_forum_description( $args = '' ) {
 		// Default arguments
 		$defaults = array (
 			'forum_id'  => 0,
-			'before'    => '<div class="bbp-template-notice info"><p class="post-meta description">',
+			'before'    => '<div class="bbp-template-notice info"><p class="bbp-forum-description">',
 			'after'     => '</p></div>',
 			'size'      => 14,
 			'feed'      => true

@@ -239,35 +239,39 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	// Default for current post
 	if ( isset( $wp_query->post ) ) {
 		$defaults = array(
-			'ID'           => get_the_ID(),
-			'post_title'   => get_the_title(),
-			'post_author'  => get_the_author_meta('ID'),
-			'post_date'    => get_the_date(),
-			'post_content' => get_the_content(),
-			'post_type'    => get_post_type(),
-			'post_status'  => get_post_status(),
-			'is_404'       => false,
-			'is_page'      => false,
-			'is_single'    => false,
-			'is_archive'   => false,
-			'is_tax'       => false,
+			'ID'              => get_the_ID(),
+			'post_title'      => get_the_title(),
+			'post_author'     => get_the_author_meta('ID'),
+			'post_date'       => get_the_date(),
+			'post_content'    => get_the_content(),
+			'post_type'       => get_post_type(),
+			'post_status'     => get_post_status(),
+			'post_name'       => !empty( $wp_query->post->post_name ) ? $wp_query->post->post_name : '',
+			'comment_status'  => comments_open(),
+			'is_404'          => false,
+			'is_page'         => false,
+			'is_single'       => false,
+			'is_archive'      => false,
+			'is_tax'          => false,
 		);
 
 	// Empty defaults
 	} else {
 		$defaults = array(
-			'ID'           => 0,
-			'post_title'   => '',
-			'post_author'  => 0,
-			'post_date'    => 0,
-			'post_content' => '',
-			'post_type'    => 'page',
-			'post_status'  => 'publish',
-			'is_404'       => false,
-			'is_page'      => false,
-			'is_single'    => false,
-			'is_archive'   => false,
-			'is_tax'       => false,
+			'ID'              => 0,
+			'post_title'      => '',
+			'post_author'     => 0,
+			'post_date'       => 0,
+			'post_content'    => '',
+			'post_type'       => 'page',
+			'post_status'     => 'publish',
+			'post_name'       => '',
+			'comment_status'  => 'closed',
+			'is_404'          => false,
+			'is_page'         => false,
+			'is_single'       => false,
+			'is_archive'      => false,
+			'is_tax'          => false,
 		);
 	}
 	$dummy = wp_parse_args( $args, $defaults );
@@ -278,13 +282,15 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	unset( $post            );
 
 	// Setup the dummy post object
-	$wp_query->post->ID           = $dummy['ID'];
-	$wp_query->post->post_title   = $dummy['post_title'];
-	$wp_query->post->post_author  = $dummy['post_author'];
-	$wp_query->post->post_date    = $dummy['post_date'];
-	$wp_query->post->post_content = $dummy['post_content'];
-	$wp_query->post->post_type    = $dummy['post_type'];
-	$wp_query->post->post_status  = $dummy['post_status'];
+	$wp_query->post->ID             = $dummy['ID'];
+	$wp_query->post->post_title     = $dummy['post_title'];
+	$wp_query->post->post_author    = $dummy['post_author'];
+	$wp_query->post->post_date      = $dummy['post_date'];
+	$wp_query->post->post_content   = $dummy['post_content'];
+	$wp_query->post->post_type      = $dummy['post_type'];
+	$wp_query->post->post_status    = $dummy['post_status'];
+	$wp_query->post->post_name      = $dummy['post_name'];
+	$wp_query->post->comment_status = $dummy['comment_status'];
 
 	// Set the $post global
 	$post = $wp_query->post;
@@ -299,6 +305,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_single  = $dummy['is_single'];
 	$wp_query->is_archive = $dummy['is_archive'];
 	$wp_query->is_tax     = $dummy['is_tax'];
+	
 
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active();
