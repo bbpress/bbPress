@@ -129,19 +129,9 @@ class BBP_Akismet {
 
 		/** Post **************************************************************/
 
-		// Adjust the $post_permalink based on the post_type
-		switch ( $post_data['post_type'] ) {
-
-			// Topic, so use the post
-			case bbp_get_topic_post_type() :
-				$post_permalink = bbp_get_topic_permalink( $post_data['ID'] );
-				break;
-
-			// Reply, so get the post_parent
-			case bbp_get_reply_post_type() :
-				$post_permalink = bbp_get_reply_url( $post_data['ID'] );
-				break;			
-		}
+		// Use post parent for permalink
+		if ( !empty( $post_data['post_parent'] ) )
+			$post_permalink = get_permalink( $post_data['post_parent'] );
 
 		// Put post_data back into usable array
 		$post = array(
@@ -168,6 +158,8 @@ class BBP_Akismet {
 
 		// Store the data as submitted
 		$post_data['bbp_post_as_submitted'] = $post;
+
+		$post_data['bbp_akismet_result'] = 'true';
 
 		// Spam
 		if ( 'true' == $post_data['bbp_akismet_result'] ) {
