@@ -73,7 +73,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	// Update the forum
 	$forum_id = bbp_get_topic_forum_id( $topic_id );
 	if ( !empty( $forum_id ) )
-		bbp_update_forum( $forum_id );
+		bbp_update_forum( array( 'forum_id' => $forum_id ) );
 
 	// Return new topic ID
 	return $topic_id;
@@ -338,19 +338,28 @@ function bbp_new_topic_handler() {
 			$redirect_to = !empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 
 			// Get the topic URL
-			$topic_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
+			$redirect_url = bbp_get_topic_permalink( $topic_id, $redirect_to );
 
 			// Add view all?
-			if ( bbp_get_view_all() || ( current_user_can( 'moderate' ) && !empty( $view_all ) ) )
-				$topic_url = bbp_add_view_all( $topic_url );
+			if ( bbp_get_view_all() || !empty( $view_all ) ) {
+
+				// User can moderate, so redirect to topic with view all set
+				if ( current_user_can( 'moderate' ) ) {
+					$redirect_url = bbp_add_view_all( $redirect_url );
+
+				// User cannot moderate, so redirect to forum
+				} else {
+					$redirect_url = bbp_get_forum_permalink( $forum_id );
+				}
+			}
 
 			// Allow to be filtered
-			$topic_url = apply_filters( 'bbp_new_topic_redirect_to', $topic_url, $redirect_to );
+			$redirect_url = apply_filters( 'bbp_new_topic_redirect_to', $redirect_url, $redirect_to );
 
 			/** Successful Save ***********************************************/
 
 			// Redirect back to new topic
-			wp_safe_redirect( $topic_url );
+			wp_safe_redirect( $redirect_url );
 
 			// For good measure
 			exit();
@@ -708,15 +717,18 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 		update_post_meta( $topic_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
 
 		// Set transient for throttle check (only on new, not edit)
-		if ( empty( $is_edit ) )
+		if ( empty( $is_edit ) ) {
 			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
+		}
 
 		// Website is optional
-		if ( !empty( $bbp_anonymous_website ) )
+		if ( !empty( $bbp_anonymous_website ) ) {
 			update_post_meta( $topic_id, '_bbp_anonymous_website', $bbp_anonymous_website, false );
+		}
 	} else {
-		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) )
+		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) ) {
 			update_user_meta( $author_id, '_bbp_last_posted', time() );
+		}
 	}
 
 	// Handle Subscription Checkbox
@@ -725,12 +737,13 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ) ? true : false;
 
 		// Subscribed and unsubscribing
-		if ( true == $subscribed && false == $subscheck )
+		if ( true == $subscribed && false == $subscheck ) {
 			bbp_remove_user_subscription( $author_id, $topic_id );
 
 		// Subscribing
-		elseif ( false == $subscribed && true == $subscheck )
+		} elseif ( false == $subscribed && true == $subscheck ) {
 			bbp_add_user_subscription( $author_id, $topic_id );
+		}
 	}
 
 	// Forum topic meta
@@ -797,9 +810,14 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	// Get topic ancestors
 	$ancestors = array_values( array_unique( array_merge( array( $forum_id ), get_post_ancestors( $topic_id ) ) ) );
 
+	// Topic status
+	$topic_status = get_post_status( $topic_id );
+
 	// If we want a full refresh, unset any of the possibly passed variables
-	if ( true == $refresh )
+	if ( true == $refresh ) {
 		$forum_id = $topic_id = $reply_id = $active_id = $last_active_time = 0;
+		$topic_status = 'publish';
+	}
 
 	// Loop through ancestors
 	foreach ( $ancestors as $ancestor ) {
@@ -809,11 +827,12 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 
 			// Update the forum
 			bbp_update_forum( array(
-				'forum_id'         => $ancestor,
-				'last_topic_id'    => $topic_id,
-				'last_reply_id'    => $reply_id,
-				'last_active_id'   => $active_id,
-				'last_active_time' => 0,
+				'forum_id'           => $ancestor,
+				'last_topic_id'      => $topic_id,
+				'last_reply_id'      => $reply_id,
+				'last_active_id'     => $active_id,
+				'last_active_time'   => 0,
+				'last_active_status' => $topic_status
 			) );
 		}
 	}
@@ -1148,6 +1167,11 @@ function bbp_merge_topic_handler() {
 		}
 
 		/** Successful Merge **************************************************/
+
+		// Update topic's last meta data
+		bbp_update_topic_last_reply_id   ( $destination_topic->ID );
+		bbp_update_topic_last_active_id  ( $destination_topic->ID );
+		bbp_update_topic_last_active_time( $destination_topic->ID );
 
 		// Send the post parent of the source topic as it has been shifted
 		// (possibly to a new forum) so we need to update the counts of the
@@ -2147,7 +2171,9 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 	if ( empty( $active_id ) || !bbp_is_reply( $active_id ) )
 		$active_id = $topic_id;
 
-	update_post_meta( $topic_id, '_bbp_last_active_id', (int) $active_id );
+	// Update only if published
+	if ( 'publish' == get_post_status( $active_id ) )
+		update_post_meta( $topic_id, '_bbp_last_active_id', (int) $active_id );
 
 	return apply_filters( 'bbp_update_topic_last_active_id', (int) $active_id, $topic_id );
 }
@@ -2177,7 +2203,9 @@ function bbp_update_topic_last_active_time( $topic_id = 0, $new_time = '' ) {
 	if ( empty( $new_time ) )
 		$new_time = get_post_field( 'post_date', bbp_get_public_child_last_id( $topic_id, bbp_get_reply_post_type() ) );
 
-	update_post_meta( $topic_id, '_bbp_last_active_time', $new_time );
+	// Update only if published
+	if ( !empty( $new_time ) )
+		update_post_meta( $topic_id, '_bbp_last_active_time', $new_time );
 
 	return apply_filters( 'bbp_update_topic_last_active_time', $new_time, $topic_id );
 }
@@ -2218,7 +2246,9 @@ function bbp_update_topic_last_reply_id( $topic_id = 0, $reply_id = 0 ) {
 	if ( empty( $reply_id ) || !bbp_is_reply( $reply_id ) )
 		$reply_id = 0;
 
-	update_post_meta( $topic_id, '_bbp_last_reply_id', (int) $reply_id );
+	// Update if reply is published
+	if ( bbp_is_reply_published( $reply_id ) )
+		update_post_meta( $topic_id, '_bbp_last_reply_id', (int) $reply_id );
 
 	return apply_filters( 'bbp_update_topic_last_reply_id', (int) $reply_id, $topic_id );
 }
@@ -2666,7 +2696,11 @@ function bbp_unstick_topic( $topic_id = 0 ) {
 /** Before Delete/Trash/Untrash ***********************************************/
 
 /**
- * Called before deleting a topic
+ * Called before deleting a topic.
+ * 
+ * This function is supplemental to the actual topic deletion which is
+ * handled by WordPress core API functions. It is used to clean up after
+ * a topic that is being deleted.
  *
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic
@@ -2678,6 +2712,9 @@ function bbp_unstick_topic( $topic_id = 0 ) {
  * @uses wp_delete_post() To delete the reply
  */
 function bbp_delete_topic( $topic_id = 0 ) {
+	global $bbp;
+
+	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
@@ -2685,8 +2722,20 @@ function bbp_delete_topic( $topic_id = 0 ) {
 
 	do_action( 'bbp_delete_topic', $topic_id );
 
+	// Valid topic/reply statuses
+	$post_stati = join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) );
+
 	// Topic is being permanently deleted, so its replies gotta go too
-	if ( bbp_has_replies( array( 'post_parent' => $topic_id, 'post_status' => 'publish', 'posts_per_page' => -1 ) ) ) {
+	if ( bbp_has_replies( array(
+		'post_type'      => bbp_get_reply_post_type(),
+		'post_status'    => $post_stati,
+		'posts_per_page' => -1,
+		'meta_query'     => array( array(
+			'key'        => '_bbp_topic_id',
+			'value'      => $topic_id,
+			'compare'    => '='
+		) )
+	) ) ) {
 		while ( bbp_replies() ) {
 			bbp_the_reply();
 			wp_delete_post( bbp_get_reply_id(), true );
@@ -2697,6 +2746,10 @@ function bbp_delete_topic( $topic_id = 0 ) {
 /**
  * Called before trashing a topic
  *
+ * This function is supplemental to the actual topic being trashed which is
+ * handled by WordPress core API functions. It is used to clean up after
+ * a topic that is being trashed.
+ * 
  * @uses bbp_get_topic_id() To get the topic id
  * @uses bbp_is_topic() To check if the passed id is a topic
  * @uses do_action() Calls 'bbp_trash_topic' with the topic id
@@ -2708,6 +2761,8 @@ function bbp_delete_topic( $topic_id = 0 ) {
  * @uses update_post_meta() To save a list of just trashed replies for future use
  */
 function bbp_trash_topic( $topic_id = 0 ) {
+	global $bbp;
+
 	$topic_id = bbp_get_topic_id( $topic_id );
 
 	if ( empty( $topic_id ) || !bbp_is_topic( $topic_id ) )
@@ -2716,8 +2771,16 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	do_action( 'bbp_trash_topic', $topic_id );
 
 	// Topic is being trashed, so its replies are trashed too
-	if ( bbp_has_replies( array( 'post_parent' => $topic_id, 'post_status' => 'publish', 'posts_per_page' => -1 ) ) ) {
-		global $bbp;
+	if ( bbp_has_replies( array( 
+		'post_type'      => bbp_get_reply_post_type(),
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'meta_query'     => array( array(
+			'key'        => '_bbp_topic_id',
+			'value'      => $topic_id,
+			'compare'    => '='
+		) )
+	) ) ) {
 
 		// Prevent debug notices
 		$pre_trashed_replies = array();

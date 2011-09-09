@@ -386,13 +386,18 @@ function bbp_hide_forum( $forum_id = 0, $current_visibility = '' ) {
 function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Define local variable(s)
+	$children_last_topic = 0;
+
 	// Do some calculation if not manually set
 	if ( empty( $topic_id ) ) {
 
 		// Loop through children and add together forum reply counts
-		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
-			foreach ( (array) $children as $child )
-				$children_last_topic = bbp_update_forum_last_topic_id ( $child );
+		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) ) {
+			foreach ( (array) $children as $child ) {
+				$children_last_topic = bbp_update_forum_last_topic_id( $child ); // Recursive
+			}
+		}
 
 		// Setup recent topic query vars
 		$post_vars = array(
@@ -404,18 +409,24 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 		);
 
 		// Get the most recent topic in this forum_id
-		if ( $recent_topic = get_posts( $post_vars ) )
+		if ( $recent_topic = get_posts( $post_vars ) ) {
 			$topic_id = $recent_topic[0]->ID;
+		}
 	}
+
+	// Cast as integer in case of empty or string
+	$topic_id            = (int) $topic_id;
+	$children_last_topic = (int) $children_last_topic;
 
 	// If child forums have higher id, use that instead
 	if ( !empty( $children ) && ( $children_last_topic > $topic_id ) )
 		$topic_id = $children_last_topic;
 
-	// Update the last topic id
-	update_post_meta( $forum_id, '_bbp_last_topic_id', (int) $topic_id );
+	// Update the last public topic ID
+	if ( bbp_is_topic_published( $topic_id ) )
+		update_post_meta( $forum_id, '_bbp_last_topic_id', $topic_id );
 
-	return apply_filters( 'bbp_update_forum_last_topic_id', (int) $topic_id, $forum_id );
+	return apply_filters( 'bbp_update_forum_last_topic_id', $topic_id, $forum_id );
 }
 
 /**
@@ -431,6 +442,7 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
  *                                         forums
  * @uses bbp_forum_query_topic_ids() To get the topic ids in the forum
  * @uses bbp_forum_query_last_reply_id() To get the forum's last reply id
+ * @uses bbp_is_reply_published() To make sure the reply is published
  * @uses update_post_meta() To update the forum's last active id meta
  * @uses apply_filters() Calls 'bbp_update_forum_last_reply_id' with the last
  *                        reply id and forum id
@@ -439,13 +451,18 @@ function bbp_update_forum_last_topic_id( $forum_id = 0, $topic_id = 0 ) {
 function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
 
+	// Define local variable(s)
+	$children_last_reply = 0;
+
 	// Do some calculation if not manually set
 	if ( empty( $reply_id ) ) {
 
 		// Loop through children and get the most recent reply id
-		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
-			foreach ( (array) $children as $child )
-				$children_last_reply = bbp_update_forum_last_reply_id ( $child );
+		if ( $children = bbp_forum_query_subforum_ids( $forum_id ) ) {
+			foreach ( (array) $children as $child ) {
+				$children_last_reply = bbp_update_forum_last_reply_id( $child ); // Recursive
+			}
+		}
 
 		// If this forum has topics...
 		if ( $topic_ids = bbp_forum_query_topic_ids( $forum_id ) ) {
@@ -458,14 +475,19 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
 		}
 	}
 
+	// Cast as integer in case of empty or string
+	$reply_id            = (int) $reply_id;
+	$children_last_reply = (int) $children_last_reply;
+	
 	// If child forums have higher ID, check for newer reply id
-	if ( !empty( $children ) && ( (int) $children_last_reply > (int) $reply_id ) )
+	if ( !empty( $children ) && ( $children_last_reply > $reply_id ) )
 		$reply_id = $children_last_reply;
 
-	// Update the last reply id with what was passed
-	update_post_meta( $forum_id, '_bbp_last_reply_id', (int) $reply_id );
+	// Update the last public reply ID
+	if ( bbp_is_reply_published( $reply_id ) )
+		update_post_meta( $forum_id, '_bbp_last_reply_id', $reply_id );
 
-	return apply_filters( 'bbp_update_forum_last_reply_id', (int) $reply_id, $forum_id );
+	return apply_filters( 'bbp_update_forum_last_reply_id', $reply_id, $forum_id );
 }
 
 /**
@@ -481,6 +503,7 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
  *                                          child forums
  * @uses bbp_forum_query_topic_ids() To get the topic ids in the forum
  * @uses bbp_forum_query_last_reply_id() To get the forum's last reply id
+ * @uses get_post_status() To make sure the reply is published
  * @uses update_post_meta() To update the forum's last active id meta
  * @uses apply_filters() Calls 'bbp_update_forum_last_active_id' with the last
  *                        active post id and forum id
@@ -488,6 +511,9 @@ function bbp_update_forum_last_reply_id( $forum_id = 0, $reply_id = 0 ) {
  */
 function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Define local variable(s)
+	$children_last_active = 0;
 
 	// Do some calculation if not manually set
 	if ( empty( $active_id ) ) {
@@ -508,11 +534,17 @@ function bbp_update_forum_last_active_id( $forum_id = 0, $active_id = 0 ) {
 		}
 	}
 
+	// Cast as integer in case of empty or string
+	$active_id            = (int) $active_id;
+	$children_last_active = (int) $children_last_active;
+
 	// If child forums have higher id, use that instead
 	if ( !empty( $children ) && ( $children_last_active > $active_id ) )
 		$active_id = $children_last_active;
 
-	update_post_meta( $forum_id, '_bbp_last_active_id', (int) $active_id );
+	// Update only if published
+	if ( 'publish' == get_post_status( $active_id ) )
+		update_post_meta( $forum_id, '_bbp_last_active_id', (int) $active_id );
 
 	return apply_filters( 'bbp_update_forum_last_active_id', (int) $active_id, $forum_id );
 }
@@ -539,7 +571,9 @@ function bbp_update_forum_last_active_time( $forum_id = 0, $new_time = '' ) {
 	if ( empty( $new_time ) )
 		$new_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $forum_id ) );
 
-	update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
+	// Update only if there is a time
+	if ( !empty( $new_time ) )
+		update_post_meta( $forum_id, '_bbp_last_active_time', $new_time );
 
 	return apply_filters( 'bbp_update_forum_last_active', $new_time, $forum_id );
 }
@@ -588,9 +622,11 @@ function bbp_update_forum_topic_count( $forum_id = 0 ) {
 	$children_topic_count = 0;
 
 	// Loop through subforums and add together forum topic counts
-	if ( $children = bbp_forum_query_subforum_ids( $forum_id ) )
-		foreach ( (array) $children as $child )
-			$children_topic_count += bbp_update_forum_topic_count( $child );
+	if ( $children = bbp_forum_query_subforum_ids( $forum_id ) ) {
+		foreach ( (array) $children as $child ) {
+			$children_topic_count += bbp_update_forum_topic_count( $child ); // Recursive
+		}
+	}
 
 	// Get total topics for this forum
 	$topics = (int) count( bbp_forum_query_topic_ids( $forum_id ) );
@@ -725,12 +761,13 @@ function bbp_update_forum_reply_count( $forum_id = 0 ) {
  */
 function bbp_update_forum( $args = '' ) {
 	$defaults = array(
-		'forum_id'         => 0,
-		'post_parent'      => 0,
-		'last_topic_id'    => 0,
-		'last_reply_id'    => 0,
-		'last_active_id'   => 0,
-		'last_active_time' => 0,
+		'forum_id'           => 0,
+		'post_parent'        => 0,
+		'last_topic_id'      => 0,
+		'last_reply_id'      => 0,
+		'last_active_id'     => 0,
+		'last_active_time'   => 0,
+		'last_active_status' => 'publish'
 	);
 
 	$r = wp_parse_args( $args, $defaults );
@@ -747,7 +784,9 @@ function bbp_update_forum( $args = '' ) {
 	if ( empty( $last_active_time ) )
 		$last_active_time = get_post_field( 'post_date', $last_active_id );
 
-	bbp_update_forum_last_active_time( $forum_id, $last_active_time );
+	if ( 'publish' == $last_active_status ) {
+		bbp_update_forum_last_active_time( $forum_id, $last_active_time );
+	}
 
 	// Counts
 	bbp_update_forum_subforum_count    ( $forum_id );

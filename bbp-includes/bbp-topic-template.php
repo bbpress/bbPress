@@ -955,6 +955,23 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
 }
 
 /**
+ * Is the topic not spam or deleted?
+ *
+ * @since bbPress (r3496)
+ *
+ * @param int $topic_id Optional. Topic id
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_get_topic_status() To get the topic status
+ * @return bool True if published, false if not.
+ */
+function bbp_is_topic_published( $topic_id = 0 ) {
+	global $bbp;
+
+	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
+	return 'publish' == $topic_status;
+}
+
+/**
  * Is the topic marked as spam?
  *
  * @since bbPress (r2727)

@@ -696,6 +696,23 @@ function bbp_reply_status( $reply_id = 0 ) {
 	}
 
 /**
+ * Is the reply not spam or deleted?
+ *
+ * @since bbPress (r3496)
+ *
+ * @param int $reply_id Optional. Topic id
+ * @uses bbp_get_reply_id() To get the reply id
+ * @uses bbp_get_reply_status() To get the reply status
+ * @return bool True if published, false if not.
+ */
+function bbp_is_reply_published( $reply_id = 0 ) {
+	global $bbp;
+
+	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
+	return apply_filters( 'bbp_is_reply_published', 'publish' == $reply_status, $reply_id );
+}
+
+/**
  * Is the reply marked as spam?
  *
  * @since bbPress (r2740)

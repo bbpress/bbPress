@@ -609,16 +609,19 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		update_post_meta( $reply_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
 
 		// Set transient for throttle check (only on new, not edit)
-		if ( empty( $is_edit ) )
+		if ( empty( $is_edit ) ) {
 			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
+		}
 
 		// Website is optional
-		if ( !empty( $bbp_anonymous_website ) )
+		if ( !empty( $bbp_anonymous_website ) ) {
 			update_post_meta( $reply_id, '_bbp_anonymous_website', $bbp_anonymous_website, false );
+		}
 
 	} else {
-		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) )
+		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) ) {
 			update_user_meta( $author_id, '_bbp_last_posted', time() );
+		}
 	}
 
 	// Handle Subscription Checkbox
@@ -627,12 +630,13 @@ function bbp_update_reply( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymo
 		$subscheck  = ( !empty( $_POST['bbp_topic_subscription'] ) && ( 'bbp_subscribe' == $_POST['bbp_topic_subscription'] ) ) ? true : false;
 
 		// Subscribed and unsubscribing
-		if ( true == $subscribed && false == $subscheck )
+		if ( true == $subscribed && false == $subscheck ) {
 			bbp_remove_user_subscription( $author_id, $topic_id );
 
 		// Subscribing
-		elseif ( false == $subscribed && true == $subscheck )
+		} elseif ( false == $subscribed && true == $subscheck ) {
 			bbp_add_user_subscription( $author_id, $topic_id );
+		}
 	}
 
 	// Reply meta relating to reply position in tree
@@ -727,16 +731,19 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 		} elseif ( bbp_is_topic( $ancestor ) ) {
 
 			// Last reply and active ID's
-			bbp_update_topic_last_reply_id  ( $ancestor, $reply_id  );
-			bbp_update_topic_last_active_id ( $ancestor, $active_id );
+			bbp_update_topic_last_reply_id ( $ancestor, $reply_id  );
+			bbp_update_topic_last_active_id( $ancestor, $active_id );
 
 			// Get the last active time if none was passed
-			if ( empty( $last_active_time ) )
+			$topic_last_active_time = $last_active_time;
+			if ( empty( $last_active_time ) ) {
 				$topic_last_active_time = get_post_field( 'post_date', bbp_get_topic_last_active_id( $ancestor ) );
-			else
-				$topic_last_active_time = $last_active_time;
+			}
 
-			bbp_update_topic_last_active_time  ( $ancestor, $topic_last_active_time );
+			// Only update if reply is published
+			if ( bbp_is_reply_published( $reply_id ) ) {
+				bbp_update_topic_last_active_time( $ancestor, $topic_last_active_time );
+			}
 
 			// Counts
 			bbp_update_topic_voice_count       ( $ancestor );
@@ -753,12 +760,16 @@ function bbp_update_reply_walker( $reply_id, $last_active_time = '', $forum_id =
 			// Last Active
 			bbp_update_forum_last_active_id( $ancestor, $active_id );
 
-			if ( empty( $last_active_time ) )
+			// Get the last active time if none was passed
+			$forum_last_active_time = $last_active_time;
+			if ( empty( $last_active_time ) ) {
 				$forum_last_active_time = get_post_field( 'post_date', bbp_get_forum_last_active_id( $ancestor ) );
-			else
-				$forum_last_active_time = $last_active_time;
+			}
 
-			bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
+			// Only update if reply is published
+			if ( bbp_is_reply_published( $reply_id ) ) {
+				bbp_update_forum_last_active_time( $ancestor, $forum_last_active_time );
+			}
 
 			// Counts
 			bbp_update_forum_reply_count( $ancestor );
