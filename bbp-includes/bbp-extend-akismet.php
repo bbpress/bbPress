@@ -159,8 +159,6 @@ class BBP_Akismet {
 		// Store the data as submitted
 		$post_data['bbp_post_as_submitted'] = $post;
 
-		$post_data['bbp_akismet_result'] = 'true';
-
 		// Spam
 		if ( 'true' == $post_data['bbp_akismet_result'] ) {
 
