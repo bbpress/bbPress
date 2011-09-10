@@ -180,7 +180,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 		case 'edit_replies' :
 
 			// Add do_not_allow cap if user is spam or deleted
-			if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+			if ( bbp_is_user_inactive( $user_id ) )
 				$caps = array( 'do_not_allow' );
 
 			break;
@@ -194,7 +194,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$post_type = get_post_type_object( $post->post_type );
 
 				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+				if ( bbp_is_user_inactive( $user_id ) )
 					$caps[] = 'do_not_allow';
 
 				// Map to edit_posts
@@ -216,7 +216,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$post_type = get_post_type_object( $post->post_type );
 
 				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+				if ( bbp_is_user_inactive( $user_id ) )
 					$caps[] = 'do_not_allow';
 
 				// Map to delete_posts
@@ -238,7 +238,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$post_type = get_post_type_object( $post->post_type );
 
 				// Add 'do_not_allow' cap if user is spam or deleted
-				if ( bbp_is_user_spammer( $user_id ) || bbp_is_user_deleted( $user_id ) )
+				if ( bbp_is_user_inactive( $user_id ) )
 					$caps[] = 'do_not_allow';
 
 				// Map to delete_others_posts
@@ -478,8 +478,7 @@ function bbp_get_caps_for_role( $role = '' ) {
  *
  * @uses is_multisite()
  * @uses bbp_allow_global_access()
- * @uses bbp_is_user_deleted()
- * @uses bbp_is_user_spammer()
+ * @uses bbp_is_user_inactive()
  * @uses is_user_logged_in()
  * @uses current_user_can()
  * @uses WP_User::set_role()
@@ -492,8 +491,8 @@ function bbp_global_access_auto_role() {
 	if ( !is_multisite() || !bbp_allow_global_access() )
 		return;
 
-	// Bail if user is marked as spam or is deleted
-	if ( bbp_is_user_deleted() || bbp_is_user_spammer() )
+	// Bail if user is not active
+	if ( bbp_is_user_inactive() )
 		return;
 
 	// Bail if user is not logged in
@@ -561,8 +560,7 @@ function bbp_get_moderator_role() {
  *
  * @uses is_multisite()
  * @uses bbp_allow_global_access()
- * @uses bbp_is_user_deleted()
- * @uses bbp_is_user_spammer()
+ * @uses bbp_is_user_inactive()
  * @uses is_user_logged_in()
  * @uses current_user_can()
  * @uses get_option()
@@ -578,7 +576,7 @@ function bbp_global_access_role_mask() {
 		return;
 
 	// Bail if user is marked as spam or is deleted
-	if ( bbp_is_user_deleted() || bbp_is_user_spammer() )
+	if ( bbp_is_user_inactive() )
 		return;
 
 	// Normal user is logged in but has no caps

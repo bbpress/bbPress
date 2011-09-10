@@ -1154,6 +1154,7 @@ function bbp_user_can_view_forum( $args = '' ) {
  * @uses is_super_admin()
  * @uses is_user_logged_in()
  * @uses bbp_allow_anonymous()
+ * @uses bbp_is_user_active()
  * @uses current_user_can()
  * @uses apply_filters()
  *
@@ -1173,7 +1174,7 @@ function bbp_current_user_can_publish_topics() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( !bbp_is_user_spammer() && !bbp_is_user_deleted() && current_user_can( 'publish_topics' ) )
+	elseif ( bbp_is_user_active() && current_user_can( 'publish_topics' ) )
 		$retval = true;
 
 	// Allow access to be filtered
@@ -1188,6 +1189,7 @@ function bbp_current_user_can_publish_topics() {
  * @uses is_super_admin()
  * @uses is_user_logged_in()
  * @uses bbp_allow_anonymous()
+ * @uses bbp_is_user_active()
  * @uses current_user_can()
  * @uses apply_filters()
  *
@@ -1207,7 +1209,7 @@ function bbp_current_user_can_publish_replies() {
 		$retval = true;
 
 	// User is logged in
-	elseif ( !bbp_is_user_spammer() && !bbp_is_user_deleted() && current_user_can( 'publish_replies' ) )
+	elseif ( bbp_is_user_active() && current_user_can( 'publish_replies' ) )
 		$retval = true;
 
 	// Allow access to be filtered
@@ -1287,13 +1289,12 @@ function bbp_current_user_can_access_create_topic_form() {
 	$retval = false;
 
 	// Looking at a single forum & forum is open
-	if ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() ) {
+	if ( ( bbp_is_single_forum() || is_page() || is_single() ) && bbp_is_forum_open() )
 		$retval = bbp_current_user_can_publish_topics();
 
 	// User can edit this topic
-	} elseif ( bbp_is_topic_edit() ) {
+	elseif ( bbp_is_topic_edit() )
 		$retval = current_user_can( 'edit_topic', bbp_get_topic_id() );
-	}
 
 	// Allow access to be filtered
 	return apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
@@ -1322,13 +1323,12 @@ function bbp_current_user_can_access_create_reply_form() {
 	$retval = false;
 
 	// Looking at a single topic, topic is open, and forum is open
-	if ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() ) {
+	if ( ( bbp_is_single_topic() || is_page() || is_single() ) && bbp_is_topic_open() && bbp_is_forum_open() )
 		$retval = bbp_current_user_can_publish_replies();
 
 	// User can edit this topic
-	} elseif ( bbp_is_reply_edit() ) {
+	elseif ( bbp_is_reply_edit() )
 		$retval = current_user_can( 'edit_reply', bbp_get_reply_id() );
-	}
 
 	// Allow access to be filtered
 	return apply_filters( 'bbp_current_user_can_access_create_topic_form', (bool) $retval );
