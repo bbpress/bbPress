@@ -164,7 +164,7 @@ function bbp_map_meta_caps( $caps, $cap, $user_id, $args ) {
 				$caps      = array();
 				$post_type = get_post_type_object( $post->post_type );
 
-				if ( 'private' != $post->post_status )
+				if ( bbp_get_public_status_id() == $post->post_status )
 					$caps[] = 'read';
 				elseif ( (int) $user_id == (int) $post->post_author )
 					$caps[] = 'read';

@@ -879,7 +879,7 @@ class bbPress_Importer {
 				echo "<li>" . sprintf( __( 'Total number of forums: %s', 'bbpress' ), count( $forums ) ) . "</li>\n";
 
 				$forum_map     = array();
-				$post_statuses = array( 'publish', $bbp->trash_status_id, $bbp->spam_status_id );
+				$post_statuses = array( bbp_get_public_status_id(), bbp_get_trash_status_id(), bbp_get_spam_status_id() );
 
 				foreach ( (array) $forums as $forum ) {
 					echo "<li>" . sprintf( __( 'Processing forum #%1$s (<a href="%2$s">%3$s</a>)', 'bbpress' ), $forum->forum_id, get_forum_link( $forum->forum_id ), esc_html( $forum->forum_name ) ) . "\n<ul>\n";
@@ -890,7 +890,7 @@ class bbPress_Importer {
 						'post_content'   => $forum->forum_desc,
 						'post_title'     => $forum->forum_name,
 						'post_excerpt'   => '',
-						'post_status'    => 'publish',
+						'post_status'    => bbp_get_public_status_id(),
 						'comment_status' => 'closed',
 						'ping_status'    => 'closed',
 						'post_name'      => ( strlen( $forum->forum_slug ) > 200 ) ? sanitize_title_with_dashes( $forum->forum_slug ) : $forum->forum_slug,
@@ -943,7 +943,7 @@ class bbPress_Importer {
 						$first_post         =  bb_get_first_post( $topic->topic_id );
 
 						// If the topic is public, check if it's open and set the status accordingly
-						$topic_status       =  $topic->topic_status == 0 ? ( $topic->topic_open == 0 ? $bbp->closed_status_id : $post_statuses[$topic->topic_status] ) : $post_statuses[$topic->topic_status];
+						$topic_status       =  $topic->topic_status == 0 ? ( $topic->topic_open == 0 ? bbp_get_closed_status_id() : $post_statuses[$topic->topic_status] ) : $post_statuses[$topic->topic_status];
 
 						$inserted_topic     =  wp_insert_post( array(
 							'post_parent'   => $inserted_forum,
@@ -1037,7 +1037,7 @@ class bbPress_Importer {
 							}
 
 							// Only add favorites and subscriptions if the topic is public
-							if ( in_array( $topic_status, array( 'publish', $bbp->closed_status_id ) ) ) {
+							if ( in_array( $topic_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
 
 								// Favorites
 								foreach ( (array) $this->bb_get_topic_favoriters( $topic->topic_id )  as $favoriter  )

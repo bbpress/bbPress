@@ -439,7 +439,6 @@ function bbp_past_edit_lock( $post_date_gmt ) {
  * @return object Walked forum tree
  */
 function bbp_get_statistics( $args = '' ) {
-	global $bbp;
 
 	$defaults = array (
 		'count_users'           => true,
@@ -469,24 +468,30 @@ function bbp_get_statistics( $args = '' ) {
 		$forum_count = $forum_count->publish;
 	}
 
+	// Post statuses
+	$private = bbp_get_private_status_id();
+	$spam    = bbp_get_spam_status_id();
+	$trash   = bbp_get_trash_status_id();
+	$closed  = bbp_get_closed_status_id();
+
 	// Topics
 	if ( !empty( $count_topics ) ) {
 
 		$all_topics  = wp_count_posts( bbp_get_topic_post_type() );
 
 		// Published (publish + closed)
-		$topic_count = $all_topics->publish + $all_topics->{$bbp->closed_status_id};
+		$topic_count = $all_topics->publish + $all_topics->{$closed};
 
 		if ( current_user_can( 'read_private_topics' ) || current_user_can( 'edit_others_topics' ) || current_user_can( 'view_trash' ) ) {
 
 			// Private
-			$topics['private'] = ( !empty( $count_private_topics ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->private                 : 0;
+			$topics['private'] = ( !empty( $count_private_topics ) && current_user_can( 'read_private_topics' ) ) ? (int) $all_topics->{$private} : 0;
 
 			// Spam
-			$topics['spammed'] = ( !empty( $count_spammed_topics ) && current_user_can( 'edit_others_topics'  ) ) ? (int) $all_topics->{$bbp->spam_status_id}  : 0;
+			$topics['spammed'] = ( !empty( $count_spammed_topics ) && current_user_can( 'edit_others_topics'  ) ) ? (int) $all_topics->{$spam}    : 0;
 
 			// Trash
-			$topics['trashed'] = ( !empty( $count_trashed_topics ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$bbp->trash_status_id} : 0;
+			$topics['trashed'] = ( !empty( $count_trashed_topics ) && current_user_can( 'view_trash'          ) ) ? (int) $all_topics->{$trash}   : 0;
 
 			// Total hidden (private + spam + trash)
 			$topic_count_hidden = $topics['private'] + $topics['spammed'] + $topics['trashed'];
@@ -512,13 +517,13 @@ function bbp_get_statistics( $args = '' ) {
 		if ( current_user_can( 'read_private_replies' ) || current_user_can( 'edit_others_replies' ) || current_user_can( 'view_trash' ) ) {
 
 			// Private
-			$replies['private'] = ( !empty( $count_private_replies ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->private                 : 0;
+			$replies['private'] = ( !empty( $count_private_replies ) && current_user_can( 'read_private_replies' ) ) ? (int) $all_replies->{$private} : 0;
 
 			// Spam
-			$replies['spammed'] = ( !empty( $count_spammed_replies ) && current_user_can( 'edit_others_replies'  ) ) ? (int) $all_replies->{$bbp->spam_status_id}  : 0;
+			$replies['spammed'] = ( !empty( $count_spammed_replies ) && current_user_can( 'edit_others_replies'  ) ) ? (int) $all_replies->{$spam}    : 0;
 
 			// Trash
-			$replies['trashed'] = ( !empty( $count_trashed_replies ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$bbp->trash_status_id} : 0;
+			$replies['trashed'] = ( !empty( $count_trashed_replies ) && current_user_can( 'view_trash'           ) ) ? (int) $all_replies->{$trash}   : 0;
 
 			// Total hidden (private + spam + trash)
 			$reply_count_hidden = $replies['private'] + $replies['spammed'] + $replies['trashed'];
@@ -713,7 +718,6 @@ function bbp_get_view_query_args( $view ) {
  * @return bool|array False on errors, values in an array on success
  */
 function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
-	global $bbp;
 
 	// Assign variables
 	$defaults = array (
@@ -768,7 +772,7 @@ function bbp_check_for_duplicate( $post_data ) {
 	if ( current_user_can( 'throttle' ) )
 		return true;
 
-	global $bbp, $wpdb;
+	global $wpdb;
 
 	extract( $post_data, EXTR_SKIP );
 
@@ -791,10 +795,11 @@ function bbp_check_for_duplicate( $post_data ) {
 
 	// Simple duplicate check
 	// Expected slashed ($post_type, $post_parent, $post_author, $post_content, $anonymous_data)
-	$dupe  = "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '{$post_type}' AND post_status != '{$bbp->trash_status_id}' AND post_author = {$post_author} AND post_content = '{$post_content}' {$where}";
-	$dupe .= !empty( $post_parent ) ? " AND post_parent = '{$post_parent}'" : '';
-	$dupe .= " LIMIT 1";
-	$dupe  = apply_filters( 'bbp_check_for_duplicate_query', $dupe, $post_data );
+	$status = bbp_get_trash_status_id();
+	$dupe   = "SELECT ID FROM {$wpdb->posts} {$join} WHERE post_type = '{$post_type}' AND post_status != '{$status}' AND post_author = {$post_author} AND post_content = '{$post_content}' {$where}";
+	$dupe  .= !empty( $post_parent ) ? " AND post_parent = '{$post_parent}'" : '';
+	$dupe  .= " LIMIT 1";
+	$dupe   = apply_filters( 'bbp_check_for_duplicate_query', $dupe, $post_data );
 
 	if ( $wpdb->get_var( $dupe ) ) {
 		do_action( 'bbp_check_for_duplicate_trigger', $post_data );
@@ -854,7 +859,6 @@ function bbp_check_for_flood( $anonymous_data = false, $author_id = 0 ) {
  *
  * @since bbPress (r3446)
  *
- * @global bbPress $bbp
  * @param array $anonymous_data Anonymous user data
  * @param int $author_id Topic or reply author ID
  * @param string $title The title of the content
@@ -979,7 +983,7 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  * @return bool True on success, false on failure
  */
 function bbp_notify_subscribers( $reply_id = 0 ) {
-	global $bbp, $wpdb;
+	global $wpdb;
 
 	// Bail if subscriptions are turned off
 	if ( !bbp_is_subscriptions_active() )
@@ -1157,11 +1161,11 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
 
 	// The ID of the cached query
 	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_last_id';
-	$post_status = array( 'publish' );
+	$post_status = array( bbp_get_public_status_id() );
 
 	// Add closed status if topic post type
 	if ( $post_type == bbp_get_topic_post_type() )
-		$post_status[] = $bbp->closed_status_id;
+		$post_status[] = bbp_get_closed_status_id();
 
 	// Join post statuses together
 	$post_status = "'" . join( "', '", $post_status ) . "'";
@@ -1191,7 +1195,7 @@ function bbp_get_public_child_last_id( $parent_id = 0, $post_type = 'post' ) {
  * @return int The number of children
  */
 function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	// Bail if nothing passed
 	if ( empty( $parent_id ) )
@@ -1199,11 +1203,11 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 
 	// The ID of the cached query
 	$cache_id    = 'bbp_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
-	$post_status = array( 'publish' );
+	$post_status = array( bbp_get_public_status_id() );
 
 	// Add closed status if topic post type
 	if ( $post_type == bbp_get_topic_post_type() )
-		$post_status[] = $bbp->closed_status_id;
+		$post_status[] = bbp_get_closed_status_id();
 
 	// Join post statuses together
 	$post_status = "'" . join( "', '", $post_status ) . "'";
@@ -1233,7 +1237,7 @@ function bbp_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  * @return array The array of children
  */
 function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	// Bail if nothing passed
 	if ( empty( $parent_id ) )
@@ -1241,11 +1245,11 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 	// The ID of the cached query
 	$cache_id    = 'bbp_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( 'publish' );
+	$post_status = array( bbp_get_public_status_id() );
 
 	// Add closed status if topic post type
 	if ( $post_type == bbp_get_topic_post_type() )
-		$post_status[] = $bbp->closed_status_id;
+		$post_status[] = bbp_get_closed_status_id();
 
 	// Join post statuses together
 	$post_status = "'" . join( "', '", $post_status ) . "'";
@@ -1274,7 +1278,7 @@ function bbp_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
  * @return array The array of children
  */
 function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	// Bail if nothing passed
 	if ( empty( $parent_id ) )
@@ -1282,28 +1286,28 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 	// The ID of the cached query
 	$cache_id    = 'bbp_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( 'publish' );
+	$post_status = array( bbp_get_public_status_id() );
 
 	// Extra post statuses based on post type
 	switch ( $post_type ) {
 
 		// Forum
 		case bbp_get_forum_post_type() :
-			$post_status[] = 'private';
-			$post_status[] = $bbp->hidden_status_id;
+			$post_status[] = bbp_get_private_status_id();
+			$post_status[] = bbp_get_hidden_status_id();
 			break;
 
 		// Topic
 		case bbp_get_topic_post_type() :
-			$post_status[] = $bbp->closed_status_id;
-			$post_status[] = $bbp->trash_status_id;
-			$post_status[] = $bbp->spam_status_id;
+			$post_status[] = bbp_get_closed_status_id();
+			$post_status[] = bbp_get_trash_status_id();
+			$post_status[] = bbp_get_spam_status_id();
 			break;
 
 		// Reply
 		case bbp_get_reply_post_type() :
-			$post_status[] = $bbp->trash_status_id;
-			$post_status[] = $bbp->spam_status_id;
+			$post_status[] = bbp_get_trash_status_id();
+			$post_status[] = bbp_get_spam_status_id();
 			break;
 	}
 
@@ -1330,12 +1334,11 @@ function bbp_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  * @since bbPress (r3171)
  *
  * @global WP_Query $wp_query
- * @global bbPress $bbp
  * @param array $query_vars
  * @return array
  */
 function bbp_request_feed_trap( $query_vars ) {
-	global $wp_query, $bbp;
+	global $wp_query;
 
 	// Looking at a feed
 	if ( isset( $query_vars['feed'] ) ) {
@@ -1348,6 +1351,9 @@ function bbp_request_feed_trap( $query_vars ) {
 
 				// Forum
 				case bbp_get_forum_post_type() :
+
+					// Declare local variable(s)
+					$meta_query = array();
 
 					// Single forum
 					if ( isset( $query_vars[bbp_get_forum_post_type()] ) ) {
@@ -1367,11 +1373,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'key'     => '_bbp_forum_id',
 							'value'   => $forum_id,
 							'compare' => '='
-						) );
-						
-					// No restrictions on forum ID
-					} else {
-						$meta_query = array();
+						) );						
 					}
 
 					// Only forum replies
@@ -1382,7 +1384,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'author'         => 0,
 							'post_type'      => bbp_get_reply_post_type(),
 							'post_parent'    => 'any',
-							'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
+							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 							'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
 							'order'          => 'DESC',
 							'meta_query'     => $meta_query
@@ -1399,7 +1401,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'author'         => 0,
 							'post_type'      => bbp_get_topic_post_type(),
 							'post_parent'    => 'any',
-							'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
+							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 							'posts_per_page' => get_option( '_bbp_topics_per_rss_page', 25 ),
 							'order'          => 'DESC',
 							'meta_query'     => $meta_query
@@ -1416,7 +1418,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'author'         => 0,
 							'post_type'      => array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ),
 							'post_parent'    => 'any',
-							'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
+							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 							'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
 							'order'          => 'DESC',
 							'meta_query'     => $meta_query
@@ -1531,6 +1533,99 @@ function bbp_has_errors() {
 	$has_errors = apply_filters( 'bbp_has_errors', $has_errors, $bbp->errors );
 	
 	return $has_errors;
+}
+
+/** Post Statuses *************************************************************/
+
+/**
+ * Return the public post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_public_status_id() {
+	global $bbp;
+	return $bbp->public_status_id;
+}
+
+/**
+ * Return the private post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_private_status_id() {
+	global $bbp;
+	return $bbp->private_status_id;
+}
+
+/**
+ * Return the hidden post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_hidden_status_id() {
+	global $bbp;
+	return $bbp->hidden_status_id;
+}
+
+/**
+ * Return the closed post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_closed_status_id() {
+	global $bbp;
+	return $bbp->closed_status_id;
+}
+
+/**
+ * Return the spam post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_spam_status_id() {
+	global $bbp;
+	return $bbp->spam_status_id;
+}
+
+/**
+ * Return the trash post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_trash_status_id() {
+	global $bbp;
+	return $bbp->trash_status_id;
+}
+
+/**
+ * Return the orphan post status ID
+ *
+ * @since bbPress (r3504)
+ *
+ * @global bbPress $bbp
+ * @return string
+ */
+function bbp_get_orphan_status_id() {
+	global $bbp;
+	return $bbp->orphan_status_id;
 }
 
 ?>

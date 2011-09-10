@@ -596,6 +596,9 @@ function bbp_setup_buddypress() {
 	// Bail if no BuddyPress
 	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
 
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
+
 	// Instantiate BuddyPress for bbPress
 	$bbp->extend->buddypress = new BBP_BuddyPress();
 }

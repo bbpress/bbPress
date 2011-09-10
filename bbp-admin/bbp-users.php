@@ -110,6 +110,9 @@ endif; // class exists
 function bbp_users_admin() {
 	global $bbp;
 
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
+
 	$bbp->admin->users = new BBP_Users_Admin();
 }
 

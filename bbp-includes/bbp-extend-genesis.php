@@ -162,6 +162,9 @@ function bbp_setup_genesis() {
 	// Bail if no genesis
 	if ( basename( TEMPLATEPATH ) !== 'genesis' ) return;
 
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
+
 	// Instantiate Genesis for bbPress
 	$bbp->extend->genesis = new BBP_Genesis();
 }

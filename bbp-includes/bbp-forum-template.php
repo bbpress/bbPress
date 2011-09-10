@@ -61,22 +61,22 @@ function bbp_has_forums( $args = '' ) {
 	global $bbp;
 
 	// Setup possible post__not_in array
-	$post_stati[] = 'publish';
+	$post_stati[] = bbp_get_public_status_id();
 
 	// Super admin get whitelisted post statuses
 	if ( is_super_admin() ) {
-		$post_stati = array( 'publish', 'private', 'hidden' );
+		$post_stati = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
 
 	// Not a super admin, so check caps
 	} else {
 
 		// Check if user can read private forums
 		if ( current_user_can( 'read_private_forums' ) )
-			$post_stati[] = 'private';
+			$post_stati[] = bbp_get_private_status_id();
 
 		// Check if user can read hidden forums
 		if ( current_user_can( 'read_hidden_forums' ) )
-			$post_stati[] = 'hidden';
+			$post_stati[] = bbp_get_hidden_status_id();
 	}
 
 	// The default forum query for most circumstances
@@ -579,22 +579,22 @@ function bbp_forum_get_subforums( $args = '' ) {
 		$args = array( 'post_parent' => $args );
 
 	// Setup possible post__not_in array
-	$post_stati[] = 'publish';
+	$post_stati[] = bbp_get_public_status_id();
 
 	// Super admin get whitelisted post statuses
 	if ( is_super_admin() ) {
-		$post_stati = array( 'publish', 'private', 'hidden' );
+		$post_stati = array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() );
 
 	// Not a super admin, so check caps
 	} else {
 
 		// Check if user can read private forums
 		if ( current_user_can( 'read_private_forums' ) )
-			$post_stati[] = 'private';
+			$post_stati[] = bbp_get_private_status_id();
 
 		// Check if user can read hidden forums
 		if ( current_user_can( 'read_hidden_forums' ) )
-			$post_stati[] = 'hidden';
+			$post_stati[] = bbp_get_hidden_status_id();
 	}
 
 	$default = array(
@@ -635,7 +635,6 @@ function bbp_forum_get_subforums( $args = '' ) {
  * @uses bbp_get_forum_reply_count() To get forum reply count
  */
 function bbp_list_forums( $args = '' ) {
-	global $bbp;
 
 	// Define used variables
 	$output = $sub_forums = $topic_count = $reply_count = $counts = '';
@@ -1076,7 +1075,6 @@ function bbp_forum_topics_link( $forum_id = 0 ) {
 	 *                        topics link and forum id
 	 */
 	function bbp_get_forum_topics_link( $forum_id = 0 ) {
-		global $bbp;
 
 		$forum    = bbp_get_forum( bbp_get_forum_id( (int) $forum_id ) );
 		$forum_id = $forum->ID;
@@ -1374,10 +1372,9 @@ function bbp_is_forum_open( $forum_id = 0 ) {
 	 * @return bool True if closed, false if not
 	 */
 	function bbp_is_forum_closed( $forum_id = 0, $check_ancestors = true ) {
-		global $bbp;
 
 		$forum_id = bbp_get_forum_id( $forum_id );
-		$retval    = ( $bbp->closed_status_id == bbp_get_forum_status( $forum_id ) );
+		$retval    = ( bbp_get_closed_status_id() == bbp_get_forum_status( $forum_id ) );
 
 		if ( !empty( $check_ancestors ) ) {
 			$ancestors = bbp_get_forum_ancestors( $forum_id );
@@ -1407,13 +1404,12 @@ function bbp_is_forum_open( $forum_id = 0 ) {
  * @return bool True if closed, false if not
  */
 function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
-	global $bbp;
 
 	$forum_id   = bbp_get_forum_id( $forum_id );
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is public, return true
-	$retval = ( 'publish' == $visibility );
+	$retval = ( bbp_get_public_status_id() == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1444,13 +1440,12 @@ function bbp_is_forum_public( $forum_id = 0, $check_ancestors = true ) {
  * @return bool True if closed, false if not
  */
 function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
-	global $bbp;
 
 	$forum_id   = bbp_get_forum_id( $forum_id );
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is private, return true
-	$retval = ( 'private' == $visibility );
+	$retval = ( bbp_get_private_status_id() == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {
@@ -1481,13 +1476,12 @@ function bbp_is_forum_private( $forum_id = 0, $check_ancestors = true ) {
  * @return bool True if closed, false if not
  */
 function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
-	global $bbp;
 
 	$forum_id   = bbp_get_forum_id( $forum_id );
 	$visibility = bbp_get_forum_visibility( $forum_id );
 
 	// If post status is private, return true
-	$retval = ( 'hidden' == $visibility );
+	$retval = ( bbp_get_hidden_status_id() == $visibility );
 
 	// Check ancestors and inherit their privacy setting for display
 	if ( !empty( $check_ancestors ) ) {

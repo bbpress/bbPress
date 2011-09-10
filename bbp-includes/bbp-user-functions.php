@@ -1022,8 +1022,9 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		$blogs[$blog_id] = array();
 
 	// Make array of post types to mark as spam
-	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
-	$post_types = "'" . implode( "', '", $post_types ) . "'";
+	$post_types  = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
+	$post_types  = "'" . implode( "', '", $post_types ) . "'";
+	$status      = bbp_get_public_status_id();
 
 	// Loop through blogs and remove their posts
 	foreach ( (array) $blogs as $blog_id => $details ) {
@@ -1032,7 +1033,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 		switch_to_blog( $blog_id );
 
 		// Get topics and replies
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_status = 'publish' AND post_type IN ({$post_types})" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_status = '{$status}' AND post_type IN ({$post_types})" );
 
 		// Loop through posts and spam them
 		if ( !empty( $posts ) ) {
@@ -1096,7 +1097,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		return;
 
 	// Arm the torpedos
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	// Get the blog IDs of the user to mark as spam
 	$blogs = get_blogs_of_user( $user_id, true );
@@ -1108,6 +1109,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 	// Make array of post types to mark as spam
 	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	$post_types = "'" . implode( "', '", $post_types ) . "'";
+	$status     = bbp_get_spam_status_id();
 
 	// Loop through blogs and remove their posts
 	foreach ( (array) $blogs as $blog_id => $details ) {
@@ -1116,7 +1118,7 @@ function bbp_make_ham_user( $user_id = 0 ) {
 		switch_to_blog( $blog_id );
 
 		// Get topics and replies
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_status = '{$bbp->spam_status_id}' AND post_type IN ({$post_types})" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_author = {$user_id} AND post_status = '{$status}' AND post_type IN ({$post_types})" );
 
 		// Loop through posts and spam them
 		if ( !empty( $posts ) ) {

@@ -720,7 +720,6 @@ class BBP_Topics_Admin {
 	 * @return array $actions Actions
 	 */
 	function topics_row_actions( $actions, $topic ) {
-		global $bbp;
 
 		if ( $topic->post_type == $this->post_type ) {
 			unset( $actions['inline hide-if-no-js'] );
@@ -734,7 +733,7 @@ class BBP_Topics_Admin {
 
 				// Close
 				// Show the 'close' and 'open' link on published and closed posts only
-				if ( in_array( $topic->post_status, array( 'publish', $bbp->closed_status_id ) ) ) {
+				if ( in_array( $topic->post_status, array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ) ) {
 					$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'topic_id' => $topic->ID, 'action' => 'bbp_toggle_topic_close' ), remove_query_arg( array( 'bbp_topic_toggle_notice', 'topic_id', 'failed', 'super' ) ) ), 'close-topic_' . $topic->ID ) );
 					if ( bbp_is_topic_open( $topic->ID ) )
 						$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this topic', 'bbpress' ) . '">' . __( 'Close', 'bbpress' ) . '</a>';
@@ -766,16 +765,16 @@ class BBP_Topics_Admin {
 
 			// Do not show trash links for spam topics, or spam links for trashed topics
 			if ( current_user_can( 'delete_topic', $topic->ID ) ) {
-				if ( $bbp->trash_status_id == $topic->post_status ) {
+				if ( bbp_get_trash_status_id() == $topic->post_status ) {
 					$post_type_object   = get_post_type_object( bbp_get_topic_post_type() );
 					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash', 'bbpress' ) ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $topic->ID ) ) ), 'untrash-' . $topic->post_type . '_' . $topic->ID ) . "'>" . __( 'Restore', 'bbpress' ) . "</a>";
 				} elseif ( EMPTY_TRASH_DAYS ) {
 					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID ) ) . "'>" . __( 'Trash', 'bbpress' ) . "</a>";
 				}
 
-				if ( $bbp->trash_status_id == $topic->post_status || !EMPTY_TRASH_DAYS ) {
+				if ( bbp_get_trash_status_id() == $topic->post_status || !EMPTY_TRASH_DAYS ) {
 					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently', 'bbpress' ) ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => bbp_get_topic_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $topic->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'bbpress' ) . "</a>";
-				} elseif ( $bbp->spam_status_id == $topic->post_status ) {
+				} elseif ( bbp_get_spam_status_id() == $topic->post_status ) {
 					unset( $actions['trash'] );
 				}
 			}
@@ -947,6 +946,9 @@ endif; // class_exists check
  */
 function bbp_admin_topics() {
 	global $bbp;
+
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
 	$bbp->admin->topics = new BBP_Topics_Admin();
 }

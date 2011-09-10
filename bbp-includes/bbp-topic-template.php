@@ -70,9 +70,9 @@ function bbp_has_topics( $args = '' ) {
 
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
-		$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
+		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
 	else
-		$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
+		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
 
 	// Default arguments
 	$default = array (
@@ -120,11 +120,8 @@ function bbp_has_topics( $args = '' ) {
 	// Extract the query variables
 	extract( $bbp_t );
 
-	// If we're viewing a tax/term, use the existing query; if not, run our own
-	if ( bbp_is_topic_tag() && !bbp_is_query_name( 'bbp_widget' ) )
-		$bbp->topic_query = $wp_query;
-	else
-		$bbp->topic_query = new WP_Query( $bbp_t );
+	// Call the query
+	$bbp->topic_query = new WP_Query( $bbp_t );
 
 	// Set post_parent back to 0 if originally set to 'any'
 	if ( 'any' == $bbp_t['post_parent'] )
@@ -903,9 +900,7 @@ function bbp_is_topic_open( $topic_id = 0 ) {
 	 * @return bool True if closed, false if not.
 	 */
 	function bbp_is_topic_closed( $topic_id = 0 ) {
-		global $bbp;
-
-		if ( $bbp->closed_status_id == bbp_get_topic_status( $topic_id ) )
+		if ( bbp_get_closed_status_id() == bbp_get_topic_status( $topic_id ) )
 			return true;
 
 		return false;
@@ -965,10 +960,8 @@ function bbp_is_topic_super_sticky( $topic_id = 0 ) {
  * @return bool True if published, false if not.
  */
 function bbp_is_topic_published( $topic_id = 0 ) {
-	global $bbp;
-
 	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return 'publish' == $topic_status;
+	return bbp_get_public_status_id() == $topic_status;
 }
 
 /**
@@ -982,10 +975,8 @@ function bbp_is_topic_published( $topic_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_topic_spam( $topic_id = 0 ) {
-	global $bbp;
-
 	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return $bbp->spam_status_id == $topic_status;
+	return bbp_get_spam_status_id() == $topic_status;
 }
 
 /**
@@ -999,10 +990,8 @@ function bbp_is_topic_spam( $topic_id = 0 ) {
  * @return bool True if trashed, false if not.
  */
 function bbp_is_topic_trash( $topic_id = 0 ) {
-	global $bbp;
-
 	$topic_status = bbp_get_topic_status( bbp_get_topic_id( $topic_id ) );
-	return $bbp->trash_status_id == $topic_status;
+	return bbp_get_trash_status_id() == $topic_status;
 }
 
 /**
@@ -1702,7 +1691,6 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 	 *                        replies link and topic id
 	 */
 	function bbp_get_topic_replies_link( $topic_id = 0 ) {
-		global $bbp;
 
 		$topic    = bbp_get_topic( bbp_get_topic_id( (int) $topic_id ) );
 		$topic_id = $topic->ID;
@@ -1989,7 +1977,6 @@ function bbp_topic_admin_links( $args = '' ) {
 	 * @return string Topic admin links
 	 */
 	function bbp_get_topic_admin_links( $args = '' ) {
-		global $bbp;
 
 		if ( !bbp_is_single_topic() )
 			return;
@@ -2024,17 +2011,17 @@ function bbp_topic_admin_links( $args = '' ) {
 
 		// See if links need to be unset
 		$topic_status = bbp_get_topic_status( $r['id'] );
-		if ( in_array( $topic_status, array( $bbp->spam_status_id, $bbp->trash_status_id ) ) ) {
+		if ( in_array( $topic_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ) ) {
 
 			// Close link shouldn't be visible on trashed/spammed topics
 			unset( $r['links']['close'] );
 
 			// Spam link shouldn't be visible on trashed topics
-			if ( $topic_status == $bbp->trash_status_id )
+			if ( $topic_status == bbp_get_trash_status_id() )
 				unset( $r['links']['spam'] );
 
 			// Trash link shouldn't be visible on spam topics
-			elseif ( $topic_status == $bbp->spam_status_id )
+			elseif ( $topic_status == bbp_get_spam_status_id() )
 				unset( $r['links']['trash'] );
 		}
 
@@ -2186,7 +2173,6 @@ function bbp_topic_trash_link( $args = '' ) {
 	 * @return string Topic trash link
 	 */
 	function bbp_get_topic_trash_link( $args = '' ) {
-		global $bbp;
 
 		$defaults = array (
 			'id'           => 0,
@@ -2575,7 +2561,6 @@ function bbp_forum_pagination_links() {
  * @uses bbPress::errors::add() To add the notices to the error handler
  */
 function bbp_topic_notices() {
-	global $bbp;
 
 	// Bail if not viewing a topic
 	if ( !bbp_is_single_topic() )
@@ -2588,12 +2573,12 @@ function bbp_topic_notices() {
 	switch ( $topic_status ) {
 
 		// Spam notice
-		case $bbp->spam_status_id :
+		case bbp_get_spam_status_id() :
 			$notice_text = __( 'This topic is marked as spam.', 'bbpress' );
 			break;
 
 		// Trashed notice
-		case $bbp->trash_status_id :
+		case bbp_get_trash_status_id() :
 			$notice_text = __( 'This topic is in the trash.',   'bbpress' );
 			break;
 
@@ -3024,7 +3009,6 @@ function bbp_topic_tag_description( $args = array() ) {
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_description( $args = array() ) {
-		global $bbp;
 
 		$defaults = array(
 			'before' => '<div class="bbp-topic-tag-description"><p>',
@@ -3144,7 +3128,7 @@ function bbp_form_topic_tags() {
 	 * @return string Value of topic tags field
 	 */
 	function bbp_get_form_topic_tags() {
-		global $post, $bbp;
+		global $post;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_tags'] ) ) {

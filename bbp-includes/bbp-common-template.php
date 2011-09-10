@@ -252,13 +252,13 @@ function bbp_is_topic_split() {
  * @return bool True if it's a topic tag, false if not
  */
 function bbp_is_topic_tag() {
-	global $bbp;
+	global $bbp, $wp_query;
 
 	// Return false if editing a topic tag
 	if ( bbp_is_topic_tag_edit() )
 		return false;
 
-	if ( is_tax( bbp_get_topic_tag_tax_id() ) || !empty( $bbp->topic_query->is_tax ) )
+	if ( is_tax( bbp_get_topic_tag_tax_id() ) || !empty( $bbp->topic_query->is_tax ) || get_query_var( 'bbp_topic_tag' ) )
 		return true;
 
 	return false;
@@ -918,7 +918,6 @@ function bbp_dropdown( $args = '' ) {
 	 * @return string The dropdown
 	 */
 	function bbp_get_dropdown( $args = '' ) {
-		global $bbp;
 
 		/** Arguments *********************************************************/
 
@@ -961,18 +960,18 @@ function bbp_dropdown( $args = '' ) {
 		/** Post Status *******************************************************/
 
 		// Public
-		$post_stati[] = 'publish';
+		$post_stati[] = bbp_get_public_status_id();
 
 		// Forums
 		if ( bbp_get_forum_post_type() == $post_type ) {
 
 			// Private forums
 			if ( current_user_can( 'read_private_forums' ) )
-				$post_stati[] = 'private';
+				$post_stati[] = bbp_get_private_status_id();
 
 			// Hidden forums
 			if ( current_user_can( 'read_hidden_forums' ) )
-				$post_stati[] = $bbp->hidden_status_id;
+				$post_stati[] = bbp_get_hidden_status_id();
 		}
 
 		// Setup the post statuses

@@ -73,8 +73,6 @@ class BBP_Akismet {
 	 *
 	 * @param string $post_data
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @uses get_userdata() To get the user data
 	 * @uses bbp_filter_anonymous_user_data() To get anonymous user data
 	 * @uses bbp_get_topic_permalink() To get the permalink of the topic
@@ -88,14 +86,13 @@ class BBP_Akismet {
 	 * @return array Array of post data
 	 */
 	public function check_post( $post_data ) {
-		global $bbp;
 
 		// Declare local variables
 		$user_data = array();
 		$post_permalink = '';
 
 		// Post is not published
-		if ( 'publish' != $post_data['post_status'] )
+		if ( bbp_get_public_status_id() != $post_data['post_status'] )
 			return $post_data;
 
 		// Cast the post_author to 0 if it's empty
@@ -166,7 +163,7 @@ class BBP_Akismet {
 			do_action( 'bbp_akismet_spam_caught' );
 
 			// This is spam
-			$post_data['post_status'] = $bbp->spam_status_id;
+			$post_data['post_status'] = bbp_get_spam_status_id();
 
 			// We don't want your spam tags here
 			add_filter( 'bbp_new_reply_pre_set_terms', array( $this, 'filter_post_terms' ), 1, 3 );
@@ -191,7 +188,6 @@ class BBP_Akismet {
 	 *
 	 * @param int $post_id
 	 *
-	 * @global bbPress $bbp
 	 * @global WP_Query $wpdb
 	 * @global string $akismet_api_host
 	 * @global string $akismet_api_port
@@ -213,7 +209,7 @@ class BBP_Akismet {
 	 * @return array Array of existing topic terms
 	 */
 	public function submit_post( $post_id = 0 ) {
-		global $bbp, $wpdb, $akismet_api_host, $akismet_api_port, $current_user, $current_site;
+		global $wpdb, $akismet_api_host, $akismet_api_port, $current_user, $current_site;
 
 		// Innocent until proven guilty
 		$request_type   = 'ham';
@@ -250,7 +246,7 @@ class BBP_Akismet {
 			return;
 
 		// Bail if we're spamming, but the post_status isn't spam
-		if ( ( 'spam' == $request_type ) && ( $bbp->spam_status_id != $post->post_status ) )
+		if ( ( 'spam' == $request_type ) && ( bbp_get_spam_status_id() != $post->post_status ) )
 			return;
 
 		// Set some default post_data
@@ -403,7 +399,6 @@ class BBP_Akismet {
 	 * @param int $post_id
 	 * @param object $post
 	 *
-	 * @global bbPress $bbp
 	 * @global object $this->last_post
 	 *
 	 * @uses get_post() To get the post object
@@ -413,7 +408,6 @@ class BBP_Akismet {
 	 * @uses BBP_Akismet::update_post_history() To update post Akismet history
 	 */
 	public function update_post_meta( $post_id = 0, $post = false ) {
-		global $bbp;
 
 		// Define local variable(s)
 		$as_submitted = false;
@@ -451,7 +445,7 @@ class BBP_Akismet {
 					$this->update_post_history( $post_id, __( 'Akismet caught this post as spam', 'bbpress' ), 'check-spam' );
 
 					// If post_status isn't the spam status, as expected, leave a note
-					if ( $post->post_status != $bbp->spam_status_id ) {
+					if ( $post->post_status != bbp_get_spam_status_id() ) {
 						$this->update_post_history( $post_id, sprintf( __( 'Post status was changed to %s', 'bbpress' ), $post->post_status ), 'status-changed-' . $post->post_status );
 					}
 
@@ -463,7 +457,7 @@ class BBP_Akismet {
 					$this->update_post_history( $post_id, __( 'Akismet cleared this post', 'bbpress' ), 'check-ham' );
 
 					// If post_status is the spam status, which isn't expected, leave a note
-					if ( $post->post_status == $bbp->spam_status_id ) {
+					if ( $post->post_status == bbp_get_spam_status_id() ) {
 
 						// @todo Use wp_blacklist_check()
 
@@ -553,8 +547,6 @@ class BBP_Akismet {
 	 * @param int $topic_id
 	 * @param int $reply_id
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @uses bbp_get_reply_id() To get the reply_id
 	 * @uses bbp_get_topic_id() To get the topic_id
 	 * @uses wp_get_object_terms() To a post's current terms
@@ -563,7 +555,6 @@ class BBP_Akismet {
 	 * @return array Array of existing topic terms
 	 */
 	public function filter_post_terms( $terms = '', $topic_id = 0, $reply_id = 0 ) {
-		global $bbp;
 
 		// Validate the reply_id and topic_id
 		$reply_id = bbp_get_reply_id( $reply_id );
@@ -694,6 +685,9 @@ function bbp_setup_akismet() {
 
 	// Bail if no akismet
 	if ( !defined( 'AKISMET_VERSION' ) ) return;
+
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
 	// Instantiate Akismet for bbPress
 	$bbp->extend->akismet = new BBP_Akismet();

@@ -277,9 +277,9 @@ function bbp_forum_metabox() {
 	/** Visibility ************************************************************/
 
 	$forum['visibility']  = array(
-		'publish' => __( 'Public',  'bbpress' ),
-		'private' => __( 'Private', 'bbpress' ),
-		'hidden'  => __( 'Hidden',  'bbpress' )
+		bbp_get_public_status_id()  => __( 'Public',  'bbpress' ),
+		bbp_get_private_status_id() => __( 'Private', 'bbpress' ),
+		bbp_get_hidden_status_id()  => __( 'Hidden',  'bbpress' )
 	);
 	$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
 

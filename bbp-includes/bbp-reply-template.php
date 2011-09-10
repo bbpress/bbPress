@@ -69,7 +69,7 @@ function bbp_has_replies( $args = '' ) {
 	global $wp_rewrite, $bbp;
 
 	// Default status
-	$default_status = join( ',', array( 'publish', $bbp->closed_status_id ) );
+	$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
 
 	// Skip topic_id if in the replies widget query
 	if ( !bbp_is_query_name( 'bbp_widget' ) ) {
@@ -83,7 +83,7 @@ function bbp_has_replies( $args = '' ) {
 
 		// What are the default allowed statuses (based on user caps)
 		if ( bbp_get_view_all( 'edit_others_replies' ) ) {
-			$default_status = join( ',', array( 'publish', $bbp->closed_status_id, $bbp->spam_status_id, 'trash' ) );
+			$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), 'trash' ) );
 		}
 	}
 
@@ -368,7 +368,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 	 * @return string Link to reply relative to paginated topic
 	 */
 	function bbp_get_reply_url( $reply_id = 0, $redirect_to = '' ) {
-		global $bbp, $wp_rewrite;
+		global $wp_rewrite;
 
 		// Set needed variables
 		$reply_id       = bbp_get_reply_id       ( $reply_id               );
@@ -691,7 +691,6 @@ function bbp_reply_status( $reply_id = 0 ) {
 	 */
 	function bbp_get_reply_status( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
-
 		return apply_filters( 'bbp_get_reply_status', get_post_status( $reply_id ), $reply_id );
 	}
 
@@ -706,10 +705,8 @@ function bbp_reply_status( $reply_id = 0 ) {
  * @return bool True if published, false if not.
  */
 function bbp_is_reply_published( $reply_id = 0 ) {
-	global $bbp;
-
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-	return apply_filters( 'bbp_is_reply_published', 'publish' == $reply_status, $reply_id );
+	return apply_filters( 'bbp_is_reply_published', bbp_get_public_status_id() == $reply_status, $reply_id );
 }
 
 /**
@@ -723,11 +720,8 @@ function bbp_is_reply_published( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_spam( $reply_id = 0 ) {
-	global $bbp;
-
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-
-	return apply_filters( 'bbp_is_reply_spam', $bbp->spam_status_id == $reply_status, $reply_id );
+	return apply_filters( 'bbp_is_reply_spam', bbp_get_spam_status_id() == $reply_status, $reply_id );
 }
 
 /**
@@ -741,11 +735,8 @@ function bbp_is_reply_spam( $reply_id = 0 ) {
  * @return bool True if spam, false if not.
  */
 function bbp_is_reply_trash( $reply_id = 0 ) {
-	global $bbp;
-
 	$reply_status = bbp_get_reply_status( bbp_get_reply_id( $reply_id ) );
-
-	return apply_filters( 'bbp_is_reply_trash', $bbp->trash_status_id == $reply_status, $reply_id );
+	return apply_filters( 'bbp_is_reply_trash', bbp_get_trash_status_id() == $reply_status, $reply_id );
 }
 
 /**
@@ -1336,7 +1327,6 @@ function bbp_reply_admin_links( $args = '' ) {
 	 * @return string Reply admin links
 	 */
 	function bbp_get_reply_admin_links( $args = '' ) {
-		global $bbp;
 
 		$defaults = array (
 			'id'     => 0,
@@ -1382,14 +1372,14 @@ function bbp_reply_admin_links( $args = '' ) {
 
 		// See if links need to be unset
 		$reply_status = bbp_get_reply_status( $r['id'] );
-		if ( in_array( $reply_status, array( $bbp->spam_status_id, $bbp->trash_status_id ) ) ) {
+		if ( in_array( $reply_status, array( bbp_get_spam_status_id(), bbp_get_trash_status_id() ) ) ) {
 
 			// Spam link shouldn't be visible on trashed topics
-			if ( $reply_status == $bbp->trash_status_id )
+			if ( $reply_status == bbp_get_trash_status_id() )
 				unset( $r['links']['spam'] );
 
 			// Trash link shouldn't be visible on spam topics
-			elseif ( isset( $r['links']['trash'] ) && $reply_status == $bbp->spam_status_id )
+			elseif ( isset( $r['links']['trash'] ) && $reply_status == bbp_get_spam_status_id() )
 				unset( $r['links']['trash'] );
 		}
 

@@ -529,7 +529,6 @@ class BBP_Topics_Widget extends WP_Widget {
 	 * @uses bbp_get_topic_reply_count() To get the topic reply count
 	 */
 	function widget( $args, $instance ) {
-		global $bbp;
 
 		extract( $args );
 
@@ -726,7 +725,6 @@ class BBP_Replies_Widget extends WP_Widget {
 	 * @uses get_the_time() To get the time of the reply
 	 */
 	function widget( $args, $instance ) {
-		global $bbp;
 
 		extract( $args );
 
@@ -736,7 +734,7 @@ class BBP_Replies_Widget extends WP_Widget {
 
 		// Query defaults
 		$replies_query = array(
-			'post_status'    => join( ',', array( 'publish', $bbp->closed_status_id ) ),
+			'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
 			'posts_per_page' => $max_shown,
 			'order'          => 'DESC'
 		);

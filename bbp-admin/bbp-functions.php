@@ -195,8 +195,8 @@ function bbp_recount_topic_replies() {
 	// Post types and status
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
-	$pps = 'publish';
-	$cps = $bbp->closed_status_id;
+	$pps = bbp_get_public_status_id();
+	$cps = bbp_get_closed_status_id();
 
 	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
 			SELECT `topics`.`ID` AS `post_id`, '_bbp_reply_count' AS `meta_key`, COUNT(`replies`.`ID`) As `meta_value`
@@ -239,8 +239,8 @@ function bbp_recount_topic_voices() {
 	// Post types and status
 	$tpt = bbp_get_topic_post_type();
 	$rpt = bbp_get_reply_post_type();
-	$pps = 'publish';
-	$cps = $bbp->closed_status_id;
+	$pps = bbp_get_public_status_id();
+	$cps = bbp_get_closed_status_id();
 
 	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
 			SELECT `postmeta`.`meta_value`, '_bbp_voice_count', COUNT(DISTINCT `post_author`) as `meta_value`
@@ -279,7 +279,7 @@ function bbp_recount_topic_hidden_replies() {
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` IN ( '" . join( "','", array( 'trash', $bbp->spam_status_id ) ) . "') GROUP BY `post_parent`);";
+	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (SELECT `post_parent`, '_bbp_reply_count_hidden', COUNT(`post_status`) as `meta_value` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` IN ( '" . join( "','", array( 'trash', bbp_get_spam_status_id() ) ) . "') GROUP BY `post_parent`);";
 	if ( is_wp_error( $wpdb->query( $sql ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -366,12 +366,12 @@ function bbp_recount_forum_replies() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_user_topics_replied() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Counting the number of topics to which each user has replied&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
 
-	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = 'publish' GROUP BY `post_author`;";
+	$sql_select = "SELECT `post_author`, COUNT(DISTINCT `ID`) as `_count` FROM `{$wpdb->posts}` WHERE `post_type` = '" . bbp_get_reply_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "' GROUP BY `post_author`;";
 	$insert_rows = $wpdb->get_results( $sql_select );
 
 	if ( is_wp_error( $insert_rows ) )
@@ -705,7 +705,7 @@ function bbp_recount_tag_delete_empty() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_clean_favorites() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Removing trashed topics from user favorites&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -714,7 +714,7 @@ function bbp_recount_clean_favorites() {
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'publish';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
 
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
@@ -764,7 +764,7 @@ function bbp_recount_clean_favorites() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_clean_subscriptions() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Removing trashed topics from user subscriptions&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -773,7 +773,7 @@ function bbp_recount_clean_subscriptions() {
 	if ( is_wp_error( $users ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = 'publish';" );
+	$topics = $wpdb->get_col( "SELECT `ID` FROM `$wpdb->posts` WHERE `post_type` = '" . bbp_get_topic_post_type() . "' AND `post_status` = '" . bbp_get_public_status_id() . "';" );
 	if ( is_wp_error( $topics ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -821,7 +821,7 @@ function bbp_recount_clean_subscriptions() {
  * @return array An array of the status code and the message
  */
 function bbp_recount_rewalk() {
-	global $wpdb;
+	global $wpdb, $bbp;
 
 	$statement = __( 'Recomputing latest post in every topic and forum&hellip; %s', 'bbpress' );
 	$result    = __( 'Failed!', 'bbpress' );
@@ -834,7 +834,7 @@ function bbp_recount_rewalk() {
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_reply_id', MAX( `reply`.`ID` )
 			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` IN ( 'publish' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			WHERE `reply`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
@@ -850,7 +850,7 @@ function bbp_recount_rewalk() {
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `forum`.`ID`, '_bbp_last_topic_id', `topic`.`ID`
 			FROM `$wpdb->posts` AS `forum` INNER JOIN `$wpdb->posts` AS `topic` ON `forum`.`ID` = `topic`.`post_parent`
-			WHERE `topic`.`post_status` IN ( 'publish' ) AND `forum`.`post_type` = 'forum' AND `topic`.`post_type` = 'topic'
+			WHERE `topic`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `forum`.`post_type` = 'forum' AND `topic`.`post_type` = 'topic'
 			GROUP BY `forum`.`ID` );" ) ) )
 		return array( 4, sprintf( $statement, $result ) );
 
@@ -866,7 +866,7 @@ function bbp_recount_rewalk() {
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_id', MAX( `reply`.`ID` )
 			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` IN ( 'publish' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			WHERE `reply`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 6, sprintf( $statement, $result ) );
 
@@ -882,7 +882,7 @@ function bbp_recount_rewalk() {
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
 			( SELECT `topic`.`ID`, '_bbp_last_active_time', MAX( `reply`.`post_date` )
 			FROM `$wpdb->posts` AS `topic` INNER JOIN `$wpdb->posts` AS `reply` ON `topic`.`ID` = `reply`.`post_parent`
-			WHERE `reply`.`post_status` IN ( 'publish' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
+			WHERE `reply`.`post_status` IN ( '" . bbp_get_public_status_id() . "' ) AND `topic`.`post_type` = 'topic' AND `reply`.`post_type` = 'reply'
 			GROUP BY `topic`.`ID` );" ) ) )
 		return array( 8, sprintf( $statement, $result ) );
 

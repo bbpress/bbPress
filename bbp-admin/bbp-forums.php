@@ -241,14 +241,15 @@ class BBP_Forums_Admin {
 
 		// Category?
 		if ( !empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
-			if ( 'category' == $_POST['bbp_forum_type'] && !bbp_is_forum_category( $forum_id ) )
+			if ( 'category' == $_POST['bbp_forum_type'] && !bbp_is_forum_category( $forum_id ) ) {
 				bbp_categorize_forum( $forum_id );
-			elseif ( 'forum' == $_POST['bbp_forum_type'] && bbp_is_forum_category( $forum_id ) )
+			} elseif ( 'forum' == $_POST['bbp_forum_type'] && bbp_is_forum_category( $forum_id ) ) {
 				bbp_normalize_forum( $forum_id );
+			}
 		}
 
 		// Visibility
-		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( 'publish', 'private', 'hidden' ) ) ) {
+		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) ) ) {
 
 			// Get forums current visibility
 			$visibility = bbp_get_forum_visibility( $forum_id );
@@ -260,17 +261,17 @@ class BBP_Forums_Admin {
 				switch ( $_POST['bbp_forum_visibility'] ) {
 
 					// Hidden
-					case 'hidden'  :
+					case bbp_get_hidden_status_id()  :
 						bbp_hide_forum( $forum_id, $visibility );
 						break;
 
 					// Private
-					case 'private' :
+					case bbp_get_private_status_id() :
 						bbp_privatize_forum( $forum_id, $visibility );
 						break;
 
 					// Publish (default)
-					case 'publish'  :
+					case bbp_get_public_status_id()  :
 					default        :
 						bbp_publicize_forum( $forum_id, $visibility );
 						break;
@@ -551,6 +552,9 @@ endif; // class_exists check
  */
 function bbp_admin_forums() {
 	global $bbp;
+
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
 	$bbp->admin->forums = new BBP_Forums_Admin();
 }

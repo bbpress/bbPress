@@ -264,7 +264,7 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'post_date'       => 0,
 			'post_content'    => '',
 			'post_type'       => 'page',
-			'post_status'     => 'publish',
+			'post_status'     => bbp_get_public_status_id(),
 			'post_name'       => '',
 			'comment_status'  => 'closed',
 			'is_404'          => false,
@@ -728,9 +728,6 @@ function bbp_get_theme_compat_templates() {
  *
  * @since bbPress (r3032)
  *
- * @global bbPress $bbp
- * @global WP_Query $post
- *
  * @param string $template
  *
  * @uses current_theme_supports() To check if theme supports bbPress
@@ -753,7 +750,6 @@ function bbp_get_theme_compat_templates() {
  * @return string The path to the template file that is being used
  */
 function bbp_template_include_theme_supports( $template = '' ) {
-	global $bbp;
 
 	// Current theme supports bbPress
 	if ( current_theme_supports( 'bbpress' ) ) {
@@ -825,7 +821,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 				'post_date'    => 0,
 				'post_content' => '',
 				'post_type'    => bbp_get_forum_post_type(),
-				'post_status'  => 'publish',
+				'post_status'  => bbp_get_public_status_id(),
 				'is_archive'   => true
 			) );
 
@@ -842,7 +838,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 				'post_date'    => 0,
 				'post_content' => '',
 				'post_type'    => bbp_get_topic_post_type(),
-				'post_status'  => 'publish',
+				'post_status'  => bbp_get_public_status_id(),
 				'is_archive'   => true
 			) );
 
@@ -874,7 +870,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 				'post_date'    => 0,
 				'post_content' => '',
 				'post_type'    => bbp_get_reply_post_type(),
-				'post_status'  => 'publish'
+				'post_status'  => bbp_get_public_status_id()
 			) );
 
 		// Single reply
@@ -903,7 +899,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 				'post_date'    => 0,
 				'post_content' => '',
 				'post_type'    => '',
-				'post_status'  => 'publish'
+				'post_status'  => bbp_get_public_status_id()
 			) );
 
 
@@ -1579,21 +1575,22 @@ function bbp_pre_get_posts( $posts_query ) {
 		$status = array();
 
 		// All users can see published forums
-		$status[] = 'publish';
+		$status[] = bbp_get_public_status_id();
 
-		// Add 'private' if user is capable
+		// Add bbp_get_private_status_id() if user is capable
 		if ( current_user_can( 'read_private_forums' ) )
-			$status[] = 'private';
+			$status[] = bbp_get_private_status_id();
 
-		// Add 'hidden' if user is capable
+		// Add bbp_get_hidden_status_id() if user is capable
 		if ( current_user_can( 'read_hidden_forums' ) )
-			$status[] = $bbp->hidden_status_id;
+			$status[] = bbp_get_hidden_status_id();
 
 		// Implode and add the statuses
 		$posts_query->set( 'post_status', implode( ',', $status ) );
 
 	// Topic tag page
 	} elseif ( bbp_is_topic_tag() ) {
+		$posts_query->set( 'bbp_topic_tag',  get_query_var( 'term' )                  );
 		$posts_query->set( 'post_type',      bbp_get_topic_post_type()                );
 		$posts_query->set( 'posts_per_page', get_option( '_bbp_topics_per_page', 15 ) );
 	}

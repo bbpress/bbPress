@@ -756,12 +756,9 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3302)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @return string
 	 */
 	public function display_login() {
-		global $bbp;
 
 		// Unset globals
 		$this->unset_globals();
@@ -784,12 +781,9 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3302)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @return string
 	 */
 	public function display_register() {
-		global $bbp;
 
 		// Unset globals
 		$this->unset_globals();
@@ -812,12 +806,9 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3302)
 	 *
-	 * @global bbPress $bbp
-	 *
 	 * @return string
 	 */
 	public function display_lost_pass() {
-		global $bbp;
 
 		// Unset globals
 		$this->unset_globals();
@@ -841,8 +832,6 @@ class BBP_Shortcodes {
 	 * Display a breadcrumb
 	 *
 	 * @since bbPress (r3302)
-	 *
-	 * @global bbPress $bbp
 	 *
 	 * @return string
 	 */
@@ -873,6 +862,9 @@ endif;
  */
 function bbp_register_shortcodes() {
 	global $bbp;
+
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
 	$bbp->shortcodes = new BBP_Shortcodes();
 }

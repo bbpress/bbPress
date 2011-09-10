@@ -858,7 +858,6 @@ function bbp_edit_user_contact_methods() {
  * @uses WP_Error bbPress::errors::add() To add an error or message
  */
 function bbp_login_notices() {
-	global $bbp;
 
 	// loggedout was passed
 	if ( !empty( $_GET['loggedout'] ) && ( true == $_GET['loggedout'] ) ) {
@@ -1250,7 +1249,7 @@ function bbp_get_forums_for_current_user( $args = array() ) {
 
 	$defaults = array(
 		'post_type'   => bbp_get_forum_post_type(),
-		'post_status' => 'publish',
+		'post_status' => bbp_get_public_status_id(),
 		'numberposts' => -1,
 		'exclude'     => $post__not_in
 	);

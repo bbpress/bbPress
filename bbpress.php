@@ -31,6 +31,16 @@ if ( !class_exists( 'bbPress' ) ) :
  */
 class bbPress {
 
+	/**
+	 * Note to Plugin and Theme authors:
+	 *
+	 * Do not directly reference the variables below in your code. Their names
+	 * and locations in the bbPress class are subject to change at any time.
+	 *
+	 * Most of them have reference functions located in bbp-includes. The ones
+	 * that don't can be accessed via their respective WordPress API's.
+	 */
+
 	/** Version ***************************************************************/
 
 	/**
@@ -41,7 +51,7 @@ class bbPress {
 	/**
 	 * @public string bbPress DB version
 	 */
-	public $db_version = '165';
+	public $db_version = '175';
 
 	/** Post types ************************************************************/
 
@@ -346,11 +356,13 @@ class bbPress {
 		$this->topic_tag_tax_id   = apply_filters( 'bbp_topic_tag_tax_id', 'topic-tag' );
 
 		// Status identifiers
-		$this->spam_status_id     = apply_filters( 'bbp_spam_post_status',   'spam'   );
-		$this->closed_status_id   = apply_filters( 'bbp_closed_post_status', 'closed' );
-		$this->orphan_status_id   = apply_filters( 'bbp_orphan_post_status', 'orphan' );
-		$this->hidden_status_id   = apply_filters( 'bbp_hidden_post_status', 'hidden' );
-		$this->trash_status_id    = 'trash';
+		$this->spam_status_id     = apply_filters( 'bbp_spam_post_status',    'spam'    );
+		$this->closed_status_id   = apply_filters( 'bbp_closed_post_status',  'closed'  );
+		$this->orphan_status_id   = apply_filters( 'bbp_orphan_post_status',  'orphan'  );
+		$this->public_status_id   = apply_filters( 'bbp_public_post_status',  'publish' );
+		$this->private_status_id  = apply_filters( 'bbp_private_post_status', 'private' );
+		$this->hidden_status_id   = apply_filters( 'bbp_hidden_post_status',  'hidden'  );
+		$this->trash_status_id    = apply_filters( 'bbp_trash_post_status',   'trash'   );
 
 		// Other identifiers
 		$this->user_id            = apply_filters( 'bbp_user_id', 'bbp_user' );

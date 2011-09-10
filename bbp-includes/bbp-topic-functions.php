@@ -31,7 +31,7 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 	// Forum
 	$default_topic = array(
 		'post_parent'   => 0, // forum ID
-		'post_status'   => 'publish',
+		'post_status'   => bbp_get_public_status_id(),
 		'post_type'     => bbp_get_topic_post_type(),
 		'post_author'   => 0,
 		'post_password' => '',
@@ -122,8 +122,6 @@ function bbp_new_topic_handler() {
 	// Bail if action is not bbp-new-topic
 	if ( empty( $_POST['action'] ) || ( 'bbp-new-topic' !== $_POST['action'] ) )
 		return;
-
-	global $bbp;
 
 	// Nonce check
 	check_admin_referer( 'bbp-new-topic' );
@@ -267,7 +265,7 @@ function bbp_new_topic_handler() {
 			'post_content' => $topic_content,
 			'post_parent'  => $forum_id,
 			'tax_input'    => $terms,
-			'post_status'  => 'publish',
+			'post_status'  => bbp_get_public_status_id(),
 			'post_type'    => bbp_get_topic_post_type()
 		);
 
@@ -309,7 +307,7 @@ function bbp_new_topic_handler() {
 
 			// If the forum is trash, or the topic_status is switched to
 			// trash, trash it properly
-			if ( ( get_post_field( 'post_status', $forum_id ) == $bbp->trash_status_id ) || ( $topic_data['post_status'] == $bbp->trash_status_id ) ) {
+			if ( ( get_post_field( 'post_status', $forum_id ) == bbp_get_trash_status_id() ) || ( $topic_data['post_status'] == bbp_get_trash_status_id() ) ) {
 
 				// Trash the reply
 				wp_trash_post( $topic_id );
@@ -321,8 +319,8 @@ function bbp_new_topic_handler() {
 			/** Spam Check ****************************************************/
 
 			// If reply or topic are spam, officially spam this reply
-			if ( $topic_data['post_status'] == $bbp->spam_status_id ) {
-				add_post_meta( $topic_id, '_bbp_spam_meta_status', 'publish' );
+			if ( $topic_data['post_status'] == bbp_get_spam_status_id() ) {
+				add_post_meta( $topic_id, '_bbp_spam_meta_status', bbp_get_public_status_id() );
 
 				// Force view=all
 				$view_all = true;
@@ -816,7 +814,7 @@ function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id =
 	// If we want a full refresh, unset any of the possibly passed variables
 	if ( true == $refresh ) {
 		$forum_id = $topic_id = $reply_id = $active_id = $last_active_time = 0;
-		$topic_status = 'publish';
+		$topic_status = bbp_get_public_status_id();
 	}
 
 	// Loop through ancestors
@@ -1278,7 +1276,7 @@ function bbp_split_topic_handler() {
 	if ( empty( $_POST['action'] ) || ( 'bbp-split-topic' !== $_POST['action'] ) )
 		return;
 
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	// Prevent debug notices
 	$from_reply_id = $destination_topic_id = 0;
@@ -2121,7 +2119,7 @@ function bbp_update_topic_reply_count( $topic_id = 0, $reply_count = 0 ) {
  * @return int Topic hidden reply count
  */
 function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) {
-	global $wpdb, $bbp;
+	global $wpdb;
 
 	// If it's a reply, then get the parent (topic id)
 	if ( bbp_is_reply( $topic_id ) )
@@ -2131,7 +2129,7 @@ function bbp_update_topic_reply_count_hidden( $topic_id = 0, $reply_count = 0 ) 
 
 	// Get replies of topic
 	if ( empty( $reply_count ) )
-		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( $bbp->trash_status_id, $bbp->spam_status_id ) ) . "') AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
+		$reply_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( '" . join( '\',\'', array( bbp_get_trash_status_id(), bbp_get_spam_status_id() ) ) . "') AND post_type = '%s';", $topic_id, bbp_get_reply_post_type() ) );
 
 	update_post_meta( $topic_id, '_bbp_reply_count_hidden', (int) $reply_count );
 
@@ -2172,7 +2170,7 @@ function bbp_update_topic_last_active_id( $topic_id = 0, $active_id = 0 ) {
 		$active_id = $topic_id;
 
 	// Update only if published
-	if ( 'publish' == get_post_status( $active_id ) )
+	if ( bbp_get_public_status_id() == get_post_status( $active_id ) )
 		update_post_meta( $topic_id, '_bbp_last_active_id', (int) $active_id );
 
 	return apply_filters( 'bbp_update_topic_last_active_id', (int) $active_id, $topic_id );
@@ -2284,7 +2282,7 @@ function bbp_update_topic_voice_count( $topic_id = 0 ) {
 		return;
 
 	// Query the DB to get voices in this topic
-	$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
+	$voices = $wpdb->get_col( $wpdb->prepare( "SELECT COUNT( DISTINCT post_author ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' ) OR ( ID = %d AND post_type = '%s' );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
 
 	// If there's an error, make sure we at least have 1 voice
 	$voices = ( empty( $voices ) || is_wp_error( $voices ) ) ? 1 : $voices[0];
@@ -2325,7 +2323,7 @@ function bbp_update_topic_anonymous_reply_count( $topic_id = 0 ) {
 	else
 		return;
 
-	$anonymous_replies = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( ID ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = 'publish' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
+	$anonymous_replies = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( ID ) FROM {$wpdb->posts} WHERE ( post_parent = %d AND post_status = '%s' AND post_type = '%s' AND post_author = 0 ) OR ( ID = %d AND post_type = '%s' AND post_author = 0 );", $topic_id, bbp_get_public_status_id(), bbp_get_reply_post_type(), $topic_id, bbp_get_topic_post_type() ) );
 
 	update_post_meta( $topic_id, '_bbp_anonymous_reply_count', (int) $anonymous_replies );
 
@@ -2390,14 +2388,13 @@ function bbp_update_topic_revision_log( $args = '' ) {
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_close_topic( $topic_id = 0 ) {
-	global $bbp;
 
 	// Get topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if already closed
-	if ( $topic['post_status'] == $bbp->closed_status_id )
+	if ( bbp_get_closed_status_id == $topic['post_status'] )
 		return false;
 
 	// Execute pre close code
@@ -2407,7 +2404,7 @@ function bbp_close_topic( $topic_id = 0 ) {
 	add_post_meta( $topic_id, '_bbp_status', $topic['post_status'] );
 
 	// Set closed status
-	$topic['post_status'] = $bbp->closed_status_id;
+	$topic['post_status'] = bbp_get_closed_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -2437,14 +2434,13 @@ function bbp_close_topic( $topic_id = 0 ) {
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_open_topic( $topic_id = 0 ) {
-	global $bbp;
 
 	// Get topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if already open
-	if ( $topic['post_status'] != $bbp->closed_status_id )
+	if ( bbp_get_closed_status_id() != $topic['post_status'])
 		return false;
 
 	// Execute pre open code
@@ -2486,14 +2482,13 @@ function bbp_open_topic( $topic_id = 0 ) {
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_spam_topic( $topic_id = 0 ) {
-	global $bbp;
 
 	// Get the topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if topic is spam
-	if ( $topic['post_status'] == $bbp->spam_status_id )
+	if ( bbp_get_spam_status_id() == $topic['post_status'] )
 		return false;
 
 	// Execute pre spam code
@@ -2525,7 +2520,7 @@ function bbp_spam_topic( $topic_id = 0 ) {
 	}
 	
 	// Set post status to spam
-	$topic['post_status'] = $bbp->spam_status_id;
+	$topic['post_status'] = bbp_get_spam_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -2555,14 +2550,13 @@ function bbp_spam_topic( $topic_id = 0 ) {
  * @return mixed False or {@link WP_Error} on failure, topic id on success
  */
 function bbp_unspam_topic( $topic_id = 0 ) {
-	global $bbp;
 
 	// Get the topic
 	if ( !$topic = wp_get_single_post( $topic_id, ARRAY_A ) )
 		return $topic;
 
 	// Bail if already not spam
-	if ( $topic['post_status'] != $bbp->spam_status_id )
+	if ( bbp_get_spam_status_id() != $topic['post_status'] )
 		return false;
 
 	// Execute pre unspam code
@@ -2712,7 +2706,6 @@ function bbp_unstick_topic( $topic_id = 0 ) {
  * @uses wp_delete_post() To delete the reply
  */
 function bbp_delete_topic( $topic_id = 0 ) {
-	global $bbp;
 
 	// Validate topic ID
 	$topic_id = bbp_get_topic_id( $topic_id );
@@ -2723,7 +2716,7 @@ function bbp_delete_topic( $topic_id = 0 ) {
 	do_action( 'bbp_delete_topic', $topic_id );
 
 	// Valid topic/reply statuses
-	$post_stati = join( ',', array( 'publish', $bbp->spam_status_id, 'trash' ) );
+	$post_stati = join( ',', array( bbp_get_public_status_id(), bbp_get_spam_status_id(), 'trash' ) );
 
 	// Topic is being permanently deleted, so its replies gotta go too
 	if ( bbp_has_replies( array(
@@ -2773,7 +2766,7 @@ function bbp_trash_topic( $topic_id = 0 ) {
 	// Topic is being trashed, so its replies are trashed too
 	if ( bbp_has_replies( array( 
 		'post_type'      => bbp_get_reply_post_type(),
-		'post_status'    => 'publish',
+		'post_status'    => bbp_get_public_status_id(),
 		'posts_per_page' => -1,
 		'meta_query'     => array( array(
 			'key'        => '_bbp_topic_id',
