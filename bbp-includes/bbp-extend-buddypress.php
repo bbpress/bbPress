@@ -115,8 +115,8 @@ class BBP_BuddyPress {
 		$this->topic_open   = 'bbp_topic_open';
 
 		// Replies
-		$this->reply_create = 'bbp_topic_create';
-		$this->reply_edit   = 'bbp_topic_edit';
+		$this->reply_create = 'bbp_reply_create';
+		$this->reply_edit   = 'bbp_reply_edit';
 	}
 
 	/**
