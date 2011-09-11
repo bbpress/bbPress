@@ -725,7 +725,7 @@ class BBP_Topics_Admin {
 			unset( $actions['inline hide-if-no-js'] );
 
 			// Show view link if it's not set, the topic is trashed and the user can view trashed topics
-			if ( empty( $actions['view'] ) && 'trash' == $topic->post_status && current_user_can( 'view_trash' ) )
+			if ( empty( $actions['view'] ) && ( bbp_get_trash_status_id() == $topic->post_status ) && current_user_can( 'view_trash' ) )
 				$actions['view'] = '<a href="' . bbp_get_topic_permalink( $topic->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_topic_title( $topic->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
 			// Only show the actions if the user is capable of viewing them :)
@@ -806,7 +806,7 @@ class BBP_Topics_Admin {
 			return;
 
 		// Add Empty Spam button
-		if ( !empty( $_GET['post_status'] ) && ( 'spam' == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
 			$title = esc_attr__( 'Empty Spam', 'bbpress' );
 			submit_button( $title, 'button-secondary apply', 'delete_all', false );

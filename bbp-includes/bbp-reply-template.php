@@ -83,7 +83,7 @@ function bbp_has_replies( $args = '' ) {
 
 		// What are the default allowed statuses (based on user caps)
 		if ( bbp_get_view_all( 'edit_others_replies' ) ) {
-			$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), 'trash' ) );
+			$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
 		}
 	}
 
@@ -1379,7 +1379,7 @@ function bbp_reply_admin_links( $args = '' ) {
 				unset( $r['links']['spam'] );
 
 			// Trash link shouldn't be visible on spam topics
-			elseif ( isset( $r['links']['trash'] ) && $reply_status == bbp_get_spam_status_id() )
+			elseif ( isset( $r['links']['trash'] ) && ( bbp_get_spam_status_id() == $reply_status ) )
 				unset( $r['links']['trash'] );
 		}
 

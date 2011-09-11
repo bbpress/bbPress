@@ -673,7 +673,7 @@ class BBP_Replies_Admin {
 			$actions['view'] = '<a href="' . bbp_get_reply_url( $reply->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'bbpress' ), bbp_get_reply_title( $reply->ID ) ) ) . '" rel="permalink">' . __( 'View', 'bbpress' ) . '</a>';
 
 			// User cannot view replies in trash
-			if ( ( 'trash' == $reply->post_status ) && !current_user_can( 'view_trash' ) )
+			if ( ( bbp_get_trash_status_id() == $reply->post_status ) && !current_user_can( 'view_trash' ) )
 				unset( $actions['view'] );
 
 			// Only show the actions if the user is capable of viewing them
@@ -731,7 +731,7 @@ class BBP_Replies_Admin {
 			return;
 
 		// Add Empty Spam button
-		if ( !empty( $_GET['post_status'] ) && ( 'spam' == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
+		if ( !empty( $_GET['post_status'] ) && ( bbp_get_spam_status_id() == $_GET['post_status'] ) && current_user_can( 'moderate' ) ) {
 			wp_nonce_field( 'bulk-destroy', '_destroy_nonce' );
 			$title = esc_attr__( 'Empty Spam', 'bbpress' );
 			submit_button( $title, 'button-secondary apply', 'delete_all', false );
