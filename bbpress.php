@@ -16,8 +16,8 @@
  * Author:      The bbPress Community
  * Author URI:  http://bbpress.org
  * Version:     2.0-rc-5
- * Text Domain:  bbpress
- * Domain Path:  /bbp-languages/
+ * Text Domain: bbpress
+ * Domain Path: /bbp-languages/
  */
 
 // Exit if accessed directly
