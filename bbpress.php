@@ -11,11 +11,13 @@
 
 /**
  * Plugin Name: bbPress
- * Plugin URI: http://bbpress.org
+ * Plugin URI:  http://bbpress.org
  * Description: bbPress is forum software with a twist from the creators of WordPress.
- * Author: The bbPress Community
- * Author URI: http://bbpress.org
- * Version: 2.0-rc-4
+ * Author:      The bbPress Community
+ * Author URI:  http://bbpress.org
+ * Version:     2.0-rc-4
+ * TextDomain:  bbpress
+ * DomainPath:  /bbp-languages/
  */
 
 // Exit if accessed directly
