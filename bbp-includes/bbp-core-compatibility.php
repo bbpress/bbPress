@@ -22,25 +22,62 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * Don't try anything you're about to witness here, at home. Ever.
  */
 
+/** Base Class ****************************************************************/
+
 /**
- * Set the theme compat theme URL and DIR
+ * Theme Compatibility base class
+ * 
+ * This is only intended to be extended, and is included here as a basic guide
+ * for future Theme Packs to use. @link BBP_Twenty_Ten is a good example of
+ * extending this class, as is @link bbp_setup_theme_compat()
+ *
+ * @since bbPress (r3506)
+ */
+class BBP_Theme_Compat {
+	
+	/**
+	 * @var string Name of the theme (should match style.css)
+	 */
+	public $name = '';
+
+	/**
+	 * @public string Theme version for cache busting scripts and styling
+	 */
+	public $version = '';
+
+	/**
+	 * @var string Path to theme
+	 */
+	public $dir = '';
+
+	/**
+	 * @var string URL to theme
+	 */
+	public $url = '';
+}
+
+/** Functions *****************************************************************/
+
+/**
+ * Set the theme compat theme properties
  *
  * @since bbPress (r3311)
  *
  * @global bbPress $bbp
- * @param string $theme
+ * @param BBP_Theme_Compat $theme
  * @uses current_theme_supports()
  */
-function bbp_setup_theme_compat( $theme = array() ) {
+function bbp_setup_theme_compat( $theme = '' ) {
 	global $bbp;
 
 	// Check if current theme supports bbPress
 	if ( empty( $bbp->theme_compat->theme ) && !current_theme_supports( 'bbpress' ) ) {
 		if ( empty( $theme ) ) {
-			$theme = array(
-				'dir' => $bbp->themes_dir . '/bbp-twentyten',
-				'url' => $bbp->themes_url . '/bbp-twentyten'
-			);
+			$theme          = new BBP_Theme_Compat();			
+			$theme->name    = 'bbPress (Twenty Ten)';
+			$theme->version = '20110912';
+			$theme->dir     = $bbp->themes_dir . '/bbp-twentyten';
+			$theme->url     = $bbp->themes_url . '/bbp-twentyten';
 		}
 
 		// Set the theme compat globals for help with loading template parts
@@ -63,10 +100,8 @@ function bbp_theme_compat_enqueue_css() {
 	// Check if current theme supports bbPress
 	if ( !current_theme_supports( 'bbpress' ) ) {
 
-		/** Default CSS ***************************************************/
-
 		// Version of CSS
-		$version = '20110808b';
+		$version = bbp_get_theme_compat_version();
 
 		// Right to left
 		if ( is_rtl() ) {
@@ -111,6 +146,42 @@ function bbp_get_template_part( $slug, $name = null ) {
 }
 
 /**
+ * Gets the name of the bbPress compatable theme used, in the event the
+ * currently active WordPress theme does not explicitly support bbPress.
+ * This can be filtered or set manually. Tricky theme authors can override the
+ * default and include their own bbPress compatability layers for their themes.
+ *
+ * @since bbPress (r3506)
+ *
+ * @global bbPress $bbp
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_theme_compat_name() {
+	global $bbp;
+
+	return apply_filters( 'bbp_get_theme_compat_name', $bbp->theme_compat->theme->name );
+}
+
+/**
+ * Gets the version of the bbPress compatable theme used, in the event the
+ * currently active WordPress theme does not explicitly support bbPress.
+ * This can be filtered or set manually. Tricky theme authors can override the
+ * default and include their own bbPress compatability layers for their themes.
+ *
+ * @since bbPress (r3506)
+ *
+ * @global bbPress $bbp
+ * @uses apply_filters()
+ * @return string
+ */
+function bbp_get_theme_compat_version() {
+	global $bbp;
+
+	return apply_filters( 'bbp_get_theme_compat_version', $bbp->theme_compat->theme->version );
+}
+
+/**
  * Gets the bbPress compatable theme used in the event the currently active
  * WordPress theme does not explicitly support bbPress. This can be filtered,
  * or set manually. Tricky theme authors can override the default and include
@@ -125,7 +196,7 @@ function bbp_get_template_part( $slug, $name = null ) {
 function bbp_get_theme_compat_dir() {
 	global $bbp;
 
-	return apply_filters( 'bbp_get_theme_compat_dir', $bbp->theme_compat->theme['dir'] );
+	return apply_filters( 'bbp_get_theme_compat_dir', $bbp->theme_compat->theme->dir );
 }
 
 /**
@@ -143,7 +214,7 @@ function bbp_get_theme_compat_dir() {
 function bbp_get_theme_compat_url() {
 	global $bbp;
 
-	return apply_filters( 'bbp_get_theme_compat_url', $bbp->theme_compat->theme['url'] );
+	return apply_filters( 'bbp_get_theme_compat_url', $bbp->theme_compat->theme->url );
 }
 
 /**
