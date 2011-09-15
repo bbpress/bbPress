@@ -14,7 +14,7 @@
 		<div id="container">
 			<div id="content" role="main">
 
-				<?php while ( have_posts() ) the_post(); ?>
+				<?php while ( have_posts() ) : the_post(); ?>
 
 					<div id="bbp-edit-page" class="bbp-edit-page">
 						<h1 class="entry-title"><?php the_title(); ?></h1>
@@ -24,6 +24,8 @@
 
 						</div>
 					</div><!-- #bbp-edit-page -->
+
+				<?php endwhile; ?>
 
 			</div><!-- #content -->
 		</div><!-- #container -->
