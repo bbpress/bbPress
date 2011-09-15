@@ -982,24 +982,19 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
  *                    and topic id
  * @return bool True on success, false on failure
  */
-function bbp_notify_subscribers( $reply_id = 0 ) {
+function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $anonymous_data = false, $reply_author = 0 ) {
 	global $wpdb;
 
 	// Bail if subscriptions are turned off
 	if ( !bbp_is_subscriptions_active() )
 		return false;
 
-	/** Reply *****************************************************************/
-
-	// Validate reply ID and bail if empty
+	/** Validation ************************************************************/
 	$reply_id = bbp_get_reply_id( $reply_id );
-	if ( empty( $reply_id ) )
-		return false;
-
-	// Get the reply and bail if empty
-	$reply = bbp_get_reply( $reply_id );
-	if ( empty( $reply ) )
-		return false;
+	$topic_id = bbp_get_topic_id( $topic_id );
+	$forum_id = bbp_get_reply_id( $forum_id );
+	
+	/** Reply *****************************************************************/
 
 	// Bail if reply is not published
 	if ( !bbp_is_reply_published( $reply_id ) )
@@ -1007,26 +1002,19 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 
 	/** Topic *****************************************************************/
 
-	// Get topic ID and bail if empty
-	$topic_id = bbp_get_reply_topic_id( $reply_id );
-	if ( empty( $topic_id ) )
-		return false;
-
-	// Get the topic and bail if empty
-	$topic = bbp_get_topic( $topic_id );
-	if ( empty( $topic ) )
-		return false;
-
-	// Bail if reply is not published
-	if ( !bbp_is_topic_published( $reply_id ) )
+	// Bail if topic is not published
+	if ( !bbp_is_topic_published( $topic_id ) )
 		return false;
 
 	/** User ******************************************************************/
 
-	// Get  subscribers and bail if empty
+	// Get subscribers and bail if empty
 	$user_ids = bbp_get_topic_subscribers( $topic_id, true );
 	if ( empty( $user_ids ) )
 		return false;
+
+	// Poster name
+	$reply_author_name = bbp_get_reply_author_display_name( $reply_id );
 
 	/** Mail ******************************************************************/
 
@@ -1036,17 +1024,17 @@ function bbp_notify_subscribers( $reply_id = 0 ) {
 	foreach ( (array) $user_ids as $user_id ) {
 
 		// Don't send notifications to the person who made the post
-		if ( (int) $user_id == (int) $reply->post_author )
+		if ( !empty( $reply_author ) && (int) $user_id == (int) $reply_author )
 			continue;
 
 		// For plugins to filter messages per reply/topic/user
 		$message = __( "%1\$s wrote:\n\n%2\$s\n\nPost Link: %3\$s\n\nYou are recieving this email because you subscribed to it. Login and visit the topic to unsubscribe from these emails.", 'bbpress' );
-		$message = apply_filters( 'bbp_subscription_mail_message', sprintf( $message, $poster_name, strip_tags( $reply->post_content ), bbp_get_reply_url( $reply_id ) ), $reply_id, $topic_id, $user_id );
+		$message = apply_filters( 'bbp_subscription_mail_message', sprintf( $message, $reply_author_name, strip_tags( bbp_get_reply_content( $reply_id ) ), bbp_get_reply_url( $reply_id ) ), $reply_id, $topic_id, $user_id );
 		if ( empty( $message ) )
 			continue;
 
 		// For plugins to filter titles per reply/topic/user
-		$subject = apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . $topic->post_title, $reply_id, $topic_id, $user_id );
+		$subject = apply_filters( 'bbp_subscription_mail_title', '[' . get_option( 'blogname' ) . '] ' . bbp_get_topic_title( $topic_id ), $reply_id, $topic_id, $user_id );
 		if ( empty( $subject ) )
 			continue;
 
