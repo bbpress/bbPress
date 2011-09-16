@@ -1520,15 +1520,15 @@ function bbp_pre_get_posts( $posts_query ) {
 
 	// Bail if $posts_query is not the main loop
 	if ( $posts_query != $wp_the_query )
-		return $posts_query;
+		return;
 
-	// Bail if filters are suppressed on this query, or in admin
+	// Bail if filters are suppressed on this query
 	if ( true == $posts_query->get( 'suppress_filters' ) )
-		return $posts_query;
+		return;
 
 	// Bail if in admin
 	if ( is_admin() )
-		return $posts_query;
+		return;
 
 	// Get query variables
 	$bbp_user = $posts_query->get( $bbp->user_id );
@@ -1542,21 +1542,24 @@ function bbp_pre_get_posts( $posts_query ) {
 		if ( !is_numeric( $bbp_user ) ) {
 
 			// Email was passed
-			if ( is_email( $bbp_user ) )
+			if ( is_email( $bbp_user ) ) {
 				$bbp_user = get_user_by( 'email', $bbp_user );
+
 			// Try nicename
-			else
+			} else {
 				$bbp_user = get_user_by( 'slug', $bbp_user );
+			}
 
 			// If we were successful, set to ID
-			if ( is_object( $bbp_user ) )
+			if ( is_object( $bbp_user ) ) {
 				$bbp_user = $bbp_user->ID;
+			}
 		}
 
 		// Create new user
 		$user = new WP_User( $bbp_user );
 
-		// Stop if no user
+		// Bail if no user
 		if ( !isset( $user ) || empty( $user ) || empty( $user->ID ) ) {
 			$posts_query->set_404();
 			return;
@@ -1568,19 +1571,22 @@ function bbp_pre_get_posts( $posts_query ) {
 		if ( !empty( $is_edit ) ) {
 
 			// Only allow super admins on multisite to edit every user.
-			if ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && $user_id != $current_user->ID && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) )
+			if ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && $user_id != $current_user->ID && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) ) {
 				wp_die( __( 'You do not have the permission to edit this user.', 'bbpress' ) );
+			}
 
 			// We are editing a profile
 			$posts_query->bbp_is_single_user_edit = true;
 
 			// Load the core WordPress contact methods
-			if ( !function_exists( '_wp_get_user_contactmethods' ) )
+			if ( !function_exists( '_wp_get_user_contactmethods' ) ) {
 				include_once( ABSPATH . 'wp-includes/registration.php' );
+			}
 
 			// Load the edit_user functions
-			if ( !function_exists( 'edit_user' ) )
+			if ( !function_exists( 'edit_user' ) ) {
 				require_once( ABSPATH . 'wp-admin/includes/user.php' );
+			}
 
 		// We are viewing a profile
 		} else {
@@ -1597,8 +1603,9 @@ function bbp_pre_get_posts( $posts_query ) {
 		$posts_query->set( 'bbp_user_id', $user->ID );
 
 		// Set author_name as current user's nicename to get correct posts
-		if ( !bbp_is_query_name( 'bbp_widget' ) )
+		if ( !bbp_is_query_name( 'bbp_widget' ) ) {
 			$posts_query->set( 'author_name', $user->user_nicename );
+		}
 
 		// Set the displayed user global to this user
 		$bbp->displayed_user = $user;
@@ -1609,7 +1616,7 @@ function bbp_pre_get_posts( $posts_query ) {
 		// Check if the view exists by checking if there are query args are set
 		$view_args = bbp_get_view_query_args( $bbp_view );
 
-		// Stop if view args is false - means the view isn't registered
+		// Bail if view args is false (view isn't registered)
 		if ( false === $view_args ) {
 			$posts_query->set_404();
 			return;
@@ -1625,16 +1632,17 @@ function bbp_pre_get_posts( $posts_query ) {
 	} elseif ( !empty( $is_edit ) ) {
 
 		// We are editing a topic
-		if ( $posts_query->get( 'post_type' ) == bbp_get_topic_post_type() )
+		if ( $posts_query->get( 'post_type' ) == bbp_get_topic_post_type() ) {
 			$posts_query->bbp_is_topic_edit = true;
 
 		// We are editing a reply
-		elseif ( $posts_query->get( 'post_type' ) == bbp_get_reply_post_type() )
+		} elseif ( $posts_query->get( 'post_type' ) == bbp_get_reply_post_type() ) {
 			$posts_query->bbp_is_reply_edit = true;
 
 		// We are editing a topic tag
-		elseif ( bbp_is_topic_tag() )
+		} elseif ( bbp_is_topic_tag() ) {
 			$posts_query->bbp_is_topic_tag_edit = true;
+		}
 
 		// We save post revisions on our own
 		remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -1649,12 +1657,14 @@ function bbp_pre_get_posts( $posts_query ) {
 		$status[] = bbp_get_public_status_id();
 
 		// Add bbp_get_private_status_id() if user is capable
-		if ( current_user_can( 'read_private_forums' ) )
+		if ( current_user_can( 'read_private_forums' ) ) {
 			$status[] = bbp_get_private_status_id();
+		}
 
 		// Add bbp_get_hidden_status_id() if user is capable
-		if ( current_user_can( 'read_hidden_forums' ) )
+		if ( current_user_can( 'read_hidden_forums' ) ) {
 			$status[] = bbp_get_hidden_status_id();
+		}
 
 		// Implode and add the statuses
 		$posts_query->set( 'post_status', implode( ',', $status ) );
@@ -1665,8 +1675,6 @@ function bbp_pre_get_posts( $posts_query ) {
 		$posts_query->set( 'post_type',      bbp_get_topic_post_type()                );
 		$posts_query->set( 'posts_per_page', get_option( '_bbp_topics_per_page', 15 ) );
 	}
-
-	return $posts_query;
 }
 
 ?>

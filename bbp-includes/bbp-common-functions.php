@@ -336,7 +336,6 @@ function bbp_get_paged() {
  * @return array Data
  */
 function bbp_fix_post_author( $data = array(), $postarr = array() ) {
-	global $bbp;
 
 	// Post is not being updated or the post_author is already 0, return
 	if ( empty( $postarr['ID'] ) || empty( $data['post_author'] ) )
@@ -656,7 +655,6 @@ function bbp_deregister_view( $view ) {
  * @return bool False if the view doesn't exist, otherwise if topics are there
  */
 function bbp_view_query( $view = '', $new_args = '' ) {
-	global $bbp;
 
 	if ( !$view = bbp_get_view_id( $view ) )
 		return false;
@@ -684,7 +682,9 @@ function bbp_view_query( $view = '', $new_args = '' ) {
 function bbp_get_view_query_args( $view ) {
 	global $bbp;
 
-	if ( !$views = bbp_get_view_id( $view ) )
+	$views = bbp_get_view_id( $view );
+
+	if ( empty( $views ) )
 		return false;
 
 	return $bbp->views[$view]['query'];
