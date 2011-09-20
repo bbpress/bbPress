@@ -3571,12 +3571,13 @@ function bb_user_subscribe_checkbox( $args = null ) {
 	$defaults   = array( 'tab' => false );
 	$args       = wp_parse_args( $args, $defaults );
 	$tab        = $args['tab'] !== false ? ' tabindex="' . $args['tab'] . '"' : '';
+	$is_current = bb_get_user_id( get_post_author_id() ) == bb_get_current_user_info( 'id' );
 
 	// Change subscription checkbox message if current or moderating
-	if ( isset( $_GET['new'] ) || ( $is_current = ( bb_get_user_id( get_post_author_id() ) == bb_get_current_user_info( 'id' ) ) ) )
-		$text = __( 'Notify me of follow-up posts via email' );
-	else
+	if ( bb_is_topic_edit() && !$is_current )
 		$text = __( 'This user should be notified of follow-up posts via email' );
+	else
+		$text = __( 'Notify me of follow-up posts via email' );
 
 	echo '
 	<label for="subscription_checkbox">
