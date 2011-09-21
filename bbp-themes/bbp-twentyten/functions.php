@@ -63,7 +63,7 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
 		$this->name = 'bbPress (Twenty Ten)';
 
 		// Version of theme in YYYMMDD format
-		$this->version = '20110912';
+		$this->version = '20110921';
 
 		// Setup the theme path
 		$this->dir = $bbp->themes_dir . '/bbp-twentyten';
