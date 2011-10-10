@@ -100,7 +100,7 @@ class BBP_Login_Widget extends WP_Widget {
 
 						<?php do_action( 'login_form' ); ?>
 
-						<button type="submit" name="user-submit" id="user-submit" tabindex="<?php bbp_tab_index(); ?>" class="button submit user-submit">"<?php _e( 'Log In', 'bbpress' ); ?></button>
+						<button type="submit" name="user-submit" id="user-submit" tabindex="<?php bbp_tab_index(); ?>" class="button submit user-submit"><?php _e( 'Log In', 'bbpress' ); ?></button>
 
 						<?php bbp_user_login_fields(); ?>
 
