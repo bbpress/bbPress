@@ -791,7 +791,10 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 function bbp_update_topic_walker( $topic_id, $last_active_time = '', $forum_id = 0, $reply_id = 0, $refresh = true ) {
 
 	// Validate topic_id
-	$topic_id = bbp_get_topic_id( $topic_id );
+	$topic_id  = bbp_get_topic_id( $topic_id );
+
+	// Define local variable(s)
+	$active_id = 0;
 
 	// Topic was passed
 	if ( !empty( $topic_id ) ) {
@@ -880,7 +883,7 @@ function bbp_move_topic_handler( $topic_id, $old_forum_id, $new_forum_id ) {
 
 			// Add non-matches to the updated array
 			if ( $topic_id != $sticky_topic_id ) {
-				$updated_stickies[$k] = $v;
+				$updated_stickies[] = $sticky_topic_id;
 			}
 		}
 
@@ -1824,14 +1827,17 @@ function bbp_toggle_topic_handler() {
 	if ( !in_array( $_GET['action'], $possible_actions ) )
 		return;
 
+	$failure   = '';                         // Empty failure string
 	$view_all  = false;                      // Assume not viewing all
 	$action    = $_GET['action'];            // What action is taking place?
 	$topic_id  = (int) $_GET['topic_id'];    // What's the topic id?
 	$success   = false;                      // Flag
 	$post_data = array( 'ID' => $topic_id ); // Prelim array
+	$redirect  = '';                         // Empty redirect URL
 
 	// Make sure topic exists
-	if ( !$topic = bbp_get_topic( $topic_id ) )
+	$topic = bbp_get_topic( $topic_id );
+	if ( empty( $topic ) )
 		return;
 
 	// What is the user doing here?
@@ -2499,6 +2505,9 @@ function bbp_spam_topic( $topic_id = 0 ) {
 
 	// Get topic tags
 	$terms = get_the_terms( $topic_id, bbp_get_topic_tag_tax_id() );
+
+	// Define local variable(s)
+	$term_names = array();
 
 	// Topic has tags
 	if ( !empty( $terms ) ) {
