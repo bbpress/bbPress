@@ -1373,7 +1373,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'post_type'      => bbp_get_reply_post_type(),
 							'post_parent'    => 'any',
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
-							'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
+							'posts_per_page' => bbp_get_replies_per_rss_page(),
 							'order'          => 'DESC',
 							'meta_query'     => $meta_query
 						);
@@ -1390,7 +1390,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'post_type'      => bbp_get_topic_post_type(),
 							'post_parent'    => 'any',
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
-							'posts_per_page' => get_option( '_bbp_topics_per_rss_page', 25 ),
+							'posts_per_page' => bbp_get_topics_per_rss_page(),
 							'order'          => 'DESC',
 							'meta_query'     => $meta_query
 						);
@@ -1407,7 +1407,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'post_type'      => array( bbp_get_reply_post_type(), bbp_get_topic_post_type() ),
 							'post_parent'    => 'any',
 							'post_status'    => join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) ),
-							'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
+							'posts_per_page' => bbp_get_replies_per_rss_page(),
 							'order'          => 'DESC',
 							'meta_query'     => $meta_query
 						);
@@ -1440,7 +1440,7 @@ function bbp_request_feed_trap( $query_vars ) {
 						$the_query = array(
 							'author'         => 0,
 							'post_parent'    => 'any',
-							'posts_per_page' => get_option( '_bbp_topics_per_rss_page', 25 ),
+							'posts_per_page' => bbp_get_topics_per_rss_page(),
 							'show_stickies'  => false,
 						);
 
@@ -1455,7 +1455,7 @@ function bbp_request_feed_trap( $query_vars ) {
 
 					// The query
 					$the_query = array(
-						'posts_per_page' => get_option( '_bbp_replies_per_rss_page', 25 ),
+						'posts_per_page' => bbp_get_replies_per_rss_page(),
 						'meta_query'     => array( array( ) )
 					);
 

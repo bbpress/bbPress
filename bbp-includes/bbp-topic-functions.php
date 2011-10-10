@@ -2877,6 +2877,58 @@ function bbp_untrashed_topic( $topic_id = 0 ) {
 	do_action( 'bbp_untrashed_topic', $topic_id );
 }
 
+/** Settings ******************************************************************/
+
+/**
+ * Return the topics per page setting
+ *
+ * @since bbPress (r3540)
+ *
+ * @uses get_option() To get the setting
+ * @uses apply_filters() To allow the return value to be manipulated
+ * @return int
+ */
+function bbp_get_topics_per_page() {
+
+	// The default per setting
+	$default = 15;
+
+	// Get database option and cast as integer
+	$per = $retval = (int) get_option( '_bbp_topics_per_page', $default );
+
+	// If return val is empty, set it to default
+	if ( empty( $retval ) )
+		$retval = $default;
+
+	// Filter and return
+	return (int) apply_filters( 'bbp_get_topics_per_page', $retval, $per );
+}
+
+/**
+ * Return the topics per RSS page setting
+ *
+ * @since bbPress (r3540)
+ *
+ * @uses get_option() To get the setting
+ * @uses apply_filters() To allow the return value to be manipulated
+ * @return int
+ */
+function bbp_get_topics_per_rss_page() {
+
+	// The default per setting
+	$default = 25;
+
+	// Get database option and cast as integer
+	$per = $retval = (int) get_option( '_bbp_topics_per_rss_page', $default );
+
+	// If return val is empty, set it to default
+	if ( empty( $retval ) )
+		$retval = $default;
+
+	// Filter and return
+	return (int) apply_filters( 'bbp_get_topics_per_rss_page', $retval, $per );
+}
+
 /** Feeds *********************************************************************/
 
 /**
