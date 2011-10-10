@@ -554,7 +554,7 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 function bbp_form_slug_conflict_check( $slug, $default ) {
 
 	// Only set the slugs once ver page load
-	static $the_core_slugs;
+	static $the_core_slugs = array();
 
 	// Get the form value
 	$this_slug = bbp_get_form_option( $slug, $default, true );
