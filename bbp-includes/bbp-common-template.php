@@ -479,16 +479,25 @@ function bbp_is_single_user_edit() {
  *
  * @since bbPress (r2789)
  *
- * @uses WP_Query Checks if WP_Query::bbp_is_view is true
+ * @global WP_Query $wp_query To check if WP_Query::bbp_is_view is true
+ * @uses bbp_get_query_name() To get the query name
  * @return bool Is it a view page?
  */
 function bbp_is_single_view() {
 	global $wp_query;
 
-	if ( !empty( $wp_query->bbp_is_view ) && ( true == $wp_query->bbp_is_view ) )
-		return true;
+	// Assume false
+	$retval = false;
 
-	return false;
+	// Check query
+	if ( !empty( $wp_query->bbp_is_view ) && ( true == $wp_query->bbp_is_view ) )
+		$retval = true;
+
+	// Check query name
+	if ( empty( $retval ) && bbp_is_query_name( 'bbp_single_view' ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_single_view', $retval );
 }
 
 /**
