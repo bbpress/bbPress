@@ -321,7 +321,8 @@ function bbp_forum_archive_title( $title = '' ) {
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
+			$page = bbp_get_page_by_path( $bbp->root_slug );
+			if ( !empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to forum post type name label
@@ -435,10 +436,12 @@ function bbp_forum_last_active_time( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		if ( !$last_active = get_post_meta( $forum_id, '_bbp_last_active_time', true ) ) {
-			if ( $reply_id = bbp_get_forum_last_reply_id( $forum_id ) ) {
+			$reply_id = bbp_get_forum_last_reply_id( $forum_id );
+			if ( !empty( $reply_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
-				if ( $topic_id = bbp_get_forum_last_topic_id( $forum_id ) ) {
+				$topic_id = bbp_get_forum_last_topic_id( $forum_id );
+				if ( !empty( $topic_id ) ) {
 					$last_active = bbp_get_topic_last_active_time( $topic_id );
 				}
 			}
@@ -547,8 +550,9 @@ function bbp_get_forum_parent( $forum_id = 0 ) {
 function bbp_get_forum_ancestors( $forum_id = 0 ) {
 	$forum_id  = bbp_get_forum_id( $forum_id );
 	$ancestors = array();
+	$forum     = bbp_get_forum( $forum_id );
 
-	if ( $forum = bbp_get_forum( $forum_id ) ) {
+	if ( !empty( $forum ) ) {
 		while ( 0 !== $forum->post_parent ) {
 			$ancestors[] = $forum->post_parent;
 			$forum       = bbp_get_forum( $forum->post_parent );
@@ -663,7 +667,8 @@ function bbp_list_forums( $args = '' ) {
 		return;
 
 	// Loop through forums and create a list
-	if ( $sub_forums = bbp_forum_get_subforums( $forum_id ) ) {
+	$sub_forums = bbp_forum_get_subforums( $forum_id );
+	if ( !empty( $sub_forum ) ) {
 
 		// Total count (for separator)
 		$total_subs = count( $sub_forums );
@@ -960,7 +965,8 @@ function bbp_forum_last_reply_url( $forum_id = 0 ) {
 		$forum_id = bbp_get_forum_id( $forum_id );
 
 		// If forum has replies, get the last reply and use its url
-		if ( $reply_id = bbp_get_forum_last_reply_id( $forum_id ) ) {
+		$reply_id = bbp_get_forum_last_reply_id( $forum_id );
+		if ( !empty( $reply_id ) ) {
 			$reply_url = bbp_get_reply_url( $reply_id );
 
 		// No replies, so look for topics and use last permalink
@@ -1672,7 +1678,8 @@ function bbp_single_forum_description( $args = '' ) {
 		$reply_count     = sprintf( _n( '%s reply', '%s replies', $reply_count, 'bbpress' ), $reply_count );
 
 		// Forum has posts
-		if ( $last_reply = bbp_get_forum_last_active_id( $forum_id ) ) {
+		$last_reply = bbp_get_forum_last_active_id( $forum_id );
+		if ( !empty( $last_reply ) ) {
 
 			// Freshness author
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
@@ -1708,6 +1715,119 @@ function bbp_single_forum_description( $args = '' ) {
 
 		// Return filtered result
 		return apply_filters( 'bbp_get_single_forum_description', $retstr, $args );
+	}
+
+/** Forms *********************************************************************/
+
+/**
+ * Output the value of forum title field
+ *
+ * @since bbPress (r3551)
+ *
+ * @uses bbp_get_form_forum_title() To get the value of forum title field
+ */
+function bbp_form_forum_title() {
+	echo bbp_get_form_forum_title();
+}
+	/**
+	 * Return the value of forum title field
+	 *
+	 * @since bbPress (r3551)
+	 *
+	 * @uses bbp_is_forum_edit() To check if it's forum edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_title' with the title
+	 * @return string Value of forum title field
+	 */
+	function bbp_get_form_forum_title() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_title'] ) )
+			$forum_title = $_POST['bbp_forum_title'];
+
+		// Get edit data
+		elseif ( !empty( $post->post_title ) && bbp_is_forum_edit() )
+			$forum_title = $post->post_title;
+
+		// No data
+		else
+			$forum_title = '';
+
+		return apply_filters( 'bbp_get_form_forum_title', esc_attr( $forum_title ) );
+	}
+
+/**
+ * Output the value of forum content field
+ *
+ * @since bbPress (r3551)
+ *
+ * @uses bbp_get_form_forum_content() To get value of forum content field
+ */
+function bbp_form_forum_content() {
+	echo bbp_get_form_forum_content();
+}
+	/**
+	 * Return the value of forum content field
+	 *
+	 * @since bbPress (r3551)
+	 *
+	 * @uses bbp_is_forum_edit() To check if it's the forum edit page
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_content' with the content
+	 * @return string Value of forum content field
+	 */
+	function bbp_get_form_forum_content() {
+		global $post;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_content'] ) )
+			$forum_content = $_POST['bbp_forum_content'];
+
+		// Get edit data
+		elseif ( !empty( $post->post_title ) && bbp_is_forum_edit() )
+			$forum_content = $post->post_content;
+
+		// No data
+		else
+			$forum_content = '';
+
+		return apply_filters( 'bbp_get_form_forum_content', esc_textarea( $forum_content ) );
+	}
+
+/**
+ * Output value of forum parent
+ *
+ * @since bbPress (r3551)
+ *
+ * @uses bbp_get_form_forum_parent() To get the topic's forum id
+ */
+function bbp_form_forum_parent() {
+	echo bbp_get_form_forum_parent();
+}
+	/**
+	 * Return value of forum parent
+	 *
+	 * @since bbPress (r3551)
+	 *
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_forum_parent_id() To get the topic forum id
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_parent' with the forum
+	 * @return string Value of topic content field
+	 */
+	function bbp_get_form_forum_parent() {
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_id'] ) )
+			$forum_parent = $_POST['bbp_forum_id'];
+
+		// Get edit data
+		elseif ( bbp_is_forum_edit() )
+			$forum_parent = bbp_get_forum_parent_id();
+
+		// No data
+		else
+			$forum_parent = 0;
+
+		return apply_filters( 'bbp_get_form_forum_parent', esc_attr( $forum_parent ) );
 	}
 
 /** Feeds *********************************************************************/
