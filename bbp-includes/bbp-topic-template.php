@@ -184,7 +184,8 @@ function bbp_has_topics( $args = '' ) {
 				);
 
 				// Get all stickies
-				if ( $sticky_posts = get_posts( $sticky_query ) ) {
+				$sticky_posts = get_posts( $sticky_query );
+				if ( !empty( $sticky_posts ) ) {
 
 					// Get a count of the visible stickies
 					$sticky_count = count( $sticky_posts );
@@ -519,7 +520,8 @@ function bbp_topic_archive_title( $title = '' ) {
 		if ( empty( $title ) ) {
 
 			// Set root text to page title
-			if ( $page = bbp_get_page_by_path( $bbp->topic_archive_slug ) ) {
+			$page = bbp_get_page_by_path( $bbp->topic_archive_slug );
+			if ( !empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to topic post type name label
@@ -687,13 +689,15 @@ function bbp_topic_pagination( $args = '' ) {
 		);
 
 		// Add pagination to query object
-		if ( $pagination_links = paginate_links( $pagination ) ) {
+		$pagination_links = paginate_links( $pagination );
+		if ( !empty( $pagination_links ) ) {
 
 			// Remove first page from pagination
-			if ( $wp_rewrite->using_permalinks() )
+			if ( $wp_rewrite->using_permalinks() ) {
 				$pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $pagination_links );
-			else
+			} else {
 				$pagination_links = str_replace( '&#038;paged=1', '', $pagination_links );
+			}
 
 			// Add before and after to pagination links
 			$pagination_links = $before . $pagination_links . $after;
@@ -1161,13 +1165,13 @@ function bbp_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 	function bbp_get_topic_author_avatar( $topic_id = 0, $size = 40 ) {
 		$author_avatar = '';
 
-		if ( $topic_id = bbp_get_topic_id( $topic_id ) ) {
-
-			// Check for anonymous user
-			if ( !bbp_is_topic_anonymous( $topic_id ) )
+		$topic_id = bbp_get_topic_id( $topic_id );
+		if ( !empty( $topic_id ) ) {
+			if ( !bbp_is_topic_anonymous( $topic_id ) ) {
 				$author_avatar = get_avatar( bbp_get_topic_author_id( $topic_id ), $size );
-			else
+			} else {
 				$author_avatar = get_avatar( get_post_meta( $topic_id, '_bbp_anonymous_email', true ), $size );
+			}
 		}
 
 		return apply_filters( 'bbp_get_topic_author_avatar', $author_avatar, $topic_id, $size );
@@ -1478,8 +1482,10 @@ function bbp_topic_last_active_time( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Try to get the most accurate freshness time possible
-		if ( !$last_active = get_post_meta( $topic_id, '_bbp_last_active_time', true ) ) {
-			if ( $reply_id = bbp_get_topic_last_reply_id( $topic_id ) ) {
+		$last_active = get_post_meta( $topic_id, '_bbp_last_active_time', true );
+		if ( empty( $last_active ) ) {
+			$reply_id = bbp_get_topic_last_reply_id( $topic_id );
+			if ( !empty( $reply_id ) ) {
 				$last_active = get_post_field( 'post_date', $reply_id );
 			} else {
 				$last_active = get_post_field( 'post_date', $topic_id );
@@ -1711,12 +1717,13 @@ function bbp_topic_replies_link( $topic_id = 0 ) {
 			$extra = sprintf( __( ' (+ %d hidden)', 'bbpress' ), $deleted );
 
 			// No link
-			if ( bbp_get_view_all() )
+			if ( bbp_get_view_all() ) {
 				$retval .= " $extra";
 
 			// Link
-			else
+			} else {
 				$retval .= " <a href='" . esc_url( bbp_add_view_all( bbp_get_topic_permalink( $topic_id ), true ) ) . "'>$extra</a>";
+			}
 		}
 
 		return apply_filters( 'bbp_get_topic_replies_link', $retval, $topic_id );
@@ -2742,13 +2749,14 @@ function bbp_single_topic_description( $args = '' ) {
 		$voice_count     = sprintf( _n( '%s voice', '%s voices', $voice_count, 'bbpress' ), $voice_count );
 
 		// Topic has replies
-		if ( $last_reply = bbp_get_topic_last_active_id( $topic_id ) ) {
+		$last_reply = bbp_get_topic_last_active_id( $topic_id );
+		if ( !empty( $last_reply ) ) {
 			$last_updated_by = bbp_get_author_link( array( 'post_id' => $last_reply, 'size' => $size ) );
-			$retstr = sprintf( __( 'This topic has %1$s, contains %2$s, and was last updated by %3$s %4$s ago.', 'bbpress' ), $voice_count, $reply_count, $last_updated_by, $time_since );
+			$retstr = sprintf( __( 'This topic contains %1$s, has %2$s, and was last updated by %3$s %4$s ago.', 'bbpress' ), $reply_count, $voice_count, $last_updated_by, $time_since );
 
 		// Topic has no replies
 		} else {
-			$retstr = sprintf( __( 'This topic has %1$s, contains %2$s.', 'bbpress' ), $voice_count, $reply_count );
+			$retstr = sprintf( __( 'This topic contains %1$s and has %2$s.', 'bbpress' ), $voice_count, $reply_count );
 		}
 
 		// Add the 'view all' filter back
