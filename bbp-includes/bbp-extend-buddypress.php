@@ -930,7 +930,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	function edit_screen() {
-		bbp_get_template_part( 'bbpress/form', 'forum' );
+		bbp_get_template_part( 'bbpress/loop', 'forums' );
+		bbp_get_template_part( 'bbpress/form', 'forum'  );
 	}
 
 	function edit_screen_save() {
@@ -938,7 +939,8 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	function create_screen() {
-		bbp_get_template_part( 'bbpress/form', 'forum' );
+		bbp_get_template_part( 'bbpress/loop', 'forums' );
+		bbp_get_template_part( 'bbpress/form', 'forum'  );
 	}
 
 	function create_screen_save() {
@@ -969,7 +971,8 @@ function bbp_setup_buddypress_component() {
 	$bp->forums = new BBP_Forums_Component();
 
 	// Setup the group extension
-	bp_register_group_extension( 'BBP_Forums_Group_Extension' );
+	if ( bp_is_active( 'groups' ) )
+		bp_register_group_extension( 'BBP_Forums_Group_Extension' );
 }
 
 /** BuddyPress Helpers ********************************************************/
