@@ -75,11 +75,11 @@ add_action( 'bbp_init', 'bbp_ready',                  999 );
  *
  * Attach actions to the ready action after bbPress has fully initialized.
  * The load order helps to execute code at the correct time.
- *                                               v---Load order
+ *                                                v---Load order
  */
-add_action( 'bbp_ready', 'bbp_setup_akismet',    2 ); // Spam prevention for topics and replies
-add_action( 'bbp_ready', 'bbp_setup_buddypress', 4 ); // Social network integration
-add_action( 'bbp_ready', 'bbp_setup_genesis',    6 ); // Popular theme framework
+add_action( 'bbp_ready',  'bbp_setup_akismet',    2  ); // Spam prevention for topics and replies
+add_action( 'bbp_ready',  'bbp_setup_genesis',    6  ); // Popular theme framework
+add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integration
 
 // Multisite Global Forum Access
 add_action( 'bbp_setup_current_user', 'bbp_global_access_role_mask',  10 );
@@ -227,6 +227,34 @@ add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
 // Flush rewrite rules
 add_action( 'bbp_activation',   'flush_rewrite_rules' );
 add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
+
+/**
+ * Requires and creates the BuddyPress extension, and adds component creation
+ * action to bp_init hook. @see bbp_setup_buddypress_component()
+ *
+ * @since bbPress (r3395)
+ *
+ * @global bbPress $bbp
+ * @return If bbPress is not active
+ */
+function bbp_setup_buddypress() {
+	global $bbp, $bp;
+
+	// Bail if no BuddyPress
+	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
+
+	// Bail if bbPress is not loaded
+	if ( 'bbPress' !== get_class( $bbp ) ) return;
+
+	// Include the BuddyPress Component
+	require( $bbp->plugin_dir . 'bbp-includes/bbp-extend-buddypress.php' );
+
+	// Instantiate BuddyPress for bbPress
+	$bbp->extend->buddypress = new BBP_BuddyPress();
+
+	// Add component setup to bp_init action
+	add_action( 'bp_init', 'bbp_setup_buddypress_component' );
+}
 
 /**
  * When a new site is created in a multisite installation, run the activation

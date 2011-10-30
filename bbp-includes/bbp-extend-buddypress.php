@@ -133,13 +133,22 @@ class BBP_BuddyPress {
 		/** Activity **********************************************************/
 
 		// Register the activity stream actions
-		add_action( 'bp_register_activity_actions', array( $this, 'register_activity_actions' )        );
+		add_action( 'bp_register_activity_actions',      array( $this, 'register_activity_actions' )        );
 
 		// Hook into topic creation
-		add_action( 'bbp_new_topic',                array( $this, 'topic_create'              ), 10, 4 );
+		add_action( 'bbp_new_topic',                     array( $this, 'topic_create'              ), 10, 4 );
 
 		// Hook into reply creation
-		add_action( 'bbp_new_reply',                array( $this, 'reply_create'              ), 10, 5 );
+		add_action( 'bbp_new_reply',                     array( $this, 'reply_create'              ), 10, 5 );
+
+		// Append forum filters in site wide activity streams
+		add_action( 'bp_activity_filter_options',        array( $this, 'activity_filter_options'   ), 10    );
+
+		// Append forum filters in single member activity streams
+		add_action( 'bp_member_activity_filter_options', array( $this, 'activity_filter_options'   ), 10    );
+
+		// Append forum filters in single group activity streams
+		add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
 	}
 
 	/**
@@ -380,6 +389,20 @@ class BBP_BuddyPress {
 	}
 
 	/**
+	 * Append forum options to activity filter select box
+	 *
+	 * @since bbPress (r????)
+	 */
+	function activity_filter_options() {
+	?>
+
+		<option value="<?php echo $this->topic_create; ?>"><?php _e( 'Topics',  'bbpress' ); ?></option>
+		<option value="<?php echo $this->reply_create; ?>"><?php _e( 'Replies', 'bbpress' ); ?></option>
+
+	<?php
+	}
+
+	/**
 	 * Override bbPress profile URL with BuddyPress profile URL
 	 *
 	 * @since bbPress (r3401)
@@ -391,7 +414,31 @@ class BBP_BuddyPress {
 	 * @return string
 	 */
 	public function user_profile_url( $user_id ) {
-		$profile_url = bp_core_get_user_domain( $user_id );
+
+		// Special handling for forum component
+		if ( bp_is_current_component( 'forums' ) ) {
+
+			// Empty action or 'topics' action
+			if ( !bp_is_current_action() || bp_is_current_action( 'topics' ) ) {
+				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/topics';
+
+			// Empty action or 'topics' action
+			} elseif ( bp_is_current_action( 'replies' ) ) {
+				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/replies';
+
+			// 'favorites' action
+			} elseif ( bbp_is_favorites_active() && bp_is_current_action( 'favorites' ) ) {
+				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/favorites';
+
+			// 'subscriptions' action
+			} elseif ( bbp_is_subscriptions_active() && bp_is_current_action( 'subscriptions' ) ) {
+				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/subscriptions';
+			}
+
+		// Not in users' forums area
+		} else {
+			$profile_url = bp_core_get_user_domain( $user_id );
+		}
 
 		return $profile_url;
 	}
@@ -582,15 +629,322 @@ class BBP_BuddyPress {
 }
 endif;
 
+
+if ( !class_exists( 'BBP_Forums_Component' ) ) :
 /**
- * Loads BuddyPress inside the bbPress global class
+ * Loads Forums Component
  *
- * @since bbPress (r3395)
+ * @since bbPress (r3552)
+ *
+ * @package bbPress
+ * @subpackage BuddyPress
+ */
+class BBP_Forums_Component extends BP_Component {
+
+	/**
+	 * Start the forums component creation process
+	 *
+	 * @since bbPress (r3552)
+	 */
+	function __construct() {
+		parent::start(
+			'forums',
+			__( 'Forums', 'bbpress' ),
+			BP_PLUGIN_DIR
+		);
+		$this->setup_globals();
+		$this->setup_nav();
+	}
+
+	/**
+	 * Setup globals
+	 *
+	 * The BP_FORUMS_SLUG constant is deprecated, and only used here for
+	 * backwards compatibility.
+	 *
+	 * @since bbPress (r3552)
+	 * @global obj $bp
+	 */
+	function setup_globals() {
+		global $bp;
+
+		// Define the parent forum ID
+		if ( !defined( 'BP_FORUMS_PARENT_FORUM_ID' ) )
+			define( 'BP_FORUMS_PARENT_FORUM_ID', 1 );
+
+		// Define a slug, if necessary
+		if ( !defined( 'BP_FORUMS_SLUG' ) )
+			define( 'BP_FORUMS_SLUG', $this->id );
+
+		// All globals for messaging component.
+		$globals = array(
+			'path'                  => BP_PLUGIN_DIR,
+			'slug'                  => BP_FORUMS_SLUG,
+			'root_slug'             => isset( $bp->pages->forums->slug ) ? $bp->pages->forums->slug : BP_FORUMS_SLUG,
+			'has_directory'         => false,
+			'notification_callback' => 'messages_format_notifications',
+			'search_string'         => __( 'Search Forums...', 'bbpress' ),
+		);
+
+		parent::setup_globals( $globals );
+	}
+
+	/**
+	 * Setup BuddyBar navigation
+	 *
+	 * @since bbPress (r3552)
+	 *
+	 * @global obj $bp
+	 */
+	function setup_nav() {
+		global $bp;
+
+		// Stop if there is no user displayed or logged in
+		if ( !is_user_logged_in() && !isset( $bp->displayed_user->id ) )
+			return;
+
+		// Add 'Forums' to the main navigation
+		$main_nav = array(
+			'name'                => __( 'Forums', 'bbpress' ),
+			'slug'                => $this->slug,
+			'position'            => 80,
+			'screen_function'     => 'bbp_member_forums_screen_topics',
+			'default_subnav_slug' => 'topics',
+			'item_css_id'         => $this->id
+		);
+
+		// Determine user to use
+		if ( isset( $bp->displayed_user->domain ) ) {
+			$user_domain = $bp->displayed_user->domain;
+			$user_login  = $bp->displayed_user->userdata->user_login;
+		} elseif ( isset( $bp->loggedin_user->domain ) ) {
+			$user_domain = $bp->loggedin_user->domain;
+			$user_login  = $bp->loggedin_user->userdata->user_login;
+		} else {
+			return;
+		}
+
+		// User link
+		$forums_link = trailingslashit( $user_domain . $this->slug );
+
+		// Topics started
+		$sub_nav[] = array(
+			'name'            => __( 'Topics Started', 'bbpress' ),
+			'slug'            => 'topics',
+			'parent_url'      => $forums_link,
+			'parent_slug'     => $this->slug,
+			'screen_function' => 'bbp_member_forums_screen_topics',
+			'position'        => 20,
+			'item_css_id'     => 'topics'
+		);
+
+		// Replies to topics
+		$sub_nav[] = array(
+			'name'            => __( 'Topics Replied To', 'bbpress' ),
+			'slug'            => 'replies',
+			'parent_url'      => $forums_link,
+			'parent_slug'     => $this->slug,
+			'screen_function' => 'bbp_member_forums_screen_replies',
+			'position'        => 40,
+			'item_css_id'     => 'replies'
+		);
+
+		// Favorite topics
+		$sub_nav[] = array(
+			'name'            => __( 'Favorites', 'bbpress' ),
+			'slug'            => 'favorites',
+			'parent_url'      => $forums_link,
+			'parent_slug'     => $this->slug,
+			'screen_function' => 'bbp_member_forums_screen_favorites',
+			'position'        => 60,
+			'item_css_id'     => 'favorites'
+		);
+
+		// Subscribed topics (my profile only)
+		if ( bp_is_my_profile() ) {
+			$sub_nav[] = array(
+				'name'            => __( 'Subscriptions', 'bbpress' ),
+				'slug'            => 'subscriptions',
+				'parent_url'      => $forums_link,
+				'parent_slug'     => $this->slug,
+				'screen_function' => 'bbp_member_forums_screen_subscriptions',
+				'position'        => 60,
+				'item_css_id'     => 'subscriptions'
+			);
+		}
+
+		parent::setup_nav( $main_nav, $sub_nav );
+	}
+
+	/**
+	 * Set up the admin bar
+	 *
+	 * @since bbPress (r3552)
+	 *
+	 * @global obj $bp
+	 */
+	function setup_admin_bar() {
+		global $bp;
+
+		// Prevent debug notices
+		$wp_admin_nav = array();
+
+		// Menus for logged in user
+		if ( is_user_logged_in() ) {
+
+			// Setup the logged in user variables
+			$user_domain = $bp->loggedin_user->domain;
+			$user_login  = $bp->loggedin_user->userdata->user_login;
+			$forums_link = trailingslashit( $user_domain . $this->slug );
+
+			// Add the "My Account" sub menus
+			$wp_admin_nav[] = array(
+				'parent' => $bp->my_account_menu_id,
+				'id'     => 'my-account-' . $this->id,
+				'title'  => __( 'Forums', 'bbpress' ),
+				'href'   => trailingslashit( $forums_link )
+			);
+
+			// Topics
+			$wp_admin_nav[] = array(
+				'parent' => 'my-account-' . $this->id,
+				'title'  => __( 'Topics Started', 'bbpress' ),
+				'href'   => trailingslashit( $forums_link . 'topics' )
+			);
+
+			// Replies
+			$wp_admin_nav[] = array(
+				'parent' => 'my-account-' . $this->id,
+				'title'  => __( 'Topics Replied To', 'bbpress' ),
+				'href'   => trailingslashit( $forums_link . 'replies' )
+			);
+
+			// Favorites
+			$wp_admin_nav[] = array(
+				'parent' => 'my-account-' . $this->id,
+				'title'  => __( 'Favorite Topics', 'bbpress' ),
+				'href'   => trailingslashit( $forums_link . 'favorites' )
+			);
+
+			// Subscriptions
+			$wp_admin_nav[] = array(
+				'parent' => 'my-account-' . $this->id,
+				'title'  => __( 'Subscribed Topics', 'bbpress' ),
+				'href'   => trailingslashit( $forums_link . 'subscriptions' )
+			);
+		}
+
+		parent::setup_admin_bar( $wp_admin_nav );
+	}
+
+	/**
+	 * Sets up the title for pages and <title>
+	 *
+	 * @since bbPress (r3552)
+	 *
+	 * @global obj $bp
+	 */
+	function setup_title() {
+		global $bp;
+
+		// Adjust title based on view
+		if ( bp_is_forums_component() ) {
+			if ( bp_is_my_profile() ) {
+				$bp->bp_options_title = __( 'Forums', 'buddypress' );
+			} else {
+				$bp->bp_options_avatar = bp_core_fetch_avatar( array(
+					'item_id' => $bp->displayed_user->id,
+					'type'    => 'thumb'
+				) );
+				$bp->bp_options_title = $bp->displayed_user->fullname;
+			}
+		}
+
+		parent::setup_title();
+	}
+}
+endif;
+
+if ( !class_exists( 'BBP_Forums_Group_Extension' ) ) :
+/**
+ * Loads Group Extension for Forums Component
+ *
+ * @since bbPress (r3552)
+ *
+ * @package bbPress
+ * @subpackage BuddyPress
+ * @todo Everything
+ */
+class BBP_Forums_Group_Extension extends BP_Group_Extension {
+
+	/**
+	 * Setup bbPress group extension variables
+	 *
+	 * @since bbPress (r3552)
+	 *
+	 * @global bbPress $bbp
+	 */
+	function __construct() {
+		global $bbp;
+
+		// Name and slug
+		$this->name          = __( 'Forums', 'bbpress' );
+		$this->nav_item_name = __( 'Forums', 'bbpress' );
+		$this->slug          = $bbp->forum_slug;
+
+		// Forum component is visible @todo configure?
+		$this->visibility = 'public';
+
+		// Set positions towards end
+		$this->create_step_position = 15;
+		$this->nav_item_position    = 10;
+
+		// Allow create step and show in nav
+		$this->enable_create_step   = true;
+		$this->enable_nav_item      = true;
+		$this->enable_edit_item     = true;
+
+		// I forget what these do
+		$this->display_hook         = 'bp_template_content';
+		$this->template_file        = 'groups/single/plugins';
+	}
+
+	function display() {
+
+	}
+
+	function widget_display() {
+
+	}
+
+	function edit_screen() {
+		bbp_get_template_part( 'bbpress/form', 'forum' );
+	}
+
+	function edit_screen_save() {
+
+	}
+
+	function create_screen() {
+		bbp_get_template_part( 'bbpress/form', 'forum' );
+	}
+
+	function create_screen_save() {
+
+	}
+}
+endif;
+
+/**
+ * Creates the Forums component in BuddyPress
+ *
+ * @since bbPress (r????)
  *
  * @global bbPress $bbp
+ * @global type $bp
  * @return If bbPress is not active
  */
-function bbp_setup_buddypress() {
+function bbp_setup_buddypress_component() {
 	global $bbp, $bp;
 
 	// Bail if no BuddyPress
@@ -599,8 +953,178 @@ function bbp_setup_buddypress() {
 	// Bail if bbPress is not loaded
 	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
-	// Instantiate BuddyPress for bbPress
-	$bbp->extend->buddypress = new BBP_BuddyPress();
+	// Instantiate BuddyPress forums component
+	$bp->forums = new BBP_Forums_Component();
+
+	// Setup the group extension
+	bp_register_group_extension( 'BBP_Forums_Group_Extension' );
+}
+
+/** BuddyPress Helpers ********************************************************/
+
+/**
+ * Filter the current bbPress user ID with the current BuddyPress user ID
+ *
+ * @since bbPress (r3552)
+ *
+ * @global BuddyPress $bp
+ * @param int $user_id
+ * @param bool $displayed_user_fallback
+ * @param bool $current_user_fallback
+ * @return int User ID
+ */
+function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
+	global $bp;
+
+	$did = bp_displayed_user_id();
+	$lid = bp_loggedin_user_id();
+
+	// Easy empty checking
+	if ( !empty( $user_id ) && is_numeric( $user_id ) )
+		$bbp_user_id = $user_id;
+
+	// Currently viewing or editing a user
+	elseif ( ( true == $displayed_user_fallback ) && !empty( $did ) )
+		$bbp_user_id = $did;
+
+	// Maybe fallback on the current_user ID
+	elseif ( ( true == $current_user_fallback ) && !empty( $lid ) )
+		$bbp_user_id = $lid;
+
+	return $bbp_user_id;
+}
+add_filter( 'bbp_get_user_id', 'bbp_filter_user_id', 10, 3 );
+
+/**
+ * Filter the bbPress is_single_user function with BuddyPress eqivalent
+ *
+ * @since bbPress (r3552)
+ *
+ * @param bool $is Optional. Default false
+ * @return bool True if viewing single user, false if not
+ */
+function bbp_filter_is_single_user( $is = false ) {
+	if ( !empty( $is ) )
+		return $is;
+
+	return bp_is_user();
+}
+add_filter( 'bbp_is_single_user', 'bbp_filter_is_single_user', 10, 1 );
+
+/**
+ * Filter the bbPress is_user_home function with BuddyPress eqivalent
+ *
+ * @since bbPress (r3552)
+ *
+ * @param bool $is Optional. Default false
+ * @return bool True if viewing single user, false if not
+ */
+function bbp_filter_is_user_home( $is = false ) {
+	if ( !empty( $is ) )
+		return $is;
+
+	return bp_is_my_profile();
+}
+add_filter( 'bbp_is_user_home', 'bbp_filter_is_user_home', 10, 1 );
+
+/** BuddyPress Screens ********************************************************/
+
+/**
+ * Hook bbPress topics template into plugins template
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses add_action() To add the content hook
+ * @uses bp_core_load_template() To load the plugins template
+ */
+function bbp_member_forums_screen_topics() {
+	add_action( 'bp_template_content', 'bbp_member_forums_topics_content' );
+	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_topics', 'members/single/plugins' ) );
+}
+
+/**
+ * Hook bbPress replies template into plugins template
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses add_action() To add the content hook
+ * @uses bp_core_load_template() To load the plugins template
+ */
+function bbp_member_forums_screen_replies() {
+	add_action( 'bp_template_content', 'bbp_member_forums_replies_content' );
+	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_replies', 'members/single/plugins' ) );
+}
+
+/**
+ * Hook bbPress favorites template into plugins template
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses add_action() To add the content hook
+ * @uses bp_core_load_template() To load the plugins template
+ */
+function bbp_member_forums_screen_favorites() {
+	add_action( 'bp_template_content', 'bbp_member_forums_favorites_content' );
+	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_favorites', 'members/single/plugins' ) );
+}
+
+/**
+ * Hook bbPress subscriptions template into plugins template
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses add_action() To add the content hook
+ * @uses bp_core_load_template() To load the plugins template
+ */
+function bbp_member_forums_screen_subscriptions() {
+	add_action( 'bp_template_content', 'bbp_member_forums_subscriptions_content' );
+	bp_core_load_template( apply_filters( 'bbp_member_forums_screen_subscriptions', 'members/single/plugins' ) );
+}
+
+/** BuddyPress Templates ******************************************************/
+
+/**
+ * Get the topics created template part
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses bbp_get_template_part()
+ */
+function bbp_member_forums_topics_content() {
+	bbp_get_template_part( 'bbpress/user', 'topics-created' );
+}
+
+/**
+ * Get the topics replied to template part
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses bbp_get_template_part()
+ */
+function bbp_member_forums_replies_content() {
+	bbp_get_template_part( 'bbpress/user', 'topics-replied-to' );
+}
+
+/**
+ * Get the topics favorited template part
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses bbp_get_template_part()
+ */
+function bbp_member_forums_favorites_content() {
+	bbp_get_template_part( 'bbpress/user', 'favorites' );
+}
+
+/**
+ * Get the topics subscribed template part
+ *
+ * @since bbPress (r3552)
+ *
+ * @uses bbp_get_template_part()
+ */
+function bbp_member_forums_subscriptions_content() {
+	bbp_get_template_part( 'bbpress/user', 'subscriptions' );
 }
 
 ?>
