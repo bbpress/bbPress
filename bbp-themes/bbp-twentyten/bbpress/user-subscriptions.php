@@ -16,7 +16,6 @@
 			<?php bbp_set_query_name( 'bbp_user_profile_subscriptions' ); ?>
 
 			<div id="bbp-author-subscriptions" class="bbp-author-subscriptions">
-				<hr />
 				<h2 class="entry-title"><?php _e( 'Subscribed Forum Topics', 'bbpress' ); ?></h2>
 				<div class="entry-content">
 

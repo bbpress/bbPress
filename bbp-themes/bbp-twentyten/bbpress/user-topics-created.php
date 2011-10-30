@@ -12,7 +12,6 @@
 	<?php bbp_set_query_name( 'bbp_user_profile_topics_created' ); ?>
 
 	<div id="bbp-author-topics-started" class="bbp-author-topics-started">
-		<hr />
 		<h2 class="entry-title"><?php _e( 'Forum Topics Created', 'bbpress' ); ?></h2>
 		<div class="entry-content">
 
