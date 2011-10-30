@@ -474,6 +474,7 @@ function bbp_is_topics_created() {
  * @uses bbPres Checks if bbPress::displayed_user is set and if
  *               bbPress::displayed_user::ID equals bbPress::current_user::ID
  *               or not
+ * @uses is_user_logged_in() Must be logged in to be home
  * @return bool True if it's the user's home, false if not
  */
 function bbp_is_user_home() {
@@ -482,7 +483,7 @@ function bbp_is_user_home() {
 	// Assume false
 	$retval = false;
 
-	if ( !empty( $bbp->displayed_user ) )
+	if ( !empty( $bbp->displayed_user ) && is_user_logged_in() )
 		$retval = (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
 
 	return (bool) apply_filters( 'bbp_is_user_home', $retval );
