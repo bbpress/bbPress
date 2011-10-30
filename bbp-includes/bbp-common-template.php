@@ -1635,7 +1635,7 @@ function bbp_breadcrumb( $args = array() ) {
 			// HTML
 			'before'          => '<div class="bbp-breadcrumb"><p>',
 			'after'           => '</p></div>',
-			'sep'             => is_rtl() ? __( '&lsaquo;', 'bbpress' ) : __( '&rsaquo;', 'bbpress' ),
+			'sep'             => __( '&rsaquo;', 'bbpress' ),
 			'pad_sep'         => 1,
 
 			// Home
