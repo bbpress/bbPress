@@ -1733,12 +1733,11 @@ function bbp_breadcrumb( $args = array() ) {
 		// Allow the separator of the breadcrumb to be easily changed
 		$sep = apply_filters( 'bbp_breadcrumb_separator', $sep );
 
-		// Right to left support
-		if ( is_rtl() )
-			$breadcrumbs = apply_filters( 'bbp_breadcrumbs', array_reverse( $breadcrumbs ) );
+		// Filter breadcrumbs before imploding them
+		$breadcrumbs = apply_filters( 'bbp_breadcrumbs', $breadcrumbs );
 
 		// Build the trail
-		$trail = !empty( $breadcrumbs ) ? $before . implode( $sep, $breadcrumbs ) . $after: '';
+		$trail = !empty( $breadcrumbs ) ? ( $before . implode( $sep, $breadcrumbs ) . $after ) : '';
 
 		return apply_filters( 'bbp_get_breadcrumb', $trail, $breadcrumbs, $r );
 	}
