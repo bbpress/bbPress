@@ -992,7 +992,7 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 	/** Validation ************************************************************/
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
-	$forum_id = bbp_get_reply_id( $forum_id );
+	$forum_id = bbp_get_forum_id( $forum_id );
 	
 	/** Reply *****************************************************************/
 
