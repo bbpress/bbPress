@@ -419,7 +419,7 @@ class BBP_BuddyPress {
 		if ( bp_is_current_component( 'forums' ) ) {
 
 			// Empty action or 'topics' action
-			if ( !bp_is_current_action() || bp_is_current_action( 'topics' ) ) {
+			if ( !bp_current_action() || bp_is_current_action( 'topics' ) ) {
 				$profile_url = bp_core_get_user_domain( $user_id ) . 'forums/topics';
 
 			// Empty action or 'topics' action
