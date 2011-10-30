@@ -1095,7 +1095,8 @@ function bbp_replace_the_content( $content = '' ) {
 		} elseif ( bbp_is_forum_archive() ) {
 
 			// Page exists where this archive should be
-			if ( $page = bbp_get_page_by_path( $bbp->root_slug ) ) {
+			$page = bbp_get_page_by_path( $bbp->root_slug );
+			if ( !empty( $page ) ) {
 
 				// Start output buffer
 				ob_start();
@@ -1120,7 +1121,8 @@ function bbp_replace_the_content( $content = '' ) {
 		} elseif ( bbp_is_topic_archive() ) {
 
 			// Page exists where this archive should be
-			if ( $page = bbp_get_page_by_path( $bbp->topic_archive_slug ) ) {
+			$page = bbp_get_page_by_path( $bbp->topic_archive_slug );
+			if ( !empty( $page ) ) {
 
 				// Start output buffer
 				ob_start();
@@ -1510,6 +1512,7 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
  * @uses wp_die() To die
  * @uses bbp_is_query_name() Check if query name is 'bbp_widget'
  * @uses bbp_get_view_query_args() To get the view query args
+ * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() To get the reply post type
  * @uses is_multisite() To check if it's a multisite
@@ -1631,8 +1634,12 @@ function bbp_pre_get_posts( $posts_query ) {
 	// Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {
 
+		// We are editing a forum
+		if ( $posts_query->get( 'post_type' ) == bbp_get_forum_post_type() ) {
+			$posts_query->bbp_is_forum_edit = true;
+
 		// We are editing a topic
-		if ( $posts_query->get( 'post_type' ) == bbp_get_topic_post_type() ) {
+		} elseif ( $posts_query->get( 'post_type' ) == bbp_get_topic_post_type() ) {
 			$posts_query->bbp_is_topic_edit = true;
 
 		// We are editing a reply
