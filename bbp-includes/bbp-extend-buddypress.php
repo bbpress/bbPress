@@ -149,6 +149,18 @@ class BBP_BuddyPress {
 
 		// Append forum filters in single group activity streams
 		add_action( 'bp_group_activity_filter_options',  array( $this, 'activity_filter_options'   ), 10    );
+
+		/** Favorites *********************************************************/
+
+		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
+		remove_action( 'template_redirect', 'bbp_favorites_handler', 1 );
+		add_action(    'bp_actions',        'bbp_favorites_handler', 1 );
+
+		/** Subscriptions *****************************************************/
+
+		// Move handler to 'bp_actions' - BuddyPress bypasses template_loader
+		remove_action( 'template_redirect', 'bbp_subscriptions_handler', 1 );
+		add_action(    'bp_actions',        'bbp_subscriptions_handler', 1 );
 	}
 
 	/**
