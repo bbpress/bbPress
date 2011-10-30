@@ -705,19 +705,15 @@ function bbp_get_view_query_args( $view ) {
  *
  * @param mixed $args Optional. If no args are there, then $_POST values are
  *                     used.
- * @param bool $is_edit Optional. Is the topic/reply being edited? There are no
- *                       IP checks then.
  * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_name' with the
  *                        anonymous user name
  * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_email' with the
  *                        anonymous user email
- * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_ip' with the
- *                        anonymous user's ip address
  * @uses apply_filters() Calls 'bbp_pre_anonymous_post_author_website' with the
  *                        anonymous user website
  * @return bool|array False on errors, values in an array on success
  */
-function bbp_filter_anonymous_post_data( $args = '', $is_edit = false ) {
+function bbp_filter_anonymous_post_data( $args = '' ) {
 
 	// Assign variables
 	$defaults = array (
@@ -913,8 +909,8 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 	$post['user_ua'] = bbp_current_author_ua();
 
 	// Post title and content
-	$post['title']   = $title; 
-	$post['content'] = $content; 
+	$post['title']   = $title;
+	$post['content'] = $content;
 
 	/** Words *****************************************************************/
 
@@ -937,10 +933,10 @@ function bbp_check_for_blacklist( $anonymous_data = false, $author_id = 0, $titl
 
 		// Loop through post data
 		foreach( $post as $post_data ) {
-			
+
 			// Check each user data for current word
 			if ( preg_match( $pattern, $post_data ) ) {
-				
+
 				// Post does not pass
 				return false;
 			}
@@ -990,10 +986,11 @@ function bbp_notify_subscribers( $reply_id = 0, $topic_id = 0, $forum_id = 0, $a
 		return false;
 
 	/** Validation ************************************************************/
+
 	$reply_id = bbp_get_reply_id( $reply_id );
 	$topic_id = bbp_get_topic_id( $topic_id );
 	$forum_id = bbp_get_forum_id( $forum_id );
-	
+
 	/** Reply *****************************************************************/
 
 	// Bail if reply is not published
@@ -1361,7 +1358,7 @@ function bbp_request_feed_trap( $query_vars ) {
 							'key'     => '_bbp_forum_id',
 							'value'   => $forum_id,
 							'compare' => '='
-						) );						
+						) );
 					}
 
 					// Only forum replies
@@ -1503,13 +1500,13 @@ function bbp_add_error( $code = '', $message = '', $data = '' ) {
  * @global bbPress $bbp
  *
  * @see WP_Error()
- * 
+ *
  * @uses is_wp_error()
  * @usese WP_Error::get_error_codes()
  */
 function bbp_has_errors() {
 	global $bbp;
-	
+
 	// Assume no errors
 	$has_errors = false;
 
@@ -1519,7 +1516,7 @@ function bbp_has_errors() {
 
 	// Filter return value
 	$has_errors = apply_filters( 'bbp_has_errors', $has_errors, $bbp->errors );
-	
+
 	return $has_errors;
 }
 
