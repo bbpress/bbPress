@@ -250,65 +250,45 @@ function bbp_forum_metabox() {
 
 	/** Type ******************************************************************/
 
-	$forum['type'] = array(
-		'forum'    => __( 'Forum',    'bbpress' ),
-		'category' => __( 'Category', 'bbpress' )
-	);
-	$type_output = '<select name="bbp_forum_type" id="bbp_forum_type_select">' . "\n";
-
-	foreach( $forum['type'] as $value => $label )
-		$type_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_is_forum_category( $post->ID ) ? 'category' : 'forum', $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
-
-	$type_output .= '</select>';
-
-	/** Status ****************************************************************/
-
-	$forum['status']   = array(
-		'open'   => __( 'Open',   'bbpress' ),
-		'closed' => __( 'Closed', 'bbpress' )
-	);
-	$status_output = '<select name="bbp_forum_status" id="bbp_forum_status_select">' . "\n";
-
-	foreach( $forum['status'] as $value => $label )
-		$status_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_is_forum_closed( $post->ID, false ) ? 'closed' : 'open', $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
-
-	$status_output .= '</select>';
-
-	/** Visibility ************************************************************/
-
-	$forum['visibility']  = array(
-		bbp_get_public_status_id()  => __( 'Public',  'bbpress' ),
-		bbp_get_private_status_id() => __( 'Private', 'bbpress' ),
-		bbp_get_hidden_status_id()  => __( 'Hidden',  'bbpress' )
-	);
-	$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
-
-	foreach( $forum['visibility'] as $value => $label )
-		$visibility_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_get_forum_visibility( $post->ID ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
-
-	$visibility_output .= '</select>';
-
-	/** Output ****************************************************************/ ?>
+	?>
 
 	<p>
 		<strong class="label"><?php _e( 'Type:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_type_select"><?php _e( 'Type:', 'bbpress' ) ?></label>
-		<?php echo $type_output; ?>
+		<?php bbp_form_forum_type_dropdown( $post->ID ); ?>
 	</p>
+
+	<?php
+
+	/** Status ****************************************************************/
+
+	?>
 
 	<p>
 		<strong class="label"><?php _e( 'Status:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_status_select"><?php _e( 'Status:', 'bbpress' ) ?></label>
-		<?php echo $status_output; ?>
+		<?php bbp_form_forum_status_dropdown( $post->ID ); ?>
 	</p>
+
+	<?php
+
+	/** Visibility ************************************************************/
+
+	?>
 
 	<p>
 		<strong class="label"><?php _e( 'Visibility:', 'bbpress' ); ?></strong>
 		<label class="screen-reader-text" for="bbp_forum_visibility_select"><?php _e( 'Visibility:', 'bbpress' ) ?></label>
-		<?php echo $visibility_output; ?>
+		<?php bbp_form_forum_visibility_dropdown( $post->ID ); ?>
 	</p>
 
 	<hr />
+
+	<?php
+
+	/** Parent ****************************************************************/
+
+	?>
 
 	<p>
 		<strong class="label"><?php _e( 'Parent:', 'bbpress' ); ?></strong>

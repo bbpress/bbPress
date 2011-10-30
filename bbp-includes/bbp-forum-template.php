@@ -1333,17 +1333,44 @@ function bbp_forum_visibility( $forum_id = 0 ) {
 	}
 
 /**
+ * Output the type of the forum
+ *
+ * @since bbPress (r3563)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_get_forum_type() To get the forum type
+ */
+function bbp_forum_type( $forum_id = 0 ) {
+	echo bbp_get_forum_type( $forum_id );
+}
+	/**
+	 * Return the type of forum (category/forum/etc...)
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @uses get_post_meta() To get the forum category meta
+	 * @return bool Whether the forum is a category or not
+	 */
+	function bbp_get_forum_type( $forum_id = 0 ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+		$retval   = get_post_meta( $forum_id, '_bbp_forum_type', true );
+
+		return apply_filters( 'bbp_get_forum_type', $retval, $forum_id );
+	}
+
+/**
  * Is the forum a category?
  *
  * @since bbPress (r2746)
  *
  * @param int $forum_id Optional. Forum id
- * @uses get_post_meta() To get the forum category meta
+ * @uses bbp_get_forum_type() To get the forum type
  * @return bool Whether the forum is a category or not
  */
 function bbp_is_forum_category( $forum_id = 0 ) {
 	$forum_id = bbp_get_forum_id( $forum_id );
-	$type     = get_post_meta( $forum_id, '_bbp_forum_type', true );
+	$type     = bbp_get_forum_type( $forum_id );
 	$retval   = ( !empty( $type ) && 'category' == $type );
 
 	return apply_filters( 'bbp_is_forum_category', (bool) $retval, $forum_id );
@@ -1828,6 +1855,198 @@ function bbp_form_forum_parent() {
 			$forum_parent = 0;
 
 		return apply_filters( 'bbp_get_form_forum_parent', esc_attr( $forum_parent ) );
+	}
+
+/**
+ * Output value of forum type
+ *
+ * @since bbPress (r3563)
+ *
+ * @uses bbp_get_form_forum_type() To get the topic's forum id
+ */
+function bbp_form_forum_type() {
+	echo bbp_get_form_forum_type();
+}
+	/**
+	 * Return value of forum type
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_forum_type_id() To get the topic forum id
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_type' with the forum
+	 * @return string Value of topic content field
+	 */
+	function bbp_get_form_forum_type() {
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_type'] ) )
+			$forum_type = $_POST['bbp_forum_type'];
+
+		// Get edit data
+		elseif ( bbp_is_forum_edit() )
+			$forum_type = bbp_get_forum_type();
+
+		// No data
+		else
+			$forum_type = 'forum';
+
+		return apply_filters( 'bbp_get_form_forum_type', esc_attr( $forum_type ) );
+	}
+
+/**
+ * Output value of forum visibility
+ *
+ * @since bbPress (r3563)
+ *
+ * @uses bbp_get_form_forum_visibility() To get the topic's forum id
+ */
+function bbp_form_forum_visibility() {
+	echo bbp_get_form_forum_visibility();
+}
+	/**
+	 * Return value of forum visibility
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_forum_visibility_id() To get the topic forum id
+	 * @uses apply_filters() Calls 'bbp_get_form_forum_visibility' with the forum
+	 * @return string Value of topic content field
+	 */
+	function bbp_get_form_forum_visibility() {
+		global $bbp;
+
+		// Get _POST data
+		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_forum_visibility'] ) )
+			$forum_visibility = $_POST['bbp_forum_visibility'];
+
+		// Get edit data
+		elseif ( bbp_is_forum_edit() )
+			$forum_visibility = bbp_get_forum_visibility();
+
+		// No data
+		else
+			$forum_visibility = $bbp->public_status_id;
+
+		return apply_filters( 'bbp_get_form_forum_visibility', esc_attr( $forum_visibility ) );
+	}
+
+/** Form Dropdows *************************************************************/
+
+/**
+ * Output value forum type dropdown
+ *
+ * @since bbPress (r3563)
+ *
+ * @param int $forum_id The forum id to use
+ * @uses bbp_get_form_forum_type() To get the topic's forum id
+ */
+function bbp_form_forum_type_dropdown( $forum_id = 0 ) {
+	echo bbp_get_form_forum_type_dropdown( $forum_id );
+}
+	/**
+	 * Return the forum type dropdown
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @param int $forum_id The forum id to use
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_forum_type() To get the forum type
+	 * @uses apply_filters()
+	 * @return string HTML select list for selecting forum type
+	 */
+	function bbp_get_form_forum_type_dropdown( $forum_id = 0 ) {
+		$forum_id   = bbp_get_forum_id( $forum_id );
+		$forum_attr = apply_filters( 'bbp_forum_types', array(
+			'forum'    => __( 'Forum',    'bbpress' ),
+			'category' => __( 'Category', 'bbpress' )
+		) );
+		$type_output = '<select name="bbp_forum_type" id="bbp_forum_type_select">' . "\n";
+
+		foreach( $forum_attr as $value => $label )
+			$type_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_get_forum_type( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+		$type_output .= '</select>';
+
+		return apply_filters( 'bbp_get_form_forum_type_dropdown', $type_output, $forum_id, $forum_attr );
+	}
+
+/**
+ * Output value forum status dropdown
+ *
+ * @since bbPress (r3563)
+ *
+ * @param int $forum_id The forum id to use
+ * @uses bbp_get_form_forum_status() To get the topic's forum id
+ */
+function bbp_form_forum_status_dropdown( $forum_id = 0 ) {
+	echo bbp_get_form_forum_status_dropdown( $forum_id );
+}
+	/**
+	 * Return the forum status dropdown
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @param int $forum_id The forum id to use
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_forum_status() To get the forum status
+	 * @uses apply_filters()
+	 * @return string HTML select list for selecting forum status
+	 */
+	function bbp_get_form_forum_status_dropdown( $forum_id = 0 ) {
+		$forum_id   = bbp_get_forum_id( $forum_id );
+		$forum_attr = apply_filters( 'bbp_forum_statuses', array(
+			'open'   => __( 'Open',   'bbpress' ),
+			'closed' => __( 'Closed', 'bbpress' )
+		) );
+		$status_output = '<select name="bbp_forum_status" id="bbp_forum_status_select">' . "\n";
+
+		foreach( $forum_attr as $value => $label )
+			$status_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_get_forum_status( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+		$status_output .= '</select>';
+
+		return apply_filters( 'bbp_get_form_forum_status_dropdown', $status_output, $forum_id, $forum_attr );
+	}
+
+/**
+ * Output value forum visibility dropdown
+ *
+ * @since bbPress (r3563)
+ *
+ * @param int $forum_id The forum id to use
+ * @uses bbp_get_form_forum_visibility() To get the topic's forum id
+ */
+function bbp_form_forum_visibility_dropdown( $forum_id = 0 ) {
+	echo bbp_get_form_forum_visibility_dropdown( $forum_id );
+}
+	/**
+	 * Return the forum visibility dropdown
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @param int $forum_id The forum id to use
+	 * @uses bbp_is_topic_edit() To check if it's the topic edit page
+	 * @uses bbp_get_forum_visibility() To get the forum visibility
+	 * @uses apply_filters()
+	 * @return string HTML select list for selecting forum visibility
+	 */
+	function bbp_get_form_forum_visibility_dropdown( $forum_id = 0 ) {
+		$forum_id   = bbp_get_forum_id( $forum_id );
+		$forum_attr = apply_filters( 'bbp_forum_visibilities', array(
+			bbp_get_public_status_id()  => __( 'Public',  'bbpress' ),
+			bbp_get_private_status_id() => __( 'Private', 'bbpress' ),
+			bbp_get_hidden_status_id()  => __( 'Hidden',  'bbpress' )
+		) );
+		$visibility_output = '<select name="bbp_forum_visibility" id="bbp_forum_visibility_select">' . "\n";
+
+		foreach( $forum_attr as $value => $label )
+			$visibility_output .= "\t" . '<option value="' . $value . '"' . selected( bbp_get_forum_visibility( $forum_id ), $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+		$visibility_output .= '</select>';
+
+		return apply_filters( 'bbp_get_form_forum_visibility_dropdown', $visibility_output, $forum_id, $forum_attr );
 	}
 
 /** Feeds *********************************************************************/
