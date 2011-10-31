@@ -1544,7 +1544,7 @@ function bbp_breadcrumb( $args = array() ) {
 
 			// Set home text to page title
 			$front_id = get_option( 'page_on_front' );
-			if ( empty( $front_id ) ) {
+			if ( !empty( $front_id ) ) {
 				$pre_front_text = get_the_title( $front_id );
 
 			// Default to 'Home'
