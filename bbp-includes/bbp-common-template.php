@@ -1656,7 +1656,7 @@ function bbp_breadcrumb( $args = array() ) {
 		/** Ancestors *********************************************************/
 
 		// Get post ancestors
-		if ( is_page() || is_single() || bbp_is_topic_edit() || bbp_is_reply_edit() )
+		if ( is_page() || is_single() || bbp_is_forum_edit() || bbp_is_topic_edit() || bbp_is_reply_edit() )
 			$ancestors = array_reverse( get_post_ancestors( get_the_ID() ) );
 
 		// Do we want to include a link to home?
