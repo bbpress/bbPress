@@ -323,7 +323,7 @@ a.bbp-reply-permalink {
 #content fieldset.bbp-form label,
 #container fieldset.bbp-form label,
 #wrapper fieldset.bbp-form label {
-	width: 250px;
+	margin: 0;
 	display: inline-block;
 }
 
@@ -347,6 +347,20 @@ a.bbp-reply-permalink {
 #container fieldset.bbp-form input,
 #wrapper fieldset.bbp-form input {
 	margin: 0px 0px 10px;
+}
+
+#content fieldset.bbp-forum-form-main *,
+#container fieldset.bbp-forum-form-main *,
+#wrapper fieldset.bbp-forum-form-main * {
+	width: 97%;
+}
+
+#content fieldset.bbp-forum-form-attributes,
+#container fieldset.bbp-forum-form-attributes,
+#wrapper fieldset.bbp-forum-form-attributes {
+	width: 200px;
+	float: left;
+	clear: none;
 }
 
 .bbp-topic-form,
@@ -386,7 +400,9 @@ body.reply-edit .bbp-reply-form code {
 }
 
 div.bbp-submit-wrapper {
+	margin-top: 15px;
 	float: left;
+	clear: both;
 }
 
 p.form-allowed-tags {
@@ -636,7 +652,7 @@ fieldset div.avatar {
 -------------------------------------------------------------- */
 
 .activity-list li.bbp_topic_create .activity-content .activity-inner,
-.activity-list li.bbp_relsy_create .activity-content .activity-inner {
+.activity-list li.bbp_relpy_create .activity-content .activity-inner {
 	border-left: none;
 	margin-left: 0;
 	padding-left: 0;

@@ -9,13 +9,9 @@
 
 ?>
 
-	<?php if ( !bbp_is_single_forum() ) : ?>
+	<?php if ( bbp_is_forum_edit() ) : ?>
 
 		<?php bbp_breadcrumb(); ?>
-
-	<?php endif; ?>
-
-	<?php if ( bbp_is_forum_edit() ) : ?>
 
 		<?php bbp_single_forum_description( array( 'forum_id' => bbp_get_forum_id() ) ); ?>
 
@@ -63,45 +59,83 @@
 
 					<div>
 
-						<?php do_action( 'bbp_theme_before_forum_form_title' ); ?>
+						<fieldset class="bbp-form bbp-forum-form-attributes">
+							<legend><?php _e( 'Forum Attributes', 'bbpress' ); ?></legend>
 
-						<p>
-							<label for="bbp_forum_title"><?php printf( __( 'Forum Name (Maximum Length: %d):', 'bbpress' ), bbp_get_title_max_length() ); ?></label><br />
-							<input type="text" id="bbp_forum_title" value="<?php bbp_form_forum_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_forum_title" maxlength="<?php bbp_title_max_length(); ?>" />
-						</p>
-
-						<?php do_action( 'bbp_theme_after_forum_form_title' ); ?>
-
-						<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
-
-						<p>
-							<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="6"><?php bbp_form_forum_content(); ?></textarea>
-						</p>
-
-						<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
-
-						<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
-
-							<p class="form-allowed-tags">
-								<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
-								<code><?php bbp_allowed_tags(); ?></code>
-							</p>
-
-						<?php endif; ?>
-
-						<?php if ( !bbp_is_single_forum() ) : ?>
-
-							<?php do_action( 'bbp_theme_before_forum_form_parent' ); ?>
+							<?php do_action( 'bbp_theme_before_forum_form_type' ); ?>
 
 							<p>
-								<label for="bbp_forum_id"><?php _e( 'Parent Forum:', 'bbpress' ); ?></label><br />
-								<?php bbp_dropdown( array( 'show_none' => __( 'No Parent', 'bbpress' ), 'selected' => bbp_get_form_forum_parent() ) ); ?>
+								<label for="bbp_forum_id"><?php _e( 'Forum Type:', 'bbpress' ); ?></label><br />
+								<?php bbp_form_forum_type_dropdown(); ?>
 							</p>
 
-							<?php do_action( 'bbp_theme_after_forum_form_parent' ); ?>
+							<?php do_action( 'bbp_theme_after_forum_form_type' ); ?>
 
-						<?php endif; ?>
+							<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
+
+							<p>
+								<label for="bbp_forum_id"><?php _e( 'Status:', 'bbpress' ); ?></label><br />
+								<?php bbp_form_forum_status_dropdown(); ?>
+							</p>
+
+							<?php do_action( 'bbp_theme_after_forum_form_status' ); ?>
+
+							<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
+
+							<p>
+								<label for="bbp_forum_id"><?php _e( 'Visibility:', 'bbpress' ); ?></label><br />
+								<?php bbp_form_forum_visibility_dropdown(); ?>
+							</p>
+
+							<?php do_action( 'bbp_theme_after_forum_visibility_status' ); ?>
+
+							<?php if ( !bbp_is_single_forum() ) : ?>
+
+								<hr />
+
+								<?php do_action( 'bbp_theme_before_forum_form_parent' ); ?>
+
+								<p>
+									<label for="bbp_forum_id"><?php _e( 'Parent Forum:', 'bbpress' ); ?></label><br />
+									<?php bbp_dropdown( array( 'show_none' => __( '(No Parent)', 'bbpress' ), 'selected' => bbp_get_form_forum_parent() ) ); ?>
+								</p>
+
+								<?php do_action( 'bbp_theme_after_forum_form_parent' ); ?>
+
+							<?php endif; ?>
+
+						</fieldset>
+
+						<fieldset class="bbp-forum-form-main">
+
+							<?php do_action( 'bbp_theme_before_forum_form_title' ); ?>
+
+							<p>
+								<label for="bbp_forum_title"><?php printf( __( 'Forum Name (Maximum Length: %d):', 'bbpress' ), bbp_get_title_max_length() ); ?></label><br />
+								<input type="text" id="bbp_forum_title" value="<?php bbp_form_forum_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_forum_title" maxlength="<?php bbp_title_max_length(); ?>" />
+							</p>
+
+							<?php do_action( 'bbp_theme_after_forum_form_title' ); ?>
+
+							<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
+
+							<p>
+								<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
+								<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="10"><?php bbp_form_forum_content(); ?></textarea>
+							</p>
+
+							<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
+
+							<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
+
+								<p class="form-allowed-tags">
+									<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
+									<code><?php bbp_allowed_tags(); ?></code>
+								</p>
+
+							<?php endif; ?>
+
+						</fieldset>
 
 						<?php do_action( 'bbp_theme_before_forum_form_submit_wrapper' ); ?>
 

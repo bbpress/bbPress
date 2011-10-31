@@ -334,7 +334,7 @@ a.bbp-reply-permalink {
 #content fieldset.bbp-form label,
 #container fieldset.bbp-form label,
 #wrapper fieldset.bbp-form label {
-	width: 250px;
+	margin: 0;
 	display: inline-block;
 }
 
@@ -361,12 +361,25 @@ a.bbp-reply-permalink {
 }
 
 textarea#bbp_reply_content,
-textarea#bbp_topic_content {
-	width: 100%;
+textarea#bbp_topic_content,
+textarea#bbp_forum_content {
+	width: 97%;
 	box-sizing: border-box;
 	-webkit-box-sizing:border-box;
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;
+}
+
+textarea#bbp_forum_content {
+	height: 210px;
+}
+
+#content fieldset.bbp-forum-form-attributes,
+#container fieldset.bbp-forum-form-attributes,
+#wrapper fieldset.bbp-forum-form-attributes {
+	width: 200px;
+	float: right;
+	clear: none;
 }
 
 .bbp-topic-form,
@@ -406,7 +419,9 @@ body.reply-edit .bbp-reply-form code {
 }
 
 div.bbp-submit-wrapper {
+	margin-top: 15px;
 	float: right;
+	clear: both;
 }
 
 p.form-allowed-tags {
