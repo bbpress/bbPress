@@ -929,22 +929,105 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 
 	}
 
+	/** Edit ******************************************************************/
+
+	/**
+	 * Show forums and new forum form when editing a group
+	 *
+	 * @since bbPress (r3563)
+	 *
+	 * @uses groups_get_groupmeta()
+	 * @uses bp_get_current_group_id()
+	 * @uses bbp_has_forums()
+	 * @uses bbp_get_template_part()
+	 */
 	function edit_screen() {
-		bbp_get_template_part( 'bbpress/loop', 'forums' );
+
+		// Forum data
+		$group_id   = bp_get_current_group_id();
+		$forum_ids  = groups_get_groupmeta( $group_id, 'forum_id' );
+		$forum_args = array(
+			'post__in' => $forum_ids
+		);
+
+		// Query forums and show them if
+		if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) {
+			bbp_get_template_part( 'bbpress/loop', 'forums' );
+		} else { ?>
+
+			<div id="message" class="info">
+				<p><?php _e( 'This group does not have any forums.', 'bbpress' ); ?></p>
+			</div>
+
+		<?php };
+
+		// Output the forum form
 		bbp_get_template_part( 'bbpress/form', 'forum'  );
+
+		// Verify intent
+		wp_nonce_field( 'bbp_group_edit_save_' . $this->slug );
 	}
 
+	/**
+	 * Save the Group Forum data on edit
+	 *
+	 * @since bbPress (r3465)
+	 *
+	 * @todo Everything
+	 */
 	function edit_screen_save() {
-
+		check_admin_referer( 'bbp_group_edit_save_' . $this->slug );
 	}
 
+	/** Create ****************************************************************/
+
+	/**
+	 * Show forums and new forum form when creating a group
+	 *
+	 * @since bbPress (r3465)
+	 *
+	 * @todo Everything
+	 */
 	function create_screen() {
-		bbp_get_template_part( 'bbpress/loop', 'forums' );
-		bbp_get_template_part( 'bbpress/form', 'forum'  );
+
+		// Bail if not looking at this screen
+		if ( !bp_is_group_creation_step( $this->slug ) )
+            return false;
+
+		// Forum data
+		$group_id   = bp_get_current_group_id();
+		$forum_ids  = groups_get_groupmeta( $group_id, 'forum_id' );
+		$forum_args = array(
+			'post__in' => $forum_ids
+		);
+
+		// Query forums and show them if
+		if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) {
+			bbp_get_template_part( 'bbpress/loop', 'forums' );
+		} else { ?>
+
+			<div id="message" class="info">
+				<p><?php _e( 'This group does not have any forums. Create some or continue to the next step. You can modify this groups forums later.', 'bbpress' ); ?></p>
+			</div>
+
+		<?php };
+
+		// Output the forum form
+		bbp_get_template_part( 'bbpress/form', 'forum' );
+
+		// Verify intent
+		wp_nonce_field( 'bbp_group_create_save_' . $this->slug );
 	}
 
+	/**
+	 * Save the Group Forum data on create
+	 *
+	 * @since bbPress (r3465)
+	 *
+	 * @todo Everything
+	 */
 	function create_screen_save() {
-
+		check_admin_referer( 'groups_create_save_' . $this->slug );
 	}
 }
 endif;
