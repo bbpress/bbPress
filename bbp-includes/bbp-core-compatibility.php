@@ -515,6 +515,56 @@ function bbp_get_single_view_template() {
 }
 
 /**
+ * Get the forum edit template
+ *
+ * @since bbPress (r3566)
+ *
+ * @uses bbp_get_topic_post_type()
+ * @uses apply_filters()
+ *
+ * @return array
+ */
+function bbp_get_forum_edit_template() {
+
+	$post_type = bbp_get_forum_post_type();
+	$templates = array(
+
+		// Single Topic Edit
+		'single-'         . $post_type . '-edit.php',
+		'bbpress/single-' . $post_type . '-edit.php',
+		'forums/single-'  . $post_type . '-edit.php',
+
+		// Single Action Edit Topic
+		'single-action-edit-'         . $post_type . '.php',
+		'bbpress/single-action-edit-' . $post_type . '.php',
+		'forums/single-action-edit-'  . $post_type . '.php',
+
+		// Single Action Edit
+		'single-action-edit.php',
+		'bbpress/single-action-edit.php',
+		'forums/single-action-edit.php',
+
+		// Action Edit
+		'action-edit.php',
+		'bbpress/action-edit.php',
+		'forums/action-edit.php',
+
+		// Single Topic
+		'single-'         . $post_type . '.php',
+		'forums/single-'  . $post_type . '.php',
+		'bbpress/single-' . $post_type . '.php',
+	);
+
+	$templates = apply_filters( 'bbp_get_forum_edit_template', $templates );
+	$templates = bbp_set_theme_compat_templates( $templates );
+
+	$template  = locate_template( $templates, false, false );
+	$template  = bbp_set_theme_compat_template( $template );
+
+	return $template;
+}
+
+/**
  * Get the topic edit template
  *
  * @since bbPress (r3311)
@@ -808,6 +858,8 @@ function bbp_get_theme_compat_templates() {
  * @uses bbp_get_single_user_edit_template() To get user edit template
  * @uses bbp_is_single_view() To check if page is single view
  * @uses bbp_get_single_view_template() To get view template
+ * @uses bbp_is_forum_edit() To check if page is forum edit
+ * @uses bbp_get_forum_edit_template() To get forum edit template
  * @uses bbp_is_topic_merge() To check if page is topic merge
  * @uses bbp_get_topic_merge_template() To get topic merge template
  * @uses bbp_is_topic_split() To check if page is topic split
@@ -833,6 +885,9 @@ function bbp_template_include_theme_supports( $template = '' ) {
 
 		// Single View
 		elseif ( bbp_is_single_view()      && ( $new_template = bbp_get_single_view_template()      ) ) :
+
+		// Topic edit
+		elseif ( bbp_is_forum_edit()       && ( $new_template = bbp_get_forum_edit_template()       ) ) :
 
 		// Topic merge
 		elseif ( bbp_is_topic_merge()      && ( $new_template = bbp_get_topic_merge_template()      ) ) :
@@ -880,6 +935,21 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			) );
 
 		/** Forums ************************************************************/
+
+		// Single forum edit
+		} elseif ( bbp_is_forum_edit() ) {
+
+			// Reset post
+			bbp_theme_compat_reset_post( array(
+				'ID'           => bbp_get_forum_id(),
+				'post_title'   => bbp_get_forum_title(),
+				//'post_author'  => bbp_get_forum_author_id(),
+				'post_date'    => 0,
+				'post_content' => get_post_field( 'post_content', bbp_get_forum_id() ),
+				'post_type'    => bbp_get_forum_post_type(),
+				'post_status'  => bbp_get_forum_status(),
+				'is_single'    => true
+			) );
 
 		// Forum archive
 		} elseif ( bbp_is_forum_archive() ) {
@@ -1090,6 +1160,10 @@ function bbp_replace_the_content( $content = '' ) {
 			ob_end_clean();
 
 		/** Forums ************************************************************/
+
+		// Reply Edit
+		} elseif ( bbp_is_forum_edit() ) {
+			$new_content = $bbp->shortcodes->display_forum_form();
 
 		// Forum archive
 		} elseif ( bbp_is_forum_archive() ) {
@@ -1634,17 +1708,28 @@ function bbp_pre_get_posts( $posts_query ) {
 	// Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {
 
-		// We are editing a forum
-		if ( $posts_query->get( 'post_type' ) == bbp_get_forum_post_type() ) {
-			$posts_query->bbp_is_forum_edit = true;
+		// Get the post type from the main query loop
+		$post_type = $posts_query->get( 'post_type' );
+		
+		// Check which post_type we are editing, if any
+		if ( !empty( $post_type ) ) {
+			switch( $post_type ) {
 
-		// We are editing a topic
-		} elseif ( $posts_query->get( 'post_type' ) == bbp_get_topic_post_type() ) {
-			$posts_query->bbp_is_topic_edit = true;
+				// We are editing a forum
+				case bbp_get_forum_post_type() :
+					$posts_query->bbp_is_forum_edit = true;
+					break;
 
-		// We are editing a reply
-		} elseif ( $posts_query->get( 'post_type' ) == bbp_get_reply_post_type() ) {
-			$posts_query->bbp_is_reply_edit = true;
+				// We are editing a topic
+				case bbp_get_topic_post_type() :
+					$posts_query->bbp_is_topic_edit = true;
+					break;
+
+				// We are editing a reply
+				case bbp_get_reply_post_type() :
+					$posts_query->bbp_is_reply_edit = true;
+					break;
+			}
 
 		// We are editing a topic tag
 		} elseif ( bbp_is_topic_tag() ) {

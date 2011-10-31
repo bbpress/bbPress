@@ -351,6 +351,27 @@ class BBP_Shortcodes {
 		return $this->end();
 	}
 
+	/**
+	 * Display the forum form in an output buffer and return to ensure
+	 * post/page contents are displayed first.
+	 *
+	 * @since bbPress (r3566)
+	 *
+	 * @uses current_theme_supports()
+	 * @uses get_template_part()
+	 */
+	public function display_forum_form() {
+
+		// Start output buffer
+		$this->start( 'bbp_forum_form' );
+
+		// Output templates
+		bbp_get_template_part( 'bbpress/form', 'forum' );
+
+		// Return contents of output buffer
+		return $this->end();
+	}
+
 	/** Topic shortcodes ******************************************************/
 
 	/**

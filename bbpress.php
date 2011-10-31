@@ -949,7 +949,8 @@ class bbPress {
 		// New rules to merge with existing
 		$bbp_rules = array(
 
-			// Edit Topic/Reply
+			// Edit Forum/Topic/Reply
+			$this->forum_slug     . '/([^/]+)/edit/?$' => 'index.php?' . $this->forum_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->topic_slug     . '/([^/]+)/edit/?$' => 'index.php?' . $this->topic_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 			$this->reply_slug     . '/([^/]+)/edit/?$' => 'index.php?' . $this->reply_post_type  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
