@@ -1025,11 +1025,14 @@ function bbp_dropdown( $args = '' ) {
 
 		/** Post Status *******************************************************/
 
+		// Define local variable(s)
+		$post_stati = array();
+
 		// Public
 		$post_stati[] = bbp_get_public_status_id();
 
 		// Forums
-		if ( bbp_get_forum_post_type() == $post_type ) {
+		if ( $post_type == bbp_get_forum_post_type() ) {
 
 			// Private forums
 			if ( current_user_can( 'read_private_forums' ) )
@@ -1537,8 +1540,8 @@ function bbp_breadcrumb( $args = array() ) {
 			return;
 
 		// Define variables
-		$front_id  = $root_id     = 0;
-		$ancestors = $breadcrumbs = array();
+		$front_id         = $root_id                                 = 0;
+		$ancestors        = $breadcrumbs      = $tag_data            = array();
 		$pre_root_text    = $pre_front_text   = $pre_current_text    = '';
 		$pre_include_root = $pre_include_home = $pre_include_current = true;
 
