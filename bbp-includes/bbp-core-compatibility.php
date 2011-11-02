@@ -1763,9 +1763,9 @@ function bbp_pre_get_posts( $posts_query ) {
 
 	// Topic tag page
 	} elseif ( bbp_is_topic_tag() ) {
-		$posts_query->set( 'bbp_topic_tag',  get_query_var( 'term' )                  );
-		$posts_query->set( 'post_type',      bbp_get_topic_post_type()                );
-		$posts_query->set( 'posts_per_page', get_option( '_bbp_topics_per_page', 15 ) );
+		$posts_query->set( 'bbp_topic_tag',  get_query_var( 'term' )   );
+		$posts_query->set( 'post_type',      bbp_get_topic_post_type() );
+		$posts_query->set( 'posts_per_page', bbp_get_topics_per_page() );
 	}
 }
 

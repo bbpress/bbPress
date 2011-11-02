@@ -93,7 +93,7 @@ function bbp_has_topics( $args = '' ) {
 		'order'          => 'DESC',
 
 		// Topics per page
-		'posts_per_page' => get_option( '_bbp_topics_per_page', 15 ),
+		'posts_per_page' => bbp_get_topics_per_page(),
 
 		// Page Number
 		'paged'          => bbp_get_paged(),
@@ -680,7 +680,7 @@ function bbp_topic_pagination( $args = '' ) {
 		$pagination = array(
 			'base'      => $base,
 			'format'    => '',
-			'total'     => ceil( (int) $total / (int) get_option( '_bbp_replies_per_page', 15 ) ),
+			'total'     => ceil( (int) $total / (int) bbp_get_replies_per_page() ),
 			'current'   => 0,
 			'prev_next' => false,
 			'mid_size'  => 2,

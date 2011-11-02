@@ -100,7 +100,7 @@ function bbp_has_replies( $args = '' ) {
 		'order'          => 'ASC',
 
 		// Max number
-		'posts_per_page' => get_option( '_bbp_replies_per_page', 15 ),
+		'posts_per_page' => bbp_get_replies_per_page(),
 
 		// Page Number
 		'paged'          => bbp_get_paged(),
@@ -377,7 +377,7 @@ function bbp_reply_url( $reply_id = 0 ) {
 		$reply_position = bbp_get_reply_position ( $reply_id, $topic_id    );
 
 		// Check if in query with pagination
-		$reply_page     = ceil( $reply_position / get_option( '_bbp_replies_per_page', 15 ) );
+		$reply_page     = ceil( (int) $reply_position / (int) bbp_get_replies_per_page() );
 
 		// Hash to add to end of URL
 		$reply_hash     = '#post-' . $reply_id;
