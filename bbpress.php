@@ -46,244 +46,244 @@ class bbPress {
 	/** Version ***************************************************************/
 
 	/**
-	 * @public string bbPress version
+	 * @var string bbPress version
 	 */
 	public $version = '2.1-bleeding';
 
 	/**
-	 * @public string bbPress DB version
+	 * @var string bbPress DB version
 	 */
 	public $db_version = '200';
 
 	/** Post types ************************************************************/
 
 	/**
-	 * @public string Forum post type id
+	 * @var string Forum post type id
 	 */
 	public $forum_post_type = '';
 
 	/**
-	 * @public string Topic post type id
+	 * @var string Topic post type id
 	 */
 	public $topic_post_type = '';
 
 	/**
-	 * @ string Reply post type id
+	 * @var string Reply post type id
 	 */
 	public $reply_post_type = '';
 
 	/** Taxonomies ************************************************************/
 
 	/**
-	 * @public string Topic tag id
+	 * @var string Topic tag id
 	 */
 	public $topic_tag_tax_id = '';
 
 	/** Permastructs **********************************************************/
 
 	/**
-	 * @public string User struct
+	 * @var string User struct
 	 */
 	public $user_id = '';
 
 	/**
-	 * @public string View struct
+	 * @var string View struct
 	 */
 	public $view_id = '';
 
 	/**
-	 * @public string Edit struct
+	 * @var string Edit struct
 	 */
 	public $edit_id = '';
 
 	/** Post statuses *********************************************************/
 
 	/**
-	 * @public string Closed post status id. Used by topics.
+	 * @var string Closed post status id. Used by topics.
 	 */
 	public $closed_status_id = '';
 
 	/**
-	 * @public string Spam post status id. Used by topics and replies.
+	 * @var string Spam post status id. Used by topics and replies.
 	 */
 	public $spam_status_id = '';
 
 	/**
-	 * @public string Trash post status id. Used by topics and replies.
+	 * @var string Trash post status id. Used by topics and replies.
 	 */
 	public $trash_status_id = '';
 
 	/**
-	 * @public string Orphan post status id. Used by topics and replies.
+	 * @var string Orphan post status id. Used by topics and replies.
 	 */
 	public $orphan_status_id = '';
 
 	/**
-	 * @public string Hidden post status id. Used by forums.
+	 * @var string Hidden post status id. Used by forums.
 	 */
 	public $hidden_status_id = '';
 
 	/** Slugs *****************************************************************/
 
 	/**
-	 * @public string Root slug
+	 * @var string Root slug
 	 */
 	public $root_slug = '';
 
 	/**
-	 * @public string Forum slug
+	 * @var string Forum slug
 	 */
 	public $forum_slug = '';
 
 	/**
-	 * @public string Topic slug
+	 * @var string Topic slug
 	 */
 	public $topic_slug = '';
 
 	/**
-	 * @public string Topic archive slug
+	 * @var string Topic archive slug
 	 */
 	public $topic_archive_slug = '';
 
 	/**
-	 * @public string Reply slug
+	 * @var string Reply slug
 	 */
 	public $reply_slug = '';
 
 	/**
-	 * @public string Topic tag slug
+	 * @var string Topic tag slug
 	 */
 	public $topic_tag_slug = '';
 
 	/**
-	 * @public string User slug
+	 * @var string User slug
 	 */
 	public $user_slug = '';
 
 	/**
-	 * @public string View slug
+	 * @var string View slug
 	 */
 	public $view_slug = '';
 
 	/** Paths *****************************************************************/
 
 	/**
-	 * @public string Basename of the bbPress plugin directory
+	 * @var string Basename of the bbPress plugin directory
 	 */
 	public $basename = '';
 
 	/**
-	 * @public string Absolute path to the bbPress plugin directory
+	 * @var string Absolute path to the bbPress plugin directory
 	 */
 	public $plugin_dir = '';
 
 	/**
-	 * @public string Absolute path to the bbPress themes directory
+	 * @var string Absolute path to the bbPress themes directory
 	 */
 	public $themes_dir = '';
 
 	/**
-	 * @public string Absolute path to the bbPress language directory
+	 * @var string Absolute path to the bbPress language directory
 	 */
 	public $lang_dir = '';
 
 	/** URLs ******************************************************************/
 
 	/**
-	 * @public string URL to the bbPress plugin directory
+	 * @var string URL to the bbPress plugin directory
 	 */
 	public $plugin_url = '';
 
 	/**
-	 * @public string URL to the bbPress themes directory
+	 * @var string URL to the bbPress themes directory
 	 */
 	public $themes_url = '';
 
 	/** Current ID's **********************************************************/
 
 	/**
-	 * @public string Current forum id
+	 * @var string Current forum id
 	 */
 	public $current_forum_id = 0;
 
 	/**
-	 * @public string Current topic id
+	 * @var string Current topic id
 	 */
 	public $current_topic_id = 0;
 
 	/**
-	 * @public string Current reply id
+	 * @var string Current reply id
 	 */
 	public $current_reply_id = 0;
 
 	/** Users *****************************************************************/
 
 	/**
-	 * @public object Current user
+	 * @var object Current user
 	 */
 	public $current_user = array();
 
 	/**
-	 * @public object Displayed user
+	 * @var object Displayed user
 	 */
 	public $displayed_user = array();
 
 	/** Queries ***************************************************************/
 
 	/**
-	 * @public WP_Query For forums
+	 * @var WP_Query For forums
 	 */
 	public $forum_query;
 
 	/**
-	 * @public WP_Query For topics
+	 * @var WP_Query For topics
 	 */
 	public $topic_query;
 
 	/**
-	 * @public WP_Query For replies
+	 * @var WP_Query For replies
 	 */
 	public $reply_query;
 
 	/** Arrays ****************************************************************/
 
 	/**
-	 * @public array Sub Forums
+	 * @var array Sub Forums
 	 */
 	public $sub_forums = array();
 
 	/** Errors ****************************************************************/
 
 	/**
-	 * @public WP_Error Used to log and display errors
+	 * @var WP_Error Used to log and display errors
 	 */
 	public $errors = array();
 
 	/** Views *****************************************************************/
 
 	/**
-	 * @public array An array of registered bbPress views
+	 * @var array An array of registered bbPress views
 	 */
 	public $views = array();
 
 	/** Forms *****************************************************************/
 
 	/**
-	 * @public int The current tab index for form building
+	 * @var int The current tab index for form building
 	 */
 	public $tab_index = 0;
 
 	/** Theme Compat **********************************************************/
 
 	/**
-	 * @public string Theme to use for theme compatibility
+	 * @var string Theme to use for theme compatibility
 	 */
 	public $theme_compat = '';
 
 	/** Extensions ************************************************************/
 
 	/**
-	 * @public mixed bbPress add-ons should append globals to this
+	 * @var mixed bbPress add-ons should append globals to this
 	 */
 	public $extend = false;
 
