@@ -109,7 +109,8 @@ class BBP_Replies_Admin {
 	function setup_help() {
 
 		// Define local variable(s)
-		$contextual_help = array();
+		$contextual_help     = '';
+		$bbp_contextual_help = array();
 
 		/** New/Edit **********************************************************/
 
@@ -134,7 +135,8 @@ class BBP_Replies_Admin {
 		add_contextual_help( bbp_get_reply_post_type(), $contextual_help );
 
 		// Reset
-		$contextual_help = $bbp_contextual_help = '';
+		$contextual_help     = '';
+		$bbp_contextual_help = array();
 
 		/** Post Rows *********************************************************/
 

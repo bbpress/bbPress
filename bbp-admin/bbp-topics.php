@@ -109,7 +109,8 @@ class BBP_Topics_Admin {
 	function setup_help() {
 
 		// Define local variable(s)
-		$contextual_help = array();
+		$contextual_help     = '';
+		$bbp_contextual_help = array();
 
 		/** New/Edit **********************************************************/
 
@@ -135,7 +136,8 @@ class BBP_Topics_Admin {
 		add_contextual_help( bbp_get_topic_post_type(), $contextual_help );
 
 		// Reset
-		$contextual_help = $bbp_contextual_help = '';
+		$contextual_help     = '';
+		$bbp_contextual_help = array();
 
 		/** Post Rows *********************************************************/
 
@@ -176,10 +178,11 @@ class BBP_Topics_Admin {
 			$contextual_help .= '<p>' . $paragraph . '</p>';
 
 		// Add help
-		add_contextual_help( bbp_get_topic_post_type(), $contextual_help );
+		add_contextual_help( 'edit-' . bbp_get_topic_post_type(), $contextual_help );
 
 		// Reset
-		$contextual_help = $bbp_contextual_help = '';
+		$contextual_help = '';
+		$bbp_contextual_help = array();
 
 		/** Topic Tags **********************************************************/
 
@@ -199,7 +202,6 @@ class BBP_Topics_Admin {
 			$contextual_help .= '<p>' . $paragraph . '</p>';
 
 		// Add help
-		global $bbp;
 		add_contextual_help( 'edit-' . bbp_get_topic_tag_tax_id(), $contextual_help );
 	}
 
