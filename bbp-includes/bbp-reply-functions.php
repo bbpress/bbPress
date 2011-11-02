@@ -207,6 +207,12 @@ function bbp_new_reply_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be created at this time.', 'bbpress' ) );
 
+	/** Reply Moderation ******************************************************/
+	
+	$post_status = bbp_get_public_status_id();
+	if ( !bbp_check_for_moderation( $anonymous_data, $reply_author, $reply_title, $reply_content ) )
+		$post_status = bbp_get_pending_status_id();
+
 	/** Topic Tags ************************************************************/
 
 	if ( !empty( $_POST['bbp_topic_tags'] ) )
@@ -229,7 +235,7 @@ function bbp_new_reply_handler() {
 			'post_title'   => $reply_title,
 			'post_content' => $reply_content,
 			'post_parent'  => $topic_id,
-			'post_status'  => bbp_get_public_status_id(),
+			'post_status'  => $post_status,
 			'post_type'    => bbp_get_reply_post_type()
 		);
 
@@ -455,6 +461,12 @@ function bbp_edit_reply_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
 		bbp_add_error( 'bbp_reply_blacklist', __( '<strong>ERROR</strong>: Your reply cannot be edited at this time.', 'bbpress' ) );
 
+	/** Reply Moderation ******************************************************/
+	
+	$post_status = bbp_get_public_status_id();
+	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_reply_author_id( $reply_id ), $reply_title, $reply_content ) )
+		$post_status = bbp_get_pending_status_id();
+
 	/** Topic Tags ************************************************************/
 
 	if ( !empty( $_POST['bbp_topic_tags'] ) )
@@ -473,7 +485,8 @@ function bbp_edit_reply_handler() {
 		$reply_data = array(
 			'ID'           => $reply_id,
 			'post_title'   => $reply_title,
-			'post_content' => $reply_content
+			'post_content' => $reply_content,
+			'post_status'  => $post_status
 		);
 
 		// Just in time manipulation of reply data before being edited

@@ -228,10 +228,16 @@ function bbp_new_topic_handler() {
 	if ( !bbp_check_for_duplicate( array( 'post_type' => bbp_get_topic_post_type(), 'post_author' => $topic_author, 'post_content' => $topic_content, 'anonymous_data' => $anonymous_data ) ) )
 		bbp_add_error( 'bbp_topic_duplicate', __( '<strong>ERROR</strong>: Duplicate topic detected; it looks as though you&#8217;ve already said that!', 'bbpress' ) );
 
-	/** topic Blacklist *******************************************************/
+	/** Topic Blacklist *******************************************************/
 	
 	if ( !bbp_check_for_blacklist( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be created at this time.', 'bbpress' ) );
+
+	/** Topic Moderation ******************************************************/
+	
+	$post_status = bbp_get_public_status_id();
+	if ( !bbp_check_for_moderation( $anonymous_data, $topic_author, $topic_title, $topic_content ) )
+		$post_status = bbp_get_pending_status_id();
 
 	/** Topic Tags ************************************************************/
 
@@ -265,7 +271,7 @@ function bbp_new_topic_handler() {
 			'post_content' => $topic_content,
 			'post_parent'  => $forum_id,
 			'tax_input'    => $terms,
-			'post_status'  => bbp_get_public_status_id(),
+			'post_status'  => $post_status,
 			'post_type'    => bbp_get_topic_post_type()
 		);
 
@@ -526,6 +532,12 @@ function bbp_edit_topic_handler() {
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_topic_author_id( $topic_id ), $topic_title, $topic_content ) )
 		bbp_add_error( 'bbp_topic_blacklist', __( '<strong>ERROR</strong>: Your topic cannot be edited at this time.', 'bbpress' ) );
 
+	/** Topic Moderation ******************************************************/
+	
+	$post_status = bbp_get_public_status_id();
+	if ( !bbp_check_for_moderation( $anonymous_data, bbp_get_topic_author_id( $topic_id ), $topic_title, $topic_content ) )
+		$post_status = bbp_get_pending_status_id();
+
 	/** Topic Tags ************************************************************/
 
 	// Tags
@@ -582,6 +594,7 @@ function bbp_edit_topic_handler() {
 			'ID'           => $topic_id,
 			'post_title'   => $topic_title,
 			'post_content' => $topic_content,
+			'post_status'  => $post_status,
 			'post_parent'  => $forum_id,
 			'tax_input'    => $terms,
 		);

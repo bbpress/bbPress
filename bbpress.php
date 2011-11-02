@@ -99,6 +99,21 @@ class bbPress {
 	/** Post statuses *********************************************************/
 
 	/**
+	 * @var string Public post status id. Used by forums, topics, and replies.
+	 */
+	public $public_status_id = '';
+
+	/**
+	 * @var string Pending post status id. Used by topics and replies
+	 */
+	public $pending_status_id = '';
+
+	/**
+	 * @var string Closed post status id. Used by topics.
+	 */
+	public $private_status_id = '';
+
+	/**
 	 * @var string Closed post status id. Used by topics.
 	 */
 	public $closed_status_id = '';
@@ -362,6 +377,7 @@ class bbPress {
 		$this->closed_status_id   = apply_filters( 'bbp_closed_post_status',  'closed'  );
 		$this->orphan_status_id   = apply_filters( 'bbp_orphan_post_status',  'orphan'  );
 		$this->public_status_id   = apply_filters( 'bbp_public_post_status',  'publish' );
+		$this->pending_status_id  = apply_filters( 'bbp_pending_post_status', 'pending' );
 		$this->private_status_id  = apply_filters( 'bbp_private_post_status', 'private' );
 		$this->hidden_status_id   = apply_filters( 'bbp_hidden_post_status',  'hidden'  );
 		$this->trash_status_id    = apply_filters( 'bbp_trash_post_status',   'trash'   );
