@@ -41,7 +41,7 @@ class BBP_Theme_Compat {
 	public $name = '';
 
 	/**
-	 * @public string Theme version for cache busting scripts and styling
+	 * @var string Theme version for cache busting scripts and styling
 	 */
 	public $version = '';
 
