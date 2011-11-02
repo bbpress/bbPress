@@ -961,6 +961,7 @@ function bbp_toggle_reply_handler() {
 	if ( !in_array( $_GET['action'], $possible_actions ) )
 		return;
 
+	$failure   = '';                         // Empty failure string
 	$view_all  = false;                      // Assume not viewing all
 	$action    = $_GET['action'];            // What action is taking place?
 	$reply_id  = (int) $_GET['reply_id'];    // What's the reply id?
@@ -968,7 +969,8 @@ function bbp_toggle_reply_handler() {
 	$post_data = array( 'ID' => $reply_id ); // Prelim array
 
 	// Make sure reply exists
-	if ( !$reply = bbp_get_reply( $reply_id ) )
+	$reply = bbp_get_reply( $reply_id );
+	if ( empty( $reply ) )
 		return;
 
 	// What is the user doing here?
