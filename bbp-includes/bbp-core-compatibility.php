@@ -307,7 +307,25 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	if ( current_theme_supports( 'bbpress' ) )
 		wp_die( __( 'Hands off, partner!', 'bbpress' ) );
 
-	// Default for current post
+	// Default arguments
+	$defaults = array(
+		'ID'              => 0,
+		'post_title'      => '',
+		'post_author'     => 0,
+		'post_date'       => 0,
+		'post_content'    => '',
+		'post_type'       => 'page',
+		'post_status'     => bbp_get_public_status_id(),
+		'post_name'       => '',
+		'comment_status'  => 'closed',
+		'is_404'          => false,
+		'is_page'         => false,
+		'is_single'       => false,
+		'is_archive'      => false,
+		'is_tax'          => false,
+	);
+
+	// Switch defaults if post is set
 	if ( isset( $wp_query->post ) ) {
 		$defaults = array(
 			'ID'              => get_the_ID(),
@@ -319,25 +337,6 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 			'post_status'     => get_post_status(),
 			'post_name'       => !empty( $wp_query->post->post_name ) ? $wp_query->post->post_name : '',
 			'comment_status'  => comments_open(),
-			'is_404'          => false,
-			'is_page'         => false,
-			'is_single'       => false,
-			'is_archive'      => false,
-			'is_tax'          => false,
-		);
-
-	// Empty defaults
-	} else {
-		$defaults = array(
-			'ID'              => 0,
-			'post_title'      => '',
-			'post_author'     => 0,
-			'post_date'       => 0,
-			'post_content'    => '',
-			'post_type'       => 'page',
-			'post_status'     => bbp_get_public_status_id(),
-			'post_name'       => '',
-			'comment_status'  => 'closed',
 			'is_404'          => false,
 			'is_page'         => false,
 			'is_single'       => false,
