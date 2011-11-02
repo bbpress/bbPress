@@ -109,7 +109,7 @@ class bbPress {
 	public $pending_status_id = '';
 
 	/**
-	 * @var string Closed post status id. Used by topics.
+	 * @var string Private post status id. Used by forums and topics.
 	 */
 	public $private_status_id = '';
 
