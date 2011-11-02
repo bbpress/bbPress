@@ -1612,32 +1612,36 @@ function bbp_suppress_private_author_link( $author_link, $args ) {
  *
  * @since bbPress (r2667)
  *
+ * @param int $forum_id Optional. Forum ID.
  * @uses bbp_get_forum_class() To get the row class of the forum
  */
-function bbp_forum_class() {
-	echo bbp_get_forum_class();
+function bbp_forum_class( $forum_id = 0 ) {
+	echo bbp_get_forum_class( $forum_id );
 }
 	/**
 	 * Return the row class of a forum
 	 *
 	 * @since bbPress (r2667)
 	 *
-	 * @uses post_class() To get all the classes including ours
+	 * @param int $forum_id Optional. Forum ID
+	 * @uses get_post_class() To get all the classes including ours
 	 * @uses apply_filters() Calls 'bbp_get_forum_class' with the classes
 	 * @return string Row class of the forum
 	 */
-	function bbp_get_forum_class() {
+	function bbp_get_forum_class( $forum_id = 0 ) {
 		global $bbp;
 
+		$forum_id  = bbp_get_forum_id( $forum_id );
+		$count     = isset( $bbp->forum_query->current_post ) ? $bbp->forum_query->current_post : 1;
 		$classes   = array();
-		$classes[] = $bbp->forum_query->current_post % 2 ? 'even' : 'odd';
-		$classes[] = bbp_is_forum_category() ? 'status-category' : '';
-		$classes[] = bbp_is_forum_private()  ? 'status-private'  : '';
+		$classes[] = ( (int) $count % 2 )               ? 'even'            : 'odd';
+		$classes[] = bbp_is_forum_category( $forum_id ) ? 'status-category' : '';
+		$classes[] = bbp_is_forum_private( $forum_id )  ? 'status-private'  : '';
 		$classes   = array_filter( $classes );
+		$retval    = get_post_class( $classes, $forum_id );
+		$retval    = 'class="' . join( ' ', $retval ) . '"';
 
-		$post      = post_class( $classes );
-
-		return apply_filters( 'bbp_get_forum_class', $post );
+		return apply_filters( 'bbp_get_forum_class', $retval, $forum_id );
 	}
 
 /** Single Forum **************************************************************/

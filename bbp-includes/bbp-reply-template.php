@@ -1704,27 +1704,34 @@ function bbp_topic_split_link( $args = '' ) {
  * Output the row class of a reply
  *
  * @since bbPress (r2678)
+ *
+ * @param int $reply_id Optional. Reply ID
+ * @uses bbp_get_reply_class() To get the reply class
  */
-function bbp_reply_class() {
-	echo bbp_get_reply_class();
+function bbp_reply_class( $reply_id = 0 ) {
+	echo bbp_get_reply_class( $reply_id );
 }
 	/**
 	 * Return the row class of a reply
 	 *
 	 * @since bbPress (r2678)
 	 *
-	 * @uses post_class() To get all the classes including ours
+	 * @param int $reply_id Optional. Reply ID
+	 * @uses get_post_class() To get all the classes including ours
 	 * @uses apply_filters() Calls 'bbp_get_reply_class' with the classes
 	 * @return string Row class of the reply
 	 */
-	function bbp_get_reply_class() {
+	function bbp_get_reply_class( $reply_id = 0 ) {
 		global $bbp;
 
+		$reply_id  = bbp_get_reply_id( $reply_id );
 		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
-		$alternate = (int) $count % 2 ? 'even' : 'odd';
-		$post      = post_class( array( $alternate ) );
+		$classes   = array();
+		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
+		$retval    = get_post_class( $classes, $reply_id );
+		$retval    = 'class="' . join( ' ', $retval ) . '"';
 
-		return apply_filters( 'bbp_reply_class', $post );
+		return apply_filters( 'bbp_get_reply_class', $retval, $reply_id );
 	}
 
 /**
