@@ -427,6 +427,9 @@ class BBP_BuddyPress {
 	 */
 	public function user_profile_url( $user_id ) {
 
+		// Define local variable(s)
+		$profile_url = '';
+
 		// Special handling for forum component
 		if ( bp_is_current_component( 'forums' ) ) {
 
@@ -715,6 +718,10 @@ class BBP_Forums_Component extends BP_Component {
 		if ( !is_user_logged_in() && !isset( $bp->displayed_user->id ) )
 			return;
 
+		// Define local variable(s)
+		$sub_nav     = array();
+		$user_domain = '';
+
 		// Add 'Forums' to the main navigation
 		$main_nav = array(
 			'name'                => __( 'Forums', 'bbpress' ),
@@ -726,15 +733,12 @@ class BBP_Forums_Component extends BP_Component {
 		);
 
 		// Determine user to use
-		if ( isset( $bp->displayed_user->domain ) ) {
+		if ( isset( $bp->displayed_user->domain ) )
 			$user_domain = $bp->displayed_user->domain;
-			$user_login  = $bp->displayed_user->userdata->user_login;
-		} elseif ( isset( $bp->loggedin_user->domain ) ) {
+		elseif ( isset( $bp->loggedin_user->domain ) )
 			$user_domain = $bp->loggedin_user->domain;
-			$user_login  = $bp->loggedin_user->userdata->user_login;
-		} else {
+		else
 			return;
-		}
 
 		// User link
 		$forums_link = trailingslashit( $user_domain . $this->slug );
@@ -806,7 +810,6 @@ class BBP_Forums_Component extends BP_Component {
 
 			// Setup the logged in user variables
 			$user_domain = $bp->loggedin_user->domain;
-			$user_login  = $bp->loggedin_user->userdata->user_login;
 			$forums_link = trailingslashit( $user_domain . $this->slug );
 
 			// Add the "My Account" sub menus
@@ -1050,12 +1053,16 @@ function bbp_setup_buddypress_component() {
 	// Bail if bbPress is not loaded
 	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
-	// Instantiate BuddyPress forums component
+	// Bail if BuddyPress Forums are already active
+	if ( bp_is_active( 'forums' ) ) return;
+
+	// Create the new BuddyPress Forums component
 	$bp->forums = new BBP_Forums_Component();
 
-	// Setup the group extension
-	if ( bp_is_active( 'groups' ) )
+	// Register the group extension only if groups are active
+	if ( bbp_is_group_forums_active() && bp_is_active( 'groups' ) ) {
 		bp_register_group_extension( 'BBP_Forums_Group_Extension' );
+	}
 }
 
 /** BuddyPress Helpers ********************************************************/

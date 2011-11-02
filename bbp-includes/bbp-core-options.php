@@ -128,6 +128,19 @@ function bbp_get_default_options() {
 
 		// Hidden forums
 		'_bbp_hidden_forums'        => '',
+
+		/** BuddyPress ********************************************************/
+
+		// Enable BuddyPress Group Extension
+		'_bbp_enable_group_forums'  => true,
+
+		// Group Forums parent forum id
+		'_bbp_group_forums_root_id' => '0',
+
+		/** Akismet ***********************************************************/
+
+		// Users from all sites can post
+		'_bbp_enable_akismet'       => true,
 	);
 
 	return apply_filters( 'bbp_get_default_options', $options );
@@ -181,7 +194,7 @@ function bbp_delete_options() {
 /**
  * Add filters to each bbPress option and allow them to be overloaded from
  * inside the $bbp->options array.
- * 
+ *
  * @since bbPress (r3451)
  *
  * @uses bbp_get_default_options() To get default options
@@ -189,7 +202,7 @@ function bbp_delete_options() {
  * @uses do_action() Calls 'bbp_add_option_filters'
  */
 function bbp_setup_option_filters() {
-	
+
 	// Get the default options and values
 	$options = bbp_get_default_options();
 
@@ -208,7 +221,7 @@ function bbp_setup_option_filters() {
  * @since bbPress (r3451)
  *
  * @global bbPress $bbp
- * @param bool $value
+ * @param bool $value Optional. Default value false
  * @return mixed false if not overloaded, mixed if set
  */
 function bbp_pre_get_option( $value = false ) {
@@ -235,13 +248,13 @@ function bbp_pre_get_option( $value = false ) {
  *
  * @since bbPress (r2658)
  *
- * @param $default bool Optional.Default value
+ * @param $default bool Optional.Default value true
  *
  * @uses get_option() To get the favorites option
  * @return bool Is favorites enabled or not
  */
 function bbp_is_favorites_active( $default = true ) {
-	return apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', $default ) );
+	return (bool) apply_filters( 'bbp_is_favorites_active', (bool) get_option( '_bbp_enable_favorites', $default ) );
 }
 
 /**
@@ -249,13 +262,13 @@ function bbp_is_favorites_active( $default = true ) {
  *
  * @since bbPress (r2658)
  *
- * @param $default bool Optional.Default value
+ * @param $default bool Optional.Default value true
  *
  * @uses get_option() To get the subscriptions option
  * @return bool Is subscription enabled or not
  */
 function bbp_is_subscriptions_active( $default = true ) {
-	return apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions', $default ) );
+	return (bool) apply_filters( 'bbp_is_subscriptions_active', (bool) get_option( '_bbp_enable_subscriptions', $default ) );
 }
 
 /**
@@ -263,13 +276,13 @@ function bbp_is_subscriptions_active( $default = true ) {
  *
  * @since bbPress (r3412)
  *
- * @param $default bool Optional. Default value
+ * @param $default bool Optional. Default value true
  *
  * @uses get_option() To get the allow revisions
  * @return bool Are revisions allowed?
  */
 function bbp_allow_revisions( $default = true ) {
-	return apply_filters( 'bbp_allow_revisions', (bool) get_option( '_bbp_allow_revisions', $default ) );
+	return (bool) apply_filters( 'bbp_allow_revisions', (bool) get_option( '_bbp_allow_revisions', $default ) );
 }
 
 /**
@@ -291,13 +304,13 @@ function bbp_allow_anonymous( $default = false ) {
  *
  * @since bbPress (r3378)
  *
- * @param $default bool Optional. Default value
+ * @param $default bool Optional. Default value false
  *
  * @uses get_option() To get the global access option
  * @return bool Is global access allowed?
  */
 function bbp_allow_global_access( $default = false ) {
-	return apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
+	return (bool) apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
 }
 
 /**
@@ -305,7 +318,7 @@ function bbp_allow_global_access( $default = false ) {
  *
  * @since bbPress (r3246)
  *
- * @param $default bool Optional. Default value
+ * @param $default bool Optional. Default value 80
  */
 function bbp_title_max_length( $default = '80' ) {
 	echo bbp_get_title_max_length( $default );
@@ -315,13 +328,65 @@ function bbp_title_max_length( $default = '80' ) {
 	 *
 	 * @since bbPress (r3246)
 	 *
-	 * @param $default bool Optional. Default value
+	 * @param $default bool Optional. Default value 80
 	 *
 	 * @uses get_option() To get the maximum title length
 	 * @return int Is anonymous posting allowed?
 	 */
 	function bbp_get_title_max_length( $default = '80' ) {
-		return apply_filters( 'bbp_get_title_max_length', (int) get_option( '_bbp_title_max_length', $default ) );
+		return (int) apply_filters( 'bbp_get_title_max_length', (int) get_option( '_bbp_title_max_length', $default ) );
 	}
+
+/**
+ * Output the grop forums root parent forum id
+ *
+ * @since bbPress (r3575)
+ *
+ * @param $default bool Optional. Default value
+ */
+function bbp_group_forums_root_id( $default = '0' ) {
+	echo bbp_get_group_forums_root_id( $default );
+}
+	/**
+	 * Return the grop forums root parent forum id
+	 *
+	 * @since bbPress (r3575)
+	 *
+	 * @param $default bool Optional. Default value 0
+	 *
+	 * @uses get_option() To get the maximum title length
+	 * @return int Is anonymous posting allowed?
+	 */
+	function bbp_get_group_forums_root_id( $default = '0' ) {
+		return (int) apply_filters( 'bbp_get_group_forums_root_id', (int) get_option( '_bbp_group_forums_root_id', $default ) );
+	}
+
+/**
+ * Checks if BuddyPress Group Forums are enabled
+ *
+ * @since bbPress (r3575)
+ *
+ * @param $default bool Optional. Default value true
+ *
+ * @uses get_option() To get the group forums option
+ * @return bool Is group forums enabled or not
+ */
+function bbp_is_group_forums_active( $default = true ) {
+	return (bool) apply_filters( 'bbp_is_group_forums_active', (bool) get_option( '_bbp_enable_group_forums', $default ) );
+}
+
+/**
+ * Checks if Akismet is enabled
+ *
+ * @since bbPress (r3575)
+ *
+ * @param $default bool Optional. Default value true
+ *
+ * @uses get_option() To get the Akismet option
+ * @return bool Is Akismet enabled or not
+ */
+function bbp_is_akismet_active( $default = true ) {
+	return (bool) apply_filters( 'bbp_is_akismet_active', (bool) get_option( '_bbp_enable_akismet', $default ) );
+}
 
 ?>

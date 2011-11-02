@@ -10,7 +10,7 @@
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
-/** Start Main Section ********************************************************/
+/** Main Section **************************************************************/
 
 /**
  * Main settings section description for the settings page
@@ -20,7 +20,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function bbp_admin_setting_callback_main_section() {
 ?>
 
-	<p><?php _e( 'Main settings for the bbPress plugin', 'bbpress' ); ?></p>
+	<p><?php _e( 'Main forum settings for enabling features and setting time limits', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -68,7 +68,7 @@ function bbp_admin_setting_callback_favorites() {
 ?>
 
 	<input id="_bbp_enable_favorites" name="_bbp_enable_favorites" type="checkbox" id="_bbp_enable_favorites" value="1" <?php checked( bbp_is_favorites_active( true ) ); ?> />
-	<label for="_bbp_enable_favorites"><?php _e( 'Allow users to mark topics as favorites?', 'bbpress' ); ?></label>
+	<label for="_bbp_enable_favorites"><?php _e( 'Allow users to mark topics as favorites', 'bbpress' ); ?></label>
 
 <?php
 }
@@ -137,7 +137,7 @@ function bbp_admin_setting_callback_global_access() {
 <?php
 }
 
-/** Start Per Page Section ****************************************************/
+/** Per Page Section **********************************************************/
 
 /**
  * Per page settings section description for the settings page
@@ -147,7 +147,7 @@ function bbp_admin_setting_callback_global_access() {
 function bbp_admin_setting_callback_per_page_section() {
 ?>
 
-	<p><?php _e( 'Per page settings for the bbPress plugin', 'bbpress' ); ?></p>
+	<p><?php _e( 'How many topics and replies to show per page', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -184,7 +184,7 @@ function bbp_admin_setting_callback_replies_per_page() {
 <?php
 }
 
-/** Start Per RSS Page Section ************************************************/
+/** Per RSS Page Section ******************************************************/
 
 /**
  * Per page settings section description for the settings page
@@ -194,7 +194,7 @@ function bbp_admin_setting_callback_replies_per_page() {
 function bbp_admin_setting_callback_per_rss_page_section() {
 ?>
 
-	<p><?php _e( 'Per RSS page settings for the bbPress plugin', 'bbpress' ); ?></p>
+	<p><?php _e( 'How many topics and replies to show per RSS page', 'bbpress' ); ?></p>
 
 <?php
 }
@@ -231,7 +231,7 @@ function bbp_admin_setting_callback_replies_per_rss_page() {
 <?php
 }
 
-/** Start Slug Section ********************************************************/
+/** Slug Section **************************************************************/
 
 /**
  * Slugs settings section description for the settings page
@@ -244,7 +244,7 @@ function bbp_admin_setting_callback_root_slug_section() {
 	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
 		flush_rewrite_rules(); ?>
 
-	<p><?php printf( __( 'Include custom root slugs to prefix your forums and topics with. These can be partnered with WordPress pages to allow more flexibility.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+	<p><?php printf( __( 'Custom root slugs to prefix your forums and topics with. These can be partnered with WordPress pages to allow more flexibility.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -293,7 +293,7 @@ function bbp_admin_setting_callback_topic_archive_slug() {
 function bbp_admin_setting_callback_single_slug_section() {
 ?>
 
-	<p><?php printf( __( 'You can enter custom slugs for your single forums, topics, replies, and tags URLs here. If you change these, existing permalinks will also change.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+	<p><?php printf( __( 'Custom slugs for single forums, topics, replies, tags, users, and views here. If you change these, existing permalinks will also change.', 'bbpress' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -417,6 +417,93 @@ function bbp_admin_setting_callback_view_slug() {
 <?php
 	// Slug Check
 	bbp_form_slug_conflict_check( '_bbp_view_slug', 'view' );
+}
+
+/** BuddyPress ****************************************************************/
+
+/**
+ * Extension settings section description for the settings page
+ *
+ * @since bbPress (r3575)
+ */
+function bbp_admin_setting_callback_buddypress_section() {
+?>
+
+	<p><?php _e( 'Forum settings for BuddyPress', 'bbpress' ); ?></p>
+
+<?php
+}
+
+/**
+ * Allow BuddyPress group forums setting field
+ *
+ * @since bbPress (r3575)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_group_forums() {
+?>
+
+	<input id="_bbp_enable_group_forums" name="_bbp_enable_group_forums" type="checkbox" id="_bbp_enable_group_forums" value="1" <?php checked( bbp_is_akismet_active( true ) ); ?> />
+	<label for="_bbp_enable_group_forums"><?php _e( 'Allow BuddyPress Groups to have their own forums', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/**
+ * Replies per page setting field
+ *
+ * @since bbPress (r3575)
+ *
+ * @uses bbp_form_option() To output the option value
+ */
+function bbp_admin_setting_callback_group_forums_root_id() {
+?>
+
+	<?php
+		bbp_dropdown( array(
+			'selected'           => bbp_get_group_forums_root_id(),
+			'show_none'          => __( '(Forum Root)', 'bbpress' ),
+			'select_id'          => '_bbp_group_forums_root_id',
+			'disable_categories' => false
+		) );
+	?>
+
+	<label for="_bbp_group_forums_root_id"><?php _e( 'is the parent for all group forums', 'bbpress' ); ?></label>
+
+<?php
+}
+
+/** Akismet *******************************************************************/
+
+/**
+ * Extension settings section description for the settings page
+ *
+ * @since bbPress (r3575)
+ */
+function bbp_admin_setting_callback_akismet_section() {
+?>
+
+	<p><?php _e( 'Forum settings for Akismet', 'bbpress' ); ?></p>
+
+<?php
+}
+
+
+/**
+ * Allow Akismet setting field
+ *
+ * @since bbPress (r3575)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_akismet() {
+?>
+
+	<input id="_bbp_enable_akismet" name="_bbp_enable_akismet" type="checkbox" id="_bbp_enable_akismet" value="1" <?php checked( bbp_is_akismet_active( true ) ); ?> />
+	<label for="_bbp_enable_akismet"><?php _e( 'Allow Akismet to actively prevent topic and reply spam', 'bbpress' ); ?></label>
+
+<?php
 }
 
 /** Settings Page *************************************************************/
@@ -554,7 +641,7 @@ function bbp_form_option( $option, $default = '' , $slug = false ) {
 function bbp_form_slug_conflict_check( $slug, $default ) {
 
 	// Only set the slugs once ver page load
-	static $the_core_slugs;
+	static $the_core_slugs = array();
 
 	// Get the form value
 	$this_slug = bbp_get_form_option( $slug, $default, true );
