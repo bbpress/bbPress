@@ -558,6 +558,27 @@ function bbp_is_single_view() {
 }
 
 /**
+ * Check if current page is an edit page
+ *
+ * @since bbPress (r3585)
+ *
+ * @uses WP_Query Checks if WP_Query::bbp_is_edit is true
+ * @return bool True if it's the edit page, false if not
+ */
+function bbp_is_edit() {
+	global $wp_query;
+
+	// Assume false
+	$retval = false;
+
+	// Check query
+	if ( !empty( $wp_query->bbp_is_edit ) && ( $wp_query->bbp_is_edit == true ) )
+		$retval = true;
+
+	return (bool) apply_filters( 'bbp_is_edit', $retval );
+}
+
+/**
  * Use the above is_() functions to output a body class for each scenario
  *
  * @since bbPress (r2926)
@@ -1305,6 +1326,109 @@ function bbp_split_topic_form_fields() {
 
 	<?php wp_nonce_field( 'bbp-split-topic_' . bbp_get_topic_id() );
 }
+
+/**
+ * Output a textarea or TinyMCE if enabled
+ *
+ * @since bbPress (r3586)
+ *
+ * @param array $args
+ * @uses bbp_get_the_content() To return the content to output
+ */
+function bbp_the_content( $args = array() ) {
+	echo bbp_get_the_content( $args );
+}
+	/**
+	 * Return a textarea or TinyMCE if enabled
+	 *
+	 * @since bbPress (r3586)
+	 *
+	 * @global obj $post
+	 * @param array $args
+	 *
+	 * @uses apply_filter() To filter args and output
+	 * @uses wp_parse_pargs() To compare args
+	 * @uses bbp_use_wp_editor() To see if WP editor is in use
+	 * @uses bbp_is_edit() To see if we are editing something
+	 * @uses wp_editor() To output the WordPress editor
+	 *
+	 * @return string HTML from output buffer 
+	 */
+	function bbp_get_the_content( $args = array() ) {
+
+		// Default arguments
+		$defaults = array(
+			'context'       => 'topic',
+			'before'        => '<div class="bbp-the-content-wrapper">',
+			'after'         => '</div>',
+			'wpautop'       => true,
+			'media_buttons' => false,
+			'textarea_rows' => '6',
+			'tabindex'      => bbp_get_tab_index(),
+			'editor_class'  => 'bbp-the-content',
+			'tinymce'       => true,
+			'quicktags'     => true
+		);
+		$r = apply_filters( 'bbp_pre_the_content', wp_parse_args( $args, $defaults ) );
+		extract( $r );
+
+		// Assume we are not editing
+		$post_content = '';
+
+		// Start an output buffor
+		ob_start();
+
+		// Output something before the editor
+		if ( !empty( $before ) )
+			echo $before;
+
+		// Use TinyMCE if available
+		if ( function_exists( 'wp_editor' ) && bbp_use_wp_editor() ) {
+
+			// If it's an edit, use the $post global
+			if ( bbp_is_edit() ) {
+				global $post;
+				$post_content = $post->post_content;
+			}
+
+			$settings = array(
+				'wpautop'       => $wpautop,
+				'media_buttons' => $media_buttons,
+				'textarea_rows' => $textarea_rows,
+				'tabindex'      => $tabindex,
+				'editor_class'  => $editor_class,
+				'tinymce'       => $tinymce,
+				'quicktags'     => $quicktags
+			);
+			wp_editor( $post_content, 'bbp_' . $context . '_content', $settings );
+
+		// Fallback to normal textarea
+		} else {
+
+			// Get sanitized content
+			if ( bbp_is_edit() ) {
+				$post_content = call_user_func( 'bbp_get_form_' . $context . '_content' );
+			}
+
+			?>
+
+			<textarea id="bbp_<?php echo $context; ?>_content" class="<?php echo $editor_class; ?>" name="bbp_<?php echo $context; ?>_content" cols="60" rows="<?php echo $textarea_rows; ?>" tabindex="<?php echo $tabindex; ?>"><?php echo $post_content; ?></textarea>
+
+			<?php
+		}
+
+		// Output something after the editor
+		if ( !empty( $after ) )
+			echo $after;
+
+		// Put the output into a usable variable
+		$output = ob_get_contents();
+
+		// Flush the output buffer
+		ob_end_clean();
+
+		return apply_filters( 'bbp_get_the_content', $output, $args, $post_content );
+	}
 
 /** Views *********************************************************************/
 

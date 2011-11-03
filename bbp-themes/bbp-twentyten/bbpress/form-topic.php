@@ -78,10 +78,18 @@
 
 						<?php do_action( 'bbp_theme_before_topic_form_content' ); ?>
 
-						<p>
-							<label for="bbp_topic_content"><?php _e( 'Topic Description:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="60" rows="6"><?php bbp_form_topic_content(); ?></textarea>
-						</p>
+						<?php if ( !function_exists( 'wp_editor' ) ) : ?>
+
+							<p>
+								<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
+								<textarea id="bbp_topic_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_topic_content" cols="60" rows="6"><?php bbp_form_topic_content(); ?></textarea>
+							</p>
+
+						<?php else : ?>
+
+							<?php bbp_the_content( array( 'context' => 'topic' ) ); ?>
+							
+						<?php endif; ?>
 
 						<?php do_action( 'bbp_theme_after_topic_form_content' ); ?>
 

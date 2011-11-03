@@ -46,6 +46,9 @@ function bbp_get_default_options() {
 		// Users from all sites can post
 		'_bbp_allow_global_access'  => false,
 
+		// Use the WordPress editor if available
+		'_bbp_use_wp_editor'        => true,
+
 		/** Per Page **********************************************************/
 
 		// Topics per page
@@ -311,6 +314,20 @@ function bbp_allow_anonymous( $default = false ) {
  */
 function bbp_allow_global_access( $default = false ) {
 	return (bool) apply_filters( 'bbp_allow_global_access', (bool) get_option( '_bbp_allow_global_access', $default ) );
+}
+
+/**
+ * Use the WordPress editor if available
+ *
+ * @since bbPress (r3386)
+ *
+ * @param $default bool Optional. Default value true
+ *
+ * @uses get_option() To get the WP editor option
+ * @return bool Use WP editor?
+ */
+function bbp_use_wp_editor( $default = true ) {
+	return (bool) apply_filters( 'bbp_use_wp_editor', (bool) get_option( '_bbp_use_wp_editor', $default ) );
 }
 
 /**

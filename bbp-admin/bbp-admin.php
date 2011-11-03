@@ -227,6 +227,12 @@ class BBP_Admin {
 		 	register_setting  ( 'bbpress',                  '_bbp_allow_global_access',              'intval'                                                          );
 		}
 
+		// Allow global access setting
+		if ( function_exists( 'wp_editor' ) ) {
+			add_settings_field( '_bbp_use_wp_editor', __( 'Fancy Editor',  'bbpress' ), 'bbp_admin_setting_callback_use_wp_editor', 'bbpress', 'bbp_main' );
+		 	register_setting  ( 'bbpress',            '_bbp_use_wp_editor',             'intval'                                                          );
+		}
+
 		/** Per Page Section **************************************************/
 
 		// Add the per page section

@@ -437,6 +437,55 @@ input[type="password"] {
 	padding: 2px;
 }
 
+/* =TinyMCE in themes
+-------------------------------------------------------------- */
+#content div.bbp-the-content-wrapper {
+	margin-bottom: 10px;
+}
+
+#content div.bbp-the-content-wrapper textarea.bbp-the-content {
+	width: 100%;
+	margin: 0;
+	font-size: 12px;
+}
+
+#content div.bbp-the-content-wrapper table,
+#content div.bbp-the-content-wrapper tbody,
+#content div.bbp-the-content-wrapper tr,
+#content div.bbp-the-content-wrapper td {
+	border: none;
+	padding: 0;
+	margin: 0;
+	width: auto;
+	line-height: 1em;
+}
+
+#content div.bbp-the-content-wrapper input {
+	font-size: 12px;
+	padding: 5px;
+	margin: 3px 0 0;
+	line-height: 1em;
+	margin: 0;
+}
+
+#content div.bbp-the-content-wrapper div.quicktags-toolbar {
+	padding: 5px;
+	min-height: 26px;
+}
+#content div.bbp-the-content-wrapper td.mceToolbar {
+	padding: 4px 4px 8px;
+}
+
+#content div.wp-editor-container {
+	margin: 0;
+	padding: 0;
+	line-height: 0;
+}
+
+#content div.bbp-the-content-wrapper td.mceStatusbar {
+	line-height: 16px;
+}
+
 /* =Edit User
 -------------------------------------------------------------- */
 

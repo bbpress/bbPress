@@ -119,10 +119,18 @@
 
 							<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
 
-							<p>
-								<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
-								<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="10"><?php bbp_form_forum_content(); ?></textarea>
-							</p>
+							<?php if ( !function_exists( 'wp_editor' ) ) : ?>
+
+								<p>
+									<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
+									<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="10"><?php bbp_form_forum_content(); ?></textarea>
+								</p>
+
+							<?php else : ?>
+
+								<?php bbp_the_content( array( 'context' => 'forum' ) ); ?>
+
+							<?php endif; ?>
 
 							<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
 

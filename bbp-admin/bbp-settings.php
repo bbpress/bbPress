@@ -137,6 +137,22 @@ function bbp_admin_setting_callback_global_access() {
 <?php
 }
 
+/**
+ * Use the WordPress editor setting field
+ *
+ * @since bbPress (r3586)
+ *
+ * @uses checked() To display the checked attribute
+ */
+function bbp_admin_setting_callback_use_wp_editor() {
+?>
+
+	<input id="_bbp_use_wp_editor" name="_bbp_use_wp_editor" type="checkbox" id="_bbp_use_wp_editor" value="1" <?php checked( bbp_use_wp_editor( true ) ); ?> />
+	<label for="_bbp_use_wp_editor"><?php _e( 'Use the fancy WordPress editor to create and edit topics and replies', 'bbpress' ); ?></label>
+
+<?php
+}
+
 /** Per Page Section **********************************************************/
 
 /**

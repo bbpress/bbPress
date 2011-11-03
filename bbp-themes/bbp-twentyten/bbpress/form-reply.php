@@ -52,10 +52,18 @@
 
 						<?php do_action( 'bbp_theme_before_reply_form_content' ); ?>
 
-						<p>
-							<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" rows="6"><?php bbp_form_reply_content(); ?></textarea>
-						</p>
+						<?php if ( !function_exists( 'wp_editor' ) ) : ?>
+
+							<p>
+								<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
+								<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" rows="6"><?php bbp_form_reply_content(); ?></textarea>
+							</p>
+
+						<?php else : ?>
+
+							<?php bbp_the_content( array( 'context' => 'reply' ) ); ?>
+							
+						<?php endif; ?>
 
 						<?php do_action( 'bbp_theme_after_reply_form_content' ); ?>
 
