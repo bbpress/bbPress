@@ -1814,7 +1814,7 @@ function bbp_form_forum_content() {
 			$forum_content = $_POST['bbp_forum_content'];
 
 		// Get edit data
-		elseif ( !empty( $post->post_title ) && bbp_is_forum_edit() )
+		elseif ( !empty( $post->post_content ) && bbp_is_forum_edit() )
 			$forum_content = $post->post_content;
 
 		// No data

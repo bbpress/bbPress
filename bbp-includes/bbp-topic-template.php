@@ -3110,7 +3110,7 @@ function bbp_form_topic_content() {
 			$topic_content = $_POST['bbp_topic_content'];
 
 		// Get edit data
-		elseif ( !empty( $post->post_title ) && bbp_is_topic_edit() )
+		elseif ( !empty( $post->post_content ) && bbp_is_topic_edit() )
 			$topic_content = $post->post_content;
 
 		// No data
