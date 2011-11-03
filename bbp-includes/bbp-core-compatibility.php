@@ -1664,6 +1664,9 @@ function bbp_pre_get_posts( $posts_query ) {
 				require_once( ABSPATH . 'wp-admin/includes/user.php' );
 			}
 
+			// Editing a user
+			$posts_query->bbp_is_edit = true;
+
 		// We are viewing a profile
 		} else {
 			$posts_query->bbp_is_single_user = true;
@@ -1717,22 +1720,26 @@ function bbp_pre_get_posts( $posts_query ) {
 				// We are editing a forum
 				case bbp_get_forum_post_type() :
 					$posts_query->bbp_is_forum_edit = true;
+					$posts_query->bbp_is_edit       = true;
 					break;
 
 				// We are editing a topic
 				case bbp_get_topic_post_type() :
 					$posts_query->bbp_is_topic_edit = true;
+					$posts_query->bbp_is_edit       = true;
 					break;
 
 				// We are editing a reply
 				case bbp_get_reply_post_type() :
 					$posts_query->bbp_is_reply_edit = true;
+					$posts_query->bbp_is_edit       = true;
 					break;
 			}
 
 		// We are editing a topic tag
 		} elseif ( bbp_is_topic_tag() ) {
 			$posts_query->bbp_is_topic_tag_edit = true;
+			$posts_query->bbp_is_edit           = true;
 		}
 
 		// We save post revisions on our own
