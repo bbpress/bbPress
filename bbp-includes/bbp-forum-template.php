@@ -668,7 +668,7 @@ function bbp_list_forums( $args = '' ) {
 
 	// Loop through forums and create a list
 	$sub_forums = bbp_forum_get_subforums( $forum_id );
-	if ( !empty( $sub_forum ) ) {
+	if ( !empty( $sub_forums ) ) {
 
 		// Total count (for separator)
 		$total_subs = count( $sub_forums );
