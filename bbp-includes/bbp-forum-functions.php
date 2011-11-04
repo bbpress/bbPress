@@ -30,14 +30,15 @@ function bbp_insert_forum( $forum_data = array(), $forum_meta = array() ) {
 
 	// Forum
 	$default_forum = array(
-		'post_parent'   => 0, // forum ID
-		'post_status'   => bbp_get_public_status_id(),
-		'post_type'     => bbp_get_forum_post_type(),
-		'post_author'   => 0,
-		'post_password' => '',
-		'post_content'  => '',
-		'post_title'    => '',
-		'menu_order'    => 0,
+		'post_parent'    => 0, // forum ID
+		'post_status'    => bbp_get_public_status_id(),
+		'post_type'      => bbp_get_forum_post_type(),
+		'post_author'    => 0,
+		'post_password'  => '',
+		'post_content'   => '',
+		'post_title'     => '',
+		'menu_order'     => 0,
+		'comment_status' => 'closed'
 	);
 
 	// Parse args

@@ -30,14 +30,15 @@ function bbp_insert_reply( $reply_data = array(), $reply_meta = array() ) {
 
 	// Forum
 	$default_reply = array(
-		'post_parent'   => 0, // topic ID
-		'post_status'   => bbp_get_public_status_id(),
-		'post_type'     => bbp_get_reply_post_type(),
-		'post_author'   => 0,
-		'post_password' => '',
-		'post_content'  => '',
-		'post_title'    => '',
-		'menu_order'    => 0,
+		'post_parent'    => 0, // topic ID
+		'post_status'    => bbp_get_public_status_id(),
+		'post_type'      => bbp_get_reply_post_type(),
+		'post_author'    => 0,
+		'post_password'  => '',
+		'post_content'   => '',
+		'post_title'     => '',
+		'menu_order'     => 0,
+		'comment_status' => 'closed'
 	);
 
 	// Parse args
@@ -231,12 +232,13 @@ function bbp_new_reply_handler() {
 
 		// Add the content of the form to $post as an array
 		$reply_data = array(
-			'post_author'  => $reply_author,
-			'post_title'   => $reply_title,
-			'post_content' => $reply_content,
-			'post_parent'  => $topic_id,
-			'post_status'  => $post_status,
-			'post_type'    => bbp_get_reply_post_type()
+			'post_author'    => $reply_author,
+			'post_title'     => $reply_title,
+			'post_content'   => $reply_content,
+			'post_parent'    => $topic_id,
+			'post_status'    => $post_status,
+			'post_type'      => bbp_get_reply_post_type(),
+			'comment_status' => 'closed'
 		);
 
 		// Just in time manipulation of reply data before being created

@@ -30,14 +30,15 @@ function bbp_insert_topic( $topic_data = array(), $topic_meta = array() ) {
 
 	// Forum
 	$default_topic = array(
-		'post_parent'   => 0, // forum ID
-		'post_status'   => bbp_get_public_status_id(),
-		'post_type'     => bbp_get_topic_post_type(),
-		'post_author'   => 0,
-		'post_password' => '',
-		'post_content'  => '',
-		'post_title'    => '',
-		'menu_order'    => 0,
+		'post_parent'    => 0, // forum ID
+		'post_status'    => bbp_get_public_status_id(),
+		'post_type'      => bbp_get_topic_post_type(),
+		'post_author'    => 0,
+		'post_password'  => '',
+		'post_content'   => '',
+		'post_title'     => '',
+		'comment_status' => 'closed',
+		'menu_order'     => 0,
 	);
 
 	// Parse args
@@ -266,13 +267,14 @@ function bbp_new_topic_handler() {
 
 		// Add the content of the form to $post as an array
 		$topic_data = array(
-			'post_author'  => $topic_author,
-			'post_title'   => $topic_title,
-			'post_content' => $topic_content,
-			'post_parent'  => $forum_id,
-			'tax_input'    => $terms,
-			'post_status'  => $post_status,
-			'post_type'    => bbp_get_topic_post_type()
+			'post_author'    => $topic_author,
+			'post_title'     => $topic_title,
+			'post_content'   => $topic_content,
+			'post_parent'    => $forum_id,
+			'post_status'    => $post_status,
+			'post_type'      => bbp_get_topic_post_type(),
+			'tax_input'      => $terms,
+			'comment_status' => 'closed'
 		);
 
 		// Just in time manipulation of topic data before being created

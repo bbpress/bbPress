@@ -930,7 +930,8 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'post_title' => esc_attr( bbp_get_displayed_user_field( 'display_name' ) )
+				'post_title'     => esc_attr( bbp_get_displayed_user_field( 'display_name' ) ),
+				'comment_status' => 'closed'
 			) );
 
 		/** Forums ************************************************************/
@@ -940,14 +941,15 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => bbp_get_forum_id(),
-				'post_title'   => bbp_get_forum_title(),
+				'ID'             => bbp_get_forum_id(),
+				'post_title'     => bbp_get_forum_title(),
 				//'post_author'  => bbp_get_forum_author_id(),
-				'post_date'    => 0,
-				'post_content' => get_post_field( 'post_content', bbp_get_forum_id() ),
-				'post_type'    => bbp_get_forum_post_type(),
-				'post_status'  => bbp_get_forum_status(),
-				'is_single'    => true
+				'post_date'      => 0,
+				'post_content'   => get_post_field( 'post_content', bbp_get_forum_id() ),
+				'post_type'      => bbp_get_forum_post_type(),
+				'post_status'    => bbp_get_forum_status(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
 			) );
 
 		// Forum archive
@@ -955,14 +957,15 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => 0,
-				'post_title'   => bbp_get_forum_archive_title(),
-				'post_author'  => 0,
-				'post_date'    => 0,
-				'post_content' => '',
-				'post_type'    => bbp_get_forum_post_type(),
-				'post_status'  => bbp_get_public_status_id(),
-				'is_archive'   => true
+				'ID'             => 0,
+				'post_title'     => bbp_get_forum_archive_title(),
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => '',
+				'post_type'      => bbp_get_forum_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
 			) );
 
 		/** Topics ************************************************************/
@@ -972,14 +975,15 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => 0,
-				'post_title'   => bbp_get_topic_archive_title(),
-				'post_author'  => 0,
-				'post_date'    => 0,
-				'post_content' => '',
-				'post_type'    => bbp_get_topic_post_type(),
-				'post_status'  => bbp_get_public_status_id(),
-				'is_archive'   => true
+				'ID'             => 0,
+				'post_title'     => bbp_get_topic_archive_title(),
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => '',
+				'post_type'      => bbp_get_topic_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'is_archive'     => true,
+				'comment_status' => 'closed'
 			) );
 
 		// Single topic
@@ -987,14 +991,15 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => bbp_get_topic_id(),
-				'post_title'   => bbp_get_topic_title(),
-				'post_author'  => bbp_get_topic_author_id(),
-				'post_date'    => 0,
-				'post_content' => get_post_field( 'post_content', bbp_get_topic_id() ),
-				'post_type'    => bbp_get_topic_post_type(),
-				'post_status'  => bbp_get_topic_status(),
-				'is_single'    => true
+				'ID'             => bbp_get_topic_id(),
+				'post_title'     => bbp_get_topic_title(),
+				'post_author'    => bbp_get_topic_author_id(),
+				'post_date'      => 0,
+				'post_content'   => get_post_field( 'post_content', bbp_get_topic_id() ),
+				'post_type'      => bbp_get_topic_post_type(),
+				'post_status'    => bbp_get_topic_status(),
+				'is_single'      => true,
+				'comment_status' => 'closed'
 			) );
 
 		/** Replies ***********************************************************/
@@ -1004,13 +1009,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => 0,
-				'post_title'   => __( 'Replies', 'bbpress' ),
-				'post_author'  => 0,
-				'post_date'    => 0,
-				'post_content' => '',
-				'post_type'    => bbp_get_reply_post_type(),
-				'post_status'  => bbp_get_public_status_id()
+				'ID'             => 0,
+				'post_title'     => __( 'Replies', 'bbpress' ),
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => '',
+				'post_type'      => bbp_get_reply_post_type(),
+				'post_status'    => bbp_get_public_status_id(),
+				'comment_status' => 'closed'
 			) );
 
 		// Single reply
@@ -1018,13 +1024,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => bbp_get_reply_id(),
-				'post_title'   => bbp_get_reply_title(),
-				'post_author'  => bbp_get_reply_author_id(),
-				'post_date'    => 0,
-				'post_content' => get_post_field( 'post_content', bbp_get_reply_id() ),
-				'post_type'    => bbp_get_reply_post_type(),
-				'post_status'  => bbp_get_reply_status()
+				'ID'             => bbp_get_reply_id(),
+				'post_title'     => bbp_get_reply_title(),
+				'post_author'    => bbp_get_reply_author_id(),
+				'post_date'      => 0,
+				'post_content'   => get_post_field( 'post_content', bbp_get_reply_id() ),
+				'post_type'      => bbp_get_reply_post_type(),
+				'post_status'    => bbp_get_reply_status(),
+				'comment_status' => 'closed'
 			) );
 
 		/** Views *************************************************************/
@@ -1033,13 +1040,14 @@ function bbp_template_include_theme_compat( $template = '' ) {
 
 			// Reset post
 			bbp_theme_compat_reset_post( array(
-				'ID'           => 0,
-				'post_title'   => bbp_get_view_title(),
-				'post_author'  => 0,
-				'post_date'    => 0,
-				'post_content' => '',
-				'post_type'    => '',
-				'post_status'  => bbp_get_public_status_id()
+				'ID'             => 0,
+				'post_title'     => bbp_get_view_title(),
+				'post_author'    => 0,
+				'post_date'      => 0,
+				'post_content'   => '',
+				'post_type'      => '',
+				'post_status'    => bbp_get_public_status_id(),
+				'comment_status' => 'closed'
 			) );
 
 
@@ -1552,6 +1560,36 @@ function bbp_restore_all_filters( $tag, $priority = false ) {
 	}
 
 	return true;
+}
+
+/**
+ * Force comments_status to 'closed' for bbPress post types
+ *
+ * @since bbPress (r3589)
+ *
+ * @param bool $open True if open, false if closed
+ * @param int $post_id ID of the post to check
+ * @return bool True if open, false if closed
+ */
+function bbp_force_comment_status( $open, $post_id = 0 ) {
+
+	// Get the post type of the post ID
+	$post_type = get_post_type( $post_id );
+
+	// Default return value is what is passed in $open
+	$retval = $open;
+
+	// Only force for bbPress post types
+	switch ( $post_type ) {
+		case bbp_get_forum_post_type() :
+		case bbp_get_topic_post_type() :
+		case bbp_get_reply_post_type() :
+			$retval = false;
+			break;
+	}
+
+	// Allow override of the override
+	return apply_filters( 'bbp_force_comment_status', $retval, $open, $post_id, $post_type );
 }
 
 /**
