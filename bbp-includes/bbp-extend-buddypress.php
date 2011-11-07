@@ -1058,7 +1058,7 @@ function bbp_setup_buddypress_component() {
 	if ( 'bbPress' !== get_class( $bbp ) ) return;
 
 	// Bail if BuddyPress Forums are already active
-	if ( bp_is_active( 'forums' ) ) return;
+	if ( bp_is_active( 'forums' ) && bp_forums_is_installed_correctly() ) return;
 
 	// Create the new BuddyPress Forums component
 	$bp->forums = new BBP_Forums_Component();
