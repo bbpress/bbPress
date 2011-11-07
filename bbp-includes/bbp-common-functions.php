@@ -168,11 +168,11 @@ function bbp_time_since( $time ) {
 	 * @since bbPress (r2544)
 	 *
 	 * @param $time Unix timestamp from which the difference begins.
-         * @uses current_time() To get the current time in mysql format
-         * @uses human_time_diff() To get the time differene in since format
-         * @uses apply_filters() Calls 'bbp_get_time_since' with the time
-         *                        difference and time
-         * @return string Formatted time
+	 * @uses current_time() To get the current time in mysql format
+	 * @uses human_time_diff() To get the time differene in since format
+	 * @uses apply_filters() Calls 'bbp_get_time_since' with the time
+	 *                        difference and time
+	 * @return string Formatted time
 	 */
 	function bbp_get_time_since( $time ) {
 		return apply_filters( 'bbp_get_time_since', human_time_diff( $time, current_time( 'timestamp' ) ), $time );
