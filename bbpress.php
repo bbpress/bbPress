@@ -312,17 +312,6 @@ class bbPress {
 	/** Functions *************************************************************/
 
 	/**
-	 * The main bbPress loader (PHP4 compat)
-	 *
-	 * @since bbPress (r2464)
-	 *
-	 * @uses bbPress::__construct() Setup the globals needed
-	 */
-	public function bbPress() {
-		$this->__construct();
-	}
-
-	/**
 	 * The main bbPress loader
 	 *
 	 * @since bbPress (r2464)
