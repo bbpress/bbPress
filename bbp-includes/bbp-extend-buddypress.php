@@ -1083,7 +1083,6 @@ function bbp_setup_buddypress_component() {
  * @return int User ID
  */
 function bbp_filter_user_id( $user_id = 0, $displayed_user_fallback = true, $current_user_fallback = false ) {
-	global $bp;
 
 	$did = bp_displayed_user_id();
 	$lid = bp_loggedin_user_id();
