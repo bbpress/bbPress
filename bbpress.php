@@ -589,6 +589,9 @@ class bbPress {
 	 */
 	public function register_post_types() {
 
+		// Define local variable(s)
+		$forum = $topic = $reply = $bbp_cpt = array();
+
 		/** Forums ************************************************************/
 
 		// Forum labels
@@ -846,6 +849,9 @@ class bbPress {
 	 * @uses register_taxonomy() To register the taxonomy
 	 */
 	public function register_taxonomies() {
+
+		// Define local variable(s)
+		$topic_tag = array();
 
 		// Topic tag labels
 		$topic_tag['labels'] = array(
