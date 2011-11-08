@@ -63,7 +63,7 @@ function bbp_is_activation( $basename = '' ) {
 		return false;
 
 	// Bail if plugin is not bbPress
-	if ( $basename !== $_GET['plugin'] )
+	if ( $basename !== $plugin )
 		return false;
 
 	return true;
