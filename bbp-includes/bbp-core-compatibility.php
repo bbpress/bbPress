@@ -1685,7 +1685,7 @@ function bbp_pre_get_posts( $posts_query ) {
 		if ( !empty( $is_edit ) ) {
 
 			// Only allow super admins on multisite to edit every user.
-			if ( !is_user_logged_in() && ( ( is_multisite() && !current_user_can( 'manage_network_users' ) && ( $user->ID != bbp_get_current_user_id() ) && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) ) ) {
+			if ( !is_user_logged_in() || ( is_multisite() && !current_user_can( 'manage_network_users' ) && ( $user->ID != bbp_get_current_user_id() ) && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', $user->ID ) ) {
 				wp_die( __( 'You do not have permission to edit this user.', 'bbpress' ) );
 			}
 
