@@ -3,7 +3,7 @@ Contributors: matt, johnjamesjacoby
 Tags: bbpress, forums, discussion, support, theme, buddypress, akismet, multisite
 Requires at least: 3.2.1
 Tested up to: 3.2.1
-Stable tag: 2.0
+Stable tag: 2.0.1
 
 bbPress is forum software with a twist from the creators of WordPress
 
@@ -23,6 +23,9 @@ We're keeping things as small and light as possible while still allowing for gre
 6. Adjust the CSS of your theme as needed, to make everything pretty.
 
 == Changelog ==
+
+= 2.0.1 =
+* Fix anonymous post editing bug
 
 = 2.0 =
 * Released on September 21, 2011

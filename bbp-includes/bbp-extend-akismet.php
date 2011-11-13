@@ -575,7 +575,7 @@ class BBP_Akismet {
 	 * Submit data to Akismet service with unique bbPress User Agent
 	 *
 	 * This code is directly taken from the akismet_http_post() function and
-	 * documented to bbPress 2.0 standard.
+	 * documented to bbPress standard.
 	 *
 	 * @since bbPress (r3466)
 	 *
