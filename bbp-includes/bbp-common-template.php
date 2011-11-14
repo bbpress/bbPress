@@ -434,6 +434,9 @@ function bbp_is_topics_created() {
 function bbp_is_user_home() {
 	global $bbp;
 
+	if ( !is_user_logged_in() )
+		return false;
+
 	if ( empty( $bbp->displayed_user ) )
 		return false;
 
