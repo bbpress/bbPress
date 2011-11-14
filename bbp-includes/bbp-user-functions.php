@@ -1255,11 +1255,15 @@ function bbp_is_user_inactive( $user_id = 0 ) {
  * 
  * @since bbPress (r3605)
  *
- * @uses bbp_is_topic_edit()
+ * @uses bbp_is_single_user_edit()
+ * @uses is_user_logged_in()
  * @uses current_user_can()
- * @uses bbp_get_topic_id()
+ * @uses bbp_is_user_home()
+ * @uses apply_filters()
+ * @uses is_multisite()
+ * @uses bbp_get_displayed_user_id()
  * @uses wp_safe_redirect()
- * @uses bbp_get_topic_permalink()
+ * @uses bbp_get_user_profile_url()
  */
 function bbp_check_user_edit() {
 
