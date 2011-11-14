@@ -1458,4 +1458,30 @@ function bbp_display_replies_feed_rss2( $replies_query = array() ) {
 	exit();
 }
 
+/** Permissions ***************************************************************/
+
+/**
+ * Redirect if unathorized user is attempting to edit a reply
+ * 
+ * @since bbPress (r3605)
+ *
+ * @uses bbp_is_reply_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_id()
+ * @uses wp_safe_redirect()
+ * @uses bbp_get_topic_permalink()
+ */
+function bbp_check_reply_edit() {
+
+	// Bail if not editing a topic
+	if ( !bbp_is_reply_edit() )
+		return;
+
+	// User cannot edit topic, so redirect back to reply
+	if ( !current_user_can( 'edit_reply', bbp_get_reply_id() ) ) {
+		wp_safe_redirect( bbp_get_reply_url() );
+		exit();
+	}
+}
+
 ?>

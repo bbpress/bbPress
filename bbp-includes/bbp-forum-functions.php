@@ -1146,4 +1146,30 @@ function bbp_forum_enforce_private() {
 		bbp_set_404();
 }
 
+/** Permissions ***************************************************************/
+
+/**
+ * Redirect if unathorized user is attempting to edit a forum
+ * 
+ * @since bbPress (r3607)
+ *
+ * @uses bbp_is_forum_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_forum_id()
+ * @uses wp_safe_redirect()
+ * @uses bbp_get_forum_permalink()
+ */
+function bbp_check_forum_edit() {
+
+	// Bail if not editing a topic
+	if ( !bbp_is_forum_edit() )
+		return;
+
+	// User cannot edit topic, so redirect back to reply
+	if ( !current_user_can( 'edit_forum', bbp_get_forum_id() ) ) {
+		wp_safe_redirect( bbp_get_forum_permalink() );
+		exit();
+	}
+}
+
 ?>

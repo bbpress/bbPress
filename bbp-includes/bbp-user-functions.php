@@ -1248,4 +1248,30 @@ function bbp_is_user_inactive( $user_id = 0 ) {
 	return !bbp_is_user_active( $user_id );
 }
 
+/** Premissions ***************************************************************/
+
+/**
+ * Redirect if unathorized user is attempting to edit a topic
+ * 
+ * @since bbPress (r3605)
+ *
+ * @uses bbp_is_topic_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_id()
+ * @uses wp_safe_redirect()
+ * @uses bbp_get_topic_permalink()
+ */
+function bbp_check_user_edit() {
+
+	// Bail if not editing a topic
+	if ( !bbp_is_single_user_edit() )
+		return;
+
+	// Only allow super admins on multisite to edit every user.
+	if ( !is_user_logged_in() || ( is_multisite() && !current_user_can( 'manage_network_users' ) && bbp_is_user_home() && !apply_filters( 'enable_edit_any_user_configuration', true ) ) || !current_user_can( 'edit_user', bbp_get_displayed_user_id() ) ) {
+		wp_safe_redirect( bbp_get_user_profile_url( bbp_get_displayed_user_id() ) );
+		exit();
+	}
+}
+
 ?>

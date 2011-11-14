@@ -3056,4 +3056,54 @@ function bbp_display_topics_feed_rss2( $topics_query = array() ) {
 	exit();
 }
 
+/** Permissions ***************************************************************/
+
+/**
+ * Redirect if unathorized user is attempting to edit a topic
+ * 
+ * @since bbPress (r3605)
+ *
+ * @uses bbp_is_topic_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_id()
+ * @uses wp_safe_redirect()
+ * @uses bbp_get_topic_permalink()
+ */
+function bbp_check_topic_edit() {
+
+	// Bail if not editing a topic
+	if ( !bbp_is_topic_edit() )
+		return;
+
+	// User cannot edit topic, so redirect back to topic
+	if ( !current_user_can( 'edit_topic', bbp_get_topic_id() ) ) {
+		wp_safe_redirect( bbp_get_topic_permalink() );
+		exit();
+	}
+}
+
+/**
+ * Redirect if unathorized user is attempting to edit a topic tag
+ * 
+ * @since bbPress (r3605)
+ *
+ * @uses bbp_is_topic_tag_edit()
+ * @uses current_user_can()
+ * @uses bbp_get_topic_tag_id()
+ * @uses wp_safe_redirect()
+ * @uses bbp_get_topic_tag_link()
+ */
+function bbp_check_topic_tag_edit() {
+
+	// Bail if not editing a topic tag
+	if ( !bbp_is_topic_tag_edit() )
+		return;
+
+	// Bail if current user cannot edit topic tags
+	if ( !current_user_can( 'edit_topic_tags', bbp_get_topic_tag_id() ) ) {
+		wp_safe_redirect( bbp_get_topic_tag_link() );
+		exit();
+	}
+}
+
 ?>

@@ -36,6 +36,7 @@ add_action( 'init',                   'bbp_init',                   10 );
 add_action( 'widgets_init',           'bbp_widgets_init',           10 );
 add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
 add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
+add_action( 'template_redirect',      'bbp_template_redirect',      10 );
 add_filter( 'template_include',       'bbp_template_include',       10 );
 
 /**
@@ -227,6 +228,13 @@ add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
 // Flush rewrite rules
 add_action( 'bbp_activation',   'flush_rewrite_rules' );
 add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
+
+// Redirect user if needed
+add_action( 'bbp_template_redirect', 'bbp_check_user_edit',      10 );
+add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',     10 );
+add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',     10 );
+add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',     10 );
+add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit', 10 );
 
 /**
  * Requires and creates the BuddyPress extension, and adds component creation
@@ -738,6 +746,20 @@ function bbp_ready() {
  */
 function bbp_template_include( $template = '' ) {
 	return apply_filters( 'bbp_template_include', $template );
+}
+
+/** Theme Permissions *********************************************************/
+
+/**
+ * The main action used for redirecting bbPress theme actions that are not
+ * permitted by the current_user
+ *
+ * @since bbPress (r3605)
+ *
+ * @uses do_action()
+ */
+function bbp_template_redirect() {
+	do_action( 'bbp_template_redirect' );
 }
 
 ?>

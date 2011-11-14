@@ -483,7 +483,7 @@ function bbp_is_user_home() {
 	// Assume false
 	$retval = false;
 
-	if ( !empty( $bbp->displayed_user ) && is_user_logged_in() )
+	if ( bbp_is_single_user() && is_user_logged_in() )
 		$retval = (bool) ( bbp_get_displayed_user_id() == bbp_get_current_user_id() );
 
 	return (bool) apply_filters( 'bbp_is_user_home', $retval );
