@@ -395,13 +395,19 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_get_single_user_template() {
 
-	$displayed = bbp_get_displayed_user_id();
+	$nicename = bbp_get_displayed_user_field( 'user_nicename' );
+	$user_id  = bbp_get_displayed_user_id();
 	$templates = array(
 
+		// Single User nicename
+		'single-user-'         . $nicename . '.php',
+		'bbpress/single-user-' . $nicename . '.php',
+		'forums/single-user-'  . $nicename . '.php',
+
 		// Single User ID
-		'single-user-'         . $displayed . '.php',
-		'bbpress/single-user-' . $displayed . '.php',
-		'forums/single-user-'  . $displayed . '.php',
+		'single-user-'         . $user_id . '.php',
+		'bbpress/single-user-' . $user_id . '.php',
+		'forums/single-user-'  . $user_id . '.php',
 
 		// Single User
 		'single-user.php',
@@ -435,13 +441,19 @@ function bbp_get_single_user_template() {
  */
 function bbp_get_single_user_edit_template() {
 
-	$displayed = bbp_get_displayed_user_id();
+	$nicename = bbp_get_displayed_user_field( 'user_nicename' );
+	$user_id  = bbp_get_displayed_user_id();
 	$templates = array(
 
+		// Single User nicename
+		'single-user-edit-'         . $nicename . '.php',
+		'bbpress/single-user-edit-' . $nicename . '.php',
+		'forums/single-user-edit-'  . $nicename . '.php',
+
 		// Single User Edit ID
-		'single-user-edit-'         . $displayed . '.php',
-		'bbpress/single-user-edit-' . $displayed . '.php',
-		'forums/single-user-edit-'  . $displayed . '.php',
+		'single-user-edit-'         . $user_id . '.php',
+		'bbpress/single-user-edit-' . $user_id . '.php',
+		'forums/single-user-edit-'  . $user_id . '.php',
 
 		// Single User Edit
 		'single-user-edit.php',
