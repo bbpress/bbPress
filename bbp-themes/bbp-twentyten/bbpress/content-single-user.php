@@ -23,6 +23,6 @@
 
 	<hr />
 
-	<?php bbp_get_template_part( 'bbpress/user', 'topics-created' ); ?>
+	<?php bbp_get_template_part( 'bbpress/user', 'topics-created' );
 
 ?>
