@@ -2415,7 +2415,7 @@ function bbp_close_topic( $topic_id = 0 ) {
 		return $topic;
 
 	// Bail if already closed
-	if ( bbp_get_closed_status_id == $topic['post_status'] )
+	if ( bbp_get_closed_status_id() == $topic['post_status'] )
 		return false;
 
 	// Execute pre close code
