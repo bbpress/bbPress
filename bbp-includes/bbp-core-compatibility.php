@@ -395,8 +395,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  */
 function bbp_get_single_user_template() {
 
-	$nicename = bbp_get_displayed_user_field( 'user_nicename' );
-	$user_id  = bbp_get_displayed_user_id();
+	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
+	$user_id   = bbp_get_displayed_user_id();
 	$templates = array(
 
 		// Single User nicename
@@ -441,8 +441,8 @@ function bbp_get_single_user_template() {
  */
 function bbp_get_single_user_edit_template() {
 
-	$nicename = bbp_get_displayed_user_field( 'user_nicename' );
-	$user_id  = bbp_get_displayed_user_id();
+	$nicename  = bbp_get_displayed_user_field( 'user_nicename' );
+	$user_id   = bbp_get_displayed_user_id();
 	$templates = array(
 
 		// Single User nicename
@@ -540,30 +540,20 @@ function bbp_get_forum_edit_template() {
 	$post_type = bbp_get_forum_post_type();
 	$templates = array(
 
-		// Single Topic Edit
+		// Single Forum Edit
 		'single-'         . $post_type . '-edit.php',
 		'bbpress/single-' . $post_type . '-edit.php',
 		'forums/single-'  . $post_type . '-edit.php',
 
-		// Single Action Edit Topic
-		'single-action-edit-'         . $post_type . '.php',
-		'bbpress/single-action-edit-' . $post_type . '.php',
-		'forums/single-action-edit-'  . $post_type . '.php',
-
-		// Single Action Edit
-		'single-action-edit.php',
-		'bbpress/single-action-edit.php',
-		'forums/single-action-edit.php',
-
-		// Action Edit
-		'action-edit.php',
-		'bbpress/action-edit.php',
-		'forums/action-edit.php',
-
-		// Single Topic
+		// Single Forum
 		'single-'         . $post_type . '.php',
 		'forums/single-'  . $post_type . '.php',
 		'bbpress/single-' . $post_type . '.php',
+
+		// Forum
+		$post_type . '.php',
+		'forums/'  . $post_type . '.php',
+		'bbpress/' . $post_type . '.php',
 	);
 
 	$templates = apply_filters( 'bbp_get_forum_edit_template', $templates );
@@ -594,21 +584,6 @@ function bbp_get_topic_edit_template() {
 		'single-'         . $post_type . '-edit.php',
 		'bbpress/single-' . $post_type . '-edit.php',
 		'forums/single-'  . $post_type . '-edit.php',
-
-		// Single Action Edit Topic
-		'single-action-edit-'         . $post_type . '.php',
-		'bbpress/single-action-edit-' . $post_type . '.php',
-		'forums/single-action-edit-'  . $post_type . '.php',
-
-		// Single Action Edit
-		'single-action-edit.php',
-		'bbpress/single-action-edit.php',
-		'forums/single-action-edit.php',
-
-		// Action Edit
-		'action-edit.php',
-		'bbpress/action-edit.php',
-		'forums/action-edit.php',
 
 		// Single Topic
 		'single-'         . $post_type . '.php',
@@ -644,16 +619,6 @@ function bbp_get_topic_split_template() {
 		'single-'         . $post_type . '-split.php',
 		'bbpress/single-' . $post_type . '-split.php',
 		'forums/single-'  . $post_type . '-split.php',
-
-		// Action Split
-		'single-action-split-merge.php',
-		'bbpress/single-action-split-merge.php',
-		'forums/single-action-split-merge.php',
-
-		// Action Split
-		'action-split-merge.php',
-		'bbpress/action-split-merge.php',
-		'forums/action-split-merge.php'
 	);
 
 	$templates = apply_filters( 'bbp_get_topic_split_template', $templates );
@@ -684,16 +649,6 @@ function bbp_get_topic_merge_template() {
 		'single-'         . $post_type . '-merge.php',
 		'bbpress/single-' . $post_type . '-merge.php',
 		'forums/single-'  . $post_type . '-merge.php',
-
-		// Action Merge
-		'single-action-split-merge.php',
-		'bbpress/single-action-split-merge.php',
-		'forums/single-action-split-merge.php',
-
-		// Action Merge
-		'action-split-merge.php',
-		'bbpress/action-split-merge.php',
-		'forums/action-split-merge.php'
 	);
 
 	$templates = apply_filters( 'bbp_get_topic_merge_template', $templates );
@@ -724,21 +679,6 @@ function bbp_get_reply_edit_template() {
 		'single-'         . $post_type . '-edit.php',
 		'bbpress/single-' . $post_type . '-edit.php',
 		'forums/single-'  . $post_type . '-edit.php',
-
-		// Single Action Edit Reply
-		'single-action-edit-'         . $post_type . '.php',
-		'bbpress/single-action-edit-' . $post_type . '.php',
-		'forums/single-action-edit-'  . $post_type . '.php',
-
-		// Single Action Edit
-		'single-action-edit.php',
-		'bbpress/single-action-edit.php',
-		'forums/single-action-edit.php',
-
-		// Action Edit
-		'action-edit.php',
-		'bbpress/action-edit.php',
-		'forums/action-edit.php',
 
 		// Single Reply
 		'single-'         . $post_type . '.php',
