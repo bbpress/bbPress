@@ -549,11 +549,6 @@ function bbp_get_forum_edit_template() {
 		'single-'         . $post_type . '.php',
 		'forums/single-'  . $post_type . '.php',
 		'bbpress/single-' . $post_type . '.php',
-
-		// Forum
-		$post_type . '.php',
-		'forums/'  . $post_type . '.php',
-		'bbpress/' . $post_type . '.php',
 	);
 
 	$templates = apply_filters( 'bbp_get_forum_edit_template', $templates );
