@@ -767,10 +767,15 @@ function bbp_get_reply_edit_template() {
  */
 function bbp_get_topic_tag_template() {
 
-	$tt_id = bbp_get_topic_tag_tax_id();
+	$tt_slug   = bbp_get_topic_tag_slug();
+	$tt_id     = bbp_get_topic_tag_tax_id();
 	$templates = array(
 
 		// Single Topic Tag
+		'taxonomy-'         . $tt_slug . '.php',
+		'forums/taxonomy-'  . $tt_slug . '.php',
+		'bbpress/taxonomy-' . $tt_slug . '.php',
+		
 		'taxonomy-'         . $tt_id . '.php',
 		'forums/taxonomy-'  . $tt_id . '.php',
 		'bbpress/taxonomy-' . $tt_id . '.php',
@@ -797,15 +802,24 @@ function bbp_get_topic_tag_template() {
  */
 function bbp_get_topic_tag_edit_template() {
 
-	$tt_id = bbp_get_topic_tag_tax_id();
+	$tt_slug   = bbp_get_topic_tag_slug();
+	$tt_id     = bbp_get_topic_tag_tax_id();
 	$templates = array(
 
 		// Single Topic Tag Edit
+		'taxonomy-'         . $tt_slug . '-edit.php',
+		'bbpress/taxonomy-' . $tt_slug . '-edit.php',
+		'forums/taxonomy-'  . $tt_slug . '-edit.php',
+
 		'taxonomy-'         . $tt_id . '-edit.php',
 		'bbpress/taxonomy-' . $tt_id . '-edit.php',
 		'forums/taxonomy-'  . $tt_id . '-edit.php',
 
 		// Single Topic Tag
+		'taxonomy-'         . $tt_slug . '.php',
+		'forums/taxonomy-'  . $tt_slug . '.php',
+		'bbpress/taxonomy-' . $tt_slug . '.php',
+		
 		'taxonomy-'         . $tt_id . '.php',
 		'forums/taxonomy-'  . $tt_id . '.php',
 		'bbpress/taxonomy-' . $tt_id . '.php',
@@ -897,7 +911,7 @@ function bbp_template_include_theme_supports( $template = '' ) {
 		// Single View
 		elseif ( bbp_is_single_view()      && ( $new_template = bbp_get_single_view_template()      ) ) :
 
-		// Topic edit
+		// Forum edit
 		elseif ( bbp_is_forum_edit()       && ( $new_template = bbp_get_forum_edit_template()       ) ) :
 
 		// Topic merge
