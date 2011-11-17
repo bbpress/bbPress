@@ -553,7 +553,7 @@ class bbPress {
 		if ( file_exists( $mofile_local ) )
 			return load_textdomain( 'bbpress', $mofile_local );
 
-		// Look in global /wp-content/languages/ folder
+		// Look in global /wp-content/languages/bbpress folder
 		elseif ( file_exists( $mofile_global ) )
 			return load_textdomain( 'bbpress', $mofile_global );
 
