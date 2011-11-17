@@ -533,8 +533,14 @@ class bbPress {
 	 */
 	public function load_textdomain() {
 
-		// Allow locale to be filtered
-		$locale = apply_filters( 'bbpress_locale', get_locale() );
+		// Default locale
+		$locale = get_locale();
+
+		// Traditional WordPress plugin locale filter
+		$locale = apply_filters( 'plugin_locale',  $locale, 'bbpress' );
+
+		// bbPress specific locale filter
+		$locale = apply_filters( 'bbpress_locale', $locale );
 
 		// Get mo file name
 		$mofile = sprintf( 'bbpress-%s.mo', $locale );
