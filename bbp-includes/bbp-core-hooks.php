@@ -252,7 +252,7 @@ function bbp_setup_buddypress() {
 	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
 
 	// Bail if bbPress is not loaded
-	if ( 'bbPress' !== get_class( $bbp ) ) return;
+	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	// Include the BuddyPress Component
 	require( $bbp->plugin_dir . 'bbp-includes/bbp-extend-buddypress.php' );

@@ -687,7 +687,7 @@ function bbp_setup_akismet() {
 	if ( !defined( 'AKISMET_VERSION' ) ) return;
 
 	// Bail if bbPress is not loaded
-	if ( 'bbPress' !== get_class( $bbp ) ) return;
+	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	// Bail if Akismet is turned off
 	if ( !bbp_is_akismet_active() ) return;

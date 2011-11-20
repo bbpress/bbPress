@@ -556,7 +556,7 @@ function bbp_admin_forums() {
 	global $bbp;
 
 	// Bail if bbPress is not loaded
-	if ( 'bbPress' !== get_class( $bbp ) ) return;
+	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	$bbp->admin->forums = new BBP_Forums_Admin();
 }

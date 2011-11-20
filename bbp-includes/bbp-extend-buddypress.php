@@ -1055,7 +1055,7 @@ function bbp_setup_buddypress_component() {
 	if ( !empty( $bp->maintenance_mode ) || !defined( 'BP_VERSION' ) ) return;
 
 	// Bail if bbPress is not loaded
-	if ( 'bbPress' !== get_class( $bbp ) ) return;
+	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	// Bail if BuddyPress Forums are already active
 	if ( bp_is_active( 'forums' ) && bp_forums_is_installed_correctly() ) return;

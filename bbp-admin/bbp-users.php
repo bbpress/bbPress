@@ -111,7 +111,7 @@ function bbp_users_admin() {
 	global $bbp;
 
 	// Bail if bbPress is not loaded
-	if ( 'bbPress' !== get_class( $bbp ) ) return;
+	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	$bbp->admin->users = new BBP_Users_Admin();
 }

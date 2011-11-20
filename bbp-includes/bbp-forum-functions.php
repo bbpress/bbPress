@@ -928,7 +928,7 @@ function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 		return;
 
 	// Bail if $posts_query is not an object or of incorrect class
-	if ( !is_object( $posts_query ) || ( 'WP_Query' != get_class( $posts_query ) ) )
+	if ( !is_object( $posts_query ) || !is_a( $posts_query, 'WP_Query' ) )
 		return;
 
 	// Bail if filters are suppressed on this query

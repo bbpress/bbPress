@@ -875,7 +875,7 @@ function bbp_register_shortcodes() {
 	global $bbp;
 
 	// Bail if bbPress is not loaded
-	if ( 'bbPress' !== get_class( $bbp ) ) return;
+	if ( !is_a( $bbp, 'bbPress' ) ) return;
 
 	$bbp->shortcodes = new BBP_Shortcodes();
 }
