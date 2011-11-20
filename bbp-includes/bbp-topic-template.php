@@ -1945,10 +1945,11 @@ function bbp_topic_class( $topic_id = 0 ) {
 		$classes[] = bbp_is_topic_sticky( $topic_id, false ) ? 'sticky'       : '';
 		$classes[] = bbp_is_topic_super_sticky( $topic_id  ) ? 'super-sticky' : '';
 		$classes   = array_filter( $classes );
-		$retval    = get_post_class( $classes, $topic_id );
-		$retval    = 'class="' . join( ' ', $retval ) . '"';
+		$classes   = get_post_class( $classes, $topic_id );
+		$classes   = apply_filters( 'bbp_get_topic_class', $classes, $topic_id );
+		$retval    = 'class="' . join( ' ', $classes ) . '"';
 
-		return apply_filters( 'bbp_get_topic_class', $retval, $topic_id );
+		return $retval;
 	}
 
 /** Topic Admin Links *********************************************************/

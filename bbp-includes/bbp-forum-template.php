@@ -1638,10 +1638,11 @@ function bbp_forum_class( $forum_id = 0 ) {
 		$classes[] = bbp_is_forum_category( $forum_id ) ? 'status-category' : '';
 		$classes[] = bbp_is_forum_private( $forum_id )  ? 'status-private'  : '';
 		$classes   = array_filter( $classes );
-		$retval    = get_post_class( $classes, $forum_id );
-		$retval    = 'class="' . join( ' ', $retval ) . '"';
+		$classes   = get_post_class( $classes, $forum_id );
+		$classes   = apply_filters( 'bbp_get_forum_class', $classes, $forum_id );
+		$retval    = 'class="' . join( ' ', $classes ) . '"';
 
-		return apply_filters( 'bbp_get_forum_class', $retval, $forum_id );
+		return $retval;
 	}
 
 /** Single Forum **************************************************************/

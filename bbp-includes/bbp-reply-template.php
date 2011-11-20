@@ -1728,10 +1728,11 @@ function bbp_reply_class( $reply_id = 0 ) {
 		$count     = isset( $bbp->reply_query->current_post ) ? $bbp->reply_query->current_post : 1;
 		$classes   = array();
 		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
-		$retval    = get_post_class( $classes, $reply_id );
-		$retval    = 'class="' . join( ' ', $retval ) . '"';
+		$classes   = get_post_class( $classes, $reply_id );
+		$classes   = apply_filters( 'bbp_get_reply_class', $classes, $reply_id );
+		$retval    = 'class="' . join( ' ', $classes ) . '"';
 
-		return apply_filters( 'bbp_get_reply_class', $retval, $reply_id );
+		return $retval;
 	}
 
 /**
