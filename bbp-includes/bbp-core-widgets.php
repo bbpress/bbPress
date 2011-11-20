@@ -564,7 +564,7 @@ class BBP_Topics_Widget extends WP_Widget {
 					<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
 						<li>
-							<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time() . ' ago' ); ?>
+							<a class="bbp-forum-title" href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>"><?php bbp_topic_title(); ?></a><?php if ( $show_date == 'on' ) printf( __( ', %s ago', 'bbpress' ), bbp_get_topic_last_active_time() ); ?>
 						</li>
 
 					<?php endwhile; ?>
