@@ -593,7 +593,7 @@ class BBP_Topics_Widget extends WP_Widget {
 
 					<?php foreach ( $topics as $topic_id => $topic_reply_count ) : ?>
 
-						<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) _e( ', ' . bbp_get_topic_last_active_time( $topic_id ) . ' ago' ); ?></li>
+						<li><a class="bbp-topic-title" href="<?php bbp_topic_permalink( $topic_id ); ?>" title="<?php bbp_topic_title( $topic_id ); ?>"><?php bbp_topic_title( $topic_id ); ?></a><?php if ( $show_date == 'on' ) printf( __( ', %s ago', 'bbpress' ), bbp_get_topic_last_active_time( $topic_id ) ); ?></li>
 
 					<?php
 
