@@ -606,7 +606,7 @@ function bbp_forum_get_subforums( $args = '' ) {
 		'post_type'      => bbp_get_forum_post_type(),
 		'post_status'    => implode( ',', $post_stati ),
 		'posts_per_page' => get_option( '_bbp_forums_per_page', 50 ),
-		'sort_column'    => 'menu_order, post_title',
+		'orderby'        => 'menu_order',
 		'order'          => 'ASC'
 	);
 
