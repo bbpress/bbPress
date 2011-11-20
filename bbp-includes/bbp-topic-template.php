@@ -2619,6 +2619,7 @@ function bbp_topic_notices() {
  *  - tab: Tabindex
  *  - topic_id: Topic id
  * @uses bbp_get_topic_id() To get the topic id
+ * @uses bbp_is_single_topic() To check if we're viewing a single topic
  * @uses bbp_is_topic_edit() To check if it is the topic edit page
  * @uses bbp_is_topic_super_sticky() To check if the topic is a super sticky
  * @uses bbp_is_topic_sticky() To check if the topic is a sticky
@@ -2637,11 +2638,11 @@ function bbp_topic_type_select( $args = '' ) {
 	$r = wp_parse_args( $args, $defaults );
 	extract( $r );
 
-	// Get current topic id
-	$topic_id = bbp_get_topic_id( $topic_id );
-
 	// Edit topic
-	if ( bbp_is_topic_edit() ) {
+	if ( bbp_is_single_topic() || bbp_is_topic_edit() ) {
+
+		// Get current topic id
+		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Post value is passed
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$select_id] ) ) {

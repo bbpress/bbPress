@@ -117,7 +117,7 @@ class BBP_Topics_Admin {
 		$bbp_contextual_help[] = __( 'The topic title field and the big topic editing area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of the box. Use the Screen Options tab to unhide more boxes (Topic Tags, Topic Attributes, or Slug) or to choose a 1- or 2-column layout for this screen.', 'bbpress' );
 		$bbp_contextual_help[] = __( '<strong>Title</strong> - Enter a title for your topic. After you enter a title, you will see the permalink below, which you can edit.', 'bbpress' );
 		$bbp_contextual_help[] = __( '<strong>Post editor</strong> - Enter the text for your topic. There are two modes of editing: Visual and HTML. Choose the mode by clicking on the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon in the row to get a second row of controls. The screen icon just before that allows you to expand the edit box to full screen. The HTML mode allows you to enter raw HTML along with your forum text. You can insert media files by clicking the icons above the post editor and following the directions.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Topic Attributes</strong> - Select the attributes that your topic should have. The Forum dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default (No Forum) to post the topic without an assigned forum.', 'bbpress' );
+		$bbp_contextual_help[] = __( '<strong>Topic Attributes</strong> - Select the attributes that your topic should have. The Forum dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default (No Forum) to post the topic without an assigned forum. The topic type drop down indicates the sticky status of the topic. Selecting the super sticky option would stick the topic to the front of your forums, i.e. the topic index, sticky option would stick the topic to its respective forum. Selecting normal would not stick the topic anywhere.', 'bbpress' );
 		$bbp_contextual_help[] = __( '<strong>Publish</strong> - The Publish box will allow you to save your topic as Draft or Pending Review. You may Preview your topic before it is published as well. The Visibility will determine whether the topic is Public, Password protected (requiring a password on the site to view) or Private (only the author will have access to it). Topics may be published immediately by clicking the dropdown, or at a specific date and time by clicking the Edit link.', 'bbpress' );
 		$bbp_contextual_help[] = __( '<strong>Topic Tags</strong> - You can assign keywords to your topics using Topic Tags. Unlike categories, tags have no hierarchy, meaning there is no relationship from one tag to another. Topics can be added and modified further from the Topic Tags screen.', 'bbpress' );
 		$bbp_contextual_help[] = __( '<strong>Revisions</strong> - Revisions show past versions of the saved topic. Each revision can be compared to the current version, or another revision. Revisions can also be restored to the current version.', 'bbpress' );
@@ -141,7 +141,7 @@ class BBP_Topics_Admin {
 
 		/** Post Rows *********************************************************/
 
-		$bbp_contextual_help[] = __( 'This screen displays the topics created on your site.',           'bbpress' );
+		$bbp_contextual_help[] = __( 'This screen displays the topics created on your site.',             'bbpress' );
 		$bbp_contextual_help[] = __( 'You can customize the display of this screen in a number of ways:', 'bbpress' );
 		$bbp_contextual_help[] =
 			'<ul>' .
@@ -262,6 +262,30 @@ class BBP_Topics_Admin {
 
 		// Formally update the topic
 		bbp_update_topic( $topic_id, $forum_id );
+
+		// Stickies
+		if ( !empty( $_POST['bbp_stick_topic'] ) && in_array( $_POST['bbp_stick_topic'], array( 'stick', 'super', 'unstick' ) ) ) {
+
+			// What's the haps?
+			switch ( $_POST['bbp_stick_topic'] ) {
+
+				// Sticky in this forum
+				case 'stick'   :
+					bbp_stick_topic( $topic_id );
+					break;
+
+				// Super sticky in all forums
+				case 'super'   :
+					bbp_stick_topic( $topic_id, true );
+					break;
+
+				// Normal
+				case 'unstick' :
+				default        :
+					bbp_unstick_topic( $topic_id );
+					break;
+			}
+		}
 
 		// Allow other fun things to happen
 		do_action( 'bbp_topic_attributes_metabox_save', $topic_id, $forum_id );

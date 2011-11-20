@@ -337,6 +337,13 @@ function bbp_topic_metabox() {
 		<?php bbp_dropdown( $args ); ?>
 	</p>
 
+	<p><strong><?php _e( 'Topic Type', 'bbpress' ); ?></strong></p>
+
+	<p>
+		<label class="screen-reader-text" for="bbp_stick_topic"><?php _e( 'Topic Type', 'bbpress' ); ?></label>
+		<?php bbp_topic_type_select( array( 'topic_id' => $post->ID ) ); ?>
+	</p>
+
 	<?php
 
 	do_action( 'bbp_topic_metabox', $post->ID );
