@@ -388,27 +388,9 @@ class BBP_Admin {
 	 * @global bbPress $bbp
 	 *
 	 * @uses current_user_can() To check notice should be displayed.
-	 * @uses current_theme_supports() To check theme for bbPress support
 	 */
 	public function activation_notice() {
-		global $bbp, $pagenow;
-
-		// Bail if not on admin theme page
-		if ( 'themes.php' != $pagenow )
-			return;
-
-		// Bail if user cannot change the theme
-		if ( !current_user_can( 'switch_themes' ) )
-			return;
-
-		// Set $bbp->theme_compat to true to bypass nag
-		if ( !empty( $bbp->theme_compat->theme ) && !current_theme_supports( 'bbpress' ) ) : ?>
-
-			<div id="message" class="updated fade">
-				<p style="line-height: 150%"><?php printf( __( "Your active theme does not include bbPress template files. Your forums are using the default styling included with bbPress.", 'bbpress' ), admin_url( 'themes.php' ), admin_url( 'theme-install.php?type=tag&s=bbpress&tab=search' ) ) ?></p>
-			</div>
-
-		<?php endif;
+		// @todo - something fun
 	}
 
 	/**

@@ -206,7 +206,6 @@ class BBP_Shortcodes {
 	 * @param array $attr
 	 * @param string $content
 	 * @uses bbp_has_forums()
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @return string
 	 */
@@ -248,7 +247,6 @@ class BBP_Shortcodes {
 	 * @param array $attr
 	 * @param string $content
 	 * @uses bbp_has_topics()
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @uses bbp_single_forum_description()
 	 * @return string
@@ -357,7 +355,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3566)
 	 *
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 */
 	public function display_forum_form() {
@@ -384,7 +381,6 @@ class BBP_Shortcodes {
 	 * @param string $content
 	 * @uses bbp_get_hidden_forum_ids()
 	 * @uses bbp_has_topics()
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @return string
 	 */
@@ -437,7 +433,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @return string
 	 */
@@ -540,7 +535,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 */
 	public function display_topic_form() {
@@ -563,7 +557,6 @@ class BBP_Shortcodes {
 	 *
 	 * @since bbPress (r3031)
 	 *
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 */
 	public function display_reply_form() {
@@ -616,7 +609,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @return string
 	 */
@@ -677,7 +669,6 @@ class BBP_Shortcodes {
 	 *
 	 * @param array $attr
 	 * @param string $content
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @return string
 	 */
@@ -719,7 +710,6 @@ class BBP_Shortcodes {
 	 * @param array $attr
 	 * @param string $content
 	 * @uses bbp_has_topics()
-	 * @uses current_theme_supports()
 	 * @uses get_template_part()
 	 * @uses bbp_single_forum_description()
 	 * @return string

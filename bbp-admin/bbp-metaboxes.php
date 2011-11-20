@@ -208,15 +208,6 @@ function bbp_dashboard_widget_right_now() {
 
 	<div class="versions">
 
-		<p>
-			<?php
-				if ( current_theme_supports( 'bbpress' ) )
-					_e( 'Theme is using <strong>custom bbPress</strong> styling.', 'bbpress' );
-				else
-					_e( 'Theme is using <strong>default bbPress</strong> styling.', 'bbpress' );
-			?>
-		</p>
-
 		<span id="wp-version-message">
 			<?php printf( __( 'You are using <span class="b">bbPress %s</span>.', 'bbpress' ), bbp_get_version() ); ?>
 		</span>
