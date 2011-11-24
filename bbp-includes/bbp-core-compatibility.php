@@ -868,6 +868,10 @@ function bbp_template_include_theme_supports( $template = '' ) {
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
+	// Bail if current theme has this under control
+	if ( current_theme_supports( 'bbpress' ) )
+		return $template;
+
 	/** Users *************************************************************/
 
 	if ( bbp_is_single_user() || bbp_is_single_user_edit() ) {
