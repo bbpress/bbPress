@@ -95,6 +95,10 @@ function bbp_setup_theme_compat( $theme = '' ) {
  */
 function bbp_theme_compat_enqueue_css() {
 
+	// Bail if current theme has this under control
+	if ( current_theme_supports( 'bbpress' ) )
+		return;
+
 	// Version of CSS
 	$version = bbp_get_theme_compat_version();
 
@@ -180,6 +184,37 @@ function bbp_locate_template( $template_names, $load = false, $require_once = tr
 		load_template( $located, $require_once );
 
 	return $located;
+}
+
+/**
+ * Retrieve path to a template
+ *
+ * Used to quickly retrieve the path of a template without including the file
+ * extension. It will also check the parent theme and theme-compat theme with
+ * the use of {@link bbp_locate_template()}. Allows for more generic template
+ * locations without the use of the other get_*_template() functions.
+ *
+ * @since bbPress (r3629)
+ *
+ * @param string $type Filename without extension.
+ * @param array $templates An optional list of template candidates
+ * @uses bbp_set_theme_compat_templates()
+ * @uses bbp_locate_template()
+ * @uses bbp_set_theme_compat_template()
+ * @return string Full path to file.
+ */
+function bbp_get_query_template( $type, $templates = array() ) {
+	$type = preg_replace( '|[^a-z0-9-]+|', '', $type );
+
+	if ( empty( $templates ) )
+		$templates = array( "{$type}.php" );
+
+	$templates = apply_filters( "bbp_get_{$type}_template", $templates );
+	$templates = bbp_set_theme_compat_templates( $templates );
+	$template  = bbp_locate_template( $templates );
+	$template  = bbp_set_theme_compat_template( $template );
+
+	return apply_filters( "bbp_{$type}_template", $template );
 }
 
 /**
@@ -409,7 +444,6 @@ function bbp_theme_compat_reset_post( $args = array() ) {
 	$wp_query->is_archive = $dummy['is_archive'];
 	$wp_query->is_tax     = $dummy['is_tax'];
 	
-
 	// If we are resetting a post, we are in theme compat
 	bbp_set_theme_compat_active();
 }
@@ -422,10 +456,8 @@ function bbp_theme_compat_reset_post( $args = array() ) {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_displayed_user_id()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_single_user_template() {
 
@@ -454,13 +486,7 @@ function bbp_get_single_user_template() {
 		'forums/user.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_profile_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'profile', $templates );
 }
 
 /**
@@ -469,10 +495,8 @@ function bbp_get_single_user_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_displayed_user_id()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_single_user_edit_template() {
 
@@ -506,13 +530,7 @@ function bbp_get_single_user_edit_template() {
 		'user.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_profile_edit_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'profile_edit', $templates );
 }
 
 /**
@@ -521,10 +539,8 @@ function bbp_get_single_user_edit_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_view_id()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_single_view_template() {
 
@@ -552,13 +568,7 @@ function bbp_get_single_view_template() {
 		'forums/view.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_single_view_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'single_view', $templates );
 }
 
 /**
@@ -567,10 +577,8 @@ function bbp_get_single_view_template() {
  * @since bbPress (r3566)
  *
  * @uses bbp_get_topic_post_type()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_forum_edit_template() {
 
@@ -588,13 +596,7 @@ function bbp_get_forum_edit_template() {
 		'bbpress/single-' . $post_type . '.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_forum_edit_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'forum_edit', $templates );
 }
 
 /**
@@ -603,10 +605,8 @@ function bbp_get_forum_edit_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_topic_post_type()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_topic_edit_template() {
 
@@ -624,13 +624,7 @@ function bbp_get_topic_edit_template() {
 		'bbpress/single-' . $post_type . '.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_edit_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'topic_edit', $templates );
 }
 
 /**
@@ -639,10 +633,8 @@ function bbp_get_topic_edit_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_topic_post_type()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_topic_split_template() {
 
@@ -655,13 +647,7 @@ function bbp_get_topic_split_template() {
 		'forums/single-'  . $post_type . '-split.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_split_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'topic_split', $templates );
 }
 
 /**
@@ -670,10 +656,8 @@ function bbp_get_topic_split_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_topic_post_type()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_topic_merge_template() {
 
@@ -686,13 +670,7 @@ function bbp_get_topic_merge_template() {
 		'forums/single-'  . $post_type . '-merge.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_merge_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'topic_merge', $templates );
 }
 
 /**
@@ -701,10 +679,8 @@ function bbp_get_topic_merge_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_reply_post_type()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+* @return string Path to template file
  */
 function bbp_get_reply_edit_template() {
 
@@ -722,13 +698,7 @@ function bbp_get_reply_edit_template() {
 		'bbpress/single-' . $post_type . '.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_reply_edit_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'reply_edit', $templates );
 }
 
 /**
@@ -737,10 +707,8 @@ function bbp_get_reply_edit_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_topic_tag_tax_id()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_topic_tag_template() {
 
@@ -758,13 +726,7 @@ function bbp_get_topic_tag_template() {
 		'bbpress/taxonomy-' . $tt_id . '.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_tag_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'topic_tag', $templates );
 }
 
 /**
@@ -773,10 +735,8 @@ function bbp_get_topic_tag_template() {
  * @since bbPress (r3311)
  *
  * @uses bbp_get_topic_tag_tax_id()
- * @uses bbp_locate_template()
- * @uses apply_filters()
- *
- * @return array
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_topic_tag_edit_template() {
 
@@ -803,13 +763,7 @@ function bbp_get_topic_tag_edit_template() {
 		'bbpress/taxonomy-' . $tt_id . '.php',
 	);
 
-	$templates = apply_filters( 'bbp_get_topic_tag_edit_template', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'topic_tag_edit', $templates );
 }
 
 /**
@@ -819,9 +773,8 @@ function bbp_get_topic_tag_edit_template() {
  *
  * @uses apply_filters()
  * @uses bbp_set_theme_compat_templates()
- * @uses bbp_locate_template()
- *
- * @return type
+ * @uses bbp_get_query_template()
+ * @return string Path to template file
  */
 function bbp_get_theme_compat_templates() {
 
@@ -833,13 +786,7 @@ function bbp_get_theme_compat_templates() {
 		'index.php'
 	);
 
-	$templates = apply_filters( 'bbp_get_theme_compat_templates', $templates );
-	$templates = bbp_set_theme_compat_templates( $templates );
-
-	$template  = bbp_locate_template( $templates, false, false );
-	$template  = bbp_set_theme_compat_template( $template );
-
-	return $template;
+	return bbp_get_query_template( 'bbpress', $templates );
 }
 
 /**
@@ -1086,7 +1033,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 	 * the context, and then uses the built in shortcodes to output the
 	 * correct results.
 	 *
-	 * We default to using page.php, since it's most likely to exist and
+	 * Use bbp_get_theme_compat_templates() to provide a fall-back that
 	 * should be coded to work without superfluous elements and logic, like
 	 * prev/next navigation, comments, date/time, etc... You can hook into
 	 * the 'bbp_template_include' filter to override page.php.
