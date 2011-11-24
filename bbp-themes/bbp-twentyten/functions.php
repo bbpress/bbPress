@@ -353,7 +353,7 @@ class BBP_Twenty_Ten extends BBP_Theme_Compat {
  * Instantiate a new BBP_Twenty_Ten class inside the $bbp global. It is
  * responsible for hooking itself into WordPress where apprpriate.
  */
-if ( 'bbPress' == get_class( $bbp ) ) {
+if ( is_a( $bbp, 'bbPress' ) ) {
 	$bbp->theme_compat->theme = new BBP_Twenty_Ten();
 }
 
