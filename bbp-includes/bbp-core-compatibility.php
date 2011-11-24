@@ -824,6 +824,10 @@ function bbp_get_theme_compat_templates() {
  */
 function bbp_template_include_theme_supports( $template = '' ) {
 
+	// Bail if current theme does not support bbPress
+	if ( !current_theme_supports( 'bbpress' ) )
+		return $template;
+
 	// Viewing a user
 	if     ( bbp_is_single_user()      && ( $new_template = bbp_get_single_user_template()      ) ) :
 
@@ -862,9 +866,30 @@ function bbp_template_include_theme_supports( $template = '' ) {
 }
 
 /**
- * In this next bit, either the current theme does not support bbPress, or
- * the theme author has incorrectly used add_theme_support( 'bbpress' )
- * and we are going to help them out by silently filling in the blanks.
+ * Reset main query vars and filter 'the_content' to output a bbPress
+ * template part as needed.
+ *
+ * @since bbPress (r3032)
+ *
+ * @param string $template
+ *
+ * @uses bbp_is_single_user() To check if page is single user
+ * @uses bbp_get_single_user_template() To get user template
+ * @uses bbp_is_single_user_edit() To check if page is single user edit
+ * @uses bbp_get_single_user_edit_template() To get user edit template
+ * @uses bbp_is_single_view() To check if page is single view
+ * @uses bbp_get_single_view_template() To get view template
+ * @uses bbp_is_forum_edit() To check if page is forum edit
+ * @uses bbp_get_forum_edit_template() To get forum edit template
+ * @uses bbp_is_topic_merge() To check if page is topic merge
+ * @uses bbp_get_topic_merge_template() To get topic merge template
+ * @uses bbp_is_topic_split() To check if page is topic split
+ * @uses bbp_get_topic_split_template() To get topic split template
+ * @uses bbp_is_topic_edit() To check if page is topic edit
+ * @uses bbp_get_topic_edit_template() To get topic edit template
+ * @uses bbp_is_reply_edit() To check if page is reply edit
+ * @uses bbp_get_reply_edit_template() To get reply edit template
+ * @uses bbp_set_theme_compat_template() To set the global theme compat template
  */
 function bbp_template_include_theme_compat( $template = '' ) {
 
