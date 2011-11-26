@@ -162,6 +162,54 @@ function bbp_current_author_ua() {
 	return apply_filters( 'bbp_current_author_ua', $retval );
 }
 
+/** Post Counts ***************************************************************/
+
+/**
+ * Return the raw database count of topics by a user
+ *
+ * @since bbPress (r3633)
+ * @global WPDB $wpdb
+ * @uses bbp_get_user_id()
+ * @uses get_posts_by_author_sql()
+ * @uses bbp_get_topic_post_type()
+ * @uses apply_filters()
+ * @return int Raw DB count of topics
+ */
+function bbp_get_user_topic_count_raw( $user_id = 0 ) {
+	if ( !$user_id = bbp_get_user_id( $user_id ) )
+		return false;
+
+	global $wpdb;
+
+	$where = get_posts_by_author_sql( bbp_get_topic_post_type(), true, $user_id );
+	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
+
+	return (int) apply_filters( 'bbp_get_user_topic_count_raw', $count, $user_id );
+}
+
+/**
+ * Return the raw database count of replies by a user
+ *
+ * @since bbPress (r3633)
+ * @global WPDB $wpdb
+ * @uses bbp_get_user_id()
+ * @uses get_posts_by_author_sql()
+ * @uses bbp_get_reply_post_type()
+ * @uses apply_filters()
+ * @return int Raw DB count of replies
+ */
+function bbp_get_user_reply_count_raw( $user_id = 0 ) {
+	if ( !$user_id = bbp_get_user_id( $user_id ) )
+		return false;
+
+	global $wpdb;
+
+	$where = get_posts_by_author_sql( bbp_get_reply_post_type(), true, $user_id );
+	$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} {$where}" );
+
+	return (int) apply_filters( 'bbp_get_user_reply_count_raw', $count, $user_id );
+}
+
 /** Favorites *****************************************************************/
 
 /**
