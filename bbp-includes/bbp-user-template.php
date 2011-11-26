@@ -1398,4 +1398,110 @@ function bbp_current_user_can_access_create_reply_form() {
 	return (bool) apply_filters( 'bbp_current_user_can_access_create_reply_form', (bool) $retval );
 }
 
+/** Post Counts ***************************************************************/
+
+/**
+ * Output a users topic count
+ * 
+ * @since bbPress (r3632)
+ *
+ * @param int $user_id
+ * @uses bbp_get_user_topic_count()
+ * @return string 
+ */
+function bbp_user_topic_count( $user_id = 0 ) {
+	echo bbp_get_user_topic_count( $user_id );
+}
+	/**
+	 * Return a users reply count
+	 * 
+	 * @since bbPress (r3632)
+	 *
+	 * @param int $user_id
+	 * @uses bbp_get_user_id()
+	 * @uses get_user_meta()
+	 * @uses number_format_i18n()
+	 * @uses apply_filters()
+	 * @return string 
+	 */
+	function bbp_get_user_topic_count( $user_id = 0 ) {
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
+			return false;
+
+		$count = (int) get_user_meta( $user_id, '_bbp_topic_count', true );
+		$count = !empty( $count ) ? number_format_i18n( $count ) : '0';
+
+		return apply_filters( 'bbp_get_user_topic_count', $count, $user_id );
+	}
+
+/**
+ * Output a users reply count
+ * 
+ * @since bbPress (r3632)
+ *
+ * @param int $user_id
+ * @uses bbp_get_user_reply_count()
+ * @return string 
+ */
+function bbp_user_reply_count( $user_id = 0 ) {
+	echo bbp_get_user_reply_count( $user_id );
+}
+	/**
+	 * Return a users reply count
+	 * 
+	 * @since bbPress (r3632)
+	 *
+	 * @param int $user_id
+	 * @uses bbp_get_user_id()
+	 * @uses get_user_meta()
+	 * @uses number_format_i18n()
+	 * @uses apply_filters()
+	 * @return string 
+	 */
+	function bbp_get_user_reply_count( $user_id = 0 ) {
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
+			return false;
+
+		$count = (int) get_user_meta( $user_id, '_bbp_reply_count', true );
+		$count = !empty( $count ) ? number_format_i18n( $count ) : '0';
+
+		return apply_filters( 'bbp_get_user_reply_count', $count, $user_id );
+	}
+
+/**
+ * Output a users total post count
+ * 
+ * @since bbPress (r3632)
+ *
+ * @param int $user_id
+ * @uses bbp_get_user_post_count()
+ * @return string 
+ */
+function bbp_user_post_count( $user_id = 0 ) {
+	echo bbp_get_user_post_count( $user_id );
+}
+	/**
+	 * Return a users total post count
+	 * 
+	 * @since bbPress (r3632)
+	 *
+	 * @param int $user_id
+	 * @uses bbp_get_user_id()
+	 * @uses get_user_meta()
+	 * @uses number_format_i18n()
+	 * @uses apply_filters()
+	 * @return string 
+	 */
+	function bbp_get_user_post_count( $user_id = 0 ) {
+		if ( !$user_id = bbp_get_user_id( $user_id ) )
+			return false;
+
+		$topics  = (int) get_user_meta( $user_id, '_bbp_topic_count', true );
+		$replies = (int) get_user_meta( $user_id, '_bbp_reply_count', true );
+		$count   = $topics + $replies;
+		$count = !empty( $count ) ? number_format_i18n( $count ) : '0';
+
+		return apply_filters( 'bbp_get_user_post_count', $count, $user_id );
+	}
+
 ?>
