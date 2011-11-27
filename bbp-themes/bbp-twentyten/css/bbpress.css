@@ -630,10 +630,10 @@ div.bbp-template-notice a {
 /* =Stickies
 -------------------------------------------------------------- */
 
-.bbp-topics-front tr.super-sticky td,
-.bbp-topics tr.super-sticky td,
-.bbp-topics tr.sticky td,
-.bbp-forum-content tr.sticky td {
+.bbp-topics-front ul.super-sticky,
+.bbp-topics ul.super-sticky,
+.bbp-topics ul.sticky,
+.bbp-forum-content ul.sticky {
 	background-color: #ffffe0 !important;
 	font-size: 1.1em;
 }

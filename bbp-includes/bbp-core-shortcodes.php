@@ -140,9 +140,10 @@ class BBP_Shortcodes {
 		$bbp->reply_query = new stdClass;
 
 		// Unset global ID's
-		$bbp->current_forum_id = 0;
-		$bbp->current_topic_id = 0;
-		$bbp->current_reply_id = 0;
+		$bbp->current_forum_id     = 0;
+		$bbp->current_topic_id     = 0;
+		$bbp->current_reply_id     = 0;
+		$bbp->current_topic_tag_id = 0;
 
 		// Reset the post data
 		wp_reset_postdata();
@@ -247,7 +248,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Set passed attribute to $forum_id for clarity
-		$forum_id = $attr['id'];
+		$bbp->current_forum_id = $forum_id = $attr['id'];
 
 		// Bail if ID passed is not a forum
 		if ( !bbp_is_forum( $forum_id ) )
@@ -312,15 +313,8 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->start( 'bbp_topic_archive' );
 
-		// Query defaults
-		$topics_query = array(
-			'author'        => 0,
-			'show_stickies' => true,
-			'order'         => 'DESC',
-		);
-
-		// Load the topic index
-		bbp_has_topics( $topics_query );
+		// Filter the query
+		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topic_index_query' ) );
 
 		// Output template
 		bbp_get_template_part( 'bbpress/content', 'archive-topic' );
@@ -350,7 +344,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Set passed attribute to $forum_id for clarity
-		$topic_id = $attr['id'];
+		$bbp->current_topic_id = $topic_id = $attr['id'];
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Bail if ID passed is not a forum
@@ -380,22 +374,15 @@ class BBP_Shortcodes {
 		// Check forum caps
 		if ( bbp_user_can_view_forum( array( 'forum_id' => $forum_id ) ) ) {
 
-			// Setup the meta_query
-			$replies_query['meta_query'] = array( array(
-				'key'     => '_bbp_topic_id',
-				'value'   => $topic_id,
-				'compare' => '='
-			) );
+			// Filter the query
+			add_filter( 'bbp_pre_has_replies_query', array( $this, 'display_topic_query' ) );
 
-			// Setup an accurate replies query
-			bbp_has_replies( $replies_query );
-
-			// Output the single topic
+			// Output template
 			bbp_get_template_part( 'bbpress/content', 'single-topic' );
 
 		// Forum is private and user does not have caps
 		} elseif ( bbp_is_forum_private( $forum_id, false ) ) {
-			bbp_get_template_part( 'bbpress/feedback', 'no-access' );
+			bbp_get_template_part( 'bbpress/feedback', 'no-access'    );
 		}
 
 		// Return contents of output buffer
@@ -445,7 +432,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Set passed attribute to $reply_id for clarity
-		$reply_id = $attr['id'];
+		$bbp->current_reply_id = $reply_id = $attr['id'];
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
 		// Bail if ID passed is not a forum
@@ -547,20 +534,11 @@ class BBP_Shortcodes {
 	 * @return string
 	 */
 	public function display_topics_of_tag( $attr, $content = '' ) {
+		global $bbp;
 
 		// Sanity check required info
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
 			return $content;
-
-		// Set passed attribute to $ag_id for clarity
-		$tag_id = $attr['id'];
-
-		// Setup tax query
-		$args = array( 'tax_query' => array( array(
-			'taxonomy' => bbp_get_topic_tag_tax_id(),
-			'field'    => 'id',
-			'terms'    => $tag_id
-		) ) );
 
 		// Unset globals
 		$this->unset_globals();
@@ -568,8 +546,11 @@ class BBP_Shortcodes {
 		// Start output buffer
 		$this->start( 'bbp_topics_of_tag' );
 
-		// Load the topics
-		bbp_has_topics( $args );
+		// Set passed attribute to $ag_id for clarity
+		$bbp->current_topic_tag_id = $tag_id = $attr['id'];
+
+		// Filter the query
+		add_filter( 'bbp_pre_has_topics_query', array( $this, 'display_topics_of_tag_query' ) );
 
 		// Output template
 		bbp_get_template_part( 'bbpress/content', 'archive-topic' );
@@ -744,6 +725,64 @@ class BBP_Shortcodes {
 
 		// Return contents of output buffer
 		return $this->end();
+	}
+
+	/** Query Filters *********************************************************/
+
+	/**
+	 * Filter the query for the topic index
+	 *
+	 * @since bbPress (rxxxx)
+	 *
+	 * @param array $args
+	 * @return array
+	 */
+	public function display_topic_index_query( $args = array() ) {
+		$args['author']        = 0;
+		$args['show_stickies'] = true;
+		$args['order']         = 'DESC';
+		return $args;
+	}
+
+	/**
+	 * Filter the query for the topic index
+	 *
+	 * @since bbPress (rxxxx)
+	 *
+	 * @param array $args
+	 * @return array
+	 */
+	public function display_topic_query( $args = array() ) {
+		global $bbp;
+
+		$args['meta_query'] = array( array(
+			'key'     => '_bbp_topic_id',
+			'value'   => $bbp->current_topic_id,
+			'compare' => '='
+		) );
+
+		return $args;
+	}
+
+	/**
+	 * Filter the query for topic tags
+	 *
+	 * @since bbPress (r3637)
+	 *
+	 * @global bbPress $bbp
+	 * @param array $args
+	 * @return array
+	 */
+	public function display_topics_of_tag_query( $args = array() ) {
+		global $bbp;
+
+		$args['tax_query'] = array( array(
+			'taxonomy' => bbp_get_topic_tag_tax_id(),
+			'field'    => 'id',
+			'terms'    => $bbp->current_topic_tag_id
+		) );
+
+		return $args;
 	}
 }
 endif;

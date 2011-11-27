@@ -75,7 +75,7 @@ function bbp_has_topics( $args = '' ) {
 		$default_status = join( ',', array( bbp_get_public_status_id(), bbp_get_closed_status_id() ) );
 
 	// Default arguments
-	$default = array (
+	$default = array(
 
 		// Narrow query down to bbPress topics
 		'post_type'      => bbp_get_topic_post_type(),
@@ -110,6 +110,12 @@ function bbp_has_topics( $args = '' ) {
 		// Post Status
 		'post_status'    => $default_status,
 	);
+
+	// Maybe query for topic tags
+	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_is_topic_tag() ) {
+		$default['term']     = bbp_get_topic_tag_slug();
+		$default['taxonomy'] = bbp_get_topic_tag_tax_id();
+	}
 
 	// Filter the default arguments
 	$args  = apply_filters( 'bbp_pre_has_topics_query', $args );

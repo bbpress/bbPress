@@ -231,6 +231,11 @@ class bbPress {
 	 */
 	public $current_reply_id = 0;
 
+	/**
+	 * @var string Current topic tag id
+	 */
+	public $current_topic_tag_id = 0;
+
 	/** Users *****************************************************************/
 
 	/**
