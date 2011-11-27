@@ -25,13 +25,19 @@
 	overflow: hidden;
 }
 
-#bbpress-forums div.even {
+#bbpress-forums div.even,
+#bbpress-forums ul.even {
 	background-color: #fff;
 }
 
 #bbpress-forums div.odd,
-#bbpress-forums div.bbp-reply-header  {
+#bbpress-forums ul.odd {
 	background-color: #fbfbfb;
+}
+
+#bbpress-forums div.bbp-topic-header,
+#bbpress-forums div.bbp-reply-header {
+	background-color: #f4f4f4;
 }
 
 #bbpress-forums .status-trash.even div,
