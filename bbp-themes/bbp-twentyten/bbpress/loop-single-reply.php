@@ -9,8 +9,9 @@
 
 ?>
 
-	<tr class="bbp-reply-header">
-		<td colspan="2">
+	<div class="bbp-reply-header">
+	
+		<div class="bbp-meta">
 
 			<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
@@ -22,12 +23,13 @@
 
 			<?php do_action( 'bbp_theme_after_reply_admin_links' ); ?>
 
-		</td>
-	</tr>
+		</div><!-- .bbp-meta -->
+		
+	</div><!-- .bbp-reply-header -->
 
-	<tr id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
+	<div id="post-<?php bbp_reply_id(); ?>" <?php bbp_reply_class(); ?>>
 
-		<td class="bbp-reply-author">
+		<div class="bbp-reply-author">
 
 			<?php do_action( 'bbp_theme_before_reply_author_details' ); ?>
 
@@ -45,9 +47,9 @@
 
 			<?php do_action( 'bbp_theme_after_reply_author_details' ); ?>
 
-		</td>
+		</div><!-- .bbp-reply-author -->
 
-		<td class="bbp-reply-content">
+		<div class="bbp-reply-content">
 
 			<?php do_action( 'bbp_theme_after_reply_content' ); ?>
 
@@ -55,6 +57,6 @@
 
 			<?php do_action( 'bbp_theme_before_reply_content' ); ?>
 
-		</td>
+		</div><!-- .bbp-reply-content -->
 
-	</tr><!-- #post-<?php bbp_topic_id(); ?> -->
+	</div><!-- #post-<?php bbp_topic_id(); ?> -->

@@ -30,7 +30,7 @@
 		<div id="author-description">
 			<h1><?php printf( __( 'About %s', 'bbpress' ), bbp_get_displayed_user_field( 'display_name' ) ); ?></h1>
 
-			<?php echo bbp_get_displayed_user_field( 'description' ); ?>
+			<?php bbp_displayed_user_field( 'description' ); ?>
 
 		</div><!-- #author-description	-->
 	</div><!-- #entry-author-info -->

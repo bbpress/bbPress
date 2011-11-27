@@ -9,9 +9,9 @@
 
 ?>
 
-	<tr id="bbp-forum-<?php bbp_forum_id(); ?>" <?php bbp_forum_class(); ?>>
+	<ul id="bbp-forum-<?php bbp_forum_id(); ?>" <?php bbp_forum_class(); ?>>
 
-		<td class="bbp-forum-info">
+		<li class="bbp-forum-info">
 
 			<?php do_action( 'bbp_theme_before_forum_title' ); ?>
 
@@ -31,13 +31,13 @@
 
 			<?php do_action( 'bbp_theme_after_forum_description' ); ?>
 
-		</td>
+		</li>
 
-		<td class="bbp-forum-topic-count"><?php bbp_forum_topic_count(); ?></td>
+		<li class="bbp-forum-topic-count"><?php bbp_forum_topic_count(); ?></li>
 
-		<td class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? bbp_forum_reply_count() : bbp_forum_post_count(); ?></td>
+		<li class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? bbp_forum_reply_count() : bbp_forum_post_count(); ?></li>
 
-		<td class="bbp-forum-freshness">
+		<li class="bbp-forum-freshness">
 
 			<?php do_action( 'bbp_theme_before_forum_freshness_link' ); ?>
 
@@ -54,6 +54,6 @@
 				<?php do_action( 'bbp_theme_after_topic_author' ); ?>
 
 			</p>
-		</td>
+		</li>
 
-	</tr><!-- bbp-forum-<?php bbp_forum_id(); ?> -->
+	</ul><!-- #bbp-forum-<?php bbp_forum_id(); ?> -->

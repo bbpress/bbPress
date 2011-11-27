@@ -13,15 +13,17 @@
 
 	<div id="bbp-author-topics-started" class="bbp-author-topics-started">
 		<h2 class="entry-title"><?php _e( 'Forum Topics Created', 'bbpress' ); ?></h2>
-		<div class="entry-content">
+		<div class="bbp-user-section">
 
-			<?php if ( bbp_get_user_topics_started() ) :
+			<?php if ( bbp_get_user_topics_started() ) : ?>
 
-				bbp_get_template_part( 'bbpress/pagination', 'topics' );
-				bbp_get_template_part( 'bbpress/loop',       'topics' );
-				bbp_get_template_part( 'bbpress/pagination', 'topics' );
+				<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
 
-			else : ?>
+				<?php bbp_get_template_part( 'bbpress/loop',       'topics' ); ?>
+
+				<?php bbp_get_template_part( 'bbpress/pagination', 'topics' ); ?>
+
+			<?php else : ?>
 
 				<p><?php bbp_is_user_home() ? _e( 'You have not created any topics.', 'bbpress' ) : _e( 'This user has not created any topics.', 'bbpress' ); ?></p>
 

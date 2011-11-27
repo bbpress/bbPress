@@ -9,33 +9,43 @@
 
 ?>
 
-	<?php do_action( 'bbp_template_before_forums_loop' ); ?>
+	<div id="bbpress-forums">
 
-	<table class="bbp-forums">
+		<?php do_action( 'bbp_template_before_forums_loop' ); ?>
 
-		<thead>
-			<tr>
-				<th class="bbp-forum-info"><?php _e( 'Forum', 'bbpress' ); ?></th>
-				<th class="bbp-forum-topic-count"><?php _e( 'Topics', 'bbpress' ); ?></th>
-				<th class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></th>
-				<th class="bbp-forum-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></th>
-			</tr>
-		</thead>
+		<ul id="forums-list" class="forums bbp-forums">
 
-		<tfoot>
-			<tr><td colspan="4">&nbsp;</td></tr>
-		</tfoot>
+			<li class="bbp-header">
 
-		<tbody>
+				<ul class="forum-titles">
+					<li class="bbp-forum-info"><?php _e( 'Forum', 'bbpress' ); ?></li>
+					<li class="bbp-forum-topic-count"><?php _e( 'Topics', 'bbpress' ); ?></li>
+					<li class="bbp-forum-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></li>
+					<li class="bbp-forum-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></li>
+				</ul>
 
-			<?php while ( bbp_forums() ) : bbp_the_forum(); ?>
+			</li><!-- .bbp-header -->
 
-				<?php bbp_get_template_part( 'bbpress/loop', 'single-forum' ); ?>
+			<li class="bbp-body">
 
-			<?php endwhile; ?>
+				<?php while ( bbp_forums() ) : bbp_the_forum(); ?>
 
-		</tbody>
+					<?php bbp_get_template_part( 'bbpress/loop', 'single-forum' ); ?>
 
-	</table>
+				<?php endwhile; ?>
 
-	<?php do_action( 'bbp_template_after_forums_loop' ); ?>
+			</li><!-- .bbp-body -->
+
+			<li class="bbp-footer">
+
+				<div class="tr">
+					<p class="td colspan4">&nbsp;</p>
+				</div><!-- .tr -->
+
+			</li><!-- .bbp-footer -->
+
+		</ul><!-- .forums-directory -->
+
+		<?php do_action( 'bbp_template_after_forums_loop' ); ?>
+
+	</div><!-- #bbpress-forums -->

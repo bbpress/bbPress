@@ -9,9 +9,9 @@
 
 ?>
 
-	<tr id="topic-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
+	<ul id="topic-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
 
-		<td class="bbp-topic-title">
+		<li class="bbp-topic-title">
 
 			<?php do_action( 'bbp_theme_before_topic_title' ); ?>
 
@@ -45,13 +45,13 @@
 
 			<?php do_action( 'bbp_theme_after_topic_meta' ); ?>
 
-		</td>
+		</li>
 
-		<td class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></td>
+		<li class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></li>
 
-		<td class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? bbp_topic_reply_count() : bbp_topic_post_count(); ?></td>
+		<li class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? bbp_topic_reply_count() : bbp_topic_post_count(); ?></li>
 
-		<td class="bbp-topic-freshness">
+		<li class="bbp-topic-freshness">
 
 			<?php do_action( 'bbp_theme_before_topic_freshness_link' ); ?>
 
@@ -68,13 +68,13 @@
 				<?php do_action( 'bbp_theme_after_topic_freshness_author' ); ?>
 
 			</p>
-		</td>
+		</li>
 
 		<?php if ( bbp_is_user_home() ) : ?>
 
 			<?php if ( bbp_is_favorites() ) : ?>
 
-				<td class="bbp-topic-action">
+				<li class="bbp-topic-action">
 
 					<?php do_action( 'bbp_theme_before_topic_favorites_action' ); ?>
 
@@ -82,11 +82,11 @@
 
 					<?php do_action( 'bbp_theme_after_topic_favorites_action' ); ?>
 
-				</td>
+				</li>
 
 			<?php elseif ( bbp_is_subscriptions() ) : ?>
 
-				<td class="bbp-topic-action">
+				<li class="bbp-topic-action">
 
 					<?php do_action( 'bbp_theme_before_topic_subscription_action' ); ?>
 
@@ -94,10 +94,10 @@
 
 					<?php do_action( 'bbp_theme_after_topic_subscription_action' ); ?>
 
-				</td>
+				</li>
 
 			<?php endif; ?>
 
 		<?php endif; ?>
 
-	</tr><!-- #topic-<?php bbp_topic_id(); ?> -->
+	</ul><!-- #topic-<?php bbp_topic_id(); ?> -->

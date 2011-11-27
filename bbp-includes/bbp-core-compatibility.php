@@ -1266,7 +1266,7 @@ function bbp_replace_the_content( $content = '' ) {
 
 			// Single Reply
 			case bbp_get_reply_post_type() :
-
+				$new_content = $bbp->shortcodes->display_reply( array( 'id' => get_the_ID() ) );
 				break;
 		}
 	}
@@ -1345,10 +1345,14 @@ function bbp_redirect_canonical( $redirect_url ) {
 			if ( bbp_is_single_topic() ) {
 				$redirect_url = false;
 
-			// ...and single replies...
+			// ...and single forums...
 			} elseif ( bbp_is_single_forum() ) {
 				$redirect_url = false;
 			
+			// ...and single replies...
+			} elseif ( bbp_is_single_reply() ) {
+				$redirect_url = false;
+
 			// ...and any single anything else...
 			//
 			// @todo - Find a more accurate way to disable paged canonicals for

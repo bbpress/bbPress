@@ -106,25 +106,36 @@ function bbp_displayed_user_id() {
 	}
 
 /**
- * Return a sanitized user field value
+ * Output a sanitized user field value
  *
  * @since bbPress (r2688)
  *
  * @param string $field Field to get
- * @uses sanitize_text_field() To sanitize the field
- * @uses esc_attr() To sanitize the field
- * @return string|bool Value of the field if it exists, else false
+ * @uses bbp_get_displayed_user_field() To get the field
  */
-function bbp_get_displayed_user_field( $field = '' ) {
-	global $bbp;
-
-	// Return field if exists
-	if ( isset( $bbp->displayed_user->$field ) )
-		return esc_attr( sanitize_text_field( $bbp->displayed_user->$field ) );
-
-	// Return empty
-	return false;
+function bbp_displayed_user_field( $field = '' ) {
+	echo bbp_get_displayed_user_field( $field );
 }
+	/**
+	 * Return a sanitized user field value
+	 *
+	 * @since bbPress (r2688)
+	 *
+	 * @param string $field Field to get
+	 * @uses sanitize_text_field() To sanitize the field
+	 * @uses esc_attr() To sanitize the field
+	 * @return string|bool Value of the field if it exists, else false
+	 */
+	function bbp_get_displayed_user_field( $field = '' ) {
+		global $bbp;
+
+		// Return field if exists
+		if ( isset( $bbp->displayed_user->$field ) )
+			return esc_attr( sanitize_text_field( $bbp->displayed_user->$field ) );
+
+		// Return empty
+		return false;
+	}
 
 /**
  * Output name of current user
