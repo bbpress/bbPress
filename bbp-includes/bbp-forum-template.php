@@ -89,6 +89,9 @@ function bbp_has_forums( $args = '' ) {
 		'order'          => 'ASC'
 	);
 
+	// Filter the default arguments
+	$args  = apply_filters( 'bbp_pre_has_forums_query', $args );
+
 	// Parse the default against what is requested
 	$bbp_f = wp_parse_args( $args, $default );
 

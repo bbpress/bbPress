@@ -116,6 +116,9 @@ function bbp_has_replies( $args = '' ) {
 	if ( isset( $parent_args ) )
 		$default = array_merge( $parent_args, $default );
 
+	// Filter the default arguments
+	$args  = apply_filters( 'bbp_pre_has_replies_query', $args );
+
 	// Set up topic variables
 	$bbp_r = wp_parse_args( $args, $default );
 

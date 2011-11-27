@@ -111,6 +111,9 @@ function bbp_has_topics( $args = '' ) {
 		'post_status'    => $default_status,
 	);
 
+	// Filter the default arguments
+	$args  = apply_filters( 'bbp_pre_has_topics_query', $args );
+
 	// Set up topic variables
 	$bbp_t = wp_parse_args( $args, $default );
 
