@@ -29,7 +29,7 @@
 
 		<?php endif; ?>
 
-		<?php if ( bbp_get_query_name() || bbp_has_replies() ) : ?>
+		<?php if ( bbp_has_replies() ) : ?>
 
 			<?php bbp_get_template_part( 'bbpress/pagination', 'replies' ); ?>
 
