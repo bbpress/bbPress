@@ -827,7 +827,7 @@ function bbp_recount_rewalk() {
 	$result    = __( 'Failed!', 'bbpress' );
 
 	// First, delete everything.
-	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id' );" ) ) )
+	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` IN ( '_bbp_last_reply_id', '_bbp_last_topic_id', '_bbp_last_active_id', '_bbp_last_active_time' );" ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
 	// Next, give all the topics with replies the ID their last reply.
