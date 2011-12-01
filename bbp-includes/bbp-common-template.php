@@ -600,6 +600,13 @@ function bbp_is_edit() {
  * @uses bbp_is_subscriptions()
  * @uses bbp_is_favorites()
  * @uses bbp_is_topics_created()
+ * @uses bbp_is_forum_archive()
+ * @uses bbp_is_topic_archive()
+ * @uses bbp_is_topic_tag()
+ * @uses bbp_is_topic_tag_edit()
+ * @uses bbp_get_topic_tag_tax_id()
+ * @uses bbp_get_topic_tag_slug()
+ * @uses bbp_get_topic_tag_id()
  * @return array Body Classes
  */
 function bbp_body_class( $wp_classes, $custom_classes = false ) {
@@ -613,6 +620,20 @@ function bbp_body_class( $wp_classes, $custom_classes = false ) {
 
 	if ( bbp_is_topic_archive() )
 		$bbp_classes[] = bbp_get_topic_post_type() . '-archive';
+
+	/** Topic Tags ************************************************************/
+
+	if ( bbp_is_topic_tag() ) {
+		$bbp_classes[] = bbp_get_topic_tag_tax_id();
+		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_slug();
+		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_id();
+	}
+
+	if ( bbp_is_topic_tag_edit() ) {
+		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-edit';
+		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_slug() . '-edit';
+		$bbp_classes[] = bbp_get_topic_tag_tax_id() . '-' . bbp_get_topic_tag_id()   . '-edit';
+	}
 
 	/** Components ************************************************************/
 
