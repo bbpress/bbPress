@@ -1607,10 +1607,6 @@ function bbp_pre_get_posts( $posts_query ) {
 	if ( ! $posts_query->is_main_query() )
 		return;
 
-	// Bail if filters are suppressed on this query
-	if ( true == $posts_query->get( 'suppress_filters' ) )
-		return;
-
 	// Bail if in admin
 	if ( is_admin() )
 		return;
@@ -1711,7 +1707,7 @@ function bbp_pre_get_posts( $posts_query ) {
 		// We are in a custom topic view
 		$posts_query->bbp_is_view = true;
 
-	// Topic/Reply Edit Page
+	// Forum/Topic/Reply Edit Page
 	} elseif ( !empty( $is_edit ) ) {
 
 		// Get the post type from the main query loop
