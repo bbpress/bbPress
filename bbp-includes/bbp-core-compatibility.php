@@ -1601,10 +1601,10 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
  * @uses remove_action() To remove the auto save post revision action
  */
 function bbp_pre_get_posts( $posts_query ) {
-	global $bbp, $wp_the_query;
+	global $bbp;
 
 	// Bail if $posts_query is not the main loop
-	if ( $posts_query != $wp_the_query )
+	if ( ! $posts_query->is_main_query() )
 		return;
 
 	// Bail if filters are suppressed on this query
