@@ -1564,8 +1564,7 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
 }
 
 /**
- * Add checks for view page, user page, user edit, topic edit and reply edit
- * pages.
+ * Add checks for bbPress conditions to parse_query action
  *
  * If it's a user page, WP_Query::bbp_is_single_user is set to true.
  * If it's a user edit page, WP_Query::bbp_is_single_user_edit is set to true
@@ -1574,8 +1573,9 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
  * vars 'bbp_user_id' with the displayed user id and 'author_name' with the
  * displayed user's nicename are added.
  *
- * If it's a topic edit, WP_Query::bbp_is_topic_edit is set to true and
- * similarly, if it's a reply edit, WP_Query::bbp_is_reply_edit is set to true.
+ * If it's a forum edit, WP_Query::bbp_is_forum_edit is set to true
+ * If it's a topic edit, WP_Query::bbp_is_topic_edit is set to true
+ * If it's a reply edit, WP_Query::bbp_is_reply_edit is set to true.
  *
  * If it's a view page, WP_Query::bbp_is_view is set to true
  *
@@ -1591,20 +1591,22 @@ function bbp_force_comment_status( $open, $post_id = 0 ) {
  * @uses WP_Query::set_404() To set a 404 status
  * @uses current_user_can() To check if the current user can edit the user
  * @uses apply_filters() Calls 'enable_edit_any_user_configuration' with true
- * @uses wp_die() To die
  * @uses bbp_is_query_name() Check if query name is 'bbp_widget'
  * @uses bbp_get_view_query_args() To get the view query args
  * @uses bbp_get_forum_post_type() To get the forum post type
  * @uses bbp_get_topic_post_type() To get the topic post type
  * @uses bbp_get_reply_post_type() To get the reply post type
- * @uses is_multisite() To check if it's a multisite
  * @uses remove_action() To remove the auto save post revision action
  */
-function bbp_pre_get_posts( $posts_query ) {
+function bbp_parse_query( $posts_query ) {
 	global $bbp;
 
 	// Bail if $posts_query is not the main loop
 	if ( ! $posts_query->is_main_query() )
+		return;
+
+	// Bail if filters are suppressed on this query
+	if ( true == $posts_query->get( 'suppress_filters' ) )
 		return;
 
 	// Bail if in admin
@@ -1744,28 +1746,6 @@ function bbp_pre_get_posts( $posts_query ) {
 
 		// We save post revisions on our own
 		remove_action( 'pre_post_update', 'wp_save_post_revision' );
-
-	// Check forum status and exclude single forums the user cannot see
-	} elseif ( bbp_get_forum_post_type() == $posts_query->get( 'post_type' ) ) {
-
-		// Define local variable
-		$status = array();
-
-		// All users can see published forums
-		$status[] = bbp_get_public_status_id();
-
-		// Add bbp_get_private_status_id() if user is capable
-		if ( current_user_can( 'read_private_forums' ) ) {
-			$status[] = bbp_get_private_status_id();
-		}
-
-		// Add bbp_get_hidden_status_id() if user is capable
-		if ( current_user_can( 'read_hidden_forums' ) ) {
-			$status[] = bbp_get_hidden_status_id();
-		}
-
-		// Implode and add the statuses
-		$posts_query->set( 'post_status', implode( ',', $status ) );
 
 	// Topic tag page
 	} elseif ( bbp_is_topic_tag() ) {

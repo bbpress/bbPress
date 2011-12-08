@@ -124,9 +124,11 @@ add_action( 'bbp_new_site', 'bbp_add_options', 6 );
 // Topic Tag Page
 add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 
-// Before and After the Query
-add_action( 'pre_get_posts',     'bbp_pre_get_posts',                2 );
-add_action( 'pre_get_posts',     'bbp_pre_get_posts_exclude_forums', 4 );
+// Parse the main query
+add_action( 'parse_query', 'bbp_parse_query', 2 );
+
+// Always exclude private/hidden forums if needed
+add_action( 'pre_get_posts', 'bbp_pre_get_posts_exclude_forums', 4 );
 
 // Restrict forum access
 add_action( 'template_redirect', 'bbp_forum_enforce_hidden',        -1 );

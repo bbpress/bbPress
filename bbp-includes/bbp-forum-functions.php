@@ -938,6 +938,30 @@ function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 	// Only exclude forums on bbPress queries
 	switch ( $posts_query->get( 'post_type' ) ) {
 
+		// Forums
+		case bbp_get_forum_post_type() :
+
+			// Define local variable
+			$status = array();
+
+			// All users can see published forums
+			$status[] = bbp_get_public_status_id();
+
+			// Add bbp_get_private_status_id() if user is capable
+			if ( current_user_can( 'read_private_forums' ) ) {
+				$status[] = bbp_get_private_status_id();
+			}
+
+			// Add bbp_get_hidden_status_id() if user is capable
+			if ( current_user_can( 'read_hidden_forums' ) ) {
+				$status[] = bbp_get_hidden_status_id();
+			}
+
+			// Implode and add the statuses
+			$posts_query->set( 'post_status', implode( ',', $status ) );
+
+			break;
+
 		// Topics
 		case bbp_get_topic_post_type() :
 
