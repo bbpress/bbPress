@@ -26,10 +26,13 @@ get_header(); ?>
 
 							<?php the_content(); ?>
 
-							<?php bbp_breadcrumb(); ?>
+							<div id="bbpress-forums">
 
-							<?php bbp_get_template_part( 'bbpress/form', 'user-login' ); ?>
+								<?php bbp_breadcrumb(); ?>
 
+								<?php bbp_get_template_part( 'bbpress/form', 'user-login' ); ?>
+
+							</div>
 						</div>
 					</div><!-- #bbp-login -->
 

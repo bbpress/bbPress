@@ -9,48 +9,44 @@
 
 ?>
 
-	<div id="bbpress-forums">
+<?php do_action( 'bbp_template_before_topics_loop' ); ?>
 
-		<?php do_action( 'bbp_template_before_topics_loop' ); ?>
+<ul id="bbp-forum-<?php bbp_forum_id(); ?>" class="bbp-topics">
 
-		<ul id="bbp-forum-<?php bbp_forum_id(); ?>" class="forums bbp-topics">
+	<li class="bbp-header">
 
-			<li class="bbp-header">
+		<ul class="forum-titles">
 
-				<ul class="forum-titles">
+			<li class="bbp-topic-title"><?php _e( 'Topic', 'bbpress' ); ?></li>
+			<li class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></li>
+			<li class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></li>
+			<li class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></li>
+			<?php if ( ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ) : ?><li class="bbp-topic-action"><?php _e( 'Remove', 'bbpress' ); ?></li><?php endif; ?>
 
-					<li class="bbp-topic-title"><?php _e( 'Topic', 'bbpress' ); ?></li>
-					<li class="bbp-topic-voice-count"><?php _e( 'Voices', 'bbpress' ); ?></li>
-					<li class="bbp-topic-reply-count"><?php bbp_show_lead_topic() ? _e( 'Replies', 'bbpress' ) : _e( 'Posts', 'bbpress' ); ?></li>
-					<li class="bbp-topic-freshness"><?php _e( 'Freshness', 'bbpress' ); ?></li>
-					<?php if ( ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ) : ?><li class="bbp-topic-action"><?php _e( 'Remove', 'bbpress' ); ?></li><?php endif; ?>
+		</ul>
 
-				</ul>
+	</li>
 
-			</li>
+	<li class="bbp-body">
 
-			<li class="bbp-body">
+		<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
 
-				<?php while ( bbp_topics() ) : bbp_the_topic(); ?>
+			<?php bbp_get_template_part( 'bbpress/loop', 'single-topic' ); ?>
 
-					<?php bbp_get_template_part( 'bbpress/loop', 'single-topic' ); ?>
+		<?php endwhile; ?>
 
-				<?php endwhile; ?>
+	</li>
 
-			</li>
+	<li class="bbp-footer">
 
-			<li class="bbp-footer">
+		<div class="tr">
+			<p>
+				<span class="td colspan<?php echo ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ? '5' : '4'; ?>">&nbsp;</span>
+			</p>
+		</div><!-- .tr -->
 
-				<div class="tr">
-					<p>
-						<span class="td colspan<?php echo ( bbp_is_user_home() && ( bbp_is_favorites() || bbp_is_subscriptions() ) ) ? '5' : '4'; ?>">&nbsp;</span>
-					</p>
-				</div><!-- .tr -->
+	</li>
 
-			</li>
+</ul><!-- #bbp-forum-<?php bbp_forum_id(); ?> -->
 
-		</ul><!-- #bbp-forum-<?php bbp_forum_id(); ?> -->
-
-		<?php do_action( 'bbp_template_after_topics_loop' ); ?>
-
-	</div><!-- #bbpress-forums -->
+<?php do_action( 'bbp_template_after_topics_loop' ); ?>

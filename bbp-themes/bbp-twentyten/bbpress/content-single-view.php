@@ -9,6 +9,8 @@
 
 ?>
 
+<div id="bbpress-forums">
+
 	<?php bbp_breadcrumb(); ?>
 
 	<?php bbp_set_query_name( 'bbp_view' ); ?>
@@ -28,3 +30,5 @@
 	<?php endif; ?>
 
 	<?php bbp_reset_query_name(); ?>
+
+</div>

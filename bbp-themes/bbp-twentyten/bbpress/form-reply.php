@@ -9,178 +9,186 @@
 
 ?>
 
-	<?php if ( bbp_is_reply_edit() ) : ?>
+<?php if ( bbp_is_reply_edit() ) : ?>
 
-		<?php bbp_breadcrumb(); ?>
+<div id="bbpress-forums">
 
-	<?php endif; ?>
+	<?php bbp_breadcrumb(); ?>
 
-	<?php if ( bbp_current_user_can_access_create_reply_form() ) : ?>
+<?php endif; ?>
 
-		<div id="new-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-form">
+<?php if ( bbp_current_user_can_access_create_reply_form() ) : ?>
 
-			<form id="new-post" name="new-post" method="post" action="">
+	<div id="new-reply-<?php bbp_topic_id(); ?>" class="bbp-reply-form">
 
-				<?php do_action( 'bbp_theme_before_reply_form' ); ?>
+		<form id="new-post" name="new-post" method="post" action="">
 
-				<fieldset class="bbp-form">
-					<legend><?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
+			<?php do_action( 'bbp_theme_before_reply_form' ); ?>
 
-					<?php do_action( 'bbp_theme_before_reply_form_notices' ); ?>
+			<fieldset class="bbp-form">
+				<legend><?php printf( __( 'Reply To: %s', 'bbpress' ), bbp_get_topic_title() ); ?></legend>
 
-					<?php if ( !bbp_is_topic_open() && !bbp_is_reply_edit() ) : ?>
+				<?php do_action( 'bbp_theme_before_reply_form_notices' ); ?>
 
-						<div class="bbp-template-notice">
-							<p><?php _e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></p>
-						</div>
+				<?php if ( !bbp_is_topic_open() && !bbp_is_reply_edit() ) : ?>
 
-					<?php endif; ?>
+					<div class="bbp-template-notice">
+						<p><?php _e( 'This topic is marked as closed to new replies, however your posting capabilities still allow you to do so.', 'bbpress' ); ?></p>
+					</div>
 
-					<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
+				<?php endif; ?>
 
-						<div class="bbp-template-notice">
-							<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
-						</div>
+				<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
 
-					<?php endif; ?>
+					<div class="bbp-template-notice">
+						<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
+					</div>
 
-					<?php do_action( 'bbp_template_notices' ); ?>
+				<?php endif; ?>
 
-					<div>
+				<?php do_action( 'bbp_template_notices' ); ?>
 
-						<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
+				<div>
 
-						<?php do_action( 'bbp_theme_before_reply_form_content' ); ?>
+					<?php bbp_get_template_part( 'bbpress/form', 'anonymous' ); ?>
 
-						<?php if ( !function_exists( 'wp_editor' ) ) : ?>
+					<?php do_action( 'bbp_theme_before_reply_form_content' ); ?>
 
-							<p>
-								<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
-								<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" rows="6"><?php bbp_form_reply_content(); ?></textarea>
-							</p>
-
-						<?php else : ?>
-
-							<?php bbp_the_content( array( 'context' => 'reply' ) ); ?>
-							
-						<?php endif; ?>
-
-						<?php do_action( 'bbp_theme_after_reply_form_content' ); ?>
-
-						<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
-
-							<p class="form-allowed-tags">
-								<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
-								<code><?php bbp_allowed_tags(); ?></code>
-							</p>
-
-						<?php endif; ?>
-
-						<?php do_action( 'bbp_theme_before_reply_form_tags' ); ?>
+					<?php if ( !function_exists( 'wp_editor' ) ) : ?>
 
 						<p>
-							<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
-							<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" <?php disabled( bbp_is_topic_spam() ); ?> />
+							<label for="bbp_reply_content"><?php _e( 'Reply:', 'bbpress' ); ?></label><br />
+							<textarea id="bbp_reply_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_reply_content" rows="6"><?php bbp_form_reply_content(); ?></textarea>
 						</p>
 
-						<?php do_action( 'bbp_theme_after_reply_form_tags' ); ?>
+					<?php else : ?>
 
-						<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_reply_edit() || ( bbp_is_reply_edit() && !bbp_is_reply_anonymous() ) ) ) : ?>
+						<?php bbp_the_content( array( 'context' => 'reply' ) ); ?>
 
-							<?php do_action( 'bbp_theme_before_reply_form_subscription' ); ?>
+					<?php endif; ?>
 
-							<p>
+					<?php do_action( 'bbp_theme_after_reply_form_content' ); ?>
 
-								<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php bbp_form_topic_subscribed(); ?> tabindex="<?php bbp_tab_index(); ?>" />
+					<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
 
-								<?php if ( bbp_is_reply_edit() && $post->post_author != bbp_get_current_user_id() ) : ?>
+						<p class="form-allowed-tags">
+							<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
+							<code><?php bbp_allowed_tags(); ?></code>
+						</p>
 
-									<label for="bbp_topic_subscription"><?php _e( 'Notify the author of follow-up replies via email', 'bbpress' ); ?></label>
+					<?php endif; ?>
 
-								<?php else : ?>
+					<?php do_action( 'bbp_theme_before_reply_form_tags' ); ?>
 
-									<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
+					<p>
+						<label for="bbp_topic_tags"><?php _e( 'Tags:', 'bbpress' ); ?></label><br />
+						<input type="text" value="<?php bbp_form_topic_tags(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_topic_tags" id="bbp_topic_tags" <?php disabled( bbp_is_topic_spam() ); ?> />
+					</p>
 
-								<?php endif; ?>
+					<?php do_action( 'bbp_theme_after_reply_form_tags' ); ?>
 
-							</p>
+					<?php if ( bbp_is_subscriptions_active() && !bbp_is_anonymous() && ( !bbp_is_reply_edit() || ( bbp_is_reply_edit() && !bbp_is_reply_anonymous() ) ) ) : ?>
 
-							<?php do_action( 'bbp_theme_after_reply_form_subscription' ); ?>
+						<?php do_action( 'bbp_theme_before_reply_form_subscription' ); ?>
 
-						<?php endif; ?>
+						<p>
 
-						<?php if ( bbp_allow_revisions() && bbp_is_reply_edit() ) : ?>
+							<input name="bbp_topic_subscription" id="bbp_topic_subscription" type="checkbox" value="bbp_subscribe"<?php bbp_form_topic_subscribed(); ?> tabindex="<?php bbp_tab_index(); ?>" />
 
-							<?php do_action( 'bbp_theme_before_reply_form_revisions' ); ?>
+							<?php if ( bbp_is_reply_edit() && $post->post_author != bbp_get_current_user_id() ) : ?>
 
-							<fieldset class="bbp-form">
-								<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
-								<div>
-									<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" <?php bbp_form_reply_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />
-									<label for="bbp_log_reply_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
-								</div>
+								<label for="bbp_topic_subscription"><?php _e( 'Notify the author of follow-up replies via email', 'bbpress' ); ?></label>
 
-								<div>
-									<label for="bbp_reply_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />
-									<input type="text" value="<?php bbp_form_reply_edit_reason(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
-								</div>
-							</fieldset>
+							<?php else : ?>
 
-							<?php do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
+								<label for="bbp_topic_subscription"><?php _e( 'Notify me of follow-up replies via email', 'bbpress' ); ?></label>
 
-						<?php else : ?>
+							<?php endif; ?>
 
-							<?php bbp_topic_admin_links(); ?>
+						</p>
 
-						<?php endif; ?>
+						<?php do_action( 'bbp_theme_after_reply_form_subscription' ); ?>
 
-						<?php do_action( 'bbp_theme_before_reply_form_submit_wrapper' ); ?>
+					<?php endif; ?>
 
-						<div class="bbp-submit-wrapper">
+					<?php if ( bbp_allow_revisions() && bbp_is_reply_edit() ) : ?>
 
-							<?php do_action( 'bbp_theme_before_reply_form_submit_button' ); ?>
+						<?php do_action( 'bbp_theme_before_reply_form_revisions' ); ?>
 
-							<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_reply_submit" name="bbp_reply_submit" class="button submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+						<fieldset class="bbp-form">
+							<legend><?php _e( 'Revision', 'bbpress' ); ?></legend>
+							<div>
+								<input name="bbp_log_reply_edit" id="bbp_log_reply_edit" type="checkbox" value="1" <?php bbp_form_reply_log_edit(); ?> tabindex="<?php bbp_tab_index(); ?>" />
+								<label for="bbp_log_reply_edit"><?php _e( 'Keep a log of this edit:', 'bbpress' ); ?></label><br />
+							</div>
 
-							<?php do_action( 'bbp_theme_after_reply_form_submit_button' ); ?>
+							<div>
+								<label for="bbp_reply_edit_reason"><?php printf( __( 'Optional reason for editing:', 'bbpress' ), bbp_get_current_user_name() ); ?></label><br />
+								<input type="text" value="<?php bbp_form_reply_edit_reason(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_reply_edit_reason" id="bbp_reply_edit_reason" />
+							</div>
+						</fieldset>
 
-						</div>
+						<?php do_action( 'bbp_theme_after_reply_form_revisions' ); ?>
 
-						<?php do_action( 'bbp_theme_after_reply_form_submit_wrapper' ); ?>
+					<?php else : ?>
+
+						<?php bbp_topic_admin_links(); ?>
+
+					<?php endif; ?>
+
+					<?php do_action( 'bbp_theme_before_reply_form_submit_wrapper' ); ?>
+
+					<div class="bbp-submit-wrapper">
+
+						<?php do_action( 'bbp_theme_before_reply_form_submit_button' ); ?>
+
+						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_reply_submit" name="bbp_reply_submit" class="button submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+
+						<?php do_action( 'bbp_theme_after_reply_form_submit_button' ); ?>
 
 					</div>
 
-					<?php bbp_reply_form_fields(); ?>
+					<?php do_action( 'bbp_theme_after_reply_form_submit_wrapper' ); ?>
 
-				</fieldset>
+				</div>
 
-				<?php do_action( 'bbp_theme_after_reply_form' ); ?>
+				<?php bbp_reply_form_fields(); ?>
 
-			</form>
+			</fieldset>
+
+			<?php do_action( 'bbp_theme_after_reply_form' ); ?>
+
+		</form>
+	</div>
+
+<?php elseif ( bbp_is_topic_closed() ) : ?>
+
+	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
+		<div class="bbp-template-notice">
+			<p><?php printf( __( 'The topic &#8216;%s&#8217; is closed to new replies.', 'bbpress' ), bbp_get_topic_title() ); ?></p>
 		</div>
+	</div>
 
-	<?php elseif ( bbp_is_topic_closed() ) : ?>
+<?php elseif ( bbp_is_forum_closed( bbp_get_topic_forum_id() ) ) : ?>
 
-		<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
-			<div class="bbp-template-notice">
-				<p><?php printf( __( 'The topic &#8216;%s&#8217; is closed to new replies.', 'bbpress' ), bbp_get_topic_title() ); ?></p>
-			</div>
+	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
+		<div class="bbp-template-notice">
+			<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id() ) ); ?></p>
 		</div>
+	</div>
 
-	<?php elseif ( bbp_is_forum_closed( bbp_get_topic_forum_id() ) ) : ?>
+<?php else : ?>
 
-		<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
-			<div class="bbp-template-notice">
-				<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new topics and replies.', 'bbpress' ), bbp_get_forum_title( bbp_get_topic_forum_id() ) ); ?></p>
-			</div>
+	<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
+		<div class="bbp-template-notice">
+			<p><?php is_user_logged_in() ? _e( 'You cannot reply to this topic.', 'bbpress' ) : _e( 'You must be logged in to reply to this topic.', 'bbpress' ); ?></p>
 		</div>
+	</div>
 
-	<?php else : ?>
+<?php endif; ?>
 
-		<div id="no-reply-<?php bbp_topic_id(); ?>" class="bbp-no-reply">
-			<div class="bbp-template-notice">
-				<p><?php is_user_logged_in() ? _e( 'You cannot reply to this topic.', 'bbpress' ) : _e( 'You must be logged in to reply to this topic.', 'bbpress' ); ?></p>
-			</div>
-		</div>
+<?php if ( bbp_is_reply_edit() ) : ?>
 
-	<?php endif; ?>
+</div>
+
+<?php endif; ?>

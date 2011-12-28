@@ -9,181 +9,189 @@
 
 ?>
 
-	<?php if ( bbp_is_forum_edit() ) : ?>
+<?php if ( bbp_is_forum_edit() ) : ?>
 
-		<?php bbp_breadcrumb(); ?>
+<div id="bbpress-forums">
 
-		<?php bbp_single_forum_description( array( 'forum_id' => bbp_get_forum_id() ) ); ?>
+	<?php bbp_breadcrumb(); ?>
 
-	<?php endif; ?>
+	<?php bbp_single_forum_description( array( 'forum_id' => bbp_get_forum_id() ) ); ?>
 
-	<?php if ( bbp_current_user_can_access_create_forum_form() ) : ?>
+<?php endif; ?>
 
-		<div id="new-forum-<?php bbp_forum_id(); ?>" class="bbp-forum-form">
+<?php if ( bbp_current_user_can_access_create_forum_form() ) : ?>
 
-			<form id="new-post" name="new-post" method="post" action="">
+	<div id="new-forum-<?php bbp_forum_id(); ?>" class="bbp-forum-form">
 
-				<?php do_action( 'bbp_theme_before_forum_form' ); ?>
+		<form id="new-post" name="new-post" method="post" action="">
 
-				<fieldset class="bbp-form">
-					<legend>
+			<?php do_action( 'bbp_theme_before_forum_form' ); ?>
 
-						<?php
-							if ( bbp_is_forum_edit() )
-								printf( __( 'Now Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() );
-							else
-								bbp_is_single_forum() ? printf( __( 'Create New Forum in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create New Forum', 'bbpress' );
-						?>
+			<fieldset class="bbp-form">
+				<legend>
 
-					</legend>
+					<?php
+						if ( bbp_is_forum_edit() )
+							printf( __( 'Now Editing &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() );
+						else
+							bbp_is_single_forum() ? printf( __( 'Create New Forum in &ldquo;%s&rdquo;', 'bbpress' ), bbp_get_forum_title() ) : _e( 'Create New Forum', 'bbpress' );
+					?>
 
-					<?php do_action( 'bbp_theme_before_forum_form_notices' ); ?>
+				</legend>
 
-					<?php if ( !bbp_is_forum_edit() && bbp_is_forum_closed() ) : ?>
+				<?php do_action( 'bbp_theme_before_forum_form_notices' ); ?>
 
-						<div class="bbp-template-notice">
-							<p><?php _e( 'This forum is closed to new content, however your account still allows you to do so.', 'bbpress' ); ?></p>
-						</div>
+				<?php if ( !bbp_is_forum_edit() && bbp_is_forum_closed() ) : ?>
 
-					<?php endif; ?>
+					<div class="bbp-template-notice">
+						<p><?php _e( 'This forum is closed to new content, however your account still allows you to do so.', 'bbpress' ); ?></p>
+					</div>
 
-					<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
+				<?php endif; ?>
 
-						<div class="bbp-template-notice">
-							<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
-						</div>
+				<?php if ( current_user_can( 'unfiltered_html' ) ) : ?>
 
-					<?php endif; ?>
+					<div class="bbp-template-notice">
+						<p><?php _e( 'Your account has the ability to post unrestricted HTML content.', 'bbpress' ); ?></p>
+					</div>
 
-					<?php do_action( 'bbp_template_notices' ); ?>
+				<?php endif; ?>
 
-					<div>
+				<?php do_action( 'bbp_template_notices' ); ?>
 
-						<fieldset class="bbp-form bbp-forum-form-attributes">
-							<legend><?php _e( 'Forum Attributes', 'bbpress' ); ?></legend>
+				<div>
 
-							<?php do_action( 'bbp_theme_before_forum_form_type' ); ?>
+					<fieldset class="bbp-form bbp-forum-form-attributes">
+						<legend><?php _e( 'Forum Attributes', 'bbpress' ); ?></legend>
 
-							<p>
-								<label for="bbp_forum_id"><?php _e( 'Forum Type:', 'bbpress' ); ?></label><br />
-								<?php bbp_form_forum_type_dropdown(); ?>
-							</p>
+						<?php do_action( 'bbp_theme_before_forum_form_type' ); ?>
 
-							<?php do_action( 'bbp_theme_after_forum_form_type' ); ?>
+						<p>
+							<label for="bbp_forum_id"><?php _e( 'Forum Type:', 'bbpress' ); ?></label><br />
+							<?php bbp_form_forum_type_dropdown(); ?>
+						</p>
 
-							<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
+						<?php do_action( 'bbp_theme_after_forum_form_type' ); ?>
 
-							<p>
-								<label for="bbp_forum_id"><?php _e( 'Status:', 'bbpress' ); ?></label><br />
-								<?php bbp_form_forum_status_dropdown(); ?>
-							</p>
+						<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
 
-							<?php do_action( 'bbp_theme_after_forum_form_status' ); ?>
+						<p>
+							<label for="bbp_forum_id"><?php _e( 'Status:', 'bbpress' ); ?></label><br />
+							<?php bbp_form_forum_status_dropdown(); ?>
+						</p>
 
-							<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
+						<?php do_action( 'bbp_theme_after_forum_form_status' ); ?>
 
-							<p>
-								<label for="bbp_forum_id"><?php _e( 'Visibility:', 'bbpress' ); ?></label><br />
-								<?php bbp_form_forum_visibility_dropdown(); ?>
-							</p>
+						<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
 
-							<?php do_action( 'bbp_theme_after_forum_visibility_status' ); ?>
+						<p>
+							<label for="bbp_forum_id"><?php _e( 'Visibility:', 'bbpress' ); ?></label><br />
+							<?php bbp_form_forum_visibility_dropdown(); ?>
+						</p>
 
-							<?php if ( !bbp_is_single_forum() ) : ?>
+						<?php do_action( 'bbp_theme_after_forum_visibility_status' ); ?>
 
-								<hr />
+						<?php if ( !bbp_is_single_forum() ) : ?>
 
-								<?php do_action( 'bbp_theme_before_forum_form_parent' ); ?>
+							<hr />
 
-								<p>
-									<label for="bbp_forum_id"><?php _e( 'Parent Forum:', 'bbpress' ); ?></label><br />
-									<?php bbp_dropdown( array( 'show_none' => __( '(No Parent)', 'bbpress' ), 'selected' => bbp_get_form_forum_parent() ) ); ?>
-								</p>
-
-								<?php do_action( 'bbp_theme_after_forum_form_parent' ); ?>
-
-							<?php endif; ?>
-
-						</fieldset>
-
-						<fieldset class="bbp-forum-form-main">
-
-							<?php do_action( 'bbp_theme_before_forum_form_title' ); ?>
+							<?php do_action( 'bbp_theme_before_forum_form_parent' ); ?>
 
 							<p>
-								<label for="bbp_forum_title"><?php printf( __( 'Forum Name (Maximum Length: %d):', 'bbpress' ), bbp_get_title_max_length() ); ?></label><br />
-								<input type="text" id="bbp_forum_title" value="<?php bbp_form_forum_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_forum_title" maxlength="<?php bbp_title_max_length(); ?>" />
+								<label for="bbp_forum_id"><?php _e( 'Parent Forum:', 'bbpress' ); ?></label><br />
+								<?php bbp_dropdown( array( 'show_none' => __( '(No Parent)', 'bbpress' ), 'selected' => bbp_get_form_forum_parent() ) ); ?>
 							</p>
 
-							<?php do_action( 'bbp_theme_after_forum_form_title' ); ?>
+							<?php do_action( 'bbp_theme_after_forum_form_parent' ); ?>
 
-							<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
+						<?php endif; ?>
 
-							<?php if ( !function_exists( 'wp_editor' ) ) : ?>
+					</fieldset>
 
-								<p>
-									<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
-									<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="10"><?php bbp_form_forum_content(); ?></textarea>
-								</p>
+					<fieldset class="bbp-forum-form-main">
 
-							<?php else : ?>
+						<?php do_action( 'bbp_theme_before_forum_form_title' ); ?>
 
-								<?php bbp_the_content( array( 'context' => 'forum' ) ); ?>
+						<p>
+							<label for="bbp_forum_title"><?php printf( __( 'Forum Name (Maximum Length: %d):', 'bbpress' ), bbp_get_title_max_length() ); ?></label><br />
+							<input type="text" id="bbp_forum_title" value="<?php bbp_form_forum_title(); ?>" tabindex="<?php bbp_tab_index(); ?>" size="40" name="bbp_forum_title" maxlength="<?php bbp_title_max_length(); ?>" />
+						</p>
 
-							<?php endif; ?>
+						<?php do_action( 'bbp_theme_after_forum_form_title' ); ?>
 
-							<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
+						<?php do_action( 'bbp_theme_before_forum_form_content' ); ?>
 
-							<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
+						<?php if ( !function_exists( 'wp_editor' ) ) : ?>
 
-								<p class="form-allowed-tags">
-									<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
-									<code><?php bbp_allowed_tags(); ?></code>
-								</p>
+							<p>
+								<label for="bbp_forum_content"><?php _e( 'Forum Description:', 'bbpress' ); ?></label><br />
+								<textarea id="bbp_forum_content" tabindex="<?php bbp_tab_index(); ?>" name="bbp_forum_content" cols="60" rows="10"><?php bbp_form_forum_content(); ?></textarea>
+							</p>
 
-							<?php endif; ?>
+						<?php else : ?>
 
-						</fieldset>
+							<?php bbp_the_content( array( 'context' => 'forum' ) ); ?>
 
-						<?php do_action( 'bbp_theme_before_forum_form_submit_wrapper' ); ?>
+						<?php endif; ?>
 
-						<div class="bbp-submit-wrapper">
+						<?php do_action( 'bbp_theme_after_forum_form_content' ); ?>
 
-							<?php do_action( 'bbp_theme_before_forum_form_submit_button' ); ?>
+						<?php if ( !current_user_can( 'unfiltered_html' ) ) : ?>
 
-							<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_forum_submit" name="bbp_forum_submit" class="button submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+							<p class="form-allowed-tags">
+								<label><?php _e( 'You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:','bbpress' ); ?></label><br />
+								<code><?php bbp_allowed_tags(); ?></code>
+							</p>
 
-							<?php do_action( 'bbp_theme_after_forum_form_submit_button' ); ?>
+						<?php endif; ?>
 
-						</div>
+					</fieldset>
 
-						<?php do_action( 'bbp_theme_after_forum_form_submit_wrapper' ); ?>
+					<?php do_action( 'bbp_theme_before_forum_form_submit_wrapper' ); ?>
+
+					<div class="bbp-submit-wrapper">
+
+						<?php do_action( 'bbp_theme_before_forum_form_submit_button' ); ?>
+
+						<button type="submit" tabindex="<?php bbp_tab_index(); ?>" id="bbp_forum_submit" name="bbp_forum_submit" class="button submit"><?php _e( 'Submit', 'bbpress' ); ?></button>
+
+						<?php do_action( 'bbp_theme_after_forum_form_submit_button' ); ?>
 
 					</div>
 
-					<?php bbp_forum_form_fields(); ?>
+					<?php do_action( 'bbp_theme_after_forum_form_submit_wrapper' ); ?>
 
-				</fieldset>
+				</div>
 
-				<?php do_action( 'bbp_theme_after_forum_form' ); ?>
+				<?php bbp_forum_form_fields(); ?>
 
-			</form>
+			</fieldset>
+
+			<?php do_action( 'bbp_theme_after_forum_form' ); ?>
+
+		</form>
+	</div>
+
+<?php elseif ( bbp_is_forum_closed() ) : ?>
+
+	<div id="no-forum-<?php bbp_forum_id(); ?>" class="bbp-no-forum">
+		<div class="bbp-template-notice">
+			<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new content.', 'bbpress' ), bbp_get_forum_title() ); ?></p>
 		</div>
+	</div>
 
-	<?php elseif ( bbp_is_forum_closed() ) : ?>
+<?php else : ?>
 
-		<div id="no-forum-<?php bbp_forum_id(); ?>" class="bbp-no-forum">
-			<div class="bbp-template-notice">
-				<p><?php printf( __( 'The forum &#8216;%s&#8217; is closed to new content.', 'bbpress' ), bbp_get_forum_title() ); ?></p>
-			</div>
+	<div id="no-forum-<?php bbp_forum_id(); ?>" class="bbp-no-forum">
+		<div class="bbp-template-notice">
+			<p><?php is_user_logged_in() ? _e( 'You cannot create new forums at this time.', 'bbpress' ) : _e( 'You must be logged in to create new forums.', 'bbpress' ); ?></p>
 		</div>
+	</div>
 
-	<?php else : ?>
+<?php endif; ?>
 
-		<div id="no-forum-<?php bbp_forum_id(); ?>" class="bbp-no-forum">
-			<div class="bbp-template-notice">
-				<p><?php is_user_logged_in() ? _e( 'You cannot create new forums at this time.', 'bbpress' ) : _e( 'You must be logged in to create new forums.', 'bbpress' ); ?></p>
-			</div>
-		</div>
+<?php if ( bbp_is_forum_edit() ) : ?>
 
-	<?php endif; ?>
+</div>
+
+<?php endif; ?>

@@ -24,14 +24,16 @@
 
 							<?php get_the_content() ? the_content() : _e( '<p>This is a collection of tags that are currently popular on our forums.</p>', 'bbpress' ); ?>
 
-							<?php bbp_breadcrumb(); ?>
+							<div id="bbpress-forums">
 
-							<div id="bbp-topic-hot-tags">
+								<?php bbp_breadcrumb(); ?>
 
-								<?php wp_tag_cloud( array( 'smallest' => 9, 'largest' => 38, 'number' => 80, 'taxonomy' => bbp_get_topic_tag_tax_id() ) ); ?>
+								<div id="bbp-topic-hot-tags">
 
+									<?php wp_tag_cloud( array( 'smallest' => 9, 'largest' => 38, 'number' => 80, 'taxonomy' => bbp_get_topic_tag_tax_id() ) ); ?>
+
+								</div>
 							</div>
-
 						</div>
 					</div><!-- #bbp-topic-tags -->
 

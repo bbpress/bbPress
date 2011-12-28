@@ -9,6 +9,8 @@
 
 ?>
 
+<div id="bbpress-forums">
+
 	<?php bbp_breadcrumb(); ?>
 
 	<?php do_action( 'bbp_template_before_forums_index' ); ?>
@@ -24,3 +26,5 @@
 	<?php endif; ?>
 
 	<?php do_action( 'bbp_template_after_forums_index' ); ?>
+
+</div>

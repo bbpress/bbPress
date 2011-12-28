@@ -9,6 +9,8 @@
 
 ?>
 
+<div id="bbpress-forums">
+
 	<?php bbp_breadcrumb(); ?>
 
 	<?php bbp_topic_tag_description(); ?>
@@ -18,3 +20,5 @@
 	<?php bbp_get_template_part( 'bbpress/form', 'topic-tag' ); ?>
 
 	<?php do_action( 'bbp_template_after_topic_tag_edit' ); ?>
+
+</div>

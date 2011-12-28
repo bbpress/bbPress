@@ -9,65 +9,102 @@
 
 ?>
 
-	<table class="bbp-topic" id="bbp-topic-<?php bbp_topic_id(); ?>">
-		<thead>
-			<tr>
-				<th class="bbp-topic-author"><?php _e( 'Creator', 'bbpress' ); ?></th>
-				<th class="bbp-topic-content">
+<?php do_action( 'bbp_template_before_replies_loop' ); ?>
 
-					<?php _e( 'Topic', 'bbpress' ); ?>
+<ul id="bbp-topic-<?php bbp_topic_id(); ?>-lead" class="bbp-lead-topic">
 
-					<?php bbp_user_subscribe_link(); ?>
+	<li class="bbp-header">
 
-					<?php bbp_user_favorites_link(); ?>
+		<div class="bbp-topic-author"><?php  _e( 'Creator',  'bbpress' ); ?></div><!-- .bbp-topic-author -->
 
-				</th>
-			</tr>
-		</thead>
+		<div class="bbp-topic-content">
 
-		<tfoot>
-			<tr>
-				<td colspan="2">
+			<?php _e( 'Topic', 'bbpress' ); ?>
 
-					<?php bbp_topic_admin_links(); ?>
+			<?php bbp_user_subscribe_link(); ?>
 
-				</td>
-			</tr>
-		</tfoot>
+			<?php bbp_user_favorites_link(); ?>
 
-		<tbody>
+		</div><!-- .bbp-topic-content -->
 
-			<tr class="bbp-topic-header">
-				<td colspan="2">
+	</li><!-- .bbp-header -->
 
-					<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
+	<li class="bbp-body">
 
-					<a href="#bbp-topic-<?php bbp_topic_id(); ?>" title="<?php bbp_topic_title(); ?>" class="bbp-topic-permalink">#<?php bbp_topic_id(); ?></a>
+		<div class="bbp-topic-header">
 
-				</td>
-			</tr>
+			<div class="bbp-meta">
 
-			<tr id="post-<?php bbp_topic_id(); ?>" <?php post_class( 'bbp-forum-topic' ); ?>>
+				<?php printf( __( '%1$s at %2$s', 'bbpress' ), get_the_date(), esc_attr( get_the_time() ) ); ?>
 
-				<td class="bbp-topic-author">
+				<a href="<?php bbp_topic_permalink(); ?>" title="<?php bbp_topic_title(); ?>" class="bbp-topic-permalink">#<?php bbp_topic_id(); ?></a>
 
-					<?php bbp_topic_author_link( array( 'sep' => '<br />' ) ); ?>
+				<?php do_action( 'bbp_theme_before_topic_admin_links' ); ?>
 
-					<?php if ( is_super_admin() ) : ?>
+				<?php bbp_topic_admin_links(); ?>
 
-						<div class="bbp-topic-ip"><?php bbp_author_ip( bbp_get_topic_id() ); ?></div>
+				<?php do_action( 'bbp_theme_after_topic_admin_links' ); ?>
 
-					<?php endif; ?>
+			</div><!-- .bbp-meta -->
 
-				</td>
+		</div><!-- .bbp-topic-header -->
 
-				<td class="bbp-topic-content">
+		<div id="post-<?php bbp_topic_id(); ?>" <?php bbp_topic_class(); ?>>
 
-					<?php bbp_topic_content(); ?>
+			<div class="bbp-topic-author">
 
-				</td>
+				<?php do_action( 'bbp_theme_before_topic_author_details' ); ?>
 
-			</tr><!-- #post-<?php bbp_topic_id(); ?> -->
+				<?php bbp_topic_author_link( array( 'sep' => '<br />' ) ); ?>
 
-		</tbody>
-	</table><!-- #bbp-topic-<?php bbp_topic_id(); ?> -->
+				<?php if ( is_super_admin() ) : ?>
+
+					<?php do_action( 'bbp_theme_before_topic_author_admin_details' ); ?>
+
+					<div class="bbp-topic-ip"><?php bbp_author_ip( bbp_get_topic_id() ); ?></div>
+
+					<?php do_action( 'bbp_theme_after_topic_author_admin_details' ); ?>
+
+				<?php endif; ?>
+
+				<?php do_action( 'bbp_theme_after_topic_author_details' ); ?>
+
+			</div><!-- .bbp-topic-author -->
+
+			<div class="bbp-topic-content">
+
+				<?php do_action( 'bbp_theme_after_topic_content' ); ?>
+
+				<?php bbp_topic_content(); ?>
+
+				<?php do_action( 'bbp_theme_before_topic_content' ); ?>
+
+			</div><!-- .bbp-topic-content -->
+
+		</div><!-- #post-<?php bbp_topic_id(); ?> -->
+
+	</li><!-- .bbp-body -->
+
+	<li class="bbp-footer">
+
+		<div class="bbp-topic-author"><?php  _e( 'Creator',  'bbpress' ); ?></div>
+
+		<div class="bbp-topic-content">
+
+			<?php if ( !bbp_show_lead_topic() ) : ?>
+
+				<?php _e( 'Posts', 'bbpress' ); ?>
+
+			<?php else : ?>
+
+				<?php _e( 'Replies', 'bbpress' ); ?>
+
+			<?php endif; ?>
+
+		</div><!-- .bbp-topic-content -->
+
+	</li>
+
+</ul><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
+
+<?php do_action( 'bbp_template_after_topic_loop' ); ?>
