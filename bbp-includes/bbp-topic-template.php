@@ -1134,12 +1134,26 @@ function bbp_topic_author_display_name( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Check for anonymous user
-		if ( !bbp_is_topic_anonymous( $topic_id ) )
-			$author_name = get_the_author_meta( 'display_name', bbp_get_topic_author_id( $topic_id ) );
-		else
-			$author_name = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
 
-		return apply_filters( 'bbp_get_topic_author_id', esc_attr( $author_name ), $topic_id );
+			// Try to get a display name
+			$author_name = get_the_author_meta( 'display_name', bbp_get_topic_author_id( $topic_id ) );
+
+			// Fall back to user login
+			if ( empty( $author_name ) ) {
+				$author_name = get_the_author_meta( 'user_login', bbp_get_reply_author_id( $topic_id ) );
+			}
+
+		// User does not have an account
+		} else {
+			$author_name = get_post_meta( $topic_id, '_bbp_anonymous_name', true );
+		}
+
+		// If nothing could be found anywhere, use Anonymous
+		if ( empty( $author_name ) )
+			$author_name = __( 'Anonymous', 'bbpress' );
+
+		return apply_filters( 'bbp_get_topic_author_display_name', esc_attr( $author_name ), $topic_id );
 	}
 
 /**

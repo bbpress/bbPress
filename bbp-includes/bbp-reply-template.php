@@ -867,11 +867,25 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 	function bbp_get_reply_author_display_name( $reply_id = 0 ) {
 		$reply_id = bbp_get_reply_id( $reply_id );
 
-		// Check for anonymous user
-		if ( !bbp_is_reply_anonymous( $reply_id ) )
+		// User is not a guest
+		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
+
+			// Try to get a display name
 			$author_name = get_the_author_meta( 'display_name', bbp_get_reply_author_id( $reply_id ) );
-		else
+
+			// Fall back to user login
+			if ( empty( $author_name ) ) {
+				$author_name = get_the_author_meta( 'user_login', bbp_get_reply_author_id( $reply_id ) );
+			}
+
+		// User does not have an account
+		} else {
 			$author_name = get_post_meta( $reply_id, '_bbp_anonymous_name', true );
+		}
+
+		// If nothing could be found anywhere, use Anonymous
+		if ( empty( $author_name ) )
+			$author_name = __( 'Anonymous', 'bbpress' );
 
 		return apply_filters( 'bbp_get_reply_author_display_name', esc_attr( $author_name ), $reply_id );
 	}
