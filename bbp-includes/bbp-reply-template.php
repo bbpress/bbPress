@@ -870,12 +870,15 @@ function bbp_reply_author_display_name( $reply_id = 0 ) {
 		// User is not a guest
 		if ( !bbp_is_reply_anonymous( $reply_id ) ) {
 
+			// Get the author ID
+			$author_id = bbp_get_reply_author_id( $reply_id );
+
 			// Try to get a display name
-			$author_name = get_the_author_meta( 'display_name', bbp_get_reply_author_id( $reply_id ) );
+			$author_name = get_the_author_meta( 'display_name', $author_id );
 
 			// Fall back to user login
 			if ( empty( $author_name ) ) {
-				$author_name = get_the_author_meta( 'user_login', bbp_get_reply_author_id( $reply_id ) );
+				$author_name = get_the_author_meta( 'user_login', $author_id );
 			}
 
 		// User does not have an account
