@@ -39,17 +39,17 @@
 	background-color: #f4f4f4;
 }
 
-#bbpress-forums .status-trash.even div,
-#bbpress-forums .status-spam.even div {
+#bbpress-forums .status-trash.even,
+#bbpress-forums .status-spam.even {
 	background-color: #fee;
 }
-#bbpress-forums .status-trash.odd div,
-#bbpress-forums .status-spam.odd div {
+#bbpress-forums .status-trash.odd,
+#bbpress-forums .status-spam.odd {
 	background-color: #fdd;
 }
 
-#bbpress-forums .status-closed div,
-#bbpress-forums .status-closed div a {
+#bbpress-forums .status-closed,
+#bbpress-forums .status-closed a {
 	color: #ccc;
 }
 
