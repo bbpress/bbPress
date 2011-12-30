@@ -155,9 +155,10 @@ add_action( 'bbp_new_reply',     'bbp_update_reply',       10, 6 );
 add_action( 'bbp_edit_reply',    'bbp_update_reply',       10, 6 );
 
 // Before Delete/Trash/Untrash Reply
-add_action( 'trash_post',   'bbp_trash_reply'   );
-add_action( 'untrash_post', 'bbp_untrash_reply' );
-add_action( 'delete_post',  'bbp_delete_reply'  );
+add_action( 'wp_trash_post', 'bbp_trash_reply'   );
+add_action( 'trash_post',    'bbp_trash_reply'   );
+add_action( 'untrash_post',  'bbp_untrash_reply' );
+add_action( 'delete_post',   'bbp_delete_reply'  );
 
 // After Deleted/Trashed/Untrashed Reply
 add_action( 'trashed_post',   'bbp_trashed_reply'   );
@@ -177,9 +178,10 @@ add_action( 'bbp_merged_topic',     'bbp_merge_topic_count',   1, 3 );
 add_action( 'bbp_post_split_topic', 'bbp_split_topic_count',   1, 3 );
 
 // Before Delete/Trash/Untrash Topic
-add_action( 'trash_post',   'bbp_trash_topic'   );
-add_action( 'untrash_post', 'bbp_untrash_topic' );
-add_action( 'delete_post',  'bbp_delete_topic'  );
+add_action( 'wp_trash_post', 'bbp_trash_topic'   );
+add_action( 'trash_post',    'bbp_trash_topic'   );
+add_action( 'untrash_post',  'bbp_untrash_topic' );
+add_action( 'delete_post',   'bbp_delete_topic'  );
 
 // After Deleted/Trashed/Untrashed Topic
 add_action( 'trashed_post',   'bbp_trashed_topic'   );
