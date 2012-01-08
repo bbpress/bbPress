@@ -67,7 +67,7 @@
 						<?php do_action( 'bbp_theme_before_forum_form_type' ); ?>
 
 						<p>
-							<label for="bbp_forum_id"><?php _e( 'Forum Type:', 'bbpress' ); ?></label><br />
+							<label for="bbp_forum_type"><?php _e( 'Forum Type:', 'bbpress' ); ?></label><br />
 							<?php bbp_form_forum_type_dropdown(); ?>
 						</p>
 
@@ -76,7 +76,7 @@
 						<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
 
 						<p>
-							<label for="bbp_forum_id"><?php _e( 'Status:', 'bbpress' ); ?></label><br />
+							<label for="bbp_forum_status"><?php _e( 'Status:', 'bbpress' ); ?></label><br />
 							<?php bbp_form_forum_status_dropdown(); ?>
 						</p>
 
@@ -85,7 +85,7 @@
 						<?php do_action( 'bbp_theme_before_forum_form_status' ); ?>
 
 						<p>
-							<label for="bbp_forum_id"><?php _e( 'Visibility:', 'bbpress' ); ?></label><br />
+							<label for="bbp_forum_visibility"><?php _e( 'Visibility:', 'bbpress' ); ?></label><br />
 							<?php bbp_form_forum_visibility_dropdown(); ?>
 						</p>
 
@@ -98,8 +98,8 @@
 							<?php do_action( 'bbp_theme_before_forum_form_parent' ); ?>
 
 							<p>
-								<label for="bbp_forum_id"><?php _e( 'Parent Forum:', 'bbpress' ); ?></label><br />
-								<?php bbp_dropdown( array( 'show_none' => __( '(No Parent)', 'bbpress' ), 'selected' => bbp_get_form_forum_parent() ) ); ?>
+								<label for="bbp_forum_parent_id"><?php _e( 'Parent Forum:', 'bbpress' ); ?></label><br />
+								<?php bbp_dropdown( array( 'select_id' => 'bbp_forum_parent_id', 'show_none' => __( '(No Parent)', 'bbpress' ), 'selected' => bbp_get_form_forum_parent() ) ); ?>
 							</p>
 
 							<?php do_action( 'bbp_theme_after_forum_form_parent' ); ?>

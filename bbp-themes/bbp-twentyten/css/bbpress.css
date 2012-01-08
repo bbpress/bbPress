@@ -417,6 +417,7 @@ textarea#bbp_forum_content {
 	width: 200px;
 	float: right;
 	clear: none;
+	margin-left: 25px;
 }
 
 .bbp-topic-form,
@@ -761,4 +762,26 @@ fieldset div.avatar {
 	border-left: 2px solid #EAEAEA;
 	margin-left: 5px;
 	padding-left: 10px;
+}
+
+/* =BuddyPress Group Forums
+-------------------------------------------------------------- */
+
+body.groups #bbpress-forums {
+	margin: -19px -19px 0 -19px;
+}
+
+body.groups #bbpress-forums ul.bbp-forums,
+body.groups #bbpress-forums ul.bbp-topics,
+body.groups #bbpress-forums ul.bbp-forums {
+	border: none;
+}
+
+#bbpress-forums div.row-actions {
+	font-size: 11px;
+	visibility: hidden;
+}
+
+#bbpress-forums li:hover > div.row-actions {
+	visibility: visible;
 }

@@ -376,6 +376,17 @@ function bbp_forum_content( $forum_id = 0 ) {
 	}
 
 /**
+ * Allow topic rows to have adminstrative actions
+ *
+ * @since bbPress (r3653)
+ * @uses do_action()
+ * @todo Links and filter
+ */
+function bbp_forum_row_actions() {
+	do_action( 'bbp_forum_row_actions' );
+}
+
+/**
  * Output the forums last active ID
  *
  * @since bbPress (r2860)

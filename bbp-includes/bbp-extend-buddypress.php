@@ -403,7 +403,7 @@ class BBP_BuddyPress {
 	/**
 	 * Append forum options to activity filter select box
 	 *
-	 * @since bbPress (r????)
+	 * @since bbPress (r3653)
 	 */
 	function activity_filter_options() {
 	?>
@@ -929,7 +929,15 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	}
 
 	function display() {
+		global $bbp;
 
+		// More than one forum, so show hierarchy
+		if ( count( bbp_get_group_forum_ids( bp_get_current_group_id() ) ) > 1 )
+			$this->display_group_forums();
+
+		// Only one forum, so show its topics
+		else
+			$this->display_group_forum();
 	}
 
 	function widget_display() {
@@ -943,30 +951,15 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3563)
 	 *
-	 * @uses groups_get_groupmeta()
-	 * @uses bp_get_current_group_id()
-	 * @uses bbp_has_forums()
 	 * @uses bbp_get_template_part()
 	 */
 	function edit_screen() {
 
-		// Forum data
-		$group_id   = bp_get_current_group_id();
-		$forum_ids  = groups_get_groupmeta( $group_id, 'forum_id' );
-		$forum_args = array(
-			'post__in' => $forum_ids
-		);
+		// Add group admin actions to forum row actions
+		add_action( 'bbp_forum_row_actions', array( $this, 'forum_row_actions' ) );
 
-		// Query forums and show them if
-		if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) {
-			bbp_get_template_part( 'bbpress/loop', 'forums' );
-		} else { ?>
-
-			<div id="message" class="info">
-				<p><?php _e( 'This group does not have any forums.', 'bbpress' ); ?></p>
-			</div>
-
-		<?php };
+		// Show forums if needed
+		$this->display_group_forums();
 
 		// Output the forum form
 		bbp_get_template_part( 'bbpress/form', 'forum'  );
@@ -980,10 +973,57 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 *
 	 * @since bbPress (r3465)
 	 *
-	 * @todo Everything
+	 * @uses bbp_new_forum_handler() To check for forum creation
+	 * @uses bbp_edit_forum_handler() To check for forum edit
 	 */
 	function edit_screen_save() {
-		check_admin_referer( 'bbp_group_edit_save_' . $this->slug );
+
+		// Bail if not a POST action
+		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+			return;
+
+		// Bail if action is empty
+		if ( empty( $_POST['action'] ) )
+			return;
+
+		// Handle the different actions that can happen here
+		switch ( $_POST['action'] ) {
+
+			// New forum
+			case 'bbp-new-forum' :
+
+				// Redirect back here, not to the new forum
+				add_filter( 'bbp_new_forum_redirect_to',   array( $this, 'edit_redirect_to' )        );
+
+				// Add actions to bbp_new_forum
+				add_action( 'bbp_new_forum',               array( $this, 'new_forum'        ), 10, 4 );
+
+				// Handle the new forum
+				bbp_new_forum_handler();
+
+				break;
+
+			// Edit existing forum
+			case 'bbp-edit-forum' :
+
+				// Redirect back here, not to the new forum
+				add_filter( 'bbp_edit_forum_redirect_to',  array( $this, 'edit_redirect_to' )        );
+
+				// Handle the forum edit
+				bbp_edit_forum_handler();
+
+				break;
+
+			// Trash a forum
+			case 'bbp-trash-forum' :
+				//bbp_trash_forum_handler();
+				break;
+
+			// Permanently delet a forum
+			case 'bbp-delete-forum' :
+				//bbp_delete_forum_handler();
+				break;
+		}
 	}
 
 	/** Create ****************************************************************/
@@ -1001,23 +1041,11 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 		if ( !bp_is_group_creation_step( $this->slug ) )
             return false;
 
-		// Forum data
-		$group_id   = bp_get_current_group_id();
-		$forum_ids  = groups_get_groupmeta( $group_id, 'forum_id' );
-		$forum_args = array(
-			'post__in' => $forum_ids
-		);
+		// Add group admin actions to forum row actions
+		add_action( 'bbp_forum_row_actions', array( $this, 'forum_row_actions' ) );
 
-		// Query forums and show them if
-		if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) {
-			bbp_get_template_part( 'bbpress/loop', 'forums' );
-		} else { ?>
-
-			<div id="message" class="info">
-				<p><?php _e( 'This group does not have any forums. Create some or continue to the next step. You can modify this groups forums later.', 'bbpress' ); ?></p>
-			</div>
-
-		<?php };
+		// Show forums if needed
+		$this->display_group_forums();
 
 		// Output the forum form
 		bbp_get_template_part( 'bbpress/form', 'forum' );
@@ -1034,7 +1062,282 @@ class BBP_Forums_Group_Extension extends BP_Group_Extension {
 	 * @todo Everything
 	 */
 	function create_screen_save() {
-		check_admin_referer( 'groups_create_save_' . $this->slug );
+
+		// Bail if not a POST action
+		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+			return;
+
+		// Bail if action is empty
+		if ( empty( $_POST['action'] ) )
+			return;
+
+		// Handle the different actions that can happen here
+		switch ( $_POST['action'] ) {
+
+			// New forum
+			case 'bbp-new-forum' :
+
+				// Redirect back here, not to the new forum
+				add_filter( 'bbp_new_forum_redirect_to',  array( $this, 'create_redirect_to' )        );
+
+				// Add actions to bbp_new_forum
+				add_action( 'bbp_new_forum',              array( $this, 'new_forum'          ), 10, 4 );
+
+				// Handle the new forum
+				bbp_new_forum_handler();
+
+				break;
+
+			// Edit existing forum
+			case 'bbp-edit-forum' :
+
+				// Redirect back here, not to the new forum
+				add_filter( 'bbp_edit_forum_redirect_to', array( $this, 'create_redirect_to' )        );
+
+				// Handle the forum edit
+				bbp_edit_forum_handler();
+
+				break;
+
+			// Trash a forum
+			case 'bbp-trash-forum' :
+				//bbp_trash_forum_handler();
+				break;
+
+			// Permanently delet a forum
+			case 'bbp-delete-forum' :
+				//bbp_delete_forum_handler();
+				break;
+		}
+	}
+
+	/**
+	 * Creating a group forum or category (including root for group)
+	 *
+	 * @since bbPress (r3653)
+	 * @param type $forum_args
+	 * @uses bbp_get_forum_id()
+	 * @uses bp_get_current_group_id()
+	 * @uses bbp_add_forum_id_to_group()
+	 * @uses bbp_add_group_id_to_forum()
+	 * @return if no forum_id is available
+	 */
+	public function new_forum( $forum_args = array() ) {
+
+		// Bail if no forum_id was passed
+		if ( empty( $forum_args['forum_id'] ) )
+			return;
+
+		// Validate forum_id
+		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
+		$group_id = bp_get_current_group_id();
+
+		bbp_add_forum_id_to_group( $group_id, $forum_id );
+		bbp_add_group_id_to_forum( $forum_id, $group_id );
+	}
+
+	/**
+	 * Removing a group forum or category (including root for group)
+	 *
+	 * @since bbPress (r3653)
+	 * @param type $forum_args
+	 * @uses bbp_get_forum_id()
+	 * @uses bp_get_current_group_id()
+	 * @uses bbp_add_forum_id_to_group()
+	 * @uses bbp_add_group_id_to_forum()
+	 * @return if no forum_id is available
+	 */
+	public function remove_forum( $forum_args = array() ) {
+
+		// Bail if no forum_id was passed
+		if ( empty( $forum_args['forum_id'] ) )
+			return;
+
+		// Validate forum_id
+		$forum_id = bbp_get_forum_id( $forum_args['forum_id'] );
+		$group_id = bp_get_current_group_id();
+
+		bbp_remove_forum_id_from_group( $group_id, $forum_id );
+		bbp_remove_group_id_from_forum( $forum_id, $group_id );
+	}
+
+	/** Display Methods *******************************************************/
+
+	/**
+	 * Output the forums for a group in the edit/create screens
+	 *
+	 * @since bbPress (r3653)
+	 * @uses bp_get_current_group_id()
+	 * @uses bbp_get_group_forum_ids()
+	 * @uses bbp_has_forums()
+	 * @uses bbp_get_template_part()
+	 */
+	static function display_group_forums() {
+
+		// Forum data
+		$forum_ids  = bbp_get_group_forum_ids( bp_get_current_group_id() );
+		$forum_args = array( 'post__in' => $forum_ids );
+
+		// Query forums and show them if
+		if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) : ?>
+
+			<div id="bbpress-forums">
+
+				<?php bbp_get_template_part( 'bbpress/loop', 'forums' ); ?>
+
+			</div>
+
+		<?php else : ?>
+
+			<div id="message" class="info">
+				<p><?php _e( 'This group does not have any forums. Create some or continue to the next step. You can modify this groups forums later.', 'bbpress' ); ?></p>
+			</div>
+
+		<?php endif;
+	}
+
+	/**
+	 * Output the forums for a group in the edit/create screens
+	 *
+	 * @since bbPress (r3653)
+	 * @uses bp_get_current_group_id()
+	 * @uses bbp_get_group_forum_ids()
+	 * @uses bbp_has_forums()
+	 * @uses bbp_get_template_part()
+	 */
+	static function display_group_forum() {
+
+		// Forum data
+		$forum_ids  = bbp_get_group_forum_ids( bp_get_current_group_id() );
+		$forum_args = array( 'post__in' => $forum_ids );
+
+		// Query forums and show them if
+		if ( !empty( $forum_ids ) && bbp_has_forums( $forum_args ) ) : ?>
+
+			<div id="bbpress-forums">
+
+				<?php bbp_get_template_part( 'bbpress/content', 'single-forum' ); ?>
+
+			</div>
+
+		<?php else : ?>
+
+			<div id="message" class="info">
+				<p><?php _e( 'This group does not have any forums. Create some or continue to the next step. You can modify this groups forums later.', 'bbpress' ); ?></p>
+			</div>
+
+		<?php endif;
+	}
+
+	/**
+	 * Add forum row action HTML when viewing group forum admin
+	 *
+	 * @since bbPress (r3653)
+	 *
+	 * @uses bp_is_item_admin()
+	 * @uses bbp_get_forum_id()
+	 */
+	public function forum_row_actions() {
+
+		// Only admins can take actions on forums
+		if ( !bp_is_item_admin() )
+			return;
+
+		$forum_id = bbp_get_forum_id();
+
+		?>
+
+		<div class="row-actions">
+
+			<?php // @todo add links echo 'Edit | Remove | Trash'; ?>
+
+		</div>
+
+		<?php
+	}
+
+	/**
+	 * Add topic row action HTML when viewing group forum admin
+	 *
+	 * @since bbPress (r3653)
+	 *
+	 * @uses bp_is_item_admin()
+	 * @uses bbp_get_forum_id()
+	 */
+	public function topic_row_actions() {
+
+		// Only admins can take actions on forums
+		if ( !bp_is_item_admin() || !bp_is_item_mod() )
+			return;
+
+		$forum_id = bbp_get_forum_id();
+		$topic_id = bbp_get_topic_id();
+
+		?>
+
+		<div class="row-actions">
+
+			<?php // @todo add links echo 'Edit | Trash | View | Close | Stick (To Front) | Spam'; ?>
+
+		</div>
+
+		<?php
+	}
+
+	/** Redirect Helpers ******************************************************/
+
+	/**
+	 * Redirect to the group admin forum edit screen
+	 *
+	 * @since bbPress (r3653)
+	 *
+	 * @uses groups_get_current_group()
+	 * @uses bp_is_group_admin_screen()
+	 * @uses trailingslashit()
+	 * @uses bp_get_root_domain()
+	 * @uses bp_get_groups_root_slug()
+	 */
+	public function edit_redirect_to( $redirect_url = '' ) {
+
+		// Get the current group, if there is one
+		$group = groups_get_current_group();
+
+		// If this is a group of any kind, empty out the redirect URL
+		if ( bp_is_group_admin_screen( $this->slug ) )
+			$redirect_url = trailingslashit( bp_get_root_domain() . '/' . bp_get_groups_root_slug() . '/' . $group->slug . '/admin/' . $this->slug );
+
+		return $redirect_url;
+	}
+
+	/**
+	 * Redirect to the group creation forum edit screen
+	 *
+	 * @since bbPress (r3653)
+	 *
+	 * @uses bp_is_group_creation_step()
+	 * @uses bp_is_action_variable()
+	 * @uses bp_get_root_domain()
+	 * @uses bp_get_groups_root_slug()
+	 */
+	public function create_redirect_to( $redirect_url = '' ) {
+		global $bp;
+
+		// If this is a group of any kind, empty out the redirect URL
+		if ( bp_is_group_creation_step( $this->slug ) ) {
+
+			// Loop through
+			foreach ( (array) $bp->groups->group_creation_steps as $slug => $name ) {
+				if ( bp_is_action_variable( $slug ) ) {
+					$previous_steps[] = $slug;
+					break;
+				}
+
+				$previous_steps[] = $slug;
+			}
+		}
+		$redirect_url = trailingslashit( bp_get_root_domain() ) . bp_get_groups_root_slug() . '/create/step/' . array_pop( $previous_steps );
+
+		return $redirect_url;
 	}
 }
 endif;
@@ -1042,7 +1345,7 @@ endif;
 /**
  * Creates the Forums component in BuddyPress
  *
- * @since bbPress (r????)
+ * @since bbPress (r3653)
  *
  * @global bbPress $bbp
  * @global type $bp
@@ -1237,6 +1540,239 @@ function bbp_member_forums_favorites_content() {
  */
 function bbp_member_forums_subscriptions_content() {
 	bbp_get_template_part( 'bbpress/user', 'subscriptions' );
+}
+
+/** Forum/Group Sync **********************************************************/
+
+/**
+ * These functions are used to keep the many-to-many relationships between
+ * groups and forums synchronized. Each forum and group stores ponters to each
+ * other in their respective meta. This way if a group or forum is deleted
+ * their associattions can be updated without much effort.
+ */
+
+/**
+ * Get forum ID's for a group
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_get_group_forum_ids( $group_id = 0 ) {
+
+	// Assume no forums
+	$forum_ids = array();
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Get the forums
+	if ( !empty( $group_id ) )
+		$forum_ids = groups_get_groupmeta( $group_id, 'forum_id' );
+
+	// Trim out any empty array items
+	$forum_ids = array_filter( $forum_ids );
+
+	return (array) apply_filters( 'bbp_get_group_forum_ids', $forum_ids, $group_id );
+}
+
+/**
+ * Get group ID's for a forum
+ *
+ * @param type $forum_id
+ * @since bbPress (r3653)
+ */
+function bbp_get_forum_group_ids( $forum_id = 0 ) {
+
+	// Assume no forums
+	$group_ids = array();
+
+	// Use current group if none is set
+	if ( empty( $forum_id ) )
+		$forum_id = bbp_get_forum_id();
+
+	// Get the forums
+	if ( !empty( $forum_id ) )
+		$group_ids = get_post_meta( $forum_id, '_bbp_group_ids' );
+
+	// Trim out any empty array items
+	$group_ids = array_filter( $group_ids );
+
+	return (array) apply_filters( 'bbp_get_forum_group_ids', $group_ids, $forum_id );
+}
+
+/**
+ * Get forum ID's for a group
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_update_group_forum_ids( $group_id = 0, $forum_ids = array() ) {
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Trim out any empties
+	$forum_ids = array_filter( $forum_ids );
+
+	// Get the forums
+	return groups_update_groupmeta( $group_id, 'forum_id', $forum_ids );
+}
+
+/**
+ * Update group ID's for a forum
+ *
+ * @param type $forum_id
+ * @since bbPress (r3653)
+ */
+function bbp_update_forum_group_ids( $forum_id = 0, $group_ids = array() ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Trim out any empties
+	$group_ids = array_filter( $group_ids );
+
+	// Get the forums
+	return update_post_meta( $forum_id, '_bbp_group_ids', $group_ids );
+}
+
+/**
+ * Add a group to a forum
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_add_group_id_to_forum( $forum_id = 0, $group_id = 0 ) {
+
+	// Validate forum_id
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Get current group IDs
+	$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+	// Maybe update the groups forums
+	if ( !in_array( $group_id, $group_ids ) ) {
+		$group_ids[] = $group_id;
+		return bbp_update_forum_group_ids( $forum_id, $group_ids );
+	}
+}
+
+/**
+ * Remove a forum from a group
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_add_forum_id_to_group( $group_id = 0, $forum_id = 0 ) {
+
+	// Validate forum_id
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Get current group IDs
+	$forum_ids = bbp_get_group_forum_ids( $group_id );
+
+	// Maybe update the groups forums
+	if ( !in_array( $forum_id, $forum_ids ) ) {
+		$forum_ids[] = $forum_id;
+		return bbp_update_group_forum_ids( $group_id, $forum_ids );
+	}
+}
+
+/**
+ * Remove a group from a forum
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_remove_group_id_from_forum( $forum_id = 0, $group_id = 0 ) {
+
+	// Validate forum_id
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Get current group IDs
+	$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+	// Maybe update the groups forums
+	if ( in_array( $group_id, $group_ids ) ) {
+		unset( $group_ids[$group_id] );
+		return bbp_update_forum_group_ids( $forum_id, $group_ids );
+	}
+}
+
+/**
+ * Remove a forum from a group
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_remove_forum_id_from_group( $group_id = 0, $forum_id = 0 ) {
+
+	// Validate forum_id
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Get current group IDs
+	$forum_ids = bbp_get_group_forum_ids( $group_id );
+
+	// Maybe update the groups forums
+	if ( in_array( $forum_id, $forum_ids ) ) {
+		unset( $forum_ids[$forum_id] );
+		return bbp_update_group_forum_ids( $group_id, $forum_ids );
+	}
+}
+
+/**
+ * Remove a group from aall forums
+ *
+ * @param type $group_id
+ * @since bbPress (r3653)
+ */
+function bbp_remove_group_id_from_all_forums( $group_id = 0 ) {
+
+	// Use current group if none is set
+	if ( empty( $group_id ) )
+		$group_id = bp_get_current_group_id();
+
+	// Get current group IDs
+	$forum_ids = bbp_get_group_forum_ids( $group_id );
+
+	// Loop through forums and remove this group from each one
+	foreach( (array) $forum_ids as $forum_id ) {
+		bbp_remove_group_id_from_forum( $group_id, $forum_id );
+	}
+}
+
+/**
+ * Remove a forum from all groups
+ *
+ * @param type $forum_id
+ * @since bbPress (r3653)
+ */
+function bbp_remove_forum_id_from_all_groups( $forum_id = 0 ) {
+
+	// Validate
+	$forum_id  = bbp_get_forum_id( $forum_id );
+	$group_ids = bbp_get_forum_group_ids( $forum_id );
+
+	// Loop through groups and remove this forum from each one
+	foreach( (array) $group_ids as $group_id ) {
+		bbp_remove_forum_id_from_group( $forum_id, $group_id );
+	}
 }
 
 ?>

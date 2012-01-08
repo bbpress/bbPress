@@ -3149,6 +3149,17 @@ function bbp_form_topic_content() {
 	}
 
 /**
+ * Allow topic rows to have adminstrative actions
+ *
+ * @since bbPress (r3653)
+ * @uses do_action()
+ * @todo Links and filter
+ */
+function bbp_topic_row_actions() {
+	do_action( 'bbp_topic_row_actions' );
+}
+
+/**
  * Output value of topic tags field
  *
  * @since bbPress (r2976)

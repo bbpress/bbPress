@@ -45,6 +45,8 @@
 
 		<?php do_action( 'bbp_theme_after_topic_meta' ); ?>
 
+		<?php bbp_topic_row_actions(); ?>
+
 	</li>
 
 	<li class="bbp-topic-voice-count"><?php bbp_topic_voice_count(); ?></li>

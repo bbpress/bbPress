@@ -148,6 +148,12 @@ add_action( 'bbp_deleted_forum',   'bbp_update_forum_walker' );
 add_action( 'bbp_spammed_forum',   'bbp_update_forum_walker' );
 add_action( 'bbp_unspammed_forum', 'bbp_update_forum_walker' );
 
+// New/Edit Forum
+add_action( 'template_redirect', 'bbp_new_forum_handler'         );
+add_action( 'template_redirect', 'bbp_edit_forum_handler', 1     );
+add_action( 'bbp_new_forum',     'bbp_update_forum',       10 );
+add_action( 'bbp_edit_forum',    'bbp_update_forum',       10 );
+
 // New/Edit Reply
 add_action( 'template_redirect', 'bbp_new_reply_handler'         );
 add_action( 'template_redirect', 'bbp_edit_reply_handler', 1     );
