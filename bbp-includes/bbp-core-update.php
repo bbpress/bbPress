@@ -53,7 +53,7 @@ function bbp_is_activation( $basename = '' ) {
 		$action = $_REQUEST['action2'];
 
 	// Bail if not activating
-	if ( empty( $action ) || !in_array( $action, array( 'activate', 'deactivate-selected' ) ) )
+	if ( empty( $action ) || !in_array( $action, array( 'activate', 'activate-selected' ) ) )
 		return false;
 
 	// The plugin(s) being activated
