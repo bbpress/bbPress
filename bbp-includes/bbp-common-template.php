@@ -855,7 +855,7 @@ function bbp_wp_login_action( $args = '' ) {
 function bbp_redirect_to_field( $redirect_to = '' ) {
 
 	// Rejig the $redirect_to
-	if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( !$redirect_to = home_url( $_SERVER['REDIRECT_URL'] ) ) )
+	if ( !isset( $_SERVER['REDIRECT_URL'] ) || ( !$redirect_to == home_url( $_SERVER['REDIRECT_URL'] ) ) )
 		$redirect_to = wp_get_referer();
 
 	// Make sure we are directing somewhere
