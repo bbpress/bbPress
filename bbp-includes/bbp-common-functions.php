@@ -1443,7 +1443,7 @@ function bbp_request_feed_trap( $query_vars ) {
 	// Looking at a feed
 	if ( isset( $query_vars['feed'] ) ) {
 
-		// Forum Feed
+		// Forum/Topic/Reply Feed
 		if ( isset( $query_vars['post_type'] ) ) {
 
 			// What bbPress post type are we looking for feeds on?
@@ -1578,7 +1578,25 @@ function bbp_request_feed_trap( $query_vars ) {
 
 					break;
 			}
+
+		// Single Topic Vview
+		} elseif ( isset( $query_vars['bbp_view'] ) ) {
+
+			// Get the view
+			$view = $query_vars['bbp_view'];
+
+			// We have a view to display a feed
+			if ( !empty( $view ) ) {
+
+				// Get the view query
+				$the_query = bbp_get_view_query_args( $view );
+
+				// Output the feed
+				bbp_display_topics_feed_rss2( $the_query );
+			}
 		}
+
+		// @todo User profile feeds
 	}
 
 	// No feed so continue on

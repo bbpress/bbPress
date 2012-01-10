@@ -985,8 +985,9 @@ class bbPress {
 			$this->user_slug      . '/([^/]+)/edit/?$'              => 'index.php?' . $this->user_id  . '=' . $wp_rewrite->preg_index( 1 ) . '&edit=1',
 
 			// View Page
-			$this->view_slug . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
-			$this->view_slug . '/([^/]+)/?$'                   => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 )
+			$this->view_slug      . '/([^/]+)/page/?([0-9]{1,})/?$' => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&paged=' . $wp_rewrite->preg_index( 2 ),
+			$this->view_slug      . '/([^/]+)/feed/?$'              => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 ) . '&feed='  . $wp_rewrite->preg_index( 2 ),
+			$this->view_slug      . '/([^/]+)/?$'                   => 'index.php?' . $this->view_id . '=' . $wp_rewrite->preg_index( 1 )
 		);
 
 		// Merge bbPress rules with existing
