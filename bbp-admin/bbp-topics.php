@@ -307,7 +307,6 @@ class BBP_Topics_Admin {
 	 *                    id
 	 */
 	function author_metabox() {
-		global $current_screen;
 
 		// Bail if post_type is not a topic
 		if ( ( empty( $_GET['action'] ) || ( 'edit' != $_GET['action'] ) ) || ( get_post_type() != $this->post_type ) )
@@ -704,7 +703,8 @@ class BBP_Topics_Admin {
 
 			// Freshness
 			case 'bbp_topic_freshness' :
-				if ( $last_active = bbp_get_topic_last_active_time( $topic_id, false ) )
+				$last_active = bbp_get_topic_last_active_time( $topic_id, false );
+				if ( !empty( $last_active ) )
 					printf( __( '%s ago', 'bbpress' ), $last_active );
 				else
 					_e( 'No Replies', 'bbpress' ); // This should never happen
