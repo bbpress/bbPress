@@ -3044,7 +3044,7 @@ function bbp_topic_tag_description( $args = array() ) {
 	 * @uses get_term_by()
 	 * @uses get_query_var()
 	 * @uses apply_filters()
-	 *
+	 * @param array $args before|after|tag
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_description( $args = array() ) {
