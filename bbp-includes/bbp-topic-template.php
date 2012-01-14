@@ -401,15 +401,20 @@ function bbp_topic_id( $topic_id = 0) {
  */
 function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
 
+	// Use topic ID
 	if ( empty( $topic ) || is_numeric( $topic ) )
 		$topic = bbp_get_topic_id( $topic );
 
-	if ( !$topic = get_post( $topic, OBJECT, $filter ) )
+	// Attempt to load the topic
+	$topic = get_post( $topic, OBJECT, $filter );
+	if ( empty( $topic ) )
 		return $topic;
 
+	// Bail if post_type is not a topic
 	if ( $topic->post_type !== bbp_get_topic_post_type() )
 		return null;
 
+	// Tweak the data type to return
 	if ( $output == OBJECT ) {
 		return $topic;
 
@@ -432,10 +437,12 @@ function bbp_get_topic( $topic, $output = OBJECT, $filter = 'raw' ) {
  * @since bbPress (r2485)
  *
  * @param int $topic_id Optional. Topic id
+ * @param $string $redirect_to Optional. Pass a redirect value for use with
+ *                              shortcodes and other fun things.
  * @uses bbp_get_topic_permalink() To get the topic permalink
  */
-function bbp_topic_permalink( $topic_id = 0 ) {
-	echo bbp_get_topic_permalink( $topic_id );
+function bbp_topic_permalink( $topic_id = 0, $redirect_to = '' ) {
+	echo bbp_get_topic_permalink( $topic_id, $redirect_to );
 }
 	/**
 	 * Return the link to the topic
@@ -456,12 +463,13 @@ function bbp_topic_permalink( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 
 		// Use the redirect address
-		if ( !empty( $redirect_to ) )
+		if ( !empty( $redirect_to ) ) {
 			$topic_permalink = esc_url_raw( $redirect_to );
 
 		// Use the topic permalink
-		else
+		} else {
 			$topic_permalink = get_permalink( $topic_id );
+		}
 
 		return apply_filters( 'bbp_get_topic_permalink', $topic_permalink, $topic_id );
 	}
@@ -491,8 +499,9 @@ function bbp_topic_title( $topic_id = 0 ) {
 	 */
 	function bbp_get_topic_title( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
+		$title    = get_the_title( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_title', get_the_title( $topic_id ), $topic_id );
+		return apply_filters( 'bbp_get_topic_title', $title, $topic_id );
 	}
 
 /**
@@ -1099,7 +1108,7 @@ function bbp_topic_author_id( $topic_id = 0 ) {
 		$topic_id  = bbp_get_topic_id( $topic_id );
 		$author_id = get_post_field( 'post_author', $topic_id );
 
-		return apply_filters( 'bbp_get_topic_author_id', (int) $author_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_author_id', (int) $author_id, $topic_id );
 	}
 
 /**
@@ -1244,32 +1253,42 @@ function bbp_topic_author_link( $args = '' ) {
 		extract( $r );
 
 		// Used as topic_id
-		if ( is_numeric( $args ) )
+		if ( is_numeric( $args ) ) {
 			$topic_id = bbp_get_topic_id( $args );
-		else
+		} else {
 			$topic_id = bbp_get_topic_id( $post_id );
+		}
 
+		// Topic ID is good
 		if ( !empty( $topic_id ) ) {
-			if ( empty( $link_title ) )
-				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
 
-			$link_title = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
-			$author_url = bbp_get_topic_author_url( $topic_id );
-			$anonymous  = bbp_is_topic_anonymous( $topic_id );
+			// Tweak link title if empty
+			if ( empty( $link_title ) ) {
+				$link_title = sprintf( !bbp_is_topic_anonymous( $topic_id ) ? __( 'View %s\'s profile', 'bbpress' ) : __( 'Visit %s\'s website', 'bbpress' ), bbp_get_topic_author_display_name( $topic_id ) );
+			}
+
+			$link_title   = !empty( $link_title ) ? ' title="' . $link_title . '"' : '';
+			$author_url   = bbp_get_topic_author_url( $topic_id );
+			$anonymous    = bbp_is_topic_anonymous( $topic_id );
+			$author_links = array();
 
 			// Get avatar
-			if ( 'avatar' == $type || 'both' == $type )
+			if ( 'avatar' == $type || 'both' == $type ) {
 				$author_links['avatar'] = bbp_get_topic_author_avatar( $topic_id, $size );
+			}
 
 			// Get display name
-			if ( 'name' == $type   || 'both' == $type )
+			if ( 'name' == $type   || 'both' == $type ) {
 				$author_links['name'] = bbp_get_topic_author_display_name( $topic_id );
+			}
 
 			// Link class
 			$link_class = ' class="bbp-author-' . $type . '"';
 
 			// Add links if not anonymous
 			if ( empty( $anonymous ) ) {
+
+				// Assemble the links
 				foreach ( $author_links as $link => $link_text ) {
 					$link_class = ' class="bbp-author-' . $link . '"';
 					$author_link[] = sprintf( '<a href="%1$s"%2$s%3$s>%4$s</a>', $author_url, $link_title, $link_class, $link_text );
@@ -1307,16 +1326,13 @@ function bbp_topic_author_url( $topic_id = 0 ) {
 	 *
 	 * @param int $topic_id Optional. Topic id
 	 * @uses bbp_get_topic_id() To get the topic id
-	 * @uses bbp_is_topic_anonymous() To check if the topic
-	 *                                 is by an anonymous
+	 * @uses bbp_is_topic_anonymous() To check if the topic is by an anonymous
 	 *                                 user or not
-	 * @uses bbp_get_topic_author_id() To get topic author
-	 *                                  id
+	 * @uses bbp_get_topic_author_id() To get topic author id
 	 * @uses bbp_get_user_profile_url() To get profile url
 	 * @uses get_post_meta() To get anonmous user's website
-	 * @uses apply_filters() Calls
-	 *                        'bbp_get_topic_author_url'
-	 *                        with the link & topic id
+	 * @uses apply_filters() Calls 'bbp_get_topic_author_url' with the link &
+	 *                        topic id
 	 * @return string Author URL of topic
 	 */
 	function bbp_get_topic_author_url( $topic_id = 0 ) {
@@ -1326,7 +1342,10 @@ function bbp_topic_author_url( $topic_id = 0 ) {
 		if ( !bbp_is_topic_anonymous( $topic_id ) ) {
 			$author_url = bbp_get_user_profile_url( bbp_get_topic_author_id( $topic_id ) );
 		} else {
-			if ( !$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true ) ) {
+			$author_url = get_post_meta( $topic_id, '_bbp_anonymous_website', true );
+
+			// Set empty author_url as empty string
+			if ( empty( $author_url ) ) {
 				$author_url = '';
 			}
 		}
@@ -1414,7 +1433,7 @@ function bbp_topic_forum_title( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
-		return apply_filters( 'bbp_get_topic_forum', bbp_get_forum_title( $forum_id ), $topic_id );
+		return apply_filters( 'bbp_get_topic_forum', bbp_get_forum_title( $forum_id ), $topic_id, $forum_id );
 	}
 
 /**
@@ -1444,7 +1463,7 @@ function bbp_topic_forum_id( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$forum_id = get_post_meta( $topic_id, '_bbp_forum_id', true );
 
-		return apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_forum_id', (int) $forum_id, $topic_id );
 	}
 
 /**
@@ -1474,7 +1493,7 @@ function bbp_topic_last_active_id( $topic_id = 0 ) {
 		$topic_id  = bbp_get_topic_id( $topic_id );
 		$active_id = get_post_meta( $topic_id, '_bbp_last_active_id', true );
 
-		return apply_filters( 'bbp_get_topic_last_active_id', (int) $active_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_last_active_id', (int) $active_id, $topic_id );
 	}
 
 /**
@@ -1556,7 +1575,7 @@ function bbp_topic_last_reply_id( $topic_id = 0 ) {
 		if ( empty( $reply_id ) )
 			$reply_id = $topic_id;
 
-		return apply_filters( 'bbp_get_topic_last_reply_id', (int) $reply_id, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_last_reply_id', (int) $reply_id, $topic_id );
 	}
 
 /**
@@ -1782,7 +1801,7 @@ function bbp_topic_reply_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
 
-		return apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_reply_count', (int) $replies, $topic_id );
 	}
 
 /**
@@ -1812,7 +1831,7 @@ function bbp_topic_post_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_reply_count', true );
 
-		return apply_filters( 'bbp_get_topic_post_count', (int) $replies + 1, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_post_count', (int) $replies + 1, $topic_id );
 	}
 
 /**
@@ -1844,7 +1863,7 @@ function bbp_topic_reply_count_hidden( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$replies  = get_post_meta( $topic_id, '_bbp_reply_count_hidden', true );
 
-		return apply_filters( 'bbp_get_topic_reply_count_hidden', (int) $replies, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_reply_count_hidden', (int) $replies, $topic_id );
 	}
 
 /**
@@ -1874,7 +1893,7 @@ function bbp_topic_voice_count( $topic_id = 0 ) {
 		$topic_id = bbp_get_topic_id( $topic_id );
 		$voices   = get_post_meta( $topic_id, '_bbp_voice_count', true );
 
-		return apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
+		return (int) apply_filters( 'bbp_get_topic_voice_count', (int) $voices, $topic_id );
 	}
 
 /**
@@ -2271,8 +2290,7 @@ function bbp_topic_close_link( $args = '' ) {
 	 *  - open_text: Open text
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic() To get the topic
-	 * @uses current_user_can() To check if the current user can edit the
-	 *                           topic
+	 * @uses current_user_can() To check if the current user can edit the topic
 	 * @uses bbp_is_topic_open() To check if the topic is open
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses wp_nonce_url() To nonce the url
@@ -2417,7 +2435,7 @@ function bbp_topic_merge_link( $args = '' ) {
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'merge_text'    => __( 'Merge', 'bbpress' ),
+			'merge_text'   => __( 'Merge', 'bbpress' ),
 		);
 
 		$r = wp_parse_args( $args, $defaults );
@@ -2458,8 +2476,7 @@ function bbp_topic_spam_link( $args = '' ) {
 	 *  - unspam_text: Unspam text
 	 * @uses bbp_get_topic_id() To get the topic id
 	 * @uses bbp_get_topic() To get the topic
-	 * @uses current_user_can() To check if the current user can edit the
-	 *                           topic
+	 * @uses current_user_can() To check if the current user can edit the topic
 	 * @uses bbp_is_topic_spam() To check if the topic is marked as spam
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses wp_nonce_url() To nonce the url
@@ -2754,6 +2771,7 @@ function bbp_single_topic_description( $args = '' ) {
 	 * @return string Filtered topic description
 	 */
 	function bbp_get_single_topic_description( $args = '' ) {
+
 		// Default arguments
 		$defaults = array (
 			'topic_id'  => 0,
@@ -2771,13 +2789,13 @@ function bbp_single_topic_description( $args = '' ) {
 		remove_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
 
 		// Build the topic description
-		$forum_id        = bbp_get_topic_forum_id      ( $topic_id );
-		$voice_count     = bbp_get_topic_voice_count   ( $topic_id );
-		$reply_count     = bbp_get_topic_replies_link  ( $topic_id );
-		$time_since      = bbp_get_topic_freshness_link( $topic_id );
+		$forum_id    = bbp_get_topic_forum_id      ( $topic_id );
+		$voice_count = bbp_get_topic_voice_count   ( $topic_id );
+		$reply_count = bbp_get_topic_replies_link  ( $topic_id );
+		$time_since  = bbp_get_topic_freshness_link( $topic_id );
 
 		// Singular/Plural
-		$voice_count     = sprintf( _n( '%s voice', '%s voices', $voice_count, 'bbpress' ), $voice_count );
+		$voice_count = sprintf( _n( '%s voice', '%s voices', $voice_count, 'bbpress' ), $voice_count );
 
 		// Topic has replies
 		$last_reply = bbp_get_topic_last_active_id( $topic_id );
@@ -2854,14 +2872,15 @@ function bbp_topic_tag_id( $tag = '' ) {
 		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
-		if ( !empty( $term->term_id ) )
+		if ( !empty( $term->term_id ) ) {
 			$retval = $term->term_id;
 
 		// No id
-		else
+		} else {
 			$retval = '';
+		}
 
-		return apply_filters( 'bbp_get_topic_tag_id', (int) $retval );
+		return (int) apply_filters( 'bbp_get_topic_tag_id', (int) $retval, $tag );
 	}
 
 /**
@@ -2892,12 +2911,13 @@ function bbp_topic_tag_name( $tag = '' ) {
 		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
-		if ( !empty( $term->name ) )
+		if ( !empty( $term->name ) ) {
 			$retval = $term->name;
 
 		// No name
-		else
+		} else {
 			$retval = '';
+		}
 
 		return apply_filters( 'bbp_get_topic_tag_name', $retval );
 	}
@@ -2930,12 +2950,13 @@ function bbp_topic_tag_slug( $tag = '' ) {
 		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
-		if ( !empty( $term->slug ) )
+		if ( !empty( $term->slug ) ) {
 			$retval = $term->slug;
 
 		// No slug
-		else
+		} else {
 			$retval = '';
+		}
 
 		return apply_filters( 'bbp_get_topic_tag_slug', $retval );
 	}
@@ -2968,12 +2989,13 @@ function bbp_topic_tag_link( $tag = '' ) {
 		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
-		if ( !empty( $term->term_id ) )
+		if ( !empty( $term->term_id ) ) {
 			$retval = get_term_link( $term, bbp_get_topic_tag_tax_id() );
 
 		// No link
-		else
+		} else {
 			$retval = '';
+		}
 
 		return apply_filters( 'bbp_get_topic_tag_link', $retval );
 	}
@@ -3062,12 +3084,13 @@ function bbp_topic_tag_description( $args = array() ) {
 		$term = get_term_by( 'slug', $tag, bbp_get_topic_tag_tax_id() );
 
 		// Add before and after if description exists
-		if ( !empty( $term->description ) )
+		if ( !empty( $term->description ) ) {
 			$retval = $before . $term->description . $after;
 
 		// No description, no HTML
-		else
+		} else {
 			$retval = '';
+		}
 
 		return apply_filters( 'bbp_get_topic_tag_description', $retval, $args );
 	}
