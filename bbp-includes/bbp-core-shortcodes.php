@@ -248,7 +248,7 @@ class BBP_Shortcodes {
 			return $content;
 
 		// Set passed attribute to $forum_id for clarity
-		$bbp->current_forum_id = $forum_id = $attr['id'];
+		$forum_id = $bbp->current_forum_id = $attr['id'];
 
 		// Bail if ID passed is not a forum
 		if ( !bbp_is_forum( $forum_id ) )
@@ -343,16 +343,16 @@ class BBP_Shortcodes {
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
 			return $content;
 
+		// Unset globals
+		$this->unset_globals();
+
 		// Set passed attribute to $forum_id for clarity
-		$bbp->current_topic_id = $topic_id = $attr['id'];
+		$topic_id = $bbp->current_topic_id = $attr['id'];
 		$forum_id = bbp_get_topic_forum_id( $topic_id );
 
 		// Bail if ID passed is not a forum
 		if ( !bbp_is_topic( $topic_id ) )
 			return $content;
-
-		// Unset globals
-		$this->unset_globals();
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
@@ -431,16 +431,16 @@ class BBP_Shortcodes {
 		if ( !empty( $content ) || ( empty( $attr['id'] ) || !is_numeric( $attr['id'] ) ) )
 			return $content;
 
+		// Unset globals
+		$this->unset_globals();
+
 		// Set passed attribute to $reply_id for clarity
-		$bbp->current_reply_id = $reply_id = $attr['id'];
+		$reply_id = $bbp->current_reply_id = $attr['id'];
 		$forum_id = bbp_get_reply_forum_id( $reply_id );
 
 		// Bail if ID passed is not a forum
 		if ( !bbp_is_reply( $reply_id ) )
 			return $content;
-
-		// Unset globals
-		$this->unset_globals();
 
 		// Reset the queries if not in theme compat
 		if ( !bbp_is_theme_compat_active() ) {
@@ -601,7 +601,6 @@ class BBP_Shortcodes {
 	 * @return string
 	 */
 	public function display_view( $attr, $content = '' ) {
-		global $bbp;
 
 		// Sanity check required info
 		if ( empty( $attr['id'] ) )
