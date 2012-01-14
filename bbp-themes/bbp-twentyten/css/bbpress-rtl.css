@@ -827,16 +827,6 @@ fieldset div.avatar {
 /* =BuddyPress Group Forums
 -------------------------------------------------------------- */
 
-body.groups #bbpress-forums {
-	margin: -19px -19px 0 -19px;
-}
-
-body.groups #bbpress-forums ul.bbp-forums,
-body.groups #bbpress-forums ul.bbp-topics,
-body.groups #bbpress-forums ul.bbp-forums {
-	border: none;
-}
-
 #bbpress-forums div.row-actions {
 	font-size: 11px;
 	visibility: hidden;
