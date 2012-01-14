@@ -1224,19 +1224,18 @@ function bbp_query_post_parent__in( $where, $object = '' ) {
 
 	// Including specific post_parent's
 	if ( ! empty( $object->query_vars['post_parent__in'] ) ) {
-		$ids    = implode( ',', array_map( 'absint', $object->query_vars['post_parent__in'][0] ) );
+		$ids    = implode( ',', array_map( 'absint', $object->query_vars['post_parent__in'] ) );
 		$where .= " AND $wpdb->posts.post_parent IN ($ids)";
 
 	// Excluding specific post_parent's
 	} elseif ( ! empty( $object->query_vars['post_parent__not_in'] ) ) {
-		$ids    = implode( ',', array_map( 'absint', $object->query_vars['post_parent__not_in'][0] ) );
+		$ids    = implode( ',', array_map( 'absint', $object->query_vars['post_parent__not_in'] ) );
 		$where .= " AND $wpdb->posts.post_parent NOT IN ($ids)";
 	}
 
 	// Return possibly modified $where
 	return $where;
 }
-//add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
 
 /**
  * Query the DB and get the last public post_id that has parent_id as post_parent

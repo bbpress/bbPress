@@ -409,6 +409,9 @@ add_filter( 'bbp_get_reply_author_link',    'bbp_suppress_private_author_link', 
 // Force comments_status on bbPress post types
 add_filter( 'comments_open', 'bbp_force_comment_status' );
 
+// Add post_parent__in to posts_where
+add_filter( 'posts_where', 'bbp_query_post_parent__in', 10, 2 );
+
 /**
  * Add filters to anonymous post author data
  *
