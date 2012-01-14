@@ -66,7 +66,7 @@ function bbp_topic_post_type() {
  * @return object Multidimensional array of topic information
  */
 function bbp_has_topics( $args = '' ) {
-	global $wp_rewrite, $wp_query, $bbp, $wpdb;
+	global $wp_rewrite, $bbp, $wpdb;
 
 	// What are the default allowed statuses (based on user caps)
 	if ( !bbp_is_query_name( 'bbp_widget' ) && bbp_get_view_all() )
@@ -2789,7 +2789,6 @@ function bbp_single_topic_description( $args = '' ) {
 		remove_filter( 'bbp_get_topic_permalink', 'bbp_add_view_all' );
 
 		// Build the topic description
-		$forum_id    = bbp_get_topic_forum_id      ( $topic_id );
 		$voice_count = bbp_get_topic_voice_count   ( $topic_id );
 		$reply_count = bbp_get_topic_replies_link  ( $topic_id );
 		$time_since  = bbp_get_topic_freshness_link( $topic_id );
@@ -3022,7 +3021,7 @@ function bbp_topic_tag_edit_link( $tag = '' ) {
 	 * @return string Term Name
 	 */
 	function bbp_get_topic_tag_edit_link( $tag = '' ) {
-		global $wp_query, $wp_rewrite;
+		global $wp_rewrite;
 
 		// Get the term
 		$tag  = !empty( $tag ) ? $tag : get_query_var( 'term' );
@@ -3372,7 +3371,6 @@ function bbp_form_topic_log_edit() {
 	 * @return string Topic log edit checked value
 	 */
 	function bbp_get_form_topic_log_edit() {
-		global $post;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_log_topic_edit'] ) )
@@ -3405,7 +3403,6 @@ function bbp_form_topic_edit_reason() {
 	 * @return string Topic edit reason value
 	 */
 	function bbp_get_form_topic_edit_reason() {
-		global $post;
 
 		// Get _POST data
 		if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['bbp_topic_edit_reason'] ) )
