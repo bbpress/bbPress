@@ -1707,4 +1707,278 @@ function bbp_check_forum_edit() {
 	}
 }
 
+/**
+ * Trash all topics inside a forum
+ *
+ * @since bbPress (r3668)
+ *
+ * @param int $forum_id
+ * @uses bbp_get_forum_id() To validate the forum ID
+ * @uses bbp_is_forum() To make sure it's a forum
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_has_topics() To get the topics
+ * @uses bbp_topics() To make sure there are topics to loop through
+ * @uses wp_trash_post() To trash the post
+ * @uses update_post_meta() To update the forum meta of trashed topics
+ * @return If forum is not valid
+ */
+function bbp_delete_forum_topics( $forum_id = 0 ) {
+
+	// Validate forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) )
+		return;
+
+	global $bbp;
+
+	// Forum is being permanently deleted, so its topics gotta go too
+	if ( bbp_has_topics( array(
+		'post_type'      => bbp_get_topic_post_type(),
+		'post_status'    => 'any',
+		'posts_per_page' => -1,
+		'meta_query'     => array( array(
+			'key'        => '_bbp_forum_id',
+			'value'      => $forum_id,
+			'compare'    => '='
+		) )
+	) ) ) {
+		while ( bbp_topics() ) {
+			bbp_the_topic();
+			wp_delete_post( $bbp->topic_query->post->ID, true );
+		}
+	}
+}
+
+/**
+ * Trash all topics inside a forum
+ * 
+ * @since bbPress (r3668)
+ *
+ * @global bbPress $bbp
+ * @param int $forum_id
+ * @uses bbp_get_forum_id() To validate the forum ID
+ * @uses bbp_is_forum() To make sure it's a forum
+ * @uses bbp_get_public_status_id() To return public post status
+ * @uses bbp_get_closed_status_id() To return closed post status
+ * @uses bbp_get_pending_status_id() To return pending post status
+ * @uses bbp_get_topic_post_type() To get the topic post type
+ * @uses bbp_has_topics() To get the topics
+ * @uses bbp_topics() To make sure there are topics to loop through
+ * @uses wp_trash_post() To trash the post
+ * @uses update_post_meta() To update the forum meta of trashed topics
+ * @return If forum is not valid
+ */
+function bbp_trash_forum_topics( $forum_id = 0 ) {
+
+	// Validate forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) )
+		return;
+
+	global $bbp;
+
+	// Allowed post statuses to pre-trash
+	$post_stati = join( ',', array(
+		bbp_get_public_status_id(),
+		bbp_get_closed_status_id(),
+		bbp_get_pending_status_id()
+	) );
+
+	// Forum is being trashed, so its topics are trashed too
+	if ( bbp_has_topics( array(
+		'post_type'      => bbp_get_topic_post_type(),
+		'post_status'    => $post_stati,
+		'posts_per_page' => -1,
+		'meta_query'     => array( array(
+			'key'        => '_bbp_forum_id',
+			'value'      => $forum_id,
+			'compare'    => '='
+		) )
+	) ) ) {
+
+		// Prevent debug notices
+		$pre_trashed_topics = array();
+
+		// Loop through topics, trash them, and add them to array
+		while ( bbp_topics() ) {
+			bbp_the_topic();
+			wp_trash_post( $bbp->topic_query->post->ID );
+			$pre_trashed_topics[] = $bbp->topic_query->post->ID;
+		}
+
+		// Set a post_meta entry of the topics that were trashed by this action.
+		// This is so we can possibly untrash them, without untrashing topics
+		// that were purposefully trashed before.
+		update_post_meta( $forum_id, '_bbp_pre_trashed_topics', $pre_trashed_topics );
+	}
+}
+
+/**
+ * Trash all topics inside a forum
+ *
+ * @since bbPress (r3668)
+ *
+ * @global bbPress $bbp
+ * @param int $forum_id
+ * @uses bbp_get_forum_id() To validate the forum ID
+ * @uses bbp_is_forum() To make sure it's a forum
+ * @uses get_post_meta() To update the forum meta of trashed topics
+ * @uses wp_untrash_post() To trash the post
+ * @return If forum is not valid
+ */
+function bbp_untrash_forum_topics( $forum_id = 0 ) {
+
+	// Validate forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) )
+		return;
+
+	// Get the topics that were not previously trashed
+	$pre_trashed_topics = get_post_meta( $forum_id, '_bbp_pre_trashed_topics', true );
+
+	// There are topics to untrash
+	if ( !empty( $pre_trashed_topics ) ) {
+
+		// Maybe reverse the trashed topics array
+		if ( is_array( $pre_trashed_topics ) )
+			$pre_trashed_topics = array_reverse( $pre_trashed_topics );
+
+		// Loop through topics
+		foreach ( (array) $pre_trashed_topics as $topic ) {
+			wp_untrash_post( $topic );
+		}
+	}
+}
+
+/** Before Delete/Trash/Untrash ***********************************************/
+
+/**
+ * Called before deleting a forum.
+ *
+ * This function is supplemental to the actual forum deletion which is
+ * handled by WordPress core API functions. It is used to clean up after
+ * a forum that is being deleted.
+ *
+ * @since bbPress (r3668)
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_forum() To check if the passed id is a forum
+ * @uses do_action() Calls 'bbp_delete_forum' with the forum id
+ * @uses bbp_has_topics() To check if the forum has topics
+ * @uses bbp_topics() To loop through the topics
+ * @uses bbp_the_topic() To set a topic as the current topic in the loop
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses wp_delete_post() To delete the topic
+ */
+function bbp_delete_forum( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) )
+		return false;
+
+	do_action( 'bbp_delete_forum', $forum_id );
+}
+
+/**
+ * Called before trashing a forum
+ *
+ * This function is supplemental to the actual forum being trashed which is
+ * handled by WordPress core API functions. It is used to clean up after
+ * a forum that is being trashed.
+ *
+ * @since bbPress (r3668)
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_forum() To check if the passed id is a forum
+ * @uses do_action() Calls 'bbp_trash_forum' with the forum id
+ * @uses bbp_has_topics() To check if the forum has topics
+ * @uses bbp_topics() To loop through the topics
+ * @uses bbp_the_topic() To set a topic as the current topic in the loop
+ * @uses bbp_get_topic_id() To get the topic id
+ * @uses wp_trash_post() To trash the topic
+ * @uses update_post_meta() To save a list of just trashed topics for future use
+ */
+function bbp_trash_forum( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) )
+		return false;
+
+	do_action( 'bbp_trash_forum', $forum_id );
+}
+
+/**
+ * Called before untrashing a forum
+ *
+ * @since bbPress (r3668)
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_forum() To check if the passed id is a forum
+ * @uses do_action() Calls 'bbp_untrash_forum' with the forum id
+ * @uses get_post_meta() To get the list of topics which were trashed with the
+ *                        forum
+ * @uses wp_untrash_post() To untrash the topic
+ */
+function bbp_untrash_forum( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) )
+		return false;
+
+	do_action( 'bbp_untrash_forum', $forum_id );
+}
+
+/** After Delete/Trash/Untrash ************************************************/
+
+/**
+ * Called after deleting a forum
+ *
+ * @since bbPress (r3668)
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_forum() To check if the passed id is a forum
+ * @uses do_action() Calls 'bbp_deleted_forum' with the forum id
+ */
+function bbp_deleted_forum( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) )
+		return false;
+
+	do_action( 'bbp_deleted_forum', $forum_id );
+}
+
+/**
+ * Called after trashing a forum
+ *
+ * @since bbPress (r3668)
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_forum() To check if the passed id is a forum
+ * @uses do_action() Calls 'bbp_trashed_forum' with the forum id
+ */
+function bbp_trashed_forum( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) )
+		return false;
+
+	do_action( 'bbp_trashed_forum', $forum_id );
+}
+
+/**
+ * Called after untrashing a forum
+ *
+ * @since bbPress (r3668)
+ * @uses bbp_get_forum_id() To get the forum id
+ * @uses bbp_is_forum() To check if the passed id is a forum
+ * @uses do_action() Calls 'bbp_untrashed_forum' with the forum id
+ */
+function bbp_untrashed_forum( $forum_id = 0 ) {
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	if ( empty( $forum_id ) || !bbp_is_forum( $forum_id ) )
+		return false;
+
+	do_action( 'bbp_untrashed_forum', $forum_id );
+}
+
 ?>
