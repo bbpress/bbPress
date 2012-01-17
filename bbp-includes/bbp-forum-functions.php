@@ -282,6 +282,10 @@ function bbp_new_forum_handler() {
 			);
 			do_action( 'bbp_new_forum', $forum_args );
 
+			/** Additional Actions (After Save) *******************************/
+
+			do_action( 'bbp_new_forum_post_extras', $forum_id );
+
 			/** Redirect ******************************************************/
 
 			// Redirect to
@@ -365,7 +369,8 @@ function bbp_edit_forum_handler() {
 		return;
 
 	// Define local variable(s)
-	$forum = $forum_id = $forum_parent_id = $anonymous_data = 0;
+	$anonymous_data = array();
+	$forum = $forum_id = $forum_parent_id = 0;
 	$forum_title = $forum_content = $forum_edit_reason = '';
 
 	/** Forum *****************************************************************/
@@ -404,7 +409,7 @@ function bbp_edit_forum_handler() {
 
 	/** Forum Parent ***********************************************************/
 
-	// Forum id was passed
+	// Forum parent id was passed
 	if ( is_numeric( $_POST['bbp_forum_parent_id'] ) ) {
 		$forum_parent_id = (int) $_POST['bbp_forum_parent_id'];
 	}
@@ -455,7 +460,7 @@ function bbp_edit_forum_handler() {
 	if ( empty( $forum_content ) )
 		bbp_add_error( 'bbp_edit_forum_content', __( '<strong>ERROR</strong>: Your forum cannot be empty.', 'bbpress' ) );
 
-	/** forum Blacklist *******************************************************/
+	/** Forum Blacklist *******************************************************/
 
 	if ( !bbp_check_for_blacklist( $anonymous_data, bbp_get_forum_author_id( $forum_id ), $forum_title, $forum_content ) )
 		bbp_add_error( 'bbp_forum_blacklist', __( '<strong>ERROR</strong>: Your forum cannot be edited at this time.', 'bbpress' ) );
@@ -570,6 +575,88 @@ function bbp_edit_forum_handler() {
 		} else {
 			$append_error = ( is_wp_error( $forum_id ) && $forum_id->get_error_message() ) ? $forum_id->get_error_message() . ' ' : '';
 			bbp_add_error( 'bbp_forum_error', __( '<strong>ERROR</strong>: The following problem(s) have been found with your forum:' . $append_error . 'Please try again.', 'bbpress' ) );
+		}
+	}
+}
+
+/**
+ * Handle the saving of core forum metadata (Status, Visibility, and Type)
+ *
+ * @since bbPress (r3678)
+ * @param int $forum_id
+ * @uses bbp_is_forum_closed() To check if forum is closed
+ * @uses bbp_close_forum() To close forum
+ * @uses bbp_open_forum() To open forum
+ * @uses bbp_is_forum_category() To check if forum is a category
+ * @uses bbp_categorize_forum() To turn forum into a category
+ * @uses bbp_normalize_forum() To turn category into forum
+ * @uses bbp_get_public_status_id() To get the public status ID
+ * @uses bbp_get_private_status_id() To get the private status ID
+ * @uses bbp_get_hidden_status_id() To get the hidden status ID
+ * @uses bbp_get_forum_visibility() To get the forums visibility
+ * @uses bbp_hide_forum() To hide a forum
+ * @uses bbp_privatize_forum() To make a forum private
+ * @uses bbp_publicize_forum() To make a forum public
+ * @return If forum ID is empty
+ */
+function bbp_save_forum_extras( $forum_id = 0 ) {
+
+	// Validate the forum ID
+	$forum_id = bbp_get_forum_id( $forum_id );
+
+	// Bail if forum ID is empty
+	if ( empty( $forum_id ) )
+		return;
+
+	/** Forum Status ******************************************************/
+
+	if ( !empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
+		if ( 'closed' == $_POST['bbp_forum_status'] && !bbp_is_forum_closed( $forum_id, false ) ) {
+			bbp_close_forum( $forum_id );
+		} elseif ( 'open' == $_POST['bbp_forum_status'] && bbp_is_forum_closed( $forum_id, false ) ) {
+			bbp_open_forum( $forum_id );
+		}
+	}
+
+	/** Forum Type ********************************************************/
+
+	if ( !empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
+		if ( 'category' == $_POST['bbp_forum_type'] && !bbp_is_forum_category( $forum_id ) ) {
+			bbp_categorize_forum( $forum_id );
+		} elseif ( 'forum' == $_POST['bbp_forum_type'] && bbp_is_forum_category( $forum_id ) ) {
+			bbp_normalize_forum( $forum_id );
+		}
+	}
+
+	/** Forum Visibility **************************************************/
+
+	if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) ) ) {
+
+		// Get forums current visibility
+		$visibility = bbp_get_forum_visibility( $forum_id );
+
+		// If new visibility is different, change it
+		if ( $visibility != $_POST['bbp_forum_visibility'] ) {
+
+			// What is the new forum visibility setting?
+			switch ( $_POST['bbp_forum_visibility'] ) {
+
+				// Hidden
+				case bbp_get_hidden_status_id()  :
+					bbp_hide_forum( $forum_id, $visibility );
+					break;
+
+				// Private
+				case bbp_get_private_status_id() :
+					bbp_privatize_forum( $forum_id, $visibility );
+					break;
+
+				// Publish (default)
+				case bbp_get_public_status_id()  :
+				default        :
+					bbp_publicize_forum( $forum_id, $visibility );
+					break;
+			}
 		}
 	}
 }

@@ -58,6 +58,10 @@ class BBP_Shortcodes {
 			// Forum Index
 			'bbp-forum-index'  => array( $this, 'display_forum_index' ),
 
+			// Topic form
+			'bbp-forum-form'   => array( $this, 'display_forum_form'  ),
+
+			// Specific forum - pass an 'id' attribute
 			'bbp-single-forum' => array( $this, 'display_forum'       ),
 
 			/** Topics ********************************************************/
