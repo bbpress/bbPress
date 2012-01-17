@@ -724,20 +724,25 @@ function bbp_update_topic( $topic_id = 0, $forum_id = 0, $anonymous_data = false
 	// It expects anonymous_data to be sanitized.
 	// Check bbp_filter_anonymous_post_data() for sanitization.
 	if ( !empty( $anonymous_data ) && is_array( $anonymous_data ) ) {
-		extract( $anonymous_data );
 
-		update_post_meta( $topic_id, '_bbp_anonymous_name',  $bbp_anonymous_name,  false );
-		update_post_meta( $topic_id, '_bbp_anonymous_email', $bbp_anonymous_email, false );
+		// Always set at least these three values to empty
+		$defaults = array(
+			'bbp_anonymous_name'    => '',
+			'bbp_anonymous_email'   => '',
+			'bbp_anonymous_website' => '',
+		);
+		$r = wp_parse_args( $anonymous_data, $defaults );
+
+		// Update all anonymous metas
+		foreach( $r as $anon_key => $anon_value ) {
+			update_post_meta( $topic_id, '_' . $anon_key, (string) $anon_value, false );
+		}
 
 		// Set transient for throttle check (only on new, not edit)
 		if ( empty( $is_edit ) ) {
 			set_transient( '_bbp_' . bbp_current_author_ip() . '_last_posted', time() );
 		}
 
-		// Website is optional
-		if ( !empty( $bbp_anonymous_website ) ) {
-			update_post_meta( $topic_id, '_bbp_anonymous_website', $bbp_anonymous_website, false );
-		}
 	} else {
 		if ( empty( $is_edit ) && !current_user_can( 'throttle' ) ) {
 			update_user_meta( $author_id, '_bbp_last_posted', time() );
