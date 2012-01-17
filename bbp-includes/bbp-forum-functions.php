@@ -1452,6 +1452,10 @@ function bbp_pre_get_posts_exclude_forums( $posts_query ) {
 		// Forums
 		case bbp_get_forum_post_type() :
 
+			// Prevent accidental wp-admin post_row override
+			if ( is_admin() && isset( $_REQUEST['post_status'] ) )
+				break;
+
 			// Define local variable
 			$status = array();
 
