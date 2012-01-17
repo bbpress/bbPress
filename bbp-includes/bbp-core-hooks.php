@@ -489,10 +489,12 @@ if ( is_admin() ) {
 	add_action( 'bbp_admin_init',    'bbp_admin_forums',         9 );
 	add_action( 'bbp_admin_init',    'bbp_admin_topics',         9 );
 	add_action( 'bbp_admin_init',    'bbp_admin_replies',        9 );
-	add_action( 'bbp_admin_init',    'bbp_admin_settings_help'     );
 	add_action( 'admin_menu',        'bbp_admin_separator'         );
 	add_action( 'custom_menu_order', 'bbp_admin_custom_menu_order' );
 	add_action( 'menu_order',        'bbp_admin_menu_order'        );
+
+	// Contextual Helpers
+	add_action( 'load-settings_page_bbpress', 'bbp_admin_settings_help' );
 
 	/**
 	 * Run the updater late on 'bbp_admin_init' to ensure that all alterations

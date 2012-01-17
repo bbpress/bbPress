@@ -561,39 +561,67 @@ function bbp_admin_settings() {
  * Contextual help for bbPress settings page
  *
  * @since bbPress (r3119)
+ * @uses get_current_screen()
  */
 function bbp_admin_settings_help() {
 
-	$bbp_contextual_help[] = __('This screen provides access to basic bbPress settings.', 'bbpress' );
-	$bbp_contextual_help[] = __('In the Main Settings you have a number of options:',     'bbpress' );
-	$bbp_contextual_help[] =
-		'<ul>' .
-			'<li>' . __( 'You can choose to lock a post after a certain number of minutes. "Locking post editing" will prevent the author from editing some amount of time after saving a post.',              'bbpress' ) . '</li>' .
-			'<li>' . __( '"Throttle time" is the amount of time required between posts from a single author. The higher the throttle time, the longer a user will need to wait between posting to the forum.', 'bbpress' ) . '</li>' .
-			'<li>' . __( 'You may choose to allow favorites, which are a way for users to save and later return to topics they favor. This is enabled by default.',                                            'bbpress' ) . '</li>' .
-			'<li>' . __( 'You may choose to allow subscriptions, which allows users to subscribe for notifications to topics that interest them. This is enabled by default.',                                 'bbpress' ) . '</li>' .
-			'<li>' . __( 'You may choose to allow "Anonymous Posting", which will allow guest users who do not have accounts on your site to both create topics as well as replies.',                          'bbpress' ) . '</li>' .
-		'</ul>';
+	$current_screen = get_current_screen();
 
-	$bbp_contextual_help[] = __( 'Per Page settings allow you to control the number of topics and replies will appear on each of those pages. This is comparable to the WordPress "Reading Settings" page, where you can set the number of posts that should show on blog pages and in feeds.', 'bbpress' );
-	$bbp_contextual_help[] = __( 'The Forums section allows you to control the permalink structure for your forums. Each "base" is what will be displayed after your main URL and right before your permalink slug.', 'bbpress' );
-	$bbp_contextual_help[] = __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.', 'bbpress' );
-	$bbp_contextual_help[] = __( '<strong>For more information:</strong>', 'bbpress' );
-	$bbp_contextual_help[] =
-		'<ul>' .
-			'<li>' . __( '<a href="http://bbpress.org/documentation/">bbPress Documentation</a>', 'bbpress' ) . '</li>' .
-			'<li>' . __( '<a href="http://bbpress.org/forums/">bbPress Support Forums</a>',       'bbpress' ) . '</li>' .
-		'</ul>' ;
+	// Bail if current screen could not be found
+	if ( empty( $current_screen ) )
+		return;
 
-	// Empty the default $contextual_help var
-	$contextual_help = '';
+	// Overview
+	$current_screen->add_help_tab( array(
+		'id'      => 'overview',
+		'title'   => __( 'Overview', 'bbpress' ),
+		'content' => '<p>' . __( 'This screen provides access to all of the bbPress settings.',                         'bbpress' ) . '</p>' .
+					 '<p>' . __( 'Please see the additional help tabs for more information on each indiviual section.', 'bbpress' ) . '</p>'
+	) );
 
-	// Wrap each help item in paragraph tags
-	foreach( $bbp_contextual_help as $paragraph )
-		$contextual_help .= '<p>' . $paragraph . '</p>';
+	// Main Settings
+	$current_screen->add_help_tab( array(
+		'id'      => 'main_settings',
+		'title'   => __( 'Main Settings', 'bbpress' ),
+		'content' => '<p>' . __( 'In the Main Settings you have a number of options:', 'bbpress' ) . '</p>' .
+					 '<p>' .
+						'<ul>' .
+							'<li>' . __( 'You can choose to lock a post after a certain number of minutes. "Locking post editing" will prevent the author from editing some amount of time after saving a post.',              'bbpress' ) . '</li>' .
+							'<li>' . __( '"Throttle time" is the amount of time required between posts from a single author. The higher the throttle time, the longer a user will need to wait between posting to the forum.', 'bbpress' ) . '</li>' .
+							'<li>' . __( 'Favorites are a way for users to save and later return to topics they favor. This is enabled by default.',                                                                           'bbpress' ) . '</li>' .
+							'<li>' . __( 'Subscriptions allow users to subscribe for notifications to topics that interest them. This is enabled by default.',                                                                 'bbpress' ) . '</li>' .
+							'<li>' . __( '"Anonymous Posting" allows guest users who do not have accounts on your site to both create topics as well as replies.',                                                             'bbpress' ) . '</li>' .
+							'<li>' . __( 'The Fancy Editor brings the luxury of the Visual editor and HTML editor from the traditional WordPress dashboard into your theme.',                                                  'bbpress' ) . '</li>' .
+						'</ul>' .
+					'</p>' .
+					'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.', 'bbpress' ) . '</p>'
+	) );
 
-	// Add help
-	add_contextual_help( 'settings_page_bbpress', $contextual_help );
+	// Per Page
+	$current_screen->add_help_tab( array(
+		'id'      => 'per_page',
+		'title'   => __( 'Per Page', 'bbpress' ),
+		'content' => '<p>' . __( 'Per Page settings allow you to control the number of topics and replies appear on each page.',                                                    'bbpress' ) . '</p>' .
+					 '<p>' . __( 'This is comparable to the WordPress "Reading Settings" page, where you can set the number of posts that should show on blog pages and in feeds.', 'bbpress' ) . '</p>' .
+					 '<p>' . __( 'These are broken up into two separate groups: one for what appears in your theme, another for RSS feeds.',                                        'bbpress' ) . '</p>'
+	) );
+
+	// Slugs
+	$current_screen->add_help_tab( array(
+		'id'      => 'slus',
+		'title'   => __( 'Slugs', 'bbpress' ),
+		'content' => '<p>' . __( 'The Slugs section allows you to control the permalink structure for your forums.',                                                                                                            'bbpress' ) . '</p>' .
+					 '<p>' . __( '"Archive Slugs" are used as the "root" for your forums and topics. If you combine these values with existing page slugs, bbPress will attempt to output the most correct title and content.', 'bbpress' ) . '</p>' .
+					 '<p>' . __( '"Single Slugs" are used as a prefix when viewing an individual forum, topic, reply, user, or view.',                                                                                          'bbpress' ) . '</p>' .
+					 '<p>' . __( 'In the event of a slug collision with WordPress or BuddyPress, a warning will appear next to the problem slug(s).', 'bbpress' ) . '</p>'
+	) );
+
+	// Help Sidebar
+	$current_screen->set_help_sidebar(
+		'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
+		'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
+		'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
+	);
 }
 
 /**
