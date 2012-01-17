@@ -699,6 +699,9 @@ function bbp_get_view_query_args( $view ) {
  * ensure that it is properly set, such as in wp-config.php, for your
  * environment. See {@link http://core.trac.wordpress.org/ticket/9235}
  *
+ * Note that bbp_pre_anonymous_filters() is responsible for sanitizing each
+ * of the filtered core anonymous values here.
+ *
  * If there are any errors, those are directly added to {@link bbPress:errors}
  *
  * @since bbPress (r2734)
