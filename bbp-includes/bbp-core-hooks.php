@@ -160,6 +160,10 @@ add_action( 'bbp_untrash_forum', 'bbp_untrash_forum_topics', 10 );
 add_action( 'bbp_new_forum',  'bbp_update_forum', 10 );
 add_action( 'bbp_edit_forum', 'bbp_update_forum', 10 );
 
+// Save forum extra metadata
+add_action( 'bbp_new_forum_post_extras',  'bbp_save_forum_extras', 2 );
+add_action( 'bbp_edit_forum_post_extras', 'bbp_save_forum_extras', 2 );
+
 // New/Edit Reply
 add_action( 'bbp_new_reply',  'bbp_update_reply', 10, 6 );
 add_action( 'bbp_edit_reply', 'bbp_update_reply', 10, 6 );
