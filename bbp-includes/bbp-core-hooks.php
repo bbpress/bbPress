@@ -27,9 +27,18 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * Attach bbPress to WordPress
  *
- * bbPress uses its own internal actions to help aid in additional plugin
+ * bbPress uses its own internal actions to help aid in third-party plugin
  * development, and to limit the amount of potential future code changes when
- * updates to WordPress occur.
+ * updates to WordPress core occur.
+ *
+ * These actions exist to create the concept of 'plugin dependencies'. They
+ * provide a safe way for plugins to execute code *only* when bbPress is
+ * installed and activated, without needing to do complicated guesswork.
+ *
+ * For more information on how this works, see the 'Plugin Dependency' section
+ * near the bottom of this file.
+ *
+ *           v--WordPress Actions       v--bbPress Sub-actions
  */
 add_action( 'plugins_loaded',         'bbp_loaded',                 10 );
 add_action( 'init',                   'bbp_init',                   10 );
@@ -143,17 +152,17 @@ add_action( 'untrashed_post', 'bbp_untrashed_forum' );
 add_action( 'deleted_post',   'bbp_deleted_forum'   );
 
 // Auto trash/untrash/delete a forums topics
-add_action( 'bbp_delete_forum',  'bbp_delete_forum_topics',   10 );
-add_action( 'bbp_trash_forum',   'bbp_trash_forum_topics',    10 );
-add_action( 'bbp_untrash_forum', 'bbp_untrash_forum_topics',  10 );
+add_action( 'bbp_delete_forum',  'bbp_delete_forum_topics',  10 );
+add_action( 'bbp_trash_forum',   'bbp_trash_forum_topics',   10 );
+add_action( 'bbp_untrash_forum', 'bbp_untrash_forum_topics', 10 );
 
 // New/Edit Forum
-add_action( 'bbp_new_forum',  'bbp_update_forum',       10 );
-add_action( 'bbp_edit_forum', 'bbp_update_forum',       10 );
+add_action( 'bbp_new_forum',  'bbp_update_forum', 10 );
+add_action( 'bbp_edit_forum', 'bbp_update_forum', 10 );
 
 // New/Edit Reply
-add_action( 'bbp_new_reply',  'bbp_update_reply',       10, 6 );
-add_action( 'bbp_edit_reply', 'bbp_update_reply',       10, 6 );
+add_action( 'bbp_new_reply',  'bbp_update_reply', 10, 6 );
+add_action( 'bbp_edit_reply', 'bbp_update_reply', 10, 6 );
 
 // Before Delete/Trash/Untrash Reply
 add_action( 'wp_trash_post', 'bbp_trash_reply'   );
@@ -167,12 +176,12 @@ add_action( 'untrashed_post', 'bbp_untrashed_reply' );
 add_action( 'deleted_post',   'bbp_deleted_reply'   );
 
 // New/Edit Topic
-add_action( 'bbp_new_topic',     'bbp_update_topic',       10, 5 );
-add_action( 'bbp_edit_topic',    'bbp_update_topic',       10, 5 );
+add_action( 'bbp_new_topic',  'bbp_update_topic', 10, 5 );
+add_action( 'bbp_edit_topic', 'bbp_update_topic', 10, 5 );
 
 // Split/Merge Topic
-add_action( 'bbp_merged_topic',     'bbp_merge_topic_count',   1, 3 );
-add_action( 'bbp_post_split_topic', 'bbp_split_topic_count',   1, 3 );
+add_action( 'bbp_merged_topic',     'bbp_merge_topic_count', 1, 3 );
+add_action( 'bbp_post_split_topic', 'bbp_split_topic_count', 1, 3 );
 
 // Before Delete/Trash/Untrash Topic
 add_action( 'wp_trash_post', 'bbp_trash_topic'   );
@@ -186,13 +195,13 @@ add_action( 'untrashed_post', 'bbp_untrashed_topic' );
 add_action( 'deleted_post',   'bbp_deleted_topic'   );
 
 // Favorites
-add_action( 'bbp_trash_topic',   'bbp_remove_topic_from_all_favorites'   );
-add_action( 'bbp_delete_topic',  'bbp_remove_topic_from_all_favorites'   );
+add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_favorites' );
+add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_favorites' );
 
 // Subscriptions
-add_action( 'bbp_trash_topic',   'bbp_remove_topic_from_all_subscriptions'      );
-add_action( 'bbp_delete_topic',  'bbp_remove_topic_from_all_subscriptions'      );
-add_action( 'bbp_new_reply',     'bbp_notify_subscribers',                 1, 5 );
+add_action( 'bbp_trash_topic',  'bbp_remove_topic_from_all_subscriptions'      );
+add_action( 'bbp_delete_topic', 'bbp_remove_topic_from_all_subscriptions'      );
+add_action( 'bbp_new_reply',    'bbp_notify_subscribers',                 1, 5 );
 
 // Sticky
 add_action( 'bbp_trash_topic',  'bbp_unstick_topic' );
@@ -310,6 +319,15 @@ add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
 /** FILTERS *******************************************************************/
 
 /**
+ * Feeds
+ *
+ * bbPress comes with a number of custom RSS2 feeds that get handled outside
+ * the normal scope of feeds that WordPress would normally serve. To do this,
+ * we filter every page request, listen for a feed request, and trap it.
+ */
+add_filter( 'request', 'bbp_request_feed_trap' );
+
+/**
  * Template Compatibility
  *
  * If you want to completely bypass this and manage your own custom bbPress
@@ -318,15 +336,6 @@ add_action( 'wpmu_new_blog', 'bbp_new_site', 10, 6 );
  */
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_supports', 2, 1 );
 add_filter( 'bbp_template_include', 'bbp_template_include_theme_compat',   4, 2 );
-
-/**
- * Feeds
- *
- * bbPress comes with a number of custom RSS2 feeds that get handled outside
- * the normal scope of feeds that WordPress would normally serve. To do this,
- * we filter every page request, listen for a feed request, and trap it.
- */
-add_filter( 'request', 'bbp_request_feed_trap' );
 
 // Links
 add_filter( 'paginate_links',          'bbp_add_view_all' );
@@ -395,7 +404,7 @@ add_filter( 'bbp_get_reply_content', 'bbp_reply_content_append_revisions',  1, 2
 add_filter( 'bbp_get_topic_content', 'bbp_topic_content_append_revisions',  1, 2 );
 
 // Canonical
-add_filter( 'redirect_canonical',    'bbp_redirect_canonical' );
+add_filter( 'redirect_canonical', 'bbp_redirect_canonical' );
 
 // Login/Register/Lost Password
 add_filter( 'login_redirect', 'bbp_redirect_login', 2, 3 );
