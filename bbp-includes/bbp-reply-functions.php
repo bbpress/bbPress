@@ -294,6 +294,10 @@ function bbp_new_reply_handler() {
 
 			do_action( 'bbp_new_reply', $reply_id, $topic_id, $forum_id, $anonymous_data, $reply_author );
 
+			/** Additional Actions (After Save) *******************************/
+
+			do_action( 'bbp_new_reply_post_extras', $reply_id );
+
 			/** Redirect ******************************************************/
 
 			// Redirect to

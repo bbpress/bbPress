@@ -338,6 +338,10 @@ function bbp_new_topic_handler() {
 
 			do_action( 'bbp_new_topic', $topic_id, $forum_id, $anonymous_data, $topic_author );
 
+			/** Additional Actions (After Save) *******************************/
+
+			do_action( 'bbp_new_topic_post_extras', $topic_id );
+
 			/** Redirect ******************************************************/
 
 			// Redirect to
