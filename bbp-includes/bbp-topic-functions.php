@@ -2739,13 +2739,10 @@ function bbp_delete_topic( $topic_id = 0 ) {
 
 	do_action( 'bbp_delete_topic', $topic_id );
 
-	// Valid topic/reply statuses
-	$post_stati = join( ',', array( bbp_get_public_status_id(), bbp_get_spam_status_id(), bbp_get_trash_status_id() ) );
-
 	// Topic is being permanently deleted, so its replies gotta go too
 	if ( bbp_has_replies( array(
 		'post_type'      => bbp_get_reply_post_type(),
-		'post_status'    => $post_stati,
+		'post_status'    => 'any',
 		'posts_per_page' => -1,
 		'meta_query'     => array( array(
 			'key'        => '_bbp_topic_id',
