@@ -230,59 +230,12 @@ class BBP_Forums_Admin {
 			return $forum_id;
 
 		// Load the forum
-		if ( !$forum = bbp_get_forum( $forum_id ) )
+		$forum = bbp_get_forum( $forum_id );
+		if ( empty( $forum ) )
 			return $forum_id;
 
-		// Closed?
-		if ( !empty( $_POST['bbp_forum_status'] ) && in_array( $_POST['bbp_forum_status'], array( 'open', 'closed' ) ) ) {
-			if ( 'closed' == $_POST['bbp_forum_status'] && !bbp_is_forum_closed( $forum_id, false ) )
-				bbp_close_forum( $forum_id );
-			elseif ( 'open' == $_POST['bbp_forum_status'] && bbp_is_forum_closed( $forum_id, false ) )
-				bbp_open_forum( $forum_id );
-		}
-
-		// Category?
-		if ( !empty( $_POST['bbp_forum_type'] ) && in_array( $_POST['bbp_forum_type'], array( 'forum', 'category' ) ) ) {
-			if ( 'category' == $_POST['bbp_forum_type'] && !bbp_is_forum_category( $forum_id ) ) {
-				bbp_categorize_forum( $forum_id );
-			} elseif ( 'forum' == $_POST['bbp_forum_type'] && bbp_is_forum_category( $forum_id ) ) {
-				bbp_normalize_forum( $forum_id );
-			}
-		}
-
-		// Visibility
-		if ( !empty( $_POST['bbp_forum_visibility'] ) && in_array( $_POST['bbp_forum_visibility'], array( bbp_get_public_status_id(), bbp_get_private_status_id(), bbp_get_hidden_status_id() ) ) ) {
-
-			// Get forums current visibility
-			$visibility = bbp_get_forum_visibility( $forum_id );
-
-			// If new visibility is different, change it
-			if ( $visibility != $_POST['bbp_forum_visibility'] ) {
-
-				// What is the new forum visibility setting?
-				switch ( $_POST['bbp_forum_visibility'] ) {
-
-					// Hidden
-					case bbp_get_hidden_status_id()  :
-						bbp_hide_forum( $forum_id, $visibility );
-						break;
-
-					// Private
-					case bbp_get_private_status_id() :
-						bbp_privatize_forum( $forum_id, $visibility );
-						break;
-
-					// Publish (default)
-					case bbp_get_public_status_id()  :
-					default        :
-						bbp_publicize_forum( $forum_id, $visibility );
-						break;
-				}
-			}
-		}
-
 		// Parent ID
-		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? $_POST['parent_id'] : 0;
+		$parent_id = ( !empty( $_POST['parent_id'] ) && is_numeric( $_POST['parent_id'] ) ) ? (int) $_POST['parent_id'] : 0;
 
 		// Update the forum meta bidness
 		bbp_update_forum( array(
@@ -435,7 +388,8 @@ class BBP_Forums_Admin {
 				break;
 
 			case 'bbp_forum_freshness' :
-				if ( $last_active = bbp_get_forum_last_active_time( $forum_id, false ) )
+				$last_active = bbp_get_forum_last_active_time( $forum_id, false );
+				if ( !empty( $last_active ) )
 					printf( __( '%s ago', 'bbpress' ), $last_active );
 				else
 					_e( 'No Topics', 'bbpress' );
