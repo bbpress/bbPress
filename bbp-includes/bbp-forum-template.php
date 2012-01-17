@@ -551,22 +551,33 @@ function bbp_forum_freshness_link( $forum_id = 0) {
 	}
 
 /**
- * Return ID of forum parent, if exists
+ * Output parent ID of a forum, if exists
  *
- * @since bbPress (r2625)
+ * @since bbPress (r3675)
  *
- * @param int $forum_id Optional. Forum id
- * @uses bbp_get_forum_id() To get the forum id
- * @uses get_post_field() To get the forum parent
- * @uses apply_filters() Calls 'bbp_get_forum_parent' with the parent & forum id
- * @return int Forum parent
+ * @param int $forum_id Forum ID
+ * @uses bbp_get_forum_parent_id() To get the forum's parent ID
  */
-function bbp_get_forum_parent( $forum_id = 0 ) {
-	$forum_id  = bbp_get_forum_id( $forum_id );
-	$parent_id = get_post_field( 'post_parent', $forum_id );
-
-	return (int) apply_filters( 'bbp_get_forum_parent', (int) $parent_id, $forum_id );
+function bbp_forum_parent_id( $forum_id = 0 ) {
+	echo bbp_get_forum_parent_id( $forum_id );
 }
+	/**
+	 * Return ID of forum parent, if exists
+	 *
+	 * @since bbPress (r3675)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses get_post_field() To get the forum parent
+	 * @uses apply_filters() Calls 'bbp_get_forum_parent' with the parent & forum id
+	 * @return int Forum parent
+	 */
+	function bbp_get_forum_parent_id( $forum_id = 0 ) {
+		$forum_id  = bbp_get_forum_id( $forum_id );
+		$parent_id = get_post_field( 'post_parent', $forum_id );
+
+		return (int) apply_filters( 'bbp_get_forum_parent_id', (int) $parent_id, $forum_id );
+	}
 
 /**
  * Return array of parent forums
@@ -1568,6 +1579,67 @@ function bbp_is_forum_hidden( $forum_id = 0, $check_ancestors = true ) {
 
 	return apply_filters( 'bbp_is_forum_hidden', (bool) $retval, $forum_id, $check_ancestors );
 }
+
+/**
+ * Output the author of the forum
+ *
+ * @since bbPress (r3675)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_get_forum_author() To get the forum author
+ */
+function bbp_forum_author_display_name( $forum_id = 0 ) {
+	echo bbp_get_forum_author_display_name( $forum_id );
+}
+	/**
+	 * Return the author of the forum
+	 *
+	 * @since bbPress (r3675)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses bbp_get_forum_author_id() To get the forum author id
+	 * @uses get_the_author_meta() To get the display name of the author
+	 * @uses apply_filters() Calls 'bbp_get_forum_author' with the author
+	 *                        and forum id
+	 * @return string Author of forum
+	 */
+	function bbp_get_forum_author_display_name( $forum_id = 0 ) {
+		$forum_id = bbp_get_forum_id( $forum_id );
+		$author   = get_the_author_meta( 'display_name', bbp_get_forum_author_id( $forum_id ) );
+
+		return apply_filters( 'bbp_get_forum_author_display_name', $author, $forum_id );
+	}
+
+/**
+ * Output the author ID of the forum
+ *
+ * @since bbPress (r3675)
+ *
+ * @param int $forum_id Optional. Forum id
+ * @uses bbp_get_forum_author_id() To get the forum author id
+ */
+function bbp_forum_author_id( $forum_id = 0 ) {
+	echo bbp_get_forum_author_id( $forum_id );
+}
+	/**
+	 * Return the author ID of the forum
+	 *
+	 * @since bbPress (r3675)
+	 *
+	 * @param int $forum_id Optional. Forum id
+	 * @uses bbp_get_forum_id() To get the forum id
+	 * @uses get_post_field() To get the forum author id
+	 * @uses apply_filters() Calls 'bbp_get_forum_author_id' with the author
+	 *                        id and forum id
+	 * @return string Author of forum
+	 */
+	function bbp_get_forum_author_id( $forum_id = 0 ) {
+		$forum_id  = bbp_get_forum_id( $forum_id );
+		$author_id = get_post_field( 'post_author', $forum_id );
+
+		return (int) apply_filters( 'bbp_get_forum_author_id', (int) $author_id, $forum_id );
+	}
 
 /**
  * Replace forum meta details for users that cannot view them.

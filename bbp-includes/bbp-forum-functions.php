@@ -344,8 +344,6 @@ function bbp_new_forum_handler() {
  * @uses bbPress::errors::get_error_codes() To get the {@link WP_Error} errors
  * @uses wp_save_post_revision() To save a forum revision
  * @uses bbp_update_forum_revision_log() To update the forum revision log
- * @uses bbp_stick_forum() To stick or super stick the forum
- * @uses bbp_unstick_forum() To unstick the forum
  * @uses wp_update_post() To update the forum
  * @uses do_action() Calls 'bbp_edit_forum' with the forum id, forum id,
  *                    anonymous data and reply author
@@ -392,19 +390,9 @@ function bbp_edit_forum_handler() {
 		// Nonce check
 		check_admin_referer( 'bbp-edit-forum_' . $forum_id );
 
-		// Check users ability to create new forum
-		if ( !bbp_is_forum_anonymous( $forum_id ) ) {
-
-			// User cannot edit this forum
-			if ( !current_user_can( 'edit_forum', $forum_id ) ) {
-				bbp_add_error( 'bbp_edit_forum_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that forum.', 'bbpress' ) );
-			}
-
-		// It is an anonymous post
-		} else {
-
-			// Filter anonymous data
-			$anonymous_data = bbp_filter_anonymous_post_data( array(), true );
+		// User cannot edit this forum
+		if ( !current_user_can( 'edit_forum', $forum_id ) ) {
+			bbp_add_error( 'bbp_edit_forum_permissions', __( '<strong>ERROR</strong>: You do not have permission to edit that forum.', 'bbpress' ) );
 		}
 	}
 
@@ -422,7 +410,7 @@ function bbp_edit_forum_handler() {
 	}
 
 	// Current forum this forum is in
-	$current_parent_forum_id = bbp_get_forum_parent( $forum_id );
+	$current_parent_forum_id = bbp_get_forum_parent_id( $forum_id );
 
 	// Forum exists
 	if ( !empty( $forum_parent_id ) && ( $forum_parent_id !== $current_parent_forum_id ) ) {
