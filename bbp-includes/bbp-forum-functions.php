@@ -166,7 +166,7 @@ function bbp_new_forum_handler() {
 
 	// No forum content
 	if ( empty( $forum_content ) )
-		bbp_add_error( 'bbp_forum_content', __( '<strong>ERROR</strong>: Your forum cannot be empty.', 'bbpress' ) );
+		bbp_add_error( 'bbp_forum_content', __( '<strong>ERROR</strong>: Your forum description cannot be empty.', 'bbpress' ) );
 
 	/** Forum Parent **********************************************************/
 
@@ -458,7 +458,7 @@ function bbp_edit_forum_handler() {
 
 	// No forum content
 	if ( empty( $forum_content ) )
-		bbp_add_error( 'bbp_edit_forum_content', __( '<strong>ERROR</strong>: Your forum cannot be empty.', 'bbpress' ) );
+		bbp_add_error( 'bbp_edit_forum_content', __( '<strong>ERROR</strong>: Your forum description cannot be empty.', 'bbpress' ) );
 
 	/** Forum Blacklist *******************************************************/
 
