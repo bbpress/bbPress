@@ -1586,7 +1586,7 @@ function bbp_split_topic_count( $from_reply_id, $source_topic_id, $destination_t
  * @uses is_wp_error() To check if the value retrieved is a {@link WP_Error}
  * @uses wp_redirect() To redirect to the url
  */
-function bbp_manage_topic_tag_handler() {
+function bbp_edit_topic_tag_handler() {
 
 	// Bail if not a POST action
 	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )

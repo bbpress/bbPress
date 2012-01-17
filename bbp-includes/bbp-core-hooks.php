@@ -114,15 +114,12 @@ add_action( 'bbp_deactivation', 'bbp_remove_caps',   1     );
 add_action( 'bbp_deactivation', 'bbp_remove_roles',  2     );
 
 // Options & Settings
-add_action( 'bbp_activation',   'bbp_add_options',   1     );
+add_action( 'bbp_activation', 'bbp_add_options', 1 );
 
 // Multisite
 add_action( 'bbp_new_site', 'bbp_add_roles',   2 );
 add_action( 'bbp_new_site', 'bbp_add_caps',    4 );
 add_action( 'bbp_new_site', 'bbp_add_options', 6 );
-
-// Topic Tag Page
-add_action( 'template_redirect', 'bbp_manage_topic_tag_handler', 1 );
 
 // Parse the main query
 add_action( 'parse_query', 'bbp_parse_query', 2 );
@@ -130,35 +127,33 @@ add_action( 'parse_query', 'bbp_parse_query', 2 );
 // Always exclude private/hidden forums if needed
 add_action( 'pre_get_posts', 'bbp_pre_get_posts_exclude_forums', 4 );
 
-// Restrict forum access
-add_action( 'template_redirect', 'bbp_forum_enforce_hidden',        -1 );
-add_action( 'template_redirect', 'bbp_forum_enforce_private',       -1 );
-
-// Profile Edit
-add_action( 'template_redirect', 'bbp_edit_user_handler', 1 );
-
 // Profile Page Messages
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_success'           );
 add_action( 'bbp_template_notices', 'bbp_notice_edit_user_is_super_admin', 2 );
 
-// Update forum branch
-add_action( 'bbp_trashed_forum',   'bbp_update_forum_walker' );
-add_action( 'bbp_untrashed_forum', 'bbp_update_forum_walker' );
-add_action( 'bbp_deleted_forum',   'bbp_update_forum_walker' );
-add_action( 'bbp_spammed_forum',   'bbp_update_forum_walker' );
-add_action( 'bbp_unspammed_forum', 'bbp_update_forum_walker' );
+// Before Delete/Trash/Untrash Topic
+add_action( 'wp_trash_post', 'bbp_trash_forum'   );
+add_action( 'trash_post',    'bbp_trash_forum'   );
+add_action( 'untrash_post',  'bbp_untrash_forum' );
+add_action( 'delete_post',   'bbp_delete_forum'  );
+
+// After Deleted/Trashed/Untrashed Topic
+add_action( 'trashed_post',   'bbp_trashed_forum'   );
+add_action( 'untrashed_post', 'bbp_untrashed_forum' );
+add_action( 'deleted_post',   'bbp_deleted_forum'   );
+
+// Auto trash/untrash/delete a forums topics
+add_action( 'bbp_delete_forum',  'bbp_delete_forum_topics',   10 );
+add_action( 'bbp_trash_forum',   'bbp_trash_forum_topics',    10 );
+add_action( 'bbp_untrash_forum', 'bbp_untrash_forum_topics',  10 );
 
 // New/Edit Forum
-add_action( 'template_redirect', 'bbp_new_forum_handler'         );
-add_action( 'template_redirect', 'bbp_edit_forum_handler', 1     );
-add_action( 'bbp_new_forum',     'bbp_update_forum',       10 );
-add_action( 'bbp_edit_forum',    'bbp_update_forum',       10 );
+add_action( 'bbp_new_forum',  'bbp_update_forum',       10 );
+add_action( 'bbp_edit_forum', 'bbp_update_forum',       10 );
 
 // New/Edit Reply
-add_action( 'template_redirect', 'bbp_new_reply_handler'         );
-add_action( 'template_redirect', 'bbp_edit_reply_handler', 1     );
-add_action( 'bbp_new_reply',     'bbp_update_reply',       10, 6 );
-add_action( 'bbp_edit_reply',    'bbp_update_reply',       10, 6 );
+add_action( 'bbp_new_reply',  'bbp_update_reply',       10, 6 );
+add_action( 'bbp_edit_reply', 'bbp_update_reply',       10, 6 );
 
 // Before Delete/Trash/Untrash Reply
 add_action( 'wp_trash_post', 'bbp_trash_reply'   );
@@ -172,14 +167,10 @@ add_action( 'untrashed_post', 'bbp_untrashed_reply' );
 add_action( 'deleted_post',   'bbp_deleted_reply'   );
 
 // New/Edit Topic
-add_action( 'template_redirect', 'bbp_new_topic_handler'         );
-add_action( 'template_redirect', 'bbp_edit_topic_handler', 1     );
 add_action( 'bbp_new_topic',     'bbp_update_topic',       10, 5 );
 add_action( 'bbp_edit_topic',    'bbp_update_topic',       10, 5 );
 
 // Split/Merge Topic
-add_action( 'template_redirect',    'bbp_merge_topic_handler', 1    );
-add_action( 'template_redirect',    'bbp_split_topic_handler', 1    );
 add_action( 'bbp_merged_topic',     'bbp_merge_topic_count',   1, 3 );
 add_action( 'bbp_post_split_topic', 'bbp_split_topic_count',   1, 3 );
 
@@ -194,17 +185,11 @@ add_action( 'trashed_post',   'bbp_trashed_topic'   );
 add_action( 'untrashed_post', 'bbp_untrashed_topic' );
 add_action( 'deleted_post',   'bbp_deleted_topic'   );
 
-// Topic/Reply Actions
-add_action( 'template_redirect', 'bbp_toggle_topic_handler', 1 );
-add_action( 'template_redirect', 'bbp_toggle_reply_handler', 1 );
-
 // Favorites
-add_action( 'template_redirect', 'bbp_favorites_handler',              1 );
 add_action( 'bbp_trash_topic',   'bbp_remove_topic_from_all_favorites'   );
 add_action( 'bbp_delete_topic',  'bbp_remove_topic_from_all_favorites'   );
 
 // Subscriptions
-add_action( 'template_redirect', 'bbp_subscriptions_handler',              1    );
 add_action( 'bbp_trash_topic',   'bbp_remove_topic_from_all_subscriptions'      );
 add_action( 'bbp_delete_topic',  'bbp_remove_topic_from_all_subscriptions'      );
 add_action( 'bbp_new_reply',     'bbp_notify_subscribers',                 1, 5 );
@@ -239,12 +224,34 @@ add_action( 'bbp_new_reply', 'bbp_global_access_auto_role' );
 add_action( 'bbp_activation',   'flush_rewrite_rules' );
 add_action( 'bbp_deactivation', 'flush_rewrite_rules' );
 
-// Redirect user if needed
-add_action( 'bbp_template_redirect', 'bbp_check_user_edit',      10 );
-add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',     10 );
-add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',     10 );
-add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',     10 );
-add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit', 10 );
+/**
+ * bbPress needs to redirect the user around in a few different circumstances:
+ *
+ * 1. Form submission within a theme (new and edit)
+ * 2. Accessing private or hidden forums
+ * 3. Editing forums, topics, replies, users, and tags
+ */
+add_action( 'bbp_template_redirect', 'bbp_forum_enforce_hidden',    -1 );
+add_action( 'bbp_template_redirect', 'bbp_forum_enforce_private',   -1 );
+add_action( 'bbp_template_redirect', 'bbp_new_forum_handler',       10 );
+add_action( 'bbp_template_redirect', 'bbp_new_reply_handler',       10 );
+add_action( 'bbp_template_redirect', 'bbp_new_topic_handler',       10 );
+add_action( 'bbp_template_redirect', 'bbp_edit_topic_tag_handler',  1  );
+add_action( 'bbp_template_redirect', 'bbp_edit_user_handler',       1  );
+add_action( 'bbp_template_redirect', 'bbp_edit_forum_handler',      1  );
+add_action( 'bbp_template_redirect', 'bbp_edit_reply_handler',      1  );
+add_action( 'bbp_template_redirect', 'bbp_edit_topic_handler',      1  );
+add_action( 'bbp_template_redirect', 'bbp_merge_topic_handler',     1  );
+add_action( 'bbp_template_redirect', 'bbp_split_topic_handler',     1  );
+add_action( 'bbp_template_redirect', 'bbp_toggle_topic_handler',    1  );
+add_action( 'bbp_template_redirect', 'bbp_toggle_reply_handler',    1  );
+add_action( 'bbp_template_redirect', 'bbp_favorites_handler',       1  );
+add_action( 'bbp_template_redirect', 'bbp_subscriptions_handler',   1  );
+add_action( 'bbp_template_redirect', 'bbp_check_user_edit',         10 );
+add_action( 'bbp_template_redirect', 'bbp_check_forum_edit',        10 );
+add_action( 'bbp_template_redirect', 'bbp_check_topic_edit',        10 );
+add_action( 'bbp_template_redirect', 'bbp_check_reply_edit',        10 );
+add_action( 'bbp_template_redirect', 'bbp_check_topic_tag_edit',    10 );
 
 /**
  * Requires and creates the BuddyPress extension, and adds component creation
