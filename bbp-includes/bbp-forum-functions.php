@@ -369,7 +369,6 @@ function bbp_edit_forum_handler() {
 	// Define local variable(s)
 	$forum = $forum_id = $forum_parent_id = $anonymous_data = 0;
 	$forum_title = $forum_content = $forum_edit_reason = '';
-	$terms = array( bbp_get_forum_tag_tax_id() => array() );
 
 	/** Forum *****************************************************************/
 
