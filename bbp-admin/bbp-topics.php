@@ -41,7 +41,6 @@ class BBP_Topics_Admin {
 	function __construct() {
 		$this->setup_globals();
 		$this->setup_actions();
-		$this->setup_help();
 	}
 
 	/**
@@ -86,6 +85,10 @@ class BBP_Topics_Admin {
 		// Add ability to filter topics and replies per forum
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'request',               array( $this, 'filter_post_rows' ) );
+
+		// Contextual Help
+		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
+		add_action( 'load-post-new.php', array( $this, 'new_help'  ) );
 	}
 
 	/**
@@ -100,109 +103,145 @@ class BBP_Topics_Admin {
 		$this->post_type = bbp_get_topic_post_type();
 	}
 
+	/** Contextual Help *******************************************************/
+
 	/**
-	 * Contextual help for topics
+	 * Contextual help for bbPress topic edit page
 	 *
 	 * @since bbPress (r3119)
-	 * @access private
+	 * @uses get_current_screen()
 	 */
-	function setup_help() {
+	public function edit_help() {
 
-		// Define local variable(s)
-		$contextual_help     = '';
-		$bbp_contextual_help = array();
+		$current_screen = get_current_screen();
+		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
 
-		/** New/Edit **********************************************************/
+		// Bail if current screen could not be found
+		if ( empty( $current_screen ) )
+			return;
 
-		$bbp_contextual_help[] = __( 'The topic title field and the big topic editing area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of the box. Use the Screen Options tab to unhide more boxes (Topic Tags, Topic Attributes, or Slug) or to choose a 1- or 2-column layout for this screen.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Title</strong> - Enter a title for your topic. After you enter a title, you will see the permalink below, which you can edit.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Post editor</strong> - Enter the text for your topic. There are two modes of editing: Visual and HTML. Choose the mode by clicking on the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon in the row to get a second row of controls. The screen icon just before that allows you to expand the edit box to full screen. The HTML mode allows you to enter raw HTML along with your forum text. You can insert media files by clicking the icons above the post editor and following the directions.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Topic Attributes</strong> - Select the attributes that your topic should have. The Forum dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default (No Forum) to post the topic without an assigned forum. The topic type drop down indicates the sticky status of the topic. Selecting the super sticky option would stick the topic to the front of your forums, i.e. the topic index, sticky option would stick the topic to its respective forum. Selecting normal would not stick the topic anywhere.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Publish</strong> - The Publish box will allow you to save your topic as Draft or Pending Review. You may Preview your topic before it is published as well. The Visibility will determine whether the topic is Public, Password protected (requiring a password on the site to view) or Private (only the author will have access to it). Topics may be published immediately by clicking the dropdown, or at a specific date and time by clicking the Edit link.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Topic Tags</strong> - You can assign keywords to your topics using Topic Tags. Unlike categories, tags have no hierarchy, meaning there is no relationship from one tag to another. Topics can be added and modified further from the Topic Tags screen.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>Revisions</strong> - Revisions show past versions of the saved topic. Each revision can be compared to the current version, or another revision. Revisions can also be restored to the current version.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>For more information:</strong>', 'bbpress' );
-		$bbp_contextual_help[] =
-			'<ul>' .
-				'<li>' . __( '<a href="http://bbpress.org/documentation/">bbPress Documentation</a>', 'bbpress' ) . '</li>' .
-				'<li>' . __( '<a href="http://bbpress.org/forums/">bbPress Support Forums</a>',       'bbpress' ) . '</li>' .
-			'</ul>';
+		// Bail if not the topic post type
+		if ( $post_type != $this->post_type )
+			return;
 
-		// Wrap each help item in paragraph tags
-		foreach( $bbp_contextual_help as $paragraph )
-			$contextual_help .= '<p>' . $paragraph . '</p>';
+		// Overview
+		$current_screen->add_help_tab( array(
+			'id'		=> 'overview',
+			'title'		=> __( 'Overview', 'bbpress' ),
+			'content'	=>
+				'<p>' . __( 'This screen provides access to all of your replies. You can customize the display of this screen to suit your workflow.', 'bbpress' ) . '</p>'
+		) );
 
-		// Add help
-		add_contextual_help( bbp_get_topic_post_type(), $contextual_help );
+		// Screen Content
+		$current_screen->add_help_tab( array(
+			'id'		=> 'screen-content',
+			'title'		=> __( 'Screen Content', 'bbpress' ),
+			'content'	=>
+				'<p>' . __( 'You can customize the display of this screen&#8217;s contents in a number of ways:' ) . '</p>' .
+				'<ul>' .
+					'<li>' . __( 'You can hide/display columns based on your needs and decide how many replies to list per screen using the Screen Options tab.',                                                                                                                                                                          'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can filter the list of replies by topic status using the text links in the upper left to show All, Published, Draft, or Trashed replies. The default view is to show all replies.',                                                                                                                   'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can view replies in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                                                                                                             'bbpress' ) . '</li>' .
+					'<li>' . __( 'You can refine the list to show only replies in a specific category or from a specific month by using the dropdown menus above the replies list. Click the Filter button after making your selection. You also can refine the list by clicking on the topic author, category or tag in the replies list.', 'bbpress' ) . '</li>' .
+				'</ul>'
+		) );
 
-		// Reset
-		$contextual_help     = '';
-		$bbp_contextual_help = array();
+		// Available Actions
+		$current_screen->add_help_tab( array(
+			'id'		=> 'action-links',
+			'title'		=> __( 'Available Actions', 'bbpress' ),
+			'content'	=>
+				'<p>' . __( 'Hovering over a row in the replies list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' ) . '</p>' .
+				'<ul>' .
+					'<li>' . __( '<strong>Edit</strong> takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                                                                                 'bbpress' ) . '</li>' .
+					//'<li>' . __( '<strong>Quick Edit</strong> provides inline access to the metadata of your topic, allowing you to update topic details without leaving this screen.',                                                                  'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Trash</strong> removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                                                                       'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Spam</strong> removes your topic from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Preview</strong> will show you what your draft topic will look like if you publish it. View will take you to your live site to view the topic. Which link is available depends on your topic&#8217;s status.', 'bbpress' ) . '</li>' .
+				'</ul>'
+		) );
 
-		/** Post Rows *********************************************************/
+		// Bulk Actions
+		$current_screen->add_help_tab( array(
+			'id'		=> 'bulk-actions',
+			'title'		=> __( 'Bulk Actions', 'bbpress' ),
+			'content'	=>
+				'<p>' . __( 'You can also edit or move multiple replies to the trash at once. Select the replies you want to act on using the checkboxes, then select the action you want to take from the Bulk Actions menu and click Apply.',           'bbpress' ) . '</p>' .
+				'<p>' . __( 'When using Bulk Edit, you can change the metadata (categories, author, etc.) for all selected replies at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' ) . '</p>'
+		) );
 
-		$bbp_contextual_help[] = __( 'This screen displays the topics created on your site.',             'bbpress' );
-		$bbp_contextual_help[] = __( 'You can customize the display of this screen in a number of ways:', 'bbpress' );
-		$bbp_contextual_help[] =
-			'<ul>' .
-				'<li>' . __( 'You can hide/display columns based on your needs and decide how many topics to list per screen using the Screen Options tab.',                                                                             'bbpress' ) . '</li>' .
-				'<li>' . __( 'You can filter the list of topics by topics status using the text links in the upper left to show All, Published, Pending Review, Draft, or Trashed topics. The default view is to show all topics.',      'bbpress' ) . '</li>' .
-				'<li>' . __( 'You can view topics in a simple title list or with an excerpt. Choose the view you prefer by clicking on the icons at the top of the list on the right.',                                                  'bbpress' ) . '</li>' .
-				'<li>' . __( 'You can refine the list to show only topics from a specific month by using the dropdown menus above the topics list. Click the Filter button after making your selection.',                                'bbpress' ) . '</li>' .
-				'<li>' . __( 'You can also show only topics from a specific parent forum by using the parent forum dropdown above the topics list and selecting the parent forum. Click the Filter button after making your selection.', 'bbpress' ) . '</li>' .
-				'<li>' . __( 'You can refine the list by clicking on the topic creator in the topics list.', 'bbpress' ) . '</li>' .
-			'</ul>' .
+		// Help Sidebar
+		$current_screen->set_help_sidebar(
+			'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
+			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
+			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
+		);
+	}
 
-		$bbp_contextual_help[] = __( 'Hovering over a row in the topics list will display action links that allow you to manage your topic. You can perform the following actions:', 'bbpress' );
-		$bbp_contextual_help[] =
-			'<ul>' .
-				'<li>' . __( 'Edit takes you to the editing screen for that topic. You can also reach that screen by clicking on the topic title.',                                                                            'bbpress' ) . '</li>' .
-				'<li>' . __( 'Trash removes your topic from this list and places it in the trash, from which you can permanently delete it.',                                                                                  'bbpress' ) . '</li>' .
-				'<li>' . __( 'View will take you to your live topic to view the topic.',                                                                                                                                       'bbpress' ) . '</li>' .
-				'<li>' . __( 'Close will close your topic, disabling new replies within it. It will remain viewable to users, but replies will not be allowed.',                                                               'bbpress' ) . '</li>' .
-				'<li>' . __( 'Stick (to front) will pin the topic to the front page of the forum that it&rsquo;s in. New topics will begin beneath the list of "stuck" topics, which will always sit at the top of the list.', 'bbpress' ) . '</li>' .
-				'<li>' . __( 'Spam will mark the topic as spam, closing the post to new replies and removing it from the public view.',                                                                                        'bbpress' ) . '</li>' .
-			'</ul>' .
+	/**
+	 * Contextual help for bbPress topic edit page
+	 *
+	 * @since bbPress (r3119)
+	 * @uses get_current_screen()
+	 */
+	public function new_help() {
 
-		$bbp_contextual_help[] = __( 'You can also edit multiple topics at once. Select the topics you want to edit using the checkboxes, select Edit from the Bulk Actions menu and click Apply. You will be able to change the metadata for all selected topics at once. To remove a topic from the grouping, just click the x next to its name in the Bulk Edit area that appears.', 'bbpress' );
-		$bbp_contextual_help[] = __( 'The Bulk Actions menu may also be used to delete multiple topics at once. Select Delete from the dropdown after making your selection.', 'bbpress' );
-		$bbp_contextual_help[] = __( '<strong>For more information:</strong>', 'bbpress' );
-		$bbp_contextual_help[] =
-			'<ul>' .
-				'<li>' . __( '<a href="http://bbpress.org/documentation/">bbPress Documentation</a>', 'bbpress' ) . '</li>' .
-				'<li>' . __( '<a href="http://bbpress.org/forums/">bbPress Support Forums</a>'      , 'bbpress' ) . '</li>' .
-			'</ul>';
+		$current_screen = get_current_screen();
+		$post_type      = !empty( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : '';
 
-		// Wrap each help item in paragraph tags
-		foreach( $bbp_contextual_help as $paragraph )
-			$contextual_help .= '<p>' . $paragraph . '</p>';
+		// Bail if current screen could not be found
+		if ( empty( $current_screen ) )
+			return;
 
-		// Add help
-		add_contextual_help( 'edit-' . bbp_get_topic_post_type(), $contextual_help );
+		// Bail if not the topic post type
+		if ( $post_type != $this->post_type )
+			return;
 
-		// Reset
-		$contextual_help = '';
-		$bbp_contextual_help = array();
+		$customize_display = '<p>' . __( 'The title field and the big topic editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'bbpress' ) . '</p>';
 
-		/** Topic Tags **********************************************************/
+		$current_screen->add_help_tab( array(
+			'id'      => 'customize-display',
+			'title'   => __( 'Customizing This Display', 'bbpress' ),
+			'content' => $customize_display,
+		) );
 
-		$bbp_contextual_help[] = __( 'You can change the display of this screen using the Screen Options tab to set how many items are displayed per screen (20 by default) and to display/hide columns in the table (Description, Slug, and Topics).', 'bbpress' );
-		$bbp_contextual_help[] = __( 'You can assign keywords to your topics using Topic Tags. Unlike categories, tags have no hierarchy, meaning there is no relationship from one tag to another.', 'bbpress' );
-		$bbp_contextual_help[] = __( 'Normally, tags are ad-hoc keywords that identify important information in your topic (names, subjects, etc) that may or may not recur in other topics. If you think of your forum like a book, the tags are like the terms in the index.', 'bbpress' );
-		$bbp_contextual_help[] = __( 'When editing a topic tag on this screen, you will fill in the following fields:', 'bbpress' );
-		$bbp_contextual_help[] =
-			'<ul>' .
-				'<li>' . __( '<strong>Name</strong> - The name is how it appears on your site.',                                                                                       'bbpress' ) . '</li>' .
-				'<li>' . __( '<strong>Slug</strong> - The Slug is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'bbpress' ) . '</li>' .
-				'<li>' . __( '<strong>Description</strong> - The description is not prominent by default; however, some forum themes may display it.',                                 'bbpress' ) . '</li>' .
-			'</ul>' ;
+		$current_screen->add_help_tab( array(
+			'id'      => 'title-topic-editor',
+			'title'   => __( 'Title and Topic Editor', 'bbpress' ),
+			'content' =>
+				'<p>' . __( '<strong>Title</strong> - Enter a title for your topic. After you enter a title, you&#8217;ll see the permalink below, which you can edit.', 'bbpress' ) . '</p>' .
+				'<p>' . __( '<strong>Topic Editor</strong> - Enter the text for your topic. There are two modes of editing: Visual and HTML. Choose the mode by clicking on the appropriate tab. Visual mode gives you a WYSIWYG editor. Click the last icon in the row to get a second row of controls. The HTML mode allows you to enter raw HTML along with your topic text. You can insert media files by clicking the icons above the topic editor and following the directions. You can go to the distraction-free writing screen via the Fullscreen icon in Visual mode (second to last in the top row) or the Fullscreen button in HTML mode (last in the row). Once there, you can make buttons visible by hovering over the top area. Exit Fullscreen back to the regular topic editor.', 'bbpress' ) . '</p>'
+		) );
 
-		// Wrap each help item in paragraph tags
-		foreach( $bbp_contextual_help as $paragraph )
-			$contextual_help .= '<p>' . $paragraph . '</p>';
+		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your topic in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a topic or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a topic to be published in the future or backdate a topic.', 'bbpress' ) . '</p>';
 
-		// Add help
-		add_contextual_help( 'edit-' . bbp_get_topic_tag_tax_id(), $contextual_help );
+		if ( current_theme_supports( 'topic-formats' ) && topic_type_supports( 'topic', 'topic-formats' ) ) {
+			$publish_box .= '<p>' . __( '<strong>topic Format</strong> - This designates how your theme will display a specific topic. For example, you could have a <em>standard</em> blog topic with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/topic_Formats#Supported_Formats">descriptions of each topic format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
+		}
+
+		if ( current_theme_supports( 'topic-thumbnails' ) && topic_type_supports( 'topic', 'thumbnail' ) ) {
+			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
+		}
+
+		$current_screen->add_help_tab( array(
+			'id'      => 'publish-box',
+			'title'   => __( 'Publish Box', 'bbpress' ),
+			'content' => $publish_box,
+		) );
+
+		$current_screen->add_help_tab( array(
+			'id'      => 'discussion-settings',
+			'title'   => __( 'Discussion Settings', 'bbpress' ),
+			'content' =>
+				'<p>' . __( '<strong>Send Trackbacks</strong> - Trackbacks are a way to notify legacy blog systems that you&#8217;ve linked to them. Enter the URL(s) you want to send trackbacks. If you link to other WordPress sites they&#8217;ll be notified automatically using pingbacks, and this field is unnecessary.', 'bbpress' ) . '</p>' .
+				'<p>' . __( '<strong>Discussion</strong> - You can turn comments and pings on or off, and if there are comments on the topic, you can see them here and moderate them.', 'bbpress' ) . '</p>'
+		) );
+
+		$current_screen->set_help_sidebar(
+			'<p><strong>' . __( 'For more information:', 'bbpress' ) . '</strong></p>' .
+			'<p>' . __( '<a href="http://bbpress.org/documentation/" target="_blank">bbPress Documentation</a>', 'bbpress' ) . '</p>' .
+			'<p>' . __( '<a href="http://bbpress.org/forums/" target="_blank">bbPress Support Forums</a>',       'bbpress' ) . '</p>'
+		);
 	}
 
 	/**
