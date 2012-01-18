@@ -73,6 +73,10 @@ class BBP_Forums_Admin {
 		// Columns (in page row)
 		add_action( 'manage_' . $this->post_type . '_posts_custom_column',  array( $this, 'column_data'    ), 10, 2 );
 		add_filter( 'page_row_actions',                                     array( $this, 'row_actions'    ), 10, 2 );
+
+		// Contextual Help
+		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
+		add_action( 'load-post-new.php', array( $this, 'new_help'  ) );
 	}
 
 	/**
