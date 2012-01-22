@@ -216,12 +216,23 @@ class BBP_Replies_Admin {
 		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your reply in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a reply or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a reply to be published in the future or backdate a reply.', 'bbpress' ) . '</p>';
 
 		if ( current_theme_supports( 'reply-formats' ) && reply_type_supports( 'reply', 'reply-formats' ) ) {
-			$publish_box .= '<p>' . __( '<strong>reply Format</strong> - This designates how your theme will display a specific reply. For example, you could have a <em>standard</em> blog reply with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/reply_Formats#Supported_Formats">descriptions of each reply format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
+			$publish_box .= '<p>' . __( '<strong>reply Format</strong> - This designates how your theme will display a specific reply. For example, you could have a <em>standard</em> blog reply with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/Post_Formats#Supported_Formats">descriptions of each reply format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
 		}
 
 		if ( current_theme_supports( 'reply-thumbnails' ) && reply_type_supports( 'reply', 'thumbnail' ) ) {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your reply without inserting it. This is usually useful only if your theme makes use of the featured image as a reply thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
+
+		$current_screen->add_help_tab( array(
+			'id'      => 'reply-attributes',
+			'title'   => __( 'Reply Attributes', 'bbpress' ),
+			'content' =>
+				'<p>' . __( 'Select the attributes that your reply should have:', 'bbpress' ) . '</p>' .
+				'<ul>' .
+					'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the reply belongs to. Select the forum, or leave the default (Use Forum of Topic) to post the reply in forum of the topic.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Topic</strong> determines the parent topic that the reply belongs to.', 'bbpress' ) . '</li>' .
+				'</ul>'
+		) );
 
 		$current_screen->add_help_tab( array(
 			'id'      => 'publish-box',

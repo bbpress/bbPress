@@ -216,12 +216,23 @@ class BBP_Topics_Admin {
 		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your topic in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a topic or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a topic to be published in the future or backdate a topic.', 'bbpress' ) . '</p>';
 
 		if ( current_theme_supports( 'topic-formats' ) && topic_type_supports( 'topic', 'topic-formats' ) ) {
-			$publish_box .= '<p>' . __( '<strong>topic Format</strong> - This designates how your theme will display a specific topic. For example, you could have a <em>standard</em> blog topic with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/topic_Formats#Supported_Formats">descriptions of each topic format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
+			$publish_box .= '<p>' . __( '<strong>topic Format</strong> - This designates how your theme will display a specific topic. For example, you could have a <em>standard</em> blog topic with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/Post_Formats#Supported_Formats">descriptions of each topic format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
 		}
 
 		if ( current_theme_supports( 'topic-thumbnails' ) && topic_type_supports( 'topic', 'thumbnail' ) ) {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your topic without inserting it. This is usually useful only if your theme makes use of the featured image as a topic thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
+
+		$current_screen->add_help_tab( array(
+			'id'      => 'topic-attributes',
+			'title'   => __( 'Topic Attributes', 'bbpress' ),
+			'content' =>
+				'<p>' . __( 'Select the attributes that your topic should have:', 'bbpress' ) . '</p>' .
+				'<ul>' .
+					'<li>' . __( '<strong>Forum</strong> dropdown determines the parent forum that the topic belongs to. Select the forum or category from the dropdown, or leave the default (No Forum) to post the topic without an assigned forum.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Topic Type</strong> dropdown indicates the sticky status of the topic. Selecting the super sticky option would stick the topic to the front of your forums, i.e. the topic index, sticky option would stick the topic to its respective forum. Selecting normal would not stick the topic anywhere.', 'bbpress' ) . '</li>' .
+				'</ul>'
+		) );
 
 		$current_screen->add_help_tab( array(
 			'id'      => 'publish-box',

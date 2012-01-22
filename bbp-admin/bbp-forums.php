@@ -204,12 +204,26 @@ class BBP_Forums_Admin {
 		$publish_box = '<p>' . __( '<strong>Publish</strong> - You can set the terms of publishing your forum in the Publish box. For Status, Visibility, and Publish (immediately), click on the Edit link to reveal more options. Visibility includes options for password-protecting a forum or making it stay at the top of your blog indefinitely (sticky). Publish (immediately) allows you to set a future or past date and time, so you can schedule a forum to be published in the future or backdate a forum.', 'bbpress' ) . '</p>';
 
 		if ( current_theme_supports( 'forum-formats' ) && forum_type_supports( 'forum', 'forum-formats' ) ) {
-			$publish_box .= '<p>' . __( '<strong>forum Format</strong> - This designates how your theme will display a specific forum. For example, you could have a <em>standard</em> blog forum with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/forum_Formats#Supported_Formats">descriptions of each forum format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
+			$publish_box .= '<p>' . __( '<strong>forum Format</strong> - This designates how your theme will display a specific forum. For example, you could have a <em>standard</em> blog forum with a title and paragraphs, or a short <em>aside</em> that omits the title and contains a short text blurb. Please refer to the Codex for <a href="http://codex.wordpress.org/Post_Formats#Supported_Formats">descriptions of each forum format</a>. Your theme could enable all or some of 10 possible formats.', 'bbpress' ) . '</p>';
 		}
 
 		if ( current_theme_supports( 'forum-thumbnails' ) && forum_type_supports( 'forum', 'thumbnail' ) ) {
 			$publish_box .= '<p>' . __( '<strong>Featured Image</strong> - This allows you to associate an image with your forum without inserting it. This is usually useful only if your theme makes use of the featured image as a forum thumbnail on the home page, a custom header, etc.', 'bbpress' ) . '</p>';
 		}
+
+		$current_screen->add_help_tab( array(
+			'id'      => 'forum-attributes',
+			'title'   => __( 'Forum Attributes', 'bbpress' ),
+			'content' =>
+				'<p>' . __( 'Select the attributes that your forum should have:', 'bbpress' ) . '</p>' .
+				'<ul>' .
+					'<li>' . __( '<strong>Type</strong> indicates if the forum is a category or forum. Categories generally contain other forums.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Status</strong> allows you to close a forum to new topics and replies.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Visibility</strong> lets you pick the scope of each forum and what users are allowed to access it.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Parent</strong> dropdown determines the parent forum. Select the forum or category from the dropdown, or leave the default (No Parent) to create the forum at the root of your forums.', 'bbpress' ) . '</li>' .
+					'<li>' . __( '<strong>Order</strong> allows you to order your forums numerically.', 'bbpress' ) . '</li>' .
+				'</ul>'
+		) );
 
 		$current_screen->add_help_tab( array(
 			'id'      => 'publish-box',
