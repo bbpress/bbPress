@@ -1279,7 +1279,7 @@ function bbp_is_user_active( $user_id = 0 ) {
  * @uses bbp_get_displayed_user_id() To get current user ID
  * @uses bbp_is_user_active() To check if user is active
  *
- * @param int $user_id The user ID to check
+ * @param int $user_id The user ID to check. Defaults to current user ID
  * @return bool True if inactive, false if active
  */
 function bbp_is_user_inactive( $user_id = 0 ) {

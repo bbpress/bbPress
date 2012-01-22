@@ -47,6 +47,7 @@ add_action( 'generate_rewrite_rules', 'bbp_generate_rewrite_rules', 10 );
 add_action( 'wp_enqueue_scripts',     'bbp_enqueue_scripts',        10 );
 add_action( 'template_redirect',      'bbp_template_redirect',      10 );
 add_filter( 'template_include',       'bbp_template_include',       10 );
+add_action( 'set_current_user',       'bbp_setup_current_user',     10 );
 
 /**
  * bbp_loaded - Attached to 'plugins_loaded' above
@@ -70,7 +71,6 @@ add_action( 'bbp_loaded', 'bbp_register_theme_directory', 10 );
  */
 add_action( 'bbp_init', 'bbp_load_textdomain',        2   );
 add_action( 'bbp_init', 'bbp_setup_option_filters',   4   );
-add_action( 'bbp_init', 'bbp_setup_current_user',     6   );
 add_action( 'bbp_init', 'bbp_setup_theme_compat',     8   );
 add_action( 'bbp_init', 'bbp_register_post_types',    10  );
 add_action( 'bbp_init', 'bbp_register_post_statuses', 12  );
@@ -640,8 +640,6 @@ function bbp_widgets_init() {
 	do_action ( 'bbp_widgets_init' );
 }
 
-/** Supplemental Actions ******************************************************/
-
 /**
  * Setup the currently logged-in user
  *
@@ -652,6 +650,8 @@ function bbp_widgets_init() {
 function bbp_setup_current_user() {
 	do_action ( 'bbp_setup_current_user' );
 }
+
+/** Supplemental Actions ******************************************************/
 
 /**
  * Load translations for current language
