@@ -9,7 +9,7 @@
 
 ?>
 
-<?php do_action( 'bbp_template_before_replies_loop' ); ?>
+<?php do_action( 'bbp_template_before_lead_topic' ); ?>
 
 <ul id="bbp-topic-<?php bbp_topic_id(); ?>-lead" class="bbp-lead-topic">
 
@@ -107,4 +107,4 @@
 
 </ul><!-- #topic-<?php bbp_topic_id(); ?>-replies -->
 
-<?php do_action( 'bbp_template_after_topic_loop' ); ?>
+<?php do_action( 'bbp_template_after_lead_topic' ); ?>
