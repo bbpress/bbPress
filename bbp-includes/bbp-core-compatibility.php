@@ -920,7 +920,7 @@ function bbp_template_include_theme_compat( $template = '' ) {
 			'post_date'      => 0,
 			'post_content'   => get_post_field( 'post_content', bbp_get_forum_id() ),
 			'post_type'      => bbp_get_forum_post_type(),
-			'post_status'    => bbp_get_forum_status(),
+			'post_status'    => bbp_get_forum_visibility(),
 			'is_single'      => true,
 			'comment_status' => 'closed'
 		) );
