@@ -321,7 +321,9 @@ function bbp_is_user_favorite( $user_id = 0, $topic_id = 0 ) {
 	if ( !empty( $topic_id ) ) {
 		$topic    = bbp_get_topic( $topic_id );
 		$topic_id = !empty( $topic ) ? $topic->ID : 0;
-	} elseif ( !$topic_id = bbp_get_topic_id() ) {
+	} elseif ( bbp_get_topic_id() ) {
+		$topic_id = bbp_get_topic_id();
+	} elseif ( !bbp_get_topic_id() ) {
 		global $post;
 
 		if ( empty( $post ) )
@@ -556,7 +558,8 @@ function bbp_get_user_subscriptions( $user_id = 0 ) {
 		return false;
 
 	// If user has subscriptions, load them
-	if ( $subscriptions = bbp_get_user_subscribed_topic_ids( $user_id ) ) {
+	$subscriptions = bbp_get_user_subscribed_topic_ids( $user_id );
+	if ( !empty( $subscriptions ) ) {
 		$query = bbp_has_topics( array( 'post__in' => $subscriptions ) );
 		return apply_filters( 'bbp_get_user_subscriptions', $query, $user_id );
 	}
@@ -615,7 +618,9 @@ function bbp_is_user_subscribed( $user_id = 0, $topic_id = 0 ) {
 	if ( !empty( $topic_id ) ) {
 		$topic     = bbp_get_topic( $topic_id );
 		$topic_id = !empty( $topic ) ? $topic->ID : 0;
-	} elseif ( !$topic_id = bbp_get_topic_id() ) {
+	} elseif ( bbp_get_topic_id() ) {
+		$topic_id = bbp_get_topic_id();
+	} elseif ( !bbp_get_topic_id() ) {
 		global $post;
 
 		if ( empty( $post ) )
@@ -1086,12 +1091,14 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	global $wpdb;
 
 	// Get the blog IDs of the user to mark as spam
-	$blogs   = get_blogs_of_user( $user_id, true );
-	$blog_id = get_current_blog_id();
+	$blogs = get_blogs_of_user( $user_id, true );
 
 	// If user has no blogs, they are a guest on this site
 	if ( empty( $blogs ) )
-		$blogs[$blog_id] = array();
+		$blogs[$wpdb->blogid] = array();
+
+	// We only need the keys
+	$blogs = array_keys( $blogs );
 
 	// Make array of post types to mark as spam
 	$post_types  = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
@@ -1099,7 +1106,7 @@ function bbp_make_spam_user( $user_id = 0 ) {
 	$status      = bbp_get_public_status_id();
 
 	// Loop through blogs and remove their posts
-	foreach ( (array) $blogs as $blog_id => $details ) {
+	foreach ( (array) $blogs as $blog_id ) {
 
 		// Switch to the blog ID
 		switch_to_blog( $blog_id );
@@ -1178,13 +1185,16 @@ function bbp_make_ham_user( $user_id = 0 ) {
 	if ( empty( $blogs ) )
 		$blogs[$wpdb->blogid] = array();
 
+	// We only need the keys
+	$blogs = array_keys( $blogs );
+
 	// Make array of post types to mark as spam
 	$post_types = array( bbp_get_topic_post_type(), bbp_get_reply_post_type() );
 	$post_types = "'" . implode( "', '", $post_types ) . "'";
 	$status     = bbp_get_spam_status_id();
 
 	// Loop through blogs and remove their posts
-	foreach ( (array) $blogs as $blog_id => $details ) {
+	foreach ( (array) $blogs as $blog_id ) {
 
 		// Switch to the blog ID
 		switch_to_blog( $blog_id );
