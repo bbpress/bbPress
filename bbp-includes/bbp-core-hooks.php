@@ -88,7 +88,6 @@ add_action( 'bbp_init', 'bbp_ready',                  999 );
  *                                                v---Load order
  */
 add_action( 'bbp_ready',  'bbp_setup_akismet',    2  ); // Spam prevention for topics and replies
-add_action( 'bbp_ready',  'bbp_setup_genesis',    6  ); // Popular theme framework
 add_action( 'bp_include', 'bbp_setup_buddypress', 10 ); // Social network integration
 
 // Multisite Global Forum Access

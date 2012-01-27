@@ -450,7 +450,6 @@ class bbPress {
 		/** Extensions ********************************************************/
 		
 		require( $this->plugin_dir . 'bbp-includes/bbp-extend-akismet.php'     ); // Spam prevention for topics and replies
-		require( $this->plugin_dir . 'bbp-includes/bbp-extend-genesis.php'     ); // Popular theme framework
 
 		/**
 		 * BuddyPress extension is loaded in bbp-core-hooks.php
