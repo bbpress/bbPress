@@ -89,12 +89,16 @@
 	overflow: hidden;
 }
 
+#bbpress-forums li.bbp-header .bbp-topic-author,
+#bbpress-forums li.bbp-footer .bbp-topic-author,
 #bbpress-forums li.bbp-header .bbp-reply-author,
 #bbpress-forums li.bbp-footer .bbp-reply-author {
 	float: right;
 	width: 120px;
 }
 
+#bbpress-forums li.bbp-header .bbp-topic-content,
+#bbpress-forums li.bbp-footer .bbp-topic-content,
 #bbpress-forums li.bbp-header .bbp-reply-content,
 #bbpress-forums li.bbp-footer .bbp-reply-content {
 	margin-right: 140px;
