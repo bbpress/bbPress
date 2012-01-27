@@ -314,7 +314,7 @@ class bbPress {
 	 */
 	public $options = array();
 
-	/** Functions *************************************************************/
+	/** Private Methods *******************************************************/
 
 	/**
 	 * The main bbPress loader
@@ -517,7 +517,12 @@ class bbPress {
 		// Add the actions
 		foreach( $actions as $class_action )
 			add_action( 'bbp_' . $class_action, array( $this, $class_action ), 5 );
+
+		// All bbPress actions are setup (includes bbp-core-hooks.php)
+		do_action_ref_array( 'bbp_after_setup_actions', array( &$this ) );
 	}
+
+	/** Public Methods ********************************************************/
 
 	/**
 	 * Load the translation file for current language. Checks the languages
