@@ -833,7 +833,7 @@ function bbp_edit_user_handler() {
 	// Get the displayed user ID
 	$user_id = bbp_get_displayed_user_id();
 
-	global $wpdb;
+	global $wpdb, $user_login, $super_admins;
 
 	// Execute confirmed email change. See send_confirmation_on_profile_email().
 	if ( is_multisite() && bbp_is_user_home() && isset( $_GET['newuseremail'] ) ) {
@@ -841,6 +841,7 @@ function bbp_edit_user_handler() {
 		$new_email = get_option( $user_id . '_new_email' );
 
 		if ( $new_email['hash'] == $_GET['newuseremail'] ) {
+			$user             = new stdClass();
 			$user->ID         = $user_id;
 			$user->user_email = esc_html( trim( $new_email['newemail'] ) );
 
